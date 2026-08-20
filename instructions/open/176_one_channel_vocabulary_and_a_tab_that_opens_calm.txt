@@ -1,0 +1,62 @@
+================================================================================
+ONE CHANNEL VOCABULARY, TOOLTIPS ON EVERY CELL SETTING, AND A CALM TAB
+================================================================================
+
+Status:    filed 2026-08-19.
+Requested: 2026-08-19 -- "the measurements tab is ok now as long as only the
+           attached databases tab in the measurements tab starts open" /
+           "there needs to be Tooltips for all the options in the cell
+           settings" / "the settings in regression want to use 0,1,2 instead
+           of r,g,b but in the anotation app, r,g,b is used. i want this to be
+           consistent, so use r,g,b in the regression cell feature"
+
+WHAT TO BUILD
+
+A. THE MEASUREMENTS TAB OPENS ON ONE SECTION.
+   Attached databases expanded, Regression / Measurement scan / Gene x
+   measurement sweep folded. Four panels open at once is what "there are to
+   many elements in the measurements tab" was about, and 169 gave them folds
+   without changing what they start as.
+
+   THE STORED LAYOUT STILL WINS. A user who folded databases away and opened
+   the scan last session gets that back; this is the FIRST-RUN state, not an
+   override. 169 C is explicit that the arrangement persists.
+
+B. EVERY CELL SETTING HAS HOVER HELP.
+   Every key in `picture_settings.ALL_KEYS`, on the setting's NAME and not on
+   the field (instruction 113), because a tooltip on a box you are typing in
+   is unreachable exactly when you wanted it.
+
+   NOT A SECOND SET OF WORDS. The annotator already documents these keys and
+   `spacr.settings` already carries descriptions; a tooltip written fresh
+   here would be a second answer to what "normalize" means, which is the 145
+   failure this tab has already made once.
+
+C. r, g, b -- NOT 0, 1, 2 -- IN THE REGRESSION CELL FEATURE.
+   The annotation application asks which COLOUR PLANES to show and spells
+   them r, g, b. The Cells tab must ask the same question the same way.
+
+   THE TRANSLATION IS THE CODE'S JOB, NOT THE USER'S. Streaming cuts from
+   source array indices, so the letters have to be resolved through the
+   run's own `png_channel_mapping` at the boundary -- 'r' means "whichever
+   source channel this screen put in red", not "channel 0". Guessing 0, 1, 2
+   would silently reverse a screen whose mapping is not the identity.
+
+   An index form typed by a user still works: it is unambiguous, and a
+   settings CSV written before today carries it.
+
+HOW TO KNOW IT WORKED
+
+* Opening Measurements shows the attach table and three folded headings.
+* Every control in the Cells tab's settings window has hover help, and the
+  text matches what the annotation app says about the same key.
+* The Cells tab's channel control reads r,g,b like the annotator's, and a
+  streamed crop is cut from the source channels that mapping names.
+* A screen whose png_channel_mapping is not {r:0, g:1, b:2} cuts the same
+  planes the annotator would show for the same letters.
+
+RELATED
+  145 -- one reader, one writer, one vocabulary. C is that instruction
+         applied to the channel names, and the third place it has bitten.
+  169 -- the folds A adjusts the default of.
+  113 -- hover help belongs on the setting's name.

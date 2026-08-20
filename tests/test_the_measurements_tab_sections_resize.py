@@ -43,6 +43,13 @@ def test_dragging_a_border_moves_height_between_neighbours(panel):
     # attached, and a hidden splitter child holds no height -- so the drag
     # has to be tested between the ones actually on screen.
     panel.add_section(QLabel("a second visible section"))
+    # AND THEY HAVE TO BE OPEN TO HAVE HEIGHT TO MOVE. A folded section is
+    # pinned to its header (both minimum and maximum), which is what makes
+    # a fold actually hand its space to the neighbours -- and since 176 A
+    # only "Attached databases" starts open, so the drag would otherwise be
+    # between two bars that cannot resize.
+    for title in panel.section_titles():
+        panel.set_section_expanded(title, True)
     panel.resize(600, 900)
     panel.show()
     visible = [i for i in range(panel._sections.count())
@@ -115,8 +122,13 @@ def test_every_section_can_be_folded_away(qtbot):
     assert len(titles) >= 4, titles
     assert "Gene × measurement sweep" in titles
 
+    # WHICH ONE STARTS OPEN IS 176 A's business, not this test's: "only the
+    # attached databases tab in the measurements tab starts open". What this
+    # test is about is that each one CAN fold and reopen.
+    assert panel.is_section_expanded(panel.OPENS_EXPANDED)
     for title in titles:
-        assert panel.is_section_expanded(title), f"{title} started folded"
+        panel.set_section_expanded(title, True)
+        assert panel.is_section_expanded(title), f"{title} would not open"
         panel.set_section_expanded(title, False)
         assert not panel.is_section_expanded(title), f"{title} would not fold"
         panel.set_section_expanded(title, True)
