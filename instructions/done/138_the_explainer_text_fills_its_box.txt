@@ -64,3 +64,38 @@ HOW TO KNOW IT WORKED
 * No paragraph is wrapped at a column narrower than the box.
 * Every formula is on one line, at any pane width, and copies out as one line.
 * Both boxes behave the same way -- Model & Inference and Permutation Test.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- DONE, by 144's move to rich text, and now HELD BY A TEST.
+--------------------------------------------------------------------------------
+
+The two constraints were unwinnable together in plain text, where wrapping is
+per WIDGET: NoWrap kept the formula on one line and left the prose hard-wrapped
+at a fixed column, and turning it on broke every prose line a SECOND time at a
+different column. In rich text wrapping is per BLOCK, so the prose reflows and
+the `<pre>` formula does not.
+
+MEASURED on the model box's own document, laid out at 320 / 460 / 640 / 900:
+heights 820, 624, 540, 470, and `idealWidth` tracking the width given at every
+one. The patsy formula is ONE line at all four and at 240 -- narrower than the
+pane ever gets -- with `nonBreakableLines` set on its block.
+
+Both boxes, not only the model one: the test walks `_section_explainers`, so
+the Permutation Test box is covered by name rather than by assumption, which
+is what the ask being made TWICE was about.
+
+THREE MEASUREMENT TRAPS, written down because each one produced a wrong answer
+first:
+  * line counts are zero until a layout has run, and a document that has not
+    been laid out reports zero for everything -- which reads as a pass;
+  * `toHtml()` DOES NOT ROUND-TRIP A `<pre>`. Qt serialises it as a paragraph
+    with `white-space: pre-wrap`, so a document re-parsed from that string
+    wraps a formula the live one holds on one line. Measuring the string
+    reported a bug that does not exist on screen -- and 144's own note
+    ("1 line at every one of them") was taken on the widget, which is why it
+    did not see this;
+  * a document re-measured at a second width returns a STALE height: 540,
+    624, 540, 470 for widths that reflow monotonically 820 -> 470 when each is
+    laid out on its own clone.
+
+5 tests in tests/qt/test_the_explainer_prose_fills_its_box.py.
