@@ -1285,6 +1285,12 @@ class TestASettingThatCannotDoAnythingIsGreyedOut:
         from spacr.ml import REGRESSION_SETTINGS_USED
 
         panel = self._panel(qtbot)
+        # A PARAMETRIC INFERENCE, so the FAMILY rule is what is measured.
+        # `inference` defaults to 'nonparametric' (2026-08-19, at the
+        # maintainer's direction) and that path fits no model, so every
+        # estimator setting is greyed whatever the family is -- correctly,
+        # and it makes the family rule invisible.
+        self._set(panel, "inference", "parametric")
         owned = {key for keys in REGRESSION_SETTINGS_USED.values()
                  for key in keys}
         wrong = []
