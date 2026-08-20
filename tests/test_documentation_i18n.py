@@ -862,19 +862,35 @@ def test_numpydoc_field_declarations_are_protected_before_identifiers():
     source = (
         "general : dict General style overrides. "
         "per_graph : mapping Non-default settings keyed by graph type. "
-        "error : FileNotFoundError Raised when the style file is absent."
+        "level : {'grna', 'gene'}, default='grna' Coefficient level. "
+        "colour : color-like or None, default=None Mark colour. "
+        "error : FileNotFoundError Raised when the style file is absent. "
+        ":param scores: array-like Values to normalize. "
+        "Missing module: {module}. "
+        ":returns: dict of resolved values."
     )
     protected, mapping = _protect(source)
     for literal in (
         "general : dict",
         "per_graph : mapping",
+        "level : {'grna', 'gene'}, default='grna'",
+        "colour : color-like or None, default=None",
         "error : FileNotFoundError",
     ):
         assert literal not in protected
+    assert ":returns: dict of resolved values." in protected
+    assert ":param scores: array-like Values to normalize." in protected
+    assert "Missing module:" in protected
+    assert "{module}" in mapping.values()
+    assert "module: {module}" not in mapping.values()
     assert _restore(protected, mapping) == source
     contextual = _api_translation_source(source)
-    assert contextual == source.replace(
-        "Raised when", "Exception used when"
+    assert contextual == (
+        source.replace("Raised when", "Exception used when")
+        .replace(
+            ":returns: dict of resolved values.",
+            ":returns: key-value mapping of resolved values.",
+        )
     )
     translated = source.replace("General style overrides", "Allgemeine Stilwerte")
     assert _syntax_preserved(source, translated)

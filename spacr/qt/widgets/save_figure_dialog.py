@@ -25,19 +25,10 @@ _RESOLUTION_REASON = ("this plot writes true vector for PDF and SVG, which "
 
 
 def _reason_label(text: str, reason: str = ""):
-    """A form-row label that CARRIES the reason its control is disabled.
+    """Return a form label that displays why its control is disabled.
 
-    INSTRUCTION 106, IN A DIALOG. Both reasons above were already written --
-    to `setToolTip` ON THE DISABLED WIDGET, where a user has to hover a greyed
-    box to find out why it is greyed, and where some styles decline to show a
-    tooltip at all. The maintainer read the result as "size and resolution are
-    grayed out", with no explanation reaching them, which is exactly the
-    complaint 106 exists to answer.
-
-    The settings panel's `_apply_greyed_note` cannot be reused here: it hangs
-    the note on `_spacr_setting_label`, which only that panel's decoration
-    creates. A form row's label is the same idea with a different owner, so
-    the reason goes into the LABEL, where it is read without hovering.
+    The reason appears directly in the label and as a tooltip, so it remains
+    available when a disabled widget does not receive hover events.
     """
     from PySide6.QtWidgets import QLabel
 

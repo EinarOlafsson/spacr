@@ -3395,26 +3395,12 @@ class FastPlot(QWidget):
         return brushes, legend
 
     def _export_ground(self):
-        """The page colour a save writes onto, as a ``QColor``.
+        """Return the page colour for the current export as a ``QColor``.
 
-        THE USER'S CHOICE WINS, and it did not before. `SaveFigureDialog`
-        passed its background all the way down -- `export_styled` restyled
-        the live scene with it -- and then this method, which was STATIC and
-        knew nothing about the dialog, overwrote the page with the global
-        saved-figure look on every raster export. So "white" changed the ink
-        and never the paper, which is what the maintainer reported on
-        2026-08-20: "in save styled the i cannot change the graphs background
-        color, only the lines". Two answers for one quantity and the one
-        nobody chose was winning.
-
-        `_dressed_for_the_file` records the chosen ground for the duration of
-        the render; outside that, or when the choice is "transparent", the
-        look decides exactly as it did.
-
-        Fully transparent unless the saved-figure look names a ground, which
-        only ``print`` does. Failing to read the look gives transparency --
-        the behaviour before 150 -- because a save that refuses is worse than
-        a save onto the wrong colour.
+        A background chosen in the save dialog takes precedence for the
+        duration of that export. Otherwise the saved-figure appearance is
+        used; transparent is the fallback when no ground is configured or
+        the preference cannot be read.
         """
         chosen = getattr(self, "_chosen_ground", "")
         if chosen:

@@ -219,18 +219,11 @@ class MeasurementComparePanel(QWidget):
         self.only.setEnabled(len(names) > 1)
 
     def nothing_to_compare_against(self) -> str:
-        """Why this comparison has only one side, or ``""``.
+        """Return why the selected cells have no comparison group.
 
-        B3, asked for 2026-08-20: "there should be text somwhere telling the
-        user to check the show all in well to have something to compare to if
-        they have top by score or attribiuted chosen".
-
-        WITH `show_all_in_well` OFF THE MONTAGE HOLDS ONLY THE PICKED CELLS,
-        so "picked" against "the rest" has no rest -- every object in the
-        frame is in one group and the graph is a single class with nothing
-        beside it. The panel has to say that where it happens, naming the
-        setting that fixes it, rather than drawing an empty contrast and
-        letting a reader take it for a result.
+        An empty string means at least two classes are available. When only
+        picked cells were loaded, the message identifies ``show all in well``
+        as the setting that adds the unpicked comparison cells.
         """
         if self._comparison is None or not len(self._comparison.frame):
             return ""
