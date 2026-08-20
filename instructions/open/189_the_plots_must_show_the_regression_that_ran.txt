@@ -76,3 +76,73 @@ HOW TO KNOW IT WORKED
   hyperparameter that type read.
 * A cross-validated alpha is reported as the value that won, not as 'auto'.
 * A type that silently fell back says so, loudly, rather than drawing.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- MEASURED. THE FITS ARE CORRECT; THE PLOTS WERE JUST SILENT.
+--------------------------------------------------------------------------------
+
+Section A asked which of three things "they all look the same" meant. It is
+NOT the bad one. Fitting the maintainer's own screen -- 1,366 wells, the 40
+guides present in the most wells -- through `regression_model`:
+
+    ols               sum|b|   6.20052   max|b| 1.32158
+    wls                        7.43317          1.21652
+    ridge                      6.00818          1.31178
+    lasso                      1.09457          0.96446
+    rlm                        5.51143          1.31604
+    glm                       54.03993          6.42222
+    quantile                   6.63466          1.59883
+    quasi_binomial            54.03993          6.42222
+
+Every pair differs except glm and quasi_binomial, which agree to 1.5e-14 --
+and correctly: quasi-binomial IS the binomial family with a free dispersion
+parameter, and dispersion moves the standard errors, not the point estimates.
+Their volcanoes SHOULD have the same x and different y, and a reader with no
+label has no way to tell that apart from a bug.
+
+THROUGH THE PIPELINE THE GUI USES, on the same data, each type came back as
+its own model class -- RegressionResultsWrapper, Ridge, RLMResultsWrapper,
+GLMResultsWrapper -- with the requested type reported back beside it. A
+silent fallback would have returned one class every time. `ols == wls` there
+only because that fixture gave every well the same cell_count, and WLS with
+equal weights IS OLS.
+
+TWO THINGS ALSO CONFIRMED, both of which argue against a hidden failure:
+
+  * spaCR REFUSES a hyperparameter the chosen type does not read --
+    "regression_type='ols' does not read alpha=0.1" -- which a silent
+    fallback could not do, because it would not know which type was asked
+    for.
+  * lasso and elasticnet REFUSE rather than return a zero model when the
+    penalty shrinks every coefficient to exactly zero.
+
+SO: case 1 and case 2, not case 3. The models differ; the pictures did not
+say which model drew them. Section B is therefore the whole fix.
+
+B. SHIPPED. The run summary now carries the hyperparameters the chosen type
+   ACTUALLY READ, taken from `regression_spec.REGRESSION_SETTINGS_USED` --
+   the same table the greying rules and the tooltip generator read, so the
+   summary cannot drift from the family table and an ols fit is never shown
+   an alpha it ignored. `cov_type` is excluded: it is how the standard errors
+   are computed after the fit, not a knob of the fit, and it has its own line.
+
+   A CROSS-VALIDATED ALPHA IS REPORTED AS THE VALUE THAT WON. 'auto' is what
+   was asked for and not what was fitted, and nobody can reproduce a run from
+   the word "auto". `_find_best_alpha` returns the fitted RidgeCV/LassoCV/
+   ElasticNetCV itself, which carries `alpha_`, so the winning value is on
+   the object the run already holds.
+
+THE INTERACTIVE GRAPHS ARE LINKED TO THE LOADED RUN, checked rather than
+assumed: loading a second run replaces the first one's points, and an EMPTY
+table is refused rather than blanking the panel -- so the frame, the header
+and the status all keep describing the run that is actually on screen. That
+refusal is the right answer and is now pinned, because the wrong one is
+invisible: keeping the old numbers while the header named the new run would
+be a plot that looks fine and belongs to a run nobody is looking at.
+
+9 tests in tests/qt/test_the_graphs_show_the_run_that_is_loaded.py.
+
+STILL OWED
+  * The summary line lands in the run summary, which the Summary tab shows.
+    "under the volcano graph" specifically was the ask; confirm the tab a
+    reader is looking at while reading the graph carries it.

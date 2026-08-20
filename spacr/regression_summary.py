@@ -662,6 +662,17 @@ def _fitted_section(run: "_Run") -> List[SummaryField]:
             reason="this run recorded no regression_type, so the family it "
                    "fitted cannot be named from what it wrote")
 
+    # THE HYPERPARAMETERS THAT TYPE ACTUALLY READ (189 B). Asked for
+    # 2026-08-20: "please state which regression was used the backend and any
+    # hyperparamiters used if applicable."
+    #
+    # ONLY THE ONES IT READS, from the same table the greying rules and the
+    # tooltip generator use -- so a summary cannot drift from the family
+    # table, and a reader is never shown an `alpha` for an ols fit that
+    # ignored it.
+    if kind and not run.nonparametric:
+        add("hyperparameters", **_hyperparameter_report(kind, settings, run))
+
     inference = str(_setting(settings, "inference", "") or "").strip().lower()
     mode = str(_setting(settings, "analysis_mode", "") or "").strip().lower()
     if run.nonparametric:
@@ -2093,6 +2104,53 @@ def _summary_filename() -> str:
         return str(SUMMARY_FILENAME)
     except Exception:                                            # noqa: BLE001
         return _FALLBACK_SUMMARY_FILENAME
+
+
+def _hyperparameter_report(kind, settings, run) -> dict:
+    """What to say about the chosen type's knobs: ``value`` or ``reason``.
+
+    THE CROSS-VALIDATED VALUE, NOT 'auto'. `alpha='auto'` is what the user
+    asked for and not what was fitted; a reader cannot reproduce a run from
+    the word "auto". When the run recorded the alpha that won, that is the
+    number reported, and it says it was chosen rather than given.
+    """
+    try:
+        from .regression_spec import REGRESSION_SETTINGS_USED
+    except Exception:                                        # noqa: BLE001
+        return {"reason": "the family table could not be read, so the "
+                          "hyperparameters this type uses cannot be listed"}
+    wanted = sorted(REGRESSION_SETTINGS_USED.get(str(kind).lower(), ()))
+    # `cov_type` is not a hyperparameter of the fit -- it is how the standard
+    # errors are computed afterwards -- and it has its own line already.
+    wanted = [name for name in wanted if name != "cov_type"]
+    if not wanted:
+        return {"value": f"none — {kind} reads no hyperparameter"}
+
+    # THE MODEL KNOWS. `_find_best_alpha` returns the fitted RidgeCV /
+    # LassoCV / ElasticNetCV itself, and those carry the alpha they chose as
+    # `alpha_` -- so the value that won is on the object the run already
+    # holds, and does not need recording separately.
+    chosen = getattr(getattr(run, "model", None), "alpha_", None)
+    try:
+        chosen = None if chosen is None else float(chosen)
+    except (TypeError, ValueError):
+        chosen = None
+    parts = []
+    for name in wanted:
+        value = _setting(settings, name, None)
+        if name == "alpha" and str(value).strip().lower() in ("auto", "none",
+                                                              ""):
+            if chosen is not None:
+                parts.append(f"alpha={chosen:.6g} (cross-validated, not given)")
+            else:
+                parts.append("alpha=auto — cross-validated, and this run did "
+                             "not record the value that won")
+            continue
+        if value is None or str(value).strip() == "":
+            parts.append(f"{name}=(not recorded)")
+        else:
+            parts.append(f"{name}={value}")
+    return {"value": ", ".join(parts)}
 
 
 def write_run_summary(res_folder, *, model=None, settings=None, coef_df=None,
