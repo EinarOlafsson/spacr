@@ -3457,7 +3457,7 @@ tooltips = {
     "dependent_variable": "(str) - Name of the column in score_data that is modelled as the response, e.g. 'pred'/'predictions' from the ML scoring step or a measured feature such as 'pathogen_nucleus_shortest_distance'. It is aggregated per well by agg_type and then optionally transformed. The run aborts if the column is absent from the score CSV. Default 'pred'.",
     "score_column": "(str) - Which column of the prediction CSV holds the CNN score that Explain CV and the hit-investigation montages read. The regression module no longer has this setting: it fits dependent_variable and simulates the minimum cell count on that same column, so one measurement cannot be named two ways there. Default 'cv_predictions'.",
     "analysis_mode": "(str) - 'regression' fits the selected simultaneous model. 'guide_permutation' tests each guide as a plate-adjusted marginal association using blocked Freedman--Lane permutations and then corrects the requested support family. Normally set for you by 'inference'; set it directly only to override that choice. Default 'regression'.",
-    "inference": "(str) - How effects are tested; the readable front end for analysis_mode. 'parametric' fits every guide at once in the chosen regression_type, so it needs more wells than guides or the per-guide coefficients are not identifiable. 'nonparametric' tests each guide separately as a plate-blocked marginal association with Freedman-Lane permutations and an empirical P value, which stays valid however many guides there are. 'auto' counts guides and analysed wells, picks the simultaneous fit only when the design supports it, and prints which it chose and why. Default 'auto'.",
+    "inference": "(str) - How effects are tested; the readable front end for analysis_mode. Default 'nonparametric': each guide is a plate-blocked Freedman-Lane permutation with an empirical P, valid however many guides there are, but no P can be below 1/(guide_permutations + 1). 'parametric' fits every guide at once in the chosen regression_type, so it needs more wells than guides or no coefficient is identifiable. 'auto' counts guides and wells and takes the simultaneous fit only when the design supports it.",
     "analysis_unit": "(str) - What one row of the model is. 'well' collapses each well's objects into a single value with agg_type first, so the well is the independent unit and the number of cells behind it only affects precision. 'cell' regresses the individual objects instead, which keeps power but treats cells from one well as independent when they are not, so standard errors are optimistic unless the model accounts for the clustering (regression_type='mixed'). This is the explicit spelling of agg_type=None, which used to change the unit of analysis silently. Default 'well'.",
     "guide_min_wells": "(int or list) - Minimum numbers of independent wells containing a guide. A list such as [1, 2, 3, 4] writes one sensitivity-analysis table and volcano plot per threshold; P values are computed once and the multiple-testing correction is repeated within each eligible family. Default [1, 2, 3, 4].",
     "guide_primary_min_wells": "(int or None) - Which guide_min_wells family supplies results_significant.csv and the returned 'significant' table. Default None chooses the smallest requested threshold.",
@@ -3987,7 +3987,7 @@ tooltips = {
     'pathogen_loc': "(list of lists) - Well locations of each pathogen condition, one inner list per name in pathogens, read by annotate_filter_vision when labelling vision-model score CSVs. Every entry must be a row or column ID string such as 'c1' or 'r3'; ranges are not expanded and unmatched entries leave those wells NaN. Set it alongside pathogens, or leave both None. Default None.",
     'pathogens': "(list) - Names of the pathogen conditions scored by annotate_filter_vision, e.g. ['wt','mutant']. Element i is written into the pathogen column for every well in pathogen_loc[i] and folded into the combined condition label. Must match pathogen_loc element for element; if pathogen_loc is None, only the first name is applied to every row. Default None.",
     'path_string': "(str) - A substring that must appear in a crop's path for it to join the dataset, e.g. 'cell_png' or 'nucleus_png'. It was called png_type, which named a type it never was: this is a path filter and nothing more. The old name still works. Default 'cell_png'.",
-    'crop_source': "(str) - Image source. 'png' is LOAD IMAGES: it loads exported crops from data/ and is fastest. 'merged' is STREAM IMAGES: it cuts crops from merged/*.npy and requires the measurements database. Those two names are what every panel calls them, so the same words mean the same thing in the annotation app and in the Cells tab. If the selected source is unavailable, spaCR tries the other source and reports the change. Training also accepts 'pre_generated' for existing crops, 'on_demand' to cut while training, and 'generate' to write a complete crop set before training. Settings that do not apply to the selected source are disabled. Defaults are 'png' in viewers and 'pre_generated' in training.",
+    'crop_source': "(str) - Image source. 'png' (LOAD IMAGES) loads exported crops from data/ and is fastest; 'merged' (STREAM IMAGES) cuts them from merged/*.npy and needs the measurements database. Those names mean the same thing in every panel. An unavailable source falls back to the other one and says so. Training also takes 'pre_generated', 'on_demand' to cut while training, and 'generate' to write a full crop set first. Settings the chosen source does not read are disabled. Defaults: 'png' in viewers, 'pre_generated' in training.",
     'extract_channels': "(list) - On-demand crops: which planes of merged/*.npy are INTENSITY channels, in the order they become image channels. Default [0, 1, 2].",
     'object_array': "(str) - On-demand crops: which object the crops are cut around - 'cell', 'nucleus', 'pathogen', 'cytoplasm' or 'organelle'. Its mask plane in merged/*.npy is what defines each object's extent. Default 'cell'.",
     'coordinate_columns': "(list) - On-demand crops from a DATABASE instead of masks: the columns holding each object's position, e.g. ['centroid_x', 'centroid_y']. Only bounding-box crops are possible this way, because a coordinate has no outline. None uses the merged masks, which is the default and the better source. Default None.",
@@ -4677,10 +4677,29 @@ def get_setting_dependencies():
     )
 
     def permutation_active(settings, _context):
-        inference = str(settings.get('inference') or '').lower()
+        """Whether the RUN would permute, decided the way the run decides.
+
+        THE SAME TRANSLATION `set_default_analysis_settings` APPLIES, and it
+        has to be: `inference` is the readable front end and it OVERWRITES
+        `analysis_mode` at run time, so a panel that read the stale
+        `analysis_mode` answered a question the fit does not ask. Measured on
+        the regression panel: choosing inference='parametric' left all eight
+        guide-permutation controls enabled, because `analysis_mode` still held
+        the value the previous inference had selected -- a control offered for
+        a step that is not going to run.
+
+        `auto` is the one case where `analysis_mode` still decides here.
+        Its real resolution counts guides and wells, which this cannot see
+        (`spacr.ml.resolve_auto_inference` does it once the CSVs are read), so
+        the permutation controls stay ENABLED under 'auto' -- greying a
+        control the run may well use is the worse error of the two.
+        """
+        inference = str(settings.get('inference') or 'auto').strip().lower()
+        selected = INFERENCE_MODES.get(inference, None)
+        if selected is not None:
+            return selected == 'guide_permutation'
         mode = str(settings.get('analysis_mode') or '').lower()
-        return inference in {'auto', 'nonparametric', 'permutation',
-                             'guide_permutation'} or mode == 'guide_permutation'
+        return inference == 'auto' or mode == 'guide_permutation'
 
     for key in guide_keys:
         setting_dependencies[key] = rule(
