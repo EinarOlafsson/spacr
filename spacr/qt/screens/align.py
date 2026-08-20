@@ -29,7 +29,7 @@ from __future__ import annotations
 import os
 from typing import Any, Callable, Dict, List, Tuple
 
-from PySide6.QtCore import QRectF, Qt, Signal
+from PySide6.QtCore import QRectF, Qt, Signal, Slot
 from PySide6.QtGui import QBrush, QColor, QFont, QPainter, QPen
 from PySide6.QtWidgets import (
     QComboBox,
@@ -495,6 +495,13 @@ class AlignScreen(QWidget):
 
     def active_jobs(self) -> int:
         """How many worker threads are still winding down."""
+        # A queued ``QThread.finished`` signal can outlive its sender's C++
+        # object: ``make_thread`` schedules deferred thread deletion before
+        # this screen installs its retirement slot. In that ordering ``sender()``
+        # intermittently returned None and the dead tuple stayed here for
+        # ever. Polling is also a safe recovery path for a queued retirement
+        # event: a finished QThread may release its last references now.
+        self._retire_finished_jobs()
         return len(self._jobs)
 
     def _update_controls(self) -> None:
@@ -745,7 +752,7 @@ class AlignScreen(QWidget):
         # bound QObject slot so Qt queues retirement onto this widget's GUI
         # thread; otherwise active_jobs() can race the thread's final signal
         # under a loaded full suite.
-        thread.finished.connect(self._retire_finished_job)
+        thread.finished.connect(self._retire_finished_jobs)
         self._busy = True
         self._update_controls()
         thread.start()
@@ -772,10 +779,30 @@ class AlignScreen(QWidget):
             self._thread = None
             self._worker = None
 
-    def _retire_finished_job(self) -> None:
-        """Retire the emitting QThread on this widget's GUI thread."""
-        thread = self.sender()
-        if thread is not None:
+    @Slot()
+    def _retire_finished_jobs(self) -> None:
+        """Retire every completed QThread without consulting ``sender()``.
+
+        ``thread.finished`` is queued onto this GUI-thread slot, but the
+        thread also schedules deferred deletion in :func:`make_thread`.
+        Under load the deferred deletion can win, leaving ``self.sender()``
+        as ``None`` even though the signal arrived. The QThread wrappers are
+        already held in ``_jobs``; their finished state is the durable fact.
+
+        A wrapper whose C++ object has already gone raises ``RuntimeError``
+        on ``isFinished()`` and is finished by definition. ``active_jobs``
+        calls this method too, so even a retirement event lost during Qt
+        teardown cannot leave a permanently active job behind.
+        """
+        finished = []
+        for thread, _worker in self._jobs:
+            try:
+                done = bool(thread.isFinished())
+            except RuntimeError:
+                done = True
+            if done:
+                finished.append(thread)
+        for thread in finished:
             self._retire_job(thread)
 
     def _on_job_error(self, exc: Exception) -> None:

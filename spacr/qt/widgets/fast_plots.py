@@ -2231,6 +2231,7 @@ class FastPlot(QWidget):
         if self._pinned.get("y") is not None:
             return
         box.enableAutoRange(axis=box.YAxis, enable=True)
+        self._sync_auto_range()
 
     def _place(self, entry) -> None:
         """Move one item to where the current scale says it belongs."""
@@ -2345,6 +2346,25 @@ class FastPlot(QWidget):
 
     # --------------------------------------------------------- axes and shape
 
+    def _sync_auto_range(self) -> None:
+        """Apply a pending pyqtgraph auto-range update before using the view.
+
+        pyqtgraph 0.14 changed item-bound updates from an immediate
+        ``updateAutoRange()`` call to ``queueUpdateAutoRange()``. That is a
+        useful paint-time optimisation, but a public operation that reads or
+        renders the plot in the same event-loop turn would otherwise see the
+        previous table's range.
+
+        ``updateAutoRange`` honours the ViewBox's per-axis flags, so draining
+        the update cannot release an axis the user pinned. The method exists
+        on the older pyqtgraph releases spaCR still supports as well.
+        """
+        if not self.plots_available:
+            return
+        update = getattr(self.plot.getViewBox(), "updateAutoRange", None)
+        if callable(update):
+            update()
+
     def axis_limits(self) -> tuple:
         """``((x from, x to), (y from, y to))`` as shown, IN DATA UNITS.
 
@@ -2354,6 +2374,7 @@ class FastPlot(QWidget):
         one -- and a caller pre-filling a dialog from it would offer the user
         a logarithm to edit.
         """
+        self._sync_auto_range()
         ranges = self.plot.getViewBox().viewRange()
         return ((self._to_data(ranges[0][0], "x"),
                  self._to_data(ranges[0][1], "x")),
@@ -2462,6 +2483,7 @@ class FastPlot(QWidget):
         # "Reset view" -- which autoranges the points that are now there --
         # put it right. That is exactly what was reported.
         box.enableAutoRange(x=True, y=True)
+        self._sync_auto_range()
 
     def aspect_ratio(self) -> Optional[float]:
         """The locked ratio of y units to x units, or ``None`` if unlocked."""
@@ -4252,6 +4274,7 @@ class FastPlot(QWidget):
                 "PDF (*.pdf);;Vector (*.svg);;Image (*.png)")
             if not path:
                 return None
+        self._sync_auto_range()
         from pyqtgraph import exporters
 
         item = self.plot.plotItem
@@ -4403,6 +4426,7 @@ class FastPlot(QWidget):
 
         if not self.plots_available or not len(self.plot.listDataItems()):
             return None
+        self._sync_auto_range()
         from pyqtgraph import exporters
 
         try:
