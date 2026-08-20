@@ -240,13 +240,27 @@ def test_the_absorbed_fit_refuses_wls_without_weights(design):
                             regression_backend="pyfixest")
 
 
-def test_a_design_with_nothing_to_absorb_is_refused_and_says_so(screen):
-    """``model_plate_position=False`` leaves the backend with no job."""
+def test_a_design_with_nothing_to_absorb_falls_back_and_says_so(screen,
+                                                                capsys):
+    """``model_plate_position=False`` leaves the backend with no job.
+
+    IT USED TO REFUSE, and that ended a live four-plate run twenty seconds
+    in (2026-08-20). The refusal's own words say why refusing is wrong: "the
+    fit would be the statsmodels fit with an extra projection in front of
+    it" -- with nothing to absorb the two backends compute the same numbers,
+    so there is no different model to protect the user from. It falls back
+    and says so.
+    """
     y, X = dmatrices("y ~ fraction:grna", data=screen,
                      return_type="dataframe")
-    with pytest.raises(ValueError, match="nothing to absorb"):
-        ml.regression_model(X, y, regression_type="ols",
-                            regression_backend="pyfixest")
+
+    model = ml.regression_model(X, y, regression_type="ols",
+                                regression_backend="pyfixest")
+    reference = ml.regression_model(X, y, regression_type="ols",
+                                    regression_backend="statsmodels")
+
+    assert "nothing to absorb" in capsys.readouterr().out
+    assert np.allclose(model.params.to_numpy(), reference.params.to_numpy())
 
 
 def test_the_reference_level_is_recovered_from_the_dummy_block(design):
