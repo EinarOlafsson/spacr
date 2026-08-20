@@ -445,17 +445,43 @@ class _InlineWorker(QObject):
 
 
 class _InlineThread(QObject):
-    """Stands in for ``QThread`` — ``start()`` runs the worker inline."""
+    """Stands in for ``QThread`` — ``start()`` runs the worker inline.
+
+    IT ANSWERS THE QThread API THE SCREEN ACTUALLY CALLS, and that is the
+    point of a double rather than an accident of one. `_retire_finished_jobs`
+    asks `isFinished()`; a double that does not answer it raised
+    AttributeError, which the screen's `except RuntimeError` was never meant
+    to catch and should not be widened to -- an AttributeError from a real
+    QThread would be a genuine bug, and swallowing it in production to satisfy
+    a test is how a defect gets a permanent hiding place.
+
+    Inline means the worker has already run by the time `start()` returns, so
+    this thread is finished from that moment and never running.
+    """
 
     finished = Signal()
 
     def __init__(self, worker):
         super().__init__()
         self._worker = worker
+        self._done = False
 
     def start(self):
         self._worker.run()
+        self._done = True
         self.finished.emit()
+
+    def isFinished(self) -> bool:          # noqa: N802 - Qt naming
+        return self._done
+
+    def isRunning(self) -> bool:           # noqa: N802 - Qt naming
+        return False
+
+    def wait(self, *_args) -> bool:        # noqa: D102 - Qt naming
+        return True
+
+    def quit(self) -> None:                # noqa: D102 - Qt naming
+        return None
 
 
 @pytest.fixture

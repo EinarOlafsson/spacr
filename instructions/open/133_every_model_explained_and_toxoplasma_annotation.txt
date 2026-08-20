@@ -129,3 +129,47 @@ HOW TO KNOW IT WORKED
 * With it on, every exported table carries gene name, SP/TM, hyperLOPIT
   compartment and the four expression columns, joined on the gene number.
 * The bundled annotation adds under 1 MB to the wheel.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- A's MISSING HALF: THE RECOMMENDATION. AUDITED AND SHIPPED.
+--------------------------------------------------------------------------------
+
+Every backend already had a description -- checked against REGRESSION_TYPES,
+none says "no description" -- and `group_lasso` and `rra` are selectable and
+fit. `Toxoplasma` is the setting name and a CSV saying `toxo` still loads.
+
+WHAT WAS MISSING WAS THE BADGE, which is the part the maintainer asked for by
+name: "the ones that are closest to answering a question in a screen like this
+should get a 'Recommended for CRISPR screens' in the text box". NOT ONE
+backend carried it.
+
+Six do now -- mixed, horseshoe, elasticnet, lasso, group_lasso, rra -- and
+each carries ITS OWN REASON, because a badge is a claim and the reason is what
+makes it checkable:
+
+    mixed        the only model here that says what a guide IS
+    horseshoe    a sparse prior: most guides do nothing and a few do a lot
+    elasticnet   does not arbitrarily keep one guide of a correlated set
+    lasso        the same family, sparser; stability selection with n_boot
+    group_lasso  a gene's guides are ONE block -- the penalised nesting
+    rra          aggregates BY RANK, immune to the collinearity 132 fixes
+
+AND THE CAVEAT TRAVELS WITH IT, written once and referenced six times: with
+fewer wells than guides you are below the information limit for any method
+estimating one parameter per guide, penalisation and priors do not create
+information, and the permutation test is the exception because it never needs
+the joint fit. A badge without that reads as a promise.
+
+`mixed` NEEDED ITS OWN LINE. It takes a separate branch in both renderers, so
+the flag every other backend gets from the shared path had to be added there
+too -- and it is the DEFAULT, which is the one place a missing badge would
+have mattered most.
+
+16 tests in tests/test_the_recommended_backends_say_why.py, including one
+that fails if EVERY backend is recommended, because that recommends nothing.
+
+STILL OWED, and it is B's data rather than A's prose: the PHENOTYPE SCORES.
+`toxoplasma_metadata.csv` has no Phenotype column (all 48 checked), so the GT1
+CRISPR phenotype still arrives through `metadata_files`. Bundling that table
+is a sourcing decision -- which published table, under which licence -- and is
+the maintainer's to make, not one to invent.
