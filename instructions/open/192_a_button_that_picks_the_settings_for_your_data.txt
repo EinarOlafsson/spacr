@@ -1,0 +1,96 @@
+================================================================================
+A BUTTON THAT PICKS THE SETTINGS FOR YOUR DATA
+================================================================================
+
+Status:    filed 2026-08-20, not started.
+Requested: 2026-08-20 -- "I also want a button to the left of inference
+           alligned with the text box to the left in model & inference that
+           if clicked picks the most correct and best settings for your data
+           fills in those settings in teh settings fields. its fine if the
+           button triggers a popup that asks the user questions about their
+           data that cant be determined by reading the data that are relveant
+           to the coice of settings. a question might be out of 1000
+           perterbations genes how many are expected to be hitts?"
+Owner:     regression module + Qt GUI
+
+WHERE IT GOES: Model & Inference, immediately LEFT of `inference` and aligned
+with its box.
+
+--------------------------------------------------------------------------------
+A. WHAT CAN BE READ FROM THE DATA, AND MUST BE
+--------------------------------------------------------------------------------
+
+Most of the choice is already sitting in the loaded tables, and spaCR already
+computes several of these for other reasons -- the button should CALL those
+rather than grow a second opinion:
+
+    plate count               decides whether batch correction can run at all
+                              (135: it greys on one plate)
+    response range            a proportion in (0,1) wants a link-carrying
+                              family; an unbounded response does not. This is
+                              `_choose_glm_family`'s own question (182).
+    response distribution     normality, skew -- what `check_distribution`
+                              already recommends
+    wells per guide           whether a guide-level fit is identifiable
+    guides per gene           whether the gene level has any power
+    design rank               `regression_levels` exists because the combined
+                              design is rank-deficient; the same check says
+                              whether `level='both'` is required
+    counts vs fractions       Poisson with an exposure, or a bounded response
+    cell counts per well      whether weighting is worth it (wls / var_weights)
+
+--------------------------------------------------------------------------------
+B. WHAT CANNOT, AND SO IS ASKED
+--------------------------------------------------------------------------------
+
+The maintainer's own example is the right shape: "out of 1000 perterbations
+genes how many are expected to be hitts?" -- that is the PRIOR, and no amount
+of reading the table supplies it.
+
+    expected hit rate         drives the multiple-testing posture. A screen
+                              expecting 5 hits in 1000 wants a strict FDR; one
+                              expecting 200 is a different question and a
+                              different alpha.
+    what a hit MEANS          any change, or a change in one direction? Sets
+                              whether the test is one- or two-sided.
+    library composition       are there non-targeting controls, and what are
+                              they called? Feeds `control_names` (184), which
+                              already reads a gene or a guide in four
+                              spellings.
+    the cost of a false       a screen feeding an expensive follow-up wants
+    positive vs a false       precision; a screen feeding a cheap one wants
+    negative                  recall. This is the honest form of "how strict?"
+
+KEEP IT SHORT. Four questions is a dialog; twelve is a form nobody finishes,
+and every question that CAN be read from the data and is asked anyway is a
+question that should not have been there.
+
+--------------------------------------------------------------------------------
+C. IT EXPLAINS ITSELF, AND IT DOES NOT LIE
+--------------------------------------------------------------------------------
+
+THE DANGER IS AN AUTHORITATIVE GUESS. A button called "best settings" that
+silently fills fourteen fields is trusted far past what it can support, and
+the user has no way to tell a measured choice from a default.
+
+So every field it fills says WHY, in the same words the panel already uses
+for a greyed control (106): "regression_type=glm because the response is a
+proportion strictly inside (0,1)". A choice it could NOT make is left alone
+and said out loud rather than filled with a default wearing the same
+authority as the rest.
+
+AND IT IS A PROPOSAL. Show what it would change, with the current value
+beside the new one, and let the user accept or reject before anything is
+written. A button that rewrites a carefully-tuned panel with one click and no
+undo is a button people learn not to press.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Every field it sets carries a reason naming what in the data decided it.
+* Nothing is written until the user accepts the proposal.
+* A setting it cannot decide is named as undecided, not defaulted silently.
+* On the reference screen it chooses a family and a level that a
+  statistician would defend, and the reasons are checkable against the data.
+* The questions it asks are only the ones the data cannot answer.
