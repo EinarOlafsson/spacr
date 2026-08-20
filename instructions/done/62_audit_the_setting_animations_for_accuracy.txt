@@ -965,3 +965,12 @@ STILL OPEN: 8 one-offs -- use_bounding_box, organelle_diameter,
 organelle_skeletonize, stitch_threshold, t_link_threshold, n_neighbors,
 plot_by_cluster, remove_image_canvas. `organelle_diameter` remains a SETTINGS
 question rather than a drawing one.
+
+--- CLOSED 2026-08-20 ---
+All 94 animations carry a GOOD verdict. The eight recorded WEAK on
+2026-08-18 were fixed rather than left standing: five were redrawn heavier
+because they were illegible at tooltip size, and three (use_bounding_box,
+organelle_diameter, organelle_skeletonize) were rebuilt around what the
+code actually does. Each was re-watched as a contact sheet after
+regeneration and re-measured off the shipped GIF. Counts in
+instructions/62_anim_audit.json: GOOD 94, WEAK 0.
