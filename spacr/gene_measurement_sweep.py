@@ -543,24 +543,19 @@ class HOUSE:
 
 
 def _write(figure, path) -> None:
-    """Write a sweep figure FOR THE PAGE it is going onto (instruction 150).
+    """Save a sweep figure using the configured export appearance.
 
-    THE SCREEN AND THE FILE ARE DIFFERENT PICTURES, and these ten wrote the
-    screen's one. `_readable` puts the THEME's ink on the axes so they can be
-    read on the application's dark panel -- which is right, and which on a
-    white page is #E8EDEE on #FFFFFF.
+    When export colors differ from display colors, axes decorations and the
+    figure background are mapped to the export palette while data colors are
+    preserved. Modified artists are restored after saving so the figure can
+    still be displayed by the caller.
 
-    MEASURED 2026-08-20: `plot_calibration` and
-    `plot_effect_against_representation` saved with ZERO dark pixels. The
-    other eight passed a naive check only because their DATA is dark -- a
-    heatmap supplies its own ink -- so their axes were just as invisible and
-    nothing said so. That is the "i cannot see any of the x or y axes" report
-    reaching the file after it had been fixed on screen.
-
-    THE CHROME FLIPS, THE DATA DOES NOT, through the same `export_colour` both
-    renderers already use, so a mark coloured for its claim keeps its colour
-    (150 A). Restored afterwards in a `finally`, because the figure is
-    returned to the caller and may be shown.
+    Parameters
+    ----------
+    figure : matplotlib.figure.Figure
+        Figure to save.
+    path : str, path-like, or None
+        Output path. A false value skips the export.
     """
     if not path:
         return
@@ -597,7 +592,18 @@ def _write(figure, path) -> None:
 
 
 def _chrome_of(axes):
-    """``(artist, get, set)`` for every piece of one axes' furniture."""
+    """Collect color accessors for an axes' non-data artists.
+
+    Parameters
+    ----------
+    axes : matplotlib.axes.Axes
+        Axes whose title, labels, spines, annotations, and legend are read.
+
+    Returns
+    -------
+    list of tuple
+        Triples containing an artist, its color getter, and its color setter.
+    """
     out = [(axes.title, axes.title.get_color, axes.title.set_color),
            (axes.xaxis.label, axes.xaxis.label.get_color,
             axes.xaxis.label.set_color),
@@ -617,21 +623,24 @@ def _chrome_of(axes):
 
 
 def _readable(figure, *axes) -> str:
-    """Put spaCR's house ink on ``axes`` so the labels can be read.
+    """Apply the active theme's foreground style to completed axes.
 
-    THE FIGURES WERE UNREADABLE WITHOUT THIS. Reported 2026-08-19: "i cannot
-    see any of the x or y axes, i do see some elements but not all so it is
-    difficult to interperet. any of them". These plots were built with bare
-    matplotlib, whose default ink is near-black -- which on spaCR's dark
-    theme is invisible against the panel it is drawn onto. Every other figure
-    in the application goes through `spacr.figures.style`; these ten did not.
+    The figure and axes backgrounds become transparent, while titles, labels,
+    ticks, spines, and legend text receive the resolved theme color and house
+    typography. Styling existing artists directly avoids relying on
+    ``rcParams``, which only affect artists when they are created.
 
-    SET ON THE AXIS BY HAND, not left to an rcParams context, for the reason
-    `regression_diagnostics` records: rcParams only reach an artist when it
-    is CREATED, so a style applied around a finished figure changes nothing
-    that is already drawn.
+    Parameters
+    ----------
+    figure : matplotlib.figure.Figure
+        Figure whose background is made transparent.
+    *axes : matplotlib.axes.Axes or None
+        Axes to style. ``None`` entries are ignored.
 
-    :returns: the ink colour, for a caller that has its own text to place.
+    Returns
+    -------
+    str
+        Resolved foreground color, suitable for additional annotations.
     """
     from .figures.style import ROLES, TYPE_SCALE, WEIGHTS
 
