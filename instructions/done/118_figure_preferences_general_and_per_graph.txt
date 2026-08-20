@@ -259,3 +259,42 @@ WHAT IS LEFT AND IS NOT THIS INSTRUCTION'S:
 
 118 IS DONE on everything inside this territory: general settings, per-graph
 settings, the store keeping deltas, reset, and the restatement.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- THE STANDING HANDOFF IS TAKEN. 118 IS CLOSED.
+--------------------------------------------------------------------------------
+
+`STYLE_CHOICES` LIVES IN `spacr/figure_style.py` NOW, beside the defaults it
+describes, and the panel reads it through `style_choices(name)`.
+
+WHY IT MATTERED. The sets were read off the COMMENTS next to the defaults --
+
+    "error_bars": "sem",       # sem | sd | ci95 | none
+
+-- and a comment is not a contract. A value added to the renderer would have
+gone on being drawn and gone on being unofferable in the panel, with nothing
+saying the two disagreed. The comment is gone and a test asserts it stays
+gone, because while it was there it was the source of truth and could not be
+checked.
+
+DERIVED WHERE THE VALUES ALREADY EXIST. `spines` reads `SPINE_PRESETS`, as it
+already did, and the three line-style keys now share ONE `LINE_STYLE_CHOICES`
+instead of three identical tuples -- "which dashes may a line take" has one
+answer, and three copies of it drift. A preset added in either place is
+offered in the panel with no second edit.
+
+The panel keeps a fallback list for an import that fails: a settings dialog
+that refuses to open because a style module moved is worse than one offering a
+stale set.
+
+A TEST NOW HOLDS THE PROPERTY THE COMMENT COULD NOT: every default is inside
+its own closed set. A default outside it is a panel that cannot show the
+default, which is a bug nobody notices until they open the dropdown.
+
+7 tests in tests/test_the_figure_style_sets_live_beside_their_defaults.py,
+and the 119 across the figure-style and preferences suites still pass.
+
+WHAT IS LEFT AND IS A DECISION, NOT WORK: `GENERAL_DEFAULTS["background"]` is
+still "#FFFFFF" -- the house style's DEFAULT page. A user can move it off, and
+the control 118 asked for is there; whether it should SHIP transparent is the
+maintainer's call and a one-line change.
