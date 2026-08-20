@@ -240,6 +240,10 @@ def sweep(wells: pd.DataFrame, fractions: pd.DataFrame, *,
           controls: Optional[Sequence[str]] = None,
           min_wells: int = 5,
           measurements: Optional[Iterable[str]] = None,
+          drop_measurements: Optional[Iterable[str]] = None,
+          drop_guides: Optional[Iterable[str]] = None,
+          max_share: Optional[float] = None,
+          max_wells_fraction: Optional[float] = None,
           level: str = "guide") -> SweepResult:
     """Associate every guide with every measurement, blocked and corrected.
 
@@ -257,6 +261,22 @@ def sweep(wells: pd.DataFrame, fractions: pd.DataFrame, *,
         question -- whether a gene moves a measurement -- and a control is
         exactly the thing whose answer you want to see. Marked so a reader can
         find them, never filtered away behind their back.
+    :param drop_measurements: columns to leave out, by name. The complement
+        of ``measurements``: naming the two or three that are wrong is easier
+        than listing the seven hundred that are not.
+    :param drop_guides: guides or genes to leave out, by name. Matched at
+        BOTH levels -- a screen swept at gene level names genes and one at
+        guide level names guides, and a user typing a gene id should not have
+        to know which they are looking at.
+    :param max_share: drop a guide whose median well fraction, where it is
+        present, is above this.
+    :param max_wells_fraction: drop a guide present in more than this share
+        of the wells. THE OVER-REPRESENTATION FILTER, and deliberately
+        separate from ``max_share``: measured on the maintainer's screen,
+        220950 is in ALL 1,536 wells at a median fraction of 0.176, so it is
+        extreme on both axes -- but a guide can be in every well at a low
+        fraction, or in a few at a high one, and those are different problems
+        with different reasons to exclude.
     :param min_wells: guides present in fewer wells than this are dropped --
         a correlation over three wells is not an effect.
     :param level: ``'guide'``, ``'gene'``, or ``'both'``. A gene's fraction in
@@ -294,12 +314,53 @@ def sweep(wells: pd.DataFrame, fractions: pd.DataFrame, *,
 
     chosen = list(measurements) if measurements is not None \
         else measurement_columns(wells)
+    # NAMED EXCLUSIONS, applied after the automatic ones. A user who knows a
+    # column is wrong -- a stale plate id, a measurement they no longer
+    # trust -- should not have to enumerate the seven hundred that are fine.
+    if drop_measurements:
+        unwanted = {str(c) for c in drop_measurements}
+        chosen = [c for c in chosen if str(c) not in unwanted]
     dropped = tuple(c for c in wells.columns
                     if pd.api.types.is_numeric_dtype(wells[c])
                     and c not in chosen)
 
     present = (fractions > 0).sum(axis=0)
     guides = [g for g in fractions.columns if int(present.get(g, 0)) >= min_wells]
+
+    # THE THREE GUIDE FILTERS, and each is recorded rather than silent: a
+    # sweep that quietly dropped a gene the user was looking for would send
+    # them hunting through the table for a row that was never computed.
+    excluded: Dict[str, Tuple[str, ...]] = {}
+    if drop_guides:
+        unwanted = {str(g) for g in drop_guides}
+        gone = tuple(g for g in guides
+                     if str(g) in unwanted
+                     or str(gene_of_guide(g) or "") in unwanted)
+        if gone:
+            excluded["named"] = gone
+            guides = [g for g in guides if g not in set(gone)]
+    if max_wells_fraction is not None and n:
+        limit = float(max_wells_fraction)
+        gone = tuple(g for g in guides
+                     if int(present.get(g, 0)) / n > limit)
+        if gone:
+            excluded["in too many wells"] = gone
+            guides = [g for g in guides if g not in set(gone)]
+    if max_share is not None:
+        limit = float(max_share)
+        gone = []
+        for g in guides:
+            column = pd.to_numeric(fractions[g], errors="coerce")
+            here = column[column > 0]
+            if len(here) and float(here.median()) > limit:
+                gone.append(g)
+        if gone:
+            excluded["too large a share"] = tuple(gone)
+            guides = [g for g in guides if g not in set(gone)]
+    for why, names in excluded.items():
+        shown = ", ".join(str(x) for x in names[:8])
+        more = f" and {len(names) - 8} more" if len(names) > 8 else ""
+        print(f"Sweep: {len(names)} guide(s) left out ({why}): {shown}{more}.")
     if not chosen or not guides:
         empty = pd.DataFrame(columns=["guide", "measurement", "effect", "p",
                                       "q", "circularity", "n_wells"])
