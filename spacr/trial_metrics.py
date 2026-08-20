@@ -456,6 +456,82 @@ def hit_counts(output: Mapping[str, Any], alpha: float = 0.05) -> dict:
     return out
 
 
+def qc_verdicts(row: Mapping[str, Any]) -> dict:
+    """The four diagnostic verdicts, as columns on a trial's row.
+
+    115's last owed item: "the sweep ROW's verdict column".
+
+    WHY A ROW NEEDS THEM AT ALL. A sweep is a table of trials ranked by hit
+    count, and hit count is exactly the number a broken fit inflates: a
+    rank-deficient design will happily report more significant guides than an
+    identifiable one. Without a verdict beside it, the trial that wins a
+    sweep is sometimes the trial that is most wrong, and nothing on the row
+    says so.
+
+    FOUR COLUMNS AND A WORST, not a pass rate. `worst_verdict`'s own reason
+    holds here: nineteen panels passing and one saying the design is rank
+    deficient is a run whose "95% passed" hides exactly the panel the suite
+    was run for. `qc_verdict` is the worst of the four, which is what a
+    reader sorts by.
+
+    Every block is guarded on its own, as the others here are: a model with
+    no residuals must still contribute its design verdict.
+    """
+    from .regression_diagnostics import score_design, score_inference
+
+    # THE SCORERS STAY THE ONE JUDGEMENT, and only the key names are
+    # translated. They read plain dicts -- `wells`, `wells_per_parameter`,
+    # `design_rank`, `genomic_inflation` -- and the row already carries every
+    # one of those statistics under spaCR's own column names. Re-deriving the
+    # verdicts here with fresh rules would be a second opinion about the same
+    # numbers, which is what a sweep table can least afford.
+    out: dict[str, Any] = {}
+    # THE OBJECTS, not their levels, because `worst_verdict` compares
+    # PanelVerdicts -- it asks each one `worse_than`, which a string cannot
+    # answer. The Qt side has a string version; importing it here would drag
+    # PySide6 into a module that is deliberately headless.
+    scored: list = []
+    design = {
+        "wells": row.get("n_wells"),
+        "parameters": row.get("n_parameters"),
+        "design_rank": row.get("design_rank"),
+        "wells_per_parameter": row.get("wells_per_parameter"),
+        "condition_number": row.get("condition_number"),
+        # A design is identifiable when it has no null directions. The row
+        # counts them, which is the same fact the other way up.
+        "identifiable": not (row.get("non_identifiable_directions") or 0),
+    }
+    if design["wells"]:
+        try:
+            verdict = score_design(design)
+            out["qc_design"] = str(getattr(verdict, "level", ""))
+            scored.append(verdict)
+        except Exception:   # pragma: no cover - one panel must not sink a row
+            pass
+
+    inference = {
+        "genomic_inflation": row.get("genomic_inflation"),
+        "tests": row.get("n_results"),
+    }
+    if inference["tests"] and inference["genomic_inflation"] is not None:
+        try:
+            verdict = score_inference(inference)
+            out["qc_inference"] = str(getattr(verdict, "level", ""))
+            scored.append(verdict)
+        except Exception:                                    # noqa: BLE001
+            pass
+
+    if scored:
+        from .regression_qc import worst_verdict
+
+        try:
+            out["qc_verdict"] = str(
+                getattr(worst_verdict(scored), "level", "") or "")
+        except Exception:                                    # noqa: BLE001
+            pass
+    return out
+
+
 def summarise_trial(output: Mapping[str, Any],
                     settings: Mapping[str, Any]) -> dict:
     """Every metric, flat, for one trial's row.
@@ -484,6 +560,12 @@ def summarise_trial(output: Mapping[str, Any],
             row.update(block())
         except Exception:  # pragma: no cover - a metric must not sink a trial
             pass
+    # LAST, because it reads the statistics the blocks above just wrote --
+    # the verdicts are a judgement ON the row, not another measurement.
+    try:
+        row.update(qc_verdicts(row))
+    except Exception:  # pragma: no cover - see above
+        pass
     return row
 
 
@@ -502,6 +584,11 @@ def summarise_trial(output: Mapping[str, Any],
 #: actually produces, so a metric added without listing it fails the suite
 #: instead of leaking.
 METRIC_COLUMNS: frozenset = frozenset({
+    # the diagnostic verdicts (115). ON THIS LIST OR THEY BECOME SETTINGS:
+    # `settings_for_trial`'s rule is "anything not bookkeeping was a setting",
+    # so a column missing here is fed back into perform_regression as though
+    # the user had typed `qc_verdict='fail'`.
+    "qc_design", "qc_inference", "qc_verdict",
     # hit counts
     "n_results", "n_significant", "n_primary", "n_below_alpha",
     "n_raw_below_alpha",
