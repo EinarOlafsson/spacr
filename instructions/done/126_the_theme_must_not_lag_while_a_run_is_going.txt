@@ -82,3 +82,63 @@ HOW TO KNOW IT WORKED
 The measured frame interval during a real run is within a small factor of
 the idle interval, on the machine that reported the lag, with the same
 theme -- and the reporter says it stopped lagging.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- MEASURED, THEN FIXED AT THE CAUSE.
+--------------------------------------------------------------------------------
+
+STEP 1 WAS THE MEASUREMENT, as this file insists. Offscreen, 1280x800,
+`blobs` with its shading already on `ambient._FrameProducer`, a 16 ms timer,
+two worker threads:
+
+    idle                                 median 16.00 ms   p95  16.04 ms
+    numpy worker (what a run mostly is)  median 16.00 ms   p95  20.05 ms
+    pure-Python worker                   median 42.42 ms   p95 118.63 ms
+    pure-Python, switchinterval 0.001    median 17.74 ms   p95  48.46 ms
+
+THREE THINGS FOLLOW AND ONLY ONE NEEDED WRITING.
+
+THE PRODUCER THREAD ALREADY FIXED THE COMMON CASE. A numpy worker costs the
+animation NOTHING -- 16.00 against 16.00 idle -- because numpy releases the
+lock and the GUI thread's frame is one `drawImage`. Segmentation, measurement
+and the fits are all in that class.
+
+CAUSE 1 IS REAL AND WAS UNADDRESSED. A pure-Python worker takes the animation
+to 42 ms a frame, which is the lag that was reported, and this file predicted
+that moving the shading to another Python thread would not touch it. It does
+not: it is the same lock, and the GUI thread cannot wake up to blit.
+
+WHAT DOES TOUCH IT is asking for the lock more often. Python hands the GIL
+over every `sys.getswitchinterval()` seconds, 5 ms by default; a 60 Hz timer
+needs it every 16 ms and is competing with a thread that never blocks. At 1 ms
+the median comes back to within 11% of idle -- a 2.4x improvement in both the
+median and the p95, from one line.
+
+`spacr/qt/gil_priority.py`, claimed by `PipelineWorker.run` and RESTORED
+after. Counted, so two modules running at once do not hand it back early, and
+in a `finally`, so a run that raises does not leave the process at 1 ms for as
+long as it lives -- which would be a standing tax on every headless
+`spacr-run` in the same interpreter.
+
+WHAT IT COSTS, said because it is not free: more context switches, so a
+pure-Python worker runs marginally slower. That is the right trade for an
+interactive application. The run is already the long pole, and a user watching
+a frozen window cannot tell it from a hang.
+
+NOT BUILT, and the measurement is why: precomputing a cyclic buffer of frames.
+It was the instruction's other candidate and it answers a cost problem, and
+the cost was never the problem -- 0.5 ms a frame does not lag a 60 Hz timer.
+It would also cost N x width x height x 4 bytes and make the loop visibly
+periodic. Reach for it only if a future measurement says shading cost, not
+contention.
+
+THE TESTS HOLD THE CONTRACT, not the milliseconds: claimed for the run,
+restored after, nesting, and given back on a raise. A timing assertion on a
+shared machine is a test that fails for reasons that have nothing to do with
+the code; the numbers above are the evidence and they are written where they
+were taken.
+
+8 tests in tests/qt/test_the_theme_does_not_lag_while_a_run_is_going.py.
+
+STILL OWED: the reporter's own confirmation on the machine that lagged. Cause
+3 (every core busy) remains outside the application's reach by construction.
