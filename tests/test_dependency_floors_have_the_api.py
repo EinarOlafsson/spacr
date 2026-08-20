@@ -119,6 +119,13 @@ def _installed_summary_plot_takes_rng() -> bool:
     return "rng" in inspect.signature(shap.summary_plot).parameters
 
 
+def _installed_pyqtgraph_has_safe_labelitem_mro() -> bool:
+    from pyqtgraph.graphicsItems.GraphicsWidgetAnchor import GraphicsWidgetAnchor
+    from pyqtgraph.graphicsItems.LabelItem import LabelItem
+
+    return LabelItem.__bases__[0] is GraphicsWidgetAnchor
+
+
 @dataclass(frozen=True)
 class FloorFact:
     package: str
@@ -194,6 +201,22 @@ FLOOR_FACTS: tuple[FloorFact, ...] = (
         installed_has=_installed_summary_plot_takes_rng,
         used_at="spacr/sim.py",
         label="summary_plot-rng",
+    ),
+    FloorFact(
+        package="pyqtgraph",
+        api="LabelItem(GraphicsWidgetAnchor, GraphicsWidget) base order",
+        min_version="0.13.3",
+        reason=(
+            "pyqtgraph 0.13.0-0.13.2 put GraphicsWidget before "
+            "GraphicsWidgetAnchor in LabelItem's bases. PySide6 6.6 then "
+            "reports that LabelItem's base __init__ was not called while "
+            "PlotItem builds its axis labels; pyqtgraph 0.13.3 reversed the "
+            "bases and is the first compatible release."
+        ),
+        uses=_uses_substring("qt/widgets/fast_plots.py", "pg.PlotWidget("),
+        installed_has=_installed_pyqtgraph_has_safe_labelitem_mro,
+        used_at="spacr/qt/widgets/fast_plots.py",
+        label="LabelItem-MRO",
     ),
 )
 

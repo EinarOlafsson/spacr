@@ -83,7 +83,7 @@ protobuf==6.31.1
 # Extras installed by the minimum CI job.
 PySide6==6.6.0
 qtawesome==1.3.0
-pyqtgraph==0.13.0
+pyqtgraph==0.13.3
 # `dev` only since 2026-08-17: the outside reference the Welch ANOVA
 # cross-check runs against. Pinned at the floor here so the minimum job
 # actually RUNS that check rather than skipping it.
@@ -97,6 +97,8 @@ pytest-xdist==3.6.1
 # purpose is that nothing floats.
 hypothesis==6.100.0
 tomli==2.0.0
+docutils==0.20.1
+pyarrow==14.0.2
 ruff==0.9.0
 mypy==1.11.0
 xenon==0.9.0

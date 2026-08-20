@@ -368,7 +368,9 @@ dependencies = [
     # an install failure, not a missing feature:
     #   PySide6   6.11.1 declares <3.15,>=3.10; 6.6/6.7 cover 3.9. The
     #             `>=6.6,<7` range therefore resolves on every interpreter.
-    #   pyqtgraph 0.14 declares >=3.10; 0.13 covers 3.9. Same reasoning.
+    #   pyqtgraph 0.14 declares >=3.10; 0.13.3 covers 3.9 and is the first
+    #             release whose LabelItem base-class order works with
+    #             PySide6 6.6. Same reasoning.
     #   qtawesome 1.4.2 declares >=3.7.
     #
     # The HEADLESS invariant is untouched and still tested: importing
@@ -377,7 +379,7 @@ dependencies = [
     # wheel and never loads it.
     'PySide6>=6.6,<7',
     'qtawesome>=1.3,<2',
-    'pyqtgraph>=0.13,<1',
+    'pyqtgraph>=0.13.3,<1',
     'win10toast>=0.9; platform_system == "Windows"',
     'adjustText>=1.2.0,<2.0',
     # KEPT despite zero imports, and deliberately so. Both are pandas'
@@ -709,6 +711,15 @@ setup(
             # It registers a `derandomize=True` profile, so it is reproducible
             # in CI rather than a source of intermittent red.
             'hypothesis>=6.100,<7',
+            # README and installer-archive rendering tests exercise the same
+            # reStructuredText parser GitHub and Sphinx use. They import
+            # docutils directly, so a contributor install must provide it
+            # instead of relying on an unrelated documentation environment.
+            'docutils>=0.20.1,<0.24',
+            # The canonical tabular-I/O contract includes Parquet and
+            # Feather round trips. pandas deliberately leaves both engines
+            # optional; pyarrow is the one the test profile supplies.
+            'pyarrow>=14,<26',
             # Quality-gate tooling. These are kept out of core dependencies:
             # users running microscopy pipelines do not need static-analysis
             # packages, while contributors get the same versions CI runs.
@@ -885,7 +896,7 @@ setup(
             # and the regression results panel builds all five. Reported from
             # a real install that had PySide6 and not this, where opening ANY
             # module raised RuntimeError out of the screen factory.
-            'pyqtgraph>=0.13,<1',
+            'pyqtgraph>=0.13.3,<1',
             'win10toast>=0.9; platform_system == "Windows"',
         ],
         # `spacr-tutorial` — renders narrated MP4 tutorials for every
@@ -962,6 +973,14 @@ setup(
         # them.
         'numpyro': ['numpyro>=0.13,<1.0', 'jax>=0.4,<1.0'],
         'pymc': ['pymc>=5.10,<6.0'],
+        # Optional regression engines selected by regression_backend. Both
+        # imports are function-local, and the GUI disables an engine that is
+        # not installed, so neither belongs in the core scientific stack.
+        # These floors are the oldest Python 3.9 wheels checked against the
+        # exact APIs spaCR calls: pyfixest.core.demean.demean and glum's
+        # GeneralizedLinearRegressor offset/sample_weight fit path.
+        'pyfixest': ['pyfixest>=0.40.1,<1'],
+        'glum': ['glum>=3.1.2,<4'],
 
         # `pip install spacr[zarr]` — `spacr.ome_zarr`, the OME-NGFF
         # (OME-Zarr) reader/writer. The emerging standard for large
@@ -1003,7 +1022,7 @@ setup(
         'omero': ['omero-py>=5.17,<6'],
 
         # `pip install spacr[all]` — every optional feature at once, minus
-        # eight, each for a stated reason:
+        # ten, each for a stated reason:
         #   * `dev`   — test tooling, not a feature.
         #   * `full`  — the GUI-capable opencv build, which would shadow the
         #               headless one already in the core deps.
@@ -1032,6 +1051,11 @@ setup(
         #               platform-specific build and pymc brings PyTensor's
         #               compiler path; neither belongs in the extra someone
         #               types when they just want every feature.
+        #   * `pyfixest`, `glum` — optional alternatives to the statsmodels
+        #               regression engine already in the core stack. They
+        #               are selected explicitly per fit, so installing both
+        #               for every `all` user would add weight without making
+        #               another module available.
         #   * `zarr`  — kept out because it buys nothing for a user who did
         #               not ask for it: `spacr.ome_zarr` reads and writes
         #               stored/zlib OME-Zarr with the standard library alone,
@@ -1080,7 +1104,7 @@ setup(
             # `pip install spacr[all]` installed strictly LESS than
             # `pip install spacr[qt]`, which is the one thing the name of
             # this extra promises cannot happen.
-            'pyqtgraph>=0.13,<1',
+            'pyqtgraph>=0.13.3,<1',
             'win10toast>=0.9; platform_system == "Windows"',
             'piper-tts>=1.2,<2',
             'trackastra>=0.5,<1.0',

@@ -329,6 +329,7 @@ def _write_one_field(args):
     _append_to_measurements_db(db_path, 'cell', frame)
 
 
+@pytest.mark.slow
 def test_four_processes_writing_a_fresh_db_lose_no_fields(tmp_path):
     """End-to-end at the layer that broke: four writers, none of them silent.
 
@@ -336,6 +337,12 @@ def test_four_processes_writing_a_fresh_db_lose_no_fields(tmp_path):
     SQLite file, all of them arriving at an empty table at once. The barrier is
     what makes the create-table race near-certain rather than one-run-in-four:
     before the fix this lost rows in 30 of 30 trials.
+
+    Keep this in the serial slow shard. Running its manager and four-worker
+    pool inside every four-worker xdist cell creates a nested process fan-out;
+    Python 3.14's POSIX ``forkserver`` default makes every child a fresh,
+    import-heavy interpreter and can exhaust a hosted runner before the test
+    reports a result.
     """
     path = _fresh_db(tmp_path)
     fields = [1, 2, 3, 4]
