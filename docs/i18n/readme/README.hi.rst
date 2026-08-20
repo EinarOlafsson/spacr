@@ -69,11 +69,47 @@ spaCR को डेस्कटॉप एप्लिकेशन के रू�
 कार्यप्रवाह का अवलोकन
 ---------------------
 
+|WorkflowMask| |WorkflowArrow| |WorkflowMeasure| |WorkflowArrow| |WorkflowAnnotate| |WorkflowArrow| |WorkflowClassify| |WorkflowArrow| |WorkflowBarcodes| |WorkflowArrow| |WorkflowRegression|
+
+.. |WorkflowMask| image:: ../../../spacr/resources/icons/workflow/mask.png
+   :width: 96
+   :alt: Mask API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
+   :align: middle
+.. |WorkflowMeasure| image:: ../../../spacr/resources/icons/workflow/measure.png
+   :width: 96
+   :alt: Measure API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html
+   :align: middle
+.. |WorkflowAnnotate| image:: ../../../spacr/resources/icons/workflow/annotate.png
+   :width: 96
+   :alt: Annotate API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/annotate_engine/index.html
+   :align: middle
+.. |WorkflowClassify| image:: ../../../spacr/resources/icons/workflow/classify_merged.png
+   :width: 96
+   :alt: Classify API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/classify/index.html
+   :align: middle
+.. |WorkflowBarcodes| image:: ../../../spacr/resources/icons/workflow/map_barcodes.png
+   :width: 96
+   :alt: Map Barcodes API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html
+   :align: middle
+.. |WorkflowRegression| image:: ../../../spacr/resources/icons/workflow/regression.png
+   :width: 96
+   :alt: Regression API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
+   :align: middle
+.. |WorkflowArrow| image:: ../../../spacr/resources/icons/workflow/arrow.png
+   :width: 18
+   :align: middle
+
 .. image:: ../../../spacr/resources/icons/workflow_home_apps.png
    :alt: spaCR कार्यप्रवाह और आउटपुट संगठन
    :align: center
 
-मुख्य मार्ग **मास्क → माप → नोट → वर्गीकरण → मानचित्र बारकोड → रीग्रेसिंग** है. इसके नीचे की नेटवर्क में spaCR होम स्क्रीन पर उपयोग किए जाने वाले सभी अन्य अनुप्रयोगों को समान श्रेणियों और क्रम में शामिल किया गया है.
+मुख्य मार्ग मास्क → माप → नोट → वर्गीकरण → मानचित्र बारकोड → रीग्रेसिंग है. इसके नीचे की नेटवर्क में spaCR होम स्क्रीन पर उपयोग किए जाने वाले सभी अन्य अनुप्रयोगों को समान श्रेणियों और क्रम में शामिल किया गया है.
 
 
 spaCR इंस्टॉल करें
@@ -221,11 +257,6 @@ spaCR का समर्थन करता है Python **3.9 से 3.14** �
    :width: 72
    :alt: bioRxiv प्रीप्रिंट खोलें
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
-
-- `पूर्ण माइक्रोस्कोप डेटासेट: BioStudies S-BIAD2135 <https://doi.org/10.6019/S-BIAD2135>`_
-- `परीक्षण डेटासेट: Hugging Face toxo_mito <https://huggingface.co/datasets/einarolafsson/toxo_mito>`_
-- `अनुक्रम डेटा: NCBI BioProject PRJNA1261935 <https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA1261935>`_
-- `बिजली का विश्लेषण: spaCRPower <https://github.com/maomlab/spaCRPower>`_
 
 
 योगदान और सहायता

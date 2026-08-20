@@ -69,11 +69,47 @@ Kör spaCR som skrivbordsprogram eller utan grafiskt gränssnitt på en arbetsst
 Arbetsflödet i korthet
 ----------------------
 
+|WorkflowMask| |WorkflowArrow| |WorkflowMeasure| |WorkflowArrow| |WorkflowAnnotate| |WorkflowArrow| |WorkflowClassify| |WorkflowArrow| |WorkflowBarcodes| |WorkflowArrow| |WorkflowRegression|
+
+.. |WorkflowMask| image:: ../../../spacr/resources/icons/workflow/mask.png
+   :width: 96
+   :alt: Mask API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
+   :align: middle
+.. |WorkflowMeasure| image:: ../../../spacr/resources/icons/workflow/measure.png
+   :width: 96
+   :alt: Measure API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html
+   :align: middle
+.. |WorkflowAnnotate| image:: ../../../spacr/resources/icons/workflow/annotate.png
+   :width: 96
+   :alt: Annotate API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/annotate_engine/index.html
+   :align: middle
+.. |WorkflowClassify| image:: ../../../spacr/resources/icons/workflow/classify_merged.png
+   :width: 96
+   :alt: Classify API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/classify/index.html
+   :align: middle
+.. |WorkflowBarcodes| image:: ../../../spacr/resources/icons/workflow/map_barcodes.png
+   :width: 96
+   :alt: Map Barcodes API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html
+   :align: middle
+.. |WorkflowRegression| image:: ../../../spacr/resources/icons/workflow/regression.png
+   :width: 96
+   :alt: Regression API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
+   :align: middle
+.. |WorkflowArrow| image:: ../../../spacr/resources/icons/workflow/arrow.png
+   :width: 18
+   :align: middle
+
 .. image:: ../../../spacr/resources/icons/workflow_home_apps.png
    :alt: spaCR:s arbetsflöde och struktur för utdata
    :align: center
 
-Huvudvägen är **Mask → Mät → Annotat → Klassificera → Karta Streckkoder → Regression**. Rutnätet nedan innehåller alla andra program i samma kategorier och ordning som används på startskärmen spaCR.
+Huvudvägen är Mask → Mät → Annotat → Klassificera → Karta Streckkoder → Regression. Rutnätet nedan innehåller alla andra program i samma kategorier och ordning som används på startskärmen spaCR.
 
 
 Installera spaCR
@@ -221,11 +257,6 @@ Referensdatauppsättningar
    :width: 72
    :alt: Öppna bioRxiv-förhandsversionen
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
-
-- `Fullständiga mikroskopidatauppsättning: Biostudier S-BIAD2135 <https://doi.org/10.6019/S-BIAD2135>`_
-- `Testdatauppsättning: Hugging Face toxo_mito <https://huggingface.co/datasets/einarolafsson/toxo_mito>`_
-- `Sekvensdata: NCBI BioProject PRJNA1261935 <https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA1261935>`_
-- `Effektanalys: spaCRPower <https://github.com/maomlab/spaCRPower>`_
 
 
 Bidrag och support

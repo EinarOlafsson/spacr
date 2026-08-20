@@ -281,7 +281,7 @@ def test_the_three_platform_marks_are_centred_and_fill_eighty_percent():
 
 @pytest.mark.parametrize("stem", sorted(ALL_ICON_STEMS))
 def test_tiles_are_slate_squares_with_only_small_corner_rounding(stem):
-    """The button is exactly #2B2F3A with a restrained 32 px radius."""
+    """The button is exactly #15181F with a restrained 32 px radius."""
     generator = _generator_module()
     image = _icon(stem)
     assert image.size == (generator.CANVAS, generator.OUTPUT_HEIGHT)
