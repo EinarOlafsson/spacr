@@ -355,7 +355,7 @@ def test_the_glum_poisson_fit_agrees_with_statsmodels(design, counts,
 
 def test_the_glum_fit_keeps_the_numbers_the_run_prints(design, counts,
                                                        cell_count):
-    """McFadden's R2 is printed off ``llf`` and ``null_deviance``.
+    """The inputs to the printed goodness-of-fit line.
 
     ``regression_model`` prints it for 'glm' and 'poisson', and a reader
     compares it between runs, so a backend that reported a different one
@@ -372,6 +372,33 @@ def test_the_glum_fit_keeps_the_numbers_the_run_prints(design, counts,
     assert fast.null_deviance == pytest.approx(reference.null_deviance,
                                                rel=1e-10)
     assert fast.df_resid == pytest.approx(reference.df_resid)
+
+
+def test_the_two_backends_print_the_same_goodness_of_fit(design, counts,
+                                                         cell_count):
+    """The number itself, not just its ingredients.
+
+    THIS IS THE TEST THAT WAS MISSING. The one above compares ``llf`` and
+    ``null_deviance`` and stops there, so when `fit_quality_note` started
+    dividing by ``llnull`` -- the null model's log-likelihood, rather than
+    ``null_deviance / -2``, which is only the same thing when the saturated
+    log-likelihood is zero -- the glum results object had no ``llnull`` and
+    silently fell back to the old expression. Same fit, two backends, two
+    different McFadden R² printed, and every assertion here still green.
+    """
+    _y, X = design
+    reference = ml.regression_model(X, counts, regression_type="poisson",
+                                    exposure=cell_count,
+                                    regression_backend="statsmodels")
+    fast = ml.regression_model(X, counts, regression_type="poisson",
+                               exposure=cell_count,
+                               regression_backend="glum")
+
+    assert fast.llnull is not None, (
+        "the glum result must carry the null log-likelihood, or it reports a "
+        "different pseudo-R² from statsmodels for the identical fit")
+    assert fast.llnull == pytest.approx(reference.llnull, rel=1e-8)
+    assert ml.fit_quality_note(fast) == ml.fit_quality_note(reference)
 
 
 def test_the_glum_poisson_fit_keeps_the_exposure_offset(design, counts,

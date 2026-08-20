@@ -1,0 +1,114 @@
+================================================================================
+A CONTROL CAN BE NAMED AS A GENE OR AS A GUIDE
+================================================================================
+
+Status:    filed 2026-08-20, not started.
+Requested: 2026-08-20 -- "in the regression modual when adding controlls the
+           user can add them as grna names (000000_1, 000000_2, 000000_3,
+           ...), but they should also be able to add the grnas as a 'gene',
+           which would be 000000 instead. so the controll finding mechanism
+           should know if there is a string with a _ then it is a guide if
+           there is only a string or a string starting with a common string
+           before the _ like TGGT1_000000 it is a gene.
+
+           so i guess if the re are 2 underscores then everything after the
+           first underscore is the grna to look for, if there is one
+           underscore and the part before the underscore is common then the
+           second part is the 'gene' if the first part is not common and
+           there is an underscore then the entire string including the
+           underscore and string after underscore is a guide."
+Owner:     regression module
+
+--------------------------------------------------------------------------------
+THE RULE, AS STATED
+--------------------------------------------------------------------------------
+
+Count the underscores in the control the user typed, and decide GENE or GUIDE:
+
+  TWO OR MORE underscores      -> everything after the FIRST underscore is the
+                                  GUIDE to look for.
+                                  `TGGT1_000000_1`  ->  guide `000000_1`
+
+  ONE underscore, and the part
+  BEFORE it is COMMON to the
+  screen's identifiers         -> the part AFTER it is the GENE.
+                                  `TGGT1_000000`    ->  gene `000000`
+
+  ONE underscore, and the part
+  before it is NOT common      -> the WHOLE string is the GUIDE.
+                                  `000000_1`        ->  guide `000000_1`
+
+  NO underscore                -> the whole string is the GENE.
+                                  `000000`          ->  gene `000000`
+
+"COMMON" is the load-bearing word and it is not defined by a hard-coded list.
+It means: a prefix shared by (nearly) every identifier in THIS screen's data,
+so it carries no information and is a species/strain tag rather than a gene.
+On the maintainer's screen that prefix is `TGGT1`. It has to be MEASURED from
+the guide names present, not assumed, because the next screen will use a
+different organism.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A control that is not matched is not an error anyone sees -- it is silently
+zero controls, and every downstream normalisation, every volcano baseline and
+every `nc`/`pc` reference is then computed against nothing. The current
+defaults are already bare gene ids (`nc='233460'`, `pc='220950'`), so the
+gene form is the one the code has always assumed and the guide form the one
+users actually paste from their library file.
+
+MEASURED ON THE REFERENCE SCREEN (2026-08-20): the whole non-targeting series
+is 30 guides named `TGGT1_000000_1` .. `TGGT1_000000_30`. Under the rule above
+a user may reach all 30 by typing any of:
+
+    000000            (gene, no underscore)
+    TGGT1_000000      (gene, common prefix stripped)
+    000000_1          (one guide)
+    TGGT1_000000_1    (one guide, common prefix stripped)
+
+--------------------------------------------------------------------------------
+WHAT TO BUILD
+--------------------------------------------------------------------------------
+
+A. ONE RESOLVER, headless and testable, that takes the typed control and the
+   universe of guide names present, and returns what to match on and at which
+   level -- gene or guide. It must not be a regex scattered through the
+   call sites; there are several (`nc`, `pc`, `controls`, and the montage's
+   own control handling) and they must agree.
+
+B. THE COMMON PREFIX IS MEASURED. Derived from the guide names in the loaded
+   data: a leading token shared by at least some high fraction of them.
+   Report which prefix was detected, once, so a user can see it was right.
+
+C. IT SAYS WHAT IT MATCHED. "control 'TGGT1_000000' resolved to gene '000000':
+   30 guides, 1,412 wells" -- printed at the point the controls are resolved.
+   A control that matches NOTHING must be an error, not a silent zero.
+
+D. MIXED FORMS IN ONE LIST are allowed: a user may give a gene and two guides
+   together and each is resolved on its own.
+
+--------------------------------------------------------------------------------
+WHAT IS UNCERTAIN
+--------------------------------------------------------------------------------
+
+  * The threshold for "common". A prefix on 100% of guides is clearly common;
+    is one on 95% still common, or is that a second organism in the library?
+    Proposed: >= 90% of distinct guide names, and print the percentage.
+  * Whether a control that resolves to a GENE should expand to its guides at
+    guide level, or stay a gene-level term. It should expand -- the montage
+    and the regression both work in guides -- but say so.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* All four spellings above select the same 30 control guides on the reference
+  screen.
+* A control matching nothing raises, naming what it looked for and at which
+  level.
+* A screen whose guides carry NO common prefix still resolves `000000_1` as a
+  guide and `000000` as a gene.
+* The resolver is used by every control path, and a test asserts there is no
+  second implementation.

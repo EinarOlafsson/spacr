@@ -1899,6 +1899,104 @@ def double_transform_warning(name, transform, family) -> str:
     )
 
 
+# --------------------------------------------------------------------------- #
+# Instruction 182 -- BOTH ways out of the double transform, and the user picks  #
+# --------------------------------------------------------------------------- #
+#
+# A log-transformed response handed to a family with a logit link fits
+# logit(log(y)), which nothing measures. There are two defensible fixes and
+# they are different science, so spaCR offers both rather than choosing:
+#
+#   'untransformed'  choose the family on the RESPONSE AS MEASURED and let the
+#                    link do the transforming. `pred` is a proportion, so
+#                    Binomial/Logit is right for it and the log is redundant.
+#
+#   'transformed'    keep the transform and fit an IDENTITY link. log(p) is an
+#                    ordinary continuous response and a Gaussian model of it is
+#                    a standard thing to fit.
+#
+#   'warn'           what spaCR did before this setting existed: fit the
+#                    transformed response, choose the family from it, and print
+#                    the warning. Kept ONLY so a user can reproduce numbers from
+#                    an earlier run -- it is not defensible under either reading
+#                    above, and it says so when selected.
+GLM_TRANSFORM_CONFLICTS = ('untransformed', 'transformed', 'warn')
+DEFAULT_GLM_TRANSFORM_CONFLICT = 'untransformed'
+
+
+def resolve_glm_transform_conflict(dependent_variable, transform='',
+                                   resolution=DEFAULT_GLM_TRANSFORM_CONFLICT,
+                                   available=(), regression_type='glm'):
+    """Which COLUMN the GLM fits, and whether to force an identity link.
+
+    Resolved on the column name, before the design matrices are built, so the
+    fit and everything downstream of it -- the coefficient table, McFadden,
+    the residual panels -- read one and the same response. An earlier draft
+    swapped the response inside the fitting branch and the McFadden printed
+    beside the summary was computed on the OTHER one; the two disagreed by
+    twelve units of pseudo-R-squared and neither was labelled.
+
+    :param dependent_variable: the response column as it stands -- already
+        the transformed one, if a transform was asked for.
+    :param transform: the transform already applied.
+    :param resolution: one of :data:`GLM_TRANSFORM_CONFLICTS`.
+    :param available: the column names the frame actually holds. Used to
+        confirm the untransformed column is there before switching to it.
+    :param regression_type: only ``'glm'`` chooses its own family, so only
+        ``'glm'`` has this conflict to resolve. Everything else is returned
+        unchanged.
+    :returns: ``(column, transform_in_effect, force_identity, note)``.
+        ``note`` is printed by the caller and is never empty when anything
+        changed -- a run that quietly fitted a different response than the
+        settings asked for would be the failure this instruction is about.
+    :raises ValueError: on an unknown ``resolution``.
+
+    NO CONFLICT, NO CHANGE. A transform that is not link-like, or no
+    transform at all, returns the column untouched whatever the resolution
+    says. The setting resolves a conflict; it does not reach in when there
+    is none.
+    """
+    choice = str(resolution or DEFAULT_GLM_TRANSFORM_CONFLICT).strip().lower()
+    if choice not in GLM_TRANSFORM_CONFLICTS:
+        raise ValueError(
+            f"glm_transform_conflict={resolution!r} is not one of "
+            f"{list(GLM_TRANSFORM_CONFLICTS)}")
+    kind = str(transform or '').strip().lower()
+    column = str(dependent_variable)
+    if kind not in LINK_LIKE_TRANSFORMS or str(regression_type) != 'glm':
+        return column, transform, False, ''
+
+    if choice == 'transformed':
+        return column, transform, True, (
+            f"  glm_transform_conflict='transformed': keeping transform="
+            f"{kind!r} and fitting {column} with a Gaussian family and an "
+            f"IDENTITY link, so the transform is the only one applied. This "
+            f"is an ordinary linear model of {kind}(y), which is what "
+            f"regression_type='ols' already fits.")
+    if choice == 'warn':
+        return column, transform, False, (
+            f"  glm_transform_conflict='warn': fitting the TRANSFORMED "
+            f"{column} and choosing the family from it. This is the "
+            f"behaviour that produced logit(log(y)) and a negative McFadden "
+            f"R-squared; it is kept only so an earlier run can be "
+            f"reproduced. Prefer 'untransformed' or 'transformed'.")
+
+    # 'untransformed' -- fit the response as measured and let the link work.
+    prefix = f"{kind}_"
+    raw = column[len(prefix):] if column.startswith(prefix) else ''
+    if not raw or raw not in set(available):
+        return column, transform, False, (
+            f"  glm_transform_conflict='untransformed' was asked for, but "
+            f"the response before transform={kind!r} is not in the frame "
+            f"(looked for {raw or 'a column without the prefix'}), so "
+            f"{column} is fitted as it stands and the double transform "
+            f"below still applies.")
+    return raw, '', False, (
+        f"  glm_transform_conflict='untransformed': fitting {raw} AS "
+        f"MEASURED and ignoring transform={kind!r}, so the family's own link "
+        f"does the transforming and it is applied once instead of twice.")
+
+
 def pick_glm_family_and_link(y, name="", transform=""):
     """Select the GLM family and link that suit the response.
 
@@ -2509,7 +2607,7 @@ class _GlumResults:
 
     def __init__(self, params, bse, pvalues, resid, fitted, scale,
                  df_model, df_resid, nobs, model, family, llf,
-                 null_deviance, deviance, n_iter):
+                 null_deviance, deviance, n_iter, llnull=None):
         self.params = params
         self.bse = bse
         self.pvalues = pvalues
@@ -2526,6 +2624,13 @@ class _GlumResults:
         self.family = family
         self.llf = float(llf)
         self.null_deviance = float(null_deviance)
+        # THE NULL LOG-LIKELIHOOD, because that is what the goodness-of-fit
+        # line divides by. `fit_quality_note` takes `llnull` and falls back
+        # to `null_deviance / -2` -- so a backend that carried only the
+        # deviance would print a DIFFERENT McFadden from statsmodels for the
+        # identical fit, which is the one thing this class exists not to do.
+        # The null model is fitted here anyway; this only carries its answer.
+        self.llnull = None if llnull is None else float(llnull)
         self.deviance = float(deviance)
         self.n_iter = int(n_iter)
 
@@ -2741,6 +2846,7 @@ def _fit_glum_glm(X, y, regression_type, weights=None, exposure=None):
         resid=y_flat - mu, fitted=mu, scale=scale,
         df_model=len(beta) - 1, df_resid=n - len(beta), nobs=n, model=model,
         family=family, llf=llf, null_deviance=float(null_fit.null_deviance),
+        llnull=float(null_fit.llf),
         deviance=deviance, n_iter=int(getattr(estimator, 'n_iter_', 0)))
 
 
@@ -2757,7 +2863,8 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
                      group_lasso_lambda=0.05, rra_alpha=0.25,
                      rra_permutations=10000,
                      regression_backend=DEFAULT_REGRESSION_BACKEND,
-                     verbose=False, response_name="", transform=""):
+                     verbose=False, response_name="", transform="",
+                     glm_force_identity=False):
     """Dispatch to the requested regression backend and return the fitted model.
 
     Every name in :data:`REGRESSION_TYPES` is fittable here, and every one of
@@ -2962,14 +3069,28 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
         return np.log(n_total)
 
     def _glm_auto():
-        family = pick_glm_family_and_link(y, name=response_name,
+        # WHICH SCALE THE FAMILY IS CHOSEN ON (instruction 182). The response
+        # itself is swapped by the CALLER -- see `regression` -- because
+        # everything downstream of the fit (the coefficient table, McFadden,
+        # the residual panels) reads the same `y` and a model fitted on a
+        # different one would silently disagree with all of it. All that is
+        # left here is the link.
+        fit_y = y
+        if glm_force_identity:
+            # The transform IS the link, so the family must not add another.
+            family = sm.families.Gaussian(link=sm.families.links.Identity())
+            print(f"  Using Gaussian family with Identity link for "
+                  f"{response_name or 'the response'}.")
+            return sm.GLM(fit_y, X, family=family).fit(
+                **({'cov_type': cov_type} if cov_type else {}))
+        family = pick_glm_family_and_link(fit_y, name=response_name,
                                           transform=transform)
         if isinstance(family, sm.families.Poisson):
-            _validate_poisson_response(y, X)
+            _validate_poisson_response(fit_y, X)
             # Same exposure the explicit 'poisson' branch uses. A family chosen
             # BY the data must be fitted the same way as one chosen by name, or
             # 'glm' and 'poisson' silently disagree on the same response.
-            return sm.GLM(y, X, family=family, offset=_poisson_offset()).fit(
+            return sm.GLM(fit_y, X, family=family, offset=_poisson_offset()).fit(
                 **({'cov_type': cov_type} if cov_type else {}))
         kwargs = {'family': family}
         if weights is not None and isinstance(family, sm.families.Binomial):
@@ -2981,7 +3102,7 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
             # Gaussian branch would be re-weighting a response that already
             # has the right variance.
             kwargs['var_weights'] = np.asarray(weights).ravel()
-        return sm.GLM(y, X, **kwargs).fit(
+        return sm.GLM(fit_y, X, **kwargs).fit(
             **({'cov_type': cov_type} if cov_type else {}))
 
     def _glm_poisson():
@@ -3366,9 +3487,7 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
         model = model_map[regression_type]()
 
     if regression_type in ['glm', 'poisson']:
-        llf_model = model.llf
-        llf_null = model.null_deviance / -2
-        print(mcfadden_note(1 - (llf_model / llf_null)))
+        print(fit_quality_note(model))
         print(summary_for_console(model, verbose=verbose))
 
     if regression_type in ['lasso', 'ridge', 'elasticnet']:
@@ -3936,7 +4055,8 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
                rra_alpha=0.25, rra_permutations=10000,
                model_plate_position=True,
                regression_backend=DEFAULT_REGRESSION_BACKEND,
-               verbose=False, transform=""):
+               verbose=False, transform="",
+               glm_transform_conflict=DEFAULT_GLM_TRANSFORM_CONFLICT):
     """Run the full regression pipeline: clean, fit, extract coefficients, optional volcano plot.
 
     :param df: Long-format DataFrame with gRNA/gene fractions and the
@@ -4033,6 +4153,20 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     level = wanted[0]
 
     print(f"Using regression type: {regression_type}")
+
+    # WHICH SCALE THE GLM FITS (instruction 182), decided BEFORE the design
+    # matrices are built so the fit, the coefficient table, McFadden and the
+    # residual panels all read the same response. Both ways out of the double
+    # transform are offered because both are defensible and they are
+    # different science; spaCR does not choose between them.
+    dependent_variable, transform, glm_force_identity, conflict_note = (
+        resolve_glm_transform_conflict(
+            dependent_variable, transform=transform,
+            resolution=glm_transform_conflict,
+            available=getattr(df, 'columns', ()),
+            regression_type=regression_type))
+    if conflict_note:
+        print(conflict_note)
 
     df = check_and_clean_data(df, dependent_variable)
 
@@ -4158,6 +4292,7 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
             # looked at.
             response_name=str(y.name) if hasattr(y, 'name') else '',
             transform=transform,
+            glm_force_identity=glm_force_identity,
         )
 
         coef_df = process_model_coefficients(
@@ -4512,6 +4647,61 @@ def _write_regression_sheet(coef_df, dst):
 #: points at the file instead. The header of a statsmodels summary is about
 #: twenty lines; a screen's coefficient table is hundreds.
 CONSOLE_COEFFICIENT_LIMIT = 12
+
+
+def fit_quality_note(model) -> str:
+    """The right goodness-of-fit number FOR THIS FAMILY, as one line.
+
+    McFadden's pseudo-R-squared compares log-likelihoods, and it is the
+    standard summary for a GLM with a discrete response. IT IS NOT ONE FOR A
+    GAUSSIAN FIT: an ordinary linear model's log-likelihood is a density, not
+    a probability, so it can be positive and the ratio stops being bounded by
+    1. Measured while wiring instruction 182's ``'transformed'`` option, which
+    fits exactly that family: the console reported "McFadden's R-squared:
+    467.1217" for a model whose ordinary R-squared was 0.86.
+
+    So a Gaussian identity fit reports ordinary R-squared and says which
+    number it is, and everything else reports McFadden through
+    :func:`mcfadden_note`, which keeps its negative-value warning.
+
+    :param model: a fitted statsmodels GLM result.
+    :returns: one line for the console.
+    """
+    family = getattr(model, 'family', None)
+    if isinstance(family, sm.families.Gaussian):
+        try:
+            resid = np.asarray(model.resid_response, dtype=float).reshape(-1)
+            observed = resid + np.asarray(
+                model.fittedvalues, dtype=float).reshape(-1)
+            centred = observed - observed.mean()
+            total = float(np.dot(centred, centred))
+            residual = float(np.dot(resid, resid))
+        except (AttributeError, TypeError, ValueError):
+            return "R²: not available for this fit"
+        if not np.isfinite(total) or total <= 0:
+            return "R²: not available for this fit (the response is constant)"
+        return (f"R²: {1.0 - residual / total:.4f}  (ordinary R², not "
+                f"McFadden -- this is a Gaussian identity-link fit)")
+    # THE NULL LOG-LIKELIHOOD, NOT THE NULL DEVIANCE. This read
+    # `model.null_deviance / -2`, which equals the null log-likelihood only
+    # when the saturated log-likelihood is zero -- true for 0/1 binomial data
+    # and false for the per-well PROPORTIONS this pipeline actually fits, so
+    # the ratio mixed two conventions. statsmodels fits the null model itself
+    # and exposes it as `llnull`.
+    try:
+        null_value = model.llnull
+        if null_value is None:
+            raise AttributeError("no null log-likelihood on this result")
+        llf, null = float(model.llf), float(null_value)
+    except (AttributeError, TypeError, ValueError):
+        try:
+            llf = float(model.llf)
+            null = float(model.null_deviance) / -2.0
+        except (AttributeError, TypeError, ValueError):
+            return "McFadden's R²: not available for this fit"
+    if not np.isfinite(null) or null == 0:
+        return "McFadden's R²: not available for this fit"
+    return mcfadden_note(1.0 - (llf / null))
 
 
 def mcfadden_note(r2) -> str:
@@ -7169,6 +7359,11 @@ def _perform_regression(settings):
         # sniffer can name the scale it examined and refuse to be quiet about
         # a link stacked on a transform.
         transform=str(settings.get('transform') or ''),
+        # 182: which of the two defensible fixes for the double transform
+        # this run wants. Both are offered; spaCR does not choose.
+        glm_transform_conflict=str(
+            settings.get('glm_transform_conflict')
+            or DEFAULT_GLM_TRANSFORM_CONFLICT),
         cov_type=settings['cov_type'],
         l1_ratio=settings['l1_ratio'],
         quantile=settings['quantile'],

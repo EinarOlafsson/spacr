@@ -1244,6 +1244,45 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
     chosen: List[pd.DataFrame] = []
     mismatched: List[str] = []
 
+    # CAN THIS GUIDE BE ATTRIBUTED AT ALL -- asked BEFORE any cell is
+    # attributed, which is instruction 173's own wording. Until now this was
+    # a library function with no caller, so the answer existed and nobody
+    # saw it.
+    #
+    # IT IS THE DIFFERENCE BETWEEN AN EMPTY MONTAGE AND AN EXPLAINED ONE. A
+    # guide whose effect is too small against the spread of scores can never
+    # reach the threshold in any well, so the attributed picker selects
+    # nothing and the montage comes back blank -- which reads as a bug in the
+    # viewer rather than as arithmetic about the guide.
+    #
+    # The scale and centre are taken over ALL the objects, not per well:
+    # centring per well destroys the between-well signal that identifies the
+    # effect at all.
+    if str(picking or "rank") in ("attributed", "assigned", "multivariate") \
+            and effects:
+        try:
+            from .guide_attribution import preflight
+
+            fractions_by_well = {}
+            for _, row in well_frame.iterrows():
+                label = "_".join(str(row[k]) for k in keys)
+                here = _well_guide_fractions(
+                    counts, label, keys, guide_column, fraction_column)
+                if here:
+                    fractions_by_well[label] = here
+            finite = scores[np.isfinite(scores)]
+            if fractions_by_well and finite.size:
+                verdict = preflight(
+                    name, fractions_by_well, effects,
+                    scale=float(np.std(finite)) or 1.0,
+                    centre=float(np.median(finite)),
+                    threshold=float(threshold))
+                notes.append(verdict.note())
+        except Exception:                                    # noqa: BLE001
+            # A pre-flight is a courtesy, not a precondition. It must never
+            # be the reason a montage does not draw.
+            pass
+
     for _, row in well_frame.iterrows():
         here = grouped.get(tuple(row[k] for k in keys))
         label = "_".join(str(row[k]) for k in keys)

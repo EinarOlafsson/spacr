@@ -294,3 +294,44 @@ STILL OWED
   * The opt-in write of the columns into png_list.
   * Validation 2 as written should be replaced in this instruction by the
     per-gene contrast, which is what actually tests the method.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- THE PRE-FLIGHT IS WIRED. "wire the pre flihght".
+--------------------------------------------------------------------------------
+
+`guide_attribution.preflight` answers, for one guide, "can it be called, and
+in how many of its wells" -- and `select_montage` now asks it BEFORE any cell
+is attributed, putting the verdict in `MontagePlan.notes` so it reaches the
+caption. It runs for the pickers that actually attribute ('attributed',
+'assigned', 'multivariate') and not for 'rank', which attributes nothing.
+
+WHY IT MATTERS MORE THAN IT LOOKS. A guide whose effect is too small against
+the spread of scores reaches the threshold in NO well, so the attributed
+picker selects nothing and the montage comes back EMPTY -- which reads as a
+broken viewer rather than as arithmetic about the guide. The note says:
+
+    <guide> CANNOT BE ATTRIBUTED to a cell in any of its N wells: the best
+    posterior it could reach anywhere is 0.412, under the 0.55 threshold.
+    Its effect is too small against the spread of scores, which is arithmetic
+    and not sample size -- more cells will not change it. Cells shown for it
+    are picked by rank, not attributed.
+
+THE VERDICT IS PER WELL, because the prior is. A guide at 0.6 of one well and
+0.02 of another is not the same question, and a single yes/no for the screen
+would be a lie. The report gives both counts.
+
+AND THE PRIOR ALONE CAN CLEAR THE THRESHOLD. A guide that is 80% of its well
+is called with NO effect at all, correctly -- which is why ~45% of cells come
+back "called" even under a permutation on the reference screen. A reader must
+not take "called" for evidence of attribution power; the movement from the
+prior is the number that carries that. Worth saying in the UI.
+
+A pre-flight is a courtesy, not a precondition: it is wrapped so it can never
+be the reason a montage does not draw.
+
+9 tests in tests/test_the_preflight_reaches_the_caption.py.
+
+STILL OWED
+  * The opt-in write of the columns into png_list.
+  * Validation 2 as written should be replaced in this instruction by the
+    per-gene contrast (see the 2026-08-20 validation section above).
