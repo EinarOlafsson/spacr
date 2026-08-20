@@ -1814,7 +1814,7 @@ def load_montage_objects(db_path: str, *, object_type: str = "cell",
             "its predictions into the database.")
     _finite_scores(frame, score_column)
 
-    from .io import crop_rows_from_png_list
+    from .png_list import crop_rows_from_png_list
 
     joined = crop_rows_from_png_list(db_path, frame, object_type=object_type,
                                      verbose=verbose)
