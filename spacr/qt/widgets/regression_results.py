@@ -1379,19 +1379,10 @@ class RegressionResultsPanel(QWidget):
     # ------------------------------------------------------------------ load
 
     def results_frame(self):
-        """The RUN's coefficient table, whole, or ``None``.
+        """Return the complete coefficient table for the displayed run.
 
-        Not what the tabs are currently drawing: the gene/guide filter is a
-        view and never an edit, so a caller exporting or re-plotting the
-        results gets the fit rather than whatever the user last right-clicked.
-        :meth:`filtered_frame` is the other one.
-
-        Public because two callers outside this panel need to know whether
-        there is anything to draw -- the publication sheet and the figure grid
-        -- and both were reaching in for ``_frame`` with ``getattr``. A
-        ``getattr`` for a private attribute is not encapsulation, it is the
-        same coupling with the failure mode hidden: rename the attribute and
-        both callers silently decide there are no results.
+        The table is unaffected by the gene/guide view filter. Use
+        :meth:`filtered_frame` for the rows currently shown by the result tabs.
         """
         return self._frame
 
@@ -2489,16 +2480,13 @@ class RegressionResultsPanel(QWidget):
             note=self.both_levels_note())
 
     def build_level_menu(self):
-        """The genes / guides / both menu, with this table's counts on it.
+        """Build the coefficient-level menu with row counts.
 
-        Public for the reason :meth:`spacr.qt.widgets.fast_plots.FastPlot.build_style_menu`
-        is: it is how a test reads what the user is offered without
-        synthesising a right-click, and how a second surface offers the SAME
-        three entries instead of growing a copy that drifts from this one.
-
-        The counts are in the labels because "genes only" that silently draws
-        300 of 1,200 rows is a filter a user applies without knowing what they
-        gave up -- the same rule the volcano's menu already follows.
+        Returns
+        -------
+        PySide6.QtWidgets.QMenu
+            Menu entries for genes, guides, and both levels. Each label reports
+            how many rows the corresponding view contains.
         """
         from PySide6.QtWidgets import QMenu
 

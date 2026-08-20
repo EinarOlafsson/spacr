@@ -510,15 +510,12 @@ class DesignSpec:
         return float(self.n_library_units) * float(self.hit_rate)
 
     def validate(self) -> List[str]:
-        """Every reason this design cannot be simulated, in plain words.
+        """Return validation messages for parameters that prevent simulation.
 
-        Called before the run starts. The library would raise on each of
-        these too — but it raises inside ``scan_parameters``, which records
-        the point as ``status="failed"`` and carries on, so a design that is
-        invalid would come back as a full grid of failures rather
-        than as one sentence saying which box is wrong.
-
-        :returns: list of problems; empty means the design will run.
+        Returns
+        -------
+        list of str
+            User-facing problems. An empty list means the design is valid.
         """
         problems: List[str] = []
         if int(self.n_genes) < 2:

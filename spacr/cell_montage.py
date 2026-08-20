@@ -279,22 +279,24 @@ EFFECTS_GRID_FILE = "gene_measurement_effects.csv"
 
 
 def effects_grid_from_results(path) -> Optional["pd.DataFrame"]:
-    """The gene x measurement effects grid beside a run, or ``None``.
+    """Load the gene-by-measurement effects grid stored beside a run.
 
-    WHY THIS EXISTS AT ALL. `select_montage` has taken an `effects_grid`
-    argument since option C shipped, and NOTHING EVER SET IT -- so the
-    multivariate picker could not run from the GUI at any point: it always
-    found `None`, fell back to the single-score attribution, and said so in
-    the caption. The fallback worked exactly as designed and hid the fact
-    that the thing it was falling back FROM was unreachable.
+    Parameters
+    ----------
+    path : path-like
+        Results CSV or directory containing :data:`EFFECTS_GRID_FILE`.
 
-    The sweep's own `SweepResult.effects` lived only in the sweep panel's
-    memory and was never written down, so there was nothing for the montage
-    to read even in the session that produced it.
+    Returns
+    -------
+    pandas.DataFrame or None
+        Effects indexed by guide, or ``None`` when the grid is absent, empty,
+        or unreadable.
 
-    :param path: the results CSV or the folder holding it -- whatever
-        `results_path` carries, same as :func:`effects_from_results`.
-    :returns: the grid indexed by guide, or ``None`` when there is no sweep.
+    Notes
+    -----
+    The persisted grid lets multivariate montage selection work across
+    application sessions. Callers may fall back to single-score attribution
+    when no valid grid is available.
     """
     import os
 

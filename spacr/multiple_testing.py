@@ -418,39 +418,34 @@ def _beta_uniform_fit(p_values, *, iterations: int = 500,
 
 
 def local_fdr(p_values, *, pi0: float | None = None):
-    """Local false-discovery rate for a vector of P values.
+    """Estimate the local false-discovery rate for a family of p values.
 
-    CONTINUOUS BY CONSTRUCTION, which is why it is offered beside
-    Benjamini-Hochberg rather than instead of it. BH's q is a TAIL area
-    computed as a cumulative minimum from the largest P value downwards, so a
-    whole block of tests collapses onto one number and a volcano drawn
-    against it has a staircase for a y-axis. The local FDR is a DENSITY RATIO
-    -- the posterior probability that this one test is null --
+    Parameters
+    ----------
+    p_values : array-like
+        Raw p values from one testing family.
+    pi0 : float, optional
+        Proportion of true null hypotheses. When omitted, it is estimated as
+        ``w + (1 - w) * a`` from the fitted beta-uniform mixture.
 
-        lfdr(p) = pi0 * f0(p) / f(p),   f0 uniform on [0, 1] so f0(p) = 1
+    Returns
+    -------
+    numpy.ndarray
+        Local false-discovery rates in ``[0, 1]`` with the same shape as the
+        input. NaNs are preserved and excluded from the fit.
 
-    -- so it is a strictly monotone function of the raw P value: no steps, no
-    ceiling, and two tests with different P values never land on the same
-    height. It also answers a different question from q, and the difference
-    is worth stating: q is "what share of everything called down to here is
-    false", lfdr is "how likely is THIS one to be null".
+    Notes
+    -----
+    The local FDR estimates the posterior probability that an individual test
+    belongs to the null component:
 
-    THE ASSUMPTION, SAID OUT LOUD. ``f`` is the beta-uniform mixture of
-    :func:`_beta_uniform_fit`: the alternatives' density is modelled as
-    Beta(a, 1). That is a shape assumption, and it is what buys the
-    continuity -- the assumption-free alternative (the Grenander estimator,
-    the decreasing density's nonparametric MLE) is a STEP function and would
-    reproduce on this axis the very discreteness the option exists to escape.
-    Measured on a simulated screen of 823 tests: BH gave 48 distinct q
-    values, Grenander's lfdr gave 8, and this one gives 823.
+        lfdr(p) = pi0 * f0(p) / f(p),    f0(p) = 1, p ∈ [0, 1]
 
-    NaNs are preserved and do not count toward the family.
-
-    :param p_values: the raw P values of ONE family.
-    :param pi0: the proportion of true nulls. Estimated from the same mixture
-        when omitted, as ``w + (1 - w) * a`` -- the density at ``p = 1``,
-        which is Pounds and Morris's conservative estimator.
-    :returns: an array of the same shape, values in [0, 1].
+    ``f`` is a beta-uniform mixture whose alternative component is
+    ``Beta(a, 1)``. Unlike a q value, which summarizes a tail of discoveries,
+    the local FDR describes one test. Families smaller than
+    :data:`LOCAL_FDR_MIN_TESTS` return ``1`` for every finite value because a
+    density cannot be estimated reliably from so few observations.
     """
     values = np.asarray(p_values, dtype=float)
     out = np.full(values.shape, np.nan, dtype=float)

@@ -1,63 +1,14 @@
-"""Sweep the DEPENDENT variable: which measurement has genes with an effect.
+"""Scan measurements for gene-associated effects.
 
-A parameter sweep holds the data fixed and varies the settings. This holds the
-model fixed and varies the RESPONSE: one linear model per measurement, over
-the same wells and the same guides, and a table saying which measurements the
-guides moved.
+The scan fits the same guide-level model to each measurement and reports both
+within-measurement and across-scan multiplicity corrections. A Simes global-
+null p value summarizes each measurement before the across-scan correction;
+the default correction is Benjamini-Hochberg.
 
-WHY IT IS NOT JUST A LOOP
--------------------------
-Because of what the loop does to the statistics.
-
-**1. A measurement scan is a multiple-testing problem ACROSS measurements.**
-spaCR measures hundreds of features per object. Scan 500 and some will look
-clear by chance -- and they will look *exactly* as convincing as the real
-ones, because the FDR each run reports was computed WITHIN that measurement
-and knows nothing about the other 499. So every row here carries **two**
-numbers:
-
-* ``within_run_q`` -- the correction the single-measurement analysis would
-  have reported, across the genes of that one measurement;
-* ``across_scan_q`` -- the correction across the scan, which is the one that
-  answers the question the user actually asked.
-
-A measurement that survives the first and fails the second is the single most
-important thing this module can say, and the easiest for it to hide. Both are
-in :meth:`ScanResult.frame`, on the same row, always.
-
-The across-scan stage is fed one P value per measurement, and that P value is
-**Simes' global-null P** for the measurement -- the minimum Benjamini-Hochberg
-adjusted P over its genes. That is the right summary rather than the raw
-minimum: the raw minimum of 23 gene tests is not a P value, and using it would
-smuggle the within-measurement multiplicity past the second stage.
-
-**2. The measurements are heavily CORRELATED.** Area, perimeter and
-equivalent-diameter are one thing measured three ways. So the effective number
-of independent tests is far below the column count, and a naive Bonferroni
-over 500 correlated columns is too harsh in the other direction.
-
-The default across-scan correction is therefore **Benjamini-Hochberg**, which
-is valid under the positive dependence measurement columns actually have and
-is not made absurd by it, and :attr:`ScanResult.effective_n_tests` reports the
-Li & Ji (2005) estimate of how many independent tests the scanned columns
-amount to. ``across_scan_method='bonferroni_effective'`` uses that estimate as
-the divisor for callers who want family-wise control without the naive
-column-count penalty.
-
-**3. RANK BY EFFECT SIZE, NOT BY P VALUE.** With two screens' worth of wells a
-trivial effect is significant. ``effect_size`` is the gene's coefficient in
-units of the model's **residual** standard deviation -- a Cohen's d. Residual
-and not total, because a blocking factor's whole job is to remove a nuisance
-source of spread, and dividing by the total would make blocking on it look
-pointless.
-
-Every correction comes from :mod:`spacr.multiple_testing`. There is no second
-implementation here, so the GUI dropdown, the settings validator and this scan
-cannot mean different things by one word.
-
-Dependencies: numpy, scipy.stats and pandas. Deliberately no ``spacr.ml``
-import -- this is the pure logic, it must be importable without torch, and the
-GUI is not its business.
+Effect sizes are coefficients divided by the model's residual standard
+deviation. :attr:`ScanResult.effective_n_tests` reports the Li and Ji estimate
+for correlated measurements, which is used when
+``across_scan_method='bonferroni_effective'``.
 """
 from __future__ import annotations
 
@@ -87,28 +38,9 @@ __all__ = [
 #: dropped, so a single-screen project uses the same model with one fewer term.
 DEFAULT_BLOCK_COLUMNS: Tuple[str, ...] = (schema.SCREEN_KEY,)
 
-#: Wells a gene needs before its effect is estimable at all.
-#:
-#: A GENE IN ONE WELL HAS NOTHING CORROBORATING IT. Its "effect" is that
-#: single well's deviation from the rest, which carries every well-level
-#: artefact there is -- edge position, seeding density, focus, a bubble --
-#: and no way to tell any of them from a phenotype. spaCR already refuses
-#: this one level down: :data:`spacr.hits.FLAG_SINGLE_GUIDE` is "called by
-#: one guide, so nothing corroborates it". This is the same rule at the well.
-#:
-#: It is not a cosmetic filter. MEASURED on plate1 of the tsg101 screen,
-#: 44 wells over 10 genes of which 8 had a single well, gene labels permuted
-#: so no effect can exist:
-#:
-#:     singletons kept      65% of permuted scans produced an "across-scan
-#:                          survivor" -- against the 5% the correction promises
-#:     singletons dropped    0%
-#:
-#: One outlier well does not produce one false hit. The measurement columns
-#: are strongly correlated, so it produces DOZENS of correlated false hits at
-#: once, which is precisely the structure a correction assuming valid P values
-#: cannot rescue. On that screen's true labels, 64 of the 78 surviving
-#: measurements -- 82% -- rested on a gene with one well.
+#: Minimum wells required to estimate a gene effect. Single-well genes cannot
+#: distinguish a phenotype from a well-specific artifact and are excluded
+#: before fitting.
 MIN_WELLS_PER_GENE = 2
 
 #: Columns that are the DESIGN, not the response.
@@ -204,11 +136,7 @@ class ScanResult:
         return len(self.rows)
 
     def surviving(self) -> Tuple[MeasurementEffect, ...]:
-        """The measurements that survive the ACROSS-SCAN correction.
-
-        Not the within-run one. A caller that shows the within-run survivors
-        as "the hits" has rebuilt the exact trap this module exists to close.
-        """
+        """Return measurements significant after across-scan correction."""
         return tuple(row for row in self.rows if row.survives_across_scan)
 
     def frame(self):

@@ -2059,9 +2059,12 @@ def test_api_block_completeness_uses_exact_code_hash_allowlist():
 
     prose = "Return the requested objects in deterministic order."
     code = "``(H, W, C)``."
+    formula = "lfdr(p) = pi0 * f0(p) / f(p),    f0(p) = 1, p ∈ [0, 1]"
     assert _api_block_requires_translation(prose)
     assert _source_hash(code) in API_EXACT_BLOCK_SHA256_ALLOWLIST
+    assert _source_hash(formula) in API_EXACT_BLOCK_SHA256_ALLOWLIST
     assert not _api_block_requires_translation(code)
+    assert not _api_block_requires_translation(formula)
     assert _syntax_preserved(
         'Use "classifier_evaluation" with --dry-run.',
         'Use "classifier_evaluation" with --dry-run.',
