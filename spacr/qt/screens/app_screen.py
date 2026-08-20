@@ -1324,6 +1324,14 @@ class AppScreen(QWidget):
             # generic sentence, so a section is never left without text.
             section.set_hint(category_tooltip(self.app_key, title))
             for label, widget in rows:
+                # A PLATE MAP BESIDE THE FIELDS THAT TAKE WELLS (185).
+                # "to the right of the field should be a button they can
+                # press that spawns a window". Only the settings whose value
+                # is ONLY wells: the picker writes the whole field, and one
+                # that overwrote `classes` or `negative_control` -- which
+                # mix wells with another vocabulary -- would destroy a value
+                # it does not understand.
+                widget = self._with_a_plate_map(widget, label)
                 lbl_widget = QLabel(label)
                 # Give the label a subtle affordance so users know
                 # it's the hover target for tooltips (fields can be
@@ -1603,6 +1611,60 @@ class AppScreen(QWidget):
             inference=value("inference", "auto"),
             analysis_mode=value("analysis_mode", "")))
         box.verticalScrollBar().setValue(scroll)
+
+    def _with_a_plate_map(self, widget, key):
+        """``widget``, with a plate-map button beside it when it takes wells.
+
+        Returns the original widget untouched for every other setting, so
+        this is a no-op on all but five fields.
+        """
+        from ...well_spec import WELL_ONLY_SETTINGS
+
+        if str(key) not in WELL_ONLY_SETTINGS:
+            return widget
+        from PySide6.QtWidgets import QHBoxLayout, QPushButton, QWidget
+
+        holder = QWidget()
+        row = QHBoxLayout(holder)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(4)
+        row.addWidget(widget, 1)
+        button = QPushButton("Plate…", holder)
+        button.setToolTip(
+            "Pick the wells off a plate map. Rows (r1), columns (c1) and "
+            "wells (A01) all read, and what it writes reads back.")
+        button.setFixedWidth(58)
+        button.clicked.connect(
+            lambda *_, w=widget, k=str(key): self.pick_wells_for(w, k))
+        row.addWidget(button)
+        # THE FIELD IS STILL THE WIDGET the panel collects from. `_widgets`
+        # already holds it, and wrapping it in a row must not change which
+        # object `collect()` reads -- a picker that made the value
+        # unreadable would be worse than no picker.
+        holder._spacr_field = widget
+        return holder
+
+    def pick_wells_for(self, field, key: str = "") -> str:
+        """Open the plate map on ``field``'s value. Returns what was written.
+
+        :returns: the new specification, or ``""`` when the user closed
+            without choosing -- in which case the field is untouched.
+        """
+        from ..widgets.plate_map_picker import PlateMapPicker
+
+        reader = getattr(field, "text", None)
+        before = str(reader() if callable(reader) else "")
+        picker = PlateMapPicker(before, parent=self)
+        if not picker.exec():
+            return ""
+        chosen = picker.value()
+        setter = getattr(field, "setText", None)
+        if callable(setter):
+            setter(chosen)
+        self._console.append_stdout(
+            f"{key or 'wells'}: {chosen or 'nothing'} chosen from the "
+            f"{picker._layout_size}-well map.\n")
+        return chosen
 
     def _install_example_data_button(self, section) -> None:
         """A button that fetches the example screen and fills the two slots.
