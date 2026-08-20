@@ -2691,26 +2691,15 @@ def test_localized_readmes_keep_the_badge_row_structurally_intact():
 
 
 def test_localized_readme_images_have_reviewed_accessible_text():
-    expected_workflow_alt = {
-        "de": "spaCR-Arbeitsablauf und Ausgabeorganisation",
-        "es": "Flujo de trabajo y organización de resultados de spaCR",
-        "fr": "Flux de travail spaCR et organisation des sorties",
-        "hi": "spaCR कार्यप्रवाह और आउटपुट संगठन",
-        "is": "Verkflæði spaCR og skipulag úttaks",
-        "ko": "spaCR 작업 흐름 및 출력 구성",
-        "pt": "Fluxo de trabalho e organização das saídas do spaCR",
-        "sv": "spaCR:s arbetsflöde och struktur för utdata",
-        "zh_CN": "spaCR 工作流程及输出结构",
-    }
     readme_root = ROOT / "docs" / "i18n" / "readme"
-    for language, workflow_alt in expected_workflow_alt.items():
+    for language in ("de", "es", "fr", "hi", "is", "ko", "pt", "sv", "zh_CN"):
         text = (readme_root / f"README.{language}.rst").read_text(
             encoding="utf-8"
         )
         alt_text = re.findall(r"(?m)^   :alt: (.+)$", text)
-        # Thirteen badges, six linked workflow modules, the application
-        # catalog, four installer/archive icons and five resource icons.
-        assert len(alt_text) == 29
+        # Thirteen badges, 58 linked applications, four installer/archive
+        # icons and five resource icons.
+        assert len(alt_text) == 80
         assert all(
             module in alt
             for module, alt in zip(
@@ -2721,14 +2710,16 @@ def test_localized_readme_images_have_reviewed_accessible_text():
                 alt_text[13:19],
             )
         )
-        assert workflow_alt in alt_text
-        assert "spaCR workflow and output organization" not in alt_text
+        assert all(
+            alt.startswith("Open the ") and alt.endswith(" API")
+            for alt in alt_text[13:71]
+        )
         assert "Interactive tutorials" not in alt_text
         assert "Latest installers" not in alt_text
 
         # The download icons carry the only text a screen reader gets for
         # them, so it has to be this language's own, not English left behind.
-        installers = alt_text[20:24]
+        installers = alt_text[71:75]
         for platform, alt in zip(("Windows", "macOS", "Linux"), installers[:3]):
             assert platform in alt, (
                 f"{language}: {alt!r} is not the {platform} download icon")
@@ -2736,7 +2727,7 @@ def test_localized_readme_images_have_reviewed_accessible_text():
         assert not any(alt.startswith("Download spaCR") for alt in installers), (
             f"{language} kept the canonical English download alt text")
 
-        resources = alt_text[24:29]
+        resources = alt_text[75:80]
         assert all(any(name in alt for name in (
             "BioStudies", "Hugging Face", "NCBI", "spaCRPower", "bioRxiv"
         )) for alt in resources)

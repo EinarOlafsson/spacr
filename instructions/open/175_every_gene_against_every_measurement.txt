@@ -183,3 +183,25 @@ ALL TEN ARE IN THE PANEL'S CHOOSER and all ten save beside the table. Every
 one returns None rather than an empty axis when there is nothing to draw: a
 picture of nothing reads as "no effect" when it means "no data", and that
 misreading is the thing this whole instruction is about.
+
+--------------------------------------------------------------------------------
+2026-08-19 (later) -- THE FILTERS AND THE FIGURES.
+--------------------------------------------------------------------------------
+
+WHAT TO LEAVE OUT, asked for and built: `drop_measurements`, `drop_guides`
+(matched at both levels), `max_wells_fraction` (the over-representation
+filter) and `max_share`. Breadth and share are kept apart because a guide can
+be in every well at a low fraction or in three wells at 0.8, and 220950 is
+extreme on both. What was left out is PRINTED, or a sweep that quietly
+dropped a gene would send the reader hunting for a row that was never
+computed.
+
+THE TEN FIGURES ARE REBUILT in the apicomplexan-genomics idiom (the
+`apicomplexan-figures` skill). Everything grey except the claim; dots and a
+mean line where the old code drew a bar for n = 2-4 guides, which that skill
+explicitly refuses; a bubble plot for measurement enrichment; legends as
+coloured text; no gridlines. Data colour comes from the paper's palette and
+INK from the theme, so they read in the application and would still print.
+
+STILL OWED
+  * The maintainer's pick of which of the ten earn their place.

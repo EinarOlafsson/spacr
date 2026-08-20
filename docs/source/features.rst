@@ -100,5 +100,5 @@ Optional dependencies
 The base package contains the headless pipelines. Install ``spacr[qt]`` for
 the desktop interface. Other extras add OME-Zarr, OMERO, napari, attribution,
 tracking, Zernike measurements and vendor readers. Availability varies with
-Python version; the :doc:`installer guide <installers>` is the authoritative
+Python version; the :doc:`installer guide <installer_guide>` is the authoritative
 compatibility table.

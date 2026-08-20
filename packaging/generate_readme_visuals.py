@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""Generate the README workflow catalog and rounded resource buttons.
+"""Generate linked README/API workflow tiles and rounded resource buttons.
 
-The application catalog is read from :data:`spacr.qt.app.APPS`, the same
-registry used by the home screen. This keeps the README picture from drifting
-as applications are added or moved between sections. The resource buttons use
-the supplied artwork in ``spacr/resources/icons/databanks`` without replacing
-the source files.
+The application catalog and API destinations come from the same registries
+used by the home screen and its API-info links. This keeps both documentation
+surfaces from drifting as applications are added or moved. Resource buttons
+use the supplied artwork without replacing the source files.
 
 Run::
 
@@ -28,17 +27,29 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 ICON_DIR = ROOT / "spacr" / "resources" / "icons"
 DATABANK_DIR = ICON_DIR / "databanks"
 WORKFLOW_DIR = ICON_DIR / "workflow"
+APP_WORKFLOW_DIR = WORKFLOW_DIR / "apps"
 FONT_DIR = ROOT / "spacr" / "resources" / "font" / "open_sans" / "static"
+DOC_WORKFLOW = ROOT / "docs" / "source" / "_generated" / "workflow_grid.rst"
+DOC_WORKFLOW_DIR = ROOT / "docs" / "source" / "_static" / "workflow"
+README_PATHS = (
+    ROOT / "README.rst",
+    *(ROOT / "docs" / "i18n" / "readme").glob("README.*.rst"),
+)
+WORKFLOW_BEGIN = ".. spacr-workflow-begin"
+WORKFLOW_END = ".. spacr-workflow-end"
 
 RESOURCE_SLATE = (43, 47, 58, 255)  # #2B2F3A
 WORKFLOW_TILE = (18, 21, 28, 255)  # #12151C
-PAGE = (36, 40, 50, 255)  # #242832
 WHITE = (255, 255, 255, 255)
-MUTED = (196, 203, 216, 255)
 
 BUTTON_SIZE = 512
 BUTTON_RADIUS = 32
 BUTTON_MARK = round(BUTTON_SIZE * 0.80)
+README_LOGO_SIZE = (920, 380)
+README_LOGO_MARK = 340
+PIPELINE_DISPLAY_WIDTH = 132
+ARROW_DISPLAY_WIDTH = 20
+APP_DISPLAY_WIDTH = 230
 
 RESOURCE_SOURCES = {
     "biostudies": DATABANK_DIR / "bioimages.jpg",
@@ -70,23 +81,6 @@ MAIN_PIPELINE = (
     ("map_barcodes", "Map Barcodes"),
     ("regression", "Regression"),
 )
-PIPELINE_API = {
-    "mask": "https://einarolafsson.github.io/spacr/api/spacr/core/index.html",
-    "measure": (
-        "https://einarolafsson.github.io/spacr/api/spacr/measure/index.html"
-    ),
-    "annotate": (
-        "https://einarolafsson.github.io/spacr/api/spacr/qt/"
-        "annotate_engine/index.html"
-    ),
-    "classify_merged": (
-        "https://einarolafsson.github.io/spacr/api/spacr/classify/index.html"
-    ),
-    "map_barcodes": (
-        "https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html"
-    ),
-    "regression": "https://einarolafsson.github.io/spacr/api/spacr/ml/index.html",
-}
 SECTION_ORDER = (
     "Core",
     "Data",
@@ -175,6 +169,17 @@ def render_resource_button(name: str) -> Image.Image:
     return button
 
 
+def render_readme_logo() -> Image.Image:
+    """Place the canonical logo in a full-width transparent README canvas."""
+    canvas = Image.new("RGBA", README_LOGO_SIZE, (0, 0, 0, 0))
+    logo = _fit(Image.open(ICON_DIR / "logo_spacr.png"), README_LOGO_MARK)
+    canvas.alpha_composite(
+        logo,
+        ((canvas.width - logo.width) // 2, (canvas.height - logo.height) // 2),
+    )
+    return canvas
+
+
 def _app_icon(key: str, size: int) -> Image.Image:
     filename = APP_ICON_OVERRIDES.get(key, f"{key}.png")
     path = ICON_DIR / filename
@@ -208,42 +213,17 @@ def _centered_text(
     )
 
 
-def _draw_tile(
-    image: Image.Image,
-    xy: tuple[int, int],
-    key: str,
-    label: str,
-    *,
-    width: int,
-    height: int,
-    icon_size: int,
-) -> None:
-    x, y = xy
-    draw = ImageDraw.Draw(image)
-    draw.rounded_rectangle(
-        (x, y, x + width - 1, y + height - 1),
-        radius=18,
-        fill=WORKFLOW_TILE,
-    )
-    icon = _app_icon(key, icon_size)
-    image.alpha_composite(icon, (x + (width - icon.width) // 2, y + 18))
-    _centered_text(
-        draw,
-        (x + 8, y + height - 49, x + width - 8, y + height - 10),
-        label,
-        _font(22),
-    )
-
-
 def render_pipeline_tile(key: str, label: str) -> Image.Image:
     """Render one linked workflow step as a standalone square tile."""
     size = 512
     tile = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     draw = ImageDraw.Draw(tile)
     draw.rounded_rectangle(
-        (0, 0, size - 1, size - 1),
+        (3, 3, size - 4, size - 4),
         radius=28,
         fill=WORKFLOW_TILE,
+        outline=WHITE,
+        width=5,
     )
     icon = _app_icon(key, 292)
     tile.alpha_composite(icon, ((size - icon.width) // 2, 52))
@@ -252,6 +232,27 @@ def render_pipeline_tile(key: str, label: str) -> Image.Image:
         (24, 382, size - 24, 478),
         label,
         _font(42),
+    )
+    return tile
+
+
+def render_app_tile(key: str, label: str) -> Image.Image:
+    """Render one non-pipeline application as a linked wide tile."""
+    width, height = 512, 316
+    tile = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(tile)
+    draw.rounded_rectangle(
+        (0, 0, width - 1, height - 1),
+        radius=28,
+        fill=WORKFLOW_TILE,
+    )
+    icon = _app_icon(key, 178)
+    tile.alpha_composite(icon, ((width - icon.width) // 2, 24))
+    _centered_text(
+        draw,
+        (18, 224, width - 18, height - 20),
+        label,
+        _font(34),
     )
     return tile
 
@@ -273,54 +274,129 @@ def _registry() -> list[tuple[str, str, str, str]]:
     return list(APPS)
 
 
-def render_app_catalog() -> Image.Image:
+def _api_urls() -> dict[str, str]:
+    """Return the home-screen API destinations used by the running app."""
+    from spacr.qt.screens.settings_model import _APP_API_MODULE
+
+    base = "https://einarolafsson.github.io/spacr/api/spacr"
+    return {
+        key: f"{base}/{_APP_API_MODULE[key].strip('/')}/index.html"
+        for key, _label, _desc, _section in _registry()
+    }
+
+
+def _grouped_apps() -> dict[str, list[tuple[str, str]]]:
     apps = _registry()
     pipeline_keys = {key for key, _label in MAIN_PIPELINE}
-    grouped = {
+    return {
         section: [(key, label) for key, label, _desc, actual in apps
                   if actual == section and key not in pipeline_keys]
         for section in SECTION_ORDER
     }
 
-    canvas_width = 1240
-    margin = 50
-    tile_width = 266
-    tile_height = 164
-    column_gap = 24
-    row_gap = 20
-    section_gap = 44
-    heading_height = 52
-    content_height = 28
-    for section in SECTION_ORDER:
-        items = grouped[section]
-        if not items:
-            continue
-        rows = (len(items) + 3) // 4
-        content_height += heading_height + rows * tile_height
-        content_height += max(0, rows - 1) * row_gap + section_gap
-    canvas = Image.new("RGBA", (canvas_width, content_height + 20), PAGE)
-    draw = ImageDraw.Draw(canvas)
 
-    y = 28
+def _readme_workflow(icon_prefix: str) -> str:
+    grouped = _grouped_apps()
+    urls = _api_urls()
+    pipeline_names = {key: f"Workflow_{key}" for key, _label in MAIN_PIPELINE}
+    top = []
+    for index, (key, _label) in enumerate(MAIN_PIPELINE):
+        if index:
+            top.append("|Workflow_arrow|")
+        top.append(f"|{pipeline_names[key]}|")
+    lines = [" ".join(top), ""]
+    for key, label in MAIN_PIPELINE:
+        lines.extend([
+            f".. |{pipeline_names[key]}| image:: {icon_prefix}/workflow/{key}.png",
+            f"   :width: {PIPELINE_DISPLAY_WIDTH}",
+            f"   :alt: Open the {label} API",
+            f"   :target: {urls[key]}",
+            "   :align: middle",
+        ])
+    lines.extend([
+        f".. |Workflow_arrow| image:: {icon_prefix}/workflow/arrow.png",
+        f"   :width: {ARROW_DISPLAY_WIDTH}",
+        "   :align: middle",
+        "",
+    ])
+
+    definitions: list[str] = []
     for section in SECTION_ORDER:
         items = grouped[section]
         if not items:
             continue
         title = "More core tools" if section == "Core" else section
-        draw.text((margin + 8, y), title, font=_font(29), fill=WHITE)
-        y += heading_height
-        for index, (key, label) in enumerate(items):
-            row, column = divmod(index, 4)
-            x = margin + column * (tile_width + column_gap)
-            tile_y = y + row * (tile_height + row_gap)
-            _draw_tile(
-                canvas, (x, tile_y), key, label,
-                width=tile_width, height=tile_height, icon_size=92,
-            )
-        rows = (len(items) + 3) // 4
-        y += rows * tile_height + max(0, rows - 1) * row_gap + section_gap
+        lines.extend([f"**{title}**", ""])
+        for start in range(0, len(items), 4):
+            row = items[start:start + 4]
+            lines.extend([" ".join(f"|App_{key}|" for key, _ in row), ""])
+        for key, label in items:
+            definitions.extend([
+                f".. |App_{key}| image:: {icon_prefix}/workflow/apps/{key}.png",
+                f"   :width: {APP_DISPLAY_WIDTH}",
+                f"   :alt: Open the {label} API",
+                f"   :target: {urls[key]}",
+                "   :align: middle",
+            ])
+    return "\n".join([*lines, *definitions]).rstrip()
 
-    return canvas.crop((0, 0, canvas_width, y - section_gap + 30))
+
+def _documentation_workflow() -> str:
+    grouped = _grouped_apps()
+    urls = _api_urls()
+    lines = [
+        "Core workflow",
+        "~~~~~~~~~~~~~",
+        "",
+        ".. grid:: 2 3 6 6",
+        "   :gutter: 2",
+        "",
+    ]
+    for key, label in MAIN_PIPELINE:
+        lines.extend([
+            "   .. grid-item::",
+            "",
+            f"      .. image:: /_static/workflow/{key}.png",
+            f"         :alt: Open the {label} API",
+            f"         :target: {urls[key]}",
+            "",
+        ])
+    lines.extend(["Other applications", "~~~~~~~~~~~~~~~~~~", ""])
+    for section in SECTION_ORDER:
+        items = grouped[section]
+        if not items:
+            continue
+        title = "More core tools" if section == "Core" else section
+        lines.extend([
+            title,
+            "^" * len(title),
+            "",
+            ".. grid:: 2 3 4 4",
+            "   :gutter: 2",
+            "",
+        ])
+        for key, label in items:
+            lines.extend([
+                "   .. grid-item::",
+                "",
+                "      .. image:: /_static/workflow/"
+                f"apps/{key}.png",
+                f"         :alt: Open the {label} API",
+                f"         :target: {urls[key]}",
+                "",
+            ])
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def _replace_workflow_block(path: Path, markup: str) -> None:
+    text = path.read_text(encoding="utf-8")
+    start = text.find(WORKFLOW_BEGIN)
+    end = text.find(WORKFLOW_END)
+    if start < 0 or end <= start:
+        raise ValueError(f"{path} is missing its workflow markers")
+    end += len(WORKFLOW_END)
+    replacement = f"{WORKFLOW_BEGIN}\n\n{markup}\n\n{WORKFLOW_END}"
+    path.write_text(text[:start] + replacement + text[end:], encoding="utf-8")
 
 
 def main() -> int:
@@ -331,17 +407,43 @@ def main() -> int:
         target = DATABANK_DIR / f"{name}_button.png"
         render_resource_button(name).save(target, "PNG", optimize=True)
         print(target.relative_to(ROOT))
+    target = ICON_DIR / "logo_spacr_readme.png"
+    render_readme_logo().save(target, "PNG", optimize=True)
+    print(target.relative_to(ROOT))
     WORKFLOW_DIR.mkdir(parents=True, exist_ok=True)
+    DOC_WORKFLOW_DIR.mkdir(parents=True, exist_ok=True)
     for key, label in MAIN_PIPELINE:
+        image = render_pipeline_tile(key, label)
         target = WORKFLOW_DIR / f"{key}.png"
-        render_pipeline_tile(key, label).save(target, "PNG", optimize=True)
+        image.save(target, "PNG", optimize=True)
+        image.save(DOC_WORKFLOW_DIR / f"{key}.png", "PNG", optimize=True)
         print(target.relative_to(ROOT))
     target = WORKFLOW_DIR / "arrow.png"
     render_pipeline_arrow().save(target, "PNG", optimize=True)
     print(target.relative_to(ROOT))
-    target = ICON_DIR / "workflow_home_apps.png"
-    render_app_catalog().save(target, "PNG", optimize=True)
-    print(target.relative_to(ROOT))
+    APP_WORKFLOW_DIR.mkdir(parents=True, exist_ok=True)
+    doc_app_dir = DOC_WORKFLOW_DIR / "apps"
+    doc_app_dir.mkdir(parents=True, exist_ok=True)
+    pipeline_keys = {item[0] for item in MAIN_PIPELINE}
+    for key, label, _description, _section in _registry():
+        if key in pipeline_keys:
+            continue
+        image = render_app_tile(key, label)
+        target = APP_WORKFLOW_DIR / f"{key}.png"
+        image.save(target, "PNG", optimize=True)
+        image.save(doc_app_dir / f"{key}.png", "PNG", optimize=True)
+        print(target.relative_to(ROOT))
+    for readme in README_PATHS:
+        prefix = (
+            "../../../spacr/resources/icons"
+            if readme.parent.name == "readme"
+            else "spacr/resources/icons"
+        )
+        _replace_workflow_block(readme, _readme_workflow(prefix))
+        print(readme.relative_to(ROOT))
+    DOC_WORKFLOW.parent.mkdir(parents=True, exist_ok=True)
+    DOC_WORKFLOW.write_text(_documentation_workflow(), encoding="utf-8")
+    print(DOC_WORKFLOW.relative_to(ROOT))
     return 0
 
 
