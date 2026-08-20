@@ -1,10 +1,8 @@
-"""
-``spacr-workspace`` — say what a saved run had OPEN, without launching the GUI.
+"""Inspect the workspace saved with a run without launching the GUI.
 
-Every finished run may carry a ``workspace.json`` beside its manifest
-(instruction 180): the databases that were attached, the montage that was
-generated, the view built on every figure, and a record of every file those
-name. This prints it.
+A run can contain ``workspace.json`` beside its manifest. The document records
+the databases and panels that were open, their view state, and the files they
+reference. ``spacr-workspace`` prints that information from a terminal.
 
 Usage::
 
@@ -12,10 +10,8 @@ Usage::
     spacr-workspace <run-folder> --files          # only the file inventory
     spacr-workspace <run-folder> --json           # the document itself
 
-WHY A CLI AND NOT ONLY A DIALOG. The question a bundle answers most often is
-asked about a run somebody else produced, on a machine that is not the one
-that made it — "which database was this fitted on, and is it still the same
-file". Answering that should not require a display.
+This is useful for checking which database a shared run used and whether the
+referenced files still match, including on machines without a display.
 
 Exit codes:
   0  — a workspace was found and printed
@@ -32,7 +28,13 @@ from .workspace import DOC_NAME, check_files, inventory_text, load
 
 
 def main(argv=None) -> int:
-    """CLI entry point wired as the ``spacr-workspace`` console script."""
+    """Print a saved workspace and return a process exit code.
+
+    :param argv: command-line arguments without the program name. ``None``
+        reads :data:`sys.argv`.
+    :returns: ``0`` when a workspace was printed, or ``2`` when the requested
+        path or workspace document does not exist.
+    """
     parser = argparse.ArgumentParser(
         prog="spacr-workspace",
         description="Print what a saved run had open.")

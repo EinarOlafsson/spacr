@@ -1,15 +1,9 @@
-"""
-Workspace bundles — what was OPEN around a run, saved beside the run itself.
+"""Save and restore the interactive workspace associated with a run.
 
-:mod:`spacr.run_journal` records what a pipeline was GIVEN: the settings, the
-environment, the hashes, the log. That is a reproducibility record and it is
-complete for what it covers. It says nothing about the workspace the user
-assembled around the run — the databases they attached, the montage they
-generated, the level and colouring and thresholds they set on the volcano —
-because none of that is in the settings dict. It lives in widgets and dies
-with the process.
-
-This module writes that half::
+:mod:`spacr.run_journal` records pipeline inputs, settings, environment data,
+hashes, and logs. This module complements that record with interactive state:
+attached databases, generated montages, figure views, and the files those
+panels reference. The workspace is stored beside the run::
 
     ~/.spacr/runs/<run>/workspace.json
     ~/.spacr/runs/<run>/workspace/files/<digest>__<name>   # 'copy' mode only
@@ -25,27 +19,19 @@ Public API::
     doc = workspace.load(run_dir)
     report = workspace.restore(workspace.providers(), doc)
 
-THE PANELS ARE ASKED, NEVER INSPECTED. A collector that reached into widgets
-and read private attributes would be a second copy of every panel's state
-model, and would rot the first time one of them changed. A contributor is
-anything with ``workspace_state() -> dict`` and
-``apply_workspace_state(dict) -> bool``; the regression panel's existing
-``plot_state`` / ``apply_plot_state`` pair is already that shape.
+Each registered provider supplies its own state through
+``workspace_state()`` and restores it through ``apply_workspace_state()``.
+The collector does not inspect widget internals. Existing ``plot_state`` and
+``apply_plot_state`` methods are accepted for compatibility.
 
-REFERENCE ALWAYS, COPY ON REQUEST. Every file the workspace names is recorded
-with its size, mtime and SHA-256 — kilobytes, and enough for a restore to say
-"that database is not where it was" instead of failing obscurely. The BYTES
-are copied only when asked, because a spaCR source folder is tens to hundreds
-of gigabytes of TIFFs and a measurements database is routinely several GB;
-copying those on every run would fill the disk with duplicates of data the
-user already has. A section may still mark individual files to carry
-regardless — figures a session generated exist nowhere else.
+Every referenced file is recorded with its size, modification time, and
+SHA-256 digest. ``reference`` mode stores only this inventory; ``copy`` mode
+also carries files up to the configured per-file limit. A provider can mark an
+individual artifact for copying regardless of mode or size. Skipped files and
+copy failures remain visible in the document and restore report.
 
-Nothing is ever skipped silently: a file over the size limit is written into
-the document as skipped, with its size and the limit that excluded it.
-
-Standard library only, and deliberately: this is imported from the run
-journal, which pipelines import, and neither may pay for pandas or Qt.
+The module uses only the Python standard library so headless pipelines can
+record workspace state without importing pandas or Qt.
 """
 from __future__ import annotations
 
@@ -97,13 +83,15 @@ _DEFAULT_LIMIT_MB = float(DEFAULT_COPY_LIMIT_MB)
 
 
 def set_default_mode(mode: Any, copy_limit_mb: Any = None) -> str:
-    """Set the process-wide default, and return what it resolved to.
+    """Set the process-wide workspace defaults.
 
-    The preference lives in ``QSettings``, which the run journal cannot read:
-    pipelines import the journal and must not pay for Qt. So the application
-    pushes its answer down here at startup, and the journal asks a module both
-    ends already import. A settings dict that names ``save_workspace``
-    outranks this — a scripted run says what it wants.
+    An explicit ``save_workspace`` value in run settings overrides this mode.
+
+    :param mode: ``'off'``, ``'reference'``, or ``'copy'``. Common boolean and
+        yes/no aliases are accepted by :func:`resolve_mode`.
+    :param copy_limit_mb: optional non-negative per-file copy limit in MB.
+        Invalid or negative values leave the current limit unchanged.
+    :returns: the normalized default mode.
     """
     global _DEFAULT_MODE, _DEFAULT_LIMIT_MB
     with _LOCK:
@@ -119,13 +107,13 @@ def set_default_mode(mode: Any, copy_limit_mb: Any = None) -> str:
 
 
 def default_mode() -> str:
-    """The process-wide default mode."""
+    """Return the process-wide workspace mode."""
     with _LOCK:
         return _DEFAULT_MODE
 
 
 def default_copy_limit_mb() -> float:
-    """The process-wide default per-file copy limit, in megabytes."""
+    """Return the process-wide per-file copy limit in megabytes."""
     with _LOCK:
         return float(_DEFAULT_LIMIT_MB)
 
@@ -135,14 +123,14 @@ def default_copy_limit_mb() -> float:
 # ---------------------------------------------------------------------------
 
 def register(name: str, provider: Callable[[], Any]) -> None:
-    """Register a contributor under ``name``.
+    """Register a named workspace-state provider.
 
-    :param provider: a zero-argument callable returning the contributor —
-        a widget with ``workspace_state()``, or a plain dict. A CALLABLE and
-        not the object, because the panel a name refers to is rebuilt over a
-        session's life and a captured reference would go stale (and, being a
-        Qt object, would keep a deleted C++ peer alive to raise
-        ``RuntimeError`` at collection time).
+    :param name: stable section name written into ``workspace.json``.
+    :param provider: zero-argument callable returning either a mapping or an
+        object with ``workspace_state()``. Resolving the object at collection
+        time avoids retaining a widget that has since been rebuilt or closed.
+    :raises ValueError: if ``name`` is empty.
+    :raises TypeError: if ``provider`` is not callable.
     """
     if not name:
         raise ValueError("a workspace contributor needs a name")
@@ -153,23 +141,21 @@ def register(name: str, provider: Callable[[], Any]) -> None:
 
 
 def unregister(name: str) -> bool:
-    """Drop a contributor. Returns whether there was one."""
+    """Remove a provider and return whether it was registered."""
     with _LOCK:
         return _PROVIDERS.pop(str(name), None) is not None
 
 
 def providers() -> "Dict[str, Callable[[], Any]]":
-    """A snapshot of the registered contributors."""
+    """Return a snapshot of the registered workspace providers."""
     with _LOCK:
         return dict(_PROVIDERS)
 
 
 def clear_providers() -> None:
-    """Forget every contributor and the pushed default.
+    """Remove all providers and restore the built-in defaults.
 
-    For tests and for application shutdown. The default goes with them: a
-    process that has torn its workspace down has no application left whose
-    preference it would be.
+    This resets process state during application shutdown and test teardown.
     """
     global _DEFAULT_MODE, _DEFAULT_LIMIT_MB
     with _LOCK:
@@ -205,13 +191,13 @@ def _state_of(source: Any) -> Optional[Dict[str, Any]]:
 def section_states(
     contributors: Mapping[str, Any],
 ) -> Tuple[Dict[str, Any], List[Dict[str, str]]]:
-    """Ask every contributor for its slice.
+    """Collect one JSON-compatible state section from each provider.
 
     :param contributors: ``{name: provider-or-object}``. A callable value is
         called; anything else is used directly.
-    :returns: ``(sections, problems)``. A contributor that raises is left out
-        and NAMED in ``problems`` — one panel failing to describe itself must
-        not cost the user the other five.
+    :returns: ``(sections, problems)``. A provider that raises or returns no
+        usable state is omitted and described in ``problems``; other sections
+        are still collected.
     """
     sections: Dict[str, Any] = {}
     problems: List[Dict[str, str]] = []
@@ -340,14 +326,15 @@ def _carried(section: Any) -> List[Dict[str, str]]:
 
 
 def inventory(sections: Mapping[str, Any], *, hash_files: bool = True) -> List[Dict[str, Any]]:
-    """Record every file the sections name.
+    """Build metadata records for files referenced by workspace sections.
 
-    Two ways in, and both are needed. The WALK finds every string in the
-    document that turns out to name something on disk, so a panel that gains
-    a new path key is covered without anyone remembering to declare it — the
-    failure mode that actually happens. The CARRY LIST is explicit, because
-    wanting the bytes is a decision a panel makes about its own artifacts and
-    cannot be guessed from the value.
+    String values that resolve to existing paths are discovered recursively.
+    A section may also list files under the reserved carry key to request that
+    their bytes be included in the bundle.
+
+    :param sections: workspace state keyed by section name.
+    :param hash_files: compute SHA-256 for regular files when true.
+    :returns: deterministic file records ordered by source path.
     """
     seen: Dict[str, Dict[str, Any]] = {}
 
@@ -383,11 +370,15 @@ def collect(
     saved: str = "",
     hash_files: bool = True,
 ) -> Dict[str, Any]:
-    """Build the workspace document. Writes nothing.
+    """Build a workspace document without writing it to disk.
 
+    :param contributors: named providers or state-bearing objects.
+    :param app_key: application key associated with the workspace.
     :param saved: the timestamp to stamp, ISO-8601. Injected rather than read
         from the clock so a caller can produce a byte-identical document
         twice, which is what makes the writer testable.
+    :param hash_files: compute file digests for the inventory when true.
+    :returns: JSON-compatible workspace document.
     """
     sections, problems = section_states(contributors)
     doc: Dict[str, Any] = {
@@ -407,10 +398,10 @@ def collect(
 # ---------------------------------------------------------------------------
 
 def resolve_mode(value: Any) -> str:
-    """Normalise a mode. Anything unrecognised is the default, not an error.
+    """Normalize a workspace-saving mode.
 
-    A settings dict is user-editable and a typo there must not cost the run;
-    the mode only decides how much is saved.
+    ``None`` and unrecognized values select :data:`DEFAULT_MODE`; boolean and
+    common yes/no aliases are accepted. Invalid values do not stop a run.
     """
     if value is None:
         return DEFAULT_MODE
@@ -428,14 +419,14 @@ def resolve_mode(value: Any) -> str:
 
 
 def mode_from_settings(settings: Mapping[str, Any]) -> str:
-    """The mode a settings dict asks for."""
+    """Return the workspace mode requested by a settings mapping."""
     if not isinstance(settings, Mapping) or settings.get("save_workspace") is None:
         return default_mode()
     return resolve_mode(settings.get("save_workspace"))
 
 
 def copy_limit_from_settings(settings: Mapping[str, Any]) -> float:
-    """The per-file copy limit in megabytes."""
+    """Return the non-negative per-file copy limit in megabytes."""
     if isinstance(settings, Mapping) and settings.get("workspace_copy_limit_mb") is not None:
         try:
             limit = float(settings["workspace_copy_limit_mb"])
@@ -459,15 +450,18 @@ def save(
     mode: str = DEFAULT_MODE,
     copy_limit_mb: float = DEFAULT_COPY_LIMIT_MB,
 ) -> Optional[Path]:
-    """Write ``doc`` into ``run_dir``. Returns the document path, or ``None``.
+    """Write a workspace document and optionally copy referenced files.
 
     ``off`` writes nothing at all — not an empty document — so a run folder
     saved with the feature disabled is byte-for-byte what it was before this
     module existed.
 
-    Copying happens here rather than in :func:`collect` because it is the
-    only part that touches the user's disk, and a caller that only wants to
-    look at the document should never pay for it.
+    :param run_dir: destination run folder.
+    :param doc: document returned by :func:`collect`.
+    :param mode: ``'off'``, ``'reference'``, or ``'copy'``.
+    :param copy_limit_mb: maximum size of each automatically copied file in
+        MB. Explicitly carried artifacts are not limited.
+    :returns: path to ``workspace.json``, or ``None`` in ``off`` mode.
     """
     mode = resolve_mode(mode)
     if mode == "off":
@@ -532,14 +526,14 @@ def save_for_run(
 ) -> Optional[Path]:
     """Collect the registered workspace and write it beside a finished run.
 
-    Returns the document path, or ``None`` when nothing was written.
+    Nothing is written when saving is disabled or no provider supplies state.
+    Headless commands therefore do not gain an empty workspace document.
 
-    NOTHING IS WRITTEN WHEN THERE IS NOTHING OPEN, and that is what makes the
-    default safe to leave on. A command-line pipeline registers no
-    contributors, so an empty document in every run folder would be pure
-    noise -- a file whose only content is that the feature exists. The
-    application registers its panels and gets the bundle; ``spacr mask`` in a
-    terminal gets exactly the run folder it got before.
+    :param run_dir: destination run folder.
+    :param settings: run settings controlling mode and copy limit.
+    :param app_key: application key associated with the saved state.
+    :param contributors: optional providers to use instead of the registry.
+    :returns: path to ``workspace.json``, or ``None`` when nothing was saved.
     """
     mode = mode_from_settings(settings or {})
     if mode == "off":
@@ -555,7 +549,10 @@ def save_for_run(
 
 
 def load(run_dir: Any) -> Optional[Dict[str, Any]]:
-    """Read a run folder's workspace document, or ``None`` if it has none."""
+    """Read a workspace document from a run folder or document path.
+
+    :returns: the decoded document, or ``None`` when it is absent or invalid.
+    """
     path = Path(run_dir)
     if path.is_file():
         path = path if path.name == DOC_NAME else path.parent / DOC_NAME
@@ -572,7 +569,7 @@ def load(run_dir: Any) -> Optional[Dict[str, Any]]:
 
 
 def has_workspace(run_dir: Any) -> bool:
-    """Whether ``run_dir`` carries a workspace worth offering to restore."""
+    """Return whether ``run_dir`` contains ``workspace.json``."""
     try:
         return (Path(run_dir) / DOC_NAME).is_file()
     except Exception:                                 # noqa: BLE001
@@ -584,11 +581,15 @@ def has_workspace(run_dir: Any) -> bool:
 # ---------------------------------------------------------------------------
 
 def check_files(doc: Mapping[str, Any], *, run_dir: Any = None) -> List[Dict[str, Any]]:
-    """Say what became of every file the document names.
+    """Check the current state of every file in a workspace document.
 
     ``state`` is one of ``present`` (there, and the same bytes),
     ``changed`` (there, different digest), ``carried`` (gone from its
     original place but inside the bundle), or ``missing``.
+
+    :param doc: decoded workspace document.
+    :param run_dir: bundle root used to resolve carried files.
+    :returns: one state record per referenced file.
     """
     out: List[Dict[str, Any]] = []
     root = Path(run_dir) if run_dir is not None else None
@@ -622,13 +623,17 @@ def restore(
     *,
     run_dir: Any = None,
 ) -> Dict[str, Any]:
-    """Hand each section back to the contributor that owns it.
+    """Restore each workspace section through its registered provider.
 
-    Best-effort and LOUD ABOUT IT. A section whose panel is not present, or
-    which the panel declines, is named in the report rather than dropped: a
-    workspace that restored four of six panels and said nothing would leave
-    the user looking at a screen they believe is the old one, which is worse
-    than not restoring at all.
+    Restoration is best-effort. Missing panels, unsupported state, exceptions,
+    and provider refusals are reported under ``skipped`` rather than silently
+    discarded.
+
+    :param contributors: providers keyed by workspace section name.
+    :param doc: decoded workspace document.
+    :param run_dir: optional bundle root used to resolve carried files.
+    :returns: report containing restored sections, skipped sections, and file
+        states.
     """
     report: Dict[str, Any] = {"restored": [], "skipped": [], "files": []}
     sections = doc.get("sections") if isinstance(doc, Mapping) else None
@@ -689,7 +694,7 @@ def _human_size(n: Any) -> str:
 
 
 def inventory_text(doc: Mapping[str, Any], *, run_dir: Any = None) -> str:
-    """A human-readable inventory of a workspace document."""
+    """Format a workspace document as a human-readable inventory."""
     if not isinstance(doc, Mapping):
         return "no workspace document"
     lines = [
@@ -726,7 +731,7 @@ def inventory_text(doc: Mapping[str, Any], *, run_dir: Any = None) -> str:
 
 
 def report_text(report: Mapping[str, Any]) -> str:
-    """A human-readable restore report — what came back and what did not."""
+    """Format a restore report as human-readable text."""
     restored = report.get("restored") or []
     skipped = report.get("skipped") or []
     lines = []
