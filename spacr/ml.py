@@ -913,93 +913,56 @@ def _answering_stop(model):
 def fit_mixed_model(df, formula, dst, *, random_row_column_effects=False,
                     gene_column='gene', guide_column='grna',
                     regression_backend=DEFAULT_REGRESSION_BACKEND):
-    """Fit ``y ~ gene_fraction:gene + (1 | gene/grna) + rowID + columnID``.
+    """Fit a mixed model with guides nested within genes.
 
-    THE GENE IS FIXED AND THE GUIDE IS RANDOM, NESTED INSIDE IT. This is the
-    only model spaCR offers that says what a guide actually is: a biological
-    replicate of one intended perturbation, carrying its own cutting
-    efficiency and off-target profile, rather than a second independent
-    variable competing with the gene for the same wells.
+    The model treats genes as fixed effects and guides as random effects
+    nested within genes. In statsmodels notation, ``groups=gene`` supplies the
+    outer random intercept and ``vc_formula={'grna': '0 + C(grna)'}`` supplies
+    the guide-within-gene variance component.
 
-    THE SCREEN IS A FIXED TERM, NOT A GROUPING, and that is a decision rather
-    than an omission -- instruction 122 asked for it to be written down here.
+    A blockable ``screenID`` supplied by :func:`prepare_formula` remains a
+    fixed effect. With only two screen levels, a random screen variance would
+    be estimated from one degree of freedom. The plate is not nested within
+    the screen because plate position is already represented by the row and
+    column structure. Single-screen data omit the constant screen term to
+    avoid a rank-deficient design.
 
-    Two screens make a poor random effect. A variance component estimated from
-    TWO levels is estimated from one degree of freedom; MixedLM will return a
-    number for it, and that number is not a variance anybody should quote. The
-    screen enters the design through `prepare_formula(block_screen=True)` as
-    an ordinary fixed term, which is what a blocking factor with two levels
-    is, and the grouping stays the gene/guide nesting this model exists for.
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Model data containing the formula variables and the gene and guide
+        grouping columns.
+    formula : str
+        Fixed-effects formula, normally returned by :func:`prepare_formula`
+        with ``level='gene'``.
+    dst : path-like
+        Destination for the residual histogram.
+    random_row_column_effects : bool, default False
+        Add row and column variance components instead of fixed terms.
+    gene_column : str, default 'gene'
+        Column containing the outer gene groups.
+    guide_column : str, default 'grna'
+        Column containing guides nested within each gene.
+    regression_backend : {'statsmodels', 'torch'}, default 'statsmodels'
+        Mixed-model backend. The torch backend fits the same nested model
+        with GPU acceleration when available.
 
-    NESTING THE PLATE INSIDE THE SCREEN was the alternative and is not done,
-    for the same reason plus one: the plate is already the row/column random
-    structure's group, and moving it under a two-level parent buys a variance
-    nobody can estimate at the cost of a design nobody can read. If a project
-    ever has enough screens for the screen to BE a population -- five or more
-    -- that is the point to revisit, and it is a new instruction with its own
-    measurement.
+    Returns
+    -------
+    mixed_model
+        Fitted backend-specific mixed-model result.
+    coef_df : pandas.DataFrame
+        Fixed effects, variance components, and guide BLUPs. Variance
+        components and BLUPs have ``NaN`` p-values because they are not
+        fixed-effect hypothesis tests.
 
-    A SINGLE-SCREEN PROJECT IS UNTOUCHED. `screen_is_blockable` is False when
-    the column is absent or constant, and the term is not added at all --
-    because a constant column makes the design rank deficient and statsmodels
-    answers that with a pseudo-inverse rather than a refusal.
-
-    THIS IS A REWRITE, NOT A SWITCH. Previously, this function
-    grouped on ``plateID`` with ``re_formula='1 + rowID + columnID'`` and row /
-    column variance components, and its fixed part was the collinear
-    ``fraction:grna + gene_fraction:gene`` design (see
-    :data:`COLLINEAR_FORMULA_FRAGMENT`). Both halves are gone: the fixed part
-    is the gene level alone, and the random structure is the gene/guide
-    nesting.
-
-    ``(1 | gene/grna)`` is ``(1 | gene) + (1 | gene:grna)``. statsmodels has one
-    ``groups`` argument, so the nesting is expressed the way MixedLM expresses
-    nesting: ``groups=gene`` with ``re_formula='1'`` is the outer intercept,
-    and a variance component evaluated WITHIN each group is the inner one.
-    A variance component is by definition nested in the group, so
-    ``vc_formula={'grna': '0 + C(grna)'}`` is ``(1 | gene:grna)`` exactly --
-    guide effects are not shared across genes and each gene contributes only
-    the guides it actually has.
-
-    ``random_row_column_effects=True`` moves row and column out of the fixed
-    part (:func:`prepare_formula` drops them from the formula) and into two
-    further variance components, which is what that setting has always meant.
-    It is an ADDITION to the nesting, not a replacement for it.
-
-    WHAT COMES BACK, and the distinction the caller must not lose:
-
-    * fixed effects -- one per gene, plus the row/column terms and the
-      intercept -- with standard errors and p-values. ``term_type='fixed'``.
-    * variance components -- ``Group Var``, ``grna Var`` and any row/column
-      ones. These are variances, not effects on the response.
-      ``term_type='variance'``, ``p_value`` NaN.
-    * guide BLUPs -- one per guide, named :data:`BLUP_FEATURE_TEMPLATE`, with
-      ``term_type='random_effect_blup'`` and ``p_value`` NaN.
-
-    A BLUP HAS NO P VALUE AND THIS FUNCTION WILL NOT INVENT ONE. It is a
-    shrunken conditional prediction of a random effect, not an estimate of a
-    fixed parameter, so there is no null hypothesis "this guide's effect is
-    zero" to reject and no guide-level hit list to correct. A run that needs
-    one must fit a fixed-effects backend with ``level='grna'``.
-
-    :param df: DataFrame with the model variables plus ``gene``, ``grna``,
-        ``rowID`` and ``columnID``.
-    :param formula: Fixed-effects formula, from :func:`prepare_formula` with
-        ``level='gene'``.
-    :param dst: Destination for the residual histogram PDF.
-    :param random_row_column_effects: add row and column variance components.
-    :param gene_column: the outer grouping column. Default ``'gene'``.
-    :param guide_column: the nested column. Default ``'grna'``.
-    :param regression_backend: WHO fits it. ``'statsmodels'``
-        by default. ``'torch'`` fits the SAME model -- same nesting, same
-        REML criterion -- on the GPU; measured 24x faster end to end on a
-        TSG101-shaped screen (1830 rows, 387 genes, 710 guides, q=1097:
-        11.3 s to 0.47 s) and agreeing with statsmodels to the tolerance
-        stated in :func:`spacr.mixed_gpu.fit_mixed_reml_torch`.
-    :returns: ``(mixed_model, coef_df)``.
-    :raises ValueError: when the frame cannot express the nesting -- a missing
-        column, a single gene, or no gene with more than one guide -- and when
-        MixedLM itself refuses the design.
+    Raises
+    ------
+    ValueError
+        If required grouping columns are missing, no gene has multiple
+        guides, or the backend cannot fit the nested design.
+    MixedBackendUnavailable
+        If the selected mixed-model backend is unavailable.
     """
     from .plot import plot_histogram
 
