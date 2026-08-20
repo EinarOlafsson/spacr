@@ -335,3 +335,29 @@ STILL OWED
   * The opt-in write of the columns into png_list.
   * Validation 2 as written should be replaced in this instruction by the
     per-gene contrast (see the 2026-08-20 validation section above).
+
+--------------------------------------------------------------------------------
+2026-08-20 -- THE OPT-IN WRITE SHIPPED. 173 IS COMPLETE.
+--------------------------------------------------------------------------------
+
+`spacr/attribution_columns.py` writes the five columns into `png_list`:
+grna_attributed, grna_attributed_p, gene_attributed,
+grna_attribution_entropy, grna_attribution_coverage.
+
+NEVER AUTOMATIC IS A PROPERTY OF THE FUNCTION, not of every caller
+remembering: `confirmed=False` is the default and it refuses, saying WHY
+rather than how -- a reader who only learns the flag will pass the flag.
+
+IT IS NOT A GENOTYPE AND THE COLUMN NAMES SAY SO -- "attribut" is in every
+one, and the claim itself is written into the database's own settings table
+beside them, so it travels with the numbers rather than living in a
+docstring. A reader who takes `grna_attributed` for an observation has been
+misled by the name alone; this is the last place that can still say so.
+
+A SECOND WRITE IS NOT AN ERROR. An attribution is something a user redoes
+with a different threshold, so the columns are added only when absent and
+the values are replaced.
+
+16 tests. Everything 173 asked for has now shipped: the model, option C, the
+three validations on the real screen, the pre-flight wired into the caption,
+and this.
