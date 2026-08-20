@@ -868,3 +868,35 @@ draw what decides a split, three signal-to-noise ramps showing no direction,
 and eight one-offs. None of them is now known to show the WRONG thing -- the
 three that were are fixed -- so what remains is a drawing job rather than a
 correctness one.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- THE THREE SIGNAL-TO-NOISE RAMPS. 23 -> 20.
+--------------------------------------------------------------------------------
+
+The same finding as the flow thresholds, filed the same milder way: "the
+direction is not indicated", when in fact raising Signal_to_noise raises the
+normalisation ceiling and makes things DIMMER while the animation BRIGHTENED.
+A picture that moves the wrong way is not undirected. It is directed wrongly,
+and a viewer will read it.
+
+THE RAMP DIMS NOW, AND THE DIMMEST LOSES MOST. Each object's fall is scaled by
+its own base brightness, so the faintest fades toward nothing while the
+brightest merely dulls -- which is what raising the ceiling actually does to a
+field, and is the decision this setting is for.
+
+THE SAME TRACK the flow thresholds use sits below, FILLING rather than
+emptying, because here the value goes up as the picture goes down. Two
+settings whose directions are opposite now share one visual grammar, which is
+what makes either of them readable.
+
+MEASURED ON THE REGENERATED GIF: 18 frames, brightest at index 0 (3002 bright
+pixels), dimmest at index 11 (2563) -- and that is with the gauge ADDING ink
+as it fills, so the objects fell by more than the difference shows.
+
+RUNNING TOTAL FOR THIS SESSION: 29 WEAK -> 20. Every animation now known to
+show or imply the WRONG thing is fixed; what remains is faintness.
+
+STILL OPEN: 20. Eight intensity-percentile filters drawing the same
+composition as their matching area filter, four intensity splits that never
+draw what decides a split, and eight one-offs. `organelle_diameter` among them
+stays a SETTINGS question rather than a drawing one.
