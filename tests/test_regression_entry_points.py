@@ -417,11 +417,12 @@ def test_the_cell_count_simulation_resamples_the_response_itself():
 
 
 def test_quantile_regression_still_clears_agg_type():
-    """The one piece of logic in the builder, unchanged by the new defaults."""
+    """A requested quantile fit operates on objects, not averaged wells."""
     from spacr.settings import get_perform_regression_default_settings
 
     assert get_perform_regression_default_settings(
-        {"regression_type": "quantile"})["agg_type"] is None
+        {"regression_type": "quantile",
+         "inference": "parametric"})["agg_type"] is None
 
 
 # ---------------------------------------------------------------------------

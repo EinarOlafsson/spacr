@@ -91,7 +91,7 @@ def qtagg_backend():
     previous = matplotlib.get_backend()
     try:
         matplotlib.use("QtAgg", force=True)
-    except Exception as error:                                   # noqa: BLE001
+    except ImportError as error:
         pytest.skip(f"QtAgg is unavailable: {error}")
     yield
     plt.close("all")

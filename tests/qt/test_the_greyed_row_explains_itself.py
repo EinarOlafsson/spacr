@@ -102,7 +102,9 @@ def test_the_keyboard_cannot_walk_onto_a_disabled_row(qtbot):
 def test_disable_combo_row_survives_a_model_with_no_items(qtbot):
     combo = QComboBox()
     qtbot.addWidget(combo)
-    disable_combo_row(combo, 3, tooltip="nothing here")   # must not raise
+    disable_combo_row(combo, 3, tooltip="nothing here")
+    assert combo.count() == 0
+    assert combo.currentIndex() == -1
 
 
 # ---------------------------------------------------------------------------

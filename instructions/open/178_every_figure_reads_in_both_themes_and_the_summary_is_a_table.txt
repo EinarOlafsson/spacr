@@ -127,3 +127,39 @@ the figure it changes.
 
 CHECK BEFORE REMOVING, since the message says "i think": if any other view
 reads that combo, it moves rather than disappears.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- C.2 IS NOW BOTH BACKENDS.
+--------------------------------------------------------------------------------
+
+The matplotlib half previewed on a pickled COPY. That is not available for a
+pyqtgraph plot: it is a live scene graph of Qt objects, it does not pickle,
+and rebuilding one from its data items would be a second implementation of
+every plot in `fast_plots` -- guaranteed to drift from the first.
+
+SO THE LIVE PLOT IS DRESSED AND UNDRESSED around one render, and the reason
+that is safe is that nothing repaints in between: both callers render the
+SCENE into an offscreen image synchronously and no event loop runs inside the
+block. `finally` restores unconditionally, so a write that raises leaves the
+screen exactly as it was -- which is the property the instruction is actually
+about.
+
+`styled_snapshot` and `export_styled` wear the same styling through the same
+context manager, so THE PREVIEW IS THE RENDER THE FILE GETS rather than an
+approximation of it. A preview that came from a different code path is a
+preview that can be wrong.
+
+The dialog takes either backend, recognising a plot BY WHAT IT CAN DO rather
+than by its class. What it cannot honestly offer it disables and explains:
+TIFF is absent because `FastPlot.export` routes anything that is not .pdf or
+.svg through the ImageExporter, which writes PNG -- a file whose name and
+contents disagree is worse than a missing format. Size and resolution are
+greyed because the page is set in millimetres on the plot's own menu and read
+by all three of its export paths; offering a second answer in inches would be
+two controls for one quantity with no way to tell which won.
+
+"Save styled…" sits beside "Export…" rather than replacing it: the styled
+route is three more clicks for a user who only wants the picture in front of
+them.
+
+12 tests in tests/qt/test_a_pyqtgraph_plot_is_styled_for_the_file_too.py.

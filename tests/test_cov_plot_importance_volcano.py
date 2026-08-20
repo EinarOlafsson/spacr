@@ -222,13 +222,13 @@ def test_graph_importance_concatenates_csvs_and_saves(tmp_path, no_show):
     assert settings["src"] == str(tmp_path)
     assert settings["grouping_column"] == "compartment"
     assert settings["data_column"] == "compartment_importance_sum"
-    assert settings["graph_type"] == "jitter_bar"
+    assert settings["graph_type"] == "jitter_box"
 
     # settings snapshot written by save_settings
     saved = pd.read_csv(tmp_path / "settings" / "graph_importance.csv")
     assert set(saved["Key"]) >= {"csvs", "grouping_column", "data_column"}
 
-    stem = "compartment_compartment_importance_sum_compartment_jitter_bar"
+    stem = "compartment_compartment_importance_sum_compartment_jitter_box"
     assert (tmp_path / f"{stem}.pdf").is_file()
     data_csv = pd.read_csv(tmp_path / f"{stem}_data.csv")
     # concat of both inputs -> 48 rows
@@ -274,7 +274,7 @@ def test_graph_importance_accepts_a_single_path_string(tmp_path, monkeypatch, no
     graph_importance(settings)
 
     assert settings["csvs"] == [str(tmp_path / "imp0.csv")]
-    stem = "compartment_compartment_importance_sum_compartment_jitter_bar"
+    stem = "compartment_compartment_importance_sum_compartment_jitter_box"
     assert (tmp_path / f"{stem}.pdf").is_file()
 
 

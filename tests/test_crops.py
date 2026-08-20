@@ -815,7 +815,8 @@ def test_resolve_picks_png_when_a_png_folder_exists(tmp_path):
     root = _experiment(tmp_path)
     src = resolve_crop_source(root)
     assert src.kind == "png"
-    assert "PNG" in src.reason
+    assert "pre-generated crops" in src.reason
+    assert os.path.join(root, "data") in src.reason
     assert "png" in src.describe()
 
 
@@ -831,7 +832,8 @@ def test_resolve_honours_an_explicit_request(tmp_path):
     assert resolve_crop_source(root, prefer="merged").kind == "merged"
     assert resolve_crop_source({"src": root, "crop_source": "merged"}).kind == "merged"
     assert resolve_crop_source({"src": [root], "crop_source": "png"}).kind == "png"
-    assert resolve_crop_source(root, prefer="merged").reason.startswith("requested")
+    assert "selected by the user" in resolve_crop_source(
+        root, prefer="merged").reason
 
 
 def test_resolve_accepts_the_merged_folder_as_src(tmp_path):

@@ -50,8 +50,11 @@ def test_the_light_modules_are_light():
 
 
 def test_the_helpers_are_where_the_montage_can_reach_them_cheaply():
-    from spacr.png_list import crop_rows_from_png_list  # noqa: F401
-    from spacr.schema import correct_metadata_column_names  # noqa: F401
+    from spacr.png_list import crop_rows_from_png_list
+    from spacr.schema import correct_metadata_column_names
+
+    assert crop_rows_from_png_list.__module__ == "spacr.png_list"
+    assert correct_metadata_column_names.__module__ == "spacr.schema"
 
 
 def test_the_old_homes_still_export_them():

@@ -77,12 +77,14 @@ def test_painting_a_tile_with_no_pixmap_still_draws_its_rings(qtbot):
 
     target = QPixmap(80, 80)
     target.fill()
+    before = target.toImage()
     painter = QPainter(target)
     try:
         paint_tile(painter, 80.0, 80.0, None, border_colour="#888888",
                    ring_colour="#ffffff", current=True)
     finally:
         painter.end()
+    assert target.toImage() != before
 
 
 # ------------------------------------------------------------------- hover

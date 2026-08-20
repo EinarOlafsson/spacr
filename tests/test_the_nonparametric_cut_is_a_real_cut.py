@@ -298,6 +298,7 @@ def test_the_cut_is_measured_on_the_primary_family_only(tmp_path):
             "multiple_testing_method": "fdr_bh", "fdr_alpha": 0.05,
             "controls": CONTROLS, "threshold_method": "std",
             "threshold_multiplier": 3.0, "guide_permutation_plot": False,
+            "analysis_unit": "well", "agg_type": "mean",
         })
     # `families`, not `results`. They were the same frame until 2026-08-17,
     # when `results` became the PRIMARY family only -- because handing the
@@ -413,6 +414,7 @@ def test_the_run_draws_the_cut_on_every_support_family(tmp_path):
             "multiple_testing_method": "fdr_bh", "fdr_alpha": 0.05,
             "controls": CONTROLS, "threshold_method": "std",
             "threshold_multiplier": 3.0,
+            "analysis_unit": "well", "agg_type": "mean",
         })
     for threshold in (1, 2):
         for suffix in ("pdf", "png"):

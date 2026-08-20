@@ -29,12 +29,32 @@ LOG = logging.getLogger("spacr.qt.save_figure")
 FORMATS = (("png", "PNG image"), ("pdf", "PDF document"),
            ("svg", "SVG image"), ("tiff", "TIFF image"))
 
+#: What a pyqtgraph plot can be written as. TIFF is absent because
+#: `FastPlot.export` routes anything that is not .pdf or .svg through
+#: pyqtgraph's ImageExporter, which writes PNG -- offering TIFF would produce
+#: a file whose name and contents disagreed.
+FAST_PLOT_FORMATS = (("png", "PNG image"), ("pdf", "PDF document"),
+                     ("svg", "SVG image"))
+
 #: Ink choices for the file. "As on screen" is first because it is what the
 #: previous behaviour did, and a dialog that silently changed the default
 #: would restyle every save a user made out of habit.
 INKS = (("", "as on screen"),
         ("#231F20", "black ink on white — for paper"),
         ("#FFFFFF", "white ink on transparent — for a dark slide"))
+
+
+def is_fast_plot(figure) -> bool:
+    """Whether ``figure`` is one of this application's pyqtgraph plots.
+
+    BY CAPABILITY, not by class. The dialog needs exactly two things --
+    a styled preview and a styled write -- and asking for those is what keeps
+    a new plot class working here without being added to a list somebody has
+    to remember.
+    """
+    return (figure is not None
+            and callable(getattr(figure, "styled_snapshot", None))
+            and callable(getattr(figure, "export_styled", None)))
 
 
 def copy_figure(figure):
@@ -112,6 +132,10 @@ class SaveFigureDialog(QDialog):
         self._source = figure
         self._preview = None
         self._canvas = None
+        #: A pyqtgraph plot is styled and written through its own two methods
+        #: rather than through matplotlib's. Decided once, here, so every
+        #: branch below reads a flag instead of re-sniffing the object.
+        self._fast = is_fast_plot(figure)
 
         layout = QVBoxLayout(self)
         form = QFormLayout()
@@ -140,7 +164,22 @@ class SaveFigureDialog(QDialog):
         self.height = QDoubleSpinBox()
         self.height.setRange(1.0, 40.0)
         self.height.setSuffix(" in")
-        if figure is not None:
+        if self._fast:
+            # The page a pyqtgraph plot writes onto is set in millimetres on
+            # its OWN right-click menu (`set_export_size`), and it is read by
+            # all three of its export paths. Offering a second answer in
+            # inches here would give the user two controls for one quantity
+            # and no way to tell which won -- so these say why instead.
+            width_mm, height_mm = figure.export_size()
+            self.width.setValue(round(float(width_mm) / 25.4, 2))
+            self.height.setValue(round(float(height_mm or width_mm) / 25.4, 2))
+            for box in (self.width, self.height):
+                box.setEnabled(False)
+                box.setToolTip(
+                    "Set on the plot's own right-click menu, under Canvas — "
+                    "it is one page size, read by every export this plot "
+                    "makes.")
+        elif figure is not None:
             w, h = figure.get_size_inches()
             self.width.setValue(float(w))
             self.height.setValue(float(h))
@@ -157,10 +196,19 @@ class SaveFigureDialog(QDialog):
         self.dpi.setToolTip(
             "Dots per inch in the written file. 300 is the usual journal "
             "minimum; the screen never needs more than about 150.")
+        if self._fast:
+            # A pyqtgraph PDF and SVG are true vector -- they have no dpi at
+            # all -- and its PNG is sized in pixels by the same canvas shape.
+            # Instruction 106: disabled and SAYING why.
+            self.dpi.setEnabled(False)
+            self.dpi.setToolTip(
+                "This plot writes true vector for PDF and SVG, which have no "
+                "resolution, and sizes its PNG from the canvas shape on its "
+                "own right-click menu.")
         form.addRow("resolution", self.dpi)
 
         self.format = QComboBox()
-        for value, label in FORMATS:
+        for value, label in (FAST_PLOT_FORMATS if self._fast else FORMATS):
             self.format.addItem(label, value)
         form.addRow("format", self.format)
         layout.addLayout(form)
@@ -197,6 +245,8 @@ class SaveFigureDialog(QDialog):
         """
         from .graph_builder import _canvas_class
 
+        if self._fast:
+            return self._refresh_fast_plot()
         self._preview = style_for_file(
             copy_figure(self._source),
             ink=str(self.ink.currentData() or ""),
@@ -220,6 +270,49 @@ class SaveFigureDialog(QDialog):
         self._holder.addWidget(self._canvas)
         return self._preview
 
+    def _refresh_fast_plot(self):
+        """The preview for a pyqtgraph plot: THE SAME RENDER THE FILE GETS.
+
+        Not an approximation of it. `styled_snapshot` and `export_styled` wear
+        the same styling through the same context manager, so a preview that
+        looked right and a file that did not would take a change to both to
+        produce.
+        """
+        from PySide6.QtCore import Qt
+
+        pixmap = None
+        try:
+            pixmap = self._source.styled_snapshot(
+                760,
+                ink=str(self.ink.currentData() or ""),
+                background=str(self.background.currentData() or ""),
+                grid=self.grid.isChecked())
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not preview the plot", exc_info=True)
+        self._clear_holder()
+        if pixmap is None:
+            self._holder.addWidget(QLabel(
+                "This plot has nothing drawn on it yet, so there is nothing "
+                "to preview or to save."))
+            self._save.setEnabled(False)
+            return None
+        self._save.setEnabled(True)
+        label = QLabel()
+        label.setAlignment(Qt.AlignCenter)
+        label.setPixmap(pixmap)
+        self._holder.addWidget(label)
+        # The pixmap IS the preview; there is no figure object behind it.
+        self._preview = pixmap
+        return pixmap
+
+    def _clear_holder(self) -> None:
+        while self._holder.count():
+            item = self._holder.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.setParent(None)
+                widget.deleteLater()
+
     # ---------------------------------------------------------------- save
 
     def save(self, path: str = "") -> str:
@@ -232,6 +325,20 @@ class SaveFigureDialog(QDialog):
                 f"{dict(FORMATS).get(suffix, suffix)} (*.{suffix})")
         if not chosen:
             return ""
+        if self._fast:
+            try:
+                written = self._source.export_styled(
+                    chosen,
+                    ink=str(self.ink.currentData() or ""),
+                    background=str(self.background.currentData() or ""),
+                    grid=self.grid.isChecked())
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not save the plot", exc_info=True)
+                return ""
+            if not written:
+                return ""
+            self.accept()
+            return str(written)
         target = self._preview if self._preview is not None else self._source
         if target is None:
             return ""

@@ -62,14 +62,21 @@ def test_every_impossible_value_is_refused(bad):
 
 @pytest.mark.parametrize("good", [0.05, 0.01, 0.5, 0.999])
 def test_a_usable_alpha_passes(good):
-    _reject_impossible_probabilities({"fdr_alpha": good})
+    settings = {"fdr_alpha": good}
+    _reject_impossible_probabilities(settings)
+    assert settings == {"fdr_alpha": good}
 
 
 def test_the_penalty_alpha_is_NOT_treated_as_a_probability():
     # `alpha` is the ridge/lasso PENALTY. 1.0 is its default and a perfectly
     # ordinary value; refusing it would break every penalised fit.
-    _reject_impossible_probabilities({"alpha": 1.0})
-    _reject_impossible_probabilities({"alpha": 25.0})
+    settings = {"alpha": 1.0}
+    _reject_impossible_probabilities(settings)
+    assert settings == {"alpha": 1.0}
+
+    settings = {"alpha": 25.0}
+    _reject_impossible_probabilities(settings)
+    assert settings == {"alpha": 25.0}
 
 
 def test_fdr_bh_is_the_default_correction():

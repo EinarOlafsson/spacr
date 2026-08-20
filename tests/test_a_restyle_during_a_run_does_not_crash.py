@@ -40,6 +40,8 @@ def test_the_lock_is_reentrant():
     with FIGURE_LOCK:
         with FIGURE_LOCK:
             pass
+    assert FIGURE_LOCK.acquire(blocking=False)
+    FIGURE_LOCK.release()
 
 
 def test_rendering_and_restyling_the_same_figure_concurrently(tmp_path):
