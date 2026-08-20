@@ -625,6 +625,33 @@ def containment_available() -> bool:
         return False
 
 
+def containment_note() -> str:
+    """One sentence saying whether the kernel cap is actually in force.
+
+    Instruction 114 point 1: fall back to the uncontained path with a LOUD
+    note rather than PRETENDING THE CAP IS THERE. Accounting is not
+    containment -- every previous fix was an estimate of what a trial would
+    use, and the kernel enforcing a ceiling is the only thing that has held.
+    A user who believes a cap exists and is wrong is in a worse position than
+    one who knows there is none: they will start the sweep that took the
+    desktop down.
+    """
+    if containment_available():
+        return (f"Each trial runs under a kernel cap: MemoryMax="
+                f"{TRIAL_MEMORY_MAX}, no swap, CPUQuota={TRIAL_CPU_QUOTA}. A "
+                f"trial that exceeds it is killed alone and recorded as "
+                f"'killed'; the sweep carries on.")
+    return ("NO KERNEL CAP IS AVAILABLE on this machine — `systemd-run "
+            "--user --scope` is missing or refused, which is normal in a "
+            "container or over a bare SSH session with no user manager. "
+            "Trials run uncontained: spaCR still limits threads and refuses "
+            "to start one below the free-memory floor, but that is "
+            "ACCOUNTING, not containment, and a single trial that "
+            "over-allocates can take the machine down. Run the sweep from a "
+            "desktop session, or with fewer workers, or headless on a node "
+            "you do not mind losing.")
+
+
 def free_memory_gb() -> float:
     """Memory the kernel says is actually available, in GB.
 

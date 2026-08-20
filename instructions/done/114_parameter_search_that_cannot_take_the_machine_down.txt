@@ -95,3 +95,45 @@ count. A cap of N workers on a box that cannot hold N is still a crash.
 One request spanned seven instructions; the whole of it is quoted in
 instructions/open/119_the_regression_figure_surface.txt, which indexes the
 pieces.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- AUDITED. THE LAST GAP WAS THE ONE THE INSTRUCTION NAMED FIRST.
+--------------------------------------------------------------------------------
+
+Points 1-5 are built: `run_trial_contained` puts every trial under
+`systemd-run --user --scope` with MemoryMax=24G, MemorySwapMax=0,
+CPUQuota=400% and TasksMax; a killed trial is recorded with status 'killed'
+and the sweep carries on; `_pin_threads` resizes the LIVE pool through
+threadpoolctl so it holds whatever the import order was; `memory_is_low` and
+`recommended_workers` refuse to start below a floor; `be_polite` nices and
+volunteers the worker to the OOM killer ahead of the editor.
+
+WHAT WAS MISSING IS POINT 1's SECOND HALF: "fall back to the current
+behaviour with a LOUD note when it is not, rather than PRETENDING THE CAP IS
+THERE."
+
+`containment_available()` existed and nothing said its answer out loud. On a
+machine without a user manager -- a container, a bare SSH session -- the
+sweep ran uncontained and the screen looked exactly the same as on a machine
+where the kernel was holding a ceiling.
+
+THAT IS THE WORST OF THE THREE STATES. A user who knows there is no cap runs
+fewer workers or moves to another box; a user who believes there is one and
+is wrong starts the sweep that took the desktop down. `containment_note()`
+says which situation it is, names the actual limits when there are limits,
+and when there are none says the CAUSE (systemd-run missing or refused), the
+DISTINCTION ("that is ACCOUNTING, not containment"), and what to do instead.
+The sweep card carries it, in the theme's error colour when there is no cap,
+because it changes what the user should do next rather than being a note
+among notes.
+
+FOUND ON THE WAY: `test_be_polite_survives_a_kernel_that_refuses` asserted
+`os.nice(0) > before`. `os.nice` SATURATES at 19 and niceness is
+PROCESS-GLOBAL, so any earlier test in the same interpreter that called
+`be_polite` left this one unable to observe an increase -- it passed alone and
+failed in a suite. It asks whether be_polite CALLED nice now, which is the
+property ("the rest of it still runs after the refusal") and is
+isolation-proof.
+
+6 tests in tests/test_the_sweep_says_whether_the_cap_is_real.py, and 49 pass
+across the five sweep suites together.
