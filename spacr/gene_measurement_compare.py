@@ -62,6 +62,51 @@ PLOTS: Tuple[Tuple[str, str], ...] = (
 #: What the rest of the screen is called in the plot and in the table.
 REST = "the rest"
 
+#: How two measurements may be combined (179 B), and the symbol that names
+#: the result. The NAME IS THE EXPRESSION -- `pathogen_area / cell_area` --
+#: so a saved table, a figure legend and the settings file all say the same
+#: thing and none of them needs a key to decode.
+OPERATORS: Tuple[Tuple[str, str], ...] = (
+    ("", "on its own"),
+    ("+", "plus"),
+    ("-", "minus"),
+    ("*", "multiplied by"),
+    ("/", "divided by"),
+)
+
+
+def combine(objects: "pd.DataFrame", first: str, operator: str,
+            second: str) -> Tuple["pd.Series", str, int]:
+    """``(values, name, dropped)`` for two measurements combined.
+
+    :returns: the combined column, the name that describes it, and how many
+        rows had to be dropped.
+
+    DIVISION NEEDS A RULE AND IT IS STATED. A zero denominator is not an
+    error in the data and not a number in the result; those rows are dropped
+    and COUNTED, because turning them into infinity or into zero would each
+    change what the comparison found -- one invents an extreme observation,
+    the other invents an ordinary one.
+    """
+    left = pd.to_numeric(objects[first], errors="coerce")
+    if not operator:
+        return left, str(first), 0
+    right = pd.to_numeric(objects[second], errors="coerce")
+    name = f"{first} {operator} {second}"
+    if operator == "+":
+        return left + right, name, 0
+    if operator == "-":
+        return left - right, name, 0
+    if operator == "*":
+        return left * right, name, 0
+    if operator == "/":
+        zero = (right == 0) | ~np.isfinite(right)
+        values = left.divide(right.where(~zero))
+        return values, name, int(zero.sum())
+    raise ValueError(
+        f"{operator!r} is not one of "
+        f"{', '.join(repr(o) for o, _l in OPERATORS if o)}")
+
 
 @dataclass
 class Comparison:
@@ -99,7 +144,9 @@ def _unit_columns(level: str) -> Tuple[str, ...]:
 def build(objects: pd.DataFrame, measurement: str, *,
           groups: Dict[str, Sequence[Any]],
           level: str = "well",
-          value_column: Optional[str] = None) -> Comparison:
+          value_column: Optional[str] = None,
+          operator: str = "",
+          second: str = "") -> Comparison:
     """Assemble the long frame this comparison is drawn and tested from.
 
     :param objects: per-object rows, carrying ``measurement`` and whichever
@@ -117,12 +164,21 @@ def build(objects: pd.DataFrame, measurement: str, *,
         whichever group happens to be larger.
     """
     column = str(value_column or measurement)
-    if column not in getattr(objects, "columns", ()):
-        return Comparison(measurement=measurement, level=level,
-                          frame=pd.DataFrame(columns=["group", "value"]),
-                          note=f"{column!r} is not a column on these objects")
+    wanted = [column] + ([str(second)] if operator and second else [])
+    missing = [c for c in wanted if c not in getattr(objects, "columns", ())]
+    if missing:
+        return Comparison(
+            measurement=measurement, level=level,
+            frame=pd.DataFrame(columns=["group", "value"]),
+            note=f"{', '.join(repr(c) for c in missing)} is not a column "
+                 f"on these objects")
 
-    values = pd.to_numeric(objects[column], errors="coerce")
+    dropped = 0
+    if operator and second:
+        values, measurement, dropped = combine(objects, column,
+                                               str(operator), str(second))
+    else:
+        values = pd.to_numeric(objects[column], errors="coerce")
     labels = pd.Series(REST, index=objects.index, dtype=object)
     for name, members in (groups or {}).items():
         picked = objects.index.isin(list(members))
@@ -150,11 +206,18 @@ def build(objects: pd.DataFrame, measurement: str, *,
                 .mean())
 
     note = ""
+    if dropped:
+        # SAID, ALWAYS. A comparison quietly computed on fewer rows than the
+        # user thinks is the kind of result that survives review and is
+        # wrong.
+        note = (f"{dropped:,} row(s) left out: the denominator was zero or "
+                f"missing, which has no value rather than an extreme one")
     if level == "cell":
         units = int(work["unit"].nunique())
-        note = (f"one row per CELL: {units:,} rows, and every cell from one "
-                f"well shares that well's treatment — so these rows are not "
-                f"independent and the p-value is about cells, not wells")
+        note = ((note + " · ") if note else "") + (
+            f"one row per CELL: {units:,} rows, and every cell from one "
+            f"well shares that well's treatment — so these rows are not "
+            f"independent and the p-value is about cells, not wells")
     return Comparison(measurement=measurement, level=level, frame=work,
                       note=note)
 

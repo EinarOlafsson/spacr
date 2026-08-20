@@ -1721,6 +1721,14 @@ class CellMontageView(QWidget):
         summary_layout.addWidget(self._caption, 1)
         self._tabs.addTab(summary, "Summary")
         self._summary_tab = summary
+
+        # THE GRAPH TAB (179 A), beside Summary and empty until a montage has
+        # been generated: before that there are no groups to graph, and a tab
+        # offering to would be a control that cannot work. It is created here
+        # so it keeps its place in the tab ORDER -- added later it would
+        # arrive after whichever well tabs a run opened.
+        self._graph_tab = None
+        self._graph_panel = None
         # The summary tab has no x. Qt puts the close button on whichever
         # side the style names; removing BOTH is the only way that does not
         # depend on the style.
@@ -2047,6 +2055,7 @@ class CellMontageView(QWidget):
         self._fill()
         self._set_status(self._summary())
         self._refresh_controls()
+        self._ensure_graph_tab()
         self.montage_ready.emit(result.n_objects)
 
     def _on_job_failed(self, message: str) -> None:
@@ -2448,6 +2457,43 @@ class CellMontageView(QWidget):
         """Whether the crops in hand still answer the current settings."""
         return (bool(self._plans) and bool(self._images)
                 and self._loaded_signature == self._load_signature())
+
+    def _ensure_graph_tab(self) -> None:
+        """Put the Graph tab beside Summary once there is something to graph.
+
+        Built on the first montage rather than at construction: the panel
+        needs the object rows and the picker's groups, and a tab that said
+        "nothing yet" would be a second way of saying what the Summary tab
+        already says.
+        """
+        rows = self._all_objects()
+        groups = self.picked_groups()
+        if rows is None or not len(rows) or not groups:
+            return
+        from .measurement_compare_dialog import MeasurementComparePanel
+
+        if self._graph_panel is None:
+            self._graph_panel = MeasurementComparePanel(
+                rows, groups, parent=self._tabs,
+                settings=self.picture_settings())
+            # AFTER Summary, which is index 0, and before any well tab.
+            self._graph_tab = self._tabs.insertTab(1, self._graph_panel,
+                                                   "Graph")
+            self._hide_close_button(1)
+        else:
+            self._graph_panel.set_data(rows, groups,
+                                       settings=self.picture_settings())
+
+    def _hide_close_button(self, index: int) -> None:
+        """A tab the user cannot close needs no x on either side."""
+        from PySide6.QtWidgets import QTabBar
+
+        bar = self._tabs.tabBar()
+        for side in (QTabBar.LeftSide, QTabBar.RightSide):
+            try:
+                bar.setTabButton(index, side, None)
+            except Exception:                                # noqa: BLE001
+                continue
 
     def _redraw_from_cache(self) -> None:
         """Draw the crops already loaded, with the display settings as they
