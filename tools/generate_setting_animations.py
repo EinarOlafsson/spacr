@@ -1048,15 +1048,44 @@ def _organelle_scene(painter: Painter, spec: Spec, action: float) -> None:
     _well(painter)
     mode = spec.params["mode"]
     if mode == "watershed":
+        # SHOWED THE WRONG THING. One blob 62 wide cross-faded into two 32
+        # wide sitting 60 px apart -- so at every intermediate frame all three
+        # overlapped each other AND the fading original, and the "after"
+        # state was one wide mush with no split visible at all.
+        #
+        # THREE CHANGES, and each is about the same thing: a split is only a
+        # split if you can see the gap.
+        #
+        # 1. THEY MOVE APART instead of appearing where they will end up. The
+        #    two halves start at the original's centre and separate as the
+        #    action runs, which is what a watershed DOES -- it decides where
+        #    one object becomes two.
+        # 2. THEY END FURTHER APART, 100 px rather than 60, so two 32-wide
+        #    glyphs have clear ground between them at the end.
+        # 3. THE ORIGINAL IS MOSTLY GONE BEFORE THEY ARRIVE, but the two
+        #    ramps OVERLAP. A clean hand-off (out by 0.5, in from 0.5) leaves
+        #    a frame with nothing on it at all -- measured: left=0 centre=0
+        #    right=0 at action 0.5 -- and a blank frame is worse than the
+        #    mush this is replacing, because it reads as a broken animation
+        #    rather than an unclear one. Out over 0..0.6, in over 0.4..1.0.
+        gone = max(0.0, min(1.0, (0.6 - action) / 0.6))
+        arrived = max(0.0, min(1.0, (action - 0.4) / 0.6))
         _object_outline(
-            painter, "organelle", (180, 120), (62, 30), 1.0 - action, 0.4,
+            painter, "organelle", (180, 120), (62, 30), gone, 0.4,
+        )
+        gap = 12 + 38 * action
+        _object_outline(
+            painter, "organelle", (180 - gap, 120), (32, 25), arrived, 0.2,
         )
         _object_outline(
-            painter, "organelle", (150, 120), (32, 25), action, 0.2,
+            painter, "organelle", (180 + gap, 120), (32, 25), arrived, 0.9,
         )
-        _object_outline(
-            painter, "organelle", (210, 120), (32, 25), action, 0.9,
-        )
+        # THE LINE THE SPLIT IS MADE ON. A watershed is a boundary, and
+        # drawing it is the difference between "two things now" and "here is
+        # where one became two".
+        if arrived > 0.05:
+            painter.line([(180, 92), (180, 148)],
+                         _mix(WHITE, 0.25 + 0.45 * arrived), 0.5)
     elif mode == "skeleton":
         _object_outline(
             painter, "organelle", (180, 120), (94, 38), 1.0 - action, 0.5,

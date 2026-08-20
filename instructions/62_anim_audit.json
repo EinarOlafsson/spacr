@@ -3,8 +3,8 @@
   "audited_against": "fce4ef86",
   "animations_total": 94,
   "counts": {
-    "GOOD": 66,
-    "WEAK": 28
+    "GOOD": 67,
+    "WEAK": 27
   },
   "verdicts": {
     "GOOD": "the visible difference is the difference the setting makes, and it is readable at the size a tooltip shows it",
@@ -183,9 +183,9 @@
       "settings": [
         "organelle_watershed_spots"
       ],
-      "verdict": "WEAK",
+      "verdict": "GOOD",
       "visible_change": 0.0529,
-      "note": "SHOWS THE WRONG THING: intended as one blob (62x30 at x=180) cross-fading into two spots (32x25 at x=150 and x=210), but all three use the same multi-stroke Golgi glyph and sit 60 px apart, so they overlap each other and the fading original. The 'after' state is one wide mush; the split is not visible at all."
+      "note": "FIXED 2026-08-20. Three changes, each about the same thing -- a split is only a split if you can see the gap. (1) THE HALVES MOVE APART instead of appearing where they will end up: they start at the original's centre and separate as the action runs, which is what a watershed DOES. (2) THEY END 100 px APART rather than 60, so two 32-wide glyphs have clear ground between them. (3) THE CROSSFADE RAMPS OVERLAP -- out over 0..0.6, in over 0.4..1.0 -- because a clean hand-off at 0.5 left a frame with NOTHING on it (measured: left 0, centre 0, right 0), and a blank frame reads as a broken animation rather than an unclear one. Plus the watershed LINE is drawn: a watershed is a boundary, and drawing it is the difference between 'two things now' and 'here is where one became two'. Measured on the regenerated GIF: 18 frames, none near-blank, and 4 separate ink groups in the final frame where the mush was one."
     },
     {
       "slug": "cell_Signal_to_noise",
