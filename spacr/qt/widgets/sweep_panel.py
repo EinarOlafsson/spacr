@@ -119,9 +119,10 @@ class SweepPanel(QWidget):
         self.run_button.setToolTip(
             "Every guide against every measurement, blocked on plate and "
             "corrected across the whole grid. Identifier columns are left "
-            "out, and every row says how far the classification score "
-            "already tracks that measurement — a measurement the score "
-            "predicts cannot corroborate anything derived from it.")
+            "out. Each row also reports the absolute Spearman rank "
+            "correlation between the measurement and the classification "
+            "score, which identifies results that may reflect the score's "
+            "existing measurement basis.")
         self.run_button.clicked.connect(self.start)
         row.addWidget(self.run_button)
 
@@ -153,9 +154,10 @@ class SweepPanel(QWidget):
             self.picture.addItem(label, value)
         self._picture_label.setToolTip(
             "Which view of the sweep to draw and to save beside the table. "
-            "Each answers a question the others cannot — the heatmap says "
-            "what survived, calibration says whether the screen is worth "
-            "reading at all, and the rest are in the list.")
+            "The heatmap summarizes surviving effects, calibration checks "
+            "the null p-value distribution, and the other views examine "
+            "effect size, hit counts, score correlation, guide prevalence, "
+            "profiles, similarity, or agreement among a gene's guides.")
         row.addWidget(self.picture)
 
         # WHAT TO LEAVE OUT, on its own row. Asked for 2026-08-19: "there
@@ -187,11 +189,10 @@ class SweepPanel(QWidget):
         self.cap_wells = QCheckBox("drop guides in more than")
         self.cap_wells.setToolTip(
             "Leave out a guide present in more than this share of the wells. "
-            "THE OVER-REPRESENTATION FILTER: a guide in every well has the "
-            "statistical weight of the whole screen behind it, so it clears "
-            "the correction on measurements a rarer guide could never reach "
-            "— see the 'hits vs representation' picture for what that looks "
-            "like on your own screen.")
+            "Highly prevalent guides can have much greater precision than "
+            "rare guides and may be associated with many measurements. Use "
+            "the 'hits vs representation' view to choose a threshold from "
+            "this screen rather than assuming prevalence is harmless.")
         leave_out.addWidget(self.cap_wells)
         self.cap_wells_value = QDoubleSpinBox()
         self.cap_wells_value.setDecimals(2)
@@ -214,9 +215,10 @@ class SweepPanel(QWidget):
 
         self.hide_circular = QCheckBox("hide what the score already tracks")
         self.hide_circular.setToolTip(
-            "Leaves out measurements the classification score predicts. They "
-            "are not wrong, they just cannot corroborate a result derived "
-            "from that score.")
+            "Hide rows whose measurement has an absolute Spearman rank "
+            "correlation of 0.15 or more with the classification score. "
+            "These rows may reflect the score's existing measurement basis "
+            "and are not independent corroboration.")
         self.hide_circular.setChecked(True)
         self.hide_circular.stateChanged.connect(self._refill)
         row.addWidget(self.hide_circular)
