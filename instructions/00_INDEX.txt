@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-164 done / 19 open (89%).
+165 done / 18 open (90%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -74,9 +74,6 @@ OPEN
 
   188  THE CELLS TAB: APPLY SETTINGS IN MILLISECONDS, AND R,G,B BACK
        188_the_cells_tab_applies_settings_without_reloading.txt
-
-  189  THE PLOTS MUST SHOW THE REGRESSION THAT ACTUALLY RAN
-       189_the_plots_must_show_the_regression_that_ran.txt
 
   190  A RUN OPENS ON DOUBLE-CLICK, AND THE TAB DOES NOT MOVE ON ITS OWN
        190_a_run_opens_on_double_click_and_stays_put.txt
@@ -249,3 +246,4 @@ DONE
   181  A PENALTY THAT SHRINKS EVERY COEFFICIENT TO ZERO IS NOT A DEFAULT
   182  THE GLM FAMILY MUST BE CHOSEN ON THE RESPONSE THE MODEL ACTUALLY FITS
   183  790 COEFFICIENTS DO NOT BELONG IN THE CONSOLE
+  189  THE PLOTS MUST SHOW THE REGRESSION THAT ACTUALLY RAN
