@@ -3,8 +3,8 @@
   "audited_against": "fce4ef86",
   "animations_total": 94,
   "counts": {
-    "GOOD": 67,
-    "WEAK": 27
+    "GOOD": 71,
+    "WEAK": 23
   },
   "verdicts": {
     "GOOD": "the visible difference is the difference the setting makes, and it is readable at the size a tooltip shows it",
@@ -133,9 +133,9 @@
       "settings": [
         "cell_FT"
       ],
-      "verdict": "WEAK",
+      "verdict": "GOOD",
       "visible_change": 0.0316,
-      "note": "A poorly-fitting doubled mask beside a clean one is discarded, which is the right subject. But nothing indicates DIRECTION, and flow_threshold's direction is counter-intuitive: the tooltip says LOWERING it discards more masks, while the animation runs off -> on and so implies the opposite."
+      "note": "FIXED 2026-08-20. The subject was already right -- a poorly-fitting doubled mask beside a clean one is discarded -- and the DIRECTION was backwards by implication, which is worse than a faint animation. flow_threshold is counter-intuitive (LOWERING it discards more masks) while every animation in this set runs off -> on, so the frame where the ragged mask vanishes was also the frame a viewer reads as 'the setting went up'. Nothing in the drawing said which way the value moved, so the viewer supplied the only reading available and it was the wrong one. A track below the masks now EMPTIES as the discard happens -- measured: the fill reaches x=274 at action 0 and x=169 at action 1 -- so the value and the consequence move in the same direction instead of opposite ones."
     },
     {
       "slug": "nucleus_FT",
@@ -143,9 +143,9 @@
       "settings": [
         "nucleus_FT"
       ],
-      "verdict": "WEAK",
+      "verdict": "GOOD",
       "visible_change": 0.037,
-      "note": "A poorly-fitting doubled mask beside a clean one is discarded, which is the right subject. But nothing indicates DIRECTION, and flow_threshold's direction is counter-intuitive: the tooltip says LOWERING it discards more masks, while the animation runs off -> on and so implies the opposite."
+      "note": "FIXED 2026-08-20. The subject was already right -- a poorly-fitting doubled mask beside a clean one is discarded -- and the DIRECTION was backwards by implication, which is worse than a faint animation. flow_threshold is counter-intuitive (LOWERING it discards more masks) while every animation in this set runs off -> on, so the frame where the ragged mask vanishes was also the frame a viewer reads as 'the setting went up'. Nothing in the drawing said which way the value moved, so the viewer supplied the only reading available and it was the wrong one. A track below the masks now EMPTIES as the discard happens -- measured: the fill reaches x=274 at action 0 and x=169 at action 1 -- so the value and the consequence move in the same direction instead of opposite ones."
     },
     {
       "slug": "organelle_FT",
@@ -153,9 +153,9 @@
       "settings": [
         "organelle_FT"
       ],
-      "verdict": "WEAK",
+      "verdict": "GOOD",
       "visible_change": 0.0342,
-      "note": "A poorly-fitting doubled mask beside a clean one is discarded, which is the right subject. But nothing indicates DIRECTION, and flow_threshold's direction is counter-intuitive: the tooltip says LOWERING it discards more masks, while the animation runs off -> on and so implies the opposite."
+      "note": "FIXED 2026-08-20. The subject was already right -- a poorly-fitting doubled mask beside a clean one is discarded -- and the DIRECTION was backwards by implication, which is worse than a faint animation. flow_threshold is counter-intuitive (LOWERING it discards more masks) while every animation in this set runs off -> on, so the frame where the ragged mask vanishes was also the frame a viewer reads as 'the setting went up'. Nothing in the drawing said which way the value moved, so the viewer supplied the only reading available and it was the wrong one. A track below the masks now EMPTIES as the discard happens -- measured: the fill reaches x=274 at action 0 and x=169 at action 1 -- so the value and the consequence move in the same direction instead of opposite ones."
     },
     {
       "slug": "pathogen_FT",
@@ -163,9 +163,9 @@
       "settings": [
         "pathogen_FT"
       ],
-      "verdict": "WEAK",
+      "verdict": "GOOD",
       "visible_change": 0.0611,
-      "note": "A poorly-fitting doubled mask beside a clean one is discarded, which is the right subject. But nothing indicates DIRECTION, and flow_threshold's direction is counter-intuitive: the tooltip says LOWERING it discards more masks, while the animation runs off -> on and so implies the opposite."
+      "note": "FIXED 2026-08-20. The subject was already right -- a poorly-fitting doubled mask beside a clean one is discarded -- and the DIRECTION was backwards by implication, which is worse than a faint animation. flow_threshold is counter-intuitive (LOWERING it discards more masks) while every animation in this set runs off -> on, so the frame where the ragged mask vanishes was also the frame a viewer reads as 'the setting went up'. Nothing in the drawing said which way the value moved, so the viewer supplied the only reading available and it was the wrong one. A track below the masks now EMPTIES as the discard happens -- measured: the fill reaches x=274 at action 0 and x=169 at action 1 -- so the value and the consequence move in the same direction instead of opposite ones."
     },
     {
       "slug": "organelle_skeletonize",
