@@ -313,3 +313,28 @@ WHAT IS LEFT OF THIS FILE:
   * A still is CAPTURED and can be ASKED FOR, and nothing yet PAINTS one in the
     Runs tab beside the row it belongs to. That is the obvious next use and it
     needs no new machinery -- `run_photograph(folder)` is the whole of it.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- THE LAST TWO LINES. 116 IS COMPLETE.
+--------------------------------------------------------------------------------
+
+`FastPlot.pinned_limits()` exists and `plot_state` goes through it. The
+`getattr(volcano, "_pinned")` was this file's one private coupling and it was
+reaching into another module for a question that module can answer. It returns
+a COPY, so a caller stashing a run's view cannot reach back through it and
+move the plot. `None` for an unpinned axis is deliberately not the range the
+plot happens to be showing: storing the auto-ranged limits would freeze a run
+at whatever it looked like when the user left it, so returning to it would
+stop it following its own data.
+
+THE STILL IS PAINTED. `SweepRunsPanel` shows the selected run's photograph
+under the table, through a `set_photo_provider` callable rather than a dict --
+a photograph taken after the panel was built is still found.
+
+HIDDEN WHEN THERE IS NONE, which is most rows and is the property worth
+naming: an empty frame under the table would read as a run that failed to draw
+rather than as one nobody has opened beside. A provider that raises costs the
+still and not the panel, and the still SAYS it is a still, because a picture
+of a plot that ignores clicks has to explain why it does.
+
+11 tests in tests/qt/test_the_runs_tab_shows_a_still_of_a_run.py.

@@ -69,6 +69,15 @@ def test_a_colour_auto_never_produces_is_kept(store, monkeypatch):
     assert store.get_figure_color_tokens() == ("#123456", "#00ffcc")
 
 
+def test_a_current_explicit_black_and_white_choice_is_kept(store,
+                                                            monkeypatch):
+    """The repair must not undo a choice made through the current setter."""
+    monkeypatch.setattr(store, "resolve_effective_theme", lambda: "dark")
+    store.set_figure_colors("#ffffff", "#000000")
+
+    assert store.get_figure_color_tokens() == ("#ffffff", "#000000")
+
+
 def test_a_half_that_is_already_auto_is_not_disturbed(store, monkeypatch):
     monkeypatch.setattr(store, "resolve_effective_theme", lambda: "dark")
     _pin(store, store.AUTO_FIGURE_COLOR, "#000000")

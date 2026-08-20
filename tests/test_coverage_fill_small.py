@@ -122,6 +122,7 @@ class TestUpdater:
             captured["kwargs"] = kwargs
             return _Completed()
 
+        monkeypatch.setattr(U, "editable_install_location", lambda: None)
         monkeypatch.setattr(U, "find_uv", lambda: None)
         monkeypatch.setattr(subprocess, "run", _fake_run)
         rc, output = U.run_pip_upgrade(pre_release=True)
@@ -149,6 +150,7 @@ class TestUpdater:
             captured["args"] = args
             return _Completed()
 
+        monkeypatch.setattr(U, "editable_install_location", lambda: None)
         monkeypatch.setattr(U, "find_uv", lambda: "/opt/spacr/bootstrap/uv")
         monkeypatch.setattr(subprocess, "run", _fake_run)
         rc, _output = U.run_pip_upgrade()
@@ -167,6 +169,7 @@ class TestUpdater:
         def _boom(args, **kwargs):
             raise FileNotFoundError(args[0])
 
+        monkeypatch.setattr(U, "editable_install_location", lambda: None)
         monkeypatch.setattr(U, "find_uv", lambda: None)
         monkeypatch.setattr(subprocess, "run", _boom)
         rc, output = U.run_pip_upgrade()

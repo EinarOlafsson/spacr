@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-133 done / 43 open (75%).
+141 done / 35 open (80%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -41,9 +41,6 @@ OPEN
 
   115  EVERY REGRESSION DIAGNOSTIC, SAVED AND SCORED -- NOT ONLY IN THE SEARCH
        115_every_regression_diagnostic_graph_saved_and_scored.txt
-
-  116  CLICK A SEARCH ROW TO SPAWN THAT RUN'S GRAPHS
-       116_click_a_search_row_to_spawn_its_graphs.txt
 
   118  FIGURE PREFERENCES: GENERAL, AND PER GRAPH TYPE
        118_figure_preferences_general_and_per_graph.txt
@@ -105,32 +102,11 @@ OPEN
   143  PLATE POSITION IS OPT IN, AND THE MODEL BOX IS SHORTER
        143_plate_position_is_opt_in_and_the_box_is_shorter.txt
 
-  144  THE MODEL BOX IS TYPESET, NOT DUMPED
-       144_the_model_box_is_typeset_not_dumped.txt
-
   145  ONE READER, ONE WRITER, ONE KEY VOCABULARY
        145_one_reader_one_writer_one_vocabulary.txt
 
-  147  BOTH FITS ARE VISIBLE, A SQUARE IS A SQUARE, AND THE MENU HAS CATEGORIES
-       147_both_fits_are_visible_a_square_is_a_square_and_the_menu_has_categories.txt
-
-  148  THE X AND Y AXES BEHAVE AS EXPECTED, LOGGED OR NOT
-       148_the_axes_behave_as_expected_logged_or_not.txt
-
-  149  THE VOLCANO'S Y AXIS IS CONTINUOUS AGAIN
-       149_the_volcano_y_axis_is_continuous_again.txt
-
   150  A SAVED FIGURE IS FOR PAPER, NOT FOR THE SCREEN
        150_a_saved_figure_is_for_paper_not_for_the_screen.txt
-
-  152  TWO COLOURS -- LINES AND FONT -- AND THEY FOLLOW THE THEME
-       152_the_axis_and_text_colour_follow_the_theme_and_the_user.txt
-
-  154  THE MEASUREMENTS TAB IS A WORKFLOW, NOT A REPORT
-       154_the_measurements_tab_is_a_workflow_not_a_report.txt
-
-  155  THE MONTAGE KNOWS ITS OWN RUN, AND SAYS HOW IT CHOSE
-       155_the_montage_knows_its_own_run_and_says_how_it_chose.txt
 
   158  AN UNAVAILABLE OPTION OFFERS TO MAKE ITSELF AVAILABLE
        158_an_unavailable_option_offers_to_make_itself_available.txt
@@ -257,6 +233,7 @@ DONE
   111  A CLEAR FIGURES CONTROL: PLAIN TEXT THAT FLICKERS BLUE WHEN CLICKED
   112  guards added; the permanently-skipped link test now runs in CI.
   113  A TOOLTIP APPEARS OVER THE SETTING, NOT OVER ITS FIELD
+  116  CLICK A SEARCH ROW TO SPAWN THAT RUN'S GRAPHS
   117  FIGURES ON A GRID, AT THEIR OWN ASPECT, NOT STRETCHED
   119  THE REGRESSION FIGURE SURFACE: A GRID, A RESULTS TABLE, AND SPEED
   120  THE README'S INSTALLER LINKS ARE PLATFORM ICONS, IN WHITE LINE ART
@@ -264,9 +241,16 @@ DONE
   124  FINISHING THE REGRESSION FIGURES: EVERY PLOT, EVERY RUN, EVERY POINT
   127  MODULES THAT OVERLAP OR ARE REDUNDANT, MEASURED 2026-08-17
   130  A MEASUREMENTS DATABASE PER PLATE, DROPPED INTO THE INPUT TABLE
+  144  THE MODEL BOX IS TYPESET, NOT DUMPED
   146  DELETE A RUN FROM THE RUNS TAB, NOT ONLY FROM THE FIGURES
+  147  BOTH FITS ARE VISIBLE, A SQUARE IS A SQUARE, AND THE MENU HAS CATEGORIES
+  148  THE X AND Y AXES BEHAVE AS EXPECTED, LOGGED OR NOT
+  149  THE VOLCANO'S Y AXIS IS CONTINUOUS AGAIN
   151  CHANGING A LINE WIDTH SHOULD NOT TAKE A MINUTE
+  152  TWO COLOURS -- LINES AND FONT -- AND THEY FOLLOW THE THEME
   153  THE MODEL SUMMARY SURVIVES BEING LOADED FROM DISK
+  154  THE MEASUREMENTS TAB IS A WORKFLOW, NOT A REPORT
+  155  THE MONTAGE KNOWS ITS OWN RUN, AND SAYS HOW IT CHOSE
   156  EVERY REGRESSION MODE GETS A SUMMARY, NOT ONLY THE ONES STATSMODELS WRITES ONE FOR
   157  THE LOADED MARK MOVES AND NOTHING RELOADS
   159  LOADING A RUN HANGS THE APPLICATION

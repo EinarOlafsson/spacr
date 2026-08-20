@@ -520,3 +520,9 @@ The other two assertions in that file were STALE rather than wrong -- they
 named the pre-rework labels ("raw p-value", "adjusted (fdr_bh)") -- and now
 name the current ones. Two tests were added: one that a corrected run can
 still choose the axis, so the greying cannot creep, and one for the unwind.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- CLOSED. The sections above are shipped; F.5, F.6 and the y-axis
+jitter under "NOT DONE, DELIBERATELY" are recorded decisions with their
+reasons, not outstanding work.
+--------------------------------------------------------------------------------

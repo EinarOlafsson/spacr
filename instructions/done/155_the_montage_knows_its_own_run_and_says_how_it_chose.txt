@@ -430,3 +430,10 @@ NOT DONE
     `merged`. It goes through the fixed `correct_paths` and is correct, but
     it is a third anchor name that `PATH_ANCHORS` does not know about --
     worth folding in if that folder ever moves too.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- CLOSED. Every section above is marked SHIPPED with what it did.
+The items under "NOT DONE" are recorded scope decisions with their reasons,
+not outstanding work; anything among them that is later wanted is a new
+instruction rather than this one reopened.
+--------------------------------------------------------------------------------

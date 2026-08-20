@@ -1861,7 +1861,12 @@ class RegressionResultsPanel(QWidget):
         is rebuilt from each table's own columns and index 3 is a different
         column in the next run.
         """
-        pinned = getattr(self.volcano, "_pinned", None) or {}
+        # THE PLOT'S OWN ANSWER, through its public method (116's last
+        # private coupling). `getattr(volcano, "_pinned")` was reaching into
+        # another module's attribute for a question that module can answer.
+        reader = getattr(self.volcano, "pinned_limits", None)
+        pinned = reader() if callable(reader) else (
+            getattr(self.volcano, "_pinned", None) or {})
         return {
             "level": self._level,
             "colour_by": self._colour_by.currentData(),
