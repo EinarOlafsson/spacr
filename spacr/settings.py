@@ -4689,6 +4689,61 @@ def get_setting_dependencies():
         mode = str(settings.get('analysis_mode') or '').lower()
         return inference == 'auto' or mode == 'guide_permutation'
 
+    def permutation_is_certain(settings) -> bool:
+        """Whether the run WILL permute -- not merely whether it might.
+
+        NOT `not permutation_active(...)`, which is the mistake this replaces
+        and which my own comment below warned about before I made it.
+        `permutation_active` answers True under 'auto' ON PURPOSE, so the
+        permutation controls stay live while the resolution is unknown.
+        Negating it therefore greys the MODEL controls under 'auto' too --
+        and 'auto' may well resolve to regression, in which case those are
+        exactly the settings the run reads.
+
+        Certain means `inference` names the permutation path outright.
+        """
+        inference = str(settings.get('inference') or 'auto').strip().lower()
+        selected = INFERENCE_MODES.get(inference, None)
+        if selected is not None:
+            return selected == 'guide_permutation'
+        # No usable `inference`: fall back to an explicit analysis_mode, and
+        # 'auto' is never certain.
+        return (inference != 'auto'
+                and str(settings.get('analysis_mode') or '').lower()
+                == 'guide_permutation')
+
+    # AND THE MIRROR OF IT: the model settings are dead under permutation.
+    #
+    # Asked on 2026-08-20 -- "if i use a mixed model an nonparametric, is that
+    # still regression or multiple linear regression" -- and the honest answer
+    # is that you do not get both. `inference='nonparametric'` selects
+    # `analysis_mode='guide_permutation'`, which NEVER CALLS
+    # `regression_model`: it is a per-guide marginal association test with
+    # Freedman-Lane permutations, and it fits no simultaneous model at all.
+    # `regression_type` is read, stored, saved into the settings CSV, and
+    # then not used.
+    #
+    # The run summary already says so AFTERWARDS. Saying it at the point of
+    # choosing is 106's rule, and this is exactly the case for it: a user
+    # picking `mixed` here is choosing a model they will not get.
+    #
+    # NOT UNDER 'auto', for the same reason the permutation controls stay
+    # live there: its real resolution counts guides and wells, which this
+    # cannot see, so greying a setting the run may well read is the worse
+    # error of the two.
+    for key in ('regression_type', 'regression_backend', 'cov_type',
+                'model_plate_position', 'random_row_column_effects'):
+        setting_dependencies[key] = _combined(
+            setting_dependencies.get(key),
+            ('inference', 'analysis_mode'),
+            lambda settings, context: not permutation_is_certain(settings),
+            lambda settings, context, setting=key: (
+                f"{setting} is not read under nonparametric inference: the "
+                f"guide-permutation path tests each guide on its own with "
+                f"plate-blocked permutations and fits no model, so no "
+                f"regression family is chosen. The value is kept and saved."),
+        )
+
     for key in guide_keys:
         setting_dependencies[key] = rule(
             ('inference', 'analysis_mode'), permutation_active,
