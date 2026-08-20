@@ -195,3 +195,40 @@ The styling is the floor and this is the improvement on it, and a test holds
 the floor so nobody removes it as now-dead code.
 
 7 tests in tests/qt/test_the_tab_arrows_are_gone_and_the_bar_is_still_navigable.py.
+
+--------------------------------------------------------------------------------
+2026-08-20 (later) -- A's PLOT TYPES: THE THREE COMPOSITES WERE MISSING.
+--------------------------------------------------------------------------------
+
+"i should be able to right click on them and show them as: line, bar,
+jitter-bar, jitter-box, jitter, box, violin plots"
+
+Five of the seven were on the menu. `line`, `jitter_bar` and `jitter_box` were
+not -- and offering `jitter` and `box` separately is NOT the same request. A
+jitter-box is the box AND the observations at once: the box summarises and the
+points are the evidence, which is exactly the argument 139 B makes for making
+it the DEFAULT of the generated figures. Two pictures and no way to see both
+is what the composite exists to fix.
+
+THE SUMMARY FIRST, THE POINTS ON TOP, so the observations are not hidden
+behind the shape that summarises them. AND THE POINTS KEEP THEIR ROWS, which
+is what makes a composite the honest default rather than a nicer-looking one:
+a bare box or bar stands for many rows and cannot honestly select one of them
+-- the panel says so in its own mark note -- while a jitter-box lets the
+reader see the distribution AND click any observation in it.
+
+THE JOINING IS THE PANEL'S, NOT THE MARK'S. `add_group_mark` draws one group
+at a time and cannot see its neighbours, so a line chart made of per-group
+calls would be a row of unconnected markers. The panel joins them once every
+group is drawn, and only when there are two -- a "line" through one point is a
+point.
+
+E IS DONE and was done by HIDING rather than deleting: the Results panel's
+`colour by` combo is `setVisible(False)`, and it stays in the widget tree
+because `plot_state` reads its `currentData()` -- so a run's remembered
+colouring and 180's saved workspace still round-trip through it. The control
+the user reaches is the volcano's own right-click entry, which is where it
+belongs.
+
+27 tests in tests/qt/test_the_seven_plot_types_the_ask_named.py, one of which
+walks the menu and checks the mark in force is TICKED.
