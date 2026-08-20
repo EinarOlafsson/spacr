@@ -1616,24 +1616,12 @@ class AppScreen(QWidget):
     GENE_TILE_KEY = "gene"
 
     def _gene_tile_entry(self, panel) -> list:
-        """The gene tile as a grid entry, or ``[]`` when there is no gene.
+        """Return the selected gene panel as a figure-grid tile.
 
-        121's last owed item: "the tile in the FIGURE GRID rather than only
-        in a tab".
-
-        THE CONTRACT ALREADY ALLOWED IT, which the instruction did not know:
-        it recorded that `_FigureCell.index` is the position in the pixmap
-        list and that inserting a tile would shift every figure after it --
-        true of a FIGURE tile. But the grid already carries tiles that are
-        not the run's figures: a live tile is built with index ``-1`` and a
-        `live_key`, precisely so "none of them can ever be mistaken for a
-        figure". The gene tile is that same shape, so it costs no change to
-        the index contract at all.
-
-        Rendered to a pixmap rather than added as a widget, for the reason
-        measured when the live tiles were: 18 live pyqtgraph widgets cost
-        74.99 ms per window-drag frame against 5.19 ms for pictures, on a
-        16.7 ms budget. The live widget is what a tile OPENS.
+        The tile uses a stable live key instead of a figure index, so adding it
+        does not shift saved-figure positions. A pixmap snapshot keeps grid
+        resizing responsive; activating the tile opens the live gene panel.
+        An empty list is returned when no gene is selected or rendering fails.
         """
         gene = getattr(panel, "gene", None)
         if gene is None or not hasattr(gene, "to_pixmap"):
@@ -5205,18 +5193,10 @@ class AppScreen(QWidget):
 
     @staticmethod
     def _is_the_page(container, widget) -> bool:
-        """Whether ``widget`` is what ``container`` is currently showing.
+        """Return whether ``widget`` is visible on the container's page.
 
-        THE WIDGET IS OFTEN NOT THE PAGE. `_figures_stack` holds a
-        `grid_page` built around the grid, and `_results_tabs` holds a
-        splitter around the results panel -- so `currentWidget() is widget`
-        is False even when the widget is exactly what the user is looking at.
-        Seven tests asserted that identity and had been failing on it: a
-        broken window nobody had claimed, because the assertions read as if
-        they were about layout rather than about container plumbing.
-
-        The question they are all asking is this one, and the screen is where
-        it should be answered rather than in every caller.
+        The target may be the page itself or a descendant of a wrapper page,
+        such as a grid inside a scroll area or results inside a splitter.
         """
         if container is None or widget is None:
             return False
