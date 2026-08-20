@@ -80,7 +80,21 @@ def test_the_box_is_not_registered_as_a_setting_row(screen):
                    for _label, field in section._row_widgets)
 
 
+def _choose(combo, value):
+    index = combo.findData(value)
+    assert index >= 0, f"{value!r} is not on this control"
+    combo.setCurrentIndex(index)
+
+
 def test_the_model_box_states_the_formula_for_the_current_model(screen):
+    """UNDER A PARAMETRIC INFERENCE, which is when a formula exists.
+
+    THE PANEL'S DEFAULT `inference` IS 'nonparametric', so by default no
+    model is fitted at all and the box says so (2026-08-20). It used to
+    describe `mixed` regardless -- a formula for a fit that the default
+    settings never perform.
+    """
+    _choose(screen._settings_model._widgets["inference"], "parametric")
     text = screen._section_explainers["Model & Inference"].toPlainText()
     assert text
     # `mixed` is the default since instruction 132, and the box names it.
@@ -88,12 +102,35 @@ def test_the_model_box_states_the_formula_for_the_current_model(screen):
     assert "~" in text, "a box that states a formula has to contain one"
 
 
+def test_the_model_box_explains_the_permutation_path_when_it_is_chosen(screen):
+    """"when chosen the text should explain nonparametric" (2026-08-20)."""
+    _choose(screen._settings_model._widgets["inference"], "nonparametric")
+    text = screen._section_explainers["Model & Inference"].toPlainText().lower()
+
+    assert "no model is fitted" in text
+    assert "marginal" in text and "permutation" in text
+    assert "~" not in text, "there is no formula, so none may be shown"
+
+
 def test_the_permutation_box_says_what_the_test_does(screen):
+    """It carries the DETAIL; the model box above only says which path runs.
+
+    Compared under a parametric inference, where the model box is describing
+    a fit in full. Under nonparametric the model box is deliberately the
+    SHORTER of the two -- it names the path and defers here -- because
+    explaining the same test at length in both places makes the longer copy
+    the one nobody reads.
+    """
+    _choose(screen._settings_model._widgets["inference"], "parametric")
     text = screen._section_explainers["Permutation Test"].toPlainText()
     assert text
     assert len(text) < len(
         screen._section_explainers["Model & Inference"].toPlainText()), (
         "the permutation box was asked for as a BRIEF explanation")
+
+    _choose(screen._settings_model._widgets["inference"], "nonparametric")
+    assert len(screen._section_explainers["Model & Inference"].toPlainText()) \
+        < len(text), "the model box must defer rather than repeat"
 
 
 def test_the_permutation_box_does_not_chase_the_panel(screen):

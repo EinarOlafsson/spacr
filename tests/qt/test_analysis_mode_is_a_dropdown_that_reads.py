@@ -61,8 +61,18 @@ def test_the_labels_say_what_the_modes_are(qtbot):
 
 
 def test_the_stored_value_is_still_the_key_every_settings_file_uses(qtbot):
+    """UNDER inference='auto', which is the only time this control decides.
+
+    A decided `inference` OVERWRITES `analysis_mode` at run time -- that is
+    what `_resolve_regression_analysis_choices` is for -- so the control is
+    greyed then and the panel shows the value the run will use. Setting it by
+    hand under a decided inference and expecting it to survive was asserting
+    a panel that disagreed with the fit (2026-08-20: "if nonparametric is
+    chosen should guide permutation be in analysis mode").
+    """
     _screen, model = _regression(qtbot)
     combo = model._widgets["analysis_mode"]
+    _choose(model._widgets["inference"], "auto")
 
     _choose(combo, "guide_permutation")
     assert (model.collect() or {})["analysis_mode"] == "guide_permutation"
@@ -70,10 +80,42 @@ def test_the_stored_value_is_still_the_key_every_settings_file_uses(qtbot):
     assert (model.collect() or {})["analysis_mode"] == "regression"
 
 
+def test_a_decided_inference_shows_the_value_the_run_will_use(qtbot):
+    """The panel and the fit must not answer differently.
+
+    Measured: inference='parametric' with analysis_mode='guide_permutation'
+    reaches the run as 'regression', because inference wins. The panel used
+    to go on showing 'guide_permutation' next to a greyed note explaining
+    that it would not be used -- words beside a contradicting value, which is
+    the worst of the three states.
+    """
+    _screen, model = _regression(qtbot)
+    combo = model._widgets["analysis_mode"]
+
+    _choose(model._widgets["inference"], "nonparametric")
+    assert (model.collect() or {})["analysis_mode"] == "guide_permutation"
+    assert combo.isEnabled() is False
+
+    _choose(model._widgets["inference"], "parametric")
+    assert (model.collect() or {})["analysis_mode"] == "regression"
+
+
 def test_a_settings_file_carrying_either_value_still_loads(qtbot):
+    """Loaded WITH the inference that agrees with it, which is how a settings
+    file spaCR wrote is shaped -- `_resolve_regression_analysis_choices` sets
+    both, so a file carrying one carries the other."""
     screen, model = _regression(qtbot)
+    for value, inference in (("guide_permutation", "nonparametric"),
+                             ("regression", "parametric")):
+        screen.apply_settings_dict({"analysis_mode": value,
+                                    "inference": inference})
+        assert (model.collect() or {})["analysis_mode"] == value
+
+    # And under 'auto' the file's own value stands, because nothing has
+    # decided it yet.
     for value in ("guide_permutation", "regression"):
-        screen.apply_settings_dict({"analysis_mode": value})
+        screen.apply_settings_dict({"analysis_mode": value,
+                                    "inference": "auto"})
         assert (model.collect() or {})["analysis_mode"] == value
 
 

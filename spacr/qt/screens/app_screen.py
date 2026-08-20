@@ -1399,6 +1399,10 @@ class AppScreen(QWidget):
 
             if has_section_explainer(self.app_key, title):
                 self._install_section_explainer(section, title)
+            # THE EXAMPLE SCREEN, where its tables belong (191 C). Asked for
+            # 2026-08-20: "that button should obviously be in input tables."
+            if title == "Input Tables" and self.app_key == "regression":
+                self._install_example_data_button(section)
             if self._settings_tabs is not None:
                 page = QWidget()
                 page_layout = QVBoxLayout(page)
@@ -1524,8 +1528,12 @@ class AppScreen(QWidget):
         # lifetime reasoning applies to any connection that outlives the call
         # that made it.
         widgets = getattr(self._settings_model, "_widgets", {})
+        # `inference` and `analysis_mode` are on the list because the box now
+        # describes the PERMUTATION path when one is chosen -- a box that did
+        # not follow them would go on explaining a model the run will not fit.
         for key in ("regression_type", "level", "model_plate_position",
-                    "random_row_column_effects"):
+                    "random_row_column_effects", "inference",
+                    "analysis_mode"):
             # `level` is a NEW setting and may not be on the panel yet; the
             # box still has to render for the model that IS there.
             widget = widgets.get(key)
@@ -1581,13 +1589,102 @@ class AppScreen(QWidget):
         # document, so a user part-way through dragging out a formula to
         # paste loses it; the scroll position goes with it. Both are put back.
         scroll = box.verticalScrollBar().value()
+        # INFERENCE REACHES THE BOX (2026-08-20): "non parametric should be
+        # represented in the Text box above ... when chosen the text should
+        # explain nonparametric." Without it the box described whatever
+        # `regression_type` held, which under nonparametric is a model that
+        # is read, saved and never fitted.
         box.setHtml(regression_model_explainer_html(
             value("regression_type", "auto"), value("level", "both"),
             plate_position=value("model_plate_position", False),
             random_row_column=value("random_row_column_effects", False),
             palette=active_palette(),
-            language=language))
+            language=language,
+            inference=value("inference", "auto"),
+            analysis_mode=value("analysis_mode", "")))
         box.verticalScrollBar().setValue(scroll)
+
+    def _install_example_data_button(self, section) -> None:
+        """A button that fetches the example screen and fills the two slots.
+
+        `add_prose`, not `add_widget`: `_row_widgets` is taken to hold
+        LABELLED SETTING ROWS by the module smoke test, and a button is
+        neither a setting nor labelled -- the same reason the explainer boxes
+        go in that way.
+        """
+        from PySide6.QtWidgets import QPushButton
+
+        button = QPushButton("Load the example screen…")
+        button.setToolTip(
+            "Fetch the four-plate example screen and put its count tables "
+            "and score tables into the two slots below. About 33 MB the "
+            "first time; cached afterwards, so pressing it again is instant.")
+        button.clicked.connect(lambda: self.load_the_example_screen())
+        self._example_data_button = button
+        section.add_prose(button, at_top=True)
+
+    def load_the_example_screen(self, *, download: bool = True) -> dict:
+        """Fetch the example screen and fill `count_data` and `score_data`.
+
+        :returns: what was put where, so a caller can check it without a GUI.
+
+        IT SAYS WHERE EVERYTHING WENT. Filling two file fields silently is
+        indistinguishable from a button that did nothing, and this one may
+        also have just moved 33 MB.
+        """
+        from ...example_data import ExampleDataError, fetch, missing
+
+        button = getattr(self, "_example_data_button", None)
+        absent = missing()
+        if absent and button is not None:
+            button.setEnabled(False)
+            button.setText(f"Fetching {len(absent)} file(s)…")
+        try:
+            got = fetch(download=download,
+                        progress=self._say_the_download_is_moving)
+        except ExampleDataError as error:
+            self._console.append_stdout(f"{error}\n")
+            return {}
+        finally:
+            if button is not None:
+                button.setEnabled(True)
+                button.setText("Load the example screen…")
+
+        # `paired_data`, NOT `count_data`/`score_data`. The regression panel
+        # holds ONE ROW PER PLATE -- its score CSV beside its count CSV --
+        # and the two flat lists are the legacy shape that
+        # `_migrate_paired_data` converts. Filling the flat keys put the
+        # paths somewhere the panel does not show: measured, `collect()` came
+        # back with neither key on it.
+        #
+        # `add_paths_for_side` is the widget's own door and it RE-PROPOSES
+        # the whole table from filename tokens on every arrival, so
+        # plate_1_unique_combinations.csv pairs itself with plate1_dv.csv
+        # whichever side arrives first.
+        table = self._settings_model._widgets.get("paired_data")
+        added = 0
+        if table is not None and hasattr(table, "add_paths_for_side"):
+            added += int(table.add_paths_for_side(list(got.scores), "score"))
+            added += int(table.add_paths_for_side(list(got.counts), "count"))
+        else:                                                # pragma: no cover
+            added = self.apply_settings_dict(
+                {"count_data": list(got.counts),
+                 "score_data": list(got.scores)})
+        self._console.append_stdout(
+            f"{got.note()} Paired {len(got.scores)} score table(s) with "
+            f"{len(got.counts)} count table(s) in Input Tables.\n")
+        return {"counts": got.counts, "scores": got.scores,
+                "applied": added, "folder": got.folder}
+
+    def _say_the_download_is_moving(self, name, seen, total) -> None:
+        """Progress on the button itself, which is where the user is looking."""
+        button = getattr(self, "_example_data_button", None)
+        if button is None or not total:
+            return
+        button.setText(f"{name} — {100 * seen // max(total, 1)}%")
+        from PySide6.QtWidgets import QApplication
+
+        QApplication.processEvents()
 
     def refresh_maturity_visibility(self) -> None:
         """Show/hide Alpha and Beta settings without discarding typed values."""
@@ -5692,6 +5789,27 @@ class AppScreen(QWidget):
         does not have — the same dict can safely be applied across
         several apps. Returns the count of keys actually applied."""
         settings = _translate_legacy_setting_keys(settings)
+        applied = 0
+        # ONE WIDGET AT A TIME MEANS A HALF-APPLIED PANEL in between, and a
+        # rule that reads other settings must not act on it. See
+        # `_show_the_value_it_will_have`.
+        model = getattr(self, "_settings_model", None)
+        if model is not None:
+            model._applying_settings = True
+        try:
+            applied = self._apply_each_setting(settings)
+        finally:
+            if model is not None:
+                model._applying_settings = False
+                try:
+                    model._refresh_setting_dependencies()
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("could not refresh dependencies after a bulk "
+                              "apply", exc_info=True)
+        return applied
+
+    def _apply_each_setting(self, settings: dict) -> int:
+        """Push each key into its widget. Returns how many landed."""
         applied = 0
         for key, val in settings.items():
             w = self._settings_model._widgets.get(key)
