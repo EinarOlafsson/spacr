@@ -1,0 +1,59 @@
+================================================================================
+THE CELLS TAB: APPLY SETTINGS IN MILLISECONDS, AND R,G,B BACK
+================================================================================
+
+Status:    filed 2026-08-20, not started.
+Requested: 2026-08-20, from a live session.
+Owner:     Qt GUI (Cells tab)
+
+--------------------------------------------------------------------------------
+A. OK APPLIES, AND WITHOUT GOING BACK TO DISK
+--------------------------------------------------------------------------------
+
+    "after images are loaded, if the settings are changed after loading
+    closing the settings window with OK should automatically apply the
+    settings to the current images. the images should not be reloaded from
+    disk they should at this point be in memory or in a temp folder where the
+    setting can be applied in miliseconds, as opposed to seconds if loaded
+    again."
+
+There is already a `_redraw_from_cache` -- "Draw the crops already loaded,
+with the display settings as they are now. The whole point: no disk, no
+worker, no wait" -- and `_can_redraw_without_loading`, which compares a
+LOAD SIGNATURE. So the machinery exists and the question is only which
+settings are on that signature: anything that changes how a crop is CUT needs
+the disk, anything that changes how it is DRAWN does not.
+
+READ `_load_signature` AND CLASSIFY EVERY KEY before touching anything. A key
+wrongly on the cut side costs seconds; a key wrongly on the draw side shows a
+picture that does not match the settings, which is worse.
+
+The measurement to beat is in the maintainer's words: milliseconds, not
+seconds.
+
+--------------------------------------------------------------------------------
+B. BRING BACK R,G,B
+--------------------------------------------------------------------------------
+
+    "for the channels and normalize channels i liked the r,g,b system better,
+    instead of the dropdown you made. i want to you to bring back the r,g,b
+    system, it works great in the annotation app."
+
+The annotation app's control is the reference implementation and it should be
+the SAME control, not a second one that looks like it. Find it, lift it, and
+use it in both places -- `channels` and `normalize_channels`.
+
+WHAT THE DROPDOWN WAS FOR should be checked before it goes: instruction 176
+was "one channel vocabulary", and if the dropdown was carrying a validation
+or a spelling that the r,g,b control does not, that has to move across rather
+than be lost.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Changing a DISPLAY setting and pressing OK redraws in milliseconds, with no
+  disk read. Measured, not asserted.
+* Changing a CUT setting still reloads, because it must.
+* The channel control is the annotation app's, in both places, and one
+  vocabulary still reaches the run (176).
