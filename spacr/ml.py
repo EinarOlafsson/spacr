@@ -880,6 +880,44 @@ def _blup_guide_name(key):
     return None
 
 
+def _answering_stop(model):
+    """Make a statsmodels fit answer Stop. Returns the same model.
+
+    Instruction 140 C. `spacr.ml` had NO cancellation check anywhere, so
+    `worker.request_cancel` could not land inside a mixed fit however long it
+    ran -- and this fit runs for tens of minutes to hours on a real screen
+    (823 guides over 610 wells). What made it stoppable was `_force_stop`,
+    which parks the thread and gives the window back while the fit carries on
+    in the background. That is honest -- it says so rather than claiming it
+    stopped -- but it is not stopping.
+
+    THE HOOK IS `loglike`, NOT `fit(callback=)`. statsmodels accepts a
+    callback and calls it once per optimizer ATTEMPT, not per iteration:
+    measured at 2 calls for a whole fit, on a 30-predictor design and on a
+    2-predictor one. Two chances to notice Stop in an hour is the same
+    silence. `loglike` is evaluated by the optimiser on every step, which is
+    the granularity a user pressing a button expects.
+
+    ON THE INSTANCE, never on the class. Patching statsmodels itself would
+    put a spaCR checkpoint inside every model any library in the process
+    fits.
+
+    `PipelineCancelled` propagates out of scipy unchanged -- checked, because
+    an optimiser that swallowed it would leave the fit running with the user
+    told it had stopped, which is worse than not offering to stop at all.
+    """
+    from .cancellation import checkpoint
+
+    original = model.loglike
+
+    def loglike(*args, **kwargs):
+        checkpoint()
+        return original(*args, **kwargs)
+
+    model.loglike = loglike
+    return model
+
+
 def fit_mixed_model(df, formula, dst, *, random_row_column_effects=False,
                     gene_column='gene', guide_column='grna',
                     regression_backend=DEFAULT_REGRESSION_BACKEND):
@@ -997,7 +1035,7 @@ def fit_mixed_model(df, formula, dst, *, random_row_column_effects=False,
         else:
             model = smf.mixedlm(formula, data=df, groups=groups,
                                 re_formula='1', vc_formula=vc_formula)
-            mixed_model = model.fit()
+            mixed_model = _answering_stop(model).fit()
     except MixedBackendUnavailable:
         # THE BACKEND'S OWN REFUSAL SURVIVES. Wrapped in the "MixedLM could
         # not fit this frame" message below it would read as a problem with
