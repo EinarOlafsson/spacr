@@ -87,7 +87,7 @@ requirements:
     # The interactive plots. spacr/qt/widgets/fast_plots.py is the volcano,
     # the Q-Q, the p-histogram, the control panel and the guide-agreement
     # plot; without this, opening any module raises out of the screen factory.
-    - pyqtgraph >=0.13,<1
+    - pyqtgraph >=0.13.3,<1
 
 tests:
   - python:
