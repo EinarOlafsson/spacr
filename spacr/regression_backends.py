@@ -31,11 +31,9 @@ renders a dict as a truncated repr. The two copies cannot drift:
 every command in :data:`INSTALL_RECIPES` appears below.
 
 **pymer4 / lme4 needs R.** It is an interface to R's lme4, not a
-reimplementation of it. Measured 2026-08-18: pymer4 0.9.2's wheel declares NO
-dependencies at all, so ``pip install pymer4`` truthfully reports one additive
-package -- and the install then fails at ``import polars`` in ``pymer4/io.py``,
-while every module under ``pymer4/models/`` opens with ``from
-rpy2.robjects.packages import importr``. The real recipe, in order::
+reimplementation. The pymer4 0.9.2 wheel does not declare its runtime
+dependencies, although its modules import ``polars`` and ``rpy2``. Install the
+Python dependencies and R packages explicitly::
 
     conda install -c conda-forge r-base
     R -e 'install.packages(c("lme4","lmerTest"), repos="https://cloud.r-project.org")'

@@ -1,35 +1,12 @@
-"""Which widget a setting gets, decided without importing a GUI.
+"""Map settings to GUI widget specifications without importing a GUI.
 
-This module exists because of one measured number. Opening the first module
-in the Qt application spent **770 ms** inside a single statement:
+The conversion helpers return plain dictionaries that both the Qt and legacy
+interfaces can consume. Keeping this module dependency-light lets callers
+inspect setting metadata without importing plotting, imaging, or deep-learning
+libraries.
 
-    from spacr.gui_utils import convert_settings_dict_for_gui
-
--- and that was the whole remaining cost of the first module open, measured
-with the event-loop watchdog in ``tests/qt/test_gui_responsiveness.py``
-*after* ``spacr`` and ``spacr.settings`` were already imported. The function
-being fetched is a hundred lines of dictionary lookups. Everything else in
-the 770 ms belongs to the module it happened to live in: ``spacr.gui_utils``
-imports ``spacr.gui_elements`` (IPython 154 ms, matplotlib.pyplot 145 ms),
-``cv2`` (79 ms), ``tkinter``, ``huggingface_hub``, ``requests``, ``PIL`` and
-``screeninfo`` -- the *Tk* interface's dependencies, none of which the Qt
-interface has any use for.
-
-``spacr.qt.app.main`` prewarms ``gui_utils`` on a background thread, and that
-helps a user who looks at the home screen for a second first. It does not
-help the user who clicks a module immediately: CPython's per-module import
-lock makes the GUI thread *wait for the prewarm thread to finish*, so the
-window freezes for whatever is left of the 770 ms. A prewarm cannot fix a
-cost; it can only move it, and only when there is somewhere to move it to.
-
-So the function moved to a module with no imports at all. ``gui_utils``
-re-exports it, unchanged, for the Tk interface and for every existing caller.
-
-This is the same argument already written down twice in ``gui_utils``: once
-for ``torch`` (1.40 s, removed from that module's header) and once for
-``torchvision`` (~5 s, never imported by
-:func:`convert_settings_dict_for_gui` -- see the curated list below). Applied
-a third time, to the module itself.
+``spacr.gui_utils`` re-exports
+:func:`convert_settings_dict_for_gui` for compatibility with existing callers.
 """
 from __future__ import annotations
 

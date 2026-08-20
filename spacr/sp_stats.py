@@ -1,42 +1,17 @@
-"""Statistical tests and multiple-comparison helpers for screen results.
+"""Provide statistical tests and multiple-comparison helpers.
 
-WHICH TEST APPLIES IS NOT DECIDED IN THIS MODULE. :mod:`spacr.figures.stats`
-is the one engine that makes that choice, and the three functions below are a
-translation layer onto it that keeps this module's older call signatures and
-result keys working.
+Group-comparison functions delegate test selection to
+:mod:`spacr.figures.stats` while preserving this module's established call
+signatures and result keys. Two groups use Student's t, Welch's t, or
+Mann–Whitney U as supported by the data; larger designs use one-way ANOVA,
+Welch's ANOVA, or Kruskal–Wallis. Results identify the selected test and
+include the assumption checks used to select it.
 
-The two former implementations were run on the same five inputs and disagreed
-on three of them, always in the same direction --
-this one took the parametric test wherever the assumption checks had no power
-to refuse it.
-
-    case                        was              is now
-    normal, equal var, n=30     T-test           T-test
-    normal, UNEQUAL var, n=30   T-test           Welch's T-test
-    skewed (exponential) n=30   T-test           Mann-Whitney U test
-    n=3 vs 24                   T-test           Mann-Whitney U test
-    n=5 vs 5                    T-test           Mann-Whitney U test
-
-The mechanism was a normality check with no power floor: on n = 3 Shapiro-Wilk
-cannot reject, so "not rejected" was read as "normal" and the t-test ran. The
-engine refuses below :data:`spacr.figures.stats.MIN_N_FOR_ASSUMPTIONS` and
-records the check as uninformative, which is the safe direction -- one way
-loses a little power, the other publishes a difference that is not there.
-
-Two consequences worth knowing before comparing an old CSV with a new one:
-
-* ``Test Name`` now says WHICH t-test ran. "T-test" used to be printed for
-  unequal-variance data too, and it was Student's every time -- the old call
-  passed no ``equal_var``, and scipy defaults it to True.
-* :func:`perform_levene_test` returns the median-centred (Brown-Forsythe)
-  statistic, and NaN rather than a confident number when the smallest group is
-  too small for the check to have power.
-
-The engine is imported INSIDE each function on purpose. ``spacr.figures``
-eagerly imports the panel catalog, which costs 82 ms of matplotlib at import
-time (measured with ``python -X importtime``); this module is imported for
-:func:`choose_p_adjust_method` and :func:`chi_pairwise` by callers that never
-run a group comparison. Do not lift these into module scope.
+:func:`perform_normality_tests` reports underpowered checks as uninformative,
+and :func:`perform_levene_test` uses the median-centred Brown–Forsythe
+statistic. Imports of the plotting-backed statistical engine remain local so
+callers that only need adjustment or contingency-table helpers avoid loading
+the plotting stack.
 """
 
 from statsmodels.stats.multicomp import pairwise_tukeyhsd

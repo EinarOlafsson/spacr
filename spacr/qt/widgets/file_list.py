@@ -311,18 +311,19 @@ class PairedFileTableWidget(QWidget):
     def add_paths_for_side(self, paths, side: str = "score") -> int:
         """Add files to one column of the table and re-propose the pairing.
 
-        The drop targets the user asked for -- "a dependent variable square I
-        can drop into and an independent variable square I can drop into" --
-        resolve to this. It is also what the drop router calls once it has
-        decided which side a file belongs to from its header, so dropping a
-        count table anywhere on the widget still fills the count column.
+        The drop router calls this method after identifying a file's role from
+        its header, so a count table dropped anywhere on the widget still
+        fills the count column.
 
         ``'database'`` is the third side. It goes through this same method,
         and therefore through the same whole-table re-proposal, rather than
         through an adder of its own that would keep a private list and pair
         by the order things arrived.
 
-        Returns how many files were added.
+        :param paths: File paths to add.
+        :param side: Target column: ``'score'``, ``'count'``, or
+            ``'database'``.
+        :returns: Number of previously absent files added.
         """
         if side not in self.SIDE_COLUMNS:
             raise ValueError(

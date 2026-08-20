@@ -26,6 +26,8 @@ INTERNAL_PROVENANCE = re.compile(
     r"\b(?:changed|chosen|raised|reported|requested|set|sharper)\b"
     r"[^.\n]{0,80}\bon\s+request\b|"
     r"\bthis\s+instruction\s+(?:exists|is\s+correcting)\b"
+    r"|\bthe\s+instruction\s+(?:asks?|names?|requires?)\b"
+    r"|\banother\s+agent(?:'s)?\s+work-in-progress\b"
     r")"
 )
 
@@ -121,6 +123,8 @@ def test_provenance_pattern_catches_internal_history():
         "Reported on 2026-08-19.",
         "Set on request once the registry grew.",
         "This instruction is correcting the layout.",
+        "The instruction names this empty state.",
+        "Another agent's work-in-progress may add a theme.",
     )
 
     missed = [text for text in examples if not INTERNAL_PROVENANCE.search(text)]
