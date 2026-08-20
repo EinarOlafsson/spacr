@@ -200,3 +200,39 @@ STILL OWED
     before adding a button for it.
   * B2 filters the DRAW. Whether a one-class view should also offer its own
     single-group summary statistics is a real question and was not decided.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- THE MERGE PRECONDITION, AUDITED. NO BUTTON IS NEEDED. 186 CLOSED.
+--------------------------------------------------------------------------------
+
+A's report named two preconditions -- "the measurements havnt been swept and
+or merged" -- and the sweep half shipped. The merge half was left explicitly
+unaudited rather than guessed at. Read now:
+
+  * THE MONTAGE NEEDS NO MERGE. It reads its object rows through
+    `load_montage_objects(db_path, ...)`, one database at a time. It never
+    calls `read_merged` and has no merged frame in it.
+  * THE SWEEP DOES. `SweepPanel` takes `cells_provider=
+    self._scan_panel.databases_frame`, which is "the merged frame step 3
+    produced, or None".
+  * AND THE SWEEP ALREADY SAYS SO, in those words:
+
+        Nothing to sweep: merge the measurement databases first, and attach
+        the count CSVs the run was fitted on.
+
+So the chain is already complete and each link says the next thing to do:
+multivariate says "run the sweep on the Measurements tab", and the sweep says
+"merge first". A merge button on the Cells tab would be a third place to
+start the same work, and a fourth thing to keep in step with the other two.
+
+WHAT WOULD HAVE BEEN WRONG. Adding the prompt A's wording implies -- "merge
+or sweep or both" from the montage -- would have offered to merge for a
+picker that does not need a merge, and would have had to duplicate the
+sweep's own readiness check to know whether it was needed at all.
+
+B2's remaining question (whether a one-class view should also show
+single-group summary statistics) stands undecided and is recorded here rather
+than answered: it is a statistical choice about what a one-sided view claims,
+not a UI gap.
+
+INSTRUCTION 186 IS COMPLETE.
