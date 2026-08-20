@@ -804,8 +804,8 @@ WORKFLOW_STEPS = (
 MERGED_FRAME_NAME = "merged_measurements.csv"
 
 #: Columns of a merged frame that are IDENTITY, not a response. Regressing on
-#: `plateID` is not a thing a user can mean, and offering it is the "present
-#: but inert" control instruction 106 forbids.
+#: `plateID` is not a meaningful response, so identity columns are omitted
+#: from the response picker.
 #:
 #: `object_label` is here for a reason worth writing down: it is numeric, it
 #: survives every dtype filter, and it is a NAME. A fit against it is a
@@ -2729,15 +2729,12 @@ class MeasurementScanPanel(QWidget):
         scan_layout.addWidget(self.table, 1)
         self._add_folding_section(scan, "Measurement scan", minimum=140)
 
-    #: The only section this tab opens ON. Asked for 2026-08-19: "the
-    #: measurements tab is ok now as long as only the attached databases tab
-    #: in the measurements tab starts open" -- four panels open at once is
-    #: what "there are to many elements" was about, and 169 gave them folds
-    #: without changing what they start as.
+    #: The only section expanded on first use, keeping the initial workflow
+    #: focused on the attached databases.
     #:
-    #: FIRST-RUN ONLY. `restore_section_layout` runs after this and wins, so
+    #: First-run only. `restore_section_layout` runs after this and wins, so
     #: a user who folded databases away and opened the scan last session
-    #: gets that back (169 C).
+    #: gets that layout back.
     OPENS_EXPANDED = "Attached databases"
 
     def _add_folding_section(self, widget, title: str, *, minimum: int):

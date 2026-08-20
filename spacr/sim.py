@@ -1161,9 +1161,8 @@ def generate_parameters(settings):
     return sim_ls
 
 
-#: The old spelling, kept so anything importing it keeps working. The name
-#: was `generate_paramiters` -- reported as a typo in issue #21 -- and a
-#: public function cannot simply be renamed out from under its callers.
+#: Backward-compatible alias for the historical misspelling of
+#: :func:`generate_parameters`.
 generate_paramiters = generate_parameters
 
 def run_multiple_simulations(settings):

@@ -46,15 +46,10 @@ CONTROLS = "controls"
 #: normalising to.
 NAMED = "named"
 
-#: A NUMBER THE USER CHOSE. Asked for on 2026-08-17 -- "the user should be
-#: able to also set the intercept at what ever they want".
+#: A user-supplied numeric baseline.
 #:
-#: The three above are all "let the data tell me where zero is". This one is
-#: not, and that is the point of having it: a reader may be normalising to a
-#: value from another experiment, a published effect, or an assay-specific
-#: floor that this table has no way to know about. It is the only kind whose
-#: sentence cannot say where the number came from, so it says that plainly
-#: rather than implying the data supports it.
+#: Use this when zero comes from another experiment, a published effect, or
+#: an assay-specific floor rather than from the fitted data.
 VALUE = "value"
 
 #: How the controls are spelled in a screen's `condition` column. Matched

@@ -96,14 +96,14 @@ class GateEditorScreen(QWidget):
         self._table: Optional[str] = None
         #: The plan for a multi-database load, or None for a single file.
         #: Kept so the screen can say what the merge cost -- which columns
-        #: were dropped and which plates were qualified (instruction 109).
+        #: were dropped and which plates were qualified.
         self._merge_plan = None
         #: The working set: every table whose measurements are on offer.
         self._tables: List[str] = []
         #: The OTHER working set: every database those tables are read from.
         #: A screen acquired as three plates is three databases, and the
-        #: comparison the user wants is all three in one gate (instruction
-        #: 109). One database is not a special case -- it is a set of one.
+        #: comparison uses all three in one gate. One database is not a special
+        #: case -- it is a set of one.
         self._paths: List[str] = []
         #: What was decided about the last merge, as recorded. Held so the
         #: screen can say it and a test can read it.

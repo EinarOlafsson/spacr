@@ -367,9 +367,8 @@ _BATCH_CORRECTION_OPTIONS = [
 #: What ``control_center`` does on a plate with too few reference controls.
 _BATCH_MISSING_CONTROL_OPTIONS = ["error", "skip"]
 
-#: The two picture sources, IN THE WORDS THE USER ASKED FOR (instruction
-#: 171: "unify the terminology stream images and load images"). Load first,
-#: because it is the default and reads from data/.
+#: Crop-source choices shown by the settings panel. ``Load images`` is first
+#: because it is the default and reads existing crops from ``data/``.
 #:
 #: The stored values stay 'png' and 'merged' -- `spacr.crops` reads those,
 #: and no settings file written before this changes meaning.
@@ -502,16 +501,9 @@ class _CsvColumnSource(NamedTuple):
 
 #: Settings whose value NAMES A COLUMN OF AN INPUT CSV, per module.
 #:
-#: Instruction 135, asked for on 2026-08-17: "for the filter column there is
-#: an SQL buton this should be a csv buton that can read the input csvs, the
-#: dependent variable should have a simmilr CSV version of this buton."
-#:
-#: THE SQL BUTTON WAS POINTED AT THE WRONG FILE. `app_screen.COLUMN_TABLES`
-#: gives a column field a picker that opens the run's `measurements.db`; the
-#: regression module's inputs are CSVs and it has no measurements.db of its
-#: own to open, so the picker could only ever offer columns from a different
-#: table than the one the setting is read against -- a list of plausible
-#: names, none of which the run will find.
+#: Regression column pickers read the score and count CSV headers rather than
+#: a ``measurements.db`` file, because those CSVs are the inputs against which
+#: the selected names are validated.
 #:
 #: The reading is `spacr.columns`, which takes the HEADER ROW ONLY
 #: (`nrows=0`). This runs on the GUI thread against score CSVs that are
@@ -1465,11 +1457,7 @@ CURATION_THRESHOLD = 6
 #:
 #: `classify_merged` shares Classify's regroup and then amends it — it is
 #: named twice in :func:`categories_for_app`, once with `classify` and once
-#: on its own to lift the family switch out of "Model Architecture". It was
-#: missing here until 2026-08-09, so `has_curated_layout` reported False for
-#: a module with 110 settings and a hand-written layout: the module was
-#: registered without this list being updated, which is the failure mode of
-#: keeping the same fact in two places.
+#: on its own to lift the family switch out of "Model Architecture".
 _INLINE_LAYOUT_APPS = frozenset({
     "classify", "classify_merged", "umap", "external_masks",
 })
@@ -3428,28 +3416,18 @@ def formula_for(term: str, *, plate_position: bool = False,
         position = ""
     return f"y ~ {term}{position}"
 
-#: THE FORMULA THIS INSTRUCTION EXISTS TO RETIRE, kept by name because the box
-#: has to be able to show a user what changed and why. `gene_fraction` is the
+#: Deprecated formula retained so the explainer can show why it is refused.
+#: `gene_fraction` is the
 #: SUM of the gene's gRNA fractions (`spacr.ml.check_and_clean_data`), so every
 #: gene column here is an exact linear combination of that gene's own guide
-#: columns. Never fitted again; `tests/qt/test_model_explainer.py` measures the
-#: rank deficiency on real screen data rather than taking the claim on trust.
+#: columns and the combined design is rank deficient.
 COLLINEAR_FORMULA = (
     "y ~ fraction:grna + gene_fraction:gene + rowID + columnID")
 
-#: THE LAST LINE OF EVERY BOX, and the whole of what is left of the history.
+#: Final explainer line linking to the detailed formula-change rationale.
 #:
-#: "WHY THE FORMULA CHANGED" was 880 of the 2,438 characters `ols`/`both`
-#: rendered -- the longest block in the box, describing a design no shipped
-#: version fits. Instruction 143 moved it into
-#: :func:`regression_model_explainer`'s docstring, which is published as API
-#: documentation, and left this pointer behind: a measurement nobody can find
-#: is a measurement deleted, and it is the evidence for why this module fits
-#: one level at a time.
-#:
-#: 61 characters, which is inside the box's own floor (:func:`explainer_width`
-#: returns 63, the indented mixed formula), so it cannot be the line that
-#: wraps.
+#: The full explanation lives in :func:`regression_model_explainer`; keeping a
+#: short pointer in the panel avoids repeating a long retired-design history.
 _HISTORY_POINTER = ("WHY THE FORMULA CHANGED -> "
                     "regression_model_explainer.__doc__")
 
@@ -3492,16 +3470,10 @@ _MODE_TITLES = {
     "rra": "MAGeCK alpha rank aggregation",
 }
 
-#: WHAT THE MODE DOES -- ONE OR TWO SENTENCES each, taken from what
-#: :func:`spacr.ml.regression_model` actually fits rather than from the general
+#: One- or two-sentence descriptions of what each regression mode fits, based
+#: on :func:`spacr.ml.regression_model` rather than the general
 #: reputation of the method. Where a backend reads a setting from this panel it
 #: is named, so the box and the Estimator Tuning section below it agree.
-#:
-#: TRIMMED TO TWO SENTENCES on 2026-08-18 (instruction 143). These paragraphs
-#: are re-read every time the panel opens, so length here is paid on every
-#: visit: `rra` alone was 829 characters, which put its box at 3,035. What was
-#: cut is the second reading of a point already made; every setting name and
-#: every figure that stayed kept its digits.
 _MODE_NOTES = {
     "auto": (
         "spaCR reads the response and picks the model itself "
@@ -3660,19 +3632,16 @@ _MODE_NOTES["probit"] = (
 
 #: The measurement, as ``(genes, wells, ols seconds, mixed seconds)``.
 #:
-#: Taken 2026-08-18 with :func:`spacr.ml.regression_model` called directly so
-#: nothing else is in the timing, on a well-conditioned GENE-LEVEL design --
-#: no guide random effect at all. The fit this module actually runs adds one
-#: random effect PER GUIDE nested in gene, so these are a FLOOR and the prose
-#: below says so rather than quoting them as an estimate.
+#: Measured by calling :func:`spacr.ml.regression_model` directly on a
+#: well-conditioned gene-level design without guide random effects. The full
+#: nested model is more expensive, so these values are lower bounds.
 MIXED_COST_ANCHORS = (
     (40, 400, 0.03, 1.62),
     (80, 600, 0.16, 10.66),
 )
 
-#: The screen the "tens of minutes to hours" expectation is stated for: the
-#: maintainer's TSG101 design, which is also the one measured throughout
-#: :func:`regression_model_explainer`'s history section.
+#: Reference design for the "tens of minutes to hours" expectation, expressed
+#: as ``(genes, guides, wells)``.
 MIXED_COST_SCREEN = (823, 389, 610)
 
 
@@ -3879,8 +3848,7 @@ def regression_design_scan(settings) -> dict:
 # is written twice, and the plain one stays because it is what a test can
 # assert on and what a headless caller can print.
 
-#: The maths, per model term. Instruction 144 C: "write the math symbol
-#: version then the code version if possible."
+#: Mathematical notation shown for each model term.
 #:
 #: REAL UNICODE, NOT LATEX SOURCE. The box is a widget, not a renderer, and
 #: ``\beta`` on screen is worse than no symbol at all.
@@ -3924,8 +3892,8 @@ _SKLEARN = "https://scikit-learn.org/stable/modules/generated/"
 
 #: Where each backend's API lives, as ``(what to call it, where it is)``.
 #:
-#: REAL URLS, NOT BARE MODULE PATHS (instruction 144 D). A link that does not
-#: open is worse than a module name, which at least can be searched.
+#: External backends use direct documentation URLs; spaCR backends use paths
+#: resolved against :data:`DOCS_API_BASE`.
 MODEL_API_LINKS = {
     "auto": ("spacr.ml.check_distribution", "ml"),
     "ols": ("statsmodels OLS",
@@ -3998,8 +3966,7 @@ def model_api_link(regression_type: Any) -> Tuple[str, str]:
 #: AN EXPLICIT, SHORT TABLE rather than a rule over the prose. "Everything is
 #: plain except what the sentence is about" (`spacr/figures/style.py`) applies
 #: to text as much as to a figure; a regex that coloured every capitalised
-#: phrase would make the box a ransom note, which is the failure this
-#: instruction is correcting rather than a smaller version of it.
+#: phrase would over-emphasise unrelated text.
 _EMPHASIS = (
     ("NO GUIDE-LEVEL HIT LIST", "error"),
     ("REPORTS NO P-VALUE", "error"),
@@ -4571,15 +4538,10 @@ def permutation_test_explainer() -> str:
 
 
 #: Sections that open with a read-only prose box instead of a control, per
-#: module. Asked for by instruction 132 (the model box) and 135 (this one and
-#: the model box's position): "Model and Inference is good just ad the text
-#: box i asked for (at the top)".
+#: module.
 #:
-#: A TABLE RATHER THAN TWO `if app_key == ... and title == ...` BRANCHES in
-#: the screen: the box for Model & Inference was installed by exactly such a
-#: branch, and it went in AFTER the section rather than at the top of it,
-#: which is the placement this instruction is correcting. One table is one
-#: place to read the answer and one place to add the third box.
+#: A table keeps placement and coverage in one place and makes additional
+#: explainer sections explicit.
 SECTION_EXPLAINERS: Dict[str, Tuple[str, ...]] = {
     "regression": ("Model & Inference", "Permutation Test"),
 }
@@ -5401,10 +5363,8 @@ class _RegressionBackendField(QWidget):
     value_changed = Signal()
 
     #: How tall the description may get before it scrolls, in pixels.
-    #: Instruction 135 is that the regression settings are ONE PAGE, so this
-    #: box has a ceiling rather than growing with its text: the panel is the
-    #: same length whichever backend is selected and whatever the environment
-    #: has to say about the other seven.
+    #: The ceiling keeps the settings panel the same length for every backend;
+    #: longer descriptions scroll inside the box.
     BOX_HEIGHT = 168
 
     def __init__(self, default: Any = None, regression_type: Any = None,

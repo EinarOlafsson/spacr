@@ -57,14 +57,14 @@ __all__ = [
 #: The tag a cell gets when no guide reached the threshold.
 AMBIGUOUS = "ambiguous"
 
-#: "if a cell only has grna attributions that are below 0.55 or something then
-#: it gets a ambiguous tag". Settable; this is the default that was asked for.
+#: Default minimum posterior probability for assigning a guide to a cell.
+#: Cells below the threshold receive :data:`AMBIGUOUS`.
 DEFAULT_THRESHOLD = 0.55
 
 #: The likelihood families. `lognormal` first because it is on the same scale
 #: the regression works in, so an effect and a score are commensurate; `beta`
 #: kept because a classification score actually lives in [0, 1] and a log does
-#: not (instruction 173, and 174 for the regression's own beta transform).
+#: not.
 LIKELIHOODS: Tuple[str, ...] = ("lognormal", "beta")
 
 

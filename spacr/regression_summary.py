@@ -596,8 +596,7 @@ def _collect_metrics(model, coef_df, settings) -> Dict[str, Any]:
 #: The same sentence is on the Summary tab
 #: (``regression_results.UNIDENTIFIABLE_WARNING``) and it cannot be imported
 #: from there: that module imports PySide6 at the top, and a headless run
-#: writing its summary must not need a GUI toolkit. The duplication is
-#: recorded rather than hidden — see the trailing note on instruction 156.
+#: writing its summary must not need a GUI toolkit.
 UNIDENTIFIABLE_WARNING = (
     "THIS FIT IS NOT IDENTIFIABLE: {observations:,} analysed observations are "
     "being used to estimate {parameters:,} parameters.\n"
@@ -1660,7 +1659,7 @@ def _effect_size_cut(run: "_Run") -> Dict[str, str]:
 #: Said once, for the three filters whose drop counts the run prints and does
 #: not record. NAMED rather than left as a blank, because "0 rows removed" and
 #: "nobody counted" are opposite findings and a summary must not spell them
-#: the same way. Recording them is queued on instruction 156's trailing note.
+#: the same way.
 def _exclusion_count(settings, key):
     """What a filter recorded dropping, or ``None`` when nothing recorded it.
 
@@ -1941,10 +1940,8 @@ def _wrap(label: str, text: str) -> List[str]:
 
 
 
-#: What a reader came for, in the order they want it. Instruction 168:
-#: "not very accessable make it more acessable and easier to read and
-#: overview". Measured on the maintainer's own run: 108 lines, of which the
-#: answer to "did this work and what did it call" is six.
+#: Headline fields shown first in the written summary: fitted method, design
+#: size, call count, threshold, and positive-control rank.
 HEADLINE: Tuple[Tuple[str, str], ...] = (
     ("fitted", "regression type"),
     ("fitted", "inference"),

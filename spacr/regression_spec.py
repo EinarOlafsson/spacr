@@ -252,8 +252,8 @@ ALL_REGRESSION_TYPES = '*'
 #: Keys:
 #:
 #: ``label``       what the combo entry reads. ALWAYS ends in ``(CPU)`` or
-#:                 ``(GPU)`` -- instruction 141 C, so a user can see which
-#:                 choice needs hardware before making it.
+#:                 ``(GPU)`` so hardware requirements are visible before a
+#:                 user makes a selection.
 #: ``device``      ``'cpu'`` or ``'gpu'``. The greying rule reads this.
 #: ``package``     the import name to probe for. ``None`` means "already a
 #:                 hard dependency of spaCR", which is true of statsmodels
@@ -266,9 +266,8 @@ ALL_REGRESSION_TYPES = '*'
 #: ``cost``        the measured or stated speed claim. Never "may be faster".
 #: ``differs``     ``None`` when the backend must return the SAME numbers as
 #:                 statsmodels, otherwise the sentence saying what is
-#:                 different about its answer. Instruction 141 D: a backend
-#:                 that returns different numbers is a bug unless the box
-#:                 says the difference is the point.
+#:                 different about its answer. Unstated numerical differences
+#:                 from statsmodels are treated as errors.
 #: ``implemented`` whether spaCR routes anything through it TODAY. False
 #:                 entries are greyed out as "not wired up yet" rather than
 #:                 hidden, so the list is the plan and the plan is visible.
@@ -451,8 +450,8 @@ REGRESSION_BACKENDS = {
     },
 }
 
-#: The order the panels list them: the default first, then the one that is
-#: wired up, then the rest as instruction 141 B writes them.
+#: Backend display order: the default first, the additional implemented
+#: backend next, followed by unavailable or not-yet-integrated choices.
 REGRESSION_BACKEND_ORDER = (
     'statsmodels', 'torch', 'pymer4', 'cuml', 'pyfixest', 'glum', 'numpyro',
     'gpytorch',

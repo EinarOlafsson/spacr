@@ -1695,23 +1695,14 @@ INFERENCE_MODES = {
 #: ``analysis_unit`` -> whether scores are collapsed per well before fitting.
 ANALYSIS_UNITS = ('well', 'cell')
 
-#: ``level`` -> which fit a FIXED-EFFECTS regression runs (instruction 132 A).
+#: Values for selecting the granularity of a fixed-effects regression.
 #:
-#: 'both' is two fits, not one design holding both blocks. That distinction is
-#: the whole reason the setting exists: ``gene_fraction`` is the SUM of the
-#: gene's gRNA fractions (``ml.check_and_clean_data``), so
-#: ``fraction:grna + gene_fraction:gene`` in one formula is collinear BY
-#: CONSTRUCTION and statsmodels answers it with a pseudo-inverse instead of
-#: refusing. Measured on the maintainer's tsg101 screen
-#: (results/ols_13/regression_data.csv, 1945 rows, 610 wells): the design has
-#: 1248 columns and rank 862 -- 386 redundant -- and 386 of the 389
-#: ``gene_fraction:gene`` columns are an EXACT linear combination of their own
-#: gene's ``fraction:grna`` columns. The single-guide gene 244480 came back
-#: identical to its guide 244480_3, both 3.389291 at p = 2.873149e-13.
-#:
-#: ``'mixed'`` does not read this: it models both levels at once by nesting the
-#: guide inside the gene, which is why :func:`get_setting_dependencies` greys
-#: the control out under it rather than hiding it or leaving it inert.
+#: ``'both'`` runs separate gRNA- and gene-level fits. It does not put both
+#: terms into one formula: ``gene_fraction`` is the sum of the constituent
+#: gRNA fractions, so the combined design would be collinear and its
+#: coefficients would not be independently identifiable. ``'mixed'`` instead
+#: models both levels by nesting each guide within its gene, so
+#: :func:`get_setting_dependencies` disables this setting for mixed models.
 REGRESSION_LEVELS = ('both', 'grna', 'gene')
 
 

@@ -255,8 +255,8 @@ ORGANELLE_TYPES: Dict[str, OrganelleType] = {
     ),
 }
 
-#: The order the picker shows them in: no-op first, then the two where size
-#: decides, then the rest as the maintainer listed them.
+#: Display order for the picker: no-op first, followed by the two presets that
+#: select a detector by object size and then the remaining morphologies.
 TYPE_ORDER: Tuple[str, ...] = (
     "custom", "punctate", "vesicular", "spherical", "filamentous",
     "tubular", "reticular", "cisternal", "toroidal", "crescent",
@@ -377,10 +377,7 @@ def _explain(preset: OrganelleType, diameter, applied, kept) -> None:
 
 #: Settings that stay in the plain "Organelle" category: the ones a
 #: biologist recognises without knowing how segmentation works. Everything
-#: else moves to "Organelle advanced" -- STILL VISIBLE AND STILL EDITABLE.
-#: Hiding a setting that remains in the settings dict is how a run gets a
-#: value nobody can see, which is exactly how this project acquired eleven
-#: phantom settings (instruction 61).
+#: else moves to "Organelle advanced" while remaining visible and editable.
 BASIC_SETTINGS: Tuple[str, ...] = (
     "organelle_channel",
     "organelle_type",

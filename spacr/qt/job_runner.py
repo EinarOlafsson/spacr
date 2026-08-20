@@ -68,9 +68,8 @@ def _capture(fn: Callable[[], Any], payload: Dict[str, Any]) -> None:
 #: no Python exception, no traceback, nothing in the log. Each runner shuts
 #: down in its own widget's `closeEvent`, which covers a widget being closed
 #: and does NOT cover the application quitting with a job still in flight: the
-#: widget is never closed, it is destroyed. Measured 2026-08-19 as spaCR dying
-#: immediately after every successful regression, with "run closed [success]"
-#: as the last line in the log and nothing after it.
+#: widget is never closed, it is destroyed. The registry lets application
+#: shutdown retire those threads before their widgets disappear.
 _LIVE_RUNNERS: "weakref.WeakSet" = weakref.WeakSet()
 
 

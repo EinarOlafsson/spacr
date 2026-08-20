@@ -62,8 +62,8 @@ def set_sink(sink: Optional[Callable[..., Any]]):
 #: Separate from :data:`_sink` because the two carry different things and a
 #: consumer cannot fake one from the other. A matplotlib sink is handed a live
 #: Figure and renders it; a file sink is handed a path to a picture that was
-#: already written by something that is not matplotlib -- a pyqtgraph scene
-#: (instruction 139 A) -- and there is no Figure to hand it. Reusing the
+#: already written by something that is not matplotlib, such as a pyqtgraph
+#: scene, and there is no Figure to hand it. Reusing the
 #: figure sink with ``fig=None`` would hand every existing consumer a None it
 #: has no reason to expect.
 _file_sink: Optional[Callable[..., Any]] = None

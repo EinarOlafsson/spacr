@@ -33,8 +33,8 @@ class Panel:
     #: Two to four lower-case words. Not a sentence.
     title: str
     #: One sentence for the figure legend. States the test, the n and the
-    #: convention where a statistic was drawn -- the skill is explicit that a
-    #: bare p is not acceptable.
+    #: significance convention where a statistic was drawn; a bare p-value is
+    #: not enough to interpret the panel.
     caption: str = ""
     #: False when the data for this panel was not present. The sheet skips
     #: it and says so rather than drawing an empty frame.
@@ -666,9 +666,8 @@ REGISTRY: Dict[str, Callable] = {
     "qq": qq_plot,
 }
 
-#: Reading order for the sheet: result first, then what it rests on, then
-#: whether the model was entitled to say it. The skill's rule -- reading
-#: order matches the argument.
+#: Reading order for the sheet: result first, then its supporting evidence,
+#: followed by diagnostic checks.
 SHEET_ORDER = ("volcano", "effect_rank", "effect_distribution", "controls",
                "agreement", "p_histogram", "qq")
 

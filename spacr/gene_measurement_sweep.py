@@ -531,8 +531,8 @@ class HOUSE:
         "other": "#B4B4B4",
     }
 
-    #: Type sizes, in points, at the ratios the skill measures: axis label is
-    #: the 1.0x reference, ticks 0.85-0.9x, annotations 0.85x.
+    #: Type sizes in points. Axis labels are the reference size; tick labels
+    #: use about 0.9x and annotations about 0.85x that size.
     LABEL = 7.0
     TICK = 6.2
     NOTE = 6.0

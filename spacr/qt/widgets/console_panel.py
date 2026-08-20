@@ -1100,7 +1100,7 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         self._entries.addStretch(1)
         self._scroll.setWidget(self._holder)
         #: Whether the view follows new output. Cleared by raising a section
-        #: (instruction 110), restored by scrolling back to the bottom.
+        #: and restored by scrolling back to the bottom.
         self._follow_output = True
         self._scroll.verticalScrollBar().valueChanged.connect(
             self._on_console_scrolled)

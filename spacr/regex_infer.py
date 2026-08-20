@@ -29,7 +29,7 @@ from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
 #: The group names spaCR's importer actually reads. A name outside this set
 #: reaches `_rename_and_organize_image_files` and matches nothing, so the
-#: proposals only ever suggest from here — see instruction 137 C.
+#: inference engine only proposes names from this set.
 KNOWN_ROLES = ("plateID", "wellID", "fieldID", "timeID", "sliceID", "chanID",
                "laserID", "AID")
 

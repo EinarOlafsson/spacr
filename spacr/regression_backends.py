@@ -422,10 +422,8 @@ def describe_backends(regression_type=None, html: bool = True,
 # Image UMAP's GPU acceleration (`spacr.gpu_reduce.install_offer`) answers in
 # the same vocabulary and one shared panel serves both.
 
-#: The recipes instruction 158 D asks the API documentation to carry. They are
-#: here rather than in a hand-written page because sphinx-autoapi builds
-#: ``docs/source/api`` from this source, so the recipe a reader is given and
-#: the recipe the GUI hands them are the same string and cannot drift.
+#: Installation recipes shared by the generated API reference and the GUI.
+#: Keeping one source ensures both surfaces present the same requirements.
 INSTALL_RECIPES = {
     'pymer4': (
         "pymer4 / lme4 NEEDS R. It is an interface to R's lme4, not a "

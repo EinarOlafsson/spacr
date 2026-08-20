@@ -301,12 +301,8 @@ _PLUGIN_SECTION_MAP = {
 #: violation is a design mistake to fix in this table, not something to
 #: discover at startup.
 #:
-#: Raised 9 -> 13 -> 20. Nine was the width of the Core pipeline and
-#: nothing more; a cap exactly the size of the biggest section fires on the
-#: next app added rather than when a section stops being readable. Twenty
-#: was set on request once the registry passed fifty apps: at that size the
-#: sections that fill up are the ones doing real work, and splitting Explore
-#: into two half-named tabs would have been worse than a longer row.
+#: Twenty leaves room for established sections to grow while still catching a
+#: registry that has become too dense to scan as one group.
 MAX_APPS_PER_SECTION = 20
 
 #: **The** app list — ``(key, name, description, section)`` per app, in

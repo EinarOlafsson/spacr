@@ -652,25 +652,14 @@ LEVEL_TERMS: dict = {
 #: fit BOTH of the above SEPARATELY and correct each within itself.
 LEVEL_CHOICES: tuple = ('both', 'grna', 'gene')
 
-#: The design spaCR fitted from its first commit until instruction 132, kept
-#: as a literal so :func:`spacr.ml` can refuse to emit it and so a test has
-#: something exact to grep the tree for.
+#: Deprecated formula fragment that combines guide and gene fractions.
 #:
 #: ``check_and_clean_data`` builds ``gene_fraction`` as the SUM of the gene's
 #: gRNA fractions within a well, so every ``gene_fraction:gene[G]`` column is
 #: the sum of gene G's ``fraction:grna`` columns whenever G's guides do not
-#: share a well -- which is 386 of the 389 genes on the maintainer's TSG101
-#: screen. Measured there: the design is 1945 rows x 1248 parameters with RANK
-#: 862, a 386-dimensional null space that annihilates it EXACTLY (max |Xv| =
-#: 0.0, not merely small), and a condition number of 2.3e18. statsmodels does
-#: not refuse a singular design; it pseudo-inverts, so the fit came back with a
-#: coefficient and a P value for every term while the residual sum of squares
-#: was bit-identical at the answer it gave and at that answer plus seven times
-#: a null vector. That is the whole defect: one arbitrary solution out of
-#: infinitely many, reported as if it were the solution. Its visible signature
-#: is the 102 single-guide genes whose gene column is an exact duplicate of
-#: their one guide column -- 244480 and 244480_3 come back identical to the
-#: fifteenth digit.
+#: share a well. Combining both terms therefore creates exact linear
+#: dependencies and a non-identifiable design. The literal remains available
+#: so spaCR can detect and refuse that formula explicitly.
 COLLINEAR_FORMULA_FRAGMENT = 'fraction:grna + gene_fraction:gene'
 
 
@@ -2288,18 +2277,15 @@ _SETTING_NOT_APPLICABLE = {
 #: The design factors :mod:`pyfixest` absorbs instead of carrying as columns.
 #:
 #: `prepare_formula` puts ``rowID`` and ``columnID`` in the model as FIXED
-#: effects, so patsy dummy-codes them: 35 columns on the maintainer's TSG101
-#: screen, 38 on a full 384-well plate. They are nuisance terms --
+#: effects, so patsy dummy-codes them. They are nuisance terms --
 #: `process_model_coefficients` drops every one of them from the coefficient
 #: table before anybody reads it -- and a nuisance term that is never reported
 #: does not have to be a column. Absorbing it by alternating projections
 #: (Frisch-Waugh-Lovell) leaves the coefficients that ARE reported unchanged
 #: to the last digit and takes the solve down with the design.
 #:
-#: ``screenID`` is deliberately NOT here. Instruction 122 puts it in the model
-#: so a two-screen fit is blocked on the experiment, and it is a term a reader
-#: may want to see; absorbing it would remove it from the table as well as
-#: from the design.
+#: ``screenID`` is deliberately excluded because it blocks combined-screen
+#: fits on the experiment and may be useful in the coefficient table.
 _ABSORBED_FIXED_EFFECTS = ('rowID', 'columnID')
 
 
@@ -6048,13 +6034,10 @@ def _level_control_rows(frame, level, controls):
     return frame.loc[frame['grna'].astype(str).isin(names)]
 
 
-#: What the setting is called now, and what it used to be called.
+#: Current and legacy keys for enabling bundled *Toxoplasma* annotation.
 #:
-#: Instruction 133, asked for on 2026-08-17: "change the toxo settings to
-#: Toxoplasma". Both are accepted for the same reason `volcano` was retired
-#: rather than deleted -- every settings CSV written before today carries the
-#: old spelling, and a run that silently ignored it would turn the annotation
-#: off without saying so.
+#: Both spellings remain accepted so existing settings files continue to
+#: enable annotation instead of silently ignoring the legacy key.
 TOXOPLASMA_KEYS = ('Toxoplasma', 'toxo')
 
 

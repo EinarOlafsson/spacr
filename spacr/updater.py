@@ -642,9 +642,8 @@ def install_decision(dry_run: DryRun) -> dict:
             'headline': "", 'report': dry_run.summary()}
 
 
-#: The four answers an offer can carry. Instruction 158 names three; ``ready``
-#: is the fourth because a control that asks "can this be installed" also has
-#: to be able to hear "it already is".
+#: The four states an installation offer can report: already available,
+#: installable here, installable elsewhere, or unavailable.
 OFFER_ACTIONS = ("ready", "install", "elsewhere", "impossible")
 
 

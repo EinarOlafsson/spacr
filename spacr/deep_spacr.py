@@ -1677,8 +1677,8 @@ def train_test_model(settings):
 #: Colours the per-class accuracy panel cycles through. Deliberately not the
 #: train/val blue and red used by the two aggregate panels, so a class line is
 #: never mistaken for a split.
-#: Curve colours: teal, blue, purple, grey first, as asked for, then a tail
-#: for runs with more classes than that. Chosen to read on BOTH a light and a
+#: The first four colours are teal, blue, purple, and grey, followed by a tail
+#: for runs with more classes. Chosen to read on both a light and a
 #: dark background, because the figure itself is transparent now and spaCR
 #: does not know which one is behind it -- a palette tuned for dark alone
 #: disappears on the light theme.

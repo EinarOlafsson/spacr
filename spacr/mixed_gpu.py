@@ -339,13 +339,12 @@ class TorchMixedResults:
     llf: float
     n_obs: int
     k_fe: int
-    #: Which backend produced this, so the run can say so (instruction 141:
-    #: "the run says which backend produced it").
+    #: Backend that produced the result, for logs and run metadata.
     backend: str = "torch"
     device: str = "cpu"
-    #: Seconds inside the optimiser, and how many deviance evaluations it
-    #: took. Reported rather than guessed -- instruction 140's cost.
+    #: Seconds spent in the optimiser.
     fit_seconds: float = 0.0
+    #: Number of deviance evaluations performed by the optimiser.
     n_deviance_evals: int = 0
     theta: np.ndarray = field(default_factory=lambda: np.empty(0))
     gradient_norm: float = float("nan")

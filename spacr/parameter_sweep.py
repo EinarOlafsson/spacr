@@ -434,9 +434,7 @@ MAX_WORKERS = 8
 ASSUMED_TRIAL_GIB = 6.0
 
 #: Share of currently-available memory a sweep may plan to use. The rest
-#: belongs to the desktop. This is the number that was missing when a
-#: 14-worker sweep drove the machine into the OOM killer and took the user's
-#: editor with it -- twice.
+#: remains available to the desktop and operating system.
 MEMORY_BUDGET_FRACTION = 0.5
 
 
@@ -1299,14 +1297,10 @@ def summarise_sweep(results: pd.DataFrame, *,
 #: makes a row enough to reproduce the trial it describes.
 #:
 #: EVERY MEASURED COLUMN MUST BE IN HERE. The rule "anything not listed was a
-#: setting" is what lets a user add their own sweep axis and still have the row
-#: reproduce the trial -- but it also means a measurement this set forgets is
-#: fed back into perform_regression as if the user had asked for it. That was
-#: already happening: a contained trial merges the whole of summarise_trial
-#: into its row, so reopening one passed r_squared, aic, durbin_watson,
-#: genomic_inflation, breusch_pagan_p, positive_control_found and
-#: n_rows_fitted into the regression settings. Sourced from
-#: trial_metrics.METRIC_COLUMNS rather than retyped, so the two cannot drift.
+#: setting" lets custom sweep axes round-trip, but also means an omitted
+#: measurement would be replayed as a regression setting. Metric names come
+#: from :data:`trial_metrics.METRIC_COLUMNS` so the producer and replay filter
+#: stay aligned.
 _BOOKKEEPING_COLUMNS = frozenset({
     "trial_id", "folder", "preparation_key", "status", "seconds",
     "error", "error_type",

@@ -118,13 +118,11 @@ def set_figure_text_size_override(fig, size: int) -> None:
         LOG.debug("could not remember a per-figure text size", exc_info=True)
 
 
-#: Serialises every touch of a matplotlib Figure. Instruction 166: the worker
+#: Serialises every touch of a matplotlib Figure. The worker
 #: thread renders figures while a run streams them (`bridge._capture_show` ->
 #: `render_figure_to_png`) and the GUI thread recolours them when the style
 #: dialog is accepted. matplotlib is NOT thread-safe, so the two together are a
-#: segfault in the C layer -- no Python exception, nothing logged, reported as
-#: "i was changing the background graph color ... while a model was being
-#: trained and spacr crashed".
+#: potential C-layer segfault rather than a recoverable Python exception.
 #:
 #: RE-ENTRANT, because the render path styles before it renders; a plain Lock
 #: would deadlock the first time one call did both.

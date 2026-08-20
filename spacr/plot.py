@@ -3207,11 +3207,9 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_co
     return plate_map, (vmin, vmax)
 
 
-#: ``cmap='viridis'`` is the literal every internal call site was written
-#: with, not a choice anybody made, and viridis is not in the house palette.
-#: Treated as "unset" so the conversion asked for in instruction 124 reaches
-#: the figures a run actually writes; any OTHER colormap is a choice and is
-#: honoured exactly as given.
+#: Legacy default colormap. It is treated as unset so internal calls adopt the
+#: current house palette; any other colormap is treated as an explicit choice
+#: and honoured as supplied.
 LEGACY_PLATE_CMAP = 'viridis'
 
 

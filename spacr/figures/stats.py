@@ -58,8 +58,8 @@ MIN_N_FOR_ASSUMPTIONS = 10
 #: Below this many observations a group cannot be tested at all.
 MIN_N_FOR_TEST = 2
 
-#: The asterisk convention, stated once and reported with every result --
-#: the skill is explicit that a bare p is not acceptable.
+#: Asterisk convention reported with every result so readers can interpret
+#: significance marks without inferring thresholds.
 CONVENTION = "*p<0.05, **p<0.01, ***p<0.001, ****p<0.0001"
 
 

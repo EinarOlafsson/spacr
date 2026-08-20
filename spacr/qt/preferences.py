@@ -571,10 +571,8 @@ def set_figure_png_dpi(dpi: int) -> None:
 # PREVIEW, and passes "auto" to `set_figure_colors` unless the user picked.
 _KEY_FIG_BG = "prefs/figure_bg"
 _KEY_FIG_FG = "prefs/figure_fg"
-#: The LINE half of instruction 152's two controls. The maintainer's decision
-#: divides a figure by what a mark IS rather than by which code draws it: one
-#: Line colour for every line, the axis spines and the tick MARKS included,
-#: and one Font colour for every piece of text, the tick LABELS included.
+#: Preference key for line colour, including axis spines and tick marks.
+#: Text and tick-label colour remains under :data:`_KEY_FIG_FG`.
 #: `_KEY_FIG_FG` is the font half and predates the split, which is why it is
 #: still spelled `fg` -- renaming the key would silently discard the colour of
 #: every store that already holds one.
@@ -641,9 +639,9 @@ def auto_figure_colors() -> tuple:
     return TRANSPARENT_FIGURE_BG, ("#ffffff" if dark else "#000000")
 
 
-#: Every background "auto" has ever resolved to, on any theme and any release
-#: — the current transparent one, plus the two opaque ones it resolved to
-#: before 2026-08-06. A stored value equal to one of these is
+#: Background values that a historical ``"auto"`` preference could persist:
+#: the current transparent value and the former opaque light/dark values. A
+#: stored value equal to one of these is
 #: indistinguishable from a resolution that was written back, which is why
 #: the migration below cannot be cleverer than "assume the bug".
 _FROZEN_BG_VALUES = frozenset({TRANSPARENT_FIGURE_BG, "#000000", "#ffffff"})
