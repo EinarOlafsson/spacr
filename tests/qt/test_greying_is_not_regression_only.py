@@ -136,6 +136,13 @@ class TestTheRegressionPanelIsUnchangedByTheWidening:
         from spacr.ml import REGRESSION_SETTINGS_USED
 
         panel = _panel(qtbot, "regression")
+        # A PARAMETRIC INFERENCE FIRST, so the FAMILY rule is what is being
+        # measured. `inference` defaults to 'nonparametric' (2026-08-19, at
+        # the maintainer's direction), and that path fits no model at all --
+        # so every estimator setting is greyed for a reason that has nothing
+        # to do with which family was chosen, and the two rules cannot be
+        # told apart.
+        _set_combo(panel, "inference", "parametric")
         _set_combo(panel, "regression_type", "ols")
         panel._refresh_setting_dependencies()
 
