@@ -1,0 +1,78 @@
+================================================================================
+THE PLOTS MUST SHOW THE REGRESSION THAT ACTUALLY RAN
+================================================================================
+
+Status:    filed 2026-08-20, not started. POSSIBLE CORRECTNESS BUG -- see A.
+Requested: 2026-08-20 -- "one thing that makes me uneasy is that all the plots
+           look the same no matter which regression type i do."
+Owner:     regression module
+
+--------------------------------------------------------------------------------
+A. THE SUSPICION, AND WHY IT DESERVES TO BE CHECKED FIRST
+--------------------------------------------------------------------------------
+
+    "you should still know where it is, test afew of the regression types and
+    make sure the correct one is populating the graphs, and that its not just
+    the first one or that all are defaulting to the same regression type
+    because of some hidden failure"
+
+THIS IS THE ONE ITEM ON THE LIST THAT COULD MEAN PUBLISHED NUMBERS ARE WRONG,
+and it is stated as a suspicion rather than a symptom, so it has to be MEASURED
+rather than reasoned about. Three things could produce "they all look the
+same" and they are not equally bad:
+
+  1. THEY ARE THE SAME. Several backends genuinely agree on a well-behaved
+     design -- ols and wls with equal weights are the same fit -- and the
+     plots looking alike would be correct.
+  2. THE PLOT IS NOT READING THE FIT. The volcano is drawn from a coefficient
+     table; if every type writes the same columns and the plot never looks at
+     which type produced them, identical-looking plots would be expected even
+     from different fits.
+  3. THE TYPE IS NOT REACHING THE FIT. A silent fallback -- an unsupported
+     name, a failed import, a try/except that lands on ols -- would make every
+     run the same model. This is the one that matters.
+
+DISTINGUISHING THEM IS ARITHMETIC: fit the same data under several types and
+compare the COEFFICIENTS, not the pictures. Identical coefficient vectors
+across types that should differ is 3. Different coefficients with identical
+plots is 2.
+
+THE MAINTAINER'S OWN SCREEN IS THE FIXTURE:
+/mnt/firecuda2/Claude/toxoplasma_projects/tsg101_screen -- four plates, and
+`tests/test_the_screen_validates_the_attribution.py` already knows how to
+load it (SPACR_SCREEN). Instruction 62's audit is the precedent: an
+assumption held for a long time, measured once, and found to be half wrong.
+
+--------------------------------------------------------------------------------
+B. THE SUMMARY NAMES THE MODEL
+--------------------------------------------------------------------------------
+
+    "in the summary under the volcano graph please state which regression was
+    used the backend and any hyperparamiters used if applicable."
+
+    regression_type   ols / mixed / lasso / ...
+    backend           statsmodels / glum / ... (instruction 141 already gets
+                      the backend into the run summary; this is the same fact
+                      under the graph, where the figure is read)
+    hyperparameters   whatever that type actually used: alpha and l1_ratio
+                      for the penalised family, quantile, huber_t,
+                      hinge_threshold, group_lasso_lambda, rra_alpha and
+                      rra_permutations -- and, when alpha was cross-validated
+                      rather than given, the value that WON, because "auto" is
+                      not a number anybody can reproduce from.
+
+IT IS ALSO THE FIX FOR A. A plot that says which model drew it cannot be
+mistaken for another model's, and the check in A becomes something a reader
+can do at a glance instead of an audit.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Fitting the reference screen under several regression types gives
+  DIFFERENT coefficient vectors where the models differ, and identical ones
+  only where they provably should.
+* The summary under the volcano names the type, the backend and every
+  hyperparameter that type read.
+* A cross-validated alpha is reported as the value that won, not as 'auto'.
+* A type that silently fell back says so, loudly, rather than drawing.

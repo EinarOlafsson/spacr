@@ -1,0 +1,106 @@
+================================================================================
+THE MEASURE TAB: COMPARE ANYTHING, AND FILL THE SPACE
+================================================================================
+
+Status:    filed 2026-08-20, not started.
+Requested: 2026-08-20, from a live session.
+Owner:     Qt GUI (Measurements tab)
+
+ALREADY THERE, confirmed by the maintainer: "see the data on the cell, well
+and plate level. this is currently implemented."
+
+--------------------------------------------------------------------------------
+A. COMPARE ANY MEASUREMENT IN THE DATABASE
+--------------------------------------------------------------------------------
+
+    "compare any measurement from the database tables (requires them to be
+    joined)"
+
+The comparison today reads the columns on the OBJECT ROWS the tab happens to
+hold. Every measurement in the attached databases should be reachable --
+cell, nucleus, pathogen, cytoplasm -- which means the join is a precondition,
+exactly as the sweep's is (186 A). Say so and offer to do it, rather than
+offering a shorter list of measurements and no reason.
+
+--------------------------------------------------------------------------------
+B. THE THREE COMPARISONS THAT MATTER
+--------------------------------------------------------------------------------
+
+    "compare the annotated cells in the well, compare to the controlls
+    (controlls would need to be specified.), compare to all other wells. and
+    i whould be able to choose which wells to include from the gene
+    annotation."
+
+Three contrasts for one set of annotated cells, and they answer different
+questions:
+
+    within the well      annotated against the rest of the SAME well --
+                         removes plate and well batch entirely. This is the
+                         contrast instruction 173's validation used, and the
+                         only one the well-level fraction can never make.
+    against controls     annotated against the control wells. Needs the
+                         controls named -- and `spacr.control_names` is now
+                         the one reader for that (184), so it takes a gene or
+                         a guide in any of the four spellings.
+    against every other  annotated against all other wells on the plate.
+    well
+
+AND THE WELLS ARE CHOSEN, not all-or-nothing: "i whould be able to choose
+which wells to include from the gene annotation". A gene's wells are listed
+and each can be included or left out, because a well that failed for an
+unrelated reason should not have to poison the contrast.
+
+THE PLATE-MAP PICKER OF 185 IS THE OBVIOUS CONTROL FOR THIS, and the two
+instructions should land together or at least agree on the vocabulary.
+
+--------------------------------------------------------------------------------
+C. AN OPENED SECTION FILLS ITS SPACE                            [REPORTED]
+--------------------------------------------------------------------------------
+
+    "in the measure tab the subsections now snap to the top which is good.
+    but when opened they just open a tiny bit. have them fill the container
+    to the next subsection."
+
+The fold-upward fix (186 C) added a zero-minimum filler that absorbs what
+folded sections give up. It absorbs too well: an opened section now takes its
+minimum and the filler keeps the rest. Opening a section should give it the
+space up to the next section, i.e. the filler should yield first.
+
+--------------------------------------------------------------------------------
+D. THE EXPORT BUTTON GOES; SAVE STYLED IS THE ONE DOOR
+--------------------------------------------------------------------------------
+
+    "the export button dosnt cause any errors but the exported figure is
+    broken, with massive text and so on. uppon clicking export the user
+    should be prompted with a window like in save styled. actually remove the
+    export button, save styled is enough."
+
+TWO DOORS, ONE OF THEM BROKEN. Export writes with no preview and no styling
+pass, which is where the massive text comes from -- the page is sized in
+millimetres and the text is not scaled to it. Save styled already previews
+what it will write.
+
+Remove Export. One door, and it shows you what you are getting.
+
+D2. AND SAVE STYLED GETS REAL SETTINGS.
+
+    "in save styled there should be comprehensive figure setting that change
+    the figure live."
+
+Today: ink, background, grid, and -- for a pyqtgraph plot -- a size and
+resolution that are greyed with reasons (186 D2). LIVE is the operative word:
+every control redraws the preview, which is what makes it a preview rather
+than a form. Font size is the first candidate, since the reported fault is
+text that is wrong for the page.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Every numeric column in the attached databases is offered, and the join is
+  offered when it is what is missing.
+* The three contrasts are selectable and each names what it removes.
+* A gene's wells can be included and excluded individually.
+* Opening a section fills the space to the next one.
+* There is no Export button; Save styled writes what its preview showed.
+* Changing a setting in Save styled redraws the preview.
