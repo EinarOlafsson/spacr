@@ -58,15 +58,10 @@ LOG = logging.getLogger("spacr.qt.sweep_runs")
 #: What the sweep writes its table to, inside the destination folder.
 RESULTS_FILENAME = "sweep_results.csv"
 
-#: The column that says WHICH RUN IS LOADED -- the one every view on this
-#: screen is describing. Requested 2026-08-18: "there should be a checkbox in
-#: runs that specifies which run is loaded if there are several runs".
+#: Column marking the run currently shown by the other views on the screen.
 #:
-#: A COLUMN RATHER THAN A CHECKBOX, and the difference is only in the widget:
-#: the table is the shared `ResultsTable`, which draws text, and a second
-#: table implementation to carry one tick box is a second set of bugs. It
-#: reads the same way -- one row is marked, the rest are blank -- and it
-#: sorts, filters and copies with the rest of the row.
+#: A text marker keeps the value sortable, filterable, and copyable in the
+#: shared :class:`ResultsTable`.
 LOADED_COLUMN = "loaded"
 
 #: What that column holds for the loaded run. Blank for every other row: a
@@ -115,17 +110,11 @@ RUN_SETTING_COLUMNS = (
 SOURCE_RUN = "run"
 SOURCE_REFIT = "re-fit"
 SOURCE_SWEEP = "sweep trial"
-#: A run opened DELIBERATELY from disk, including one from an earlier
-#: session. Instruction 154 G: a run on disk is a first-class run, not a
-#: degraded one -- it gets a row, a source, its settings read back beside its
-#: results, and it can be the loaded run like any other.
+#: Source label for a run opened from disk. Disk-loaded runs retain settings
+#: and may become the active run like runs produced in the current process.
 SOURCE_DISK = "on disk"
-#: One fit of the Measurements tab's column queue. Instruction 154 F: "do
-#: regression on a selection of columns each gets saved as a run that i can
-#: evaluate." Its own source rather than :data:`SOURCE_RUN`, because what
-#: makes those rows worth having together is that they came from one queue
-#: over one merged frame -- which is exactly the thing a `source` column is
-#: for.
+#: Source label for one fit from the Measurements tab's column queue. It
+#: distinguishes queued fits over one merged frame from ordinary runs.
 SOURCE_MEASUREMENT = "measurement column"
 
 #: A run that has been started and has not come back yet. Not "ok": a run
@@ -220,22 +209,19 @@ class SweepRunsPanel(QWidget):
     loaded_run_changed = Signal(dict)
     #: Emitted with the rows that have just left the table, as dicts.
     #:
-    #: A REMOVAL IS AN EVENT OTHER VIEWS CARE ABOUT (instruction 146). The
+    #: Other views use this event to discard per-run plot and figure state. The
     #: results panel keeps a plot state per run and the figure grid keys its
-    #: sections by run label, so a run that leaves this table and stays in
-    #: both of those is the same disagreement between two views that 157 was
-    #: about, pointing the other way. The panel does not reach into them
-    #: itself -- it says what happened and the screen does the wiring, which
-    #: is what keeps this widget usable outside that screen.
+    #: sections by run label; the screen coordinates cleanup so this widget
+    #: remains usable on its own.
     runs_removed = Signal(list)
-    #: Emitted with ONE run's row when the user asks to see it BESIDE the
-    #: loaded one (instruction 116). Opening a second run is a deliberate
+    #: Emitted with one run's row when the user asks to see it beside the
+    #: loaded one. Opening a second run is a deliberate
     #: act: two runs is what a comparison needs and twelve is what makes the
     #: screen unusable, so it has its own gesture rather than happening on a
     #: click. The screen decides whether the bound allows it.
     compare_requested = Signal(dict)
-    #: Emitted with one run's row when the user asks to put the WORKSPACE it
-    #: saved back (instruction 180). Its own gesture and not part of loading:
+    #: Emitted with one run's row when the user requests its saved workspace.
+    #: Restoration is separate from loading results because
     #: a restore reattaches databases, re-points the montage and rewrites the
     #: settings on screen, which is a great deal more than showing a table,
     #: and a user who wanted to glance at a run's volcano would not expect
@@ -323,9 +309,9 @@ class SweepRunsPanel(QWidget):
             "open the run to hover, click and filter it.")
         self._photo.hide()
         layout.addWidget(self._photo)
-        #: Asked for the still of a run folder. Set by the screen that keeps
-        #: them -- a callable rather than a dict, so a photograph taken after
-        #: this panel was built is still found.
+        #: Callable that returns the latest still for a run folder. Using a
+        #: provider ensures photographs created after panel construction are
+        #: still found.
         self._photo_provider = None
 
         self._frame = None
@@ -345,13 +331,8 @@ class SweepRunsPanel(QWidget):
         #: every time a run is recorded and an index would name a different
         #: run afterwards.
         self._loaded_key = ""
-        #: WHERE THE MARK WAS BEFORE the current one, so a load that fails
-        #: can put it back. Instruction 157: "the mark is set by the load,
-        #: not beside it -- a failed load leaves the mark where it was rather
-        #: than pointing at something not on screen." The mark moves first
-        #: and the view is asked to follow, because the panel cannot know
-        #: whether a run will open until something tries; what it can do is
-        #: be told when it did not, which is :meth:`the_load_failed`.
+        #: Previous loaded-run key, retained so a failed load can restore the
+        #: marker to the run that remains on screen.
         self._previous_loaded_key = ""
         #: Which announcement `_previous_loaded_key` answers.
         self._undo_answers = None

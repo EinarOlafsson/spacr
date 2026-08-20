@@ -408,13 +408,10 @@ class SweepPanel(QWidget):
         return str(best.iloc[0]["guide"]) if len(best) else None
 
     #: The pictures this panel can draw, in the order the chooser offers
-    #: them. Each answers a question the others cannot -- see instruction
-    #: 175 and `spacr.gene_measurement_sweep`.
-    #: THE HEATMAP STAYS FIRST, and so stays the default. Calibration is the
-    #: first thing to READ -- it says whether the other nine are worth
-    #: anything -- but a panel that opened on a QQ plot when the user asked
-    #: for "a comprehensive table and an intuitive visualisation" would be
-    #: answering a question they did not ask.
+    #: them. Each answers a distinct question; see
+    #: :mod:`spacr.gene_measurement_sweep`. The heatmap remains first and is
+    #: therefore the default, while calibration is the first diagnostic to
+    #: inspect before interpreting the remaining views.
     PICTURES = (
         ("heatmap", "what survived, clustered"),
         ("calibration", "is the screen calibrated at all?"),

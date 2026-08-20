@@ -61,16 +61,10 @@ MIN_CELL_PX = 220
 MAX_CELL_PX = 520
 #: ONE SLOT PER FIGURE. Always.
 #:
-#: This used to give a wide figure a DOUBLE-width cell, so four plate
-#: heatmaps took eight slots and wrapped onto two rows -- reported as "the
-#: plate heat maps are too wide so now they take 2 slots ... when they should
-#: take 1 slot per plate so in my case 4 slots".
-#:
 #: A grid whose cells are different sizes is not a grid, and the aspect ratio
-#: is already preserved INSIDE the cell (that is what instruction 117 fixed):
+#: is already preserved inside the cell:
 #: a wide figure simply sits shorter in its slot, which is what a small
-#: multiple should do. Kept as a name rather than deleted so the old rule
-#: cannot quietly come back as a literal.
+#: multiple should do.
 CELL_SPAN = 1
 
 

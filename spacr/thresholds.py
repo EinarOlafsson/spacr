@@ -97,11 +97,9 @@ ALIASES = {
 
 #: `var` returns a width in SQUARED units, so `mean + k * var` adds a variance
 #: to a coefficient and is dimensionally wrong. It is kept because it is what
-#: spaCR shipped and what a saved settings file may carry -- and because the
-#: maintainer asked for it by name -- but it is the one method whose number
-#: cannot be read as "k spreads away from the centre". Below a spread of 1 it
-#: is NARROWER than std and above it much wider, which is why a screen can
-#: change character when nothing but the units moved.
+#: spaCR shipped and what a saved settings file may carry, but it is the one
+#: method whose number cannot be read as "k spreads away from the centre".
+#: Below a spread of 1 it is narrower than std and above it much wider.
 DIMENSIONALLY_ODD = ("var",)
 
 

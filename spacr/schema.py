@@ -177,9 +177,8 @@ COLUMN_KEY = 'columnID'
 #: spaCR keys on (:data:`ROW_KEY`, :data:`COLUMN_KEY`) and never on this, so
 #: it is not part of any composed key and not in
 #: :data:`WELL_KEY_COLUMNS` -- but user metadata routinely arrives with a
-#: ``Well`` / ``well_name`` column instead of a row and a column, and until
-#: instruction 145 it had no canonical spelling at all. It has one now, so
-#: the same file read twice cannot produce two different column names.
+#: ``Well`` / ``well_name`` column instead of a row and a column. A canonical
+#: spelling ensures repeated imports produce the same column name.
 WELL_KEY = 'wellID'
 #: The imaging site within the well, rendered ``'f<N>'``.
 FIELD_KEY = 'fieldID'
@@ -211,10 +210,9 @@ WELL_KEY_COLUMNS: Tuple[str, ...] = (PLATE_KEY, ROW_KEY, COLUMN_KEY)
 
 #: The screen — one experiment, one guide library, its own plate1..plate4.
 #:
-#: Instruction 122. Two screens that share a guide library share their
-#: independent variable, so they can be stacked into one frame and any
-#: measurement regressed across both. They also both have a ``plate1``, and
-#: that is not a name clash to be repaired — it is a *missing dimension*.
+#: Two screens that share a guide library can be stacked into one frame and
+#: analysed together. Each may contain a ``plate1``; ``screenID`` preserves
+#: those as distinct identities rather than treating them as a name clash.
 #:
 #: **This key rides ALONGSIDE the existing ones and the ``prc`` grammar is
 #: untouched.** Three reasons, in descending order of how expensive they are

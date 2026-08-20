@@ -179,9 +179,7 @@ HOVER_LIMIT = 20000
 SNAPSHOT_PX = (520, 380)
 
 #: The marks a plot with a categorical x-axis can be drawn with, and what each
-#: says on the menu. Asked for by name: "for the live plots id like to be able
-#: to right click and change the plot type like show guide support as a
-#: violin, box, bar, jitter plot".
+#: says on the menu.
 #:
 #: ORDERED BY HOW MUCH THEY HIDE, honest first. ``points`` shows every
 #: observation against a mean line; ``jitter`` is the same thing spread
@@ -246,8 +244,8 @@ EXPORT_WIDTH_MM = 180.0
 #:
 #: NOT THE ASPECT LOCK. That one ties one y unit to n x units and is a
 #: statement about the DATA, which is what a Q-Q wants and is not what "save
-#: it as a square" means. The two are built and named apart (instruction
-#: 147 B) because the old control was the second wearing the first's name.
+#: it as a square" means. Canvas shape and data aspect are controlled
+#: independently.
 CANVAS_SHAPES = (
     ("square", 1.0),
     ("wide", 2.0 / 3.0),
@@ -1559,8 +1557,8 @@ class FastPlot(QWidget):
         self._font_size: Optional[int] = None
         #: The ink for EVERY piece of text -- title, axis labels, tick
         #: LABELS, legend, the caption on a threshold line -- or None while
-        #: it follows the theme. One of the two colour controls instruction
-        #: 152 settled on; the other is :attr:`_line_colour`.
+        #: it follows the theme. The corresponding line control is
+        #: :attr:`_line_colour`.
         self._font_colour: Optional[str] = None
         #: The ink for EVERY line -- the data's own, the reference and
         #: threshold lines, the Q-Q diagonal, the trends, AND the axis spines
@@ -4626,8 +4624,8 @@ class VolcanoPlot(FastPlot):
     #: What the y axis measures, in the order the menu offers them.
     P_AXES = ("raw", "adjusted", "lfdr")
 
-    #: How the corrected p is carried on the COLOUR channel (instruction
-    #: 149 F.5). ONE AT A TIME, and that is by construction rather than by
+    #: How the corrected p is carried on the colour channel. One at a time, by
+    #: construction rather than by
     #: policy: a dot cannot be coloured for its direction and for its q at
     #: once, so whichever is chosen the other is not shown and the legend
     #: and the caption say which is in force.
@@ -4654,8 +4652,7 @@ class VolcanoPlot(FastPlot):
 
     #: The alphas "opacity by q" draws between. The floor is well clear of
     #: invisible: a point faded to nothing is a point removed from the plot,
-    #: and this instruction exists because a plot was showing something the
-    #: data did not say.
+    #: which would imply data were absent rather than weakly supported.
     Q_ALPHA_RANGE = (55, 255)
 
     #: How many stops of the ramp the legend names. Five, because a legend

@@ -23,9 +23,7 @@ and a class colour never hides the fact that a tile is the current one.
 from PySide6.QtCore import QRectF
 from PySide6.QtGui import QColor, QPainter, QPainterPath, QPen, QPixmap
 
-#: The thin line around every crop. THIN: reported as "the wite rim is to
-#: thick", and a rim that competes with the crop for attention is chrome
-#: drawn at the expense of the thing it frames.
+#: Width of the thin state border around every crop, in pixels.
 BORDER_WIDTH = 2
 #: The current-tile ring, drawn OUTSIDE the state ring.
 HOVER_RING_WIDTH = 3

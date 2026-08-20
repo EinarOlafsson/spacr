@@ -128,12 +128,10 @@ def _torchvision_model_names():
 #: hand decides; anything not listed falls through to the name-keyed table.
 #:
 #: ``level`` is the only one. The proportion and endodyogeny plots have meant
-#: 'object'/'well'/'plate' by it for years; instruction 132 gives the
-#: regression a ``level`` of its own -- 'both'/'grna'/'gene' -- and the shared
-#: tables here and in :mod:`spacr.settings` are keyed by name with no module
-#: scope. Offering the regression's three options on a proportion panel would
-#: be a combo that cannot express what that module needs, so the dispatch is
-#: on the value the panel is being built from.
+#: 'object'/'well'/'plate' by it for years, while regression uses
+#: 'both'/'grna'/'gene'. The shared tables here and in :mod:`spacr.settings`
+#: are keyed by name with no module scope, so dispatch uses the value already
+#: present on the panel.
 #:
 #: Deliberately NOT a fallback: a value in neither vocabulary returns None and
 #: takes the ordinary path, so no module's existing widget changes shape.

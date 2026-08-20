@@ -150,18 +150,11 @@ OBJECT_CHOICES: Tuple[str, ...] = ("cell", "nucleus", "pathogen", "cytoplasm")
 #: :func:`spacr.crops.resolve_crop_source`'s own ``auto``, which prefers the
 #: exported PNGs when they exist -- and the timing table in this module's
 #: docstring is the second reason that preference is right.
-#: THE TWO MODES, IN THE WORDS THE USER GAVE THEM (instruction 171).
 #:
-#: 'automatic' is gone from the panel and NOT from the code: it is still the
-#: answer to "what is available here", which
-#: :func:`spacr.cell_montage.resolve_montage_crop_source` computes, and it
-#: stops being an answer offered to somebody who was asked which mode they
-#: want. "the default should always be loade images which loades from data
-#: folder. if that fails it should always try the other."
-#:
-#: The stored values are unchanged -- 'png' and 'merged' -- so a saved
-#: montage setting means today what it meant yesterday. An empty string, the
-#: old 'automatic', still loads and resolves to LOAD IMAGES.
+#: The panel offers explicit ``load images`` and ``stream images`` choices.
+#: Stored values remain ``'png'`` and ``'merged'`` for compatibility; an empty
+#: legacy ``automatic`` value still resolves through the normal preference
+#: order.
 SOURCE_CHOICES: Tuple[Tuple[str, str], ...] = (
     (LOAD_IMAGES, f"{LOAD_IMAGES_LABEL} — the crops already in data/"),
     (STREAM_IMAGES, f"{STREAM_IMAGES_LABEL} — cut from merged/*.npy as it goes"),
@@ -459,9 +452,9 @@ class MontageRequest:
     results_path: str = ""
     databases: Tuple[str, ...] = ()
     count_csvs: Tuple[str, ...] = ()
-    #: The score CSVs the run was fitted on. Used ONLY when a database has no
-    #: score column of its own -- the scores are then taken from these, in
-    #: memory, and the database is not written to (instruction 167).
+    #: Score CSVs used by the fit. When a database lacks the score column,
+    #: values are read from these files in memory without modifying the
+    #: database.
     score_csvs: Tuple[str, ...] = ()
     #: How the cells are drawn, in the annotator's own names. Empty means the
     #: annotator's defaults.
@@ -1461,29 +1454,17 @@ class CellMontageView(QWidget):
         "Click a coefficient — a dot on the volcano or a row in the "
         "coefficient table — to see the cells behind it.")
 
-    #: No run at all. NAMES THE WAY TO GET ONE, which the old sentence did
-    #: not: "No regression results are loaded" was reported by the maintainer
-    #: immediately after a regression finished, and it said neither which run
-    #: it was looking for nor how to give it one. A run that finishes IS the
-    #: loaded run (154 G), so seeing this means none has finished in this
-    #: session -- and the answer to that is to open one from disk.
+    #: Message shown when no run folder is available. It names the missing
+    #: input and tells the user how to load a current or earlier run.
     NO_RUN_LOADED = (
         "No run is loaded, so there is no regression_data.csv to read the "
         "per-well guide fractions from. A run that finishes loads itself; to "
         "look at an earlier one, pick it in the Runs tab or open its folder "
         "there with “Load run…”.")
 
-    #: A table with no run folder behind it. A DIFFERENT FAILURE, and it used
-    #: to be reported as the one above: the coefficients are on screen, so
-    #: "no regression results are loaded" reads as a contradiction of what
-    #: the user is looking at.
-    #:
-    #: "THE LOADED COEFFICIENT TABLE", which is what the user calls it. "The
-    #: coefficient table on screen" describes a widget; the user is thinking
-    #: about a run (instruction 155 A, handed over by the agent that fixed
-    #: the provider). With that provider fixed this branch is reached only by
-    #: a table genuinely opened from a bare CSV -- which is the case this
-    #: sentence is FOR.
+    #: Message shown when coefficients came from a bare CSV rather than a run
+    #: folder. It distinguishes a visible table from the missing per-run files
+    #: required to build the montage.
     RESULTS_WITHOUT_A_FOLDER = (
         "The LOADED coefficient table was not read from a run folder, so "
         "there is nowhere to find the regression_data.csv this montage needs. "
@@ -2173,7 +2154,6 @@ class CellMontageView(QWidget):
             Optional callable receiving ``(databases, score_files)`` and
             returning whether to proceed. When omitted, spaCR displays a
             confirmation dialog.
-
         Returns
         -------
         dict

@@ -575,13 +575,8 @@ class HoverTooltip(QFrame):
 
     #: How long the popup waits before hiding, in milliseconds.
     #:
-    #: LONG ENOUGH TO REACH IT. Reported 2026-08-19: "if the mouse is on the
-    #: tooltip the tooltip should not disappear, which it does if i move the
-    #: mouse from the setting text". The cancel-on-enter mechanism was right
-    #: and the grace period was not: 250 ms is less than it takes to cross
-    #: the gap between a label and a popup placed beside it, so the timer
-    #: fired while the cursor was still in flight and there was nothing left
-    #: to enter.
+    #: Long enough for the cursor to cross the gap from a setting label to the
+    #: popup and trigger its cancel-on-enter behavior.
     #:
     #: The cost of being generous is a tooltip that lingers a moment after
     #: the cursor has genuinely left, which is the mistake worth making: the

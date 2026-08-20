@@ -82,12 +82,9 @@ __all__ = [
 
 #: What the scan blocks on unless told otherwise.
 #:
-#: The screen, because that is what instruction 122's first two parts were
-#: for: two screens stacked into one frame differ from each other for reasons
-#: that have nothing to do with the guides, and leaving that in the residual
-#: inflates every standard error in the scan. A block that is absent, or that
-#: holds one value, is simply dropped -- a single-screen project is not a
-#: special case, it is the same model with one fewer term.
+#: Blocking on screen prevents differences between combined experiments from
+#: inflating guide-effect standard errors. A missing or single-valued block is
+#: dropped, so a single-screen project uses the same model with one fewer term.
 DEFAULT_BLOCK_COLUMNS: Tuple[str, ...] = (schema.SCREEN_KEY,)
 
 #: Wells a gene needs before its effect is estimable at all.

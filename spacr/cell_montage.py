@@ -253,11 +253,11 @@ def round_half_up(value: float) -> int:
 
 #: How the montage decides which cells belong to a coefficient.
 #:
-#: ``rank``       heuristic 1 -- the top x by score (instruction 172). The
-#:                default: it needs nothing but the scores and the fractions.
+#: ``rank``       selects the highest-scoring cells using the read fractions;
+#:                this is the default and requires no attribution model.
 #: ``attributed`` each cell's posterior probability of carrying the guide,
 #:                with the well's read fractions as the prior and the fitted
-#:                effects as the likelihood (173). Shows the cells whose
+#:                effects as the likelihood. Shows the cells whose
 #:                probability clears the threshold.
 #: ``assigned``   the constrained assignment -- every cell in the well gets
 #:                exactly one guide and each guide gets exactly the number of

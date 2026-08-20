@@ -1232,10 +1232,9 @@ def legacy_png_view(crop: np.ndarray) -> np.ndarray:
 #: on disk are in the order the user declared, so it is read back as-is.
 CROP_FORMAT_LEGACY_BGR = 1
 
-#: Format 2: ``png_dims[0]`` is the file's red channel. Written between
-#: 2026-07-26 and 2026-08-06 only. This is the format that is *wrong* --
-#: it puts the first-listed channel, conventionally the 405/DAPI plane, in
-#: red -- so it is the one that gets reversed on read.
+#: Legacy RGB format in which ``png_dims[0]`` occupies the file's red slot.
+#: Because the first-listed channel is conventionally the 405/DAPI plane,
+#: this transitional format is reversed when read.
 CROP_FORMAT_RGB = 2
 
 #: Format 3: the file's red, green and blue slots hold exactly the source
@@ -1409,12 +1408,12 @@ def to_cv2_bgr(png_channels: np.ndarray) -> np.ndarray:
 #: The colour slots a crop PNG has, in file order.
 PNG_COLOR_KEYS = ("r", "g", "b")
 
-#: What ``png_dims=[0, 1, 2]`` has always meant on screen, stated outright.
+#: Default colour mapping for the legacy ``png_dims=[0, 1, 2]`` setting.
 #:
 #: Microscope channels arrive in wavelength order -- 0 is 405, 1 is 488, 2 is
 #: 555, 3 is 647 -- so the first channel is the nuclear stain and belongs in
-#: blue. This default reproduces, exactly, what every spaCR crop written
-#: before 2026-07-26 looks like.
+#: blue. This mapping preserves the appearance of crops written with the
+#: legacy convention.
 DEFAULT_PNG_CHANNEL_MAPPING = {"r": 2, "g": 1, "b": 0}
 
 
@@ -2983,15 +2982,12 @@ class CropSource:
 
 
 
-#: Print the path of every crop as it is read. Asked for 2026-08-19 -- "can
-#: you have the software print the path for each cell it loads in the
-#: console" -- while working out whether a montage was looking in the right
-#: place. On by default because that is what it is for; a caller drawing
-#: thousands of crops can turn it off.
+#: Whether to print each crop path as it is read. Enabled by default to make
+#: crop-source problems visible; disable it when loading large montages if
+#: the per-file output is not needed.
 PRINT_CROP_PATHS = True
 
-#: Paths already announced this session, so a montage redrawn five times does
-#: not print the same three hundred lines five times.
+#: Paths announced since the last :func:`forget_announced_crops` call.
 _ANNOUNCED_CROPS: set = set()
 
 
