@@ -573,9 +573,28 @@ class HoverTooltip(QFrame):
         self._position_under(anchor)
         self.show()
 
-    def start_hide(self, delay_ms: int = 250) -> None:
-        """Schedule a hide after ``delay_ms`` unless the cursor re-enters."""
-        self._hide_timer.start(delay_ms)
+    #: How long the popup waits before hiding, in milliseconds.
+    #:
+    #: LONG ENOUGH TO REACH IT. Reported 2026-08-19: "if the mouse is on the
+    #: tooltip the tooltip should not disappear, which it does if i move the
+    #: mouse from the setting text". The cancel-on-enter mechanism was right
+    #: and the grace period was not: 250 ms is less than it takes to cross
+    #: the gap between a label and a popup placed beside it, so the timer
+    #: fired while the cursor was still in flight and there was nothing left
+    #: to enter.
+    #:
+    #: The cost of being generous is a tooltip that lingers a moment after
+    #: the cursor has genuinely left, which is the mistake worth making: the
+    #: other one loses text the user was reading.
+    HIDE_DELAY_MS = 700
+
+    def start_hide(self, delay_ms: int = 0) -> None:
+        """Schedule a hide after ``delay_ms`` unless the cursor re-enters.
+
+        ``0`` means :data:`HIDE_DELAY_MS` -- the default is named rather than
+        written into the signature so every caller moves together.
+        """
+        self._hide_timer.start(int(delay_ms) or self.HIDE_DELAY_MS)
 
     def cancel_hide(self) -> None:
         """Cancel any pending hide timer (called on cursor re-entry)."""
@@ -897,8 +916,13 @@ class HoverTooltip(QFrame):
         super().enterEvent(event)
 
     def leaveEvent(self, event):
-        """Restart the hide timer with a short delay when the cursor leaves."""
-        self.start_hide(delay_ms=100)
+        """Restart the hide timer when the cursor leaves the POPUP itself.
+
+        Shorter than the anchor's grace period on purpose: leaving the popup
+        is a deliberate act, where leaving the label may just be the journey
+        towards it.
+        """
+        self.start_hide(delay_ms=250)
         super().leaveEvent(event)
 
 
