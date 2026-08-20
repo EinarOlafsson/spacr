@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib.util
 import re
 from pathlib import Path
 
@@ -13,6 +14,7 @@ DOCS_CSS = ROOT / "docs" / "source" / "_static" / "custom.css"
 LOCALIZATION = ROOT / "docs" / "source" / "localization.rst"
 SETTING_ANIMATIONS = ROOT / "docs" / "source" / "setting_animations.rst"
 FEATURES = ROOT / "docs" / "source" / "features.rst"
+WORKFLOW_IMAGE = ROOT / "spacr" / "resources" / "icons" / "workflow_home_apps.png"
 
 
 def _read(path: Path) -> str:
@@ -31,7 +33,7 @@ def test_readme_keeps_the_feature_catalog_curated_and_points_to_detail():
 
     assert "What you can do\n---------------" in text
     assert "Most screens follow six modules" in text
-    assert "features.html" in text
+    assert "docs/source/features.rst" in text
     assert len(text.split()) < 1800
     for heading in (
         "Core screen workflow",
@@ -40,6 +42,45 @@ def test_readme_keeps_the_feature_catalog_curated_and_points_to_detail():
         "Maturity labels",
     ):
         assert heading in features
+
+
+def test_readme_uses_branch_safe_documentation_links():
+    text = _read(README)
+    for page in ("installers", "python_api", "features"):
+        assert f"einarolafsson.github.io/spacr/{page}.html" not in text
+        assert f"docs/source/{page}.rst" in text
+
+
+def test_workflow_picture_tracks_the_home_screen_registry():
+    from PIL import Image, ImageChops
+
+    path = ROOT / "packaging" / "generate_readme_visuals.py"
+    spec = importlib.util.spec_from_file_location("spacr_readme_visuals", path)
+    assert spec is not None and spec.loader is not None
+    generator = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(generator)
+
+    committed = Image.open(WORKFLOW_IMAGE).convert("RGBA")
+    rendered = generator.render_app_catalog().convert("RGBA")
+    assert committed.size == rendered.size
+    assert ImageChops.difference(committed, rendered).getbbox() is None
+
+    text = _read(README)
+    assert "flow_chart_v3" not in text
+    assert "Mask → Measure → Annotate → Classify → Map Barcodes →" in text
+
+
+def test_reference_resources_are_linked_rounded_buttons():
+    from PIL import Image
+
+    text = _read(README)
+    for name in ("biostudies", "huggingface", "ncbi", "spacrpower", "biorxiv"):
+        relative = f"spacr/resources/icons/databanks/{name}_button.png"
+        assert relative in text
+        image = Image.open(ROOT / relative).convert("RGBA")
+        assert image.size == (512, 512)
+        assert image.getpixel((0, 0))[3] == 0
+        assert image.getpixel((256, 0)) == (43, 47, 58, 255)
 
 
 def test_readme_contains_only_user_facing_installation_copy():
@@ -55,17 +96,18 @@ def test_readme_contains_only_user_facing_installation_copy():
         assert creator_note not in text
 
 
-def test_localization_is_a_documented_output_safe_feature():
+def test_language_support_is_a_documented_output_safe_feature():
     readme = _read(README)
     guide = _read(LOCALIZATION)
 
-    assert "Internationalized desktop interface" in readme
-    assert "Ten-language localization" in readme
-    assert "localization.html#contextual-help" in readme
-    assert "AI and LIVE" in readme
-    assert "scientific output remains canonical English" in readme
+    assert "Language & translation" in readme
+    assert "The interface supports ten languages" in readme
+    assert "localization.rst#contextual-help" in readme
+    assert re.search(r"AI and\s+LIVE", readme)
+    assert re.search(r"scientific\s+output remains canonical English", readme)
 
-    assert "What is localized" in guide
+    assert guide.startswith("Language & translation\n")
+    assert "What is translated" in guide
     assert "Contextual help" in guide
     assert "Raw worker stdout, logs, tracebacks" in guide
     assert "User chat messages" in guide

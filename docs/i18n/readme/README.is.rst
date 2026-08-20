@@ -55,8 +55,6 @@ Tungumál: `English <../../../README.rst>`_ · `Svenska <README.sv.rst>`_ ·
 `Íslenska <README.is.rst>`_ ·
 `Français <README.fr.rst>`_
 
-`Upplýsingar um þýðingarlíkön <../TRANSLATION_MODELS.md>`_
-
 **Rýmisbundin svipgerðargreining á CRISPR-skimunum.**
 
 spaCR aðgreinir og mælir stakar frumur í afkastamiklum smásjármyndum, tengir hverja frumu við gRNA-ið sem hún fékk og greinir frá því hvaða gen breyttu svipgerðinni. Plötumyndir og FASTQ-raðir eru inntak; mælingar fyrir hvert viðfang, þjálfaðir flokkarar, áhrifastærðir fyrir hverja leiðarsameind og hvert gen og forgangsraðaður niðurstöðulisti eru úttak.
@@ -71,13 +69,11 @@ Keyrðu spaCR sem skjáborðsforrit eða án grafísks viðmóts á vinnustöð,
 Yfirlit yfir verkflæðið
 -----------------------
 
-|Tutorials|
-
-.. image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/flow_chart_v3.png
+.. image:: ../../../spacr/resources/icons/workflow_home_apps.png
    :alt: Verkflæði spaCR og skipulag úttaks
    :align: center
 
-Smásjármyndir (TIFF, OME-TIFF, LIF, CZI, ND2) og raðgreiningarlestur (FASTQ) fara í samverkandi ferli fyrir myndgreiningu og strikamerkjavörpun. Síðan eru viðfangstöflur, myndúrklippur, merkingar, spár, auðkenni leiðarsameinda, QC-niðurstöður og samantektir fyrir hvern brunn greind saman.
+Fyrsta leiðin er **Mask → Mæra → Annotate → Klassify → Karta Barkódur → Regression**. The gríðið undir það inniheldur allar önnur notkun í sömu flokki og orði notað á spaCR heimskrauna.
 
 
 Setja upp spaCR
@@ -92,22 +88,22 @@ Stöðvarstöðvarnar innihalda persónulegt Python umhverfi, þannig að konda 
 
 |InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerLegacy|
 
-.. |InstallerWindows| image:: spacr/resources/icons/platforms/windows.png
+.. |InstallerWindows| image:: ../../../spacr/resources/icons/platforms/windows.png
    :width: 64
    :alt: Sækja spaCR 1.5.0.4 fyrir Windows 10/11
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
-.. |InstallerMacOS| image:: spacr/resources/icons/platforms/macos.png
+.. |InstallerMacOS| image:: ../../../spacr/resources/icons/platforms/macos.png
    :width: 64
    :alt: Sækja spaCR 1.5.0.4 fyrir macOS 11+ (Intel og Apple Silicon)
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
-.. |InstallerLinux| image:: spacr/resources/icons/platforms/linux.png
+.. |InstallerLinux| image:: ../../../spacr/resources/icons/platforms/linux.png
    :width: 64
    :alt: Sækja spaCR 1.5.0.4 fyrir 64-bita Linux
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run
-.. |InstallerLegacy| image:: spacr/resources/icons/platforms/legacy.png
+.. |InstallerLegacy| image:: ../../../spacr/resources/icons/platforms/legacy.png
    :width: 64
    :alt: Eldri spaCR-uppsetningarforrit
-   :target: docs/source/installers.rst
+   :target: ../../source/installers.rst
 
 .. spacr-installer-links-end
 
@@ -122,7 +118,7 @@ Fyrstu þremur tákn leyfja núverandi útgáfu. spaCR táknin opnar fullkomið 
 
 Á macOS, opna ``.pkg``. Núverandi beta er ekki notarið; ef Gatekeeper blokkir það, velja **System Settings → Privacy & Security → Open Anyway**.
 
-Sjá `Installer leiðbeiningar <https://einarolafsson.github.io/spacr/installers.html>`_ til að uppgötva, deinstalla, offline og vandamálið.
+Sjá `Installer leiðbeiningar <../../source/installers.rst>`_ til að uppgötva, deinstalla, offline og vandamálið.
 
 Python-uppsetning
 ~~~~~~~~~~~~~~~~~~~
@@ -146,7 +142,7 @@ Fyrir server, cluster eða CI runner, óttast Qt:
    python -m pip install spacr
    spacr-run --list
 
-Opinlegri samsetningar eru settar sérstakt, t.d. ``spacr[ome-zarr]``, ``spacr[omero]``,``spacr[napari]`` og ``spacr[czi,nd2,lif]``. Sjá `Uppsetningu leiðbeiningar <https://einarolafsson.github.io/spacr/installers.html>`_ fyrir fullkomna útgáfur og Python-version samskipti tól.
+Opinlegri samsetningar eru settar sérstakt, t.d. ``spacr[ome-zarr]``, ``spacr[omero]``,``spacr[napari]`` og ``spacr[czi,nd2,lif]``. Sjá `Uppsetningu leiðbeiningar <../../source/installers.rst>`_ fyrir fullkomna útgáfur og Python-version samskipti tól.
 
 Skipanalínuskipanir
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -182,15 +178,15 @@ Saminn verkefni getur einnig hönnuð plötur, uppgötvað styrk, rétt batch á
 Veldu næsta síðu með því sem þú vilt gera:
 
 - `Samskiptaþjálfunar <https://einarolafsson.github.io/spacr/tutorials/>`_ — 73 leiðbeiningar vinnufluðum frá uppsetningu í gegnum hit rannsóknir.
-- `Python API snemma byrjun <https://einarolafsson.github.io/spacr/python_api.html>`_ — hlaupa og staðfest pipelines frá skriptum, notebooks eða klúster.
-- `Leikstjóri <https://einarolafsson.github.io/spacr/features.html>`_ — hæfileika, fullnægjandi og valfrjáls tengsl.
+- `Python API snemma byrjun <../../source/python_api.rst>`_ — hlaupa og staðfest pipelines frá skriptum, notebooks eða klúster.
+- `Leikstjóri <../../source/features.rst>`_ — hæfileika, fullnægjandi og valfrjáls tengsl.
 - `Heilluð API reference <https://einarolafsson.github.io/spacr/api/index.html>`_ — stuðlað innfangspunktur eftir verkefni, með fullkomna mótum tengslum einn hærra.
-- `staðsetningu leiðbeiningar <https://einarolafsson.github.io/spacr/localization.html>`_ — samskipti tungumál, kontext hjálp og vísindaleg útleiðslu.
+- `Sjálf tungumál og þýðingu leiðbeining <../../source/localization.rst>`_ — samskipti tungumál, kontext hjálp og vísindaleg útleiðslu.
 
-Fjöltyngt skjáborðsviðmót
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Tungumál og þýðingar
+~~~~~~~~~~~~~~~~~~~~~~
 
-Staðfærsla á tíu tungumálum nær yfir leiðsögn, stillingar, AI- og LIVE-stýringar, lýsingar á einingum og yfirfarna samhengishjálp. Skiptu um tungumál undir **spaCR → Stillingar → Tungumál** án endurræsingar. Annálar, slóðir, gagnagrunnsgildi og mælingar eru aldrei þýdd; vísindaleg úttök haldast á viðurkenndri ensku. Sjá `stefnu um samhengishjálp <https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_.
+Viðmótið styður tíu tungumál í leiðsögn og stillingum. AI- og LIVE-stýringar, lýsingar á einingum og yfirfarin samhengishjálp eru einnig þýdd. Skiptu um tungumál undir **spaCR → Stillingar → Tungumál** án endurræsingar. Annálar, slóðir, gagnagrunnsgildi og mælingar eru aldrei þýdd; vísindaleg úttök haldast á viðurkenndri ensku. Sjá `stefnu um samhengishjálp <../../source/localization.rst#contextual-help>`_.
 
 Hreyfimyndaleiðbeiningar fyrir stillingar
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -202,6 +198,29 @@ Gögn
 
 Viðmiðunargagnasöfn
 ~~~~~~~~~~~~~~~~~~~
+
+|DataBioStudies| |DataHuggingFace| |DataNCBI| |DataSpaCRPower| |DataBioRxiv|
+
+.. |DataBioStudies| image:: ../../../spacr/resources/icons/databanks/biostudies_button.png
+   :width: 72
+   :alt: Opna smásjárgagnasafnið í BioStudies
+   :target: https://doi.org/10.6019/S-BIAD2135
+.. |DataHuggingFace| image:: ../../../spacr/resources/icons/databanks/huggingface_button.png
+   :width: 72
+   :alt: Opna prófunargagnasafnið á Hugging Face
+   :target: https://huggingface.co/datasets/einarolafsson/toxo_mito
+.. |DataNCBI| image:: ../../../spacr/resources/icons/databanks/ncbi_button.png
+   :width: 72
+   :alt: Opna raðgreiningargagnasafnið hjá NCBI
+   :target: https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA1261935
+.. |DataSpaCRPower| image:: ../../../spacr/resources/icons/databanks/spacrpower_button.png
+   :width: 72
+   :alt: Opna spaCRPower
+   :target: https://github.com/maomlab/spaCRPower
+.. |DataBioRxiv| image:: ../../../spacr/resources/icons/databanks/biorxiv_button.png
+   :width: 72
+   :alt: Opna bioRxiv-forprentið
+   :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
 
 - `Full mikroskópur gögn: BioStudies S-BIAD2135 <https://doi.org/10.6019/S-BIAD2135>`_
 - `Testið gögn: Hugging Face toxo_mito <https://huggingface.co/datasets/einarolafsson/toxo_mito>`_
@@ -232,3 +251,8 @@ Ef spaCR hjálpar til rannsóknir þíns, heyrðu:
 Olafsson EB, *et al.* A sameiginlegur myndbönd sem er bastir á CRISPR skrefinn skilur EAF1 sem *T. gondii* modulator ESCRT subversion.
 
 `Bioregl fyrirframskrift <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ · `Programvarparkíf <https://doi.org/10.5281/zenodo.21343317>`_
+
+Þakkir
+~~~~~~~~~~~~~~~
+
+spaCR byggir á opnum vísindahugbúnaði, meðal annars NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch og Qt. Sjá `upplýsingar um þýðingarlíkön <../TRANSLATION_MODELS.md>`_ fyrir líkönin sem voru notuð við gerð fjöltyngdra skjala og viðmótsskráa.

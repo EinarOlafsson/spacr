@@ -61,62 +61,18 @@ screen outgrows one desktop.
       File a bug, request a feature, or ask a question.
 
 
-Pipeline overview
------------------
+Applications and workflow
+-------------------------
 
-.. image:: https://github.com/EinarOlafsson/spacr/raw/main/spacr/resources/icons/flow_chart_v3.png
-   :alt: spaCR workflow
+.. image:: ../../spacr/resources/icons/workflow_home_apps.png
+   :alt: The six-step spaCR workflow followed by all 58 applications grouped as they appear on the home screen
    :align: center
 
-The GUI groups its apps into seven categories — *Core*, *Data*,
-*Segmentation models*, *Results & QC*, *Explore*, *Toxoplasma*, and *Design*.
-The Core apps form the main pipeline; these six are the path most
-screens take, each with its own :doc:`API reference <api/index>` module:
-
-+---------------------+-----------------------------------------------------+
-| **Mask**            | Cellpose segmentation of cells, nuclei, pathogens.  |
-|                     | :func:`spacr.core.preprocess_generate_masks`        |
-+---------------------+-----------------------------------------------------+
-| **Measure**         | Per-object feature extraction into a SQLite DB.     |
-|                     | :func:`spacr.measure.measure_crop`                  |
-+---------------------+-----------------------------------------------------+
-| **Annotate**        | Grid-based manual labelling of single-cell crops.   |
-|                     | :mod:`spacr.app_annotate`                           |
-+---------------------+-----------------------------------------------------+
-| **Classify**        | CNN / XGBoost training from annotations.            |
-|                     | :mod:`spacr.deep_spacr`, :mod:`spacr.ml`            |
-+---------------------+-----------------------------------------------------+
-| **Map Barcodes**    | Map FASTQ reads to row/column/gRNA barcodes.        |
-|                     | :mod:`spacr.sequencing`                             |
-+---------------------+-----------------------------------------------------+
-| **Regression**      | Estimate guide, gene and condition effects.         |
-|                     | :mod:`spacr.ml`                                     |
-+---------------------+-----------------------------------------------------+
-
-
-Key modules by category
------------------------
-
-**Core pipelines**
-   :mod:`spacr.core` · :mod:`spacr.io` · :mod:`spacr.measure` ·
-   :mod:`spacr.object` · :mod:`spacr.utils`
-
-**Machine learning + classification**
-   :mod:`spacr.ml` · :mod:`spacr.deep_spacr` · :mod:`spacr.predictions` ·
-   :mod:`spacr.spacr_cellpose`
-
-**Analysis**
-   :mod:`spacr.plot` · :mod:`spacr.sp_stats` · :mod:`spacr.submodules` ·
-   :mod:`spacr.toxo` · :mod:`spacr.timelapse` · :mod:`spacr.sim`
-
-**Sequencing**
-   :mod:`spacr.sequencing`
-
-**Modern Qt GUI**
-   ``spacr.qt`` — launched via the ``spacr`` or ``spacr-qt`` CLI.
-
-**Classic Tk GUI**
-   :mod:`spacr.gui` · :mod:`spacr.gui_core` · :mod:`spacr.gui_utils`
+Most screens follow **Mask → Measure → Annotate → Classify → Map Barcodes →
+Regression**. The remaining tiles are grouped exactly as they appear on the
+home screen: Data, Segmentation models, Results & QC, Explore, Toxoplasma and
+Design. Start with the :doc:`feature guide <features>` for capabilities or the
+:doc:`curated API reference <api/index>` for supported Python entry points.
 
 
 Installation

@@ -55,8 +55,6 @@ Languages: `English <README.rst>`_ · `Svenska <docs/i18n/readme/README.sv.rst>`
 `Íslenska <docs/i18n/readme/README.is.rst>`_ ·
 `Français <docs/i18n/readme/README.fr.rst>`_
 
-`Translation model attribution <docs/i18n/TRANSLATION_MODELS.md>`_
-
 **Spatial phenotype analysis of CRISPR screens.**
 
 spaCR segments and measures single cells in high-content microscopy images,
@@ -81,16 +79,13 @@ module supports it.
 Workflow at a glance
 --------------------
 
-|Tutorials|
-
-.. image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/flow_chart_v3.png
-   :alt: spaCR workflow and output organization
+.. image:: spacr/resources/icons/workflow_home_apps.png
+   :alt: The six-step spaCR workflow followed by all 58 applications grouped as they appear on the home screen
    :align: center
 
-Microscopy images (TIFF, OME-TIFF, LIF, CZI, ND2) and sequencing reads
-(FASTQ) enter complementary image-analysis and barcode-mapping pipelines.
-Object tables, crops, annotations, predictions, guide identities, QC results
-and well-level summaries are then analyzed together.
+The main path is **Mask → Measure → Annotate → Classify → Map Barcodes →
+Regression**. The grid below it contains every other application in the same
+categories and order used on the spaCR home screen.
 
 
 Install spaCR
@@ -140,9 +135,8 @@ On Linux, make the downloaded file executable and run it:
 On macOS, open the ``.pkg``. The current beta is not notarized; if Gatekeeper
 blocks it, choose **System Settings → Privacy & Security → Open Anyway**.
 
-See the `installer guide
-<https://einarolafsson.github.io/spacr/installers.html>`_ for update,
-uninstall, offline and troubleshooting instructions.
+See the `installer guide <docs/source/installers.rst>`_ for update, uninstall,
+offline and troubleshooting instructions.
 
 Python installation
 ~~~~~~~~~~~~~~~~~~~
@@ -171,8 +165,8 @@ For a server, cluster or CI runner, omit Qt:
 Optional integrations are installed separately, for example
 ``spacr[ome-zarr]``, ``spacr[omero]``, ``spacr[napari]`` and
 ``spacr[czi,nd2,lif]``. See the `installation guide
-<https://einarolafsson.github.io/spacr/installers.html>`_ for the complete
-extras and Python-version compatibility table.
+<docs/source/installers.rst>`_ for the complete extras and Python-version
+compatibility table.
 
 Command-line entry points
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -218,27 +212,26 @@ Choose the next page by what you want to do:
 
 - `Interactive tutorials <https://einarolafsson.github.io/spacr/tutorials/>`_
   — 73 guided workflows from installation through hit investigation.
-- `Python API quickstart
-  <https://einarolafsson.github.io/spacr/python_api.html>`_ — run and validate
+- `Python API quickstart <docs/source/python_api.rst>`_ — run and validate
   pipelines from scripts, notebooks or a cluster.
-- `Feature guide
-  <https://einarolafsson.github.io/spacr/features.html>`_ — capabilities,
-  maturity and optional integrations.
+- `Feature guide <docs/source/features.rst>`_ — capabilities, maturity and
+  optional integrations.
 - `Curated API reference
   <https://einarolafsson.github.io/spacr/api/index.html>`_ — supported entry
   points by task, with the complete module reference one level deeper.
-- `Localization guide
-  <https://einarolafsson.github.io/spacr/localization.html>`_ — interface
+- `Language & translation guide <docs/source/localization.rst>`_ — interface
   languages, contextual help and scientific-output policy.
 
-Internationalized desktop interface
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Language & translation
+~~~~~~~~~~~~~~~~~~~~~~
 
-Ten-language localization covers navigation, Preferences, AI and LIVE
-controls, module descriptions and reviewed contextual help. Change language
-under **spaCR → Preferences → Language** without restarting. Logs, paths,
-database values and measurements are never translated; scientific output remains canonical English. See the `contextual-help policy
-<https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_.
+The interface supports ten languages across navigation and Preferences. AI and
+LIVE controls, module descriptions and reviewed contextual help are also
+translated. Change the
+language under **spaCR → Preferences → Language** without restarting. Logs,
+paths, database values and measurements are never translated; scientific
+output remains canonical English. See the `contextual-help policy
+<docs/source/localization.rst#contextual-help>`_.
 
 Animated setting guidance
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -254,6 +247,29 @@ Data
 
 Reference datasets
 ~~~~~~~~~~~~~~~~~~
+
+|DataBioStudies| |DataHuggingFace| |DataNCBI| |DataSpaCRPower| |DataBioRxiv|
+
+.. |DataBioStudies| image:: spacr/resources/icons/databanks/biostudies_button.png
+   :width: 72
+   :alt: Open the BioStudies microscopy dataset
+   :target: https://doi.org/10.6019/S-BIAD2135
+.. |DataHuggingFace| image:: spacr/resources/icons/databanks/huggingface_button.png
+   :width: 72
+   :alt: Open the Hugging Face testing dataset
+   :target: https://huggingface.co/datasets/einarolafsson/toxo_mito
+.. |DataNCBI| image:: spacr/resources/icons/databanks/ncbi_button.png
+   :width: 72
+   :alt: Open the NCBI sequencing dataset
+   :target: https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA1261935
+.. |DataSpaCRPower| image:: spacr/resources/icons/databanks/spacrpower_button.png
+   :width: 72
+   :alt: Open spaCRPower
+   :target: https://github.com/maomlab/spaCRPower
+.. |DataBioRxiv| image:: spacr/resources/icons/databanks/biorxiv_button.png
+   :width: 72
+   :alt: Open the bioRxiv preprint
+   :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
 
 - `Full microscopy dataset: BioStudies S-BIAD2135 <https://doi.org/10.6019/S-BIAD2135>`_
 - `Testing dataset: Hugging Face toxo_mito <https://huggingface.co/datasets/einarolafsson/toxo_mito>`_
@@ -298,3 +314,11 @@ EAF1 as a *T. gondii* modulator of ESCRT subversion.
 
 `bioRxiv preprint <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ ·
 `software archive <https://doi.org/10.5281/zenodo.21343317>`_
+
+Acknowledgments
+~~~~~~~~~~~~~~~
+
+spaCR builds on open scientific software including NumPy, pandas,
+scikit-image, scikit-learn, Cellpose, PyTorch and Qt. See the
+`translation model attribution <docs/i18n/TRANSLATION_MODELS.md>`_ for the
+models used to prepare the multilingual documentation and interface catalogs.
