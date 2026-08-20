@@ -1535,20 +1535,24 @@ class HyperparamPanel(QWidget):
         self._gpu_enabled = bool(checked)
 
     def request_gpu_enabled(self, checked: bool, *, anchor=None) -> bool:
-        """Apply the shared GPU toggle, or explain why it cannot turn on.
+        """Set whether the next search uses the cuML GPU backend.
 
-        The caller uses the returned state to keep the action-strip label and
-        the hidden main-run setting synchronized with this search panel.
+        When cuML is unavailable, the toggle remains off and the shared
+        availability panel explains the compatible installation options. Any
+        installation offered by that panel takes effect after spaCR restarts.
 
-        UNAVAILABLE GOES THROUGH THE SHARED PANEL (instruction 158), not
-        through a pair of QMessageBoxes of its own. The maintainer asked for
-        the same treatment here as for the regression backends -- "I want that
-        for image UMAP as well" -- and it is not only consistency: this path's
-        old `subprocess.run(install_command())` had NO dry run and no
-        protected-package refusal, so pressing GPU on a 3.11 machine installed
-        `spacr[rapids]` with no report of what it was about to move. numpy and
-        scipy are already imported in this process; an install that moves them
-        underneath it produces failures nobody can attribute.
+        Parameters
+        ----------
+        checked
+            Request GPU execution when ``True`` or CPU execution when
+            ``False``.
+        anchor
+            Optional widget beside which to show the availability panel.
+
+        Returns
+        -------
+        bool
+            The effective GPU-enabled state after checking availability.
         """
         if not checked:
             self._gpu_enabled = False

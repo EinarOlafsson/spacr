@@ -103,6 +103,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "image_colors",
     "crops",
     "png_list",
+    "regex_infer",
     "portable_paths",
     "picture_settings",
     "align",
