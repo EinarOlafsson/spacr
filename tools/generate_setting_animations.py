@@ -1023,6 +1023,19 @@ def _background_scene(painter: Painter, spec: Spec, action: float) -> None:
 
 
 def _signal_scene(painter: Painter, spec: Spec, action: float) -> None:
+    """Raising Signal_to_noise raises the normalisation ceiling: things DIM.
+
+    THE ANIMATION BRIGHTENED, which is the opposite of what the setting does
+    -- the same class of error as the flow thresholds and, like them, filed
+    only as "the direction is not indicated". A picture that moves the wrong
+    way is not undirected; it is directed wrongly, and a viewer will read it.
+
+    So the ramp DIMS with the action, and the faint objects go first: raising
+    the ceiling costs the dimmest signal before it costs the brightest, which
+    is exactly the decision this setting is for. The gauge below FILLS, so
+    "the value went up" and "the picture got darker" are visible in the same
+    frame instead of contradicting each other.
+    """
     _well(painter)
     kind = spec.params["kind"]
     # A ramp of signal-to-noise across five objects rather than three, at a
@@ -1032,12 +1045,24 @@ def _signal_scene(painter: Painter, spec: Spec, action: float) -> None:
         ((66, 118), (123, 118), (180, 118), (237, 118), (294, 118)),
         (0.15, 0.32, 0.52, 0.75, 1.0),
     )):
-        amount = base + (1.0 - base) * action
+        # THE DIMMEST LOSES MOST. `base` scales how far each object falls, so
+        # the faintest fades toward nothing while the brightest merely dulls
+        # -- which is what raising the ceiling actually does to a field.
+        amount = base * (1.0 - 0.85 * action)
         _object_outline(
             painter, kind, center,
             (44, 34) if kind == "cell" else (32, 24),
             amount, idx * 0.6,
         )
+    # THE CEILING, RISING. Same track as the flow thresholds so the two read
+    # the same way, and filling rather than emptying because here the value
+    # goes UP as the picture goes down.
+    left, right, y = 96, 264, 196
+    painter.line([(left, y), (right, y)], _mix(GRAY, 0.45), 1.0)
+    painter.line([(left, y), (left + (right - left) * (0.15 + 0.85 * action), y)],
+                 _mix(WHITE, 0.75), 2.6)
+    for x in (left, right):
+        painter.line([(x, y - 5), (x, y + 5)], _mix(GRAY, 0.55), 0.9)
 
 
 def _fill_holes(painter: Painter, spec: Spec, action: float) -> None:

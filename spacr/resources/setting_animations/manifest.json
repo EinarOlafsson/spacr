@@ -782,9 +782,9 @@
       "slug": "cell_Signal_to_noise",
       "title": "Cell signal-to-noise",
       "validation": {
-        "bytes": 172920,
+        "bytes": 109042,
         "frames": 18,
-        "sha256": "8f5a9d5cfb50227ef339d681d0e9e2c338a0e3dc3a7a2e88f972ec733a36d6f8",
+        "sha256": "03946c66e21e32457e40996893aa019d39cf1c12feca2cb47edd1f1c1a561d55",
         "unique_frames": 17
       }
     },
@@ -878,9 +878,9 @@
       "slug": "nucleus_Signal_to_noise",
       "title": "Nucleus signal-to-noise",
       "validation": {
-        "bytes": 200128,
+        "bytes": 135237,
         "frames": 18,
-        "sha256": "1a4d1e83a267d4365e8992f229c85a976199a5740b8229f9ccb6c73542e75b25",
+        "sha256": "36773e8e6af52d3e2894edf9114a011814ec1da9f42e5ebd53dd4c79fc1030ab",
         "unique_frames": 17
       }
     },
@@ -974,9 +974,9 @@
       "slug": "pathogen_Signal_to_noise",
       "title": "Pathogen signal-to-noise",
       "validation": {
-        "bytes": 313076,
+        "bytes": 231751,
         "frames": 18,
-        "sha256": "67c7389972bbcf953e17351a1415d34c510d62c2ef38a84054dcf0b3e2c81282",
+        "sha256": "c8791ab41809901b8fe286e3b440af4200ba99016a0f46d41775f838bb6762b1",
         "unique_frames": 17
       }
     },
