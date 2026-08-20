@@ -438,20 +438,8 @@ ASSUMED_TRIAL_GIB = 6.0
 MEMORY_BUDGET_FRACTION = 0.5
 
 
-def recommended_workers(*, measured_gib=None, requested=None):
-    """Choose a worker count from available memory and CPU capacity.
-
-    Memory is usually the limiting resource because each trial loads its own
-    tables and design matrix. The result therefore uses available memory as
-    well as the CPU count.
-
-    :param measured_gib: peak resident size of one trial, if measured. Falls
-        back to :data:`ASSUMED_TRIAL_GIB`.
-    :param requested: an explicit ask, still clamped to what is affordable.
-    :returns: ``(workers, reason)``. The reason is shown to the user, so a
-        sweep that drops from 8 workers to 2 says why rather than looking
-        arbitrarily slow.
-    """
+def _recommended_worker_budget(*, measured_gib=None, requested=None) -> dict:
+    """Return the values used to choose a safe worker count."""
     per_trial = float(measured_gib or ASSUMED_TRIAL_GIB)
     available = None
     try:
@@ -466,12 +454,50 @@ def recommended_workers(*, measured_gib=None, requested=None):
 
     if available is None:
         workers = max(1, min(2, cores, MAX_WORKERS))
-        return workers, (f"memory could not be measured, so the sweep is "
-                         f"limited to {workers} workers")
+        return {
+            "workers": workers,
+            "available": None,
+            "per_trial": per_trial,
+            "budget_fraction": MEMORY_BUDGET_FRACTION,
+            "requested": requested,
+        }
 
     affordable = int((available * MEMORY_BUDGET_FRACTION) // per_trial)
     workers = max(1, min(affordable, cores, MAX_WORKERS,
                          requested or MAX_WORKERS))
+    return {
+        "workers": workers,
+        "available": available,
+        "per_trial": per_trial,
+        "budget_fraction": MEMORY_BUDGET_FRACTION,
+        "requested": requested,
+    }
+
+
+def recommended_workers(*, measured_gib=None, requested=None):
+    """Choose a worker count from available memory and CPU capacity.
+
+    Memory is usually the limiting resource because each trial loads its own
+    tables and design matrix. The result therefore uses available memory as
+    well as the CPU count.
+
+    :param measured_gib: peak resident size of one trial, if measured. Falls
+        back to :data:`ASSUMED_TRIAL_GIB`.
+    :param requested: an explicit ask, still clamped to what is affordable.
+    :returns: ``(workers, reason)``. The reason is suitable for logs; the Qt
+        screen renders the same budget through localized templates.
+    """
+    budget = _recommended_worker_budget(
+        measured_gib=measured_gib,
+        requested=requested,
+    )
+    workers = int(budget["workers"])
+    available = budget["available"]
+    per_trial = float(budget["per_trial"])
+    if available is None:
+        return workers, (f"memory could not be measured, so the sweep is "
+                         f"limited to {workers} workers")
+
     reason = (f"{available:.0f} GiB free, ~{per_trial:.1f} GiB per trial, "
               f"budgeting {MEMORY_BUDGET_FRACTION:.0%} of free memory "
               f"-> {workers} worker{'s' if workers != 1 else ''}")
