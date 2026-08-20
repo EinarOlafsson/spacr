@@ -689,8 +689,11 @@ def _fitted_section(run: "_Run") -> List[SummaryField]:
         label = REGRESSION_BACKENDS.get(backend, {}).get("label", backend)
     except Exception:                                            # noqa: BLE001
         pass
-    add("backend", value=f"{backend} ({label})" if label != backend
-        else backend)
+    # NOT "statsmodels (statsmodels (CPU))". The spec's label already
+    # CONTAINS the backend's name -- it is "pyfixest (CPU)", not "(CPU)" --
+    # so bracketing it after the name said everything twice.
+    add("backend", value=label if label.startswith(backend) else
+        (f"{backend} ({label})" if label != backend else backend))
 
     asked = _clean(_setting(settings, "level")) or "both"
     got = None
