@@ -357,3 +357,46 @@ WHAT REMAINS
     screen, so it must be restored, which is exactly why the pair is the place.
   * The preference control (118) and the per-figure restyle menus (108/147),
     both unchanged.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- THE TAB'S OWN EXPORT. THE HANDOFF IS TAKEN AND 150 IS COMPLETE.
+--------------------------------------------------------------------------------
+
+`FastPlot.export` wears the print look for the length of the write and puts it
+back in a `finally`, so all three formats obey the decision the matplotlib
+half already made -- one `export_colour`, one `saved_figure_appearance`, two
+renderers.
+
+AROUND THE WHOLE EXPORT, NOT AROUND `_paint_scene`, and that was the first
+attempt and it was wrong. PDF and SVG paint the scene themselves and would
+have been covered; PNG goes through pyqtgraph's `ImageExporter`, which does
+not, AND PNG IS THE DEFAULT. A rule covering two formats out of three is worse
+than none, because the one it misses is the one everybody uses. Caught by
+running it: the spy on `export_colour` recorded no calls at all for a PNG.
+
+AND NOT AROUND `snapshot()`, deliberately: that render is the tile in the
+gallery, which is the SCREEN version. 139 C -- the tile and the file differ on
+purpose and the difference is the point.
+
+THE PAGE. The exporter was passing a fully transparent background, and 150 B
+says that is right only for the `transparent` mode -- dark ink on no
+background is still unreadable on a dark slide, and a figure going into a
+manuscript is going onto white. `print` writes `look.ground` (#FFFFFF),
+`screen` keeps what is on screen, `transparent` keeps the old behaviour.
+
+MEASURED ON THE PIXELS, as this file requires. A dark-session plot with a
+#C4441C mark, exported and read back: the page is #ffffff, the chrome is dark,
+and the data colour is still in the file. A test asserts `export_colour` is
+asked with kind 'chrome' and NEVER with 'data' -- not passed with a different
+kind, not passed.
+
+RESTORED EVEN WHEN THE WRITE RAISES, which is the difference from the
+generated half: that scene is built for the file and never appears, this one
+is on screen. A test drives a failing write and checks the axis pen.
+
+13 tests in tests/qt/test_a_saved_pyqtgraph_figure_is_for_paper.py.
+
+STILL OWED, and both belong to their own instructions: the preference control
+(118) and the per-figure restyle menus (108/147). 178 C.2's "Save styled…"
+already gives a user the three choices per figure, so the preference is a
+default rather than the only way in.

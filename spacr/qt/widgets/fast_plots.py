@@ -3436,6 +3436,89 @@ class FastPlot(QWidget):
                 mark.setExportMode(False)
 
     @staticmethod
+    def _export_ground():
+        """The page colour a save writes onto, as a ``QColor``.
+
+        Fully transparent unless the saved-figure look names a ground, which
+        only ``print`` does. Failing to read the look gives transparency --
+        the behaviour before 150 -- because a save that refuses is worse than
+        a save onto the wrong colour.
+        """
+        try:
+            from ...figure_style import saved_figure_appearance
+
+            look = saved_figure_appearance()
+            if look is not None and getattr(look, "ground", None):
+                return QColor(str(look.ground))
+        except Exception:                                # noqa: BLE001
+            LOG.debug("could not resolve the export ground", exc_info=True)
+        return QColor(0, 0, 0, 0)
+
+    @classmethod
+    def _wear_the_print_look(cls, item) -> list:
+        """Repaint the CHROME for the page. Returns the undo callables.
+
+        THE CHROME FLIPS, THE DATA DOES NOT, and that is the whole design
+        (150 A). A blanket white-to-black would turn a white data point black,
+        which on a volcano is the colour of "not a hit" -- it would change
+        what the figure SAYS. So the axes, their text and the title go through
+        `export_colour(..., kind='chrome')` and the marks are not touched at
+        all: not passed with a different kind, not passed.
+
+        `export_colour` returns None for anything it should leave alone, and
+        it decides on LEGIBILITY against the page rather than on the theme --
+        so a light-mode save changes nothing, which is what makes 'print' safe
+        as the default.
+        """
+        try:
+            from ...figure_style import export_colour, saved_figure_appearance
+        except Exception:                                # noqa: BLE001
+            LOG.debug("the saved-figure look is unavailable", exc_info=True)
+            return []
+        try:
+            look = saved_figure_appearance()
+        except Exception:                                # noqa: BLE001
+            return []
+        if look is None or getattr(look, "mode", "") == "screen":
+            return []
+
+        undo = []
+
+        def repaint(getter, setter, current):
+            replacement = export_colour(current, "chrome", look)
+            if replacement is None:
+                return
+            setter(replacement)
+            undo.append(lambda old=current, put=setter: put(old))
+
+        plot_item = getattr(item, "plotItem", item)
+        for edge in ("bottom", "left", "top", "right"):
+            try:
+                axis = plot_item.getAxis(edge)
+            except Exception:                            # pragma: no cover
+                continue
+            if axis is None:
+                continue
+            pen = axis.pen()
+            repaint(None, lambda c, a=axis: a.setPen(pg.mkPen(c)),
+                    pen.color().name() if pen is not None else "")
+            text_pen = getattr(axis, "textPen", None)
+            if callable(text_pen):
+                current = text_pen()
+                repaint(None,
+                        lambda c, a=axis: a.setTextPen(pg.mkPen(c)),
+                        current.color().name() if current is not None else "")
+        title = getattr(plot_item, "titleLabel", None)
+        if title is not None and getattr(title, "text", ""):
+            colour = str((title.opts or {}).get("color") or "")
+            if colour:
+                text = title.text
+                repaint(None,
+                        lambda c, t=text, p=plot_item: p.setTitle(t, color=c),
+                        colour)
+        return undo
+
+    @staticmethod
     def _page_source(item):
         """``(scene rect, aspect)`` for a page, or ``(None, 0)`` if empty."""
         source = item.scene().sceneRect() if item.scene() is not None \
@@ -4279,24 +4362,45 @@ class FastPlot(QWidget):
 
         item = self.plot.plotItem
         width_mm, height_mm = self.export_size()
+        # INSTRUCTION 150. Around the WHOLE export and not around
+        # `_paint_scene`, which was the first attempt and reached only two of
+        # the three formats: PDF and SVG paint the scene themselves, and PNG
+        # goes through pyqtgraph's ImageExporter, which does not. A rule that
+        # covers two formats out of three is worse than none, because the one
+        # it misses is the default.
+        #
+        # AND NOT AROUND `snapshot()`, deliberately. That render is the tile
+        # in the gallery, which is the SCREEN version -- 139 C: the tile and
+        # the file differ on purpose and the difference is the point.
+        restore = self._wear_the_print_look(item)
+        try:
+            self._write_export(item, path, width_mm, height_mm, exporters)
+        finally:
+            for undo in restore:
+                undo()
+        return path
+
+    def _write_export(self, item, path, width_mm, height_mm, exporters) -> None:
+        """Put the plot on disk in the format the name asks for."""
         if str(path).lower().endswith(".pdf"):
             self._export_pdf(item, path, width_mm, height_mm)
         elif str(path).lower().endswith(".svg"):
             self._export_svg(item, path, width_mm, height_mm)
         else:
             exporter = exporters.ImageExporter(item)
-            # MATCH THE SCREEN. The exporter defaults to pyqtgraph's config
-            # background, so a plot drawn transparent was saved onto an opaque
-            # slab -- which is the one thing the maintainer asked for by name
-            # ("not black not white just transparent") and the one place a
-            # transparent plot would have quietly stopped being transparent.
+            # THE PAGE THE SAVE ASKS FOR (150 B). Transparent was the old
+            # answer and it is only right for the `transparent` mode: dark ink
+            # on no background is still unreadable on a dark slide, and a
+            # figure going into a manuscript is going onto white. `print` --
+            # the default -- writes an explicit light page, `screen` keeps
+            # what is on screen, and `transparent` keeps the old behaviour for
+            # anyone compositing onto their own colour.
             try:
-                exporter.parameters()["background"] = QColor(0, 0, 0, 0)
+                exporter.parameters()["background"] = self._export_ground()
             except (KeyError, TypeError):   # pragma: no cover - older pyqtgraph
                 pass
             self._shape_the_image(exporter)
             exporter.export(path)
-        return path
 
     @contextmanager
     def _dressed_for_the_file(self, ink: str = "", background: str = "",
