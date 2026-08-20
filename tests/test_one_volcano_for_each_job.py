@@ -49,6 +49,9 @@ INVENTORY = {
         "renderer: the volcano explorer's, driven by VolcanoStyle",
     ("guide_permutation.py", "plot_guide_permutation_volcano"):
         "renderer: a permutation null is not the screen's volcano",
+    ("gene_measurement_sweep.py", "plot_grid_volcano"):
+        "renderer: the gene-by-measurement sweep grid, where each point is "
+        "one tested pair rather than one regression coefficient",
     ("volcano_style.py", "VolcanoStyle"): "not a renderer: a style object",
     ("ml.py", "create_volcano_filename"): "not a renderer: a file name",
     ("qt/screens/volcano.py", "VolcanoScreen"): "not a renderer: hosts one",
@@ -114,11 +117,11 @@ def test_the_volcano_inventory_is_exactly_what_it_was_counted_to_be():
         + ", ".join(f"{f}::{n}" for f, n in sorted(removed)))
 
 
-def test_there_are_six_renderers_and_two_of_them_are_the_survivors():
-    """The honest number. 127 said seven; one of the seven draws nothing."""
+def test_there_are_seven_renderers_and_two_of_them_are_the_survivors():
+    """The current count, including the gene-by-measurement sweep view."""
     renderers = {key for key, role in INVENTORY.items()
                  if role.startswith("renderer")}
-    assert len(renderers) == 6
+    assert len(renderers) == 7
     assert SURVIVORS <= renderers
     survivors = {key for key, role in INVENTORY.items()
                  if role.endswith("SURVIVOR")}

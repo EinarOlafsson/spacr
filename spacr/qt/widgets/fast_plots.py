@@ -2410,19 +2410,15 @@ class FastPlot(QWidget):
         return float(drawn[0])
 
     def pinned_limits(self) -> dict:
-        """What the user TYPED as this plot's limits: ``{"x": ..., "y": ...}``.
+        """Return the axis limits the user entered for this plot.
 
-        ``None`` for an axis nobody pinned, which is not the same answer as
-        the range it happens to be showing -- and telling the two apart is
-        the whole reason a caller wants this. Instruction 116 stores a run's
-        view so it can be put back, and storing the AUTO-ranged limits would
-        freeze the plot at whatever it looked like the moment the user left
-        it, so a run returned to would stop following its own data.
+        Each value is a ``(low, high)`` pair in data coordinates. An axis that
+        still follows automatic ranging has the value ``None``; its current
+        visible range is deliberately not returned, because restoring that
+        transient range would turn automatic ranging off. The returned
+        dictionary is a copy and can be stored or changed safely.
 
-        Public because `RegressionResultsPanel.plot_state` was reaching
-        `_pinned` through `getattr`, which 116 named as the one private
-        coupling left in it. A copy, so a caller stashing this cannot reach
-        back through it and move the plot.
+        :returns: ``{"x": limits_or_none, "y": limits_or_none}``.
         """
         return {axis: self._pinned.get(axis) for axis in ("x", "y")}
 
