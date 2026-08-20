@@ -1,22 +1,9 @@
-"""Restyle a figure that has already been drawn, without re-running anything.
+"""Restyle and export live Matplotlib figures from the Qt interface.
 
-The Figures panel used to offer three controls -- background, text colour,
-text size -- so changing a legend, an axis scale or a series colour meant
-editing settings and re-running the analysis, or opening the PDF in
-Illustrator.
-
-Everything here works on the **live matplotlib Figure**, which is why it can
-offer what a saved page cannot. A PDF does allow a stroke to be recoloured or
-a font resized, but not anything data-bound: a log axis has to recompute every
-position. Working on the Figure gives both, and
-:meth:`spacr.qt.widgets.figure_queue.FigureQueue.figure_for` restores an
-evicted figure from its spill so an old figure is editable too.
-
-The controls are BUILT FROM THE FIGURE, not from a fixed list. A figure with
-no legend gets no legend row; one with three line series gets three colour
-pickers. That is what makes "as many settings as possible, depending on the
-graph" true rather than aspirational -- and it means a figure type spaCR
-grows later is covered without editing this file.
+The settings dialog builds its controls from the artists present in a figure,
+so only applicable options are shown. It can update data-dependent properties,
+such as axis scales, without rerunning the analysis. This module also manages
+reusable graph-style files and optional data, statistics, and caption sidecars.
 """
 
 from __future__ import annotations
@@ -51,8 +38,8 @@ from PySide6.QtWidgets import (
 
 from .colour_picker import pick_colour
 
-#: Axis scales offered. ``symlog`` is included because screen scores are often
-#: signed and a plain log drops every non-positive point silently.
+#: Axis scales offered by the figure settings dialog. ``symlog`` supports
+#: signed values that cannot be represented on a standard logarithmic scale.
 AXIS_SCALES = ("linear", "log", "symlog")
 
 LEGEND_LOCATIONS = (
@@ -140,12 +127,27 @@ def _series_of(axis):
 
 
 class FigureSettingsDialog(QDialog):
-    """Every appearance control the given figure can support."""
+    """Edit the supported appearance settings of a live figure.
 
-    #: Milliseconds of quiet before a restyle is drawn. Short, because the
-    #: draw now happens on a worker thread and costs the GUI thread ~10 ms --
-    #: inside a frame -- so there is nothing left to hide behind a long delay.
-    #: It was 220 ms when the render blocked, and that still felt like lag.
+    Controls are created from the figure's current axes, artists, legends, and
+    optional spaCR metadata. Changes are previewed after a short debounce;
+    rejecting the dialog restores the opening state when it could be captured.
+
+    Parameters
+    ----------
+    figure : matplotlib.figure.Figure
+        Figure to edit.
+    parent : PySide6.QtWidgets.QWidget, optional
+        Parent widget.
+    on_change : callable, optional
+        Callback invoked after an edit. Callbacks may accept a ``preview``
+        keyword argument.
+    propagate_callback : callable, optional
+        Callback that receives the current Image UMAP settings when the user
+        selects ``Propagate settings``.
+    """
+
+    #: Debounce interval in milliseconds between an edit and its preview.
     REDRAW_DELAY_MS = 60
 
     def __init__(self, figure, parent=None, *, on_change: Optional[Callable] = None,
@@ -182,9 +184,9 @@ class FigureSettingsDialog(QDialog):
         # Coalesce redraws. Every control calls _changed(); this restarts a
         # single-shot timer, so a burst of twenty value changes costs one
         # render instead of twenty.
-        #: True while a render holds the GUI thread; see :meth:`_redraw_now`.
+        #: Whether a preview render is currently running.
         self._rendering = False
-        #: A change arrived mid-render and still needs to reach the picture.
+        #: Whether another preview is required after the current render.
         self._dirty = False
         self._redraw = QTimer(self)
         self._redraw.setSingleShot(True)
@@ -268,7 +270,14 @@ class FigureSettingsDialog(QDialog):
             self._changed()
 
     def umap_values(self) -> dict:
-        """Every Image UMAP setting the window holds, or ``{}``."""
+        """Return the current Image UMAP figure settings.
+
+        Returns
+        -------
+        dict
+            Current settings, or an empty dictionary when the figure has no
+            Image UMAP controls.
+        """
         if self._umap_settings is None:
             return {}
         return self._umap_settings.values()
@@ -284,10 +293,10 @@ class FigureSettingsDialog(QDialog):
             pass
 
     def reject(self):
-        """Put the figure back the way the window found it, then close.
+        """Restore the opening figure state and close the dialog.
 
-        Live apply with no way out is a trap: the user drags a spin box to see
-        what it does and there is no longer an "as it was".
+        Restoration is best-effort when the figure could not be serialized or
+        an artist cannot be reconstructed.
         """
         if self._snapshot is not None:
             try:
@@ -315,17 +324,13 @@ class FigureSettingsDialog(QDialog):
             pass
         super().reject()
 
-    #: Input types that steal the wheel from the scroll area beneath them.
+    #: Input widget types that receive wheel events only while focused.
     _WHEEL_STEALERS = (QSpinBox, QDoubleSpinBox, QComboBox)
 
-    #: Above this many series on one axes, offer colouring RULES instead of a
-    #: control per series. A volcano scatters once per compartment -- 27 of
-    #: them -- and a control block each is 135 controls that read as styling
-    #: individual data points.
+    #: Maximum number of series that receive individual appearance controls.
     SERIES_DETAIL_LIMIT = 8
 
-    #: Palettes offered as the colouring rule. Qualitative first: a series set
-    #: is categorical, and a sequential map implies an order that is not there.
+    #: Palettes offered when an axes exceeds :attr:`SERIES_DETAIL_LIMIT`.
     PALETTES = ("tab10", "tab20", "Set1", "Set2", "Set3", "Dark2", "Paired",
                 "Accent", "viridis", "plasma", "cividis", "coolwarm")
 
@@ -422,6 +427,21 @@ class FigureSettingsDialog(QDialog):
                 widget.installEventFilter(self)
 
     def eventFilter(self, obj, event):  # noqa: N802 - Qt name
+        """Prevent unfocused inputs from consuming scroll-wheel events.
+
+        Parameters
+        ----------
+        obj : PySide6.QtCore.QObject
+            Object receiving the event.
+        event : PySide6.QtCore.QEvent
+            Event being filtered.
+
+        Returns
+        -------
+        bool
+            ``True`` when an unfocused input's wheel event was consumed;
+            otherwise the result from the parent event filter.
+        """
         if (event.type() == QEvent.Wheel
                 and isinstance(obj, self._WHEEL_STEALERS)
                 and not obj.hasFocus()):
@@ -430,7 +450,13 @@ class FigureSettingsDialog(QDialog):
         return super().eventFilter(obj, event)
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
-        """Land any pending redraw at full quality before going away."""
+        """Complete a full-quality redraw before closing the dialog.
+
+        Parameters
+        ----------
+        event : PySide6.QtGui.QCloseEvent
+            Qt close event forwarded to the parent implementation.
+        """
         if self._redraw.isActive():
             self._redraw.stop()
             self._redraw_now(preview=False)
@@ -526,10 +552,10 @@ class FigureSettingsDialog(QDialog):
                      "paired t", "Wilcoxon signed-rank"):
             test.addItem(name, name)
         test.setToolTip(
-            "Automatic reads the group count, a Levene test for equal "
-            "variance and a Shapiro-Wilk for normality — and treats a check "
-            "it had too few points to run as FAILED, because 'did not "
-            "reject' on n=3 is not 'the assumption holds'.")
+            "Automatic chooses a test from the group count, Levene's test "
+            "for equal variance, and Shapiro-Wilk tests for normality. If an "
+            "assumption check has too few values to run, that assumption is "
+            "treated as unmet.")
         form.addRow("Test", test)
 
         alpha = QDoubleSpinBox()
@@ -549,17 +575,17 @@ class FigureSettingsDialog(QDialog):
         except Exception:              # pragma: no cover - module absent
             correction.addItem("fdr_bh", "fdr_bh")
         correction.setToolTip(
-            "Applied ACROSS the comparisons on this panel. Six pairwise "
-            "tests at 0.05 is a 26% chance of one false positive, and the "
-            "individual p-values give no hint of it.")
+            "Adjust p-values across all comparisons shown in this panel. "
+            "Without correction, six independent tests at alpha 0.05 have "
+            "about a 26% chance of at least one false positive.")
         form.addRow("Correct across pairs", correction)
 
         unit = QLineEdit("coefficient")
         unit.setToolTip(
-            "What ONE observation is. spaCR measures thousands of cells "
-            "across a handful of wells: a test across cells when the "
-            "replicate is the well returns p < 1e-10 on pure noise, and "
-            "nothing in the number itself says so.")
+            "Name the independent observational unit used by the test. Use "
+            "wells rather than individual cells when wells are the replicates; "
+            "treating correlated cells as independent can greatly overstate "
+            "significance.")
         form.addRow("Unit of replication", unit)
 
         verdict = QLabel("")
@@ -1041,23 +1067,22 @@ class FigureSettingsDialog(QDialog):
 
 
 def figure_line_artists(figure) -> list:
-    """Every LINE on ``figure`` that the line control reaches.
+    """Collect artists affected by the global line-colour control.
 
-    The data's own lines, the reference and threshold lines, the trends and
-    the Q-Q diagonal -- all of them ``Line2D`` on an axes -- plus the axis
-    SPINES, plus a legend's sample lines so the key does not go on describing
-    the colour the figure no longer uses.
+    Parameters
+    ----------
+    figure : matplotlib.figure.Figure
+        Figure whose artists should be collected.
 
-    THE TICK MARKS ARE NOT HERE, and not because they are exempt: they have
-    no artist to hand back. matplotlib draws them from the tick's own pen, so
-    :func:`apply_line_colour` reaches them through ``tick_params``. This
-    function exists to be counted and asserted against, and a count that
-    silently omitted the ticks would make that assertion a lie.
+    Returns
+    -------
+    list
+        Data and reference lines, axes spines, and legend sample lines.
 
-    GRIDLINES ARE EXCLUDED. A grid repainted in the ink is a cage over the
-    data; :data:`spacr.figure_style.PRINT_GRID` says the same thing about the
-    save path. They are not in ``axes.lines`` either, so this is a statement
-    of intent rather than a filter.
+    Notes
+    -----
+    Gridlines are excluded. Tick marks are updated separately by
+    :func:`apply_line_colour` because Matplotlib recreates them during draws.
     """
     found = []
     for axis in getattr(figure, "axes", ()):
@@ -1070,19 +1095,23 @@ def figure_line_artists(figure) -> list:
 
 
 def apply_line_colour(figure, colour) -> int:
-    """Draw every line on ``figure`` in ``colour``. Returns how many.
+    """Apply one colour to figure lines, spines, and tick marks.
 
-    EVERY LINE MEANS THE AXES TOO -- the spines and the
-    tick marks, which is the half that had no control at all and which the
-    first report named. The same division as
-    :meth:`spacr.qt.widgets.fast_plots.FastPlot.set_line_style` makes on the
-    pyqtgraph side, so a figure looks the same whichever engine drew it.
+    Line styles and dash patterns are preserved. Gridlines and text are not
+    changed.
 
-    THE DASH PATTERNS SURVIVE, because only ``set_color`` is called: a
-    threshold line stays dashed and the reference line stays solid, which is
-    what tells a reader which is which. Rebuilding the line would flatten
-    that on every restyle -- the pyqtgraph half copies its pen for exactly
-    this reason.
+    Parameters
+    ----------
+    figure : matplotlib.figure.Figure
+        Figure to update.
+    colour : Any
+        Matplotlib colour specification.
+
+    Returns
+    -------
+    int
+        Number of line, spine, and legend artists successfully updated. Tick
+        marks are updated separately and are not included in this count.
     """
     touched = 0
     for artist in figure_line_artists(figure):
@@ -1108,13 +1137,20 @@ def apply_line_colour(figure, colour) -> int:
 
 
 def apply_font_colour(figure, colour) -> int:
-    """Draw every piece of text on ``figure`` in ``colour``. Returns how many.
+    """Apply one colour to every text object in a figure.
 
-    EVERY PIECE MEANS THE TICK LABELS, the gene
-    annotations, the suptitle and the legend's title -- the three that
-    :func:`_every_text` exists to not miss, because a control called "all
-    text" that reaches twenty of twenty-three objects reads as broken rather
-    than as incomplete (issue #108).
+    Parameters
+    ----------
+    figure : matplotlib.figure.Figure
+        Figure to update.
+    colour : Any
+        Matplotlib colour specification.
+
+    Returns
+    -------
+    int
+        Number of text objects successfully updated. This includes titles,
+        axes labels, tick labels, legends, and annotations.
     """
     touched = 0
     for item in _every_text(figure):
@@ -1134,20 +1170,13 @@ def apply_font_colour(figure, colour) -> int:
 
 
 def figure_follows_the_theme(figure) -> None:
-    """Put both colours back to what the app theme and the preferences say.
+    """Restore line and font colours from the active theme preferences.
 
-    The way out of a colour, and it has to exist: the design is a
-    preference that froze because a resolved default was written back over
-    the word "auto", and a per-figure control a user can only ever SET is
-    that same freeze performed by hand.
-
-    Reads the preference rather than remembering what the figure was drawn
-    with, and that is the honest direction here: a matplotlib figure arrives
-    already themed by
-    :func:`spacr.qt.widgets.figure_queue._style_figure_colors`, so "the
-    colour it was drawn with" IS the preference's answer -- unlike the
-    pyqtgraph side, where each line carries a palette colour of its own worth
-    restoring (``_spacr_base_colour``).
+    Parameters
+    ----------
+    figure : matplotlib.figure.Figure
+        Figure to update. If the preference store is unavailable, black is
+        used for both line and font colours.
     """
     try:
         from ..preferences import get_figure_colors, get_figure_line_colour
@@ -1160,34 +1189,31 @@ def figure_follows_the_theme(figure) -> None:
     apply_font_colour(figure, font)
 
 
-#: What a saved graph-style file says it is. A file that does not say this is
-#: refused rather than partially applied, for the reason
-#: `fast_plots.load_style` gives about a style of the WRONG KIND: settings
-#: whose names happen to match would be taken and the rest left, which looks
-#: like a corrupted house style rather than like a mistake.
+#: Schema identifier required in a spaCR graph-style JSON file.
 GRAPH_STYLE_FILE_KIND = "spacr_graph_style"
 
 
 def graph_style_as_dict(general=None, per_graph=None) -> dict:
-    """The user's graph style as the thing that gets written to a file.
+    """Serialize graph-style preference overrides to a dictionary.
 
-    This supplies save, load, and per-project defaults for figures that have no
-    style
-    DATACLASS, which is nearly all of them.
+    Parameters
+    ----------
+    general : mapping, optional
+        General style overrides. If ``None``, read the current preference.
+    per_graph : mapping of str to mapping, optional
+        Overrides keyed by graph type. If ``None``, read the current
+        preference.
 
-    It uses the existing style vocabulary. Capturing a second set of
-    appearance keys from the artists of one drawn figure would create a third
-    style system. The deltas here are what
-    :func:`spacr.figures.style.user_overrides` and
-    :func:`spacr.figure_style.resolve` already read,
-    so a loaded house style reaches every figure spaCR draws without anything
-    else being wired.
+    Returns
+    -------
+    dict
+        Style data with ``spacr_style_kind``, ``general``, and ``per_graph``
+        keys. Per-graph values that are not mappings are omitted.
 
-    It stores no additional colours. The tempting alternative -- "capture what this figure
-    looks like right now" -- would sample the ink the THEME resolved. Saving
-    that and applying it later would write back a resolved default that stays
-    invisible until the first time the user changes
-    theme. The live figure's ink stays a token in `prefs/figure_*`.
+    Notes
+    -----
+    Only preference overrides are stored. Theme-resolved colours and package
+    defaults are not captured from the currently displayed figure.
     """
     if general is None or per_graph is None:
         try:
@@ -1209,12 +1235,28 @@ def graph_style_as_dict(general=None, per_graph=None) -> dict:
 
 
 def save_graph_style(path: str, general=None, per_graph=None) -> str:
-    """Write the graph style to ``path`` as JSON. Returns the path, or "".
+    """Write graph-style preference overrides to a JSON file.
 
-    The DELTAS, exactly as the store holds them, so a house style saved on a
-    machine whose package defaults have since improved still means "these
-    four things differ" rather than freezing the defaults of the day it was
-    written. Same reason `FigureStylePreferences.values` returns deltas.
+    Parameters
+    ----------
+    path : str
+        Destination path. An empty path cancels the operation.
+    general : mapping, optional
+        General style overrides. If ``None``, read the current preference.
+    per_graph : mapping of str to mapping, optional
+        Overrides keyed by graph type. If ``None``, read the current
+        preference.
+
+    Returns
+    -------
+    str
+        ``path`` after a successful write, or an empty string if the path is
+        empty or the file cannot be written.
+
+    Raises
+    ------
+    TypeError
+        If a supplied setting value cannot be serialized as JSON.
     """
     import json
 
@@ -1231,16 +1273,33 @@ def save_graph_style(path: str, general=None, per_graph=None) -> str:
 
 
 def load_graph_style(path: str) -> tuple:
-    """``(general, per_graph)`` from a saved graph style.
+    """Read graph-style preference overrides from a JSON file.
 
-    :raises ValueError: if the file is not a spaCR graph style. Refused
-        rather than partially applied -- see :data:`GRAPH_STYLE_FILE_KIND`.
+    Parameters
+    ----------
+    path : str
+        Path to a graph-style file created by :func:`save_graph_style`.
 
-    FORWARDS-COMPATIBLE IN BOTH DIRECTIONS. A key the package no longer has
-    is KEPT, not dropped: `FigureStylePreferences` already shows such a value
-    as "<value> (not offered)" rather than snapping it to something else, and
-    a loader that discarded it would make opening and re-saving a colleague's
-    house style silently lose the parts this build does not know about.
+    Returns
+    -------
+    general : dict
+        General style overrides.
+    per_graph : dict
+        Style overrides keyed by graph type.
+
+    Raises
+    ------
+    OSError
+        If the file cannot be opened.
+    json.JSONDecodeError
+        If the file does not contain valid JSON.
+    ValueError
+        If the file is not identified by :data:`GRAPH_STYLE_FILE_KIND`.
+
+    Notes
+    -----
+    Unknown setting names are preserved for compatibility with files created
+    by other spaCR versions.
     """
     import json
 
@@ -1258,14 +1317,15 @@ def load_graph_style(path: str) -> tuple:
 
 
 def apply_graph_style(general, per_graph) -> None:
-    """Make a loaded graph style THIS PROJECT'S DEFAULT.
+    """Save graph-style overrides as the active preferences.
 
-    Written into the same preference the Figures tab writes, which is what
-    makes "applied to every figure of that type without re-setting it each
-    time" true: `figure_style.resolve` and `figures.style.user_overrides`
-    both read it already. Loading a style is therefore indistinguishable
-    afterwards from having set every one of its controls by hand, which is
-    the property that stops this being a fourth place a setting can live.
+    Parameters
+    ----------
+    general : mapping
+        General style overrides.
+    per_graph : mapping of str to mapping
+        Style overrides keyed by graph type. Values that are not mappings are
+        omitted.
     """
     from ..preferences import set_figure_style, set_figure_style_per_graph
 
@@ -1276,12 +1336,17 @@ def apply_graph_style(general, per_graph) -> None:
 
 
 def add_graph_style_file_entries(menu, parent=None, *, on_change=None) -> None:
-    """"Save graph style…" / "Load graph style…" on ``menu``.
+    """Add graph-style save and load actions to a menu.
 
-    This makes matplotlib figures editable and savable. `fast_plots.save_style` and
-    `load_style` already do this for a style DATACLASS, and the only
-    dataclass in the package is `VolcanoStyle`, so on 2026-08-18 the savable
-    half existed and nothing a user could click reached it.
+    Parameters
+    ----------
+    menu : PySide6.QtWidgets.QMenu
+        Menu that receives the actions.
+    parent : PySide6.QtWidgets.QWidget, optional
+        Parent for file dialogs and actions. If ``None``, use ``menu``.
+    on_change : callable, optional
+        Callback invoked after a style is loaded. Callbacks may accept a
+        ``preview`` keyword argument.
     """
     from PySide6.QtWidgets import QFileDialog, QMessageBox
 
@@ -1327,9 +1392,7 @@ def add_graph_style_file_entries(menu, parent=None, *, on_change=None) -> None:
     menu.addAction(load)
 
 
-#: The plot types `create_grouped_plot` can draw the same data as, in the
-#: order the menu offers them. Asked for by name 2026-08-19: "line, bar,
-#: jitter-bar, jitter-box, jitter, box, violin".
+#: Grouped-plot types offered by the figure context menu, in display order.
 GROUPED_PLOT_TYPES = (
     ("line", "Line"),
     ("bar", "Bar"),
@@ -1387,12 +1450,29 @@ def _replot(figure, kind: str, on_change=None):
 
 def build_figure_context_menu(parent, figure, *, on_change=None,
                               open_settings=None) -> QMenu:
-    """The right-click menu for a drawn figure.
+    """Build the context menu for a displayed figure.
 
-    The frequent toggles are one click; everything else is behind
-    "Figure settings…". A figure that cannot be restyled -- evicted, and its
-    spill unreadable -- gets a menu saying so rather than a menu that silently
-    does nothing.
+    The menu provides direct legend, grid, scale, colour, and export actions.
+    Figures with grouped-plot metadata can also be redrawn as another plot
+    type. More detailed controls are delegated to ``open_settings``.
+
+    Parameters
+    ----------
+    parent : PySide6.QtWidgets.QWidget
+        Parent for the returned menu and its dialogs.
+    figure : matplotlib.figure.Figure or None
+        Figure to edit. If ``None``, the menu contains a disabled status
+        action.
+    on_change : callable, optional
+        Callback invoked after a direct edit. Callbacks may accept a
+        ``preview`` keyword argument or a replacement figure.
+    open_settings : callable, optional
+        Callback invoked by the ``Figure settings`` action.
+
+    Returns
+    -------
+    PySide6.QtWidgets.QMenu
+        Context menu owned by ``parent``.
     """
     menu = QMenu(parent)
     if figure is None:
@@ -1540,8 +1620,9 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
 
     menu.addSeparator()
     save = QAction("Save figure as…", parent)
-    save.setToolTip("Write this figure to a file, with the styling it has "
-                    "on screen right now.")
+    save.setToolTip(
+        "Write this figure to a file using its current plot styling and the "
+        "configured export background, format and resolution.")
     save.triggered.connect(lambda: save_figure_as(parent, figure))
     menu.addAction(save)
 
@@ -1551,9 +1632,9 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
     # screen is one click and remains one click.
     styled = QAction("Save figure with a preview…", parent)
     styled.setToolTip(
-        "Choose the ink, background, grid, size and resolution FOR THE FILE, "
-        "see exactly what will be written, then write it. The figure on "
-        "screen is not changed.")
+        "Choose the ink, background, grid, size and resolution for the saved "
+        "file, preview the result, then export it. The figure on screen is "
+        "not changed.")
     styled.triggered.connect(lambda: _open_styled_save(parent, figure))
     menu.addAction(styled)
 
@@ -1641,16 +1722,28 @@ def _open_styled_save(parent, figure):
 
 
 def save_figure_as(parent, figure, path: str = "") -> str:
-    """Write ``figure`` to a file the user picks. Returns the path, or "".
+    """Save a figure using its current styling and export preferences.
 
-    The design asks for a figure to be savable from the same right-click
-    that restyles it, and 119 for "each figure should be editable and
-    savable". The saved file is what is ON SCREEN: a restyle that survives to
-    the display and not to the file is a restyle the user cannot use, which
-    is the whole reason for editing a figure in the first place.
+    Parameters
+    ----------
+    parent : PySide6.QtWidgets.QWidget or None
+        Parent for the file chooser when ``path`` is empty.
+    figure : matplotlib.figure.Figure or None
+        Figure to save. ``None`` cancels the operation.
+    path : str, optional
+        Destination path. If empty, prompt for a PNG, PDF, or SVG path.
 
-    :param path: bypass the dialog. For tests, and for callers that already
-        know where the file goes.
+    Returns
+    -------
+    str
+        Path returned by the writer, or an empty string when saving is
+        cancelled or fails.
+
+    Notes
+    -----
+    A recognized filename extension takes precedence over the default output
+    format. Available data, statistics, and caption metadata are exported by
+    :func:`export_sidecars` beside the requested path.
     """
     if figure is None:
         return ""
@@ -1729,29 +1822,29 @@ def save_figure_as(parent, figure, path: str = "") -> str:
 
 
 def export_sidecars(figure, path) -> list:
-    """Write the figure's DATA and its STATISTICS beside it.
+    """Export available figure data, statistics, and caption sidecars.
 
-    When a graph is exported, its data is also
-    exported with the filename of the graph and a stats table is generated
-    with the correct stats".
+    Parameters
+    ----------
+    figure : matplotlib.figure.Figure
+        Figure carrying optional ``_spacr_data``, ``_spacr_groups``, or
+        ``_spacr_caption`` metadata.
+    path : path-like
+        Figure output path. Sidecars use the same directory and basename.
 
-        volcano.pdf          the figure
-        volcano.csv          the rows it actually drew
-        volcano_stats.csv    the test, its assumptions, and its result
+    Returns
+    -------
+    list of str
+        Successfully written sidecar paths. Depending on available metadata,
+        these may include ``<name>.csv``, ``<name>_stats.csv``, and
+        ``<name>_legend.txt``.
 
-    One basename, so "where do these numbers come from" is answered by the
-    folder rather than by the analyst's memory. That is the whole point: a
-    figure that can go in a paper is one whose numbers can be checked.
-
-    THE DATA IS WHAT WAS DRAWN, not what the panel was handed. A volcano is
-    given 1,213 coefficients and draws 1,212 -- the nuisance terms are not
-    hypotheses -- and a CSV whose row count disagrees with the n on the
-    picture is worse than no CSV, because the CSV is what a reader believes.
-
-    Never raises: an export that produced the figure has already done the
-    useful part.
-
-    :returns: the paths written.
+    Notes
+    -----
+    The data sidecar contains the rows attached to the rendered figure. The
+    statistics sidecar contains all usable pairwise comparisons with multiple
+    testing correction provided by spaCR's statistics table helper. Individual
+    sidecar failures are logged and do not interrupt the remaining exports.
     """
     written = []
     base = os.path.splitext(os.fspath(path))[0]
@@ -1840,21 +1933,9 @@ __all__ = ["FigureSettingsDialog", "build_figure_context_menu", "AXIS_SCALES",
 # persisted resolution.
 # ---------------------------------------------------------------------------
 
-#: Closed sets for style keys whose values are a choice rather than a number.
-#:
-#: DECLARED HERE AND NOT IN `figure_style`, which is another territory this
-#: session does not own. `spines` is derived from that module's own
-#: SPINE_PRESETS rather than copied, so the one set that already exists as
-#: data cannot drift; the rest are read off the comments beside their
-#: defaults ("sem | sd | ci95 | none") and SHOULD move into the module as
-#: metadata the next time it is opened. Noted rather than silently duplicated.
-#: The panel's own fallback, used ONLY when `spacr.figure_style` cannot be
-#: imported -- a settings dialog that refuses to open because a style module
-#: moved is worse than one offering a stale list. The real sets are in that
-#: module, beside the defaults they describe (instruction 118's handoff,
-#: taken 2026-08-20): a set read off a COMMENT next to a default is not a
-#: contract, and a value added there would have gone on being drawn by the
-#: renderer and gone on being unofferable here with nothing saying so.
+# Fallback choices keep the preferences panel usable if ``figure_style``
+# cannot be imported. Normal operation reads the canonical choices from that
+# module through ``style_choices_for``.
 _FALLBACK_CHOICES = {
     "palette": ("colorblind", "deep", "muted", "pastel", "bright", "dark"),
     "grid_style": tuple(style for style, _label in LINE_STYLES),
@@ -1869,12 +1950,25 @@ _FALLBACK_CHOICES = {
     "spines": ("all", "left_bottom", "none"),
 }
 
-#: Kept as the module's public name because the panel and its tests read it.
+#: Compatibility alias for the fallback style-choice mapping.
 STYLE_CHOICES = _FALLBACK_CHOICES
 
 
 def style_choices_for(name: str) -> tuple:
-    """The closed set ``name`` may take, or ``()``."""
+    """Return the choices available for a style setting.
+
+    Parameters
+    ----------
+    name : str
+        Style setting name.
+
+    Returns
+    -------
+    tuple
+        Canonical choices from :mod:`spacr.figure_style`. If that module is
+        unavailable, return the local fallback choices. An empty tuple denotes
+        a free-form or unknown setting.
+    """
     try:
         from ...figure_style import style_choices
 
@@ -1883,22 +1977,10 @@ def style_choices_for(name: str) -> tuple:
         return tuple(_FALLBACK_CHOICES.get(name, ()))
 
 
-#: The value a transparent ground is stored as. matplotlib's own spelling:
-#: ``to_rgba("none")`` is ``(0, 0, 0, 0)``, and
-#: :func:`spacr.figure_style.rc_params` already forwards ``background``
-#: straight into ``figure.facecolor`` and ``axes.facecolor``, so this reaches
-#: every figure drawn through the house style without
-#: :mod:`spacr.figure_style` being touched -- it is another territory, and
-#: the vocabulary it needed turned out to be one it already had.
+#: Matplotlib colour value used to store a transparent figure background.
 TRANSPARENT_STYLE_GROUND = "none"
 
-#: Style keys whose control offers "Transparent" beside the colour.
-#:
-#: The maintainer's restatement of instruction 118, 2026-08-16: "figures
-#: should not have a background not black not white just transparent". A
-#: plain colour button cannot say that -- every colour it can return is
-#: opaque -- so the one key a transparent value MEANS anything for gets a
-#: checkbox as well. Not `foreground`: invisible text is not a style.
+#: Style keys that support an explicit transparent value in the preferences.
 TRANSPARENT_CAPABLE = ("background",)
 
 
@@ -1912,27 +1994,36 @@ def _is_transparent_ground(value) -> bool:
 
 
 def style_setting_label(name: str) -> str:
-    """``grid_colour`` -> ``Grid colour``. British spelling is kept as the
-    key spells it, because the key is what a user editing the INI sees."""
+    """Convert a style setting name to a display label.
+
+    Parameters
+    ----------
+    name : str
+        Underscore-delimited style key, such as ``'grid_colour'``.
+
+    Returns
+    -------
+    str
+        Capitalized, space-delimited label, such as ``'Grid colour'``.
+    """
     return str(name).replace("_", " ").strip().capitalize()
 
 
 class FigureStylePreferences(QWidget):
-    """The Figures tab's GENERAL and PER-GRAPH style settings.
+    """Edit general and graph-specific figure-style preferences.
 
-    Two levels, and the split is the whole design: a general
-    style covers what every figure shares, and a per-graph style overrides it
-    for one kind, because the settings that make a volcano readable are not
-    the ones that make a plate heatmap readable. Changing the volcano's point
-    size must not touch the heatmaps -- there is a test named for it.
+    General settings apply to every figure. Each graph type can override only
+    the settings it needs, and the panel stores differences from package
+    defaults rather than a fully resolved style.
 
-    :param general: the user's stored general deltas.
-    :param per_graph: the user's stored per-graph deltas, ``{kind: {...}}``.
-
-    ONE KIND AT A TIME, chosen from a combo. Seven kinds times a dozen
-    settings is eighty-odd rows, and a preferences tab that long is one
-    nobody finds anything in -- which is the failure the report ("the graphs
-    look pretty ugly") is downstream of, not a new one to introduce.
+    Parameters
+    ----------
+    general : mapping, optional
+        Stored general style overrides.
+    per_graph : mapping of str to mapping, optional
+        Stored style overrides keyed by graph type.
+    parent : PySide6.QtWidgets.QWidget, optional
+        Parent widget.
     """
 
     def __init__(self, general=None, per_graph=None, parent=None):
@@ -1961,7 +2052,7 @@ class FigureStylePreferences(QWidget):
         general_form = QFormLayout()
         general_form.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
         column.addLayout(general_form)
-        #: ``{name: (getter, default)}`` for the general layer.
+        #: General controls mapped to their getter, setter, and default value.
         self._general_controls = {}
         for name, default in self._general_defaults.items():
             value = self._general.get(name, default)
@@ -1982,11 +2073,10 @@ class FigureStylePreferences(QWidget):
         picker_row.addWidget(self._kind_box, 1)
         column.addLayout(picker_row)
 
-        #: One page per kind, so switching kinds cannot lose an edit made on
-        #: another -- which a rebuild-on-change panel would do silently.
+        #: Persistent control page for each graph type.
         self._pages = QTabWidget()
         self._pages.tabBar().setVisible(False)
-        #: ``{kind: {name: (getter, default)}}``.
+        #: Per-graph controls mapped to their getter, setter, and default value.
         self._kind_controls = {}
         for kind in self._kinds:
             page = QWidget()
@@ -2074,13 +2164,19 @@ class FigureStylePreferences(QWidget):
         self.apply_values(general, per_graph)
 
     def apply_values(self, general=None, per_graph=None) -> None:
-        """Put ``general``/``per_graph`` into the controls.
+        """Load style overrides into the preference controls.
 
-        A setting the file does not mention goes back to the PACKAGE DEFAULT
-        rather than keeping whatever was on screen. Loading a house style
-        that leaves half of somebody else's settings behind is not the house
-        style, and the deltas the file stores only mean anything against the
-        defaults.
+        Parameters
+        ----------
+        general : mapping, optional
+            General style overrides.
+        per_graph : mapping of str to mapping, optional
+            Style overrides keyed by graph type.
+
+        Notes
+        -----
+        A control omitted from the supplied mappings is reset to its package
+        default rather than retaining its previous value.
         """
         general = dict(general or {})
         per_graph = {str(kind): dict(values)
@@ -2188,11 +2284,9 @@ class FigureStylePreferences(QWidget):
             holder["value"], lambda chosen: holder.__setitem__("value", chosen))
         box = QCheckBox("Transparent")
         box.setToolTip(
-            "No background at all, so the figure takes the colour of "
-            "whatever it is placed on. What a figure for a manuscript "
-            "usually wants -- but check the text is still legible against "
-            "the page, because white text on a transparent ground is "
-            "invisible in a document.")
+            "Remove the figure and axes background so the underlying page or "
+            "slide shows through. Check text, axes and data colours against "
+            "the destination background before exporting.")
         box.setChecked(transparent)
         layout.addWidget(button, 1)
         layout.addWidget(box)
@@ -2228,13 +2322,15 @@ class FigureStylePreferences(QWidget):
     # -- reading it back -----------------------------------------------------
 
     def values(self) -> tuple:
-        """``(general, per_graph)`` -- ONLY what differs from the defaults.
+        """Return style settings that differ from package defaults.
 
-        The deltas, never the resolved style. A panel that wrote every
-        control back would freeze today's defaults into every user's
-        settings, so improving a default would stop reaching anybody who had
-        ever opened this tab -- and, through `figures.style.user_overrides`,
-        would replace the publication house style for all of them.
+        Returns
+        -------
+        general : dict
+            General style overrides.
+        per_graph : dict
+            Non-default style settings keyed by graph type. Graph types with
+            no overrides are omitted.
         """
         general = {}
         for name, (getter, _setter, default) in self._general_controls.items():
@@ -2253,22 +2349,21 @@ class FigureStylePreferences(QWidget):
         return general, per_graph
 
     def reset(self) -> None:
-        """Put every control back to the package default.
-
-        Preferences' "Reset to defaults" re-reads every other getter against
-        a throwaway store; this panel holds its controls rather than its
-        store, so it is told directly. A reset that quietly skipped this
-        section would leave the graph style standing while everything around
-        it moved, which reads as a broken reset.
-        """
+        """Reset every style control to its package default."""
         for controls in [self._general_controls] + \
                 list(self._kind_controls.values()):
             for _name, (_getter, setter, default) in controls.items():
                 setter(default)
 
     def select_kind(self, kind: str) -> None:
-        """Show one graph type's page. For a caller that knows which figure
-        the user was looking at when they opened Preferences."""
+        """Display the preference page for one graph type.
+
+        Parameters
+        ----------
+        kind : str
+            Graph type from :data:`spacr.figure_style.GRAPH_KINDS`. Unknown
+            values leave the current page unchanged.
+        """
         index = self._kind_box.findData(str(kind))
         if index >= 0:
             self._kind_box.setCurrentIndex(index)

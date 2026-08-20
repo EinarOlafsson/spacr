@@ -1,27 +1,16 @@
-"""How spaCR's figures look: one general style, plus per-graph overrides.
+"""Resolve spaCR figure styles for display and export.
 
-WHY THIS EXISTS
-
-Every plot inherited matplotlib's defaults, which is what "the graphs look
-pretty ugly" means in practice. Restyling each figure by hand after a run is
-work the application should do once -- and a per-figure restyle is lost the
-next time the analysis is re-run, which during a revision is constantly.
-
-TWO LEVELS, and the split matters. A GENERAL style covers what every figure
-shares: font, palette, grid, spines, marker and line size. A PER-GRAPH style
-overrides it for one kind of plot, because the settings that make a volcano
-readable are not the ones that make a plate heatmap readable. Changing the
-volcano's point size must not touch the heatmaps.
-
-Nothing here imports Qt or matplotlib at module level, so the style can be
-read, merged and tested without a display.
+General settings define the shared appearance of every figure. Per-graph
+settings override only the values needed by a specific graph type. The style
+tables and export-colour helpers can be used without starting Qt or importing
+Matplotlib at module import time.
 """
 
 from __future__ import annotations
 
 from typing import Any, Mapping, NamedTuple, Optional, Tuple
 
-#: Applied to every figure unless a graph kind overrides it.
+#: Default settings applied to every figure before per-graph overrides.
 GENERAL_DEFAULTS: dict[str, Any] = {
     "font_family": "DejaVu Sans",
     "font_size": 11.0,
@@ -46,8 +35,8 @@ GENERAL_DEFAULTS: dict[str, Any] = {
     "tight_layout": True,
 }
 
-#: Per-graph overrides. A key absent here falls through to GENERAL_DEFAULTS,
-#: so a graph kind only states what it needs to differ on.
+#: Default overrides for each graph type. Missing keys inherit
+#: :data:`GENERAL_DEFAULTS`.
 GRAPH_DEFAULTS: dict[str, dict[str, Any]] = {
     "volcano": {
         "marker_size": 22.0,
@@ -109,25 +98,13 @@ GRAPH_DEFAULTS: dict[str, dict[str, Any]] = {
     },
 }
 
-#: The graph kinds a user can style, in the order a preferences page shows
-#: them: the ones they look at most, first.
+#: Graph types available in the figure-style preferences, in display order.
 GRAPH_KINDS = ("volcano", "plate_heatmap", "histogram", "scatter",
                "residuals", "qq", "jitter_bar")
 
-#: The CLOSED SETS, beside the defaults they describe. Instruction 118's
-#: standing handoff: they were declared in `qt/widgets/figure_settings.py`
-#: because this module was another territory, and they were read off the
-#: COMMENTS next to the defaults -- ``"error_bars": "sem",  # sem | sd | ci95
-#: | none``. A comment is not a contract: a value added here would have gone
-#: on being drawn by the renderer and gone on being unofferable in the panel,
-#: and nothing would have said the two disagreed.
-#:
-#: `spines` is not here because it already reads its set from
-#: :data:`SPINE_PRESETS`, which is what all of these are now doing in their
-#: own way: the set lives where the values do.
-#:
-#: A key with no entry is not closed -- a free number, a colour, a boolean --
-#: and :func:`style_choices` returns ``()`` for it.
+#: Allowed values for style settings represented by closed selections.
+#: Spine and line-style choices are derived separately by
+#: :func:`style_choices`; keys absent from these mappings are free-form.
 STYLE_CHOICES = {
     "palette": ("colorblind", "deep", "muted", "pastel", "bright", "dark"),
     "format": ("pdf", "png", "svg"),
@@ -138,24 +115,27 @@ STYLE_CHOICES = {
     "aspect": ("equal", "auto"),
 }
 
-#: Every style key whose value is a matplotlib line style. One tuple rather
-#: than three identical ones, because "which dashes may a line take" has one
-#: answer and three copies of it drift.
+#: Style keys that accept a Matplotlib line-style value.
 LINE_STYLE_KEYS = ("grid_style", "threshold_style", "reference_style")
 
-#: What a line style may be. matplotlib's own spellings.
+#: Matplotlib line-style values accepted by :data:`LINE_STYLE_KEYS`.
 LINE_STYLE_CHOICES = ("-", "--", "-.", ":")
 
 
 def style_choices(name: str) -> tuple:
-    """The closed set a style key may take, or ``()`` if it is not closed.
+    """Return the allowed values for a closed-choice style setting.
 
-    :param name: a key from :data:`GENERAL_DEFAULTS` or any of
+    Parameters
+    ----------
+    name : str
+        Style key from :data:`GENERAL_DEFAULTS` or
         :data:`GRAPH_DEFAULTS`.
 
-    Derived rather than listed wherever the values already exist somewhere --
-    the spine presets and the line styles -- so a preset added there is
-    offered here without a second edit.
+    Returns
+    -------
+    tuple
+        Allowed values. An empty tuple indicates that the setting is
+        free-form or unknown.
     """
     if name == "spines":
         return tuple(SPINE_PRESETS)
@@ -163,7 +143,7 @@ def style_choices(name: str) -> tuple:
         return LINE_STYLE_CHOICES
     return tuple(STYLE_CHOICES.get(name, ()))
 
-#: Spine presets, as (top, right, bottom, left) visibility.
+#: Spine presets as ``(top, right, bottom, left)`` visibility flags.
 SPINE_PRESETS = {
     "all": (True, True, True, True),
     "left_bottom": (False, False, True, True),
@@ -174,17 +154,27 @@ SPINE_PRESETS = {
 def resolve(kind: Optional[str] = None,
             general: Optional[Mapping[str, Any]] = None,
             overrides: Optional[Mapping[str, Any]] = None) -> dict:
-    """The effective style for ``kind``.
+    """Resolve the effective style for a graph type.
 
-    Three layers, each beating the one before: the general defaults, the
-    user's general settings, then the per-graph settings for this kind. A
-    graph kind states only what it differs on, so a change to the general
-    font reaches every plot that has not overridden it.
+    Settings are merged in this order: general defaults, user-defined general
+    settings, graph-type defaults, and user-defined graph-type overrides.
+    Entries whose value is ``None`` do not replace an earlier value.
 
-    :param kind: a member of :data:`GRAPH_KINDS`, or None for the general
-        style alone.
-    :param general: the user's general settings, if any.
-    :param overrides: the user's per-graph settings, keyed by graph kind.
+    Parameters
+    ----------
+    kind : str, optional
+        Graph type from :data:`GRAPH_KINDS`. If ``None``, only the general
+        layers are applied.
+    general : mapping of str to Any, optional
+        User-defined general settings.
+    overrides : mapping of str to mapping, optional
+        User-defined settings keyed by graph type.
+
+    Returns
+    -------
+    dict
+        Merged style settings. Unknown graph types inherit only the general
+        layers and any matching entry in ``overrides``.
     """
     style = dict(GENERAL_DEFAULTS)
     if general:
@@ -198,11 +188,20 @@ def resolve(kind: Optional[str] = None,
 
 
 def rc_params(style: Mapping[str, Any]) -> dict:
-    """``style`` as matplotlib rcParams.
+    """Convert spaCR style settings to Matplotlib ``rcParams``.
 
-    Only the keys matplotlib actually has: a style carries settings that no
-    rcParam expresses (``per_row``, ``label_top_n``), and passing those to
-    ``rcParams.update`` raises rather than being ignored.
+    Settings without an equivalent Matplotlib parameter, such as ``per_row``
+    and ``label_top_n``, are omitted.
+
+    Parameters
+    ----------
+    style : mapping of str to Any
+        Resolved or partial spaCR figure style.
+
+    Returns
+    -------
+    dict
+        Matplotlib parameter names and values derived from ``style``.
     """
     spines = SPINE_PRESETS.get(str(style.get("spines", "all")),
                                SPINE_PRESETS["all"])
@@ -241,11 +240,26 @@ def rc_params(style: Mapping[str, Any]) -> dict:
 def apply(kind: Optional[str] = None,
           general: Optional[Mapping[str, Any]] = None,
           overrides: Optional[Mapping[str, Any]] = None) -> dict:
-    """Push the resolved style into matplotlib and return it.
+    """Apply a resolved spaCR style to Matplotlib.
 
-    Returns the style as well, because the settings matplotlib has no rcParam
-    for -- how many heatmaps per row, how many volcano labels -- still have to
-    reach the code that draws them.
+    Matplotlib parameters and the colour cycle are updated when their optional
+    dependencies are available. Styling failures are ignored so that figure
+    generation can continue.
+
+    Parameters
+    ----------
+    kind : str, optional
+        Graph type from :data:`GRAPH_KINDS`.
+    general : mapping of str to Any, optional
+        User-defined general settings.
+    overrides : mapping of str to mapping, optional
+        User-defined settings keyed by graph type.
+
+    Returns
+    -------
+    dict
+        Fully resolved spaCR style, including settings that have no
+        Matplotlib ``rcParam`` equivalent.
     """
     style = resolve(kind, general, overrides)
     try:
@@ -297,49 +311,24 @@ def _apply_palette(name: str) -> None:
 # statistical test applies.
 # ---------------------------------------------------------------------------
 
-#: The three states, which are genuinely different jobs (instruction 150 B).
-#:
-#: ``print``        light ground, dark chrome. The default, because a figure
-#:                  saved from spaCR is going into a manuscript.
-#: ``screen``       exactly what the user is looking at. The old behaviour,
-#:                  kept reachable rather than removed.
-#: ``transparent``  no ground, chrome still follows the print rule -- dark ink
-#:                  on a transparent ground is still unreadable on a dark
-#:                  slide, but the compositing is then the user's choice.
+#: Supported export modes: ``print`` uses a light background and dark figure
+#: elements; ``screen`` preserves the displayed appearance; ``transparent``
+#: removes the background and chooses figure-element colours from the theme.
 SAVE_MODES = ("print", "screen", "transparent")
 
-#: The page a printed figure is going onto, and the ink it is printed in.
+#: Background and figure-element colours used for print-mode exports.
 PRINT_GROUND = "#FFFFFF"
 PRINT_INK = "#222222"
 
-#: Gridlines are chrome, and they are chrome that is MEANT to be faint. A grid
-#: repainted in the ink is a cage over the data, so an illegible grid becomes
-#: this rather than :data:`PRINT_INK` -- which is also the light-mode default,
-#: so a light-mode save is unchanged.
+#: Gridline colour used when a print-mode grid needs additional contrast.
 PRINT_GRID = "#DDDDDD"
 
-#: Contrast below which chrome is repainted, WCAG 2.x ratio against the ground.
-#:
-#: 2.0 rather than the 3.0 the guideline gives for graphical objects: this
-#: number decides whether to CHANGE A USER'S FIGURE, so it is set where the
-#: change is unarguable. White on white is 1.0 and #DDDDDD on white is 1.27;
-#: the palest thing anyone deliberately draws chrome in sits above 2.
+#: WCAG contrast threshold used to identify non-data elements for recolouring.
 CHROME_CONTRAST_FLOOR = 2.0
 
-#: Contrast below which a DATA colour is NAMED rather than changed (150 D).
-#:
-#: SET FROM THE HOUSE STYLE RATHER THAN FROM THE GUIDELINE, because a warning
-#: that fires on every figure is a warning nobody reads. Measured on
-#: `figures.style.ROLES` against white: the palest colour the house style
-#: deliberately puts on the page is ``fill`` #E8A88C at 2.02, with ``data``
-#: #B4B4B4 at 2.07 -- so WCAG's 3.0 for graphical objects would name the house
-#: style's own greys on every save.
-#:
-#: 1.8 sits under both and over the colours that are genuinely chosen for a
-#: dark ground: white 1.0, the pale yellow the instruction describes 1.03,
-#: Okabe-Ito yellow #F0E442 1.32. `guide_permutation`'s "not a hit" grey
-#: #B8BDC5 is 1.89 and stays quiet, which is the point -- it is de-emphasis,
-#: not a mark the reader has to find.
+#: Contrast ratio below which unchanged data colours are reported to the user.
+#: The threshold is below the lightest colours in spaCR's default figure style
+#: so standard palettes do not produce routine warnings.
 DATA_CONTRAST_FLOOR = 1.8
 
 _NAMED_COLOURS = {
@@ -349,15 +338,20 @@ _NAMED_COLOURS = {
 
 
 def to_rgb(colour) -> Optional[tuple]:
-    """``colour`` as an ``(r, g, b)`` triple on 0-1, or None if it has none.
+    """Convert a colour specification to RGB components.
 
-    None means "no colour to judge" -- ``'none'``, a fully transparent RGBA, a
-    colour map, anything this cannot read. Every caller below treats that as
-    "leave it alone", which is the safe direction: the failure to avoid is
-    repainting something that was never white.
+    Parameters
+    ----------
+    colour : Any
+        Hexadecimal, named, RGB, or RGBA colour specification.
 
-    matplotlib is consulted only if it is already importable, and only for the
-    spellings this cannot parse itself, so the rule stays testable headless.
+    Returns
+    -------
+    tuple of float or None
+        Three RGB components. Hexadecimal and Matplotlib colour inputs are
+        normalized to the interval ``[0, 1]``; numeric sequences are returned
+        as floats. ``None`` is returned for transparent or unrecognized
+        colours.
     """
     if colour is None:
         return None
@@ -398,7 +392,19 @@ def to_rgb(colour) -> Optional[tuple]:
 
 
 def relative_luminance(colour) -> Optional[float]:
-    """WCAG relative luminance of ``colour``, or None when it has no colour."""
+    """Calculate the WCAG relative luminance of a colour.
+
+    Parameters
+    ----------
+    colour : Any
+        Colour specification accepted by :func:`to_rgb`.
+
+    Returns
+    -------
+    float or None
+        Relative luminance in the interval ``[0, 1]``, or ``None`` when the
+        colour is transparent or cannot be parsed.
+    """
     rgb = to_rgb(colour)
     if rgb is None:
         return None
@@ -412,11 +418,20 @@ def relative_luminance(colour) -> Optional[float]:
 
 
 def contrast_ratio(colour, other) -> Optional[float]:
-    """WCAG contrast ratio between two colours, 1.0 to 21.0.
+    """Calculate the WCAG contrast ratio between two colours.
 
-    None when either has no colour -- which is not "no contrast", and the
-    distinction matters: a caller that read None as 1.0 would repaint every
-    transparent artist in the figure.
+    Parameters
+    ----------
+    colour : Any
+        First colour specification.
+    other : Any
+        Second colour specification.
+
+    Returns
+    -------
+    float or None
+        Contrast ratio from ``1.0`` to ``21.0``. ``None`` is returned when
+        either colour is transparent or cannot be parsed.
     """
     first = relative_luminance(colour)
     second = relative_luminance(other)
@@ -427,25 +442,46 @@ def contrast_ratio(colour, other) -> Optional[float]:
 
 
 def is_legible_on(colour, ground, floor: float = CHROME_CONTRAST_FLOOR) -> bool:
-    """Whether ``colour`` can be seen on ``ground``. Unreadable colours are
-    the only ones the save is allowed to change."""
+    """Determine whether a colour meets a contrast threshold.
+
+    Parameters
+    ----------
+    colour : Any
+        Foreground colour specification.
+    ground : Any
+        Background colour specification.
+    floor : float, default=CHROME_CONTRAST_FLOOR
+        Minimum accepted WCAG contrast ratio.
+
+    Returns
+    -------
+    bool
+        ``True`` when the ratio meets ``floor``. Unrecognized and transparent
+        colours are treated as legible so they are not recoloured.
+    """
     ratio = contrast_ratio(colour, ground)
     return True if ratio is None else ratio >= float(floor)
 
 
 class SavedFigureAppearance(NamedTuple):
-    """What a save should look like. The answer both renderers act on.
+    """Describe how a figure should be rendered during export.
 
-    :param mode: one of :data:`SAVE_MODES`.
-    :param ground: the background to paint, or None to leave it as it is.
-        None is what ``screen`` and ``transparent`` both want, for opposite
-        reasons -- one keeps the ground, the other has none.
-    :param ink: the colour illegible CHROME is repainted in, or None to leave
-        every colour alone.
-    :param grid: the colour illegible GRIDLINES are repainted in.
-    :param transparent: pass ``transparent=True`` to the writer.
-    :param flip: whether anything is repainted at all. False for ``screen``,
-        which is the whole meaning of that mode.
+    Parameters
+    ----------
+    mode : str
+        Active mode from :data:`SAVE_MODES`.
+    ground : str or None
+        Export background, or ``None`` to retain or remove the current
+        background according to ``mode``.
+    ink : str or None
+        Replacement colour for low-contrast non-data elements, or ``None``
+        to preserve their colours.
+    grid : str or None
+        Replacement colour for low-contrast gridlines.
+    transparent : bool
+        Whether the figure writer should request a transparent background.
+    flip : bool
+        Whether low-contrast figure elements may be recoloured.
     """
 
     mode: str
@@ -456,53 +492,47 @@ class SavedFigureAppearance(NamedTuple):
     flip: bool
 
 
-#: What a piece of a figure IS, for the purposes of a save. The whole of
-#: instruction 150 A is the difference between the last one and the rest.
-#:
-#: ``ground``   the page behind everything -- a figure patch, an axes patch,
-#:              a legend's fill.
-#: ``grid``     gridlines, which are chrome that is MEANT to be faint.
-#: ``chrome``   spines, ticks, tick labels, axis labels, title, legend text
-#:              and frame, annotation text, the significance line, the zero
-#:              line, arrows and leader lines.
-#: ``data``     everything that carries the CLAIM. Never repainted.
+#: Figure-element categories used during export. ``ground`` covers figure,
+#: axes, and legend backgrounds; ``grid`` covers gridlines; ``chrome`` covers
+#: labels, ticks, spines, annotations, and reference lines; ``data`` covers
+#: marks that encode results and are therefore never recoloured automatically.
 ARTIST_KINDS = ("ground", "grid", "chrome", "data")
 
 
 def export_colour(current, kind: str, look=None) -> Optional[str]:
-    """The colour one artist should be painted for the save, or None.
+    """Choose an export replacement colour for a figure element.
 
-    THE PER-ARTIST HALF OF THE SHARED DECISION, and the reason it is here
-    rather than in ``spacr.plot``: the design says the rule has to
-    reach BOTH renderers, and a rule that lives in the matplotlib application
-    forces the pyqtgraph exporter to write a second one. Two renderers
-    deciding separately what "print" means is the same defect as two engines
-    deciding which statistical test applies.
+    Data colours are always preserved. A dark background may be replaced in
+    print mode; gridlines and other figure elements are replaced only when the
+    active export mode allows it and their contrast is below the configured
+    threshold.
 
-    :param current: the colour the artist is painted in now. Anything
-        :func:`to_rgb` cannot read -- ``'none'``, a fully transparent RGBA, a
-        colour map -- is left alone, which is the safe direction: the failure
-        to avoid is repainting something that was never white.
-    :param kind: one of :data:`ARTIST_KINDS`.
-    :param look: a :class:`SavedFigureAppearance`; None asks
+    Parameters
+    ----------
+    current : Any
+        Current artist colour. Transparent and unrecognized values are left
+        unchanged.
+    kind : {'ground', 'grid', 'chrome', 'data'}
+        Role of the artist in the figure.
+    look : SavedFigureAppearance, optional
+        Export appearance. If ``None``, use
         :func:`saved_figure_appearance`.
-    :returns: the replacement colour, or None for "leave this one as it is".
 
-    WHAT DECIDES WHETHER A PIECE OF CHROME MOVES IS LEGIBILITY, NOT THE THEME.
-    An artist is repainted only when it has less than
-    :data:`CHROME_CONTRAST_FLOOR` contrast against the page, so a LIGHT-MODE
-    save changes nothing at all -- which is the property that makes ``print``
-    safe as the default -- and nothing here reads the theme. It reads the
-    FIGURE.
+    Returns
+    -------
+    str or None
+        Replacement colour, or ``None`` when the current colour should be
+        preserved.
 
-    Example:
-        >>> look = saved_figure_appearance("print")
-        >>> export_colour("#FFFFFF", "chrome", look)
-        '#222222'
-        >>> export_colour("#222222", "chrome", look) is None
-        True
-        >>> export_colour("#FFFFFF", "data", look) is None
-        True
+    Examples
+    --------
+    >>> look = saved_figure_appearance("print")
+    >>> export_colour("#FFFFFF", "chrome", look)
+    '#222222'
+    >>> export_colour("#222222", "chrome", look) is None
+    True
+    >>> export_colour("#FFFFFF", "data", look) is None
+    True
     """
     look = saved_figure_appearance() if look is None else look
     if not look.flip or kind == "data":
@@ -538,26 +568,28 @@ def export_colour(current, kind: str, look=None) -> Optional[str]:
 
 def illegible_colours(colours, ground=PRINT_GROUND,
                       floor: Optional[float] = None) -> list:
-    """The DATA colours a reader will not find on ``ground``, as hex (150 D).
+    """Find data colours with insufficient contrast against a background.
 
-    The data deliberately does not flip, so a palette chosen against near-black
-    can be illegible on paper -- and the honest answer is to NAME the colour,
-    because a substitution the user did not ask for changes what the picture
-    says. Renderer-free, so the pyqtgraph exporter can hand it a list of pen
-    colours and get the same sentence as the matplotlib one.
-
-    :param colours: any iterable of colours, in any spelling :func:`to_rgb`
-        reads. Unreadable entries are skipped rather than guessed at.
-    :param ground: the page they are going onto.
-    :param floor: contrast below which a colour is named; defaults to
+    Parameters
+    ----------
+    colours : iterable of colour specifications
+        Colours accepted by :func:`to_rgb`. Unrecognized values and numeric
+        RGBA entries with alpha below ``0.5`` are ignored.
+    ground : Any, default=PRINT_GROUND
+        Background colour used for the contrast calculation.
+    floor : float, optional
+        Minimum accepted contrast ratio. If ``None``, use
         :data:`DATA_CONTRAST_FLOOR`.
-    :returns: sorted, deduplicated ``#RRGGBB`` strings, so the same figure
-        produces the same sentence twice.
 
-    A WASH IS NOT A MARK. An artist drawn at less than half opacity is
-    de-emphasis by construction -- `figures.plates` lays its "never measured"
-    colour down at 9% -- and judging its base hue would name a colour nobody
-    is being asked to find, on every plate figure.
+    Returns
+    -------
+    list of str
+        Sorted, deduplicated colours in ``#RRGGBB`` format.
+
+    Notes
+    -----
+    This function reports low-contrast data colours but does not replace
+    them, because colour may encode a result or category.
     """
     floor = DATA_CONTRAST_FLOOR if floor is None else float(floor)
     named = set()
@@ -577,11 +609,17 @@ def illegible_colours(colours, ground=PRINT_GROUND,
 
 
 def illegible_colour_warning(names) -> str:
-    """The sentence for :func:`illegible_colours`, or '' when there is none.
+    """Format a warning for low-contrast data colours.
 
-    One sentence, in one place, because both renderers say it and a user who
-    saw it once from a tab and once from a run should not have to work out
-    whether they are the same warning.
+    Parameters
+    ----------
+    names : iterable of str
+        Colour names returned by :func:`illegible_colours`.
+
+    Returns
+    -------
+    str
+        Warning text, or an empty string when ``names`` is empty.
     """
     if not names:
         return ""
@@ -592,18 +630,18 @@ def illegible_colour_warning(names) -> str:
 
 
 def figure_save_mode() -> str:
-    """The save mode in force: the user's preference, else ``'print'``.
+    """Return the configured figure export mode.
 
-    Read defensively for the same reason as
-    :func:`spacr.plot.figure_output_preferences`: the preference store is
-    Qt's, and the pipelines that save figures run headless from the CLI and
-    from notebooks, where importing PySide6 to decide an ink colour would be
-    absurd. ``SPACR_FIGURE_SAVE_MODE`` overrides, which is how a headless run
-    or a test asks for one without a store at all.
+    A valid ``SPACR_FIGURE_SAVE_MODE`` value takes precedence over the Qt
+    preference store, which allows command-line and notebook workflows to
+    choose a mode without starting the GUI. Missing or invalid environment
+    values fall through to the stored preference; if no valid preference is
+    available, the mode is ``'print'``.
 
-    The Qt getter is looked up by NAME rather than imported, so this works
-    before ``spacr.qt.preferences`` grows one -- that module belongs to
-    another session and adding the control there is its call, not this one's.
+    Returns
+    -------
+    {'print', 'screen', 'transparent'}
+        Active export mode.
     """
     import os
 
@@ -624,20 +662,26 @@ def figure_save_mode() -> str:
 
 
 
-#: The ink a transparent figure takes in each theme, and the grid beside it.
-#: The light theme is the print pair exactly, so switching a light-theme user to
-#: transparent changes nothing about the marks -- only the ground goes.
+#: Figure-element and grid colours used for transparent exports in dark themes.
 DARK_INK = "#EDEDED"
 DARK_GRID = "#4A4A4A"
 
 
 def theme_ink() -> Tuple[str, str]:
-    """``(ink, grid)`` for the theme the user is working in.
+    """Return figure-element colours for the active application theme.
 
-    Matplotlib-free and Qt-free like the rest of this module: the preference
-    is read through a late import so a headless run that never built a GUI
-    still answers, and answers `print`'s pair -- there is no dark theme to
-    follow when there is no application.
+    Returns
+    -------
+    ink : str
+        Colour for labels, ticks, spines, and annotations.
+    grid : str
+        Colour for gridlines.
+
+    Notes
+    -----
+    Light themes use :data:`PRINT_INK` and :data:`PRINT_GRID`. Dark themes use
+    :data:`DARK_INK` and :data:`DARK_GRID`. The light-theme pair is returned
+    when the Qt preference store is unavailable.
     """
     try:
         from .qt.preferences import resolve_effective_theme
@@ -654,18 +698,19 @@ def theme_ink() -> Tuple[str, str]:
 
 def saved_figure_appearance(mode: Optional[str] = None
                             ) -> SavedFigureAppearance:
-    """THE shared decision. Both renderers ask this and neither decides.
+    """Resolve the background and figure-element colours for export.
 
-    :param mode: force one of :data:`SAVE_MODES`; None asks
-        :func:`figure_save_mode`. An unrecognised mode falls back to
-        ``'print'`` rather than raising -- a run must not lose its figures
-        over a misspelt preference.
+    Parameters
+    ----------
+    mode : {'print', 'screen', 'transparent'}, optional
+        Export mode. If ``None``, use :func:`figure_save_mode`. Invalid values
+        fall back to ``'print'``.
 
-    NOTE WHAT THIS DOES NOT SAY. It names a ground and an ink for the
-    FURNITURE. It says nothing about point colours, colour maps or the up/down
-    colouring on a volcano, and that omission is the design: those carry the
-    claim, and a white data point turned black is, on a volcano, the colour of
-    "not a hit".
+    Returns
+    -------
+    SavedFigureAppearance
+        Rendering instructions shared by the Matplotlib and pyqtgraph export
+        paths. Data colours are outside this appearance and remain unchanged.
     """
     chosen = str(mode).strip().lower() if mode is not None else figure_save_mode()
     if chosen not in SAVE_MODES:
