@@ -74,13 +74,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "score_data",
-      "source_sha256": "6161168f1cd9cd5e8fc19e2dace34f889e8b699d7987d958537178fd4d36327c",
-      "source": "CSV(s) of per-object or per-well phenotype scores (typically the output of generate_ml_scores) supplying the regression's dependent variable; the column named by dependent_variable must be present or the run raises ValueError. Pass one path per plate, position-aligned with plates_score; the first file's name becomes the results subfolder. Default 'list of paths'.",
-      "translation": "CSV-skrá eða skrár með svipgerðarskorum fyrir hvern hlut eða hverja sýnisstöðu, venjulega úttak generate_ml_scores, sem leggja til háðu breytu aðhvarfsins. Dálkurinn sem dependent_variable nefnir verður að vera til, annars veldur keyrslan ValueError. Gefðu eina slóð fyrir hverja örplötu, í sömu röð og plates_score; heiti fyrstu skrárinnar verður niðurstöðuundirmappan. Sjálfgefið 'list of paths'."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "stitch_threshold",
       "source_sha256": "ffd90b5571918bcc2daed4a69a95d2127fd7726a8edc45ed887d609fc15f776d",
       "source": "Minimum overlap, as an intersection-over-union between 0 and 1, for a label in one plane to be treated as the same object as a label in the plane below when z_segmentation_mode is 'stitch'. Raising it splits objects that drift or change shape between planes into several shorter ones; lowering it fuses neighbouring objects that merely overlap in projection. Matching is one-to-one, so when two objects both overlap the same object below only the better match inherits its label and the other starts a new one. Ignored by the other two modes. Default 0.25.",
