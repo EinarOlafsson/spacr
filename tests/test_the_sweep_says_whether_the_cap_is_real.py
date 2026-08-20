@@ -26,9 +26,9 @@ from spacr.parameter_sweep import (TRIAL_CPU_QUOTA, TRIAL_MEMORY_MAX,
 def test_the_note_says_which_of_the_two_situations_this_is():
     note = containment_note()
     if containment_available():
-        assert "kernel cap" in note
+        assert "Kernel containment is active" in note
     else:
-        assert "NO KERNEL CAP" in note
+        assert "Kernel containment is unavailable" in note
 
 
 def test_when_there_is_a_cap_the_note_names_the_actual_limits(monkeypatch):
@@ -39,11 +39,11 @@ def test_when_there_is_a_cap_the_note_names_the_actual_limits(monkeypatch):
 
     assert TRIAL_MEMORY_MAX in note
     assert TRIAL_CPU_QUOTA in note
-    assert "no swap" in note
+    assert "swap disabled" in note
     # And what happens when a trial hits it, because a killed trial is a
     # RESULT and not a crash (114 point 2).
     assert "killed" in note
-    assert "carries on" in note
+    assert "sweep continues" in note
 
 
 def test_when_there_is_none_the_note_says_so_and_says_why(monkeypatch):
@@ -51,14 +51,13 @@ def test_when_there_is_none_the_note_says_so_and_says_why(monkeypatch):
                         lambda: False)
     note = containment_note()
 
-    assert "NO KERNEL CAP" in note
+    assert "Kernel containment is unavailable" in note
     # The CAUSE, so a user can fix it rather than only fear it.
     assert "systemd-run" in note
     assert "container" in note
-    # The DISTINCTION this instruction turns on.
-    assert "ACCOUNTING, not containment" in note
+    assert "free-memory check" in note
     # And what to do instead.
-    assert "fewer workers" in note or "desktop session" in note
+    assert "worker count" in note or "systemd user session" in note
 
 
 def test_the_note_never_claims_a_cap_that_is_not_there(monkeypatch):
@@ -66,7 +65,7 @@ def test_the_note_never_claims_a_cap_that_is_not_there(monkeypatch):
     monkeypatch.setattr("spacr.parameter_sweep.containment_available",
                         lambda: False)
     note = containment_note().lower()
-    assert "each trial runs under a kernel cap" not in note
+    assert "kernel containment is active" not in note
 
 
 @pytest.mark.qt
@@ -111,4 +110,4 @@ def test_an_uncontained_machine_is_marked_as_a_warning(qtbot, monkeypatch):
     # RED, because it changes what the user should do next -- not a note among
     # notes.
     assert panel.containment.objectName() == "DangerLabel"
-    assert "NO KERNEL CAP" in panel.containment.text()
+    assert "Kernel containment is unavailable" in panel.containment.text()

@@ -626,30 +626,28 @@ def containment_available() -> bool:
 
 
 def containment_note() -> str:
-    """One sentence saying whether the kernel cap is actually in force.
+    """Return a user-facing summary of trial resource containment.
 
-    Instruction 114 point 1: fall back to the uncontained path with a LOUD
-    note rather than PRETENDING THE CAP IS THERE. Accounting is not
-    containment -- every previous fix was an estimate of what a trial would
-    use, and the kernel enforcing a ceiling is the only thing that has held.
-    A user who believes a cap exists and is wrong is in a worse position than
-    one who knows there is none: they will start the sweep that took the
-    desktop down.
+    Returns
+    -------
+    str
+        Active kernel limits when containment is available, or a warning that
+        explains the remaining safeguards and safer alternatives when it is
+        unavailable.
     """
     if containment_available():
-        return (f"Each trial runs under a kernel cap: MemoryMax="
-                f"{TRIAL_MEMORY_MAX}, no swap, CPUQuota={TRIAL_CPU_QUOTA}. A "
-                f"trial that exceeds it is killed alone and recorded as "
-                f"'killed'; the sweep carries on.")
-    return ("NO KERNEL CAP IS AVAILABLE on this machine — `systemd-run "
-            "--user --scope` is missing or refused, which is normal in a "
-            "container or over a bare SSH session with no user manager. "
-            "Trials run uncontained: spaCR still limits threads and refuses "
-            "to start one below the free-memory floor, but that is "
-            "ACCOUNTING, not containment, and a single trial that "
-            "over-allocates can take the machine down. Run the sweep from a "
-            "desktop session, or with fewer workers, or headless on a node "
-            "you do not mind losing.")
+        return (f"Kernel containment is active for each trial: memory "
+                f"{TRIAL_MEMORY_MAX}, swap disabled, and CPU quota "
+                f"{TRIAL_CPU_QUOTA}. If a trial exceeds a limit, only that "
+                f"trial is stopped and recorded as 'killed'; the sweep "
+                f"continues.")
+    return ("Kernel containment is unavailable because systemd-run --user "
+            "--scope could not be started. This is common in containers and "
+            "SSH sessions without a user manager. Thread limits and the "
+            "free-memory check still apply, but they cannot prevent a single "
+            "trial from exhausting system memory. Reduce the worker count or "
+            "run the sweep from a systemd user session before using a large "
+            "search space.")
 
 
 def free_memory_gb() -> float:
