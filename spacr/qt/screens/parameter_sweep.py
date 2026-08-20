@@ -129,9 +129,9 @@ def _make_screen(app_key=None, host=None):
                     ", ".join("None" if v is None else str(v) for v in values),
                     row)
                 editor.setToolTip(
-                    f"Comma-separated values for {key}. When the box on the "
-                    f"left is unticked, the FIRST value is used for every "
-                    f"trial.")
+                    "Enter comma-separated values for this setting. If its "
+                    "checkbox is clear, the first value is used for every "
+                    "trial.")
                 row_layout.addWidget(include)
                 row_layout.addWidget(editor, 1)
                 grid.addRow(key, row)
@@ -147,8 +147,9 @@ def _make_screen(app_key=None, host=None):
             self.mode = QComboBox(panel)
             self.mode.addItems(["random", "grid"])
             self.mode.setToolTip(
-                "random samples the space evenly; grid walks its product in "
-                "order and truncates.")
+                "random samples combinations uniformly without replacement; "
+                "grid walks the Cartesian product in order and truncates at "
+                "the trial limit.")
             self.seed = QSpinBox(panel)
             self.seed.setRange(0, 2 ** 31 - 1)
             self.seed.setValue(20260815)
@@ -215,8 +216,8 @@ def _make_screen(app_key=None, host=None):
             buttons = QHBoxLayout()
             self.estimate_button = QPushButton("Estimate", panel)
             self.estimate_button.setToolTip(
-                "Count the legal trials and show what the sweep would cost, "
-                "without running anything")
+                "Count the valid parameter combinations and estimate runtime "
+                "without starting a trial.")
             self.estimate_button.clicked.connect(self.estimate)
             self.start_button = QPushButton("Start sweep", panel)
             self.start_button.clicked.connect(self.start)
