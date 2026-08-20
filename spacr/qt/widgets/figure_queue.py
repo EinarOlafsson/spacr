@@ -1306,6 +1306,10 @@ class FigureQueue(QWidget):
         """Drop everything and delete the temp dir."""
         # Before the temp dir goes: a worker is reading its PDF out of it.
         self._shutdown_jobs()
+        # The live canvas owns callbacks into the Figure objects cleared
+        # below. Tear it down first so neither those callbacks nor a queued
+        # matplotlib idle draw can outlive the objects they refer to.
+        self._show_raster()
         self._list.clear()
         self._ram.clear()
         self._png_paths.clear()
@@ -1562,6 +1566,17 @@ class FigureQueue(QWidget):
         """
         canvas, toolbar = self._canvas, self._canvas_toolbar
         if canvas is not None:
+            # ``FigureCanvasQT.draw_idle`` posts ``_draw_idle`` through a
+            # zero-delay QTimer and exposes no cancellation handle. Merely
+            # deleting the widget therefore leaves that bound callback in the
+            # event queue; when it runs, matplotlib asks ``height()`` of a
+            # canvas whose C++ object is already gone. Clearing the pending
+            # flag is matplotlib's own no-op path through that callback and
+            # must happen before ``deleteLater`` below.
+            try:
+                canvas._draw_pending = False
+            except Exception:  # pragma: no cover - backend changed/already gone
+                pass
             # The toolbar's own connection ids, then anything else left on
             # the registry: a stale callback of any kind is a crash here.
             for attribute in ("_id_press", "_id_release", "_id_drag",
@@ -2021,15 +2036,25 @@ class FigureQueue(QWidget):
     # -- lifecycle ---------------------------------------------------------
 
     def closeEvent(self, event):
+        # Cancel matplotlib's queued idle draw before Qt destroys the canvas.
+        # A pending QTimer otherwise calls into the deleted C++ widget during
+        # the next event-loop drain.
+        self._teardown_canvas()
         self._shutdown_jobs()
         self._delete_tempdir()
         super().closeEvent(event)
 
     def __del__(self):
         # Best-effort temp cleanup if the widget is GC'd without close. The
-        # workers go first — they read out of the directory about to be
-        # removed, and a live QThread must not be left holding a runner whose
-        # last reference is being dropped right now.
+        # canvas goes first so its queued idle draw cannot run after Python
+        # has released the owning widget. The workers follow because they read
+        # out of the directory about to be removed, and a live QThread must
+        # not be left holding a runner whose last reference is being dropped.
+        try:
+            self._teardown_canvas()
+        except Exception:
+            # The C++ half may already be gone when Qt initiated destruction.
+            pass
         try:
             self._shutdown_jobs()
         except Exception:

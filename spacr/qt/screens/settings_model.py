@@ -3461,27 +3461,22 @@ _MODE_TITLES = {
 #: recommended. The explanations focus on sparse, high-dimensional designs
 #: and correlated guides rather than on a method's general popularity.
 RECOMMENDED_FOR_SCREENS = {
-    "mixed": "models guides as repeated perturbations nested within genes, "
-             "matching the structure of a pooled screen",
-    "horseshoe": "uses a sparse prior suited to screens where most guides "
-                 "have small effects and a minority have large effects",
-    "elasticnet": "combines L1 and L2 penalties, which helps retain "
-                  "correlated guides from the same gene",
-    "lasso": "produces a sparse model and supports bootstrap stability "
-             "selection through lasso_n_boot and lasso_selection_threshold",
-    "group_lasso": "selects or drops a gene's guides as a group, preserving "
-                   "the perturbation structure in a penalised model",
-    "rra": "aggregates guide ranks at the gene level without estimating all "
-           "guide effects jointly, and follows the approach used by MAGeCK",
+    "mixed": "treats guides as repeated perturbations nested within genes",
+    "horseshoe": "uses a sparse prior when most guides have small effects "
+                 "and a few have large effects",
+    "elasticnet": "combines L1 and L2 to retain correlated guides from one "
+                  "gene",
+    "lasso": "builds a sparse model and ranks bootstrap stability",
+    "group_lasso": "selects or drops each gene's guides as a group",
+    "rra": "aggregates guide ranks by gene without fitting every guide "
+           "jointly",
 }
 
 #: Information-limit caveat shown beside every recommended backend.
 INFORMATION_LIMIT_NOTE = (
-    "With fewer wells than guides you are below the information limit for any "
-    "method estimating one parameter per guide. Penalisation, priors and "
-    "grouping add assumptions that make an estimate possible; they do not add "
-    "observations. The permutation test instead evaluates one guide at a time "
-    "and does not require a joint guide-level fit.")
+    "Fewer wells than guides puts a joint guide fit below the information "
+    "limit. Penalties, priors and groups do not create information. The "
+    "permutation test is the exception because it tests one guide at a time.")
 
 
 #: One- or two-sentence descriptions of what each regression mode fits, based
@@ -3557,20 +3552,16 @@ _MODE_NOTES = {
         "alongside the result."
     ),
     "lasso": (
-        "Penalised least squares with an L1 penalty, which sets coefficients "
-        "to exactly zero; alpha='auto' picks the penalty by 5-fold "
-        "cross-validation. IT REPORTS NO P-VALUE: features are ranked by "
-        "SELECTION FREQUENCY -- the share of lasso_n_boot bootstrap "
-        "resamples in which the feature survived the penalty -- and cut at "
-        "lasso_selection_threshold."
+        "L1-penalised least squares sets coefficients to zero; alpha='auto' "
+        "selects the penalty by 5-fold cross-validation. It reports "
+        "bootstrap selection frequency across lasso_n_boot resamples, not "
+        "p-values, and applies lasso_selection_threshold."
     ),
     "elasticnet": (
-        "Penalised least squares mixing L1 and L2 by l1_ratio (1.0 is lasso, "
-        "0.0 is ridge), with alpha='auto' picking the penalty by 5-fold "
-        "cross-validation. Like lasso it sets coefficients to exactly zero "
-        "and REPORTS NO P-VALUE: features are ranked by bootstrap selection "
-        "frequency over lasso_n_boot resamples, cut at "
-        "lasso_selection_threshold."
+        "Elastic net combines L1 and L2 through l1_ratio (1 is lasso; 0 is "
+        "ridge), with alpha='auto' chosen by 5-fold cross-validation. It "
+        "reports bootstrap selection frequency across lasso_n_boot resamples, "
+        "not p-values, and applies lasso_selection_threshold."
     ),
     "ridge": (
         "Penalised least squares with an L2 penalty, which never sets a "
@@ -3589,32 +3580,24 @@ _MODE_NOTES = {
         "where most guides are expected to do nothing."
     ),
     "mixed": (
-        "The gene effect is a FIXED effect; each guide is a RANDOM effect "
-        "nested "
-        "inside its gene -- a biological replicate of one perturbation, with "
-        "its own efficiency and off-target profile, not a second independent "
-        "variable. Guides that disagree widen their gene's interval instead "
-        "of averaging out, and a gene resting on one noisy guide is shrunk "
-        "toward zero."
+        "The gene is a FIXED effect; each guide is a RANDOM effect nested "
+        "inside its gene, treating guides as repeated perturbations with "
+        "different efficiencies and off-target effects. Guide disagreement "
+        "widens the gene interval, and a gene supported by one noisy guide "
+        "shrinks toward zero."
     ),
     "group_lasso": (
-        "Penalised least squares in which A GENE'S GUIDES ARE ONE BLOCK: the "
-        "L2 norm inside the penalty is not squared, so a block goes to "
-        "exactly zero or none of it does, where plain lasso keeps whichever "
-        "of a gene's four correlated guides happens to fit best. Its penalty "
-        "is group_lasso_lambda, measured against group_lasso.max_lambda -- a "
-        "property of THIS design, not alpha -- and its hit list is cut at "
-        "lasso_selection_threshold over lasso_n_boot bootstrap resamples."
+        "Group-penalised least squares treats A GENE'S GUIDES AS ONE BLOCK, "
+        "retaining or zeroing the whole block. group_lasso_lambda sets the "
+        "penalty relative to group_lasso.max_lambda; hits use bootstrap "
+        "selection frequency over lasso_n_boot resamples and "
+        "lasso_selection_threshold."
     ),
     "rra": (
-        "MAGeCK's alpha-RRA, the only entry here that ranks rather than "
-        "fits: guides are ranked against every other guide in the screen, "
-        "and a gene with k guides scores the smallest Beta(i, k-i+1) "
-        "probability over the top rra_alpha fraction of its ranks, which is "
-        "what keeps a gene findable when one guide cuts and three do not. "
-        "THE P VALUE IS PERMUTED -- rho has no closed form, so a null of "
-        "rra_permutations draws is built per distinct guide count -- and "
-        "depletion and enrichment are reported apart."
+        "MAGeCK alpha-RRA ranks guides across the screen, then scores each "
+        "gene from its strongest ranks within rra_alpha. It builds an "
+        "empirical null with rra_permutations for each guide count and "
+        "reports depletion and enrichment separately."
     ),
 }
 _MODE_NOTES["huber"] = _MODE_NOTES["rlm"]
@@ -3992,6 +3975,18 @@ _EMPHASIS = (
 #: `error` where every other heading takes `accent`.
 _REFUSAL_HEADING = "WHAT YOU DO NOT GET"
 
+#: The two mixed-model decisions repeated by the plain and rich renderers.
+#: Keeping one source prevents the user-visible settings box and the text API
+#: from drifting apart as either is edited for clarity.
+_MIXED_GUIDE_OUTPUT_NOTE = (
+    "Guide results are BLUPs -- shrunken PREDICTIONS of departure from the "
+    "gene -- NOT coefficients with standard errors and p-values. This model "
+    "has NO GUIDE-LEVEL HIT LIST or guide-level BH correction. For a ranked, "
+    "tested guide list, choose another model with level='grna'.")
+_MIXED_MULTIPLE_TESTING_NOTE = (
+    "Gene coefficients form one BH family; there is no second family because "
+    "the guide effects are not tested.")
+
 #: What the box falls back to when no palette is handed in -- which is what a
 #: test that is not about colour wants. Named tokens, not hexes, so a reader
 #: of the rendered HTML can see which token a colour came from.
@@ -4111,13 +4106,7 @@ def regression_model_explainer_html(regression_type: Any,
         parts.append(_heading_html("WHAT IS MODELLED", ink))
         parts.append(_prose_html(_MODE_NOTES["mixed"], ink))
         parts.append(_heading_html(_REFUSAL_HEADING, ink))
-        parts.append(_prose_html(
-            "Guide-level results come back as BLUPs — shrunken PREDICTIONS "
-            "of each guide's departure from its gene, NOT coefficients with "
-            "standard errors and p-values — so there is NO GUIDE-LEVEL HIT "
-            "LIST from this model, and nothing guide-level to BH-correct. If "
-            "a ranked, tested list of individual guides is what you need, "
-            "choose any other model with level='grna'.", ink))
+        parts.append(_prose_html(_MIXED_GUIDE_OUTPUT_NOTE, ink))
         # 133 A. `mixed` takes its own branch above, so the flag every other
         # backend gets from the shared path has to be added here too -- and
         # missing it on the DEFAULT would have been the one place it mattered
@@ -4132,10 +4121,7 @@ def regression_model_explainer_html(regression_type: Any,
         parts.append(_heading_html("WHAT IT COSTS", ink))
         parts.append(_prose_html(mixed_cost_note(), ink))
         parts.append(_heading_html("MULTIPLE TESTING", ink))
-        parts.append(_prose_html(
-            "The gene coefficients are BH-corrected as one family; the "
-            "guide effects are not tested, so there is no second family.",
-            ink))
+        parts.append(_prose_html(_MIXED_MULTIPLE_TESTING_NOTE, ink))
     else:
         chosen = normalise_regression_level(level)
         level_line = {
@@ -4388,14 +4374,7 @@ def regression_model_explainer(regression_type: Any,
         # looking for guide p-values reads it exactly once, but they cannot
         # be told to go elsewhere for it.
         lines.append("WHAT YOU DO NOT GET")
-        lines.append(_wrap_block(
-            "Guide-level results come back as BLUPs -- shrunken PREDICTIONS "
-            "of each guide's departure from its gene, NOT coefficients with "
-            "standard errors and p-values -- so there is NO GUIDE-LEVEL HIT "
-            "LIST from this model, and nothing guide-level to BH-correct. If "
-            "a ranked, tested list of individual guides is what you need, "
-            "choose any other model with level='grna', which fits one "
-            "coefficient per guide and does give p-values."))
+        lines.append(_wrap_block(_MIXED_GUIDE_OUTPUT_NOTE))
         lines.append("")
         # WHAT IT COSTS, beside "what you do not get" and for the same
         # reason: both are things a user can only find out by having already
@@ -4408,9 +4387,7 @@ def regression_model_explainer(regression_type: Any,
         lines.append(_wrap_block(mixed_cost_note()))
         lines.append("")
         lines.append("MULTIPLE TESTING")
-        lines.append(_wrap_block(
-            "The gene coefficients are BH-corrected as one family. There is "
-            "no second family here, because the guide effects are not tested."))
+        lines.append(_wrap_block(_MIXED_MULTIPLE_TESTING_NOTE))
     else:
         chosen = normalise_regression_level(level)
         level_line = {
