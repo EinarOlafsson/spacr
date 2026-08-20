@@ -166,3 +166,131 @@ STILL OWED
   * The three validations that need the real screen: permutation on the
     maintainer's own plates, the within-well pathogen_area contrast, and
     held-out plates.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- THE THREE VALIDATIONS RUN ON THE REAL SCREEN.
+--------------------------------------------------------------------------------
+
+Screen: /mnt/firecuda2/Claude/toxoplasma_projects/tsg101_screen, plates 1-4.
+226,467 classified cells, 1,536 wells, 1,006 guides above fraction_threshold.
+Effects: ridge at well level with plate centred out. Guarded by
+`SPACR_SCREEN=<folder> pytest -m slow
+tests/test_the_screen_validates_the_attribution.py` -- 15 checks, all passing.
+
+1. PERMUTATION -- PASSES, and cleanly.
+
+                                    wells   called  entropy  |post - prior|
+    real effects                     1350   0.4676   1.5364      0.082391
+    all effects equal (null)         1350   0.4504   1.5654      0.000000
+    guide labels shuffled (seed 0)   1350   0.4507   1.5651      0.006503
+    guide labels shuffled (seed 1)   1350   0.4536   1.5650      0.007836
+    guide labels shuffled (seed 2)   1350   0.4516   1.5651      0.008938
+
+   With no guide distinguishable from any other the posterior is the prior
+   EXACTLY -- 0.000000, not approximately. Shuffling the labels collapses the
+   movement ~10x and raises the entropy toward maximal. Structure does not
+   survive the permutation.
+
+   READ `called` WITH CARE: ~45% of cells clear 0.55 even under the null,
+   because in a well with few guides the PRIOR alone already exceeds it. A
+   called cell is not evidence of attribution power; the movement from the
+   prior is. This is worth saying in the UI.
+
+2. THE WITHIN-WELL CONTROL CONTRAST -- CANNOT BE RUN, AND NOT BY ACCIDENT.
+
+   The instruction asks whether cells attributed to a pathway guide differ in
+   `pathogen_area` from cells attributed to CONTROLS in the same well. On this
+   screen no cell can ever be attributed to a control:
+
+     control guides in the whole screen        30  (TGGT1_000000_*)
+     control guide-well pairs above 0.02       75
+     wells holding a control                   71 of 1,536
+     wells with both classes attributed         1        -- no test at n=1
+
+   Lowering the threshold does not rescue it (333 wells at 0.005, 745 at
+   0.002) because the limit is not abundance. A NON-TARGETING CONTROL HAS NO
+   EFFECT TO ATTRIBUTE ON. The likelihood is what separates guides, a control's
+   is flat by design, so it can never win the posterior. A method that
+   confidently attributed cells to a non-targeting control would be inventing
+   exactly the structure this module exists to avoid.
+
+   THE VALIDATION AS WRITTEN IS UNRUNNABLE BY CONSTRUCTION. It should be
+   replaced in this instruction rather than left as an outstanding item.
+
+3. THE REPLACEMENT CONTRAST -- PASSES, and it is the honest one.
+
+   Per GENE, within well, on `pathogen_area`: cells attributed to that gene
+   against cells attributed to the other genes in the SAME well.
+
+     REAL         genes testable  3    all three |t| > 5   max |t| 9.43
+     shuffled x5  genes testable  0    -- not "none significant": none even
+                                          reaches the minimum cell count
+
+     gene    wells    mean diff (px)      t
+     233460     55           -615.4    -9.43
+     239740     98          +1128.0    +7.64
+     220950     45          -1722.1    -5.94
+
+   All three signs match the sign of the guide's effect on `pred`.
+
+   IT IS NOT CIRCULAR, and this was checked rather than assumed:
+   corr(pred, pathogen_area) is +0.2617 across the screen but +0.0375 WITHIN
+   a well -- the correlation is a between-well effect, and the within-well
+   design removes it. 6.9% of the variance overall, essentially none within.
+
+4. HELD-OUT PLATES -- PASSES.
+
+     held out   cells    called   its guides seen in training
+     plate 1   59,540    59.2%          93.4%
+     plate 2   53,772    45.4%          93.5%
+     plate 3   55,385    50.7%          90.5%
+     plate 4   48,835    51.2%          92.7%
+
+   The attribution transfers to a plate whose cells never entered the fit.
+   The `pathogen_area` contrast on a single held-out plate is not significant
+   (t between -0.87 and +1.33) -- one plate is under-powered for it, which is
+   a statement about n and not about the method.
+
+--------------------------------------------------------------------------------
+A REAL DEFECT THE SCREEN FOUND: `attributable` WAS NOT A BOUND. Fixed.
+--------------------------------------------------------------------------------
+
+`attributable` is the pre-flight this instruction asks for -- "one number per
+guide says whether it can produce a real assignment or only ever ambiguous".
+It documented itself as arithmetic no amount of data could overturn:
+"can NEVER reach the threshold: not with more cells, not with a better fit".
+
+ON THESE FOUR PLATES IT DECLARED 230 OF 5,599 GUIDE-WELL PAIRS IMPOSSIBLE AND
+THE SHIPPED ATTRIBUTION CALLED THEM ANYWAY. 113 distinct guides. One with a
+stated ceiling of 0.0912 reached 0.9595.
+
+Two separate errors:
+
+  * IT EVALUATED THE RATIO AT THE GUIDE'S OWN CENTRE and called that the best
+    possible score. It is not. For a positive effect the likelihood ratio
+    against a flat competitor keeps growing as the score rises, so the
+    plain-Bayes posterior tends to 1 -- there is NO finite ceiling over the
+    whole real line. Wrong by 3x even against a competitor with no effect
+    (said 0.1118, reached 0.4201).
+  * THE COMPETITION IS NOT AT ITS OWN CENTRE. A guide competing against an
+    OPPOSITE-signed effect separates from it at twice the rate. Said 0.1118,
+    the shipped posterior reached 0.5493.
+
+FIXED: the ceiling is now a maximum over the RANGE of scores a screen
+produces (`span`, in units of scale), and takes the actual competition
+(`others`, as (effect, prior) pairs). Omitting `others` keeps the old
+signature and treats the rest of the well as one competitor with no effect --
+which is the WEAKEST competition and so the most generous reading, stated as
+such. With the competition passed, zero violations remain on all four plates.
+
+A test asserted the old, false claim -- that effect=0.3 at prior=0.4 could
+never be called -- and has been corrected. What is genuinely uncallable is a
+ZERO effect, where the ceiling is exactly the prior.
+
+STILL OWED
+  * `attributable` has NO production caller. The pre-flight this instruction
+    asks to be "reported BEFORE anything is assigned" is a library function
+    nothing calls; it needs to reach the montage caption or the run summary.
+  * The opt-in write of the columns into png_list.
+  * Validation 2 as written should be replaced in this instruction by the
+    per-gene contrast, which is what actually tests the method.
