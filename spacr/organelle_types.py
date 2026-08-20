@@ -323,20 +323,28 @@ def preset_for(name: Optional[str],
 
 def apply_preset(settings: Mapping[str, object],
                  *, explain: bool = False) -> Dict[str, object]:
-    """Fill the organelle settings this type recommends, WITHOUT overriding.
+    """Fill unset organelle settings from the selected preset.
 
-    The rule the instruction sets: "PRESET, DO NOT OVERRIDE. Choosing a type
-    fills the advanced settings with its recommended values and leaves them
-    editable. A user who then changes `organelle_method` keeps that change;
-    the type does not silently reassert itself."
+    Parameters
+    ----------
+    settings : mapping
+        Run settings containing ``organelle_type`` and, when relevant,
+        ``organelle_diameter``. The input mapping is not modified.
+    explain : bool, default=False
+        Print the selected morphology, values filled by the preset, values
+        retained from ``settings``, and any preset caveat.
 
-    So a key already present in ``settings`` is never touched. The caller
-    owns what it set; this fills gaps.
+    Returns
+    -------
+    dict
+        Copy of ``settings`` with missing or ``None`` preset keys filled.
+        Existing non-``None`` values are preserved so users can adjust the
+        recommended method or thresholds.
 
-    :param settings: the run's settings. Not modified.
-    :param explain: print what the preset chose and why. The preset is only
-        an improvement over 53 knobs if the user can see what it did.
-    :returns: a new dict.
+    Raises
+    ------
+    ValueError
+        If ``organelle_type`` does not name a known preset.
     """
     out = dict(settings)
     name = out.get("organelle_type", DEFAULT_TYPE)
