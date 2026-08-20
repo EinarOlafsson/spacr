@@ -420,3 +420,45 @@ THE PATTERN, and it is the argument for the ratchet this file already asks
 for: a reader that does not canonicalise does not fail. It returns a number.
 All four of these returned numbers, and three of them were nearly reported as
 findings.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- THE RATCHET, AND FOUR MORE READERS THROUGH THE FUNNEL
+--------------------------------------------------------------------------------
+
+A, B AND C ARE BUILT -- `spacr/schema.py`'s vocabulary, the collision rule,
+and `spacr/tabular.py`'s `read_table` / `write_table`. What was missing was
+the thing that keeps them from being undone: a partial conversion silently
+un-converts itself as new code is written, and there is no symptom.
+
+THE RATCHET, in tests/test_the_raw_reader_count_only_goes_down.py. It counts
+`pd.read_csv` / `pd.read_sql*` / `.to_csv` / `.to_sql` across `spacr/` and
+FAILS IF THE NUMBER GOES UP. Not a coverage target and not a demand for zero
+-- some of these are genuinely raw, a settings CSV or a log with no metadata
+columns at all -- but a new raw reader now has to either go through the funnel
+or be argued for in a file the next person reads.
+
+IT ALSO REFUSES TO LEAVE SLACK. A second test fails when the count has fallen
+more than 15 below the ceiling, because a ratchet with a gap in it is room for
+a raw reader to be added without anybody noticing. Lowering it is part of
+converting a site.
+
+AND WHY COUNTING IS WORTH DOING AT ALL, which is this file's own finding: a
+reader that does not canonicalise DOES NOT FAIL. All four of the readers found
+on the maintainer's screen returned numbers, and three were nearly reported as
+results -- "0 of 5,959 hits are circular" being the most confident possible
+way to say nothing.
+
+FOUR CONVERTED, chosen for damage rather than for count:
+
+  * `hit_investigation._read_fractions` required plateID/rowID/columnID and
+    fell through to a `prc` split when the file said row_name / column_name --
+    which the count CSVs on the maintainer's screen do. With no `prc` either
+    it returned a frame MISSING THE KEYS and every join downstream matched
+    nothing while raising nothing.
+  * `cell_montage.read_well_guide_fractions`, whose `_well_key` composes prc
+    from the three keys and was given none of them.
+  * the count-CSV reader, which is the 384-wells-instead-of-1,536 case
+    measured in the note above.
+  * the score-CSV reader beside it.
+
+267 -> 263. The direction is the point.
