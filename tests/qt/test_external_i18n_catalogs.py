@@ -1,6 +1,7 @@
 """Coverage and freshness contracts for external localization catalogs."""
 from __future__ import annotations
 
+import ast
 from importlib import import_module
 import hashlib
 import json
@@ -155,6 +156,8 @@ def test_dynamic_text_templates_enter_the_runtime_source_inventory():
         source.startswith("{available:.0f} GiB available")
         for source in sources
     )
+    assert "Settings recipes…" in sources
+    assert "Feature Dictionary…" in sources
 
 
 def test_structured_gene_tile_text_enters_the_runtime_source_inventory():
@@ -170,6 +173,188 @@ def test_structured_gene_tile_text_enters_the_runtime_source_inventory():
     assert "effect (coefficient)" in sources
     assert any(source.startswith("guide {guide} is not in the gRNA reference")
                for source in sources)
+
+
+def test_settings_model_explainers_enter_the_runtime_source_inventory():
+    """Every component translated by the dynamic explainer is canonical."""
+    tools_dir = str(ROOT / "tools")
+    sys.path.insert(0, tools_dir)
+    try:
+        builder = import_module("build_i18n_catalogs")
+    finally:
+        sys.path.remove(tools_dir)
+
+    from spacr.qt.screens import settings_model
+
+    sources = set(builder.canonical_sources()["ui"])
+    expected = set(settings_model._SETTINGS_MODEL_UI_SOURCES)
+    assert len(expected) >= 80
+    assert expected <= sources
+    assert settings_model._MIXED_GUIDE_OUTPUT_NOTE in sources
+    assert settings_model._MIXED_MULTIPLE_TESTING_NOTE in sources
+    assert settings_model.INFORMATION_LIMIT_NOTE in sources
+
+
+def test_every_set_translatable_text_call_has_static_catalog_sources():
+    """Dynamic chrome may not hide an English template behind a variable."""
+    tools_dir = str(ROOT / "tools")
+    sys.path.insert(0, tools_dir)
+    try:
+        builder = import_module("build_i18n_catalogs")
+    finally:
+        sys.path.remove(tools_dir)
+
+    from spacr.qt.i18n import _ROWS
+
+    known = set(builder.extract_static_ui_sources()) | set(_ROWS)
+    unresolved = []
+    missing = []
+    checked = 0
+    for path in sorted((ROOT / "spacr" / "qt").rglob("*.py")):
+        if "i18n_catalogs" in path.parts:
+            continue
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        constants = {}
+        for statement in tree.body:
+            if (isinstance(statement, ast.Assign)
+                    and len(statement.targets) == 1
+                    and isinstance(statement.targets[0], ast.Name)):
+                constants[statement.targets[0].id] = statement.value
+            elif (isinstance(statement, ast.AnnAssign)
+                  and isinstance(statement.target, ast.Name)
+                  and statement.value is not None):
+                constants[statement.target.id] = statement.value
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            if builder._call_name(node) != "set_translatable_text":
+                continue
+            checked += 1
+            arguments = list(builder._candidate_arguments(
+                node, "set_translatable_text"))
+            values = [
+                value.strip()
+                for argument in arguments
+                for value in builder._literal_strings(argument, constants)
+                if builder._looks_translatable(value)
+            ]
+            location = f"{path.relative_to(ROOT)}:{node.lineno}"
+            if not values:
+                unresolved.append(location)
+            missing.extend(
+                f"{location}: {value!r}" for value in values
+                if value not in known
+            )
+    assert checked >= 15
+    assert not unresolved, "non-static templates: " + ", ".join(unresolved)
+    assert not missing, "templates outside catalogs:\n" + "\n".join(missing)
+
+
+def test_supported_runtime_languages_share_one_source_registry():
+    """The selector, generator, and runtime loader expose the same locales."""
+    tools_dir = str(ROOT / "tools")
+    sys.path.insert(0, tools_dir)
+    try:
+        builder = import_module("build_i18n_catalogs")
+    finally:
+        sys.path.remove(tools_dir)
+
+    from spacr.qt.i18n import VALID_LANGUAGE_CODES
+    from spacr.qt.i18n_catalogs import CATALOG_LANGUAGES
+
+    generated = tuple(builder.MODEL_SPECS)
+    assert generated == CATALOG_LANGUAGES == VALID_LANGUAGE_CODES[1:]
+    assert set(builder.NATIVE_LANGUAGE_NAMES) == set(generated)
+
+
+def test_model_explainer_uses_exact_templates_and_preserves_values(
+    monkeypatch,
+):
+    """The dynamic box translates whole records, never isolated terms."""
+    from spacr.qt import i18n
+    from spacr.qt.screens import settings_model
+
+    exact = {
+        "MODEL:": "MODELL:",
+        settings_model._MODE_NOTES["mixed"]: "EXAKTE MODELLBESCHREIBUNG",
+        settings_model._MIXED_GUIDE_OUTPUT_NOTE: "EXAKTE AUSGABEGRENZE",
+        settings_model._MIXED_COST_NOTE_TEMPLATE: (
+            "EXAKTE KOSTEN: {small_genes}/{small_wells}; "
+            "{small_ratio:g}x; {guides}/{wells}"
+        ),
+    }
+    monkeypatch.setattr(
+        i18n, "_exact_translation",
+        lambda source, language: exact.get(source) if language == "de" else None,
+    )
+    monkeypatch.setattr(
+        i18n, "_term_translation",
+        lambda _source, _language: "PARTIAL TRANSLATION MUST NOT APPEAR",
+    )
+
+    html = settings_model.regression_model_explainer_html(
+        "mixed", language="de")
+    assert "MODELL:" in html
+    assert "EXAKTE MODELLBESCHREIBUNG" in html
+    assert "EXAKTE AUSGABEGRENZE" in html
+    assert "EXAKTE KOSTEN: 40/400; 54x; 823/610" in html
+    assert settings_model.INFORMATION_LIMIT_NOTE in html
+    assert "PARTIAL TRANSLATION MUST NOT APPEAR" not in html
+
+
+def test_every_explainer_render_path_uses_its_declared_source(monkeypatch):
+    """Every runtime branch must consume the inventoried source templates."""
+    from spacr.qt.screens import settings_model
+
+    seen = set()
+
+    def record(source, language=None, **values):
+        del language
+        seen.add(str(source))
+        try:
+            return str(source).format(**values)
+        except (IndexError, KeyError, ValueError):
+            return str(source)
+
+    monkeypatch.setattr(settings_model, "_translated_ui_text", record)
+    for model in (*settings_model._MODE_NOTES, "not_a_model"):
+        for level in settings_model.REGRESSION_LEVELS:
+            settings_model.regression_model_explainer_html(model, level)
+            settings_model.regression_model_explainer(model, level)
+    settings_model.permutation_test_explainer_html()
+    settings_model.permutation_test_explainer()
+
+    assert seen == set(settings_model._SETTINGS_MODEL_UI_SOURCES)
+
+
+def test_existing_explainer_requests_a_rerender_on_language_change(qapp):
+    """The generic widget-tree pass must reach an already-open rich panel."""
+    from spacr.qt.i18n import retranslate_widget_tree
+    from spacr.qt.screens.app_screen import _ExplainerBrowser
+
+    class Owner:
+        def __init__(self):
+            self.languages = []
+
+        def refresh(self, language):
+            self.languages.append(language)
+
+    owner = Owner()
+    box = _ExplainerBrowser(owner.refresh)
+    retranslate_widget_tree(box, "de")
+    assert owner.languages == ["de"]
+    box.close()
+    qapp.processEvents()
+
+
+def test_model_explainer_keeps_language_on_internal_api_links():
+    from spacr.qt.screens.settings_model import model_api_link
+
+    _name, internal = model_api_link("group_lasso", "de")
+    _name, external = model_api_link("mixed", "de")
+    assert internal.endswith("/spacr/group_lasso/index.html?lang=de")
+    assert "statsmodels.org" in external
+    assert "?lang=" not in external
 
 
 def test_runtime_rejects_a_localized_record_with_a_stale_source_hash(

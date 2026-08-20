@@ -2568,6 +2568,10 @@ def _literal_strings(
         for item in node.elts:
             yield from _literal_strings(item, constants)
         return
+    if isinstance(node, ast.IfExp):
+        yield from _literal_strings(node.body, constants)
+        yield from _literal_strings(node.orelse, constants)
+        return
     if isinstance(node, ast.Name) and node.id in constants:
         yield from _literal_strings(constants[node.id], constants)
         return
@@ -2595,10 +2599,9 @@ def _candidate_arguments(node: ast.Call, name: str) -> Iterable[ast.AST]:
         return
     if name == "QAction":
         # QAction(text, parent) or QAction(icon, text, parent).
-        for arg in node.args[:2]:
-            if _literal(arg) is not None:
-                yield arg
-                return
+        # Yield both possible text positions. ``_literal_strings`` ignores
+        # icon and parent expressions while resolving module-level constants.
+        yield from node.args[:2]
         return
     if name in _DIALOG_METHODS:
         # QMessageBox.<kind>(parent, title, message, ...).
@@ -2686,9 +2689,9 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                         found.add(value.strip())
                 continue
             for argument in _candidate_arguments(node, name):
-                value = _literal(argument)
-                if value is not None and _looks_translatable(value):
-                    found.add(value.strip())
+                for value in _literal_strings(argument, constants):
+                    if _looks_translatable(value):
+                        found.add(value.strip())
 
     # The compact catalog already owns these and has stronger human review.
     from spacr.qt.i18n import _ROWS
@@ -2707,6 +2710,7 @@ def canonical_sources() -> dict[str, object]:
     from spacr.qt.screens.settings_model import (
         CATEGORY_TOOLTIPS,
         CATEGORY_TOOLTIPS_BY_APP,
+        _SETTINGS_MODEL_UI_SOURCES,
         _humanize,
         _strip_type_prefix,
         get_tooltips,
@@ -2768,6 +2772,7 @@ def canonical_sources() -> dict[str, object]:
                 labels[f"{app_key}.{key}"] = actual
     ui_sources = set(extract_static_ui_sources())
     ui_sources.update(_GENE_TILE_UI_SOURCES)
+    ui_sources.update(_SETTINGS_MODEL_UI_SOURCES)
     ui_sources.update(str(value) for value in APP_INTROS.values())
     ui_sources.update(str(value) for value in APP_TITLES.values())
     ui_sources.update(str(value) for value in _SECTION_NOTE_LIBRARY.values())

@@ -588,8 +588,10 @@ class AIChatPanel(QWidget):
     # Send / cancel
     # ------------------------------------------------------------------
     def _set_send_mode(self, mode: str):
-        source = "Cancel" if mode == "cancel" else "Send"
-        set_translatable_text(self._btn_send, source)
+        set_translatable_text(
+            self._btn_send,
+            "Cancel" if mode == "cancel" else "Send",
+        )
         if mode == "cancel":
             self._btn_send.setObjectName("DangerButton")
             try:

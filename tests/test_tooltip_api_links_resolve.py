@@ -11,6 +11,7 @@ and gets deleted.
 
 import os
 import re
+import sys
 import urllib.parse
 from pathlib import Path
 
@@ -100,3 +101,32 @@ def test_a_setting_with_no_documentation_still_gets_a_usable_link(links):
     from spacr.qt.screens.settings_model import format_tooltip
     html = format_tooltip("", "mask", "a_key_that_does_not_exist")
     assert "href=" in html
+
+
+def test_every_internal_tooltip_page_is_a_canonical_public_module(links):
+    """An existing-looking module URL must correspond to public API input."""
+    tools = str(DOCS_ROOT.parent / "tools")
+    sys.path.insert(0, tools)
+    try:
+        import build_documentation_i18n as api_builder
+    finally:
+        sys.path.remove(tools)
+
+    public = api_builder.public_docstrings()
+    missing = {}
+    for app_key, key, url in links:
+        path = urllib.parse.urlparse(url).path
+        marker = "/spacr/api/spacr/"
+        if marker not in path or not path.endswith("/index.html"):
+            continue
+        module_path = path.split(marker, 1)[1][:-len("/index.html")]
+        symbol = "spacr." + module_path.strip("/").replace("/", ".")
+        if symbol not in public:
+            missing.setdefault(symbol, set()).add(f"{app_key}.{key}")
+    assert not missing, (
+        "tooltip pages are not canonical public API modules:\n"
+        + "\n".join(
+            f"  {symbol} <- {sorted(keys)[:3]}"
+            for symbol, keys in sorted(missing.items())
+        )
+    )

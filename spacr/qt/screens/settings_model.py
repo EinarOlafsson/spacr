@@ -3130,6 +3130,26 @@ def _language_code(language: Optional[str] = None) -> str:
     return normalize_language(language or current_language())
 
 
+def _translated_ui_text(
+    source: str,
+    language: Optional[str] = None,
+    **values: object,
+) -> str:
+    """Translate one complete explainer template, or retain its English.
+
+    Scientific guidance must use an exact catalog record. Falling through to
+    :func:`spacr.qt.i18n.tr`'s short-label term substitution could otherwise
+    produce a partly translated sentence while catalogs are being upgraded.
+    Format values are applied after translation so a locale may reorder them.
+    """
+    from ..i18n import _exact_translation, tr
+
+    code = _language_code(language)
+    if code == "en" or _exact_translation(str(source), code) is not None:
+        return tr(source, code, **values)
+    return tr(source, "en", **values)
+
+
 def _translated_body(
     text: str,
     language: Optional[str] = None,
@@ -3415,8 +3435,11 @@ COLLINEAR_FORMULA = (
 #:
 #: The full explanation lives in :func:`regression_model_explainer`; keeping a
 #: short pointer in the panel avoids repeating a long retired-design history.
-_HISTORY_POINTER = ("WHY THE FORMULA CHANGED -> "
-                    "regression_model_explainer.__doc__")
+_HISTORY_POINTER_SYMBOL = "regression_model_explainer.__doc__"
+_HISTORY_POINTER_SOURCE = "WHY THE FORMULA CHANGED -> {symbol}"
+_HISTORY_POINTER = _HISTORY_POINTER_SOURCE.format(
+    symbol=_HISTORY_POINTER_SYMBOL,
+)
 
 #: The column the prose is wrapped to.
 #:
@@ -3642,8 +3665,23 @@ MIXED_COST_ANCHORS = (
 MIXED_COST_SCREEN = (823, 389, 610)
 
 
-def mixed_cost_note() -> str:
+_MIXED_COST_NOTE_TEMPLATE = (
+    "MEASURED 2026-08-18: {small_genes} genes/{small_wells} wells took "
+    "{small_ols:g}s as ols and {small_mixed:g}s as mixed ({small_ratio:g}x); "
+    "{big_genes}/{big_wells}, {big_ols:g}s against {big_mixed:g}s "
+    "({big_ratio:g}x) -- and both were gene level only. This fit adds a "
+    "random effect per guide too, so {guides} guides over {wells} wells is "
+    "tens of minutes to hours. Single-threaded REML: one core at 100% is a "
+    "healthy fit, not a hang. For an answer now, use ols at level='both'."
+)
+
+
+def mixed_cost_note(language: Optional[str] = None) -> str:
     """What ``mixed`` costs, as one paragraph, built from the measurement.
+
+    :param language: UI language code. ``None`` uses the active language.
+    :returns: Exact localized guidance when its catalog record is current;
+        otherwise the canonical English paragraph.
 
     ONE SOURCE FOR TWO PLACES. The model box states it before the user
     chooses, and the run states it again before it blocks; two hand-written
@@ -3659,16 +3697,21 @@ def mixed_cost_note() -> str:
     # EVERY NUMBER KEPT, half the words. Instruction 143 B: "do not shorten
     # by deleting the numbers -- they are what makes the claim checkable.
     # Shorten by removing what does not need re-reading."
-    return (
-        f"MEASURED 2026-08-18: {small_genes} genes/{small_wells} wells took "
-        f"{small_ols:g}s as ols and {small_mixed:g}s as mixed "
-        f"({round(small_mixed / small_ols):g}x); {big_genes}/{big_wells}, "
-        f"{big_ols:g}s against {big_mixed:g}s "
-        f"({round(big_mixed / big_ols):g}x) -- and both were gene level "
-        f"only. This fit adds a random effect per guide too, so {guides} "
-        f"guides over {wells} wells is tens of minutes to hours. "
-        f"Single-threaded REML: one core at 100% is a healthy fit, not a "
-        f"hang. For an answer now, use ols at level='both'."
+    return _translated_ui_text(
+        _MIXED_COST_NOTE_TEMPLATE,
+        language,
+        small_genes=small_genes,
+        small_wells=small_wells,
+        small_ols=small_ols,
+        small_mixed=small_mixed,
+        small_ratio=round(small_mixed / small_ols),
+        big_genes=big_genes,
+        big_wells=big_wells,
+        big_ols=big_ols,
+        big_mixed=big_mixed,
+        big_ratio=round(big_mixed / big_ols),
+        guides=guides,
+        wells=wells,
     )
 
 
@@ -3941,12 +3984,20 @@ MODEL_API_LINKS = {
 }
 
 
-def model_api_link(regression_type: Any) -> Tuple[str, str]:
+def model_api_link(
+    regression_type: Any,
+    language: Optional[str] = None,
+) -> Tuple[str, str]:
     """``(name, url)`` for one backend's API, or ``("", "")``.
 
     A spaCR backend is named by its MODULE and resolved against the published
     API documentation, so `group_lasso` and `rra` get the same kind of link
     statsmodels does rather than a module path a user has to go and find.
+
+    :param regression_type: Backend key shown in the regression selector.
+    :param language: UI language code appended to spaCR documentation links.
+        Third-party links are returned unchanged.
+    :returns: Link label and absolute documentation URL.
     """
     key = str(regression_type or "").strip().lower()
     entry = MODEL_API_LINKS.get(key)
@@ -3955,7 +4006,9 @@ def model_api_link(regression_type: Any) -> Tuple[str, str]:
     name, target = entry
     if target.startswith("http"):
         return name, target
-    return name, f"{DOCS_API_BASE}/spacr/{target}/index.html"
+    url = f"{DOCS_API_BASE}/spacr/{target}/index.html"
+    code = _language_code(language)
+    return name, f"{url}?lang={code}" if code != "en" else url
 
 
 #: Phrases the box emphasises, and the palette token each takes.
@@ -3986,6 +4039,21 @@ _MIXED_GUIDE_OUTPUT_NOTE = (
 _MIXED_MULTIPLE_TESTING_NOTE = (
     "Gene coefficients form one BH family; there is no second family because "
     "the guide effects are not tested.")
+_UNKNOWN_MODEL_NOTE = (
+    "spaCR has no description for this model, which means it is not one of "
+    "the backends spacr.ml can fit. The run will refuse it and name the "
+    "models it accepts."
+)
+_NO_P_VALUE_BOTH_NOTE = (
+    "Each fit ranks features by bootstrap selection frequency and REPORTS "
+    "NO P-VALUE, so there is NOTHING TO BH-CORRECT. A selection frequency "
+    "is not a false-discovery rate and should not be quoted as one."
+)
+_NO_P_VALUE_SINGLE_NOTE = (
+    "The fit ranks features by bootstrap selection frequency and REPORTS "
+    "NO P-VALUE, so there is NOTHING TO BH-CORRECT. A selection frequency "
+    "is not a false-discovery rate and should not be quoted as one."
+)
 
 #: What the box falls back to when no palette is handed in -- which is what a
 #: test that is not about colour wants. Named tokens, not hexes, so a reader
@@ -4019,7 +4087,7 @@ def _prose_html(text: str, ink: Dict[str, str]) -> str:
 
 
 def _heading_html(text: str, ink: Dict[str, str], *,
-                  writes: str = "") -> str:
+                  writes: str = "", refusal: bool = False) -> str:
     """A section heading: accent, or `error` when the section is a refusal.
 
     :param writes: the output file this section's formula produces. It is on
@@ -4027,7 +4095,7 @@ def _heading_html(text: str, ink: Dict[str, str], *,
         this end up in" is the question asked while scanning, and a name in
         `chip_value` is what makes it findable without reading the prose.
     """
-    token = "error" if text == _REFUSAL_HEADING else "accent"
+    token = "error" if refusal or text == _REFUSAL_HEADING else "accent"
     tail = (f' → {_ink(escape(writes), ink["chip_value"])}' if writes else "")
     return (f'<p style="margin:10px 0 2px 0;">'
             f'{_ink(escape(text), ink[token], bold=True)}{tail}</p>')
@@ -4042,9 +4110,10 @@ def _formula_html(maths: List[str], code: str, ink: Dict[str, str]) -> str:
             f'{_ink(escape(code), ink["accent"])}</pre>')
 
 
-def _api_html(regression_type: Any, ink: Dict[str, str]) -> str:
+def _api_html(regression_type: Any, ink: Dict[str, str],
+              language: Optional[str] = None) -> str:
     """The backend's API link, or "" when there is none to give."""
-    name, url = model_api_link(regression_type)
+    name, url = model_api_link(regression_type, language)
     if not url:
         return ""
     return (f'<p style="margin:10px 0 2px 0;">'
@@ -4057,13 +4126,16 @@ def regression_model_explainer_html(regression_type: Any,
                                     level: Any = "both",
                                     plate_position: Any = False,
                                     random_row_column: Any = False,
-                                    palette: Optional[Dict[str, Any]] = None
+                                    palette: Optional[Dict[str, Any]] = None,
+                                    language: Optional[str] = None,
                                     ) -> str:
     """The box's text, TYPESET -- the same content as the plain renderer.
 
     :param palette: `spacr.qt.theme.active_palette()`. Omitted, the tokens
         render under their own names, which is what a test that is not about
         colour wants and is never what the widget passes.
+    :param language: UI language code. ``None`` uses the active language;
+        incomplete or stale records fall back to whole English sentences.
 
     WHAT IS COLOURED AND WHY, because the ceiling is four colours on screen
     at once and not four as a target:
@@ -4082,46 +4154,54 @@ def regression_model_explainer_html(regression_type: Any,
     key = str(regression_type or "auto").strip().lower() or "auto"
     parts = [f'<div style="color:{ink["fg"]};">']
 
+    def tx(source: str, **values: object) -> str:
+        return _translated_ui_text(source, language, **values)
+
     if key not in _MODE_NOTES:
-        parts.append(f'<p>{_ink("MODEL:", ink["accent"], bold=True)} '
+        parts.append(f'<p>{_ink(escape(tx("MODEL:")), ink["accent"], bold=True)} '
                      f'{escape(key)}</p>')
-        parts.append(_prose_html(
-            "spaCR has no description for this model, which means it is not "
-            "one of the backends spacr.ml can fit. The run will refuse it "
-            "and name the models it accepts.", ink))
+        parts.append(_prose_html(tx(_UNKNOWN_MODEL_NOTE), ink))
         parts.append("</div>")
         return "".join(parts)
 
-    title = _MODE_TITLES.get(key, key)
+    title = tx(_MODE_TITLES.get(key, key))
     if key == "mixed":
         parts.append(
             f'<p style="margin:0 0 2px 0;">'
-            f'{_ink("MODEL:", ink["accent"], bold=True)} mixed — '
+            f'{_ink(escape(tx("MODEL:")), ink["accent"], bold=True)} '
+            f'mixed — '
             f'{escape(title)}<br/>'
-            f'{_ink("LEVEL:", ink["accent"], bold=True)} not applicable — '
-            f'one model carries both levels</p>')
-        parts.append(_heading_html("FORMULA", ink))
+            f'{_ink(escape(tx("LEVEL:")), ink["accent"], bold=True)} '
+            f'{escape(tx("not applicable — one model carries both levels"))}'
+            f'</p>')
+        parts.append(_heading_html(tx("FORMULA"), ink))
         parts.append(_formula_html(maths_for("mixed", **position),
                                    formula_for(MIXED_TERM, **position), ink))
-        parts.append(_heading_html("WHAT IS MODELLED", ink))
-        parts.append(_prose_html(_MODE_NOTES["mixed"], ink))
-        parts.append(_heading_html(_REFUSAL_HEADING, ink))
-        parts.append(_prose_html(_MIXED_GUIDE_OUTPUT_NOTE, ink))
+        parts.append(_heading_html(tx("WHAT IS MODELLED"), ink))
+        parts.append(_prose_html(tx(_MODE_NOTES["mixed"]), ink))
+        parts.append(_heading_html(
+            tx(_REFUSAL_HEADING), ink, refusal=True,
+        ))
+        parts.append(_prose_html(tx(_MIXED_GUIDE_OUTPUT_NOTE), ink))
         # 133 A. `mixed` takes its own branch above, so the flag every other
         # backend gets from the shared path has to be added here too -- and
         # missing it on the DEFAULT would have been the one place it mattered
         # most.
+        recommended_label = _ink(
+            escape(tx("Recommended for CRISPR screens")),
+            ink["success"],
+            bold=True,
+        )
         parts.append(
-            f'<p style="margin:6px 0 2px 0;">'
-            f'{_ink("Recommended for CRISPR screens", ink["success"], bold=True)}'
-            f' — {escape(RECOMMENDED_FOR_SCREENS["mixed"])}</p>')
+            f'<p style="margin:6px 0 2px 0;">{recommended_label}'
+            f' — {escape(tx(RECOMMENDED_FOR_SCREENS["mixed"]))}</p>')
         parts.append(
             f'<p style="margin:2px 0 8px 0; color:{ink["fg_muted"]};">'
-            f'{escape(INFORMATION_LIMIT_NOTE)}</p>')
-        parts.append(_heading_html("WHAT IT COSTS", ink))
-        parts.append(_prose_html(mixed_cost_note(), ink))
-        parts.append(_heading_html("MULTIPLE TESTING", ink))
-        parts.append(_prose_html(_MIXED_MULTIPLE_TESTING_NOTE, ink))
+            f'{escape(tx(INFORMATION_LIMIT_NOTE))}</p>')
+        parts.append(_heading_html(tx("WHAT IT COSTS"), ink))
+        parts.append(_prose_html(mixed_cost_note(language), ink))
+        parts.append(_heading_html(tx("MULTIPLE TESTING"), ink))
+        parts.append(_prose_html(tx(_MIXED_MULTIPLE_TESTING_NOTE), ink))
     else:
         chosen = normalise_regression_level(level)
         level_line = {
@@ -4131,91 +4211,117 @@ def regression_model_explainer_html(regression_type: Any,
         }[chosen]
         parts.append(
             f'<p style="margin:0 0 2px 0;">'
-            f'{_ink("MODEL:", ink["accent"], bold=True)} {escape(key)} — '
+            f'{_ink(escape(tx("MODEL:")), ink["accent"], bold=True)} '
+            f'{escape(key)} — '
             f'{escape(title)}<br/>'
-            f'{_ink("LEVEL:", ink["accent"], bold=True)} '
-            f'{escape(level_line)}</p>')
+            f'{_ink(escape(tx("LEVEL:")), ink["accent"], bold=True)} '
+            f'{escape(tx(level_line))}</p>')
+        fixed_effects_note = escape(tx(
+            "Fixed effects only — no nesting of guides inside genes."
+        ))
         parts.append(f'<p style="margin:2px 0 6px 0; '
                      f'color:{ink["fg_muted"]};">'
-                     f'Fixed effects only — no nesting of guides inside '
-                     f'genes.</p>')
+                     f'{fixed_effects_note}</p>')
         if chosen in ("both", "grna"):
-            parts.append(_heading_html("FORMULA (guide fit)", ink,
+            parts.append(_heading_html(tx("FORMULA (guide fit)"), ink,
                                        writes="results_grna.csv"))
             parts.append(_formula_html(maths_for("grna", **position),
                                        formula_for(GRNA_TERM, **position),
                                        ink))
             parts.append(_prose_html(
-                "One coefficient per guide, the unit the screen measures.",
+                tx("One coefficient per guide, the unit the screen measures."),
                 ink))
         if chosen in ("both", "gene"):
-            parts.append(_heading_html("FORMULA (gene fit)", ink,
+            parts.append(_heading_html(tx("FORMULA (gene fit)"), ink,
                                        writes="results_gene.csv"))
             parts.append(_formula_html(maths_for("gene", **position),
                                        formula_for(GENE_TERM, **position),
                                        ink))
             parts.append(_prose_html(
-                "One coefficient per gene, from the summed guide fraction.",
+                tx("One coefficient per gene, from the summed guide fraction."),
                 ink))
         if chosen == "both":
             parts.append(_prose_html(
-                "TWO MODELS, TWO TABLES — fitted separately, NOT one design "
-                "containing both.", ink))
-        parts.append(_heading_html(f"WHAT {key.upper()} DOES", ink))
-        parts.append(_prose_html(_MODE_NOTES[key], ink))
+                tx("TWO MODELS, TWO TABLES — fitted separately, NOT one "
+                   "design containing both."), ink))
+        parts.append(_heading_html(
+            tx("WHAT {model} DOES", model=key.upper()), ink,
+        ))
+        parts.append(_prose_html(tx(_MODE_NOTES[key]), ink))
         # 133 A: say WHICH backends answer this question well, and WHY each.
         # In `success`, the same colour "TWO MODELS, TWO TABLES" uses, because
         # both are affirmations about the model rather than caveats about it.
         if key in RECOMMENDED_FOR_SCREENS:
+            recommended_label = _ink(
+                escape(tx("Recommended for CRISPR screens")),
+                ink["success"],
+                bold=True,
+            )
             parts.append(
-                f'<p style="margin:6px 0 2px 0;">'
-                f'{_ink("Recommended for CRISPR screens", ink["success"], bold=True)}'
-                f' — {escape(RECOMMENDED_FOR_SCREENS[key])}</p>')
+                f'<p style="margin:6px 0 2px 0;">{recommended_label}'
+                f' — {escape(tx(RECOMMENDED_FOR_SCREENS[key]))}</p>')
             # AND THE CAVEAT, because a badge without it reads as a promise.
             parts.append(
                 f'<p style="margin:2px 0 8px 0; color:{ink["fg_muted"]};">'
-                f'{escape(INFORMATION_LIMIT_NOTE)}</p>')
-        parts.append(_heading_html("MULTIPLE TESTING", ink))
+                f'{escape(tx(INFORMATION_LIMIT_NOTE))}</p>')
+        parts.append(_heading_html(tx("MULTIPLE TESTING"), ink))
         if key in NO_P_VALUE_TYPES:
-            fits = "Each fit ranks" if chosen == "both" else "The fit ranks"
-            parts.append(_prose_html(
-                f"{fits} features by bootstrap selection frequency and "
-                f"REPORTS NO P-VALUE, so there is NOTHING TO BH-CORRECT. A "
-                f"selection frequency is not a false-discovery rate and "
-                f"should not be quoted as one.", ink))
+            source = (_NO_P_VALUE_BOTH_NOTE if chosen == "both"
+                      else _NO_P_VALUE_SINGLE_NOTE)
+            parts.append(_prose_html(tx(source), ink))
         elif chosen == "both":
             parts.append(_prose_html(
-                "Each fit is its OWN multiple-testing family and is "
-                "BH-corrected within itself.", ink))
+                tx("Each fit is its OWN multiple-testing family and is "
+                   "BH-corrected within itself."), ink))
         else:
             parts.append(_prose_html(
-                "The single fit is BH-corrected as one family.", ink))
+                tx("The single fit is BH-corrected as one family."), ink))
 
-    parts.append(_api_html(key, ink))
+    history_pointer = escape(tx(
+        _HISTORY_POINTER_SOURCE,
+        symbol=_HISTORY_POINTER_SYMBOL,
+    ))
+    parts.append(_api_html(key, ink, language))
     parts.append(f'<p style="margin:12px 0 0 0; color:{ink["fg_muted"]};">'
-                 f'{escape(_HISTORY_POINTER)}</p>')
+                 f'{history_pointer}</p>')
     parts.append("</div>")
     return "".join(parts)
 
 
 def permutation_test_explainer_html(
-        palette: Optional[Dict[str, Any]] = None) -> str:
+        palette: Optional[Dict[str, Any]] = None,
+        language: Optional[str] = None) -> str:
     """The Permutation Test box, typeset the same way the model box is.
 
     The two boxes sit on one panel, and one of them being rich text while the
     other is a monospace dump is the same complaint one section further down.
+
+    :param palette: Optional resolved theme palette.
+    :param language: UI language code. ``None`` uses the active language.
+    :returns: Rich text with exact translated prose and unchanged formulas.
     """
     ink = _colours(palette)
     return (f'<div style="color:{ink["fg"]};">'
-            + _heading_html("WHAT THIS TEST DOES", ink)
-            + _prose_html(_PERMUTATION_NOTE, ink)
+            + _heading_html(
+                _translated_ui_text("WHAT THIS TEST DOES", language), ink)
+            + _prose_html(
+                _translated_ui_text(_PERMUTATION_NOTE, language), ink)
             + '</div>')
 
 
 def section_explainer_html(app_key: str, title: str,
                            settings: Optional[Dict[str, Any]] = None,
-                           palette: Optional[Dict[str, Any]] = None) -> str:
-    """One section's box as HTML, or ``""`` when the section has none."""
+                           palette: Optional[Dict[str, Any]] = None,
+                           language: Optional[str] = None) -> str:
+    """Return one localized section explainer as HTML.
+
+    :param app_key: Application whose settings section is being rendered.
+    :param title: Canonical English section title.
+    :param settings: Current setting values used to render model formulas.
+    :param palette: Optional resolved theme palette.
+    :param language: UI language code. ``None`` uses the active language.
+    :returns: Rich text, or ``""`` when the section has no explainer.
+    """
     if not has_section_explainer(app_key, title):
         return ""
     values = settings or {}
@@ -4225,8 +4331,9 @@ def section_explainer_html(app_key: str, title: str,
             values.get("level", "both"),
             plate_position=values.get("model_plate_position", False),
             random_row_column=values.get("random_row_column_effects", False),
-            palette=palette)
-    return permutation_test_explainer_html(palette)
+            palette=palette,
+            language=language)
+    return permutation_test_explainer_html(palette, language)
 
 
 def explainer_width() -> int:
@@ -4301,7 +4408,8 @@ def normalise_regression_level(level: Any) -> str:
 def regression_model_explainer(regression_type: Any,
                                level: Any = "both",
                                plate_position: Any = False,
-                               random_row_column: Any = False) -> str:
+                               random_row_column: Any = False,
+                               language: Optional[str] = None) -> str:
     """Describe the regression formula selected in the settings panel.
 
     Parameters
@@ -4315,6 +4423,9 @@ def regression_model_explainer(regression_type: Any,
     random_row_column : Any, default=False
         Whether row and column terms are variance components instead of fixed
         effects.
+    language : str or None, default=None
+        UI language code. ``None`` uses the active language. Only exact,
+        source-current paragraph translations are used.
 
     Returns
     -------
@@ -4345,49 +4456,53 @@ def regression_model_explainer(regression_type: Any,
     position = {"plate_position": bool(plate_position),
                 "random_row_column": bool(random_row_column)}
     key = str(regression_type or "auto").strip().lower() or "auto"
+
+    def tx(source: str, **values: object) -> str:
+        return _translated_ui_text(source, language, **values)
+
     if key not in _MODE_NOTES:
         # An unknown name is the pipeline's error to raise, with its own list
         # of what it accepts. The box says it cannot describe the choice
         # rather than inventing a formula for it.
-        return (f"MODEL: {key}\n\n"
-                + _wrap_block(
-                    "spaCR has no description for this model, which means it "
-                    "is not one of the backends spacr.ml can fit. The run "
-                    "will refuse it and name the models it accepts."))
+        return (f"{tx('MODEL:')} {key}\n\n"
+                + _wrap_block(tx(_UNKNOWN_MODEL_NOTE)))
 
-    title = _MODE_TITLES.get(key, key)
+    title = tx(_MODE_TITLES.get(key, key))
     lines: List[str] = []
 
     if key == "mixed":
-        lines.append(f"MODEL: mixed -- {title}")
-        lines.append("LEVEL: not applicable -- one model carries both levels")
+        lines.append(f"{tx('MODEL:')} mixed -- {title}")
+        lines.append(
+            f"{tx('LEVEL:')} "
+            f"{tx('not applicable -- one model carries both levels')}"
+        )
         lines.append("")
-        lines.append("FORMULA")
+        lines.append(tx("FORMULA"))
         lines.append(f"    {formula_for(MIXED_TERM, **position)}")
         lines.append("")
-        lines.append("WHAT IS MODELLED")
-        lines.append(_wrap_block(_MODE_NOTES["mixed"]))
+        lines.append(tx("WHAT IS MODELLED"))
+        lines.append(_wrap_block(tx(_MODE_NOTES["mixed"])))
         lines.append("")
         # THE COST OF THE DEFAULT, in its own named section. This is the
         # paragraph the box exists for, and the one section instruction 143
         # left at full length: a user who takes the default and then goes
         # looking for guide p-values reads it exactly once, but they cannot
         # be told to go elsewhere for it.
-        lines.append("WHAT YOU DO NOT GET")
-        lines.append(_wrap_block(_MIXED_GUIDE_OUTPUT_NOTE))
+        lines.append(tx(_REFUSAL_HEADING))
+        lines.append(_wrap_block(tx(_MIXED_GUIDE_OUTPUT_NOTE)))
         lines.append("")
         # WHAT IT COSTS, beside "what you do not get" and for the same
         # reason: both are things a user can only find out by having already
         # spent the afternoon. Instruction 140.
-        lines.append("RECOMMENDED FOR CRISPR SCREENS")
-        lines.append(_wrap_block(RECOMMENDED_FOR_SCREENS["mixed"]))
-        lines.append(_wrap_block(INFORMATION_LIMIT_NOTE))
+        lines.append(tx("Recommended for CRISPR screens").upper())
+        lines.append(_wrap_block(tx(RECOMMENDED_FOR_SCREENS["mixed"])))
+        lines.append(_wrap_block(tx(INFORMATION_LIMIT_NOTE)))
         lines.append("")
-        lines.append("WHAT IT COSTS")
-        lines.append(_wrap_block(mixed_cost_note()))
+        lines.append(tx("WHAT IT COSTS"))
+        lines.append(_wrap_block(mixed_cost_note(language)))
         lines.append("")
-        lines.append("MULTIPLE TESTING")
-        lines.append(_wrap_block(_MIXED_MULTIPLE_TESTING_NOTE))
+        lines.append(tx("MULTIPLE TESTING"))
+        lines.append(_wrap_block(tx(_MIXED_MULTIPLE_TESTING_NOTE)))
     else:
         chosen = normalise_regression_level(level)
         level_line = {
@@ -4395,11 +4510,11 @@ def regression_model_explainer(regression_type: Any,
             "grna": "grna -- the guide fit only",
             "gene": "gene -- the gene fit only",
         }[chosen]
-        lines.append(f"MODEL: {key} -- {title}")
-        lines.append(f"LEVEL: {level_line}")
+        lines.append(f"{tx('MODEL:')} {key} -- {title}")
+        lines.append(f"{tx('LEVEL:')} {tx(level_line)}")
         lines.append("")
         lines.append(_wrap_block(
-            "Fixed effects only -- no nesting of guides inside genes.",
+            tx("Fixed effects only -- no nesting of guides inside genes."),
             ""))
         lines.append("")
 
@@ -4407,44 +4522,45 @@ def regression_model_explainer(regression_type: Any,
         # the sentence says what a coefficient IS, which is the one thing a
         # reader needs it for, and it belongs to the formula above it.
         if chosen in ("both", "grna"):
-            lines.append("FORMULA (guide fit)  ->  results_grna.csv")
+            lines.append(
+                f"{tx('FORMULA (guide fit)')}  ->  results_grna.csv"
+            )
             lines.append(f"    {formula_for(GRNA_TERM, **position)}")
             lines.append(_wrap_block(
-                "One coefficient per guide, the unit the screen "
-                "measures."))
+                tx("One coefficient per guide, the unit the screen "
+                   "measures.")))
             lines.append("")
         if chosen in ("both", "gene"):
-            lines.append("FORMULA (gene fit)   ->  results_gene.csv")
+            lines.append(
+                f"{tx('FORMULA (gene fit)')}   ->  results_gene.csv"
+            )
             lines.append(f"    {formula_for(GENE_TERM, **position)}")
             lines.append(_wrap_block(
-                "One coefficient per gene, from the summed guide "
-                "fraction."))
+                tx("One coefficient per gene, from the summed guide "
+                   "fraction.")))
             lines.append("")
         if chosen == "both":
             lines.append(_wrap_block(
-                "TWO MODELS, TWO TABLES -- fitted separately, NOT one "
-                "design containing both.", ""))
+                tx("TWO MODELS, TWO TABLES -- fitted separately, NOT one "
+                   "design containing both."), ""))
             lines.append("")
 
         if key in RECOMMENDED_FOR_SCREENS:
-            lines.append("RECOMMENDED FOR CRISPR SCREENS")
-            lines.append(_wrap_block(RECOMMENDED_FOR_SCREENS[key]))
-            lines.append(_wrap_block(INFORMATION_LIMIT_NOTE))
+            lines.append(tx("Recommended for CRISPR screens").upper())
+            lines.append(_wrap_block(tx(RECOMMENDED_FOR_SCREENS[key])))
+            lines.append(_wrap_block(tx(INFORMATION_LIMIT_NOTE)))
             lines.append("")
-        lines.append(f"WHAT {key.upper()} DOES")
-        lines.append(_wrap_block(_MODE_NOTES[key]))
+        lines.append(tx("WHAT {model} DOES", model=key.upper()))
+        lines.append(_wrap_block(tx(_MODE_NOTES[key])))
         lines.append("")
-        lines.append("MULTIPLE TESTING")
+        lines.append(tx("MULTIPLE TESTING"))
         if key in NO_P_VALUE_TYPES:
             # Saying "BH-corrected" under a backend that reports no p-value
             # would contradict this box's own WHAT ... DOES paragraph two
             # lines above it.
-            fits = "Each fit ranks" if chosen == "both" else "The fit ranks"
-            lines.append(_wrap_block(
-                f"{fits} features by bootstrap selection frequency and "
-                f"reports no p-value, so there is NOTHING TO BH-CORRECT. A "
-                f"selection frequency is not a false-discovery rate and "
-                f"should not be quoted as one."))
+            source = (_NO_P_VALUE_BOTH_NOTE if chosen == "both"
+                      else _NO_P_VALUE_SINGLE_NOTE)
+            lines.append(_wrap_block(tx(source)))
         elif chosen == "both":
             # ITS FIRST SENTENCE ONLY, per instruction 143. The four that
             # followed said why pooling would be wrong and warned that a gene
@@ -4452,14 +4568,17 @@ def regression_model_explainer(regression_type: Any,
             # both read once, and the second belongs beside the hit list where
             # somebody is making the claim.
             lines.append(_wrap_block(
-                "Each fit is its OWN multiple-testing family and is "
-                "BH-corrected within itself."))
+                tx("Each fit is its OWN multiple-testing family and is "
+                   "BH-corrected within itself.")))
         else:
             lines.append(_wrap_block(
-                "The single fit is BH-corrected as one family."))
+                tx("The single fit is BH-corrected as one family.")))
 
     lines.append("")
-    lines.append(_HISTORY_POINTER)
+    lines.append(tx(
+        _HISTORY_POINTER_SOURCE,
+        symbol=_HISTORY_POINTER_SYMBOL,
+    ))
     return "\n".join(lines).rstrip() + "\n"
 
 
@@ -4505,7 +4624,56 @@ _PERMUTATION_NOTE = (
 )
 
 
-def permutation_test_explainer() -> str:
+_SETTINGS_MODEL_UI_SOURCES = frozenset({
+    *_MODE_TITLES.values(),
+    *RECOMMENDED_FOR_SCREENS.values(),
+    *_MODE_NOTES.values(),
+    INFORMATION_LIMIT_NOTE,
+    _HISTORY_POINTER_SOURCE,
+    _MIXED_COST_NOTE_TEMPLATE,
+    _REFUSAL_HEADING,
+    _MIXED_GUIDE_OUTPUT_NOTE,
+    _MIXED_MULTIPLE_TESTING_NOTE,
+    _UNKNOWN_MODEL_NOTE,
+    _NO_P_VALUE_BOTH_NOTE,
+    _NO_P_VALUE_SINGLE_NOTE,
+    _PERMUTATION_NOTE,
+    "MODEL:",
+    "LEVEL:",
+    "not applicable — one model carries both levels",
+    "not applicable -- one model carries both levels",
+    "FORMULA",
+    "WHAT IS MODELLED",
+    "Recommended for CRISPR screens",
+    "WHAT IT COSTS",
+    "MULTIPLE TESTING",
+    "both — the two fits below, run SEPARATELY",
+    "grna — the guide fit only",
+    "gene — the gene fit only",
+    "both -- the two fits below, run SEPARATELY",
+    "grna -- the guide fit only",
+    "gene -- the gene fit only",
+    "Fixed effects only — no nesting of guides inside genes.",
+    "Fixed effects only -- no nesting of guides inside genes.",
+    "FORMULA (guide fit)",
+    "FORMULA (gene fit)",
+    "One coefficient per guide, the unit the screen measures.",
+    "One coefficient per gene, from the summed guide fraction.",
+    "TWO MODELS, TWO TABLES — fitted separately, NOT one design containing "
+    "both.",
+    "TWO MODELS, TWO TABLES -- fitted separately, NOT one design containing "
+    "both.",
+    "WHAT {model} DOES",
+    "Each fit is its OWN multiple-testing family and is BH-corrected within "
+    "itself.",
+    "The single fit is BH-corrected as one family.",
+    "WHAT THIS TEST DOES",
+})
+
+
+def permutation_test_explainer(
+    language: Optional[str] = None,
+) -> str:
     """The Permutation Test section's box text.
 
     Pure text, wrapped to the same column as the model box, so the two boxes
@@ -4513,9 +4681,14 @@ def permutation_test_explainer() -> str:
     Takes no settings: unlike the model box, what this test does is the same
     whatever the eight controls below it are set to -- they change its size,
     its seed and its support cutoff, not its meaning.
+
+    :param language: UI language code. ``None`` uses the active language.
+    :returns: Localized plain text, or canonical English when a complete
+        translation is unavailable.
     """
-    return ("WHAT THIS TEST DOES\n"
-            + _wrap_block(_PERMUTATION_NOTE) + "\n")
+    return (_translated_ui_text("WHAT THIS TEST DOES", language) + "\n"
+            + _wrap_block(
+                _translated_ui_text(_PERMUTATION_NOTE, language)) + "\n")
 
 
 #: Sections that open with a read-only prose box instead of a control, per
@@ -4534,7 +4707,8 @@ def has_section_explainer(app_key: str, title: str) -> bool:
 
 
 def section_explainer(app_key: str, title: str,
-                      settings: Optional[Dict[str, Any]] = None) -> str:
+                      settings: Optional[Dict[str, Any]] = None,
+                      language: Optional[str] = None) -> str:
     """The text of one section's box, or "" when the section has none.
 
     :param app_key: the module being rendered.
@@ -4543,6 +4717,7 @@ def section_explainer(app_key: str, title: str,
         them. The model box does -- it states the formula for the selected
         `regression_type` and `level` -- and re-reading it on every change is
         what keeps the formula and the controls from disagreeing.
+    :param language: UI language code. ``None`` uses the active language.
     """
     if not has_section_explainer(app_key, title):
         return ""
@@ -4550,8 +4725,11 @@ def section_explainer(app_key: str, title: str,
     if title == "Model & Inference":
         return regression_model_explainer(
             values.get("regression_type", "auto"),
-            values.get("level", "both"))
-    return permutation_test_explainer()
+            values.get("level", "both"),
+            plate_position=values.get("model_plate_position", False),
+            random_row_column=values.get("random_row_column_effects", False),
+            language=language)
+    return permutation_test_explainer(language)
 
 
 def _basis_note(basis: str) -> str:
