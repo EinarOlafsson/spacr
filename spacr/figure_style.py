@@ -102,7 +102,9 @@ GRAPH_DEFAULTS: dict[str, dict[str, Any]] = {
         "jitter_width": 0.28,
         "marker_size": 18.0,
         "point_alpha": 0.7,
-        "error_bars": "sem",       # sem | sd | ci95 | none
+        # The set this may take is STYLE_CHOICES["error_bars"], not the
+        # comment that used to be on this line.
+        "error_bars": "sem",
         "bar_alpha": 0.35,
     },
 }
@@ -111,6 +113,55 @@ GRAPH_DEFAULTS: dict[str, dict[str, Any]] = {
 #: them: the ones they look at most, first.
 GRAPH_KINDS = ("volcano", "plate_heatmap", "histogram", "scatter",
                "residuals", "qq", "jitter_bar")
+
+#: The CLOSED SETS, beside the defaults they describe. Instruction 118's
+#: standing handoff: they were declared in `qt/widgets/figure_settings.py`
+#: because this module was another territory, and they were read off the
+#: COMMENTS next to the defaults -- ``"error_bars": "sem",  # sem | sd | ci95
+#: | none``. A comment is not a contract: a value added here would have gone
+#: on being drawn by the renderer and gone on being unofferable in the panel,
+#: and nothing would have said the two disagreed.
+#:
+#: `spines` is not here because it already reads its set from
+#: :data:`SPINE_PRESETS`, which is what all of these are now doing in their
+#: own way: the set lives where the values do.
+#:
+#: A key with no entry is not closed -- a free number, a colour, a boolean --
+#: and :func:`style_choices` returns ``()`` for it.
+STYLE_CHOICES = {
+    "palette": ("colorblind", "deep", "muted", "pastel", "bright", "dark"),
+    "format": ("pdf", "png", "svg"),
+    "colormap": ("viridis", "plasma", "inferno", "magma", "cividis",
+                 "coolwarm", "RdBu_r"),
+    "bins": ("auto", "sturges", "fd", "scott", "sqrt"),
+    "error_bars": ("sem", "sd", "ci95", "none"),
+    "aspect": ("equal", "auto"),
+}
+
+#: Every style key whose value is a matplotlib line style. One tuple rather
+#: than three identical ones, because "which dashes may a line take" has one
+#: answer and three copies of it drift.
+LINE_STYLE_KEYS = ("grid_style", "threshold_style", "reference_style")
+
+#: What a line style may be. matplotlib's own spellings.
+LINE_STYLE_CHOICES = ("-", "--", "-.", ":")
+
+
+def style_choices(name: str) -> tuple:
+    """The closed set a style key may take, or ``()`` if it is not closed.
+
+    :param name: a key from :data:`GENERAL_DEFAULTS` or any of
+        :data:`GRAPH_DEFAULTS`.
+
+    Derived rather than listed wherever the values already exist somewhere --
+    the spine presets and the line styles -- so a preset added there is
+    offered here without a second edit.
+    """
+    if name == "spines":
+        return tuple(SPINE_PRESETS)
+    if name in LINE_STYLE_KEYS:
+        return LINE_STYLE_CHOICES
+    return tuple(STYLE_CHOICES.get(name, ()))
 
 #: Spine presets, as (top, right, bottom, left) visibility.
 SPINE_PRESETS = {

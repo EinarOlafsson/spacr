@@ -1848,7 +1848,14 @@ __all__ = ["FigureSettingsDialog", "build_figure_context_menu", "AXIS_SCALES",
 #: data cannot drift; the rest are read off the comments beside their
 #: defaults ("sem | sd | ci95 | none") and SHOULD move into the module as
 #: metadata the next time it is opened. Noted rather than silently duplicated.
-STYLE_CHOICES = {
+#: The panel's own fallback, used ONLY when `spacr.figure_style` cannot be
+#: imported -- a settings dialog that refuses to open because a style module
+#: moved is worse than one offering a stale list. The real sets are in that
+#: module, beside the defaults they describe (instruction 118's handoff,
+#: taken 2026-08-20): a set read off a COMMENT next to a default is not a
+#: contract, and a value added there would have gone on being drawn by the
+#: renderer and gone on being unofferable here with nothing saying so.
+_FALLBACK_CHOICES = {
     "palette": ("colorblind", "deep", "muted", "pastel", "bright", "dark"),
     "grid_style": tuple(style for style, _label in LINE_STYLES),
     "threshold_style": tuple(style for style, _label in LINE_STYLES),
@@ -1859,19 +1866,21 @@ STYLE_CHOICES = {
     "bins": ("auto", "sturges", "fd", "scott", "sqrt"),
     "error_bars": ("sem", "sd", "ci95", "none"),
     "aspect": ("equal", "auto"),
+    "spines": ("all", "left_bottom", "none"),
 }
+
+#: Kept as the module's public name because the panel and its tests read it.
+STYLE_CHOICES = _FALLBACK_CHOICES
 
 
 def style_choices_for(name: str) -> tuple:
     """The closed set ``name`` may take, or ``()``."""
-    if name == "spines":
-        try:
-            from ...figure_style import SPINE_PRESETS
+    try:
+        from ...figure_style import style_choices
 
-            return tuple(SPINE_PRESETS)
-        except Exception:               # pragma: no cover - import guard
-            return ("all", "left_bottom", "none")
-    return tuple(STYLE_CHOICES.get(name, ()))
+        return tuple(style_choices(name))
+    except Exception:                   # pragma: no cover - import guard
+        return tuple(_FALLBACK_CHOICES.get(name, ()))
 
 
 #: The value a transparent ground is stored as. matplotlib's own spelling:
