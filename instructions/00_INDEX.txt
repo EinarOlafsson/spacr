@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-165 done / 20 open (89%).
+166 done / 19 open (89%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -50,9 +50,6 @@ OPEN
 
   172  HOW MANY CELLS, AND WHICH ONES
        172_the_count_and_the_choice_of_cells.txt
-
-  173  A GUIDE AND A PROBABILITY FOR EVERY CELL
-       173_a_guide_and_a_probability_for_every_cell.txt
 
   175  EVERY GENE AGAINST EVERY MEASUREMENT, IN ONE TABLE
        175_every_gene_against_every_measurement.txt
@@ -242,6 +239,7 @@ DONE
   169  THE FIGURES CONTAINER IS RESIZABLE AND EACH CATEGORY COLLAPSES
   170  THE CELLS TAB HAS TWO MODES, AND THE ANNOTATOR'S CONTROL OVER THE PICTURE
   171  ONE NAME FOR LOADING AND ONE FOR STREAMING, EVERYWHERE
+  173  A GUIDE AND A PROBABILITY FOR EVERY CELL
   174  BETA AS A RESPONSE TRANSFORM FOR THE REGRESSION
   176  A PANEL CANNOT WRITE AN IMPOSSIBLE NUMBER
   176  ONE CHANNEL VOCABULARY, TOOLTIPS ON EVERY CELL SETTING, AND A CALM TAB
