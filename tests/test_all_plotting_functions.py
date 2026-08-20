@@ -620,6 +620,7 @@ def test_plot_lorenz_curves_saves_next_to_the_first_csv(tmp_path):
     _nonempty_file(tmp_path / "results" / "lorenz_curve_with_gini.pdf")
 
 
+@pytest.mark.heavy
 def test_plot_image_mask_overlay(tmp_path):
     """The function reads a merged ``.npy`` stack; it has no image/masks kwargs.
 

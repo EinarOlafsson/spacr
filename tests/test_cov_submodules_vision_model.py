@@ -537,6 +537,7 @@ def test_shap_frame_is_indexed_by_compartment_and_channel(tmp_path,
     assert "SHAP Analysis ..." in capsys.readouterr().out
 
 
+@pytest.mark.heavy
 def test_shap_sample_explains_one_percent_of_the_objects(tmp_path, monkeypatch):
     """shap_sample=True subsamples ``int(len(X)/100)`` rows before explaining."""
     from spacr.submodules import interperate_vision_model

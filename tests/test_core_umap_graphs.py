@@ -175,6 +175,7 @@ def test_main_image_umap_forwards_gpu_and_method_options(umap_src,
     assert fig._spacr_umap_payload["backend"] == "cuml"
 
 
+@pytest.mark.heavy
 def test_generate_image_umap_embedding_by_controls(umap_src):
     pytest.importorskip("umap")
     from spacr.core import generate_image_umap

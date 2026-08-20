@@ -10,6 +10,48 @@ WORKFLOW = ROOT / ".github" / "workflows" / "tests.yml"
 REUSABLE = ROOT / ".github" / "workflows" / "_pytest-suite.yml"
 TIMELAPSE = ROOT / "spacr" / "timelapse.py"
 
+PARALLEL_MEMORY_AMPLIFIERS = {
+    "test_no_tensorflow_guard.py": {
+        "test_importing_spacr_does_not_load_tensorflow",
+    },
+    "test_group_lasso_keeps_the_gene_together.py": {
+        "test_lasso_splits_a_gene_where_group_lasso_cannot",
+    },
+    "test_cov_submodules_vision_model.py": {
+        "test_shap_sample_explains_one_percent_of_the_objects",
+    },
+    "test_plate_position_is_a_setting.py": {
+        "test_regression_levels_passes_the_setting_through_to_both_fits",
+    },
+    "test_core_umap_graphs.py": {
+        "test_generate_image_umap_embedding_by_controls",
+    },
+    "test_core_umap_validation.py": {
+        "test_screen_graphs_over_two_sources_writes_three_result_sets",
+    },
+    "test_core_mask_orchestration.py": {
+        "test_test_mode_plots_every_merged_field",
+        "test_missing_merged_folder_reports_and_continues",
+    },
+    "test_all_plotting_functions.py": {
+        "test_plot_image_mask_overlay",
+    },
+    "test_object_tstack_wiring.py": {
+        "test_verbose_reports_what_the_4d_run_actually_did",
+    },
+}
+
+
+def _is_heavy_marker(node):
+    return (
+        isinstance(node, ast.Attribute)
+        and node.attr == "heavy"
+        and isinstance(node.value, ast.Attribute)
+        and node.value.attr == "mark"
+        and isinstance(node.value.value, ast.Name)
+        and node.value.value.id == "pytest"
+    )
+
 
 def test_qt_modules_are_classified_automatically():
     markers = _automatic_ci_markers(
@@ -66,6 +108,26 @@ def test_marker_expressions_partition_resource_and_structural_suites():
     )
     for expression in expected:
         assert expression in workflow
+
+
+def test_parallel_memory_amplifiers_are_assigned_to_the_serial_suite():
+    """Measured high-RSS nodes must not overlap in the four-worker fast job."""
+    missing = []
+    for filename, expected_names in PARALLEL_MEMORY_AMPLIFIERS.items():
+        tree = ast.parse((ROOT / "tests" / filename).read_text(encoding="utf-8"))
+        functions = {
+            node.name: node
+            for node in tree.body
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        }
+        for name in expected_names:
+            function = functions.get(name)
+            if function is None or not any(
+                    _is_heavy_marker(marker)
+                    for marker in function.decorator_list):
+                missing.append(f"{filename}::{name}")
+
+    assert not missing, "heavy marker missing from: " + ", ".join(missing)
 
 
 def test_reusable_suite_auto_detects_resources_and_current_actions():

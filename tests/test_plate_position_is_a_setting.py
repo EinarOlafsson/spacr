@@ -514,6 +514,7 @@ def test_regression_fits_the_design_the_setting_asked_for(
                    for f in coef_df["feature"])
 
 
+@pytest.mark.heavy
 def test_regression_levels_passes_the_setting_through_to_both_fits(tmp_path):
     """Two fits, one design decision: a setting honoured at one level and not
     the other would be two answers to one question."""
