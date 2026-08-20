@@ -191,6 +191,8 @@ def check_normality(groups: Sequence[np.ndarray]) -> Assumption:
             statistic, p = stats.shapiro(group[:5000])
         except Exception:
             continue
+        if not np.isfinite(statistic) or not np.isfinite(p):
+            continue
         tested += 1
         if p < worst_p:
             worst_p, worst_stat = float(p), float(statistic)
@@ -395,6 +397,13 @@ def _run(name: str, arrays: Sequence[np.ndarray], *, paired: bool) -> tuple:
     if name == "Wilcoxon signed-rank":
         return stats.wilcoxon(arrays[0], arrays[1])
     if name == "Mann-Whitney U":
+        # SciPy 1.18 returns NaN from the asymptotic tie correction when the
+        # pooled sample is entirely constant.  The two empirical
+        # distributions are identical in that case: every pair is a tie,
+        # U is half of n1*n2, and the two-sided p-value is exactly 1.
+        pooled = np.concatenate((arrays[0], arrays[1]))
+        if pooled.size and float(np.ptp(pooled)) == 0.0:
+            return arrays[0].size * arrays[1].size / 2.0, 1.0
         return stats.mannwhitneyu(arrays[0], arrays[1],
                                   alternative="two-sided")
     if name == "Kruskal-Wallis":
