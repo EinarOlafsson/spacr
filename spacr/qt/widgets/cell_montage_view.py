@@ -756,17 +756,45 @@ def load(request: MontageRequest) -> MontageLoad:
     selection["picking"] = picking
     selection["threshold"] = float(
         (request.picture or {}).get("picking_threshold") or 0.55)
-    if picking in ("attributed", "assigned"):
+    if picking in ("attributed", "assigned", "multivariate"):
         from ...cell_montage import effects_from_results
 
         raw = effects_from_results(request.results_path)
         # The results name guides as the DESIGN did (`225160_1`) while the
         # counts name them as the library does (`TGGT1_225160_1`), so the two
         # are matched on the design spelling.
+        #
+        # THE PREFIX IS MEASURED, NOT HARD-CODED. This read
+        # `str(g).split("TGGT1_")[-1]`, which is one organism's name written
+        # into the matching rule: every guide of a Plasmodium or a human
+        # library kept its prefix, matched nothing in `raw`, and the whole
+        # `effects` map came back empty -- at which point the attribution
+        # silently has no competition to compare against. See instruction
+        # 184, which is this same assumption in the control fields.
+        from ...control_names import common_prefix
+
+        names = [str(g) for g in counts["grna"].unique()]
+        prefix = common_prefix(names)
+        head = f"{prefix}_" if prefix else ""
+
+        def _design_spelling(name: str) -> str:
+            text = str(name)
+            return text[len(head):] if head and text.startswith(head) else text
+
         selection["effects"] = {
-            str(g): raw[str(g).split("TGGT1_")[-1]]
-            for g in counts["grna"].unique()
-            if str(g).split("TGGT1_")[-1] in raw} or None
+            str(g): raw[_design_spelling(g)]
+            for g in names if _design_spelling(g) in raw} or None
+    if picking == "multivariate":
+        # THE GRID NOTHING EVER SET (186 A). `select_montage` has taken an
+        # `effects_grid` since option C shipped and no caller supplied one,
+        # so multivariate could never run: it found None every time, fell
+        # back to the single-score attribution, and said so in the caption.
+        # The fallback worked exactly as designed and hid the fact that what
+        # it fell back FROM was unreachable.
+        from ...cell_montage import effects_grid_from_results
+
+        selection["effects_grid"] = effects_grid_from_results(
+            request.results_path)
     try:
         if request.per_guide:
             plans = select_montage_per_guide(
@@ -1940,6 +1968,8 @@ class CellMontageView(QWidget):
         if request is None:
             self._set_status(self.reason())
             return False
+        if not self._multivariate_is_ready(request):
+            return False
         self._pending = request
         self._drop_montage()
         self._set_status(
@@ -1948,6 +1978,81 @@ class CellMontageView(QWidget):
         self._refresh_controls()
         self._jobs.submit(lambda r=request: load(r), self._on_loaded)
         return True
+
+    def clear_picking_override(self) -> None:
+        """Forget an agreed fallback, so the next Show asks again.
+
+        Called when the picture settings change or a different coefficient is
+        selected: "rank, just this once" must not quietly become permanent.
+        """
+        self._picking_override = ""
+
+    def multivariate_shortfall(self, request=None) -> str:
+        """What multivariate picking is still missing, or ``""``.
+
+        Instruction 186 A, asked for 2026-08-20: a user who chose
+        multivariate and pressed OK should be told what has not been done,
+        not quietly given a different picker.
+
+        THE FALLBACK IS RIGHT AND IT IS IN THE WRONG PLACE. `select_montage`
+        drops to the single-score attribution when there is no effects grid
+        and says so in the caption, which is correct for a montage that must
+        still draw. It is not correct as the answer to someone who asked for
+        multivariate on purpose -- they asked for something and got a
+        quieter different thing.
+        """
+        picture = self.picture_settings() or {}
+        if str(picture.get("cell_picking") or "rank") != "multivariate":
+            return ""
+        from ...cell_montage import effects_grid_from_results
+
+        request = request or self._pending
+        path = getattr(request, "results_path", "") or self._results_path()
+        if effects_grid_from_results(path) is not None:
+            return ""
+        return ("Multivariate picking needs a gene × measurement sweep: it "
+                "reads one effect per measurement per guide, and this run "
+                "has none beside it. Run the sweep on the Measurements tab "
+                "and press Show again, or pick by rank instead.")
+
+    def _multivariate_is_ready(self, request) -> bool:
+        """Ask before running, when multivariate cannot do what was asked.
+
+        Returns False only when the user chose to go and sort it out. The
+        third way out is not optional: a sweep is long, and a user who does
+        not want to wait needs a path forward that is not Cancel -- which is
+        what the silent fallback was trying to be, in the wrong place.
+        """
+        shortfall = self.multivariate_shortfall(request)
+        if not shortfall:
+            return True
+        asker = getattr(self, "_ask_about_multivariate", None)
+        answer = asker(shortfall) if callable(asker) else self._ask(shortfall)
+        if answer == "rank":
+            # Their choice, recorded where the caption will read it, so the
+            # montage says "rank" because it IS rank.
+            self._force_picking("rank")
+            return True
+        return False
+
+    def _ask(self, shortfall: str) -> str:
+        """The prompt. Split out so a test can answer it without a modal."""
+        from PySide6.QtWidgets import QMessageBox
+
+        box = QMessageBox(self)
+        box.setWindowTitle("The sweep has not been run")
+        box.setText(shortfall)
+        rank = box.addButton("Pick by rank instead",
+                             QMessageBox.AcceptRole)
+        box.addButton("Cancel", QMessageBox.RejectRole)
+        box.exec()
+        return "rank" if box.clickedButton() is rank else "cancel"
+
+    def _force_picking(self, picking: str) -> None:
+        """Use ``picking`` for this montage, whatever the settings say."""
+        self._picking_override = str(picking)
+        self._set_status(f"Picking by {picking}: the sweep multivariate "
+                         f"picking needs has not been run.")
 
     def _on_loaded(self, result: MontageLoad) -> None:
         """A load landed. **Always on the GUI thread** — see the module head.
@@ -2041,6 +2146,15 @@ class CellMontageView(QWidget):
                     if v not in (None, "")})
         out.update(self._picture_settings)
         out["crop_source"] = self.picture_mode()
+        # THE PICKER THE USER AGREED TO, when they were told multivariate
+        # could not run and chose rank rather than Cancel. Applied here and
+        # not by editing their settings, because it is a decision about THIS
+        # montage: their saved choice of multivariate is still what they
+        # want once the sweep exists, and silently rewriting it would take
+        # that away for every future run too.
+        override = getattr(self, "_picking_override", "")
+        if override:
+            out["cell_picking"] = override
         return out
 
     def edit_picture_settings(self) -> bool:
@@ -2062,6 +2176,9 @@ class CellMontageView(QWidget):
         # streaming setting, switched to load images and switched back must
         # find it where they left it.
         self._picture_settings = dialog.values()
+        # A NEW CHOICE OF PICKER DESERVES A NEW QUESTION. "rank, just this
+        # once" must not quietly become permanent.
+        self.clear_picking_override()
         # ONE SETTING, ONE VALUE. `channels` is read from the hidden field by
         # `channels()` and from the picture settings by the renderer, so the
         # window writes it back rather than letting the two drift.
