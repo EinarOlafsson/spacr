@@ -188,7 +188,7 @@ def test_one_file_alone_has_nothing_to_compare_and_says_so_by_proposing_nothing(
 
 def test_only_the_basename_is_read():
     """A user dropping a folder must not get their home directory in the regex."""
-    names = [f"/home/someone/Data 2026/{n}" for n in _cq1()]
+    names = [f"/data/input/Data 2026/{n}" for n in _cq1()]
     best = propose(names)[0]
 
     assert "home" not in best.pattern
