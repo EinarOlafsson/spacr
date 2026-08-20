@@ -457,16 +457,33 @@ class TestThePValueHistogram:
 
         edges = plot._edges
         middle = float((edges[0] + edges[1]) / 2)
-        height = float(plot._counts[0]) / 2 or 1.0
         viewbox = plot.plot.plotItem.vb
+        # A Y INSIDE THE VIEW, not half the bar's height. The handler reads
+        # the X ONLY -- "which bar" is an x question -- and the bar's own
+        # height is in DATA units, which map outside the widget whenever the
+        # view range has not settled or the y axis is logged. Measured: a
+        # count of 15 mapped to y = -2621 in a 478-tall viewport, so the click
+        # landed above the plot and the test was asserting that a click
+        # off-screen selects nothing.
+        (_x0, _x1), (y0, y1) = viewbox.viewRange()
         where = plot.plot.mapFromScene(
-            viewbox.mapViewToScene(QPointF(middle, height)))
+            viewbox.mapViewToScene(QPointF(middle, (y0 + y1) / 2)))
         for kind in (QEvent.MouseButtonPress, QEvent.MouseButtonRelease):
             QApplication.sendEvent(plot.plot.viewport(), QMouseEvent(
                 kind, where, QtCore_Qt.LeftButton, QtCore_Qt.LeftButton,
                 QtCore_Qt.NoModifier))
+        # PYQTGRAPH DECIDES CLICK-VERSUS-DRAG AFTER THE FACT. Its scene emits
+        # `sigMouseClicked` from its own release handling, which is queued --
+        # so a synthetic press and release that are never processed reach the
+        # viewport and stop there. Measured: with this pump the same two
+        # events select the bar; without it, nothing at all.
+        QApplication.processEvents()
 
-        assert got, "a real click on the first bar reached nothing"
+        assert got, (
+            f"a real click on the first bar reached nothing. "
+            f"viewport={plot.plot.viewport().size()} where=({where.x()}, "
+            f"{where.y()}) bin_at={plot.bin_at(middle)} "
+            f"counts={None if plot._counts is None else list(plot._counts[:4])}")
         assert set(got[0]) == set(plot.keys_in_bin(0))
 
     def test_a_right_press_is_the_style_menu_and_selects_nothing(self, panel,

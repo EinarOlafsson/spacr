@@ -228,8 +228,47 @@ def gene_of(feature: Any) -> Optional[str]:
     if not match:
         return None
     token = re.sub(r"^T\.", "", match.group(1))
-    gene = token.split("_")[0]
-    return gene or None
+    return gene_id_of(token)
+
+
+#: The VEuPathDB strain prefixes a Toxoplasma accession starts with. An id
+#: like ``TGGT1_231640`` carries an underscore INSIDE the gene name, so the
+#: "truncate at the first underscore" rule below cuts it in half and reports
+#: the gene as ``TGGT1`` -- which is a strain, not a gene, and is the same
+#: answer for every gene in the screen.
+#:
+#: Matched case-insensitively and only at the START, so a numeric id with a
+#: guide suffix (``233460_1``, which is what these screens actually use)
+#: still truncates as it always did.
+GENE_ID_PREFIXES = ("TGGT1", "TGME49", "TGVEG", "TGRH88", "TGARI",
+                    "TGCAST", "TGP89", "TGCOUG", "TGMAS", "TGFOU",
+                    "PF3D7", "PBANKA", "PY17X", "PCHAS", "PKNH", "PVP01",
+                    "CPATCC", "CHUDEA", "CPBGF", "NCLIV", "BBOV", "TA",
+                    "ETH", "EHXH", "CSUI")
+
+
+def gene_id_of(token: Any) -> Optional[str]:
+    """The gene a bracketed token names. The rule, in one place.
+
+    ``233460_1`` -> ``233460``, which is the historical rule and the one the
+    metadata join uses, so the two cannot disagree.
+
+    ``TGGT1_231640_3`` -> ``TGGT1_231640``. A VEuPathDB accession carries an
+    underscore inside the gene NAME, so truncating at the first one reported
+    every gene in a Toxoplasma screen as the strain ``TGGT1``. The docstring
+    of :func:`spacr.gene_tile.gene_tile` already claimed accessions were
+    accepted; they were parsed and came back ``unresolved`` with the wrong
+    gene.
+    """
+    text = str(token or "").strip()
+    if not text:
+        return None
+    parts = text.split("_")
+    if len(parts) > 1 and parts[0].upper() in GENE_ID_PREFIXES:
+        # The accession is the prefix AND the number; anything after that is
+        # the guide suffix.
+        return "_".join(parts[:2])
+    return parts[0] or None
 
 
 def guide_of(feature: Any) -> Optional[str]:
