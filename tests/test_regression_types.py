@@ -116,6 +116,11 @@ def settings_for(score, count, **over):
         "score_data": [score],
         "count_data": [count],
         "dependent_variable": "pred",
+        # This suite exercises each regression backend. The application
+        # default is nonparametric, which intentionally does not read
+        # ``regression_type`` or fit a model, so the backend contract must
+        # request parametric inference explicitly.
+        "inference": "parametric",
         "min_cell_count": 3,
         "fraction_threshold": 0.01,
         "metadata_files": [],

@@ -79,6 +79,10 @@ def _run(tmp_path, **overrides):
         "multiple_testing_method": "fdr_bh", "fdr_alpha": 0.05,
         "controls": CONTROLS, "threshold_method": "std",
         "threshold_multiplier": 3.0, "guide_permutation_plot": False,
+        # The guide-permutation implementation consumes one phenotype per
+        # well. State that contract explicitly because this helper calls the
+        # private analysis function without the normal settings resolver.
+        "analysis_unit": "well", "agg_type": "mean",
     }
     settings.update(overrides)
     return _run_guide_permutation_analysis(
