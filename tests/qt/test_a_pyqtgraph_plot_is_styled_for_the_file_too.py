@@ -155,8 +155,17 @@ def test_the_size_shown_is_the_plots_own_export_page(qtbot):
     assert dialog.height.value() == pytest.approx(90.0 / 25.4, abs=0.01)
 
 
-def test_the_menu_offers_both_the_plain_export_and_the_styled_save(qtbot):
+def test_the_menu_offers_one_way_to_write_a_figure(qtbot):
+    """ONE DOOR (187 D), and it is the one that shows you what it will write.
+
+    There were two. "Export…" wrote with no preview and no styling pass, so a
+    page sized in millimetres got text scaled for the screen -- reported
+    2026-08-20 as "the exported figure is broken, with massive text and so
+    on ... actually remove the export button, save styled is enough."
+    """
     plot = _plot(qtbot)
     labels = [a.text() for a in plot.build_style_menu().actions()]
-    assert "Export…" in labels
-    assert "Save styled…" in labels
+
+    assert "Save figure…" in labels
+    assert "Export…" not in labels, (
+        "a second door that writes blind is how the broken figure got out")

@@ -252,12 +252,12 @@ class SweepRunsPanel(QWidget):
             QAbstractItemView.ExtendedSelection)
         self.table.table.setContextMenuPolicy(Qt.CustomContextMenu)
         self.table.table.customContextMenuRequested.connect(self._run_menu)
-        # DOUBLE-CLICK LOADS THE RUN, and it was connected to nothing at all.
-        # Selection alone already tried to load (see `_on_selection`), but a
-        # selection that is refused for any reason leaves the previous run on
-        # screen with no way to insist -- which is what "the first run is
-        # perpetually loaded" was. A double-click is the user saying it again,
-        # so it FORCES the load rather than asking politely.
+        # DOUBLE-CLICK IS THE GESTURE THAT LOADS (190). It used to be the
+        # second way in, beside a selection that also loaded; as of
+        # 2026-08-20 it is the only one, because selecting a row to read its
+        # name should not cost a multi-second read. It still FORCES the load
+        # rather than asking politely, so a run refused for any reason can be
+        # insisted on.
         self.table.table.doubleClicked.connect(self._on_double_click)
         self.table.table.installEventFilter(self)
         layout.addWidget(self.table, 1)
@@ -1388,23 +1388,20 @@ class SweepRunsPanel(QWidget):
         record = self.selected_trial()
         if record is None:
             return
-        # PICKING A RUN IS LOADING IT. The selection already re-points the
-        # results panel and the figure grid through `trial_activated`, so a
-        # mark that did not follow it would be a second answer to "which run
-        # is loaded" -- and instruction 145's rule is one vocabulary.
-        key = self._row_key(record)
-        before = self._loaded_key
-        if key and key != before and _is_ok(record):
-            self._loaded_key = key
-            self._source_note = ""
-            self._paint_the_loaded_mark()
-            if self._announce_the_loaded_run(before):
-                # The funnel emitted `trial_activated` with the row read back
-                # off the composed frame. Emitting again here is the same
-                # click twice, and the screen would load the run twice.
-                return
-        # A ROW THAT CANNOT BECOME THE LOADED RUN IS STILL A CLICK. A trial
-        # that failed or is still going has no results to show, and the
-        # screen answers with the reason -- which is the whole difference
-        # between a table that ignores clicks and one that explains them.
-        self.trial_activated.emit(record)
+        # PICKING A RUN IS NOT LOADING IT (190). Reported 2026-08-20: "for
+        # some reason clicking once on a run shows the results. double click
+        # should loade the results".
+        #
+        # This used to load on selection, which meant ARROWING DOWN A LIST OF
+        # FIVE RUNS LOADED FIVE RUNS -- five multi-second reads nobody asked
+        # for, to look at five names. Selection now does what selection does:
+        # it shows this run's photograph and its detail, and nothing else.
+        # `_load_selected` on double-click is the gesture that costs time,
+        # and it was already wired.
+        #
+        # THE FAILURE MESSAGE STILL BELONGS TO SELECTION, though. A trial that
+        # failed or is still going has no results to show ever, and saying so
+        # when it is picked is the difference between a table that ignores
+        # clicks and one that explains them -- it costs nothing to say.
+        if not _is_ok(record):
+            self.trial_activated.emit(record)

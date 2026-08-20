@@ -192,10 +192,34 @@ def test_picking_a_run_reports_its_real_values_not_display_strings(
     seen = []
     panel.trial_activated.connect(seen.append)
     panel.table.table.selectRow(0)
+    # DOUBLE-CLICK IS WHAT LOADS (190). Selecting used to load too, which
+    # meant arrowing down a list of five runs loaded five runs; this test's
+    # subject is the VALUES that come back, not which gesture asks for them.
+    panel._on_double_click()
 
-    assert seen, "selecting a run emitted nothing"
+    assert seen, "double-clicking a run emitted nothing"
     assert isinstance(seen[-1]["fdr_alpha"], float)
     assert seen[-1]["trial_id"] == 1
+
+
+def test_selecting_a_run_does_not_load_it(qtbot, tmp_path, trials):
+    """"clicking once on a run shows the results" -- it must not.
+
+    Arrowing down a list of five runs was five multi-second reads nobody
+    asked for, to look at five names.
+    """
+    from spacr.qt.widgets.sweep_runs import SweepRunsPanel
+
+    trials.to_csv(tmp_path / "sweep_results.csv", index=False)
+    panel = SweepRunsPanel()
+    qtbot.addWidget(panel)
+    panel.load(tmp_path)
+
+    seen = []
+    panel.trial_activated.connect(seen.append)
+    panel.table.table.selectRow(0)
+
+    assert not seen, f"selecting loaded a run: {seen}"
 
 
 def test_a_failed_trial_says_why_instead_of_doing_nothing(screen, trials):

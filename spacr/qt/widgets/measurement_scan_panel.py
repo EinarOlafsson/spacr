@@ -2713,12 +2713,69 @@ class MeasurementScanPanel(QWidget):
                                      expanded=(title == self.OPENS_EXPANDED),
                                      parent=self)
         section.set_open_minimum(minimum)
-        section.toggled.connect(lambda *_: self.remember_section_layout())
+        # RE-WEIGH ON EVERY FOLD, because the weights depend on which
+        # sections are open -- see `_keep_the_filler_last`.
+        section.toggled.connect(lambda *_: self._reweigh_and_remember())
         self._folders[title] = section
         self._sections.addWidget(section)
         # THE FILLER STAYS LAST, so a section added later still folds upward.
         self._keep_the_filler_last()
         return section
+
+    def _reweigh_and_remember(self) -> None:
+        """A fold changed: hand the space out again, then store the layout."""
+        self._keep_the_filler_last()
+        self._share_the_height()
+        self.remember_section_layout()
+
+    def _share_the_height(self) -> None:
+        """Give the open sections the room, and the gap what is left.
+
+        STRETCH FACTORS ARE NOT ENOUGH. `setStretchFactor` decides how EXTRA
+        space is handed out when the splitter is resized; it does nothing at
+        the moment a section folds or opens, so an opened section kept its
+        minimum and the filler kept the rest -- "when opened they just open a
+        tiny bit" (187 C).
+
+        The sizes are set outright instead: a folded section gets exactly its
+        header, the open ones divide what remains, and the filler takes the
+        slack only when nothing is open. That is both asks at once -- folds
+        collapse upward (186 C) and an opening section fills to the next one.
+        """
+        sections = self.sections()
+        if not sections:
+            return
+        total = max(self._sections.height(), 1)
+        sizes = []
+        open_indexes = []
+        for index in range(self._sections.count()):
+            widget = self._sections.widget(index)
+            if widget is getattr(self, "_filler", None):
+                sizes.append(0)
+                continue
+            # A HIDDEN SECTION TAKES NO ROOM. `_show_section` hides the ones
+            # with nothing to show, and the splitter forces a hidden child to
+            # zero anyway -- so asking for its minimum here only makes the
+            # arithmetic disagree with the layout that follows.
+            if not widget.isVisible():
+                sizes.append(0)
+                continue
+            if getattr(widget, "is_expanded", lambda: False)():
+                open_indexes.append(index)
+                sizes.append(0)                  # filled in below
+            else:
+                sizes.append(widget.minimumHeight() or 1)
+        spare = max(total - sum(sizes), 0)
+        if open_indexes:
+            each = max(spare // len(open_indexes), 1)
+            for index in open_indexes:
+                sizes[index] = each
+        else:
+            # Nothing open: the whole gap goes under the folded headers.
+            filler = self._sections.indexOf(getattr(self, "_filler", None))
+            if filler >= 0:
+                sizes[filler] = spare
+        self._sections.setSizes(sizes)
 
     def sections(self) -> tuple:
         """The folding sections, in order -- WITHOUT the layout filler.
@@ -2754,11 +2811,24 @@ class MeasurementScanPanel(QWidget):
         last = self._sections.count() - 1
         if index != last or index < 0:
             self._sections.addWidget(filler)
-        # Only the filler stretches; the sections keep the heights the user
-        # dragged them to.
+        # THE FILLER YIELDS FIRST. Reported 2026-08-20, right after the
+        # fold-upward fix landed: "when opened they just open a tiny bit.
+        # have them fill the container to the next subsection."
+        #
+        # Giving the filler the only stretch made it absorb TOO well -- an
+        # opened section took its minimum and the filler kept everything
+        # else. An OPEN section stretches, so opening one takes the space
+        # back from the gap; a FOLDED section does not, so it still hands its
+        # height over. The filler stretches least of the three, which is what
+        # makes it the last to get space and the first to give it up.
         for i in range(self._sections.count()):
-            self._sections.setStretchFactor(
-                i, 1 if self._sections.widget(i) is filler else 0)
+            widget = self._sections.widget(i)
+            if widget is filler:
+                self._sections.setStretchFactor(i, 1)
+            elif getattr(widget, "is_expanded", lambda: False)():
+                self._sections.setStretchFactor(i, 10)
+            else:
+                self._sections.setStretchFactor(i, 0)
 
     #: What this panel is called in the stored layout. A NAME, not the class,
     #: so renaming the class does not throw away every user's arrangement.
