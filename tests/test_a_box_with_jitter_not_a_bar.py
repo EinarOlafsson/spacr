@@ -128,13 +128,11 @@ def test_the_bar_is_still_reachable(same_mean_different_spread):
 
 
 def test_a_direct_call_gets_the_box_too(same_mean_different_spread):
-    """THE HALF THE SETTINGS DEFAULTS DID NOT COVER.
+    """Direct API calls use the same box-and-points default as settings.
 
-    `spacr.settings` was moved to 'jitter_box' in three places, and the two
-    functions that actually DRAW kept ``graph_type='bar'`` in their own
-    signatures. So a notebook, a script or any caller that does not come
-    through a settings factory -- which is every direct use of the public API
-    -- still got the mean bar this instruction calls a statistical error.
+    A direct caller does not pass through a settings factory, so both public
+    signatures must carry the default themselves. The rendered patches are
+    the unfilled boxes; observations remain in the scatter collections.
     """
     import inspect
 
@@ -145,7 +143,8 @@ def test_a_direct_call_gets_the_box_too(same_mean_different_spread):
         assert default == "jitter_box", callable_.__qualname__
 
     ax = _axis(same_mean_different_spread)          # no graph_type at all
-    assert not ax.patches, "a direct call still drew a bar"
+    assert len(ax.patches) == 2, "a direct call did not draw one box per group"
+    assert all(box.get_facecolor()[3] == 0.0 for box in ax.patches)
     assert ax.collections, "a direct call drew no points"
 
 
