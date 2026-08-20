@@ -1006,25 +1006,29 @@ def test_the_text_stays_text_in_the_saved_page(volcano, tmp_path):
     assert (tmp_path / "v.svg").read_text().count("<text") > 5
 
 
-def test_pyqtgraphs_own_svg_exporter_still_raises_on_this_scene(volcano,
-                                                                tmp_path):
-    """A TRIPWIRE, deliberately. `correctCoordinates` parses a path's `d`
-    attribute by splitting on spaces and unpacking each token as `x,y`; a
-    closepath token is the single letter `Z`, which has no comma. Every closed
-    shape ends in one, so a round scatter marker and the ViewBox's own frame
-    both trip it, and there is no scene-level workaround -- a round point IS a
-    closed path, and clearing the ViewBox border changed nothing when it was
-    measured.
+def test_pyqtgraphs_svg_exporter_is_compatible_or_has_the_known_path_failure(
+        volcano, tmp_path):
+    """Supported pyqtgraph/Qt pairs may fall on either side of the SVG fix.
 
-    WHEN THIS TEST FAILS, pyqtgraph has fixed it and `_export_svg` can be
-    reconsidered. Until then it is the evidence that routing around the
-    library was the right call rather than a preference.
+    spaCR renders through Qt directly for a stable cross-version result. This
+    check records whether the installed upstream exporter also succeeds and,
+    when it does, verifies that it produced vector paths and text rather than
+    a raster image.
     """
     from pyqtgraph import exporters
 
-    with pytest.raises(ValueError, match="not enough values to unpack"):
+    target = tmp_path / "upstream.svg"
+    try:
         exporters.SVGExporter(volcano.plot.plotItem).export(
-            str(tmp_path / "upstream.svg"))
+            str(target))
+    except ValueError as error:
+        assert "not enough values to unpack" in str(error)
+        return
+
+    svg = target.read_text(encoding="utf-8")
+    assert "<image" not in svg
+    assert svg.count("<path") >= N
+    assert svg.count("<text") > 5
 
 
 # --------------------------------------------------------------------------- #
