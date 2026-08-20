@@ -584,35 +584,36 @@ def _crop_settings(request: "MontageRequest", root: str) -> Dict[str, Any]:
 
 
 def no_score_refusal(score_csvs, troubles=()) -> str:
-    """Why no per-object score was found, NAMING BOTH PLACES (167 B).
+    """Explain where spaCR looked for a per-object classification score.
 
-    This said only "No attached database yielded per-object rows with a
-    classification score. Run Classify and merge its predictions into the
-    database first." Both sentences were true and the advice was wrong: the
-    scores are in the score CSVs the regression module is already holding --
-    the run was fitted on exactly those numbers -- so the user was being told
-    to produce something they had had loaded the whole time, and to write it
-    into a database the montage does not need to touch.
+    Parameters
+    ----------
+    score_csvs
+        Score files loaded with the regression result.
+    troubles
+        Additional diagnostics from the attached databases.
 
-    A refusal that mentions only the databases is a refusal about the wrong
-    half. Named as a function so the sentence can be read without building a
-    whole screen to provoke it -- and because it is reasoning about the user's
-    situation rather than a string.
+    Returns
+    -------
+    str
+        A user-facing explanation that identifies both possible score
+        sources and suggests the next useful action.
     """
     loaded = [str(path) for path in (score_csvs or ())]
     if loaded:
         shown = ", ".join(os.path.basename(path) for path in loaded[:3])
         more = f", +{len(loaded) - 3} more" if len(loaded) > 3 else ""
-        where = (f"and the {len(loaded)} score file(s) this run was fitted on "
-                 f"({shown}{more}) carry no per-object score for these "
-                 f"objects either")
+        noun = "score file" if len(loaded) == 1 else "score files"
+        where = (f"The {len(loaded)} loaded {noun} ({shown}{more}) also "
+                 "contain no matching per-object score.")
     else:
-        where = ("and NO score file is loaded -- the run's own score CSVs "
-                 "carry a per-object 'pred' and are joined in memory when "
-                 "they are, without writing to any database")
-    return ("No per-object classification score was found. No attached "
-            "database yielded one, " + where + ". "
-            + " ".join(str(t) for t in troubles)).strip()
+        where = ("No score file is loaded. Load the per-object score CSV used "
+                 "for the regression; the montage can join it in memory "
+                 "without modifying a database.")
+    details = " ".join(str(item) for item in troubles).strip()
+    message = ("No per-object classification score was found in the attached "
+               "databases. " + where)
+    return (message + (" " + details if details else "")).strip()
 
 
 def load(request: MontageRequest) -> MontageLoad:
@@ -2161,22 +2162,24 @@ class CellMontageView(QWidget):
         return True
 
     def write_scores_into_the_databases(self, *, confirm=None) -> dict:
-        """Offer to put the run's scores into the databases. 167 C.
+        """Merge loaded per-object scores into attached databases on request.
 
-        OFFERED, NEVER AUTOMATIC. `merge_cv_predictions` is exact -- measured
-        on the maintainer's plate1, 60816/60816 rows matched on `file_name` --
-        and the montage does not need it: it joins the same numbers in memory
-        and reads the database without touching it. But a user who WANTS the
-        scores in the database should be able to say so once, here, rather
-        than at a shell.
+        The montage can use score files without modifying a database. This
+        method writes only after explicit confirmation.
 
-        WRITING TO A MEASUREMENTS DATABASE IS NOT SOMETHING A MONTAGE DOES
-        BEHIND ANYONE, so nothing happens without ``confirm`` returning True.
+        Parameters
+        ----------
+        confirm
+            Optional callable receiving ``(databases, score_files)`` and
+            returning whether to proceed. When omitted, spaCR displays a
+            confirmation dialog.
 
-        :param confirm: ``(databases, score_files) -> bool``. ``None`` asks
-            the user with a dialog naming both.
-        :returns: ``{database: rows matched}`` for the ones written, empty
-            when the user declined or there was nothing to write.
+        Returns
+        -------
+        dict
+            Mapping of each updated database path to its matched-row count.
+            Returns an empty mapping when no inputs are available, the user
+            declines, or no database can be updated.
         """
         import pandas as pd
 
@@ -2184,8 +2187,8 @@ class CellMontageView(QWidget):
         score_files = [str(p) for p in self.score_csvs()]
         if not databases or not score_files:
             self._set_status(
-                "There is nothing to merge: this needs both an attached "
-                "database and a loaded score file.")
+                "Nothing to merge: attach at least one database and load at "
+                "least one per-object score file.")
             return {}
         if confirm is None:
             confirm = self._ask_before_writing
@@ -2209,33 +2212,38 @@ class CellMontageView(QWidget):
             written[database] = getattr(report, "matched", 0) if report else 0
         if written:
             total = sum(written.values())
+            database_label = "database" if len(written) == 1 else "databases"
+            row_label = "row" if total == 1 else "rows"
             self._set_status(
-                f"Merged the run's scores into {len(written)} database(s): "
-                f"{total} row(s) matched. The montage did not need this -- it "
-                f"joins them in memory -- so nothing on screen changes.")
+                f"Merged the run's scores into {len(written)} {database_label}; "
+                f"{total} {row_label} matched. The montage already uses "
+                "loaded scores in memory, so the displayed montage is "
+                "unchanged.")
         return written
 
     def _ask_before_writing(self, databases, score_files) -> bool:
-        """The dialog, naming BOTH what is written and what it is written from."""
+        """Ask whether to write the listed score files to the databases."""
         from PySide6.QtWidgets import QMessageBox
 
         box = QMessageBox(self)
         box.setIcon(QMessageBox.Question)
-        box.setWindowTitle("Write the scores into the databases?")
-        box.setText(f"Merge the run's per-object scores into "
-                    f"{len(databases)} measurements database(s)?")
+        box.setWindowTitle("Write scores to databases?")
+        database_label = "database" if len(databases) == 1 else "databases"
+        box.setText(f"Write the run's per-object scores to {len(databases)} "
+                    f"measurement {database_label}?")
         box.setInformativeText(
-            "FROM: " + ", ".join(os.path.basename(p) for p in score_files[:4])
+            "Score files:\n"
+            + ", ".join(os.path.basename(p) for p in score_files[:4])
             + (f" (+{len(score_files) - 4} more)" if len(score_files) > 4
                else "")
-            + "\n\nINTO: "
+            + "\n\nDatabases:\n"
             + ", ".join(os.path.basename(p) for p in databases[:4])
             + (f" (+{len(databases) - 4} more)" if len(databases) > 4 else "")
-            + "\n\nThis MODIFIES the databases. The montage does not need it: "
-              "it already joins these scores in memory and reads the "
-              "databases without writing to them. Do this only if you want "
-              "the scores there for something else.")
-        box.addButton("Merge", QMessageBox.AcceptRole)
+            + "\n\nThis writes classification scores to the databases. The "
+              "montage can already use the loaded files without this step; "
+              "continue only if another workflow needs the scores stored in "
+              "the databases.")
+        box.addButton("Write scores", QMessageBox.AcceptRole)
         cancel = box.addButton("Cancel", QMessageBox.RejectRole)
         box.setDefaultButton(cancel)
         box.exec()

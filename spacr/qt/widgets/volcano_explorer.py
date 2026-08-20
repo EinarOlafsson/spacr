@@ -157,12 +157,13 @@ class VolcanoExplorer(QWidget):
         self.refresh()
 
     def build_style_menu(self):
-        """The figure's own right-click menu. The seam a test drives.
+        """Build the context menu for styling the current volcano plot.
 
-        Apart from :meth:`_style_menu` because that method ends in
-        ``QMenu.exec`` -- a C++ event loop -- so a test that wanted to know
-        what the menu OFFERS would either enter it and hang or re-implement
-        the construction and test its own copy.
+        Returns
+        -------
+        PySide6.QtWidgets.QMenu
+            A menu containing live style controls and style-file actions.
+            Changes update both the plot and its side-panel controls.
         """
         from PySide6.QtWidgets import QMenu
 
