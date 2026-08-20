@@ -2151,14 +2151,11 @@ def migrate_crop_folder(folder: str, *, mode: str = "rewrite",
                         dry_run: bool = False, on_error: str = "raise",
                         db_path: Optional[str] = None,
                         progress: Optional[Any] = None) -> MigrationResult:
-    """Repair one folder of reversed crops and stamp it. Idempotent.
+    """Repair reversed format-2 crops and stamp the folder. Idempotent.
 
-    **The direction of this function inverted on 2026-08-06.** It used to
-    convert format-1 folders to format 2, on the belief that ``png_dims[0]``
-    belonged in the red channel. It does not: channel 0 is 405 and belongs in
-    blue, so format-1 folders were right all along and format 2 -- everything
-    written, or migrated, between 2026-07-26 and 2026-08-06 -- is the one
-    holding reversed pixels. This now repairs *those*.
+    Format 2 stores three-channel crops in the reverse of their declared
+    channel mapping. Formats 1 and 3, as well as unmarked folders, already
+    use declared order and require no pixel rewrite.
 
     ``mode='rewrite'`` (the default) rewrites every 3-channel PNG of a
     **format-2** folder with its channels put back, and marks the folder

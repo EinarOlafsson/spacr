@@ -65,19 +65,17 @@ def _regression_backend_choices():
     """Every backend, labelled ``(CPU)`` or ``(GPU)``, in panel order.
 
     THE OPTIONS ARE THE LABELS, and so is the stored value -- see
-    :func:`spacr.settings._resolve_regression_backend` for why. Instruction
-    141 C: a user must be able to see that a choice needs a GPU before making
-    it, and both front ends render these strings verbatim.
+    :func:`spacr.settings._resolve_regression_backend` for why. The labels
+    state whether a backend uses the CPU or GPU, and both front ends render
+    them verbatim.
 
     Read from :mod:`spacr.regression_backends`, which imports nothing heavier
     than stdlib, so a settings panel still costs a dict lookup rather than
     ``import torch``.
 
-    Every entry is offered, including the ones that cannot run here. Greying
-    the unavailable ones out WITH THEIR REASON is instruction 106's rule and
-    the panel's job; :func:`spacr.regression_backends.backend_menu` returns
-    the reason per entry. An entry that is simply absent tells a user
-    nothing.
+    Every entry is offered, including those that cannot run in the current
+    environment. The panel disables unavailable entries and obtains their
+    explanations from :func:`spacr.regression_backends.backend_menu`.
     """
     from .regression_backends import backend_choices
 

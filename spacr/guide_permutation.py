@@ -455,26 +455,11 @@ def _drawable_threshold(value) -> float | None:
 
 
 def _named_format(save_path) -> str | None:
-    """The format a caller ASKED for by typing an extension, or ``None``.
+    """Return a recognized figure format from ``save_path``, or ``None``.
 
-    Every other figure in this package is written by
-    :func:`spacr.plot.save_figure`, whose documented convention is that a
-    typed ``.pdf`` does *not* force PDF -- the extension follows the user's
-    format preference. That convention is right for a caller that names one
-    artefact and means "put it here".
-
-    It is wrong for a caller that asks for the SAME picture twice under two
-    extensions, which is exactly what ``ml.py`` does around this function:
-    ``for suffix in ('pdf', 'png')``. Under the plain convention both calls
-    resolve to one destination, so one of the two files a run has always
-    written disappears and the gallery gets two tiles for one file -- and
-    instruction 139 C's acceptance is a COUNT, tiles against files.
-
-    So a suffix that names a real figure format is read as a request and
-    passed through as ``fmt``; anything else (no extension, or ``min_2.5``)
-    leaves ``fmt=None`` and the preference decides. When the duplicated loop
-    in ``ml.py`` becomes one call with a bare stem, the preference takes over
-    here with no further change.
+    Recognized suffixes are passed explicitly to the figure writer so calls
+    that request distinct PDF and PNG files remain distinct. Missing or
+    unrecognized suffixes defer to the configured format preference.
     """
     from .plot import FIGURE_FORMATS
 
@@ -495,44 +480,47 @@ def plot_guide_permutation_volcano(
     fmt: str | None = None,
     dpi: int | None = None,
 ):
-    """Draw a volcano using standardized effect and adjusted P value.
+    """Draw and publish a guide-permutation volcano plot.
 
-    :param effect_threshold: half-width of the effect-size cut, drawn as a
-        pair of vertical lines at ``-threshold`` and ``+threshold``. ``None``
-        -- and any non-finite or non-positive number -- draws none, because a
-        cut at zero excludes nothing and a line at zero is the axis that is
-        already there.
+    Parameters
+    ----------
+    results : pandas.DataFrame
+        Permutation results containing ``outcome``,
+        ``minimum_wells_threshold``, ``standardized_marginal_effect``,
+        ``adjusted_p_value``, ``significant``, ``multiple_testing_method``,
+        and ``alpha``. A ``guide`` column is also required when
+        ``label_guides`` is provided.
+    outcome : str
+        Outcome to select from ``results``.
+    minimum_wells : int
+        Guide-support threshold to select from ``results``.
+    save_path : str or pathlib.Path
+        Destination path. The final suffix may change to match the selected
+        output format.
+    label_guides : mapping of str to str, optional
+        Guide IDs mapped to annotation labels.
+    title : str, optional
+        Figure title. By default, describe the outcome and support threshold.
+    effect_threshold : float, optional
+        Positive half-width of the effect-size cut. Draw vertical lines at
+        both signs; non-finite, non-positive, and ``None`` values draw no cut.
+    effect_threshold_label : str, optional
+        Legend text for the effect-size cut. By default, display its value.
+    fmt : str, optional
+        Explicit figure format. By default, use a recognized ``save_path``
+        suffix or the configured preference.
+    dpi : int, optional
+        Explicit output resolution. By default, use the configured preference.
 
-        A permutation run drew no cut at all until 2026-08-17, on the reading
-        that an empirical P value makes the question moot. It does not: a P
-        value says an effect is distinguishable from zero and this line says
-        it is big enough to follow up, and the second question is about the
-        coefficient however the first was answered. This distinction is
-        as "why cant i see the coefficient threshold if im running
-        nonparametric regression?".
-    :param effect_threshold_label: the sentence that attributes the cut, e.g.
-        ``3x std of 30 controls = 0.84``, for the legend.
-        :func:`spacr.thresholds.coefficient_threshold` returns it beside the
-        number. Falls back to the number alone.
-    :param fmt: force a figure format. ``None`` reads one off ``save_path``'s
-        extension (see :func:`_named_format`) and otherwise lets the user's
-        preference decide.
-    :param dpi: force a resolution. ``None`` is the preference. It used to be
-        a hard-coded 600 applied only when the path ended ``.png``, so the
-        resolution preference reached this figure in NEITHER format -- and the
-        permutation null is a scatter cloud, which is the kind of picture the
-        number is for.
-    :returns: the path actually written, which need not be ``save_path``:
-        :func:`spacr.plot.save_figure` corrects the extension to the format it
-        used. A caller that records the requested name records a file that may
-        not be there.
+    Returns
+    -------
+    pathlib.Path
+        Path actually written by :func:`spacr.figure_sink.publish`.
 
-    PUBLISHED, NOT SAVED. The design -- "several graphs are saved but I
-    cannot see them in the software". This was the last bare ``fig.savefig``
-    on the regression path: the permutation volcano was written to disk and
-    never announced, so it appeared in no gallery.
-    :func:`spacr.figure_sink.publish` saves and announces as one event, and
-    does nothing but save when no GUI is listening.
+    Raises
+    ------
+    ValueError
+        If no rows match ``outcome`` and ``minimum_wells``.
     """
     import matplotlib.pyplot as plt
 

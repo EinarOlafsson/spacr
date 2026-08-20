@@ -71,9 +71,8 @@ def _grid(count: int, width: str) -> tuple:
     """Rows and columns for ``count`` panels at this width.
 
     Two columns at single width, three at double, four at full -- the
-    proportions the published figures use. More columns than that and a panel
-    is too small to read, which is the failure the aspect-ratio work
-    (instruction 117) already fixed once for the grid view.
+    proportions used by the published figures. The column cap keeps each
+    panel large enough to read.
     """
     columns = {"single": 2, "double": 3, "full": 4}[width]
     columns = min(columns, max(count, 1))

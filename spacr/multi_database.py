@@ -520,7 +520,7 @@ def _screen_plate_pairs(path: str, table: str, plate_column: Optional[str],
       frame that already knows which experiment it came from must not be
       relabelled behind the user's back;
     * neither -- :data:`spacr.schema.DEFAULT_SCREEN`, i.e. a single-screen
-      project, which is every project written before instruction 122.
+      project.
     """
     if not plate_column:
         return []
@@ -927,12 +927,10 @@ def read_merged(paths: Sequence[str],
 def _collision_message(plan: MergePlan) -> str:
     """Why the merge was refused, naming the screen when there is one to name.
 
-    The wording changes on purpose. For a project that never mentioned a
-    screen, "the same plate id appears in more than one database" is the whole
-    story and is what instruction 109 has always said. Once screens are in
-    play it is not: the user's next question is *which* screen, and without it
-    they cannot tell a genuine duplicate from the two screens legitimately
-    sharing that plate name.
+    For an unnamed single-screen project, identify duplicate plate IDs. When
+    screens are present, include each screen label so a duplicate within one
+    screen is distinguishable from two screens that legitimately share a
+    plate name.
     """
     identities = plan.colliding_identities
     if identities and (len(plan.screens) > 1 or plan.screens_were_named):

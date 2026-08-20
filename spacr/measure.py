@@ -1086,34 +1086,15 @@ def _spatial_measurements(mask, spacing=None, radius=50, expand=1):
 
 
 def _spatial_organelle_eligible(settings):
-    """Whether the organelle mask gets spatial columns.
+    """Return whether the organelle morphology supports spatial columns.
 
-    THE TYPE IS RESOLVED TO A MORPHOLOGY, NOT COMPARED AS A STRING, and that
-    is what this gate got wrong the moment instruction 72 landed. It read
-    ``organelle_type`` first and tested the raw value for membership. Two
-    things then broke at once, silently, on every run:
+    Resolve ``organelle_type`` through the mask-stage preset mapping before
+    checking morphology. ``'custom'`` and unrecognized types defer to
+    ``organelle_morphology``. If neither setting reaches a measure-only run,
+    assume the eligible ``'spots'`` default and print that assumption once.
 
-      * `organelle_type` now DEFAULTS to 'custom', which is not in the
-        networked set -- so a run that said `organelle_morphology='network'`
-        and meant it had its explicit choice shadowed by a default it never
-        set, and the spatial block ran on a connected network.
-      * 'filamentous' and 'tubular' are not in the set either, though the
-        preset maps both to `network`. Picking the biological name for a
-        mitochondrial network turned the block back on.
-
-    Neighbour statistics of ONE connected network are not a measurement of
-    anything -- that is why this gate exists -- so both cases wrote columns
-    that look like data and are not.
-
-    The type is therefore put through the same preset mapping the mask stage
-    uses, and only the resulting morphology is tested. 'custom' has no
-    opinion by design, so it falls through to `organelle_morphology`.
-
-    Neither key is defined by ``get_measure_crop_settings`` --
-    ``organelle_morphology`` is a *mask*-stage setting -- so in a
-    measure-only run the gate sees neither and assumes the shipped default
-    'spots', which is eligible. That keeps the default reproducing today's
-    behaviour; the assumption is printed once.
+    Connected network morphologies are ineligible because neighbour
+    statistics do not describe distinct objects in one continuous mask.
     """
     global _SPATIAL_ORGANELLE_ASSUMED
 
@@ -2405,8 +2386,8 @@ def save_and_add_image_to_grid(png_channels, img_path, grid, plot=False):
        ``.spacr_crop_format.json`` sidecar into the crop folder before the
        first PNG lands, recording format 3 (``declared_rgb``). An unmarked
        folder means format 1 (legacy), whose bytes match format 3 for the
-       same declared mapping, so both are read as-is; only format 2 — written
-       between 2026-07-26 and 2026-08-06 — is reversed by
+       same declared mapping, so both are read as-is; only format 2, whose
+       stored channel order is reversed, is corrected by
        :func:`spacr.crops.read_crop_png`, and
        ``spacr.crops.migrate_crop_folder`` rewrites such a folder in place.
 

@@ -555,7 +555,7 @@ def _screen_labels(attached: Sequence[PlateDatabase], screens: Any) -> Any:
     :data:`spacr.multi_database.SCREEN_COLUMN`, where it stays a dimension you
     can block on -- rather than into the plate id, where ``on_collision``
     ``'qualify'`` would put it and where it becomes a string to be parsed back
-    apart (instruction 122). This module never qualifies.
+    apart. This module never qualifies plate IDs.
     """
     if isinstance(screens, Mapping):
         return [screens.get(row.plate) for row in attached]

@@ -528,49 +528,15 @@ def _house(axis, title="", xlabel="", ylabel=""):
 
 
 def _finish(fig, save_path, dpi=None, fmt=None, renderer=None, title=None):
-    """Lay the figure out, PUBLISH it when there is somewhere to write it, close it.
+    """Lay out, optionally publish, and always close a diagnostic figure.
 
-    Published, not saved. Instruction 139 C: "several graphs are saved but I
-    cannot see them in the software". This module wrote its panels with a bare
-    ``fig.savefig`` and never called ``show``, and a figure reaches the spaCR
-    gallery by exactly one route -- so the design, residual and inference
-    panels were on disk and none of them was in the application, which is the
-    reported bug precisely. :func:`spacr.figure_sink.publish` saves and
-    announces as ONE event, so the file and the tile can no longer disagree.
+    :func:`spacr.figures.scene.write_figure` selects the requested renderer
+    and falls back to matplotlib if scene translation is incomplete. ``fmt``
+    and ``dpi`` override output preferences when provided. ``save_path=None``
+    skips writing but still closes the pyplot figure.
 
-    Two things the raw ``savefig`` also got wrong and ``publish`` fixes, both
-    through :func:`spacr.plot.save_figure`:
-
-    * the FORMAT is the user's preference rather than whatever extension the
-      caller happened to type, and the file NAME follows the format -- a PNG
-      written to ``design.pdf`` is a file no viewer opens;
-    * the DPI is the preference's, and it reaches a PDF as well, which matters
-      because these panels are full of scatter clouds.
-
-    ``fmt`` forces one particular format, for a caller that genuinely needs
-    one (``write_diagnostic_suite`` when it was asked for named formats), and
-    ``dpi`` forces a resolution. Both default to None, which is what lets the
-    preference through; the old hard-coded 200 applied to PNG only and was the
-    reason the resolution preference reached none of these panels.
-
-    THE RENDERER IS THE SCREEN'S WHERE THAT IS POSSIBLE.
-    :func:`spacr.figures.scene.write_figure` translates the finished figure --
-    all six panels of it -- into a pyqtgraph scene and exports that, so the
-    generated file is drawn by the library the tabs are drawn by. The numbers
-    are still computed exactly once, here. A figure it cannot carry completely
-    is published by matplotlib exactly as it was.
-
-    The figure is closed on BOTH paths. These figures come from ``plt.subplots``,
-    so pyplot holds a reference to every one of them until it is closed;
-    returning early on ``save_path=None`` -- the default of all three public
-    ``plot_*_diagnostics`` functions, and the way a caller asks for the report
-    dict without keeping the picture -- leaked one figure per call. Across a
-    parameter sweep that is hundreds of live figures and matplotlib's
-    "More than 20 figures have been opened" warning.
-
-    :returns: the path actually written, which is not necessarily the path
-        asked for. A caller that records the requested name records a file
-        that is not there.
+    :returns: the path actually written, or ``None`` when ``save_path`` is
+        ``None``.
     """
     import matplotlib.pyplot as plt
 

@@ -1,60 +1,17 @@
-"""Render generated figures from the same scene shown on screen.
+"""Render generated regression figures from their interactive scenes.
 
-The main risk is not duplication but disagreement. Every
-interactive regression plot in pyqtgraph -- the volcano, the effect ranking,
-the effect distribution, the control separation, the guide agreement, the
-p-value histogram and the Q-Q are seven classes in
-``spacr.qt.widgets.fast_plots``. The same seven pictures are ALSO drawn in
-matplotlib by :mod:`spacr.figures.panels` for the file on disk. So one screen
-draws each plot twice, in two libraries, from two code paths, and the two can
-move apart -- which is how a figure in a paper stops matching the figure its
-author was looking at when they wrote the sentence about it.
+For the plots listed in :data:`FAST_PANELS`, :func:`render_panel` exports a
+provided ``FastPlot`` directly so the saved figure matches the visible tab.
+In ``auto`` mode, a call without a live widget uses the corresponding
+matplotlib panel. ``SPACR_FIGURE_RENDERER=pyqtgraph`` explicitly requests a
+new scene built from the coefficient table; ``matplotlib`` forces that
+renderer.
 
-COUNTED 2026-08-18, matplotlib figures ONE regression run produces: 41 --
-20 from `regression_qc`, 12 from `ml`, 5 from `toxo`, 3 from
-`regression_diagnostics`, 1 from `guide_permutation`. Of those, exactly SEVEN
-are drawn a second time by the tabs, and they are this module's subject. The
-other 34 have no interactive twin, so converting them would buy a change of
-renderer and no agreement at all -- which is why they are not here.
-
-WHAT "RENDERED" MEANS, and it is the whole design:
-
-    render_panel(key, frame, path, plot=live_widget)
-
-renders THE WIDGET THE USER IS LOOKING AT. Not a second drawing of the same
-data with the same intentions -- the actual scene, through
-``FastPlot.export``, which writes true vector PDF through a ``QPdfWriter`` and
-PNG through pyqtgraph's ``ImageExporter``. Handed no widget it builds one from
-the frame, using :mod:`spacr.figures.panels`' own column resolution so the
-rows drawn are the rows the house-style panel would have drawn.
-
-THE DEFAULT RENDERER IS DECIDED BY WHETHER THERE IS A SCENE, AND NOTHING IS
-GUESSED:
-
-    a live FastPlot was handed in  ->  pyqtgraph, rendering THAT widget
-    nothing was handed in          ->  matplotlib, and it SAYS why
-
-Two plots can only disagree where both exist, and the only proof that both
-exist is the widget. A ``spacr-run regression`` in a terminal has no tab to
-disagree with, so it keeps the matplotlib page it has always written rather
-than importing PySide6 to decide the colour of an axis.
-
-Asking for the scene anyway is one environment variable, and it WORKS with no
-display: measured on this machine, ``QT_QPA_PLATFORM=offscreen`` renders all
-seven panels, both a PNG and a real vector PDF.
-
-    SPACR_FIGURE_RENDERER = auto | pyqtgraph | matplotlib
-
-EVERY SAVE STILL HONOURS THE FORMAT PREFERENCE. pyqtgraph decides what it
-writes from the file NAME, so the name is built by :func:`spacr.plot.figure_path`
-before the export sees it, exactly as ``save_figure`` rewrites the extension on
-the matplotlib path. A literal '.pdf' is a complaint this project has had twice.
-
-Every save is also announced: saved and visible are one
-event. A matplotlib figure reaches the gallery through
-``spacr.figure_sink.publish``; a rendered file has no matplotlib figure to
-publish, so it goes through :func:`spacr.figure_sink.publish_file`, which is
-the same event for a picture something else drew.
+Output paths pass through :func:`spacr.plot.figure_path`, so file extensions
+follow the configured format. Matplotlib figures are published through
+``spacr.figure_sink.publish`` and scene exports through
+``spacr.figure_sink.publish_file``; both routes add saved files to the gallery
+when a listener is present.
 """
 
 from __future__ import annotations

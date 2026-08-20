@@ -371,22 +371,12 @@ def _fill_outro(sidebar_h: int, sidebar_avail: int) -> str:
 
 def _scroll_finding(specs: Sequence[dict],
                     reports: Dict[Tuple[int, str], Dict[str, list]]) -> str:
-    """Finding 2's second sentence, **counted from the audit**.
+    """Summarize scrollbar audit results for all rendered variants.
 
-    This paragraph was rewritten to stop hardcoding the app count and
-    promptly typed a different one — "Twenty-seven of the thirty
-    variants below fit 1440x900 with no scrollbar at all" — into the
-    same breath. The audit is the only thing that knows: a variant
-    starts needing a scrollbar the moment a longer name or one more app
-    pushes it over 900 px, and nobody edits prose when that happens.
-
-    When the audit does not cover every variant it says so, instead of
-    dividing by a total it never looked at. (``--only 7`` normally still
-    has the full picture — :func:`render_all` seeds ``reports`` from the
-    cached ``_audit.json`` and overwrites only the pairs it re-rendered
-    — so that branch is really for a missing or truncated cache.)
-    Quietly reporting "29 of 30 fit" off one rendered variant is exactly
-    the plausible-wrong-number failure this file exists to avoid.
+    Count results from ``reports`` instead of embedding the number of app
+    variants in prose. When the audit is incomplete, describe only the
+    measured subset. A partial render normally retains full coverage because
+    :func:`render_all` seeds ``reports`` from the cached ``_audit.json``.
     """
     import textwrap
 

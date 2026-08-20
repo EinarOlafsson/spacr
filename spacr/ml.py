@@ -84,14 +84,10 @@ import warnings
 
 
 def _require_backend(regression_type, regression_backend):
-    """The canonical backend name, REFUSING one that cannot fit this family.
+    """Resolve and validate a regression backend for a model family.
 
-    Instruction 141 C: the two controls constrain each other in both
-    directions, and a combination that cannot work is answered with the
-    sentence saying why rather than by quietly fitting something else. This
-    is the run-time half of the greying rule -- a settings CSV reaches the
-    fit without passing a panel, so the panel's greyed-out entry is not the
-    only place the rule can live.
+    Validate at run time because settings loaded from a file can bypass the
+    GUI's disabled backend entries. Never substitute another backend silently.
 
     :param regression_type: the family being fitted.
     :param regression_backend: name or label, or ``None`` for the default.
@@ -113,18 +109,11 @@ def _require_backend(regression_type, regression_backend):
 
 
 def _say_what_a_mixed_fit_will_cost(backend, df=None):
-    """Announce a long fit BEFORE it starts, and name the way out.
+    """Describe the expected cost of a statsmodels mixed fit before it starts.
 
-    Measured on the maintainer's four-plate TSG101 screen: the same mixed
-    model took 26 SECONDS on `regression_backend='torch'` and was still
-    inside scipy's BFGS after twenty-five minutes on statsmodels. A
-    CPU-bound fit that prints nothing for half an hour is not distinguishable
-    from a freeze, and it was reported as one -- "i ran an ols then a mixed
-    regression model and this hung my computer twice so i had to restart it".
-
-    The default is NOT changed here. statsmodels produced every existing
-    result and that is the reason it is the default; what was missing was the
-    sentence saying what the wait is and that one setting removes it.
+    Print nothing for non-default backends. For statsmodels, include the row
+    count when available and state whether the compatible Torch GPU backend
+    can be selected instead.
     """
     if backend != DEFAULT_REGRESSION_BACKEND:
         return
@@ -164,23 +153,12 @@ _UNIT_INTERVAL_SETTINGS = {
 
 
 def _reject_impossible_probabilities(settings):
-    """Refuse an out-of-range alpha BEFORE the run writes a results folder.
+    """Validate probability thresholds before the run writes output.
 
-    Reported 2026-08-19 from the maintainer's own screen: a run reached the
-    permutation forty seconds in -- having already written its figures, its
-    `regression_data.csv` and three QC plots -- and died with
-
-        ValueError: alpha must be strictly between 0 and 1; got -0.95
-
-    -0.95 is 0.05 minus 1: one scroll of the wheel over a QDoubleSpinBox
-    whose `singleStep` was left at its default of 1.0. The widget is fixed,
-    but the value was already SAVED into `settings/regression.csv`, and a
-    settings file reaches this function without passing a panel at all.
-
-    So the check lives here too -- the same argument `_require_backend`
-    makes for the backend greying rule. A run that cannot succeed should cost
-    a second and name the setting, not forty seconds and a half-written
-    folder.
+    Check every setting in :data:`_UNIT_INTERVAL_SETTINGS` that represents a
+    probability and reject non-numeric values or values outside the open
+    interval ``(0, 1)``. The penalty parameter named ``alpha`` is deliberately
+    excluded because it is not a probability.
     """
     for key, what in _UNIT_INTERVAL_SETTINGS.items():
         if what is None or key not in settings:
@@ -266,21 +244,11 @@ def _figure_stamps(folders):
 
 
 def _keep_figures_with_the_run(before, folders, destination):
-    """Copy figures written since ``before`` into the run's own folder.
+    """Copy newly written figures into the run-specific output folder.
 
-    THE RUN FOLDER IS THE RECORD OF THE RUN, and two figures were never in
-    it. Reported 2026-08-17: "for some reason now i dont see the grna
-    threshold graph". Measured rather than assumed -- the figure IS drawn and
-    IS open at ``plt.show()``, so the Qt bridge still streams it to the live
-    figure queue. What it is missing from is every view built from DISK: the
-    all-figures grid rebuilt for a saved run walks the run folder
-    (``AppScreen._load_trial_figures``), and so does anyone opening
-    ``results/ols_12/`` themselves. ``fraction_threshold`` and the
-    unique-count heatmap were written to the SCREEN folder, which every run
-    of that screen shares, so neither was ever in one.
-
-    Copied rather than moved: scripts and past runs still expect the screen
-    folder, and a figure is small.
+    Compare current file stamps with ``before`` and copy only new or changed
+    figures. Retain the originals because other workflows may reference the
+    screen-level folder.
 
     :param before: the stamps from :func:`_figure_stamps` taken first.
     :param folders: the same folders it was taken over.
@@ -805,30 +773,12 @@ def _blup_guide_name(key):
 
 
 def _answering_stop(model):
-    """Make a statsmodels fit answer Stop. Returns the same model.
+    """Add a cancellation checkpoint to a statsmodels model instance.
 
-    Instruction 140 C. `spacr.ml` had NO cancellation check anywhere, so
-    `worker.request_cancel` could not land inside a mixed fit however long it
-    ran -- and this fit runs for tens of minutes to hours on a real screen
-    (823 guides over 610 wells). What made it stoppable was `_force_stop`,
-    which parks the thread and gives the window back while the fit carries on
-    in the background. That is honest -- it says so rather than claiming it
-    stopped -- but it is not stopping.
-
-    THE HOOK IS `loglike`, NOT `fit(callback=)`. statsmodels accepts a
-    callback and calls it once per optimizer ATTEMPT, not per iteration:
-    measured at 2 calls for a whole fit, on a 30-predictor design and on a
-    2-predictor one. Two chances to notice Stop in an hour is the same
-    silence. `loglike` is evaluated by the optimiser on every step, which is
-    the granularity a user pressing a button expects.
-
-    ON THE INSTANCE, never on the class. Patching statsmodels itself would
-    put a spaCR checkpoint inside every model any library in the process
-    fits.
-
-    `PipelineCancelled` propagates out of scipy unchanged -- checked, because
-    an optimiser that swallowed it would leave the fit running with the user
-    told it had stopped, which is worse than not offering to stop at all.
+    Wrap the instance's ``loglike`` method because optimizers evaluate it on
+    each step, providing finer cancellation granularity than the fit callback.
+    The wrapper propagates :class:`spacr.cancellation.PipelineCancelled` and
+    returns the same model instance.
     """
     from .cancellation import checkpoint
 
@@ -2383,37 +2333,10 @@ class _AbsorbedSummary:
 def _fit_absorbed_least_squares(X, y, weights=None, kind='OLS'):
     """Least squares with ``rowID``/``columnID`` absorbed, via pyfixest.
 
-    THE MEASUREMENT THIS EXISTS FOR (instruction 141 G, on this machine,
-    synthetic screens of the shape ``prepare_formula`` builds, against
-    ``sm.OLS(y, X).fit()`` on the identical design):
-
-    ===========================  ==========  ==========  =======
-    design                       statsmodels  absorbed    ratio
-    ===========================  ==========  ==========  =======
-    n=1830, p=736 (TSG101)         0.244 s     0.172 s     1.4x
-    n=6000, p=2242                 3.37 s      0.572 s     5.9x
-    n=12000, p=4601               43.3 s       2.59 s     16.7x
-    ===========================  ==========  ==========  =======
-
-    and the agreement, on the same fits: coefficients to 3.9e-9 ABSOLUTE,
-    standard errors to 1.3e-13 RELATIVE, p-values to 8.5e-12 absolute. The
-    ratio RISES with screen size, which is the shape instruction 140 measured
-    for the cost this is paying off.
-
-    THE WIN IS NOT WHERE INSTRUCTION 141 B GUESSED IT WAS, and the difference
-    is worth writing down because it cost a measurement to find. Absorbing 36
-    of 736 columns is a 5% smaller design and cannot be worth 16x on its own.
-    What it buys is the SOLVER: statsmodels' OLS answers through
-    ``pinv_wexog``, a Moore-Penrose pseudo-inverse computed by SVD, which is
-    O(n p^2) with a large constant and gets no cheaper for a well-conditioned
-    design. Once the nuisance factors are projected out, the remaining normal
-    equations are symmetric positive definite and a Cholesky solve answers
-    them. ``pyfixest``'s own ``feols`` was measured too and is SLOWER than
-    statsmodels here (1.24 s against 0.26 s on the TSG101 shape) -- its
-    formula parsing and collinearity sweep cost more than the absorption
-    saves at these widths -- so this routes through
-    ``pyfixest.core.demean``, which is the alternating-projections kernel
-    itself.
+    Use ``pyfixest.core.demean`` to project out row and column factors, then
+    solve the remaining normal equations by Cholesky decomposition. This
+    avoids including high-cardinality nuisance dummies in the dense solve
+    while retaining a coefficient table compatible with the statsmodels path.
 
     :param X: the design DataFrame, dummy columns included.
     :param y: the response.
@@ -2577,23 +2500,11 @@ _GLUM_FAMILIES = {
 class _GlumResults:
     """A GLM fitted by glum, reporting what statsmodels' GLM results report.
 
-    THE STANDARD ERRORS ARE COMPUTED HERE AND NOT TAKEN FROM GLUM. glum's own
-    ``std_errors`` defaults to a sandwich estimator and, with ``robust=False``
-    and the dispersion fixed, still applies a finite-sample correction of
-    ``N / (N - p)`` that statsmodels does not -- measured on the TSG101-shaped
-    screen as a constant ratio of 1.2934 for the Poisson fit and 1.00059 for
-    the weighted logit, which is exactly ``sqrt(N / (N - p))`` in each case
-    with ``N`` the observation count and the weight total respectively. A
-    p-value that differs by 29% is not a tolerance, it is a different answer,
-    and instruction 141 D calls that a bug.
-
-    So the covariance is formed from the information matrix directly,
-    ``(X' W X)^-1`` with ``W_ii = v_i (dmu/deta)^2 / V(mu_i)`` and the
-    dispersion fixed at 1, which is what a canonical-link GLM with a known
-    dispersion has and what statsmodels reports. It agrees with statsmodels
-    to the tolerance ``tests/test_the_backends_agree_with_statsmodels.py``
-    states rather than to a convention that could change between glum
-    releases.
+    Form covariance from the canonical-link information matrix,
+    ``(X' W X)^-1`` with
+    ``W_ii = v_i (dmu/deta)^2 / V(mu_i)`` and dispersion fixed at one. This
+    matches the covariance convention used by the statsmodels GLM path rather
+    than glum's optional sandwich or finite-sample corrections.
     """
 
     def __init__(self, params, bse, pvalues, resid, fitted, scale,
@@ -2689,24 +2600,9 @@ def _glum_information_weights(family, mu, var_weights):
 def _fit_glum_glm(X, y, regression_type, weights=None, exposure=None):
     """Fit one of the GLM families through glum instead of statsmodels.
 
-    THE MEASUREMENT (instruction 141 G, this machine, synthetic screens of the
-    shape ``prepare_formula`` builds, against the statsmodels GLM on the
-    identical design):
-
-    =========================  ===========  ========  ======
-    fit                        statsmodels  glum      ratio
-    =========================  ===========  ========  ======
-    poisson, n=1830, p=736        1.21 s     1.72 s    0.70x
-    logit,   n=1830, p=736        0.99 s     0.85 s    1.16x
-    poisson, n=6000, p=2242      41.4 s     16.9 s     2.44x
-    logit,   n=6000, p=2242      14.3 s      4.65 s    3.08x
-    =========================  ===========  ========  ======
-
-    SO IT IS NOT A WIN ON A SMALL SCREEN and the box says so. glum's advantage
-    is IRLS on tabmat's column-typed matrix with an active-set solver, which
-    costs a fixed setup and repays it once the design is wide; on the TSG101
-    shape the Poisson fit is slower than statsmodels'. The coefficients agree
-    to 2.6e-10 (Poisson) and 1.5e-9 (logit) on those fits.
+    Use glum's IRLS and active-set solver for supported Poisson, binomial, or
+    automatically selected GLM families. Small designs may not amortize the
+    backend's setup cost; its advantage is intended for wide model matrices.
 
     :param X: the design DataFrame.
     :param y: the response.
@@ -3221,11 +3117,10 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
     def _named_design(name):
         """The design's column names, or a refusal that says why they matter.
 
-        Both instruction-133 backends work on the GENE BEHIND EACH COLUMN, and
-        the only place that is written down is the column name patsy built.
-        A bare array would silently become one gene per column for the group
-        lasso -- i.e. ordinary lasso under a different label -- so it is
-        refused rather than fitted.
+        Gene-aware backends recover the gene behind each predictor from the
+        column name produced by patsy. Refuse an unnamed array because group
+        lasso would otherwise treat every column as a separate gene and
+        reduce to ordinary lasso under a different label.
         """
         columns = getattr(X, 'columns', None)
         if columns is None:
@@ -3884,30 +3779,17 @@ def _mixed_model_groups(df, dependent_variable, model_index, *,
                         gene_column='gene'):
     """Return the outer random-intercept grouping for ``regression_type='mixed'``.
 
-    THE CLUSTER IS THE GENE, and the guide is nested inside it. Instruction
-    132 replaced the model, not just the grouping: ``mixed`` used to group on
-    ``plateID`` and fit row and column variance components over the collinear
-    ``fraction:grna + gene_fraction:gene`` design. It now fits
+    The gene is the outer cluster and the guide is nested inside it. The model
+    fits
 
         y ~ gene_fraction:gene + (1 | gene/grna) + rowID + columnID
 
-    and ``(1 | gene/grna)`` is ``groups=gene`` plus a guide variance component
-    inside each group. See :func:`fit_mixed_model`.
+    where ``(1 | gene/grna)`` is represented as ``groups=gene`` plus a guide
+    variance component inside each gene. Row and column structure is carried
+    by fixed terms, or by variance components when requested. See
+    :func:`fit_mixed_model`.
 
-    THE OLD REASONING STILL APPLIES AND IS WHY THE PLATE IS NOT THE GROUP
-    HERE. A random intercept has to sit ABOVE the unit its covariates vary
-    at. The old worry was the WELL: ``groups = df['prc']`` asked the model to
-    explain a well-level covariate with a well-level intercept and it answered
-    zero -- on a 96-well synthetic screen with a planted +0.45 gene effect,
-    OLS recovered 0.31 and the well-grouped mixed model returned 0.003 at
-    p = 0.79, and it wrote results.csv without saying anything. The gene sits
-    above the guide, which is the level the new model's random effect
-    describes, so the same rule now names the gene. Row, column and plate
-    structure are carried by the fixed row/column terms, or by variance
-    components when ``random_row_column_effects=True``.
-
-    A single gene leaves one cluster, which is not a random effect at all, so
-    that case is refused rather than fitted.
+    A single gene provides only one outer cluster and is refused.
 
     :param df: The cleaned long-format frame.
     :param dependent_variable: Response column name, named in the refusal so
@@ -3940,19 +3822,11 @@ def _write_regression_qc(model, X, y, df, dst, *, coef_df=None,
                          regression_type=None, volcano_path=None):
     """Write the full QC suite for a fit into ``<dst>/regression_qc/``.
 
-    :func:`spacr.regression_qc.regression_qc_report` had no production caller:
-    twenty-three tested diagnostic panels -- scale-location (the variance
-    homogeneity panel the maintainer asked for by name), residuals-vs-fitted,
-    Q-Q, leverage, Cook's distance, DFFITS, VIF, condition number, the p-value
-    histogram, calibration -- existed, were tested, and were never produced by
-    an actual run. This is the hook.
+    Generate residual, scale-location, Q-Q, influence, collinearity,
+    calibration, and coefficient diagnostics while the fitted design matrix
+    and response are still available.
 
-    It lives here rather than in :func:`perform_regression` because this is the
-    only scope where the fitted design exists: ``regression`` returns
-    ``(model, coef_df, regression_type)`` and drops ``X`` and ``y`` on the way
-    out, so a caller further up has no design matrix to hand the report.
-
-    **Weights are deliberately not forwarded.** ``regression`` passes cell
+    Weights are deliberately not forwarded. ``regression`` passes cell
     counts to ``regression_model`` as ``var_weights`` / WLS weights / Poisson
     exposure for the types that take them, and for those types
     :func:`spacr.regression_qc.build_context` recovers the weights from the
@@ -4760,73 +4634,20 @@ def save_summary_to_file(model, file_path=SUMMARY_FILENAME):
 def _split_prc(text):
     """Return ``(plateID, rowID, columnID)`` for one ``prc`` well key.
 
-    Parsed **right to left**, for exactly the reason
-    :func:`spacr.schema.parse_prcf` is: the plate id is the only component
-    that may itself contain the key separator, and it is the leftmost one.
-
-    Three sites in this module used to spell this as
-
-    .. code-block:: python
-
-        df[['plateID', 'rowID', 'columnID']] = df['prc'].str.split('_', expand=True)
-
-    which has two failure modes on a plate called ``'exp1_plate1'``, and the
-    second one is silent:
-
-    * when every row carries the extra underscore the split returns four
-      columns against three keys and pandas raises ``ValueError: Columns must
-      be same length as key`` — in :func:`perform_regression` that lands
-      inside the ``try`` that writes the QC CSVs, so ``grna_well.csv`` and
-      ``well_grna.csv`` were simply never written and the only trace was a
-      bare ``print(e)``;
-    * when only *some* plates carry it the split still returns four columns,
-      so ``columnID`` is filled with the **row** token for every well of every
-      other plate and the per-well QC counts are grouped on nonsense.
+    Parse from right to left because only the leading plate ID may contain the
+    key separator. This preserves plate names such as ``'exp1_plate1'``.
 
     The row and column are returned exactly as they appear — nothing is
     canonicalised, because the caller rebuilds ``prc`` from these columns and
     a rewritten token would change the identity rows are joined on.
 
-    THE PLATE IS UNESCAPED, which is the one exception and is not a
-    canonicalisation: :func:`spacr.schema.compose_prc` percent-escapes the
-    plate on the way in, so returning it raw would hand back ``'a%5Fb'`` for a
-    plate named ``'a_b'``. :func:`spacr.schema.parse_prcf` already unescapes,
-    so leaving it here made the two parsers disagree on exactly the keys this
-    differential pair exists to protect.
+    Unescape the plate component to match :func:`spacr.schema.compose_prc` and
+    :func:`spacr.schema.parse_prcf`; return row and column tokens unchanged.
 
-    Callers in this module rebuild ``prc`` by hand and are NOT escaped, so a
-    plate id holding the separator still round-trips through the
-    four-component path below rather than through an escape. That asymmetry
-    is real and is recorded in instruction 100.
-
-    **Four components are not automatically an underscored plate.** A key with
-    more than three components is one of two things, and they mean opposite
-    things:
-
-    * ``'exp1_plate1_r2_c12'`` — a plate id that contains the separator. The
-      right-to-left rule handles it, and that is the case this function
-      exists for.
-    * ``'plate1_r1_c1_f1'`` — a ``prcf`` (or ``prcfo``) handed to the
-      function that takes a ``prc``. That is a *caller* bug, and the old
-      positional ``str.split`` at least failed loudly on it (``ValueError:
-      Columns must be same length as key``). Absorbing it right to left would
-      return ``('plate1_r1', 'c1', 'f1')`` — a field id in the ``columnID``
-      slot and half the well in the plate — and every per-well count grouped
-      on that is a plausible wrong number with nothing anywhere saying so.
-
-    The two are told apart by the trailing pair: a ``prc``'s last two tokens
-    are a row and a column, and the tokens spaCR writes for those are
-    ``r<N>``/row letters and ``c<N>``/digits (or the equal-valued positional
-    passthrough :func:`spacr.schema.is_positional_pair` describes). A
-    ``prcf``'s trailing pair is ``(column, field)`` and a ``prcfo``'s is
-    ``(field, object)``; neither can pass that test, because a ``columnID``
-    is never ``'f1'`` and a ``rowID`` is never ``'c1'``. Anything else with
-    more than three components is refused rather than guessed at — the
-    ambiguous case fails loudly, exactly as it did before.
-
-    A three-component key is accepted whatever its tokens look like, which is
-    what the ``str.split`` this replaces did, so no key that used to parse
-    stops parsing.
+    For keys with more than three components, require the final tokens to be
+    a recognizable row/column pair. This accepts a plate containing the
+    separator while rejecting a deeper ``prcf`` or ``prcfo`` key. Exactly
+    three components remain accepted without positional-token validation.
 
     :param text: a ``prc`` key, e.g. ``'plate1_r1_c1'``.
     :returns: ``(plateID, rowID, columnID)``.
@@ -5352,13 +5173,10 @@ def _identifiability_warning(data, settings, *, well_column='prc',
     changes what runs -- it only makes sure the user cannot miss what they
     are about to get.
 
-    COUNTED AT THE LEVEL BEING FITTED. Since instruction 132 a run fits one
-    level at a time, and the two have very different widths: on the
-    maintainer's TSG101 screen the guide fit estimates 823 guide effects from
-    610 wells and IS unidentifiable, while the gene fit estimates 389 and is
-    not. Counting guides for both would put the warning on a gene fit that
-    does not deserve it, and a warning that fires when it should not is a
-    warning people learn to scroll past.
+    Count terms at the requested fit level because guide- and gene-level
+    designs can have different widths. Return a warning only when the number
+    of estimated intercept, block, and identifier terms is at least the
+    number of analyzed wells.
 
     :param level: ``'grna'`` (default) or ``'gene'`` -- which fit is about to
         run, and therefore which identifiers are the parameters.
@@ -5990,16 +5808,11 @@ def _toxoplasma_is_on(settings) -> bool:
 
 def _call_level_hits(coef_df, level, settings, regression_type,
                      merged_df, dependent_variable, bootstrap=None):
-    """Correct ONE fit within itself and call that fit's hits.
+    """Correct one fit within itself and call that fit's hits.
 
-    EACH FIT IS ITS OWN MULTIPLE-TESTING FAMILY. Instruction 132: "for each do
-    a BH FDR correction". Pooling the guide fit and the gene fit would be
-    wrong twice over -- they are not independent (the same wells, and the gene
-    regressor is literally the SUM of the guide regressors), and doubling the
-    family size costs power for no protection. It is the principle spaCR
-    already states for multiple outcomes: correct each as its OWN family,
-    because pooling makes two correlated readouts of the same wells look like
-    twice as many tests.
+    Treat guide and gene fits as separate multiple-testing families. They use
+    the same wells and gene regressors are sums of guide regressors, so pooling
+    both levels would count correlated hypotheses as independent tests.
 
     :param coef_df: one fit's annotated coefficient table.
     :param level: ``'grna'`` or ``'gene'`` -- which fit this is.
@@ -6273,14 +6086,10 @@ def _call_level_hits(coef_df, level, settings, regression_type,
 
 
 def _stage(settings, name):
-    """Name the stage this fit has reached AND record what it costs there.
+    """Record the current fit stage and its resource use without raising.
 
-    Instruction 160. Two regressions in a row made the machine unresponsive,
-    and the report could not be acted on because nothing recorded a number.
-    One call does both: a stage without its cost is the state that was filed
-    about, and a cost without its stage cannot say where the fit was when it
-    grew. Never raises -- a measurement that can fail the run it measures is
-    worse than no measurement.
+    Fall back to storing ``_regression_stage`` in the settings mapping when
+    resource measurement is unavailable.
     """
     try:
         from .fit_resources import record_stage
@@ -6350,18 +6159,11 @@ FIT_RESOURCES_FILENAME = "fit_resources.txt"
 
 
 def _write_fit_resources(outcome, settings):
-    """Record what the fit COST, into the folder of a run that succeeded.
+    """Write per-stage and peak resource use for a successful fit.
 
-    Instruction 160 asks for peak RSS and GPU memory in the run folder so the
-    next "two regressions hung the machine" arrives with a number instead of
-    a description. The per-stage readings were already being taken, and
-    `regression_failure` already printed them -- but only for a run that
-    FAILED, which is the one case where the machine did not hang. A run that
-    completes is exactly the run whose cost the next report needs to be
-    compared against.
-
-    Never raises: a measurement that can fail the run it measures is worse
-    than no measurement, which is the rule `_stage` already follows.
+    Store the report beside the run results when a destination and
+    measurements are available. Return an empty string on missing data or any
+    measurement/write failure so resource reporting cannot fail the fit.
     """
     try:
         from .fit_resources import describe_resources, peak

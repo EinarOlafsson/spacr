@@ -1,67 +1,19 @@
-"""Contain the duplicate-OpenMP-runtime crash that kills classify on macOS.
+"""Contain duplicate OpenMP runtimes during model fitting on macOS.
 
-An ordinary pip install puts three independent copies of LLVM's OpenMP runtime
-in one process: torch ships ``torch/lib/libomp.dylib``, scikit-learn ships
-``sklearn/.dylibs/libomp.dylib``, and the xgboost wheel links
-``@rpath/libomp.dylib`` with an rpath into Homebrew, so it pulls in whatever
-``brew install libomp`` left at ``/opt/homebrew/opt/libomp/lib``. ``spacr.ml``
-imports ``XGBClassifier`` at module scope, so every classify run has all three
-resident before it fits a single row. Measured, on this repository's own import
-graph::
+Torch, scikit-learn, and XGBoost wheels can load independent LLVM OpenMP
+runtimes into one process. Crossing their worker-thread state can terminate
+the process, particularly when ``KMP_DUPLICATE_LIB_OK`` suppresses the
+runtime's duplicate-initialization guard.
 
-    $ python -c "import spacr.ml; from spacr.openmp_guard import *; \
-                 print(resident_openmp_runtimes())"
-      .../sklearn/.dylibs/libomp.dylib
-      .../torch/lib/libomp.dylib
-      /opt/homebrew/Cellar/libomp/22.1.5/lib/libomp.dylib
+:func:`single_threaded_openmp` detects mapped runtimes and, when more than one
+is resident, calls ``omp_set_num_threads(1)`` on the fitting thread. This
+serializes that thread's parallel regions without imposing a process-wide
+``OMP_NUM_THREADS=1`` limit on segmentation and other workloads. Estimator
+``n_jobs`` and ``nthread`` arguments are not substitutes because they do not
+prevent the OpenMP runtime from creating a worker team.
 
-They are not interchangeable. A crash report from 2026-08-14 caught one OpenMP
-call chain crossing two of the images::
-
-    __kmp_launch_worker -> __kmp_fork_barrier -> kmp_flag_64::wait  [xgboost's]
-      -> __kmp_suspend_64 -> __kmp_suspend_initialize_thread        [torch's]
-           SIGSEGV, far = 0x580
-
-xgboost's runtime handed torch's runtime a ``kmp_info_t *`` out of its own
-thread table; torch's build read it at its own struct offsets and dereferenced
-field 0x580 of something else entirely. libomp normally refuses to be
-initialised twice and says so ("OMP: Error #15"), but TensorFlow sets
-``KMP_DUPLICATE_LIB_OK=True`` process-wide, which turns that guard off and
-leaves the corruption silent.
-
-Every frame in that chain belongs to a **worker thread of an OpenMP team**. Kill
-the team and the chain cannot exist. What actually kills it was measured rather
-than assumed, because the obvious answer is wrong:
-
-===============================  ==========================================
-lever                            threads parked in ``__kmp_launch_worker`` /
-                                 ``__kmp_fork_barrier`` after one fit
-===============================  ==========================================
-nothing                          10
-``XGBClassifier(nthread=1)``     10
-``XGBClassifier(n_jobs=1)``      10
-``OMP_NUM_THREADS=1``             0
-``omp_set_num_threads(1)`` on
-the fitting thread                0
-===============================  ==========================================
-
-So the estimator's own thread argument does not touch the pool — it decides how
-many threads *join a region*, not whether the runtime builds a team — and
-clamping it would have been a fix that looked right and protected nothing.
-``OMP_NUM_THREADS`` works but is read once at runtime init and pins torch and
-scikit-learn to one thread for the whole session, which is far too expensive
-for a process whose long pole is segmentation.
-
-``omp_set_num_threads`` sets the *calling thread's* ``nthreads`` ICV. Called on
-the thread that is about to fit, it serializes that thread's parallel regions
-and leaves every other thread alone — measured: the main thread's
-``omp_get_max_threads`` reads 10 / 4 / 10 before and after, unchanged, while the
-fitting thread reads 1 / 1 / 1 throughout and no worker parks anywhere.
-
-That is what :func:`single_threaded_openmp` does, and only when more than one
-runtime is actually mapped.
-
-Qt-free by design — this is pipeline code and runs on the cluster too.
+The module has no Qt dependency and is safe to use in command-line and cluster
+pipelines.
 """
 
 from __future__ import annotations

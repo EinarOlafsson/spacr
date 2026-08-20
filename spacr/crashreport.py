@@ -435,9 +435,8 @@ def _doctor_sections(report: CrashReport, checkout: Optional[Path],
                      app: str, probe_gpu: bool) -> None:
     """Run :mod:`spacr.doctor` once and add both of its renderings.
 
-    Both, on purpose: the text is what a human reads in the issue thread, and
-    the JSON is what a maintainer greps across a hundred reports. They come
-    from one ``run_checks`` call so they cannot disagree.
+    Add human-readable text and structured JSON from the same ``run_checks``
+    result so the two representations cannot disagree.
 
     ``run_checks`` itself goes *inside* :func:`_collect` rather than beside it.
     It already turns a check that raises into an ``ERROR`` row, but importing
