@@ -668,3 +668,73 @@ def test_the_profile_falls_back_to_the_strongest_survivor(qtbot, screen):
     figure = panel.figure(kind="profile")
     if figure is not None:
         assert str(gene) in figure.axes[0].get_title()
+
+
+# ------------------------------------------------------- looking at them
+
+
+def test_there_is_a_button_that_shows_the_picture(qtbot, screen):
+    """Asked on 2026-08-19: "i ran a measurement sweep how do i see the
+    graphs?" -- and the answer was that you could not. The chooser and all
+    ten views existed with `figure()` reachable only through Save, so the
+    only way to look at one was to write it to disk and open it yourself.
+    A picture nobody can look at is a setter nobody calls.
+    """
+    from spacr.qt.widgets.sweep_panel import SweepPanel
+
+    wells, fractions, plates = screen
+    panel = SweepPanel()
+    qtbot.addWidget(panel)
+
+    assert not panel.show_button.isEnabled(), (
+        "the button offers to draw a sweep that has not been run")
+
+    panel._result = sweep(wells, fractions, blocks=plates, level="gene")
+    dialog = panel.show_picture()
+
+    assert dialog is not None
+    assert dialog.isVisible()
+    qtbot.addWidget(dialog)
+
+
+def test_the_window_is_kept_alive(qtbot, screen):
+    """Python collects a dialog with no reference the moment the call
+    returns, and the window vanishes as it appears."""
+    from spacr.qt.widgets.sweep_panel import SweepPanel
+
+    wells, fractions, plates = screen
+    panel = SweepPanel()
+    qtbot.addWidget(panel)
+    panel._result = sweep(wells, fractions, blocks=plates, level="gene")
+
+    dialog = panel.show_picture()
+    assert dialog in panel._pictures
+
+
+def test_a_picture_with_nothing_to_draw_says_so_rather_than_opening_empty(
+        qtbot, screen):
+    """An empty window reads as a broken button."""
+    from spacr.qt.widgets.sweep_panel import SweepPanel
+
+    wells, fractions, plates = screen
+    panel = SweepPanel()
+    qtbot.addWidget(panel)
+    panel._result = sweep(wells, fractions, blocks=plates, level="gene")
+    # The branch is driven directly rather than through the q filter: the
+    # spin box clamps to its own minimum, so "nothing can pass" is not a
+    # value a user can type, and the test would have been asserting the
+    # widget's range instead of the panel's behaviour.
+    panel.figure = lambda *a, **k: None
+
+    assert panel.show_picture() is None
+    assert "Nothing to draw" in panel.status.text()
+
+
+def test_pressing_show_before_a_run_says_what_to_do(qtbot):
+    from spacr.qt.widgets.sweep_panel import SweepPanel
+
+    panel = SweepPanel()
+    qtbot.addWidget(panel)
+
+    assert panel.show_picture() is None
+    assert "Run the sweep first" in panel.status.text()

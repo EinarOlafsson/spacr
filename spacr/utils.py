@@ -10007,37 +10007,14 @@ def fill_holes_in_mask(mask):
     return filled_mask
 
 def correct_metadata_column_names(df):
-    """Rename legacy metadata columns to the canonical spaCR names.
+    """Renamed legacy metadata columns. **Defined in :mod:`spacr.schema`.**
 
-    A thin name over :func:`spacr.schema.canonicalise_frame`, which is the
-    one vocabulary: case- and punctuation-insensitive, so ``Plate``,
-    ``PLATE``, ``plate_id`` and ``plateName`` all become ``plateID``. This
-    function used to carry its own list of six spellings, matched
-    case-sensitively, and that list is why a CSV whose header said ``Column``
-    reached a fit with no ``columnID`` in it.
-
-    Two things it does that the shared vocabulary deliberately does not:
-
-    * ``grna_name`` -> ``grna``. Not in the shared vocabulary because the
-      sequencing CSVs are still read with ``grna_name`` by name in
-      ``spacr.submodules`` and ``spacr.plot``; renaming it at the database
-      migration would break those reads, and a rename nobody can see is
-      worse than a spelling.
-    * ``plate_row`` split into ``plateID`` and ``rowID``. That is a *value*
-      split rather than a rename, so it has no place in a name table.
-
-    :param df: DataFrame whose columns may use legacy names.
-    :returns: A DataFrame carrying the canonical names. The renames are not
-        applied in place, so the caller must use the returned frame.
+    Re-exported here because every existing caller imports it from `utils`,
+    and moved there because importing this module costs torch, torchvision
+    and cv2 -- 6.7 seconds -- for a function that needs none of them.
     """
-    from . import schema
-    df = schema.canonicalise_frame(df, report=print, repair_plate_ids=False)
-    if 'grna_name' in df.columns and 'grna' not in df.columns:
-        df = df.rename(columns={'grna_name': 'grna'})
-    if 'plate_row' in df.columns:
-        df[['plateID', 'rowID']] = df['plate_row'].str.split('_', expand=True)
-    return df
-
+    from .schema import correct_metadata_column_names as _moved
+    return _moved(df)
 
 def control_filelist(folder, mode='columnID', values=None):
     """Return filenames in ``folder`` whose row or column ID matches one of ``values``.
