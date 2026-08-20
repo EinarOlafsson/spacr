@@ -7782,9 +7782,24 @@ def _style_plot_axes(fig, ax, colors):
 
 
 def setup_plot(figuresize, black_background, theme_colors=None):
-    """Return a themed ``(fig, ax)`` matching the active GUI container."""
+    """Return a themed ``(fig, ax)`` matching the active GUI container.
+
+    SCOPED, NOT GLOBAL. This wrote the GUI theme's colours straight into
+    `plt.rcParams`, which is process-wide -- so every figure created
+    afterwards in the same process inherited them, including one being SAVED
+    FOR PAPER. A dark session therefore leaked white ink into files that had
+    nothing to do with this function, which is instruction 150's failure
+    reached by a different route, and instruction 136 asks by name that no
+    module write rcParams globally.
+
+    `rc_context` applies them to THIS figure and restores whatever was there.
+    `_style_plot_axes` below sets the same colours on the artists directly,
+    which is what makes the figure keep its look after the context exits.
+    """
+    import matplotlib as mpl
+
     colors = _plot_theme_colors(black_background, theme_colors)
-    plt.rcParams.update({
+    with mpl.rc_context({
         'figure.facecolor': colors['background'],
         'axes.facecolor': colors['background'],
         'axes.edgecolor': colors['border'],
@@ -7792,8 +7807,8 @@ def setup_plot(figuresize, black_background, theme_colors=None):
         'xtick.color': colors['foreground'],
         'ytick.color': colors['foreground'],
         'axes.labelcolor': colors['foreground'],
-    })
-    fig, ax = plt.subplots(1, 1, figsize=(figuresize, figuresize))
+    }):
+        fig, ax = plt.subplots(1, 1, figsize=(figuresize, figuresize))
     _style_plot_axes(fig, ax, colors)
     return fig, ax
 

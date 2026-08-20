@@ -488,11 +488,25 @@ def test_assign_colors_maps_every_unique_label():
 def test_setup_plot_applies_theme(black_background):
     from spacr.utils import setup_plot
 
+    from matplotlib.colors import to_rgba
+
     fig, ax = setup_plot(4, black_background)
     expected = "black" if black_background else "white"
-    assert plt.rcParams["figure.facecolor"] == expected
-    assert plt.rcParams["axes.facecolor"] == expected
-    assert plt.rcParams["text.color"] == ("white" if black_background else "black")
+    ink = "white" if black_background else "black"
+
+    # ON THE FIGURE, NOT ON `plt.rcParams`. This asserted the process-wide
+    # values after the call -- which was asserting a LEAK: rcParams is shared,
+    # so theming one figure through it themed every LATER figure in the
+    # process, including one being saved for paper. Instruction 136 asks by
+    # name that no module write rcParams globally, and `setup_plot` now scopes
+    # them with `rc_context`.
+    #
+    # Note this passed for black_background=False only because white is
+    # already matplotlib's default -- the assertion was never measuring the
+    # theming.
+    assert fig.get_facecolor() == to_rgba(expected)
+    assert ax.get_facecolor() == to_rgba(expected)
+    assert to_rgba(ax.xaxis.label.get_color()) == to_rgba(ink)
     assert fig.get_size_inches().tolist() == [4.0, 4.0]
     assert ax.figure is fig
 
