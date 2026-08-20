@@ -195,6 +195,8 @@ def test_family_labels_says_the_same_thing_as_the_two_functions_it_replaces():
     from spacr.hits import family_labels, guide_of, tested_family
 
     terms = ["Intercept", "fraction:grna[233460_1]", "gene_fraction:gene[233460]",
+             "fraction:grna[TGGT1_231640_3]",
+             "gene_fraction:gene[TGGT1_231640]",
              "rowID[T.2]", "columnID[T.c3]", "C(condition)[T.pc]",
              "no brackets at all", "x[T.233460_12]", "y[]", "plateID[T.p1]",
              None, float("nan"), 5]

@@ -171,3 +171,50 @@ def test_a_constant_screen_would_have_been_rank_deficient():
     _y, X = patsy.dmatrices(forced, data=frame, return_type="dataframe")
     assert not [c for c in X.columns if SCREEN_KEY in c], (
         "patsy kept a constant screen contrast")
+
+
+# --------------------------------------------------------------------------- #
+#  The mixed model, and the decision instruction 122 asked to have written
+# --------------------------------------------------------------------------- #
+
+def test_the_mixed_model_takes_the_screen_as_a_FIXED_term():
+    """Two screens make a poor random effect: one degree of freedom.
+
+    MixedLM will return a variance for a two-level component and that number
+    is not one anybody should quote. The screen enters as an ordinary fixed
+    term -- which is what a blocking factor with two levels is -- and the
+    grouping stays the gene/guide nesting the model exists for.
+    """
+    from spacr.ml import prepare_formula
+
+    formula = prepare_formula("y", block_screen=True, level="gene")
+    assert "screenID" in formula
+    # A FIXED TERM. Not `(1 | screenID)`, not a variance component.
+    assert "| screenID" not in formula
+    assert "C(screenID)" not in formula
+
+
+def test_a_single_screen_project_gets_no_screen_term_at_all():
+    """A constant column makes the design rank deficient, and statsmodels
+    answers that with a pseudo-inverse rather than a refusal."""
+    from spacr.ml import prepare_formula
+
+    assert "screenID" not in prepare_formula("y", block_screen=False,
+                                             level="gene")
+
+
+def test_the_decision_is_recorded_where_the_model_is_fitted():
+    """122's actual leftover: not the behaviour, the written reason.
+
+    A decision nobody can find is a decision that gets re-made differently.
+    """
+    import inspect
+
+    from spacr.ml import fit_mixed_model
+
+    doc = inspect.getdoc(fit_mixed_model) or ""
+    assert "FIXED TERM" in doc
+    assert "two levels" in doc.lower()
+    # And the alternative that was considered, so it is not reconsidered from
+    # scratch.
+    assert "NESTING THE PLATE INSIDE THE SCREEN" in doc

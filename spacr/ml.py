@@ -921,6 +921,29 @@ def fit_mixed_model(df, formula, dst, *, random_row_column_effects=False,
     efficiency and off-target profile, rather than a second independent
     variable competing with the gene for the same wells.
 
+    THE SCREEN IS A FIXED TERM, NOT A GROUPING, and that is a decision rather
+    than an omission -- instruction 122 asked for it to be written down here.
+
+    Two screens make a poor random effect. A variance component estimated from
+    TWO levels is estimated from one degree of freedom; MixedLM will return a
+    number for it, and that number is not a variance anybody should quote. The
+    screen enters the design through `prepare_formula(block_screen=True)` as
+    an ordinary fixed term, which is what a blocking factor with two levels
+    is, and the grouping stays the gene/guide nesting this model exists for.
+
+    NESTING THE PLATE INSIDE THE SCREEN was the alternative and is not done,
+    for the same reason plus one: the plate is already the row/column random
+    structure's group, and moving it under a two-level parent buys a variance
+    nobody can estimate at the cost of a design nobody can read. If a project
+    ever has enough screens for the screen to BE a population -- five or more
+    -- that is the point to revisit, and it is a new instruction with its own
+    measurement.
+
+    A SINGLE-SCREEN PROJECT IS UNTOUCHED. `screen_is_blockable` is False when
+    the column is absent or constant, and the term is not added at all --
+    because a constant column makes the design rank deficient and statsmodels
+    answers that with a pseudo-inverse rather than a refusal.
+
     THIS IS A REWRITE, NOT A SWITCH. Previously, this function
     grouped on ``plateID`` with ``re_formula='1 + rowID + columnID'`` and row /
     column variance components, and its fixed part was the collinear

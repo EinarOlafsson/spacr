@@ -193,34 +193,45 @@ def family_labels(features: Iterable[Any]) -> np.ndarray:
     if series.empty:
         return np.zeros(0, dtype=object)
     tested = tested_family(series)
-    # VECTORISED, AND IT IS THE SAME RULE. A volcano redraws this on every
-    # restyle, and :func:`guide_of` in a Python loop cost 2.1 ms of a 30 ms
-    # budget on the real screen's 1,215 coefficients. The parse is
-    # :data:`_BRACKET` followed by the same ``T.`` strip and the same
-    # ``_<digits>`` test, so there is no second rule here -- only a second
-    # spelling of it, and ``test_hits.py`` asserts the two agree element by
-    # element on every shape of term.
+    # Keep this vectorized for interactive plot restyling. Explicit term labels
+    # take precedence over the identifier suffix, matching ``guide_of``.
     token = series.str.extract(_BRACKET.pattern, expand=False)
     token = token.str.replace(r"^T\.", "", regex=True)
-    guide = token.str.contains(r"_\d+$", regex=True, na=False).to_numpy()
+    explicit_gene = series.str.contains(
+        r":gene\[", case=False, regex=True, na=False
+    ).to_numpy()
+    explicit_guide = series.str.contains(
+        r":grna\[", case=False, regex=True, na=False
+    ).to_numpy()
+    suffix_guide = token.str.contains(
+        r"_\d+$", regex=True, na=False
+    ).to_numpy()
+    guide = np.where(explicit_gene, False,
+                     np.where(explicit_guide, True, suffix_guide))
     return np.where(tested, np.where(guide, "grna", "gene"),
                     "").astype(object)
 
 
 def gene_of(feature: Any) -> Optional[str]:
-    """Return the gene id a model term names, or ``None``.
+    """Extract the gene identifier from a model term.
 
-    The rule is the one :func:`spacr.utils.merge_regression_res_with_metadata`
-    applies, deliberately: the bracketed token, ``T.`` stripped, truncated at
-    the first underscore. It maps BOTH sides of the pair to the same key —
-    ``gene_fraction:gene[233460]`` and ``fraction:grna[233460_1]`` are both
-    gene ``233460`` — which is what makes per-guide agreement computable at
-    all, and it is the same key the metadata join uses so the two cannot
-    disagree.
+    Parameters
+    ----------
+    feature : Any
+        Design-matrix term containing an identifier in square brackets.
 
-    :param feature: a design-matrix term name.
-    :returns: the gene id, or ``None`` for a term that names no gene
-        (``Intercept``, a row or column nuisance term).
+    Returns
+    -------
+    str or None
+        Gene identifier, or ``None`` when the term contains no bracketed
+        identifier. Guide suffixes are removed, while the strain prefix and
+        numeric portion of a VEuPathDB accession are retained.
+
+    Examples
+    --------
+    ``gene_fraction:gene[233460]`` and ``fraction:grna[233460_1]`` both map
+    to ``233460``. ``fraction:grna[TGGT1_231640_3]`` maps to
+    ``TGGT1_231640``.
     """
     if feature is None or (isinstance(feature, float) and math.isnan(feature)):
         return None
@@ -228,75 +239,65 @@ def gene_of(feature: Any) -> Optional[str]:
     if not match:
         return None
     token = re.sub(r"^T\.", "", match.group(1))
-    return gene_id_of(token)
+    return _gene_id_of(token)
 
 
-#: The VEuPathDB strain prefixes a Toxoplasma accession starts with. An id
-#: like ``TGGT1_231640`` carries an underscore INSIDE the gene name, so the
-#: "truncate at the first underscore" rule below cuts it in half and reports
-#: the gene as ``TGGT1`` -- which is a strain, not a gene, and is the same
-#: answer for every gene in the screen.
-#:
-#: Matched case-insensitively and only at the START, so a numeric id with a
-#: guide suffix (``233460_1``, which is what these screens actually use)
-#: still truncates as it always did.
-GENE_ID_PREFIXES = ("TGGT1", "TGME49", "TGVEG", "TGRH88", "TGARI",
-                    "TGCAST", "TGP89", "TGCOUG", "TGMAS", "TGFOU",
-                    "PF3D7", "PBANKA", "PY17X", "PCHAS", "PKNH", "PVP01",
-                    "CPATCC", "CHUDEA", "CPBGF", "NCLIV", "BBOV", "TA",
-                    "ETH", "EHXH", "CSUI")
+# Known VEuPathDB prefixes whose underscore is part of the gene accession.
+_GENE_ID_PREFIXES = ("TGGT1", "TGME49", "TGVEG", "TGRH88", "TGARI",
+                     "TGCAST", "TGP89", "TGCOUG", "TGMAS", "TGFOU",
+                     "PF3D7", "PBANKA", "PY17X", "PCHAS", "PKNH", "PVP01",
+                     "CPATCC", "CHUDEA", "CPBGF", "NCLIV", "BBOV", "TA",
+                     "ETH", "EHXH", "CSUI")
 
 
-def gene_id_of(token: Any) -> Optional[str]:
-    """The gene a bracketed token names. The rule, in one place.
+def _gene_id_of(token: Any) -> Optional[str]:
+    """Normalize a bracketed gene or guide token to its gene identifier.
 
-    ``233460_1`` -> ``233460``, which is the historical rule and the one the
-    metadata join uses, so the two cannot disagree.
+    Numeric guide tokens lose their trailing guide suffix. VEuPathDB
+    accessions retain the ``prefix_number`` gene identifier and lose only an
+    optional suffix after that identifier.
 
-    ``TGGT1_231640_3`` -> ``TGGT1_231640``. A VEuPathDB accession carries an
-    underscore inside the gene NAME, so truncating at the first one reported
-    every gene in a Toxoplasma screen as the strain ``TGGT1``. The docstring
-    of :func:`spacr.gene_tile.gene_tile` already claimed accessions were
-    accepted; they were parsed and came back ``unresolved`` with the wrong
-    gene.
+    Examples
+    --------
+    ``233460_1`` becomes ``233460`` and ``TGGT1_231640_3`` becomes
+    ``TGGT1_231640``.
     """
     text = str(token or "").strip()
     if not text:
         return None
     parts = text.split("_")
-    if len(parts) > 1 and parts[0].upper() in GENE_ID_PREFIXES:
-        # The accession is the prefix AND the number; anything after that is
-        # the guide suffix.
+    if len(parts) > 1 and parts[0].upper() in _GENE_ID_PREFIXES:
         return "_".join(parts[:2])
     return parts[0] or None
 
 
 def guide_of(feature: Any) -> Optional[str]:
-    """Return the gRNA id a model term names, or ``None``.
+    """Extract the guide identifier from a model term.
 
-    The companion to :func:`gene_of` and deliberately the same parse: the
-    bracketed token with ``T.`` stripped. Where :func:`gene_of` then truncates
-    at the first underscore to reach the gene, this one keeps the whole token
-    and returns it ONLY when it ends in ``_<digits>`` — the guide number the
-    library appends. ``fraction:grna[233460_1]`` is guide ``233460_1``;
-    ``gene_fraction:gene[233460]`` names a gene and no guide, so it is
-    ``None`` rather than the gene id wearing a guide's name.
+    Parameters
+    ----------
+    feature : Any
+        Design-matrix term containing an identifier in square brackets.
 
-    It exists so that "which guide is this term" has one answer, in the same
-    module as "which gene is this term". The rule was already written twice —
-    here and inline in :func:`grna_agreement` — and a third copy in the tile
-    resolver is how a dot in the volcano and a row in the hit list would start
-    naming different guides.
-
-    :param feature: a design-matrix term name.
-    :returns: the guide id, or ``None`` for a gene term or a nuisance term.
+    Returns
+    -------
+    str or None
+        Complete guide identifier, or ``None`` for gene and nuisance terms.
+        Explicit ``:gene[...]`` and ``:grna[...]`` labels take precedence
+        over identifier shape, so an underscore within a VEuPathDB gene
+        accession is not mistaken for a guide suffix.
     """
     if feature is None or (isinstance(feature, float) and math.isnan(feature)):
         return None
-    match = _BRACKET.search(str(feature))
+    feature_text = str(feature)
+    match = _BRACKET.search(feature_text)
     if not match:
         return None
     token = re.sub(r"^T\.", "", match.group(1))
+    if re.search(r":gene\[", feature_text, flags=re.IGNORECASE):
+        return None
+    if re.search(r":grna\[", feature_text, flags=re.IGNORECASE):
+        return token
     return token if re.search(r"_\d+$", token) else None
 
 

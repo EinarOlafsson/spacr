@@ -479,3 +479,37 @@ column names as one that spells it canonically. Two screens sharing a broken
 key vocabulary was the failure 145 was ordered ahead of this one to prevent;
 `read_merged` no longer has its own canonicaliser and its own plate repair --
 it calls the shared ones. See the 145 trailing note.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- THE MIXED-MODEL DECISION IS WRITTEN DOWN. 122 IS CLOSED.
+--------------------------------------------------------------------------------
+
+The first leftover was not behaviour, it was a MISSING REASON: `block_screen`
+already reaches `prepare_formula` on the mixed branch, so the screen has been
+a fixed term in the mixed model all along. What nobody had written was WHY,
+and a decision nobody can find is a decision that gets re-made differently.
+
+It is in `fit_mixed_model`'s docstring now:
+
+  * TWO SCREENS MAKE A POOR RANDOM EFFECT. A variance component estimated
+    from two levels is estimated from one degree of freedom; MixedLM returns
+    a number for it and that number is not a variance anybody should quote.
+    A blocking factor with two levels is a fixed term, and that is what it is.
+  * NESTING THE PLATE INSIDE THE SCREEN was the alternative and is refused
+    for the same reason plus one: the plate is already the row/column random
+    structure's group, and moving it under a two-level parent buys a variance
+    nobody can estimate at the cost of a design nobody can read.
+  * THE POINT TO REVISIT is named -- five or more screens, when the screen is
+    a population rather than a pair -- so the next person has a threshold
+    instead of an argument.
+  * A SINGLE-SCREEN PROJECT IS UNTOUCHED, because a constant column makes the
+    design rank deficient and statsmodels answers that with a pseudo-inverse
+    rather than a refusal.
+
+Three more tests in tests/test_the_regression_blocks_on_the_screen.py, 14 in
+the file. One of them asserts the REASON is in the docstring, which is the
+only way to hold "it is written down" rather than "it happened to be true".
+
+THE OTHER LEFTOVER -- containment for the measurement scan -- is instruction
+114's subject and stays there rather than being half-done here. It is 0.3 s on
+152 measurements over 44 wells; a four-plate merge is still untimed.

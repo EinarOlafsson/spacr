@@ -440,6 +440,8 @@ def test_guide_of_names_the_guide_and_refuses_a_gene_term():
     assert guide_of("gene_fraction:gene[233460]") is None, (
         "a gene term names no guide, and returning the gene id from a "
         "function called guide_of is how a gene ends up plotted as a guide")
+    assert guide_of("fraction:grna[TGGT1_231640_3]") == "TGGT1_231640_3"
+    assert guide_of("gene_fraction:gene[TGGT1_231640]") is None
     assert guide_of("Intercept") is None
     assert guide_of(None) is None
     assert guide_of(float("nan")) is None
