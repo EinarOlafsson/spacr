@@ -243,7 +243,7 @@ jobs:
       python_version: "3.12"
       extras: "qt,dev,zernike,attribution,btrack,czi"
       marker_expression: "qt and not slow and not heavy and not gpu and not network and not nas and not gui"
-      timeout_minutes: 60
+      timeout_minutes: 90
       xdist_workers: 4
 
   gpu:

@@ -24,7 +24,7 @@ builder = importlib.import_module("build_documentation_i18n")
 # remain represented.  A source/API change requires regenerating and reviewing
 # that report before deliberately updating either digest.
 _NEW_VISIBLE_DIGEST = (
-    "6c5d462267e511c2bfea2853748889a55028d49ae1a34b5ad65ad0a581c7bf1d"
+    "0aa19275ff594eb3441be42e42ad6a1277c09c16c3a9514dc392d635b47bfb6f"
 )
 _ALIASES_DIGEST = (
     "5167459a662cc68d3de274d216297020ba159155bad4e9e8af8e751e69cdba66"
@@ -141,7 +141,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # with its warm-up thread still running -- a reader who deletes it needs
     # to know that, so it carries a docstring and therefore surface.
     assert len(dunders) == 65
-    assert len(assignments) == 16
+    assert len(assignments) == 18
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders),
          *(f"new_constant_attribute\0{key}" for key in assignments)]
@@ -443,7 +443,15 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # canonical body; the documented implementation now lives at
     # ``spacr.png_list.crop_rows_from_png_list`` and remains re-exported for
     # compatibility. The localized catalogs are regenerated with this bump.
-    expected = 7662
+    # +96/-0 through the final nightly documentation sweep. Measured by
+    # comparing extractor output with the reviewed 7,662-symbol snapshot:
+    # 25 workspace, 15 regex inference, 9 restart state, 7 AppScreen,
+    # 5 each GIL priority and preferences, 4 each cell montage and fast
+    # plots, 3 ml, 2 each CLI workspace/database set/figure grid/regression
+    # results/sweep runs, and 9 single-symbol modules. The two documented
+    # workspace constants account for the assignment set growing 16 -> 18.
+    # Nothing retired, and all target catalogs are regenerated with this bump.
+    expected = 7758
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -458,7 +466,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 7781
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 7877
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
@@ -485,7 +493,7 @@ def test_assignment_docs_are_ast_source_text_without_show_value_artifact():
     docs = builder.public_docstrings()
     assignment_keys = _visible_assignment_docs()
 
-    assert len(assignment_keys) == 16
+    assert len(assignment_keys) == 18
     assert assignment_keys <= docs.keys()
     assert all("Show Value" not in docs[key] for key in assignment_keys)
     assert docs["spacr.batch_correction.METHODS"] == (
@@ -497,6 +505,12 @@ def test_assignment_docs_are_ast_source_text_without_show_value_artifact():
     assert docs[
         "spacr.qt.widgets.graph_builder.GraphCanvas.RESCALE_ON_FILTER"
     ].startswith("The chart itself: a spec in, a faceted figure out")
+    assert docs["spacr.workspace.MODES"].startswith(
+        "Supported workspace persistence modes"
+    )
+    assert docs["spacr.workspace.SCHEMA_VERSION"].startswith(
+        "Schema version written to"
+    )
 
 
 def test_exact_alias_map_and_manifest_records_are_identical():

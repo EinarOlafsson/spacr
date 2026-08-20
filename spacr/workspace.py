@@ -49,27 +49,29 @@ from typing import Any, Callable, Dict, Iterable, Iterator, List, Mapping, Optio
 LOG = logging.getLogger("spacr.workspace")
 
 SCHEMA_VERSION = 1
-"""On-disk schema of ``workspace.json``."""
+"""Schema version written to ``workspace.json``."""
 
 DOC_NAME = "workspace.json"
 FILES_DIR = "workspace/files"
 
 MODES = ("off", "reference", "copy")
-"""How much of the workspace a run carries.
+"""Supported workspace persistence modes.
 
-``off``        nothing is written; the run folder is what it is today.
-``reference``  the document, with every file recorded but only the files a
-               section explicitly marks carried. The default.
-``copy``       the same, plus the bytes of every recorded file under the
-               per-file size limit.
+``off``
+    Do not write workspace metadata.
+``reference``
+    Record referenced files and copy only artifacts explicitly marked for
+    retention. This is the default.
+``copy``
+    Also copy each recorded file within the configured per-file size limit.
 """
 
 DEFAULT_MODE = "reference"
 DEFAULT_COPY_LIMIT_MB = 512
 
-#: Reserved key. A section may list files it wants CARRIED rather than merely
-#: recorded, as ``[{"role": str, "path": str}, ...]``. Used for artifacts the
-#: session generated — figures, exported tables — which exist nowhere else.
+#: Reserved key for files a section retains with the workspace, rather than
+#: merely recording. Values use ``[{"role": str, "path": str}, ...]`` and
+#: normally identify generated artifacts such as figures or exported tables.
 CARRY_KEY = "_workspace_carry"
 
 #: Section keys that are metadata about the section rather than state to put

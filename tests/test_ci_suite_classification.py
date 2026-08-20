@@ -214,6 +214,17 @@ def test_qt_measurement_suites_run_after_xdist_workers_exit():
         assert workflow.count(path) >= 2
 
 
+def test_qt_suite_has_room_for_its_measured_runtime():
+    """The complete Qt shard must outlive its hosted-runner baseline."""
+    workflow = WORKFLOW.read_text(encoding="utf-8")
+    qt_block = workflow.split("\n  qt:", 1)[1].split("\n  gpu:", 1)[0]
+
+    # The full shard reached 76% after 57 minutes of pytest on a standard
+    # hosted runner. Ninety minutes covers the projected serial tail and
+    # installation without weakening or dropping any Qt contract.
+    assert 'timeout_minutes: 90' in qt_block
+
+
 def test_informational_windows_sweep_cannot_cancel_the_matrix():
     """Expected Windows failures must finish before the job-level timeout."""
     workflow = (ROOT / ".github" / "workflows" /
