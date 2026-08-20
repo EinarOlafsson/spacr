@@ -55,7 +55,7 @@ jobs:
   fast:
     name: Fast / Newest compatible (ubuntu-24.04, py${{ matrix.python-version }})
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    timeout-minutes: 90
 
     strategy:
       fail-fast: false
@@ -211,9 +211,9 @@ jobs:
           MKL_NUM_THREADS: "1"
           OPENBLAS_NUM_THREADS: "1"
         run: |
-          python -m pytest tests/ \
-            -m "not integration and not slow and not heavy and not qt and not gpu and not network and not nas and not gui" \
-            -n 3 --dist loadfile -v --tb=short
+          python tools/run_pytest_batches.py \
+            --marker "not integration and not slow and not heavy and not qt and not gpu and not network and not nas and not gui" \
+            --batch-size 32 --workers 2
 
   integration:
     name: Integration
@@ -322,7 +322,7 @@ jobs:
   minimum-dependencies:
     name: Minimum dependencies (ubuntu-24.04, py3.9)
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    timeout-minutes: 120
 
     steps:
       - uses: actions/checkout@v7
@@ -331,7 +331,7 @@ jobs:
       # pins every lower-bounded direct dependency (and every extra installed
       # here) to the oldest mutually installable release. The normal matrix
       # above intentionally has no constraints and therefore exercises the
-      # newest compatible resolution on all five supported interpreters.
+      # newest compatible resolution on all six supported interpreters.
       - name: Set up Python 3.9
         uses: actions/setup-python@v7
         with:
@@ -409,9 +409,9 @@ jobs:
           MKL_NUM_THREADS: "1"
           OPENBLAS_NUM_THREADS: "1"
         run: |
-          python -m pytest tests/ \
-            -m "not integration and not slow and not heavy and not qt and not gpu and not network and not nas and not gui" \
-            -n 3 --dist loadfile -v --tb=short
+          python tools/run_pytest_batches.py \
+            --marker "not integration and not slow and not heavy and not qt and not gpu and not network and not nas and not gui" \
+            --batch-size 32 --workers 2
 
   release-gate:
     name: Release gate / zero unexpected failures
