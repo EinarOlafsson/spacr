@@ -487,7 +487,9 @@ class Run:
     :ivar start_ts: unix epoch seconds when the run opened.
     :ivar end_ts: unix epoch seconds when the run closed (set by
         :func:`open_run` on exit).
-    :ivar status: ``"running"`` / ``"success"`` / ``"failed"``.
+    :ivar status: ``"running"`` / ``"success"`` / ``"failed"`` /
+        ``"cancelled"``. The last is a run the user stopped, which is not a
+        run that broke, and the two want different things done next.
     :ivar model_hashes: dict of ``{human-name: "filename:sha256-16"}``.
         Populated by callers via :meth:`record_model`.
     :ivar model_files: full SHA-256, size, and path records for models.
@@ -952,7 +954,17 @@ def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
             run.status = "success"
     except BaseException as e:
         import traceback as _tb
-        run.status = "failed"
+        # A RUN THE USER STOPPED IS NOT A RUN THAT FAILED, and instruction
+        # 140 C asks for a folder they can see afterwards. Recorded as
+        # "cancelled" so the Runs tab, `recent_runs` and a reviewer reading
+        # the manifest can all tell "I pressed Stop" from "this screen broke
+        # the model" -- which are different things to do next, and the folder
+        # is otherwise identical.
+        #
+        # The traceback is still kept: where a long fit was interrupted is
+        # exactly what a user asks afterwards.
+        run.status = ("cancelled" if type(e).__name__ == "PipelineCancelled"
+                      else "failed")
         run.error_traceback = "".join(
             _tb.format_exception(type(e), e, e.__traceback__)
         )
