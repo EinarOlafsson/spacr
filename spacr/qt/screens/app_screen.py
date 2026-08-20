@@ -5801,10 +5801,20 @@ class AppScreen(QWidget):
                 except (ValueError, TypeError):
                     pass
         elif isinstance(widget, QComboBox):
-            for i in range(widget.count()):
-                if widget.itemText(i) == str(val):
-                    widget.setCurrentIndex(i)
-                    break
+            # THE STORED VALUE FIRST, THEN THE TEXT. A combo built from
+            # (value, label) pairs shows the SENTENCE and stores the KEY --
+            # 'load images' for 'png' (171), 'guide permutation — test each
+            # guide on its own' for 'guide_permutation' (134) -- so matching
+            # on `itemText` alone silently ignored every settings CSV that
+            # named the key, which is every settings CSV there is. The
+            # selection simply did not move, and nothing said so.
+            index = widget.findData(val)
+            if index < 0 and val is not None:
+                index = widget.findData(str(val))
+            if index < 0:
+                index = widget.findText(str(val))
+            if index >= 0:
+                widget.setCurrentIndex(index)
         elif hasattr(widget, "set_value"):
             # _ListEditor / _ListEdit / _ScalarEdit all round-trip their own
             # value. Importing a settings CSV used to go through the plain

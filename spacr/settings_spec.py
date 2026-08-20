@@ -203,7 +203,17 @@ def convert_settings_dict_for_gui(settings):
         # Instruction 134: two valid values, and it was a free-text box in
         # both front ends. Declared here rather than only in the Qt combo
         # table so the two GUIs cannot offer different lists.
-        'analysis_mode': ('combo', ['regression', 'guide_permutation'],
+        # THE LABELS READ, and the VALUES do not change (134's third point).
+        # 'guide_permutation' is what the settings key is called; what the
+        # dropdown shows is the sentence, the same way 132's model box
+        # explains what it fits. (value, label) pairs, so every settings file
+        # already written goes on meaning what it meant.
+        'analysis_mode': ('combo',
+                          [('regression', 'regression — fit every guide at '
+                                          'once in the chosen model'),
+                           ('guide_permutation', 'guide permutation — test '
+                                                 'each guide on its own, '
+                                                 'plate-blocked')],
                           'regression'),
         # Instruction 135, and the same argument as `analysis_mode` above:
         # two valid values, and the RUN now has to agree with the volcano's
