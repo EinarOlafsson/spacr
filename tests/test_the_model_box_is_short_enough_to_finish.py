@@ -192,15 +192,15 @@ def test_the_pointer_cannot_be_the_line_that_wraps():
     """It is not a formula, so nothing else protects it.
 
     :func:`explainer_width` sets the box's minimum width from the longest
-    UNBREAKABLE line, and dropping the collinear formula from the box took
-    that floor from 65 to 63 -- the indented mixed formula. A 64-character
-    pointer would have become the first thing to break.
+    UNBREAKABLE line. It measures every plate-position state, including the
+    longer random-effects formula that appears after the user opts in.
     """
-    from spacr.qt.screens.settings_model import (MIXED_FORMULA,
-                                                 _HISTORY_POINTER,
-                                                 explainer_width)
+    from spacr.qt.screens.settings_model import (MIXED_TERM, _HISTORY_POINTER,
+                                                 explainer_width, formula_for)
 
-    assert explainer_width() == len("    " + MIXED_FORMULA) == 63
+    longest = formula_for(MIXED_TERM, plate_position=True,
+                          random_row_column=True)
+    assert explainer_width() == len("    " + longest) == 75
     assert len(_HISTORY_POINTER) <= explainer_width()
 
 

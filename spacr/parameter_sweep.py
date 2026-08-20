@@ -1027,7 +1027,8 @@ def run_sweep(base_settings: Mapping[str, Any], destination,
         instead turns thirteen fits into one -- on this screen, ~24 hours into
         ~2 for exactly the same answers.
     :param runner: injected for testing; defaults to
-        :func:`spacr.ml.perform_regression`.
+        :func:`spacr.ml.perform_regression`. An injected runner executes in
+        this process and is not subject to the contained-child memory floor.
     :returns: the summary frame, also written as ``sweep_results.csv``.
     """
     if runner is None and contained:
@@ -1087,7 +1088,7 @@ def run_sweep(base_settings: Mapping[str, Any], destination,
                "preparation_key": _preparation_key(settings)}
         row.update({k: v for k, v in trial.items() if k != "trial_id"})
         # Stop BEFORE the machine is in trouble, not once it is.
-        if contained and free_memory_gb() < memory_floor_gb:
+        if runner is None and contained and free_memory_gb() < memory_floor_gb:
             print(f"[sweep] stopping: {free_memory_gb():.0f} GB free is below "
                   f"the {memory_floor_gb:.0f} GB floor")
             row["status"] = "skipped"

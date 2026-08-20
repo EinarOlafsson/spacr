@@ -116,6 +116,19 @@ def _fake_runner(settings):
     return {"results": frame, "significant": frame.head(2)}
 
 
+def test_an_injected_runner_is_not_blocked_by_the_child_memory_floor(
+        tmp_path, monkeypatch):
+    """The floor protects a contained child, not an in-process callback."""
+    monkeypatch.setattr("spacr.parameter_sweep.free_memory_gb", lambda: 0.0)
+    space = SweepSpace(axes={"regression_type": ["ols"]})
+
+    results = run_sweep({}, tmp_path, space, mode="grid", max_trials=1,
+                        progress_every=0, runner=_fake_runner)
+
+    assert len(results) == 1
+    assert results.iloc[0]["status"] == "ok"
+
+
 def test_a_sweep_records_one_row_per_trial_with_the_controls(tmp_path):
     space = SweepSpace(axes={"regression_type": ["ols", "ridge"],
                              "multiple_testing_method": ["fdr_bh", "none"]})

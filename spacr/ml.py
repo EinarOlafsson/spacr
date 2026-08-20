@@ -724,7 +724,7 @@ def prepare_formula(dependent_variable, random_row_column_effects=False,
     FIRST OF THEM:
 
         ``model_plate_position=False``  out of the model entirely
-        ``model_plate_position=True``   in, as FIXED effects (the default)
+        ``model_plate_position=True``   in, as FIXED effects
         ``+ random_row_column_effects=True``  in, as VARIANCE COMPONENTS
 
     The third is :func:`fit_mixed_model`'s job -- the terms are left out of
@@ -732,11 +732,12 @@ def prepare_formula(dependent_variable, random_row_column_effects=False,
     fourth state that does not exist, so it is refused here rather than
     resolved to one of the other two.
 
-    IT DEFAULTS TO ON, AND THE DEFAULT WAS MEASURED, not chosen. Instruction
-    Fitting the reference TSG101 screen
-    (regression_data.csv, 1945 rows, 610 wells, 823 guides, 389 genes) twice
-    per level said otherwise, and the costs are asymmetric by more than an
-    order of magnitude:
+    Direct calls to this helper still default to ON for API compatibility;
+    new regression settings default to OFF, so plate position is opt-in in
+    the application. The cost of either choice was measured by fitting the
+    reference TSG101 screen (regression_data.csv, 1945 rows, 610 wells, 823
+    guides, 389 genes) twice per level. The costs are asymmetric by more than
+    an order of magnitude:
 
     * THE TERMS ARE REAL. Joint F test that all 35 of them are zero:
       F = 5.781, p = 6.71e-23 at the guide level and F = 6.277, p = 2.33e-26
@@ -798,7 +799,9 @@ def prepare_formula(dependent_variable, random_row_column_effects=False,
         ``False``.
     :param level: ``'grna'`` (default) or ``'gene'``.
     :param model_plate_position: Whether ``rowID`` and ``columnID`` are in the
-        model AT ALL. Default ``True``.
+        model AT ALL. Direct calls default to ``True`` for API compatibility;
+        :func:`spacr.settings.get_perform_regression_default_settings` uses
+        ``False`` for new runs.
     :returns: The formula string.
     :raises ValueError: for ``level='both'``, an unknown level, or
         ``model_plate_position=False`` with
@@ -4175,9 +4178,10 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     :param random_row_column_effects: If True, fit a mixed model with
         random row/column effects.
     :param model_plate_position: Whether ``rowID`` and ``columnID`` are terms
-        in the model at all. Default ``True``, which is what every run before
-        earlier runs did and what the measurement in
-        :func:`prepare_formula` says to keep. ``False`` with
+        in the model at all. Direct calls default to ``True`` for API
+        compatibility; new application settings default to ``False`` so the
+        terms are opt-in. See :func:`prepare_formula` for the measured costs
+        of including or omitting them. ``False`` with
         ``random_row_column_effects=True`` is refused: there is nothing left
         to make random.
     :param nc: Negative-control gene identifier. Default ``'233460'``.

@@ -5791,9 +5791,16 @@ class EffectRankPlot(FastPlot):
                      "p-value, and calling hits off an uncorrected p across "
                      f"{total} tests is the error this panel exists to make "
                      "visible.")
-        if total > named:
+        if plotted > named:
             note += (f" The strongest {named} are named on the axis; all "
-                     f"{total} are drawn, and Reset view reaches them.")
+                     f"{plotted} finite coefficients are drawn, and Reset "
+                     f"view reaches them.")
+        missing = total - plotted
+        if missing:
+            note += (f" {missing} coefficient"
+                     f"{'s' if missing != 1 else ''} with a blank or "
+                     f"non-finite effect {'are' if missing != 1 else 'is'} "
+                     f"not drawn.")
         if untested:
             note += (f" {untested} nuisance "
                      f"term{'s' if untested != 1 else ''} not ranked (fitted "
