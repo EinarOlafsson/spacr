@@ -39,8 +39,9 @@ WORKFLOW_BEGIN = ".. spacr-workflow-begin"
 WORKFLOW_END = ".. spacr-workflow-end"
 
 RESOURCE_SLATE = (43, 47, 58, 255)  # #2B2F3A
-WORKFLOW_TILE = (18, 21, 28, 255)  # #12151C
+WORKFLOW_TILE = (13, 14, 16, 255)  # GUI dark-theme surface, #0D0E10
 WHITE = (255, 255, 255, 255)
+WORKFLOW_RIM = (255, 255, 255, 96)
 
 BUTTON_SIZE = 512
 BUTTON_RADIUS = 32
@@ -49,7 +50,7 @@ README_LOGO_SIZE = (920, 380)
 README_LOGO_MARK = 340
 PIPELINE_DISPLAY_WIDTH = 132
 ARROW_DISPLAY_WIDTH = 20
-APP_DISPLAY_WIDTH = 230
+APP_DISPLAY_WIDTH = 183
 
 RESOURCE_SOURCES = {
     "biostudies": DATABANK_DIR / "bioimages.jpg",
@@ -94,6 +95,11 @@ SECTION_ORDER = (
 
 def _font(size: int) -> ImageFont.FreeTypeFont:
     return ImageFont.truetype(str(FONT_DIR / "OpenSans-Light.ttf"), size)
+
+
+def _tile_font(size: int) -> ImageFont.FreeTypeFont:
+    """Use the same Open Sans Regular weight as GUI module names."""
+    return ImageFont.truetype(str(FONT_DIR / "OpenSans-Regular.ttf"), size)
 
 
 def _trim(image: Image.Image) -> Image.Image:
@@ -213,58 +219,80 @@ def _centered_text(
     )
 
 
-def render_pipeline_tile(key: str, label: str) -> Image.Image:
-    """Render one linked workflow step as a standalone square tile."""
+def _fitted_tile_font(
+    draw: ImageDraw.ImageDraw,
+    text: str,
+    *,
+    width: int,
+    preferred: int = 54,
+    minimum: int = 36,
+) -> ImageFont.FreeTypeFont:
+    """Return the largest GUI-weight font that keeps a full tile name."""
+    for size in range(preferred, minimum - 1, -1):
+        font = _tile_font(size)
+        bounds = draw.textbbox((0, 0), text, font=font)
+        if bounds[2] - bounds[0] <= width:
+            return font
+    return _tile_font(minimum)
+
+
+def _render_workflow_tile(key: str, label: str) -> Image.Image:
+    """Render the square documentation counterpart of a GUI ``AppTile``."""
     size = 512
     tile = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     draw = ImageDraw.Draw(tile)
     draw.rounded_rectangle(
-        (3, 3, size - 4, size - 4),
-        radius=28,
+        (2, 2, size - 3, size - 3),
+        radius=32,
         fill=WORKFLOW_TILE,
-        outline=WHITE,
-        width=5,
+        outline=WORKFLOW_RIM,
+        width=3,
     )
-    icon = _app_icon(key, 292)
-    tile.alpha_composite(icon, ((size - icon.width) // 2, 52))
-    _centered_text(
-        draw,
-        (24, 382, size - 24, 478),
-        label,
-        _font(42),
-    )
+    icon = _app_icon(key, 220)
+    tile.alpha_composite(icon, ((size - icon.width) // 2, 78))
+    font = _fitted_tile_font(draw, label, width=size - 40)
+    _centered_text(draw, (20, 350, size - 20, 470), label, font)
     return tile
+
+
+def render_pipeline_tile(key: str, label: str) -> Image.Image:
+    """Render one linked workflow step as a standalone square tile."""
+    return _render_workflow_tile(key, label)
 
 
 def render_app_tile(key: str, label: str) -> Image.Image:
-    """Render one non-pipeline application as a linked wide tile."""
-    width, height = 512, 316
-    tile = Image.new("RGBA", (width, height), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(tile)
-    draw.rounded_rectangle(
-        (0, 0, width - 1, height - 1),
-        radius=28,
-        fill=WORKFLOW_TILE,
-    )
-    icon = _app_icon(key, 178)
-    tile.alpha_composite(icon, ((width - icon.width) // 2, 24))
-    _centered_text(
-        draw,
-        (18, 224, width - 18, height - 20),
-        label,
-        _font(34),
-    )
-    return tile
+    """Render one non-pipeline application as the same square GUI tile."""
+    return _render_workflow_tile(key, label)
 
 
 def render_pipeline_arrow() -> Image.Image:
-    """Render a white arrow sized to remain inside the gap between tiles."""
-    width, height = 112, 512
-    arrow = Image.new("RGBA", (width, height), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(arrow)
-    y = height // 2
-    draw.line((8, y, 78, y), fill=WHITE, width=12)
-    draw.polygon(((72, y - 28), (104, y), (72, y + 28)), fill=WHITE)
+    """Render U+2192 alone, centred inside its transparent inline asset."""
+    size = 112
+    arrow = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    # Open Sans deliberately has no arrow glyph. DejaVu Sans is present in
+    # the Linux documentation/build environments and contains the real
+    # U+2192 glyph, avoiding both a hand-drawn approximation and a tofu box.
+    try:
+        font = ImageFont.truetype("DejaVuSans.ttf", 128)
+    except OSError as exc:
+        raise RuntimeError(
+            "DejaVu Sans is required to render the U+2192 workflow arrow"
+        ) from exc
+    probe = ImageDraw.Draw(arrow)
+    bounds = probe.textbbox((0, 0), "\u2192", font=font)
+    glyph = Image.new(
+        "RGBA",
+        (bounds[2] - bounds[0], bounds[3] - bounds[1]),
+        (0, 0, 0, 0),
+    )
+    ImageDraw.Draw(glyph).text(
+        (-bounds[0], -bounds[1]), "\u2192", font=font, fill=WHITE
+    )
+    glyph = _fit(glyph, 96)
+    arrow.alpha_composite(
+        glyph,
+        ((size - glyph.width) // 2, (size - glyph.height) // 2),
+    )
     return arrow
 
 
@@ -327,8 +355,8 @@ def _readme_workflow(icon_prefix: str) -> str:
             continue
         title = "More core tools" if section == "Core" else section
         lines.extend([f"**{title}**", ""])
-        for start in range(0, len(items), 4):
-            row = items[start:start + 4]
+        for start in range(0, len(items), 5):
+            row = items[start:start + 5]
             lines.extend([" ".join(f"|App_{key}|" for key, _ in row), ""])
         for key, label in items:
             definitions.extend([
@@ -344,23 +372,36 @@ def _readme_workflow(icon_prefix: str) -> str:
 def _documentation_workflow() -> str:
     grouped = _grouped_apps()
     urls = _api_urls()
+    pipeline_names = {
+        key: f"DocWorkflow_{key}" for key, _label in MAIN_PIPELINE
+    }
+    top = []
+    for index, (key, _label) in enumerate(MAIN_PIPELINE):
+        if index:
+            top.append("|DocWorkflow_arrow|")
+        top.append(f"|{pipeline_names[key]}|")
     lines = [
         "Core workflow",
         "~~~~~~~~~~~~~",
         "",
-        ".. grid:: 2 3 6 6",
-        "   :gutter: 2",
+        " ".join(top),
         "",
     ]
+    definitions: list[str] = []
     for key, label in MAIN_PIPELINE:
-        lines.extend([
-            "   .. grid-item::",
-            "",
-            f"      .. image:: /_static/workflow/{key}.png",
-            f"         :alt: Open the {label} API",
-            f"         :target: {urls[key]}",
-            "",
+        definitions.extend([
+            f".. |{pipeline_names[key]}| image:: /_static/workflow/{key}.png",
+            f"   :width: {PIPELINE_DISPLAY_WIDTH}",
+            f"   :alt: Open the {label} API",
+            f"   :target: {urls[key]}",
+            "   :align: middle",
         ])
+    definitions.extend([
+        ".. |DocWorkflow_arrow| image:: /_static/workflow/arrow.png",
+        f"   :width: {ARROW_DISPLAY_WIDTH}",
+        "   :align: middle",
+        "",
+    ])
     lines.extend(["Other applications", "~~~~~~~~~~~~~~~~~~", ""])
     for section in SECTION_ORDER:
         items = grouped[section]
@@ -371,21 +412,24 @@ def _documentation_workflow() -> str:
             title,
             "^" * len(title),
             "",
-            ".. grid:: 2 3 4 4",
-            "   :gutter: 2",
-            "",
         ])
-        for key, label in items:
+        for start in range(0, len(items), 5):
+            row = items[start:start + 5]
             lines.extend([
-                "   .. grid-item::",
-                "",
-                "      .. image:: /_static/workflow/"
-                f"apps/{key}.png",
-                f"         :alt: Open the {label} API",
-                f"         :target: {urls[key]}",
+                " ".join(f"|DocApp_{key}|" for key, _label in row),
                 "",
             ])
-    return "\n".join(lines).rstrip() + "\n"
+        for key, label in items:
+            definitions.extend([
+                ".. |DocApp_"
+                f"{key}| image:: /_static/workflow/"
+                f"apps/{key}.png",
+                f"   :width: {APP_DISPLAY_WIDTH}",
+                f"   :alt: Open the {label} API",
+                f"   :target: {urls[key]}",
+                "   :align: middle",
+            ])
+    return "\n".join([*lines, *definitions]).rstrip() + "\n"
 
 
 def _replace_workflow_block(path: Path, markup: str) -> None:
@@ -419,7 +463,9 @@ def main() -> int:
         image.save(DOC_WORKFLOW_DIR / f"{key}.png", "PNG", optimize=True)
         print(target.relative_to(ROOT))
     target = WORKFLOW_DIR / "arrow.png"
-    render_pipeline_arrow().save(target, "PNG", optimize=True)
+    arrow = render_pipeline_arrow()
+    arrow.save(target, "PNG", optimize=True)
+    arrow.save(DOC_WORKFLOW_DIR / "arrow.png", "PNG", optimize=True)
     print(target.relative_to(ROOT))
     APP_WORKFLOW_DIR.mkdir(parents=True, exist_ok=True)
     doc_app_dir = DOC_WORKFLOW_DIR / "apps"

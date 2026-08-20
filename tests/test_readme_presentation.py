@@ -117,7 +117,7 @@ def test_workflow_modules_are_dark_linked_tiles_with_separate_white_arrows():
         assert ImageChops.difference(committed, rendered).getbbox() is None
         assert committed.getpixel(
             (committed.width // 2, 3)
-        ) == generator.WHITE
+        ) == generator.WORKFLOW_RIM
         assert f"workflow/{key}.png" in text
         assert generator._api_urls()[key] in text
 
@@ -128,15 +128,31 @@ def test_workflow_modules_are_dark_linked_tiles_with_separate_white_arrows():
     assert arrow.getpixel(
         (arrow.width // 2, arrow.height // 2)
     ) == generator.WHITE
-    assert str(generator._font(22).path).endswith("OpenSans-Light.ttf")
+    assert arrow.size == (112, 112)
+    assert arrow.getchannel("A").getbbox() is not None
+    assert str(generator._tile_font(22).path).endswith("OpenSans-Regular.ttf")
+    for path in APP_WORKFLOW_DIR.glob("*.png"):
+        assert Image.open(path).size == (512, 512)
+
+    workflow_row = next(
+        line for line in text.splitlines()
+        if line.startswith("|Workflow_mask|")
+    )
+    assert workflow_row.count("|Workflow_") == 11
+    assert workflow_row.count("|Workflow_arrow|") == 5
+    app_rows = [
+        line for line in text.splitlines() if line.startswith("|App_")
+    ]
+    assert app_rows
+    assert max(line.count("|App_") for line in app_rows) == 5
     # With normal inline-image spacing, both rows occupy the same width.
     top_width = (
         6 * generator.PIPELINE_DISPLAY_WIDTH
         + 5 * generator.ARROW_DISPLAY_WIDTH
         + 10 * 4
     )
-    app_width = 4 * generator.APP_DISPLAY_WIDTH + 3 * 4
-    assert top_width == app_width
+    app_width = 5 * generator.APP_DISPLAY_WIDTH + 4 * 4
+    assert abs(top_width - app_width) <= 1
 
 
 def test_installer_guide_is_distinct_from_the_version_archive():
