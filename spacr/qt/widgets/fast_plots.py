@@ -187,12 +187,18 @@ SNAPSHOT_PX = (520, 380)
 #: observations with five numbers; ``violin`` replaces them with a smoothed
 #: density; ``bar`` replaces them with one number and a rectangle whose area
 #: means nothing.
+#: Composite marks retain the observations alongside their summary. For
+#: example, ``jitter_box`` overlays individual points on the box plot so users
+#: can inspect both the distribution and its compact statistical summary.
 MARK_TYPES = (
     ("points", "Points with a mean line"),
+    ("line", "Means joined by a line"),
+    ("bar", "Bar chart"),
+    ("jitter_bar", "Bar chart with jittered points"),
+    ("jitter_box", "Box plot with jittered points"),
     ("jitter", "Jittered points"),
     ("box", "Box plot"),
     ("violin", "Violin plot"),
-    ("bar", "Bar chart"),
 )
 
 #: At or below this many observations in a group, a summarising mark is a
@@ -895,19 +901,22 @@ def _ask_style_value(parent, style, name, value, kind, on_change) -> None:
 
 
 def mark_advice(kind: str, counts) -> str:
-    """Why this mark misleads for groups of these sizes, or ``""``.
+    """Explain when a summary mark is poorly supported by group size.
 
-    The panel SAYS this rather than refusing to draw it. Refusing would be a
-    plot that argues with the user; drawing it in silence would be the panel
-    endorsing a picture it knows is wrong. Saying it is the third option and
-    the only honest one -- the user asked for a violin, they get a violin, and
-    they are told it is drawing a distribution through five points.
+    Parameters
+    ----------
+    kind : str
+        Mark key from :data:`MARK_TYPES`.
+    counts : iterable of int
+        Number of observations in each group.
 
-    :param kind: one of the keys of :data:`MARK_TYPES`.
-    :param counts: observations per group.
+    Returns
+    -------
+    str
+        Decision-ready warning, or an empty string when no warning is needed.
     """
     sizes = [int(n) for n in counts if int(n) > 0]
-    if not sizes or kind in ("points", "jitter"):
+    if not sizes or kind in ("points", "jitter", "jitter_box", "jitter_bar"):
         return ""
     smallest = min(sizes)
     if smallest > MIN_N_FOR_DISTRIBUTION:
@@ -922,6 +931,9 @@ def mark_advice(kind: str, counts) -> str:
     if kind == "box":
         return (f"A box plot hides n, and {where}: these quartiles are "
                 f"computed from a handful of values.")
+    if kind == "line":
+        return (f"A line shows one summary per group and hides the underlying "
+                f"observations; {where}.")
     return (f"A violin draws a density that is not there -- {where}, which "
             f"is too few to have a shape.")
 
@@ -3573,29 +3585,23 @@ class FastPlot(QWidget):
     @classmethod
     def _export_svg(cls, item, path, width_mm: float = EXPORT_WIDTH_MM,
                     height_mm: Optional[float] = None) -> None:
-        """Render a plot item into a vector SVG, THROUGH Qt.
+        """Render a plot item directly into a vector SVG with Qt.
 
-        NOT through pyqtgraph, and this is the reason. Its ``SVGExporter``
-        rewrites Qt's output by hand, and ``correctCoordinates`` parses a
-        path's ``d`` attribute by splitting on spaces and unpacking each
-        token as ``x,y``. A closepath token is the single letter ``Z``, which
-        has no comma, so it raises ``ValueError: not enough values to unpack
-        (expected 2, got 1)``.
+        Direct ``QSvgGenerator`` rendering keeps paths and text as vector
+        elements and works across supported pyqtgraph/Qt combinations. Some
+        combinations of pyqtgraph's ``SVGExporter`` fail while normalizing
+        closed paths, so the stable Qt route is used for every installation.
 
-        EVERY plot in this module hits it, because every closed shape ends in
-        a ``Z``: measured on pyqtgraph 0.13.7, the volcano, the p-value
-        histogram, the Q-Q and all five marks of the control panel each
-        raised, and the offenders were the 50 round scatter markers plus the
-        ViewBox's own frame. There is no scene-level workaround -- a round
-        point IS a closed path -- and setting the ViewBox border to None
-        changed nothing, so the option could not simply be kept and nursed.
-
-        The answer is the one :meth:`_export_pdf` already used: Qt itself
-        paints vector devices, and a QSvgGenerator is one. Same painter, same
-        export mode, same page size, none of the library's post-processing.
-        Reported upstream as well -- it is a real pyqtgraph bug and this only
-        routes around it -- but spaCR's SVG works now rather than after a
-        release.
+        Parameters
+        ----------
+        item : pyqtgraph.GraphicsItem
+            Plot item or graphics item to render.
+        path : str or path-like
+            Destination SVG path.
+        width_mm : float, default=EXPORT_WIDTH_MM
+            Physical page width in millimeters.
+        height_mm : float or None, default=None
+            Physical page height. ``None`` preserves the plot aspect ratio.
         """
         from PySide6.QtCore import QRectF, QSize
         from PySide6.QtGui import QPainter
@@ -4156,33 +4162,34 @@ class FastPlot(QWidget):
                        colour=None, rows=None, width: float = 0.6,
                        size: float = 7.0, seed: int = 0,
                        centre: str = "mean") -> int:
-        """Draw ONE group's values at ``position`` as ``kind``. Returns n drawn.
+        """Draw one group's observations or summary at ``position``.
 
-        The mark the user picked off the right-click menu, drawn from the same
-        array whichever it is -- so switching from a bar to the points cannot
-        show a different set of observations, which is the failure mode of
-        recomputing a summary per mark type.
+        Parameters
+        ----------
+        position : float
+            Group position on the categorical axis.
+        values : array-like
+            Observations in the group.
+        kind : str, default="points"
+            Mark key from :data:`MARK_TYPES`.
+        colour : color-like or None, default=None
+            Mark color. The first categorical color is used by default.
+        rows : array-like or None, default=None
+            Source-frame row for each observation. Individual points remain
+            clickable when these identifiers are supplied.
+        width : float, default=0.6
+            Mark width in x-axis units.
+        size : float, default=7.0
+            Point-marker size.
+        seed : int, default=0
+            Random seed for reproducible horizontal jitter.
+        centre : {"mean", "median"}, default="mean"
+            Summary used by point, jitter, and line marks.
 
-        :param values: the group's observations.
-        :param kind: a key of :data:`MARK_TYPES`.
-        :param rows: the FRAME ROW each value came from, so the marks that are
-            still individual points stay clickable. See :meth:`add_scatter` --
-            a control panel's groups are slices of the table and a point's
-            position within its group is not its row.
-        :param width: how wide the mark is, in x units.
-        :param centre: ``"mean"`` or ``"median"`` -- which summary the line
-            across a ``points``/``jitter`` group is. A knob rather than the
-            house rule's plain "mean line" because the panel's STATUS quotes
-            one of them by name, and a line that is not the number written
-            beside it is worse than no line: the control panel's whole
-            sentence is "the classes separate, here are the medians".
-
-        A CLICKABLE MARK IS AN INDIVIDUAL OBSERVATION, and only ``points``,
-        ``jitter`` and a box plot's outliers are that. A box, a violin and a
-        bar stand for many rows at once and are deliberately drawn as scenery
-        rather than as scatter points: a mark that selected "one of the
-        forty-one guides under this rectangle" would be picking one at random
-        and looking deliberate doing it.
+        Returns
+        -------
+        int
+            Number of finite observations represented by the mark.
         """
         v = _finite(values)
         keep = ~np.isnan(v)
@@ -4209,6 +4216,42 @@ class FastPlot(QWidget):
             level = float(np.median(v) if centre == "median" else np.mean(v))
             self.plot.plot([position - half, position + half], [level, level],
                            pen=pg.mkPen(QColor(self._foreground), width=2))
+            return int(len(v))
+
+        if kind in ("jitter_box", "jitter_bar"):
+            # THE SUMMARY FIRST, THE POINTS ON TOP. Drawn in that order so the
+            # observations are not hidden behind the shape that summarises
+            # them -- which is the whole reason a composite is a different
+            # request from either half.
+            #
+            # AND THE POINTS KEEP THEIR ROWS, so a composite stays CLICKABLE
+            # where the bare box and bar do not. That is what makes this the
+            # honest default: the reader sees the distribution and can still
+            # name any observation in it.
+            self.add_group_mark(position, values,
+                                "box" if kind == "jitter_box" else "bar",
+                                colour=colour, rows=None, width=width,
+                                size=size, seed=seed, centre=centre)
+            return self.add_group_mark(position, values, "jitter",
+                                       colour=colour, rows=rows, width=width,
+                                       size=size, seed=seed, centre=centre)
+
+        if kind == "line":
+            # ONE POINT PER GROUP, and the JOINING is the caller's: this
+            # method draws one group at a time and cannot see its neighbours.
+            # The marker is what a line chart is made of, and `GroupedPlot`
+            # connects them once every group has been drawn.
+            level = float(np.median(v) if centre == "median" else np.mean(v))
+            self.add_scatter([float(position)], [level], size=max(6, size),
+                             rows=None, colours=[ink])
+            if len(v) > 1:
+                if centre == "median":
+                    low, high = (float(np.percentile(v, q)) for q in (25, 75))
+                else:
+                    err = float(np.std(v, ddof=1)) / np.sqrt(len(v))
+                    low, high = level - err, level + err
+                self.plot.plot([position, position], [low, high],
+                               pen=pg.mkPen(QColor(self._foreground), width=1))
             return int(len(v))
 
         if kind == "bar":
@@ -4479,11 +4522,12 @@ class FastPlot(QWidget):
             return self.export(path)
 
     def save_styled(self):
-        """Open the styling-and-preview dialog for this plot. Returns the path.
+        """Open the shared export styling and preview dialog.
 
-        The same dialog matplotlib figures use, so the two backends offer one
-        experience rather than two -- which is what the ask says: "matplotlib
-        or pyqt6graph".
+        Returns
+        -------
+        int
+            Qt dialog result code: accepted or rejected.
         """
         from .save_figure_dialog import SaveFigureDialog
 
@@ -6552,31 +6596,22 @@ class InfluencePlot(FastPlot):
 
 
 class GroupedPlot(FastPlot):
-    """A plot whose x-axis is a set of GROUPS, drawable as any of the marks.
+    """Base class for live plots with a categorical x-axis.
 
-    "for the live plots id like to be able to right click and change the plot
-    type like show guide support as a violin, box, bar, jitter plot."
+    The right-click menu exposes every mark in :data:`MARK_TYPES`. Subclasses
+    retain their source groups so switching marks redraws the same observations
+    and uses :func:`mark_advice` to explain unsuitable small-sample summaries.
 
-    Only a plot whose x is categorical can answer that, which is why this is a
-    class and not a method on :class:`FastPlot`: a volcano's x is an effect
-    size, and there is no group there to draw a violin of.
-
-    THE MENU DOES NOT DECIDE FOR THE USER, AND IT DOES NOT LIE TO THEM EITHER.
-    Every mark is offered, including the ones the house rule says are wrong
-    for few points -- a menu that silently drops "bar" cannot explain why, and
-    the user asked for it by name. What changes is that the panel SAYS what
-    the mark is hiding, in the same status line that carries the panel's own
-    numbers, measured on the data actually on screen. See :func:`mark_advice`.
-
-    :ivar mark_changed: emitted with the new mark's name.
+    Attributes
+    ----------
+    mark_changed : PySide6.QtCore.Signal
+        Emitted with the new mark key after a successful change.
     """
 
     mark_changed = Signal(str)
 
-    #: What a group is drawn as until the user says otherwise. JITTER, because
-    #: it is what both of these panels already drew, and a default that
-    #: changed the picture on upgrade would be this feature breaking the two
-    #: plots it was added to.
+    #: Initial group mark. Jitter preserves individual observations and keeps
+    #: existing control and guide-support views unchanged.
     DEFAULT_MARK = "jitter"
     #: How wide one group's mark is, in x units.
     MARK_WIDTH = 0.6
@@ -6647,7 +6682,7 @@ class GroupedPlot(FastPlot):
         advice = mark_advice(self._mark, self.group_sizes())
         if advice:
             parts.append(advice)
-        if self._mark in ("box", "violin", "bar") and self._has_usable_keys():
+        if self._mark in ("box", "violin", "bar", "line") and self._has_usable_keys():
             parts.append(
                 "Only the outliers are still individual points, so only they "
                 "can be clicked; switch back to points or jitter to pick any "
@@ -6656,6 +6691,16 @@ class GroupedPlot(FastPlot):
                 f"it can be clicked; switch back to points or jitter to pick "
                 f"a row.")
         return " ".join(parts)
+
+    def _join_group_line(self, points) -> None:
+        """Connect ordered ``(x, centre)`` pairs for the line mark."""
+        if self._mark != "line" or len(points) < 2:
+            return
+        self.plot.plot(
+            [x for x, _centre in points],
+            [centre for _x, centre in points],
+            pen=pg.mkPen(QColor(self._foreground), width=2),
+        )
 
 
 class ControlSeparation(GroupedPlot):
@@ -6750,6 +6795,7 @@ class ControlSeparation(GroupedPlot):
         self._effects = np.concatenate(columns) if columns else np.empty(0)
 
         summary, total = [], 0
+        line_points: list = []
         for position, (name, values) in enumerate(groups.items()):
             v = _finite(values)
             finite = np.nonzero(~np.isnan(v))[0]
@@ -6769,6 +6815,12 @@ class ControlSeparation(GroupedPlot):
                                 centre=self.MARK_CENTRE)
             median = float(np.median(v[finite]))
             summary.append(f"{name} n={len(finite)} median={median:.3g}")
+            if self._mark == "line":
+                centre = (float(np.median(v[finite]))
+                          if self.MARK_CENTRE == "median"
+                          else float(np.mean(v[finite])))
+                line_points.append((float(position), centre))
+        self._join_group_line(line_points)
         axis = self.plot.getAxis("bottom")
         # THE COUNT BESIDE THE LABEL, not only in the note below the plot.
         # Asked for 2026-08-17. "pc" and "nc" are three and twenty-four
@@ -6780,8 +6832,9 @@ class ControlSeparation(GroupedPlot):
                         for i, (name, size) in enumerate(
                             zip(groups, self.group_sizes()))]])
         note = "   ".join(summary) if summary else "No control values."
-        if self._has_usable_keys() and summary and self._mark in ("points",
-                                                                  "jitter"):
+        if (self._has_usable_keys() and summary
+                and self._mark in ("points", "jitter", "jitter_box",
+                                   "jitter_bar")):
             note += "   Click a point for its coefficient."
         mark_note = self.mark_note()
         if mark_note:
@@ -6952,6 +7005,7 @@ class GuideAgreementPlot(GroupedPlot):
             # so the groups are the counts themselves and no tick remapping is
             # needed -- "3" on the axis still means three guides.
             x = counts
+            line_points = []
             usable = ~(np.isnan(counts) | np.isnan(agree))
             for position in np.unique(counts[~np.isnan(counts)]):
                 picked = rows[usable & (counts == position)]
@@ -6961,6 +7015,13 @@ class GuideAgreementPlot(GroupedPlot):
                                     rows=picked, colour=QColor(self.GREY),
                                     width=self.MARK_WIDTH, size=7,
                                     centre=self.MARK_CENTRE)
+                if self._mark == "line":
+                    values = agree[picked]
+                    centre = (float(np.median(values))
+                              if self.MARK_CENTRE == "median"
+                              else float(np.mean(values)))
+                    line_points.append((float(position), centre))
+            self._join_group_line(line_points)
         self._rows_shown = rows
 
         self.add_line(y=0.5, colour=self.GREY, label="chance")
@@ -6996,7 +7057,9 @@ class GuideAgreementPlot(GroupedPlot):
                      f"guides than the rest of the library "
                      f"{'are' if plural else 'is'} drawn beyond the opening "
                      f"view; Reset view reaches {'them' if plural else 'it'}.")
-        if self._has_usable_keys() and self._mark in ("points", "jitter"):
+        if (self._has_usable_keys()
+                and self._mark in ("points", "jitter", "jitter_box",
+                                   "jitter_bar")):
             note += " Click a gene for its coefficient."
         mark_note = self.mark_note()
         if mark_note:
