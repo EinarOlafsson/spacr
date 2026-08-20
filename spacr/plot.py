@@ -4490,7 +4490,28 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box
         # Show the plot
         plt.show()
 
-        return plt.gcf(), results_df
+        figure = plt.gcf()
+        # THE RECIPE TRAVELS WITH THE FIGURE (178 A). "i should be able to
+        # right click on them and show them as: line, bar, jitter-bar,
+        # jitter-box, jitter, box, violin" -- which means something has to be
+        # able to draw the SAME data a different way, and the figure is the
+        # only thing the right-click menu has a reference to.
+        #
+        # The frame is kept rather than re-read from the summary CSV beside
+        # it: that file is already aggregated to whatever level the plot
+        # used, so a jitter rebuilt from it would draw the means and call
+        # them cells.
+        try:
+            figure._spacr_replot = {
+                "df": df, "grouping_column": grouping_column,
+                "data_column": data_column, "graph_type": graph_type,
+                "summary_func": summary_func, "order": order,
+                "colors": colors, "y_lim": y_lim,
+                "error_bar_type": error_bar_type,
+            }
+        except Exception:                                    # noqa: BLE001
+            pass
+        return figure, results_df
 
 
 def _significance_marker(p_value):

@@ -1001,8 +1001,17 @@ class FigureQueue(QWidget):
             self.show_index(index)
         figure = self.figure_for(index)
 
-        def _redraw(preview: bool = False, _i=index) -> bool:
-            return self.refresh_figure(_i, preview)
+        def _redraw(preview=False, _i=index):
+            """Told a toggle happened, or handed a whole new Figure.
+
+            "Show as" produces a NEW figure (see `figure_settings._replot`),
+            so this doubles as the swap: anything that is not a bool is the
+            replacement, and everything holding the old one -- this queue,
+            the grid tile, the thumbnail -- is pointed at it together.
+            """
+            if preview is not None and not isinstance(preview, bool):
+                return self.replace_figure(_i, preview)
+            return self.refresh_figure(_i, bool(preview))
 
         menu = build_figure_context_menu(
             self, figure, on_change=_redraw,
@@ -1942,6 +1951,41 @@ class FigureQueue(QWidget):
             return True
         path = self._spill_path(idx)
         return bool(path and path.is_file())
+
+    def replace_figure(self, idx: int, fig) -> bool:
+        """Put ``fig`` at ``idx``, replacing whatever was there.
+
+        For a redraw that cannot happen in place. `create_grouped_plot` builds
+        its own Figure -- spacrGraph makes one and draws into it -- so
+        "show this data as a violin instead" produces a NEW object, and
+        everything holding the old one (this queue, the grid tile, the
+        thumbnail) has to be pointed at the new one together or the menu
+        looks broken while the tile keeps the old picture.
+
+        :returns: whether the swap happened.
+        """
+        index = int(idx)
+        if fig is None or not (0 <= index < self._count):
+            return False
+        previous = self._figures.get(index)
+        if previous is not None:
+            self._fig_index.pop(id(previous), None)
+        self._figures[index] = fig
+        self._fig_index[id(fig)] = index
+        # The spill holds a pickle of the OLD figure; leaving it would let a
+        # later eviction restore the picture this call replaced.
+        try:
+            self._forget_spill(index)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not drop the spilled copy of figure %s", index,
+                      exc_info=True)
+        return bool(self.refresh_figure(index, False))
+
+    def _forget_spill(self, idx: int) -> None:
+        """Drop any spilled copy of ``idx``. Absent is the normal case."""
+        path = self._spill_path(int(idx))
+        if path is not None:
+            path.unlink(missing_ok=True)
 
     def figure_for(self, idx: int):
         """The live Figure for ``idx``, restoring it from spill if needed.
