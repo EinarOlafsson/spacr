@@ -463,7 +463,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # ControlNotFound, rows_for, clear_picking_override,
     # multivariate_shortfall, nothing_to_compare_against, and the public
     # MeasurementScanPanel.sections accessor.
-    expected = 7779
+    # +12/-0 for optional example-screen data and figure model identity:
+    # the example_data module, its error/result types, files/note,
+    # cache_folder, fetch, is_whole, missing and total_bytes; the
+    # example_data_manifest module; and regression_summary.model_identity_line.
+    # Target catalogs are regenerated with this admission.
+    expected = 7791
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -478,7 +483,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 7898
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 7910
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
