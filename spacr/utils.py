@@ -8239,26 +8239,12 @@ def correct_paths(df, base_path, folder='data'):
     such a row, and it has to keep its position so the rewritten column still
     aligns with ``df``.
 
-    THE REWRITE ITSELF IS :func:`spacr.crops.reanchor_path`, and moving it
-    there fixed three ways this function used to get a moved folder wrong --
-    all four cases were measured through the real function on 2026-08-18:
-
-    A same-OS move remains unchanged; a Windows path read on Linux is
-    re-anchored; an old absolute path is re-anchored to the file rather than
-    its directory; and a path without a ``data`` component is counted and
-    named.
-
-    The third was the dangerous one: ``split`` took the FIRST ``/data/``, so
-    the result was ``<base>/data/exp1`` -- a path that had silently lost
-    ``p1/a.png`` and named a directory. It did not raise; it failed much later
-    as a missing file. The anchor is now found from the RIGHT, the separator
-    is normalised before matching, and "already under ``base_path``" is a
-    component-wise prefix comparison rather than a substring test.
-
-    AND IT SAYS WHAT IT COULD NOT PLACE. Paths carrying no ``folder``
-    component are still returned untouched -- some of them are legitimately
-    elsewhere -- but they are now counted and one is named on stdout, because
-    a silent pass-through is how the third row above stayed invisible.
+    Delegate rewriting to :func:`spacr.crops.reanchor_path`, which handles
+    same-platform moves, Windows paths read on Linux, and old absolute paths.
+    It finds the rightmost anchor component after normalizing separators and
+    checks existing roots component by component. Paths with no matching
+    ``folder`` component pass through unchanged; their count and one example
+    are printed so unresolved paths remain visible.
 
     :param df: DataFrame with a ``png_path`` column, or a list of paths.
     :param base_path: destination root to prepend.

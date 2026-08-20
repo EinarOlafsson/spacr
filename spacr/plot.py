@@ -218,21 +218,13 @@ def figure_path(path, fmt=None):
 
 
 def _chrome(fig, ax=None):
-    """Yield ``(kind, artist, getter, setter)`` for a figure's FURNITURE.
+    """Yield colour accessors for a figure's non-data artists.
 
-    THE LIST IS THE DESIGN. Instruction 150 A: the chrome flips and the data
-    does not, "and it is easy to get wrong" -- a blanket white-to-black would
-    turn a white data point black, which on a volcano is the colour of "not a
-    hit". So nothing here reaches a collection, an image, a bar or a data
-    line.
-
-    THE ONE HARD CASE IS `ax.lines`, because a significance line, a zero line
-    and a plotted series are all `Line2D`. They are told apart by their
-    TRANSFORM: `axhline`/`axvline` draw in a blended axes/data transform, a
-    plotted series draws in `ax.transData` itself. Checked on this matplotlib:
-    a data line's `get_transform() is ax.transData` and both reference lines'
-    are `BlendedGenericTransform`. That is a property of what the line MEANS,
-    not of how it was coloured, which is why it survives a user restyle.
+    Return ``(kind, artist, getter, setter)`` tuples for ground, text, spines,
+    ticks, legends, and reference lines. Collections, images, bars, and data
+    lines are excluded so print styling cannot change encoded data colours.
+    Reference lines are distinguished from plotted series by their blended
+    axes/data transform; ordinary series use ``ax.transData``.
     """
     from matplotlib.axes import Axes
 
@@ -4232,54 +4224,59 @@ def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', 
     return balanced_df
 
 def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box', summary_func='mean', order=None, colors=None, output_dir='./output', save=False, y_lim=None, error_bar_type='std'):
-    """Plot grouped data with automatic normality-aware pairwise statistics.
+    """Plot grouped observations and run assumption-aware comparisons.
 
-    :func:`spacr.figures.stats.compare` decides which test each PAIR gets --
-    Student's t, Welch's t or Mann-Whitney U -- from the normality and
-    equal-variance checks, and an assumption check that had no power counts
-    as failed. Tukey HSD post-hoc is added when three or more groups pass the
-    normality check together. The requested plot type is rendered and both
-    plot and stats optionally persist to ``output_dir``.
+    Pairwise tests are chosen independently by
+    :func:`spacr.figures.stats.compare`. Student's t, Welch's t, or
+    Mann-Whitney U is used according to the normality and equal-variance
+    checks; an underpowered assumption check selects the rank test. When at
+    least three groups jointly pass normality, Tukey HSD rows are added.
 
-    Two things moved on 2026-08-17 and both change
-    a saved ``test_results.csv``:
+    The ``'jitter_box'`` default is a STATISTICAL CORRECTION, not a
+    presentation preference: it shows the observations and their distribution
+    instead of reducing each group to a mean bar.
+    Two groups can have the same mean while having different spreads.
+    The box summarizes the distribution;
+    the jitter stays because the points are the evidence.
 
-    * Below :data:`spacr.figures.stats.MIN_N_FOR_ASSUMPTIONS` observations in
-      the smallest group, the checks are recorded as uninformative and the
-      rank test is taken. This function used to run D'Agostino per group and
-      read ``all(p > 0.05)`` as normal -- and D'Agostino needs eight
-      observations before it can reject anything at all.
-    * Each pair is named as the two-group test it is. Three normal groups
-      used to produce three rows labelled 'One-way ANOVA', each of which was
-      an ANOVA across two groups; the p-values are unchanged (F = t squared),
-      the name was not actionable.
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Source observations.
+    grouping_column : str
+        Categorical column defining groups.
+    data_column : str
+        Numeric column to plot and compare.
+    graph_type : {'bar', 'violin', 'jitter', 'box', 'jitter_box'}, optional
+        Plot representation. The default shows every observation together
+        with median, quartiles, and whiskers.
+    summary_func : str or callable, optional
+        Aggregation used by the bar representation.
+    order : sequence of str, optional
+        Group order. By default, sort observed group values.
+    colors : palette-like, optional
+        Colours passed to seaborn. By default, use the house data colour.
+    output_dir : path-like, optional
+        Directory for saved output.
+    save : bool, optional
+        Save the figure and ``test_results.csv`` when true.
+    y_lim : sequence of float, optional
+        Two-element vertical-axis limits.
+    error_bar_type : {'std', 'sem'}, optional
+        Error statistic for bar plots.
 
-    :param df: Source DataFrame.
-    :param grouping_column: Categorical grouping variable.
-    :param data_column: Numeric column to summarise.
-    :param graph_type: One of ``'bar'``, ``'violin'``, ``'jitter'``,
-        ``'box'``, ``'jitter_box'``. Default ``'jitter_box'``.
+    Returns
+    -------
+    figure : matplotlib.figure.Figure
+        Displayed figure. It carries the source recipe used by the interactive
+        representation menu.
+    results_df : pandas.DataFrame
+        Normality, pairwise, and optional Tukey HSD results.
 
-        THE DEFAULT IS A STATISTICAL CORRECTION AND NOT A PREFERENCE. A bar
-        drawn at a mean with points behind it shows ONE number and hides the
-        shape of the data: two groups with the same mean and completely
-        different spreads draw the same bar. The box shows the median, the
-        quartiles and the whiskers, so the reader sees the distribution the
-        points already imply -- and the jitter stays, because the box
-        summarises and the points are the evidence. ``'bar'`` is still here
-        for anyone who wants it.
-    :param summary_func: Summary function for bar plots. Default
-        ``'mean'``.
-    :param order: Explicit group ordering. Default: alphabetical.
-    :param colors: Colour palette; falls back to a HUSL palette.
-    :param output_dir: Save location when ``save=True``.
-    :param save: If True, save the plot and per-comparison stats CSV.
-    :param y_lim: Two-element y-axis limits.
-    :param error_bar_type: ``'std'`` or ``'sem'``. Default ``'std'``.
-    :returns: ``(figure, results_df)`` — the displayed matplotlib ``Figure``
-        and a DataFrame holding the normality, pairwise and Tukey post-hoc
-        rows (``Comparison``, ``Test Statistic``, ``p-value``, ``Test Name``).
-    :raises ValueError: if ``error_bar_type`` is not recognised.
+    Raises
+    ------
+    ValueError
+        If a bar plot receives an unsupported ``error_bar_type``.
     """
     
     # The engine is imported inside the function, as sp_stats does it and for

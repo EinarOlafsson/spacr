@@ -1,61 +1,40 @@
-"""The mixed model's REML objective, written out and optimised on the GPU.
+"""Fit profiled REML mixed models with PyTorch on CPU or CUDA.
 
-WHY THIS MODULE EXISTS, in one measured number. ``regression_type='mixed'``
-is the default and it is the slowest fit in
-:mod:`spacr.ml`: benchmarks measured statsmodels' MixedLM at **54x**
-OLS on a 40-gene screen and **67x** on 80, the ratio RISING with screen
-size. The operation each iteration spends its time in is a dense Cholesky of
-the ``q x q`` random-effects system, and on this machine (RTX 3090, torch
-2.9.1+cu128) that Cholesky takes **204 ms on the CPU and 7.69 ms on the
-GPU** at ``q = 1212`` -- 27x.
-
-A 27x ON ONE OPERATION IS NOT A 27x ON A FIT, so this was measured end to
-end too. On a TSG101-shaped screen -- 1830 rows, 387 genes, 710 guides,
-p=388 fixed effects, q=1097 random levels -- statsmodels takes **11.3 s**,
-this module takes **0.80 s on the CPU** and **0.47 s on the RTX 3090**: 14x
-and 24x, whole fit, design construction included.
-:func:`benchmark_against_statsmodels` is the harness, so the number can be
-re-measured on a user's own screen rather than believed.
-
-WHAT IT FITS, and it is the same model statsmodels fits, not a relative:
+The backend fits the same nested random-intercept model as statsmodels
+``MixedLM``:
 
     y = X b + sum_k Z_k u_k + e,   u_k ~ N(0, sigma^2 theta_k I),
                                    e ~ N(0, sigma^2 I)
 
-with one ``Z_k`` per grouping factor -- the group intercept
-:func:`spacr.ml.fit_mixed_model` passes as ``groups``, plus one per variance
-component, each NESTED INSIDE THE GROUP exactly as ``MixedLM``'s
-``vc_formula`` nests it. That nesting is not a detail: a variance component
-in statsmodels is evaluated *within* each group, so
-``vc_formula={'rowID': '0 + C(rowID)'}`` with ``groups=gene`` is
-``(1 | gene:rowID)`` and NOT ``(1 | rowID)``. Building the plain row
-indicator instead would be a different model that happens to run, which is
-the failure mode this whole file is written against.
+The group intercept supplies one ``Z_k`` and each variance component supplies
+another, nested within the outer group as in ``MixedLM.vc_formula``. For
+example, ``vc_formula={'rowID': '0 + C(rowID)'}`` with ``groups=gene``
+represents ``(1 | gene:rowID)``, not ``(1 | rowID)``.
 
-HOW, and why it is fast. The profiled REML deviance is lme4's, written
-directly (Bates et al. 2015, eq. 41):
+The implementation evaluates the profiled REML deviance from Bates et al.
+(2015, equation 41):
 
     d(theta) = log|Lambda' Z'Z Lambda + I| + log|X' W^-1 X|
                + (n - p) [1 + log(2 pi r^2 / (n - p))]
 
-where ``Lambda = diag(sqrt(theta))``, ``W = I + Z Lambda^2 Z'`` and ``r^2``
-is the minimised penalised residual sum of squares. Every quantity in it is
-a function of the CROSS-PRODUCTS ``Z'Z``, ``Z'X``, ``Z'y``, ``X'X``, ``X'y``
-and ``y'y``, which do not depend on theta -- so they are formed once, on the
-device, and the optimiser's inner loop is a ``q x q`` Cholesky and two
-triangular solves. ``n`` never enters the loop. That is what makes the
-Cholesky the whole cost and therefore what makes the GPU's 27x on the
-Cholesky show up in the wall clock.
+Here ``Lambda = diag(sqrt(theta))``, ``W = I + Z Lambda^2 Z'``, and ``r^2``
+is the minimized penalized residual sum of squares. Device-side cross-products
+``Z'Z``, ``Z'X``, ``Z'y``, ``X'X``, ``X'y``, and ``y'y`` are computed once.
+Each optimizer evaluation then requires a ``q x q`` Cholesky factorization and
+triangular solves. Autograd differentiates the deviance and L-BFGS optimizes
+``log(theta)``, which enforces positive variance ratios.
 
-The deviance is differentiated by autograd and minimised over ``log
-theta`` with L-BFGS. ``log`` because a variance is positive and a bounded
-optimiser on a boundary is where MixedLM's own convergence failures live.
+Reference measurements explain where acceleration is expected. Statsmodels
+``MixedLM`` took 54 times as long as OLS on a 40-gene screen and 67 times as
+long on an 80-gene screen. At ``q = 1212``, the Cholesky step took 204 ms on
+the CPU and 7.69 ms on an RTX 3090. For a design with 1,830 observations, 387
+genes, 710 guides, 388 fixed effects, and 1,097 random levels, end-to-end times
+were 11.3 s for statsmodels, 0.80 s for this backend on CPU, and 0.47 s on the
+RTX 3090. Use :func:`benchmark_against_statsmodels` to measure the supported
+backends on another design and device.
 
-NO SILENT FALL BACK TO THE CPU. A GPU backend selected
-on a machine with no CUDA raises :class:`MixedBackendUnavailable`, naming what
-is missing. A user who chose the GPU deliberately and got the CPU quietly has
-been told nothing, and the run they get is the run they were trying not to
-have.
+Selecting a CUDA device never falls back silently to CPU. If PyTorch or CUDA
+is unavailable, :class:`MixedBackendUnavailable` explains what is missing.
 """
 
 from __future__ import annotations
@@ -72,11 +51,7 @@ import pandas as pd
 
 
 class MixedBackendUnavailable(RuntimeError):
-    """The requested backend cannot run here, and the reason is the message.
-
-    Raised instead of falling back. See the design: an inapplicable
-    choice is refused *with its reason*, never silently substituted.
-    """
+    """Indicate that PyTorch or the requested compute device is unavailable."""
 
 
 #: The device string this module means by "the GPU". Kept as a constant so
@@ -114,7 +89,7 @@ BOUNDARY_THETA = 1e-9
 
 
 def torch_available() -> bool:
-    """Is torch importable at all? Does NOT import it if it is not there."""
+    """Return whether PyTorch is importable without importing it."""
     import importlib.util
 
     return importlib.util.find_spec("torch") is not None
@@ -135,7 +110,7 @@ MEMORY_HEADROOM = 0.5
 
 
 def design_bytes(n: int, q: int, *, itemsize: int = 8) -> int:
-    """Bytes the dense ``n x q`` random-effects design will occupy.
+    """Return the byte size of a dense ``n x q`` random-effects design.
 
     Exact rather than estimated: the shape is known before the matrix exists.
     """
@@ -143,7 +118,7 @@ def design_bytes(n: int, q: int, *, itemsize: int = 8) -> int:
 
 
 def available_memory(device: str = "cpu") -> int:
-    """Bytes that can plausibly be allocated on ``device`` right now."""
+    """Return the bytes currently available on a CPU or CUDA device."""
     if str(device).startswith("cuda"):
         try:
             import torch
@@ -188,8 +163,11 @@ def _refuse_if_too_large(n: int, q: int, *, dtype=None, device: str = "cpu"):
 
 
 def cuda_available() -> bool:
-    """Is a CUDA device usable right now? Imports torch, so ask it at FIT
-    time, not at panel-build time."""
+    """Return whether PyTorch can use a CUDA device at call time.
+
+    This function imports PyTorch and is intended for fit-time validation,
+    not lightweight settings-panel construction.
+    """
     try:
         import torch
     except Exception:
@@ -201,7 +179,7 @@ def cuda_available() -> bool:
 
 
 def describe_device() -> str:
-    """One line for a log or a greyed-out tooltip: what is there, or why not."""
+    """Describe the installed PyTorch and CUDA device for logs or tooltips."""
     if not torch_available():
         return "torch is not installed (pip install torch)"
     import torch
@@ -215,13 +193,23 @@ def describe_device() -> str:
 
 
 def resolve_device(device: str = GPU_DEVICE):
-    """Turn a device string into a ``torch.device``, REFUSING what is absent.
+    """Resolve a device string without silently substituting the CPU.
 
-    :param device: ``'cuda'``, ``'cpu'`` or any torch device string.
-    :returns: ``torch.device``.
-    :raises MixedBackendUnavailable: when torch is missing, or when a CUDA
-        device was asked for and none answered. It does not return
-        ``cpu`` in that case -- see the module docstring.
+    Parameters
+    ----------
+    device : str, optional
+        ``'cuda'``, ``'cpu'``, or another PyTorch device string.
+
+    Returns
+    -------
+    torch.device
+        Validated compute device.
+
+    Raises
+    ------
+    MixedBackendUnavailable
+        If PyTorch is not installed or a CUDA device was requested but is not
+        available.
     """
     if not torch_available():
         raise MixedBackendUnavailable(
@@ -310,17 +298,14 @@ class _RandomTerm:
 
 @dataclass
 class TorchMixedResults:
-    """What a torch REML fit returns, with statsmodels' attribute names.
+    """Store a PyTorch REML fit with statsmodels-compatible result fields.
 
-    THE NAMES ARE STATSMODELS' ON PURPOSE. :func:`spacr.ml.fit_mixed_model`
-    reads ``fe_params``, ``params``, ``pvalues``, ``random_effects``,
-    ``vcomp``, ``cov_re``, ``converged`` and ``resid`` off whatever it is
-    handed, and every one of those has the same meaning and the same units
-    here as it does there -- ``params``' variance entries are the RELATIVE
-    variances ``theta`` (that is what statsmodels puts in ``params``, checked
-    against a real fit), while ``cov_re`` and ``vcomp`` are the absolute
-    ones. Anything else would make the coefficient table silently wrong in
-    exactly the way the design forbids.
+    ``fe_params``, ``pvalues``, ``random_effects``, ``converged``, residuals,
+    and fitted values use the meanings expected by
+    :func:`spacr.ml.fit_mixed_model`. Variance entries in ``params`` and
+    ``theta`` are relative to residual variance; ``cov_re`` and ``vcomp`` are
+    absolute variances on the response scale. ``device``, ``fit_seconds``,
+    ``n_deviance_evals``, and ``gradient_norm`` record backend diagnostics.
     """
 
     fe_params: pd.Series
@@ -354,7 +339,7 @@ class TorchMixedResults:
         return self.n_obs - self.k_fe
 
     def summary_line(self) -> str:
-        """One line for the run log."""
+        """Return a one-line fit summary for the run log."""
         return (f"mixed fit: backend=torch device={self.device} "
                 f"{self.fit_seconds:.2f}s, {self.n_deviance_evals} deviance "
                 f"evaluations, scale={self.scale:.4g}, "
@@ -369,58 +354,75 @@ def fit_mixed_reml_torch(y, X, groups, vc=None, *, device: str = GPU_DEVICE,
                          max_iter: int = 400, verbose: bool = False):
     """Fit ``y ~ X + (1 | groups) + variance components`` by profiled REML.
 
-    AGREEMENT WITH STATSMODELS IS THE POINT, and every number below is
-    measured rather than hoped for. Against ``MixedLM(...).fit()`` as
-    statsmodels ships it:
+    Parameters
+    ----------
+    y : array-like of shape (n_observations,)
+        Response values.
+    X : array-like of shape (n_observations, n_fixed_effects)
+        Fixed-effects design. A DataFrame preserves its column names in
+        :attr:`TorchMixedResults.fe_params`.
+    groups : array-like of shape (n_observations,)
+        Outer grouping labels. A random intercept is always included,
+        equivalent to ``re_formula='1'``.
+    vc : mapping of str to array-like, optional
+        Additional grouping labels. Each entry defines one variance component
+        nested within ``groups``, matching statsmodels ``vc_formula``
+        semantics.
+    device : str, optional
+        PyTorch device. Requesting CUDA raises instead of falling back to CPU
+        when no CUDA device is available.
+    max_iter : int, optional
+        Maximum L-BFGS iterations. Typical screen-sized fits use 20--40; the
+        default of 400 is a safety limit.
+    verbose : bool, optional
+        Print the deviance at each optimizer evaluation.
+
+    Returns
+    -------
+    TorchMixedResults
+        Fixed effects, variance components, conditional fitted values and
+        residuals, BLUPs, convergence diagnostics, and timing information.
+
+    Raises
+    ------
+    MixedBackendUnavailable
+        If PyTorch or the requested device is unavailable.
+    ValueError
+        If input dimensions disagree or the fixed-effects design is not
+        identifiable.
+    MemoryError
+        If the dense random-effects design exceeds the configured share of
+        available device memory.
+
+    Notes
+    -----
+    Validation against statsmodels ``MixedLM(...).fit()`` produced the
+    following differences:
 
     ==================== ================== ==========================
-    quantity             nested fixture     TSG101-shaped screen
-                         (6 genes, 18       (387 genes, 710 guides,
-                         guides, 1620 rows) 1830 rows, p=388, q=1097)
+    quantity             nested fixture     screen-shaped fixture
+                         (1,620 rows)       (1,830 rows, p=388,
+                                            q=1,097)
     ==================== ================== ==========================
     fixed effects        1.20e-7 absolute   2.39e-4 absolute
-                                            (2.0e-4 of ONE std. error)
+                                            (2.0e-4 of one SE)
     variance components  1.29e-3 relative   2.02e-4 relative
     residual scale       4.12e-6 relative   1.94e-5 relative
-    standard errors      3.88e-4 relative   1.04e-3 median, 1.80e-2
-                                            worst of 388
-    guide BLUPs          7.64e-5 absolute   --
+    standard errors      3.88e-4 relative   1.04e-3 median; 1.80e-2
+                                            maximum across 388
+    guide BLUPs          7.64e-5 absolute   not evaluated
     ==================== ================== ==========================
 
-    AND WHERE THEY DIFFER, THIS ONE IS THE BETTER FIT -- which is checkable,
-    not a claim. Both maximise the same REML criterion (the log-likelihoods
-    agree to 1e-9 in the constant as well as the shape), this fit stops at a
-    gradient norm of 1.3e-11, and on the TSG101-shaped screen its REML
-    log-likelihood is -804.143968098 against statsmodels' -804.143968682.
-    Tightening statsmodels' own optimiser to ``gtol=1e-12`` moves it an order
-    of magnitude CLOSER on every row of the table (fixed effects to 1.52e-8,
-    variance components to 1.02e-4 on the fixture), which is what says the
-    residual disagreement is where statsmodels stopped rather than what this
-    module computes.
+    Both backends maximize the same REML criterion. On the screen-shaped
+    fixture, this fit ended at gradient norm 1.3e-11 and log-likelihood
+    -804.143968098; the default statsmodels fit returned -804.143968682.
+    Setting statsmodels ``gtol=1e-12`` reduced fixed-effect disagreement to
+    1.52e-8 absolute and fixture variance-component disagreement to 1.02e-4
+    relative.
 
-    SPEED, same screen, end to end: statsmodels 11.3 s, this on the CPU
-    0.80 s (14x), this on the RTX 3090 0.47 s (24x). The 24x is the
-    CONSERVATIVE reading -- repeated on a machine also running the test
-    suite, statsmodels took 21.3 s while this took 0.57 s, because the fit
-    that does not contend for CPU cores is the one that does not slow down.
-
-    :param y: response, length ``n``.
-    :param X: fixed-effects design, ``n x p``. A DataFrame keeps its column
-        names on ``fe_params``.
-    :param groups: the outer grouping factor -- one label per row. Its
-        intercept is always in the model, matching ``re_formula='1'``.
-    :param vc: ``{name: labels}``, one variance component per entry, each
-        NESTED INSIDE ``groups`` the way ``MixedLM``'s ``vc_formula`` nests
-        it.
-    :param device: torch device. ``'cuda'`` refuses rather than falling back
-        when there is no device; see :func:`resolve_device`.
-    :param max_iter: L-BFGS iterations. 400 is far more than the 20-40 a
-        screen-sized fit uses; it is a stop, not a target.
-    :param verbose: print the deviance each iteration.
-    :returns: :class:`TorchMixedResults`.
-    :raises MixedBackendUnavailable: when the device is not there.
-    :raises ValueError: when the design cannot identify the fixed effects,
-        which is the failure ``MixedLM`` reports as a bare ``LinAlgError``.
+    Reference end-to-end times for that fixture were 11.3 s for statsmodels,
+    0.80 s for this backend on CPU, and 0.47 s on an RTX 3090. Under concurrent
+    CPU load, statsmodels took 21.3 s and the CUDA backend 0.57 s.
     """
     torch_device = resolve_device(device)
     import torch
@@ -690,18 +692,38 @@ _VC_FORMULA = re.compile(r"^\s*0\s*\+\s*C\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*$"
 
 def mixedlm_torch(formula, data, groups, vc_formula=None, *,
                   device: str = GPU_DEVICE, **kwargs):
-    """``smf.mixedlm(...).fit()``, fitted by this module instead.
+    """Fit a formula mixed model with the PyTorch REML backend.
 
-    Same call shape as :func:`statsmodels.formula.api.mixedlm` so
-    :func:`spacr.ml.fit_mixed_model` can choose between them on one line.
+    The call shape parallels :func:`statsmodels.formula.api.mixedlm` so
+    :func:`spacr.ml.fit_mixed_model` can select either backend.
 
-    :param formula: patsy fixed-effects formula, ``'y ~ ...'``.
-    :param data: the frame it is evaluated against.
-    :param groups: the outer grouping factor, array-like or column name.
-    :param vc_formula: ``{name: '0 + C(col)'}``, the only shape spaCR writes.
-    :returns: :class:`TorchMixedResults`.
-    :raises ValueError: on a ``vc_formula`` this backend cannot express --
-        named, rather than silently fitted as something else.
+    Parameters
+    ----------
+    formula : str
+        Patsy fixed-effects formula, such as ``'response ~ predictor'``.
+    data : pandas.DataFrame
+        Frame in which the formula and grouping columns are evaluated.
+    groups : str or array-like
+        Outer grouping column or one label per row.
+    vc_formula : mapping of str to str, optional
+        Variance components in the supported form ``'0 + C(column)'``.
+    device : str, optional
+        PyTorch compute device.
+    **kwargs
+        Additional arguments passed to :func:`fit_mixed_reml_torch`.
+
+    Returns
+    -------
+    TorchMixedResults
+        Fitted mixed-model results.
+
+    Raises
+    ------
+    ValueError
+        If a variance-component formula is unsupported or names an absent
+        column.
+    MixedBackendUnavailable
+        If PyTorch or the requested device is unavailable.
     """
     import patsy
 
@@ -742,16 +764,27 @@ def mixedlm_torch(formula, data, groups, vc_formula=None, *,
 
 def benchmark_against_statsmodels(y, X, groups, vc=None, *,
                                   device: str = GPU_DEVICE):
-    """Fit the same problem both ways and report seconds and disagreement.
+    """Fit the same mixed model with statsmodels and PyTorch and compare them.
 
-    This benchmark lives in the package rather than only in the tests so the
-    number can be re-measured on a user's own
-    screen -- the 27x in the module docstring is one operation on one machine,
-    and the end-to-end ratio depends on ``q``.
+    Parameters
+    ----------
+    y : array-like of shape (n_observations,)
+        Response values.
+    X : array-like of shape (n_observations, n_fixed_effects)
+        Fixed-effects design.
+    groups : array-like of shape (n_observations,)
+        Outer grouping labels.
+    vc : mapping of str to array-like, optional
+        Nested variance-component labels.
+    device : str, optional
+        Device used by the PyTorch fit.
 
-    :returns: a dict with ``statsmodels_seconds``, ``torch_seconds``,
-        ``speedup``, ``max_abs_coefficient_difference``,
-        ``max_relative_variance_difference`` and ``scale_relative_difference``.
+    Returns
+    -------
+    dict
+        Timings, speedup, maximum fixed-effect and variance-component
+        disagreement, residual-scale disagreement, resolved device, and
+        PyTorch deviance-evaluation count.
     """
     from statsmodels.regression.mixed_linear_model import MixedLM
 
