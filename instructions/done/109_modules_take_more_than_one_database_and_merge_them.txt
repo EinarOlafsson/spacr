@@ -346,3 +346,37 @@ after `src` stopped being a text box on the merging modules.
 TESTS: tests/qt/test_a_dropped_folder_joins_the_source_set.py, 7 of them, on
 the REAL Image UMAP screen and the real handler -- both bugs were invisible to
 a double, because a double has a QLineEdit. Four of the seven fail at HEAD.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- THE THIRD HANDOFF, AUDITED RATHER THAN GUESSED. 109 CLOSES.
+--------------------------------------------------------------------------------
+
+"giving a third module the control is the same three lines the umap `src`
+branch is" -- it is three lines in the PANEL, and that was the wrong place to
+measure the cost. The question is whether the PIPELINE behind the panel can
+read a list, and a control that produces a value some stage cannot read is
+worse than a control that only expresses one source: the run fails somewhere
+in the middle, having already written half its output.
+
+COUNTED 2026-08-20, branches on a list-valued `src` per module:
+
+    submodules.py   4        core.py         2        plot.py     2
+    deep_spacr.py   1        io.py           1        measure.py  1
+    utils.py        1
+
+`core.generate_image_umap` is the one that handles it end to end, which is why
+it is the module that got the control. `deep_spacr` has ONE branch and it is
+in the prediction-merge at the very END of the run -- its docstring says
+"root folder(s)" and the stages before that merge do not honour the plural.
+Wiring the widget there would produce a settings value the tar build and the
+dataset generation cannot read.
+
+SO THE REMAINING MODULES ARE NOT A PANEL CHANGE. Each needs its pipeline
+audited stage by stage first, which is a per-module instruction with its own
+evidence rather than a line in this one. The shared control is built, has two
+callers, and is ready for the module that earns it.
+
+109's ask -- "modules take more than one database and merge them" -- is
+delivered for the module the request was about, with `multi_database`'s
+describe/merge underneath it and `spacr.tabular` canonicalising on the way in
+(145).
