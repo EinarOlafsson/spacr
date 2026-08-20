@@ -269,3 +269,95 @@ def test_the_document_a_finished_run_writes_names_the_panels_that_were_open(
     assert "problems" not in workspace.load(run) or all(
         not p["section"].startswith("regression:")
         for p in workspace.load(run)["problems"])
+
+
+# --------------------------------------------------------------------------- #
+#  Getting it back from the Runs tab
+# --------------------------------------------------------------------------- #
+
+class Panel:
+    """A contributor with nothing else about it — the protocol, on its own."""
+
+    def __init__(self, state=None):
+        self.state = dict(state or {})
+        self.applied = None
+
+    def workspace_state(self):
+        return dict(self.state)
+
+    def apply_workspace_state(self, state):
+        self.applied = dict(state)
+        return True
+
+
+def _saved_run(tmp_path, panel_state=None):
+    """A run folder carrying a workspace bundle."""
+    run = tmp_path / "run"
+    workspace.register("volcano", lambda: Panel(panel_state or {"level": "gene"}))
+    workspace.save_for_run(run, {}, app_key="regression")
+    workspace.clear_providers()
+    return run
+
+
+def test_a_run_with_a_bundle_offers_to_restore_it_and_one_without_says_why(
+        qtbot, tmp_path):
+    from spacr.qt.widgets.sweep_runs import SweepRunsPanel
+
+    panel = SweepRunsPanel()
+    qtbot.addWidget(panel)
+    saved, bare = _saved_run(tmp_path), tmp_path / "bare"
+    bare.mkdir()
+
+    with_bundle = panel._build_run_menu([{"folder": str(saved)}])
+    without = panel._build_run_menu([{"folder": str(bare)}])
+
+    offered = next(a for a in with_bundle.actions() if a.data() == "restore")
+    absent = next(a for a in without.actions() if a.data() == "restore")
+    assert offered.isEnabled() is True
+    # Instruction 106: offered and disabled, SAYING WHY -- an entry that
+    # appeared only sometimes is one nobody learns exists.
+    assert absent.isEnabled() is False
+    assert "saved no workspace" in absent.toolTip()
+
+
+def test_restoring_is_its_own_gesture_and_not_part_of_loading(qtbot, tmp_path):
+    from spacr.qt.widgets.sweep_runs import SweepRunsPanel
+
+    panel = SweepRunsPanel()
+    qtbot.addWidget(panel)
+    record = {"folder": str(_saved_run(tmp_path))}
+    asked = []
+    panel.workspace_restore_requested.connect(asked.append)
+
+    assert panel._apply_run_menu("restore", [record]) is True
+    assert asked == [record]
+
+
+def test_the_restore_report_reaches_the_user_not_the_void(qtbot, tmp_path):
+    from spacr.qt.screens.app_screen import AppScreen
+
+    run = _saved_run(tmp_path, {"level": "gene"})
+    screen = AppScreen("regression")
+    qtbot.addWidget(screen)
+    said = []
+    screen._say = said.append
+
+    report = screen.restore_run_workspace({"folder": str(run)})
+    # Nothing on this screen owns a section called "volcano", so nothing came
+    # back -- and that is exactly what has to be said out loud.
+    assert report["restored"] == []
+    assert any("volcano" in line for line in said)
+
+
+def test_a_folder_with_no_bundle_says_so_rather_than_raising(qtbot, tmp_path):
+    from spacr.qt.screens.app_screen import AppScreen
+
+    screen = AppScreen("regression")
+    qtbot.addWidget(screen)
+    said = []
+    screen._say = said.append
+    bare = tmp_path / "bare"
+    bare.mkdir()
+
+    assert screen.restore_run_workspace({"folder": str(bare)})["restored"] == []
+    assert any("no saved workspace" in line for line in said)
