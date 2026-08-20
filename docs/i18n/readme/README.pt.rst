@@ -37,7 +37,7 @@
    :target: https://github.com/EinarOlafsson/spacr/tree/main/conda-forge/recipe
    :alt: Receita do conda-forge
 
-.. image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/logo_spacr.png
+.. image:: ../../../spacr/resources/icons/logo_spacr.png
    :alt: spaCR
    :align: center
    :width: 360
