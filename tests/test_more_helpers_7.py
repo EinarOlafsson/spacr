@@ -54,7 +54,11 @@ def test_plot_lorenz_curves_smoke_synthetic_csvs(tmp_path):
     assert labels[0].startswith("plate 1 (Gini: ")
     assert labels[1].startswith("plate 2 (Gini: ")
     assert labels[2].startswith("Combined (Gini: ")
-    assert [t.get_text() for t in ax.get_legend().get_texts()] == labels
+    # The house style uses coloured in-panel text instead of a framed
+    # Matplotlib legend.  Verify the visible labels without requiring the
+    # legacy legend object that the plot intentionally no longer creates.
+    assert ax.get_legend() is None
+    assert [text.get_text() for text in ax.texts] == labels
 
     areas, ginis = [], []
     for line, label in zip(ax.lines, labels):
