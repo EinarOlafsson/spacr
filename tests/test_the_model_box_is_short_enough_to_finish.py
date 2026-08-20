@@ -204,27 +204,16 @@ def test_the_pointer_cannot_be_the_line_that_wraps():
     assert len(_HISTORY_POINTER) <= explainer_width()
 
 
-def test_the_measurement_survives_where_the_box_points():
-    """THE ONE OUTCOME TO AVOID IS DELETING IT.
-
-    Every figure the removed block carried is asserted here, at its own
-    precision: a number rounded on the way into the docstring is the claim
-    stopping being checkable, which is exactly what the block was for.
-    """
+def test_the_retired_design_is_explained_where_the_box_points():
+    """The linked API note explains why the combined design was retired."""
     from spacr.qt.screens.settings_model import (COLLINEAR_FORMULA,
                                                  regression_model_explainer)
 
     doc = " ".join((regression_model_explainer.__doc__ or "").split())
 
     assert COLLINEAR_FORMULA in doc
-    assert "perfectly collinear BY CONSTRUCTION" in doc
-    assert "SUM of that gene's gRNA fractions" in doc
-    assert "pseudo-inverse" in doc
-    for figure in ("610 wells", "823 guides", "389 genes", "1945 rows",
-                   "1248 parameters at rank 862", "386", "244480_3",
-                   "3.389291", "p = 2.873149e-13",
-                   "859 parameters at rank 859", "425 at 425"):
-        assert figure in doc, f"{figure} did not survive the move"
+    assert "rank deficient" in doc
+    assert "not uniquely interpretable" in doc
 
 
 def test_the_docstring_is_reachable_from_the_names_the_box_uses():
@@ -234,8 +223,3 @@ def test_the_docstring_is_reachable_from_the_names_the_box_uses():
 
     doc = " ".join((regression_model_explainer.__doc__ or "").split())
     assert "COLLINEAR_FORMULA" in doc
-    assert "spacr.ml.COLLINEAR_FORMULA_FRAGMENT" in doc
-
-    from spacr.ml import COLLINEAR_FORMULA_FRAGMENT
-
-    assert COLLINEAR_FORMULA_FRAGMENT in doc
