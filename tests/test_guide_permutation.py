@@ -109,18 +109,10 @@ def test_multiple_testing_methods_and_missing_values():
 
 
 def test_regression_defaults_expose_the_correction_and_support_sensitivity():
-    """The correction is offered and configurable; it is not applied by default.
-
-    This asserted ``multiple_testing_method == 'fdr_bh'`` until d6eb6ca3 moved
-    it to 'none', requested in that commit's own words alongside transform=log
-    and min_cell_count=100. The key still exists, still accepts every method
-    ``adjust_p_values`` implements, and ``fdr_alpha`` still rides with it --
-    which is what "expose" meant here. What changed is which one a user who
-    edits nothing gets, so that is pinned on its own below rather than folded
-    back into this list.
-    """
+    """Nonparametric defaults expose support and correction controls."""
     settings = get_perform_regression_default_settings({})
-    assert settings["analysis_mode"] == "regression"
+    assert settings["inference"] == "nonparametric"
+    assert settings["analysis_mode"] == "guide_permutation"
     assert settings["guide_min_wells"] == [1, 2, 3, 4]
     assert settings["guide_primary_min_wells"] is None
     assert settings["fdr_alpha"] == 0.05
@@ -130,15 +122,10 @@ def test_regression_defaults_expose_the_correction_and_support_sensitivity():
             "fdr_bh")
 
 
-def test_no_correction_is_the_requested_default():
-    """Pinned separately, because it is a choice rather than a consequence.
-
-    An uncorrected P value across hundreds of guides is not evidence, so what
-    spaCR reports before the user chooses is a deliberate decision -- the kind
-    that should fail here if it drifts back, rather than move quietly.
-    """
+def test_bh_correction_is_the_requested_default():
+    """The default permutation result controls its guide-level FDR family."""
     assert get_perform_regression_default_settings(
-        {})["multiple_testing_method"] == "none"
+        {})["multiple_testing_method"] == "fdr_bh"
 
 
 def test_package_runner_writes_bh_tables_and_each_volcano(tmp_path):
@@ -162,6 +149,8 @@ def test_package_runner_writes_bh_tables_and_each_volcano(tmp_path):
             "guide_permutation_seed": 13,
             "guide_permutation_block": "plateID",
             "guide_nuisance_columns": [],
+            "analysis_unit": "well",
+            "agg_type": "mean",
             "multiple_testing_method": "fdr_bh",
             "fdr_alpha": 0.05,
         })
@@ -223,8 +212,9 @@ def test_the_permutations_setting_states_the_resolution_it_buys():
     text = settings.tooltips['guide_permutations']
     assert '(exceedances + 1) / (permutations + 1)' in text
     # The floor, in both directions: the formula and a worked value.
-    assert '1e-3' in text and '1000' in text
-    assert '5e-6' in text and '200000' in text
+    ungrouped = text.replace(',', '')
+    assert '1e-3' in ungrouped and '1000' in ungrouped
+    assert '5e-6' in ungrouped and '200000' in ungrouped
     # The symptom, so a reader can recognise it on their own volcano.
     assert 'floor' in text
 
