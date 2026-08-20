@@ -13,14 +13,18 @@ from PySide6.QtWidgets import (QComboBox, QDialog, QFileDialog, QHBoxLayout,
                                QLabel, QPlainTextEdit, QPushButton,
                                QVBoxLayout, QWidget)
 
-from ...gene_measurement_compare import (LEVELS, PLOTS, build, plot, save,
-                                         with_statistics)
+from ...gene_measurement_compare import (LEVELS, OPERATORS, PLOTS, build,
+                                         plot, save, with_statistics)
 
 LOG = logging.getLogger("spacr.qt.measurement_compare")
 
 
-class MeasurementCompareDialog(QDialog):
+class MeasurementComparePanel(QWidget):
     """One measurement, the picked genes against the rest.
+
+    A PANEL, so the Graph tab (179 A) and the standalone window are the same
+    implementation. Two copies of a comparison would be two answers to the
+    same question the first time either was edited.
 
     :param objects: every object row behind the montage, picked or not.
     :param groups: ``{gene: index values}`` from the picker.
@@ -32,7 +36,6 @@ class MeasurementCompareDialog(QDialog):
                  parent: Optional[QWidget] = None,
                  settings: Optional[Dict[str, Any]] = None):
         super().__init__(parent)
-        self.setWindowTitle("Compare a measurement")
         self._objects = objects
         self._groups = dict(groups or {})
         self._settings = dict(settings or {})
@@ -51,6 +54,22 @@ class MeasurementCompareDialog(QDialog):
             self.measurement.addItem(str(name), str(name))
         self.measurement.currentIndexChanged.connect(self.refresh)
         row.addWidget(self.measurement, 1)
+
+        # THE SECOND MEASUREMENT AND THE OPERATOR (179 B). "one mes minus,
+        # plus, multiplied by or devided by another mes" -- and the combined
+        # column is named for the expression, so the table, the legend and
+        # the settings file all say the same thing.
+        self.operator = QComboBox()
+        for value, label in OPERATORS:
+            self.operator.addItem(label, value)
+        self.operator.currentIndexChanged.connect(self._on_operator)
+        row.addWidget(self.operator)
+
+        self.second = QComboBox()
+        self.second.setEnabled(False)
+        self.second.currentIndexChanged.connect(self.refresh)
+        row.addWidget(self.second, 1)
+        self._offer_second()
 
         row.addWidget(QLabel("level"))
         self.level = QComboBox()
@@ -102,6 +121,40 @@ class MeasurementCompareDialog(QDialog):
         except Exception:                                    # noqa: BLE001
             return []
 
+    def _offer_second(self):
+        """Fill the second chooser from the same columns as the first."""
+        self.second.blockSignals(True)
+        self.second.clear()
+        for name in self._numeric_columns():
+            self.second.addItem(str(name), str(name))
+        self.second.blockSignals(False)
+
+    def _on_operator(self, *_args):
+        """A second measurement is only meaningful with an operator."""
+        self.second.setEnabled(bool(self.operator.currentData()))
+        self.refresh()
+
+    def set_data(self, objects, groups: Dict[str, Any],
+                 settings: Optional[Dict[str, Any]] = None):
+        """Point the panel at a new montage. The Graph tab calls this rather
+        than being rebuilt, so a user's chosen measurement and level survive
+        a re-run."""
+        self._objects = objects
+        self._groups = dict(groups or {})
+        if settings is not None:
+            self._settings = dict(settings)
+        remembered = self.measurement.currentData()
+        self.measurement.blockSignals(True)
+        self.measurement.clear()
+        for name in self._numeric_columns():
+            self.measurement.addItem(str(name), str(name))
+        index = self.measurement.findData(remembered)
+        if index >= 0:
+            self.measurement.setCurrentIndex(index)
+        self.measurement.blockSignals(False)
+        self._offer_second()
+        return self.refresh()
+
     def comparison(self):
         return self._comparison
 
@@ -113,9 +166,11 @@ class MeasurementCompareDialog(QDialog):
                 "These objects carry no measurement column to compare.")
             return None
         level = str(self.level.currentData() or "well")
+        operator = str(self.operator.currentData() or "")
+        second = str(self.second.currentData() or "") if operator else ""
         self._comparison = with_statistics(
             build(self._objects, measurement, groups=self._groups,
-                  level=level))
+                  level=level, operator=operator, second=second))
         self._draw()
         self._report()
         return self._comparison
@@ -199,3 +254,46 @@ class MeasurementCompareDialog(QDialog):
             f"{self.report.toPlainText()}\n\nSaved "
             f"{len(written)} item(s) to {chosen}")
         return written
+
+
+class MeasurementCompareDialog(QDialog):
+    """The panel above, in a window. Kept so the button still opens one."""
+
+    def __init__(self, objects, groups: Dict[str, Any],
+                 parent: Optional[QWidget] = None,
+                 settings: Optional[Dict[str, Any]] = None):
+        super().__init__(parent)
+        self.setWindowTitle("Compare a measurement")
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.panel = MeasurementComparePanel(objects, groups, parent=self,
+                                             settings=settings)
+        layout.addWidget(self.panel)
+        self.resize(900, 720)
+
+    # The window forwards what the button and the tests ask of it, rather
+    # than reimplementing any of it.
+    def refresh(self, *args):
+        return self.panel.refresh(*args)
+
+    def comparison(self):
+        return self.panel.comparison()
+
+    def save_everything(self, folder: str = "") -> dict:
+        return self.panel.save_everything(folder)
+
+    @property
+    def measurement(self):
+        return self.panel.measurement
+
+    @property
+    def level(self):
+        return self.panel.level
+
+    @property
+    def kind(self):
+        return self.panel.kind
+
+    @property
+    def report(self):
+        return self.panel.report

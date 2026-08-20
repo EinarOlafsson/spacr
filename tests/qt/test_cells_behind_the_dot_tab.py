@@ -1195,10 +1195,16 @@ def test_the_tab_label_names_the_well_and_the_grna_both(qtbot, tmp_path):
     view.set_coefficient(GENE_KEY)
     view.build()
     labels = view.tab_labels()
+    # SUMMARY, GRAPH, THEN THE WELLS. The Graph tab arrived with instruction
+    # 179 A and sits beside Summary; the WELL labels are what this test is
+    # about, so they are taken from the well tabs rather than by position.
     assert labels[0] == "Summary"
-    assert labels[1:] == ("plate1_r1_c1 · GRA14 (2 guides)",
-                          "plate1_r1_c2 · GRA14 (2 guides)",
-                          "plate1_r1_c3 · GRA14 (2 guides)")
+    assert labels[1] == "Graph"
+    wells = tuple(view._tabs.tabText(i) for i in range(view._tabs.count())
+                  if view._tabs.widget(i) in view.well_tabs())
+    assert wells == ("plate1_r1_c1 · GRA14 (2 guides)",
+                     "plate1_r1_c2 · GRA14 (2 guides)",
+                     "plate1_r1_c3 · GRA14 (2 guides)")
 
     # ONE GUIDE AT A TIME names the guide, and the gene it belongs to -- the
     # guide-level coefficient GRA14_1 and the GENE GRA14 shown one guide at a
@@ -1223,7 +1229,9 @@ def test_a_well_tab_survives_the_selection_moving_and_a_re_run(qtbot,
     view.set_coefficient(GENE_KEY)
     view.build()
     before = view.tab_labels()
-    assert len(before) == 4
+    # Summary, Graph (179 A), and one tab per well.
+    assert len(before) == 2 + len(view.well_tabs())
+    assert len(view.well_tabs()) == 3
 
     view.set_coefficient(GUIDE_KEY)
     assert view.tab_labels() == before        # the tabs stayed
@@ -1255,12 +1263,17 @@ def test_a_well_tab_closes_by_its_own_x_and_by_nothing_else(qtbot, tmp_path):
     assert bar.tabButton(0, QTabBar.LeftSide) is None
     assert bar.tabButton(0, QTabBar.RightSide) is None
 
-    close = bar.tabButton(1, QTabBar.LeftSide)
+    # THE FIRST WELL TAB, found rather than assumed to be index 1: Summary is
+    # 0 and Graph is 1 since instruction 179 A, and both are fixed tabs with
+    # no x. Looking one up by position was right when there was only one.
+    first_well = next(i for i in range(view._tabs.count())
+                      if view._tabs.widget(i) in view.well_tabs())
+    close = bar.tabButton(first_well, QTabBar.LeftSide)
     assert close is not None, "the x must be on the LEFT of the tab"
-    assert bar.tabButton(1, QTabBar.RightSide) is None
+    assert bar.tabButton(first_well, QTabBar.RightSide) is None
     assert "closes from here and nowhere else" in close.toolTip()
 
-    doomed = view._tabs.tabText(1)
+    doomed = view._tabs.tabText(first_well)
     QTest.mouseClick(close, _Qt.LeftButton)
     assert doomed not in view.tab_labels()
     assert len(view.well_tabs()) == 2
