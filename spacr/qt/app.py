@@ -1552,6 +1552,16 @@ class MainWindow(QMainWindow):
             # was just told.
             self.resume_after_restart()
 
+        # 178 D, for the window's own tab bars as well as the screens'. A
+        # screen built later takes the arrows off itself; this covers what is
+        # already here.
+        try:
+            from .theme import take_the_scroll_arrows_off
+            take_the_scroll_arrows_off(self)
+        except Exception:                                # noqa: BLE001
+            LOG.debug("could not take the tab scroll arrows off",
+                      exc_info=True)
+
         # Apply the persisted language after every startup widget exists.
         # New lazy screens are translated separately when first constructed.
         self.refresh_language()
