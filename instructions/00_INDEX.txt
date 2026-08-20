@@ -2,7 +2,7 @@
 WHAT IS LEFT -- INDEX
 ================================================================================
 
-Regenerated 2026-08-19 by `tools/build_instruction_index.py`, from the files
+Regenerated 2026-08-20 by `tools/build_instruction_index.py`, from the files
 themselves. Do not hand-edit: it went nine days stale last time, and an index
 that disagrees with the folder is worse than none, because it is believed.
 
@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-130 done / 43 open (75%).
+131 done / 42 open (75%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -149,9 +149,6 @@ OPEN
 
   178  EVERY FIGURE READS IN BOTH THEMES, THE SUMMARY IS A TABLE, AND A SAVED FIGURE
        178_every_figure_reads_in_both_themes_and_the_summary_is_a_table.txt
-
-  180  A SAVED RUN CAN CARRY THE WHOLE WORKSPACE, NOT ONLY THE SETTINGS
-       180_a_saved_run_can_carry_the_whole_workspace.txt
 
 --------------------------------------------------------------------------------
 DONE
@@ -287,3 +284,4 @@ DONE
   177  ONE PARSE PER INPUT FILE, NOT ONE PER PAIR ROW
   177  THE CELLS TAB COMPARES MEASUREMENTS, AND THE CHROME BEHAVES
   179  A GRAPH TAB IN THE CELLS PANEL, AND MEASUREMENTS THAT COMBINE
+  180  A SAVED RUN CAN CARRY THE WHOLE WORKSPACE, NOT ONLY THE SETTINGS

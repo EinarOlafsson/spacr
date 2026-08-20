@@ -2133,6 +2133,9 @@ class AppScreen(QWidget):
                 # TWO RUNS ON SCREEN AT ONCE, deliberately (116).
                 self._sweep_runs.compare_requested.connect(
                     self.open_run_beside)
+                # PUT BACK WHAT THAT RUN HAD OPEN (180).
+                self._sweep_runs.workspace_restore_requested.connect(
+                    self.restore_run_workspace)
                 left = QTabWidget(self._figures_card)
                 # RUNS FIRST, THEN RESULTS -- instruction 128 J, asked for on
                 # 2026-08-17: "the run tab should be before the results tab
@@ -5528,6 +5531,44 @@ class AppScreen(QWidget):
         for note in notes:
             self._console.append_notice(
                 "[settings] {note}\n", note=note)
+
+    def restore_run_workspace(self, record) -> dict:
+        """Put back what a saved run had open. Returns the restore report.
+
+        THE REPORT REACHES THE USER, always. `spacr.workspace.restore` names
+        every section it could not put back and every file that moved or
+        changed, and a restore that swallowed that would leave the user
+        looking at a screen they believe is the old one -- which is worse
+        than not restoring at all. Written to the console, which is where
+        this screen says everything else about a run.
+        """
+        from ...workspace import load, providers, report_text, restore
+
+        folder = str((record or {}).get("folder") or "") if isinstance(
+            record, dict) else str(record or "")
+        empty = {"restored": [], "skipped": [], "files": []}
+        if not folder:
+            return empty
+        document = load(folder)
+        if document is None:
+            self._say(f"{folder} carries no saved workspace.")
+            return empty
+        report = restore(providers(), document, run_dir=folder)
+        self._say(f"Restored the workspace of {os.path.basename(folder)}:\n"
+                  f"{report_text(report)}")
+        return report
+
+    def _say(self, message: str) -> None:
+        """Put a sentence on the console, or in the log if there is none."""
+        console = getattr(self, "_console", None)
+        writer = getattr(console, "append_stdout", None)
+        if callable(writer):
+            try:
+                writer(str(message))
+                return
+            except Exception:                               # noqa: BLE001
+                LOG.debug("could not write to the console", exc_info=True)
+        LOG.info("%s", message)
 
     # -- instruction 180: the screen contributes, and enrols its panels -----
 

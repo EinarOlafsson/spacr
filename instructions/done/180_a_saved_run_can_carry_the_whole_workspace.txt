@@ -125,3 +125,50 @@ HOW TO KNOW IT WORKED
   is byte-for-byte what it is today.
 * A moved database produces a NAMED failure in the restore report, not a
   traceback and not a silent half-restore.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- DONE. A to D.
+--------------------------------------------------------------------------------
+
+`spacr/workspace.py`, and the panels contribute to it rather than being read.
+The regression panel's `plot_state`/`apply_plot_state` pair was already the
+protocol's shape and is taken as-is, so the volcano has ONE state model.
+
+WHAT EACH CONTRIBUTES, and what it deliberately leaves out:
+  regression  EVERY run's remembered view, not only the one on screen -- the
+              four a user built and left are the ones that die with the
+              process; the fifth is at least still described by the widgets
+  montage     the coefficient, the picking and the picture settings, never
+              the crops: the run's own images regenerate those exactly, and
+              a restore that reloaded them would freeze the window
+  databases   the attached set IN ORDER, because a merge resolves a column
+              collision in favour of the first source that has it
+  figures     the arrangement -- the PNGs are in the run's own results folder
+  settings    the screen's whole state, a superset of the pipeline's dict
+
+REFERENCE (default) records path, size, mtime and sha256 for every file the
+document names -- kilobytes, and enough to say "that database moved" rather
+than fail obscurely. COPY brings the bytes in under a per-file limit, and a
+file over it is written into the document as skipped WITH ITS SIZE. Figures
+the session generated are carried in either mode: a reference to something
+that exists nowhere else is a reference to nothing.
+
+NOTHING IS WRITTEN WHEN NOTHING IS OPEN, which is what makes the default safe:
+`spacr mask` in a terminal registers no contributors and gets exactly the run
+folder it got before.
+
+The registry is the seam. QSettings cannot be read from a pipeline, so the
+preference is pushed into a module both ends import; a settings dict naming
+`save_workspace` outranks it.
+
+D. The Runs tab's context menu offers "Restore what this run had open…",
+   disabled and saying why on a run with no bundle. The report is written to
+   the console, never swallowed. `spacr-workspace <run-folder>` prints the
+   inventory, `--files` their current state, `--json` the document.
+
+59 tests across tests/test_a_saved_run_carries_the_workspace.py and
+tests/qt/test_the_panels_contribute_to_a_saved_run.py.
+
+STILL OWED: nothing in the ask. Worth doing later -- the Graph tab and the
+measurement-comparison panel do not contribute yet, so a restored session
+puts the montage back but not the comparison built on it.

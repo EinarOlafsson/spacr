@@ -658,6 +658,11 @@ setup(
             'spacr-tutorial=spacr.qt.tutorial.__main__:main',
             # spacr-repro <run-folder> — replay a recorded run journal
             'spacr-repro=spacr.cli_repro:main',
+            # spacr-workspace <run-folder> — what the run had OPEN: the
+            # databases, the montage, the figure views, and whether the
+            # files it names are still there. No display needed, because
+            # the question is usually asked about somebody else's run.
+            'spacr-workspace=spacr.cli_workspace:main',
             # spacr-run <module> --settings f — headless pipeline runner for
             # clusters: no Qt, no Tk, no display. Importing spacr.cli pulls
             # neither torch nor matplotlib, so --help/--list answer instantly.
