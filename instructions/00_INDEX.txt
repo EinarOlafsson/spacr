@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-190 done / 16 open (92%).
+191 done / 15 open (92%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -32,9 +32,6 @@ OPEN
 
   200  THE FIGURE SETTINGS ARE THE GRAPH'S OWN CONTROLS
        200_the_figure_settings_are_the_graphs_own_controls.txt
-
-  201  THE OUTLINE SETTING LOOKS LIKE THE CHANNEL SETTINGS
-       201_the_outline_setting_looks_like_the_channel_settings.txt
 
   202  THE MEASUREMENTS TABLE'S COLUMNS SAY WHAT THEY CONTROL
        202_the_measurements_table_columns_say_what_they_control.txt
@@ -266,3 +263,4 @@ DONE
   196  THE ADVISOR'S SETTINGS HAVE TO ACTUALLY RUN
   197  THE HOTKEY MAP IS IN THE HELP MENU
   198  THE MEASUREMENTS TAB'S SUB-HEADINGS READ WHEN THEY ARE NOT HIGHLIGHTED
+  201  THE OUTLINE SETTING LOOKS LIKE THE CHANNEL SETTINGS

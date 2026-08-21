@@ -2,7 +2,7 @@
 THE OUTLINE SETTING LOOKS LIKE THE CHANNEL SETTINGS
 ================================================================================
 
-Status:    filed 2026-08-21, not started.
+Status:    filed 2026-08-21, DONE 2026-08-21.
 Requested: 2026-08-21 -- "in the cell tab in the settings the outline setting
            should look like the channel and normalize channel".
 Owner:     Qt GUI (Cell tab, settings rows)
@@ -37,3 +37,28 @@ HOW TO KNOW IT WORKED
   setting.
 * A test asserts the three rows share a widget class rather than eyeballing
   a screenshot.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+`outline` joined `CHANNEL_KEYS` in `picture_settings_dialog.py`, so it is
+built by `ChannelPicker` like its two neighbours instead of by the generic
+`_editor`.
+
+ONE LINE, because the divergence was only ever the widget.
+`picture_settings.choices` has offered `outline` the identical r / g / b
+vocabulary as `normalize_channels` since the two were changed together, and
+`_as_channel_list` parses whatever either control writes -- so the stored
+value, the settings CSV and the crop drawer are all untouched.
+
+`allow_none` is True, with `normalize_channels`: nothing outlined is the
+default and a real answer. Only `channels` refuses it, because a picture
+with no channels on is blank.
+
+The end of the contract is asserted rather than assumed -- what the picker
+writes is fed to `_as_channel_list` and compared against the same string
+parsed directly, for every combination.
+
+Tests: `tests/qt/test_the_outline_control_matches_its_neighbours.py`, 7
+passing; the dialog's five existing test files, 134 passing.
