@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-193 done / 14 open (93%).
+193 done / 15 open (92%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -65,6 +65,9 @@ OPEN
 
   214  THE POSITIVE CONTROL CALIBRATES THE gRNA FRACTIONS
        214_the_positive_control_calibrates_the_fractions.txt
+
+  215  THE UMAP SAYS WHETHER THE ANNOTATION WORKED
+       215_the_umap_says_whether_the_annotation_worked.txt
 
 --------------------------------------------------------------------------------
 DONE
