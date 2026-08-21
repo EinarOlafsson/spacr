@@ -39,22 +39,16 @@ PLOTS: Tuple[Tuple[str, str], ...] = (
 #: Label assigned to observations that do not belong to a named gene group.
 REST = "the rest"
 
-#: The three contrasts one set of annotated cells can be held against, and
-#: what each one REMOVES (187 B). They answer different questions and the
-#: difference is not a matter of taste:
+#: Comparison-group definitions and the confounding each one removes.
 #:
-#: * within the well, the two sides were seeded, treated, stained and imaged
-#:   together, so every plate and well effect cancels. It is also the only
-#:   one the well-level fraction can never make, and the contrast
-#:   instruction 173's validation used.
-#: * against controls asks the screen's actual question -- does this gene
-#:   move the measurement away from where an untargeted well sits -- and
-#:   removes nothing, so a plate effect can still reach the answer.
-#: * against every other well is the widest and the most exposed: the two
-#:   sides share no well at all.
+#: ``within_well`` controls both plate and well effects because the two groups
+#: share acquisition and treatment conditions. ``against_controls`` compares
+#: annotated cells with named control wells but does not remove plate effects.
+#: ``against_other_wells`` is the broadest comparison and remains exposed to
+#: well and plate effects.
 #:
-#: ``('', ...)`` is the historical behaviour and stays the default so that
-#: every existing caller keeps the comparison it already had.
+#: The empty value preserves the default comparison against every unannotated
+#: cell in the loaded data.
 CONTRASTS: Tuple[Tuple[str, str, str], ...] = (
     ("", "everything else",
      "the annotated cells against every other cell loaded, wherever it is. "
@@ -82,17 +76,18 @@ WELL_KEY_COLUMNS: Tuple[str, ...] = ("plateID", "rowID", "columnID")
 
 
 def contrast_note(contrast: str) -> str:
-    """Return what ``contrast`` removes, in words.
+    """Describe the comparison group and confounding for a contrast.
 
-    The instruction is explicit that a contrast has to say this -- "the three
-    contrasts are selectable and each names what it removes" -- because the
-    three produce different p-values from the same cells and a reader who
-    cannot see which one was made cannot tell whether a plate effect is in
-    the answer.
+    Parameters
+    ----------
+    contrast : str
+        Contrast value from :data:`CONTRASTS`.
 
-    :param contrast: a value from :data:`CONTRASTS`. An unknown value
-        returns an empty string rather than raising, so a comparison built
-        from an old saved run is still drawn.
+    Returns
+    -------
+    str
+        User-facing explanation of the selected contrast. Unknown values
+        return an empty string so older saved runs remain readable.
     """
     for value, _label, why in CONTRASTS:
         if value == str(contrast or ""):
@@ -101,17 +96,21 @@ def contrast_note(contrast: str) -> str:
 
 
 def well_labels(objects: "pd.DataFrame") -> Optional["pd.Series"]:
-    """Return one well name per object row, or ``None`` when unavailable.
+    """Resolve one well label for each object row.
 
-    Prefers ``montage_well``, which :func:`spacr.cell_montage.select_montage`
-    has already written and which therefore agrees with the well names the
-    montage's own captions use. Falls back to ``prc`` and then to the three
-    key columns joined the same way.
+    Parameters
+    ----------
+    objects : pandas.DataFrame
+        Object table containing ``montage_well``, ``prc``, or the plate, row,
+        and column identifiers in :data:`WELL_KEY_COLUMNS`.
 
-    ``None`` -- not an exception and not a column of empty strings -- because
-    "these rows do not say which well they came from" is a fact a caller has
-    to be able to report, and both other spellings quietly turn every row
-    into the same well.
+    Returns
+    -------
+    pandas.Series or None
+        Well labels aligned to ``objects``. ``montage_well`` is preferred so
+        labels match montage captions, followed by ``prc`` and the composite
+        plate/row/column key. ``None`` indicates that well identity cannot be
+        recovered from the table.
     """
     columns = getattr(objects, "columns", ())
     for single in ("montage_well", "prc"):
@@ -128,12 +127,25 @@ def well_labels(objects: "pd.DataFrame") -> Optional["pd.Series"]:
 
 def wells_of(objects: "pd.DataFrame",
              groups: Dict[str, Sequence[Any]]) -> Dict[str, Tuple[str, ...]]:
-    """Return ``{group name: the wells its annotated cells came from}``.
+    """List the observed wells represented by each annotated group.
 
-    What the well chooser offers. "i whould be able to choose which wells to
-    include from the gene annotation" needs the list first, and it is read
-    off the annotated rows rather than off the count data so that a well the
-    montage drew nothing from is not offered as includable.
+    Parameters
+    ----------
+    objects : pandas.DataFrame
+        Object rows indexed by the values stored in ``groups``.
+    groups : dict of str to sequence
+        Group names mapped to object-index values.
+
+    Returns
+    -------
+    dict of str to tuple of str
+        Observed well labels in first-occurrence order. Groups with no matching
+        rows and wells absent from the object table are omitted.
+
+    Notes
+    -----
+    Wells are derived from the annotated object rows rather than count data,
+    so the result contains only wells represented in the montage.
     """
     wells = well_labels(objects)
     if wells is None:
@@ -151,19 +163,26 @@ def wells_of(objects: "pd.DataFrame",
 def control_wells(counts: "pd.DataFrame", typed, *,
                   guide_column: str = "grna",
                   gene_column: str = "gene") -> Tuple[str, ...]:
-    """Return the wells the named controls occupy, in the count data.
+    """Resolve the wells occupied by named controls in count data.
 
-    :param counts: the per-well count table -- one row per well and guide.
-    :param typed: whatever the user typed in the control field. Resolved
-        through :mod:`spacr.control_names`, so a gene, a guide, a prefixed
-        name and a bare one all work (184) and this module does not grow a
-        fifth opinion about what a control name looks like.
-    :param guide_column: the guide column on ``counts``.
-    :param gene_column: the gene column, when it has one.
-    :returns: the well names, in the same spelling :func:`well_labels`
-        produces, so they can be compared with the object rows' wells
-        directly. Empty when nothing matched -- the CALLER says so, because
-        only the caller knows whether the user asked for controls at all.
+    Parameters
+    ----------
+    counts : pandas.DataFrame
+        Per-well count table with guide identifiers and recoverable well
+        labels.
+    typed : str or sequence of str
+        Control gene or guide names. Names are resolved through
+        :mod:`spacr.control_names`, including supported prefixes.
+    guide_column : str, default 'grna'
+        Column containing guide identifiers.
+    gene_column : str, default 'gene'
+        Column containing gene identifiers, when available.
+
+    Returns
+    -------
+    tuple of str
+        Matching well labels in first-occurrence order. An empty tuple is
+        returned when the table lacks required columns or no control matches.
     """
     from .control_names import resolve_controls, rows_for
 
@@ -798,12 +817,24 @@ LABEL_COLUMNS: Tuple[str, ...] = (
 
 
 def object_identity(frame: "pd.DataFrame") -> Optional["pd.Series"]:
-    """Return one identity per object row, or ``None``.
+    """Resolve a stable plate/field/object identity for each row.
 
-    ``prcfo`` -- plate, row, column, field, object -- is spaCR's name for one
-    object, and :func:`spacr.io._read_and_join_tables` writes it. The montage
-    frame comes out of ``png_list``, which carries the parts but not always
-    the whole, so it is composed here from whichever spelling is present.
+    Parameters
+    ----------
+    frame : pandas.DataFrame
+        Object table containing ``prcfo`` or enough component columns to build
+        it from a field key and an object label.
+
+    Returns
+    -------
+    pandas.Series or None
+        String identities aligned to ``frame``. ``None`` indicates that no
+        supported object label or field key is available.
+
+    Notes
+    -----
+    The ``prcfo`` key combines plate, row, column, field, and object label and
+    matches the identity written by :func:`spacr.io._read_and_join_tables`.
     """
     columns = getattr(frame, "columns", ())
     if "prcfo" in columns:
@@ -821,11 +852,18 @@ def object_identity(frame: "pd.DataFrame") -> Optional["pd.Series"]:
 
 
 def measurements_are_joined(objects: "pd.DataFrame") -> bool:
-    """Whether the object rows already carry the measurement tables.
+    """Return whether object rows contain joined morphology measurements.
 
-    Read off the DATA rather than remembered as a flag: the panel is handed
-    a frame and has to be able to say what is in it, and a flag that says
-    "joined" over rows that are not is worse than no flag.
+    Parameters
+    ----------
+    objects : pandas.DataFrame
+        Object table to inspect.
+
+    Returns
+    -------
+    bool
+        ``True`` when a non-identifier column uses a cell, nucleus, pathogen,
+        or cytoplasm measurement prefix.
     """
     columns = {str(c) for c in getattr(objects, "columns", ())}
     return any(c.startswith(("cell_", "nucleus_", "pathogen_", "cytoplasm_"))
@@ -838,25 +876,32 @@ def join_measurements(objects: "pd.DataFrame",
                       databases: Sequence[str],
                       *, keep_uninfected: bool = True
                       ) -> Tuple["pd.DataFrame", str]:
-    """Widen the montage's object rows with every measurement in the database.
+    """Join morphology measurements onto montage object rows.
 
-    THE JOIN IS THE PRECONDITION, and 187 A says to offer it rather than to
-    quietly offer a shorter list of measurements: ``png_list`` holds the crop
-    paths and the classification score, and every morphological measurement
-    -- cell, nucleus, pathogen, cytoplasm -- lives in the object tables
-    beside it.
+    Parameters
+    ----------
+    objects : pandas.DataFrame
+        Montage object table. Its index is preserved because group membership
+        is expressed with these index values.
+    databases : sequence of path-like
+        ``measurements.db`` files containing object measurement tables.
+    keep_uninfected : bool, default True
+        Preserve cells without a pathogen row when reading joined tables.
 
-    :param objects: the montage's object rows. Returned WIDENED, with the
-        index untouched, because the caller's group membership is expressed
-        as index values into this exact frame and a reindexed copy would
-        silently re-annotate the wrong cells.
-    :param databases: the ``measurements.db`` files behind those rows.
-    :param keep_uninfected: passed through to the reader. A cell with no
-        pathogen is usually the control population, so the default keeps it.
-    :returns: ``(frame, note)``. ``note`` is empty on a clean join and
-        otherwise says what could not be read or matched -- never an
-        exception, because a panel that cannot widen still has to draw the
-        measurements it already had.
+    Returns
+    -------
+    frame : pandas.DataFrame
+        Original rows widened with new numeric measurement columns. Existing
+        columns are never replaced.
+    note : str
+        Empty after a clean join; otherwise a user-facing explanation of files
+        or rows that could not be read or matched.
+
+    Notes
+    -----
+    Object identities are matched with :func:`object_identity`. Recoverable
+    read and matching failures are reported in ``note`` so callers can still
+    use measurements already present on ``objects``.
     """
     from .io import _read_and_join_tables
 

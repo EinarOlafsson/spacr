@@ -2409,20 +2409,20 @@ class CellMontageView(QWidget):
         return pd.concat(frames) if len(frames) > 1 else frames[0]
 
     def rows_to_compare(self):
-        """Every object row the Compare panel can reach.
+        """Return object rows available to the measurement comparison panel.
 
-        THE PLANS ARE NOT ENOUGH FOR TWO OF THE THREE CONTRASTS (187 B).
-        A plan holds the annotated well's cells; "against the controls" and
-        "against every other well" both need cells the montage never drew,
-        and with only the plan rows in hand they would have nothing on their
-        other side.
+        Returns
+        -------
+        pandas.DataFrame or None
+            The full object inventory when it contains every montage-plan index;
+            otherwise only the concatenated plan rows. ``None`` is returned
+            when no plan contains object rows.
 
-        The wider frame is used only when it demonstrably holds the same rows
-        under the same labels -- the picker's groups are INDEX VALUES into
-        the plan rows, and a wider frame that reindexed them would re-annotate
-        different cells. When it does not, the plan rows are returned and the
-        two wider contrasts simply find less; that is a smaller comparison,
-        not a wrong one.
+        Notes
+        -----
+        Control-well and other-well contrasts require objects that may not be
+        displayed in the montage. The wider inventory is used only when its
+        index preserves the plan rows' group identities.
         """
         picked = self._all_objects()
         everything = getattr(self, "_last_objects", None)

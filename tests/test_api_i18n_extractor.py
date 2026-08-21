@@ -482,7 +482,11 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # +4/-0 for sweep diagnostics and screen-state inspection:
     # trial_metrics.qc_verdicts plus AppScreen.showing_the_figure_grid,
     # showing_the_live_graph, and showing_the_results. Nothing retired.
-    expected = 7826
+    # +13/-0 for measurement comparison and styled export. Seven headless
+    # helpers resolve wells, identities, contrasts, and measurement-table
+    # joins; five widget methods expose comparison rows, well selection, and
+    # the join action; SaveFigureDialog.preview exposes the detached preview.
+    expected = 7839
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -497,7 +501,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 7945
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 7958
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
