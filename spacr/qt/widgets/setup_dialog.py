@@ -1,19 +1,9 @@
-"""The first-run setup screen (instruction 221).
+"""Present optional application preferences on the first spaCR launch.
 
-THE INSTALLER IS THE WRONG PLACE. It runs once, often unattended, sometimes
-by an administrator who is not the user, and it asks its questions before
-the person has seen a single screen of the thing they are configuring --
-every answer is a guess. The first RUN is the first moment the questions
-mean anything, and the only moment when the answers can be changed by the
-person they affect.
-
-NINE QUESTIONS IS A LOT FOR A FIRST SCREEN, so they are GROUPED and every
-one has a working default: the screen can be dismissed without answering
-anything, and nothing is worse for having been skipped.
-
-INVARIANTS 10: decoration must never be load-bearing. If the blur, the
-translucency or the corner accent cannot be drawn, the dialog is a plain
-dialog with the same controls and the same answers -- see `_backdrop`.
+Questions are grouped by purpose and initialized with functional defaults, so
+the dialog can be dismissed without additional configuration. The blurred
+background is decorative; all controls remain available when the platform
+cannot render it.
 """
 from __future__ import annotations
 
@@ -30,13 +20,7 @@ from PySide6.QtWidgets import (QCheckBox, QComboBox, QDialog,
 
 LOG = logging.getLogger("spacr.qt.setup_dialog")
 
-#: How the questions are grouped, and the order the groups appear in.
-#:
-#: NOT A LIST IN A COLUMN. They are not equal: LANGUAGE AND THEME CHANGE
-#: WHAT THE NEXT SCREEN LOOKS LIKE, so they come first and their effect is
-#: immediate; the reproducibility hash is a decision nobody can evaluate
-#: before their first run, so it sits under a heading that says what it is
-#: for rather than beside the theme.
+#: Ordered groups used to organize first-run preference questions.
 GROUPS: List[tuple] = [
     ("How it looks", ("language", "theme", "colour_blind")),
     ("How it runs", ("spacr_mode", "hash_inputs")),
@@ -49,7 +33,14 @@ BLUR = 18.0
 
 
 class SetupDialog(QDialog):
-    """The setup screen, over a blurred snapshot of what is behind it."""
+    """Collect optional first-run preferences.
+
+    Parameters
+    ----------
+    parent : QWidget, optional
+        Parent window. When available, a blurred snapshot is used as a
+        decorative background.
+    """
 
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
@@ -138,7 +129,7 @@ class SetupDialog(QDialog):
         return box
 
     def answers(self) -> Dict[str, Any]:
-        """What the boxes currently say."""
+        """Return the current value of every displayed preference control."""
         out: Dict[str, Any] = {}
         for key, editor in self._editors.items():
             if isinstance(editor, QComboBox):
@@ -148,11 +139,10 @@ class SetupDialog(QDialog):
         return out
 
     def accept(self) -> None:
-        """Write the answers and record that the screen was answered.
+        """Apply displayed preferences and record setup completion.
 
-        ONE SETTING'S REFUSAL MUST NOT LOSE THE OTHERS -- `setup_screen.apply`
-        writes each on its own and reports what failed, and this reports it
-        rather than swallowing it.
+        Each preference is applied independently. Rejected values are logged
+        without discarding other valid selections.
         """
         from ..setup_screen import apply, current_version, mark_answered
 
@@ -164,12 +154,7 @@ class SetupDialog(QDialog):
         super().accept()
 
     def reject(self) -> None:
-        """Dismissed. STILL MARKED ANSWERED.
-
-        The screen has a working default for everything, so a user who closes
-        it has chosen the defaults -- and reopening it on every launch until
-        they fill it in would make dismissing it impossible.
-        """
+        """Dismiss the dialog while retaining defaults and mark setup complete."""
         from ..setup_screen import current_version, mark_answered
 
         mark_answered(current_version())
@@ -223,11 +208,18 @@ class SetupDialog(QDialog):
 
 
 def open_setup_if_needed(parent=None) -> Optional[SetupDialog]:
-    """Show the setup screen if it has not been answered. Returns it, or None.
+    """Open the first-run setup dialog when required.
 
-    THE CALLER DOES NOT DECIDE WHETHER TO ASK -- `should_open` does, from the
-    recorded version. A screen each caller gated for itself is a screen that
-    appears twice on one launch and never on another.
+    Parameters
+    ----------
+    parent : QWidget, optional
+        Parent application window.
+
+    Returns
+    -------
+    SetupDialog or None
+        Executed dialog, or ``None`` when setup has already been completed for
+        the current version.
     """
     from ..setup_screen import should_open
 
