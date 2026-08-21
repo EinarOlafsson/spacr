@@ -69,8 +69,13 @@ def questions() -> List[Tuple[str, str, Callable, Callable, Any]]:
     out: List[Tuple[str, str, Callable, Callable, Any]] = [
         ("language", "Language", prefs.get_language, prefs.set_language,
          choices_of(getattr(prefs, "VALID_LANGUAGES", ("en",)))),
+        # FLIPPED, because `theme_choices()` is (caption, value) while every
+        # other list here is (value, caption). Normalised at the source
+        # rather than special-cased in the screen: a screen that knows which
+        # of its questions is back to front is a screen that gets it wrong
+        # the next time a question is added.
         ("theme", "Theme", prefs.get_theme_choice, prefs.set_theme_choice,
-         list(prefs.theme_choices())),
+         [(value, caption) for caption, value in prefs.theme_choices()]),
         ("colour_blind", "Colour-blind mode", prefs.get_color_blind_mode,
          prefs.set_color_blind_mode, choices_of(prefs.VALID_CB_MODES)),
         ("spacr_mode", "spaCR mode", prefs.get_spacr_mode,
@@ -83,8 +88,34 @@ def questions() -> List[Tuple[str, str, Callable, Callable, Any]]:
          choices_of(prefs.ISSUE_PROMPT_MODES)),
         ("ai_default", "AI assistant on at launch",
          prefs.get_ai_on_by_default, prefs.set_ai_on_by_default, None),
+        ("share_logs", "Include recent logs in a report",
+         prefs.get_share_diagnostic_logs, prefs.set_share_diagnostic_logs,
+         None),
+        ("ai_provider", "AI provider", prefs.get_preferred_provider,
+         prefs.set_preferred_provider, _provider_choices()),
     ]
     return [q for q in out if q[4] is None or q[4]]
+
+
+def _provider_choices():
+    """The installed providers, or ``[]``.
+
+    AN EMPTY LIST REMOVES THE QUESTION, which `questions()` does at the
+    bottom. Asking somebody to choose between providers none of which are
+    installed is asking them to answer a question with no true answers --
+    and this screen's rule is that every question has a working default.
+    """
+    try:
+        from .ai.providers import list_providers
+
+        names = [str(getattr(p, "name", "") or "") for p in list_providers()]
+    except Exception:                                        # noqa: BLE001
+        return []
+    found = [(n, n.replace("_", " ")) for n in names if n]
+    # "whatever is available" first, and it IS the default: a machine with
+    # two CLIs today may have one tomorrow, and a pinned name that is gone
+    # is worse than no preference.
+    return [("", "whatever is available")] + found if found else []
 
 
 def apply(answers: Dict[str, Any]) -> List[str]:

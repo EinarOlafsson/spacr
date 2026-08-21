@@ -3125,6 +3125,21 @@ def launch(argv: Optional[list[str]] = None) -> int:
     # on a real display.
     win.show()
 
+    # THE FIRST RUN ASKS ITS QUESTIONS (instruction 221), and it asks them
+    # AFTER `show()` -- the screen blurs what is behind it, and there is
+    # nothing behind a window that has not been shown. It opens at most
+    # once: `should_open` reads the recorded version, and dismissing it
+    # records one too, so a user who closes it is not asked again.
+    try:
+        from .widgets.setup_dialog import open_setup_if_needed
+
+        open_setup_if_needed(win)
+    except Exception:
+        # A setup screen is not worth a launch. Every question it asks has a
+        # working default, so a user who never sees it is exactly where a
+        # user who dismissed it would be.
+        LOG.debug("could not open the setup screen", exc_info=True)
+
     # Pre-warm the heavy imports that a module screen needs (spacr.gui_utils
     # pulls torch + cv2 ≈ 3-4 s; spacr.settings ≈ 1 s) in a BACKGROUND thread
     # while the user looks at the home screen. By the time they open a module
