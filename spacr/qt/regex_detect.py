@@ -201,6 +201,20 @@ def validate_records(
 # auto_detect_regex
 # ---------------------------------------------------------------------------
 
+#: The metadata fields the import actually reads, by name. A proposal that
+#: captures none of them says nothing about a file whatever it matches.
+_ROLE_NAMES = frozenset({"plateID", "wellID", "fieldID", "chanID", "timeID",
+                         "sliceID"})
+
+
+def _group_names(pattern: str) -> tuple:
+    """The named groups in ``pattern``, or ``()`` if it does not compile."""
+    try:
+        return tuple(re.compile(str(pattern or "")).groupindex)
+    except re.error:
+        return ()
+
+
 def auto_detect_regex(
     filenames: Sequence[str],
 ) -> Tuple[Optional[str], str, int]:
@@ -259,7 +273,18 @@ def auto_detect_regex(
         from ..regex_infer import propose
 
         for proposal in propose(filenames):
-            if proposal.matched > best_hits:
+            # HIT COUNT ALONE IS NOT A RANKING, and this is what it cost:
+            # given `a.txt`, one cellvoyager image and `zz.txt`, inference
+            # offered `(?P<group0>[A-Za-z]+)\.txt` -- matching the two files
+            # that are not images at all -- and beat the cellvoyager pattern
+            # 2 to 1. A catch-all that captures NO ROLE is not a metadata
+            # regex however many names it happens to match.
+            #
+            # So a proposal has to name at least one of the fields the
+            # import actually reads before its count is even compared.
+            named = {n for n in _group_names(proposal.pattern)
+                     if n in _ROLE_NAMES}
+            if named and proposal.matched > best_hits:
                 return proposal.pattern, "inferred", proposal.matched
     except Exception:                                # noqa: BLE001
         # Inference is an improvement on the fallback, never a requirement:
