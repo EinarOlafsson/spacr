@@ -21,18 +21,31 @@ class Card(QFrame):
     :ivar body_layout: QVBoxLayout consumers add widgets to.
     """
 
-    def __init__(self, title: str = "", subtitle: str = "", parent=None):
+    def __init__(self, title: str = "", subtitle: str = "", parent=None,
+                 *, foldable: bool = False):
+        """
+        :param foldable: make clicking the TITLE fold the body away
+            (instruction 228). Off by default -- most cards in spaCR are the
+            only thing in their slot, and folding one would leave a strip
+            over empty space rather than giving the room to anything.
+        """
         super().__init__(parent)
         self.setObjectName("Card")
+        #: The :class:`~spacr.qt.widgets.foldable.Folder`, or ``None``. HELD,
+        #: because it owns the event filter and one nobody keeps stops
+        #: working silently.
+        self.folder = None
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["md"], SPACING["md"], SPACING["md"], SPACING["md"])
         outer.setSpacing(SPACING["sm"])
 
+        title_label = None
         if title:
             title_label = QLabel(title)
             title_label.setObjectName("CardTitle")
             outer.addWidget(title_label)
+        self.title_label = title_label
         if subtitle:
             sub_label = QLabel(subtitle)
             sub_label.setObjectName("CardSubtitle")
@@ -55,3 +68,11 @@ class Card(QFrame):
         self.body_layout.setContentsMargins(0, 0, 0, 0)
         self.body_layout.setSpacing(SPACING["sm"])
         outer.addWidget(self.body, 1)
+
+        if foldable and title_label is not None:
+            from .foldable import make_foldable
+
+            # The BODY folds, not the card: the title has to stay to be
+            # clicked again, which is what makes the folded state a strip
+            # that names itself rather than a disappearance.
+            self.folder = make_foldable(title_label, self.body, name=title)
