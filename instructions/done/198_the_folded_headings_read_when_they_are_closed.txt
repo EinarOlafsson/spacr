@@ -2,7 +2,7 @@
 THE MEASUREMENTS TAB'S SUB-HEADINGS READ WHEN THEY ARE NOT HIGHLIGHTED
 ================================================================================
 
-Status:    filed 2026-08-21, not started.
+Status:    filed 2026-08-21, DONE 2026-08-21.
 Requested: 2026-08-21 -- "the text in the measurements tab for the sub
            categories should be white when they are not highlighted (in dark
            mode oposite in bright mode)."
@@ -56,3 +56,39 @@ HOW TO KNOW IT WORKED
   the text colour.
 * No literal white or black in the rule.
 * It holds on every screen that folds, not only Measurements.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+TWO independent sites had the same fault, and section B named only one of
+them:
+
+1. `spacr/qt/theme.py` -- `QToolButton#SectionHeader` rested at `fg_muted`
+   and took `fg` only on hover or when checked. THIS IS THE ONE THE REPORT
+   WAS ABOUT: the Measurements tab builds eight of these and carries no
+   inline sheet, so this rule alone governed it.
+
+2. `spacr/qt/widgets/collapsible_section.py` -- `CollapsibleSection` sets
+   its own sheet, so the theme rule never reaches it, and it had the fault
+   independently: `palette(mid)` at rest, `palette(text)` when open.
+
+Section B was right that it was never only the Measurements tab, and wrong
+about which widget: the reported tab does NOT use `CollapsibleSection` (it
+has zero). Had the fix followed B literally it would have corrected every
+screen EXCEPT the one that was reported. Building the screen and asking it
+what it actually contains is what caught that -- which is what B's own last
+line says to do.
+
+Both now rest at the theme foreground. The highlight survives as background
+plus, on the theme rule, the checked underline -- asserted, so a later edit
+cannot quietly go back to distinguishing the states by taking the text away.
+
+Measured, not read: `TestMeasuredOffThePixels` renders a resting header onto
+a plate filled with the theme background and samples the ink. Dark gives
+white on near-black at 255 contrast; light gives near-black on near-white at
+236. The plate MUST be filled first -- the header background is
+`transparent`, so an unfilled pixmap leaves untouched pixels at zero, which
+passes by luck on dark and fails confusingly on light.
+
+Tests: `tests/qt/test_the_folded_headings_read_when_closed.py`, 12 passing.
