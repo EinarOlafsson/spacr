@@ -327,11 +327,14 @@ def test_the_sql_column_list_is_canonical_too(tmp_path):
 # ---------------------------------------------------------------------------
 
 #: Measured 2026-08-18 after the first batch of readers moved onto the funnel:
-#: 96. The ceiling is 100 rather than 96 so a concurrent worker adding a
-#: reader does not turn this red on somebody else's change -- but it is a
-#: RATCHET: it may only ever be lowered, never raised, and it is already
-#: below the 101 the instruction set as the bar.
-DIRECT_READER_CEILING = 98
+#: 85 on 2026-08-20, down from 96, after seven readers in `submodules.py`
+#: moved onto `tabular.read_table` and the settings advisor was written on it
+#: from the start. NO SLACK: the ceiling IS the count, because a gap in a
+#: ratchet is room for a raw reader to be added without anybody noticing --
+#: the same rule `test_the_raw_reader_count_only_goes_down` states out loud.
+#: It may only ever be lowered, and it is well below the 101 the instruction
+#: set as the bar.
+DIRECT_READER_CEILING = 85
 
 _DIRECT_READER = re.compile(r"pd\.read_csv\(|pd\.read_sql")
 

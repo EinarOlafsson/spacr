@@ -161,10 +161,23 @@ class Reading:
 # Reading
 # ---------------------------------------------------------------------------
 
-def _columns_of(path: str) -> Tuple[str, ...]:
-    """The header of a CSV, without reading a row of it."""
+def _columns_of(path: str, *, canonical: bool = False) -> Tuple[str, ...]:
+    """The header of a table, without reading a row of it.
+
+    THROUGH `spacr.tabular` (145) either way. `canonical=False` is the
+    DEFAULT and it is what `usecols` needs: pandas selects columns by the
+    name in the FILE, before any renaming, so asking a file that spells its
+    column `col` for `columnID` selects nothing and raises. `canonical=True`
+    answers "what will the frame's columns be called once it is read", which
+    is the question every line after the read is asking.
+
+    Silent -- `report=None` -- because a header read is not the moment to
+    print a column-collision note the caller has not asked for yet.
+    """
+    from .tabular import read_table
+
     try:
-        head = pd.read_csv(path, nrows=0)
+        head = read_table(path, nrows=0, canonicalise=canonical, report=None)
     except Exception:                                        # noqa: BLE001
         return ()
     return tuple(str(c) for c in head.columns)
@@ -262,6 +275,8 @@ def read_the_response(paths: Sequence[str], dependent_variable: str = "",
     not a button anyone presses twice. What the cap costs is stated on every
     number derived from it -- see :meth:`Reading.sample_note`.
     """
+    from .tabular import read_table
+
     out: Dict[str, Any] = {"trouble": []}
     live = [str(p) for p in (paths or ()) if p and os.path.isfile(str(p))]
     if not live:
@@ -285,9 +300,13 @@ def read_the_response(paths: Sequence[str], dependent_variable: str = "",
         return out
     out["response"] = wanted
 
-    #: The well-naming columns, in every spelling a score table uses.
+    #: The well-naming columns, in every spelling a score table uses. BOTH
+    #: the canonical names and the raw ones, because `usecols` is matched
+    #: against the file's own header and one plate of the reference screen
+    #: writes `col` where another writes nothing at all.
     naming = ("prc", "prcf", "plateID", "rowID", "columnID",
-              "plate", "row", "col")
+              "plate", "row", "col", "Plate", "Row", "Column", "Well",
+              "row_name", "column_name")
     frames, taken, seen = [], 0, 0
     for path in live:
         if taken >= row_cap:
@@ -305,8 +324,11 @@ def read_the_response(paths: Sequence[str], dependent_variable: str = "",
             continue
         keys = [c for c in naming if c in here]
         try:
-            piece = pd.read_csv(path, usecols=[wanted] + keys,
-                                nrows=row_cap - taken)
+            # THE ONE READER (145), with `usecols` and `nrows` passed
+            # through: `read_table` forwards its kwargs to pandas, so the
+            # cap this module needs costs nothing to keep.
+            piece = read_table(path, usecols=[wanted] + keys,
+                               nrows=row_cap - taken, report=None)
         except Exception as exc:                             # noqa: BLE001
             out["trouble"].append(f"{os.path.basename(path)}: {exc}")
             continue

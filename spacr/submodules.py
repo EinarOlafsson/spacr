@@ -6,6 +6,12 @@ import pandas as pd
 import numpy as np
 import torch
 
+# THE ONE READER (145). `spacr.tabular` imports pandas and nothing else, so
+# naming it at module scope costs nothing -- and a local import in each of
+# the eight functions that read a table here would be eight places for the
+# next one to be forgotten.
+from .tabular import read_table
+
 from skimage.measure import regionprops, label
 from skimage.transform import resize as sk_resize, rotate
 from skimage.exposure import rescale_intensity
@@ -771,8 +777,11 @@ def analyze_percent_positive(settings):
         :param csv_loc: path to a CSV containing a ``Renamed TIFF`` column.
         :returns: :class:`pandas.DataFrame` with parsed ``plateID`` and ``well`` columns.
         """
-        # Load and extract metadata
-        df = pd.read_csv(csv_loc)
+        # Load and extract metadata, THROUGH THE ONE READER (145): the
+        # plate and well columns are exactly what canonicalisation is for,
+        # and a file spelling them `Plate` / `Well` read back here as
+        # columns nothing downstream looks for.
+        df = read_table(csv_loc)
         # A renamed TIFF is '<plate>_<well>_<vendor token>.tif' (the
         # convert_to_yokogawa contract). Taking the plate and the well from the
         # FRONT was wrong in two ways that both end in a silently empty join:
@@ -1458,8 +1467,8 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
             reads_ls = []
             scores_ls = []
             for i, reads_csv_temp in enumerate(reads_csv):
-                reads_df_temp = pd.read_csv(reads_csv_temp)
-                scores_df_temp = pd.read_csv(scores_csv[i])
+                reads_df_temp = read_table(reads_csv_temp)
+                scores_df_temp = read_table(scores_csv[i])
                 reads_df_temp['plateID'] = f"plate{i+1}"
                 scores_df_temp['plateID'] = f"plate{i+1}"
                 
@@ -1494,8 +1503,8 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
             # UnboundLocalError. Raise so the branch actually terminates.
             raise ValueError("reads_csv and scores_csv must contain the same number of elements if reads_csv is a list")
     else:
-        reads_df = pd.read_csv(reads_csv)
-        scores_df = pd.read_csv(scores_csv)
+        reads_df = read_table(reads_csv)
+        scores_df = read_table(scores_csv)
         if plate != None:
             reads_df['plateID'] = plate
             scores_df['plateID'] = plate
@@ -1780,7 +1789,7 @@ def interpret_vision_model(settings=None):
                 
         df, _dict = generate_comparison_columns(df, compartments=['cell', 'nucleus', 'pathogen', 'cytoplasm'])
         print(f"Expanded dataframe to {len(df.columns)} columns with relative features")
-        scores_df = pd.read_csv(settings['scores'])
+        scores_df = read_table(settings['scores'])
 
         # Clean and align columns for merging
         df['object_label'] = df['object_label'].str.replace('o', '')
@@ -5192,7 +5201,10 @@ def generate_score_heatmap(settings):
             ``plateID_rowID_columnID``.
         """
         
-        df = pd.read_csv(csv)
+        # 145: canonicalised, which is why the `elif 'column'` fallback
+        # below is now unreachable rather than load-bearing -- every
+        # spelling arrives here as `columnID`.
+        df = read_table(csv)
         if 'columnID' in df.columns:
             df = df[df['columnID']==column]
         elif 'column' in df.columns:
@@ -5226,7 +5238,10 @@ def generate_score_heatmap(settings):
         """
         if control_sgrnas is None:
             control_sgrnas = ['TGGT1_220950_1', 'TGGT1_233460_4']
-        df = pd.read_csv(csv)
+        # 145, AND IT IS THE FIX FOR THE NOTE BELOW: canonicalisation is
+        # what makes the two spellings one, so the half-finished rename
+        # cannot bite again.
+        df = read_table(csv)
         # This helper was left half-way through the column_name -> columnID
         # rename: it grouped by 'columnID' but filtered and merged on
         # 'column_name', a key the grouped frame can never carry, so every
@@ -5361,7 +5376,7 @@ def generate_score_heatmap(settings):
 
         # Loop through all collected CSV files and process them
         for csv_file in ls:
-            df = pd.read_csv(csv_file)  # Read CSV into DataFrame
+            df = read_table(csv_file)   # 145: canonical column names
             df = df[df['columnID']==column]
             if not plate is None:
                 df['plateID'] = f"plate{plate}"
