@@ -268,18 +268,105 @@ class TestWhatTheClassifierDoesToARareGuide:
             assert row["corrected"] == pytest.approx(row["true"], abs=1e-6)
 
 
-class TestTheMeasuredReference:
+class TestNoScreenLivesInTheLibrary:
+    """"wahtever information you use from my screen any calculated
+    coefficients need to be recalculable for users whou do their own
+    screens".
 
-    def test_every_plate_is_recorded_with_both_numbers(self):
-        assert set(module.TSG101_TEST_SPLIT) == {1, 2, 3, 4}
-        for plate, values in module.TSG101_TEST_SPLIT.items():
-            assert 0.9 < values["sensitivity"] < 1.0, plate
-            assert 0.9 < values["specificity"] < 1.0, plate
+    A table of one screen's measured sensitivities was in this module for a
+    single commit. It is gone, and this is the guard: a constant in a
+    library becomes a default the moment somebody is in a hurry, and a
+    sensitivity measured on one model, one stain and one microscope is
+    wrong for every other screen in a way that produces plausible numbers
+    rather than an error.
+    """
 
-    def test_the_thresholds_differ_enough_to_matter_per_plate(self):
-        """0.2955 on plate 2 against 0.8567 on plate 4 is not a rounding
-        difference. A single global threshold would give materially
-        different sensitivity on different plates, so the correction is
-        per-plate or it is wrong."""
-        thresholds = [v["threshold"] for v in module.TSG101_TEST_SPLIT.values()]
-        assert max(thresholds) > 2.5 * min(thresholds)
+    def test_the_module_carries_no_measured_constants(self):
+        assert not hasattr(module, "TSG101_TEST_SPLIT")
+        for name in dir(module):
+            if name.startswith("_"):
+                continue
+            value = getattr(module, name)
+            if isinstance(value, dict) and value:
+                first = next(iter(value.values()))
+                assert not (isinstance(first, dict)
+                            and "sensitivity" in first), (
+                    f"{name} looks like a screen's numbers baked in")
+
+    def test_every_entry_point_demands_the_numbers(self):
+        """Nothing has a sensitivity to fall back to, so nothing can quietly
+        use somebody else's."""
+        import inspect
+
+        for name in ("rogan_gladen", "required_fraction" ) :
+            if not hasattr(module, name):
+                continue
+            signature = inspect.signature(getattr(module, name))
+            for parameter in signature.parameters.values():
+                if parameter.name in ("sensitivity", "specificity"):
+                    assert parameter.default is inspect.Parameter.empty, (
+                        f"{name}.{parameter.name} has a default")
+
+    def test_inflation_by_prevalence_demands_them_too(self):
+        import inspect
+
+        signature = inspect.signature(module.inflation_by_prevalence)
+        for parameter in ("sensitivity", "specificity"):
+            assert (signature.parameters[parameter].default
+                    is inspect.Parameter.empty)
+
+
+class TestDiscoveringAUsersOwnSplits:
+
+    def test_it_finds_one_file_per_plate_folder(self, tmp_path):
+        import pandas as pd
+
+        for plate in ("plate1", "plate2"):
+            folder = tmp_path / plate
+            folder.mkdir()
+            pd.DataFrame([{"accuracy": 0.9, "neg_accuracy": 0.98,
+                           "pos_accuracy": 0.95,
+                           "optimal_threshold": 0.3}]).to_csv(
+                folder / f"model_time_x_test_result.csv", index=False)
+            (folder / "unrelated.csv").write_text("a,b\n1,2\n")
+
+        found = module.discover_test_splits(str(tmp_path))
+
+        assert sorted(found) == ["plate1", "plate2"]
+        assert all("test_result" in path for path in found.values())
+
+    def test_measure_screen_reads_them_all(self, tmp_path):
+        import pandas as pd
+
+        for plate, se in (("plate1", 0.95), ("plate2", 0.96)):
+            folder = tmp_path / plate
+            folder.mkdir()
+            pd.DataFrame([{"accuracy": 0.9, "neg_accuracy": 0.98,
+                           "pos_accuracy": se,
+                           "optimal_threshold": 0.3}]).to_csv(
+                folder / "m_test_result.csv", index=False)
+
+        got = module.measure_screen(str(tmp_path))
+
+        assert got["plate1"]["sensitivity"] == pytest.approx(0.95)
+        assert got["plate2"]["sensitivity"] == pytest.approx(0.96)
+
+    def test_a_missing_folder_is_refused(self):
+        with pytest.raises(ValueError, match="not a directory"):
+            module.discover_test_splits("/nowhere/at/all")
+
+    def test_plates_are_kept_apart_rather_than_pooled(self, tmp_path):
+        """Their thresholds are not comparable, so one averaged number would
+        be wrong for every plate."""
+        import pandas as pd
+
+        for plate, threshold in (("plate1", 0.29), ("plate2", 0.86)):
+            folder = tmp_path / plate
+            folder.mkdir()
+            pd.DataFrame([{"accuracy": 0.9, "neg_accuracy": 0.98,
+                           "pos_accuracy": 0.95,
+                           "optimal_threshold": threshold}]).to_csv(
+                folder / "m_test_result.csv", index=False)
+
+        got = module.measure_screen(str(tmp_path))
+        assert got["plate1"]["threshold"] != got["plate2"]["threshold"]

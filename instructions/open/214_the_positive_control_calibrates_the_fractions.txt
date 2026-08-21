@@ -260,3 +260,34 @@ TWO LIMITS OF THIS TEST SPLIT, both material:
 
 Confirmed too: every test well sits in column 1 or 2, exactly as stated, so
 `training_wells` identifies the held-out set correctly on this screen.
+
+--------------------------------------------------------------------------------
+NO SCREEN'S NUMBERS LIVE IN THE LIBRARY
+--------------------------------------------------------------------------------
+
+    "wahtever information you use from my screen any calculated coefficients
+     need to be recalculable for users whou do their own screens"
+
+A table of the four measured sensitivities was in `classifier_quality.py`
+for one commit and has been removed. IT WAS THE RIGHT CALL AND NOT ONLY ON
+PRINCIPLE: a constant in a library becomes a default the moment somebody is
+in a hurry, and a sensitivity measured on one model, one stain and one
+microscope is wrong for every other screen in a way that produces plausible
+numbers rather than an error.
+
+Every function takes `sensitivity` and `specificity` as REQUIRED arguments,
+so there is nothing to fall back to, and there are tests asserting that no
+default appears and that no module-level dict looks like a screen's numbers.
+
+`discover_test_splits(root)` finds a user's own files under their own plate
+folders and `measure_screen(root)` reads them all -- per plate, never
+pooled, because the thresholds are not comparable.
+
+THE tsg101 FIGURES ARE RECORDED HERE, in `instructions/`, which is a log and
+cannot be imported:
+
+    plate      se        sp     threshold
+      1      0.9640    0.9846    0.4699
+      2      0.9553    0.9817    0.2955
+      3      0.9639    0.9887    0.3174
+      4      0.9584    0.9700    0.8567
