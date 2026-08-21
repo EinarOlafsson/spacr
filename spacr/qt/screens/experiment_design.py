@@ -69,6 +69,56 @@ APP_TRANSLATIONS: Tuple[str, ...] = (
     "Tilraunahönnun", "Conception d'expérience",
 )
 
+#: One well's side, in pixels. SQUARE, because the object it stands for is.
+WELL_SIDE = 22
+
+
+class _Well(QLabel):
+    """One well of the plate map, which knows where it is and reports clicks.
+
+    A `QLabel` still -- the map is a picture, not a form -- with the two
+    facts a selection needs: its coordinate, and a press that reaches the
+    screen. Drawing 1,536 checkable buttons to get a click is a heavier
+    answer to a lighter question.
+    """
+
+    def __init__(self, row: int, column: int, parent=None):
+        super().__init__("", parent)
+        self.row, self.column = int(row), int(column)
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.setFixedSize(WELL_SIDE, WELL_SIDE)
+
+    def _screen(self):
+        widget = self.parent()
+        while widget is not None and not hasattr(widget, "begin_well_drag"):
+            widget = widget.parent()
+        return widget
+
+    def mousePressEvent(self, event):                # noqa: N802 - Qt
+        screen = self._screen()
+        if screen is not None:
+            screen.begin_well_drag(self.row, self.column, event.modifiers())
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):                 # noqa: N802 - Qt
+        # THE PRESSED WIDGET KEEPS THE GRAB, so the well under the pointer
+        # has to be found by asking rather than by waiting to be entered.
+        screen = self._screen()
+        if screen is not None:
+            screen.drag_wells_to(
+                self.mapToGlobal(event.position().toPoint()))
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):              # noqa: N802 - Qt
+        screen = self._screen()
+        if screen is not None:
+            screen.finish_well_drag()
+        super().mouseReleaseEvent(event)
+
+#: The grid row and column that absorb everything the window has spare. Far
+#: past any real plate -- 1536 is 32 x 48 -- so it is never a well's own.
+_SLACK = 200
+
 PLATE_OBJECT = "spacrPlateMap"
 FINDINGS_OBJECT = "spacrDesignFindings"
 STATUS_OBJECT = "spacrDesignStatus"
@@ -130,6 +180,14 @@ def _design_qss(palette: dict, opacity: Optional[float] = None) -> str:
 #{PLATE_OBJECT} QLabel[spacrWellEdge="true"] {{
     border: 2px solid {palette['warning']};
 }}
+/* THE SELECTION IS AN OUTLINE, NOT A FILL (194 A). The fill already says
+   what the well IS -- control, treatment, blank -- and replacing it would
+   trade the information the map exists for against the one thing the user
+   can see for themselves, which is where they just dragged. LAST in the
+   sheet so it wins over the role and the edge rules above. */
+#{PLATE_OBJECT} QLabel[spacrWellChosen="true"] {{
+    border: 2px solid {palette['accent']};
+}}
 #{FINDINGS_OBJECT} QLabel[spacrFindingSeverity="error"] {{
     color: {palette['error']};
 }}
@@ -164,7 +222,12 @@ class ExperimentDesignScreen(QWidget):
         self.setObjectName("ExperimentDesignScreen")
         self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
         self._jobs.job_failed.connect(self._on_job_failed)
-        self._well_labels: List[QLabel] = []
+        self._well_labels: List["_Well"] = []
+        # 194 A: the drag's state. `None` anchor means no gesture is live.
+        self._well_anchor = None
+        self._well_last = None
+        self._wells_before: set = set()
+        self._well_adding = False
         self._findings_labels: List[QLabel] = []
         self._build()
         self.refresh()
@@ -272,6 +335,14 @@ class ExperimentDesignScreen(QWidget):
         self._plate_panel.setObjectName(PLATE_OBJECT)
         self._plate_grid = QGridLayout(self._plate_panel)
         self._plate_grid.setSpacing(2)
+        # THE SLACK GOES OUTSIDE THE PLATE, NOT BETWEEN ITS WELLS. The grid
+        # is inside a resizable scroll area, so the panel grows with the
+        # window; without somewhere for that extra space to go, a
+        # QGridLayout hands it to the cells and the map spreads. One
+        # trailing row and column take all of it, which keeps every well
+        # the same distance from its neighbour at every window size.
+        self._plate_grid.setRowStretch(_SLACK, 1)
+        self._plate_grid.setColumnStretch(_SLACK, 1)
         self._plate_grid.setContentsMargins(SPACING["sm"], SPACING["sm"],
                                             SPACING["sm"], SPACING["sm"])
         scroll = QScrollArea()
@@ -409,6 +480,87 @@ class ExperimentDesignScreen(QWidget):
                     f"{len(table)} of {design.wells_available} usable wells "
                     "assigned. " + fragment["reason"])
 
+    # ------------------------------------------------------------- 194 A
+    #
+    # "the plate map should be made up of squares that are clickable nad the
+    # user should be able to drag and select."
+    #
+    # PRESS ANCHORS, MOVE PREVIEWS, RELEASE COMMITS -- and the preview is
+    # visible while dragging, because a selection you cannot see until you
+    # let go is one you have to undo to correct. Ctrl adds a second
+    # rectangle; a plain drag replaces, which is what every other grid in
+    # this application does.
+
+    def begin_well_drag(self, row: int, column: int, modifiers=None) -> None:
+        """Anchor a selection on one well."""
+        self._well_anchor = (int(row), int(column))
+        self._well_adding = bool(
+            modifiers is not None and (modifiers & Qt.ControlModifier))
+        # REDRAWN FROM THE STATE AT THE PRESS, not from the last frame, so
+        # growing and then shrinking the rectangle leaves nothing behind.
+        self._wells_before = set(self.selected_wells())
+        self._select_wells(self._rectangle(self._well_anchor,
+                                           self._well_anchor))
+
+    def well_at(self, position):
+        """The ``(row, column)`` under a GLOBAL point, or ``None``."""
+        for label in self._well_labels:
+            if label.rect().contains(label.mapFromGlobal(position)):
+                return (label.row, label.column)
+        return None
+
+    def drag_wells_to(self, position) -> None:
+        """Preview the rectangle from the anchor to the well under a point."""
+        anchor = getattr(self, "_well_anchor", None)
+        if anchor is None:
+            return
+        cell = self.well_at(position)
+        if cell is None or cell == getattr(self, "_well_last", None):
+            return
+        self._well_last = cell
+        self._select_wells(self._rectangle(anchor, cell))
+
+    def finish_well_drag(self) -> None:
+        """End the gesture. The selection is already what the preview showed."""
+        self._well_anchor = None
+        self._well_last = None
+
+    def selected_wells(self) -> set:
+        """Every ``(row, column)`` currently chosen on the map."""
+        return {(label.row, label.column) for label in self._well_labels
+                if label.property("spacrWellChosen") == "true"}
+
+    def selected_well_names(self) -> list:
+        """The chosen wells as names, in reading order."""
+        return [str(label.property("wellName") or "")
+                for label in self._well_labels
+                if label.property("spacrWellChosen") == "true"
+                and label.property("wellName")]
+
+    def _rectangle(self, start, end) -> set:
+        """Every cell in the block between two coordinates, inclusive."""
+        top, bottom = sorted((int(start[0]), int(end[0])))
+        left, right = sorted((int(start[1]), int(end[1])))
+        block = {(r, c) for r in range(top, bottom + 1)
+                 for c in range(left, right + 1)}
+        if getattr(self, "_well_adding", False):
+            block |= set(getattr(self, "_wells_before", set()))
+        return block
+
+    def _select_wells(self, cells) -> None:
+        """Mark exactly ``cells`` as chosen and restyle what changed."""
+        wanted = {(int(r), int(c)) for r, c in cells}
+        for label in self._well_labels:
+            chosen = "true" if (label.row, label.column) in wanted else "false"
+            if label.property("spacrWellChosen") != chosen:
+                label.setProperty("spacrWellChosen", chosen)
+                # THE STYLE IS RE-POLISHED, not restated: the well's colour
+                # comes from the sheet's `spacrWellRole`, and Qt does not
+                # re-evaluate a selector when a property changes unless it
+                # is asked to.
+                label.style().unpolish(label)
+                label.style().polish(label)
+
     def _draw_plate(self, design: PlateDesign, table) -> None:
         while self._plate_grid.count():
             item = self._plate_grid.takeAt(0)
@@ -432,9 +584,24 @@ class ExperimentDesignScreen(QWidget):
             self._plate_grid.addWidget(header, row, 0)
             for column in range(1, columns + 1):
                 record = assigned.get((row, column))
-                label = QLabel("")
-                label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                label.setMinimumSize(22, 18)
+                # SQUARE, AND FIXED TO ITS NEIGHBOURS (194). This was a
+                # `QLabel` with `setMinimumSize(22, 18)` and no maximum, so
+                # every well stretched with the window -- measured at 900,
+                # 1500 and 1900 px wide, one went 65 -> 111 -> 141 px across
+                # while staying 18 tall. A plate map is a picture of a
+                # physical object, and the point of the picture is that its
+                # proportions are the object's: at 141 x 18 it is not a
+                # plate any more, and "the elements drift appart" is what a
+                # reader sees.
+                label = _Well(row, column, self._plate_panel)
+                # EVERY WELL KNOWS ITS NAME, assigned or not. A name is a
+                # COORDINATE -- `letters_from_row_index(row)` and the column
+                # -- and it was being set only on the assigned branch, so a
+                # user who selected an empty block got a selection that
+                # could not say which wells it held.
+                label.setProperty("wellName",
+                                  f"{letters_from_row_index(row)}"
+                                  f"{column:02d}")
                 if record is None:
                     label.setProperty("spacrWellRole", "empty")
                     label.setToolTip("unassigned")

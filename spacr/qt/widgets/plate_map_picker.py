@@ -34,6 +34,42 @@ class _Well(QPushButton):
         self._paint()
         self.toggled.connect(lambda *_: self._paint())
 
+    # ---------------------------------------------------------- the drag
+    #
+    # THE PRESSED BUTTON RECEIVES EVERY MOVE, because Qt grabs the mouse on
+    # a press -- so a sibling's `enterEvent` never fires while a drag is in
+    # progress, and the well under the pointer has to be found by asking the
+    # grid rather than by waiting to be told.
+
+    def _picker(self):
+        """The dialog this well belongs to, or ``None``."""
+        holder = self.parent()
+        return holder.parent() if holder is not None else None
+
+    def mousePressEvent(self, event):                # noqa: N802 - Qt
+        picker = self._picker()
+        if picker is not None and hasattr(picker, "begin_drag"):
+            picker.begin_drag(self.row, self.column, event.modifiers())
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):                 # noqa: N802 - Qt
+        picker = self._picker()
+        if picker is not None and hasattr(picker, "drag_to"):
+            picker.drag_to(self.mapToGlobal(event.position().toPoint()))
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):              # noqa: N802 - Qt
+        picker = self._picker()
+        # BEFORE `super()`, which is what emits `clicked` and toggles the
+        # button: a drag that has already painted the rectangle must not
+        # then have its anchor flipped a second time by the click.
+        dragged = (picker is not None and hasattr(picker, "finish_drag")
+                   and picker.finish_drag())
+        if dragged:
+            event.accept()
+            return
+        super().mouseReleaseEvent(event)
+
     def _paint(self) -> None:
         colour = CHOSEN if self.isChecked() else EMPTY
         self.setStyleSheet(
@@ -51,6 +87,10 @@ class PlateMapPicker(QDialog):
         self._layout_size = int(layout)
         self._wells = {}
         self._anchor: Optional[Tuple[int, int]] = None
+        self._last_cell: Optional[Tuple[int, int]] = None
+        self._before: Set[Tuple[int, int]] = set()
+        self._adding = False
+        self._dragged = False
 
         outer = QVBoxLayout(self)
         self._caption = QLabel("", self)
@@ -143,6 +183,74 @@ class PlateMapPicker(QDialog):
     def _begin(self, row: int, column: int) -> None:
         """A press starts a drag; the anchor is where it started."""
         self._anchor = (row, column)
+
+    # ------------------------------------------------------------ the drag
+    #
+    # `select_region` has been here since 185 and NOTHING CALLED IT FROM THE
+    # MOUSE. It was written as a method so a test could select a rectangle
+    # without a human, and that is what it was ever used for: the gesture a
+    # user expects from press-move-release was implemented and unreachable.
+    # Reported 2026-08-21 -- "the user should be able to drag and select".
+
+    def begin_drag(self, row: int, column: int, modifiers=None) -> None:
+        """Anchor a drag on one well.
+
+        :param modifiers: the keyboard state at the press. With Ctrl the
+            rectangle ADDS to what is already chosen; without it the drag
+            REPLACES the selection, which is what every other grid in this
+            application does.
+        """
+        self._anchor = (int(row), int(column))
+        self._adding = bool(modifiers is not None
+                            and (modifiers & Qt.ControlModifier))
+        # WHAT TO GO BACK TO ON EVERY PREVIEW. A drag redraws from the state
+        # at the PRESS rather than from the last frame, so growing and then
+        # shrinking the rectangle leaves nothing behind.
+        self._before = self.selection()
+        self._dragged = False
+
+    def well_at(self, position) -> Optional[Tuple[int, int]]:
+        """The well under a GLOBAL point, or ``None``.
+
+        Global, because the pointer is over a sibling of the widget that is
+        receiving the events -- the pressed one keeps the grab.
+        """
+        for cell, well in self._wells.items():
+            local = well.mapFromGlobal(position)
+            if well.rect().contains(local):
+                return cell
+        return None
+
+    def drag_to(self, position) -> None:
+        """Preview the rectangle from the anchor to the well under ``position``.
+
+        SHOWN WHILE DRAGGING, because a selection you cannot see until you
+        let go is one you have to undo to correct.
+        """
+        if self._anchor is None:
+            return
+        cell = self.well_at(position)
+        if cell is None or cell == getattr(self, "_last_cell", None):
+            return
+        self._last_cell = cell
+        self._dragged = cell != self._anchor
+        self.set_selection(self._before if self._adding else set())
+        self.select_region(self._anchor, cell, choosing=True)
+
+    def finish_drag(self) -> bool:
+        """End a drag. Returns whether one actually happened.
+
+        `True` tells the well to swallow its release: the rectangle is
+        already painted, and letting the click through would toggle the
+        anchor a second time.
+        """
+        dragged = bool(getattr(self, "_dragged", False))
+        self._anchor = None
+        self._last_cell = None
+        self._dragged = False
+        if dragged:
+            self._say()
+        return dragged
 
     def select_region(self, start: Tuple[int, int], end: Tuple[int, int],
                       choosing: Optional[bool] = None) -> None:
