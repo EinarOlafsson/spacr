@@ -1,0 +1,98 @@
+================================================================================
+THE FIRST RUN ASKS, INSTEAD OF THE INSTALLER
+================================================================================
+
+Status:    filed 2026-08-21. `ai_on_by_default` DONE; the screen is not.
+Requested: 2026-08-21 -- "instead of having options in the installers like i
+           have asked for preveously. instead the first time spacr is run
+           have the user be prompted with a setup screen ... i basically want
+           my version of the sleek intro that apple has."
+Owner:     Qt GUI (first run, preferences)
+
+--------------------------------------------------------------------------------
+WHY THIS REPLACES THE INSTALLER OPTIONS
+--------------------------------------------------------------------------------
+
+THE INSTALLER IS THE WRONG PLACE AND THIS SUPERSEDES THE EARLIER REQUEST. An
+installer runs once, often unattended, sometimes by an administrator who is
+not the user, and it asks its questions before the person has seen a single
+screen of the thing they are configuring. Every answer is a guess.
+
+The first RUN is the first moment the questions mean anything, and it is the
+only moment when the answers can be changed by the person they affect.
+
+--------------------------------------------------------------------------------
+WHAT IT ASKS
+--------------------------------------------------------------------------------
+
+  language                 theme                  colour-blind mode
+  spacr mode               reproducibility hash   report logs
+  module visibility        AI provider            one-click issue filing
+  GitHub login             AI on by default
+
+ELEVEN QUESTIONS IS A LOT FOR A FIRST SCREEN, and the design has to answer
+for that rather than list them in a column. They are not equal: language and
+theme change what the next screen looks like, and the reproducibility hash
+is a decision a user cannot evaluate before their first run. Group them, and
+let every one of them have a working default so the screen can be dismissed
+without answering anything.
+
+--------------------------------------------------------------------------------
+HOW IT LOOKS
+--------------------------------------------------------------------------------
+
+  * the home screen behind it, BLURRED;
+  * a rounded box, transparent, with the blob ambient theme showing through;
+  * a blue line on the box's periphery that FOLLOWS THE CORNER THE MOUSE IS
+    NEAREST.
+
+THE CORNER LINE IS THE ONE THING HERE THAT IS NOT DECORATION-BY-DEFAULT, and
+it needs stating precisely or it will be built as a glow: the accent tracks
+which of the four corners the pointer is closest to, and moves between them.
+It is a pointer-position readout, so it has to keep up with the mouse
+without repainting the blurred backdrop underneath -- cache the backdrop,
+paint only the border.
+
+INVARIANTS 10 APPLIES: decoration must never be load-bearing. If the blur,
+the ambient blobs or the corner line cannot be drawn, the screen still shows
+its questions and still saves the answers.
+
+--------------------------------------------------------------------------------
+IT IS REACHABLE AFTERWARDS
+--------------------------------------------------------------------------------
+
+    "in the help the user should always be able to access this view by
+     clicking startup"
+
+Help -> Startup, always, not only when unanswered. A first-run screen that
+cannot be reopened is a set of decisions the user made once, before they knew
+what any of them meant.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+`ai_on_by_default` exists: `preferences.get_ai_on_by_default` /
+`set_ai_on_by_default`.
+
+OFF BY DEFAULT, AND THAT IS THE DEFAULT RATHER THAN THE PREFERENCE. An
+assistant that is on before anybody asked for it sends what it is looking at
+somewhere, and the first run is exactly when the user has not yet decided
+whether that is acceptable. The screen asks; until it is answered the answer
+is no. An unrecognised stored value also reads as off -- the failure falls on
+the quiet side, the same rule `issue_prompt` follows.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* A fresh profile opens the setup screen before the home screen is usable.
+* All eleven settings are asked and all eleven persist.
+* Dismissing without answering leaves every default intact and does not ask
+  again -- a screen that reappears until it is answered is a modal dialog
+  wearing a nicer coat.
+* Help -> Startup reopens it at any time.
+* With the blur, the blobs and the corner line all disabled, the screen
+  still works.
+* The corner accent follows the NEAREST corner, checked by moving the
+  pointer rather than by reading the paint code.
