@@ -1,9 +1,9 @@
-"""Compare a measurement between the picked cells and the rest (177 F).
+"""Interactive measurement comparisons for selected cell groups.
 
-The window the Cells tab's "Compare a measurement…" button opens. It owns no
-statistics and no grouping of its own: `spacr.gene_measurement_compare` does
-the work, `spacr.sp_stats` chooses the test, and the groups are whatever the
-cell picker already decided.
+The panel delegates grouping and data preparation to
+:mod:`spacr.gene_measurement_compare` and statistical-test selection to
+:mod:`spacr.sp_stats`. It can be embedded in the Cells tab or opened in a
+standalone window without changing the comparison semantics.
 """
 import logging
 from typing import Any, Dict, Optional
@@ -25,11 +25,10 @@ LOG = logging.getLogger("spacr.qt.measurement_compare")
 
 
 class _WellChoice(QDialog):
-    """Include or leave out each of the annotation's wells (187 B).
+    """Checklist for including or excluding annotated wells.
 
-    A CHECKLIST, not 185's plate map. The wells of one annotation can span
-    plates, and a plate map shows one plate; the well NAMES are the same in
-    both, which is the part that had to agree.
+    A flat checklist supports annotations spanning multiple plates while
+    preserving the canonical well labels used by the plate-map picker.
     """
 
     def __init__(self, offered, chosen=None, parent: Optional[QWidget] = None):
@@ -59,16 +58,22 @@ class _WellChoice(QDialog):
 
 
 class MeasurementComparePanel(QWidget):
-    """One measurement, the picked genes against the rest.
+    """Compare measurements between selected cell groups and a reference.
 
-    A PANEL, so the Graph tab (179 A) and the standalone window are the same
-    implementation. Two copies of a comparison would be two answers to the
-    same question the first time either was edited.
-
-    :param objects: every object row behind the montage, picked or not.
-    :param groups: ``{gene: index values}`` from the picker.
-    :param settings: the settings that produced the run, saved beside the
-        figure so the folder answers "what made this" without a second file.
+    Parameters
+    ----------
+    objects : pandas.DataFrame
+        Object rows available to the montage and reference contrasts.
+    groups : dict of str to sequence
+        Selected group names mapped to object-index values.
+    parent : QWidget, optional
+        Parent widget.
+    settings : dict, optional
+        Run settings saved with exported comparison results.
+    databases : sequence of path-like, optional
+        Measurement databases available for widening the object table.
+    counts : pandas.DataFrame, optional
+        Per-well counts used to resolve control wells.
     """
 
     def __init__(self, objects, groups: Dict[str, Any],
@@ -309,14 +314,27 @@ class MeasurementComparePanel(QWidget):
             return ()
 
     def wells_on_offer(self) -> tuple:
-        """Every well the annotation drew a cell from, in a stable order."""
+        """Return annotated wells in first-occurrence order.
+
+        Returns
+        -------
+        tuple of str
+            Unique wells represented by the current selected groups.
+        """
         found: list = []
         for wells in wells_of(self._objects, self._groups).values():
             found.extend(str(w) for w in wells)
         return tuple(dict.fromkeys(found))
 
     def chosen_wells(self) -> Optional[list]:
-        """The wells to include, or ``None`` for all of them."""
+        """Return the included wells that remain available.
+
+        Returns
+        -------
+        list of str or None
+            Selected wells intersected with the current inventory, or ``None``
+            when all current and future wells are included.
+        """
         if self._chosen_wells is None:
             return None
         # INTERSECTED WITH WHAT IS THERE NOW, so a choice made before a
@@ -324,7 +342,14 @@ class MeasurementComparePanel(QWidget):
         return [w for w in self.wells_on_offer() if w in self._chosen_wells]
 
     def choose_wells(self, *_args) -> bool:
-        """Open the well checklist. Returns whether anything changed."""
+        """Open the well checklist and apply a changed selection.
+
+        Returns
+        -------
+        bool
+            ``True`` when the accepted selection differs from the previous
+            one; ``False`` when unavailable, cancelled, or unchanged.
+        """
         offered = self.wells_on_offer()
         if not offered:
             self.report.setPlainText(
@@ -367,7 +392,14 @@ class MeasurementComparePanel(QWidget):
                 f"to join the object tables from.")
 
     def join_the_tables(self, *_args) -> str:
-        """Widen the object rows with the databases. Returns any trouble."""
+        """Join attached measurement tables into the panel's object rows.
+
+        Returns
+        -------
+        str
+            Empty after a clean join, or a user-facing explanation when a
+            database or object row could not be joined.
+        """
         if not self._databases:
             return "no measurements database is attached"
         self.join_button.setEnabled(False)
