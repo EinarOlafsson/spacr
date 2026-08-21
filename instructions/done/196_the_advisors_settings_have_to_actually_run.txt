@@ -2,7 +2,7 @@
 THE ADVISOR'S SETTINGS HAVE TO ACTUALLY RUN
 ================================================================================
 
-Status:    filed 2026-08-21, not started. A DEFECT IN 192, reported by the
+Status:    DONE 2026-08-21. See the closing section.
            maintainer the day it shipped.
 Requested: 2026-08-21 -- "is i run settings for my data i get settings but
            when i run i get: [ValueError: batch_correction='combat' needs to
@@ -110,3 +110,72 @@ HOW TO KNOW IT WORKED
   says there is none.
 * The well-count line reports 1,536 wells for the example screen, or says
   precisely what it could not read.
+
+--------------------------------------------------------------------------------
+2026-08-21 -- DONE. THE PROPOSAL RUNS, AND THE SCAN COUNTS.
+--------------------------------------------------------------------------------
+
+A. ComBAT IS NOT PROPOSED AT ALL, which is the fix rather than a patch on one
+argument. It estimates the plate effect from whatever the design does not
+explain, and in a pooled screen the biology IS the per-well guide
+composition -- continuous, and not a categorical covariate column. There is
+nothing honest to pass it, so proposing it means proposing a run that either
+refuses or removes the effects being looked for.
+
+  one plate        `none`, because a correction needs two batches
+  several plates   `center` -- per-plate centring, which removes the plate's
+                   own mean and estimates NOTHING from the residuals, so
+                   there is no design for it to mistake signal for noise
+                   against
+
+`control_center` is stronger -- each plate centred on its own controls rather
+than on all its wells -- and it is NAMED in the undecided list rather than
+proposed, because it needs to know which WELLS hold them and that is not in
+the count or score tables. Naming it is the difference between a default and
+a ceiling.
+
+B. AND THE PROPOSAL IS ASKED OF THE VALIDATOR, NOT THE CANONICALISER.
+`refusals(settings)` puts the questions that actually refuse -- the ComBat
+covariate, `control_center`'s controls, an unknown regression_type -- and
+quotes the refusing code's own sentence. `advise_that_runs` WITHDRAWS a
+setting the run would reject into `undecided` rather than quietly patching
+it, because changing a value to make a check pass is how a proposal stops
+meaning anything. Both the dialog and the headless route go through it.
+
+MEASURED END TO END on the four example plates: advise, apply, run.
+
+    PROPOSED: regression_type='beta', batch_correction='center',
+              level='both', inference='nonparametric', transform=None
+    RESULT:   THE RUN COMPLETED.
+
+A test does that whole path and is marked slow; the fast ones assert no
+refusal at every plate count and every response shape.
+
+AND THE CONTROLS QUESTION WAS WRITING TO THE WRONG SETTING. Corrected by the
+maintainer: "233460 is the negative control, 000000 is the non cutting
+control." The question asks for the non-cutting guides -- the empirical null
+-- and was writing the answer into `negative_control`, which is a real gene
+knocked out and expected to show nothing. It writes `controls` now, and the
+question says NON-CUTTING in the words the maintainer used.
+
+C. THE WELL COUNT: TWO FAULTS STACKED, BOTH PRINTING A CONFIDENT NUMBER.
+
+  1. `regression_design_scan` READ RAW. `pd.read_csv`, so the example
+     screen's `row_name` / `column_name` carried no column it recognised and
+     it reported "wells were not counted" over 642,551 rows that name 1,536
+     wells. Through `tabular.read_table` now -- the same conversion 145 made
+     to the readers either side of it.
+  2. AND THE FALLBACK INVENTED A PLATE. With no `plateID` column
+     `_well_keys` substituted the literal "plate1", so all four files'
+     wells collapsed onto the same 384 names -- and its own docstring
+     forbids exactly that: "a well count off by the number of plates is
+     worse than no well count." One file is one plate now, which is
+     `load_regression_input_pairs`' rule for the same question.
+
+    before   "1380 distinct gRNAs in 642551 rows. no 'prc' ... so wells
+              were not counted"
+    after    452 genes and 1380 guides over 1536 wells, from 642551 rows in
+              4 file(s)
+
+10 tests in tests/test_the_design_scan_counts_the_wells.py, 30 in
+tests/test_the_advisors_proposal_actually_runs.py.
