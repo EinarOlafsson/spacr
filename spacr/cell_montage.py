@@ -395,20 +395,17 @@ def _guide_of_term(term: str) -> str:
     return text
 
 
-def _well_guide_fractions(counts, label, keys, guide_column, fraction_column,
-                          exclude=None):
+def _well_guide_fractions(counts, label, keys, guide_column, fraction_column):
     """``{guide: fraction}`` for one well, from the full count table.
 
     Every guide in the well, not only the one being drawn: a posterior is a
     comparison and there is nothing to compare a lone guide against.
 
-    :param exclude: gRNA names that are not in any cell -- primer or plasmid
-        carry-over. Removed and the well RENORMALISED over the survivors,
-        which is what makes this an exclusion rather than a subtraction: the
-        sequence is not a guide, so it does not belong in the denominator
-        either. A contaminant left in holds every real guide's fraction down
-        by its own share, and one real plate had 19.9% of all its reads in a
-        single plasmid contaminant.
+    THE EXCLUSION IS NOT DONE HERE. `select_montage` drops excluded guides
+    from the count table before anything reads it, so this function sees a
+    table they have already left -- one exclusion point rather than one per
+    caller, which is what keeps `well_totals` and these fractions agreeing
+    about what the well contains.
     """
     try:
         frame = counts.copy()
@@ -416,14 +413,9 @@ def _well_guide_fractions(counts, label, keys, guide_column, fraction_column,
         here = frame[frame["_montage_well"].astype(str) == str(label)]
         if guide_column not in here.columns:
             return {}
-        found = {str(g): float(v) for g, v in
-                 zip(here[guide_column], here[fraction_column])
-                 if v is not None}
-        if exclude:
-            from .read_background import drop_guides
-
-            found = drop_guides(found, exclude)
-        return found
+        return {str(g): float(v) for g, v in
+                zip(here[guide_column], here[fraction_column])
+                if v is not None}
     except Exception:                                            # noqa: BLE001
         return {}
 
@@ -1235,6 +1227,7 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
                    picking: str = "rank",
                    effects: Optional[Mapping[str, float]] = None,
                    effects_grid: Optional["pd.DataFrame"] = None,
+                   exclude_grnas: Optional[Sequence[str]] = None,
                    threshold: float = 0.55) -> MontagePlan:
     """Return the objects to show behind one coefficient.
 
@@ -1322,6 +1315,50 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
     scores = pd.to_numeric(work[score_column], errors="coerce").to_numpy(
         dtype=float)
     work["montage_distance"] = np.abs(scores - window.target)
+    # THE EXCLUSION HAPPENS FIRST, ONCE, AND ON THE COUNT TABLE ITSELF.
+    # Asked for 2026-08-21: "make sure it is removed first. right?" -- and
+    # right, for a reason that a later per-call filter would not have fixed.
+    # `well_totals` below sums the fraction column over the FULL table, and
+    # `normalised_share` divides by that sum. A contaminant removed further
+    # downstream would still be sitting in that denominator, holding every
+    # real guide's share down by its own -- which on one real plate was a
+    # fifth of all the reads.
+    #
+    # So there is exactly one exclusion point and it is above every path:
+    # the ranking, the per-well fractions, the posteriors and the totals all
+    # read a table the contaminant has already left.
+    #
+    # GUIDES AND GENES, several of each, resolved by `control_names` -- the
+    # same resolver `controls` and `positive_control` use, so an exclusion
+    # is typed in the spelling those already accept.
+    excluded_note = ""
+    if exclude_grnas:
+        try:
+            from .read_background import (resolve_exclusions,
+                                          unmatched_exclusions)
+
+            names = counts[guide_column].astype(str) \
+                if guide_column in counts.columns else pd.Series([], dtype=str)
+            genes = counts[gene_column].astype(str) \
+                if gene_column in counts.columns else None
+            drop = resolve_exclusions(exclude_grnas, names, genes)
+            if drop:
+                counts = counts[~names.isin(drop)].copy()
+                excluded_note = (f"excluded {len(drop)} guide(s) named by "
+                                 f"exclude_grnas before any fraction was "
+                                 f"formed")
+            # A MISSPELLED EXCLUSION EXCLUDES NOTHING AND LOOKS LIKE IT
+            # WORKED, which is how a known contaminant survives the filter
+            # that was meant to remove it.
+            missing = unmatched_exclusions(exclude_grnas, names, genes)
+            if missing:
+                excluded_note = ((excluded_note + " · ") if excluded_note
+                                 else "") + (
+                    f"exclude_grnas named {len(missing)} thing(s) that match "
+                    f"nothing here: {', '.join(map(str, missing[:5]))}")
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not apply exclude_grnas", exc_info=True)
+
     work["_montage_in_window"] = window.contains(scores)
     work["_montage_tiebreak"] = _object_sort_key(work)
 
@@ -1348,6 +1385,8 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
         well_totals = {}
 
     notes: List[str] = []
+    if excluded_note:
+        notes.append(excluded_note)
     selections: List[WellSelection] = []
     chosen: List[pd.DataFrame] = []
     mismatched: List[str] = []
