@@ -1,22 +1,9 @@
-"""Join the dependent-variable table onto the object rows (instruction 213 B).
+"""Join dependent-variable values to object-level measurement rows.
 
-    "in my cas the dependent variable has plate, row, col, field, object
-     which is enough to join with cell table but it also necessarily has the
-     path to each image with is necessarily plate_well_field_object which can
-     be split into its parts and merged directly or well translated into row
-     and column and (with the format r1 and c2) and merged into the cell
-     table so the latter two can be backups if any of the plate, row, col,
-     filed, object columns cant be found or are missed for wahtever reason."
-
-THREE ROUTES, TRIED IN ORDER, and the order is the instruction.
-
-A FALLBACK IS A FALLBACK, NOT A SECRET. Which route was used is returned
-with the number of rows it matched: a join that silently degraded is a join
-whose result nobody can check, and the degradation itself is worth knowing
-because it means a column is missing upstream.
-
-AND A ROUTE THAT MATCHES NOTHING IS A FAILURE, not an empty answer -- the
-same rule instruction 203 states for the object tables.
+The direct identifier columns are preferred. When they are incomplete, crop
+paths provide a documented fallback from which plate, well, field, and object
+identifiers can be recovered. Each successful join reports the route used and
+the number of matched rows; a join with no matches raises an error.
 """
 from __future__ import annotations
 
@@ -32,15 +19,11 @@ from .schema import (COLUMN_KEY, FIELD_KEY, OBJECT_KEY, PLATE_KEY, ROW_KEY)
 
 LOG = logging.getLogger("spacr.dependent_join")
 
-#: The import's spelling, everywhere -- READ OFF `spacr.schema`, never
-#: respelled here. A module reading `plate` where the rest of spaCR writes
-#: `plateID` is a module that will silently match nothing the first time it
-#: meets a real database, and a second copy of the names in this file would
-#: be exactly that module waiting to happen.
+#: Canonical object identifiers imported from :mod:`spacr.schema`.
 ID_COLUMNS: Tuple[str, ...] = (PLATE_KEY, ROW_KEY, COLUMN_KEY, FIELD_KEY,
                                OBJECT_KEY)
 
-#: Columns a dependent-variable table might carry its crop path under.
+#: Supported column names for image or crop paths.
 PATH_COLUMNS: Tuple[str, ...] = ("png_path", "path", "image_path", "file",
                                  "filename", "prcfo")
 
@@ -59,12 +42,19 @@ def _text(series) -> pd.Series:
 
 
 def well_to_row_and_column(well: str) -> Tuple[str, str]:
-    """``'A01'`` -> ``('r1', 'c1')``.
+    """Convert a well name to canonical row and column identifiers.
 
-    THE SPELLING IS `png_list`'s OWN. `spacr/predictions.py` records that
-    its `rowID` returns 'r1', 'r2' rather than a number, and a route
-    producing `1` would match nothing -- which is a failure that looks
-    exactly like a screen with no overlap.
+    Parameters
+    ----------
+    well : str
+        Well name such as ``"A01"`` or canonical identifier such as
+        ``"r1c1"``.
+
+    Returns
+    -------
+    tuple of str
+        Canonical ``(rowID, columnID)`` values, for example ``("r1", "c1")``.
+        Invalid well names return two empty strings.
     """
     text = str(well or "").strip()
     already = re.match(r"^r(\d+)c(\d+)$", text, re.IGNORECASE)
@@ -81,10 +71,19 @@ def well_to_row_and_column(well: str) -> Tuple[str, str]:
 
 
 def parts_from_path(path: str) -> Dict[str, str]:
-    """Recover plate, well, field and object from a crop path.
+    """Extract object identifiers from a crop-image path.
 
-    The path is necessarily ``plate_well_field_object``, so the parts are
-    there whenever it is.
+    Parameters
+    ----------
+    path : str
+        Path whose stem contains ``plate_well_field_object``.
+
+    Returns
+    -------
+    dict
+        Canonical plate, row, column, field, and object identifiers plus the
+        parsed well name. An empty mapping is returned when the pattern is not
+        present.
     """
     stem = os.path.splitext(os.path.basename(str(path or "")))[0]
     found = _PARTS.search(stem)
@@ -117,9 +116,8 @@ def _from_paths(frame: pd.DataFrame) -> Optional[pd.DataFrame]:
     return pd.DataFrame(rows, index=frame.index)
 
 
-#: The routes, in the instruction's order, as ``(name, columns, source)``.
-#: `source` is what the columns are read off: the frame itself, or the parts
-#: split out of its path.
+#: Ordered join routes represented as ``(description, columns, source)``.
+#: ``source`` identifies whether columns come from the table or parsed path.
 ROUTES: Tuple[Tuple[str, Tuple[str, ...], str], ...] = (
     ("the ID columns", ID_COLUMNS, "frame"),
     ("the image path, split into its parts", ID_COLUMNS, "path"),
@@ -130,15 +128,30 @@ ROUTES: Tuple[Tuple[str, Tuple[str, ...], str], ...] = (
 
 def join(objects: pd.DataFrame, dependent: pd.DataFrame, *,
          value: str = "") -> Tuple[pd.DataFrame, Dict[str, Any]]:
-    """Attach ``dependent`` to ``objects``. Returns the frame and a report.
+    """Attach dependent-variable columns to object-level rows.
 
-    :param objects: the object rows -- the cell table, or the montage's.
-    :param dependent: the dependent-variable table.
-    :param value: the column to bring across; every new column when empty.
-    :returns: ``(frame, report)``. The report names the ROUTE used and the
-        rows matched, always -- see the module docstring.
-    :raises ValueError: when no route matched a single row. A route that
-        matches nothing is a failure, not an empty answer.
+    Parameters
+    ----------
+    objects : pandas.DataFrame
+        Object-level measurement rows.
+    dependent : pandas.DataFrame
+        Table containing dependent variables and join identifiers or paths.
+    value : str, optional
+        Single dependent-variable column to add. When omitted, all columns
+        not already present in ``objects`` are added.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Copy of ``objects`` with matched dependent-variable columns.
+    dict
+        Join route, matched-row count, total-row count, attempted routes, and
+        names of added columns.
+
+    Raises
+    ------
+    ValueError
+        If the dependent table is empty or no route matches any object row.
     """
     report: Dict[str, Any] = {"route": "", "matched": 0,
                               "rows": int(len(objects)), "tried": []}
@@ -205,7 +218,7 @@ def join(objects: pd.DataFrame, dependent: pd.DataFrame, *,
 
 
 def describe(report: Dict[str, Any]) -> str:
-    """The report line. Names the route and what it matched."""
+    """Format the join route and matched-row count for display."""
     if not report.get("route"):
         return "the dependent variable was not joined"
     fallback = "" if report["route"] == ROUTES[0][0] else \

@@ -18,49 +18,32 @@ import pandas as pd
 from .figures.style import figure_style, theme_target
 from .style_base import SHARED_CHOICES, FigureStyle
 
-#: Supported observation levels and the meaning of one result-table row.
-#: What each column heading in the compare panel controls (instruction 202).
-#:
-#: ATTACHED TO THE COLUMN, NOT MATCHED BY LABEL. A tooltip found by looking
-#: up the heading's TEXT stops working the moment the heading is renamed,
-#: and stops working silently -- the label still draws, the help is simply
-#: gone. Keyed here by the field the heading governs.
-#:
-#: WRITTEN FROM THE CODE. Each one says what the field CHANGES about what
-#: the user will see, because a tooltip describing intent goes stale the
-#: first time the behaviour moves -- and a wrong tooltip is worse than none,
-#: since it is believed.
+#: Explanations for the controls in the measurement-comparison panel.
+#: Entries are keyed by control field rather than by the displayed heading.
 HEADING_HELP: dict = {
     "measurement": (
-        "WHICH NUMBER is plotted. Offered from the columns the attached "
-        "tables actually have, never typed, so a measurement that is not "
-        "there cannot be asked for. Choosing an operator beside it combines "
-        "two measurements into one, and the combined column is named for "
-        "the expression — so the plot, the legend and the saved settings all "
-        "say the same thing."),
+        "Select the measurement to plot. Choices are offered from columns "
+        "available in the attached tables. An optional arithmetic operator can combine it "
+        "with a second measurement; the resulting expression is recorded in "
+        "the plot, legend, and saved settings."),
     "level": (
-        "WHAT ONE DATAPOINT IS. 'cell' plots every object; 'well' averages "
-        "each well first, so one point is one well; 'plate' averages each "
-        "plate. This changes the STATISTICS as much as the picture: a "
-        "screen randomises at the well, so testing across cells treats "
-        "thousands of measurements of the same well as independent "
-        "evidence and returns p < 1e-10 on noise."),
+        "Define what one datapoint represents. 'cell' retains individual "
+        "objects; 'well' averages measurements within each well; 'plate' "
+        "averages within each plate. Screens are usually randomised at the "
+        "well level, so using cells as independent observations can produce "
+        "pseudoreplication."),
     "plot": (
-        "HOW the same numbers are drawn — box, violin, bar, jitter, or a "
-        "box with the points over it. It changes nothing about the values "
-        "or the test; a bar hides the spread that a jitter shows, which is "
-        "the only reason to prefer one."),
+        "Choose how the same values are displayed: box, violin, bar, jitter, "
+        "or jitter over a box. This setting changes nothing about the values "
+        "or statistical test; it changes only their visualization."),
     "show": (
-        "DRAWS ONE CLASS ON ITS OWN, as a filter on the drawing rather than "
-        "on the comparison. The statistics underneath stay for the WHOLE "
-        "comparison: a test computed on one of two groups is not a "
-        "comparison at all, and quietly re-running it on the visible half "
-        "would report a different question from the one on screen."),
+        "Restrict the drawing to one class without changing the statistical "
+        "comparison. Reported statistics continue to describe the whole "
+        "comparison rather than only the visible class."),
     "compare": (
-        "WHAT THE MEASUREMENT IS HELD AGAINST — nothing, the rest of the "
-        "same well, the control wells, or the other wells on the plate. The "
-        "same cells under three contrasts give three different p-values, "
-        "which is why this is a separate choice from what is measured."),
+        "Select the reference population: none, other objects in the same "
+        "well, control wells, or other wells on the plate. The selected "
+        "contrast determines the comparison and its p-value."),
 }
 
 LEVELS: Tuple[Tuple[str, str], ...] = (
