@@ -1,0 +1,92 @@
+================================================================================
+THE CLASSES COLUMN CAN BE FILLED IN, AND THE CLASSES DEFINE THE FOLDERS
+================================================================================
+
+Status:    filed 2026-08-21, not started.
+Requested: 2026-08-21 -- "in the classify modual in labels and classes, the
+           classes column setting cannot be filled in and therefor classes
+           cannot be added. class folder names should be preplaced with
+           putting together what is in written in the class field. the
+           Classes Column setting should also replace the annotation column
+           and class metadata should be replaced by the Classes Class and
+           value. The Classes setting Column should have a SQL butto. remove
+           the measurement option from dataset mode and remove the metadata
+           type by and measurement rules. change the name of Sample to
+           Sample size limit."
+Owner:     Qt GUI (classify module settings), spacr.settings
+
+--------------------------------------------------------------------------------
+THE BUG THAT BLOCKS EVERYTHING ELSE
+--------------------------------------------------------------------------------
+
+THE CLASSES COLUMN SETTING CANNOT BE FILLED IN. Nothing typed into it takes,
+so no classes can be added, so the module cannot be configured at all. This
+is the first thing to fix and the rest of the item is unreachable until it
+is: every change below is about what the classes MEAN once they can be
+entered.
+
+Find out WHY it is uneditable before changing it. A read-only field, a
+missing type in `list_shape_for`, a gate that never opens, and a widget that
+takes text and discards it on save are four different defects with four
+different fixes, and the audit is the work -- `list_shape_for` returning
+None for a union containing `str` has already caused one field to render
+wrong in this codebase.
+
+--------------------------------------------------------------------------------
+WHAT THE CLASSES THEN DRIVE
+--------------------------------------------------------------------------------
+
+CLASS FOLDER NAMES ARE BUILT FROM THE CLASS FIELD, not configured separately.
+The folder a class's crops are written to is assembled from what the user
+wrote in the class field, so the names on disk and the names in the settings
+cannot disagree -- which is the failure a separate folder-name setting
+invites and the reason to remove it.
+
+THE CLASSES COLUMN REPLACES THE ANNOTATION COLUMN. One setting naming the
+column that holds the label, not two that can point at different columns.
+
+CLASS METADATA IS REPLACED BY THE CLASSES' CLASS AND VALUE. The pair is what
+identifies a class; a free-form metadata blob beside it is a second place
+for the same fact.
+
+THE CLASSES COLUMN GETS A SQL BUTTON. The same affordance the other
+column-picking settings have: the user should be choosing from the columns
+their database actually holds, not typing a name and finding out at run time.
+
+--------------------------------------------------------------------------------
+WHAT IS REMOVED
+--------------------------------------------------------------------------------
+
+  * the MEASUREMENT option from dataset mode;
+  * METADATA TYPE BY;
+  * MEASUREMENT RULES.
+
+REMOVED, NOT HIDDEN. A setting behind a gate is still a setting somebody
+will find, and the three above describe a way of selecting a dataset that
+the classes column now covers.
+
+--------------------------------------------------------------------------------
+WHAT IS RENAMED
+--------------------------------------------------------------------------------
+
+  * "Sample" becomes "SAMPLE SIZE LIMIT" -- it is a cap, and "Sample" reads
+    as the thing being sampled rather than as a bound on how many.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Text typed into the classes column setting is there after a save and a
+  reload, and a class can be added.
+* The class folders on disk are named from the class field, and a test
+  asserts the two agree rather than asserting either alone.
+* There is one column setting for the label, not an annotation column
+  beside it.
+* The classes column has a SQL button that lists the columns the attached
+  database actually has.
+* Dataset mode offers no measurement option; metadata type by and
+  measurement rules are gone from the panel AND from `settings.py`.
+* The panel reads "Sample size limit".
+* The legacy Tk GUI still opens (the Tk-accommodates-new-code rule), and
+  settings CSVs written before this item still load -- the removed keys are
+  migrated or ignored with a stated reason, not left to raise.

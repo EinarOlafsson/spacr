@@ -2620,6 +2620,13 @@ class AppScreen(QWidget):
                     "effect and the caption says so.")
                 self._results_panel.table.key_selected.connect(
                     self._cell_montage.set_coefficient)
+                # AND THE WHOLE SELECTION (instruction 206). `set_coefficients`
+                # holds all of them and shows the most recent, so the count in
+                # this tab is the count on the volcano; without it a band over
+                # four guides would leave the Cells tab describing one with
+                # nothing saying the other three were picked.
+                self._results_panel.table.keys_selected.connect(
+                    self._cell_montage.set_coefficients)
 
                 # Read the table when the tab is OPENED, not on a timer. A
                 # sweep writes each trial as it finishes, so the answer is

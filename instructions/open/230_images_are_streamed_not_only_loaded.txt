@@ -1,0 +1,128 @@
+================================================================================
+IMAGES ARE STREAMED, NOT ONLY LOADED
+================================================================================
+
+Status:    filed 2026-08-21, not started.
+Requested: 2026-08-21 -- "in Computer vision images and cropping, change crop
+           sourse to Image sourse and chang it to a drop down with the
+           options load images and stream images. / Tables default should be
+           cell, nucleus, pathogen, cytoplasm / File metadata, path_string,
+           and file_type should be merged into one setting called load path
+           regex. / Extract channels can be removed and replaced with Train
+           channels / object array should be a dropdown of all the possible
+           objects and grayed out unless stream images is chosen /
+           coordinate column will always be the same so figure that out from
+           object array. and there needs to be a new setting for streamin
+           images based on coordinates from a column in a table or based on
+           object numeber from a mask array. so on setting for method called
+           stream method. if stream method is column then you only need
+           object array and channel arrays (also a new settin) if stream mode
+           is array then you need mask array (also a new settin), and channel
+           arrays, and bounding box (using this method images can be streamed
+           with bounding box or just the ppixels that overlap with the mask).
+           if the streaming code is not written, it should borrow from
+           measure_crop in the measure module and make sure the images are
+           saved with the same naming convention as measure crop. when
+           streaming. the images that need to be streamed are first disided
+           in a table which is saved, this table is built from the object
+           number in the object table. if that does not exist another method
+           must read all npy files in the merged folder and record the object
+           numbers in the chosen mask array and save the table with a
+           selection annotated of what will go to training, and testing.
+           after the table is generated the streamin begins to generate the
+           datasets on disk. this setup ensures that training can ocur whith
+           as many combinations ofthe data as possible."
+Owner:     spacr.settings, Qt GUI (computer vision panel), a streaming
+           writer borrowed from spacr.measure.measure_crop
+
+--------------------------------------------------------------------------------
+THE POINT
+--------------------------------------------------------------------------------
+
+TRAINING SHOULD BE POSSIBLE ON AS MANY COMBINATIONS OF THE DATA AS POSSIBLE.
+Today the crops have to exist on disk before a model can see them, so every
+combination of objects, channels and bounding-box choice is a separate
+export somebody has to remember to make. Streaming makes the combination a
+setting rather than a directory.
+
+--------------------------------------------------------------------------------
+A. THE SETTINGS, RENAMED AND MERGED
+--------------------------------------------------------------------------------
+
+  * CROP SOURCE becomes IMAGE SOURCE, and becomes a dropdown of
+    "load images" and "stream images". Everything in C below is gated on
+    this.
+  * TABLES defaults to cell, nucleus, pathogen, cytoplasm -- the four
+    objects spaCR measures, which is what the default should have been.
+  * FILE METADATA, PATH_STRING and FILE_TYPE merge into ONE setting,
+    LOAD PATH REGEX. Three settings that between them describe one pattern
+    is three chances to describe it inconsistently.
+  * EXTRACT CHANNELS is removed and replaced by TRAIN CHANNELS. The channels
+    that matter are the ones the model sees.
+  * OBJECT ARRAY becomes a dropdown of the possible objects, GREYED OUT
+    unless "stream images" is chosen.
+  * COORDINATE COLUMN is DERIVED FROM OBJECT ARRAY, not asked for. It is
+    always the same for a given object, so asking is asking the user to
+    restate something spaCR knows -- and gives them a way to get it wrong.
+
+--------------------------------------------------------------------------------
+B. THE STREAM METHOD, AND WHAT EACH ONE NEEDS
+--------------------------------------------------------------------------------
+
+A new setting, STREAM METHOD, with two values. THE SETTINGS EACH ONE NEEDS
+ARE DIFFERENT, and the ones the chosen method does not use must not be on
+screen asking to be filled in:
+
+  * "column" -- coordinates come from a column in a table.
+    Needs: OBJECT ARRAY, CHANNEL ARRAYS (new).
+
+  * "array" -- object numbers come from a mask array.
+    Needs: MASK ARRAY (new), CHANNEL ARRAYS (new), BOUNDING BOX.
+    BOUNDING BOX is what chooses between streaming the box around the object
+    and streaming ONLY THE PIXELS THAT OVERLAP THE MASK. Both are wanted;
+    they are different training sets.
+
+--------------------------------------------------------------------------------
+C. THE STREAMING ITSELF
+--------------------------------------------------------------------------------
+
+BORROW FROM `measure_crop`, do not re-derive. It already solves cropping,
+channel assembly and the bounding-box/mask choice, and a second
+implementation would drift from it. THE NAMING CONVENTION MUST BE THE SAME
+as measure_crop's -- a streamed crop and an exported crop of the same object
+should be the same filename, or nothing downstream can treat them alike.
+
+THE TABLE COMES FIRST, AND IT IS SAVED. Streaming does not begin by walking
+images. It begins by deciding WHICH objects are to be streamed and writing
+that decision down:
+
+  1. Build the table from the OBJECT NUMBER in the object table.
+  2. IF THE OBJECT TABLE DOES NOT EXIST, fall back: read every .npy in the
+     merged folder and record the object numbers present in the chosen mask
+     array.
+  3. The table carries a SELECTION ANNOTATION saying what goes to TRAINING
+     and what goes to TESTING.
+  4. Save it. Then, and only then, stream to generate the datasets on disk.
+
+THE SAVED TABLE IS THE REPRODUCIBILITY. A training set that was decided at
+run time and never written down cannot be re-made, compared against, or
+audited when a model turns out to have learned something it should not have.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* The panel says Image source, with the two options, and the streaming
+  settings are inert until "stream images" is chosen.
+* Choosing a stream method shows only that method's settings.
+* Coordinate column is not a setting; a test asserts it is derived from
+  object array and matches what the old setting would have held.
+* The three merged settings are one, and an old settings CSV naming the
+  three still loads.
+* A streamed crop and a `measure_crop` export of the same object have the
+  SAME FILENAME -- asserted against each other, not against a fixture.
+* The selection table is written before any image is, holds the
+  train/test annotation, and re-running with it produces the same dataset.
+* The .npy fallback is exercised by a test with NO object table present.
+* Bounding box off streams only mask-overlapping pixels, and a test
+  measures that the corners are background rather than trusting the flag.

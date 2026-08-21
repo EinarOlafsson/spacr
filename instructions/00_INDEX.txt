@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-203 done / 18 open (91%).
+203 done / 20 open (91%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -77,6 +77,12 @@ OPEN
 
   228  CONSOLE, AI CHAT AND SYSTEM ALL COLLAPSE
        228_the_bottom_panels_collapse.txt
+
+  229  THE CLASSES COLUMN CAN BE FILLED IN, AND THE CLASSES DEFINE THE FOLDERS
+       229_the_classify_classes_column_can_be_filled_in.txt
+
+  230  IMAGES ARE STREAMED, NOT ONLY LOADED
+       230_images_are_streamed_not_only_loaded.txt
 
 --------------------------------------------------------------------------------
 DONE

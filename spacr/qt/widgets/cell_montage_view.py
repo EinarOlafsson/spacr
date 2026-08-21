@@ -1453,6 +1453,10 @@ class CellMontageView(QWidget):
         # down at launch, and the rule earned its own test file.
         self._key: str = ""
         self._name: str = ""
+        #: Every coefficient the selection holds (instruction 206). The grid
+        #: shows one of them; this is all of them, so the count here and the
+        #: count on the volcano are the same number.
+        self._keys: List[str] = []
         self._level: str = "gene"
         self._effect: Optional[float] = None
         self._plans: Tuple[Any, ...] = ()
@@ -1783,6 +1787,52 @@ class CellMontageView(QWidget):
         self._unavailable = ""
         self._refresh_controls()
         self._announce()
+
+    def set_coefficients(self, keys) -> None:
+        """Several coefficients were picked. THE SLOT FOR ``keys_selected``.
+
+        A MONTAGE IS OF ONE COEFFICIENT. The crops are chosen by how well
+        each cell agrees with THAT coefficient's effect, so a grid built from
+        three of them at once would be three different questions in one
+        picture with nothing on screen saying which cell answered which.
+
+        So the selection is held whole -- :meth:`selected_coefficients`
+        returns all of it, and the caption says how many there are -- and the
+        grid shows one at a time, the most recent by default, with
+        :meth:`show_next_coefficient` to step through the rest. That is the
+        honest reading of a multi-selection for this tab, and it keeps the
+        count here equal to the count on the volcano, which is the property
+        instruction 206 is actually about.
+
+        :param keys: every selected ``feature``, in pick order.
+        """
+        keys = [str(k) for k in (keys or ()) if str(k)]
+        self._keys = keys
+        if not keys:
+            return
+        self.set_coefficient(keys[-1])
+
+    def selected_coefficients(self) -> List[str]:
+        """Every coefficient in the current selection, in pick order."""
+        return list(getattr(self, "_keys", []) or
+                    ([self._key] if self._key else []))
+
+    def show_next_coefficient(self) -> Optional[str]:
+        """Move the grid to the next coefficient in the selection.
+
+        :returns: the key now shown, or ``None`` if fewer than two are
+            selected and there is nowhere to step to.
+        """
+        keys = self.selected_coefficients()
+        if len(keys) < 2:
+            return None
+        try:
+            position = keys.index(self._key)
+        except ValueError:
+            position = -1
+        key = keys[(position + 1) % len(keys)]
+        self.set_coefficient(key)
+        return key
 
     def refresh(self) -> None:
         """Re-read the providers. Call this when the tab is opened.
@@ -2800,9 +2850,17 @@ class CellMontageView(QWidget):
                 self._set_status(self.NOTHING_SELECTED)
             else:
                 run = self.loaded_run_name()
+                # THE COUNT, WHENEVER THERE IS MORE THAN ONE. A selection you
+                # cannot count is one you cannot trust (instruction 206), and
+                # a grid showing one guide out of four with nothing saying so
+                # reads as a grid of the whole selection.
+                selection = self.selected_coefficients()
+                more = (f" {len(selection)} coefficients are selected; this "
+                        f"grid is one of them."
+                        if len(selection) > 1 else "")
                 self._set_status(
                     f"Ready: press “Show the cells” for {self._name}"
-                    + (f", from the run {run}." if run else "."))
+                    + (f", from the run {run}." if run else ".") + more)
 
     def _drop_montage(self) -> None:
         """Forget the montage the plans describe. THE WELL TABS STAY.
