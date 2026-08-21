@@ -1969,7 +1969,7 @@ def get_perform_regression_default_settings(settings):
     # Absent columns are dropped at the call site with a note, so a dataset
     # without them still runs and the user is told which were not removed.
     settings.setdefault('guide_nuisance_columns', ['rowID', 'columnID'])
-    settings.setdefault('guide_statistic', 'pearson')
+    settings.setdefault('grna_statistic', 'pearson')
     settings.setdefault('guide_presence_threshold', 0.0)
     settings.setdefault('guide_permutation_batch_size', 500)
     # 'none' by default: the correction to apply is a judgement about the
@@ -2828,7 +2828,7 @@ expected_types = {
     "guide_permutation_seed": int,
     "guide_permutation_block": str,
     "guide_nuisance_columns": list,
-    "guide_statistic": str,
+    "grna_statistic": str,
     "guide_presence_threshold": (int, float),
     "guide_permutation_batch_size": int,
     "multiple_testing_method": str,
@@ -3548,7 +3548,7 @@ tooltips = {
     "guide_primary_min_wells": "(int or None) - Which guide_min_wells family supplies results_significant.csv and the returned 'significant' table. Default None chooses the smallest requested threshold.",
     "guide_permutations": "(int) - Number of plate-blocked Freedman--Lane residual permutations used for empirical two-sided guide P values. The P value IS (exceedances + 1) / (permutations + 1), where an exceedance is a permuted statistic at least as extreme as the observed one -- so the smallest it can be is 1 / (permutations + 1), reached only when nothing exceeded: 1,000 permutations resolve to about 1e-3, 10,000 to 1e-4, and the default 200,000 to 5e-6. Raise this when the volcano shows a flat row of guides at the P-value floor; runtime increases linearly. Default 200000.",
     "guide_permutation_seed": "(int) - Random seed for reproducible residual permutations. Keep it fixed to reproduce exact empirical P values; change it to check Monte Carlo sensitivity. Default 0.",
-    "guide_statistic": "(str) - What the permutation test permutes: 'pearson' (default) is a partial correlation between the guide's fraction and the phenotype, 'rank' is the same on the RANKED phenotype. The inference was always distribution-free; the STATISTIC was not -- a correlation is a least-squares object, so one extreme well moves it as it moves a regression coefficient. Rank is monotone rather than linear and cannot be moved far by one well. Both cost one matrix product, so neither is slower. Default 'pearson'.",
+    "grna_statistic": "(str) - What the permutation test measures between a gRNA's well fractions and the well phenotype. 'pearson' is a partial correlation, which is linear and is moved by an extreme well in proportion to how extreme it is. 'rank' is the same quantity computed on the ranked phenotype, so it responds to order rather than magnitude and no single well can move it far. Both cost one matrix product, so the choice does not change how long the test takes. Default 'pearson'.",
     "guide_permutation_block": "(str) - Column defining exchangeability blocks for permutations, normally plateID. Residuals are never shuffled between its levels. Default 'plateID'.",
     "guide_nuisance_columns": "(list) - Additional measured well-level covariates to residualize from both phenotype and guide fraction before testing. Do not put post-treatment outcomes here. Default [].",
     "guide_presence_threshold": "(float) - A guide counts as present in a well only when its fraction is above this value. The effect still uses the unthresholded fraction. Default 0.0.",
@@ -3580,7 +3580,6 @@ tooltips = {
     "positive_control_wells": "(list or str) - Wells containing only the positive control, e.g. ['c2']. Accepts rows (r1), columns (c1), or individual wells (A01); the Plate button selects them from a map. Pure controls are calibration references rather than screen observations, so they are excluded from the regression. They define the positive endpoint for mixed-ratio calibration and should be identified from the plate design. Default None.",
     "negative_control_wells": "(list or str) - Wells containing only the negative control, e.g. ['c1']. Accepts the same row, column, and well notation as positive_control_wells. These wells are excluded from the regression and define the negative endpoint for mixed-ratio calibration. Default None.",
     "mixed_control_wells": "(list or str) - Wells holding a known mixture of the positive and negative controls, e.g. ['c3']. Removed from the regression like the other two. These provide strong validation because per-cell identities are unknown while the aggregate proportions are known from sequencing, allowing annotation methods to be scored on real rather than simulated cells. Default None.",
-    "normalise_fraction": "(bool) - Divide a guide's fraction by what SURVIVED fraction_threshold before deciding how many cells it gets. On by default, the historical behaviour. THE COST: the reads of every filtered-out guide are redistributed onto the survivors -- on a real screen the filtered sums fall to a median of 0.5526, inflating each survivor by about 1.8x -- so a guide with few reads can come out with a high share and the ranking takes cells on a number normalisation created. Off keeps the discarded reads in the denominator, which is conservative. Default True.",
     "exclude_grnas": "(list or str) - gRNA or gene identifiers known not to occur in cells, such as primer or plasmid carry-over. These sequences are removed before guide fractions are calculated, and retained guides are renormalized. This differs from background subtraction, which corrects spurious reads assigned to a real guide. A gene identifier matches all of its guides. Default None.",
     "exclude": "(str or list) - Names of measurement columns to drop from the feature set before UMAP embedding or ML training, applied after the channel_of_interest selection. Use it to remove features that leak the label or swamp the embedding. It does not filter database rows; use exclude_rows for that. Default None keeps every feature.",
     "exclude_conditions": "(list) - Condition labels dropped from the image UMAP input, matched against the cond column that map_condition derives from the pos, neg and mix column IDs; the only possible entries are 'neg', 'pos', 'mix' and 'screen'. A bare string is accepted and wrapped in a list. Use it to embed screen wells only. Default None.",
@@ -3592,6 +3591,7 @@ tooltips = {
     "flow_threshold": "(float) - Cellpose flow_threshold: the maximum allowed error between the predicted flow field and the flows recomputed from each candidate mask; masks above it are discarded. Raise it to keep more objects, including irregularly shaped ones; lower it to reject poorly formed masks and reduce false positives. Default 0.4.",
     "fps": "(int) - Playback rate of the per-channel movies written to <src>/movies from timelapse .npy stacks, and only when timelapse is True. Raise it to skim long acquisitions, lower it to inspect individual frames. Affects the movies only - never tracking, segmentation or measurements. Default 2.",
     "fraction_threshold": "(float) - Minimum relative abundance, 0-1, that a gRNA must reach within a well's total read count to be kept. Raising it strips low-abundance and bleed-through gRNAs and lowers the mean gRNAs per well; set it too high and every row is removed and the run errors out. Leave None to auto-pick the cutoff giving target_unique_count gRNAs per well. Default None.",
+    "normalise_fraction": "(bool) - Divide a gRNA's fraction by the sum of the fractions that remain in its well after fraction_threshold, before deciding how many cells it is given. On, a gRNA's share is measured against what survived the threshold; off, it is measured against every read the well produced, including those the threshold removed. The two differ whenever the threshold removes anything: normalising raises every surviving share, and by more the more was removed. Default True.",
     "from_scratch": "(bool) - Start from randomly initialised weights instead of fine-tuning the pretrained model. Almost always leave OFF: fine-tuning needs tens of images where from-scratch needs thousands. Default False.",
     "gradient_accumulation": "(bool) - Sum gradients over several batches before each optimizer step instead of stepping on every batch, giving an effective batch size of batch_size x gradient_accumulation_steps without extra GPU memory. Enable when you had to shrink batch_size to fit in VRAM and training is noisy. Leftover gradients are flushed at the end of each epoch. Default True.",
     "gradient_accumulation_steps": "(int) - How many batches are summed per optimizer step when gradient_accumulation is on; the loss is divided by this value so gradient magnitude stays comparable. Effective batch size = batch_size x this. Raise it (4-16) to emulate a larger batch on limited VRAM, at the cost of fewer weight updates per epoch. Ignored when gradient_accumulation is False. Default 4.",
@@ -4421,6 +4421,10 @@ categories = {
     ],
     # Read only when inference resolves to the permutation test.
     "Regression: Permutation Test": [
+        # FIRST, because it says WHAT is measured. Everything below it says
+        # how the null is built and who is eligible, which are answers to a
+        # question this setting asks.
+        "grna_statistic",
         "guide_min_wells", "guide_primary_min_wells", "guide_permutations",
         "guide_permutation_seed", "guide_permutation_block",
         "guide_nuisance_columns", "guide_presence_threshold",
@@ -4446,6 +4450,11 @@ categories = {
     # obvious that four separate settings each drop data.
     "Regression: Quality Filters": [
         "min_cell_count", "min_n", "fraction_threshold",
+        # DIRECTLY UNDER THE THRESHOLD IT DIVIDES BY. It is only
+        # meaningful in terms of what that threshold removed, so a
+        # reader who meets it anywhere else has to go and find the
+        # other one first.
+        "normalise_fraction",
         "target_unique_count", "tolerance", "outlier_detection", "other",
     ],
     # Not "was this gRNA significant" but "does this fit deserve to be
