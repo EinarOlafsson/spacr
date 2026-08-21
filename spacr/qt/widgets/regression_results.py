@@ -537,14 +537,48 @@ class RegressionResultsPanel(QWidget):
         # saved run carries a `colour_by` key -- so the object stays and
         # keeps answering, while the header loses a duplicate. Deleting it
         # would have meant unpicking a saved-state field for a cosmetic win.
+        # VISIBLE AGAIN, because it no longer duplicates the menu. It was
+        # hidden when it offered exactly what the volcano's own "Colour by a
+        # column…" offered; it now offers something that menu cannot -- three
+        # ORDERED channels at once (instruction 222) -- and a feature nobody
+        # can reach is not a feature.
         self._colour_by_label = QLabel("colour by")
-        self._colour_by_label.setVisible(False)
+        self._colour_by_label.setToolTip(
+            "Up to THREE columns at once, layered rather than combined: the "
+            "first is the colour, the second the marker shape, the third the "
+            "opacity. Always in that order, so the same choice always gives "
+            "the same picture. There is no fourth — past three encodings a "
+            "point carries more than a reader can decode.")
         header.addWidget(self._colour_by_label)
         self._colour_by = QComboBox()
         self._colour_by.setMinimumWidth(140)
+        self._colour_by.setToolTip(
+            "The colour channel. Choosing nothing here turns the other two "
+            "off as well: a shape that means one thing beside a colour that "
+            "means the q-value is two claims on one dot.")
         self._colour_by.currentIndexChanged.connect(self._redraw_volcano)
-        self._colour_by.setVisible(False)
         header.addWidget(self._colour_by)
+        # THE SECOND AND THIRD COLUMNS (instruction 222). Separate combos
+        # rather than one checkable list, because the ORDER is the encoding:
+        # first is hue, second is shape, third is opacity, and a checklist
+        # has no way to say which is which. Each offers the same columns and
+        # "nothing", so the user adds a channel by filling in the next box.
+        self._colour_by_2 = QComboBox()
+        self._colour_by_2.setMinimumWidth(120)
+        self._colour_by_2.setToolTip(
+            "A SECOND column, drawn as the marker SHAPE rather than the "
+            "colour. Layered rather than combined: two columns of three "
+            "levels combined would be a nine-entry legend, and three would "
+            "be twenty-seven.")
+        self._colour_by_2.currentIndexChanged.connect(self._redraw_volcano)
+        header.addWidget(self._colour_by_2)
+        self._colour_by_3 = QComboBox()
+        self._colour_by_3.setMinimumWidth(120)
+        self._colour_by_3.setToolTip(
+            "A THIRD column, drawn as opacity. There is no fourth: past "
+            "three encodings a point carries more than a reader can decode.")
+        self._colour_by_3.currentIndexChanged.connect(self._redraw_volcano)
+        header.addWidget(self._colour_by_3)
         layout.addLayout(header)
 
         self.tabs = QTabWidget()
@@ -1456,6 +1490,45 @@ class RegressionResultsPanel(QWidget):
         """A set of coefficients was chosen on a plot: narrow the table."""
         self.table.show_keys(list(keys))
 
+    def _extra_colour_column(self, combo, first):
+        """The column on a secondary channel, or ``None``.
+
+        THREE WAYS IT IS NONE, and each is a real answer rather than an
+        oversight:
+
+        * nothing is chosen -- the ordinary case, one channel;
+        * the FIRST channel is not in force, because a shape that means one
+          thing beside a colour that means the q-value is two claims on one
+          dot with nothing on screen saying which;
+        * this channel repeats a column already encoded, which draws the
+          same fact twice and tells the reader nothing the first channel
+          did not.
+        """
+        if not first:
+            return None
+        chosen = combo.currentData() if combo is not None else None
+        if not chosen or chosen == first:
+            return None
+        if combo is self._colour_by_3 and \
+                chosen == self._colour_by_2.currentData():
+            return None
+        # LOPIT is materialised onto the frame copy under its own name by the
+        # caller, and only for the FIRST channel. Asking for it here would
+        # name a column that is not there.
+        if chosen == self.LOPIT_KEY:
+            return None
+        return str(chosen)
+
+    def colour_channels(self) -> list:
+        """The columns currently encoded, hue first. For tests and state."""
+        first = self._colour_by.currentData()
+        out = [first] if first else []
+        for combo in (self._colour_by_2, self._colour_by_3):
+            column = self._extra_colour_column(combo, first)
+            if column:
+                out.append(column)
+        return out
+
     def _select_many_from_a_plot(self, keys) -> None:
         """A band or a modifier-click chose several: select them all.
 
@@ -1899,6 +1972,19 @@ class RegressionResultsPanel(QWidget):
         preferred = self._colour_by.findData("condition")
         self._colour_by.setCurrentIndex(preferred if preferred >= 0 else 0)
         self._colour_by.blockSignals(False)
+        # THE SAME OFFER IN ALL THREE, so a user can put any column on any
+        # channel. Built from the first rather than by walking the frame
+        # again: two walks are two chances to offer different lists.
+        for extra in (self._colour_by_2, self._colour_by_3):
+            keep = extra.currentData()
+            extra.blockSignals(True)
+            extra.clear()
+            for index in range(self._colour_by.count()):
+                extra.addItem(self._colour_by.itemText(index),
+                              self._colour_by.itemData(index))
+            back = extra.findData(keep) if keep is not None else 0
+            extra.setCurrentIndex(back if back >= 0 else 0)
+            extra.blockSignals(False)
         self._colour_by_note = "; ".join(skipped)
 
         # A new table is a new experiment; carrying the old selection over
@@ -3066,6 +3152,10 @@ class RegressionResultsPanel(QWidget):
             label_column="feature" if "feature" in frame.columns
             else frame.columns[0],
             category_column=category,
+            symbol_column=self._extra_colour_column(self._colour_by_2,
+                                                    category),
+            opacity_column=self._extra_colour_column(self._colour_by_3,
+                                                     category),
             key_column=self._key_column(frame),
             compartment=self._compartment,
             # THE CUT THE MENU COMPUTED, actually drawn.
