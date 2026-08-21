@@ -128,7 +128,12 @@ class DropWell(QWidget):
         head.addWidget(title, 1)
         clear = QPushButton("×", self)
         clear.setObjectName("PivotWellClear")
-        clear.setFixedWidth(20)
+        # A CAP THAT CANNOT CUT (193). The number keeps this
+        # control compact; `sizeHint` is the floor, so a larger
+        # font or a glyph a theme renders wider grows the button
+        # rather than clipping it.
+        clear.setMinimumWidth(max(20, clear.sizeHint().width()))
+        clear.setMaximumWidth(max(20, clear.sizeHint().width()))
         clear.setToolTip(f"Empty the {AXIS_LABELS[axis]} well")
         clear.clicked.connect(self.clear)
         head.addWidget(clear)

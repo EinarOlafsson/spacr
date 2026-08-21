@@ -129,7 +129,12 @@ class ClassChip(QWidget):
 
         self._close = QPushButton("\u00d7", self)
         self._close.setObjectName("ClassChipRemove")
-        self._close.setFixedWidth(20)
+        # A CAP THAT CANNOT CUT (193). The number keeps this
+        # control compact; `sizeHint` is the floor, so a larger
+        # font or a glyph a theme renders wider grows the button
+        # rather than clipping it.
+        self._close.setMinimumWidth(max(20, self._close.sizeHint().width()))
+        self._close.setMaximumWidth(max(20, self._close.sizeHint().width()))
         self._close.setToolTip(f"Remove the class {rule.name!r}")
         self._close.clicked.connect(self._on_removed)
         row.addWidget(self._close)

@@ -809,14 +809,19 @@ class FilePathListWidget(QWidget):
             self._up_button = QPushButton("↑", self)
             self._up_button.setToolTip(
                 "Move the selected file earlier in the list")
-            self._up_button.setMaximumWidth(30)
+            # A CAP THAT CANNOT CUT (193). 30 px keeps the arrows compact,
+            # and `sizeHint` is the floor: at a large font or a glyph a
+            # theme renders wider, the button grows rather than clipping.
+            self._up_button.setMaximumWidth(
+                max(30, self._up_button.sizeHint().width()))
             self._up_button.clicked.connect(lambda: self._move_selected(-1))
             row.addWidget(self._up_button)
 
             self._down_button = QPushButton("↓", self)
             self._down_button.setToolTip(
                 "Move the selected file later in the list")
-            self._down_button.setMaximumWidth(30)
+            self._down_button.setMaximumWidth(
+                max(30, self._down_button.sizeHint().width()))
             self._down_button.clicked.connect(lambda: self._move_selected(1))
             row.addWidget(self._down_button)
 
