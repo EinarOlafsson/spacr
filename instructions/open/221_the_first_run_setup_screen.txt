@@ -2,7 +2,7 @@
 THE FIRST RUN ASKS, INSTEAD OF THE INSTALLER
 ================================================================================
 
-Status:    filed 2026-08-21. `ai_on_by_default` DONE; the screen is not.
+Status:    filed 2026-08-21. MODEL AND CARD DONE 2026-08-21; the dialog that hosts them is not.
 Requested: 2026-08-21 -- "instead of having options in the installers like i
            have asked for preveously. instead the first time spacr is run
            have the user be prompted with a setup screen ... i basically want
@@ -119,3 +119,48 @@ HOW TO KNOW IT WORKED
   still works.
 * The corner accent follows the NEAREST corner, checked by moving the
   pointer rather than by reading the paint code.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+`spacr/qt/setup_screen.py` -- the questions, when to ask them, and how the
+answers are written.
+
+  * `should_open()` compares the running version against the one that last
+    answered, so a fresh profile is asked, a dismissed screen stays shut,
+    and an UPDATE asks again without resetting anything.
+  * `questions()` is built against the preference module's OWN accessors,
+    asserted by a test. An answer given here and an answer given in
+    Preferences must be the same answer, not two stores that agree by
+    accident.
+  * `apply()` writes each answer separately and returns what failed. A setup
+    screen that discards six good answers because the seventh was bad has
+    cost the user the whole screen.
+  * every question has a working default, so the screen can be dismissed
+    without answering any of it.
+
+`spacr/qt/widgets/setup_card.py` -- the rounded translucent card whose
+border lights at the corner nearest the pointer.
+
+THE ACCENT IS A POINTER READOUT, NOT A GLOW, which is the one thing most
+likely to be built wrong: it tracks WHICH of the four corners the mouse is
+nearest and moves between them. Only the border repaints when it moves --
+the card is translucent over a backdrop, and repainting that on every mouse
+move is the difference between a smooth accent and a stuttering one. Mouse
+tracking is on, or the move event fires only while a button is held, which
+is never on a card the user is reading.
+
+Colours from the palette, never a literal, and every paint step inside a
+guard: an unpainted card is still a card with working controls on it.
+
+Tests: `tests/qt/test_the_first_run_asks.py`, 20 passing.
+
+--------------------------------------------------------------------------------
+WHAT IS LEFT
+--------------------------------------------------------------------------------
+
+The dialog that puts the two together: the blurred home screen behind, the
+card in front, the questions laid out on it, Help -> Startup to reopen, and
+the "these are new since 4.1" marking on an update. The parts it needs all
+exist and are tested; assembling them is the remaining work.
