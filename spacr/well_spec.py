@@ -19,6 +19,13 @@ WELL_SETTINGS = (
     "control_wells", "filter_value", "metadata_item_1_value", "mix", "neg",
     "negative_control", "pathogen_loc", "pathogen_plate_metadata", "pos",
     "positive_control", "treatment_loc", "treatment_plate_metadata",
+    # The three control blocks (221). They were added to WELL_ONLY_SETTINGS
+    # -- which grants the plate button -- without being added here, and the
+    # audit caught it: `WELL_ONLY_SETTINGS` must be a SUBSET of this, since
+    # a setting cannot be "entirely wells" without being "may contain
+    # wells". That is the check working, not a formality.
+    "positive_control_wells", "negative_control_wells",
+    "mixed_control_wells",
 )
 
 #: Settings whose complete value is a well specification and can therefore be
