@@ -18,8 +18,8 @@ from PySide6.QtWidgets import (QAbstractItemView, QComboBox, QDialog,
                                QTableWidget, QTableWidgetItem, QVBoxLayout,
                                QWidget)
 
-from ...settings_advisor import (QUESTIONS, ROW_CAP, Advice, Reading, advise,
-                                 questions_for)
+from ...settings_advisor import (QUESTIONS, ROW_CAP, Advice, Reading,
+                                 advise_that_runs, questions_for)
 from ..i18n import set_translatable_text, tr
 
 LOG = logging.getLogger("spacr.qt.settings_advisor")
@@ -282,7 +282,13 @@ class SettingsAdvisorDialog(QDialog):
 
     def show_the_proposal(self) -> Advice:
         """Compute the advice from the answers and show it."""
-        self._advice = advise(self._reading, self.questions.answers())
+        # THE CHECKED ROUTE (196). A proposal the run would refuse is not a
+        # proposal, and this window's whole promise is that these are the
+        # settings for the user's data -- so what it shows has been asked of
+        # the validators that would stop the run, not just of the
+        # canonicaliser that fills defaults.
+        self._advice = advise_that_runs(self._reading,
+                                        self.questions.answers())
         self.proposal.show_the_proposal(self._advice, self._current)
         self.pages.setCurrentWidget(self.proposal)
         self.back.setVisible(True)
