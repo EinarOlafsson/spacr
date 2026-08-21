@@ -2,8 +2,7 @@
 THE CLASSES COLUMN CAN BE FILLED IN, AND THE CLASSES DEFINE THE FOLDERS
 ================================================================================
 
-Status:    filed 2026-08-21. THE BLOCKING BUG, THE REMOVALS AND THE RENAME
-           DONE 2026-08-21; the three folds in WHAT IS LEFT are not.
+Status:    DONE 2026-08-21.
 Requested: 2026-08-21 -- "in the classify modual in labels and classes, the
            classes column setting cannot be filled in and therefor classes
            cannot be added. class folder names should be preplaced with
@@ -146,12 +145,21 @@ Classes editor existed. A list-shaped legacy `classes` still wins over
 everything, for the reason its own test gives.
 
 --------------------------------------------------------------------------------
-WHAT IS LEFT
+AND THE LAST TWO FOLDS, DONE
 --------------------------------------------------------------------------------
 
-Three folds, each of which changes what a setting MEANS rather than whether
-it is present, and each of which needs a migration for files that set both
-sides:
+`annotation_column` AND `class_metadata` ARE GONE FROM THE PANEL and derived
+from `classes`. The Classes editor already names the column each class is
+defined by and the value that defines it, so a box for either was a second
+place to say the same thing -- and nothing downstream reads both and
+compares them, which is why two settings naming one column is two chances
+to point at different ones.
 
-  * THE CLASSES COLUMN REPLACING `annotation_column`. Both still exist.
-  * `class_metadata` REPLACED BY THE CLASSES' CLASS AND VALUE.
+DERIVED VALUES ARE WRITTEN BACK, not computed at every read. Every consumer
+downstream reads those two keys, and rewriting each of them to ask
+`classify_classes` instead would be a large change for a small gain -- and
+one of them would be missed.
+
+A SETTINGS FILE THAT DEFINES NO CLASS KEEPS EXACTLY WHAT IT HAD. The fold
+runs AFTER the defaults and only when `classes` holds something, so a file
+written before the Classes editor still runs unchanged.

@@ -106,3 +106,74 @@ class TestTheSqlButton:
         rather than raising while the panel is being built."""
         assert editor.attach_sql_picker(lambda: "/nonexistent/nowhere") \
             is not None
+
+
+class TestTheClassesReplaceTheTwoSettings:
+    """Instruction 229: "the Classes Column setting should also replace the
+    annotation column and class metadata should be replaced by the Classes
+    Class and value".
+
+    ONE PLACE FOR EACH FACT. Nothing downstream reads both and compares
+    them, so two settings naming the same column is two chances to point at
+    different ones.
+    """
+
+    def test_the_column_comes_from_the_classes(self):
+        from spacr.classify_classes import annotation_column_of
+
+        assert annotation_column_of(
+            {"classes": {"pc": {"column": "rowID", "value": "r2"}}}) == \
+            "rowID"
+
+    def test_the_values_come_from_the_classes(self):
+        from spacr.classify_classes import class_metadata_of
+
+        assert class_metadata_of({"classes": {
+            "pc": {"column": "columnID", "value": "c3"},
+            "nc": {"column": "columnID", "value": "c1"}}}) == \
+            [["c3"], ["c1"]]
+
+    def test_an_old_settings_file_is_untouched(self):
+        """A file written before the Classes editor still runs."""
+        from spacr.classify_classes import (annotation_column_of,
+                                            class_metadata_of)
+
+        old = {"annotation_column": "test", "class_metadata": [["c1"]]}
+        assert annotation_column_of(old) == "test"
+        assert class_metadata_of(old) == [["c1"]]
+
+    def test_the_defaults_write_them_back(self):
+        """Derived values are WRITTEN rather than computed at every read:
+        every consumer downstream reads those two keys."""
+        from spacr.settings import set_generate_training_dataset_defaults
+
+        got = set_generate_training_dataset_defaults({"classes": {
+            "pc": {"column": "rowID", "value": "r2"},
+            "nc": {"column": "rowID", "value": "r1"}}})
+        assert got["annotation_column"] == "rowID"
+        assert got["class_metadata"] == [["r2"], ["r1"]]
+
+    def test_no_classes_leaves_the_defaults_alone(self):
+        from spacr.settings import set_generate_training_dataset_defaults
+
+        got = set_generate_training_dataset_defaults({})
+        assert got["annotation_column"] == "test"
+        assert got["class_metadata"] == [["c1"], ["c2"]]
+
+    def test_neither_is_a_control_any_more(self):
+        """A box for either was a second place to say the same thing."""
+        import inspect
+
+        from spacr.qt.screens import settings_model
+
+        source = inspect.getsource(settings_model)
+        block = source.split('"Labels & Classes": [')[1].split("],")[0]
+        assert '"annotation_column"' not in block
+        assert '"class_metadata"' not in block
+
+    def test_but_both_are_still_written(self):
+        """Every consumer downstream is unchanged."""
+        from spacr.settings import set_generate_training_dataset_defaults
+
+        got = set_generate_training_dataset_defaults({})
+        assert "annotation_column" in got and "class_metadata" in got

@@ -1640,9 +1640,13 @@ def categories_for_app(
                 # column", written as hand-edited JSON because it had no
                 # editor. Both were answers to a question `classes` now asks
                 # once.
+                # `annotation_column` and `class_metadata` are GONE from
+                # the panel (instruction 229): the Classes editor names the
+                # column each class is defined by and the value that
+                # defines it, so a box for either was a second place to say
+                # the same thing. Both are still WRITTEN, derived from
+                # `classes`, so every consumer downstream is unchanged.
                 "dataset_mode", "classes", "class_folder_names",
-                "annotation_column",
-                "class_metadata",
                 "metadata_item_1_name", "metadata_item_1_value",
                 "metadata_item_2_name", "metadata_item_2_value",
                 "balance_to_smallest", "test_split",
