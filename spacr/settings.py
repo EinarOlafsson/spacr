@@ -2028,6 +2028,15 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('positive_control_wells', None)
     settings.setdefault('negative_control_wells', None)
     settings.setdefault('mixed_control_wells', None)
+    # Normalize legacy scalar values before type validation. Declaring these
+    # settings as lists gives the GUI a chip editor while settings CSVs that
+    # contain one unbracketed value continue to load.
+    for _key in ('exclude_grnas', 'positive_control_wells',
+                 'negative_control_wells', 'mixed_control_wells'):
+        _value = settings.get(_key)
+        if isinstance(_value, str):
+            _value = _value.strip()
+            settings[_key] = [_value] if _value else None
     # 0.02 BY DEFAULT, at the maintainer's direction 2026-08-19. None meant
     # "work one out", which ran `graph_sequencing_stats` on every default run
     # -- the path that produced the KeyError fixed this morning -- and made
@@ -2711,10 +2720,10 @@ expected_types = {
     "smooth_lines": bool,
     "clustering": str,
     "exclude": (str, type(None)),
-    "exclude_grnas": (list, str, type(None)),
-    "positive_control_wells": (list, str, type(None)),
-    "negative_control_wells": (list, str, type(None)),
-    "mixed_control_wells": (list, str, type(None)),
+    "exclude_grnas": (list, type(None)),
+    "positive_control_wells": (list, type(None)),
+    "negative_control_wells": (list, type(None)),
+    "mixed_control_wells": (list, type(None)),
     "col_to_compare": str,
     "pos": str,
     "neg": str,
@@ -3554,10 +3563,10 @@ tooltips = {
     "eps": "(float) - DBSCAN neighbourhood radius, expressed in the units of the UMAP/t-SNE embedding and measured with the 'metric' setting: two points are neighbours if they lie within this distance. Raise it to merge fragments into fewer, larger clusters and leave less noise; lower it to split clusters and push more points to noise (-1). Ignored when clustering is 'kmeans'. Default 0.9.",
     "epochs": "(int) - Number of full passes over the training set. It also sets the learning-rate schedule horizon - cosine anneals over exactly this many epochs and step_lr drops every epochs/5 - so changing it rescales the schedule. A checkpoint is always written on the final epoch and every 100th. Raise it for small datasets and use early_stopping_patience to cut runs short. Default 100.",
     "examples_to_plot": "(int) - How many randomly chosen merged image stacks are rendered as segmentation-overlay previews after mask generation (in timelapse mode, per-channel panels instead). Raise it to check outlines and normalization across more fields of view, at the cost of render time and larger PDFs; 0 skips previews entirely. Default 1.",
-    "positive_control_wells": "(list or str) - Wells holding ONLY the positive control, e.g. ['c2']. Takes rows (r1), columns (c1) or wells (A01); the Plate button picks them off a map. They are REMOVED from the regression -- a well of pure control is not a screen well, and left in it is modelled as a random draw from the library at high leverage. They also anchor the mixed-ratio calibration, which cannot identify them from the data without using the quantity under test to choose the wells that measure it. Default None.",
-    "negative_control_wells": "(list or str) - Wells that hold ONLY the negative control, e.g. ['c1']. The other end of the calibration line, and removed from the regression for the same reason. See positive_control_wells. Default None.",
-    "mixed_control_wells": "(list or str) - Wells holding a KNOWN MIXTURE of the positive and negative controls, e.g. ['c3']. Removed from the regression like the other two. These are the strongest validation the screen has: the per-cell identities are unknown but the proportions are known from sequencing, so a method can be scored on real cells rather than simulated ones (instruction 214). Default None.",
-    "exclude_grnas": "(list or str) - gRNA or gene names that are NOT in any cell: primer or plasmid carry-over, which lives in the library prep and never in a nucleus. An EXCLUSION, not a background subtraction -- the sequence is not a guide at all -- so it is dropped before fractions are formed and the survivors renormalised. Leaving one in holds every real guide's fraction down by its share: on one plate a single contaminant was 19.9% of ALL reads. A gene takes all its guides. Default None.",
+    "positive_control_wells": "(list or str) - Wells containing only the positive control, e.g. ['c2']. Accepts rows (r1), columns (c1), or individual wells (A01); the Plate button selects them from a map. Pure controls are calibration references rather than screen observations, so they are excluded from the regression. They define the positive endpoint for mixed-ratio calibration and should be identified from the plate design. Default None.",
+    "negative_control_wells": "(list or str) - Wells containing only the negative control, e.g. ['c1']. Accepts the same row, column, and well notation as positive_control_wells. These wells are excluded from the regression and define the negative endpoint for mixed-ratio calibration. Default None.",
+    "mixed_control_wells": "(list or str) - Wells holding a known mixture of the positive and negative controls, e.g. ['c3']. Removed from the regression like the other two. These provide strong validation because per-cell identities are unknown while the aggregate proportions are known from sequencing, allowing annotation methods to be scored on real rather than simulated cells. Default None.",
+    "exclude_grnas": "(list or str) - gRNA or gene identifiers known not to occur in cells, such as primer or plasmid carry-over. These sequences are removed before guide fractions are calculated, and retained guides are renormalized. This differs from background subtraction, which corrects spurious reads assigned to a real guide. A gene identifier matches all of its guides. Default None.",
     "exclude": "(str or list) - Names of measurement columns to drop from the feature set before UMAP embedding or ML training, applied after the channel_of_interest selection. Use it to remove features that leak the label or swamp the embedding. It does not filter database rows; use exclude_rows for that. Default None keeps every feature.",
     "exclude_conditions": "(list) - Condition labels dropped from the image UMAP input, matched against the cond column that map_condition derives from the pos, neg and mix column IDs; the only possible entries are 'neg', 'pos', 'mix' and 'screen'. A bare string is accepted and wrapped in a list. Use it to embed screen wells only. Default None.",
     "exclude_rows": "(dict or None) - General UMAP row exclusions. Choose one or more database columns, then check the values whose rows should be removed. Rules are combined with OR, so a row matching any selected column/value pair is excluded. Default None keeps every row.",
