@@ -4253,19 +4253,11 @@ QC_NUMBERS_FILE = "regression_qc_numbers.json"
 
 
 def _write_qc_numbers(out_dir, manifest, results) -> Optional[str]:
-    """Write the panels' own statistics as JSON beside the report.
+    """Persist panel statistics as JSON beside the quality-control report.
 
-    THE MANIFEST ALREADY HELD THEM AND NOTHING KEPT THEM. Every panel returns
-    the numbers it computed, they are printed onto the figure and into the
-    text report, and then the manifest went out of scope -- so anything
-    wanting to READ a finished run's diagnostics had to re-derive them from
-    the fit, which is a second diagnostic pass that can disagree with the
-    first about the same numbers.
-
-    This is what `settings_advisor` reads (instruction 226). It is a
-    serialisation of what was already measured, never a recomputation: if
-    this file and the report disagree, that is a bug in one function rather
-    than a difference of method.
+    Values are serialized from the completed diagnostic pass rather than
+    recomputed. The settings advisor can therefore use the same statistics
+    that were displayed in the report.
 
     :param out_dir: the ``regression_qc`` folder.
     :param manifest: the manifest about to be returned.
