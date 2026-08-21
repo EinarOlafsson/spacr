@@ -2,7 +2,7 @@
 HOW MANY CELLS, AND WHICH ONES
 ================================================================================
 
-Status:    filed 2026-08-19. Supersedes the montage's selection arithmetic.
+Status:    DONE 2026-08-20. Validated on the maintainer's four plates.
 Requested: 2026-08-19 -- "now i see that each tab here is a well. then we need
            to work on the math for desiding which images get chosen. the
            number of images should be equivelent to the fraction. so first
@@ -115,3 +115,28 @@ STILL OPEN
     This is CORRECT for heuristic 1 -- guides sharing the top-ranked cells is
     exactly the flaw instruction 173 exists to fix -- but it is worth a word
     in the caption so a reader is not surprised by it.
+
+--------------------------------------------------------------------------------
+2026-08-20 (later) -- THE LAST OPEN ITEM IS CLOSED.
+--------------------------------------------------------------------------------
+
+"sum over guides of x exceeds the well's cell count in 190 of 1,366 wells ...
+it is worth a word in the caption so a reader is not surprised by it."
+
+The arithmetic block now ends with it:
+
+    note: each guide in a well is counted against that well's own cells, and
+    the guides are not given DIFFERENT cells -- so the counts of a well's
+    guides can add to more than the well holds. That is this heuristic, not a
+    miscount; the per-cell attribution is what separates them.
+
+WITH THE NUMBER WHEN THERE IS ONE. A plan whose wells are over their own
+object count adds "(N object(s) here come from a well already at its own
+count.)", so the reader sees the specific case rather than only the general
+warning.
+
+BOTH HALVES MATTER. Without the note a reader who adds the guides up and gets
+more cells than the well holds concludes the count is wrong. Without naming
+the fix -- the per-cell attribution of 173 -- the note reads as a shrug.
+
+6 tests in tests/test_the_montage_caption_says_the_guides_share_cells.py.
