@@ -27,7 +27,7 @@ The cursor and the keyboard move the same current tile: entering a tile
 makes it current, and an arrow key moves it away. There is no second
 "hovered" highlight that could point somewhere else.
 
-The Qt screen does not currently provide the UMAP window, Deep SPACR training
+The Qt screen does not currently provide the UMAP window, Deep spaCR training
 launcher, or measurement-threshold filtering. A threshold can be entered in
 settings, but page queries do not apply it.
 """

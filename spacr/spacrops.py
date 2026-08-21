@@ -957,11 +957,15 @@ class spacrStitcher:
                 fig, ax = plt.subplots(figsize=(8, 8))
                 ax.imshow(np.clip(qc_rgb, 0, 1)); ax.set_axis_off()
                 ax.set_title(f"score={score:.3f} (edge_zncc_fg={edge_zncc_fg:.3f} · inliers={inlier_ratio:.3f})")
-                # 108 point 6: the user's format and resolution.
+                # 108 point 6: the resolution and the repaint for paper.
+                # `fmt` STAYS PNG because the key this is stored under is
+                # `qc_outline_png` and the stitch result's schema names it
+                # that way -- a preference must not rename a file the rest
+                # of the pipeline refers to by extension.
                 from .plot import save_figure
 
-                p_outline = save_figure(fig, p_outline, close=True,
-                                        bbox_inches="tight")
+                p_outline = save_figure(fig, p_outline, fmt="png",
+                                        close=True, bbox_inches="tight")
                 qc_paths["qc_outline_png"] = p_outline
     
         # decide whether to stitch now
@@ -1164,10 +1168,13 @@ class spacrStitcher:
             ax.set_title(f"Sorted pairwise scores (n={len(s)}), threshold={thr:.3f}")
             ax.set_xlabel("pair index (sorted)")
             ax.set_ylabel("score = edge_zncc_fg(DS) × inlier_ratio")
-            # 108 point 6: the user's format and resolution.
+            # 108 point 6: the resolution and the repaint for paper.
+            # `fmt` STAYS PNG for the same reason as the outline QC above --
+            # `score_sorted_line.png` is a fixed name the run's own output
+            # is checked by, and a preference must not rename it.
             from .plot import save_figure
 
-            out_png = save_figure(fig, out_png, close=True,
+            out_png = save_figure(fig, out_png, fmt="png", close=True,
                                   bbox_inches="tight")
 
     # ------------------------------ pairing ------------------------------

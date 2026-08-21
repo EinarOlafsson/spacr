@@ -54,6 +54,19 @@ ALLOWED_LINES = (
     "releases/download/",
 )
 
+#: The same published assets, named WITHOUT their URL. The installer guide
+#: tells a user to run `SpaCR-<version>-Windows-Online-Setup.exe` and to
+#: `chmod +x SpaCR-*-Linux-x86_64-Online.run` -- those are the filenames
+#: GitHub actually serves, and correcting the spelling in the instructions
+#: would tell people to run a file that does not exist. It is the same
+#: exception as the download links above, reached from the other side.
+#:
+#: DELIBERATELY NARROW: it matches an installer ASSET name, not the word.
+#: `SpaCR is a tool for...` in the same file is still a failure.
+ASSET = re.compile(
+    r"\bSpaCR-[\w.*<>-]+-(?:Windows|macOS|Linux)[\w.*-]*"
+    r"\.(?:exe|pkg|run|dmg|deb|zip|tar\.gz)")
+
 
 def _project_files():
     for path in sorted(ROOT.rglob("*")):
@@ -74,7 +87,29 @@ def _offenders():
             text = path.read_text(encoding="utf-8")
         except (OSError, UnicodeDecodeError):
             continue
+        # DOES THIS FILE DEFINE `SPACR` AS A CONSTANT? Computed once per
+        # file, because the exemption belongs to the file that assigns it and
+        # not to every file that happens to write the word.
+        defines_a_constant = bool(
+            path.suffix == ".py"
+            and re.search(r"^SPACR\s*[:=]", text, re.M))
         for number, line in enumerate(text.splitlines(), 1):
+            # The asset name is removed rather than the LINE being skipped,
+            # so a line that names an installer AND mis-cases the project
+            # still fails on the second one.
+            line = ASSET.sub("", line)
+            if defines_a_constant and "SPACR" in line:
+                # `SPACR` IS AN IDENTIFIER IN THIS FILE, not a mention of the
+                # project. Several tests do `SPACR = <path to the package>`
+                # and then walk it -- an ALL-CAPS module constant, which is
+                # what Python spells a constant with. The rule already allows
+                # `SPACR_` for an environment variable; this is the same
+                # thing one line further on.
+                #
+                # PER FILE, and only when the file ASSIGNS it: a file that
+                # merely writes SPACR in prose gets no exemption from one
+                # that does.
+                line = line.replace("SPACR", "")
             if any(token in line for token in ALLOWED_LINES):
                 continue
             for match in WRONG.finditer(line):

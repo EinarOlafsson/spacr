@@ -266,9 +266,19 @@ def test_a_mark_on_a_run_that_is_gone_does_not_survive_a_reload(qtbot):
     assert panel._loaded_key == ""
 
 
-def test_selecting_a_row_is_loading_it(qtbot):
-    """The selection already re-points the results panel, so a mark that did
-    not follow it would be a second answer to the same question."""
+def test_selecting_a_row_is_NOT_loading_it(qtbot):
+    """INVERTED BY 190, and the inversion is the point.
+
+    This used to assert that selection loaded, on the reasoning that the
+    selection already re-pointed the results panel so the mark had to follow
+    it. The maintainer asked for the opposite on 2026-08-20: "for some reason
+    clicking once on a run shows the results. double click should loade the
+    results". Both cannot be true.
+
+    ARROWING DOWN A LIST OF FIVE RUNS LOADED FIVE RUNS -- five multi-second
+    reads to look at five names. Selection now costs nothing; double-click is
+    the gesture that costs time, and the mark follows THAT.
+    """
     panel = SweepRunsPanel()
     qtbot.addWidget(panel)
     panel.set_frame(_trials(3))
@@ -277,8 +287,20 @@ def test_selecting_a_row_is_loading_it(qtbot):
 
     assert panel.table.select_key("trial 2")
 
+    assert panel.loaded_run() is None
+    assert activated == []
+
+
+def test_but_double_clicking_it_is(qtbot):
+    """The other half, so the pair cannot both be deleted as obsolete."""
+    panel = SweepRunsPanel()
+    qtbot.addWidget(panel)
+    panel.set_frame(_trials(3))
+    assert panel.table.select_key("trial 2")
+
+    panel._on_double_click()
+
     assert panel.loaded_run()["run"] == "trial 2"
-    assert activated == ["trial 2"]
 
 
 def test_recording_a_run_does_not_re_activate_the_loaded_one(qtbot, tmp_path):
