@@ -3,13 +3,6 @@
   "language": "pt",
   "records": [
     {
-      "label": "spacr.benchmark#3",
-      "source_sha256": "fb96c1dd329e54648f223108b0e5298bd0be8188b0a6ca48ce4f8194a4e23b5e",
-      "source": "WHY A DEFAULT NEEDS THIS. spaCR's worker defaults are arithmetic on the core count -- ``cpu_count() - 4``, ``cpu_count() // 2``, ``-1``. Cores are the one thing that is never the binding constraint on a measurement run: a field is hundreds of megabytes decompressed, and eight workers on a 16-core laptop with 16 GB will swap long before they saturate the CPU. The number that matters is how much MEMORY one worker needs for one representative field, and that is a property of the plate and the machine, not of the core count.",
-      "context": "WHY A DEFAULT NEEDS THIS. spaCR's worker defaults are arithmetic on the core count -- ``cpu_count() - 4``, ``cpu_count() // 2``, ``-1``. Cores are the one thing that is never the binding constraint on a measurement run: a microscope field of view is hundreds of megabytes decompressed, and eight workers on a 16-core laptop with 16 GB will swap long before they saturate the CPU. The number that matters is how much MEMORY one worker needs for one representative microscope field of view, and that is a property of the laboratory microplate and the machine, not of the core count.",
-      "translation": "POR QUE UM VALOR PADRÃO PRECISA DISSO. Os padrões de workers do spaCR são cálculos baseados no número de núcleos -- ``cpu_count() - 4``, ``cpu_count() // 2``, ``-1``. O número de núcleos nunca é a restrição determinante em uma execução de medição: um campo de visão microscópico ocupa centenas de megabytes após a descompressão, e oito workers em um laptop de 16 núcleos com 16 GB começarão a usar memória de troca muito antes de saturar a CPU. O número relevante é quanta MEMÓRIA um worker precisa para um campo de visão microscópico representativo; essa é uma propriedade da microplaca de laboratório e da máquina, não do número de núcleos."
-    },
-    {
       "label": "spacr.gpu_reduce#6",
       "source_sha256": "335dad36235496c3fdc08c7d912e057a011d94051ff3b8a33e5b52ed432b25ec",
       "source": "**Determinism is a real difference, not a footnote.** cuML's UMAP is not bit-identical to umap-learn's, and its KMeans and DBSCAN can differ at the boundaries. A figure regenerated on a different machine would move. So the accelerator is OPT-IN per call, reports which backend ran, and any caller that pins a seed for reproducibility should keep the CPU path.",

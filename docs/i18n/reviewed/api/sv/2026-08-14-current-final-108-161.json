@@ -31,20 +31,6 @@
       "translation": "1. **Det är rangbaserat**, så resultatet är oförändrat vid varje monoton transformation av egenskapen. Hälften av kolumnerna i en spaCR-mättabell är ungefär lognormalfördelade — areor, integrerade intensiteter och kvoter över tre storleksordningar — och om ``cell_area`` eller ``log(cell_area)`` mäts får inte ändra vilken egenskap som hamnar överst. Det ändrar Cohens d. 2. **Det gör inga antaganden om fördelningarna**: inte normalitet, lika varians eller ens symmetri. Alternativen antar minst en av dessa egenskaper, och en egenskap hos ett segmenterat objekt uppfyller ingen av dem. 3. **Det är begränsat och enhetslöst**, så fyrahundra egenskaper mätta i px², antal och dimensionslösa kvoter kan jämföras på samma axel. Det är vad rangordning *kräver*, och precis därför kan en effektstorlek i egenskapens egen enhet inte användas."
     },
     {
-      "label": "spacr.qt.widgets.figure_queue#3",
-      "source_sha256": "59eb53528fee15a8a34d835d3e2de1cb7e9d924a18ad537b48afcb74cae1c00c",
-      "source": "**Zoomable enlarged view** on the right — a QGraphicsView showing the current figure's full-resolution render. Wheel = zoom, fit-on-load, scales with the container (reuses the live-preview _ZoomView).",
-      "context": "**Zoomable enlarged view** on the right — a QGraphicsView showing the current figure's full-resolution render. Wheel = zoom, fit-on-load, scales with the container (reuses the live-preview _ZoomView).",
-      "translation": "**Zoombar förstorad vy** till höger — en QGraphicsView som visar den aktuella figurens fullupplösta rendering. Hjul = zoom, anpassning vid inläsning, skalor med behållaren (återanvänder live-förhandsgranskning _ZoomView)."
-    },
-    {
-      "label": "spacr.qt.widgets.formula_editor.FormulaPanel.set_frame#1",
-      "source_sha256": "23fd42c9c3366c005bdfd34fd78edf0ecc4565e71cf18b05feac20b6d60cd4e2",
-      "source": "Existing formulas are **kept** and re-applied. That is the opposite of what the Local Data Filter does with its clauses, on purpose: a filter clause naming a missing column narrows by less than it claims and is dangerous to keep, while a formula naming a missing column simply fails, says which column, and is exactly what the user wants back when they reload the same table.",
-      "context": "Existing formulas are **kept** and re-applied. That is the opposite of what the Local Data Filter does with its clauses, on purpose: a filter clause naming a missing column narrows by less than it claims and is dangerous to keep, while a formula naming a missing column simply fails, says which column, and is exactly what the user wants back when they reload the same table.",
-      "translation": "Befintliga formler **behålls** och tillämpas på nytt. Det är motsatsen till vad den Lokala Data Filter gör med sina klausuler, avsiktligt: en filtersats som namnger en saknad kolumn begränsar med mindre än vad den hävdar och är farlig att behålla, medan en formel som namnger en saknad kolumn helt enkelt misslyckas, säger vilken kolumn, och är exakt vad användaren vill ha tillbaka när de laddar om samma tabell."
-    },
-    {
       "label": "spacr.qt.widgets.gate_spec#2",
       "source_sha256": "9143a999a403d983ffaba92ec1648182d1be306fc58b17066624ad832dd0b6b2",
       "source": "it can be **re-applied to another dataset** — the next plate, the re-run, the replicate — and still mean the same thing;",

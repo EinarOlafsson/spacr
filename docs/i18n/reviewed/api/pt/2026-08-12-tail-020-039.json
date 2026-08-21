@@ -10,13 +10,6 @@
       "translation": "O array retornado é o array de *pré-gravação*: exatamente o que ``_measure_crop_core`` entrega ao gravador. Seu dtype é o do array mesclado (``uint16`` em uma execução normal do spaCR), e a ordem dos canais dos dados de imagem é ``spec.channels``. Use :func:`png_view` para obter o que veria um consumidor que lesse o PNG gravado (por meio de :func:`read_crop_png`)."
     },
     {
-      "label": "spacr.crops.migrate_crop_folder#6",
-      "source_sha256": "5ff6bada71e36a9f3f1db9268b42e69859b8bc3e82009315b529b7c54db57f85",
-      "source": "the folder marker carries a ``migration`` block with a ``done_through`` watermark, advanced *before* the install, so the rule **\"a staging file exists ⇒ the crop beside it is still legacy\"** resolves every file at every point in the sequence. That is what :func:`crop_format_for_png` reads, and it is why a killed migration is still read correctly and can simply be re-run.",
-      "context": "the folder marker carries a ``migration`` block with a ``done_through`` watermark, advanced *before* the install, so the rule **\"a staging file exists ⇒ the extracted image region beside it is still legacy\"** resolves every file at every point in the sequence. That is what :func:`crop_format_for_png` reads, and it is why a killed migration is still read correctly and can simply be executed again.",
-      "translation": "o marcador da pasta contém um bloco ``migration`` com uma marca de progresso ``done_through``, atualizada *antes* da instalação; assim, a regra **\"se existe um arquivo de preparação ⇒ a região de imagem extraída ao lado dele ainda está no formato legado\"** resolve corretamente cada arquivo em todos os pontos da sequência. É isso que :func:`crop_format_for_png` lê; por esse motivo, mesmo uma migração encerrada à força continua sendo interpretada corretamente e pode simplesmente ser executada de novo."
-    },
-    {
       "label": "spacr.crops.stamp_crop_folder#1",
       "source_sha256": "7b3fb19d81454b281d00b6b06357258eea476c9caaeb375f53fb52052b0d091f",
       "source": "Called by the crop writer immediately *before* the first PNG lands, so a run killed part-way through leaves a marked folder holding fewer crops -- never an unmarked folder of format-2 crops, which is the one state that would be silently misread as legacy.",

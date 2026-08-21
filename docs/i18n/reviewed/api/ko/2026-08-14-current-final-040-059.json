@@ -10,13 +10,6 @@
       "translation": "\"sure\"로 판정하기 시작하는 지점입니다. 기본값은 :func:`confidence_threshold`에 ``n_classes``를 적용한 값이며, 값이 없으면 ``predictions``에 있는 서로 다른 클래스 수를 사용합니다."
     },
     {
-      "label": "spacr.plot.plot_plates#1",
-      "source_sha256": "c928b0936f2c90a7765252945da92a94f507a6f6f266590c37b5f708da58a02f",
-      "source": "Splits ``df`` by the plate token in the ``prc`` identifier (``plateID_rowID_columnID``), aggregates ``variable`` per well according to ``grouping``, and lays the plates out four-per-row on a single figure. Optionally writes the figure to ``<dst>/plate_heatmap_<n>.pdf``.",
-      "context": "Splits ``df`` by the laboratory microplate token in the ``prc`` identifier (``plateID_rowID_columnID``), aggregates ``variable`` per microplate sample position according to ``grouping``, and lays the laboratory microplates out four-per-row on a single figure. Optionally writes the figure to ``<dst>/plate_heatmap_<n>.pdf``.",
-      "translation": "``df``를 ``prc`` 식별자(``plateID_rowID_columnID``)의 실험실 마이크로플레이트 토큰으로 나누고, 시료 위치별 ``variable`` 값을 ``grouping``에 따라 집계한 뒤, 한 그림에 마이크로플레이트를 행마다 네 개씩 배치합니다. 선택적으로 그림을 ``<dst>/plate_heatmap_<n>.pdf``에 기록합니다."
-    },
-    {
       "label": "spacr.attribution.attention_rollout#2",
       "source_sha256": "ef78e780de0fe04d75ee53db81d783da2844becea101c4d69a2f17bd09090655",
       "source": "It reads spaCR's :class:`torch.nn.MultiheadAttention` blocks, which return their attention weights from ``forward``. Backbones whose attention is a fused kernel (timm's ViT via ``scaled_dot_product_attention``) expose no weights, and this raises rather than inventing a map.",
@@ -94,13 +87,6 @@
       "translation": "세 방법은 모두 결정적이므로 같은 폴더 이름은 항상 같은 마이크로플레이트 시료 위치를 만듭니다. 3단계가 *되돌릴 수 있는* 이유는 매핑 파일이 ``source_well``을 ``well`` 옆에 기록하기 때문입니다. 변환 후 ``plate1_A01``은 매핑 없이는 의미가 없으므로 :func:`plan`도 모든 합성 할당을 이름으로 보고합니다."
     },
     {
-      "label": "spacr.qt.widgets.figure_queue#5",
-      "source_sha256": "e91099b8a3a329181ac0bb574bcf72c0182f31943ee77b073a46ba1dc83a41d1",
-      "source": "**RAM cap + temp spill** — the 100 most-recent figures keep their full-resolution QPixmap in RAM. When figure #101 arrives, figure #1's pixmap is dropped from RAM (its PNG stays on disk in a temp dir); #102 evicts #2, and so on — a 100-wide sliding window. Navigating back to an evicted figure reloads it from its temp PNG on demand.",
-      "context": "**RAM cap + temp spill** — the 100 most-recent figures keep their full-resolution QPixmap in RAM. When figure #101 arrives, figure #1's pixmap is dropped from RAM (its PNG stays on disk in a temp dir); #102 evicts #2, and so on — a 100-wide sliding window. Navigating back to an evicted figure reloads it from its temp PNG on demand.",
-      "translation": "**RAM 제한과 임시 저장소 넘김** — 가장 최근 그림 100개는 전체 해상도 QPixmap 을 RAM 에 유지합니다. 그림 #101이 추가되면 그림 #1의 픽스맵을 RAM 에서 제거하지만 PNG 파일은 임시 디렉터리에 남깁니다. #102는 #2를 제거하는 식으로 폭 100의 이동 창을 유지합니다. 제거된 그림으로 돌아가면 임시 PNG 파일에서 필요할 때 다시 읽습니다."
-    },
-    {
       "label": "spacr.sequencing.map_sequences_to_names#1",
       "source_sha256": "ef8adf87a8db5c13aec9cfc66b4389b4090594becbbd9971d6e3270874eb3a20",
       "source": "Used inside the spacr sequencing pipeline to translate the row, column, and gRNA barcodes extracted from paired-end reads into their human-readable labels. Only the CSV's ``sequence`` column is reverse-complemented when ``rc=True``; the input ``sequences`` are matched verbatim, so callers should orient reads consistently beforehand.",
@@ -113,13 +99,6 @@
       "source": "spaCRPower — Copyright (c) Matthew O'Meara. Released under the MIT licence.  Ported to Python for spaCR; the statistical model (Poisson regression on log10 read-fraction with a horseshoe prior on the per-gene coefficients, scored by AUROC / average precision against ground-truth hit status) is his.  Errors in the translation are ours.",
       "context": "spaCRPower — Copyright (c) Matthew O'Meara. Released under the MIT licence.  Ported to Python for spaCR; the statistical model (Poisson regression on log10 read-fraction with a horseshoe prior on the per-gene coefficients, scored by AUROC / average precision against ground-truth hit status) is his.  Errors in the translation are ours.",
       "translation": "spaCRPower — 저작권 (c) Matthew O'Meara. MIT 라이선스로 배포됩니다. spaCR 을 위해 Python 으로 이식했으며, 통계 모델(유전자별 계수에 말굽 사전분포를 둔 log10 리드 비율의 푸아송 회귀를 실제 히트 상태에 대한 AUROC / 평균 정밀도로 평가)은 그의 작업입니다. 번역 오류는 우리 책임입니다."
-    },
-    {
-      "label": "spacr.qt.annotate_engine.load_crop_image#5",
-      "source_sha256": "fd59200420ba68919683e702d431d4e66b947b6726baee87e8964592d6952f1d",
-      "source": "stored_channel_order   HOW WAS THIS FILE WRITTEN. A fact about the bytes, resolved from the sidecar marker or the database. Getting it wrong shows the wrong stain, so 'auto' is the right answer almost always. display_order          HOW DO I WANT TO LOOK AT IT. A preference, making no claim about the file. Defaults to 'rgb', the identity.",
-      "context": "stored_channel_order   HOW WAS THIS FILE WRITTEN. A fact about the bytes, resolved from the sidecar marker or the database. Getting it wrong shows the wrong stain, so 'auto' is the right answer almost always. display_order          HOW DO I WANT TO LOOK AT IT. A preference, making no claim about the file. Defaults to 'rgb', the identity.",
-      "translation": "stored_channel_order   이 파일이 어떻게 기록되었는지를 나타냅니다. 사이드카 마커나 데이터베이스에서 확인한 바이트에 대한 사실입니다. 잘못 지정하면 잘못된 염색이 보이므로 거의 항상 'auto' 값이 올바릅니다. display_order          파일에 대해 주장하지 않고 표시 방식을 정하는 환경설정입니다. 기본값은 항등 순서인 'rgb' 값입니다."
     },
     {
       "label": "spacr.qt.widgets.activity_spinner#15",

@@ -1,0 +1,55 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "context": "Given a coefficient (a gene or a guide), the per-object rows out of the imported measurement databases, and the per-microplate sample position guide fractions the regression was fitted on, this module decides **which objects to draw and says exactly how it decided**. It draws nothing: the pixels come from :mod:`spacr.crops`, and the tab that shows them is wired separately.",
+      "label": "spacr.cell_montage#1",
+      "source": "Given a coefficient (a gene or a guide), the per-object rows out of the imported measurement databases, and the per-well guide fractions the regression was fitted on, this module decides **which objects to draw and says exactly how it decided**. It draws nothing: the pixels come from :mod:`spacr.crops`, and the tab that shows them is wired separately.",
+      "source_sha256": "8f07095e12b448d22df94c864183b9e909a854455370723ed9a09a2ad2d20cfe",
+      "translation": "给定一个系数（基因或向导）、从导入的测量数据库读取的逐对象记录，以及回归拟合所用的逐微孔板孔位向导比例，本模块会**决定绘制哪些对象，并准确说明决定过程**。本模块本身不绘制图像：像素由 :mod:`spacr.crops` 提供，显示这些图像的标签页在其他位置连接。"
+    },
+    {
+      "context": "what that route needs and what it can offer -- :class:`RouteRequirements`, checked up front so a missing channel list is reported as a missing channel list rather than surfacing later as an extracted image region that will not cut. ``None`` when nothing asked.",
+      "label": "spacr.cell_montage.CropSourceChoice#6",
+      "source": "what that route needs and what it can offer -- :class:`RouteRequirements`, checked up front so a missing channel list is reported as a missing channel list rather than surfacing later as a crop that will not cut. ``None`` when nothing asked.",
+      "source_sha256": "7449dc6f7caa60a9e4d458e6cb32fef014706262d581fb3f5cb4446d32261fb7",
+      "translation": "该路径需要什么以及能够提供什么——由 :class:`RouteRequirements` 表示并预先检查，因此缺少通道列表时会直接报告，而不会到后续裁剪提取图像区域时才失败。未请求任何内容时为 ``None``。"
+    },
+    {
+      "context": "one row per (well, guide) with ``prc``, ``grna`` and ``fraction``, and ``gene`` when the counts carry it.",
+      "label": "spacr.cell_montage.fractions_from_counts#6",
+      "source": "one row per (well, guide) with ``prc``, ``grna`` and ``fraction``, and ``gene`` when the counts carry it.",
+      "source_sha256": "94ca4ce5118cebc8a47b70af681641482a3bfa94f0b09e2c4de475234b5771ae",
+      "translation": "每个（微孔板孔位，向导）组合占一行，包含 ``prc``、``grna`` 和 ``fraction``；如果计数数据包含基因信息，还包含 ``gene``。"
+    },
+    {
+      "context": "guides or genes to leave out, by name. Matched at BOTH levels -- a screen swept at gene level names genes and one at guide level names guides, and a user typing a gene id should not have to know which they are looking at.",
+      "label": "spacr.gene_measurement_sweep.sweep#7",
+      "source": "guides or genes to leave out, by name. Matched at BOTH levels -- a screen swept at gene level names genes and one at guide level names guides, and a user typing a gene id should not have to know which they are looking at.",
+      "source_sha256": "2d9b1f80c77abb398b471e95654eaf4045547d86f112e3f32a5d41a298ca19fc",
+      "translation": "按名称指定要排除的向导或基因。会在两个层级上匹配：基因层级的界面使用基因名称，向导层级的界面使用向导名称；输入基因 ID 的用户无需先判断当前查看的是哪个层级。"
+    },
+    {
+      "context": "results : pandas.DataFrame Permutation results containing ``outcome``, ``minimum_wells_threshold``, ``standardized_marginal_effect``, ``adjusted_p_value``, ``significant``, ``multiple_testing_method``, and ``alpha``. A ``guide`` column is also required when ``label_guides`` is provided. outcome : str Outcome to select from ``results``. minimum_wells : int Guide-support threshold to select from ``results``. save_path : str or pathlib.Path Destination path. The final suffix may change to match the selected output format. label_guides : mapping of str to str, optional Guide IDs mapped to annotation labels. title : str, optional Figure title. By default, describe the outcome and support threshold. effect_threshold : float, optional Positive half-width of the effect-size cut. Draw vertical lines at both signs; non-finite, non-positive, and ``None`` values draw no cut. effect_threshold_label : str, optional Legend text for the effect-size cut. By default, display its value. fmt : str, optional Explicit figure format. By default, use a recognized ``save_path`` suffix or the configured preference. dpi : int, optional Explicit output resolution. By default, use the configured preference.",
+      "label": "spacr.guide_permutation.plot_guide_permutation_volcano#2",
+      "source": "results : pandas.DataFrame Permutation results containing ``outcome``, ``minimum_wells_threshold``, ``standardized_marginal_effect``, ``adjusted_p_value``, ``significant``, ``multiple_testing_method``, and ``alpha``. A ``guide`` column is also required when ``label_guides`` is provided. outcome : str Outcome to select from ``results``. minimum_wells : int Guide-support threshold to select from ``results``. save_path : str or pathlib.Path Destination path. The final suffix may change to match the selected output format. label_guides : mapping of str to str, optional Guide IDs mapped to annotation labels. title : str, optional Figure title. By default, describe the outcome and support threshold. effect_threshold : float, optional Positive half-width of the effect-size cut. Draw vertical lines at both signs; non-finite, non-positive, and ``None`` values draw no cut. effect_threshold_label : str, optional Legend text for the effect-size cut. By default, display its value. fmt : str, optional Explicit figure format. By default, use a recognized ``save_path`` suffix or the configured preference. dpi : int, optional Explicit output resolution. By default, use the configured preference.",
+      "source_sha256": "18f288cc2e893f52ff0b606c38a727ca918c5dd691aa4d9e3b8d9ce4d46b8a0e",
+      "translation": "results : pandas.DataFrame 置换结果，包含 ``outcome``、``minimum_wells_threshold``、``standardized_marginal_effect``、``adjusted_p_value``、``significant``、``multiple_testing_method`` 和 ``alpha``。还必须包含 ``guide`` 列（当提供 ``label_guides`` 时）。 outcome : str 从 ``results`` 中选择的结局。 minimum_wells : int 从 ``results`` 中选择的向导支持阈值。 save_path : str or pathlib.Path 目标路径。最终后缀可能会更改，以匹配选定的输出格式。 label_guides : mapping of str to str, optional 向导 ID 到注释标签的映射。 title : str, optional 图标题。默认描述结局和支持阈值。 effect_threshold : float, optional 效应量阈值的正半宽。在正负两个方向绘制垂直线；非有限值、非正值和 ``None`` 均不绘制阈值线。 effect_threshold_label : str, optional 效应量阈值线的图例文字。默认显示阈值。 fmt : str, optional 显式图像格式。默认使用 ``save_path`` 中可识别的后缀或已配置的首选格式。 dpi : int, optional 显式输出分辨率。默认使用已配置的首选值。"
+    },
+    {
+      "context": "regression_type : Any Selected regression backend. level : Any, default='both' Coefficient level: guide, gene, or both. plate_position : Any, default=False Include fixed laboratory microplate-position terms when true. random_row_column : Any, default=False Use row and column variance components when true. palette : dict, optional Resolved theme palette. The active semantic color names are used when omitted. language : str, optional UI language. Missing or stale translations fall back by whole sentence. inference : Any, default='auto' Selected inference mode. analysis_mode : Any, default='' Compatibility value used to identify permutation inference.",
+      "label": "spacr.qt.screens.settings_model.regression_model_explainer_html#2",
+      "source": "regression_type : Any Selected regression backend. level : Any, default='both' Coefficient level: guide, gene, or both. plate_position : Any, default=False Include fixed plate-position terms when true. random_row_column : Any, default=False Use row and column variance components when true. palette : dict, optional Resolved theme palette. The active semantic color names are used when omitted. language : str, optional UI language. Missing or stale translations fall back by whole sentence. inference : Any, default='auto' Selected inference mode. analysis_mode : Any, default='' Compatibility value used to identify permutation inference.",
+      "source_sha256": "570e35d3765ff3cb3979637b11647337c1fccf46a029dbe835f02be7f000290e",
+      "translation": "regression_type : Any 选定的回归后端。 level : Any, default='both' 系数层级：向导、基因或两者。 plate_position : Any, default=False 为 true 时包含固定的微孔板位置项。 random_row_column : Any, default=False 为 true 时使用行和列的方差分量。 palette : dict, optional 已解析的主题调色板。省略时使用当前语义颜色名称。 language : str, optional UI 语言。缺失或过期的翻译按完整句子回退。 inference : Any, default='auto' 选定的推断模式。 analysis_mode : Any, default='' 用于识别置换推断的兼容值。"
+    },
+    {
+      "context": "Within each direction, rank every guide by score. A gene with ``k`` guides occupies normalized ranks ``r_1 <= ... <= r_k`` in ``(0, 1]``. Under the global null, ``r_i`` follows ``Beta(i, k - i + 1)``. The statistic is",
+      "label": "spacr.rra#3",
+      "source": "Within each direction, rank every guide by score. A gene with ``k`` guides occupies normalized ranks ``r_1 <= ... <= r_k`` in ``(0, 1]``. Under the global null, ``r_i`` follows ``Beta(i, k - i + 1)``. The statistic is",
+      "source_sha256": "770779f0ca9dc527fde8627072e51ff43ed9743fa62234c9ca9ade802b8bb50f",
+      "translation": "在每个方向内，按分数对所有向导排名。具有 ``k`` 个向导的基因占据标准化排名 ``r_1 <= ... <= r_k``，排名范围为 ``(0, 1]``。在全局零假设下，``r_i`` 服从 ``Beta(i, k - i + 1)``。统计量为"
+    }
+  ],
+  "schema": 1
+}

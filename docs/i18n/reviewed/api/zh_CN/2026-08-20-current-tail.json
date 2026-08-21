@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "label": "spacr.cell_montage.fractions_from_counts#8",
+      "source_sha256": "56e28400f9786cfb16b80be944d31fcc88270dd712270470379caecf8cda4aec",
+      "source": "THE WELL TOTAL IS A ONE-ROW-PER-WELL FRAME BY CONSTRUCTION, and the merge says so with ``validate='many_to_one'``. `ml.process_reads` carries the same guard and the same comment: a duplicated well total would duplicate every guide row of that well, and the fractions would still sum to 1 per copy -- so the corruption would be invisible in every downstream check.",
+      "context": "THE WELL TOTAL IS A ONE-ROW-PER-WELL FRAME BY CONSTRUCTION, and the merge says so with ``validate='many_to_one'``. `ml.process_reads` carries the same guard and the same comment: a duplicated well total would duplicate every guide row of that well, and the fractions would still sum to 1 per copy -- so the corruption would be invisible in every downstream check.",
+      "translation": "根据构造，孔总数是每孔一行的框架，并且合并用 ``validate='many_to_one'`` 表示。 `ml.process_reads` 具有相同的保护和相同的注释：重复的孔总计将复制该孔的每个引导行，并且每个副本的分数之和仍为 1 - 因此在每个下游检查中损坏将是不可见的。"
+    },
+    {
+      "label": "spacr.figures.summary#1",
+      "source_sha256": "b7a7a2b49a5c9407f90a3895b6ab097464e86602212992f9a0e3f78078bdd90d",
+      "source": "PROSE, NOT A TABLE DUMP. A table of a thousand coefficients is already on screen and already in a CSV; what is missing is the paragraph a person would write after looking at it. So this says how many hypotheses were tested, how many survived and under which rule, which genes they were, whether the assay worked, and -- because the calibration on real screens is routinely off in one direction or the other -- whether the test was conservative or anti-conservative.",
+      "context": "PROSE, NOT A TABLE DUMP. A table of a thousand coefficients is already on screening experiment and already in a CSV; what is missing is the paragraph a person would write after looking at it. So this says how many hypotheses were tested, how many survived and under which rule, which genes they were, whether the assay worked, and -- because the calibration on real screening experiments is routinely off in one direction or the other -- whether the test was conservative or anti-conservative.",
+      "translation": "散文，而不是表格转储。一千个系数的表已经在筛选实验中并且已经在 CSV 中；缺少的是一个人看完之后会写的段落。因此，这说明了有多少假设得到了测试，有多少假设得以幸存，以及在哪个规则下，它们是哪些基因，分析是否有效，以及——因为真实筛选实验的校准通常会朝一个方向或另一个方向偏离——测试是保守的还是反保守的。"
+    },
+    {
+      "label": "spacr.gene_measurement_sweep.plot_grid_volcano#2",
+      "source_sha256": "835e145498dbf88480f05cc97f4c00b4a48912053e407805f7f56226e7e87dcc",
+      "source": "Colour is CIRCULARITY where it is known -- a hit the classifier already tracks is a restatement, not a corroboration -- and grey where it is not. Grey is not \"clean\": the sweep says so in the legend rather than letting an uncomputed number read as zero.",
+      "context": "Colour is CIRCULARITY where it is known -- a hit the machine-learning classification model already tracks is a restatement, not a corroboration -- and grey where it is not. Grey is not \"clean\": the sweep says so in the legend rather than letting an uncomputed number read as zero.",
+      "translation": "颜色是已知的圆形（机器学习分类模型已经跟踪的命中是重述，而不是佐证），而灰色则不是已知的。灰色不是 \"clean\"：扫描在图例中如此表示，而不是让未计算的数字读取为零。"
+    },
+    {
+      "label": "spacr.group_lasso#3",
+      "source_sha256": "4fbb6e1b69b6d982d81ced68876d4eb651a68f6f4ab9bf7c6cb71a98eb64416c",
+      "source": "minimise  ||y - Xb||^2 / (2n)  +  lambda * sum_g sqrt(p_g) * ||b_g||_2",
+      "context": "minimise  ||y - Xb||^2 / (2n)  +  lambda * sum_g sqrt(p_g) * ||b_g||_2",
+      "translation": "最小化 ||y - Xb||^2 / (2n) + lambda * sum_g sqrt(p_g) * ||b_g||_2"
+    },
+    {
+      "label": "spacr.guide_attribution.assign_well#0",
+      "source_sha256": "1cfb4e2a7792ae2bdcc9a6478eae3bf923d7bdb123888fa7cac81c5ca8007d32",
+      "source": "Give every cell exactly one guide, with the counts sequencing implies.",
+      "context": "Give every cell exactly one guide, with the counts sequencing implies.",
+      "translation": "为每个细胞提供准确的指导，并包含测序所暗示的计数。"
+    },
+    {
+      "label": "spacr.hits.build_hit_list#4",
+      "source_sha256": "4c3a7dcf00601f0ef2b98622059c0520f91586178200d67e9256cef30f603523",
+      "source": "also join the bundled *Toxoplasma* annotation — gene name, signal peptide and transmembrane, hyperLOPIT compartment, the published CRISPR fitness scores, and tachyzoite / tissue-cyst / EES1-5 expression. Applied AFTER ``metadata_files`` so a column the user's own file supplies is never replaced by the bundle's.",
+      "context": "also join the bundled *Toxoplasma* annotation — gene name, signal peptide and transmembrane, hyperLOPIT compartment, the published CRISPR fitness scores, and tachyzoite / tissue-cyst / EES1-5 expression. Applied AFTER ``metadata_files`` so a column the user's own file supplies is never replaced by the bundle's.",
+      "translation": "还加入捆绑的 *弓形虫* 注释 - 基因名称、信号肽和跨膜、hyperLOPIT 区室、已发布的 CRISPR 适应性评分以及速殖子/组织囊肿/EES1-5 表达。在 ``metadata_files`` 之后应用，因此用户自己的文件提供的列永远不会被包的列替换。"
+    },
+    {
+      "label": "spacr.picture_settings.available_arrays#1",
+      "source_sha256": "db9aac7af75a990480901f412480d179f78e46a6b0c7aa5b1156cdea49293aa3",
+      "source": "`object_array` chooses which mask the intensity channels are cut by, and offering it as free text asks the user to remember what their own screen contains -- and to spell it the way `measure` did. Every other chooser in spaCR is built from the data; this one was not.",
+      "context": "`object_array` chooses which mask the intensity image data channels are cut by, and offering it as free text asks the user to remember what their own application view contains -- and to spell it the way `measure` did. Every other chooser in spaCR is built from the data; this one was not.",
+      "translation": "`object_array` 选择强度图像数据通道所使用的掩码，并将其作为自由文本提供，要求用户记住他们自己的应用程序视图包含的内容 - 并按照 `measure` 的方式拼写它。 spaCR 中的所有其他选择器都是根据数据构建的；这个不是。"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MeasurementsDropHandler#1",
+      "source_sha256": "45acbb5f3ed867c3a1f54ae95d9e1df1b66d223ceee128d28aee2ea26b7ffb50",
+      "source": "Where the screen takes its inputs ONE ROW PER PLATE -- today only Regression, through the ``paired_data`` table -- the database is attached to a plate row instead of setting ``src``. That is not an app-key special case: it follows the shape of the screen, so any panel that grows a per-plate input table gets it without a registry edit.",
+      "context": "Where the screening experiment takes its inputs ONE ROW PER Laboratory microplate -- today only Regression, through the ``paired_data`` table -- the database is attached to a laboratory microplate row instead of setting ``src``. That is not an app-structured-data name special case: it follows the shape of the screening experiment, so any panel that grows a per-laboratory microplate input table gets it without a registry edit.",
+      "translation": "如果筛选实验将其输入设为每实验室微孔板一行（目前仅通过 ``paired_data`` 表进行回归），则数据库将附加到实验室微孔板行而不是设置 ``src``。这不是应用程序结构化数据名称的特殊情况：它遵循筛选实验的形状，因此任何生成每个实验室微孔板输入表的面板都无需进行注册表编辑即可获得它。"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.FastPlot.offer_levels#0",
+      "source_sha256": "19780ebc08e46878592bc719cb9683c39af8eebe5255fe3daa9cd806c27faffe",
+      "source": "Offer \"show only genes / only guides / both\", ON the plot.",
+      "context": "Offer \"show only genes / only guides / both\", ON the plot.",
+      "translation": "提供“仅显示基因/仅显示指导/两者”，在图上。"
+    }
+  ]
+}

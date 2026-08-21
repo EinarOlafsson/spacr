@@ -1,0 +1,55 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "context": "A COMPONENT-WISE PREFIX TEST, not a substring one. ``base_path not in path`` -- what :func:`spacr.utils.correct_paths` used to ask -- answers yes for ``/mnt/newdisk`` against ``/old/mnt/newdisk-backup/x.png`` and no for a path that differs only in spelling, and neither answer is what the question means.",
+      "label": "spacr.crops.path_is_under#1",
+      "source": "A COMPONENT-WISE PREFIX TEST, not a substring one. ``base_path not in path`` -- what :func:`spacr.utils.correct_paths` used to ask -- answers yes for ``/mnt/newdisk`` against ``/old/mnt/newdisk-backup/x.png`` and no for a path that differs only in spelling, and neither answer is what the question means.",
+      "source_sha256": "1bb889a165027239c443c3afaf5caad0d101b0f2edbbdc7a7eb7d563822dfa99",
+      "translation": "EIN KOMPONENTENWEITER PRÄFIXTEST, kein Teilzeichenfolgentest. ``base_path not in path`` – was :func:`spacr.utils.correct_paths` früher gefragt hat – antwortet mit „Ja“ für „``/mnt/newdisk``“ gegen „``/old/mnt/newdisk-backup/x.png``“ und „Nein“ für einen Pfad, der sich nur in der Schreibweise unterscheidet, und keine der Antworten entspricht der Bedeutung der Frage."
+    },
+    {
+      "context": "Only the regression module for now: the sweep axes, the legality filters and the row-to-regression round trip are all specific to it.",
+      "label": "spacr.qt.screens.parameter_sweep.sweepable#1",
+      "source": "Only the regression module for now: the sweep axes, the legality filters and the row-to-regression round trip are all specific to it.",
+      "source_sha256": "87460c9d8dc5716e83b97401d91a942ffe17d3b7e1be4948db5e1467e61c0eb4",
+      "translation": "Vorerst nur das Regressionsmodul: Die Sweep-Achsen, die Legalitätsfilter und der Roundtrip von der Zeile zur Regression sind alle spezifisch dafür."
+    },
+    {
+      "context": "The sweep cannot be narrowed to exact types. Doing that flips **every** view in the application at once, and the ones already sitting on a pane would then stack two translucent greys and read about 0.49 — a shade no position of the page-opacity slider can produce. Nor can a type test make the distinction: Hit List's ``QTreeWidget`` is the page and Control Chart's ``QListWidget`` is a passenger, and the pair after them is the other way round. Only the screen that built the layout knows which it is, so the screen is asked, once, per view.",
+      "label": "spacr.qt.theme.mark_surface#3",
+      "source": "The sweep cannot be narrowed to exact types. Doing that flips **every** view in the application at once, and the ones already sitting on a pane would then stack two translucent greys and read about 0.49 — a shade no position of the page-opacity slider can produce. Nor can a type test make the distinction: Hit List's ``QTreeWidget`` is the page and Control Chart's ``QListWidget`` is a passenger, and the pair after them is the other way round. Only the screen that built the layout knows which it is, so the screen is asked, once, per view.",
+      "source_sha256": "30b557b22022a10092fe36e9b84b9b9bb0265c2e4be04e3750f17d26a5d77b10",
+      "translation": "Der Sweep kann nicht auf exakte Typen eingegrenzt werden. Dadurch werden **jede**-Ansicht in der Anwendung auf einmal umgedreht, und diejenigen, die sich bereits in einem Bereich befinden, würden dann zwei durchscheinende Grautöne stapeln und etwa 0,49 anzeigen – ein Farbton, den keine Position des Schiebereglers für die Seitenopazität erzeugen kann. Auch ein Typtest kann die Unterscheidung nicht treffen: ``QTreeWidget`` der Trefferliste ist die Seite und ``QListWidget`` der Kontrollkarte ist ein Passagier, und das Paar danach ist umgekehrt. Nur der Screening, der das Layout erstellt hat, weiß, um welches Layout es sich handelt, daher wird der Screening einmal pro Ansicht abgefragt."
+    },
+    {
+      "context": "Existing formulas are **kept** and re-applied. That is the opposite of what the Local Data Filter does with its clauses, on purpose: a filter clause naming a missing column narrows by less than it claims and is dangerous to keep, while a formula naming a missing column fails, says which column, and is exactly what the user wants back when they reload the same table.",
+      "label": "spacr.qt.widgets.formula_editor.FormulaPanel.set_frame#1",
+      "source": "Existing formulas are **kept** and re-applied. That is the opposite of what the Local Data Filter does with its clauses, on purpose: a filter clause naming a missing column narrows by less than it claims and is dangerous to keep, while a formula naming a missing column fails, says which column, and is exactly what the user wants back when they reload the same table.",
+      "source_sha256": "9d23203bbb2c3d7976475e2fbf8605a8600d574db31031b02d35de7a65524774",
+      "translation": "Vorhandene Formeln werden **behalten** und erneut angewendet. Das ist das Gegenteil von dem, was der lokale Datenfilter mit seinen Klauseln absichtlich macht: Eine Filterklausel, die eine fehlende Spalte benennt, grenzt um weniger ein, als sie behauptet, und ist gefährlich beizubehalten, während eine Formel, die eine fehlende Spalte benennt, fehlschlägt, angibt, welche Spalte und genau das ist, was der Benutzer zurückhaben möchte, wenn er dieselbe Tabelle neu lädt."
+    },
+    {
+      "context": "The first tab displays every registered app grouped into the same sections as the category-filter tabs. :class:`AppTile` supplies one consistent icon-and- name tile in every view; tooltips and the hint bar provide descriptions. ``categories`` and ``bands`` remain separate inputs so navigation and the all-app layout can evolve independently while both derive from :data:`spacr.qt.app.APPS`.",
+      "label": "spacr.qt.widgets.home#1",
+      "source": "The first tab displays every registered app grouped into the same sections as the category-filter tabs. :class:`AppTile` supplies one consistent icon-and- name tile in every view; tooltips and the hint bar provide descriptions. ``categories`` and ``bands`` remain separate inputs so navigation and the all-app layout can evolve independently while both derive from :data:`spacr.qt.app.APPS`.",
+      "source_sha256": "d1e411dfb2ed895f6b15cf2dde027f888a3ba4c1881325b96ffd89da1dd0bc0d",
+      "translation": "Auf der ersten Registerkarte werden alle registrierten Apps in denselben Abschnitten wie die Kategoriefilter-Registerkarten gruppiert angezeigt. :class:`AppTile` stellt in jeder Ansicht eine konsistente Symbol- und Namenskachel bereit; Tooltips und die Hinweisleiste bieten Beschreibungen. ``categories`` und ``bands`` bleiben separate Eingaben, sodass sich die Navigation und das gesamte App-Layout unabhängig voneinander entwickeln können, während beide von :data:`spacr.qt.app.APPS` abgeleitet sind."
+    },
+    {
+      "context": "called between stages; a true answer raises :class:`~spacr.multi_database.MergeCancelled`. Nothing is written anywhere until this function RETURNS, so a cancelled merge leaves the previous result exactly where it was.",
+      "label": "spacr.qt.widgets.measurement_scan_panel.merge_across_databases#11",
+      "source": "called between stages; a true answer raises :class:`~spacr.multi_database.MergeCancelled`. Nothing is written anywhere until this function RETURNS, so a cancelled merge leaves the previous result exactly where it was.",
+      "source_sha256": "f5d8ee8d4ed9f568c42465d0502a4c6bcaf66dbf9ceb0bb9eedf3950ad0bc8cd",
+      "translation": "zwischen den Stufen genannt; eine wahre Antwort löst :class:`~spacr.multi_database.MergeCancelled` aus. Es wird nirgendwo geschrieben, bis diese Funktion ZURÜCKKEHRT, sodass bei einer abgebrochenen Zusammenführung das vorherige Ergebnis genau dort verbleibt, wo es war."
+    },
+    {
+      "context": "``1``, ``1.0``, ``'01'`` and ``' 1 '`` are the same well. A dtype difference is **not** a disagreement, and this is the whole reason the comparison is not ``Series.equals``: a naive equality warns on every file that stored one copy of the well as text and the other as a number, and a warning that fires every time teaches the user to ignore the one that matters.",
+      "label": "spacr.schema.comparable_key_value#1",
+      "source": "``1``, ``1.0``, ``'01'`` and ``' 1 '`` are the same well. A dtype difference is **not** a disagreement, and this is the whole reason the comparison is not ``Series.equals``: a naive equality warns on every file that stored one copy of the well as text and the other as a number, and a warning that fires every time teaches the user to ignore the one that matters.",
+      "source_sha256": "0dc3c87f1cb054d045e7d21cd0ed4d21af7d67a1569ac8045e774707b9ec6a1d",
+      "translation": "``1``, ``1.0``, ``'01'`` und ``' 1 '`` sind wohl gleich. Ein dtype-Unterschied ist **nicht** eine Meinungsverschiedenheit, und das ist der ganze Grund, warum der Vergleich nicht ``Series.equals`` ist: Eine naive Gleichheit warnt bei jeder Datei, die eine Kopie des Brunnens als Text und die andere als Zahl gespeichert hat, und eine Warnung, die jedes Mal ausgelöst wird, lehrt den Benutzer, diejenige zu ignorieren, die wichtig ist."
+    }
+  ],
+  "schema": 1
+}

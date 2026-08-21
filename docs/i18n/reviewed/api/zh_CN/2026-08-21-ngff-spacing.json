@@ -1,0 +1,13 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "context": "**1. The Spacing is built from the SPACE axes only.** A 5-D NGFF image has axes ``(t, c, z, y, x)``: the time axis is in seconds, the image data channel axis has no unit at all, and z/y/x are in micrometers. A single ``Spacing`` over all five would have to answer \"what unit is this?\" with one string, and whatever it answered would be wrong for three of the axes — a stack whose spacing claims ``\"um\"`` while one of its axes steps in seconds passes the very check ``layers.py`` exists to make, and then draws a plausible picture of the wrong thing. So :attr:`OmeZarrImage.spacing` covers z/y/x, and t and c are reported alongside as :class:`Axis` records through :attr:`OmeZarrImage.other_axes`, :attr:`OmeZarrImage.time_axis` and :attr:`OmeZarrImage.channel_axis`. Nothing is lost; the reader does not treat seconds and micrometers as the same kind of number.",
+      "label": "spacr.ome_zarr#10",
+      "source": "**1. The Spacing is built from the SPACE axes only.** A 5-D NGFF image has axes ``(t, c, z, y, x)``: the time axis is in seconds, the channel axis has no unit at all, and z/y/x are in micrometers. A single ``Spacing`` over all five would have to answer \"what unit is this?\" with one string, and whatever it answered would be wrong for three of the axes — a stack whose spacing claims ``\"um\"`` while one of its axes steps in seconds passes the very check ``layers.py`` exists to make, and then draws a plausible picture of the wrong thing. So :attr:`OmeZarrImage.spacing` covers z/y/x, and t and c are reported alongside as :class:`Axis` records through :attr:`OmeZarrImage.other_axes`, :attr:`OmeZarrImage.time_axis` and :attr:`OmeZarrImage.channel_axis`. Nothing is lost; the reader does not treat seconds and micrometers as the same kind of number.",
+      "source_sha256": "c99169e7b871c6e8d473c11af3de27682927e033d4e1b7e862ab1f320d3583ea",
+      "translation": "**1. Spacing 仅根据空间轴构建。** 5-D NGFF 图像的轴为 ``(t, c, z, y, x)``：时间轴以秒为单位，图像数据通道轴没有单位，z/y/x 以微米为单位。如果对全部五个轴只用一个 ``Spacing``，它就必须用一个字符串回答“这里使用什么单位？”，无论答案是什么，对其中三个轴都会错误——例如，间距标为 ``\"um\"``、却有一个轴以秒为步长的堆栈，仍会通过 ``layers.py`` 正是为了执行的检查，随后绘制出一幅看似合理但表示错误内容的图。因此 :attr:`OmeZarrImage.spacing` 覆盖 z/y/x，而 t 和 c 则作为 :class:`Axis` 记录，通过 :attr:`OmeZarrImage.other_axes`、:attr:`OmeZarrImage.time_axis` 和 :attr:`OmeZarrImage.channel_axis` 一并报告。信息没有丢失；读取器不会把秒和微米当作同一类数值。"
+    }
+  ],
+  "schema": 1
+}

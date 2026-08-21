@@ -1,0 +1,13 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "context": "Group-comparison functions delegate test selection to :mod:`spacr.figures.stats` while preserving this module's established call signatures and result keys. Two groups use Student's t, Welch's t, or Mann–Whitney U as supported by the data; larger designs use one-way ANOVA, Welch's ANOVA, or Kruskal–Wallis. Results identify the selected test and include the assumption checks used to select it.",
+      "label": "spacr.sp_stats#1",
+      "source": "Group-comparison functions delegate test selection to :mod:`spacr.figures.stats` while preserving this module's established call signatures and result keys. Two groups use Student's t, Welch's t, or Mann–Whitney U as supported by the data; larger designs use one-way ANOVA, Welch's ANOVA, or Kruskal–Wallis. Results identify the selected test and include the assumption checks used to select it.",
+      "source_sha256": "83e3aa188b9d91efbae785f0bfbb6f8585dc1b3b19e2eeaa9c65f542bf47a57d",
+      "translation": "Hópsamanburðaraðgerðir úthluta prófvali til :mod:`spacr.figures.stats` á meðan þær varðveita staðfestar símtalaundirskriftir og niðurstöðulykla þessarar einingar. Tveir hópar nota Student's t, Welch's t, eða Mann–Whitney U eins og gögnin styðjast við; stærri hönnun notar einstefnu ANOVA, Welch's ANOVA eða Kruskal–Wallis. Niðurstöður bera kennsl á valið próf og innihalda forsendurprófanir sem notaðar eru til að velja það."
+    }
+  ],
+  "schema": 1
+}

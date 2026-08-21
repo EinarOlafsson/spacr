@@ -1,0 +1,34 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "context": "y ~ fraction:grna + gene_fraction:gene + rowID + columnID",
+      "label": "spacr.baseline#2",
+      "source": "y ~ fraction:grna + gene_fraction:gene + rowID + columnID",
+      "source_sha256": "9a1db0d72f8004b2d9ad129cb8de421fce56ef557d3d09d7bb907199ed120bd3",
+      "translation": "y ~ fraction:grna + gene_fraction:gène ​​+ rowID + columnID"
+    },
+    {
+      "context": "==================== ================== ========================== quantity             nested fixture     screen-shaped fixture (1,620 rows)       (1,830 rows, p=388, q=1,097) ==================== ================== ========================== fixed effects        1.20e-7 absolute   2.39e-4 absolute (2.0e-4 of one SE) variance components  1.29e-3 relative   2.02e-4 relative residual scale       4.12e-6 relative   1.94e-5 relative standard errors      3.88e-4 relative   1.04e-3 median; 1.80e-2 maximum across 388 guide BLUPs          7.64e-5 absolute   not evaluated ==================== ================== ==========================",
+      "label": "spacr.mixed_gpu.fit_mixed_reml_torch#9",
+      "source": "==================== ================== ========================== quantity             nested fixture     screen-shaped fixture (1,620 rows)       (1,830 rows, p=388, q=1,097) ==================== ================== ========================== fixed effects        1.20e-7 absolute   2.39e-4 absolute (2.0e-4 of one SE) variance components  1.29e-3 relative   2.02e-4 relative residual scale       4.12e-6 relative   1.94e-5 relative standard errors      3.88e-4 relative   1.04e-3 median; 1.80e-2 maximum across 388 guide BLUPs          7.64e-5 absolute   not evaluated ==================== ================== ==========================",
+      "source_sha256": "b3061d913eb2d480d8b35b5998c0d862f664c14484f873b7ded7a510186dd753",
+      "translation": "==================== ================== ========================= quantité de luminaires imbriqués en forme d'criblage (1 620 rangées) (1 830 rangées, p=388, q=1 097) ==================== ================== ======================== effets fixes 1,20e-7 absolu 2,39e-4 absolu (2,0e-4 d'un SE) composantes de variance 1,29e-3 relatif 2,02e-4 échelle résiduelle relative 4,12e-6 relatif 1,94e-5 erreurs types relatives 3,88e-4 relatif 1,04e-3 médiane ; 1,80e-2 maximum sur 388 BLUP guides 7,64e-5 absolu non évalué =================== ================== ==========================="
+    },
+    {
+      "context": "Free-form text, like the laboratory microplate id, because it is the name a user gave an experiment. It is **not** prefixed and **not** parsed back apart: the whole point of :data:`SCREEN_KEY` is that it is a dimension you block on, facet by and colour with as it stands.",
+      "label": "spacr.schema.screen_id#1",
+      "source": "Free-form text, like the plate id, because it is the name a user gave an experiment. It is **not** prefixed and **not** parsed back apart: the whole point of :data:`SCREEN_KEY` is that it is a dimension you block on, facet by and colour with as it stands.",
+      "source_sha256": "6eec9e99214021448d283e517364a11f18d8c9a5db1616423e52cef9dffd71ac",
+      "translation": "Texte de forme libre, comme l'identifiant de la microplaque du laboratoire, car il s'agit du nom qu'un utilisateur a donné à une expérience. Il n'est **pas** préfixé et **pas** analysé à nouveau : tout l'intérêt de :data:`SCREEN_KEY` est qu'il s'agit d'une dimension sur laquelle vous bloquez, facette et couleur telle qu'elle est."
+    },
+    {
+      "context": "Absence is the case that matters. ``None``, ``''`` and whitespace all mean \"this project has one application view\", and they become :data:`DEFAULT_SCREEN` rather than throwing — every project that exists today has no application view anywhere in its settings, and demanding one would stop all of them from opening. Contrast :func:`_check_plate`, which *does* raise: an empty plate is a broken structured-data name, but an empty application view is an ordinary single-application view run.",
+      "label": "spacr.schema.screen_id#2",
+      "source": "Absence is the case that matters. ``None``, ``''`` and whitespace all mean \"this project has one screen\", and they become :data:`DEFAULT_SCREEN` rather than raising — every project that exists today has no screen anywhere in its settings, and demanding one would stop all of them from opening. Contrast :func:`_check_plate`, which *does* raise: an empty plate is a broken key, but an empty screen is an ordinary single-screen run.",
+      "source_sha256": "324253a999dc9071a30d6d287487bb190cf808823e7c45526eb8ccdd9bcf8760",
+      "translation": "L'absence est le cas qui compte. ``None``, ``''`` et les espaces signifient tous \"ce projet a une vue d'application\", et ils deviennent :data:`DEFAULT_SCREEN` plutôt que de lancer - chaque projet qui existe aujourd'hui n'a aucune vue d'application dans ses paramètres, et en exiger une les empêcherait tous de s'ouvrir. Contrastez :func:`_check_plate`, qui *fait* : une plaque vide est un nom de données structurées cassé, mais une vue d'application vide est une exécution ordinaire d'une vue d'application unique."
+    }
+  ],
+  "schema": 1
+}
