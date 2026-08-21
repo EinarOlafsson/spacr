@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 """Regenerate the settings reference in every shipped notebook.
 
-Each generated section has three consecutive cells: a readable Markdown
-reference, an editable settings dictionary, and the function call that uses
-that dictionary. Descriptions come from the live spaCR tooltip table or the
-function's scientific-Python docstring; they are never copied into the code
-cell. A regeneration test keeps notebooks synchronized with API changes.
+Each generated section has a readable Markdown reference, one or more
+categorized settings cells, and the function call that consumes those
+settings. Descriptions come from the live spaCR tooltip table or the
+function's scientific-Python docstring; they are never copied into executable
+code. Organelle configuration is isolated in its own cell because that surface
+is substantially larger than the other segmentation groups. A regeneration
+test keeps notebooks synchronized with API changes.
 
 Usage::
 
@@ -72,9 +74,269 @@ SECTION_TITLE = "## 3. Settings and API reference"
 #: Metadata values used to find generated cells without putting prose in code.
 HELP_CELL_KIND = "settings-help"
 SETTINGS_CELL_KIND = "settings"
+ORGANELLE_CELL_KIND = "settings-organelle"
 
 #: Root of the published sphinx-autoapi tree.
 API_BASE = "https://einarolafsson.github.io/spacr/api"
+
+# Purpose, recommended use, and primary outputs for each maintained notebook.
+# Keeping this prose beside the generator prevents structural regeneration
+# from restoring informal or scientifically imprecise hand-written text.
+NOTEBOOK_OVERVIEWS = {
+    "01_generate_masks.ipynb": (
+        "Generate masks",
+        "Generate per-object masks for cells, nuclei, pathogens, and "
+        "organelles from microscopy images.",
+        "Use for static microscopy acquisitions before object measurement, "
+        "cropping, annotation, or classification.",
+        "Per-object label images under `masks/` and merged image-mask arrays "
+        "under `merged/`.",
+    ),
+    "01b_generate_timelapse_masks.ipynb": (
+        "Generate and track timelapse masks",
+        "Generate masks from time-series microscopy images and link selected "
+        "objects across consecutive frames.",
+        "Use when the acquisition contains a time axis and object identity "
+        "must be preserved across frames.",
+        "Per-frame masks, merged image-mask arrays, tracking tables, and "
+        "time-series movies.",
+    ),
+    "02_measure_and_crop.ipynb": (
+        "Measure objects and crop images",
+        "Compute per-object morphology, intensity, and spatial measurements "
+        "from merged image-mask arrays, with optional object-centred crops.",
+        "Use after segmentation when quantitative features or classifier "
+        "training images are required.",
+        "`measurements/measurements.db` and, when enabled, object crops under "
+        "`data/`.",
+    ),
+    "03_classify_computer_vision.ipynb": (
+        "Classify images with a neural network",
+        "Train a convolutional image classifier from labelled object crops "
+        "and apply it to the experimental dataset.",
+        "Use when phenotype classes are visually distinguishable but are not "
+        "adequately represented by predefined measurements.",
+        "A trained model, held-out performance metrics, and per-object class "
+        "probabilities or scores.",
+    ),
+    "04_classify_machine_learning.ipynb": (
+        "Classify objects from measured features",
+        "Fit a supervised tabular classifier to per-object measurements and "
+        "apply it to the full dataset.",
+        "Use when morphology, intensity, or spatial measurements provide an "
+        "interpretable representation of the phenotype.",
+        "Per-object predictions, validation metrics, feature importance, and "
+        "SHAP summaries when supported.",
+    ),
+    "05_map_barcodes.ipynb": (
+        "Map sequencing reads to microplate wells",
+        "Process amplicon sequencing reads and quantify guide-RNA assignments "
+        "for each microplate well.",
+        "Use after pooled-screen sequencing to construct the guide-count "
+        "matrix required for genotype-phenotype analysis.",
+        "Per-well guide counts and sequencing quality-control summaries.",
+    ),
+    "06_regression.ipynb": (
+        "Estimate genotype-phenotype associations",
+        "Estimate guide- or gene-level effects by modelling phenotype scores "
+        "as a function of guide abundance.",
+        "Use after phenotype scores and matched guide-count tables have been "
+        "generated for the same experimental wells.",
+        "Effect estimates, uncertainty or resampling support, adjusted "
+        "significance values, diagnostic plots, and ranked findings.",
+    ),
+    "07_image_umap.ipynb": (
+        "Embed object images",
+        "Compute a two-dimensional embedding of single-object images or "
+        "features and display representative objects in embedding space.",
+        "Use for exploratory assessment of phenotypic structure, batch "
+        "effects, and outlying experimental groups.",
+        "Embedding coordinates and an image-annotated embedding figure.",
+    ),
+    "08_train_cellpose.ipynb": (
+        "Train a Cellpose model",
+        "Fine-tune a Cellpose segmentation model using annotated microscopy "
+        "images and corresponding reference masks.",
+        "Use when available pretrained models do not adequately segment the "
+        "object type or imaging condition.",
+        "A trained Cellpose checkpoint and training diagnostics.",
+    ),
+    "09_apply_cellpose.ipynb": (
+        "Apply a Cellpose model",
+        "Apply a pretrained or custom Cellpose model to a microscopy image "
+        "collection.",
+        "Use for direct segmentation outside the complete mask-generation "
+        "pipeline or for evaluating a newly trained model on unlabeled data.",
+        "A label image for each processed input image and associated object "
+        "measurements when enabled.",
+    ),
+    "10_test_cellpose.ipynb": (
+        "Evaluate a Cellpose model",
+        "Compare predicted masks with reference masks using per-image "
+        "segmentation metrics.",
+        "Use to compare candidate models on a common held-out dataset before "
+        "large-scale application.",
+        "Per-image evaluation metrics and aggregate performance summaries.",
+    ),
+    "11_activation_maps.ipynb": (
+        "Generate activation maps",
+        "Estimate the image regions contributing to a trained classifier's "
+        "predictions using saliency or activation-mapping methods.",
+        "Use after model validation to examine whether predictive evidence is "
+        "spatially consistent with the intended biological phenotype.",
+        "Per-image activation overlays and class-level aggregate maps.",
+    ),
+    "12_recruitment.ipynb": (
+        "Quantify molecular recruitment",
+        "Quantify fluorescent-marker enrichment at a pathogen or vacuole "
+        "relative to the surrounding cellular compartment.",
+        "Use for host-pathogen experiments in which spatial redistribution of "
+        "a marker is the principal phenotype.",
+        "Per-object recruitment measurements and condition-level summaries.",
+    ),
+    "13_plaque_assay.ipynb": (
+        "Analyze a plaque assay",
+        "Segment plaques and quantify plaque number and area for each image "
+        "or well.",
+        "Use for lytic-cycle assays that quantify disruption of a host-cell "
+        "monolayer.",
+        "Per-plaque measurements and per-well count and area summaries.",
+    ),
+    "14_motility_assay.ipynb": (
+        "Analyze object motility",
+        "Generate and track time-series masks, then quantify trajectory, "
+        "velocity, displacement, and infection-related quality control.",
+        "Use for time-series acquisitions in which movement is the primary "
+        "phenotype and tracked merged arrays have not yet been generated.",
+        "Tracked masks, per-track measurements, well-level motility summaries, "
+        "and quality-control figures.",
+    ),
+    "15_replication.ipynb": (
+        "Quantify intracellular replication",
+        "Estimate intracellular parasite number per vacuole and compare count "
+        "distributions across experimental groups.",
+        "Use after parasite and parent-compartment objects have been measured.",
+        "Per-vacuole parasite counts and group-level replication summaries.",
+    ),
+    "16_invasion.ipynb": (
+        "Quantify invasion",
+        "Classify pathogens as intracellular or extracellular using "
+        "differential-staining measurements and summarize invasion efficiency.",
+        "Use for invasion or attachment assays with an extracellular marker.",
+        "Per-object invasion labels and per-well or per-condition invasion "
+        "estimates.",
+    ),
+    "17_endodyogeny.ipynb": (
+        "Quantify endodyogeny",
+        "Classify intracellular replication states from pathogen size and "
+        "summarize their frequencies across experimental groups.",
+        "Use when parasite division states are represented by approximately "
+        "log2-scaled object-size classes.",
+        "Per-object replication-state assignments and group-level "
+        "proportions.",
+    ),
+    "18_percent_positive.ipynb": (
+        "Estimate percent positive",
+        "Classify objects relative to an intensity threshold and estimate the "
+        "positive fraction for each experimental unit.",
+        "Use for binary marker-expression phenotypes with an interpretable "
+        "measurement threshold.",
+        "Per-object threshold assignments and per-well positive fractions.",
+    ),
+    "19_count_phenotypes.ipynb": (
+        "Count annotated phenotypes",
+        "Count objects assigned to each annotation or predicted phenotype "
+        "class within experimental groups.",
+        "Use after manual annotation or classification when class abundance "
+        "is the required outcome.",
+        "A tidy table of phenotype counts by experimental group.",
+    ),
+    "20_activation_analysis.ipynb": (
+        "Analyze activation maps",
+        "Aggregate image-attribution maps and compare attribution summaries "
+        "across model classes.",
+        "Use after activation-map generation to quantify class-specific "
+        "patterns of predictive evidence.",
+        "Class-level attribution statistics and comparison figures.",
+    ),
+    "21_model_knowledge_transfer.ipynb": (
+        "Transfer knowledge between models",
+        "Train a student image classifier using predictions from one or more "
+        "teacher models.",
+        "Use when adapting validated predictive information to a related "
+        "dataset or consolidating teacher models into a student architecture.",
+        "A trained student model and recorded training provenance.",
+    ),
+    "22_model_fusion.ipynb": (
+        "Fuse compatible models",
+        "Combine parameters from compatible trained image-classifier "
+        "checkpoints using a specified aggregation method.",
+        "Use when models share an architecture and parameterization and their "
+        "combined weights are scientifically justified.",
+        "A fused model checkpoint.",
+    ),
+    "23_compare_reads_to_scores.ipynb": (
+        "Compare sequencing reads with phenotype scores",
+        "Join per-well guide abundance with imaging-derived phenotype scores "
+        "and quantify their association.",
+        "Use as a plate-registration and data-consistency check before "
+        "regression analysis.",
+        "Joined per-well data and correlation figures.",
+    ),
+    "24_interpret_vision_model.ipynb": (
+        "Interpret a vision-model score",
+        "Model vision-classifier outputs using measured morphology and "
+        "intensity features to identify associated quantitative attributes.",
+        "Use to relate image-model predictions to interpretable cellular "
+        "measurements while retaining grouped validation.",
+        "Surrogate-model fidelity metrics and ranked feature explanations.",
+    ),
+    "25_score_heatmap.ipynb": (
+        "Generate score heatmaps",
+        "Arrange per-well phenotype scores in microplate coordinates and "
+        "compare score tables when multiple inputs are supplied.",
+        "Use to assess spatial artifacts, gradients, and plate-position "
+        "effects.",
+        "Microplate heatmaps and score-comparison summaries.",
+    ),
+    "26_sequencing_stats.ipynb": (
+        "Evaluate sequencing quality",
+        "Summarize sequencing depth, read quality, consensus, and guide-count "
+        "distributions.",
+        "Use after barcode mapping and before downstream association analysis.",
+        "Sequencing quality-control figures and threshold summaries.",
+    ),
+    "27_post_regression_analysis.ipynb": (
+        "Analyze regression results",
+        "Derive downstream guide correlations, ranked findings, and figures "
+        "from a completed regression analysis.",
+        "Use after model fitting when additional result summaries are required.",
+        "Ranked result tables and gene- or guide-level diagnostic figures.",
+    ),
+    "28_go_term_enrichment.ipynb": (
+        "Analyze gene-ontology enrichment",
+        "Test whether a selected gene set is enriched for annotated gene "
+        "ontology categories.",
+        "Use after defining a statistically supported gene set and an "
+        "appropriate background population.",
+        "Enrichment statistics and category-level visualizations.",
+    ),
+    "29_gene_phenotype_plots.ipynb": (
+        "Plot gene phenotypes",
+        "Display selected gene-level phenotype estimates relative to the "
+        "screen-wide distribution.",
+        "Use to contextualize specific genes after association analysis.",
+        "Gene-level phenotype figures with uncertainty when available.",
+    ),
+    "30_volcano_plot.ipynb": (
+        "Generate a volcano plot",
+        "Display effect estimates against statistical significance and "
+        "annotate selected findings.",
+        "Use as a compact summary of a completed differential or regression "
+        "analysis.",
+        "A publication-scale volcano plot in the requested output format.",
+    ),
+}
 
 
 # ---------------------------------------------------------------------------
@@ -82,18 +344,29 @@ API_BASE = "https://einarolafsson.github.io/spacr/api"
 # ---------------------------------------------------------------------------
 
 def declared_functions(notebook: dict) -> List[str]:
-    """Return the callable named first in the notebook's function section.
+    """Return the callables named in the notebook's function section.
 
-    Related next-step links can name other spaCR callables later in the same
-    Markdown cell. The first dotted path is the declared function; treating
-    every later link as another pipeline produces unused settings dictionaries.
+    Most notebooks call one public entry point. The motility notebook is an
+    intentional two-stage workflow: it first generates and tracks masks, then
+    computes motility measurements from the resulting arrays. Only paths in
+    the dedicated function cell are considered; links in later guidance do
+    not create unused settings dictionaries.
     """
     for cell in notebook.get("cells", []):
         if cell.get("cell_type") != "markdown":
             continue
         text = "".join(cell.get("source", []))
-        if "function" in text and "this notebook runs" in text:
+        if (("function" in text and "this notebook runs" in text)
+                or text.startswith("## 2. API entry point")):
+            explicit = cell.get("metadata", {}).get("spacr", {}).get(
+                "functions")
+            if isinstance(explicit, list) and all(
+                    isinstance(item, str) for item in explicit):
+                return list(dict.fromkeys(explicit))
             matches = re.findall(r"`(spacr\.[A-Za-z_0-9.]+)`", text)
+            # Legacy function cells occasionally mention a related API in the
+            # summary. Only the first path is the entry point unless explicit
+            # metadata declares a multi-stage workflow.
             return matches[:1]
     return []
 
@@ -111,6 +384,16 @@ def resolve(dotted: str):
 # The three shapes
 # ---------------------------------------------------------------------------
 
+def _module_from_registry(dotted: str) -> Optional[Any]:
+    """Return the CLI module registered for ``dotted``, when available."""
+    from spacr.cli import MODULES
+
+    module_name, _, attr = dotted.rpartition(".")
+    return next((module for module in MODULES.values()
+                 if module.module_name == module_name
+                 and module.func_name == attr), None)
+
+
 def _factory_from_registry(dotted: str) -> Optional[Any]:
     """Return the defaults helper registered for an entry point.
 
@@ -118,12 +401,8 @@ def _factory_from_registry(dotted: str) -> Optional[Any]:
     outside :mod:`spacr.settings`. Reusing it keeps built-in and plugin apps
     consistent without maintaining another entry-point mapping.
     """
-    from spacr.cli import MODULES
-
-    module_name, _, attr = dotted.rpartition(".")
-    for module in MODULES.values():
-        if module.module_name != module_name or module.func_name != attr:
-            continue
+    module = _module_from_registry(dotted)
+    if module is not None:
         if module.defaults_entry:
             return resolve(module.defaults_entry.replace(":", "."))
         if module.defaults:
@@ -243,6 +522,42 @@ def surface(func, dotted: str = "") -> Tuple[str, Dict[str, Any]]:
                 return "factory", keys
         return "source", keys_from_source(func)
     return "signature", keys_from_signature(func)
+
+
+def notebook_surface(func, dotted: str) -> Tuple[str, Dict[str, Any]]:
+    """Return the editable settings exposed by the corresponding module.
+
+    The mask implementation retains timelapse and motility defaults for old
+    settings files, but those controls now belong to dedicated modules. The
+    notebooks mirror the current module boundaries rather than exposing
+    compatibility-only keys.
+    """
+    shape, keys = surface(func, dotted)
+    module = _module_from_registry(dotted)
+    app_key = getattr(module, "key", "")
+    if app_key not in {"mask", "timelapse", "motility"}:
+        return shape, keys
+
+    from spacr.settings import (
+        motility_advanced_settings,
+        motility_settings,
+        timelapse_settings,
+    )
+
+    motility_keys = (set(motility_settings)
+                     | set(motility_advanced_settings)
+                     | {"motility_analysis"})
+    if app_key == "mask":
+        hidden = motility_keys | set(timelapse_settings) | {"timelapse"}
+        keys = {key: value for key, value in keys.items()
+                if key not in hidden}
+    elif app_key == "timelapse":
+        keys = {key: value for key, value in keys.items()
+                if key not in motility_keys and key != "timelapse"}
+    else:
+        keys = {key: value for key, value in keys.items()
+                if key != "motility_analysis"}
+    return shape, keys
 
 
 # ---------------------------------------------------------------------------
@@ -420,15 +735,87 @@ def _markdown_text(text: str) -> str:
             .replace(">", "&gt;"))
 
 
+def _is_organelle_key(key: str) -> bool:
+    """Return True for settings that configure an organelle mask role."""
+    from spacr.object_roles import ORGANELLE_ROLES
+
+    return (key == "summarize_organelles_by"
+            or any(key.startswith(f"{role}_")
+                   for role in ORGANELLE_ROLES))
+
+
+def _category_groups(keys: Dict[str, Any], *, organelle: bool
+                     ) -> List[Tuple[str, List[str]]]:
+    """Group one settings surface using spaCR's reviewed category registry."""
+    from spacr.settings import categories
+
+    wanted = {
+        key for key in keys
+        if _is_organelle_key(key) is organelle
+    }
+    groups: List[Tuple[str, List[str]]] = []
+    for title, members in categories.items():
+        selected = [key for key in members if key in wanted]
+        if not selected:
+            continue
+        wanted.difference_update(selected)
+        if organelle and title == "General":
+            title = "Organelle input"
+        elif organelle and title == "Object filtration":
+            title = "Organelle object filtration"
+        elif organelle and title == "Intensity handling":
+            title = "Organelle intensity handling"
+        groups.append((title, selected))
+    if wanted:
+        groups.append(("Additional settings", sorted(wanted)))
+    return groups
+
+
+def _setting_status(dotted: str, shape: str, key: str) -> str:
+    """Return ``required``, ``conditional`` or ``optional`` for ``key``."""
+    if shape == "signature":
+        func = resolve(dotted)
+        try:
+            param = inspect.signature(func).parameters[key]
+        except (AttributeError, KeyError, TypeError, ValueError):
+            pass
+        else:
+            if param.default is param.empty:
+                return "required"
+    if key == "src":
+        return "required"
+    if (dotted in {
+            "spacr.core.preprocess_generate_masks",
+            "spacr.core.preprocess_generate_masks_timelapse",
+        } and key in {
+            "cell_channel", "nucleus_channel", "pathogen_channel",
+            "organelle_channel",
+        }):
+        return "conditional"
+    return "optional"
+
+
+def _status_label(status: str) -> str:
+    return {
+        "required": "Required",
+        "conditional": "Conditionally required",
+        "optional": "Optional",
+    }[status]
+
+
 def render_help(entries: List[Tuple[str, str, Dict[str, Any], Dict[str, str]]]
                 ) -> str:
     """Build the Markdown reference shown above the settings cell."""
     lines = [
         SECTION_TITLE,
         "",
-        "Read the descriptions here, then edit only the values in the next "
-        "cell. Defaults and descriptions are generated from the installed "
-        "spaCR version, so the notebook stays aligned with the API.",
+        "Review the parameter definitions here, then edit the values in the "
+        "categorized code cells below. Required settings must be supplied. "
+        "Optional settings retain the displayed default when unchanged. "
+        "Conditionally required settings are necessary only for the indicated "
+        "analysis branch. Defaults and descriptions are generated from the "
+        "installed spaCR version so that the notebook remains aligned with "
+        "the public API.",
     ]
     for dotted, shape, keys, docs in entries:
         lines.extend([
@@ -443,11 +830,32 @@ def render_help(entries: List[Tuple[str, str, Dict[str, Any], Dict[str, str]]]
                 "source, so a key used only on a dynamic branch may be absent.",
                 "",
             ])
-        for key in sorted(keys):
-            description = _markdown_text(tooltip_for(key, shape, docs))
-            if not description:
-                description = "No description is available in this version."
-            lines.append(f"- **`{key}`** — {description}")
+        if any(_is_organelle_key(key) for key in keys):
+            lines.extend([
+                "> Organelle parameters are placed in a separate code cell "
+                "to keep the primary segmentation configuration readable.",
+                "",
+            ])
+        if len(entries) > 1 and dotted != entries[0][0] and "src" in keys:
+            lines.extend([
+                "> This stage inherits `src` from the first stage so that "
+                "both functions operate on the same dataset.",
+                "",
+            ])
+        for organelle in (False, True):
+            for category, members in _category_groups(
+                    keys, organelle=organelle):
+                lines.extend(["", f"#### {category}", ""])
+                for key in members:
+                    description = _markdown_text(
+                        tooltip_for(key, shape, docs))
+                    if not description:
+                        description = (
+                            "No description is available in this version.")
+                    status = _status_label(
+                        _setting_status(dotted, shape, key))
+                    lines.append(
+                        f"- **`{key}`** *({status.lower()})* — {description}")
     lines.extend([
         "",
         "## 4. Run",
@@ -460,26 +868,165 @@ def render_help(entries: List[Tuple[str, str, Dict[str, Any], Dict[str, str]]]
     return "\n".join(lines)
 
 
-def render_cell(entries: List[Tuple[str, str, Dict[str, Any], Dict[str, str]]]
-                ) -> str:
-    """Build the editable settings-only code cell."""
+def render_cell(
+    entries: List[Tuple[str, str, Dict[str, Any], Dict[str, str]]],
+    *,
+    organelle: bool = False,
+) -> str:
+    """Build one categorized settings cell.
+
+    The primary cell creates each dictionary. The organelle cell updates the
+    same dictionary, keeping the eventual function call unchanged.
+    """
     lines: List[str] = []
     for index, (dotted, shape, keys, docs) in enumerate(entries):
+        groups = _category_groups(keys, organelle=organelle)
+        if organelle and not groups:
+            continue
         name = setting_name(dotted, entries)
-        lines.append(f"{name} = {{")
-        for key in sorted(keys):
-            lines.append(
-                f"    {key!r}: {_literal(keys[key], dotted=dotted, key=key)},")
-        lines.append("}")
+        lines.append(f"{name}.update({{" if organelle else f"{name} = {{")
+        for group_index, (category, members) in enumerate(groups):
+            if group_index:
+                lines.append("")
+            lines.append(f"    # {category}")
+            for status in ("required", "conditional", "optional"):
+                selected = [
+                    key for key in members
+                    if _setting_status(dotted, shape, key) == status
+                ]
+                if not selected:
+                    continue
+                lines.append(f"    # {_status_label(status)} settings")
+                for key in selected:
+                    value = _literal(keys[key], dotted=dotted, key=key)
+                    if (len(entries) > 1 and index > 0 and key == "src"
+                            and "src" in entries[0][2]):
+                        first_name = setting_name(entries[0][0], entries)
+                        value = f"{first_name}['src']"
+                    lines.append(
+                        f"    {key!r}: {value},")
+        lines.append("})" if organelle else "}")
         if index != len(entries) - 1:
             lines.append("")
     return "\n".join(lines)
+
+
+def render_settings_cells(
+    entries: List[Tuple[str, str, Dict[str, Any], Dict[str, str]]],
+) -> List[Tuple[str, str]]:
+    """Return ``[(generated_kind, source), ...]`` for editable settings."""
+    rendered = [(SETTINGS_CELL_KIND, render_cell(entries))]
+    if any(_is_organelle_key(key)
+           for _dotted, _shape, keys, _docs in entries for key in keys):
+        rendered.append((ORGANELLE_CELL_KIND,
+                         render_cell(entries, organelle=True)))
+    return rendered
 
 
 def _as_source(text: str) -> List[str]:
     """Notebook JSON stores a cell as a list of lines, newlines included."""
     lines = text.split("\n")
     return [line + "\n" for line in lines[:-1]] + [lines[-1]]
+
+
+def _render_overview(path: Path) -> Optional[str]:
+    """Return the reviewed scientific overview for ``path``."""
+    overview = NOTEBOOK_OVERVIEWS.get(path.name)
+    if overview is None:
+        return None
+    title, purpose, use, outputs = overview
+    return "\n".join([
+        f"# {title}",
+        "",
+        f"**Purpose.** {purpose}",
+        "",
+        f"**Recommended use.** {use}",
+        "",
+        f"**Primary outputs.** {outputs}",
+        "",
+        "---",
+        "",
+        "> Paths in this notebook are placeholders. Set `src` and any other "
+        "required path to the experimental data before execution.",
+        "> spaCR writes outputs within, or immediately adjacent to, the "
+        "configured source directory unless an explicit output path is set.",
+    ])
+
+
+def _render_function_section(entries) -> str:
+    """Return a concise, linked description of the notebook entry points."""
+    plural = len(entries) != 1
+    lines = [
+        f"## 2. API entry point{'s' if plural else ''}",
+        "",
+        ("This workflow calls the following public functions in sequence:"
+         if plural else "This workflow calls the following public function:"),
+        "",
+    ]
+    for dotted, shape, _keys, _docs in entries:
+        name = setting_name(dotted, entries)
+        func_name = dotted.rsplit(".", 1)[1]
+        call = (f"{func_name}(**{name})" if shape == "signature"
+                else f"{func_name}({name})")
+        lines.extend([
+            f"- [`{dotted}`]({api_url(dotted)})",
+            "",
+            "```python",
+            call,
+            "```",
+            "",
+        ])
+    lines.append(
+        "Parameter definitions and defaults are generated from the same "
+        "public API and are listed in the settings reference below.")
+    return "\n".join(lines)
+
+
+def _refresh_notebook_prose(path: Path, notebook: dict, entries) -> None:
+    """Replace informal notebook framing with reviewed scientific prose."""
+    cells = notebook.get("cells", [])
+    overview = _render_overview(path)
+    if overview is not None and cells:
+        cells[0]["source"] = _as_source(overview)
+
+    for cell in cells:
+        if cell.get("cell_type") != "markdown":
+            continue
+        source = "".join(cell.get("source", []))
+        if source.startswith("## 1. Check the install") or source.startswith(
+                "## 1. Verify the environment"):
+            cell["source"] = _as_source("\n".join([
+                "## 1. Verify the environment",
+                "",
+                "The following cell reports the installed spaCR version. "
+                "Import errors must be resolved before the analysis cells "
+                "are executed. GPU acceleration is optional and depends on "
+                "the selected workflow and installed computational backend.",
+            ]))
+        elif (("function" in source and "this notebook runs" in source)
+              or source.startswith("## 2. API entry point")):
+            cell["source"] = _as_source(_render_function_section(entries))
+            cell.setdefault("metadata", {}).setdefault("spacr", {})[
+                "functions"] = [dotted for dotted, *_rest in entries]
+        elif source.startswith("## Where the output went") or source.startswith(
+                "## Outputs and next steps"):
+            outputs = NOTEBOOK_OVERVIEWS.get(path.name, ("", "", "", ""))[3]
+            cell["source"] = _as_source("\n".join([
+                "## Outputs and next steps",
+                "",
+                outputs,
+                "",
+                "Output directories remain associated with the source dataset, "
+                "which preserves plate-level provenance across subsequent "
+                "spaCR workflows.",
+                "",
+                "### Related documentation",
+                "",
+                "- [Graphical workflow tutorials]"
+                "(https://einarolafsson.github.io/spacr/tutorials/)",
+                "- [Python API reference]"
+                "(https://einarolafsson.github.io/spacr/python_api.html)",
+            ]))
 
 
 # ---------------------------------------------------------------------------
@@ -499,14 +1046,19 @@ def rebuild(path: Path) -> Optional[str]:
         func = resolve(dotted)
         if func is None:
             continue
-        shape, keys = surface(func, dotted)
+        shape, keys = notebook_surface(func, dotted)
         if keys:
             entries.append((dotted, shape, keys, param_docs(func)))
     if not entries:
         return None
 
+    _refresh_notebook_prose(path, notebook, entries)
+
     help_source = _as_source(render_help(entries))
-    cell_source = _as_source(render_cell(entries))
+    rendered_settings = [
+        (kind, _as_source(source))
+        for kind, source in render_settings_cells(entries)
+    ]
     cells = notebook["cells"]
     retarget_call(cells, entries)
 
@@ -518,36 +1070,58 @@ def rebuild(path: Path) -> Optional[str]:
                           and "Every setting this function accepts" in
                           "".join(cell.get("source", []))), None)
 
-    settings_cell = next((cell for cell in cells
-                          if _cell_kind(cell) == SETTINGS_CELL_KIND), None)
-    if settings_cell is None:
-        settings_cell = next((cell for cell in cells
-                              if cell.get("cell_type") == "code" and
-                              "".join(cell.get("source", [])).startswith(
-                                  MARKER)), None)
+    settings_cells = {
+        kind: next((cell for cell in cells if _cell_kind(cell) == kind), None)
+        for kind, _source in rendered_settings
+    }
+    if settings_cells[SETTINGS_CELL_KIND] is None:
+        settings_cells[SETTINGS_CELL_KIND] = next((
+            cell for cell in cells
+            if cell.get("cell_type") == "code"
+            and "".join(cell.get("source", [])).startswith(MARKER)
+        ), None)
 
-    if settings_cell is None:
+    if settings_cells[SETTINGS_CELL_KIND] is None:
         at = _insertion_point(cells)
         help_cell = _markdown_cell(help_source, HELP_CELL_KIND)
-        settings_cell = _code_cell(cell_source, SETTINGS_CELL_KIND)
         cells.insert(at, help_cell)
-        cells.insert(at + 1, settings_cell)
+        for offset, (kind, source) in enumerate(rendered_settings, 1):
+            settings_cells[kind] = _code_cell(source, kind)
+            cells.insert(at + offset, settings_cells[kind])
     else:
-        settings_cell["source"] = cell_source
-        settings_cell["outputs"] = []
-        settings_cell["execution_count"] = None
-        _mark_generated(settings_cell, SETTINGS_CELL_KIND)
+        for kind, source in rendered_settings:
+            settings_cell = settings_cells.get(kind)
+            if settings_cell is None:
+                settings_cell = _code_cell(source, kind)
+                settings_cells[kind] = settings_cell
+                cells.insert(cells.index(settings_cells[SETTINGS_CELL_KIND]) + 1,
+                             settings_cell)
+            else:
+                settings_cell["source"] = source
+                settings_cell["outputs"] = []
+                settings_cell["execution_count"] = None
+                _mark_generated(settings_cell, kind)
         if help_cell is None:
-            at = cells.index(settings_cell)
+            at = cells.index(settings_cells[SETTINGS_CELL_KIND])
             help_cell = _markdown_cell(help_source, HELP_CELL_KIND)
             cells.insert(at, help_cell)
         else:
             help_cell["source"] = help_source
             _mark_generated(help_cell, HELP_CELL_KIND)
 
+    # Remove a formerly generated organelle cell when a function no longer
+    # exposes organelle settings.
+    live_kinds = {kind for kind, _source in rendered_settings}
+    for cell in list(cells):
+        if (_cell_kind(cell) == ORGANELLE_CELL_KIND
+                and ORGANELLE_CELL_KIND not in live_kinds):
+            cells.remove(cell)
+
     _remove_legacy_setup(cells, help_cell)
-    _place_generated_cells(cells, help_cell, settings_cell)
-    _place_run_cell(cells, settings_cell, entries)
+    ordered_settings = [settings_cells[kind]
+                        for kind, _source in rendered_settings]
+    _place_generated_cells(cells, help_cell, ordered_settings)
+    _place_run_cell(cells, ordered_settings[-1], entries)
     return json.dumps(notebook, indent=1, ensure_ascii=False) + "\n"
 
 
@@ -635,13 +1209,15 @@ def _remove_legacy_setup(cells: List[dict], help_cell: dict) -> None:
 
 
 def _place_generated_cells(cells: List[dict], help_cell: dict,
-                           settings_cell: dict) -> None:
+                           settings_cells: List[dict]) -> None:
     """Place the Markdown reference immediately before editable settings."""
     cells.remove(help_cell)
-    cells.remove(settings_cell)
+    for settings_cell in settings_cells:
+        cells.remove(settings_cell)
     at = _insertion_point(cells)
     cells.insert(at, help_cell)
-    cells.insert(at + 1, settings_cell)
+    for offset, settings_cell in enumerate(settings_cells, 1):
+        cells.insert(at + offset, settings_cell)
 
 
 def _place_run_cell(cells: List[dict], settings_cell: dict, entries) -> None:
