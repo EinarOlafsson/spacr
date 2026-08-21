@@ -54,10 +54,17 @@ def test_a_greyed_row_keeps_the_tooltip_the_panel_is_hung_off(field):
         assert model.item(row).toolTip().strip(), row
 
 
-def test_an_available_row_stays_selectable_when_the_family_changes(field):
+def test_an_available_row_stays_selectable_when_the_family_changes(
+        field, monkeypatch):
     """Re-judging must RE-ENABLE as well as disable. `pyfixest` is refused
     under 'mixed' and offered under 'ols', and a one-way flag clear would
     leave it dead forever."""
+    from spacr import regression_backends
+
+    installed = regression_backends.package_installed
+    monkeypatch.setattr(
+        regression_backends, "package_installed",
+        lambda package: package == "pyfixest" or installed(package))
     labels = [field.combo.itemData(i) for i in range(field.combo.count())]
     row = labels.index("pyfixest (CPU)")
     assert not (field.combo.model().item(row).flags() & Qt.ItemIsSelectable)
