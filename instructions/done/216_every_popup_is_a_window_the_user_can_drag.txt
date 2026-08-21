@@ -1,0 +1,57 @@
+================================================================================
+EVERY POPUP IS A WINDOW THE USER CAN DRAG
+================================================================================
+
+Status:    filed 2026-08-21, DONE 2026-08-21.
+Requested: 2026-08-21 -- "the settings for your data settings window should be
+           movable without moving the main window. this should be tru of all
+           settings windows or any popup window from spacr."
+Owner:     Qt GUI (dialogs)
+
+--------------------------------------------------------------------------------
+WHAT WAS WRONG
+--------------------------------------------------------------------------------
+
+`detach_from_window_manager` ALREADY EXISTED and did exactly this. It was
+called from six files, while more than twenty others opened dialogs without
+it -- so most popups were still attached to the main window and dragged it
+along.
+
+"ALL SETTINGS WINDOWS" IS NOT REACHABLE BY ADDING A TWENTY-FIRST CALL. A rule
+applied by hand holds until the next dialog is written, and the request is
+explicitly about every popup rather than the one that was noticed.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+One application-level event filter, installed once at startup, detaching
+every `QDialog` as it is polished.
+
+HOOKED ON `Polish`, WHICH IS THE ONLY MOMENT THAT WORKS. `setWindowFlags` on
+a widget that is already visible destroys and recreates its native window, so
+Qt hides it -- detaching on `Show` makes the dialog flash or disappear.
+`Polish` is delivered during the first show sequence and BEFORE the window is
+mapped. Measured order on PySide6: WinIdChange, Polish, Show, ShowToParent.
+
+Each dialog is detached once. The flag change is idempotent, but repeating it
+on a dialog shown, hidden and shown again would recreate the native window
+every time and lose its position -- the thing this exists to protect.
+
+A BUG FOUND IN THE FIRST ATTEMPT, worth recording because it is invisible:
+the filter was written as `class F(QObject, Mixin)`, which puts QObject first
+in the MRO -- so QObject's own `eventFilter`, which returns False and does
+nothing, won over the mixin's. It installed, reported success, and never
+fired. There is now a test that the filter object's own class defines
+`eventFilter`.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* A dialog shown after startup has window type `Qt.Window`, not `Qt.Dialog`.
+* It is still visible and still keeps its parent.
+* Installing twice leaves one filter.
+* The filter is kept alive -- one that is garbage collected stops filtering,
+  silently.
+* Tests: `tests/qt/test_every_dialog_is_a_movable_window.py`, 9 passing.

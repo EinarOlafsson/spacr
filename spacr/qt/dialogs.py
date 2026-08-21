@@ -68,3 +68,91 @@ def detach_from_window_manager(dialog: Any) -> Any:
         # that cannot be detached is still a dialog the user can use.
         pass
     return dialog
+
+
+class _DetachEveryDialog:
+    """Application-wide filter: every dialog is a window the user can drag.
+
+    Asked 2026-08-21: "the settings for your data settings window should be
+    movable without moving the main window. this should be tru of all
+    settings windows or any popup window from spacr."
+
+    ONE PLACE, NOT ONE CALL SITE PER DIALOG. :func:`detach_from_window_manager`
+    already existed and was being called from six files while more than
+    twenty others opened dialogs without it -- which is what "all settings
+    windows" cannot be built out of. A rule applied by hand is a rule that
+    holds until the next dialog is written.
+
+    HOOKED ON `Polish`, WHICH IS THE ONLY MOMENT THAT WORKS.
+    `setWindowFlags` on a widget that is already visible destroys and
+    recreates its native window, so Qt hides it -- detaching on `Show` makes
+    the dialog flash or vanish. `Polish` is delivered during the first show
+    sequence and BEFORE the window is mapped, so the flags are already right
+    when it appears. Measured order on PySide6: WinIdChange, Polish, Show,
+    ShowToParent.
+
+    Each dialog is detached ONCE. The flag change is idempotent, but doing
+    it repeatedly on a dialog that is shown, hidden and shown again would
+    recreate the native window every time and lose its position -- which is
+    the thing this exists to protect.
+    """
+
+    def __init__(self):
+        self._done: set = set()
+
+    def eventFilter(self, obj, event):        # noqa: N802 - Qt naming
+        try:
+            from PySide6.QtCore import QEvent
+            from PySide6.QtWidgets import QDialog
+
+            if event.type() == QEvent.Type.Polish and isinstance(obj, QDialog):
+                key = id(obj)
+                if key not in self._done:
+                    self._done.add(key)
+                    detach_from_window_manager(obj)
+        except Exception:                     # pragma: no cover
+            # INVARIANTS 10 again: a dialog that cannot be detached is still
+            # a dialog. This filter sees every event in the application and
+            # must never be the reason one of them is lost.
+            pass
+        return False
+
+
+#: Kept alive for the life of the application. An event filter that is
+#: garbage collected stops filtering, silently.
+_DETACHER = None
+
+
+def detach_all_dialogs(app) -> bool:
+    """Install the application-wide detacher. Returns True if it installed.
+
+    Idempotent: calling it twice leaves one filter, because two would do the
+    same work twice and the second would find every dialog already done.
+    """
+    global _DETACHER
+    if app is None:
+        return False
+    if _DETACHER is not None:
+        return False
+    try:
+        from PySide6.QtCore import QObject
+
+        # ONE CLASS, NOT A MIX-IN, and that is a correctness fix rather than
+        # a style one. `class F(QObject, _DetachEveryDialog)` puts QObject
+        # first in the MRO, so QObject's own `eventFilter` -- which returns
+        # False and does nothing -- wins over the one below it. The filter
+        # installed, reported success, and silently never fired.
+        class _Filter(QObject):
+            def __init__(self):
+                super().__init__()
+                self._inner = _DetachEveryDialog()
+
+            def eventFilter(self, obj, event):    # noqa: N802 - Qt naming
+                return self._inner.eventFilter(obj, event)
+
+        _DETACHER = _Filter()
+        app.installEventFilter(_DETACHER)
+        return True
+    except Exception:                         # pragma: no cover
+        _DETACHER = None
+        return False

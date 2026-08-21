@@ -104,6 +104,10 @@ class Reading:
     wells_per_guide: Optional[float] = None
     guides_per_gene: Optional[float] = None
     objects_per_well: Optional[float] = None
+    fraction_median: Optional[float] = None
+    fraction_q90: Optional[float] = None
+    guides_per_well: Optional[float] = None
+    kept_at_two_percent: Optional[float] = None
     capped: bool = False
     trouble: Tuple[str, ...] = ()
 
@@ -212,6 +216,22 @@ def read_the_counts(paths: Sequence[str]) -> Dict[str, Any]:
     parts = wells.str.split("_")
     out["rows"] = int(parts.str[1].nunique()) if parts.str.len().min() > 1 else 0
     out["columns"] = int(parts.str[2].nunique()) if parts.str.len().min() > 2 else 0
+    # THE FRACTION DISTRIBUTION ITSELF, not only its shape. It was computed
+    # here and thrown away, and it is the only thing that can say whether a
+    # `fraction_threshold` keeps a library or deletes it.
+    try:
+        share = pd.to_numeric(frame["fraction"], errors="coerce")
+        share = share[share.notna() & (share > 0)]
+        if len(share):
+            out["fraction_median"] = float(share.median())
+            out["fraction_q90"] = float(share.quantile(0.90))
+            out["guides_per_well"] = float(
+                frame.groupby("prc")["grna"].nunique().median())
+            # What the usual default would cost THIS screen, which is the
+            # number a user can act on.
+            out["kept_at_two_percent"] = float((share >= 0.02).mean())
+    except Exception:                                        # noqa: BLE001
+        pass
 
     per_guide = frame.groupby("grna")["prc"].nunique()
     out["wells_per_guide"] = float(per_guide.median()) if len(per_guide) else None
@@ -790,6 +810,105 @@ def _controls(reading: Reading, answers: Dict[str, Any],
         f"guide to itself, in any of the four spellings a library writes"))
 
 
+def _thresholds(reading: Reading, chosen: List[Choice],
+                undecided: List[Undecided]) -> None:
+    """`fraction_threshold`, the cell-count floor and `min_n`.
+
+    THE FRACTION THRESHOLD IS THE ONE THAT QUIETLY DELETES A SCREEN. It is a
+    constant by default, and a constant cannot know how crowded a well is:
+    with four guides per well a 2% cut removes nothing, and with four hundred
+    it removes almost everything, because the typical guide is then a quarter
+    of one per cent.
+
+    So the advice is measured against THIS screen's own distribution, and
+    where the usual default would discard most of the library it says so with
+    the number rather than proposing a value and hoping.
+    """
+    kept = reading.kept_at_two_percent
+    median = reading.fraction_median
+    if median is None:
+        undecided.append(Undecided(
+            "fraction_threshold",
+            "the count tables did not yield a fraction column, so nothing "
+            "here can say what a threshold would cost"))
+    elif kept is not None and kept < 0.5:
+        # A tenth of the typical share: low enough to keep the library,
+        # which is the failure that matters, and still above nothing.
+        proposal = float(f"{median / 10.0:.1g}")
+        chosen.append(Choice(
+            "fraction_threshold", proposal,
+            f"the usual 0.02 would keep only {kept:.1%} of the "
+            f"guide-in-well pairs here, because the typical guide is "
+            f"{median:.3%} of its well. THE THRESHOLD IS A NOISE FLOOR AND "
+            f"THIS SCREEN'S NOISE HAS NOT BEEN MEASURED: control wells of "
+            f"known composition give it directly, and `spacr.read_background` "
+            f"computes it from them. Until then this is a value chosen to "
+            f"keep the library rather than to remove noise."))
+    else:
+        chosen.append(Choice(
+            "fraction_threshold", 0.02,
+            f"the wells are not crowded enough for the cut to bite: 0.02 "
+            f"keeps {kept:.1%} of the guide-in-well pairs"
+            if kept is not None else
+            "the usual default, with nothing here arguing against it"))
+
+    # MIN N -- how many observations a hit must rest on.
+    per_guide = reading.wells_per_guide
+    if per_guide is None:
+        undecided.append(Undecided(
+            "min_n", "the replication per guide could not be measured"))
+    elif per_guide >= 4:
+        chosen.append(Choice(
+            "min_n", 1,
+            f"a guide is in {per_guide:.0f} wells here, so requiring more "
+            f"than one observation costs almost nothing and drops hits "
+            f"resting on a single well"))
+    else:
+        chosen.append(Choice(
+            "min_n", 0,
+            f"a guide is in only {per_guide:.0f} well(s), so any floor above "
+            f"zero would delete real hits along with the fragile ones"))
+
+    objects = reading.objects_per_well
+    if objects is not None and objects > 0:
+        floor = max(int(objects * 0.1), 1)
+        chosen.append(Choice(
+            "min_cell_count", floor,
+            f"a well holds {objects:.0f} objects here; a well with fewer "
+            f"than {floor} has a fraction too noisy to model, and dropping "
+            f"it is cheaper than letting it set a coefficient"))
+
+
+def _aggregation(reading: Reading, chosen: List[Choice],
+                 undecided: List[Undecided]) -> None:
+    """`agg_type` -- how per-cell values become one number per well.
+
+    THE MEDIAN WHEN THE RESPONSE IS SKEWED, and the skew is measured rather
+    than assumed. A mean over cells is dragged by the tail, and the tail of
+    a classification score is exactly where the interesting cells are -- so
+    on a skewed response the mean reports the outliers and the median
+    reports the well.
+    """
+    skew = reading.skew
+    if skew is None:
+        undecided.append(Undecided(
+            "agg_type",
+            "the response was not read, so nothing here knows whether its "
+            "tail would drag a mean"))
+        return
+    if abs(float(skew)) >= 1.0:
+        chosen.append(Choice(
+            "agg_type", "median",
+            f"the response is skewed ({skew:+.2f}), and a mean over cells "
+            f"is dragged by the tail -- which on a classification score is "
+            f"where the interesting cells are"))
+    else:
+        chosen.append(Choice(
+            "agg_type", "mean",
+            f"the response is near-symmetric ({skew:+.2f}), so the mean "
+            f"uses every cell rather than only the middle one"))
+
+
 def advise(reading: Reading,
            answers: Optional[Dict[str, Any]] = None) -> Advice:
     """Build a regression-setting proposal from measurements and answers.
@@ -806,6 +925,12 @@ def advise(reading: Reading,
     _inference(reading, chosen, undecided)
     _significance(reading, answers, chosen, undecided)
     _controls(reading, answers, chosen, undecided)
+    # Asked for 2026-08-21: "recomend a fraction and cell count threshold and
+    # a min n threshold, batch correction method, aggregation type". The
+    # batch method and the transform were already proposed by `_plate` and
+    # `_family_and_transform`; these two are the rest.
+    _thresholds(reading, chosen, undecided)
+    _aggregation(reading, chosen, undecided)
     return Advice(tuple(chosen), tuple(undecided), reading)
 
 
