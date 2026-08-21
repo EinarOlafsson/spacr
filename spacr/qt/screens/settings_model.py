@@ -1992,24 +1992,22 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "weight decay, gradient checkpointing. Reach for these when training "
         "accuracy climbs and validation accuracy does not.",
     "MODEL EVALUATION":
-        "HOW THE MODEL IS VALIDATED: whether cross-validation runs, into how "
-        "many folds, and what a fold is grouped by. Read by BOTH classifier "
-        "families, which is why it keeps a neutral heading — a setting filed "
-        "under a family name tells the user it applies to one path when it "
-        "applies to both, and they set it in one module and not the other.",
+        "Cross-validation design used to estimate generalization performance: "
+        "whether validation runs, the number of folds, and the grouping unit. "
+        "Grouped folds keep related observations in the same partition and "
+        "reduce information leakage. These settings apply to both classifier "
+        "families.",
     "EVALUATION REPORTS":
-        "WHAT IS WRITTEN OUT once the model is judged — the evaluation "
-        "bundle, the calibration curve and its bins, and the score column "
-        "and threshold that turn a probability into a call. Separate from "
-        "the validation above because they answer different questions: one "
-        "is how the number was earned, the other is how it is reported. "
-        "Both families read these.",
+        "Outputs produced after model evaluation: the metric bundle, "
+        "calibration curve and bins, output score column, and decision "
+        "threshold. Calibration compares predicted probabilities with "
+        "observed frequencies. These settings apply to both classifier "
+        "families.",
     "LEAKAGE AUDIT":
-        "WHETHER THE TRAIN AND TEST SETS SHARE OBJECTS, and what happens "
-        "when they do. This is a check on the SPLIT rather than on the "
-        "model, which is why it is not under an evaluation heading: a "
-        "reader looking for it among the metrics would not find it, and a "
-        "model scored on cells it was trained on is not scored at all.",
+        "Checks whether training and test partitions share objects or "
+        "identical content, with configurable detection and failure behavior. "
+        "Partition overlap invalidates held-out performance estimates because "
+        "the evaluation then includes data seen during training.",
     "MACHINE LEARNING MODEL AND FEATURES":
         "The feature-based classifier: which model, and which measured "
         "features it is allowed to see. Feature preparation and feature "
