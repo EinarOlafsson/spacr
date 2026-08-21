@@ -432,10 +432,13 @@ def save_results_and_figure(src, fig, results):
     results_path = os.path.join(results_dir,f'results.csv')
     fig_path = os.path.join(results_dir, f'model_comparison_plot.pdf')
     results.to_csv(results_path, index=False)
-    # 108 point 6: through the one writer.
+    # 108 point 6: through the one writer, for the resolution rule and the
+    # repaint for paper -- but `fmt` STAYS PDF. This path is announced to
+    # the user and asserted by name; a format preference that renamed it
+    # would break the sentence printed two lines down.
     from .plot import save_figure
 
-    fig_path = save_figure(fig, fig_path)
+    fig_path = save_figure(fig, fig_path, fmt="pdf")
     print(f'Saved figure to {fig_path} and results to {results_path}')
 
 def compare_mask(args):

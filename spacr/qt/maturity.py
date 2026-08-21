@@ -1,7 +1,7 @@
 """Assign evidence-based maturity labels to Qt applications.
 
 Application maturity is assessed from tests, command-line support or a stated
-GUI-only scope, documentation, tutorials, and use by other SPACR components.
+GUI-only scope, documentation, tutorials, and use by other spaCR components.
 The labels have the following meanings:
 
 ``stable``
