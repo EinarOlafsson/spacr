@@ -1,0 +1,71 @@
+================================================================================
+NO BUTTON EVER CUTS OFF ITS OWN TEXT
+================================================================================
+
+Status:    filed 2026-08-21, not started.
+Requested: 2026-08-21 -- "some buttons like the plate button cut off the text.
+           make it impossible for any button to cut of anny text."
+Owner:     Qt GUI (every screen)
+
+--------------------------------------------------------------------------------
+THE REPORTED ONE, AND WHY IT IS NOT THE POINT
+--------------------------------------------------------------------------------
+
+The "Plate…" button of 185 is `setFixedWidth(58)`, chosen by eye against the
+English label. Any longer string -- and every translation is a longer string
+-- is elided to "Plat…" or clipped outright.
+
+FIXING THAT ONE BUTTON IS NOT WHAT WAS ASKED. "make it impossible for ANY
+button to cut of ANNY text" is a rule about the class, and a rule is worth
+having because the failure is invisible to the person who wrote it: the
+author sees their own label fit, and the button is only wrong in a language
+they do not read or at a font size they do not use.
+
+--------------------------------------------------------------------------------
+A. THE RULE
+--------------------------------------------------------------------------------
+
+A button's width is a CONSEQUENCE of its text, never an input to it.
+
+  * No `setFixedWidth` / `setMaximumWidth` on a button that carries a label.
+    A fixed width is a promise about a string, and neither the string nor
+    the font is fixed.
+  * The size policy carries the text: the button's `sizeHint()` already
+    accounts for the label, the icon, the padding and the current font.
+    Let the layout have it.
+  * WHERE A ROW GENUINELY HAS TO FIT, the label shortens, not the button --
+    and shortening is a decision written in the code with the full text kept
+    in the tooltip, not `Qt.ElideRight` happening silently at paint time.
+
+TRANSLATION IS THE REAL TEST. spaCR ships localised UI; the German for a
+three-word English button is routinely half again as long. A width that fits
+`en` and clips `de` is the same bug reported in a language nobody on the
+project reads.
+
+--------------------------------------------------------------------------------
+B. IT IS HELD BY A TEST, NOT BY REVIEW
+--------------------------------------------------------------------------------
+
+A rule that depends on the next author remembering it is not a rule. Build
+every screen and, for every QPushButton on it, assert
+
+    button.width() >= button.sizeHint().width()
+
+and that the painted text is not elided -- `QFontMetrics.elidedText(...) ==
+text` is the direct check, and it catches the case a width comparison misses
+when a layout has already squeezed the button.
+
+RUN IT IN EVERY SHIPPED LANGUAGE, or at least in the longest one: the
+catalogues are in the tree, so the test can measure the worst case rather
+than the one the author happens to speak.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* No button in `spacr/qt` sets a fixed or maximum width while carrying text.
+* Every button on every module screen is at least as wide as its own
+  `sizeHint`, in the longest shipped language.
+* No button paints elided text.
+* The "Plate…" button shows "Plate…" in full, and still does when the
+  settings pane is dragged narrow.
