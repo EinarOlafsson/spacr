@@ -1,20 +1,10 @@
-"""Drag images in, name what the groups mean, and see what would happen.
+"""Preview how imported image names map to a spaCR folder structure.
 
-Instruction 137 A, C and D. B -- inferring the regex from the names -- is
-`spacr.regex_infer`, and the plan this previews is `spacr.import_plan`; both
-are headless, so what this window shows can be checked from a script.
-
-    A. "the user should be able to drag and drop images into a table"
-    C. "The table should have control columns specified by the user ...
-        they choose from predetermined set of channels"
-    D. "a regex is proposed and, which is modifiable, and the user can hit
-        test to show how file names would be changed and how files would be
-        organized into a spacr structure"
-
-TEST SHOWS, IT DOES NOT WRITE, and there is no "Test" button: the table IS
-the preview and it re-runs on every edit. A button would imply the answer is
-stale until it is pressed, and the whole failure being fixed is a regex that
-looked right and grouped the files wrong.
+Drop images into the table, review or edit the inferred filename pattern,
+and assign a role to each captured group. The preview updates after every
+edit and does not write or move files. Pattern inference is provided by
+:mod:`spacr.regex_infer`; the displayed plan comes from
+:mod:`spacr.import_plan`.
 """
 from __future__ import annotations
 

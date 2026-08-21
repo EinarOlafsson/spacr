@@ -1,17 +1,9 @@
-"""Ask the four questions, then propose the settings (192).
+"""Review data-dependent regression-setting recommendations.
 
-    "its fine if the button triggers a popup that asks the user questions
-    about their data that cant be determined by reading the data"
-
-TWO PAGES, IN THAT ORDER. The questions first, because two of the answers
-change what is proposed; the proposal second, with the CURRENT value beside
-the new one and nothing written until Apply. A button that rewrites a
-carefully-tuned panel with one click and no undo is a button people learn not
-to press.
-
-The arithmetic is entirely in :mod:`spacr.settings_advisor`, which is
-headless and does not import Qt -- so what this window shows can be checked
-from a script against the same screen.
+The first page asks only for information that cannot be inferred from the
+tables. The second compares each proposed value with the current value and
+explains the evidence for the change. No setting is written until the user
+selects Apply. Calculations are provided by :mod:`spacr.settings_advisor`.
 """
 from __future__ import annotations
 
@@ -81,6 +73,7 @@ class QuestionsPage(QWidget):
         return box
 
     def answers(self) -> Dict[str, Any]:
+        """Return the current answer for each displayed question."""
         out: Dict[str, Any] = {}
         for key, widget in self._fields.items():
             if isinstance(widget, QSpinBox):
@@ -117,6 +110,7 @@ class ProposalPage(QWidget):
         outer.addWidget(self.undecided)
 
     def show_the_proposal(self, advice: Advice, current: Dict[str, Any]) -> None:
+        """Display proposed values, current values, and supporting reasons."""
         reading = advice.reading
         if reading is not None:
             note = reading.sample_note()
@@ -212,6 +206,7 @@ class SettingsAdvisorDialog(QDialog):
     # ------------------------------------------------------------- the pages
 
     def show_the_questions(self) -> None:
+        """Return to the question page without discarding current answers."""
         self.pages.setCurrentWidget(self.questions)
         self.back.setVisible(False)
         self.next.setVisible(True)
@@ -230,6 +225,7 @@ class SettingsAdvisorDialog(QDialog):
     # ------------------------------------------------------------ the result
 
     def advice(self) -> Optional[Advice]:
+        """Return the most recently displayed proposal, if any."""
         return self._advice
 
     def accepted_settings(self) -> Dict[str, Any]:

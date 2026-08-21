@@ -486,7 +486,20 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # helpers resolve wells, identities, contrasts, and measurement-table
     # joins; five widget methods expose comparison rows, well selection, and
     # the join action; SaveFigureDialog.preview exposes the detached preview.
-    expected = 7839
+    # +58/-0 for the import preview, settings advisor, and shared figure
+    # style follow-up, measured against the 7,839-canonical snapshot:
+    #   17  spacr.settings_advisor
+    #   10  spacr.import_plan
+    #   10  spacr.qt.widgets.settings_advisor_dialog
+    #    9  spacr.qt.widgets.import_workbench
+    #    7  spacr.style_base
+    #    2  spacr.qt.screens.app_screen
+    #    2  spacr.gene_measurement_compare
+    #    1  spacr.figures.style
+    # The five advisor accessors documented during review are included in
+    # these counts. Nothing retired; all additions are translated with the
+    # catalog regeneration accompanying this ratchet.
+    expected = 7897
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -501,7 +514,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 7958
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8016
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
