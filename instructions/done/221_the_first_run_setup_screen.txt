@@ -2,7 +2,7 @@
 THE FIRST RUN ASKS, INSTEAD OF THE INSTALLER
 ================================================================================
 
-Status:    filed 2026-08-21. MODEL AND CARD DONE 2026-08-21; the dialog that hosts them is not.
+Status:    DONE 2026-08-21.
 Requested: 2026-08-21 -- "instead of having options in the installers like i
            have asked for preveously. instead the first time spacr is run
            have the user be prompted with a setup screen ... i basically want
@@ -164,3 +164,49 @@ The dialog that puts the two together: the blurred home screen behind, the
 card in front, the questions laid out on it, Help -> Startup to reopen, and
 the "these are new since 4.1" marking on an update. The parts it needs all
 exist and are tested; assembling them is the remaining work.
+
+--------------------------------------------------------------------------------
+THE DIALOG, DONE 2026-08-21
+--------------------------------------------------------------------------------
+
+`spacr/qt/widgets/setup_dialog.py`, opened from `qt/app.py` AFTER
+`win.show()` -- the screen blurs what is behind it, and there is nothing
+behind a window that has not been shown.
+
+NINE QUESTIONS, NOT ELEVEN, and the two missing ones are missing for a
+reason. `ai_provider` and `share_logs` were added here along with a new
+`preferred_provider` preference. MODULE VISIBILITY and GITHUB LOGIN have no
+preference to write: there is no stored set of visible modules and no stored
+credential, so a box for either would be a control that changes nothing --
+which is the failure instruction 219 is about, arriving by a different door.
+
+GROUPED, NOT LISTED. "How it looks" first, because language and theme change
+what the NEXT screen looks like; the reproducibility hash sits under "How it
+runs" rather than beside the theme, because it is a decision nobody can
+evaluate before their first run. A group whose questions all removed
+themselves is not drawn -- an empty "The assistant" heading would read as a
+bug.
+
+THE PROVIDER QUESTION REMOVES ITSELF when no CLI is installed. Asking
+somebody to choose between providers none of which are there is asking a
+question with no true answers, and this screen's rule is that every question
+has a working default. Its default is "whatever is available" rather than a
+pinned name: a machine with two CLIs today may have one tomorrow, and a
+pinned name that is gone is worse than no preference.
+
+DISMISSING MARKS IT ANSWERED. Every question has a working default, so a
+user who closes it has CHOSEN those defaults -- and reopening on every
+launch until they fill it in would make dismissing it impossible.
+
+THE THEME LIST WAS BACK TO FRONT. `theme_choices()` is (caption, value)
+while every other list is (value, caption), so the screen opened on "Dark"
+for a user whose theme was "Follow system". Normalised at the source rather
+than special-cased in the screen: a screen that knows which of its questions
+is reversed is a screen that gets it wrong the next time one is added.
+
+INVARIANTS 10, TESTED. The backdrop is a CACHED PIXMAP, not a live blur --
+the corner accent is a pointer-position readout and has to keep up with the
+mouse, and blurring a live widget would repaint the whole backdrop on every
+move. With no parent, or when the grab raises, `_backdrop` returns None and
+the dialog is a plain dialog with the same controls and the same answers.
+A test monkeypatches `grab` to raise and asserts exactly that.

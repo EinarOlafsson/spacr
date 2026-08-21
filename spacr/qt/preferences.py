@@ -280,6 +280,23 @@ _KEY_FIG_STYLE = "figures/style_general"
 _KEY_FIG_STYLE_PER_GRAPH = "figures/style_per_graph"
 
 
+#: Which AI provider the console opens on. A NAME, not a provider object:
+#: the set of installed CLIs changes between machines and between launches,
+#: so a stored object would be a stale handle and a stored name is a
+#: preference that can simply turn out not to be available today.
+_KEY_AI_PROVIDER = "ai/preferred_provider"
+
+
+def get_preferred_provider() -> str:
+    """The AI provider to open on, or ``""`` for whatever is available."""
+    return str(_settings().value(_KEY_AI_PROVIDER, "") or "")
+
+
+def set_preferred_provider(name: str) -> None:
+    """Remember which provider to open on. ``""`` clears the preference."""
+    _settings().setValue(_KEY_AI_PROVIDER, str(name or ""))
+
+
 #: QSettings key for the mapping of panel identifiers to folded state. One
 #: mapping accommodates newly added panels without introducing new preference
 #: keys or requiring callers to discover them individually.
