@@ -1,0 +1,107 @@
+================================================================================
+THE SUDOKU ANNOTATION METHODS
+================================================================================
+
+Status:    filed 2026-08-21, NOT STARTED AND NOT TO BE STARTED.
+           Gated on the maintainer's approval of the explanation -- see the
+           gate below, which is the first line of this instruction for a
+           reason.
+Requested: 2026-08-21.
+Owner:     Sequencing annotation (`guide_attribution.py`)
+
+--------------------------------------------------------------------------------
+THE GATE
+--------------------------------------------------------------------------------
+
+    "before implementing either of these methods please explain them to me
+     mathematically and in simple terms that i am garanteed to understand"
+
+NOTHING IS BUILT UNTIL THAT EXPLANATION IS GIVEN AND ACCEPTED. Not a
+prototype, not a branch, not a helper "ready for when it is approved". The
+request is not for a status update on the way to the code; it is for the
+maths to be checked by the person who will have to defend the results.
+
+A method that assigns cells to guides decides what every downstream number
+means. Building it first and explaining it after inverts who is reviewing
+whom.
+
+--------------------------------------------------------------------------------
+A. SUDOKU -- WHAT WAS ASKED FOR
+--------------------------------------------------------------------------------
+
+    "we come up with a sofisticated exclude, include criterion across wells,
+     where we anchor the approach to the highest scoring cells in the
+     annotated wells (the user may choose several high scoring guides), then
+     use the fractions, clssification scores, and cell measurements for a
+     suduku like process of elimination and affirmation where cells get a
+     score that mapps if they are likely to not be one of the chosen top
+     scoring guides, and a seperate score for if they are likely to be one of
+     the top scoring guides."
+
+The essential parts, none of which may be quietly dropped:
+
+  * ANCHORS. The highest scoring cells in the annotated wells are taken as
+    near-certain examples. The user chooses which guides anchor it, and may
+    choose several.
+  * ACROSS WELLS, not within one. This is what makes it sudoku rather than
+    the per-well posterior that already exists: what a guide's cells look
+    like is learned from every well the guide is in, and applied in each.
+  * THREE SOURCES OF EVIDENCE: the sequencing fractions, the classification
+    scores, and the cell measurements.
+  * ELIMINATION AND AFFIRMATION, and these are SEPARATE. "cells get a score
+    that mapps if they are likely to not be one of the chosen top scoring
+    guides, and a seperate score for if they are likely to be one".
+
+TWO SCORES, NOT ONE, and this is the part most likely to be lost in
+implementation because one number is easier. It must not be: "probably not
+this guide" and "probably this guide" are different claims and a cell can be
+low on both. A cell that is unlike the anchors AND unlike everything else is
+exactly the cell a single score hides, and it is the interesting one.
+
+--------------------------------------------------------------------------------
+B. SUDOKU ALL -- THE SEQUENTIAL FORM
+--------------------------------------------------------------------------------
+
+    "the method starts with the highest scoring + p value guide and performs
+     the suduku method across all wells that have the guide, and then excludes
+     the cells annotated with that guide and goes to the next guide with the
+     now highest cloassification score + p value, and so on untill the method
+     reaches a reasonable threshold of unsertainty where there is no way to
+     know if cell is one gRNA or another, where it is a coin flip."
+
+Greedy, in confidence order, removing what it has claimed as it goes, and
+STOPPING at a stated uncertainty -- not running to exhaustion. The stopping
+rule is a first-class part of the method, not an afterthought: "where it is a
+coin flip" has to become a number, and that number has to be defensible.
+
+THE ORDER IS THE RISK, and it must be said in the explanation rather than
+discovered later: a greedy method that removes cells commits early. The first
+guide's mistakes are permanent and every later guide inherits them. Whatever
+is built must be able to say how much the answer would change if the order
+changed, or the confidence it reports is not confidence.
+
+--------------------------------------------------------------------------------
+C. WHAT THE EXPLANATION MUST CONTAIN
+--------------------------------------------------------------------------------
+
+  * the model, in symbols, with every symbol named in words;
+  * the same thing again with no symbols at all;
+  * what it assumes, and which assumption breaks first;
+  * where it disagrees with `attributed` and `assigned`, and why -- these
+    already exist and already solve the neighbouring problem, so a new method
+    has to justify itself against them;
+  * what the two scores mean on one named example cell;
+  * the stopping rule for the sequential form, as a number;
+  * how it would be shown to be wrong.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* The explanation was given and the maintainer accepted it BEFORE any code.
+* Both scores are produced and both are kept -- no collapse to one number.
+* The anchors are the user's choice and several guides can anchor.
+* The sequential form stops at a stated uncertainty and says where it
+  stopped and why.
+* Order sensitivity is measured and reported, not assumed away.
+* Tested on data where the truth is known by construction.

@@ -1,0 +1,55 @@
+================================================================================
+"SHOW" OFFERS THE WELLS THE CHOSEN GUIDES ARE IN
+================================================================================
+
+Status:    filed 2026-08-21, not started.
+Requested: 2026-08-21 -- "for the sow option in the cell table graphs, i
+           whould be able to gRNAs, gRNAs + other datapoints in selected
+           wells, and All datapoints. presently i cannot pick gRNAs + other
+           datapoints in selected wells. selected well are the wells that
+           contain the gRNAs chosen on the volcano plot. the user should be
+           able to choose a selection of these wells."
+Owner:     Qt GUI (cell table graphs, volcano selection)
+
+--------------------------------------------------------------------------------
+A. THE THREE CHOICES
+--------------------------------------------------------------------------------
+
+  1. gRNAs -- only the objects annotated with the chosen guides.
+  2. gRNAs + other datapoints in selected wells -- those objects AND every
+     other object in the same wells. MISSING TODAY.
+  3. All datapoints -- the whole table.
+
+The middle one is the comparison that matters, and it is the one that is not
+offered: it is what makes an effect readable as an effect. A guide's cells
+against every cell in the screen compares two different experiments; a
+guide's cells against their own well-mates compares two populations that
+shared a plate, a day, a stain and an imaging session.
+
+--------------------------------------------------------------------------------
+B. WHAT A SELECTED WELL IS
+--------------------------------------------------------------------------------
+
+A selected well is a well containing one of the guides chosen on the volcano
+plot. THE VOLCANO IS THE SELECTOR -- the same click that picks a point picks
+the wells -- and the user can then narrow that set: "the user should be able
+to choose a selection of these wells".
+
+So the well set has two stages: derived from the guide selection, then
+editable. Which means it must be VISIBLE. A set the user is invited to narrow
+and cannot see is a set they cannot narrow.
+
+Depends on instruction 206: with one guide selectable at a time, the well set
+is whatever one guide touched.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* All three choices are offered and each draws a different population.
+* Choosing the middle one plots the guides' objects and their well-mates,
+  distinguishable from each other on the plot.
+* The selected wells are shown, and narrowing them narrows the plot.
+* Selecting different guides on the volcano changes the wells.
+* Zero selected guides is handled and says so rather than drawing everything
+  or nothing.

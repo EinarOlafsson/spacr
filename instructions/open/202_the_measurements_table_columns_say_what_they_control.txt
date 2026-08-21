@@ -1,0 +1,41 @@
+================================================================================
+THE MEASUREMENTS TABLE'S COLUMNS SAY WHAT THEY CONTROL
+================================================================================
+
+Status:    filed 2026-08-21, not started.
+Requested: 2026-08-21 -- "for the measurements table tab, there needs to be a
+           tooltip when the mouse is hovered over measurement, and level and
+           plot and show and compare that explains what each field related to
+           them controlls."
+Owner:     Qt GUI (Measurements table tab)
+
+--------------------------------------------------------------------------------
+WHAT IS ASKED
+--------------------------------------------------------------------------------
+
+Five column headings -- MEASUREMENT, LEVEL, PLOT, SHOW, COMPARE -- each
+govern a field in every row, and none of them says what its field does. A
+heading that names a control without explaining it is a control the user
+learns by trying, on a table where trying means redrawing a plot.
+
+EACH TOOLTIP EXPLAINS THE FIELD, not the heading. "Level" is a word the user
+can already read; what they cannot read off the screen is that it decides
+whether a row is measured per cell, per well or per gene, and that changing
+it changes what a datapoint IS on the plot below.
+
+WRITE THEM FROM THE CODE. A tooltip that describes intent rather than
+behaviour goes stale the first time the behaviour moves, and a wrong tooltip
+is worse than none: it is believed.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Hovering each of the five headings shows a tooltip that names what the
+  field under it changes, in terms of what the user will see happen.
+* The tooltips survive a rename of the heading text -- they are attached to
+  the column, not matched by label.
+* A test asserts each of the five has non-empty help, so a new column cannot
+  be added without one.
+* Same hover behaviour as instruction 208 asks for elsewhere: the tooltip
+  does not vanish when the pointer moves onto it.

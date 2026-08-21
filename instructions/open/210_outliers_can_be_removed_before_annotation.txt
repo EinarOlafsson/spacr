@@ -1,0 +1,50 @@
+================================================================================
+OUTLIERS CAN BE REMOVED BEFORE ANNOTATION
+================================================================================
+
+Status:    filed 2026-08-21, not started.
+Requested: 2026-08-21 -- "there should also be a remove outlier based on,
+           cell_area, nucleus_area, cell_channel_intensity, nucleus
+           channel_intensity that can be optionally applied before
+           annotation."
+Owner:     Sequencing annotation, measurements
+
+--------------------------------------------------------------------------------
+WHAT IS ASKED
+--------------------------------------------------------------------------------
+
+An optional filter, applied BEFORE annotation, on any of:
+
+  * cell_area
+  * nucleus_area
+  * cell channel intensity
+  * nucleus channel intensity
+
+BEFORE, NOT AFTER, and the order is the substance of the request. Annotation
+methods that normalise -- everything that makes fractions sum to 1, and every
+method instruction 209 proposes -- have their denominator set by which
+objects are present. Removing a segmentation artefact after the fractions are
+computed leaves its reads redistributed across the guides; removing it first
+means it never contributed.
+
+WHAT AN OUTLIER IS has to be stated, not assumed. A multiple of the MAD about
+the median is the defensible default for these four -- areas and intensities
+are skewed and a standard-deviation cut on skewed data removes real cells
+from the long tail. Whatever is chosen, the threshold is the user's and the
+plot says how many objects it removed.
+
+OPTIONAL MEANS OFF BY DEFAULT. This changes which cells exist, and a filter
+that silently drops objects is a filter that will be forgotten and then
+blamed on the annotation.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Each of the four can be filtered on, independently, and the filter is off
+  by default.
+* The count removed is reported, per criterion, where the user can see it.
+* Annotation runs on the surviving objects: the fractions are computed after
+  the removal, not before it.
+* A test shows that removing an object changes the fractions of the guides in
+  its well -- which is the reason the order matters.

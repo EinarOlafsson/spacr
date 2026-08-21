@@ -1,0 +1,72 @@
+================================================================================
+THE PICTURE SETTINGS TOOLTIPS STAY WHILE THEY ARE BEING READ
+================================================================================
+
+Status:    filed 2026-08-21, not started.
+Requested: 2026-08-21 -- "the tooltipps for the settings in picture settings
+           dissapear when the the mouse is hovering over the tooltip text. the
+           tooltip should appera when hovering over the setting title text and
+           dissappear when the mouse leaves the tooltpi box area. also i dont
+           think the api is working for these tooltips. the API should be
+           verry specific and evplain exactly how cells are cjhoosen for
+           annotation."
+Owner:     Qt GUI (picture settings, tooltips)
+
+--------------------------------------------------------------------------------
+A. THE HOVER RULE
+--------------------------------------------------------------------------------
+
+  APPEARS: the pointer is over the setting's TITLE text.
+  STAYS:   while the pointer is over the title OR over the tooltip box.
+  LEAVES:  when the pointer leaves both.
+
+Today it vanishes when the pointer moves onto it, which means a tooltip
+longer than a glance cannot be read at all -- the reader moves toward the
+text they are reading and it disappears, and a tooltip that punishes reading
+is a tooltip nobody reads.
+
+THE BOX IS PART OF THE TARGET. That is the whole change: the hover region is
+the union of the title and the popup, not the title alone.
+
+Qt's own `QToolTip` cannot do this -- it is not a widget the pointer can
+enter -- so this is a popup with its own enter and leave handling and its own
+small grace period on the way between the two rectangles.
+
+--------------------------------------------------------------------------------
+B. THE HELP TEXT ITSELF DOES NOT ARRIVE
+--------------------------------------------------------------------------------
+
+    "i dont think the api is working for these tooltips"
+
+Settle whether it is reached, whether it answers, and whether the answer is
+being shown -- three different failures with one appearance. If the text is
+fetched, the failure path matters as much as the success one: a tooltip that
+is empty because a lookup failed must say that, not show nothing.
+
+--------------------------------------------------------------------------------
+C. WHAT THE ANNOTATION HELP MUST SAY
+--------------------------------------------------------------------------------
+
+    "The API should be verry specific and evplain exactly how cells are
+     cjhoosen for annotation."
+
+For each annotation method the help states, in this order: what it is given,
+what it computes, which objects end up annotated, which end up unannotated
+and why, and the one assumption that makes it wrong. Not a sentence naming
+the method -- the method's name is already on the control.
+
+The same text is what instruction 207 needs settled about `Non_annotated`,
+and what the maintainer asked to be explained in the chat. ONE SOURCE: the
+tooltip, the documentation and the explanation are the same words, or two of
+them will be wrong.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* The tooltip appears on the title, survives the pointer moving onto it, and
+  closes when the pointer leaves both rectangles.
+* A test drives enter and leave across the gap between title and box.
+* Every annotation method's help says what it does with objects it cannot
+  annotate.
+* A failed lookup shows the failure, not an empty box.
