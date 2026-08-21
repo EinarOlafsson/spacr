@@ -2,7 +2,7 @@
 THE ANNOTATED FRACTIONS ARE ALL ONE OR ZERO
 ================================================================================
 
-Status:    filed 2026-08-21, not started.
+Status:    filed 2026-08-21, DONE 2026-08-21.
 Requested: 2026-08-21 -- "i think there is a problem with the gRNA annotation
            alorithms or the graphing logic. if i pick tob py score, pick
            225160 on the volcano plot, and jitter plot and cell level i see a
@@ -314,3 +314,39 @@ the run finished normally.
 Fixed, with a test that the two paths -- gene column present and absent --
 reach the same rows, because which columns a screen happens to carry must not
 change which cells are controls.
+
+--------------------------------------------------------------------------------
+ALL THREE PARTS, DONE
+--------------------------------------------------------------------------------
+
+1. `show_all_in_well` DEFAULTS ON. With it off the only cells on screen are
+   the ones already annotated to the guide -- every visible cell a hit,
+   every visible fraction 1, which is the reported symptom exactly. A view
+   that shows only the cells agreeing with the annotation cannot disagree
+   with it.
+
+2. THE UNPICKED CELLS ARE NAMED `Non_annotated`, in a real column
+   (`ANNOTATION_COLUMN`), not merely left unhighlighted. A cell that is
+   shown and carries no label is counted by the eye and by nothing else --
+   and a fraction computed over only the annotated cells IS the fraction
+   that came out as 1. The column is present in both views, so a consumer
+   never has to know which produced the frame, and the spelling is the one
+   `spacr.sudoku` abstains with, so the two annotation routes put the same
+   word in the same place.
+
+3. `normalise_fraction` CHOOSES THE DENOMINATOR. Normalising divides by what
+   SURVIVED `fraction_threshold`, handing the filtered guides' reads to the
+   survivors. Measured on a synthetic well: one guide at a raw 0.4, alone
+   above the threshold, normalises to a share of 1.0 and takes ALL 100 cells
+   instead of 40. Off keeps the discarded reads in the denominator. Still on
+   by default, because it changes what a count means and should not change
+   quietly, and the per-well note says which was used -- a count that cannot
+   be traced to a fraction is a count nobody can check.
+
+Tests: `tests/test_the_shown_cells_are_all_named.py`, 10 passing.
+
+STILL WORTH DOING, and not part of this instruction: the capacity of each
+method to produce unannotated cells was settled in section C above --
+`rank` yes, `attributed` yes, `assigned` no, `multivariate` yes -- and the
+maintainer's guess about `multivariate` was wrong, because it thresholds at
+0.55 like `attributed` regardless of the prior.
