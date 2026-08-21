@@ -2,7 +2,7 @@
 THE DEFAULT CONTROL IN REGRESSION IS 000000
 ================================================================================
 
-Status:    filed 2026-08-21, not started. CORRECTED 2026-08-21 -- the first
+Status:    DONE 2026-08-21. See the closing section.
            draft of this file had the biology backwards and said so about
            the wrong setting. See "WHICH CONTROL IS WHICH".
 Requested: 2026-08-21 -- "default for controlls in regression should be
@@ -98,3 +98,41 @@ HOW TO KNOW IT WORKED
 * `controls` defaults to `['000000']`.
 * A settings CSV holding the thirty old names still selects those guides.
 * `negative_control` is still `233460`, deliberately, and this file says why.
+
+--------------------------------------------------------------------------------
+2026-08-21 -- DONE. AND B WAS REAL: EVERY SPELLING FAILED, NOT JUST THE GENE.
+--------------------------------------------------------------------------------
+
+MEASURED ON THE EXAMPLE SCREEN, before anything was changed:
+
+    000000            ->  0 guides      (there are 30)
+    TGGT1_000000      ->  0
+    000000_11         ->  0             (there is 1)
+    TGGT1_000000_11   ->  0
+
+This file predicted the gene branch. The GUIDE branch had the same fault from
+the other direction: `resolve_control` strips the measured organism prefix off
+what the user TYPED -- so `TGGT1_000000_11` becomes `000000_11` -- and then
+`matches` compared that stripped value against a column that still carries the
+prefix. Neither spelling of either level worked on a prefixed library, which
+is every count table `process_reads` writes.
+
+Both branches take the prefix the spec is already carrying. All four spellings
+now reach 30, 30, 1, 1.
+
+WHY 184 DID NOT SEE IT. Its "all four spellings reach the same 28 guides" was
+measured WITH a gene column beside the guides, which takes the `genes is not
+None` branch and never touches the string comparison. The no-gene-column path
+is the one a count table takes.
+
+THE DEFAULT IS `['000000']`. The old thirty-name list still resolves --
+`resolve_controls` takes a mixture of genes and guides -- and a test asserts
+the two select the same guides, so a settings CSV written before this
+reproduces.
+
+`negative_control` is untouched at '233460', deliberately, and the setting's
+own description now says which control is which so the next reader does not
+have to be corrected the way this file's author was.
+
+17 tests in tests/test_a_gene_control_finds_its_guides.py, one of them
+against the example screen's own 30 guides.
