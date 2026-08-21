@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
@@ -823,23 +823,22 @@ def advise_the_screen(counts: Sequence[str] = (), scores: Sequence[str] = (),
 # ---------------------------------------------------------------------------
 
 def refusals(settings: Mapping[str, Any]) -> Tuple[str, ...]:
-    """Why the RUN would refuse ``settings``, in its own words.
+    """Return reasons a regression settings mapping cannot be run.
 
-    THE CANONICALISER IS NOT THE VALIDATOR, and that distinction is what
-    196 is about. `get_perform_regression_default_settings` fills defaults
-    and coerces types; it says nothing about whether the combination can be
-    fitted. A test asserted every proposed key survived canonicalisation, it
-    passed, and the run still stopped on
+    This check covers incompatible setting combinations that default filling
+    and type coercion cannot resolve. Messages follow the runtime validation
+    wording so an application can explain a refusal before starting a fit.
 
-        ValueError: batch_correction='combat' needs to know which biology to
-        keep.
+    Parameters
+    ----------
+    settings : mapping
+        Proposed regression settings.
 
-    So this asks the things that actually refuse, before the user is told
-    the question is settled. Each entry is the refusing code's OWN sentence
-    where there is one -- a paraphrase would drift from it.
-
-    :param settings: a proposal, or any settings dict.
-    :returns: one sentence per refusal, empty when the run would start.
+    Returns
+    -------
+    tuple of str
+        One actionable message per refusal, or an empty tuple when the
+        settings pass these preflight checks.
     """
     said: List[str] = []
     got = dict(settings or {})
@@ -883,13 +882,23 @@ def refusals(settings: Mapping[str, Any]) -> Tuple[str, ...]:
 
 def advise_that_runs(reading: Reading,
                      answers: Optional[Dict[str, Any]] = None) -> Advice:
-    """:func:`advise`, with the proposal checked against the run.
+    """Build advice and withdraw choices that fail runtime preflight.
 
-    A refusal is not silently patched: the setting that causes it is MOVED
-    OUT of the proposal and into `undecided`, carrying the refusing code's
-    own sentence. Leaving the panel as the user had it and saying why is
-    the honest answer -- quietly changing a value to make a check pass is
-    how a proposal stops meaning anything.
+    A choice named by :func:`refusals` moves from ``chosen`` to ``undecided``
+    with the validation message. The function does not silently substitute a
+    different value.
+
+    Parameters
+    ----------
+    reading : Reading
+        Measurements and metadata describing the screen.
+    answers : dict, optional
+        User answers to questions the screen data cannot settle.
+
+    Returns
+    -------
+    Advice
+        A proposal containing only choices that pass the preflight checks.
     """
     advice = advise(reading, answers)
     from .settings import get_perform_regression_default_settings
