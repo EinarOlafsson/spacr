@@ -783,15 +783,11 @@ def _significance(reading: Reading, answers: Dict[str, Any],
 
 def _controls(reading: Reading, answers: Dict[str, Any],
               chosen: List[Choice], undecided: List[Undecided]) -> None:
-    """The non-cutting controls, resolved through the one reader (184).
+    """Resolve non-cutting controls through the measured screen inventory.
 
-    `controls`, NOT `negative_control`, AND THE TWO ARE DIFFERENT THINGS.
-    Corrected by the maintainer 2026-08-21: "233460 is the negative control,
-    000000 is the non cutting control." The negative control is a real gene
-    knocked out and expected to show nothing; the non-cutting guides bind
-    without cutting and are the EMPIRICAL NULL every threshold and baseline
-    is measured against. This question asks for the second, so writing its
-    answer into the first would rename the screen's null.
+    ``controls`` contains non-cutting guides used as the empirical null.
+    ``negative_control`` identifies a perturbation expected to lack a
+    phenotype; it is a distinct setting and is not modified here.
     """
     typed = [t.strip() for t in
              str(answers.get("controls") or "").split(",") if t.strip()]

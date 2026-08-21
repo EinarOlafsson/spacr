@@ -1,35 +1,15 @@
-"""How good is the classifier, and what does that do to a fraction?
+"""Measure classifier performance and correct observed class fractions.
 
-Instruction 214 asked for the classifier's confusion matrix and got a
-question back: "you have the computer vision scores, cant this be calculated
-from them? cant you bake the calculation of this into the modula?"
+A confusion matrix requires labelled outcomes; an unlabelled score column
+cannot establish sensitivity or specificity by itself. Use a labelled test
+split or out-of-fold predictions when available. When labels are unavailable,
+:func:`deconvolve` estimates two score distributions and reports whether their
+separation is sufficient to support the estimate.
 
-THE SHORT ANSWER IS NO FROM SCORES ALONE, AND YES FROM THE TABLES YOU HAVE.
-A confusion matrix counts agreements between a call and a truth. Scores with
-no labels beside them have no truth to agree with, so nothing in a score
-column can produce one -- what looks like a decision boundary in a histogram
-is a property of the histogram, not of any cell's identity.
-
-What CAN be done, in descending order of how much it should be trusted:
-
-  1. LABELLED TEST SPLIT -- exact. The annotations that were held out give
-     the confusion matrix directly, at any threshold, and stratified by
-     anything. This is what :func:`confusion` and :func:`operating_points`
-     do, and it is the right answer whenever those rows exist.
-  2. OUT-OF-FOLD PREDICTIONS -- exact and better. Cross-validating gives
-     every cell an honest score rather than only the test cells, so the
-     stratification in :func:`sensitivity_by_prevalence` has the whole
-     screen to work with instead of a corner of it.
-  3. MIXTURE DECONVOLUTION -- an estimate, for when there are no labels at
-     all. :func:`deconvolve` fits the score distribution as two components
-     and reports what they imply. It carries a health check because the
-     estimate is worthless when the two components overlap, and worthless
-     in a way that looks like a number.
-
-WHY IT MATTERS ENOUGH TO HAVE ITS OWN MODULE. A classifier that is right 94%
-of the time still turns a true 20% into an observed 24.4%, and the
-correction for that is a rescaling rather than an error bar -- so leaving it
-out does not widen a confidence interval, it moves the answer.
+Classifier errors bias the observed positive fraction rather than merely
+widening its uncertainty. The correction helpers expose that bias across
+prevalence levels and refuse the Rogan--Gladen correction when sensitivity
+and specificity do not identify it.
 """
 from __future__ import annotations
 
@@ -312,19 +292,24 @@ def deconvolve(scores: Sequence[float], *,
 
 def training_wells(wells: Sequence[str], *,
                    columns: Sequence[int] = (1, 2)) -> np.ndarray:
-    """Mask of the cells that sat in the training columns.
+    """Return the cells belonging to classifier-training columns.
 
-    "columns one and 2 of each plate were the training wells" -- so the
-    held-out set is everything else, and it can be identified from the well
-    name alone without a record of what was trained on.
+    Training wells must be excluded from performance calibration; otherwise
+    the calibration measures in-sample fit. Both ``r1_c2`` and ``c2`` well
+    labels are accepted. Unparseable labels are retained for validation
+    rather than being silently classified as training data.
 
-    THIS IS WHAT MAKES THE CALIBRATION NON-CIRCULAR. A classifier scored on
-    the wells it was fitted to agrees with itself, and instruction 214's
-    calibration would then measure the fit rather than the screen.
+    Parameters
+    ----------
+    wells : sequence of str
+        One well label per cell.
+    columns : sequence of int, default=(1, 2)
+        One-based column numbers used for classifier training.
 
-    Accepts the two spellings spaCR writes: ``r1_c2`` style and the plain
-    ``c2``. A name it cannot parse is NOT training, since guessing would
-    silently drop real validation wells.
+    Returns
+    -------
+    numpy.ndarray
+        Boolean mask with one element per input well.
     """
     import re
 

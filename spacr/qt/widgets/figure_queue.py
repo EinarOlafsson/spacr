@@ -1952,13 +1952,11 @@ class FigureQueue(QWidget):
         return self._figures.get(idx, figure)
 
     def _why_not_shown(self, idx: int) -> str:
-        """Why figure ``idx`` has no picture -- in the user's terms.
+        """Explain why figure ``idx`` cannot be displayed.
 
-        THE THREE CANDIDATES instruction 199 lists, told apart rather than
-        merged into one apology, because they call for different actions: a
-        spill that will not restore is a disk problem, a missing path is a
-        figure that was never saved, and an unreadable file is a corrupt
-        one.
+        The message distinguishes an unsaved figure, a missing spill file,
+        and an unreadable file because each condition requires a different
+        recovery action.
         """
         number = idx + 1
         path = self._png_paths.get(idx)
@@ -1977,15 +1975,10 @@ class FigureQueue(QWidget):
                 f"open, which usually means it was written incompletely.")
 
     def _explanation_pixmap(self, text: str) -> QPixmap:
-        """The reason, painted as the picture -- so the view can show it.
+        """Render an unavailable-figure explanation as a themed pixmap.
 
-        A pixmap rather than a QLabel swapped into the stack: every reader of
-        this view already handles a pixmap, including the zoom, the export
-        and the peer-mirroring, and none of them would know what to do with a
-        widget that appeared in its place.
-
-        FROM THE PALETTE, never a literal -- the same rule instruction 178
-        settled for the figures and 198 for the headings.
+        Returning a pixmap preserves the interface used by zoom, export, and
+        peer mirroring. Colors come from the active application palette.
         """
         from PySide6.QtCore import QRect
         from PySide6.QtGui import QColor, QPainter

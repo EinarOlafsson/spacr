@@ -76,15 +76,10 @@ def organelle_label(role: str) -> str:
     return f"Organelle {organelle_index(role)}"
 
 
-#: Words a settings label must not lower-case. `capitalize()` lower-cases
-#: everything after the first character, so `grna` becomes `Grna` and
-#: `exclude_grnas` becomes `Exclude grnas` -- which is how the tool spells a
-#: term of art nowhere else in its own documentation.
-#:
-#: Asked for 2026-08-21: "whenever you write grna write gRNA". Fixed HERE,
-#: in the one function that builds every label, rather than in the four
-#: settings that happen to contain it today -- the fifth would arrive
-#: spelled wrong.
+#: Terms whose established capitalization must survive label generation.
+#: Python's ``str.capitalize`` lower-cases the remaining characters, so the
+#: shared label formatter restores forms such as ``gRNA``, ``DNA``, and
+#: ``UMAP`` consistently across every settings surface.
 CASED_TERMS = {
     "grna": "gRNA",
     "grnas": "gRNAs",
@@ -105,11 +100,10 @@ def _recase(text: str) -> str:
 
 
 def _split_id_suffix(key: str) -> str:
-    """`plateID` -> `plate ID`, so the identifier keys read as words.
+    """Separate a terminal ``ID`` suffix from a camel-case setting key.
 
-    The five identifier columns instruction 213 standardises -- `plateID`,
-    `rowID`, `columnID`, `fieldID`, `objectID` -- are camelCase, so the
-    underscore split leaves them whole and `capitalize()` renders `Plateid`.
+    Identifier columns such as ``plateID`` and ``objectID`` contain no
+    underscore, so ordinary tokenization would render them as ``Plateid``.
     """
     import re
 
