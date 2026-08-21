@@ -2,7 +2,7 @@
 THE SUMMARY MARKS A BROKEN ASSUMPTION, AND ENDS WITH WHAT TO DO
 ================================================================================
 
-Status:    filed 2026-08-21. A AND B BUILT 2026-08-21; the run does not yet hand its diagnostics to B.
+Status:    DONE 2026-08-21.
 Requested: 2026-08-21 -- "in the summary whan a test has a broken assumption
            the text showing that that assumption is broken should be red. at
            the end of summary there should be a new section that outlines
@@ -134,11 +134,26 @@ threshold sweep -- and two suggestions, the rank statistic and a robust
 family.
 
 --------------------------------------------------------------------------------
-WHAT IS LEFT
+THE JOIN, DONE
 --------------------------------------------------------------------------------
 
-`RunSummary.recommendations` is carried and printed, and nothing fills it
-yet: `build_run_summary` does not pass the QC's measured values to
-`recommend`. That join is the remaining work, and it is the same join
-instruction 226 needs for the advisor -- both want the written diagnostics
-read back rather than recomputed.
+THE SECTIONS DEPOSIT WHAT THEY WROTE. Each assumption builder measures a
+number, formats it into a sentence, and used to throw the number away -- so
+the recommendations would have had to RECOMPUTE it, and a recommendation
+that disagrees with the line it cites is worse than no recommendation,
+because the reader has no way to tell which of the two is wrong.
+
+`_Run.diagnostics` is where they leave it, `_recommendations` runs AFTER the
+sections and reads only that plus what `trial_metrics` already measured.
+Recomputing would have been fewer lines; this way every number in the last
+section appears on screen above it.
+
+A TEST BLANKS THE DEPOSIT AND ASSERTS THE ADVICE DISAPPEARS. If `recommend`
+were re-measuring the residuals rather than reading what was written, that
+test would fail -- which is the only way to prove the join is the real one.
+
+A PERMUTATION RUN GETS NONE OF IT. It assumes none of this and the sections
+say so five times over; recommending a fix for an assumption that was never
+made is how the section loses the reader.
+
+Instruction 226's advisor wants the same deposit, and can read it.

@@ -1,0 +1,42 @@
+================================================================================
+THE TRAINING GRAPHS UPDATE, THEY DO NOT REGENERATE
+================================================================================
+
+Status:    filed 2026-08-21, not started.
+Requested: 2026-08-21 -- "in classify during training the graphs should be
+           pyqtgraphs and they graphs should be updated not regenerated epch
+           after epoch".
+Owner:     Qt GUI (classify training view)
+
+--------------------------------------------------------------------------------
+WHAT IS ASKED
+--------------------------------------------------------------------------------
+
+TWO THINGS, AND THE SECOND IS THE POINT.
+
+  1. The live training graphs are pyqtgraph, like every other plot in the Qt
+     GUI, rather than matplotlib figures rendered to an image.
+
+  2. EACH EPOCH APPENDS A POINT. It does not rebuild the figure.
+
+Regenerating a figure per epoch costs a full re-render of every point drawn
+so far, so the cost grows with the epoch number -- the run gets slower the
+longer it goes, at exactly the point the user is watching it most closely.
+It also FLICKERS, and it throws away anything the user did to the view: a
+zoom into the last twenty epochs is undone by epoch twenty-one, which makes
+the live graph unusable for the thing a live graph is for.
+
+The existing plots already have the machinery for this. Look at what
+`FastPlot` and its subclasses do before writing a new curve widget.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* The graphs are pyqtgraph items, and a test asserts there is no matplotlib
+  figure behind the training view.
+* A test drives N epochs and asserts the plot item is THE SAME OBJECT
+  throughout -- identity, not appearance, because a rebuilt curve that looks
+  the same is the bug.
+* The per-epoch update cost does not grow with the epoch count.
+* A zoom set at epoch 5 is still in force at epoch 50.
