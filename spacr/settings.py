@@ -1959,7 +1959,16 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('guide_permutations', 200000)
     settings.setdefault('guide_permutation_seed', 0)
     settings.setdefault('guide_permutation_block', 'plateID')
-    settings.setdefault('guide_nuisance_columns', [])
+    # ROW AND COLUMN BY DEFAULT (224). A real run came back with
+    # Durbin-Watson 1.22 against 2 for none -- substantial positive
+    # autocorrelation in row order -- and the permutation test's whole
+    # validity rests on the residuals being exchangeable WITHIN a block.
+    # Position left in the residual is position the shuffle treats as
+    # noise.
+    #
+    # Absent columns are dropped at the call site with a note, so a dataset
+    # without them still runs and the user is told which were not removed.
+    settings.setdefault('guide_nuisance_columns', ['rowID', 'columnID'])
     settings.setdefault('guide_statistic', 'pearson')
     settings.setdefault('guide_presence_threshold', 0.0)
     settings.setdefault('guide_permutation_batch_size', 500)

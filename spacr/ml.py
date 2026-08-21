@@ -5547,6 +5547,66 @@ def _identifiability_warning(data, settings, *, well_column='prc',
         "  residual degrees of freedom and the collinear guide pairs.\n")
 
 
+def _usable_nuisance_columns(data, settings) -> list:
+    """The nuisance columns that are actually in the frame, said out loud.
+
+    `guide_nuisance_columns` defaults to row and column, which every spaCR
+    screen has and an imported table might not. `_nuisance_design` raises on
+    an absent column -- correct for one the user typed, wrong for one that
+    arrived as a default -- so the filtering happens here.
+
+    SAID, NOT SILENT. A user who believes position was removed and reads a
+    p-value computed without removing it has been told something false by
+    omission, and the exchangeability the permutation rests on is exactly
+    what those columns were there to protect.
+    """
+    wanted = [str(c) for c in (settings.get('guide_nuisance_columns') or [])]
+    if not wanted:
+        return []
+    have = set(map(str, getattr(data, 'columns', ())))
+    usable = [c for c in wanted if c in have]
+    missing = [c for c in wanted if c not in have]
+    # AND THEY MUST NOT MAKE THE DESIGN SINGULAR. `rowID` and `columnID` are
+    # a DEFAULT now, and on a layout where the plates align with plate
+    # position -- every plate its own block of columns, say -- the position
+    # dummies are a linear combination of the block dummies and
+    # `_nuisance_design` refuses the whole design.
+    #
+    # A DEFAULT MUST NOT BE ABLE TO KILL A RUN. Dropped one at a time, worst
+    # last, so a screen where only one of the two is collinear keeps the
+    # other.
+    if usable:
+        from .guide_permutation import _nuisance_design
+
+        block = str(settings.get('guide_permutation_block', 'plateID'))
+        while usable:
+            try:
+                _nuisance_design(data, block, usable)
+                break
+            except ValueError as exc:
+                # ONLY RANK DEFICIENCY DROPS A COLUMN. `_nuisance_design`
+                # raises the same exception type when the BLOCK column is
+                # absent, and treating that as collinearity threw away a
+                # perfectly good nuisance column -- caught by the test that
+                # passes a frame with no plate column at all.
+                if "rank deficient" not in str(exc):
+                    break
+                dropped = usable.pop()
+                print(f"■ guide_nuisance_columns: {dropped!r} is collinear "
+                      f"with {block!r} on this layout -- every level of one "
+                      f"determines a level of the other -- so it cannot be "
+                      f"removed separately. Dropped; {block!r} already "
+                      f"absorbs it.")
+            except Exception:                                # noqa: BLE001
+                break
+    if missing:
+        print(f"■ guide_nuisance_columns named {len(missing)} column(s) this "
+              f"table does not have: {', '.join(missing)}. They are not "
+              f"removed before the permutation, so any structure they carry "
+              f"stays in the residual the shuffle treats as noise.")
+    return usable
+
+
 def _run_guide_permutation_analysis(data, outcome, destination, settings):
     """Run and persist the plate-blocked marginal guide analysis.
 
@@ -5642,7 +5702,7 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
         outcomes,
         min_wells=thresholds,
         block_column=str(settings.get('guide_permutation_block', 'plateID')),
-        nuisance_columns=list(settings.get('guide_nuisance_columns') or []),
+        nuisance_columns=_usable_nuisance_columns(data, settings),
         n_permutations=int(settings.get('guide_permutations', 200000)),
         random_state=int(settings.get('guide_permutation_seed', 0)),
         multiple_testing=str(settings.get('multiple_testing_method', 'fdr_bh')),

@@ -1,0 +1,89 @@
+================================================================================
+THE SUMMARY MARKS A BROKEN ASSUMPTION, AND ENDS WITH WHAT TO DO
+================================================================================
+
+Status:    filed 2026-08-21, not started.
+Requested: 2026-08-21 -- "in the summary whan a test has a broken assumption
+           the text showing that that assumption is broken should be red. at
+           the end of summary there should be a new section that outlines
+           recomendations based on the results of the run. not AI generated
+           but dynamic data driven recommendations".
+Owner:     Regression QC, Qt GUI (summary)
+
+--------------------------------------------------------------------------------
+A. THE BROKEN ONE IS RED
+--------------------------------------------------------------------------------
+
+The summary already prints every check and its verdict. Reading it, a
+rejected assumption looks exactly like an accepted one -- the same weight,
+the same colour, a paragraph apart:
+
+    Breusch-Pagan p = 1 (not rejected at 0.05) ... consistent with equal
+    variance
+    skew +1.64, excess kurtosis +8.89 ... D'Agostino K2 p = 4.96e-157
+    (REJECTED at 0.05)
+    Durbin-Watson = 1.22 (2 is none) -- positive autocorrelation
+
+Three lines, one of them fatal to the p-values, and nothing on screen says
+which. The word REJECTED is already there; it is not doing any work,
+because it is the same colour as everything else.
+
+RED IS FOR A REJECTED ASSUMPTION, not for a small number. Some checks reject
+usefully -- a leverage count above a rule of thumb is a caution, not a
+failure -- so the rule has to be stated per check rather than applied to
+whatever looks alarming. Colour that fires on everything is colour that
+means nothing.
+
+FROM THE PALETTE, NEVER A LITERAL. Instruction 178 removed eleven hard-coded
+inks from the figures for this reason, and 198 the same from the headings: a
+hex reads on one theme and vanishes on the other, and the author sees only
+the one they use.
+
+--------------------------------------------------------------------------------
+B. THE RECOMMENDATIONS ARE DERIVED, NOT WRITTEN
+--------------------------------------------------------------------------------
+
+    "not AI generated but dynamic data driven recommendations"
+
+EACH RECOMMENDATION IS A RULE WITH A THRESHOLD, and it fires from the run's
+own numbers or it does not appear. No prose is composed at run time; the
+sentences are fixed and the CONDITIONS are measured. That is the difference
+between advice and a paragraph that always says something.
+
+The rules the diagnostics already support, each naming the setting that
+acts on it:
+
+  * residuals not normal    -> inference='nonparametric', which needs no
+                               distributional assumption; and
+                               guide_statistic='rank' if the kurtosis is
+                               heavy, because a correlation is a
+                               least-squares object
+  * Durbin-Watson far from 2 -> guide_nuisance_columns, to remove the
+                               structure the shuffle would treat as noise
+  * high leverage / Cook's D -> a robust family (rlm, huber, quantile), or
+                               the wells named so they can be looked at
+  * high VIF / condition     -> a penalised family, or the collinear pair
+                               reported
+  * few wells per guide      -> the fraction_threshold sweep, since that is
+                               what decides how many guides are testable
+
+NAME THE WELLS AND THE GUIDES, not only the counts. "172 observations above
+the 4/n rule" is a number; the three wells carrying the largest Cook's
+distance is something a user can go and look at.
+
+AND SAY WHEN THERE IS NOTHING TO RECOMMEND. A section that is empty because
+every check passed must say so, or its absence reads as a bug.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* A rejected assumption is red; an accepted one is not; a caution is
+  neither.
+* The colours come from the palette and survive a theme switch.
+* Every recommendation names a setting and the measurement that triggered
+  it.
+* No recommendation appears when its condition is not met, and a run with
+  no findings says so explicitly.
+* The recommended settings exist and are spelled the way the run reads
+  them -- checked by a test, not by eye.
