@@ -70,6 +70,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     # and Qt front ends read the same spec rather than each keeping their
     # own opinion about what a given key looks like.
     "settings_spec",
+    "settings_advisor",
     "plot",
     "measure",
     # Opt-in preprocessing / region-filter extension points for the measure
@@ -104,6 +105,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "crops",
     "png_list",
     "regex_infer",
+    "import_plan",
     "portable_paths",
     "picture_settings",
     "well_spec",
@@ -392,6 +394,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "trial_metrics",          # what makes a sweep row judgeable
     "workspace",              # saved GUI context around a recorded run
     "figure_style",           # the older per-figure style store
+    "style_base",             # shared values for current figure renderers
 )
 
 __all__ = [
