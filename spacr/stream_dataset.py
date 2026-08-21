@@ -1,21 +1,10 @@
-"""Stream training crops rather than reading them off disk (instruction 230).
+"""Create reproducible training datasets from merged image arrays.
 
-TRAINING SHOULD BE POSSIBLE ON AS MANY COMBINATIONS OF THE DATA AS POSSIBLE.
-Today the crops have to exist before a model can see them, so every
-combination of objects, channels and bounding-box choice is a separate
-export somebody has to remember to make. Streaming makes the combination a
-setting rather than a directory.
-
-THE TABLE COMES FIRST, AND IT IS SAVED. Streaming does not begin by walking
-images. It begins by deciding WHICH objects are to be streamed and writing
-that decision down -- because a training set that was decided at run time
-and never written down cannot be re-made, compared against, or audited when
-a model turns out to have learned something it should not have.
-
-BORROWED FROM `measure_crop`, NOT RE-DERIVED. `spacr.utils._generate_names`
-is what names an exported crop, and it is what names a streamed one -- so a
-streamed crop and an exported crop of the same object are the same filename,
-and anything downstream can treat them alike.
+The workflow first records a deterministic object selection table, then
+extracts the selected crops from merged arrays. Object types, channels, crop
+shape, and train/test allocation are therefore explicit settings rather than
+properties of a previously exported directory. Crop names use the same naming
+function as the standard object-crop exporter.
 """
 from __future__ import annotations
 
@@ -29,28 +18,19 @@ import pandas as pd
 
 LOG = logging.getLogger("spacr.stream_dataset")
 
-#: How the objects to stream are chosen.
-#:
-#: THE TWO NEED DIFFERENT SETTINGS, which is why this is one control rather
-#: than a pair of flags: a panel showing the settings of the method the user
-#: did NOT choose is a panel asking them to fill in something nothing reads.
+#: Supported selection methods represented as ``(value, display label)``.
 STREAM_METHODS: Tuple[Tuple[str, str], ...] = (
     ("column", "coordinates from a column in a table"),
     ("array", "object numbers from a mask array"),
 )
 
-#: What each method reads. The panel greys the rest, and this is the single
-#: source for that -- a list living in the GUI would drift from what the
-#: streamer reads, and the symptom would be a control that changes nothing.
+#: Settings consumed by each selection method.
 METHOD_SETTINGS: Dict[str, Tuple[str, ...]] = {
     "column": ("object_array", "channel_arrays"),
     "array": ("mask_array", "channel_arrays", "bounding_box"),
 }
 
-#: The column an object's coordinates come from, per object array. DERIVED,
-#: NOT ASKED FOR: "coordinate column will always be the same so figure that
-#: out from object array" -- asking is asking the user to restate something
-#: spaCR knows, and giving them a way to get it wrong.
+#: Canonical object-identifier column for each object-array type.
 COORDINATE_COLUMNS: Dict[str, str] = {
     "cell": "cell_id",
     "nucleus": "nucleus_id",
@@ -69,20 +49,33 @@ SELECTION_FILE = "stream_selection.csv"
 
 
 def coordinate_column(object_array: str) -> str:
-    """The column an object of this type is identified by.
+    """Return the identifier column for an object-array type.
 
-    :raises KeyError: for an object spaCR does not measure. Guessing a
-        column name would produce a table that joins to nothing and reports
-        no error, which is the failure this derivation exists to prevent.
+    Parameters
+    ----------
+    object_array : str
+        Object type such as ``"cell"`` or ``"nucleus"``.
+
+    Returns
+    -------
+    str
+        Canonical identifier column.
+
+    Raises
+    ------
+    KeyError
+        If the object type is unsupported.
     """
     return COORDINATE_COLUMNS[str(object_array).strip().lower()]
 
 
 def settings_for_method(method: str) -> Tuple[str, ...]:
-    """The settings ``method`` reads.
+    """Return settings used by a dataset-selection method.
 
-    :raises KeyError: for a method that does not exist -- silently returning
-        an empty tuple would grey every setting and look like a UI bug.
+    Raises
+    ------
+    KeyError
+        If ``method`` is unsupported.
     """
     return METHOD_SETTINGS[str(method).strip().lower()]
 
@@ -92,12 +85,7 @@ def settings_for_method(method: str) -> Tuple[str, ...]:
 # ---------------------------------------------------------------------------
 
 def _split_labels(count: int, test_split: float, seed: int) -> np.ndarray:
-    """``train``/``test`` for ``count`` objects, deterministically.
-
-    SEEDED, because the selection table's whole purpose is that the same
-    settings produce the same training set. A shuffle nobody can reproduce
-    turns the saved table into a record of one run rather than a recipe.
-    """
+    """Generate deterministic train/test labels for ``count`` objects."""
     rng = np.random.default_rng(int(seed))
     order = rng.permutation(int(count))
     n_test = int(round(float(test_split) * int(count)))
@@ -109,11 +97,28 @@ def _split_labels(count: int, test_split: float, seed: int) -> np.ndarray:
 def selection_from_objects(frame: pd.DataFrame, *, object_array: str = "cell",
                            test_split: float = 0.2, seed: int = 0
                            ) -> pd.DataFrame:
-    """Build the selection table from the OBJECT TABLE. The first route.
+    """Build a streaming selection from an object table.
 
-    :param frame: the object table -- one row per measured object.
-    :raises ValueError: when the table names no object. A selection built
-        from rows that cannot be identified would stream the wrong crops.
+    Parameters
+    ----------
+    frame : pandas.DataFrame
+        One row per measured object.
+    object_array : str, default="cell"
+        Object type to select.
+    test_split : float, default=0.2
+        Fraction assigned to the test set.
+    seed : int, default=0
+        Random seed controlling deterministic split assignment.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Canonical identifiers, object type, split, and source for each object.
+
+    Raises
+    ------
+    ValueError
+        If the table is empty or contains no usable object identifier.
     """
     from .schema import COLUMN_KEY, FIELD_KEY, OBJECT_KEY, PLATE_KEY, ROW_KEY
 
@@ -145,16 +150,31 @@ def selection_from_objects(frame: pd.DataFrame, *, object_array: str = "cell",
 def selection_from_arrays(merged_folder: str, *, object_array: str = "cell",
                           test_split: float = 0.2, seed: int = 0,
                           mask_index: Optional[int] = None) -> pd.DataFrame:
-    """Build the selection table by reading the .npy files. THE FALLBACK.
+    """Build a streaming selection from labels in merged arrays.
 
-    "if that does not exist another method must read all npy files in the
-    merged folder and record the object numbers in the chosen mask array".
+    Parameters
+    ----------
+    merged_folder : str
+        Directory containing merged ``.npy`` arrays.
+    object_array : str, default="cell"
+        Object type represented by the selected mask plane.
+    test_split : float, default=0.2
+        Fraction assigned to the test set.
+    seed : int, default=0
+        Random seed controlling deterministic split assignment.
+    mask_index : int, optional
+        Mask plane index. The final plane is used when omitted.
 
-    :param mask_index: which plane of the stack is the mask. ``None`` means
-        the LAST, which is where `measure_crop` writes it.
-    :raises FileNotFoundError: when the folder holds no .npy at all. A
-        selection table with no rows would stream nothing and report
-        success.
+    Returns
+    -------
+    pandas.DataFrame
+        Canonical identifiers, object type, split, and source array for every
+        nonzero label.
+
+    Raises
+    ------
+    FileNotFoundError
+        If no merged arrays or nonzero object labels are available.
     """
     folder = str(merged_folder)
     files = sorted(f for f in os.listdir(folder) if f.endswith(".npy")) \
@@ -203,13 +223,17 @@ def build_selection(dst: str, *, objects: Optional[pd.DataFrame] = None,
                     merged_folder: str = "", object_array: str = "cell",
                     test_split: float = 0.2, seed: int = 0
                     ) -> Tuple[pd.DataFrame, str]:
-    """Decide what to stream, WRITE IT DOWN, and return it.
+    """Build and save the object-selection table.
 
-    THE OBJECT TABLE FIRST, THE .npy FALLBACK SECOND, which is the order the
-    instruction gives. The fallback is not a worse answer, it is the answer
-    for a screen that was masked but never measured.
+    An available object table is preferred; otherwise labels are read from
+    merged arrays.
 
-    :returns: ``(table, path)``.
+    Returns
+    -------
+    pandas.DataFrame
+        Selected objects and deterministic split assignments.
+    str
+        Path to the written ``stream_selection.csv`` file.
     """
     if objects is not None and len(objects):
         table = selection_from_objects(objects, object_array=object_array,
@@ -233,12 +257,10 @@ def build_selection(dst: str, *, objects: Optional[pd.DataFrame] = None,
 def crop_name(field_stem: str, object_id, *, crop_mode: str = "cell",
               nucleus_ids=(), pathogen_ids=(), timelapse: bool = False
               ) -> str:
-    """The filename `measure_crop` would give this crop.
+    """Return the standard exported-crop name for an object.
 
-    THROUGH `spacr.utils._generate_names`, the same call, so a streamed crop
-    and an exported crop of the same object have the SAME NAME. A second
-    naming rule here would drift from that one, and the drift would only
-    show up as two folders that cannot be pooled.
+    Naming is delegated to :func:`spacr.utils._generate_names`, ensuring that
+    streamed and pre-exported crops from the same object are compatible.
     """
     from .utils import _generate_names
 
@@ -255,20 +277,26 @@ def crop_name(field_stem: str, object_id, *, crop_mode: str = "cell",
 def cut(stack: np.ndarray, mask: np.ndarray, label: int, *,
         bounding_box: bool = True, channels: Sequence[int] = ()
         ) -> Optional[np.ndarray]:
-    """One object's pixels out of ``stack``.
+    """Extract one labeled object from an image stack.
 
-    THROUGH `crop_source.crop_object`, which already solves this -- the
-    plane check, the bounds and the mask-out are all there, and a second
-    cutter would drift from the one the on-demand path already uses. This
-    translates instruction 230's vocabulary into that function's:
-    `bounding_box=False` is its `shape='object'`.
+    Parameters
+    ----------
+    stack : numpy.ndarray
+        Two- or three-dimensional image data.
+    mask : numpy.ndarray
+        Integer label mask aligned with the image dimensions.
+    label : int
+        Object label to extract.
+    bounding_box : bool, default=True
+        Return the complete bounding box when true. When false, pixels outside
+        the selected object are set to zero within the box.
+    channels : sequence of int, optional
+        Channel indices to retain. All channels are used when omitted.
 
-    :param bounding_box: the box around the object when True; ONLY THE
-        PIXELS THAT OVERLAP THE MASK when False, with the rest zeroed. Both
-        are wanted -- "using this method images can be streamed with bounding
-        box or just the ppixels that overlap with the mask" -- and they are
-        different training sets, not two renderings of one.
-    :returns: the crop, or ``None`` when the label is not in the mask.
+    Returns
+    -------
+    numpy.ndarray or None
+        Extracted crop, or ``None`` when the label is absent.
     """
     from .crop_source import crop_object
 
@@ -286,7 +314,7 @@ def cut(stack: np.ndarray, mask: np.ndarray, label: int, *,
 # ---------------------------------------------------------------------------
 
 def _field_stem(row) -> str:
-    """`plate_row_column_field`, which is what a crop name is built on."""
+    """Return the canonical field stem used in crop names."""
     from .schema import COLUMN_KEY, FIELD_KEY, PLATE_KEY, ROW_KEY
 
     parts = [str(row.get(key, "") or "")
@@ -295,13 +323,7 @@ def _field_stem(row) -> str:
 
 
 def _stem_of(row) -> str:
-    """The field this object belongs to, preferring what was recorded.
-
-    `source` carries the .npy the object was READ from when the selection
-    came by that route, and a name that was read is always right. The
-    rebuilt stem is the fallback for a table built from the object table,
-    where there is no file name to have kept.
-    """
+    """Return the recorded source stem or reconstruct it from identifiers."""
     source = str(row.get("source", "") or "")
     if source.startswith("npy:"):
         return os.path.splitext(source.split(":", 1)[1].strip())[0]
@@ -309,13 +331,7 @@ def _stem_of(row) -> str:
 
 
 def _stack_for(merged_folder: str, stem: str) -> Optional[str]:
-    """The .npy holding this field, or None.
-
-    MATCHED ON THE STEM rather than assembled from it: a merged file's name
-    carries the plate exactly as the acquisition wrote it, and rebuilding it
-    from the parsed parts is how a plate whose name contains an underscore
-    stops being found.
-    """
+    """Find the merged array matching a recorded field stem."""
     if not os.path.isdir(str(merged_folder)):
         return None
     wanted = str(stem)
@@ -339,21 +355,35 @@ def stream(selection: pd.DataFrame, merged_folder: str, dst: str, *,
            bounding_box: bool = True,
            crop_mode: str = "cell",
            write=None) -> Dict[str, Any]:
-    """Write the dataset the selection table describes. Returns a report.
+    """Write crops described by a saved selection table.
 
-    AFTER THE TABLE, NEVER INSTEAD OF IT. This walks what was already
-    decided and saved; it makes no choices of its own about which objects
-    are in the training set, which is what makes the run reproducible from
-    the file rather than from the code.
+    Each merged field is loaded once and all selected objects from that field
+    are extracted before advancing.
 
-    ONE STACK READ PER FIELD, not per object. A field holds hundreds of
-    objects and a merged stack is tens of megabytes; re-reading it per crop
-    is the difference between a minute and an afternoon.
+    Parameters
+    ----------
+    selection : pandas.DataFrame
+        Selection produced by :func:`build_selection`.
+    merged_folder : str
+        Directory containing merged ``.npy`` arrays.
+    dst : str
+        Destination for split-specific crop directories.
+    channel_arrays : sequence of int, default=(0, 1, 2)
+        Image channels to retain.
+    mask_index : int, optional
+        Mask plane index. The final plane is used when omitted.
+    bounding_box : bool, default=True
+        Whether crops retain every pixel in the object bounding box.
+    crop_mode : str, default="cell"
+        Object type used for crop naming.
+    write : callable, optional
+        Function accepting ``(path, array)``. The default writes NumPy arrays.
 
-    :param write: called with ``(path, array)``. Injected so the pass can be
-        tested without a dataset on disk -- the default writes a .npy beside
-        the name `measure_crop` would have used.
-    :returns: ``written``, ``missing``, ``fields``, ``folders``.
+    Returns
+    -------
+    dict
+        Written and missing crop counts, processed field count, destination
+        folders, and per-field problems.
     """
     from .schema import OBJECT_KEY
 
@@ -419,12 +449,22 @@ def stream(selection: pd.DataFrame, merged_folder: str, dst: str, *,
 
 def stream_dataset(settings: Mapping[str, Any], dst: str, *,
                    objects: Optional[pd.DataFrame] = None) -> Dict[str, Any]:
-    """Build the selection, save it, then stream. THE WHOLE PASS.
+    """Build, save, and execute a streamed-dataset selection.
 
-    THE ORDER IS THE CONTRACT: "after the table is generated the streamin
-    begins to generate the datasets on disk". A pass that streamed first and
-    recorded afterwards would record what it happened to write rather than
-    what it set out to.
+    Parameters
+    ----------
+    settings : mapping
+        Source, object type, split, channel, and crop-shape settings.
+    dst : str
+        Dataset destination.
+    objects : pandas.DataFrame, optional
+        Object table used to build the selection. Merged-array labels are used
+        when the table is unavailable.
+
+    Returns
+    -------
+    dict
+        Streaming report augmented with the saved selection-table path.
     """
     merged = str(settings.get("merged_folder")
                  or os.path.join(str(settings.get("src", "")), "merged"))
