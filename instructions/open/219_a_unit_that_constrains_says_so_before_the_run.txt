@@ -1,0 +1,69 @@
+================================================================================
+A UNIT THAT CONSTRAINS THE DESIGN SAYS SO BEFORE THE RUN
+================================================================================
+
+Status:    filed 2026-08-21. Refusal DONE; the panel lock is not.
+Requested: 2026-08-21 -- "i still haven gotten analasys unit cell to work" and
+           "if cell is only compatible with certain settings, if cell is
+           chosen then the settings it needs should be chosen and displayed
+           and the setting grayed out."
+Owner:     Regression, Qt GUI (settings panel)
+
+--------------------------------------------------------------------------------
+WHAT HAPPENED
+--------------------------------------------------------------------------------
+
+A real run with `analysis_unit='cell'` and the permutation test reached
+"permuting the guides" THIRTY-ONE SECONDS IN -- after the column filters, the
+cell-count threshold plot, three jitter/bar figures and two saved CSVs -- and
+only then raised.
+
+THE ERROR ITSELF IS GOOD. It names both ways out and it is correct. The fault
+is entirely in WHEN it arrives: nothing about that incompatibility needed the
+data, so nothing about it should have waited for the data. A check that fires
+after the work has already cost the user the thing it was for.
+
+AND THE USER REACHED IT THROUGH A DOOR THE MESSAGE DOES NOT NAME. They set
+`inference='nonparametric'`; `analysis_mode='guide_permutation'` is what that
+resolves to. A refusal that knows only the mode fires about a setting nobody
+typed.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+`settings_advisor.refusals` learned three checks, so the combination is
+refused from the settings alone before anything is read:
+
+  * the permutation test with `analysis_unit='cell'`;
+  * the same reached through `inference`, and NOT reported twice when both
+    names are present, which the real settings dict always has;
+  * an `agg_type` set beside `analysis_unit='cell'`, which is never read --
+    a control the user changed and the run ignored is how somebody concludes
+    a setting does nothing.
+
+`requirements_for_unit('cell')` states what the unit forces:
+`analysis_mode='regression'`, `inference='parametric'`, and `agg_type` empty.
+`None` is a requirement like any other there, not an absence of one. There is
+a test that applying the requirements clears the refusals, so what a panel
+would set is known to be runnable.
+
+--------------------------------------------------------------------------------
+WHAT IS LEFT: THE PANEL
+--------------------------------------------------------------------------------
+
+The settings panel must APPLY those requirements when `cell` is chosen, show
+the values it applied, and grey them out -- which is the request. Refusing at
+the seam is the floor, not the answer: a user who has to run and read an
+error to learn that two controls disagree is being taught by failure.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Choosing `cell` sets the three settings, shows them, and disables them.
+* Choosing `well` releases them.
+* The greyed controls say WHY they are greyed, the way the mode-inapplicable
+  picture settings already do.
+* The refusal remains as the backstop for a settings CSV that never passed
+  through a panel.

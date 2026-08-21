@@ -122,17 +122,30 @@ class _DetachEveryDialog:
 #: garbage collected stops filtering, silently.
 _DETACHER = None
 
+#: WHICH application it was installed on. Tracking the filter alone was a
+#: bug: a filter belongs to one `QApplication`, so when the application is
+#: torn down and rebuilt -- which every Qt test session does, and which a
+#: relaunch inside one process does too -- the filter goes with it while
+#: `_DETACHER` stayed non-None. The next call then reported "already
+#: installed" and returned, leaving nothing filtering and nothing saying so.
+#:
+#: Found by the suite: two of this module's own tests passed alone and
+#: failed in a full run, which is the signature of state surviving a
+#: teardown it should not have.
+_DETACHED_APP = None
+
 
 def detach_all_dialogs(app) -> bool:
     """Install the application-wide detacher. Returns True if it installed.
 
-    Idempotent: calling it twice leaves one filter, because two would do the
-    same work twice and the second would find every dialog already done.
+    Idempotent PER APPLICATION: calling it twice on the same app leaves one
+    filter, and calling it on a NEW app installs again, because the old
+    filter died with the old app.
     """
-    global _DETACHER
+    global _DETACHER, _DETACHED_APP
     if app is None:
         return False
-    if _DETACHER is not None:
+    if _DETACHER is not None and _DETACHED_APP is app:
         return False
     try:
         from PySide6.QtCore import QObject
@@ -152,7 +165,9 @@ def detach_all_dialogs(app) -> bool:
 
         _DETACHER = _Filter()
         app.installEventFilter(_DETACHER)
+        _DETACHED_APP = app
         return True
     except Exception:                         # pragma: no cover
         _DETACHER = None
+        _DETACHED_APP = None
         return False

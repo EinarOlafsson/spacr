@@ -1,0 +1,50 @@
+================================================================================
+WHICH REGRESSION BACKENDS CAN BE DEFAULT DEPENDENCIES
+================================================================================
+
+Status:    filed 2026-08-21, MEASURED. Not applied.
+Requested: 2026-08-21 -- "i get that cuML is disruptive and should be opt in
+           because it limits to 3.11 and 3.12. but cant the other dependencies
+           be included by default, check again if they would cause problems if
+           they dont include them as default dependencies for spacr with
+           appropreate version gates"
+Owner:     Packaging
+
+--------------------------------------------------------------------------------
+MEASURED 2026-08-21, NOT ESTIMATED
+--------------------------------------------------------------------------------
+
+    backend     resolves        weight        requires-python   verdict
+    pyfixest    0 new pkgs      installed     >=3.10            DEFAULT
+    glum        0 new pkgs      installed     >=3.10            DEFAULT
+    gpytorch    2 new pkgs      288 KB        >=3.10            DEFAULT
+    numpyro     6 new pkgs      88 MB         >=3.11 (jax 3.12) EXTRA
+    pymer4      1 new pkg       small         needs R           EXTRA, always
+
+spaCR declares `>=3.9,<3.15`. TORCH ITSELF REQUIRES >=3.10, and so do
+pyfixest and glum -- both of which are already installed in the development
+environment, which is why the panel reports them "unavailable: no mixed
+model" rather than "not installed". Their message is about a missing
+CAPABILITY, not a missing package, and that distinction is worth keeping
+visible.
+
+  * gpytorch adds NO new floor beyond the one torch already imposes, and
+    288 KB. It is the clearest case for promotion.
+  * numpyro drags jax and jaxlib. jaxlib is 84 MB and requires Python >=3.12,
+    so as a default it would be unavailable on half the interpreters spaCR
+    supports while adding 88 MB for every user who never selects it.
+  * pymer4 CANNOT be a default at any version gate. It needs R, rpy2 and
+    lme4, and R is a system package pip cannot provide -- there is no R
+    binary on this machine, so `pip install pymer4` would succeed and the
+    backend would still not run. The panel already says "plus R, rpy2,
+    lme4", which is the honest wording and should stay.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* pyfixest, glum and gpytorch are core dependencies, each gated
+  `python_version >= "3.10"`.
+* A 3.9 install still succeeds and still runs, without them.
+* numpyro and pymer4 stay extras, and pymer4's message keeps naming R.
+* The packaging metadata test covers the new gates.
