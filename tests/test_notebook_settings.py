@@ -1,21 +1,9 @@
-"""Every shipped notebook lists every setting, and cannot drift from them.
+"""Contracts for readable, API-synchronized spaCR notebooks.
 
-Instruction 88:
-
-    "make sure that all notebooks contain all settings for the functions
-     (at least the main functions) and classes they use, with tooltips for
-     each setting"
-
-A notebook is the only route into spaCR that does not go through a settings
-panel, so it is the one place a setting can be INVISIBLE rather than merely
-badly explained -- a reader sees the six keys the example set and has no way
-to learn the function reads ninety.
-
-THE TEST IS THE POINT, not the notebooks. Fourteen of the thirty already
-carried a settings block, hand-maintained against a settings dict that moves
-every week, and instruction 61 has already rewritten 454 tooltips once. The
-regeneration check below is what makes "all settings" true tomorrow as well
-as today: add a setting and the notebook has to gain it or CI goes red.
+Notebook users do not have a graphical settings panel beside the analysis.
+The generated Markdown therefore defines every exposed setting, while the
+adjacent code cells organize editable values by scientific purpose and state
+whether each value is required, conditionally required, or optional.
 """
 from __future__ import annotations
 
@@ -151,6 +139,18 @@ def _generated(path):
     return ""
 
 
+def _generated_settings_cells(path):
+    """Return all generated settings cells in execution order."""
+    notebook = json.loads(path.read_text())
+    return [
+        "".join(cell["source"])
+        for cell in notebook["cells"]
+        if cell["cell_type"] == "code"
+        and cell.get("metadata", {}).get("spacr", {}).get("generated")
+        in {"settings", "settings-organelle"}
+    ]
+
+
 def _generated_help(path):
     notebook = json.loads(path.read_text())
     for cell in notebook["cells"]:
@@ -162,34 +162,42 @@ def _generated_help(path):
 
 @pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
 def test_the_generated_cell_is_valid_python(path):
-    source = _generated(path)
-    if not source:
+    sources = _generated_settings_cells(path)
+    if not sources:
         pytest.skip("no generated cell")
-    # Parsing IS the check -- a cell that cannot run is worse than one that
-    # is merely wrong -- but an exception is not an assertion to a reader or
-    # to the hygiene scan, so the result is named.
-    tree = ast.parse(source)
-    assert tree.body, "the generated cell has no statements"
+    for source in sources:
+        tree = ast.parse(source)
+        assert tree.body, "the generated cell has no statements"
 
 
 @pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
 def test_every_key_carries_a_description(path):
     """Every code-cell key is explained in the adjacent Markdown cell."""
-    source = _generated(path)
-    if not source:
+    sources = _generated_settings_cells(path)
+    if not sources:
         pytest.skip("no generated cell")
     help_text = _generated_help(path)
-    tree = ast.parse(source)
-    keys = [key.value for node in tree.body if isinstance(node, ast.Assign)
-            and isinstance(node.value, ast.Dict) for key in node.value.keys
-            if isinstance(key, ast.Constant) and isinstance(key.value, str)]
-    undescribed = [key for key in keys if f"**`{key}`** —" not in help_text]
+    keys = []
+    for source in sources:
+        tree = ast.parse(source)
+        for statement in tree.body:
+            value = statement.value if isinstance(statement, ast.Assign) else None
+            if (isinstance(statement, ast.Expr)
+                    and isinstance(statement.value, ast.Call)
+                    and statement.value.args):
+                value = statement.value.args[0]
+            if not isinstance(value, ast.Dict):
+                continue
+            keys.extend(key.value for key in value.keys
+                        if isinstance(key, ast.Constant)
+                        and isinstance(key.value, str))
+    undescribed = [key for key in keys if f"**`{key}`**" not in help_text]
     assert not undescribed, f"{path.name}: no description for {undescribed}"
 
 
 @pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
-def test_explanations_settings_and_call_are_three_consecutive_cells(path):
-    """Readers meet prose, editable values, and execution in that order."""
+def test_explanations_settings_and_call_are_consecutive_cells(path):
+    """Readers meet prose, categorized values, and execution in that order."""
     notebook = json.loads(path.read_text())
     cells = notebook["cells"]
     help_index = next((i for i, cell in enumerate(cells)
@@ -200,12 +208,32 @@ def test_explanations_settings_and_call_are_three_consecutive_cells(path):
     assert cells[help_index + 1]["cell_type"] == "code"
     assert cells[help_index + 1].get("metadata", {}).get("spacr", {}).get(
         "generated") == "settings"
-    assert cells[help_index + 2]["cell_type"] == "code"
+    cursor = help_index + 1
+    settings_cells = []
+    while cursor < len(cells) and cells[cursor].get(
+            "metadata", {}).get("spacr", {}).get("generated") in {
+                "settings", "settings-organelle"}:
+        assert cells[cursor]["cell_type"] == "code"
+        settings_cells.append(cells[cursor])
+        cursor += 1
+    assert settings_cells
+    assert cells[cursor]["cell_type"] == "code", (
+        f"{path.name}: function call does not follow its settings")
 
-    settings_source = "".join(cells[help_index + 1]["source"])
-    assert not any(line.lstrip().startswith("#")
-                   for line in settings_source.splitlines()), (
-        f"{path.name}: explanations leaked back into the settings cell")
+    for settings_cell in settings_cells:
+        source = "".join(settings_cell["source"])
+        statuses = {
+            "# Required settings",
+            "# Conditionally required settings",
+            "# Optional settings",
+        }
+        category_lines = [line for line in source.splitlines()
+                          if line.startswith("    # ")
+                          and line.strip() not in statuses]
+        status_lines = [line for line in source.splitlines()
+                        if line.strip() in statuses]
+        assert category_lines, f"{path.name}: settings have no categories"
+        assert status_lines, f"{path.name}: requirement status is absent"
 
 
 @pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
@@ -215,6 +243,79 @@ def test_each_reference_links_to_the_callable_api(path):
     help_text = _generated_help(path)
     for dotted in tool.declared_functions(notebook):
         assert f"[`{dotted}`]({tool.api_url(dotted)})" in help_text
+
+
+@pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
+def test_every_documented_setting_states_its_requirement_status(path):
+    help_text = _generated_help(path)
+    for line in help_text.splitlines():
+        if line.startswith("- **`"):
+            assert any(f"*({status})*" in line for status in (
+                "required", "conditionally required", "optional")), (
+                    f"{path.name}: missing requirement status: {line}")
+
+
+def test_mask_workflows_are_separate_and_scientifically_described():
+    expected = {
+        "01_generate_masks.ipynb": [
+            "spacr.core.preprocess_generate_masks",
+        ],
+        "01b_generate_timelapse_masks.ipynb": [
+            "spacr.core.preprocess_generate_masks_timelapse",
+        ],
+        "14_motility_assay.ipynb": [
+            "spacr.core.preprocess_generate_masks_timelapse",
+            "spacr.timelapse.automated_motility_assay",
+        ],
+    }
+    tool = _tool()
+    for name, functions in expected.items():
+        path = NOTEBOOKS / name
+        notebook = json.loads(path.read_text())
+        assert tool.declared_functions(notebook) == functions
+
+    mask = json.loads((NOTEBOOKS / "01_generate_masks.ipynb").read_text())
+    overview = "".join(mask["cells"][0]["source"])
+    assert "Generate per-object masks" in overview
+    assert all(object_name in overview for object_name in (
+        "cells", "nuclei", "pathogens", "organelles"))
+    assert "Turn raw" not in overview
+
+    motility_cells = _generated_settings_cells(
+        NOTEBOOKS / "14_motility_assay.ipynb")
+    assert "'src': preprocess_generate_masks_timelapse_settings['src']" in (
+        motility_cells[0])
+
+
+@pytest.mark.parametrize("name", [
+    "01_generate_masks.ipynb",
+    "01b_generate_timelapse_masks.ipynb",
+    "14_motility_assay.ipynb",
+])
+def test_organelle_settings_have_a_separate_cell(name):
+    cells = json.loads((NOTEBOOKS / name).read_text())["cells"]
+    general = next(cell for cell in cells
+                   if cell.get("metadata", {}).get("spacr", {}).get(
+                       "generated") == "settings")
+    organelle = next(cell for cell in cells
+                     if cell.get("metadata", {}).get("spacr", {}).get(
+                         "generated") == "settings-organelle")
+    general_source = "".join(general["source"])
+    organelle_source = "".join(organelle["source"])
+    assert "'organelle_channel'" not in general_source
+    assert "'organelle_channel'" in organelle_source
+    assert ".update({" in organelle_source
+
+
+@pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
+def test_notebook_overviews_use_scientific_section_labels(path):
+    notebook = json.loads(path.read_text())
+    overview = "".join(notebook["cells"][0]["source"])
+    assert "**Purpose.**" in overview
+    assert "**Recommended use.**" in overview
+    assert "**Primary outputs.**" in overview
+    assert "**What it does.**" not in overview
+    assert "**What you get.**" not in overview
 
 
 @pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
@@ -244,11 +345,7 @@ def test_the_settings_dict_is_used_rather_than_decorative(path):
 # ---------------------------------------------------------------------------
 
 def test_tooltips_are_read_now_and_never_pasted():
-    """Rule 3 of instruction 88, enforced against the tool's own source.
-
-    A literal tooltip in the generator is the same stale copy the hand-made
-    notebooks were, one level up.
-    """
+    """Tooltip prose comes from the public source rather than a stale copy."""
     source = TOOL.read_text()
     assert "from spacr.settings import tooltips" in source or \
            "spacr.settings import tooltips" in source
