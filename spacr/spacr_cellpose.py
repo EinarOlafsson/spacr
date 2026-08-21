@@ -432,7 +432,10 @@ def save_results_and_figure(src, fig, results):
     results_path = os.path.join(results_dir,f'results.csv')
     fig_path = os.path.join(results_dir, f'model_comparison_plot.pdf')
     results.to_csv(results_path, index=False)
-    fig.savefig(fig_path, format='pdf')
+    # 108 point 6: through the one writer.
+    from .plot import save_figure
+
+    fig_path = save_figure(fig, fig_path)
     print(f'Saved figure to {fig_path} and results to {results_path}')
 
 def compare_mask(args):

@@ -6509,7 +6509,15 @@ def save_figure_as_format(fig, file_format):
     file_path = filedialog.asksaveasfilename(defaultextension=f".{file_format}", filetypes=[(f"{file_format.upper()} files", f"*.{file_format}"), ("All files", "*.*")])
     if file_path:
         try:
-            fig.savefig(file_path, format=file_format)
+            # THROUGH THE ONE WRITER (108 point 6), with the format the user
+            # picked in the dialog still winning -- `fmt` is theirs, not the
+            # preference's, because they chose it two lines ago. What the Tk
+            # GUI gains is what the Qt one already had: the DPI rule, the
+            # TrueType embedding, and the repaint for paper that a figure
+            # saved from a dark session needs.
+            from .plot import save_figure
+
+            file_path = save_figure(fig, file_path, fmt=file_format)
             print(f"Figure saved as {file_format.upper()} at {file_path}")
         except Exception as e:
             print(f"Error saving figure: {e}")
