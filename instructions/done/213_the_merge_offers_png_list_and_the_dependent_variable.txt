@@ -2,7 +2,7 @@
 THE MERGE OFFERS png_list AND THE DEPENDENT VARIABLE
 ================================================================================
 
-Status:    filed 2026-08-21, not started.
+Status:    DONE 2026-08-21.
 Requested: 2026-08-21 -- "in merge the tables in each database in the
            measurements tab, the png_list table should also be a box as well
            as a box called dependent variable".
@@ -92,3 +92,49 @@ HOW TO KNOW IT WORKED
 * Zero matches is reported as a failure.
 * The five identifier spellings agree across spaCR, checked by a test that
   greps for the wrong ones rather than by inspection.
+
+--------------------------------------------------------------------------------
+DONE 2026-08-21
+--------------------------------------------------------------------------------
+
+A. Both boxes are on the merge control. `png_list` is ticked by default --
+it carries the classification score, which is in none of the object tables.
+
+B. `spacr/dependent_join.py`. THREE ROUTES IN THE INSTRUCTION'S ORDER, and
+the report names the one used with the rows it matched. A fallback is
+labelled a fallback in those words, because the degradation is itself worth
+knowing: it means a column is missing upstream.
+
+THE OBJECT SIDE KEEPS ITS OWN COLUMNS when it has them. Making BOTH sides go
+through the path because the DEPENDENT table was missing a column would
+break a join the ID columns would have made -- only the side with something
+missing falls back.
+
+ZERO MATCHES RAISES. A route that matches nothing is a failure, not an empty
+answer, and the message lists every route tried and why each failed.
+
+THE WELL TRANSLATION PRODUCES 'r1' / 'c1', not 1 and 1.
+`spacr/predictions.py` records that `png_list.rowID` returns 'r1', and a
+route producing a bare number would match nothing -- a failure that looks
+exactly like a screen with no overlap.
+
+C. `objectID` WAS THE ONLY ONE OF THE FIVE WITH NO SCHEMA CONSTANT. That is
+how `object_id` came to be a column name spelled several ways while
+`plate_id`, `row_id`, `column_id` and `field_id` were all normalised.
+`schema.OBJECT_KEY` now exists and `object_id` / `objectid` /
+`object_number` canonicalise to it.
+
+A BARE `object` COLUMN IS DELIBERATELY NOT ALIASED. In a measurement table
+it as often means the object TYPE -- cell, nucleus, pathogen -- as the
+object's number, and renaming that into an identifier would corrupt the join
+it lands in rather than merely mislabel a column. That is the same trap the
+`canonical_column_name` docstring already records for `c`.
+
+THE WIDE AUDIT FOUND NO OTHER DEFECT. Every remaining `plate` / `row` /
+`field` string literal in spaCR belongs to an internal dict the same module
+built -- `sample_identity`'s parse result, the file-list table -- rather than
+to a database read, so renaming them would have been churn.
+
+`dependent_join` reads its names OFF `spacr.schema` rather than respelling
+them, because a second copy of the names in this file is exactly the module
+that silently matches nothing, waiting to happen.

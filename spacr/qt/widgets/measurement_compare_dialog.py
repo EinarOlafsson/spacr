@@ -233,6 +233,32 @@ class MeasurementComparePanel(QWidget):
         self._join_row.addWidget(self.join_button)
         layout.addLayout(self._join_row)
 
+        # TWO MORE BOXES (instruction 213 A). `png_list` and the dependent
+        # variable are already the substance of the analysis and neither
+        # could be reached from this control -- which offered the four object
+        # tables and no reason for stopping there.
+        from PySide6.QtWidgets import QCheckBox
+
+        extras = QHBoxLayout()
+        self.join_png_list = QCheckBox("png_list")
+        self.join_png_list.setChecked(True)
+        self.join_png_list.setToolTip(
+            "Join the crop table: its path and its classification score. "
+            "Every morphological measurement is in the object tables beside "
+            "it, and the score is not in any of them.")
+        extras.addWidget(self.join_png_list)
+        self.join_dependent = QCheckBox("dependent variable")
+        self.join_dependent.setToolTip(
+            "Join the table carrying the value the screen is regressing on. "
+            "It joins by plateID, rowID, columnID, fieldID and objectID when "
+            "they are all there; when one is missing it falls back to "
+            "splitting the crop path, then to translating the well into a "
+            "row and a column. Which route was used is reported — a join "
+            "that silently degraded is one nobody can check.")
+        extras.addWidget(self.join_dependent)
+        extras.addStretch(1)
+        layout.addLayout(extras)
+
         self._figure_holder = QVBoxLayout()
         layout.addLayout(self._figure_holder, 1)
 
@@ -419,6 +445,9 @@ class MeasurementComparePanel(QWidget):
             self.join_button.setEnabled(True)
             return str(exc)
         self.join_button.setEnabled(True)
+        wide, dependent_note = self._join_the_dependent_variable(wide)
+        if dependent_note:
+            trouble = f"{trouble} {dependent_note}".strip()
         # THE GROUPS SURVIVE because `join_measurements` keeps the index, and
         # `set_data` re-reads them from the same values.
         self.set_data(wide, self._groups)
@@ -426,6 +455,36 @@ class MeasurementComparePanel(QWidget):
             self.join_note.setText(
                 f"{self.join_note.text()} {trouble}".strip())
         return trouble
+
+    def _join_the_dependent_variable(self, wide):
+        """Attach the dependent-variable table, if the box is ticked.
+
+        THE ROUTE GOES IN THE REPORT, always. A fallback is a fallback, not a
+        secret: a join that silently degraded is one nobody can check, and
+        the degradation itself is worth knowing because it means a column is
+        missing upstream (instruction 213 B).
+        """
+        if not getattr(self, "join_dependent", None) or \
+                not self.join_dependent.isChecked():
+            return wide, ""
+        frame = getattr(self, "_dependent_frame", None)
+        if frame is None or not len(frame):
+            return wide, ("the dependent variable was asked for and no table "
+                          "carrying it is attached")
+        try:
+            from ...dependent_join import describe, join
+
+            out, report = join(wide, frame)
+        except Exception as exc:                             # noqa: BLE001
+            LOG.debug("could not join the dependent variable", exc_info=True)
+            # REPORTED, NOT SWALLOWED. A route that matches nothing is a
+            # failure rather than an empty answer.
+            return wide, f"the dependent variable did not join: {exc}"
+        return out, describe(report)
+
+    def set_dependent_frame(self, frame) -> None:
+        """Give this panel the dependent-variable table to join."""
+        self._dependent_frame = frame
 
     # ------------------------------------------------------------ the build
 
