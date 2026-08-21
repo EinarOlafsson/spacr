@@ -964,6 +964,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "mixed_control_wells", "exclude_grnas", "controls",
             "filter_column", "filter_value",
             "min_cell_count", "min_n", "fraction_threshold",
+            "normalise_fraction",
             "target_unique_count", "tolerance", "outlier_detection",
         )),
         ("Plate & Batch Correction", (
