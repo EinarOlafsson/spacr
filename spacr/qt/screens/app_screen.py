@@ -1324,6 +1324,15 @@ class AppScreen(QWidget):
             # generic sentence, so a section is never left without text.
             section.set_hint(category_tooltip(self.app_key, title))
             for label, widget in rows:
+                # THE KEY, NOT THE LABEL. `build_sections` hands out
+                # `('Control wells', widget)` -- a title-cased sentence for a
+                # human -- and both wrappers below match on the SETTING NAME.
+                # Passing the label meant `control_wells` was never equal to
+                # 'Control wells' and the plate map (185) appeared on nothing
+                # at all. Its tests passed because they called
+                # `pick_wells_for` directly rather than driving the row the
+                # user actually sees.
+                setting_key = self._key_of(widget)
                 # A PLATE MAP BESIDE THE FIELDS THAT TAKE WELLS (185).
                 # "to the right of the field should be a button they can
                 # press that spawns a window". Only the settings whose value
@@ -1331,7 +1340,11 @@ class AppScreen(QWidget):
                 # that overwrote `classes` or `negative_control` -- which
                 # mix wells with another vocabulary -- would destroy a value
                 # it does not understand.
-                widget = self._with_a_plate_map(widget, label)
+                widget = self._with_a_plate_map(widget, setting_key)
+                # AND THE ADVISOR BESIDE `inference` (192). "a button to the
+                # left of inference alligned with the text box to the left in
+                # model & inference".
+                widget = self._with_a_settings_advisor(widget, setting_key)
                 lbl_widget = QLabel(label)
                 # Give the label a subtle affordance so users know
                 # it's the hover target for tooltips (fields can be
@@ -1673,6 +1686,143 @@ class AppScreen(QWidget):
         # unreadable would be worse than no picker.
         holder._spacr_field = widget
         return holder
+
+    def _key_of(self, widget) -> str:
+        """The setting name a widget holds, or ``''``.
+
+        The panel is built from `(label, widget)` pairs and every rule that
+        acts on a particular SETTING needs the key. Read off `_widgets`,
+        which is the one place that maps the two.
+        """
+        for key, held in getattr(self._settings_model, "_widgets", {}).items():
+            if held is widget:
+                return str(key)
+        return ""
+
+    def _with_a_settings_advisor(self, widget, key):
+        """``widget``, with the settings advisor to its LEFT, on `inference`.
+
+        LEFT, not right, and that is the request rather than a preference:
+        "a button to the left of inference alligned with the text box". The
+        plate map (185) sits on the right of the field it fills, and these
+        two must not be mistaken for each other -- one writes ONE field from
+        a picture, the other proposes a dozen from the data.
+
+        A no-op on every other setting and on every other module.
+        """
+        if str(key) != "inference" or self.app_key != "regression":
+            return widget
+        from PySide6.QtWidgets import QHBoxLayout, QPushButton, QWidget
+
+        holder = QWidget()
+        row = QHBoxLayout(holder)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(4)
+        button = QPushButton("Settings for my data…", holder)
+        button.setToolTip(
+            "Read the attached tables, ask the few things they cannot "
+            "answer, and PROPOSE the settings — with the reason beside each "
+            "one and the current value beside the new one. Nothing is "
+            "written until you accept it.")
+        button.clicked.connect(lambda *_: self.settings_for_my_data())
+        row.addWidget(button)
+        row.addWidget(widget, 1)
+        # THE FIELD IS STILL THE WIDGET the panel collects from -- the same
+        # rule the plate map follows, and for the same reason: a wrapper that
+        # made the value unreadable would be worse than no button.
+        holder._spacr_field = widget
+        self._advisor_button = button
+        return holder
+
+    def the_advisor_can_run(self) -> str:
+        """``''`` when the advisor has something to read, else the reason.
+
+        OFFERED AND DISABLED, saying why (106) -- rather than a button that
+        opens a window to announce it has nothing.
+        """
+        values = {}
+        try:
+            values = dict(self._settings_model.collect() or {})
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not collect the settings", exc_info=True)
+        counts, scores = self._tables_for_the_advisor(values)
+        if not counts and not scores:
+            return ("No count or score table is attached yet. Fill in Input "
+                    "Tables — or press 'Load the example screen…' there — "
+                    "and this can read them.")
+        return ""
+
+    @staticmethod
+    def _tables_for_the_advisor(values: dict):
+        """The count and score paths, out of either input spelling.
+
+        `paired_data` is the current shape -- one row per plate, naming both
+        files -- and `count_data`/`score_data` are the legacy lists. Both are
+        read, because a panel filled from an old settings CSV has the second.
+        """
+        counts, scores = [], []
+        for row in values.get("paired_data") or ():
+            if not isinstance(row, dict):
+                continue
+            if row.get("count"):
+                counts.append(str(row["count"]))
+            if row.get("score"):
+                scores.append(str(row["score"]))
+        for key, into in (("count_data", counts), ("score_data", scores)):
+            got = values.get(key)
+            if isinstance(got, str):
+                got = [got]
+            for path in got or ():
+                if path and str(path) not in into:
+                    into.append(str(path))
+        return counts, scores
+
+    def settings_for_my_data(self, *, answers: Optional[dict] = None) -> dict:
+        """Read the screen, ask, propose, and write only what is accepted.
+
+        :param answers: skip the question page and use these. For a test and
+            for a script; the button always asks.
+        :returns: what was written, or ``{}`` when nothing was.
+        """
+        from PySide6.QtWidgets import QDialog
+
+        from ...settings_advisor import advise, read_the_screen
+        from ..widgets.settings_advisor_dialog import SettingsAdvisorDialog
+
+        why_not = self.the_advisor_can_run()
+        if why_not:
+            self._console.append_stdout(why_not + "\n")
+            return {}
+        values = dict(self._settings_model.collect() or {})
+        counts, scores = self._tables_for_the_advisor(values)
+        self._console.append_stdout(
+            f"Reading {len(counts)} count table(s) and {len(scores)} score "
+            f"table(s) to work out the settings…\n")
+        reading = read_the_screen(
+            counts, scores, str(values.get("dependent_variable") or ""))
+        for trouble in reading.trouble:
+            self._console.append_stdout(f"  {trouble}\n")
+
+        if answers is not None:
+            # THE HEADLESS ROUTE, and it still goes through `advise` rather
+            # than a second rule -- one advisor, whether a person or a test
+            # is asking.
+            chosen = advise(reading, answers).as_settings()
+        else:
+            dialog = SettingsAdvisorDialog(reading, values, parent=self)
+            if dialog.exec() != QDialog.Accepted:
+                self._console.append_stdout(
+                    "Nothing was changed.\n")
+                return {}
+            chosen = dialog.accepted_settings()
+        if not chosen:
+            self._console.append_stdout(
+                "The proposal was never shown, so nothing was written.\n")
+            return {}
+        applied = self.apply_settings_dict(chosen)
+        self._console.append_stdout(
+            f"{applied} setting(s) written from the data.\n")
+        return chosen
 
     def pick_wells_for(self, field, key: str = "") -> str:
         """Open the plate map on ``field``'s value. Returns what was written.
