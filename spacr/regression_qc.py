@@ -101,7 +101,8 @@ import os
 import re
 import textwrap
 from dataclasses import dataclass, field
-from typing import (Any, Callable, Dict, List, NamedTuple, Optional, Tuple)
+from typing import (Any, Callable, Dict, List, Mapping, NamedTuple, Optional,
+                    Tuple)
 
 import numpy as np
 import pandas as pd
@@ -4243,7 +4244,92 @@ def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
         for panel in results:
             if panel.status == "skipped":
                 print(f"[regression_qc]   skipped {panel.name}: {panel.reason}")
+    _write_qc_numbers(out_dir, manifest, results)
     return manifest
+
+
+#: The file the numbers land in, beside the report they are printed on.
+QC_NUMBERS_FILE = "regression_qc_numbers.json"
+
+
+def _write_qc_numbers(out_dir, manifest, results) -> Optional[str]:
+    """Write the panels' own statistics as JSON beside the report.
+
+    THE MANIFEST ALREADY HELD THEM AND NOTHING KEPT THEM. Every panel returns
+    the numbers it computed, they are printed onto the figure and into the
+    text report, and then the manifest went out of scope -- so anything
+    wanting to READ a finished run's diagnostics had to re-derive them from
+    the fit, which is a second diagnostic pass that can disagree with the
+    first about the same numbers.
+
+    This is what `settings_advisor` reads (instruction 226). It is a
+    serialisation of what was already measured, never a recomputation: if
+    this file and the report disagree, that is a bug in one function rather
+    than a difference of method.
+
+    :param out_dir: the ``regression_qc`` folder.
+    :param manifest: the manifest about to be returned.
+    :param results: the per-panel results, for their ``stats``.
+    :returns: the path written, or ``None``.
+    """
+    import json
+    import os
+
+    def _plain(value):
+        """Whatever JSON can hold, and a string for everything else."""
+        if value is None or isinstance(value, (bool, int, str)):
+            return value
+        if isinstance(value, float):
+            # NaN and inf are real answers here -- a test with no finite
+            # p-value is not the same as a test that was not run -- and
+            # `json.dump` writes them as bare NaN, which is not JSON and
+            # which `json.load` in another process may refuse.
+            return value if np.isfinite(value) else None
+        if isinstance(value, (np.integer,)):
+            return int(value)
+        if isinstance(value, (np.floating,)):
+            value = float(value)
+            return value if np.isfinite(value) else None
+        if isinstance(value, (list, tuple)):
+            return [_plain(v) for v in value]
+        if isinstance(value, Mapping):
+            return {str(k): _plain(v) for k, v in value.items()}
+        return str(value)
+
+    payload = {
+        "model": manifest.get("model"),
+        "regression_type": manifest.get("regression_type"),
+        "family": manifest.get("family"),
+        "n_observations": manifest.get("n_observations"),
+        "n_predictors": manifest.get("n_predictors"),
+        # FLAT, and per panel. Flat is what a reader wants -- one lookup for
+        # "the normality p-value" -- and the per-panel copy is what keeps it
+        # honest when two panels measure something with the same name.
+        "panels": {r.name: _plain(dict(r.stats or {})) for r in results},
+        "verdicts": {
+            name: _plain({"level": v.level, "word": v.word,
+                          "headline": v.headline})
+            for name, v in (manifest.get("verdicts") or {}).items()},
+    }
+    flat = {}
+    for one in results:
+        for key, value in (one.stats or {}).items():
+            flat.setdefault(str(key), _plain(value))
+    payload["numbers"] = flat
+    try:
+        path = os.path.join(str(out_dir), QC_NUMBERS_FILE)
+        with open(path, "w", encoding="utf-8") as handle:
+            json.dump(payload, handle, indent=2, allow_nan=False)
+        manifest["numbers"] = path
+        return path
+    except Exception as error:                                   # noqa: BLE001
+        # A run is not worth losing to a failure in its own bookkeeping --
+        # but it is said out loud, because the advisor reading this file is
+        # the only thing that notices it is missing, and it notices by going
+        # quiet.
+        print(f"[regression_qc] could not write {QC_NUMBERS_FILE}: "
+              f"{type(error).__name__}: {error}")
+        return None
 
 
 def _write_combined_page(ctx, results, out_dir, selected, fmt=None,

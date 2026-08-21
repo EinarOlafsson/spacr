@@ -1837,8 +1837,19 @@ class AppScreen(QWidget):
             f"table(s) to work out the settings…\n")
         reading = read_the_screen(
             counts, scores, str(values.get("dependent_variable") or ""))
+        # AND THE LAST RUN, IF THERE IS ONE (instruction 226). Everything
+        # above is knowable before a fit; the residuals of one that happened
+        # are what the assumptions are actually about, and a response can be
+        # skewed while the residuals are fine. An ADDITION and never a
+        # requirement: with no run this changes nothing at all.
+        reading = self._reading_with_the_last_run(reading, values)
         for trouble in reading.trouble:
             self._console.append_stdout(f"  {trouble}\n")
+        if reading.run_note:
+            self._console.append_stdout(f"  {reading.run_note}\n")
+        elif reading.run_folder:
+            self._console.append_stdout(
+                f"  Also reading the diagnostics of {reading.run_folder}\n")
 
         if answers is not None:
             # THE HEADLESS ROUTE, and it still goes through the same
@@ -1861,6 +1872,35 @@ class AppScreen(QWidget):
         self._console.append_stdout(
             f"{applied} setting(s) written from the data.\n")
         return chosen
+
+    def _reading_with_the_last_run(self, reading, values):
+        """Fold a finished run's diagnostics into ``reading``.
+
+        SILENT WHEN THERE IS NO RUN, which is the ordinary case and the whole
+        point of the button -- it answers before anything has been fitted.
+        """
+        from dataclasses import replace
+
+        from ...settings_advisor import Reading, read_the_last_run
+
+        folder = ""
+        for source in (getattr(self, "_last_run_folder", ""),
+                       self._results_panel.run_folder()
+                       if getattr(self, "_results_panel", None) else ""):
+            if source:
+                folder = str(source)
+                break
+        if not folder:
+            return reading
+        try:
+            extra = read_the_last_run(folder, values)
+        except Exception:                                       # noqa: BLE001
+            # The advisor is worth more than the extra: a run folder that
+            # cannot be read must not cost the user the advice they asked for.
+            return reading
+        known = set(Reading.__dataclass_fields__)
+        extra = {k: v for k, v in extra.items() if k in known}
+        return replace(reading, **extra) if extra else reading
 
     def pick_wells_for(self, field, key: str = "") -> str:
         """Open the plate map on ``field``'s value. Returns what was written.
