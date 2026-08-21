@@ -2,7 +2,7 @@
 THE UMAP SAYS WHETHER THE ANNOTATION WORKED
 ================================================================================
 
-Status:    filed 2026-08-21. Engine BUILT; the tab is not.
+Status:    filed 2026-08-21, DONE 2026-08-21.
 Requested: 2026-08-21 -- "generate a umap, perform a hyperparamiter search
            find stucture that separates the positive and negative controlls
            and see where the annotated cells land, do they cluster with PC or
@@ -97,3 +97,36 @@ HOW TO KNOW IT WORKED
 * A score-picked method shows the circularity warning.
 * On a run where the annotation is known to be good the correlation is
   positive and significant; with the effects shuffled it is not.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+`spacr/annotation_umap_qc.py` is the engine and
+`spacr/qt/widgets/annotation_umap_tab.py` is the tab, added to the results
+panel as "Annotation check" and reachable by key like every other panel --
+so a grid tile can open it, which is instruction 199's door.
+
+THE GUARDS ARE HONOURED WHERE THE USER MEETS THEM, which is the only place
+they matter:
+
+  * a method that PICKED cells by the phenotype score is refused with the
+    reason INSTEAD of the plot. Drawing it under a caption saying it means
+    nothing would still leave a picture somebody screenshots.
+  * an embedding whose controls did not separate on cells the search never
+    saw stops the verdict rather than decorating it, and prints the tuned
+    score, the held-out score and the gap so the refusal can be argued
+    with.
+  * the readout is neighbour purity; cluster membership is never consulted.
+
+NOTHING IS COMPUTED UNTIL ASKED. A UMAP over a screen's cells is seconds of
+work, and a tab that embedded on construction would charge that to every
+user who never opens it.
+
+Tests: `tests/test_annotation_umap_qc.py`, 24 passing -- the engine's three
+guards, and the tab refusing the same things in the same order.
+
+WHAT IS NOT DONE, and is worth its own instruction rather than a note here:
+the tab shows its verdict as text. The embedding is computed and held but
+not drawn, because a scatter of cells coloured by purity belongs with the
+figure system rather than in a bespoke canvas.
