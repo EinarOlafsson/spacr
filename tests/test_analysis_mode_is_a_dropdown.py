@@ -1,13 +1,4 @@
-"""`analysis_mode` is a dropdown, and `level` sits beside what decides it.
-
-Instruction 134, asked for on 2026-08-17: "analasys mode should be a dropdown".
-Instruction 132's addendum, the same day: "level should be in model and
-inference not additional settings".
-
-Both are the same shape of bug. A setting whose entire domain is two strings
-was a free-text box, and a setting whose enabled state is decided by
-`regression_type` was drawn three sections away from it.
-"""
+"""Contracts for regression-mode choices and their GUI placement."""
 
 import pytest
 
@@ -58,15 +49,10 @@ def test_the_qt_front_end_offers_the_same_two():
 ])
 def test_analysis_mode_is_greyed_out_while_inference_decides_it(inference,
                                                                 selects):
-    """Instruction 106's rule: greyed out WITH the reason, never inert.
-
-    A user who picks nonparametric and then reads a live `analysis_mode` box
-    still saying `regression` is looking at two controls that contradict each
-    other, and the one they can edit is the one that loses.
-    """
+    """The disabled control explains which inference mode selected it."""
     rule = get_setting_dependencies()["analysis_mode"]
     settings = {"inference": inference, "analysis_mode": "regression"}
-    assert rule["sources"] == ("inference",)
+    assert rule["sources"] == ("inference", "analysis_unit")
     assert rule["predicate"](settings, {}) is False
     reason = rule["reason"](settings, {})
     assert inference in reason

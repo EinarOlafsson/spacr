@@ -4938,14 +4938,9 @@ def get_setting_dependencies():
         ('regression_type', 'random_row_column_effects'),
         _level_is_read, _level_reason)
 
-    # THE UNIT CONSTRAINS THE INFERENCE (219). `analysis_unit='cell'` keeps
-    # one row per object, and the permutation test needs one row per WELL --
-    # so with 'cell' the only inference that can run is the parametric one.
-    #
-    # GREYED WITH THE VALUE SHOWN, not merely refused later. A run that
-    # discovers this after thirty seconds of filtering, plotting and saving
-    # has already cost the user the thing the check was for; it did, on
-    # 2026-08-21, and that is why this rule exists.
+    # Cell-level analysis keeps one row per object, whereas the permutation
+    # test requires one row per well. Reflect that constraint in the enabled
+    # state so the GUI explains the selected inference mode before a run.
     _cell_unit = lambda settings, context: str(
         settings.get('analysis_unit') or 'well').lower() == 'cell'
     setting_dependencies['inference'] = rule(
