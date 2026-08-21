@@ -204,10 +204,50 @@ KEYS_RETIRED = frozenset({
     # accepts either spelling, so a caller handing ml.py a raw dict with the
     # old key keeps working.
     "toxo",
+    # NOTE ON THE 230 SUPERSESSIONS: `crop_source`, `file_metadata`,
+    # `file_type` and `coordinate_columns` are NOT here. They are superseded
+    # as CONTROLS and hidden from the panel by `_APP_HIDDEN_KEYS`, but the
+    # runtime still reads them -- so they stay in the settings dict and in
+    # the category map, because an uncategorised key renders ungrouped
+    # rather than not at all. Retired means GONE, and these are not.
+    #
+    # `png_type` was already the older half of the path-filter pair and is
+    # popped from the defaults; it left the category map with the 230
+    # rename that retired the rest of that pair.
+    "png_type",
+    # REMOVED 2026-08-21 with instruction 229. `metadata_type_by` named the
+    # column a class is defined by, which is the Classes editor's own column
+    # field; `measurement_rules` was a second vocabulary for "a class is a
+    # rule about a column", written as hand-edited JSON because it had no
+    # editor. `io._class_column` honours the first as a fallback so an old
+    # CSV runs unchanged.
+    "metadata_type_by", "measurement_rules",
+    # REMOVED 2026-08-21 with instruction 211. The page size is a
+    # consequence of the container size and the image size, so a configured
+    # count could only contradict the geometry.
+    "cells_per_page",
+    # REPLACED 2026-08-21 by `train_channels` (230 A): the channels that
+    # matter are the ones the model sees. `deep_spacr_defaults` moves an old
+    # file's value across before any default lands.
+    "extract_channels",
 })
 
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # ---- added 2026-08-21 -------------------------------------------
+    # 227/224: the control wells the mixed-ratio calibration is anchored on,
+    # the contaminant exclusion, the permutation statistic, and the
+    # renormalisation that follows the fraction threshold.
+    "positive_control_wells", "negative_control_wells", "mixed_control_wells",
+    "exclude_grnas", "grna_statistic", "normalise_fraction",
+    # 210: optional outlier removal, one per object measure, all off by
+    # default because they change which cells EXIST.
+    "cell_area_outlier_mads", "nucleus_area_outlier_mads",
+    "cell_intensity_outlier_mads", "nucleus_intensity_outlier_mads",
+    # 230: where the training images come from, how the streamed ones are
+    # chosen, and what each method reads.
+    "image_source", "load_path_regex", "stream_method", "channel_arrays",
+    "mask_array", "bounding_box",
     # The two readable front ends for choices that were previously side
     # effects of other keys: `inference` selects analysis_mode (and 'auto'
     # picks it from whether the design can support a simultaneous fit), and
@@ -1109,7 +1149,11 @@ def test_the_cv_dataset_class_keys_are_grouped_with_the_dataset():
                 "metadata_item_2_name", "metadata_item_2_value"):
         assert key in training, key
     assert "class_metadata" in training
-    assert "metadata_type_by" in training
+    # `metadata_type_by` was here and is RETIRED (instruction 229): it named
+    # the column a class is defined by, which is the Classes editor's own
+    # column field. What replaced it is `classes`, and that is grouped here
+    # too -- so the grouping this test protects is intact.
+    assert "classes" in training
 
 
 def test_dataset_shaping_settings_are_not_filed_as_advanced():

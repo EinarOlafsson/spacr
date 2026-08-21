@@ -2,7 +2,7 @@
 THE EVALUATION SETTINGS ARE SPLIT BY CATEGORY, AND BY ML VS CV
 ================================================================================
 
-Status:    filed 2026-08-21, not started.
+Status:    DONE 2026-08-21.
 Requested: 2026-08-21 -- "the evaluation section of classify has too many
            setting please devide them on category and machine learning vs
            computer vision and ther subcategories ther, best is if these
@@ -49,3 +49,44 @@ HOW TO KNOW IT WORKED
   existing fit.
 * No setting is lost in the move: the set of keys the panel renders is the
   same before and after.
+
+--------------------------------------------------------------------------------
+DONE 2026-08-21 -- AND THE AUDIT CORRECTED THE SPLIT
+--------------------------------------------------------------------------------
+
+THE AUDIT WAS THE WORK, exactly as this item says, and it overturned the
+obvious answer. `classify.FAMILY_SETTINGS` is the authoritative table of
+what each family reads EXCLUSIVELY, and against it only `n_top_examples` is
+CV-only and only `save_to_db` is ML-only.
+
+ELEVEN OF THE FIFTEEN ARE SHARED. The first attempt split them by what their
+NAMES suggest -- `classifier_evaluation`, `evaluation_calibration`,
+`evaluation_bins`, the four leakage settings, `score_threshold` all sound
+like computer-vision settings -- and filed them under "Computer Vision
+Evaluation". That broke this item's one hard rule on eleven settings out of
+fifteen, and it broke it invisibly: every name in that heading looked right.
+
+So the split is BY CATEGORY, with NEUTRAL headings:
+
+  Model Evaluation   how the model is VALIDATED -- whether cross-validation
+                     runs, into how many folds, grouped by what
+  Evaluation Reports what is WRITTEN OUT -- the bundle, the calibration
+                     curve and its bins, the score column and threshold
+  Leakage Audit      whether train and test share objects
+
+THE LEAKAGE AUDIT IS ITS OWN HEADING because it is a check on the SPLIT
+rather than on the model. A reader looking for it among the metrics would
+not find it, and a model scored on cells it was trained on is not scored at
+all.
+
+THE TWO EXCLUSIVES WENT TO FAMILY HEADINGS THAT ALREADY EXIST -- "best is
+if these settings can be added to categories that already exist" -- so only
+two headings were invented, and each because nothing existing fit.
+
+THE TEST ASSERTS AGAINST `FAMILY_SETTINGS`, not against a hand-written list.
+It checks that no SHARED setting sits under a path-named heading, that no
+neutral heading NAMES a path, and that the two exclusives are exactly the
+two the table says they are -- so the split and the families cannot drift
+apart.
+
+NO SETTING IS LOST AND NONE IS IN TWO PLACES, both asserted.

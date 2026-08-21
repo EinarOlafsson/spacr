@@ -157,26 +157,30 @@ def test_generate_training_dataset_annotation_mode(train_src):
     _assert_split(out, ["test_1", "test_2"])
 
 
-def test_generate_training_dataset_measurement_mode(train_src):
-    """measurement mode is driven by ``measurement_rules``.
+def test_the_retired_measurement_mode_still_loads(train_src):
+    """`dataset_mode='measurement'` is RETIRED (instruction 229) and MIGRATED.
 
-    ``custom_measurement`` + ``class_metadata`` (what the old call used) are the
-    legacy keys — settings.py documents custom_measurement as having no effect,
-    and io.generate_training_dataset only reads ``measurement_rules``. With the
-    old arguments no class was ever assembled, the function printed
-    "No class data assembled; aborting." and returned ``(None, None)``, which
-    ``assert out is not None`` happily accepted under a swallowed skip.
+    It defined classes by threshold rules on measured features, which the
+    Classes editor now covers -- a class is a column and a value, and a
+    threshold is a rule about a column. Keeping both was keeping two
+    vocabularies for one idea, and the rules one had no editor: it was
+    hand-written JSON in a settings CSV.
+
+    REMOVED MUST NOT MEAN "RAISES ON LOAD". Every settings file naming it
+    still has to run, so `resolve_basis` maps it to 'annotation' -- which is
+    not an approximation: the measurement path WROTE a label column and then
+    read it back as an annotation, so annotation is the second half of what
+    it did. This asserts that the old value is accepted and resolves, not
+    that the old behaviour survives.
     """
     from spacr.io import generate_training_dataset
+    from spacr.training_basis import resolve_basis
+
+    assert resolve_basis({"dataset_mode": "measurement"}) == "annotation"
     out = generate_training_dataset(_tds(
         train_src, dataset_mode="measurement",
-        measurement_rules=[
-            {"name": "small",
-             "where": [{"column": "cell_area", "op": "<", "value": 2000}]},
-            {"name": "large",
-             "where": [{"column": "cell_area", "op": ">=", "value": 2000}]},
-        ]))
-    _assert_split(out, ["small", "large"])
+        annotation_column="test", annotated_classes=[1, 2]))
+    _assert_split(out, ["test_1", "test_2"])
 
 
 # ---------------------------------------------------------------------------
