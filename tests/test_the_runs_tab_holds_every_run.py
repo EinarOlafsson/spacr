@@ -379,6 +379,30 @@ def test_picking_a_run_names_it_the_way_its_row_does(screen):
     assert row["run"] in text, text
 
 
+def _wait_for_the_table(screen, rows: int, timeout: float = 10.0) -> None:
+    """Spin until the results table holds ``rows`` rows.
+
+    A run is read off the GUI thread, so this is what "the run is open"
+    means in a test. Fails with what it actually got: "0 != 20" says nothing
+    about whether the read failed or had simply not landed.
+    """
+    import time
+
+    from PySide6.QtWidgets import QApplication
+
+    deadline = time.monotonic() + timeout
+    seen = -1
+    while time.monotonic() < deadline:
+        QApplication.processEvents()
+        seen = screen._results_panel.table.table.rowCount()
+        if seen == rows:
+            return
+        time.sleep(0.01)
+    raise AssertionError(
+        f"the results table holds {seen} row(s) after {timeout:g}s, not "
+        f"{rows}: the run did not open")
+
+
 def test_a_finished_run_can_be_opened_from_its_row(screen, tmp_path):
     """The end of the request: a run made in this session is reachable from
     the tab exactly as a sweep trial is."""
@@ -404,6 +428,11 @@ def test_a_finished_run_can_be_opened_from_its_row(screen, tmp_path):
     screen._on_finished(True)
     screen._show_trial(_rows(screen)[0])
 
+    # THE READ IS OFF THE GUI THREAD (159). `_show_trial` hands the folder to
+    # `start_load` and the table arrives at `_on_trial_loaded`, so asserting
+    # on the row count on the next line asserts against a run that has not
+    # finished being read.
+    _wait_for_the_table(screen, 20)
     assert screen._results_panel.table.table.rowCount() == 20
     assert len(screen._figure_grid._cells) == 1
 
