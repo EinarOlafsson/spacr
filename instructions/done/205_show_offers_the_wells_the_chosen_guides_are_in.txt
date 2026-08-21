@@ -2,7 +2,7 @@
 "SHOW" OFFERS THE WELLS THE CHOSEN GUIDES ARE IN
 ================================================================================
 
-Status:    filed 2026-08-21, not started.
+Status:    DONE 2026-08-21.
 Requested: 2026-08-21 -- "for the sow option in the cell table graphs, i
            whould be able to gRNAs, gRNAs + other datapoints in selected
            wells, and All datapoints. presently i cannot pick gRNAs + other
@@ -53,3 +53,35 @@ HOW TO KNOW IT WORKED
 * Selecting different guides on the volcano changes the wells.
 * Zero selected guides is handled and says so rather than drawing everything
   or nothing.
+
+--------------------------------------------------------------------------------
+DONE 2026-08-21
+--------------------------------------------------------------------------------
+
+`spacr/well_scope.py` decides the population; the panel offers the three.
+
+A SEPARATE BOX FROM THE CLASS FILTER. "Which objects are on the plot" and
+"which of the classes on it to draw" are different questions, and one box
+answering both would have a list whose entries mean two different things.
+
+THE TWO SIDES ARE DISTINGUISHABLE. `select` marks each object `chosen gRNA`
+or `well-mate` under the middle scope -- drawing them in one colour would
+answer the question by hiding it, and the comparison IS the two populations
+side by side.
+
+THE WELL SET IS DERIVED THEN EDITABLE, and `None` is not `[]`. "Not narrowed
+yet" and "narrowed to nothing" are different states, and the difference is
+what lets a NEW guide selection re-derive rather than stay empty -- a
+selection that stayed empty after the user picked a different point would
+read as a broken click.
+
+THE ORDER IS THE TABLE'S, not sorted, so a user narrowing the set sees the
+wells in the order the screen was laid out.
+
+NO SELECTION DRAWS NOTHING AND SAYS WHY. Falling back to the whole table
+would look like a selection nobody made; an unknown scope raises for the
+same reason, since silently drawing "all" would answer a different question
+without saying so.
+
+Instruction 206's multi-select is what makes the well set more than one
+guide's wells.
