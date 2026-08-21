@@ -5306,6 +5306,7 @@ def repair_api_translations(
         current_symbols = payload.get("symbols", {})
     except (FileNotFoundError, json.JSONDecodeError, AttributeError):
         current_symbols = {}
+    reviewed_blocks = reviewed_api_block_translations(docs, language)
 
     plans: dict[
         str,
@@ -5374,12 +5375,19 @@ def repair_api_translations(
             source_blocks, source_layout, selected, pending_indexes,
         )
 
+    reviewed_sources = set(reviewed_blocks)
+    recovered_review = len(pending_sources & reviewed_sources)
+    for source_blocks, _layout, selected, _pending_indexes in plans.values():
+        for index, source_block in enumerate(source_blocks):
+            reviewed_target = reviewed_blocks.get(source_block, "")
+            if reviewed_target:
+                selected[index] = reviewed_target
+    pending_sources.difference_update(reviewed_sources)
+
     generated: dict[str, str] = {}
     translation_input: dict[str, str] = {}
     recovered_cache = 0
-    recovered_review = 0
     if pending_sources:
-        reviewed_blocks = reviewed_api_block_translations(docs, language)
         # A stricter audit can reject a catalog entry after its model output
         # was already checkpointed. If a later review narrows that audit (for
         # example by recognizing the Python type name ``dict`` as code), reuse
@@ -5397,11 +5405,6 @@ def repair_api_translations(
             api_cache = {}
         for source in pending_sources:
             contextual_source = _api_translation_source(source)
-            reviewed_target = reviewed_blocks.get(source, "")
-            if reviewed_target:
-                generated[source] = reviewed_target
-                recovered_review += 1
-                continue
             candidate = ""
             # Before API contexts were namespaced, the shared decoder stored
             # accepted output under its model input itself. Reuse that exact
@@ -5479,7 +5482,10 @@ def repair_api_translations(
             source_block = source_blocks[index]
             contextual_source = _api_translation_source(source_block)
             candidate = _contextualize(
-                generated.get(source_block, source_block),
+                reviewed_blocks.get(
+                    source_block,
+                    generated.get(source_block, source_block),
+                ),
                 language,
                 source_block,
             )
@@ -5488,11 +5494,14 @@ def repair_api_translations(
             # the original wording.  Validate both semantic contracts: the
             # target must translate the rewritten model input and preserve
             # every literal required by the canonical source.
+            validator = (
+                _reviewed_api_block_valid
+                if source_block in reviewed_sources
+                else _api_block_valid
+            )
             if (
-                not _api_block_valid(
-                    contextual_source, candidate, language,
-                )
-                or not _api_block_valid(source_block, candidate, language)
+                not validator(contextual_source, candidate, language)
+                or not validator(source_block, candidate, language)
             ):
                 candidate = source_block
                 unresolved += 1
