@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-188 done / 5 open (97%).
+189 done / 4 open (97%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -26,9 +26,6 @@ OPEN
 
    60  EVERY MODULE AT 100% TEST COVERAGE
        60_every_module_to_100_percent_test_coverage.txt
-
-  197  THE HOTKEY MAP IS IN THE HELP MENU
-       197_the_hotkey_map_is_in_the_help_menu.txt
 
   198  THE MEASUREMENTS TAB'S SUB-HEADINGS READ WHEN THEY ARE NOT HIGHLIGHTED
        198_the_folded_headings_read_when_they_are_closed.txt
@@ -231,3 +228,4 @@ DONE
   194  THE PLATE MAP IS SQUARES YOU DRAG ACROSS, AND IT DOES NOT DRIFT
   195  THE DEFAULT CONTROL IN REGRESSION IS 000000
   196  THE ADVISOR'S SETTINGS HAVE TO ACTUALLY RUN
+  197  THE HOTKEY MAP IS IN THE HELP MENU

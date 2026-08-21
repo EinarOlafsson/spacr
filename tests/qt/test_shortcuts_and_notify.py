@@ -21,7 +21,12 @@ def test_shortcuts_install_adds_qshortcuts(qtbot, qt_theme_applied):
     # install() ran in MainWindow.__init__; count QShortcut children.
     scs = win.findChildren(QShortcut)
     # At least Ctrl+H + Ctrl+1..9 + Ctrl+K + Ctrl+, + Ctrl+/ + F1 + ?
-    assert len(scs) >= len(shortcuts.SHORTCUTS)
+    #
+    # `installed()`, NOT `SHORTCUTS`: `Ctrl+B` is window-wide and is bound on
+    # the menu action that opens the full app list, so it is on the map and
+    # is not install()'s to create. Counting it here called a wired key
+    # missing.
+    assert len(scs) >= len(shortcuts.installed())
 
 
 def test_notify_signature_is_safe_when_no_backends(monkeypatch):
@@ -111,7 +116,7 @@ def test_show_cheat_sheet_opens_and_closes(qtbot, qt_theme_applied):
     keystroke that a user would actually press.
     """
     from spacr.qt.shortcuts import (
-        SHORTCUTS, ShortcutOverlay, show_cheat_sheet,
+        ShortcutOverlay, mapped, native, show_cheat_sheet,
     )
     from spacr.qt.app import MainWindow
     from PySide6.QtWidgets import QLabel
@@ -129,13 +134,22 @@ def test_show_cheat_sheet_opens_and_closes(qtbot, qt_theme_applied):
     rows = [lbl.text() for lbl in overlay._card.findChildren(QLabel)]
     # A title, a header per category, a keys+label pair per binding, and the
     # closing hint. All non-empty.
-    categories = {s.category for s in SHORTCUTS}
-    assert len(rows) == 2 * len(SHORTCUTS) + len(categories) + 2
+    #
+    # `mapped()`, NOT `SHORTCUTS` (197). The map describes the per-screen
+    # keys too -- the Make Masks tools, the Annotate navigation -- and they
+    # are declared in `SCREEN_SHORTCUTS` because a screen binds them and the
+    # map has to name them whether that screen is built or not.
+    specs = mapped()
+    categories = {s.category for s in specs}
+    assert len(rows) == 2 * len(specs) + len(categories) + 2
     assert all(r.strip() for r in rows)
 
     text = "\n".join(rows)
-    for spec in SHORTCUTS:
-        assert spec.keys in text, f"{spec.keys} missing from the cheat sheet"
+    for spec in specs:
+        # PRINTED IN THE PLATFORM'S SPELLING: `Ctrl` is the Command symbol
+        # on macOS, so the card is searched for what it actually shows.
+        assert native(spec.keys) in text, \
+            f"{spec.keys} missing from the cheat sheet"
         assert spec.label in text, f"{spec.label!r} missing from the cheat sheet"
     for cat in categories:
         assert cat.upper() in text
