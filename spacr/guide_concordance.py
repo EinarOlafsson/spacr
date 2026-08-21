@@ -32,6 +32,19 @@ _GENE_IN_FEATURE = re.compile(r"\[(?:T\.)?(?:TGGT1_)?([0-9A-Za-z]+?)(?:_[0-9]+)?
 _GUIDE_IN_FEATURE = re.compile(r"\[(?:T\.)?((?:TGGT1_)?[0-9A-Za-z]+_[0-9]+)\]")
 
 
+
+def _best_p(p_values) -> float:
+    """The smallest p value among a gene's guides, or ``nan`` if there are
+    none.
+
+    Written out rather than `np.nanmin`, which warns on an all-NaN slice --
+    and an all-NaN slice is the ORDINARY case for a mixed fit, where the
+    guide is a random effect and carries a BLUP instead of a p value.
+    """
+    values = np.asarray(p_values, dtype=float)
+    finite = values[np.isfinite(values)]
+    return float(finite.min()) if finite.size else float("nan")
+
 def _gene_of(feature: str):
     match = _GENE_IN_FEATURE.search(str(feature))
     return match.group(1) if match else None
@@ -106,6 +119,9 @@ def guide_support(results: pd.DataFrame, alpha: float = 0.05) -> pd.DataFrame:
         rows.append({
             "gene": gene,
             "n_guides": int(len(block)),
+            # `nansum` over a comparison is safe -- NaN <= alpha is False --
+            # so this counts zero significant guides, which is correct when
+            # there are no p values to be significant.
             "n_guides_significant": int(np.nansum(p_values <= alpha)),
             "n_same_direction": same,
             "concordance": (same / len(block)) if len(block) else np.nan,
@@ -113,7 +129,16 @@ def guide_support(results: pd.DataFrame, alpha: float = 0.05) -> pd.DataFrame:
             "gene_p": float(gene_row["_p"].min()) if len(gene_row) else np.nan,
             "gene_coefficient": (float(gene_row["_effect"].iloc[0])
                                  if len(gene_row) else np.nan),
-            "best_guide_p": float(np.nanmin(p_values)) if len(p_values) else np.nan,
+            # `nanmin` OF AN ALL-NaN SLICE WARNS AND RETURNS NaN, and every
+            # gene warns separately -- three lines of RuntimeWarning per run
+            # on a screen where the answer is simply "there are no guide p
+            # values". THE ABSENCE IS EXPECTED, NOT EXCEPTIONAL: a mixed
+            # model makes the guide a RANDOM effect, so each guide gets a
+            # shrunken BLUP and no p value at all, which the run already says
+            # in words. Asking the question and reporting NaN quietly is the
+            # honest response; warning about it is noise that hides real
+            # warnings.
+            "best_guide_p": _best_p(p_values),
         })
     if not rows:
         return pd.DataFrame(columns=[

@@ -336,3 +336,76 @@ class TestSudokuIsScopedToTheWellsThatHoldTheGuide:
 
         said = self._notes(plan)
         assert "4 well(s) hold D_1" in said, said
+
+
+class TestThePropagationPrecision:
+    """float32 by default, MEASURED rather than assumed.
+
+    At 30,000 cells and 880 guides the float64 iteration takes 22.8 s and
+    the float32 one 12.8 s. The two agree on the argmax for 100% of cells,
+    with a largest element difference of 3.2e-05 -- five orders of magnitude
+    below the decision threshold this feeds, so it cannot move a call.
+    """
+
+    @staticmethod
+    def _graph_and_seeds(n=400, g=12, seed=0):
+        rng = np.random.default_rng(seed)
+        graph = module.similarity_graph(rng.normal(size=(n, 6)),
+                                        neighbours=10)
+        seeds = np.zeros((n, g))
+        seeds[rng.integers(0, n, g), np.arange(g)] = 1.0
+        return graph, seeds
+
+    def test_the_default_is_single_precision(self):
+        graph, seeds = self._graph_and_seeds()
+        assert module.propagate(graph, seeds).dtype == np.float32
+
+    def test_double_precision_is_still_reachable(self):
+        graph, seeds = self._graph_and_seeds()
+        out = module.propagate(graph, seeds, dtype=np.float64)
+        assert out.dtype == np.float64
+
+    def test_the_two_agree_except_on_cells_that_are_ties_anyway(self):
+        """THE CLAIM, STATED AS MEASURED RATHER THAN AS HOPED.
+
+        The first version of this asserted the argmax matched for every
+        cell, on the strength of a run at 30,000 cells where it did. At
+        smaller n it does not: 0.13% of cells disagree at n=800 and 0.34% at
+        n=3,000.
+
+        WHERE THEY DISAGREE IS THE POINT. Every disagreement is a cell whose
+        top two guides are within 0.6% of each other -- a tie that float64
+        breaks one way and float32 the other, and that the method abstains
+        on regardless, because a posterior that close cannot clear the
+        decision threshold. The precision is not deciding anything the
+        method was willing to decide.
+        """
+        graph, seeds = self._graph_and_seeds(n=3000, g=40, seed=1)
+        fast = module.propagate(graph, seeds)
+        exact = module.propagate(graph, seeds, dtype=np.float64,
+                                 tolerance=1e-6)
+
+        reached = fast.sum(axis=1) > 0
+        assert reached.any()
+        differs = (fast.argmax(axis=1) != exact.argmax(axis=1)) & reached
+        assert differs.mean() < 0.01, f"{differs.mean():.2%} disagree"
+
+        if differs.any():
+            ordered = np.sort(exact[differs], axis=1)
+            margin = ((ordered[:, -1] - ordered[:, -2])
+                      / np.maximum(ordered[:, -1], 1e-30))
+            assert margin.max() < 0.02, (
+                "a disagreement on a cell that was NOT a near-tie -- the "
+                "precision would then be deciding something real")
+
+    def test_the_tolerance_is_one_that_can_be_reached(self):
+        """At 1e-6 the loop ran all 100 iterations every time, so the
+        convergence test was decoration and the cap was what stopped it."""
+        graph, seeds = self._graph_and_seeds(n=600, g=15, seed=4)
+        settled = module.propagate(graph, seeds, iterations=100)
+        capped = module.propagate(graph, seeds, iterations=2)
+        # Two iterations is visibly not the fixed point; the default is.
+        assert not np.allclose(settled, capped)
+        assert np.allclose(settled,
+                           module.propagate(graph, seeds, iterations=400),
+                           atol=1e-3)

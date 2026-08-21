@@ -940,9 +940,24 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         # sections with the response, the estimator and the hit-calling rules
         # between them, so it was not obvious that seven separate settings
         # each drop data.
+        # THE THREE CONTROL BLOCKS AND THE EXCLUSION LIVE HERE, not in the
+        # trailing "additional settings" they fell into for want of being
+        # named (2026-08-21). A settings key that no panel section claims
+        # lands in the catch-all, which is where a reader looks last.
+        #
+        # ORDER IS THE ASK: they follow `negative_control`, because they are
+        # about the same thing -- which wells and which guides are controls
+        # -- and the eye should not have to travel to collect them.
+        #
+        # `control_wells` IS GONE FROM THIS PANEL. It said "these wells are
+        # controls" without saying WHICH control, and the three settings
+        # below say that. Still read by the invasion-assay panel, which has
+        # its own meaning for it.
         ("Controls & Filters", (
-            "positive_control", "negative_control", "controls",
-            "control_wells", "filter_column", "filter_value",
+            "positive_control", "negative_control",
+            "positive_control_wells", "negative_control_wells",
+            "mixed_control_wells", "exclude_grnas", "controls",
+            "filter_column", "filter_value",
             "min_cell_count", "min_n", "fraction_threshold",
             "target_unique_count", "tolerance", "outlier_detection",
         )),
@@ -3323,6 +3338,27 @@ def plain_tooltip(
     return f"{summary} — {api}" if summary else api
 
 
+def _is_self_labelling(widget) -> bool:
+    """Does this control carry its own visible label?
+
+    A `QCheckBox` does: its text sits beside the box and there is no separate
+    label to hang the help on. A composite field does NOT -- it is a
+    container, its text belongs to a child, and Qt delivers `Enter` to it
+    whenever the pointer crosses into any of those children, so decorating
+    it puts the help on the field.
+    """
+    from PySide6.QtWidgets import QAbstractButton, QLabel
+
+    if isinstance(widget, QLabel):
+        return True
+    if isinstance(widget, QAbstractButton):
+        try:
+            return bool(widget.text())
+        except (AttributeError, RuntimeError):
+            return False
+    return False
+
+
 class _ApiTooltipFilter(QObject):
     """Show rich setting help in the clickable sticky tooltip."""
 
@@ -5105,6 +5141,30 @@ def install_api_tooltips(
         html = attach_api_tooltip(
             widget, app_key, key, _descriptions=descriptions)
         label = _setting_label_for_field(owner, widget)
+        if label is None and not _is_self_labelling(widget):
+            # A COMPOSITE FIELD IS NOT A SELF-LABELLING CONTROL, and treating
+            # it as one is what put the tooltip on the field.
+            #
+            # Reported repeatedly, and measured on the regression panel:
+            # THIRTY-THREE editors sit inside a composite -- a `_ScalarEdit`
+            # inside a `_CsvColumnField`, a line edit inside a chip field --
+            # and the composite was landing in the branch below, which
+            # installs the hover filter on the widget itself. Qt delivers
+            # `Enter` to a parent when the pointer crosses into any of its
+            # children, so hovering the FIELD fired the help.
+            #
+            # The branch below is right for a `QCheckBox`, which carries its
+            # own visible text and IS its own label. It is wrong for a
+            # container, which has no text and whose label is elsewhere or
+            # missing. Where there is no label to put the help on, the help
+            # goes nowhere -- a field that stays quiet is the requested
+            # behaviour, and a tooltip on the field is not a lesser version
+            # of it.
+            widget.setProperty("apiTooltipHtml", "")
+            widget.setProperty("apiTooltipDisplayRole", "metadata")
+            widget.setToolTip("")
+            widget.removeEventFilter(event_filter)
+            continue
         if label is None:
             # A one-widget form row (usually a Toggle/QCheckBox) carries its
             # own visible label. Keep hover help on its text and put the same

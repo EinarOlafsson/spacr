@@ -1765,6 +1765,30 @@ def _resolve_regression_analysis_choices(settings):
         # Per-object fitting is exactly agg_type=None. Recorded rather than
         # silently applied, because it changes what one row of the design is.
         settings['agg_type'] = None
+
+        # AND THE INFERENCE FOLLOWS THE UNIT (219). The permutation test
+        # works well by well and 'cell' gives one row per object, so the
+        # only inference that can run here is the parametric one.
+        #
+        # CHOSEN WHEN IT WAS NOT ASKED FOR, SAID WHEN IT WAS. Left at
+        # 'auto', this is not a conflict -- the user expressed no
+        # preference and 'auto' means "pick what the design supports", so
+        # picking it is the whole job. Set to 'nonparametric' explicitly, it
+        # IS a conflict: two deliberate choices that cannot both hold, and
+        # resolving that quietly would run something other than what was
+        # asked for.
+        chosen = str(settings.get('inference', 'auto')).strip().lower()
+        if chosen in ('', 'auto'):
+            settings['inference'] = 'parametric'
+            settings['analysis_mode'] = 'regression'
+        elif chosen in ('nonparametric', 'permutation'):
+            raise ValueError(
+                "analysis_unit='cell' and inference='nonparametric' cannot "
+                "both hold: the permutation test compares each guide across "
+                "WELLS and needs one row per well, and 'cell' gives one row "
+                "per object. Set analysis_unit='well' with an agg_type such "
+                "as 'mean' to keep the permutation test, or "
+                "inference='parametric' to keep per-object fitting.")
     elif settings.get('agg_type') is None and unit == 'well':
         # A well-level run needs a statistic. 'mean' is the historical default.
         settings['agg_type'] = 'mean'
@@ -2244,10 +2268,23 @@ def get_perform_regression_default_settings(settings):
     # wells the regression never sees, so this follows filter_value. It is
     # indexed, not .get(), and it is iterated, so None -- which is what the
     # invasion assay defaults the same key name to -- is not a legal value here.
+    # AND THE THREE CONTROL BLOCKS ARE PART OF IT (221). `filter_value`
+    # gains them in `_perform_regression`, which runs after this, so
+    # deriving from `filter_value` alone left the sequencing sweep fitting
+    # its threshold on wells the regression had already dropped -- the exact
+    # divergence the comment above says must not happen.
+    _blocks: list = []
+    try:
+        from .well_spec import control_block_wells
+        _blocks = control_block_wells(settings)
+    except Exception:                                        # noqa: BLE001
+        _blocks = []
+    _filtered = (list(settings['filter_value'])
+                 if isinstance(settings['filter_value'], (list, tuple))
+                 else [])
     settings.setdefault(
         'control_wells',
-        list(settings['filter_value'])
-        if isinstance(settings['filter_value'], (list, tuple)) else [])
+        _filtered + [w for w in _blocks if w not in _filtered])
     settings.setdefault('batch_correction', 'none')
     settings.setdefault('batch_column', 'plateID')
     settings.setdefault('batch_control_column', 'columnID')
@@ -4900,6 +4937,34 @@ def get_setting_dependencies():
     setting_dependencies['level'] = rule(
         ('regression_type', 'random_row_column_effects'),
         _level_is_read, _level_reason)
+
+    # THE UNIT CONSTRAINS THE INFERENCE (219). `analysis_unit='cell'` keeps
+    # one row per object, and the permutation test needs one row per WELL --
+    # so with 'cell' the only inference that can run is the parametric one.
+    #
+    # GREYED WITH THE VALUE SHOWN, not merely refused later. A run that
+    # discovers this after thirty seconds of filtering, plotting and saving
+    # has already cost the user the thing the check was for; it did, on
+    # 2026-08-21, and that is why this rule exists.
+    _cell_unit = lambda settings, context: str(
+        settings.get('analysis_unit') or 'well').lower() == 'cell'
+    setting_dependencies['inference'] = rule(
+        ('analysis_unit',),
+        lambda settings, context: not _cell_unit(settings, context),
+        lambda settings, context: (
+            "analysis_unit='cell' keeps one row per object, and the "
+            "permutation test needs one row per well -- so the inference is "
+            "'parametric' here. Set analysis_unit='well' with an agg_type "
+            "to choose it. The value is kept and saved."),
+    )
+    setting_dependencies['analysis_mode'] = _combined(
+        setting_dependencies.get('analysis_mode'),
+        ('analysis_unit',),
+        lambda settings, context: not _cell_unit(settings, context),
+        lambda settings, context: (
+            "analysis_unit='cell' gives one row per object, which only the "
+            "model can read -- so analysis_mode is 'regression' here."),
+    )
 
     setting_dependencies['agg_type'] = rule(
         ('analysis_unit',),
