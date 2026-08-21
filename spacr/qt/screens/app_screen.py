@@ -1700,15 +1700,9 @@ class AppScreen(QWidget):
         return ""
 
     def _with_a_settings_advisor(self, widget, key):
-        """``widget``, with the settings advisor to its LEFT, on `inference`.
+        """Add the regression settings-advisor button beside ``inference``.
 
-        LEFT, not right, and that is the request rather than a preference:
-        "a button to the left of inference alligned with the text box". The
-        plate map (185) sits on the right of the field it fills, and these
-        two must not be mistaken for each other -- one writes ONE field from
-        a picture, the other proposes a dozen from the data.
-
-        A no-op on every other setting and on every other module.
+        Other settings and application screens are returned unchanged.
         """
         if str(key) != "inference" or self.app_key != "regression":
             return widget
@@ -1721,9 +1715,10 @@ class AppScreen(QWidget):
         button = QPushButton("Settings for my data…", holder)
         button.setToolTip(
             "Read the attached tables, ask the few things they cannot "
-            "answer, and PROPOSE the settings — with the reason beside each "
+            "answer, and propose settings with the reason beside each "
             "one and the current value beside the new one. Nothing is "
-            "written until you accept it.")
+            "written until you accept it. "
+            "API: spacr.settings_advisor.advise_the_screen.")
         button.clicked.connect(lambda *_: self.settings_for_my_data())
         row.addWidget(button)
         row.addWidget(widget, 1)
@@ -1778,11 +1773,19 @@ class AppScreen(QWidget):
         return counts, scores
 
     def settings_for_my_data(self, *, answers: Optional[dict] = None) -> dict:
-        """Read the screen, ask, propose, and write only what is accepted.
+        """Propose settings from the attached tables and apply accepted values.
 
-        :param answers: skip the question page and use these. For a test and
-            for a script; the button always asks.
-        :returns: what was written, or ``{}`` when nothing was.
+        Parameters
+        ----------
+        answers : dict, optional
+            Answers to questions the data cannot resolve. Supplying this
+            mapping skips the interactive question page.
+
+        Returns
+        -------
+        dict
+            Settings written to the panel, or an empty mapping when the
+            advisor cannot run or the proposal is declined.
         """
         from PySide6.QtWidgets import QDialog
 

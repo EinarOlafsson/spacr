@@ -176,18 +176,10 @@ def _residualise(matrix: np.ndarray, blocks: np.ndarray) -> np.ndarray:
 
 
 
-#: Organism prefixes a guide name may carry, kept for a name whose SHAPE does
-#: not say where the gene is. The structural rule below handles every name of
-#: the form `<organism>_<gene>_<guide>`, which is what `process_reads` writes
-#: and what every count table in this project carries; this list is the
-#: fallback for the rest.
-#:
-#: IT IS NOT THE RULE, and it used to be. A hard-coded list of four
-#: Toxoplasma strains means a Plasmodium library keeps its prefix, so
-#: `PF3D7_0100100_1` returned `PF3D7` -- the organism -- for every guide in
-#: the screen, pooling the entire library into one "gene". That is the same
-#: assumption instruction 184 removed from the control fields, reached by a
-#: different route.
+#: Known organism prefixes used only when a guide name does not match the
+#: structural ``<organism>_<gene>_<guide>`` form written by ``process_reads``.
+#: Structural parsing remains the primary rule so libraries from other
+#: organisms are not pooled under their organism prefix.
 GUIDE_PREFIXES: Tuple[str, ...] = ("TGGT1_", "TGME49_", "TGVEG_", "TGRH88_")
 
 
