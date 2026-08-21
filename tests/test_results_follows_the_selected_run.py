@@ -108,7 +108,22 @@ def _runs_table(screen, screen_folder, names=("ols_11", "ols_12")):
 
 
 def _pick(panel, run: str) -> bool:
-    """Select the row whose run is ``run``, the way a click does.
+    """Open the row whose run is ``run``, the way a user does.
+
+    TWO THINGS CHANGED UNDER THIS HELPER AND IT WAS DOING NEITHER.
+
+    SELECTING IS NO LONGER OPENING (190). A single click used to load, which
+    meant arrowing down a list of five runs cost five multi-second reads to
+    look at five names. Double-click is the gesture that loads now, so this
+    selects and then makes that gesture -- which is what every caller here was
+    always asking for: "picking a run puts that run's table in the results
+    panel" is a statement about OPENING it.
+
+    AND THE READ IS OFF THE GUI THREAD (159). `_show_trial` hands the folder
+    to `panel.start_load` and the table arrives at `_on_trial_loaded` a
+    moment later, so a test that asserts immediately after the gesture
+    asserts against the run it has not finished reading. `_opened` below is
+    how a caller waits for it.
 
     Returns whether a row was found, so a test cannot silently assert against
     a selection that never happened.
@@ -120,24 +135,60 @@ def _pick(panel, run: str) -> bool:
             if item is not None and item.text() == run:
                 table.clearSelection()
                 table.selectRow(row)
+                panel._on_double_click()
                 return True
     return False
+
+
+def _opened(screen, rows: int, timeout: float = 10.0):
+    """Spin until the results panel holds a table of ``rows`` rows.
+
+    The read is off the GUI thread, so this is what "the run is open" means
+    in a test. Returns the frame; fails with what it actually got, because
+    "None is not None" says nothing about which run arrived.
+    """
+    import time
+
+    from PySide6.QtWidgets import QApplication
+
+    deadline = time.monotonic() + timeout
+    seen = None
+    while time.monotonic() < deadline:
+        QApplication.processEvents()
+        frame = screen._results_panel.results_frame()
+        seen = None if frame is None else len(frame)
+        if seen == rows:
+            return frame
+        time.sleep(0.01)
+    raise AssertionError(
+        f"the results panel holds {seen} row(s) after {timeout:g}s, not "
+        f"{rows}: the run did not open")
 
 
 # --------------------------------------------------------------------------- #
 #  The binding
 # --------------------------------------------------------------------------- #
 
-def test_picking_a_run_raises_the_results_tab(screen, screen_folder):
-    """The whole visible effect of a click used to be on the far side of the
-    screen: the panel was re-pointed behind the tab the user was standing
-    on."""
+def test_opening_a_run_leaves_the_user_where_they_were(screen, screen_folder):
+    """INVERTED BY 190, and the inversion is the point.
+
+    This used to assert that picking a run RAISED the Results tab, because
+    the whole visible effect of a click was otherwise on the far side of the
+    screen. The maintainer asked for the opposite on 2026-08-20 -- "the user
+    should have to click the results tab to go there, no auto switching
+    tabs" -- and both cannot be true.
+
+    A view that moves by itself takes the user somewhere they did not ask to
+    go and loses what they were reading. The run still opens; the console
+    says so, which is what replaced the tab jump as the proof.
+    """
     runs = _runs_table(screen, screen_folder)
     screen._results_tabs.setCurrentWidget(runs)
 
     assert _pick(runs, "ols_11")
+    _opened(screen, 30)
 
-    assert screen._results_tabs.currentWidget() is screen._results_panel
+    assert screen._results_tabs.currentWidget() is runs
 
 
 def test_picking_a_run_puts_that_runs_table_in_the_results_panel(
@@ -148,9 +199,7 @@ def test_picking_a_run_puts_that_runs_table_in_the_results_panel(
 
     assert _pick(runs, "ols_11")
 
-    frame = screen._results_panel.results_frame()
-    assert frame is not None
-    assert len(frame) == 30
+    assert len(_opened(screen, 30)) == 30
 
 
 def test_picking_a_second_run_replaces_the_first(screen, screen_folder):
@@ -158,11 +207,11 @@ def test_picking_a_second_run_replaces_the_first(screen, screen_folder):
     the run list would then disagree about which fit is on screen."""
     runs = _runs_table(screen, screen_folder)
     assert _pick(runs, "ols_11")
-    assert len(screen._results_panel.results_frame()) == 30
+    assert len(_opened(screen, 30)) == 30
 
     assert _pick(runs, "ols_12")
 
-    assert len(screen._results_panel.results_frame()) == 70
+    assert len(_opened(screen, 70)) == 70
 
 
 def test_the_figures_follow_the_run_too(screen, screen_folder):
@@ -171,6 +220,7 @@ def test_the_figures_follow_the_run_too(screen, screen_folder):
     runs = _runs_table(screen, screen_folder)
 
     assert _pick(runs, "ols_11")
+    _opened(screen, 30)
 
     titles = [cell for cell in screen._figure_grid._cells]
     assert titles, "the chosen run's figures did not reach the grid"
@@ -204,11 +254,13 @@ def test_switching_runs_clears_the_selection_and_the_compartment(
     """
     runs = _runs_table(screen, screen_folder)
     assert _pick(runs, "ols_11")
+    _opened(screen, 30)
     panel = screen._results_panel
     panel._selected_key = "fraction:grna[1_3]"
     panel._compartment = "rhoptry"
 
     assert _pick(runs, "ols_12")
+    _opened(screen, 70)
 
     assert panel._selected_key is None
     assert panel._compartment is None
@@ -228,9 +280,11 @@ def test_switching_runs_does_not_leave_the_last_fits_residuals_on_screen(
     runs = _runs_table(screen, screen_folder)
     panel = screen._results_panel
     assert _pick(runs, "ols_11")
+    _opened(screen, 30)
     panel._model = object()             # as if this session had fitted it
 
     assert _pick(runs, "ols_12")
+    _opened(screen, 70)
 
     assert panel._model is None
     # Emptied AND explained -- `clear_diagnostics` resets each scene and puts
@@ -264,14 +318,17 @@ def test_switching_back_gives_the_run_its_own_view_again(
     runs = _runs_table(screen, screen_folder)
     panel = screen._results_panel
     assert _pick(runs, "ols_11")
+    _opened(screen, 30)
     panel._compartment = "rhoptry"
 
     assert _pick(runs, "ols_12")
+    _opened(screen, 70)
     # NOT INHERITED. The other run's compartment on this run's table is the
     # picture nobody chose, and it is what 128 J was protecting.
     assert panel._compartment is None
 
     assert _pick(runs, "ols_11")
+    _opened(screen, 30)
 
     assert panel._compartment == "rhoptry"
     assert len(panel.results_frame()) == 30
