@@ -1042,11 +1042,9 @@ def refusals(settings: Mapping[str, Any]) -> Tuple[str, ...]:
     return tuple(said)
 
 
-#: What each `analysis_unit` REQUIRES of the rest of the design, so a panel
-#: can set it, show it and grey it out instead of letting the run discover
-#: it. Asked for 2026-08-21: "if cell is only compatible with certain
-#: settings, if cell is chosen then the settings it needs should be chosen
-#: and displayed and the setting grayed out."
+#: Settings required by each ``analysis_unit``. User interfaces apply these
+#: values when the unit changes, display them, and disable the corresponding
+#: controls so an incompatible design cannot reach the run stage.
 #:
 #: `None` as a value means "must be empty", which is a requirement like any
 #: other and not an absence of one.

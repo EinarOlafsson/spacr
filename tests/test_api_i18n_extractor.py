@@ -499,7 +499,18 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # The five advisor accessors documented during review are included in
     # these counts. Nothing retired; all additions are translated with the
     # catalog regeneration accompanying this ratchet.
-    expected = 7898
+    # +80/-0 for annotation validation and the user-facing analysis helpers:
+    #    6  spacr.annotation_power
+    #    6  spacr.annotation_umap_qc
+    #   15  spacr.annotation_validation
+    #   17  spacr.classifier_quality
+    #   16  Qt dialog, plate-map, shortcut, and live-panel helpers
+    #    8  spacr.read_background
+    #    2  spacr.settings_advisor preflight helpers
+    #   10  spacr.sudoku
+    # Each public contract is present in the regenerated API catalogs.
+    # +1/-0 for ``requirements_for_unit`` in the final advisor follow-up.
+    expected = 7979
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -514,7 +525,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8017
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8098
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
