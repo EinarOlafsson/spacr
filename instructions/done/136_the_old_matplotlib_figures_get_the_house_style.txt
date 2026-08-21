@@ -2,7 +2,7 @@
 THE OLD MATPLOTLIB FIGURES GET THE HOUSE STYLE
 ================================================================================
 
-Status:    filed 2026-08-18.
+Status:    DONE 2026-08-20. See the closing section.
 Requested: 2026-08-18 -- "also overhaul the old matplotlib figures to look
            better in accordance with the figure making skill"
 
@@ -145,3 +145,63 @@ It asserts the figure and the axes now.
 STILL OPEN: the 145 remaining raw call sites, 45 of them in plot.py. Each is
 mechanical and the ratchet stops the number growing while they are worked
 through.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- THE LAST OPEN ITEM IS CLOSED. ZERO UNSTYLED FIGURES.
+--------------------------------------------------------------------------------
+
+"STILL OPEN: the 145 remaining raw call sites, 45 of them in plot.py."
+
+THAT NUMBER WAS WRONG, AND THE WAY IT WAS WRONG IS THE POINT. It came from
+counting `plt.subplots(` / `plt.figure(` with a regex, which cannot see a
+`with` block: every site ALREADY converted was still counted as raw. plot.py,
+submodules.py, timelapse.py and sim.py were largely done and the count could
+not tell.
+
+MEASURED WITH AN AST WALK -- a creation counts as styled when it is lexically
+inside `figure_style(...)`, inside `plt.rc_context(...)`, or inside a
+same-module context manager that opens one of those (`toxo._house` is the
+third case, and its six figures were being reported as raw) -- the real
+number was 48, in 21 files. It is now 0.
+
+CONVERTED, in the instruction's own order of what a user sees:
+
+    spacr/gene_measurement_sweep.py    10   the sweep's own ten panels
+    spacr/ml.py                         5
+    spacr/utils.py                      4
+    spacr/deep_spacr.py                 3
+    spacr/qt/screens/hyperparam.py      3
+    spacr/classifier_evaluation.py      2
+    spacr/io.py                         2
+    spacr/measure.py                    2
+    spacr/sequencing_qc.py              2
+    spacr/sim.py                        2
+    spacr/spacrops.py                   2
+    spacr/surrogate.py                  2
+    ... plus core, figures/panels, gene_measurement_compare,
+        guide_permutation, parameter_sweep, qt/bridge, sequencing,
+        train_compare and volcano_style, one each
+
+Each is `with figure_style(theme_target()):` opened BEFORE the creation and
+closed after the build -- never an rcParams write, per rule 1, and never a
+hard-coded 'print', per rule 2. Nothing that a figure MEANS was changed, per
+rule 5: the wrapped statements are the same statements.
+
+ONE SITE WAS DELIBERATELY LEFT RAW, and the reason is written where it sits.
+`utils.setup_plot` exists to draw in the GUI THEME's colours and is already
+inside an `rc_context` applying them; a house-style context nested inside
+would WIN -- the inner one is the one in force -- and hand back a figure
+painted for print on a dark screen. That is the exact failure `theme_target`
+exists to prevent.
+
+THE RATCHET IS NOW EXACT. `UNSTYLED_CEILING = 0` in
+tests/test_one_visual_system_not_twelve.py, measured by the same AST walk, so
+a new figure drawn outside the house style fails the suite instead of quietly
+looking like a different application. The old regex ceiling stays, capping how
+many figures spaCR draws by hand, but it no longer claims to say whether they
+are styled. Two tests guard the checker itself -- one that it can tell a
+wrapped creation from a bare one, one that it follows a module's own context
+manager -- because a checker that reported zero by finding nothing would pass
+silently.
+
+9 tests in tests/test_one_visual_system_not_twelve.py.
