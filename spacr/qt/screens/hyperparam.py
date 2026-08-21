@@ -54,6 +54,11 @@ from ...hyperparam import (
 )
 from ..theme import active_palette, css_color, make_transparent
 
+# THE HOUSE STYLE (136). `figures.style` imports matplotlib
+# only inside its own functions, so naming it here costs
+# nothing at import time.
+from ...figures.style import figure_style, theme_target
+
 LOG = logging.getLogger("spacr.qt.hyperparam")
 
 #: Label the host screens put on the toggle where the Mask screen says "Live".
@@ -341,85 +346,100 @@ def build_panel_figure(
         shown = attributed[:max_panels]
         cols = min(4, len(shown))
         rows = (len(shown) + cols - 1) // cols
-        fig, axes = plt.subplots(rows, cols, figsize=(3.0 * cols, 3.2 * rows),
-                                 squeeze=False)
-        for ax in axes.ravel():
-            ax.set_axis_off()
-        for i, trial in enumerate(shown):
-            ax = axes[i // cols][i % cols]
-            ax.set_axis_on()
-            att = trial.extra_metrics["attribution"]
-            heat = getattr(att, "map", att)
-            ax.imshow(heat, cmap="jet")
-            ax.set_xticks([])
-            ax.set_yticks([])
-            extra = trial.extra_metrics
-            bits = [f"{k}={float(extra[k]):.3f}"
-                    for k in ("deletion_auc", "insertion_auc", "pointing_game",
-                              "sanity_gap")
-                    if isinstance(extra.get(k), (int, float))
-                    and not isinstance(extra.get(k), bool)]
-            ax.set_title(f"{format_params(trial.params)}\n" + "  ".join(bits),
-                         fontsize=6)
-        fig.suptitle(
-            f"{len(shown)} of {len(ranked)} attribution maps, ranked by "
-            f"{result.metric} — deletion wants a LOW number, insertion and "
-            f"pointing a high one; they disagree on purpose",
-            fontsize=8)
-        fig.tight_layout()
-        _apply_figure_theme(fig, palette)
-        return fig
+        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+        # rcParams reach an artist when it is CREATED, so a
+        # context opened after `plt.subplots` would leave the
+        # spines, ticks and labels at the caller's globals.
+        with figure_style(theme_target()):
+            fig, axes = plt.subplots(rows, cols, figsize=(3.0 * cols, 3.2 * rows),
+                                     squeeze=False)
+            for ax in axes.ravel():
+                ax.set_axis_off()
+            for i, trial in enumerate(shown):
+                ax = axes[i // cols][i % cols]
+                ax.set_axis_on()
+                att = trial.extra_metrics["attribution"]
+                heat = getattr(att, "map", att)
+                ax.imshow(heat, cmap="jet")
+                ax.set_xticks([])
+                ax.set_yticks([])
+                extra = trial.extra_metrics
+                bits = [f"{k}={float(extra[k]):.3f}"
+                        for k in ("deletion_auc", "insertion_auc", "pointing_game",
+                                  "sanity_gap")
+                        if isinstance(extra.get(k), (int, float))
+                        and not isinstance(extra.get(k), bool)]
+                ax.set_title(f"{format_params(trial.params)}\n" + "  ".join(bits),
+                             fontsize=6)
+            fig.suptitle(
+                f"{len(shown)} of {len(ranked)} attribution maps, ranked by "
+                f"{result.metric} — deletion wants a LOW number, insertion and "
+                f"pointing a high one; they disagree on purpose",
+                fontsize=8)
+            fig.tight_layout()
+            _apply_figure_theme(fig, palette)
+            return fig
 
     embedded = [t for t in ranked if t.extra_metrics.get("embedding") is not None]
     if embedded:
         shown = embedded[:max_panels]
         cols = min(4, len(shown))
         rows = (len(shown) + cols - 1) // cols
-        fig, axes = plt.subplots(rows, cols, figsize=(3.0 * cols, 3.0 * rows),
-                                 squeeze=False)
-        for ax in axes.ravel():
-            ax.set_axis_off()
-        for i, trial in enumerate(shown):
-            ax = axes[i // cols][i % cols]
-            ax.set_axis_on()
-            emb = trial.extra_metrics["embedding"]
-            point_count = len(emb)
-            ax.scatter([p[0] for p in emb], [p[1] for p in emb],
-                       c=list(range(point_count)), cmap="viridis",
-                       s=4, alpha=0.8, edgecolors="none")
-            ax.set_xticks([])
-            ax.set_yticks([])
-            ax.set_title(f"{format_params(trial.params)}\n"
-                         f"{result.metric}={float(trial.score):.3f}",
-                         fontsize=7)
-        fig.suptitle(
-            f"{len(shown)} of {len(ranked)} embeddings, ranked by "
-            f"{result.metric} — look at them; the score is not a verdict",
-            fontsize=8)
+        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+        # rcParams reach an artist when it is CREATED, so a
+        # context opened after `plt.subplots` would leave the
+        # spines, ticks and labels at the caller's globals.
+        with figure_style(theme_target()):
+            fig, axes = plt.subplots(rows, cols, figsize=(3.0 * cols, 3.0 * rows),
+                                     squeeze=False)
+            for ax in axes.ravel():
+                ax.set_axis_off()
+            for i, trial in enumerate(shown):
+                ax = axes[i // cols][i % cols]
+                ax.set_axis_on()
+                emb = trial.extra_metrics["embedding"]
+                point_count = len(emb)
+                ax.scatter([p[0] for p in emb], [p[1] for p in emb],
+                           c=list(range(point_count)), cmap="viridis",
+                           s=4, alpha=0.8, edgecolors="none")
+                ax.set_xticks([])
+                ax.set_yticks([])
+                ax.set_title(f"{format_params(trial.params)}\n"
+                             f"{result.metric}={float(trial.score):.3f}",
+                             fontsize=7)
+            fig.suptitle(
+                f"{len(shown)} of {len(ranked)} embeddings, ranked by "
+                f"{result.metric} — look at them; the score is not a verdict",
+                fontsize=8)
+            fig.tight_layout()
+            _apply_figure_theme(fig, palette)
+            return fig
+
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        fig, ax = plt.subplots(figsize=(6.0, 3.2))
+        xs = list(range(1, len(ranked) + 1))
+        ys = [float(t.score) for t in ranked]
+        ax.plot(xs, ys, "o-", markersize=4, color=palette["accent"])
+        noise, source = result.noise_level()
+        if noise:
+            best = ys[0]
+            lo = best - noise if result.higher_is_better else best
+            hi = best if result.higher_is_better else best + noise
+            ax.axhspan(min(lo, hi), max(lo, hi), alpha=0.18,
+                       color=palette["accent"],
+                       label=f"within noise ({source})")
+            ax.legend(fontsize=7)
+        ax.set_xlabel("rank")
+        ax.set_ylabel(result.metric)
+        ax.set_title(f"{len(ranked)} configurations by {result.metric}",
+                     fontsize=9)
         fig.tight_layout()
         _apply_figure_theme(fig, palette)
         return fig
-
-    fig, ax = plt.subplots(figsize=(6.0, 3.2))
-    xs = list(range(1, len(ranked) + 1))
-    ys = [float(t.score) for t in ranked]
-    ax.plot(xs, ys, "o-", markersize=4, color=palette["accent"])
-    noise, source = result.noise_level()
-    if noise:
-        best = ys[0]
-        lo = best - noise if result.higher_is_better else best
-        hi = best if result.higher_is_better else best + noise
-        ax.axhspan(min(lo, hi), max(lo, hi), alpha=0.18,
-                   color=palette["accent"],
-                   label=f"within noise ({source})")
-        ax.legend(fontsize=7)
-    ax.set_xlabel("rank")
-    ax.set_ylabel(result.metric)
-    ax.set_title(f"{len(ranked)} configurations by {result.metric}",
-                 fontsize=9)
-    fig.tight_layout()
-    _apply_figure_theme(fig, palette)
-    return fig
 
 
 # ---------------------------------------------------------------------------

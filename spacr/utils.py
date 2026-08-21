@@ -76,6 +76,11 @@ import statsmodels.api as sm
 from statsmodels.stats.multitest import multipletests
 from itertools import combinations
 from functools import reduce
+
+# THE HOUSE STYLE (136). `figures.style` imports matplotlib only
+# inside its own functions, so naming it here costs nothing at
+# import time.
+from .figures.style import figure_style, theme_target
 try:
     from IPython.display import display
 except Exception:
@@ -5504,32 +5509,37 @@ def model_metrics(model):
     print(f"Durbin-Watson: {durbin_w_value}")
 
     # Residual Plots
-    fig, ax = plt.subplots(2, 2, figsize=(15, 12))
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        fig, ax = plt.subplots(2, 2, figsize=(15, 12))
 
-    # Residual vs. Fitted
-    ax[0, 0].scatter(model.fittedvalues, model.resid, edgecolors = 'k', facecolors = 'none')
-    ax[0, 0].set_title('Residuals vs Fitted')
-    ax[0, 0].set_xlabel('Fitted values')
-    ax[0, 0].set_ylabel('Residuals')
+        # Residual vs. Fitted
+        ax[0, 0].scatter(model.fittedvalues, model.resid, edgecolors = 'k', facecolors = 'none')
+        ax[0, 0].set_title('Residuals vs Fitted')
+        ax[0, 0].set_xlabel('Fitted values')
+        ax[0, 0].set_ylabel('Residuals')
 
-    # Histogram
-    sns.histplot(model.resid, kde=True, ax=ax[0, 1])
-    ax[0, 1].set_title('Histogram of Residuals')
-    ax[0, 1].set_xlabel('Residuals')
+        # Histogram
+        sns.histplot(model.resid, kde=True, ax=ax[0, 1])
+        ax[0, 1].set_title('Histogram of Residuals')
+        ax[0, 1].set_xlabel('Residuals')
 
-    # QQ Plot
-    sm.qqplot(model.resid, fit=True, line='45', ax=ax[1, 0])
-    ax[1, 0].set_title('QQ Plot')
+        # QQ Plot
+        sm.qqplot(model.resid, fit=True, line='45', ax=ax[1, 0])
+        ax[1, 0].set_title('QQ Plot')
 
-    # Scale-Location
-    standardized_resid = model.get_influence().resid_studentized_internal
-    ax[1, 1].scatter(model.fittedvalues, np.sqrt(np.abs(standardized_resid)), edgecolors = 'k', facecolors = 'none')
-    ax[1, 1].set_title('Scale-Location')
-    ax[1, 1].set_xlabel('Fitted values')
-    ax[1, 1].set_ylabel(r'$\sqrt{|Standardized Residuals|}$')
+        # Scale-Location
+        standardized_resid = model.get_influence().resid_studentized_internal
+        ax[1, 1].scatter(model.fittedvalues, np.sqrt(np.abs(standardized_resid)), edgecolors = 'k', facecolors = 'none')
+        ax[1, 1].set_title('Scale-Location')
+        ax[1, 1].set_xlabel('Fitted values')
+        ax[1, 1].set_ylabel(r'$\sqrt{|Standardized Residuals|}$')
 
-    plt.tight_layout()
-    plt.show()
+        plt.tight_layout()
+        plt.show()
 
 def check_multicollinearity(x):
     """Checks multicollinearity of the predictors by computing the VIF.
@@ -6831,32 +6841,37 @@ class SaliencyMapGenerator:
         # squeeze=False keeps axs 2-D; without it matplotlib collapses a
         # single-row grid to 1-D and the axs[i // 8, i % 8] index below
         # raised IndexError for every batch of 8 or fewer images.
-        fig, axs = plt.subplots(rows, 8, figsize=(16, rows * 2), squeeze=False)
+        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+        # rcParams reach an artist when it is CREATED, so a
+        # context opened after `plt.subplots` would leave the
+        # spines, ticks and labels at the caller's globals.
+        with figure_style(theme_target()):
+            fig, axs = plt.subplots(rows, 8, figsize=(16, rows * 2), squeeze=False)
 
-        for i in range(N):
-            ax = axs[i // 8, i % 8]
-            saliency_map = _activation_map_to_2d(saliency[i].cpu().numpy())
+            for i in range(N):
+                ax = axs[i // 8, i % 8]
+                saliency_map = _activation_map_to_2d(saliency[i].cpu().numpy())
 
-            # The MAP is always drawn. It used to be inside `if overlay`, so
-            # overlay=False produced a grid of bare class labels on empty
-            # axes -- no input, no map, nothing. overlay now means what its
-            # name says: draw the input UNDER the map, or the map alone.
-            if overlay:
-                img_np = X[i].permute(1, 2, 0).detach().cpu().numpy()
-                if normalize:
-                    img_np = self.percentile_normalize(img_np)
-                ax.imshow(img_np)
-                ax.imshow(saliency_map, cmap='jet', alpha=0.5)
-            else:
-                ax.imshow(saliency_map, cmap='jet')
+                # The MAP is always drawn. It used to be inside `if overlay`, so
+                # overlay=False produced a grid of bare class labels on empty
+                # axes -- no input, no map, nothing. overlay now means what its
+                # name says: draw the input UNDER the map, or the map alone.
+                if overlay:
+                    img_np = X[i].permute(1, 2, 0).detach().cpu().numpy()
+                    if normalize:
+                        img_np = self.percentile_normalize(img_np)
+                    ax.imshow(img_np)
+                    ax.imshow(saliency_map, cmap='jet', alpha=0.5)
+                else:
+                    ax.imshow(saliency_map, cmap='jet')
 
-            # Add class label in the top-left corner
-            ax.text(5, 25, str(predictions[i].item()), fontsize=12, color='white', weight='bold',
-                    bbox=dict(facecolor='black', alpha=0.7, boxstyle='round,pad=0.2'))
-            ax.axis('off')
+                # Add class label in the top-left corner
+                ax.text(5, 25, str(predictions[i].item()), fontsize=12, color='white', weight='bold',
+                        bbox=dict(facecolor='black', alpha=0.7, boxstyle='round,pad=0.2'))
+                ax.axis('off')
 
-        plt.tight_layout(pad=0)
-        return fig
+            plt.tight_layout(pad=0)
+            return fig
     
     def percentile_normalize(self, img, lower_percentile=2, upper_percentile=98):
         """Per-channel percentile-normalize ``img`` into ``[0, 1]``."""
@@ -7007,33 +7022,38 @@ class GradCAMGenerator:
         rows = (N + 7) // 8
         # See SaliencyMapGenerator.plot_activation_grid — squeeze=False is
         # required so the 2-D index below works for a single-row grid.
-        fig, axs = plt.subplots(rows, 8, figsize=(16, rows * 2), squeeze=False)
+        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+        # rcParams reach an artist when it is CREATED, so a
+        # context opened after `plt.subplots` would leave the
+        # spines, ticks and labels at the caller's globals.
+        with figure_style(theme_target()):
+            fig, axs = plt.subplots(rows, 8, figsize=(16, rows * 2), squeeze=False)
 
-        for i in range(N):
-            ax = axs[i // 8, i % 8]
-            gradcam_map = _activation_map_to_2d(gradcam[i].cpu().numpy())
+            for i in range(N):
+                ax = axs[i // 8, i % 8]
+                gradcam_map = _activation_map_to_2d(gradcam[i].cpu().numpy())
 
-            # Same contract as the saliency twin: the map always draws, and
-            # overlay decides whether the input is drawn beneath it.
-            if overlay:
-                img_np = X[i].permute(1, 2, 0).detach().cpu().numpy()
-                if normalize:
-                    img_np = self.percentile_normalize(img_np)
-                ax.imshow(img_np)
-                ax.imshow(gradcam_map, cmap='jet', alpha=0.5)
-            else:
-                ax.imshow(gradcam_map, cmap='jet')
+                # Same contract as the saliency twin: the map always draws, and
+                # overlay decides whether the input is drawn beneath it.
+                if overlay:
+                    img_np = X[i].permute(1, 2, 0).detach().cpu().numpy()
+                    if normalize:
+                        img_np = self.percentile_normalize(img_np)
+                    ax.imshow(img_np)
+                    ax.imshow(gradcam_map, cmap='jet', alpha=0.5)
+                else:
+                    ax.imshow(gradcam_map, cmap='jet')
 
-            #ax.imshow(X[i].permute(1, 2, 0).detach().cpu().numpy())  # Original image
-            #ax.imshow(gradcam_map, cmap='jet', alpha=0.5)  # Overlay the gradcam map
+                #ax.imshow(X[i].permute(1, 2, 0).detach().cpu().numpy())  # Original image
+                #ax.imshow(gradcam_map, cmap='jet', alpha=0.5)  # Overlay the gradcam map
 
-            # Add class label in the top-left corner
-            ax.text(5, 25, str(predictions[i].item()), fontsize=12, color='white', weight='bold',
-                    bbox=dict(facecolor='black', alpha=0.7, boxstyle='round,pad=0.2'))
-            ax.axis('off')
+                # Add class label in the top-left corner
+                ax.text(5, 25, str(predictions[i].item()), fontsize=12, color='white', weight='bold',
+                        bbox=dict(facecolor='black', alpha=0.7, boxstyle='round,pad=0.2'))
+                ax.axis('off')
 
-        plt.tight_layout(pad=0)
-        return fig
+            plt.tight_layout(pad=0)
+            return fig
     
     def percentile_normalize(self, img, lower_percentile=2, upper_percentile=98):
         """Per-channel percentile-normalize ``img`` into ``[0, 1]``."""
@@ -7817,6 +7837,12 @@ def setup_plot(figuresize, black_background, theme_colors=None):
         'ytick.color': colors['foreground'],
         'axes.labelcolor': colors['foreground'],
     }):
+        # NOT `figure_style` HERE, DELIBERATELY. `setup_plot` exists to draw
+        # in the GUI THEME's colours, and the context above is already
+        # applying them. A house-style context nested inside would win --
+        # the inner rc_context is the one in force -- and hand back a figure
+        # painted for print on a dark screen, which is the exact failure
+        # `theme_target` exists to prevent.
         fig, ax = plt.subplots(1, 1, figsize=(figuresize, figuresize))
     _style_plot_axes(fig, ax, colors)
     return fig, ax
@@ -8129,56 +8155,61 @@ def plot_grid(cluster_images, colors, figuresize, black_background, verbose, the
         figuresize = max_figsize / num_clusters
 
     plot_colors = _plot_theme_colors(black_background, theme_colors)
-    grid_fig, grid_axes = plt.subplots(1, num_clusters, figsize=(figuresize * num_clusters, figuresize), gridspec_kw={'wspace': 0.2, 'hspace': 0})
-    grid_fig.patch.set_facecolor(plot_colors['background'])
-    if num_clusters == 1:
-        grid_axes = [grid_axes]  # Ensure grid_axes is always iterable
-    for cluster_label, axes in zip(cluster_images.keys(), grid_axes):
-        axes.set_facecolor(plot_colors['background'])
-        images = cluster_images[cluster_label]
-        num_images = len(images)
-        grid_size = int(np.ceil(np.sqrt(num_images)))
-        image_size = 0.9 / grid_size
-        whitespace = (1 - grid_size * image_size) / (grid_size + 1)
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        grid_fig, grid_axes = plt.subplots(1, num_clusters, figsize=(figuresize * num_clusters, figuresize), gridspec_kw={'wspace': 0.2, 'hspace': 0})
+        grid_fig.patch.set_facecolor(plot_colors['background'])
+        if num_clusters == 1:
+            grid_axes = [grid_axes]  # Ensure grid_axes is always iterable
+        for cluster_label, axes in zip(cluster_images.keys(), grid_axes):
+            axes.set_facecolor(plot_colors['background'])
+            images = cluster_images[cluster_label]
+            num_images = len(images)
+            grid_size = int(np.ceil(np.sqrt(num_images)))
+            image_size = 0.9 / grid_size
+            whitespace = (1 - grid_size * image_size) / (grid_size + 1)
 
-        # Both branches WRAP. A string label is positioned, an integer label
-        # indexes the palette directly -- and DBSCAN numbers its clusters
-        # 0..k-1, so a run with more clusters than colours used to die here
-        # with a bare "list index out of range" from colors[cluster_label].
-        # Reusing a colour is a worse figure; crashing is a lost run.
-        if isinstance(cluster_label, str):
-            idx = list(cluster_images.keys()).index(cluster_label)
-            if verbose:
-                print(f'Lable: {cluster_label} index: {idx}')
-        else:
-            idx = int(cluster_label)
-        color = colors[idx % len(colors)] if len(colors) else (0.5, 0.5, 0.5)
+            # Both branches WRAP. A string label is positioned, an integer label
+            # indexes the palette directly -- and DBSCAN numbers its clusters
+            # 0..k-1, so a run with more clusters than colours used to die here
+            # with a bare "list index out of range" from colors[cluster_label].
+            # Reusing a colour is a worse figure; crashing is a lost run.
+            if isinstance(cluster_label, str):
+                idx = list(cluster_images.keys()).index(cluster_label)
+                if verbose:
+                    print(f'Lable: {cluster_label} index: {idx}')
+            else:
+                idx = int(cluster_label)
+            color = colors[idx % len(colors)] if len(colors) else (0.5, 0.5, 0.5)
 
-        axes.add_patch(plt.Rectangle((0, 0), 1, 1, transform=axes.transAxes, color=color[:3]))
-        axes.axis('off')
-        for i, img in enumerate(images):
-            row = i // grid_size
-            col = i % grid_size
-            x_pos = (col + 1) * whitespace + col * image_size
-            y_pos = 1 - ((row + 1) * whitespace + (row + 1) * image_size)
-            ax_img = axes.inset_axes([x_pos, y_pos, image_size, image_size], transform=axes.transAxes)
-            ax_img.imshow(img, cmap='gray', aspect='auto')
-            ax_img.axis('off')
-            ax_img.set_aspect('equal')
-            ax_img.set_facecolor(color[:3])
+            axes.add_patch(plt.Rectangle((0, 0), 1, 1, transform=axes.transAxes, color=color[:3]))
+            axes.axis('off')
+            for i, img in enumerate(images):
+                row = i // grid_size
+                col = i % grid_size
+                x_pos = (col + 1) * whitespace + col * image_size
+                y_pos = 1 - ((row + 1) * whitespace + (row + 1) * image_size)
+                ax_img = axes.inset_axes([x_pos, y_pos, image_size, image_size], transform=axes.transAxes)
+                ax_img.imshow(img, cmap='gray', aspect='auto')
+                ax_img.axis('off')
+                ax_img.set_aspect('equal')
+                ax_img.set_facecolor(color[:3])
     
-    # Add cluster labels beside the UMAP plot
-    spacing_factor = 0.5  # Adjust this value to control the spacing between labels
-    for i, (cluster_label, color) in enumerate(zip(cluster_images.keys(), colors)):
-        label_y = 1 - (i + 1) * (spacing_factor / num_clusters)  # Adjust y position for each label
-        grid_fig.text(
-            1.05, label_y, f'Cluster {cluster_label}',
-            verticalalignment='center', fontsize=figuresize,
-            color=plot_colors['foreground'])
-        grid_fig.patches.append(plt.Rectangle((1, label_y - 0.02), 0.03, 0.03, transform=grid_fig.transFigure, color=color[:3], clip_on=False))
+        # Add cluster labels beside the UMAP plot
+        spacing_factor = 0.5  # Adjust this value to control the spacing between labels
+        for i, (cluster_label, color) in enumerate(zip(cluster_images.keys(), colors)):
+            label_y = 1 - (i + 1) * (spacing_factor / num_clusters)  # Adjust y position for each label
+            grid_fig.text(
+                1.05, label_y, f'Cluster {cluster_label}',
+                verticalalignment='center', fontsize=figuresize,
+                color=plot_colors['foreground'])
+            grid_fig.patches.append(plt.Rectangle((1, label_y - 0.02), 0.03, 0.03, transform=grid_fig.transFigure, color=color[:3], clip_on=False))
 
-    plt.show()
-    return grid_fig
+        plt.show()
+        return grid_fig
 
 def generate_path_list_from_db(db_path, file_metadata):
     """Return all ``png_path`` values from ``db_path`` optionally filtered by ``file_metadata`` substrings.

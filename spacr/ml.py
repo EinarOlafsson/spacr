@@ -73,6 +73,11 @@ from scipy.stats import kstest, normaltest
 
 import matplotlib
 
+# THE HOUSE STYLE (136). `figures.style` imports matplotlib only
+# inside its own functions, so naming it here costs nothing at
+# import time.
+from .figures.style import figure_style, theme_target
+
 # Only demote to Agg when there is genuinely nowhere to draw. Doing it
 # unconditionally at import time silently killed inline plotting for anyone
 # who imported spacr.ml in a notebook, because it overrode a backend the user
@@ -1288,66 +1293,71 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
         elbow_point = summary_df.iloc[-1]  # Fallback to last point
 
     # Plot the mean absolute difference with standard deviation as shaded area
-    fig, ax = plt.subplots(figsize=(10, 10))
-    ax.plot(
-        summary_df['sample_size'], summary_df['smoothed_mean_abs_diff'], color='teal', label='Smoothed Mean Absolute Difference'
-    )
-    ax.fill_between(
-        summary_df['sample_size'],
-        summary_df['smoothed_mean_abs_diff'] - summary_df['std_abs_diff'],
-        summary_df['smoothed_mean_abs_diff'] + summary_df['std_abs_diff'],
-        color='teal', alpha=0.3, label='±1 Std. Dev.'
-    )
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        fig, ax = plt.subplots(figsize=(10, 10))
+        ax.plot(
+            summary_df['sample_size'], summary_df['smoothed_mean_abs_diff'], color='teal', label='Smoothed Mean Absolute Difference'
+        )
+        ax.fill_between(
+            summary_df['sample_size'],
+            summary_df['smoothed_mean_abs_diff'] - summary_df['std_abs_diff'],
+            summary_df['smoothed_mean_abs_diff'] + summary_df['std_abs_diff'],
+            color='teal', alpha=0.3, label='±1 Std. Dev.'
+        )
 
-    if settings['min_cell_count'] is None:
-        # Mark the elbow point (inflection) on the plot
-        ax.axvline(elbow_point['sample_size'], color='black', linestyle='--', label='Elbow Point')
-    else:
-        ax.axvline(settings['min_cell_count'], color='black', linestyle='--', label='Elbow Point')
+        if settings['min_cell_count'] is None:
+            # Mark the elbow point (inflection) on the plot
+            ax.axvline(elbow_point['sample_size'], color='black', linestyle='--', label='Elbow Point')
+        else:
+            ax.axvline(settings['min_cell_count'], color='black', linestyle='--', label='Elbow Point')
 
-    # Formatting the plot
-    ax.set_xlabel('Sample Size')
-    ax.set_ylabel('Mean Absolute Difference')
-    ax.set_title('Mean Absolute Difference vs. Sample Size with Standard Deviation')
-    ax.legend().remove()
+        # Formatting the plot
+        ax.set_xlabel('Sample Size')
+        ax.set_ylabel('Mean Absolute Difference')
+        ax.set_title('Mean Absolute Difference vs. Sample Size with Standard Deviation')
+        ax.legend().remove()
 
-    # WHERE THE FIGURE GOES. A `dst` the caller named is used as given; the
-    # fallback is the historical screen folder, and it is derived here rather
-    # than in the signature because it depends on `settings`.
-    #
-    # (The guard here once read `if dst is not None` over an
-    # `os.path.dirname(...)` that could never be None, so the branch was
-    # decoration. It is a real choice now.)
-    if dst is None:
-        dst = os.path.join(os.path.dirname(settings['count_data'][0]),
-                           'results')
-    dst = os.path.abspath(os.path.expanduser(os.fspath(dst)))
-    os.makedirs(dst, exist_ok=True)
-    fig_file_path = save_figure(fig, os.path.join(dst,
-                                                  'cell_min_threshold.pdf'),
-                                bbox_inches='tight')
-    print(f"Saved {fig_file_path}")
+        # WHERE THE FIGURE GOES. A `dst` the caller named is used as given; the
+        # fallback is the historical screen folder, and it is derived here rather
+        # than in the signature because it depends on `settings`.
+        #
+        # (The guard here once read `if dst is not None` over an
+        # `os.path.dirname(...)` that could never be None, so the branch was
+        # decoration. It is a real choice now.)
+        if dst is None:
+            dst = os.path.join(os.path.dirname(settings['count_data'][0]),
+                               'results')
+        dst = os.path.abspath(os.path.expanduser(os.fspath(dst)))
+        os.makedirs(dst, exist_ok=True)
+        fig_file_path = save_figure(fig, os.path.join(dst,
+                                                      'cell_min_threshold.pdf'),
+                                    bbox_inches='tight')
+        print(f"Saved {fig_file_path}")
 
-    # PUBLISHED, NOT SHOWN. `plt.show()` here blocks forever anywhere there is
-    # no GUI event loop to hand it to: with the Qt backend it calls
-    # `start_main_loop`, and a script, a notebook or `spacr-run regression`
-    # then sits in `qt_compat._exec` until it is killed. Measured 2026-08-19
-    # by running the maintainer's own four plates headlessly -- the stack ends
-    # exactly here.
-    #
-    # Instruction 139 C already settled what the delivery mechanism should be:
-    # saved and visible are ONE event, through `figure_sink.publish`, and a
-    # figure reaching the gallery must not depend on somebody calling `show`.
-    # The Qt bridge still streams it in the GUI, because publish announces it;
-    # nothing is lost by not blocking.
-    try:
-        from .figure_sink import publish_file
+        # PUBLISHED, NOT SHOWN. `plt.show()` here blocks forever anywhere there is
+        # no GUI event loop to hand it to: with the Qt backend it calls
+        # `start_main_loop`, and a script, a notebook or `spacr-run regression`
+        # then sits in `qt_compat._exec` until it is killed. Measured 2026-08-19
+        # by running the maintainer's own four plates headlessly -- the stack ends
+        # exactly here.
+        #
+        # Instruction 139 C already settled what the delivery mechanism should be:
+        # saved and visible are ONE event, through `figure_sink.publish`, and a
+        # figure reaching the gallery must not depend on somebody calling `show`.
+        # The Qt bridge still streams it in the GUI, because publish announces it;
+        # nothing is lost by not blocking.
+        try:
+            from .figure_sink import publish_file
 
-        publish_file(fig_file_path, title="Minimum cell count")
-    except Exception:                                            # noqa: BLE001
-        # Never lose a run over a figure -- the file above is already written.
-        pass
-    return elbow_point['sample_size']
+            publish_file(fig_file_path, title="Minimum cell count")
+        except Exception:                                            # noqa: BLE001
+            # Never lose a run over a figure -- the file above is already written.
+            pass
+        return elbow_point['sample_size']
 
 def _statsmodels_p_values(model, coefs):
     """Return per-coefficient p-values from a statsmodels-shaped results object.
@@ -9668,13 +9678,18 @@ def shap_analysis(model, X_train, X_test):
         output_index = 1 if shap_values.shape[-1] > 1 else 0
         shap_values = shap_values[..., output_index]
     # Create a new figure
-    fig, ax = plt.subplots()
-    # Summary plot
-    shap.summary_plot(shap_values, X_test, show=False)
-    # Save the current figure (the one that SHAP just created)
-    fig = plt.gcf()
-    plt.close(fig)  # Close the figure to prevent it from displaying immediately
-    return fig
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        fig, ax = plt.subplots()
+        # Summary plot
+        shap.summary_plot(shap_values, X_test, show=False)
+        # Save the current figure (the one that SHAP just created)
+        fig = plt.gcf()
+        plt.close(fig)  # Close the figure to prevent it from displaying immediately
+        return fig
 
 def find_optimal_threshold(y_true, y_pred_proba):
     """Return the probability threshold maximising F1 on the precision-recall curve.
@@ -9847,14 +9862,19 @@ def interpret_vision_model(settings=None):
         angles = [n / float(len(labels)) * 2 * pi for n in range(len(labels))]
         angles += angles[:1]
 
-        fig, ax = plt.subplots(figsize=(8, 8), subplot_kw=dict(polar=True))
-        ax.plot(angles, values, linewidth=2, linestyle='solid')
-        ax.fill(angles, values, alpha=0.25)
+        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+        # rcParams reach an artist when it is CREATED, so a
+        # context opened after `plt.subplots` would leave the
+        # spines, ticks and labels at the caller's globals.
+        with figure_style(theme_target()):
+            fig, ax = plt.subplots(figsize=(8, 8), subplot_kw=dict(polar=True))
+            ax.plot(angles, values, linewidth=2, linestyle='solid')
+            ax.fill(angles, values, alpha=0.25)
 
-        ax.set_xticks(angles[:-1])
-        ax.set_xticklabels(labels, fontsize=10, rotation=45, ha='right')
-        plt.title(title, pad=20)
-        plt.show()
+            ax.set_xticks(angles[:-1])
+            ax.set_xticklabels(labels, fontsize=10, rotation=45, ha='right')
+            plt.title(title, pad=20)
+            plt.show()
 
     def extract_compartment_channel(feature_name):
         """Return ``(compartment, channel)`` parsed from a feature column name."""
@@ -10044,15 +10064,20 @@ def interpret_vision_model(settings=None):
             top_feature_importance_df = feature_importance_df.head(settings['top_features'])
 
             # Plot Feature Importance
-            plt.figure(figsize=(10, 6))
-            plt.barh(top_feature_importance_df['feature'], top_feature_importance_df['importance'])
-            plt.xlabel('Importance')
-            plt.title(f"Top {settings['top_features']} Features - Feature Importance")
-            plt.gca().invert_yaxis()
-            plt.show()
+            # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+            # rcParams reach an artist when it is CREATED, so a
+            # context opened after `plt.subplots` would leave the
+            # spines, ticks and labels at the caller's globals.
+            with figure_style(theme_target()):
+                plt.figure(figsize=(10, 6))
+                plt.barh(top_feature_importance_df['feature'], top_feature_importance_df['importance'])
+                plt.xlabel('Importance')
+                plt.title(f"Top {settings['top_features']} Features - Feature Importance")
+                plt.gca().invert_yaxis()
+                plt.show()
 
-            if settings['save']:
-                _save_importance_csv(feature_importance_df, settings['src'], 'feature_importance.csv')
+                if settings['save']:
+                    _save_importance_csv(feature_importance_df, settings['src'], 'feature_importance.csv')
 
     # Step 2: Permutation Importance
     if settings['permutation_importance']:
@@ -10063,15 +10088,20 @@ def interpret_vision_model(settings=None):
         top_perm_importance_df = perm_importance_df.head(settings['top_features'])
 
         # Plot Permutation Importance
-        plt.figure(figsize=(10, 6))
-        plt.barh(top_perm_importance_df['feature'], top_perm_importance_df['importance'])
-        plt.xlabel('Importance')
-        plt.title(f"Top {settings['top_features']} Features - Permutation Importance")
-        plt.gca().invert_yaxis()
-        plt.show()
+        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+        # rcParams reach an artist when it is CREATED, so a
+        # context opened after `plt.subplots` would leave the
+        # spines, ticks and labels at the caller's globals.
+        with figure_style(theme_target()):
+            plt.figure(figsize=(10, 6))
+            plt.barh(top_perm_importance_df['feature'], top_perm_importance_df['importance'])
+            plt.xlabel('Importance')
+            plt.title(f"Top {settings['top_features']} Features - Permutation Importance")
+            plt.gca().invert_yaxis()
+            plt.show()
         
-        if settings['save']:
-            _save_importance_csv(perm_importance_df, settings['src'], 'permutation_importance.csv')
+            if settings['save']:
+                _save_importance_csv(perm_importance_df, settings['src'], 'permutation_importance.csv')
 
     # Step 3: SHAP Analysis
     if settings['shap']:

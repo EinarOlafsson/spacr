@@ -11,6 +11,11 @@ from . import schema
 # on_error policy at the per-sample boundary. See spacr.runctx.
 from .runctx import run_context
 from .plot import plot_plates
+
+# THE HOUSE STYLE (136). `figures.style` imports matplotlib
+# only inside its own functions, so naming it here costs
+# nothing at import time.
+from .figures.style import figure_style, theme_target
 try:
     from IPython.display import display
 except Exception:
@@ -1080,18 +1085,23 @@ def graph_sequencing_stats(settings):
             # built two lines above it with exactly these two columns. The
             # check could not fire, so it was a branch no test could ever
             # reach honestly -- removed rather than excused.
-            fig, ax = plt.subplots(figsize=(10, 10))
-            ax.plot(df[x], df[y], linestyle='-', color=(0 / 255, 155 / 255, 155 / 255), label=f"{y}")
-            ax.set_xlabel(x)
-            ax.set_ylabel(y)
-            ax.set_title(f'{y} vs {x}')
-            ax.legend()
-            if log_x:
-                ax.set_xscale('log')
-            if log_y:
-                ax.set_yscale('log')
-            fig.tight_layout()
-            return fig, ax
+            # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+            # rcParams reach an artist when it is CREATED, so a
+            # context opened after `plt.subplots` would leave the
+            # spines, ticks and labels at the caller's globals.
+            with figure_style(theme_target()):
+                fig, ax = plt.subplots(figsize=(10, 10))
+                ax.plot(df[x], df[y], linestyle='-', color=(0 / 255, 155 / 255, 155 / 255), label=f"{y}")
+                ax.set_xlabel(x)
+                ax.set_ylabel(y)
+                ax.set_title(f'{y} vs {x}')
+                ax.legend()
+                if log_x:
+                    ax.set_xscale('log')
+                if log_y:
+                    ax.set_yscale('log')
+                fig.tight_layout()
+                return fig, ax
 
         fraction_thresholds = np.linspace(0.001, 0.99, 1000)
         results = []

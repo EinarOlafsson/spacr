@@ -78,6 +78,11 @@ from .intensity_rescale import (
     resolve_record as _resolve_intensity_rescale_record,
 )
 
+# THE HOUSE STYLE (136). `figures.style` imports matplotlib
+# only inside its own functions, so naming it here costs
+# nothing at import time.
+from .figures.style import figure_style, theme_target
+
 
 # ---------------------------------------------------------------------------
 # 3-D support: dimensionality, voxel spacing, and the units stamp
@@ -2431,43 +2436,48 @@ def img_list_to_grid(grid, titles=None):
     n_images = len(grid)
     grid_size = ceil(sqrt(n_images))
     
-    fig, axs = plt.subplots(
-        grid_size, grid_size, figsize=(15, 15), facecolor='black',
-        squeeze=False)
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        fig, axs = plt.subplots(
+            grid_size, grid_size, figsize=(15, 15), facecolor='black',
+            squeeze=False)
     
-    from matplotlib.patches import FancyBboxPatch
-    for i, ax in enumerate(axs.flat):
-        if i < n_images:
-            image = grid[i]
-            # Grid entries are produced from ``png_dims`` in RGB order.  The
-            # OpenCV reversal belongs only at the PNG write boundary above.
-            im = ax.imshow(image)
-            ax.axis('off')
-            ax.set_facecolor('black')
+        from matplotlib.patches import FancyBboxPatch
+        for i, ax in enumerate(axs.flat):
+            if i < n_images:
+                image = grid[i]
+                # Grid entries are produced from ``png_dims`` in RGB order.  The
+                # OpenCV reversal belongs only at the PNG write boundary above.
+                im = ax.imshow(image)
+                ax.axis('off')
+                ax.set_facecolor('black')
 
-            # Clip each crop to a rounded rectangle so the grid reads like the
-            # annotate view (soft corners) rather than hard square tiles.
-            h, w = image.shape[:2]
-            r = max(2.0, min(h, w) * 0.08)
-            bbox = FancyBboxPatch(
-                (0, 0), w - 1, h - 1,
-                boxstyle=f"round,pad=0,rounding_size={r}",
-                transform=ax.transData, facecolor='none', edgecolor='none')
-            ax.add_patch(bbox)
-            im.set_clip_path(bbox)
+                # Clip each crop to a rounded rectangle so the grid reads like the
+                # annotate view (soft corners) rather than hard square tiles.
+                h, w = image.shape[:2]
+                r = max(2.0, min(h, w) * 0.08)
+                bbox = FancyBboxPatch(
+                    (0, 0), w - 1, h - 1,
+                    boxstyle=f"round,pad=0,rounding_size={r}",
+                    transform=ax.transData, facecolor='none', edgecolor='none')
+                ax.add_patch(bbox)
+                im.set_clip_path(bbox)
 
-            if titles:
-                # Determine text size
-                img_height, img_width = image.shape[:2]
-                text_size = max(min(img_width / (len(titles[i]) * 1.5), img_height / 10), 4)
-                ax.text(5, 5, titles[i], color='white', fontsize=text_size, ha='left', va='top', fontweight='bold')
-        else:
-            fig.delaxes(ax)
+                if titles:
+                    # Determine text size
+                    img_height, img_width = image.shape[:2]
+                    text_size = max(min(img_width / (len(titles[i]) * 1.5), img_height / 10), 4)
+                    ax.text(5, 5, titles[i], color='white', fontsize=text_size, ha='left', va='top', fontweight='bold')
+            else:
+                fig.delaxes(ax)
 
-    # A little more breathing room between crops.
-    plt.subplots_adjust(wspace=0.08, hspace=0.08)
-    plt.tight_layout(pad=0.2)
-    return fig
+        # A little more breathing room between crops.
+        plt.subplots_adjust(wspace=0.08, hspace=0.08)
+        plt.tight_layout(pad=0.2)
+        return fig
 
 
 #: crop_mode entries that name a mask _measure_crop_core knows how to crop.
@@ -3792,9 +3802,14 @@ def process_measure_crop_results(partial_results, settings):
                 # tests/test_measure_spawn.py.
                 from .plot import save_figure
                 fig_path = save_figure(fig, fig_path)
-                plt.figure(fig.number)
-                plt.show()
-                plt.close(fig)
+                # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+                # rcParams reach an artist when it is CREATED, so a
+                # context opened after `plt.subplots` would leave the
+                # spines, ticks and labels at the caller's globals.
+                with figure_style(theme_target()):
+                    plt.figure(fig.number)
+                    plt.show()
+                    plt.close(fig)
             result = (index, None, None, None)
 
 

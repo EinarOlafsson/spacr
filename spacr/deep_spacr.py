@@ -32,6 +32,10 @@ from .torch_artifacts import (
     restore_training_state,
     save_model_artifact,
 )
+# THE HOUSE STYLE (136). `figures.style` imports matplotlib only
+# inside its own functions, so naming it here costs nothing at
+# import time.
+from .figures.style import figure_style, theme_target
 
 
 def _class_folder_names(settings):
@@ -1759,14 +1763,19 @@ def _plot_training_curves(train_hist, val_hist, total_epochs=None, figure=None,
     cls_ep, cls_series = _per_class_series(class_hist, classes)
 
     if figure is None:
-        fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(16, 4))
-        fig._spacr_live_update = True
-        # Transparent from the start, so the container shows through and the
-        # page opacity reaches the plot. The GUI restyles text and spines for
-        # the active theme when it renders (figure_queue._style_figure_colors);
-        # what matters here is that no opaque page is baked in, because a
-        # white or black rectangle cannot be undone by restyling.
-        fig.patch.set_alpha(0.0)
+        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+        # rcParams reach an artist when it is CREATED, so a
+        # context opened after `plt.subplots` would leave the
+        # spines, ticks and labels at the caller's globals.
+        with figure_style(theme_target()):
+            fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(16, 4))
+            fig._spacr_live_update = True
+            # Transparent from the start, so the container shows through and the
+            # page opacity reaches the plot. The GUI restyles text and spines for
+            # the active theme when it renders (figure_queue._style_figure_colors);
+            # what matters here is that no opaque page is baked in, because a
+            # white or black rectangle cannot be undone by restyling.
+            fig.patch.set_alpha(0.0)
     else:
         fig = figure
         fig.clear()
@@ -3238,29 +3247,34 @@ def visualize_integrated_gradients(src, model_path, target_label_idx=0, image_si
         integrated_grads = integrated_gradients.generate_integrated_gradients(input_tensor, target_label_idx)
         integrated_grads = np.mean(integrated_grads, axis=1).squeeze()
 
-        fig, ax = plt.subplots(1, 3, figsize=(20, 5))
-        ax[0].imshow(image)
-        ax[0].axis('off')
-        ax[0].set_title("Original Image")
-        ax[1].imshow(integrated_grads, cmap='hot')
-        ax[1].axis('off')
-        ax[1].set_title("Integrated Gradients")
-        # Same trap as in visualize_smooth_grad: `image` is the unresized original
-        # while the attribution map is image_size square, so the blend below only
-        # broadcast when the source PNG happened to be image_size square.
-        overlay = np.array(image.resize((image_size, image_size)))
-        overlay = overlay / overlay.max()
-        integrated_grads_rgb = np.stack([integrated_grads] * 3, axis=-1)  # Convert saliency map to RGB
-        overlay = (overlay * 0.5 + integrated_grads_rgb * 0.5).clip(0, 1)
-        ax[2].imshow(overlay)
-        ax[2].axis('off')
-        ax[2].set_title("Overlay")
-        plt.show()
+        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+        # rcParams reach an artist when it is CREATED, so a
+        # context opened after `plt.subplots` would leave the
+        # spines, ticks and labels at the caller's globals.
+        with figure_style(theme_target()):
+            fig, ax = plt.subplots(1, 3, figsize=(20, 5))
+            ax[0].imshow(image)
+            ax[0].axis('off')
+            ax[0].set_title("Original Image")
+            ax[1].imshow(integrated_grads, cmap='hot')
+            ax[1].axis('off')
+            ax[1].set_title("Integrated Gradients")
+            # Same trap as in visualize_smooth_grad: `image` is the unresized original
+            # while the attribution map is image_size square, so the blend below only
+            # broadcast when the source PNG happened to be image_size square.
+            overlay = np.array(image.resize((image_size, image_size)))
+            overlay = overlay / overlay.max()
+            integrated_grads_rgb = np.stack([integrated_grads] * 3, axis=-1)  # Convert saliency map to RGB
+            overlay = (overlay * 0.5 + integrated_grads_rgb * 0.5).clip(0, 1)
+            ax[2].imshow(overlay)
+            ax[2].axis('off')
+            ax[2].set_title("Overlay")
+            plt.show()
 
-        if save_integrated_grads:
-            os.makedirs(save_dir, exist_ok=True)
-            integrated_grads_image = Image.fromarray((integrated_grads * 255).astype(np.uint8))
-            integrated_grads_image.save(os.path.join(save_dir, f'integrated_grads_{file}'))
+            if save_integrated_grads:
+                os.makedirs(save_dir, exist_ok=True)
+                integrated_grads_image = Image.fromarray((integrated_grads * 255).astype(np.uint8))
+                integrated_grads_image.save(os.path.join(save_dir, f'integrated_grads_{file}'))
 
 class SmoothGrad:
     """SmoothGrad attribution: average gradients over noisy copies of the input.
@@ -3346,31 +3360,36 @@ def visualize_smooth_grad(src, model_path, target_label_idx, image_size=224, cha
         smooth_grad_map = smooth_grad.compute_smooth_grad(input_tensor, target_label_idx)
         smooth_grad_map = np.mean(smooth_grad_map.cpu().data.numpy(), axis=1).squeeze()
 
-        fig, ax = plt.subplots(1, 3, figsize=(20, 5))
-        ax[0].imshow(image)
-        ax[0].axis('off')
-        ax[0].set_title("Original Image")
-        ax[1].imshow(smooth_grad_map, cmap='hot')
-        ax[1].axis('off')
-        ax[1].set_title("SmoothGrad")
-        # preprocess_image returns the UNRESIZED PIL image next to the resized
-        # tensor, so blending np.array(image) with the image_size-sized map raised
-        # a broadcast ValueError for any source PNG that is not image_size square.
-        # Blend at the resolution the model actually saw (a no-op copy when they
-        # already match); ax[0] still shows the full-resolution original.
-        overlay = np.array(image.resize((image_size, image_size)))
-        overlay = overlay / overlay.max()
-        smooth_grad_map_rgb = np.stack([smooth_grad_map] * 3, axis=-1)  # Convert smooth grad map to RGB
-        overlay = (overlay * 0.5 + smooth_grad_map_rgb * 0.5).clip(0, 1)
-        ax[2].imshow(overlay)
-        ax[2].axis('off')
-        ax[2].set_title("Overlay")
-        plt.show()
+        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+        # rcParams reach an artist when it is CREATED, so a
+        # context opened after `plt.subplots` would leave the
+        # spines, ticks and labels at the caller's globals.
+        with figure_style(theme_target()):
+            fig, ax = plt.subplots(1, 3, figsize=(20, 5))
+            ax[0].imshow(image)
+            ax[0].axis('off')
+            ax[0].set_title("Original Image")
+            ax[1].imshow(smooth_grad_map, cmap='hot')
+            ax[1].axis('off')
+            ax[1].set_title("SmoothGrad")
+            # preprocess_image returns the UNRESIZED PIL image next to the resized
+            # tensor, so blending np.array(image) with the image_size-sized map raised
+            # a broadcast ValueError for any source PNG that is not image_size square.
+            # Blend at the resolution the model actually saw (a no-op copy when they
+            # already match); ax[0] still shows the full-resolution original.
+            overlay = np.array(image.resize((image_size, image_size)))
+            overlay = overlay / overlay.max()
+            smooth_grad_map_rgb = np.stack([smooth_grad_map] * 3, axis=-1)  # Convert smooth grad map to RGB
+            overlay = (overlay * 0.5 + smooth_grad_map_rgb * 0.5).clip(0, 1)
+            ax[2].imshow(overlay)
+            ax[2].axis('off')
+            ax[2].set_title("Overlay")
+            plt.show()
 
-        if save_smooth_grad:
-            os.makedirs(save_dir, exist_ok=True)
-            smooth_grad_image = Image.fromarray((smooth_grad_map * 255).astype(np.uint8))
-            smooth_grad_image.save(os.path.join(save_dir, f'smooth_grad_{file}'))
+            if save_smooth_grad:
+                os.makedirs(save_dir, exist_ok=True)
+                smooth_grad_image = Image.fromarray((smooth_grad_map * 255).astype(np.uint8))
+                smooth_grad_image.save(os.path.join(save_dir, f'smooth_grad_{file}'))
             
 def save_top_class_examples(df, tar_path, dst, n=20, classes=None):
     """Extract the ``n`` most confident images per class from a tar into class-labelled folders.

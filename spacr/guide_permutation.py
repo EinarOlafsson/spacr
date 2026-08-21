@@ -26,6 +26,11 @@ from .multiple_testing import (
     canonical_method,
 )
 
+# THE HOUSE STYLE (136). `figures.style` imports matplotlib
+# only inside its own functions, so naming it here costs
+# nothing at import time.
+from .figures.style import figure_style, theme_target
+
 
 def _normalise_thresholds(min_wells) -> tuple[int, ...]:
     """Return sorted unique positive minimum-well thresholds."""
@@ -537,89 +542,94 @@ def plot_guide_permutation_volcano(
     )
     significant = data["significant"].astype(bool)
     adjusted_label = adjusted_value_label(data["multiple_testing_method"].iloc[0])
-    fig, axis = plt.subplots(figsize=(6.2, 4.8))
-    axis.scatter(
-        data.loc[~significant, "standardized_marginal_effect"],
-        data.loc[~significant, "minus_log10_adjusted_p"],
-        s=24,
-        color="#B8BDC5",
-        edgecolor="white",
-        linewidth=0.35,
-        label=f"{adjusted_label} >= {float(data['alpha'].iloc[0]):g}",
-    )
-    axis.scatter(
-        data.loc[significant, "standardized_marginal_effect"],
-        data.loc[significant, "minus_log10_adjusted_p"],
-        s=48,
-        color="#D55E00",
-        edgecolor="#6D2B00",
-        linewidth=0.6,
-        label=f"{adjusted_label} < {float(data['alpha'].iloc[0]):g}",
-    )
-    axis.axhline(
-        -np.log10(float(data["alpha"].iloc[0])),
-        color="#404040",
-        linestyle="--",
-        linewidth=0.9,
-    )
-    axis.axvline(0, color="#777777", linewidth=0.7)
-    cut = _drawable_threshold(effect_threshold)
-    if cut is not None:
-        # Both lines, one legend entry: they are one cut with two sides, and
-        # a legend that lists it twice reads as two different rules.
-        axis.axvline(
-            cut, color="#0072B2", linestyle=":", linewidth=1.1,
-            label=effect_threshold_label or f"|effect| >= {cut:.3g}",
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        fig, axis = plt.subplots(figsize=(6.2, 4.8))
+        axis.scatter(
+            data.loc[~significant, "standardized_marginal_effect"],
+            data.loc[~significant, "minus_log10_adjusted_p"],
+            s=24,
+            color="#B8BDC5",
+            edgecolor="white",
+            linewidth=0.35,
+            label=f"{adjusted_label} >= {float(data['alpha'].iloc[0]):g}",
         )
-        axis.axvline(-cut, color="#0072B2", linestyle=":", linewidth=1.1,
-                     label="_nolegend_")
-    labelled_rows = []
-    for guide, label in (label_guides or {}).items():
-        row = data.loc[data["guide"] == str(guide)]
-        if row.empty:
-            continue
-        labelled_rows.append((str(label), row.iloc[0]))
-    labelled_rows.sort(
-        key=lambda item: item[1]["standardized_marginal_effect"]
-    )
-    for index, (label, row) in enumerate(labelled_rows):
-        # Alternate sides and vertical positions so nearby discoveries do not
-        # print on top of one another (as EAF1 g2 and GRA14 g3 otherwise do).
-        if index % 2 == 0:
-            offset, horizontal = (-5, 8), "right"
-        else:
-            offset, horizontal = (5, -15), "left"
-        axis.annotate(
-            label,
-            (row["standardized_marginal_effect"], row["minus_log10_adjusted_p"]),
-            xytext=offset,
-            textcoords="offset points",
-            fontsize=8,
-            fontweight="bold",
-            ha=horizontal,
+        axis.scatter(
+            data.loc[significant, "standardized_marginal_effect"],
+            data.loc[significant, "minus_log10_adjusted_p"],
+            s=48,
+            color="#D55E00",
+            edgecolor="#6D2B00",
+            linewidth=0.6,
+            label=f"{adjusted_label} < {float(data['alpha'].iloc[0]):g}",
         )
-    axis.set_title(title or f"{outcome}: guides in >= {minimum_wells} wells")
-    axis.set_xlabel("Block-adjusted standardized marginal effect")
-    axis.set_ylabel(f"-log10({adjusted_label})")
-    axis.margins(y=0.1)
-    axis.grid(axis="y", color="#E6E6E6", linewidth=0.6)
-    axis.spines[["top", "right"]].set_visible(False)
-    axis.legend(frameon=False)
-    fig.tight_layout()
-    save_path = Path(save_path)
-    save_path.parent.mkdir(parents=True, exist_ok=True)
-    from .figure_sink import publish
+        axis.axhline(
+            -np.log10(float(data["alpha"].iloc[0])),
+            color="#404040",
+            linestyle="--",
+            linewidth=0.9,
+        )
+        axis.axvline(0, color="#777777", linewidth=0.7)
+        cut = _drawable_threshold(effect_threshold)
+        if cut is not None:
+            # Both lines, one legend entry: they are one cut with two sides, and
+            # a legend that lists it twice reads as two different rules.
+            axis.axvline(
+                cut, color="#0072B2", linestyle=":", linewidth=1.1,
+                label=effect_threshold_label or f"|effect| >= {cut:.3g}",
+            )
+            axis.axvline(-cut, color="#0072B2", linestyle=":", linewidth=1.1,
+                         label="_nolegend_")
+        labelled_rows = []
+        for guide, label in (label_guides or {}).items():
+            row = data.loc[data["guide"] == str(guide)]
+            if row.empty:
+                continue
+            labelled_rows.append((str(label), row.iloc[0]))
+        labelled_rows.sort(
+            key=lambda item: item[1]["standardized_marginal_effect"]
+        )
+        for index, (label, row) in enumerate(labelled_rows):
+            # Alternate sides and vertical positions so nearby discoveries do not
+            # print on top of one another (as EAF1 g2 and GRA14 g3 otherwise do).
+            if index % 2 == 0:
+                offset, horizontal = (-5, 8), "right"
+            else:
+                offset, horizontal = (5, -15), "left"
+            axis.annotate(
+                label,
+                (row["standardized_marginal_effect"], row["minus_log10_adjusted_p"]),
+                xytext=offset,
+                textcoords="offset points",
+                fontsize=8,
+                fontweight="bold",
+                ha=horizontal,
+            )
+        axis.set_title(title or f"{outcome}: guides in >= {minimum_wells} wells")
+        axis.set_xlabel("Block-adjusted standardized marginal effect")
+        axis.set_ylabel(f"-log10({adjusted_label})")
+        axis.margins(y=0.1)
+        axis.grid(axis="y", color="#E6E6E6", linewidth=0.6)
+        axis.spines[["top", "right"]].set_visible(False)
+        axis.legend(frameon=False)
+        fig.tight_layout()
+        save_path = Path(save_path)
+        save_path.parent.mkdir(parents=True, exist_ok=True)
+        from .figure_sink import publish
 
-    try:
-        written = publish(fig, save_path,
-                          fmt=fmt or _named_format(save_path), dpi=dpi)
-    finally:
-        # `publish(close=True)` clears the figure but does not release it:
-        # this one comes from `plt.subplots`, so pyplot holds a reference
-        # until `plt.close`. A sweep over thresholds and outcomes calls this
-        # dozens of times.
-        plt.close(fig)
-    return Path(written) if written else save_path
+        try:
+            written = publish(fig, save_path,
+                              fmt=fmt or _named_format(save_path), dpi=dpi)
+        finally:
+            # `publish(close=True)` clears the figure but does not release it:
+            # this one comes from `plt.subplots`, so pyplot holds a reference
+            # until `plt.close`. A sweep over thresholds and outcomes calls this
+            # dozens of times.
+            plt.close(fig)
+        return Path(written) if written else save_path
 
 
 def gene_fraction_matrix(fractions: pd.DataFrame,

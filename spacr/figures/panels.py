@@ -16,6 +16,11 @@ import numpy as np
 from .style import (ROLES, TYPE_SCALE, Palette, annotate, descriptor,
                     panel_letter, reference_line, rotate_ticks, text_legend)
 
+# THE HOUSE STYLE (136). `figures.style` imports matplotlib
+# only inside its own functions, so naming it here costs
+# nothing at import time.
+from ..figures.style import figure_style, theme_target
+
 
 @dataclass
 class Panel:
@@ -703,18 +708,23 @@ def available(frame) -> Dict[str, bool]:
     import matplotlib.pyplot as plt
 
     answer = {}
-    figure = plt.figure()
-    try:
-        for key in SHEET_ORDER:
-            ax = figure.add_subplot(111)
-            try:
-                answer[key] = bool(REGISTRY[key](ax, frame).drawn)
-            except Exception:
-                answer[key] = False
-            figure.clear()
-    finally:
-        plt.close(figure)
-    return answer
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        figure = plt.figure()
+        try:
+            for key in SHEET_ORDER:
+                ax = figure.add_subplot(111)
+                try:
+                    answer[key] = bool(REGISTRY[key](ax, frame).drawn)
+                except Exception:
+                    answer[key] = False
+                figure.clear()
+        finally:
+            plt.close(figure)
+        return answer
 
 
 __all__ = ["Panel", "REGISTRY", "SHEET_ORDER", "available", "effect_column",

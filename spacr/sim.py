@@ -739,12 +739,17 @@ def vis_dists(dists, src, v, i):
         n+=1
     save_plot(fig2, src, 'dists', i)
     plt.close(fig2)
-    plt.figure().clear() 
-    plt.cla() 
-    plt.clf()
-    del dists
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        plt.figure().clear() 
+        plt.cla() 
+        plt.clf()
+        del dists
 
-    return
+        return
 
 def visualize_all(output):
     """Render the full 13-panel diagnostic figure for one simulation output.
@@ -1062,10 +1067,15 @@ def run_and_save(i, settings, time_ls, total_sims):
         fig = visualize_all(output)
         save_plot(fig, src, v, i)
         plt.close(fig)
-        plt.figure().clear() 
-        plt.cla() 
-        plt.clf()
-        del fig
+        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+        # rcParams reach an artist when it is CREATED, so a
+        # context opened after `plt.subplots` would leave the
+        # spines, ticks and labels at the caller's globals.
+        with figure_style(theme_target()):
+            plt.figure().clear() 
+            plt.cla() 
+            plt.clf()
+            del fig
     del output, dists
     gc.collect()
     #except Exception as e:
