@@ -277,6 +277,15 @@ def test_a_saved_trial_is_shown_without_refitting(screen, tmp_path, trials,
         timeout=10000)
 
     assert screen._results_panel.table.table.rowCount() == 20
+    # AND THE FIGURES ARE WAITED FOR TOO. They arrive on their own path,
+    # AFTER the table -- the folder's images are read and turned into tiles
+    # once the coefficients have landed -- so waiting only for the table left
+    # a race that showed up as a failure whenever the machine was busy enough
+    # for the two to separate. Waiting for both is what "the saved trial is
+    # shown" actually means.
+    qtbot.waitUntil(lambda: len(screen._figure_grid._cells) == 2,
+                    timeout=10000)
+
     assert len(screen._figure_grid._cells) == 2, (
         "the trial's own figures did not reach the grid")
 

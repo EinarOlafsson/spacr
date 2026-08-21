@@ -1228,8 +1228,10 @@ def _save_figure(fig, dst: Optional[str], name: str) -> Optional[str]:
         return None
     os.makedirs(dst, exist_ok=True)
     path = os.path.join(dst, f"{name}.pdf")
-    fig.savefig(path, format="pdf", dpi=300, bbox_inches="tight")
-    return path
+    # 108 point 6: the format and the DPI are the user's, not this line's.
+    from .plot import save_figure
+
+    return save_figure(fig, path, bbox_inches="tight")
 
 
 def plot_threshold_sweep(sweep: pd.DataFrame, choice: ThresholdChoice,

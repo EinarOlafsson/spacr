@@ -2398,6 +2398,10 @@ def write_pdf(report: Report, path: Any) -> Path:
                 except Exception:
                     axes.text(0.5, 0.5, f"[{payload.title} could not be drawn]",
                               ha="center", va="center", fontsize=9)
+            # `PdfPages.savefig`, NOT a Figure's (108 point 6). These are
+            # pages appended to a multi-page book, and the book's format is
+            # named by the caller that asked for a report; there is no single
+            # file here for a format preference to rename.
             pdf.savefig(figure)
         if not specs:
             figure = MplFigure(figsize=(8.27, 11.69))

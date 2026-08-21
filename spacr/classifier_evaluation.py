@@ -1649,8 +1649,13 @@ def _write_confusion_figure(frame: pd.DataFrame, path: Path) -> None:
                           color="white" if value > 0.5 else "black")
         fig.colorbar(image, ax=axis, label="Row-normalized fraction")
         fig.tight_layout()
-        fig.savefig(path, dpi=180)
-        plt.close(fig)
+        # THE USER'S FORMAT AND RESOLUTION, not 180 (108 point 6). This wrote
+        # a PNG at a fixed DPI whatever the preferences said, so "Figure
+        # format" and "Resolution" reached everything except the files a
+        # pipeline actually leaves behind.
+        from .plot import save_figure
+
+        save_figure(fig, path, close=True)
 
 
 def _write_calibration_figure(frame: pd.DataFrame, path: Path) -> None:
@@ -1679,8 +1684,13 @@ def _write_calibration_figure(frame: pd.DataFrame, path: Path) -> None:
         axis.set_title("Out-of-fold calibration")
         axis.legend(loc="best")
         fig.tight_layout()
-        fig.savefig(path, dpi=180)
-        plt.close(fig)
+        # THE USER'S FORMAT AND RESOLUTION, not 180 (108 point 6). This wrote
+        # a PNG at a fixed DPI whatever the preferences said, so "Figure
+        # format" and "Resolution" reached everything except the files a
+        # pipeline actually leaves behind.
+        from .plot import save_figure
+
+        save_figure(fig, path, close=True)
 
 
 def find_evaluation_bundles(root: Any) -> List[Path]:

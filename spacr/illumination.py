@@ -1323,8 +1323,12 @@ def _write_qc_figure(plate, item, channels, panels, metrics, save_dir,
         figure.colorbar(image, ax=axis, fraction=0.046)
     figure.tight_layout()
     path = os.path.join(save_dir, f'illumination_qc_{plate}.png')
-    figure.savefig(path)
-    return path
+    # 108 point 6: through the one writer, so this QC page follows the format
+    # and resolution preferences and is repainted for paper like every other
+    # figure a user keeps. `save_figure` corrects the extension to the format.
+    from .plot import save_figure
+
+    return save_figure(figure, path)
 
 
 def _radial_profile(image: np.ndarray, factor: int,

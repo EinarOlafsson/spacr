@@ -17,6 +17,13 @@ from __future__ import annotations
 import json
 import os
 from dataclasses import asdict, dataclass, field, fields
+
+# THE SHARED VOCABULARY (108 point 1). `FigureStyle` holds every field a
+# reader would recognise on any figure -- axes, type, grid, legend, page --
+# so a house style saved on a volcano can be applied to another figure that
+# shares those names, and "font size" is one setting in spaCR.
+from .style_base import SCALES as _SCALES
+from .style_base import SHARED_CHOICES, FigureStyle
 from typing import Any, Sequence
 
 import numpy as np
@@ -81,12 +88,23 @@ LINE_STYLES: tuple[tuple[str, str], ...] = (
     ("none", "None"),
 )
 
-SCALES: tuple[str, ...] = ("linear", "log", "symlog", "logit")
+#: Re-exported from :mod:`spacr.style_base`, which is now where the shared
+#: vocabulary lives (108 point 1). Kept as a name here because callers and
+#: tests import it from this module.
+SCALES = _SCALES
 
 
 @dataclass
-class VolcanoStyle:
-    """Every knob the volcano exposes. Defaults reproduce the pipeline plot."""
+class VolcanoStyle(FigureStyle):
+    """Every knob the volcano exposes. Defaults reproduce the pipeline plot.
+
+    THE GENERAL HALF IS INHERITED (108 point 1). Axes, type, grid, legend,
+    spines and the page come from :class:`spacr.style_base.FigureStyle`, so
+    "font size" is one setting in spaCR rather than one per figure and a
+    house style saved on a volcano can be applied to any other figure that
+    shares those names. What stays here is what only a volcano has: the
+    columns, the thresholds, the marks and the labelling.
+    """
 
     # ---- what is plotted -------------------------------------------------
     x_column: str = "standardized_marginal_effect"
@@ -96,22 +114,17 @@ class VolcanoStyle:
     y_neg_log10: bool = True
     label_column: str = "guide"
 
-    # ---- axes ------------------------------------------------------------
+    # ---- axes -------------------------------------------------------------
+    # `y_label`, `title`, the two scales, the two limits and the two inverts
+    # are INHERITED. Only the default LABEL is restated: a base class cannot
+    # know what this figure's x axis is, and the volcano's has been
+    # "Standardized marginal effect" since it was written.
     x_label: str = "Standardized marginal effect"
-    y_label: str = ""            # blank means "derive it from the columns"
-    title: str = ""
-    x_scale: str = "linear"      # any of SCALES
-    y_scale: str = "linear"
-    x_lim: tuple[float, float] | None = None
-    y_lim: tuple[float, float] | None = None
     #: Broken y axis: ``[(lo1, hi1), (lo2, hi2)]`` draws two stacked panels
     #: with a break, for a screen whose hits sit far above the null cloud.
     split_axis: bool = False
     split_y_lims: tuple[tuple[float, float], tuple[float, float]] | None = None
     split_height_ratio: float = 0.35
-    invert_x: bool = False
-    invert_y: bool = False
-
     # ---- thresholds ------------------------------------------------------
     alpha: float = 0.05
     #: Effect-size cut. ``None`` draws none. ``threshold_multiplier`` scales
@@ -178,31 +191,17 @@ class VolcanoStyle:
     zero_line_color: str = "#777777"
     zero_line_width: float = 0.7
 
-    # ---- text ------------------------------------------------------------
-    font_family: str = "sans-serif"
-    font_size: float = 10.0
-    title_font_size: float = 12.0
-    label_font_size: float = 8.0
-    tick_font_size: float = 9.0
-    font_weight: str = "normal"
+    # ---- text: the SIZES are inherited (font_family, font_size,
+    # title_font_size, label_font_size, tick_font_size, font_weight). What is
+    # here is the labelling, which is a volcano's own question.
     #: Guides to annotate: ``{guide id: printed label}``.
     annotations: dict = field(default_factory=dict)
     #: Annotate everything called significant, in addition to `annotations`.
     annotate_significant: bool = False
 
-    # ---- frame -----------------------------------------------------------
-    figure_width: float = 6.2
-    figure_height: float = 4.8
-    dpi: int = 200
-    grid: bool = True
-    grid_axis: str = "y"          # 'x' | 'y' | 'both' | 'none'
-    grid_color: str = "#E6E6E6"
-    grid_width: float = 0.6
-    hide_top_right_spines: bool = True
-    legend: bool = True
-    legend_location: str = "best"
-    background_color: str = "none"
-    transparent: bool = False
+    # ---- frame: INHERITED in full (figure_width, figure_height, dpi, grid,
+    # grid_axis, grid_color, grid_width, hide_top_right_spines, legend,
+    # legend_location, background_color, transparent).
 
     # ------------------------------------------------------------------ i/o
 
@@ -394,13 +393,20 @@ def render_volcano(results: pd.DataFrame, style: VolcanoStyle, *,
         parent = os.path.dirname(os.path.abspath(path))
         if parent:
             os.makedirs(parent, exist_ok=True)
-        figure.savefig(
-            path,
-            dpi=style.dpi if path.lower().endswith((".png", ".jpg", ".jpeg",
-                                                    ".tif", ".tiff")) else None,
-            transparent=style.transparent,
-            bbox_inches="tight",
-        )
+        # 108 point 6, through the one writer -- and the style still wins
+        # where it has an opinion. THE EXTENSION IS THE CALLER'S: this is the
+        # headless renderer and its `save_path` is a filename someone chose,
+        # so `fmt` is taken from it rather than from the preference, which
+        # would rename the file under them. What it gains is the DPI rule,
+        # the TrueType embedding, and the repaint for paper.
+        from .plot import save_figure
+
+        suffix = os.path.splitext(path)[1].lstrip(".").lower() or None
+        raster = path.lower().endswith((".png", ".jpg", ".jpeg", ".tif",
+                                        ".tiff"))
+        save_figure(figure, path, fmt=suffix,
+                    dpi=style.dpi if raster else None,
+                    transparent=style.transparent, bbox_inches="tight")
     return figure, panels
 
 
