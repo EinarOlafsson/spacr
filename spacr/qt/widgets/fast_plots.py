@@ -3138,13 +3138,15 @@ class FastPlot(QWidget):
         # instruction 106 forbids. Each group repeats it -- see `_group`.
         menu.setToolTipsVisible(True)
         menu.addAction("Reset view", self.auto_range_axes)
-        # TWO ENTRIES, and the difference is stated in their names. "Export"
-        # writes the plot as it looks; "Save styled" opens the preview where
-        # ink, background and grid are chosen FOR THE FILE (178 C.2). Keeping
-        # both because the styled route is three more clicks for a user who
-        # only wants the picture they are looking at.
-        # ONE DOOR (187 D). "Export…" wrote with no preview and no styling
-        # pass; this one shows what it will write. `export` itself stays as
+        # ONE DOOR (187 D). There were two -- "Export…", which wrote the plot
+        # as it looked, and "Save styled", which opened the preview where
+        # ink, background, grid and text size are chosen FOR THE FILE. Export
+        # wrote with no preview and no styling pass, which is where the
+        # reported "massive text and a tiny misaligned graph" came from: the
+        # page is sized in millimetres and nothing scaled the text to it.
+        #
+        # A second door that produces a worse file is not a shortcut, so the
+        # remaining one shows what it will write. `export` itself stays as
         # the API both paths and every test use.
         menu.addAction("Save figure…", lambda: self.save_styled())
 
