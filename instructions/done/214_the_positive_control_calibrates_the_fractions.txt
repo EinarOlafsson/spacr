@@ -2,7 +2,7 @@
 THE POSITIVE CONTROL CALIBRATES THE gRNA FRACTIONS
 ================================================================================
 
-Status:    filed 2026-08-21, proposed. Discussion held 2026-08-21; see
+Status:    filed 2026-08-21, DONE 2026-08-21. Discussion held 2026-08-21; see
            WHAT WAS SAID BACK before building.
 Requested: 2026-08-21 -- "we could search for the positive controll in the
            wells, then assumin on average the positive controll does not
@@ -291,3 +291,43 @@ cannot be imported:
       2      0.9553    0.9817    0.2955
       3      0.9639    0.9887    0.3174
       4      0.9584    0.9700    0.8567
+
+--------------------------------------------------------------------------------
+RUN ON THE REAL PLATE, 2026-08-21
+--------------------------------------------------------------------------------
+
+The three settings this needed now exist -- `positive_control_wells`,
+`negative_control_wells`, `mixed_control_wells` -- so the reference wells
+come from the plate design rather than from the numbers under test.
+
+Plate 1, contaminant excluded, PC share taken as the sequenced fraction of
+`TGGT1_239740_1` against `TGGT1_233460_4`, imaging taken as the mixture
+proportion of the classifier score:
+
+    column 1 (pure NC)      sequenced PC share  0.001
+    column 2 (pure PC)                          0.980
+    column 3 (the mix)                          0.578
+    48 wells
+
+    slope                      0.989
+    intercept                  0.023
+    median absolute residual   0.023
+
+IMAGING AND SEQUENCING AGREE TO WITHIN ABOUT ONE PER CENT. Three things
+follow, and the third is the one to be careful about:
+
+  * the mixture estimator works on real cells, not only on the simulation it
+    was built against;
+  * the classifier separates PC from NC well enough to measure a proportion,
+    which is a stronger statement than its se/sp on a balanced test split;
+  * IT DOES NOT MEASURE THE SCREEN-WELL FRACTION BIAS. The quantity fitted
+    here is the PC share OF THE TWO CONTROLS -- a renormalised proportion
+    inside a two-guide subspace. A screen well has 440 guides competing and
+    a threshold that discards most of them, and nothing in these 48 wells
+    exercises that. So this validates the METHOD and the CLASSIFIER; the
+    normalisation question instruction 207 raises is still answered by the
+    control-column background measurement, not by this.
+
+Column 3 is 58% PC by sequencing rather than the 50% a nominal mix would
+give, which is itself worth knowing: the design intent and the delivered
+composition differ by eight points.
