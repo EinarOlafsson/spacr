@@ -2025,6 +2025,7 @@ def get_perform_regression_default_settings(settings):
     # threshold is measured against.
     settings.setdefault('controls', ['000000'])
     settings.setdefault('exclude_grnas', None)
+    settings.setdefault('normalise_fraction', True)
     settings.setdefault('positive_control_wells', None)
     settings.setdefault('negative_control_wells', None)
     settings.setdefault('mixed_control_wells', None)
@@ -2721,6 +2722,7 @@ expected_types = {
     "clustering": str,
     "exclude": (str, type(None)),
     "exclude_grnas": (list, type(None)),
+    "normalise_fraction": bool,
     "positive_control_wells": (list, type(None)),
     "negative_control_wells": (list, type(None)),
     "mixed_control_wells": (list, type(None)),
@@ -3356,7 +3358,7 @@ tooltips = {
     "edge_transparency": "(float) - Outline opacity on a 0-100 scale: 0 hides the outline and 100 makes it fully opaque. Intermediate values blend the outline with the image. Default 100.",
     "edge_image": "(bool) - Draw the outline over the picture rather than on a blank field. Off gives the outline alone, which is how a shape is checked without the stain distracting from it. Default False.",
     "object_size": "(int/list) - The smallest object, in pixels, that is outlined at all. Debris below it is skipped rather than traced. Default (0, 0) — no minimum.",
-    "show_all_in_well": "(bool) - Show EVERY cell in the well and highlight the chosen ones, instead of showing only the chosen ones. The highlight is the annotation app's, so a picked cell looks the way an annotated one does. Default False.",
+    "show_all_in_well": "(bool) - Show EVERY cell in the well and highlight the chosen ones, instead of showing only the chosen ones. The highlight is the annotation app's, so a picked cell looks the way an annotated one does. ON BY DEFAULT: with it off, the only cells on screen are the ones already annotated to the guide, so every visible cell is a hit and every visible fraction is 1 -- a view that shows only the cells agreeing with the annotation cannot disagree with it. Turn it off to see the picked cells alone. Default True.",
     "cells_per_page": "(int) - How many cells one page of a well's tab holds. A well with more gets pages rather than a grid too small to read. Default 60.",
     "half_widths": "(float) - Set the score-window half-width in robust scales (1.4826 × median absolute deviation) on either side of the score implied by the coefficient. This value applies to every coefficient. It changes the range described in the montage caption, not the number of cells shown; the displayed count comes from guide-fraction estimates so narrow windows do not leave wells underrepresented. Default 1.0.",
     "baseline": "(str) - What the coefficient's effect is measured FROM when the implied score is worked out: 'screen_median' (every well), 'control_median' (the non-targeting controls) or 'zero'. The control baseline is the honest one when the screen's median is itself shifted. Default 'screen_median'.",
@@ -3566,6 +3568,7 @@ tooltips = {
     "positive_control_wells": "(list or str) - Wells containing only the positive control, e.g. ['c2']. Accepts rows (r1), columns (c1), or individual wells (A01); the Plate button selects them from a map. Pure controls are calibration references rather than screen observations, so they are excluded from the regression. They define the positive endpoint for mixed-ratio calibration and should be identified from the plate design. Default None.",
     "negative_control_wells": "(list or str) - Wells containing only the negative control, e.g. ['c1']. Accepts the same row, column, and well notation as positive_control_wells. These wells are excluded from the regression and define the negative endpoint for mixed-ratio calibration. Default None.",
     "mixed_control_wells": "(list or str) - Wells holding a known mixture of the positive and negative controls, e.g. ['c3']. Removed from the regression like the other two. These provide strong validation because per-cell identities are unknown while the aggregate proportions are known from sequencing, allowing annotation methods to be scored on real rather than simulated cells. Default None.",
+    "normalise_fraction": "(bool) - Divide a guide's fraction by what SURVIVED fraction_threshold before deciding how many cells it gets. On by default, the historical behaviour. THE COST: the reads of every filtered-out guide are redistributed onto the survivors -- on a real screen the filtered sums fall to a median of 0.5526, inflating each survivor by about 1.8x -- so a guide with few reads can come out with a high share and the ranking takes cells on a number normalisation created. Off keeps the discarded reads in the denominator, which is conservative. Default True.",
     "exclude_grnas": "(list or str) - gRNA or gene identifiers known not to occur in cells, such as primer or plasmid carry-over. These sequences are removed before guide fractions are calculated, and retained guides are renormalized. This differs from background subtraction, which corrects spurious reads assigned to a real guide. A gene identifier matches all of its guides. Default None.",
     "exclude": "(str or list) - Names of measurement columns to drop from the feature set before UMAP embedding or ML training, applied after the channel_of_interest selection. Use it to remove features that leak the label or swamp the embedding. It does not filter database rows; use exclude_rows for that. Default None keeps every feature.",
     "exclude_conditions": "(list) - Condition labels dropped from the image UMAP input, matched against the cond column that map_condition derives from the pos, neg and mix column IDs; the only possible entries are 'neg', 'pos', 'mix' and 'screen'. A bare string is accepted and wrapped in a list. Use it to embed screen wells only. Default None.",

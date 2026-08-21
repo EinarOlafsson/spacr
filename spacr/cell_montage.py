@@ -273,6 +273,17 @@ def round_half_up(value: float) -> int:
 #:                from its own cells; this one learns what a guide's cells
 #:                look like from every well the guide is in, and applies it
 #:                here. `spacr.sudoku`.
+#: What an object shown but NOT picked is called (207 B).
+#:
+#: THE SAME SPELLING `spacr.sudoku` ABSTAINS WITH, so the two annotation
+#: routes put the same word in the same column and a consumer does not have
+#: to know which produced the frame.
+NOT_ANNOTATED = "Non_annotated"
+
+#: The column carrying that name.
+ANNOTATION_COLUMN = "montage_annotation"
+
+
 PICKING_MODES: Tuple[str, ...] = ("rank", "attributed", "assigned",
                                  "multivariate", "sudoku")
 
@@ -1363,6 +1374,7 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
                    effects: Optional[Mapping[str, float]] = None,
                    effects_grid: Optional["pd.DataFrame"] = None,
                    exclude_grnas: Optional[Sequence[str]] = None,
+                   normalise_fraction: bool = True,
                    threshold: float = 0.55) -> MontagePlan:
     """Return the objects to show behind one coefficient.
 
@@ -1601,8 +1613,23 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
         # An object with no score cannot be ranked, so counting it would
         # promise cells the ranking cannot deliver.
         total_here = float(well_totals.get(label, 0.0))
-        share, factor = normalised_share(
-            [total_here] if total_here else [], fraction)
+        if normalise_fraction:
+            share, factor = normalised_share(
+                [total_here] if total_here else [], fraction)
+        else:
+            # THE RAW FRACTION, WHICH IS THE CONSERVATIVE ONE (207 D).
+            # Normalising divides by what SURVIVED the threshold, so the
+            # reads of every filtered-out guide are redistributed onto the
+            # ones that remain -- measured on a real screen, the filtered
+            # sums fall to a median of 0.5526, so each survivor is inflated
+            # by about 1.8x. A guide with few reads in a well can come out
+            # of that with a high share, and the ranking then takes cells on
+            # the strength of a number normalisation created.
+            #
+            # Raw keeps the discarded reads in the denominator, where they
+            # dilute a marginal guide instead of being handed to it. Neither
+            # is right for every screen, which is why it is a choice.
+            share, factor = float(fraction), 1.0
         here_scores = pd.to_numeric(here[score_column], errors="coerce")
         n_classified = int(here_scores.notna().sum())
         expected = objects_to_show(n_classified, share)
@@ -1725,23 +1752,47 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
                     top = ranked[mask]
                     picked_by = "attributed"
         direction = "lowest" if coefficient.effect < 0 else "highest"
-        arithmetic = (f"round({share:.4g} x {n_classified}) = {expected}, "
-                      f"where {share:.4g} is this guide's {fraction:.4g} "
-                      f"normalised by {factor:.4g} (the well's fractions sum "
-                      f"to {total_here:.4g})")
+        if normalise_fraction:
+            arithmetic = (f"round({share:.4g} x {n_classified}) = {expected}, "
+                          f"where {share:.4g} is this guide's {fraction:.4g} "
+                          f"normalised by {factor:.4g} (the well's fractions "
+                          f"sum to {total_here:.4g})")
+        else:
+            # SAY WHICH FRACTION IT USED. The two differ by the
+            # normalisation factor, and a count that cannot be traced to a
+            # fraction is a count nobody can check.
+            arithmetic = (f"round({share:.4g} x {n_classified}) = {expected}, "
+                          f"where {share:.4g} is this guide's RAW fraction "
+                          f"(un-normalised; the well's kept fractions sum to "
+                          f"{total_here:.4g})")
         if show_all:
             # EVERY CELL IN THE WELL, with the chosen ones marked rather than
             # the rest removed. "show all the images from each well and
             # highlight the cells most likely to be whatever gene is picked".
             take = ranked.copy()
             take["montage_candidate"] = take.index.isin(top.index)
+            # AND THE REST ARE NAMED, NOT MERELY UNMARKED (207 B). Asked for
+            # 2026-08-21: "i an the non annotated datapoints to be annotated
+            # as Non_annotated and shown".
+            #
+            # A CELL THAT IS SHOWN AND CARRIES NO LABEL IS COUNTED BY THE
+            # EYE AND BY NOTHING ELSE. Giving it a name puts it in the
+            # legend, in the group-by, and in the denominator -- which is
+            # where it has to be, because a fraction computed over only the
+            # annotated cells is the fraction that came out as 1.
+            take[ANNOTATION_COLUMN] = np.where(
+                take["montage_candidate"], str(name), NOT_ANNOTATED)
             n_taken = int(len(take))
             note = (f"showing all {n_taken} classified cells in the well; "
                     f"the {int(take['montage_candidate'].sum())} with the "
-                    f"{direction} scores are highlighted -- {arithmetic}")
+                    f"{direction} scores are highlighted and the rest are "
+                    f"{NOT_ANNOTATED} -- {arithmetic}")
         else:
             take = top.copy()
             take["montage_candidate"] = True
+            # The same column either way, so a consumer does not have to
+            # know which view produced the frame.
+            take[ANNOTATION_COLUMN] = str(name)
             n_taken = int(len(take))
             note = arithmetic
             if n_taken < expected:
