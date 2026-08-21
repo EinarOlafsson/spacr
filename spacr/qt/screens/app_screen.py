@@ -1340,23 +1340,41 @@ class AppScreen(QWidget):
                 # that overwrote `classes` or `negative_control` -- which
                 # mix wells with another vocabulary -- would destroy a value
                 # it does not understand.
+                # THE INNER FIELD IS KEPT, because everything below binds to
+                # IT and not to the row it now sits in: the tooltip is read
+                # off it, the label is bound to it, and `_widgets` still
+                # holds it. Losing this reference is what made a wrapped row
+                # lose its `settingKey` and its help the moment the wrapper
+                # stopped being a no-op.
+                field = widget
                 widget = self._with_a_plate_map(widget, setting_key)
                 # AND THE ADVISOR BESIDE `inference` (192). "a button to the
                 # left of inference alligned with the text box to the left in
                 # model & inference".
                 widget = self._with_a_settings_advisor(widget, setting_key)
+                if widget is not field:
+                    # THE ROW IS THE FIELD AS FAR AS THE PANEL IS CONCERNED.
+                    # `Section._row_widgets` records what it is handed, and
+                    # the module smoke test reads `settingKey` off that -- so
+                    # the holder has to carry it too, or a row with a button
+                    # beside it reads as a field belonging to no setting.
+                    widget.setProperty("settingKey", setting_key)
+                    widget.setProperty("settingsAppKey", self.app_key)
                 lbl_widget = QLabel(label)
                 # Give the label a subtle affordance so users know
                 # it's the hover target for tooltips (fields can be
                 # focused / clicked — tooltips on labels are calmer).
                 lbl_widget.setCursor(Qt.WhatsThisCursor)
                 field_key = None
+                # MATCHED ON THE INNER FIELD, not on `widget`: `widget` may
+                # now be the row that holds it, which `_widgets` has never
+                # heard of.
                 for key, w in getattr(self._settings_model, "_widgets", {}).items():
-                    if w is widget:
+                    if w is field:
                         field_key = key
-                        html = widget.toolTip()
+                        html = field.toolTip()
                         hint = self._settings_model.plain_tooltip_for(key)
-                        body_source = widget.property(
+                        body_source = field.property(
                             "apiTooltipDescriptionSource") or ""
                         lbl_widget.setProperty("settingsAppKey", self.app_key)
                         lbl_widget.setProperty("settingKey", key)
@@ -1370,13 +1388,18 @@ class AppScreen(QWidget):
                         # Tooltips live on the LABEL only — hovering
                         # the input field itself is left alone so
                         # focus / edit interactions aren't disturbed.
-                        widget.setToolTip("")
+                        field.setToolTip("")
                         # SettingsWidgets may already have disabled an
                         # algorithm-specific field before this visual label
                         # exists. Bind them now and mirror the state; later
                         # reducer switches update both through the same link.
-                        widget._spacr_setting_label = lbl_widget
-                        lbl_widget.setEnabled(widget.isEnabled())
+                        #
+                        # ON THE FIELD, not on the row: the reducer that
+                        # later enables and disables this setting reaches it
+                        # through `_widgets`, which holds the field, so a
+                        # label bound to the holder would never be told.
+                        field._spacr_setting_label = lbl_widget
+                        lbl_widget.setEnabled(field.isEnabled())
                         self._hint_map[lbl_widget] = hint
                         self._html_tip_map[lbl_widget] = html
                         lbl_widget.installEventFilter(self)
@@ -1402,7 +1425,10 @@ class AppScreen(QWidget):
                 # page showing through rather than the category surface.
                 section.add_row(lbl_widget, widget, info_widget=None,
                                 wrap_label=True)
-                self._attach_column_picker(field_key, widget)
+                # THE FIELD, for the same reason as the tooltip above: the
+                # column picker fills the setting's own widget, and handing
+                # it the row would give it something with no `setText`.
+                self._attach_column_picker(field_key, field)
             # THE EXPLAINER GOES AT THE TOP OF THE SECTION IT EXPLAINS.
             #
             # Asked for on 2026-08-17: "just ad the text box i asked for (at
