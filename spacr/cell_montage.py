@@ -1266,6 +1266,35 @@ def _sudoku_calls(work, counts, keys, guide_column, fraction_column,
                          "the propagation")
             return None
 
+        # SCOPED TO THE WELLS THAT HOLD THIS GUIDE, and to every guide that
+        # co-occurs there. Two reasons, and the second one is the one that
+        # would have stopped the run:
+        #
+        # STATISTICAL. A posterior is a COMPARISON. A guide that never
+        # shares a well with this one cannot be compared against it -- it
+        # contributes a column of zeros and a constraint of zero, which is
+        # not evidence, it is arithmetic on an empty set.
+        #
+        # ARITHMETIC. Unscoped, this builds an (all cells x all guides) seed
+        # matrix and `propagate` holds about three of them. On the
+        # maintainer's own screen -- 143,765 cells and 1,379 guides -- that
+        # is 1.6 GB per array and roughly 4.8 GB live, for a montage of one
+        # coefficient. Scoped to the wells holding one guide it is a few
+        # megabytes.
+        mine = [label for label, here in fractions.items() if name in here]
+        if not mine:
+            notes.append(f"sudoku: {name} is in none of these wells")
+            return None
+        fractions = {label: fractions[label] for label in mine}
+        keep = set(mine)
+        rows = [i for i, w in enumerate(wells) if w in keep]
+        if not rows:
+            notes.append("sudoku: no cell sits in a well holding this guide")
+            return None
+        frame = frame.iloc[rows]
+        features = features.iloc[rows]
+        wells = [wells[i] for i in rows]
+
         guides = sorted({g for here in fractions.values() for g in here})
         result = _sudoku(
             features.to_numpy(dtype=float),
