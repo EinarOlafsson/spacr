@@ -49,6 +49,7 @@ from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Set
 import numpy as np
 
 __all__ = [
+    "drop_guides",
     "background_from_controls",
     "suggest_threshold",
     "subtract_background",
@@ -56,9 +57,40 @@ __all__ = [
 ]
 
 
+def drop_guides(fractions: Mapping[str, float],
+                exclude: Iterable[str], *,
+                renormalise: bool = True) -> Dict[str, float]:
+    """Remove guides that are not in any cell, and renormalise what is left.
+
+    EXCLUSION IS NOT BACKGROUND SUBTRACTION and the difference is the whole
+    point. Background subtraction says "some of this guide's reads here are
+    spurious". Exclusion says "this sequence is not a guide in a cell at
+    all" -- primer or plasmid carry-over, which is in the library prep and
+    never in a nucleus.
+
+    So it is removed BEFORE the fractions are formed, and the survivors are
+    renormalised over what remains. Leaving it in and subtracting later
+    would leave its reads in every other guide's denominator, holding every
+    real fraction down by the contaminant's share.
+
+    On the screen this was written against, one plasmid contaminant was
+    19.9% of ALL reads on a plate: excluding it raises every other guide's
+    fraction by a quarter, which moves guides across the annotatability
+    floor. It is not a tidying step.
+    """
+    drop = {str(g) for g in (exclude or ())}
+    kept = {str(g): float(v) for g, v in fractions.items()
+            if str(g) not in drop and np.isfinite(float(v))}
+    total = sum(kept.values())
+    if renormalise and total > 0:
+        return {g: v / total for g, v in kept.items()}
+    return kept
+
+
 def background_from_controls(
         fractions: Mapping[str, Mapping[str, float]],
         intended: Mapping[str, Iterable[str]], *,
+        exclude: Optional[Iterable[str]] = None,
         statistic: str = "median") -> Dict[str, object]:
     """Measure each guide's read fraction in wells it does not belong to.
 
@@ -67,6 +99,11 @@ def background_from_controls(
     :param intended: ``{well: the guides that well really contains}``. A
         well absent from this mapping is skipped rather than assumed empty,
         because assuming would turn a real guide into background.
+    :param exclude: guides that are not in any cell -- primer or plasmid
+        carry-over. Dropped and the well renormalised BEFORE anything is
+        measured, because a contaminant left in the denominator holds every
+        real guide's background down by its own share and makes the
+        threshold look tighter than it is.
     :param statistic: ``'median'`` or ``'mean'`` across the control wells.
         Median by default: one contaminated well should not set a guide's
         background for the whole plate.
@@ -83,10 +120,11 @@ def background_from_controls(
     spurious_mass: Dict[str, float] = {}
     wells_used = 0
 
-    for well, here in fractions.items():
+    for well, raw in fractions.items():
         belongs = {str(g) for g in intended.get(well, ())}
         if not belongs:
             continue
+        here = drop_guides(raw, exclude or ()) if exclude else raw
         wells_used += 1
         mass = 0.0
         for guide, share in here.items():
