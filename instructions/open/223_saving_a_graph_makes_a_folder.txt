@@ -1,0 +1,83 @@
+================================================================================
+SAVING A GRAPH MAKES A FOLDER, NOT A FILE
+================================================================================
+
+Status:    filed 2026-08-21, not started.
+Requested: 2026-08-21 -- "whenever i save a graph i want to generate a folder
+           not a file. the folder should contain a pdf and a png version of
+           the graph, and a csv with the data the graph is based on, and
+           another csv which should show in a standardised way, statistics on
+           the data, the stats will be auto generated, so chekc notmality and
+           equal variance (test depends on what n is), then do the propper
+           test depending on how many groups there are."
+Owner:     Figures, Qt GUI (save)
+
+--------------------------------------------------------------------------------
+WHY A FOLDER
+--------------------------------------------------------------------------------
+
+A PDF ON ITS OWN CANNOT BE CHECKED. Six months later the question is always
+the same -- what were the numbers, and was that difference tested -- and a
+figure file answers neither. Saving the picture beside the data it was drawn
+from and the test that was run on it is what makes a figure re-derivable
+rather than merely re-viewable.
+
+    <graph name>/
+        <graph name>.pdf      vector, for the manuscript
+        <graph name>.png      raster, for slides and Slack
+        data.csv              the rows the graph was drawn from
+        statistics.csv        the test, its assumptions, and its result
+
+--------------------------------------------------------------------------------
+THE STATISTICS ARE CHOSEN, NOT ASSUMED
+--------------------------------------------------------------------------------
+
+`spacr.figures.stats.compare` ALREADY DOES THIS and must be what runs here
+rather than a second implementation. It checks normality and equal variance,
+picks the test from the group count and those checks, and returns the
+assumptions alongside the result.
+
+REUSING IT IS THE POINT rather than a convenience: a figure whose saved
+statistics disagree with the same comparison drawn on screen is worse than
+one with no statistics at all.
+
+What `statistics.csv` has to carry, because a p-value alone is not a result:
+
+  * the groups compared, and n for each;
+  * WHAT ONE OBSERVATION IS -- well, cell, guide. A test across cells when
+    the replicate is the well is pseudoreplication and returns p < 1e-10 on
+    noise. `compare` already takes this as `unit` and states it.
+  * the normality and equal-variance checks, with which test was used for
+    each and why (the choice depends on n);
+  * the test chosen, and the reason it was chosen over the alternative;
+  * the statistic, the p-value, and an EFFECT SIZE with its interval.
+
+A COMPARISON THAT COULD NOT BE MADE IS NOT A COMPARISON WITH AN UNKNOWN
+ANSWER. `compare` raises rather than returning NaN; the file must say the
+comparison was refused and why, not leave an empty cell.
+
+--------------------------------------------------------------------------------
+WHAT NEEDS DECIDING
+--------------------------------------------------------------------------------
+
+  * A GRAPH WITH NO GROUPS -- a scatter, a histogram of one column -- has no
+    test to run. It still gets a folder, a pdf, a png and its data; the
+    statistics file says there is nothing to compare rather than being
+    absent, since an absent file reads as a bug.
+  * Where the folder goes, and what happens when it exists. Overwriting a
+    folder is a bigger act than overwriting a file.
+  * The data csv is the rows AFTER filtering, which is what the graph shows.
+    If the filters are not recorded beside it the numbers cannot be
+    reproduced -- so the settings that produced it belong in the folder too.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Saving any graph produces the folder with all four files.
+* The statistics come from `figures.stats.compare`, not a second copy.
+* `statistics.csv` names the unit, both assumption checks, the test, the
+  reason, the effect size and its interval.
+* A graph with nothing to compare still gets every file, and the statistics
+  file says why it is empty.
+* The pdf and the png are the SAME figure -- rendered once, written twice.

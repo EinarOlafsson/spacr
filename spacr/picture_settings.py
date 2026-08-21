@@ -68,7 +68,16 @@ BOTH_MODES: Tuple[str, ...] = (
 #: Defaults for the keys that are this panel's own rather than the
 #: annotator's. Everything else comes from `set_annotate_default_settings`.
 OWN_DEFAULTS: Dict[str, object] = {
-    "show_all_in_well": False,
+    # ON BY DEFAULT (207). Asked for 2026-08-21: "change that to default by
+    # the way", and the reason is the report it came from -- with it OFF the
+    # only objects on screen are the ones already annotated to the guide, so
+    # every visible object is a hit and every visible fraction is 1. That is
+    # what produced "a tone of dotts at 1 and a tone of datapoints at 0".
+    #
+    # A VIEW THAT SHOWS ONLY THE CELLS AGREEING WITH THE ANNOTATION CANNOT
+    # DISAGREE WITH IT, which makes it useless as a check and misleading as
+    # a picture.
+    "show_all_in_well": True,
     "cells_per_page": 60,
     "object_type": "cell",
     "crop_source": LOAD_IMAGES,
