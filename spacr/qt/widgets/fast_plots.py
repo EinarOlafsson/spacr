@@ -17,7 +17,7 @@ from __future__ import annotations
 import logging
 from collections import namedtuple
 from contextlib import contextmanager
-from typing import Callable, Optional, Sequence
+from typing import Any, Callable, List, Optional, Sequence
 
 import numpy as np
 
@@ -1118,6 +1118,11 @@ class FastPlot(QWidget):
         # :meth:`_install_axis_hooks`. It goes in before the first label is
         # set, because the label is one of the two things it catches.
         self._install_axis_hooks()
+        # Modified left-drag selects a region (instruction 206). In here
+        # rather than in a subclass because the funnel every plot emits
+        # through is on this class, and a band that only some plots had
+        # would be a gesture the user cannot rely on.
+        self._install_rubber_band()
         self.plot.setLabel("bottom", x_label)
         self.plot.setLabel("left", y_label)
         self.plot.showGrid(x=True, y=True, alpha=0.25)
@@ -1205,6 +1210,16 @@ class FastPlot(QWidget):
         self._row_xy: dict = {}
         self._selected_key: Optional[str] = None
         self._highlight = None
+        #: EVERY selected identifier, in the order they were picked.
+        #: `_selected_key` stays the most recent one so the single-select
+        #: consumers keep working unchanged; this is the list the ones that
+        #: can show more than one read. Two names for one state would drift,
+        #: so `_selected_key` is derived from this and never set beside it.
+        self._selected_keys: List[str] = []
+        #: The rings for members 2..n. The first stays `_highlight` so that
+        #: every existing test and every subclass override still finds it
+        #: where it has always been.
+        self._extra_highlights: List[Any] = []
 
         #: ``[(label, callback, checked)]`` for raw vs adjusted p-values.
         self._p_values = []
@@ -1288,6 +1303,8 @@ class FastPlot(QWidget):
         self._key_rows = {}
         self._row_xy = {}
         self._selected_key = None
+        self._selected_keys = []
+        self._extra_highlights = []
         self._highlight = None
         self._refit = None
         self._baselines = []
@@ -4095,6 +4112,10 @@ class FastPlot(QWidget):
         """
         key = None if key is None else str(key)
         self._selected_key = key
+        # Single-select REPLACES. Leaving the multi list alone here is how the
+        # count on screen and the list the consumers read drift apart.
+        self._selected_keys = [] if key is None else [key]
+        self._clear_extra_highlights()
         if self._highlight is not None:
             try:
                 self.plot.removeItem(self._highlight)
@@ -4130,6 +4151,164 @@ class FastPlot(QWidget):
 
     def clear_highlight(self) -> None:
         self.highlight_key(None)
+
+    # ------------------------------------------------------- multi-select
+
+    def selected_keys(self) -> List[str]:
+        """Every selected identifier, in the order they were picked.
+
+        THE ONE SOURCE OF TRUTH for instruction 206. The gene tile, the image
+        tabs and the cell-table graphs all read this, so none of them can be
+        showing a different guide from the others.
+        """
+        return list(self._selected_keys)
+
+    def highlight_keys(self, keys) -> int:
+        """Ring every key in ``keys``. Returns how many were found and drawn.
+
+        A KEY THAT IS NOT ON THE PLOT IS STILL SELECTED. It can be missing
+        because its point was not plotted -- an unusable p-value, a nuisance
+        term this plot leaves off -- and dropping it from the selection would
+        make the count on screen disagree with what the consumers receive.
+        So the ring is what is conditional here, never the membership.
+        """
+        wanted = []
+        for key in keys or ():
+            key = str(key)
+            if key not in wanted:
+                wanted.append(key)
+        self._clear_extra_highlights()
+        if self._highlight is not None:
+            try:
+                self.plot.removeItem(self._highlight)
+            except Exception:               # pragma: no cover - already gone
+                pass
+            self._highlight = None
+        self._selected_keys = wanted
+        self._selected_key = wanted[-1] if wanted else None
+        if not wanted:
+            return 0
+        drawn = 0
+        # The LAST picked one keeps `_highlight`, because that is the one a
+        # single-select consumer means by "the selection".
+        for key in wanted[:-1]:
+            row = self._key_rows.get(key)
+            if row is not None and self._draw_extra_marker(row):
+                drawn += 1
+        row = self._key_rows.get(wanted[-1])
+        if row is not None and self._draw_marker(row):
+            drawn += 1
+        return drawn
+
+    def toggle_key(self, key) -> List[str]:
+        """Add ``key`` to the selection, or remove it if it is already in.
+
+        The modifier-click half of the platform gesture.
+        """
+        key = None if key is None else str(key)
+        if key is None:
+            return self.selected_keys()
+        keys = list(self._selected_keys)
+        if key in keys:
+            keys.remove(key)
+        else:
+            keys.append(key)
+        self.highlight_keys(keys)
+        return self.selected_keys()
+
+    def _draw_extra_marker(self, row: int) -> bool:
+        """A ring for a selection member that is not the most recent one."""
+        position = self._row_xy.get(row)
+        if position is None:
+            return False
+        x, y = position
+        ring = pg.ScatterPlotItem(
+            x=[x], y=[y], symbol="o", size=20, brush=pg.mkBrush(None),
+            pen=pg.mkPen(QColor(self._foreground), width=2.0))
+        ring.setZValue(50)
+        self.plot.addItem(ring)
+        self._extra_highlights.append(ring)
+        return True
+
+    def select_in_rect(self, x0, y0, x1, y1, *, add: bool = False) -> List[str]:
+        """Select every plotted point inside the data-coordinate rectangle.
+
+        THE GESTURE THE SHAPE OF A VOLCANO INVITES: the interesting guides
+        are a corner of the cloud, and picking them one click at a time is
+        the work this replaces.
+
+        Points with no drawn position are not in any rectangle -- a band
+        selects what it visibly encloses, which is the only reading a user
+        can check.
+
+        :param add: extend the current selection rather than replacing it,
+            for a band drawn with the modifier still down.
+        :returns: the selection after the band, in pick order.
+        """
+        low_x, high_x = sorted((float(x0), float(x1)))
+        low_y, high_y = sorted((float(y0), float(y1)))
+        inside = []
+        for row, position in self._row_xy.items():
+            try:
+                x, y = float(position[0]), float(position[1])
+            except (TypeError, ValueError, IndexError):
+                continue
+            if low_x <= x <= high_x and low_y <= y <= high_y:
+                key = self.key_for_row(int(row))
+                if key is not None and key not in inside:
+                    inside.append(key)
+        keys = (self.selected_keys() if add else [])
+        for key in inside:
+            if key not in keys:
+                keys.append(key)
+        self.highlight_keys(keys)
+        self._announce_selection(keys)
+        return self.selected_keys()
+
+    def _install_rubber_band(self) -> None:
+        """Make a modified left-drag select instead of pan.
+
+        WRAPPED, NOT REPLACED. pyqtgraph's own ``mouseDragEvent`` is what
+        gives the plot its pan and its rectangle zoom, and a plot that lost
+        those to gain a selection would be a worse plot. The wrapper takes
+        the event only while the modifier is down and hands every other drag
+        straight back.
+        """
+        box = self.plot.getViewBox()
+        if box is None or getattr(box, "_spacr_band", False):
+            return
+        original = box.mouseDragEvent
+        plot = self
+
+        def drag(event, axis=None):
+            modifiers = event.modifiers() if hasattr(event, "modifiers") \
+                else Qt.NoModifier
+            wanted = bool(modifiers & (Qt.ControlModifier | Qt.ShiftModifier))
+            if not wanted or event.button() != Qt.LeftButton:
+                return original(event, axis)
+            event.accept()
+            # The band is pyqtgraph's own scale box, so it looks exactly like
+            # the rectangle zoom the user already knows.
+            box.updateScaleBox(event.buttonDownPos(), event.pos())
+            if not event.isFinish():
+                return None
+            box.rbScaleBox.hide()
+            start = box.mapToView(event.buttonDownPos())
+            end = box.mapToView(event.pos())
+            plot.select_in_rect(start.x(), start.y(), end.x(), end.y(),
+                                add=True)
+            return None
+
+        box.mouseDragEvent = drag
+        box._spacr_band = True
+
+    def _clear_extra_highlights(self) -> None:
+        for ring in self._extra_highlights:
+            try:
+                self.plot.removeItem(ring)
+            except Exception:               # pragma: no cover - already gone
+                pass
+        self._extra_highlights = []
 
     def add_line(self, *, x=None, y=None, colour: str = "#C44E52",
                  style=Qt.DashLine, width: float = 1.5, label: str = ""):
@@ -4334,10 +4513,44 @@ class FastPlot(QWidget):
             self.set_status_note(text)
         key = self.key_for_row(index)
         if key is not None:
-            self.highlight_key(key)
-            self.key_selected.emit(key)
-            self.keys_selected.emit([key])
+            # THE PLATFORM GESTURE, NOT A BESPOKE MODE (instruction 206).
+            # Ctrl or Shift adds and removes; a plain click replaces. Read
+            # from the application rather than the event because pyqtgraph's
+            # click carries a scene event whose modifiers are not always
+            # populated on every platform.
+            if self._adding_to_selection():
+                keys = self.toggle_key(key)
+            else:
+                self.highlight_key(key)
+                keys = [key]
+            self._announce_selection(keys)
         self.point_clicked.emit(index)
+
+    @staticmethod
+    def _adding_to_selection() -> bool:
+        """Whether the modifier for add-and-remove is down right now."""
+        from PySide6.QtWidgets import QApplication
+
+        modifiers = QApplication.keyboardModifiers()
+        return bool(modifiers & (Qt.ControlModifier | Qt.ShiftModifier))
+
+    def _announce_selection(self, keys) -> None:
+        """Tell the consumers, and say how many are selected.
+
+        A SELECTION YOU CANNOT COUNT IS ONE YOU CANNOT TRUST, so the count
+        goes on the plot whenever it is more than one. `key_selected` still
+        carries the most recent member: it is what the single-select
+        consumers mean, and re-pointing them at a list would break every one
+        of them at once.
+        """
+        keys = [str(k) for k in (keys or ())]
+        if len(keys) > 1:
+            self.set_status_note(
+                f"{len(keys)} selected: {', '.join(keys[:4])}"
+                + (f" and {len(keys) - 4} more" if len(keys) > 4 else ""))
+        if keys:
+            self.key_selected.emit(keys[-1])
+        self.keys_selected.emit(list(keys))
 
     def _describe(self, index: int) -> str:
         """Describe ONE point, on demand.
@@ -7103,6 +7316,12 @@ class ResultsTable(QWidget):
 
     row_selected = Signal(int)
     key_selected = Signal(str)
+    #: EVERY selected identifier (instruction 206). The multi-select funnel,
+    #: beside `key_selected` rather than instead of it: the consumers that
+    #: can only show one thing keep working unchanged, and the ones that can
+    #: show several read this. Both are emitted from `select_keys`, so they
+    #: cannot disagree about what is selected.
+    keys_selected = Signal(list)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -7131,6 +7350,10 @@ class ResultsTable(QWidget):
         self.table = QTableWidget(0, 0)
         self.table.setSortingEnabled(True)
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        # EXTENDED, NOT SINGLE (instruction 206). A band over the volcano
+        # selects several guides, and a table that can only hold one of them
+        # would show a different guide from the plot that fed it.
+        self.table.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.table.setAlternatingRowColors(True)
         self.table.itemSelectionChanged.connect(self._on_selection)
@@ -7349,6 +7572,71 @@ class ResultsTable(QWidget):
                 self.table.scrollToItem(item)
                 return True
         return False
+
+    def select_keys(self, keys) -> int:
+        """Select every row named in ``keys``. Returns how many were found.
+
+        THE ONE PLACE A MULTI-SELECTION ENTERS THE TABLE, so the two signals
+        below are emitted together and no consumer can be looking at a
+        different selection from its neighbour.
+
+        The table selects rows rather than filtering them: narrowing to the
+        selection is what `show_keys` does for a histogram bar, and doing
+        both from one gesture would hide the unselected guides the user is
+        comparing against.
+        """
+        wanted = [str(k) for k in (keys or ())]
+        if self._frame is None or not self._key_column:
+            return 0
+        if self._key_column not in self._frame.columns:
+            return 0
+        from PySide6.QtCore import QItemSelectionModel
+
+        column = list(self._frame.columns).index(self._key_column)
+        self.table.clearSelection()
+        model = self.table.selectionModel()
+        flags = (QItemSelectionModel.Select | QItemSelectionModel.Rows)
+        found = 0
+        first = None
+        for row in range(self.table.rowCount()):
+            item = self.table.item(row, column)
+            if item is None or item.text() not in wanted:
+                continue
+            # A hidden row is unhidden to select it, for the same reason
+            # `select_key` does: silently dropping the point the user just
+            # dragged over reads as a broken gesture.
+            self.table.setRowHidden(row, False)
+            if model is not None:
+                model.select(self.table.model().index(row, column), flags)
+            first = first if first is not None else item
+            found += 1
+        if first is not None:
+            self.table.scrollToItem(first)
+        if wanted:
+            self.key_selected.emit(wanted[-1])
+        self.keys_selected.emit(list(wanted))
+        return found
+
+    def selected_keys(self) -> list:
+        """The identifiers of every selected row, top to bottom.
+
+        READ OFF THE WIDGET, not off a remembered list. The user can extend
+        the selection in the table itself with ctrl-click, and a cached copy
+        would not know -- which is the drift instruction 206 is about.
+        """
+        if self._frame is None or not self._key_column:
+            return []
+        if self._key_column not in self._frame.columns:
+            return []
+        column = list(self._frame.columns).index(self._key_column)
+        rows = sorted({index.row()
+                       for index in self.table.selectedIndexes()})
+        out = []
+        for row in rows:
+            item = self.table.item(row, column)
+            if item is not None and item.text():
+                out.append(item.text())
+        return out
 
     def copy_visible(self) -> str:
         """Put the visible rows on the clipboard as TSV, and return them."""

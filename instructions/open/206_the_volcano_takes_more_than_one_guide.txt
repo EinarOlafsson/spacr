@@ -2,7 +2,8 @@
 THE VOLCANO TAKES MORE THAN ONE GUIDE AT A TIME
 ================================================================================
 
-Status:    filed 2026-08-21, not started.
+Status:    filed 2026-08-21. THE PLOT AND THE FUNNEL DONE 2026-08-21; the montage shows one
+           of the selection at a time -- see WHAT IS LEFT.
 Requested: 2026-08-21 -- "the uesr should be able to select multiple grnas on
            the volcano plo at once."
 Owner:     Qt GUI (volcano plot, selection model)
@@ -43,3 +44,54 @@ HOW TO KNOW IT WORKED
   full selection, not its first member.
 * Clearing works, and an empty selection is a state the consumers handle.
 * A test drives the mouse gestures, not the selection model directly.
+
+--------------------------------------------------------------------------------
+DONE 2026-08-21
+--------------------------------------------------------------------------------
+
+ON `FastPlot`, NOT ON THE VOLCANO. The funnel every plot emits through is on
+the base class, so a band that only some plots had would be a gesture the
+user cannot rely on -- the same mistake as the plate-map button and the
+tooltip rule, each of which was applied by hand to a handful of places and
+then fixed once centrally.
+
+THE GESTURES ARE THE PLATFORM'S. Ctrl or Shift adds and removes, a plain
+click replaces, and a modified left-drag draws pyqtgraph's OWN scale box and
+selects what it encloses. The drag handler WRAPS the original rather than
+replacing it, so pan and rectangle-zoom still work: a plot that lost those
+to gain a selection would be a worse plot.
+
+A KEY THAT IS NOT PLOTTED STAYS SELECTED. It can be missing because its
+p-value was unusable or because it is a nuisance term the plot leaves off,
+and dropping it would make the count on screen disagree with what the
+consumers receive. The RING is what is conditional, never the membership.
+
+TWO NAMES FOR ONE STATE WOULD DRIFT, so `_selected_key` is derived from the
+list and never set beside it, and single-select `highlight_key` REPLACES the
+list rather than leaving it alone.
+
+ONE SELECTION, ONE SOURCE OF TRUTH. Every plot's `keys_selected` reaches
+`ResultsTable.select_keys`, which emits both signals together -- so the gene
+tile, the Cells tab and the graphs cannot be looking at different guides.
+The two histograms are deliberately NOT on this route: their `keys_selected`
+means "the rows behind this bar", which NARROWS the table, and a band means
+"these guides", which SELECTS. Narrowing on a band would hide the guides the
+user is comparing against.
+
+The count is stated on the plot and in the Cells tab whenever more than one
+is selected. A selection you cannot count is one you cannot trust.
+
+--------------------------------------------------------------------------------
+WHAT IS LEFT
+--------------------------------------------------------------------------------
+
+THE MONTAGE SHOWS ONE COEFFICIENT AT A TIME. `MontageRequest` carries one
+name and one effect, and the crops are chosen by how well each cell agrees
+with THAT coefficient -- so a grid built from three at once would be three
+different questions in one picture with nothing saying which cell answered
+which. The selection is held whole (`selected_coefficients`), the caption
+says how many there are, and `show_next_coefficient` steps through them.
+
+Composing a genuinely multi-coefficient montage -- one request per key,
+tiles labelled by guide, and a caption that survives it -- is real work on
+the montage rather than wiring, and is the remaining piece of this item.

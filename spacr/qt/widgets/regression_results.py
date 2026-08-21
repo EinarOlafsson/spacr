@@ -822,6 +822,18 @@ class RegressionResultsPanel(QWidget):
         # change -> re-emit. Connecting the volcano as well would build the
         # tile twice for every click.
         self.table.key_selected.connect(self.gene.show_feature)
+        # THE MULTI-SELECT ROUTE, THE SAME SHAPE AS THE SINGLE ONE
+        # (instruction 206). Every keyed plot's band and modifier-click reach
+        # the table, and the table re-emits to the consumers -- so there is
+        # still exactly one place that decides what "the selection" is, and
+        # the gene tile cannot be showing one guide while the image tabs show
+        # another. The two histograms are NOT on this route: their
+        # `keys_selected` means "the rows behind this bar", which narrows the
+        # table rather than selecting, and is already connected above.
+        for plot in self._keyed_plots():
+            if plot in (self.p_values, self.effect_distribution):
+                continue
+            plot.keys_selected.connect(self._select_many_from_a_plot)
 
         self._frame = None
         self._path = None
@@ -1443,6 +1455,34 @@ class RegressionResultsPanel(QWidget):
     def _show_keys(self, keys) -> None:
         """A set of coefficients was chosen on a plot: narrow the table."""
         self.table.show_keys(list(keys))
+
+    def _select_many_from_a_plot(self, keys) -> None:
+        """A band or a modifier-click chose several: select them all.
+
+        SELECT, NOT NARROW -- see :meth:`_show_keys` for the other one. A
+        band is a comparison, and hiding everything the user did not enclose
+        would remove the thing they are comparing against.
+        """
+        keys = [str(k) for k in (keys or ())]
+        if len(keys) < 2:
+            # One key is the ordinary single click, which already has a
+            # route. Taking it here as well would select it twice and build
+            # the gene tile twice for every click.
+            return
+        self._selected_key = keys[-1]
+        self.table.select_keys(keys)
+
+    def selected_keys(self) -> list:
+        """Every guide currently selected, for the screens that read it.
+
+        ONE SELECTION, ONE SOURCE OF TRUTH (instruction 206): the gene tile,
+        the image tabs and the cell-table graphs all come here, so they
+        cannot be showing different guides from one another.
+        """
+        keys = list(self.table.selected_keys())
+        if keys:
+            return keys
+        return [self._selected_key] if self._selected_key else []
 
     # ------------------------------------------------------------------ load
 
