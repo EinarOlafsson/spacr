@@ -1,0 +1,34 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "context": "**THE ASSUMPTION TESTS ARE THEMSELVES TESTS.** On n = 3 Levene has almost no power, so \"p = 0.7, variances are equal\" actually means \"we could not tell\". Reading that as licence to use Student's t is how a screen reports a difference that is not there. Below :data:`MIN_N_FOR_ASSUMPTIONS` this module records the check as UNINFORMATIVE and selects Welch's t-test or Mann-Whitney, which costs a little power when the assumption did hold and protects the result when it did not. That asymmetry is the whole argument: one direction loses a bit of sensitivity, the other publishes a false positive.",
+      "label": "spacr.figures.stats#4",
+      "source": "**THE ASSUMPTION TESTS ARE THEMSELVES TESTS.** On n = 3 Levene has almost no power, so \"p = 0.7, variances are equal\" actually means \"we could not tell\". Reading that as licence to use Student's t is how a screen reports a difference that is not there. Below :data:`MIN_N_FOR_ASSUMPTIONS` this module records the check as UNINFORMATIVE and selects Welch's t-test or Mann-Whitney, which costs a little power when the assumption did hold and protects the result when it did not. That asymmetry is the whole argument: one direction loses a bit of sensitivity, the other publishes a false positive.",
+      "source_sha256": "be34d9a0abfc720c38d38de067bf97be4545c50e421874aa9381c8c9b6e1c6bd",
+      "translation": "**धारणा परीक्षण स्वयं परीक्षण हैं।** n = 3 पर लेवेने की लगभग कोई शक्ति नहीं है, इसलिए \"p = 0.7, प्रसरण बराबर हैं\" का वास्तव में मतलब \"we could not tell\" है। स्टूडेंट के टी का उपयोग करने के लाइसेंस के रूप में इसे पढ़ने से यह पता चलता है कि स्क्रीनिंग उस अंतर की रिपोर्ट कैसे करती है जो वहां नहीं है। नीचे :data:`MIN_N_FOR_ASSUMPTIONS` यह मॉड्यूल चेक को UNINFORMATIVE के रूप में रिकॉर्ड करता है और वेल्च के टी-टेस्ट या मैन-व्हिटनी का चयन करता है, जो धारणा के सही होने पर थोड़ी शक्ति खर्च करता है और जब ऐसा नहीं होता है तो परिणाम की सुरक्षा करता है। वह विषमता ही संपूर्ण तर्क है: एक दिशा थोड़ी संवेदनशीलता खो देती है, दूसरी दिशा झूठी सकारात्मकता प्रकाशित करती है।"
+    },
+    {
+      "context": "THE ONE PLACE A NON-MATPLOTLIB RENDERER CAN ASK. ``save_figure`` rewrites the extension itself, which is why every matplotlib save has honoured the preference for months -- but pyqtgraph decides what it writes FROM THE NAME (``FastPlot.export`` branches on ``.pdf`` / ``.svg`` / else), so a renderer that is handed ``volcano.pdf`` writes a PDF whatever the user chose. The name has to be settled before the export sees it, and settling it twice in two modules is how the two drift apart.",
+      "label": "spacr.plot.figure_path#1",
+      "source": "THE ONE PLACE A NON-MATPLOTLIB RENDERER CAN ASK. ``save_figure`` rewrites the extension itself, which is why every matplotlib save has honoured the preference for months -- but pyqtgraph decides what it writes FROM THE NAME (``FastPlot.export`` branches on ``.pdf`` / ``.svg`` / else), so a renderer that is handed ``volcano.pdf`` writes a PDF whatever the user chose. The name has to be settled before the export sees it, and settling it twice in two modules is how the two drift apart.",
+      "source_sha256": "3373e8946963e49c0ba1254c2bac4ea5e94f29c0e8bbba043be6369c9fce8c58",
+      "translation": "एकमात्र स्थान जो गैर-मैटप्लोटलिब रेंडरर पूछ सकता है। ``save_figure`` स्वयं एक्सटेंशन को फिर से लिखता है, यही कारण है कि प्रत्येक matplotlib सेव ने महीनों तक प्राथमिकता का सम्मान किया है - लेकिन pyqtgraph तय करता है कि वह NAME से क्या लिखता है (``FastPlot.export`` शाखाएँ ``.pdf`` / ``.svg`` / else), इसलिए एक रेंडरर जिसे ``volcano.pdf`` सौंपा जाता है वह उपयोगकर्ता द्वारा चुने गए PDF को लिखता है। नाम को निर्यात द्वारा देखे जाने से पहले तय किया जाना चाहिए, और इसे दो मॉड्यूल में दो बार तय करने से दोनों अलग हो जाते हैं।"
+    },
+    {
+      "context": "Where the screening experiment takes its inputs ONE ROW PER Laboratory microplate -- today only Regression, through the ``paired_data`` table -- the database is attached to a laboratory microplate row instead of setting ``src``. That is not an app-structured-data name special case: it follows the shape of the screening experiment, so any panel that grows a per-laboratory microplate input table gets it without a registry edit.",
+      "label": "spacr.qt.dnd_handlers.MeasurementsDropHandler#1",
+      "source": "Where the screen takes its inputs ONE ROW PER PLATE -- today only Regression, through the ``paired_data`` table -- the database is attached to a plate row instead of setting ``src``. That is not an app-key special case: it follows the shape of the screen, so any panel that grows a per-plate input table gets it without a registry edit.",
+      "source_sha256": "45acbb5f3ed867c3a1f54ae95d9e1df1b66d223ceee128d28aee2ea26b7ffb50",
+      "translation": "जहां स्क्रीनिंग प्रयोग अपना इनपुट एक पंक्ति प्रति प्रयोगशाला माइक्रोप्लेट लेता है - आज केवल प्रतिगमन, ``paired_data`` तालिका के माध्यम से - डेटाबेस सेटिंग ``src`` के बजाय एक प्रयोगशाला माइक्रोप्लेट पंक्ति से जुड़ा हुआ है। यह एक ऐप-संरचित-डेटा नाम विशेष मामला नहीं है: यह स्क्रीनिंग प्रयोग के आकार का अनुसरण करता है, इसलिए कोई भी पैनल जो प्रति-प्रयोगशाला माइक्रोप्लेट इनपुट तालिका विकसित करता है, उसे रजिस्ट्री संपादन के बिना प्राप्त होता है।"
+    },
+    {
+      "context": "Each column produces an independent processing-session folder and Runs-tab entry. Jobs execute sequentially through :class:`~spacr.qt.job_runner.JobRunner`, can be stopped between fits, and continue after individual fit failures.",
+      "label": "spacr.qt.widgets.measurement_scan_panel.ColumnRegressionPanel#1",
+      "source": "Each column produces an independent run folder and Runs-tab entry. Jobs execute sequentially through :class:`~spacr.qt.job_runner.JobRunner`, can be stopped between fits, and continue after individual fit failures.",
+      "source_sha256": "819fe1d1f4fd1d57c3ea0cc017e4aa32cf6175f432086f45e85122fb69cce58d",
+      "translation": "प्रत्येक कॉलम एक स्वतंत्र प्रोसेसिंग-सत्र फ़ोल्डर और रन-टैब प्रविष्टि उत्पन्न करता है। कार्य :class:`~spacr.qt.job_runner.JobRunner` के माध्यम से क्रमिक रूप से निष्पादित होते हैं, फिट के बीच रोका जा सकता है, और व्यक्तिगत फिट विफलताओं के बाद जारी रखा जा सकता है।"
+    }
+  ],
+  "schema": 1
+}

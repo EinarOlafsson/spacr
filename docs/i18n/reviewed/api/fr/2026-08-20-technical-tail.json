@@ -1,0 +1,62 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "context": "The tab needs both answers in the same shape: the design says a tab that cannot be filled must say why rather than be absent, so \"there is no source\" is a value here and not an exception.",
+      "label": "spacr.cell_montage.CropSourceChoice#1",
+      "source": "The tab needs both answers in the same shape: the design says a tab that cannot be filled must say why rather than be absent, so \"there is no source\" is a value here and not an exception.",
+      "source_sha256": "8743937ad4f324bee06eccab6bf291a6a70636b9b8f89fe05d95ef2c0c710b5f",
+      "translation": "L'onglet a besoin des deux réponses sous la même forme : la conception indique qu'un onglet qui ne peut pas être rempli doit indiquer pourquoi plutôt que d'être absent, donc \"there is no source\" est une valeur ici et non une exception."
+    },
+    {
+      "context": "what is needed and absent, each as a sentence naming the thing rather than the failure it would cause later.",
+      "label": "spacr.cell_montage.RouteRequirements#7",
+      "source": "what is needed and absent, each as a sentence naming the thing rather than the failure it would cause later.",
+      "source_sha256": "5f4a8d060c86df6aceea046b19c5efb539b14159d2f1386577c2ee72fe37a960",
+      "translation": "ce qui est nécessaire et absent, chacun comme une phrase nommant la chose plutôt que l'échec qu'elle provoquerait plus tard."
+    },
+    {
+      "context": "a key-value mapping in the order given. A path that does not exist or cannot be parsed is ABSENT from the result rather than mapped to an empty list -- see rule 2. Use :func:`missing` to ask which those were.",
+      "label": "spacr.columns.headers#2",
+      "source": "a dict in the order given. A path that does not exist or cannot be parsed is ABSENT from the result rather than mapped to an empty list -- see rule 2. Use :func:`missing` to ask which those were.",
+      "source_sha256": "33aa3b37dc8945d16cb30f8c08e0b09ff36e39854650ecb74a9b866551bf12e2",
+      "translation": "un mappage clé-valeur dans l’ordre indiqué. Un chemin qui n'existe pas ou ne peut pas être analysé est ABSENT du résultat plutôt que mappé à une liste vide -- voir la règle 2. Utilisez :func:`missing` pour demander de quoi il s'agit."
+    },
+    {
+      "context": "groups  variance   distribution   test 2       equal      ~normal        Student's t (two-sided) 2       unequal    ~normal        Welch's t 2       any        not normal     Mann-Whitney U >2      equal      ~normal        one-way ANOVA >2      unequal    ~normal        Welch's ANOVA >2      any        not normal     Kruskal-Wallis",
+      "label": "spacr.figures.stats#2",
+      "source": "groups  variance   distribution   test 2       equal      ~normal        Student's t (two-sided) 2       unequal    ~normal        Welch's t 2       any        not normal     Mann-Whitney U >2      equal      ~normal        one-way ANOVA >2      unequal    ~normal        Welch's ANOVA >2      any        not normal     Kruskal-Wallis",
+      "source_sha256": "053fb7fa69aab329706702067266d5687b1eace8d5b37619f9186483ce2843a4",
+      "translation": "test de distribution de variance des groupes 2 égal ~ normal T de Student (bilatéral) 2 inégal ~ normal T de Welch 2 tout non normal Mann-Whitney U >2 égal ~ ANOVA unidirectionnelle normale >2 inégal ~ normal ANOVA de Welch >2 tout non normal Kruskal-Wallis"
+    },
+    {
+      "context": "The palette follows recurring colors in published apicomplexan-genomics figures, including Waldman et al. (Cell, 2020; Figures 1 and 3) and Giuliano et al. (Nature Microbiology, 2024; Figure 1). Grey represents background data, while accent colors identify the smaller subset being interpreted. Family colors remain stable across panels so readers do not have to relearn category mappings.",
+      "label": "spacr.gene_measurement_sweep.HOUSE#1",
+      "source": "The palette follows recurring colors in published apicomplexan-genomics figures, including Waldman et al. (Cell, 2020; Figures 1 and 3) and Giuliano et al. (Nature Microbiology, 2024; Figure 1). Grey represents background data, while accent colors identify the smaller subset being interpreted. Family colors remain stable across panels so readers do not have to relearn category mappings.",
+      "source_sha256": "f165a485f8da60fdabeabf9e33c6f7c42e17f1332ca8c96ec9fd2d945d03ab15",
+      "translation": "La palette suit les couleurs récurrentes dans les chiffres publiés sur la génomique des apicomplexes, notamment Waldman et al. (Cell, 2020 ; figures 1 et 3) et Giuliano et al. (Nature Microbiologie, 2024 ; Figure 1). Le gris représente les données d'arrière-plan, tandis que les couleurs d'accent identifient le plus petit sous-ensemble en cours d'interprétation. Les couleurs des familles restent stables sur tous les panneaux afin que les lecteurs n'aient pas à réapprendre les mappages de catégories."
+    },
+    {
+      "context": "Returns an empty mapping rather than throwing when the file is absent -- a screening experiment of another organism has no reason to carry it, and a gene tile without a UniProt line is still a gene tile.",
+      "label": "spacr.gene_tile.uniprot_accessions#2",
+      "source": "Returns an empty mapping rather than raising when the file is absent -- a screen of another organism has no reason to carry it, and a gene tile without a UniProt line is still a gene tile.",
+      "source_sha256": "c855ccc441fe5ced83a1a04311b6e3c5bef30a88b6902d8dc0f303ac2338b5c1",
+      "translation": "Renvoie un mappage vide plutôt que de le lancer lorsque le fichier est absent : une expérience de criblage d'un autre organisme n'a aucune raison de le porter, et une tuile génétique sans ligne UniProt est toujours une tuile génétique."
+    },
+    {
+      "context": "WHO fits it. ``'statsmodels'`` is the default and produced every existing result; ``'torch'`` fits the same profiled REML objective on the GPU (:mod:`spacr.mixed_gpu`) and returns a result object with the same attributes, so nothing downstream can tell which ran except by asking. A backend that cannot fit ``'mixed'`` here, is not installed, or needs a GPU that is absent is REFUSED with the reason -- see :func:`_require_backend`.",
+      "label": "spacr.ml.perform_mixed_model#10",
+      "source": "WHO fits it. ``'statsmodels'`` is the default and produced every existing result; ``'torch'`` fits the same profiled REML objective on the GPU (:mod:`spacr.mixed_gpu`) and returns a result object with the same attributes, so nothing downstream can tell which ran except by asking. A backend that cannot fit ``'mixed'`` here, is not installed, or needs a GPU that is absent is REFUSED with the reason -- see :func:`_require_backend`.",
+      "source_sha256": "55303504b109523a145067465ebb513b62b0f8e2bb7dc00b411f0abf58ad23b3",
+      "translation": "QUI convient. ``'statsmodels'`` est la valeur par défaut et produit tous les résultats existants ; ``'torch'`` correspond au même objectif REML profilé sur le GPU (:mod:`spacr.mixed_gpu`) et renvoie un objet résultat avec les mêmes attributs, donc rien en aval ne peut dire lequel s'est exécuté sauf en demandant. Un backend qui ne peut pas contenir ``'mixed'`` ici, n'est pas installé ou nécessite un GPU absent est REFUSÉ avec la raison -- voir :func:`_require_backend`."
+    },
+    {
+      "context": "``False`` is a real answer, not a failure: a structured-data name can be absent because its point was not plotted (an unusable p-value) or because it is a nuisance term this plot deliberately leaves off. Saying so beats ringing something near it.",
+      "label": "spacr.qt.widgets.fast_plots.FastPlot.highlight_key#1",
+      "source": "``False`` is a real answer, not a failure: a key can be absent because its point was not plotted (an unusable p-value) or because it is a nuisance term this plot deliberately leaves off. Saying so beats ringing something near it.",
+      "source_sha256": "92fe1f57e3ef4ccf082e9d71ac35802a9511149f404ac3dece2e4ec15b8e0ba6",
+      "translation": "``False`` est une vraie réponse, pas un échec : un nom de données structurées peut être absent parce que son point n'a pas été tracé (une valeur p inutilisable) ou parce qu'il s'agit d'un terme gênant que ce tracé laisse délibérément de côté. Dire cela vaut mieux sonner quelque chose à proximité."
+    }
+  ],
+  "schema": 1
+}

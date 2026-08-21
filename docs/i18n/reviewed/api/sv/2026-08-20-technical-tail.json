@@ -1,0 +1,62 @@
+{
+  "language": "sv",
+  "records": [
+    {
+      "context": "groups  variance   distribution   test 2       equal      ~normal        Student's t (two-sided) 2       unequal    ~normal        Welch's t 2       any        not normal     Mann-Whitney U >2      equal      ~normal        one-way ANOVA >2      unequal    ~normal        Welch's ANOVA >2      any        not normal     Kruskal-Wallis",
+      "label": "spacr.figures.stats#2",
+      "source": "groups  variance   distribution   test 2       equal      ~normal        Student's t (two-sided) 2       unequal    ~normal        Welch's t 2       any        not normal     Mann-Whitney U >2      equal      ~normal        one-way ANOVA >2      unequal    ~normal        Welch's ANOVA >2      any        not normal     Kruskal-Wallis",
+      "source_sha256": "053fb7fa69aab329706702067266d5687b1eace8d5b37619f9186483ce2843a4",
+      "translation": "grupper variansfördelningstest 2 lika ~normal Elevens t (tvåsidigt) 2 ojämn ~normal Welchs t 2 vilken som helst inte normal Mann-Whitney U >2 lika ~normal enkelriktad ANOVA >2 ojämn ~normal Welchs ANOVA >2 vilken som helst inte normal Kruskal-Wallis"
+    },
+    {
+      "context": "The palette follows recurring colors in published apicomplexan-genomics figures, including Waldman et al. (Cell, 2020; Figures 1 and 3) and Giuliano et al. (Nature Microbiology, 2024; Figure 1). Grey represents background data, while accent colors identify the smaller subset being interpreted. Family colors remain stable across panels so readers do not have to relearn category mappings.",
+      "label": "spacr.gene_measurement_sweep.HOUSE#1",
+      "source": "The palette follows recurring colors in published apicomplexan-genomics figures, including Waldman et al. (Cell, 2020; Figures 1 and 3) and Giuliano et al. (Nature Microbiology, 2024; Figure 1). Grey represents background data, while accent colors identify the smaller subset being interpreted. Family colors remain stable across panels so readers do not have to relearn category mappings.",
+      "source_sha256": "f165a485f8da60fdabeabf9e33c6f7c42e17f1332ca8c96ec9fd2d945d03ab15",
+      "translation": "Paletten följer återkommande färger i publicerade apicomplexan-genomics figurer, inklusive Waldman et al. (Cell, 2020; figur 1 och 3) och Giuliano et al. (Nature Microbiology, 2024; Figur 1). Grå representerar bakgrundsdata, medan accentfärger identifierar den mindre delmängden som tolkas. Familjefärgerna förblir stabila över panelerna så att läsarna inte behöver lära sig om kategorimappningar."
+    },
+    {
+      "context": "The screen runs a regression under multiple defensible settings combinations and compares the resulting hits and control ranks. Each trial writes to its own folder, and the results table is updated as trials finish so interrupted sweeps can be resumed.",
+      "label": "spacr.qt.screens.parameter_sweep#1",
+      "source": "The screen runs a regression under multiple defensible settings combinations and compares the resulting hits and control ranks. Each trial writes to its own folder, and the results table is updated as trials finish so interrupted sweeps can be resumed.",
+      "source_sha256": "a5d4548cd5dad2638dfd9a706daa66bc2e4d021b49f56e01fb3311dabc97c1cf",
+      "translation": "Skärmen kör en regression under flera försvarbara inställningskombinationer och jämför de resulterande träffarna och kontrollrangerna. Varje försök skriver till sin egen mapp och resultattabellen uppdateras när försöken avslutas så att avbrutna svep kan återupptas."
+    },
+    {
+      "context": "Repainting is not only the timer's doing: every console line the window paints over a translucent surface exposes this widget and Qt asks it for a whole frame. Measured on a real X server with the real stylesheet, **one ambient repaint per console line** — 0.99 of them, with the animation timer stopped. That is the fps cap being bypassed entirely, and it is why the cost of a repaint matters more than the cap suggests: shading it cost 1.7 ms idle and 22 ms under a Python worker, and blitting an already-shaded frame costs 0.24-0.32 ms at every load measured.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.paintEvent#3",
+      "source": "Repainting is not only the timer's doing: every console line the window paints over a translucent surface exposes this widget and Qt asks it for a whole frame. Measured on a real X server with the real stylesheet, **one ambient repaint per console line** — 0.99 of them, with the animation timer stopped. That is the fps cap being bypassed entirely, and it is why the cost of a repaint matters more than the cap suggests: shading it cost 1.7 ms idle and 22 ms under a Python worker, and blitting an already-shaded frame costs 0.24-0.32 ms at every load measured.",
+      "source_sha256": "72bf488fd5f4108cf7b6c285e6bd95fb2ffc0512811981dcf25bc388ba4e31e0",
+      "translation": "Ommålning är inte bara timerns arbete: varje konsollinje som fönstret målar över en genomskinlig yta exponerar den här widgeten och Qt ber den om en hel ram. Uppmätt på en riktig X-server med den riktiga stilmallen, **en omgivningsfärg per konsollinje** — 0,99 av dem, med animeringstimern stoppad. Det är att fps-locket helt förbigås, och det är därför kostnaden för en ommålning är viktigare än locket antyder: att skugga den kostade 1,7 ms tomgång och 22 ms under en Python-worker-processer, och att bli en redan skuggad ram kostar 0,24-0,32 ms vid varje uppmätt belastning."
+    },
+    {
+      "context": "each screen size is rendered **once** and cached as JPEG under ``~/.spacr/backgrounds``; and",
+      "label": "spacr.qt.imagery#6",
+      "source": "each screen size is rendered **once** and cached as JPEG under ``~/.spacr/backgrounds``; and",
+      "source_sha256": "62638c40d14eb7365bfd31f4d2db4d3ad0c5628798985727dd4e09dd7eb64d9f",
+      "translation": "varje skärmstorlek återges **en gång** och lagras som JPEG under ``~/.spacr/backgrounds``, och"
+    },
+    {
+      "context": "A registered stylesheet makes each supported editor's background and border transparent while reserving its one-pixel border geometry. An application- wide paint-event filter then draws the ramped fill and outline before Qt draws the editor's text, selection, and cursor. Installing one filter on ``QApplication`` covers fields created or rebuilt after startup without per-application view registration. Non-paint events pass through without repaint work.",
+      "label": "spacr.qt.widgets.field_fade#2",
+      "source": "A registered stylesheet makes each supported editor's background and border transparent while reserving its one-pixel border geometry. An application- wide paint-event filter then draws the ramped fill and outline before Qt draws the editor's text, selection, and cursor. Installing one filter on ``QApplication`` covers fields created or rebuilt after startup without per-screen registration. Non-paint events pass through without repaint work.",
+      "source_sha256": "c701fc3053a257831257355b724497d6b31be9d17d3c4e013e5f9aa165ede959",
+      "translation": "En registrerad stilmall gör bakgrunden och kantlinjen i varje editor genomskinlig, men behåller geometrin för den en pixel breda kanten. Ett programomfattande filter för uppritningshändelser ritar sedan den tonade fyllningen och konturen innan Qt ritar editorns text, markering och markör. När ett enda filter installeras på ``QApplication`` omfattas även fält som skapas eller byggs om efter start, utan registrering per vy. Händelser som inte gäller uppritning passerar utan extra omritning."
+    },
+    {
+      "context": ":func:`spacr.figures.stats.compare` selects Student's t, Welch's t, Mann-Whitney U, one-way ANOVA, Welch's ANOVA, or Kruskal-Wallis from the available groups and informative assumption checks.",
+      "label": "spacr.sp_stats.perform_statistical_tests#6",
+      "source": ":func:`spacr.figures.stats.compare` selects Student's t, Welch's t, Mann-Whitney U, one-way ANOVA, Welch's ANOVA, or Kruskal-Wallis from the available groups and informative assumption checks.",
+      "source_sha256": "8df21500c6a54cee29ce6747fffee15ff25a726564a44ba58322d6e125aa96ca",
+      "translation": ":func:`spacr.figures.stats.compare` väljer Students t-test, Welchs t-test, Mann–Whitneys U-test, envägs-ANOVA, Welchs ANOVA eller Kruskal–Wallis utifrån tillgängliga grupper och informativa antagandekontroller."
+    },
+    {
+      "context": "the bytes are not the published bytes.",
+      "label": "spacr.model_zoo.fetch#14",
+      "source": "the bytes are not the published bytes.",
+      "source_sha256": "b9d93266b2c9d909ca77b0cef4806167a72e4e0b8d45760f4e6d1217fd1f5e29",
+      "translation": "de hämtade bytevärdena överensstämmer inte med de publicerade bytevärdena."
+    }
+  ],
+  "schema": 1
+}

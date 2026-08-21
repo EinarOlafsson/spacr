@@ -1,0 +1,20 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "context": "**THE ASSUMPTION TESTS ARE THEMSELVES TESTS.** On n = 3 Levene has almost no power, so \"p = 0.7, variances are equal\" actually means \"we could not tell\". Reading that as licence to use Student's t is how a screen reports a difference that is not there. Below :data:`MIN_N_FOR_ASSUMPTIONS` this module records the check as UNINFORMATIVE and selects Welch's t-test or Mann-Whitney, which costs a little power when the assumption did hold and protects the result when it did not. That asymmetry is the whole argument: one direction loses a bit of sensitivity, the other publishes a false positive.",
+      "label": "spacr.figures.stats#4",
+      "source": "**THE ASSUMPTION TESTS ARE THEMSELVES TESTS.** On n = 3 Levene has almost no power, so \"p = 0.7, variances are equal\" actually means \"we could not tell\". Reading that as licence to use Student's t is how a screen reports a difference that is not there. Below :data:`MIN_N_FOR_ASSUMPTIONS` this module records the check as UNINFORMATIVE and selects Welch's t-test or Mann-Whitney, which costs a little power when the assumption did hold and protects the result when it did not. That asymmetry is the whole argument: one direction loses a bit of sensitivity, the other publishes a false positive.",
+      "source_sha256": "be34d9a0abfc720c38d38de067bf97be4545c50e421874aa9381c8c9b6e1c6bd",
+      "translation": "**가정 테스트는 자체 테스트입니다.** n = 3에서 Levene은 검정력이 거의 없으므로 \"p = 0.7, 분산이 동일합니다\"는 실제로 \"we could not tell\"를 의미합니다. Student's t를 사용하기 위한 라이센스로 이를 읽는 것은 화면에 존재하지 않는 차이점이 보고되는 방식입니다. :data:`MIN_N_FOR_ASSUMPTIONS` 아래에서 이 모듈은 검사를 UNINFORMATIVE로 기록하고 Welch의 t-검정 또는 Mann-Whitney를 선택합니다. 이는 가정이 유지될 때 약간의 전력을 소비하고 그렇지 않을 때 결과를 보호합니다. 그 비대칭성은 전체 주장입니다. 한 방향은 약간의 민감도를 잃고 다른 방향은 거짓 긍정을 게시합니다."
+    },
+    {
+      "context": "**cuML needs a different environment.** ``cuml-cu12`` 26.8.0 declares ``requires_python >= 3.11`` and its recent wheels are cp311 ONLY (25.10, 25.12 and 26.2 shipped cp310-cp313; 26.4, 26.6 and 26.8 ship cp311 alone -- the window is narrowing)",
+      "label": "spacr.regression_backends#7",
+      "source": "**cuML needs a different environment.** ``cuml-cu12`` 26.8.0 declares ``requires_python >= 3.11`` and its recent wheels are cp311 ONLY (25.10, 25.12 and 26.2 shipped cp310-cp313; 26.4, 26.6 and 26.8 ship cp311 alone -- the window is narrowing)",
+      "source_sha256": "bbbe7ac94699d3b7e101aec431e440de9d94aff2d2e146d00fd73a1677937f89",
+      "translation": "**cuML에는 다른 환경이 필요합니다.** ``cuml-cu12`` 26.8.0은 ``requires_python >= 3.11``을 선언하고 최근 휠은 cp311 전용입니다(25.10, 25.12 및 26.2는 cp310-cp313으로 배송되고 26.4, 26.6 및 26.8은 cp311만 배송 - 창이 좁아지고 있음)"
+    }
+  ],
+  "schema": 1
+}

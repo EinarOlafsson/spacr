@@ -1,0 +1,111 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "context": "attributions : iterable One attribution per cell, in the same order as ``keys``. keys : iterable Per-object database structured-data names. genes : mapping, optional Guide-to-gene mapping. Without one, the guide prefix is used. coverage : float, optional Fraction of well reads covered by attributed guides. The well-level value is repeated per cell so it remains available after filtering.",
+      "label": "spacr.attribution_columns.rows_from#2",
+      "source": "attributions : iterable One attribution per cell, in the same order as ``keys``. keys : iterable Per-object database keys. genes : mapping, optional Guide-to-gene mapping. Without one, the guide prefix is used. coverage : float, optional Fraction of well reads covered by attributed guides. The well-level value is repeated per cell so it remains available after filtering.",
+      "source_sha256": "721645e09ca896e68b865ee6ba7d6611f6a430c84255b9ceab5b12c7b1c21cf7",
+      "translation": "attributions : iterable Ein úthlutun fyrir hverja frumu, í sömu röð og ``keys``. keys : iterable Gagnagrunnslyklar fyrir hvern hlut. genes : mapping, optional Vörpun frá leiðarvísi yfir í gen. Ef henni er sleppt er forskeyti leiðarvísis notað. coverage : float, optional Hlutfall lestra úr brunninum sem úthlutaðir leiðarvísar ná yfir. Gildið á brunnsstigi er endurtekið fyrir hverja frumu svo það varðveitist eftir síun."
+    },
+    {
+      "context": "list of key-value mapping Records ready for :func:`write`.",
+      "label": "spacr.attribution_columns.rows_from#4",
+      "source": "list of dict Records ready for :func:`write`.",
+      "source_sha256": "14dac1fb9b046f76b3fe064236e90746500a45aa96d19c809bfdcd80ca9ccc37",
+      "translation": "list of key-value mapping Færslur sem eru tilbúnar fyrir :func:`write`."
+    },
+    {
+      "context": "The persisted grid lets multivariate montage selection work across application sessions. Callers may fall back to single-score attribution when no valid grid is available.",
+      "label": "spacr.cell_montage.effects_grid_from_results#6",
+      "source": "The persisted grid lets multivariate montage selection work across application sessions. Callers may fall back to single-score attribution when no valid grid is available.",
+      "source_sha256": "845360cfa67538f6744c24a3dfe01f62fcad735a948d773013ab1e22525f44ac",
+      "translation": "Varanlega vistaða taflan gerir fjölbreytilegt val fyrir myndasamsetningu mögulegt milli keyrslna forritsins. Kallandi kóði getur fallið aftur á úthlutun út frá einni mælingu þegar engin gild tafla er tiltæk."
+    },
+    {
+      "context": "the microplate sample positions of the annotation to INCLUDE. ``None`` includes all of them. A microplate sample position left out is dropped from BOTH sides -- it is not promoted into the comparison group, because a microplate sample position excluded for being bad is no more usable as a comparison than as an annotation.",
+      "label": "spacr.gene_measurement_compare.build#9",
+      "source": "the wells of the annotation to INCLUDE. ``None`` includes all of them. A well left out is dropped from BOTH sides -- it is not promoted into the comparison group, because a well excluded for being bad is no more usable as a comparison than as an annotation.",
+      "source_sha256": "37e01e4a215f76f01bd3cc931282047d8563e6ded0464f23174c93f2dcbfa739",
+      "translation": "Staðsetningar sýna á örplötu sem á að HAFA MEÐ úr merkingunni. ``None`` hefur þær allar með. Staðsetning sem er undanskilin er fjarlægð frá BÁÐUM hliðum; hún færist ekki í samanburðarhópinn, því slæm staðsetning er ekki frekar nothæf til samanburðar en til merkingar."
+    },
+    {
+      "context": "an empty key-value mapping when the table is missing, never raising -- a volcano is still a volcano without compartment colouring, and a screen of a different organism has no reason to carry this file.",
+      "label": "spacr.localisation.table#2",
+      "source": "an empty dict when the table is missing, never raising -- a volcano is still a volcano without compartment colouring, and a screen of a different organism has no reason to carry this file.",
+      "source_sha256": "45df96b3fb3bd03a4173c1602f66ee14983bb954b71fb5f7f10bde2d11653f55",
+      "translation": "Tómt lykil-gildasafn ef töfluna vantar; fallið kastar aldrei villu. Eldfjallaritið er áfram nothæft án litunar eftir frumuhólfi og skimun á annarri lífveru þarf ekki að innihalda þessa skrá."
+    },
+    {
+      "context": "Reference measurements explain where acceleration is expected. Statsmodels ``MixedLM`` took 54 times as long as OLS on a 40-gene screening experiment and 67 times as long on an 80-gene screening experiment. At ``q = 1212``, the Cholesky step took 204 ms on the CPU and 7.69 ms on an RTX 3090. For a design with 1,830 observations, 387 genes, 710 guides, 388 fixed effects, and 1,097 random levels, end-to-end times were 11.3 s for statsmodels, 0.80 s for this backend on CPU, and 0.47 s on the RTX 3090. Use :func:`benchmark_against_statsmodels` to measure the supported backends on another design and device.",
+      "label": "spacr.mixed_gpu#7",
+      "source": "Reference measurements explain where acceleration is expected. Statsmodels ``MixedLM`` took 54 times as long as OLS on a 40-gene screen and 67 times as long on an 80-gene screen. At ``q = 1212``, the Cholesky step took 204 ms on the CPU and 7.69 ms on an RTX 3090. For a design with 1,830 observations, 387 genes, 710 guides, 388 fixed effects, and 1,097 random levels, end-to-end times were 11.3 s for statsmodels, 0.80 s for this backend on CPU, and 0.47 s on the RTX 3090. Use :func:`benchmark_against_statsmodels` to measure the supported backends on another design and device.",
+      "source_sha256": "0ed36b086cc90c25f6690d1b16b9436845e126aeff68b4203f243e5dff2d2b01",
+      "translation": "Viðmiðunarmælingar sýna hvar búast má við hröðun. Statsmodels ``MixedLM`` tók 54 sinnum lengri tíma en OLS í skimun með 40 genum og 67 sinnum lengri tíma í skimun með 80 genum. Við ``q = 1212`` tók Cholesky-skrefið 204 ms á CPU og 7.69 ms á RTX 3090. Fyrir hönnun með 1,830 athugunum, 387 genum, 710 leiðarvísum, 388 föstum áhrifum og 1,097 slembistigum var heildartíminn 11.3 s fyrir statsmodels, 0.80 s fyrir þennan bakenda á CPU og 0.47 s á RTX 3090. Notaðu :func:`benchmark_against_statsmodels` til að mæla studda bakenda með annarri hönnun og á öðru tæki."
+    },
+    {
+      "context": "axes : dict of str to list, optional Settings to vary. Each trial receives one value from every list. Defaults to a copy of :data:`DEFAULT_SWEEP_SPACE`. fixed : dict, optional Settings copied into every trial after the Cartesian product is formed and before filters are evaluated. filters : list of callable, optional Predicates called with a complete trial key-value mapping. A predicate returns ``None`` to accept a trial or a reason string to reject it. An empty list selects the built-in compatibility filters when trials are built.",
+      "label": "spacr.parameter_sweep.SweepSpace#2",
+      "source": "axes : dict of str to list, optional Settings to vary. Each trial receives one value from every list. Defaults to a copy of :data:`DEFAULT_SWEEP_SPACE`. fixed : dict, optional Settings copied into every trial after the Cartesian product is formed and before filters are evaluated. filters : list of callable, optional Predicates called with a complete trial dictionary. A predicate returns ``None`` to accept a trial or a reason string to reject it. An empty list selects the built-in compatibility filters when trials are built.",
+      "source_sha256": "69d294f1faef246dccf9657bddaf824da2f3ec42778dd098c8093bb8fa47e795",
+      "translation": "axes : dict of str to list, optional Stillingar sem á að breyta. Hver tilraun fær eitt gildi úr hverjum lista. Sjálfgefið er afrit af :data:`DEFAULT_SWEEP_SPACE`. fixed : dict, optional Stillingar sem eru afritaðar í hverja tilraun eftir að Cartesian-margfeldið er myndað og áður en síur eru metnar. filters : list of callable, optional Skilyrði sem eru kölluð með fullkominni lykil-gildavörpun fyrir tilraunina. Skilyrði skilar ``None`` til að samþykkja tilraun eða ástæðustreng til að hafna henni. Tómur listi velur innbyggðu samhæfnissíurnar þegar tilraunir eru byggðar."
+    },
+    {
+      "context": "is_normal : bool ``True`` only when every requested column passes. results : list of key-value mapping Per-group test statistics, sample sizes, and verdicts.",
+      "label": "spacr.plot.spacrGraph.perform_normality_tests#3",
+      "source": "is_normal : bool ``True`` only when every requested column passes. results : list of dict Per-group test statistics, sample sizes, and verdicts.",
+      "source_sha256": "97c9fd7a7f6d202ed0a1d1d08b6efdaaa4b88d8f3084ea56eba0eddb7200e081",
+      "translation": "is_normal : bool ``True`` aðeins þegar allir umbeðnir dálkar standast prófið. results : list of key-value mapping Próftölfræði, úrtaksstærðir og niðurstöður fyrir hvern hóp."
+    },
+    {
+      "context": "Test selection is delegated to :func:`spacr.figures.stats.compare`. Two-group comparisons may use Student's t, Welch's t, or Mann-Whitney U; larger comparisons may use one-way ANOVA, Welch's ANOVA, or Kruskal-Wallis. Paired data use the paired t-test or Wilcoxon signed-rank test.",
+      "label": "spacr.plot.spacrGraph.perform_statistical_tests#6",
+      "source": "Test selection is delegated to :func:`spacr.figures.stats.compare`. Two-group comparisons may use Student's t, Welch's t, or Mann-Whitney U; larger comparisons may use one-way ANOVA, Welch's ANOVA, or Kruskal-Wallis. Paired data use the paired t-test or Wilcoxon signed-rank test.",
+      "source_sha256": "43d65528eaa1b7c044a98a9e8579dceb4e6206070c0f70fb7090986ec5b7ad58",
+      "translation": "Val prófs er framselt til :func:`spacr.figures.stats.compare`. Samanburður tveggja hópa getur notað Student t-próf, Welch t-próf eða Mann-Whitney U-próf; samanburður fleiri hópa getur notað einþátta ANOVA, Welch ANOVA eða Kruskal-Wallis-próf. Pöruð gögn nota parað t-próf eða Wilcoxon signed-rank-próf."
+    },
+    {
+      "context": "The widget presents R, G, and B as independent toggles while preserving the canonical comma-separated value used by existing settings files. This keeps the active channels visible without accepting ambiguous free-form spellings.",
+      "label": "spacr.qt.widgets.channel_picker#1",
+      "source": "The widget presents R, G, and B as independent toggles while preserving the canonical comma-separated value used by existing settings files. This keeps the active channels visible without accepting ambiguous free-form spellings.",
+      "source_sha256": "907067e5c3e141cfa0da2df2596d2920789af8aebec7a2da018ae5e4282b6e7d",
+      "translation": "Græjan sýnir R, G og B sem sjálfstæða rofa en varðveitir staðlaða kommuaðskilda gildið sem eldri stillingarskrár nota. Þannig sjást virku rásirnar án þess að taka við óljósri frjálsri stafsetningu."
+    },
+    {
+      "context": "The widgets render an ellipsis when space is limited and expose the complete text in a tooltip. Stable size hints prevent layouts from oscillating between full and shortened text.",
+      "label": "spacr.qt.widgets.eliding#1",
+      "source": "The widgets render an ellipsis when space is limited and expose the complete text in a tooltip. Stable size hints prevent layouts from oscillating between full and shortened text.",
+      "source_sha256": "9d8f04617e9bc1b421ad97f56da964bc39f000489a55a2fa08f8ac0a3e8f8ebe",
+      "translation": "Græjurnar sýna úrfellingarmerki þegar pláss er takmarkað og birta allan textann í vísbendingu. Stöðugar stærðarvísbendingar koma í veg fyrir að uppsetning sveiflist milli heils og stytts texta."
+    },
+    {
+      "context": "A failure here must not take the plot down with it: a tile is an explanation, and an explanation that raises leaves the user with a traceback instead of the point they clicked.",
+      "label": "spacr.qt.widgets.gene_tile.GeneTilePanel.show_feature#2",
+      "source": "A failure here must not take the plot down with it: a tile is an explanation, and an explanation that raises leaves the user with a traceback instead of the point they clicked.",
+      "source_sha256": "9e5be7bc18d2e5c503f0d36abf3d02049451487429f6860c324108bdaa5ca055",
+      "translation": "Villa hér má ekki fella niður grafið: reiturinn er skýring og skýring sem kastar villu skilur notandann eftir með traceback í stað punktsins sem smellt var á."
+    },
+    {
+      "context": "JMP's *Tabulate* is a drag-and-drop pivot: put ``plateID`` down the rows, ``gene`` across the columns, tick *mean* and *sd*, and read the table. It is the thing people reach for before they plot anything, because a number they can copy into a slide is often the whole answer.",
+      "label": "spacr.qt.widgets.pivot_spec#1",
+      "source": "JMP's *Tabulate* is a drag-and-drop pivot: put ``plateID`` down the rows, ``gene`` across the columns, tick *mean* and *sd*, and read the table. It is the thing people reach for before they plot anything, because a number they can copy into a slide is often the whole answer.",
+      "source_sha256": "2ce90a4fb9541da1c90d8bca8ff56aa11fb0cab8c75d04137d912102d76136bd",
+      "translation": "*Tabulate* í JMP er drag-and-drop pivot-tafla: settu ``plateID`` í raðir, ``gene`` í dálka, merktu við *mean* og *sd* og lestu töfluna. Þetta er oft fyrsta verkfærið sem fólk notar áður en það teiknar graf, því tala sem má afrita á glæru getur verið allt svarið."
+    },
+    {
+      "context": ":func:`spacr.figures.stats.compare` selects Student's t, Welch's t, Mann-Whitney U, one-way ANOVA, Welch's ANOVA, or Kruskal-Wallis from the available groups and informative assumption checks.",
+      "label": "spacr.sp_stats.perform_statistical_tests#6",
+      "source": ":func:`spacr.figures.stats.compare` selects Student's t, Welch's t, Mann-Whitney U, one-way ANOVA, Welch's ANOVA, or Kruskal-Wallis from the available groups and informative assumption checks.",
+      "source_sha256": "8df21500c6a54cee29ce6747fffee15ff25a726564a44ba58322d6e125aa96ca",
+      "translation": ":func:`spacr.figures.stats.compare` velur Student t-próf, Welch t-próf, Mann-Whitney U-próf, einþátta ANOVA, Welch ANOVA eða Kruskal-Wallis-próf út frá tiltækum hópum og upplýsandi forsenduprófum."
+    },
+    {
+      "context": "detector : {\"ORB\",\"SIFT\"} Keypoint detector. nfeatures : int Detector feature budget. max_keypoints : Optional[int] Hard cap on keypoints kept after detection, using the detector’s ranking. downsample : float in (0,1] Factor for feature detection and scoring. ransac_thresh_px : float Pixel reprojection threshold for affine estimation in downsampled space. allow_scale : bool If False, permit rotation and translation but no scaling; if allow_rotation=False, permit translation only. allow_rotation : bool If False, permit translation only. outdir : str Directory for image and csv output. opencv_threads : int OpenCV thread limit used to prevent oversubscription.",
+      "label": "spacr.spacrops.StitchedMultiAligner#3",
+      "source": "detector : {\"ORB\",\"SIFT\"} Feature detector for keypoint matching. nfeatures : int Feature budget for detector. max_keypoints : Optional[int] Hard cap on kept keypoints after detection (by detector’s internal ranking). downsample : float in (0,1] Downsample factor for feature/score pass. ransac_thresh_px : float Reprojection threshold (pixels) for affine estimation (downsampled space). allow_scale : bool If False, constrain to rotation+translation (or translation only if allow_rotation=False). allow_rotation : bool If False, constrain to translation only. outdir : str Output directory for images/csv. opencv_threads : int Limit OpenCV internal threading (avoid oversubscription).",
+      "source_sha256": "00dbbe5b2dd4fd97c7758d44b9643c419d945b36e7691fdeb34c0287750fdc4e",
+      "translation": "detector : {\"ORB\",\"SIFT\"} Eiginleikaskynjari fyrir samsvörun lykilpunkta. nfeatures : int Fjöldamörk eiginleika fyrir skynjarann. max_keypoints : Optional[int] Hörð mörk á fjölda lykilpunkta sem eru geymdir eftir greiningu, samkvæmt röðun skynjarans. downsample : float in (0,1] Minnkunarhlutfall fyrir eiginleikagreiningu og stigagjöf. ransac_thresh_px : float Endurvörpunarþröskuldur í pixlum fyrir affine-mat í minnkuðu rúmi. allow_scale : bool Ef False eru snúningur og hliðrun leyfð en ekki kvörðun; ef allow_rotation=False er aðeins hliðrun leyfð. allow_rotation : bool Ef False er aðeins hliðrun leyfð. outdir : str Úttaksmappa fyrir myndir og csv. opencv_threads : int Hámarksfjöldi OpenCV-þráða til að forðast ofnýtingu."
+    }
+  ],
+  "schema": 1
+}

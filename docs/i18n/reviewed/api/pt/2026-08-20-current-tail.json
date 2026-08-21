@@ -1,0 +1,83 @@
+{
+  "language": "pt",
+  "records": [
+    {
+      "context": "Reads ``png_list`` -- which is where :func:`spacr.predictions.merge_cv_predictions` writes the per-object classification score -- and hands it to :func:`spacr.io.crop_rows_from_png_list`, which is the join that recovers ``path_name`` and the integer ``object_label`` a merged extracted image region is cut by. So the frame that comes back serves **both** extracted image region sources: ``png_path`` for :class:`~spacr.crops.PngCropSource`, ``path_name`` plus ``object_label`` for :class:`~spacr.crops.MergedCropSource`.",
+      "label": "spacr.cell_montage.load_montage_objects#1",
+      "source": "Reads ``png_list`` -- which is where :func:`spacr.predictions.merge_cv_predictions` writes the per-object classification score -- and hands it to :func:`spacr.io.crop_rows_from_png_list`, which is the join that recovers ``path_name`` and the integer ``object_label`` a merged crop is cut by. So the frame that comes back serves **both** crop sources: ``png_path`` for :class:`~spacr.crops.PngCropSource`, ``path_name`` plus ``object_label`` for :class:`~spacr.crops.MergedCropSource`.",
+      "source_sha256": "075af4b405b2a7ff3f03fe42546c2713b1aed5197cf87b5f87910cb5009abb99",
+      "translation": "Lê ``png_list`` - que é onde :func:`spacr.predictions.merge_cv_predictions` grava a pontuação de classificação por objeto - e a entrega para :func:`spacr.io.crop_rows_from_png_list`, que é a junção que recupera ``path_name`` e o inteiro ``object_label`` pelo qual uma região de imagem extraída mesclada é cortada. Portanto, o quadro que retorna serve **ambas** fontes de região de imagem extraída: ``png_path`` para :class:`~spacr.crops.PngCropSource`, ``path_name`` mais ``object_label`` para :class:`~spacr.crops.MergedCropSource`."
+    },
+    {
+      "context": "Deliberately **not** :func:`round` or :func:`numpy.round`, both of which round halves to even: a well whose ``n * fraction`` is 2.5 would then contribute 2 while an otherwise identical well at 3.5 contributed 4. That is a montage whose per-well counts depend on the parity of a number the caption calls \"round(n x fraction)\", which no reader could reconstruct.",
+      "label": "spacr.cell_montage.round_half_up#1",
+      "source": "Deliberately **not** :func:`round` or :func:`numpy.round`, both of which round halves to even: a well whose ``n * fraction`` is 2.5 would then contribute 2 while an otherwise identical well at 3.5 contributed 4. That is a montage whose per-well counts depend on the parity of a number the caption calls \"round(n x fraction)\", which no reader could reconstruct.",
+      "source_sha256": "88e797eeadffdf14d41c558d4970ab1ede20fea932ade9d572be17b0b9f652ae",
+      "translation": "Deliberadamente **não** :func:`round` ou :func:`numpy.round`, ambos arredondados pela metade para par: um poço cujo ``n * fraction`` é 2,5 contribuiria então com 2, enquanto um poço idêntico com 3,5 contribuía com 4. Essa é uma montagem cujas contagens por poço dependem da paridade de um número que a legenda chama de \"redondo (n x fração)\", que nenhum leitor poderia reconstruir."
+    },
+    {
+      "context": "Well-by-GENE fractions, the well table, and how many guides each gene has.",
+      "label": "spacr.guide_permutation.prepare_long_gene_data#0",
+      "source": "Well-by-GENE fractions, the well table, and how many guides each gene has.",
+      "source_sha256": "269cdc149cc2fa4e3da17c7cf9d57bcae65ba17f9148470b941d2a7a24405a1a",
+      "translation": "Frações de poço por gene, a tabela de poços e quantas guias cada gene possui."
+    },
+    {
+      "context": "The answer is the ceiling, clamped up to the floor: as solid a panel as the picture can afford, and never thinner than legibility allows. Every alpha in that window satisfies both constraints, so the choice within it is which one to spend the slack on, and it goes to the panel: the settings form sits on this surface, and preserving its grey category structure is more important than exposing additional wallpaper. Taking the floor instead would show *more* picture — Cell's floor is 0.05, a nearly transparent panel — at the cost of the form dissolving into the wallpaper.",
+      "label": "spacr.qt.theme.solve_scrim_alpha#4",
+      "source": "The answer is the ceiling, clamped up to the floor: as solid a panel as the picture can afford, and never thinner than legibility allows. Every alpha in that window satisfies both constraints, so the choice within it is which one to spend the slack on, and it goes to the panel: the settings form sits on this surface, and preserving its grey category structure is more important than exposing additional wallpaper. Taking the floor instead would show *more* picture — Cell's floor is 0.05, a nearly transparent panel — at the cost of the form dissolving into the wallpaper.",
+      "source_sha256": "8a5f6974d303bba97223e59ffe91c120d9b435d6cbba7f85f1d9f697439632b3",
+      "translation": "A resposta é o teto, preso ao chão: um painel tão sólido quanto a imagem pode permitir, e nunca mais fino do que a legibilidade permite. Cada alfa nessa janela satisfaz ambas as restrições, então a escolha dentro dela é em qual delas gastar a folga, e vai para o painel: o formulário de configurações fica nesta superfície, e preservar sua estrutura de categorias cinza é mais importante do que expor papel de parede adicional. Em vez disso, tomar o chão mostraria *mais* imagem - o piso da Cell é 0,05, um painel quase transparente - ao custo da forma se dissolver no papel de parede."
+    },
+    {
+      "context": "So **CPU saturation is not a cause**: numpy releases the interpreter lock and a core burning flat out costs this module nothing. **A signal flood is not a cause on its own**: 200 lines a second are free, and it only bites in the thousands, where the console's own per-line work saturates the main GUI execution path and nothing in *this* module can help. What is left is **the interpreter lock**: identical drawing work, eleven times slower, because the shading pass is Python and numpy and something else is holding the lock.",
+      "label": "spacr.qt.widgets.ambient#33",
+      "source": "So **CPU saturation is not a cause**: numpy releases the interpreter lock and a core burning flat out costs this module nothing. **A signal flood is not a cause on its own**: 200 lines a second are free, and it only bites in the thousands, where the console's own per-line work saturates the GUI thread and nothing in *this* module can help. What is left is **the interpreter lock**: identical drawing work, eleven times slower, because the shading pass is Python and numpy and something else is holding the lock.",
+      "source_sha256": "9bc5f29be26264b9d7a8f4d51af3602f846dda925cee9e96e7d069bb22a4beb5",
+      "translation": "Portanto, **CPU a saturação não é uma causa**: numpy libera o bloqueio do interpretador e a queima total do núcleo não custa nada a este módulo. **Uma inundação de sinal não é uma causa por si só**: 200 linhas por segundo são gratuitas e só chega aos milhares, onde o próprio trabalho por linha do console satura o caminho de execução principal GUI e nada em *este módulo* pode ajudar. O que resta é **o bloqueio do interpretador**: trabalho de desenho idêntico, onze vezes mais lento, porque a passagem de sombreamento é Python e numpy e outra coisa está segurando o bloqueio."
+    },
+    {
+      "context": "Existing formulas are **kept** and re-applied. That is the opposite of what the Local Data Filter does with its clauses, on purpose: a filter clause naming a missing column narrows by less than it claims and is dangerous to keep, while a formula naming a missing column fails, says which column, and is exactly what the user wants back when they reload the same table.",
+      "label": "spacr.qt.widgets.formula_editor.FormulaPanel.set_frame#1",
+      "source": "Existing formulas are **kept** and re-applied. That is the opposite of what the Local Data Filter does with its clauses, on purpose: a filter clause naming a missing column narrows by less than it claims and is dangerous to keep, while a formula naming a missing column fails, says which column, and is exactly what the user wants back when they reload the same table.",
+      "source_sha256": "9d23203bbb2c3d7976475e2fbf8605a8600d574db31031b02d35de7a65524774",
+      "translation": "As fórmulas existentes são **mantidas** e reaplicadas. Isso é o oposto do que o Filtro de Dados Local faz com suas cláusulas, propositalmente: uma cláusula de filtro que nomeia uma coluna ausente é reduzida em menos do que afirma e é perigosa de manter, enquanto uma fórmula que nomeia uma coluna ausente falha, diz qual coluna e é exatamente o que o usuário deseja de volta quando recarregar a mesma tabela."
+    },
+    {
+      "context": "IT executes OFF THE main GUI execution path, and the reason is today's crash rather than politeness: a regression built Qt widgets on its own worker and the process segfaulted somewhere else entirely. So the worker here touches NO widget and returns plain data, and the figure is rendered by matplotlib's Agg canvas which has no Qt object to own.",
+      "label": "spacr.qt.widgets.sweep_panel#2",
+      "source": "IT RUNS OFF THE GUI THREAD, and the reason is today's crash rather than politeness: a regression built Qt widgets on its own worker and the process segfaulted somewhere else entirely. So the worker here touches NO widget and returns plain data, and the figure is rendered by matplotlib's Agg canvas which has no Qt object to own.",
+      "source_sha256": "8578c3c9996db12e7ea48d42bafc119422204daf7dca222286afe3883952ebdc",
+      "translation": "Ele é executado FORA DO caminho de execução principal GUI, e o motivo é a falha de hoje, e não a educação: uma regressão construiu widgets Qt em seu próprio trabalhador e o processo falhou em algum outro lugar completamente. Portanto, o trabalhador aqui não toca em nenhum widget e retorna dados simples, e a figura é renderizada pela tela Agg de matplotlib, que não possui nenhum objeto Qt para possuir."
+    },
+    {
+      "context": "This lives here, and not in :mod:`spacr.multi_database` where it was written, because there must be **one** normaliser: ``utils.correct_metadata`` had the rule for frames, ``multi_database`` had it for scalars and for database reads, and the pair had to be pinned against each other by test precisely because they were two. Both now call this. :mod:`spacr.multi_database` re-exports the name, so no caller moved.",
+      "label": "spacr.schema.canonical_plate_id#2",
+      "source": "This lives here, and not in :mod:`spacr.multi_database` where it was written, because there must be **one** normaliser: ``utils.correct_metadata`` had the rule for frames, ``multi_database`` had it for scalars and for database reads, and the pair had to be pinned against each other by test precisely because they were two. Both now call this. :mod:`spacr.multi_database` re-exports the name, so no caller moved.",
+      "source_sha256": "455d4be6ef9ac19f7979ce1a0936b8d350482dcb29f683fb1ad74991491a4be1",
+      "translation": "Isso está aqui, e não em :mod:`spacr.multi_database` onde foi escrito, porque deve haver **um** normalizador: ``utils.correct_metadata`` tinha a regra para quadros, ``multi_database`` tinha para escalares e para leituras de banco de dados, e o par teve que ser fixado um contra o outro por teste precisamente porque eram dois. Ambos agora chamam isso. :mod:`spacr.multi_database` reexporta o nome, para que nenhum chamador seja movido."
+    },
+    {
+      "context": "1. :func:`resolve_metadata_collisions` -- collapse duplicate opinions *before* renaming, because renaming first is what produces two columns called ``rowID`` and a ``to_sql`` that refuses the table. 2. :func:`canonical_rename_plan` -- the surviving legacy spellings, plus the legacy *feature* spellings, renamed. 3. :func:`normalise_plate_columns` -- the ``pplate1`` value repair, on every column that carries a laboratory microplate.",
+      "label": "spacr.schema.canonicalise_frame#2",
+      "source": "1. :func:`resolve_metadata_collisions` -- collapse duplicate opinions *before* renaming, because renaming first is what produces two columns called ``rowID`` and a ``to_sql`` that refuses the table. 2. :func:`canonical_rename_plan` -- the surviving legacy spellings, plus the legacy *feature* spellings, renamed. 3. :func:`normalise_plate_columns` -- the ``pplate1`` value repair, on every column that carries a plate.",
+      "source_sha256": "b218a7f84ed37ee20e443b7dcb01880a526bfa54729ca4479115971a582f5f89",
+      "translation": "1. :func:`resolve_metadata_collisions` - recolhe opiniões duplicadas *antes de* renomear, porque renomear primeiro é o que produz duas colunas chamadas ``rowID`` e uma ``to_sql`` que recusa a tabela. 2. :func:`canonical_rename_plan` - as grafias herdadas sobreviventes, mais as grafias herdadas *recurso*, renomeadas. 3. :func:`normalise_plate_columns` -- o valor ``pplate1`` reparado, em cada coluna que contém uma microplaca de laboratório."
+    },
+    {
+      "context": "**one** column per metadata structured-data name, with the collision reported -- printed when the duplicates agreed, warned with a row count when they did not (:func:`spacr.schema.resolve_metadata_collisions`);",
+      "label": "spacr.tabular#8",
+      "source": "**one** column per metadata key, with the collision reported -- printed when the duplicates agreed, warned with a row count when they did not (:func:`spacr.schema.resolve_metadata_collisions`);",
+      "source_sha256": "30ab5b1c0a6dba667236e89cadc4fb7adf73dbea4f0c645046f1eb81f2fceb92",
+      "translation": "**uma** coluna por nome de dados estruturados de metadados, com a colisão relatada - impressa quando as duplicatas concordaram, avisadas com uma contagem de linhas quando não concordaram (:func:`spacr.schema.resolve_metadata_collisions`);"
+    },
+    {
+      "context": "**one** column per structured-data name. A file carrying ``well`` and ``wellID`` has two opinions about which well a row came from; they are compared row by row as stripped strings (so ``1``, ``1.0`` and ``' 1 '`` agree and a dtype difference is not a disagreement), one is kept, and the rest are dropped. Agreement prints; disagreement warns and says how many rows differ.",
+      "label": "spacr.utils.correct_metadata#3",
+      "source": "**one** column per key. A file carrying ``well`` and ``wellID`` has two opinions about which well a row came from; they are compared row by row as stripped strings (so ``1``, ``1.0`` and ``' 1 '`` agree and a dtype difference is not a disagreement), one is kept, and the rest are dropped. Agreement prints; disagreement warns and says how many rows differ.",
+      "source_sha256": "b5f80ef0cd4de691ffb6acf8bd9f4348e8d54aff0383ca7e63e80f01c3d8c805",
+      "translation": "**uma** coluna por nome de dados estruturados. Um arquivo contendo ``well`` e ``wellID`` tem duas opiniões sobre de onde veio uma linha; eles são comparados linha por linha como cadeias de caracteres removidas (então ``1``, ``1.0`` e ``' 1 '`` concordam e uma diferença de dtype não é uma discordância), uma é mantida e as demais são descartadas. Impressões de acordo; discordância avisa e diz quantas linhas diferem."
+    }
+  ],
+  "schema": 1
+}

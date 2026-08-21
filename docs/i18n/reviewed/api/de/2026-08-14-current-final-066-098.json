@@ -3,25 +3,11 @@
   "language": "de",
   "records": [
     {
-      "label": "spacr.qt.widgets.figure_queue.render_pdf_to_image#3",
-      "source_sha256": "2be571d8ceac3bb288337315ccb39a40ab03fa7301027102e0956565a5a0dea1",
-      "source": ":class:`QPdfPageRenderer` in ``MultiThreaded`` mode does the rasterising inside Qt's own C++ thread, which no Python call is standing in — so the GIL is free throughout. This function starts one, then waits on a **nested QEventLoop** on the calling worker thread; ``QEventLoop.exec`` does release the GIL. Same 640 ms render, same pixels (verified equal to the one-shot render), worst GUI-thread gap 1.7 ms.",
-      "context": ":class:`QPdfPageRenderer` in ``MultiThreaded`` mode does the rasterising inside Qt's own C++ independent execution path, which no Python call is standing in — so the GIL is free throughout. This function starts one, then waits on a **nested QEventLoop** on the calling background execution unit; ``QEventLoop.exec`` does release the GIL. Same 640 ms render, same pixels (verified equal to the one-shot render), worst main GUI execution path gap 1.7 ms.",
-      "translation": ":class:`QPdfPageRenderer` rastert im Modus ``MultiThreaded`` innerhalb des eigenen C++-Threads von Qt, in dem kein Python-Aufruf aktiv ist — die GIL bleibt daher durchgehend frei. Diese Funktion startet einen solchen Renderer und wartet anschließend in einer **verschachtelten QEventLoop** im aufrufenden Hintergrundthread; ``QEventLoop.exec`` gibt die GIL frei. Dieselbe Renderzeit von 640 ms, dieselben Pixel (nachweislich identisch mit dem einmaligen Rendering), größte Lücke im GUI-Thread 1.7 ms."
-    },
-    {
       "label": "spacr.qt.widgets.formula#10",
       "source_sha256": "ccea3b5213f9448050049fda69b58d9415f83d5159bef622ef7f9b2abaa10697",
       "source": "Numbers are read as **floats**, always. That is not cosmetic: ``9 ** 9 ** 9`` with Python integers is a multi-second allocation of a number with 300 million digits — a denial of service typed in eleven characters — and with floats it is ``inf`` in a nanosecond. The node count and nesting depth are capped as well (:data:`MAX_NODES`, :data:`MAX_DEPTH`), so a pathological expression is refused at parse time rather than during a redraw.",
       "context": "Numbers are read as **floats**, always. That is not cosmetic: ``9 ** 9 ** 9`` with Python integers is a multi-second allocation of a number with 300 million digits — a denial of service typed in eleven characters — and with floats it is ``inf`` in a nanosecond. The node count and nesting depth are capped as well (:data:`MAX_NODES`, :data:`MAX_DEPTH`), so a pathological expression is refused at parse time rather than during a redraw.",
       "translation": "Zahlen werden immer als **floats** gelesen. Das ist nicht kosmetisch: ``9 ** 9 ** 9`` mit Python Integern ist eine mehrsekündige Zuweisung einer Zahl mit 300 Millionen Ziffern — ein Denial of Service in elf Zeichen — und mit Floats ist es ``inf`` in einer Nanosekunde. Die Knotenanzahl und die Verschachtelungstiefe sind ebenfalls begrenzt (:data:`MAX_NODES`, :data:`MAX_DEPTH`), sodass ein pathologischer Ausdruck zur Analysezeit und nicht während eines Neuzeichnens abgelehnt wird."
-    },
-    {
-      "label": "spacr.qt.widgets.formula_editor.FormulaPanel.set_frame#1",
-      "source_sha256": "23fd42c9c3366c005bdfd34fd78edf0ecc4565e71cf18b05feac20b6d60cd4e2",
-      "source": "Existing formulas are **kept** and re-applied. That is the opposite of what the Local Data Filter does with its clauses, on purpose: a filter clause naming a missing column narrows by less than it claims and is dangerous to keep, while a formula naming a missing column simply fails, says which column, and is exactly what the user wants back when they reload the same table.",
-      "context": "Existing formulas are **kept** and re-applied. That is the opposite of what the Local Data Filter does with its clauses, on purpose: a filter clause naming a missing column narrows by less than it claims and is dangerous to keep, while a formula naming a missing column simply fails, says which column, and is exactly what the user wants back when they reload the same table.",
-      "translation": "Vorhandene Formeln werden **beibehalten** und erneut angewendet. Dies ist absichtlich das Gegenteil des Verhaltens des Local Data Filter für seine Klauseln: Eine Filterklausel, die eine fehlende Spalte nennt, schränkt weniger ein als behauptet und darf deshalb nicht beibehalten werden. Eine Formel mit einer fehlenden Spalte schlägt hingegen einfach fehl, nennt die betreffende Spalte und ist genau das, was der Benutzer beim erneuten Laden derselben Tabelle wiederhaben möchte."
     },
     {
       "label": "spacr.qt.widgets.graph_builder#3",
@@ -36,13 +22,6 @@
       "source": "A JMP-style graph builder is two things that want very much to be one thing: a pile of drag-and-drop chrome, and a small declarative object saying \"``area`` is on x, ``gene`` is on colour, facet by plate down the rows\". This module is the second one, kept deliberately apart from the first.",
       "context": "A JMP-style graph builder is two things that want very much to be one thing: a pile of drag-and-drop chrome, and a small declarative object saying \"``area`` is on x, ``gene`` is on colour, facet by laboratory microplate down the rows\". This module is the second one, kept deliberately apart from the first.",
       "translation": "Ein Diagrammgenerator im JMP-Stil besteht aus zwei Teilen, die unbedingt wie einer wirken sollen: einer Menge von Drag-and-drop-Bedienelementen und einem kleinen deklarativen Objekt mit der Aussage „``area`` liegt auf x, ``gene`` bestimmt die Farbe, und die Facetten werden nach Platte zeilenweise angeordnet“. Dieses Modul ist der zweite Teil und wird absichtlich vom ersten getrennt gehalten."
-    },
-    {
-      "label": "spacr.qt.widgets.home#2",
-      "source_sha256": "4aff2d89fae852517baecf191290b43a329ec52e8199d088d234d6e85980f6e4",
-      "source": "1. **The first tab is everything, in the same categories as the rest.** Home is not a summary of the other tabs — it holds every app, at a density that fits one screen, banded by the *same* sections the category tabs use. It used to band them into Prepare / Run / Review instead, a second grouping that existed nowhere else: an app read as \"Prepare\" on the first tab and \"Data\" on the second, and adding a section meant editing two tables that could disagree. There is one table now (:data:`spacr.qt.app.APPS`) and both the bands and the tabs are computed from it, by the *registry*, and handed in — this widget takes ``categories`` and ``bands`` already grouped and does not know what a section means.",
-      "context": "1. **The first tab is everything, in the same categories as the rest.** Home is not a summary of the other tabs — it holds every app, at a density that fits one application view, banded by the *same* sections the category tabs use. It used to band them into Prepare / Run / Review instead, a second grouping that existed nowhere else: an app read as \"Prepare\" on the first tab and \"Data\" on the second, and adding a section meant editing two tables that could disagree. There is one table now (:data:`spacr.qt.app.APPS`) and both the bands and the tabs are computed from it, by the *registry*, and handed in — this widget takes ``categories`` and ``bands`` already grouped and does not know what a section means.",
-      "translation": "1. **Die erste Registerkarte enthält alles, in denselben Kategorien wie die übrigen.** Home ist keine Zusammenfassung der anderen Registerkarten — sie enthält jede Anwendung in einer Dichte, die in eine Ansicht passt, und gliedert sie in die *gleichen* Abschnitte wie die Kategorieregisterkarten. Früher wurden stattdessen Prepare / Run / Review verwendet, eine zweite Gruppierung, die sonst nirgendwo existierte: Eine Anwendung erschien auf der ersten Registerkarte als \"Prepare\" und auf der zweiten als \"Data\"; beim Hinzufügen eines Abschnitts mussten zwei Tabellen geändert werden, die voneinander abweichen konnten. Heute gibt es eine einzige Tabelle (:data:`spacr.qt.app.APPS`). Sowohl die Bänder als auch die Registerkarten werden von der *Registrierung* daraus berechnet und bereits gruppiert übergeben — dieses Widget erhält ``categories`` und ``bands`` und muss nicht wissen, was ein Abschnitt bedeutet."
     },
     {
       "label": "spacr.qt.widgets.home.RecentRunsPanel.read#1",
@@ -122,13 +101,6 @@
       "translation": "``local_root`` und ``remote_root`` beschreiben denselben freigegebenen oder gespiegelten Datensatz. Jeder absolute String, der in den Einstellungen verschachtelt ist, wird umgeschrieben, wenn er unter ``local_root`` liegt. Bilddatensätze werden bewusst nicht kopiert: eine versehentliche rekursive Übertragung einer Multi-Terabyte-Platte ist schlimmer als ein klarer Pre-Flight-Fehler."
     },
     {
-      "label": "spacr.resources.home.versions._generators.common.n_apps#1",
-      "source_sha256": "f510e2bffa09685c5ec229c4ff7927c5e2707c594bdb375030b6561e6e5bf698",
-      "source": "Every \"N apps\" the variants draw or write goes through here. The count used to be typed into two dozen strings as ``29``; the registry then grew Distributed Jobs, Classifier Evaluation and Run History and every one of those strings became a lie that no test could see, because a literal cannot disagree with itself.",
-      "context": "Every \"N apps\" count displayed or written by a variant goes through this function. The count used to be copied into two dozen strings as ``29``. After Distributed Jobs, Classifier Evaluation, and Run History were added, every copied count became wrong without a test noticing, because a literal cannot disagree with itself.",
-      "translation": "Jeder \"N apps\"-Count, der von einer Variante angezeigt oder geschrieben wird, durchläuft diese Funktion. Die Zählung wurde früher in zwei Dutzend Strings als ``29`` kopiert. Nachdem Distributed Jobs, Classifier Evaluation und Run History hinzugefügt wurden, wurde jede kopierte Zählung falsch, ohne dass ein Test dies bemerkte, da ein Literal nicht mit sich selbst nicht übereinstimmen kann."
-    },
-    {
       "label": "spacr.run_journal.diff_runs#4",
       "source_sha256": "00d61490bffe10ac0470dee0658f4c1470506e234602cbe5ed37da9591bf52ef",
       "source": "``env`` diffs ``manifest.json``'s ``env`` snapshot — spaCR version, git hash, python, platform, torch / cellpose / numpy versions — which is usually where an unexplained behaviour change actually lives.",
@@ -155,13 +127,6 @@
       "source": "**What this does not buy you.** A seed makes the *draws* reproducible. It does not make CUDA reductions associative, it does not stop a forked worker pool from sharing one stream, and it cannot re-seed this interpreter's string hashing. Every such limit is named in :attr:`SeedReport.caveats` and in :data:`SEED_CAVEATS`; do not promise a user more than that list allows. In particular, calling this and then reporting \"the run is deterministic\" is wrong on a GPU unless ``deterministic=True`` *and* the model avoids the kernels Torch has no deterministic implementation for.",
       "context": "**What this does not buy you.** A seed makes the *draws* reproducible. It does not make CUDA reductions associative, it does not stop a forked worker pool from sharing one stream, and it cannot re-seed this interpreter's string hashing. Every such limit is named in :attr:`SeedReport.caveats` and in :data:`SEED_CAVEATS`; do not promise a user more than that list allows. In particular, calling this and then reporting \"the run is deterministic\" is wrong on a GPU unless ``deterministic=True`` *and* the model avoids the kernels Torch has no deterministic implementation for.",
       "translation": "**Was das dir nicht kauft.** Ein Seed macht die *draws* reproduzierbar. Es macht CUDA-Reduktionen nicht assoziativ, es verhindert nicht, dass ein geforkter Worker-Pool einen Stream teilt, und es kann das String-Hashing dieses Interpreters nicht neu einsetzen. Jede solche Grenze wird in :attr:`SeedReport.caveats` und in :data:`SEED_CAVEATS` benannt; Versprechen Sie einem Benutzer nicht mehr, als diese Liste zulässt. Insbesondere ist es falsch, dies aufzurufen und dann \"the run is deterministic\" auf einem GPU zu melden, es sei denn, ``deterministic=True`` *und* das Modell vermeidet die Kernel, für die Torch keine deterministische Implementierung hat."
-    },
-    {
-      "label": "spacr.schema.canonical_column_name#2",
-      "source_sha256": "ea30f70c29798ee72d4813d2ec7a1b6fd96f25b26abb3a73b7bdf3be997de4de",
-      "source": "This is the *only* implementation. ``spacr.database_schema`` and ``spacr.utils`` re-export this function rather than defining their own.",
-      "context": "This is the *only* implementation. ``spacr.database_schema`` and ``spacr.utils`` re-export this function rather than defining their own.",
-      "translation": "Dies ist die *einzige* Implementierung. ``spacr.database_schema`` und ``spacr.utils`` exportieren diese Funktion erneut, statt jeweils eine eigene zu definieren."
     },
     {
       "label": "spacr.schema.parse_prcfo#1",

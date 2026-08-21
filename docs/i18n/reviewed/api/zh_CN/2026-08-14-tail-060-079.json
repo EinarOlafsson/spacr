@@ -38,20 +38,6 @@
       "translation": "图像处理工作流（归一化 / 图像数据通道过滤 / 轮廓 / 彩色边框）以及由 SQLite 支持的分页读取和后台保存工作进程均不依赖 Tk。Qt 应用视图用 QWidget UI 封装这些功能。"
     },
     {
-      "label": "spacr.qt.annotate_engine.load_crop_image#1",
-      "source_sha256": "4cb3c478c63957c3c6200bc7dab1e3ab52c672fac7300b5653a04b272070e980",
-      "source": "Not ``Image.open(path).convert('RGB')``. Crop PNGs come in two formats: anything spaCR wrote before the BGR fix has ``png_dims[0]`` in its *blue* channel, so a plain PIL read shows the user's first stain as blue and their third as red -- and the annotator's \"r\"/\"g\"/\"b\" channel filters then address the wrong stains. :func:`spacr.crops.read_crop_png` resolves which format the folder is in (sidecar marker, else the database column, else legacy) and corrects it on load, so an old dataset and a new one look the same here.",
-      "context": "Not ``Image.open(path).convert('RGB')``. Extracted image region PNGs come in two formats: anything spaCR wrote before the BGR fix has ``png_dims[0]`` in its *blue* image data channel, so a plain PIL read shows the user's first stain as blue and their third as red -- and the annotator's \"r\"/\"g\"/\"b\" image data channel filters then address the wrong stains. :func:`spacr.crops.read_crop_png` resolves which format the folder is in (sidecar marker, else the database column, else legacy) and corrects it on load, so an old dataset and a new one look the same here.",
-      "translation": "这里不能简单使用 ``Image.open(path).convert('RGB')``。提取图像区域 PNG 有两种格式：spaCR 在 BGR 修复之前写出的文件，会把 ``png_dims[0]`` 放在*蓝色*图像数据通道中，因此普通 PIL 读取会把用户的第一种染色显示为蓝色、第三种显示为红色；标注器的 \"r\"/\"g\"/\"b\" 图像数据通道筛选器随后也会选错染色。:func:`spacr.crops.read_crop_png` 会判定文件夹格式（先查附属标记，再查数据库列，否则按旧格式处理），并在加载时校正，因此新旧数据集在这里显示一致。"
-    },
-    {
-      "label": "spacr.qt.annotate_engine.load_crop_image#2",
-      "source_sha256": "1923f7f53090d61c50c719bfdba2cb89be308061a726a967126bff0ed492ae8e",
-      "source": "It also fixes the other half: a 16-bit single-channel crop opened with ``convert('RGB')`` is CLIPPED at 255 by PIL and comes back solid white. Every crop is narrowed the same way now -- by its high byte.",
-      "context": "It also fixes the other half: a 16-bit single-channel extracted image region opened with ``convert('RGB')`` is CLIPPED at 255 by PIL and comes back solid white. Every extracted image region is narrowed the same way now -- by its high byte.",
-      "translation": "它还修复另一半问题：用 ``convert('RGB')`` 打开 16 位单图像数据通道提取区域时，PIL 会在 255 处截断，结果变成纯白。现在每个提取图像区域都以同一种方式缩窄——取其高字节。"
-    },
-    {
       "label": "spacr.qt.crop_thumbs#7",
       "source_sha256": "481e21e1fb6436e049d9640750460acbd9fa06b512be9a9d9792b7ac8523fb06",
       "source": "Crop PNGs are not ordinary images. Anything spaCR wrote before the BGR fix has the first stain in the *blue* channel, and a 16-bit single-channel crop opened with ``convert('RGB')`` is clipped to solid white by PIL. Both are corrected by :func:`spacr.qt.annotate_engine.load_crop_image`, which is therefore the only door used here — a hover preview showing different colours from the annotation grid is worse than no hover preview, because both look plausible.",
@@ -78,13 +64,6 @@
       "source": "``spacr.qt.app`` holds the one import-time table of self-registering modules (``_SELF_REGISTERING_APPS``) and calls :func:`register_layer_viewer_app` out of it. The screens in :data:`COMPANION_APPS` grew out of this module: they either borrow the layer world directly (a :class:`CanvasTool` on :class:`LayerCanvas`) or join the same linked-selection contract this viewer joined. Registering them from here rather than giving each one a row in ``app.py`` keeps the chain one hop long and written down in a single tuple — the next screen adds a line to it, not a mechanism.",
       "context": "``spacr.qt.app`` holds the one import-time table of self-registering modules (``_SELF_REGISTERING_APPS``) and calls :func:`register_layer_viewer_app` out of it. The application views in :data:`COMPANION_APPS` grew out of this module: they either borrow the layer world directly (a :class:`CanvasTool` on :class:`LayerCanvas`) or join the same linked-selection contract this viewer joined. Registering them from here rather than giving each one a row in ``app.py`` keeps the chain one hop long and written down in a single tuple — the next application view adds a line to it, not a mechanism.",
       "translation": "``spacr.qt.app`` 保存唯一的导入时自注册模块表（``_SELF_REGISTERING_APPS``），并从该表调用 :func:`register_layer_viewer_app`。:data:`COMPANION_APPS` 中的应用视图均由本模块发展而来：它们要么直接借用图层环境（一个 :class:`CanvasTool` 位于 :class:`LayerCanvas` 上），要么加入本查看器已采用的同一联动选择约定。从这里统一注册，而不是在 ``app.py`` 中为每个应用视图单独添加一行，使调用链只保留一跳并集中记录在一个元组中——下一个应用视图只需在元组中增加一行，而不必新增一种机制。"
-    },
-    {
-      "label": "spacr.qt.maturity#7",
-      "source_sha256": "1ac953d72e77dfa39b4b035a59d2fc567f3480792c5aa99299d24f3614ac118a",
-      "source": "Nothing was found that qualified for removal. Every one of the twenty-six has an implementation of three hundred to three and a half thousand lines, a dedicated test file, and either a CLI module or a written reason it is GUI-only; none of the twenty-six screen modules contains a single ``NotImplementedError``, ``TODO``, ``FIXME`` or \"coming soon\". The alpha shelf was not holding unfinished work. It was holding finished work nobody had gone back to relabel.",
-      "context": "Nothing was found that qualified for removal. Every one of the twenty-six has an implementation of three hundred to three and a half thousand lines, a dedicated test file, and either a CLI module or a written reason it is GUI-only; none of the twenty-six application view modules contains a single ``NotImplementedError``, ``TODO``, ``FIXME`` or \"coming soon\". The alpha shelf was not holding unfinished work. It was holding finished work nobody had gone back to relabel.",
-      "translation": "没有发现任何符合删除条件的模块。二十六个模块中的每一个都有三百到三千五百行实现、专用测试文件，以及 CLI 模块或说明其仅用于 GUI 的书面理由；二十六个应用视图模块中没有任何一个包含 ``NotImplementedError``、``TODO``、``FIXME`` 或 \"coming soon\"。alpha 栏中存放的不是未完成工作，而是已经完成、却无人回头更新标签的工作。"
     },
     {
       "label": "spacr.qt.preferences.get_figure_format#1",
