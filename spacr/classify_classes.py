@@ -240,42 +240,24 @@ def class_names(settings: Mapping[str, Any]) -> List[str]:
 
 
 def folder_names(settings: Mapping[str, Any]) -> List[str]:
-    """The ordered TRAINING FOLDER names -- the other contract on ``classes``.
+    """Return ordered class-folder names for model training.
 
-    ``classes`` was carrying two unrelated meanings at once, which is what
-    made its default undecidable:
+    Current settings derive folder names from the ordered keys of the
+    ``classes`` definition. For compatibility, a legacy list-valued
+    ``classes`` setting takes precedence. When no class definitions are
+    present, the function uses ``class_folder_names``, which records the
+    folders written by dataset generation. Invalid or absent definitions
+    produce an empty list unless that recorded folder list is available.
 
-    * the class DEFINITIONS -- ``name -> {column, value}``, which objects
-      belong to which class. That is what ``classes`` means now.
-    * the ordered TRAINING FOLDER names -- each must match a subfolder under
-      ``src/train`` and ``src/test``, a name's position is its integer
-      label, and ``generate_training_dataset`` overwrites the list with what
-      it actually wrote to disk. That is :data:`CLASS_FOLDER_NAMES`.
+    Parameters
+    ----------
+    settings : mapping
+        Classification settings in current or legacy form.
 
-    They are usually the same words, which is exactly why the collision went
-    unnoticed: one is what a class MEANS and the other is where its crops
-    were written.
-
-    Read through this function rather than off the key, so a settings file
-    written before the split keeps training. Precedence:
-
-    1. ``classes`` when it is still a list -- every settings CSV in the wild.
-       Dataset generation retires that legacy spelling after it writes the
-       actual folder names, so it cannot shadow the generated result.
-    2. THE NAMES OF THE DEFINED CLASSES, when ``classes`` is the definitions
-       dict and holds any. Instruction 229: "class folder names should be
-       preplaced with putting together what is in written in the class
-       field". The names on disk and the names in the settings cannot
-       disagree if only one of them is written down, and the class field is
-       the one the user edits.
-    3. ``class_folder_names`` -- what was last WRITTEN to disk, including
-       ``[]``. Still consulted, because after a dataset is generated it is
-       the record of what is actually there, and it is the answer whenever
-       no class is defined.
-    4. the names of the defined classes, in order -- the malformed-rules
-       case, reached only when 2 raised.
-
-    :returns: the ordered folder names; ``[]`` when nothing declares any.
+    Returns
+    -------
+    list of str
+        Folder names in class-label order.
     """
     legacy = settings.get(CLASSES)
     if isinstance(legacy, (list, tuple)):
@@ -292,11 +274,8 @@ def folder_names(settings: Mapping[str, Any]) -> List[str]:
         # classes, which is the opposite of what the split is for.
         return [str(n) for n in legacy]
 
-    # THE CLASS FIELD DECIDES (instruction 229). A defined class is the
-    # user's own statement of what they are training on; `class_folder_names`
-    # is a record of a previous generation, and letting the record outrank
-    # the statement is how the folders on disk and the classes in the panel
-    # come to disagree with nothing on screen saying so.
+    # Current class definitions take precedence over the recorded output of a
+    # previous dataset-generation run.
     #
     # Only when classes are actually DEFINED. An empty definition means "this
     # settings file says nothing about classes", and must not shadow a

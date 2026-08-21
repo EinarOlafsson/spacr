@@ -529,7 +529,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # Nothing retired; these contracts are included in the same catalog pass.
     # +1/-0 for ``ClassEditorWidget.attach_sql_picker``, which exposes the
     # database-backed class-column chooser to settings panels.
-    expected = 8023
+    # +10/-0 for persistent foldable-panel state and recent-run inspection:
+    #    7  spacr.qt.preferences and spacr.qt.widgets.foldable
+    #    2  spacr.settings_advisor completed-run readers
+    #    1  RegressionResultsPanel.colour_channels
+    # Nothing retired; these contracts enter the regenerated API catalogs.
+    expected = 8033
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -544,7 +549,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8142
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8152
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:

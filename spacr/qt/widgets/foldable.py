@@ -1,18 +1,8 @@
-"""Fold a panel away by clicking its name (instruction 228).
+"""Shared click-to-fold behavior for titled Qt panels.
 
-THE SPACE IS THE POINT, NOT THE FOLDING. A panel that collapses and leaves a
-gap has cost the user a click and given them nothing: whatever is above has
-to actually grow into the room it released. That is why the body is HIDDEN
-rather than resized -- a hidden widget contributes nothing to its layout's
-size hint, so the stretch above takes the space without anybody computing
-it.
-
-ONE FUNCTION, WHEREVER THE THREE ARE ASSEMBLED. Two panels that fold and one
-that does not is worse than none folding, because the user learns the
-gesture and then meets the exception. Applying this by hand per screen is
-exactly how the plate-map button, the tooltip rule and the movable-dialog
-rule each came to be missing from one module and had to be fixed centrally
-afterwards.
+Folding hides the panel body so it no longer contributes to the layout size
+hint; adjacent stretchable content can then occupy the released space. The
+heading remains visible and provides the control for restoring the body.
 """
 from __future__ import annotations
 
@@ -33,12 +23,10 @@ SHUT_MARK = "▸"
 
 
 class _ClickToFold(QObject):
-    """Turns a press on the heading into a fold. Held by the heading.
+    """Convert a heading click into a fold-state change.
 
-    HELD, because an event filter is owned by nobody: Qt keeps a bare
-    pointer, and a filter that only the constructor referenced is collected
-    at the end of the call that installed it -- after which the heading
-    stops responding and nothing says why.
+    The heading owns the event filter so Qt retains it for the lifetime of
+    the interactive label.
     """
 
     def __init__(self, label: QLabel, toggle: Callable[[], None]):

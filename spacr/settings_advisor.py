@@ -1108,15 +1108,12 @@ def advise(reading: Reading,
     _inference(reading, chosen, undecided)
     _significance(reading, answers, chosen, undecided)
     _controls(reading, answers, chosen, undecided)
-    # Asked for 2026-08-21: "recomend a fraction and cell count threshold and
-    # a min n threshold, batch correction method, aggregation type". The
-    # batch method and the transform were already proposed by `_plate` and
-    # `_family_and_transform`; these two are the rest.
+    # Add evidence thresholds and the aggregation unit after the model family,
+    # transform, and batch method have been selected.
     _thresholds(reading, chosen, undecided)
     _aggregation(reading, chosen, undecided)
-    # LAST, because it overrides. Everything above argued from the input,
-    # which is all there is before a fit; this argues from the residuals of
-    # one that happened (instruction 226).
+    # Completed-run diagnostics are applied last because they can supersede
+    # recommendations inferred from input structure alone.
     _from_the_run(reading, chosen, undecided)
     if reading.run_note:
         undecided.append(Undecided("last run", reading.run_note))
@@ -1129,14 +1126,15 @@ def advise_the_screen(counts: Sequence[str] = (), scores: Sequence[str] = (),
                       *, row_cap: int = ROW_CAP,
                       run_folder: str = "",
                       settings: Optional[Mapping[str, Any]] = None) -> Advice:
-    """Read and advise in one call, for a caller that has only paths.
+    """Read screen inputs and return a regression-settings recommendation.
 
-    :param run_folder: a finished run to read diagnostics from. AN ADDITION
-        AND NEVER A REQUIREMENT -- the button's whole point is answering
-        before anything has been fitted, so with no run the advice is exactly
-        what it was (instruction 226).
-    :param settings: what the panel currently holds, so a run fitted under a
-        different family is reported as stale rather than used silently.
+    :param run_folder: optional completed run whose recorded diagnostics can
+        refine the input-based recommendation. An empty value requires no
+        prior fit.
+    :param settings: current panel settings used to reject diagnostics from a
+        run fitted with an incompatible model family.
+    :returns: recommended and unresolved settings with the evidence used to
+        derive them.
     """
     reading = read_the_screen(counts, scores, dependent_variable,
                               row_cap=row_cap)
