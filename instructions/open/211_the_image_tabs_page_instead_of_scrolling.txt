@@ -1,0 +1,44 @@
+================================================================================
+THE IMAGE TABS PAGE INSTEAD OF SCROLLING
+================================================================================
+
+Status:    filed 2026-08-21, not started.
+Requested: 2026-08-21 -- "for the image tabs fit the images to fit in the
+           visable part of the container, do not use scroll, use next and
+           preveous page instead. and remove the cell_per_page settings. this
+           will be dictated by the size of the images."
+Owner:     Qt GUI (image tabs)
+
+--------------------------------------------------------------------------------
+WHAT IS ASKED
+--------------------------------------------------------------------------------
+
+The visible area is the page. Images are laid out to fit inside it, and what
+does not fit goes on the next page, reached with Next and Previous. No
+scrolling.
+
+`cells_per_page` GOES AWAY -- not hidden, removed. The count is a
+CONSEQUENCE of the container size and the image size, and a setting that
+contradicts the geometry is a setting that produces a half-empty page or a
+clipped row. Deleting it is the point of the request, and the setting's
+current value has to be migrated out rather than left in the saved
+preferences to confuse a later reader.
+
+RECOMPUTE ON RESIZE. The page size is a function of the container, so the
+window changing shape changes how many images fit; the page the user is
+looking at must survive that -- keep the first image on the page fixed, not
+the page number, or a resize teleports the reader.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* No scrollbar on the image tabs; every image on a page is fully visible.
+* Next and Previous move by exactly one page, and both are disabled at the
+  ends rather than wrapping silently.
+* `cells_per_page` is gone from the settings, the defaults and the saved
+  preferences.
+* Resizing the window relays out the page and keeps the reader where they
+  were.
+* The page count is stated -- "page 3 of 11" -- because paging without a
+  total is navigation without a map.

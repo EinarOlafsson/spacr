@@ -1,0 +1,113 @@
+================================================================================
+THE ANNOTATED FRACTIONS ARE ALL ONE OR ZERO
+================================================================================
+
+Status:    filed 2026-08-21, not started.
+Requested: 2026-08-21 -- "i think there is a problem with the gRNA annotation
+           alorithms or the graphing logic. if i pick tob py score, pick
+           225160 on the volcano plot, and jitter plot and cell level i see a
+           tone of dotts at 1 and a tone of datapoints at 0. this would bean
+           that either 225160 has a fraction of 1 in the wells it is found in,
+           which the image tabs indicate as all are circled".
+Owner:     Sequencing annotation, cell table graphs
+
+--------------------------------------------------------------------------------
+A. THE SYMPTOM
+--------------------------------------------------------------------------------
+
+Top-by-score, guide 225160, cell level, jitter: the points pile at exactly 1
+and exactly 0 and nowhere between. A continuous fraction that only ever takes
+its two extreme values is not a fraction; it is a label being plotted as a
+number, or a denominator that is always the numerator.
+
+--------------------------------------------------------------------------------
+B. THE MAINTAINER'S OWN DIAGNOSIS, WHICH IS THE PLACE TO START
+--------------------------------------------------------------------------------
+
+    "actually the problem might be the show_all_in_well option ... if that is
+     off then all the images are annotated as gRNA because only those are
+     shown."
+
+That is a complete and self-consistent explanation of the symptom: with
+`show_all_in_well` off, the only objects on the screen are the ones already
+annotated to the guide, so every visible object is a hit and every visible
+fraction is 1. The 0s are then the well-mates of some OTHER guide, drawn
+because they are in frame and annotated to nothing.
+
+CHECK IT BEFORE FIXING ANYTHING ELSE. It costs one query -- the fraction
+distribution with the option on and off -- and it decides whether there is an
+annotation bug at all.
+
+  1. `show_all_in_well` DEFAULTS ON. Asked for directly ("change that to
+     default by the way"), and it is the honest default: a view showing only
+     the objects that agree with the annotation cannot disagree with it.
+
+  2. THE UNANNOTATED ARE SHOWN AND LABELLED `Non_annotated`, not dropped and
+     not silently counted as zero. "eaven if this is shown i an the non
+     annotated datapoints to be annotated as Non_annotated and shown."
+     A dropped object is invisible in the plot AND in the denominator, which
+     is how a fraction reaches 1.
+
+--------------------------------------------------------------------------------
+C. WHICH METHODS CAN HAVE UNANNOTATED CELLS AT ALL
+--------------------------------------------------------------------------------
+
+The maintainer's reasoning, to be confirmed against the code and corrected in
+writing if wrong:
+
+  * `top_by_score`   -- YES. It picks a winner per object, so an object whose
+                        best score is not the chosen guide is annotated to
+                        something else, and one with no score at all is
+                        annotated to nothing.
+  * `assigned`       -- NO, expected: "given that fractions will be
+                        normalized to 1 then nothing should be Non_assigned".
+  * `multivariate`   -- NO, same reasoning.
+  * `attributed`     -- UNKNOWN, stated as unknown. Settle it and say which.
+
+Where a method genuinely cannot produce an unannotated object, the
+`Non_annotated` group must be ABSENT rather than empty -- an empty group in a
+legend is a question the reader has to answer.
+
+--------------------------------------------------------------------------------
+D. NORMALISED OR RAW FRACTIONS, THE USER'S CHOICE
+--------------------------------------------------------------------------------
+
+    "if i am wirite then for top by score would pick up low scoring cells
+     because the fraction for 225160 is normalized to a value that is to
+     high. there fore the user should be able to use values based on the
+     regression normalized gRNA fractions or the Non normalized gRNA
+     fractions, that would be the more conservative fraction, because
+     spurious barcodes would be included."
+
+The mechanism named here is real and worth stating plainly: normalising a
+well's guide fractions to sum to 1 REDISTRIBUTES the reads of every guide
+that was filtered out onto the ones that remain. A guide with few reads in a
+well can come out of that with a high normalised fraction, and top-by-score
+then annotates cells to it on the strength of a number that normalisation
+created.
+
+So the fraction the annotation runs on becomes a SETTING with two values:
+
+  * normalised -- today's behaviour, fractions summing to 1 per well;
+  * raw -- the guide's reads over ALL reads in the well including the ones
+    normalisation discards. Lower, and conservative for the stated reason:
+    spurious barcodes stay in the denominator where they can dilute a
+    marginal guide instead of being handed to it.
+
+BOTH ARE DEFENSIBLE and neither is right for every screen, which is why it is
+a choice and not a fix. The plot must say which one it used.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* The fraction distribution for 225160 at cell level is reported with
+  `show_all_in_well` on and off, and the difference between them is the
+  answer to whether there was ever an annotation bug.
+* `show_all_in_well` defaults on.
+* Unannotated objects are drawn and labelled `Non_annotated` wherever a
+  method can produce them, and the group is absent where it cannot.
+* Raw and normalised fractions are both selectable, both documented, and the
+  figure says which it drew.
+* The four methods' capacity for unannotated objects is settled IN WRITING
+  against the code, including `attributed`, which is currently unknown.

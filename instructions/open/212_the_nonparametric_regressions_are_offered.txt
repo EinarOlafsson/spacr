@@ -1,0 +1,64 @@
+================================================================================
+THE NONPARAMETRIC REGRESSIONS ARE OFFERED
+================================================================================
+
+Status:    filed 2026-08-21, not started.
+Requested: 2026-08-21 -- "there are nonparametric versions of regression these
+           should be included!"
+Owner:     Regression
+
+--------------------------------------------------------------------------------
+WHY THIS SCREEN NEEDS THEM
+--------------------------------------------------------------------------------
+
+The data this module fits breaks the assumptions the current models make.
+Fractions are bounded in [0, 1] and pile up at both ends; guide counts per
+well are wildly unequal; and a screen's interesting genes are by definition
+the outliers, which is precisely where a least-squares fit is least reliable
+and where a single bright well can carry a coefficient on its own.
+
+A nonparametric fit answers the question that follows every result on this
+screen: IS THIS EFFECT THE DATA, OR IS IT THE MODEL? Two fits agreeing is
+worth more than either alone, and where they disagree the disagreement is
+itself the finding.
+
+--------------------------------------------------------------------------------
+WHAT TO OFFER
+--------------------------------------------------------------------------------
+
+Candidates, to be chosen from with the maintainer rather than all built:
+
+  * QUANTILE REGRESSION -- the median (or any quantile) rather than the mean.
+    The natural first one: statsmodels already provides it, it takes the same
+    formula, and the median of a bounded skewed response is the estimate the
+    mean was standing in for. It also asks a question no current model can:
+    does the guide move the TOP of the distribution rather than its centre?
+  * RANK-BASED / ROBUST FITS -- Theil-Sen and Huber, for a coefficient that
+    a handful of extreme wells cannot set on their own.
+  * A PERMUTATION TEST on the existing coefficients, which makes no
+    distributional assumption about the null at all. Expensive, and the
+    honest answer when a p-value has to survive scrutiny.
+  * A RANK TEST per guide (Mann-Whitney / Kruskal-Wallis) for the simple
+    comparisons, where a full model is more machinery than the question.
+
+EACH ONE MUST FIT THE EXISTING PIPELINE, not sit beside it: the same formula,
+the same coefficient table with the same column names, the same volcano, the
+same multiple-testing correction. A model that produces a table the rest of
+the screen cannot read is a model nobody will use twice.
+
+WHERE A METHOD HAS NO p-VALUE, SAY SO rather than substituting a
+normal-theory one -- that would put the assumption back in through the door
+the method was chosen to close.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* At least one nonparametric fit is selectable beside the current models and
+  produces a table the volcano, the correction and the export all accept.
+* Its assumptions are stated where the user chooses it.
+* On data that satisfies the parametric assumptions the two broadly agree --
+  checked on generated data where the answer is known.
+* On data with a planted outlier they DISAGREE, and the robust one is right.
+* Nothing silently substitutes a parametric p-value for a method that has
+  none.

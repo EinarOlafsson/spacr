@@ -1,0 +1,39 @@
+================================================================================
+THE OUTLINE SETTING LOOKS LIKE THE CHANNEL SETTINGS
+================================================================================
+
+Status:    filed 2026-08-21, not started.
+Requested: 2026-08-21 -- "in the cell tab in the settings the outline setting
+           should look like the channel and normalize channel".
+Owner:     Qt GUI (Cell tab, settings rows)
+
+--------------------------------------------------------------------------------
+WHAT IS ASKED
+--------------------------------------------------------------------------------
+
+Three settings on the same tab pick from the same thing -- channels -- and
+two of them look alike while the third does not. `outline` takes the control
+that `channel` and `normalize channel` already use.
+
+THIS IS NOT DECORATION. Two controls that do the same job in two shapes read
+as two different jobs, and the user has to work out which is which every
+time the tab is opened. The shared shape is what says "these three answer the
+same question about different things".
+
+WHATEVER THE OTHER TWO DO, not a new lookalike: the same widget class, the
+same source of channel names, the same empty state, the same behaviour when
+the image has fewer channels than the list offers. A copy that drifts is the
+fault twice over.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* `outline`, `channel` and `normalize channel` are the same control class on
+  the Cell tab.
+* All three offer the same channels from the same source, so a change to how
+  channels are discovered reaches all three.
+* The value `outline` produces is unchanged -- this is the control, not the
+  setting.
+* A test asserts the three rows share a widget class rather than eyeballing
+  a screenshot.
