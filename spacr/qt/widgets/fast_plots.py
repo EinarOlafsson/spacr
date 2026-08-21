@@ -23,6 +23,9 @@ import numpy as np
 
 LOG = logging.getLogger(__name__)
 
+_MIN_PDF_RESOLUTION = 72
+_MAX_PDF_RESOLUTION = 2400
+
 try:  # pragma: no cover - exercised by the import guard test
     import pyqtgraph as pg
     from pyqtgraph import ScatterPlotItem
@@ -3495,12 +3498,30 @@ class FastPlot(QWidget):
 
     @staticmethod
     def _page_source(item):
-        """``(scene rect, aspect)`` for a page, or ``(None, 0)`` if empty."""
-        source = item.scene().sceneRect() if item.scene() is not None \
-            else item.boundingRect()
-        if not source.width() or not source.height():
+        """Return the visible item bounds and aspect ratio for vector export."""
+        scene = item.scene()
+        if scene is not None and hasattr(item, "sceneBoundingRect"):
+            source = item.sceneBoundingRect()
+        else:
+            source = item.boundingRect()
+        width = float(source.width())
+        height = float(source.height())
+        if (not np.isfinite(width) or not np.isfinite(height)
+                or width <= 0 or height <= 0):
             return None, 0.0
-        return source, source.height() / source.width()
+        return source, height / width
+
+    @staticmethod
+    def _pdf_resolution(source_width: float, page_width_mm: float) -> int:
+        """Choose a safe PDF coordinate scale for the visible plot width."""
+        try:
+            resolution = float(source_width) * 25.4 / float(page_width_mm)
+        except (TypeError, ValueError, ZeroDivisionError):
+            return _MIN_PDF_RESOLUTION
+        if not np.isfinite(resolution) or resolution <= 0:
+            return _MIN_PDF_RESOLUTION
+        return min(max(int(round(resolution)), _MIN_PDF_RESOLUTION),
+                   _MAX_PDF_RESOLUTION)
 
     @classmethod
     def _export_pdf(cls, item, path, width_mm: float = EXPORT_WIDTH_MM,
@@ -3547,8 +3568,7 @@ class FastPlot(QWidget):
         # Resolution chosen so one scene unit is one device unit. A PDF is
         # vector at any resolution -- this sets the coordinate scale, not the
         # fidelity -- so the text stays text and the lines stay lines.
-        writer.setResolution(
-            max(int(round(source.width() * 25.4 / float(width_mm))), 72))
+        writer.setResolution(cls._pdf_resolution(source.width(), width_mm))
         size = QPageSize(QSizeF(width_mm, height), QPageSize.Millimeter)
         writer.setPageSize(size)
         writer.setPageMargins(QMarginsF(0, 0, 0, 0), QPageLayout.Millimeter)

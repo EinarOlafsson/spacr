@@ -1174,6 +1174,40 @@ def test_an_item_with_nothing_drawn_on_it_writes_no_page(tmp_path):
     assert not (tmp_path / "empty.svg").exists()
 
 
+def test_vector_export_uses_the_plot_bounds_not_a_polluted_scene(qtbot,
+                                                                 tmp_path):
+    """An extreme point must not turn the scene extent into PDF resolution."""
+    from spacr.qt.widgets.fast_plots import FastPlot
+
+    plot = FastPlot()
+    qtbot.addWidget(plot)
+    plot.resize(900, 600)
+    plot.show()
+    plot.add_scatter([1e19], [1.0])
+    qtbot.wait(1)
+
+    item = plot.plot.plotItem
+    assert item.scene().sceneRect().width() > 1e18
+    source, aspect = FastPlot._page_source(item)
+
+    assert source == item.sceneBoundingRect()
+    assert source.width() < 10_000
+    assert aspect > 0
+    target = tmp_path / "extreme.pdf"
+    FastPlot._export_pdf(item, target)
+    assert target.read_bytes().startswith(b"%PDF")
+
+
+def test_pdf_resolution_is_always_a_sane_qt_integer():
+    """QPdfWriter accepts a signed 32-bit DPI, even for a vector document."""
+    from spacr.qt.widgets.fast_plots import FastPlot
+
+    assert FastPlot._pdf_resolution(900, 180) == 127
+    assert FastPlot._pdf_resolution(1e20, 180) == 2400
+    assert FastPlot._pdf_resolution(float("inf"), 180) == 72
+    assert FastPlot._pdf_resolution(900, 0) == 72
+
+
 def test_the_screen_size_dialog_is_wired_to_the_menu(volcano, monkeypatch):
     from PySide6.QtWidgets import QInputDialog
 
