@@ -2,7 +2,7 @@
 EVERY MODEL EXPLAINED AND FLAGGED, AND TOXOPLASMA ANNOTATION ON EVERY EXPORT
 ================================================================================
 
-Status:    filed 2026-08-17, follows 132.
+Status:    DONE 2026-08-20. See the closing section.
 Requested: 2026-08-17 --
 
   "all of the above should be options with explinations in the text box (the
@@ -173,3 +173,42 @@ STILL OWED, and it is B's data rather than A's prose: the PHENOTYPE SCORES.
 CRISPR phenotype still arrives through `metadata_files`. Bundling that table
 is a sourcing decision -- which published table, under which licence -- and is
 the maintainer's to make, not one to invent.
+
+--------------------------------------------------------------------------------
+2026-08-20 (later) -- B's PHENOTYPE SCORES: ALREADY BUNDLED, IN ANOTHER FILE.
+--------------------------------------------------------------------------------
+
+"STILL MISSING, and it must be sourced rather than invented: the PHENOTYPE
+SCORES ... `toxoplasma_metadata.csv` has no Phenotype column -- checked, all
+48. Either bundle that table too or keep reading it from `metadata_files` and
+say which."
+
+IT WAS ALREADY BUNDLED, AND HAD BEEN BEFORE THAT WAS WRITTEN. The instruction
+looked in `toxoplasma_metadata.csv`, which is the gene name and expression
+table. The published CRISPR fitness screens are
+`spacr/resources/data/phenotype.csv` -- 0.48 MB, 8,283 genes, seven `fit_*`
+columns -- and `annotation.py`'s own inventory has said so since it was
+written: "phenotype.csv  0.48 MB  the published CRISPR fitness screens".
+
+So the answer to "bundle it or keep reading `metadata_files`" is BUNDLED, and
+nothing had to be sourced. `annotation._phenotype` joins every `fit_*` column
+and `annotate` puts them on any exported table:
+
+    fit_invitro_hff   the genome-wide in-vitro fitness score
+    fit_invivo_PE / lung / liver / spleen
+    fit_naive_bmdm / fit_ifng
+
+Verified on the real tables: `TGGT1_200010` comes back with
+`fit_invitro_hff = 2.54`, and `TGGT1_` and `TGME49_` reach the same row, which
+is the right-to-left gene-number join this instruction requires.
+
+AND THERE WAS A REAL FAULT UNDER IT -- 133's own rule 3, pointing the other
+way. The console line counts how many rows matched, and it counted
+`out[added[0]]`, the FIRST added column, which is `gene_name`. A gene can be
+in every bundled table and have no NAME: `TGME49_200130` is one, and it
+carries a product description, an in-vivo fitness score and a UniProt
+accession. The line said "1 matched the annotation" for three rows when two
+had matched -- understating the join in exactly the direction that makes a
+reader distrust it. It counts any added column now.
+
+14 tests in tests/test_the_bundled_phenotype_reaches_the_export.py.

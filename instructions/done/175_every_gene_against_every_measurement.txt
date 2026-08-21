@@ -2,7 +2,7 @@
 EVERY GENE AGAINST EVERY MEASUREMENT, IN ONE TABLE
 ================================================================================
 
-Status:    filed 2026-08-19.
+Status:    DONE 2026-08-20. See the closing section.
 Requested: 2026-08-19 -- "please bake all of this in to spacr. i would also
            like a button that compares every gene to every measurement and
            gives me a comprehensive table of this and visualises it in an
@@ -240,3 +240,49 @@ STILL OWED -- and it is the only thing left on 175:
   * The maintainer's pick of which of the ten earn their place. The test
     above asserts there are ten, so cutting some is a deliberate edit rather
     than a drift.
+
+--------------------------------------------------------------------------------
+2026-08-20 (later) -- THE PICK. MEASURED, AND THE ANSWER IS ALL TEN.
+--------------------------------------------------------------------------------
+
+The maintainer asked for the ten to be measured rather than argued about, and
+for the weak ones cut. THEY WERE MEASURED AND NOTHING SHOULD BE CUT -- and
+the measurement found something better than a cut.
+
+RUN ON A SCREEN-SHAPED SWEEP -- 12 genes x 3 guides, 40 measurements, 4
+plates, per-well scores -- every one of the ten draws, and no two answer the
+same question. `WHAT_EACH_ONE_ANSWERS` in the test file records the question
+each one is for, so dropping one later is a decision rather than an
+archaeology exercise.
+
+The closest pair is `plot_measurement_families` and `plot_measurement_hits`,
+and they are the TWO MARGINS of one matrix: what kind of thing a gene moves,
+and which measurements are moved most. A reader chasing a hit needs the
+first; a reader asking whether one measurement is doing all the work needs
+the second. That is not a duplicate.
+
+AND THE MEASUREMENT FOUND THE REAL FAULT, which was in the test rather than
+in the figures. The fixture was TWO GUIDES AND THREE COLUMNS, one gene each,
+and three of the ten could not draw on it at all:
+
+    plot_guide_concordance   needs several guides of ONE gene -- concordance
+                             is a statement about guides, and every guide was
+                             its own gene
+    plot_gene_similarity     needs enough genes to cluster
+    plot_circularity         needs per-well classification scores, which the
+                             fixture did not pass
+
+All three returned None and their tests SKIPPED. A SKIP IS NOT A PASS: the
+two checks a pooled screen most depends on -- "do a gene's guides agree" and
+"is this association just the classification score again" -- were untested
+for as long as they have existed, and a panel that CANNOT draw looked exactly
+like one with nothing to draw.
+
+A fourth was hidden the same way: `_draw` passed the gene name "A", which was
+the old fixture's guide. On a library shaped like a real one it names
+nothing, so `plot_gene_profile` skipped too.
+
+The fixture is screen-shaped now and the gene comes from the result. Six
+skips became zero.
+
+33 tests in tests/test_the_sweep_figures_have_readable_axes.py.
