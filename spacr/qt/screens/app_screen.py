@@ -1811,7 +1811,7 @@ class AppScreen(QWidget):
         """
         from PySide6.QtWidgets import QDialog
 
-        from ...settings_advisor import advise, read_the_screen
+        from ...settings_advisor import advise_that_runs, read_the_screen
         from ..widgets.settings_advisor_dialog import SettingsAdvisorDialog
 
         why_not = self.the_advisor_can_run()
@@ -1829,10 +1829,11 @@ class AppScreen(QWidget):
             self._console.append_stdout(f"  {trouble}\n")
 
         if answers is not None:
-            # THE HEADLESS ROUTE, and it still goes through `advise` rather
+            # THE HEADLESS ROUTE, and it still goes through the same
+            # advisor rather
             # than a second rule -- one advisor, whether a person or a test
             # is asking.
-            chosen = advise(reading, answers).as_settings()
+            chosen = advise_that_runs(reading, answers).as_settings()
         else:
             dialog = SettingsAdvisorDialog(reading, values, parent=self)
             if dialog.exec() != QDialog.Accepted:
