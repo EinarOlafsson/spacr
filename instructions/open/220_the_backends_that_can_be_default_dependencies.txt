@@ -48,3 +48,36 @@ HOW TO KNOW IT WORKED
 * A 3.9 install still succeeds and still runs, without them.
 * numpyro and pymer4 stay extras, and pymer4's message keeps naming R.
 * The packaging metadata test covers the new gates.
+
+--------------------------------------------------------------------------------
+AND THE FLOOR ITSELF: >=3.9 IS HONEST, MEASURED 2026-08-21
+--------------------------------------------------------------------------------
+
+    "lets keep the 3.9 to 3.10 as long as 3.9 user are able to install older
+     versions of torch with pip install spacr. if we have set torch>=2.0 cant
+     we lower that in setup.py?"
+
+NOTHING NEEDS LOWERING. `torch>=2.0,<3.0` already resolves on Python 3.9 --
+torch shipped cp39 wheels through 2.8.0, which is comfortably inside the
+range. A 3.9 user gets torch 2.8.0 rather than 2.13.0, which is exactly the
+"older version" the question assumes and did not need arranging.
+
+Every other core floor resolves on 3.9 too, checked against PyPI rather than
+assumed:
+
+    numpy         >=1.26.4  ->  2.0.2 on py3.9
+    pandas        >=2.2.1   ->  2.3.3
+    scipy         >=1.12.0  ->  1.13.1
+    scikit-learn  >=1.5.0   ->  1.6.1
+    torch         >=2.0     ->  2.8.0
+
+So `requires-python = ">=3.9"` is a claim the dependency set can keep, and
+lowering a floor would only widen the resolution space for interpreters that
+already resolve.
+
+WHAT THE FLOOR COSTS IN CODE IS ALMOST NOTHING: four files touch
+`sys.version_info` and most only to REPORT it. There is no conditional
+implementation to delete by raising it, so the case for raising is about
+what it would unlock, and 3.11 unlocks nothing -- numpyro needs 3.11 but its
+jax needs 3.12. The only floor that buys anything is 3.12, and the only one
+that costs nothing is 3.10.
