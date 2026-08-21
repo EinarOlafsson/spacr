@@ -2,7 +2,7 @@
 A BUTTON THAT PICKS THE SETTINGS FOR YOUR DATA
 ================================================================================
 
-Status:    filed 2026-08-20, not started.
+Status:    DONE 2026-08-20. See the closing section.
 Requested: 2026-08-20 -- "I also want a button to the left of inference
            alligned with the text box to the left in model & inference that
            if clicked picks the most correct and best settings for your data
@@ -115,3 +115,102 @@ itself. Candidates: the non-targeting controls (which `control_names` can now
 resolve in four spellings, 184), a named guide or gene, or the grand mean.
 Worth checking against `baseline.py` before building anything -- if the
 volcano can already re-baseline a fitted table, the fit may not need to.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- DONE. "Settings for my data…", left of `inference`.
+--------------------------------------------------------------------------------
+
+`spacr/settings_advisor.py` is the whole argument and imports no Qt, so what
+the window shows can be checked from a script against the same screen.
+
+A. WHAT IS READ, AND WHAT IT COSTS.
+
+The count tables are per well and small, so plates, wells, guides, genes,
+wells-per-guide and guides-per-gene are EXACT -- and they come from
+`fractions_from_counts`, which is `process_reads`' own arithmetic, so the
+numbers are the ones the fit will see rather than a second implementation of
+them.
+
+The score table is per OBJECT and can be gigabytes -- 2.75 GB on the
+maintainer's own screen -- so the response is read from a capped sample and
+`Reading.sample_note()` says so on every number derived from it. A reading
+that pretended to have seen the whole file would be the authoritative guess
+this instruction is against.
+
+MEASURED ON THE REFERENCE SCREEN (the four example plates): 8.5 s, and it
+reads 4 plates, 1,536 wells, 1,380 guides, 452 genes, 3 guides per gene,
+226,467 object rows, response strictly inside (0, 1), D'Agostino p = 2.8e-147,
+skew +2.45.
+
+AND THE RESPONSE IS READ AT THE WELL LEVEL, not the object level. A per-object
+response is aggregated to wells before the model touches it, so the family
+question is about the WELL means; the object-level spread is much wider and is
+not the distribution being modelled. Asserted with a fixture where 400 uniform
+draws per well average to 0.5 while the objects span the whole interval.
+
+B. THE FOUR QUESTIONS, AND NO MORE.
+
+The maintainer's own is the first and sets the shape. Each says what it buys,
+because a user who cannot see that answers to make the dialog go away. The
+direction question is DROPPED for a binary response, where "an increase" is
+the only direction there is -- a question the data can answer is a question
+that should not have been asked.
+
+C. IT EXPLAINS ITSELF.
+
+On the reference screen it proposes, each with the measurement that decided
+it: beta (strictly inside (0,1)), no transform and untransformed (the family
+carries its own link, and both would fit logit(log(y)) -- 182), level=both
+(3 guides per gene across 452), combat (4 plates), plate position on (16 rows
+x 24 columns), nonparametric (p = 2.8e-147 with 1,536 wells to permute),
+fdr_bh at 0.05, and the controls as named.
+
+Nothing is written until Apply, the current value sits beside the new one, and
+an UNCHANGED row is shown greyed rather than hidden -- a proposal listing only
+differences reads as "everything else is wrong", when most of a tuned panel is
+usually already right. A setting it will not decide is listed with its reason
+under "NOT DECIDED", and `advise` with no answers leaves `fdr_alpha` there
+rather than inventing a prior.
+
+Every value round-trips through `get_perform_regression_default_settings`, and
+every regression_type it can propose is in `REGRESSION_TYPES` -- a proposal
+spaCR would refuse is worse than no proposal.
+
+D. THE INTERCEPT: ANSWERED BY `baseline.py`, AND NOT BUILT.
+
+"Worth checking against baseline.py before building anything." It was, and the
+answer is there in its own words, measured: "Re-fitting a planted effect with
+the row reference moved from r01 to r03 shifts the intercept by 0.806 and
+changes not one guide or gene coefficient. A control for it would be a control
+a user could set, watch the volcano not move, and reasonably conclude was
+broken."
+
+Every guide and every gene gets a coefficient -- none is dropped as a
+reference, because they appear only in interaction with a continuous term, so
+full coding applies. What a user actually wants from "define the intercept" is
+what the effects are measured FROM, and that is `spacr.baseline`, which is
+already on the volcano's right-click menu, already saved in `plot_state` and
+already restored with a run. Building a formula-intercept control would add a
+knob that provably does nothing.
+
+TWO BUGS FOUND WHILE BUILDING IT, both fixed:
+
+  * `gene_of_guide` HARD-CODED FOUR TOXOPLASMA STRAINS. `PF3D7_0100100_1`
+    returned `PF3D7` -- the organism -- for every guide in a Plasmodium
+    library, pooling the entire screen into one "gene". That is instruction
+    184's assumption reached by a different route. It reads the name's SHAPE
+    now (`<organism>_<gene>_<guide>`, which is what `process_reads` writes)
+    and takes a MEASURED prefix when a caller has the library in hand.
+
+  * 185's PLATE MAP APPEARED ON NOTHING. The row builder hands
+    `('Control wells', widget)` and the rule matched on the setting NAME, so
+    `control_wells != 'Control wells'` and every field took the no-op branch.
+    185's tests drove `pick_wells_for` and `PlateMapPicker` directly and both
+    worked, so the instruction was closed while the button was unreachable.
+    The key is read off the widget now, and
+    tests/qt/test_the_plate_map_button_is_on_the_panel.py starts from the
+    built panel -- which is the only kind of test that could have caught it.
+
+43 tests in tests/test_a_button_picks_the_settings_for_your_data.py, 24 in
+tests/qt/test_the_settings_advisor_button.py, 9 in
+tests/qt/test_the_plate_map_button_is_on_the_panel.py.
