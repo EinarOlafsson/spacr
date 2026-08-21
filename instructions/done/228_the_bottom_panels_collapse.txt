@@ -120,10 +120,22 @@ are the only thing in their slot, and folding one would leave a strip over
 empty space rather than giving the room to anything.
 
 --------------------------------------------------------------------------------
-WHAT IS LEFT
+AND IT SURVIVES A RESTART
 --------------------------------------------------------------------------------
 
-THE STATE DOES NOT SURVIVE A RESTART. `Folder` takes an `on_change` callback
-and nothing yet writes it to preferences. Small, and deliberately separate:
-persisting it means choosing a key per screen per panel, and getting that
-wrong silently folds a panel on a module the user never folded.
+ONE KEY HOLDING A DICT, keyed `"<module>/<panel>"`. Not a QSettings key per
+panel: a panel added later would need a new key invented for it, and the
+ones that exist would have to be found by guessing at their names.
+
+PER MODULE, because folding the console on Mask must not fold it on
+Sequencing -- the same rule the console/chat splitter already follows, for
+the same reason: the modules are used for different work and want different
+amounts of room.
+
+AN OPEN PANEL IS REMOVED FROM THE DICT rather than stored as False. The
+default is open, so storing it would grow the dict by one entry for every
+panel the user has ever touched and never shrink it.
+
+NO KEY MEANS NO WRITING. A bare panel in a test must not touch the real
+preferences -- a test that wrote to them would fold a panel on the user's
+next launch, which has happened in this repo before.
