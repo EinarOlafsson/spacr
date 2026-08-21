@@ -47,8 +47,19 @@ def picture_defaults() -> Dict[str, Any]:
     return out
 
 
-#: The two settings that name channels rather than choose from a list.
-CHANNEL_KEYS = ("channels", "normalize_channels")
+#: The settings that name channels rather than choose from a list.
+#:
+#: `outline` JOINED THEM (201). Asked for 2026-08-21 -- "in the cell tab in
+#: the settings the outline setting should look like the channel and
+#: normalize channel". It answers the same question about the same thing and
+#: took a different control to answer it, so a user had to work out twice
+#: which was which.
+#:
+#: It was always the same VALUE: `picture_settings.choices` has offered
+#: `outline` the identical r / g / b vocabulary as `normalize_channels`
+#: since they were changed together, and `_as_channel_list` parses the
+#: comma-separated string either control produces. Only the widget differed.
+CHANNEL_KEYS = ("channels", "normalize_channels", "outline")
 
 
 def _editor(value: Any, parent: Optional[QWidget] = None,
@@ -149,7 +160,9 @@ class PictureSettingsDialog(QDialog):
                     start.get(key), self,
                     # `channels` with nothing on is a blank picture;
                     # `normalize_channels` with nothing on means "normalise
-                    # nothing", which is a real answer.
+                    # nothing" and `outline` with nothing on means "outline
+                    # nothing" -- both real answers, and `outline`'s default
+                    # is off.
                     allow_none=(key != "channels"))
             else:
                 editor = _editor(start.get(key), self,
