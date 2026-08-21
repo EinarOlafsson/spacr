@@ -1105,6 +1105,24 @@ class MontagePlan:
             lines.append(
                 f"  (the grid holds {self.n_objects}; the difference is the "
                 "cap, named above)")
+        # THE GUIDES SHARE CELLS, AND A READER SHOULD NOT FIND THAT OUT BY
+        # ARITHMETIC (172, last open item). Every guide in a well is given
+        # `round(n x share)` of the SAME top-ranked cells, so the counts of a
+        # well's guides can add to more than the well holds -- measured on
+        # the maintainer's four plates, 190 of 1,366 wells. It is correct for
+        # this heuristic and it is exactly the flaw instruction 173 exists to
+        # fix, but unsaid it reads as a bug in the count.
+        crowded = sum(w.n_selected for w in self.wells
+                      if w.n_selected > 0 and w.n_objects
+                      and w.n_selected > w.n_objects)
+        lines.append(
+            "  note: each guide in a well is counted against that well's own "
+            "cells, and the guides are not given DIFFERENT cells -- so the "
+            "counts of a well's guides can add to more than the well holds. "
+            "That is this heuristic, not a miscount; the per-cell "
+            "attribution is what separates them."
+            + (f" ({crowded} object(s) here come from a well already at its "
+               f"own count.)" if crowded else ""))
         return "\n".join(lines)
 
     def caption(self) -> str:
