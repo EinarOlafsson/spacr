@@ -1,19 +1,9 @@
-"""Which graph types fit which data, and what each shape defaults to.
+"""Match graph types and defaults to the structure of plotted data.
 
-Instruction 200 A and F, built together because they are the same question
-asked twice:
-
-    A: "not all graph types fit all types of data"
-    F: "which should set the default graph type for each data type"
-
-NOT ALL GRAPH TYPES FIT ALL DATA. A scatter of one categorical against one
-continuous is a jitter under another name; a line through unordered
-categories is a row of markers joined for no reason -- 178 A already found
-that one and fixed it by joining only when there are two points to join.
-
-SO THE LIST IS OFFERED FROM THE DATA. A type the current frame cannot
-support is ABSENT or greyed with the reason, and never silently accepted and
-drawn as something else.
+The module distinguishes categorical, continuous, and ordered axes. It lists
+compatible graph types first and supplies a reason for each incompatible
+option, allowing interfaces to disable unsupported choices without hiding
+them.
 """
 from __future__ import annotations
 
@@ -22,8 +12,7 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 LOG = logging.getLogger("spacr.graph_types")
 
-#: Every graph type, with what it shows. The maintainer's own list, in the
-#: order they named them.
+#: Available graph types represented as ``(value, display description)``.
 GRAPH_TYPES: Tuple[Tuple[str, str], ...] = (
     ("bar", "one value per group"),
     ("bar_jitter", "the summary AND the observations"),
@@ -34,11 +23,7 @@ GRAPH_TYPES: Tuple[Tuple[str, str], ...] = (
     ("scatter", "two continuous axes"),
 )
 
-#: The shapes of data a graph can be asked to draw.
-#:
-#: KEYED ON WHAT THE AXES ARE, not on what the module is. The same frame
-#: drawn by two modules is the same question, and a table keyed by module
-#: would answer it twice and eventually differently.
+#: Supported combinations of axis data types.
 DATA_SHAPES: Tuple[Tuple[str, str], ...] = (
     ("categorical_continuous", "groups against a measurement"),
     ("continuous_continuous", "a measurement against a measurement"),
@@ -60,11 +45,7 @@ FITS: Dict[str, Tuple[str, ...]] = {
     "continuous_only": ("jitter", "box", "violin"),
 }
 
-#: What each shape is BORN as -- instruction 200 F.
-#:
-#: `bar_jitter` for groups, because 139 B argues for showing the summary AND
-#: the observations: a bar alone hides the spread it was computed from, and
-#: a reader cannot tell three points from three hundred.
+#: Default graph type for each supported data shape.
 DEFAULTS: Dict[str, str] = {
     "categorical_continuous": "bar_jitter",
     "continuous_continuous": "scatter",
@@ -72,7 +53,7 @@ DEFAULTS: Dict[str, str] = {
     "continuous_only": "jitter",
 }
 
-#: Why a type does not fit, so a greyed entry can say so (instruction 106).
+#: Explanations for incompatible data-shape and graph-type pairs.
 WHY_NOT: Dict[Tuple[str, str], str] = {
     ("continuous_continuous", "bar"):
         "a bar needs groups to summarise, and grouping a continuous x means "
@@ -103,11 +84,21 @@ WHY_NOT: Dict[Tuple[str, str], str] = {
 
 
 def shape_of(frame, x: str = "", y: str = "") -> str:
-    """The data shape of ``frame``'s two axes.
+    """Classify the axis structure of a data frame.
 
-    :param x: the column on the x axis, or ``""`` for none.
-    :param y: the column on the y axis.
-    :returns: one of :data:`DATA_SHAPES`' keys.
+    Parameters
+    ----------
+    frame : pandas.DataFrame
+        Source data.
+    x, y : str, optional
+        Column names assigned to the horizontal and vertical axes. An empty
+        ``x`` represents an ungrouped continuous distribution.
+
+    Returns
+    -------
+    str
+        Key from :data:`DATA_SHAPES`. A numeric, unique, monotonically
+        increasing x-axis is classified as ordered continuous data.
     """
     import pandas as pd
 
@@ -140,30 +131,30 @@ def shape_of(frame, x: str = "", y: str = "") -> str:
 
 
 def types_for(shape: str) -> Tuple[str, ...]:
-    """The graph types that fit ``shape``.
+    """Return graph types compatible with a data shape.
 
-    :raises KeyError: for a shape that does not exist. Returning everything
-        would offer types that cannot draw the data, which is the failure
-        this module exists to prevent.
+    Raises
+    ------
+    KeyError
+        If ``shape`` is unsupported.
     """
     return FITS[str(shape)]
 
 
 def default_for(shape: str) -> str:
-    """What ``shape`` is born as (instruction 200 F)."""
+    """Return the default graph type for a data shape."""
     return DEFAULTS[str(shape)]
 
 
 def fits(shape: str, graph_type: str) -> bool:
-    """Whether ``graph_type`` can draw ``shape``."""
+    """Return whether a graph type supports a data shape."""
     return str(graph_type) in FITS.get(str(shape), ())
 
 
 def why_not(shape: str, graph_type: str) -> str:
-    """Why ``graph_type`` does not fit ``shape``, or ``""`` if it does.
+    """Explain why a graph type is incompatible with a data shape.
 
-    A REASON, NOT A SILENCE. Instruction 106: a control that is unavailable
-    without saying why is a control the user will keep trying.
+    An empty string is returned for compatible pairs.
     """
     if fits(shape, graph_type):
         return ""
@@ -175,11 +166,13 @@ def why_not(shape: str, graph_type: str) -> str:
 
 
 def offer(frame, x: str = "", y: str = "") -> List[Tuple[str, str, str]]:
-    """``[(type, caption, why_not)]`` for this frame, fitting ones first.
+    """List graph choices for a frame, with compatible choices first.
 
-    EVERY TYPE IS RETURNED, with the ones that do not fit carrying their
-    reason -- greyed rather than absent, because a list that silently
-    shortens leaves the user wondering whether they misremembered.
+    Returns
+    -------
+    list of tuple
+        ``(graph_type, description, incompatibility_reason)`` for every graph
+        type. Compatible entries have an empty reason.
     """
     shape = shape_of(frame, x, y)
     captions = dict(GRAPH_TYPES)
