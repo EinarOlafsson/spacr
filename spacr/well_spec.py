@@ -27,7 +27,50 @@ WELL_SETTINGS = (
 WELL_ONLY_SETTINGS = (
     "cell_loc", "control_wells", "filter_value", "pathogen_loc",
     "treatment_loc",
+    # THE THREE CONTROL BLOCKS (221). Asked for 2026-08-21: "they should all
+    # have the same field and plate button as control wells. like all
+    # settings that hold plate metadata." A setting that holds wells and
+    # cannot be picked off a plate map is a setting the user types by hand
+    # from a layout they are reading off paper.
+    "positive_control_wells", "negative_control_wells",
+    "mixed_control_wells",
 )
+
+#: The three blocks of control wells, in the order a plate lays them out.
+#: Named once so the regression, the calibration and the settings panel
+#: cannot disagree about what "the control wells" means.
+CONTROL_BLOCK_SETTINGS = ("negative_control_wells", "positive_control_wells",
+                          "mixed_control_wells")
+
+
+def control_block_wells(settings) -> list:
+    """Every well named by the three control-block settings, deduplicated.
+
+    :param settings: the run's settings mapping.
+    :returns: well/row/column names, in the order the blocks are declared,
+        with duplicates removed and order otherwise preserved.
+
+    THESE COME OUT OF THE REGRESSION. A well of pure control is not a screen
+    well: it holds one guide by construction, so its phenotype says what that
+    guide does and nothing about any gene under test. Left in, it is modelled
+    as though it were a random draw from the library, and with a strong
+    control it is a high-leverage one.
+
+    The maintainer removed them by hand with `filter_value` before this
+    existed, which works and has to be remembered on every run.
+    """
+    seen: list = []
+    for key in CONTROL_BLOCK_SETTINGS:
+        raw = (settings or {}).get(key)
+        if raw is None:
+            continue
+        values = raw if isinstance(raw, (list, tuple, set)) else [raw]
+        for value in values:
+            text = str(value).strip()
+            if text and text not in seen:
+                seen.append(text)
+    return seen
+
 
 #: Supported well counts mapped to their standard row and column dimensions.
 LAYOUTS = {

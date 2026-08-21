@@ -231,13 +231,37 @@ def backend_status(name, regression_type=None) -> dict:
             f"{regression_type!r}; it fits {listed}.",
             f"no {regression_type} model; fits {listed}")
     if regression_type is None and spec['types'] != ALL_REGRESSION_TYPES:
+        # SAY WHICH TYPES, AND WHETHER IT IS INSTALLED. Reported 2026-08-21:
+        # with the family left to be chosen from the response, every optional
+        # backend read "unavailable: needs an explicit regression type" --
+        # seven identical lines saying what was MISSING and nothing about
+        # what any of them does or whether it is even on the machine.
+        #
+        # "write the explisit regression type and what needs to be done if it
+        # is not installed. if it is intalled write installed."
+        #
+        # Both facts belong here because they are answered differently: the
+        # types tell the user which choice would make this row selectable,
+        # and the install state tells them whether making that choice would
+        # be enough.
+        listed = ', '.join(spec['types'])
+        installed = package_installed(spec['package'])
+        if not spec['implemented']:
+            state = "not wired up yet"
+            if not installed and spec['pip']:
+                state += f", not installed -- {spec['pip']}"
+        elif installed:
+            state = "installed"
+        else:
+            state = (f"not installed -- {spec['pip']}" if spec['pip']
+                     else "not installed")
         return refuse(
-            f"{spec['label']} needs an explicit regression_type. With "
-            f"regression_type left to be chosen from the response, the "
-            f"family is only known after the data is read, and only "
-            f"{DEFAULT_REGRESSION_BACKEND} can fit whichever one it turns "
-            f"out to be.",
-            "needs an explicit regression type")
+            f"{spec['label']} fits {listed}. Choose one of those as "
+            f"regression_type to select it -- with the family left to be "
+            f"decided from the response it is only known after the data is "
+            f"read, and only {DEFAULT_REGRESSION_BACKEND} can fit whichever "
+            f"it turns out to be. This backend is {state}.",
+            f"fits {listed}; {state}")
 
     # NOT INSTALLED IS SAID ALONGSIDE NOT WIRED UP, not instead of it.
     #
