@@ -5607,6 +5607,59 @@ def _usable_nuisance_columns(data, settings) -> list:
     return usable
 
 
+def _report_exchangeability(data, outcome_column, settings, destination):
+    """Measure and report whether the within-block shuffle is defensible.
+
+    A COURTESY, NOT A PRECONDITION -- the same rule the montage pre-flight
+    follows. It must never be the reason a run that produced results fails
+    to report them, so every step is inside the guard.
+    """
+    try:
+        from .guide_permutation import (_nuisance_design, _residualize,
+                                        prepare_long_guide_data)
+        from .permutation_qc import (block_residual_report,
+                                     exchangeability_verdict)
+
+        block = str(settings.get('guide_permutation_block', 'plateID'))
+        nuisance = _usable_nuisance_columns(data, settings)
+        wanted = list(dict.fromkeys([*nuisance, 'rowID', 'columnID']))
+        present = [c for c in wanted
+                   if c in getattr(data, 'columns', ())]
+        _f, outcomes, _m = prepare_long_guide_data(
+            data, outcome_column, block_column=block,
+            nuisance_columns=present)
+        y = pd.to_numeric(outcomes[outcome_column],
+                          errors='coerce').to_numpy(dtype=float)
+        basis, _r = np.linalg.qr(
+            _nuisance_design(outcomes, block, nuisance), mode='reduced')
+        residuals = _residualize(y, basis)
+
+        # POSITION IS MEASURED EVEN WHEN IT WAS REMOVED, which is the point
+        # of measuring it: a column already in `nuisance` should come back
+        # explaining nothing, and if it does not, the removal did not work.
+        positions = {c: outcomes[c] for c in present
+                     if c in outcomes.columns and c != block}
+        report = block_residual_report(
+            residuals, outcomes[block], positions)
+        verdict = exchangeability_verdict(report)
+
+        if verdict['ok']:
+            print(f"Exchangeability: nothing found. Durbin-Watson "
+                  f"{report['durbin_watson']:.2f} over {report['n']:,} well(s) "
+                  f"in {report['blocks']} block(s), and no position column "
+                  f"explains the residual.")
+            return report
+        print("■ Exchangeability: the within-block shuffle is questionable.")
+        for finding in verdict['findings'][:4]:
+            print(f"    {finding}")
+        if verdict['remedy']:
+            print(f"    -> {verdict['remedy']}")
+        return report
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not report exchangeability", exc_info=True)
+        return None
+
+
 def _run_guide_permutation_analysis(data, outcome, destination, settings):
     """Run and persist the plate-blocked marginal guide analysis.
 
@@ -5711,6 +5764,12 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
         batch_size=int(settings.get('guide_permutation_batch_size', 500)),
         statistic=str(settings.get('grna_statistic', 'pearson')),
     )
+    # WHETHER THE SHUFFLE WAS ALLOWED (224). The test permutes phenotype
+    # residuals within each block, which is valid only if those residuals are
+    # exchangeable there -- and nothing said so until now. A parametric fit
+    # writes a QC folder; this path returned before it, so the analysis that
+    # residualises was the one that showed no residuals.
+    _report_exchangeability(data, outcomes, settings, destination)
     # THE SAME ALIASES ON THE FULL TABLE, and on the primary slice taken from
     # it further down -- one block now, rather than two lists that had to stay
     # in step. results.csv on disk holds the primary slice while the returned
