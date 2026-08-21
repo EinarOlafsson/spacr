@@ -19,6 +19,50 @@ from .figures.style import figure_style, theme_target
 from .style_base import SHARED_CHOICES, FigureStyle
 
 #: Supported observation levels and the meaning of one result-table row.
+#: What each column heading in the compare panel controls (instruction 202).
+#:
+#: ATTACHED TO THE COLUMN, NOT MATCHED BY LABEL. A tooltip found by looking
+#: up the heading's TEXT stops working the moment the heading is renamed,
+#: and stops working silently -- the label still draws, the help is simply
+#: gone. Keyed here by the field the heading governs.
+#:
+#: WRITTEN FROM THE CODE. Each one says what the field CHANGES about what
+#: the user will see, because a tooltip describing intent goes stale the
+#: first time the behaviour moves -- and a wrong tooltip is worse than none,
+#: since it is believed.
+HEADING_HELP: dict = {
+    "measurement": (
+        "WHICH NUMBER is plotted. Offered from the columns the attached "
+        "tables actually have, never typed, so a measurement that is not "
+        "there cannot be asked for. Choosing an operator beside it combines "
+        "two measurements into one, and the combined column is named for "
+        "the expression — so the plot, the legend and the saved settings all "
+        "say the same thing."),
+    "level": (
+        "WHAT ONE DATAPOINT IS. 'cell' plots every object; 'well' averages "
+        "each well first, so one point is one well; 'plate' averages each "
+        "plate. This changes the STATISTICS as much as the picture: a "
+        "screen randomises at the well, so testing across cells treats "
+        "thousands of measurements of the same well as independent "
+        "evidence and returns p < 1e-10 on noise."),
+    "plot": (
+        "HOW the same numbers are drawn — box, violin, bar, jitter, or a "
+        "box with the points over it. It changes nothing about the values "
+        "or the test; a bar hides the spread that a jitter shows, which is "
+        "the only reason to prefer one."),
+    "show": (
+        "DRAWS ONE CLASS ON ITS OWN, as a filter on the drawing rather than "
+        "on the comparison. The statistics underneath stay for the WHOLE "
+        "comparison: a test computed on one of two groups is not a "
+        "comparison at all, and quietly re-running it on the visible half "
+        "would report a different question from the one on screen."),
+    "compare": (
+        "WHAT THE MEASUREMENT IS HELD AGAINST — nothing, the rest of the "
+        "same well, the control wells, or the other wells on the plate. The "
+        "same cells under three contrasts give three different p-values, "
+        "which is why this is a separate choice from what is measured."),
+}
+
 LEVELS: Tuple[Tuple[str, str], ...] = (
     ("cell", "one row per cell — the most rows and the fewest independent "
              "units, so a p-value here is about cells and not about wells"),

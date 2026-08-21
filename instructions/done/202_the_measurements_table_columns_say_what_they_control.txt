@@ -2,7 +2,7 @@
 THE MEASUREMENTS TABLE'S COLUMNS SAY WHAT THEY CONTROL
 ================================================================================
 
-Status:    filed 2026-08-21, not started.
+Status:    DONE 2026-08-21.
 Requested: 2026-08-21 -- "for the measurements table tab, there needs to be a
            tooltip when the mouse is hovered over measurement, and level and
            plot and show and compare that explains what each field related to
@@ -39,3 +39,36 @@ HOW TO KNOW IT WORKED
   be added without one.
 * Same hover behaviour as instruction 208 asks for elsewhere: the tooltip
   does not vanish when the pointer moves onto it.
+
+--------------------------------------------------------------------------------
+DONE 2026-08-21
+--------------------------------------------------------------------------------
+
+`HEADING_HELP` in `gene_measurement_compare`, KEYED BY THE FIELD each
+heading governs. A tooltip looked up by the heading's TEXT stops working the
+moment somebody renames the heading -- and stops working SILENTLY, because
+the label still draws and the help is simply gone. The test renames a
+heading and asserts the help survives.
+
+WRITTEN FROM THE CODE, and each says what the field CHANGES about what the
+user will see:
+
+  * `level` says a datapoint becomes a cell, a well or a plate, AND that
+    this changes the statistics as much as the picture -- a screen
+    randomises at the well, so testing across cells treats thousands of
+    measurements of one well as independent evidence.
+  * `show` says the statistics underneath do NOT follow it, because a test
+    computed on one of two groups is not a comparison at all.
+  * `compare` says the same cells under three contrasts give three
+    different p-values, which is why it is a separate choice.
+  * `plot` says it changes nothing about the values or the test.
+  * `measurement` says the options come from the columns the tables have.
+
+THE FILTER IS HELD ON THE PANEL. Qt keeps a bare pointer to an event filter,
+so one that only the constructor referenced is collected as soon as the call
+returns -- after which the heading stops responding and nothing says why.
+The same trap instruction 228 records.
+
+The tooltips never time out, which is what instruction 208 asks for
+elsewhere: help that disappears when you reach for it cannot be read to the
+end.
