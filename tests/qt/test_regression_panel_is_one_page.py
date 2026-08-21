@@ -144,6 +144,11 @@ def test_the_hidden_set_names_runtime_keys_this_module_does_not_declare():
     assert not {"on_error", "random_seed"} & declared
 
 
+def test_the_derived_control_well_union_is_not_an_extra_choice():
+    """Regression exposes the three typed control groups, not their union."""
+    assert "control_wells" in _APP_HIDDEN_KEYS["regression"]
+
+
 def test_the_new_settings_are_placed_where_the_instruction_says():
     """Placement is asserted on the LAYOUT, not on the rendered panel.
 

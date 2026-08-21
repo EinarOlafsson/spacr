@@ -326,6 +326,11 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
         "log_x", "log_y", "x_lim", "y_lims", "split_axis_lims",
         "strict_errors", "max_failure_rate", "on_error",
         "on_error_attempts", "on_error_backoff", "random_seed", "verbose",
+        # Regression derives this aggregate from the positive, negative, and
+        # mixed control-well settings, so it is not an independent GUI choice.
+        # The invasion assay retains its separate control because there it
+        # identifies wells without pre-permeabilisation stain.
+        "control_wells",
     },
 }
 

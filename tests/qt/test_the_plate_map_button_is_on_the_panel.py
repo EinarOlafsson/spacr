@@ -52,16 +52,18 @@ class TestTheWellFieldsHaveTheirPicker:
     def test_the_key_is_read_off_the_widget_not_the_label(self, screen):
         """The bug in one line: the label is a sentence, the rule wants a
         key."""
-        field = screen._settings_model._widgets.get("control_wells")
+        field = screen._settings_model._widgets.get("positive_control_wells")
 
-        assert screen._key_of(field) == "control_wells"
+        assert screen._key_of(field) == "positive_control_wells"
 
     def test_a_widget_the_panel_does_not_hold_has_no_key(self, screen):
         from PySide6.QtWidgets import QLineEdit
 
         assert screen._key_of(QLineEdit()) == ""
 
-    @pytest.mark.parametrize("key", ["control_wells", "filter_value"])
+    @pytest.mark.parametrize(
+        "key", ["positive_control_wells", "negative_control_wells",
+                "mixed_control_wells", "filter_value"])
     def test_a_well_field_has_a_plate_button(self, screen, key):
         if screen._settings_model._widgets.get(key) is None:
             pytest.skip(f"{key} is not on the regression panel")
@@ -75,7 +77,7 @@ class TestTheWellFieldsHaveTheirPicker:
         is which off the position is the whole reason they differ."""
         from PySide6.QtWidgets import QPushButton
 
-        field = screen._settings_model._widgets.get("control_wells")
+        field = screen._settings_model._widgets.get("positive_control_wells")
         layout = field.parent().layout()
         order = [layout.itemAt(i).widget() for i in range(layout.count())]
         button = next(w for w in order
@@ -101,18 +103,20 @@ class TestTheWellFieldsHaveTheirPicker:
         monkeypatch.setattr(
             screen, "pick_wells_for",
             lambda field, key="": seen.update(key=key) or "A01")
-        button = next(b for b in _buttons_beside(screen, "control_wells")
-                      if b.text() == "Plate…")
+        button = next(
+            b for b in _buttons_beside(screen, "positive_control_wells")
+            if b.text() == "Plate…")
 
         button.click()
 
-        assert seen.get("key") == "control_wells"
+        assert seen.get("key") == "positive_control_wells"
 
 
 class TestTheTwoButtonsAreNotTheSameButton:
 
     def test_the_advisor_is_only_on_inference(self, screen):
-        labels = [b.text() for b in _buttons_beside(screen, "control_wells")]
+        labels = [b.text() for b in _buttons_beside(
+            screen, "positive_control_wells")]
 
         assert "Settings for my data…" not in labels
 
