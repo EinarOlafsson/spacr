@@ -57,15 +57,11 @@ GENERAL_DEFAULTS: dict[str, Any] = {
 
 
 def chrome_of(style, element: str = "grid") -> str:
-    """The colour for one piece of furniture: grid, spine or box.
+    """Resolve the color of a grid, spine, or box element.
 
-    THE OVERRIDE WINS AND THE ONE CONTROL IS THE FALLBACK, in that order. A
-    user who set `chrome_colour` gets it everywhere; a user who then set
-    `grid_colour` gets that on the grid and the chrome elsewhere -- which is
-    what "a per-element override can exist under it" means.
-
-    :param element: 'grid', 'spine' or 'box'.
-    :returns: the colour, or ``""`` meaning follow the resolved ink.
+    A nonempty element-specific value takes precedence over
+    ``chrome_colour``. An empty result indicates that the resolved figure ink
+    color should be used.
     """
     style = dict(style or {})
     specific = str(style.get(f"{element}_colour", "") or "").strip()
@@ -183,15 +179,24 @@ PAGE_SHAPES: dict = {
 
 
 def page_size(shape: str, width: float) -> tuple:
-    """``(width, height)`` in inches for a named shape at ``width``.
+    """Calculate figure dimensions for a named page shape.
 
-    ONE NUMBER IN, TWO OUT, which is the point of naming the ratio: the two
-    axes cannot drift apart when the size changes, and a user who wants a
-    figure half as wide gets one half as tall without doing the arithmetic.
+    Parameters
+    ----------
+    shape : {"square", "portrait", "landscape", "wide"}
+        Aspect-ratio preset.
+    width : float
+        Figure width in inches.
 
-    :raises KeyError: for a shape with no ratio -- 'custom' among them,
-        because 'custom' means the caller's own inches and silently
-        returning a square for it would overwrite them.
+    Returns
+    -------
+    tuple of float
+        ``(width, height)`` in inches.
+
+    Raises
+    ------
+    KeyError
+        If ``shape`` has no fixed ratio, including ``"custom"``.
     """
     return (float(width), float(width) / PAGE_SHAPES[str(shape)])
 
