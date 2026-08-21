@@ -247,27 +247,23 @@ APPENDED_SUFFIXES: Tuple[str, ...] = (".tif", ".tiff", ".png", ".jpg",
 
 
 def for_get_regex(pattern: str) -> str:
-    """A pattern trimmed for `_get_regex`'s ``'custom'`` branch.
+    r"""Prepare a filename pattern for ``utils._get_regex``.
 
-    THIS IS NOT TIDINESS AND IT IS NOT NEW BEHAVIOUR; it is a bug fix with a
-    number. `_get_regex` builds the custom pattern as::
+    ``_get_regex`` appends its own image-extension pattern. This helper
+    removes a trailing extension match and end anchor to prevent an inferred
+    pattern such as ``\.(?:tif|tiff|png|jpg|jpeg)$`` from receiving a second,
+    unreachable suffix.
 
-        f"({custom_regex}).{img_format}"
+    Parameters
+    ----------
+    pattern : str
+        Pattern stored by the import editor.
 
-    -- it appends the extension ITSELF. So a pattern that already ends in
-    ``\.tif``, or in the alternation-plus-anchor
-    ``\.(?:tif|tiff|png|jpg|jpeg)$`` that `auto_detect_regex` returns,
-    becomes ``(...$)..tif``: an anchor with characters after it, which can
-    never match anything.
-
-    MEASURED on eight cellvoyager filenames through the real path -- drop,
-    auto-detect, save, `_get_regex` -- 0 of 8 matched. The import then runs,
-    finds no files, and reports only that it found none: there is no error
-    anywhere, and the pattern in the box looks exactly right.
-
-    :param pattern: what the editor holds.
-    :returns: the same pattern with any trailing extension match and anchor
-        removed, and unchanged when it has none.
+    Returns
+    -------
+    str
+        The pattern without a trailing supported-image extension or end
+        anchor. Patterns without either are returned unchanged.
     """
     text = str(pattern or "").strip()
     if text.endswith("$"):

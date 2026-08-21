@@ -1,37 +1,13 @@
-"""Read a screen and propose the regression settings it asks for (192).
+"""Inspect screen tables and propose regression settings.
 
-    "a button ... that if clicked picks the most correct and best settings for
-    your data fills in those settings in teh settings fields. its fine if the
-    button triggers a popup that asks the user questions about their data that
-    cant be determined by reading the data"
+The advisor separates measured choices, settings that remain undecided, and
+questions the data cannot answer. Each proposed value includes its reason,
+and this module never writes settings itself.
 
-THE DANGER IS AN AUTHORITATIVE GUESS. A button called "best settings" that
-silently fills fourteen fields is trusted far past what it can support, and a
-user has no way to tell a measured choice from a default. So this module
-returns three things and never writes anything:
-
-    chosen     a setting, its value, and WHY -- naming what in the data
-               decided it, in the same voice a greyed control uses (106).
-    undecided  a setting the data cannot decide, said out loud rather than
-               filled with a default wearing the same authority as the rest.
-    questions  the ones no amount of reading supplies. Four is a dialog;
-               twelve is a form nobody finishes, and a question that COULD
-               have been read from the data is a question that should not
-               have been asked.
-
-IT CALLS WHAT ALREADY DECIDES, rather than growing a second opinion:
-:func:`spacr.ml.check_distribution` for the response, `_choose_glm_family`'s
-own question for the family, :mod:`spacr.control_names` for the controls, and
-:func:`spacr.cell_montage.fractions_from_counts` for the per-well fractions --
-which is `process_reads`' own arithmetic, so the numbers here are the numbers
-the fit will see.
-
-WHAT IT READS, AND WHAT THAT COSTS. The count tables are per well and small,
-so plates, guides, genes and wells-per-guide are exact. The score table is per
-OBJECT and can be gigabytes -- 2.75 GB on the maintainer's own screen -- so
-the response is read from a capped sample and every number derived from it
-says so. A reading that pretended to have seen the whole file would be the
-authoritative guess this module exists to avoid.
+Count-table summaries use every available well. Object-level score tables
+may be large, so response diagnostics use a capped sample and mark the
+resulting :class:`Reading` accordingly. Family, control, and fraction choices
+reuse the same analysis helpers as the regression pipeline.
 """
 from __future__ import annotations
 
@@ -82,8 +58,7 @@ class Question:
 
     :param key: an identifier for the answer, not a setting name -- one
         answer can move several settings.
-    :param prompt: the question, in the maintainer's own terms where there
-        are any.
+    :param prompt: the question shown to the user.
     :param kind: ``'number'`` or ``'choice'``.
     :param options: for ``'choice'``, ``((value, label), ...)``.
     :param default: the starting value, which is a position and is defended
@@ -134,18 +109,12 @@ class Reading:
 
     @property
     def read_the_counts(self) -> bool:
+        """Whether count-table wells and guides were measured."""
         return self.wells > 0 and self.guides > 0
 
     @property
     def read_the_response(self) -> bool:
-        """Whether the response was measured well enough to argue from.
-
-        BOTH ENDS, not just a row count. `read_the_response` sets the count
-        and the range together, but a Reading rebuilt from a saved run -- or
-        one a caller constructs by hand -- can carry the count alone, and a
-        family chosen from a range that is None is a crash rather than a
-        recommendation.
-        """
+        """Whether the response count and numeric range were measured."""
         return (self.n_response > 0 and self.low is not None
                 and self.high is not None)
 
@@ -268,12 +237,26 @@ def read_the_counts(paths: Sequence[str]) -> Dict[str, Any]:
 
 def read_the_response(paths: Sequence[str], dependent_variable: str = "",
                       *, row_cap: int = ROW_CAP) -> Dict[str, Any]:
-    """The response's range, shape and per-well support, from a capped sample.
+    """Measure response range, shape, and per-well support.
 
-    CAPPED AND SAID SO. A score table is one row per OBJECT and the
-    maintainer's is 2.75 GB; reading it whole to fill in a settings panel is
-    not a button anyone presses twice. What the cap costs is stated on every
-    number derived from it -- see :meth:`Reading.sample_note`.
+    At most ``row_cap`` object rows are read across the supplied score tables.
+    The returned mapping records whether that cap was reached so callers can
+    qualify sample-derived recommendations.
+
+    Parameters
+    ----------
+    paths : sequence of str
+        Score tables to inspect.
+    dependent_variable : str, optional
+        Response column. Common generated-score names are tried when omitted.
+    row_cap : int, optional
+        Maximum number of object rows to inspect.
+
+    Returns
+    -------
+    dict
+        Measured response properties and any non-fatal problems in
+        ``"trouble"``.
     """
     from .tabular import read_table
 
@@ -406,10 +389,9 @@ def read_the_screen(counts: Sequence[str] = (), scores: Sequence[str] = (),
 # The questions the data cannot answer
 # ---------------------------------------------------------------------------
 
-#: The four questions, and no more. The maintainer's own example is the first
-#: and sets the shape: "out of 1000 perterbations genes how many are expected
-#: to be hitts?" -- that is the PRIOR, and no amount of reading the table
-#: supplies it.
+#: Questions whose answers cannot be inferred reliably from the input tables.
+#: The first captures the expected hit rate, a prior supplied by the user
+#: rather than estimated from the observed screen.
 QUESTIONS: Tuple[Question, ...] = (
     Question(
         key="hits_per_thousand",

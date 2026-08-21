@@ -1,36 +1,10 @@
-"""The style vocabulary every spaCR figure shares, and the renderer contract.
+"""Shared figure-style values and rendering conventions.
 
-Instruction 108, points 1 and 2:
-
-    1. THE SHARED STYLE BASE. `spacr/figure_style.py` holds general/per-graph
-       DICTS today, not a dataclass hierarchy; volcano_style.VolcanoStyle is
-       the only dataclass.
-    2. THE RENDERER CONTRACT `render(data, style, figure=None,
-       save_path=None)` per figure type -- only the volcano has it.
-
-WHY A BASE AND NOT A BIGGER DATACLASS. The restyle menu of point 3 is built
-from `dataclasses.fields(style)`, so a figure type gets its whole menu by
-having a style at all. What it does NOT get, without a base, is agreement:
-one figure would call the text size `font_size` and the next `text_size`, a
-saved style would stop being portable between them, and the menu would grow
-two groups meaning the same thing. This class is what makes "font size" one
-setting in spaCR rather than one per figure.
-
-WHY THE NAMES ARE `VolcanoStyle`'S. They are the ones already written into
-every style FILE a user has saved, and renaming them would break those files
-for a tidier vocabulary nobody asked for. `color` rather than `colour` is
-here for the same reason; the prose says colour.
-
-THE CONTRACT, in one line:
-
-    render(data, style, *, figure=None, save_path=None) -> (figure, axes)
-
-`figure=` draws into an existing one, so a live canvas is redrawn in place
-rather than replaced -- which is what keeps a restyle from resetting the
-zoom. `save_path=` also writes it, through `spacr.plot.save_figure`, so the
-format and resolution preferences reach it (108 point 6). Both are keyword
-only: a caller that passes them positionally is a caller that has confused
-them.
+Figure-specific style dataclasses inherit :class:`FigureStyle` so common
+controls have the same name and can be copied between plots. Renderers use
+the signature ``render(data, style, *, figure=None, save_path=None)`` and
+return ``(figure, axes)``. Passing ``figure`` redraws an existing canvas;
+passing ``save_path`` also writes the result with spaCR's export settings.
 """
 from __future__ import annotations
 
@@ -46,14 +20,11 @@ GRID_AXES: Tuple[str, ...] = ("x", "y", "both", "none")
 
 @dataclass
 class FigureStyle:
-    """How any spaCR figure looks, independent of what it plots.
+    """Appearance settings shared by every spaCR figure.
 
-    Every field here is one a reader would recognise on a heatmap, a volcano
-    or a jitter plot alike. A field that only makes sense for one figure --
-    an effect-size threshold, a colour-by column -- belongs on that figure's
-    own subclass, because a menu entry that is meaningless on the figure it
-    is attached to is the "present but inert" control instruction 106
-    forbids.
+    Plot-specific options, such as an effect-size threshold or a colour-by
+    column, belong on the corresponding subclass. Keeping only portable
+    values here allows a saved house style to be applied across plot types.
     """
 
     # ---- axes ---------------------------------------------------------
