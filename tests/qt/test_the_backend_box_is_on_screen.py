@@ -180,12 +180,32 @@ def test_auto_is_read_as_no_family_chosen_yet(screen, field):
     Only the default backend can promise to fit a family that will not be
     known until the response has been read, and the panel has to say so in
     the same words the run would.
+
+    WHAT IT SAYS CHANGED ON 2026-08-21, and the assertion changed with it
+    rather than being loosened. Every optional backend used to read
+    "unavailable: needs an explicit regression type" -- seven identical
+    lines naming what was MISSING and nothing about what any of them does
+    or whether it is on the machine. Reported, and the request was
+    explicit: "write the explisit regression type and what needs to be done
+    if it is not installed. if it is intalled write installed."
+
+    So the check is now for the two facts that replaced it.
     """
     types = screen._settings_model._widgets["regression_type"]
     types.setCurrentText("auto")
     assert field.regression_type() is None
     text = field.description.toPlainText()
-    assert "explicit regression type" in text
+    # THE PANEL RENDERS THE SHORT FORM, which is the one that goes inside
+    # the dropdown entry -- so this asserts the short contract, not the long
+    # sentence behind it.
+    #
+    # It names a family the backend can actually fit...
+    assert "fits" in text
+    assert "ols" in text or "mixed" in text
+    # ...and whether choosing that family would be enough: "installed" for
+    # one that is here, a pip command for one that is not.
+    assert "installed" in text
+    assert "pip install" in text
     assert not _items(field)[
         field.combo.itemText(_entry_for(field, "torch (GPU)"))]
     assert _items(field)[
