@@ -461,17 +461,11 @@ class MeasurementComparePanel(QWidget):
         return trouble
 
     def _heading(self, field: str) -> QLabel:
-        """A column heading carrying the help for the field it governs.
+        """Create a control heading with persistent field-specific help.
 
-        KEYED BY FIELD, NOT BY LABEL TEXT (instruction 202). A tooltip looked
-        up by the heading's text stops working the moment somebody renames
-        the heading, and stops working SILENTLY -- the label still draws and
-        the help is simply gone.
-
-        THE HOVER IS THE SHARED ONE, so the tooltip does not vanish when the
-        pointer moves onto it. Same behaviour instruction 208 asks for
-        elsewhere; a help text that disappears when you reach for it cannot
-        be read to the end.
+        Help is keyed by the underlying field so it remains valid when a
+        displayed heading changes. The shared tooltip filter keeps the content
+        accessible while the pointer moves from the heading to the tooltip.
         """
         from ...gene_measurement_compare import HEADING_HELP
 
@@ -500,12 +494,10 @@ class MeasurementComparePanel(QWidget):
         return label
 
     def _join_the_dependent_variable(self, wide):
-        """Attach the dependent-variable table, if the box is ticked.
+        """Attach the dependent-variable table when the option is enabled.
 
-        THE ROUTE GOES IN THE REPORT, always. A fallback is a fallback, not a
-        secret: a join that silently degraded is one nobody can check, and
-        the degradation itself is worth knowing because it means a column is
-        missing upstream (instruction 213 B).
+        The returned status identifies any fallback route used, which makes
+        missing direct identifiers visible to the user.
         """
         if not getattr(self, "join_dependent", None) or \
                 not self.join_dependent.isChecked():
@@ -526,7 +518,14 @@ class MeasurementComparePanel(QWidget):
         return out, describe(report)
 
     def set_dependent_frame(self, frame) -> None:
-        """Give this panel the dependent-variable table to join."""
+        """Set the dependent-variable table available to the join action.
+
+        Parameters
+        ----------
+        frame : pandas.DataFrame
+            Table containing dependent variables and object identifiers or
+            parseable image paths.
+        """
         self._dependent_frame = frame
 
     # ------------------------------------------------------------ the build
