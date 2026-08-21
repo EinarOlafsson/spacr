@@ -553,7 +553,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     #    4  MeasurementComparePanel scope accessors
     #    4  spacr.well_scope
     # Nothing retired; these contracts enter the regenerated API catalogs.
-    expected = 8074
+    # +2/-0 for geometry-derived montage paging:
+    # ``fits_on_a_page`` and ``WellTab.per_page``. Nothing retired.
+    expected = 8076
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -568,7 +570,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8193
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8195
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
