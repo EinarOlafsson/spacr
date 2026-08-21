@@ -401,6 +401,16 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "workspace",              # saved GUI context around a recorded run
     "figure_style",           # the older per-figure style store
     "style_base",             # shared values for current figure renderers
+    # Dependency-light helpers shared by the regression, classification, and
+    # streamed-image interfaces.
+    "dependent_join",
+    "graph_types",
+    "outlier_filter",
+    "permutation_qc",
+    "response_distribution",
+    "run_recommendations",
+    "stream_dataset",
+    "well_scope",
 )
 
 __all__ = [
