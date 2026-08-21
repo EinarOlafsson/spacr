@@ -1,46 +1,19 @@
-"""What a guide's reads look like in wells it is not in.
+"""Measure and correct guide-read background using control wells.
 
-Proposed 2026-08-21: "another way to calculate the gRNA fraction threshold
-is measure the total fraction and the individual guide fractions in that are
-detected in the first 3 columns. as the first should be 100% 233460, the
-second column 100% 249730 and the thired a mix but no other guides. this
-might also be used somehow as a single calue grna correction factor or a
-individual grna correction factor."
+Control wells with known guide composition provide direct observations of
+reads assigned to guides that should be absent. Background is estimated per
+guide because barcode-specific effects can differ substantially. The module
+also separates two operations with different interpretations:
 
-IT IS THE RIGHT IDEA AND THE ANSWER IS THE INDIVIDUAL FACTOR, NOT THE SINGLE
-VALUE. A column of known composition is a direct measurement of the spurious
-read rate: every read that is not the intended guide is, by construction,
-noise. `fraction_threshold` currently guesses at that quantity with a
-constant, and it can be measured instead.
+* exclusion removes sequences that cannot be present in cells, such as primer
+  or plasmid carry-over, before fractions are calculated;
+* background subtraction removes an estimated spurious component from a real
+  guide and then optionally renormalizes the remaining fractions.
 
-WHAT THE MEASUREMENT SHOWS, on the screen this was written against and
-recomputable on any other: the background is not one number wearing
-different hats. Across the control wells the median guide's background is
-0.013% and the 99th percentile is 0.15% -- a diffuse haze that any small
-threshold removes -- while ONE guide sat at 9.2% and appeared in every
-single control well. A global threshold cannot serve both. Set low enough to
-catch the outlier it deletes real biology; set where it is now it deletes
-the haze it did not need to and admits the outlier anyway.
-
-SO THE BACKGROUND IS PER GUIDE, and a guide that shows up where it cannot be
-is telling you a fact about itself -- its barcode, its amplification, its
-neighbours on the index -- that no other guide's behaviour predicts.
-
-WHAT THIS CANNOT DECIDE, and it must not pretend to. A guide abundant in the
-control wells is EITHER a sequencing artefact -- index hopping, barcode
-collision -- OR genuinely over-represented in the library and really present
-in those cells. The read counts cannot tell those apart, and the correction
-is opposite in the two cases: subtract it, or keep it. The imaging can tell
-them apart, because a guide really present will move its cells' phenotype
-and an artefact will not. :func:`suspicious` reports the candidates rather
-than resolving them.
-
-INDEX HOPPING SCALES WITH THE SOURCE'S ABUNDANCE, which is the reason these
-columns give an UPPER bound rather than an estimate. A control well with one
-guide at 70% sheds more reads onto its neighbours than an ordinary well
-whose largest guide is 5%. The per-guide ranking transfers; the absolute
-level does not, and :func:`subtract_background` says so when asked to apply
-it to ordinary wells.
+Control-well measurements provide an upper bound for ordinary wells when
+cross-sample contamination scales with source abundance. Candidate outliers
+are reported for imaging-based review rather than automatically classified as
+sequencing artefacts.
 """
 from __future__ import annotations
 
@@ -62,23 +35,24 @@ __all__ = [
 def drop_guides(fractions: Mapping[str, float],
                 exclude: Iterable[str], *,
                 renormalise: bool = True) -> Dict[str, float]:
-    """Remove guides that are not in any cell, and renormalise what is left.
+    """Remove excluded sequences from a guide-fraction mapping.
 
-    EXCLUSION IS NOT BACKGROUND SUBTRACTION and the difference is the whole
-    point. Background subtraction says "some of this guide's reads here are
-    spurious". Exclusion says "this sequence is not a guide in a cell at
-    all" -- primer or plasmid carry-over, which is in the library prep and
-    never in a nucleus.
+    Parameters
+    ----------
+    fractions : mapping of str to float
+        Guide fractions for one well.
+    exclude : iterable of str
+        Guide or gene identifiers to remove.
+    renormalise : bool, default=True
+        Rescale retained finite fractions to sum to one when their total is
+        positive.
 
-    So it is removed BEFORE the fractions are formed, and the survivors are
-    renormalised over what remains. Leaving it in and subtracting later
-    would leave its reads in every other guide's denominator, holding every
-    real fraction down by the contaminant's share.
-
-    On the screen this was written against, one plasmid contaminant was
-    19.9% of ALL reads on a plate: excluding it raises every other guide's
-    fraction by a quarter, which moves guides across the annotatability
-    floor. It is not a tidying step.
+    Returns
+    -------
+    dict
+        Retained guide fractions. Exclusion is applied before downstream
+        background correction so removed sequences do not remain in the
+        denominator.
     """
     names = [str(g) for g in fractions]
     drop = resolve_exclusions(exclude, names)
@@ -93,24 +67,13 @@ def drop_guides(fractions: Mapping[str, float],
 def resolve_exclusions(exclude: Optional[Iterable[str]],
                        guides: Sequence[str],
                        genes: Optional[Sequence[str]] = None) -> Set[str]:
-    """Which guide names an exclusion list actually names.
+    """Resolve guide and gene exclusions to guide identifiers.
 
-    ACCEPTS GUIDES AND GENES, several of each: "in the exclude i should be
-    able to put in several guides or genes". A gene selects every guide
-    assigned to it, so excluding a contaminated amplicon does not mean
-    listing its four guides and missing the fifth.
-
-    `control_names.rows_for` does the resolving, and reusing it is the
-    point rather than a convenience: it is what `controls`,
-    `positive_control` and `negative_control` already use, so an exclusion
-    is typed in exactly the spelling those accept -- with or without the
-    organism prefix -- and cannot drift into a second dialect of the same
-    names.
-
-    An entry that matches nothing is returned in neither set; the caller
-    that cares should say so, because a misspelled exclusion silently
-    excluding nothing is how a contaminant survives a filter that was
-    supposed to remove it.
+    Gene names select every associated guide. Matching uses the same
+    organism-prefix handling as the control settings. If the shared resolver
+    cannot run, exact guide-name matches are returned as a conservative
+    fallback; unmatched inputs are omitted and can be reported with
+    :func:`unmatched_exclusions`.
     """
     wanted = [e for e in (exclude or ()) if str(e).strip()]
     if not wanted:
@@ -137,12 +100,7 @@ def resolve_exclusions(exclude: Optional[Iterable[str]],
 def unmatched_exclusions(exclude: Optional[Iterable[str]],
                          guides: Sequence[str],
                          genes: Optional[Sequence[str]] = None) -> List[str]:
-    """Entries in ``exclude`` that name nothing in this screen.
-
-    A MISSPELLED EXCLUSION EXCLUDES NOTHING AND LOOKS LIKE IT WORKED, which
-    is the failure this exists to make visible. Every caller that filters
-    should report these rather than proceeding quietly.
-    """
+    """Return exclusion entries that match no guide in the screen."""
     wanted = [str(e) for e in (exclude or ()) if str(e).strip()]
     missing: List[str] = []
     for entry in wanted:
@@ -156,28 +114,25 @@ def background_from_controls(
         intended: Mapping[str, Iterable[str]], *,
         exclude: Optional[Iterable[str]] = None,
         statistic: str = "median") -> Dict[str, object]:
-    """Measure each guide's read fraction in wells it does not belong to.
+    """Measure each guide's fraction where it should be absent.
 
-    :param fractions: ``{well: {guide: fraction}}`` for the CONTROL wells
-        only.
-    :param intended: ``{well: the guides that well really contains}``. A
-        well absent from this mapping is skipped rather than assumed empty,
-        because assuming would turn a real guide into background.
-    :param exclude: guides that are not in any cell -- primer or plasmid
-        carry-over. Dropped and the well renormalised BEFORE anything is
-        measured, because a contaminant left in the denominator holds every
-        real guide's background down by its own share and makes the
-        threshold look tighter than it is.
-    :param statistic: ``'median'`` or ``'mean'`` across the control wells.
-        Median by default: one contaminated well should not set a guide's
-        background for the whole plate.
-    :returns: the per-guide background, the total spurious mass per well,
-        and the counts behind both.
+    Parameters
+    ----------
+    fractions : mapping
+        Nested mapping ``{well: {guide: fraction}}`` for control wells.
+    intended : mapping
+        Guides known to be present in each well. Wells missing from this
+        mapping are skipped rather than treated as empty.
+    exclude : iterable of str, optional
+        Sequences to remove and renormalize before measuring background.
+    statistic : {'median', 'mean'}, default='median'
+        Summary applied across eligible control wells for each guide.
 
-    THE SPURIOUS MASS IS REPORTED PER WELL AND NOT ONLY AVERAGED, because
-    its SPREAD is the thing that says whether these wells are describing one
-    phenomenon. A tight spread is a sequencing property; a wide one means
-    some wells were contaminated and the rest were not.
+    Returns
+    -------
+    dict
+        Per-guide background, occurrence counts, per-well spurious mass,
+        aggregate mass statistics, and the number of controls used.
     """
     per_guide: Dict[str, List[float]] = {}
     seen_in: Dict[str, int] = {}
@@ -224,17 +179,12 @@ def background_from_controls(
 def suggest_threshold(measurement: Mapping[str, object], *,
                       quantile: float = 0.99,
                       outlier_factor: float = 20.0) -> Dict[str, float]:
-    """A `fraction_threshold` taken from the data instead of a constant.
+    """Estimate a global fraction threshold from diffuse background.
 
-    :param quantile: the share of the background distribution to clear.
-    :returns: the suggested threshold and what it would and would not
-        remove.
-
-    IT IS ONLY HONEST FOR THE DIFFUSE PART. The quantile describes the haze
-    of guides that appear at trace level everywhere. A guide whose
-    background is an outlier is not described by any quantile of the others
-    and needs :func:`subtract_background`; the count of those is returned
-    beside the number so it cannot be read as a complete answer.
+    Guides at least ``outlier_factor`` times the median are excluded from the
+    quantile calculation and counted separately because a single threshold
+    does not describe them. The result reports the threshold, sample counts,
+    and the number of guides that require guide-specific review or correction.
     """
     background = dict(measurement.get("background") or {})
     if not background:
@@ -274,17 +224,13 @@ def subtract_background(fractions: Mapping[str, float],
                         background: Mapping[str, float], *,
                         scale: float = 1.0,
                         renormalise: bool = True) -> Dict[str, float]:
-    """Remove each guide's own background from a well, then renormalise.
+    """Subtract guide-specific background from one well.
 
-    :param scale: how much of the measured background to subtract. THE
-        CONTROL COLUMNS OVERSTATE IT for an ordinary well -- index hopping
-        scales with the abundance of the source, and a control well has one
-        guide at seventy per cent where an ordinary well's largest is five.
-        1.0 is the conservative choice and removes the most; a caller who
-        has estimated the ratio between the two regimes passes it here.
-    :param renormalise: rescale the survivors to sum to what they summed to
-        before, so the correction moves the SHARES between guides without
-        also moving the well's total.
+    ``scale`` multiplies the control-derived background before subtraction;
+    values are clipped at zero. When ``renormalise`` is true, corrected values
+    are rescaled to preserve the original finite total. Use a scale below one
+    when control-well abundance is known to overstate contamination in
+    ordinary wells.
     """
     out: Dict[str, float] = {}
     before = 0.0
@@ -305,23 +251,13 @@ def subtract_background(fractions: Mapping[str, float],
 def suspicious(measurement: Mapping[str, object], *,
                factor: float = 20.0,
                everywhere: float = 0.9) -> List[Dict[str, object]]:
-    """Guides whose background is unlike every other guide's.
+    """Return guides with high, recurrent control-well background.
 
-    :param factor: how many times the median background counts as an
-        outlier.
-    :param everywhere: appearing in at least this share of control wells.
-    :returns: one row per candidate, worst first.
-
-    THESE ARE CANDIDATES AND NOT A VERDICT. A guide abundant in wells it
-    cannot be in is either a sequencing artefact or genuinely
-    over-represented in the library and really in those cells -- and the
-    correction is opposite in the two cases. Read counts cannot separate
-    them. The imaging can: a guide really present moves its cells'
-    phenotype, an artefact does not.
-
-    APPEARING EVERYWHERE IS THE STRONGER SIGNAL, more than the level. A
-    guide at one per cent in every control well is behaving systematically;
-    a guide at five per cent in one well is a contaminated well.
+    Candidates must reach ``factor`` times the median background and appear
+    in at least ``everywhere`` of eligible control wells. Results are sorted
+    by decreasing background. Read counts alone cannot distinguish a
+    sequencing artefact from a genuinely over-represented guide, so the
+    returned verdict explicitly recommends imaging-based review.
     """
     background = dict(measurement.get("background") or {})
     seen = dict(measurement.get("seen_in_wells") or {})
