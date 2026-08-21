@@ -351,6 +351,10 @@ class RunSummary:
     warnings: List[str] = field(default_factory=list)
     verbatim: Optional[str] = None
     verbatim_note: str = ""
+    #: What the run's own numbers say to change (225). Derived by
+    #: `spacr.run_recommendations.recommend` from measured values, never
+    #: composed -- each one is a rule with a threshold that fired.
+    recommendations: List[Any] = field(default_factory=list)
 
     def section(self, name: str) -> Optional[SummarySection]:
         """The section called ``name``, or ``None``."""
@@ -2079,6 +2083,22 @@ def format_run_summary(summary: RunSummary) -> str:
     if summary.verbatim:
         lines.append(summary.verbatim)
         lines.append("")
+
+    # LAST, BECAUSE IT IS WHAT TO DO NEXT. Everything above says what was
+    # found; this says what to change, and a reader who stops early has
+    # still read the findings.
+    #
+    # It is printed even when empty: an absent section reads as a bug, and
+    # "every check passed" is a result worth stating rather than implying by
+    # silence.
+    try:
+        from .run_recommendations import format_recommendations
+
+        lines.append(format_recommendations(
+            list(summary.recommendations or [])))
+        lines.append("")
+    except Exception:                                        # noqa: BLE001
+        pass
     return "\n".join(lines).rstrip() + "\n"
 
 
