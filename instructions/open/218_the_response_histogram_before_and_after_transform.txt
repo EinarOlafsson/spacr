@@ -1,0 +1,60 @@
+================================================================================
+THE RESPONSE HISTOGRAM, BEFORE AND AFTER THE TRANSFORM, ON ONE GRAPH
+================================================================================
+
+Status:    filed 2026-08-21, not started.
+Requested: 2026-08-21 -- "i want to see a histogram of the dependent variable
+           distribution after and before transformation (same graph) in the
+           graphs clearly stating what type of distribution each is, normal
+           bets, etcetera".
+Owner:     Regression QC, figures
+
+--------------------------------------------------------------------------------
+WHY IT BELONGS IN THE FIGURES
+--------------------------------------------------------------------------------
+
+THE TRANSFORM IS THE MOST CONSEQUENTIAL SETTING NOBODY LOOKS AT. It decides
+which model family is even appropriate, and it is chosen from a dropdown
+whose effect is invisible until the coefficients come out the other end. A
+user who picks the wrong one gets a fit that runs, plots and exports, and is
+wrong in a way no error can catch.
+
+One panel showing both distributions makes the choice inspectable in the
+moment it matters, and ON ONE GRAPH rather than two, because the question is
+what CHANGED and two panels side by side is a comparison the reader has to
+do themselves.
+
+--------------------------------------------------------------------------------
+WHAT THE PANEL SHOWS
+--------------------------------------------------------------------------------
+
+  * both histograms, before and after, distinguishable and overlaid or
+    paired on shared axes;
+  * THE NAME OF EACH DISTRIBUTION -- "normal", "beta", "bounded and skewed",
+    "binary" -- stated on the panel, not left for the reader to judge by
+    eye. That is the substance of the request;
+  * the statistic behind the name, so the label can be disagreed with: the
+    normality p-value and the skew are already measured by the advisor's
+    `Reading` and by `check_distribution`.
+
+`spacr.ml.check_distribution` ALREADY NAMES THE FAMILY and returns one of
+'logit', 'quasi_binomial', 'beta', 'ols' or 'glm'. It is the classifier this
+panel should label with -- not a second opinion written for the plot, which
+would let the picture and the fitted family disagree about the same data.
+
+A TRANSFORM THAT CHANGED NOTHING SHOULD BE VISIBLE AS SUCH. When 'none' is
+selected the panel still draws, with both curves identical and the label
+saying so, rather than being absent -- an absent panel reads as a missing
+feature rather than as an answer.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* One panel carries both distributions on shared axes.
+* Each is named, and the name comes from the same function that picks the
+  regression family.
+* The statistic behind each name is shown.
+* Selecting 'none' draws the panel rather than omitting it.
+* A skewed response that becomes symmetric is visibly so, checked on
+  generated data where the answer is known.
