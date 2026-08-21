@@ -1474,6 +1474,290 @@
       "source_sha256": "1b08cda5d1d39114cb40eac48cdba842962b879e0528dd52c4b59133f86029cd",
       "text": "The full DeepTMHMM table, as its own supplementary data table.\n\nThis table contains the complete bundled DeepTMHMM results for all\n*Toxoplasma* proteins.\n\n:param genes: restrict to these genes -- any spelling\n    :func:`gene_number` accepts. ``None`` writes all 8,140 proteins.\n:param path: write here as CSV as well as returning the frame.\n:returns: the table, or ``None`` when DeepTMHMM is not bundled.\n\nSEPARATE FROM :func:`annotate` ON PURPOSE. The per-segment coordinates\nare 72 columns, and a coefficient export carrying them is a table nobody\nopens twice. What belongs beside a coefficient is \"does this protein have\na signal peptide, and how many transmembrane helices\"; where each helix\nstarts is a different question and gets a different file.\n\nONLY THE SEGMENTS THAT EXIST. A screen of soluble proteins gets a table\nending at `n_tm`, not 72 columns of nothing -- the same rule the rest of\nthis module follows."
     },
+    "spacr.annotation_power": {
+      "source_blocks_sha256": [
+        "a3af21f75bcd90ce2d2ef5dbd4f20ae76f62ce3ee639e33ad83e8fd2ea7b8206",
+        "199f56fa13252a3184a8c2630164b43f69b131d13b71f22c8afa7d3d65db5060",
+        "7756593ed40100819c2aedf1c6eb94e3ec971e1bf90717ac8d9f2c700ccb0f79",
+        "9074f6b222927306a339be9c3193b1be764e87fcc90c3332ce7ba8192a7e7c75",
+        "84fd69b0547adbbc51c2a1446c6e18d5ec9738fddac977d2e1785418e32c2c60",
+        "0642ccea17549223f8a18157b6c0b06076741097ab80046be78f2b639c232222",
+        "dc3cb0f3e39546b8a0fd72466c4974da6586be59b310f77b4b9009bbbe081d93",
+        "1083f4a13fdcf1582e62f34facb4b5f52be209b74450d40251eed3dfcd1b0b69",
+        "a1512e223cd65086663c5a3136b3ddd98669c8bfdcd8b01b4129401ee9f9c05e"
+      ],
+      "source_sha256": "7b9cb4ec8d149a86254fe577d601258dfdf9b1927692e6928b663f0b446f42af",
+      "text": "How many cells CAN be annotated, and how big the screen would have to be.\n\nAsked 2026-08-21: \"i dont need all cells annotated. for each method i want as\nmany cells as the method can reasonably annotate annotated ... with no method\ncan we annotate every cell, for that we would need a much largesr screen.\nthat is something that can be printed in the textbox under the graph, all the\nquality metricks that can be caluclated for each method and how large the\nscreen would have to be based on these data\".\n\nCOVERAGE IS NOT A GOAL, which reverses how the benchmark should be read. A\nmethod that annotates every cell has not done well; it has declined to\nabstain. The question each method answers is \"which cells can I speak about\",\nand the honest ones leave most of a pooled screen alone.\n\nTHE LIMIT IS ARITHMETIC, NOT EFFORT. Take the simplest method's model: a\nguide `g` is a fraction `pi` of a well's reads, only `g` produces the\nphenotype, and the classifier has sensitivity `se` and specificity `sp`. A\ncell called phenotype-positive carries `g` with probability\n\n    P(g | +)  =  pi * se  /  ( pi * se  +  (1 - pi) * (1 - sp) )\n\nand the second term in that denominator is the trap. FALSE POSITIVES ARE A\nSHARE OF THE NEGATIVES. When `pi` is small nearly every cell in the well is a\nnegative, so a small false-positive rate applied to almost everything\noutnumbers a large true-positive rate applied to almost nothing. Below a\ncertain `pi` a positive call is more likely to be a mistake than a hit, and\nNO METHOD USING THAT EVIDENCE CAN DO BETTER -- it is not a limitation of the\nalgorithm but of what the well contains.\n\nRearranged, the fraction a guide must reach for a decision at confidence\n``t``:\n\n    pi*  =  t (1 - sp)  /  ( se (1 - t)  +  t (1 - sp) )\n\nMORE CELLS PER WELL DO NOT HELP, and this is the counterintuitive part worth\nstating before anyone images more fields. `pi` is a fraction: doubling the\ncells doubles the true positives and the false positives together, so the\nper-cell confidence is unchanged. It buys more annotated cells at the same\nrate, never a higher rate. The rate moves only when the guide's SHARE moves\n-- fewer guides per well -- or when the classifier separates better."
+    },
+    "spacr.annotation_power.annotatable": {
+      "source_blocks_sha256": [
+        "5a233f2468b8bc80b199221d4dbc220f8b8eabb3b82cb915508031d8d974f55e",
+        "cdf5f11230d8882ed62971087605484e4e5a7c2ef1068ec425ee18668194d1ec",
+        "6fa56f0d087b7cf95e26c6d08ac6f5132f5471ab34a6242d773a0b4f881c8953",
+        "f698a458c955018351f7c41cdf2c67a3047910545c30352f27303e683a5faa11",
+        "c6af761ebd68a139a139353e962d7beb53358acffda082912038cb6e06ba4aa5"
+      ],
+      "source_sha256": "bb5a94b912cadb4ff7ea2941b4d46689fc8a9fcdebd4b1dbb48f6d7b6b1d0d37",
+      "text": "How much of a screen is reachable at all, given its own fractions.\n\n:param fractions: ``{well: {guide: fraction}}`` -- the screen as it is.\n:param cells_per_well: optional, to turn the share of well-guide pairs\n    into a share of CELLS.\n:returns: the floor, what clears it, and what that leaves unreachable.\n\nTHE UNREACHABLE GUIDES ARE THE HEADLINE. A guide that never reaches\n`pi*` in any well cannot be annotated anywhere in the screen, so no\namount of method development will produce a single cell for it. That is\na fact about the experiment, available before any method is run, and it\nis the number that should decide whether to run one."
+    },
+    "spacr.annotation_power.posterior_for_prior": {
+      "source_blocks_sha256": [
+        "a8b93e65b79cf13ec136cc34228113736c6f13b9b1a575e90e12051f41be14b9"
+      ],
+      "source_sha256": "a8b93e65b79cf13ec136cc34228113736c6f13b9b1a575e90e12051f41be14b9",
+      "text": "P(the cell carries the guide | it was called phenotype-positive)."
+    },
+    "spacr.annotation_power.quality_report": {
+      "source_blocks_sha256": [
+        "cda8179e3ea87f8008f294889f95ef9bc335d85b9f5f912f2e979e53cb44a735",
+        "c3ae96c57a2c5e818f3c65c7ab9c8c760366e21008a1eb3619ca3a272f7a6dae",
+        "0e8e840e036a72a424adc9dc9bbc5135e9a0463e052e24a09293849b65bb8173",
+        "712e45be4c89a60b583128cfd76b64e281a9b0c97e215c1c47fa702829a0970c",
+        "cfce7fb29dccfc3396b0fa2215680f8eb3da77087a05c7ac970d23a94f007ce1"
+      ],
+      "source_sha256": "86d94116f8a7a88ef41bfb07f6cd0005c9fc4fbfe5215f162fec319ddfe6a94b",
+      "text": "The textbox under the graph: every method's metrics, and the ceiling.\n\n:param verdicts: ``{method: Verdict}`` from\n    :func:`spacr.annotation_validation.score_annotation`.\n:param power: the :func:`annotatable` result for this screen.\n:param size: the :func:`screen_size_for` result.\n\nCOVERAGE IS PRINTED BESIDE PRECISION AND NEVER BLENDED WITH IT. The\nmethods are ordered by the cells they got RIGHT, which is the only\nranking that does not reward either annotating everything badly or\nannotating nothing safely."
+    },
+    "spacr.annotation_power.required_fraction": {
+      "source_blocks_sha256": [
+        "04c77bb75b579bf27811f483de3218ac3454772570279c9191e7029a42873298",
+        "523285e2e795bc5b5649e6ec17de2f8f00288f5eabbc91cf5169b3f260279851"
+      ],
+      "source_sha256": "616e3e440932927646826025f198ea225e74cafc2a5d1ae6eaa52dcb14493f9d",
+      "text": "The smallest guide fraction that can support a call at ``decision``.\n\nBelow this the arithmetic is against you whatever the method: a\nphenotype-positive cell in such a well is more likely to be one of the\nmany negatives misread than one of the few positives."
+    },
+    "spacr.annotation_power.screen_size_for": {
+      "source_blocks_sha256": [
+        "342288ae6ec84935923e624315a3265a277d96a5dc7b39107f9010be8a9a1710",
+        "f6d6ddbe748bdd78f242faafbed1c0513c5e18d1abd37975c8709333f039ca0b",
+        "0123211697f8a51dc701b6e0a2702e9383108133906ceb575a4a4366565ddd53",
+        "77c2f51fc8f9ed8b8428abef2bceedce7a9d598c99eb4a2a4ffdbab43be9e6ff"
+      ],
+      "source_sha256": "eadc14a40dcb1754f5e2a52d2402e5b70093d8433443e6091c88c98be7d16c51",
+      "text": "What the screen would have to be for ``target`` of guides to be\nreachable.\n\nTHE ONE LEVER IS GUIDES PER WELL. A guide's fraction is its share of the\nwell, so the way to raise it is to put fewer guides in each well -- and\nholding the library and the coverage per guide fixed, that means more\nwells, in direct proportion.\n\n:param target: the share of guides that should reach the floor.\n:returns: the current shape, the shape needed, and the ratio between --\n    plus what the same result would cost through the classifier\n    instead, since a better model is the other way to move the floor."
+    },
+    "spacr.annotation_umap_qc": {
+      "source_blocks_sha256": [
+        "baf7690b442236f6d4537f3b18a28d8a19f255dd07dd02eb5cc81c40f2bc98c6",
+        "5dabbbf67f7ebc7f4cf1b80c4554bf0c56d75ede1e01d238aab96ef1656d357f",
+        "7bd99ac5f84b7b98002481bb31ad5b43654469aa5cff84a6275721cffbc96872",
+        "39e57535322fc8f1bd511fd81a1d335ed01dba8ffb5d4a286e0a7e3a4847616f",
+        "92d86bbfb0d7eea8564d54fcf7788d18584f6fa343f32b5197285aee9c102609",
+        "dd5ed9723518313248258cb2bdfbbb9eb88a1dbd1843ab00d4e3aede03dcce6f",
+        "69dd8dc25000e60d87df3994f13b76af966901b7e3bf9893eef4411ea8a4a545",
+        "3102f89bc4259168d43e6f2101d728fa202b5ce951c0f0567e72284143db78ba",
+        "448e7c3af1266452d4cb86191528c12788b624b386ec5e5b74555c2ebfa60d6a"
+      ],
+      "source_sha256": "20fe73ec60cf48b0666f68c2be59068f3e604db6d28f7992394fe9af5ccc575a",
+      "text": "Do annotated cells land where their guide's effect says they should?\n\nProposed 2026-08-21: \"generate a umap, perform a hyperparamiter search find\nstucture that separates the positive and negative controlls and see where the\nannotated cells land, do they cluster with PC or NC ... this would be a\nquality controll and a proof of sorts that the annotation is working\".\n\nIT IS A GOOD CHECK BECAUSE IT IS INDEPENDENT. The annotation is made from\nsequencing fractions plus a phenotype call; this asks a different question of\na different space -- where does the cell sit among the controls, using every\nmeasurement at once -- and the controls supply a frame of reference that owes\nnothing to the annotation.\n\nTURNING IT INTO A TEST RATHER THAN A PICTURE takes three things, and without\nthem it will agree with whatever it is shown:\n\n  1. THE HYPERPARAMETERS MUST NOT BE CHOSEN ON THE CELLS BEING JUDGED.\n     Searching until PC and NC separate is fitting the projection to the\n     labels, and with enough measurements some setting always separates two\n     groups. :func:`fit_on_controls` splits the CONTROL wells, tunes on one\n     half, and reports the separation achieved on the other. A search that\n     only separates the half it was tuned on has found nothing.\n\n  2. THE READOUT MUST BE A NUMBER. \"Do they cluster with PC\" is answered by\n     :func:`neighbour_purity`: the share of a cell's nearest CONTROL\n     neighbours that are positive controls. Eyeballing a UMAP is not a\n     measurement -- cluster sizes and the distances between them are\n     artefacts of the projection, and only the neighbourhoods mean anything.\n\n  3. THERE MUST BE A NULL. Cells land somewhere whatever the annotation\n     says. :func:`effect_agreement` asks whether purity tracks the guides'\n     EFFECT SIGNS, and compares that against the same statistic with the\n     effects shuffled between guides.\n\nTHE TRAP THIS CANNOT ESCAPE, and it decides which methods may be judged this\nway at all. A method that PICKS CELLS BY THE PHENOTYPE SCORE will produce\ncells that sit near the positive controls whatever else is true -- that is\nwhat it selected for. `rank` takes the top-scoring cells in the well, so its\nannotated cells clustering with PC is a restatement of how it chose them and\nproves nothing.\n\nThe check is informative exactly for methods whose cell choice did not use\nthe score: `sudoku` with the score out of the graph, `assigned`, and\n`attributed` where the effect comes from the regression rather than the\nscore. :func:`circularity_warning` refuses to be quiet about it."
+    },
+    "spacr.annotation_umap_qc.circularity_warning": {
+      "source_blocks_sha256": [
+        "4b9c1d1ee9b009e328fff6063d1f94e97be6e651341af2ebf8c1c56a93fdafab",
+        "02bae122bcdcb01792fc16846468201de502cdd4d735955d25544e56c1c4112f"
+      ],
+      "source_sha256": "71de7cb556d789534ac8df66dbe8794776eb63a5af8714373571232db090d5b8",
+      "text": "Why this check may not be informative for ``method``, or ``\"\"``.\n\nA method that selected cells BY the score will place them near the\npositive controls by construction. Reporting that as validation would be\nreporting the selection rule back to itself."
+    },
+    "spacr.annotation_umap_qc.effect_agreement": {
+      "source_blocks_sha256": [
+        "0343d9c128549b1e38789af297246893c52f51733170cd9884fdfd0f4ccf99c2",
+        "4f00dece26e2deadeac4ae1826f9a44e6182dd840c6210004c500dae0bb6504d",
+        "0783d7f5f0aef7a4158d0c12103b61f136c6048d6cd80cb167c49ddb94b92861",
+        "c607e5c21df17a150dfd234b205649c82833ec5b46e06734d1b506b187108f1c"
+      ],
+      "source_sha256": "31288254b608732976402f59e26da37bd3980e8559487079b66842a6f3b03186",
+      "text": "Does purity track the guides' effect signs, beyond chance?\n\nTHE CLAIM BEING TESTED, in the terms it was proposed: \"the cells with a\npositive effect size cluster with the positive controll and the cells\nthat do not have a positive coeffisient do not\".\n\n:returns: the rank correlation between effect and purity, a permutation\n    p-value, and the group means for guides with positive, negative and\n    near-zero effects.\n\nTHE NULL SHUFFLES THE EFFECTS BETWEEN GUIDES and keeps everything else,\nso it preserves how many guides there are, how many cells each has, and\nthe purity distribution -- and destroys only the correspondence being\nclaimed. A correlation that survives that is about the annotation."
+    },
+    "spacr.annotation_umap_qc.fit_on_controls": {
+      "source_blocks_sha256": [
+        "e7e6a06b73cee7d95cd862d2537e7197934aee42093152d4bafc115100c884b3",
+        "df81cd898589d4948c318bfec953930acd056106d499699f8131fb08fb04c183",
+        "9b6050a9564fc287f1b62ae23d25e9155311bde0f64a930f89f79bb0d0b8af02",
+        "1d006ce7a637bb90a740392f1dd3af2543012c8b29ad0c638a666d717d06db27",
+        "9befe48263b9bc3dad17ce94e960e21e75dfdf53ab0de00ad2e0192cdd9c8d04",
+        "70c6185761c4283bd8061839230fbae55c11d79b4324ebce98a3e5e2dd4e95cf"
+      ],
+      "source_sha256": "bd930754e0eec8938359bdea1a1ffc1d9e6dc277e4c6ddcacd4d76559b8e57fe",
+      "text": "Choose an embedding on half the controls, score it on the other half.\n\n:param features: ``(n_cells, n_features)`` for the CONTROL cells only.\n:param labels: :data:`POSITIVE` or :data:`NEGATIVE` per control cell.\n:param recipes: candidate UMAP parameter sets to try.\n:returns: the winning recipe, its held-out separation, and every trial.\n\nTHE HELD-OUT NUMBER IS THE ONLY ONE WORTH READING. Tuning until two\nlabelled groups separate always succeeds given enough parameters to try;\nthe question is whether the separation survives on cells the search\nnever saw. A large gap between the tuned and held-out scores means the\nsearch fitted the split rather than the biology, and the embedding\nshould not then be used to judge anything."
+    },
+    "spacr.annotation_umap_qc.neighbour_purity": {
+      "source_blocks_sha256": [
+        "72aae47ad5417e99fd3e889a2e13c2f8777c8f2d850b1c25afeb9094e9626fbb",
+        "ccf70b39aacf9980d3a61ea716c2be3fa15e116d4cb0951884f87a177267af00",
+        "865653ff6cae3831a252076ac6bd1284ba7e35c61b496809c101d59813d686a1",
+        "678169a8837e435c756cac26b8669894b499c0f3a4b9fe978ee8610ee7c68efe",
+        "74c63f84d7185a9665e222bb3851da3110c6b73c645073f8102f52c659231c6b",
+        "2233c858491d4dfd38250a94ba572e23855711743be268d66f7cabc4b6c9a901"
+      ],
+      "source_sha256": "eadf837107ae5fa78a783d16f55f4081be58405cfb4af74b920e777ad1fddd13",
+      "text": "Share of each cell's nearest CONTROL neighbours that are positive.\n\n:param embedding: ``(n_cells, 2)`` with controls and annotated cells\n    embedded together.\n:param control_labels: :data:`POSITIVE`, :data:`NEGATIVE`, or ``None``\n    for a cell that is not a control.\n:returns: one value per cell in ``[0, 1]``; ``nan`` where no control\n    neighbour was found.\n\nNEIGHBOURHOODS, NOT CLUSTERS, and not distances. A UMAP's cluster sizes\nand the gaps between them are artefacts of the layout; what it does\npreserve, and all it preserves, is who is near whom. A statistic built\non anything else is reading the projection rather than the data.\n\nA control cell's own purity counts its neighbours and NOT ITSELF, so\nthe controls can be scored on the same footing as everything else --\nwhich is what makes them usable as a reference for what a \"pure\" score\neven looks like here."
+    },
+    "spacr.annotation_umap_qc.purity_by_guide": {
+      "source_blocks_sha256": [
+        "5e12c95c15a853e65e2849394720cd297a0f7224dbd104ce620e5fd7f22e7684",
+        "8b8da6820778a37c79e018729ea43d81f18c64580ad03b10bf5387852844e215"
+      ],
+      "source_sha256": "6ece8d5027141be175b160c3071682acfd2e715543957073f0edda00ed1e2f29",
+      "text": "Average purity per annotated guide, with the count behind it.\n\n:param minimum_cells: guides with fewer annotated cells are left out\n    rather than reported noisily. A guide with three cells has a purity\n    that can only be 0, 1/3, 2/3 or 1."
+    },
+    "spacr.annotation_validation": {
+      "source_blocks_sha256": [
+        "cd8e60883fc297b3cac91141d1c50409388ee9b03d2263aa02673db6854a42d4",
+        "69c0cd79ffc9437b39dbf411550e07e63c18895d58b5a10fca29dd6ac8d5c139",
+        "0b00d100c01b3f4864da13d6b53e2910b5beab63fa98a0ecac42138f3905c8f0"
+      ],
+      "source_sha256": "01f8fa7aa0d2ac007ffecf64469045b74da393a68e93f3f9d1550d37d8de7925",
+      "text": "Evaluate guide-annotation strategies against measurable reference cases.\n\nReal pooled screens do not provide cell-level guide ground truth. Validation\ntherefore combines four complementary checks: simulated screens with known\nassignments, guide-to-well permutations that should reduce performance to\nchance, held-out controls, and order-sensitivity analysis for sequential\nmethods.\n\nResults report coverage and precision separately. This avoids treating a\nmethod that labels every cell unreliably as equivalent to one that abstains\non uncertain cells and labels the remainder accurately."
+    },
+    "spacr.annotation_validation.Screen": {
+      "source_blocks_sha256": [
+        "8b5f49169620cb57e56cea46d62aadc0130a4608c2ee1e42cf5ff8eb5fb99b33",
+        "1781f1119578939ae57cb1e1899988a8c80e267e9518d8dc27958ccf137109ac",
+        "373a0624928cf536854f70069859403f293d22848e043fb2b691df67472beb73",
+        "4e74a48dde732283c8bbd6fcdc368d9c610e80f18cf2e91ba720611dd97dd427",
+        "e3f87dbc4e1b2831f129e6acd8f3909703871430ce0205753e0e59ae1bf5d47f",
+        "ed156b97fbd7472764f01551fb8cba9442c0aeb8daadba7e043e7263fc067d70",
+        "75bc563bc137b3beb2dcb6f4fcd8143b35e3af0d6c42610bb752f2e9a098a0d4",
+        "67451c1f0b6edc3cd421e56ccf2f4ee9b97c8e600f66d773b11565b051fb5214"
+      ],
+      "source_sha256": "3f6c2ae746ceec192c4a97189bf2bcd209a3466467b6cc1a3170ad48b47014c1",
+      "text": "A simulated screen, and the answer.\n\n:ivar features: ``(n_cells, n_features)``.\n:ivar scores: the classification score per cell, with the classifier's\n    error already applied.\n:ivar wells: one well label per cell.\n:ivar truth: the guide each cell REALLY carries.\n:ivar fractions: ``{well: {guide: fraction}}`` as sequencing reports\n    them -- biased and thresholded, i.e. what the method actually gets.\n:ivar true_fractions: the same before the bias, kept so a test can ask\n    how much of a failure was the fraction rather than the method.\n:ivar guides: every guide in the screen."
+    },
+    "spacr.annotation_validation.Verdict": {
+      "source_blocks_sha256": [
+        "d6f8df29761fbae33554519621e7be3f060a06847974c3f56a0c8be04ab207e5"
+      ],
+      "source_sha256": "d6f8df29761fbae33554519621e7be3f060a06847974c3f56a0c8be04ab207e5",
+      "text": "How an annotation did against a known truth."
+    },
+    "spacr.annotation_validation.baseline_chance": {
+      "source_blocks_sha256": [
+        "01183d48d0450eca4953c8a69fed892d42752037e098ea2f85397261e33683d1",
+        "797cc26d090be41d3e76cd803b1bacdd1b8ff5f940acf43deae11a627a6ffd23"
+      ],
+      "source_sha256": "62413f3b754c4f2697a76bfa8e0c82ef8c17277eefeb6d3fb7275de6f3e05775",
+      "text": "Draw each cell's guide from its well's fractions, at random.\n\nThe other floor: what a method scores if it respects the counts and\nknows nothing else. Together with :func:`baseline_majority` these\nbracket what the sequencing can do unaided."
+    },
+    "spacr.annotation_validation.baseline_majority": {
+      "source_blocks_sha256": [
+        "52662918ccf24e154a7ac1e3411f1b88e2baa73a3fdfc8de84a44ae6b4684f7e",
+        "fe43b2ab46876dc18e8d56d529fbd181c072c3978871b48a3a6b5a6a4c18a161",
+        "dc168d9bfcef75296a205ee74b75d38b18f6f228976a1138c5d03e9f33d85ddf"
+      ],
+      "source_sha256": "53b758cea0b0cec1068d09ad9bb6b379856764c34215d964348484bd18894331",
+      "text": "Give every cell in a well to that well's largest guide.\n\nTHE FLOOR EVERY METHOD MUST CLEAR, and it must be in every benchmark\nrather than assumed. It uses NO cell measurement at all -- only the\nsequencing -- so whatever it scores is what the fractions alone are\nworth on that screen.\n\nWithout it a benchmark cannot tell \"the method works\" from \"the\nfractions work\". On a screen with no signal in the features, a method\nthat abstains except where one guide dominates the well will post a\nprecision far above chance, and that is neither a bug nor a discovery:\nit is this baseline, wearing a graph."
+    },
+    "spacr.annotation_validation.benchmark": {
+      "source_blocks_sha256": [
+        "f57e08931820fed06258f36071466d8a4ecfd71d7b51dac6c54f0f0ded9fe338",
+        "91ff93d6815998ff8a5b152b321bc1b9ea11a7446e5166d7dc340fedacb848cf",
+        "9f58dbaea74ecf33510fed2514aec09cdae46f3f6300c69107efed932287aa47",
+        "1b26285faeedc9a0d3fd9d89e2b18da9167fb7657a3321873ca4bededccdd3ba",
+        "0359ea5aa1ca7ce607ac5b2c5082f4c70e363b1cb2fd8db07b9da332c8759215"
+      ],
+      "source_sha256": "8f52b27c2732100067aaeca82070f7228e733d52c523e48d873044f8671c8cfc",
+      "text": "Run every strategy on every scenario, and on each scenario's null.\n\n:param strategies: ``{name: screen -> one guide per cell}``.\n:param scenarios: ``{name: Screen}``. Defaults to\n    :func:`default_scenarios`.\n:returns: ``{scenario: {strategy: {\"real\": Verdict, \"null\": Verdict}}}``.\n\nTHE NULL IS RUN FOR EVERY STRATEGY ON EVERY SCENARIO, not once as a\nsanity check at the end. A method can be sound on an easy screen and\nread its own anchors on a hard one, and only the paired comparison\nshows that -- the gap between real and null is the part of the\nperformance that came from the data."
+    },
+    "spacr.annotation_validation.calibration": {
+      "source_blocks_sha256": [
+        "b58b8071994781a3611c2833e5a56b7828691b8d97535346e4466121c7d4716b",
+        "6e6ee2e6eccc4dd4aaf61321e52f339ca27899e826f4e39263c7ee96d0e360f3"
+      ],
+      "source_sha256": "e5e2efef6503955601d1ac2e412b5114d13d96b507e348e73be99995d143bc9f",
+      "text": "``[(mean confidence, observed accuracy, count)]`` per bin.\n\nA METHOD THAT SAYS 0.9 SHOULD BE RIGHT NINE TIMES IN TEN. This is the\ncheck that matters most for a method whose output is used as a weight\nrather than a label: precision can be high while the probabilities are\nmeaningless, and every downstream number that multiplies by them is\nthen wrong in a way no accuracy score reveals."
+    },
+    "spacr.annotation_validation.count_agreement": {
+      "source_blocks_sha256": [
+        "2a9ff0cd1e367ee2c03f9e42e56f9ded14b70e3619a9cbd767edda0020f3876b",
+        "edd3dd89624c7f6f76fb532f3e9d123e7e72a2025f736e7b09746f6e84784141",
+        "c46524e9cd3a8d2d453dfd634d8f198b66a636234b2a743d3424ed79e4fe82ce",
+        "ccc568d5e03d9ac3c3e039cc99ace05ce34c34b12f67ba829114994a0be8d8a9"
+      ],
+      "source_sha256": "31cb9d83b060a2f1aa1ff481b7e96ccb6aa1568d2b5cbd8b0d97052afc898c06",
+      "text": "Does a method's PER-WELL COUNT match what sequencing said?\n\nThe direct test of an annotation method on the mixed wells: the cells\nare unlabelled, but their COUNTS are known, so a method that names\nguides per cell can be checked by counting what it named.\n\n:returns: per-well predicted and reported shares, and the median error.\n\nIT IS NECESSARY AND NOT SUFFICIENT, and the gap matters: a method can\nget every count right and every cell wrong, by naming the right NUMBER\nof cells arbitrarily. What rules that out is the ratio SERIES -- getting\nthe count right at 90:10 is easy, at 50:50 it requires discriminating,\nand doing both with one rule is hard to fake."
+    },
+    "spacr.annotation_validation.default_scenarios": {
+      "source_blocks_sha256": [
+        "ea7c4ddf6c41219810ae81353ea1fac036679c8a7199fc730799b3dbd4e35bf2",
+        "4bc3bc945cc46c1d9085ee99f1165e1356bb38558963465da3cd581a798a177b"
+      ],
+      "source_sha256": "f70941c2ab89bb33638c3f9566c2e4878b6252072333aff2cf3e41a632f0fec7",
+      "text": "One screen per confound, dialled in ALONE.\n\nSeparated on purpose: a benchmark on a single realistic screen says a\nmethod scored 0.7 and not which of the four confounds cost it the 0.3."
+    },
+    "spacr.annotation_validation.mixed_ratio_calibration": {
+      "source_blocks_sha256": [
+        "6a1a427556def6f53012a05b05c85e87ce1fe0b0fc6da9021cf600e98f5c36f8",
+        "5502658350b01ed325c65e0d39f0bda0b7f6a7b0711f7d6c7d918e6b33b54680",
+        "4e74a48dde732283c8bbd6fcdc368d9c610e80f18cf2e91ba720611dd97dd427",
+        "c0e6f737c8dfed2b4beb33feb12ccd48616155595f30ec725691821aa72a69c1",
+        "f8ada92f95448e82b120eeaa0618a65497a055ae02f7352d40f1d4321920d39e",
+        "34746c4ec03ac82996aa677ac88908b72c13698582ea6f1685c1647f0db77e48",
+        "f865cee483e18bffa9fedb468d22d981eb4d6ecef7a55c1691c85ae7ff78a840",
+        "d6c0a34b64b0284c47b69efa2222ac6bcbbd944bc4228a0d3531e68a0eef99a1",
+        "9ff5be514b203a2e9d6f69fd9a8b845cac1e0b35a9d600402d691382f1b07907"
+      ],
+      "source_sha256": "45533d9e29d261e6cc9cef29e3575e48c8c20e614e871f2bcea3c7caf4511661",
+      "text": "Fit what imaging says against what sequencing said, on real wells.\n\n:param features: ``(n_cells, n_features)`` over the control wells.\n:param wells: one well label per cell.\n:param reported: ``{well: PC fraction sequencing reported}``.\n:param pure_low: at or below this, a well is taken as pure NC.\n:param pure_high: at or above this, a well is taken as pure PC.\n:returns: slope, intercept, the per-well estimates, and what was used.\n\nTHE SLOPE IS THE FRACTION BIAS, penetrance already absorbed -- see the\nnote above. A slope of 1 means sequencing's fractions are the cellular\nfractions. The 1.8 that `normalised_share` documents would show here as\na slope near 0.55.\n\nThe median pairwise slope limits the influence of one-sided contamination:\na hit sharing a control well can add phenotype-positive cells, whereas a\nleast-squares slope would be pulled toward that contaminated well."
+    },
+    "spacr.annotation_validation.mixture_proportion": {
+      "source_blocks_sha256": [
+        "925b9292c5be01094e1c0978b45d77776d0e569ac57c9612f2d61e1330709c39",
+        "534fb573dcc04db6252d81c895e7a60f94920a9b926df6d9a2f2681c580fcc24",
+        "0a1920780e13e11971238bd210634ff287ece552079833fcd7d6a152264b780e",
+        "a250e910a1c91ed0600d3f21e21a02061e880afd4b73425916ae655c70eb572c",
+        "f707363f48837e058e9e17830c819e896794edae21fa3e1f1d50a566e992bc19",
+        "50aa58958abbafdb4e8586c38af57cf55ac4bcae53b4f023473a83f163ff5822",
+        "d1430cb780fe432fc6c9c3a4087a6d589b21cb752e067b6c8ae217b2abb528f3",
+        "aeae6e15812b0dc8d3f2b3d771ba1a63eab190f0d64d6209e9c62ed0dc3803c4"
+      ],
+      "source_sha256": "9ac15cdff4e2c7f22086ec09323df83822433409ee0e9b29bf459a3de13dc216",
+      "text": "Estimate a well's PC share from the FEATURES ALONE.\n\n:param features: ``(n_cells, n_features)`` for one mixed well.\n:param positive: the pure-PC reference cells.\n:param negative: the pure-NC reference cells.\n:returns: the estimated proportion, clipped to ``[0, 1]``.\n\nProjects the well's mean onto the line between the two reference means:\n\n    mu_w = pi * mu_PC + (1 - pi) * mu_NC\n\nsolved by least squares. NO PER-CELL LABELS ARE NEEDED and none are\nused, which is the point -- the mixed wells do not have any.\n\nThe mean rather than a fitted density: a mixture likelihood in six\ndimensions needs far more cells per well than a control well has, and\nthe mean is unbiased for a mixture whatever the component shapes are."
+    },
+    "spacr.annotation_validation.order_sensitivity": {
+      "source_blocks_sha256": [
+        "2362ef487929bf4179e1bcd9f4d0e59db4ea5b0d345617d593dd90efed1f06ab",
+        "3667ca73f5cf8701e890b1ec17cc1e4d1c5b41438d338e71536eb04bd2ac3a24",
+        "29f5d143bf974051f613b31e37e3c44f06d38d3e800f30f48d6026507a4cbedd",
+        "8345f071033b680c4c19bf1565e8dd621eb5cf29b6da3964f5f7a14443cf2030",
+        "42d9035b3c973bbf28a0c74037c12330453d839ba91e227d7bbcf2689f1c759b",
+        "6ee022a91ff8a28ac38d2cd7c99ce89ed44534c491093aa2bd6372ba1a5e5b0a"
+      ],
+      "source_sha256": "0f6364c65445f23feb70c53c77ea07720e223dfd2c5346f6b16aceb0ce3c4371",
+      "text": "How much a sequential method's answer depends on its order.\n\n:param run: takes a ranking and returns one guide name per cell.\n:param ranking: the honest order.\n:returns: ``{\"changed\": share of cells that differ, \"repeats\": n}``.\n\nTHE GREEDY METHOD'S OWN RISK, MEASURED. `sudoku_all` removes the cells\nit claims, so the first guide's mistakes are permanent and every later\nguide inherits them. If shuffling the order changes a large share of\nthe answer, the confidence it reports is not confidence -- and that is a\nfact about the method that has to be produced rather than reasoned\nabout.\n\nThe perturbation swaps ADJACENT pairs rather than shuffling outright: a\nfull shuffle asks what happens if the confidence ranking is meaningless,\nwhich is not the question. The question is what happens when two guides\nof similar confidence come in either order, which is the case that\nactually occurs."
+    },
+    "spacr.annotation_validation.permuted": {
+      "source_blocks_sha256": [
+        "ede1177917789be589094b6285301894de3fa6d81461b511e8cda517defd2624",
+        "99376ff38760896da7e68fcc855ba6cd73832c31ff3fe548e1d8833400c39ae9",
+        "0f6d5971660167cb796311a1fa55400cd9403d3aa4e5770abb6cb6422b7434eb",
+        "6eafc94b764dcea3a915f51535e52cbc738be6799aa20bf8592054f82d86f349"
+      ],
+      "source_sha256": "997f19c2dbb1c9cd290948dd03709e0ac114c36ad7e46dd706fb15c5ea1f1901",
+      "text": "The same screen with the guide-to-well assignment shuffled.\n\nTHE ONE CHECK THAT DOES NOT NEED GROUND TRUTH, which is why it is the\nonly one that can run on a real screen. Shuffling which guides were in\nwhich well destroys every real relationship between sequencing and\nimaging while leaving the cells, the features, the scores, the well\nsizes and the fraction distribution exactly as they were.\n\nA method must collapse to chance here. One that does not is reading\nsomething other than the data -- most often its own anchors, chosen by\nscore, agreeing with a score-based feature.\n\nThe truth is shuffled with the fractions, so `score_annotation` against\nthis screen measures performance against the permuted world."
+    },
+    "spacr.annotation_validation.score_annotation": {
+      "source_blocks_sha256": [
+        "ab459ff43b0e9fc51bfae652bcd606dc21266b6f4da1eb3e88ac4aadaa81fa0a",
+        "66dbf5cb4f07a1e308ef5bf6f66c6c37c62684e20ea363aeb38cce1bee2c8254",
+        "420f471c52aaf4db9cb18cc30b5972cc753fe24ab5a27570db97f3fc4e0cd510"
+      ],
+      "source_sha256": "1dc10c70793f41d2ce46890f944eae8a626ea3324563ed26550cd3d1a51d6a84",
+      "text": "Compare an annotation to the known answer.\n\nCOVERAGE AND PRECISION ARE REPORTED APART, never blended. A method that\nannotates everything at 50% is worse than one that annotates a third at\n95%, and a single score ranks them by whichever it weights.\n\nAbstentions are NOT counted as errors in `precision` -- declining to\nanswer is not a wrong answer -- but they do reduce `coverage` and\n`recall`, so a method cannot buy precision by abstaining on everything\nwithout that showing."
+    },
+    "spacr.annotation_validation.synthesise": {
+      "source_blocks_sha256": [
+        "260e6892fae954082d17fd92554f0da9d2d6771e088c4ab7ab0bfc8fbecd6f53",
+        "5aacde4731e512d571a042354436aa0328d02a7d6f1465ec268506cdf56cb197",
+        "8fecaff9de6042a538c0966662707f4c129404ac267949a778a92680bf345cd4",
+        "af7ea235d1fea13f1f1deb389185a57efe0c3c1a094cfa229f418a53cccb33cc",
+        "8e81e14c1861c66e2607dfd5032271dd011d5ebe0b8c9c71c1283918db9e6e99",
+        "159f870a513bd3581288141383483d6030b7d703aabb7a06223d53d0d35ba707",
+        "00be0c403f3521275163587c4de5f89546345e471fd1f676111b6ce5c40ce433"
+      ],
+      "source_sha256": "bc3470150e484c59ef342dbbd87f26d8efc9be3a78d5733abd2915a03a2afba2",
+      "text": "Build a screen with a known answer.\n\n:param effect: how far a guide's cells sit from the origin in feature\n    space, in standard deviations. The signal-to-noise dial: at 0 the\n    guides are indistinguishable and NO method can do better than\n    chance, which is itself a test worth running.\n:param penetrance: the share of a guide's cells that actually show its\n    phenotype. Below 1 the rest look like nothing in particular, which\n    is the confound that cannot be separated from a fraction bias by a\n    single control.\n:param fraction_bias: multiply the reported fractions by this, then\n    renormalise. 1.8 reproduces what `normalised_share` documents on a\n    real screen: filtered fractions sum to a median of 0.5526, so the\n    surviving guides are inflated by roughly that reciprocal.\n:param fraction_threshold: drop guides below this share BEFORE\n    renormalising -- the mechanism that creates the bias rather than an\n    imitation of it.\n:param classifier_accuracy: the score is flipped toward the wrong tail\n    this often. Values closer to 1 produce better-separated classes.\n:returns: the :class:`Screen`."
+    },
     "spacr.api": {
       "source_blocks_sha256": [
         "f585ac38eb5deed615ec7dea307476d78996891be47af032e966ca2fe9954aca",
@@ -4955,6 +5239,158 @@
       ],
       "source_sha256": "101f4c8752816651f946615c900f71c00f71fbc5bee89b9e5c0cef784120f2a5",
       "text": "Atomically write a leakage report/audit as JSON and return its path."
+    },
+    "spacr.classifier_quality": {
+      "source_blocks_sha256": [
+        "45acfd4bea3111b6f0220dbb420df8e0e26e8069e643146e63de236f38a41019",
+        "3b528fc58946ff54785dcbac45932dc4659d32290d22b6b5a07450e9e307aed7",
+        "e88c5d78138871350b76089d165987c78dd5e92ebc20b998790a599bf71f303e"
+      ],
+      "source_sha256": "99717d0e8d97a587fb2b775d2187d865e50fce60d4a0c843be6bee9cf6863c67",
+      "text": "Measure classifier performance and correct observed class fractions.\n\nA confusion matrix requires labelled outcomes; an unlabelled score column\ncannot establish sensitivity or specificity by itself. Use a labelled test\nsplit or out-of-fold predictions when available. When labels are unavailable,\n:func:`deconvolve` estimates two score distributions and reports whether their\nseparation is sufficient to support the estimate.\n\nClassifier errors bias the observed positive fraction rather than merely\nwidening its uncertainty. The correction helpers expose that bias across\nprevalence levels and refuse the Rogan--Gladen correction when sensitivity\nand specificity do not identify it."
+    },
+    "spacr.classifier_quality.Confusion": {
+      "source_blocks_sha256": [
+        "9b2f4b1d4d1518c1635b612bdf40ab87a9fa38819e4517a266594d1609905da0"
+      ],
+      "source_sha256": "9b2f4b1d4d1518c1635b612bdf40ab87a9fa38819e4517a266594d1609905da0",
+      "text": "A confusion matrix, and the two numbers that actually get used."
+    },
+    "spacr.classifier_quality.Confusion.accuracy": {
+      "source_blocks_sha256": [
+        "9f271c0d166308ead061345204240ee76da96a607edd824d7e47fe368e0be116",
+        "1e512190bc5f33d6c7ed84323e0e432c9c3c86131ea07b20e90ebbc390e2d9c6"
+      ],
+      "source_sha256": "838c74b57a1f8a3939c3a54067e3a5deee019c6bdd494474caecda316886fa2a",
+      "text": "The number that should not be used, provided so it can be\ncompared against the two that should.\n\nON AN IMBALANCED WELL IT IS THE MAJORITY CLASS WEARING A HAT. A\nclassifier that calls everything negative on a well that is 10%\npositive is 90% accurate and has a sensitivity of zero."
+    },
+    "spacr.classifier_quality.Confusion.sensitivity": {
+      "source_blocks_sha256": [
+        "c87d959730553ab62993ab1ceed6e87219b53776df3ca20fc5de6221a3a6d6ba"
+      ],
+      "source_sha256": "c87d959730553ab62993ab1ceed6e87219b53776df3ca20fc5de6221a3a6d6ba",
+      "text": "Of the cells that ARE positive, the share called positive."
+    },
+    "spacr.classifier_quality.Confusion.specificity": {
+      "source_blocks_sha256": [
+        "14b9bc1d643c661cc46b19d1eef802e33fff9d5cd88bfa2d8d23ff4b1fdffc53"
+      ],
+      "source_sha256": "14b9bc1d643c661cc46b19d1eef802e33fff9d5cd88bfa2d8d23ff4b1fdffc53",
+      "text": "Of the cells that are NOT, the share called negative."
+    },
+    "spacr.classifier_quality.Confusion.usable": {
+      "source_blocks_sha256": [
+        "e78c9f161010288d4e465b68204b747fb735c8b724a04c8cb4a56939466aa1c9",
+        "9060e78168e6bfcb582634d61f78d195ee8ddf521e9645699f738e57f4a1bfd9"
+      ],
+      "source_sha256": "2a456d2a2646061d6fc0a7503baeb6e2d14f5414b81623f3672d02e65f63bda6",
+      "text": "Whether a Rogan-Gladen correction can be made from this.\n\n``se + sp <= 1`` means the classifier carries no information at the\nchosen threshold, and the correction divides by ``se + sp - 1``."
+    },
+    "spacr.classifier_quality.best_threshold": {
+      "source_blocks_sha256": [
+        "36f8e190f537bca60cc607ec0f47458ca81c4fab095abf9e4cb63ec677d9cbc5",
+        "96dc412b443e626cc370a0cd4b4756f63e43b53820e8b7d0d9ffeb0a9052c020"
+      ],
+      "source_sha256": "5e1ba8e6173c8d8e55803f3184fa7c784e3fbbfda05754c49bbeb6e7e6196c2c",
+      "text": "The operating point to run the annotation at.\n\n:param criterion: ``'youden'`` maximises ``se + sp - 1``, which is the\n    exact denominator of the Rogan-Gladen correction -- so it is not an\n    arbitrary choice here, it is the point at which the correction is\n    most stable and its variance inflation smallest."
+    },
+    "spacr.classifier_quality.confusion": {
+      "source_blocks_sha256": [
+        "7865eb90c95017cf097b58e1b9963c036275237bbb207356b3d76847833b6b70",
+        "61f7113e95e350a507f5559211a1e7326e1aadba4c4b903c6e939b5545f0ce9c",
+        "8444a3c5025655e322c28b5a856b7e4ea30ab9a5ef8b855587c55c2dcd1ffe88",
+        "7df8e4bdb389ffac747e613a68ba2fea35b28bb91e918685863982dc2cc0e363"
+      ],
+      "source_sha256": "1d53851625b0a6e2117714892b8adc47f8103b21af502610499fbefd31312540",
+      "text": "The confusion matrix from a labelled split.\n\n:param scores: the classifier's score per cell.\n:param labels: True where the cell really is the positive class.\n:param threshold: score at or above which the call is positive."
+    },
+    "spacr.classifier_quality.deconvolve": {
+      "source_blocks_sha256": [
+        "a760957c681f95dc9bbc059502fe758927ba0bcc2dd2078e4b10d102855bc3f2",
+        "e5256889ca3785347efeecbfe00c04deed6f4ae9b4571f830ab50576b57860da",
+        "a08379b0174e7714f69e2fee62141eb493598e3f64964399fe5f01869da159b9"
+      ],
+      "source_sha256": "ac8411e16de2853d582df2c07a3cb9a7ad055657b441fe155d66833382337738",
+      "text": "Estimate the two class distributions from unlabelled scores.\n\nTHE FALLBACK, AND IT IS A FALLBACK. With no labels this fits the score\ncolumn as two Gaussian components and reports what they imply. It is\nthe only route when nothing is labelled, and it is the weakest, because\nit assumes the shape of the two components AND that they are far enough\napart to be told apart at all.\n\n``separation`` is the health check and must be read before the numbers\nbeside it: the gap between the component means in pooled standard\ndeviations. Below about 2 the fit is choosing between many equally good\nanswers, and the sensitivity it reports is an artefact of the starting\npoint rather than a fact about the classifier."
+    },
+    "spacr.classifier_quality.discover_test_splits": {
+      "source_blocks_sha256": [
+        "23a495c831fbfe41b4c9d336dd104f7016478b798425bbaf94ef8af7fc8fe60d",
+        "c6445341fe10d7dcc7a8a5cfd4c2061756dc2a4586c19ed5c1bba91693b2053b",
+        "09c523a4d87239b237268f4375d97b5678aac82a581761b644c99d8bcbaeaf52",
+        "fdc849f1dd3f40982f5c77cd7a640644e20181c3a5ffec7a4d4a44e0c08fa23f",
+        "b687ee1bceac093506c7913bdcc5ffcc92088b78c8e9593ac69992e1753c6080"
+      ],
+      "source_sha256": "1be93f788f1a0cc80a0af45b8026ec4f6c57f74079e533c74e3a904b2b07947d",
+      "text": "Find the written test splits under a screen's folder.\n\n:param root: the screen directory holding one folder per plate.\n:param pattern: how the training code named them. The default matches\n    both shapes spaCR writes -- `*_test_acc.csv` and\n    `*_test_result.csv`.\n:returns: ``{plate folder name: path}``, one per plate, newest first\n    where a plate has several.\n\nTHIS IS THE ROUTE, and there is no other. Nothing in spaCR carries a\nmeasured sensitivity for a screen it has not been shown, so a user with\ntheir own screen gets their own numbers by pointing this at their own\nfolder -- which is the only arrangement in which the correction can be\nright for more than one experiment."
+    },
+    "spacr.classifier_quality.from_test_split": {
+      "source_blocks_sha256": [
+        "4ba751c523f8409ef60d7e17a641f3ff31ce6c28609d8c9c1deb3a4490886f64",
+        "5d707d0db96194129f67ec3e190d3f76cf75f39a2b28910df9ff204d92c71f4c",
+        "66665a3ba828c0e76eb711dbe0318aa48345641a98f1b2d19d35ce8771a7e661",
+        "6b6d2551006ee51b2cdc93803319a6ffcfe25bce510a391042ce3db63bed43e8"
+      ],
+      "source_sha256": "47a091caf765fc5cdbf67b90109bdbb95717df31d16d0cc2a080b60daab89ed1",
+      "text": "Sensitivity and specificity from a written test split.\n\n:param path: a per-cell ``*_test_acc.csv`` or a summary\n    ``*_test_result.csv``.\n:param threshold: for a per-cell file, the score to call positive at.\n    ``None`` takes the Youden point. Ignored for a summary file, which\n    has already chosen one.\n:returns: sensitivity, specificity, the threshold, and ``per_cell`` to\n    say which shape was read -- because only a per-cell file supports\n    asking the same question again at a different threshold."
+    },
+    "spacr.classifier_quality.inflation_by_prevalence": {
+      "source_blocks_sha256": [
+        "22e96260b7a93c8051e7ee1dc4dc2525a3cbf7f07828c15067d7652e805dd8f4",
+        "601d31184310f51f0521bdb813f268883ca6cdf701036c30ca4fe11215e5c830",
+        "11985ce890ce81f924fad6c0abe0a4ea4ad1db7aa11a2ef30723e1942fc78d4a",
+        "0732f89f5cf5da492e21e34e652793d489f8a060f4275fc87e81c33cb109dc06",
+        "f2b057e0314899bfb968599cd7e6b16e8b76c46a8771cd7a8a8b5fb203aeec15"
+      ],
+      "source_sha256": "12db9f8770b9727e17c786cf2665e0cb825bbe9e1099619c989e4a00ea1104b0",
+      "text": "What the classifier does to a fraction, as the fraction gets rarer.\n\nTHE RESULT THAT DECIDES WHETHER ANY OF THIS MATTERS, and it is not\nintuitive from the accuracy. At the tsg101 classifiers' measured\n``se = 0.960``, ``sp = 0.981``:\n\n    a true 30% is observed as 30% -- the correction is a no-op;\n    a true  1% is observed as  2.8% -- nearly THREE TIMES too high.\n\nThe false positives are a share of the NEGATIVES, and when a guide is\nrare almost every cell in the well is a negative, so a small\nfalse-positive rate on a large population swamps a large true-positive\nrate on a small one.\n\nSCREEN HITS ARE RARE. So the correction is negligible everywhere it does\nnot matter and dominant exactly where it does."
+    },
+    "spacr.classifier_quality.measure_screen": {
+      "source_blocks_sha256": [
+        "19c8e1222da6f2f1b2812c04018e74f1ce7479c50dbf8bfaf6ec9d8c7022ee59",
+        "1b40aa9942916e45b2ebf5cf5527b16590f16bfad21347db38adb9cea71977ba",
+        "2a121bd451570abe71443e39b214ad7fa7c7c97f867455b385b3eff83877046e"
+      ],
+      "source_sha256": "60676dde7c7aa3dcfa8d5901febad6fe230af227139e60b7861b0b4b995e82ed",
+      "text": "Sensitivity and specificity per plate, from a user's own screen.\n\nThe whole of what this module offers, in one call, for somebody who has\nrun their own screen and wants the correction to be about it.\n\nPER PLATE AND NOT POOLED, deliberately. Plates are trained separately\nand their thresholds are not comparable -- on the screen this was\ndeveloped against they spanned 0.2955 to 0.8567, which is three points\nof sensitivity. Averaging them would produce one number that is wrong\nfor every plate."
+    },
+    "spacr.classifier_quality.operating_points": {
+      "source_blocks_sha256": [
+        "e3623eb33d002d5d64824a2fd3f85bb2831c82c76117bf358d4c6e88682d96c0",
+        "432c8074c4f817074b606adbf10a6e9c08de14be8e278f38bd25e2ffab8dc348"
+      ],
+      "source_sha256": "0dd82c1e4f6569fb69854a9c6548f1455a82d61691f1efc7dac25a42f02636db",
+      "text": "The confusion matrix across the score range -- the ROC, as matrices.\n\nTHE THRESHOLD IS A CHOICE AND HAS TO BE SEEN AS ONE. A single confusion\nmatrix at 0.5 answers \"how good is it there\" and hides that moving the\nthreshold trades exactly the two quantities the correction divides by."
+    },
+    "spacr.classifier_quality.rogan_gladen": {
+      "source_blocks_sha256": [
+        "ed533d7bc76d2b7b2c8b7501bc4aeddd9a366aff721bcadb957ef617c235c4e8",
+        "d34d621898136072784ad77fcb118e2fbffde4c3aa3e8e2077cd7ba38695b4d7",
+        "ef0d8efb5dd628b5412e0b71840421310b3532a10e56e012a61273b119eaed60"
+      ],
+      "source_sha256": "d030d8278cda1ba246a78946382b08b25e1366215c012dadddee01d7b586fac3",
+      "text": "Correct an observed positive share for classifier error.\n\n    p_true = (p_observed - (1 - sp)) / (se + sp - 1)\n\nIT MOVES THE ESTIMATE; IT DOES NOT WIDEN IT. At ``se = sp = 0.94`` an\nobserved 0.06 corrects to exactly zero -- the whole observed signal being\nfalse positives -- and an observed 0.244 corrects to 0.20.\n\n:param n: the number of cells, if the standard error is wanted. The\n    correction inflates variance by ``1 / (se + sp - 1)^2``, which at\n    0.94/0.94 is 1.29, so an interval computed before correcting is too\n    narrow as well as centred in the wrong place."
+    },
+    "spacr.classifier_quality.sensitivity_by_prevalence": {
+      "source_blocks_sha256": [
+        "efb21bb5be71d44da3abc356bb85f3c6ba2d5f6ed761f984828c03ef66c12388",
+        "12a264a8cb01695542e66b725cea14cf19adba7212f73fef02e08bdddc860724",
+        "e8c7e3f8da06b238a7f3b690a8485c7762c2be1897c7dcb54002747150be3362"
+      ],
+      "source_sha256": "1530005939cc66bfb80dbad9b1cd89bfe0d5377f79072e25b7bd8952dab11659",
+      "text": "Sensitivity within bands of well prevalence.\n\nTHE NUMBER 214 ASKED FOR, and the reason it asked. Sensitivity is a\nproperty of the classifier and specificity is too -- neither should\ndepend on prevalence at all. If they DO here, the classifier is using\ncontext rather than the cell: a model that has learned \"this well looks\ncrowded, so call more of it positive\" will show rising sensitivity with\nprevalence, and every fraction it produces is then partly a copy of the\nfraction it was given.\n\n:returns: one row per band with the band's prevalence, its sensitivity,\n    its specificity and its size."
+    },
+    "spacr.classifier_quality.training_wells": {
+      "source_blocks_sha256": [
+        "2d9b30b13a6532b1ddb88f66b66ee6bf90b6fea628d84e3702022592e3de8787",
+        "98802ccd56d72404972dbe3a825ac40bfda20f1e8f2404e9fe3ad6a026f1e8d3",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "be7bf4c374b6dde27bc4809252933006ecc8e1369cb394b8ba501ec305e64c0e",
+        "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
+        "894f2e49e7c8828ef7b2f94af6b19c10962c03b8f33442fc15cbe99d9fca67c5"
+      ],
+      "source_sha256": "03eb54a48becc965fcf634c8d5541cfc57df09d75dbed58465bf3e350f3f329b",
+      "text": "Return the cells belonging to classifier-training columns.\n\nTraining wells must be excluded from performance calibration; otherwise\nthe calibration measures in-sample fit. Both ``r1_c2`` and ``c2`` well\nlabels are accepted. Unparseable labels are retained for validation\nrather than being silently classified as training data.\n\nParameters\n----------\nwells : sequence of str\n    One well label per cell.\ncolumns : sequence of int, default=(1, 2)\n    One-based column numbers used for classifier training.\n\nReturns\n-------\nnumpy.ndarray\n    Boolean mask with one element per input well."
     },
     "spacr.classify": {
       "source_blocks_sha256": [
@@ -31339,6 +31775,14 @@
       ],
       "source_sha256": "99209e88d1d31bb545f43707e3f14ea8a03344267bf93f350ebc44857cfe2a11",
       "text": "Window behaviour for spaCR's modal dialogs.\n\nOne function, and the reason it exists is worth more than the code.\n\nA ``QDialog`` created with a parent is *transient-for* that parent, and\n``exec()`` makes it modal. A window manager that implements **attached modal\ndialogs** -- GNOME/Mutter does by default, and it is not alone -- treats that\ncombination as an invitation to glue the dialog to its parent: it is drawn\ncentred on the parent, it cannot be dragged anywhere else, and pulling at it\nmanipulates the parent window instead. On a maximised main window that reads\nas \"the app un-maximised itself when I tried to move the settings\".\n\nThe tell is which dialogs misbehave. In spaCR, Preferences\n(``PreferencesDialog(...).exec()``) and Annotate's settings\n(``_SettingsDialog(...).exec()``) are attached; the UMAP search settings\n(``UmapSearchSettingsDialog(panel).show()``) and the Mask and crop live\npreview settings are not. The first two are modal and the rest are modeless\n-- which is exactly the WM's rule, and nothing to do with how any of them\nare built.\n\nThe fix is to stop advertising them as dialogs. Clearing ``Qt.Dialog`` from\nthe window type and setting ``Qt.Window`` makes the WM see an ordinary\ntop-level window with its own frame, which nothing attaches. The parent is\nkept, so the dialog still stacks above the app and is still owned by it, and\nthe modality is untouched -- ``exec()`` still blocks and still returns\n``Accepted``.\n\nNot done instead:\n\n* **Dropping the parent.** It detaches, but the dialog then stops stacking\n  above the main window and can be lost behind it, and Qt no longer destroys\n  it with its owner.\n* **Making the dialogs modeless.** Every caller reads the ``exec()`` result\n  to decide whether to apply the settings. Changing that is a different and\n  much larger piece of work.\n* **A platform check.** The flags are harmless on Windows and macOS -- a\n  dialog with a normal window type is a normal window there too -- and a\n  conditional would mean the layout differs by platform for no gain."
+    },
+    "spacr.qt.dialogs.detach_all_dialogs": {
+      "source_blocks_sha256": [
+        "2fd60fe27c97d86d04959d2e2b4848ff508e6020686be15654a440d7d69dfc4c",
+        "b718f2930b7d01d35a340bbe8065a6ab026ae2ac583fd62d018f0456f9cb9601"
+      ],
+      "source_sha256": "5a380f5228479397fbeeb6c218d7a1205070d0ee648cd4a08d923984de69c888",
+      "text": "Install the application-wide detacher. Returns True if it installed.\n\nIdempotent PER APPLICATION: calling it twice on the same app leaves one\nfilter, and calling it on a NEW app installs again, because the old\nfilter died with the old app."
     },
     "spacr.qt.dialogs.detach_from_window_manager": {
       "source_blocks_sha256": [
@@ -60402,12 +60846,11 @@
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.show_panel": {
       "source_blocks_sha256": [
         "9e8c8d2e94e89a38fc4ea2df121e2bfaaff3757c8667d304af3cfe317cd3f6cd",
-        "a9b5eb2c3ab0a0fcd5cd83d51fd9c0fee09888bb3899d01e9225b026f55be686",
         "8d82a976bc98dac7d22cbc898a0b21cc80b16a68fac600abba00c86b47e40ff3",
-        "da68757fe487b1b12f628b78015a768fe158e5ba71798d88d4a621bbb295337f"
+        "6999120706d97256e82307d97d7a89df6e7512e9936e603b807a13ac64dd0aef"
       ],
-      "source_sha256": "38af8fe41c1a708835b744bbc5ef63ba5c4c91f93e7552c3fd2b1527614186a7",
-      "text": "Raise the tab that holds the live panel named ``key``.\n\nThis is the door instruction 199 found missing. The grid photographs\nnine live panels and gives every tile a key, but only the volcano's\nkey had anywhere to go -- so eight tiles took a click and did\nnothing, which reads as a broken application rather than as a\npicture with no door.\n\n:param key: a key from :meth:`FigureGridView.set_live_tiles`.\n:returns: True if a tab was raised. FALSE IS A REAL ANSWER and the\n    caller must act on it: the tab set is not fixed -- a fit with no\n    model has no residual tab, and the volcano and gene tabs are\n    absent when the volcano is external -- so a key can be perfectly\n    valid and have no tab in THIS panel right now."
+      "source_sha256": "000c4dd992d691a8af8e3045979eabc53acbcebd3e2bb9b6cbeaf629d83f55c4",
+      "text": "Raise the tab that holds the live panel named ``key``.\n\n:param key: a key from :meth:`FigureGridView.set_live_tiles`.\n:returns: ``True`` when the corresponding tab exists and was raised;\n    otherwise ``False``. The available tabs depend on the fitted\n    model and whether the volcano is displayed outside this panel."
     },
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.start_load": {
       "source_blocks_sha256": [
@@ -62343,6 +62786,91 @@
       ],
       "source_sha256": "9d579628d1ce65c8930903fc4c666b0ade855f1c1517587220dc187918548eca",
       "text": "Select a point by row index and show everything known about it."
+    },
+    "spacr.read_background": {
+      "source_blocks_sha256": [
+        "c1cab63140044ca034fc51eb183d748c308070d2244f605e7eedc6001e606dfb",
+        "44152d0be31e6ad9a19462efd606e73dfcb76a48c99e69adf5e5057b5ed68ce6",
+        "cc6e9b2f31929fe5ca1b3cfb5349ffaadd0bd51b50222a8755f97527b6b50ec8",
+        "a830aae3a4135a05ec6d1983f33e397e7037bb5632f507fd00b2058fcbeb9606",
+        "8bc70aabdd2fc34203c0e1bb74454dd4a39f615a7428bd758e3bacffec1fae68",
+        "35bbd106420285c112bc2c77698fc811f5a7e137b4a6ea5596d993d42a94ddb4",
+        "92d99e8e42a725477eafa40bed4e8ced962a51653192d1ff51ac95273f273813"
+      ],
+      "source_sha256": "98a517096916988e47287f3982a74af1fb38c3deaf25ccb7f711bd5dd4a67aaa",
+      "text": "What a guide's reads look like in wells it is not in.\n\nProposed 2026-08-21: \"another way to calculate the gRNA fraction threshold\nis measure the total fraction and the individual guide fractions in that are\ndetected in the first 3 columns. as the first should be 100% 233460, the\nsecond column 100% 249730 and the thired a mix but no other guides. this\nmight also be used somehow as a single calue grna correction factor or a\nindividual grna correction factor.\"\n\nIT IS THE RIGHT IDEA AND THE ANSWER IS THE INDIVIDUAL FACTOR, NOT THE SINGLE\nVALUE. A column of known composition is a direct measurement of the spurious\nread rate: every read that is not the intended guide is, by construction,\nnoise. `fraction_threshold` currently guesses at that quantity with a\nconstant, and it can be measured instead.\n\nWHAT THE MEASUREMENT SHOWS, on the screen this was written against and\nrecomputable on any other: the background is not one number wearing\ndifferent hats. Across the control wells the median guide's background is\n0.013% and the 99th percentile is 0.15% -- a diffuse haze that any small\nthreshold removes -- while ONE guide sat at 9.2% and appeared in every\nsingle control well. A global threshold cannot serve both. Set low enough to\ncatch the outlier it deletes real biology; set where it is now it deletes\nthe haze it did not need to and admits the outlier anyway.\n\nSO THE BACKGROUND IS PER GUIDE, and a guide that shows up where it cannot be\nis telling you a fact about itself -- its barcode, its amplification, its\nneighbours on the index -- that no other guide's behaviour predicts.\n\nWHAT THIS CANNOT DECIDE, and it must not pretend to. A guide abundant in the\ncontrol wells is EITHER a sequencing artefact -- index hopping, barcode\ncollision -- OR genuinely over-represented in the library and really present\nin those cells. The read counts cannot tell those apart, and the correction\nis opposite in the two cases: subtract it, or keep it. The imaging can tell\nthem apart, because a guide really present will move its cells' phenotype\nand an artefact will not. :func:`suspicious` reports the candidates rather\nthan resolving them.\n\nINDEX HOPPING SCALES WITH THE SOURCE'S ABUNDANCE, which is the reason these\ncolumns give an UPPER bound rather than an estimate. A control well with one\nguide at 70% sheds more reads onto its neighbours than an ordinary well\nwhose largest guide is 5%. The per-guide ranking transfers; the absolute\nlevel does not, and :func:`subtract_background` says so when asked to apply\nit to ordinary wells."
+    },
+    "spacr.read_background.background_from_controls": {
+      "source_blocks_sha256": [
+        "47cc9c2c2bf91db1039b353af12a79af3fddd7ea91cb83decaef542994727377",
+        "c681c04d4c27c3d8f8ea98aff8dc254d12dffc5cc4738c56fd929b91e2e2c2d7",
+        "16205eacca9180c6770d81d0acd70d0a8ae4949d5d14f7739ce12cc561d82057",
+        "bdede25dc6aec8bb33e183393da6b25e89beffad057c50d7a7fc5346b0eb3d7c",
+        "8dfbbc608a4e768b1c4da790617c5c9095790c139de1a81604197ba26db6949d",
+        "39322c68de3f12ae2cc548c2a4242122b85df5a019175df4ba919c30235542d3",
+        "42ee77ec6f6df7b6481fac3335aba36de658dade29abca9543e8d9fcaa8abc41"
+      ],
+      "source_sha256": "547b6593ce8db21aa0df98ca747a3b33ec8530eda51b9bfd3a02cc2a164f922b",
+      "text": "Measure each guide's read fraction in wells it does not belong to.\n\n:param fractions: ``{well: {guide: fraction}}`` for the CONTROL wells\n    only.\n:param intended: ``{well: the guides that well really contains}``. A\n    well absent from this mapping is skipped rather than assumed empty,\n    because assuming would turn a real guide into background.\n:param exclude: guides that are not in any cell -- primer or plasmid\n    carry-over. Dropped and the well renormalised BEFORE anything is\n    measured, because a contaminant left in the denominator holds every\n    real guide's background down by its own share and makes the\n    threshold look tighter than it is.\n:param statistic: ``'median'`` or ``'mean'`` across the control wells.\n    Median by default: one contaminated well should not set a guide's\n    background for the whole plate.\n:returns: the per-guide background, the total spurious mass per well,\n    and the counts behind both.\n\nTHE SPURIOUS MASS IS REPORTED PER WELL AND NOT ONLY AVERAGED, because\nits SPREAD is the thing that says whether these wells are describing one\nphenomenon. A tight spread is a sequencing property; a wide one means\nsome wells were contaminated and the rest were not."
+    },
+    "spacr.read_background.drop_guides": {
+      "source_blocks_sha256": [
+        "055602f229da0477cd415d266c8e5ce06868f76873601760f36eb4e8134155a3",
+        "90d554b86d046a8c2ffdf943ac1dfd0b0e8c62e46322ae0964e2de01a3d66db8",
+        "1e4c15cd7f2e6a533e1e3b6cd42def7e287650545b4a9435191d09fd3c63597d",
+        "a6c710ef1391eacb667531b8967f4474945a80ab87e502b84b399dea75b71173"
+      ],
+      "source_sha256": "8912c0a061f1f54894d13816208d0ba9b701739825d9215c82a43504e42b15af",
+      "text": "Remove guides that are not in any cell, and renormalise what is left.\n\nEXCLUSION IS NOT BACKGROUND SUBTRACTION and the difference is the whole\npoint. Background subtraction says \"some of this guide's reads here are\nspurious\". Exclusion says \"this sequence is not a guide in a cell at\nall\" -- primer or plasmid carry-over, which is in the library prep and\nnever in a nucleus.\n\nSo it is removed BEFORE the fractions are formed, and the survivors are\nrenormalised over what remains. Leaving it in and subtracting later\nwould leave its reads in every other guide's denominator, holding every\nreal fraction down by the contaminant's share.\n\nOn the screen this was written against, one plasmid contaminant was\n19.9% of ALL reads on a plate: excluding it raises every other guide's\nfraction by a quarter, which moves guides across the annotatability\nfloor. It is not a tidying step."
+    },
+    "spacr.read_background.resolve_exclusions": {
+      "source_blocks_sha256": [
+        "fb91311dd2873583b790f767d58f5bbf491c7930634d2a7ae9c71a992efe8b2a",
+        "ab1f664c0ba3e9a552aa1e408ba1cffbfec285ee840ef14b0170bcfcc1e083f3",
+        "0735ad0f7941fece2b72ca456a03e8118e70d97f25a92ae108c787e02a1801f2",
+        "303a549d2f380610ed76682c90513c85670e0b8e709c6245ae2c923a47e6555d"
+      ],
+      "source_sha256": "2c40b734f1a1e5f5111043580e3ef9588aaf17650a2f91f42793f6e99e25fc89",
+      "text": "Which guide names an exclusion list actually names.\n\nACCEPTS GUIDES AND GENES, several of each: \"in the exclude i should be\nable to put in several guides or genes\". A gene selects every guide\nassigned to it, so excluding a contaminated amplicon does not mean\nlisting its four guides and missing the fifth.\n\n`control_names.rows_for` does the resolving, and reusing it is the\npoint rather than a convenience: it is what `controls`,\n`positive_control` and `negative_control` already use, so an exclusion\nis typed in exactly the spelling those accept -- with or without the\norganism prefix -- and cannot drift into a second dialect of the same\nnames.\n\nAn entry that matches nothing is returned in neither set; the caller\nthat cares should say so, because a misspelled exclusion silently\nexcluding nothing is how a contaminant survives a filter that was\nsupposed to remove it."
+    },
+    "spacr.read_background.subtract_background": {
+      "source_blocks_sha256": [
+        "57ca1556c12a893d976471ee40d137b07a84cdb698f48cde1564a9f2fcc6c144",
+        "e9938c85154372487b17a2c86e3470c63caab87a0bf425e6a24292c2e6bc1deb",
+        "f00a2218420c4894d6c85920573fc230348465355ba1527cf36258c9e472ce27"
+      ],
+      "source_sha256": "23007f91e5bb099af9b0f24805a4f7a120a93a7bbce88692b73bbfb8910b924f",
+      "text": "Remove each guide's own background from a well, then renormalise.\n\n:param scale: how much of the measured background to subtract. THE\n    CONTROL COLUMNS OVERSTATE IT for an ordinary well -- index hopping\n    scales with the abundance of the source, and a control well has one\n    guide at seventy per cent where an ordinary well's largest is five.\n    1.0 is the conservative choice and removes the most; a caller who\n    has estimated the ratio between the two regimes passes it here.\n:param renormalise: rescale the survivors to sum to what they summed to\n    before, so the correction moves the SHARES between guides without\n    also moving the well's total."
+    },
+    "spacr.read_background.suggest_threshold": {
+      "source_blocks_sha256": [
+        "658604d80d6f89c37350bbd259ef45481e415786b2a0857a476381e05b7ee39e",
+        "76691fee9be013a6cb5c847f6b13f8d0826851ae6a988576e34dc838a3255411",
+        "08eedce06e41910671daf4fc7f498f03c02d9fd551c455cbc530b3869035fd50",
+        "03ad6dc9bbf39da5c031f4e3a307352affdd19a121c74b1144716d668677a9ef"
+      ],
+      "source_sha256": "83c7ff4753687c8ab8da351cb4351a569a5e87a015d8a92ad792daadcc3f1921",
+      "text": "A `fraction_threshold` taken from the data instead of a constant.\n\n:param quantile: the share of the background distribution to clear.\n:returns: the suggested threshold and what it would and would not\n    remove.\n\nIT IS ONLY HONEST FOR THE DIFFUSE PART. The quantile describes the haze\nof guides that appear at trace level everywhere. A guide whose\nbackground is an outlier is not described by any quantile of the others\nand needs :func:`subtract_background`; the count of those is returned\nbeside the number so it cannot be read as a complete answer."
+    },
+    "spacr.read_background.suspicious": {
+      "source_blocks_sha256": [
+        "7762e887f3ba960624928a7a1b7580ba6c113e978b3d3a76548ffa5bee2adf22",
+        "d6092ffcccad8e5ff83dc831245da7c2e897cc61c46e5031297f8839b988520c",
+        "b0556ba837394f68d7d3deda9b1f8a6e51bc7d1e29f36b038ebd3c28270e6201",
+        "5dfce0a5510af5e14d7170f47a8d9dff07ff008dc8c3afa11662d34e3637c906",
+        "cf1cea8412661092d99c75bb41e43c4044cdff7949fc677db07f507d06e6554d",
+        "dd0052f246d2f8233aeca65a18c4db9a3f94aa2234f44b53623d1b4198bb09f0"
+      ],
+      "source_sha256": "ad5dc1bd4fd1311766323f399bfdc705e0ad1c16393e7d274fa8659d1f09ee95",
+      "text": "Guides whose background is unlike every other guide's.\n\n:param factor: how many times the median background counts as an\n    outlier.\n:param everywhere: appearing in at least this share of control wells.\n:returns: one row per candidate, worst first.\n\nTHESE ARE CANDIDATES AND NOT A VERDICT. A guide abundant in wells it\ncannot be in is either a sequencing artefact or genuinely\nover-represented in the library and really in those cells -- and the\ncorrection is opposite in the two cases. Read counts cannot separate\nthem. The imaging can: a guide really present moves its cells'\nphenotype, an artefact does not.\n\nAPPEARING EVERYWHERE IS THE STRONGER SIGNAL, more than the level. A\nguide at one per cent in every control well is behaving systematically;\na guide at five per cent in one well is a contaminated well."
+    },
+    "spacr.read_background.unmatched_exclusions": {
+      "source_blocks_sha256": [
+        "202f6a94092af24d78bcc035c2f169c73192fc85635a645b8779a3d8f801c44b",
+        "d4960291745e5a07619e4b6bd7db14908aea49fab9a6de0738a1582134bcd431"
+      ],
+      "source_sha256": "79428506793d31795eebbacb0315679ff86a884f17d2465e5f4c942817fa5d21",
+      "text": "Entries in ``exclude`` that name nothing in this screen.\n\nA MISSPELLED EXCLUSION EXCLUDES NOTHING AND LOOKS LIKE IT WORKED, which\nis the failure this exists to make visible. Every caller that filters\nshould report these rather than proceeding quietly."
     },
     "spacr.refit": {
       "source_blocks_sha256": [
@@ -69444,11 +69972,15 @@
     },
     "spacr.settings_advisor.advise_that_runs": {
       "source_blocks_sha256": [
-        "edafe03f41d62bd282ce367894a019043c2981b7ca44a0931b01dc782e2183a3",
-        "301e001ac58426b7aa4b3c7e0abf945594110e889028782ff5165740d74ae85d"
+        "569a551ae816753bfc44e94e62c64098607c6fb57f7e49add0dd355828d35164",
+        "fc74830e702cf84276ac22e63bf634db5a3ee4d813cac5f1b656eee40753b968",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "e74bb426cbb1cde69691d5e647592543a034ef7b1c27422d36d287ced8a3b90a",
+        "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
+        "a291a4235a6333598d75acf75c87bd35fe2bdce845ec892b33b56babc56da843"
       ],
-      "source_sha256": "0e35d88b1c46385f8270f02a063af629eb47d7d207b76dfb330d89dd4d1e4348",
-      "text": ":func:`advise`, with the proposal checked against the run.\n\nA refusal is not silently patched: the setting that causes it is MOVED\nOUT of the proposal and into `undecided`, carrying the refusing code's\nown sentence. Leaving the panel as the user had it and saying why is\nthe honest answer -- quietly changing a value to make a check pass is\nhow a proposal stops meaning anything."
+      "source_sha256": "a9641dfc9643b5b9883359809ca55a71ae1e4aa710765243b365249f11937d0b",
+      "text": "Build advice and withdraw choices that fail runtime preflight.\n\nA choice named by :func:`refusals` moves from ``chosen`` to ``undecided``\nwith the validation message. The function does not silently substitute a\ndifferent value.\n\nParameters\n----------\nreading : Reading\n    Measurements and metadata describing the screen.\nanswers : dict, optional\n    User answers to questions the screen data cannot settle.\n\nReturns\n-------\nAdvice\n    A proposal containing only choices that pass the preflight checks."
     },
     "spacr.settings_advisor.advise_the_screen": {
       "source_blocks_sha256": [
@@ -69494,15 +70026,25 @@
     },
     "spacr.settings_advisor.refusals": {
       "source_blocks_sha256": [
-        "fc37ae3cc07df8811b0f1a8fe7b9b076d8931b22fc4af60bcd8db7bc18b0cd35",
-        "6ef17e23e4d9aa49f8ce922c9cb5d38632b692d9ca52d99aafc2b1d1ed49f88c",
-        "abd3089e2780f62aad6b3cd564b15ae5a90cf22fc1f751042300e808b6ef8eac",
-        "1c49d7e93da631e80c228e948131f28d668a292c0354e50ae8b38f1edbececb2",
-        "70798532a39ba5a3a74abf5e305a3bd25b69413705a787eb84bcd0f007aae16c",
-        "bb2be6a7d1a6700126e5d0309adf44227b4634086feed37b63408fa5ff00218d"
+        "052f38126d3f6df3feb3cd89a4c79d03f1638278fcd553f11fe73b3fdadd6a99",
+        "19f79e4ee63ce96a4b589486497e266cdd191ca7d6e2bee22bc43189efe80f85",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "542600c27544cdf836ca5404e674aea253928023b351a7095d510c029c78f5a4",
+        "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
+        "0fa4374da1ad5d23901db5229a7142f45866eb1de7db8b92e361997f23ff9677"
       ],
-      "source_sha256": "8d238abc8984b9658c1896fd184699000b0fa90aaa4d934adb3eef748a6f5ea3",
-      "text": "Why the RUN would refuse ``settings``, in its own words.\n\nTHE CANONICALISER IS NOT THE VALIDATOR, and that distinction is what\n196 is about. `get_perform_regression_default_settings` fills defaults\nand coerces types; it says nothing about whether the combination can be\nfitted. A test asserted every proposed key survived canonicalisation, it\npassed, and the run still stopped on\n\n    ValueError: batch_correction='combat' needs to know which biology to\n    keep.\n\nSo this asks the things that actually refuse, before the user is told\nthe question is settled. Each entry is the refusing code's OWN sentence\nwhere there is one -- a paraphrase would drift from it.\n\n:param settings: a proposal, or any settings dict.\n:returns: one sentence per refusal, empty when the run would start."
+      "source_sha256": "001e7aa7d62f8775bda66160a8e26ade7f90d2535a2897a7eaefda4cb0b8885f",
+      "text": "Return reasons a regression settings mapping cannot be run.\n\nThis check covers incompatible setting combinations that default filling\nand type coercion cannot resolve. Messages follow the runtime validation\nwording so an application can explain a refusal before starting a fit.\n\nParameters\n----------\nsettings : mapping\n    Proposed regression settings.\n\nReturns\n-------\ntuple of str\n    One actionable message per refusal, or an empty tuple when the\n    settings pass these preflight checks."
+    },
+    "spacr.settings_advisor.requirements_for_unit": {
+      "source_blocks_sha256": [
+        "e916ca19c5c8e93b49d9afcec97c9590ca08a601d9e700b720587d9710e41624",
+        "912479767d502dd4428175876b30094f695681b405eeae38e7c3032a50fa2625",
+        "d1dd56331b34ec33b804f75be6c53fe49b1b5dfa4a34db82cfbecd729e334049",
+        "2d1de49f25eb07671bf99a4c6e07cf310727608168a75a5f4083eaabaa72853e"
+      ],
+      "source_sha256": "bb716b5ec91fb8000a776456601417b35dbf12309740eb65233aa275e402d280",
+      "text": "Settings that ``analysis_unit`` forces, for a panel to apply and lock.\n\n:param unit: ``'cell'`` or ``'well'``.\n:returns: ``{setting: required value}``, empty when the unit constrains\n    nothing.\n\nTHE PANEL SHOULD APPLY THESE AND SHOW THEM GREYED, not merely refuse\nlater. A run that discovers an impossible combination after thirty\nseconds of work has already cost the user the thing the check was for."
     },
     "spacr.settings_spec": {
       "source_blocks_sha256": [
@@ -70865,6 +71407,123 @@
       ],
       "source_sha256": "997c5043a34ef165c72112a202bcd4ea1b6d9630b2a485c572b1c9d6fd56adc6",
       "text": "Fine-tune the Cellpose-SAM (``cpsam``) segmentation model from images and paired masks.\n\n:param settings: dict of training settings; see\n    ``get_train_cellpose_default_settings`` for keys including ``src``,\n    ``model_name``, ``target_size``, ``n_epochs``, ``batch_size``,\n    ``learning_rate``, ``weight_decay``, and ``augment``.\n:returns: None. Saves the trained model under ``<src>/models/cellpose_model``,\n    named ``<model_name>_cpsam_e<n_epochs>_X<w>_Y<h>.CP_model``."
+    },
+    "spacr.sudoku": {
+      "source_blocks_sha256": [
+        "2fba26b86a2785f020a969b17ec6bab80fe507f490e869c7c7d222025ad3115d",
+        "2a38a5d2f6abc70da7626244f9d4e15d55fa3ca8dcc96a4adb915fc70cba6bb2",
+        "eb8e54e35b539407f6aeecdff161fa933b80514fed6fa6d2dc22f06ec1cc9bb3",
+        "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
+        "1bf06e0760c8ebd854674e7216e4c6bc5afdd0334fb928f8b7ae26af279f104e"
+      ],
+      "source_sha256": "5048c14b096f19eb0cc8d42a4c39799744a8cc942ea0ebfd0a11bf6708658ac9",
+      "text": "Infer cell-level guide assignments across wells.\n\nPooled screens provide guide counts for each well, not a guide identity for\neach cell. This module combines those count constraints with similarity in\nmeasurement space. It selects high-confidence anchor cells, propagates their\nlabels over a k-nearest-neighbour graph, and projects the result onto the\nper-well guide fractions reported by sequencing.\n\nAssignments can therefore borrow evidence for the same perturbation across\nwells while retaining an explicit abstention state. The propagated mass,\ncompeting-label evidence, and total anchor reach remain available separately\nso ambiguous or unsupported calls can be inspected instead of forced.\n\nNotes\n-----\nThe propagation and class-mass normalization follow the label-propagation\nframework described by Zhu and Ghahramani (2003) and Zhou et al. (2004).\nThe implementation has no trained graph-model weights; each result can be\ntraced to its anchors and the sequencing constraint."
+    },
+    "spacr.sudoku.SudokuResult": {
+      "source_blocks_sha256": [
+        "259961c60b0a260dc8d90924ad0a02c1f27daeb1d4a3f78579e3f27ecfc5d4df",
+        "b133cb63caf150909107fbdda390ce582730020f52d586f39d752a010b3b84b7",
+        "80527d2b3d77943e3caa8b9283999d0a9f9f2053c69c7b78825fbb5ef1c71bdd",
+        "125fe5ffa550f064b7e959b6c49ac86a94e7253b4c755fda02fe4f9dd96eaa33",
+        "0ba7c441293ede3a909873f64ea7273f3bd5cfc5c212cb0c94634526840f948f",
+        "aee5d6ead903cfdd1faf6431bb03a5ee306d4a7fd7ebf8a48d648e47780bd18c",
+        "8e0e840760dd542656a1e3fcdf2f7203a4d6f56c2c9d7f043cd51571a794db7b",
+        "ca6a433c0d92112bad90a52cff1cb398ed4c5bb6d02a18cb4eac2bfad2f734e6"
+      ],
+      "source_sha256": "595ce16b97d003e41144db061fba8aaddf4e1e6cad4a7ed4d5d1c763201a909c",
+      "text": "What sudoku concluded, with both scores kept apart.\n\n:ivar guides: one name per cell, in the order the cells came, or\n    :data:`ABSTAIN`.\n:ivar affirm: ``(n_cells, n_guides)`` -- how much each cell looks like\n    each guide's anchors.\n:ivar eliminate: ``(n_cells, n_guides)`` -- how much it looks like\n    anything ELSE. Kept separate on purpose: \"probably not this guide\"\n    and \"probably this guide\" are different claims, and a cell can be\n    low on both, which is the cell worth looking at. A single ratio\n    maps that onto the same value as a cell that is high on both.\n:ivar reach: ``(n_cells,)`` -- total anchor mass that arrived. Low reach\n    IS the fourth quadrant: unlike every anchor, of any guide.\n:ivar posterior: ``(n_cells, n_guides)`` after the well constraint.\n:ivar names: the guide names, in the column order of the matrices.\n:ivar report: counts and settings, for the record."
+    },
+    "spacr.sudoku.SudokuResult.abstained": {
+      "source_blocks_sha256": [
+        "87264400c612be08de89b386bca21eb4782a9811321132b3698adda5140892f4"
+      ],
+      "source_sha256": "87264400c612be08de89b386bca21eb4782a9811321132b3698adda5140892f4",
+      "text": "Boolean mask of the cells no guide was named for."
+    },
+    "spacr.sudoku.SudokuResult.called": {
+      "source_blocks_sha256": [
+        "73b0b1ad75a69461624f232e6275479702f3d3929400bab6a258dad901c36226"
+      ],
+      "source_sha256": "73b0b1ad75a69461624f232e6275479702f3d3929400bab6a258dad901c36226",
+      "text": "How many cells were annotated."
+    },
+    "spacr.sudoku.anchors_for": {
+      "source_blocks_sha256": [
+        "7d95102aa928905030ec5ff146531d6f498bdcb85547288a97f4d286765c677d",
+        "4e74a48dde732283c8bbd6fcdc368d9c610e80f18cf2e91ba720611dd97dd427",
+        "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
+        "eb6d1129a7427ddaac6242fac73e735fe733bb3c770b45a89c0fedcec718c51d",
+        "33383acbfc2b22043321abda95fd91eab8de7cd2ce40806283ead68ecefcb8fb",
+        "6f58baeeba7bf761cddba3fc7a9d693dad9dece10a419590c02167dee6f6f3e9",
+        "87ab4bf6db33ed4b547f6f3df1f084aa38a3e9c85e5a0b1c7d2cee3a73823198",
+        "f64250843e1ee6f51bcf8a430ab51b081928e528c11d97c4532dd21f8b5d1fb2",
+        "e096de447ddbc931a4db8907de22c8f52bb4f7bde626b5be68c540a94a63c30d"
+      ],
+      "source_sha256": "d984295d47b2d4a9e29b9c4a8edd224f35ecd5021380b0428dec1e3ba74bac07",
+      "text": "Indices of the cells taken as near-certain examples of ``guide``.\n\n:param wells: one well label per cell.\n:param fractions: ``{well: {guide: fraction}}``.\n:param scores: the classification score per cell.\n:param quantile: within an anchor well, the score quantile above which a\n    cell is taken.\n:param min_fraction: only wells where the guide is at least this share\n    are used. THE POINT OF THE WHOLE THING: in a well where the guide is\n    70% of the reads, a top-scoring cell is very probably that guide. In\n    a well where it is 5%, it is probably not, and an anchor set built\n    from such wells teaches the graph the wrong shape.\n:param max_per_well: a cap, so one enormous well cannot define the\n    guide's appearance on its own.\n:returns: cell indices, possibly empty.\n\nTHE ANCHORS ARE WHERE CIRCULARITY ENTERS, and it is entered knowingly.\nThey are chosen BY SCORE, so a profile built from the score alone would\nsay \"a `g` cell has a high score\" -- true by construction and worthless.\n:func:`sudoku` therefore excludes the score from the graph features by\ndefault. The score picks the anchors; the morphology decides everyone\nelse."
+    },
+    "spacr.sudoku.constrain_to_fractions": {
+      "source_blocks_sha256": [
+        "69cfa77b758c1b77ee9e7a2c0df6b168641fcf2a719b80ca21efb22353cad00f",
+        "11bbd0d6d2dfdc5d3b3b820c1e772bac5f6ff65223fc6332475fd1aaee271433",
+        "9b5248d10e847ccf36b75c4786c0d076f262ebb081cc554d58b437fe4e1d96b0"
+      ],
+      "source_sha256": "63a9ab6f61d3025ac4ece3a7a5d16d61fec4631278a0f79c9dd341a4375de19e",
+      "text": "Project the propagated mass onto the counts sequencing implies.\n\nWithin each well, scale the guide columns so each sums to ``pi_g * N_w``\nand renormalise the rows to 1, alternately. This is iterative\nproportional fitting -- the same fixed point\n:func:`spacr.guide_attribution.posterior` uses, applied here to\ngraph-propagated evidence instead of a one-dimensional likelihood.\n\nIT IS THE ROW CONSTRAINT OF THE PUZZLE. Without it the graph would\nhappily give every cell in a well to whichever guide had the most\nanchors, because nothing would say a well has only so many of each."
+    },
+    "spacr.sudoku.propagate": {
+      "source_blocks_sha256": [
+        "f01302c3659d68814430f44a86d6ea63f6245c81a427be245cd0bd289b6bb174",
+        "131c43aa5f1971524c84de4b449a0cfc555e791f5dd32607ac2c114ee75bb029",
+        "6319fe5bd08783f67006fca86d068024fb63f9eba5576e7374388bc21eb30041",
+        "9ec0397a941a071283da5a436518c30422262310f6ea6ebaceb777f0c40bc1cd",
+        "bbde8602a2d23641b6636e3b10dbf88f032298762bfab028209c1c56b8ec9660",
+        "4400e2454821ccb3d8a34d4e7979a918acde857556cddf2ffd21eb1d6e0a0b7f",
+        "d909ec352bde5c46d8de062f46748dea069ccc8d46f8047da5481d0328bb39f6"
+      ],
+      "source_sha256": "04f5f0f1013cd02510e61235f82d29f1e7e908255f4b26a1ed1d0a2cb5e33b18",
+      "text": "Spread the anchor mass along the graph.\n\n:param graph: the affinity from :func:`similarity_graph`.\n:param seeds: ``(n_cells, n_guides)``, non-zero on anchor rows only.\n:param alpha: how much a cell listens to its neighbours against its own\n    seed. 0.9 is the usual value; at 1.0 the seeds are forgotten and the\n    answer is the graph's leading eigenvector, which says nothing about\n    guides.\n:returns: ``(n_cells, n_guides)`` propagated mass, NOT normalised.\n\nZhou et al.'s local-and-global-consistency iteration, ``F <- a S F +\n(1-a) Y`` with ``S = D^-1/2 W D^-1/2``. It converges to\n``(1-a)(I - aS)^-1 Y`` and is run as an iteration rather than a solve\nbecause the matrix is sparse and the fixed point is reached in tens of\nsteps.\n\nTHE MASS IS RETURNED UNNORMALISED and that is deliberate. Row-normalising\nhere would turn a cell that received almost nothing -- a cell unlike\nevery anchor of every guide -- into a confident-looking row summing to\none. That cell is the interesting one, and :func:`sudoku` finds it by\nlooking at the row's TOTAL before anything is normalised."
+    },
+    "spacr.sudoku.similarity_graph": {
+      "source_blocks_sha256": [
+        "c9871a550ffd5d21ea05091e57f74828c59fc9b2f6c745898c57468fe3c4c4b4",
+        "ba3bb25058b7e01078e1f18c0897e076359041e9b2df27603f6937a63319a65c",
+        "cf4cdd0174f724805681f17b68510a5d342eea4c43a621935a9539622433015f",
+        "cbd75f91a86f44ace476fa41a7558bd0285c1bb5f3433e3ce6f94729b4c91ef7",
+        "29ebd8819b449b41120ade352b913de2e7fae5e1115f86b0d9099bd92890b474",
+        "411e5b5577d51c97d922269d13384e35843ad0675d795083073ffa61751af267"
+      ],
+      "source_sha256": "fc07a926a49d4cfec0cee8b5f3f6a52eeaf2eb4f5e05b5bbf27a22e2ce0270ac",
+      "text": "A symmetric k-nearest-neighbour affinity over cells.\n\n:param features: ``(n_cells, n_features)``, standardised here.\n:param neighbours: k.\n:param mutual: keep an edge only where BOTH cells list the other. A\n    plain kNN graph gives an outlier k edges it did not earn -- it has\n    to have SOME nearest neighbours -- and label mass then flows into\n    cells that resemble nothing. Mutual kNN lets an outlier end up with\n    no edges at all, which is the honest answer and is what\n    :attr:`SudokuResult.reach` reports.\n:returns: a sparse CSR affinity with a zero diagonal.\n\nWeights are the heat kernel with a SELF-TUNING scale: each cell's own\ndistance to its kth neighbour. One global sigma assumes the cloud has\none density, and a screen's cells do not -- a dense healthy population\nbeside a sparse dying one gets either no edges in the sparse region or\nan over-connected dense one."
+    },
+    "spacr.sudoku.sudoku": {
+      "source_blocks_sha256": [
+        "9565fd87072a18706ea83f75aded36f448874f0ae4e09578fabd5644e0382455",
+        "d1c68c2d44b7928ca72b5af71fd02b75f04415dec889b7093db3ce7092a8e09c",
+        "b8fb34ca7ab0762b881ef5a04536f195f13adc8f3365036ebd82f0d98c53df65",
+        "4e74a48dde732283c8bbd6fcdc368d9c610e80f18cf2e91ba720611dd97dd427",
+        "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
+        "67fdbb17464bcd148b97766fc52d68279c5ea952e263a0dc4b764e975a40e688",
+        "e5db01064629bc5c506f3ec56ead6109b227163fbd50841b5040227a6931e21e",
+        "9a0786d984efff1e26f0d5cb79497ad18d00d935127f3bd61951fa6cee3436f7",
+        "bb448ce3b066fb995254a78bb5161513381d0ffdadf22dbc87beb40d854672c6",
+        "2485395b525b7e370cd9e86447ae6fb393d3b5b02913fb4c7a6968b17fbde259",
+        "96b5593df006be77dbbee1e739b980b29f87747f42bac4c77656006a4a0f86e2"
+      ],
+      "source_sha256": "71817567844b193e55ca0d5f126229e61aa03c81c48f6dceff82e4961cab7c60",
+      "text": "Annotate every cell, across wells, with two scores kept apart.\n\n:param features: ``(n_cells, n_features)`` cell measurements.\n:param scores: the classification score per cell -- used to CHOOSE\n    anchors, and by default not used as a graph feature.\n:param wells: one well label per cell.\n:param fractions: ``{well: {guide: fraction}}``.\n:param guides: the guides to annotate. The user's choice, and several is\n    the point: \"the user may choose several high scoring guides\".\n:param anchors: optional explicit anchor indices per guide, overriding\n    :func:`anchors_for`.\n:param use_score_as_feature: put the classification score in the graph\n    as well. **Off by default and that is a correctness decision, not a\n    preference**: the anchors are chosen by score, so a graph built on\n    the score would place every high-scoring cell near every guide's\n    anchors and affirm all of them. Turning this on makes the method\n    partly tautological, and the report says so when it is on.\n:returns: the :class:`SudokuResult`.\n\nTHE FOUR OUTCOMES, which is why two scores are carried rather than one:\n\n  affirm high, eliminate low   -- confidently this guide\n  affirm low,  eliminate high  -- confidently NOT this guide\n  affirm high, eliminate high  -- the guides do not separate here\n  affirm low,  eliminate low   -- unlike every anchor: the odd cell,\n                                  and the one a single ratio hides by\n                                  mapping it to the same value as the\n                                  row above."
+    },
+    "spacr.sudoku.sudoku_all": {
+      "source_blocks_sha256": [
+        "810b655532d874a39399f11e67931d6211b319c107a7e6a6ef40e16fcd08a0ff",
+        "29ac08550b61f9b96e7fffd9817b6110583b059d63522cc50a50d13f28de4bdb",
+        "4d44af735702647f73491a4c8640a43ded90d040e176d8b772d91d9091191e8e",
+        "b9bac12fe498fa8e45c54ec7f754958812619f307e6742622428f682e99d42ed",
+        "3eadcaaf70d7abe0f4dabae2a1bf2a702b67597e7eec44da6682a174c9434634",
+        "06aba2aa8422f8b4869545c3b55f2cad954365e459ba71af351290dc947967a2"
+      ],
+      "source_sha256": "79d15de126efcfa2e121b6c2ee25189b91c6b4f4822eb780836545c70a042034",
+      "text": "Sudoku over every guide, in confidence order, claiming as it goes.\n\n:param ranking: ``[(guide, confidence)]`` in descending processing order.\n    The caller defines confidence, for example by combining effect size\n    and statistical significance.\n:param max_guides: a stop, so a screen with 1,500 guides does not run\n    1,500 graph builds by accident.\n:returns: one :class:`SudokuResult` over all cells.\n\nEach round runs :func:`sudoku` for one guide over the cells still\nunclaimed, keeps the cells it decides, and removes them. It stops when a\nround claims nothing -- which is the coin flip, reached rather than\ncounted.\n\nTHE ORDER IS THE RISK, and the report carries what is needed to judge\nit: `claimed_by_round`. A greedy method commits early, the first guide's\nmistakes are inherited by every later one, and cells it takes are never\nreconsidered. A caller that wants to know how much that mattered runs\nthis twice with the order perturbed and compares -- which is what\n:mod:`spacr.annotation_validation` does."
     },
     "spacr.surrogate": {
       "source_blocks_sha256": [

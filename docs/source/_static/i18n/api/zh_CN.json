@@ -2467,6 +2467,466 @@
         "a786a8aaad8ecf0c6d912f95fccf61beeda4f406da668408067e6c1b34aa0cb2"
       ]
     },
+    "spacr.annotation_power": {
+      "source_blocks_sha256": [
+        "a3af21f75bcd90ce2d2ef5dbd4f20ae76f62ce3ee639e33ad83e8fd2ea7b8206",
+        "199f56fa13252a3184a8c2630164b43f69b131d13b71f22c8afa7d3d65db5060",
+        "7756593ed40100819c2aedf1c6eb94e3ec971e1bf90717ac8d9f2c700ccb0f79",
+        "9074f6b222927306a339be9c3193b1be764e87fcc90c3332ce7ba8192a7e7c75",
+        "84fd69b0547adbbc51c2a1446c6e18d5ec9738fddac977d2e1785418e32c2c60",
+        "0642ccea17549223f8a18157b6c0b06076741097ab80046be78f2b639c232222",
+        "dc3cb0f3e39546b8a0fd72466c4974da6586be59b310f77b4b9009bbbe081d93",
+        "1083f4a13fdcf1582e62f34facb4b5f52be209b74450d40251eed3dfcd1b0b69",
+        "a1512e223cd65086663c5a3136b3ddd98669c8bfdcd8b01b4129401ee9f9c05e"
+      ],
+      "source_sha256": "7b9cb4ec8d149a86254fe577d601258dfdf9b1927692e6928b663f0b446f42af",
+      "text": "可以标记多少个细胞,以及筛选应该有多大。\n\n问2026-08-21:“我不需要所有细胞注册,每种方法我想要多少细胞,因为方法可以合理地注册,没有方法,我们可以注册每一个单元格,所以我们需要一个更大的筛选,这就是可以在图表下打印的文本盒子,所有的质量测量,可以计算每个方法,以及筛选的尺寸应该是基于这些数据。\n\nCOVERAGE 不是一个目标,它反向了如何阅读参考标志。 一个记录每个细胞的方法没有做得很好; 她拒绝放弃。 每个方法答案的问题是“我可以谈论哪些细胞”,而诚实的人将大部分集成扫描实验单独进行。\n\n的,而不是间接的。 采用最简单的方法模型:导引`g`是微板样本位置读数的分数`pi`,只有`g`产生表型,机器学习分类模型的灵敏度为`se`,特异性为`sp`。 的细胞携带`g`的概率\n\n    P(g | +)  =  pi * se  /  ( pi * se  +  (1 - pi) * (1 - sp) )\n\n在这个名称中的第二个术语是陷阱. 假积极是负面的份额. 当 `pi` 是小 几乎每个细胞在微板样本位置是负的,所以一个小假积极的率应用到几乎一切都包含一个大真实的积极的速度应用于几乎什么。 下一个一定的 `pi` 一个积极的呼叫更有可能是一个错误,而没有方法使用这个证据可以做得更好 - 它不是一个限制的算法,但什么微板模型位置包含。\n\n重新安排,一个引导 RNA必须到达信任的决定``t``的分数:\n\n    pi*  =  t (1 - sp)  /  ( se (1 - t)  +  t (1 - sp) )\n\n的样品位置不帮助,这是违反直觉的部分值得说明之前,任何人图像更多的显微镜视野。  `pi` 是一个分数:将单元格数量增加一倍会使真阳性和假阳性总数增加两倍,因此每个单元的置信度不变。 购买更多注释单元格的费率是相同的,而不是更高的。 率只有在引导 RNA的 SHARE 移动(每个微板样品位置的引导 RNA数量减少)或机器学习分类模型分离效果更好的情况下才会发生变化。",
+      "translation_source_blocks_sha256": [
+        "a3af21f75bcd90ce2d2ef5dbd4f20ae76f62ce3ee639e33ad83e8fd2ea7b8206",
+        "199f56fa13252a3184a8c2630164b43f69b131d13b71f22c8afa7d3d65db5060",
+        "0a02cc024f0038e5eb25501482a8e9bb66be45e026ae0295f876b6dd63bb90de",
+        "fc87c7a47bfee76d6918fdde4ac54455f301d69ef75b0643335a02d91a3511e6",
+        "84fd69b0547adbbc51c2a1446c6e18d5ec9738fddac977d2e1785418e32c2c60",
+        "4de646a698f20512f967de5383e9a8026c9d8d62042a807b96ccb80595cb4f95",
+        "dc3cb0f3e39546b8a0fd72466c4974da6586be59b310f77b4b9009bbbe081d93",
+        "1083f4a13fdcf1582e62f34facb4b5f52be209b74450d40251eed3dfcd1b0b69",
+        "6f0d93fef5aa07812276a2720cb15417da2881fb30f8fd206d76f8c554e37809"
+      ]
+    },
+    "spacr.annotation_power.annotatable": {
+      "source_blocks_sha256": [
+        "5a233f2468b8bc80b199221d4dbc220f8b8eabb3b82cb915508031d8d974f55e",
+        "cdf5f11230d8882ed62971087605484e4e5a7c2ef1068ec425ee18668194d1ec",
+        "6fa56f0d087b7cf95e26c6d08ac6f5132f5471ab34a6242d773a0b4f881c8953",
+        "f698a458c955018351f7c41cdf2c67a3047910545c30352f27303e683a5faa11",
+        "c6af761ebd68a139a139353e962d7beb53358acffda082912038cb6e06ba4aa5"
+      ],
+      "source_sha256": "bb5a94b912cadb4ff7ea2941b4d46689fc8a9fcdebd4b1dbb48f6d7b6b1d0d37",
+      "text": "一个筛选的数量可以达到多少,因为它自己的碎片。\n\n:param fractions: ``{well: {guide: fraction}}`` - 筛选如同。\n:param cells_per_well: 可选,将善良的配偶的份额转化为细胞的份量。\n:returns: 地板,什么清理它,什么留下不可接触的。\n\n无法实现的引导 RNA是头线. 一个引导 RNA从未达到 `pi*` 在任何洞不能在筛选上的任何地方标记,所以没有数量的方法开发将产生一个单个细胞为它. 这是一个事实,关于实验,在任何方法运行之前可用,这是一个数字应该决定是否运行一个。",
+      "translation_source_blocks_sha256": [
+        "5a233f2468b8bc80b199221d4dbc220f8b8eabb3b82cb915508031d8d974f55e",
+        "cdf5f11230d8882ed62971087605484e4e5a7c2ef1068ec425ee18668194d1ec",
+        "6fa56f0d087b7cf95e26c6d08ac6f5132f5471ab34a6242d773a0b4f881c8953",
+        "f698a458c955018351f7c41cdf2c67a3047910545c30352f27303e683a5faa11",
+        "c6af761ebd68a139a139353e962d7beb53358acffda082912038cb6e06ba4aa5"
+      ]
+    },
+    "spacr.annotation_power.posterior_for_prior": {
+      "source_blocks_sha256": [
+        "a8b93e65b79cf13ec136cc34228113736c6f13b9b1a575e90e12051f41be14b9"
+      ],
+      "source_sha256": "a8b93e65b79cf13ec136cc34228113736c6f13b9b1a575e90e12051f41be14b9",
+      "text": "P(the cell carries the guide | it was called phenotype-positive).",
+      "translation_source_blocks_sha256": [
+        "a8b93e65b79cf13ec136cc34228113736c6f13b9b1a575e90e12051f41be14b9"
+      ]
+    },
+    "spacr.annotation_power.quality_report": {
+      "source_blocks_sha256": [
+        "cda8179e3ea87f8008f294889f95ef9bc335d85b9f5f912f2e979e53cb44a735",
+        "c3ae96c57a2c5e818f3c65c7ab9c8c760366e21008a1eb3619ca3a272f7a6dae",
+        "0e8e840e036a72a424adc9dc9bbc5135e9a0463e052e24a09293849b65bb8173",
+        "712e45be4c89a60b583128cfd76b64e281a9b0c97e215c1c47fa702829a0970c",
+        "cfce7fb29dccfc3396b0fa2215680f8eb3da77087a05c7ac970d23a94f007ce1"
+      ],
+      "source_sha256": "86d94116f8a7a88ef41bfb07f6cd0005c9fc4fbfe5215f162fec319ddfe6a94b",
+      "text": "图表下的文本框:每个方法的尺寸和天花板。\n\n:param verdicts: ``{method: Verdict}`` 从 :func:`spacr.annotation_validation.score_annotation`。\n:param power: 此筛选的 :func:`annotatable` 结果。\n:param size: :func:`screen_size_for` 结果。\n\n信仰是由准确性印刷的,从来没有与它混淆。 方法由他们得到的细胞命令,这是唯一的排名,不奖励,无论是错误地记录一切,还是没有安全地记录任何东西。",
+      "translation_source_blocks_sha256": [
+        "cda8179e3ea87f8008f294889f95ef9bc335d85b9f5f912f2e979e53cb44a735",
+        "c3ae96c57a2c5e818f3c65c7ab9c8c760366e21008a1eb3619ca3a272f7a6dae",
+        "0e8e840e036a72a424adc9dc9bbc5135e9a0463e052e24a09293849b65bb8173",
+        "712e45be4c89a60b583128cfd76b64e281a9b0c97e215c1c47fa702829a0970c",
+        "cfce7fb29dccfc3396b0fa2215680f8eb3da77087a05c7ac970d23a94f007ce1"
+      ]
+    },
+    "spacr.annotation_power.required_fraction": {
+      "source_blocks_sha256": [
+        "04c77bb75b579bf27811f483de3218ac3454772570279c9191e7029a42873298",
+        "523285e2e795bc5b5649e6ec17de2f8f00288f5eabbc91cf5169b3f260279851"
+      ],
+      "source_sha256": "616e3e440932927646826025f198ea225e74cafc2a5d1ae6eaa52dcb14493f9d",
+      "text": "最小的引导 RNA部分可以支持 ``decision`` 的通话。\n\n下面的算法是反对你,无论方法是什么:在这种微板样本位置的现象积极的细胞更有可能是许多负面错误的一个,而不是几个积极的一个。",
+      "translation_source_blocks_sha256": [
+        "04c77bb75b579bf27811f483de3218ac3454772570279c9191e7029a42873298",
+        "8b93158d69bb1fa96d755136855747b8efc051184272aedf2f8fc63da7d31830"
+      ]
+    },
+    "spacr.annotation_power.screen_size_for": {
+      "source_blocks_sha256": [
+        "342288ae6ec84935923e624315a3265a277d96a5dc7b39107f9010be8a9a1710",
+        "f6d6ddbe748bdd78f242faafbed1c0513c5e18d1abd37975c8709333f039ca0b",
+        "0123211697f8a51dc701b6e0a2702e9383108133906ceb575a4a4366565ddd53",
+        "77c2f51fc8f9ed8b8428abef2bceedce7a9d598c99eb4a2a4ffdbab43be9e6ff"
+      ],
+      "source_sha256": "eadc14a40dcb1754f5e2a52d2402e5b70093d8433443e6091c88c98be7d16c51",
+      "text": "什么筛选应该是 ``target`` 的引导 RNA可访问。\n\n一个引导 RNA的部分是微板样本位置的份额,所以举起它的方式是将较少的引导 RNA放在每个微板模板位置 - 并保持图书馆和覆盖器每引导 RNA固定,这意味着更多的微板示板位置,在直接比例。\n\n:param target: 引导 RNA的份额应该到达地板。\n:returns: 目前的形状,所需的形式,以及相应的比例 - 加上相同的结果将通过机器学习分类模型代替多少,因为更好的模型是移动地板的另一种方式。",
+      "translation_source_blocks_sha256": [
+        "342288ae6ec84935923e624315a3265a277d96a5dc7b39107f9010be8a9a1710",
+        "dd02ccdf052f1bd8aacd08cc578fcb51534e425fe31290bcb779e3d4b80d7238",
+        "0123211697f8a51dc701b6e0a2702e9383108133906ceb575a4a4366565ddd53",
+        "558dab68fca244d7ca8d4861b974c4c44aac99da56f517581bcbbdb1d4b3c76b"
+      ]
+    },
+    "spacr.annotation_umap_qc": {
+      "source_blocks_sha256": [
+        "baf7690b442236f6d4537f3b18a28d8a19f255dd07dd02eb5cc81c40f2bc98c6",
+        "5dabbbf67f7ebc7f4cf1b80c4554bf0c56d75ede1e01d238aab96ef1656d357f",
+        "7bd99ac5f84b7b98002481bb31ad5b43654469aa5cff84a6275721cffbc96872",
+        "39e57535322fc8f1bd511fd81a1d335ed01dba8ffb5d4a286e0a7e3a4847616f",
+        "92d86bbfb0d7eea8564d54fcf7788d18584f6fa343f32b5197285aee9c102609",
+        "dd5ed9723518313248258cb2bdfbbb9eb88a1dbd1843ab00d4e3aede03dcce6f",
+        "69dd8dc25000e60d87df3994f13b76af966901b7e3bf9893eef4411ea8a4a545",
+        "3102f89bc4259168d43e6f2101d728fa202b5ce951c0f0567e72284143db78ba",
+        "448e7c3af1266452d4cb86191528c12788b624b386ec5e5b74555c2ebfa60d6a"
+      ],
+      "source_sha256": "20fe73ec60cf48b0666f68c2be59068f3e604db6d28f7992394fe9af5ccc575a",
+      "text": "标记的细胞在哪里,他们的引导 RNA的效果说他们应该?\n\n提议 2026-08-21: \"生成 A umap,执行一个超参数搜索发现结构,分离积极和负控制器,并看到记录的细胞在哪里,他们是否集成与PC或NC ... 这将是一个质量控制器和证据的类型,记录正在工作\".\n\n这是一个好检查,因为它是独立的. 标记是从分裂的序列加上一个现象呼叫; 这提出了不同的空间问题 - 在哪里细胞坐在控制器中,使用每个测量同时 - 控制器提供一个参考框架,不欠任何的标记。\n\n将其转化为一个图像的测试,需要三件事,而没有它们,它会同意它所显示的一切:\n\n  1。 超级参数不应在细胞上被选中,以便被审判。 搜索到PC和NC分开,适合标签的投影,并且有足够的测量,某些设置总是分开两个组。 :func:`fit_on_controls` 分解 CONTROL 微板样本位置,在一半上调,并报告在另一半上实现的分离。 一个只分开一半的搜索,没有找到任何东西。\n\n  二、读者必须是数字。 \"他们与PC集合吗?\" 被回答为 :func:`neighbour_purity`: 细胞最接近的控制邻居的份额,这些邻居是积极的控制。 UMAP 不是一个测量 - 群体尺寸和它们之间的距离是投影的对象,只有邻居意味着任何东西。\n\n  细胞在某个地方着陆,无论引用所说什么。 :func:`effect_agreement` 问纯度是否跟踪引导 RNA的效应迹象,并将相同的统计与引导 RNA之间的效应进行比较。\n\n,它决定了哪些方法可以用这种方式来判断。 选择细胞的表型分数的方法将产生细胞,坐在附近的阳性对照无论其他是真实的 - 这是它选择的。  `rank` 采用微板样本位置中得分最高的细胞,因此其注释细胞与 PC 聚类是对其如何选择这些细胞的重述,并不证明任何东西。\n\n检查对细胞选择不使用分数的方法是准确的信息: `sudoku` 与图表中的分数, `assigned` 和 `attributed` 在结果来自回归而不是分数。 :func:`circularity_warning`拒绝对此保持沉默。",
+      "translation_source_blocks_sha256": [
+        "baf7690b442236f6d4537f3b18a28d8a19f255dd07dd02eb5cc81c40f2bc98c6",
+        "5dabbbf67f7ebc7f4cf1b80c4554bf0c56d75ede1e01d238aab96ef1656d357f",
+        "7bd99ac5f84b7b98002481bb31ad5b43654469aa5cff84a6275721cffbc96872",
+        "39e57535322fc8f1bd511fd81a1d335ed01dba8ffb5d4a286e0a7e3a4847616f",
+        "726a5cf8acf1271e454cc0701bf7e508d14089056b06636ab7fd97bcd265e8ef",
+        "dd5ed9723518313248258cb2bdfbbb9eb88a1dbd1843ab00d4e3aede03dcce6f",
+        "69dd8dc25000e60d87df3994f13b76af966901b7e3bf9893eef4411ea8a4a545",
+        "62a876d0e14c2bba935809b1ad0d3f12a7de720584092bd00ebf9588c1a535a0",
+        "448e7c3af1266452d4cb86191528c12788b624b386ec5e5b74555c2ebfa60d6a"
+      ]
+    },
+    "spacr.annotation_umap_qc.circularity_warning": {
+      "source_blocks_sha256": [
+        "4b9c1d1ee9b009e328fff6063d1f94e97be6e651341af2ebf8c1c56a93fdafab",
+        "02bae122bcdcb01792fc16846468201de502cdd4d735955d25544e56c1c4112f"
+      ],
+      "source_sha256": "71de7cb556d789534ac8df66dbe8794776eb63a5af8714373571232db090d5b8",
+      "text": "为什么这项检查可能不为 ``method`` 或 ``\"\"`` 提供资讯。\n\n一个方法,选择细胞按分数将把它们靠近建设的积极控制。 报告,作为验证将是报告选项规则返回自己。",
+      "translation_source_blocks_sha256": [
+        "4b9c1d1ee9b009e328fff6063d1f94e97be6e651341af2ebf8c1c56a93fdafab",
+        "02bae122bcdcb01792fc16846468201de502cdd4d735955d25544e56c1c4112f"
+      ]
+    },
+    "spacr.annotation_umap_qc.effect_agreement": {
+      "source_blocks_sha256": [
+        "0343d9c128549b1e38789af297246893c52f51733170cd9884fdfd0f4ccf99c2",
+        "4f00dece26e2deadeac4ae1826f9a44e6182dd840c6210004c500dae0bb6504d",
+        "0783d7f5f0aef7a4158d0c12103b61f136c6048d6cd80cb167c49ddb94b92861",
+        "c607e5c21df17a150dfd234b205649c82833ec5b46e06734d1b506b187108f1c"
+      ],
+      "source_sha256": "31288254b608732976402f59e26da37bd3980e8559487079b66842a6f3b03186",
+      "text": "纯度跟踪引导 RNA的效果迹象,超越机会吗?\n\n被告被测试,在它提出的术语中:“具有积极影响大小集群的细胞与积极控制的,并且没有积极的对比的单元不。\n\n:returns: 效应与纯度之间的排序关系,一个转变的p值,以及对积极、消极和近零效应的引导 RNA的组值。\n\n零的效应是指示和保留一切,所以它保留了有多少指示,有多少细胞,和纯度的分布 - 并摧毁只有被要求的通信。",
+      "translation_source_blocks_sha256": [
+        "0343d9c128549b1e38789af297246893c52f51733170cd9884fdfd0f4ccf99c2",
+        "4f00dece26e2deadeac4ae1826f9a44e6182dd840c6210004c500dae0bb6504d",
+        "0783d7f5f0aef7a4158d0c12103b61f136c6048d6cd80cb167c49ddb94b92861",
+        "c607e5c21df17a150dfd234b205649c82833ec5b46e06734d1b506b187108f1c"
+      ]
+    },
+    "spacr.annotation_umap_qc.fit_on_controls": {
+      "source_blocks_sha256": [
+        "e7e6a06b73cee7d95cd862d2537e7197934aee42093152d4bafc115100c884b3",
+        "df81cd898589d4948c318bfec953930acd056106d499699f8131fb08fb04c183",
+        "9b6050a9564fc287f1b62ae23d25e9155311bde0f64a930f89f79bb0d0b8af02",
+        "1d006ce7a637bb90a740392f1dd3af2543012c8b29ad0c638a666d717d06db27",
+        "9befe48263b9bc3dad17ce94e960e21e75dfdf53ab0de00ad2e0192cdd9c8d04",
+        "70c6185761c4283bd8061839230fbae55c11d79b4324ebce98a3e5e2dd4e95cf"
+      ],
+      "source_sha256": "bd930754e0eec8938359bdea1a1ffc1d9e6dc277e4c6ddcacd4d76559b8e57fe",
+      "text": "选择一半的控制器,在另一半点数。\n\n:param features: ``(n_cells, n_features)`` 仅适用于控制细胞。\n:param labels: :data:`POSITIVE` 或 :data:`NEGATIVE` 每个控制细胞。\n:param recipes: 候选人 UMAP 参数设置要尝试。\n:returns: 获胜的食谱,其持有分离,以及每一次尝试。\n\n排出数字是唯一一个值得阅读的数字,排出,直到两个标签分开的组总是成功的,有足够的参数来尝试;问题是,是否分离生存在细胞搜索从未见过。",
+      "translation_source_blocks_sha256": [
+        "e7e6a06b73cee7d95cd862d2537e7197934aee42093152d4bafc115100c884b3",
+        "df81cd898589d4948c318bfec953930acd056106d499699f8131fb08fb04c183",
+        "9b6050a9564fc287f1b62ae23d25e9155311bde0f64a930f89f79bb0d0b8af02",
+        "1d006ce7a637bb90a740392f1dd3af2543012c8b29ad0c638a666d717d06db27",
+        "9befe48263b9bc3dad17ce94e960e21e75dfdf53ab0de00ad2e0192cdd9c8d04",
+        "70c6185761c4283bd8061839230fbae55c11d79b4324ebce98a3e5e2dd4e95cf"
+      ]
+    },
+    "spacr.annotation_umap_qc.neighbour_purity": {
+      "source_blocks_sha256": [
+        "72aae47ad5417e99fd3e889a2e13c2f8777c8f2d850b1c25afeb9094e9626fbb",
+        "ccf70b39aacf9980d3a61ea716c2be3fa15e116d4cb0951884f87a177267af00",
+        "865653ff6cae3831a252076ac6bd1284ba7e35c61b496809c101d59813d686a1",
+        "678169a8837e435c756cac26b8669894b499c0f3a4b9fe978ee8610ee7c68efe",
+        "74c63f84d7185a9665e222bb3851da3110c6b73c645073f8102f52c659231c6b",
+        "2233c858491d4dfd38250a94ba572e23855711743be268d66f7cabc4b6c9a901"
+      ],
+      "source_sha256": "eadf837107ae5fa78a783d16f55f4081be58405cfb4af74b920e777ad1fddd13",
+      "text": "分享每个细胞的最接近的控制邻居,这些邻居是积极的。\n\n:param embedding: ``(n_cells, 2)`` 与集合的控制和标记细胞。\n:param control_labels: :data:`POSITIVE`、 :data:`NEGATIVE` 或 ``None`` 对于非控制的单元格。\n:returns: 每个单元格的值为 ``[0, 1]``; ``nan``,在那里没有控制邻居被发现。\n\n,而不仅仅是距离。  UMAP 的集群大小和它们之间的间隙是布局的工件; 眼前的景象,一切的一切,都是那么的真实。  基于其他任何东西的统计是读取预测而不是数据。\n\n控制细胞本身的纯度计算其邻居,而不是自己,所以控制可以像其他任何东西一样在同一脚下进行分数 - 这就是使它们作为一个参考,即使在这里一个 \"pure\" 分数看起来像什么。",
+      "translation_source_blocks_sha256": [
+        "72aae47ad5417e99fd3e889a2e13c2f8777c8f2d850b1c25afeb9094e9626fbb",
+        "ccf70b39aacf9980d3a61ea716c2be3fa15e116d4cb0951884f87a177267af00",
+        "865653ff6cae3831a252076ac6bd1284ba7e35c61b496809c101d59813d686a1",
+        "678169a8837e435c756cac26b8669894b499c0f3a4b9fe978ee8610ee7c68efe",
+        "74c63f84d7185a9665e222bb3851da3110c6b73c645073f8102f52c659231c6b",
+        "2233c858491d4dfd38250a94ba572e23855711743be268d66f7cabc4b6c9a901"
+      ]
+    },
+    "spacr.annotation_umap_qc.purity_by_guide": {
+      "source_blocks_sha256": [
+        "5e12c95c15a853e65e2849394720cd297a0f7224dbd104ce620e5fd7f22e7684",
+        "8b8da6820778a37c79e018729ea43d81f18c64580ad03b10bf5387852844e215"
+      ],
+      "source_sha256": "6ece8d5027141be175b160c3071682acfd2e715543957073f0edda00ed1e2f29",
+      "text": "每条引导 RNA的平均纯度,其背后的计算。\n\n:param minimum_cells: 有较少标记的细胞的引导 RNA被留在外面,而不是噪音. 有三个细胞的一个引导 RNA具有纯度,只能是0, 1/3, 2/3 或 1.",
+      "translation_source_blocks_sha256": [
+        "5e12c95c15a853e65e2849394720cd297a0f7224dbd104ce620e5fd7f22e7684",
+        "8b8da6820778a37c79e018729ea43d81f18c64580ad03b10bf5387852844e215"
+      ]
+    },
+    "spacr.annotation_validation": {
+      "source_blocks_sha256": [
+        "cd8e60883fc297b3cac91141d1c50409388ee9b03d2263aa02673db6854a42d4",
+        "69c0cd79ffc9437b39dbf411550e07e63c18895d58b5a10fca29dd6ac8d5c139",
+        "0b00d100c01b3f4864da13d6b53e2910b5beab63fa98a0ecac42138f3905c8f0"
+      ],
+      "source_sha256": "01f8fa7aa0d2ac007ffecf64469045b74da393a68e93f3f9d1550d37d8de7925",
+      "text": "对可测量的参考案例进行引导 RNA提名策略的评估。\n\n因此,验证结合了四个补充检查:模拟扫描实验与已知任务,指导到好转换应该减少性能到偶然,持有到外的控制,并对序列方法进行顺序敏感性分析。\n\n结果报告的覆盖和准确性单独. 这避免处理一个方法,标记每个细胞不值得信赖的相当于一个不确定细胞,并精确标记其余的细胞。",
+      "translation_source_blocks_sha256": [
+        "cd8e60883fc297b3cac91141d1c50409388ee9b03d2263aa02673db6854a42d4",
+        "b61058569b4fde2bc511e7fec27088781fd509ff0e85733e60028a93224cb72e",
+        "0b00d100c01b3f4864da13d6b53e2910b5beab63fa98a0ecac42138f3905c8f0"
+      ]
+    },
+    "spacr.annotation_validation.Screen": {
+      "source_blocks_sha256": [
+        "8b5f49169620cb57e56cea46d62aadc0130a4608c2ee1e42cf5ff8eb5fb99b33",
+        "1781f1119578939ae57cb1e1899988a8c80e267e9518d8dc27958ccf137109ac",
+        "373a0624928cf536854f70069859403f293d22848e043fb2b691df67472beb73",
+        "4e74a48dde732283c8bbd6fcdc368d9c610e80f18cf2e91ba720611dd97dd427",
+        "e3f87dbc4e1b2831f129e6acd8f3909703871430ce0205753e0e59ae1bf5d47f",
+        "ed156b97fbd7472764f01551fb8cba9442c0aeb8daadba7e043e7263fc067d70",
+        "75bc563bc137b3beb2dcb6f4fcd8143b35e3af0d6c42610bb752f2e9a098a0d4",
+        "67451c1f0b6edc3cd421e56ccf2f4ee9b97c8e600f66d773b11565b051fb5214"
+      ],
+      "source_sha256": "3f6c2ae746ceec192c4a97189bf2bcd209a3466467b6cc1a3170ad48b47014c1",
+      "text": "一个模拟筛选,答案。\n\n:ivar features: ``(n_cells, n_features)``.\n:ivar scores: 每个细胞的分类分数,机器学习分类模型的错误已经适用。\n:ivar wells: 每个细胞一个微板样本位置标签。\n:ivar truth: 每个细胞的引导 RNA实际上带来。\n:ivar fractions: ``{well: {guide: fraction}}``作为序列报告他们 - 双边和边界,即该方法实际上得到什么。\n:ivar true_fractions: 相同的比亚之前,保持这样一个测试可以问一个失败的数量是分裂而不是方法。\n:ivar guides: 每个引导 RNA在筛选上。",
+      "translation_source_blocks_sha256": [
+        "8b5f49169620cb57e56cea46d62aadc0130a4608c2ee1e42cf5ff8eb5fb99b33",
+        "1781f1119578939ae57cb1e1899988a8c80e267e9518d8dc27958ccf137109ac",
+        "b8586382ed692d6787f525f6ec8e5917f20a82654a2d44b6bf3c665388a37f62",
+        "c0467ab89b7b6826cc65ed13aa61d4446f461fe4b6fafd4aa5e161c994e19a03",
+        "e3f87dbc4e1b2831f129e6acd8f3909703871430ce0205753e0e59ae1bf5d47f",
+        "ed156b97fbd7472764f01551fb8cba9442c0aeb8daadba7e043e7263fc067d70",
+        "75bc563bc137b3beb2dcb6f4fcd8143b35e3af0d6c42610bb752f2e9a098a0d4",
+        "67451c1f0b6edc3cd421e56ccf2f4ee9b97c8e600f66d773b11565b051fb5214"
+      ]
+    },
+    "spacr.annotation_validation.Verdict": {
+      "source_blocks_sha256": [
+        "d6f8df29761fbae33554519621e7be3f060a06847974c3f56a0c8be04ab207e5"
+      ],
+      "source_sha256": "d6f8df29761fbae33554519621e7be3f060a06847974c3f56a0c8be04ab207e5",
+      "text": "怎样对待一个已知的真相。",
+      "translation_source_blocks_sha256": [
+        "d6f8df29761fbae33554519621e7be3f060a06847974c3f56a0c8be04ab207e5"
+      ]
+    },
+    "spacr.annotation_validation.baseline_chance": {
+      "source_blocks_sha256": [
+        "01183d48d0450eca4953c8a69fed892d42752037e098ea2f85397261e33683d1",
+        "797cc26d090be41d3e76cd803b1bacdd1b8ff5f940acf43deae11a627a6ffd23"
+      ],
+      "source_sha256": "62413f3b754c4f2697a76bfa8e0c82ef8c17277eefeb6d3fb7275de6f3e05775",
+      "text": "每个细胞的引导 RNA从其孔的分数,随机。\n\n:如果一个方法尊重计数并且不知道其他任何东西,那么它的得分是多少。 与:func:`baseline_majority`这些括号排序可以做什么无需帮助.",
+      "translation_source_blocks_sha256": [
+        "01183d48d0450eca4953c8a69fed892d42752037e098ea2f85397261e33683d1",
+        "797cc26d090be41d3e76cd803b1bacdd1b8ff5f940acf43deae11a627a6ffd23"
+      ]
+    },
+    "spacr.annotation_validation.baseline_majority": {
+      "source_blocks_sha256": [
+        "52662918ccf24e154a7ac1e3411f1b88e2baa73a3fdfc8de84a44ae6b4684f7e",
+        "fe43b2ab46876dc18e8d56d529fbd181c072c3978871b48a3a6b5a6a4c18a161",
+        "dc168d9bfcef75296a205ee74b75d38b18f6f228976a1138c5d03e9f33d85ddf"
+      ],
+      "source_sha256": "53b758cea0b0cec1068d09ad9bb6b379856764c34215d964348484bd18894331",
+      "text": "显微镜板样品位置的每个细胞给予该显微镜板样本位置最大的引导。\n\n每种方法都必须清晰,并且它必须在每个参数中,而不是假设。 它不使用任何细胞测量 - 仅仅是序列 - 因此,无论它得分是什么,只有分数在筛选上是值得的。\n\n没有它,一个指标不能说。 \"the method works\" 从 \"the fractions work\"在筛选上没有信号的功能,一个方法,除非一个引导 RNA占主导地位的微板样本位置将发布一个准确度远超过机会,这既不是一个错误,也不是一个发现:这是这个基线,携带图表。",
+      "translation_source_blocks_sha256": [
+        "3d4629a328f13f97f18216e8bbd3bdcf1c16676b58521ccfbc4c861dc63325dd",
+        "fe43b2ab46876dc18e8d56d529fbd181c072c3978871b48a3a6b5a6a4c18a161",
+        "2b5a91523ab181c3278fe3296d690646f3bde52c6d529573aefe913f6c4b9805"
+      ]
+    },
+    "spacr.annotation_validation.benchmark": {
+      "source_blocks_sha256": [
+        "f57e08931820fed06258f36071466d8a4ecfd71d7b51dac6c54f0f0ded9fe338",
+        "91ff93d6815998ff8a5b152b321bc1b9ea11a7446e5166d7dc340fedacb848cf",
+        "9f58dbaea74ecf33510fed2514aec09cdae46f3f6300c69107efed932287aa47",
+        "1b26285faeedc9a0d3fd9d89e2b18da9167fb7657a3321873ca4bededccdd3ba",
+        "0359ea5aa1ca7ce607ac5b2c5082f4c70e363b1cb2fd8db07b9da332c8759215"
+      ],
+      "source_sha256": "8f52b27c2732100067aaeca82070f7228e733d52c523e48d873044f8671c8cfc",
+      "text": "运行每个策略在每个场景上,并在每一个场景的零。\n\n:param strategies: ``{name: screen -> one guide per cell}``.\n:param scenarios: ``{name: Screen}``. 缺点为 :func:`default_scenarios`。\n:returns: ``{scenario: {strategy: {\"real\": Verdict, \"null\": Verdict}}}``.\n\n一个方法可以在轻松的筛选上听到声音,并在硬一个上阅读自己的轴承,只有平衡的比较表明 - 现实和零之间的差距是从数据中产生的性能的一部分。",
+      "translation_source_blocks_sha256": [
+        "f57e08931820fed06258f36071466d8a4ecfd71d7b51dac6c54f0f0ded9fe338",
+        "91ff93d6815998ff8a5b152b321bc1b9ea11a7446e5166d7dc340fedacb848cf",
+        "9f58dbaea74ecf33510fed2514aec09cdae46f3f6300c69107efed932287aa47",
+        "1b26285faeedc9a0d3fd9d89e2b18da9167fb7657a3321873ca4bededccdd3ba",
+        "0359ea5aa1ca7ce607ac5b2c5082f4c70e363b1cb2fd8db07b9da332c8759215"
+      ]
+    },
+    "spacr.annotation_validation.calibration": {
+      "source_blocks_sha256": [
+        "b58b8071994781a3611c2833e5a56b7828691b8d97535346e4466121c7d4716b",
+        "6e6ee2e6eccc4dd4aaf61321e52f339ca27899e826f4e39263c7ee96d0e360f3"
+      ],
+      "source_sha256": "e5e2efef6503955601d1ac2e412b5114d13d96b507e348e73be99995d143bc9f",
+      "text": "``[(mean confidence, observed accuracy, count)]`` 每本。\n\n一个方法说0.9 应该是正确的 9 个时间在 10 个. 这是一个检查最重要的是一个方法,其产量被用作重量而不是标签:准确度可以高,而概率是毫无意义的,并且每一个下流数通过它们增加是错误的,以一种方式没有准确性分数揭示。",
+      "translation_source_blocks_sha256": [
+        "b58b8071994781a3611c2833e5a56b7828691b8d97535346e4466121c7d4716b",
+        "6e6ee2e6eccc4dd4aaf61321e52f339ca27899e826f4e39263c7ee96d0e360f3"
+      ]
+    },
+    "spacr.annotation_validation.count_agreement": {
+      "source_blocks_sha256": [
+        "2a9ff0cd1e367ee2c03f9e42e56f9ded14b70e3619a9cbd767edda0020f3876b",
+        "edd3dd89624c7f6f76fb532f3e9d123e7e72a2025f736e7b09746f6e84784141",
+        "c46524e9cd3a8d2d453dfd634d8f198b66a636234b2a743d3424ed79e4fe82ce",
+        "ccc568d5e03d9ac3c3e039cc99ace05ce34c34b12f67ba829114994a0be8d8a9"
+      ],
+      "source_sha256": "31cb9d83b060a2f1aa1ff481b7e96ccb6aa1568d2b5cbd8b0d97052afc898c06",
+      "text": "一个方法的 PER-Microplate 样品位置 COUNT 是否符合序列所说的?\n\n对混合微板样本位置的标记方法的直接测试:细胞没有标记,但它们的分数是已知的,因此每个细胞的引导 RNA名称的方法可以通过计算它的名称来检查。\n\n:returns: per-microplate 样品位置预测和报告股份,和中间错误。\n\n它是必要的,不足够的,而差距很重要:一个方法可以通过任意命正确的细胞数量来获得每一个计算正确和每一个细胞错误,什么规则出现在比例序列 - 得到正确的计算在90:10是容易的,在50:50需要歧视,并且用一个规则做两者是很难假的。",
+      "translation_source_blocks_sha256": [
+        "dd25109d5a4675d39d1183d88ff09b396dcabd492943846704f0b65ca120839f",
+        "e73e176b731febdcc56e89ea12d022e61aa2e0ff315425dc36206cf42fad1370",
+        "f8b11bc6e1c7d9762ab3f899ce4efd2cc332a65cddab66a119cd7057116a5e30",
+        "ccc568d5e03d9ac3c3e039cc99ace05ce34c34b12f67ba829114994a0be8d8a9"
+      ]
+    },
+    "spacr.annotation_validation.default_scenarios": {
+      "source_blocks_sha256": [
+        "ea7c4ddf6c41219810ae81353ea1fac036679c8a7199fc730799b3dbd4e35bf2",
+        "4bc3bc945cc46c1d9085ee99f1165e1356bb38558963465da3cd581a798a177b"
+      ],
+      "source_sha256": "f70941c2ab89bb33638c3f9566c2e4878b6252072333aff2cf3e41a632f0fec7",
+      "text": "一张筛选,单独播放。\n\n按目的分开:单个现实筛选上的参考标志说一个方法得分为0.7而不是哪个四个混合物的价格是0.3。",
+      "translation_source_blocks_sha256": [
+        "ea7c4ddf6c41219810ae81353ea1fac036679c8a7199fc730799b3dbd4e35bf2",
+        "4bc3bc945cc46c1d9085ee99f1165e1356bb38558963465da3cd581a798a177b"
+      ]
+    },
+    "spacr.annotation_validation.mixed_ratio_calibration": {
+      "source_blocks_sha256": [
+        "6a1a427556def6f53012a05b05c85e87ce1fe0b0fc6da9021cf600e98f5c36f8",
+        "5502658350b01ed325c65e0d39f0bda0b7f6a7b0711f7d6c7d918e6b33b54680",
+        "4e74a48dde732283c8bbd6fcdc368d9c610e80f18cf2e91ba720611dd97dd427",
+        "c0e6f737c8dfed2b4beb33feb12ccd48616155595f30ec725691821aa72a69c1",
+        "f8ada92f95448e82b120eeaa0618a65497a055ae02f7352d40f1d4321920d39e",
+        "34746c4ec03ac82996aa677ac88908b72c13698582ea6f1685c1647f0db77e48",
+        "f865cee483e18bffa9fedb468d22d981eb4d6ecef7a55c1691c85ae7ff78a840",
+        "d6c0a34b64b0284c47b69efa2222ac6bcbbd944bc4228a0d3531e68a0eef99a1",
+        "9ff5be514b203a2e9d6f69fd9a8b845cac1e0b35a9d600402d691382f1b07907"
+      ],
+      "source_sha256": "45533d9e29d261e6cc9cef29e3575e48c8c20e614e871f2bcea3c7caf4511661",
+      "text": "匹配图像说什么与序列说什么,在真实的微板样本位置。\n\n:param features: ``(n_cells, n_features)`` 控制微板样品位置。\n:param wells: 每个细胞一个微板样本位置标签。\n:param reported: ``{well: PC fraction sequencing reported}``.\n:param pure_low: 在或下面,一个微板样本位置被视为纯NC。\n:param pure_high: 在此或以上,一个微板样本位置被视为纯粹的PC。\n:returns: 切断,接收,每微型样品位置估计,以及什么被使用。\n\n锁是分裂的 BIAS,渗透已经被吸收 -- 请参见上面的笔记. 一个字符串 1 意味着序列的分裂是细胞分裂. 1.8 即 `normalised_share` 文件将在这里显示为字符号近 0.55.\n\n中间的双向滑板限制了单侧污染的影响:一个打击共享一个控制可以添加现象积极的细胞,而一个最少的四角滑板将被拖到那个污染得很好。",
+      "translation_source_blocks_sha256": [
+        "4fde5a72257fac0d6491884cd8807ac93bff8f7faaa50222ada36cfaedcc1af1",
+        "b9c6dc133155ebfb8b1978c8b57bc8d4b1bc9066b532741536e42f5216b623cb",
+        "c0467ab89b7b6826cc65ed13aa61d4446f461fe4b6fafd4aa5e161c994e19a03",
+        "c0e6f737c8dfed2b4beb33feb12ccd48616155595f30ec725691821aa72a69c1",
+        "568bd4c64c67ecdf845e1c7ef6b09f699cd68ad776b73e1eb27597acd6af74bd",
+        "81250cdf2afa615f99a03cc9e81983afef8aea297ea41690d9a8b8ec5dd4e4ac",
+        "7c629010c4faaccf6283c86a4fc1cffef4da1960a2743a3727ecbebbad6a2560",
+        "d6c0a34b64b0284c47b69efa2222ac6bcbbd944bc4228a0d3531e68a0eef99a1",
+        "9ff5be514b203a2e9d6f69fd9a8b845cac1e0b35a9d600402d691382f1b07907"
+      ]
+    },
+    "spacr.annotation_validation.mixture_proportion": {
+      "source_blocks_sha256": [
+        "925b9292c5be01094e1c0978b45d77776d0e569ac57c9612f2d61e1330709c39",
+        "534fb573dcc04db6252d81c895e7a60f94920a9b926df6d9a2f2681c580fcc24",
+        "0a1920780e13e11971238bd210634ff287ece552079833fcd7d6a152264b780e",
+        "a250e910a1c91ed0600d3f21e21a02061e880afd4b73425916ae655c70eb572c",
+        "f707363f48837e058e9e17830c819e896794edae21fa3e1f1d50a566e992bc19",
+        "50aa58958abbafdb4e8586c38af57cf55ac4bcae53b4f023473a83f163ff5822",
+        "d1430cb780fe432fc6c9c3a4087a6d589b21cb752e067b6c8ae217b2abb528f3",
+        "aeae6e15812b0dc8d3f2b3d771ba1a63eab190f0d64d6209e9c62ed0dc3803c4"
+      ],
+      "source_sha256": "9ac15cdff4e2c7f22086ec09323df83822433409ee0e9b29bf459a3de13dc216",
+      "text": "估计从 FEATURES ALONE 的微板样本位置的 PC 份额。\n\n:param features: ``(n_cells, n_features)`` 为一个混合好。\n:param positive: 清洁PC参考细胞。\n:param negative: 纯NC参考细胞。\n:returns: 估计的比例,点击为 ``[0, 1]``。\n\n将微板样本位置的中间设计到两个参数之间的线,意味着:\n\n    mu_w = pi * mu_PC + (1 - pi) * mu_NC\n\n以至少四方解决。 没有对细胞标签是必要的,没有使用,这是一个问题 - 混合的微板样品位置没有。\n\n平均而不是固定密度:六维的混合可能需要比控制微板样本位置要多得多细胞,而中间对混合物无需任何组件形状。",
+      "translation_source_blocks_sha256": [
+        "f69628de30d5d9428d82ea2b18ed7e797bf54eeee0a6286cefcbef6d34aeb73f",
+        "534fb573dcc04db6252d81c895e7a60f94920a9b926df6d9a2f2681c580fcc24",
+        "0a1920780e13e11971238bd210634ff287ece552079833fcd7d6a152264b780e",
+        "a250e910a1c91ed0600d3f21e21a02061e880afd4b73425916ae655c70eb572c",
+        "f707363f48837e058e9e17830c819e896794edae21fa3e1f1d50a566e992bc19",
+        "235627935dba78865a6c24d0841662ca14b827462530215c1abd90a1e4a89c0f",
+        "927cce95fb25c7bb9f81a12a59e1b04c806cfc1be0371bea97c4cacaf4940536",
+        "beed0d5b5434e92ffcb8230ab79518fd94eb7351e4c6a2e1738d307ae8b1694d"
+      ]
+    },
+    "spacr.annotation_validation.order_sensitivity": {
+      "source_blocks_sha256": [
+        "2362ef487929bf4179e1bcd9f4d0e59db4ea5b0d345617d593dd90efed1f06ab",
+        "3667ca73f5cf8701e890b1ec17cc1e4d1c5b41438d338e71536eb04bd2ac3a24",
+        "29f5d143bf974051f613b31e37e3c44f06d38d3e800f30f48d6026507a4cbedd",
+        "8345f071033b680c4c19bf1565e8dd621eb5cf29b6da3964f5f7a14443cf2030",
+        "42d9035b3c973bbf28a0c74037c12330453d839ba91e227d7bbcf2689f1c759b",
+        "6ee022a91ff8a28ac38d2cd7c99ce89ed44534c491093aa2bd6372ba1a5e5b0a"
+      ],
+      "source_sha256": "0f6364c65445f23feb70c53c77ea07720e223dfd2c5346f6b16aceb0ce3c4371",
+      "text": "一种序列方法的答案取决于它的顺序。\n\n:param run: 接收一个排名,并返回一个引导 RNA名单每个细胞。\n:param ranking: 诚实的命令。\n:returns: ``{\"changed\": share of cells that differ, \"repeats\": n}``.\n\nGREEDY METHOD 的 OWN RISK, MEASURED. `sudoku_all` 取出它声称的细胞,所以第一引导 RNA的错误是永久的,每一个后续引导 RNA继承它们。\n\n混乱交换了附加的对,而不是直接冲动:一个完整的冲动问什么会发生,如果信任排名是毫无意义的,这不是问题。",
+      "translation_source_blocks_sha256": [
+        "2362ef487929bf4179e1bcd9f4d0e59db4ea5b0d345617d593dd90efed1f06ab",
+        "3667ca73f5cf8701e890b1ec17cc1e4d1c5b41438d338e71536eb04bd2ac3a24",
+        "29f5d143bf974051f613b31e37e3c44f06d38d3e800f30f48d6026507a4cbedd",
+        "8345f071033b680c4c19bf1565e8dd621eb5cf29b6da3964f5f7a14443cf2030",
+        "42d9035b3c973bbf28a0c74037c12330453d839ba91e227d7bbcf2689f1c759b",
+        "6ee022a91ff8a28ac38d2cd7c99ce89ed44534c491093aa2bd6372ba1a5e5b0a"
+      ]
+    },
+    "spacr.annotation_validation.permuted": {
+      "source_blocks_sha256": [
+        "ede1177917789be589094b6285301894de3fa6d81461b511e8cda517defd2624",
+        "99376ff38760896da7e68fcc855ba6cd73832c31ff3fe548e1d8833400c39ae9",
+        "0f6d5971660167cb796311a1fa55400cd9403d3aa4e5770abb6cb6422b7434eb",
+        "6eafc94b764dcea3a915f51535e52cbc738be6799aa20bf8592054f82d86f349"
+      ],
+      "source_sha256": "997f19c2dbb1c9cd290948dd03709e0ac114c36ad7e46dd706fb15c5ea1f1901",
+      "text": "相同的筛选与引导 RNA到顺利任务关闭。\n\n一个检查它不需要真正的真理,这就是为什么它是唯一能够在一个真实的筛选上运行的。 Shuffling 哪些引导 RNA在那里很好地破坏序列和图像之间的每一个真正的关系,同时离开细胞,特性,分数,好尺寸和分裂分配正如它们一样。\n\n其中一个不读别的东西,除了数据 - 最常见的自己的 anchors,选择得分,同意一个得分为基础的功能。\n\n真理与分裂相结合,所以 `score_annotation` 对这个筛选测量对转变世界的性能。",
+      "translation_source_blocks_sha256": [
+        "ede1177917789be589094b6285301894de3fa6d81461b511e8cda517defd2624",
+        "99376ff38760896da7e68fcc855ba6cd73832c31ff3fe548e1d8833400c39ae9",
+        "0f6d5971660167cb796311a1fa55400cd9403d3aa4e5770abb6cb6422b7434eb",
+        "6eafc94b764dcea3a915f51535e52cbc738be6799aa20bf8592054f82d86f349"
+      ]
+    },
+    "spacr.annotation_validation.score_annotation": {
+      "source_blocks_sha256": [
+        "ab459ff43b0e9fc51bfae652bcd606dc21266b6f4da1eb3e88ac4aadaa81fa0a",
+        "66dbf5cb4f07a1e308ef5bf6f66c6c37c62684e20ea363aeb38cce1bee2c8254",
+        "420f471c52aaf4db9cb18cc30b5972cc753fe24ab5a27570db97f3fc4e0cd510"
+      ],
+      "source_sha256": "1dc10c70793f41d2ce46890f944eae8a626ea3324563ed26550cd3d1a51d6a84",
+      "text": "与已知答案相比。\n\n透明度和准确度被报告分开,从未混合。 一个记录一切的50%的方法比一个记录三分之一的95%的方法更糟糕,一个单一的分数将它们分为任何重量。\n\n拒绝不被计算为错误在 `precision` - 放弃回答不是一个错误的答案 - 但它们减少了 `coverage` 和 `recall`,所以一个方法不能通过放弃一切而购买准确性,而没有显示这一点。",
+      "translation_source_blocks_sha256": [
+        "ab459ff43b0e9fc51bfae652bcd606dc21266b6f4da1eb3e88ac4aadaa81fa0a",
+        "66dbf5cb4f07a1e308ef5bf6f66c6c37c62684e20ea363aeb38cce1bee2c8254",
+        "420f471c52aaf4db9cb18cc30b5972cc753fe24ab5a27570db97f3fc4e0cd510"
+      ]
+    },
+    "spacr.annotation_validation.synthesise": {
+      "source_blocks_sha256": [
+        "260e6892fae954082d17fd92554f0da9d2d6771e088c4ab7ab0bfc8fbecd6f53",
+        "5aacde4731e512d571a042354436aa0328d02a7d6f1465ec268506cdf56cb197",
+        "8fecaff9de6042a538c0966662707f4c129404ac267949a778a92680bf345cd4",
+        "af7ea235d1fea13f1f1deb389185a57efe0c3c1a094cfa229f418a53cccb33cc",
+        "8e81e14c1861c66e2607dfd5032271dd011d5ebe0b8c9c71c1283918db9e6e99",
+        "159f870a513bd3581288141383483d6030b7d703aabb7a06223d53d0d35ba707",
+        "00be0c403f3521275163587c4de5f89546345e471fd1f676111b6ce5c40ce433"
+      ],
+      "source_sha256": "bc3470150e484c59ef342dbbd87f26d8efc9be3a78d5733abd2915a03a2afba2",
+      "text": "创建一个熟悉的答案的筛选。\n\n:param effect: 引导 RNA的细胞从起源在功能空间,在标准偏差中坐得多远 信号到噪音对话:在0的引导 RNA是不可分割的,NO方法可以比机会更好,这本身是一种测试值得运行。\n:param penetrance: 引导 RNA的细胞的份额,实际上显示其现象。 下面 1 其余看起来像没有什么特别,这是混乱,不能通过单一控制从一个分裂比亚分开。\n:param fraction_bias: 1.8 重复了真实筛选上的 `normalised_share` 文档:过滤的分数总值为 0.5526 的平均值,因此生存的引导 RNA以相应的相应值注入。\n:param fraction_threshold: 放下引导 RNA在这个部分之前重新正常化 - 创造的机制比亚,而不是模仿它。\n:param classifier_accuracy: 得分往往倾向于错误的尾巴 值接近 1 产生更好的分类。\n:returns: 是:class:`Screen`。",
+      "translation_source_blocks_sha256": [
+        "260e6892fae954082d17fd92554f0da9d2d6771e088c4ab7ab0bfc8fbecd6f53",
+        "5aacde4731e512d571a042354436aa0328d02a7d6f1465ec268506cdf56cb197",
+        "8fecaff9de6042a538c0966662707f4c129404ac267949a778a92680bf345cd4",
+        "af7ea235d1fea13f1f1deb389185a57efe0c3c1a094cfa229f418a53cccb33cc",
+        "8e81e14c1861c66e2607dfd5032271dd011d5ebe0b8c9c71c1283918db9e6e99",
+        "159f870a513bd3581288141383483d6030b7d703aabb7a06223d53d0d35ba707",
+        "00be0c403f3521275163587c4de5f89546345e471fd1f676111b6ce5c40ce433"
+      ]
+    },
     "spacr.api": {
       "source_blocks_sha256": [
         "f585ac38eb5deed615ec7dea307476d78996891be47af032e966ca2fe9954aca",
@@ -8045,6 +8505,242 @@
       "text": "原子写出漏洞报告/审计为 JSON ,然后返回路径。",
       "translation_source_blocks_sha256": [
         "101f4c8752816651f946615c900f71c00f71fbc5bee89b9e5c0cef784120f2a5"
+      ]
+    },
+    "spacr.classifier_quality": {
+      "source_blocks_sha256": [
+        "45acfd4bea3111b6f0220dbb420df8e0e26e8069e643146e63de236f38a41019",
+        "3b528fc58946ff54785dcbac45932dc4659d32290d22b6b5a07450e9e307aed7",
+        "e88c5d78138871350b76089d165987c78dd5e92ebc20b998790a599bf71f303e"
+      ],
+      "source_sha256": "99717d0e8d97a587fb2b775d2187d865e50fce60d4a0c843be6bee9cf6863c67",
+      "text": "测量机械学习分类模型的性能和正确观察的班级分裂。\n\n混淆矩阵需要标记结果;一个未标记的分数列不能自行确定敏感性或具体性. 使用标记测试分裂或分裂预测,当可用时. 当标签不可用, :func:`deconvolve` 估计两个分数分布,并报告他们的分离是否足以支持估计。\n\n机器学习分类模型的错误比亚观察的积极分,而不是仅仅扩大其不确定性。 纠正助理揭示,比亚在流行的水平上,并拒绝Rogan-Gladen纠正,当敏感性和具体性不识别它。",
+      "translation_source_blocks_sha256": [
+        "ef3738cdee2740bb64b9f0af2b6cd67e2aae5398511c2337684e1a856a513420",
+        "3b528fc58946ff54785dcbac45932dc4659d32290d22b6b5a07450e9e307aed7",
+        "afe1a7366aac25fc78b9dfb927796a014cca7a282df7e0416339adc3d394ae83"
+      ]
+    },
+    "spacr.classifier_quality.Confusion": {
+      "source_blocks_sha256": [
+        "9b2f4b1d4d1518c1635b612bdf40ab87a9fa38819e4517a266594d1609905da0"
+      ],
+      "source_sha256": "9b2f4b1d4d1518c1635b612bdf40ab87a9fa38819e4517a266594d1609905da0",
+      "text": "一个混乱的矩阵,以及实际上使用的两个数字。",
+      "translation_source_blocks_sha256": [
+        "9b2f4b1d4d1518c1635b612bdf40ab87a9fa38819e4517a266594d1609905da0"
+      ]
+    },
+    "spacr.classifier_quality.Confusion.accuracy": {
+      "source_blocks_sha256": [
+        "9f271c0d166308ead061345204240ee76da96a607edd824d7e47fe368e0be116",
+        "1e512190bc5f33d6c7ed84323e0e432c9c3c86131ea07b20e90ebbc390e2d9c6"
+      ],
+      "source_sha256": "838c74b57a1f8a3939c3a54067e3a5deee019c6bdd494474caecda316886fa2a",
+      "text": "它不应该使用的数字,只要它可以与应该的两个相比。\n\n在一个不平衡的价值上,它是拥有一个仇恨的大多数阶级 一个机器学习分类模型,称之为10%积极的一切负面,是90%准确的,具有零的敏感性。",
+      "translation_source_blocks_sha256": [
+        "9f271c0d166308ead061345204240ee76da96a607edd824d7e47fe368e0be116",
+        "eccabb004214745208dd5cd47fa40ae6d113513a8c9088df66230b90909db0d5"
+      ]
+    },
+    "spacr.classifier_quality.Confusion.sensitivity": {
+      "source_blocks_sha256": [
+        "c87d959730553ab62993ab1ceed6e87219b53776df3ca20fc5de6221a3a6d6ba"
+      ],
+      "source_sha256": "c87d959730553ab62993ab1ceed6e87219b53776df3ca20fc5de6221a3a6d6ba",
+      "text": "那些是积极的细胞中,这个部分被称为积极的。",
+      "translation_source_blocks_sha256": [
+        "c87d959730553ab62993ab1ceed6e87219b53776df3ca20fc5de6221a3a6d6ba"
+      ]
+    },
+    "spacr.classifier_quality.Confusion.specificity": {
+      "source_blocks_sha256": [
+        "14b9bc1d643c661cc46b19d1eef802e33fff9d5cd88bfa2d8d23ff4b1fdffc53"
+      ],
+      "source_sha256": "14b9bc1d643c661cc46b19d1eef802e33fff9d5cd88bfa2d8d23ff4b1fdffc53",
+      "text": "细胞中不存在的部分被称为负。",
+      "translation_source_blocks_sha256": [
+        "14b9bc1d643c661cc46b19d1eef802e33fff9d5cd88bfa2d8d23ff4b1fdffc53"
+      ]
+    },
+    "spacr.classifier_quality.Confusion.usable": {
+      "source_blocks_sha256": [
+        "e78c9f161010288d4e465b68204b747fb735c8b724a04c8cb4a56939466aa1c9",
+        "9060e78168e6bfcb582634d61f78d195ee8ddf521e9645699f738e57f4a1bfd9"
+      ],
+      "source_sha256": "2a456d2a2646061d6fc0a7503baeb6e2d14f5414b81623f3672d02e65f63bda6",
+      "text": "是否可以从此进行Rogan-Gladen的纠正。\n\n``se + sp <= 1`` 意思是机器学习分类模型在所选择的范围内不携带任何信息,并且纠正分为 ``se + sp - 1``。",
+      "translation_source_blocks_sha256": [
+        "e78c9f161010288d4e465b68204b747fb735c8b724a04c8cb4a56939466aa1c9",
+        "c92beb45bd4f6f1cd6a4b1290c9961545ad8e855c283441701cea099d15d0487"
+      ]
+    },
+    "spacr.classifier_quality.best_threshold": {
+      "source_blocks_sha256": [
+        "36f8e190f537bca60cc607ec0f47458ca81c4fab095abf9e4cb63ec677d9cbc5",
+        "96dc412b443e626cc370a0cd4b4756f63e43b53820e8b7d0d9ffeb0a9052c020"
+      ],
+      "source_sha256": "5e1ba8e6173c8d8e55803f3184fa7c784e3fbbfda05754c49bbeb6e7e6196c2c",
+      "text": "操作点在运行笔记。\n\n:param criterion: ``'youden'``最大化``se + sp - 1``,这是Rogan-Gladen纠正的准确指标 - 所以这里不是一个自愿的选择,这是纠正最稳定的点,其变量通货膨胀最小的点。",
+      "translation_source_blocks_sha256": [
+        "36f8e190f537bca60cc607ec0f47458ca81c4fab095abf9e4cb63ec677d9cbc5",
+        "96dc412b443e626cc370a0cd4b4756f63e43b53820e8b7d0d9ffeb0a9052c020"
+      ]
+    },
+    "spacr.classifier_quality.confusion": {
+      "source_blocks_sha256": [
+        "7865eb90c95017cf097b58e1b9963c036275237bbb207356b3d76847833b6b70",
+        "61f7113e95e350a507f5559211a1e7326e1aadba4c4b903c6e939b5545f0ce9c",
+        "8444a3c5025655e322c28b5a856b7e4ea30ab9a5ef8b855587c55c2dcd1ffe88",
+        "7df8e4bdb389ffac747e613a68ba2fea35b28bb91e918685863982dc2cc0e363"
+      ],
+      "source_sha256": "1d53851625b0a6e2117714892b8adc47f8103b21af502610499fbefd31312540",
+      "text": "混淆的矩阵来自一个标记的分裂。\n\n:param scores: 机器学习分类模型的细胞分数。\n:param labels: True,在某种情况下,细胞实际上是积极的类。\n:param threshold: 点数到或高于哪个呼叫是积极的。",
+      "translation_source_blocks_sha256": [
+        "7865eb90c95017cf097b58e1b9963c036275237bbb207356b3d76847833b6b70",
+        "d53e3a0739b72214e3405adb94e0475d257afbbac1828098f16b928e67d6c30c",
+        "8444a3c5025655e322c28b5a856b7e4ea30ab9a5ef8b855587c55c2dcd1ffe88",
+        "7df8e4bdb389ffac747e613a68ba2fea35b28bb91e918685863982dc2cc0e363"
+      ]
+    },
+    "spacr.classifier_quality.deconvolve": {
+      "source_blocks_sha256": [
+        "a760957c681f95dc9bbc059502fe758927ba0bcc2dd2078e4b10d102855bc3f2",
+        "e5256889ca3785347efeecbfe00c04deed6f4ae9b4571f830ab50576b57860da",
+        "a08379b0174e7714f69e2fee62141eb493598e3f64964399fe5f01869da159b9"
+      ],
+      "source_sha256": "ac8411e16de2853d582df2c07a3cb9a7ad055657b441fe155d66833382337738",
+      "text": "估计从未标记的分数中分配两类。\n\n它是唯一的路径,当什么都没有标签,它是最弱的,因为它采取了两个组件的形状,并且它们是足够遥远的分离,以便被告知分开。\n\n``separation``是健康检查,必须在其旁边的数字之前阅读:组件之间的差距在分布式标准偏差中意味着。下方约2的合适是从许多同样好的答案中选择,它报告的敏感性是起点的对象,而不是机器学习分类模型的事实。",
+      "translation_source_blocks_sha256": [
+        "a760957c681f95dc9bbc059502fe758927ba0bcc2dd2078e4b10d102855bc3f2",
+        "e5256889ca3785347efeecbfe00c04deed6f4ae9b4571f830ab50576b57860da",
+        "9f9872fdea51d8fd088c2364271df81ba2cf3c5a0be99cd07c82ca8208cc3f6e"
+      ]
+    },
+    "spacr.classifier_quality.discover_test_splits": {
+      "source_blocks_sha256": [
+        "23a495c831fbfe41b4c9d336dd104f7016478b798425bbaf94ef8af7fc8fe60d",
+        "c6445341fe10d7dcc7a8a5cfd4c2061756dc2a4586c19ed5c1bba91693b2053b",
+        "09c523a4d87239b237268f4375d97b5678aac82a581761b644c99d8bcbaeaf52",
+        "fdc849f1dd3f40982f5c77cd7a640644e20181c3a5ffec7a4d4a44e0c08fa23f",
+        "b687ee1bceac093506c7913bdcc5ffcc92088b78c8e9593ac69992e1753c6080"
+      ],
+      "source_sha256": "1be93f788f1a0cc80a0af45b8026ec4f6c57f74079e533c74e3a904b2b07947d",
+      "text": "在应用程序视图的文件夹下找到书面测试分区。\n\n:param root: 应用程式显示目录持有每张板一张文件夹。\n:param pattern: 默认相匹配的两个形状 spaCR 写 - `*_test_acc.csv` 和 `*_test_result.csv`。\n:returns: ``{plate folder name: path}``,每盘一张,最新的第一张,其中一个盘有几张。\n\n没有什么在 spaCR 带有测量敏感性一个应用程序视图它没有显示,所以一个用户与自己的应用程序观图获得自己的数字,通过在自己的文件夹中指出这一点 - 这是唯一的安排,在那里纠正可以是正确的超过一个实验。",
+      "translation_source_blocks_sha256": [
+        "97873addce3e4038b9251e98e560e8030efdabc44ee0316794ff364e63b82ca8",
+        "a5bd941fe80ada308f2843616726ff24c8913c4ce46f204cde2ad2b453c17aac",
+        "09c523a4d87239b237268f4375d97b5678aac82a581761b644c99d8bcbaeaf52",
+        "fdc849f1dd3f40982f5c77cd7a640644e20181c3a5ffec7a4d4a44e0c08fa23f",
+        "8068a676af171689db52dbb82337260f287ba727805fe7433b7792f6db13642a"
+      ]
+    },
+    "spacr.classifier_quality.from_test_split": {
+      "source_blocks_sha256": [
+        "4ba751c523f8409ef60d7e17a641f3ff31ce6c28609d8c9c1deb3a4490886f64",
+        "5d707d0db96194129f67ec3e190d3f76cf75f39a2b28910df9ff204d92c71f4c",
+        "66665a3ba828c0e76eb711dbe0318aa48345641a98f1b2d19d35ce8771a7e661",
+        "6b6d2551006ee51b2cdc93803319a6ffcfe25bce510a391042ce3db63bed43e8"
+      ],
+      "source_sha256": "47a091caf765fc5cdbf67b90109bdbb95717df31d16d0cc2a080b60daab89ed1",
+      "text": "从书面测试分裂的敏感性和具体性。\n\n:param path: 每个单元格 ``*_test_acc.csv`` 或概述 ``*_test_result.csv``。\n:param threshold: 对于每个单元格的文件,点数称为积极的。 ``None`` 采取 Youden 点. 忽略了一个总结文件,该文件已经选择了一个。\n:returns: 敏感性,具体性,边界,和``per_cell``说哪个格式被阅读 - 因为只有一个单元格文件支持在不同的边界再次提出相同的问题。",
+      "translation_source_blocks_sha256": [
+        "4ba751c523f8409ef60d7e17a641f3ff31ce6c28609d8c9c1deb3a4490886f64",
+        "5d707d0db96194129f67ec3e190d3f76cf75f39a2b28910df9ff204d92c71f4c",
+        "66665a3ba828c0e76eb711dbe0318aa48345641a98f1b2d19d35ce8771a7e661",
+        "6b6d2551006ee51b2cdc93803319a6ffcfe25bce510a391042ce3db63bed43e8"
+      ]
+    },
+    "spacr.classifier_quality.inflation_by_prevalence": {
+      "source_blocks_sha256": [
+        "22e96260b7a93c8051e7ee1dc4dc2525a3cbf7f07828c15067d7652e805dd8f4",
+        "601d31184310f51f0521bdb813f268883ca6cdf701036c30ca4fe11215e5c830",
+        "11985ce890ce81f924fad6c0abe0a4ea4ad1db7aa11a2ef30723e1942fc78d4a",
+        "0732f89f5cf5da492e21e34e652793d489f8a060f4275fc87e81c33cb109dc06",
+        "f2b057e0314899bfb968599cd7e6b16e8b76c46a8771cd7a8a8b5fb203aeec15"
+      ],
+      "source_sha256": "12db9f8770b9727e17c786cf2665e0cb825bbe9e1099619c989e4a00ea1104b0",
+      "text": "机器学习分类模型对一个分数做什么,因为分数变得更少。\n\n结果决定任何这些内容,并且从准确性不直观。在 tsg101 机械学习分类模型中,测量为 ``se = 0.960``, ``sp = 0.981``:\n\n    一个真实的30%被观察为30% - 纠正是没有的;一个真正的1%被观测为2.8% - 也许三次太高。\n\n虚假正面是负面的一部分,当一个引导 RNA是罕见的,几乎每个细胞在微板样本位置是负面的,所以一个小虚假积极的率在一个大群体跳动一个大真实的积极的速度在一个小。\n\n扫描实验是罕见的,所以纠正在任何地方都是不可忽视的,它不在乎,并且在它所做的地方都占主导地位。",
+      "translation_source_blocks_sha256": [
+        "fab91c910f3c43948179167291095af742d5d85272eb23001861f1704ce6df2e",
+        "588c7a457aac12742c6ea5b2964716ecd7c639bf18c49e88f66995beb4ceacec",
+        "11985ce890ce81f924fad6c0abe0a4ea4ad1db7aa11a2ef30723e1942fc78d4a",
+        "c7c4bd733cd918735e671b88fe7a759ebc33d358932de0d92b68583c8dcdc98e",
+        "e00879e87c310bcee60785ced0c177a823cbaa294c764b8e9f7f7209510107d2"
+      ]
+    },
+    "spacr.classifier_quality.measure_screen": {
+      "source_blocks_sha256": [
+        "19c8e1222da6f2f1b2812c04018e74f1ce7479c50dbf8bfaf6ec9d8c7022ee59",
+        "1b40aa9942916e45b2ebf5cf5527b16590f16bfad21347db38adb9cea71977ba",
+        "2a121bd451570abe71443e39b214ad7fa7c7c97f867455b385b3eff83877046e"
+      ],
+      "source_sha256": "60676dde7c7aa3dcfa8d5901febad6fe230af227139e60b7861b0b4b995e82ed",
+      "text": "每板的敏感性和具体性,从用户自己的应用视图。\n\n这个模块提供的一切,在一个呼叫中,为谁运行了自己的应用程序视图,并希望纠正是关于它。\n\n微孔板是单独训练,其边界是不可比拟的 - 在扫描实验中,它是开发的对抗他们紧张 0.2955 到 0.8567,这是三点的敏感性. 平均它们会产生一个数字,对每个微孔板都是错误的。",
+      "translation_source_blocks_sha256": [
+        "e270f23d3528cd7e727b8f578ba433a88b11d64c5aec94a3f4193705040ab4ca",
+        "30ce2834fcb23f3db7197d8a786e6c727b6649c553a434eb4fea0dfa482dd7af",
+        "a425c9c448c620d93088d596f031d4aefefdd16fc3246f3ed3d436cd336f637d"
+      ]
+    },
+    "spacr.classifier_quality.operating_points": {
+      "source_blocks_sha256": [
+        "e3623eb33d002d5d64824a2fd3f85bb2831c82c76117bf358d4c6e88682d96c0",
+        "432c8074c4f817074b606adbf10a6e9c08de14be8e278f38bd25e2ffab8dc348"
+      ],
+      "source_sha256": "0dd82c1e4f6569fb69854a9c6548f1455a82d61691f1efc7dac25a42f02636db",
+      "text": "混淆的矩阵在分数范围 - ROC,作为矩阵。\n\n一个单一的混乱矩阵在 0.5 答案“它有多好”和隐藏,移动边界交易正确的两个量,纠正分为。",
+      "translation_source_blocks_sha256": [
+        "e3623eb33d002d5d64824a2fd3f85bb2831c82c76117bf358d4c6e88682d96c0",
+        "432c8074c4f817074b606adbf10a6e9c08de14be8e278f38bd25e2ffab8dc348"
+      ]
+    },
+    "spacr.classifier_quality.rogan_gladen": {
+      "source_blocks_sha256": [
+        "ed533d7bc76d2b7b2c8b7501bc4aeddd9a366aff721bcadb957ef617c235c4e8",
+        "d34d621898136072784ad77fcb118e2fbffde4c3aa3e8e2077cd7ba38695b4d7",
+        "ef0d8efb5dd628b5412e0b71840421310b3532a10e56e012a61273b119eaed60"
+      ],
+      "source_sha256": "d030d8278cda1ba246a78946382b08b25e1366215c012dadddee01d7b586fac3",
+      "text": "纠正机器学习分类模型错误的观察到的积极份额。\n\n    p_true = (p_observed - (1 - sp)) / (se + sp - 1)\n\n在 ``se = sp = 0.94`` 一个观察到 0.06 正确到准确的零 - 整个观察到的信号是虚假的积极 - 和一个观测到 0.244 正确为 0.20。\n\n:param n: 修正的波动为 ``1 / (se + sp - 1)^2``,在 0.94/0.94 是 1.29,所以在修正之前计算的间隔太狭窄,也集中在错误的地方。",
+      "translation_source_blocks_sha256": [
+        "78f9914b5dfba9c8874b96e02155e8cafb0118d4b52d01c4484fd89bf2d1510e",
+        "d34d621898136072784ad77fcb118e2fbffde4c3aa3e8e2077cd7ba38695b4d7",
+        "ef0d8efb5dd628b5412e0b71840421310b3532a10e56e012a61273b119eaed60"
+      ]
+    },
+    "spacr.classifier_quality.sensitivity_by_prevalence": {
+      "source_blocks_sha256": [
+        "efb21bb5be71d44da3abc356bb85f3c6ba2d5f6ed761f984828c03ef66c12388",
+        "12a264a8cb01695542e66b725cea14cf19adba7212f73fef02e08bdddc860724",
+        "e8c7e3f8da06b238a7f3b690a8485c7762c2be1897c7dcb54002747150be3362"
+      ],
+      "source_sha256": "1530005939cc66bfb80dbad9b1cd89bfe0d5377f79072e25b7bd8952dab11659",
+      "text": "敏感性在好流行的乐队内。\n\n敏感性是机器学习分类模型的属性,具体性也是 - 也不应该依赖于普遍性。 如果他们在这里做,机器学习 分类模型使用背景而不是细胞:一个模型已经学到“这个微板样本位置看起来繁忙,所以称之为更积极”将显示与普遍性的敏感度上升,并且它所产生的每一个碎片则部分是给出的碎片的副本。\n\n:returns: 每行一行,带有乐队的普及、敏感性、特性和尺寸。",
+      "translation_source_blocks_sha256": [
+        "efb21bb5be71d44da3abc356bb85f3c6ba2d5f6ed761f984828c03ef66c12388",
+        "f47981bbcfd2f6a3edaacd762d305fa9f22806167a7882e97ccb5f9746cde4d2",
+        "e8c7e3f8da06b238a7f3b690a8485c7762c2be1897c7dcb54002747150be3362"
+      ]
+    },
+    "spacr.classifier_quality.training_wells": {
+      "source_blocks_sha256": [
+        "2d9b30b13a6532b1ddb88f66b66ee6bf90b6fea628d84e3702022592e3de8787",
+        "98802ccd56d72404972dbe3a825ac40bfda20f1e8f2404e9fe3ad6a026f1e8d3",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "be7bf4c374b6dde27bc4809252933006ecc8e1369cb394b8ba501ec305e64c0e",
+        "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
+        "894f2e49e7c8828ef7b2f94af6b19c10962c03b8f33442fc15cbe99d9fca67c5"
+      ],
+      "source_sha256": "03eb54a48becc965fcf634c8d5541cfc57df09d75dbed58465bf3e350f3f329b",
+      "text": "返回属于机器学习分类模型训练列的细胞。\n\n训练微板样本位置必须从性能定义中排除;否则,样本中的定义测量符合。 ``r1_c2`` 和 ``c2`` 良好标签都被接受. 不可分割的标签被保留为验证而不是被沉默地分类为训练数据。\n\n参数\n----------\nwells : sequence of str 每个细胞的一个微板样本位置标签. columns : sequence of int, default=(1, 2) 用于机器学习分类模型培训的单元列数。\n\n返回\n-------\nnumpy.ndarray 布莱恩掩膜,每个输入都包含一个元素。",
+      "translation_source_blocks_sha256": [
+        "ec5878458b89409af653214ab44304339a9c1a7814f34faa193ee2bf1fa95a78",
+        "a157153c0965bbd54ac7f80a6a11af70527ae624d680fe28fc0923a0423c4c68",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "9851796f804802c4da3f11e976642949a93b0682bd7cf5cf8b0ca0b5b4f86302",
+        "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
+        "894f2e49e7c8828ef7b2f94af6b19c10962c03b8f33442fc15cbe99d9fca67c5"
       ]
     },
     "spacr.classify": {
@@ -50309,6 +51005,18 @@
         "b8bd6ca42724e20a3818084354ab71db124aed76d1c957641832618be404a118"
       ]
     },
+    "spacr.qt.dialogs.detach_all_dialogs": {
+      "source_blocks_sha256": [
+        "2fd60fe27c97d86d04959d2e2b4848ff508e6020686be15654a440d7d69dfc4c",
+        "b718f2930b7d01d35a340bbe8065a6ab026ae2ac583fd62d018f0456f9cb9601"
+      ],
+      "source_sha256": "5a380f5228479397fbeeb6c218d7a1205070d0ee648cd4a08d923984de69c888",
+      "text": "安装应用程序广泛的检测器. 安装时返回 True。\n\nIDEMPOTENT PER APPLICATION:在同一应用程序上打电话两次,留下一个过滤器,并在新应用程序中打电话,重新安装,因为旧过滤机与旧应用程序一起死亡。",
+      "translation_source_blocks_sha256": [
+        "2fd60fe27c97d86d04959d2e2b4848ff508e6020686be15654a440d7d69dfc4c",
+        "b718f2930b7d01d35a340bbe8065a6ab026ae2ac583fd62d018f0456f9cb9601"
+      ]
+    },
     "spacr.qt.dialogs.detach_from_window_manager": {
       "source_blocks_sha256": [
         "96d65f0f73d1fe750a3f51008ebf58fa9de7efdd5a8378f097923edfb188d3ed",
@@ -69681,7 +70389,7 @@
         "ba91da429ad23b473c435409a0535cd6848e7f3f33d88763a66a885cb179d9f5"
       ],
       "source_sha256": "a6aa1284df56b5124b21ff67b5983ec214af2c6d53ffb41b1f116e9bb8f59178",
-      "text": "简短的声明。\n\n:param keys: 连接,在 Qt 的可携带播放中。 通过 `QKeySequence.toString(NativeText)` 打印, 因此, `Ctrl` 是指令符号在 macOS 上读取的。 -- 在标签中写“Ctrl+H”将硬编码一个平台到帮助中。\n:param label: 什么是钥匙。\n:param category: 下面显示的集合。\n:param scope: 默认是整个窗口;每个筛选的连接器命名其筛选。",
+      "text": "一个短暂的声明。\n\n:param keys: 连接,在 Qt 的可携带播放中。 通过 `QKeySequence.toString(NativeText)` 打印, 因此, `Ctrl` 是指令符号在 macOS 上读取的。 -- 在标签中写“Ctrl+H”将硬编码一个平台到帮助中。\n:param label: 什么是钥匙。\n:param category: 下面显示的集合。\n:param scope: 默认是整个窗口;每个筛选的连接器命名其筛选。",
       "translation_source_blocks_sha256": [
         "a6c4f71ac22e5fe89dc55fdcb171b2d4634e6f439a29719aa230731e3819029f",
         "33a904a6848932931ddac43dd2080a5d6bf2f3599449fdf9dc4f23eb42053d5f",
@@ -94658,17 +95366,15 @@
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.show_panel": {
       "source_blocks_sha256": [
         "9e8c8d2e94e89a38fc4ea2df121e2bfaaff3757c8667d304af3cfe317cd3f6cd",
-        "a9b5eb2c3ab0a0fcd5cd83d51fd9c0fee09888bb3899d01e9225b026f55be686",
         "8d82a976bc98dac7d22cbc898a0b21cc80b16a68fac600abba00c86b47e40ff3",
-        "da68757fe487b1b12f628b78015a768fe158e5ba71798d88d4a621bbb295337f"
+        "6999120706d97256e82307d97d7a89df6e7512e9936e603b807a13ac64dd0aef"
       ],
-      "source_sha256": "38af8fe41c1a708835b744bbc5ef63ba5c4c91f93e7552c3fd2b1527614186a7",
-      "text": "将持有 ``key`` 命名的直播面板的选项卡上传。\n\n这是门指示199发现失踪. 网络拍摄九个直播面板,并给每个网络一个关键, 但是只有火山的钥匙可以去任何地方。 -- 那么,八个天花板拿着一个点击,什么也没做。, 它看起来像一个破碎的应用,而不是没有门的图像。\n\n:param key: 一个从 :meth:`FigureGridView.set_live_tiles` 的密钥。\n:returns: True 如果一个选项卡被上传。 虚假是真实的答案,呼叫者必须采取行动:选项卡组不固定 - 没有模型的匹配没有剩余选项,而火山和基因选项库在火山是外部时不存在 - 因此,一个密钥可以完全有效,并且现在没有选项牌在这个面板上。",
+      "source_sha256": "000c4dd992d691a8af8e3045979eabc53acbcebd3e2bb9b6cbeaf629d83f55c4",
+      "text": "将持有 ``key`` 命名的直播面板的选项卡上传。\n\n:param key: 一个从 :meth:`FigureGridView.set_live_tiles` 的密钥。\n:returns: ``True`` 当相应的选项卡存在并被提取时;否则 ``False``. 可用的选项单取决于配置模型以及火山是否在该选项板外显示。",
       "translation_source_blocks_sha256": [
         "9e8c8d2e94e89a38fc4ea2df121e2bfaaff3757c8667d304af3cfe317cd3f6cd",
-        "a9b5eb2c3ab0a0fcd5cd83d51fd9c0fee09888bb3899d01e9225b026f55be686",
         "8d82a976bc98dac7d22cbc898a0b21cc80b16a68fac600abba00c86b47e40ff3",
-        "da68757fe487b1b12f628b78015a768fe158e5ba71798d88d4a621bbb295337f"
+        "6999120706d97256e82307d97d7a89df6e7512e9936e603b807a13ac64dd0aef"
       ]
     },
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.start_load": {
@@ -97598,6 +98304,144 @@
       "text": "按序列指数选择一个点,并显示所有已知的内容。",
       "translation_source_blocks_sha256": [
         "9d579628d1ce65c8930903fc4c666b0ade855f1c1517587220dc187918548eca"
+      ]
+    },
+    "spacr.read_background": {
+      "source_blocks_sha256": [
+        "c1cab63140044ca034fc51eb183d748c308070d2244f605e7eedc6001e606dfb",
+        "44152d0be31e6ad9a19462efd606e73dfcb76a48c99e69adf5e5057b5ed68ce6",
+        "cc6e9b2f31929fe5ca1b3cfb5349ffaadd0bd51b50222a8755f97527b6b50ec8",
+        "a830aae3a4135a05ec6d1983f33e397e7037bb5632f507fd00b2058fcbeb9606",
+        "8bc70aabdd2fc34203c0e1bb74454dd4a39f615a7428bd758e3bacffec1fae68",
+        "35bbd106420285c112bc2c77698fc811f5a7e137b4a6ea5596d993d42a94ddb4",
+        "92d99e8e42a725477eafa40bed4e8ced962a51653192d1ff51ac95273f273813"
+      ],
+      "source_sha256": "98a517096916988e47287f3982a74af1fb38c3deaf25ccb7f711bd5dd4a67aaa",
+      "text": "一个引导 RNA的阅读看起来像在微板样本位置它不存在。\n\n2026-08-21 : \" 计算 gRNA 分数阈值的另一种方法是测量前 3 列中检测到的总分数和个别引导分数。 ,因为第一列应该是100% 233460,第二列应是150%249730,第三列是混合值,但没有其他参考值。 也可以用来作为一个单独的calue grna校正系数或个别的grna校准系数 。 \"\n\n这是正确的想法,答案是个人的因素,而不是单一的价值。 众所周知的组成列是直观的阅读速度的测量:不是指向的每一个阅读都是建筑的噪音。 `fraction_threshold` 目前猜测到这个数量与一个恒定的,它可以用来测量。\n\n测量显示,在筛选上这是写反对和重新计算在任何其他:背景不是一个数字穿着不同的帽子。 控制微板样品位置的中位引导 RNA的背景是0.013 %, 第99百分位数是 0.15 % - 任何小阈值都会去除的漫散雾,而一个引导 RNA坐在9.2%并出现在每个单独的控制微型板样本位置。 。 全球阈值不能同时满足这两个目的。  设置足够低以捕捉离群值它删除真正的生物学; 到它现在所在的位置,它会删除不需要的模糊效果,并无论如何接受离群值。\n\nSO THE BACKGROUND IS PER GUIDE, and a guide that shows up where it cannot be is telling you a fact about itself -- its barcode, its amplification, its neighbours on the index -- that no other guide's behaviour predicts.\n\n它不能决定什么,它不应该假装。 在控制微板样本位置中丰富的引导 RNA是EITHER一个序列的对象 - 索引跳动,条码碰撞 - 或者在图书馆中真正过度代表,并且在这些细胞中真正存在。 阅读数不能把它们分开,在两种情况下,纠正是相反的:放下它,或者保持它。 图像可以把它们分开,因为一个真正存在的引导 RNA会移动其细胞的现象,而一个对象不会。 :func:`suspicious`报告候选人而不是解决他们。\n\n希望指数随着来源的丰富而升高, 这就是为什么这些列给了一个UPPER的界限而不是一个估计。 一个控制好与一个引导 RNA在70%投射更多的阅读到它的邻居比一个普通的,其最大的引导 RNA是5%. 每个引导 RNA的排名转移; 绝对的水平不, 和 :func:`subtract_background` 这样说,当被要求将其应用到普通的微板样本位置。",
+      "translation_source_blocks_sha256": [
+        "e349c6dc4d7115ce17cdcc471f303abbf525c7b2add40f2a52ecebce975a823b",
+        "44152d0be31e6ad9a19462efd606e73dfcb76a48c99e69adf5e5057b5ed68ce6",
+        "cc6e9b2f31929fe5ca1b3cfb5349ffaadd0bd51b50222a8755f97527b6b50ec8",
+        "de046986aaacea3213606d471f35d9ba6794bb5edba94b2eddf92b6cb5e909c8",
+        "8bc70aabdd2fc34203c0e1bb74454dd4a39f615a7428bd758e3bacffec1fae68",
+        "42bb82ce0aff9a778dcf7102a33193268905f6ad0e88f8b213128a9f83c21e5c",
+        "6f333ea8783ed1cfcf682db78f0281049af0a79b92fc6f52aeda7c342036df06"
+      ]
+    },
+    "spacr.read_background.background_from_controls": {
+      "source_blocks_sha256": [
+        "47cc9c2c2bf91db1039b353af12a79af3fddd7ea91cb83decaef542994727377",
+        "c681c04d4c27c3d8f8ea98aff8dc254d12dffc5cc4738c56fd929b91e2e2c2d7",
+        "16205eacca9180c6770d81d0acd70d0a8ae4949d5d14f7739ce12cc561d82057",
+        "bdede25dc6aec8bb33e183393da6b25e89beffad057c50d7a7fc5346b0eb3d7c",
+        "8dfbbc608a4e768b1c4da790617c5c9095790c139de1a81604197ba26db6949d",
+        "39322c68de3f12ae2cc548c2a4242122b85df5a019175df4ba919c30235542d3",
+        "42ee77ec6f6df7b6481fac3335aba36de658dade29abca9543e8d9fcaa8abc41"
+      ],
+      "source_sha256": "547b6593ce8db21aa0df98ca747a3b33ec8530eda51b9bfd3a02cc2a164f922b",
+      "text": "测量每个引导 RNA的阅读部分在微板样本位置,它不属于。\n\n:param fractions: ``{well: {guide: fraction}}`` 只适用于控制微板样品位置。\n:param intended: ``{well: the guides that well really contains}``. 在此地图中缺席的微板样本位置,而不是假设是空的,因为假设会将真正的引导 RNA转化为背景。\n:param exclude: 滴落和微板样本位置重新正常化之前,任何东西都被测量,因为在名称中留下的污染物将每个真正的引导 RNA的背景保持在自己的份额下,使边界看起来比它更紧。\n:param statistic: ``'median'`` 或 ``'mean'`` 在控制微板样本位置上. 默认情况下中间:一个污染微板模型位置不应为整个实验室微板设置引导 RNA的背景。\n:returns: 每引导 RNA背景,每微板样本位置的总冲动质量,以及两者背后的计算。\n\nSPURIOUS MASS 是按微板样本位置报告的,并且不只是偏见,因为它的 SPREAD 是指这些微板模型位置是否描述一个现象。 密切散布是一种序列性属性; 一个宽一个意味着一些微板样本位置被污染,其余则没有。",
+      "translation_source_blocks_sha256": [
+        "00bafbda9cd0686d2ff511a42409a31d045b63f22ed5d2a0725848106fb3e346",
+        "2989876bbd9d9aef610613322f8084ab68aeefd25b07aa6e7def0e91827432aa",
+        "22f40627ca5eff7b2883f451491f353705dbdebaee4280e36dd2e5c34e79cf92",
+        "3e589e2e06d0b9a37b3cf6162fe777c2b44fc3b03a272c412950c07667fcfdf8",
+        "62621c87e5fc44013531518fb6ded2e0abc8213c4e80b20d7f56e357a37ea2e3",
+        "539f3d5cb72d236670e01a01abbcc9e88f4e6009dee16e7e9cc100956119679d",
+        "ce280478601ea887f2dc106bd013d7b9d4a59f1243cf6a5bb67a2f2424bdedc7"
+      ]
+    },
+    "spacr.read_background.drop_guides": {
+      "source_blocks_sha256": [
+        "055602f229da0477cd415d266c8e5ce06868f76873601760f36eb4e8134155a3",
+        "90d554b86d046a8c2ffdf943ac1dfd0b0e8c62e46322ae0964e2de01a3d66db8",
+        "1e4c15cd7f2e6a533e1e3b6cd42def7e287650545b4a9435191d09fd3c63597d",
+        "a6c710ef1391eacb667531b8967f4474945a80ab87e502b84b399dea75b71173"
+      ],
+      "source_sha256": "8912c0a061f1f54894d13816208d0ba9b701739825d9215c82a43504e42b15af",
+      "text": "删除不在任何单元格中的参考线,并对剩余的重新规范。\n\n和间接的区别是什么呢?  背景减法显示\"本引导 RNA的一些读数是虚假的 \" 。 排除说 : \" 这个序列根本不是细胞中的引导序列 \" — —引物或质粒传递,这是在库准备中,而不是在核中。\n\n因此,它被移除之前的分裂形成,生存者被重新正常化到剩下的。 留下它,并在后退将留下它的经文在每个其他引导 RNA的名称,保持每一个真正的分子下降的污染物的份额。\n\n在筛选上,这是写的反,一个塑料污染物是199.9%的所有阅读在一个板上:排除它增加了每个其他引导 RNA的分裂一个季度,移动引导 RNA跨到标记性地板。 这不是一个令人震惊的步骤。",
+      "translation_source_blocks_sha256": [
+        "055602f229da0477cd415d266c8e5ce06868f76873601760f36eb4e8134155a3",
+        "90d554b86d046a8c2ffdf943ac1dfd0b0e8c62e46322ae0964e2de01a3d66db8",
+        "1e4c15cd7f2e6a533e1e3b6cd42def7e287650545b4a9435191d09fd3c63597d",
+        "a6c710ef1391eacb667531b8967f4474945a80ab87e502b84b399dea75b71173"
+      ]
+    },
+    "spacr.read_background.resolve_exclusions": {
+      "source_blocks_sha256": [
+        "fb91311dd2873583b790f767d58f5bbf491c7930634d2a7ae9c71a992efe8b2a",
+        "ab1f664c0ba3e9a552aa1e408ba1cffbfec285ee840ef14b0170bcfcc1e083f3",
+        "0735ad0f7941fece2b72ca456a03e8118e70d97f25a92ae108c787e02a1801f2",
+        "303a549d2f380610ed76682c90513c85670e0b8e709c6245ae2c923a47e6555d"
+      ],
+      "source_sha256": "2c40b734f1a1e5f5111043580e3ef9588aaf17650a2f91f42793f6e99e25fc89",
+      "text": "哪个引导 RNA命名一个排除列表实际上命名。\n\n接受引导 RNA和基因,每个几个 : \" 在排除我应该能够把几个引导 RNA或基因 \". 基因会选择分配给它的每一个引物，因此排除一个被污染的扩增子并不意味着列出它的四个引物而忽略第五个。\n\n`control_names.rows_for`做解决,再使用它是点而不是方便:它是已经使用的 `controls`, `positive_control`和 `negative_control`,因此,一个排斥被标记在正确的播放那些接受 - 与或没有生物预定 - 并且不能流入第二个字母相同的名字。\n\n一个与什么相匹配的输入在任何集中都不会返回;关心的召唤者应该这样说,因为一个沉默地排除任何东西的错误排除是污染物如何生存一个被认为要删除的过滤器。",
+      "translation_source_blocks_sha256": [
+        "fb91311dd2873583b790f767d58f5bbf491c7930634d2a7ae9c71a992efe8b2a",
+        "ab1f664c0ba3e9a552aa1e408ba1cffbfec285ee840ef14b0170bcfcc1e083f3",
+        "0735ad0f7941fece2b72ca456a03e8118e70d97f25a92ae108c787e02a1801f2",
+        "303a549d2f380610ed76682c90513c85670e0b8e709c6245ae2c923a47e6555d"
+      ]
+    },
+    "spacr.read_background.subtract_background": {
+      "source_blocks_sha256": [
+        "57ca1556c12a893d976471ee40d137b07a84cdb698f48cde1564a9f2fcc6c144",
+        "e9938c85154372487b17a2c86e3470c63caab87a0bf425e6a24292c2e6bc1deb",
+        "f00a2218420c4894d6c85920573fc230348465355ba1527cf36258c9e472ce27"
+      ],
+      "source_sha256": "23007f91e5bb099af9b0f24805a4f7a120a93a7bbce88692b73bbfb8910b924f",
+      "text": "从微板样本位置移除每个引导 RNA的背景,然后重新正常化。\n\n:param scale: 测量背景的数量是多少? 控制列将其转换为一个普通的孔 - 指数跳跃的尺寸与源的丰富,而控制孔有一个引导 RNA在七十%,其中一个普通孔最大的是五。\n:param renormalise: 让幸存者总结到他们提到的,所以纠正将 SHARES 移动到引导 RNA之间,而无需移动微板样本位置的总值。",
+      "translation_source_blocks_sha256": [
+        "b2ab31741c891f4197333de577534ed314925328c8c97b2372e644a6c4065eab",
+        "e9938c85154372487b17a2c86e3470c63caab87a0bf425e6a24292c2e6bc1deb",
+        "8c8c8399110da879b69ac6273de6b3b3b0f6fbb83f354e08a2e84c495c646356"
+      ]
+    },
+    "spacr.read_background.suggest_threshold": {
+      "source_blocks_sha256": [
+        "658604d80d6f89c37350bbd259ef45481e415786b2a0857a476381e05b7ee39e",
+        "76691fee9be013a6cb5c847f6b13f8d0826851ae6a988576e34dc838a3255411",
+        "08eedce06e41910671daf4fc7f498f03c02d9fd551c455cbc530b3869035fd50",
+        "03ad6dc9bbf39da5c031f4e3a307352affdd19a121c74b1144716d668677a9ef"
+      ],
+      "source_sha256": "83c7ff4753687c8ab8da351cb4351a569a5e87a015d8a92ad792daadcc3f1921",
+      "text": "从数据中取出一个 `fraction_threshold` 而不是一个恒定的。\n\n:param quantile: 背景分布的份额是清晰的。\n:returns: 提议的边界和它会和不会取消什么。\n\n这只是对混乱的部分的荣誉。 量子描述了引导 RNA的混合物,到处都是在跟踪层面上出现的。 一个背景为外部的引导 RNA不被其他人的任何量子描述,需要:func:`subtract_background`; 这些数字的数字在数字旁边返回,因此它不能被阅读为完整的答案。",
+      "translation_source_blocks_sha256": [
+        "658604d80d6f89c37350bbd259ef45481e415786b2a0857a476381e05b7ee39e",
+        "76691fee9be013a6cb5c847f6b13f8d0826851ae6a988576e34dc838a3255411",
+        "08eedce06e41910671daf4fc7f498f03c02d9fd551c455cbc530b3869035fd50",
+        "03ad6dc9bbf39da5c031f4e3a307352affdd19a121c74b1144716d668677a9ef"
+      ]
+    },
+    "spacr.read_background.suspicious": {
+      "source_blocks_sha256": [
+        "7762e887f3ba960624928a7a1b7580ba6c113e978b3d3a76548ffa5bee2adf22",
+        "d6092ffcccad8e5ff83dc831245da7c2e897cc61c46e5031297f8839b988520c",
+        "b0556ba837394f68d7d3deda9b1f8a6e51bc7d1e29f36b038ebd3c28270e6201",
+        "5dfce0a5510af5e14d7170f47a8d9dff07ff008dc8c3afa11662d34e3637c906",
+        "cf1cea8412661092d99c75bb41e43c4044cdff7949fc677db07f507d06e6554d",
+        "dd0052f246d2f8233aeca65a18c4db9a3f94aa2234f44b53623d1b4198bb09f0"
+      ],
+      "source_sha256": "ad5dc1bd4fd1311766323f399bfdc705e0ad1c16393e7d274fa8659d1f09ee95",
+      "text": "引导 RNA的背景与其他引导 RNA不同。\n\n:param factor: 多少次中间背景计算为外观。\n:param everywhere: 至少在控制微板样本位置中出现这一部分。\n:returns: 每位候选人一行,最糟糕的是。\n\n这是一个候选人,而不是一个真实的. 一个引导 RNA丰富的微板样本位置它不能在是一个序列的对象或真正过度代表在图书馆和实际上在这些细胞 - 和纠正是相反的两种情况. 阅读计算不能分开它们. 图像可以:一个真正存在的引导 RNA移动其细胞的现象,一个对象不。\n\n在每个控制中,一个百分之一的引导 RNA是系统地行事的;在一个引导 RNA中,五分之一是污染的。",
+      "translation_source_blocks_sha256": [
+        "7762e887f3ba960624928a7a1b7580ba6c113e978b3d3a76548ffa5bee2adf22",
+        "d6092ffcccad8e5ff83dc831245da7c2e897cc61c46e5031297f8839b988520c",
+        "f62d0e62309a9d3610fc2a30a1243dd5866a056e2166db840cef23cdf8002fb6",
+        "5dfce0a5510af5e14d7170f47a8d9dff07ff008dc8c3afa11662d34e3637c906",
+        "ebf2f051f50215bbe6bbb463d198690109a0c269094a5ba9a48f86450f82cc99",
+        "dd0052f246d2f8233aeca65a18c4db9a3f94aa2234f44b53623d1b4198bb09f0"
+      ]
+    },
+    "spacr.read_background.unmatched_exclusions": {
+      "source_blocks_sha256": [
+        "202f6a94092af24d78bcc035c2f169c73192fc85635a645b8779a3d8f801c44b",
+        "d4960291745e5a07619e4b6bd7db14908aea49fab9a6de0738a1582134bcd431"
+      ],
+      "source_sha256": "79428506793d31795eebbacb0315679ff86a884f17d2465e5f4c942817fa5d21",
+      "text": "输入在 ``exclude`` 中,这个筛选上没有任何名称。\n\n一个错误的排除不排除任何东西,看起来像它工作,这是这个存在的失败,使可见。",
+      "translation_source_blocks_sha256": [
+        "202f6a94092af24d78bcc035c2f169c73192fc85635a645b8779a3d8f801c44b",
+        "d4960291745e5a07619e4b6bd7db14908aea49fab9a6de0738a1582134bcd431"
       ]
     },
     "spacr.refit": {
@@ -108942,14 +109786,22 @@
     },
     "spacr.settings_advisor.advise_that_runs": {
       "source_blocks_sha256": [
-        "edafe03f41d62bd282ce367894a019043c2981b7ca44a0931b01dc782e2183a3",
-        "301e001ac58426b7aa4b3c7e0abf945594110e889028782ff5165740d74ae85d"
+        "569a551ae816753bfc44e94e62c64098607c6fb57f7e49add0dd355828d35164",
+        "fc74830e702cf84276ac22e63bf634db5a3ee4d813cac5f1b656eee40753b968",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "e74bb426cbb1cde69691d5e647592543a034ef7b1c27422d36d287ced8a3b90a",
+        "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
+        "a291a4235a6333598d75acf75c87bd35fe2bdce845ec892b33b56babc56da843"
       ],
-      "source_sha256": "0e35d88b1c46385f8270f02a063af629eb47d7d207b76dfb330d89dd4d1e4348",
-      "text": ":func:`advise`,提议对跑步进行检查。\n\n拒绝不是沉默地包装:导致它的设置是从提议中转移到 `undecided`,携带拒绝代码的自己的句子. 离开面板,因为用户有它,并说为什么是诚实的答案 - 静静地改变一个值来做一个检查通过是如何一个提议停止意味着任何东西。",
+      "source_sha256": "a9641dfc9643b5b9883359809ca55a71ae1e4aa710765243b365249f11937d0b",
+      "text": "构建建议和撤回错误运行时间预测的选项。\n\n一个名为 :func:`refusals` 的选项从 ``chosen`` 移动到 ``undecided`` 与验证消息。\n\n参数\n----------\n阅读 : 阅读 描述筛选的测量和代数据. answers : dict, optional 用户回答无法解决筛选数据的问题。\n\n返回\n-------\n建议 一个建议,仅包含通过预测检查的选项。",
       "translation_source_blocks_sha256": [
-        "edafe03f41d62bd282ce367894a019043c2981b7ca44a0931b01dc782e2183a3",
-        "301e001ac58426b7aa4b3c7e0abf945594110e889028782ff5165740d74ae85d"
+        "569a551ae816753bfc44e94e62c64098607c6fb57f7e49add0dd355828d35164",
+        "fc74830e702cf84276ac22e63bf634db5a3ee4d813cac5f1b656eee40753b968",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "e74bb426cbb1cde69691d5e647592543a034ef7b1c27422d36d287ced8a3b90a",
+        "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
+        "a291a4235a6333598d75acf75c87bd35fe2bdce845ec892b33b56babc56da843"
       ]
     },
     "spacr.settings_advisor.advise_the_screen": {
@@ -109018,22 +109870,38 @@
     },
     "spacr.settings_advisor.refusals": {
       "source_blocks_sha256": [
-        "fc37ae3cc07df8811b0f1a8fe7b9b076d8931b22fc4af60bcd8db7bc18b0cd35",
-        "6ef17e23e4d9aa49f8ce922c9cb5d38632b692d9ca52d99aafc2b1d1ed49f88c",
-        "abd3089e2780f62aad6b3cd564b15ae5a90cf22fc1f751042300e808b6ef8eac",
-        "1c49d7e93da631e80c228e948131f28d668a292c0354e50ae8b38f1edbececb2",
-        "70798532a39ba5a3a74abf5e305a3bd25b69413705a787eb84bcd0f007aae16c",
-        "bb2be6a7d1a6700126e5d0309adf44227b4634086feed37b63408fa5ff00218d"
+        "052f38126d3f6df3feb3cd89a4c79d03f1638278fcd553f11fe73b3fdadd6a99",
+        "19f79e4ee63ce96a4b589486497e266cdd191ca7d6e2bee22bc43189efe80f85",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "542600c27544cdf836ca5404e674aea253928023b351a7095d510c029c78f5a4",
+        "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
+        "0fa4374da1ad5d23901db5229a7142f45866eb1de7db8b92e361997f23ff9677"
       ],
-      "source_sha256": "8d238abc8984b9658c1896fd184699000b0fa90aaa4d934adb3eef748a6f5ea3",
-      "text": "为什么 RUN 会拒绝 ``settings``,在自己的词语中。\n\n第196章 不是什么区别,这就是196的区别 `get_perform_regression_default_settings` 填写缺陷和强迫类型; 它没有说明是否可以配备组合。 一项测试证实,每一个提议的关键都存活了,经过了,运行仍停止了。\n\n    ValueError: batch_correction='combat' 需要知道哪个生物学要保持。\n\n因此,这要求那些实际上拒绝的事情,在用户被告知问题已解决之前。 每个输入都是拒绝代码的 OWN 句子,其中有一个 - 一个 paraphrase 会从中流动。\n\n:param settings: 一个建议,或任何设置的关键值地图。\n:returns: 每个拒绝,一句判决,当跑步开始时是空的。",
+      "source_sha256": "001e7aa7d62f8775bda66160a8e26ade7f90d2535a2897a7eaefda4cb0b8885f",
+      "text": "返回原因 退缩设置地图无法执行。\n\n此检查覆盖了不兼容的设置组合,默认填写和输入强制不能解决。 消息跟随运行时间验证编辑,以便一个应用程序可以解释一个拒绝之前开始一个匹配。\n\n参数\n----------\nsettings : mapping 提议的回归设置。\n\n返回\n-------\n按拒绝,或在设置通过这些预点检查时,一个空白的漏洞。",
       "translation_source_blocks_sha256": [
-        "fc37ae3cc07df8811b0f1a8fe7b9b076d8931b22fc4af60bcd8db7bc18b0cd35",
-        "6ef17e23e4d9aa49f8ce922c9cb5d38632b692d9ca52d99aafc2b1d1ed49f88c",
-        "abd3089e2780f62aad6b3cd564b15ae5a90cf22fc1f751042300e808b6ef8eac",
-        "1c49d7e93da631e80c228e948131f28d668a292c0354e50ae8b38f1edbececb2",
-        "b4507a556f164df146ee05a7a1982709b5890828969738efbd7af68cb16d37e3",
-        "bb2be6a7d1a6700126e5d0309adf44227b4634086feed37b63408fa5ff00218d"
+        "e95d7e717c1909344111aad1730b395aeb8bf2f45f6ae34a8224fa92b1b88344",
+        "19f79e4ee63ce96a4b589486497e266cdd191ca7d6e2bee22bc43189efe80f85",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "542600c27544cdf836ca5404e674aea253928023b351a7095d510c029c78f5a4",
+        "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
+        "0fa4374da1ad5d23901db5229a7142f45866eb1de7db8b92e361997f23ff9677"
+      ]
+    },
+    "spacr.settings_advisor.requirements_for_unit": {
+      "source_blocks_sha256": [
+        "e916ca19c5c8e93b49d9afcec97c9590ca08a601d9e700b720587d9710e41624",
+        "912479767d502dd4428175876b30094f695681b405eeae38e7c3032a50fa2625",
+        "d1dd56331b34ec33b804f75be6c53fe49b1b5dfa4a34db82cfbecd729e334049",
+        "2d1de49f25eb07671bf99a4c6e07cf310727608168a75a5f4083eaabaa72853e"
+      ],
+      "source_sha256": "bb716b5ec91fb8000a776456601417b35dbf12309740eb65233aa275e402d280",
+      "text": "设置 ``analysis_unit`` 强度,以便一个面板应用并锁定。\n\n:param unit: ``'cell'`` or ``'well'``.\n:returns: ``{setting: required value}``,空白,当单元不限制任何东西时。\n\n该面板应该执行这一点,并显示它被打破,不只是后来拒绝。 经过三十秒的工作后发现不可能的组合的运行已经为用户付出所需的代价。",
+      "translation_source_blocks_sha256": [
+        "e916ca19c5c8e93b49d9afcec97c9590ca08a601d9e700b720587d9710e41624",
+        "912479767d502dd4428175876b30094f695681b405eeae38e7c3032a50fa2625",
+        "d1dd56331b34ec33b804f75be6c53fe49b1b5dfa4a34db82cfbecd729e334049",
+        "2d1de49f25eb07671bf99a4c6e07cf310727608168a75a5f4083eaabaa72853e"
       ]
     },
     "spacr.settings_spec": {
@@ -111326,6 +112194,200 @@
         "bb7ef8d1a57262607fcb228b959e98705d6ed41b4be54bb518d24906ba6dbb6c",
         "8533c3ecfddb3312eb7aa7d2b03da9f4a54b46c5ef11c6aea82a6cc185d1761a",
         "a7c3290316bdee44e8f2347e1323c7f1b694f07cf40a4d1cf53e4c69febec318"
+      ]
+    },
+    "spacr.sudoku": {
+      "source_blocks_sha256": [
+        "2fba26b86a2785f020a969b17ec6bab80fe507f490e869c7c7d222025ad3115d",
+        "2a38a5d2f6abc70da7626244f9d4e15d55fa3ca8dcc96a4adb915fc70cba6bb2",
+        "eb8e54e35b539407f6aeecdff161fa933b80514fed6fa6d2dc22f06ec1cc9bb3",
+        "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
+        "1bf06e0760c8ebd854674e7216e4c6bc5afdd0334fb928f8b7ae26af279f104e"
+      ],
+      "source_sha256": "5048c14b096f19eb0cc8d42a4c39799744a8cc942ea0ebfd0a11bf6708658ac9",
+      "text": "Infer 细胞级引导 RNA任务在微板样本位置上。\n\n浮动筛选为每个微板样本位置提供引导 RNA计算,而不是每个细胞的引导 RNA身份。 该模块将这些计算限制与测量空间的相似性相结合. 它选择了高信任的 anchor 细胞,在 k 最接近的图表上传播了它们的标签,并将结果设计到每微板的样本定位引导 RNA分区,通过序列报告。\n\n因此,分配可以借用相同的干扰的证据在微板样本位置,同时保持一个明确的抵制状态. 传播的质量,竞争标签证据,和总轴范围仍然可分开,所以双重或不受支持的通话可以被检查而不是强制。\n\n笔记\n-----\n传播和类质量规范化遵循 Zhu 和 Ghahramani (2003) 以及 Zhou 等人描述的标签传播框架。 （2004年）。 实现没有训练过的图形模型权重; ,每个结果都可以追溯到其锚点和排序约束。",
+      "translation_source_blocks_sha256": [
+        "e06d1253d98b10791de72041b625ca0ace7809d2bdd92b07f8c2ff842b52a66d",
+        "cd188c600fc80eb1ad6431ffe07f7ea0a6faffa7463bda9b07d86cbe7d1755cd",
+        "484d4dfdcdd09c17c9cf5486ed67b445ccfcebead855259cd32af8d073f8b124",
+        "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
+        "1bf06e0760c8ebd854674e7216e4c6bc5afdd0334fb928f8b7ae26af279f104e"
+      ]
+    },
+    "spacr.sudoku.SudokuResult": {
+      "source_blocks_sha256": [
+        "259961c60b0a260dc8d90924ad0a02c1f27daeb1d4a3f78579e3f27ecfc5d4df",
+        "b133cb63caf150909107fbdda390ce582730020f52d586f39d752a010b3b84b7",
+        "80527d2b3d77943e3caa8b9283999d0a9f9f2053c69c7b78825fbb5ef1c71bdd",
+        "125fe5ffa550f064b7e959b6c49ac86a94e7253b4c755fda02fe4f9dd96eaa33",
+        "0ba7c441293ede3a909873f64ea7273f3bd5cfc5c212cb0c94634526840f948f",
+        "aee5d6ead903cfdd1faf6431bb03a5ee306d4a7fd7ebf8a48d648e47780bd18c",
+        "8e0e840760dd542656a1e3fcdf2f7203a4d6f56c2c9d7f043cd51571a794db7b",
+        "ca6a433c0d92112bad90a52cff1cb398ed4c5bb6d02a18cb4eac2bfad2f734e6"
+      ],
+      "source_sha256": "595ce16b97d003e41144db061fba8aaddf4e1e6cad4a7ed4d5d1c763201a909c",
+      "text": "苏多库得出的结论,两分都分开了。\n\n:ivar guides: 每个细胞的一个名称,细胞到达的顺序,或:data:`ABSTAIN`。\n:ivar affirm: ``(n_cells, n_guides)`` - - 每个单元格看起来有多像每个参考线的锚点。\n:ivar eliminate: ``(n_cells, n_guides)`` - 它看起来像什么 ELSE。 以目的分开: \"probably not this guide\" 和 \"probably this guide\" 是不同的要求,一个细胞可以低于两者,这就是细胞值得一看。 一个单一的比例地图与相同值的细胞,在两者都很高。\n:ivar reach: ``(n_cells,)`` - 到达的总轴重量。 低距离是第四个四角形:与任何引导 RNA不同。\n:ivar posterior: ``(n_cells, n_guides)`` 微板样品位置限制后。\n:ivar names: 引导 RNA名称,在列顺序的矩阵。\n:ivar report: 计算和设置,为记录。",
+      "translation_source_blocks_sha256": [
+        "259961c60b0a260dc8d90924ad0a02c1f27daeb1d4a3f78579e3f27ecfc5d4df",
+        "b133cb63caf150909107fbdda390ce582730020f52d586f39d752a010b3b84b7",
+        "80527d2b3d77943e3caa8b9283999d0a9f9f2053c69c7b78825fbb5ef1c71bdd",
+        "125fe5ffa550f064b7e959b6c49ac86a94e7253b4c755fda02fe4f9dd96eaa33",
+        "0ba7c441293ede3a909873f64ea7273f3bd5cfc5c212cb0c94634526840f948f",
+        "88c3b9b3414b7a1e7b0098e88b361962c63ddd35c46ffd58aa9da65cb164312c",
+        "8e0e840760dd542656a1e3fcdf2f7203a4d6f56c2c9d7f043cd51571a794db7b",
+        "ca6a433c0d92112bad90a52cff1cb398ed4c5bb6d02a18cb4eac2bfad2f734e6"
+      ]
+    },
+    "spacr.sudoku.SudokuResult.abstained": {
+      "source_blocks_sha256": [
+        "87264400c612be08de89b386bca21eb4782a9811321132b3698adda5140892f4"
+      ],
+      "source_sha256": "87264400c612be08de89b386bca21eb4782a9811321132b3698adda5140892f4",
+      "text": "细胞的布莱恩掩膜没有引导 RNA被命名为。",
+      "translation_source_blocks_sha256": [
+        "87264400c612be08de89b386bca21eb4782a9811321132b3698adda5140892f4"
+      ]
+    },
+    "spacr.sudoku.SudokuResult.called": {
+      "source_blocks_sha256": [
+        "73b0b1ad75a69461624f232e6275479702f3d3929400bab6a258dad901c36226"
+      ],
+      "source_sha256": "73b0b1ad75a69461624f232e6275479702f3d3929400bab6a258dad901c36226",
+      "text": "有多少个细胞被列入。",
+      "translation_source_blocks_sha256": [
+        "73b0b1ad75a69461624f232e6275479702f3d3929400bab6a258dad901c36226"
+      ]
+    },
+    "spacr.sudoku.anchors_for": {
+      "source_blocks_sha256": [
+        "7d95102aa928905030ec5ff146531d6f498bdcb85547288a97f4d286765c677d",
+        "4e74a48dde732283c8bbd6fcdc368d9c610e80f18cf2e91ba720611dd97dd427",
+        "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
+        "eb6d1129a7427ddaac6242fac73e735fe733bb3c770b45a89c0fedcec718c51d",
+        "33383acbfc2b22043321abda95fd91eab8de7cd2ce40806283ead68ecefcb8fb",
+        "6f58baeeba7bf761cddba3fc7a9d693dad9dece10a419590c02167dee6f6f3e9",
+        "87ab4bf6db33ed4b547f6f3df1f084aa38a3e9c85e5a0b1c7d2cee3a73823198",
+        "f64250843e1ee6f51bcf8a430ab51b081928e528c11d97c4532dd21f8b5d1fb2",
+        "e096de447ddbc931a4db8907de22c8f52bb4f7bde626b5be68c540a94a63c30d"
+      ],
+      "source_sha256": "d984295d47b2d4a9e29b9c4a8edd224f35ecd5021380b0428dec1e3ba74bac07",
+      "text": "细胞的指数作为几乎确定的例子 ``guide``。\n\n:param wells: 每个细胞一个微板样本位置标签。\n:param fractions: ``{well: {guide: fraction}}``.\n:param scores: 每个细胞的分类分数。\n:param quantile: 锚点孔内,采集单元格所在的得分分位数。\n:param min_fraction: 只使用导板至少为此份额的微型板样品位置。 目的:在一个微板样品位置中,引物占读数的70 %, 得分最高的细胞很可能就是该引物。 位置为 5% 的微型板样本位置中,它可能不是,从此类微型片样本的位置构建的锚点集会将错误的形状传递给图形。\n:param max_per_well: 一个帽子,所以一个巨大的好不能自定义引导 RNA的外观。\n:returns: 细胞指数,可能是空的。\n\nWHERE 是循环输入,它是故意输入的. 它们是由分数选择的,所以一个从分数单独构建的个人资料会说“一个 `g` 细胞具有高分数” - 是由构建和无价值的。 :func:`sudoku` 因此,从图表功能中排除分数默认。",
+      "translation_source_blocks_sha256": [
+        "7d95102aa928905030ec5ff146531d6f498bdcb85547288a97f4d286765c677d",
+        "c0467ab89b7b6826cc65ed13aa61d4446f461fe4b6fafd4aa5e161c994e19a03",
+        "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
+        "eb6d1129a7427ddaac6242fac73e735fe733bb3c770b45a89c0fedcec718c51d",
+        "33383acbfc2b22043321abda95fd91eab8de7cd2ce40806283ead68ecefcb8fb",
+        "d0b92b598a796eedcf8f217ba477cf795c0eb1842bfbfa2e00a95e8d3fa4d2a7",
+        "87ab4bf6db33ed4b547f6f3df1f084aa38a3e9c85e5a0b1c7d2cee3a73823198",
+        "f64250843e1ee6f51bcf8a430ab51b081928e528c11d97c4532dd21f8b5d1fb2",
+        "e096de447ddbc931a4db8907de22c8f52bb4f7bde626b5be68c540a94a63c30d"
+      ]
+    },
+    "spacr.sudoku.constrain_to_fractions": {
+      "source_blocks_sha256": [
+        "69cfa77b758c1b77ee9e7a2c0df6b168641fcf2a719b80ca21efb22353cad00f",
+        "11bbd0d6d2dfdc5d3b3b820c1e772bac5f6ff65223fc6332475fd1aaee271433",
+        "9b5248d10e847ccf36b75c4786c0d076f262ebb081cc554d58b437fe4e1d96b0"
+      ],
+      "source_sha256": "63a9ab6f61d3025ac4ece3a7a5d16d61fec4631278a0f79c9dd341a4375de19e",
+      "text": "将散布的大量投向数序列的含义。\n\n在每个微板样本位置内,将引导 RNA列规模为 ``pi_g * N_w`` 并将行列重定为 1 相替。 这是 iterative proportional fit - 相同的固定点 :func:`spacr.guide_attribution.posterior` 使用,在这里应用到图形宣传的证据而不是单维的概率。\n\n没有它,图表会幸运地给每个细胞在一个微板样本位置的任何引导 RNA有最多的轴承,因为没有什么会说一个微盘样本的位置只有那么多。",
+      "translation_source_blocks_sha256": [
+        "69cfa77b758c1b77ee9e7a2c0df6b168641fcf2a719b80ca21efb22353cad00f",
+        "c6a2877eb39cb08d834dbff7acb390dbce2d08b211ca3547526c7529402df6fb",
+        "6ae2c2a3c91105f4a21f4a68514c88b2f90f0452e927efb7740772818709cb18"
+      ]
+    },
+    "spacr.sudoku.propagate": {
+      "source_blocks_sha256": [
+        "f01302c3659d68814430f44a86d6ea63f6245c81a427be245cd0bd289b6bb174",
+        "131c43aa5f1971524c84de4b449a0cfc555e791f5dd32607ac2c114ee75bb029",
+        "6319fe5bd08783f67006fca86d068024fb63f9eba5576e7374388bc21eb30041",
+        "9ec0397a941a071283da5a436518c30422262310f6ea6ebaceb777f0c40bc1cd",
+        "bbde8602a2d23641b6636e3b10dbf88f032298762bfab028209c1c56b8ec9660",
+        "4400e2454821ccb3d8a34d4e7979a918acde857556cddf2ffd21eb1d6e0a0b7f",
+        "d909ec352bde5c46d8de062f46748dea069ccc8d46f8047da5481d0328bb39f6"
+      ],
+      "source_sha256": "04f5f0f1013cd02510e61235f82d29f1e7e908255f4b26a1ed1d0a2cb5e33b18",
+      "text": "将 anchor 重量沿着图表扩展。\n\n:param graph: 与 :func:`similarity_graph` 相似之处。\n:param seeds: ``(n_cells, n_guides)``,不零在 anchor 行只。\n:param alpha: 0.9 是常见的值;在 1.0 种子被遗忘,答案是图表的领先的 eigenvector,这对引导 RNA来说什么都没有说。\n:returns: ``(n_cells, n_guides)`` 散布量,不正常化。\n\nZhou et al. 的本地和全球一致性 iteration, ``F <- a S F + (1-a) Y`` 与 ``S = D^-1/2 W D^-1/2`` 。 它以 ``(1-a)(I - aS)^-1 Y`` 相匹配,并且作为直径而不是溶液运行,因为矩阵是分裂的,固定点在几十个步骤中达到。\n\n重量是恢复不正常的,这是故意的。 这里的序列正常化会将接收几乎什么的细胞 - 与每个引导 RNA的每个轴不同的一个细胞转化为一个自信看起来序列总结到一个. 这个细胞是有趣的, :func:`sudoku` 发现它通过观察序列的TOTAL之前,任何东西都正常化。",
+      "translation_source_blocks_sha256": [
+        "f01302c3659d68814430f44a86d6ea63f6245c81a427be245cd0bd289b6bb174",
+        "131c43aa5f1971524c84de4b449a0cfc555e791f5dd32607ac2c114ee75bb029",
+        "6319fe5bd08783f67006fca86d068024fb63f9eba5576e7374388bc21eb30041",
+        "9ec0397a941a071283da5a436518c30422262310f6ea6ebaceb777f0c40bc1cd",
+        "bbde8602a2d23641b6636e3b10dbf88f032298762bfab028209c1c56b8ec9660",
+        "4400e2454821ccb3d8a34d4e7979a918acde857556cddf2ffd21eb1d6e0a0b7f",
+        "d909ec352bde5c46d8de062f46748dea069ccc8d46f8047da5481d0328bb39f6"
+      ]
+    },
+    "spacr.sudoku.similarity_graph": {
+      "source_blocks_sha256": [
+        "c9871a550ffd5d21ea05091e57f74828c59fc9b2f6c745898c57468fe3c4c4b4",
+        "ba3bb25058b7e01078e1f18c0897e076359041e9b2df27603f6937a63319a65c",
+        "cf4cdd0174f724805681f17b68510a5d342eea4c43a621935a9539622433015f",
+        "cbd75f91a86f44ace476fa41a7558bd0285c1bb5f3433e3ce6f94729b4c91ef7",
+        "29ebd8819b449b41120ade352b913de2e7fae5e1115f86b0d9099bd92890b474",
+        "411e5b5577d51c97d922269d13384e35843ad0675d795083073ffa61751af267"
+      ],
+      "source_sha256": "fc07a926a49d4cfec0cee8b5f3f6a52eeaf2eb4f5e05b5bbf27a22e2ce0270ac",
+      "text": "对细胞的相同性 k - 最接近的亲密性。\n\n:param features: ``(n_cells, n_features)``,在这里标准化。\n:param neighbours: k.\n:param mutual: 保持一个边缘只有在BOTH细胞列出另一个。 一个平坦的 kNN 图表给了一个外部 k 边缘它没有赚钱 - 它必须有某些最接近的邻居 - 标签质量然后流入细胞,看起来不像什么。 相互 kNN 允许一个外端没有任何边缘,这是诚实的答案,这是 :attr:`SudokuResult.reach` 报告。\n:returns: 与零 diagonal 相连的 CSR 相似之处。\n\n重量是温度核心具有一个自我调节尺寸:每个细胞与其周边的旋转距离。 一个全球的西格玛假设云有一个密度,而筛选的细胞没有 - 一个密集的健康人口除了一个分裂的死亡一个得到或没有边缘在分裂区域或一个过于连接的密度一个。",
+      "translation_source_blocks_sha256": [
+        "c9871a550ffd5d21ea05091e57f74828c59fc9b2f6c745898c57468fe3c4c4b4",
+        "ba3bb25058b7e01078e1f18c0897e076359041e9b2df27603f6937a63319a65c",
+        "cf4cdd0174f724805681f17b68510a5d342eea4c43a621935a9539622433015f",
+        "cbd75f91a86f44ace476fa41a7558bd0285c1bb5f3433e3ce6f94729b4c91ef7",
+        "29ebd8819b449b41120ade352b913de2e7fae5e1115f86b0d9099bd92890b474",
+        "411e5b5577d51c97d922269d13384e35843ad0675d795083073ffa61751af267"
+      ]
+    },
+    "spacr.sudoku.sudoku": {
+      "source_blocks_sha256": [
+        "9565fd87072a18706ea83f75aded36f448874f0ae4e09578fabd5644e0382455",
+        "d1c68c2d44b7928ca72b5af71fd02b75f04415dec889b7093db3ce7092a8e09c",
+        "b8fb34ca7ab0762b881ef5a04536f195f13adc8f3365036ebd82f0d98c53df65",
+        "4e74a48dde732283c8bbd6fcdc368d9c610e80f18cf2e91ba720611dd97dd427",
+        "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
+        "67fdbb17464bcd148b97766fc52d68279c5ea952e263a0dc4b764e975a40e688",
+        "e5db01064629bc5c506f3ec56ead6109b227163fbd50841b5040227a6931e21e",
+        "9a0786d984efff1e26f0d5cb79497ad18d00d935127f3bd61951fa6cee3436f7",
+        "bb448ce3b066fb995254a78bb5161513381d0ffdadf22dbc87beb40d854672c6",
+        "2485395b525b7e370cd9e86447ae6fb393d3b5b02913fb4c7a6968b17fbde259",
+        "96b5593df006be77dbbee1e739b980b29f87747f42bac4c77656006a4a0f86e2"
+      ],
+      "source_sha256": "71817567844b193e55ca0d5f126229e61aa03c81c48f6dceff82e4961cab7c60",
+      "text": "记录每个细胞,在微板样本位置,两个分数保持分开。\n\n:param features: ``(n_cells, n_features)`` 细胞测量。\n:param scores: 单元格分类分数 - 用于 CHOOSE anchors,并且默认不作为图形功能。\n:param wells: 每个细胞一个微板样本位置标签。\n:param fractions: ``{well: {guide: fraction}}``.\n:param guides: 的引导 RNA来标注。 是用户的选择,而多个就是重点 : “ 用户可选择多个高分导航 ” 。\n:param anchors: 可选的明确指标指标,指标为 :func:`anchors_for`。\n:param use_score_as_feature: 把分类分数也放在图表中. **Off 默认情况下,这是一个准确的决定,而不是一个偏好**:按分数选择的 anchors,所以在分数上构建的图表将把每个高分数细胞放在每个引导 RNA的 anchor附近,并确认所有这些。\n:returns: 是:class:`SudokuResult`。\n\n四个出口,这就是为什么两个分数而不是一个:\n\n  确认高,排除低 - 确信这个引导 RNA确认低,清除高 - 确信 此引导 RNA不确信高,清理高 - 不分开的引导 RNA在这里确认较低,消除较低 - 不像每个 anchor:奇怪的细胞,而一个单一的比例隐藏,将其地图到相同的值,如上行。",
+      "translation_source_blocks_sha256": [
+        "bb271fc5c5e8510d634b277435e17dc4dfc1742c142df9e42f38229b6e76c0b1",
+        "d1c68c2d44b7928ca72b5af71fd02b75f04415dec889b7093db3ce7092a8e09c",
+        "b8fb34ca7ab0762b881ef5a04536f195f13adc8f3365036ebd82f0d98c53df65",
+        "c0467ab89b7b6826cc65ed13aa61d4446f461fe4b6fafd4aa5e161c994e19a03",
+        "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
+        "67fdbb17464bcd148b97766fc52d68279c5ea952e263a0dc4b764e975a40e688",
+        "e5db01064629bc5c506f3ec56ead6109b227163fbd50841b5040227a6931e21e",
+        "9a0786d984efff1e26f0d5cb79497ad18d00d935127f3bd61951fa6cee3436f7",
+        "bb448ce3b066fb995254a78bb5161513381d0ffdadf22dbc87beb40d854672c6",
+        "2485395b525b7e370cd9e86447ae6fb393d3b5b02913fb4c7a6968b17fbde259",
+        "96b5593df006be77dbbee1e739b980b29f87747f42bac4c77656006a4a0f86e2"
+      ]
+    },
+    "spacr.sudoku.sudoku_all": {
+      "source_blocks_sha256": [
+        "810b655532d874a39399f11e67931d6211b319c107a7e6a6ef40e16fcd08a0ff",
+        "29ac08550b61f9b96e7fffd9817b6110583b059d63522cc50a50d13f28de4bdb",
+        "4d44af735702647f73491a4c8640a43ded90d040e176d8b772d91d9091191e8e",
+        "b9bac12fe498fa8e45c54ec7f754958812619f307e6742622428f682e99d42ed",
+        "3eadcaaf70d7abe0f4dabae2a1bf2a702b67597e7eec44da6682a174c9434634",
+        "06aba2aa8422f8b4869545c3b55f2cad954365e459ba71af351290dc947967a2"
+      ],
+      "source_sha256": "79d15de126efcfa2e121b6c2ee25189b91c6b4f4822eb780836545c70a042034",
+      "text": "苏多库在每一个引导 RNA上,以信任的顺序,声称如往。\n\n:param ranking: ``[(guide, confidence)]`` 在下载处理顺序中,呼叫器定义了信任,例如通过结合效果大小和统计意义。\n:param max_guides: 一站,所以一个筛选有1500引导 RNA不会随机运行1500图形构建。\n:returns: 每个细胞都有一个:class:`SudokuResult`。\n\n每个轮子运行 :func:`sudoku` 为一个引导 RNA的细胞仍然不被要求,保持细胞它决定,并删除它们. 它停止,当一个轮子声称什么都没有 - 这是硬币的流动,达到而不是计算。\n\n命令是危险,报告带有所需的判断: `claimed_by_round`。 一个贪婪的方法早点完成,第一引导 RNA的错误由每一个后者继承,需要的细胞永远不会重新考虑。 一个打电话的人想知道这个问题有多大,这两次与被打扰的命令进行,并比较 - 这是:mod:`spacr.annotation_validation`所做的事情。",
+      "translation_source_blocks_sha256": [
+        "810b655532d874a39399f11e67931d6211b319c107a7e6a6ef40e16fcd08a0ff",
+        "29ac08550b61f9b96e7fffd9817b6110583b059d63522cc50a50d13f28de4bdb",
+        "4d44af735702647f73491a4c8640a43ded90d040e176d8b772d91d9091191e8e",
+        "b9bac12fe498fa8e45c54ec7f754958812619f307e6742622428f682e99d42ed",
+        "3eadcaaf70d7abe0f4dabae2a1bf2a702b67597e7eec44da6682a174c9434634",
+        "06aba2aa8422f8b4869545c3b55f2cad954365e459ba71af351290dc947967a2"
       ]
     },
     "spacr.surrogate": {

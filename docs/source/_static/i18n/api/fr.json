@@ -2466,6 +2466,466 @@
         "a786a8aaad8ecf0c6d912f95fccf61beeda4f406da668408067e6c1b34aa0cb2"
       ]
     },
+    "spacr.annotation_power": {
+      "source_blocks_sha256": [
+        "a3af21f75bcd90ce2d2ef5dbd4f20ae76f62ce3ee639e33ad83e8fd2ea7b8206",
+        "199f56fa13252a3184a8c2630164b43f69b131d13b71f22c8afa7d3d65db5060",
+        "7756593ed40100819c2aedf1c6eb94e3ec971e1bf90717ac8d9f2c700ccb0f79",
+        "9074f6b222927306a339be9c3193b1be764e87fcc90c3332ce7ba8192a7e7c75",
+        "84fd69b0547adbbc51c2a1446c6e18d5ec9738fddac977d2e1785418e32c2c60",
+        "0642ccea17549223f8a18157b6c0b06076741097ab80046be78f2b639c232222",
+        "dc3cb0f3e39546b8a0fd72466c4974da6586be59b310f77b4b9009bbbe081d93",
+        "1083f4a13fdcf1582e62f34facb4b5f52be209b74450d40251eed3dfcd1b0b69",
+        "a1512e223cd65086663c5a3136b3ddd98669c8bfdcd8b01b4129401ee9f9c05e"
+      ],
+      "source_sha256": "7b9cb4ec8d149a86254fe577d601258dfdf9b1927692e6928b663f0b446f42af",
+      "text": "Combien de cellules peuvent être annotées, et combien le criblage devrait être grand.\n\nInterrogé 2026-08-21 : « Je n'ai pas besoin que toutes les cellules soient annotées. pour chaque méthode je veux autant de cellules que la méthode peut raisonnablement annoter annoté ... sans méthode nous pouvons annoter chaque cellule, car nous aurions besoin d'un criblage beaucoup plus grand. c'est quelque chose qui peut être imprimé dans la boîte de texte sous le graphique, tous les métriques de qualité qui peuvent être caluclées pour chaque méthodes et combien le criblage devrait être basé sur ces données ».\n\nCOUVERTURE N'EST PAS UN OBJECTIF, qui inverse la façon dont le point de référence doit être lu. Une méthode qui annote chaque cellule n'a pas bien fait; elle a refusé de s'abstenir. La question que chaque méthode répond est \"de quelles cellules je peux parler\", et les honnêtes laissent la plupart d'une expérience de dépistage groupée seule.\n\nLE LIMIT EST ARITHMETIQUE, PAS EFFORT. Prenez le modèle de la méthode la plus simple: un guide `g` est une fraction `pi` des lectures d'une position d'échantillon de microplaques, seulement `g` produit le phénotype, et le modèle machine-learning a sensibilité `se` et spécificité `sp`. Une cellule appelée phénotype positif porte `g` avec probabilité\n\n    P(g | +)  =  pi * se  /  ( pi * se  +  (1 - pi) * (1 - sp) )\n\nQuand `pi` est petite presque toutes les cellules dans la position de l'échantillon de microplaques est un négatif, donc un petit taux faussement positif appliqué à presque tout dépasse un grand taux vrai-positif appliqué à pratiquement rien. En dessous d'un certain `pi` un appel positif est plus susceptible d'être une erreur qu'un succès, et AUCUNE MÉTHODE D'UTILISER QUE LA PREUVE PEUT FAIRE BETTER -- il ne s'agit pas d'une limitation de l ́algorithme mais de ce que contient la position du échantillon de microplates.\n\nRéaménagé, la fraction qu'un guide doit atteindre pour une décision de confiance ``t``:\n\n    pi*  =  t (1 - sp)  /  ( se (1 - t)  +  t (1 - sp) )\n\nPLUS DE CELLULES PAR Position de l'échantillon de microplaques NE PAS AIDE, et c'est la partie contre-intuitive qui mérite d'être indiquée avant que quelqu'un n'en image des champs de vision plus de microscope. `pi` est une fraction: doubler les cellules double les vrais positifs et les faux positifs ensemble, de sorte que la confiance par cellule est inchangée. Il achète plus de cellules annotées au même rythme, jamais un taux plus élevé.",
+      "translation_source_blocks_sha256": [
+        "a3af21f75bcd90ce2d2ef5dbd4f20ae76f62ce3ee639e33ad83e8fd2ea7b8206",
+        "199f56fa13252a3184a8c2630164b43f69b131d13b71f22c8afa7d3d65db5060",
+        "0a02cc024f0038e5eb25501482a8e9bb66be45e026ae0295f876b6dd63bb90de",
+        "fc87c7a47bfee76d6918fdde4ac54455f301d69ef75b0643335a02d91a3511e6",
+        "84fd69b0547adbbc51c2a1446c6e18d5ec9738fddac977d2e1785418e32c2c60",
+        "4de646a698f20512f967de5383e9a8026c9d8d62042a807b96ccb80595cb4f95",
+        "dc3cb0f3e39546b8a0fd72466c4974da6586be59b310f77b4b9009bbbe081d93",
+        "1083f4a13fdcf1582e62f34facb4b5f52be209b74450d40251eed3dfcd1b0b69",
+        "6f0d93fef5aa07812276a2720cb15417da2881fb30f8fd206d76f8c554e37809"
+      ]
+    },
+    "spacr.annotation_power.annotatable": {
+      "source_blocks_sha256": [
+        "5a233f2468b8bc80b199221d4dbc220f8b8eabb3b82cb915508031d8d974f55e",
+        "cdf5f11230d8882ed62971087605484e4e5a7c2ef1068ec425ee18668194d1ec",
+        "6fa56f0d087b7cf95e26c6d08ac6f5132f5471ab34a6242d773a0b4f881c8953",
+        "f698a458c955018351f7c41cdf2c67a3047910545c30352f27303e683a5faa11",
+        "c6af761ebd68a139a139353e962d7beb53358acffda082912038cb6e06ba4aa5"
+      ],
+      "source_sha256": "bb5a94b912cadb4ff7ea2941b4d46689fc8a9fcdebd4b1dbb48f6d7b6b1d0d37",
+      "text": "Combien d'criblage est accessible du tout, compte tenu de ses propres fractions.\n\n:param fractions: ``{well: {guide: fraction}}`` -- le criblage tel qu'il est.\n:param cells_per_well: en option, pour transformer la part des paires de guides en une part de CELLS.\n:returns: le sol, ce qui l'éclaircit, et ce qui laisse inaccessible.\n\nUn guide qui n'a jamais atteint `pi*` dans aucun puits ne peut être annoté n'importe où dans le criblage, de sorte qu'aucune quantité de développement de la méthode ne produira une seule cellule pour elle. C'est un fait sur l'expérience, disponible avant toute méthode est exécuté, et c'est le nombre qui devrait décider s'il faut exécuter une.",
+      "translation_source_blocks_sha256": [
+        "5a233f2468b8bc80b199221d4dbc220f8b8eabb3b82cb915508031d8d974f55e",
+        "cdf5f11230d8882ed62971087605484e4e5a7c2ef1068ec425ee18668194d1ec",
+        "6fa56f0d087b7cf95e26c6d08ac6f5132f5471ab34a6242d773a0b4f881c8953",
+        "f698a458c955018351f7c41cdf2c67a3047910545c30352f27303e683a5faa11",
+        "c6af761ebd68a139a139353e962d7beb53358acffda082912038cb6e06ba4aa5"
+      ]
+    },
+    "spacr.annotation_power.posterior_for_prior": {
+      "source_blocks_sha256": [
+        "a8b93e65b79cf13ec136cc34228113736c6f13b9b1a575e90e12051f41be14b9"
+      ],
+      "source_sha256": "a8b93e65b79cf13ec136cc34228113736c6f13b9b1a575e90e12051f41be14b9",
+      "text": "P(la cellule porte le guide, elle a été appelée phénotype positif).",
+      "translation_source_blocks_sha256": [
+        "a8b93e65b79cf13ec136cc34228113736c6f13b9b1a575e90e12051f41be14b9"
+      ]
+    },
+    "spacr.annotation_power.quality_report": {
+      "source_blocks_sha256": [
+        "cda8179e3ea87f8008f294889f95ef9bc335d85b9f5f912f2e979e53cb44a735",
+        "c3ae96c57a2c5e818f3c65c7ab9c8c760366e21008a1eb3619ca3a272f7a6dae",
+        "0e8e840e036a72a424adc9dc9bbc5135e9a0463e052e24a09293849b65bb8173",
+        "712e45be4c89a60b583128cfd76b64e281a9b0c97e215c1c47fa702829a0970c",
+        "cfce7fb29dccfc3396b0fa2215680f8eb3da77087a05c7ac970d23a94f007ce1"
+      ],
+      "source_sha256": "86d94116f8a7a88ef41bfb07f6cd0005c9fc4fbfe5215f162fec319ddfe6a94b",
+      "text": "La boîte de texte sous le graphique : les paramètres de chaque méthode, et le plafond.\n\n:param verdicts: ``{method: Verdict}`` à partir de :func:`spacr.annotation_validation.score_annotation`.\n:param power: le résultat :func:`annotatable` pour cet criblage.\n:param size: le résultat :func:`screen_size_for`.\n\nLA COUVERTURE EST IMPRIMÉE PRECISION BESIDE ET JAMAIS BLENDUE AVEC IL. Les méthodes sont ordonnées par les cellules qu'ils ont obtenu DROITE, qui est le seul classement qui ne récompense ni annotation de tout mal ou annotation de rien en toute sécurité.",
+      "translation_source_blocks_sha256": [
+        "cda8179e3ea87f8008f294889f95ef9bc335d85b9f5f912f2e979e53cb44a735",
+        "c3ae96c57a2c5e818f3c65c7ab9c8c760366e21008a1eb3619ca3a272f7a6dae",
+        "0e8e840e036a72a424adc9dc9bbc5135e9a0463e052e24a09293849b65bb8173",
+        "712e45be4c89a60b583128cfd76b64e281a9b0c97e215c1c47fa702829a0970c",
+        "cfce7fb29dccfc3396b0fa2215680f8eb3da77087a05c7ac970d23a94f007ce1"
+      ]
+    },
+    "spacr.annotation_power.required_fraction": {
+      "source_blocks_sha256": [
+        "04c77bb75b579bf27811f483de3218ac3454772570279c9191e7029a42873298",
+        "523285e2e795bc5b5649e6ec17de2f8f00288f5eabbc91cf5169b3f260279851"
+      ],
+      "source_sha256": "616e3e440932927646826025f198ea225e74cafc2a5d1ae6eaa52dcb14493f9d",
+      "text": "La plus petite fraction guide qui peut supporter un appel à ``decision``.\n\nEn dessous de cela, l'arithmétique est contre vous quelle que soit la méthode: une cellule phénotype-positif dans une telle position d'échantillon de microplaques est plus susceptible d'être l'un des nombreux négatifs mal lus que l'une des rares positives.",
+      "translation_source_blocks_sha256": [
+        "04c77bb75b579bf27811f483de3218ac3454772570279c9191e7029a42873298",
+        "8b93158d69bb1fa96d755136855747b8efc051184272aedf2f8fc63da7d31830"
+      ]
+    },
+    "spacr.annotation_power.screen_size_for": {
+      "source_blocks_sha256": [
+        "342288ae6ec84935923e624315a3265a277d96a5dc7b39107f9010be8a9a1710",
+        "f6d6ddbe748bdd78f242faafbed1c0513c5e18d1abd37975c8709333f039ca0b",
+        "0123211697f8a51dc701b6e0a2702e9383108133906ceb575a4a4366565ddd53",
+        "77c2f51fc8f9ed8b8428abef2bceedce7a9d598c99eb4a2a4ffdbab43be9e6ff"
+      ],
+      "source_sha256": "eadc14a40dcb1754f5e2a52d2402e5b70093d8433443e6091c88c98be7d16c51",
+      "text": "Ce que le criblage devrait être pour ``target`` des guides pour être accessible.\n\nL'unique guide est la position de l'échantillon par microplaque. La fraction d'un guide est sa part de la position d'échantillon de microplaques, de sorte que la façon de le soulever est de mettre moins de guides dans chaque position de échantillon de microplate -- et de tenir la bibliothèque et la couverture par guide fixe, ce qui signifie plus de positions d'échantillonnage de micro plaque, en proportion directe.\n\n:param target: la part des guides qui devraient atteindre le plancher.\n:returns: la forme actuelle, la forme requise et le rapport entre -- plus ce que le même résultat coûterait à la place grâce au modèle de classification de l'apprentissage automatique, puisqu'un meilleur modèle est l'autre moyen de déplacer le plancher.",
+      "translation_source_blocks_sha256": [
+        "342288ae6ec84935923e624315a3265a277d96a5dc7b39107f9010be8a9a1710",
+        "dd02ccdf052f1bd8aacd08cc578fcb51534e425fe31290bcb779e3d4b80d7238",
+        "0123211697f8a51dc701b6e0a2702e9383108133906ceb575a4a4366565ddd53",
+        "558dab68fca244d7ca8d4861b974c4c44aac99da56f517581bcbbdb1d4b3c76b"
+      ]
+    },
+    "spacr.annotation_umap_qc": {
+      "source_blocks_sha256": [
+        "baf7690b442236f6d4537f3b18a28d8a19f255dd07dd02eb5cc81c40f2bc98c6",
+        "5dabbbf67f7ebc7f4cf1b80c4554bf0c56d75ede1e01d238aab96ef1656d357f",
+        "7bd99ac5f84b7b98002481bb31ad5b43654469aa5cff84a6275721cffbc96872",
+        "39e57535322fc8f1bd511fd81a1d335ed01dba8ffb5d4a286e0a7e3a4847616f",
+        "92d86bbfb0d7eea8564d54fcf7788d18584f6fa343f32b5197285aee9c102609",
+        "dd5ed9723518313248258cb2bdfbbb9eb88a1dbd1843ab00d4e3aede03dcce6f",
+        "69dd8dc25000e60d87df3994f13b76af966901b7e3bf9893eef4411ea8a4a545",
+        "3102f89bc4259168d43e6f2101d728fa202b5ce951c0f0567e72284143db78ba",
+        "448e7c3af1266452d4cb86191528c12788b624b386ec5e5b74555c2ebfa60d6a"
+      ],
+      "source_sha256": "20fe73ec60cf48b0666f68c2be59068f3e604db6d28f7992394fe9af5ccc575a",
+      "text": "Est-ce que les cellules annotées atterrissent là où l'effet de leur guide dit qu'elles devraient?\n\nProposé 2026-08-21 : « générer un umap, effectuer une recherche d'hyperparamètre trouver la stature qui sépare les contrôles positifs et négatifs et voir où les cellules annotées atterrissent, se cluster avec PC ou NC ... ce serait un contrôle de qualité et une preuve des types que l'annotation fonctionne ».\n\nL'annotation est faite à partir de fractions séquentielles et d'un appel phénotype; ceci pose une question différente d'espace différent -- où la cellule se trouve-t-elle entre les commandes, en utilisant chaque mesure à la fois -- et les commandes fournissent un cadre de référence qui ne doit rien à l'anotation.\n\nIl faut trois choses pour le faire entrer dans un rapport d'essai, et sans eux, il sera d'accord avec tout ce qui est montré:\n\n  1. LES HYPERPARAMETERS NE DOIVENT PAS ÊTRE CHOSÉS SUR LES CELLULES EN MOINS. La recherche jusqu'à ce que PC et NC se séparent corresponde à la projection sur les étiquettes, et avec suffisamment de mesures certains réglages séparent toujours deux groupes. :func:`fit_on_controls` divise les positions de l'échantillon de microplaques CONTRÔLE, accorde sur une moitié, et rapporte la séparation réalisée sur l'autre. Une recherche qui sépare seulement la moitié sur laquelle il a été accordé n'a rien trouvé.\n\n  2. LA LECTURE DOIT ÊTRE UN NUMÉRO. \"Est-ce qu'ils cluster avec PC\" est répondu par :func:`neighbour_purity`: la part des voisins de contrôle les plus proches d'une cellule qui sont des commandes positives. Eyeballing a UMAP n'est pas une mesure -- la taille des clumms et les distances entre eux sont des artefacts de la projection, et seuls les quartiers signifient quoi que ce soit.\n\n  3. IL DOIT ÉTRE NULL. Les cellules atterrissent quelque part quelle que soit l'annotation. :func:`effect_agreement` demande si la pureté suit les SIGNES EFFECT des guides, et compare cela à la même statistique avec les effets mélangés entre les guides.\n\nUne méthode pour laquelle PICKS CELLS PAR LA SCORE PHÉNOTYPE produira des cellules qui sont assises près des contrôles positifs, quoi qu'il en soit, ce qui est vrai - c'est ce qu'elle a choisi. `rank` prend les cellules de coloration supérieure dans la position de l'échantillon de microplaques, de sorte que ses cellules annotées cluster avec PC est une reformulation de la façon dont elle les a choisies et ne prouve rien.\n\nLa vérification est informative exactement pour les méthodes dont le choix cellulaire n'a pas utilisé le score: `sudoku` avec le score hors du graphique, `assigned`, et `attributed` où l'effet provient de la régression plutôt que du score. :func:`circularity_warning` refuse d'être silencieux à son sujet.",
+      "translation_source_blocks_sha256": [
+        "baf7690b442236f6d4537f3b18a28d8a19f255dd07dd02eb5cc81c40f2bc98c6",
+        "5dabbbf67f7ebc7f4cf1b80c4554bf0c56d75ede1e01d238aab96ef1656d357f",
+        "7bd99ac5f84b7b98002481bb31ad5b43654469aa5cff84a6275721cffbc96872",
+        "39e57535322fc8f1bd511fd81a1d335ed01dba8ffb5d4a286e0a7e3a4847616f",
+        "726a5cf8acf1271e454cc0701bf7e508d14089056b06636ab7fd97bcd265e8ef",
+        "dd5ed9723518313248258cb2bdfbbb9eb88a1dbd1843ab00d4e3aede03dcce6f",
+        "69dd8dc25000e60d87df3994f13b76af966901b7e3bf9893eef4411ea8a4a545",
+        "62a876d0e14c2bba935809b1ad0d3f12a7de720584092bd00ebf9588c1a535a0",
+        "448e7c3af1266452d4cb86191528c12788b624b386ec5e5b74555c2ebfa60d6a"
+      ]
+    },
+    "spacr.annotation_umap_qc.circularity_warning": {
+      "source_blocks_sha256": [
+        "4b9c1d1ee9b009e328fff6063d1f94e97be6e651341af2ebf8c1c56a93fdafab",
+        "02bae122bcdcb01792fc16846468201de502cdd4d735955d25544e56c1c4112f"
+      ],
+      "source_sha256": "71de7cb556d789534ac8df66dbe8794776eb63a5af8714373571232db090d5b8",
+      "text": "Pourquoi cette vérification peut ne pas être informative pour ``method``, ou ``\"\"``.\n\nUne méthode qui a sélectionné les cellules PAR le score les placera près des contrôles positifs par construction. Signaler que comme validation serait rapporter la règle de sélection à lui-même.",
+      "translation_source_blocks_sha256": [
+        "4b9c1d1ee9b009e328fff6063d1f94e97be6e651341af2ebf8c1c56a93fdafab",
+        "02bae122bcdcb01792fc16846468201de502cdd4d735955d25544e56c1c4112f"
+      ]
+    },
+    "spacr.annotation_umap_qc.effect_agreement": {
+      "source_blocks_sha256": [
+        "0343d9c128549b1e38789af297246893c52f51733170cd9884fdfd0f4ccf99c2",
+        "4f00dece26e2deadeac4ae1826f9a44e6182dd840c6210004c500dae0bb6504d",
+        "0783d7f5f0aef7a4158d0c12103b61f136c6048d6cd80cb167c49ddb94b92861",
+        "c607e5c21df17a150dfd234b205649c82833ec5b46e06734d1b506b187108f1c"
+      ],
+      "source_sha256": "31288254b608732976402f59e26da37bd3980e8559487079b66842a6f3b03186",
+      "text": "La pureté suit-elle les signes d'effet des guides, au-delà du hasard?\n\nL'ESSAI DE RÉCLAMATION, dans les termes qu'il a été proposé: \"les cellules avec un cluster de taille d'effet positif avec le témoin positif et les cellules qui n'ont pas de coefficient positif ne le font pas\".\n\n:returns: la corrélation de rang entre l'effet et la pureté, une valeur de permutation p, et les moyens du groupe pour les guides ayant des effets positifs, négatifs et quasi nuls.\n\nLE NULL SHUFFLE LES EFFETS ENTRE GUIDES et conserve tout le reste, donc il préserve combien il y a de guides, combien de cellules ont chacune, et la distribution de pureté -- et détruit seulement la correspondance qui est revendiquée. Une corrélation qui survit qui est à propos de l'annotation.",
+      "translation_source_blocks_sha256": [
+        "0343d9c128549b1e38789af297246893c52f51733170cd9884fdfd0f4ccf99c2",
+        "4f00dece26e2deadeac4ae1826f9a44e6182dd840c6210004c500dae0bb6504d",
+        "0783d7f5f0aef7a4158d0c12103b61f136c6048d6cd80cb167c49ddb94b92861",
+        "c607e5c21df17a150dfd234b205649c82833ec5b46e06734d1b506b187108f1c"
+      ]
+    },
+    "spacr.annotation_umap_qc.fit_on_controls": {
+      "source_blocks_sha256": [
+        "e7e6a06b73cee7d95cd862d2537e7197934aee42093152d4bafc115100c884b3",
+        "df81cd898589d4948c318bfec953930acd056106d499699f8131fb08fb04c183",
+        "9b6050a9564fc287f1b62ae23d25e9155311bde0f64a930f89f79bb0d0b8af02",
+        "1d006ce7a637bb90a740392f1dd3af2543012c8b29ad0c638a666d717d06db27",
+        "9befe48263b9bc3dad17ce94e960e21e75dfdf53ab0de00ad2e0192cdd9c8d04",
+        "70c6185761c4283bd8061839230fbae55c11d79b4324ebce98a3e5e2dd4e95cf"
+      ],
+      "source_sha256": "bd930754e0eec8938359bdea1a1ffc1d9e6dc277e4c6ddcacd4d76559b8e57fe",
+      "text": "Choisissez une intégration sur la moitié des commandes, marquez-la sur l'autre moitié.\n\n:param features: ``(n_cells, n_features)`` pour les cellules CONTRÔLE seulement.\n:param labels: :data:`POSITIVE` ou :data:`NEGATIVE` par cellule témoin.\n:param recipes: Les paramètres du candidat UMAP doivent être essayés.\n:returns: la recette gagnante, sa séparation sans fin, et tous les essais.\n\nL'alignement jusqu'à ce que deux groupes étiquetés se séparent réussit toujours avec suffisamment de paramètres pour essayer; la question est de savoir si la séparation survit sur les cellules que la recherche n'a jamais vu. Un grand écart entre les scores accordé et retenu signifie que la quête a ajusté la division plutôt que la biologie, et l'encastrement ne devrait alors pas être utilisé pour juger quoi que ce soit.",
+      "translation_source_blocks_sha256": [
+        "e7e6a06b73cee7d95cd862d2537e7197934aee42093152d4bafc115100c884b3",
+        "df81cd898589d4948c318bfec953930acd056106d499699f8131fb08fb04c183",
+        "9b6050a9564fc287f1b62ae23d25e9155311bde0f64a930f89f79bb0d0b8af02",
+        "1d006ce7a637bb90a740392f1dd3af2543012c8b29ad0c638a666d717d06db27",
+        "9befe48263b9bc3dad17ce94e960e21e75dfdf53ab0de00ad2e0192cdd9c8d04",
+        "70c6185761c4283bd8061839230fbae55c11d79b4324ebce98a3e5e2dd4e95cf"
+      ]
+    },
+    "spacr.annotation_umap_qc.neighbour_purity": {
+      "source_blocks_sha256": [
+        "72aae47ad5417e99fd3e889a2e13c2f8777c8f2d850b1c25afeb9094e9626fbb",
+        "ccf70b39aacf9980d3a61ea716c2be3fa15e116d4cb0951884f87a177267af00",
+        "865653ff6cae3831a252076ac6bd1284ba7e35c61b496809c101d59813d686a1",
+        "678169a8837e435c756cac26b8669894b499c0f3a4b9fe978ee8610ee7c68efe",
+        "74c63f84d7185a9665e222bb3851da3110c6b73c645073f8102f52c659231c6b",
+        "2233c858491d4dfd38250a94ba572e23855711743be268d66f7cabc4b6c9a901"
+      ],
+      "source_sha256": "eadf837107ae5fa78a783d16f55f4081be58405cfb4af74b920e777ad1fddd13",
+      "text": "Part des voisins de contrôle les plus proches de chaque cellule qui sont positifs.\n\n:param embedding: ``(n_cells, 2)`` avec des commandes et des cellules annotées encastrées ensemble.\n:param control_labels: :data:`POSITIVE`, :data:`NEGATIVE` ou ``None`` pour une cellule qui n'est pas un témoin.\n:returns: une valeur par cellule dans ``[0, 1]``; ``nan`` où aucun voisin témoin n'a été trouvé.\n\nLes dimensions des grappes d'un UMAP et les écarts entre elles sont des artefacts de la mise en page; ce qu'il préserve, et tout ce qui le préserve, c'est qui est près de qui. Une statistique construite sur n'importe quoi d'autre est de lire la projection plutôt que les données.\n\nLa pureté propre d'une cellule de contrôle compte ses voisins et PAS ITSELF, de sorte que les contrôles peuvent être notés sur le même pied que tout le reste -- ce qui les rend utilisables comme référence pour ce qu'un score \"pure\" ressemble même ici.",
+      "translation_source_blocks_sha256": [
+        "72aae47ad5417e99fd3e889a2e13c2f8777c8f2d850b1c25afeb9094e9626fbb",
+        "ccf70b39aacf9980d3a61ea716c2be3fa15e116d4cb0951884f87a177267af00",
+        "865653ff6cae3831a252076ac6bd1284ba7e35c61b496809c101d59813d686a1",
+        "678169a8837e435c756cac26b8669894b499c0f3a4b9fe978ee8610ee7c68efe",
+        "74c63f84d7185a9665e222bb3851da3110c6b73c645073f8102f52c659231c6b",
+        "2233c858491d4dfd38250a94ba572e23855711743be268d66f7cabc4b6c9a901"
+      ]
+    },
+    "spacr.annotation_umap_qc.purity_by_guide": {
+      "source_blocks_sha256": [
+        "5e12c95c15a853e65e2849394720cd297a0f7224dbd104ce620e5fd7f22e7684",
+        "8b8da6820778a37c79e018729ea43d81f18c64580ad03b10bf5387852844e215"
+      ],
+      "source_sha256": "6ece8d5027141be175b160c3071682acfd2e715543957073f0edda00ed1e2f29",
+      "text": "Pureté moyenne par guide annoté, avec le nombre derrière.\n\n:param minimum_cells: Les guides avec moins de cellules annotées sont exclus plutôt que signalés bruyamment. Un guide avec trois cellules a une pureté qui ne peut être que 0, 1/3, 2/3 ou 1.",
+      "translation_source_blocks_sha256": [
+        "5e12c95c15a853e65e2849394720cd297a0f7224dbd104ce620e5fd7f22e7684",
+        "8b8da6820778a37c79e018729ea43d81f18c64580ad03b10bf5387852844e215"
+      ]
+    },
+    "spacr.annotation_validation": {
+      "source_blocks_sha256": [
+        "cd8e60883fc297b3cac91141d1c50409388ee9b03d2263aa02673db6854a42d4",
+        "69c0cd79ffc9437b39dbf411550e07e63c18895d58b5a10fca29dd6ac8d5c139",
+        "0b00d100c01b3f4864da13d6b53e2910b5beab63fa98a0ecac42138f3905c8f0"
+      ],
+      "source_sha256": "01f8fa7aa0d2ac007ffecf64469045b74da393a68e93f3f9d1550d37d8de7925",
+      "text": "Évaluer les stratégies d'annotation-guide par rapport aux cas de référence mesurables.\n\nLa validation combine donc quatre vérifications complémentaires : des expériences simulées de dépistage avec des affectations connues, des permutations guide-à-bien qui devraient réduire le rendement au hasard, des contrôles retenus et une analyse de sensibilité à l'ordre pour les méthodes séquentielles.\n\nLes résultats indiquent la couverture et la précision séparément, ce qui évite de traiter une méthode qui qualifie chaque cellule d'équivalente irréprochable à celle qui s'abstienne sur les cellules incertaines et qui étiquette le reste avec précision.",
+      "translation_source_blocks_sha256": [
+        "cd8e60883fc297b3cac91141d1c50409388ee9b03d2263aa02673db6854a42d4",
+        "b61058569b4fde2bc511e7fec27088781fd509ff0e85733e60028a93224cb72e",
+        "0b00d100c01b3f4864da13d6b53e2910b5beab63fa98a0ecac42138f3905c8f0"
+      ]
+    },
+    "spacr.annotation_validation.Screen": {
+      "source_blocks_sha256": [
+        "8b5f49169620cb57e56cea46d62aadc0130a4608c2ee1e42cf5ff8eb5fb99b33",
+        "1781f1119578939ae57cb1e1899988a8c80e267e9518d8dc27958ccf137109ac",
+        "373a0624928cf536854f70069859403f293d22848e043fb2b691df67472beb73",
+        "4e74a48dde732283c8bbd6fcdc368d9c610e80f18cf2e91ba720611dd97dd427",
+        "e3f87dbc4e1b2831f129e6acd8f3909703871430ce0205753e0e59ae1bf5d47f",
+        "ed156b97fbd7472764f01551fb8cba9442c0aeb8daadba7e043e7263fc067d70",
+        "75bc563bc137b3beb2dcb6f4fcd8143b35e3af0d6c42610bb752f2e9a098a0d4",
+        "67451c1f0b6edc3cd421e56ccf2f4ee9b97c8e600f66d773b11565b051fb5214"
+      ],
+      "source_sha256": "3f6c2ae746ceec192c4a97189bf2bcd209a3466467b6cc1a3170ad48b47014c1",
+      "text": "Un criblage simulé, et la réponse.\n\n:ivar features: ``(n_cells, n_features)``.\n:ivar scores: le score de classification par cellule, avec l'erreur du modèle de classification machine-learning déjà appliquée.\n:ivar wells: une étiquette de position de l'échantillon microplaqué par cellule.\n:ivar truth: le guide de chaque cellule transporte VRAIMENT.\n:ivar fractions: ``{well: {guide: fraction}}`` comme séquençage les signale -- biaisé et seuil, c'est-à-dire ce que la méthode obtient réellement.\n:ivar true_fractions: Même avant le biais, conservé de sorte qu'un test puisse demander combien d'échec était la fraction plutôt que la méthode.\n:ivar guides: chaque guide dans le criblage.",
+      "translation_source_blocks_sha256": [
+        "8b5f49169620cb57e56cea46d62aadc0130a4608c2ee1e42cf5ff8eb5fb99b33",
+        "1781f1119578939ae57cb1e1899988a8c80e267e9518d8dc27958ccf137109ac",
+        "b8586382ed692d6787f525f6ec8e5917f20a82654a2d44b6bf3c665388a37f62",
+        "c0467ab89b7b6826cc65ed13aa61d4446f461fe4b6fafd4aa5e161c994e19a03",
+        "e3f87dbc4e1b2831f129e6acd8f3909703871430ce0205753e0e59ae1bf5d47f",
+        "ed156b97fbd7472764f01551fb8cba9442c0aeb8daadba7e043e7263fc067d70",
+        "75bc563bc137b3beb2dcb6f4fcd8143b35e3af0d6c42610bb752f2e9a098a0d4",
+        "67451c1f0b6edc3cd421e56ccf2f4ee9b97c8e600f66d773b11565b051fb5214"
+      ]
+    },
+    "spacr.annotation_validation.Verdict": {
+      "source_blocks_sha256": [
+        "d6f8df29761fbae33554519621e7be3f060a06847974c3f56a0c8be04ab207e5"
+      ],
+      "source_sha256": "d6f8df29761fbae33554519621e7be3f060a06847974c3f56a0c8be04ab207e5",
+      "text": "Comment une annotation a fait contre une vérité connue.",
+      "translation_source_blocks_sha256": [
+        "d6f8df29761fbae33554519621e7be3f060a06847974c3f56a0c8be04ab207e5"
+      ]
+    },
+    "spacr.annotation_validation.baseline_chance": {
+      "source_blocks_sha256": [
+        "01183d48d0450eca4953c8a69fed892d42752037e098ea2f85397261e33683d1",
+        "797cc26d090be41d3e76cd803b1bacdd1b8ff5f940acf43deae11a627a6ffd23"
+      ],
+      "source_sha256": "62413f3b754c4f2697a76bfa8e0c82ef8c17277eefeb6d3fb7275de6f3e05775",
+      "text": "Tirez le guide de chaque cellule des fractions de son puits, au hasard.\n\nL'autre étage : ce qu'une méthode note si elle respecte les comptes et ne sait rien d'autre. Avec :func:`baseline_majority` ces crochets ce que le séquençage peut faire sans aide.",
+      "translation_source_blocks_sha256": [
+        "01183d48d0450eca4953c8a69fed892d42752037e098ea2f85397261e33683d1",
+        "797cc26d090be41d3e76cd803b1bacdd1b8ff5f940acf43deae11a627a6ffd23"
+      ]
+    },
+    "spacr.annotation_validation.baseline_majority": {
+      "source_blocks_sha256": [
+        "52662918ccf24e154a7ac1e3411f1b88e2baa73a3fdfc8de84a44ae6b4684f7e",
+        "fe43b2ab46876dc18e8d56d529fbd181c072c3978871b48a3a6b5a6a4c18a161",
+        "dc168d9bfcef75296a205ee74b75d38b18f6f228976a1138c5d03e9f33d85ddf"
+      ],
+      "source_sha256": "53b758cea0b0cec1068d09ad9bb6b379856764c34215d964348484bd18894331",
+      "text": "Donnez à chaque cellule en position microplaque le plus grand guide de cette position microplate.\n\nLA MÉTHODE FLOOR CHAQUE DOIT S'INSCRIRE, et elle doit être dans chaque référence plutôt que supposée. Elle utilise la mesure AUCUNE cellule du tout -- seulement le séquençage -- donc quel que soit le score que les fractions à elles seules valent sur cet criblage.\n\nWithout it a benchmark cannot tell \"the method works\" from \"the fractions work\". On a screen with no signal in the features, a method that abstains except where one guide dominates the well will post a precision far above chance, and that is neither a bug nor a discovery: it is this baseline, wearing a graph.",
+      "translation_source_blocks_sha256": [
+        "3d4629a328f13f97f18216e8bbd3bdcf1c16676b58521ccfbc4c861dc63325dd",
+        "fe43b2ab46876dc18e8d56d529fbd181c072c3978871b48a3a6b5a6a4c18a161",
+        "2b5a91523ab181c3278fe3296d690646f3bde52c6d529573aefe913f6c4b9805"
+      ]
+    },
+    "spacr.annotation_validation.benchmark": {
+      "source_blocks_sha256": [
+        "f57e08931820fed06258f36071466d8a4ecfd71d7b51dac6c54f0f0ded9fe338",
+        "91ff93d6815998ff8a5b152b321bc1b9ea11a7446e5166d7dc340fedacb848cf",
+        "9f58dbaea74ecf33510fed2514aec09cdae46f3f6300c69107efed932287aa47",
+        "1b26285faeedc9a0d3fd9d89e2b18da9167fb7657a3321873ca4bededccdd3ba",
+        "0359ea5aa1ca7ce607ac5b2c5082f4c70e363b1cb2fd8db07b9da332c8759215"
+      ],
+      "source_sha256": "8f52b27c2732100067aaeca82070f7228e733d52c523e48d873044f8671c8cfc",
+      "text": "Exécutez chaque stratégie sur chaque scénario, et sur chaque scénarios est nul.\n\n:param strategies: ``{name: screen -> one guide per cell}``.\n:param scenarios: ``{name: Screen}``. Par défaut :func:`default_scenarios`.\n:returns: ``{scenario: {strategy: {\"real\": Verdict, \"null\": Verdict}}}``.\n\nLE NULL EST RUN POUR CHAQUE STRATÉGIE SUR CHAQUE SCENARIO, pas une fois comme un contrôle de santé à la fin. Une méthode peut être son sur un criblage facile et lire ses propres ancres sur un dur, et seule la comparaison appariée montre que -- l'écart entre réel et nul est la partie de la performance qui vient des données.",
+      "translation_source_blocks_sha256": [
+        "f57e08931820fed06258f36071466d8a4ecfd71d7b51dac6c54f0f0ded9fe338",
+        "91ff93d6815998ff8a5b152b321bc1b9ea11a7446e5166d7dc340fedacb848cf",
+        "9f58dbaea74ecf33510fed2514aec09cdae46f3f6300c69107efed932287aa47",
+        "1b26285faeedc9a0d3fd9d89e2b18da9167fb7657a3321873ca4bededccdd3ba",
+        "0359ea5aa1ca7ce607ac5b2c5082f4c70e363b1cb2fd8db07b9da332c8759215"
+      ]
+    },
+    "spacr.annotation_validation.calibration": {
+      "source_blocks_sha256": [
+        "b58b8071994781a3611c2833e5a56b7828691b8d97535346e4466121c7d4716b",
+        "6e6ee2e6eccc4dd4aaf61321e52f339ca27899e826f4e39263c7ee96d0e360f3"
+      ],
+      "source_sha256": "e5e2efef6503955601d1ac2e412b5114d13d96b507e348e73be99995d143bc9f",
+      "text": "``[(mean confidence, observed accuracy, count)]`` par bac.\n\nUNE MÉTHODE QUI SAYE 0.9 DOIT ÊTRE NINE TEMPS EN TEN. C'est la vérification qui importe le plus pour une méthode dont la sortie est utilisée comme poids plutôt qu'une étiquette: la précision peut être élevée alors que les probabilités sont insignifiantes, et chaque nombre en aval qui multiplie par eux est alors faux d'une manière aucune note de précision ne révèle.",
+      "translation_source_blocks_sha256": [
+        "b58b8071994781a3611c2833e5a56b7828691b8d97535346e4466121c7d4716b",
+        "6e6ee2e6eccc4dd4aaf61321e52f339ca27899e826f4e39263c7ee96d0e360f3"
+      ]
+    },
+    "spacr.annotation_validation.count_agreement": {
+      "source_blocks_sha256": [
+        "2a9ff0cd1e367ee2c03f9e42e56f9ded14b70e3619a9cbd767edda0020f3876b",
+        "edd3dd89624c7f6f76fb532f3e9d123e7e72a2025f736e7b09746f6e84784141",
+        "c46524e9cd3a8d2d453dfd634d8f198b66a636234b2a743d3424ed79e4fe82ce",
+        "ccc568d5e03d9ac3c3e039cc99ace05ce34c34b12f67ba829114994a0be8d8a9"
+      ],
+      "source_sha256": "31cb9d83b060a2f1aa1ff481b7e96ccb6aa1568d2b5cbd8b0d97052afc898c06",
+      "text": "La position de l'échantillon PER-Microplate d'une méthode correspond-elle à ce qu'a dit le séquençage?\n\nLe test direct d'une méthode d'annotation sur les positions des échantillons de microplaques mixtes : les cellules ne sont pas marquées, mais leurs COUNTS sont connus, donc une méthode qui nomme des guides par cellule peut être vérifiée en comptant ce qu'elle a nommé.\n\n:returns: la position de l'échantillon par microplaque, les parts prévues et déclarées, ainsi que l'erreur médiane.\n\nC'EST NECESSAIRE ET NON SUFFICIENT, et l'écart est important : une méthode peut obtenir tous les comptes correctement et toutes les cellules mal, en nommant le bon NOMBRE de cellules arbitrairement. Ce qui règle qu'est le ratio SÉRIE -- obtenir le compte juste à 90:10 est facile, à 50:50 il faut discriminer, et faire les deux avec une seule règle est difficile à simuler.",
+      "translation_source_blocks_sha256": [
+        "dd25109d5a4675d39d1183d88ff09b396dcabd492943846704f0b65ca120839f",
+        "e73e176b731febdcc56e89ea12d022e61aa2e0ff315425dc36206cf42fad1370",
+        "f8b11bc6e1c7d9762ab3f899ce4efd2cc332a65cddab66a119cd7057116a5e30",
+        "ccc568d5e03d9ac3c3e039cc99ace05ce34c34b12f67ba829114994a0be8d8a9"
+      ]
+    },
+    "spacr.annotation_validation.default_scenarios": {
+      "source_blocks_sha256": [
+        "ea7c4ddf6c41219810ae81353ea1fac036679c8a7199fc730799b3dbd4e35bf2",
+        "4bc3bc945cc46c1d9085ee99f1165e1356bb38558963465da3cd581a798a177b"
+      ],
+      "source_sha256": "f70941c2ab89bb33638c3f9566c2e4878b6252072333aff2cf3e41a632f0fec7",
+      "text": "Un criblage par confusion, composé en ALONE.\n\nSéparé sur le but : un point de repère sur un seul criblage réaliste dit qu'une méthode a marqué 0,7 et non lequel des quatre confusions lui a coûté le 0,3.",
+      "translation_source_blocks_sha256": [
+        "ea7c4ddf6c41219810ae81353ea1fac036679c8a7199fc730799b3dbd4e35bf2",
+        "4bc3bc945cc46c1d9085ee99f1165e1356bb38558963465da3cd581a798a177b"
+      ]
+    },
+    "spacr.annotation_validation.mixed_ratio_calibration": {
+      "source_blocks_sha256": [
+        "6a1a427556def6f53012a05b05c85e87ce1fe0b0fc6da9021cf600e98f5c36f8",
+        "5502658350b01ed325c65e0d39f0bda0b7f6a7b0711f7d6c7d918e6b33b54680",
+        "4e74a48dde732283c8bbd6fcdc368d9c610e80f18cf2e91ba720611dd97dd427",
+        "c0e6f737c8dfed2b4beb33feb12ccd48616155595f30ec725691821aa72a69c1",
+        "f8ada92f95448e82b120eeaa0618a65497a055ae02f7352d40f1d4321920d39e",
+        "34746c4ec03ac82996aa677ac88908b72c13698582ea6f1685c1647f0db77e48",
+        "f865cee483e18bffa9fedb468d22d981eb4d6ecef7a55c1691c85ae7ff78a840",
+        "d6c0a34b64b0284c47b69efa2222ac6bcbbd944bc4228a0d3531e68a0eef99a1",
+        "9ff5be514b203a2e9d6f69fd9a8b845cac1e0b35a9d600402d691382f1b07907"
+      ],
+      "source_sha256": "45533d9e29d261e6cc9cef29e3575e48c8c20e614e871f2bcea3c7caf4511661",
+      "text": "S'adapter à ce que l'imagerie dit contre ce que le séquençage dit, sur les positions réelles de l'échantillon de microplaques.\n\n:param features: ``(n_cells, n_features)`` sur les positions de l'échantillon de la microplaque de contrôle.\n:param wells: une étiquette de position de l'échantillon microplaqué par cellule.\n:param reported: ``{well: PC fraction sequencing reported}``.\n:param pure_low: à une position inférieure ou égale à celle-ci, un échantillon de microplaques est pris comme NC pur.\n:param pure_high: à ou au-dessus de cela, une position d'échantillon microplaqué est prise comme PC pur.\n:returns: la pente, l'interception, les estimations de la position de l'échantillon par microplaque et ce qui a été utilisé.\n\nLE SLOPE EST LE BIAS DE FRACTION, Pénétrance déjà absorbée -- voir la note ci-dessus. Une pente de 1 signifie que les fractions de séquençage sont les fractionnements cellulaires. Les 1.8 que `normalised_share` documents montreraient ici comme une pente près de 0,55.\n\nLa pente médiane par paire limite l'influence d'une contamination unilatérale : un hit partageant un puits témoin peut ajouter des cellules phénotype-positives, alors qu'une pente moins carrée serait tirée vers ce puits contaminé.",
+      "translation_source_blocks_sha256": [
+        "4fde5a72257fac0d6491884cd8807ac93bff8f7faaa50222ada36cfaedcc1af1",
+        "b9c6dc133155ebfb8b1978c8b57bc8d4b1bc9066b532741536e42f5216b623cb",
+        "c0467ab89b7b6826cc65ed13aa61d4446f461fe4b6fafd4aa5e161c994e19a03",
+        "c0e6f737c8dfed2b4beb33feb12ccd48616155595f30ec725691821aa72a69c1",
+        "568bd4c64c67ecdf845e1c7ef6b09f699cd68ad776b73e1eb27597acd6af74bd",
+        "81250cdf2afa615f99a03cc9e81983afef8aea297ea41690d9a8b8ec5dd4e4ac",
+        "7c629010c4faaccf6283c86a4fc1cffef4da1960a2743a3727ecbebbad6a2560",
+        "d6c0a34b64b0284c47b69efa2222ac6bcbbd944bc4228a0d3531e68a0eef99a1",
+        "9ff5be514b203a2e9d6f69fd9a8b845cac1e0b35a9d600402d691382f1b07907"
+      ]
+    },
+    "spacr.annotation_validation.mixture_proportion": {
+      "source_blocks_sha256": [
+        "925b9292c5be01094e1c0978b45d77776d0e569ac57c9612f2d61e1330709c39",
+        "534fb573dcc04db6252d81c895e7a60f94920a9b926df6d9a2f2681c580fcc24",
+        "0a1920780e13e11971238bd210634ff287ece552079833fcd7d6a152264b780e",
+        "a250e910a1c91ed0600d3f21e21a02061e880afd4b73425916ae655c70eb572c",
+        "f707363f48837e058e9e17830c819e896794edae21fa3e1f1d50a566e992bc19",
+        "50aa58958abbafdb4e8586c38af57cf55ac4bcae53b4f023473a83f163ff5822",
+        "d1430cb780fe432fc6c9c3a4087a6d589b21cb752e067b6c8ae217b2abb528f3",
+        "aeae6e15812b0dc8d3f2b3d771ba1a63eab190f0d64d6209e9c62ed0dc3803c4"
+      ],
+      "source_sha256": "9ac15cdff4e2c7f22086ec09323df83822433409ee0e9b29bf459a3de13dc216",
+      "text": "Estimer la part de PC d'une position d'échantillon de microplaques à partir des CARACTÉRISTIQUES.\n\n:param features: ``(n_cells, n_features)`` pour un puits mélangé.\n:param positive: les cellules de référence pure-PC.\n:param negative: les cellules de référence pure-NC.\n:returns: la proportion estimée, coupée à ``[0, 1]``.\n\nProjete la moyenne de la position de l'échantillon microplaqué sur la ligne entre les deux moyennes de référence:\n\n    mu_w = pi * mu_PC + (1 - pi) * mu_NC\n\nPas de LABELES PER-CELL NE SONT NÉCESSAIRES et aucune n'est utilisée, ce qui est le point -- les positions de l'échantillon de microplaques mélangées n'en ont pas.\n\nLa densité moyenne plutôt qu'une densité adaptée: une probabilité de mélange dans six dimensions nécessite beaucoup plus de cellules par position de l'échantillon de microplaque que la position d'un échantillon de microplate témoin, et la moyenne est non biaisée pour un mélange quelle que soit la forme du composant.",
+      "translation_source_blocks_sha256": [
+        "f69628de30d5d9428d82ea2b18ed7e797bf54eeee0a6286cefcbef6d34aeb73f",
+        "534fb573dcc04db6252d81c895e7a60f94920a9b926df6d9a2f2681c580fcc24",
+        "0a1920780e13e11971238bd210634ff287ece552079833fcd7d6a152264b780e",
+        "a250e910a1c91ed0600d3f21e21a02061e880afd4b73425916ae655c70eb572c",
+        "f707363f48837e058e9e17830c819e896794edae21fa3e1f1d50a566e992bc19",
+        "235627935dba78865a6c24d0841662ca14b827462530215c1abd90a1e4a89c0f",
+        "927cce95fb25c7bb9f81a12a59e1b04c806cfc1be0371bea97c4cacaf4940536",
+        "beed0d5b5434e92ffcb8230ab79518fd94eb7351e4c6a2e1738d307ae8b1694d"
+      ]
+    },
+    "spacr.annotation_validation.order_sensitivity": {
+      "source_blocks_sha256": [
+        "2362ef487929bf4179e1bcd9f4d0e59db4ea5b0d345617d593dd90efed1f06ab",
+        "3667ca73f5cf8701e890b1ec17cc1e4d1c5b41438d338e71536eb04bd2ac3a24",
+        "29f5d143bf974051f613b31e37e3c44f06d38d3e800f30f48d6026507a4cbedd",
+        "8345f071033b680c4c19bf1565e8dd621eb5cf29b6da3964f5f7a14443cf2030",
+        "42d9035b3c973bbf28a0c74037c12330453d839ba91e227d7bbcf2689f1c759b",
+        "6ee022a91ff8a28ac38d2cd7c99ce89ed44534c491093aa2bd6372ba1a5e5b0a"
+      ],
+      "source_sha256": "0f6364c65445f23feb70c53c77ea07720e223dfd2c5346f6b16aceb0ce3c4371",
+      "text": "Combien la réponse d'une méthode séquentielle dépend de son ordre.\n\n:param run: prend un classement et renvoie un nom de guide par cellule.\n:param ranking: l'ordre honnête.\n:returns: ``{\"changed\": share of cells that differ, \"repeats\": n}``.\n\nLe RISQUE DE LA MÉTHODE DE VÉRIFICATION, MESURED. `sudoku_all` supprime les cellules qu'il prétend, de sorte que les erreurs du premier guide sont permanentes et chaque guide ultérieur les hérite. Si l'ordre change une grande partie de la réponse, la confiance qu'elle rapporte n'est pas confiance -- et c'est un fait sur la méthode qui doit être produite plutôt que raisonnée.\n\nLa perturbation échange des paires d'ADJACENT plutôt que de s'ébranler : un shuffle complet demande ce qui se passe si le classement de confiance n'a pas de sens, ce qui n'est pas la question. La question est de savoir ce qui arrive lorsque deux guides de confiance similaire viennent dans l'un ou l'autre ordre, c'est le cas qui se produit réellement.",
+      "translation_source_blocks_sha256": [
+        "2362ef487929bf4179e1bcd9f4d0e59db4ea5b0d345617d593dd90efed1f06ab",
+        "3667ca73f5cf8701e890b1ec17cc1e4d1c5b41438d338e71536eb04bd2ac3a24",
+        "29f5d143bf974051f613b31e37e3c44f06d38d3e800f30f48d6026507a4cbedd",
+        "8345f071033b680c4c19bf1565e8dd621eb5cf29b6da3964f5f7a14443cf2030",
+        "42d9035b3c973bbf28a0c74037c12330453d839ba91e227d7bbcf2689f1c759b",
+        "6ee022a91ff8a28ac38d2cd7c99ce89ed44534c491093aa2bd6372ba1a5e5b0a"
+      ]
+    },
+    "spacr.annotation_validation.permuted": {
+      "source_blocks_sha256": [
+        "ede1177917789be589094b6285301894de3fa6d81461b511e8cda517defd2624",
+        "99376ff38760896da7e68fcc855ba6cd73832c31ff3fe548e1d8833400c39ae9",
+        "0f6d5971660167cb796311a1fa55400cd9403d3aa4e5770abb6cb6422b7434eb",
+        "6eafc94b764dcea3a915f51535e52cbc738be6799aa20bf8592054f82d86f349"
+      ],
+      "source_sha256": "997f19c2dbb1c9cd290948dd03709e0ac114c36ad7e46dd706fb15c5ea1f1901",
+      "text": "Le même criblage avec l'affectation guide-à-bien s'est brouillé.\n\nC'est pourquoi il est le seul qui peut fonctionner sur un criblage réel. Shuffling quels guides étaient dans lequel bien détruit chaque relation réelle entre le séquençage et l'imagerie tout en quittant les cellules, les caractéristiques, les scores, la taille du puits et la distribution de fraction exactement comme ils étaient.\n\nUne méthode doit s'effondrer jusqu'au hasard ici. Une méthode qui ne consiste pas à lire quelque chose d'autre que les données -- le plus souvent ses propres ancres, choisies par score, en accord avec une fonction basée sur les scores.\n\nLa vérité est mélangée avec les fractions, donc `score_annotation` contre cet criblage mesure la performance par rapport au monde permuté.",
+      "translation_source_blocks_sha256": [
+        "ede1177917789be589094b6285301894de3fa6d81461b511e8cda517defd2624",
+        "99376ff38760896da7e68fcc855ba6cd73832c31ff3fe548e1d8833400c39ae9",
+        "0f6d5971660167cb796311a1fa55400cd9403d3aa4e5770abb6cb6422b7434eb",
+        "6eafc94b764dcea3a915f51535e52cbc738be6799aa20bf8592054f82d86f349"
+      ]
+    },
+    "spacr.annotation_validation.score_annotation": {
+      "source_blocks_sha256": [
+        "ab459ff43b0e9fc51bfae652bcd606dc21266b6f4da1eb3e88ac4aadaa81fa0a",
+        "66dbf5cb4f07a1e308ef5bf6f66c6c37c62684e20ea363aeb38cce1bee2c8254",
+        "420f471c52aaf4db9cb18cc30b5972cc753fe24ab5a27570db97f3fc4e0cd510"
+      ],
+      "source_sha256": "1dc10c70793f41d2ce46890f944eae8a626ea3324563ed26550cd3d1a51d6a84",
+      "text": "Comparez une annotation à la réponse connue.\n\nCOUVERTURE ET PRÉCISION SONT REPORTÉES APART, jamais mélangées. Une méthode qui annote tout à 50% est pire que celle qui annote un tiers à 95%, et une seule note les classe selon le poids qu'elle pond.\n\nLes abstentions ne sont PAS comptées comme des erreurs dans `precision` -- refuser de répondre n'est pas une mauvaise réponse -- mais elles réduisent `coverage` et `recall`, de sorte qu'une méthode ne peut pas acheter la précision en s'abstenant sur tout sans que cela apparaisse.",
+      "translation_source_blocks_sha256": [
+        "ab459ff43b0e9fc51bfae652bcd606dc21266b6f4da1eb3e88ac4aadaa81fa0a",
+        "66dbf5cb4f07a1e308ef5bf6f66c6c37c62684e20ea363aeb38cce1bee2c8254",
+        "420f471c52aaf4db9cb18cc30b5972cc753fe24ab5a27570db97f3fc4e0cd510"
+      ]
+    },
+    "spacr.annotation_validation.synthesise": {
+      "source_blocks_sha256": [
+        "260e6892fae954082d17fd92554f0da9d2d6771e088c4ab7ab0bfc8fbecd6f53",
+        "5aacde4731e512d571a042354436aa0328d02a7d6f1465ec268506cdf56cb197",
+        "8fecaff9de6042a538c0966662707f4c129404ac267949a778a92680bf345cd4",
+        "af7ea235d1fea13f1f1deb389185a57efe0c3c1a094cfa229f418a53cccb33cc",
+        "8e81e14c1861c66e2607dfd5032271dd011d5ebe0b8c9c71c1283918db9e6e99",
+        "159f870a513bd3581288141383483d6030b7d703aabb7a06223d53d0d35ba707",
+        "00be0c403f3521275163587c4de5f89546345e471fd1f676111b6ce5c40ce433"
+      ],
+      "source_sha256": "bc3470150e484c59ef342dbbd87f26d8efc9be3a78d5733abd2915a03a2afba2",
+      "text": "Construisez un criblage avec une réponse connue.\n\n:param effect: jusqu'à quel point les cellules d'un guide s'assoient de l'origine dans l'espace des caractéristiques, dans les déviations standard. Le cadran signal-bruit: à 0 les guides sont indistinguables et la méthode NO peut faire mieux que le hasard, qui est lui-même un test en cours d'exécution.\n:param penetrance: la part des cellules d'un guide qui montrent effectivement son phénotype. En dessous de 1 le reste ne ressemble à rien en particulier, qui est le confusion qui ne peut être séparé d'une fraction biais par un seul contrôle.\n:param fraction_bias: multiplier les fractions rapportées par ceci, puis renormaliser. 1.8 reproduit ce que `normalised_share` documents sur un criblage réel: fractions filtrées somme à une médiane de 0,5526, de sorte que les guides survivants sont gonflés par approximativement cette réciproque.\n:param fraction_threshold: les guides de chute au-dessous de cette part AVANT la renormalisation -- le mécanisme qui crée le biais plutôt qu'une imitation de celui-ci.\n:param classifier_accuracy: le score est retourné vers la mauvaise queue ce souvent. Les valeurs plus proches de 1 produisent des classes mieux séparées.\n:returns: le :class:`Screen`.",
+      "translation_source_blocks_sha256": [
+        "260e6892fae954082d17fd92554f0da9d2d6771e088c4ab7ab0bfc8fbecd6f53",
+        "5aacde4731e512d571a042354436aa0328d02a7d6f1465ec268506cdf56cb197",
+        "8fecaff9de6042a538c0966662707f4c129404ac267949a778a92680bf345cd4",
+        "af7ea235d1fea13f1f1deb389185a57efe0c3c1a094cfa229f418a53cccb33cc",
+        "8e81e14c1861c66e2607dfd5032271dd011d5ebe0b8c9c71c1283918db9e6e99",
+        "159f870a513bd3581288141383483d6030b7d703aabb7a06223d53d0d35ba707",
+        "00be0c403f3521275163587c4de5f89546345e471fd1f676111b6ce5c40ce433"
+      ]
+    },
     "spacr.api": {
       "source_blocks_sha256": [
         "f585ac38eb5deed615ec7dea307476d78996891be47af032e966ca2fe9954aca",
@@ -8044,6 +8504,242 @@
       "text": "Écrire atomiquement un rapport/audit de fuite sous JSON et retourner son chemin.",
       "translation_source_blocks_sha256": [
         "101f4c8752816651f946615c900f71c00f71fbc5bee89b9e5c0cef784120f2a5"
+      ]
+    },
+    "spacr.classifier_quality": {
+      "source_blocks_sha256": [
+        "45acfd4bea3111b6f0220dbb420df8e0e26e8069e643146e63de236f38a41019",
+        "3b528fc58946ff54785dcbac45932dc4659d32290d22b6b5a07450e9e307aed7",
+        "e88c5d78138871350b76089d165987c78dd5e92ebc20b998790a599bf71f303e"
+      ],
+      "source_sha256": "99717d0e8d97a587fb2b775d2187d865e50fce60d4a0c843be6bee9cf6863c67",
+      "text": "Mesurer la performance du modèle de classification de l'apprentissage automatique et corriger les fractions de classe observées.\n\nUne matrice de confusion exige des résultats étiquetés; une colonne de score non étiquetée ne peut pas établir la sensibilité ou la spécificité par elle-même. Utilisez des prédictions de partage ou de dédoublement des tests étiquetés lorsqu'elles sont disponibles. Lorsque les étiquettes ne sont pas disponibles, :func:`deconvolve` estime deux distributions de scores et indique si leur séparation est suffisante pour étayer l'estimation.\n\nLes erreurs du modèle de classification de l'apprentissage automatique biaisent la fraction positive observée plutôt que d'élargir simplement son incertitude. Les aides à la correction exposent ce biais entre les niveaux de prévalence et refusent la correction Rogan--Gladen lorsque la sensibilité et la spécificité ne l'identifient pas.",
+      "translation_source_blocks_sha256": [
+        "ef3738cdee2740bb64b9f0af2b6cd67e2aae5398511c2337684e1a856a513420",
+        "3b528fc58946ff54785dcbac45932dc4659d32290d22b6b5a07450e9e307aed7",
+        "afe1a7366aac25fc78b9dfb927796a014cca7a282df7e0416339adc3d394ae83"
+      ]
+    },
+    "spacr.classifier_quality.Confusion": {
+      "source_blocks_sha256": [
+        "9b2f4b1d4d1518c1635b612bdf40ab87a9fa38819e4517a266594d1609905da0"
+      ],
+      "source_sha256": "9b2f4b1d4d1518c1635b612bdf40ab87a9fa38819e4517a266594d1609905da0",
+      "text": "Une matrice de confusion, et les deux nombres qui sont effectivement utilisés.",
+      "translation_source_blocks_sha256": [
+        "9b2f4b1d4d1518c1635b612bdf40ab87a9fa38819e4517a266594d1609905da0"
+      ]
+    },
+    "spacr.classifier_quality.Confusion.accuracy": {
+      "source_blocks_sha256": [
+        "9f271c0d166308ead061345204240ee76da96a607edd824d7e47fe368e0be116",
+        "1e512190bc5f33d6c7ed84323e0e432c9c3c86131ea07b20e90ebbc390e2d9c6"
+      ],
+      "source_sha256": "838c74b57a1f8a3939c3a54067e3a5deee019c6bdd494474caecda316886fa2a",
+      "text": "Le nombre qui ne devrait pas être utilisé, à condition qu'il puisse être comparé aux deux qui devraient l'être.\n\nUn modèle de classification d'apprentissage automatique qui appelle tout négatif sur un puits qui est 10 % positif est précis à 90 % et a une sensibilité de zéro.",
+      "translation_source_blocks_sha256": [
+        "9f271c0d166308ead061345204240ee76da96a607edd824d7e47fe368e0be116",
+        "eccabb004214745208dd5cd47fa40ae6d113513a8c9088df66230b90909db0d5"
+      ]
+    },
+    "spacr.classifier_quality.Confusion.sensitivity": {
+      "source_blocks_sha256": [
+        "c87d959730553ab62993ab1ceed6e87219b53776df3ca20fc5de6221a3a6d6ba"
+      ],
+      "source_sha256": "c87d959730553ab62993ab1ceed6e87219b53776df3ca20fc5de6221a3a6d6ba",
+      "text": "Parmi les cellules qui SONT positives, la part appelée positive.",
+      "translation_source_blocks_sha256": [
+        "c87d959730553ab62993ab1ceed6e87219b53776df3ca20fc5de6221a3a6d6ba"
+      ]
+    },
+    "spacr.classifier_quality.Confusion.specificity": {
+      "source_blocks_sha256": [
+        "14b9bc1d643c661cc46b19d1eef802e33fff9d5cd88bfa2d8d23ff4b1fdffc53"
+      ],
+      "source_sha256": "14b9bc1d643c661cc46b19d1eef802e33fff9d5cd88bfa2d8d23ff4b1fdffc53",
+      "text": "Parmi les cellules qui ne sont PAS, la part appelée négatif.",
+      "translation_source_blocks_sha256": [
+        "14b9bc1d643c661cc46b19d1eef802e33fff9d5cd88bfa2d8d23ff4b1fdffc53"
+      ]
+    },
+    "spacr.classifier_quality.Confusion.usable": {
+      "source_blocks_sha256": [
+        "e78c9f161010288d4e465b68204b747fb735c8b724a04c8cb4a56939466aa1c9",
+        "9060e78168e6bfcb582634d61f78d195ee8ddf521e9645699f738e57f4a1bfd9"
+      ],
+      "source_sha256": "2a456d2a2646061d6fc0a7503baeb6e2d14f5414b81623f3672d02e65f63bda6",
+      "text": "Indique si une correction Rogan-Gladen peut être faite à partir de cela.\n\n``se + sp <= 1`` signifie que le modèle de classification de l'apprentissage automatique ne contient aucune information au seuil choisi et que la correction se divise par ``se + sp - 1``.",
+      "translation_source_blocks_sha256": [
+        "e78c9f161010288d4e465b68204b747fb735c8b724a04c8cb4a56939466aa1c9",
+        "c92beb45bd4f6f1cd6a4b1290c9961545ad8e855c283441701cea099d15d0487"
+      ]
+    },
+    "spacr.classifier_quality.best_threshold": {
+      "source_blocks_sha256": [
+        "36f8e190f537bca60cc607ec0f47458ca81c4fab095abf9e4cb63ec677d9cbc5",
+        "96dc412b443e626cc370a0cd4b4756f63e43b53820e8b7d0d9ffeb0a9052c020"
+      ],
+      "source_sha256": "5e1ba8e6173c8d8e55803f3184fa7c784e3fbbfda05754c49bbeb6e7e6196c2c",
+      "text": "Le point d'opération pour lancer l'annotation à.\n\n:param criterion: ``'youden'`` maximise ``se + sp - 1``, qui est le dénominateur exact de la correction Rogan-Gladen -- donc ce n'est pas un choix arbitraire ici, c'est le point où la correction est la plus stable et son inflation de variance la plus faible.",
+      "translation_source_blocks_sha256": [
+        "36f8e190f537bca60cc607ec0f47458ca81c4fab095abf9e4cb63ec677d9cbc5",
+        "96dc412b443e626cc370a0cd4b4756f63e43b53820e8b7d0d9ffeb0a9052c020"
+      ]
+    },
+    "spacr.classifier_quality.confusion": {
+      "source_blocks_sha256": [
+        "7865eb90c95017cf097b58e1b9963c036275237bbb207356b3d76847833b6b70",
+        "61f7113e95e350a507f5559211a1e7326e1aadba4c4b903c6e939b5545f0ce9c",
+        "8444a3c5025655e322c28b5a856b7e4ea30ab9a5ef8b855587c55c2dcd1ffe88",
+        "7df8e4bdb389ffac747e613a68ba2fea35b28bb91e918685863982dc2cc0e363"
+      ],
+      "source_sha256": "1d53851625b0a6e2117714892b8adc47f8103b21af502610499fbefd31312540",
+      "text": "La matrice de confusion d'une division marquée.\n\n:param scores: le score par cellule du modèle de classification de l'apprentissage automatique.\n:param labels: True où la cellule est vraiment la classe positive.\n:param threshold: score au-dessus duquel l'appel est positif.",
+      "translation_source_blocks_sha256": [
+        "7865eb90c95017cf097b58e1b9963c036275237bbb207356b3d76847833b6b70",
+        "d53e3a0739b72214e3405adb94e0475d257afbbac1828098f16b928e67d6c30c",
+        "8444a3c5025655e322c28b5a856b7e4ea30ab9a5ef8b855587c55c2dcd1ffe88",
+        "7df8e4bdb389ffac747e613a68ba2fea35b28bb91e918685863982dc2cc0e363"
+      ]
+    },
+    "spacr.classifier_quality.deconvolve": {
+      "source_blocks_sha256": [
+        "a760957c681f95dc9bbc059502fe758927ba0bcc2dd2078e4b10d102855bc3f2",
+        "e5256889ca3785347efeecbfe00c04deed6f4ae9b4571f830ab50576b57860da",
+        "a08379b0174e7714f69e2fee62141eb493598e3f64964399fe5f01869da159b9"
+      ],
+      "source_sha256": "ac8411e16de2853d582df2c07a3cb9a7ad055657b441fe155d66833382337738",
+      "text": "Estimer les distributions de deux classes à partir des scores non marqués.\n\nLE FALLBACK, ET C'EST UN FALLbACK. Sans étiquette cela correspond à la colonne de score comme deux composants gaussiens et rapporte ce qu'ils impliquent. C'est la seule voie quand rien n'est étiqueté, et c'est le plus faible, parce qu'il suppose la forme des deux composants ET qu'elles sont assez éloignées pour être dissociées du tout.\n\n``separation`` est le bilan de santé et doit être lu avant les nombres à côté: l'écart entre les composantes signifie dans les écarts types groupés. Ci-dessous environ 2 l'ajustement est le choix entre beaucoup de réponses tout aussi bonnes, et la sensibilité qu'il rapporte est un artefact du point de départ plutôt qu'un fait sur le modèle de classification machine-apprentissage.",
+      "translation_source_blocks_sha256": [
+        "a760957c681f95dc9bbc059502fe758927ba0bcc2dd2078e4b10d102855bc3f2",
+        "e5256889ca3785347efeecbfe00c04deed6f4ae9b4571f830ab50576b57860da",
+        "9f9872fdea51d8fd088c2364271df81ba2cf3c5a0be99cd07c82ca8208cc3f6e"
+      ]
+    },
+    "spacr.classifier_quality.discover_test_splits": {
+      "source_blocks_sha256": [
+        "23a495c831fbfe41b4c9d336dd104f7016478b798425bbaf94ef8af7fc8fe60d",
+        "c6445341fe10d7dcc7a8a5cfd4c2061756dc2a4586c19ed5c1bba91693b2053b",
+        "09c523a4d87239b237268f4375d97b5678aac82a581761b644c99d8bcbaeaf52",
+        "fdc849f1dd3f40982f5c77cd7a640644e20181c3a5ffec7a4d4a44e0c08fa23f",
+        "b687ee1bceac093506c7913bdcc5ffcc92088b78c8e9593ac69992e1753c6080"
+      ],
+      "source_sha256": "1be93f788f1a0cc80a0af45b8026ec4f6c57f74079e533c74e3a904b2b07947d",
+      "text": "Trouvez les splits de test écrits dans le dossier d'une vue d'application.\n\n:param root: le répertoire d'affichage de l'application contenant un dossier par plaque.\n:param pattern: comment le code de formation les a nommés. La valeur par défaut correspond aux deux formes spaCR écrit -- `*_test_acc.csv` et `*_test_result.csv`.\n:returns: ``{plate folder name: path}``, une par plaque, la plus récente d'abord où une plaque a plusieurs.\n\nC'EST LA VOIE, et il n'y en a pas d'autre. Rien dans spaCR ne porte une sensibilité mesurée pour une vue d'application qu'elle n'a pas été montrée, de sorte qu'un utilisateur avec sa propre vue sur l'application obtient son propre nombre en pointant ceci sur son propre dossier -- qui est le seul arrangement dans lequel la correction peut être juste pour plus d'une expérience.",
+      "translation_source_blocks_sha256": [
+        "97873addce3e4038b9251e98e560e8030efdabc44ee0316794ff364e63b82ca8",
+        "a5bd941fe80ada308f2843616726ff24c8913c4ce46f204cde2ad2b453c17aac",
+        "09c523a4d87239b237268f4375d97b5678aac82a581761b644c99d8bcbaeaf52",
+        "fdc849f1dd3f40982f5c77cd7a640644e20181c3a5ffec7a4d4a44e0c08fa23f",
+        "8068a676af171689db52dbb82337260f287ba727805fe7433b7792f6db13642a"
+      ]
+    },
+    "spacr.classifier_quality.from_test_split": {
+      "source_blocks_sha256": [
+        "4ba751c523f8409ef60d7e17a641f3ff31ce6c28609d8c9c1deb3a4490886f64",
+        "5d707d0db96194129f67ec3e190d3f76cf75f39a2b28910df9ff204d92c71f4c",
+        "66665a3ba828c0e76eb711dbe0318aa48345641a98f1b2d19d35ce8771a7e661",
+        "6b6d2551006ee51b2cdc93803319a6ffcfe25bce510a391042ce3db63bed43e8"
+      ],
+      "source_sha256": "47a091caf765fc5cdbf67b90109bdbb95717df31d16d0cc2a080b60daab89ed1",
+      "text": "Sensibilité et spécificité d'un test écrit divisé.\n\n:param path: une cellule ``*_test_acc.csv`` ou un résumé ``*_test_result.csv``.\n:param threshold: Pour un fichier par cellule, le score à appeler positif à. ``None`` prend le point Youden. Ignoré pour un fichier sommaire, qui a déjà choisi un.\n:returns: sensibilité, spécificité, seuil et ``per_cell`` pour dire quelle forme a été lue -- parce que seul un fichier par cellule supporte de poser la même question à nouveau à un seuil différent.",
+      "translation_source_blocks_sha256": [
+        "4ba751c523f8409ef60d7e17a641f3ff31ce6c28609d8c9c1deb3a4490886f64",
+        "5d707d0db96194129f67ec3e190d3f76cf75f39a2b28910df9ff204d92c71f4c",
+        "66665a3ba828c0e76eb711dbe0318aa48345641a98f1b2d19d35ce8771a7e661",
+        "6b6d2551006ee51b2cdc93803319a6ffcfe25bce510a391042ce3db63bed43e8"
+      ]
+    },
+    "spacr.classifier_quality.inflation_by_prevalence": {
+      "source_blocks_sha256": [
+        "22e96260b7a93c8051e7ee1dc4dc2525a3cbf7f07828c15067d7652e805dd8f4",
+        "601d31184310f51f0521bdb813f268883ca6cdf701036c30ca4fe11215e5c830",
+        "11985ce890ce81f924fad6c0abe0a4ea4ad1db7aa11a2ef30723e1942fc78d4a",
+        "0732f89f5cf5da492e21e34e652793d489f8a060f4275fc87e81c33cb109dc06",
+        "f2b057e0314899bfb968599cd7e6b16e8b76c46a8771cd7a8a8b5fb203aeec15"
+      ],
+      "source_sha256": "12db9f8770b9727e17c786cf2665e0cb825bbe9e1099619c989e4a00ea1104b0",
+      "text": "Ce que le modèle de classification de l'apprentissage automatique fait à une fraction, car la fraction devient plus rare.\n\nLE RÉSULTAT QUI DÉCIDE POURQUOI TOUTES CE QUESTIONS, et ce n'est pas intuitif à partir de la précision. Au tsg101, les modèles de classification de l'apprentissage automatique ont mesuré ``se = 0.960``, ``sp = 0.981``:\n\n    un vrai 30 % est observé comme 30 % -- la correction est une non-op; un vrai 1 % est observée comme 2,8 % -- près de TROIS TEMPS trop élevé.\n\nLes faux positifs sont une part des NEGATIVES, et quand un guide est rare presque toutes les cellules dans la position de l'échantillon de microplaques est un négatif, donc un petit taux faux positif sur une grande population marécages un grand taux vrai positif sur un petit.\n\nLa correction est donc négligeable partout où elle n'a pas d'importance et domine exactement où elle le fait.",
+      "translation_source_blocks_sha256": [
+        "fab91c910f3c43948179167291095af742d5d85272eb23001861f1704ce6df2e",
+        "588c7a457aac12742c6ea5b2964716ecd7c639bf18c49e88f66995beb4ceacec",
+        "11985ce890ce81f924fad6c0abe0a4ea4ad1db7aa11a2ef30723e1942fc78d4a",
+        "c7c4bd733cd918735e671b88fe7a759ebc33d358932de0d92b68583c8dcdc98e",
+        "e00879e87c310bcee60785ced0c177a823cbaa294c764b8e9f7f7209510107d2"
+      ]
+    },
+    "spacr.classifier_quality.measure_screen": {
+      "source_blocks_sha256": [
+        "19c8e1222da6f2f1b2812c04018e74f1ce7479c50dbf8bfaf6ec9d8c7022ee59",
+        "1b40aa9942916e45b2ebf5cf5527b16590f16bfad21347db38adb9cea71977ba",
+        "2a121bd451570abe71443e39b214ad7fa7c7c97f867455b385b3eff83877046e"
+      ],
+      "source_sha256": "60676dde7c7aa3dcfa8d5901febad6fe230af227139e60b7861b0b4b995e82ed",
+      "text": "Sensibilité et spécificité par plaque, de la propre vue d'application d'un utilisateur.\n\nL'ensemble de ce que ce module offre, en un seul appel, pour quelqu'un qui a lancé sa propre vue d'application et veut que la correction soit à son sujet.\n\nLes plaques sont formées séparément et leurs seuils ne sont pas comparables -- au cours de l'expérience de dépistage, cela a été mis au point par rapport à la période comprise entre 0,2955 et 0,8567, ce qui représente trois points de sensibilité.",
+      "translation_source_blocks_sha256": [
+        "e270f23d3528cd7e727b8f578ba433a88b11d64c5aec94a3f4193705040ab4ca",
+        "30ce2834fcb23f3db7197d8a786e6c727b6649c553a434eb4fea0dfa482dd7af",
+        "a425c9c448c620d93088d596f031d4aefefdd16fc3246f3ed3d436cd336f637d"
+      ]
+    },
+    "spacr.classifier_quality.operating_points": {
+      "source_blocks_sha256": [
+        "e3623eb33d002d5d64824a2fd3f85bb2831c82c76117bf358d4c6e88682d96c0",
+        "432c8074c4f817074b606adbf10a6e9c08de14be8e278f38bd25e2ffab8dc348"
+      ],
+      "source_sha256": "0dd82c1e4f6569fb69854a9c6548f1455a82d61691f1efc7dac25a42f02636db",
+      "text": "La matrice de confusion à travers la plage de scores -- le ROC, en tant que matrices.\n\nLE THRESHOLD EST UN CHOIX ET DOIT ÊTRE UN. Une matrice de confusion unique à 0.5 répond \"comment est-il bon là\" et cache que déplacer le seuil trade exactement les deux quantités par lesquelles la correction se divise.",
+      "translation_source_blocks_sha256": [
+        "e3623eb33d002d5d64824a2fd3f85bb2831c82c76117bf358d4c6e88682d96c0",
+        "432c8074c4f817074b606adbf10a6e9c08de14be8e278f38bd25e2ffab8dc348"
+      ]
+    },
+    "spacr.classifier_quality.rogan_gladen": {
+      "source_blocks_sha256": [
+        "ed533d7bc76d2b7b2c8b7501bc4aeddd9a366aff721bcadb957ef617c235c4e8",
+        "d34d621898136072784ad77fcb118e2fbffde4c3aa3e8e2077cd7ba38695b4d7",
+        "ef0d8efb5dd628b5412e0b71840421310b3532a10e56e012a61273b119eaed60"
+      ],
+      "source_sha256": "d030d8278cda1ba246a78946382b08b25e1366215c012dadddee01d7b586fac3",
+      "text": "Corriger une part positive observée pour l'erreur du modèle de classification de l'apprentissage automatique.\n\n    p_true = (p_observed - (1 - sp)) / (se + sp - 1)\n\nÀ ``se = sp = 0.94``, un 0,06 observé corrige exactement à zéro -- l'ensemble du signal observé étant faux positifs -- et un 0,244 observé corrige à 0,20.\n\n:param n: le nombre de cellules, si l'erreur standard est recherchée. La correction gonfle la variance par ``1 / (se + sp - 1)^2``, qui à 0,94/0,94 est 1,29, donc un intervalle calculé avant de corriger est trop étroit aussi bien que centré au mauvais endroit.",
+      "translation_source_blocks_sha256": [
+        "78f9914b5dfba9c8874b96e02155e8cafb0118d4b52d01c4484fd89bf2d1510e",
+        "d34d621898136072784ad77fcb118e2fbffde4c3aa3e8e2077cd7ba38695b4d7",
+        "ef0d8efb5dd628b5412e0b71840421310b3532a10e56e012a61273b119eaed60"
+      ]
+    },
+    "spacr.classifier_quality.sensitivity_by_prevalence": {
+      "source_blocks_sha256": [
+        "efb21bb5be71d44da3abc356bb85f3c6ba2d5f6ed761f984828c03ef66c12388",
+        "12a264a8cb01695542e66b725cea14cf19adba7212f73fef02e08bdddc860724",
+        "e8c7e3f8da06b238a7f3b690a8485c7762c2be1897c7dcb54002747150be3362"
+      ],
+      "source_sha256": "1530005939cc66bfb80dbad9b1cd89bfe0d5377f79072e25b7bd8952dab11659",
+      "text": "Sensibilité à l'intérieur des bandes de prévalence du puits.\n\nLa sensibilité est une propriété du modèle de classification machine-learning et la spécificité est trop -- ni ne devrait dépendre de la prévalence du tout. S'ils le font ici, le modèle de classement machine-Learning utilise le contexte plutôt que la cellule : un modèle qui a appris « cette position d'échantillon microplate semble bondée, donc appeler plus positif » montrera une sensibilité croissante avec la prévalence, et chaque fraction qu'il produit est alors en partie une copie de la fraction qu ́il a donnée.\n\n:returns: une rangée par bande avec la prévalence de la bande, sa sensibilité, sa spécificité et sa taille.",
+      "translation_source_blocks_sha256": [
+        "efb21bb5be71d44da3abc356bb85f3c6ba2d5f6ed761f984828c03ef66c12388",
+        "f47981bbcfd2f6a3edaacd762d305fa9f22806167a7882e97ccb5f9746cde4d2",
+        "e8c7e3f8da06b238a7f3b690a8485c7762c2be1897c7dcb54002747150be3362"
+      ]
+    },
+    "spacr.classifier_quality.training_wells": {
+      "source_blocks_sha256": [
+        "2d9b30b13a6532b1ddb88f66b66ee6bf90b6fea628d84e3702022592e3de8787",
+        "98802ccd56d72404972dbe3a825ac40bfda20f1e8f2404e9fe3ad6a026f1e8d3",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "be7bf4c374b6dde27bc4809252933006ecc8e1369cb394b8ba501ec305e64c0e",
+        "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
+        "894f2e49e7c8828ef7b2f94af6b19c10962c03b8f33442fc15cbe99d9fca67c5"
+      ],
+      "source_sha256": "03eb54a48becc965fcf634c8d5541cfc57df09d75dbed58465bf3e350f3f329b",
+      "text": "Retourner les cellules appartenant aux colonnes de classification de l'apprentissage automatique modèle-formation.\n\nLes positions des échantillons de microplaques d'entraînement doivent être exclues de l'étalonnage des performances; autrement, les mesures d'étalonnage en forme d'échantillon sont acceptées. Les étiquettes de puits ``r1_c2`` et ``c2`` sont conservées aux fins de validation plutôt que d'être classées silencieusement comme données d'instruction.\n\nParamètres\n----------\nwells : sequence of str Une étiquette de position d'échantillon de microplaques par cellule. columns : sequence of int, default=(1, 2) Numéros de colonne à base unique utilisés pour la formation des modèles de classification de l'apprentissage automatique.\n\nRetourne\n--------\nnumpy.ndarray Masque booléen avec un élément par entrée bien.",
+      "translation_source_blocks_sha256": [
+        "ec5878458b89409af653214ab44304339a9c1a7814f34faa193ee2bf1fa95a78",
+        "a157153c0965bbd54ac7f80a6a11af70527ae624d680fe28fc0923a0423c4c68",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "9851796f804802c4da3f11e976642949a93b0682bd7cf5cf8b0ca0b5b4f86302",
+        "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
+        "894f2e49e7c8828ef7b2f94af6b19c10962c03b8f33442fc15cbe99d9fca67c5"
       ]
     },
     "spacr.classify": {
@@ -50306,6 +51002,18 @@
         "20c204aad5d4fb0f017436be0055d7ecff47a8b13dd5d05797b867a0cee5d5c2",
         "1dd43ba0d9a305d8845369c105e44627125fd4a9df07b44a1e72ccd6ec1a439c",
         "b8bd6ca42724e20a3818084354ab71db124aed76d1c957641832618be404a118"
+      ]
+    },
+    "spacr.qt.dialogs.detach_all_dialogs": {
+      "source_blocks_sha256": [
+        "2fd60fe27c97d86d04959d2e2b4848ff508e6020686be15654a440d7d69dfc4c",
+        "b718f2930b7d01d35a340bbe8065a6ab026ae2ac583fd62d018f0456f9cb9601"
+      ],
+      "source_sha256": "5a380f5228479397fbeeb6c218d7a1205070d0ee648cd4a08d923984de69c888",
+      "text": "Installez le détacheur à l'échelle de l'application. Retourne True s'il est installé.\n\nIdémpotent PER APPLICATION: l'appeler deux fois sur la même application laisse un filtre, et l'appelant sur une nouvelle application installe à nouveau, parce que l'ancien filtre est mort avec l'ancienne application.",
+      "translation_source_blocks_sha256": [
+        "2fd60fe27c97d86d04959d2e2b4848ff508e6020686be15654a440d7d69dfc4c",
+        "b718f2930b7d01d35a340bbe8065a6ab026ae2ac583fd62d018f0456f9cb9601"
       ]
     },
     "spacr.qt.dialogs.detach_from_window_manager": {
@@ -94657,17 +95365,15 @@
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.show_panel": {
       "source_blocks_sha256": [
         "9e8c8d2e94e89a38fc4ea2df121e2bfaaff3757c8667d304af3cfe317cd3f6cd",
-        "a9b5eb2c3ab0a0fcd5cd83d51fd9c0fee09888bb3899d01e9225b026f55be686",
         "8d82a976bc98dac7d22cbc898a0b21cc80b16a68fac600abba00c86b47e40ff3",
-        "da68757fe487b1b12f628b78015a768fe158e5ba71798d88d4a621bbb295337f"
+        "6999120706d97256e82307d97d7a89df6e7512e9936e603b807a13ac64dd0aef"
       ],
-      "source_sha256": "38af8fe41c1a708835b744bbc5ef63ba5c4c91f93e7552c3fd2b1527614186a7",
-      "text": "Levez l'onglet qui tient le panneau en direct nommé ``key``.\n\nC'est l'instruction de la porte 199 trouvée manquante. La grille photographie neuf panneaux en direct et donne à chaque tuile une clé, mais seule la clé du volcan avait quelque part où aller -- donc huit tuiles ont pris un clic et n'ont rien fait, ce qui se lit comme une application cassée plutôt que comme une image sans porte.\n\n:param key: une clé de :meth:`FigureGridView.set_live_tiles`.\n:returns: True si un onglet a été soulevé. FALSE EST UNE RÉEL RÉPONSE et l'appelant doit agir dessus : l'onglet n'est pas fixé -- un ajustement sans modèle n'a pas d'onglet résiduel, et les onglets volcans et gènes sont absents lorsque le volcan est externe -- donc une clé peut être parfaitement valide et n'ont pas de onglet dans CE panneau en ce moment.",
+      "source_sha256": "000c4dd992d691a8af8e3045979eabc53acbcebd3e2bb9b6cbeaf629d83f55c4",
+      "text": "Levez l'onglet qui tient le panneau en direct nommé ``key``.\n\n:param key: une clé de :meth:`FigureGridView.set_live_tiles`.\n:returns: ``True`` lorsque l'onglet correspondant existe et a été relevé; autrement ``False``. Les onglets disponibles dépendent du modèle ajusté et si le volcan est affiché à l'extérieur de ce panneau.",
       "translation_source_blocks_sha256": [
         "9e8c8d2e94e89a38fc4ea2df121e2bfaaff3757c8667d304af3cfe317cd3f6cd",
-        "a9b5eb2c3ab0a0fcd5cd83d51fd9c0fee09888bb3899d01e9225b026f55be686",
         "8d82a976bc98dac7d22cbc898a0b21cc80b16a68fac600abba00c86b47e40ff3",
-        "da68757fe487b1b12f628b78015a768fe158e5ba71798d88d4a621bbb295337f"
+        "6999120706d97256e82307d97d7a89df6e7512e9936e603b807a13ac64dd0aef"
       ]
     },
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.start_load": {
@@ -97597,6 +98303,144 @@
       "text": "Sélectionnez un index point par rang et montrez tout ce qui est connu à ce sujet.",
       "translation_source_blocks_sha256": [
         "9d579628d1ce65c8930903fc4c666b0ade855f1c1517587220dc187918548eca"
+      ]
+    },
+    "spacr.read_background": {
+      "source_blocks_sha256": [
+        "c1cab63140044ca034fc51eb183d748c308070d2244f605e7eedc6001e606dfb",
+        "44152d0be31e6ad9a19462efd606e73dfcb76a48c99e69adf5e5057b5ed68ce6",
+        "cc6e9b2f31929fe5ca1b3cfb5349ffaadd0bd51b50222a8755f97527b6b50ec8",
+        "a830aae3a4135a05ec6d1983f33e397e7037bb5632f507fd00b2058fcbeb9606",
+        "8bc70aabdd2fc34203c0e1bb74454dd4a39f615a7428bd758e3bacffec1fae68",
+        "35bbd106420285c112bc2c77698fc811f5a7e137b4a6ea5596d993d42a94ddb4",
+        "92d99e8e42a725477eafa40bed4e8ced962a51653192d1ff51ac95273f273813"
+      ],
+      "source_sha256": "98a517096916988e47287f3982a74af1fb38c3deaf25ccb7f711bd5dd4a67aaa",
+      "text": "Ce à quoi ressemble un guide dans les positions de l'échantillon de microplaques il n'est pas dans.\n\nProposition 2026-08-21 : « Une autre façon de calculer le seuil de fraction gRNA est de mesurer la fraction totale et les fractions guide individuelles dans lesquelles sont détectées dans les 3 premières colonnes. comme la première devrait être 100 % 233460, la deuxième colonne 100 % 249730 et le trié un mélange mais pas d'autres guides.\n\nC'est la bonne idée et la réponse est le FACTEUR INDIVIDUEL, PAS LA VALEUR UNIQUE. Une colonne de composition connue est une mesure directe de la vitesse de lecture fausse: chaque lecture qui n'est pas le guide prévu est, par construction, le bruit. `fraction_threshold` devine actuellement à cette quantité avec une constante, et il peut être mesuré à la place.\n\nÀ le criblage, ceci a été écrit contre et recomposé sur n'importe quel autre : le fond n'est pas un nombre portant des chapeaux différents. Au-delà des positions de l'échantillon de la microplaque témoin, le fond du guide médian est de 0,013% et le 99e centile est de 0,15% -- une brume diffuse que tout petit seuil enlève -- tandis qu'UN guide était assis à 9,2% et apparaissait dans chaque position d'échantillonnage de la plaque témoin. Un seuil global ne peut pas servir les deux. Définissez assez bas pour attraper l'aberrant il supprime la biologie réelle; défini là où il est maintenant il supprime l'azur dont il n'avait pas besoin et admet l'écart de toute façon.\n\nDonc, LE CONTEXTE EST PAR GUIDE, et un guide qui montre où il ne peut pas être vous dire un fait sur lui-même - son code-barres, son amplification, ses voisins sur l'index - qu'aucun autre guide ne prédit.\n\nCE QUE CELA NE PEUT PAS DÉCIDER, et il ne doit pas prétendre le faire. Un guide abondant dans les positions d'échantillon de microplaque de contrôle est SOIT un artefact de séquençage - saut d'index, collision de code à barres - OU véritablement surreprésenté dans la bibliothèque et vraiment présent dans ces cellules. Les comptes de lecture ne peuvent pas les distinguer, et la correction est opposée dans les deux cas : la soustraire, ou la conserver. La représentation peut les distinguer, parce qu'un guide vraiment présent déplacera le phénotype de ses cellules et un artefact ne le fera pas. :func:`suspicious` signale les candidats plutôt que de les résoudre.\n\nUn puits de contrôle avec un guide à 70% se lit plus sur ses voisins qu'un puits ordinaire dont le plus grand guide est 5%. Le classement par guide se transfère; le niveau absolu ne le dit pas, et :func:`subtract_background` le dit lorsqu'on lui demande de l'appliquer à des positions ordinaires d'échantillons de microplaques.",
+      "translation_source_blocks_sha256": [
+        "e349c6dc4d7115ce17cdcc471f303abbf525c7b2add40f2a52ecebce975a823b",
+        "44152d0be31e6ad9a19462efd606e73dfcb76a48c99e69adf5e5057b5ed68ce6",
+        "cc6e9b2f31929fe5ca1b3cfb5349ffaadd0bd51b50222a8755f97527b6b50ec8",
+        "de046986aaacea3213606d471f35d9ba6794bb5edba94b2eddf92b6cb5e909c8",
+        "8bc70aabdd2fc34203c0e1bb74454dd4a39f615a7428bd758e3bacffec1fae68",
+        "42bb82ce0aff9a778dcf7102a33193268905f6ad0e88f8b213128a9f83c21e5c",
+        "6f333ea8783ed1cfcf682db78f0281049af0a79b92fc6f52aeda7c342036df06"
+      ]
+    },
+    "spacr.read_background.background_from_controls": {
+      "source_blocks_sha256": [
+        "47cc9c2c2bf91db1039b353af12a79af3fddd7ea91cb83decaef542994727377",
+        "c681c04d4c27c3d8f8ea98aff8dc254d12dffc5cc4738c56fd929b91e2e2c2d7",
+        "16205eacca9180c6770d81d0acd70d0a8ae4949d5d14f7739ce12cc561d82057",
+        "bdede25dc6aec8bb33e183393da6b25e89beffad057c50d7a7fc5346b0eb3d7c",
+        "8dfbbc608a4e768b1c4da790617c5c9095790c139de1a81604197ba26db6949d",
+        "39322c68de3f12ae2cc548c2a4242122b85df5a019175df4ba919c30235542d3",
+        "42ee77ec6f6df7b6481fac3335aba36de658dade29abca9543e8d9fcaa8abc41"
+      ],
+      "source_sha256": "547b6593ce8db21aa0df98ca747a3b33ec8530eda51b9bfd3a02cc2a164f922b",
+      "text": "Mesurer la fraction lue de chaque guide dans les positions de l'échantillon de microplaques à laquelle il n'appartient pas.\n\n:param fractions: ``{well: {guide: fraction}}`` pour les positions de l'échantillon de la microplaque CONTRÔLE seulement.\n:param intended: ``{well: the guides that well really contains}``. Une position d'échantillon de microplaques absente de cette cartographie est ignorée plutôt que supposée vide, parce qu'en supposant qu'elle transformerait un véritable guide en arrière-plan.\n:param exclude: guides qui ne sont pas dans aucune cellule -- amorce ou plasmide report-over. Droppé et la position de l'échantillon microplate renormalisé AVANT que tout soit mesuré, parce qu'un contaminant laissé dans le dénominateur tient le fond de chaque guide réel vers le bas par sa propre part et rend le seuil plus serré qu'il ne l'est.\n:param statistic: ``'median'`` ou ``'mean'`` à travers les positions de l'échantillon de la microplaque témoin. Médiane par défaut : une position d'échantillon contaminée ne doit pas définir le fond d'un guide pour toute la microplate de laboratoire.\n:returns: l'arrière-plan par guide, la masse fallacieuse totale par position de l'échantillon de microplaques, et les nombres derrière les deux.\n\nLA MASSE SUPRIE EST RAPPORTÉE PAR Position de l'échantillon de microplaques ET NON SEULEMENT MOYENNE, parce que son ÉPREUVE est la chose qui dit si ces positions de l 'échantillon de Microplaques décrivent un phénomène. Un écart serré est une propriété séquentielle; un large signifie que certaines positions de échantillon de microplates ont été contaminées et les autres ne l'ont pas été.",
+      "translation_source_blocks_sha256": [
+        "00bafbda9cd0686d2ff511a42409a31d045b63f22ed5d2a0725848106fb3e346",
+        "2989876bbd9d9aef610613322f8084ab68aeefd25b07aa6e7def0e91827432aa",
+        "22f40627ca5eff7b2883f451491f353705dbdebaee4280e36dd2e5c34e79cf92",
+        "3e589e2e06d0b9a37b3cf6162fe777c2b44fc3b03a272c412950c07667fcfdf8",
+        "62621c87e5fc44013531518fb6ded2e0abc8213c4e80b20d7f56e357a37ea2e3",
+        "539f3d5cb72d236670e01a01abbcc9e88f4e6009dee16e7e9cc100956119679d",
+        "ce280478601ea887f2dc106bd013d7b9d4a59f1243cf6a5bb67a2f2424bdedc7"
+      ]
+    },
+    "spacr.read_background.drop_guides": {
+      "source_blocks_sha256": [
+        "055602f229da0477cd415d266c8e5ce06868f76873601760f36eb4e8134155a3",
+        "90d554b86d046a8c2ffdf943ac1dfd0b0e8c62e46322ae0964e2de01a3d66db8",
+        "1e4c15cd7f2e6a533e1e3b6cd42def7e287650545b4a9435191d09fd3c63597d",
+        "a6c710ef1391eacb667531b8967f4474945a80ab87e502b84b399dea75b71173"
+      ],
+      "source_sha256": "8912c0a061f1f54894d13816208d0ba9b701739825d9215c82a43504e42b15af",
+      "text": "Enlevez les guides qui ne sont dans aucune cellule, et renormalisez ce qui reste.\n\nL'EXCLUSION N'EST PAS UNE SOUS-TRACTION CONTEXTE et la différence est le point entier. La soustraction de l'arrière-plan dit que « certaines des lectures de ce guide ici sont fallacieuses ». L'exclusion indique que « cette séquence n'est pas un guide dans une cellule du tout » -- le report d'amorces ou de plasmides, qui est dans la préparation de la bibliothèque et jamais dans un noyau.\n\nIl est donc retiré AVANT la formation des fractions, et les survivants sont renormalisés sur ce qui reste. Le laisser dans et soustraire plus tard laisserait ses lectures dans le dénominateur de chaque autre guide, tenant chaque fraction réelle à la baisse par la part du contaminant.\n\nÀ le criblage cela a été écrit contre, un contaminant plasmide était 19,9% de TOUS lit sur une plaque: à l'exclusion il soulève la fraction de chaque autre guide d'un quart, qui déplace les guides à travers le plancher annotatabilité. Ce n'est pas une étape de rangement.",
+      "translation_source_blocks_sha256": [
+        "055602f229da0477cd415d266c8e5ce06868f76873601760f36eb4e8134155a3",
+        "90d554b86d046a8c2ffdf943ac1dfd0b0e8c62e46322ae0964e2de01a3d66db8",
+        "1e4c15cd7f2e6a533e1e3b6cd42def7e287650545b4a9435191d09fd3c63597d",
+        "a6c710ef1391eacb667531b8967f4474945a80ab87e502b84b399dea75b71173"
+      ]
+    },
+    "spacr.read_background.resolve_exclusions": {
+      "source_blocks_sha256": [
+        "fb91311dd2873583b790f767d58f5bbf491c7930634d2a7ae9c71a992efe8b2a",
+        "ab1f664c0ba3e9a552aa1e408ba1cffbfec285ee840ef14b0170bcfcc1e083f3",
+        "0735ad0f7941fece2b72ca456a03e8118e70d97f25a92ae108c787e02a1801f2",
+        "303a549d2f380610ed76682c90513c85670e0b8e709c6245ae2c923a47e6555d"
+      ],
+      "source_sha256": "2c40b734f1a1e5f5111043580e3ef9588aaf17650a2f91f42793f6e99e25fc89",
+      "text": "Ce guide donne le nom d'une liste d'exclusion.\n\nACCEPTES GUIDES ET GÉNÈNES, plusieurs de chacun : « à l'exclusion i devrait pouvoir mettre dans plusieurs guides ou gènes ». Un gène sélectionne chaque guide qui lui est assigné, donc exclure un amplicon contaminé ne signifie pas énumérer ses quatre guides et manquer le cinquième.\n\n`control_names.rows_for` fait la résolution, et la réutiliser est le point plutôt qu'une commodité: c'est ce que `controls`, `positive_control` et `negative_control` utilisent déjà, donc une exclusion est tapée exactement dans l'orthographe ceux qui acceptent -- avec ou sans le préfixe de l'organisme -- et ne peut dériver dans un deuxième dialecte des mêmes noms.\n\nUne entrée qui ne correspond à rien n'est retournée dans aucun ensemble; l'appelant qui s'en soucie devrait le dire, parce qu'une exclusion mal orthographiée excluant silencieusement rien est comment un contaminant survit à un filtre qui était censé l'enlever.",
+      "translation_source_blocks_sha256": [
+        "fb91311dd2873583b790f767d58f5bbf491c7930634d2a7ae9c71a992efe8b2a",
+        "ab1f664c0ba3e9a552aa1e408ba1cffbfec285ee840ef14b0170bcfcc1e083f3",
+        "0735ad0f7941fece2b72ca456a03e8118e70d97f25a92ae108c787e02a1801f2",
+        "303a549d2f380610ed76682c90513c85670e0b8e709c6245ae2c923a47e6555d"
+      ]
+    },
+    "spacr.read_background.subtract_background": {
+      "source_blocks_sha256": [
+        "57ca1556c12a893d976471ee40d137b07a84cdb698f48cde1564a9f2fcc6c144",
+        "e9938c85154372487b17a2c86e3470c63caab87a0bf425e6a24292c2e6bc1deb",
+        "f00a2218420c4894d6c85920573fc230348465355ba1527cf36258c9e472ce27"
+      ],
+      "source_sha256": "23007f91e5bb099af9b0f24805a4f7a120a93a7bbce88692b73bbfb8910b924f",
+      "text": "Retirez le fond de chaque guide d'une position d'échantillon de microplaques, puis renormalisez.\n\n:param scale: la quantité d'arrière-plan mesurée à soustraire. LA COLONNE DE CONTRÔLE SURSTATE-T-IL pour un puits ordinaire -- les balances de saut d'index avec l'abondance de la source, et un puits de contrôle a un guide à 70 % où le plus grand puits ordinaire est cinq. 1.0 est le choix conservateur et supprime le plus; un appelant qui a estimé le rapport entre les deux régimes le passe ici.\n:param renormalise: redimensionner les survivants pour résumer ce qu'ils ont résumé avant, de sorte que la correction déplace le SHARES entre les guides sans également déplacer le total de la position de l'échantillon microplaqué.",
+      "translation_source_blocks_sha256": [
+        "b2ab31741c891f4197333de577534ed314925328c8c97b2372e644a6c4065eab",
+        "e9938c85154372487b17a2c86e3470c63caab87a0bf425e6a24292c2e6bc1deb",
+        "8c8c8399110da879b69ac6273de6b3b3b0f6fbb83f354e08a2e84c495c646356"
+      ]
+    },
+    "spacr.read_background.suggest_threshold": {
+      "source_blocks_sha256": [
+        "658604d80d6f89c37350bbd259ef45481e415786b2a0857a476381e05b7ee39e",
+        "76691fee9be013a6cb5c847f6b13f8d0826851ae6a988576e34dc838a3255411",
+        "08eedce06e41910671daf4fc7f498f03c02d9fd551c455cbc530b3869035fd50",
+        "03ad6dc9bbf39da5c031f4e3a307352affdd19a121c74b1144716d668677a9ef"
+      ],
+      "source_sha256": "83c7ff4753687c8ab8da351cb4351a569a5e87a015d8a92ad792daadcc3f1921",
+      "text": "Un `fraction_threshold` prélevé sur les données au lieu d'une constante.\n\n:param quantile: la part de la distribution de fond à effacer.\n:returns: le seuil suggéré et ce qu'il supprimerait et ne le supprimerait pas.\n\nLe quantile décrit la brume des guides qui apparaissent au niveau de la trace partout. Un guide dont le fond est aberrant n'est décrit par aucun quantiles des autres et a besoin :func:`subtract_background`; le nombre de ceux-ci est retourné à côté du nombre de sorte qu'il ne peut pas être lu comme une réponse complète.",
+      "translation_source_blocks_sha256": [
+        "658604d80d6f89c37350bbd259ef45481e415786b2a0857a476381e05b7ee39e",
+        "76691fee9be013a6cb5c847f6b13f8d0826851ae6a988576e34dc838a3255411",
+        "08eedce06e41910671daf4fc7f498f03c02d9fd551c455cbc530b3869035fd50",
+        "03ad6dc9bbf39da5c031f4e3a307352affdd19a121c74b1144716d668677a9ef"
+      ]
+    },
+    "spacr.read_background.suspicious": {
+      "source_blocks_sha256": [
+        "7762e887f3ba960624928a7a1b7580ba6c113e978b3d3a76548ffa5bee2adf22",
+        "d6092ffcccad8e5ff83dc831245da7c2e897cc61c46e5031297f8839b988520c",
+        "b0556ba837394f68d7d3deda9b1f8a6e51bc7d1e29f36b038ebd3c28270e6201",
+        "5dfce0a5510af5e14d7170f47a8d9dff07ff008dc8c3afa11662d34e3637c906",
+        "cf1cea8412661092d99c75bb41e43c4044cdff7949fc677db07f507d06e6554d",
+        "dd0052f246d2f8233aeca65a18c4db9a3f94aa2234f44b53623d1b4198bb09f0"
+      ],
+      "source_sha256": "ad5dc1bd4fd1311766323f399bfdc705e0ad1c16393e7d274fa8659d1f09ee95",
+      "text": "Guides dont l'arrière-plan est différent de tous les autres guides.\n\n:param factor: combien de fois le fond médian compte comme un aberrant.\n:param everywhere: apparaissant au moins dans cette partie des positions de l'échantillon de microplaques de contrôle.\n:returns: une rangée par candidat, le pire d'abord.\n\nCe sont des CANDIDATES ET PAS UN VERDICT. Un guide abondant dans les positions d'échantillons de microplaques qu'il ne peut pas être est soit un artefact séquençage ou vraiment sur-représenté dans la bibliothèque et vraiment dans ces cellules -- et la correction est opposée dans les deux cas. Les nombres de lecture ne peuvent pas les séparer.\n\nAPPARENTISSAGE DE TOUTES LES TERRES SIGNALES, plus que le niveau. Un guide à 1 % dans chaque puits de contrôle se comporte systématiquement; un guide à 5 % dans un puits est un puits contaminé.",
+      "translation_source_blocks_sha256": [
+        "7762e887f3ba960624928a7a1b7580ba6c113e978b3d3a76548ffa5bee2adf22",
+        "d6092ffcccad8e5ff83dc831245da7c2e897cc61c46e5031297f8839b988520c",
+        "f62d0e62309a9d3610fc2a30a1243dd5866a056e2166db840cef23cdf8002fb6",
+        "5dfce0a5510af5e14d7170f47a8d9dff07ff008dc8c3afa11662d34e3637c906",
+        "ebf2f051f50215bbe6bbb463d198690109a0c269094a5ba9a48f86450f82cc99",
+        "dd0052f246d2f8233aeca65a18c4db9a3f94aa2234f44b53623d1b4198bb09f0"
+      ]
+    },
+    "spacr.read_background.unmatched_exclusions": {
+      "source_blocks_sha256": [
+        "202f6a94092af24d78bcc035c2f169c73192fc85635a645b8779a3d8f801c44b",
+        "d4960291745e5a07619e4b6bd7db14908aea49fab9a6de0738a1582134bcd431"
+      ],
+      "source_sha256": "79428506793d31795eebbacb0315679ff86a884f17d2465e5f4c942817fa5d21",
+      "text": "Inscris dans ``exclude`` ce nom rien dans cet criblage.\n\nUne EXCLUSION MISSPELLED EXCLUE LES NOTHING ET LOOKS COMME IL OEUVRE, ce qui est l'échec que cela existe à rendre visible. Chaque appelant qui filtre devrait les signaler plutôt que de procéder tranquillement.",
+      "translation_source_blocks_sha256": [
+        "202f6a94092af24d78bcc035c2f169c73192fc85635a645b8779a3d8f801c44b",
+        "d4960291745e5a07619e4b6bd7db14908aea49fab9a6de0738a1582134bcd431"
       ]
     },
     "spacr.refit": {
@@ -108941,14 +109785,22 @@
     },
     "spacr.settings_advisor.advise_that_runs": {
       "source_blocks_sha256": [
-        "edafe03f41d62bd282ce367894a019043c2981b7ca44a0931b01dc782e2183a3",
-        "301e001ac58426b7aa4b3c7e0abf945594110e889028782ff5165740d74ae85d"
+        "569a551ae816753bfc44e94e62c64098607c6fb57f7e49add0dd355828d35164",
+        "fc74830e702cf84276ac22e63bf634db5a3ee4d813cac5f1b656eee40753b968",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "e74bb426cbb1cde69691d5e647592543a034ef7b1c27422d36d287ced8a3b90a",
+        "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
+        "a291a4235a6333598d75acf75c87bd35fe2bdce845ec892b33b56babc56da843"
       ],
-      "source_sha256": "0e35d88b1c46385f8270f02a063af629eb47d7d207b76dfb330d89dd4d1e4348",
-      "text": ":func:`advise`, la proposition étant vérifiée par rapport à l'exécution.\n\nUn refus n'est pas corrigé silencieusement: le paramètre qui le provoque est MOUVÉ hors de la proposition et dans `undecided`, portant la propre phrase du code de refus. Quitter le panneau comme l'utilisateur l'avait et dire pourquoi est la réponse honnête -- changer discrètement une valeur pour faire un passe de contrôle est comment une proposition cesse de signifier n'importe quoi.",
+      "source_sha256": "a9641dfc9643b5b9883359809ca55a71ae1e4aa710765243b365249f11937d0b",
+      "text": "Construisez des conseils et retirez les choix qui échouent avant le vol.\n\nUn choix nommé par :func:`refusals` se déplace de ``chosen`` à ``undecided`` avec le message de validation. La fonction ne remplace pas silencieusement une valeur différente.\n\nParamètres\n----------\nlecture : Lecture Mesures et métadonnées décrivant le criblage. answers : dict, optional Réponses des utilisateurs aux questions que les données de l' criblage ne peuvent pas régler.\n\nRetourne\n--------\nConseil Une proposition ne contenant que des choix qui passent les vérifications avant vol.",
       "translation_source_blocks_sha256": [
-        "edafe03f41d62bd282ce367894a019043c2981b7ca44a0931b01dc782e2183a3",
-        "301e001ac58426b7aa4b3c7e0abf945594110e889028782ff5165740d74ae85d"
+        "569a551ae816753bfc44e94e62c64098607c6fb57f7e49add0dd355828d35164",
+        "fc74830e702cf84276ac22e63bf634db5a3ee4d813cac5f1b656eee40753b968",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "e74bb426cbb1cde69691d5e647592543a034ef7b1c27422d36d287ced8a3b90a",
+        "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
+        "a291a4235a6333598d75acf75c87bd35fe2bdce845ec892b33b56babc56da843"
       ]
     },
     "spacr.settings_advisor.advise_the_screen": {
@@ -109017,22 +109869,38 @@
     },
     "spacr.settings_advisor.refusals": {
       "source_blocks_sha256": [
-        "fc37ae3cc07df8811b0f1a8fe7b9b076d8931b22fc4af60bcd8db7bc18b0cd35",
-        "6ef17e23e4d9aa49f8ce922c9cb5d38632b692d9ca52d99aafc2b1d1ed49f88c",
-        "abd3089e2780f62aad6b3cd564b15ae5a90cf22fc1f751042300e808b6ef8eac",
-        "1c49d7e93da631e80c228e948131f28d668a292c0354e50ae8b38f1edbececb2",
-        "70798532a39ba5a3a74abf5e305a3bd25b69413705a787eb84bcd0f007aae16c",
-        "bb2be6a7d1a6700126e5d0309adf44227b4634086feed37b63408fa5ff00218d"
+        "052f38126d3f6df3feb3cd89a4c79d03f1638278fcd553f11fe73b3fdadd6a99",
+        "19f79e4ee63ce96a4b589486497e266cdd191ca7d6e2bee22bc43189efe80f85",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "542600c27544cdf836ca5404e674aea253928023b351a7095d510c029c78f5a4",
+        "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
+        "0fa4374da1ad5d23901db5229a7142f45866eb1de7db8b92e361997f23ff9677"
       ],
-      "source_sha256": "8d238abc8984b9658c1896fd184699000b0fa90aaa4d934adb3eef748a6f5ea3",
-      "text": "Pourquoi le RUN refuserait ``settings``, dans ses propres mots.\n\nLE CANONICALISEUR N'EST PAS LE VALIDATEUR, et cette distinction est ce qu'il s'agit de 196. `get_perform_regression_default_settings` remplit les types par défaut et les contraintes; il ne dit rien sur si la combinaison peut être ajustée. Un test a affirmé que chaque clé proposée a survécu canonicalisation, il est passé, et la course s'est toujours arrêtée\n\n    ValueError: batch_correction='combat' doit savoir quelle biologie conserver.\n\nDonc cela demande les choses qui refusent réellement, avant que l'utilisateur soit dit que la question est réglée. Chaque entrée est la phrase OWN du code de refus où il y a une -- une paraphrase dériverait de lui.\n\n:param settings: une proposition, ou tout paramétrage de valeur clé.\n:returns: une phrase par refus, vide quand la course commencerait.",
+      "source_sha256": "001e7aa7d62f8775bda66160a8e26ade7f90d2535a2897a7eaefda4cb0b8885f",
+      "text": "Raisons de retour une cartographie des paramètres de régression ne peut pas être exécutée.\n\nCette vérification couvre les combinaisons de réglages incompatibles que le remplissage par défaut et la contrainte de type ne peuvent pas résoudre. Les messages suivent le libellé de validation d'exécution afin qu'une application puisse expliquer un refus avant de commencer un ajustement.\n\nParamètres\n----------\nsettings : mapping Paramètres de régression proposés.\n\nRetourne\n--------\ntuple de str Un message actionnable par refus, ou un tuple vide lorsque les paramètres passent ces vérifications prévol.",
       "translation_source_blocks_sha256": [
-        "fc37ae3cc07df8811b0f1a8fe7b9b076d8931b22fc4af60bcd8db7bc18b0cd35",
-        "6ef17e23e4d9aa49f8ce922c9cb5d38632b692d9ca52d99aafc2b1d1ed49f88c",
-        "abd3089e2780f62aad6b3cd564b15ae5a90cf22fc1f751042300e808b6ef8eac",
-        "1c49d7e93da631e80c228e948131f28d668a292c0354e50ae8b38f1edbececb2",
-        "b4507a556f164df146ee05a7a1982709b5890828969738efbd7af68cb16d37e3",
-        "bb2be6a7d1a6700126e5d0309adf44227b4634086feed37b63408fa5ff00218d"
+        "e95d7e717c1909344111aad1730b395aeb8bf2f45f6ae34a8224fa92b1b88344",
+        "19f79e4ee63ce96a4b589486497e266cdd191ca7d6e2bee22bc43189efe80f85",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "542600c27544cdf836ca5404e674aea253928023b351a7095d510c029c78f5a4",
+        "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
+        "0fa4374da1ad5d23901db5229a7142f45866eb1de7db8b92e361997f23ff9677"
+      ]
+    },
+    "spacr.settings_advisor.requirements_for_unit": {
+      "source_blocks_sha256": [
+        "e916ca19c5c8e93b49d9afcec97c9590ca08a601d9e700b720587d9710e41624",
+        "912479767d502dd4428175876b30094f695681b405eeae38e7c3032a50fa2625",
+        "d1dd56331b34ec33b804f75be6c53fe49b1b5dfa4a34db82cfbecd729e334049",
+        "2d1de49f25eb07671bf99a4c6e07cf310727608168a75a5f4083eaabaa72853e"
+      ],
+      "source_sha256": "bb716b5ec91fb8000a776456601417b35dbf12309740eb65233aa275e402d280",
+      "text": "Paramètres qui ``analysis_unit`` force, pour qu'un panneau s'applique et se verrouille.\n\n:param unit: ``'cell'`` or ``'well'``.\n:returns: ``{setting: required value}``, vide lorsque l'unité ne limite rien.\n\nLE PANIER DOIT L'APPLIQUER ET LES FAIRE GREYER, pas simplement refuser plus tard. Une course qui découvre une combinaison impossible après trente secondes de travail a déjà coûté à l'utilisateur la chose pour laquelle la vérification était faite.",
+      "translation_source_blocks_sha256": [
+        "e916ca19c5c8e93b49d9afcec97c9590ca08a601d9e700b720587d9710e41624",
+        "912479767d502dd4428175876b30094f695681b405eeae38e7c3032a50fa2625",
+        "d1dd56331b34ec33b804f75be6c53fe49b1b5dfa4a34db82cfbecd729e334049",
+        "2d1de49f25eb07671bf99a4c6e07cf310727608168a75a5f4083eaabaa72853e"
       ]
     },
     "spacr.settings_spec": {
@@ -111325,6 +112193,200 @@
         "bb7ef8d1a57262607fcb228b959e98705d6ed41b4be54bb518d24906ba6dbb6c",
         "8533c3ecfddb3312eb7aa7d2b03da9f4a54b46c5ef11c6aea82a6cc185d1761a",
         "a7c3290316bdee44e8f2347e1323c7f1b694f07cf40a4d1cf53e4c69febec318"
+      ]
+    },
+    "spacr.sudoku": {
+      "source_blocks_sha256": [
+        "2fba26b86a2785f020a969b17ec6bab80fe507f490e869c7c7d222025ad3115d",
+        "2a38a5d2f6abc70da7626244f9d4e15d55fa3ca8dcc96a4adb915fc70cba6bb2",
+        "eb8e54e35b539407f6aeecdff161fa933b80514fed6fa6d2dc22f06ec1cc9bb3",
+        "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
+        "1bf06e0760c8ebd854674e7216e4c6bc5afdd0334fb928f8b7ae26af279f104e"
+      ],
+      "source_sha256": "5048c14b096f19eb0cc8d42a4c39799744a8cc942ea0ebfd0a11bf6708658ac9",
+      "text": "Inférer les affectations de guides au niveau des cellules sur les positions d'échantillons de microplaques.\n\nCe module combine ces contraintes de comptage avec la similarité de l'espace de mesure. Il sélectionne les cellules d'ancrage de haute confiance, propage leurs étiquettes sur un graphique k-nearest-voix, et projette le résultat sur les fractions de guidage de position d'échantillon par microplaque rapportées par séquençage.\n\nLes affectations peuvent donc emprunter des preuves pour la même perturbation dans les positions d'échantillonnage sur microplaques tout en conservant un état d'abstention explicite. La masse propagée, les preuves d'étiquette concurrente et la portée totale de l'ancre restent disponibles séparément afin que les appels ambigus ou non soutenus puissent être inspectés au lieu d'être forcés.\n\nRemarques\n---------\nLa propagation et la normalisation de la masse de classe suivent le cadre d'étiquetage-propagation décrit par Zhu et Ghahramani (2003) et Zhou et al. (2004). La mise en œuvre n'a pas de poids de modèle de graphique formé; chaque résultat peut être tracé à ses ancrages et la contrainte de séquençage.",
+      "translation_source_blocks_sha256": [
+        "e06d1253d98b10791de72041b625ca0ace7809d2bdd92b07f8c2ff842b52a66d",
+        "cd188c600fc80eb1ad6431ffe07f7ea0a6faffa7463bda9b07d86cbe7d1755cd",
+        "484d4dfdcdd09c17c9cf5486ed67b445ccfcebead855259cd32af8d073f8b124",
+        "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
+        "1bf06e0760c8ebd854674e7216e4c6bc5afdd0334fb928f8b7ae26af279f104e"
+      ]
+    },
+    "spacr.sudoku.SudokuResult": {
+      "source_blocks_sha256": [
+        "259961c60b0a260dc8d90924ad0a02c1f27daeb1d4a3f78579e3f27ecfc5d4df",
+        "b133cb63caf150909107fbdda390ce582730020f52d586f39d752a010b3b84b7",
+        "80527d2b3d77943e3caa8b9283999d0a9f9f2053c69c7b78825fbb5ef1c71bdd",
+        "125fe5ffa550f064b7e959b6c49ac86a94e7253b4c755fda02fe4f9dd96eaa33",
+        "0ba7c441293ede3a909873f64ea7273f3bd5cfc5c212cb0c94634526840f948f",
+        "aee5d6ead903cfdd1faf6431bb03a5ee306d4a7fd7ebf8a48d648e47780bd18c",
+        "8e0e840760dd542656a1e3fcdf2f7203a4d6f56c2c9d7f043cd51571a794db7b",
+        "ca6a433c0d92112bad90a52cff1cb398ed4c5bb6d02a18cb4eac2bfad2f734e6"
+      ],
+      "source_sha256": "595ce16b97d003e41144db061fba8aaddf4e1e6cad4a7ed4d5d1c763201a909c",
+      "text": "Ce que Sudoku a conclu, les deux scores étant séparés.\n\n:ivar guides: un nom par cellule, dans l'ordre où les cellules sont arrivées, ou :data:`ABSTAIN`.\n:ivar affirm: ``(n_cells, n_guides)`` -- combien chaque cellule ressemble aux ancres de chaque guide.\n:ivar eliminate: ``(n_cells, n_guides)`` -- combien il ressemble à n'importe quel ELSE. Conservé séparément sur le but: \"probably not this guide\" et \"probably this guide\" sont des revendications différentes, et une cellule peut être faible sur les deux, ce qui est la cellule qui vaut la peine d'être regardée. Un seul ratio maps qui sur la même valeur qu'une cellule qui est élevée sur les 2.\n:ivar reach: ``(n_cells,)`` -- masse totale de l'ancre qui est arrivée. Atteindre bas EST le quatrième quadrant : contrairement à chaque ancre, de n'importe quel guide.\n:ivar posterior: ``(n_cells, n_guides)`` après la contrainte de position de l'échantillon microplaqué.\n:ivar names: les noms de guide, dans l'ordre des colonnes des matrices.\n:ivar report: compte et paramètres, pour l'enregistrement.",
+      "translation_source_blocks_sha256": [
+        "259961c60b0a260dc8d90924ad0a02c1f27daeb1d4a3f78579e3f27ecfc5d4df",
+        "b133cb63caf150909107fbdda390ce582730020f52d586f39d752a010b3b84b7",
+        "80527d2b3d77943e3caa8b9283999d0a9f9f2053c69c7b78825fbb5ef1c71bdd",
+        "125fe5ffa550f064b7e959b6c49ac86a94e7253b4c755fda02fe4f9dd96eaa33",
+        "0ba7c441293ede3a909873f64ea7273f3bd5cfc5c212cb0c94634526840f948f",
+        "88c3b9b3414b7a1e7b0098e88b361962c63ddd35c46ffd58aa9da65cb164312c",
+        "8e0e840760dd542656a1e3fcdf2f7203a4d6f56c2c9d7f043cd51571a794db7b",
+        "ca6a433c0d92112bad90a52cff1cb398ed4c5bb6d02a18cb4eac2bfad2f734e6"
+      ]
+    },
+    "spacr.sudoku.SudokuResult.abstained": {
+      "source_blocks_sha256": [
+        "87264400c612be08de89b386bca21eb4782a9811321132b3698adda5140892f4"
+      ],
+      "source_sha256": "87264400c612be08de89b386bca21eb4782a9811321132b3698adda5140892f4",
+      "text": "Le masque booléen des cellules, aucun guide n'a été nommé pour.",
+      "translation_source_blocks_sha256": [
+        "87264400c612be08de89b386bca21eb4782a9811321132b3698adda5140892f4"
+      ]
+    },
+    "spacr.sudoku.SudokuResult.called": {
+      "source_blocks_sha256": [
+        "73b0b1ad75a69461624f232e6275479702f3d3929400bab6a258dad901c36226"
+      ],
+      "source_sha256": "73b0b1ad75a69461624f232e6275479702f3d3929400bab6a258dad901c36226",
+      "text": "Combien de cellules ont été annotées.",
+      "translation_source_blocks_sha256": [
+        "73b0b1ad75a69461624f232e6275479702f3d3929400bab6a258dad901c36226"
+      ]
+    },
+    "spacr.sudoku.anchors_for": {
+      "source_blocks_sha256": [
+        "7d95102aa928905030ec5ff146531d6f498bdcb85547288a97f4d286765c677d",
+        "4e74a48dde732283c8bbd6fcdc368d9c610e80f18cf2e91ba720611dd97dd427",
+        "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
+        "eb6d1129a7427ddaac6242fac73e735fe733bb3c770b45a89c0fedcec718c51d",
+        "33383acbfc2b22043321abda95fd91eab8de7cd2ce40806283ead68ecefcb8fb",
+        "6f58baeeba7bf761cddba3fc7a9d693dad9dece10a419590c02167dee6f6f3e9",
+        "87ab4bf6db33ed4b547f6f3df1f084aa38a3e9c85e5a0b1c7d2cee3a73823198",
+        "f64250843e1ee6f51bcf8a430ab51b081928e528c11d97c4532dd21f8b5d1fb2",
+        "e096de447ddbc931a4db8907de22c8f52bb4f7bde626b5be68c540a94a63c30d"
+      ],
+      "source_sha256": "d984295d47b2d4a9e29b9c4a8edd224f35ecd5021380b0428dec1e3ba74bac07",
+      "text": "Indices des cellules pris comme exemples quasi-certains de ``guide``.\n\n:param wells: une étiquette de position de l'échantillon microplaqué par cellule.\n:param fractions: ``{well: {guide: fraction}}``.\n:param scores: le score de classement par cellule.\n:param quantile: à l'intérieur d'un puits d'ancrage, le score quantile au-dessus duquel une cellule est prise.\n:param min_fraction: On n'utilise que des positions d'échantillon de microplaques où le guide est au moins cette part. LE POINT DE L'ENSEMBLE : dans une position d'échantillonnage de microplates où le Guide est 70 % des lectures, une cellule supérieure est très probablement ce guide. Dans une position de échantillon de microplanches où il est 5 %, il ne l'est probablement pas, et un ensemble d'ancrage construit à partir de telles positions de échantillon microplastes enseigne au graphique la mauvaise forme.\n:param max_per_well: un chapeau, donc un énorme puits ne peut pas définir l'apparence du guide par lui-même.\n:returns: des indices cellulaires, peut-être vides.\n\nLES ANCHEURS SONT WHERE ENTRE LA CIRCULARITÉ, et elle est entrée sciemment. Ils sont choisis par SCORE, donc un profil construit à partir du seul score dirait \"une cellule `g` a un score élevé\" -- vrai par construction et sans valeur. :func:`sudoku` exclut donc le score des caractéristiques du graphique par défaut. Le score choisit les ancres; la morphologie décide de tout le monde.",
+      "translation_source_blocks_sha256": [
+        "7d95102aa928905030ec5ff146531d6f498bdcb85547288a97f4d286765c677d",
+        "c0467ab89b7b6826cc65ed13aa61d4446f461fe4b6fafd4aa5e161c994e19a03",
+        "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
+        "eb6d1129a7427ddaac6242fac73e735fe733bb3c770b45a89c0fedcec718c51d",
+        "33383acbfc2b22043321abda95fd91eab8de7cd2ce40806283ead68ecefcb8fb",
+        "d0b92b598a796eedcf8f217ba477cf795c0eb1842bfbfa2e00a95e8d3fa4d2a7",
+        "87ab4bf6db33ed4b547f6f3df1f084aa38a3e9c85e5a0b1c7d2cee3a73823198",
+        "f64250843e1ee6f51bcf8a430ab51b081928e528c11d97c4532dd21f8b5d1fb2",
+        "e096de447ddbc931a4db8907de22c8f52bb4f7bde626b5be68c540a94a63c30d"
+      ]
+    },
+    "spacr.sudoku.constrain_to_fractions": {
+      "source_blocks_sha256": [
+        "69cfa77b758c1b77ee9e7a2c0df6b168641fcf2a719b80ca21efb22353cad00f",
+        "11bbd0d6d2dfdc5d3b3b820c1e772bac5f6ff65223fc6332475fd1aaee271433",
+        "9b5248d10e847ccf36b75c4786c0d076f262ebb081cc554d58b437fe4e1d96b0"
+      ],
+      "source_sha256": "63a9ab6f61d3025ac4ece3a7a5d16d61fec4631278a0f79c9dd341a4375de19e",
+      "text": "Projeter la masse propagée sur le séquençage des comptes implique.\n\nÀ l'intérieur de chaque position de l'échantillon de microplaques, étalonnez les colonnes de guidage de sorte que chaque somme soit ``pi_g * N_w`` et renormalisez les lignes à 1, alternativement. Il s'agit d'un ajustement proportionnel itératif -- le même point fixe :func:`spacr.guide_attribution.posterior` utilise, appliqué ici à la preuve propagée par un graphique au lieu d'une probabilité unidimensionnelle.\n\nC'EST LA CONSTRUCTION DE L'ARRÊT DE LA PUZZLE. Sans elle, le graphique donnerait volontiers à chaque cellule en position d'échantillon de microplaques la position la plus à l'ancre, car rien ne dirait qu'une position de échantillon de micro-plaques n'a qu'un grand nombre de chacune.",
+      "translation_source_blocks_sha256": [
+        "69cfa77b758c1b77ee9e7a2c0df6b168641fcf2a719b80ca21efb22353cad00f",
+        "c6a2877eb39cb08d834dbff7acb390dbce2d08b211ca3547526c7529402df6fb",
+        "6ae2c2a3c91105f4a21f4a68514c88b2f90f0452e927efb7740772818709cb18"
+      ]
+    },
+    "spacr.sudoku.propagate": {
+      "source_blocks_sha256": [
+        "f01302c3659d68814430f44a86d6ea63f6245c81a427be245cd0bd289b6bb174",
+        "131c43aa5f1971524c84de4b449a0cfc555e791f5dd32607ac2c114ee75bb029",
+        "6319fe5bd08783f67006fca86d068024fb63f9eba5576e7374388bc21eb30041",
+        "9ec0397a941a071283da5a436518c30422262310f6ea6ebaceb777f0c40bc1cd",
+        "bbde8602a2d23641b6636e3b10dbf88f032298762bfab028209c1c56b8ec9660",
+        "4400e2454821ccb3d8a34d4e7979a918acde857556cddf2ffd21eb1d6e0a0b7f",
+        "d909ec352bde5c46d8de062f46748dea069ccc8d46f8047da5481d0328bb39f6"
+      ],
+      "source_sha256": "04f5f0f1013cd02510e61235f82d29f1e7e908255f4b26a1ed1d0a2cb5e33b18",
+      "text": "Répartir la masse d'ancrage le long du graphique.\n\n:param graph: l'affinité de :func:`similarity_graph`.\n:param seeds: ``(n_cells, n_guides)``, non-zéro sur les lignes d'ancrage seulement.\n:param alpha: combien une cellule écoute ses voisins contre sa propre graine. 0.9 est la valeur habituelle; à 1.0 les graines sont oubliées et la réponse est le premier eigenvector du graphique, qui ne dit rien sur les guides.\n:returns: ``(n_cells, n_guides)`` masse multipliée, non normalisée.\n\nL'itération locale et globale de Zhou et al., ``F <- a S F + (1-a) Y`` avec ``S = D^-1/2 W D^-1/2``. Elle converge vers ``(1-a)(I - aS)^-1 Y`` et est exécutée comme une itération plutôt qu'une solution parce que la matrice est clairsemée et que le point fixe est atteint en dizaines d'étapes.\n\nLA MASSE EST RETRAITE NON NORMALISÉE et c'est délibéré. La normalisation des lignes ici transformerait une cellule qui n'a presque rien reçu -- une cellule différente de chaque ancre de chaque guide -- en une rangée pleine de confiance en un seul. Cette cellule est la plus intéressante, et :func:`sudoku` la trouve en regardant le TOTAL de la ligne avant que tout ne soit normalisé.",
+      "translation_source_blocks_sha256": [
+        "f01302c3659d68814430f44a86d6ea63f6245c81a427be245cd0bd289b6bb174",
+        "131c43aa5f1971524c84de4b449a0cfc555e791f5dd32607ac2c114ee75bb029",
+        "6319fe5bd08783f67006fca86d068024fb63f9eba5576e7374388bc21eb30041",
+        "9ec0397a941a071283da5a436518c30422262310f6ea6ebaceb777f0c40bc1cd",
+        "bbde8602a2d23641b6636e3b10dbf88f032298762bfab028209c1c56b8ec9660",
+        "4400e2454821ccb3d8a34d4e7979a918acde857556cddf2ffd21eb1d6e0a0b7f",
+        "d909ec352bde5c46d8de062f46748dea069ccc8d46f8047da5481d0328bb39f6"
+      ]
+    },
+    "spacr.sudoku.similarity_graph": {
+      "source_blocks_sha256": [
+        "c9871a550ffd5d21ea05091e57f74828c59fc9b2f6c745898c57468fe3c4c4b4",
+        "ba3bb25058b7e01078e1f18c0897e076359041e9b2df27603f6937a63319a65c",
+        "cf4cdd0174f724805681f17b68510a5d342eea4c43a621935a9539622433015f",
+        "cbd75f91a86f44ace476fa41a7558bd0285c1bb5f3433e3ce6f94729b4c91ef7",
+        "29ebd8819b449b41120ade352b913de2e7fae5e1115f86b0d9099bd92890b474",
+        "411e5b5577d51c97d922269d13384e35843ad0675d795083073ffa61751af267"
+      ],
+      "source_sha256": "fc07a926a49d4cfec0cee8b5f3f6a52eeaf2eb4f5e05b5bbf27a22e2ce0270ac",
+      "text": "Une affinité symétrique k-nearest-voix sur les cellules.\n\n:param features: ``(n_cells, n_features)``, normalisé ici.\n:param neighbours: k.\n:param mutual: Un graphique simple kNN donne des bords k aberrants qu'il n'a pas gagné -- il doit avoir SOME voisins les plus proches -- et la masse d'étiquettes s'écoule alors dans des cellules qui ne ressemblent à rien. Mutuelle kNN permet à un aberration de finir sans bords du tout, qui est la réponse honnête et est ce que :attr:`SudokuResult.reach` rapports.\n:returns: une faible affinité RSE avec une diagonale zéro.\n\nLes poids sont le noyau thermique avec une échelle AUTO-TUNING : la distance de chaque cellule à son voisin kth. Une sigma globale suppose que le nuage a une densité, et les cellules d'un criblage ne le font pas -- une population dense en bonne santé à côté d'une mourante clairsemée n'a pas de bords dans la région clairsemé ou une densité sur-connectée.",
+      "translation_source_blocks_sha256": [
+        "c9871a550ffd5d21ea05091e57f74828c59fc9b2f6c745898c57468fe3c4c4b4",
+        "ba3bb25058b7e01078e1f18c0897e076359041e9b2df27603f6937a63319a65c",
+        "cf4cdd0174f724805681f17b68510a5d342eea4c43a621935a9539622433015f",
+        "cbd75f91a86f44ace476fa41a7558bd0285c1bb5f3433e3ce6f94729b4c91ef7",
+        "29ebd8819b449b41120ade352b913de2e7fae5e1115f86b0d9099bd92890b474",
+        "411e5b5577d51c97d922269d13384e35843ad0675d795083073ffa61751af267"
+      ]
+    },
+    "spacr.sudoku.sudoku": {
+      "source_blocks_sha256": [
+        "9565fd87072a18706ea83f75aded36f448874f0ae4e09578fabd5644e0382455",
+        "d1c68c2d44b7928ca72b5af71fd02b75f04415dec889b7093db3ce7092a8e09c",
+        "b8fb34ca7ab0762b881ef5a04536f195f13adc8f3365036ebd82f0d98c53df65",
+        "4e74a48dde732283c8bbd6fcdc368d9c610e80f18cf2e91ba720611dd97dd427",
+        "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
+        "67fdbb17464bcd148b97766fc52d68279c5ea952e263a0dc4b764e975a40e688",
+        "e5db01064629bc5c506f3ec56ead6109b227163fbd50841b5040227a6931e21e",
+        "9a0786d984efff1e26f0d5cb79497ad18d00d935127f3bd61951fa6cee3436f7",
+        "bb448ce3b066fb995254a78bb5161513381d0ffdadf22dbc87beb40d854672c6",
+        "2485395b525b7e370cd9e86447ae6fb393d3b5b02913fb4c7a6968b17fbde259",
+        "96b5593df006be77dbbee1e739b980b29f87747f42bac4c77656006a4a0f86e2"
+      ],
+      "source_sha256": "71817567844b193e55ca0d5f126229e61aa03c81c48f6dceff82e4961cab7c60",
+      "text": "Annoter chaque cellule, à travers les positions de l'échantillon de microplaques, avec deux scores gardés à l'écart.\n\n:param features: ``(n_cells, n_features)`` mesures de cellules.\n:param scores: la cote de classification par cellule -- utilisée pour les ancres CHOOSE, et par défaut non utilisée comme fonction graphique.\n:param wells: une étiquette de position de l'échantillon microplaqué par cellule.\n:param fractions: ``{well: {guide: fraction}}``.\n:param guides: les guides à annoter. Le choix de l'utilisateur, et plusieurs est le point: \"l'utilisateur peut choisir plusieurs guides de notation élevée\".\n:param anchors: indices d'ancrage explicites facultatifs par guide, dépassant :func:`anchors_for`.\n:param use_score_as_feature: mettre le score de classification dans le graphique aussi bien. **Off par défaut et c'est une décision correcte, pas une préférence**: les ancres sont choisies par score, donc un graphique construit sur le score placerait chaque cellule à forte teneur près des ancrages de chaque guide et les affirmerait tous.\n:returns: le :class:`SudokuResult`.\n\nLES QUATRE RÉSULTATS, c'est pourquoi deux points sont portés plutôt qu'un :\n\n  affirmez haut, éliminez bas -- en toute confiance ce guide affirme bas, élimine haut -- en tout cas ce guide n'affirme pas haut, supprime haut -- les guides ne se séparent pas ici affirment bas, suppriment bas -- contrairement à chaque ancre : la cellule impair, et l'un un seul rapport se cache en la cartographiant à la même valeur que la ligne ci-dessus.",
+      "translation_source_blocks_sha256": [
+        "bb271fc5c5e8510d634b277435e17dc4dfc1742c142df9e42f38229b6e76c0b1",
+        "d1c68c2d44b7928ca72b5af71fd02b75f04415dec889b7093db3ce7092a8e09c",
+        "b8fb34ca7ab0762b881ef5a04536f195f13adc8f3365036ebd82f0d98c53df65",
+        "c0467ab89b7b6826cc65ed13aa61d4446f461fe4b6fafd4aa5e161c994e19a03",
+        "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
+        "67fdbb17464bcd148b97766fc52d68279c5ea952e263a0dc4b764e975a40e688",
+        "e5db01064629bc5c506f3ec56ead6109b227163fbd50841b5040227a6931e21e",
+        "9a0786d984efff1e26f0d5cb79497ad18d00d935127f3bd61951fa6cee3436f7",
+        "bb448ce3b066fb995254a78bb5161513381d0ffdadf22dbc87beb40d854672c6",
+        "2485395b525b7e370cd9e86447ae6fb393d3b5b02913fb4c7a6968b17fbde259",
+        "96b5593df006be77dbbee1e739b980b29f87747f42bac4c77656006a4a0f86e2"
+      ]
+    },
+    "spacr.sudoku.sudoku_all": {
+      "source_blocks_sha256": [
+        "810b655532d874a39399f11e67931d6211b319c107a7e6a6ef40e16fcd08a0ff",
+        "29ac08550b61f9b96e7fffd9817b6110583b059d63522cc50a50d13f28de4bdb",
+        "4d44af735702647f73491a4c8640a43ded90d040e176d8b772d91d9091191e8e",
+        "b9bac12fe498fa8e45c54ec7f754958812619f307e6742622428f682e99d42ed",
+        "3eadcaaf70d7abe0f4dabae2a1bf2a702b67597e7eec44da6682a174c9434634",
+        "06aba2aa8422f8b4869545c3b55f2cad954365e459ba71af351290dc947967a2"
+      ],
+      "source_sha256": "79d15de126efcfa2e121b6c2ee25189b91c6b4f4822eb780836545c70a042034",
+      "text": "Sudoku sur chaque guide, en ordre de confiance, prétendant comme il va.\n\n:param ranking: ``[(guide, confidence)]`` dans l'ordre décroissant de traitement. L'appelant définit la confiance, par exemple en combinant la taille de l'effet et la signification statistique.\n:param max_guides: un arrêt, de sorte qu'un criblage avec 1 500 guides ne fonctionne pas 1 500 graphes construit par accident.\n:returns: un :class:`SudokuResult` sur toutes les cellules.\n\nChaque tour tourne :func:`sudoku` pour un guide sur les cellules encore non réclamées, garde les cellules qu'il décide, et les enlève. Il s'arrête quand un tour ne prétend rien -- qui est le flip de la pièce, atteint plutôt que compté.\n\nL'ORDRE EST LE RISQUE, et le rapport porte ce qui est nécessaire pour le juger: `claimed_by_round`. Une méthode cupide commet tôt, les erreurs du premier guide sont héritées par chaque plus tard, et les cellules qu'il faut ne sont jamais reconsidérées. Un appelant qui veut savoir combien cela importe tourne cela deux fois avec l'ordre perturbé et compare -- ce qui fait :mod:`spacr.annotation_validation`.",
+      "translation_source_blocks_sha256": [
+        "810b655532d874a39399f11e67931d6211b319c107a7e6a6ef40e16fcd08a0ff",
+        "29ac08550b61f9b96e7fffd9817b6110583b059d63522cc50a50d13f28de4bdb",
+        "4d44af735702647f73491a4c8640a43ded90d040e176d8b772d91d9091191e8e",
+        "b9bac12fe498fa8e45c54ec7f754958812619f307e6742622428f682e99d42ed",
+        "3eadcaaf70d7abe0f4dabae2a1bf2a702b67597e7eec44da6682a174c9434634",
+        "06aba2aa8422f8b4869545c3b55f2cad954365e459ba71af351290dc947967a2"
       ]
     },
     "spacr.surrogate": {
