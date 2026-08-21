@@ -1946,6 +1946,39 @@ ISSUE_PROMPT_MODES = (ISSUE_PROMPT_ASK, ISSUE_PROMPT_NEVER,
 _KEY_ISSUE_PROMPT = "ai/issue_prompt"
 
 
+#: Whether the AI assistant is on when spaCR opens (221).
+#:
+#: OFF BY DEFAULT, and that is the default rather than the preference. An
+#: assistant that is on before anybody asked for it sends what it is looking
+#: at somewhere, and the first run is exactly when the user has not yet
+#: decided whether that is acceptable. The setup screen asks; until it is
+#: answered the answer is no.
+#:
+#: A stored value that is not recognised reads as OFF for the same reason a
+#: bad `issue_prompt` reads as 'ask': the failure has to fall on the quiet
+#: side.
+_KEY_AI_DEFAULT_ON = "ai/on_by_default"
+
+
+def get_ai_on_by_default() -> bool:
+    """Is the assistant on when spaCR opens?
+
+    :returns: False unless the user has said otherwise.
+    """
+    raw = _settings().value(_KEY_AI_DEFAULT_ON, False)
+    if isinstance(raw, bool):
+        return raw
+    return str(raw).strip().lower() in ("1", "true", "yes", "on")
+
+
+def set_ai_on_by_default(enabled: bool) -> None:
+    """Persist whether the assistant starts enabled.
+
+    :param enabled: True to have it on at launch.
+    """
+    _settings().setValue(_KEY_AI_DEFAULT_ON, bool(enabled))
+
+
 def get_issue_prompt_mode() -> str:
     """How to behave when a report could be filed.
 
