@@ -66,6 +66,31 @@ class RefitDialog(QDialog):
         self._type.currentIndexChanged.connect(self._refresh)
         form.addRow("Regression", self._type)
 
+        # LEVEL, BECAUSE IT IS WHAT TURNS A BLUP INTO AN ESTIMATE. A mixed
+        # fit makes the guide a RANDOM effect, so its guide rows are shrunken
+        # predictions with no p value and the guide volcano has nothing to
+        # draw. The question that follows -- "how do I get a p value per
+        # guide" -- is answered by re-fitting at guide level with a
+        # fixed-effect model, and until now the dialog could change the model
+        # but not the level, so the answer was out of reach from the panel
+        # where the question arises.
+        from ...settings import REGRESSION_LEVELS
+
+        self._level = QComboBox()
+        self._level.addItem("as before", None)
+        _LEVEL_LABELS = {
+            "both": "both — guides and genes",
+            "grna": "gRNA — one coefficient per guide",
+            "gene": "gene — one coefficient per gene",
+        }
+        for name in REGRESSION_LEVELS:
+            self._level.addItem(_LEVEL_LABELS.get(name, name), name)
+        current_level = str(self._settings.get("level", "both") or "both")
+        index = self._level.findData(current_level)
+        self._level.setCurrentIndex(index if index >= 0 else 0)
+        self._level.currentIndexChanged.connect(self._refresh)
+        form.addRow("Level", self._level)
+
         self._correction = QComboBox()
         self._correction.addItem("as before", None)
         for name, spec in METHODS.items():
@@ -121,7 +146,7 @@ class RefitDialog(QDialog):
     # ------------------------------------------------------------------ state
 
     def chosen(self) -> dict:
-        """``{regression_type, correction_method, alpha}`` as picked.
+        """``{regression_type, correction_method, level, alpha}`` as picked.
 
         ``None`` for anything left at "as before", which is what
         :func:`spacr.refit.refit_settings` reads as "leave it alone".
@@ -135,6 +160,7 @@ class RefitDialog(QDialog):
         return {"regression_type": regression_type,
                 "correction_method": self._correction.currentData(),
                 "fdr_alpha": self._fdr_alpha.value(),
+                "level": self._level.currentData(),
                 "alpha": alpha}
 
     def settings(self):

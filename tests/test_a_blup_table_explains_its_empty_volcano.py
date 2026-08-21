@@ -112,3 +112,99 @@ class TestThePanelExplainsIt:
     def test_a_frame_without_the_column_is_left_alone(self, panel):
         panel._say_if_no_p_values(_blups().drop(columns=["p_value"]))
         assert panel._said == []
+
+
+class TestTheRefitCanReachAFixedEffectGuideFit:
+    """The answer to the empty guide volcano has to be reachable from it.
+
+    A mixed fit makes the guide a RANDOM effect, so its guide rows are
+    shrunken predictions with no p value. The question that follows is "how
+    do I get a p value per guide", and the answer is a fixed-effect fit at
+    guide level -- which the re-fit dialog could not express, because it
+    changed the model but not the LEVEL.
+    """
+
+    @staticmethod
+    def _base():
+        return {"count_data": ["counts.csv"], "level": "both",
+                "regression_type": "mixed"}
+
+    def test_the_level_can_be_changed(self):
+        from spacr.refit import refit_settings
+
+        settings, notes = refit_settings(self._base(), level="grna",
+                                         regression_type="ols")
+        assert settings["level"] == "grna"
+        assert settings["regression_type"] == "ols"
+        assert any("level" in note for note in notes)
+
+    def test_an_unchanged_level_is_not_reported_as_a_change(self):
+        from spacr.refit import refit_settings
+
+        _settings, notes = refit_settings(self._base(), level="both")
+        assert not any("level" in note for note in notes)
+
+    def test_an_unknown_level_is_refused_while_the_dialog_is_open(self):
+        from spacr.refit import refit_settings
+
+        with pytest.raises(ValueError, match="level="):
+            refit_settings(self._base(), level="guides")
+
+    def test_guide_level_mixed_is_told_it_still_has_no_p_values(self):
+        """The trap: asking for level='grna' does NOT turn a mixed fit's
+        BLUPs into estimates, because 'mixed' makes the guide a random
+        effect at every level. Without this note the re-fit returns the same
+        empty volcano under a new folder name."""
+        from spacr.refit import refit_settings
+
+        _settings, notes = refit_settings(self._base(), level="grna")
+        said = " ".join(notes)
+        assert "BLUP" in said
+        assert "fixed-effect" in said or "nonparametric" in said
+
+    def test_a_fixed_effect_guide_fit_gets_no_such_warning(self):
+        from spacr.refit import refit_settings
+
+        _settings, notes = refit_settings(self._base(), level="grna",
+                                          regression_type="ols")
+        assert not any("BLUP" in note for note in notes)
+
+
+@pytest.mark.qt
+class TestTheDialogOffersIt:
+
+    def test_the_level_control_exists_and_lists_every_level(self, qtbot):
+        pytest.importorskip("PySide6")
+        from spacr.qt.widgets.refit_dialog import RefitDialog
+        from spacr.settings import REGRESSION_LEVELS
+
+        dialog = RefitDialog({"count_data": ["c.csv"], "level": "both",
+                              "regression_type": "mixed"})
+        qtbot.addWidget(dialog)
+
+        offered = {dialog._level.itemData(i)
+                   for i in range(dialog._level.count())}
+        assert offered == {None, *REGRESSION_LEVELS}
+
+    def test_it_opens_on_the_level_the_run_used(self, qtbot):
+        pytest.importorskip("PySide6")
+        from spacr.qt.widgets.refit_dialog import RefitDialog
+
+        dialog = RefitDialog({"count_data": ["c.csv"], "level": "gene",
+                              "regression_type": "ols"})
+        qtbot.addWidget(dialog)
+        assert dialog._level.currentData() == "gene"
+
+    def test_choosing_a_level_reaches_the_settings(self, qtbot):
+        pytest.importorskip("PySide6")
+        from spacr.qt.widgets.refit_dialog import RefitDialog
+
+        dialog = RefitDialog({"count_data": ["c.csv"], "level": "both",
+                              "regression_type": "mixed"})
+        qtbot.addWidget(dialog)
+        dialog._level.setCurrentIndex(dialog._level.findData("grna"))
+        dialog._type.setCurrentIndex(dialog._type.findData("ols"))
+
+        settings, _notes = dialog.settings()
+        assert settings["level"] == "grna"
+        assert settings["regression_type"] == "ols"
