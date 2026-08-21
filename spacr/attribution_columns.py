@@ -94,7 +94,7 @@ def write(db_path: str, rows: Iterable[Mapping], *,
     if not records:
         return {"matched": 0, "added": 0}
 
-    with sqlite3.connect(str(db_path)) as connection:
+    with sqlite3.connect(str(db_path), timeout=30.0) as connection:
         cursor = connection.cursor()
         tables = {row[0] for row in cursor.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")}
