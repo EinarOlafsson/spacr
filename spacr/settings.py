@@ -1979,7 +1979,27 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('positive_control','239740')
     settings.setdefault('negative_control','233460')
     settings.setdefault('min_n',0)
-    settings.setdefault('controls',['000000_1','000000_10','000000_11','000000_12','000000_13','000000_14','000000_15','000000_16','000000_17','000000_18','000000_19','000000_20','000000_21','000000_22','000000_23','000000_24','000000_25','000000_26','000000_27','000000_28','000000_29','000000_3','000000_30','000000_31','000000_32','000000_4','000000_5','000000_6','000000_8','000000_9'])
+    # THE GENE, NOT THIRTY OF ITS GUIDES (195). Asked for 2026-08-21:
+    # "default for controlls in regression should be 000000".
+    #
+    # This was a hand-typed list of thirty `000000_*` names, and it showed
+    # what it was: `000000_2` and `000000_7` are absent, not because those
+    # guides do not exist but because the screen somebody read them off did
+    # not have them. A library with a thirty-first non-cutting guide lost it
+    # silently, and one whose guides keep an organism prefix matched none of
+    # the thirty at all.
+    #
+    # `spacr.control_names` resolves a GENE to every guide assigned to it,
+    # measured from the library in hand, in any of the four spellings a
+    # library writes (184). The old list still loads -- `resolve_controls`
+    # takes a mixture of genes and guides -- so a settings CSV written
+    # before this reproduces.
+    #
+    # NOT `negative_control`, which stays '233460'. The two are different
+    # things: 233460 is a real gene knocked out and expected to show
+    # nothing; 000000 binds without cutting and is the empirical null every
+    # threshold is measured against.
+    settings.setdefault('controls', ['000000'])
     # 0.02 BY DEFAULT, at the maintainer's direction 2026-08-19. None meant
     # "work one out", which ran `graph_sequencing_stats` on every default run
     # -- the path that produced the KeyError fixed this morning -- and made
@@ -3841,7 +3861,7 @@ tooltips = {
     # --- Descriptions filled in for settings that previously had no tooltip ---
     "annotation_column": "(str) - Integer column of the png_list table holding manual class calls. The Annotate app adds it with ALTER TABLE if missing and writes labels into it. It is the ground truth when dataset_mode is 'annotation', and the fallback when annotation_columns is unset. Setting it while leaving dataset_mode unset also SELECTS annotation mode, which is how an old settings file keeps working. Default None.",
     'cmap': "(str) - Matplotlib colormap applied to single-channel image previews and to plate heatmaps. Perceptually uniform maps ('viridis', 'inferno', 'magma') keep intensity differences honest; 'gray' matches how the raw microscope data looks. Any registered matplotlib name works, with an '_r' suffix to reverse it. Default 'inferno' for image plots, 'viridis' for plate heatmaps.",
-    'controls': "(list) - gRNA identifiers treated as non-targeting controls. Their coefficients define the effect-size cutoff drawn on the volcano plot: abs(median(control coefficients)) + threshold_multiplier × spread, where threshold_method selects the spread estimator. A wider control distribution raises the cutoff. None disables the effect-size cutoff. Default the built-in list of 30 non-targeting IDs, '000000_1' to '000000_32' (without _2 and _7).",
+    'controls': "(list) - gRNA identifiers treated as non-targeting controls. Their coefficients define the effect-size cutoff drawn on the volcano plot: abs(median(control coefficients)) + threshold_multiplier × spread, where threshold_method selects the spread estimator. A wider control distribution raises the cutoff. None disables the effect-size cutoff. Default ['000000'] -- the non-cutting control GENE, which spaCR resolves to every one of its guides in the library you loaded, rather than a hand-typed list that goes stale. A guide id works too, and so does either spelling with or without the organism prefix.",
     "correlate": "(bool) - Intended to add pairwise correlations between selected measurements to the analysis output, but nothing reads settings['correlate']. Channel/activation correlations are controlled by the separate 'correlation' setting in the activation-map path. Kept only so old settings CSVs still load. No default is set: no set_default_* function fills this key, so it is absent unless an old settings CSV supplies it.",
     'count_data': "(str or list) - CSV(s) of per-well gRNA read counts from the sequencing step (unique_combinations.csv); each must contain grna, count, rowID and columnID columns or the run raises ValueError. These are the regression's independent variable. Pass one path per plate, position-aligned with plates_count; results are written under the first file's folder. Default 'list of paths', a placeholder that must be replaced; the barcode QC module defaults this key to 'path to unique_combinations.csv'.",
     'cov_type': "(str) - Heteroscedasticity-robust covariance estimator passed to the likelihood fits: 'HC0', 'HC1', 'HC2' or 'HC3', or None for classical non-robust errors. It changes standard errors and p-values only, never the coefficients; reach for 'HC3' when residual variance grows with well cell count. The penalised, robust and quantile fits have no such estimator and refuse it rather than quietly reporting ordinary errors under a robust label. Default None.",
