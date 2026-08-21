@@ -1,0 +1,99 @@
+================================================================================
+THE UMAP SAYS WHETHER THE ANNOTATION WORKED
+================================================================================
+
+Status:    filed 2026-08-21. Engine BUILT; the tab is not.
+Requested: 2026-08-21 -- "generate a umap, perform a hyperparamiter search
+           find stucture that separates the positive and negative controlls
+           and see where the annotated cells land, do they cluster with PC or
+           NC ... this would be a quality controll and a proof of sorts that
+           the annotation is working provided that the cells with a positive
+           effect size cluster with the positive controll and the cells that
+           do not have a positive coeffisient (or equivelent) do not cluster
+           with the positive controll and cluster with the negative controll.
+           this would be implemented as yet another tab and would draw
+           heavily from the image UMAP module."
+Owner:     Qt GUI (new tab), annotation
+
+--------------------------------------------------------------------------------
+WHY IT IS WORTH DOING
+--------------------------------------------------------------------------------
+
+IT IS INDEPENDENT OF THE ANNOTATION. The annotation is made from sequencing
+fractions plus a phenotype call. This asks a different question of a
+different space -- where does the cell sit among the controls, using every
+measurement at once -- and the controls supply a frame of reference that owes
+nothing to the annotation. Agreement between two such different routes is
+worth more than either alone.
+
+--------------------------------------------------------------------------------
+WHAT MAKES IT A TEST RATHER THAN A PICTURE
+--------------------------------------------------------------------------------
+
+Three things, and without them it will agree with whatever it is shown.
+`spacr/annotation_umap_qc.py` implements all three.
+
+  1. THE HYPERPARAMETERS ARE NOT CHOSEN ON THE CELLS BEING JUDGED. Searching
+     until PC and NC separate is FITTING THE PROJECTION TO THE LABELS, and
+     with enough measurements some setting always separates two groups.
+     `fit_on_controls` splits the control wells, tunes on one half and
+     reports the separation achieved on the OTHER. The held-out number is
+     the only one worth reading, and the gap between the two says whether
+     the search found biology or found the split.
+
+  2. THE READOUT IS A NUMBER. `neighbour_purity` gives the share of a cell's
+     nearest CONTROL neighbours that are positive controls. A UMAP's cluster
+     sizes and the distances between them are artefacts of the layout; who
+     is near whom is all it preserves, so a statistic built on anything else
+     reads the projection rather than the data.
+
+  3. THERE IS A NULL. Cells land somewhere whatever the annotation says.
+     `effect_agreement` asks whether purity tracks the guides' effect signs
+     and compares that to the same statistic with the effects SHUFFLED
+     BETWEEN GUIDES -- which preserves the number of guides, the cells per
+     guide and the purity distribution, and destroys only the
+     correspondence being claimed.
+
+--------------------------------------------------------------------------------
+THE TRAP IT CANNOT ESCAPE, WHICH DECIDES WHAT MAY BE JUDGED
+--------------------------------------------------------------------------------
+
+A METHOD THAT PICKS CELLS BY THE PHENOTYPE SCORE WILL PRODUCE CELLS NEAR THE
+POSITIVE CONTROLS WHATEVER ELSE IS TRUE -- that is what it selected for.
+`rank` takes the top-scoring cells in the well, so its cells clustering with
+PC is a restatement of how it chose them.
+
+The check is informative exactly for methods whose cell choice did not use
+the score: `sudoku` with the score out of the graph, `assigned`, and
+`attributed` where the effect comes from the regression. `circularity_
+warning` refuses to be quiet about it, and the tab must show that warning
+where it applies rather than drawing the plot as though it meant the same
+thing.
+
+--------------------------------------------------------------------------------
+WHAT THE TAB HAS TO DO
+--------------------------------------------------------------------------------
+
+Draws on `generate_image_umap`, `hyperparam.umap_objective_scores` and
+`umap_search` -- the search, the scoring and the recipes already exist and
+must not be reimplemented.
+
+  * pick the annotation method and the run;
+  * embed the annotated cells together with the control cells;
+  * tune on half the controls, report the held-out separation, and REFUSE
+    to draw conclusions when it is poor;
+  * colour by purity, and show the per-guide table beside the plot;
+  * state the correlation, its permutation p-value, and the two group means;
+  * show the circularity warning where it applies.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* The tab reports a held-out separation, not only a tuned one, and says so
+  when the two disagree.
+* Purity is measured off neighbours, never off cluster membership.
+* The verdict carries a permutation p-value.
+* A score-picked method shows the circularity warning.
+* On a run where the annotation is known to be good the correlation is
+  positive and significant; with the effects shuffled it is not.
