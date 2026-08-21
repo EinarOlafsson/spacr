@@ -568,8 +568,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     #    3  spacr.classify_classes
     #    6  spacr.qt.widgets.training_monitor
     # Nothing retired; these contracts enter the regenerated API catalogs.
-    # +2/-0 for ``ConsolePanel.jump_to_the_end`` and ``at_the_end``, which
-    # expose the new tail-following control without requiring widget internals.
+    # +2/-0 for reaching the end of a console (instruction 232):
+    # ``ConsolePanel.jump_to_the_end`` and ``ConsolePanel.at_the_end``, which
+    # expose the tail-following control without requiring widget internals.
     # Nothing retired; these contracts enter the regenerated API catalogs.
     expected = 8107
     actual = len(docs) - len(builder.API_DOC_ALIASES)
