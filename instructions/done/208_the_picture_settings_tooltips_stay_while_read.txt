@@ -2,7 +2,7 @@
 THE PICTURE SETTINGS TOOLTIPS STAY WHILE THEY ARE BEING READ
 ================================================================================
 
-Status:    filed 2026-08-21, HOVER RULE DONE 2026-08-21. The API help is not.
+Status:    filed 2026-08-21, DONE 2026-08-21.
 Requested: 2026-08-21 -- "the tooltipps for the settings in picture settings
            dissapear when the the mouse is hovering over the tooltip text. the
            tooltip should appera when hovering over the setting title text and
@@ -115,3 +115,35 @@ including one that forces `underMouse()` to lie and asserts nothing changes.
 
 STILL OPEN: section B of this file -- whether the API help ARRIVES -- and
 section C, what the annotation help must say.
+
+--------------------------------------------------------------------------------
+B AND C, DONE
+--------------------------------------------------------------------------------
+
+B. THE API HELP DOES ARRIVE, measured rather than assumed: all 25 labels in
+the picture settings dialog carry rich help, none empty and none
+suspiciously short. The report "i dont think the api is working for these
+tooltips" was the HOVER fault above -- the help was there and the popup
+vanished while it was being read, which is indistinguishable from no help.
+
+C. EACH ANNOTATION METHOD EXPLAINS ITSELF, on its own dropdown entry.
+`picture_settings.PICKING_HELP` answers the same five questions for every
+method -- what it is given, what it computes, which cells end up annotated,
+which do NOT and why, and the one assumption that makes it wrong.
+
+PER-ENTRY, BECAUSE ONE TOOLTIP CANNOT HOLD FIVE METHODS. The shape test
+holds a setting's help to 600 characters and one honest paragraph per method
+already exceeds that. The entry is also where the choice is made, which is
+where the explanation belongs.
+
+ONE SOURCE, so the dropdown and any written explanation cannot drift. A
+method that decides what every downstream number means must not have two
+descriptions.
+
+The tests check the five questions are answered for every mode, that no mode
+is undocumented and nothing is documented that cannot be chosen, and spot the
+answers against what the code does -- `assigned` annotates everything and
+says so, `rank` computes no probability and says so, `multivariate` falls
+back loudly, `sudoku` names the circularity it avoids.
+
+Tests: `tests/test_each_annotation_method_explains_itself.py`, 34 passing.
