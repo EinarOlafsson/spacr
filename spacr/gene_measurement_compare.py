@@ -12,6 +12,11 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
+# THE HOUSE STYLE (136). `figures.style` imports matplotlib
+# only inside its own functions, so naming it here costs
+# nothing at import time.
+from .figures.style import figure_style, theme_target
+
 #: Supported observation levels and the meaning of one result-table row.
 LEVELS: Tuple[Tuple[str, str], ...] = (
     ("cell", "one row per cell — the most rows and the fewest independent "
@@ -33,6 +38,153 @@ PLOTS: Tuple[Tuple[str, str], ...] = (
 
 #: Label assigned to observations that do not belong to a named gene group.
 REST = "the rest"
+
+#: The three contrasts one set of annotated cells can be held against, and
+#: what each one REMOVES (187 B). They answer different questions and the
+#: difference is not a matter of taste:
+#:
+#: * within the well, the two sides were seeded, treated, stained and imaged
+#:   together, so every plate and well effect cancels. It is also the only
+#:   one the well-level fraction can never make, and the contrast
+#:   instruction 173's validation used.
+#: * against controls asks the screen's actual question -- does this gene
+#:   move the measurement away from where an untargeted well sits -- and
+#:   removes nothing, so a plate effect can still reach the answer.
+#: * against every other well is the widest and the most exposed: the two
+#:   sides share no well at all.
+#:
+#: ``('', ...)`` is the historical behaviour and stays the default so that
+#: every existing caller keeps the comparison it already had.
+CONTRASTS: Tuple[Tuple[str, str, str], ...] = (
+    ("", "everything else",
+     "the annotated cells against every other cell loaded, wherever it is. "
+     "Removes nothing, and mixes wells, controls and plates into one "
+     "comparison group."),
+    ("within_well", "within the well",
+     "the annotated cells against the rest of the SAME well. Removes plate "
+     "and well batch entirely: both sides were seeded, treated, stained and "
+     "imaged together."),
+    ("against_controls", "against the controls",
+     "the annotated cells against the cells in the CONTROL wells. Removes "
+     "nothing by itself -- it asks whether the gene moves the measurement "
+     "away from where an untargeted well sits. The controls have to be "
+     "named."),
+    ("against_other_wells", "against every other well",
+     "the annotated cells against every cell in every OTHER well. The widest "
+     "comparison and the most exposed to well batch, because the two sides "
+     "share no well."),
+)
+
+#: Column names that identify one well, in preference order. ``prc`` is the
+#: joined plate/row/column key `process_reads` writes; the three columns are
+#: what an object table straight out of a database carries.
+WELL_KEY_COLUMNS: Tuple[str, ...] = ("plateID", "rowID", "columnID")
+
+
+def contrast_note(contrast: str) -> str:
+    """Return what ``contrast`` removes, in words.
+
+    The instruction is explicit that a contrast has to say this -- "the three
+    contrasts are selectable and each names what it removes" -- because the
+    three produce different p-values from the same cells and a reader who
+    cannot see which one was made cannot tell whether a plate effect is in
+    the answer.
+
+    :param contrast: a value from :data:`CONTRASTS`. An unknown value
+        returns an empty string rather than raising, so a comparison built
+        from an old saved run is still drawn.
+    """
+    for value, _label, why in CONTRASTS:
+        if value == str(contrast or ""):
+            return why
+    return ""
+
+
+def well_labels(objects: "pd.DataFrame") -> Optional["pd.Series"]:
+    """Return one well name per object row, or ``None`` when unavailable.
+
+    Prefers ``montage_well``, which :func:`spacr.cell_montage.select_montage`
+    has already written and which therefore agrees with the well names the
+    montage's own captions use. Falls back to ``prc`` and then to the three
+    key columns joined the same way.
+
+    ``None`` -- not an exception and not a column of empty strings -- because
+    "these rows do not say which well they came from" is a fact a caller has
+    to be able to report, and both other spellings quietly turn every row
+    into the same well.
+    """
+    columns = getattr(objects, "columns", ())
+    for single in ("montage_well", "prc"):
+        if single in columns:
+            return objects[single].astype(str)
+    if all(c in columns for c in WELL_KEY_COLUMNS):
+        parts = [objects[c].astype(str) for c in WELL_KEY_COLUMNS]
+        joined = parts[0]
+        for part in parts[1:]:
+            joined = joined + "_" + part
+        return joined
+    return None
+
+
+def wells_of(objects: "pd.DataFrame",
+             groups: Dict[str, Sequence[Any]]) -> Dict[str, Tuple[str, ...]]:
+    """Return ``{group name: the wells its annotated cells came from}``.
+
+    What the well chooser offers. "i whould be able to choose which wells to
+    include from the gene annotation" needs the list first, and it is read
+    off the annotated rows rather than off the count data so that a well the
+    montage drew nothing from is not offered as includable.
+    """
+    wells = well_labels(objects)
+    if wells is None:
+        return {}
+    out: Dict[str, Tuple[str, ...]] = {}
+    for name, members in (groups or {}).items():
+        picked = objects.index.isin(list(members))
+        if not picked.any():
+            continue
+        seen = wells[picked].astype(str)
+        out[str(name)] = tuple(dict.fromkeys(seen.tolist()))
+    return out
+
+
+def control_wells(counts: "pd.DataFrame", typed, *,
+                  guide_column: str = "grna",
+                  gene_column: str = "gene") -> Tuple[str, ...]:
+    """Return the wells the named controls occupy, in the count data.
+
+    :param counts: the per-well count table -- one row per well and guide.
+    :param typed: whatever the user typed in the control field. Resolved
+        through :mod:`spacr.control_names`, so a gene, a guide, a prefixed
+        name and a bare one all work (184) and this module does not grow a
+        fifth opinion about what a control name looks like.
+    :param guide_column: the guide column on ``counts``.
+    :param gene_column: the gene column, when it has one.
+    :returns: the well names, in the same spelling :func:`well_labels`
+        produces, so they can be compared with the object rows' wells
+        directly. Empty when nothing matched -- the CALLER says so, because
+        only the caller knows whether the user asked for controls at all.
+    """
+    from .control_names import resolve_controls, rows_for
+
+    wells = well_labels(counts)
+    if wells is None or guide_column not in getattr(counts, "columns", ()):
+        return ()
+    guides = counts[guide_column]
+    genes = counts[gene_column] if gene_column in counts.columns else None
+    names = [str(g) for g in pd.Series(guides).astype(str).unique()]
+    # ONE NAME IS A NAME, NOT FOUR LETTERS. `resolve_controls` iterates its
+    # argument, so a bare string arrives as a sequence of characters and
+    # every one of them resolves to nothing. The control field hands over a
+    # list; a caller with one control in hand should not have to know that.
+    wanted = [typed] if isinstance(typed, str) else list(typed or ())
+    found: List[str] = []
+    for spec in resolve_controls(wanted, names=names) or ():
+        mask, _said = rows_for(spec.typed, guides, genes, names=names)
+        picked = np.asarray(mask, dtype=bool)
+        if picked.any():
+            found.extend(wells[picked].astype(str).tolist())
+    return tuple(dict.fromkeys(found))
 
 #: Arithmetic operators for combining two measurements. The expression, such
 #: as ``pathogen_area / cell_area``, becomes the result's display name.
@@ -131,7 +283,10 @@ def build(objects: pd.DataFrame, measurement: str, *,
           level: str = "well",
           value_column: Optional[str] = None,
           operator: str = "",
-          second: str = "") -> Comparison:
+          second: str = "",
+          contrast: str = "",
+          wells: Optional[Sequence[str]] = None,
+          controls: Optional[Sequence[str]] = None) -> Comparison:
     """Build the long-form table used for plotting and statistical testing.
 
     :param objects: per-object rows containing the requested measurements.
@@ -146,6 +301,18 @@ def build(objects: pd.DataFrame, measurement: str, *,
     :param value_column: source column to read instead of ``measurement``.
     :param operator: optional arithmetic operator from :data:`OPERATORS`.
     :param second: second measurement column used with ``operator``.
+    :param contrast: which comparison group to build, from :data:`CONTRASTS`.
+        The default ``''`` keeps every unannotated row, wherever it came
+        from. The other three restrict it to the same well, to the control
+        wells, or to every other well; each is recorded in
+        :attr:`Comparison.note` together with what it removes.
+    :param wells: the wells of the annotation to INCLUDE. ``None`` includes
+        all of them. A well left out is dropped from BOTH sides -- it is not
+        promoted into the comparison group, because a well excluded for
+        being bad is no more usable as a comparison than as an annotation.
+    :param controls: the wells the controls occupy, for the
+        ``'against_controls'`` contrast. :func:`control_wells` resolves them
+        from the count data.
     :returns: comparison data and any explanation of rows that could not be
         used. Missing measurement or identity columns produce an empty
         comparison with the reason in :attr:`Comparison.note`.
@@ -175,6 +342,69 @@ def build(objects: pd.DataFrame, measurement: str, *,
         picked = objects.index.isin(list(members))
         labels[picked] = str(name)
 
+    # ------------------------------------------------------- the contrast
+    # WHICH ROWS ARE "the rest" IS THE QUESTION (187 B). The same annotated
+    # cells against the rest of their own well, against the controls, and
+    # against every other well are three different experiments, and the
+    # default -- everything else, wherever it is -- is the one that mixes
+    # all three together.
+    contrast = str(contrast or "")
+    chosen_note = ""
+    keep = pd.Series(True, index=objects.index)
+    if contrast or wells is not None:
+        where = well_labels(objects)
+        if where is None:
+            return Comparison(
+                measurement=measurement, level=level,
+                frame=pd.DataFrame(columns=["group", "value"]),
+                note=("these object rows do not say which well they came "
+                      "from: none of 'montage_well', 'prc' or "
+                      f"{list(WELL_KEY_COLUMNS)} is on them, so a well-based "
+                      "contrast cannot be built"))
+        annotated = labels.astype(str) != REST
+        theirs = set(where[annotated].astype(str))
+
+        # THE CHOSEN WELLS FIRST, because every contrast below is defined
+        # against the annotation that is actually being used.
+        if wells is not None:
+            wanted = {str(w) for w in wells}
+            left_out = theirs - wanted
+            keep &= ~(annotated & ~where.astype(str).isin(wanted))
+            annotated = annotated & where.astype(str).isin(wanted)
+            if left_out:
+                chosen_note = (
+                    f"{len(left_out)} annotated well(s) left out: "
+                    f"{', '.join(sorted(left_out))}")
+
+        rest = ~annotated
+        if contrast == "within_well":
+            mine = set(where[annotated].astype(str))
+            keep &= annotated | (rest & where.astype(str).isin(mine))
+        elif contrast == "against_other_wells":
+            # `theirs`, NOT `mine`: a well excluded from the annotation is
+            # excluded, full stop. Letting it back in as "another well"
+            # would put the very rows the user threw out on the other side
+            # of the comparison.
+            keep &= annotated | (rest & ~where.astype(str).isin(theirs))
+        elif contrast == "against_controls":
+            named = {str(w) for w in (controls or ())}
+            if not named:
+                return Comparison(
+                    measurement=measurement, level=level,
+                    frame=pd.DataFrame(columns=["group", "value"]),
+                    note=("a comparison against the controls needs the "
+                          "controls named: no control well was resolved, so "
+                          "there is nothing on the other side"))
+            keep &= annotated | (rest & where.astype(str).isin(named))
+        elif contrast:
+            raise ValueError(
+                f"{contrast!r} is not one of "
+                f"{', '.join(repr(c) for c, _l, _w in CONTRASTS)}")
+
+    if not bool(keep.all()):
+        labels = labels[keep]
+        values = values[keep]
+
     work = pd.DataFrame({"group": labels, "value": values})
     keys = [c for c in _unit_columns(level) if c in objects.columns]
     if level != "cell" and not keys:
@@ -185,7 +415,11 @@ def build(objects: pd.DataFrame, measurement: str, *,
                   f"{', '.join(_unit_columns(level))} on the object rows, "
                   f"and they are not there"))
     for key in keys:
-        work[key] = objects[key].astype(str)
+        # `.loc[work.index]` because the contrast may have dropped rows:
+        # assigning the FULL column onto a shorter frame aligns on the index
+        # and leaves NaN wherever the two disagree, which then joins every
+        # such row into one well named "nan".
+        work[key] = objects[key].astype(str).loc[work.index]
     work = work.dropna(subset=["value"])
 
     # NOTHING LEFT IS AN ANSWER, NOT A CRASH. Every other empty case in this
@@ -212,12 +446,23 @@ def build(objects: pd.DataFrame, measurement: str, *,
                 .mean())
 
     note = ""
+    # THE CONTRAST IS NAMED FIRST, ahead of every other caveat, because it
+    # decides what the p-value below is a p-value ABOUT. A number from
+    # "within the well" and a number from "against every other well" are not
+    # comparable, and nothing else on the panel distinguishes them.
+    said = contrast_note(contrast) if contrast else ""
+    if said:
+        label = next((l for c, l, _w in CONTRASTS if c == contrast), contrast)
+        note = f"{label}: {said}"
+    if chosen_note:
+        note = ((note + " · ") if note else "") + chosen_note
     if dropped:
         # SAID, ALWAYS. A comparison quietly computed on fewer rows than the
         # user thinks is the kind of result that survives review and is
         # wrong.
-        note = (f"{dropped:,} row(s) left out: the denominator was zero or "
-                f"missing, which has no value rather than an extreme one")
+        note = ((note + " · ") if note else "") + (
+            f"{dropped:,} row(s) left out: the denominator was zero or "
+            f"missing, which has no value rather than an extreme one")
     if level == "cell":
         units = int(work["unit"].nunique())
         note = ((note + " · ") if note else "") + (
@@ -347,83 +592,88 @@ def plot(comparison: Comparison, path: Optional[str] = None, *,
     colours = [HOUSE.GREY if g == REST else highlight[i % len(highlight)]
                for i, g in enumerate(order)]
 
-    figure, axes = plt.subplots(figsize=(1.5 + 1.15 * len(order), 3.6))
-    positions = np.arange(len(order))
-    rng = np.random.default_rng(0)
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        figure, axes = plt.subplots(figsize=(1.5 + 1.15 * len(order), 3.6))
+        positions = np.arange(len(order))
+        rng = np.random.default_rng(0)
 
-    if kind in ("box", "jitter_box"):
-        drawn = axes.boxplot(series, positions=positions, widths=0.55,
-                             patch_artist=True, showfliers=False,
-                             medianprops={"color": HOUSE.GREY_DARK,
-                                          "linewidth": HOUSE.DATA})
-        for patch, colour in zip(drawn["boxes"], colours):
-            patch.set_facecolor(colour)
-            patch.set_alpha(0.25 if kind == "jitter_box" else 0.8)
-            patch.set_edgecolor(colour)
-            patch.set_linewidth(HOUSE.SPINE)
-        for part in ("whiskers", "caps"):
-            for line in drawn[part]:
-                line.set_color(HOUSE.GREY_DARK)
-                line.set_linewidth(HOUSE.SPINE)
-    if kind == "violin":
-        alive = [(i, s) for i, s in enumerate(series) if len(s) > 1]
-        if alive:
-            drawn = axes.violinplot([s for _i, s in alive],
-                                    positions=[i for i, _s in alive],
-                                    widths=0.7, showextrema=False)
-            for body, (i, _s) in zip(drawn["bodies"], alive):
-                body.set_facecolor(colours[i])
-                body.set_alpha(0.55)
-                body.set_edgecolor("none")
-    if kind == "bar":
-        means = [float(np.mean(s)) if len(s) else np.nan for s in series]
-        errors = [float(np.std(s, ddof=1)) if len(s) > 1 else 0.0
-                  for s in series]
-        axes.bar(positions, means, yerr=errors, width=0.6, color=colours,
-                 linewidth=0, error_kw={"ecolor": HOUSE.GREY_DARK,
-                                        "elinewidth": HOUSE.SPINE,
-                                        "capsize": 2.5})
-    if kind in ("jitter", "jitter_box"):
-        for i, (values, colour) in enumerate(zip(series, colours)):
-            if not len(values):
-                continue
-            spread = rng.uniform(-0.14, 0.14, len(values))
-            axes.scatter(np.full(len(values), i) + spread, values, s=9,
-                         color=colour, edgecolor="none", zorder=3,
-                         rasterized=len(values) > 2000)
+        if kind in ("box", "jitter_box"):
+            drawn = axes.boxplot(series, positions=positions, widths=0.55,
+                                 patch_artist=True, showfliers=False,
+                                 medianprops={"color": HOUSE.GREY_DARK,
+                                              "linewidth": HOUSE.DATA})
+            for patch, colour in zip(drawn["boxes"], colours):
+                patch.set_facecolor(colour)
+                patch.set_alpha(0.25 if kind == "jitter_box" else 0.8)
+                patch.set_edgecolor(colour)
+                patch.set_linewidth(HOUSE.SPINE)
+            for part in ("whiskers", "caps"):
+                for line in drawn[part]:
+                    line.set_color(HOUSE.GREY_DARK)
+                    line.set_linewidth(HOUSE.SPINE)
+        if kind == "violin":
+            alive = [(i, s) for i, s in enumerate(series) if len(s) > 1]
+            if alive:
+                drawn = axes.violinplot([s for _i, s in alive],
+                                        positions=[i for i, _s in alive],
+                                        widths=0.7, showextrema=False)
+                for body, (i, _s) in zip(drawn["bodies"], alive):
+                    body.set_facecolor(colours[i])
+                    body.set_alpha(0.55)
+                    body.set_edgecolor("none")
+        if kind == "bar":
+            means = [float(np.mean(s)) if len(s) else np.nan for s in series]
+            errors = [float(np.std(s, ddof=1)) if len(s) > 1 else 0.0
+                      for s in series]
+            axes.bar(positions, means, yerr=errors, width=0.6, color=colours,
+                     linewidth=0, error_kw={"ecolor": HOUSE.GREY_DARK,
+                                            "elinewidth": HOUSE.SPINE,
+                                            "capsize": 2.5})
+        if kind in ("jitter", "jitter_box"):
+            for i, (values, colour) in enumerate(zip(series, colours)):
+                if not len(values):
+                    continue
+                spread = rng.uniform(-0.14, 0.14, len(values))
+                axes.scatter(np.full(len(values), i) + spread, values, s=9,
+                             color=colour, edgecolor="none", zorder=3,
+                             rasterized=len(values) > 2000)
 
-    axes.set_xticks(positions)
-    axes.set_xticklabels(
-        [f"{g}\n(n={len(s)})" for g, s in zip(order, series)],
-        fontsize=HOUSE.TICK)
-    axes.set_ylabel(str(comparison.measurement))
-    axes.set_xlabel("")
+        axes.set_xticks(positions)
+        axes.set_xticklabels(
+            [f"{g}\n(n={len(s)})" for g, s in zip(order, series)],
+            fontsize=HOUSE.TICK)
+        axes.set_ylabel(str(comparison.measurement))
+        axes.set_xlabel("")
 
-    smallest = min((len(s) for s in series if len(s)), default=0)
-    if kind == "bar" and 0 < smallest <= 8:
-        # Preserve the requested bar plot but identify when the sample is so
-        # small that showing individual observations would be more informative.
-        axes.text(0.02, 0.98,
-                  f"n = {smallest} in the smallest group: individual points "
-                  f"say more than a bar here",
-                  transform=axes.transAxes, fontsize=HOUSE.NOTE,
-                  color=HOUSE.RUST, va="top")
+        smallest = min((len(s) for s in series if len(s)), default=0)
+        if kind == "bar" and 0 < smallest <= 8:
+            # Preserve the requested bar plot but identify when the sample is so
+            # small that showing individual observations would be more informative.
+            axes.text(0.02, 0.98,
+                      f"n = {smallest} in the smallest group: individual points "
+                      f"say more than a bar here",
+                      transform=axes.transAxes, fontsize=HOUSE.NOTE,
+                      color=HOUSE.RUST, va="top")
 
-    stat = (comparison.statistics or [{}])[0]
-    name = str(stat.get("Test Name", "") or "")
-    p_value = stat.get("p-value")
-    caption = f"{comparison.level} level"
-    if name:
-        caption += f" · {name}"
-    if isinstance(p_value, float) and np.isfinite(p_value):
-        caption += f" · p = {p_value:.3g}"
-    axes.set_title(title or caption, fontsize=HOUSE.LABEL)
+        stat = (comparison.statistics or [{}])[0]
+        name = str(stat.get("Test Name", "") or "")
+        p_value = stat.get("p-value")
+        caption = f"{comparison.level} level"
+        if name:
+            caption += f" · {name}"
+        if isinstance(p_value, float) and np.isfinite(p_value):
+            caption += f" · p = {p_value:.3g}"
+        axes.set_title(title or caption, fontsize=HOUSE.LABEL)
 
-    _readable(figure, axes)
-    figure.tight_layout()
-    if path:
-        figure.savefig(path, dpi=200, bbox_inches="tight")
-    return figure
+        _readable(figure, axes)
+        figure.tight_layout()
+        if path:
+            figure.savefig(path, dpi=200, bbox_inches="tight")
+        return figure
 
 
 # --------------------------------------------------------------------------- #
@@ -531,3 +781,147 @@ def _plain(value):
     if isinstance(value, dict):
         return {str(k): _plain(v) for k, v in value.items()}
     return str(value)
+
+
+# ---------------------------------------------------------------------------
+# 187 A: every measurement in the database, not only the ones on png_list
+# ---------------------------------------------------------------------------
+
+#: Columns an object's integer label can arrive under, in the order
+#: :func:`object_identity` reads them. The same order
+#: :data:`spacr.cell_montage._LABEL_COLUMNS` uses, because a row that the
+#: crop source identified one way and this module identified another way is
+#: two objects as far as the join is concerned.
+LABEL_COLUMNS: Tuple[str, ...] = (
+    "object_label", "label", "cell_id", "nucleus_id", "pathogen_id",
+    "cytoplasm_id")
+
+
+def object_identity(frame: "pd.DataFrame") -> Optional["pd.Series"]:
+    """Return one identity per object row, or ``None``.
+
+    ``prcfo`` -- plate, row, column, field, object -- is spaCR's name for one
+    object, and :func:`spacr.io._read_and_join_tables` writes it. The montage
+    frame comes out of ``png_list``, which carries the parts but not always
+    the whole, so it is composed here from whichever spelling is present.
+    """
+    columns = getattr(frame, "columns", ())
+    if "prcfo" in columns:
+        return frame["prcfo"].astype(str)
+    label = next((c for c in LABEL_COLUMNS if c in columns), "")
+    if not label:
+        return None
+    if "prcf" in columns:
+        head = frame["prcf"].astype(str)
+    elif "prc" in columns and "fieldID" in columns:
+        head = frame["prc"].astype(str) + "_" + frame["fieldID"].astype(str)
+    else:
+        return None
+    return head + "_" + frame[label].astype(str)
+
+
+def measurements_are_joined(objects: "pd.DataFrame") -> bool:
+    """Whether the object rows already carry the measurement tables.
+
+    Read off the DATA rather than remembered as a flag: the panel is handed
+    a frame and has to be able to say what is in it, and a flag that says
+    "joined" over rows that are not is worse than no flag.
+    """
+    columns = {str(c) for c in getattr(objects, "columns", ())}
+    return any(c.startswith(("cell_", "nucleus_", "pathogen_", "cytoplasm_"))
+               and c not in ("cell_id", "nucleus_id", "pathogen_id",
+                             "cytoplasm_id")
+               for c in columns)
+
+
+def join_measurements(objects: "pd.DataFrame",
+                      databases: Sequence[str],
+                      *, keep_uninfected: bool = True
+                      ) -> Tuple["pd.DataFrame", str]:
+    """Widen the montage's object rows with every measurement in the database.
+
+    THE JOIN IS THE PRECONDITION, and 187 A says to offer it rather than to
+    quietly offer a shorter list of measurements: ``png_list`` holds the crop
+    paths and the classification score, and every morphological measurement
+    -- cell, nucleus, pathogen, cytoplasm -- lives in the object tables
+    beside it.
+
+    :param objects: the montage's object rows. Returned WIDENED, with the
+        index untouched, because the caller's group membership is expressed
+        as index values into this exact frame and a reindexed copy would
+        silently re-annotate the wrong cells.
+    :param databases: the ``measurements.db`` files behind those rows.
+    :param keep_uninfected: passed through to the reader. A cell with no
+        pathogen is usually the control population, so the default keeps it.
+    :returns: ``(frame, note)``. ``note`` is empty on a clean join and
+        otherwise says what could not be read or matched -- never an
+        exception, because a panel that cannot widen still has to draw the
+        measurements it already had.
+    """
+    from .io import _read_and_join_tables
+
+    mine = object_identity(objects)
+    if mine is None:
+        return objects, ("these object rows carry no object identity "
+                         "(prcfo, or prcf and an object label), so the "
+                         "measurement tables cannot be joined onto them")
+
+    frames, troubles = [], []
+    for path in databases or ():
+        try:
+            wide = _read_and_join_tables(
+                str(path), keep_uninfected=keep_uninfected,
+                require_crops=False)
+        except Exception as exc:                             # noqa: BLE001
+            troubles.append(f"{path}: {exc}")
+            continue
+        if wide is None or not len(wide):
+            continue
+        theirs = object_identity(wide)
+        if theirs is None:
+            troubles.append(f"{path}: the joined tables name no object")
+            continue
+        frames.append(wide.assign(_prcfo=theirs.values))
+    if not frames:
+        said = "no measurement table could be read"
+        return objects, f"{said}: {'; '.join(troubles)}" if troubles else said
+
+    wide = pd.concat(frames, ignore_index=True) if len(frames) > 1 \
+        else frames[0]
+    wide = wide.drop_duplicates(subset=["_prcfo"], keep="first")
+    # ONLY WHAT IS NEW. A column present on both sides is already the value
+    # the montage selected on, and replacing it here would move the cells
+    # under the user's feet.
+    have = set(map(str, objects.columns))
+    fresh = [c for c in wide.columns
+             if str(c) not in have and str(c) != "_prcfo"
+             and pd.api.types.is_numeric_dtype(wide[c])]
+    if not fresh:
+        return objects, ("the measurement tables add no column these rows "
+                         "do not already have")
+
+    lookup = wide.set_index("_prcfo")[fresh]
+    lookup = lookup[~lookup.index.duplicated(keep="first")]
+    added = lookup.reindex(mine.values)
+
+    # ASSIGNED BY POSITION, not joined. `_all_objects` concatenates one frame
+    # per plan, so the index can repeat -- and a join on a repeated label is
+    # a cartesian product of the matching rows on both sides, which turns
+    # 20,000 cells into 40,000 and every count on the panel with it.
+    out = objects.copy()
+    for column in fresh:
+        out[column] = added[column].to_numpy()
+
+    matched = int(added[fresh[0]].notna().sum())
+    note = ""
+    if matched < len(objects):
+        # SAID, ALWAYS -- the same rule the dropped denominators follow. A
+        # measurement that is missing on a third of the cells produces a
+        # comparison on a third fewer cells, and the panel has to be able to
+        # say so rather than quietly shrinking.
+        note = (f"{len(objects) - matched:,} of {len(objects):,} object "
+                f"row(s) found no match in the measurement tables and carry "
+                f"no joined measurement")
+    if troubles:
+        note = ((note + " · ") if note else "") + "; ".join(troubles)
+    return out, note
