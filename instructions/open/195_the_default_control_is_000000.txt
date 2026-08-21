@@ -1,0 +1,67 @@
+================================================================================
+THE DEFAULT CONTROL IN REGRESSION IS 000000
+================================================================================
+
+Status:    filed 2026-08-21, not started.
+Requested: 2026-08-21 -- "default for controlls in regression should be
+           000000"
+Owner:     regression settings
+
+--------------------------------------------------------------------------------
+WHAT IT IS TODAY
+--------------------------------------------------------------------------------
+
+    negative_control    '233460'
+    positive_control    '239740'
+
+`233460` is a REAL GENE in the maintainer's own library, and it is not the
+non-targeting set. A default that names a targeting gene as the negative
+control is worse than an empty one: an empty field asks a question, and this
+one gives a confident wrong answer that every downstream baseline, volcano
+threshold and effect-size cut is then measured from.
+
+`000000` is spaCR's own spelling for the non-targeting controls -- it is what
+`process_reads` writes and what `control_names` resolves in all four
+spellings (184). It is the answer for this screen and the sensible default
+for a screen that has not said otherwise.
+
+--------------------------------------------------------------------------------
+WHAT TO CHANGE, AND WHAT NOT TO
+--------------------------------------------------------------------------------
+
+`negative_control` becomes `'000000'`.
+
+THE POSITIVE CONTROL IS A DIFFERENT QUESTION and this ask does not cover it.
+A positive control is screen-specific by nature -- there is no library-wide
+convention for "the gene that should move" the way there is for "the guides
+that target nothing" -- so leaving `239740` is defensible and changing it is
+not something to do quietly alongside this.
+
+Say which was decided, in the file, either way.
+
+A DEFAULT THAT CHANGES MOVES PUBLISHED NUMBERS. Any run that took the old
+default and did not override it measured its effects from gene 233460. That
+is worth a release note, and it is worth saying in the console the first time
+the new default is used rather than only in a changelog nobody opens.
+
+--------------------------------------------------------------------------------
+AND `control_wells` IS NOT THIS
+--------------------------------------------------------------------------------
+
+`control_wells` defaults to `['c1', 'c2', 'c3']` -- column positions, not
+gene names. It answers "which WELLS hold controls" and is read by the plate
+layout, while `negative_control` answers "which GUIDES are non-targeting".
+Two different vocabularies for two different questions; this instruction
+touches only the second.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* A fresh regression panel shows `000000` in the negative control field.
+* `control_names.rows_for` resolves that default against the reference
+  screen and finds the 28 non-targeting guides -- the number 184 measured.
+* The settings advisor (192) proposes it when the user names no control,
+  rather than leaving it undecided, because now there IS a defensible
+  default.
+* Whatever was decided about `positive_control` is written down here.

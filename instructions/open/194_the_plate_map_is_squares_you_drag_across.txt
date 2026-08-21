@@ -1,0 +1,84 @@
+================================================================================
+THE PLATE MAP IS SQUARES YOU DRAG ACROSS, AND IT DOES NOT DRIFT
+================================================================================
+
+Status:    filed 2026-08-21, not started.
+Requested: 2026-08-21 -- "the plate map should be made up of squares that are
+           clickable nad the user should be able to drag and select. and the
+           elements should be fixed to each other now if i change the size of
+           the window the elements drift appart"
+Owner:     Qt GUI (PlateMapPicker, 185)
+
+--------------------------------------------------------------------------------
+A. SQUARES, AND A DRAG SELECTS A BLOCK
+--------------------------------------------------------------------------------
+
+The wells are already `setFixedSize(18, 18)` checkable buttons, so they are
+square and they are clickable. WHAT IS MISSING IS THE DRAG.
+
+`select_region(start, end, choosing=None)` exists and is tested -- 185 built
+it as a method precisely so a test could select a rectangle without a human
+-- and NOTHING CALLS IT FROM THE MOUSE. The rectangle a user would expect
+from press-move-release is implemented and unreachable, which is the same
+shape of fault as 185's own button being unreachable.
+
+WHAT THE GESTURE HAS TO DO:
+
+    press on a well        starts a selection, anchored there
+    move                   previews the rectangle from the anchor to the
+                           well under the pointer -- SHOWN while dragging,
+                           because a selection you cannot see until you let
+                           go is one you have to undo to correct
+    release                commits it
+    the modifier           press alone REPLACES the selection; with Ctrl it
+                           ADDS to it, which is what every other grid in
+                           this application does
+
+AND THE ANCHOR IS A WELL, NOT A PIXEL. A drag that starts on the gap between
+two wells should anchor on the nearer one rather than doing nothing.
+
+--------------------------------------------------------------------------------
+B. THE GRID IS FIXED TO ITSELF                                    [REPORTED]
+--------------------------------------------------------------------------------
+
+    "the elements should be fixed to each other now if i change the size of
+     the window the elements drift appart"
+
+The wells have a fixed SIZE but the layout that holds them does not have a
+fixed SHAPE: resize the window and the grid's spacing grows with it, so the
+squares separate and the plate stops reading as a plate. A 96-well map is a
+picture of a physical object, and the whole point of the picture is that its
+proportions are the object's.
+
+THE GRID KEEPS ITS OWN SIZE AND IS CENTRED IN WHATEVER IT IS GIVEN. The
+column and row stretch belong to the space AROUND the map, not between the
+wells: `QGridLayout.setSpacing` fixed, every column and row stretch 0, and
+the whole map in a container that takes the slack.
+
+A LARGER WINDOW MAY MAKE THE WELLS LARGER -- that is a different and
+legitimate answer -- but if it does, every well grows by the same amount and
+the gaps stay proportional. What must not happen is the gaps growing while
+the squares do not.
+
+--------------------------------------------------------------------------------
+C. THE ROW AND COLUMN HEADERS TRAVEL WITH IT
+--------------------------------------------------------------------------------
+
+Whatever B settles, the A/B/C row letters and the 1..24 column numbers are
+part of the grid and move with it. A header that drifts away from the column
+it labels is worse than no header, because it is still readable and now
+wrong.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Press, move and release across a rectangle of wells selects exactly that
+  rectangle, and the preview is visible during the drag.
+* Ctrl-drag adds a second rectangle; a plain drag replaces the first.
+* The value written back is the same one `select_region` produces, so the
+  mouse and the API cannot disagree.
+* Resizing the window by 400 px moves no well relative to any other well:
+  the pixel distance between two adjacent wells is identical before and
+  after, and a test measures it rather than a person looking at it.
+* The headers stay aligned with their rows and columns at every size.

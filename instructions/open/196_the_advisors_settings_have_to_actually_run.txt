@@ -1,0 +1,112 @@
+================================================================================
+THE ADVISOR'S SETTINGS HAVE TO ACTUALLY RUN
+================================================================================
+
+Status:    filed 2026-08-21, not started. A DEFECT IN 192, reported by the
+           maintainer the day it shipped.
+Requested: 2026-08-21 -- "is i run settings for my data i get settings but
+           when i run i get: [ValueError: batch_correction='combat' needs to
+           know which biology to keep]"
+Owner:     settings advisor (192) + regression
+
+--------------------------------------------------------------------------------
+WHAT HAPPENED
+--------------------------------------------------------------------------------
+
+Press "Settings for my data…", accept the proposal, press Run:
+
+    10 setting(s) written from the data.
+    -> Model: beta, level both, backend statsmodels (CPU).
+    THE REGRESSION FAILED.
+    ValueError: batch_correction='combat' needs to know which biology to
+    keep.
+
+192 SHIPPED A BUTTON WHOSE OUTPUT DOES NOT RUN. That is worse than the
+button not existing: the whole promise of the proposal screen is "these are
+the settings for your data", and a user who accepts it has been told the
+question is settled.
+
+WHY IT PROPOSED IT. The advisor sees four plates and proposes
+`batch_correction='combat'` -- correct as far as it goes, because plate IS a
+batch here. What it does not know is that ComBat REFUSES to run without a
+covariate, deliberately: it estimates the plate effect from whatever the
+design does not explain, so any biology missing from the design is removed as
+if it were noise, silently, and the run looks cleaner for it.
+`spacr.batch_correction.NO_COVARIATE` exists precisely so the caller has to
+answer that question rather than have it answered for them.
+
+So the advisor answered half a question. It named a method and left the
+argument that method cannot run without.
+
+--------------------------------------------------------------------------------
+A. THE ADVISOR PROPOSES A COVARIATE WITH THE METHOD, OR PROPOSES NEITHER
+--------------------------------------------------------------------------------
+
+`batch_correction` and its covariate are ONE decision, exactly as
+`regression_type`, `transform` and `glm_transform_conflict` are one decision
+(182, and 192 already treats those three together). Whichever way it goes,
+both are written or neither is:
+
+  * the screen HAS a condition/treatment column   -> propose it as the
+    covariate, and say which column and why;
+  * it does not, and every well is the same       -> propose
+    `NO_COVARIATE` and SAY SO IN THOSE WORDS: "there is no treatment column
+    in these tables, so nothing is being protected from the correction";
+  * it cannot tell                                -> propose
+    `batch_correction='none'` and list the covariate as UNDECIDED, which is
+    the machinery 192 already has for exactly this.
+
+THE THIRD BRANCH IS THE DEFAULT WHEN IN DOUBT. A screen that runs without
+batch correction is weaker and honest; one corrected against an unstated
+covariate can have had its treatment effect removed with the plate effect.
+
+--------------------------------------------------------------------------------
+B. AND NO PROPOSAL SHIPS THAT THE RUN WOULD REFUSE
+--------------------------------------------------------------------------------
+
+The specific bug is one setting. The general one is that 192's proposal was
+checked against `get_perform_regression_default_settings` -- which
+canonicalises -- and NOT against the run, which validates. A test asserted
+every proposed key survives canonicalisation, and it passed, and the run
+still refused.
+
+THE PROPOSAL IS DRY-RUN AGAINST THE VALIDATOR THE RUN USES. Whatever
+`perform_regression` checks before it fits -- the family/transform conflict,
+the batch covariate, the level against the library, the estimator settings a
+type refuses -- the advisor runs the same check and either fixes the
+proposal or lists the setting as undecided with the validator's own sentence.
+
+A PROPOSAL THAT CANNOT RUN IS NOT A PROPOSAL, and the only way to know is to
+ask the thing that would refuse it.
+
+--------------------------------------------------------------------------------
+C. THE SECOND SIGNAL IN THAT SAME LOG
+--------------------------------------------------------------------------------
+
+    The count files hold 1380 distinct gRNAs in 642551 rows. no 'prc',
+    'plate_row' or 'rowID'/'columnID' column, so wells were not counted
+
+The example screen's count tables spell their keys `row_name` / `column_name`
+-- which is why 145 converted this reader -- and this line still says no well
+key was found. Either the line is reading the frame BEFORE canonicalisation,
+or one more reader on this path is still raw. It is the same class as the
+four 145 found, and "wells were not counted" is exactly the silent wrong
+number that instruction exists to stop.
+
+Check it against the example screen, which is the fixture this was reported
+on and which every developer can now download.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Press the button on the example screen, accept, press Run: the regression
+  RUNS.
+* Whatever the advisor proposes for `batch_correction`, the covariate is
+  proposed with it or the method is not proposed at all.
+* A test drives that whole path -- read, advise, apply, validate -- on the
+  example screen, so "the proposal runs" is asserted rather than hoped.
+* The advisor's own reason for the covariate names the column it found, or
+  says there is none.
+* The well-count line reports 1,536 wells for the example screen, or says
+  precisely what it could not read.
