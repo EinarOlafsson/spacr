@@ -260,9 +260,18 @@ def test_all_explainers_disabled_returns_an_empty_output_dict(tmp_path,
 
 
 def test_legacy_row_and_column_aliases_drive_the_merge(tmp_path, monkeypatch):
-    """A scores CSV with row/row_name (and column/column_name) instead of
-    rowID/columnID still joins: the later alias wins, so only 'row_name' can
-    make the merge succeed."""
+    """A scores CSV spelling its keys `row_name` / `column_name` still joins.
+
+    THE ALIASES ARE RESOLVED AT THE READ NOW (145). This module used to read
+    the CSV raw and let a LATER alias overwrite an earlier one, which is a
+    rule nobody can see from the file: a column called `row` holding
+    something else was silently discarded in favour of `row_name`, or kept,
+    depending on the order pandas happened to hand them over.
+
+    `tabular.read_table` canonicalises instead, so `row_name` arrives as
+    `rowID` and the merge lines up on a name every other reader in spaCR
+    uses.
+    """
     from spacr.submodules import interperate_vision_model
 
     df, g, _sig = _measurement_frame(24, seed=2)
@@ -274,9 +283,7 @@ def test_legacy_row_and_column_aliases_drive_the_merge(tmp_path, monkeypatch):
     src = tmp_path / "plateB"
     src.mkdir()
     scores = _write_scores(tmp_path / "scores_b.csv", g, labels, extra={
-        "row": ["WRONG"] * len(g),
         "row_name": [x[1] for x in g],
-        "column": ["WRONG"] * len(g),
         "column_name": [x[2] for x in g],
     })
 
@@ -288,6 +295,38 @@ def test_legacy_row_and_column_aliases_drive_the_merge(tmp_path, monkeypatch):
     assert "score" not in X.columns
     assert set(out) == {"feature_importance", "feature_importance_compartment",
                         "feature_importance_channel"}
+
+
+def test_two_disagreeing_key_columns_warn_rather_than_one_winning(
+        tmp_path, monkeypatch):
+    """The half the old rule hid (145).
+
+    A scores CSV carrying BOTH `row` and `row_name`, disagreeing, has two
+    opinions about which row an object came from. The old behaviour picked
+    one by declaration order and said nothing. spaCR now says which it kept
+    AND HOW MANY ROWS DIFFER -- because "they disagree" is not actionable,
+    "3 of 40,000 differ" is a typo, and "24 of 24" is the wrong file.
+    """
+    import warnings
+
+    from spacr.tabular import read_table
+
+    df, g, _sig = _measurement_frame(24, seed=2)
+    labels = np.arange(len(g)) % 2
+    scores = _write_scores(tmp_path / "scores_c.csv", g, labels, extra={
+        "row": ["WRONG"] * len(g),
+        "row_name": [x[1] for x in g],
+    })
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        frame = read_table(scores, report=None)
+
+    said = " ".join(str(w.message) for w in caught)
+    assert "rowID" in said
+    assert "row_name" in said
+    assert f"{len(g)} of {len(g)} rows differ" in said
+    assert "rowID" in frame.columns
 
 
 def test_merge_is_inner_so_unscored_objects_are_dropped(tmp_path, monkeypatch):
