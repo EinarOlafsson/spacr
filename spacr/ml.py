@@ -1856,6 +1856,40 @@ def process_model_coefficients(model, regression_type, X, y, nc, pc, controls,
 
     return coef_df[~coef_df['feature'].str.contains('row|column')]
 
+def _show_response_distribution(before_df, dependent_variable, settings):
+    """Put the before/after transform panel on the figure grid.
+
+    THROUGH `plt.show()`, which the Qt bridge intercepts, so the panel lands
+    in the figure queue beside every other panel of the run rather than
+    being written to a file nobody opens.
+
+    IT DRAWS EVEN WHEN THE TRANSFORM IS 'none'. An absent panel reads as a
+    missing feature rather than as an answer, and "this setting is currently
+    doing nothing" is exactly what a user who picked the wrong one needs to
+    see (instruction 218).
+    """
+    if before_df is None or not settings.get('plot', True):
+        return
+    try:
+        import matplotlib.pyplot as plt
+
+        from .response_distribution import panel
+
+        column = dependent_variable if dependent_variable in before_df \
+            else None
+        if column is None:
+            return
+        figure, axes = plt.subplots(figsize=(7.0, 4.2))
+        panel(before_df[column].to_numpy(dtype=float),
+              str(settings.get('transform') or 'none'), ax=axes,
+              dependent_variable=str(dependent_variable))
+        figure.tight_layout()
+        plt.show()
+    except Exception:                                            # noqa: BLE001
+        # Same trade as above: the picture is optional, the run is not.
+        pass
+
+
 def check_distribution(y, epsilon=1e-6):
     """Check the distribution of ``y`` and recommend a regression type.
 
@@ -7285,11 +7319,31 @@ def _perform_regression(settings):
 
     orig_dv = settings['dependent_variable']
 
+    # THE RESPONSE BEFORE THE TRANSFORM, kept for the panel below. Taken
+    # here because `process_scores` applies the transform and hands back only
+    # the result -- and the whole point of instruction 218's panel is the
+    # comparison, which is unrecoverable once the untransformed values are
+    # gone.
+    _before_transform = None
+    try:
+        _before_transform, _ = process_scores(
+            score_data_df, settings['dependent_variable'], None,
+            settings['min_cell_count'], settings['agg_type'],
+            None, settings['regression_type'],
+            settings['invert_dependent_variable'])
+    except Exception:                                            # noqa: BLE001
+        # A panel is not worth losing a run to. The comparison is dropped,
+        # the fit is not.
+        _before_transform = None
+
     dependent_df, dependent_variable = process_scores(
         score_data_df, settings['dependent_variable'], None,
         settings['min_cell_count'], settings['agg_type'],
         settings['transform'], settings['regression_type'],
         settings['invert_dependent_variable'])
+
+    _show_response_distribution(_before_transform, dependent_variable,
+                                settings)
     
     if settings['verbose']:
         print(f"Dependent variable after process_scores: {len(dependent_df)}")
