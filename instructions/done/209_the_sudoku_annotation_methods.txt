@@ -2,7 +2,7 @@
 THE SUDOKU ANNOTATION METHODS
 ================================================================================
 
-Status:    filed 2026-08-21, NOT STARTED AND NOT TO BE STARTED.
+Status:    filed 2026-08-21, GATE PASSED and IMPLEMENTED 2026-08-21.
            Gated on the maintainer's approval of the explanation -- see the
            gate below, which is the first line of this instruction for a
            reason.
@@ -105,3 +105,95 @@ HOW TO KNOW IT WORKED
   stopped and why.
 * Order sensitivity is measured and reported, not assumed away.
 * Tested on data where the truth is known by construction.
+
+--------------------------------------------------------------------------------
+THE GATE WAS PASSED
+--------------------------------------------------------------------------------
+
+The mathematics was explained on 2026-08-21 and accepted: "it sounds
+reasonable to me esspecially with mitigation of the problems you discribe. i
+want this done in the most robust way with as much information as we can".
+Implementation followed, not preceded, that.
+
+--------------------------------------------------------------------------------
+THE GRAPH QUESTION, ANSWERED
+--------------------------------------------------------------------------------
+
+    "is there a way to apply network theory and or graph learning to solv
+     this problem of annotation?"
+
+YES, AND IT IS THE SAME ALGORITHM. The third premise of the sudoku
+description -- cells that look alike carry alike, wherever they sit -- IS a
+graph statement. Written as one it becomes label propagation on a
+k-nearest-neighbour graph (Zhu & Ghahramani 2003, Zhou et al. 2004), and the
+well constraint becomes the class-mass normalisation step from that same
+literature.
+
+Two lines of reasoning that arrived independently turned out to be one
+method, which is the best evidence available that it is the right one.
+
+The other graph reading -- cells and `(well, guide)` slots as a bipartite
+min-cost flow -- is what `assign_well` already does per well. It is kept as
+the PROJECTION rather than the whole method because a hard assignment cannot
+abstain, and abstention is a requirement.
+
+A GRAPH NEURAL NETWORK WAS CONSIDERED AND REJECTED: the labels are noisy
+pseudo-labels from anchors, the sample is thousands not millions, and the
+result would be uninterpretable in a way that matters for a method deciding
+what every downstream number means. Label propagation has no trained
+weights, is convex, and its answer traces back to the anchors that made it.
+
+--------------------------------------------------------------------------------
+WHAT WAS BUILT
+--------------------------------------------------------------------------------
+
+`spacr/sudoku.py`
+
+  * `anchors_for` -- anchors from wells where the guide is a large share,
+    because a top-scoring cell in a 70% well is probably that guide and in a
+    5% well is probably not.
+  * `similarity_graph` -- MUTUAL kNN with a self-tuning heat kernel. Mutual
+    so an outlier can end up with no edges at all, which is the honest
+    answer; self-tuning because a screen's cells do not have one density.
+  * `propagate` -- Zhou's iteration, returning UNNORMALISED mass so that a
+    cell which received almost nothing stays visibly so.
+  * `constrain_to_fractions` -- the sudoku step, IPF onto the counts.
+  * `sudoku` / `sudoku_all` -- with both scores kept apart and abstention on
+    two distinct grounds: unlike every anchor, or a coin flip.
+
+THE MITIGATIONS ARE IN THE CODE, not in a comment about future work. The
+score is excluded from the graph by default and the report says so when it
+is not, which is the circularity mitigation. Order sensitivity is measured
+rather than argued about. Abstention is on two grounds because one number
+cannot express both.
+
+--------------------------------------------------------------------------------
+AND THE VALIDATION, WHICH FOUND TWO REAL BUGS
+--------------------------------------------------------------------------------
+
+`spacr/annotation_validation.py` scores every strategy on the same screens,
+against two baselines that use no cell measurement at all, and against a
+permutation null.
+
+IT EARNED ITS PLACE IMMEDIATELY, twice:
+
+  1. The FIRST version of the generator emitted each guide's cells as a
+     contiguous block, so the row order carried the answer. It was caught by
+     the `no_effect` scenario -- features containing nothing -- reporting 85%
+     precision, which is impossible. Every earlier number was worthless.
+  2. `sudoku_all` scored at the null: gain +0.00. Running the per-round call
+     with ONE guide made the well constraint normalise each row over a
+     single column, so every posterior was exactly 1.0 and the first guide
+     claimed the whole screen. A posterior is a comparison, and comparing a
+     guide against nothing returns the prior.
+
+Measured after both fixes, precision on annotated cells:
+
+    scenario      majority baseline    sudoku      sudoku_all
+    clean               46%             70%           71%
+    no_effect           44%             47%           48%
+    realistic           33%             46%           45%
+
+The `no_effect` row is the one that matters most: with no signal in the
+features, sudoku does NOT beat the fractions. A method that did would be
+reading its own anchors.

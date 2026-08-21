@@ -130,3 +130,83 @@ HOW TO KNOW IT WORKED
   rather than assumed.
 * On simulated data with a known penetrance and a known fraction bias, the
   method recovers their PRODUCT and says that is what it recovered.
+
+--------------------------------------------------------------------------------
+WHAT WAS SAID BACK -- AND THE CONFOUND IS SOLVED
+--------------------------------------------------------------------------------
+
+This file states above that a single positive control cannot separate
+PENETRANCE from FRACTION BIAS, because the slope is their product. THAT
+STANDS FOR A SINGLE CONTROL AND IS WRONG FOR THE DESIGN THE MAINTAINER
+ACTUALLY HAS.
+
+    "can the hold out be the mixed ratio wells, where we dont know the
+     identity of each cell but we do know how many cells are PC and how many
+     are NC from the sequencing. these were not use for training."
+
+A RATIO SERIES SEPARATES THEM. A well that is a proportion `pi` of PC cells
+has feature distribution `pi * F_PC + (1 - pi) * F_NC`, and `F_PC` estimated
+from the pure wells ALREADY CONTAINS the non-penetrant cells -- a PC cell
+showing no phenotype is still a PC cell and is still in that reference. So
+the mixture fit recovers the true CELLULAR proportion with penetrance
+absorbed, and comparing it to what sequencing reported isolates the bias.
+
+DEMONSTRATED, NOT ARGUED. `mixed_ratio_calibration` recovers a planted bias
+of 1.82 as 1.84, 1.81 and 1.76 at penetrances of 1.0, 0.6 and 0.3. The
+penetrance does not move the slope.
+
+AND IT FOUND A CIRCULARITY IN THE FIRST IMPLEMENTATION: the pure wells were
+identified BY THEIR REPORTED FRACTION, which is the quantity under test. A
+bias large enough to matter pushes a 100%-PC well below the cut-off, so the
+fit refused to run on exactly the screens that needed it. The wells are now
+named from the plate design and the function warns when they are not.
+
+WHAT IT STILL DOES NOT SHOW: PC-versus-NC is a two-class problem with the
+largest phenotype difference in the screen. A method can be perfect on it
+and fail at six guides in one well, which is the real task. This validates
+calibration and discrimination; the simulation remains the only check of
+multi-guide assignment.
+
+--------------------------------------------------------------------------------
+THE CONFUSION MATRIX -- ASKED AND ANSWERED
+--------------------------------------------------------------------------------
+
+    "fou have the computer vision scores, cant this be calculated from them?
+     cant you bake the calculation of this into the modula?"
+
+NOT FROM SCORES ALONE. A confusion matrix counts agreements between a call
+and a truth; a score column with no labels beside it has no truth to agree
+with. What looks like a boundary in a score histogram is a property of the
+histogram.
+
+`spacr/classifier_quality.py` implements the three routes there are, in
+descending order of trust:
+
+  1. the LABELLED TEST SPLIT -- exact, and the answer whenever those rows
+     exist. "i think we do have tables with train and test annotation" --
+     they are precisely what is needed;
+  2. OUT-OF-FOLD predictions from a re-fit -- exact AND better, because
+     every cell gets an honest score instead of only the test cells, which
+     gives the prevalence stratification the whole screen to work with;
+  3. MIXTURE DECONVOLUTION -- the fallback when nothing is labelled, and
+     weak. On a realistic fixture it estimated a prevalence of 0.45 where
+     the truth was 0.20. It reports a `separation` health check and marks
+     itself untrustworthy below 2 pooled standard deviations, which it did
+     on that fixture. The number is not the problem; returning it without
+     the warning would be.
+
+"columns one and 2 of each plate were the training wells" is implemented as
+`training_wells`, so the held-out set is identifiable from the well name
+alone. THIS IS WHAT MAKES THE CALIBRATION NON-CIRCULAR: a classifier scored
+on the wells it was fitted to agrees with itself.
+
+RETRAINING IS WORTH IT BUT NOT REQUIRED. Excluding columns 1 and 2 is enough
+to validate. Cross-validating is strictly better and is the recommendation,
+for the reason in route 2.
+
+`sensitivity_by_prevalence` is the specific number this file asked for, and
+it does more than supply a constant: sensitivity should NOT depend on
+prevalence, so if it rises with it the classifier is reading context rather
+than the cell -- and every fraction it produces is then partly a copy of the
+fraction it was given. There is a test that plants exactly that cheat and
+catches it.
