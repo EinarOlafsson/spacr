@@ -2,7 +2,7 @@
 THE SUMMARY MARKS A BROKEN ASSUMPTION, AND ENDS WITH WHAT TO DO
 ================================================================================
 
-Status:    filed 2026-08-21, not started.
+Status:    filed 2026-08-21. A AND B BUILT 2026-08-21; the run does not yet hand its diagnostics to B.
 Requested: 2026-08-21 -- "in the summary whan a test has a broken assumption
            the text showing that that assumption is broken should be red. at
            the end of summary there should be a new section that outlines
@@ -87,3 +87,58 @@ HOW TO KNOW IT WORKED
   no findings says so explicitly.
 * The recommended settings exist and are spelled the way the run reads
   them -- checked by a test, not by eye.
+
+--------------------------------------------------------------------------------
+A, DONE
+--------------------------------------------------------------------------------
+
+A rejected assumption is red; an accepted one and a caution are not.
+
+TWO PATHS, AND ONLY ONE WAS OBVIOUS. A `QSyntaxHighlighter` on the text
+block was the first attempt and it worked perfectly on almost nothing --
+MOST OF A SUMMARY IS A TABLE, since anything shaped "label: value" becomes a
+row, and rows are built as HTML somewhere else entirely. The colour is
+applied in both places now, inline in the table because that path is already
+building HTML and a second highlighter for one colour is a second thing to
+keep in step.
+
+The markers are `REJECTED at`, which `_verdict` already wrote and which was
+doing no work because it was the same colour as everything around it, and
+the `!` prefix `run_recommendations` puts on a blocking recommendation.
+
+A CAUTION IS NOT RED. "455 observations above the leverage guide" is a
+caution, not a failure, and colouring it too would make the colour mean
+"there is a number here".
+
+--------------------------------------------------------------------------------
+B, BUILT
+--------------------------------------------------------------------------------
+
+`spacr/run_recommendations.py`. Every recommendation is a RULE WITH A
+THRESHOLD that fires from a measured value or does not appear; no sentence
+is composed at run time, the wording is fixed and the CONDITION is measured.
+
+Each names the setting to change AND the measurement that triggered it, so
+the reader can disagree -- a recommendation whose evidence is invisible is
+indistinguishable from a default opinion. Each is suppressed when the run
+already did it, because telling somebody to do what they did is how a
+recommendations section becomes something people skip.
+
+The section prints even when empty. Its absence would read as a bug, and
+"every check passed" is a result worth stating rather than implying by
+silence.
+
+On the maintainer's own reported numbers it produces three blocking
+recommendations -- nonparametric inference, the nuisance columns, and the
+threshold sweep -- and two suggestions, the rank statistic and a robust
+family.
+
+--------------------------------------------------------------------------------
+WHAT IS LEFT
+--------------------------------------------------------------------------------
+
+`RunSummary.recommendations` is carried and printed, and nothing fills it
+yet: `build_run_summary` does not pass the QC's measured values to
+`recommend`. That join is the remaining work, and it is the same join
+instruction 226 needs for the advisor -- both want the written diagnostics
+read back rather than recomputed.

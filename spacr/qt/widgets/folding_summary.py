@@ -15,7 +15,8 @@ import logging
 from typing import List, Tuple
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QFontDatabase
+from PySide6.QtGui import (QColor, QFontDatabase, QSyntaxHighlighter,
+                           QTextCharFormat)
 from PySide6.QtWidgets import (QHBoxLayout, QLabel, QPlainTextEdit,
                                QPushButton, QScrollArea, QVBoxLayout,
                                QWidget)
@@ -110,6 +111,47 @@ def split_rows(body: str) -> list:
 
 #: A summary row: two spaces, a label, then at least two more spaces.
 _ROW = re.compile(r"^(  \S[^\s]*(?:[ \t]\S+)*?  +)\S")
+
+
+class _RejectionHighlighter(QSyntaxHighlighter):
+    """Red where an assumption was REJECTED, and nowhere else.
+
+    Instruction 225: "whan a test has a broken assumption the text showing
+    that that assumption is broken should be red".
+
+    THE SUMMARY ALREADY SAID "REJECTED" and the word was doing no work,
+    because it was the same colour as everything around it. Three lines, one
+    of them fatal to the p-values, and nothing on screen said which.
+
+    RED IS FOR A REJECTED ASSUMPTION, NOT FOR A SMALL NUMBER. Some checks
+    report cautions -- a leverage count above a rule of thumb is a caution,
+    not a failure -- and colouring those too would make the colour mean
+    "there is a number here". Colour that fires on everything means nothing.
+
+    FROM THE PALETTE, NEVER A LITERAL: 178 removed eleven hard-coded inks
+    from the figures and 198 the same from the headings, because a hex reads
+    on one theme and vanishes on the other and the author sees only the one
+    they use.
+    """
+
+    #: What marks a line as a broken assumption. `REJECTED at` is written by
+    #: `regression_summary._verdict`; the `!` prefix is what
+    #: `run_recommendations` puts on a blocking recommendation.
+    MARKERS = ("REJECTED at", "  ! ")
+
+    def __init__(self, document, colour: str):
+        super().__init__(document)
+        self._format = QTextCharFormat()
+        self._format.setForeground(QColor(colour))
+
+    def highlightBlock(self, text: str) -> None:   # noqa: N802 - Qt naming
+        line = str(text)
+        if any(marker in line for marker in self.MARKERS):
+            # THE WHOLE LINE, not the matched word. "REJECTED at 0.05" is
+            # the verdict on the sentence it sits in, and colouring three
+            # words inside a grey line reads as emphasis rather than as a
+            # state.
+            self.setFormat(0, len(line), self._format)
 
 
 class FoldingSummaryView(QScrollArea):
@@ -322,17 +364,45 @@ class FoldingSummaryView(QScrollArea):
         view.setStyleSheet(
             f"QTextBrowser {{ background: {self._reading_surface()};"
             f" border-radius: 6px; }}")
+        # RED FOR A REJECTED ASSUMPTION, IN THE TABLE TOO (225). Most of a
+        # summary's rows arrive here rather than at `_block` -- anything
+        # shaped "label: value" is a row -- so a highlighter on the block
+        # path alone colours almost nothing. Found exactly that way: the
+        # highlighter worked and the assumptions were still grey, because
+        # they were never blocks.
+        #
+        # Inline here rather than another highlighter: this is already HTML
+        # being built, and a second mechanism for one colour is a second
+        # thing to keep in step.
+        try:
+            from ..theme import active_palette
+
+            alarm = active_palette()["error"]
+        except Exception:                                    # noqa: BLE001
+            alarm = ""
+
+        def _tint(label: str, value: str) -> str:
+            if not alarm:
+                return ""
+            line = f"{label} {value}"
+            if any(marker in line
+                   for marker in _RejectionHighlighter.MARKERS):
+                return f"color:{alarm};"
+            return ""
+
         cells = []
         for label, value in rows:
+            tint = _tint(label, value)
             if label:
                 cells.append(
                     f"<tr><td style='padding:1px 14px 1px 0;"
-                    f"white-space:nowrap;vertical-align:top'><b>"
+                    f"white-space:nowrap;vertical-align:top;{tint}'><b>"
                     f"{html.escape(label)}</b></td>"
-                    f"<td style='padding:1px 0'>{html.escape(value)}</td></tr>")
+                    f"<td style='padding:1px 0;{tint}'>"
+                    f"{html.escape(value)}</td></tr>")
             else:
                 cells.append(
-                    f"<tr><td colspan='2' style='padding:4px 0'>"
+                    f"<tr><td colspan='2' style='padding:4px 0;{tint}'>"
                     f"{html.escape(value)}</td></tr>")
         view.setHtml("<table style='border-collapse:collapse'>"
                      + "".join(cells) + "</table>")
@@ -358,6 +428,16 @@ class FoldingSummaryView(QScrollArea):
         view.setStyleSheet(
             f"QPlainTextEdit {{ background: {self._reading_surface()};"
             f" border-radius: 6px; }}")
+        # HELD ON THE VIEW, or it is garbage collected the moment this
+        # function returns and highlights nothing -- silently, which is the
+        # only way a highlighter ever fails.
+        try:
+            from ..theme import active_palette
+
+            view._spacr_highlighter = _RejectionHighlighter(
+                view.document(), active_palette()["error"])
+        except Exception:                                    # noqa: BLE001
+            pass
         view.setPlainText(text)
         rows = max(3, text.count("\n") + 2)
         view.setMinimumHeight(min(420, 18 * rows))
