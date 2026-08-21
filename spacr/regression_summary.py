@@ -662,14 +662,10 @@ def _fitted_section(run: "_Run") -> List[SummaryField]:
             reason="this run recorded no regression_type, so the family it "
                    "fitted cannot be named from what it wrote")
 
-    # THE HYPERPARAMETERS THAT TYPE ACTUALLY READ (189 B). Asked for
-    # 2026-08-20: "please state which regression was used the backend and any
-    # hyperparamiters used if applicable."
-    #
-    # ONLY THE ONES IT READS, from the same table the greying rules and the
-    # tooltip generator use -- so a summary cannot drift from the family
-    # table, and a reader is never shown an `alpha` for an ols fit that
-    # ignored it.
+    # Report only hyperparameters the selected regression family reads. The
+    # shared family table also drives the disabled-setting rules and tooltip
+    # text, keeping the summary aligned with the interface and preventing an
+    # ignored value (such as alpha for OLS) from being presented as fitted.
     if kind and not run.nonparametric:
         add("hyperparameters", **_hyperparameter_report(kind, settings, run))
 
