@@ -90,12 +90,26 @@ def test_the_saved_file_is_readable_on_paper(name, result, tmp_path):
 
     image = Image.open(out).convert("RGB")
     colours = Counter(image.getdata())
-    page = colours.most_common(1)[0][0]
     dark = sum(n for colour, n in colours.items() if sum(colour) / 3 < 100)
 
-    assert sum(page) / 3 > 200, (
-        f"{name} saved onto a dark page: {page}. A figure pasted into a "
-        f"manuscript is going onto white.")
+    # THE PAGE IS THE MARGIN, NOT THE MODAL COLOUR. This read
+    # `colours.most_common(1)`, which is the page only while the page has more
+    # pixels than any single ink -- and `plot_sweep` is a heatmap on a
+    # saturated diverging map, where two cell colours came to 194,087 and
+    # 193,609 against white's 191,196. A three-way tie decided by layout: the
+    # assertion flipped when the house style changed the label metrics by a
+    # few points, while the saved file was white the whole time.
+    #
+    # `bbox_inches="tight"` trims to the artists, so what is left in the
+    # corners IS the page.
+    width, height = image.size
+    corners = [image.getpixel(p) for p in
+               ((0, 0), (width - 1, 0), (0, height - 1),
+                (width - 1, height - 1))]
+    for page in corners:
+        assert sum(page) / 3 > 200, (
+            f"{name} saved onto a dark page: {page}. A figure pasted into a "
+            f"manuscript is going onto white.")
     assert dark > 500, (
         f"{name} saved with only {dark} dark pixels -- the axes and the text "
         f"are the theme's light ink on a white page, which is the "
