@@ -3340,7 +3340,13 @@ def _save_mask_timelapse_as_gif(masks, tracks_df, path, cmap, norm, filenames):
                     ax.plot(_track['x'], _track['y'], '-w', linewidth=1)
 
         anim = FuncAnimation(fig, _update, frames=len(masks), blit=False)
-        anim.save(path, writer='pillow', fps=2, dpi=geometry['dpi'])
+        anim.save(
+            path,
+            writer='pillow',
+            fps=2,
+            dpi=geometry['dpi'],
+            savefig_kwargs={'facecolor': 'black', 'transparent': False},
+        )
         plt.close(fig)
         print(f'Saved timelapse to {path}')
 
