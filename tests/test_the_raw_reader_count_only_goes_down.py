@@ -49,7 +49,15 @@ RAW_CALL = re.compile(r"pd\.read_csv\(|pd\.read_sql\w*\(|\.to_csv\(|\.to_sql\(")
 #: below is higher than that only because it counts writes and reads in
 #: modules the original census did not reach, not because anything regressed;
 #: what matters from here is the direction.
-CEILING = 261
+#:
+#: 261 -> 254 on 2026-08-20: seven readers in `submodules.py` moved onto
+#: `tabular.read_table`, chosen for damage rather than for count. Two of them
+#: sat directly above a comment recording that the helper "was left half-way
+#: through the column_name -> columnID rename" -- it filtered on one spelling
+#: and grouped on the other, so the frame it produced could never match. That
+#: is what canonicalising at the read fixes, and it is why counting is worth
+#: doing: the reader did not FAIL, it returned an empty answer.
+CEILING = 254
 
 #: Files allowed to hold raw calls without argument, and why.
 EXPECTED_HOMES = {
