@@ -158,7 +158,7 @@ def test_the_pickers_are_named():
 
     assert PICKING_MODES[0] == "rank"
     assert set(PICKING_MODES) == {"rank", "attributed", "assigned",
-                                  "multivariate"}
+                                  "multivariate", "sudoku"}
 
 
 def test_a_results_table_names_its_rows_as_the_DESIGN_did(tmp_path):

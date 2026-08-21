@@ -245,23 +245,44 @@ def backend_status(name, regression_type=None) -> dict:
         # and the install state tells them whether making that choice would
         # be enough.
         listed = ', '.join(spec['types'])
+        short_listed = '/'.join(spec['types'][:2])
+        if len(spec['types']) > 2:
+            short_listed += '/…'
         installed = package_installed(spec['package'])
+        short_install = str(spec['pip']).split("  (", 1)[0]
+
+        # Keep the machine state explicit in the dropdown itself; a package
+        # command alone does not say whether it is required or merely an
+        # optional upgrade.
         if not spec['implemented']:
-            state = "not wired up yet"
+            short_state = ("not wired up; installed" if installed
+                           else "not wired up")
             if not installed and spec['pip']:
-                state += f", not installed -- {spec['pip']}"
+                short_state = (f"not wired up; not installed — "
+                               f"{short_install}")
         elif installed:
-            state = "installed"
+            short_state = "installed"
         else:
-            state = (f"not installed -- {spec['pip']}" if spec['pip']
-                     else "not installed")
+            short_state = (f"not installed — {spec['pip']}"
+                           if spec['pip'] else "not installed")
+
+        # LONG FORM: room to say both, and to say what to DO.
+        if installed:
+            long_state = "installed"
+        elif spec['pip']:
+            long_state = f"not installed -- {spec['pip']}"
+        else:
+            long_state = "not installed"
+        if not spec['implemented']:
+            long_state += ", and spaCR does not route any fit through it yet"
+
         return refuse(
-            f"{spec['label']} fits {listed}. Choose one of those as "
+            f"{spec['label']} fits {listed}. Choose one of those as the "
             f"regression_type to select it -- with the family left to be "
             f"decided from the response it is only known after the data is "
             f"read, and only {DEFAULT_REGRESSION_BACKEND} can fit whichever "
-            f"it turns out to be. This backend is {state}.",
-            f"fits {listed}; {state}")
+            f"it turns out to be. This backend is {long_state}.",
+            f"fits {short_listed}; {short_state}")
 
     # NOT INSTALLED IS SAID ALONGSIDE NOT WIRED UP, not instead of it.
     #
