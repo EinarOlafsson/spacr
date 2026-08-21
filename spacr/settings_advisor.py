@@ -1002,7 +1002,83 @@ def refusals(settings: Mapping[str, Any]) -> Tuple[str, ...]:
     except Exception:                                        # noqa: BLE001
         pass
 
+    # 4. THE PERMUTATION TEST CANNOT SEE OBJECTS. Hit live on 2026-08-21: a
+    #    run reached "permuting the guides" thirty-one seconds in -- after
+    #    the filters, the plots and two saved CSVs -- and only then raised.
+    #    The incompatibility is knowable from the settings alone and had no
+    #    business waiting for the data.
+    mode = str(got.get("analysis_mode") or "").lower()
+    unit = str(got.get("analysis_unit") or "").lower()
+    if mode == "guide_permutation" and unit == "cell":
+        said.append(
+            "analysis_mode='guide_permutation' tests each guide across "
+            "WELLS, so it needs one row per well -- but analysis_unit='cell' "
+            "gives one row per object, and a well's phenotype then has many "
+            "values. Set analysis_unit='well' (with an agg_type such as "
+            "'mean'), or choose analysis_mode='regression', which can model "
+            "objects.")
+
+    # 5. THE SAME COMBINATION REACHED THROUGH `inference`, which is the door
+    #    a user actually walks through: 'nonparametric' SELECTS
+    #    guide_permutation, so the refusal has to recognise it under both
+    #    names or it fires for the setting nobody typed.
+    if (str(got.get("inference") or "").lower() in ("nonparametric",
+                                                    "permutation")
+            and unit == "cell" and mode != "regression"):
+        if not any("guide_permutation" in message for message in said):
+            said.append(
+                "inference='nonparametric' runs the guide permutation test, "
+                "which needs one row per well, and analysis_unit='cell' "
+                "gives one row per object. Set analysis_unit='well' with an "
+                "agg_type, or inference='parametric' to fit a model that can "
+                "read objects.")
+
+    # 6. AN AGGREGATION THAT WILL NOT BE READ. `analysis_unit='cell'` keeps
+    #    every object, so an `agg_type` set beside it is a control the user
+    #    changed and the run ignored -- which is how somebody concludes the
+    #    setting does nothing.
+    if unit == "cell" and got.get("agg_type"):
+        said.append(
+            f"analysis_unit='cell' keeps one row per object, so "
+            f"agg_type={got.get('agg_type')!r} is never read. Clear it, or "
+            f"set analysis_unit='well' if the aggregation was the intent.")
+
     return tuple(said)
+
+
+#: What each `analysis_unit` REQUIRES of the rest of the design, so a panel
+#: can set it, show it and grey it out instead of letting the run discover
+#: it. Asked for 2026-08-21: "if cell is only compatible with certain
+#: settings, if cell is chosen then the settings it needs should be chosen
+#: and displayed and the setting grayed out."
+#:
+#: `None` as a value means "must be empty", which is a requirement like any
+#: other and not an absence of one.
+UNIT_REQUIREMENTS: Dict[str, Dict[str, Any]] = {
+    "cell": {
+        # The permutation test works well by well; only the model can read
+        # objects.
+        "analysis_mode": "regression",
+        "inference": "parametric",
+        # One row per object already: there is nothing to aggregate.
+        "agg_type": None,
+    },
+    "well": {},
+}
+
+
+def requirements_for_unit(unit: str) -> Dict[str, Any]:
+    """Settings that ``analysis_unit`` forces, for a panel to apply and lock.
+
+    :param unit: ``'cell'`` or ``'well'``.
+    :returns: ``{setting: required value}``, empty when the unit constrains
+        nothing.
+
+    THE PANEL SHOULD APPLY THESE AND SHOW THEM GREYED, not merely refuse
+    later. A run that discovers an impossible combination after thirty
+    seconds of work has already cost the user the thing the check was for.
+    """
+    return dict(UNIT_REQUIREMENTS.get(str(unit).lower(), {}))
 
 
 def advise_that_runs(reading: Reading,
