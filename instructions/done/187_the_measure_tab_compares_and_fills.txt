@@ -2,7 +2,7 @@
 THE MEASURE TAB: COMPARE ANYTHING, AND FILL THE SPACE
 ================================================================================
 
-Status:    filed 2026-08-20, not started.
+Status:    DONE 2026-08-20. See the closing section.
 Requested: 2026-08-20, from a live session.
 Owner:     Qt GUI (Measurements tab)
 
@@ -104,3 +104,91 @@ HOW TO KNOW IT WORKED
 * Opening a section fills the space to the next one.
 * There is no Export button; Save styled writes what its preview showed.
 * Changing a setting in Save styled redraws the preview.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- DONE. ALL FIVE PARTS.
+--------------------------------------------------------------------------------
+
+A. EVERY MEASUREMENT IN THE DATABASE, AND THE JOIN IS OFFERED.
+
+`gene_measurement_compare.join_measurements(objects, databases)` widens the
+montage's object rows with every numeric column the object tables hold, via
+`io._read_and_join_tables` -- one reader, per 145. `object_identity` composes
+spaCR's `prcfo` from whichever spelling the frame carries, so the two sides
+name an object the same way.
+
+WHAT MADE IT NOT A ONE-LINER:
+
+* THE INDEX HAD TO SURVIVE. The picker's groups are INDEX VALUES into the
+  frame handed to the panel; a reindexed copy re-annotates different cells.
+* AND THE JOIN HAD TO BE POSITIONAL. `_all_objects` concatenates one frame
+  per plan, so the index repeats -- and a pandas join on a repeated label is
+  a cartesian product of the matching rows on both sides. 20,000 cells would
+  have come back as 40,000, with every count on the panel wrong.
+* A COLUMN ALREADY PRESENT IS NOT REPLACED. It is what the montage SELECTED
+  on; overwriting it moves the cells under the user's feet.
+
+The panel says which case it is in rather than just being short:
+"Only 2 measurement(s): these are the columns on the crop table. Every
+morphological measurement -- cell, nucleus, pathogen, cytoplasm -- is in the
+object tables and needs the join", with the button beside it; or, with no
+database attached, that there is nothing to join FROM.
+
+B. THE THREE CONTRASTS, AND EACH NAMES WHAT IT REMOVES.
+
+`CONTRASTS` in `gene_measurement_compare` -- within the well, against the
+controls, against every other well, plus the historical "everything else"
+which stays the default so no existing caller's comparison changes. `build`
+takes `contrast=`, `wells=` and `controls=`.
+
+THE THREE DISAGREE BY CONSTRUCTION, and a test asserts it: on a fixture where
+each well carries its own offset, the same annotated cells give three
+different differences. If they agreed there would be no reason to offer a
+choice.
+
+Two things that were easy to get wrong and are tested:
+
+* A WELL LEFT OUT IS DROPPED FROM BOTH SIDES. Promoting it into "every other
+  well" would put the very rows the user threw out on the other side of the
+  comparison.
+* THE WELL KEY IS TAKEN `.loc[work.index]`. Assigning the full column onto a
+  frame the contrast has shortened aligns on the index and leaves NaN, which
+  then groups every dropped-through row into one well called "nan".
+
+Controls resolve through `spacr.control_names` (184), so a gene, a guide, a
+prefixed name and a bare one all work. `control_wells` also normalises a bare
+string -- `resolve_controls` iterates its argument, so "000000" arrived as
+six one-character controls and matched nothing.
+
+C. Already done: `_share_the_height` gives an opened section the space and the
+filler stretches least of the three, so it is the last to get space and the
+first to give it up.
+
+D. Already done: one entry, "Save figure…", which previews what it will write.
+The comment above it still described the two-door arrangement and has been
+corrected.
+
+D2. FONT SIZE IS LIVE. `style_for_file(figure, font_scale=...)` scales every
+text artist, ON THE ARTISTS and not through rcParams -- rcParams only reach an
+artist when it is CREATED and the figure being previewed already exists, which
+is the trap `setup_plot` fell into. A 0.25-4.0 spin box redraws the preview,
+and what is written is what was previewed because the save writes the preview.
+
+AND IT FOUND A BUG WHILE BEING TESTED. `axes.grid(False, linewidth=...,
+alpha=...)` does not turn the grid off -- matplotlib warns "the grid will be
+enabled" and enables it. So the one control that says "draw a grid" drew one
+whichever way it was set. The line properties are now passed only when the
+grid is on.
+
+TESTS: 12 in tests/qt/test_the_save_dialog_sizes_the_text.py, 32 in
+tests/test_the_three_contrasts_are_three_questions.py, 18 in
+tests/test_every_measurement_in_the_database_is_offered.py, 26 in
+tests/qt/test_the_compare_panel_offers_three_contrasts.py.
+
+AND ONE THING FOUND IN PASSING, FIXED. `CellMontageView.remember_inventory`
+had NO CALLER. It has existed since the picture-settings window learned to
+offer this screen's own mask planes and object columns, and `_last_objects`
+was None every time -- so those choosers silently fell back to their generic
+lists. The load now carries its object rows and count data back on
+`MontageLoad` and fills the inventory, which is also what gives the two wider
+contrasts the cells the montage never drew.

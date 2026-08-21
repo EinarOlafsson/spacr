@@ -2,7 +2,7 @@
 THE CELLS TAB: APPLY SETTINGS IN MILLISECONDS, AND R,G,B BACK
 ================================================================================
 
-Status:    filed 2026-08-20, not started.
+Status:    DONE 2026-08-20. See the closing section.
 Requested: 2026-08-20, from a live session.
 Owner:     Qt GUI (Cells tab)
 

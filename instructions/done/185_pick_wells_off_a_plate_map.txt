@@ -2,7 +2,7 @@
 PICK WELLS OFF A PLATE MAP, INSTEAD OF TYPING THEM
 ================================================================================
 
-Status:    filed 2026-08-20, not started.
+Status:    DONE 2026-08-20. See the closing section.
 Requested: 2026-08-20 -- "for every option where the user is choosing one or
            several well possitions to the right of the field should be a
            button they can press that spawns a window with three buttons in
