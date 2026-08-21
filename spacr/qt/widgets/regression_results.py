@@ -1546,11 +1546,10 @@ class RegressionResultsPanel(QWidget):
         self.table.select_keys(keys)
 
     def selected_keys(self) -> list:
-        """Every guide currently selected, for the screens that read it.
+        """Return identifiers selected in the results table.
 
-        ONE SELECTION, ONE SOURCE OF TRUTH (instruction 206): the gene tile,
-        the image tabs and the cell-table graphs all come here, so they
-        cannot be showing different guides from one another.
+        If the table has no active multiselection, return the most recent
+        single selection used by linked result views.
         """
         keys = list(self.table.selected_keys())
         if keys:

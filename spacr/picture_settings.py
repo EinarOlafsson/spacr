@@ -529,16 +529,11 @@ def available_coordinate_columns(frame) -> Tuple[str, ...]:
     return tuple(out)
 
 
-#: HOW EACH METHOD CHOOSES CELLS, in the order instruction 208 C asks for:
-#: what it is given, what it computes, which cells end up annotated, which do
-#: NOT and why, and the one assumption that makes it wrong.
+#: Explain how each annotation method selects cells: its inputs,
+#: calculation, inclusion and exclusion rules, and principal limitation.
 #:
-#: ONE SOURCE. The dropdown, the documentation and any explanation given to a
-#: user read this, because a method that decides what every downstream number
-#: means cannot have two descriptions that drift.
-#:
-#: "The API should be verry specific and evplain exactly how cells are
-#: cjhoosen for annotation."
+#: The dropdown, documentation, and contextual help share this mapping so the
+#: selection contract remains consistent across user-facing surfaces.
 PICKING_HELP: Dict[str, str] = {
     "rank": (
         "TOP BY SCORE.\n"

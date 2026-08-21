@@ -1,19 +1,10 @@
-"""Where do the annotated cells land, among the controls?
+"""Display held-out UMAP quality checks for annotated cells.
 
-Instruction 215. The engine is :mod:`spacr.annotation_umap_qc`; this is the
-tab that drives it and shows what it found.
-
-IT REFUSES BEFORE IT DRAWS. The three guards the engine implements only
-matter if the panel honours them:
-
-  * the embedding is tuned on HALF the controls and scored on the other
-    half, and a poor held-out separation stops the verdict rather than
-    decorating it -- searching until two labelled groups separate always
-    succeeds, and the question is whether it survives on cells the search
-    never saw;
-  * the readout is neighbour purity, never cluster membership;
-  * a method that PICKED cells by the phenotype score cannot be judged this
-    way at all, and the warning is shown instead of the plot.
+The panel delegates computation to :mod:`spacr.annotation_umap_qc`. It tunes
+the embedding on one control subset and evaluates separation on held-out
+controls, reports neighbour purity rather than cluster membership, and
+refuses circular evaluation when phenotype scores were used to select the
+annotated cells.
 """
 from __future__ import annotations
 

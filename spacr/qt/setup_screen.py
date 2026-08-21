@@ -1,24 +1,9 @@
-"""The questions the installer used to ask, asked on the first run instead.
+"""Manage first-run setup questions and their saved answers.
 
-Instruction 221.
-
-THE INSTALLER IS THE WRONG PLACE, and this supersedes the earlier request
-for installer options. An installer runs once, often unattended, sometimes
-by an administrator who is not the user, and it asks its questions before
-the person has seen a single screen of what they are configuring. Every
-answer is a guess. The first RUN is the first moment the questions mean
-anything.
-
-EVERY QUESTION HAS A WORKING DEFAULT, so the screen can be dismissed without
-answering any of it and nothing is left unset. A setup screen that must be
-completed is a modal dialog wearing a nicer coat.
-
-IT REOPENS AFTER AN UPDATE AND KEEPS THE ANSWERS. The trigger is "has this
-been answered for THIS VERSION", not "has this ever been answered" -- an
-update that adds a setting has a question the user has never seen. What it
-must never do is reset what they already chose: a setup screen that
-reappears with everything back at its default is a release that silently
-un-configures the tool.
+Every question has a usable default, so setup can be dismissed without
+leaving the application unconfigured. The screen is offered once per spaCR
+version, allowing new questions to appear after an update while preserving
+answers saved for existing settings.
 """
 from __future__ import annotations
 

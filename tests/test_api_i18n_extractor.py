@@ -513,7 +513,23 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # in the final advisor/design follow-up.
     # +6/-0 for the shared bar-spread module, its three public helpers, its
     # choice table, and ``GraphSpec.spread``.
-    expected = 7986
+    # +26/-0 for permutation quality control and its desktop surfaces:
+    #    5  spacr.permutation_qc
+    #    8  spacr.qt.setup_screen
+    #    5  spacr.qt.widgets.annotation_umap_tab
+    #    4  spacr.qt.widgets.setup_card
+    #    4  spacr.run_recommendations
+    # Nothing retired; the localized API catalogs are regenerated with this
+    # admission.
+    # +10/-0 for coordinated multiselection across the volcano, results table,
+    # and cell montage:
+    #    3  spacr.qt.widgets.cell_montage_view
+    #    6  spacr.qt.widgets.fast_plots
+    #    1  spacr.qt.widgets.regression_results
+    # Nothing retired; these contracts are included in the same catalog pass.
+    # +1/-0 for ``ClassEditorWidget.attach_sql_picker``, which exposes the
+    # database-backed class-column chooser to settings panels.
+    expected = 8023
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -528,7 +544,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8105
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8142
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:

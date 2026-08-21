@@ -1453,9 +1453,8 @@ class CellMontageView(QWidget):
         # down at launch, and the rule earned its own test file.
         self._key: str = ""
         self._name: str = ""
-        #: Every coefficient the selection holds (instruction 206). The grid
-        #: shows one of them; this is all of them, so the count here and the
-        #: count on the volcano are the same number.
+        #: Every coefficient in the current selection. The grid shows one at
+        #: a time while preserving the complete selection for linked views.
         self._keys: List[str] = []
         self._level: str = "gene"
         self._effect: Optional[float] = None
@@ -1789,20 +1788,12 @@ class CellMontageView(QWidget):
         self._announce()
 
     def set_coefficients(self, keys) -> None:
-        """Several coefficients were picked. THE SLOT FOR ``keys_selected``.
+        """Store an ordered coefficient selection and show its latest member.
 
-        A MONTAGE IS OF ONE COEFFICIENT. The crops are chosen by how well
-        each cell agrees with THAT coefficient's effect, so a grid built from
-        three of them at once would be three different questions in one
-        picture with nothing on screen saying which cell answered which.
-
-        So the selection is held whole -- :meth:`selected_coefficients`
-        returns all of it, and the caption says how many there are -- and the
-        grid shows one at a time, the most recent by default, with
-        :meth:`show_next_coefficient` to step through the rest. That is the
-        honest reading of a multi-selection for this tab, and it keeps the
-        count here equal to the count on the volcano, which is the property
-        instruction 206 is actually about.
+        A montage represents one coefficient because crop ranking depends on
+        that coefficient's effect. The full selection remains available from
+        :meth:`selected_coefficients`; :meth:`show_next_coefficient` cycles the
+        displayed montage without discarding the other selected coefficients.
 
         :param keys: every selected ``feature``, in pick order.
         """
