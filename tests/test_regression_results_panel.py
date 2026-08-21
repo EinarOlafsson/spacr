@@ -95,10 +95,16 @@ class TestItOpensIntoTheResults:
         qtbot.addWidget(panel)
         panel.set_frame(results)
 
-        start = time.perf_counter()
-        for _ in range(5):
+        # Warm Qt/pyqtgraph's lazy paths before timing the steady-state redraw.
+        # Thread CPU time measures the work performed by the interface thread
+        # without counting pre-emption by another xdist worker on a shared CI
+        # runner. The redraw is synchronous and performs no I/O, so this keeps
+        # the original performance contract while avoiding scheduler noise.
+        panel._redraw_volcano()
+        start = time.thread_time()
+        for _ in range(9):
             panel._redraw_volcano()
-        each = (time.perf_counter() - start) / 5 * 1000
+        each = (time.thread_time() - start) / 9 * 1000
         assert each < 30, f"the volcano took {each:.0f} ms (matplotlib: 115)"
 
     def test_only_plausible_categories_are_offered_for_colour(self, qtbot,
