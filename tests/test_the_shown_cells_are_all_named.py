@@ -148,9 +148,24 @@ class TestTheFractionCanBeRaw:
         assert settings.get_perform_regression_default_settings(
             {})["normalise_fraction"] is True
 
-    def test_the_setting_is_documented_with_the_cost(self):
+    def test_the_setting_is_documented_objectively(self):
+        """ASKED FOR 2026-08-21: "should not mention my screen data or
+        historical, just an objective discription of what it is."
+
+        A number measured on one screen, quoted in a setting's help, reads
+        as a property of the SETTING rather than of that screen -- and the
+        next user has no way to know it is neither theirs nor a constant.
+        The help now says what the two options divide by and how they
+        differ; the measurement belongs in the instruction file, which is a
+        log."""
         import spacr.settings as settings
 
         said = settings.tooltips["normalise_fraction"]
-        assert "0.5526" in said or "1.8" in said
-        assert "conservative" in said
+        # It says what each option does...
+        assert "after fraction_threshold" in said
+        assert "every read the well produced" in said
+        # ...and how they relate, without a number from any one screen.
+        assert "raises every surviving share" in said
+        for screen_specific in ("0.5526", "1.8", "historical", "real screen",
+                                "conservative"):
+            assert screen_specific not in said, screen_specific

@@ -5709,7 +5709,7 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
         alpha=float(settings.get('fdr_alpha', 0.05)),
         presence_threshold=float(settings.get('guide_presence_threshold', 0.0)),
         batch_size=int(settings.get('guide_permutation_batch_size', 500)),
-        statistic=str(settings.get('guide_statistic', 'pearson')),
+        statistic=str(settings.get('grna_statistic', 'pearson')),
     )
     # THE SAME ALIASES ON THE FULL TABLE, and on the primary slice taken from
     # it further down -- one block now, rather than two lists that had to stay

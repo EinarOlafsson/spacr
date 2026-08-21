@@ -195,6 +195,11 @@ def convert_settings_dict_for_gui(settings):
         # refused at the seam instead of picked from a list of two. Declared
         # here rather than only in the Qt combo table so the Tk and Qt panels
         # cannot offer different lists.
+        # OFFERED, NOT TYPED. Two spellings, and a free-text box lets a
+        # settings CSV say 'spearman' -- a reasonable guess for what
+        # 'rank' does -- and be refused at the seam rather than picked
+        # from a list of two.
+        'grna_statistic': ('combo', ['pearson', 'rank'], 'pearson'),
         'p_threshold_kind': ('combo', ['adjusted', 'raw'], 'adjusted'),
         'metadata_type': ('combo', ['cellvoyager', 'cq1', 'auto', 'custom'], 'cellvoyager'),
         'channels': ('combo', chan_list, '[0,1,2,3]'),
