@@ -1,0 +1,72 @@
+================================================================================
+EVERY FIGURE IN THE PANEL OPENS WHEN IT IS CLICKED
+================================================================================
+
+Status:    filed 2026-08-21, not started.
+Requested: 2026-08-21 -- "in the figure pannel. i am able to click on the
+           colcano plot to open it but not the other pyqtgraphs. for the
+           matplot lib graphs, i can not see #2 when i click on it this run."
+Owner:     Qt GUI (figure grid, figure queue)
+
+--------------------------------------------------------------------------------
+A. THE PYQTGRAPH PANELS DO NOT OPEN
+--------------------------------------------------------------------------------
+
+The volcano opens on a click and its neighbours -- the residuals, the Q-Q,
+the scale-location, the effect panels -- do not.
+
+WHY THAT IS THE SHAPE OF THE BUG, and it is worth stating before anyone
+looks: `_open_figure_from_grid` hands the index to
+`FigureQueue.show_index`, which is the MATPLOTLIB queue. The pyqtgraph
+panels are live widgets that live in the results panel's own tabs, not
+entries in that queue. The volcano is reachable because it has a second
+route of its own, not because the grid knows how to open it -- so every
+panel that lacks such a route is a tile that looks clickable and is not.
+
+A TILE THAT DOES NOT OPEN IS WORSE THAN NO TILE. It is drawn, it is in the
+grid, it takes a click, and nothing happens: the user tries twice and
+concludes the application is broken rather than that this particular picture
+has no door. Instruction 106's rule, on a control that is not even greyed.
+
+ONE ROUTE, not one per renderer. Whatever the tile holds -- a matplotlib
+figure, a pyqtgraph panel, a saved image -- clicking it shows that thing
+full size. Where a tile genuinely cannot be opened it should not be a tile.
+
+--------------------------------------------------------------------------------
+B. AND ONE OF THE MATPLOTLIB FIGURES SHOWS NOTHING           [REPORTED]
+--------------------------------------------------------------------------------
+
+    "for the matplot lib graphs, i can not see #2 when i click on it this
+     run."
+
+Figure 2 of that run opens to nothing. The tile has a picture on it -- it was
+rendered, or there would be no tile (`set_pinned` refuses a null pixmap) --
+so the raster exists and the full-size view does not show it.
+
+CANDIDATES, in the order worth checking:
+
+  * the live figure was SPILLED and could not be restored, so `figure_for`
+    returned None and the detail view drew nothing. The cap is the user's
+    number and a long run passes it;
+  * the figure was CLOSED by whatever made it -- a `plt.close` in the
+    producing code -- and the queue is holding a dead canvas;
+  * the index the tile carries is not the index the queue holds, so #2 opens
+    something that is not there.
+
+WHICHEVER IT IS, THE VIEW MUST SAY SO. An empty panel where a figure should
+be is the fault this instruction is about; "figure 2 could not be restored
+from its spill" is an answer.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Clicking any tile in the figure panel opens that figure, whichever
+  renderer drew it.
+* A tile that cannot be opened is not drawn.
+* Figure 2 of the reported run opens and shows its picture.
+* A figure that genuinely cannot be shown says why, in the panel, rather
+  than opening blank.
+* A test drives the CLICK -- not the handler -- for one figure of each
+  renderer, because a handler that works and a tile that does not reach it
+  is exactly what was reported.

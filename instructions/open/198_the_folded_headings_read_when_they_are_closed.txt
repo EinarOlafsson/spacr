@@ -1,0 +1,58 @@
+================================================================================
+THE MEASUREMENTS TAB'S SUB-HEADINGS READ WHEN THEY ARE NOT HIGHLIGHTED
+================================================================================
+
+Status:    filed 2026-08-21, not started.
+Requested: 2026-08-21 -- "the text in the measurements tab for the sub
+           categories should be white when they are not highlighted (in dark
+           mode oposite in bright mode)."
+Owner:     Qt GUI (Measurements tab, theme)
+
+--------------------------------------------------------------------------------
+WHAT IS WRONG
+--------------------------------------------------------------------------------
+
+A sub-category heading is legible when it is highlighted and grey-on-grey
+when it is not -- which is backwards. THE UNHIGHLIGHTED STATE IS THE ONE A
+USER READS: on a tab with four folded sections, at most one is highlighted
+and the rest are what they are scanning to decide where to go.
+
+A heading is not a hint. It is the label of a control the user is looking
+for, and dimming it says "this is secondary" about the only thing on screen
+that is not.
+
+--------------------------------------------------------------------------------
+A. THE RULE
+--------------------------------------------------------------------------------
+
+The resting heading takes the theme's FOREGROUND -- white on the dark theme,
+near-black on the light one -- and the highlight is expressed some other way:
+a background, a rule, an accent on the fold arrow. Anything but taking the
+text away.
+
+FROM THE THEME, NEVER A LITERAL. `#FFFFFF` in a stylesheet is the same fault
+as the eleven hard-coded ink colours instruction 178 removed from the
+figures: it reads on one theme and vanishes on the other, and the author sees
+only the one they use.
+
+--------------------------------------------------------------------------------
+B. AND IT IS NOT ONLY THE MEASUREMENTS TAB
+--------------------------------------------------------------------------------
+
+The folding sections are `CollapsibleSection`, which every module screen
+uses. If the heading is dim there it is dim everywhere, and fixing the one
+tab it was reported on would leave the same fault on twenty-seven others.
+
+Check the built screens rather than the stylesheet: a rule can be right and
+overridden.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* An unhighlighted sub-heading is the theme's foreground colour, on both
+  themes, measured off the rendered widget rather than read off the sheet.
+* The highlighted state is still distinguishable -- by something that is not
+  the text colour.
+* No literal white or black in the rule.
+* It holds on every screen that folds, not only Measurements.
