@@ -2,7 +2,7 @@
 RIGHT-CLICK ANY FIGURE AND CHANGE HOW IT LOOKS, WITHOUT RE-RUNNING ANYTHING
 ================================================================================
 
-Status:    not started — one worked example exists, the general mechanism does not
+Status:    DONE 2026-08-20. See the closing section.
 Requested: 2026-08-15 — "i want to be able to right click on each graph and have
            access to as many settings for the graph as possible: ledgend on/off,
            grid on/off, colors, symbols, line width, line color, font size, logx,
@@ -578,3 +578,70 @@ contract) and 4 (a screen holding the Figure rather than a saved image). All
 three are the same architectural change -- one style vocabulary under both
 renderers -- which is instruction 127's subject and wants deciding there
 rather than being done piecemeal here.
+
+--------------------------------------------------------------------------------
+2026-08-20 (later) -- POINTS 1, 2, 4 AND 6. 108 IS DONE.
+--------------------------------------------------------------------------------
+
+POINT 1 -- THE SHARED STYLE BASE. `spacr/style_base.py` holds `FigureStyle`:
+every field a reader would recognise on any figure -- axes, type, grid,
+legend, spines, page, background. `VolcanoStyle` inherits it and keeps only
+what a volcano has.
+
+ITS 63 FIELDS ARE THE SAME 63, checked field-by-field against the class as it
+was, because the restyle menu of point 3 is built from `dataclasses.fields`
+and a lost field is a lost menu entry with nothing to say so.
+
+AND `CHOICES` HAD TO BECOME A ClassVar. Annotated as an ordinary type it
+becomes a dataclass FIELD, and the menu -- which skips nothing by design --
+grew an entry offering to edit the list of choices itself. Caught by counting
+the fields, which is the check this instruction's own point 3 argued for.
+
+THE NAMES ARE `VolcanoStyle`'S, deliberately: they are what every style FILE
+a user has already saved contains, and renaming them for a tidier vocabulary
+would break those files. `color` rather than `colour` is here for the same
+reason.
+
+POINT 2 -- THE CONTRACT, WITH A SECOND IMPLEMENTATION.
+
+    render(data, style, *, figure=None, save_path=None) -> (figure, axes)
+
+A BASE WITH ONE SUBCLASS PROVES NOTHING, so `ComparisonStyle` and
+`render_comparison` land with it -- the comparison figure the Cells tab draws
+(187). `figure=` redraws a live canvas IN PLACE, which is what keeps a
+restyle from resetting the zoom and is why it is in the contract at all;
+`save_path=` writes through the one writer.
+
+THE MARKS ARE THE RENDERER'S, THE FURNITURE IS THE BASE'S.
+`style_base.apply_page` does the axes, type, grid, spines and page for both,
+so two renderers cannot drift on what "grid off" means -- and the matplotlib
+fault where `grid(False, linewidth=...)` ENABLES the grid is spelled once
+there rather than met a third time.
+
+A house style crosses between the two BY NAME (`FigureStyle.shared_with`) and
+a volcano-only setting does not follow it. That is the distinction a shared
+base makes and the shared DICTS this instruction started from could not.
+
+POINT 4 -- FIGURES STAY LIVE. Already true, and confirmed rather than
+assumed: `FigureQueue` keeps the live matplotlib Figures behind the pixmaps
+it displays, capped at the user's number, and `figure_for` restores one past
+the cap from its spill and puts it back in the live set. Every restyle path
+goes through it -- "figure_for, not a dict lookup: an evicted figure is
+restored from its spill, so restyling an old figure redraws it too". 53
+tests across the live-cache, editable-tiles and dead-canvas suites.
+
+POINT 6 -- THE PREFERENCE LEAK, CLOSED. Eleven `savefig` calls routed through
+`plot.save_figure`; nine that are NOT leaks now say so where they sit. The
+ratchet NAMES them rather than counting them, because a bare number would be
+satisfied by deleting a figure. Counted from the TREE -- this instruction's
+own count was taken by eye twice and was wrong both times.
+
+42 tests in tests/test_the_style_base_and_the_renderer_contract.py and
+tests/test_every_kept_figure_goes_through_one_writer.py.
+
+WHAT THIS DOES NOT CLAIM. Every matplotlib figure in spaCR now draws in the
+house style (136) and every kept one is written by the one writer, but only
+two of them have a STYLE OBJECT and therefore a restyle menu. Giving a third
+one a style is now a dataclass and a `render`, which is the point of the two
+above; which figures earn one is instruction 127's product question and not a
+gap in this one.
