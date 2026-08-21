@@ -2,7 +2,8 @@
 THE CLASSES COLUMN CAN BE FILLED IN, AND THE CLASSES DEFINE THE FOLDERS
 ================================================================================
 
-Status:    filed 2026-08-21, not started.
+Status:    filed 2026-08-21. THE BLOCKING BUG, THE REMOVALS AND THE RENAME
+           DONE 2026-08-21; the three folds in WHAT IS LEFT are not.
 Requested: 2026-08-21 -- "in the classify modual in labels and classes, the
            classes column setting cannot be filled in and therefor classes
            cannot be added. class folder names should be preplaced with
@@ -90,3 +91,59 @@ HOW TO KNOW IT WORKED
 * The legacy Tk GUI still opens (the Tk-accommodates-new-code rule), and
   settings CSVs written before this item still load -- the removed keys are
   migrated or ignored with a stated reason, not left to raise.
+
+--------------------------------------------------------------------------------
+DONE 2026-08-21
+--------------------------------------------------------------------------------
+
+THE BLOCKING BUG WAS NOT A DISABLED WIDGET. The column combo is populated
+from a LOADED TABLE, and the panel is reached before there is one -- so the
+list came back empty, and a non-editable empty combo offers no way to name
+anything. The setting that decides every class in the module was the one
+setting that could not be filled in.
+
+Two fixes, because there are two situations. The combo is EDITABLE, so a
+column can be typed when there is no database; and it has the SQL BUTTON the
+other column-naming settings already have, so the names can be read out of
+the database rather than guessed. The composite attaches its own button --
+wrapping the whole editor would have put it beside the table rather than
+beside the field it fills, and could not have written into it either.
+
+A TYPED NAME NOW SURVIVES `set_frame`, which runs again on every basis change
+and every attached table and used to discard it. Silently: an empty combo
+looks exactly like one nobody has touched.
+
+THE REMOVALS. `dataset_mode` loses `measurement`; `metadata_type_by` and
+`measurement_rules` are gone from `settings.py`, from both GUIs and from
+`ml.py` -- the whole `_labels_from_measurements` path, not a gate over it.
+
+REMOVED, MIGRATED, NOT REFUSED. A settings CSV naming the retired basis
+loads and runs: `RETIRED_BASES` maps it to `annotation`, which is not an
+approximation -- the measurement path WROTE a label column and then read it
+back as an annotation, so `annotation` is the second half of what it did. A
+basis that never existed still raises, because migration is for what was
+valid, not a blanket fallback.
+
+`metadata_type_by` NAMED THE COLUMN A CLASS IS DEFINED BY, which is the
+Classes editor's own column field -- so `io._class_column` reads it off
+`classes` now, and honours the old key first so an old CSV runs unchanged.
+
+THE RENAME is of the LABEL, not the key: every settings CSV in existence
+says `sample`, and "Sample size limit" is what it has always bounded.
+
+--------------------------------------------------------------------------------
+WHAT IS LEFT
+--------------------------------------------------------------------------------
+
+Three folds, each of which changes what a setting MEANS rather than whether
+it is present, and each of which needs a migration for files that set both
+sides:
+
+  * CLASS FOLDER NAMES BUILT FROM THE CLASS FIELD. `class_folder_names` is
+    still its own setting. Deriving it means deciding what happens to a file
+    that sets both and disagrees -- and the answer cannot be "the derived one
+    wins" without checking the folders on disk, since a name's POSITION in
+    that list is its integer label and reordering it retrains a different
+    model.
+  * THE CLASSES COLUMN REPLACING `annotation_column`. Both still exist.
+  * `class_metadata` REPLACED BY THE CLASSES' CLASS AND VALUE.
