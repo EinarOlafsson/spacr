@@ -36,6 +36,12 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
+# THE HOUSE STYLE, AT MODULE SCOPE. `figures.style` imports matplotlib only
+# inside its own functions, so naming it here costs nothing at import time --
+# which is why every `plt` in this file is still imported lazily and this is
+# not.
+from .figures.style import figure_style, theme_target
+
 __all__ = [
     "IDENTIFIER_PATTERNS",
     "SweepResult",
@@ -733,28 +739,33 @@ def plot_sweep(result: "SweepResult", path: Optional[str] = None, *,
 
     height = max(3.0, 0.28 * len(grid.index) + 1.6)
     width = max(5.0, 0.34 * len(grid.columns) + 3.2)
-    figure, axes = plt.subplots(figsize=(width, height))
-    limit = float(np.nanmax(np.abs(grid.to_numpy()))) or 1.0
-    image = axes.imshow(grid.to_numpy(), cmap="RdBu_r", vmin=-limit,
-                        vmax=limit, aspect="auto")
-    axes.set_xticks(range(len(grid.columns)))
-    axes.set_xticklabels([c[:34] for c in grid.columns], rotation=90,
-                         fontsize=7)
-    axes.set_yticks(range(len(grid.index)))
-    axes.set_yticklabels(grid.index, fontsize=7)
-    axes.set_title(title or
-                   f"{len(keep):,} association(s) past BH at {alpha:g}"
-                   + (f", circularity < {max_circularity:g}"
-                      if max_circularity < 1.0 else "")
-                   + (f" — {drawn}s" if drawn else ""),
-                   fontsize=9)
-    bar = figure.colorbar(image, ax=axes, fraction=0.025, pad=0.01)
-    bar.set_label("effect (partial correlation, plate-blocked)", fontsize=7)
-    bar.ax.tick_params(labelsize=6)
-    _readable(figure, axes)
-    figure.tight_layout()
-    _write(figure, path)
-    return figure
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        figure, axes = plt.subplots(figsize=(width, height))
+        limit = float(np.nanmax(np.abs(grid.to_numpy()))) or 1.0
+        image = axes.imshow(grid.to_numpy(), cmap="RdBu_r", vmin=-limit,
+                            vmax=limit, aspect="auto")
+        axes.set_xticks(range(len(grid.columns)))
+        axes.set_xticklabels([c[:34] for c in grid.columns], rotation=90,
+                             fontsize=7)
+        axes.set_yticks(range(len(grid.index)))
+        axes.set_yticklabels(grid.index, fontsize=7)
+        axes.set_title(title or
+                       f"{len(keep):,} association(s) past BH at {alpha:g}"
+                       + (f", circularity < {max_circularity:g}"
+                          if max_circularity < 1.0 else "")
+                       + (f" — {drawn}s" if drawn else ""),
+                       fontsize=9)
+        bar = figure.colorbar(image, ax=axes, fraction=0.025, pad=0.01)
+        bar.set_label("effect (partial correlation, plate-blocked)", fontsize=7)
+        bar.ax.tick_params(labelsize=6)
+        _readable(figure, axes)
+        figure.tight_layout()
+        _write(figure, path)
+        return figure
 
 
 def _order_like_neighbours(grid: pd.DataFrame) -> pd.DataFrame:
@@ -870,57 +881,62 @@ def plot_effect_against_representation(
     if not len(per_gene):
         return None
 
-    figure, axes = plt.subplots(figsize=(7.2, 5.0))
-    controls = per_gene[per_gene["control"].astype(bool)]
-    rest = per_gene[~per_gene["control"].astype(bool)]
-    # OPAQUE, NO EDGE. The skill: overplotting is handled by point size and
-    # by greying, not by alpha -- a translucent mark makes density and value
-    # the same channel.
-    axes.scatter(rest["weight"], rest["hits"], s=9, color=HOUSE.GREY,
-                 edgecolor="none", zorder=2)
-    if len(controls):
-        # THE CONTROLS ARE THE OTHER HIGHLIGHT, opaque and small like every
-        # other mark. A hollow diamond at s=54 read as an annotation rather
-        # than as data.
-        axes.scatter(controls["weight"], controls["hits"], s=22,
-                     color=HOUSE.RUST, edgecolor="none", zorder=4)
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        figure, axes = plt.subplots(figsize=(7.2, 5.0))
+        controls = per_gene[per_gene["control"].astype(bool)]
+        rest = per_gene[~per_gene["control"].astype(bool)]
+        # OPAQUE, NO EDGE. The skill: overplotting is handled by point size and
+        # by greying, not by alpha -- a translucent mark makes density and value
+        # the same channel.
+        axes.scatter(rest["weight"], rest["hits"], s=9, color=HOUSE.GREY,
+                     edgecolor="none", zorder=2)
+        if len(controls):
+            # THE CONTROLS ARE THE OTHER HIGHLIGHT, opaque and small like every
+            # other mark. A hollow diamond at s=54 read as an annotation rather
+            # than as data.
+            axes.scatter(controls["weight"], controls["hits"], s=22,
+                         color=HOUSE.RUST, edgecolor="none", zorder=4)
 
-    # THE TREND, and only when there is something to fit. Two points make a
-    # line through themselves and say nothing; drawing it anyway would put a
-    # confident diagonal on a plot that has no evidence for one.
-    if len(per_gene) >= 8 and per_gene["weight"].nunique() > 2:
-        x = per_gene["weight"].to_numpy(dtype=float)
-        y = per_gene["hits"].to_numpy(dtype=float)
-        slope, intercept = np.polyfit(x, y, 1)
-        span = np.linspace(x.min(), x.max(), 50)
-        axes.plot(span, slope * span + intercept, color=HOUSE.GREY_DARK,
-                  linewidth=HOUSE.REFERENCE, linestyle=":", zorder=3)
-        # Named on the plot, because the number is the answer to the question
-        # and a reader should not have to eyeball the slope.
-        rho = float(np.corrcoef(x, y)[0, 1]) if len(set(x)) > 1 else np.nan
-        axes.set_title(
-            title or (f"hits vs representation — rho = {rho:.2f} "
-                      f"({'weight explains much of the ranking' if abs(rho) >= 0.5 else 'weight does not explain the ranking'})"),
-            fontsize=9)
-    else:
-        axes.set_title(title or "hits vs representation", fontsize=9)
+        # THE TREND, and only when there is something to fit. Two points make a
+        # line through themselves and say nothing; drawing it anyway would put a
+        # confident diagonal on a plot that has no evidence for one.
+        if len(per_gene) >= 8 and per_gene["weight"].nunique() > 2:
+            x = per_gene["weight"].to_numpy(dtype=float)
+            y = per_gene["hits"].to_numpy(dtype=float)
+            slope, intercept = np.polyfit(x, y, 1)
+            span = np.linspace(x.min(), x.max(), 50)
+            axes.plot(span, slope * span + intercept, color=HOUSE.GREY_DARK,
+                      linewidth=HOUSE.REFERENCE, linestyle=":", zorder=3)
+            # Named on the plot, because the number is the answer to the question
+            # and a reader should not have to eyeball the slope.
+            rho = float(np.corrcoef(x, y)[0, 1]) if len(set(x)) > 1 else np.nan
+            axes.set_title(
+                title or (f"hits vs representation — rho = {rho:.2f} "
+                          f"({'weight explains much of the ranking' if abs(rho) >= 0.5 else 'weight does not explain the ranking'})"),
+                fontsize=9)
+        else:
+            axes.set_title(title or "hits vs representation", fontsize=9)
 
-    axes.set_xlabel("effective wells — the sample size each p was computed "
-                "on", fontsize=8)
-    axes.set_ylabel(f"measurements moved past BH at {alpha:g}", fontsize=8)
-    axes.tick_params(labelsize=7)
-    marks = [(f"{len(rest):,} genes", HOUSE.GREY)]
-    if len(controls):
-        marks.append((f"{len(controls):,} controls", HOUSE.RUST))
-    marks.append(("dotted: what weight alone predicts", HOUSE.GREY_DARK))
-    for i, (text, colour) in enumerate(marks):
-        axes.text(0.02, 0.97 - i * 0.062, text,
-                  transform=axes.transAxes, fontsize=HOUSE.NOTE,
-                  color=colour, va="top")
-    _readable(figure, axes)
-    figure.tight_layout()
-    _write(figure, path)
-    return figure
+        axes.set_xlabel("effective wells — the sample size each p was computed "
+                    "on", fontsize=8)
+        axes.set_ylabel(f"measurements moved past BH at {alpha:g}", fontsize=8)
+        axes.tick_params(labelsize=7)
+        marks = [(f"{len(rest):,} genes", HOUSE.GREY)]
+        if len(controls):
+            marks.append((f"{len(controls):,} controls", HOUSE.RUST))
+        marks.append(("dotted: what weight alone predicts", HOUSE.GREY_DARK))
+        for i, (text, colour) in enumerate(marks):
+            axes.text(0.02, 0.97 - i * 0.062, text,
+                      transform=axes.transAxes, fontsize=HOUSE.NOTE,
+                      color=colour, va="top")
+        _readable(figure, axes)
+        figure.tight_layout()
+        _write(figure, path)
+        return figure
 
 
 def plot_measurement_families(result: "SweepResult",
@@ -959,31 +975,36 @@ def plot_measurement_families(result: "SweepResult",
     families = [f for f, _ in MEASUREMENT_FAMILIES] + ["other"]
     families = [f for f in families if f in counts.columns]
 
-    figure, axes = plt.subplots(
-        figsize=(7.6, max(3.0, 0.34 * len(counts.index) + 1.4)))
-    left = np.zeros(len(counts.index))
-    # FAMILY COLOURS ASSIGNED ONCE AND NEVER RE-MAPPED, the rule Waldman
-    # Fig 3 keeps for strains across three different panels. Here the
-    # categories genuinely ARE the data, which is the one case the skill
-    # allows a categorical palette.
-    for family in families:
-        values = counts[family].to_numpy(dtype=float)
-        axes.barh(range(len(counts.index)), values, left=left, height=0.68,
-                  color=HOUSE.FAMILY.get(family, HOUSE.GREY), linewidth=0,
-                  label=family)
-        left = left + values
-    axes.set_yticks(range(len(counts.index)))
-    axes.set_yticklabels(counts.index, fontsize=7)
-    axes.invert_yaxis()
-    axes.set_xlabel(f"measurements moved past BH at {alpha:g}", fontsize=8)
-    axes.tick_params(labelsize=7)
-    axes.set_title(title or "what kind of measurement each gene moves",
-                   fontsize=9)
-    axes.legend(fontsize=7, frameon=False, ncol=min(4, len(families)))
-    _readable(figure, axes)
-    figure.tight_layout()
-    _write(figure, path)
-    return figure
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        figure, axes = plt.subplots(
+            figsize=(7.6, max(3.0, 0.34 * len(counts.index) + 1.4)))
+        left = np.zeros(len(counts.index))
+        # FAMILY COLOURS ASSIGNED ONCE AND NEVER RE-MAPPED, the rule Waldman
+        # Fig 3 keeps for strains across three different panels. Here the
+        # categories genuinely ARE the data, which is the one case the skill
+        # allows a categorical palette.
+        for family in families:
+            values = counts[family].to_numpy(dtype=float)
+            axes.barh(range(len(counts.index)), values, left=left, height=0.68,
+                      color=HOUSE.FAMILY.get(family, HOUSE.GREY), linewidth=0,
+                      label=family)
+            left = left + values
+        axes.set_yticks(range(len(counts.index)))
+        axes.set_yticklabels(counts.index, fontsize=7)
+        axes.invert_yaxis()
+        axes.set_xlabel(f"measurements moved past BH at {alpha:g}", fontsize=8)
+        axes.tick_params(labelsize=7)
+        axes.set_title(title or "what kind of measurement each gene moves",
+                       fontsize=9)
+        axes.legend(fontsize=7, frameon=False, ncol=min(4, len(families)))
+        _readable(figure, axes)
+        figure.tight_layout()
+        _write(figure, path)
+        return figure
 
 
 def plot_guide_concordance(result: "SweepResult", path: Optional[str] = None,
@@ -1050,46 +1071,51 @@ def plot_guide_concordance(result: "SweepResult", path: Optional[str] = None,
     # line at the mean; NEVER a bar chart -- a bar for n = 3 is not done in
     # these papers". The old bar hid exactly what this panel exists to show:
     # whether the guides agree, or whether one of them carries the gene.
-    figure, axes = plt.subplots(
-        figsize=(6.4, max(2.8, 0.30 * len(summary.index) + 1.3)))
-    positions = np.arange(len(summary.index))
-    rng = np.random.default_rng(0)
-    for row, gene in enumerate(summary.index):
-        values = frame.loc[frame["gene"] == gene, "agree"].to_numpy(float)
-        if not len(values):
-            continue
-        # Jitter is deterministic: a figure that moves its points between two
-        # renders of the same data is a figure a reader cannot check.
-        spread = rng.uniform(-0.13, 0.13, len(values))
-        axes.scatter(values, np.full(len(values), row) + spread, s=13,
-                     color=HOUSE.GREY, edgecolor="none", zorder=2)
-        mean = float(np.mean(values))
-        # EVERYTHING GREY EXCEPT THE CLAIM: the mean is coloured only where
-        # it says something -- complete agreement, or a real split.
-        colour = (HOUSE.BLUE if mean >= 0.99 else
-                  HOUSE.RUST if mean < 0.6 else HOUSE.GREY_DARK)
-        axes.plot([mean, mean], [row - 0.28, row + 0.28], color=colour,
-                  linewidth=HOUSE.DATA, zorder=3, solid_capstyle="butt")
-    axes.set_yticks(positions)
-    axes.set_yticklabels(
-        [f"{g}  ({int(n)})" for g, n in zip(summary.index, summary["pairs"])],
-        fontsize=HOUSE.TICK)
-    axes.invert_yaxis()
-    axes.set_xlim(-0.03, 1.05)
-    axes.axvline(1.0, color=HOUSE.GREY, linewidth=HOUSE.REFERENCE,
-                 linestyle=":", zorder=1)
-    axes.set_xlabel("share of a gene's guides agreeing on the sign")
-    axes.set_ylabel("")
-    # A LEGEND AS COLOURED TEXT, no frame and no markers -- the Waldman
-    # Fig 3B/C idiom, which costs no space and needs no key to decode.
-    axes.text(0.02, 0.02, "one point per measurement · line is the mean",
-              transform=axes.transAxes, fontsize=HOUSE.NOTE,
-              color=HOUSE.GREY_DARK, va="bottom")
-    axes.set_title(title or "do a gene's own guides agree?",
-                   fontsize=HOUSE.LABEL)
-    figure.tight_layout()
-    _write(figure, path)
-    return figure
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        figure, axes = plt.subplots(
+            figsize=(6.4, max(2.8, 0.30 * len(summary.index) + 1.3)))
+        positions = np.arange(len(summary.index))
+        rng = np.random.default_rng(0)
+        for row, gene in enumerate(summary.index):
+            values = frame.loc[frame["gene"] == gene, "agree"].to_numpy(float)
+            if not len(values):
+                continue
+            # Jitter is deterministic: a figure that moves its points between two
+            # renders of the same data is a figure a reader cannot check.
+            spread = rng.uniform(-0.13, 0.13, len(values))
+            axes.scatter(values, np.full(len(values), row) + spread, s=13,
+                         color=HOUSE.GREY, edgecolor="none", zorder=2)
+            mean = float(np.mean(values))
+            # EVERYTHING GREY EXCEPT THE CLAIM: the mean is coloured only where
+            # it says something -- complete agreement, or a real split.
+            colour = (HOUSE.BLUE if mean >= 0.99 else
+                      HOUSE.RUST if mean < 0.6 else HOUSE.GREY_DARK)
+            axes.plot([mean, mean], [row - 0.28, row + 0.28], color=colour,
+                      linewidth=HOUSE.DATA, zorder=3, solid_capstyle="butt")
+        axes.set_yticks(positions)
+        axes.set_yticklabels(
+            [f"{g}  ({int(n)})" for g, n in zip(summary.index, summary["pairs"])],
+            fontsize=HOUSE.TICK)
+        axes.invert_yaxis()
+        axes.set_xlim(-0.03, 1.05)
+        axes.axvline(1.0, color=HOUSE.GREY, linewidth=HOUSE.REFERENCE,
+                     linestyle=":", zorder=1)
+        axes.set_xlabel("share of a gene's guides agreeing on the sign")
+        axes.set_ylabel("")
+        # A LEGEND AS COLOURED TEXT, no frame and no markers -- the Waldman
+        # Fig 3B/C idiom, which costs no space and needs no key to decode.
+        axes.text(0.02, 0.02, "one point per measurement · line is the mean",
+                  transform=axes.transAxes, fontsize=HOUSE.NOTE,
+                  color=HOUSE.GREY_DARK, va="bottom")
+        axes.set_title(title or "do a gene's own guides agree?",
+                       fontsize=HOUSE.LABEL)
+        figure.tight_layout()
+        _write(figure, path)
+        return figure
 
 
 def _one_level(table: pd.DataFrame, level: Optional[str]) -> str:
@@ -1154,69 +1180,74 @@ def plot_grid_volcano(result: "SweepResult", path: Optional[str] = None, *,
     # is the claim. Circularity is not a colour ramp over all of them any
     # more -- a sequential ramp over 900 grey points is a texture, and it
     # spent the one channel that could carry the finding.
-    figure, axes = plt.subplots(figsize=(6.2, 4.6))
-    passed = (keep["q"] < float(alpha)).to_numpy()
-    up = passed & (effect > 0)
-    down = passed & (effect < 0)
-    axes.scatter(effect, evidence, s=4.0, color=HOUSE.GREY, edgecolor="none",
-                 rasterized=True, zorder=1)
-    axes.scatter(effect[up], evidence[up], s=5.0, color=HOUSE.GREEN,
-                 edgecolor="none", zorder=3)
-    axes.scatter(effect[down], evidence[down], s=5.0, color=HOUSE.RUST,
-                 edgecolor="none", zorder=3)
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        figure, axes = plt.subplots(figsize=(6.2, 4.6))
+        passed = (keep["q"] < float(alpha)).to_numpy()
+        up = passed & (effect > 0)
+        down = passed & (effect < 0)
+        axes.scatter(effect, evidence, s=4.0, color=HOUSE.GREY, edgecolor="none",
+                     rasterized=True, zorder=1)
+        axes.scatter(effect[up], evidence[up], s=5.0, color=HOUSE.GREEN,
+                     edgecolor="none", zorder=3)
+        axes.scatter(effect[down], evidence[down], s=5.0, color=HOUSE.RUST,
+                     edgecolor="none", zorder=3)
 
-    # A CIRCULAR HIT IS RINGED, NOT RECOLOURED. It is still a hit; what the
-    # ring says is that the classifier already tracks that measurement, so it
-    # cannot corroborate anything derived from the classifier.
-    if result.circularity_known:
-        circular = passed & (
-            pd.to_numeric(keep["circularity"], errors="coerce").to_numpy()
-            >= 0.15)
-        if circular.any():
-            axes.scatter(effect[circular], evidence[circular], s=26,
-                         facecolor="none", edgecolor=HOUSE.NAVY,
-                         linewidth=0.7, zorder=4)
+        # A CIRCULAR HIT IS RINGED, NOT RECOLOURED. It is still a hit; what the
+        # ring says is that the classifier already tracks that measurement, so it
+        # cannot corroborate anything derived from the classifier.
+        if result.circularity_known:
+            circular = passed & (
+                pd.to_numeric(keep["circularity"], errors="coerce").to_numpy()
+                >= 0.15)
+            if circular.any():
+                axes.scatter(effect[circular], evidence[circular], s=26,
+                             facecolor="none", edgecolor=HOUSE.NAVY,
+                             linewidth=0.7, zorder=4)
 
-    if passed.any():
-        # The BH line falls where the correction actually landed, not at a
-        # nominal 0.05 -- drawing the nominal one puts the threshold in the
-        # wrong place on every corrected screen.
-        cut = float(keep.loc[passed, "p"].max())
-        axes.axhline(-np.log10(max(cut, 1e-300)), color=HOUSE.GREY_DARK,
-                     linewidth=HOUSE.REFERENCE, linestyle=":", zorder=2)
+        if passed.any():
+            # The BH line falls where the correction actually landed, not at a
+            # nominal 0.05 -- drawing the nominal one puts the threshold in the
+            # wrong place on every corrected screen.
+            cut = float(keep.loc[passed, "p"].max())
+            axes.axhline(-np.log10(max(cut, 1e-300)), color=HOUSE.GREY_DARK,
+                         linewidth=HOUSE.REFERENCE, linestyle=":", zorder=2)
 
-    # A HANDFUL LABELLED, not all of them: the skill labels "a handful of
-    # genes" on a volcano and nothing else, because a label on every hit is
-    # a wall of text with no claim in it.
-    if passed.any():
-        best = keep.loc[passed].nsmallest(6, "q")
-        for _i, row in best.iterrows():
-            axes.annotate(f"{row['guide']} · {str(row['measurement'])[:22]}",
-                          (float(row["effect"]),
-                           -np.log10(max(float(row["p"]), 1e-300))),
-                          fontsize=5.4, style="italic",
-                          color=HOUSE.GREY_DARK, xytext=(3, 1),
-                          textcoords="offset points", zorder=5)
+        # A HANDFUL LABELLED, not all of them: the skill labels "a handful of
+        # genes" on a volcano and nothing else, because a label on every hit is
+        # a wall of text with no claim in it.
+        if passed.any():
+            best = keep.loc[passed].nsmallest(6, "q")
+            for _i, row in best.iterrows():
+                axes.annotate(f"{row['guide']} · {str(row['measurement'])[:22]}",
+                              (float(row["effect"]),
+                               -np.log10(max(float(row["p"]), 1e-300))),
+                              fontsize=5.4, style="italic",
+                              color=HOUSE.GREY_DARK, xytext=(3, 1),
+                              textcoords="offset points", zorder=5)
 
-    marks = [("not significant", HOUSE.GREY),
-             (f"raises it (n={int(up.sum())})", HOUSE.GREEN),
-             (f"lowers it (n={int(down.sum())})", HOUSE.RUST)]
-    if result.circularity_known:
-        marks.append(("ringed: the score already tracks it", HOUSE.NAVY))
-    else:
-        marks.append(("circularity NOT computed", HOUSE.GREY_DARK))
-    for i, (text, colour) in enumerate(marks):
-        axes.text(0.02, 0.97 - i * 0.062, text, transform=axes.transAxes,
-                  fontsize=HOUSE.NOTE, color=colour, va="top", ha="left")
+        marks = [("not significant", HOUSE.GREY),
+                 (f"raises it (n={int(up.sum())})", HOUSE.GREEN),
+                 (f"lowers it (n={int(down.sum())})", HOUSE.RUST)]
+        if result.circularity_known:
+            marks.append(("ringed: the score already tracks it", HOUSE.NAVY))
+        else:
+            marks.append(("circularity NOT computed", HOUSE.GREY_DARK))
+        for i, (text, colour) in enumerate(marks):
+            axes.text(0.02, 0.97 - i * 0.062, text, transform=axes.transAxes,
+                      fontsize=HOUSE.NOTE, color=colour, va="top", ha="left")
 
-    axes.set_xlabel("effect on the measurement")
-    axes.set_ylabel("-log$_{10}$(p)")
-    axes.set_title(title or f"{len(keep):,} gene x measurement pair(s)",
-                   fontsize=HOUSE.LABEL)
-    _readable(figure, axes)
-    figure.tight_layout()
-    _write(figure, path)
-    return figure
+        axes.set_xlabel("effect on the measurement")
+        axes.set_ylabel("-log$_{10}$(p)")
+        axes.set_title(title or f"{len(keep):,} gene x measurement pair(s)",
+                       fontsize=HOUSE.LABEL)
+        _readable(figure, axes)
+        figure.tight_layout()
+        _write(figure, path)
+        return figure
 
 
 def plot_gene_profile(result: "SweepResult", gene: Any,
@@ -1260,35 +1291,40 @@ def plot_gene_profile(result: "SweepResult", gene: Any,
         (HOUSE.GREEN if sign > 0 else HOUSE.RUST) if ok else HOUSE.GREY
         for ok, sign in zip(passed_here, signs)]
 
-    figure, axes = plt.subplots(
-        figsize=(7.0, max(3.0, 0.30 * len(shown) + 1.4)))
-    positions = range(len(shown))
-    axes.barh(list(positions), shown["effect"].to_numpy(dtype=float),
-              color=palette, height=0.68, linewidth=0)
-    axes.axvline(0.0, color=HOUSE.GREY_DARK, linewidth=HOUSE.REFERENCE)
-    axes.set_yticks(list(positions))
-    axes.set_yticklabels(
-        [f"{str(m)[:38]}  ·  {fam}"
-         for m, fam in zip(shown["measurement"], families)],
-        fontsize=HOUSE.TICK)
-    axes.invert_yaxis()
-    axes.set_xlabel("effect (partial correlation, plate-blocked)", fontsize=8)
-    axes.tick_params(labelsize=7)
-    for i, (text, colour) in enumerate((
-            (f"raises it", HOUSE.GREEN), (f"lowers it", HOUSE.RUST),
-            (f"not past BH at {alpha:g}", HOUSE.GREY))):
-        axes.text(0.98, 0.03 + i * 0.055, text, transform=axes.transAxes,
-                  fontsize=HOUSE.NOTE, color=colour, ha="right", va="bottom")
-    axes.set_title(
-        title or (f"{name} — {len(passed):,} measurement(s) past BH at "
-                  f"{alpha:g}" if len(passed) else
-                  f"{name} — NOTHING past BH at {alpha:g}; the strongest "
-                  f"effects are shown"),
-        fontsize=9)
-    _readable(figure, axes)
-    figure.tight_layout()
-    _write(figure, path)
-    return figure
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        figure, axes = plt.subplots(
+            figsize=(7.0, max(3.0, 0.30 * len(shown) + 1.4)))
+        positions = range(len(shown))
+        axes.barh(list(positions), shown["effect"].to_numpy(dtype=float),
+                  color=palette, height=0.68, linewidth=0)
+        axes.axvline(0.0, color=HOUSE.GREY_DARK, linewidth=HOUSE.REFERENCE)
+        axes.set_yticks(list(positions))
+        axes.set_yticklabels(
+            [f"{str(m)[:38]}  ·  {fam}"
+             for m, fam in zip(shown["measurement"], families)],
+            fontsize=HOUSE.TICK)
+        axes.invert_yaxis()
+        axes.set_xlabel("effect (partial correlation, plate-blocked)", fontsize=8)
+        axes.tick_params(labelsize=7)
+        for i, (text, colour) in enumerate((
+                (f"raises it", HOUSE.GREEN), (f"lowers it", HOUSE.RUST),
+                (f"not past BH at {alpha:g}", HOUSE.GREY))):
+            axes.text(0.98, 0.03 + i * 0.055, text, transform=axes.transAxes,
+                      fontsize=HOUSE.NOTE, color=colour, ha="right", va="bottom")
+        axes.set_title(
+            title or (f"{name} — {len(passed):,} measurement(s) past BH at "
+                      f"{alpha:g}" if len(passed) else
+                      f"{name} — NOTHING past BH at {alpha:g}; the strongest "
+                      f"effects are shown"),
+            fontsize=9)
+        _readable(figure, axes)
+        figure.tight_layout()
+        _write(figure, path)
+        return figure
 
 
 def plot_gene_similarity(result: "SweepResult", path: Optional[str] = None, *,
@@ -1329,21 +1365,26 @@ def plot_gene_similarity(result: "SweepResult", path: Optional[str] = None, *,
     frame = _order_like_neighbours(frame)
 
     size = max(3.6, 0.26 * len(frame.index) + 2.0)
-    figure, axes = plt.subplots(figsize=(size, size))
-    image = axes.imshow(frame.to_numpy(), cmap="RdBu_r", vmin=-1.0, vmax=1.0)
-    axes.set_xticks(range(len(frame.columns)))
-    axes.set_xticklabels(frame.columns, rotation=90, fontsize=7)
-    axes.set_yticks(range(len(frame.index)))
-    axes.set_yticklabels(frame.index, fontsize=7)
-    axes.set_title(title or f"do these {len(frame.index)} genes behave alike?",
-                   fontsize=9)
-    bar = figure.colorbar(image, ax=axes, fraction=0.035, pad=0.02)
-    bar.set_label("correlation of effect profiles", fontsize=7)
-    bar.ax.tick_params(labelsize=6)
-    _readable(figure, axes)
-    figure.tight_layout()
-    _write(figure, path)
-    return figure
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        figure, axes = plt.subplots(figsize=(size, size))
+        image = axes.imshow(frame.to_numpy(), cmap="RdBu_r", vmin=-1.0, vmax=1.0)
+        axes.set_xticks(range(len(frame.columns)))
+        axes.set_xticklabels(frame.columns, rotation=90, fontsize=7)
+        axes.set_yticks(range(len(frame.index)))
+        axes.set_yticklabels(frame.index, fontsize=7)
+        axes.set_title(title or f"do these {len(frame.index)} genes behave alike?",
+                       fontsize=9)
+        bar = figure.colorbar(image, ax=axes, fraction=0.035, pad=0.02)
+        bar.set_label("correlation of effect profiles", fontsize=7)
+        bar.ax.tick_params(labelsize=6)
+        _readable(figure, axes)
+        figure.tight_layout()
+        _write(figure, path)
+        return figure
 
 
 def plot_measurement_hits(result: "SweepResult", path: Optional[str] = None,
@@ -1383,41 +1424,46 @@ def plot_measurement_hits(result: "SweepResult", path: Optional[str] = None,
     evidence = keep.groupby("measurement")["q"].min().reindex(counts.index)
     evidence = -np.log10(np.clip(evidence.to_numpy(dtype=float), 1e-300, 1.0))
 
-    figure, axes = plt.subplots(
-        figsize=(6.6, max(2.8, 0.28 * len(counts) + 1.4)))
-    rows = np.arange(len(counts))
-    sizes = 12.0 + 78.0 * (counts.to_numpy(dtype=float) / max(counts.max(), 1))
-    dots = axes.scatter(strength.to_numpy(dtype=float), rows, s=sizes,
-                        c=evidence, cmap=HOUSE.SEQ, edgecolor="none",
-                        zorder=3)
-    # PROMISCUOUS MEASUREMENTS ARE RINGED, not recoloured: a measurement half
-    # the library moves is a plate effect wearing a measurement's name, and
-    # it will put a hit on every gene in the screen.
-    loud = share >= 0.5
-    if loud.any():
-        axes.scatter(strength.to_numpy(dtype=float)[loud], rows[loud],
-                     s=sizes[loud], facecolor="none", edgecolor=HOUSE.RUST,
-                     linewidth=0.8, zorder=4)
-    axes.set_yticks(rows)
-    axes.set_yticklabels([str(m)[:46] for m in counts.index],
-                         fontsize=HOUSE.TICK)
-    axes.invert_yaxis()
-    axes.set_xlabel("median |effect| of the genes that move it")
-    bar = figure.colorbar(dots, ax=axes, fraction=0.03, pad=0.01)
-    bar.set_label("-log$_{10}$(q) of the best gene", fontsize=HOUSE.NOTE)
-    bar.ax.tick_params(labelsize=HOUSE.NOTE - 0.6)
-    bar.outline.set_visible(False)
-    axes.text(0.98, 0.02,
-              "dot size = genes moving it" + (
-                  f" · ringed: moved by half the library" if loud.any()
-                  else ""),
-              transform=axes.transAxes, fontsize=HOUSE.NOTE,
-              color=HOUSE.GREY_DARK, va="bottom", ha="right")
-    axes.set_title(title or "which measurements discriminate",
-                   fontsize=HOUSE.LABEL)
-    figure.tight_layout()
-    _write(figure, path)
-    return figure
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        figure, axes = plt.subplots(
+            figsize=(6.6, max(2.8, 0.28 * len(counts) + 1.4)))
+        rows = np.arange(len(counts))
+        sizes = 12.0 + 78.0 * (counts.to_numpy(dtype=float) / max(counts.max(), 1))
+        dots = axes.scatter(strength.to_numpy(dtype=float), rows, s=sizes,
+                            c=evidence, cmap=HOUSE.SEQ, edgecolor="none",
+                            zorder=3)
+        # PROMISCUOUS MEASUREMENTS ARE RINGED, not recoloured: a measurement half
+        # the library moves is a plate effect wearing a measurement's name, and
+        # it will put a hit on every gene in the screen.
+        loud = share >= 0.5
+        if loud.any():
+            axes.scatter(strength.to_numpy(dtype=float)[loud], rows[loud],
+                         s=sizes[loud], facecolor="none", edgecolor=HOUSE.RUST,
+                         linewidth=0.8, zorder=4)
+        axes.set_yticks(rows)
+        axes.set_yticklabels([str(m)[:46] for m in counts.index],
+                             fontsize=HOUSE.TICK)
+        axes.invert_yaxis()
+        axes.set_xlabel("median |effect| of the genes that move it")
+        bar = figure.colorbar(dots, ax=axes, fraction=0.03, pad=0.01)
+        bar.set_label("-log$_{10}$(q) of the best gene", fontsize=HOUSE.NOTE)
+        bar.ax.tick_params(labelsize=HOUSE.NOTE - 0.6)
+        bar.outline.set_visible(False)
+        axes.text(0.98, 0.02,
+                  "dot size = genes moving it" + (
+                      f" · ringed: moved by half the library" if loud.any()
+                      else ""),
+                  transform=axes.transAxes, fontsize=HOUSE.NOTE,
+                  color=HOUSE.GREY_DARK, va="bottom", ha="right")
+        axes.set_title(title or "which measurements discriminate",
+                       fontsize=HOUSE.LABEL)
+        figure.tight_layout()
+        _write(figure, path)
+        return figure
 
 
 def plot_circularity(result: "SweepResult", path: Optional[str] = None, *,
@@ -1449,30 +1495,35 @@ def plot_circularity(result: "SweepResult", path: Optional[str] = None, *,
     if not len(keep):
         return None
 
-    figure, axes = plt.subplots(figsize=(7.0, 5.0))
-    circular = keep["circularity"].to_numpy(dtype=float)
-    above = circular >= 0.15
-    magnitude = np.abs(keep["effect"].to_numpy(dtype=float))
-    axes.scatter(magnitude[~above], circular[~above], s=11, color=HOUSE.GREY,
-                 edgecolor="none", zorder=2)
-    axes.scatter(magnitude[above], circular[above], s=13, color=HOUSE.RUST,
-                 edgecolor="none", zorder=3)
-    axes.axhline(0.15, color=HOUSE.GREY_DARK, linewidth=HOUSE.REFERENCE,
-                 linestyle=":", zorder=1)
-    axes.text(0.98, 0.15, "0.15 — a working bar, not a law ",
-              transform=axes.get_yaxis_transform(), fontsize=HOUSE.NOTE,
-              ha="right", va="bottom", color=HOUSE.GREY_DARK)
-    axes.set_xlabel("|effect| of the gene on the measurement", fontsize=8)
-    axes.set_ylabel("|rho(classification score, measurement)|", fontsize=8)
-    axes.tick_params(labelsize=7)
-    above = int((circular >= 0.15).sum())
-    axes.set_title(
-        title or (f"{above:,} of {len(keep):,} surviving pair(s) sit on a "
-                  f"measurement the score already tracks"), fontsize=9)
-    _readable(figure, axes)
-    figure.tight_layout()
-    _write(figure, path)
-    return figure
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        figure, axes = plt.subplots(figsize=(7.0, 5.0))
+        circular = keep["circularity"].to_numpy(dtype=float)
+        above = circular >= 0.15
+        magnitude = np.abs(keep["effect"].to_numpy(dtype=float))
+        axes.scatter(magnitude[~above], circular[~above], s=11, color=HOUSE.GREY,
+                     edgecolor="none", zorder=2)
+        axes.scatter(magnitude[above], circular[above], s=13, color=HOUSE.RUST,
+                     edgecolor="none", zorder=3)
+        axes.axhline(0.15, color=HOUSE.GREY_DARK, linewidth=HOUSE.REFERENCE,
+                     linestyle=":", zorder=1)
+        axes.text(0.98, 0.15, "0.15 — a working bar, not a law ",
+                  transform=axes.get_yaxis_transform(), fontsize=HOUSE.NOTE,
+                  ha="right", va="bottom", color=HOUSE.GREY_DARK)
+        axes.set_xlabel("|effect| of the gene on the measurement", fontsize=8)
+        axes.set_ylabel("|rho(classification score, measurement)|", fontsize=8)
+        axes.tick_params(labelsize=7)
+        above = int((circular >= 0.15).sum())
+        axes.set_title(
+            title or (f"{above:,} of {len(keep):,} surviving pair(s) sit on a "
+                      f"measurement the score already tracks"), fontsize=9)
+        _readable(figure, axes)
+        figure.tight_layout()
+        _write(figure, path)
+        return figure
 
 
 def plot_calibration(result: "SweepResult", path: Optional[str] = None, *,
@@ -1502,31 +1553,36 @@ def plot_calibration(result: "SweepResult", path: Optional[str] = None, *,
     observed = np.sort(np.clip(values, 1e-300, 1.0))
     expected = (np.arange(1, observed.size + 1) - 0.5) / observed.size
 
-    figure, axes = plt.subplots(figsize=(5.6, 5.4))
-    axes.plot(-np.log10(expected), -np.log10(observed), ".", markersize=2.6,
-              color=HOUSE.GREY, zorder=2)
-    edge = float(max(-np.log10(expected).max(), -np.log10(observed).max()))
-    axes.plot([0, edge], [0, edge], color=HOUSE.GREY_DARK,
-              linewidth=HOUSE.REFERENCE, linestyle=":", zorder=1)
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        figure, axes = plt.subplots(figsize=(5.6, 5.4))
+        axes.plot(-np.log10(expected), -np.log10(observed), ".", markersize=2.6,
+                  color=HOUSE.GREY, zorder=2)
+        edge = float(max(-np.log10(expected).max(), -np.log10(observed).max()))
+        axes.plot([0, edge], [0, edge], color=HOUSE.GREY_DARK,
+                  linewidth=HOUSE.REFERENCE, linestyle=":", zorder=1)
 
-    # THE INFLATION FACTOR, named. A number beats an eyeballed slope, and
-    # this one has a standard meaning: lambda near 1 is calibrated, and
-    # well above it means something systematic is inflating every test.
-    from scipy.stats import chi2
+        # THE INFLATION FACTOR, named. A number beats an eyeballed slope, and
+        # this one has a standard meaning: lambda near 1 is calibrated, and
+        # well above it means something systematic is inflating every test.
+        from scipy.stats import chi2
 
-    median = float(np.median(observed))
-    lam = (chi2.isf(median, 1) / chi2.isf(0.5, 1)) if median > 0 else np.nan
-    axes.set_xlabel("expected -log10(p)", fontsize=8)
-    axes.set_ylabel("observed -log10(p)", fontsize=8)
-    axes.tick_params(labelsize=7)
-    axes.text(0.03, 0.95, "dotted: no effect anywhere",
-              transform=axes.transAxes, fontsize=HOUSE.NOTE,
-              color=HOUSE.GREY_DARK, va="top")
-    axes.set_title(
-        title or (f"calibration — lambda = {lam:.2f} "
-                  f"({'calibrated' if 0.9 <= lam <= 1.15 else 'inflated' if lam > 1.15 else 'conservative'})"),
-        fontsize=9)
-    _readable(figure, axes)
-    figure.tight_layout()
-    _write(figure, path)
-    return figure
+        median = float(np.median(observed))
+        lam = (chi2.isf(median, 1) / chi2.isf(0.5, 1)) if median > 0 else np.nan
+        axes.set_xlabel("expected -log10(p)", fontsize=8)
+        axes.set_ylabel("observed -log10(p)", fontsize=8)
+        axes.tick_params(labelsize=7)
+        axes.text(0.03, 0.95, "dotted: no effect anywhere",
+                  transform=axes.transAxes, fontsize=HOUSE.NOTE,
+                  color=HOUSE.GREY_DARK, va="top")
+        axes.set_title(
+            title or (f"calibration — lambda = {lam:.2f} "
+                      f"({'calibrated' if 0.9 <= lam <= 1.15 else 'inflated' if lam > 1.15 else 'conservative'})"),
+            fontsize=9)
+        _readable(figure, axes)
+        figure.tight_layout()
+        _write(figure, path)
+        return figure

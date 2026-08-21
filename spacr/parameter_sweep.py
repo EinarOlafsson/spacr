@@ -48,6 +48,11 @@ import pandas as pd
 from .trial_metrics import METRIC_COLUMNS as _METRIC_COLUMNS
 from .trial_metrics import summarise_trial
 
+# THE HOUSE STYLE (136). `figures.style` imports matplotlib
+# only inside its own functions, so naming it here costs
+# nothing at import time.
+from .figures.style import figure_style, theme_target
+
 __all__ = [
     "DEFAULT_SWEEP_SPACE",
     "PREPARATION_KEYS",
@@ -1577,6 +1582,11 @@ def rerun_trial(base_settings: Mapping[str, Any], row: Mapping[str, Any],
     from .ml import perform_regression
 
     output = perform_regression(settings)
-    figures = [plt.figure(number) for number in plt.get_fignums()
-               if number not in before]
-    return {"settings": settings, "output": output, "figures": figures}
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        figures = [plt.figure(number) for number in plt.get_fignums()
+                   if number not in before]
+        return {"settings": settings, "output": output, "figures": figures}

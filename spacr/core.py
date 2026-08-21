@@ -28,6 +28,11 @@ from .plot import save_figure  # every kept figure goes through the format/DPI p
 from .object_roles import (ORGANELLE_ROLES, SEGMENTED_ROLES,
                            enabled_organelle_roles)
 
+# THE HOUSE STYLE (136). `figures.style` imports matplotlib
+# only inside its own functions, so naming it here costs
+# nothing at import time.
+from .figures.style import figure_style, theme_target
+
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
 
 def preprocess_generate_masks(settings):
@@ -1342,74 +1347,79 @@ def reducer_hyperparameter_search(settings=None, reduction_params=None, dbscan_p
     fig_width = grid_cols*10
     fig_height = grid_rows*10
 
-    fig, axs = plt.subplots(grid_rows, grid_cols, figsize=(fig_width, fig_height))
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        fig, axs = plt.subplots(grid_rows, grid_cols, figsize=(fig_width, fig_height))
 
-    # Make sure axs is always an array of axes
-    axs = np.atleast_1d(axs)
+        # Make sure axs is always an array of axes
+        axs = np.atleast_1d(axs)
     
-    # Iterate through the Cartesian product of reduction and clustering hyperparameters
-    for i, reduction_param in enumerate(reduction_params):
-        for j, clustering_param in enumerate(clustering_params):
-            if len(clustering_params) <= 1:
-                axs[i].axis('off')
-                ax = axs[i]
-            elif len(reduction_params) <= 1:
-                axs[j].axis('off')
-                ax = axs[j]
-            else:
-                ax = axs[i, j]
+        # Iterate through the Cartesian product of reduction and clustering hyperparameters
+        for i, reduction_param in enumerate(reduction_params):
+            for j, clustering_param in enumerate(clustering_params):
+                if len(clustering_params) <= 1:
+                    axs[i].axis('off')
+                    ax = axs[i]
+                elif len(reduction_params) <= 1:
+                    axs[j].axis('off')
+                    ax = axs[j]
+                else:
+                    ax = axs[i, j]
 
-            # Perform dimensionality reduction and clustering. The method is
-            # 'umap' or 'tsne' and nothing else — it is validated once, above,
-            # before any data is read.
-            if settings['reduction_method'].lower() == 'umap':
-                n_neighbors = reduction_param.get('n_neighbors', 15)
+                # Perform dimensionality reduction and clustering. The method is
+                # 'umap' or 'tsne' and nothing else — it is validated once, above,
+                # before any data is read.
+                if settings['reduction_method'].lower() == 'umap':
+                    n_neighbors = reduction_param.get('n_neighbors', 15)
 
-                if isinstance(n_neighbors, float):
-                    n_neighbors = int(n_neighbors * len(numeric_data))
+                    if isinstance(n_neighbors, float):
+                        n_neighbors = int(n_neighbors * len(numeric_data))
 
-                min_dist = reduction_param.get('min_dist', 0.1)
-                embedding, labels = search_reduction_and_clustering(numeric_data, n_neighbors, min_dist, settings['metric'], 
-                                                                    clustering_param.get('eps', 0.5), clustering_param.get('min_samples', 5), 
-                                                                    clustering_param['method'], settings['reduction_method'], settings['verbose'], reduction_param, n_jobs=settings['n_jobs'])
+                    min_dist = reduction_param.get('min_dist', 0.1)
+                    embedding, labels = search_reduction_and_clustering(numeric_data, n_neighbors, min_dist, settings['metric'], 
+                                                                        clustering_param.get('eps', 0.5), clustering_param.get('min_samples', 5), 
+                                                                        clustering_param['method'], settings['reduction_method'], settings['verbose'], reduction_param, n_jobs=settings['n_jobs'])
                 
-            else:  # 'tsne'
-                perplexity = reduction_param.get('perplexity', 30)
+                else:  # 'tsne'
+                    perplexity = reduction_param.get('perplexity', 30)
 
-                if isinstance(perplexity, float):
-                    perplexity = int(perplexity * len(numeric_data))
+                    if isinstance(perplexity, float):
+                        perplexity = int(perplexity * len(numeric_data))
 
-                embedding, labels = search_reduction_and_clustering(numeric_data, perplexity, 0.1, settings['metric'],
-                                                                    clustering_param.get('eps', 0.5), clustering_param.get('min_samples', 5),
-                                                                    clustering_param['method'], settings['reduction_method'], settings['verbose'], reduction_param, n_jobs=settings['n_jobs'])
+                    embedding, labels = search_reduction_and_clustering(numeric_data, perplexity, 0.1, settings['metric'],
+                                                                        clustering_param.get('eps', 0.5), clustering_param.get('min_samples', 5),
+                                                                        clustering_param['method'], settings['reduction_method'], settings['verbose'], reduction_param, n_jobs=settings['n_jobs'])
 
-            # Plot the results
-            if settings['color_by']:
-                unique_groups = all_df[settings['color_by']].unique()
-                colors = generate_colors(len(unique_groups), False)
-                for group, color in zip(unique_groups, colors):
-                    indices = all_df[settings['color_by']] == group
-                    ax.scatter(embedding[indices, 0], embedding[indices, 1], s=pointsize, label=f"{group}", color=color)
-            else:
-                unique_labels = np.unique(labels)
-                colors = generate_colors(len(unique_labels), False)
-                for label, color in zip(unique_labels, colors):
-                    ax.scatter(embedding[labels == label, 0], embedding[labels == label, 1], s=pointsize, label=f"Cluster {label}", color=color)
+                # Plot the results
+                if settings['color_by']:
+                    unique_groups = all_df[settings['color_by']].unique()
+                    colors = generate_colors(len(unique_groups), False)
+                    for group, color in zip(unique_groups, colors):
+                        indices = all_df[settings['color_by']] == group
+                        ax.scatter(embedding[indices, 0], embedding[indices, 1], s=pointsize, label=f"{group}", color=color)
+                else:
+                    unique_labels = np.unique(labels)
+                    colors = generate_colors(len(unique_labels), False)
+                    for label, color in zip(unique_labels, colors):
+                        ax.scatter(embedding[labels == label, 0], embedding[labels == label, 1], s=pointsize, label=f"Cluster {label}", color=color)
 
-            ax.set_title(f"{settings['reduction_method']} {reduction_param}\n{clustering_param['method']} {clustering_param}")
-            ax.legend()
+                ax.set_title(f"{settings['reduction_method']} {reduction_param}\n{clustering_param['method']} {clustering_param}")
+                ax.legend()
 
-    plt.tight_layout()
-    if save:
-        results_dir = os.path.join(settings['src'], 'results')
-        os.makedirs(results_dir, exist_ok=True)
-        save_figure(plt.gcf(),
-                    os.path.join(results_dir, 'hyperparameter_search'))
-    if return_fig:
-        return fig
-    if show and not save:
-        plt.show()
-    return
+        plt.tight_layout()
+        if save:
+            results_dir = os.path.join(settings['src'], 'results')
+            os.makedirs(results_dir, exist_ok=True)
+            save_figure(plt.gcf(),
+                        os.path.join(results_dir, 'hyperparameter_search'))
+        if return_fig:
+            return fig
+        if show and not save:
+            plt.show()
+        return
 
 def _finite_ratio(numerator, denominator):
     """Divide aligned Series while representing invalid observations as NaN.

@@ -62,6 +62,11 @@ import pandas as pd
 
 from . import schema
 
+# THE HOUSE STYLE (136). `figures.style` imports matplotlib
+# only inside its own functions, so naming it here costs
+# nothing at import time.
+from .figures.style import figure_style, theme_target
+
 #: The app key this module registers its settings under.
 APP_KEY = "barcode_qc"
 
@@ -1257,51 +1262,56 @@ def plot_threshold_sweep(sweep: pd.DataFrame, choice: ThresholdChoice,
     amber = (200 / 255, 130 / 255, 0 / 255)
     red = (180 / 255, 40 / 255, 60 / 255)
 
-    fig, (top, bottom) = plt.subplots(
-        2, 1, figsize=(9, 7), sharex=True,
-        gridspec_kw={"height_ratios": [3, 2], "hspace": 0.12})
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        fig, (top, bottom) = plt.subplots(
+            2, 1, figsize=(9, 7), sharex=True,
+            gridspec_kw={"height_ratios": [3, 2], "hspace": 0.12})
 
-    top.plot(sweep["threshold"], sweep["grnas_per_well"], color=teal, lw=2,
-             label=f"gRNAs per well ({choice.statistic}, all wells)")
-    top.plot(sweep["threshold"], sweep["grnas_per_well_retained"],
-             color=teal, lw=1.2, ls=":",
-             label="gRNAs per well (retained wells only)")
-    top.axhline(choice.target, color="black", ls="--", lw=1,
-                label=f"target ({choice.target:g})")
-    # linscale keeps the 0-1 linear band from eating a third of the panel;
-    # "no guides left" needs to be visible, not prominent.
-    top.set_yscale("symlog", linthresh=1, linscale=0.35)
-    top.set_ylim(bottom=0)
-    top.set_ylabel("gRNAs per well")
-    top.legend(loc="upper right", fontsize=8)
-    top.set_title(
-        f"Threshold sweep around the target of {choice.target:g} gRNAs/well")
+        top.plot(sweep["threshold"], sweep["grnas_per_well"], color=teal, lw=2,
+                 label=f"gRNAs per well ({choice.statistic}, all wells)")
+        top.plot(sweep["threshold"], sweep["grnas_per_well_retained"],
+                 color=teal, lw=1.2, ls=":",
+                 label="gRNAs per well (retained wells only)")
+        top.axhline(choice.target, color="black", ls="--", lw=1,
+                    label=f"target ({choice.target:g})")
+        # linscale keeps the 0-1 linear band from eating a third of the panel;
+        # "no guides left" needs to be visible, not prominent.
+        top.set_yscale("symlog", linthresh=1, linscale=0.35)
+        top.set_ylim(bottom=0)
+        top.set_ylabel("gRNAs per well")
+        top.legend(loc="upper right", fontsize=8)
+        top.set_title(
+            f"Threshold sweep around the target of {choice.target:g} gRNAs/well")
 
-    bottom.plot(sweep["threshold"], 100 * sweep["well_retention"],
-                color=amber, lw=1.8, label="wells retained (%)")
-    bottom.plot(sweep["threshold"], 100 * sweep["collision_rate"],
-                color=red, lw=1.8,
-                label=f"wells over {choice.target:g} gRNAs (%)")
-    bottom.set_ylim(-2, 102)
-    bottom.set_ylabel("% of wells")
-    bottom.set_xscale("log")
-    bottom.set_xlabel("abundance threshold (gRNA share of a well's reads)")
-    bottom.legend(loc="center left", fontsize=8)
+        bottom.plot(sweep["threshold"], 100 * sweep["well_retention"],
+                    color=amber, lw=1.8, label="wells retained (%)")
+        bottom.plot(sweep["threshold"], 100 * sweep["collision_rate"],
+                    color=red, lw=1.8,
+                    label=f"wells over {choice.target:g} gRNAs (%)")
+        bottom.set_ylim(-2, 102)
+        bottom.set_ylabel("% of wells")
+        bottom.set_xscale("log")
+        bottom.set_xlabel("abundance threshold (gRNA share of a well's reads)")
+        bottom.legend(loc="center left", fontsize=8)
 
-    for axis in (top, bottom):
-        axis.axvline(choice.threshold, color="black", lw=1.2)
-    # Anchored in axes coordinates on the y and data coordinates on the x,
-    # so the label rides the line at a fixed height whatever the symlog
-    # axis does with its limits.
-    top.annotate(f"derived: {choice.threshold:.4f}",
-                 xy=(choice.threshold, 0.02),
-                 xycoords=top.get_xaxis_transform(),
-                 xytext=(5, 0), textcoords="offset points",
-                 rotation=90, va="bottom", ha="left", fontsize=9,
-                 bbox={"boxstyle": "round,pad=0.25", "fc": "white",
-                       "ec": "none", "alpha": 0.75})
-    _save_figure(fig, dst, "threshold_sweep")
-    return fig
+        for axis in (top, bottom):
+            axis.axvline(choice.threshold, color="black", lw=1.2)
+        # Anchored in axes coordinates on the y and data coordinates on the x,
+        # so the label rides the line at a fixed height whatever the symlog
+        # axis does with its limits.
+        top.annotate(f"derived: {choice.threshold:.4f}",
+                     xy=(choice.threshold, 0.02),
+                     xycoords=top.get_xaxis_transform(),
+                     xytext=(5, 0), textcoords="offset points",
+                     rotation=90, va="bottom", ha="left", fontsize=9,
+                     bbox={"boxstyle": "round,pad=0.25", "fc": "white",
+                           "ec": "none", "alpha": 0.75})
+        _save_figure(fig, dst, "threshold_sweep")
+        return fig
 
 
 def plot_barcode_qc(counts: pd.DataFrame, *, per_well: pd.DataFrame,
@@ -1328,97 +1338,102 @@ def plot_barcode_qc(counts: pd.DataFrame, *, per_well: pd.DataFrame,
     """
     import matplotlib.pyplot as plt
 
-    fig, axes = plt.subplots(2, 2, figsize=(13, 9))
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        fig, axes = plt.subplots(2, 2, figsize=(13, 9))
 
-    # 1 — reads per well.
-    ax = axes[0][0]
-    reads = per_well["reads"].to_numpy(float)
-    bins = min(40, max(5, int(np.sqrt(max(reads.size, 1)))))
-    ax.hist(reads, bins=bins, color=(0 / 255, 155 / 255, 155 / 255),
-            alpha=0.85)
-    cutoff = starved.attrs.get("cutoff")
-    if cutoff:
-        ax.axvline(cutoff, color="black", ls="--", lw=1.2,
-                   label=f"starved below {cutoff:,.0f} reads "
-                         f"({len(starved)} well(s))")
-        ax.legend(fontsize=8)
-    ax.set_xlabel("reads per well")
-    ax.set_ylabel("wells")
-    ax.set_title(f"Read depth across {len(per_well)} wells "
-                 f"({counts['count'].sum():,.0f} mapped reads)")
+        # 1 — reads per well.
+        ax = axes[0][0]
+        reads = per_well["reads"].to_numpy(float)
+        bins = min(40, max(5, int(np.sqrt(max(reads.size, 1)))))
+        ax.hist(reads, bins=bins, color=(0 / 255, 155 / 255, 155 / 255),
+                alpha=0.85)
+        cutoff = starved.attrs.get("cutoff")
+        if cutoff:
+            ax.axvline(cutoff, color="black", ls="--", lw=1.2,
+                       label=f"starved below {cutoff:,.0f} reads "
+                             f"({len(starved)} well(s))")
+            ax.legend(fontsize=8)
+        ax.set_xlabel("reads per well")
+        ax.set_ylabel("wells")
+        ax.set_title(f"Read depth across {len(per_well)} wells "
+                     f"({counts['count'].sum():,.0f} mapped reads)")
 
-    # 2 — position effects.
-    ax = axes[0][1]
-    if positions.empty:
-        ax.set_axis_off()
-    else:
-        # Natural order, so c2 sits between c1 and c10 rather than after
-        # c12 — a position-effect panel whose columns are out of plate
-        # order cannot be read against the plate.
-        def _natural(value):
-            text = str(value)
-            digits = "".join(ch for ch in text if ch.isdigit())
-            return ("".join(ch for ch in text if not ch.isdigit()),
-                    int(digits) if digits else 0)
+        # 2 — position effects.
+        ax = axes[0][1]
+        if positions.empty:
+            ax.set_axis_off()
+        else:
+            # Natural order, so c2 sits between c1 and c10 rather than after
+            # c12 — a position-effect panel whose columns are out of plate
+            # order cannot be read against the plate.
+            def _natural(value):
+                text = str(value)
+                digits = "".join(ch for ch in text if ch.isdigit())
+                return ("".join(ch for ch in text if not ch.isdigit()),
+                        int(digits) if digits else 0)
 
-        ordered = positions.assign(
-            _sort=[(a, *_natural(b))
-                   for a, b in zip(positions["axis"], positions["label"])]
-        ).sort_values("_sort").drop(columns="_sort")
-        colors = [(180 / 255, 40 / 255, 60 / 255) if flag
-                  else (120 / 255, 120 / 255, 120 / 255)
-                  for flag in ordered["flagged"]]
-        # The axis initial is only worth a prefix when the label does not
-        # already carry it.
-        labels = [str(b) if str(b).lower().startswith(a[0])
-                  else f"{a[0]}:{b}"
-                  for a, b in zip(ordered["axis"], ordered["label"])]
-        ax.bar(range(len(ordered)), ordered["ratio_to_plate"], color=colors)
-        ax.axhline(1.0, color="black", lw=1)
-        ax.set_xticks(range(len(ordered)))
-        ax.set_xticklabels(labels, rotation=90, fontsize=7)
-        ax.set_ylabel("median reads / plate median")
-        ax.set_title(
-            f"Row and column position effects "
-            f"({int(ordered['flagged'].sum())} flagged)")
+            ordered = positions.assign(
+                _sort=[(a, *_natural(b))
+                       for a, b in zip(positions["axis"], positions["label"])]
+            ).sort_values("_sort").drop(columns="_sort")
+            colors = [(180 / 255, 40 / 255, 60 / 255) if flag
+                      else (120 / 255, 120 / 255, 120 / 255)
+                      for flag in ordered["flagged"]]
+            # The axis initial is only worth a prefix when the label does not
+            # already carry it.
+            labels = [str(b) if str(b).lower().startswith(a[0])
+                      else f"{a[0]}:{b}"
+                      for a, b in zip(ordered["axis"], ordered["label"])]
+            ax.bar(range(len(ordered)), ordered["ratio_to_plate"], color=colors)
+            ax.axhline(1.0, color="black", lw=1)
+            ax.set_xticks(range(len(ordered)))
+            ax.set_xticklabels(labels, rotation=90, fontsize=7)
+            ax.set_ylabel("median reads / plate median")
+            ax.set_title(
+                f"Row and column position effects "
+                f"({int(ordered['flagged'].sum())} flagged)")
 
-    # 3 — library coverage, as a Lorenz curve.
-    ax = axes[1][0]
-    values = np.sort(depth["reads_per_grna"].to_numpy(float))
-    if values.size and values.sum() > 0:
-        share = np.concatenate([[0.0], np.cumsum(values) / values.sum()])
-        x = np.linspace(0, 1, share.size)
-        ax.plot(x, share, color=(0 / 255, 155 / 255, 155 / 255), lw=2)
-        ax.plot([0, 1], [0, 1], color="black", ls="--", lw=1)
-        ax.set_xlabel("gRNAs, least abundant first")
-        ax.set_ylabel("cumulative share of reads")
-        dropout = depth.get("dropout_fraction")
-        title = (f"Library coverage — Gini {depth['gini']:.2f}, "
-                 f"skew {depth['skew_ratio']:.1f}x")
-        if dropout is not None:
-            title += f", {100 * dropout:.1f}% never seen"
-        ax.set_title(title, fontsize=10)
+        # 3 — library coverage, as a Lorenz curve.
+        ax = axes[1][0]
+        values = np.sort(depth["reads_per_grna"].to_numpy(float))
+        if values.size and values.sum() > 0:
+            share = np.concatenate([[0.0], np.cumsum(values) / values.sum()])
+            x = np.linspace(0, 1, share.size)
+            ax.plot(x, share, color=(0 / 255, 155 / 255, 155 / 255), lw=2)
+            ax.plot([0, 1], [0, 1], color="black", ls="--", lw=1)
+            ax.set_xlabel("gRNAs, least abundant first")
+            ax.set_ylabel("cumulative share of reads")
+            dropout = depth.get("dropout_fraction")
+            title = (f"Library coverage — Gini {depth['gini']:.2f}, "
+                     f"skew {depth['skew_ratio']:.1f}x")
+            if dropout is not None:
+                title += f", {100 * dropout:.1f}% never seen"
+            ax.set_title(title, fontsize=10)
 
-    # 4 — read fate.
-    ax = axes[1][1]
-    if unmapped:
-        names = list(unmapped["per_field"])
-        values = [100 * unmapped["per_field"][n] for n in names]
-        if "unmapped_fraction" in unmapped:
-            names = names + ["any field"]
-            values = values + [100 * unmapped["unmapped_fraction"]]
-        ax.bar(names, values, color=(180 / 255, 40 / 255, 60 / 255))
-        ax.set_ylabel("% of regex-matched reads unmapped")
-        ax.set_title(
-            f"Unmapped reads (of {unmapped['total_reads']:,.0f} matched)",
-            fontsize=10)
-        ax.tick_params(axis="x", labelrotation=20)
-    else:
-        ax.set_axis_off()
+        # 4 — read fate.
+        ax = axes[1][1]
+        if unmapped:
+            names = list(unmapped["per_field"])
+            values = [100 * unmapped["per_field"][n] for n in names]
+            if "unmapped_fraction" in unmapped:
+                names = names + ["any field"]
+                values = values + [100 * unmapped["unmapped_fraction"]]
+            ax.bar(names, values, color=(180 / 255, 40 / 255, 60 / 255))
+            ax.set_ylabel("% of regex-matched reads unmapped")
+            ax.set_title(
+                f"Unmapped reads (of {unmapped['total_reads']:,.0f} matched)",
+                fontsize=10)
+            ax.tick_params(axis="x", labelrotation=20)
+        else:
+            ax.set_axis_off()
 
-    fig.tight_layout()
-    _save_figure(fig, dst, "barcode_qc")
-    return fig
+        fig.tight_layout()
+        _save_figure(fig, dst, "barcode_qc")
+        return fig
 
 
 # ---------------------------------------------------------------------------

@@ -127,6 +127,11 @@ from .run_journal import (
     values_equal,
 )
 
+# THE HOUSE STYLE (136). `figures.style` imports matplotlib
+# only inside its own functions, so naming it here costs
+# nothing at import time.
+from .figures.style import figure_style, theme_target
+
 __all__ = [
     "TrainingRun",
     "Series",
@@ -1287,7 +1292,12 @@ def plot_curves(comparison: Comparison, metric: str = "accuracy",
     from matplotlib import pyplot as plt
 
     if ax is None:
-        fig, ax = plt.subplots(figsize=figsize)
+        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+        # rcParams reach an artist when it is CREATED, so a
+        # context opened after `plt.subplots` would leave the
+        # spines, ticks and labels at the caller's globals.
+        with figure_style(theme_target()):
+            fig, ax = plt.subplots(figsize=figsize)
     else:
         fig = ax.figure
 

@@ -33,6 +33,11 @@ from spacr.cancellation import (
     installed_token,
 )
 
+# THE HOUSE STYLE (136). `figures.style` imports matplotlib
+# only inside its own functions, so naming it here costs
+# nothing at import time.
+from ..figures.style import figure_style, theme_target
+
 LOG = logging.getLogger(__name__)
 
 
@@ -1013,25 +1018,30 @@ class PipelineWorker(QObject):
                 # thread only does a cheap file-move + pixmap load and never
                 # hangs while figures stream in.
                 for num in list(plt.get_fignums()):
-                    fig = plt.figure(num)
-                    already_emitted = _already_emitted(fig)
-                    if already_emitted and not getattr(
-                            fig, "_spacr_live_update", False):
-                        continue
-                    _mark_emitted(fig)
-                    png_path = ""
-                    try:
-                        import tempfile
-                        from .widgets.figure_queue import render_figure_to_png
-                        fig_counter[0] += 1
-                        tmp = os.path.join(
-                            tempfile.gettempdir(),
-                            f"spacr_fig_{os.getpid()}_{fig_counter[0]}.png")
-                        if render_figure_to_png(fig, tmp):
-                            png_path = tmp
-                    except Exception:
+                    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+                    # rcParams reach an artist when it is CREATED, so a
+                    # context opened after `plt.subplots` would leave the
+                    # spines, ticks and labels at the caller's globals.
+                    with figure_style(theme_target()):
+                        fig = plt.figure(num)
+                        already_emitted = _already_emitted(fig)
+                        if already_emitted and not getattr(
+                                fig, "_spacr_live_update", False):
+                            continue
+                        _mark_emitted(fig)
                         png_path = ""
-                    worker.figure_ready.emit(fig, png_path)
+                        try:
+                            import tempfile
+                            from .widgets.figure_queue import render_figure_to_png
+                            fig_counter[0] += 1
+                            tmp = os.path.join(
+                                tempfile.gettempdir(),
+                                f"spacr_fig_{os.getpid()}_{fig_counter[0]}.png")
+                            if render_figure_to_png(fig, tmp):
+                                png_path = tmp
+                        except Exception:
+                            png_path = ""
+                        worker.figure_ready.emit(fig, png_path)
                 return None
 
             capture_show = _capture_show
