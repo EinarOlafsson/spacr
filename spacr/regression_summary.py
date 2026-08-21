@@ -510,6 +510,13 @@ class _Run:
     data: Optional[pd.DataFrame]
     data_note: str
     metrics: Dict[str, Any]
+    #: WHAT THE SECTIONS ABOVE ACTUALLY WROTE. The assumption builders
+    #: measure a number, format it into a sentence and would otherwise throw
+    #: the number away -- so the recommendations at the end would have had to
+    #: recompute it, and a recommendation that disagrees with the line it
+    #: cites is worse than no recommendation. Each builder deposits here as
+    #: it goes, and `recommend` reads only this.
+    diagnostics: Dict[str, Any] = field(default_factory=dict)
 
 
 def _is_nonparametric(settings, coef_df) -> bool:
@@ -1274,6 +1281,9 @@ def _normality(run: "_Run") -> Dict[str, str]:
                            f"({type(error).__name__}: {error})")}
     if shape["n"] < 3:
         return {"reason": shape["test"]}
+    run.diagnostics.update(
+        normality_p=shape["normality_p"], residual_skew=shape["skew"],
+        excess_kurtosis=shape["excess_kurtosis"])
     head = (f"skew {shape['skew']:+.2f}, excess kurtosis "
             f"{shape['excess_kurtosis']:+.2f} over {shape['n']:,} residuals")
     p_value = shape["normality_p"]
@@ -1336,12 +1346,14 @@ def _influence(run: "_Run") -> Dict[str, str]:
                            "leverage and Cook's distance are undefined")}
     guide = 2.0 * ctx.p / ctx.n if ctx.n else float("nan")
     high = int((finite > guide).sum()) if np.isfinite(guide) else 0
+    run.diagnostics["max_leverage"] = float(finite.max())
     parts = [f"max leverage {finite.max():.3g} against the 2p/n guide of "
              f"{guide:.3g} ({high:,} above it)"]
     if ctx.standardisation_available:
         cooks = cooks_distance(ctx.std_resid, leverage, ctx.p)
         cooks = cooks[np.isfinite(cooks)]
         if cooks.size:
+            run.diagnostics["max_cooks_distance"] = float(cooks.max())
             rule = 4.0 / ctx.n if ctx.n else float("nan")
             parts.append(f"max Cook's D {cooks.max():.3g}, {int((cooks > rule).sum()):,} "
                          f"observation(s) above the 4/n rule of {rule:.3g}")
@@ -1902,7 +1914,64 @@ def build_run_summary(*, model=None, settings=None, coef_df=None,
 
     verbatim, verbatim_note = _verbatim(run)
     return RunSummary(sections=sections, warnings=_warnings(run),
-                      verbatim=verbatim, verbatim_note=verbatim_note)
+                      verbatim=verbatim, verbatim_note=verbatim_note,
+                      recommendations=_recommendations(run))
+
+
+def _recommendations(run: "_Run") -> List[Any]:
+    """What to change, derived from what the sections above just measured.
+
+    AFTER THE SECTIONS, NEVER BESIDE THEM. The builders deposit into
+    ``run.diagnostics`` as they format their lines, so by the time this runs
+    every number here is one that appears on screen. Recomputing them would
+    have been fewer lines and would have allowed a recommendation to cite a
+    figure the summary does not show -- which is the one failure a
+    recommendations section cannot recover from, because the reader has no
+    way to tell which of the two is wrong.
+
+    ``run.metrics`` supplies what ``trial_metrics`` already measured
+    (Durbin-Watson, VIF); ``run.diagnostics`` supplies what the assumption
+    builders measured themselves. The deposits win where both have a key:
+    they are the ones that were written down.
+    """
+    if run.nonparametric:
+        # A permutation run assumes none of this, and the sections above say
+        # so five times over. Recommending a fix for an assumption that was
+        # never made is how the section loses the reader.
+        return []
+    measured: Dict[str, Any] = dict(run.metrics)
+    measured.update(run.diagnostics)
+    measured.setdefault("median_wells_per_guide", _median_wells(run))
+    try:
+        from .run_recommendations import recommend
+
+        return list(recommend(measured, settings=run.settings))
+    except Exception:                                            # noqa: BLE001
+        # A summary is worth more than its last section: a run that reached
+        # here has numbers worth reading, and losing them to a failure in the
+        # advice would be the wrong trade.
+        return []
+
+
+def _median_wells(run: "_Run") -> Optional[float]:
+    """The median number of wells the surviving guides are in.
+
+    READ OFF THE FITTED TABLE, which is the table that reached the fit --
+    so it reflects `fraction_threshold` as applied, not as configured.
+    """
+    data = run.data
+    if not isinstance(data, pd.DataFrame) or data.empty:
+        return None
+    guide = next((c for c in ("grna", "grna_name", "gRNA")
+                  if c in data.columns), None)
+    well = next((c for c in ("prc", "well", "wellID")
+                 if c in data.columns), None)
+    if guide is None or well is None:
+        return None
+    try:
+        return float(data.groupby(guide)[well].nunique().median())
+    except Exception:                                            # noqa: BLE001
+        return None
 
 
 def _verbatim(run: "_Run") -> Tuple[Optional[str], str]:
