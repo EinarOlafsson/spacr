@@ -123,14 +123,20 @@ def test_modify_figure_properties_sets_title():
 # ---------------------------------------------------------------------------
 
 def test_save_figure_as_format_reports_savefig_failure(tmp_path, monkeypatch, capsys):
-    """An unsupported format makes savefig raise; the error is caught + printed."""
-    target = tmp_path / "fig.bogusfmt"
+    """A writer failure is caught and reported without leaving a file."""
+    target = tmp_path / "fig.pdf"
     monkeypatch.setattr(GE.filedialog, "asksaveasfilename", lambda **kw: str(target))
 
-    GE.save_figure_as_format(_fig_with_line(), "bogusfmt")
+    def _fail_to_write(*_args, **_kwargs):
+        raise OSError("the destination is not writable")
+
+    import spacr.plot as plot
+    monkeypatch.setattr(plot, "save_figure", _fail_to_write)
+
+    GE.save_figure_as_format(_fig_with_line(), "pdf")
 
     captured = capsys.readouterr().out
-    assert "Error saving figure:" in captured
+    assert "Error saving figure: the destination is not writable" in captured
     assert not target.exists()
 
 
