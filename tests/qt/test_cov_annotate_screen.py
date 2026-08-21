@@ -857,7 +857,9 @@ def test_skipping_lands_on_the_page_holding_the_last_annotation(screen, qtbot):
     scr._settings.page_size_override = None
     scr._on_thumb_left(0)
     scr._flush_pending()
-    qtbot.waitUntil(lambda: not scr._worker.busy, timeout=10000)
+    qtbot.waitUntil(
+        lambda: scr._worker.pending_batches == 0 and not scr._worker.busy,
+        timeout=10000)
     scr._offset = 0
     scr._on_skip()
     assert scr._offset == 0
