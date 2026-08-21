@@ -1,0 +1,57 @@
+================================================================================
+CONSOLE, AI CHAT AND SYSTEM ALL COLLAPSE
+================================================================================
+
+Status:    filed 2026-08-21, not started.
+Requested: 2026-08-21 -- "console, AI chat and system should all be
+           colapsable to make space for the container above if necessary,
+           this should be tru of all moduals that have the three".
+Owner:     Qt GUI (module screens)
+
+--------------------------------------------------------------------------------
+WHAT IS ASKED
+--------------------------------------------------------------------------------
+
+The three panels along the bottom each fold away, and the space they release
+goes to the container above them.
+
+THE SPACE IS THE POINT, not the folding. A panel that collapses and leaves a
+gap has cost the user a click and given them nothing: the figures, the
+montage or the results above have to actually grow into it.
+
+ALL THREE, AND EVERY MODULE THAT HAS THEM. Two that fold and one that does
+not is worse than none folding, because the user learns the gesture and then
+meets the exception. The rule belongs wherever the three are assembled
+rather than on each screen, or the twenty-eighth module will arrive without
+it -- which is what happened to the plate-map button, the tooltip rule and
+the movable-dialog rule, each fixed once centrally after being applied by
+hand to a handful of places.
+
+--------------------------------------------------------------------------------
+WHAT HAS TO BE DECIDED
+--------------------------------------------------------------------------------
+
+  * WHAT IS LEFT WHEN ONE IS FOLDED. A header strip with the name and a way
+    back, or nothing at all. Nothing at all is unrecoverable without a menu,
+    so it has to be a strip -- and the strip should say when the panel it
+    hides has something new in it, or a folded console is a console whose
+    errors are invisible.
+  * WHETHER THE STATE PERSISTS. A user who folds the chat on every launch is
+    telling you something; a layout that resets each time makes them say it
+    again every day. It belongs with the other panel geometry spaCR already
+    saves.
+  * FOLDING ALL THREE. The most common case is wanting the whole bottom
+    back, and doing it three times is three times the work of doing it once.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Each of the three folds and unfolds, on every module that has them.
+* The container above takes the released space, measured rather than
+  eyeballed -- its height before and after differs by what was folded.
+* A folded panel leaves a strip that names it and can restore it.
+* A folded console that receives an error says so on its strip.
+* The state survives a restart.
+* A test drives the fold on more than one module, because "all modules that
+  have the three" is the part that decays.

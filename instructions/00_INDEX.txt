@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-202 done / 18 open (91%).
+202 done / 19 open (91%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -77,6 +77,9 @@ OPEN
 
   227  THE CONTROL WELLS AND THE EXCLUSION HAVE DEFAULTS
        227_the_control_wells_and_the_exclusion_have_defaults.txt
+
+  228  CONSOLE, AI CHAT AND SYSTEM ALL COLLAPSE
+       228_the_bottom_panels_collapse.txt
 
 --------------------------------------------------------------------------------
 DONE
