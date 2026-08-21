@@ -395,11 +395,20 @@ def _guide_of_term(term: str) -> str:
     return text
 
 
-def _well_guide_fractions(counts, label, keys, guide_column, fraction_column):
+def _well_guide_fractions(counts, label, keys, guide_column, fraction_column,
+                          exclude=None):
     """``{guide: fraction}`` for one well, from the full count table.
 
     Every guide in the well, not only the one being drawn: a posterior is a
     comparison and there is nothing to compare a lone guide against.
+
+    :param exclude: gRNA names that are not in any cell -- primer or plasmid
+        carry-over. Removed and the well RENORMALISED over the survivors,
+        which is what makes this an exclusion rather than a subtraction: the
+        sequence is not a guide, so it does not belong in the denominator
+        either. A contaminant left in holds every real guide's fraction down
+        by its own share, and one real plate had 19.9% of all its reads in a
+        single plasmid contaminant.
     """
     try:
         frame = counts.copy()
@@ -407,9 +416,14 @@ def _well_guide_fractions(counts, label, keys, guide_column, fraction_column):
         here = frame[frame["_montage_well"].astype(str) == str(label)]
         if guide_column not in here.columns:
             return {}
-        return {str(g): float(v) for g, v in
-                zip(here[guide_column], here[fraction_column])
-                if v is not None}
+        found = {str(g): float(v) for g, v in
+                 zip(here[guide_column], here[fraction_column])
+                 if v is not None}
+        if exclude:
+            from .read_background import drop_guides
+
+            found = drop_guides(found, exclude)
+        return found
     except Exception:                                            # noqa: BLE001
         return {}
 

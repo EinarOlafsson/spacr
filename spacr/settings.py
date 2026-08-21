@@ -2000,6 +2000,7 @@ def get_perform_regression_default_settings(settings):
     # nothing; 000000 binds without cutting and is the empirical null every
     # threshold is measured against.
     settings.setdefault('controls', ['000000'])
+    settings.setdefault('exclude_grnas', None)
     # 0.02 BY DEFAULT, at the maintainer's direction 2026-08-19. None meant
     # "work one out", which ran `graph_sequencing_stats` on every default run
     # -- the path that produced the KeyError fixed this morning -- and made
@@ -2670,6 +2671,7 @@ expected_types = {
     "smooth_lines": bool,
     "clustering": str,
     "exclude": (str, type(None)),
+    "exclude_grnas": (list, str, type(None)),
     "col_to_compare": str,
     "pos": str,
     "neg": str,
@@ -3509,6 +3511,7 @@ tooltips = {
     "eps": "(float) - DBSCAN neighbourhood radius, expressed in the units of the UMAP/t-SNE embedding and measured with the 'metric' setting: two points are neighbours if they lie within this distance. Raise it to merge fragments into fewer, larger clusters and leave less noise; lower it to split clusters and push more points to noise (-1). Ignored when clustering is 'kmeans'. Default 0.9.",
     "epochs": "(int) - Number of full passes over the training set. It also sets the learning-rate schedule horizon - cosine anneals over exactly this many epochs and step_lr drops every epochs/5 - so changing it rescales the schedule. A checkpoint is always written on the final epoch and every 100th. Raise it for small datasets and use early_stopping_patience to cut runs short. Default 100.",
     "examples_to_plot": "(int) - How many randomly chosen merged image stacks are rendered as segmentation-overlay previews after mask generation (in timelapse mode, per-channel panels instead). Raise it to check outlines and normalization across more fields of view, at the cost of render time and larger PDFs; 0 skips previews entirely. Default 1.",
+    "exclude_grnas": "(list or str) - gRNA names that are NOT in any cell and must be removed from the count table before fractions are formed: primer or plasmid carry-over, which lives in the library prep and never in a nucleus. This is an EXCLUSION, not a background subtraction -- the reads are not spurious copies of a real guide, the sequence is not a guide at all -- so the survivors are renormalised over what remains. Leaving a contaminant in holds every real guide's fraction down by its share: on one real plate a single plasmid contaminant was 19.9% of ALL reads, so removing it raised every other guide by a quarter and moved guides across the annotatability floor. Default None.",
     "exclude": "(str or list) - Names of measurement columns to drop from the feature set before UMAP embedding or ML training, applied after the channel_of_interest selection. Use it to remove features that leak the label or swamp the embedding. It does not filter database rows; use exclude_rows for that. Default None keeps every feature.",
     "exclude_conditions": "(list) - Condition labels dropped from the image UMAP input, matched against the cond column that map_condition derives from the pos, neg and mix column IDs; the only possible entries are 'neg', 'pos', 'mix' and 'screen'. A bare string is accepted and wrapped in a list. Use it to embed screen wells only. Default None.",
     "exclude_rows": "(dict or None) - General UMAP row exclusions. Choose one or more database columns, then check the values whose rows should be removed. Rules are combined with OR, so a row matching any selected column/value pair is excluded. Default None keeps every row.",

@@ -187,3 +187,97 @@ class TestNothingIsBakedIn:
         signature = inspect.signature(module.subtract_background)
         assert (signature.parameters["background"].default
                 is inspect.Parameter.empty)
+
+
+class TestExclusionIsNotSubtraction:
+    """Confirmed 2026-08-21: the guide flagged by `suspicious` on the real
+    screen was "primer/grna plasmid contamination".
+
+    THAT ANSWER CHANGES THE OPERATION. Background subtraction says some of
+    this guide's reads here are spurious copies of a real guide. Exclusion
+    says the sequence is not a guide in a cell at all -- it is in the
+    library prep and never in a nucleus -- so it does not belong in the
+    denominator either.
+    """
+
+    def test_the_survivors_are_renormalised_over_what_remains(self):
+        after = module.drop_guides({"a": 0.5, "junk": 0.2, "b": 0.3},
+                                   ["junk"])
+        assert "junk" not in after
+        assert sum(after.values()) == pytest.approx(1.0)
+        # Everything real gains the contaminant's share, proportionally.
+        assert after["a"] == pytest.approx(0.5 / 0.8)
+
+    def test_subtraction_leaves_a_residue_where_exclusion_does_not(self):
+        """WRITING THIS TEST CORRECTED THE CLAIM. Subtracting a guide's FULL
+        background and renormalising is arithmetically the same as excluding
+        it -- the first version of this test asserted a difference that does
+        not exist.
+
+        The difference is real but narrower: the background is a MEDIAN over
+        control wells, so in any well where the contaminant runs above its
+        median, subtraction leaves the excess behind and calls it a real
+        guide. Exclusion does not care how much there is."""
+        raw = {"a": 0.5, "junk": 0.2, "b": 0.3}
+        measured_background = {"junk": 0.1}      # its median across wells
+
+        excluded = module.drop_guides(raw, ["junk"])
+        subtracted = module.subtract_background(raw, measured_background)
+
+        assert "junk" not in excluded
+        assert subtracted["junk"] > 0.0, "half the contaminant survived"
+        assert excluded["a"] > subtracted["a"]
+
+    def test_full_subtraction_and_exclusion_agree(self):
+        """Stated so the equivalence is on the record rather than a
+        surprise to the next reader."""
+        raw = {"a": 0.5, "junk": 0.2, "b": 0.3}
+        excluded = module.drop_guides(raw, ["junk"])
+        subtracted = module.subtract_background(raw, {"junk": 0.2})
+        assert excluded["a"] == pytest.approx(subtracted["a"])
+
+    def test_it_can_be_left_unnormalised_when_the_caller_wants_that(self):
+        after = module.drop_guides({"a": 0.5, "junk": 0.2}, ["junk"],
+                                   renormalise=False)
+        assert after == {"a": 0.5}
+
+    def test_excluding_nothing_changes_nothing(self):
+        raw = {"a": 0.6, "b": 0.4}
+        assert module.drop_guides(raw, []) == pytest.approx(raw)
+
+    def test_the_background_measurement_honours_it(self):
+        """With the contaminant gone the background it was inflating goes
+        with it, and nothing is flagged."""
+        fractions, intended = {}, {}
+        for index in range(4):
+            well = f"w{index}"
+            # A real haze of many trace guides, so the MEDIAN background is
+            # low and the contaminant stands out against it. With only two
+            # background guides the median sits halfway up and nothing can
+            # be an outlier -- which is how the first version of this
+            # fixture passed while proving nothing.
+            here = {"real": 0.70, "junk": 0.20}
+            here.update({f"t{n}": 0.10 / 30 for n in range(30)})
+            fractions[well] = here
+            intended[well] = ["real"]
+
+        with_it = module.background_from_controls(fractions, intended)
+        without = module.background_from_controls(fractions, intended,
+                                                  exclude=["junk"])
+
+        assert "junk" in with_it["background"]
+        assert "junk" not in without["background"]
+        assert module.suspicious(with_it)
+        assert module.suspicious(without) == []
+
+    def test_removing_it_lifts_the_controls_own_purity(self):
+        """Measured on the real plate: 68.9% to 77.0%."""
+        fractions = {f"w{i}": {"real": 0.70, "junk": 0.20, "haze": 0.10}
+                     for i in range(4)}
+        intended = {w: ["real"] for w in fractions}
+
+        with_it = module.background_from_controls(fractions, intended)
+        without = module.background_from_controls(fractions, intended,
+                                                  exclude=["junk"])
+
+        assert without["spurious_mass_median"] < with_it["spurious_mass_median"]

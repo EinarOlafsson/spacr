@@ -216,3 +216,46 @@ outlier at 9% dragged the 99th percentile to 6.6%. On the real 1,325-guide
 screen the same outlier hid inside the quantile instead, which is worse --
 nothing looked wrong. The outliers are now removed before the quantile, by
 the same rule `suspicious` uses.
+
+--------------------------------------------------------------------------------
+THE OUTLIER IS RESOLVED: IT IS CONTAMINATION, SO IT IS EXCLUDED
+--------------------------------------------------------------------------------
+
+Answered 2026-08-21: "TGGT1_220950_1 is primer/grna plasmid contamination.
+we should add an exclude to the controlls and filters and exclude
+TGGT1_220950_1". The control composition was confirmed at the same time --
+column 1 is 100% TGGT1_233460_4, column 2 100% TGGT1_239740_1, column 3 both,
+and everything else in them is noise. The guide named in the original request
+as 249730 is TGGT1_239740_1.
+
+EXCLUSION, NOT SUBTRACTION, and the distinction is the operation rather than
+a nicety. Background subtraction says some of a guide's reads here are
+spurious copies of a real guide. Exclusion says the SEQUENCE IS NOT A GUIDE
+IN A CELL AT ALL -- it is in the library prep and never in a nucleus -- so it
+does not belong in the denominator either. The survivors are renormalised
+over what remains.
+
+IT IS NOT A TIDYING STEP. TGGT1_220950_1 is 19.88% OF ALL PLATE-1 READS.
+Removing it:
+
+    control purity (median)     68.9%  ->  77.0%
+    spurious mass per well      31.1%  ->  23.0%
+    guides flagged as outliers    one  ->  none
+    every real guide's fraction        x1.25
+
+That quarter moves guides across the annotatability floor, so it changes the
+reachability arithmetic recorded above and not only the tidiness of a table.
+
+Implemented as the `exclude_grnas` setting, applied by `drop_guides` before
+fractions are formed and honoured by `_well_guide_fractions`. THE DEFINITIVE
+PLACE IS UPSTREAM, at count-table construction, so that every reader of the
+table sees the same denominator; the annotation path is wired now because it
+is what these instructions are about.
+
+A CORRECTION MADE WHILE TESTING, recorded because the first version of the
+test asserted the opposite: subtracting a guide's FULL background and
+renormalising is arithmetically identical to excluding it. The difference is
+narrower than it looks -- the background is a MEDIAN over control wells, so
+in any well where the contaminant runs above its median, subtraction leaves
+the excess behind and calls it a real guide. Exclusion does not care how much
+there is.
