@@ -24,16 +24,22 @@ from ..i18n import set_translatable_text, tr
 
 LOG = logging.getLogger("spacr.qt.settings_advisor")
 
+_ADVISOR_SUMMARY_SOURCE = (
+    "Read {plates} plate(s), {wells} well(s), {guides} guide(s), {genes} "
+    "gene(s) and {objects} object row(s)."
+)
+_ADVISOR_SUMMARY_CAPPED_SOURCE = (
+    "Read {plates} plate(s), {wells} well(s), {guides} guide(s), {genes} "
+    "gene(s) and {objects} object row(s). The response was read from the "
+    "first {objects} object row(s); the score table is larger than the "
+    "{row_cap}-row sample this reads."
+)
 _ADVISOR_CHROME_SOURCES = (
     "These are the only questions your tables cannot answer. Everything "
     "else on the next page was measured.",
     "in 1,000",
-    "Read {plates} plate(s), {wells} well(s), {guides} guide(s), {genes} "
-    "gene(s) and {objects} object row(s).",
-    "Read {plates} plate(s), {wells} well(s), {guides} guide(s), {genes} "
-    "gene(s) and {objects} object row(s). The response was read from the "
-    "first {objects} object row(s); the score table is larger than the "
-    "{row_cap}-row sample this reads.",
+    _ADVISOR_SUMMARY_SOURCE,
+    _ADVISOR_SUMMARY_CAPPED_SOURCE,
     "unchanged",
     "Not decided — left unchanged:",
     "Every setting this advisor can decide was decided.",
@@ -165,9 +171,16 @@ class ProposalPage(QWidget):
                 "objects": f"{reading.n_response:,}",
                 "row_cap": f"{ROW_CAP:,}",
             }
-            source = _ADVISOR_CHROME_SOURCES[3 if reading.capped else 2]
-            set_translatable_text(
-                self.summary, source, language=language, **values)
+            if reading.capped:
+                set_translatable_text(
+                    self.summary, _ADVISOR_SUMMARY_CAPPED_SOURCE,
+                    language=language, **values,
+                )
+            else:
+                set_translatable_text(
+                    self.summary, _ADVISOR_SUMMARY_SOURCE,
+                    language=language, **values,
+                )
         self.table.setRowCount(len(advice.chosen))
         for row, choice in enumerate(advice.chosen):
             was = current.get(choice.key, "—")

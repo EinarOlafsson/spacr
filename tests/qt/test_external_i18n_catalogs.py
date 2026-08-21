@@ -16,6 +16,7 @@ LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 API_EXACT_TEXT_ALLOWLIST = {
     "spacr.align.CanvasSpec.shape",
     "spacr.errors.RunLedger.status",
+    "spacr.gene_facts.Segment.text",
     "spacr.hits.HitList.flag_counts",
     "spacr.macro.MacroStep.entry",
     "spacr.qt.iconset.themed_pixmap",
@@ -30,6 +31,7 @@ API_EXACT_TEXT_ALLOWLIST = {
     "spacr.runctx.SkipRecord.__str__",
     "spacr.schema.field_index",
     "spacr.seg_qc.Scorecard.verdict",
+    "spacr.updater.PackageChange.describe",
 }
 
 
