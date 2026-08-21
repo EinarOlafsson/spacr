@@ -1,0 +1,741 @@
+"""Does an annotation strategy work? Measured, on data whose truth is known.
+
+Instruction 209: "we need a validation and test mechanism to show that this
+actually works, we need that for each strategy i think, but it seems most
+importatn for these."
+
+THE PROBLEM WITH VALIDATING THIS AT ALL. A pooled screen has no ground
+truth: nobody knows which guide any given cell carried, which is the entire
+reason these methods exist. So an annotation cannot be checked against the
+real answer on real data -- there is none to check against.
+
+WHAT CAN BE DONE INSTEAD, and this module does all four:
+
+  1. SIMULATE a screen where the truth is known by construction, with the
+     confounds dialled in one at a time -- penetrance below 1, a biased
+     fraction, a classifier that makes mistakes, guides that share a well.
+     A method that cannot recover a screen built to be recoverable will not
+     recover a real one.
+  2. PERMUTE the guide-to-well assignment and re-run. Every method must
+     collapse to chance. One that does not is reading something other than
+     the data -- and this catches the failure simulation cannot, because it
+     runs on the REAL screen.
+  3. HOLD OUT the controls. The non-cutting control must not collect
+     phenotype-positive cells, and the positive control must.
+  4. PERTURB THE ORDER, for the sequential method, and report how many
+     cells change. A greedy method whose answer depends on its order has a
+     confidence it has not earned.
+
+ONE NUMBER IS NOT AN ANSWER. A method that annotates every cell at 50%
+precision is worse than one that annotates a third of them at 95%, and any
+single score ranks them by whichever it happens to weight. Everything here
+reports COVERAGE and PRECISION as a pair, and a method is compared to
+another only at matched coverage.
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from typing import Callable, Dict, List, Mapping, Optional, Sequence, Tuple
+
+import numpy as np
+
+__all__ = [
+    "Screen",
+    "Verdict",
+    "synthesise",
+    "score_annotation",
+    "calibration",
+    "permuted",
+    "order_sensitivity",
+    "benchmark",
+    "baseline_majority",
+    "baseline_chance",
+    "BASELINES",
+]
+
+
+@dataclass(frozen=True)
+class Screen:
+    """A simulated screen, and the answer.
+
+    :ivar features: ``(n_cells, n_features)``.
+    :ivar scores: the classification score per cell, with the classifier's
+        error already applied.
+    :ivar wells: one well label per cell.
+    :ivar truth: the guide each cell REALLY carries.
+    :ivar fractions: ``{well: {guide: fraction}}`` as sequencing reports
+        them -- biased and thresholded, i.e. what the method actually gets.
+    :ivar true_fractions: the same before the bias, kept so a test can ask
+        how much of a failure was the fraction rather than the method.
+    :ivar guides: every guide in the screen.
+    """
+
+    features: np.ndarray
+    scores: np.ndarray
+    wells: Tuple[str, ...]
+    truth: Tuple[str, ...]
+    fractions: Dict[str, Dict[str, float]]
+    true_fractions: Dict[str, Dict[str, float]]
+    guides: Tuple[str, ...]
+    meta: Dict[str, object] = field(default_factory=dict)
+
+    def __len__(self) -> int:
+        return int(self.features.shape[0])
+
+
+@dataclass(frozen=True)
+class Verdict:
+    """How an annotation did against a known truth."""
+
+    coverage: float          # share of cells annotated at all
+    precision: float         # share of ANNOTATED cells that are right
+    recall: float            # share of ALL cells annotated correctly
+    per_guide: Dict[str, Tuple[float, float]]   # guide -> (precision, recall)
+    confusion: Dict[Tuple[str, str], int]
+    n: int
+
+    def summary(self) -> str:
+        return (f"{self.coverage:.0%} annotated, {self.precision:.0%} of "
+                f"those correct ({self.recall:.0%} of all cells)")
+
+
+# ---------------------------------------------------------------------------
+# 1. a screen whose truth is known
+# ---------------------------------------------------------------------------
+
+def synthesise(*,
+               wells: int = 24,
+               guides_per_well: int = 4,
+               cells_per_well: int = 60,
+               features: int = 6,
+               effect: float = 2.0,
+               penetrance: float = 1.0,
+               fraction_bias: float = 1.0,
+               fraction_threshold: float = 0.0,
+               classifier_accuracy: float = 1.0,
+               guides: int = 8,
+               seed: int = 0) -> Screen:
+    """Build a screen with a known answer.
+
+    :param effect: how far a guide's cells sit from the origin in feature
+        space, in standard deviations. The signal-to-noise dial: at 0 the
+        guides are indistinguishable and NO method can do better than
+        chance, which is itself a test worth running.
+    :param penetrance: the share of a guide's cells that actually show its
+        phenotype. Below 1 the rest look like nothing in particular, which
+        is the confound that cannot be separated from a fraction bias by a
+        single control -- see instruction 214.
+    :param fraction_bias: multiply the reported fractions by this, then
+        renormalise. 1.8 reproduces what `normalised_share` documents on a
+        real screen: filtered fractions sum to a median of 0.5526, so the
+        surviving guides are inflated by roughly that reciprocal.
+    :param fraction_threshold: drop guides below this share BEFORE
+        renormalising -- the mechanism that creates the bias rather than an
+        imitation of it.
+    :param classifier_accuracy: the score is flipped toward the wrong tail
+        this often. 0.94 is the maintainer's stated figure.
+    :returns: the :class:`Screen`.
+    """
+    rng = np.random.default_rng(int(seed))
+    names = [f"g{i:03d}" for i in range(int(guides))]
+    centres = rng.normal(size=(len(names), int(features)))
+    centres /= np.maximum(np.linalg.norm(centres, axis=1, keepdims=True), 1e-9)
+    centres *= float(effect)
+
+    rows: List[np.ndarray] = []
+    scores: List[float] = []
+    well_labels: List[str] = []
+    truth: List[str] = []
+    reported: Dict[str, Dict[str, float]] = {}
+    honest: Dict[str, Dict[str, float]] = {}
+
+    for w in range(int(wells)):
+        label = f"w{w:03d}"
+        here = list(rng.choice(len(names), size=int(guides_per_well),
+                               replace=False))
+        weights = rng.dirichlet(np.ones(len(here)) * 2.0)
+        counts = rng.multinomial(int(cells_per_well), weights)
+        honest[label] = {names[g]: float(p) for g, p in zip(here, weights)}
+
+        # SHUFFLED WITHIN THE WELL, and this is not tidiness -- it is the
+        # difference between a benchmark and a lie. Emitting each guide's
+        # cells as a contiguous block leaves the ROW ORDER carrying the
+        # answer, and any method that hands out contiguous runs then scores
+        # far above what the data can support. It was caught by the
+        # `no_effect` scenario reporting 85% precision on features that
+        # contain no information at all, which is the scenario's whole job.
+        block: List[Tuple[np.ndarray, float, str]] = []
+        for guide_index, count in zip(here, counts):
+            for _ in range(int(count)):
+                shows = rng.random() < float(penetrance)
+                centre = centres[guide_index] if shows else np.zeros(features)
+                point = centre + rng.normal(size=int(features))
+                # The score tracks the phenotype, then the classifier errs.
+                value = float(np.linalg.norm(centre)) + rng.normal(scale=0.5)
+                if rng.random() > float(classifier_accuracy):
+                    value = -value
+                block.append((point, value, names[guide_index]))
+        rng.shuffle(block)
+        for point, value, owner in block:
+            rows.append(point)
+            scores.append(value)
+            well_labels.append(label)
+            truth.append(owner)
+
+        # What sequencing REPORTS: thresholded, biased, renormalised.
+        seen = {names[g]: float(p) for g, p in zip(here, weights)}
+        kept = {g: p for g, p in seen.items() if p >= float(fraction_threshold)}
+        if not kept:
+            kept = dict(seen)
+        total = sum(kept.values()) or 1.0
+        reported[label] = {g: min(1.0, (p / total) * float(fraction_bias))
+                           for g, p in kept.items()}
+
+    return Screen(
+        features=np.asarray(rows, dtype=float),
+        scores=np.asarray(scores, dtype=float),
+        wells=tuple(well_labels),
+        truth=tuple(truth),
+        fractions=reported,
+        true_fractions=honest,
+        guides=tuple(names),
+        meta={"effect": effect, "penetrance": penetrance,
+              "fraction_bias": fraction_bias,
+              "classifier_accuracy": classifier_accuracy, "seed": seed},
+    )
+
+
+# ---------------------------------------------------------------------------
+# 2. scoring
+# ---------------------------------------------------------------------------
+
+def score_annotation(truth: Sequence[str],
+                     called: Sequence[str], *,
+                     abstain: str = "Non_annotated",
+                     guides: Optional[Sequence[str]] = None) -> Verdict:
+    """Compare an annotation to the known answer.
+
+    COVERAGE AND PRECISION ARE REPORTED APART, never blended. A method that
+    annotates everything at 50% is worse than one that annotates a third at
+    95%, and a single score ranks them by whichever it weights.
+
+    Abstentions are NOT counted as errors in `precision` -- declining to
+    answer is not a wrong answer -- but they do reduce `coverage` and
+    `recall`, so a method cannot buy precision by abstaining on everything
+    without that showing.
+    """
+    actual = [str(t) for t in truth]
+    said = [str(c) for c in called]
+    n = len(actual)
+    if n == 0 or len(said) != n:
+        return Verdict(0.0, 0.0, 0.0, {}, {}, n)
+
+    answered = [i for i in range(n) if said[i] != abstain]
+    right = [i for i in answered if said[i] == actual[i]]
+    coverage = len(answered) / n
+    precision = (len(right) / len(answered)) if answered else 0.0
+    recall = len(right) / n
+
+    wanted = list(guides) if guides is not None else sorted(set(actual))
+    per_guide: Dict[str, Tuple[float, float]] = {}
+    for guide in wanted:
+        claimed = [i for i in answered if said[i] == guide]
+        real = [i for i in range(n) if actual[i] == guide]
+        hit = [i for i in claimed if actual[i] == guide]
+        per_guide[str(guide)] = (
+            (len(hit) / len(claimed)) if claimed else 0.0,
+            (len(hit) / len(real)) if real else 0.0,
+        )
+
+    confusion: Dict[Tuple[str, str], int] = {}
+    for i in range(n):
+        key = (actual[i], said[i])
+        confusion[key] = confusion.get(key, 0) + 1
+
+    return Verdict(coverage, precision, recall, per_guide, confusion, n)
+
+
+def calibration(truth: Sequence[str],
+                called: Sequence[str],
+                confidence: Sequence[float], *,
+                bins: int = 5,
+                abstain: str = "Non_annotated") -> List[Tuple[float, float, int]]:
+    """``[(mean confidence, observed accuracy, count)]`` per bin.
+
+    A METHOD THAT SAYS 0.9 SHOULD BE RIGHT NINE TIMES IN TEN. This is the
+    check that matters most for a method whose output is used as a weight
+    rather than a label: precision can be high while the probabilities are
+    meaningless, and every downstream number that multiplies by them is
+    then wrong in a way no accuracy score reveals.
+    """
+    actual = [str(t) for t in truth]
+    said = [str(c) for c in called]
+    values = np.asarray(list(confidence), dtype=float)
+    keep = [i for i in range(len(actual))
+            if i < values.size and said[i] != abstain
+            and np.isfinite(values[i])]
+    if not keep:
+        return []
+    edges = np.linspace(0.0, 1.0, int(bins) + 1)
+    out: List[Tuple[float, float, int]] = []
+    for low, high in zip(edges[:-1], edges[1:]):
+        here = [i for i in keep
+                if low <= values[i] < high or (high >= 1.0 and values[i] == 1.0)]
+        if not here:
+            continue
+        correct = sum(1 for i in here if said[i] == actual[i])
+        out.append((float(np.mean(values[here])), correct / len(here),
+                    len(here)))
+    return out
+
+
+# ---------------------------------------------------------------------------
+# 3. the null -- the check that runs on REAL data
+# ---------------------------------------------------------------------------
+
+def permuted(screen: Screen, *, seed: int = 0) -> Screen:
+    """The same screen with the guide-to-well assignment shuffled.
+
+    THE ONE CHECK THAT DOES NOT NEED GROUND TRUTH, which is why it is the
+    only one that can run on a real screen. Shuffling which guides were in
+    which well destroys every real relationship between sequencing and
+    imaging while leaving the cells, the features, the scores, the well
+    sizes and the fraction distribution exactly as they were.
+
+    A method must collapse to chance here. One that does not is reading
+    something other than the data -- most often its own anchors, chosen by
+    score, agreeing with a score-based feature.
+
+    The truth is shuffled with the fractions, so `score_annotation` against
+    this screen measures performance against the permuted world.
+    """
+    rng = np.random.default_rng(int(seed))
+    labels = sorted(screen.fractions)
+    shuffled = list(labels)
+    rng.shuffle(shuffled)
+    mapping = dict(zip(labels, shuffled))
+    fractions = {well: dict(screen.fractions[mapping[well]])
+                 for well in labels}
+    true_fractions = {well: dict(screen.true_fractions.get(mapping[well], {}))
+                      for well in labels}
+    return Screen(
+        features=screen.features, scores=screen.scores, wells=screen.wells,
+        truth=screen.truth, fractions=fractions,
+        true_fractions=true_fractions, guides=screen.guides,
+        meta={**screen.meta, "permuted": True, "permutation_seed": seed})
+
+
+def order_sensitivity(run: Callable[[Sequence[Tuple[str, float]]], Sequence[str]],
+                      ranking: Sequence[Tuple[str, float]], *,
+                      repeats: int = 3,
+                      seed: int = 0) -> Dict[str, float]:
+    """How much a sequential method's answer depends on its order.
+
+    :param run: takes a ranking and returns one guide name per cell.
+    :param ranking: the honest order.
+    :returns: ``{"changed": share of cells that differ, "repeats": n}``.
+
+    THE GREEDY METHOD'S OWN RISK, MEASURED. `sudoku_all` removes the cells
+    it claims, so the first guide's mistakes are permanent and every later
+    guide inherits them. If shuffling the order changes a large share of
+    the answer, the confidence it reports is not confidence -- and that is a
+    fact about the method that has to be produced rather than reasoned
+    about.
+
+    The perturbation swaps ADJACENT pairs rather than shuffling outright: a
+    full shuffle asks what happens if the confidence ranking is meaningless,
+    which is not the question. The question is what happens when two guides
+    of similar confidence come in either order, which is the case that
+    actually occurs.
+    """
+    rng = np.random.default_rng(int(seed))
+    base = list(run(list(ranking)))
+    if not base:
+        return {"changed": 0.0, "repeats": 0}
+    differences: List[float] = []
+    for _ in range(int(repeats)):
+        order = list(ranking)
+        for index in range(len(order) - 1):
+            if rng.random() < 0.5:
+                order[index], order[index + 1] = order[index + 1], order[index]
+        other = list(run(order))
+        if len(other) != len(base):
+            continue
+        differences.append(
+            sum(1 for a, b in zip(base, other) if a != b) / len(base))
+    return {"changed": float(np.mean(differences)) if differences else 0.0,
+            "worst": float(np.max(differences)) if differences else 0.0,
+            "repeats": len(differences)}
+
+
+# ---------------------------------------------------------------------------
+# 4. every strategy, on the same screens
+# ---------------------------------------------------------------------------
+
+def benchmark(strategies: Mapping[str, Callable[[Screen], Sequence[str]]],
+              scenarios: Optional[Mapping[str, Screen]] = None, *,
+              null_seed: int = 7) -> Dict[str, Dict[str, object]]:
+    """Run every strategy on every scenario, and on each scenario's null.
+
+    :param strategies: ``{name: screen -> one guide per cell}``.
+    :param scenarios: ``{name: Screen}``. Defaults to
+        :func:`default_scenarios`.
+    :returns: ``{scenario: {strategy: {"real": Verdict, "null": Verdict}}}``.
+
+    THE NULL IS RUN FOR EVERY STRATEGY ON EVERY SCENARIO, not once as a
+    sanity check at the end. A method can be sound on an easy screen and
+    read its own anchors on a hard one, and only the paired comparison
+    shows that -- the gap between real and null is the part of the
+    performance that came from the data.
+    """
+    scenes = dict(scenarios if scenarios is not None else default_scenarios())
+    # THE BASELINES ARE NOT OPTIONAL. They are what separates "the method
+    # works" from "the fractions work", and a caller who forgot them would
+    # read the second as the first.
+    everything = {**BASELINES, **dict(strategies)}
+    out: Dict[str, Dict[str, object]] = {}
+    for scene_name, screen in scenes.items():
+        null = permuted(screen, seed=null_seed)
+        here: Dict[str, object] = {}
+        for name, strategy in everything.items():
+            try:
+                real = score_annotation(screen.truth, strategy(screen),
+                                        guides=screen.guides)
+            except Exception as exc:                          # noqa: BLE001
+                here[name] = {"error": f"{type(exc).__name__}: {exc}"}
+                continue
+            try:
+                chance = score_annotation(null.truth, strategy(null),
+                                          guides=null.guides)
+            except Exception as exc:                          # noqa: BLE001
+                chance = None
+                here[name] = {"real": real,
+                              "null_error": f"{type(exc).__name__}: {exc}"}
+                continue
+            here[name] = {
+                "real": real, "null": chance,
+                # What the data was worth, which is the number to read.
+                "gain": float(real.precision - chance.precision),
+            }
+        out[scene_name] = here
+    return out
+
+
+def baseline_majority(screen: Screen) -> List[str]:
+    """Give every cell in a well to that well's largest guide.
+
+    THE FLOOR EVERY METHOD MUST CLEAR, and it must be in every benchmark
+    rather than assumed. It uses NO cell measurement at all -- only the
+    sequencing -- so whatever it scores is what the fractions alone are
+    worth on that screen.
+
+    Without it a benchmark cannot tell "the method works" from "the
+    fractions work". On a screen with no signal in the features, a method
+    that abstains except where one guide dominates the well will post a
+    precision far above chance, and that is neither a bug nor a discovery:
+    it is this baseline, wearing a graph.
+    """
+    wells = np.asarray(screen.wells)
+    out = ["Non_annotated"] * len(screen)
+    for well in sorted(set(wells.tolist())):
+        here = screen.fractions.get(well) or {}
+        if not here:
+            continue
+        biggest = max(here, key=lambda g: float(here[g]))
+        for index in np.flatnonzero(wells == well):
+            out[int(index)] = str(biggest)
+    return out
+
+
+def baseline_chance(screen: Screen, *, seed: int = 0) -> List[str]:
+    """Draw each cell's guide from its well's fractions, at random.
+
+    The other floor: what a method scores if it respects the counts and
+    knows nothing else. Together with :func:`baseline_majority` these
+    bracket what the sequencing can do unaided.
+    """
+    rng = np.random.default_rng(int(seed))
+    wells = np.asarray(screen.wells)
+    out = ["Non_annotated"] * len(screen)
+    for well in sorted(set(wells.tolist())):
+        here = screen.fractions.get(well) or {}
+        if not here:
+            continue
+        names = list(here)
+        weights = np.array([max(float(here[g]), 0.0) for g in names])
+        if weights.sum() <= 0:
+            continue
+        weights = weights / weights.sum()
+        rows = np.flatnonzero(wells == well)
+        drawn = rng.choice(len(names), size=rows.size, p=weights)
+        for index, pick in zip(rows, drawn):
+            out[int(index)] = names[int(pick)]
+    return out
+
+
+#: Included in every benchmark automatically. A comparison without them is
+#: a comparison that cannot say where the performance came from.
+BASELINES: Dict[str, Callable[[Screen], Sequence[str]]] = {
+    "baseline:majority": baseline_majority,
+    "baseline:chance": baseline_chance,
+}
+
+
+def default_scenarios(seed: int = 0) -> Dict[str, Screen]:
+    """One screen per confound, dialled in ALONE.
+
+    Separated on purpose: a benchmark on a single realistic screen says a
+    method scored 0.7 and not which of the four confounds cost it the 0.3.
+    """
+    return {
+        # Nothing wrong: the ceiling. A method that fails here is broken.
+        "clean": synthesise(seed=seed),
+        # No signal at all: the floor. Everything must be at chance, and a
+        # method that beats chance here is reading its own anchors.
+        "no_effect": synthesise(effect=0.0, seed=seed + 1),
+        # Half the cells do not show the phenotype.
+        "penetrance_0.5": synthesise(penetrance=0.5, seed=seed + 2),
+        # The 207 mechanism: threshold, then renormalise, then inflate.
+        "inflated_fractions": synthesise(fraction_threshold=0.10,
+                                         fraction_bias=1.8, seed=seed + 3),
+        # The maintainer's stated classifier.
+        "classifier_0.94": synthesise(classifier_accuracy=0.94, seed=seed + 4),
+        # Crowded wells: more guides sharing, so more chances to confuse.
+        "crowded": synthesise(guides_per_well=8, guides=16, seed=seed + 5),
+        # Everything at once, which is the real screen.
+        "realistic": synthesise(penetrance=0.6, fraction_threshold=0.10,
+                                fraction_bias=1.8, classifier_accuracy=0.94,
+                                guides_per_well=6, seed=seed + 6),
+    }
+
+
+# ---------------------------------------------------------------------------
+# 5. mixed-ratio control wells -- ground truth on REAL data
+# ---------------------------------------------------------------------------
+#
+# The maintainer's proposal, 2026-08-21: "can the hold out be the mixed ratio
+# wells, where we dont know the identity of each cell but we do know how many
+# cells are PC and how many are NC from the sequencing. these were not use for
+# training."
+#
+# IT IS BETTER THAN THE SIMULATION AND BETTER THAN INSTRUCTION 214's SINGLE
+# POSITIVE CONTROL, for a reason worth stating precisely.
+#
+# 214 records that a single positive control cannot separate PENETRANCE from
+# FRACTION BIAS: the slope of imaging-fraction on sequencing-fraction is their
+# product. A RATIO SERIES separates them, because the two enter at different
+# places. A well that is a proportion `pi` of PC cells has a feature
+# distribution that is exactly the mixture
+#
+#     F_w  =  pi * F_PC  +  (1 - pi) * F_NC
+#
+# and `F_PC` is estimated from the extreme wells INCLUDING its non-penetrant
+# cells -- a PC cell showing no phenotype is still a PC cell and is still in
+# `F_PC`. So the mixture fit recovers the true CELLULAR proportion with
+# penetrance already absorbed, and comparing that to what sequencing reported
+# isolates the fraction bias on its own.
+#
+# WHAT IT DOES NOT SHOW, said here because it is the easy thing to forget:
+# PC-versus-NC is a two-class problem with the largest phenotype difference in
+# the screen. A method can be perfect on it and still fail at six guides in
+# one well, which is the actual task. This validates the calibration and the
+# discrimination; the simulation above remains the only check of the
+# multi-guide assignment.
+
+def mixture_proportion(features: np.ndarray,
+                       positive: np.ndarray,
+                       negative: np.ndarray) -> float:
+    """Estimate a well's PC share from the FEATURES ALONE.
+
+    :param features: ``(n_cells, n_features)`` for one mixed well.
+    :param positive: the pure-PC reference cells.
+    :param negative: the pure-NC reference cells.
+    :returns: the estimated proportion, clipped to ``[0, 1]``.
+
+    Projects the well's mean onto the line between the two reference means:
+
+        mu_w = pi * mu_PC + (1 - pi) * mu_NC
+
+    solved by least squares. NO PER-CELL LABELS ARE NEEDED and none are
+    used, which is the point -- the mixed wells do not have any.
+
+    The mean rather than a fitted density: a mixture likelihood in six
+    dimensions needs far more cells per well than a control well has, and
+    the mean is unbiased for a mixture whatever the component shapes are.
+    """
+    here = np.asarray(features, dtype=float)
+    pos = np.asarray(positive, dtype=float)
+    neg = np.asarray(negative, dtype=float)
+    if here.size == 0 or pos.size == 0 or neg.size == 0:
+        return float("nan")
+    centre_pos = pos.mean(axis=0)
+    centre_neg = neg.mean(axis=0)
+    direction = centre_pos - centre_neg
+    span = float(direction @ direction)
+    if span <= 0:
+        # The two controls are indistinguishable: there is no line to
+        # project onto, and any number would be invented.
+        return float("nan")
+    return float(np.clip(((here.mean(axis=0) - centre_neg) @ direction) / span,
+                         0.0, 1.0))
+
+
+def mixed_ratio_calibration(features: np.ndarray,
+                            wells: Sequence[str],
+                            reported: Mapping[str, float], *,
+                            pure_pc_wells: Optional[Sequence[str]] = None,
+                            pure_nc_wells: Optional[Sequence[str]] = None,
+                            pure_low: float = 0.05,
+                            pure_high: float = 0.95) -> Dict[str, object]:
+    """Fit what imaging says against what sequencing said, on real wells.
+
+    :param features: ``(n_cells, n_features)`` over the control wells.
+    :param wells: one well label per cell.
+    :param reported: ``{well: PC fraction sequencing reported}``.
+    :param pure_low: at or below this, a well is taken as pure NC.
+    :param pure_high: at or above this, a well is taken as pure PC.
+    :returns: slope, intercept, the per-well estimates, and what was used.
+
+    THE SLOPE IS THE FRACTION BIAS, penetrance already absorbed -- see the
+    note above. A slope of 1 means sequencing's fractions are the cellular
+    fractions. The 1.8 that `normalised_share` documents would show here as
+    a slope near 0.55.
+
+    A MEDIAN FIT, for instruction 214's reason: a hit sharing a control well
+    only ever ADDS phenotype-positive cells, so contamination is one-sided,
+    and one-sided contamination is exactly where a least-squares slope is
+    dragged and a median one is not.
+    """
+    values = np.asarray(features, dtype=float)
+    labels = np.asarray([str(w) for w in wells])
+    # WHICH WELLS ARE PURE IS A FACT ABOUT THE PLATE, not about the numbers
+    # under test. Picking them by the REPORTED fraction is circular -- that
+    # fraction is precisely the biased quantity this is measuring, so a bias
+    # large enough to matter moves a pure well below the cut-off and the fit
+    # refuses to run on exactly the screens that need it. Caught that way:
+    # a 0.55 bias made every 100%-PC well report 0.55 and no pure well was
+    # found.
+    circular = pure_pc_wells is None or pure_nc_wells is None
+    if pure_pc_wells is not None:
+        pure_pc = [str(w) for w in pure_pc_wells]
+    else:
+        pure_pc = [w for w, f in reported.items()
+                   if float(f) >= float(pure_high)]
+    if pure_nc_wells is not None:
+        pure_nc = [str(w) for w in pure_nc_wells]
+    else:
+        pure_nc = [w for w, f in reported.items()
+                   if float(f) <= float(pure_low)]
+    if not pure_pc or not pure_nc:
+        return {"error": "no pure wells at either end; the references that "
+                         "define the mixture line cannot be estimated",
+                "pure_pc": len(pure_pc), "pure_nc": len(pure_nc)}
+
+    reference_pc = values[np.isin(labels, pure_pc)]
+    reference_nc = values[np.isin(labels, pure_nc)]
+
+    xs: List[float] = []
+    ys: List[float] = []
+    per_well: Dict[str, Tuple[float, float]] = {}
+    for well, said in sorted(reported.items()):
+        rows = values[labels == str(well)]
+        if rows.shape[0] < 3:
+            continue
+        seen = mixture_proportion(rows, reference_pc, reference_nc)
+        if not np.isfinite(seen):
+            continue
+        per_well[str(well)] = (float(said), float(seen))
+        xs.append(float(said))
+        ys.append(float(seen))
+
+    if len(xs) < 3:
+        return {"error": f"only {len(xs)} usable well(s); a slope needs more",
+                "per_well": per_well}
+
+    slope, intercept = _theil_sen(np.asarray(xs), np.asarray(ys))
+    residuals = np.asarray(ys) - (slope * np.asarray(xs) + intercept)
+    out: Dict[str, object] = {
+        "slope": float(slope),
+        "intercept": float(intercept),
+        "median_absolute_residual": float(np.median(np.abs(residuals))),
+        "wells": len(xs),
+        "pure_pc_wells": len(pure_pc),
+        "pure_nc_wells": len(pure_nc),
+        "per_well": per_well,
+        "reading": _read_slope(float(slope)),
+        "reference_wells_from_design": not circular,
+    }
+    if circular:
+        out["warning"] = (
+            "the pure wells were identified by their REPORTED fraction, "
+            "which is the quantity under test -- name them from the plate "
+            "design with pure_pc_wells / pure_nc_wells")
+    return out
+
+
+def _theil_sen(x: np.ndarray, y: np.ndarray) -> Tuple[float, float]:
+    """Median-of-pairwise-slopes fit -- robust to one-sided contamination."""
+    slopes: List[float] = []
+    for i in range(x.size):
+        for j in range(i + 1, x.size):
+            if x[j] != x[i]:
+                slopes.append((y[j] - y[i]) / (x[j] - x[i]))
+    if not slopes:
+        return float("nan"), float("nan")
+    slope = float(np.median(slopes))
+    return slope, float(np.median(y - slope * x))
+
+
+def _read_slope(slope: float) -> str:
+    """What the slope says, in the terms the question was asked in."""
+    if not np.isfinite(slope):
+        return "no slope could be fitted"
+    if slope > 1.15:
+        return ("imaging finds MORE control cells than sequencing reported: "
+                "the reported fractions understate the cellular ones")
+    if slope < 0.85:
+        return ("imaging finds FEWER control cells than sequencing reported: "
+                "the reported fractions overstate the cellular ones, which "
+                "is the direction filter-renormalisation produces")
+    return "sequencing's fractions match the cellular fractions"
+
+
+def count_agreement(called: Sequence[str],
+                    wells: Sequence[str],
+                    reported: Mapping[str, float],
+                    guide: str) -> Dict[str, object]:
+    """Does a method's PER-WELL COUNT match what sequencing said?
+
+    The direct test of an annotation method on the mixed wells: the cells
+    are unlabelled, but their COUNTS are known, so a method that names
+    guides per cell can be checked by counting what it named.
+
+    :returns: per-well predicted and reported shares, and the median error.
+
+    IT IS NECESSARY AND NOT SUFFICIENT, and the gap matters: a method can
+    get every count right and every cell wrong, by naming the right NUMBER
+    of cells arbitrarily. What rules that out is the ratio SERIES -- getting
+    the count right at 90:10 is easy, at 50:50 it requires discriminating,
+    and doing both with one rule is hard to fake.
+    """
+    said = [str(c) for c in called]
+    labels = np.asarray([str(w) for w in wells])
+    rows: Dict[str, Tuple[float, float]] = {}
+    errors: List[float] = []
+    for well, expected in sorted(reported.items()):
+        here = np.flatnonzero(labels == str(well))
+        if here.size == 0:
+            continue
+        mine = sum(1 for i in here if said[i] == str(guide))
+        share = mine / here.size
+        rows[str(well)] = (float(expected), float(share))
+        errors.append(abs(share - float(expected)))
+    return {
+        "guide": str(guide),
+        "per_well": rows,
+        "median_absolute_error": float(np.median(errors)) if errors else
+        float("nan"),
+        "worst_absolute_error": float(np.max(errors)) if errors else
+        float("nan"),
+        "wells": len(rows),
+    }
