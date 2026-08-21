@@ -6792,7 +6792,13 @@ def generate_training_dataset(settings):
             png_df = rows
         crop_db_path = db_path if os.path.isfile(db_path) else None
 
-        mode = str(settings['dataset_mode']).lower()
+        # THROUGH `resolve_basis`, so a settings file naming the retired
+        # 'measurement' basis is MIGRATED here rather than raising -- which
+        # is the promise `RETIRED_BASES` makes, and it is only kept if every
+        # reader goes through the resolver instead of reading the key.
+        from .training_basis import resolve_basis
+
+        mode = resolve_basis(settings)
         this_names, this_lists = [], []
 
         if mode == 'metadata':

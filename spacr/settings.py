@@ -4564,14 +4564,24 @@ categories = {
     # three path settings become `load_path_regex`; `extract_channels` is
     # gone and `train_channels` is what the model sees; `coordinate_columns`
     # is DERIVED from `object_array` and so is not a control at all.
-    "Computer Vision Data Source": ["image_source", "load_path_regex", "image_size", "size", "train_channels", "stream_method", "object_array", "mask_array", "channel_arrays", "bounding_box", "crop_shape", "sample", "test_split", "val_split", "balance_to_smallest", "augment"],
+    "Computer Vision Data Source": ["image_source", "load_path_regex", "image_size", "size", "train_channels", "stream_method", "object_array", "mask_array", "channel_arrays", "bounding_box", "crop_shape", "sample", "test_split", "val_split", "balance_to_smallest", "augment",
+        # GROUPED BUT NOT OFFERED. These four are what `image_source`,
+        # `load_path_regex` and the `object_array` derivation replaced, and
+        # they stay in the settings dict because the RUNTIME still reads
+        # them -- `crop_source.py` and the streamer both do. So they need a
+        # category (an uncategorised key renders ungrouped at the top of the
+        # panel), and `_APP_HIDDEN_KEYS` is what keeps them off the form.
+        # The same split `png_type` would have if anything still read it.
+        "crop_source", "file_metadata", "file_type", "coordinate_columns"],
 
     # WHICH MODEL, and how its input is scaled. A custom model path that loads
     # supersedes model_type, so no boolean is needed to say which to believe.
     "Computer Vision Model": ["model_type", "model_name", "custom_model", "init_weights", "normalization", "normalization_scope"],
 
     # HOW IT IS FITTED: the optimisation and the loss.
-    "Computer Vision Training": ["train", "test", "epochs", "learning_rate", "optimizer_type", "schedule", "loss_type", "label_smoothing", "focal_gamma", "focal_alpha", "logit_adjust_tau", "class_balance", "amsgrad", "gradient_accumulation", "gradient_accumulation_steps", "early_stopping_patience", "pin_memory", "intermedeate_save", "tensorboard", "random_seed"],
+    "Computer Vision Training": ["train", "test", "epochs", "learning_rate", "optimizer_type", "schedule", "loss_type", "label_smoothing", "focal_gamma", "focal_alpha", "logit_adjust_tau", "class_balance", "amsgrad", "gradient_accumulation", "gradient_accumulation_steps", "early_stopping_patience", "pin_memory", "intermedeate_save", "tensorboard", "random_seed",
+        # CV-ONLY by `classify.FAMILY_SETTINGS` (instruction 233).
+        "n_top_examples"],
 
     # WHAT KEEPS IT FROM OVERFITTING. Its own heading because these are the
     # knobs reached for when a model has learned the training set and nothing
@@ -4581,12 +4591,44 @@ categories = {
     # HOW IT IS JUDGED. Shared by both families: an evaluation is an
     # evaluation, and `save_to_db` is where the result goes rather than a
     # category of its own.
-    "Model Evaluation": ["cross_validation_enabled", "cross_validation_folds", "cv_group_by", "nested_cv_inner_folds", "classifier_evaluation", "evaluation_calibration", "evaluation_bins", "evaluation_fail_on_leakage", "leakage_audit_train_test", "leakage_hash_content", "leakage_require_identity", "score_threshold", "n_top_examples", "score_column", "save_to_db"],
+    # INSTRUCTION 233. One list of fifteen, split BY CATEGORY -- and only
+    # two of them split by family, because the audit said so.
+    #
+    # THE AUDIT WAS THE WORK, and it corrected the guess. `classify.py`'s
+    # FAMILY_SETTINGS is the authoritative table of what each family reads
+    # exclusively, and against it only `n_top_examples` is CV-only and only
+    # `save_to_db` is ML-only. EVERY OTHER ONE OF THE FIFTEEN IS SHARED --
+    # so filing them under "Computer Vision Evaluation", which is what the
+    # names suggest, would tell the user they apply to one path when they
+    # apply to both. That is the one hard rule this item states, and the
+    # first attempt at the split broke it on eleven settings out of
+    # fifteen.
+    #
+    # So the headings below are NEUTRAL, and the two exclusives went to the
+    # family headings that already exist.
+    "Model Evaluation": ["cross_validation_enabled", "cross_validation_folds",
+                         "cv_group_by", "nested_cv_inner_folds"],
+
+    "Evaluation Reports": ["classifier_evaluation", "evaluation_calibration",
+                           "evaluation_bins", "score_threshold",
+                           "score_column"],
+
+    # THE LEAKAGE AUDIT IS ITS OWN QUESTION. Four settings about whether the
+    # train and test sets share objects is not "evaluation" in the sense the
+    # rest of the list means -- it is a check on the SPLIT, and a reader
+    # looking for it under a metrics heading would not find it.
+    "Leakage Audit": ["evaluation_fail_on_leakage", "leakage_audit_train_test",
+                      "leakage_hash_content", "leakage_require_identity"],
 
     # THE FEATURE-BASED CLASSIFIER: which model, and which features it may
     # see. Feature preparation and feature importance were two headings asking
     # one question -- which features the model uses -- so they are one.
-    "Machine Learning Model and Features": ["model_type_ml", "n_estimators", "test_size", "cross_validation", "reg_lambda", "reg_alpha", "prune_features", "top_features", "n_repeats", "minimum_cell_count"],
+    # ML-ONLY (instruction 233). `score_column` names the column
+    # generate_ml_scores writes its prediction into, and `save_to_db`
+    # decides whether it goes back to the database -- neither is read on
+    # the computer-vision path, and both were in a list a CV user was
+    # reading top to bottom.
+    "Machine Learning Model and Features": ["model_type_ml", "n_estimators", "test_size", "cross_validation", "reg_lambda", "reg_alpha", "prune_features", "top_features", "n_repeats", "minimum_cell_count", "save_to_db"],
 
     "Embedding & Clustering": ["reduction_method", "n_neighbors", "min_dist", "metric", "tsne_perplexity", "tsne_learning_rate", "tsne_early_exaggeration", "tsne_max_iter", "pca_whiten", "pca_svd_solver", "isomap_n_neighbors", "isomap_path_method", "spectral_affinity", "spectral_n_neighbors", "log_data", "embedding_by_controls", "col_to_compare", "resnet_features", "visualize", "clustering", "eps", "min_samples", "remove_cluster_noise", "analyze_clusters"],
 

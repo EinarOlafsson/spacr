@@ -290,11 +290,24 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
     # working. It is not OFFERED, because offering both halves of a
     # superseded pair is how a user sets one and wonders why the other
     # wins.
-    "classify": {"png_type"},
+    # AND THE SAME RULE FOR THE 230 SUPERSESSIONS. `crop_source`,
+    # `file_metadata` and `file_type` are what `image_source` and
+    # `load_path_regex` replaced, and `coordinate_columns` is DERIVED from
+    # `object_array` -- so none of the four is a control any more.
+    #
+    # They stay in the settings dict because the old readers still consult
+    # them as a fallback, which is what keeps a settings CSV written before
+    # the rename working. They are not OFFERED, for the reason `png_type`
+    # is not: offering both halves of a superseded pair is how a user sets
+    # one and wonders why the other wins.
+    "classify": {"png_type", "crop_source", "file_metadata", "file_type",
+                 "coordinate_columns"},
     # One action-strip GPU toggle drives both the main reducer and the search.
     # The setting remains in _defaults and therefore in collect(); only the
     # duplicate form control is hidden.
-    "umap": {"gpu"},
+    # `crop_source` reaches UMAP through the shared picture settings and is
+    # superseded there by `image_source` for the same reason as above.
+    "umap": {"gpu", "crop_source"},
     # WHAT "REGRESSION PLOTS" AND "RUNTIME & RELIABILITY" HELD, per
     # instruction 135. The sections are deleted from the layout above; these
     # keys keep their values and reach the run exactly as before, they are
@@ -962,6 +975,11 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "positive_control_wells", "negative_control_wells",
             "mixed_control_wells", "exclude_grnas", "controls",
             "filter_column", "filter_value",
+            # BEFORE THE THRESHOLD, because they run before it: these four
+            # decide which objects EXIST, and the threshold divides by what
+            # is left (instruction 210).
+            "cell_area_outlier_mads", "nucleus_area_outlier_mads",
+            "cell_intensity_outlier_mads", "nucleus_intensity_outlier_mads",
             "min_cell_count", "min_n", "fraction_threshold",
             "normalise_fraction",
             "target_unique_count", "tolerance", "outlier_detection",
@@ -1974,9 +1992,24 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "weight decay, gradient checkpointing. Reach for these when training "
         "accuracy climbs and validation accuracy does not.",
     "MODEL EVALUATION":
-        "How the fitted model is judged, and where the result is written — "
-        "cross-validation and its grouping, calibration, the leakage audit, "
-        "and Save Results to DB. Shared by both classifier families.",
+        "HOW THE MODEL IS VALIDATED: whether cross-validation runs, into how "
+        "many folds, and what a fold is grouped by. Read by BOTH classifier "
+        "families, which is why it keeps a neutral heading — a setting filed "
+        "under a family name tells the user it applies to one path when it "
+        "applies to both, and they set it in one module and not the other.",
+    "EVALUATION REPORTS":
+        "WHAT IS WRITTEN OUT once the model is judged — the evaluation "
+        "bundle, the calibration curve and its bins, and the score column "
+        "and threshold that turn a probability into a call. Separate from "
+        "the validation above because they answer different questions: one "
+        "is how the number was earned, the other is how it is reported. "
+        "Both families read these.",
+    "LEAKAGE AUDIT":
+        "WHETHER THE TRAIN AND TEST SETS SHARE OBJECTS, and what happens "
+        "when they do. This is a check on the SPLIT rather than on the "
+        "model, which is why it is not under an evaluation heading: a "
+        "reader looking for it among the metrics would not find it, and a "
+        "model scored on cells it was trained on is not scored at all.",
     "MACHINE LEARNING MODEL AND FEATURES":
         "The feature-based classifier: which model, and which measured "
         "features it is allowed to see. Feature preparation and feature "

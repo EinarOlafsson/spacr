@@ -199,7 +199,7 @@ def test_missing_column_raises_and_names_what_is_available(plate):
     message = str(excinfo.value)
     assert "'condition'" in message          # the column that is missing
     assert 'columnID' in message             # a column that is present
-    assert 'metadata_type_by' in message     # the setting to change
+    assert 'Classes editor' in message     # the setting to change
 
 
 def test_missing_column_does_not_raise_key_error(plate):
@@ -217,13 +217,28 @@ def test_missing_column_does_not_raise_key_error(plate):
     assert not isinstance(excinfo.value, KeyError)
 
 
-def test_blank_metadata_type_by_falls_back_to_condition(plate):
-    """An unset setting is the only thing that still means 'condition' -- and
-    it says so instead of crashing."""
-    from spacr.io import generate_training_dataset
+def test_nothing_naming_a_column_falls_back_to_columnID(plate):
+    """The fallback is `columnID`, not `condition`, since instruction 229.
 
-    with pytest.raises(ValueError, match="'condition'"):
-        generate_training_dataset(_settings(plate, metadata_type_by=''))
+    THE OLD FALLBACK WAS A COLUMN NO spaCR WRITER PRODUCES. `condition` is
+    only in png_list once `annotate_conditions` has been run, so a run that
+    named nothing selected on a column that was usually absent -- which is
+    the bug `metadata_type_by` was introduced to fix, and it is still a bug
+    when nothing names one. `columnID` is a column `filepaths_to_database`
+    always writes.
+
+    AND IT NOW SUCCEEDS where it used to raise. That is the point: the old
+    fallback failed on a column that was not there, and this one selects on
+    a column that is.
+    """
+    import os
+
+    from spacr.io import _class_column, generate_training_dataset
+
+    assert _class_column({}) == 'columnID'
+    train, _test = generate_training_dataset(
+        _settings(plate, metadata_type_by=''))
+    assert sorted(os.listdir(train)) == ['c1', 'c2']
 
 
 def test_class_metadata_arriving_as_a_string_is_parsed(plate):
