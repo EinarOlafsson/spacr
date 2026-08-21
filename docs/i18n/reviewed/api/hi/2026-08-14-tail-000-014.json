@@ -73,13 +73,6 @@
       "translation": "RF, permutation और SHAP महत्त्व के माध्यम से spacr vision-model स्कोर समझाएँ, तथा प्रत्येक compartment / प्रत्येक channel के radar plot बनाएँ।"
     },
     {
-      "label": "spacr.openmp_guard#3",
-      "source_sha256": "0aef224ce9ce3d5fa64d470572fc3307b1471232e69b0b67d51f0d3be6e330ec",
-      "source": "xgboost's runtime handed torch's runtime a ``kmp_info_t *`` out of its own thread table; torch's build read it at its own struct offsets and dereferenced field 0x580 of something else entirely. libomp normally refuses to be initialised twice and says so (\"OMP: Error #15\"), but TensorFlow sets ``KMP_DUPLICATE_LIB_OK=True`` process-wide, which turns that guard off and leaves the corruption silent.",
-      "context": "xgboost's runtime handed torch's runtime a ``kmp_info_t *`` out of its own independent execution path table; torch's build read it at its own struct offsets and dereferenced field 0x580 of something else entirely. libomp normally refuses to be initialised twice and says so (\"OMP: Error #15\"), but TensorFlow sets ``KMP_DUPLICATE_LIB_OK=True`` process-wide, which turns that guard off and leaves the corruption silent.",
-      "translation": "xgboost के runtime ने अपनी स्वतंत्र execution-path तालिका से ``kmp_info_t *`` torch के runtime को दिया; torch के build ने उसे अपने struct offsets पर पढ़ा और किसी बिल्कुल अलग वस्तु का field 0x580 dereference कर दिया। libomp सामान्यतः दूसरी बार initialize होने से मना करके \"OMP: Error #15\" बताता है, लेकिन TensorFlow पूरे process में ``KMP_DUPLICATE_LIB_OK=True`` सेट करता है; इससे वह guard बंद हो जाता है और corruption मौन रह जाता है।"
-    },
-    {
       "label": "spacr.pipeline_v2.stream_masks_from_stack#0",
       "source_sha256": "6c71855a74e9e00dd905a25e974b039b781f85e88d0a24ecd35cfa0a787aa195",
       "source": "Batch the field stacks through Cellpose, then append the mask channel(s) to the SAME npy files.",

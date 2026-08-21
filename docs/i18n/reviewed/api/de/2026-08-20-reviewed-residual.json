@@ -1,0 +1,27 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "context": "Test selection is delegated to :func:`spacr.figures.stats.compare`. Two-group comparisons may use Student's t, Welch's t, or Mann-Whitney U; larger comparisons may use one-way ANOVA, Welch's ANOVA, or Kruskal-Wallis. Paired data use the paired t-test or Wilcoxon signed-rank test.",
+      "label": "spacr.plot.spacrGraph.perform_statistical_tests#6",
+      "source": "Test selection is delegated to :func:`spacr.figures.stats.compare`. Two-group comparisons may use Student's t, Welch's t, or Mann-Whitney U; larger comparisons may use one-way ANOVA, Welch's ANOVA, or Kruskal-Wallis. Paired data use the paired t-test or Wilcoxon signed-rank test.",
+      "source_sha256": "43d65528eaa1b7c044a98a9e8579dceb4e6206070c0f70fb7090986ec5b7ad58",
+      "translation": "Die Testauswahl wird an :func:`spacr.figures.stats.compare` delegiert. Vergleiche zwischen zwei Gruppen verwenden je nach Voraussetzungen den Student-t-Test, Welch-t-Test oder Mann-Whitney-U-Test; Vergleiche mit mehr Gruppen verwenden die einfaktorielle ANOVA, Welch-ANOVA oder den Kruskal-Wallis-Test. Gepaarte Daten verwenden den gepaarten t-Test oder den Wilcoxon-Vorzeichen-Rang-Test."
+    },
+    {
+      "context": "objects : pandas.DataFrame Object rows available to the montage and reference contrasts. groups : dict of str to sequence Selected group names mapped to object-index values. parent : QWidget, optional Parent widget. settings : dict, optional Processing-session settings saved with exported comparison results. databases : sequence of path-like, optional Measurement databases available for widening the object table. counts : pandas.DataFrame, optional Per-microplate sample position counts used to resolve control microplate sample positions.",
+      "label": "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel#2",
+      "source": "objects : pandas.DataFrame Object rows available to the montage and reference contrasts. groups : dict of str to sequence Selected group names mapped to object-index values. parent : QWidget, optional Parent widget. settings : dict, optional Run settings saved with exported comparison results. databases : sequence of path-like, optional Measurement databases available for widening the object table. counts : pandas.DataFrame, optional Per-well counts used to resolve control wells.",
+      "source_sha256": "f6e151a2147f22be83dc403cf9a4ba9022f3158635a1f072d85f0b9d98559032",
+      "translation": "objects : pandas.DataFrame Objektzeilen für die Montage und die Referenzkontraste. groups : dict of str to sequence Ausgewählte Gruppennamen, die Werten des Objektindex zugeordnet sind. parent : QWidget, optional Übergeordnetes Widget. settings : dict, optional Einstellungen der Verarbeitungssitzung, die mit den exportierten Vergleichsergebnissen gespeichert werden. databases : sequence of path-like, optional Messdatenbanken, mit denen die Objekttabelle erweitert werden kann. counts : pandas.DataFrame, optional Zählwerte pro Mikrotiterplatten-Well zum Auflösen der Kontroll-Wells."
+    },
+    {
+      "context": ":func:`spacr.figures.stats.compare` selects Student's t, Welch's t, Mann-Whitney U, one-way ANOVA, Welch's ANOVA, or Kruskal-Wallis from the available groups and informative assumption checks.",
+      "label": "spacr.sp_stats.perform_statistical_tests#6",
+      "source": ":func:`spacr.figures.stats.compare` selects Student's t, Welch's t, Mann-Whitney U, one-way ANOVA, Welch's ANOVA, or Kruskal-Wallis from the available groups and informative assumption checks.",
+      "source_sha256": "8df21500c6a54cee29ce6747fffee15ff25a726564a44ba58322d6e125aa96ca",
+      "translation": ":func:`spacr.figures.stats.compare` wählt anhand der verfügbaren Gruppen und aussagekräftigen Annahmeprüfungen den Student-t-Test, Welch-t-Test, Mann-Whitney-U-Test, die einfaktorielle ANOVA, Welch-ANOVA oder den Kruskal-Wallis-Test aus."
+    }
+  ],
+  "schema": 1
+}

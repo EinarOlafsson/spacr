@@ -1,0 +1,41 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "context": "Both estimates are always computed, and choosing between them is where the care goes. The watershed estimate is taken when the transform resolved something *and* either the threshold path kept nothing at all, or the field is dense enough for fusion to be the explanation (foreground at or above ``fused_fraction``) *and* the transform resolves at least five times as many objects. A count disagreement alone is therefore never fusion — a hollow, membrane-only object is one correct component by area but shatters into dozens of arcs under the distance transform, so a bare ratio test would discard the right answer in favour of the wall thickness, which is the same silent collapse entered from the other side. A high foreground fraction alone is not fusion either — a dense but well-separated field can reach 30% foreground and still be measured correctly by thresholding — so on its own it only brings the confidence down while the threshold estimate stands. An empty threshold result *is* taken as fusion on its own, with no density check, because no threshold estimate is left to stand; if the transform resolved nothing either, no estimate is returned for that channel. When fusion is not declared and the two estimates disagree by more than 1.5-fold, the confidence is downgraded and the note says so, because that disagreement is the honest signal that neither number should be trusted blind.",
+      "label": "spacr.diameter#7",
+      "source": "Both estimates are always computed, and choosing between them is where the care goes. The watershed estimate is taken when the transform resolved something *and* either the threshold path kept nothing at all, or the field is dense enough for fusion to be the explanation (foreground at or above ``fused_fraction``) *and* the transform resolves at least five times as many objects. A count disagreement alone is therefore never fusion — a hollow, membrane-only object is one correct component by area but shatters into dozens of arcs under the distance transform, so a bare ratio test would discard the right answer in favour of the wall thickness, which is the same silent collapse entered from the other side. A high foreground fraction alone is not fusion either — a dense but well-separated field can reach 30% foreground and still be measured correctly by thresholding — so on its own it only brings the confidence down while the threshold estimate stands. An empty threshold result *is* taken as fusion on its own, with no density check, because no threshold estimate is left to stand; if the transform resolved nothing either, no estimate is returned for that channel. When fusion is not declared and the two estimates disagree by more than 1.5-fold, the confidence is downgraded and the note says so, because that disagreement is the honest signal that neither number should be trusted blind.",
+      "source_sha256": "14e9adf6c92fa26dbc8bce9283e1e7c091da1abca87e666a2077ce07a8ffb4a9",
+      "translation": "두 추정치는 항상 모두 계산하며, 둘 중 무엇을 선택할지가 핵심입니다. 변환이 객체를 실제로 분리했고, *동시에* 임계값 경로가 아무 객체도 남기지 않았거나, 전경 비율이 ``fused_fraction`` 이상으로 융합을 의심할 만큼 조밀하면서 *동시에* 변환이 최소 다섯 배 많은 객체를 분리한 경우에는 워터셰드 추정치를 사용합니다. 따라서 객체 수가 다르다는 사실만으로는 융합이라고 판단하지 않습니다. 속이 빈 막 형태의 객체는 면적으로 보면 하나의 올바른 성분이지만 거리 변환에서는 수십 개의 호로 갈라질 수 있으므로, 단순한 개수 비율만 사용하면 올바른 추정치 대신 막 두께를 선택하는 반대 방향의 오류가 생깁니다. 전경 비율이 높다는 사실만으로도 융합이라고 판단하지 않습니다. 객체가 조밀하지만 잘 분리된 시야는 전경이 30%에 이르러도 임계값 방식으로 정확히 측정할 수 있으므로, 이 조건만 충족할 때는 임계값 추정치를 유지하되 신뢰도만 낮춥니다. 임계값 결과가 비어 있으면 비교할 임계값 추정치가 없으므로 밀도 검사 없이 그 자체로 융합으로 *간주합니다*. 이때 변환도 아무 객체를 분리하지 못했다면 해당 채널에는 추정치를 반환하지 않습니다. 융합으로 판단하지 않았는데 두 추정치가 1.5배 넘게 다르면 신뢰도를 낮추고 그 이유를 메모에 기록합니다. 이러한 불일치는 두 값 중 어느 것도 검토 없이 신뢰해서는 안 된다는 신호이기 때문입니다."
+    },
+    {
+      "context": "Return True when the user has opted into the verbose diagnostic logger. Toggled via the Preferences dialog; consulted at startup by :func:`apply_preferences_to_app`.",
+      "label": "spacr.qt.preferences.get_verbose_logging#0",
+      "source": "Return True when the user has opted into the verbose diagnostic logger. Toggled via the Preferences dialog; consulted at startup by :func:`apply_preferences_to_app`.",
+      "source_sha256": "9351d12dd421b903f68a467fd93a39e73b4be189dfa03372b0db30286223961a",
+      "translation": "사용자가 상세 진단 로깅을 선택했으면 True 값을 반환합니다. 이 설정은 환경 설정 대화상자에서 전환하며, 시작할 때 :func:`apply_preferences_to_app`에서 확인합니다."
+    },
+    {
+      "context": "Returns False when there is nothing to fetch or a chunk is already in flight — a scroll must never schedule ten of them.",
+      "label": "spacr.qt.screens.db_browser.DbBrowserScreen.fetch_more#1",
+      "source": "Returns False when there is nothing to fetch or a chunk is already in flight — a scroll must never queue ten of them.",
+      "source_sha256": "90a65054cca2b0babb5d9d4cd28ec34e2ba302ac2aef391786484ac919cc4568",
+      "translation": "가져올 항목이 없거나 청크 요청이 이미 진행 중이면 False 값을 반환합니다. 한 번의 스크롤로 청크 열 개가 대기열에 추가되어서는 안 됩니다."
+    },
+    {
+      "context": "WHAT THIS IS AND IS NOT. It reads the sgRNA count CSVs and nothing else, so it is the design AS THE INPUT FILES HOLD IT: before the merge with the score data, before ``fraction_threshold`` and before the microplate sample position filters. That is deliberate -- it is the number to compare the run's own post-cleaning counts against, and comparing them is how a filter that did something unexpected becomes visible. Every caller says which it is.",
+      "label": "spacr.qt.screens.settings_model.regression_design_scan#2",
+      "source": "WHAT THIS IS AND IS NOT. It reads the sgRNA count CSVs and nothing else, so it is the design AS THE INPUT FILES HOLD IT: before the merge with the score data, before ``fraction_threshold`` and before the well filters. That is deliberate -- it is the number to compare the run's own post-cleaning counts against, and comparing them is how a filter that did something unexpected becomes visible. Every caller says which it is.",
+      "source_sha256": "7f0642598e55885e75f67b054146674dcc9640f62113a7a9763b66385d3897c8",
+      "translation": "이 함수가 보여 주는 범위를 분명히 구분해야 합니다. sgRNA 카운트 CSV 파일만 읽으므로, 이 설계는 점수 데이터와 병합하기 전, ``fraction_threshold``를 적용하기 전, 그리고 마이크로플레이트 샘플 위치 필터를 적용하기 전의 입력 파일 상태를 나타냅니다. 이는 의도된 동작입니다. 실행 후 정리된 카운트와 비교할 기준값을 제공하며, 두 값을 비교하면 예상과 다르게 작동한 필터를 확인할 수 있습니다. 각 호출자는 어떤 값을 보고하는지 명시합니다."
+    },
+    {
+      "context": "EmptyState — reusable big \"nothing here yet\" panel with icon, title, subtitle, and an optional call-to-action button.",
+      "label": "spacr.qt.widgets.empty_state#0",
+      "source": "EmptyState — reusable big \"nothing here yet\" panel with icon, title, subtitle, and an optional call-to-action button.",
+      "source_sha256": "99cac3cdd5ba37accbd367a89f9e7074f04b2026e38ad15d02899bbb777d61cc",
+      "translation": "EmptyState — 아이콘, 제목, 부제목과 선택적 작업 버튼을 표시하는 재사용 가능한 대형 \"nothing here yet\" 패널입니다."
+    }
+  ],
+  "schema": 1
+}

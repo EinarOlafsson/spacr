@@ -3491,6 +3491,45 @@ def _contextualize(value: str, language: str, source: str = "") -> str:
     corrected = _CONTEXT_HARD_PROTECT_RE.sub(
         hide_context_literal, corrected,
     )
+    # Known multilingual-model control-token leaks. These sequences recur as
+    # sentence fillers across unrelated sources and carry no target meaning.
+    # Remove them only outside protected API/RST literals and, where a token
+    # could be legitimate, only when it was absent from the English source.
+    artifact_removed = False
+    if language == "zh_CN":
+        corrected, artifact_count = re.subn(
+            r"[\u1780-\u17ff]+", "", corrected,
+        )
+        artifact_removed = bool(artifact_count)
+    elif language == "ko" and not re.search(
+        r"\b(?:vacuum|vacancy|vac)\b", str(source), re.IGNORECASE,
+    ):
+        corrected, artifact_count = re.subn(
+            r"(?<![A-Za-z])(?:Vacuum|Vacancy|Vac)"
+            r"(?:은|는|이|가|을|를|의|과|와|도|만)?"
+            r"(?=\s|[.,:;!?…)]|$)",
+            "",
+            corrected,
+            flags=re.IGNORECASE,
+        )
+        artifact_removed = bool(artifact_count)
+    elif language == "is" and not re.search(
+        r"\bvysi", str(source), re.IGNORECASE,
+    ):
+        corrected, artifact_count = re.subn(
+            r"(?<![A-Za-zÀ-ÖØ-öø-ÿ])vysi(?:ð|đ|t|r|o|e|d|n|s|a)?",
+            "",
+            corrected,
+            flags=re.IGNORECASE,
+        )
+        artifact_removed = bool(artifact_count)
+    # Translation blocks are top-level reStructuredText paragraphs.  A
+    # leading space left behind by a removed control token turns the paragraph
+    # into an indented literal block and can silently drop it on the next
+    # parse.  Normalize only outputs where this exact cleanup ran; ordinary UI
+    # strings retain their original whitespace contract.
+    if artifact_removed:
+        corrected = corrected.strip()
     for wrong, right in CONTEXT_REPLACEMENTS.get(language, ()):
         corrected = corrected.replace(wrong, right)
     for source_pattern, wrong, right in SOURCE_CONTEXT_REPLACEMENTS.get(

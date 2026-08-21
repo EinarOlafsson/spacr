@@ -225,13 +225,6 @@
       "source": "EmptyState — reusable big \"nothing here yet\" panel with icon, title, subtitle, and an optional call-to-action button.",
       "context": "EmptyState — reusable big \"nothing here yet\" panel with icon, title, subtitle, and an optional call-to-action button.",
       "translation": "EmptyState — ein wiederverwendbares großes Bedienfeld mit der Meldung \"nothing here yet\", einem Symbol, Titel, Untertitel und einer optionalen Schaltfläche als Handlungsaufforderung."
-    },
-    {
-      "label": "spacr.qt.widgets.figure_queue#3",
-      "source_sha256": "59eb53528fee15a8a34d835d3e2de1cb7e9d924a18ad537b48afcb74cae1c00c",
-      "source": "**Zoomable enlarged view** on the right — a QGraphicsView showing the current figure's full-resolution render. Wheel = zoom, fit-on-load, scales with the container (reuses the live-preview _ZoomView).",
-      "context": "**Zoomable enlarged view** on the right — a QGraphicsView showing the current figure's full-resolution render. Wheel = zoom, fit-on-load, scales with the container (reuses the live-preview _ZoomView).",
-      "translation": "**Zoombare vergrößerte Ansicht** rechts — eine QGraphicsView, die die aktuelle Abbildung in voller Auflösung darstellt. Mausrad = Zoom; beim Laden wird eingepasst; die Ansicht skaliert mit dem Container (verwendet die Live-Vorschau _ZoomView wieder)."
     }
   ]
 }

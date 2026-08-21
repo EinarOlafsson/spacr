@@ -73,13 +73,6 @@
       "translation": "``name``을 표준 마이크로플레이트 시료 위치 식별자(``A01``, ``AA48``)로 반환하며, 해당하지 않으면 None 을 반환합니다."
     },
     {
-      "label": "spacr.qt.widgets.plate_layout#0",
-      "source_sha256": "33d8128a31b2c5869c0ff7069b2e16d2c12184c6c83beb604326f7944b308ec3",
-      "source": "Lay out a plate before it is acquired, and say what is wrong with it.",
-      "context": "Lay out a plate before it is acquired, and say what is wrong with it.",
-      "translation": "플레이트를 획득하기 전에 레이아웃하고 문제점을 알려 줍니다."
-    },
-    {
       "label": "spacr.utils.estimate_class_counts#0",
       "source_sha256": "826209bfe0c3ccc6cfe3ca21e9d3bdbd8fc08a8fb8a0fb754cf1a9dcc23c9977",
       "source": "Return per-class sample counts as a ``LongTensor`` of length ``num_classes``.",

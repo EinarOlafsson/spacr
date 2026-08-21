@@ -87,13 +87,6 @@
       "translation": "Venjulega hreinsunin styttir heimamöppuna svo staflarakningin haldist gagnleg. Opinberar skýrslur nota sjálfgefið strangari gerð: skráarreitir staflarakningar og önnur algild slóðarlík tákn verða ``<PATH>``. Forskoðunin gerir notandanum kleift að endurheimta gagnleg heiti áður en sent er."
     },
     {
-      "label": "spacr.hits#0",
-      "source_sha256": "706bfdd347732a50483e288668ac0f13494df849545cffa46163be9b3fee659b",
-      "source": "The hit list: the ranked, annotated, filterable deliverable of a screen.",
-      "context": "The hit list: the ranked, annotated, filterable deliverable of a screening experiment.",
-      "translation": "Listi jákvæðra niðurstaðna: raðaða, skýrða og síanlega afurð skimunar."
-    },
-    {
       "label": "spacr.plate_qc.detect_edge_effect#2",
       "source_sha256": "69df5b4bdcf3087c3b2085b629e82bf82c1e87ce39dfd8e862945de3cbba7b43",
       "source": "Detection deliberately needs *both* ``p < alpha`` **and** ``|cliffs_delta| >= min_effect``. On 384 wells a p-value on its own flags drifts far below the level at which anyone would act.",
@@ -120,13 +113,6 @@
       "source": "One-block human summary of the write.",
       "context": "One-block user-facing summary of the write.",
       "translation": "Notendavæn samantekt skrifunarinnar í einum textablokk."
-    },
-    {
-      "label": "spacr.custom_features#5",
-      "source_sha256": "c1a00da6b3bdbf1c9378e4ed2f06c51fe88bfc4bbcf51f0ad87394aa2ea38dae",
-      "source": "Errors are logged and swallowed: a feature that raises simply yields an empty mapping, so one bad function cannot break the caller's loop.",
-      "context": "Errors are logged and swallowed: a feature that raises simply yields an empty mapping, so one bad function cannot break the caller's loop.",
-      "translation": "Villur eru skráðar en látnar ekki berast áfram: eiginleiki sem veldur undantekningu skilar einfaldlega tómri vörpun, svo eitt gallað fall getur ekki stöðvað lykkju kallandans."
     },
     {
       "label": "spacr.schema.model_feature_frame#1",

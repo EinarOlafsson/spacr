@@ -1,0 +1,41 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "context": "groups  variance   distribution   test 2       equal      ~normal        Student's t (two-sided) 2       unequal    ~normal        Welch's t 2       any        not normal     Mann-Whitney U >2      equal      ~normal        one-way ANOVA >2      unequal    ~normal        Welch's ANOVA >2      any        not normal     Kruskal-Wallis",
+      "label": "spacr.figures.stats#2",
+      "source": "groups  variance   distribution   test 2       equal      ~normal        Student's t (two-sided) 2       unequal    ~normal        Welch's t 2       any        not normal     Mann-Whitney U >2      equal      ~normal        one-way ANOVA >2      unequal    ~normal        Welch's ANOVA >2      any        not normal     Kruskal-Wallis",
+      "source_sha256": "053fb7fa69aab329706702067266d5687b1eace8d5b37619f9186483ce2843a4",
+      "translation": "Gruppen-Varianzverteilungstest 2 gleich ~normal Student-t (zweiseitig) 2 ungleich ~normal Welch-t 2 beliebig nicht normal Mann-Whitney U >2 gleich ~normal einfaktorielle ANOVA >2 ungleich ~normal Welch-ANOVA >2 beliebig nicht normal Kruskal-Wallis"
+    },
+    {
+      "context": "active-run records for the restart summary.",
+      "label": "spacr.qt.shutdown.restart_spacr#4",
+      "source": "active-run records for the restart summary.",
+      "source_sha256": "fbf110bebe46c48f75f5527854ed09fa6c8dc4e1753295b19883ac2aaddc5db3",
+      "translation": "Active-Run-Datensätze für die Neustartzusammenfassung."
+    },
+    {
+      "context": "``{'negative': identifiers, ...}``, one identifier per value of the SAME group, in the same order. Given them, every dot is clickable and selects the coefficient behind it.",
+      "label": "spacr.qt.widgets.fast_plots.ControlSeparation.set_groups#2",
+      "source": "``{'negative': identifiers, ...}``, one identifier per value of the SAME group, in the same order. Given them, every dot is clickable and selects the coefficient behind it.",
+      "source_sha256": "ab5a5325957f3d4fa290c7a8751377533f0cf1ea6d0991cd10b5f17635892ef1",
+      "translation": "``{'negative': identifiers, ...}``, ein Bezeichner pro Wert der SAME-Gruppe, in derselben Reihenfolge. Wenn sie gegeben sind, ist jeder Punkt anklickbar und wählt den Koeffizienten dahinter aus."
+    },
+    {
+      "context": "the per-backend knobs are still set to what the old backend read. Handing ``alpha=0.3`` to OLS does not quietly do nothing: :func:`_reject_unused_settings` raises, by design, so a lasso -> ols re-fit dies at the entry point.",
+      "label": "spacr.refit#5",
+      "source": "the per-backend knobs are still set to what the old backend read. Handing ``alpha=0.3`` to OLS does not quietly do nothing: :func:`_reject_unused_settings` raises, by design, so a lasso -> ols re-fit dies at the entry point.",
+      "source_sha256": "45391e7a20c1c4a09737e705e1eeab01ed65619682804ff6f69a6555b09323bf",
+      "translation": "Die Backend-Regler sind immer noch auf die Werte des alten Backends eingestellt. Die Übergabe von ``alpha=0.3`` an OLS führt nicht stillschweigend zu nichts: :func:`_reject_unused_settings` erhöht sich absichtlich, sodass ein Lasso -> ols re-fit am Eintrittspunkt stirbt."
+    },
+    {
+      "context": "running Active-run records. Each record may contain ``module`` or ``name`` and an elapsed ``seconds`` value.",
+      "label": "spacr.restart_state.describe_running#2",
+      "source": "running Active-run records. Each record may contain ``module`` or ``name`` and an elapsed ``seconds`` value.",
+      "source_sha256": "c068f7348366d3684fb3ce542da34e4967f9358e5d7216c46cccf677273fb6f5",
+      "translation": "Ausführen von Active-Run-Datensätzen. Jeder Datensatz kann ``module`` oder ``name`` und einen abgelaufenen ``seconds``-Wert enthalten."
+    }
+  ],
+  "schema": 1
+}

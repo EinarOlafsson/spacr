@@ -1,0 +1,41 @@
+{
+  "language": "pt",
+  "records": [
+    {
+      "context": "Correcting ACROSS the comparisons is the part a hand-written stats table always forgets: six pairwise tests at 0.05 is a 26% chance of at least one false positive, and the individual p-values give no hint of it.",
+      "label": "spacr.figures.stats.table#1",
+      "source": "Correcting ACROSS the comparisons is the part a hand-written stats table always forgets: six pairwise tests at 0.05 is a 26% chance of at least one false positive, and the individual p-values give no hint of it.",
+      "source_sha256": "9ebf0b2ad28a4f64833fa2a1d820e0f6cedb65ef5fc767996d34a11e0cebf87f",
+      "translation": "Corrigir ACROSS as comparações é a parte que uma tabela de estatísticas escrita à mão sempre esquece: seis testes pareados a 0,05 representam uma chance de 26% de pelo menos um falso positivo, e os valores p individuais não dão nenhuma pista disso."
+    },
+    {
+      "context": "MAGeCK-style robust rank aggregation: guides ranked by their marginal effect, aggregated to the gene BY RANK with a permutation P value, via :mod:`spacr.rra`. It forms no joint fit, so the collinearity and the p >> n width that constrain every backend above do not reach it",
+      "label": "spacr.ml.regression_model#18",
+      "source": "MAGeCK-style robust rank aggregation: guides ranked by their marginal effect, aggregated to the gene BY RANK with a permutation P value, via :mod:`spacr.rra`. It forms no joint fit, so the collinearity and the p >> n width that constrain every backend above do not reach it",
+      "source_sha256": "38bc40498635149c0d29711520c5a33f7bb696f55a876e803d860fc54082c887",
+      "translation": "Agregação de classificação robusta no estilo MAGeCK: guias classificados por seu efeito marginal, agregados ao gene BY RANK com um valor P de permutação, via :mod:`spacr.rra`. Ele não forma nenhum ajuste de junta, então a colinearidade e a largura p >> n que restringem cada backend acima não o alcançam"
+    },
+    {
+      "context": "The correction the RUN used, or ``\"\"`` if the table does not say.",
+      "label": "spacr.qt.widgets.fast_plots.VolcanoPlot.run_correction#0",
+      "source": "The correction the RUN used, or ``\"\"`` if the table does not say.",
+      "source_sha256": "f99c55043d2ad3217f6041adfe3a1ca8635f68271808fe1d13da41add2e19993",
+      "translation": "A correção que o RUN usou, ou ``\"\"`` se a tabela não indicar."
+    },
+    {
+      "context": "The bold \"3. MERGE THE DATABASES\" line that names one step.",
+      "label": "spacr.qt.widgets.measurement_scan_panel.step_header#0",
+      "source": "The bold \"3. MERGE THE DATABASES\" line that names one step.",
+      "source_sha256": "43637e536c9031bff6f4b6bba6d0f2bbeacf8460ba23052e16faf9af30b2fa10",
+      "translation": "A linha em negrito \"3. MERGE THE DATABASES\" que nomeia uma etapa."
+    },
+    {
+      "context": "This is what every tab is drawn from -- see :meth:`refresh_views`. :meth:`results_frame` is the RUN's table and stays whole: the filter is a view, not an edit, and a caller exporting the results must get the fit rather than whatever the user last right-clicked.",
+      "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.filtered_frame#1",
+      "source": "This is what every tab is drawn from -- see :meth:`refresh_views`. :meth:`results_frame` is the RUN's table and stays whole: the filter is a view, not an edit, and a caller exporting the results must get the fit rather than whatever the user last right-clicked.",
+      "source_sha256": "a8c9ba280121e12d4effba62046a76aedcf86b98ade297e30353805e5e70622e",
+      "translation": "É daí que cada guia é extraída - veja :meth:`refresh_views`. :meth:`results_frame` é a tabela RUN e permanece inteira: o filtro é uma visualização, não uma edição, e um chamador que exporta os resultados deve obter o ajuste em vez do último clique com o botão direito do usuário."
+    }
+  ],
+  "schema": 1
+}

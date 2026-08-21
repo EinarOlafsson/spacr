@@ -4561,6 +4561,48 @@ _TARGET_SCRIPT_PATTERN = {
     "ko": re.compile(r"[\uac00-\ud7af]"),
 }
 
+
+def _model_artifact_reasons(
+    source: str, value: str, language: str,
+) -> tuple[str, ...]:
+    """Return known translation-model control tokens in visible prose.
+
+    The checks are source-conditioned where a token could be legitimate. A
+    source that actually discusses a vacuum may retain that word; unrelated
+    Korean output may not acquire it as a sentence filler. Khmer script is
+    never expected in any supported target language.
+    """
+    prose = _PROTECT_RE.sub(" ", str(value))
+    reasons: list[str] = []
+    if re.search(r"[\u1780-\u17ff]", prose):
+        reasons.append("Khmer control token")
+    if (
+        language == "ko"
+        and not re.search(
+            r"\b(?:vacuum|vacancy|vac)\b", str(source), re.IGNORECASE,
+        )
+        and re.search(
+            r"(?<![A-Za-z])(?:Vacuum|Vacancy|Vac)"
+            r"(?:[A-Za-z0-9_()-]+|-[A-Za-z0-9_-]+)?"
+            r"(?:은|는|이|가|을|를|의|과|와|도|만|이란)?"
+            r"(?=\s|[.,:;!?…)]|$)",
+            prose,
+            re.IGNORECASE,
+        )
+    ):
+        reasons.append("vacuum filler")
+    if (
+        language == "is"
+        and not re.search(r"\bvysi", str(source), re.IGNORECASE)
+        and re.search(
+            r"(?<![A-Za-zÀ-ÖØ-öø-ÿ])vysi(?:ð|đ|t|r|o|e|d|n|s|a)?",
+            prose,
+            re.IGNORECASE,
+        )
+    ):
+        reasons.append("vysi control token")
+    return tuple(reasons)
+
 # These ordinary English words are not scientific identifiers or accepted UI
 # loanwords.  If one survives verbatim from the English model input into a
 # Latin-script target block, the decode is partial even when the rest of the
@@ -4877,6 +4919,8 @@ def _api_block_valid(source: str, value: str, language: str) -> bool:
     if _looks_degenerate(source, value, language):
         return False
     if _semantic_false_friends(source, value, language):
+        return False
+    if _model_artifact_reasons(source, value, language):
         return False
     if language == "zh_CN" and _has_traditional_chinese_prose(value):
         return False
@@ -5279,6 +5323,8 @@ def _reviewed_api_block_valid(
         return False
     if _semantic_false_friends(source, value, language):
         return False
+    if _model_artifact_reasons(source, value, language):
+        return False
     if language == "zh_CN" and _has_traditional_chinese_prose(value):
         return False
     if not _api_block_requires_translation(source):
@@ -5670,6 +5716,7 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
         english_residue_errors: list[str] = []
         copied_english_errors: list[str] = []
         semantic_false_friend_errors: list[str] = []
+        model_artifact_errors: list[str] = []
         reviewed_blocks = reviewed_api_block_translations(docs, language)
         for key, source in docs.items():
             record = symbols.get(key, {})
@@ -5786,6 +5833,10 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
                             failures.append(
                                 f"{language}/{label}: degenerate block"
                             )
+                        if _model_artifact_reasons(
+                            source_block, translated_block, language,
+                        ):
+                            model_artifact_errors.append(label)
                 if _looks_degenerate(source, translated_text, language):
                     failures.append(f"{language}/{key}: degenerate translation")
                 # Compare whole-document literals in the canonical parser
@@ -5853,6 +5904,12 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
                 f"{language}: {len(semantic_false_friend_errors)} API blocks "
                 "retain reviewed semantic false friends "
                 f"({', '.join(semantic_false_friend_errors[:5])})"
+            )
+        if model_artifact_errors:
+            failures.append(
+                f"{language}: {len(model_artifact_errors)} API blocks retain "
+                "translation-model control tokens "
+                f"({', '.join(model_artifact_errors[:5])})"
             )
         readme_path = README_DIR / f"README.{language}.rst"
         if not readme_path.is_file():

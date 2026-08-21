@@ -17,13 +17,6 @@
       "translation": "nafn á sýnastöðu í örplötu (``'A01'``, ``'aa1'``, ``'AF48'``) eða spaCR ``(rowID, columnID)`` par sem þegar er tengt, t.d. ``'r1_c1'`` er *ekki* samþykkt — gefðu nafn á sýnastöðu í örplötu."
     },
     {
-      "label": "spacr.qt.screens.annotate#1",
-      "source_sha256": "8be43545b91ddd00e66155b63797747c14c725b488d3006f6993a7990c854acd",
-      "source": "Displays a paginated grid of clickable image thumbnails backed by `png_list` in a `measurements/measurements.db`. Left-click = value 1, right-click = value 2, re-click the same value = clear. Annotations are persisted through a background SaveWorker (see `spacr.qt.annotate_engine.SaveWorker`).",
-      "context": "Displays a paginated grid of clickable image thumbnails backed by `png_list` in a `measurements/measurements.db`. Left-click = value 1, right-click = value 2, re-click the same value = clear. Annotations are persisted through a background SaveWorker (see `spacr.qt.annotate_engine.SaveWorker`).",
-      "translation": "Sýnir flettanlegt reit af smámyndum sem hægt er að smella á, studdar af `png_list` í `measurements/measurements.db`. Vinstri smellur = gildi 1, hægri smellur = gildi 2, að smella aftur á sama gildið = hreinsa. Lýsingar eru varðveittar í bakgrunns SaveWorker (sjá `spacr.qt.annotate_engine.SaveWorker`)."
-    },
-    {
       "label": "spacr.napari_bridge.correct_mask#1",
       "source_sha256": "b42b9042bdca39283d7c20e44f381150e10a0c5492dd02d1526184d4311736f1",
       "source": "For a script or a notebook. **Not** for use from inside spaCR's own Qt application with ``block=True`` — see :func:`run_event_loop`; the GUI screen calls :func:`open_in_napari` and :func:`labels_from_viewer` separately, driven by the user.",

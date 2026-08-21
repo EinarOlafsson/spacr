@@ -10,13 +10,6 @@
       "translation": "설정 옆 ⓘ 링크에 사용할, 생성된 API 문서 아래의 점 또는 슬래시 형식 모듈 경로(\"qt/layer_viewer\")입니다. ``settings_model._APP_API_MODULE``에 전달됩니다."
     },
     {
-      "label": "spacr.sp_stats.perform_normality_tests#5",
-      "source_sha256": "c71fe18cbe6c3662cc26461ebc298d931c810ccd4626bb2544fd870cfe38af31",
-      "source": "Tuple ``(is_normal, results)`` where ``is_normal`` is True when all p-values for the last examined column exceed 0.05 and ``results`` is a list of per-test dicts.",
-      "context": "Tuple ``(is_normal, results)`` where ``is_normal`` is True when all p-values for the last examined column exceed 0.05 and ``results`` is a list of per-test key-value mappings.",
-      "translation": "튜플 ``(is_normal, results)``을 반환합니다. 마지막으로 검사한 열의 모든 p-값이 0.05보다 크면 ``is_normal``은 True 이며, ``results``는 검사별 키-값 매핑의 목록입니다."
-    },
-    {
       "label": "spacr.spacr_cellpose.cellpose_rescale#1",
       "source_sha256": "2e92975c52f9827f058304f35f69b04bda63ba871f2a47c23a7f09aaea2108da",
       "source": "``rescale`` was DEPRECATED-AND-IGNORED in Cellpose 4.0, so spaCR passing ``False`` cost nothing and nobody noticed the type was wrong. Cellpose 4.2 reads it again",

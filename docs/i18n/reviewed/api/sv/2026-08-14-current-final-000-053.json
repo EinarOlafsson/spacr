@@ -17,13 +17,6 @@
       "translation": "delsträngsfilter på ``png_path`` — matchar Annotera-applikationsvyns eget ``image_type``-filter (till exempel ``'cell'``)."
     },
     {
-      "label": "spacr.active_learning.disagreement#4",
-      "source_sha256": "b215a358a79ee30650b2fe18db67a8b6ff47d70d80db87177447c662f1f2eca0",
-      "source": "``'bald'`` — mutual information ``H(mean p) − mean H(p)`` (Houlsby et al., 2011). 0 when the members agree, regardless of how uncertain they jointly are — so unlike ``entropy`` it does not fire on crops that are simply ambiguous.",
-      "context": "``'bald'`` — mutual information ``H(mean p) − mean H(p)`` (Houlsby et al., 2011). 0 when the members agree, regardless of how uncertain they jointly are — so unlike ``entropy`` it does not fire on extracted image regions that are simply ambiguous.",
-      "translation": "``'bald'`` — enligt Houlsby et al. (2011), den ömsesidiga informationen ``H(mean p) − mean H(p)``. 0 när medlemmarna är överens, oavsett hur osäker de gemensamt är — så till skillnad från ``entropy`` det inte skjuter på extraherade bild regioner som är helt enkelt tvetydigt."
-    },
-    {
       "label": "spacr.active_learning.predict_probabilities#1",
       "source_sha256": "584cf48f8483acd6ba9614a6be40306d773c3288be1ee34cbed2f16b47a294d1",
       "source": "A convenience for scoring crops that are not in the database yet. The queue does **not** need this — :func:`build_queue` works from the ``pred`` column that :func:`spacr.deep_spacr.merge_predictions_into_db` already wrote, which is the normal path.",
@@ -358,13 +351,6 @@
       "source": "``positive_control`` / ``negative_control`` — well IDs (e.g. ``'c2'`` / ``'c1'``) used as training labels.",
       "context": "``positive_control`` / ``negative_control`` — microplate sample position IDs (e.g. ``'c2'`` / ``'c1'``) used as training labels.",
       "translation": "``positive_control`` / ``negative_control`` – provpositions-ID för mikroplattor (till exempel ``'c2'`` / ``'c1'``) används som träningsetiketter."
-    },
-    {
-      "label": "spacr.ml.perform_regression#4",
-      "source_sha256": "3cbffd9106250bf7242c43be6937774faea6df19246cd2e6cc2099d35186cb49",
-      "source": "``dependent_variable`` — column of ``score_data`` to regress (e.g. ``'pred'``, ``'recruitment'``, ``'pathogen_nucleus_shortest_distance'``).",
-      "context": "``dependent_variable`` — column of ``score_data`` to regress (e.g. ``'pred'``, ``'recruitment'``, ``'pathogen_nucleus_shortest_distance'``).",
-      "translation": "``dependent_variable`` — kolumn med ``score_data`` att regressera (till exempel ``'pred'``, ``'recruitment'``, ``'pathogen_nucleus_shortest_distance'``)."
     },
     {
       "label": "spacr.napari_bridge.layer_specs#1",

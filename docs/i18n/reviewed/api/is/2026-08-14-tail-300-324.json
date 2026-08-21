@@ -59,13 +59,6 @@
       "translation": "Geymt sem gögn frekar en sett beint í töflu svo leit sé prófanleg án GUI, og svo sá sem kallar ákveður hvað \"best\" þýðir -- sem það þarf að gera, vegna þess að stigin eru á skjön við hvort annað að ásettu ráði. Silhouette er blindur fyrir því hversu mikið var hent, svo keyrsla sem kallar 90% af plötuhávaða og klasar restina þétt fær frábært stig og er ónothæf."
     },
     {
-      "label": "spacr.qt.widgets.console_panel#3",
-      "source_sha256": "2a6c03a241ea0375ef40d645c68caca586c24fe3b67fe01f9cde12714945a6c7",
-      "source": "The scrolling console box and the AI chat box below it are the two halves of a vertical ``QSplitter``, so the handle between them can be dragged to trade height: a taller chat box is a shorter console, pixel for pixel. The default seats the handle exactly where the old fixed-height layout drew it, so nothing moves for a user who never drags. When the panel is built with a ``persist_key`` the position is saved per screen (``QSplitter.saveState``, under ``console/split/<key>``) and restored the next time that screen opens.",
-      "context": "The scrolling console box and the AI chat box below it are the two halves of a vertical ``QSplitter``, so the handle between them can be dragged to trade height: a taller chat box is a shorter console, pixel for pixel. The default seats the handle exactly where the old fixed-height layout drew it, so nothing moves for a user who never drags. When the panel is built with a ``persist_key`` the position is saved per application view (``QSplitter.saveState``, under ``console/split/<key>``) and restored the next time that application view opens.",
-      "translation": "Rennandi skipanalúgan og AI spjallglugginn fyrir neðan hann eru tvær hliðar lóðrétts ``QSplitter``, þannig að handfangið á milli þeirra má draga til að skipta hæð: hærri spjallgluggi er styttri skipanalúga, pixill fyrir pixill. Sjálfgefið er handfangið staðsett nákvæmlega þar sem gamli fastahæðarhönnunin teiknaði það, svo ekkert hreyfist fyrir notanda sem dregur aldrei. Þegar spjaldið er byggt með ``persist_key`` er staðsetningin vistuð fyrir hvert forritagluggaútlit (``QSplitter.saveState``, undir ``console/split/<key>``) og endurheimt næst þegar það útlit forritagluggsins opnast."
-    },
-    {
       "label": "spacr.crops.MergedCropSource.spec_for#1",
       "source_sha256": "d002198d9961c96a67b03624fc796b0aa1b2c267727ba876e5fe7dbc54b90b0c",
       "source": "a measurement row. The label is the first present of ``object_label``, ``label``, ``cell_id``, ``nucleus_id``, ``pathogen_id``, ``cytoplasm_id``, and a row with none of them raises :class:`CropError`; ``object_type``, if present, overrides the template spec's. ``bbox-0`` .. ``bbox-3`` (or ``bbox_0`` .. ``bbox_3``) are honoured only when all four are there, and are reordered out of the skimage ``regionprops`` convention ``(min_row, min_col, max_row, max_col)`` into the spec's ``(y0, y1, x0, x1)`` -- supplying them lets the crop skip the whole-plane label index scan. The mask plane inside that box is still read, unless the spec also sets ``use_bounding_box``, which skips reading the label plane altogether.",
@@ -155,13 +148,6 @@
       "source": ":data:`MODE_STITCH` -- ``segment_fn(volume, stitch=True)``; the result may be per-plane labels, which are then linked by :func:`stitch_planes`. Anisotropy is *not* passed, because neither this code nor Cellpose uses it without ``do_3D``; supplying it is recorded as a no-op in ``notes``.",
       "context": ":data:`MODE_STITCH` -- ``segment_fn(volume, stitch=True)``; the result may be per-image-layer labels, which are then linked by :func:`stitch_planes`. Anisotropy is *not* passed, because neither this code nor Cellpose uses it without ``do_3D``; supplying it is recorded as a no-op in ``notes``.",
       "translation": ":data:`MODE_STITCH` -- ``segment_fn(volume, stitch=True)``; niðurstaðan getur verið merkt per-mynd-lag, sem eru síðan tengd með :func:`stitch_planes`. Ójafnhyrningur er *ekki* notað, því hvorki þessi kóði né Cellpose notar það án ``do_3D``; að veita það er skráð sem no-op í ``notes``."
-    },
-    {
-      "label": "spacr.qt.widgets.figure_queue#3",
-      "source_sha256": "59eb53528fee15a8a34d835d3e2de1cb7e9d924a18ad537b48afcb74cae1c00c",
-      "source": "**Zoomable enlarged view** on the right — a QGraphicsView showing the current figure's full-resolution render. Wheel = zoom, fit-on-load, scales with the container (reuses the live-preview _ZoomView).",
-      "context": "**Zoomable enlarged view** on the right — a QGraphicsView showing the current figure's full-resolution render. Wheel = zoom, fit-on-load, scales with the container (reuses the live-preview _ZoomView).",
-      "translation": "**Stækkanlegt útsýni** hægra megin — QGraphicsView sem sýnir fulla upplausnarútfærslu núverandi myndar. Hjól = stækkun, passa við hleðslu, skalar með ílátinu (endurnýtir lifandi forskoðun _ZoomView)."
     },
     {
       "label": "spacr.omero#33",

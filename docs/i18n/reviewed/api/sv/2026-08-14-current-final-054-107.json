@@ -3,13 +3,6 @@
   "language": "sv",
   "records": [
     {
-      "label": "spacr.object_roles.is_segmented#1",
-      "source_sha256": "c912d2c02d72a133e1b6d97d3c3112ba5df8151fe05274aa25ab8ad8bad06ad7",
-      "source": "object kind, e.g. ``\"nucleus\"``. Unknown names are False rather than an error, because callers use this to decide whether to look for a channel setting and an unknown kind simply has none.",
-      "context": "object kind, e.g. ``\"nucleus\"``. Unknown names are False rather than an error, because callers use this to decide whether to look for a channel setting and an unknown kind simply has none.",
-      "translation": "objekttyp, till exempel ``\"nucleus\"``. Okända namn är False snarare än ett fel, eftersom anropare använder detta för att avgöra om de ska leta efter en kanalinställning och en okänd typ helt enkelt inte har någon."
-    },
-    {
       "label": "spacr.ome_zarr#11",
       "source_sha256": "3f925d0a6b9e23114027fcf96551e4f0cb8f3f4beba283edbdabbca274b9a5ca",
       "source": "**2. Units are translated through an explicit table, and an unknown one is refused.** :data:`NGFF_UNIT_TO_SPACR` is the mapping, written out. A unit that is not in it raises :class:`OmeZarrError`. It would be one line to default to ``\"px\"`` instead, and that one line is how a 0.65 µm pixel becomes a 0.65 px pixel and every downstream area comes out wrong by a factor of 10^6 — in a column named ``cell_area`` that still looks entirely reasonable. The error distinguishes the two cases that need different fixes: a unit NGFF has never heard of (the file is wrong), and a legal NGFF unit spaCR has no short token for (convert it, e.g. to ``micrometer``).",
@@ -115,13 +108,6 @@
       "translation": "Returnera det kanoniska namnet på mikroplattans provposition, till exempel ``(3, 7)`` → ``'C07'``."
     },
     {
-      "label": "spacr.plot.create_grouped_plot#1",
-      "source_sha256": "53d2c735de6008c72a2b73b46d69a0df323fc09e42db21b3259a4f837a6cf706",
-      "source": "Runs D'Agostino normality per group, chooses the appropriate pairwise test (t-test / Mann-Whitney / ANOVA / Kruskal), adds Tukey HSD post-hoc when appropriate, renders the requested plot type and optionally persists both plot and stats to ``output_dir``.",
-      "context": "Runs D'Agostino normality per group, chooses the appropriate pairwise test (t-test / Mann-Whitney / ANOVA / Kruskal), adds Tukey HSD post-hoc when appropriate, renders the requested plot type and optionally persists both plot and stats to ``output_dir``.",
-      "translation": "Kör D'Agostino normalitet per grupp, väljer lämplig parvis test (t-test / Mann-Whitney / ANOVA / Kruskal), lägger Tukey HSD post-hoc när det är lämpligt, gör den begärda plot typ och eventuellt kvarstår både tomt och statistik till ``output_dir``."
-    },
-    {
       "label": "spacr.plot.spacrGraph#1",
       "source_sha256": "71a91c1394f8d354cd6bb30e8bae05a037f562cd74dde1d7468ad27b5c5161d6",
       "source": "Wraps preprocessing (aggregation by object / well / plate), normality and variance testing, group-wise pairwise stats, and plot rendering (bar / jitter / box / violin / jitter_box / jitter_bar / line / line_std) in a single object whose output can optionally be persisted alongside a CSV of stats.",
@@ -218,13 +204,6 @@
       "source": "True if the LEAF filename carries the channel id (e.g. ``ch1.tif``).",
       "context": "True if the LEAF filename carries the channel id (e.g. ``ch1.tif``).",
       "translation": "True om LEAF-filnamnet innehåller kanalens id (till exempel ``ch1.tif``)."
-    },
-    {
-      "label": "spacr.qt.imagery#7",
-      "source_sha256": "62638c40d14eb7365bfd31f4d2db4d3ad0c5628798985727dd4e09dd7eb64d9f",
-      "source": "each screen size is rendered **once** and cached as JPEG under ``~/.spacr/backgrounds``; and",
-      "context": "each screen size is rendered **once** and cached as JPEG under ``~/.spacr/backgrounds``; and",
-      "translation": "varje skärmstorlek renderas **en gång** och cachelagras som JPEG i ``~/.spacr/backgrounds``; och"
     },
     {
       "label": "spacr.qt.job_runner.JobRunner.cancel#1",

@@ -1,0 +1,13 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "context": "A thread that will not stop is *parked* (see :data:`_PARKED_THREADS`) so that nothing drops the last reference to an executing QThread — which is the abort this whole module is arranged around.",
+      "label": "spacr.qt.bridge.drain_thread#2",
+      "source": "A thread that will not stop is *parked* (see :data:`_PARKED_THREADS`) so that nothing drops the last reference to a running QThread — which is the abort this whole module is arranged around.",
+      "source_sha256": "ae9adc2f454300e11006b4f8fb8a15e26c4508f2eae7f0f501d789ba57965495",
+      "translation": "Un thread qui ne s'arrête pas est *mis en attente* (voir :data:`_PARKED_THREADS`) afin que rien ne supprime la dernière référence à un QThread en cours d'exécution — ce qui provoquerait précisément l'abandon que ce module cherche à éviter."
+    }
+  ],
+  "schema": 1
+}

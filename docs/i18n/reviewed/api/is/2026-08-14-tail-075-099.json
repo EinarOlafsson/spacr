@@ -45,13 +45,6 @@
       "translation": "Leitarreitur, Breytt síu, Nauðsynjar/Allt rofi, og fjöldi niðurstaðna."
     },
     {
-      "label": "spacr.sp_stats.perform_normality_tests#0",
-      "source_sha256": "edce5b01681123605cfb37504e6644fee8d659bec4b16daf018a5a406a1220ae",
-      "source": "Run per-group normality tests for each requested data column.",
-      "context": "Run per-group normality tests for each requested data column.",
-      "translation": "Keyrðu normalíutest fyrir hverja gagnasúlu sem óskað er eftir fyrir hverja hópa."
-    },
-    {
       "label": "spacr.gui_utils.download_dataset#3",
       "source_sha256": "fe0b51cdda30f1315042111588d0bb5b63821495d2f65cdd25e8022b7037cec3",
       "source": "HF dataset repo id (e.g. ``'einarolafsson/toxo_mito'``).",

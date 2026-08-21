@@ -1,0 +1,20 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "context": "y : array-like of shape (n_observations,) Response values. X : array-like of shape (n_observations, n_fixed_effects) Fixed-effects design. A DataFrame preserves its column names in :attr:`TorchMixedResults.fe_params`. groups : array-like of shape (n_observations,) Outer grouping labels. A random intercept is always included, equivalent to ``re_formula='1'``. vc : mapping of str to array-like, optional Additional grouping labels. Each entry defines one variance component nested within ``groups``, matching statsmodels ``vc_formula`` semantics. device : str, optional PyTorch device. Requesting CUDA raises instead of falling back to CPU when no CUDA device is available. max_iter : int, optional Maximum L-BFGS iterations. Typical screen-sized fits use 20--40; the default of 400 is a safety limit. verbose : bool, optional Print the deviance at each optimizer evaluation.",
+      "label": "spacr.mixed_gpu.fit_mixed_reml_torch#2",
+      "source": "y : array-like of shape (n_observations,) Response values. X : array-like of shape (n_observations, n_fixed_effects) Fixed-effects design. A DataFrame preserves its column names in :attr:`TorchMixedResults.fe_params`. groups : array-like of shape (n_observations,) Outer grouping labels. A random intercept is always included, equivalent to ``re_formula='1'``. vc : mapping of str to array-like, optional Additional grouping labels. Each entry defines one variance component nested within ``groups``, matching statsmodels ``vc_formula`` semantics. device : str, optional PyTorch device. Requesting CUDA raises instead of falling back to CPU when no CUDA device is available. max_iter : int, optional Maximum L-BFGS iterations. Typical screen-sized fits use 20--40; the default of 400 is a safety limit. verbose : bool, optional Print the deviance at each optimizer evaluation.",
+      "source_sha256": "22af8530da615e8def0aceb82d286c1386fbc4c08a4c005db25e39f381ce926b",
+      "translation": "y : array-like of shape (n_observations,) 반응값. X : array-like of shape (n_observations, n_fixed_effects) 고정 효과 설계 행렬. DataFrame 을 전달하면 열 이름이 :attr:`TorchMixedResults.fe_params`에 보존됩니다. groups : array-like of shape (n_observations,) 외부 그룹 레이블. ``re_formula='1'``과 동등한 임의 절편이 항상 포함됩니다. vc : mapping of str to array-like, optional 추가 그룹 레이블. 각 항목은 ``groups`` 안에 중첩된 하나의 분산 성분을 정의하며 statsmodels 의 ``vc_formula`` 의미론과 일치합니다. device : str, optional PyTorch 장치. CUDA 장치를 사용할 수 없을 때 CUDA 를 요청하면 CPU 로 대체하지 않고 오류가 발생합니다. max_iter : int, optional 최대 L-BFGS 반복 횟수. 일반적인 스크리닝 크기의 적합에는 20--40회가 사용되며 기본값 400은 안전 한도입니다. verbose : bool, optional 각 최적화 평가에서 deviance를 출력합니다."
+    },
+    {
+      "context": ":func:`spacr.figures.stats.compare` selects Student's t, Welch's t, Mann-Whitney U, one-way ANOVA, Welch's ANOVA, or Kruskal-Wallis from the available groups and informative assumption checks.",
+      "label": "spacr.sp_stats.perform_statistical_tests#6",
+      "source": ":func:`spacr.figures.stats.compare` selects Student's t, Welch's t, Mann-Whitney U, one-way ANOVA, Welch's ANOVA, or Kruskal-Wallis from the available groups and informative assumption checks.",
+      "source_sha256": "8df21500c6a54cee29ce6747fffee15ff25a726564a44ba58322d6e125aa96ca",
+      "translation": ":func:`spacr.figures.stats.compare`은 사용 가능한 그룹과 유효한 가정 검정을 바탕으로 Student t-test, Welch t-test, Mann-Whitney U test, one-way ANOVA, Welch ANOVA 또는 Kruskal-Wallis test를 선택합니다."
+    }
+  ],
+  "schema": 1
+}
