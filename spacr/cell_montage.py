@@ -1217,6 +1217,14 @@ def _object_sort_key(objects: pd.DataFrame) -> pd.Series:
     return pd.Series(objects.index.astype(str), index=objects.index)
 
 
+#: How large a guide must be in a well before that well is worth pulling in
+#: to anchor it. Matches `sudoku.anchors_for`'s own `min_fraction` default:
+#: in a well where a guide is half the reads, a top-scoring cell is probably
+#: that guide, and below that an anchor set teaches the graph the wrong
+#: shape.
+_SUDOKU_ANCHOR_SHARE = 0.5
+
+
 def _sudoku_calls(work, counts, keys, guide_column, fraction_column,
                   score_column, name, notes):
     """One guide name per cell, decided across every well at once.
@@ -1266,27 +1274,46 @@ def _sudoku_calls(work, counts, keys, guide_column, fraction_column,
                          "the propagation")
             return None
 
-        # SCOPED TO THE WELLS THAT HOLD THIS GUIDE, and to every guide that
-        # co-occurs there. Two reasons, and the second one is the one that
-        # would have stopped the run:
+        # SCOPE: THIS GUIDE'S WELLS, PLUS THE WELLS THAT ANCHOR ITS RIVALS.
         #
-        # STATISTICAL. A posterior is a COMPARISON. A guide that never
-        # shares a well with this one cannot be compared against it -- it
-        # contributes a column of zeros and a constraint of zero, which is
-        # not evidence, it is arithmetic on an empty set.
+        # THE FIRST VERSION OF THIS TRIMMED TO THIS GUIDE'S WELLS ALONE AND
+        # THAT WAS WRONG, on an argument that conflated two different parts
+        # of the method. The WELL CONSTRAINT is per well, so a guide absent
+        # from a well genuinely cannot claim cells there -- that much held.
+        # The GRAPH is not per well at all: it links cells by how they look,
+        # across the screen, and that is where a guide's appearance is
+        # learned.
         #
-        # ARITHMETIC. Unscoped, this builds an (all cells x all guides) seed
-        # matrix and `propagate` holds about three of them. On the
-        # maintainer's own screen -- 143,765 cells and 1,379 guides -- that
-        # is 1.6 GB per array and roughly 4.8 GB live, for a montage of one
-        # coefficient. Scoped to the wells holding one guide it is a few
-        # megabytes.
+        # So trimming the cells also trimmed the ANCHORS. `anchors_for`
+        # takes a guide's examples from wells where that guide DOMINATES,
+        # and a rival's best wells are usually not this guide's wells -- so
+        # the rivals were being characterised from whatever share they
+        # happened to have here, which is the weakest sample available
+        # rather than the strongest. Raised by the maintainer: "other guides
+        # in the chosen guides wells do [share wells], so that information
+        # can be used, no?" -- yes, and it was being thrown away.
+        #
+        # The scope is therefore the union of this guide's wells and, for
+        # every guide that appears in them, the wells where that guide is
+        # large enough to anchor. Those extra wells inform the graph and the
+        # anchors; only this guide's wells are drawn.
         mine = [label for label, here in fractions.items() if name in here]
         if not mine:
             notes.append(f"sudoku: {name} is in none of these wells")
             return None
-        fractions = {label: fractions[label] for label in mine}
-        keep = set(mine)
+        rivals = {g for label in mine for g in fractions[label]}
+        anchoring = {
+            label for label, here in fractions.items()
+            if any(float(here.get(g, 0.0)) >= _SUDOKU_ANCHOR_SHARE
+                   for g in rivals)
+        }
+        keep = set(mine) | anchoring
+        fractions = {label: here for label, here in fractions.items()
+                     if label in keep}
+        notes.append(
+            f"sudoku: {len(mine)} well(s) hold {name}; "
+            f"{len(keep) - len(mine)} more well(s) joined to anchor the "
+            f"{len(rivals)} guide(s) it is compared against")
         rows = [i for i, w in enumerate(wells) if w in keep]
         if not rows:
             notes.append("sudoku: no cell sits in a well holding this guide")

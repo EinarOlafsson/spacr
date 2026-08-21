@@ -1,0 +1,72 @@
+================================================================================
+THE CELL TABLE'S BARS CARRY THE ERROR THE USER PICKS
+================================================================================
+
+Status:    filed 2026-08-21, DONE 2026-08-21.
+Requested: 2026-08-21 -- "for the cell table graphs if bar is chosen the user
+           should be able to choose SD, Var, or SEM error bars."
+Owner:     Qt GUI (cell table graphs)
+
+--------------------------------------------------------------------------------
+WHAT IS ASKED
+--------------------------------------------------------------------------------
+
+A bar with no error bar is a mean presented as a fact. When the graph type is
+Bar, the user picks what the whisker means: SD, variance, or SEM.
+
+THEY ARE NOT INTERCHANGEABLE and the plot must say which one it drew. SD
+describes the cells, SEM describes the confidence in their mean, and at
+n=3000 they differ by a factor of fifty-five -- a reader who assumes the
+wrong one reads a real effect as noise or noise as a real effect. The choice
+goes in the axis label or the legend, not only in the settings dialog the
+reader never opens.
+
+SAME VOCABULARY AS INSTRUCTION 200, which asks for exactly this on the figure
+settings ("for statistics with Bar: SD, SEM, var, etc."). One implementation,
+used by both, or the two screens will disagree about what SEM means on the
+same data.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Choosing Bar offers SD, variance and SEM, and the drawn whisker changes.
+* The figure says which one it drew.
+* The numbers are checked against a hand-computed case, not just asserted to
+  be different from each other.
+* The control is absent, not inert, for graph types that have no error bar.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+`spacr/figures/spread.py` is the shared vocabulary this file asked for --
+"one implementation, used by both, or the two screens will disagree about
+what SEM means on the same data" -- so instruction 200 uses the same module
+rather than a second definition.
+
+THE BAR HAD TO BECOME A MEAN FIRST. `_draw_bar` drew COUNTS: one bar per
+level, height = how many rows. A count has nothing to be spread about, and
+an error bar on it would be a statement about a number that is exact. So the
+bar is now a MEAN whenever the other channel is numeric, and stays a count
+bar when it is not -- with no whisker offered in that case rather than a
+whisker that means nothing.
+
+THE AXIS SAYS WHICH WHISKER IT IS, and that took a second edit: the label is
+written after `_draw_bar` returns, so setting it inside the drawing was
+overwritten by "count" every time. It now reads "mean ± SD (value)",
+"mean ± SEM (value)" or "mean ± variance (value²)".
+
+VARIANCE SQUARES THE UNIT and the label says so. A variance whisker on an
+axis labelled with the plain unit is wrong in a way that looks fine.
+
+ONE OBSERVATION GIVES `nan`, NOT ZERO. A zero-length whisker says "no
+variation measured" where the truth is "not measurable", and those look
+identical on a plot; `nan` in `yerr` draws nothing, which is the honest
+picture. `ddof=1` throughout, because these are cells drawn from a
+population rather than the population -- the population formula understates
+the spread by ten per cent at n=5, which is exactly the well that needed the
+whisker.
+
+Tests: `tests/test_the_bar_says_what_its_whisker_means.py`, 26 passing,
+including that SD and SEM differ by sqrt(n) on the real path.

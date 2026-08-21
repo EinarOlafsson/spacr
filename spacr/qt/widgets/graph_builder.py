@@ -1070,6 +1070,22 @@ class GraphCanvas(LinkedView, QWidget):
         column = spec.x or spec.y
         levels = list(scales.x_levels or scales.y_levels or ())
         text = rows[column].astype(str).mask(rows[column].isna(), MISSING_LEVEL)
+
+        # A MEAN BAR WHEN THERE IS SOMETHING TO AVERAGE (204). The other
+        # channel is numeric only when the user put a measurement there; with
+        # one categorical column alone this is a COUNT bar, and a count has
+        # nothing to be spread about -- an error bar on it would be a
+        # statement about a number that is exact.
+        other = spec.y if column == spec.x else spec.x
+        numeric = None
+        if other and other in rows.columns:
+            candidate = pd.to_numeric(rows[other], errors="coerce")
+            if candidate.notna().any():
+                numeric = candidate
+        if numeric is not None:
+            self._draw_mean_bar(ax, text, numeric, levels, palette, other)
+            return
+
         counts = text.value_counts()
         heights = [float(counts.get(level, 0)) for level in levels]
         ax.bar(range(len(levels)), heights, width=0.78,
@@ -1080,6 +1096,42 @@ class GraphCanvas(LinkedView, QWidget):
                    [float(picked.get(level, 0)) for level in levels],
                    width=0.42, color=palette["fg"], alpha=0.85, linewidth=0.0,
                    label="selected")
+
+    def _draw_mean_bar(self, ax, text, numeric, levels, palette,
+                       column) -> None:
+        """A bar per level at the mean, with the whisker the user chose.
+
+        THE AXIS SAYS WHICH WHISKER IT IS. SD and SEM differ by sqrt(n) --
+        fifty-five-fold at n=3000 -- so a reader who assumes the wrong one
+        reads a real effect as noise or noise as a real effect. Putting the
+        answer only in the settings dialog leaves it where the reader is
+        not.
+        """
+        from ...figures.spread import (SPREAD_NONE, spread_label, summarise)
+
+        kind = str(getattr(self._spec, "spread", SPREAD_NONE) or SPREAD_NONE)
+        groups = {level: numeric[(text == level).to_numpy()].dropna()
+                  for level in levels}
+        summary = summarise(groups, kind)
+
+        heights = [summary.get(level, {}).get("mean", float("nan"))
+                   for level in levels]
+        ax.bar(range(len(levels)), heights, width=0.78,
+               color=self._series_colour(0), linewidth=0.0)
+
+        if kind != SPREAD_NONE:
+            errors = [summary.get(level, {}).get("spread", float("nan"))
+                      for level in levels]
+            # `np.nan` in `yerr` draws nothing for that bar, which is the
+            # right answer for a level with one observation -- a
+            # zero-length whisker would say "no variation measured" where
+            # the truth is "not measurable".
+            ax.errorbar(range(len(levels)), heights, yerr=errors,
+                        fmt="none", ecolor=palette["fg"], elinewidth=1.2,
+                        capsize=4, capthick=1.2)
+            ax.set_ylabel(spread_label(kind, unit=str(column or "")))
+        elif column:
+            ax.set_ylabel(str(column))
 
     def _draw_distribution(self, ax, rows, kind, palette) -> None:
         spec, scales = self._spec, self._scales
@@ -1186,11 +1238,23 @@ class GraphCanvas(LinkedView, QWidget):
         kind = spec.resolved_kind(self._kinds)
         x_column, y_column = value_axes(spec, self._kinds)
         counts_on_y = kind in (HISTOGRAM, BAR)
+        # A BAR IS ONLY A COUNT WHEN THERE IS NOTHING TO AVERAGE (204). With
+        # a numeric channel the bar is a MEAN, and if it carries a whisker
+        # the label has to say which one -- SD and SEM differ by sqrt(n),
+        # fifty-five-fold at n=3000, so a reader who assumes the wrong one
+        # reads a real effect as noise or the reverse. This label is drawn
+        # AFTER `_draw_bar`, so setting it there was not enough.
+        y_label = "count" if counts_on_y else (y_column or "")
+        if kind == BAR and y_column:
+            from ...figures.spread import SPREAD_NONE, spread_label
+
+            spread = str(getattr(spec, "spread", SPREAD_NONE) or SPREAD_NONE)
+            y_label = (spread_label(spread, unit=str(y_column))
+                       if spread != SPREAD_NONE else str(y_column))
         if panel.row == nrows - 1:
             ax.set_xlabel(x_column or "", color=palette["fg_dim"], fontsize=9)
         if panel.col == 0:
-            ax.set_ylabel("count" if counts_on_y else (y_column or ""),
-                          color=palette["fg_dim"], fontsize=9)
+            ax.set_ylabel(y_label, color=palette["fg_dim"], fontsize=9)
         if grid.is_faceted:
             title = panel.title()
             if title:
