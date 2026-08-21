@@ -176,20 +176,41 @@ def _residualise(matrix: np.ndarray, blocks: np.ndarray) -> np.ndarray:
 
 
 
-#: Organism prefixes a guide name may carry. The counts of a real screen name
-#: guides `TGGT1_225160_2`; the regression's design names them `225160_2`.
+#: Organism prefixes a guide name may carry, kept for a name whose SHAPE does
+#: not say where the gene is. The structural rule below handles every name of
+#: the form `<organism>_<gene>_<guide>`, which is what `process_reads` writes
+#: and what every count table in this project carries; this list is the
+#: fallback for the rest.
+#:
+#: IT IS NOT THE RULE, and it used to be. A hard-coded list of four
+#: Toxoplasma strains means a Plasmodium library keeps its prefix, so
+#: `PF3D7_0100100_1` returned `PF3D7` -- the organism -- for every guide in
+#: the screen, pooling the entire library into one "gene". That is the same
+#: assumption instruction 184 removed from the control fields, reached by a
+#: different route.
 GUIDE_PREFIXES: Tuple[str, ...] = ("TGGT1_", "TGME49_", "TGVEG_", "TGRH88_")
 
 
-def gene_of_guide(guide: Any) -> Optional[str]:
+def gene_of_guide(guide: Any, prefix: Optional[str] = None) -> Optional[str]:
     """The gene a GUIDE NAME belongs to, for both spellings in use.
 
     `spacr.hits.gene_of` reads a DESIGN TERM -- `fraction:grna[225160_1]` --
     and truncates at the first underscore. Handed the bare `TGGT1_225160_2`
     that a count table actually carries, that rule returns `TGGT1`: the
     organism, for every guide in the screen, which pools the entire library
-    into one "gene". So a bracketed term still goes to `hits.gene_of`, and a
-    bare name has its organism prefix removed first.
+    into one "gene". So a bracketed term still goes to `hits.gene_of`.
+
+    A BARE NAME IS READ BY ITS SHAPE. `process_reads` splits
+    `<organism>_<gene>_<guide>` on exactly three components, so a three-part
+    name gives up its gene as the middle one and a two-part name as the
+    first. That works for `PF3D7_0100100_1` and for a human library without
+    either being named anywhere.
+
+    :param prefix: an organism prefix MEASURED from the library, as
+        :func:`spacr.control_names.common_prefix` returns. Given, it is
+        removed first; the shape rule then applies to what is left. This is
+        how a caller that has the whole library in hand beats a rule that
+        only has one name.
     """
     text = str(guide or "").strip()
     if not text:
@@ -198,12 +219,22 @@ def gene_of_guide(guide: Any) -> Optional[str]:
         from .hits import gene_of as _design_gene_of
 
         return _design_gene_of(text)
-    for prefix in GUIDE_PREFIXES:
-        if text.upper().startswith(prefix):
-            text = text[len(prefix):]
-            break
-    head = text.split("_", 1)[0].strip()
-    return head or None
+    head = str(prefix or "").strip()
+    if head and text.startswith(f"{head}_"):
+        text = text[len(head) + 1:]
+    else:
+        for known in GUIDE_PREFIXES:
+            if text.upper().startswith(known):
+                text = text[len(known):]
+                break
+    parts = [p for p in text.split("_")]
+    if len(parts) >= 3:
+        # `<organism>_<gene>_<guide>`: the gene is the middle component, and
+        # anything between it and the guide number belongs to it.
+        gene = "_".join(parts[1:-1]).strip()
+    else:
+        gene = parts[0].strip()
+    return gene or None
 
 
 def gene_fractions(fractions: pd.DataFrame,
@@ -598,6 +629,12 @@ def _write(figure, path) -> None:
                 setter(replacement)
                 restore.append(lambda put=setter, old=current: put(old))
     try:
+        # NOT `plot.save_figure`, and deliberately (108 point 6). This
+        # function IS the export rule for the sweep's figures: it reads
+        # `saved_figure_appearance` itself and has already flipped the
+        # figure's ground, each axes' ground and every piece of chrome above.
+        # Routing it through the shared writer would apply the same repaint a
+        # second time, on artists this function is holding the undo for.
         figure.savefig(path, dpi=200, bbox_inches="tight",
                        facecolor=figure.get_facecolor())
     finally:
