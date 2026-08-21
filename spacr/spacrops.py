@@ -9,6 +9,11 @@ import numpy as np
 
 from .tiff_io import write_tiff
 
+# THE HOUSE STYLE (136). `figures.style` imports matplotlib
+# only inside its own functions, so naming it here costs
+# nothing at import time.
+from .figures.style import figure_style, theme_target
+
 class _DiskFeatureStore:
     """Disk-backed feature cache with a bounded in-RAM LRU.
 
@@ -944,11 +949,16 @@ class spacrStitcher:
     
             stem = f"{os.path.splitext(os.path.basename(pathA))[0]}__{os.path.splitext(os.path.basename(pathB))[0]}"
             p_outline = os.path.join(self.outdir, f"{stem}__qc_outlines.png")
-            fig, ax = plt.subplots(figsize=(8, 8))
-            ax.imshow(np.clip(qc_rgb, 0, 1)); ax.set_axis_off()
-            ax.set_title(f"score={score:.3f} (edge_zncc_fg={edge_zncc_fg:.3f} · inliers={inlier_ratio:.3f})")
-            fig.savefig(p_outline, dpi=200, bbox_inches="tight"); plt.close(fig)
-            qc_paths["qc_outline_png"] = p_outline
+            # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+            # rcParams reach an artist when it is CREATED, so a
+            # context opened after `plt.subplots` would leave the
+            # spines, ticks and labels at the caller's globals.
+            with figure_style(theme_target()):
+                fig, ax = plt.subplots(figsize=(8, 8))
+                ax.imshow(np.clip(qc_rgb, 0, 1)); ax.set_axis_off()
+                ax.set_title(f"score={score:.3f} (edge_zncc_fg={edge_zncc_fg:.3f} · inliers={inlier_ratio:.3f})")
+                fig.savefig(p_outline, dpi=200, bbox_inches="tight"); plt.close(fig)
+                qc_paths["qc_outline_png"] = p_outline
     
         # decide whether to stitch now
         if save_stitched is None:
@@ -1139,14 +1149,19 @@ class spacrStitcher:
 
     def _plot_sorted_scores(self, scores: List[float], thr: float, out_png: str):
         s = np.array(sorted(scores), dtype=np.float64)
-        fig, ax = plt.subplots(figsize=(8,6))
-        ax.plot(np.arange(len(s)), s, lw=1)
-        ax.axhline(thr, linestyle='--')
-        ax.set_title(f"Sorted pairwise scores (n={len(s)}), threshold={thr:.3f}")
-        ax.set_xlabel("pair index (sorted)")
-        ax.set_ylabel("score = edge_zncc_fg(DS) × inlier_ratio")
-        fig.savefig(out_png, dpi=200, bbox_inches="tight")
-        plt.close(fig)
+        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+        # rcParams reach an artist when it is CREATED, so a
+        # context opened after `plt.subplots` would leave the
+        # spines, ticks and labels at the caller's globals.
+        with figure_style(theme_target()):
+            fig, ax = plt.subplots(figsize=(8,6))
+            ax.plot(np.arange(len(s)), s, lw=1)
+            ax.axhline(thr, linestyle='--')
+            ax.set_title(f"Sorted pairwise scores (n={len(s)}), threshold={thr:.3f}")
+            ax.set_xlabel("pair index (sorted)")
+            ax.set_ylabel("score = edge_zncc_fg(DS) × inlier_ratio")
+            fig.savefig(out_png, dpi=200, bbox_inches="tight")
+            plt.close(fig)
 
     # ------------------------------ pairing ------------------------------
     @staticmethod

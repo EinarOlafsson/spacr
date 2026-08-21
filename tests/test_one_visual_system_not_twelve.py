@@ -32,10 +32,29 @@ STYLE_USE = re.compile(r"figure_style|from \.figures\.style|rc_params\(")
 #: is not one.
 GLOBAL_RC = re.compile(r"(?:plt|mpl|matplotlib)\.rcParams\s*(?:\.update\(|\[)")
 
-#: The ceiling on raw figure creation, measured 2026-08-20. LOWER IT as call
-#: sites are converted; never raise it without saying why the figure cannot
-#: go through the house style.
+#: The ceiling on raw figure creation, measured 2026-08-20. This counts every
+#: `plt.subplots(` / `plt.figure(` in the tree, styled or not, so it caps how
+#: many figures spaCR draws by hand -- it does NOT say whether they are in the
+#: house style. `UNSTYLED_CEILING` below is the one that says that.
 CEILING = 145
+
+#: The ceiling on figure creations that are NOT inside the house style.
+#:
+#: ZERO, as of 2026-08-20: 136's "STILL OPEN: the 145 remaining raw call
+#: sites" is closed. Measured with the AST walk in `_unstyled`, not a regex,
+#: because the regex above cannot see a `with` block and counted the
+#: converted sites as raw -- which is why it stood at 145 while the real
+#: number fell to 48 and then to 0.
+#:
+#: A new figure has to open `figure_style(theme_target())` before it is
+#: created. If one genuinely cannot -- `utils.setup_plot` is the case, since
+#: it exists to draw in the GUI THEME's colours and a house-style context
+#: nested inside would win and repaint it for print -- say so where the
+#: exception is taken and raise this deliberately.
+UNSTYLED_CEILING = 0
+
+#: Context managers that ARE the house style, for :func:`_unstyled`.
+STYLE_CONTEXTS = {"figure_style", "rc_context"}
 
 #: Allowed to write rcParams globally, and why.
 MAY_SET_RCPARAMS = {
@@ -74,6 +93,108 @@ def test_raw_figure_creation_does_not_go_up():
         f"different application. Route it through spacr.figure_style, or "
         f"lower this ceiling deliberately.\n"
         + "\n".join(f"  {n:3}  {name}" for name, n in counts.most_common(8)))
+
+
+def _named(call) -> str:
+    return getattr(call.func, "attr", getattr(call.func, "id", ""))
+
+
+def _style_wrappers(tree) -> set:
+    """Same-module context managers that open the house style themselves.
+
+    `toxo._house` is one: it opens `plt.rc_context` with the house rc and
+    yields. Its six figures are styled, and a checker that only looked for
+    the literal name would report every one of them as raw.
+    """
+    import ast
+
+    found = set()
+    for node in ast.walk(tree):
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            continue
+        if not any(getattr(d, "attr", getattr(d, "id", "")) == "contextmanager"
+                   for d in node.decorator_list):
+            continue
+        if any(isinstance(inner, ast.With)
+               and any(isinstance(i.context_expr, ast.Call)
+                       and _named(i.context_expr) in STYLE_CONTEXTS
+                       for i in inner.items)
+               for inner in ast.walk(node)):
+            found.add(node.name)
+    return found
+
+
+def _unstyled(text: str) -> list:
+    """Line numbers where a figure is created outside the house style.
+
+    AST, NOT A REGEX. rcParams reach an artist when it is CREATED, so what
+    matters is whether the creation is lexically inside a style context --
+    which is a question about the tree and not about the text.
+    """
+    import ast
+
+    tree = ast.parse(text)
+    allowed = STYLE_CONTEXTS | _style_wrappers(tree)
+    raw, spans = [], []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.With) and any(
+                isinstance(i.context_expr, ast.Call)
+                and _named(i.context_expr) in allowed for i in node.items):
+            spans.append((node.lineno, node.end_lineno))
+    for node in ast.walk(tree):
+        if (isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Attribute)
+                and node.func.attr in ("subplots", "figure", "subplot_mosaic")
+                and getattr(node.func.value, "id", "") == "plt"
+                and not any(a <= node.lineno <= b for a, b in spans)):
+            raw.append(node.lineno)
+    return sorted(raw)
+
+
+def test_the_unstyled_checker_can_tell_the_two_apart():
+    """Guard the guard: a checker that reported zero because it found
+    nothing would pass this file's real test silently."""
+    inside = "import matplotlib.pyplot as plt\nwith figure_style('screen'):\n    f = plt.subplots()\n"
+    outside = "import matplotlib.pyplot as plt\nf = plt.subplots()\n"
+
+    assert _unstyled(inside) == []
+    assert _unstyled(outside) == [2]
+
+
+def test_the_checker_follows_a_module_s_own_context_manager():
+    """`toxo._house` opens `rc_context` and yields; its figures are styled."""
+    text = (
+        "import contextlib\n"
+        "import matplotlib.pyplot as plt\n"
+        "@contextlib.contextmanager\n"
+        "def _house(w):\n"
+        "    with plt.rc_context({}):\n"
+        "        yield\n"
+        "def draw():\n"
+        "    with _house(6):\n"
+        "        return plt.subplots()\n")
+
+    assert _unstyled(text) == []
+
+
+def test_no_figure_is_created_outside_the_house_style():
+    """136's last open item. 133 to 4 when it was filed; 0 raw now."""
+    found = {}
+    for path, text in _files():
+        try:
+            lines = _unstyled(text)
+        except SyntaxError:                      # pragma: no cover - defensive
+            continue
+        if lines:
+            found[str(path.relative_to(_spacr().parent))] = lines
+    total = sum(len(v) for v in found.values())
+    assert total <= UNSTYLED_CEILING, (
+        f"{total} figure(s) created outside `figure_style`, up from "
+        f"{UNSTYLED_CEILING}. rcParams reach an artist when it is CREATED, "
+        f"so the context has to be open BEFORE plt.subplots -- a context "
+        f"opened after it leaves the spines, ticks and labels at whatever "
+        f"the caller's globals happened to be.\n"
+        + "\n".join(f"  {name}: {lines}" for name, lines in found.items()))
 
 
 def test_the_house_style_is_used_more_than_it_is_bypassed():

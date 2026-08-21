@@ -22,6 +22,11 @@ from typing import Any, Sequence
 import numpy as np
 import pandas as pd
 
+# THE HOUSE STYLE (136). `figures.style` imports matplotlib
+# only inside its own functions, so naming it here costs
+# nothing at import time.
+from .figures.style import figure_style, theme_target
+
 __all__ = [
     "VolcanoStyle",
     "MARKER_SHAPES",
@@ -351,8 +356,13 @@ def render_volcano(results: pd.DataFrame, style: VolcanoStyle, *,
     frame, x, y, raw_y, significant, effect_cut = _prepare(results, style)
 
     if figure is None:
-        figure = plt.figure(figsize=(style.figure_width, style.figure_height),
-                            dpi=style.dpi)
+        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+        # rcParams reach an artist when it is CREATED, so a
+        # context opened after `plt.subplots` would leave the
+        # spines, ticks and labels at the caller's globals.
+        with figure_style(theme_target()):
+            figure = plt.figure(figsize=(style.figure_width, style.figure_height),
+                                dpi=style.dpi)
     else:
         figure.clear()
 

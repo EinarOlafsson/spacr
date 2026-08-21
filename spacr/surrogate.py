@@ -51,6 +51,11 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
+# THE HOUSE STYLE (136). `figures.style` imports matplotlib
+# only inside its own functions, so naming it here costs
+# nothing at import time.
+from .figures.style import figure_style, theme_target
+
 __all__ = [
     "SurrogateError",
     "SurrogateResult",
@@ -860,26 +865,31 @@ def write_surrogate_result(result: SurrogateResult,
                     if column in result.importance and
                     result.importance[column].notna().any()]
         if measures:
-            fig, axes = plt.subplots(
-                1, len(measures), figsize=(5.2 * len(measures), 5.0),
-                squeeze=False)
-            for axis, measure in zip(axes[0], measures):
-                top = result.importance.nlargest(15, measure).sort_values(measure)
-                axis.barh(top["feature"].astype(str), top[measure],
-                          color="#3B82C4")
-                axis.set_title(measure.capitalize())
-                axis.set_xlabel("importance")
-                axis.spines[["top", "right"]].set_visible(False)
-            fig.suptitle(
-                f"Held-out fidelity {result.fidelity:.3f} "
-                f"(baseline {result.baseline:.3f})")
-            fig.tight_layout()
-            for extension in ("pdf", "png"):
-                path = os.path.join(root, f"feature_importance.{extension}")
-                fig.savefig(path, dpi=300 if extension == "png" else None,
-                            bbox_inches="tight")
-                paths[f"importance_{extension}"] = path
-            plt.close(fig)
+            # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+            # rcParams reach an artist when it is CREATED, so a
+            # context opened after `plt.subplots` would leave the
+            # spines, ticks and labels at the caller's globals.
+            with figure_style(theme_target()):
+                fig, axes = plt.subplots(
+                    1, len(measures), figsize=(5.2 * len(measures), 5.0),
+                    squeeze=False)
+                for axis, measure in zip(axes[0], measures):
+                    top = result.importance.nlargest(15, measure).sort_values(measure)
+                    axis.barh(top["feature"].astype(str), top[measure],
+                              color="#3B82C4")
+                    axis.set_title(measure.capitalize())
+                    axis.set_xlabel("importance")
+                    axis.spines[["top", "right"]].set_visible(False)
+                fig.suptitle(
+                    f"Held-out fidelity {result.fidelity:.3f} "
+                    f"(baseline {result.baseline:.3f})")
+                fig.tight_layout()
+                for extension in ("pdf", "png"):
+                    path = os.path.join(root, f"feature_importance.{extension}")
+                    fig.savefig(path, dpi=300 if extension == "png" else None,
+                                bbox_inches="tight")
+                    paths[f"importance_{extension}"] = path
+                plt.close(fig)
     if (result.is_faithful and not result.shap_values.empty
             and not result.shap_feature_values.empty):
         import matplotlib.pyplot as plt
@@ -892,28 +902,33 @@ def write_surrogate_result(result: SurrogateResult,
         if ranked:
             columns = min(3, len(ranked))
             rows = int(np.ceil(len(ranked) / columns))
-            fig, axes = plt.subplots(
-                rows, columns, figsize=(4.6 * columns, 3.7 * rows),
-                squeeze=False)
-            for axis, feature in zip(axes.ravel(), ranked):
-                axis.scatter(
-                    result.shap_feature_values[feature],
-                    result.shap_values[feature], s=12, alpha=0.6,
-                    color="#3B82C4", edgecolors="none")
-                axis.axhline(0, color="#777777", linewidth=0.7)
-                axis.set_xlabel(feature)
-                axis.set_ylabel("signed SHAP")
-                axis.spines[["top", "right"]].set_visible(False)
-            for axis in axes.ravel()[len(ranked):]:
-                axis.set_visible(False)
-            fig.suptitle("Held-out SHAP dependence")
-            fig.tight_layout()
-            for extension in ("pdf", "png"):
-                path = os.path.join(root, f"shap_dependence.{extension}")
-                fig.savefig(path, dpi=300 if extension == "png" else None,
-                            bbox_inches="tight")
-                paths[f"shap_dependence_{extension}"] = path
-            plt.close(fig)
+            # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+            # rcParams reach an artist when it is CREATED, so a
+            # context opened after `plt.subplots` would leave the
+            # spines, ticks and labels at the caller's globals.
+            with figure_style(theme_target()):
+                fig, axes = plt.subplots(
+                    rows, columns, figsize=(4.6 * columns, 3.7 * rows),
+                    squeeze=False)
+                for axis, feature in zip(axes.ravel(), ranked):
+                    axis.scatter(
+                        result.shap_feature_values[feature],
+                        result.shap_values[feature], s=12, alpha=0.6,
+                        color="#3B82C4", edgecolors="none")
+                    axis.axhline(0, color="#777777", linewidth=0.7)
+                    axis.set_xlabel(feature)
+                    axis.set_ylabel("signed SHAP")
+                    axis.spines[["top", "right"]].set_visible(False)
+                for axis in axes.ravel()[len(ranked):]:
+                    axis.set_visible(False)
+                fig.suptitle("Held-out SHAP dependence")
+                fig.tight_layout()
+                for extension in ("pdf", "png"):
+                    path = os.path.join(root, f"shap_dependence.{extension}")
+                    fig.savefig(path, dpi=300 if extension == "png" else None,
+                                bbox_inches="tight")
+                    paths[f"shap_dependence_{extension}"] = path
+                plt.close(fig)
     return paths
 
 

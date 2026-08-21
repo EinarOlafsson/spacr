@@ -27,6 +27,11 @@ from sklearn.metrics import (
     recall_score,
 )
 
+# THE HOUSE STYLE (136). `figures.style` imports matplotlib
+# only inside its own functions, so naming it here costs
+# nothing at import time.
+from .figures.style import figure_style, theme_target
+
 
 EVALUATION_FILES = {
     "summary": "summary.json",
@@ -1623,49 +1628,59 @@ def _write_confusion_figure(frame: pd.DataFrame, path: Path) -> None:
     """Render a normalized confusion heatmap."""
     import matplotlib.pyplot as plt
 
-    fig, axis = plt.subplots(figsize=(6, 5))
-    image = axis.imshow(frame.to_numpy(dtype=float), vmin=0, vmax=1,
-                        cmap="Blues")
-    axis.set_xticks(np.arange(len(frame.columns)), labels=frame.columns,
-                    rotation=45, ha="right")
-    axis.set_yticks(np.arange(len(frame.index)), labels=frame.index)
-    axis.set_xlabel("Predicted")
-    axis.set_ylabel("True")
-    axis.set_title("Out-of-fold confusion matrix")
-    for row in range(len(frame.index)):
-        for column in range(len(frame.columns)):
-            value = float(frame.iloc[row, column])
-            axis.text(column, row, f"{value:.2f}", ha="center", va="center",
-                      color="white" if value > 0.5 else "black")
-    fig.colorbar(image, ax=axis, label="Row-normalized fraction")
-    fig.tight_layout()
-    fig.savefig(path, dpi=180)
-    plt.close(fig)
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        fig, axis = plt.subplots(figsize=(6, 5))
+        image = axis.imshow(frame.to_numpy(dtype=float), vmin=0, vmax=1,
+                            cmap="Blues")
+        axis.set_xticks(np.arange(len(frame.columns)), labels=frame.columns,
+                        rotation=45, ha="right")
+        axis.set_yticks(np.arange(len(frame.index)), labels=frame.index)
+        axis.set_xlabel("Predicted")
+        axis.set_ylabel("True")
+        axis.set_title("Out-of-fold confusion matrix")
+        for row in range(len(frame.index)):
+            for column in range(len(frame.columns)):
+                value = float(frame.iloc[row, column])
+                axis.text(column, row, f"{value:.2f}", ha="center", va="center",
+                          color="white" if value > 0.5 else "black")
+        fig.colorbar(image, ax=axis, label="Row-normalized fraction")
+        fig.tight_layout()
+        fig.savefig(path, dpi=180)
+        plt.close(fig)
 
 
 def _write_calibration_figure(frame: pd.DataFrame, path: Path) -> None:
     """Render one reliability curve per class."""
     import matplotlib.pyplot as plt
 
-    fig, axis = plt.subplots(figsize=(6, 5))
-    axis.plot([0, 1], [0, 1], linestyle="--", color="#777777",
-              label="Perfect calibration")
-    for class_name, group in frame.groupby("class_name"):
-        axis.plot(
-            group["mean_confidence"],
-            group["observed_frequency"],
-            marker="o",
-            label=str(class_name),
-        )
-    axis.set_xlim(0, 1)
-    axis.set_ylim(0, 1)
-    axis.set_xlabel("Mean predicted probability")
-    axis.set_ylabel("Observed frequency")
-    axis.set_title("Out-of-fold calibration")
-    axis.legend(loc="best")
-    fig.tight_layout()
-    fig.savefig(path, dpi=180)
-    plt.close(fig)
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        fig, axis = plt.subplots(figsize=(6, 5))
+        axis.plot([0, 1], [0, 1], linestyle="--", color="#777777",
+                  label="Perfect calibration")
+        for class_name, group in frame.groupby("class_name"):
+            axis.plot(
+                group["mean_confidence"],
+                group["observed_frequency"],
+                marker="o",
+                label=str(class_name),
+            )
+        axis.set_xlim(0, 1)
+        axis.set_ylim(0, 1)
+        axis.set_xlabel("Mean predicted probability")
+        axis.set_ylabel("Observed frequency")
+        axis.set_title("Out-of-fold calibration")
+        axis.legend(loc="best")
+        fig.tight_layout()
+        fig.savefig(path, dpi=180)
+        plt.close(fig)
 
 
 def find_evaluation_bundles(root: Any) -> List[Path]:

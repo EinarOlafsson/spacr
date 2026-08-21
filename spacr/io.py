@@ -59,6 +59,11 @@ from .png_list import (PNG_LIST_ID_COLUMNS, _merged_field_paths,
 from .crops import MERGED_LAYOUT_SIDECAR
 from .merge_tables import reconcile_duplicates
 
+# THE HOUSE STYLE (136). `figures.style` imports matplotlib
+# only inside its own functions, so naming it here costs
+# nothing at import time.
+from .figures.style import figure_style, theme_target
+
 
 def _escaped_field_stem(plate, well, field, time):
     """Compose a merged-stack stem with its free-text plate component escaped.
@@ -3278,61 +3283,66 @@ def _save_mask_timelapse_as_gif(masks, tracks_df, path, cmap, norm, filenames):
     band = geometry['band']
 
     # Set the face color for the figure to black
-    fig, ax = plt.subplots(figsize=geometry['figsize'], facecolor='black')
-    ax.set_facecolor('black')  # Set the axes background color to black
-    ax.axis('off')  # Turn off the axis
-    # Leave the two bands the captions are drawn into; at top=1 the frame
-    # counter was rendered above the canvas and never reached the file.
-    plt.subplots_adjust(left=0, right=1, top=1 - band, bottom=band,
-                        wspace=0, hspace=0)
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        fig, ax = plt.subplots(figsize=geometry['figsize'], facecolor='black')
+        ax.set_facecolor('black')  # Set the axes background color to black
+        ax.axis('off')  # Turn off the axis
+        # Leave the two bands the captions are drawn into; at top=1 the frame
+        # counter was rendered above the canvas and never reached the file.
+        plt.subplots_adjust(left=0, right=1, top=1 - band, bottom=band,
+                            wspace=0, hspace=0)
 
-    filename_text_obj = None  # Initialize a variable to keep track of the text object
-    frame_text_obj = None
+        filename_text_obj = None  # Initialize a variable to keep track of the text object
+        frame_text_obj = None
 
-    def _update(frame):
-        """
-        Update the frame of the animation.
+        def _update(frame):
+            """
+            Update the frame of the animation.
 
-        Parameters:
-        - frame (int): The frame number to update.
+            Parameters:
+            - frame (int): The frame number to update.
 
-        Returns:
-        None
-        """
-        nonlocal filename_text_obj, frame_text_obj  # Reference the nonlocal variables to update them
-        if filename_text_obj is not None:
-            filename_text_obj.remove()  # Remove the previous text object if it exists
-        if frame_text_obj is not None:
-            frame_text_obj.remove()
+            Returns:
+            None
+            """
+            nonlocal filename_text_obj, frame_text_obj  # Reference the nonlocal variables to update them
+            if filename_text_obj is not None:
+                filename_text_obj.remove()  # Remove the previous text object if it exists
+            if frame_text_obj is not None:
+                frame_text_obj.remove()
 
-        ax.clear()  # Clear the axis to draw the new frame
-        ax.axis('off')  # Ensure axis is still off after clearing
-        current_mask = masks[frame]
-        ax.imshow(current_mask, cmap=cmap, norm=norm)
-        frame_text_obj = fig.text(0.5, 1 - band / 2, f'Frame: {frame}',
-                                  ha='center', va='center',
-                                  fontsize=geometry['title_pt'], color='white')
+            ax.clear()  # Clear the axis to draw the new frame
+            ax.axis('off')  # Ensure axis is still off after clearing
+            current_mask = masks[frame]
+            ax.imshow(current_mask, cmap=cmap, norm=norm)
+            frame_text_obj = fig.text(0.5, 1 - band / 2, f'Frame: {frame}',
+                                      ha='center', va='center',
+                                      fontsize=geometry['title_pt'], color='white')
 
-        # Add the filename as text on the figure
-        filename_text = filenames[frame]  # Get the filename corresponding to the current frame
-        filename_text_obj = fig.text(0.5, band / 2, filename_text, ha='center', va='center', fontsize=geometry['caption_pt'], color='white')  # Adjust text position, size, and color as needed
+            # Add the filename as text on the figure
+            filename_text = filenames[frame]  # Get the filename corresponding to the current frame
+            filename_text_obj = fig.text(0.5, band / 2, filename_text, ha='center', va='center', fontsize=geometry['caption_pt'], color='white')  # Adjust text position, size, and color as needed
 
-        # Annotate each object with its label number from the mask
-        for label_value in np.unique(current_mask):
-            if label_value == 0: continue  # Skip background
-            y, x = np.mean(np.where(current_mask == label_value), axis=1)
-            ax.text(x, y, str(label_value), color='white', fontsize=geometry['label_pt'], ha='center', va='center')
+            # Annotate each object with its label number from the mask
+            for label_value in np.unique(current_mask):
+                if label_value == 0: continue  # Skip background
+                y, x = np.mean(np.where(current_mask == label_value), axis=1)
+                ax.text(x, y, str(label_value), color='white', fontsize=geometry['label_pt'], ha='center', va='center')
 
-        # Overlay tracks
-        if tracks_df is not None:
-            for track in tracks_df['track_id'].unique():
-                _track = tracks_df[tracks_df['track_id'] == track]
-                ax.plot(_track['x'], _track['y'], '-w', linewidth=1)
+            # Overlay tracks
+            if tracks_df is not None:
+                for track in tracks_df['track_id'].unique():
+                    _track = tracks_df[tracks_df['track_id'] == track]
+                    ax.plot(_track['x'], _track['y'], '-w', linewidth=1)
 
-    anim = FuncAnimation(fig, _update, frames=len(masks), blit=False)
-    anim.save(path, writer='pillow', fps=2, dpi=geometry['dpi'])
-    plt.close(fig)
-    print(f'Saved timelapse to {path}')
+        anim = FuncAnimation(fig, _update, frames=len(masks), blit=False)
+        anim.save(path, writer='pillow', fps=2, dpi=geometry['dpi'])
+        plt.close(fig)
+        print(f'Saved timelapse to {path}')
 
 def _save_object_counts_to_database(arrays, object_type, file_names, db_path, added_string):
     """
@@ -3782,29 +3792,34 @@ def read_plot_model_stats(train_file_path, val_file_path ,save=False):
         pdf_path = os.path.join(path, f'{column}.pdf')
 
         # Create subplots
-        fig, axes = plt.subplots(1, 2, figsize=(20, 10), sharey=True)
+        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+        # rcParams reach an artist when it is CREATED, so a
+        # context opened after `plt.subplots` would leave the
+        # spines, ticks and labels at the caller's globals.
+        with figure_style(theme_target()):
+            fig, axes = plt.subplots(1, 2, figsize=(20, 10), sharey=True)
 
-        # Plotting
-        sns.lineplot(ax=axes[0], x='epoch', y=column, data=train_df, marker='o', color='red')
-        sns.lineplot(ax=axes[1], x='epoch', y=column, data=val_df, marker='o', color='blue')
+            # Plotting
+            sns.lineplot(ax=axes[0], x='epoch', y=column, data=train_df, marker='o', color='red')
+            sns.lineplot(ax=axes[1], x='epoch', y=column, data=val_df, marker='o', color='blue')
 
-        # Set titles and labels
-        axes[0].set_title(f'Train {column} vs. Epoch', fontsize=20)
-        axes[0].set_xlabel('Epoch', fontsize=16)
-        axes[0].set_ylabel(column, fontsize=16)
-        axes[0].tick_params(axis='both', which='major', labelsize=12)
+            # Set titles and labels
+            axes[0].set_title(f'Train {column} vs. Epoch', fontsize=20)
+            axes[0].set_xlabel('Epoch', fontsize=16)
+            axes[0].set_ylabel(column, fontsize=16)
+            axes[0].tick_params(axis='both', which='major', labelsize=12)
 
-        axes[1].set_title(f'Validation {column} vs. Epoch', fontsize=20)
-        axes[1].set_xlabel('Epoch', fontsize=16)
-        axes[1].tick_params(axis='both', which='major', labelsize=12)
+            axes[1].set_title(f'Validation {column} vs. Epoch', fontsize=20)
+            axes[1].set_xlabel('Epoch', fontsize=16)
+            axes[1].tick_params(axis='both', which='major', labelsize=12)
 
-        plt.tight_layout()
+            plt.tight_layout()
 
-        if save:
-            from .plot import save_figure
-            pdf_path = save_figure(plt.gcf(), pdf_path, dpi=dpi)
-        else:
-            plt.show()
+            if save:
+                from .plot import save_figure
+                pdf_path = save_figure(plt.gcf(), pdf_path, dpi=dpi)
+            else:
+                plt.show()
 
     # Read the CSVs into DataFrames
     train_df = pd.read_csv(train_file_path, index_col=0)
