@@ -7269,7 +7269,33 @@ def _perform_regression(settings):
     filter_column = settings['filter_column']
 
     score_data_df = clean_controls(score_data_df, settings['filter_value'], filter_column)
-    
+
+    # OUTLIERS GO NOW, BEFORE ANYTHING COUNTS THEM (instruction 210). Every
+    # normalising step below -- the cell-count threshold, the guide
+    # fractions, the aggregation -- has its denominator set by which objects
+    # are present, so a segmentation artefact removed AFTER the fractions
+    # are formed leaves its reads redistributed across the guides in its
+    # well. Removed here, it never contributed.
+    #
+    # OFF UNLESS ASKED FOR, and always reported: a filter that silently
+    # drops objects is a filter that will be forgotten and then blamed on
+    # the annotation.
+    try:
+        from .outlier_filter import apply as _drop_outliers, describe
+
+        score_data_df, _outlier_report = _drop_outliers(score_data_df,
+                                                        settings)
+        _said = describe(_outlier_report)
+        if _said:
+            print(_said)
+    except Exception as _error:                                  # noqa: BLE001
+        # SAID OUT LOUD. A filter the user switched on that did not run is
+        # the one thing worse than one that ran silently: the numbers below
+        # would be the unfiltered ones and nothing would say so.
+        print(f"[outliers] the pre-annotation filter did not run "
+              f"({type(_error).__name__}: {_error}); the counts below are "
+              f"unfiltered")
+
     if settings['verbose']:
         print(f"Dependent variable after clean_controls: {len(score_data_df)}")
 
