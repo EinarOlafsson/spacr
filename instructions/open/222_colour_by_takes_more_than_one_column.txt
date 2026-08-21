@@ -1,0 +1,47 @@
+================================================================================
+"COLOUR BY" TAKES MORE THAN ONE COLUMN
+================================================================================
+
+Status:    filed 2026-08-21, not started.
+Requested: 2026-08-21 -- "when choosing color by i should be able to choose a
+           selection of options not only one".
+Owner:     Qt GUI (results panel, graph builder)
+
+--------------------------------------------------------------------------------
+WHAT IS ASKED
+--------------------------------------------------------------------------------
+
+One column at a time answers "which of these is a control"; several answer
+"which of these is a control THAT ALSO failed QC", and the second is the
+question a screen actually raises. A user who can only pick one has to keep
+the other in their head and re-colour to check it.
+
+HOW SEVERAL COLUMNS BECOME ONE COLOUR is the whole design problem, and it
+has to be decided rather than left to whatever the plotting call does:
+
+  * COMBINE them into a compound level -- "control & failed", "control &
+    passed" -- which is honest and multiplies the legend. Two columns of
+    three levels is nine entries, and 122 already records that a
+    twenty-seven entry legend costs 40 ms of every redraw.
+  * or LAYER them -- hue from the first, marker from the second, alpha from
+    the third -- which keeps the legend small and only works for two or
+    three.
+
+The second is what a reader can actually decode, and the layering has a
+fixed order so the same choice always produces the same picture.
+
+A CAP, AND SAY WHY. Beyond about three channels a point carries more
+encodings than anyone can read back. Refusing the fourth with a sentence is
+better than drawing something nobody can interpret.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Several columns can be chosen and each maps to a distinct visual channel.
+* The legend says which channel carries which column.
+* One column behaves exactly as it does now -- this must not change the
+  common case.
+* A selection beyond the cap is refused with the reason, not silently
+  truncated.
+* Clearing the selection returns to unlcoloured, and that is reachable.

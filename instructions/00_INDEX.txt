@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-196 done / 18 open (91%).
+197 done / 18 open (91%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -72,11 +72,11 @@ OPEN
   219  A UNIT THAT CONSTRAINS THE DESIGN SAYS SO BEFORE THE RUN
        219_a_unit_that_constrains_says_so_before_the_run.txt
 
-  220  WHICH REGRESSION BACKENDS CAN BE DEFAULT DEPENDENCIES
-       220_the_backends_that_can_be_default_dependencies.txt
-
   221  THE FIRST RUN ASKS, INSTEAD OF THE INSTALLER
        221_the_first_run_setup_screen.txt
+
+  222  "COLOUR BY" TAKES MORE THAN ONE COLUMN
+       222_colour_by_takes_more_than_one_column.txt
 
 --------------------------------------------------------------------------------
 DONE
@@ -278,3 +278,4 @@ DONE
   209  THE SUDOKU ANNOTATION METHODS
   216  EVERY POPUP IS A WINDOW THE USER CAN DRAG
   217  "SETTINGS FOR MY DATA" ADVISES THE REST OF THE RUN
+  220  WHICH REGRESSION BACKENDS CAN BE DEFAULT DEPENDENCIES
