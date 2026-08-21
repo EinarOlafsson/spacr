@@ -61,12 +61,23 @@ INKS = (("", "as on screen"),
 
 
 def is_fast_plot(figure) -> bool:
-    """Whether ``figure`` is one of this application's pyqtgraph plots.
+    """Return whether a plot supports spaCR's fast styled-export protocol.
 
-    BY CAPABILITY, not by class. The dialog needs exactly two things --
-    a styled preview and a styled write -- and asking for those is what keeps
-    a new plot class working here without being added to a list somebody has
-    to remember.
+    Parameters
+    ----------
+    figure : object
+        Candidate Matplotlib or pyqtgraph figure.
+
+    Returns
+    -------
+    bool
+        ``True`` when the object provides callable ``styled_snapshot`` and
+        ``export_styled`` methods.
+
+    Notes
+    -----
+    Capability detection allows new fast-plot classes to support this dialog
+    without requiring a class registry.
     """
     return (figure is not None
             and callable(getattr(figure, "styled_snapshot", None))
@@ -74,13 +85,25 @@ def is_fast_plot(figure) -> bool:
 
 
 def copy_figure(figure):
-    """A detached copy of ``figure``, or ``None``.
+    """Create a detached figure for export preview.
 
-    Pickled and unpickled: the same round trip `FigureQueue` spills through,
-    so anything the queue can evict and restore can be previewed. A figure
-    that will not pickle -- one holding a live canvas or a closure -- comes
-    back None, and the caller offers the plain save instead of a broken
-    preview.
+    Parameters
+    ----------
+    figure : object
+        Figure to copy through Python's pickle protocol.
+
+    Returns
+    -------
+    object or None
+        Independent copy of ``figure``. ``None`` is returned when the input is
+        absent or contains state that cannot be serialized, such as a live
+        canvas or closure.
+
+    Notes
+    -----
+    The serialization round trip matches the one used by the figure queue.
+    Returning ``None`` lets callers fall back to an ordinary save without
+    altering the on-screen figure.
     """
     import io
     import pickle
@@ -101,11 +124,39 @@ def style_for_file(figure, *, ink: str = "", background: str = "",
                    grid: bool = False, width: float = 0.0,
                    height: float = 0.0, dpi: int = 0,
                    font_scale: float = 0.0):
-    """Apply the FILE's styling to ``figure``. Returns it.
+    """Apply export-only styling to a Matplotlib figure.
 
-    Deliberately small and explicit rather than routed through the live
-    restyle path: this runs on a copy that nothing else will ever see again,
-    so it has no preferences to respect and no theme to follow.
+    Parameters
+    ----------
+    figure : matplotlib.figure.Figure or None
+        Figure copy to modify. ``None`` is accepted for preview fallbacks.
+    ink : str, optional
+        Color applied to titles, labels, ticks, spines, legends, and text.
+        An empty string preserves the existing colors.
+    background : str, optional
+        Figure and axes background color. An empty string makes both
+        backgrounds transparent.
+    grid : bool, default False
+        Draw major grid lines when ``True`` and disable them when ``False``.
+    width, height : float, default 0
+        Output dimensions in inches. The size changes only when both values
+        are positive.
+    dpi : int, default 0
+        Output resolution. Zero preserves the figure's current resolution.
+    font_scale : float, default 0
+        Multiplier applied to every text artist. Values at or below zero
+        preserve the current text sizes.
+
+    Returns
+    -------
+    matplotlib.figure.Figure or None
+        The same figure object after styling, or ``None`` when ``figure`` was
+        ``None``.
+
+    Notes
+    -----
+    This function is intended for detached export copies. It does not read or
+    update live figure preferences.
     """
     if figure is None:
         return None
@@ -113,15 +164,8 @@ def style_for_file(figure, *, ink: str = "", background: str = "",
         figure.set_size_inches(float(width), float(height))
     if dpi:
         figure.set_dpi(int(dpi))
-    # TEXT SIZED FOR THE PAGE (187 D2). The reported fault was "ginormous
-    # text" on an exported figure, and the cause on the pyqtgraph side was a
-    # device scale (fixed separately) -- but a matplotlib figure resized for
-    # a journal column has the opposite problem: the axes shrink and the
-    # labels do not, so a figure drawn at 10 inches and saved at 3.4 is all
-    # text. Scaling every text artist by the same factor is the one control
-    # that answers it, and it is applied to the artists rather than to
-    # rcParams because rcParams only reach an artist when it is CREATED and
-    # this figure already exists.
+    # Apply the scale to existing artists because rcParams only affect text
+    # created after the parameter change.
     if font_scale and font_scale > 0:
         for text in figure.findobj(match=lambda o: hasattr(o, "get_fontsize")):
             try:
@@ -151,12 +195,8 @@ def style_for_file(figure, *, ink: str = "", background: str = "",
                     text.set_color(ink)
             for text in axes.texts:
                 text.set_color(ink)
-        # UNTICKING "draw a grid" DREW A GRID. matplotlib warns on it --
-        # "First parameter to grid() is false, but line properties are
-        # supplied. The grid will be enabled." -- and does exactly that:
-        # measured, `grid(False, linewidth=..., alpha=...)` leaves gridOn
-        # True. The line properties only mean anything when the grid is on,
-        # so they are passed only then.
+        # Matplotlib enables the grid when line properties accompany
+        # ``grid(False)``. Supply styling arguments only for the enabled case.
         if grid:
             axes.grid(True, which="major", linewidth=0.4, alpha=0.35)
         else:
@@ -165,7 +205,20 @@ def style_for_file(figure, *, ink: str = "", background: str = "",
 
 
 class SaveFigureDialog(QDialog):
-    """Style, preview, then write -- leaving the on-screen figure alone."""
+    """Preview and save an independently styled figure copy.
+
+    Parameters
+    ----------
+    figure : matplotlib.figure.Figure or fast plot
+        Source figure. Matplotlib figures are copied before preview styling;
+        fast plots provide their own styled snapshot and export methods.
+    parent : QWidget, optional
+        Parent widget for the modal dialog.
+
+    Notes
+    -----
+    Export settings never modify the source displayed in the application.
+    """
 
     def __init__(self, figure, parent: Optional[QWidget] = None):
         super().__init__(parent)
@@ -198,23 +251,18 @@ class SaveFigureDialog(QDialog):
         self.grid.toggled.connect(self.refresh)
         form.addRow("", self.grid)
 
-        # TEXT SIZE, LIVE (187 D2). "in save styled there should be
-        # comprehensive figure setting that change the figure live" -- and
-        # text is the first candidate, because the report that prompted it
-        # was a figure whose text was wrong for the page. Every control here
-        # already redraws the preview; that is what makes it a preview
-        # rather than a form.
+        # Text scale is applied to a fresh copy on every preview refresh.
         self.font_scale = QDoubleSpinBox()
         self.font_scale.setRange(0.25, 4.0)
         self.font_scale.setSingleStep(0.05)
         self.font_scale.setDecimals(2)
         self.font_scale.setValue(1.0)
         self.font_scale.setToolTip(
-            "Scale every label, tick and title by this factor. A figure "
-            "drawn at 10 inches and saved at 3.4 is all text unless the "
-            "type comes down with it.")
+            "Scale labels, tick text, legends, and titles in the exported "
+            "file. Use a value below 1 when reducing the page size; 1 keeps "
+            "the current text size.")
         self.font_scale.valueChanged.connect(self.refresh)
-        form.addRow("text size", self.font_scale)
+        form.addRow("text scale", self.font_scale)
 
         size = QHBoxLayout()
         self.width = QDoubleSpinBox()
@@ -254,9 +302,9 @@ class SaveFigureDialog(QDialog):
             "Dots per inch in the written file. 300 is the usual journal "
             "minimum; the screen never needs more than about 150.")
         if self._fast:
-            # A pyqtgraph PDF and SVG are true vector -- they have no dpi at
-            # all -- and its PNG is sized in pixels by the same canvas shape.
-            # Instruction 106: disabled and SAYING why.
+            # Vector PDF and SVG output has no DPI. Fast-plot PNG dimensions
+            # come from the canvas shape, so a second resolution control would
+            # be misleading.
             self.dpi.setEnabled(False)
             self.dpi.setToolTip(_RESOLUTION_REASON)
         form.addRow(_reason_label("resolution",
@@ -290,14 +338,22 @@ class SaveFigureDialog(QDialog):
     # ------------------------------------------------------------- preview
 
     def preview(self):
+        """Return the current detached preview.
+
+        Returns
+        -------
+        matplotlib.figure.Figure, QPixmap, or None
+            Matplotlib copy, fast-plot snapshot, or ``None`` when no preview
+            can be rendered.
+        """
         return self._preview
 
     def refresh(self, *_args):
-        """Rebuild the preview from a fresh copy of the original.
+        """Rebuild and return the preview from the original figure.
 
-        FROM THE ORIGINAL EVERY TIME, never from the last preview: styling a
-        styled copy compounds, so moving the ink back to "as on screen" would
-        not undo the first change.
+        Each refresh starts from a new copy so repeated text scaling or color
+        changes do not accumulate. Fast plots delegate to
+        :meth:`_refresh_fast_plot`.
         """
         from .graph_builder import _canvas_class
 
@@ -328,12 +384,10 @@ class SaveFigureDialog(QDialog):
         return self._preview
 
     def _refresh_fast_plot(self):
-        """The preview for a pyqtgraph plot: THE SAME RENDER THE FILE GETS.
+        """Build a fast-plot preview through its styled snapshot protocol.
 
-        Not an approximation of it. `styled_snapshot` and `export_styled` wear
-        the same styling through the same context manager, so a preview that
-        looked right and a file that did not would take a change to both to
-        produce.
+        The snapshot and file export use the same styling path, keeping the
+        preview consistent with the saved output.
         """
         from PySide6.QtCore import Qt
 
@@ -373,7 +427,19 @@ class SaveFigureDialog(QDialog):
     # ---------------------------------------------------------------- save
 
     def save(self, path: str = "") -> str:
-        """Write the previewed figure. Returns the path, or ``""``."""
+        """Write the figure using the current export settings.
+
+        Parameters
+        ----------
+        path : str, optional
+            Destination path. When omitted, a file chooser is displayed.
+
+        Returns
+        -------
+        str
+            Written path, or an empty string when the chooser is cancelled or
+            no figure can be saved.
+        """
         chosen = str(path or "")
         suffix = str(self.format.currentData() or "png")
         if not chosen:
