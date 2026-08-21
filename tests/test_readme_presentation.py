@@ -135,7 +135,14 @@ def test_workflow_modules_are_dark_linked_tiles_with_separate_white_arrows():
     assert arrow.getchannel("A").getbbox() is not None
     assert str(generator._tile_font(22).path).endswith("OpenSans-Regular.ttf")
     for path in APP_WORKFLOW_DIR.glob("*.png"):
-        assert Image.open(path).size == (512, 512)
+        app = Image.open(path).convert("RGBA")
+        assert app.size == (512, 512)
+        bounds = app.getchannel("A").getbbox()
+        assert bounds is not None
+        assert bounds[0] >= generator.APP_TILE_PADDING
+        assert bounds[1] >= generator.APP_TILE_PADDING
+        assert bounds[2] <= app.width - generator.APP_TILE_PADDING
+        assert bounds[3] <= app.height - generator.APP_TILE_PADDING
 
     workflow_row = next(
         line for line in text.splitlines()
