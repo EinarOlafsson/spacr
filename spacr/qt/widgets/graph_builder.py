@@ -63,8 +63,9 @@ from ..linked_selection import LinkedView
 from ..theme import (RADIUS, SPACING, active_palette, font_px,
                      make_transparent, paint_panel, register_widget_qss)
 from .graph_spec import (
-    BAR, BINNED, BOX, CHANNELS, COLOUR, EMPTY, FACET_COL, FACET_ROW, HEATMAP,
-    HISTOGRAM, LINE, MISSING_LEVEL, PLOT_KINDS, SCATTER, SIZE, VIOLIN, X, Y,
+    BAR, BAR_JITTER, BINNED, BOX, CHANNELS, COLOUR, EMPTY, FACET_COL,
+    FACET_ROW, HEATMAP, HISTOGRAM, JITTER, LINE, MISSING_LEVEL, PLOT_KINDS,
+    SCATTER, SIZE, VIOLIN, X, Y,
     GraphSpec, RenderData, brush_mask, facet_grid, plottable_columns,
     prepare_data, scales_for, value_axes,
 )
@@ -908,8 +909,13 @@ class GraphCanvas(LinkedView, QWidget):
         if kind == HISTOGRAM:
             self._draw_histogram(ax, rows, mask, palette)
             return None
-        if kind == BAR:
+        if kind in (BAR, BAR_JITTER):
             self._draw_bar(ax, rows, mask, palette)
+            if kind == BAR_JITTER:
+                self._draw_jitter(ax, rows, palette, over_bars=True)
+            return None
+        if kind == JITTER:
+            self._draw_jitter(ax, rows, palette, over_bars=False)
             return None
         if kind in (BOX, VIOLIN):
             self._draw_distribution(ax, rows, kind, palette)
@@ -1133,6 +1139,52 @@ class GraphCanvas(LinkedView, QWidget):
         elif column:
             ax.set_ylabel(str(column))
 
+    def _draw_jitter(self, ax, rows, palette, *, over_bars: bool) -> None:
+        """Every observation, displaced sideways so they can be told apart.
+
+        THE DISPLACEMENT CARRIES NO INFORMATION. A scatter puts a point at
+        its own x; this puts every point of a category at that category's
+        position and spreads it only so the points are distinguishable. A
+        reader must not be able to read the x offset as a measurement, which
+        is why the spread is uniform and narrow rather than, say,
+        proportional to anything.
+
+        SEEDED. The offsets come from the spec's own seed, so the same data
+        redraws identically -- a plot whose points move every time it is
+        repainted cannot be compared with the one in a slide from last week.
+        """
+        spec, scales = self._spec, self._scales
+        categorical_on_x = bool(scales.x_levels)
+        cat_column = spec.x if categorical_on_x else spec.y
+        num_column = spec.y if categorical_on_x else spec.x
+        if not cat_column or not num_column or num_column not in rows.columns:
+            return
+        levels = list((scales.x_levels if categorical_on_x
+                       else scales.y_levels) or ())
+        if not levels:
+            return
+        text = rows[cat_column].astype(str).mask(
+            rows[cat_column].isna(), MISSING_LEVEL)
+        values = pd.to_numeric(rows[num_column], errors="coerce")
+        rng = np.random.default_rng(int(getattr(spec, "seed", 0)))
+
+        for index, level in enumerate(levels):
+            picked = values[(text == level).to_numpy()].dropna().to_numpy(
+                float)
+            if not picked.size:
+                continue
+            offsets = index + rng.uniform(-0.22, 0.22, picked.size)
+            # OVER A BAR, THE POINTS MUST READ AS POINTS. On their own they
+            # are the whole plot and can be solid; on top of a bar they are
+            # an annotation of it, so they lighten and shrink rather than
+            # competing with the shape underneath.
+            colour = palette["fg"] if over_bars else self._series_colour(0)
+            ax.scatter(offsets if categorical_on_x else picked,
+                       picked if categorical_on_x else offsets,
+                       s=6.0 if over_bars else 10.0,
+                       c=colour, alpha=0.55 if over_bars else 0.75,
+                       linewidths=0.0, zorder=3)
+
     def _draw_distribution(self, ax, rows, kind, palette) -> None:
         spec, scales = self._spec, self._scales
         categorical_on_x = bool(scales.x_levels)
@@ -1205,7 +1257,7 @@ class GraphCanvas(LinkedView, QWidget):
         bound every panel.
         """
         spec = self._spec
-        counts_on_y = kind in (HISTOGRAM, BAR)
+        counts_on_y = kind in (HISTOGRAM, BAR, BAR_JITTER)
         if scales.x_levels is not None:
             ax.set_xticks(range(len(scales.x_levels)))
             ax.set_xticklabels(scales.x_levels, rotation=30, ha="right",
@@ -1237,7 +1289,7 @@ class GraphCanvas(LinkedView, QWidget):
         spec = self._spec
         kind = spec.resolved_kind(self._kinds)
         x_column, y_column = value_axes(spec, self._kinds)
-        counts_on_y = kind in (HISTOGRAM, BAR)
+        counts_on_y = kind in (HISTOGRAM, BAR, BAR_JITTER)
         # A BAR IS ONLY A COUNT WHEN THERE IS NOTHING TO AVERAGE (204). With
         # a numeric channel the bar is a MEAN, and if it carries a whisker
         # the label has to say which one -- SD and SEM differ by sqrt(n),
@@ -1245,7 +1297,7 @@ class GraphCanvas(LinkedView, QWidget):
         # reads a real effect as noise or the reverse. This label is drawn
         # AFTER `_draw_bar`, so setting it there was not enough.
         y_label = "count" if counts_on_y else (y_column or "")
-        if kind == BAR and y_column:
+        if kind in (BAR, BAR_JITTER) and y_column:
             from ...figures.spread import SPREAD_NONE, spread_label
 
             spread = str(getattr(spec, "spread", SPREAD_NONE) or SPREAD_NONE)
