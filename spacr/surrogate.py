@@ -884,11 +884,18 @@ def write_surrogate_result(result: SurrogateResult,
                     f"Held-out fidelity {result.fidelity:.3f} "
                     f"(baseline {result.baseline:.3f})")
                 fig.tight_layout()
+                # 108 point 6, and the explicit `fmt` is the point: this
+                # writes BOTH a pdf and a png of the same figure deliberately,
+                # so the format is the loop's and not the preference's. What
+                # it gains is the rest of `save_figure` -- the DPI rule, the
+                # TrueType embedding, and the repaint for paper that a figure
+                # saved from a dark session needs.
+                from .plot import save_figure
+
                 for extension in ("pdf", "png"):
                     path = os.path.join(root, f"feature_importance.{extension}")
-                    fig.savefig(path, dpi=300 if extension == "png" else None,
-                                bbox_inches="tight")
-                    paths[f"importance_{extension}"] = path
+                    paths[f"importance_{extension}"] = save_figure(
+                        fig, path, fmt=extension, bbox_inches="tight")
                 plt.close(fig)
     if (result.is_faithful and not result.shap_values.empty
             and not result.shap_feature_values.empty):
@@ -923,11 +930,13 @@ def write_surrogate_result(result: SurrogateResult,
                     axis.set_visible(False)
                 fig.suptitle("Held-out SHAP dependence")
                 fig.tight_layout()
+                # 108 point 6; both formats on purpose, see above.
+                from .plot import save_figure
+
                 for extension in ("pdf", "png"):
                     path = os.path.join(root, f"shap_dependence.{extension}")
-                    fig.savefig(path, dpi=300 if extension == "png" else None,
-                                bbox_inches="tight")
-                    paths[f"shap_dependence_{extension}"] = path
+                    paths[f"shap_dependence_{extension}"] = save_figure(
+                        fig, path, fmt=extension, bbox_inches="tight")
                 plt.close(fig)
     return paths
 

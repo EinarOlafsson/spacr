@@ -1133,7 +1133,12 @@ def graph_sequencing_stats(settings):
             fig_path = os.path.join(dst, 'results')
             os.makedirs(fig_path, exist_ok=True)
             fig_file_path = os.path.join(fig_path, 'fraction_threshold.pdf')
-            fig.savefig(fig_file_path, format='pdf', dpi=600, bbox_inches='tight')
+            # 108 point 6. `format='pdf', dpi=600` was a preference written
+            # into a call site: a user who chose PNG at 300 got neither.
+            from .plot import save_figure
+
+            fig_file_path = save_figure(fig, fig_file_path,
+                                        bbox_inches='tight')
             print(f"Saved {fig_file_path}")
         plt.show()
 

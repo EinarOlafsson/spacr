@@ -16,6 +16,7 @@ import pandas as pd
 # only inside its own functions, so naming it here costs
 # nothing at import time.
 from .figures.style import figure_style, theme_target
+from .style_base import SHARED_CHOICES, FigureStyle
 
 #: Supported observation levels and the meaning of one result-table row.
 LEVELS: Tuple[Tuple[str, str], ...] = (
@@ -691,7 +692,11 @@ def plot(comparison: Comparison, path: Optional[str] = None, *,
         _readable(figure, axes)
         figure.tight_layout()
         if path:
-            figure.savefig(path, dpi=200, bbox_inches="tight")
+            # 108 point 6: the one writer, so a comparison saved from this
+            # panel is in the format every other kept figure is in.
+            from .plot import save_figure
+
+            save_figure(figure, path, bbox_inches="tight")
         return figure
 
 
@@ -728,11 +733,16 @@ def save(comparison: Comparison, folder: str, *, kind: str = "jitter_box",
 
     figure = plot(comparison, kind=kind, title=title)
     if figure is not None:
+        from .plot import save_figure
+
         for suffix in ("pdf", "png"):
             path = os.path.join(folder, f"comparison.{suffix}")
             try:
-                figure.savefig(path, dpi=300, bbox_inches="tight")
-                written[suffix] = path
+                # BOTH FORMATS ON PURPOSE (the folder is a deliverable), so
+                # `fmt` is the loop's; everything else `save_figure` does --
+                # the DPI rule and the repaint for paper -- is gained.
+                written[suffix] = save_figure(figure, path, fmt=suffix,
+                                              bbox_inches="tight")
             except Exception:                                # noqa: BLE001
                 continue
 
@@ -970,3 +980,162 @@ def join_measurements(objects: "pd.DataFrame",
     if troubles:
         note = ((note + " · ") if note else "") + "; ".join(troubles)
     return out, note
+
+
+# ---------------------------------------------------------------------------
+# 108 points 1 and 2: a second style on the shared base, and the contract
+# ---------------------------------------------------------------------------
+
+@dataclass
+class ComparisonStyle(FigureStyle):
+    """How a comparison figure looks. The second style in spaCR.
+
+    THE POINT OF A SECOND ONE is that it proves the base earns its place.
+    Everything a reader would recognise on any figure -- the axis labels and
+    scales, the type scale, the grid, the legend, the spines, the page size
+    and the background -- is inherited unchanged from
+    :class:`spacr.style_base.FigureStyle`, and what is here is only what a
+    comparison has and a volcano does not.
+
+    So a font size chosen on the volcano's restyle menu can be applied to
+    this figure by name (`FigureStyle.shared_with`), while the volcano's
+    effect-size threshold cannot follow it here -- which is the distinction
+    a shared base exists to make and a shared DICT could not.
+    """
+
+    #: Which of :data:`PLOTS` to draw.
+    kind: str = "jitter_box"
+    #: Draw only this group, or ``''`` for all of them. A filter on the
+    #: DRAW: the statistics still describe the whole comparison, because a
+    #: test computed on one of two groups is not a comparison at all.
+    only: str = ""
+    #: The colour of the unannotated side. Grey, because grey is the default
+    #: ink for data and colour is an argument -- the one rule the house style
+    #: keeps above all others.
+    rest_color: str = ""
+    #: Point size for the jitter, and the half-width it is spread over.
+    marker_size: float = 9.0
+    jitter_width: float = 0.14
+    #: Draw the n under each group's tick label.
+    show_counts: bool = True
+
+    CHOICES = dict(SHARED_CHOICES, kind=tuple(k for k, _label in PLOTS))
+
+
+def render_comparison(comparison: Comparison, style: "ComparisonStyle" = None,
+                      *, figure=None, save_path=None):
+    """Draw ``comparison`` in ``style``. THE CONTRACT, second implementation.
+
+        render(data, style, *, figure=None, save_path=None) -> (figure, axes)
+
+    :param comparison: what :func:`build` returned.
+    :param style: a :class:`ComparisonStyle`. ``None`` is the default one.
+    :param figure: draw into this figure instead of creating one, so a live
+        canvas is redrawn IN PLACE rather than replaced -- which is what
+        keeps a restyle from resetting the zoom and is the whole reason the
+        parameter is in the contract.
+    :param save_path: also write it, through the one writer, so the format
+        and resolution preferences reach it (108 point 6).
+    :returns: ``(figure, axes)``, or ``(None, None)`` when there is nothing
+        to draw -- the same answer :func:`plot` gives, because a caller
+        should not have to handle two shapes of "no figure".
+
+    THE MARKS ARE DRAWN HERE, THE FURNITURE BY THE BASE.
+    :func:`spacr.style_base.apply_page` does the axes, type, grid, spines and
+    page for every figure type, so two renderers cannot drift on what "grid
+    off" means -- and the matplotlib bug where `grid(False, linewidth=...)`
+    ENABLES the grid is spelled once, there, rather than met again here.
+    """
+    import matplotlib.pyplot as plt
+
+    from .figures.style import figure_style, theme_target
+    from .gene_measurement_sweep import HOUSE
+    from .style_base import apply_page, write
+
+    style = style or ComparisonStyle()
+    if comparison is None or not len(comparison.frame) or not comparison.groups:
+        return None, None
+
+    showing = comparison
+    if style.only:
+        from dataclasses import replace as _replace
+
+        frame = showing.frame
+        showing = _replace(
+            showing, frame=frame[frame["group"].astype(str) == style.only])
+
+    order = [g for g in showing.groups if g != REST] + (
+        [REST] if REST in showing.groups else [])
+    series = [showing.frame.loc[showing.frame["group"] == g, "value"]
+              .to_numpy(dtype=float) for g in order]
+    series = [s[np.isfinite(s)] for s in series]
+    if not any(len(s) for s in series):
+        return None, None
+
+    highlight = [HOUSE.BLUE, HOUSE.RUST, HOUSE.GREEN, HOUSE.PURPLE,
+                 HOUSE.OCHRE, HOUSE.NAVY]
+    rest = style.rest_color or HOUSE.GREY
+    colours = [rest if g == REST else highlight[i % len(highlight)]
+               for i, g in enumerate(order)]
+
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS, and that is why the
+    # `figure=` branch is inside the context too: an axes added to an
+    # existing figure creates its own spines and ticks at that moment.
+    with figure_style(theme_target()):
+        if figure is None:
+            figure, axes = plt.subplots(
+                figsize=(style.figure_width, style.figure_height))
+        else:
+            figure.clear()
+            axes = figure.add_subplot(111)
+        positions = np.arange(len(order))
+        rng = np.random.default_rng(0)
+        kind = str(style.kind or "jitter_box")
+
+        if kind in ("box", "jitter_box"):
+            drawn = axes.boxplot(series, positions=positions, widths=0.55,
+                                 patch_artist=True, showfliers=False)
+            for patch, colour in zip(drawn["boxes"], colours):
+                patch.set_facecolor(colour)
+                patch.set_alpha(0.30 if kind == "jitter_box" else 0.85)
+                patch.set_edgecolor(HOUSE.GREY_DARK)
+        if kind == "violin":
+            alive = [(i, s) for i, s in enumerate(series) if len(s)]
+            if alive:
+                drawn = axes.violinplot([s for _i, s in alive],
+                                        positions=[i for i, _s in alive],
+                                        widths=0.7, showextrema=False)
+                for body, (i, _s) in zip(drawn["bodies"], alive):
+                    body.set_facecolor(colours[i])
+                    body.set_alpha(0.55)
+                    body.set_edgecolor("none")
+        if kind == "bar":
+            means = [float(np.mean(s)) if len(s) else np.nan for s in series]
+            errors = [float(np.std(s, ddof=1)) if len(s) > 1 else 0.0
+                      for s in series]
+            axes.bar(positions, means, yerr=errors, width=0.6, color=colours,
+                     linewidth=0)
+        if kind in ("jitter", "jitter_box"):
+            for i, (values, colour) in enumerate(zip(series, colours)):
+                if not len(values):
+                    continue
+                spread = rng.uniform(-style.jitter_width, style.jitter_width,
+                                     len(values))
+                axes.scatter(np.full(len(values), i) + spread, values,
+                             s=style.marker_size, color=colour,
+                             edgecolor="none", zorder=3,
+                             rasterized=len(values) > 2000)
+
+        axes.set_xticks(positions)
+        axes.set_xticklabels(
+            [f"{g}\n(n={len(s)})" if style.show_counts else str(g)
+             for g, s in zip(order, series)])
+        # THE DEFAULT LABEL IS THE MEASUREMENT'S NAME, and a style that names
+        # one wins -- `apply_page` sets it after this and only when it is not
+        # blank, so "leave it alone" and "set it to nothing" stay different.
+        axes.set_ylabel(str(comparison.measurement))
+        apply_page(figure, axes, style)
+
+    if save_path:
+        write(figure, save_path, style)
+    return figure, axes

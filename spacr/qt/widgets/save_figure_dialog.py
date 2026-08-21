@@ -466,6 +466,12 @@ class SaveFigureDialog(QDialog):
         if target is None:
             return ""
         try:
+            # NOT `plot.save_figure`, and deliberately (108 point 6). Every
+            # decision that writer makes -- the format, the DPI, the page
+            # colour -- the user has just made in this dialog and is looking
+            # at in the preview. Overriding any of them here would write
+            # something other than what was previewed, which is the one thing
+            # this window promises not to do.
             target.savefig(chosen, dpi=int(self.dpi.value()),
                            bbox_inches="tight",
                            facecolor=target.patch.get_facecolor(),

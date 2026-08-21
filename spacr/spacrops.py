@@ -957,7 +957,11 @@ class spacrStitcher:
                 fig, ax = plt.subplots(figsize=(8, 8))
                 ax.imshow(np.clip(qc_rgb, 0, 1)); ax.set_axis_off()
                 ax.set_title(f"score={score:.3f} (edge_zncc_fg={edge_zncc_fg:.3f} · inliers={inlier_ratio:.3f})")
-                fig.savefig(p_outline, dpi=200, bbox_inches="tight"); plt.close(fig)
+                # 108 point 6: the user's format and resolution.
+                from .plot import save_figure
+
+                p_outline = save_figure(fig, p_outline, close=True,
+                                        bbox_inches="tight")
                 qc_paths["qc_outline_png"] = p_outline
     
         # decide whether to stitch now
@@ -1160,8 +1164,11 @@ class spacrStitcher:
             ax.set_title(f"Sorted pairwise scores (n={len(s)}), threshold={thr:.3f}")
             ax.set_xlabel("pair index (sorted)")
             ax.set_ylabel("score = edge_zncc_fg(DS) × inlier_ratio")
-            fig.savefig(out_png, dpi=200, bbox_inches="tight")
-            plt.close(fig)
+            # 108 point 6: the user's format and resolution.
+            from .plot import save_figure
+
+            out_png = save_figure(fig, out_png, close=True,
+                                  bbox_inches="tight")
 
     # ------------------------------ pairing ------------------------------
     @staticmethod
