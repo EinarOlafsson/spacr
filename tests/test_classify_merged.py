@@ -312,6 +312,13 @@ def test_the_merged_panel_still_has_no_leftovers(qtbot):
     assert "Additional Settings" not in names, names
 
 
+def test_the_cv_panel_still_has_no_leftovers(qtbot):
+    """Canonical crop-source controls are categorized in Classify (CV)."""
+    names, host = _sections("classify")
+    qtbot.addWidget(host)
+    assert "Additional Settings" not in names, names
+
+
 @pytest.mark.parametrize("app_key", ["classify", "ml_analyze"])
 def test_the_original_modules_keep_their_headings(qtbot, app_key):
     """Each is one family, so a prefix there is noise."""
