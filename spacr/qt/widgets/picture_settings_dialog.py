@@ -121,6 +121,29 @@ def _value_of(widget: QWidget) -> Any:
     return widget.text()
 
 
+def _attach_picking_help(editor, key: str) -> None:
+    """Give each annotation method's dropdown entry its own explanation.
+
+    A no-op for every other setting and for a control that is not a combo,
+    so the caller does not have to know which is which.
+    """
+    if str(key) != "cell_picking":
+        return
+    from PySide6.QtWidgets import QComboBox
+
+    if not isinstance(editor, QComboBox):
+        return
+    from ...picture_settings import PICKING_HELP
+
+    for index in range(editor.count()):
+        value = editor.itemData(index)
+        if value is None:
+            value = editor.itemText(index).split(" ")[0]
+        help_text = PICKING_HELP.get(str(value))
+        if help_text:
+            editor.setItemData(index, help_text, Qt.ToolTipRole)
+
+
 class PictureSettingsDialog(QDialog):
     """Edit picture settings while retaining mode-inapplicable values."""
 
@@ -165,6 +188,13 @@ class PictureSettingsDialog(QDialog):
             # THE TOOLTIP IS ON THE LABEL, not the field: a tooltip on the
             # control fires while the user is editing it, which is the one
             # moment they did not ask for it.
+            # EACH ANNOTATION METHOD EXPLAINS ITSELF, ON ITS OWN ENTRY
+            # (208 C). "The API should be verry specific and evplain exactly
+            # how cells are cjhoosen for annotation" -- and five methods
+            # cannot be explained in one tooltip that has to fit in 600
+            # characters. Per-entry help is the only place with room, and it
+            # is where the choice is actually made.
+            _attach_picking_help(editor, key)
             self._editors[key] = editor
             self._labels[key] = label
             form.addRow(label, editor)

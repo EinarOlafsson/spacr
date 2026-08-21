@@ -529,6 +529,85 @@ def available_coordinate_columns(frame) -> Tuple[str, ...]:
     return tuple(out)
 
 
+#: HOW EACH METHOD CHOOSES CELLS, in the order instruction 208 C asks for:
+#: what it is given, what it computes, which cells end up annotated, which do
+#: NOT and why, and the one assumption that makes it wrong.
+#:
+#: ONE SOURCE. The dropdown, the documentation and any explanation given to a
+#: user read this, because a method that decides what every downstream number
+#: means cannot have two descriptions that drift.
+#:
+#: "The API should be verry specific and evplain exactly how cells are
+#: cjhoosen for annotation."
+PICKING_HELP: Dict[str, str] = {
+    "rank": (
+        "TOP BY SCORE.\n"
+        "Given: the guide's fraction in the well, and each cell's "
+        "classification score.\n"
+        "Computes: n = round(cells x fraction), then sorts by score -- "
+        "descending for a positive coefficient, ascending for a negative "
+        "one, because an inhibitory guide's cells are the LEAST consistent "
+        "ones.\n"
+        "Annotated: the top n. Not annotated: everyone below the cut, and "
+        "any cell with no score at all.\n"
+        "Wrong when: the fraction is wrong. It sets HOW MANY cells are "
+        "taken, so a share inflated by normalisation reaches down into "
+        "cells the score does not support. No probability is computed and "
+        "none is reported."),
+    "attributed": (
+        "ATTRIBUTED.\n"
+        "Given: every guide's fraction in the well and its regression "
+        "effect, plus each cell's score.\n"
+        "Computes: a posterior per cell per guide -- a likelihood from the "
+        "score against each guide's expected effect, a prior from the "
+        "fractions -- then iterative proportional fitting until every cell "
+        "sums to 1 AND every guide holds the number of cells its reads "
+        "imply.\n"
+        "Annotated: the argmax, if it clears 0.55. Not annotated: anything "
+        "below that, marked ambiguous, carrying the highest probability any "
+        "guide reached.\n"
+        "Wrong when: the effects are wrong, or a guide's effect is too "
+        "small against the spread of scores to reach the threshold in any "
+        "well -- then it selects nothing and the montage is empty."),
+    "assigned": (
+        "ASSIGNED.\n"
+        "Given: the same as attributed.\n"
+        "Computes: slots per guide = round(N x fraction), adjusted by "
+        "largest remainders to sum to N exactly, then a Hungarian "
+        "assignment minimising total cost.\n"
+        "Annotated: EVERY cell -- each gets exactly one guide by "
+        "construction. Not annotated: none.\n"
+        "Wrong when: you need to know which cells are uncertain. It cannot "
+        "abstain, so a well of pure noise is partitioned as confidently as "
+        "a well of clear signal."),
+    "multivariate": (
+        "MULTIVARIATE.\n"
+        "Given: attributed's inputs, plus one effect per MEASUREMENT per "
+        "guide from the gene x measurement sweep.\n"
+        "Computes: the same posterior over a vector of measurements rather "
+        "than one score.\n"
+        "Annotated: cells clearing 0.55. Not annotated: the rest.\n"
+        "Wrong when: there is no sweep -- it falls back to attributed and "
+        "SAYS so rather than substituting silently -- or when the swept "
+        "measurements are correlated, which makes the effective dimension "
+        "smaller than the count of columns suggests."),
+    "sudoku": (
+        "SUDOKU.\n"
+        "Given: the cells' measurements across every well the guide "
+        "appears in, plus the fractions.\n"
+        "Computes: anchors from wells where a guide dominates, a "
+        "nearest-neighbour graph over cells, label propagation from those "
+        "anchors, then the same per-well constraint as attributed.\n"
+        "Annotated: cells whose constrained posterior clears the decision "
+        "bar. Not annotated: cells far from every anchor, and cells whose "
+        "top two guides are too close to call.\n"
+        "Wrong when: the anchors are wrong. They are chosen BY SCORE, so "
+        "the score is deliberately left out of the graph -- with it in, "
+        "every high-scoring cell would sit beside every guide's anchors "
+        "and affirm all of them."),
+}
+
+
 def offered_values(key: str, source=None, frame=None) -> Tuple[str, ...]:
     """What a chooser for ``key`` should list, or ``()`` for free text.
 

@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-199 done / 17 open (92%).
+199 done / 18 open (91%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -74,6 +74,9 @@ OPEN
 
   223  SAVING A GRAPH MAKES A FOLDER, NOT A FILE
        223_saving_a_graph_makes_a_folder.txt
+
+  224  THE PERMUTATION TEST SHOWS THE RESIDUALS IT PERMUTES
+       224_the_permutation_shows_its_residuals.txt
 
 --------------------------------------------------------------------------------
 DONE
