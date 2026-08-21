@@ -963,9 +963,25 @@ def join_measurements(objects: "pd.DataFrame",
     # per plan, so the index can repeat -- and a join on a repeated label is
     # a cartesian product of the matching rows on both sides, which turns
     # 20,000 cells into 40,000 and every count on the panel with it.
-    out = objects.copy()
-    for column in fresh:
-        out[column] = added[column].to_numpy()
+    # ALL AT ONCE, not column by column. Inserting them in a loop makes a
+    # new block per column, and a measurement table brings hundreds -- which
+    # is O(n^2) copying and a PerformanceWarning per column, hundreds of
+    # identical lines in the user's terminal for one merge.
+    #
+    # RESET BOTH INDEXES FIRST, and that is the positional contract above,
+    # not tidying: `concat(axis=1)` ALIGNS ON THE INDEX, so with a repeated
+    # label -- which `_all_objects` produces, one frame per plan -- it would
+    # do exactly the cartesian product the loop existed to avoid. Two clean
+    # RangeIndexes make the concatenation positional, and the real index goes
+    # back on afterwards.
+    #
+    # `reset_index` rather than `to_numpy`, so each column keeps its own
+    # dtype. One array for the block would cast an integer count to float
+    # because some other column beside it is float.
+    out = pd.concat(
+        [objects.reset_index(drop=True),
+         added[fresh].reset_index(drop=True)], axis=1)
+    out.index = objects.index
 
     matched = int(added[fresh[0]].notna().sum())
     note = ""
