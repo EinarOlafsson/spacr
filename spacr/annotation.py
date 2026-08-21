@@ -283,7 +283,14 @@ def annotate(frame, *, key_column: Optional[str] = None, quiet: bool = False):
     out = out.drop(columns=["_gene_nr"])
     if not quiet:
         if added:
-            hit = int(out[added[0]].notna().sum()) if len(out) else 0
+            # ANY ADDED COLUMN, NOT THE FIRST ONE. This read
+            # `out[added[0]]`, which is `gene_name` -- and a gene can be in
+            # every bundled table while having no NAME: `TGME49_200130` is
+            # one, and it carries a product description, an in-vivo fitness
+            # score and a UniProt accession. The line said "1 matched" of
+            # three rows when two had matched, which understates the join in
+            # exactly the direction that makes a reader distrust it.
+            hit = int(out[added].notna().any(axis=1).sum()) if len(out) else 0
             print(f"Toxoplasma annotation: {len(added)} column(s) joined onto "
                   f"{matched} of {len(frame)} row(s) by gene number; "
                   f"{hit} matched the annotation.")
