@@ -262,8 +262,18 @@ def folder_names(settings: Mapping[str, Any]) -> List[str]:
     1. ``classes`` when it is still a list -- every settings CSV in the wild.
        Dataset generation retires that legacy spelling after it writes the
        actual folder names, so it cannot shadow the generated result.
-    2. ``class_folder_names`` -- the explicit answer, including ``[]``.
-    3. the names of the defined classes, in order.
+    2. THE NAMES OF THE DEFINED CLASSES, when ``classes`` is the definitions
+       dict and holds any. Instruction 229: "class folder names should be
+       preplaced with putting together what is in written in the class
+       field". The names on disk and the names in the settings cannot
+       disagree if only one of them is written down, and the class field is
+       the one the user edits.
+    3. ``class_folder_names`` -- what was last WRITTEN to disk, including
+       ``[]``. Still consulted, because after a dataset is generated it is
+       the record of what is actually there, and it is the answer whenever
+       no class is defined.
+    4. the names of the defined classes, in order -- the malformed-rules
+       case, reached only when 2 raised.
 
     :returns: the ordered folder names; ``[]`` when nothing declares any.
     """
@@ -281,6 +291,24 @@ def folder_names(settings: Mapping[str, Any]) -> List[str]:
         # written silently trained on ['nc','pc'] instead of its own
         # classes, which is the opposite of what the split is for.
         return [str(n) for n in legacy]
+
+    # THE CLASS FIELD DECIDES (instruction 229). A defined class is the
+    # user's own statement of what they are training on; `class_folder_names`
+    # is a record of a previous generation, and letting the record outrank
+    # the statement is how the folders on disk and the classes in the panel
+    # come to disagree with nothing on screen saying so.
+    #
+    # Only when classes are actually DEFINED. An empty definition means "this
+    # settings file says nothing about classes", and must not shadow a
+    # recorded folder list -- that would break every settings file written
+    # before the Classes editor existed.
+    if isinstance(settings.get(CLASSES), Mapping) and settings.get(CLASSES):
+        try:
+            defined = class_names(settings)
+        except ClassDefinitionError:
+            defined = []
+        if defined:
+            return defined
 
     raw = settings.get(CLASS_FOLDER_NAMES)
     if isinstance(raw, (list, tuple)):

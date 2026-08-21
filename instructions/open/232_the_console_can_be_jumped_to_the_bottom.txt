@@ -1,0 +1,41 @@
+================================================================================
+THE BOTTOM OF A CONSOLE IS ONE GESTURE AWAY
+================================================================================
+
+Status:    filed 2026-08-21, not started.
+Requested: 2026-08-21 -- "it should be possible to go to the bottom of a
+           console section without having to scroll through everything".
+Owner:     Qt GUI (console widget, every module that has one)
+
+--------------------------------------------------------------------------------
+WHAT IS ASKED
+--------------------------------------------------------------------------------
+
+A long run writes thousands of lines, and the line that matters is the last
+one. Getting to it must not be a scroll through everything above it.
+
+WHAT IS ENOUGH: Ctrl+End, and a visible affordance for people who do not
+know it -- a jump-to-bottom control that appears when the view is scrolled
+away from the end and does nothing when it is already there.
+
+AND THE OTHER DIRECTION. If a console follows the tail by default, reading
+something above must not be yanked back down by the next line written. The
+two behaviours are one decision: FOLLOW WHILE AT THE BOTTOM, STOP WHEN THE
+USER SCROLLS UP, and offer the way back. A console that always follows
+cannot be read; one that never follows has to be chased.
+
+EVERY MODULE THAT HAS A CONSOLE, and the rule belongs where the console is
+built rather than on each screen -- see instruction 228, which is about the
+same three panels and has the same reason.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Ctrl+End reaches the last line from anywhere in the scrollback.
+* The jump control is visible only when it would do something.
+* Appending while scrolled up does NOT move the view; appending while at the
+  bottom does.
+* A test drives the scrollbar and the append, not the internal flag.
+* It is true of every module's console, asserted by walking them rather than
+  by naming them.

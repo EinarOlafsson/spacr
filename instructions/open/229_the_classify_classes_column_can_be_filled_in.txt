@@ -131,6 +131,20 @@ Classes editor's own column field -- so `io._class_column` reads it off
 THE RENAME is of the LABEL, not the key: every settings CSV in existence
 says `sample`, and "Sample size limit" is what it has always bounded.
 
+THE FOLDER NAMES COME FROM THE CLASS FIELD. `folder_names` now takes the
+DEFINED class names ahead of `class_folder_names`, reversing a precedence
+that was deliberate before and is wrong now: `class_folder_names` is a
+RECORD of what a previous generation wrote to disk, a defined class is the
+user's own statement of what they are training on, and letting the record
+outrank the statement is how the folders on disk and the classes in the
+panel come to disagree with nothing on screen saying so.
+
+ONLY WHEN CLASSES ARE ACTUALLY DEFINED. An empty definition means "this
+settings file says nothing about classes" and must not shadow a recorded
+folder list -- that would break every settings file written before the
+Classes editor existed. A list-shaped legacy `classes` still wins over
+everything, for the reason its own test gives.
+
 --------------------------------------------------------------------------------
 WHAT IS LEFT
 --------------------------------------------------------------------------------
@@ -139,11 +153,5 @@ Three folds, each of which changes what a setting MEANS rather than whether
 it is present, and each of which needs a migration for files that set both
 sides:
 
-  * CLASS FOLDER NAMES BUILT FROM THE CLASS FIELD. `class_folder_names` is
-    still its own setting. Deriving it means deciding what happens to a file
-    that sets both and disagrees -- and the answer cannot be "the derived one
-    wins" without checking the folders on disk, since a name's POSITION in
-    that list is its integer label and reordering it retrains a different
-    model.
   * THE CLASSES COLUMN REPLACING `annotation_column`. Both still exist.
   * `class_metadata` REPLACED BY THE CLASSES' CLASS AND VALUE.
