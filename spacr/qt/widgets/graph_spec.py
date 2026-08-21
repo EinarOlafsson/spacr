@@ -142,13 +142,31 @@ HISTOGRAM = "histogram"
 BAR = "bar"
 BOX = "box"
 VIOLIN = "violin"
+#: The two the maintainer named that had no kind (200).
+#:
+#: "I want to be able to choose between: Bar, Bar+jitter, Jitter, Box,
+#: Violin, Line (with and without spread), Scatter".
+#:
+#: JITTER IS NOT SCATTER WITH NOISE ADDED. A scatter puts a point at its own
+#: x; a jitter puts every point of a CATEGORY at that category's position,
+#: spread sideways only so they can be told apart. The x displacement carries
+#: no information and must not be read as though it did -- which is why it is
+#: its own kind rather than a scatter option.
+JITTER = "jitter"
+#: The bar with its own observations drawn over it. The most honest of the
+#: summary plots, because the summary and the thing summarised are in the
+#: same picture: a bar hiding four points and a bar hiding four hundred look
+#: identical until the points are on it.
+BAR_JITTER = "bar_jitter"
 HEATMAP = "heatmap"
 EMPTY = "empty"
 
 #: Everything a user may pick from the override menu, plus ``EMPTY`` which is
 #: only ever inferred (there is nothing to override when nothing is dropped).
 PLOT_KINDS: Tuple[str, ...] = (
-    SCATTER, LINE, HISTOGRAM, BAR, BOX, VIOLIN, HEATMAP, EMPTY)
+    SCATTER, LINE, HISTOGRAM, BAR, JITTER, BAR_JITTER, BOX, VIOLIN,
+    HEATMAP, EMPTY,
+)
 
 #: Kinds that reduce many rows to few marks. They never sample: the reduction
 #: *is* the answer, and computing it on a tenth of the rows would move it.

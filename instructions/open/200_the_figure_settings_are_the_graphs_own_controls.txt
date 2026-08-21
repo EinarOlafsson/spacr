@@ -2,7 +2,7 @@
 THE FIGURE SETTINGS ARE THE GRAPH'S OWN CONTROLS
 ================================================================================
 
-Status:    filed 2026-08-21, not started.
+Status:    filed 2026-08-21. GROUPS 1 AND 2 DONE 2026-08-21; 3-7 are not.
 Requested: 2026-08-21 -- "when i right click and press Figure settings i get
            figure settings but i get some settings i dont want and lack some
            settings i want."
@@ -159,3 +159,54 @@ HOW TO KNOW IT WORKED
   and a new figure of that type is born with it.
 * No tab in the dialog contains a control that does nothing -- and a test
   asserts every control changes something on the figure.
+
+--------------------------------------------------------------------------------
+GROUP 2, DONE (via instruction 204)
+--------------------------------------------------------------------------------
+
+`spacr/figures/spread.py` -- SD, SEM and variance, with the axis stating
+which was drawn. ONE IMPLEMENTATION for this instruction and 204 both,
+because SD and SEM differ by sqrt(n) -- fifty-five-fold at n=3000 -- so two
+screens with different definitions of the same word would draw whiskers that
+far apart and label them identically.
+
+--------------------------------------------------------------------------------
+GROUP 1, DONE
+--------------------------------------------------------------------------------
+
+`jitter` and `bar_jitter` are graph kinds. Box, violin, scatter, line and
+bar already were.
+
+JITTER IS NOT SCATTER WITH NOISE ADDED, and building it as a scatter option
+would have got it wrong. A scatter puts a point at its own x; a jitter puts
+every point of a CATEGORY at that category's position and spreads it
+sideways ONLY so the points can be told apart. The displacement carries no
+information, so it is uniform and narrow and seeded -- a plot whose points
+move on every repaint cannot be compared with the one in last week's slide.
+
+BAR+JITTER IS THE MOST HONEST OF THE SUMMARY PLOTS: the summary and the
+thing summarised are in the same picture. A bar hiding four points and a bar
+hiding four hundred look identical until the points are on it. Over a bar
+the points lighten and shrink, because there they annotate a shape rather
+than being the plot.
+
+It keeps the bar's spread label, which took a second edit -- the label is
+written by a different function that checked `kind == BAR` exactly, so
+adding the points silently lost the sentence saying what the whisker means.
+
+Tests: `tests/test_the_jitter_kinds.py`, 11 passing.
+
+--------------------------------------------------------------------------------
+GROUPS 3-7, NOT DONE
+--------------------------------------------------------------------------------
+
+Datapoint palette; colour scheme (group / uniform / random), size and style;
+line colour, width and which lines they apply to; font colour; aspect ratio.
+Plus the Preferences half -- a default graph type per data type.
+
+`FigureSettingsDialog` exists and has some of this; what it does not have is
+the SEVEN GROUPS as the request describes them, and the maintainer's own
+complaint about the current dialog stands: "there are 2 tabs the second
+devided into point i dont think that actually does any thing changing it."
+Whether those controls do anything is the first thing to settle, before
+adding more beside them.
