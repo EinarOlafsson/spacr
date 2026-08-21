@@ -883,15 +883,21 @@ def test_convert_settings_dict_falls_back_when_torchvision_unloaded(monkeypatch)
 def test_dataset_mode_combo_matches_the_modes_io_dispatches_on():
     """'recruitment' used to be offered here and is not a real mode.
 
-    io.generate_training_dataset dispatches on metadata|annotation|measurement
-    and returns (None, None) for anything else -- so picking 'recruitment' in
+    io.generate_training_dataset dispatches on metadata|annotation and
+    returns (None, None) for anything else -- so picking 'recruitment' in
     the Tk GUI silently produced no dataset at all.
+
+    'measurement' was a real mode and is retired (instruction 229). It is
+    not offered, and this asserts against TRAINING_BASES rather than a
+    hand-written set so the two cannot drift: an option the GUI offers that
+    the pipeline does not dispatch on is the exact bug this test exists for.
     """
     from spacr import gui_utils as GU
+    from spacr.training_basis import TRAINING_BASES
     kind, options, initial = GU.convert_settings_dict_for_gui(
         {"dataset_mode": "metadata"})["dataset_mode"]
     assert kind == "combo"
-    assert set(options) == {"metadata", "annotation", "measurement"}
+    assert set(options) == set(TRAINING_BASES)
     assert initial == "metadata"
 
 

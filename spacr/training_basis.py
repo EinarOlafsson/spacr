@@ -11,7 +11,7 @@ neither was a user's understanding.
 **The training basis.** Classify (CV) already had all three:
 ``dataset_mode`` is ``'metadata'``, ``'annotation'`` or ``'measurement'``, and
 :mod:`spacr.io` builds the dataset from ``class_metadata``/``metadata_rules``,
-``annotation_columns``/``annotation_values`` or ``measurement_rules``
+``annotation_columns``/``annotation_values``
 accordingly. Classify (ML) had two, and chose between them **implicitly**:
 ``ml.py`` asked whether ``annotation_column`` was ``None``. Nothing said so in
 the settings panel, so a user who filled in an annotation column silently
@@ -33,9 +33,22 @@ from __future__ import annotations
 
 from typing import Any, Dict, Mapping, Optional, Tuple
 
-#: The three ways a training class can be defined, in the order the settings
+#: The two ways a training class can be defined, in the order the settings
 #: panel offers them.
-TRAINING_BASES: Tuple[str, ...] = ("metadata", "annotation", "measurement")
+#:
+#: ``measurement`` WAS A THIRD. It defined classes by threshold rules on
+#: measured features, which the Classes editor now covers directly: a class
+#: is a column and a value, and a threshold is a rule about a column. Keeping
+#: both was keeping two vocabularies for one idea, and the rules one had no
+#: editor -- it was hand-written JSON in a settings CSV.
+TRAINING_BASES: Tuple[str, ...] = ("metadata", "annotation")
+
+#: A basis that no longer exists -> what a settings CSV naming it now means.
+#: MIGRATED, NOT REFUSED. Removing an option must not turn every settings
+#: file that used it into a file that raises on load; `measurement` wrote a
+#: label column and then read it back as an annotation, so `annotation` is
+#: not an approximation of what it did, it is the second half of it.
+RETIRED_BASES: Dict[str, str] = {"measurement": "annotation"}
 
 #: Retired name -> shared name. The old key keeps working; it is translated
 #: once, here, so no consumer has to know both.
@@ -62,14 +75,13 @@ SETTING_ALIASES: Dict[str, str] = {
 #: user can edit that changes nothing.
 BASIS_SETTINGS: Dict[str, Tuple[str, ...]] = {
     "metadata": (
-        "class_metadata", "metadata_type_by", "metadata_rules",
+        # `metadata_type_by` is gone: it named the column a class is defined
+        # by, which is the Classes editor's own column field.
+        "class_metadata", "metadata_rules",
         "location_column", "positive_control", "negative_control",
     ),
     "annotation": (
         "annotation_column", "annotation_columns", "annotation_values",
-    ),
-    "measurement": (
-        "measurement_rules", "measurement_columns",
     ),
 }
 
@@ -97,6 +109,11 @@ def resolve_basis(settings: Mapping[str, Any]) -> str:
     declared = settings.get("dataset_mode")
     if declared:
         basis = str(declared).strip().lower()
+        if basis in RETIRED_BASES:
+            # A settings file older than the removal. It loads and runs; it
+            # does not raise, and it does not silently mean something else --
+            # the mapping is recorded above with the reason.
+            return RETIRED_BASES[basis]
         if basis not in TRAINING_BASES:
             raise TrainingBasisError(
                 f"dataset_mode={declared!r} is not one of {list(TRAINING_BASES)}. "

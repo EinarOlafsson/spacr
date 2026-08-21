@@ -803,7 +803,7 @@ class spacrDataset(Dataset):
                 + "\n".join(looked) +
                 "\n\nThis usually means the dataset-generation step selected no "
                 "rows. Check that class_metadata values actually occur in the "
-                "column named by metadata_type_by, that the annotation column "
+                "column the Classes editor names, that the annotation column "
                 "holds the classes in annotated_classes, and that png_type "
                 "matches the crops that exist.")
 
@@ -6482,11 +6482,10 @@ def generate_training_dataset(settings):
           ``nuclei_limit`` and ``pathogen_limit`` when the matching table is
           absent; it does not select where the crop list comes from.
         - metadata mode: ``metadata_rules``, or ``class_metadata`` values
-          matched against the ``metadata_type_by`` column.
+          matched against the column the Classes editor names.
         - annotation mode: ``annotation_columns`` (legacy
           ``annotation_column``), optional ``annotation_values`` filter, and
           ``write_random_annotation_column``.
-        - measurement mode: ``measurement_rules``.
 
         The resulting ``class_folder_names`` and ``nr_classes`` are written
         back into the dict for downstream training. A pre-split list-shaped
@@ -6846,16 +6845,21 @@ def generate_training_dataset(settings):
                 # printed "got 0 classes" and then indexed the missing column
                 # anyway, turning a diagnosable misconfiguration into a bare
                 # KeyError several frames down.
-                meta_col = settings.get('metadata_type_by') or 'condition'
-                meta_col = str(meta_col).strip() or 'condition'
+                # NOW READ OFF `classes`, which already names the column
+                # each class is defined by -- `metadata_type_by` was a second
+                # place to say the same thing, and two places to say it is
+                # two places to say it differently. A settings file that
+                # still carries the old key is honoured, so an old CSV runs
+                # unchanged.
+                meta_col = _class_column(settings)
                 if meta_col not in png_df.columns:
                     raise ValueError(
                         f"metadata mode: column '{meta_col}' is not in png_list, "
                         f"so no class can be selected. Present columns: "
-                        f"{sorted(map(str, png_df.columns))}. Set "
-                        f"'metadata_type_by' to one of those (usually 'columnID' "
+                        f"{sorted(map(str, png_df.columns))}. Set the Classes "
+                        f"editor's column to one of those (usually 'columnID' "
                         f"or 'rowID'), or switch 'dataset_mode' to "
-                        f"'annotation'/'measurement'."
+                        f"'annotation'."
                     )
                 # Compare as text: png_list holds 'c1'/'r1' strings but a
                 # fallback to the object table can hand back a numeric column,
@@ -6897,19 +6901,13 @@ def generate_training_dataset(settings):
                 png_df, ann_cols, ann_vals_filter=ann_vals, db_path=db_path
             )
 
-        elif mode == 'measurement':
-            m_rules = settings.get('measurement_rules') or []
-            for r in m_rules:
-                name = r['name']
-                where = r.get('where', [])
-                df_sel = _apply_where(png_df, where)
-                this_names.append(name)
-                this_lists.append(_class_items(df_sel))
-
         else:
+            # `resolve_basis` has already migrated the retired 'measurement'
+            # to 'annotation', so anything reaching here is a value spaCR
+            # has never had.
             raise ValueError(
                 f"Invalid dataset_mode: {settings['dataset_mode']!r}. Use "
-                "'metadata', 'annotation', or 'measurement'.")
+                "'metadata' or 'annotation'.")
 
         # Initialize global collectors (keep class order of first source)
         if class_path_list is None:
@@ -6928,8 +6926,9 @@ def generate_training_dataset(settings):
         details = "\n".join(f"  {line}" for line in selection_context)
         raise ValueError(
             "Training-dataset generation selected no crops for any class. "
-            "Check class_metadata against metadata_type_by, or choose an "
-            "annotation/measurement rule that occurs in the database."
+            "Check class_metadata against the column the Classes editor "
+            "names, or choose an annotation value that occurs in the "
+            "database."
             + (f"\n{details}" if details else "")
         )
 
@@ -7087,6 +7086,35 @@ def training_dataset_from_annotation(db_path, dst, annotation_column='test', ann
         print(f'Class {i}: {len(ls)} images')
         
     return class_paths
+
+def _class_column(settings) -> str:
+    """The png_list column the classes are defined by.
+
+    ONE PLACE, and `classes` is it: every class in the Classes editor already
+    carries the column its value came from, so asking for the column a second
+    time under its own setting was asking the user to restate something
+    spaCR knows -- and giving them a way to say it differently.
+
+    An older settings file that still names `metadata_type_by` is honoured
+    first, so a CSV written before the removal runs unchanged.
+
+    :param settings: the run settings.
+    :returns: the column name, defaulting to 'columnID'.
+    """
+    from collections.abc import Mapping
+
+    legacy = str(settings.get('metadata_type_by') or '').strip()
+    if legacy:
+        return legacy
+    classes = settings.get('classes')
+    if isinstance(classes, Mapping):
+        for rule in classes.values():
+            if isinstance(rule, Mapping):
+                column = str(rule.get('column') or '').strip()
+                if column:
+                    return column
+    return 'columnID'
+
 
 def training_dataset_from_annotation_metadata(db_path, dst, annotation_column='test', annotated_classes=(1, 2), metadata_type_by='columnID', class_metadata=None):
     """Same as :func:`training_dataset_from_annotation` but pre-filtered by plate metadata.

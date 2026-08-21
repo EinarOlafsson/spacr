@@ -3588,7 +3588,7 @@ def deep_spacr(settings=None):
     from .io import generate_training_dataset, generate_dataset
     from .utils import save_settings
 
-    # 1) expand defaults (now supports things like metadata_rules, annotation_columns, measurement_rules, etc.)
+    # 1) expand defaults (now supports things like metadata_rules, annotation_columns, etc.)
     settings = deep_spacr_defaults(settings)
     src_before = settings.get('src')
 

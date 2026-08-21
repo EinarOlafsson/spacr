@@ -208,7 +208,7 @@ def convert_settings_dict_for_gui(settings):
         # io.generate_training_dataset dispatches on metadata|annotation|
         # measurement and returns (None, None) for anything else. 'recruitment'
         # was offered here and silently produced no dataset.
-        'dataset_mode': ('combo', ['annotation', 'metadata', 'measurement'], 'metadata'),
+        'dataset_mode': ('combo', ['annotation', 'metadata'], 'metadata'),
         'cov_type': ('combo', ['HC0', 'HC1', 'HC2', 'HC3', None], None),
         'crop_mode': ('combo',
                       [repr([role]) for role in ALL_ROLES]
