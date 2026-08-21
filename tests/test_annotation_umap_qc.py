@@ -176,3 +176,86 @@ class TestTheCircularityItCannotEscape:
     def test_putting_the_score_in_the_features_is_flagged_too(self):
         said = module.circularity_warning("sudoku", score_in_features=True)
         assert "both sides" in said
+
+
+@pytest.mark.qt
+class TestTheTab:
+    """215's tab. The engine is tested above; this is that it refuses the
+    same things the engine refuses, in the place the user meets it."""
+
+    @pytest.fixture
+    def tab(self, qtbot):
+        pytest.importorskip("PySide6")
+        from spacr.qt.widgets.annotation_umap_tab import AnnotationUmapTab
+
+        widget = AnnotationUmapTab()
+        qtbot.addWidget(widget)
+        return widget
+
+    def test_it_computes_nothing_until_asked(self, tab):
+        """A UMAP over a screen's cells is seconds of work, and a tab that
+        embedded on construction would charge it to everyone who never looks
+        at it."""
+        assert tab._embedding is None
+        assert "Nothing is computed" in tab.report.toPlainText()
+
+    def test_a_score_picked_method_is_refused_instead_of_drawn(self, tab):
+        """The warning is shown INSTEAD of the plot, not beside it -- a
+        picture under a caption saying it means nothing is still a picture
+        somebody will screenshot."""
+        tab.method.setCurrentIndex(tab.method.findData("rank"))
+        out = tab.run()
+
+        assert "refused" in out
+        said = tab.report.toPlainText()
+        assert "cannot judge" in said
+        assert tab._embedding is None
+
+    def test_a_judgeable_method_with_no_cells_says_so(self, tab):
+        tab.method.setCurrentIndex(tab.method.findData("sudoku"))
+        out = tab.run()
+        assert out.get("error") == "no cells"
+
+    def test_too_few_controls_is_refused_with_the_count(self, tab, qtbot):
+        import pandas as pd
+
+        frame = pd.DataFrame({"area": [1.0, 2.0, 3.0, 4.0]})
+        tab.set_frame(frame, control_labels=[module.POSITIVE, module.NEGATIVE,
+                                             None, None])
+        tab.method.setCurrentIndex(tab.method.findData("sudoku"))
+        out = tab.run()
+
+        assert out.get("error") == "too few controls"
+        assert "nothing to hold out" in tab.report.toPlainText()
+
+    def test_it_offers_the_methods_the_montage_offers(self, tab):
+        from spacr.cell_montage import PICKING_MODES
+
+        offered = {tab.method.itemData(i) for i in range(tab.method.count())}
+        assert offered == set(PICKING_MODES)
+
+    def test_the_refusal_threshold_is_named_rather_than_inline(self, tab):
+        """So it can be found and argued with."""
+        assert hasattr(tab, "MINIMUM_SEPARATION")
+
+
+@pytest.mark.qt
+class TestItIsOnThePanel:
+
+    def test_the_results_panel_carries_the_tab(self, qtbot):
+        pytest.importorskip("PySide6")
+        from spacr.qt.widgets.regression_results import RegressionResultsPanel
+
+        panel = RegressionResultsPanel()
+        qtbot.addWidget(panel)
+        names = [panel.tabs.tabText(i) for i in range(panel.tabs.count())]
+        assert "Annotation check" in names
+
+    def test_it_is_reachable_by_key_like_every_other_panel(self, qtbot):
+        """So a grid tile can open it -- instruction 199's door."""
+        pytest.importorskip("PySide6")
+        from spacr.qt.widgets.regression_results import RegressionResultsPanel
+
+        panel = RegressionResultsPanel()
+        qtbot.addWidget(panel)
+        assert panel.show_panel("annotation_check") is True
