@@ -53,6 +53,26 @@ class CollapsibleSection(QWidget):
         # QToolButton with no rule of its own paints the palette's button
         # colour as an opaque block, which is the "black categories" in both
         # this panel and the measure tab.
+        # AND THE RESTING HEADING IS THE THEME'S FOREGROUND (198). Asked for
+        # 2026-08-21: "the text in the measurements tab for the sub
+        # categories should be white when they are not highlighted (in dark
+        # mode oposite in bright mode)."
+        #
+        # It was `palette(mid)` at rest and `palette(text)` only when open --
+        # which is backwards. THE UNHIGHLIGHTED STATE IS THE ONE A USER
+        # READS: on a tab with four folded sections at most one is open, and
+        # the rest are what they are scanning to decide where to go. Dimming
+        # them says "secondary" about the only thing on screen that is not.
+        #
+        # `palette(text)`, NEVER A LITERAL. `#FFFFFF` here is the same fault
+        # instruction 178 removed from eleven figure call sites: it reads on
+        # one theme and vanishes on the other, and the author sees only the
+        # one they use. The palette answers "white or near-black" for
+        # whichever theme is live.
+        #
+        # THE HIGHLIGHT IS STILL VISIBLE, and that is the condition on this
+        # change: hover keeps its blue wash and the fold arrow still turns.
+        # What no longer distinguishes the states is the text going away.
         self._header.setStyleSheet(
             "QToolButton {"
             "  background: transparent;"
@@ -60,7 +80,7 @@ class CollapsibleSection(QWidget):
             "  border-radius: 6px;"
             "  padding: 3px 6px;"
             "  text-align: left;"
-            "  color: palette(mid);"
+            "  color: palette(text);"
             "}"
             "QToolButton:hover {"
             "  background: rgba(45, 119, 188, 0.18);"

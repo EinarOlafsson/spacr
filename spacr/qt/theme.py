@@ -3749,9 +3749,19 @@ QFrame#SectionCard {{
     border-radius: {R["md"]}px;
     margin-bottom: {S["sm"]}px;
 }}
+/* THE RESTING HEADING IS THE FOREGROUND (198). It was `fg_muted` at rest
+   and `fg` only on hover or when open -- backwards, because the
+   unhighlighted state is the one a user READS: on a screen with sixteen
+   folded categories at most one is open and the rest are what they are
+   scanning to decide where to go. Dimming them says "secondary" about the
+   only thing on the page that is not.
+
+   The highlight is still visible: hover and checked keep `surface_alt`
+   behind them, and checked keeps its underline. What stopped distinguishing
+   the states is the text going away. */
 QToolButton#SectionHeader {{
     background: transparent;
-    color: {P["fg_muted"]};
+    color: {P["fg"]};
     border: none;
     border-radius: {R["md"]}px;
     padding: {S["sm"]}px {S["md"]}px;
