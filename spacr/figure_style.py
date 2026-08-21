@@ -33,7 +33,45 @@ GENERAL_DEFAULTS: dict[str, Any] = {
     "dpi": 150,
     "format": "pdf",
     "tight_layout": True,
+
+    # ---- D: THE FURNITURE IS ONE INK (instruction 200) -----------------
+    #
+    # ONE CONTROL FOR THE LINES, not one per line. The axis spines, the
+    # periphery box and the grid are the same thing -- they are the FRAME --
+    # and making the user set each is the "user chooses each line"
+    # complaint. `chrome_colour` is what a user reaches for; `grid_colour`
+    # and the rest stay as the per-element override underneath it, and
+    # `chrome_of` below resolves the two.
+    #
+    # EMPTY MEANS "FOLLOW THE INK", not black. `resolve_ink(theme_target())`
+    # is what a figure's text already does, for the reason 178 measured
+    # eleven times, and a frame pinned to a literal while the text follows
+    # the theme is a figure that looks wrong in one of the two themes.
+    "chrome_colour": "",
+
+    # ---- C and E ------------------------------------------------------
+    "mark_colouring": "group",
+    "marker_style": "o",
+    "page_shape": "landscape",
 }
+
+
+def chrome_of(style, element: str = "grid") -> str:
+    """The colour for one piece of furniture: grid, spine or box.
+
+    THE OVERRIDE WINS AND THE ONE CONTROL IS THE FALLBACK, in that order. A
+    user who set `chrome_colour` gets it everywhere; a user who then set
+    `grid_colour` gets that on the grid and the chrome elsewhere -- which is
+    what "a per-element override can exist under it" means.
+
+    :param element: 'grid', 'spine' or 'box'.
+    :returns: the colour, or ``""`` meaning follow the resolved ink.
+    """
+    style = dict(style or {})
+    specific = str(style.get(f"{element}_colour", "") or "").strip()
+    if specific:
+        return specific
+    return str(style.get("chrome_colour", "") or "").strip()
 
 #: Default overrides for each graph type. Missing keys inherit
 #: :data:`GENERAL_DEFAULTS`.
@@ -113,7 +151,49 @@ STYLE_CHOICES = {
     "bins": ("auto", "sturges", "fd", "scott", "sqrt"),
     "error_bars": ("sem", "sd", "ci95", "none"),
     "aspect": ("equal", "auto"),
+
+    # ---- C: THE MARKS (instruction 200) --------------------------------
+    #
+    # BY GROUP is the default and the house rule is why: everything is grey
+    # except what the sentence is about. UNIFORM is that rule taken all the
+    # way. RANDOM was asked for by name and is for telling points apart by
+    # eye -- a random colour per point carries no information, so it belongs
+    # in a working view rather than in a figure that makes a claim, and its
+    # tooltip says so.
+    "mark_colouring": ("group", "uniform", "random"),
+    "marker_style": ("o", "s", "^", "D", "v", "P", "X", "*"),
+
+    # ---- E: THE SHAPE OF THE PAGE --------------------------------------
+    #
+    # A NAMED RATIO rather than two boxes of inches. The inches stay for a
+    # user who wants a journal's exact column width; the ratio is what
+    # somebody choosing how a figure LOOKS is actually choosing, and it
+    # keeps the two axes consistent when the size changes.
+    "page_shape": ("square", "portrait", "landscape", "wide", "custom"),
 }
+
+#: width:height for each named page shape. `custom` has none -- it means
+#: "use the inches", which is the escape hatch the ratio does not remove.
+PAGE_SHAPES: dict = {
+    "square": 1.0,
+    "portrait": 3.0 / 4.0,
+    "landscape": 4.0 / 3.0,
+    "wide": 16.0 / 9.0,
+}
+
+
+def page_size(shape: str, width: float) -> tuple:
+    """``(width, height)`` in inches for a named shape at ``width``.
+
+    ONE NUMBER IN, TWO OUT, which is the point of naming the ratio: the two
+    axes cannot drift apart when the size changes, and a user who wants a
+    figure half as wide gets one half as tall without doing the arithmetic.
+
+    :raises KeyError: for a shape with no ratio -- 'custom' among them,
+        because 'custom' means the caller's own inches and silently
+        returning a square for it would overwrite them.
+    """
+    return (float(width), float(width) / PAGE_SHAPES[str(shape)])
 
 #: Style keys that accept a Matplotlib line-style value.
 LINE_STYLE_KEYS = ("grid_style", "threshold_style", "reference_style")
