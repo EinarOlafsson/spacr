@@ -9,14 +9,53 @@ import logging
 from typing import Any, Dict, Optional
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (QComboBox, QDialog, QFileDialog, QHBoxLayout,
-                               QLabel, QPlainTextEdit, QPushButton,
-                               QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QCheckBox, QComboBox, QDialog, QDialogButtonBox,
+                               QFileDialog, QHBoxLayout, QLabel, QLineEdit,
+                               QPlainTextEdit, QPushButton, QVBoxLayout,
+                               QWidget)
 
-from ...gene_measurement_compare import (LEVELS, OPERATORS, PLOTS, build,
-                                         plot, save, with_statistics)
+from ...gene_measurement_compare import (CONTRASTS, LEVELS, OPERATORS, PLOTS,
+                                         build, control_wells,
+                                         join_measurements,
+                                         measurements_are_joined, plot, save,
+                                         wells_of,
+                                         with_statistics)
 
 LOG = logging.getLogger("spacr.qt.measurement_compare")
+
+
+class _WellChoice(QDialog):
+    """Include or leave out each of the annotation's wells (187 B).
+
+    A CHECKLIST, not 185's plate map. The wells of one annotation can span
+    plates, and a plate map shows one plate; the well NAMES are the same in
+    both, which is the part that had to agree.
+    """
+
+    def __init__(self, offered, chosen=None, parent: Optional[QWidget] = None):
+        super().__init__(parent)
+        self.setWindowTitle("Which wells to include")
+        self._boxes = []
+        outer = QVBoxLayout(self)
+        outer.addWidget(QLabel(
+            "A well left out is dropped from BOTH sides: it is not moved "
+            "into the comparison group."))
+        for well in offered:
+            box = QCheckBox(str(well), self)
+            # EVERYTHING ON BY DEFAULT. `None` means "all of them", and a
+            # panel that opened with nothing ticked would read as "nothing
+            # is being compared", which is not what was happening.
+            box.setChecked(chosen is None or str(well) in chosen)
+            outer.addWidget(box)
+            self._boxes.append(box)
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok
+                                   | QDialogButtonBox.Cancel, self)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        outer.addWidget(buttons)
+
+    def chosen(self) -> set:
+        return {b.text() for b in self._boxes if b.isChecked()}
 
 
 class MeasurementComparePanel(QWidget):
@@ -34,13 +73,22 @@ class MeasurementComparePanel(QWidget):
 
     def __init__(self, objects, groups: Dict[str, Any],
                  parent: Optional[QWidget] = None,
-                 settings: Optional[Dict[str, Any]] = None):
+                 settings: Optional[Dict[str, Any]] = None,
+                 databases: Optional[Any] = None,
+                 counts: Optional[Any] = None):
         super().__init__(parent)
         self._objects = objects
         self._groups = dict(groups or {})
         self._settings = dict(settings or {})
+        self._databases = tuple(databases or ())
+        self._counts = counts
         self._comparison = None
         self._canvas = None
+        # THE WELLS THE USER LEFT IN. `None` means "all of them", which is
+        # not the same as the full list: a well that appears after a re-run
+        # should be included, and a stored full list would silently exclude
+        # it.
+        self._chosen_wells: Optional[set] = None
 
         layout = QVBoxLayout(self)
         row = QHBoxLayout()
@@ -109,6 +157,70 @@ class MeasurementComparePanel(QWidget):
         row.addWidget(self.save_button)
         layout.addLayout(row)
 
+        # ------------------------------------------------------------ 187 B
+        # THE CONTRAST IS A SEPARATE ROW because it is a separate decision.
+        # The row above chooses WHAT is measured; this one chooses WHAT IT IS
+        # HELD AGAINST, and the same cells under three contrasts give three
+        # different p-values.
+        second_row = QHBoxLayout()
+        second_row.addWidget(QLabel("compare"))
+        self.contrast = QComboBox()
+        for value, label, why in CONTRASTS:
+            self.contrast.addItem(label, value)
+            self.contrast.setItemData(self.contrast.count() - 1, why,
+                                      Qt.ToolTipRole)
+        self.contrast.currentIndexChanged.connect(self._on_contrast)
+        second_row.addWidget(self.contrast, 1)
+
+        # THE CONTROLS, resolved through `spacr.control_names` (184) -- so a
+        # gene, a guide, a prefixed name and a bare one all work, and this
+        # panel does not grow a fifth opinion about what a control is.
+        self.controls = QLineEdit()
+        self.controls.setPlaceholderText("control gene or guide, comma "
+                                          "separated")
+        self.controls.setToolTip(
+            "The control wells to compare against. A gene name takes every "
+            "one of its guides; a guide name takes just that guide.")
+        self.controls.editingFinished.connect(self.refresh)
+        self.controls.setEnabled(False)
+        second_row.addWidget(self.controls, 1)
+
+        # AND WHICH OF THE GENE'S WELLS COUNT. "i whould be able to choose
+        # which wells to include from the gene annotation" -- a well that
+        # failed for an unrelated reason should not have to poison the
+        # contrast.
+        #
+        # A CHECKLIST RATHER THAN 185's PLATE MAP: an annotation's wells span
+        # plates, and a plate map can only show one plate at a time. The
+        # NAMES are the same either way, which is the part that had to agree.
+        self.wells_button = QPushButton("wells…")
+        self.wells_button.setToolTip(
+            "Choose which of the annotation's wells to include. A well left "
+            "out is dropped from BOTH sides of the comparison.")
+        self.wells_button.clicked.connect(self.choose_wells)
+        second_row.addWidget(self.wells_button)
+        layout.addLayout(second_row)
+
+        # ------------------------------------------------------------ 187 A
+        # THE JOIN IS OFFERED, NOT SILENTLY SKIPPED. `png_list` holds the
+        # crop path and the classification score; every morphological
+        # measurement is in the object tables beside it. Offering a short
+        # list of measurements with no reason for its shortness is what this
+        # is against.
+        self._join_row = QHBoxLayout()
+        self.join_note = QLabel("")
+        self.join_note.setObjectName("Muted")
+        self.join_note.setWordWrap(True)
+        self._join_row.addWidget(self.join_note, 1)
+        self.join_button = QPushButton("Join the measurement tables")
+        self.join_button.setToolTip(
+            "Read the cell, nucleus, pathogen and cytoplasm tables out of "
+            "the attached databases and attach them to these cells, so every "
+            "measurement in the screen can be compared.")
+        self.join_button.clicked.connect(self.join_the_tables)
+        self._join_row.addWidget(self.join_button)
+        layout.addLayout(self._join_row)
+
         self._figure_holder = QVBoxLayout()
         layout.addLayout(self._figure_holder, 1)
 
@@ -172,20 +284,131 @@ class MeasurementComparePanel(QWidget):
     def comparison(self):
         return self._comparison
 
+    # ------------------------------------------------------- 187 B: contrast
+
+    def _on_contrast(self, *_args):
+        """The controls field only means anything for one of the three."""
+        self.controls.setEnabled(
+            str(self.contrast.currentData() or "") == "against_controls")
+        self.refresh()
+
+    def _typed_controls(self) -> list:
+        """The control names as typed, split the way every other field is."""
+        text = str(self.controls.text() or "")
+        return [part.strip() for part in text.split(",") if part.strip()]
+
+    def _control_wells(self) -> tuple:
+        """Which wells the typed controls occupy, out of the count data."""
+        typed = self._typed_controls()
+        if not typed or self._counts is None:
+            return ()
+        try:
+            return control_wells(self._counts, typed)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not resolve the control wells", exc_info=True)
+            return ()
+
+    def wells_on_offer(self) -> tuple:
+        """Every well the annotation drew a cell from, in a stable order."""
+        found: list = []
+        for wells in wells_of(self._objects, self._groups).values():
+            found.extend(str(w) for w in wells)
+        return tuple(dict.fromkeys(found))
+
+    def chosen_wells(self) -> Optional[list]:
+        """The wells to include, or ``None`` for all of them."""
+        if self._chosen_wells is None:
+            return None
+        # INTERSECTED WITH WHAT IS THERE NOW, so a choice made before a
+        # re-run cannot name a well the new montage does not have.
+        return [w for w in self.wells_on_offer() if w in self._chosen_wells]
+
+    def choose_wells(self, *_args) -> bool:
+        """Open the well checklist. Returns whether anything changed."""
+        offered = self.wells_on_offer()
+        if not offered:
+            self.report.setPlainText(
+                "These object rows do not say which well they came from, so "
+                "there are no wells to choose between.")
+            return False
+        before = self.chosen_wells()
+        dialog = _WellChoice(offered, self._chosen_wells, parent=self)
+        if dialog.exec() != QDialog.Accepted:
+            return False
+        self._chosen_wells = dialog.chosen()
+        if self.chosen_wells() == before:
+            return False
+        self.refresh()
+        return True
+
+    # ---------------------------------------------------------- 187 A: join
+
+    def _say_about_the_join(self) -> None:
+        """Say whether the measurement list is the short one, and why."""
+        joined = measurements_are_joined(self._objects)
+        offered = self.measurement.count()
+        if joined:
+            self.join_note.setText(
+                f"{offered} measurement(s) offered, from the joined "
+                f"measurement tables.")
+            self.join_button.setVisible(False)
+            return
+        self.join_button.setVisible(bool(self._databases))
+        if self._databases:
+            self.join_note.setText(
+                f"Only {offered} measurement(s): these are the columns on "
+                f"the crop table. Every morphological measurement -- cell, "
+                f"nucleus, pathogen, cytoplasm -- is in the object tables "
+                f"and needs the join.")
+        else:
+            self.join_note.setText(
+                f"Only {offered} measurement(s): these are the columns on "
+                f"the crop table, and no measurements database is attached "
+                f"to join the object tables from.")
+
+    def join_the_tables(self, *_args) -> str:
+        """Widen the object rows with the databases. Returns any trouble."""
+        if not self._databases:
+            return "no measurements database is attached"
+        self.join_button.setEnabled(False)
+        try:
+            wide, trouble = join_measurements(self._objects,
+                                              self._databases)
+        except Exception as exc:                             # noqa: BLE001
+            LOG.debug("could not join the measurement tables", exc_info=True)
+            self.join_note.setText(f"Could not join: {exc}")
+            self.join_button.setEnabled(True)
+            return str(exc)
+        self.join_button.setEnabled(True)
+        # THE GROUPS SURVIVE because `join_measurements` keeps the index, and
+        # `set_data` re-reads them from the same values.
+        self.set_data(wide, self._groups)
+        if trouble:
+            self.join_note.setText(
+                f"{self.join_note.text()} {trouble}".strip())
+        return trouble
+
+    # ------------------------------------------------------------ the build
+
     def refresh(self, *_args):
         """Rebuild, retest and redraw. Returns the comparison, or ``None``."""
         measurement = str(self.measurement.currentData() or "")
         if not measurement:
             self.report.setPlainText(
                 "These objects carry no measurement column to compare.")
+            self._say_about_the_join()
             return None
         level = str(self.level.currentData() or "well")
         operator = str(self.operator.currentData() or "")
         second = str(self.second.currentData() or "") if operator else ""
+        contrast = str(self.contrast.currentData() or "")
         self._comparison = with_statistics(
             build(self._objects, measurement, groups=self._groups,
-                  level=level, operator=operator, second=second))
+                  level=level, operator=operator, second=second,
+                  contrast=contrast, wells=self.chosen_wells(),
+                  controls=self._control_wells()))
         self._offer_classes()
+        self._say_about_the_join()
         self._draw()
         self._report()
         return self._comparison
@@ -344,13 +567,17 @@ class MeasurementCompareDialog(QDialog):
 
     def __init__(self, objects, groups: Dict[str, Any],
                  parent: Optional[QWidget] = None,
-                 settings: Optional[Dict[str, Any]] = None):
+                 settings: Optional[Dict[str, Any]] = None,
+                 databases: Optional[Any] = None,
+                 counts: Optional[Any] = None):
         super().__init__(parent)
         self.setWindowTitle("Compare a measurement")
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         self.panel = MeasurementComparePanel(objects, groups, parent=self,
-                                             settings=settings)
+                                             settings=settings,
+                                             databases=databases,
+                                             counts=counts)
         layout.addWidget(self.panel)
         self.resize(900, 720)
 
@@ -380,3 +607,17 @@ class MeasurementCompareDialog(QDialog):
     @property
     def report(self):
         return self.panel.report
+
+    @property
+    def contrast(self):
+        return self.panel.contrast
+
+    @property
+    def controls(self):
+        return self.panel.controls
+
+    def choose_wells(self, *args):
+        return self.panel.choose_wells(*args)
+
+    def join_the_tables(self, *args):
+        return self.panel.join_the_tables(*args)

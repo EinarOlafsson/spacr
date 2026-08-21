@@ -436,6 +436,15 @@ class MontageLoad:
         pictures are not comparable.
     :param shape_reason: why a shape is missing from ``shapes``, for the
         disabled entry's tooltip.
+    :param objects: EVERY object row the load read, not just the ones the
+        plans selected. The Compare panel's wider contrasts (187 B) need the
+        cells the montage did NOT pick -- "against every other well" has
+        nothing on its other side without them -- and the join that makes
+        every database measurement reachable (187 A) is keyed on these rows.
+        A reference, not a copy: the frame is already in memory.
+    :param counts: the per-well guide fractions this load resolved. Carried
+        for the same reason: naming a control (184) is a question about the
+        COUNT data, and the panel cannot answer it from object rows.
     """
 
     request: Optional[MontageRequest] = None
@@ -446,6 +455,8 @@ class MontageLoad:
     unavailable: bool = False
     shapes: Tuple[str, ...] = ()
     shape_reason: str = ""
+    objects: Any = None
+    counts: Any = None
 
     @property
     def ok(self) -> bool:
@@ -840,7 +851,8 @@ def load(request: MontageRequest) -> MontageLoad:
                        images=tuple(images), sources=described,
                        shapes=tuple(s for s in CROP_SHAPES
                                     if s in (offered or set())),
-                       shape_reason=why)
+                       shape_reason=why,
+                       objects=objects, counts=counts)
 
 
 def _with_notes(plan, notes: Tuple[str, ...]):
@@ -1531,6 +1543,7 @@ class CellMontageView(QWidget):
         #: What the last load resolved, for the settings window's choosers.
         self._last_source = None
         self._last_objects = None
+        self._counts = None
         #: Comparison windows this tab opened, kept so Python does
         #: not collect them the moment the handler returns.
         self._comparisons: list = []
@@ -2088,6 +2101,14 @@ class CellMontageView(QWidget):
         self._sources = dict(result.sources)
         self._shown_key = self._key
         self._unavailable = ""
+        # THE INVENTORY, WHICH NOTHING WAS EVER FILLING. `remember_inventory`
+        # has existed since the picture-settings window learned to offer this
+        # screen's own mask planes and object columns, and it had no caller:
+        # `_last_objects` was None every time, so those choosers silently fell
+        # back to their generic lists. It is called here because this is the
+        # one place that HAS the answer.
+        self.remember_inventory(objects=result.objects)
+        self._counts = result.counts
         self._apply_shape_availability(result)
         self._fill()
         self._set_status(self._summary())
@@ -2387,6 +2408,32 @@ class CellMontageView(QWidget):
 
         return pd.concat(frames) if len(frames) > 1 else frames[0]
 
+    def rows_to_compare(self):
+        """Every object row the Compare panel can reach.
+
+        THE PLANS ARE NOT ENOUGH FOR TWO OF THE THREE CONTRASTS (187 B).
+        A plan holds the annotated well's cells; "against the controls" and
+        "against every other well" both need cells the montage never drew,
+        and with only the plan rows in hand they would have nothing on their
+        other side.
+
+        The wider frame is used only when it demonstrably holds the same rows
+        under the same labels -- the picker's groups are INDEX VALUES into
+        the plan rows, and a wider frame that reindexed them would re-annotate
+        different cells. When it does not, the plan rows are returned and the
+        two wider contrasts simply find less; that is a smaller comparison,
+        not a wrong one.
+        """
+        picked = self._all_objects()
+        everything = getattr(self, "_last_objects", None)
+        if picked is None or everything is None or not len(everything):
+            return picked
+        try:
+            covered = bool(picked.index.isin(everything.index).all())
+        except Exception:                                    # noqa: BLE001
+            return picked
+        return everything if covered else picked
+
     def remember_inventory(self, source=None, objects=None) -> None:
         """Keep what the last load resolved, so the settings window can offer
         THIS screen's mask planes and object columns rather than free text."""
@@ -2674,7 +2721,7 @@ class CellMontageView(QWidget):
         "nothing yet" would be a second way of saying what the Summary tab
         already says.
         """
-        rows = self._all_objects()
+        rows = self.rows_to_compare()
         groups = self.picked_groups()
         if rows is None or not len(rows) or not groups:
             return
@@ -2683,7 +2730,9 @@ class CellMontageView(QWidget):
         if self._graph_panel is None:
             self._graph_panel = MeasurementComparePanel(
                 rows, groups, parent=self._tabs,
-                settings=self.picture_settings())
+                settings=self.picture_settings(),
+                databases=self.databases(),
+                counts=getattr(self, "_counts", None))
             # AFTER Summary, which is index 0, and before any well tab.
             # NAMED FOR THE BUTTON THAT OPENS IT. It was "Graph", and the
             # control the user presses says "Compare a measurement" -- one
