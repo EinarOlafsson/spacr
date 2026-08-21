@@ -2466,6 +2466,466 @@
         "a786a8aaad8ecf0c6d912f95fccf61beeda4f406da668408067e6c1b34aa0cb2"
       ]
     },
+    "spacr.annotation_power": {
+      "source_blocks_sha256": [
+        "a3af21f75bcd90ce2d2ef5dbd4f20ae76f62ce3ee639e33ad83e8fd2ea7b8206",
+        "199f56fa13252a3184a8c2630164b43f69b131d13b71f22c8afa7d3d65db5060",
+        "7756593ed40100819c2aedf1c6eb94e3ec971e1bf90717ac8d9f2c700ccb0f79",
+        "9074f6b222927306a339be9c3193b1be764e87fcc90c3332ce7ba8192a7e7c75",
+        "84fd69b0547adbbc51c2a1446c6e18d5ec9738fddac977d2e1785418e32c2c60",
+        "0642ccea17549223f8a18157b6c0b06076741097ab80046be78f2b639c232222",
+        "dc3cb0f3e39546b8a0fd72466c4974da6586be59b310f77b4b9009bbbe081d93",
+        "1083f4a13fdcf1582e62f34facb4b5f52be209b74450d40251eed3dfcd1b0b69",
+        "a1512e223cd65086663c5a3136b3ddd98669c8bfdcd8b01b4129401ee9f9c05e"
+      ],
+      "source_sha256": "7b9cb4ec8d149a86254fe577d601258dfdf9b1927692e6928b663f0b446f42af",
+      "text": "Wie viele Zellen können kommentiert werden, und wie groß der Screening sein müsste.\n\nGefragt 2026-08-21: \"Ich brauche nicht alle Zellen kommentiert. für jede Methode möchte ich so viele Zellen, wie die Methode vernünftigerweise annotate kommentiert ... ohne Methode können wir jede Zelle annotieren, dafür würden wir einen viel größeren Screening brauchen. das ist etwas, das in der Textbox unter dem Graphen gedruckt werden kann, alle Qualitätsmetriken, die für jede Art und wie groß der Screening auf diesen Daten basieren müsste\".\n\nEine Methode, die jede Zelle kommentiert, hat nicht gut gemacht; sie hat abgelehnt, sich der Stimme zu enthalten. Die Frage, über die jede Methode antwortet, ist \"welche Zellen ich sprechen kann\", und die ehrlichen lassen die meisten eines gepoolten Screening-Experiments allein.\n\nDas ist arithmetisch, nicht EFFORT. Nehmen Sie das einfachste Modell der Methode: eine Anleitung `g` ist ein Bruchteil `pi` einer Mikroplattenprobenposition liest, nur `g` produziert den Phänotyp, und die Maschine-Learning-Klassifikation Modell hat Empfindlichkeit `se` und Spezifität `sp`. Eine Zelle namens Phänotyp-positiv trägt mit Wahrscheinlichkeit `g`\n\n    P(g | +)  =  pi * se  /  ( pi * se  +  (1 - pi) * (1 - sp) )\n\nund der zweite Begriff in diesem Nenner ist die Falle. FALSE POSITIVES SIND EIN TEIL DER NEGATIVEN. Wenn `pi` ist klein fast jede Zelle in der Mikroplatten-Probenposition ist eine negative, so dass eine kleine falsch-positive Rate auf fast alles angewendet übertrifft eine große true-positiven Rate auf nahezu nichts angewendet. Unter einem bestimmten `pi` ein positiver Aufruf ist eher ein Fehler als ein Treffer, und keine METHODE, dass EVIDENCE KANN BESSER - es ist nicht eine Beschränkung des Algorithmus, sondern von dem, was die Mikroplattenprobenposition enthält.\n\nUmgestellt, der Bruchteil, den ein Führer für eine Entscheidung bei Vertrauen ``t`` erreichen muss:\n\n    pi*  =  t (1 - sp)  /  ( se (1 - t)  +  t (1 - sp) )\n\nMEHR ZELLEN PER Microplate Probenposition nicht helfen, und dies ist der Gegenintuitive Teil wert Angabe, bevor jemand Bilder mehr Mikroskop-Felder der Ansicht. `pi` ist ein Bruchteil: die Verdoppelung der Zellen verdoppelt die wahren positiven und die falschen positiven zusammen, so dass die pro-Zell-Konfidenz unverändert ist. Es kauft mehr annotierte Zellen mit der gleichen Rate, nie eine höhere Rate. Die Rate bewegt sich nur, wenn sich das SHARE-Modell des Führers bewegt -- weniger Führungen pro Probeposition der Mikroplatte -- oder wenn das Klassifizierungsmodell für maschinelles Lernen sich besser trennt.",
+      "translation_source_blocks_sha256": [
+        "a3af21f75bcd90ce2d2ef5dbd4f20ae76f62ce3ee639e33ad83e8fd2ea7b8206",
+        "199f56fa13252a3184a8c2630164b43f69b131d13b71f22c8afa7d3d65db5060",
+        "0a02cc024f0038e5eb25501482a8e9bb66be45e026ae0295f876b6dd63bb90de",
+        "fc87c7a47bfee76d6918fdde4ac54455f301d69ef75b0643335a02d91a3511e6",
+        "84fd69b0547adbbc51c2a1446c6e18d5ec9738fddac977d2e1785418e32c2c60",
+        "4de646a698f20512f967de5383e9a8026c9d8d62042a807b96ccb80595cb4f95",
+        "dc3cb0f3e39546b8a0fd72466c4974da6586be59b310f77b4b9009bbbe081d93",
+        "1083f4a13fdcf1582e62f34facb4b5f52be209b74450d40251eed3dfcd1b0b69",
+        "6f0d93fef5aa07812276a2720cb15417da2881fb30f8fd206d76f8c554e37809"
+      ]
+    },
+    "spacr.annotation_power.annotatable": {
+      "source_blocks_sha256": [
+        "5a233f2468b8bc80b199221d4dbc220f8b8eabb3b82cb915508031d8d974f55e",
+        "cdf5f11230d8882ed62971087605484e4e5a7c2ef1068ec425ee18668194d1ec",
+        "6fa56f0d087b7cf95e26c6d08ac6f5132f5471ab34a6242d773a0b4f881c8953",
+        "f698a458c955018351f7c41cdf2c67a3047910545c30352f27303e683a5faa11",
+        "c6af761ebd68a139a139353e962d7beb53358acffda082912038cb6e06ba4aa5"
+      ],
+      "source_sha256": "bb5a94b912cadb4ff7ea2941b4d46689fc8a9fcdebd4b1dbb48f6d7b6b1d0d37",
+      "text": "Wie viel von einem Screening ist überhaupt erreichbar, angesichts seiner eigenen Fraktionen.\n\n:param fractions: ``{well: {guide: fraction}}`` -- der Screening, wie er ist.\n:param cells_per_well: optional, um den Anteil der gut geführten Paare in einen Anteil von CELLS zu verwandeln.\n:returns: den Boden, was ihn klärt und was das unerreichbar macht.\n\nEine Anleitung, die nie `pi*` in einem Wells erreicht, kann nicht irgendwo im Screening kommentiert werden, so dass keine Menge an Methodenentwicklung eine einzige Zelle für sie produziert. Das ist eine Tatsache über das Experiment, verfügbar, bevor eine Methode ausgeführt wird, und es ist die Zahl, die entscheiden sollte, ob eine laufen.",
+      "translation_source_blocks_sha256": [
+        "5a233f2468b8bc80b199221d4dbc220f8b8eabb3b82cb915508031d8d974f55e",
+        "cdf5f11230d8882ed62971087605484e4e5a7c2ef1068ec425ee18668194d1ec",
+        "6fa56f0d087b7cf95e26c6d08ac6f5132f5471ab34a6242d773a0b4f881c8953",
+        "f698a458c955018351f7c41cdf2c67a3047910545c30352f27303e683a5faa11",
+        "c6af761ebd68a139a139353e962d7beb53358acffda082912038cb6e06ba4aa5"
+      ]
+    },
+    "spacr.annotation_power.posterior_for_prior": {
+      "source_blocks_sha256": [
+        "a8b93e65b79cf13ec136cc34228113736c6f13b9b1a575e90e12051f41be14b9"
+      ],
+      "source_sha256": "a8b93e65b79cf13ec136cc34228113736c6f13b9b1a575e90e12051f41be14b9",
+      "text": "P(die Zelle trägt die Anleitung), sie wurde Phänotyp-positiv genannt).",
+      "translation_source_blocks_sha256": [
+        "a8b93e65b79cf13ec136cc34228113736c6f13b9b1a575e90e12051f41be14b9"
+      ]
+    },
+    "spacr.annotation_power.quality_report": {
+      "source_blocks_sha256": [
+        "cda8179e3ea87f8008f294889f95ef9bc335d85b9f5f912f2e979e53cb44a735",
+        "c3ae96c57a2c5e818f3c65c7ab9c8c760366e21008a1eb3619ca3a272f7a6dae",
+        "0e8e840e036a72a424adc9dc9bbc5135e9a0463e052e24a09293849b65bb8173",
+        "712e45be4c89a60b583128cfd76b64e281a9b0c97e215c1c47fa702829a0970c",
+        "cfce7fb29dccfc3396b0fa2215680f8eb3da77087a05c7ac970d23a94f007ce1"
+      ],
+      "source_sha256": "86d94116f8a7a88ef41bfb07f6cd0005c9fc4fbfe5215f162fec319ddfe6a94b",
+      "text": "Die Textbox unter dem Graphen: die Metriken jeder Methode und die Decke.\n\n:param verdicts: ``{method: Verdict}`` von :func:`spacr.annotation_validation.score_annotation`.\n:param power: das :func:`annotatable`-Ergebnis für diesen Screening.\n:param size: das :func:`screen_size_for`-Ergebnis.\n\nDie Methoden werden von den Zellen angeordnet, die sie RECHT erhalten haben, das ist die einzige Rangliste, die weder belohnt noch kommentiert alles schlecht noch nichts sicher.",
+      "translation_source_blocks_sha256": [
+        "cda8179e3ea87f8008f294889f95ef9bc335d85b9f5f912f2e979e53cb44a735",
+        "c3ae96c57a2c5e818f3c65c7ab9c8c760366e21008a1eb3619ca3a272f7a6dae",
+        "0e8e840e036a72a424adc9dc9bbc5135e9a0463e052e24a09293849b65bb8173",
+        "712e45be4c89a60b583128cfd76b64e281a9b0c97e215c1c47fa702829a0970c",
+        "cfce7fb29dccfc3396b0fa2215680f8eb3da77087a05c7ac970d23a94f007ce1"
+      ]
+    },
+    "spacr.annotation_power.required_fraction": {
+      "source_blocks_sha256": [
+        "04c77bb75b579bf27811f483de3218ac3454772570279c9191e7029a42873298",
+        "523285e2e795bc5b5649e6ec17de2f8f00288f5eabbc91cf5169b3f260279851"
+      ],
+      "source_sha256": "616e3e440932927646826025f198ea225e74cafc2a5d1ae6eaa52dcb14493f9d",
+      "text": "Die kleinste Führungsfraktion, die einen Anruf bei ``decision`` unterstützen kann.\n\nUnterhalb dieser ist die Arithmetik gegen Sie unabhängig von der Methode: eine Phänotyp-positive Zelle in einer solchen Mikroplatten-Probenposition ist eher einer der vielen Negative falsch gelesen als einer der wenigen Positive.",
+      "translation_source_blocks_sha256": [
+        "04c77bb75b579bf27811f483de3218ac3454772570279c9191e7029a42873298",
+        "8b93158d69bb1fa96d755136855747b8efc051184272aedf2f8fc63da7d31830"
+      ]
+    },
+    "spacr.annotation_power.screen_size_for": {
+      "source_blocks_sha256": [
+        "342288ae6ec84935923e624315a3265a277d96a5dc7b39107f9010be8a9a1710",
+        "f6d6ddbe748bdd78f242faafbed1c0513c5e18d1abd37975c8709333f039ca0b",
+        "0123211697f8a51dc701b6e0a2702e9383108133906ceb575a4a4366565ddd53",
+        "77c2f51fc8f9ed8b8428abef2bceedce7a9d598c99eb4a2a4ffdbab43be9e6ff"
+      ],
+      "source_sha256": "eadc14a40dcb1754f5e2a52d2402e5b70093d8433443e6091c88c98be7d16c51",
+      "text": "Was der Screening für ``target`` von Guides sein müsste, um erreichbar zu sein.\n\nDER EINE LEVER IST GUIDES PER Microplate-Probenposition. Der Anteil eines Führers ist sein Anteil an der Mikroplatten-Probeposition, also ist die Art und Weise, sie zu erhöhen, weniger Führungen in jede Mikroplattenprobeposition zu setzen -- und die Bibliothek und die Abdeckung pro Führer festzuhalten, das bedeutet mehr Mikroplattenprobenpositionen, im direkten Verhältnis.\n\n:param target: der Anteil der Führer, die den Boden erreichen sollten.\n:returns: die aktuelle Form, die benötigte Form und das Verhältnis zwischen -- plus was das gleiche Ergebnis durch das Klassifizierungsmodell für maschinelles Lernen kosten würde, da ein besseres Modell der andere Weg ist, den Boden zu bewegen.",
+      "translation_source_blocks_sha256": [
+        "342288ae6ec84935923e624315a3265a277d96a5dc7b39107f9010be8a9a1710",
+        "dd02ccdf052f1bd8aacd08cc578fcb51534e425fe31290bcb779e3d4b80d7238",
+        "0123211697f8a51dc701b6e0a2702e9383108133906ceb575a4a4366565ddd53",
+        "558dab68fca244d7ca8d4861b974c4c44aac99da56f517581bcbbdb1d4b3c76b"
+      ]
+    },
+    "spacr.annotation_umap_qc": {
+      "source_blocks_sha256": [
+        "baf7690b442236f6d4537f3b18a28d8a19f255dd07dd02eb5cc81c40f2bc98c6",
+        "5dabbbf67f7ebc7f4cf1b80c4554bf0c56d75ede1e01d238aab96ef1656d357f",
+        "7bd99ac5f84b7b98002481bb31ad5b43654469aa5cff84a6275721cffbc96872",
+        "39e57535322fc8f1bd511fd81a1d335ed01dba8ffb5d4a286e0a7e3a4847616f",
+        "92d86bbfb0d7eea8564d54fcf7788d18584f6fa343f32b5197285aee9c102609",
+        "dd5ed9723518313248258cb2bdfbbb9eb88a1dbd1843ab00d4e3aede03dcce6f",
+        "69dd8dc25000e60d87df3994f13b76af966901b7e3bf9893eef4411ea8a4a545",
+        "3102f89bc4259168d43e6f2101d728fa202b5ce951c0f0567e72284143db78ba",
+        "448e7c3af1266452d4cb86191528c12788b624b386ec5e5b74555c2ebfa60d6a"
+      ],
+      "source_sha256": "20fe73ec60cf48b0666f68c2be59068f3e604db6d28f7992394fe9af5ccc575a",
+      "text": "Landen kommentierte Zellen dort, wo die Wirkung ihres Führers sagt, dass sie es sollten?\n\nVorgeschlagen 2026-08-21: \"generieren Sie eine umap, führen Sie eine Hyperparamiter Suche finden Struktur, die die positiven und negativen Steuerelemente trennt und sehen, wo die annotierten Zellen landen, clustern sie mit PC oder NC ... dies wäre eine Qualitätskontrolle und ein Beweis für die Art, dass die Annotation funktioniert\".\n\nES IST EIN GUTES CHECK BECAUSE ES IST UNABHÄNGIG. Die Anmerkung besteht aus Sequenzierungsfraktionen und einem Phänotyp-Aufruf; dies stellt eine andere Frage nach einem anderen Raum -- wo sitzt die Zelle unter den Steuerungen, mit jeder Messung auf einmal -- und die Steuerungen liefern einen Referenzrahmen, der der Anmerkung nichts verdankt.\n\nIN EINER TESTRÄTTER ALS EINE PIKTUR SIND drei Dinge, und ohne sie wird es mit allem, was es gezeigt wird, übereinstimmen:\n\n  1. Die HYPERPARAMETER MUSS NICHT AUF DEN ZELLEN GEGEBEN WERDEN. Durchsuchen, bis PC und NC getrennt die Projektion auf die Etiketten passen, und mit ausreichenden Messungen trennt einige Einstellung immer zwei Gruppen. :func:`fit_on_controls` spaltet die CONTROL-Mikroplattenprobenpositionen, Melodien auf der einen Hälfte, und berichtet, die Trennung erreicht auf der anderen. Eine Suche, die nur die Hälfte trennt es abgestimmt hat nichts gefunden.\n\n  2. DIE READOUT MUSS EINE NUMMER sein. \"Sie mit PC clustern\" wird von :func:`neighbour_purity` beantwortet: der Anteil der nächsten CONTROL-Nachbarn einer Zelle, die positive Steuerungen sind. Eyeballing a UMAP ist keine Messung -- Clustergrößen und die Entfernungen zwischen ihnen sind Artefakte der Projektion, und nur die Nachbarschaften bedeuten etwas.\n\n  3. MUSS EINE NULL sein. Zellen landen irgendwo, was immer die Annotation sagt. :func:`effect_agreement` fragt, ob Reinheit die EFFECT SIGNS der Guides verfolgt und vergleicht dies mit der gleichen Statistik mit den Effekten, die zwischen Guides gemischt wurden.\n\nDIE FALLE DIESE KANN NICHT ENTFLUCHT, und es entscheidet, welche Methoden auf diese Weise überhaupt beurteilt werden dürfen. Eine Methode, die Zellen nach dem Phänotyp-Score auswählt, wird Zellen produzieren, die in der Nähe der positiven Kontrollen sitzen, was auch immer sonst wahr ist - das ist es, worauf es ausgewählt wurde. `rank` nimmt die Zellen mit der höchsten Punktzahl in der Mikroplatten-Probenposition, sodass die annotierte Zellclusterung mit PC eine Wiederholung der Auswahl ist und nichts beweist.\n\nDie Überprüfung ist informativ genau für Methoden, deren Zellwahl nicht die Partitur verwendet: `sudoku` mit der Partitur aus dem Graphen, `assigned`, und `attributed`, wo der Effekt kommt von der Regression statt der Partitur. :func:`circularity_warning` weigert sich, ruhig darüber zu sein.",
+      "translation_source_blocks_sha256": [
+        "baf7690b442236f6d4537f3b18a28d8a19f255dd07dd02eb5cc81c40f2bc98c6",
+        "5dabbbf67f7ebc7f4cf1b80c4554bf0c56d75ede1e01d238aab96ef1656d357f",
+        "7bd99ac5f84b7b98002481bb31ad5b43654469aa5cff84a6275721cffbc96872",
+        "39e57535322fc8f1bd511fd81a1d335ed01dba8ffb5d4a286e0a7e3a4847616f",
+        "726a5cf8acf1271e454cc0701bf7e508d14089056b06636ab7fd97bcd265e8ef",
+        "dd5ed9723518313248258cb2bdfbbb9eb88a1dbd1843ab00d4e3aede03dcce6f",
+        "69dd8dc25000e60d87df3994f13b76af966901b7e3bf9893eef4411ea8a4a545",
+        "62a876d0e14c2bba935809b1ad0d3f12a7de720584092bd00ebf9588c1a535a0",
+        "448e7c3af1266452d4cb86191528c12788b624b386ec5e5b74555c2ebfa60d6a"
+      ]
+    },
+    "spacr.annotation_umap_qc.circularity_warning": {
+      "source_blocks_sha256": [
+        "4b9c1d1ee9b009e328fff6063d1f94e97be6e651341af2ebf8c1c56a93fdafab",
+        "02bae122bcdcb01792fc16846468201de502cdd4d735955d25544e56c1c4112f"
+      ],
+      "source_sha256": "71de7cb556d789534ac8df66dbe8794776eb63a5af8714373571232db090d5b8",
+      "text": "Warum diese Prüfung nicht informativ für ``method`` oder ``\"\"`` sein kann.\n\nEine Methode, die ausgewählte Zellen BY die Partitur platziert sie in der Nähe der positiven Kontrollen durch Konstruktion. Berichterstattung, dass als Validierung würde die Auswahl Regel an sich selbst berichten.",
+      "translation_source_blocks_sha256": [
+        "4b9c1d1ee9b009e328fff6063d1f94e97be6e651341af2ebf8c1c56a93fdafab",
+        "02bae122bcdcb01792fc16846468201de502cdd4d735955d25544e56c1c4112f"
+      ]
+    },
+    "spacr.annotation_umap_qc.effect_agreement": {
+      "source_blocks_sha256": [
+        "0343d9c128549b1e38789af297246893c52f51733170cd9884fdfd0f4ccf99c2",
+        "4f00dece26e2deadeac4ae1826f9a44e6182dd840c6210004c500dae0bb6504d",
+        "0783d7f5f0aef7a4158d0c12103b61f136c6048d6cd80cb167c49ddb94b92861",
+        "c607e5c21df17a150dfd234b205649c82833ec5b46e06734d1b506b187108f1c"
+      ],
+      "source_sha256": "31288254b608732976402f59e26da37bd3980e8559487079b66842a6f3b03186",
+      "text": "Verfolgt Reinheit die Wirkungszeichen der Guides, jenseits des Zufalls?\n\nDER GEPRÜFTE ANTRAG, in der Form, wie er vorgeschlagen wurde: \"die Zellen mit einem positiven Effektgrößencluster mit der positiven Kontrolle und die Zellen, die keinen positiven Coeffisienten haben, nicht\".\n\n:returns: die Rangkorrelation zwischen Wirkung und Reinheit, ein Permutations-p-Wert und die Gruppe bedeutet für Führer mit positiven, negativen und nahezu Null-Effekten.\n\nDIE NULLSCHUFELN DIE EFFEKTE ZWISCHEN LEITLINIEN UND BEHALTEN alles andere, so erhält es, wie viele Führer es gibt, wie viel Zellen jede hat, und die Reinheitsverteilung -- und zerstört nur die Korrespondenz behauptet wird. Eine Korrelation, die überlebt, dass über die Annotation ist.",
+      "translation_source_blocks_sha256": [
+        "0343d9c128549b1e38789af297246893c52f51733170cd9884fdfd0f4ccf99c2",
+        "4f00dece26e2deadeac4ae1826f9a44e6182dd840c6210004c500dae0bb6504d",
+        "0783d7f5f0aef7a4158d0c12103b61f136c6048d6cd80cb167c49ddb94b92861",
+        "c607e5c21df17a150dfd234b205649c82833ec5b46e06734d1b506b187108f1c"
+      ]
+    },
+    "spacr.annotation_umap_qc.fit_on_controls": {
+      "source_blocks_sha256": [
+        "e7e6a06b73cee7d95cd862d2537e7197934aee42093152d4bafc115100c884b3",
+        "df81cd898589d4948c318bfec953930acd056106d499699f8131fb08fb04c183",
+        "9b6050a9564fc287f1b62ae23d25e9155311bde0f64a930f89f79bb0d0b8af02",
+        "1d006ce7a637bb90a740392f1dd3af2543012c8b29ad0c638a666d717d06db27",
+        "9befe48263b9bc3dad17ce94e960e21e75dfdf53ab0de00ad2e0192cdd9c8d04",
+        "70c6185761c4283bd8061839230fbae55c11d79b4324ebce98a3e5e2dd4e95cf"
+      ],
+      "source_sha256": "bd930754e0eec8938359bdea1a1ffc1d9e6dc277e4c6ddcacd4d76559b8e57fe",
+      "text": "Wählen Sie eine Einbettung auf die Hälfte der Steuerelemente, punkten Sie es auf der anderen Hälfte.\n\n:param features: ``(n_cells, n_features)`` nur für die CONTROL-Zellen.\n:param labels: :data:`POSITIVE` oder :data:`NEGATIVE` pro Kontrollzelle.\n:param recipes: candidate UMAP Parameter setzt, um zu versuchen.\n:returns: das Siegerrezept, seine ausgehaltene Trennung und jeden Prozess.\n\nDIE HELD-OUT-NUMMER IST DIE NUR EINE WORTLICHE LESEN. Tuning bis zwei gekennzeichnete Gruppen sich trennen, gelingt immer genug Parameter, um es zu versuchen; die Frage ist, ob die Trennung auf Zellen überlebt, die die Suche nie gesehen hat. Eine große Lücke zwischen den abgestimmten und ausgehaltenen Partituren bedeutet, dass die Suche den Split statt die Biologie passte, und die Einbettung sollte dann nicht verwendet werden, um etwas zu beurteilen.",
+      "translation_source_blocks_sha256": [
+        "e7e6a06b73cee7d95cd862d2537e7197934aee42093152d4bafc115100c884b3",
+        "df81cd898589d4948c318bfec953930acd056106d499699f8131fb08fb04c183",
+        "9b6050a9564fc287f1b62ae23d25e9155311bde0f64a930f89f79bb0d0b8af02",
+        "1d006ce7a637bb90a740392f1dd3af2543012c8b29ad0c638a666d717d06db27",
+        "9befe48263b9bc3dad17ce94e960e21e75dfdf53ab0de00ad2e0192cdd9c8d04",
+        "70c6185761c4283bd8061839230fbae55c11d79b4324ebce98a3e5e2dd4e95cf"
+      ]
+    },
+    "spacr.annotation_umap_qc.neighbour_purity": {
+      "source_blocks_sha256": [
+        "72aae47ad5417e99fd3e889a2e13c2f8777c8f2d850b1c25afeb9094e9626fbb",
+        "ccf70b39aacf9980d3a61ea716c2be3fa15e116d4cb0951884f87a177267af00",
+        "865653ff6cae3831a252076ac6bd1284ba7e35c61b496809c101d59813d686a1",
+        "678169a8837e435c756cac26b8669894b499c0f3a4b9fe978ee8610ee7c68efe",
+        "74c63f84d7185a9665e222bb3851da3110c6b73c645073f8102f52c659231c6b",
+        "2233c858491d4dfd38250a94ba572e23855711743be268d66f7cabc4b6c9a901"
+      ],
+      "source_sha256": "eadf837107ae5fa78a783d16f55f4081be58405cfb4af74b920e777ad1fddd13",
+      "text": "Anteil der nächsten CONTROL-Nachbarn jeder Zelle, die positiv sind.\n\n:param embedding: ``(n_cells, 2)`` mit gemeinsam eingebetteten Steuerungen und annotierten Zellen.\n:param control_labels: :data:`POSITIVE`, :data:`NEGATIVE` oder ``None`` für eine Zelle, die keine Steuerung ist.\n:returns: ein Wert pro Zelle in ``[0, 1]``; ``nan``, bei dem kein Kontrollnachbar gefunden wurde.\n\nNACHBARSCHAFTEN, NICHT KLUSTER, und nicht Entfernungen. Die Clustergrößen und die Lücken zwischen einem UMAP sind Artefakte des Layouts; was es bewahrt, und alles, was es konserviert, ist, wer in der Nähe ist. Eine Statistik, die auf etwas anderes basiert, liest die Projektion anstatt die Daten.\n\nDie eigene Reinheit einer Kontrollzelle zählt seine Nachbarn und NICHT ITSELF, so dass die Steuerungen auf der gleichen Grundlage wie alles andere gewertet werden können -- was sie als Referenz für das macht, wie ein \"pure\"-Score hier sogar aussieht.",
+      "translation_source_blocks_sha256": [
+        "72aae47ad5417e99fd3e889a2e13c2f8777c8f2d850b1c25afeb9094e9626fbb",
+        "ccf70b39aacf9980d3a61ea716c2be3fa15e116d4cb0951884f87a177267af00",
+        "865653ff6cae3831a252076ac6bd1284ba7e35c61b496809c101d59813d686a1",
+        "678169a8837e435c756cac26b8669894b499c0f3a4b9fe978ee8610ee7c68efe",
+        "74c63f84d7185a9665e222bb3851da3110c6b73c645073f8102f52c659231c6b",
+        "2233c858491d4dfd38250a94ba572e23855711743be268d66f7cabc4b6c9a901"
+      ]
+    },
+    "spacr.annotation_umap_qc.purity_by_guide": {
+      "source_blocks_sha256": [
+        "5e12c95c15a853e65e2849394720cd297a0f7224dbd104ce620e5fd7f22e7684",
+        "8b8da6820778a37c79e018729ea43d81f18c64580ad03b10bf5387852844e215"
+      ],
+      "source_sha256": "6ece8d5027141be175b160c3071682acfd2e715543957073f0edda00ed1e2f29",
+      "text": "Durchschnittliche Reinheit pro kommentierten Führer, mit der Zahl dahinter.\n\n:param minimum_cells: Führungen mit weniger annotierten Zellen werden ausgelassen und nicht lautstark gemeldet. Ein Führer mit drei Zellen hat eine Reinheit, die nur 0, 1/3, 2/3 oder 1 sein kann.",
+      "translation_source_blocks_sha256": [
+        "5e12c95c15a853e65e2849394720cd297a0f7224dbd104ce620e5fd7f22e7684",
+        "8b8da6820778a37c79e018729ea43d81f18c64580ad03b10bf5387852844e215"
+      ]
+    },
+    "spacr.annotation_validation": {
+      "source_blocks_sha256": [
+        "cd8e60883fc297b3cac91141d1c50409388ee9b03d2263aa02673db6854a42d4",
+        "69c0cd79ffc9437b39dbf411550e07e63c18895d58b5a10fca29dd6ac8d5c139",
+        "0b00d100c01b3f4864da13d6b53e2910b5beab63fa98a0ecac42138f3905c8f0"
+      ],
+      "source_sha256": "01f8fa7aa0d2ac007ffecf64469045b74da393a68e93f3f9d1550d37d8de7925",
+      "text": "Bewertung von Leit-Annotationsstrategien gegen messbare Referenzfälle.\n\nReal pooled screens do not provide cell-level guide ground truth. Validation therefore combines four complementary checks: simulated screens with known assignments, guide-to-well permutations that should reduce performance to chance, held-out controls, and order-sensitivity analysis for sequential methods.\n\nDie Ergebnisse berichten über Abdeckung und Präzision getrennt. Dies vermeidet die Behandlung einer Methode, die jede Zelle unzuverlässig als eine gleichbedeutend markiert, die auf unsicheren Zellen verzichtet und den Rest genau beschriftet.",
+      "translation_source_blocks_sha256": [
+        "cd8e60883fc297b3cac91141d1c50409388ee9b03d2263aa02673db6854a42d4",
+        "b61058569b4fde2bc511e7fec27088781fd509ff0e85733e60028a93224cb72e",
+        "0b00d100c01b3f4864da13d6b53e2910b5beab63fa98a0ecac42138f3905c8f0"
+      ]
+    },
+    "spacr.annotation_validation.Screen": {
+      "source_blocks_sha256": [
+        "8b5f49169620cb57e56cea46d62aadc0130a4608c2ee1e42cf5ff8eb5fb99b33",
+        "1781f1119578939ae57cb1e1899988a8c80e267e9518d8dc27958ccf137109ac",
+        "373a0624928cf536854f70069859403f293d22848e043fb2b691df67472beb73",
+        "4e74a48dde732283c8bbd6fcdc368d9c610e80f18cf2e91ba720611dd97dd427",
+        "e3f87dbc4e1b2831f129e6acd8f3909703871430ce0205753e0e59ae1bf5d47f",
+        "ed156b97fbd7472764f01551fb8cba9442c0aeb8daadba7e043e7263fc067d70",
+        "75bc563bc137b3beb2dcb6f4fcd8143b35e3af0d6c42610bb752f2e9a098a0d4",
+        "67451c1f0b6edc3cd421e56ccf2f4ee9b97c8e600f66d773b11565b051fb5214"
+      ],
+      "source_sha256": "3f6c2ae746ceec192c4a97189bf2bcd209a3466467b6cc1a3170ad48b47014c1",
+      "text": "Ein simulierter Screening und die Antwort.\n\n:ivar features: ``(n_cells, n_features)``.\n:ivar scores: die Klassifikationspunktzahl pro Zelle, wobei der Fehler des Klassifizierungsmodells für maschinelles Lernen bereits angewandt wird.\n:ivar wells: eine Mikroplattenmusterpositionskennzeichnung pro Zelle.\n:ivar truth: die Führung jede Zelle WIRKLICH trägt.\n:ivar fractions: ``{well: {guide: fraction}}`` als Sequenzierung berichtet sie -- voreingenommen und geschwellet, d.h. was die Methode tatsächlich bekommt.\n:ivar true_fractions: die gleiche vor der Voreingenommenheit gehalten, so kann ein Test fragen, wie viel von einem Ausfall war der Bruchteil anstatt die Methode.\n:ivar guides: jede Anleitung auf dem Screening.",
+      "translation_source_blocks_sha256": [
+        "8b5f49169620cb57e56cea46d62aadc0130a4608c2ee1e42cf5ff8eb5fb99b33",
+        "1781f1119578939ae57cb1e1899988a8c80e267e9518d8dc27958ccf137109ac",
+        "b8586382ed692d6787f525f6ec8e5917f20a82654a2d44b6bf3c665388a37f62",
+        "c0467ab89b7b6826cc65ed13aa61d4446f461fe4b6fafd4aa5e161c994e19a03",
+        "e3f87dbc4e1b2831f129e6acd8f3909703871430ce0205753e0e59ae1bf5d47f",
+        "ed156b97fbd7472764f01551fb8cba9442c0aeb8daadba7e043e7263fc067d70",
+        "75bc563bc137b3beb2dcb6f4fcd8143b35e3af0d6c42610bb752f2e9a098a0d4",
+        "67451c1f0b6edc3cd421e56ccf2f4ee9b97c8e600f66d773b11565b051fb5214"
+      ]
+    },
+    "spacr.annotation_validation.Verdict": {
+      "source_blocks_sha256": [
+        "d6f8df29761fbae33554519621e7be3f060a06847974c3f56a0c8be04ab207e5"
+      ],
+      "source_sha256": "d6f8df29761fbae33554519621e7be3f060a06847974c3f56a0c8be04ab207e5",
+      "text": "Wie eine Annotation gegen eine bekannte Wahrheit wirkte.",
+      "translation_source_blocks_sha256": [
+        "d6f8df29761fbae33554519621e7be3f060a06847974c3f56a0c8be04ab207e5"
+      ]
+    },
+    "spacr.annotation_validation.baseline_chance": {
+      "source_blocks_sha256": [
+        "01183d48d0450eca4953c8a69fed892d42752037e098ea2f85397261e33683d1",
+        "797cc26d090be41d3e76cd803b1bacdd1b8ff5f940acf43deae11a627a6ffd23"
+      ],
+      "source_sha256": "62413f3b754c4f2697a76bfa8e0c82ef8c17277eefeb6d3fb7275de6f3e05775",
+      "text": "Zeichne jede Zelle nach dem Zufallsprinzip aus den Fraktionen ihres Brunnens.\n\nDie andere Etage: Was eine Methode wertet, wenn sie die zählt und nichts anderes weiß. Zusammen mit :func:`baseline_majority` diese Klammer, was die Sequenzierung ohne Hilfe tun kann.",
+      "translation_source_blocks_sha256": [
+        "01183d48d0450eca4953c8a69fed892d42752037e098ea2f85397261e33683d1",
+        "797cc26d090be41d3e76cd803b1bacdd1b8ff5f940acf43deae11a627a6ffd23"
+      ]
+    },
+    "spacr.annotation_validation.baseline_majority": {
+      "source_blocks_sha256": [
+        "52662918ccf24e154a7ac1e3411f1b88e2baa73a3fdfc8de84a44ae6b4684f7e",
+        "fe43b2ab46876dc18e8d56d529fbd181c072c3978871b48a3a6b5a6a4c18a161",
+        "dc168d9bfcef75296a205ee74b75d38b18f6f228976a1138c5d03e9f33d85ddf"
+      ],
+      "source_sha256": "53b758cea0b0cec1068d09ad9bb6b379856764c34215d964348484bd18894331",
+      "text": "Geben Sie jeder Zelle in einer Mikroplatten-Probenposition den größten Führer dieser Mikroplattenprobeposition.\n\nDIE FLOOR JEDE METHODE MUSS KLEINEN, und es muss in jedem Benchmark statt angenommen werden. Es verwendet KEINE Zellmessung überhaupt -- nur die Sequenzierung -- also was auch immer es ist, was die Fraktionen allein auf diesem Screening wert sind.\n\nOhne sie kann ein Benchmark nicht \"the method works\" von \"the fractions work\" unterscheiden. Auf einem Screening ohne Signal in den Features wird eine Methode, die sich der Stimme enthalten, außer wo eine Anleitung die Mikroplatten-Probenposition dominiert, eine Präzision weit über dem Zufall posten, und das ist weder ein Fehler noch eine Entdeckung: es ist diese Grundlinie, mit einem Graphen.",
+      "translation_source_blocks_sha256": [
+        "3d4629a328f13f97f18216e8bbd3bdcf1c16676b58521ccfbc4c861dc63325dd",
+        "fe43b2ab46876dc18e8d56d529fbd181c072c3978871b48a3a6b5a6a4c18a161",
+        "2b5a91523ab181c3278fe3296d690646f3bde52c6d529573aefe913f6c4b9805"
+      ]
+    },
+    "spacr.annotation_validation.benchmark": {
+      "source_blocks_sha256": [
+        "f57e08931820fed06258f36071466d8a4ecfd71d7b51dac6c54f0f0ded9fe338",
+        "91ff93d6815998ff8a5b152b321bc1b9ea11a7446e5166d7dc340fedacb848cf",
+        "9f58dbaea74ecf33510fed2514aec09cdae46f3f6300c69107efed932287aa47",
+        "1b26285faeedc9a0d3fd9d89e2b18da9167fb7657a3321873ca4bededccdd3ba",
+        "0359ea5aa1ca7ce607ac5b2c5082f4c70e363b1cb2fd8db07b9da332c8759215"
+      ],
+      "source_sha256": "8f52b27c2732100067aaeca82070f7228e733d52c523e48d873044f8671c8cfc",
+      "text": "Führen Sie jede Strategie auf jedem Szenario, und jedes Szenario ist null.\n\n:param strategies: ``{name: screen -> one guide per cell}``.\n:param scenarios: ``{name: Screen}``. Standardwerte auf :func:`default_scenarios`.\n:returns: ``{scenario: {strategy: {\"real\": Verdict, \"null\": Verdict}}}``.\n\nDIE NULL IST RUN FÜR JEDE STRATEGIE AUF JEDER SZENARIO, nicht einmal als Vernunft-Check am Ende. Eine Methode kann auf einem einfachen Screening klingen und seine eigenen Anker auf einem harten lesen, und nur der gepaarte Vergleich zeigt, dass -- die Lücke zwischen real und null ist der Teil der Performance, die aus den Daten kam.",
+      "translation_source_blocks_sha256": [
+        "f57e08931820fed06258f36071466d8a4ecfd71d7b51dac6c54f0f0ded9fe338",
+        "91ff93d6815998ff8a5b152b321bc1b9ea11a7446e5166d7dc340fedacb848cf",
+        "9f58dbaea74ecf33510fed2514aec09cdae46f3f6300c69107efed932287aa47",
+        "1b26285faeedc9a0d3fd9d89e2b18da9167fb7657a3321873ca4bededccdd3ba",
+        "0359ea5aa1ca7ce607ac5b2c5082f4c70e363b1cb2fd8db07b9da332c8759215"
+      ]
+    },
+    "spacr.annotation_validation.calibration": {
+      "source_blocks_sha256": [
+        "b58b8071994781a3611c2833e5a56b7828691b8d97535346e4466121c7d4716b",
+        "6e6ee2e6eccc4dd4aaf61321e52f339ca27899e826f4e39263c7ee96d0e360f3"
+      ],
+      "source_sha256": "e5e2efef6503955601d1ac2e412b5114d13d96b507e348e73be99995d143bc9f",
+      "text": "``[(mean confidence, observed accuracy, count)]`` pro Mülleimer.\n\nEine METHODE, die 0.9 sagt, sollte bei TEN genau NINE times sein. Dies ist die Kontrolle, die am meisten für eine Methode zählt, deren Ausgabe als Gewicht und nicht als Etikett verwendet wird: Präzision kann hoch sein, während die Wahrscheinlichkeiten bedeutungslos sind, und jede nachgeschaltete Zahl, die von ihnen multipliziert wird, ist dann falsch in einer Weise, die keine Genauigkeitspunktzahl offenbart.",
+      "translation_source_blocks_sha256": [
+        "b58b8071994781a3611c2833e5a56b7828691b8d97535346e4466121c7d4716b",
+        "6e6ee2e6eccc4dd4aaf61321e52f339ca27899e826f4e39263c7ee96d0e360f3"
+      ]
+    },
+    "spacr.annotation_validation.count_agreement": {
+      "source_blocks_sha256": [
+        "2a9ff0cd1e367ee2c03f9e42e56f9ded14b70e3619a9cbd767edda0020f3876b",
+        "edd3dd89624c7f6f76fb532f3e9d123e7e72a2025f736e7b09746f6e84784141",
+        "c46524e9cd3a8d2d453dfd634d8f198b66a636234b2a743d3424ed79e4fe82ce",
+        "ccc568d5e03d9ac3c3e039cc99ace05ce34c34b12f67ba829114994a0be8d8a9"
+      ],
+      "source_sha256": "31cb9d83b060a2f1aa1ff481b7e96ccb6aa1568d2b5cbd8b0d97052afc898c06",
+      "text": "Passt die PER-Microplate-Beispielposition einer Methode zu dem, was Sequenzierung gesagt hat?\n\nDer direkte Test einer Annotationsmethode an den gemischten Mikroplattenprobenpositionen: Die Zellen sind nicht markiert, aber ihre COUNTS sind bekannt, so dass eine Methode, die Namen Führer pro Zelle durch Zählen überprüft werden kann, was sie benannt.\n\n:returns: Pro-Mikroplatten-Probenposition vorhergesagte und gemeldete Anteile und Medianfehler.\n\nES IST ERFORDERLICH UND NICHT SÜFFIZIENT, und die Lücke ist wichtig: Eine Methode kann jede Zählung richtig und jede Zelle falsch machen, indem sie die richtige Anzahl Zellen willkürlich nennt. Was das Verhältnis SERIES ausschließt -- die Zählung bei 90:10 richtig zu bekommen, ist einfach, bei 50:50 muss man unterscheiden, und beides mit einer Regel zu tun ist schwer zu fälschen.",
+      "translation_source_blocks_sha256": [
+        "dd25109d5a4675d39d1183d88ff09b396dcabd492943846704f0b65ca120839f",
+        "e73e176b731febdcc56e89ea12d022e61aa2e0ff315425dc36206cf42fad1370",
+        "f8b11bc6e1c7d9762ab3f899ce4efd2cc332a65cddab66a119cd7057116a5e30",
+        "ccc568d5e03d9ac3c3e039cc99ace05ce34c34b12f67ba829114994a0be8d8a9"
+      ]
+    },
+    "spacr.annotation_validation.default_scenarios": {
+      "source_blocks_sha256": [
+        "ea7c4ddf6c41219810ae81353ea1fac036679c8a7199fc730799b3dbd4e35bf2",
+        "4bc3bc945cc46c1d9085ee99f1165e1356bb38558963465da3cd581a798a177b"
+      ],
+      "source_sha256": "f70941c2ab89bb33638c3f9566c2e4878b6252072333aff2cf3e41a632f0fec7",
+      "text": "Ein Screening pro Verwechslung, gewählt in ALONE.\n\nZwecklos getrennt: Ein Benchmark auf einem einzigen realistischen Screening sagt, dass eine Methode 0,7 und nicht die der vier Confounds kostete es die 0,3 erzielt.",
+      "translation_source_blocks_sha256": [
+        "ea7c4ddf6c41219810ae81353ea1fac036679c8a7199fc730799b3dbd4e35bf2",
+        "4bc3bc945cc46c1d9085ee99f1165e1356bb38558963465da3cd581a798a177b"
+      ]
+    },
+    "spacr.annotation_validation.mixed_ratio_calibration": {
+      "source_blocks_sha256": [
+        "6a1a427556def6f53012a05b05c85e87ce1fe0b0fc6da9021cf600e98f5c36f8",
+        "5502658350b01ed325c65e0d39f0bda0b7f6a7b0711f7d6c7d918e6b33b54680",
+        "4e74a48dde732283c8bbd6fcdc368d9c610e80f18cf2e91ba720611dd97dd427",
+        "c0e6f737c8dfed2b4beb33feb12ccd48616155595f30ec725691821aa72a69c1",
+        "f8ada92f95448e82b120eeaa0618a65497a055ae02f7352d40f1d4321920d39e",
+        "34746c4ec03ac82996aa677ac88908b72c13698582ea6f1685c1647f0db77e48",
+        "f865cee483e18bffa9fedb468d22d981eb4d6ecef7a55c1691c85ae7ff78a840",
+        "d6c0a34b64b0284c47b69efa2222ac6bcbbd944bc4228a0d3531e68a0eef99a1",
+        "9ff5be514b203a2e9d6f69fd9a8b845cac1e0b35a9d600402d691382f1b07907"
+      ],
+      "source_sha256": "45533d9e29d261e6cc9cef29e3575e48c8c20e614e871f2bcea3c7caf4511661",
+      "text": "Passen Sie, was Bildgebung sagt gegen das, was Sequenzierung sagte, auf echte Mikroplattenproben Positionen.\n\n:param features: ``(n_cells, n_features)`` über die Kontroll-Mikroplattenprobenpositionen.\n:param wells: eine Mikroplattenmusterpositionskennzeichnung pro Zelle.\n:param reported: ``{well: PC fraction sequencing reported}``.\n:param pure_low: bei oder darunter wird eine Mikroplattenprobenposition als reines NC genommen.\n:param pure_high: bei oder darüber wird eine Mikroplatten-Probenposition als reiner PC genommen.\n:returns: Steigung, Abfang, die Pro-Mikroplatten-Probenpositionsschätzungen und was verwendet wurde.\n\nDIE SLOPE IST DAS FRACTION BIAS, die bereits absorbierte Penetranz - siehe oben. Eine Steigung von 1 bedeutet, dass die Fraktionen der Sequenzierung die zellulären Fraktionen sind. Die 1,8, die `normalised_share` Dokumente hier als Steigung nahe 0.55 zeigen würden.\n\nDie mediane, paarweise Steigung begrenzt den Einfluss einseitiger Kontamination: Ein Treffer, der ein Kontrollgut teilt, kann Phänotyp-positive Zellen hinzufügen, während eine am wenigsten quadratische Steigung in Richtung dieses kontaminierten Brunnens gezogen würde.",
+      "translation_source_blocks_sha256": [
+        "4fde5a72257fac0d6491884cd8807ac93bff8f7faaa50222ada36cfaedcc1af1",
+        "b9c6dc133155ebfb8b1978c8b57bc8d4b1bc9066b532741536e42f5216b623cb",
+        "c0467ab89b7b6826cc65ed13aa61d4446f461fe4b6fafd4aa5e161c994e19a03",
+        "c0e6f737c8dfed2b4beb33feb12ccd48616155595f30ec725691821aa72a69c1",
+        "568bd4c64c67ecdf845e1c7ef6b09f699cd68ad776b73e1eb27597acd6af74bd",
+        "81250cdf2afa615f99a03cc9e81983afef8aea297ea41690d9a8b8ec5dd4e4ac",
+        "7c629010c4faaccf6283c86a4fc1cffef4da1960a2743a3727ecbebbad6a2560",
+        "d6c0a34b64b0284c47b69efa2222ac6bcbbd944bc4228a0d3531e68a0eef99a1",
+        "9ff5be514b203a2e9d6f69fd9a8b845cac1e0b35a9d600402d691382f1b07907"
+      ]
+    },
+    "spacr.annotation_validation.mixture_proportion": {
+      "source_blocks_sha256": [
+        "925b9292c5be01094e1c0978b45d77776d0e569ac57c9612f2d61e1330709c39",
+        "534fb573dcc04db6252d81c895e7a60f94920a9b926df6d9a2f2681c580fcc24",
+        "0a1920780e13e11971238bd210634ff287ece552079833fcd7d6a152264b780e",
+        "a250e910a1c91ed0600d3f21e21a02061e880afd4b73425916ae655c70eb572c",
+        "f707363f48837e058e9e17830c819e896794edae21fa3e1f1d50a566e992bc19",
+        "50aa58958abbafdb4e8586c38af57cf55ac4bcae53b4f023473a83f163ff5822",
+        "d1430cb780fe432fc6c9c3a4087a6d589b21cb752e067b6c8ae217b2abb528f3",
+        "aeae6e15812b0dc8d3f2b3d771ba1a63eab190f0d64d6209e9c62ed0dc3803c4"
+      ],
+      "source_sha256": "9ac15cdff4e2c7f22086ec09323df83822433409ee0e9b29bf459a3de13dc216",
+      "text": "Schätzen Sie den PC-Anteil einer Mikroplatten-Probenposition aus den FEATURES ALONE.\n\n:param features: ``(n_cells, n_features)`` für einen gemischten Wells.\n:param positive: die reinen PC-Referenzzellen.\n:param negative: die reinen NC-Referenzzellen.\n:returns: der geschätzte Anteil, auf ``[0, 1]`` geclippt.\n\nProjektiert den Mittelwert der Mikroplatten-Probenposition auf die Linie zwischen den beiden Referenzmitteln:\n\n    mu_w = pi * mu_PC + (1 - pi) * mu_NC\n\nKEINE PER-CELL-ABELN SIND NOTWENDIG und keines wird verwendet, was der Punkt ist -- die gemischten Mikroplattenprobenpositionen haben keine.\n\nDie mittlere statt eine eingebaute Dichte: Eine Mischungswahrscheinlichkeit in sechs Dimensionen benötigt weit mehr Zellen pro Mikroplattenprobenposition als eine Kontroll-Mikroplattenprobeposition, und der Mittelwert ist für eine Mischung unabhängig von den Komponentenformen unvoreingenommen.",
+      "translation_source_blocks_sha256": [
+        "f69628de30d5d9428d82ea2b18ed7e797bf54eeee0a6286cefcbef6d34aeb73f",
+        "534fb573dcc04db6252d81c895e7a60f94920a9b926df6d9a2f2681c580fcc24",
+        "0a1920780e13e11971238bd210634ff287ece552079833fcd7d6a152264b780e",
+        "a250e910a1c91ed0600d3f21e21a02061e880afd4b73425916ae655c70eb572c",
+        "f707363f48837e058e9e17830c819e896794edae21fa3e1f1d50a566e992bc19",
+        "235627935dba78865a6c24d0841662ca14b827462530215c1abd90a1e4a89c0f",
+        "927cce95fb25c7bb9f81a12a59e1b04c806cfc1be0371bea97c4cacaf4940536",
+        "beed0d5b5434e92ffcb8230ab79518fd94eb7351e4c6a2e1738d307ae8b1694d"
+      ]
+    },
+    "spacr.annotation_validation.order_sensitivity": {
+      "source_blocks_sha256": [
+        "2362ef487929bf4179e1bcd9f4d0e59db4ea5b0d345617d593dd90efed1f06ab",
+        "3667ca73f5cf8701e890b1ec17cc1e4d1c5b41438d338e71536eb04bd2ac3a24",
+        "29f5d143bf974051f613b31e37e3c44f06d38d3e800f30f48d6026507a4cbedd",
+        "8345f071033b680c4c19bf1565e8dd621eb5cf29b6da3964f5f7a14443cf2030",
+        "42d9035b3c973bbf28a0c74037c12330453d839ba91e227d7bbcf2689f1c759b",
+        "6ee022a91ff8a28ac38d2cd7c99ce89ed44534c491093aa2bd6372ba1a5e5b0a"
+      ],
+      "source_sha256": "0f6364c65445f23feb70c53c77ea07720e223dfd2c5346f6b16aceb0ce3c4371",
+      "text": "Wie sehr die Antwort einer sequentiellen Methode von ihrer Reihenfolge abhängt.\n\n:param run: nimmt ein Ranking auf und gibt pro Zelle einen Führungsnamen zurück.\n:param ranking: die ehrliche Ordnung.\n:returns: ``{\"changed\": share of cells that differ, \"repeats\": n}``.\n\nDie Greedy-Methode ist RISIK, MASSURIERT. `sudoku_all` entfernt die Zellen, die es beansprucht, also sind die Fehler des ersten Führers dauerhaft und jeder spätere Führer erbt sie. Wenn die Reihenfolge einen großen Teil der Antwort ändert, ist das Vertrauen, über das sie berichtet, kein Vertrauen -- und das ist eine Tatsache über die Methode, die produziert werden muss, anstatt zu begründen.\n\nDie Störung tauscht ADJACENT-Paare aus, anstatt sie zu verdrängen: Ein Voll-Shuffle fragt, was passiert, wenn das Vertrauensranking bedeutungslos ist, was nicht die Frage ist. Es stellt sich die Frage, was geschieht, wenn zwei Guides von ähnlichem Vertrauen in beiden Ordnung kommen, was der Fall ist, der tatsächlich auftritt.",
+      "translation_source_blocks_sha256": [
+        "2362ef487929bf4179e1bcd9f4d0e59db4ea5b0d345617d593dd90efed1f06ab",
+        "3667ca73f5cf8701e890b1ec17cc1e4d1c5b41438d338e71536eb04bd2ac3a24",
+        "29f5d143bf974051f613b31e37e3c44f06d38d3e800f30f48d6026507a4cbedd",
+        "8345f071033b680c4c19bf1565e8dd621eb5cf29b6da3964f5f7a14443cf2030",
+        "42d9035b3c973bbf28a0c74037c12330453d839ba91e227d7bbcf2689f1c759b",
+        "6ee022a91ff8a28ac38d2cd7c99ce89ed44534c491093aa2bd6372ba1a5e5b0a"
+      ]
+    },
+    "spacr.annotation_validation.permuted": {
+      "source_blocks_sha256": [
+        "ede1177917789be589094b6285301894de3fa6d81461b511e8cda517defd2624",
+        "99376ff38760896da7e68fcc855ba6cd73832c31ff3fe548e1d8833400c39ae9",
+        "0f6d5971660167cb796311a1fa55400cd9403d3aa4e5770abb6cb6422b7434eb",
+        "6eafc94b764dcea3a915f51535e52cbc738be6799aa20bf8592054f82d86f349"
+      ],
+      "source_sha256": "997f19c2dbb1c9cd290948dd03709e0ac114c36ad7e46dd706fb15c5ea1f1901",
+      "text": "Der gleiche Screening mit der Anleitung-zu-Well-Zuweisung gemischt.\n\nDAS EINE KÖNIG, DAS NICHT GROUNDE WAHRHEIT NOTWENDIG IST, weshalb es das einzige ist, das auf einem realen Screening laufen kann. Schablonen, welche Führer waren, in denen gut jede reale Beziehung zwischen Sequenzierung und Bildgebung zerstört, während die Zellen verlassen, die Eigenschaften, die Partituren, die Brunnengrößen und die Fraktionsverteilung genau so, wie sie waren.\n\nEine Methode muss hier zum Zufall zusammenbrechen. Eine, die nicht etwas anderes als die Daten liest -- meistens ihre eigenen Anker, die von der Partitur gewählt werden und mit einem Score-basierten Feature übereinstimmen.\n\nDie Wahrheit wird mit den Fraktionen gemischt, so dass `score_annotation` gegen diesen Screening die Leistung gegen die permutierte Welt misst.",
+      "translation_source_blocks_sha256": [
+        "ede1177917789be589094b6285301894de3fa6d81461b511e8cda517defd2624",
+        "99376ff38760896da7e68fcc855ba6cd73832c31ff3fe548e1d8833400c39ae9",
+        "0f6d5971660167cb796311a1fa55400cd9403d3aa4e5770abb6cb6422b7434eb",
+        "6eafc94b764dcea3a915f51535e52cbc738be6799aa20bf8592054f82d86f349"
+      ]
+    },
+    "spacr.annotation_validation.score_annotation": {
+      "source_blocks_sha256": [
+        "ab459ff43b0e9fc51bfae652bcd606dc21266b6f4da1eb3e88ac4aadaa81fa0a",
+        "66dbf5cb4f07a1e308ef5bf6f66c6c37c62684e20ea363aeb38cce1bee2c8254",
+        "420f471c52aaf4db9cb18cc30b5972cc753fe24ab5a27570db97f3fc4e0cd510"
+      ],
+      "source_sha256": "1dc10c70793f41d2ce46890f944eae8a626ea3324563ed26550cd3d1a51d6a84",
+      "text": "Vergleichen Sie eine Anmerkung mit der bekannten Antwort.\n\nEine Methode, die alles bei 50% kommentiert ist schlimmer als eine, die ein Drittel bei 95% kommentiert, und eine einzelne Punktzahl ordnet sie nach dem Gewicht.\n\nEnthaltungen werden NICHT als Fehler in `precision` gezählt -- die Zurücknahme zur Antwort ist keine falsche Antwort -- aber sie reduzieren `coverage` und `recall`, so dass eine Methode keine Präzision kaufen kann, indem sie sich auf alles verzichtet, ohne das Zeigen.",
+      "translation_source_blocks_sha256": [
+        "ab459ff43b0e9fc51bfae652bcd606dc21266b6f4da1eb3e88ac4aadaa81fa0a",
+        "66dbf5cb4f07a1e308ef5bf6f66c6c37c62684e20ea363aeb38cce1bee2c8254",
+        "420f471c52aaf4db9cb18cc30b5972cc753fe24ab5a27570db97f3fc4e0cd510"
+      ]
+    },
+    "spacr.annotation_validation.synthesise": {
+      "source_blocks_sha256": [
+        "260e6892fae954082d17fd92554f0da9d2d6771e088c4ab7ab0bfc8fbecd6f53",
+        "5aacde4731e512d571a042354436aa0328d02a7d6f1465ec268506cdf56cb197",
+        "8fecaff9de6042a538c0966662707f4c129404ac267949a778a92680bf345cd4",
+        "af7ea235d1fea13f1f1deb389185a57efe0c3c1a094cfa229f418a53cccb33cc",
+        "8e81e14c1861c66e2607dfd5032271dd011d5ebe0b8c9c71c1283918db9e6e99",
+        "159f870a513bd3581288141383483d6030b7d703aabb7a06223d53d0d35ba707",
+        "00be0c403f3521275163587c4de5f89546345e471fd1f676111b6ce5c40ce433"
+      ],
+      "source_sha256": "bc3470150e484c59ef342dbbd87f26d8efc9be3a78d5733abd2915a03a2afba2",
+      "text": "Erstellen Sie einen Screening mit einer bekannten Antwort.\n\n:param effect: wie weit die Zellen eines Führers vom Ursprung im Feature Space, in Standardabweichungen sitzen. Das Signal-zu-Lärm-Zifferblatt: bei 0 sind die Führungen ununterscheidbar und die NO-Methode kann besser als der Zufall sein, was selbst ein Test ist, der es wert ist zu laufen.\n:param penetrance: der Anteil der Zellen eines Führers, die tatsächlich ihren Phänotyp zeigen. Unter 1 sieht der Rest wie nichts besonders aus, das ist die Konfound, die nicht durch eine einzige Kontrolle von einer Bruchvoreingenommenheit getrennt werden kann.\n:param fraction_bias: 1.8 reproduziert, was `normalised_share` Dokumente auf einem realen Screening: gefilterte Fraktionen Summe zu einem Median von 0,5526, so dass die überlebenden Führer werden um ungefähr diese gegenseitige aufgebläht.\n:param fraction_threshold: Drop Guides unterhalb dieses Anteils VOR der Renormalisierung -- der Mechanismus, der eher die Voreingenommenheit erzeugt als eine Nachahmung davon.\n:param classifier_accuracy: Die Punktzahl wird oft in Richtung des falschen Schwanzes gekippt. Werte, die näher bei 1 liegen, produzieren besser voneinander getrennte Klassen.\n:returns: die :class:`Screen`.",
+      "translation_source_blocks_sha256": [
+        "260e6892fae954082d17fd92554f0da9d2d6771e088c4ab7ab0bfc8fbecd6f53",
+        "5aacde4731e512d571a042354436aa0328d02a7d6f1465ec268506cdf56cb197",
+        "8fecaff9de6042a538c0966662707f4c129404ac267949a778a92680bf345cd4",
+        "af7ea235d1fea13f1f1deb389185a57efe0c3c1a094cfa229f418a53cccb33cc",
+        "8e81e14c1861c66e2607dfd5032271dd011d5ebe0b8c9c71c1283918db9e6e99",
+        "159f870a513bd3581288141383483d6030b7d703aabb7a06223d53d0d35ba707",
+        "00be0c403f3521275163587c4de5f89546345e471fd1f676111b6ce5c40ce433"
+      ]
+    },
     "spacr.api": {
       "source_blocks_sha256": [
         "f585ac38eb5deed615ec7dea307476d78996891be47af032e966ca2fe9954aca",
@@ -8044,6 +8504,242 @@
       "text": "Atomisch schreiben Sie einen Leckage-Bericht/Audit als JSON und geben seinen Pfad zurück.",
       "translation_source_blocks_sha256": [
         "101f4c8752816651f946615c900f71c00f71fbc5bee89b9e5c0cef784120f2a5"
+      ]
+    },
+    "spacr.classifier_quality": {
+      "source_blocks_sha256": [
+        "45acfd4bea3111b6f0220dbb420df8e0e26e8069e643146e63de236f38a41019",
+        "3b528fc58946ff54785dcbac45932dc4659d32290d22b6b5a07450e9e307aed7",
+        "e88c5d78138871350b76089d165987c78dd5e92ebc20b998790a599bf71f303e"
+      ],
+      "source_sha256": "99717d0e8d97a587fb2b775d2187d865e50fce60d4a0c843be6bee9cf6863c67",
+      "text": "Messen Sie die Leistung des Machine-Learning-Klassifikationsmodells und korrigieren Sie die beobachteten Klassenfraktionen.\n\nEine Verwechslungsmatrix erfordert markierte Ergebnisse; eine nicht markierte Score-Spalte kann keine Empfindlichkeit oder Spezifität von sich aus feststellen. Verwenden Sie einen markierten Test Split oder out-of-Fold Vorhersagen, wenn verfügbar. Wenn Etiketten nicht verfügbar sind, schätzt :func:`deconvolve` zwei Punkteverteilungen und berichtet, ob ihre Trennung ausreichend ist, um die Schätzung zu unterstützen.\n\nMachine-Learning-Klassifikations-Modell Fehler prägnieren die beobachtete positive Fraktion, anstatt nur seine Unsicherheit zu erweitern. Die Korrekturhelfer zeigen, dass Verzerrungen über Prävalenzniveaus und ablehnen die Rogan-Gladen-Korrektur, wenn Empfindlichkeit und Spezifität nicht identifizieren.",
+      "translation_source_blocks_sha256": [
+        "ef3738cdee2740bb64b9f0af2b6cd67e2aae5398511c2337684e1a856a513420",
+        "3b528fc58946ff54785dcbac45932dc4659d32290d22b6b5a07450e9e307aed7",
+        "afe1a7366aac25fc78b9dfb927796a014cca7a282df7e0416339adc3d394ae83"
+      ]
+    },
+    "spacr.classifier_quality.Confusion": {
+      "source_blocks_sha256": [
+        "9b2f4b1d4d1518c1635b612bdf40ab87a9fa38819e4517a266594d1609905da0"
+      ],
+      "source_sha256": "9b2f4b1d4d1518c1635b612bdf40ab87a9fa38819e4517a266594d1609905da0",
+      "text": "Eine Verwirrungsmatrix und die beiden Zahlen, die tatsächlich verwendet werden.",
+      "translation_source_blocks_sha256": [
+        "9b2f4b1d4d1518c1635b612bdf40ab87a9fa38819e4517a266594d1609905da0"
+      ]
+    },
+    "spacr.classifier_quality.Confusion.accuracy": {
+      "source_blocks_sha256": [
+        "9f271c0d166308ead061345204240ee76da96a607edd824d7e47fe368e0be116",
+        "1e512190bc5f33d6c7ed84323e0e432c9c3c86131ea07b20e90ebbc390e2d9c6"
+      ],
+      "source_sha256": "838c74b57a1f8a3939c3a54067e3a5deee019c6bdd494474caecda316886fa2a",
+      "text": "Die Zahl, die nicht verwendet werden sollte, vorausgesetzt, es kann mit den beiden verglichen werden, die sollte.\n\nAUF EINEM IMBALANCED WELL IST ES DIE MAJORITY CLASS WARTING A HAT. Ein Maschinen-Learning-Klassifikationsmodell, das alles negativ auf einen Wells, der 10% positiv ist, nennt, ist 90% genau und hat eine Empfindlichkeit von Null.",
+      "translation_source_blocks_sha256": [
+        "9f271c0d166308ead061345204240ee76da96a607edd824d7e47fe368e0be116",
+        "eccabb004214745208dd5cd47fa40ae6d113513a8c9088df66230b90909db0d5"
+      ]
+    },
+    "spacr.classifier_quality.Confusion.sensitivity": {
+      "source_blocks_sha256": [
+        "c87d959730553ab62993ab1ceed6e87219b53776df3ca20fc5de6221a3a6d6ba"
+      ],
+      "source_sha256": "c87d959730553ab62993ab1ceed6e87219b53776df3ca20fc5de6221a3a6d6ba",
+      "text": "Von den Zellen, die positiv sind, wird der Anteil positiv genannt.",
+      "translation_source_blocks_sha256": [
+        "c87d959730553ab62993ab1ceed6e87219b53776df3ca20fc5de6221a3a6d6ba"
+      ]
+    },
+    "spacr.classifier_quality.Confusion.specificity": {
+      "source_blocks_sha256": [
+        "14b9bc1d643c661cc46b19d1eef802e33fff9d5cd88bfa2d8d23ff4b1fdffc53"
+      ],
+      "source_sha256": "14b9bc1d643c661cc46b19d1eef802e33fff9d5cd88bfa2d8d23ff4b1fdffc53",
+      "text": "Von den Zellen, die NICHT sind, wird der Anteil negativ genannt.",
+      "translation_source_blocks_sha256": [
+        "14b9bc1d643c661cc46b19d1eef802e33fff9d5cd88bfa2d8d23ff4b1fdffc53"
+      ]
+    },
+    "spacr.classifier_quality.Confusion.usable": {
+      "source_blocks_sha256": [
+        "e78c9f161010288d4e465b68204b747fb735c8b724a04c8cb4a56939466aa1c9",
+        "9060e78168e6bfcb582634d61f78d195ee8ddf521e9645699f738e57f4a1bfd9"
+      ],
+      "source_sha256": "2a456d2a2646061d6fc0a7503baeb6e2d14f5414b81623f3672d02e65f63bda6",
+      "text": "Ob eine Rogan-Gladen-Korrektur daraus gemacht werden kann.\n\n``se + sp <= 1`` bedeutet, dass das Klassifizierungsmodell für maschinelles Lernen keine Informationen an der gewählten Schwelle enthält und die Korrektur durch ``se + sp - 1`` geteilt wird.",
+      "translation_source_blocks_sha256": [
+        "e78c9f161010288d4e465b68204b747fb735c8b724a04c8cb4a56939466aa1c9",
+        "c92beb45bd4f6f1cd6a4b1290c9961545ad8e855c283441701cea099d15d0487"
+      ]
+    },
+    "spacr.classifier_quality.best_threshold": {
+      "source_blocks_sha256": [
+        "36f8e190f537bca60cc607ec0f47458ca81c4fab095abf9e4cb63ec677d9cbc5",
+        "96dc412b443e626cc370a0cd4b4756f63e43b53820e8b7d0d9ffeb0a9052c020"
+      ],
+      "source_sha256": "5e1ba8e6173c8d8e55803f3184fa7c784e3fbbfda05754c49bbeb6e7e6196c2c",
+      "text": "Der Operationspunkt, an dem die Annotation ausgeführt wird.\n\n:param criterion: ``'youden'`` maximiert ``se + sp - 1``, das ist der exakte Nenner der Rogan-Gladen-Korrektur - also ist es hier keine willkürliche Wahl, es ist der Punkt, an dem die Korrektur am stabilsten ist und seine Varianzinflation am kleinsten.",
+      "translation_source_blocks_sha256": [
+        "36f8e190f537bca60cc607ec0f47458ca81c4fab095abf9e4cb63ec677d9cbc5",
+        "96dc412b443e626cc370a0cd4b4756f63e43b53820e8b7d0d9ffeb0a9052c020"
+      ]
+    },
+    "spacr.classifier_quality.confusion": {
+      "source_blocks_sha256": [
+        "7865eb90c95017cf097b58e1b9963c036275237bbb207356b3d76847833b6b70",
+        "61f7113e95e350a507f5559211a1e7326e1aadba4c4b903c6e939b5545f0ce9c",
+        "8444a3c5025655e322c28b5a856b7e4ea30ab9a5ef8b855587c55c2dcd1ffe88",
+        "7df8e4bdb389ffac747e613a68ba2fea35b28bb91e918685863982dc2cc0e363"
+      ],
+      "source_sha256": "1d53851625b0a6e2117714892b8adc47f8103b21af502610499fbefd31312540",
+      "text": "Die Verwechslungsmatrix aus einem markierten Split.\n\n:param scores: die Punktzahl des Klassifikationsmodells für maschinelles Lernen pro Zelle.\n:param labels: True wo die Zelle wirklich die positive Klasse ist.\n:param threshold: Score bei oder über dem der Anruf positiv ist.",
+      "translation_source_blocks_sha256": [
+        "7865eb90c95017cf097b58e1b9963c036275237bbb207356b3d76847833b6b70",
+        "d53e3a0739b72214e3405adb94e0475d257afbbac1828098f16b928e67d6c30c",
+        "8444a3c5025655e322c28b5a856b7e4ea30ab9a5ef8b855587c55c2dcd1ffe88",
+        "7df8e4bdb389ffac747e613a68ba2fea35b28bb91e918685863982dc2cc0e363"
+      ]
+    },
+    "spacr.classifier_quality.deconvolve": {
+      "source_blocks_sha256": [
+        "a760957c681f95dc9bbc059502fe758927ba0bcc2dd2078e4b10d102855bc3f2",
+        "e5256889ca3785347efeecbfe00c04deed6f4ae9b4571f830ab50576b57860da",
+        "a08379b0174e7714f69e2fee62141eb493598e3f64964399fe5f01869da159b9"
+      ],
+      "source_sha256": "ac8411e16de2853d582df2c07a3cb9a7ad055657b441fe155d66833382337738",
+      "text": "Schätzung der beiden Klassenverteilungen aus unmarkierten Scores.\n\nDIE FALLBACK, UND ES IST EIN FALL BACK. Ohne Etiketten passt dies in die Partiturspalte als zwei Gaussian Komponenten und berichtet, was sie bedeuten. Es ist der einzige Weg, wenn nichts markiert wird, und es ist der schwächste, weil es die Form der beiden Komponenten annimmt UND dass sie weit genug voneinander entfernt sind, um überhaupt auseinander erzählt zu werden.\n\n``separation`` ist der Gesundheitstest und muss vor den Zahlen neben ihm gelesen werden: die Lücke zwischen den Komponenten bedeutet in gepoolten Standardabweichungen. Unterhalb von etwa 2 die Passform ist die Wahl zwischen vielen gleichermaßen guten Antworten, und die Empfindlichkeit, die es berichtet, ist ein Artefakt des Ausgangspunktes anstatt eine Tatsache über das Machine-Learning-Klassifikationsmodell.",
+      "translation_source_blocks_sha256": [
+        "a760957c681f95dc9bbc059502fe758927ba0bcc2dd2078e4b10d102855bc3f2",
+        "e5256889ca3785347efeecbfe00c04deed6f4ae9b4571f830ab50576b57860da",
+        "9f9872fdea51d8fd088c2364271df81ba2cf3c5a0be99cd07c82ca8208cc3f6e"
+      ]
+    },
+    "spacr.classifier_quality.discover_test_splits": {
+      "source_blocks_sha256": [
+        "23a495c831fbfe41b4c9d336dd104f7016478b798425bbaf94ef8af7fc8fe60d",
+        "c6445341fe10d7dcc7a8a5cfd4c2061756dc2a4586c19ed5c1bba91693b2053b",
+        "09c523a4d87239b237268f4375d97b5678aac82a581761b644c99d8bcbaeaf52",
+        "fdc849f1dd3f40982f5c77cd7a640644e20181c3a5ffec7a4d4a44e0c08fa23f",
+        "b687ee1bceac093506c7913bdcc5ffcc92088b78c8e9593ac69992e1753c6080"
+      ],
+      "source_sha256": "1be93f788f1a0cc80a0af45b8026ec4f6c57f74079e533c74e3a904b2b07947d",
+      "text": "Finden Sie die schriftlichen Testspalten unter dem Ordner einer Applikationsansicht.\n\n:param root: das Verzeichnis der Anwendungsansicht mit einem Ordner pro Platte.\n:param pattern: wie der Trainingscode sie nannte. Der Standardwert entspricht beiden Formen spaCR schreibt -- `*_test_acc.csv` und `*_test_result.csv`.\n:returns: ``{plate folder name: path}``, eine pro Platte, neuste zuerst, wo eine Platte mehrere hat.\n\nDAS IST DIE ROUTE, und es gibt keine andere. Nichts in spaCR trägt eine gemessene Empfindlichkeit für eine Anwendungsansicht, die nicht gezeigt wurde, also bekommt ein Benutzer mit seiner eigenen Anwendungsansicht seine eigenen Zahlen, indem er diese auf seinen eigenen Ordner zeigt -- das ist die einzige Anordnung, in der die Korrektur für mehr als ein Experiment richtig sein kann.",
+      "translation_source_blocks_sha256": [
+        "97873addce3e4038b9251e98e560e8030efdabc44ee0316794ff364e63b82ca8",
+        "a5bd941fe80ada308f2843616726ff24c8913c4ce46f204cde2ad2b453c17aac",
+        "09c523a4d87239b237268f4375d97b5678aac82a581761b644c99d8bcbaeaf52",
+        "fdc849f1dd3f40982f5c77cd7a640644e20181c3a5ffec7a4d4a44e0c08fa23f",
+        "8068a676af171689db52dbb82337260f287ba727805fe7433b7792f6db13642a"
+      ]
+    },
+    "spacr.classifier_quality.from_test_split": {
+      "source_blocks_sha256": [
+        "4ba751c523f8409ef60d7e17a641f3ff31ce6c28609d8c9c1deb3a4490886f64",
+        "5d707d0db96194129f67ec3e190d3f76cf75f39a2b28910df9ff204d92c71f4c",
+        "66665a3ba828c0e76eb711dbe0318aa48345641a98f1b2d19d35ce8771a7e661",
+        "6b6d2551006ee51b2cdc93803319a6ffcfe25bce510a391042ce3db63bed43e8"
+      ],
+      "source_sha256": "47a091caf765fc5cdbf67b90109bdbb95717df31d16d0cc2a080b60daab89ed1",
+      "text": "Sensitivität und Spezifität aus einer schriftlichen Testspaltung.\n\n:param path: eine pro Zelle ``*_test_acc.csv`` oder eine Zusammenfassung ``*_test_result.csv``.\n:param threshold: für eine pro-Zell-Datei nimmt die Partitur positiv an. ``None`` nimmt den Youden-Punkt. Ignoriert für eine Zusammenfassungsdatei, die bereits eine ausgewählt hat.\n:returns: Sensitivität, Spezifität, Schwelle und ``per_cell`` zu sagen, welche Form gelesen wurde -- denn nur eine pro-Zell-Datei unterstützt es, die gleiche Frage wieder an einer anderen Schwelle zu stellen.",
+      "translation_source_blocks_sha256": [
+        "4ba751c523f8409ef60d7e17a641f3ff31ce6c28609d8c9c1deb3a4490886f64",
+        "5d707d0db96194129f67ec3e190d3f76cf75f39a2b28910df9ff204d92c71f4c",
+        "66665a3ba828c0e76eb711dbe0318aa48345641a98f1b2d19d35ce8771a7e661",
+        "6b6d2551006ee51b2cdc93803319a6ffcfe25bce510a391042ce3db63bed43e8"
+      ]
+    },
+    "spacr.classifier_quality.inflation_by_prevalence": {
+      "source_blocks_sha256": [
+        "22e96260b7a93c8051e7ee1dc4dc2525a3cbf7f07828c15067d7652e805dd8f4",
+        "601d31184310f51f0521bdb813f268883ca6cdf701036c30ca4fe11215e5c830",
+        "11985ce890ce81f924fad6c0abe0a4ea4ad1db7aa11a2ef30723e1942fc78d4a",
+        "0732f89f5cf5da492e21e34e652793d489f8a060f4275fc87e81c33cb109dc06",
+        "f2b057e0314899bfb968599cd7e6b16e8b76c46a8771cd7a8a8b5fb203aeec15"
+      ],
+      "source_sha256": "12db9f8770b9727e17c786cf2665e0cb825bbe9e1099619c989e4a00ea1104b0",
+      "text": "Was das Machine-Learning-Klassifikationsmodell mit einem Bruchteil macht, da der Bruchteil seltener wird.\n\nDIE ERGEBNISSE, DIE DIESES GEWÄHRT, und es ist nicht intuitiv von der Genauigkeit. An den tsg101 Maschinen-Lernen Klassifikations-Modellen gemessen ``se = 0.960``, ``sp = 0.981``:\n\n    Ein wahrer 30% wird beobachtet als 30% -- die Korrektur ist ein No-Op; ein wahrer 1% wird als 2,8% beobachtet -- fast DREI ZEITEN zu hoch.\n\nDie falschen Positive sind ein Anteil der NEGATIVEN, und wenn eine Anleitung selten ist, ist fast jede Zelle in der Mikroplatten-Probenposition eine negative, so eine kleine falsch-positive Rate auf eine große Bevölkerung sumpft eine große true positive Rate auf ein kleines.\n\nScreening-Experiment HITS SIND RARE. So ist die Korrektur vernachlässigbar überall, es spielt keine Rolle und dominant genau, wo es tut.",
+      "translation_source_blocks_sha256": [
+        "fab91c910f3c43948179167291095af742d5d85272eb23001861f1704ce6df2e",
+        "588c7a457aac12742c6ea5b2964716ecd7c639bf18c49e88f66995beb4ceacec",
+        "11985ce890ce81f924fad6c0abe0a4ea4ad1db7aa11a2ef30723e1942fc78d4a",
+        "c7c4bd733cd918735e671b88fe7a759ebc33d358932de0d92b68583c8dcdc98e",
+        "e00879e87c310bcee60785ced0c177a823cbaa294c764b8e9f7f7209510107d2"
+      ]
+    },
+    "spacr.classifier_quality.measure_screen": {
+      "source_blocks_sha256": [
+        "19c8e1222da6f2f1b2812c04018e74f1ce7479c50dbf8bfaf6ec9d8c7022ee59",
+        "1b40aa9942916e45b2ebf5cf5527b16590f16bfad21347db38adb9cea71977ba",
+        "2a121bd451570abe71443e39b214ad7fa7c7c97f867455b385b3eff83877046e"
+      ],
+      "source_sha256": "60676dde7c7aa3dcfa8d5901febad6fe230af227139e60b7861b0b4b995e82ed",
+      "text": "Sensitivität und Spezifität pro Platte, aus der eigenen Anwendungsansicht eines Benutzers.\n\nDas Ganze, was dieses Modul bietet, in einem Anruf, für jemanden, der seine eigene Bewerbungsansicht ausgeführt hat und will, dass die Korrektur darüber ist.\n\nPER PLATE UND NICHT POOLED, absichtlich. Platten werden separat trainiert und ihre Schwellen sind nicht vergleichbar -- auf dem Screening-Experiment wurde dies gegen sie spannte 0,2955 bis 0,8567, das sind drei Punkte der Empfindlichkeit. Mittels ihnen würde eine Zahl produzieren, die für jede Platte falsch ist.",
+      "translation_source_blocks_sha256": [
+        "e270f23d3528cd7e727b8f578ba433a88b11d64c5aec94a3f4193705040ab4ca",
+        "30ce2834fcb23f3db7197d8a786e6c727b6649c553a434eb4fea0dfa482dd7af",
+        "a425c9c448c620d93088d596f031d4aefefdd16fc3246f3ed3d436cd336f637d"
+      ]
+    },
+    "spacr.classifier_quality.operating_points": {
+      "source_blocks_sha256": [
+        "e3623eb33d002d5d64824a2fd3f85bb2831c82c76117bf358d4c6e88682d96c0",
+        "432c8074c4f817074b606adbf10a6e9c08de14be8e278f38bd25e2ffab8dc348"
+      ],
+      "source_sha256": "0dd82c1e4f6569fb69854a9c6548f1455a82d61691f1efc7dac25a42f02636db",
+      "text": "Die Verwechslungsmatrix über den Scorebereich -- den ROC, als Matrizen.\n\nDie dritte ist eine Wahl und muss als eins gesehen werden. Eine einzelne Verwirrungsmatrix bei 0,5 antwortet \"wie gut ist es dort\" und versteckt, dass die Bewegung der Schwelle genau die beiden Größen handelt, die die Korrektur teilt durch.",
+      "translation_source_blocks_sha256": [
+        "e3623eb33d002d5d64824a2fd3f85bb2831c82c76117bf358d4c6e88682d96c0",
+        "432c8074c4f817074b606adbf10a6e9c08de14be8e278f38bd25e2ffab8dc348"
+      ]
+    },
+    "spacr.classifier_quality.rogan_gladen": {
+      "source_blocks_sha256": [
+        "ed533d7bc76d2b7b2c8b7501bc4aeddd9a366aff721bcadb957ef617c235c4e8",
+        "d34d621898136072784ad77fcb118e2fbffde4c3aa3e8e2077cd7ba38695b4d7",
+        "ef0d8efb5dd628b5412e0b71840421310b3532a10e56e012a61273b119eaed60"
+      ],
+      "source_sha256": "d030d8278cda1ba246a78946382b08b25e1366215c012dadddee01d7b586fac3",
+      "text": "Korrigieren Sie einen beobachteten positiven Anteil für Machine-Learning-Klassifikationsmodellfehler.\n\n    p_true = (p_observed - (1 - sp)) / (se + sp - 1)\n\nEs bewegt das ESTIMATE; ES WIRD NICHT WIDEN ES. Bei ``se = sp = 0.94`` korrigiert ein beobachteter 0.06 auf genau Null -- das gesamte beobachtete Signal ist falsch positiv -- und ein beobachtetes 0.244 korrigiert auf 0,20.\n\n:param n: die Anzahl der Zellen, wenn der Standardfehler gewünscht wird. Die Korrektur erhöht die Varianz um ``1 / (se + sp - 1)^2``, die bei 0.94/0.94 1,29 ist, so dass ein vor der Korrektur berechnetes Intervall zu eng und an der falschen Stelle zentriert ist.",
+      "translation_source_blocks_sha256": [
+        "78f9914b5dfba9c8874b96e02155e8cafb0118d4b52d01c4484fd89bf2d1510e",
+        "d34d621898136072784ad77fcb118e2fbffde4c3aa3e8e2077cd7ba38695b4d7",
+        "ef0d8efb5dd628b5412e0b71840421310b3532a10e56e012a61273b119eaed60"
+      ]
+    },
+    "spacr.classifier_quality.sensitivity_by_prevalence": {
+      "source_blocks_sha256": [
+        "efb21bb5be71d44da3abc356bb85f3c6ba2d5f6ed761f984828c03ef66c12388",
+        "12a264a8cb01695542e66b725cea14cf19adba7212f73fef02e08bdddc860724",
+        "e8c7e3f8da06b238a7f3b690a8485c7762c2be1897c7dcb54002747150be3362"
+      ],
+      "source_sha256": "1530005939cc66bfb80dbad9b1cd89bfe0d5377f79072e25b7bd8952dab11659",
+      "text": "Sensitivität innerhalb von Banden von gut Prävalenz.\n\nSensitivität ist eine Eigenschaft des Maschinen-Lernen-Klassifizierungsmodells, und Spezifität ist auch nicht von Prävalenz abhängen sollte überhaupt. Wenn sie hier tun, verwendet das Maschinen-Learning-Kolifizierungsmodell eher Kontext als die Zelle: ein Modell, das gelernt hat, \"diese Mikroplatten-Probenposition sieht überfüllt aus, also mehr davon positiv nennen\" wird eine steigende Empfindlichkeit mit Prävalenzen zeigen, und jeder Bruch, den es produziert, ist dann teilweise eine Kopie des Bruchteils, den sie gegeben wurde.\n\n:returns: eine Reihe pro Band mit der Prävalenz der Band, ihrer Empfindlichkeit, ihrer Spezifität und ihrer Größe.",
+      "translation_source_blocks_sha256": [
+        "efb21bb5be71d44da3abc356bb85f3c6ba2d5f6ed761f984828c03ef66c12388",
+        "f47981bbcfd2f6a3edaacd762d305fa9f22806167a7882e97ccb5f9746cde4d2",
+        "e8c7e3f8da06b238a7f3b690a8485c7762c2be1897c7dcb54002747150be3362"
+      ]
+    },
+    "spacr.classifier_quality.training_wells": {
+      "source_blocks_sha256": [
+        "2d9b30b13a6532b1ddb88f66b66ee6bf90b6fea628d84e3702022592e3de8787",
+        "98802ccd56d72404972dbe3a825ac40bfda20f1e8f2404e9fe3ad6a026f1e8d3",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "be7bf4c374b6dde27bc4809252933006ecc8e1369cb394b8ba501ec305e64c0e",
+        "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
+        "894f2e49e7c8828ef7b2f94af6b19c10962c03b8f33442fc15cbe99d9fca67c5"
+      ],
+      "source_sha256": "03eb54a48becc965fcf634c8d5541cfc57df09d75dbed58465bf3e350f3f329b",
+      "text": "Geben Sie die Zellen zurück, die zu den Klassifikationsmodell-Trainingsspalten für maschinelles Lernen gehören.\n\nSchulungs-Mikroplattenprobenpositionen müssen von der Leistungskalibrierung ausgeschlossen werden; ansonsten misst die Kalibrierung die In-Sample-Passung. Sowohl ``r1_c2`` als auch ``c2`` Well-Etiketten werden akzeptiert. Unzertrennliche Etiketten werden zur Validierung beibehalten, anstatt still als Trainingsdaten eingestuft zu werden.\n\nParameter\n----------\nwells : sequence of str Ein Mikroplattenmusterpositionsetikett pro Zelle. columns : sequence of int, default=(1, 2) Einbasierende Spaltennummern, die für das Modelltraining des maschinellen Lernens verwendet werden.\n\nRückgaben\n---------\nnumpy.ndarray Boolesche Maske mit einem Element pro Eingang gut.",
+      "translation_source_blocks_sha256": [
+        "ec5878458b89409af653214ab44304339a9c1a7814f34faa193ee2bf1fa95a78",
+        "a157153c0965bbd54ac7f80a6a11af70527ae624d680fe28fc0923a0423c4c68",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "9851796f804802c4da3f11e976642949a93b0682bd7cf5cf8b0ca0b5b4f86302",
+        "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
+        "894f2e49e7c8828ef7b2f94af6b19c10962c03b8f33442fc15cbe99d9fca67c5"
       ]
     },
     "spacr.classify": {
@@ -50308,6 +51004,18 @@
         "b8bd6ca42724e20a3818084354ab71db124aed76d1c957641832618be404a118"
       ]
     },
+    "spacr.qt.dialogs.detach_all_dialogs": {
+      "source_blocks_sha256": [
+        "2fd60fe27c97d86d04959d2e2b4848ff508e6020686be15654a440d7d69dfc4c",
+        "b718f2930b7d01d35a340bbe8065a6ab026ae2ac583fd62d018f0456f9cb9601"
+      ],
+      "source_sha256": "5a380f5228479397fbeeb6c218d7a1205070d0ee648cd4a08d923984de69c888",
+      "text": "Installieren Sie den anwendungsweiten Detacher. Gibt True zurück, wenn es installiert ist.\n\nIdempotent PER application: zweimal auf dieselbe App zu rufen, hinterlässt einen Filter, und es auf eine NEUE App zu nennen, installiert sich wieder, weil der alte Filter mit der alten App gestorben ist.",
+      "translation_source_blocks_sha256": [
+        "2fd60fe27c97d86d04959d2e2b4848ff508e6020686be15654a440d7d69dfc4c",
+        "b718f2930b7d01d35a340bbe8065a6ab026ae2ac583fd62d018f0456f9cb9601"
+      ]
+    },
     "spacr.qt.dialogs.detach_from_window_manager": {
       "source_blocks_sha256": [
         "96d65f0f73d1fe750a3f51008ebf58fa9de7efdd5a8378f097923edfb188d3ed",
@@ -69680,7 +70388,7 @@
         "ba91da429ad23b473c435409a0535cd6848e7f3f33d88763a66a885cb179d9f5"
       ],
       "source_sha256": "a6aa1284df56b5124b21ff67b5983ec214af2c6d53ffb41b1f116e9bb8f59178",
-      "text": "Eine Kurzwahl.\n\n:param keys: die Bindung, in der portablen Schreibweise von Qt. Sie wird durch `QKeySequence.toString(NativeText)` GEDRUCKT, so dass `Ctrl` als Befehlssymbol auf macOS liest -- das Schreiben von \"Strg+H\" in ein Etikett würde eine Plattform in die Hilfe schlüsseln.\n:param label: was der Schlüssel tut.\n:param category: die Gruppe, unter der sie angezeigt wird.\n:param scope: wo es funktioniert. Die Voreinstellung ist das ganze Fenster; eine Pro-Screen-Bindung benennt seinen Screening.",
+      "text": "Eine Abkürzungserklärung.\n\n:param keys: die Bindung, in der portablen Schreibweise von Qt. Sie wird durch `QKeySequence.toString(NativeText)` GEDRUCKT, so dass `Ctrl` als Befehlssymbol auf macOS liest -- das Schreiben von \"Strg+H\" in ein Etikett würde eine Plattform in die Hilfe schlüsseln.\n:param label: was der Schlüssel tut.\n:param category: die Gruppe, unter der sie angezeigt wird.\n:param scope: wo es funktioniert. Die Voreinstellung ist das ganze Fenster; eine Pro-Screen-Bindung benennt seinen Screening.",
       "translation_source_blocks_sha256": [
         "a6c4f71ac22e5fe89dc55fdcb171b2d4634e6f439a29719aa230731e3819029f",
         "33a904a6848932931ddac43dd2080a5d6bf2f3599449fdf9dc4f23eb42053d5f",
@@ -94657,17 +95365,15 @@
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.show_panel": {
       "source_blocks_sha256": [
         "9e8c8d2e94e89a38fc4ea2df121e2bfaaff3757c8667d304af3cfe317cd3f6cd",
-        "a9b5eb2c3ab0a0fcd5cd83d51fd9c0fee09888bb3899d01e9225b026f55be686",
         "8d82a976bc98dac7d22cbc898a0b21cc80b16a68fac600abba00c86b47e40ff3",
-        "da68757fe487b1b12f628b78015a768fe158e5ba71798d88d4a621bbb295337f"
+        "6999120706d97256e82307d97d7a89df6e7512e9936e603b807a13ac64dd0aef"
       ],
-      "source_sha256": "38af8fe41c1a708835b744bbc5ef63ba5c4c91f93e7552c3fd2b1527614186a7",
-      "text": "Erhöhen Sie die Registerkarte, die das Live-Panel mit dem Namen ``key`` enthält.\n\nDas Gitter fotografiert neun Live-Panels und gibt jeder Kachel einen Schlüssel, aber nur der Schlüssel des Vulkans musste irgendwo hin - also acht Kacheln machten einen Klick und taten nichts, was eher als kaputte Anwendung als als ein Bild ohne Tür liest.\n\n:param key: einen Schlüssel von :meth:`FigureGridView.set_live_tiles`.\n:returns: True wenn ein Tab angehoben wurde. FALSE IST EIN WIRKLICHES ANTWORTEN und der Anrufer muss darauf reagieren: das Tab-Set ist nicht fixiert -- eine Passform ohne Modell hat keine Rest-Registerkarte, und die Vulkan- und Gen-Regale fehlen, wenn der Vulkan extern ist -- also kann ein Schlüssel perfekt gültig sein und hat im Moment keine Registerkarte in DIESEM Panel.",
+      "source_sha256": "000c4dd992d691a8af8e3045979eabc53acbcebd3e2bb9b6cbeaf629d83f55c4",
+      "text": "Erhöhen Sie die Registerkarte, die das Live-Panel mit dem Namen ``key`` enthält.\n\n:param key: einen Schlüssel von :meth:`FigureGridView.set_live_tiles`.\n:returns: ``True`` wenn die entsprechende Registerkarte existiert und angehoben wurde; sonst ``False``. Die verfügbaren Tabs hängen vom eingebauten Modell ab und ob der Vulkan außerhalb dieses Panels angezeigt wird.",
       "translation_source_blocks_sha256": [
         "9e8c8d2e94e89a38fc4ea2df121e2bfaaff3757c8667d304af3cfe317cd3f6cd",
-        "a9b5eb2c3ab0a0fcd5cd83d51fd9c0fee09888bb3899d01e9225b026f55be686",
         "8d82a976bc98dac7d22cbc898a0b21cc80b16a68fac600abba00c86b47e40ff3",
-        "da68757fe487b1b12f628b78015a768fe158e5ba71798d88d4a621bbb295337f"
+        "6999120706d97256e82307d97d7a89df6e7512e9936e603b807a13ac64dd0aef"
       ]
     },
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.start_load": {
@@ -97597,6 +98303,144 @@
       "text": "Wählen Sie einen Punkt für Zeile Index und zeigen Sie alles, was darüber bekannt ist.",
       "translation_source_blocks_sha256": [
         "9d579628d1ce65c8930903fc4c666b0ade855f1c1517587220dc187918548eca"
+      ]
+    },
+    "spacr.read_background": {
+      "source_blocks_sha256": [
+        "c1cab63140044ca034fc51eb183d748c308070d2244f605e7eedc6001e606dfb",
+        "44152d0be31e6ad9a19462efd606e73dfcb76a48c99e69adf5e5057b5ed68ce6",
+        "cc6e9b2f31929fe5ca1b3cfb5349ffaadd0bd51b50222a8755f97527b6b50ec8",
+        "a830aae3a4135a05ec6d1983f33e397e7037bb5632f507fd00b2058fcbeb9606",
+        "8bc70aabdd2fc34203c0e1bb74454dd4a39f615a7428bd758e3bacffec1fae68",
+        "35bbd106420285c112bc2c77698fc811f5a7e137b4a6ea5596d993d42a94ddb4",
+        "92d99e8e42a725477eafa40bed4e8ced962a51653192d1ff51ac95273f273813"
+      ],
+      "source_sha256": "98a517096916988e47287f3982a74af1fb38c3deaf25ccb7f711bd5dd4a67aaa",
+      "text": "Wie ein Führer liest, sieht in Mikroplattenprobenpositionen aus, in denen es nicht ist.\n\nVorgeschlagen 2026-08-21: \"Eine andere Methode zur Berechnung der gRNA Fraktionsschwelle ist die Messung der gesamten Fraktion und der einzelnen Führungsfraktionen in denen in den ersten 3 Spalten nachgewiesen werden. da die erste 100% 233460, die zweite Spalte 100% 249730 und die Thired eine Mischung sein sollte, aber keine anderen Führungen. dies könnte auch irgendwie als ein einziger Calue grna Korrekturfaktor oder ein einzelner grna Berichtigungsfaktor verwendet werden.\"\n\nEs ist die richtige IDEA und die Antwort ist der individuelle Faktor, nicht das kleine Volumen. Eine Spalte der bekannten Zusammensetzung ist eine direkte Messung der falschen Leserate: jeder gelesene, der nicht der beabsichtigte Führer ist, ist, durch Konstruktion, Lärm. `fraction_threshold` derzeit erraten an dieser Menge mit einer Konstante, und es kann stattdessen gemessen werden.\n\nWAS DIE MESSUNG SHOWS, auf dem Screening wurde dies geschrieben gegen und seriös auf jedem anderen: Der Hintergrund ist keine Zahl mit unterschiedlichen Hüten. Über die Kontroll-Mikroplatten-Probenpositionen liegt der Hintergrund des Medianführers bei 0,013 % und der 99. Perzentile bei 0,15%. -- ein diffuser Dunst, der jede kleine Schwelle entfernt -- während EINE Anleitung bei 9,2% saß und in jeder einzelnen Kontroll-Mikroplatten-Probenposition erschien. Eine globale Schwelle kann nicht beides dienen. Stellen Sie niedrig genug, um den Ausreißer zu fangen, der reale Biologie löscht; setzen Sie, wo es jetzt ist, löschte es den Dunst, den es nicht brauchte, und gibt den Aussteiger sowieso zu.\n\nDER HINTERGRUND IST PRO GUIDE, und ein Guide, der auftaucht, wo er nicht sein kann, erzählt dir eine Tatsache über sich selbst - seinen Barcode, seine Verstärkung, seine Nachbarn auf dem Index -, die das Verhalten eines anderen Guides nicht vorhersagt.\n\nWAS DIESES NICHT ENTSCHEIDEN KANN, und es darf nicht vorgeben. Ein Guide, der in den Kontroll-Mikroplatten-Probenpositionen reichlich vorhanden ist, ist ENTWEIT ein Sequenzierungsartefakt - Indexhopping, Barcode-Kollision - ODER wirklich überrepräsentiert in der Bibliothek und tatsächlich in diesen Zellen präsent. Die Lesezähler können diese nicht unterscheiden, und die Korrektur ist in den beiden Fällen entgegengesetzt: subtrahieren Sie sie oder behalten Sie sie bei. Die Darstellung kann sie auseinander sagen, weil ein Führer wirklich anwesend den Phänotyp seiner Zellen bewegen wird und ein Artefakt nicht. :func:`suspicious` meldet die Kandidaten, anstatt sie aufzulösen.\n\nINDEX HOFFING SCALES MIT DER ABUNDUNG DER QUELLE, das ist der Grund, warum diese Spalten geben eine UPPER gebunden statt eine Schätzung. Eine Kontrolle gut mit einem Führer bei 70% wirft mehr liest sich auf seine Nachbarn als ein gewöhnlicher Wells, dessen größte Führung ist 5%. Die pro-Führer-Ranking-Transfers; das absolute Niveau nicht, und :func:`subtract_background` sagt so, wenn gebeten, es auf normale Mikroplatten-Probenpositionen anwenden.",
+      "translation_source_blocks_sha256": [
+        "e349c6dc4d7115ce17cdcc471f303abbf525c7b2add40f2a52ecebce975a823b",
+        "44152d0be31e6ad9a19462efd606e73dfcb76a48c99e69adf5e5057b5ed68ce6",
+        "cc6e9b2f31929fe5ca1b3cfb5349ffaadd0bd51b50222a8755f97527b6b50ec8",
+        "de046986aaacea3213606d471f35d9ba6794bb5edba94b2eddf92b6cb5e909c8",
+        "8bc70aabdd2fc34203c0e1bb74454dd4a39f615a7428bd758e3bacffec1fae68",
+        "42bb82ce0aff9a778dcf7102a33193268905f6ad0e88f8b213128a9f83c21e5c",
+        "6f333ea8783ed1cfcf682db78f0281049af0a79b92fc6f52aeda7c342036df06"
+      ]
+    },
+    "spacr.read_background.background_from_controls": {
+      "source_blocks_sha256": [
+        "47cc9c2c2bf91db1039b353af12a79af3fddd7ea91cb83decaef542994727377",
+        "c681c04d4c27c3d8f8ea98aff8dc254d12dffc5cc4738c56fd929b91e2e2c2d7",
+        "16205eacca9180c6770d81d0acd70d0a8ae4949d5d14f7739ce12cc561d82057",
+        "bdede25dc6aec8bb33e183393da6b25e89beffad057c50d7a7fc5346b0eb3d7c",
+        "8dfbbc608a4e768b1c4da790617c5c9095790c139de1a81604197ba26db6949d",
+        "39322c68de3f12ae2cc548c2a4242122b85df5a019175df4ba919c30235542d3",
+        "42ee77ec6f6df7b6481fac3335aba36de658dade29abca9543e8d9fcaa8abc41"
+      ],
+      "source_sha256": "547b6593ce8db21aa0df98ca747a3b33ec8530eda51b9bfd3a02cc2a164f922b",
+      "text": "Messen Sie die Lesefraktion jedes Führers in Mikroplattenprobenpositionen, zu denen er nicht gehört.\n\n:param fractions: ``{well: {guide: fraction}}`` nur für die CONTROL-Mikroplattenprobenpositionen.\n:param intended: ``{well: the guides that well really contains}``. Eine Mikroplatten-Probenposition, die nicht in diesem Mapping enthalten ist, wird übersprungen und nicht leer angenommen, weil angenommen wird, dass ein echter Führer in einen Hintergrund verwandelt wird.\n:param exclude: führt, die sich nicht in irgendeiner Zelle befinden -- Grundierung oder Plasmidübertrag. Fallengelassen und die Mikroplatten-Probenposition neu normalisiert VOR jeder Messung, weil ein im Nenner verbleibendes Schadstoff den Hintergrund jedes echten Führers durch seinen eigenen Anteil nach unten hält und die Schwelle straffer aussehen lässt als es ist.\n:param statistic: ``'median'`` oder ``'mean'`` über die Kontroll-Mikroplatten-Probenpositionen. Standardmäßig Median: Eine kontaminierte Mikroplatten-Musterposition sollte nicht den Hintergrund eines Leitfadens für die gesamte Labor-Mikroplatte festlegen.\n:returns: der pro-Führer-Hintergrund, die Gesamtmasse pro Mikroplatten-Probenposition und die Zählungen hinter beiden.\n\nDie SPURIOUS MASS wird pro Mikroplatten-Probenposition gemeldet und nicht nur durchgestrichen, weil seine SPREAD ist die Sache, die sagt, ob diese Mikroplattenprobenpositionen beschreiben ein Phänomen. Eine enge Streuung ist eine Sequenzierung Eigenschaft; eine breite bedeutet, einige Mikroplatten Probenpositionen wurden kontaminiert und der Rest nicht.",
+      "translation_source_blocks_sha256": [
+        "00bafbda9cd0686d2ff511a42409a31d045b63f22ed5d2a0725848106fb3e346",
+        "2989876bbd9d9aef610613322f8084ab68aeefd25b07aa6e7def0e91827432aa",
+        "22f40627ca5eff7b2883f451491f353705dbdebaee4280e36dd2e5c34e79cf92",
+        "3e589e2e06d0b9a37b3cf6162fe777c2b44fc3b03a272c412950c07667fcfdf8",
+        "62621c87e5fc44013531518fb6ded2e0abc8213c4e80b20d7f56e357a37ea2e3",
+        "539f3d5cb72d236670e01a01abbcc9e88f4e6009dee16e7e9cc100956119679d",
+        "ce280478601ea887f2dc106bd013d7b9d4a59f1243cf6a5bb67a2f2424bdedc7"
+      ]
+    },
+    "spacr.read_background.drop_guides": {
+      "source_blocks_sha256": [
+        "055602f229da0477cd415d266c8e5ce06868f76873601760f36eb4e8134155a3",
+        "90d554b86d046a8c2ffdf943ac1dfd0b0e8c62e46322ae0964e2de01a3d66db8",
+        "1e4c15cd7f2e6a533e1e3b6cd42def7e287650545b4a9435191d09fd3c63597d",
+        "a6c710ef1391eacb667531b8967f4474945a80ab87e502b84b399dea75b71173"
+      ],
+      "source_sha256": "8912c0a061f1f54894d13816208d0ba9b701739825d9215c82a43504e42b15af",
+      "text": "Entfernen Sie Guides, die sich nicht in einer Zelle befinden, und normalisieren Sie, was übrig ist.\n\nDer Unterschied ist der ganze Punkt. Hintergrund-Subtraktion sagt: \"Einige der liest dieser Führer hier sind falsch\". Exclusion sagt: „Diese Sequenz ist überhaupt kein Führer in einer Zelle\" -- Grundierung oder Plasmid-Übertragung, die sich in der Bibliotheksvorbereitung befindet und nie in einem Kern.\n\nSo wird es vor der Bildung der Fraktionen entfernt, und die Überlebenden werden über das, was übrig bleibt, neu normalisiert. Es zu verlassen und später zu subtrahieren würde seine Lesungen in jedem anderen Führer Nenner verlassen, halten jede echte Fraktion nach unten durch den Anteil des Kontaminanten.\n\nAuf dem Screening wurde dagegen geschrieben, ein Plasmid Contaminant war 19,9% von ALLE liest auf einer Platte: ohne es hebt jeden anderen Führer Fraktion um ein Viertel, das führt über die Annotatability Boden bewegt. Es ist kein Aufräumen Schritt.",
+      "translation_source_blocks_sha256": [
+        "055602f229da0477cd415d266c8e5ce06868f76873601760f36eb4e8134155a3",
+        "90d554b86d046a8c2ffdf943ac1dfd0b0e8c62e46322ae0964e2de01a3d66db8",
+        "1e4c15cd7f2e6a533e1e3b6cd42def7e287650545b4a9435191d09fd3c63597d",
+        "a6c710ef1391eacb667531b8967f4474945a80ab87e502b84b399dea75b71173"
+      ]
+    },
+    "spacr.read_background.resolve_exclusions": {
+      "source_blocks_sha256": [
+        "fb91311dd2873583b790f767d58f5bbf491c7930634d2a7ae9c71a992efe8b2a",
+        "ab1f664c0ba3e9a552aa1e408ba1cffbfec285ee840ef14b0170bcfcc1e083f3",
+        "0735ad0f7941fece2b72ca456a03e8118e70d97f25a92ae108c787e02a1801f2",
+        "303a549d2f380610ed76682c90513c85670e0b8e709c6245ae2c923a47e6555d"
+      ],
+      "source_sha256": "2c40b734f1a1e5f5111043580e3ef9588aaf17650a2f91f42793f6e99e25fc89",
+      "text": "Welcher Führer nennt eine Ausschlussliste tatsächlich Namen.\n\nACCEPTS GUIDES UND GENES, mehrere von jedem: \"im Ausschluss sollte ich in der Lage sein, in mehrere Führer oder Gene setzen.\" Ein Gen wählt jeden Führer zugewiesen, so dass ohne ein kontaminiertes Amplicon bedeutet nicht, die Liste seiner vier Führer und fehlt die fünfte.\n\n`control_names.rows_for` macht die Auflösung, und die Wiederverwendung ist eher der Punkt als eine Bequemlichkeit: Es ist das, was `controls`, `positive_control` und `negative_control` bereits verwenden, so dass ein Ausschluss genau in die Schreibweise eingetippt wird, die sie akzeptieren - mit oder ohne das Präfix des Organismus - und nicht in einen zweiten Dialekt derselben Namen driften kann.\n\nEin Eintrag, der zu nichts passt, wird in beiden Sätzen zurückgegeben; der Anrufer, der sich interessiert, sollte das so sagen, denn ein falscher Ausschluss, der nichts ausschließt, ist, wie ein Schadstoff einen Filter überlebt, der ihn entfernen sollte.",
+      "translation_source_blocks_sha256": [
+        "fb91311dd2873583b790f767d58f5bbf491c7930634d2a7ae9c71a992efe8b2a",
+        "ab1f664c0ba3e9a552aa1e408ba1cffbfec285ee840ef14b0170bcfcc1e083f3",
+        "0735ad0f7941fece2b72ca456a03e8118e70d97f25a92ae108c787e02a1801f2",
+        "303a549d2f380610ed76682c90513c85670e0b8e709c6245ae2c923a47e6555d"
+      ]
+    },
+    "spacr.read_background.subtract_background": {
+      "source_blocks_sha256": [
+        "57ca1556c12a893d976471ee40d137b07a84cdb698f48cde1564a9f2fcc6c144",
+        "e9938c85154372487b17a2c86e3470c63caab87a0bf425e6a24292c2e6bc1deb",
+        "f00a2218420c4894d6c85920573fc230348465355ba1527cf36258c9e472ce27"
+      ],
+      "source_sha256": "23007f91e5bb099af9b0f24805a4f7a120a93a7bbce88692b73bbfb8910b924f",
+      "text": "Entfernen Sie den eigenen Hintergrund jeder Anleitung aus einer Mikroplatten-Probenposition, dann renormalisieren.\n\n:param scale: Wie viel von dem gemessenen Hintergrund zu subtrahieren. DIE KONTROLLKOLUMEN ÜBERSETZEN ES für einen gewöhnlichen Wells -- Indexhopping-Skala mit der Fülle der Quelle, und ein Kontrollbrunnen hat eine Anleitung zu siebzig Prozent, wo ein gewöhnlicher Wells der größte ist fünf. 1.0 ist die konservative Wahl und entfernt die meisten; ein Anrufer, der das Verhältnis zwischen den beiden Regimen geschätzt hat, geht es hier vorbei.\n:param renormalise: Reskalieren Sie die Überlebenden auf das, was sie vor summiert, so dass die Korrektur bewegt die SHARES zwischen Führungen, ohne auch die Mikroplatten-Probenposition insgesamt zu bewegen.",
+      "translation_source_blocks_sha256": [
+        "b2ab31741c891f4197333de577534ed314925328c8c97b2372e644a6c4065eab",
+        "e9938c85154372487b17a2c86e3470c63caab87a0bf425e6a24292c2e6bc1deb",
+        "8c8c8399110da879b69ac6273de6b3b3b0f6fbb83f354e08a2e84c495c646356"
+      ]
+    },
+    "spacr.read_background.suggest_threshold": {
+      "source_blocks_sha256": [
+        "658604d80d6f89c37350bbd259ef45481e415786b2a0857a476381e05b7ee39e",
+        "76691fee9be013a6cb5c847f6b13f8d0826851ae6a988576e34dc838a3255411",
+        "08eedce06e41910671daf4fc7f498f03c02d9fd551c455cbc530b3869035fd50",
+        "03ad6dc9bbf39da5c031f4e3a307352affdd19a121c74b1144716d668677a9ef"
+      ],
+      "source_sha256": "83c7ff4753687c8ab8da351cb4351a569a5e87a015d8a92ad792daadcc3f1921",
+      "text": "Ein `fraction_threshold`, das anstelle einer Konstante aus den Daten genommen wird.\n\n:param quantile: den Anteil der Hintergrundverteilung zu klären.\n:returns: die vorgeschlagene Schwelle und was sie nicht beseitigen würde und würde.\n\nES IST NUR FÜR DEN VERSCHIEDENEN TEIL. Das Quantil beschreibt den Dunst von Führern, die überall auf Spurenebene erscheinen. Ein Führer, dessen Hintergrund ein Ausreißer ist, wird von keinem Quantile der anderen beschrieben und benötigt :func:`subtract_background`; die Zählung dieser wird neben der Zahl zurückgegeben, so dass es nicht als vollständige Antwort gelesen werden kann.",
+      "translation_source_blocks_sha256": [
+        "658604d80d6f89c37350bbd259ef45481e415786b2a0857a476381e05b7ee39e",
+        "76691fee9be013a6cb5c847f6b13f8d0826851ae6a988576e34dc838a3255411",
+        "08eedce06e41910671daf4fc7f498f03c02d9fd551c455cbc530b3869035fd50",
+        "03ad6dc9bbf39da5c031f4e3a307352affdd19a121c74b1144716d668677a9ef"
+      ]
+    },
+    "spacr.read_background.suspicious": {
+      "source_blocks_sha256": [
+        "7762e887f3ba960624928a7a1b7580ba6c113e978b3d3a76548ffa5bee2adf22",
+        "d6092ffcccad8e5ff83dc831245da7c2e897cc61c46e5031297f8839b988520c",
+        "b0556ba837394f68d7d3deda9b1f8a6e51bc7d1e29f36b038ebd3c28270e6201",
+        "5dfce0a5510af5e14d7170f47a8d9dff07ff008dc8c3afa11662d34e3637c906",
+        "cf1cea8412661092d99c75bb41e43c4044cdff7949fc677db07f507d06e6554d",
+        "dd0052f246d2f8233aeca65a18c4db9a3f94aa2234f44b53623d1b4198bb09f0"
+      ],
+      "source_sha256": "ad5dc1bd4fd1311766323f399bfdc705e0ad1c16393e7d274fa8659d1f09ee95",
+      "text": "Führer, deren Hintergrund im Gegensatz zu jedem anderen Führer ist.\n\n:param factor: wie oft der Median als Ausreißer zählt.\n:param everywhere: in mindestens diesem Anteil der Kontroll-Mikroplattenprobenpositionen.\n:returns: eine Reihe pro Kandidat, schlechteste zuerst.\n\nEine Anleitung, die in Mikroplattenprobenpositionen reichlich vorhanden ist, ist entweder ein Sequenzierungs-Artefakt oder wirklich überrepräsentiert in der Bibliothek und wirklich in diesen Zellen - und die Korrektur ist in den beiden Fällen entgegengesetzt. Lesezahlen können sie nicht trennen. Die Abbildung kann: ein Führer wirklich vorhanden bewegt den Phänotyp seiner Zellen, ein Artefakt nicht.\n\nALLES IST DER STRONGER SIGNAL, mehr als das Niveau. Ein Führer mit einem Prozent in jedem Kontrollbrunnen verhält sich systematisch; ein Führer mit fünf Prozent in einem Wells ist ein kontaminierter Wells.",
+      "translation_source_blocks_sha256": [
+        "7762e887f3ba960624928a7a1b7580ba6c113e978b3d3a76548ffa5bee2adf22",
+        "d6092ffcccad8e5ff83dc831245da7c2e897cc61c46e5031297f8839b988520c",
+        "f62d0e62309a9d3610fc2a30a1243dd5866a056e2166db840cef23cdf8002fb6",
+        "5dfce0a5510af5e14d7170f47a8d9dff07ff008dc8c3afa11662d34e3637c906",
+        "ebf2f051f50215bbe6bbb463d198690109a0c269094a5ba9a48f86450f82cc99",
+        "dd0052f246d2f8233aeca65a18c4db9a3f94aa2234f44b53623d1b4198bb09f0"
+      ]
+    },
+    "spacr.read_background.unmatched_exclusions": {
+      "source_blocks_sha256": [
+        "202f6a94092af24d78bcc035c2f169c73192fc85635a645b8779a3d8f801c44b",
+        "d4960291745e5a07619e4b6bd7db14908aea49fab9a6de0738a1582134bcd431"
+      ],
+      "source_sha256": "79428506793d31795eebbacb0315679ff86a884f17d2465e5f4c942817fa5d21",
+      "text": "Einträge in ``exclude``, die nichts auf diesem Screening heißen.\n\nEine MISSPELLED EXCLUSION schließt nichts aus und schaut, wie es funktioniert, was der Fehler ist, den dies sichtbar macht. Jeder Anrufer, der Filtern diese nicht leise, sondern melden sollte.",
+      "translation_source_blocks_sha256": [
+        "202f6a94092af24d78bcc035c2f169c73192fc85635a645b8779a3d8f801c44b",
+        "d4960291745e5a07619e4b6bd7db14908aea49fab9a6de0738a1582134bcd431"
       ]
     },
     "spacr.refit": {
@@ -108941,14 +109785,22 @@
     },
     "spacr.settings_advisor.advise_that_runs": {
       "source_blocks_sha256": [
-        "edafe03f41d62bd282ce367894a019043c2981b7ca44a0931b01dc782e2183a3",
-        "301e001ac58426b7aa4b3c7e0abf945594110e889028782ff5165740d74ae85d"
+        "569a551ae816753bfc44e94e62c64098607c6fb57f7e49add0dd355828d35164",
+        "fc74830e702cf84276ac22e63bf634db5a3ee4d813cac5f1b656eee40753b968",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "e74bb426cbb1cde69691d5e647592543a034ef7b1c27422d36d287ced8a3b90a",
+        "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
+        "a291a4235a6333598d75acf75c87bd35fe2bdce845ec892b33b56babc56da843"
       ],
-      "source_sha256": "0e35d88b1c46385f8270f02a063af629eb47d7d207b76dfb330d89dd4d1e4348",
-      "text": ":func:`advise`, wobei der Vorschlag gegen den Lauf geprüft wurde.\n\nEine Ablehnung ist nicht stillschweigend gepatcht: die Einstellung, die es verursacht, wird aus dem Vorschlag und in `undecided` bewegt, wobei der Ablehnungscode den eigenen Satz. Verlassen Sie das Panel, wie der Benutzer es hatte und sagen, warum die ehrliche Antwort -- leise einen Wert ändern, um einen Check-Pass ist, wie ein Vorschlag hört auf, etwas zu bedeuten.",
+      "source_sha256": "a9641dfc9643b5b9883359809ca55a71ae1e4aa710765243b365249f11937d0b",
+      "text": "Erstellen Sie Ratschläge und entziehen Sie Entscheidungen, die Laufzeit-Preflight scheitern.\n\nEine von :func:`refusals` benannte Wahl bewegt sich von ``chosen`` nach ``undecided`` mit der Validierungsnachricht. Die Funktion ersetzt keinen anderen Wert stillschweigend.\n\nParameter\n----------\nLesen : Lesemessungen und Metadaten, die den Screening beschreiben. answers : dict, optional Benutzer antwortet auf Fragen, die die Bildschirmdaten nicht lösen können.\n\nRückgaben\n---------\nBeratung Ein Vorschlag, der nur Entscheidungen enthält, die die Vorflugprüfungen bestehen.",
       "translation_source_blocks_sha256": [
-        "edafe03f41d62bd282ce367894a019043c2981b7ca44a0931b01dc782e2183a3",
-        "301e001ac58426b7aa4b3c7e0abf945594110e889028782ff5165740d74ae85d"
+        "569a551ae816753bfc44e94e62c64098607c6fb57f7e49add0dd355828d35164",
+        "fc74830e702cf84276ac22e63bf634db5a3ee4d813cac5f1b656eee40753b968",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "e74bb426cbb1cde69691d5e647592543a034ef7b1c27422d36d287ced8a3b90a",
+        "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
+        "a291a4235a6333598d75acf75c87bd35fe2bdce845ec892b33b56babc56da843"
       ]
     },
     "spacr.settings_advisor.advise_the_screen": {
@@ -109017,22 +109869,38 @@
     },
     "spacr.settings_advisor.refusals": {
       "source_blocks_sha256": [
-        "fc37ae3cc07df8811b0f1a8fe7b9b076d8931b22fc4af60bcd8db7bc18b0cd35",
-        "6ef17e23e4d9aa49f8ce922c9cb5d38632b692d9ca52d99aafc2b1d1ed49f88c",
-        "abd3089e2780f62aad6b3cd564b15ae5a90cf22fc1f751042300e808b6ef8eac",
-        "1c49d7e93da631e80c228e948131f28d668a292c0354e50ae8b38f1edbececb2",
-        "70798532a39ba5a3a74abf5e305a3bd25b69413705a787eb84bcd0f007aae16c",
-        "bb2be6a7d1a6700126e5d0309adf44227b4634086feed37b63408fa5ff00218d"
+        "052f38126d3f6df3feb3cd89a4c79d03f1638278fcd553f11fe73b3fdadd6a99",
+        "19f79e4ee63ce96a4b589486497e266cdd191ca7d6e2bee22bc43189efe80f85",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "542600c27544cdf836ca5404e674aea253928023b351a7095d510c029c78f5a4",
+        "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
+        "0fa4374da1ad5d23901db5229a7142f45866eb1de7db8b92e361997f23ff9677"
       ],
-      "source_sha256": "8d238abc8984b9658c1896fd184699000b0fa90aaa4d934adb3eef748a6f5ea3",
-      "text": "Warum die RUN ``settings`` ablehnen würde, in ihren eigenen Worten.\n\nDer CANONICALISER IST NICHT DER VALIDATOR, und diese Unterscheidung ist, was 196 ist. `get_perform_regression_default_settings` füllt Standard- und Zwangstypen; es sagt nichts darüber, ob die Kombination angebracht werden kann. Ein Test behauptete, jeder vorgeschlagene Schlüssel überlebt canonicalisation, es übergeben, und der Lauf noch angehalten\n\n    ValueError: batch_correction='combat' muss wissen, welche Biologie zu halten ist.\n\nDies stellt also die Dinge, die sich tatsächlich weigern, bevor dem Benutzer gesagt wird, dass die Frage geklärt ist. Jeder Eintrag ist der OWN-Satz des Ablehnungscodes, wo es einen gibt - ein Paraphrase würde davon abweichen.\n\n:param settings: einen Vorschlag oder eine beliebige Einstellung der Key-Value-Mapping.\n:returns: ein Satz pro Ablehnung, leer, wenn der Lauf beginnen würde.",
+      "source_sha256": "001e7aa7d62f8775bda66160a8e26ade7f90d2535a2897a7eaefda4cb0b8885f",
+      "text": "Rückgabegründe Ein Regressionseinstellungen-Mapping kann nicht ausgeführt werden.\n\nDiese Überprüfung umfasst inkompatible Einstellungskombinationen, die Standard-Füllung und Typ-Zwang nicht lösen kann. Nachrichten folgen der Laufzeitvalidierungsformulierung, so dass eine Anwendung eine Ablehnung erklären kann, bevor eine Passform gestartet wird.\n\nParameter\n----------\nsettings : mapping Vorgeschlagene Regressionseinstellungen.\n\nRückgaben\n---------\nEine aktionsfähige Nachricht pro Ablehnung oder ein leeres Tupel, wenn die Einstellungen diese Preflight-Prüfungen bestehen.",
       "translation_source_blocks_sha256": [
-        "fc37ae3cc07df8811b0f1a8fe7b9b076d8931b22fc4af60bcd8db7bc18b0cd35",
-        "6ef17e23e4d9aa49f8ce922c9cb5d38632b692d9ca52d99aafc2b1d1ed49f88c",
-        "abd3089e2780f62aad6b3cd564b15ae5a90cf22fc1f751042300e808b6ef8eac",
-        "1c49d7e93da631e80c228e948131f28d668a292c0354e50ae8b38f1edbececb2",
-        "b4507a556f164df146ee05a7a1982709b5890828969738efbd7af68cb16d37e3",
-        "bb2be6a7d1a6700126e5d0309adf44227b4634086feed37b63408fa5ff00218d"
+        "e95d7e717c1909344111aad1730b395aeb8bf2f45f6ae34a8224fa92b1b88344",
+        "19f79e4ee63ce96a4b589486497e266cdd191ca7d6e2bee22bc43189efe80f85",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "542600c27544cdf836ca5404e674aea253928023b351a7095d510c029c78f5a4",
+        "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
+        "0fa4374da1ad5d23901db5229a7142f45866eb1de7db8b92e361997f23ff9677"
+      ]
+    },
+    "spacr.settings_advisor.requirements_for_unit": {
+      "source_blocks_sha256": [
+        "e916ca19c5c8e93b49d9afcec97c9590ca08a601d9e700b720587d9710e41624",
+        "912479767d502dd4428175876b30094f695681b405eeae38e7c3032a50fa2625",
+        "d1dd56331b34ec33b804f75be6c53fe49b1b5dfa4a34db82cfbecd729e334049",
+        "2d1de49f25eb07671bf99a4c6e07cf310727608168a75a5f4083eaabaa72853e"
+      ],
+      "source_sha256": "bb716b5ec91fb8000a776456601417b35dbf12309740eb65233aa275e402d280",
+      "text": "Einstellungen, die ``analysis_unit`` zwingt, damit ein Panel angewendet und gesperrt wird.\n\n:param unit: ``'cell'`` or ``'well'``.\n:returns: ``{setting: required value}``, leer, wenn die Einheit nichts einschränkt.\n\nDas PANEL MÜSSEN SIE DIESE ANWENDEN und SIE SOLLEN SIE GREYED, nicht nur später ablehnen. Ein Lauf, der eine unmögliche Kombination nach dreißig Sekunden Arbeit entdeckt, hat dem Benutzer bereits das gekostet, wofür die Prüfung war.",
+      "translation_source_blocks_sha256": [
+        "e916ca19c5c8e93b49d9afcec97c9590ca08a601d9e700b720587d9710e41624",
+        "912479767d502dd4428175876b30094f695681b405eeae38e7c3032a50fa2625",
+        "d1dd56331b34ec33b804f75be6c53fe49b1b5dfa4a34db82cfbecd729e334049",
+        "2d1de49f25eb07671bf99a4c6e07cf310727608168a75a5f4083eaabaa72853e"
       ]
     },
     "spacr.settings_spec": {
@@ -111325,6 +112193,200 @@
         "bb7ef8d1a57262607fcb228b959e98705d6ed41b4be54bb518d24906ba6dbb6c",
         "8533c3ecfddb3312eb7aa7d2b03da9f4a54b46c5ef11c6aea82a6cc185d1761a",
         "a7c3290316bdee44e8f2347e1323c7f1b694f07cf40a4d1cf53e4c69febec318"
+      ]
+    },
+    "spacr.sudoku": {
+      "source_blocks_sha256": [
+        "2fba26b86a2785f020a969b17ec6bab80fe507f490e869c7c7d222025ad3115d",
+        "2a38a5d2f6abc70da7626244f9d4e15d55fa3ca8dcc96a4adb915fc70cba6bb2",
+        "eb8e54e35b539407f6aeecdff161fa933b80514fed6fa6d2dc22f06ec1cc9bb3",
+        "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
+        "1bf06e0760c8ebd854674e7216e4c6bc5afdd0334fb928f8b7ae26af279f104e"
+      ],
+      "source_sha256": "5048c14b096f19eb0cc8d42a4c39799744a8cc942ea0ebfd0a11bf6708658ac9",
+      "text": "Infer-Zell-Level-Führungszuweisungen über Mikroplatten-Probenpositionen.\n\nGepoolte Screenings bieten für jede Mikroplatten-Probenposition Führungszahlen, nicht eine Führungsidentität für jede Zelle. Dieses Modul kombiniert diese Zählbeschränkungen mit Ähnlichkeit im Messraum. Es wählt hochsichere Ankerzellen, propagiert ihre Etiketten über einen k-nächsten Nachbargraphen und projiziert das Ergebnis auf die per-Mikroplatten-Musterpositions-Führungsfraktionen, die durch Sequenzierung gemeldet werden.\n\nDie Zuordnungen können daher Beweise für die gleiche Störung über Mikroplatten-Probenpositionen ausleihen, wobei ein expliziter Enthaltungszustand beibehalten wird. Propagierte Massen-, konkurrierende und totale Ankerreichweite bleiben separat verfügbar, so dass mehrdeutige oder nicht unterstützte Anrufe statt erzwungen inspiziert werden können.\n\nAnmerkungen\n-----------\nDie Ausbreitung und Klassen-Massen-Normalisierung folgt dem von Zhu und Ghahramani (2003) und Zhou et al. (2004) beschriebenen Label-Propagations-Rahmen. Die Implementierung hat keine ausgebildeten Graphen-Modellgewichte; jedes Ergebnis kann auf seine Anker und die Sequenzierungsbeschränkung zurückgeführt werden.",
+      "translation_source_blocks_sha256": [
+        "e06d1253d98b10791de72041b625ca0ace7809d2bdd92b07f8c2ff842b52a66d",
+        "cd188c600fc80eb1ad6431ffe07f7ea0a6faffa7463bda9b07d86cbe7d1755cd",
+        "484d4dfdcdd09c17c9cf5486ed67b445ccfcebead855259cd32af8d073f8b124",
+        "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
+        "1bf06e0760c8ebd854674e7216e4c6bc5afdd0334fb928f8b7ae26af279f104e"
+      ]
+    },
+    "spacr.sudoku.SudokuResult": {
+      "source_blocks_sha256": [
+        "259961c60b0a260dc8d90924ad0a02c1f27daeb1d4a3f78579e3f27ecfc5d4df",
+        "b133cb63caf150909107fbdda390ce582730020f52d586f39d752a010b3b84b7",
+        "80527d2b3d77943e3caa8b9283999d0a9f9f2053c69c7b78825fbb5ef1c71bdd",
+        "125fe5ffa550f064b7e959b6c49ac86a94e7253b4c755fda02fe4f9dd96eaa33",
+        "0ba7c441293ede3a909873f64ea7273f3bd5cfc5c212cb0c94634526840f948f",
+        "aee5d6ead903cfdd1faf6431bb03a5ee306d4a7fd7ebf8a48d648e47780bd18c",
+        "8e0e840760dd542656a1e3fcdf2f7203a4d6f56c2c9d7f043cd51571a794db7b",
+        "ca6a433c0d92112bad90a52cff1cb398ed4c5bb6d02a18cb4eac2bfad2f734e6"
+      ],
+      "source_sha256": "595ce16b97d003e41144db061fba8aaddf4e1e6cad4a7ed4d5d1c763201a909c",
+      "text": "Was sudoku schloss, mit beiden Partituren auseinander gehalten.\n\n:ivar guides: ein Name pro Zelle, in der Reihenfolge, in welcher die Zellen kamen, oder :data:`ABSTAIN`.\n:ivar affirm: ``(n_cells, n_guides)`` -- wie sehr jede Zelle aussieht wie die Anker jedes Führers.\n:ivar eliminate: ``(n_cells, n_guides)`` -- wie sehr es aussieht, wie alles ELSE. Getrennt gehalten absichtlich: \"probably not this guide\" und \"probably this guide\" sind unterschiedliche Ansprüche, und eine Zelle kann auf beiden niedrig sein, was die Zelle wert ist zu betrachten. Ein einzelnes Verhältnis Karten, die auf den gleichen Wert wie eine Zelle, die hoch auf beiden ist.\n:ivar reach: ``(n_cells,)`` -- Gesamtankermasse, die angekommen ist. Niedrige Reichweite IST der vierte Quadrant: Anders als jeder Anker, von jedem Führer.\n:ivar posterior: ``(n_cells, n_guides)`` nach der Mikroplattenmusterpositionsbeschränkung.\n:ivar names: die Leitnamen in der Spaltenreihenfolge der Matrizen.\n:ivar report: zählt und Einstellungen, für den Datensatz.",
+      "translation_source_blocks_sha256": [
+        "259961c60b0a260dc8d90924ad0a02c1f27daeb1d4a3f78579e3f27ecfc5d4df",
+        "b133cb63caf150909107fbdda390ce582730020f52d586f39d752a010b3b84b7",
+        "80527d2b3d77943e3caa8b9283999d0a9f9f2053c69c7b78825fbb5ef1c71bdd",
+        "125fe5ffa550f064b7e959b6c49ac86a94e7253b4c755fda02fe4f9dd96eaa33",
+        "0ba7c441293ede3a909873f64ea7273f3bd5cfc5c212cb0c94634526840f948f",
+        "88c3b9b3414b7a1e7b0098e88b361962c63ddd35c46ffd58aa9da65cb164312c",
+        "8e0e840760dd542656a1e3fcdf2f7203a4d6f56c2c9d7f043cd51571a794db7b",
+        "ca6a433c0d92112bad90a52cff1cb398ed4c5bb6d02a18cb4eac2bfad2f734e6"
+      ]
+    },
+    "spacr.sudoku.SudokuResult.abstained": {
+      "source_blocks_sha256": [
+        "87264400c612be08de89b386bca21eb4782a9811321132b3698adda5140892f4"
+      ],
+      "source_sha256": "87264400c612be08de89b386bca21eb4782a9811321132b3698adda5140892f4",
+      "text": "Boolesche Maske der Zellen, nach denen kein Führer benannt wurde.",
+      "translation_source_blocks_sha256": [
+        "87264400c612be08de89b386bca21eb4782a9811321132b3698adda5140892f4"
+      ]
+    },
+    "spacr.sudoku.SudokuResult.called": {
+      "source_blocks_sha256": [
+        "73b0b1ad75a69461624f232e6275479702f3d3929400bab6a258dad901c36226"
+      ],
+      "source_sha256": "73b0b1ad75a69461624f232e6275479702f3d3929400bab6a258dad901c36226",
+      "text": "Wie viele Zellen wurden kommentiert.",
+      "translation_source_blocks_sha256": [
+        "73b0b1ad75a69461624f232e6275479702f3d3929400bab6a258dad901c36226"
+      ]
+    },
+    "spacr.sudoku.anchors_for": {
+      "source_blocks_sha256": [
+        "7d95102aa928905030ec5ff146531d6f498bdcb85547288a97f4d286765c677d",
+        "4e74a48dde732283c8bbd6fcdc368d9c610e80f18cf2e91ba720611dd97dd427",
+        "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
+        "eb6d1129a7427ddaac6242fac73e735fe733bb3c770b45a89c0fedcec718c51d",
+        "33383acbfc2b22043321abda95fd91eab8de7cd2ce40806283ead68ecefcb8fb",
+        "6f58baeeba7bf761cddba3fc7a9d693dad9dece10a419590c02167dee6f6f3e9",
+        "87ab4bf6db33ed4b547f6f3df1f084aa38a3e9c85e5a0b1c7d2cee3a73823198",
+        "f64250843e1ee6f51bcf8a430ab51b081928e528c11d97c4532dd21f8b5d1fb2",
+        "e096de447ddbc931a4db8907de22c8f52bb4f7bde626b5be68c540a94a63c30d"
+      ],
+      "source_sha256": "d984295d47b2d4a9e29b9c4a8edd224f35ecd5021380b0428dec1e3ba74bac07",
+      "text": "Indizes der Zellen als annähernd bestimmte Beispiele von ``guide``.\n\n:param wells: eine Mikroplattenmusterpositionskennzeichnung pro Zelle.\n:param fractions: ``{well: {guide: fraction}}``.\n:param scores: die Klassifikationspunktzahl pro Zelle.\n:param quantile: innerhalb eines Ankerbrunnens das Quantil, über das eine Zelle genommen wird.\n:param min_fraction: Es werden nur Mikroplattenprobenpositionen verwendet, in denen der Führer mindestens dieser Anteil ist. DER PUNKT DES GLEICHENS: In einer Mikroplattenprobeposition, in der der Führer 70% der Lesewerte beträgt, ist eine Top-Scoring-Zelle sehr wahrscheinlich diese Anleitung. In einer Microplattenprobelage, wo sie 5 % beträgt, sind sie wahrscheinlich nicht, und ein Ankersatz, der aus solchen Mikroplattenmusterpositionen gebaut wurde, lehrt den Graphen die falsche Form.\n:param max_per_well: eine Kappe, also kann ein enormer Wells das Aussehen des Führers nicht allein definieren.\n:returns: Zellindizes, möglicherweise leer.\n\nDIE ANKORREN sind WHERE KURKULARITÄT ENTER, und es wird wissentlich eingegeben. Sie werden von SCORE ausgewählt, so dass ein Profil aus der Partitur allein gebaut würde sagen, \"eine `g` Zelle hat eine hohe Punktzahl\" -- wahr durch Konstruktion und wertlos. :func:`sudoku` schließt daher standardmäßig den Score von den Graph-Features aus. Die Punktzahl wählt die Anker; Die Morphologie entscheidet über alle anderen.",
+      "translation_source_blocks_sha256": [
+        "7d95102aa928905030ec5ff146531d6f498bdcb85547288a97f4d286765c677d",
+        "c0467ab89b7b6826cc65ed13aa61d4446f461fe4b6fafd4aa5e161c994e19a03",
+        "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
+        "eb6d1129a7427ddaac6242fac73e735fe733bb3c770b45a89c0fedcec718c51d",
+        "33383acbfc2b22043321abda95fd91eab8de7cd2ce40806283ead68ecefcb8fb",
+        "d0b92b598a796eedcf8f217ba477cf795c0eb1842bfbfa2e00a95e8d3fa4d2a7",
+        "87ab4bf6db33ed4b547f6f3df1f084aa38a3e9c85e5a0b1c7d2cee3a73823198",
+        "f64250843e1ee6f51bcf8a430ab51b081928e528c11d97c4532dd21f8b5d1fb2",
+        "e096de447ddbc931a4db8907de22c8f52bb4f7bde626b5be68c540a94a63c30d"
+      ]
+    },
+    "spacr.sudoku.constrain_to_fractions": {
+      "source_blocks_sha256": [
+        "69cfa77b758c1b77ee9e7a2c0df6b168641fcf2a719b80ca21efb22353cad00f",
+        "11bbd0d6d2dfdc5d3b3b820c1e772bac5f6ff65223fc6332475fd1aaee271433",
+        "9b5248d10e847ccf36b75c4786c0d076f262ebb081cc554d58b437fe4e1d96b0"
+      ],
+      "source_sha256": "63a9ab6f61d3025ac4ece3a7a5d16d61fec4631278a0f79c9dd341a4375de19e",
+      "text": "Projizieren Sie die propagierte Masse auf die Zählsequenzierung impliziert.\n\nIn jeder Mikroplatten-Probenposition skalieren Sie die Führungssäulen so, dass jede Summe auf ``pi_g * N_w`` addiert und die Zeilen abwechselnd auf 1 normalisiert wird. Dies ist iterativ proportionale Anpassung -- der gleiche feste Punkt :func:`spacr.guide_attribution.posterior` verwendet, der hier auf graphpropagierte Beweise anstelle einer eindimensionalen Wahrscheinlichkeit angewendet wird.\n\nES IST DER ROW-VERTRAG DES PUSZLES. Ohne ihn würde der Graph gerne jeder Zelle in einer Mikroplatten-Probenposition geben, zu welcher Führung auch immer die meisten Anker hatten, denn nichts würde sagen, dass eine Mikroplattenmusterposition nur so viele von jedem hat.",
+      "translation_source_blocks_sha256": [
+        "69cfa77b758c1b77ee9e7a2c0df6b168641fcf2a719b80ca21efb22353cad00f",
+        "c6a2877eb39cb08d834dbff7acb390dbce2d08b211ca3547526c7529402df6fb",
+        "6ae2c2a3c91105f4a21f4a68514c88b2f90f0452e927efb7740772818709cb18"
+      ]
+    },
+    "spacr.sudoku.propagate": {
+      "source_blocks_sha256": [
+        "f01302c3659d68814430f44a86d6ea63f6245c81a427be245cd0bd289b6bb174",
+        "131c43aa5f1971524c84de4b449a0cfc555e791f5dd32607ac2c114ee75bb029",
+        "6319fe5bd08783f67006fca86d068024fb63f9eba5576e7374388bc21eb30041",
+        "9ec0397a941a071283da5a436518c30422262310f6ea6ebaceb777f0c40bc1cd",
+        "bbde8602a2d23641b6636e3b10dbf88f032298762bfab028209c1c56b8ec9660",
+        "4400e2454821ccb3d8a34d4e7979a918acde857556cddf2ffd21eb1d6e0a0b7f",
+        "d909ec352bde5c46d8de062f46748dea069ccc8d46f8047da5481d0328bb39f6"
+      ],
+      "source_sha256": "04f5f0f1013cd02510e61235f82d29f1e7e908255f4b26a1ed1d0a2cb5e33b18",
+      "text": "Verbreiten Sie die Ankermasse entlang des Graphen.\n\n:param graph: die Affinität von :func:`similarity_graph`.\n:param seeds: ``(n_cells, n_guides)``, nur bei Ankerzeilen nicht Null.\n:param alpha: wie sehr eine Zelle ihren Nachbarn gegen ihren eigenen Samen zuhört. 0.9 ist der übliche Wert; bei 1.0 sind die Samen vergessen und die Antwort ist der führende Eigenvektor des Graphen, der nichts über Führer sagt.\n:returns: ``(n_cells, n_guides)`` vermehrte Masse, NICHT normalisiert.\n\nLokale und globale Konsistenziteration von Zhou et al., ``F <- a S F + (1-a) Y`` mit ``S = D^-1/2 W D^-1/2``. Es konvergiert zu ``(1-a)(I - aS)^-1 Y`` und wird eher als Iteration als als Lösung ausgeführt, da die Matrix spärlich ist und der Fixpunkt in Dutzenden von Schritten erreicht wird.\n\nDIE MASSE IST RÜCKGEFÜHRT und das ist beabsichtigt. Zeilennormalisierung hier würde eine Zelle, die fast nichts erhalten hat -- eine Zelle im Gegensatz zu jedem Anker jedes Führers -- in eine zuversichtlich aussehende Reihe verwandeln, die zu einer summiert. Diese Zelle ist die interessante, und :func:`sudoku` findet sie, indem sie sich das INSGESAMT der Reihe anschaut, bevor etwas normalisiert wird.",
+      "translation_source_blocks_sha256": [
+        "f01302c3659d68814430f44a86d6ea63f6245c81a427be245cd0bd289b6bb174",
+        "131c43aa5f1971524c84de4b449a0cfc555e791f5dd32607ac2c114ee75bb029",
+        "6319fe5bd08783f67006fca86d068024fb63f9eba5576e7374388bc21eb30041",
+        "9ec0397a941a071283da5a436518c30422262310f6ea6ebaceb777f0c40bc1cd",
+        "bbde8602a2d23641b6636e3b10dbf88f032298762bfab028209c1c56b8ec9660",
+        "4400e2454821ccb3d8a34d4e7979a918acde857556cddf2ffd21eb1d6e0a0b7f",
+        "d909ec352bde5c46d8de062f46748dea069ccc8d46f8047da5481d0328bb39f6"
+      ]
+    },
+    "spacr.sudoku.similarity_graph": {
+      "source_blocks_sha256": [
+        "c9871a550ffd5d21ea05091e57f74828c59fc9b2f6c745898c57468fe3c4c4b4",
+        "ba3bb25058b7e01078e1f18c0897e076359041e9b2df27603f6937a63319a65c",
+        "cf4cdd0174f724805681f17b68510a5d342eea4c43a621935a9539622433015f",
+        "cbd75f91a86f44ace476fa41a7558bd0285c1bb5f3433e3ce6f94729b4c91ef7",
+        "29ebd8819b449b41120ade352b913de2e7fae5e1115f86b0d9099bd92890b474",
+        "411e5b5577d51c97d922269d13384e35843ad0675d795083073ffa61751af267"
+      ],
+      "source_sha256": "fc07a926a49d4cfec0cee8b5f3f6a52eeaf2eb4f5e05b5bbf27a22e2ce0270ac",
+      "text": "Eine symmetrische k-nächste Nachbaraffinität über Zellen.\n\n:param features: ``(n_cells, n_features)``, hier standardisiert.\n:param neighbours: k.\n:param mutual: eine Kante nur dort zu halten, wo beide Zellen die anderen auflisten. Ein einfacher kNN Graph gibt einen Ausreißer k Kanten, die er nicht verdient hat -- es muss SOME nächste Nachbarn haben -- und die Etikettenmasse fließt dann in Zellen, die nichts ähneln. Gegenseitig lässt kNN einen Ausreißer überhaupt ohne Kanten enden, was die ehrliche Antwort ist und was :attr:`SudokuResult.reach` berichtet.\n:returns: eine spärliche CSR-Verwandtschaft mit einer Nulldiagonale.\n\nGewichte sind der Wärmekern mit einer SELF-TUNING-Skala: die Entfernung jeder Zelle zu ihrem kth Nachbar. Ein globales Sigma geht davon aus, dass die Wolke eine Dichte hat, und die Zellen eines Bildschirms nicht -- eine dichte gesunde Population neben einem spärlichen Sterben erhält man entweder keine Kanten in der spärlichsten Region oder eine überverbundene dichte.",
+      "translation_source_blocks_sha256": [
+        "c9871a550ffd5d21ea05091e57f74828c59fc9b2f6c745898c57468fe3c4c4b4",
+        "ba3bb25058b7e01078e1f18c0897e076359041e9b2df27603f6937a63319a65c",
+        "cf4cdd0174f724805681f17b68510a5d342eea4c43a621935a9539622433015f",
+        "cbd75f91a86f44ace476fa41a7558bd0285c1bb5f3433e3ce6f94729b4c91ef7",
+        "29ebd8819b449b41120ade352b913de2e7fae5e1115f86b0d9099bd92890b474",
+        "411e5b5577d51c97d922269d13384e35843ad0675d795083073ffa61751af267"
+      ]
+    },
+    "spacr.sudoku.sudoku": {
+      "source_blocks_sha256": [
+        "9565fd87072a18706ea83f75aded36f448874f0ae4e09578fabd5644e0382455",
+        "d1c68c2d44b7928ca72b5af71fd02b75f04415dec889b7093db3ce7092a8e09c",
+        "b8fb34ca7ab0762b881ef5a04536f195f13adc8f3365036ebd82f0d98c53df65",
+        "4e74a48dde732283c8bbd6fcdc368d9c610e80f18cf2e91ba720611dd97dd427",
+        "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
+        "67fdbb17464bcd148b97766fc52d68279c5ea952e263a0dc4b764e975a40e688",
+        "e5db01064629bc5c506f3ec56ead6109b227163fbd50841b5040227a6931e21e",
+        "9a0786d984efff1e26f0d5cb79497ad18d00d935127f3bd61951fa6cee3436f7",
+        "bb448ce3b066fb995254a78bb5161513381d0ffdadf22dbc87beb40d854672c6",
+        "2485395b525b7e370cd9e86447ae6fb393d3b5b02913fb4c7a6968b17fbde259",
+        "96b5593df006be77dbbee1e739b980b29f87747f42bac4c77656006a4a0f86e2"
+      ],
+      "source_sha256": "71817567844b193e55ca0d5f126229e61aa03c81c48f6dceff82e4961cab7c60",
+      "text": "Bemerken Sie jede Zelle, über Mikroplattenprobenpositionen hinweg, wobei zwei Punkte auseinander gehalten werden.\n\n:param features: ``(n_cells, n_features)`` Zellmessungen.\n:param scores: die Klassifikationsscore pro Zelle -- verwendet für CHOOSE-Anker und standardmäßig nicht als Graph-Feature.\n:param wells: eine Mikroplattenmusterpositionskennzeichnung pro Zelle.\n:param fractions: ``{well: {guide: fraction}}``.\n:param guides: die Anleitungen zu kommentieren. Die Wahl des Benutzers, und mehrere ist der Punkt: \"Der Benutzer kann mehrere High-Scoring-Guides wählen\".\n:param anchors: optionale, explizite Ankerindizes pro Führer, Overriding :func:`anchors_for`.\n:param use_score_as_feature: die Klassifikationspunktzahl auch in die Grafik einfließen lassen. **Off standardmäßig und das ist eine Korrektheitsentscheidung, nicht eine Präferenz**: die Anker werden durch Partitur gewählt, so dass ein Graph auf der Partitur gebaut würde jede hochkorrigierende Zelle in der Nähe der Anker jedes Führers platzieren und alle von ihnen bestätigen. Wenn man dies anstellt, ist die Methode zum Teil tautologisch, und der Bericht sagt das, wenn es weitergeht.\n:returns: die :class:`SudokuResult`.\n\nDIE VIER ERGEBNISSE, weshalb zwei Partituren statt eins getragen werden:\n\n  bestätigen hoch, eliminieren niedrig -- zuversichtlich bestätigen diese Anleitung niedrig,  Eliminieren hoch -- vertrauensvoll bestätigen NICHT diese Anleitung hoch, high eliminieren -- die Guides trennen sich hier nicht von niedrig, Low elivariieren -- im Gegensatz zu jedem Anker: die ungerade Zelle und das eine ein einzelnes Verhältnis versteckt sich, indem es auf den gleichen Wert wie die Zeile oben kartiert.",
+      "translation_source_blocks_sha256": [
+        "bb271fc5c5e8510d634b277435e17dc4dfc1742c142df9e42f38229b6e76c0b1",
+        "d1c68c2d44b7928ca72b5af71fd02b75f04415dec889b7093db3ce7092a8e09c",
+        "b8fb34ca7ab0762b881ef5a04536f195f13adc8f3365036ebd82f0d98c53df65",
+        "c0467ab89b7b6826cc65ed13aa61d4446f461fe4b6fafd4aa5e161c994e19a03",
+        "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
+        "67fdbb17464bcd148b97766fc52d68279c5ea952e263a0dc4b764e975a40e688",
+        "e5db01064629bc5c506f3ec56ead6109b227163fbd50841b5040227a6931e21e",
+        "9a0786d984efff1e26f0d5cb79497ad18d00d935127f3bd61951fa6cee3436f7",
+        "bb448ce3b066fb995254a78bb5161513381d0ffdadf22dbc87beb40d854672c6",
+        "2485395b525b7e370cd9e86447ae6fb393d3b5b02913fb4c7a6968b17fbde259",
+        "96b5593df006be77dbbee1e739b980b29f87747f42bac4c77656006a4a0f86e2"
+      ]
+    },
+    "spacr.sudoku.sudoku_all": {
+      "source_blocks_sha256": [
+        "810b655532d874a39399f11e67931d6211b319c107a7e6a6ef40e16fcd08a0ff",
+        "29ac08550b61f9b96e7fffd9817b6110583b059d63522cc50a50d13f28de4bdb",
+        "4d44af735702647f73491a4c8640a43ded90d040e176d8b772d91d9091191e8e",
+        "b9bac12fe498fa8e45c54ec7f754958812619f307e6742622428f682e99d42ed",
+        "3eadcaaf70d7abe0f4dabae2a1bf2a702b67597e7eec44da6682a174c9434634",
+        "06aba2aa8422f8b4869545c3b55f2cad954365e459ba71af351290dc947967a2"
+      ],
+      "source_sha256": "79d15de126efcfa2e121b6c2ee25189b91c6b4f4822eb780836545c70a042034",
+      "text": "Sudoku über jeden Führer, in vertrauensvoller Reihenfolge, behauptet, wie es geht.\n\n:param ranking: ``[(guide, confidence)]`` in absteigender Reihenfolge. Der Anrufer definiert Vertrauen, zum Beispiel durch die Kombination von Effektgröße und statistischer Signifikanz.\n:param max_guides: ein stopp, so dass ein Screening mit 1.500 Führungen läuft nicht 1.500 Graphen baut durch Zufall.\n:returns: eine :class:`SudokuResult` über alle Zellen.\n\nJede Runde läuft :func:`sudoku` für eine Führung über die noch nicht beanspruchten Zellen, hält die Zellen, die sie entscheidet, und entfernt sie. Sie stoppt, wenn eine Runde nichts beansprucht -- das ist der Münzumschlag, der eher erreicht als gezählt wird.\n\nDER AUFTRAG IST DAS RISIKO, und der Bericht trägt das, was nötig ist, um es zu beurteilen: `claimed_by_round`. Eine gierige Methode verpflichtet sich früh, die Fehler des ersten Führers werden von jedem späteren geerbt, und Zellen, die es braucht, werden nie überdacht. Ein Anrufer, der wissen will, wie viel das zählt, läuft zweimal mit der Ordnung gestört und vergleicht -- das ist, was :mod:`spacr.annotation_validation` tut.",
+      "translation_source_blocks_sha256": [
+        "810b655532d874a39399f11e67931d6211b319c107a7e6a6ef40e16fcd08a0ff",
+        "29ac08550b61f9b96e7fffd9817b6110583b059d63522cc50a50d13f28de4bdb",
+        "4d44af735702647f73491a4c8640a43ded90d040e176d8b772d91d9091191e8e",
+        "b9bac12fe498fa8e45c54ec7f754958812619f307e6742622428f682e99d42ed",
+        "3eadcaaf70d7abe0f4dabae2a1bf2a702b67597e7eec44da6682a174c9434634",
+        "06aba2aa8422f8b4869545c3b55f2cad954365e459ba71af351290dc947967a2"
       ]
     },
     "spacr.surrogate": {
