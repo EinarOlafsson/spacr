@@ -670,11 +670,7 @@ def offered_values(key: str, source=None, frame=None) -> Tuple[str, ...]:
     return ()
 
 
-#: Settings that no longer exist, and what happened to them. RETIRED, NOT
-#: MERELY ABSENT: instruction 211 asks that `cells_per_page`'s current value
-#: be "migrated out rather than left in the saved preferences to confuse a
-#: later reader", and a reader who meets an unexplained key in their own
-#: settings file has no way to find out it was deliberate.
+#: Removed picture settings and the migration note reported for each one.
 RETIRED: dict = {
     "cells_per_page": (
         "removed: the page size is now a consequence of the container size "
