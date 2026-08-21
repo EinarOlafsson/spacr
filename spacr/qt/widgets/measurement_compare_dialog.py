@@ -105,7 +105,11 @@ class MeasurementComparePanel(QWidget):
         layout = QVBoxLayout(self)
         row = QHBoxLayout()
 
-        row.addWidget(QLabel("measurement"))
+        #: The headings, by the field each one governs, so a test can find
+        #: them without matching on the text they display.
+        self.headings = {}
+
+        row.addWidget(self._heading("measurement"))
         self.measurement = QComboBox()
         # OFFERED FROM THE DATA, never typed: the same rule every other
         # chooser in spaCR follows, and the reason `object_array` stopped
@@ -131,7 +135,7 @@ class MeasurementComparePanel(QWidget):
         row.addWidget(self.second, 1)
         self._offer_second()
 
-        row.addWidget(QLabel("level"))
+        row.addWidget(self._heading("level"))
         self.level = QComboBox()
         for value, why in LEVELS:
             self.level.addItem(value, value)
@@ -140,7 +144,7 @@ class MeasurementComparePanel(QWidget):
         self.level.currentIndexChanged.connect(self.refresh)
         row.addWidget(self.level)
 
-        row.addWidget(QLabel("plot"))
+        row.addWidget(self._heading("plot"))
         self.kind = QComboBox()
         for value, label in PLOTS:
             self.kind.addItem(label, value)
@@ -153,7 +157,7 @@ class MeasurementComparePanel(QWidget):
         # on one of two groups is not a comparison at all and a panel that
         # quietly re-ran it on the visible half would be reporting a
         # different question than the one on screen.
-        row.addWidget(QLabel("show"))
+        row.addWidget(self._heading("show"))
         self.only = QComboBox()
         self.only.setToolTip(
             "Draw one class on its own. The statistics below are always for "
@@ -175,7 +179,7 @@ class MeasurementComparePanel(QWidget):
         # HELD AGAINST, and the same cells under three contrasts give three
         # different p-values.
         second_row = QHBoxLayout()
-        second_row.addWidget(QLabel("compare"))
+        second_row.addWidget(self._heading("compare"))
         self.contrast = QComboBox()
         for value, label, why in CONTRASTS:
             self.contrast.addItem(label, value)
@@ -455,6 +459,45 @@ class MeasurementComparePanel(QWidget):
             self.join_note.setText(
                 f"{self.join_note.text()} {trouble}".strip())
         return trouble
+
+    def _heading(self, field: str) -> QLabel:
+        """A column heading carrying the help for the field it governs.
+
+        KEYED BY FIELD, NOT BY LABEL TEXT (instruction 202). A tooltip looked
+        up by the heading's text stops working the moment somebody renames
+        the heading, and stops working SILENTLY -- the label still draws and
+        the help is simply gone.
+
+        THE HOVER IS THE SHARED ONE, so the tooltip does not vanish when the
+        pointer moves onto it. Same behaviour instruction 208 asks for
+        elsewhere; a help text that disappears when you reach for it cannot
+        be read to the end.
+        """
+        from ...gene_measurement_compare import HEADING_HELP
+
+        label = QLabel(str(field))
+        label.setToolTip(HEADING_HELP.get(str(field), ""))
+        label.setToolTipDuration(-1)
+        label.setCursor(Qt.WhatsThisCursor)
+        try:
+            from ..screens.settings_model import _ApiTooltipFilter
+
+            # HELD ON `self`, not made and dropped. Qt keeps a bare pointer
+            # to an event filter, so one that only this call referenced is
+            # collected as soon as the call returns -- after which the
+            # heading stops responding and nothing says why.
+            if getattr(self, "_heading_filter", None) is None:
+                self._heading_filter = _ApiTooltipFilter(self)
+            label.setProperty("apiTooltipHtml", label.toolTip())
+            label.setProperty("apiTooltipDisplayRole", "tooltip")
+            label.removeEventFilter(self._heading_filter)
+            label.installEventFilter(self._heading_filter)
+        except Exception:                                    # noqa: BLE001
+            # The plain Qt tooltip still shows; only the stay-open behaviour
+            # is lost, which is a worse tooltip rather than none.
+            LOG.debug("could not install the hover tooltip", exc_info=True)
+        self.headings[str(field)] = label
+        return label
 
     def _join_the_dependent_variable(self, wide):
         """Attach the dependent-variable table, if the box is ticked.
