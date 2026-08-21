@@ -1649,13 +1649,21 @@ def _write_confusion_figure(frame: pd.DataFrame, path: Path) -> None:
                           color="white" if value > 0.5 else "black")
         fig.colorbar(image, ax=axis, label="Row-normalized fraction")
         fig.tight_layout()
-        # THE USER'S FORMAT AND RESOLUTION, not 180 (108 point 6). This wrote
-        # a PNG at a fixed DPI whatever the preferences said, so "Figure
-        # format" and "Resolution" reached everything except the files a
-        # pipeline actually leaves behind.
+        # THE RESOLUTION IS THE USER'S; THE FORMAT IS NOT (108 point 6).
+        # This wrote a PNG at a fixed DPI whatever the preferences said, so
+        # "Resolution" reached everything except the files a pipeline leaves
+        # behind -- and it gains `print_ready`, so a bundle written from a
+        # dark session is not white ink on a white page.
+        #
+        # BUT `fmt` STAYS PNG, and that is not an oversight. These two files
+        # are named in `EVALUATION_FILES`, which is the bundle's CONTRACT:
+        # `read_evaluation_bundle` opens `confusion_matrix.png` by that exact
+        # name. Letting a format preference rename it makes the bundle
+        # unreadable by the function that wrote it -- a preference must not
+        # rename a file another part of the code opens by name.
         from .plot import save_figure
 
-        save_figure(fig, path, close=True)
+        save_figure(fig, path, fmt="png", close=True)
 
 
 def _write_calibration_figure(frame: pd.DataFrame, path: Path) -> None:
@@ -1684,13 +1692,21 @@ def _write_calibration_figure(frame: pd.DataFrame, path: Path) -> None:
         axis.set_title("Out-of-fold calibration")
         axis.legend(loc="best")
         fig.tight_layout()
-        # THE USER'S FORMAT AND RESOLUTION, not 180 (108 point 6). This wrote
-        # a PNG at a fixed DPI whatever the preferences said, so "Figure
-        # format" and "Resolution" reached everything except the files a
-        # pipeline actually leaves behind.
+        # THE RESOLUTION IS THE USER'S; THE FORMAT IS NOT (108 point 6).
+        # This wrote a PNG at a fixed DPI whatever the preferences said, so
+        # "Resolution" reached everything except the files a pipeline leaves
+        # behind -- and it gains `print_ready`, so a bundle written from a
+        # dark session is not white ink on a white page.
+        #
+        # BUT `fmt` STAYS PNG, and that is not an oversight. These two files
+        # are named in `EVALUATION_FILES`, which is the bundle's CONTRACT:
+        # `read_evaluation_bundle` opens `confusion_matrix.png` by that exact
+        # name. Letting a format preference rename it makes the bundle
+        # unreadable by the function that wrote it -- a preference must not
+        # rename a file another part of the code opens by name.
         from .plot import save_figure
 
-        save_figure(fig, path, close=True)
+        save_figure(fig, path, fmt="png", close=True)
 
 
 def find_evaluation_bundles(root: Any) -> List[Path]:

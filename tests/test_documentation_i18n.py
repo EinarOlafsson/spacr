@@ -2714,6 +2714,51 @@ def test_api_semantic_gate_rejects_bad_senses_and_surplus_globally():
     )
 
 
+def test_api_gate_removes_and_rejects_multilingual_model_control_tokens():
+    from build_documentation_i18n import (
+        _api_block_valid,
+        _model_artifact_reasons,
+    )
+    from build_i18n_catalogs import _contextualize
+
+    source = "Return the selected files."
+    examples = (
+        ("zh_CN", "ផ្ទាល់返回所选文件。"),
+        ("ko", "Vacuum 선택한 파일을 반환합니다."),
+        ("is", "vysi Skila völdum skrám."),
+    )
+    for language, contaminated in examples:
+        assert _model_artifact_reasons(source, contaminated, language)
+        assert not _api_block_valid(source, contaminated, language)
+        cleaned = _contextualize(contaminated, language, source)
+        assert cleaned == cleaned.strip()
+        assert not _model_artifact_reasons(source, cleaned, language)
+        assert _api_block_valid(source, cleaned, language)
+
+    # Source-conditioned words and protected literals remain valid when the
+    # English contract actually contains them.
+    vacuum_source = "Measure vacuum pressure."
+    vacuum_target = "Vacuum 압력을 측정합니다."
+    assert not _model_artifact_reasons(
+        vacuum_source, vacuum_target, "ko",
+    )
+    assert _api_block_valid(vacuum_source, vacuum_target, "ko")
+
+    # The same decoder marker has also appeared fused to invented class,
+    # function and adjective names. These are not the removable standalone
+    # filler above: reject the whole block so repair must translate it again.
+    for compound in (
+        "VacuumLogger 사용자가 진단 로거를 선택했습니다.",
+        "Vacuum() 는 False를 반환합니다.",
+        "빈 Vacuum-only 객체입니다.",
+        "VacOps 전체 전처리 작업을 실행합니다.",
+        "VacuumState — 빈 상태 패널입니다.",
+        "Vacuum이란 무엇인지 설명합니다.",
+    ):
+        assert _model_artifact_reasons(source, compound, "ko")
+        assert not _api_block_valid(source, compound, "ko")
+
+
 def test_contextualize_preserves_non_scientific_senses_across_locales():
     from build_documentation_i18n import _api_block_valid
     from build_i18n_catalogs import _contextualize

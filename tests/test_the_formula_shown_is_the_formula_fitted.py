@@ -111,8 +111,22 @@ def test_the_panel_updates_when_the_toggles_move(qtbot):
     box = screen._model_explainer
     widgets = screen._settings_model._widgets
 
+    # A PERMUTATION RUN HAS NO FORMULA, and the box says so. `inference`
+    # defaults to `nonparametric`, where each guide is tested as a marginal
+    # association and no model is fitted -- so the explainer prints "there is
+    # no formula, no family, and no coefficient" rather than a formula the
+    # run will not use. This test is about whether the formula FOLLOWS the
+    # toggles, so it first puts the panel in the state that has one.
+    inference = widgets["inference"]
+    index = inference.findData("parametric")
+    inference.setCurrentIndex(index if index >= 0
+                              else inference.findText("parametric"))
+    qtbot.wait(1)
+
     before = _formulas(box.toPlainText())
-    assert before and not any("rowID" in line for line in before)
+    assert before, ("the box shows no formula even under parametric "
+                    "inference: " + box.toPlainText()[:200])
+    assert not any("rowID" in line for line in before)
 
     widgets["model_plate_position"].setChecked(True)
     qtbot.wait(1)

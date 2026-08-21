@@ -1323,12 +1323,18 @@ def _write_qc_figure(plate, item, channels, panels, metrics, save_dir,
         figure.colorbar(image, ax=axis, fraction=0.046)
     figure.tight_layout()
     path = os.path.join(save_dir, f'illumination_qc_{plate}.png')
-    # 108 point 6: through the one writer, so this QC page follows the format
-    # and resolution preferences and is repainted for paper like every other
-    # figure a user keeps. `save_figure` corrects the extension to the format.
+    # 108 point 6: through the one writer for the resolution rule and the
+    # repaint for paper -- but `fmt` STAYS PNG. This path is RETURNED and
+    # recorded in the QC metrics under a name ending `.png`, and a format
+    # preference that renamed it would rename a value other code reads back.
+    #
+    # THE PATTERN, since this is the fourth: routing a save through
+    # `save_figure` always gains the DPI and the paper repaint; the FORMAT
+    # follows the preference only where nothing depends on the filename. A
+    # figure whose name is part of a contract keeps its extension.
     from .plot import save_figure
 
-    return save_figure(figure, path)
+    return save_figure(figure, path, fmt="png")
 
 
 def _radial_profile(image: np.ndarray, factor: int,

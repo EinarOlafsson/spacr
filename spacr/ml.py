@@ -1951,13 +1951,28 @@ def double_transform_warning(name, transform, family) -> str:
     link = type(getattr(family, 'link', None)).__name__
     if link in ('', 'NoneType', 'Identity', 'identity'):
         return ""
+    # WHAT THIS SENTENCE HAS TO CARRY, and it lost three of them once:
+    #
+    #   * that the response is transformed TWICE -- the fault, in the word a
+    #     reader will remember it by;
+    #   * the composed function, so it can be checked;
+    #   * THE SYMPTOM. A user does not notice a double transform; they
+    #     notice a pseudo-R-squared of -20.3 and have no way to connect the
+    #     two. Naming McFadden here is what connects them, and it is the
+    #     whole point of the warning existing at all;
+    #   * both ways out, in the CURRENT vocabulary (182's
+    #     `glm_transform_conflict`) and in the manual one that still works.
     return (
-        f"  Warning: transform={kind!r} was already applied to "
-        f"{name or 'the response'}, and the selected family also uses a "
-        f"{link} link. The model would therefore fit "
-        f"{link.lower()}({kind}(y)). Choose 'untransformed' to let the "
-        f"family link transform the measured response, or 'transformed' to "
-        f"keep the transformed response and use an identity link."
+        f"  Warning: {name or 'the response'} would be transformed TWICE. "
+        f"transform={kind!r} has already been applied to it, and the "
+        f"selected family also carries a {link} link, so the model fits "
+        f"{link.lower()}({kind}(y)) -- which is usually why McFadden's "
+        f"R-squared comes back negative and meaningless. "
+        f"Set glm_transform_conflict='untransformed' to drop the transform "
+        f"and let the family's link do the work, or 'transformed' to keep "
+        f"the transformed response and fit it with an identity link "
+        f"(equivalently, regression_type='ols' on the transformed "
+        f"response)."
     )
 
 
