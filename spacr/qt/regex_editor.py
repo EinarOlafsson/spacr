@@ -90,6 +90,19 @@ class RegexEditorDialog(QDialog):
         self._auto_btn.clicked.connect(self._on_auto_detect)
         row.addWidget(self._auto_btn)
 
+        # THE WORKBENCH (137 A, C, D). This dialog previews the MATCH; the
+        # workbench previews the IMPORT -- one row per file with the name it
+        # would get, a dropdown saying what each group means, and the folder
+        # tree it would produce, with the unmatched files named. Two windows
+        # because they answer two questions, and this one is what a drop
+        # opens.
+        self._workbench_btn = QPushButton("Work it out from the files…")
+        self._workbench_btn.setToolTip(
+            "Drop the images in, name what each group means, and see the "
+            "new filenames and the folder tree before anything is written.")
+        self._workbench_btn.clicked.connect(self._on_workbench)
+        row.addWidget(self._workbench_btn)
+
         wrap = QWidget(); wrap.setLayout(row)
         outer.addWidget(wrap)
 
@@ -197,7 +210,36 @@ class RegexEditorDialog(QDialog):
                         f"first: {missed[0]}]")
         self._preview.setPlainText(preview)
 
+    def _on_workbench(self) -> None:
+        """Open the import workbench on this dialog's files.
+
+        It hands the pattern BACK rather than saving it, so the editor stays
+        the one place the regex is accepted from -- two doors that both write
+        the setting is how they end up disagreeing about what it is.
+        """
+        from PySide6.QtWidgets import QDialog
+
+        from .widgets.import_workbench import ImportWorkbenchDialog
+
+        dialog = ImportWorkbenchDialog(self._samples,
+                                       self._regex_input.text().strip(),
+                                       parent=self)
+        if dialog.exec() == QDialog.Accepted:
+            chosen = dialog.workbench.regex.text().strip()
+            if chosen:
+                self._regex_input.setText(chosen)
+
     # -- accept ---------------------------------------------------------
     def _on_save(self) -> None:
-        self.regex = self._regex_input.text().strip()
+        # TRIMMED FOR `_get_regex`, which appends the extension itself. What
+        # this box holds matches WHOLE FILENAMES -- the preview above is
+        # matched against them -- and `auto_detect_regex` returns a pattern
+        # ending `\.(?:tif|tiff|png|jpg|jpeg)$`. Saved verbatim into
+        # `custom_regex` that became `(...$)..tif`: an anchor with characters
+        # after it, which can never match. Measured through the real path on
+        # eight cellvoyager names: 0 of 8, with no error anywhere and the
+        # pattern in the box looking exactly right.
+        from ..import_plan import for_get_regex
+
+        self.regex = for_get_regex(self._regex_input.text())
         self.accept()
