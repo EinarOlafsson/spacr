@@ -1084,18 +1084,10 @@ class RegressionResultsPanel(QWidget):
     def show_panel(self, key: str) -> bool:
         """Raise the tab that holds the live panel named ``key``.
 
-        This is the door instruction 199 found missing. The grid photographs
-        nine live panels and gives every tile a key, but only the volcano's
-        key had anywhere to go -- so eight tiles took a click and did
-        nothing, which reads as a broken application rather than as a
-        picture with no door.
-
         :param key: a key from :meth:`FigureGridView.set_live_tiles`.
-        :returns: True if a tab was raised. FALSE IS A REAL ANSWER and the
-            caller must act on it: the tab set is not fixed -- a fit with no
-            model has no residual tab, and the volcano and gene tabs are
-            absent when the volcano is external -- so a key can be perfectly
-            valid and have no tab in THIS panel right now.
+        :returns: ``True`` when the corresponding tab exists and was raised;
+            otherwise ``False``. The available tabs depend on the fitted
+            model and whether the volcano is displayed outside this panel.
         """
         attribute = self._PANEL_TABS.get(str(key))
         if attribute is None:

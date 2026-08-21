@@ -1,52 +1,22 @@
-"""Sudoku annotation: which guide each cell carries, decided across wells.
+"""Infer cell-level guide assignments across wells.
 
-Instruction 209, approved 2026-08-21 after the mathematics was agreed.
+Pooled screens provide guide counts for each well, not a guide identity for
+each cell. This module combines those count constraints with similarity in
+measurement space. It selects high-confidence anchor cells, propagates their
+labels over a k-nearest-neighbour graph, and projects the result onto the
+per-well guide fractions reported by sequencing.
 
-THE PROBLEM. A pooled screen never observes which guide a cell carries. It
-observes, per well, how many reads each guide got -- a COUNT, not an
-identity -- and, per cell, a set of measurements. Every existing method in
-:mod:`spacr.guide_attribution` turns the count into a per-well allocation:
-`rank` takes the top `pi_g * N` by score, `attributed` and `assigned` solve
-a per-well posterior or assignment.
+Assignments can therefore borrow evidence for the same perturbation across
+wells while retaining an explicit abstention state. The propagated mass,
+competing-label evidence, and total anchor reach remain available separately
+so ambiguous or unsupported calls can be inspected instead of forced.
 
-WHAT THEY ALL SHARE IS THE WELL. A guide's cells in well A tell them
-nothing about the same guide's cells in well B, even though it is the same
-perturbation and the cells should look alike. That discarded information is
-what this module uses, and it is the whole reason it exists.
-
-THE SUDOKU ANALOGY, which is the maintainer's. A sudoku square is never
-read directly; it is deduced from constraints -- this row already has a
-seven -- and from squares you are already sure of. Here:
-
-  * the SQUARES you are sure of are the anchors: the cells in each guide's
-    strongest wells that most look the part;
-  * the ROW CONSTRAINT is the sequencing: well `w` must end up with about
-    `pi_g * N_w` cells of guide `g`;
-  * the DEDUCTION is that cells which look alike carry alike, wherever they
-    sit -- which is what carries information from well to well.
-
-THE GRAPH IS NOT A METAPHOR HERE. Asked whether network theory applies: the
-third bullet IS a graph problem, and writing it as one is what makes the
-method both standard and checkable. Build a k-nearest-neighbour graph over
-cells in measurement space, put label mass on the anchors, and let it spread
-along edges. That is label propagation -- Zhu & Ghahramani 2003, Zhou et al.
-2004 -- and the well constraint is the class-mass normalisation step from
-the same literature. Two ideas that arrived independently turn out to be one
-algorithm, which is the best evidence available that it is the right one.
-
-The alternative graph reading is a bipartite one: cells on one side,
-`(well, guide)` slots on the other, edges weighted by evidence, solved as
-min-cost flow. That is what `assign_well` already does per well; done across
-all wells at once it is the same constraint this module applies as a
-projection. It is kept as the PROJECTION rather than the whole method
-because a hard assignment cannot abstain, and abstention is a requirement.
-
-WHAT IS DELIBERATELY NOT HERE. A graph neural network would fit this shape
-and is the wrong tool: the labels are noisy pseudo-labels from anchors, the
-sample is thousands not millions, and the result would be uninterpretable
-in a way that matters for a method deciding what every downstream number
-means. Label propagation has no trained weights, is convex, and its answer
-can be traced back to the anchors that produced it.
+Notes
+-----
+The propagation and class-mass normalization follow the label-propagation
+framework described by Zhu and Ghahramani (2003) and Zhou et al. (2004).
+The implementation has no trained graph-model weights; each result can be
+traced to its anchors and the sequencing constraint.
 """
 from __future__ import annotations
 
@@ -506,10 +476,9 @@ def sudoku_all(features: np.ndarray,
                **kwargs) -> SudokuResult:
     """Sudoku over every guide, in confidence order, claiming as it goes.
 
-    :param ranking: ``[(guide, confidence)]``. The maintainer's order is
-        "the highest scoring + p value guide", i.e. effect size weighted by
-        significance; the caller computes it, because what counts as
-        confidence is the screen's business and not this module's.
+    :param ranking: ``[(guide, confidence)]`` in descending processing order.
+        The caller defines confidence, for example by combining effect size
+        and statistical significance.
     :param max_guides: a stop, so a screen with 1,500 guides does not run
         1,500 graph builds by accident.
     :returns: one :class:`SudokuResult` over all cells.
