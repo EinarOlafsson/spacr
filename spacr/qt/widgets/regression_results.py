@@ -1697,6 +1697,42 @@ class RegressionResultsPanel(QWidget):
                       detail="\n".join(tables[:20]))
         return True
 
+    def _say_if_no_p_values(self, frame) -> None:
+        """Explain a table whose coefficients carry no significance.
+
+        Distinguishes the two ways it happens, because they call for
+        different things from the reader: a mixed fit's guide rows are BLUPs
+        and never had a p value, and that is expected; anything else with no
+        finite p value is a fit that failed to produce one, and that is not.
+        """
+        import pandas as pd
+
+        if "p_value" not in frame.columns:
+            return
+        values = pd.to_numeric(frame["p_value"], errors="coerce")
+        if values.notna().any():
+            return
+        kinds = set()
+        if "term_type" in frame.columns:
+            kinds = {str(k) for k in frame["term_type"].dropna().unique()}
+        if kinds and kinds <= {"random_effect_blup"}:
+            self.say(
+                f"These {len(frame):,} row(s) are BLUPs, not estimates. A "
+                f"mixed model makes the guide a RANDOM effect, so each guide "
+                f"gets a shrunken prediction and no p value -- which is why "
+                f"the volcano is empty, its vertical axis being the p value. "
+                f"The coefficients are in the table beside it. For per-guide "
+                f"significance, fit at guide level with a fixed-effect "
+                f"model, or use inference='nonparametric', which tests each "
+                f"guide on its own.")
+        else:
+            self.say(
+                f"None of these {len(frame):,} coefficient(s) carries a "
+                f"p value, so nothing can be plotted against significance. "
+                f"That is a fit that did not produce one rather than a fit "
+                f"with nothing to say -- the coefficients themselves are in "
+                f"the table.")
+
     def set_frame(self, frame, source: str = "") -> bool:
         """Show an already-loaded coefficient table."""
         import pandas as pd
@@ -1705,6 +1741,16 @@ class RegressionResultsPanel(QWidget):
             self.say("The results table is empty: it has columns but no "
                       "rows, so the fit produced no coefficients.")
             return False
+        # ROWS BUT NO P VALUES IS NOT AN EMPTY TABLE, and saying nothing
+        # about it produced the report "with guides i see nothing in the
+        # graph" (2026-08-21) against a run that had worked perfectly.
+        #
+        # A MIXED MODEL MAKES THE GUIDE A RANDOM EFFECT. Each guide gets a
+        # shrunken BLUP -- a prediction -- and a BLUP has no p value, so a
+        # volcano, whose vertical axis IS the p value, has nothing to draw.
+        # The run already says this in the console; the panel the user is
+        # looking at did not.
+        self._say_if_no_p_values(frame)
         # THE OUTGOING RUN KEEPS WHAT THE USER BUILT ON IT. Saved BEFORE
         # anything is replaced, because every line below this one resets a
         # piece of it -- and saved against the OLD path, which is the key the

@@ -118,3 +118,80 @@ class TestTheOtherRefusalsStillFire:
     def test_control_center_without_controls(self):
         said = _said({"batch_correction": "control_center"})
         assert "batch_control_column" in said
+
+
+class TestTheUnitChoosesWhatItNeeds:
+    """"if cell is chosen then the settings it needs should be chosen and
+    displayed and the setting grayed out."
+
+    CHOSEN WHEN IT WAS NOT ASKED FOR, SAID WHEN IT WAS. Left at 'auto' the
+    inference is not a conflict -- 'auto' means "pick what the design
+    supports", so picking it is the whole job. Set to 'nonparametric'
+    explicitly it IS a conflict: two deliberate choices that cannot both
+    hold, and resolving that quietly would run something other than what was
+    asked for.
+    """
+
+    @staticmethod
+    def _resolve(settings):
+        from spacr.settings import _resolve_regression_analysis_choices
+
+        _resolve_regression_analysis_choices(settings)
+        return settings
+
+    def test_auto_becomes_parametric_under_cell(self):
+        out = self._resolve({"analysis_unit": "cell", "inference": "auto"})
+        assert out["inference"] == "parametric"
+        assert out["analysis_mode"] == "regression"
+
+    def test_the_aggregation_is_cleared_with_it(self):
+        out = self._resolve({"analysis_unit": "cell", "inference": "auto",
+                             "agg_type": "mean"})
+        assert out["agg_type"] is None
+
+    def test_a_missing_inference_is_treated_as_auto(self):
+        out = self._resolve({"analysis_unit": "cell"})
+        assert out["inference"] == "parametric"
+
+    @pytest.mark.parametrize("typed", ["nonparametric", "permutation"])
+    def test_an_explicit_conflict_is_refused_in_words(self, typed):
+        from spacr.settings import _resolve_regression_analysis_choices
+
+        with pytest.raises(ValueError) as caught:
+            _resolve_regression_analysis_choices(
+                {"analysis_unit": "cell", "inference": typed})
+        said = str(caught.value)
+        assert "analysis_unit='well'" in said
+        assert "inference='parametric'" in said
+
+    def test_well_is_left_alone(self):
+        out = self._resolve({"analysis_unit": "well",
+                             "inference": "nonparametric"})
+        assert out["inference"] == "nonparametric"
+        assert out["analysis_mode"] == "guide_permutation"
+        assert out["agg_type"] == "mean"
+
+
+class TestThePanelGreysWhatTheUnitDecides:
+
+    @staticmethod
+    def _rules():
+        from spacr.settings import get_setting_dependencies
+
+        return get_setting_dependencies()
+
+    @pytest.mark.parametrize("key", ["inference", "agg_type"])
+    def test_it_is_greyed_under_cell_and_live_under_well(self, key):
+        rule = self._rules()[key]
+        assert rule["predicate"]({"analysis_unit": "well"}, {}) is True
+        assert rule["predicate"]({"analysis_unit": "cell"}, {}) is False
+
+    def test_the_reason_names_the_unit_and_the_way_out(self):
+        rule = self._rules()["inference"]
+        said = rule["reason"]({"analysis_unit": "cell"}, {})
+        assert "analysis_unit='cell'" in said
+        assert "well" in said
+
+    def test_the_rule_listens_to_the_unit(self):
+        """It has to re-evaluate when the unit moves, not only at build."""
+        assert "analysis_unit" in self._rules()["inference"]["sources"]
