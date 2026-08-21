@@ -1,26 +1,10 @@
-"""The Classes editor: pick a column, name what is in it.
+"""Edit named classes derived from annotation or metadata values.
 
-The setting is a dict of ``name -> {column, value}``, and this is how it gets
-filled in: choose a column, and every distinct value in it becomes a row the
-user gives a name to. That is the whole gesture — "you set the column then the
-keys of this dict get populated and the user fills in their names."
-
-Two things it does that the old settings could not.
-
-**More than one column.** Each row remembers which column its value came from,
-so classes can be defined across several annotation columns at once. Adding a
-second column appends its values rather than replacing the first's.
-
-**The random complement.** One row can be "everything not claimed, chosen at
-random", which is what the retired ``write_random_annotation_column`` used to
-arrange. It is a KIND OF ROW here rather than a button pressed beforehand,
-because it is a way of defining a class and belongs where the other class
-definitions are.
-
-Under the metadata basis the offered columns become the plate's own
-coordinates — plate, row, column, field, well — which is why
-``location_column``, ``positive_control`` and ``negative_control`` are no
-longer needed: "positive control is column 3" is exactly a row in this table.
+Class definitions are stored as ``name -> {column, value}`` mappings. Values
+from several columns can be appended to one definition set, and an optional
+random-complement rule represents objects not claimed by another class. With
+the metadata basis, the editor offers plate, row, column, field, and well
+coordinates through the same interface.
 """
 from __future__ import annotations
 
@@ -73,21 +57,11 @@ register_widget_qss(QSS_NAME, _class_editor_qss, replace=True)
 
 
 class ClassChip(QWidget):
-    """One class, represented by its name and colour bubbles.
+    """Display one class name and its selected value as a removable pair.
 
-    "class then value class generating a teal bubble and the value generating
-    a green bubble ... i just thought it was a good idea to consolidate the
-    information into one object."
-
-    So the two halves are one object on screen: a TEAL pill carrying the class
-    name and a GREEN pill carrying the value it selects, side by side with a
-    single remove button for the pair. A class that selects nothing -- the
-    random complement -- shows only the teal half, because there is no value
-    to put in the green one.
-
-    The colours are palette ROLES (`chip_class`, `chip_value`), not literals.
-    A hard-coded teal survives exactly until someone switches to the light
-    theme, where it fails contrast against a white surface.
+    Random-complement classes omit the value pill because they do not select
+    a specific value. Name and value colours come from the active theme's
+    ``chip_class`` and ``chip_value`` roles.
     """
 
     removed = Signal(int)
@@ -175,7 +149,7 @@ class ClassEditorWidget(QWidget):
         self.column = QComboBox(self)
         self.column.setToolTip(
             "Choosing a column fills the table below with its values, one row "
-            "per class. Choosing a SECOND column adds its values alongside — "
+            "per class. Choosing another column adds its values alongside — "
             "classes can be defined across more than one column.")
         # EDITABLE, because the combo is filled from a LOADED TABLE and there
         # is not always one. With no frame the list came back empty, the "Add
@@ -298,16 +272,14 @@ class ClassEditorWidget(QWidget):
                       "column.")
 
     def attach_sql_picker(self, db_path_getter, table: str = "png_list"):
-        """Put the SQL button beside the column combo.
+        """Add a database-backed column picker beside the column field.
 
-        ASKED FOR BECAUSE THE COMBO COULD BE EMPTY. The columns come from a
-        loaded table, and the user reaches this panel before loading one --
-        so the setting that decides every class in the module was the one
-        setting with no way to fill it in. The button reads the columns from
-        the database the src field names, which is where they actually are.
+        The picker reads available columns from the current run database when
+        no table has been loaded into the editor.
 
         :param db_path_getter: callable giving the run folder or database
             path, called on each press so a path edited later is picked up.
+        :param table: database table whose columns should be offered.
         :returns: the button, or ``None`` if it could not be built.
         """
         from .column_picker import attach_column_picker

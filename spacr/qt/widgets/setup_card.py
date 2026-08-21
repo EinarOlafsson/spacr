@@ -1,18 +1,8 @@
-"""The rounded card the first-run questions sit on.
+"""Render first-run questions in a rounded, pointer-responsive card.
 
-Instruction 221: "a box with round corners and a periphery with a blue line
-that follows the corner of the box the mouse is closest to ... i basically
-want my version of the sleek intro that apple has."
-
-THE CORNER LINE IS A POINTER READOUT, NOT A GLOW, and stating that is the
-whole of the design: the accent tracks WHICH of the four corners the pointer
-is nearest and moves between them. Built as a glow it would light on hover
-and say nothing about where the mouse is.
-
-INVARIANTS 10: DECORATION IS NEVER LOAD-BEARING. If the blur, the ambient
-background or the corner accent cannot be drawn, the card still shows its
-questions and still saves the answers. Every paint step here is inside a
-guard for that reason.
+The accent follows the corner nearest the pointer. All visual effects are
+decorative: if a blur, background, or accent cannot be painted, the card
+continues to display its questions and save their answers.
 """
 from __future__ import annotations
 

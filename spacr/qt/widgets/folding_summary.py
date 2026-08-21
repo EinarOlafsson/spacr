@@ -114,24 +114,11 @@ _ROW = re.compile(r"^(  \S[^\s]*(?:[ \t]\S+)*?  +)\S")
 
 
 class _RejectionHighlighter(QSyntaxHighlighter):
-    """Red where an assumption was REJECTED, and nowhere else.
+    """Highlight rejected assumptions and blocking recommendations.
 
-    Instruction 225: "whan a test has a broken assumption the text showing
-    that that assumption is broken should be red".
-
-    THE SUMMARY ALREADY SAID "REJECTED" and the word was doing no work,
-    because it was the same colour as everything around it. Three lines, one
-    of them fatal to the p-values, and nothing on screen said which.
-
-    RED IS FOR A REJECTED ASSUMPTION, NOT FOR A SMALL NUMBER. Some checks
-    report cautions -- a leverage count above a rule of thumb is a caution,
-    not a failure -- and colouring those too would make the colour mean
-    "there is a number here". Colour that fires on everything means nothing.
-
-    FROM THE PALETTE, NEVER A LITERAL: 178 removed eleven hard-coded inks
-    from the figures and 198 the same from the headings, because a hex reads
-    on one theme and vanishes on the other and the author sees only the one
-    they use.
+    Cautions and small diagnostic values retain the normal text colour. The
+    error colour comes from the active theme so rejection markers remain
+    readable in both light and dark modes.
     """
 
     #: What marks a line as a broken assumption. `REJECTED at` is written by

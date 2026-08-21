@@ -36,23 +36,17 @@ class TestItOpensIntoTheResults:
         qtbot.addWidget(panel)
         assert panel.set_frame(results, source="results.csv")
 
-        # "Summary" closes the diagnostic group -- the statsmodels summary,
-        # added 2026-08-17 at the maintainer's request. It sits after
-        # Influence rather than earlier because Q-Q through Influence are one
-        # group that reads in order, and a first attempt dropped it between
-        # Controls and Residuals and split them.
-        # "Effect rank" and "Effect distribution" joined on 2026-08-17: they
-        # were the last two panels the SAVED sheet drew without a pyqtgraph
-        # twin, and the maintainer asked for "all plots with the pyqtgraph
-        # ... each represented as a tab under results". They sit next to the
-        # volcano because they answer the same question at gene level -- what
-        # the screen found, and how big.
+        # Summary closes the diagnostic group after Influence. Effect rank and
+        # Effect distribution remain next to Volcano because all three describe
+        # which features changed and by how much. Annotation check follows the
+        # residual diagnostics because it evaluates the selected cells against
+        # held-out controls.
         stems = [panel.tabs.tabText(i).split(" (")[0]
                  for i in range(panel.tabs.count())]
         assert stems == \
             ["Volcano", "Effect rank", "Effect distribution", "p-values",
-             "Q-Q", "Controls", "Residuals", "Scale-location", "Influence",
-             "Summary", "Guide support", "Gene"], (
+            "Q-Q", "Controls", "Residuals", "Scale-location", "Influence",
+            "Annotation check", "Summary", "Guide support", "Gene"], (
                 "compare the STEMS: a title carries its level in brackets "
                 "when one is filtered, and guides became the default on "
                 "2026-08-17")

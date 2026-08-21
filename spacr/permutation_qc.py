@@ -1,18 +1,10 @@
-"""The residuals the permutation test permutes, and whether they may be.
+"""Evaluate residual exchangeability for blocked permutation tests.
 
-Instruction 224. `_perform_regression` writes a QC folder on the parametric
-path and returns before it on the permutation path -- so the analysis that
-RESIDUALISES is the one that shows no residuals.
-
-That is backwards. A parametric fit's residual plots check assumptions the
-reader can already reason about from the model. THE PERMUTATION TEST'S WHOLE
-VALIDITY RESTS ON ONE ASSUMPTION -- that the residuals are exchangeable
-WITHIN each block -- and until now there was no way to look at it.
-
-EXCHANGEABILITY IS NOT NORMALITY, and none of the parametric panels answers
-it. Residuals-vs-fitted shows heteroscedasticity; Q-Q shows shape. Neither
-shows a GRADIENT ACROSS THE PLATE, which is the thing that makes two wells
-in the same block non-swappable.
+Permutation inference assumes that residuals can be exchanged within each
+block. This module reports serial autocorrelation, positional gradients, and
+block-level diagnostics that may invalidate that assumption. These checks
+complement residual-versus-fitted and Q-Q plots: normality and constant
+variance do not establish exchangeability across plate positions.
 """
 from __future__ import annotations
 
