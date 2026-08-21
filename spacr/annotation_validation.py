@@ -1,36 +1,14 @@
-"""Does an annotation strategy work? Measured, on data whose truth is known.
+"""Evaluate guide-annotation strategies against measurable reference cases.
 
-Instruction 209: "we need a validation and test mechanism to show that this
-actually works, we need that for each strategy i think, but it seems most
-importatn for these."
+Real pooled screens do not provide cell-level guide ground truth. Validation
+therefore combines four complementary checks: simulated screens with known
+assignments, guide-to-well permutations that should reduce performance to
+chance, held-out controls, and order-sensitivity analysis for sequential
+methods.
 
-THE PROBLEM WITH VALIDATING THIS AT ALL. A pooled screen has no ground
-truth: nobody knows which guide any given cell carried, which is the entire
-reason these methods exist. So an annotation cannot be checked against the
-real answer on real data -- there is none to check against.
-
-WHAT CAN BE DONE INSTEAD, and this module does all four:
-
-  1. SIMULATE a screen where the truth is known by construction, with the
-     confounds dialled in one at a time -- penetrance below 1, a biased
-     fraction, a classifier that makes mistakes, guides that share a well.
-     A method that cannot recover a screen built to be recoverable will not
-     recover a real one.
-  2. PERMUTE the guide-to-well assignment and re-run. Every method must
-     collapse to chance. One that does not is reading something other than
-     the data -- and this catches the failure simulation cannot, because it
-     runs on the REAL screen.
-  3. HOLD OUT the controls. The non-cutting control must not collect
-     phenotype-positive cells, and the positive control must.
-  4. PERTURB THE ORDER, for the sequential method, and report how many
-     cells change. A greedy method whose answer depends on its order has a
-     confidence it has not earned.
-
-ONE NUMBER IS NOT AN ANSWER. A method that annotates every cell at 50%
-precision is worse than one that annotates a third of them at 95%, and any
-single score ranks them by whichever it happens to weight. Everything here
-reports COVERAGE and PRECISION as a pair, and a method is compared to
-another only at matched coverage.
+Results report coverage and precision separately. This avoids treating a
+method that labels every cell unreliably as equivalent to one that abstains
+on uncertain cells and labels the remainder accurately.
 """
 from __future__ import annotations
 
@@ -124,7 +102,7 @@ def synthesise(*,
     :param penetrance: the share of a guide's cells that actually show its
         phenotype. Below 1 the rest look like nothing in particular, which
         is the confound that cannot be separated from a fraction bias by a
-        single control -- see instruction 214.
+        single control.
     :param fraction_bias: multiply the reported fractions by this, then
         renormalise. 1.8 reproduces what `normalised_share` documents on a
         real screen: filtered fractions sum to a median of 0.5526, so the
@@ -133,7 +111,7 @@ def synthesise(*,
         renormalising -- the mechanism that creates the bias rather than an
         imitation of it.
     :param classifier_accuracy: the score is flipped toward the wrong tail
-        this often. 0.94 is the maintainer's stated figure.
+        this often. Values closer to 1 produce better-separated classes.
     :returns: the :class:`Screen`.
     """
     rng = np.random.default_rng(int(seed))
@@ -601,10 +579,9 @@ def mixed_ratio_calibration(features: np.ndarray,
     fractions. The 1.8 that `normalised_share` documents would show here as
     a slope near 0.55.
 
-    A MEDIAN FIT, for instruction 214's reason: a hit sharing a control well
-    only ever ADDS phenotype-positive cells, so contamination is one-sided,
-    and one-sided contamination is exactly where a least-squares slope is
-    dragged and a median one is not.
+    The median pairwise slope limits the influence of one-sided contamination:
+    a hit sharing a control well can add phenotype-positive cells, whereas a
+    least-squares slope would be pulled toward that contaminated well.
     """
     values = np.asarray(features, dtype=float)
     labels = np.asarray([str(w) for w in wells])
