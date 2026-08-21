@@ -99,7 +99,8 @@ def copy_figure(figure):
 
 def style_for_file(figure, *, ink: str = "", background: str = "",
                    grid: bool = False, width: float = 0.0,
-                   height: float = 0.0, dpi: int = 0):
+                   height: float = 0.0, dpi: int = 0,
+                   font_scale: float = 0.0):
     """Apply the FILE's styling to ``figure``. Returns it.
 
     Deliberately small and explicit rather than routed through the live
@@ -112,6 +113,21 @@ def style_for_file(figure, *, ink: str = "", background: str = "",
         figure.set_size_inches(float(width), float(height))
     if dpi:
         figure.set_dpi(int(dpi))
+    # TEXT SIZED FOR THE PAGE (187 D2). The reported fault was "ginormous
+    # text" on an exported figure, and the cause on the pyqtgraph side was a
+    # device scale (fixed separately) -- but a matplotlib figure resized for
+    # a journal column has the opposite problem: the axes shrink and the
+    # labels do not, so a figure drawn at 10 inches and saved at 3.4 is all
+    # text. Scaling every text artist by the same factor is the one control
+    # that answers it, and it is applied to the artists rather than to
+    # rcParams because rcParams only reach an artist when it is CREATED and
+    # this figure already exists.
+    if font_scale and font_scale > 0:
+        for text in figure.findobj(match=lambda o: hasattr(o, "get_fontsize")):
+            try:
+                text.set_fontsize(text.get_fontsize() * float(font_scale))
+            except Exception:                                # noqa: BLE001
+                continue
     if background:
         figure.patch.set_facecolor(background)
         figure.patch.set_alpha(1.0)
@@ -135,7 +151,16 @@ def style_for_file(figure, *, ink: str = "", background: str = "",
                     text.set_color(ink)
             for text in axes.texts:
                 text.set_color(ink)
-        axes.grid(bool(grid), which="major", linewidth=0.4, alpha=0.35)
+        # UNTICKING "draw a grid" DREW A GRID. matplotlib warns on it --
+        # "First parameter to grid() is false, but line properties are
+        # supplied. The grid will be enabled." -- and does exactly that:
+        # measured, `grid(False, linewidth=..., alpha=...)` leaves gridOn
+        # True. The line properties only mean anything when the grid is on,
+        # so they are passed only then.
+        if grid:
+            axes.grid(True, which="major", linewidth=0.4, alpha=0.35)
+        else:
+            axes.grid(False)
     return figure
 
 
@@ -172,6 +197,24 @@ class SaveFigureDialog(QDialog):
         self.grid = QCheckBox("draw a grid")
         self.grid.toggled.connect(self.refresh)
         form.addRow("", self.grid)
+
+        # TEXT SIZE, LIVE (187 D2). "in save styled there should be
+        # comprehensive figure setting that change the figure live" -- and
+        # text is the first candidate, because the report that prompted it
+        # was a figure whose text was wrong for the page. Every control here
+        # already redraws the preview; that is what makes it a preview
+        # rather than a form.
+        self.font_scale = QDoubleSpinBox()
+        self.font_scale.setRange(0.25, 4.0)
+        self.font_scale.setSingleStep(0.05)
+        self.font_scale.setDecimals(2)
+        self.font_scale.setValue(1.0)
+        self.font_scale.setToolTip(
+            "Scale every label, tick and title by this factor. A figure "
+            "drawn at 10 inches and saved at 3.4 is all text unless the "
+            "type comes down with it.")
+        self.font_scale.valueChanged.connect(self.refresh)
+        form.addRow("text size", self.font_scale)
 
         size = QHBoxLayout()
         self.width = QDoubleSpinBox()
@@ -266,7 +309,8 @@ class SaveFigureDialog(QDialog):
             background=str(self.background.currentData() or ""),
             grid=self.grid.isChecked(),
             width=float(self.width.value()), height=float(self.height.value()),
-            dpi=int(self.dpi.value()))
+            dpi=int(self.dpi.value()),
+            font_scale=float(self.font_scale.value()))
         while self._holder.count():
             item = self._holder.takeAt(0)
             widget = item.widget()
