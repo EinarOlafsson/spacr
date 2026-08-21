@@ -123,24 +123,10 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "measurement_rules",
-      "source_sha256": "fefb77e0582a0aea98603232c79ba77f5eed1056ff6ed03167da1b80180df835",
-      "source": "Class definitions by threshold on measured features, shared by Classify (CV) and Classify (ML). Each entry is {'name': <class>, 'where': [{'column': <feature>, 'op': '>'|'>='|'<'|'<='|'=='|'!=', 'value': <number>}, ...]} and the clauses within one rule are ANDed - use more than one, since a single threshold is a gate rather than a class definition. Rows matching no rule stay unlabelled and are dropped, never assigned to a class. Used when dataset_mode is 'measurement'. Default None.",
-      "translation": "Classify (CV) 와 Classify (ML) 가 공유하는 측정 특징 임계값 기반 클래스 정의입니다. 각 항목은 {'name': <class>, 'where': [{'column': <feature>, 'op': '>'|'>='|'<'|'<='|'=='|'!=', 'value': <number>}, ...]} 형식이며 한 규칙 안의 절은 AND 로 결합됩니다. 임계값 하나는 클래스 정의보다 게이트에 가까우므로 여러 조건을 사용하십시오. 어떤 규칙에도 맞지 않는 행은 레이블 없이 버리며 클래스에 임의 배정하지 않습니다. dataset_mode 가 'measurement' 일 때 사용됩니다. 기본값 None."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "metadata_item_1_value",
       "source_sha256": "431bc73cfba0ca4349b521b7e25edd57a12f9f2d1bf35240cc86a49dce331aa6",
       "source": "The metadata values selecting the rows that belong to metadata_item_1_name, for example [['c19','c2'],['c3','c4']]. Values that occur in no row contribute no crops, and because the generator reports only the final count a typo here looks like a class that is simply rare. None disables the grouping. Default None.",
       "translation": "metadata_item_1_name 에 속하는 행을 고를 메타데이터 값입니다. 예: [['c19','c2'],['c3','c4']]. 어떤 행에도 없는 값은 이미지 영역을 만들지 않으며 생성기는 최종 개수만 보고하므로 오타가 단순히 희귀한 클래스처럼 보일 수 있습니다. None 은 그룹화를 끕니다. 기본값 None."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "metadata_type_by",
-      "source_sha256": "b44fed0d4b43344df97e31ef3ae5a05c66c9eee70c43aadc51ba5dd74aa13051",
-      "source": "Which png_list column the class_metadata values are matched against when dataset_mode is 'metadata'. Normally 'columnID' or 'rowID' -- the two well-metadata columns filepaths_to_database writes -- but any png_list column is accepted, including 'condition' once annotate_conditions has added it. If the values in class_metadata do not appear in this column, the class simply gets no crops rather than erroring. Default 'columnID'.",
-      "translation": "dataset_mode 가 'metadata' 일 때 class_metadata 값을 대조할 png_list 열입니다. 보통 filepaths_to_database 가 쓰는 두 웰 메타데이터 열 'columnID' 또는 'rowID' 이지만, annotate_conditions 가 추가한 'condition' 을 포함해 어떤 png_list 열도 허용합니다. class_metadata 값이 이 열에 없으면 오류 대신 그 클래스에 이미지 영역이 생기지 않습니다. 기본값 'columnID'."
     }
   ]
 }
