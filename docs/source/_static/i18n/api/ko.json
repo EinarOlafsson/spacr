@@ -62177,6 +62177,16 @@
         "19c49fa615bddff20814365f7d0a7c265789612bd4a9a793342b2034ccef4f97"
       ]
     },
+    "spacr.qt.screens.experiment_design.ExperimentDesignScreen.begin_well_drag": {
+      "source_blocks_sha256": [
+        "733fc90116e95a93fa4b254065e2af371b07a81db1587a5e86948f48e5409cd0"
+      ],
+      "source_sha256": "733fc90116e95a93fa4b254065e2af371b07a81db1587a5e86948f48e5409cd0",
+      "text": "하나의 마이크로 플레이트 샘플 위치에 선택을 삽입합니다.",
+      "translation_source_blocks_sha256": [
+        "dae7238b164d58e9d83f3f998251f736bee37f465adac2c1ba47ce722f64cbcb"
+      ]
+    },
     "spacr.qt.screens.experiment_design.ExperimentDesignScreen.conditions": {
       "source_blocks_sha256": [
         "cc07ccb1d9b6c5bb4a302362f039c654e5e86099a8c4c447e2ed3cb630c76ff8",
@@ -62197,6 +62207,16 @@
       "text": "현재 형식에 대한 디자인은 설명되어 있습니다.",
       "translation_source_blocks_sha256": [
         "7b42ec29cc4431dcaf91c223131452f9cb117864b8e5f469191efe86ee5d194b"
+      ]
+    },
+    "spacr.qt.screens.experiment_design.ExperimentDesignScreen.drag_wells_to": {
+      "source_blocks_sha256": [
+        "fc5d161bcaa5c3ac94decb92964fec69a9bd2e9d69880e071b7446df54ee892b"
+      ],
+      "source_sha256": "fc5d161bcaa5c3ac94decb92964fec69a9bd2e9d69880e071b7446df54ee892b",
+      "text": "한 지점 아래의 마이크로 플레이트 샘플 위치에 앵커에서 직경을 예측합니다.",
+      "translation_source_blocks_sha256": [
+        "0226f740fd0e4b64429ae29791099c255eb59694f85fd63c4ebc112c89c68eb6"
       ]
     },
     "spacr.qt.screens.experiment_design.ExperimentDesignScreen.export_to": {
@@ -62223,6 +62243,16 @@
         "2030b2ccc81df3c16485ab065eb7a77c2af785e2370a39c099c31e468272393f"
       ]
     },
+    "spacr.qt.screens.experiment_design.ExperimentDesignScreen.finish_well_drag": {
+      "source_blocks_sha256": [
+        "ddf16d3e58d9ef3a6395c2dd90633920b4c9beb13ffd8dba978c9eaa0aa32787"
+      ],
+      "source_sha256": "ddf16d3e58d9ef3a6395c2dd90633920b4c9beb13ffd8dba978c9eaa0aa32787",
+      "text": "선택은 이미 예보가 보여주는 것입니다.",
+      "translation_source_blocks_sha256": [
+        "ddf16d3e58d9ef3a6395c2dd90633920b4c9beb13ffd8dba978c9eaa0aa32787"
+      ]
+    },
     "spacr.qt.screens.experiment_design.ExperimentDesignScreen.is_busy": {
       "source_blocks_sha256": [
         "75fe8a0a693458b70537127551f116eae9bef5c63a34240cd3516267e6edbf4e"
@@ -62243,6 +62273,26 @@
         "d1dff0020a100377e1679f70135dc02f10b0aa4efe9f56a8f5284b74819d52c3"
       ]
     },
+    "spacr.qt.screens.experiment_design.ExperimentDesignScreen.selected_well_names": {
+      "source_blocks_sha256": [
+        "94bf2e2f64ed8914b3886d722b9902815a9756da5d782add361dcc7e06839b7b"
+      ],
+      "source_sha256": "94bf2e2f64ed8914b3886d722b9902815a9756da5d782add361dcc7e06839b7b",
+      "text": "선택한 마이크로 플레이트 샘플 위치 이름으로, 읽기 순서.",
+      "translation_source_blocks_sha256": [
+        "936eff174b042d162796a2010afacb686b58adc19d12d4f11d2870b9eb9dcd8b"
+      ]
+    },
+    "spacr.qt.screens.experiment_design.ExperimentDesignScreen.selected_wells": {
+      "source_blocks_sha256": [
+        "c107c0685a895eb7e3aabd2a847f3dace8a42569aeeb53b8031cef9ff0261102"
+      ],
+      "source_sha256": "c107c0685a895eb7e3aabd2a847f3dace8a42569aeeb53b8031cef9ff0261102",
+      "text": "현재 지도에서 선택한 각 ``(row, column)``.",
+      "translation_source_blocks_sha256": [
+        "c107c0685a895eb7e3aabd2a847f3dace8a42569aeeb53b8031cef9ff0261102"
+      ]
+    },
     "spacr.qt.screens.experiment_design.ExperimentDesignScreen.status_text": {
       "source_blocks_sha256": [
         "c20f0bb0cd9556e266951a97c6302146487db4eae1c195552acd345e21c87353"
@@ -62251,6 +62301,16 @@
       "text": "시험에 대한 자세한 내용은 다음과 같습니다.",
       "translation_source_blocks_sha256": [
         "c20f0bb0cd9556e266951a97c6302146487db4eae1c195552acd345e21c87353"
+      ]
+    },
+    "spacr.qt.screens.experiment_design.ExperimentDesignScreen.well_at": {
+      "source_blocks_sha256": [
+        "61a3ffd4811978e17db237df974aeb9721cc0a0bb33762ae55c6dc56c261a558"
+      ],
+      "source_sha256": "61a3ffd4811978e17db237df974aeb9721cc0a0bb33762ae55c6dc56c261a558",
+      "text": "``(row, column)``은 글로벌 포인트 아래, 또는 ``None``입니다.",
+      "translation_source_blocks_sha256": [
+        "61a3ffd4811978e17db237df974aeb9721cc0a0bb33762ae55c6dc56c261a558"
       ]
     },
     "spacr.qt.screens.experiment_design.make_experiment_design_screen": {
@@ -69613,12 +69673,34 @@
     },
     "spacr.qt.shortcuts.ShortcutSpec": {
       "source_blocks_sha256": [
-        "a6c4f71ac22e5fe89dc55fdcb171b2d4634e6f439a29719aa230731e3819029f"
+        "a6c4f71ac22e5fe89dc55fdcb171b2d4634e6f439a29719aa230731e3819029f",
+        "33a904a6848932931ddac43dd2080a5d6bf2f3599449fdf9dc4f23eb42053d5f",
+        "1a6e6c2e5914c57d8deec984ac8ce16f82cede10769170f5db728993b871370f",
+        "4c5d2c3ee550923e5a590b753bc5a0a6c19cfa3b806330f96af16332fd33b92c",
+        "ba91da429ad23b473c435409a0535cd6848e7f3f33d88763a66a885cb179d9f5"
       ],
-      "source_sha256": "a6c4f71ac22e5fe89dc55fdcb171b2d4634e6f439a29719aa230731e3819029f",
-      "text": "한 번의 짧은 진술",
+      "source_sha256": "a6aa1284df56b5124b21ff67b5983ec214af2c6d53ffb41b1f116e9bb8f59178",
+      "text": "한 번의 짧은 진술\n\n:param keys: 의무는, 그 안에서 Qt'의 휴대용 스파일링. 그것은 인쇄를 통해 `QKeySequence.toString(NativeText)`그래서 `Ctrl` 명령의 상징으로서 읽을 수 있습니다. macOS - 글쓰기 \"CTRL + H\" 라벨에 하나의 플랫폼을 하드 코드를 도와줍니다.\n:param label: 열쇠가 무엇을 하는가.\n:param category: 아래에 표시된 그룹입니다.\n:param scope: 기본 창은 전체 창입니다; 화면에 의한 묶음은 화면을 이름합니다.",
       "translation_source_blocks_sha256": [
-        "a6c4f71ac22e5fe89dc55fdcb171b2d4634e6f439a29719aa230731e3819029f"
+        "a6c4f71ac22e5fe89dc55fdcb171b2d4634e6f439a29719aa230731e3819029f",
+        "33a904a6848932931ddac43dd2080a5d6bf2f3599449fdf9dc4f23eb42053d5f",
+        "1a6e6c2e5914c57d8deec984ac8ce16f82cede10769170f5db728993b871370f",
+        "4c5d2c3ee550923e5a590b753bc5a0a6c19cfa3b806330f96af16332fd33b92c",
+        "ba91da429ad23b473c435409a0535cd6848e7f3f33d88763a66a885cb179d9f5"
+      ]
+    },
+    "spacr.qt.shortcuts.discover": {
+      "source_blocks_sha256": [
+        "01a2e4ba9eb179fded984ee665b3e689f299f01f1ad3f9bb7e731497a770afe0",
+        "31db50aa67a10b6a7e5d6196f7a7858cc86d9e5a8e0e864cc3140ed17d1c9136",
+        "55270b2ccc89bd3c5b09e4d7169da58e7c3fbcb522c689e8fa2647bb2c72a2cb"
+      ],
+      "source_sha256": "f7b95924c332dafe17dcb5f6149cb9976c522b1c6e18cb0cb0ad21ff57d6ed03",
+      "text": "각 단축은 ``window``에서 라이브로, 선언되었는지 아닌지 여부.\n\n선언 된 테이블은 지도가 추출되는 것입니다, 왜냐하면 그 화면이 구축 될 때까지 스크린 당 묶음이 존재하지 않기 때문에 지도가 그것을 설명해야합니다.이것은 다른 절반입니다 : 실행 시간에 추가 된 단축 - 플러그인, 메뉴 액션 - 누구도 목록을 편집하지 않고 나타납니다.\n\n이미 :data:`SHORTCUTS`에있는 모든 것이 그것의 진술에 남아 있으며, 이는 표지판과 범위가 살고있는 곳입니다.",
+      "translation_source_blocks_sha256": [
+        "01a2e4ba9eb179fded984ee665b3e689f299f01f1ad3f9bb7e731497a770afe0",
+        "31db50aa67a10b6a7e5d6196f7a7858cc86d9e5a8e0e864cc3140ed17d1c9136",
+        "55270b2ccc89bd3c5b09e4d7169da58e7c3fbcb522c689e8fa2647bb2c72a2cb"
       ]
     },
     "spacr.qt.shortcuts.install": {
@@ -69631,6 +69713,38 @@
       "translation_source_blocks_sha256": [
         "45e7b4b654ca3fd84ad04bc622cc6bdb4f934b253eccc6059f392ec9597d6089",
         "94994e4024a2237591817fc37be0e9fe3460bfd1b0c8f9ae8fc9c854ff815e0e"
+      ]
+    },
+    "spacr.qt.shortcuts.installed": {
+      "source_blocks_sha256": [
+        "85768c2a9f1dfea2148a9f900d3702e18c4bdf622ef7e1a7ff54dd4928c2cb9a"
+      ],
+      "source_sha256": "85768c2a9f1dfea2148a9f900d3702e18c4bdf622ef7e1a7ff54dd4928c2cb9a",
+      "text": "창 넓은 열쇠 `install()`는 묶음에 대한 책임이 있습니다.",
+      "translation_source_blocks_sha256": [
+        "85768c2a9f1dfea2148a9f900d3702e18c4bdf622ef7e1a7ff54dd4928c2cb9a"
+      ]
+    },
+    "spacr.qt.shortcuts.mapped": {
+      "source_blocks_sha256": [
+        "05d096e52d2653e99c6f5c0885930c2a22f882c9e40c87e39c431262cc91851d"
+      ],
+      "source_sha256": "05d096e52d2653e99c6f5c0885930c2a22f882c9e40c87e39c431262cc91851d",
+      "text": "각 단축은 지도에서 설명합니다 : 창 광범위한, 그 다음 스크리닝 당.",
+      "translation_source_blocks_sha256": [
+        "05d096e52d2653e99c6f5c0885930c2a22f882c9e40c87e39c431262cc91851d"
+      ]
+    },
+    "spacr.qt.shortcuts.native": {
+      "source_blocks_sha256": [
+        "bd0383e539fc052e6afe2b2383a6f6e59b85a6c2dcd7900b8fc33e3b472311a2",
+        "fbe2de2982d512acbe7d659840b1ed69a634f66fb945e6fc937da4bd80896b55"
+      ],
+      "source_sha256": "3a7a2e662ccf87ef7d783396c214452618d06fd805cd2e97286b83b04d02c570",
+      "text": "``keys``는 사용자의 자신의 키보드가 있는 스크립트에 있습니다.\n\n`Ctrl` 그것은 명령의 상징이다. macOS 그리고 Qt 이미 알고있다; 글쓰기 \"CTRL + H\" 라벨 하드 코드에 하나의 플랫폼을 도움으로.",
+      "translation_source_blocks_sha256": [
+        "bd0383e539fc052e6afe2b2383a6f6e59b85a6c2dcd7900b8fc33e3b472311a2",
+        "fbe2de2982d512acbe7d659840b1ed69a634f66fb945e6fc937da4bd80896b55"
       ]
     },
     "spacr.qt.shortcuts.show_cheat_sheet": {
@@ -92554,6 +92668,42 @@
         "35b82c1b99bd09aa7282bc7bbea9ddeea0a2376681ff93b876f2c2e224258d62"
       ]
     },
+    "spacr.qt.widgets.plate_map_picker.PlateMapPicker.begin_drag": {
+      "source_blocks_sha256": [
+        "c6f7963877fb1381ea3337639c4e9b6ce67631f626eccbb93b6cd95d4e96e41d",
+        "315fe97240ff33116aacf7a67058bb6fd683f2d0c5520617580d0926ce5a5355"
+      ],
+      "source_sha256": "0d11fcaf71258493ff2cf0f8c1e70534c8798260c9bae1166c417df5d4eada26",
+      "text": "하나의 마이크로 플레이트 샘플 위치에 흔들리십시오.\n\n:param modifiers: 키보드 상태는 프레스에서.Ctrl을 사용하면 이미 선택된 것에 직경을 추가합니다; 그 없이 드래그는 선택을 반복합니다.이 응용 프로그램의 다른 모든 네트워크가하는 것입니다.",
+      "translation_source_blocks_sha256": [
+        "8af3b3fdefec12e6ea6c98e764adc14cdd1d5270f534cf55030bcf17a6b8dfb4",
+        "315fe97240ff33116aacf7a67058bb6fd683f2d0c5520617580d0926ce5a5355"
+      ]
+    },
+    "spacr.qt.widgets.plate_map_picker.PlateMapPicker.drag_to": {
+      "source_blocks_sha256": [
+        "6bfc5630ba8912c1f483567248acb1a1635d7b73ddff7d8180f866231670f1ef",
+        "f3602600bc0481a249d55accdada3edef91307fde8981e7827ed0ed3f870a9b0"
+      ],
+      "source_sha256": "427022807b0471281a870ad4c0bf89c7b8ed85d2658abbb5fd19e181e5425c40",
+      "text": "``position`` 아래의 마이크로 플레이트 샘플 위치에 앵커에서 직경을 예측합니다.\n\n당신이 떠날 때까지 볼 수없는 선택은 당신이 수정해야 할 선택이기 때문입니다.",
+      "translation_source_blocks_sha256": [
+        "ffed2a041c9524678aefc16a139b3774b6d1fb37317c04c1cd63d196c49fac53",
+        "f3602600bc0481a249d55accdada3edef91307fde8981e7827ed0ed3f870a9b0"
+      ]
+    },
+    "spacr.qt.widgets.plate_map_picker.PlateMapPicker.finish_drag": {
+      "source_blocks_sha256": [
+        "b46d4878389ae8a101237adf60dcb02cf4539569b79be29d581f2908bb3a2b11",
+        "972250844c64105880ccfb483a04f316ab9adc1e56d0fe8b70d7740f2ffeb583"
+      ],
+      "source_sha256": "b682f4c3117322aa22af9bbeb36a7c2c95c32f46f663ffd5c34c20d7355a0e29",
+      "text": "마지막으로, 하나가 실제로 일어났는지 여부로 돌아갑니다.\n\n`True`는 마이크로 플레이트 샘플 위치를 말하여 방출을 부어줍니다 : 직경은 이미 그려져 있으며, 클릭을 통과하면 두 번째로 앵커를 흔들 것입니다.",
+      "translation_source_blocks_sha256": [
+        "b46d4878389ae8a101237adf60dcb02cf4539569b79be29d581f2908bb3a2b11",
+        "5cebd26423c459d377a445219867faaf1f70221dbc0547a326df36aa3ef5d482"
+      ]
+    },
     "spacr.qt.widgets.plate_map_picker.PlateMapPicker.select_region": {
       "source_blocks_sha256": [
         "76337ef933cbaa29b400d5cb3a9728667553a85bc6300dcf1ef2c7e8fb8f23d4",
@@ -92598,6 +92748,18 @@
       "text": "마이크로 플레이트 샘플 위치-특징 마이코스코프 시야 필드에 대한 시리화 된 선택을 반환합니다.",
       "translation_source_blocks_sha256": [
         "18627c081e0b054539a18a90f62adda90419a5a8688bd91cb7146b42d64221c1"
+      ]
+    },
+    "spacr.qt.widgets.plate_map_picker.PlateMapPicker.well_at": {
+      "source_blocks_sha256": [
+        "0e82400e533181d9c3b475fc273a7631056d2896a9e3e79a53851b30b454dd47",
+        "9cf44a9d107963a8f3dc986e9feff8caf5cccb0c96bf626c2831754c14e6c653"
+      ],
+      "source_sha256": "d87b7a732e31872056116cc799e6b89da730f315693078d4c27a5094a7ac6da7",
+      "text": "마이크로 플레이트 샘플 위치는 GLOBAL 포인트 아래, 또는 ``None``입니다.\n\n글로벌, 왜냐하면 지표가 이벤트를 수신하는 위젯의 형제 자매 위에 있기 때문에 - 압박받은 사람은 캡을 유지합니다.",
+      "translation_source_blocks_sha256": [
+        "6ad8f401508c92d601180654e8b464076daa485426bcf5de194f2cc6a5dfaaeb",
+        "9cf44a9d107963a8f3dc986e9feff8caf5cccb0c96bf626c2831754c14e6c653"
       ]
     },
     "spacr.qt.widgets.power_design": {
@@ -94490,6 +94652,22 @@
       "text": "얼마나 넓게 흩어져 있는가 절단이 될 수 있습니다.",
       "translation_source_blocks_sha256": [
         "e7a47df059917a021daef2290ec8cfa5986defb1615aa9c8fd20b369548a38a5"
+      ]
+    },
+    "spacr.qt.widgets.regression_results.RegressionResultsPanel.show_panel": {
+      "source_blocks_sha256": [
+        "9e8c8d2e94e89a38fc4ea2df121e2bfaaff3757c8667d304af3cfe317cd3f6cd",
+        "a9b5eb2c3ab0a0fcd5cd83d51fd9c0fee09888bb3899d01e9225b026f55be686",
+        "8d82a976bc98dac7d22cbc898a0b21cc80b16a68fac600abba00c86b47e40ff3",
+        "da68757fe487b1b12f628b78015a768fe158e5ba71798d88d4a621bbb295337f"
+      ],
+      "source_sha256": "38af8fe41c1a708835b744bbc5ef63ba5c4c91f93e7552c3fd2b1527614186a7",
+      "text": "``key``라는 라이브 패널을 유지하는 탭을 올리십시오.\n\n네트워크는 9 개의 라이브 패널을 촬영하고 각 줄에 열쇠를 주지만 화산의 열쇠만 어디로 가야했으므로 8 개의 줄이 한 번 클릭하고 아무것도하지 않았습니다.이것은 문이없는 사진이 아닌 깨진 응용 프로그램으로 읽을 수 있습니다.\n\n:param key: :meth:`FigureGridView.set_live_tiles`에서 열쇠를 입력합니다.\n:returns: 탭이 올라갔다면 True.  탭 세트는 고정되어 있지 않습니다. -- 모델이 없는 피트는 잔여 탭이 없으며, 화산과 유전자 탭은 외부의 경우 존재하지 않습니다 -- 따라서 키는 완벽하게 유효하지만 이 패널에서 탭을 갖지 않을 수 있습니다.",
+      "translation_source_blocks_sha256": [
+        "9e8c8d2e94e89a38fc4ea2df121e2bfaaff3757c8667d304af3cfe317cd3f6cd",
+        "a9b5eb2c3ab0a0fcd5cd83d51fd9c0fee09888bb3899d01e9225b026f55be686",
+        "8d82a976bc98dac7d22cbc898a0b21cc80b16a68fac600abba00c86b47e40ff3",
+        "da68757fe487b1b12f628b78015a768fe158e5ba71798d88d4a621bbb295337f"
       ]
     },
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.start_load": {
@@ -108761,6 +108939,18 @@
         "352a0c780dbafe0aeaebc49740809675109be140ca54aeea3443fc7f0a00c4aa"
       ]
     },
+    "spacr.settings_advisor.advise_that_runs": {
+      "source_blocks_sha256": [
+        "edafe03f41d62bd282ce367894a019043c2981b7ca44a0931b01dc782e2183a3",
+        "301e001ac58426b7aa4b3c7e0abf945594110e889028782ff5165740d74ae85d"
+      ],
+      "source_sha256": "0e35d88b1c46385f8270f02a063af629eb47d7d207b76dfb330d89dd4d1e4348",
+      "text": ":func:`advise`, 제안이 실행에 대항하여 검증되었습니다.\n\n거부는 조용히 패치되지 않습니다 : 그것을 일으키는 설정은 제안에서 이동하고 `undecided`로, 거부 코드의 자신의 문장을 가져옵니다. 사용자가 그것을 가지고있는 패널을 떠나 왜 정직한 대답을 말하는 - 조용하게 값을 변경하여 체크 패스를 만드는 것은 제안이 멈추는 방법은 무엇이든을 의미하는 것입니다.",
+      "translation_source_blocks_sha256": [
+        "edafe03f41d62bd282ce367894a019043c2981b7ca44a0931b01dc782e2183a3",
+        "301e001ac58426b7aa4b3c7e0abf945594110e889028782ff5165740d74ae85d"
+      ]
+    },
     "spacr.settings_advisor.advise_the_screen": {
       "source_blocks_sha256": [
         "082b43d1f6c20feca19ac5faa39cbe37391b252cc8e7a6bba30d600495293e8e"
@@ -108823,6 +109013,26 @@
       "text": "입력의 두 절반을 측정하고 :class:`Reading`를 반환합니다.",
       "translation_source_blocks_sha256": [
         "9004a749cbb5d82fa2a169fd64a808aa16d016cab0c9d9fd8f9d3123f3861f63"
+      ]
+    },
+    "spacr.settings_advisor.refusals": {
+      "source_blocks_sha256": [
+        "fc37ae3cc07df8811b0f1a8fe7b9b076d8931b22fc4af60bcd8db7bc18b0cd35",
+        "6ef17e23e4d9aa49f8ce922c9cb5d38632b692d9ca52d99aafc2b1d1ed49f88c",
+        "abd3089e2780f62aad6b3cd564b15ae5a90cf22fc1f751042300e808b6ef8eac",
+        "1c49d7e93da631e80c228e948131f28d668a292c0354e50ae8b38f1edbececb2",
+        "70798532a39ba5a3a74abf5e305a3bd25b69413705a787eb84bcd0f007aae16c",
+        "bb2be6a7d1a6700126e5d0309adf44227b4634086feed37b63408fa5ff00218d"
+      ],
+      "source_sha256": "8d238abc8984b9658c1896fd184699000b0fa90aaa4d934adb3eef748a6f5ea3",
+      "text": "왜 RUN은 자신의 말로 ``settings``을 거부할 것인가.\n\nCANONICALISER는 VALIDATOR이 아니며, 그 차이점은 196에 관한 것입니다. `get_perform_regression_default_settings`은 결함과 강제 유형을 채우고 있습니다. 그것은 조합이 준비 될 수 있는지 여부에 대해 아무것도 말하지 않습니다. 한 테스트는 모든 제안 된 키가 살아남은 캐논화, 그것은 통과, 그리고 실행은 여전히 중단되었다고 주장했다.\n\n    ValueError: batch_correction='combat' 어떤 생물학을 유지해야 하는지 알아야 합니다.\n\n그래서 이것은 실제로 거부하는 물건을 요구합니다.이 질문이 해결되기 전에 사용자가 말합니다.모든 입력은 거부 코드의 OWN 문장입니다.\n\n:param settings: 제안, 또는 어떤 설정을 키 가치 지도.\n:returns: 한 번의 거부, 경기가 시작될 때 텅 비어있다.",
+      "translation_source_blocks_sha256": [
+        "fc37ae3cc07df8811b0f1a8fe7b9b076d8931b22fc4af60bcd8db7bc18b0cd35",
+        "6ef17e23e4d9aa49f8ce922c9cb5d38632b692d9ca52d99aafc2b1d1ed49f88c",
+        "abd3089e2780f62aad6b3cd564b15ae5a90cf22fc1f751042300e808b6ef8eac",
+        "1c49d7e93da631e80c228e948131f28d668a292c0354e50ae8b38f1edbececb2",
+        "b4507a556f164df146ee05a7a1982709b5890828969738efbd7af68cb16d37e3",
+        "bb2be6a7d1a6700126e5d0309adf44227b4634086feed37b63408fa5ff00218d"
       ]
     },
     "spacr.settings_spec": {

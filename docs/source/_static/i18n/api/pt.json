@@ -62177,6 +62177,16 @@
         "19c49fa615bddff20814365f7d0a7c265789612bd4a9a793342b2034ccef4f97"
       ]
     },
+    "spacr.qt.screens.experiment_design.ExperimentDesignScreen.begin_well_drag": {
+      "source_blocks_sha256": [
+        "733fc90116e95a93fa4b254065e2af371b07a81db1587a5e86948f48e5409cd0"
+      ],
+      "source_sha256": "733fc90116e95a93fa4b254065e2af371b07a81db1587a5e86948f48e5409cd0",
+      "text": "Ancorar uma seleção em uma posição de amostra de microplacas.",
+      "translation_source_blocks_sha256": [
+        "dae7238b164d58e9d83f3f998251f736bee37f465adac2c1ba47ce722f64cbcb"
+      ]
+    },
     "spacr.qt.screens.experiment_design.ExperimentDesignScreen.conditions": {
       "source_blocks_sha256": [
         "cc07ccb1d9b6c5bb4a302362f039c654e5e86099a8c4c447e2ed3cb630c76ff8",
@@ -62197,6 +62207,16 @@
       "text": "O design que o formulário descreve atualmente.",
       "translation_source_blocks_sha256": [
         "7b42ec29cc4431dcaf91c223131452f9cb117864b8e5f469191efe86ee5d194b"
+      ]
+    },
+    "spacr.qt.screens.experiment_design.ExperimentDesignScreen.drag_wells_to": {
+      "source_blocks_sha256": [
+        "fc5d161bcaa5c3ac94decb92964fec69a9bd2e9d69880e071b7446df54ee892b"
+      ],
+      "source_sha256": "fc5d161bcaa5c3ac94decb92964fec69a9bd2e9d69880e071b7446df54ee892b",
+      "text": "Visualize o retângulo da âncora para a posição da amostra da microplaca sob um ponto.",
+      "translation_source_blocks_sha256": [
+        "0226f740fd0e4b64429ae29791099c255eb59694f85fd63c4ebc112c89c68eb6"
       ]
     },
     "spacr.qt.screens.experiment_design.ExperimentDesignScreen.export_to": {
@@ -62223,6 +62243,16 @@
         "2030b2ccc81df3c16485ab065eb7a77c2af785e2370a39c099c31e468272393f"
       ]
     },
+    "spacr.qt.screens.experiment_design.ExperimentDesignScreen.finish_well_drag": {
+      "source_blocks_sha256": [
+        "ddf16d3e58d9ef3a6395c2dd90633920b4c9beb13ffd8dba978c9eaa0aa32787"
+      ],
+      "source_sha256": "ddf16d3e58d9ef3a6395c2dd90633920b4c9beb13ffd8dba978c9eaa0aa32787",
+      "text": "Termine o gesto. A seleção já é o que a pré-visualização mostrou.",
+      "translation_source_blocks_sha256": [
+        "ddf16d3e58d9ef3a6395c2dd90633920b4c9beb13ffd8dba978c9eaa0aa32787"
+      ]
+    },
     "spacr.qt.screens.experiment_design.ExperimentDesignScreen.is_busy": {
       "source_blocks_sha256": [
         "75fe8a0a693458b70537127551f116eae9bef5c63a34240cd3516267e6edbf4e"
@@ -62243,6 +62273,26 @@
         "d1dff0020a100377e1679f70135dc02f10b0aa4efe9f56a8f5284b74819d52c3"
       ]
     },
+    "spacr.qt.screens.experiment_design.ExperimentDesignScreen.selected_well_names": {
+      "source_blocks_sha256": [
+        "94bf2e2f64ed8914b3886d722b9902815a9756da5d782add361dcc7e06839b7b"
+      ],
+      "source_sha256": "94bf2e2f64ed8914b3886d722b9902815a9756da5d782add361dcc7e06839b7b",
+      "text": "A amostra de microplacas escolhida posiciona-se como nomes, em ordem de leitura.",
+      "translation_source_blocks_sha256": [
+        "936eff174b042d162796a2010afacb686b58adc19d12d4f11d2870b9eb9dcd8b"
+      ]
+    },
+    "spacr.qt.screens.experiment_design.ExperimentDesignScreen.selected_wells": {
+      "source_blocks_sha256": [
+        "c107c0685a895eb7e3aabd2a847f3dace8a42569aeeb53b8031cef9ff0261102"
+      ],
+      "source_sha256": "c107c0685a895eb7e3aabd2a847f3dace8a42569aeeb53b8031cef9ff0261102",
+      "text": "Cada ``(row, column)`` atualmente escolhido no mapa.",
+      "translation_source_blocks_sha256": [
+        "c107c0685a895eb7e3aabd2a847f3dace8a42569aeeb53b8031cef9ff0261102"
+      ]
+    },
     "spacr.qt.screens.experiment_design.ExperimentDesignScreen.status_text": {
       "source_blocks_sha256": [
         "c20f0bb0cd9556e266951a97c6302146487db4eae1c195552acd345e21c87353"
@@ -62251,6 +62301,16 @@
       "text": "A linha de estado, para testes.",
       "translation_source_blocks_sha256": [
         "c20f0bb0cd9556e266951a97c6302146487db4eae1c195552acd345e21c87353"
+      ]
+    },
+    "spacr.qt.screens.experiment_design.ExperimentDesignScreen.well_at": {
+      "source_blocks_sha256": [
+        "61a3ffd4811978e17db237df974aeb9721cc0a0bb33762ae55c6dc56c261a558"
+      ],
+      "source_sha256": "61a3ffd4811978e17db237df974aeb9721cc0a0bb33762ae55c6dc56c261a558",
+      "text": "O ``(row, column)`` sob um ponto GLOBAL, ou  ``None``.",
+      "translation_source_blocks_sha256": [
+        "61a3ffd4811978e17db237df974aeb9721cc0a0bb33762ae55c6dc56c261a558"
       ]
     },
     "spacr.qt.screens.experiment_design.make_experiment_design_screen": {
@@ -69613,12 +69673,34 @@
     },
     "spacr.qt.shortcuts.ShortcutSpec": {
       "source_blocks_sha256": [
-        "a6c4f71ac22e5fe89dc55fdcb171b2d4634e6f439a29719aa230731e3819029f"
+        "a6c4f71ac22e5fe89dc55fdcb171b2d4634e6f439a29719aa230731e3819029f",
+        "33a904a6848932931ddac43dd2080a5d6bf2f3599449fdf9dc4f23eb42053d5f",
+        "1a6e6c2e5914c57d8deec984ac8ce16f82cede10769170f5db728993b871370f",
+        "4c5d2c3ee550923e5a590b753bc5a0a6c19cfa3b806330f96af16332fd33b92c",
+        "ba91da429ad23b473c435409a0535cd6848e7f3f33d88763a66a885cb179d9f5"
       ],
-      "source_sha256": "a6c4f71ac22e5fe89dc55fdcb171b2d4634e6f439a29719aa230731e3819029f",
-      "text": "Uma declaração de atalho.",
+      "source_sha256": "a6aa1284df56b5124b21ff67b5983ec214af2c6d53ffb41b1f116e9bb8f59178",
+      "text": "Uma declaração de atalho.\n\n:param keys: a vinculação, na ortografia portátil de Qt. É IMPRESSO através de ?`QKeySequence.toString(NativeText)`, então ? `Ctrl` lê como o símbolo de comando em  macOS -- escrever \"Ctrl + H\" em um rótulo codificaria uma plataforma na ajuda.\n:param label: O que a chave faz.\n:param category: o grupo em que é mostrado.\n:param scope: onde ele funciona. O padrão é a janela inteira; uma ligação por triagem nomeia sua triagem.",
       "translation_source_blocks_sha256": [
-        "a6c4f71ac22e5fe89dc55fdcb171b2d4634e6f439a29719aa230731e3819029f"
+        "a6c4f71ac22e5fe89dc55fdcb171b2d4634e6f439a29719aa230731e3819029f",
+        "33a904a6848932931ddac43dd2080a5d6bf2f3599449fdf9dc4f23eb42053d5f",
+        "1a6e6c2e5914c57d8deec984ac8ce16f82cede10769170f5db728993b871370f",
+        "4c5d2c3ee550923e5a590b753bc5a0a6c19cfa3b806330f96af16332fd33b92c",
+        "ba91da429ad23b473c435409a0535cd6848e7f3f33d88763a66a885cb179d9f5"
+      ]
+    },
+    "spacr.qt.shortcuts.discover": {
+      "source_blocks_sha256": [
+        "01a2e4ba9eb179fded984ee665b3e689f299f01f1ad3f9bb7e731497a770afe0",
+        "31db50aa67a10b6a7e5d6196f7a7858cc86d9e5a8e0e864cc3140ed17d1c9136",
+        "55270b2ccc89bd3c5b09e4d7169da58e7c3fbcb522c689e8fa2647bb2c72a2cb"
+      ],
+      "source_sha256": "f7b95924c332dafe17dcb5f6149cb9976c522b1c6e18cb0cb0ad21ff57d6ed03",
+      "text": "Cada atalho LIVE em ``window``, declarado ou não.\n\nA tabela declarada é de onde o mapa é tirado, porque uma ligação por triagem não existe até que a triagem seja construída e o mapa tenha que descrevê-la de qualquer maneira. Esta é a outra metade: um atalho adicionado no tempo de execução - um plugin, uma ação de menu - aparece sem ninguém editando uma lista.\n\nQualquer coisa já em :data:`SHORTCUTS` é deixada à sua declaração, que é onde o rótulo e o escopo vivem.",
+      "translation_source_blocks_sha256": [
+        "01a2e4ba9eb179fded984ee665b3e689f299f01f1ad3f9bb7e731497a770afe0",
+        "31db50aa67a10b6a7e5d6196f7a7858cc86d9e5a8e0e864cc3140ed17d1c9136",
+        "55270b2ccc89bd3c5b09e4d7169da58e7c3fbcb522c689e8fa2647bb2c72a2cb"
       ]
     },
     "spacr.qt.shortcuts.install": {
@@ -69631,6 +69713,38 @@
       "translation_source_blocks_sha256": [
         "45e7b4b654ca3fd84ad04bc622cc6bdb4f934b253eccc6059f392ec9597d6089",
         "94994e4024a2237591817fc37be0e9fe3460bfd1b0c8f9ae8fc9c854ff815e0e"
+      ]
+    },
+    "spacr.qt.shortcuts.installed": {
+      "source_blocks_sha256": [
+        "85768c2a9f1dfea2148a9f900d3702e18c4bdf622ef7e1a7ff54dd4928c2cb9a"
+      ],
+      "source_sha256": "85768c2a9f1dfea2148a9f900d3702e18c4bdf622ef7e1a7ff54dd4928c2cb9a",
+      "text": "As teclas de toda a janela `install()` são responsáveis pela ligação.",
+      "translation_source_blocks_sha256": [
+        "85768c2a9f1dfea2148a9f900d3702e18c4bdf622ef7e1a7ff54dd4928c2cb9a"
+      ]
+    },
+    "spacr.qt.shortcuts.mapped": {
+      "source_blocks_sha256": [
+        "05d096e52d2653e99c6f5c0885930c2a22f882c9e40c87e39c431262cc91851d"
+      ],
+      "source_sha256": "05d096e52d2653e99c6f5c0885930c2a22f882c9e40c87e39c431262cc91851d",
+      "text": "Cada atalho que o mapa descreve: window-wide, em seguida, por triagem.",
+      "translation_source_blocks_sha256": [
+        "05d096e52d2653e99c6f5c0885930c2a22f882c9e40c87e39c431262cc91851d"
+      ]
+    },
+    "spacr.qt.shortcuts.native": {
+      "source_blocks_sha256": [
+        "bd0383e539fc052e6afe2b2383a6f6e59b85a6c2dcd7900b8fc33e3b472311a2",
+        "fbe2de2982d512acbe7d659840b1ed69a634f66fb945e6fc937da4bd80896b55"
+      ],
+      "source_sha256": "3a7a2e662ccf87ef7d783396c214452618d06fd805cd2e97286b83b04d02c570",
+      "text": "``keys`` na ortografia do próprio teclado do usuário tem.\n\n`Ctrl` é o símbolo de comando em  macOS e  Qt já sabe; escrevendo \"Ctrl + H\" em um rótulo hard-codes uma plataforma na ajuda.",
+      "translation_source_blocks_sha256": [
+        "bd0383e539fc052e6afe2b2383a6f6e59b85a6c2dcd7900b8fc33e3b472311a2",
+        "fbe2de2982d512acbe7d659840b1ed69a634f66fb945e6fc937da4bd80896b55"
       ]
     },
     "spacr.qt.shortcuts.show_cheat_sheet": {
@@ -92554,6 +92668,42 @@
         "35b82c1b99bd09aa7282bc7bbea9ddeea0a2376681ff93b876f2c2e224258d62"
       ]
     },
+    "spacr.qt.widgets.plate_map_picker.PlateMapPicker.begin_drag": {
+      "source_blocks_sha256": [
+        "c6f7963877fb1381ea3337639c4e9b6ce67631f626eccbb93b6cd95d4e96e41d",
+        "315fe97240ff33116aacf7a67058bb6fd683f2d0c5520617580d0926ce5a5355"
+      ],
+      "source_sha256": "0d11fcaf71258493ff2cf0f8c1e70534c8798260c9bae1166c417df5d4eada26",
+      "text": "Ancorar um arrasto em uma posição de amostra de microplacas.\n\n:param modifiers: o estado do teclado na prensa. Com Ctrl o retângulo ADICIONA ao que já está escolhido; sem ele o arrastar SUBSTITUI a seleção, que é o que todas as outras grades nesta aplicação fazem.",
+      "translation_source_blocks_sha256": [
+        "8af3b3fdefec12e6ea6c98e764adc14cdd1d5270f534cf55030bcf17a6b8dfb4",
+        "315fe97240ff33116aacf7a67058bb6fd683f2d0c5520617580d0926ce5a5355"
+      ]
+    },
+    "spacr.qt.widgets.plate_map_picker.PlateMapPicker.drag_to": {
+      "source_blocks_sha256": [
+        "6bfc5630ba8912c1f483567248acb1a1635d7b73ddff7d8180f866231670f1ef",
+        "f3602600bc0481a249d55accdada3edef91307fde8981e7827ed0ed3f870a9b0"
+      ],
+      "source_sha256": "427022807b0471281a870ad4c0bf89c7b8ed85d2658abbb5fd19e181e5425c40",
+      "text": "Visualize o retângulo da âncora para a posição da amostra de microplacas em ``position``.\n\nCHOWN WHILLE DRAGING, porque uma seleção que você não pode ver até que você deixe ir é um que você tem que desfazer para corrigir.",
+      "translation_source_blocks_sha256": [
+        "ffed2a041c9524678aefc16a139b3774b6d1fb37317c04c1cd63d196c49fac53",
+        "f3602600bc0481a249d55accdada3edef91307fde8981e7827ed0ed3f870a9b0"
+      ]
+    },
+    "spacr.qt.widgets.plate_map_picker.PlateMapPicker.finish_drag": {
+      "source_blocks_sha256": [
+        "b46d4878389ae8a101237adf60dcb02cf4539569b79be29d581f2908bb3a2b11",
+        "972250844c64105880ccfb483a04f316ab9adc1e56d0fe8b70d7740f2ffeb583"
+      ],
+      "source_sha256": "b682f4c3117322aa22af9bbeb36a7c2c95c32f46f663ffd5c34c20d7355a0e29",
+      "text": "Acabe com um arrasto. Retorna se um realmente aconteceu.\n\n`True` diz à posição da amostra de microplacas para engolir sua liberação: o retângulo já está pintado, e deixar o clique passar alternaria a âncora uma segunda vez.",
+      "translation_source_blocks_sha256": [
+        "b46d4878389ae8a101237adf60dcb02cf4539569b79be29d581f2908bb3a2b11",
+        "5cebd26423c459d377a445219867faaf1f70221dbc0547a326df36aa3ef5d482"
+      ]
+    },
     "spacr.qt.widgets.plate_map_picker.PlateMapPicker.select_region": {
       "source_blocks_sha256": [
         "76337ef933cbaa29b400d5cb3a9728667553a85bc6300dcf1ef2c7e8fb8f23d4",
@@ -92598,6 +92748,18 @@
       "text": "Retornar a seleção serializada para um campo de visão do microscópio de especificação de posição de amostra de microplacas.",
       "translation_source_blocks_sha256": [
         "18627c081e0b054539a18a90f62adda90419a5a8688bd91cb7146b42d64221c1"
+      ]
+    },
+    "spacr.qt.widgets.plate_map_picker.PlateMapPicker.well_at": {
+      "source_blocks_sha256": [
+        "0e82400e533181d9c3b475fc273a7631056d2896a9e3e79a53851b30b454dd47",
+        "9cf44a9d107963a8f3dc986e9feff8caf5cccb0c96bf626c2831754c14e6c653"
+      ],
+      "source_sha256": "d87b7a732e31872056116cc799e6b89da730f315693078d4c27a5094a7ac6da7",
+      "text": "A posição da amostra de microplacas sob um ponto GLOBAL, ou ``None``.\n\nGlobal, porque o ponteiro está sobre um irmão do widget que está recebendo os eventos - o pressionado mantém a captura.",
+      "translation_source_blocks_sha256": [
+        "6ad8f401508c92d601180654e8b464076daa485426bcf5de194f2cc6a5dfaaeb",
+        "9cf44a9d107963a8f3dc986e9feff8caf5cccb0c96bf626c2831754c14e6c653"
       ]
     },
     "spacr.qt.widgets.power_design": {
@@ -94490,6 +94652,22 @@
       "text": "Quantos se espalham por todo o corte.",
       "translation_source_blocks_sha256": [
         "e7a47df059917a021daef2290ec8cfa5986defb1615aa9c8fd20b369548a38a5"
+      ]
+    },
+    "spacr.qt.widgets.regression_results.RegressionResultsPanel.show_panel": {
+      "source_blocks_sha256": [
+        "9e8c8d2e94e89a38fc4ea2df121e2bfaaff3757c8667d304af3cfe317cd3f6cd",
+        "a9b5eb2c3ab0a0fcd5cd83d51fd9c0fee09888bb3899d01e9225b026f55be686",
+        "8d82a976bc98dac7d22cbc898a0b21cc80b16a68fac600abba00c86b47e40ff3",
+        "da68757fe487b1b12f628b78015a768fe158e5ba71798d88d4a621bbb295337f"
+      ],
+      "source_sha256": "38af8fe41c1a708835b744bbc5ef63ba5c4c91f93e7552c3fd2b1527614186a7",
+      "text": "Levante a guia que contém o painel ao vivo chamado ``key``.\n\nEsta é a instrução de porta 199 encontrado em falta. A grade fotografa nove painéis ao vivo e dá a cada tesela uma chave, mas apenas a chave do vulcão tinha para onde ir - então oito teselas tomaram um clique e não fizeram nada, que se lê como um aplicativo quebrado em vez de como uma imagem sem porta.\n\n:param key: uma chave de :meth:`FigureGridView.set_live_tiles`.\n:returns: True se uma guia foi levantada. FALSO É UMA RESPOSTA REAL e o chamador deve agir sobre ela: o conjunto de guias não é fixo - um ajuste sem modelo não tem guia residual, e as guias de vulcão e gene estão ausentes quando o vulcão é externo - então uma chave pode ser perfeitamente válida e não tem nenhuma guia neste painel agora.",
+      "translation_source_blocks_sha256": [
+        "9e8c8d2e94e89a38fc4ea2df121e2bfaaff3757c8667d304af3cfe317cd3f6cd",
+        "a9b5eb2c3ab0a0fcd5cd83d51fd9c0fee09888bb3899d01e9225b026f55be686",
+        "8d82a976bc98dac7d22cbc898a0b21cc80b16a68fac600abba00c86b47e40ff3",
+        "da68757fe487b1b12f628b78015a768fe158e5ba71798d88d4a621bbb295337f"
       ]
     },
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.start_load": {
@@ -108761,6 +108939,18 @@
         "352a0c780dbafe0aeaebc49740809675109be140ca54aeea3443fc7f0a00c4aa"
       ]
     },
+    "spacr.settings_advisor.advise_that_runs": {
+      "source_blocks_sha256": [
+        "edafe03f41d62bd282ce367894a019043c2981b7ca44a0931b01dc782e2183a3",
+        "301e001ac58426b7aa4b3c7e0abf945594110e889028782ff5165740d74ae85d"
+      ],
+      "source_sha256": "0e35d88b1c46385f8270f02a063af629eb47d7d207b76dfb330d89dd4d1e4348",
+      "text": ":func:`advise`, com a proposta verificada contra a corrida.\n\nUma recusa não é corrigida silenciosamente: a configuração que faz com que seja removida da proposta e em `undecided`, carregando a própria frase do código de recusa. Deixando o painel como o usuário tinha e dizendo por que é a resposta honesta - mudando silenciosamente um valor para fazer um cheque passar é como uma proposta pára de significar qualquer coisa.",
+      "translation_source_blocks_sha256": [
+        "edafe03f41d62bd282ce367894a019043c2981b7ca44a0931b01dc782e2183a3",
+        "301e001ac58426b7aa4b3c7e0abf945594110e889028782ff5165740d74ae85d"
+      ]
+    },
     "spacr.settings_advisor.advise_the_screen": {
       "source_blocks_sha256": [
         "082b43d1f6c20feca19ac5faa39cbe37391b252cc8e7a6bba30d600495293e8e"
@@ -108823,6 +109013,26 @@
       "text": "Meça as duas metades da entrada e retorne uma :class:`Reading`.",
       "translation_source_blocks_sha256": [
         "9004a749cbb5d82fa2a169fd64a808aa16d016cab0c9d9fd8f9d3123f3861f63"
+      ]
+    },
+    "spacr.settings_advisor.refusals": {
+      "source_blocks_sha256": [
+        "fc37ae3cc07df8811b0f1a8fe7b9b076d8931b22fc4af60bcd8db7bc18b0cd35",
+        "6ef17e23e4d9aa49f8ce922c9cb5d38632b692d9ca52d99aafc2b1d1ed49f88c",
+        "abd3089e2780f62aad6b3cd564b15ae5a90cf22fc1f751042300e808b6ef8eac",
+        "1c49d7e93da631e80c228e948131f28d668a292c0354e50ae8b38f1edbececb2",
+        "70798532a39ba5a3a74abf5e305a3bd25b69413705a787eb84bcd0f007aae16c",
+        "bb2be6a7d1a6700126e5d0309adf44227b4634086feed37b63408fa5ff00218d"
+      ],
+      "source_sha256": "8d238abc8984b9658c1896fd184699000b0fa90aaa4d934adb3eef748a6f5ea3",
+      "text": "Why the RUN would refuse ``settings``, in its own words.\n\nO CANONICALISER NO É O VALIDATOR, e essa distinção é o que 196 é. `get_perform_regression_default_settings` preenche tipos padrão e coage; não diz nada sobre se a combinação pode ser ajustada. Um teste afirmou que cada chave proposta sobreviveu à canonização, passou e a execução ainda parou em\n\n    ValueError:  batch_correction  'combat' precisa saber qual biologia manter.\n\nEntão, isso faz as coisas que realmente recusam, antes que o usuário seja informado de que a pergunta está resolvida. Cada entrada é a própria frase do código de recusa onde há uma - uma paráfrase se afastaria dela.\n\n:param settings: uma proposta, ou qualquer mapeamento de valor-chave de configurações.\n:returns: uma frase por recusa, vazia quando a corrida começar.",
+      "translation_source_blocks_sha256": [
+        "fc37ae3cc07df8811b0f1a8fe7b9b076d8931b22fc4af60bcd8db7bc18b0cd35",
+        "6ef17e23e4d9aa49f8ce922c9cb5d38632b692d9ca52d99aafc2b1d1ed49f88c",
+        "abd3089e2780f62aad6b3cd564b15ae5a90cf22fc1f751042300e808b6ef8eac",
+        "1c49d7e93da631e80c228e948131f28d668a292c0354e50ae8b38f1edbececb2",
+        "b4507a556f164df146ee05a7a1982709b5890828969738efbd7af68cb16d37e3",
+        "bb2be6a7d1a6700126e5d0309adf44227b4634086feed37b63408fa5ff00218d"
       ]
     },
     "spacr.settings_spec": {
