@@ -492,16 +492,24 @@ def _thumb_px_of(picture) -> int:
 
 def fits_on_a_page(width: int, height: int, thumb_px: int,
                    spacing: int = 6) -> Tuple[int, int]:
-    """``(columns, per_page)`` for a viewport of this size.
+    """Calculate the thumbnail grid capacity of a viewport.
 
-    THE COUNT IS A CONSEQUENCE OF THE GEOMETRY (instruction 211), never a
-    setting. `cells_per_page` contradicted the container it was drawn in, so
-    it produced a half-empty page or a clipped row depending on which way it
-    disagreed -- and the user had no way to know which.
+    Parameters
+    ----------
+    width, height : int
+        Available viewport dimensions in pixels.
+    thumb_px : int
+        Thumbnail width and height in pixels.
+    spacing : int, default=6
+        Space between adjacent thumbnails in pixels.
 
-    AT LEAST ONE OF EACH. A viewport too small for a single thumbnail still
-    shows one, clipped, rather than a page holding nothing: an empty page is
-    indistinguishable from a well with no cells in it.
+    Returns
+    -------
+    int
+        Number of thumbnail columns.
+    int
+        Total thumbnails per page. Both values are at least one, including
+        when the viewport is smaller than a thumbnail.
     """
     step = max(1, int(thumb_px) + int(spacing))
     columns = max(1, int(width) // step)
@@ -1203,12 +1211,10 @@ class _WellTab(QWidget):
     # ------------------------------------------------------------- paging
 
     def per_page(self) -> int:
-        """How many crops fit in the viewport as it is now.
+        """Return the number of crops that fit in the current viewport.
 
-        MEASURED, NOT CONFIGURED (instruction 211). The visible area IS the
-        page, so this is read off the scroll area's viewport every time it
-        is asked -- a cached number would be the previous window's answer,
-        and the window is what changes.
+        Capacity is recalculated from the live viewport and thumbnail size so
+        it follows window resizing.
         """
         area = self._scroll.viewport()
         columns, count = fits_on_a_page(area.width(), area.height(),
@@ -1216,19 +1222,14 @@ class _WellTab(QWidget):
         return count
 
     def page_count(self) -> int:
-        """How many pages this well's crops take at the current page size."""
+        """Return the pages required for this well at the current capacity."""
         size = self.per_page()
         if not size or not self._crops:
             return 1
         return max(1, -(-len(self._crops) // size))
 
     def first_on_page(self) -> int:
-        """The index of the first crop on the page now shown.
-
-        THE ANCHOR A RESIZE KEEPS. Keeping the PAGE NUMBER across a resize
-        teleports the reader: the same page number is a different set of
-        cells once the page holds a different number of them.
-        """
+        """Return the crop index anchoring the currently displayed page."""
         return self._page * max(1, self.per_page())
 
     def show_crop(self, index: int) -> int:
