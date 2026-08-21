@@ -593,8 +593,19 @@ def test_report_caps_the_table_at_ten_rows(screen, tmp_path):
 def test_report_on_unmatchable_folder_warns_and_opens_the_editor(
         screen, tmp_path, monkeypatch):
     folder = tmp_path / "loose"
-    for i in range(3):
-        _mkimg(folder / f"random_image_{i}.png")
+    # NAMES WITH NOTHING TO INFER A ROLE FROM. This was
+    # `random_image_0/1/2.png`, and 137's inference reads that set correctly:
+    # a token taking three values across three files IS a channel by its own
+    # stated rule, so it proposed `random_image_(?P<chanID>\d+)\.png`,
+    # captured chanID, and the "missing required field" path this test is
+    # about stopped being reached at all.
+    #
+    # A folder is unmatchable when the varying part names no ROLE. These
+    # three still yield a group -- `(?P<group0>[A-Za-z]+)` -- and it cannot
+    # be a well, a field or a channel, which is precisely the case the
+    # warning exists for.
+    for name in ("scan", "picture", "frame"):
+        _mkimg(folder / f"{name}.png")
 
     opened = {}
 
@@ -618,9 +629,8 @@ def test_report_on_unmatchable_folder_warns_and_opens_the_editor(
     assert "⚠ Missing required field: chanID" in log
     assert "⚠ Missing location field" in log
     assert "→ Opening the regex editor" in log
-    assert sorted(opened["filenames"]) == ["random_image_0.png",
-                                           "random_image_1.png",
-                                           "random_image_2.png"]
+    assert sorted(opened["filenames"]) == ["frame.png", "picture.png",
+                                           "scan.png"]
     assert opened["multichannel"] is True
     # Accepted editor pushes its regex back onto the screen + logs it.
     assert screen.w("custom_regex").text() == \
