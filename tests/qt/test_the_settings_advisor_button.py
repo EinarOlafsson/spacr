@@ -21,6 +21,17 @@ pytestmark = pytest.mark.qt
 from spacr.settings_advisor import Reading
 
 
+def test_every_advisor_question_and_caption_is_in_the_runtime_catalog_source():
+    """Dynamic question records must not bypass supported UI languages."""
+    from tools import build_i18n_catalogs as builder
+    from spacr.qt.widgets.settings_advisor_dialog import (
+        _SETTINGS_ADVISOR_UI_SOURCES,
+    )
+
+    sources = set(builder.canonical_sources()["ui"])
+    assert set(_SETTINGS_ADVISOR_UI_SOURCES) <= sources
+
+
 ANSWERS = {"hits_per_thousand": 20, "direction": "either",
            "controls": "000000", "cost": "balanced"}
 
@@ -241,7 +252,7 @@ class TestTheDialogShowsTheArgument:
         widget.show_the_proposal()
 
         said = widget.proposal.undecided.toPlainText()
-        assert "NOT DECIDED" in said
+        assert "not decided" in said.lower()
         assert "regression_type" in said
 
     def test_the_summary_says_what_was_read(self, dialog):

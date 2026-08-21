@@ -1730,11 +1730,7 @@ class AppScreen(QWidget):
         return holder
 
     def the_advisor_can_run(self) -> str:
-        """``''`` when the advisor has something to read, else the reason.
-
-        OFFERED AND DISABLED, saying why (106) -- rather than a button that
-        opens a window to announce it has nothing.
-        """
+        """Return an empty string when the advisor can run, otherwise why not."""
         values = {}
         try:
             values = dict(self._settings_model.collect() or {})

@@ -1,25 +1,10 @@
-"""What an import WOULD do, before it does any of it (137 A, C and D).
+"""Preview filename parsing and destination paths before importing images.
 
-    "the user can hit test to show how file names would be changed and how
-     files would be organized into a spacr structure."
-
-TEST SHOWS, IT DOES NOT WRITE. `io._run_test_mode` already answers this
-question by COPYING real files into a `test` folder -- which is the same
-question asked after the commitment rather than before it. This module
-answers it from the filenames alone: nothing is opened, nothing is copied,
-and the answer is a value the GUI renders and a test can assert on.
-
-    plan(filenames, regex, roles) -> ImportPlan
-
-A FILE THAT DOES NOT MATCH IS NAMED. "412 of 480 files matched" with the
-other 68 listed is an answer; 412 files appearing without comment is how half
-a plate goes missing, and it is the fault this whole instruction exists to
-stop.
-
-THE NEW NAME IS `io`'S OWN, not a second opinion about it: the stem comes
-from :func:`spacr.io._escaped_field_stem`, so what this previews is what the
-import writes, down to the plate escaping that `schema.parse_field_stem`
-reads back.
+:func:`plan` evaluates filenames, a regular expression, and group roles
+without opening, copying, or moving files. Its :class:`ImportPlan` reports
+every matched rename, every unmatched filename, and any role problem. Output
+stems use :func:`spacr.io._escaped_field_stem`, so the preview matches the
+paths produced by the import pipeline.
 """
 from __future__ import annotations
 
@@ -71,14 +56,12 @@ class Renamed:
 
 @dataclass
 class ImportPlan:
-    """The whole answer: what matches, what it becomes, and what does not.
+    """Describe matched renames, unmatched files, and role problems.
 
-    :param renamed: one entry per matched file, in the order dropped.
-    :param unmatched: the files the regex did not match, BY NAME.
-    :param trouble: why the plan is not usable, or ``()``. A plan with
-        trouble still carries whatever it did work out, because "these 12
-        matched and the role for group 2 is missing" is more useful than an
-        empty screen.
+    :param renamed: one entry per matched file, in input order.
+    :param unmatched: filenames that did not match the pattern.
+    :param trouble: explanations that make the plan incomplete or unusable.
+        Valid partial results remain available when problems are present.
     """
 
     renamed: Tuple[Renamed, ...] = ()
@@ -142,8 +125,7 @@ class ImportPlan:
 def group_names(regex: str) -> Tuple[str, ...]:
     """The named groups in ``regex``, in the order they appear.
 
-    Empty for a pattern that does not compile -- the caller is editing it
-    live and a half-typed regex is not an error to shout about.
+    Returns an empty tuple while the pattern is incomplete or invalid.
     """
     try:
         compiled = re.compile(str(regex or ""))
@@ -153,11 +135,10 @@ def group_names(regex: str) -> Tuple[str, ...]:
 
 
 def role_trouble(roles: Mapping[str, str]) -> Tuple[str, ...]:
-    """What is wrong with the role assignment, in words.
+    """Return user-facing problems in a regex-group role assignment.
 
-    TWO COLUMNS CLAIMING THE SAME ROLE IS AN ERROR STATED ON THE SPOT, not at
-    run time -- which is where it would otherwise appear, as an import that
-    read one group and silently ignored the other.
+    Duplicate roles and missing required roles are reported before import so
+    no captured group is silently ignored.
     """
     said: List[str] = []
     taken: Dict[str, List[str]] = {}
@@ -183,14 +164,13 @@ def plan(filenames: Sequence[str], regex: str,
     :param filenames: bare names, as dropped. Paths are reduced to their
         basename, because that is what the regex is matched against.
     :param regex: the pattern, with named groups.
-    :param roles: ``{group name: role}``, overriding what the group is
-        called. A group whose name IS a role needs no entry.
+    :param roles: ``{group name: role}``, overriding the captured group name.
+        A group whose name is already a role needs no entry.
     :param plate: the plate to use when no group supplies one -- the import
         falls back to the source folder's name, so the preview does too.
     :param timelapse: pass the timepoint through to the stem.
-    :returns: an :class:`ImportPlan`. NEVER raises for a bad regex or a
-        missing role: both are things a user is in the middle of fixing, and
-        a traceback is not a preview.
+    :returns: an :class:`ImportPlan`. Invalid patterns and missing roles are
+        reported in :attr:`ImportPlan.trouble` rather than raised.
     """
     from .io import _escaped_field_stem
 

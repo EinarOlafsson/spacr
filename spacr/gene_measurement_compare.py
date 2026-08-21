@@ -988,19 +988,12 @@ def join_measurements(objects: "pd.DataFrame",
 
 @dataclass
 class ComparisonStyle(FigureStyle):
-    """How a comparison figure looks. The second style in spaCR.
+    """Appearance settings for grouped measurement comparisons.
 
-    THE POINT OF A SECOND ONE is that it proves the base earns its place.
-    Everything a reader would recognise on any figure -- the axis labels and
-    scales, the type scale, the grid, the legend, the spines, the page size
-    and the background -- is inherited unchanged from
-    :class:`spacr.style_base.FigureStyle`, and what is here is only what a
-    comparison has and a volcano does not.
-
-    So a font size chosen on the volcano's restyle menu can be applied to
-    this figure by name (`FigureStyle.shared_with`), while the volcano's
-    effect-size threshold cannot follow it here -- which is the distinction
-    a shared base exists to make and a shared DICT could not.
+    Shared axes, typography, grid, legend, page, and background settings are
+    inherited from :class:`spacr.style_base.FigureStyle`. This class adds only
+    comparison-specific choices such as plot kind, group filtering, jitter,
+    and count labels.
     """
 
     #: Which of :data:`PLOTS` to draw.
@@ -1024,27 +1017,25 @@ class ComparisonStyle(FigureStyle):
 
 def render_comparison(comparison: Comparison, style: "ComparisonStyle" = None,
                       *, figure=None, save_path=None):
-    """Draw ``comparison`` in ``style``. THE CONTRACT, second implementation.
+    """Render a grouped measurement comparison.
 
-        render(data, style, *, figure=None, save_path=None) -> (figure, axes)
+    Parameters
+    ----------
+    comparison : Comparison
+        Grouped observations returned by :func:`build`.
+    style : ComparisonStyle, optional
+        Plot appearance. The default style is used when omitted.
+    figure : matplotlib.figure.Figure, optional
+        Existing figure to clear and redraw. Reusing a figure preserves the
+        live-canvas object while restyling.
+    save_path : path-like, optional
+        Also write the completed figure through spaCR's export pipeline.
 
-    :param comparison: what :func:`build` returned.
-    :param style: a :class:`ComparisonStyle`. ``None`` is the default one.
-    :param figure: draw into this figure instead of creating one, so a live
-        canvas is redrawn IN PLACE rather than replaced -- which is what
-        keeps a restyle from resetting the zoom and is the whole reason the
-        parameter is in the contract.
-    :param save_path: also write it, through the one writer, so the format
-        and resolution preferences reach it (108 point 6).
-    :returns: ``(figure, axes)``, or ``(None, None)`` when there is nothing
-        to draw -- the same answer :func:`plot` gives, because a caller
-        should not have to handle two shapes of "no figure".
-
-    THE MARKS ARE DRAWN HERE, THE FURNITURE BY THE BASE.
-    :func:`spacr.style_base.apply_page` does the axes, type, grid, spines and
-    page for every figure type, so two renderers cannot drift on what "grid
-    off" means -- and the matplotlib bug where `grid(False, linewidth=...)`
-    ENABLES the grid is spelled once, there, rather than met again here.
+    Returns
+    -------
+    figure, axes
+        Rendered Matplotlib objects, or ``(None, None)`` when no finite
+        observations can be drawn.
     """
     import matplotlib.pyplot as plt
 
