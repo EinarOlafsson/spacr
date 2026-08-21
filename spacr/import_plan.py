@@ -226,6 +226,16 @@ APPENDED_SUFFIXES: Tuple[str, ...] = (".tif", ".tiff", ".png", ".jpg",
                                       ".jpeg")
 
 
+#: A trailing `\.ext`, `\.(ext|ext)` or `\.(?:ext|ext)`. Anchored at the
+#: end, so a pattern that merely CONTAINS one keeps it.
+#:
+#: THE BACKSLASH IS OPTIONAL. A pattern ending in a bare `.tif` -- the dot as
+#: a wildcard -- is just as broken once `_get_regex` appends its own: the
+#: composed `(....tif)..tif` would need a name reading "…tifxtif".
+_TRAILING_EXTENSION = re.compile(
+    r"\\?\.(?:\((?:\?:)?[A-Za-z0-9]+(?:\|[A-Za-z0-9]+)*\)|[A-Za-z0-9]+)$")
+
+
 def for_get_regex(pattern: str) -> str:
     r"""Prepare a filename pattern for ``utils._get_regex``.
 
@@ -248,12 +258,11 @@ def for_get_regex(pattern: str) -> str:
     text = str(pattern or "").strip()
     if text.endswith("$"):
         text = text[:-1]
-    alternation = "|".join(s.lstrip(".") for s in APPENDED_SUFFIXES)
-    for tail in (rf"\.(?:{alternation})", rf"\.({alternation})"):
-        if text.endswith(tail):
-            return text[:-len(tail)]
-    for suffix in APPENDED_SUFFIXES:
-        for spelling in ("\\" + suffix, suffix):
-            if text.endswith(spelling):
-                return text[:-len(spelling)]
+    # ANY ALTERNATION OF IMAGE EXTENSIONS, not one exact spelling of it.
+    # `auto_detect_regex` returns the full five -- `(?:tif|tiff|png|jpg|jpeg)`
+    # -- while the bundled YOKOGAWA pattern carries `(?:tif|tiff)`, and a
+    # literal comparison against one of them silently left the other on.
+    match = _TRAILING_EXTENSION.search(text)
+    if match:
+        return text[:match.start()]
     return text
