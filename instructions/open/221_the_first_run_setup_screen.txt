@@ -58,6 +58,27 @@ the ambient blobs or the corner line cannot be drawn, the screen still shows
 its questions and still saves the answers.
 
 --------------------------------------------------------------------------------
+AND IT OPENS AGAIN ON EVERY UPDATE
+--------------------------------------------------------------------------------
+
+    "also the setup windo should be opened every update."
+
+So the trigger is not "has this ever been answered" but "has it been
+answered for THIS VERSION". A stored version stamp beside the answers, and
+the screen opens whenever the running version differs from it.
+
+WHICH IS WHY IT MUST NOT RESET THE ANSWERS. Reopening is for the questions
+that are NEW -- an update that adds a setting has a question the user has
+never seen, and one that changes what a setting means has a question whose
+old answer no longer applies. Every existing answer is shown as it stands
+and kept unless changed. A setup screen that reappears with everything back
+at its default is a release that silently un-configures the tool.
+
+Say what changed. A screen that reopens with no indication of why reads as
+a bug, and the honest version -- "these two are new since 4.1" -- is also
+the one that gets the new questions answered rather than dismissed.
+
+--------------------------------------------------------------------------------
 IT IS REACHABLE AFTERWARDS
 --------------------------------------------------------------------------------
 
@@ -92,6 +113,8 @@ HOW TO KNOW IT WORKED
   again -- a screen that reappears until it is answered is a modal dialog
   wearing a nicer coat.
 * Help -> Startup reopens it at any time.
+* It opens once after an update and not again until the next one, with the
+  previous answers intact and the new questions marked.
 * With the blur, the blobs and the corner line all disabled, the screen
   still works.
 * The corner accent follows the NEAREST corner, checked by moving the
