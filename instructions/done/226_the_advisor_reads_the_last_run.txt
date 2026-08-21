@@ -2,7 +2,7 @@
 "SETTINGS FOR MY DATA" READS THE LAST RUN, NOT ONLY THE INPUT
 ================================================================================
 
-Status:    filed 2026-08-21, not started.
+Status:    DONE 2026-08-21.
 Requested: 2026-08-21 -- "the settings for my data button should base its
            choise also of the summary data if a run has been done".
 Owner:     Regression (settings_advisor)
@@ -68,3 +68,36 @@ HOW TO KNOW IT WORKED
   rather than used silently.
 * The numbers come from the written QC, not recomputed -- checked by a test
   that changes the file and sees the advice change.
+
+--------------------------------------------------------------------------------
+DONE 2026-08-21
+--------------------------------------------------------------------------------
+
+THE NUMBERS WERE ALREADY MEASURED AND NOTHING KEPT THEM. Every QC panel
+returns the statistics it computed, they are printed onto the figure and
+into the text report, and then the manifest went out of scope -- so anything
+wanting to read a finished run's diagnostics had to re-derive them, which is
+the second diagnostic pass this item forbids.
+
+`regression_qc` now writes `regression_qc_numbers.json` beside its report.
+It is a SERIALISATION of what was already measured, never a recomputation:
+if that file and the report disagree, it is a bug in one function rather
+than a difference of method. `read_the_last_run` reads it, and the test that
+proves the join edits the file and watches the advice change.
+
+IT RUNS LAST AND ONLY OVERRIDES. Everything above `_from_the_run` argues
+from the INPUT, which is all there is before a fit; this argues from the
+RESIDUALS, which is what the assumptions are actually about. A response can
+be skewed while the residuals are fine and normal while they are not, and
+where they disagree the residuals win because they are what the p-value
+depends on. The reason says so, in those words, so a reader can see which
+of the two moved the choice.
+
+STALENESS IS ONE COMPARISON, AND IT IS THE FAMILY. Leverage, Durbin-Watson
+and VIF are all properties of a particular fit's residuals, so a panel now
+set to a different regression type is asking about a model this run never
+was. Everything else the user can change -- a threshold, a correction --
+leaves the residuals recognisable. A stale run is reported as an Undecided
+rather than used, because a stale summary looks like measurement.
+
+WITH NO RUN NOTHING CHANGES AT ALL, which is the button's whole point.

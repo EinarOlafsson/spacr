@@ -111,6 +111,28 @@ class Reading:
     capped: bool = False
     trouble: Tuple[str, ...] = ()
 
+    # ---- what only a finished fit knows (instruction 226) ----------------
+    #: The run folder these came from, or "". NAMED, because advice derived
+    #: from a fit whose settings have since changed is advice about a
+    #: different screen, and the reader has to be able to disbelieve it.
+    run_folder: str = ""
+    #: Why a run that WAS found is not being used. A stale summary is worse
+    #: than none, because it looks like measurement.
+    run_note: str = ""
+    #: The residuals' own shape, which is what the normality assumption is
+    #: actually about -- a response can be skewed while the residuals are
+    #: fine, and normal while they are not.
+    residual_normal_p: Optional[float] = None
+    residual_kurtosis: Optional[float] = None
+    durbin_watson: Optional[float] = None
+    max_cooks_distance: Optional[float] = None
+    max_vif: Optional[float] = None
+
+    @property
+    def read_a_run(self) -> bool:
+        """Whether a previous run's diagnostics were read."""
+        return bool(self.run_folder) and not self.run_note
+
     @property
     def read_the_counts(self) -> bool:
         """Whether count-table wells and guides were measured."""
@@ -905,6 +927,171 @@ def _aggregation(reading: Reading, chosen: List[Choice],
             f"uses every cell rather than only the middle one"))
 
 
+# ---------------------------------------------------------------------------
+# 226: what only a finished run knows
+# ---------------------------------------------------------------------------
+
+#: The keys the QC numbers file may use for each thing the advisor reads.
+#: SEVERAL SPELLINGS PER ROW, because the panels name their own statistics
+#: and two of them measure normality. Reading a list rather than one key is
+#: what keeps this a READ instead of a rename negotiation.
+_RUN_NUMBERS: Dict[str, Tuple[str, ...]] = {
+    "residual_normal_p": ("normality_p", "dagostino_p", "shapiro_p",
+                          "jarque_bera_p"),
+    "residual_kurtosis": ("excess_kurtosis", "kurtosis"),
+    "durbin_watson": ("durbin_watson",),
+    "max_cooks_distance": ("max_cooks_distance", "cooks_max",
+                           "max_cooks"),
+    "max_vif": ("max_vif", "vif_max"),
+}
+
+
+def read_the_last_run(folder: str,
+                      settings: Optional[Mapping[str, Any]] = None
+                      ) -> Dict[str, Any]:
+    """Read a finished run's own diagnostics off disk.
+
+    A READ OF WHAT ALREADY EXISTS, never a second diagnostic pass. The
+    numbers are the ones `regression_qc` measured and printed onto its own
+    report; recomputing them here would let the advisor and the QC panel
+    disagree about the same fit, and the user would have no way to tell
+    which was right.
+
+    :param folder: the run folder, or the ``regression_qc`` folder inside it.
+    :param settings: the settings now in the panel, so a run fitted under
+        different ones is reported as STALE rather than used silently.
+    :returns: the fields to merge into a :class:`Reading`. Always includes
+        ``run_folder`` when a run was found, and ``run_note`` when one was
+        found and is not being used.
+    """
+    import json
+    import os
+
+    from .regression_qc import QC_NUMBERS_FILE
+
+    if not folder:
+        return {}
+    candidates = [os.path.join(str(folder), QC_NUMBERS_FILE),
+                  os.path.join(str(folder), "regression_qc", QC_NUMBERS_FILE)]
+    path = next((c for c in candidates if os.path.isfile(c)), None)
+    if path is None:
+        return {}
+    out: Dict[str, Any] = {"run_folder": os.path.dirname(path)}
+    try:
+        with open(path, "r", encoding="utf-8") as handle:
+            payload = json.load(handle)
+    except Exception as error:                                   # noqa: BLE001
+        out["run_note"] = (f"the run's diagnostics could not be read "
+                           f"({type(error).__name__}), so nothing was taken "
+                           f"from it")
+        return out
+
+    stale = _stale_against(payload, settings)
+    if stale:
+        out["run_note"] = stale
+        return out
+
+    numbers = payload.get("numbers")
+    if not isinstance(numbers, Mapping):
+        out["run_note"] = ("the run's diagnostics file holds no numbers, so "
+                           "nothing was taken from it")
+        return out
+    for field, spellings in _RUN_NUMBERS.items():
+        for name in spellings:
+            value = numbers.get(name)
+            if isinstance(value, (int, float)) and not isinstance(value, bool):
+                out[field] = float(value)
+                break
+    return out
+
+
+def _stale_against(payload: Mapping[str, Any],
+                   settings: Optional[Mapping[str, Any]]) -> str:
+    """Why this run must not be read, or ``""``.
+
+    ONE COMPARISON, AND IT IS THE FAMILY. The diagnostics are about the
+    residuals of a particular fit, so a panel now set to a different
+    regression type is asking about a model this run never was -- and its
+    leverage, its Durbin-Watson and its VIF would all be answers to the
+    wrong question. Everything else the user can change (a threshold, a
+    correction) leaves the residuals recognisable.
+    """
+    if not settings:
+        return ""
+    now = str(settings.get("regression_type") or "").strip().lower()
+    was = str(payload.get("regression_type") or "").strip().lower()
+    if now and was and now != was:
+        return (f"the last run fitted {was!r} and the panel now says "
+                f"{now!r}, so its residual diagnostics describe a different "
+                f"model and were not used")
+    return ""
+
+
+def _from_the_run(reading: Reading, chosen: List[Choice],
+                  undecided: List[Undecided]) -> None:
+    """Amend the choices with what the finished fit measured.
+
+    RUNS LAST, and only ever OVERRIDES -- everything before it argued from
+    the INPUT, which is all there is before a fit, and this argues from the
+    residuals, which is what the assumptions are actually about. A response
+    can be skewed while the residuals are fine, and normal while they are
+    not; where the two disagree the residuals win, because they are the
+    thing the p-value depends on.
+    """
+    if not reading.read_a_run:
+        return
+    where = os.path.basename(reading.run_folder.rstrip(os.sep)) or \
+        reading.run_folder
+
+    def replace(key: str, value: str, why: str) -> None:
+        for index, one in enumerate(chosen):
+            if one.key == key:
+                chosen[index] = Choice(key, value, why)
+                return
+        chosen.append(Choice(key, value, why))
+
+    p_value = reading.residual_normal_p
+    if p_value is not None and p_value < 0.05:
+        replace("inference", "nonparametric",
+                f"the last run's RESIDUALS fail a normality test "
+                f"(p = {p_value:.2g}, measured in {where}), which is the "
+                f"assumption a parametric p-value actually rests on — the "
+                f"response's own shape is not the same question")
+        kurtosis = reading.residual_kurtosis
+        if kurtosis is not None and kurtosis > 3.0:
+            replace("grna_statistic", "rank",
+                    f"the residuals' excess kurtosis is {kurtosis:+.2f} in "
+                    f"{where}, so the tails are heavy enough to move a "
+                    f"correlation; a rank responds to order rather than "
+                    f"magnitude")
+    elif p_value is not None:
+        replace("inference", "parametric",
+                f"the last run's residuals are consistent with normal "
+                f"(p = {p_value:.2g}, measured in {where}), which is the "
+                f"assumption a parametric p-value needs")
+
+    dw = reading.durbin_watson
+    if dw is not None and abs(dw - 2.0) > 0.2:
+        replace("guide_nuisance_columns", "['rowID', 'columnID']",
+                f"Durbin-Watson is {dw:.2f} against 2 in {where}, so "
+                f"neighbouring wells are not independent and a shuffle that "
+                f"ignored the position would treat that structure as noise")
+
+    cooks = reading.max_cooks_distance
+    if cooks is not None and cooks >= 1.0:
+        replace("regression_type", "rlm",
+                f"one observation has Cook's distance {cooks:.2f} in {where}, "
+                f"above the 1.0 rule — it moves the fit on its own, and "
+                f"least squares is the estimator most sensitive to that")
+
+    vif = reading.max_vif
+    if vif is not None and vif > 10.0:
+        replace("regression_type", "ridge",
+                f"the largest VIF in {where} is {vif:.1f}, so the predictors "
+                f"carry overlapping information and their individual "
+                f"coefficients are not separable")
+
+
 def advise(reading: Reading,
            answers: Optional[Dict[str, Any]] = None) -> Advice:
     """Build a regression-setting proposal from measurements and answers.
@@ -927,16 +1114,41 @@ def advise(reading: Reading,
     # `_family_and_transform`; these two are the rest.
     _thresholds(reading, chosen, undecided)
     _aggregation(reading, chosen, undecided)
+    # LAST, because it overrides. Everything above argued from the input,
+    # which is all there is before a fit; this argues from the residuals of
+    # one that happened (instruction 226).
+    _from_the_run(reading, chosen, undecided)
+    if reading.run_note:
+        undecided.append(Undecided("last run", reading.run_note))
     return Advice(tuple(chosen), tuple(undecided), reading)
 
 
 def advise_the_screen(counts: Sequence[str] = (), scores: Sequence[str] = (),
                       dependent_variable: str = "",
                       answers: Optional[Dict[str, Any]] = None,
-                      *, row_cap: int = ROW_CAP) -> Advice:
-    """Read and advise in one call, for a caller that has only paths."""
-    return advise(read_the_screen(counts, scores, dependent_variable,
-                                  row_cap=row_cap), answers)
+                      *, row_cap: int = ROW_CAP,
+                      run_folder: str = "",
+                      settings: Optional[Mapping[str, Any]] = None) -> Advice:
+    """Read and advise in one call, for a caller that has only paths.
+
+    :param run_folder: a finished run to read diagnostics from. AN ADDITION
+        AND NEVER A REQUIREMENT -- the button's whole point is answering
+        before anything has been fitted, so with no run the advice is exactly
+        what it was (instruction 226).
+    :param settings: what the panel currently holds, so a run fitted under a
+        different family is reported as stale rather than used silently.
+    """
+    reading = read_the_screen(counts, scores, dependent_variable,
+                              row_cap=row_cap)
+    if run_folder:
+        from dataclasses import replace as _replace
+
+        extra = read_the_last_run(run_folder, settings)
+        known = set(Reading.__dataclass_fields__)
+        extra = {k: v for k, v in extra.items() if k in known}
+        if extra:
+            reading = _replace(reading, **extra)
+    return advise(reading, answers)
 
 
 # ---------------------------------------------------------------------------
