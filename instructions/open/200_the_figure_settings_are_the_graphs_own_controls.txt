@@ -1,0 +1,161 @@
+================================================================================
+THE FIGURE SETTINGS ARE THE GRAPH'S OWN CONTROLS
+================================================================================
+
+Status:    filed 2026-08-21, not started.
+Requested: 2026-08-21 -- "when i right click and press Figure settings i get
+           figure settings but i get some settings i dont want and lack some
+           settings i want."
+Owner:     Qt GUI (figure settings, Preferences)
+
+--------------------------------------------------------------------------------
+WHAT THE DIALOG OFFERS TODAY
+--------------------------------------------------------------------------------
+
+Measured, not guessed:
+
+    Figure        Background, Width (in), Height (in), DPI
+    Statistics    Test, Alpha
+    <each axis>   Title, the axis labels, Grid, Grid axis, Grid width,
+                  Grid colour
+    Image UMAP    (only for that figure)
+
+THERE IS NO PLOT-TYPE CONTROL ANYWHERE IN IT. The first thing on the
+maintainer's list -- which kind of graph this is -- cannot be reached from
+the window whose name is Figure settings.
+
+And the maintainer's own reading of the rest:
+
+    "as it is now the user chooses each line and there are 2 tabs the second
+     devided into point i dont think that actually does any thing changing
+     it."
+
+A tab whose controls do nothing is worse than a missing tab: it is a promise
+that was kept once. Whatever the second tab is doing, it either works and
+says so or it goes.
+
+--------------------------------------------------------------------------------
+A. THE GRAPH TYPE, AND ONLY THE TYPES THAT FIT
+--------------------------------------------------------------------------------
+
+    "Bar, Bar+jitter, Jitter, Box, Violin, Line (with and without spread,
+     spread defined by stat setting 2), Scatter (and any of the other
+     matplotlib graph types that fit the data). not all graph types fit all
+     types of data. the ones i mentioned are the most important."
+
+NOT ALL GRAPH TYPES FIT ALL DATA, and that is the maintainer's own sentence.
+A scatter of one categorical against one continuous is a jitter under
+another name; a line through unordered categories is a row of markers joined
+for no reason -- 178 A already found that one and fixed it by joining only
+when there are two points to join.
+
+SO THE LIST IS OFFERED FROM THE DATA. A type the current frame cannot
+support is absent, or greyed with the reason (106), and never silently
+accepted and drawn as something else.
+
+  Bar             one value per group
+  Bar + jitter    the summary AND the observations, which is the honest
+                  default 139 B argues for
+  Jitter          every observation
+  Box             the distribution's shape, five numbers
+  Violin          the distribution's shape, continuous
+  Line            ordered x only, with or without a spread band
+  Scatter         two continuous axes
+
+--------------------------------------------------------------------------------
+B. THE SPREAD IS A SETTING, AND THE BAR READS IT
+--------------------------------------------------------------------------------
+
+    "for statistics with Bar: SD, SEM, var, etc."
+
+One control -- SD, SEM, variance, 95% CI, IQR, none -- and BOTH the bar's
+error and the line's band read it, because a figure whose bar shows SD and
+whose band shows SEM is two claims in one picture with nothing saying which
+is which.
+
+AND THE CAPTION SAYS WHICH. An error bar with an unnamed spread is not
+readable; a reader cannot tell a 1.96 SEM from an SD without being told, and
+the two differ by the square root of n.
+
+--------------------------------------------------------------------------------
+C. THE MARKS
+--------------------------------------------------------------------------------
+
+    "Datapoint color pallet"
+    "Datapoint collor scheem: group, uniform, random. Datapoint size,
+     Datapoint style"
+
+  palette         a named set, from the house palettes -- not a colour
+                  picker per point
+  colour scheme   BY GROUP (each group its own colour), UNIFORM (one colour
+                  for every point), RANDOM
+  size, style     the marker
+
+ON `random`: it is what the maintainer asked for and it is worth a word in
+the tooltip -- a random colour per point carries no information and is for
+telling points apart by eye, not for a figure that makes a claim. The house
+rule is that everything is grey except what the sentence is about.
+
+--------------------------------------------------------------------------------
+D. THE FURNITURE
+--------------------------------------------------------------------------------
+
+    "Line color (all lines axis, periphary box, grid), line width"
+    "Font color"
+
+ONE CONTROL FOR THE LINES, not one per line. The axis spines, the periphery
+box and the grid are the same ink -- they are the frame -- and the current
+dialog making the user set each is the "user chooses each line" complaint.
+A per-element override can exist under it; the one control is what a user
+reaches for.
+
+FONT COLOUR IS ONE CONTROL TOO, and it is `resolve_ink(theme_target())` by
+default rather than a literal, for the reason 178 measured eleven times.
+
+--------------------------------------------------------------------------------
+E. THE SHAPE OF THE PAGE
+--------------------------------------------------------------------------------
+
+    "Aspect ratio: a square, cal rectangle, gorizontal rectangle, etc."
+
+A named ratio -- square, portrait, landscape, wide -- rather than two boxes
+of inches. The inches stay for a user who wants a journal's exact column
+width; the ratio is what someone choosing how a figure LOOKS is actually
+choosing, and it keeps the two axes consistent when the size changes.
+
+--------------------------------------------------------------------------------
+F. AND THE SAME SETTINGS ARE THE DEFAULTS
+--------------------------------------------------------------------------------
+
+    "these same settings should be in the Figure settings in pareferences,
+     which should set the default graph type for each data type."
+
+ONE VOCABULARY, TWO SCOPES. Preferences sets what a figure is BORN with; the
+right-click sets what THIS figure is. They must be the same controls -- a
+preference that cannot be expressed on a figure, or a figure setting with no
+default, is a setting that will drift out of one of the two.
+
+AND THE DEFAULT IS PER DATA TYPE. "the default graph type for each data
+type" -- a categorical-vs-continuous comparison defaults to one thing, a
+continuous-vs-continuous to another. That is the same question A asks about
+which types FIT, answered once and reused: the fit rule decides what may be
+offered, and the preference decides which of those is chosen first.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Right-click > Figure settings offers the graph type first, and changing it
+  redraws the figure.
+* A type the data cannot support is not offered, or is greyed with the
+  reason.
+* The spread is one setting, read by the bar and the line alike, and named
+  in the caption.
+* The marks' palette, scheme, size and style are four controls, not one per
+  point.
+* The lines are one control and the font colour is one control.
+* The aspect ratio is a named shape.
+* Preferences offers the same controls and sets the default per data type,
+  and a new figure of that type is born with it.
+* No tab in the dialog contains a control that does nothing -- and a test
+  asserts every control changes something on the figure.
