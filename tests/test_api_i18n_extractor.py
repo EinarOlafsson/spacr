@@ -568,7 +568,10 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     #    3  spacr.classify_classes
     #    6  spacr.qt.widgets.training_monitor
     # Nothing retired; these contracts enter the regenerated API catalogs.
-    expected = 8105
+    # +2/-0 for ``ConsolePanel.jump_to_the_end`` and ``at_the_end``, which
+    # expose the new tail-following control without requiring widget internals.
+    # Nothing retired; these contracts enter the regenerated API catalogs.
+    expected = 8107
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -583,7 +586,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8224
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8226
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
