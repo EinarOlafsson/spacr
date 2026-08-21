@@ -2052,6 +2052,11 @@ def get_perform_regression_default_settings(settings):
     # and is reported in the run summary's exclusions, which now counts what
     # it removed rather than only printing it (156).
     settings.setdefault('fraction_threshold', 0.02)
+    # OFF BY DEFAULT, all four (instruction 210). This changes which cells
+    # EXIST, and a filter that silently drops objects is a filter that will
+    # be forgotten and then blamed on the annotation.
+    for _criterion, _caption in _outlier_criteria():
+        settings.setdefault(f'{_criterion}_outlier_mads', None)
     # ONE COLUMN, NOT TWO (instruction 135 A). `score_column` named the column
     # `minimum_cell_simulation` resamples to find how many objects a well
     # needs before its mean stops moving, and it has been
@@ -2729,6 +2734,10 @@ expected_types = {
     "exclude": (str, type(None)),
     "exclude_grnas": (list, type(None)),
     "normalise_fraction": bool,
+    "cell_area_outlier_mads": (float, int, type(None)),
+    "nucleus_area_outlier_mads": (float, int, type(None)),
+    "cell_intensity_outlier_mads": (float, int, type(None)),
+    "nucleus_intensity_outlier_mads": (float, int, type(None)),
     "positive_control_wells": (list, type(None)),
     "negative_control_wells": (list, type(None)),
     "mixed_control_wells": (list, type(None)),
@@ -3344,6 +3353,24 @@ DYNAMIC_ORGANELLE_SETTINGS = frozenset(
 # right to refuse it. They stop being OFFERED (their defaults are gone, so no
 # control is built) while an old settings CSV still runs unchanged.
 
+def _outlier_criteria():
+    """The four objects an outlier filter can be set on (instruction 210).
+
+    READ FROM `spacr.outlier_filter`, so the settings and the filter cannot
+    disagree about which four they are -- a fifth added there and not here
+    would be a setting nobody could set.
+    """
+    try:
+        from .outlier_filter import CRITERIA
+
+        return CRITERIA
+    except Exception:                                            # noqa: BLE001
+        return (("cell_area", "cell area"),
+                ("nucleus_area", "nucleus area"),
+                ("cell_intensity", "cell channel intensity"),
+                ("nucleus_intensity", "nucleus channel intensity"))
+
+
 tooltips = {
     # ---------------------------------------------------------------- #
     #  The AI Console's own settings.                                   #
@@ -3353,6 +3380,33 @@ tooltips = {
     #  controls with an empty tooltip -- the only settings dialog in    #
     #  spaCR with no hover help on any row.                             #
     # ---------------------------------------------------------------- #
+    # ---------------------------------------------------------------- #
+    #  Removing segmentation artefacts BEFORE annotation (210).         #
+    # ---------------------------------------------------------------- #
+    'cell_area_outlier_mads':
+        "Drop objects whose CELL AREA is further than this many MADs from "
+        "the median, BEFORE the guide fractions are computed. None is off, "
+        "which is the default: this changes which cells exist, and a filter "
+        "that silently drops objects will be forgotten and then blamed on "
+        "the annotation. THE ORDER IS THE POINT -- removing a merged-object "
+        "artefact after the fractions are formed leaves its reads "
+        "redistributed across the guides in its well; removing it first "
+        "means it never contributed. A MAD cut rather than a standard "
+        "deviation because areas are skewed, and an SD cut on skewed data "
+        "removes real cells from the long tail. 5 is loose enough not to "
+        "touch a normal screen and tight enough to catch an artefact an "
+        "order of magnitude out. Default None.",
+    'nucleus_area_outlier_mads':
+        "The same cut on NUCLEUS AREA. See cell_area_outlier_mads for why "
+        "it runs before annotation and why it is a MAD. Default None.",
+    'cell_intensity_outlier_mads':
+        "The same cut on the CELL CHANNEL INTENSITY. Catches a field that "
+        "was over-exposed or a cell sitting on a debris fleck, both of "
+        "which survive segmentation and neither of which is a measurement. "
+        "Default None.",
+    'nucleus_intensity_outlier_mads':
+        "The same cut on the NUCLEUS CHANNEL INTENSITY. Default None.",
+
     'response_speed':
         "(str) - How much thinking the provider is asked for on each reply. "
         "'fast' answers quickest and is enough for a question about what a "
@@ -4487,6 +4541,11 @@ categories = {
         # reader who meets it anywhere else has to go and find the
         # other one first.
         "normalise_fraction",
+        # BEFORE THE THRESHOLD IN THE PANEL because they run before it in
+        # the pipeline (instruction 210): these decide which objects exist,
+        # and the threshold divides by what is left.
+        "cell_area_outlier_mads", "nucleus_area_outlier_mads",
+        "cell_intensity_outlier_mads", "nucleus_intensity_outlier_mads",
         "target_unique_count", "tolerance", "outlier_detection", "other",
     ],
     # Not "was this gRNA significant" but "does this fit deserve to be
