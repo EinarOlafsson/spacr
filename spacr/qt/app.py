@@ -3035,6 +3035,21 @@ def launch(argv: Optional[list[str]] = None) -> int:
         _install_thread_guard()
     except Exception:
         pass
+    # EVERY DIALOG IS A WINDOW THE USER CAN DRAG (216). Asked for
+    # 2026-08-21: "the settings for your data settings window should be
+    # movable without moving the main window. this should be tru of all
+    # settings windows or any popup window from spacr."
+    #
+    # Installed once here rather than called from each dialog.
+    # `detach_from_window_manager` already existed and six files called it
+    # while more than twenty others opened dialogs without it, which is not
+    # a state "all settings windows" can be reached from by adding a
+    # twenty-first call.
+    try:
+        from .dialogs import detach_all_dialogs
+        detach_all_dialogs(app)
+    except Exception:
+        pass
     app.setApplicationName("spaCR")
     app.setOrganizationName("Olafsson Lab")
     # Linux shells resolve dock/switcher identity through the desktop-file
