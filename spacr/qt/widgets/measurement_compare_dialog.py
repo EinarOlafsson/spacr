@@ -102,6 +102,13 @@ class MeasurementComparePanel(QWidget):
         # it.
         self._chosen_wells: Optional[set] = None
 
+        #: The volcano's guide selection, and the well set derived from it.
+        #: `None` for the wells means "not narrowed yet", which is different
+        #: from "narrowed to nothing" -- and the difference is what lets a
+        #: new guide selection re-derive rather than stay empty.
+        self._selected_guides: list = []
+        self._selected_wells = None
+
         layout = QVBoxLayout(self)
         row = QHBoxLayout()
 
@@ -158,6 +165,28 @@ class MeasurementComparePanel(QWidget):
         # quietly re-ran it on the visible half would be reporting a
         # different question than the one on screen.
         row.addWidget(self._heading("show"))
+        # THE THREE POPULATIONS (instruction 205). Beside the class filter
+        # rather than merged into it: "which objects are on the plot" and
+        # "which of the classes on it to draw" are different questions, and
+        # one box answering both would have a list whose entries mean two
+        # different things.
+        from ...well_scope import SCOPES
+
+        self.scope = QComboBox()
+        for value, caption in SCOPES:
+            self.scope.addItem(caption, value)
+        self.scope.setToolTip(
+            "WHICH OBJECTS are plotted. 'gRNAs' draws only the objects "
+            "annotated with the guides chosen on the volcano. 'gRNAs + "
+            "other datapoints in selected wells' adds their WELL-MATES, "
+            "drawn distinguishably — that is the comparison that matters, "
+            "because a guide's cells against every cell in the screen "
+            "compares two different experiments, while a guide's cells "
+            "against their own well-mates compares two populations that "
+            "shared a plate, a day, a stain and an imaging session.")
+        self.scope.currentIndexChanged.connect(self._on_scope)
+        row.addWidget(self.scope)
+
         self.only = QComboBox()
         self.only.setToolTip(
             "Draw one class on its own. The statistics below are always for "
@@ -459,6 +488,48 @@ class MeasurementComparePanel(QWidget):
             self.join_note.setText(
                 f"{self.join_note.text()} {trouble}".strip())
         return trouble
+
+    def _on_scope(self, *_args) -> None:
+        """The population changed: re-derive the wells and redraw."""
+        self._selected_wells = None      # derived again from the guides
+        self.refresh()
+
+    def set_selected_guides(self, guides) -> None:
+        """The volcano's selection. THE VOLCANO IS THE SELECTOR.
+
+        The same click that picks a point picks the wells; the user narrows
+        them afterwards with :meth:`set_selected_wells`.
+        """
+        self._selected_guides = [str(g) for g in (guides or ())]
+        self._selected_wells = None
+        self.refresh()
+
+    def selected_wells(self) -> list:
+        """The well set, derived if it has not been narrowed.
+
+        VISIBLE IS THE POINT: a set the user is invited to narrow and cannot
+        see is a set they cannot narrow, so this is what the panel shows.
+        """
+        if self._selected_wells is not None:
+            return list(self._selected_wells)
+        from ...well_scope import wells_of
+
+        return wells_of(self._objects, getattr(self, "_selected_guides", []))
+
+    def set_selected_wells(self, wells) -> None:
+        """Narrow the derived set. ``None`` restores the derivation."""
+        self._selected_wells = (None if wells is None
+                                else [str(w) for w in wells])
+        self.refresh()
+
+    def scoped_objects(self):
+        """The objects the current scope draws, and the report."""
+        from ...well_scope import select
+
+        return select(self._objects,
+                      scope=str(self.scope.currentData() or "guides"),
+                      guides=getattr(self, "_selected_guides", []),
+                      wells=self._selected_wells)
 
     def _heading(self, field: str) -> QLabel:
         """Create a control heading with persistent field-specific help.
