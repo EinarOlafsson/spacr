@@ -218,6 +218,8 @@ def refit_settings(base: dict, *, regression_type=None,
     if settings.get("random_row_column_effects") and chosen not in (
             None, "mixed"):
         settings["random_row_column_effects"] = False
+        notes.append("random row/column effects off (they fit a mixed model, "
+                     f"and {chosen!r} was asked for)")
 
     # A GUIDE-LEVEL MIXED FIT STILL HAS NO GUIDE P VALUES, and saying so here
     # is the difference between a re-fit that answers the question and one
@@ -232,8 +234,6 @@ def refit_settings(base: dict, *, regression_type=None,
             "guide a random effect. For per-guide significance choose a "
             "fixed-effect model such as 'ols', 'rlm' or 'quantile', or use "
             "inference='nonparametric'.")
-        notes.append("random row/column effects off (they fit a mixed model, "
-                     f"and {chosen!r} was asked for)")
 
     settings, reset = prune_for_type(settings, chosen)
     if reset:
