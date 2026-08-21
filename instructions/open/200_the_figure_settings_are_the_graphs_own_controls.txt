@@ -2,7 +2,7 @@
 THE FIGURE SETTINGS ARE THE GRAPH'S OWN CONTROLS
 ================================================================================
 
-Status:    filed 2026-08-21. GROUPS 1 AND 2 DONE 2026-08-21; 3-7 are not.
+Status:    filed 2026-08-21. A, B, C, D AND E DONE 2026-08-21; F is not.
 Requested: 2026-08-21 -- "when i right click and press Figure settings i get
            figure settings but i get some settings i dont want and lack some
            settings i want."
@@ -210,3 +210,51 @@ complaint about the current dialog stands: "there are 2 tabs the second
 devided into point i dont think that actually does any thing changing it."
 Whether those controls do anything is the first thing to settle, before
 adding more beside them.
+
+--------------------------------------------------------------------------------
+C, D AND E, DONE 2026-08-21
+--------------------------------------------------------------------------------
+
+C. `mark_colouring` -- group, uniform, random -- and `marker_style` as a
+closed list of the house shapes rather than a matplotlib code the user has
+to know. BY GROUP is the default because the house rule is that everything
+is grey except what the sentence is about. RANDOM is offered because it was
+asked for by name, and its tooltip says what it is for: telling points apart
+by eye in a working view, not a figure that makes a claim.
+
+D. ONE CONTROL FOR THE FRAME. The axis spines, the periphery box and the
+grid are the same ink, and making the user set each is the "user chooses
+each line" complaint. `chrome_colour` is what a user reaches for;
+`grid_colour` and its siblings survive as the per-element override
+UNDERNEATH it, and `chrome_of(style, element)` resolves the two in that
+order -- override first, one control as the fallback.
+
+ITS DEFAULT IS EMPTY, NOT BLACK. Empty means "follow the resolved ink",
+which is what a figure's TEXT already does. A frame pinned to a literal
+while the text follows the theme is a figure that looks wrong in one of the
+two themes, which is what 178 measured eleven times.
+
+E. `page_shape` -- square, portrait, landscape, wide, custom -- and
+`page_size(shape, width)` returns both inches from one. ONE NUMBER IN, TWO
+OUT is the point of naming the ratio: the axes cannot drift apart when the
+size changes, and a user who wants a figure half as wide gets one half as
+tall without doing the arithmetic. `custom` deliberately has NO ratio and
+raises rather than returning a square -- it means the caller's own inches,
+which is the escape hatch the named ratio does not remove, and silently
+overwriting them would be the worse failure.
+
+ALL THREE RENDER WITHOUT DIALOG WORK. The settings dialog builds its
+controls generically from `GENERAL_DEFAULTS` and `style_choices`, so a key
+added to those IS a control -- and a test asserts each one reaches
+`style_choices_for`, because a setting the dialog cannot render is a setting
+the user cannot reach.
+
+--------------------------------------------------------------------------------
+WHAT IS LEFT: F
+--------------------------------------------------------------------------------
+
+"the default graph type for each data type". `GRAPH_DEFAULTS` is keyed by
+GRAPH KIND, and F asks for a default keyed by DATA TYPE -- categorical vs
+continuous, continuous vs continuous. That is a second axis on the same
+table rather than more entries in it, and it is the same question A answers
+about which types fit, so the two should be built together.
