@@ -315,7 +315,12 @@ class DropZone(QFrame):
 
         self._clear = QPushButton("×", self)
         self._clear.setObjectName("GraphDropZoneClear")
-        self._clear.setFixedWidth(20)
+        # A CAP THAT CANNOT CUT (193). The number keeps this
+        # control compact; `sizeHint` is the floor, so a larger
+        # font or a glyph a theme renders wider grows the button
+        # rather than clipping it.
+        self._clear.setMinimumWidth(max(20, self._clear.sizeHint().width()))
+        self._clear.setMaximumWidth(max(20, self._clear.sizeHint().width()))
         self._clear.setToolTip(f"Take the column off {CHANNEL_LABELS[channel]}")
         self._clear.setVisible(False)
         self._clear.clicked.connect(lambda: self.set_column(None))
