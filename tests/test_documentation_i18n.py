@@ -274,6 +274,64 @@ def test_reviewed_api_validation_waives_only_copied_prose_heuristics():
     )
 
 
+def test_api_repair_keeps_a_source_bound_reviewed_false_friend(
+    tmp_path, monkeypatch,
+):
+    import argparse
+    import hashlib
+    import build_documentation_i18n as builder
+
+    source = "Return the groups variance distribution test."
+    target = "Gibt den groups variance distribution test zurück."
+    context = builder._api_translation_source(source)
+    docs = {"spacr.example": source}
+    reviewed = tmp_path / "reviewed"
+    language_dir = reviewed / "de"
+    language_dir.mkdir(parents=True)
+    (language_dir / "tail.json").write_text(
+        json.dumps({
+            "schema": 1,
+            "language": "de",
+            "records": [{
+                "label": "spacr.example#0",
+                "source_sha256": hashlib.sha256(source.encode()).hexdigest(),
+                "source": source,
+                "context": context,
+                "translation": target,
+            }],
+        }),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(builder, "REVIEWED_API_DIR", reviewed)
+    api_dir = tmp_path / "api"
+    api_dir.mkdir()
+    monkeypatch.setattr(builder, "API_DIR", api_dir)
+    monkeypatch.setattr(
+        builder,
+        "_translate_blocks",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            AssertionError("accepted review must avoid model decoding")
+        ),
+    )
+
+    assert not builder._api_block_valid(source, target, "de")
+    assert builder._reviewed_api_block_valid(source, target, "de")
+    repaired = builder.repair_api_translations(
+        docs, "de", tmp_path / "models", argparse.Namespace(),
+    )
+    assert repaired == {"spacr.example": target}
+
+    machine_target = "Gibt den Varianzverteilungstest der Gruppen zurück."
+    assert builder._api_block_valid(source, machine_target, "de")
+    builder.write_language(
+        docs, "de", {"spacr.example": machine_target},
+    )
+    repaired = builder.repair_api_translations(
+        docs, "de", tmp_path / "models", argparse.Namespace(),
+    )
+    assert repaired == {"spacr.example": target}
+
+
 def test_reviewed_runtime_records_are_exact_bound_accepted_only_evidence(
     tmp_path, monkeypatch,
 ):
