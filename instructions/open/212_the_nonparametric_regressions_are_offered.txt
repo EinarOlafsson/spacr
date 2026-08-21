@@ -2,7 +2,7 @@
 THE NONPARAMETRIC REGRESSIONS ARE OFFERED
 ================================================================================
 
-Status:    filed 2026-08-21, not started.
+Status:    filed 2026-08-21, PREMISE CORRECTED 2026-08-21. Not started.
 Requested: 2026-08-21 -- "there are nonparametric versions of regression these
            should be included!"
 Owner:     Regression
@@ -62,3 +62,79 @@ HOW TO KNOW IT WORKED
 * On data with a planted outlier they DISAGREE, and the robust one is right.
 * Nothing silently substitutes a parametric p-value for a method that has
   none.
+
+--------------------------------------------------------------------------------
+THE PREMISE WAS WRONG: THEY ARE ALL ALREADY THERE
+--------------------------------------------------------------------------------
+
+Checked 2026-08-21 before building anything. `_regression_type_choices`
+offers nineteen families and FOUR OF THEM ARE WHAT THIS FILE ASKED FOR:
+
+    quantile   quantile regression, with a settable tau (`quantile`, 0.5)
+    rlm        robust M-estimator
+    huber      Huber's loss, with a settable `huber_t`
+    rra        robust rank aggregation -- rank-based, the standard
+               nonparametric method for a pooled screen
+
+And `inference='nonparametric'` has existed as an alias for
+`analysis_mode='guide_permutation'`, a plate-blocked permutation test.
+
+SO NOTHING WAS MISSING AND THE REQUEST WAS STILL REAL. The user could not
+find them. Nineteen families in one flat alphabetical list, with no statement
+of what any of them assumes, is a menu that hides its own contents.
+
+--------------------------------------------------------------------------------
+AND THEN THE REAL DEFECT, FOUND BY THE MAINTAINER'S NEXT QUESTION
+--------------------------------------------------------------------------------
+
+    "ok if they are nonparametric shouldnt they be available when
+     nonparametric is chosen? which would mean that analasys mode should also
+     have 2 options under nonparametric."
+
+RIGHT, AND THE CAUSE IS A CONFLATION OF TWO INDEPENDENT AXES.
+
+  * HOW THE EFFECT IS ESTIMATED -- least squares, a quantile, a robust loss,
+    a rank aggregation.
+  * HOW THE P-VALUE IS COMPUTED -- from the model's own distribution theory,
+    or from a permutation null that assumes nothing.
+
+THESE ARE ORTHOGONAL. Every pairing is meaningful, and the most conservative
+one -- a robust estimator with a permutation null -- IS CURRENTLY
+UNREACHABLE, because `inference='nonparametric'` selects
+`analysis_mode='guide_permutation'`, and that path computes a fixed statistic
+(`standardized_marginal_effect`) and never reads `regression_type` at all.
+
+So choosing "nonparametric" today does not give access to the four families
+above; it replaces them with one hard-coded estimator.
+
+A CORRECTION TO THIS FILE'S OWN VOCABULARY, because the fix depends on
+getting it right: `rlm`, `huber` and `quantile` ARE NOT NONPARAMETRIC. They
+fit a linear model and are parametric in the coefficients; they are ROBUST
+(insensitive to outliers) and, for quantile, distribution-free about the
+ERROR term. `rra` is rank-based and genuinely nonparametric. Only permutation
+inference is distribution-free about the null. Labelling all four
+"nonparametric" in the UI would be wrong in a way a reviewer would catch.
+
+--------------------------------------------------------------------------------
+WHAT TO BUILD
+--------------------------------------------------------------------------------
+
+  1. THE PERMUTATION PATH TAKES ITS STATISTIC FROM THE CHOSEN FAMILY, so any
+     estimator can be paired with a permutation null. That is the maintainer's
+     "2 options under nonparametric", generalised: it is not two, it is one
+     per family that can produce a coefficient.
+  2. EACH FAMILY STATES WHAT IT ASSUMES, in the dropdown, in the three honest
+     groups -- parametric, robust/semiparametric, rank-based. Nineteen
+     unlabelled families is the discoverability failure that produced this
+     instruction.
+  3. Nothing is renamed. The stored values stay, so every settings CSV keeps
+     meaning what it meant.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* `quantile` with a permutation null runs and reports a permutation p-value.
+* The dropdown says what each family assumes.
+* Nothing is described as nonparametric that is merely robust.
+* A settings CSV written before this produces the same fit.
