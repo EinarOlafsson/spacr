@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-190 done / 3 open (98%).
+190 done / 15 open (92%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -32,6 +32,42 @@ OPEN
 
   200  THE FIGURE SETTINGS ARE THE GRAPH'S OWN CONTROLS
        200_the_figure_settings_are_the_graphs_own_controls.txt
+
+  201  THE OUTLINE SETTING LOOKS LIKE THE CHANNEL SETTINGS
+       201_the_outline_setting_looks_like_the_channel_settings.txt
+
+  202  THE MEASUREMENTS TABLE'S COLUMNS SAY WHAT THEY CONTROL
+       202_the_measurements_table_columns_say_what_they_control.txt
+
+  203  THE MERGED DATABASE KEEPS THE gRNA ANNOTATION
+       203_the_merged_database_keeps_the_grna_annotation.txt
+
+  204  THE CELL TABLE'S BARS CARRY THE ERROR THE USER PICKS
+       204_the_cell_table_bars_carry_the_error_the_user_picks.txt
+
+  205  "SHOW" OFFERS THE WELLS THE CHOSEN GUIDES ARE IN
+       205_show_offers_the_wells_the_chosen_guides_are_in.txt
+
+  206  THE VOLCANO TAKES MORE THAN ONE GUIDE AT A TIME
+       206_the_volcano_takes_more_than_one_guide.txt
+
+  207  THE ANNOTATED FRACTIONS ARE ALL ONE OR ZERO
+       207_the_annotated_fractions_are_all_one_or_zero.txt
+
+  208  THE PICTURE SETTINGS TOOLTIPS STAY WHILE THEY ARE BEING READ
+       208_the_picture_settings_tooltips_stay_while_read.txt
+
+  209  THE SUDOKU ANNOTATION METHODS
+       209_the_sudoku_annotation_methods.txt
+
+  210  OUTLIERS CAN BE REMOVED BEFORE ANNOTATION
+       210_outliers_can_be_removed_before_annotation.txt
+
+  211  THE IMAGE TABS PAGE INSTEAD OF SCROLLING
+       211_the_image_tabs_page_instead_of_scrolling.txt
+
+  212  THE NONPARAMETRIC REGRESSIONS ARE OFFERED
+       212_the_nonparametric_regressions_are_offered.txt
 
 --------------------------------------------------------------------------------
 DONE

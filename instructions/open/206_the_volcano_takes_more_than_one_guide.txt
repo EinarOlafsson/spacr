@@ -1,0 +1,45 @@
+================================================================================
+THE VOLCANO TAKES MORE THAN ONE GUIDE AT A TIME
+================================================================================
+
+Status:    filed 2026-08-21, not started.
+Requested: 2026-08-21 -- "the uesr should be able to select multiple grnas on
+           the volcano plo at once."
+Owner:     Qt GUI (volcano plot, selection model)
+
+--------------------------------------------------------------------------------
+WHAT IS ASKED
+--------------------------------------------------------------------------------
+
+One guide at a time is a plot you interrogate; several at once is a plot you
+compare on. Every downstream screen that reads the selection -- the gene
+tile, the image tabs, the cell table graphs, the well set instruction 205
+derives -- already has to answer "which guides", and today the answer can
+only ever be one.
+
+WHAT MULTI-SELECT NEEDS TO BE:
+
+  * add and remove: click to select, modifier-click to add, click away to
+    clear -- the platform gestures, not a bespoke mode;
+  * a rubber band over a region of the plot, which is the gesture the shape
+    of a volcano invites;
+  * visible: every selected point marked, and the count stated somewhere,
+    because a selection you cannot count is one you cannot trust;
+  * one selection, one source of truth. The consumers named above must all
+    read the same list, or the image tab shows one guide's cells while the
+    graph shows another's.
+
+THE SINGLE-SELECT CONSUMERS ARE THE WORK. Broadening the plot is the easy
+half; every place that says "the selected guide" has to mean "the selected
+guides" and decide what it does with three of them.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Several points can be selected, by modifier-click and by dragging a band.
+* All of them are marked, and the count is visible.
+* The gene tile, the image tabs and the cell table graphs all reflect the
+  full selection, not its first member.
+* Clearing works, and an empty selection is a state the consumers handle.
+* A test drives the mouse gestures, not the selection model directly.

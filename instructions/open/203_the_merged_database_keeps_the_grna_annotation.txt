@@ -1,0 +1,56 @@
+================================================================================
+THE MERGED DATABASE KEEPS THE gRNA ANNOTATION
+================================================================================
+
+Status:    filed 2026-08-21, not started.
+Requested: 2026-08-21 -- "when i merge the databases and pick a database
+           measurement to compare i am not able to compare the gRNA annotated
+           groups any longer. so the predictions do not seem to be merged with
+           the database tables which they should be for this to work. it is
+           either failing or simply not don. fix this."
+Owner:     Database merge, measurements comparison
+
+--------------------------------------------------------------------------------
+WHAT IS WRONG
+--------------------------------------------------------------------------------
+
+After a merge, a measurement can be compared but not BY gRNA GROUP -- the
+grouping the whole screen exists to serve. The annotation is per object and
+lives with the predictions; the measurements live in the database tables; and
+the merge that is supposed to bring them together either fails silently or
+was never written.
+
+"IT IS EITHER FAILING OR SIMPLY NOT DON" is the first thing to settle, and
+the answer changes the fix completely:
+
+  * if the merge RUNS and drops the column, the join key is wrong -- object
+    identity across the prediction table and the measurement tables is the
+    usual suspect, and a merge that silently produces zero matches looks
+    exactly like a merge that worked on an empty column;
+  * if the merge never ran, the compare screen is reading the measurement
+    tables directly and there is nothing to fix in the merge at all.
+
+SETTLE IT BY COUNTING, not by reading the code: how many objects carry an
+annotation before the merge, and how many carry one after. A merge that
+turns 1,536 into 0 is a join key; a merge that turns 1,536 into 1,536 and
+still shows no groups is the compare screen.
+
+--------------------------------------------------------------------------------
+AND A SILENT ZERO IS THE REAL FAULT
+--------------------------------------------------------------------------------
+
+Whatever the cause, an empty result must SAY SO. A join that matches nothing
+is a bug every time -- there is no run where zero of the objects have a
+prediction -- so it is never something to pass on quietly to a screen that
+will draw an empty plot.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* After a merge, the compare control offers the gRNA annotated groups and
+  drawing one shows the objects that carry that annotation.
+* The count of annotated objects after the merge equals the count before it,
+  and a test asserts that on a real merged pair rather than on a fixture
+  built to match.
+* A join that matches nothing raises or is reported, never drawn as empty.
