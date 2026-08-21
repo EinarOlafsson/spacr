@@ -1,0 +1,79 @@
+================================================================================
+THE HOTKEY MAP IS IN THE HELP MENU
+================================================================================
+
+Status:    filed 2026-08-21, not started.
+Requested: 2026-08-21 -- "add hotkey map to help tab"
+Owner:     Qt GUI (Help menu, spacr/qt/shortcuts.py)
+
+--------------------------------------------------------------------------------
+WHAT EXISTS, AND WHY IT IS NOT REACHABLE
+--------------------------------------------------------------------------------
+
+`shortcuts.show_cheat_sheet` already draws the map -- an overlay over the
+window, grouped by category, dismissed on the next key. It is a good screen.
+
+IT IS REACHABLE FROM TWO PLACES AND NEITHER IS THE HELP MENU: the `?` key,
+which you have to know about, and the command palette, which you have to know
+about. The Help menu is where a user who does not already know a shortcut
+goes to look for one -- which is the entire population this screen is for.
+
+    Help > Tutorial (web)
+    Help > Documentation (web)
+    Help > About spaCR
+    Help > Check for updates…
+    Help > Open log folder…
+
+Add "Keyboard shortcuts" to that list, above the web links, because it is the
+only entry that answers without a browser.
+
+--------------------------------------------------------------------------------
+A. THE MAP IS EVERY SHORTCUT, NOT THE SEVENTEEN SOMEBODY REGISTERED
+--------------------------------------------------------------------------------
+
+`SHORTCUTS` holds 17 entries. The Qt package binds 77 keys -- QShortcut,
+QKeySequence, `setShortcut` -- so most of what a user can press is not on the
+map, and nothing says which.
+
+A MAP THAT IS SILENTLY PARTIAL IS WORSE THAN A SHORT ONE, because a reader
+takes it for the whole list and concludes a key does not exist. The same
+argument 108's restyle menu makes about being built from the style object
+rather than a hand-written list: the map is generated from what is BOUND, so
+a shortcut added anywhere appears without anyone remembering to add it.
+
+Where a binding cannot be discovered automatically, it is registered
+explicitly -- and a test counts the bound keys against the mapped ones and
+fails when they drift, so "which is missing" is answered by the suite rather
+than by reading 77 call sites.
+
+--------------------------------------------------------------------------------
+B. IT SAYS WHAT THE KEY DOES, AND WHERE IT WORKS
+--------------------------------------------------------------------------------
+
+A shortcut that only works on one screen and is listed without saying so
+sends a user to press it somewhere it does nothing. Each row carries the
+keys, what it does, and the scope: the whole window, the current module, or
+one widget.
+
+GROUPED THE WAY THE MENUS ARE. A flat list of forty rows is a wall; the
+categories the cheat sheet already uses are the right ones.
+
+--------------------------------------------------------------------------------
+C. THE PLATFORM'S OWN SPELLING
+--------------------------------------------------------------------------------
+
+`Ctrl` is `Cmd` on macOS and Qt already knows: `QKeySequence.toString(
+QKeySequence.NativeText)` prints what the user's keyboard actually has.
+Writing "Ctrl+H" into a label hard-codes one platform into the help.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Help > Keyboard shortcuts opens the map.
+* Every key the application binds appears on it, and a test asserts the
+  bound set equals the mapped set.
+* Each row says what the key does and where it works.
+* The keys are printed in the platform's own spelling.
+* `?` and the command palette still reach the same screen -- one map, three
+  doors, not three maps.
