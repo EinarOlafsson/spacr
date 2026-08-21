@@ -3451,12 +3451,11 @@ class FastPlot(QWidget):
 
     @classmethod
     def _categorical_symbols(cls, values):
-        """``(symbols, {level: shape})`` for one shape-per-value.
+        """Return point symbols and the level-to-symbol legend mapping.
 
-        THE SECOND ENCODING CHANNEL (instruction 222). Beyond
-        :data:`SHAPES` the shapes repeat, and the legend says so by handing
-        back what each level actually got -- two levels sharing a shape is
-        visible in the legend rather than being a silent collision.
+        Shapes repeat after :data:`SHAPES` is exhausted. The returned mapping
+        records repeated symbols explicitly so the legend represents the
+        displayed encoding.
         """
         import pandas as _pd
 
@@ -4047,12 +4046,8 @@ class FastPlot(QWidget):
 
         :param colours: one QColor per point, or None for a single colour.
         :param symbol_list: one pyqtgraph symbol per point, or None for
-            ``symbol`` everywhere. THE SECOND ENCODING CHANNEL (instruction
-            222): a second colour-by column becomes the marker shape rather
-            than multiplying the legend into every combination of the two.
-            Like ``size_list`` this costs nothing per point -- pyqtgraph
-            takes the array straight into its own -- unlike a brush per
-            point.
+            ``symbol`` everywhere. This provides an independent categorical
+            encoding without constructing a combined colour-by-shape legend.
         :param size_list: one diameter per point, or None for ``size``
             everywhere. A plain float array -- pyqtgraph takes it straight
             into its own arrays, so unlike a brush per point this costs
@@ -5422,20 +5417,11 @@ class VolcanoPlot(FastPlot):
                     run_method: Optional[str] = None):
         """Draw ``frame``. Returns the number of points actually plotted.
 
-        :param symbol_column: a SECOND colouring column, encoded as the
-            marker shape. :param opacity_column: a THIRD, encoded as opacity.
-
-            LAYERED, NOT COMBINED (instruction 222). Two columns of three
-            levels combined is a nine-entry legend and three is
-            twenty-seven, which 122 measured at 40 ms of every redraw --
-            and which nobody can read back anyway. Hue, then shape, then
-            opacity, ALWAYS IN THAT ORDER, so the same choice always
-            produces the same picture.
-
-            There is no fourth. Past three encodings a point carries more
-            than a reader can decode, and refusing with a sentence beats
-            drawing something uninterpretable -- the caller does the
-            refusing, because it is the one with a place to say so.
+        :param symbol_column: optional categorical column encoded by marker
+            shape, independently of colour.
+        :param opacity_column: optional categorical column encoded by opacity.
+            Encodings are applied in the stable order colour, shape, opacity.
+            The caller rejects requests for additional visual channels.
 
         :param p_column: the RAW P value. Not the corrected one -- the height
             is the raw P by default and the correction is recomputed here.

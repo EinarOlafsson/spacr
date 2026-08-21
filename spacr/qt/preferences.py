@@ -280,10 +280,9 @@ _KEY_FIG_STYLE = "figures/style_general"
 _KEY_FIG_STYLE_PER_GRAPH = "figures/style_per_graph"
 
 
-#: Where the folded state of the bottom panels lives (instruction 228).
-#: ONE KEY HOLDING A DICT, not a key per panel: a panel added later would
-#: otherwise need a new key invented for it, and the ones that exist would
-#: have to be found by guessing at their names.
+#: QSettings key for the mapping of panel identifiers to folded state. One
+#: mapping accommodates newly added panels without introducing new preference
+#: keys or requiring callers to discover them individually.
 _KEY_FOLDED = "ui/folded_panels"
 
 

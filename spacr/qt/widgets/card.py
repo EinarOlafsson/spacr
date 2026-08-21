@@ -23,11 +23,11 @@ class Card(QFrame):
 
     def __init__(self, title: str = "", subtitle: str = "", parent=None,
                  *, foldable: bool = False, fold_key: str = ""):
-        """
-        :param foldable: make clicking the TITLE fold the body away
-            (instruction 228). Off by default -- most cards in spaCR are the
-            only thing in their slot, and folding one would leave a strip
-            over empty space rather than giving the room to anything.
+        """Initialize the card and optional persistent folding behavior.
+
+        :param foldable: allow the title to hide or restore the body. Disabled
+            by default because folding is useful only when adjacent content
+            can occupy the released space.
         :param fold_key: ``"<module>/<panel>"``; given, the fold survives a
             restart.
         """
