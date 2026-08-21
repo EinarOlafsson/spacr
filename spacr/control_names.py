@@ -174,13 +174,42 @@ def matches(spec: Optional[ControlSpec], guides, genes=None):
     if spec is None:
         return pd.Series(False, index=series.index)
     if not spec.is_gene:
-        return series == spec.value
+        # THE PREFIX AGAIN. `resolve_control` strips the measured organism
+        # prefix off what the user typed, so `TGGT1_000000_11` becomes the
+        # guide `000000_11` -- and the count table spells that guide
+        # `TGGT1_000000_11`. Comparing the stripped value against the
+        # unstripped column matched nothing, for either spelling.
+        head = f"{spec.prefix}{SEPARATOR}" if spec.prefix else ""
+        return (series == spec.value) | (series == head + spec.value)
     if genes is not None:
         gene_series = pd.Series(genes).astype(str)
         gene_series.index = series.index
         return gene_series == spec.value
-    # No gene column: a guide belongs to the gene its name starts with.
-    return series.str.startswith(spec.value + SEPARATOR) | (series == spec.value)
+    # No gene column: a guide belongs to the gene its name CONTAINS as its
+    # middle component.
+    #
+    # THE PREFIX IS PART OF THE NAME AND THIS IGNORED IT. `startswith` alone
+    # asks whether the guide begins `000000_`, and the guides of a real count
+    # table begin `TGGT1_000000_` -- the organism prefix that `resolve_control`
+    # has already MEASURED and is carrying on the spec. So a gene control
+    # matched nothing on every library whose names keep their prefix, which is
+    # every count table `process_reads` writes.
+    #
+    # Measured on the example screen: `rows_for('000000', guides)` reported
+    # "resolved to gene '000000': 0 guide(s)" against 30 guides that are
+    # exactly that gene's. 184 recorded "all four spellings reach the same 28
+    # guides" and that was measured WITH a gene column beside the guides; this
+    # path -- the one a count table actually takes -- was never exercised on
+    # prefixed names.
+    #
+    # AND ZERO IS NOT LOUD. A control that selects nothing leaves the
+    # thresholds to fall back and the baseline at zero, and the run finishes.
+    head = f"{spec.prefix}{SEPARATOR}" if spec.prefix else ""
+    wanted = f"{spec.value}{SEPARATOR}"
+    return (series.str.startswith(wanted)
+            | series.str.startswith(head + wanted)
+            | (series == spec.value)
+            | (series == head + spec.value))
 
 
 class ControlNotFound(ValueError):
