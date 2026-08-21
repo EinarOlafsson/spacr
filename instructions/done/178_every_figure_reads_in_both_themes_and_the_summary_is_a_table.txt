@@ -3,7 +3,7 @@ EVERY FIGURE READS IN BOTH THEMES, THE SUMMARY IS A TABLE, AND A SAVED FIGURE
 IS STYLED BEFORE IT IS WRITTEN
 ================================================================================
 
-Status:    filed 2026-08-19.
+Status:    DONE 2026-08-20. See the closing section.
 Requested: 2026-08-19, three asks in one message.
 
 --------------------------------------------------------------------------------
@@ -232,3 +232,54 @@ belongs.
 
 27 tests in tests/qt/test_the_seven_plot_types_the_ask_named.py, one of which
 walks the menu and checks the mark in force is TICKED.
+
+--------------------------------------------------------------------------------
+2026-08-20 (later) -- THE FIRST CHECKLIST LINE, AS A CHECK RATHER THAN AN EYE.
+--------------------------------------------------------------------------------
+
+"Switch to the light theme and back: no figure has invisible text at either
+setting, and nothing is hard-coded black or white."
+
+THAT LINE WAS THE ONLY ONE NOBODY COULD RUN. A hard-coded ink colour does not
+FAIL: it draws, the figure appears, and the label is simply not there to read
+-- and a screenshot taken on the theme it happens to suit looks perfect.
+
+MEASURED WITH AN AST WALK over every `color=` / `edgecolor=` / `facecolor=`
+keyword that is literally black or white: 38, in 14 files. Eleven were real
+and are fixed:
+
+  * `regression_qc`'s VERDICT BOX was hard-coded white while its text is
+    `ink`, which on the dark theme IS white. The verdict was drawn, was
+    there, and could not be read. That is the exact fault this instruction
+    names, and it was in the panel whose whole job is to say what the fit
+    did.
+  * seven THRESHOLD AND 1:1 LINES -- in `ml`, `sequencing` and
+    `sequencing_qc` -- were `color='black'`, invisible on the dark theme.
+    They take `ROLES["reference"]`, which is the role the house style has
+    for exactly this and reads on both.
+  * five BAR SEPARATORS were `edgecolor="white"`. A separator is there to
+    show where one bar stops and the next starts, so it has to be the PAGE;
+    hard-coded white it was a bright grid of outlines drawn over the data.
+    Read at DRAW time, not at import, because the theme can change while the
+    process is running.
+
+`figures.style.resolve_label_ground` is new and is `resolve_ink`'s opposite
+number: what goes BEHIND a label that has to stay readable over the data. Not
+the figure's ground, which is transparent by design (118) -- the box.
+
+THE REMAINING 27 ARE NAMED, NOT COUNTED. Object labels and a scale bar drawn
+ON a microscopy image are white because the image is dark, which has nothing
+to do with the theme; the montage contact sheet is a black page on purpose;
+two are Tk widget styles and not figures at all. A bare number would be
+satisfied by deleting a figure and would not say which colours were the
+deliberate ones.
+
+17 tests in tests/test_no_figure_is_invisible_at_either_theme.py.
+
+AND ONE CORRECTION TO THIS FILE'S OWN RECORD. C.2 says "Save styled… sits
+beside Export… rather than replacing it: the styled route is three more
+clicks for a user who only wants the picture in front of them." That was
+true when it was written and is not now: instruction 187 D removed Export,
+because the picture it wrote had text scaled for the screen on a page sized
+in millimetres -- "massive text and so on". A second door that produces a
+worse file is not a shortcut. One door, and it shows what it will write.

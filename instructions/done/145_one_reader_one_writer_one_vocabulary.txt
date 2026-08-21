@@ -2,7 +2,7 @@
 ONE READER, ONE WRITER, ONE KEY VOCABULARY
 ================================================================================
 
-Status:    filed 2026-08-18.
+Status:    DONE 2026-08-20. See the closing section.
 Requested: 2026-08-18 --
 
   "filter column was columnID it worked but when i press the csv button i only
@@ -489,3 +489,47 @@ to move:
 145's rule is about readers of METADATA-BEARING tables. A reader that touches
 none is not a door this instruction is trying to close, and saying so beside
 it is what stops the next person converting it and breaking something.
+
+--------------------------------------------------------------------------------
+2026-08-20 (later still) -- SEVEN MORE READERS, AND BOTH CEILINGS LOWERED.
+--------------------------------------------------------------------------------
+
+THE RATCHET DID ITS JOB FIRST, which is worth recording: it went RED at 263
+against a ceiling of 261 because the settings advisor (192) was written with
+`pd.read_csv` in it. That is exactly the failure mode this instruction
+describes -- "a partial conversion silently un-converts itself as new code is
+written, and there is no symptom" -- caught by the only thing that can catch
+it.
+
+The advisor now reads through `tabular.read_table`, and it needed one thing
+saying out loud: `usecols` is matched against the name in the FILE, before any
+renaming, so a header read for that purpose must NOT be canonicalised while
+every line after the read wants the canonical names. `_columns_of` takes a
+`canonical=` flag and the docstring says which question each answers.
+
+SEVEN IN `submodules.py`, chosen for damage rather than for count. Two of them
+sat directly above a comment recording that the helper "was left half-way
+through the column_name -> columnID rename: it grouped by 'columnID' but
+filtered and merged on 'column_name', a key the grouped frame can never
+carry". Canonicalising at the read is what makes that impossible, rather than
+a note asking the next reader to be careful.
+
+AND ONE BEHAVIOUR CHANGE, DELIBERATE AND VISIBLE. `interperate_vision_model`
+used to read its scores CSV raw and let a LATER alias overwrite an earlier
+one, so a file carrying both `row` and `row_name` was resolved by declaration
+order and said nothing. The funnel collapses the pair and WARNS with the
+count -- "24 of 24 rows differ" -- which is the whole argument in
+`resolve_metadata_collisions`' docstring: "they disagree" is not actionable,
+"3 of 40 000" is a typo, and all of them is the wrong file. The test that
+pinned the old rule now pins the new one, and a second test pins the warning.
+
+  raw tabular calls   261 -> 254
+  direct readers       96 -> 85, with NO SLACK: the ceiling IS the count,
+                       because a gap in a ratchet is room for a raw reader to
+                       be added without anybody noticing.
+
+WHAT IS LEFT IS NOT A LIST OF LEAKS. The remaining calls are in modules whose
+tables carry no plate metadata at all -- a settings CSV, a per-fold metrics
+file, a gene annotation index -- and the instruction's own rule says so: "a
+reader that touches none is not a door this instruction is trying to close".
+Both ratchets hold the direction from here.
