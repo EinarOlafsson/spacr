@@ -2,7 +2,7 @@
 CONSOLE, AI CHAT AND SYSTEM ALL COLLAPSE
 ================================================================================
 
-Status:    filed 2026-08-21, not started.
+Status:    DONE 2026-08-21.
 Requested: 2026-08-21 -- "console, AI chat and system should all be
            colapsable to make space for the container above if necessary,
            this should be tru of all moduals that have the three".
@@ -78,3 +78,52 @@ HOW TO KNOW IT WORKED
 * The state survives a restart.
 * A test drives the fold on more than one module, because "all modules that
   have the three" is the part that decays.
+
+--------------------------------------------------------------------------------
+DONE 2026-08-21
+--------------------------------------------------------------------------------
+
+ONE HELPER, `spacr/qt/widgets/foldable.py`, wherever the three are assembled
+-- not a rule applied by hand per screen, which is precisely how the
+plate-map button, the tooltip rule and the movable-dialog rule each came to
+be missing from one module and had to be fixed centrally afterwards.
+
+THE BODY IS HIDDEN, NOT RESIZED. A hidden widget contributes nothing to its
+layout's size hint, so whatever is above takes the room without anybody
+computing it -- and the test measures that, 180px released of 180px folded,
+rather than eyeballing it. In the splitter the sizes are moved explicitly as
+well, because a splitter keeps its own and hiding the widget alone would
+leave the handle where it was and the space simply unused, which is the
+failure this instruction is actually about.
+
+ONE NAME, BOTH BOXES. The maintainer's follow-up asked for "the colapsing of
+the console and AI box ... by clicking on the Console text": the chat row is
+the console panel's own second half and has no heading of its own, so the
+one click takes both. "System" folds the usage card by its own title.
+
+THE NAME LOOKS CLICKABLE BEFORE IT IS CLICKED -- pointer and tooltip -- and
+the arrow is part of the label TEXT rather than a widget beside it, because
+a heading whose affordance is a sibling can be laid out apart from it and
+then the arrow points at nothing.
+
+A FOLDED CONSOLE THAT RECEIVES AN ERROR SAYS SO on its strip, and unfolding
+clears it: arriving is seeing, and an alert that survived would keep
+claiming there is something to look at after the user has looked at it.
+
+THE FILTER IS HELD. Qt keeps a bare pointer to an event filter, so one that
+only the constructor referenced is collected at the end of the call that
+installed it -- after which the heading stops responding and nothing says
+why. `Card.folder` and `AppScreen._console_folder` exist for that reason.
+
+NOT EVERY CARD FOLDS. `foldable=False` is the default: most cards in spaCR
+are the only thing in their slot, and folding one would leave a strip over
+empty space rather than giving the room to anything.
+
+--------------------------------------------------------------------------------
+WHAT IS LEFT
+--------------------------------------------------------------------------------
+
+THE STATE DOES NOT SURVIVE A RESTART. `Folder` takes an `on_change` callback
+and nothing yet writes it to preferences. Small, and deliberately separate:
+persisting it means choosing a key per screen per panel, and getting that
+wrong silently folds a panel on a module the user never folded.

@@ -1873,6 +1873,52 @@ class AppScreen(QWidget):
             f"{applied} setting(s) written from the data.\n")
         return chosen
 
+    def _console_folded(self, shut: bool) -> None:
+        """Give the released height to whatever is above the console.
+
+        MEASURED, NOT EYEBALLED. The console lives in a vertical splitter, and
+        a splitter keeps its own sizes -- hiding the widget alone leaves the
+        handle where it was and the space simply unused, which is the failure
+        this instruction is actually about.
+        """
+        wrap = getattr(self, "_console_wrap", None)
+        if wrap is None:
+            return
+        # The wrapper's minimum is the console's while it is open, and the
+        # heading's alone once it is folded.
+        wrap.setMinimumHeight(0 if shut else 180)
+        splitter = getattr(self, "_console_splitter", None)
+        if splitter is None:
+            for parent in (wrap.parentWidget(),):
+                if isinstance(parent, QSplitter):
+                    splitter = parent
+                    break
+        if splitter is None:
+            return
+        index = splitter.indexOf(wrap)
+        if index < 0:
+            return
+        sizes = list(splitter.sizes())
+        if shut:
+            self._console_height = sizes[index]
+            freed = sizes[index] - wrap.sizeHint().height()
+            sizes[index] -= freed
+            # To the pane above, which is the one holding the figures, the
+            # montage or the results -- the things a log line was crowding.
+            above = index - 1 if index > 0 else (1 if len(sizes) > 1 else -1)
+            if above >= 0:
+                sizes[above] += freed
+        else:
+            back = getattr(self, "_console_height", 0)
+            if back:
+                freed = back - sizes[index]
+                sizes[index] = back
+                above = index - 1 if index > 0 else (1 if len(sizes) > 1
+                                                     else -1)
+                if above >= 0:
+                    sizes[above] = max(0, sizes[above] - freed)
+        splitter.setSizes(sizes)
+
     def _reading_with_the_last_run(self, reading, values):
         """Fold a finished run's diagnostics into ``reading``.
 
@@ -2793,6 +2839,7 @@ class AppScreen(QWidget):
         console_header = QLabel("Console")
         console_header.setObjectName("CardTitle")
         console_col.addWidget(console_header)
+        self._console_header = console_header
         # `persist_key` is what lets the console remember where the user put
         # the divider between its output box and the AI chat box, per screen:
         # a tall chat box on Mask does not force one on Sequencing.
@@ -2800,6 +2847,15 @@ class AppScreen(QWidget):
                                      persist_key=self.app_key)
         self._console.setMinimumHeight(180)
         console_col.addWidget(self._console, 1)
+        # CLICKING "Console" FOLDS IT (instruction 228), which the maintainer
+        # asked for in those words. The minimum height has to go with it: a
+        # hidden widget contributes nothing to a layout, but a minimum on the
+        # WRAPPER would hold the strip 180px tall over nothing.
+        from ..widgets.foldable import make_foldable
+
+        self._console_folder = make_foldable(
+            console_header, self._console, name="Console",
+            on_change=self._console_folded)
 
         # Exactly one of these cards occupies the slot above the console.
         # Nulled here rather than in every branch: the chain has grown to six
@@ -2971,8 +3027,11 @@ class AppScreen(QWidget):
         except Exception:
             pass
 
-        # Usage card
-        usage_card = Card(title="System")
+        # Usage card. FOLDABLE: clicking "System" folds it, which the
+        # maintainer asked for in those words, and it sits directly under the
+        # container that wants the room.
+        usage_card = Card(title="System", foldable=True)
+        self._usage_card = usage_card
         self._usage_ram = UsageBar("RAM")
         self._usage_gpu = UsageBar("GPU")
         self._usage_vram = UsageBar("VRAM")
