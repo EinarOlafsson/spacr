@@ -63,13 +63,40 @@ class TestTheFilterDetaches:
         assert dialog.isVisible()
         assert dialog.parent() is parent
 
-    def test_installing_twice_leaves_one_filter(self):
+    def test_installing_twice_on_the_same_app_leaves_one_filter(self):
         from PySide6.QtWidgets import QApplication
 
         from spacr.qt import dialogs
 
-        dialogs.detach_all_dialogs(QApplication.instance())
-        assert dialogs.detach_all_dialogs(QApplication.instance()) is False
+        app = QApplication.instance()
+        dialogs.detach_all_dialogs(app)
+        assert dialogs.detach_all_dialogs(app) is False
+
+    def test_a_new_application_gets_its_own_filter(self):
+        """A filter belongs to one QApplication and dies with it. Tracking
+        only the filter meant that after a teardown the module reported
+        "already installed" while nothing was filtering -- which is why two
+        of these tests passed alone and failed in a full run."""
+        from spacr.qt import dialogs
+
+        class _Pretend:
+            def __init__(self):
+                self.filters = []
+
+            def installEventFilter(self, f):
+                self.filters.append(f)
+
+        first, second = _Pretend(), _Pretend()
+        dialogs._DETACHER = None
+        dialogs._DETACHED_APP = None
+        try:
+            assert dialogs.detach_all_dialogs(first) is True
+            assert dialogs.detach_all_dialogs(first) is False
+            assert dialogs.detach_all_dialogs(second) is True
+            assert len(second.filters) == 1
+        finally:
+            dialogs._DETACHER = None
+            dialogs._DETACHED_APP = None
 
     def test_the_filter_is_kept_alive(self):
         """An event filter that is garbage collected stops filtering,
