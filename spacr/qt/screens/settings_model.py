@@ -7554,18 +7554,12 @@ class SettingsWidgets:
         self._refresh_umap_reducer_enablement()
 
     def _refresh_analysis_unit_lock(self) -> None:
-        """Apply what `analysis_unit` forces, show it, and grey it.
+        """Apply and display settings constrained by ``analysis_unit``.
 
-        REFUSING AT THE SEAM IS THE FLOOR, NOT THE ANSWER (instruction 219).
-        `settings_advisor.refusals` already stops the incompatible
-        combination before anything is read, and that stays as the backstop
-        for a settings CSV that never passed through a panel -- but a user
-        who has to run and read an error to learn that two controls disagree
-        is being taught by failure.
-
-        THE LIST LIVES IN `settings_advisor`, so the panel and the preflight
-        cannot drift apart about what the unit forces. A copy here would be
-        a second opinion, and the run would keep the casting vote.
+        Constraints come from :mod:`spacr.settings_advisor`, which also
+        validates imported settings that did not pass through this panel.
+        Keeping one constraint registry ensures the interface and preflight
+        checks use the same requirements.
         """
         control = self._widgets.get("analysis_unit")
         if control is None:
