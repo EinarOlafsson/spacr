@@ -495,21 +495,13 @@ class MeasurementComparePanel(QWidget):
         self.refresh()
 
     def set_selected_guides(self, guides) -> None:
-        """The volcano's selection. THE VOLCANO IS THE SELECTOR.
-
-        The same click that picks a point picks the wells; the user narrows
-        them afterwards with :meth:`set_selected_wells`.
-        """
+        """Set selected guides and derive their wells for the current scope."""
         self._selected_guides = [str(g) for g in (guides or ())]
         self._selected_wells = None
         self.refresh()
 
     def selected_wells(self) -> list:
-        """The well set, derived if it has not been narrowed.
-
-        VISIBLE IS THE POINT: a set the user is invited to narrow and cannot
-        see is a set they cannot narrow, so this is what the panel shows.
-        """
+        """Return explicit wells or derive them from selected guides."""
         if self._selected_wells is not None:
             return list(self._selected_wells)
         from ...well_scope import wells_of
@@ -517,13 +509,13 @@ class MeasurementComparePanel(QWidget):
         return wells_of(self._objects, getattr(self, "_selected_guides", []))
 
     def set_selected_wells(self, wells) -> None:
-        """Narrow the derived set. ``None`` restores the derivation."""
+        """Set an explicit well subset; ``None`` restores guide-based derivation."""
         self._selected_wells = (None if wells is None
                                 else [str(w) for w in wells])
         self.refresh()
 
     def scoped_objects(self):
-        """The objects the current scope draws, and the report."""
+        """Return objects in the current display scope and its selection report."""
         from ...well_scope import select
 
         return select(self._objects,

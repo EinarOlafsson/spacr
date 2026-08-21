@@ -1,20 +1,8 @@
-"""Which objects a cell-table graph draws (instruction 205).
+"""Select object populations for cell-table visualizations.
 
-    "for the sow option in the cell table graphs, i whould be able to gRNAs,
-     gRNAs + other datapoints in selected wells, and All datapoints.
-     presently i cannot pick gRNAs + other datapoints in selected wells.
-     selected well are the wells that contain the gRNAs chosen on the
-     volcano plot. the user should be able to choose a selection of these
-     wells."
-
-THE MIDDLE ONE IS THE COMPARISON THAT MATTERS, and it is the one that was
-not offered. A guide's cells against every cell in the screen compares two
-different experiments; a guide's cells against their own WELL-MATES compares
-two populations that shared a plate, a day, a stain and an imaging session.
-
-THE WELL SET HAS TWO STAGES: derived from the guide selection, then
-editable. Which means it has to be VISIBLE -- a set the user is invited to
-narrow and cannot see is a set they cannot narrow.
+Plots can show objects assigned to selected guides, those objects together
+with other objects from the same wells, or the complete table. The well set is
+derived from the guide selection and can then be restricted explicitly.
 """
 from __future__ import annotations
 
@@ -32,10 +20,7 @@ SCOPES: Tuple[Tuple[str, str], ...] = (
     ("all", "All datapoints"),
 )
 
-#: The column marking which side of the middle scope an object is on. Named
-#: rather than inferred, because the whole point of that scope is that the
-#: two populations are DISTINGUISHABLE on the plot -- drawing them in one
-#: colour would answer the question by hiding it.
+#: Column distinguishing selected-guide objects from other objects in their wells.
 MATE_COLUMN = "in_selection"
 
 #: What each side is called on the plot.
@@ -55,11 +40,20 @@ def _column(frame: pd.DataFrame, names: Sequence[str]) -> Optional[str]:
 
 
 def wells_of(frame: pd.DataFrame, guides: Sequence[str]) -> List[str]:
-    """The wells the chosen guides are in, in table order.
+    """Return wells containing the selected guides in table order.
 
-    THE VOLCANO IS THE SELECTOR: the same click that picks a point picks
-    these. Order is the table's rather than sorted, so a user narrowing the
-    set sees them in the order the screen was laid out.
+    Parameters
+    ----------
+    frame : pandas.DataFrame
+        Object table containing guide and well identifiers.
+    guides : sequence of str
+        Guide identifiers selected for display.
+
+    Returns
+    -------
+    list of str
+        Unique well identifiers in their first-occurrence order. An empty list
+        is returned when required columns or guide selections are absent.
     """
     well = _column(frame, WELL_COLUMNS)
     guide = _column(frame, GUIDE_COLUMNS)
@@ -79,17 +73,32 @@ def select(frame: pd.DataFrame, *, scope: str = "guides",
            guides: Sequence[str] = (),
            wells: Optional[Sequence[str]] = None
            ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
-    """The objects to draw, and a report of what was chosen.
+    """Select the object population requested by a plot.
 
-    :param scope: one of :data:`SCOPES`.
-    :param guides: the guides chosen on the volcano.
-    :param wells: the well set, already narrowed by the user. ``None`` means
-        derive it from ``guides``, which is the first of its two stages.
-    :returns: ``(frame, report)``. Under ``scope='wells'`` the frame carries
-        :data:`MATE_COLUMN` saying which side each object is on.
-    :raises ValueError: for a scope this module does not have. Falling back
-        to "all" would draw a different population from the one asked for
-        and say nothing.
+    Parameters
+    ----------
+    frame : pandas.DataFrame
+        Object table containing guide and well identifiers.
+    scope : {"guides", "wells", "all"}, default="guides"
+        Population to retain.
+    guides : sequence of str, optional
+        Selected guide identifiers.
+    wells : sequence of str, optional
+        Explicit well subset for ``scope="wells"``. When omitted, wells are
+        derived from ``guides``.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Selected rows. The well scope adds :data:`MATE_COLUMN` to distinguish
+        selected-guide objects from their well-mates.
+    dict
+        Scope, selections, row counts, and any explanatory note.
+
+    Raises
+    ------
+    ValueError
+        If ``scope`` is not supported.
     """
     scope = str(scope or "guides").strip().lower()
     if scope not in {value for value, _ in SCOPES}:
@@ -147,7 +156,7 @@ def select(frame: pd.DataFrame, *, scope: str = "guides",
 
 
 def describe(report: Dict[str, Any]) -> str:
-    """The sentence under the plot. Says which population is drawn."""
+    """Format a concise description of the plotted population."""
     if report.get("note"):
         return report["note"]
     scope = report.get("scope")

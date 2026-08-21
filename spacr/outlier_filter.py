@@ -1,20 +1,10 @@
-"""Remove segmentation artefacts BEFORE annotation (instruction 210).
+"""Remove robustly defined object outliers before guide annotation.
 
-BEFORE, NOT AFTER, and the order is the substance of the request. Annotation
-methods that normalise -- everything that makes fractions sum to 1, and every
-method instruction 209 proposes -- have their denominator set by which
-objects are present. Removing a segmentation artefact AFTER the fractions are
-computed leaves its reads redistributed across the guides; removing it FIRST
-means it never contributed.
-
-WHAT AN OUTLIER IS HAS TO BE STATED, NOT ASSUMED. A multiple of the MAD about
-the median is the defensible default for these four: areas and intensities
-are skewed, and a standard-deviation cut on skewed data removes real cells
-from the long tail -- the exact population a screen is usually looking for.
-
-OPTIONAL MEANS OFF BY DEFAULT. This changes which cells exist, and a filter
-that silently drops objects is a filter that will be forgotten and then
-blamed on the annotation.
+Optional filters operate on cell or nucleus area and intensity. Each filter
+uses distance from the median in scaled median absolute deviations (MADs),
+which is less sensitive to skewed measurements than a standard-deviation
+threshold. Filtering precedes fraction-based annotation so excluded objects
+do not contribute to normalization denominators.
 """
 from __future__ import annotations
 
@@ -26,9 +16,7 @@ import pandas as pd
 
 LOG = logging.getLogger("spacr.outlier_filter")
 
-#: The four the instruction names, as ``(setting, caption)``. The column each
-#: one reads is resolved at filter time, because an intensity column carries
-#: its channel in its name and the channel is the user's.
+#: Supported filter criteria represented as ``(setting, display label)``.
 CRITERIA: Tuple[Tuple[str, str], ...] = (
     ("cell_area", "cell area"),
     ("nucleus_area", "nucleus area"),
@@ -46,9 +34,7 @@ COLUMNS: Dict[str, Tuple[str, ...]] = {
                           "nucleus_mean_intensity", "nucleus_intensity"),
 }
 
-#: How many MADs from the median before an object is an outlier. STATED, and
-#: the user's -- 5 is loose enough not to touch a normal screen and tight
-#: enough to catch a merged-object artefact an order of magnitude out.
+#: Default number of scaled MADs separating an outlier from the median.
 DEFAULT_MADS = 5.0
 
 #: `1.4826 * MAD` estimates sigma for a normal distribution, which is what
@@ -57,7 +43,7 @@ _TO_SIGMA = 1.4826
 
 
 def column_for(frame: pd.DataFrame, criterion: str) -> Optional[str]:
-    """The column ``criterion`` reads, or ``None`` if the table has none."""
+    """Resolve the measurement column used by an outlier criterion."""
     for name in COLUMNS.get(str(criterion), ()):
         if name in getattr(frame, "columns", ()):
             return name
@@ -74,11 +60,21 @@ def column_for(frame: pd.DataFrame, criterion: str) -> Optional[str]:
 
 
 def outliers(values, *, mads: float = DEFAULT_MADS) -> np.ndarray:
-    """A boolean mask of the values further than ``mads`` MADs from median.
+    """Identify values beyond a scaled-MAD threshold.
 
-    A MAD OF ZERO IS NOT A REASON TO DROP EVERYTHING. It means over half the
-    values are identical, which happens on a small or a quantised column, and
-    a rule that flagged every non-modal value there would empty the table.
+    Parameters
+    ----------
+    values : array-like
+        Values to evaluate. Non-numeric and non-finite values are not flagged.
+    mads : float, default=DEFAULT_MADS
+        Distance from the median in robust sigma units, computed as
+        ``1.4826 * MAD``.
+
+    Returns
+    -------
+    numpy.ndarray
+        Boolean outlier mask. Fewer than three finite values or a zero MAD
+        produces an all-false mask.
     """
     data = pd.to_numeric(pd.Series(values), errors="coerce").to_numpy(float)
     good = np.isfinite(data)
@@ -96,15 +92,23 @@ def outliers(values, *, mads: float = DEFAULT_MADS) -> np.ndarray:
 
 def apply(frame: pd.DataFrame, settings: Optional[Dict[str, Any]] = None
           ) -> Tuple[pd.DataFrame, List[Dict[str, Any]]]:
-    """Drop the outliers the settings ask for. Returns the rows and a report.
+    """Apply enabled outlier criteria to an object table.
 
-    :param settings: ``{'<criterion>_outlier_mads': float}`` per criterion.
-        A criterion with no entry, or ``None``, is OFF -- which is the
-        default, because this changes which cells exist.
-    :returns: ``(frame, report)``. The report has one row per criterion that
-        was ON, with the column it read, the threshold and the count removed
-        -- PER CRITERION, because "412 objects removed" does not tell a user
-        whether their area cut or their intensity cut was the loose one.
+    Parameters
+    ----------
+    frame : pandas.DataFrame
+        Object-level measurements.
+    settings : dict, optional
+        Thresholds keyed as ``"<criterion>_outlier_mads"``. Missing or
+        ``None`` values disable that criterion.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Rows retained after all enabled criteria.
+    list of dict
+        Per-criterion measurement column, threshold, removal count, and any
+        validation note.
     """
     settings = dict(settings or {})
     report: List[Dict[str, Any]] = []
@@ -144,7 +148,7 @@ def apply(frame: pd.DataFrame, settings: Optional[Dict[str, Any]] = None
 
 
 def describe(report: Sequence[Dict[str, Any]]) -> str:
-    """The lines the run prints. Empty when no filter was on."""
+    """Format the per-criterion outlier report for run output."""
     if not report:
         return ""
     lines = ["Outliers removed before annotation:"]
