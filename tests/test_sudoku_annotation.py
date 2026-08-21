@@ -245,19 +245,22 @@ class TestSudokuIsScopedToTheWellsThatHoldTheGuide:
     Asked 2026-08-21: "will suduko only annotate cells in wells with the
     chosen genes or will it annotate all cells it can annotat?"
 
-    THE WELLS THAT HOLD THE GUIDE, and within those, every guide that
-    co-occurs there. Two reasons, and the second is the one that would have
-    stopped a real run.
+    TWO SCOPES, AND CONFLATING THEM WAS THE FIRST VERSION'S BUG.
 
-    STATISTICAL: a posterior is a COMPARISON, and a guide that never shares
-    a well with this one cannot be compared against it. It contributes a
-    column of zeros and a constraint of zero -- not evidence, arithmetic on
-    an empty set.
+    The WELL CONSTRAINT is per well, so a guide absent from a well cannot
+    claim cells there. The GRAPH is not per well at all -- it links cells by
+    how they LOOK, across the screen, and that is where a guide's appearance
+    is learned. Trimming the cells to the chosen guide's wells therefore
+    trimmed the ANCHORS too: `anchors_for` takes a guide's examples from
+    wells where it DOMINATES, and a rival's best wells are usually not this
+    guide's wells, so every rival was being characterised from the weakest
+    sample available instead of the strongest.
 
-    ARITHMETIC: unscoped, the seed matrix is (all cells x all guides) and
-    the propagation holds about three of them. On the maintainer's screen --
-    143,765 cells, 1,379 guides -- that is 1.6 GB each and roughly 4.8 GB
-    live, to draw a montage of ONE coefficient.
+    Raised by the maintainer -- "other guides in the chosen guides wells do
+    [share wells], so that information can be used, no?" -- and yes.
+
+    So: PROPAGATE over this guide's wells plus the wells that anchor its
+    rivals; DRAW only this guide's wells.
     """
 
     @staticmethod
@@ -273,51 +276,63 @@ class TestSudokuIsScopedToTheWellsThatHoldTheGuide:
             for w in range(10) for i in range(60)])
         rows = []
         for w in range(10):
-            pairs = ([("A_1", 0.6), ("B_1", 0.4)] if w < 4
-                     else [("B_1", 0.5), ("C_1", 0.5)])
+            if w < 4:                       # A lives here, with B beside it
+                pairs = [("A_1", 0.6), ("B_1", 0.4)]
+            elif w < 6:                     # B DOMINATES here: its anchors
+                pairs = [("B_1", 0.9), ("C_1", 0.1)]
+            else:                           # neither A nor its rivals lead
+                pairs = [("C_1", 0.5), ("D_1", 0.5)]
             for guide, share in pairs:
                 rows.append({"prc": f"p1_w{w}", "grna": guide,
                              "gene": guide.split("_")[0], "fraction": share})
         return objects, pd.DataFrame(rows)
 
-    def _note(self, plan):
+    def _notes(self, plan):
         return " | ".join(n for n in (plan.notes or [])
                           if "sudoku" in n.lower())
 
-    def test_it_reads_only_the_wells_holding_the_guide(self):
+    def test_it_pulls_in_the_wells_that_anchor_the_rivals(self):
+        """B's best wells are 4 and 5, where it is 90% -- not A's wells,
+        where it is 40%. Those are where B can be characterised."""
         from spacr.cell_montage import select_montage
 
         objects, counts = self._screen()
         plan = select_montage(objects, counts, "A_1", 1.0,
                               score_column="pred", picking="sudoku")
 
-        said = self._note(plan)
-        assert "across 4 well(s)" in said, said
-        # 4 wells x 60 cells, not the whole 600-cell plate.
-        assert "of 240 cell(s)" in said, said
+        said = self._notes(plan)
+        assert "4 well(s) hold A_1" in said, said
+        assert "more well(s) joined to anchor" in said, said
 
-    def test_it_annotates_every_cell_in_those_wells_not_only_the_guide_s(self):
-        """Within the scope it decides EVERY cell it can -- the other guides
-        are what this one is compared against, so leaving them out would
-        leave nothing to compare with."""
+    def test_it_does_not_pull_in_the_whole_screen(self):
+        """Wells 6-9 hold neither A nor a dominant rival of A, so they
+        inform nothing about this comparison."""
         from spacr.cell_montage import select_montage
 
         objects, counts = self._screen()
         plan = select_montage(objects, counts, "A_1", 1.0,
                               score_column="pred", picking="sudoku")
 
-        said = self._note(plan)
-        annotated = int(said.split(" of ")[0].split()[-1].replace(",", ""))
-        assert annotated > 120, said
+        said = self._notes(plan)
+        assert "across 10 well(s)" not in said, said
 
-    def test_a_guide_in_no_well_here_is_said_rather_than_drawn(self):
+    def test_only_the_guides_wells_are_drawn(self):
+        """The propagation is wider than the montage. A well that joined to
+        anchor a rival informs the graph and is not shown."""
         from spacr.cell_montage import select_montage
 
         objects, counts = self._screen()
-        plan = select_montage(objects, counts, "C_1", 1.0,
+        plan = select_montage(objects, counts, "A_1", 1.0,
                               score_column="pred", picking="sudoku")
 
-        # C_1 IS present, in the other six wells -- so this must scope to
-        # those and not to A_1's.
-        said = self._note(plan)
-        assert "across 6 well(s)" in said, said
+        assert len(plan.wells) == 4
+
+    def test_a_guide_in_no_well_here_scopes_to_its_own(self):
+        from spacr.cell_montage import select_montage
+
+        objects, counts = self._screen()
+        plan = select_montage(objects, counts, "D_1", 1.0,
+                              score_column="pred", picking="sudoku")
+
+        said = self._notes(plan)
+        assert "4 well(s) hold D_1" in said, said
