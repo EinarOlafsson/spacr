@@ -3169,6 +3169,20 @@ class FastPlot(QWidget):
         # remaining one shows what it will write. `export` itself stays as
         # the API both paths and every test use.
         menu.addAction("Save figure…", lambda: self.save_styled())
+        # AND THE WHOLE THING (instruction 223). Beside "Save figure…" rather
+        # than replacing it: a user who wants a png for Slack should not have
+        # to take a folder of five files, and one who wants the figure
+        # checkable six months from now should not have to assemble it by
+        # hand. Two doors here is not the 187 D duplication -- they produce
+        # DIFFERENT things, and each says which.
+        bundle = menu.addAction("Save figure, data and statistics…",
+                                lambda: self.export_bundle())
+        bundle.setToolTip(
+            "Writes a FOLDER: the figure as pdf and png, the rows it was "
+            "drawn from, and the test that was run on them with its "
+            "assumptions. A pdf on its own cannot be checked -- six months "
+            "later the question is what the numbers were and whether the "
+            "difference was tested, and a figure file answers neither.")
 
         # ------------------------------------------------ what the plot CLAIMS
         claims = False
@@ -4803,6 +4817,73 @@ class FastPlot(QWidget):
         """
         with self._dressed_for_the_file(ink, background, grid):
             return self.snapshot(width)
+
+    def export_bundle(self, folder: Optional[str] = None,
+                      name: str = "") -> Optional[str]:
+        """Save this graph as a FOLDER: pdf, png, data and statistics.
+
+        Instruction 223. A pdf on its own cannot be checked -- six months
+        later the question is always what the numbers were and whether the
+        difference was tested, and a figure file answers neither.
+
+        THE PDF AND THE PNG ARE THE SAME FIGURE. `export` is called twice
+        from unchanged state rather than the plot being redrawn between
+        them, so the two cannot differ.
+
+        :param folder: where to put the bundle; a dialog opens when omitted.
+        :param name: the graph's name; its title, then "graph".
+        :returns: the folder written, or None if the user cancelled.
+        """
+        if isinstance(folder, bool):        # a signal's checked state
+            folder = None
+        if folder is None:
+            from PySide6.QtWidgets import QFileDialog
+
+            folder = QFileDialog.getExistingDirectory(
+                self, "Save the graph, its data and its statistics")
+            if not folder:
+                return None
+        from ...figures.bundle import save
+
+        title = name or self.plot.plotItem.titleLabel.text or "graph"
+        return save(folder, str(title), render=self.export,
+                    data=self.frame(), groups=self.comparison_groups(),
+                    unit=self.comparison_unit(),
+                    settings=self.export_settings())
+
+    def comparison_groups(self) -> Optional[dict]:
+        """``{label: values}`` for the statistics file, or ``None``.
+
+        NONE IS THE HONEST DEFAULT. A scatter or a one-column histogram has
+        no test to run, and inventing groups for it would put a p-value in
+        the folder for a comparison nobody made. A subclass that DOES draw
+        groups overrides this; the bundle then says what was compared.
+        """
+        return None
+
+    def comparison_unit(self) -> str:
+        """What one observation is -- 'well', 'cell', 'guide'.
+
+        Stated because a test across cells when the replicate is the well is
+        pseudoreplication and returns p < 1e-10 on noise.
+        """
+        return "observation"
+
+    def export_settings(self) -> dict:
+        """What produced this graph, for `settings.json`.
+
+        The data csv is the rows AFTER filtering, which is what the graph
+        shows -- so without the filters recorded beside it the numbers
+        cannot be reproduced.
+        """
+        out = {"plot": type(self).__name__}
+        title = getattr(self.plot.plotItem.titleLabel, "text", "")
+        if title:
+            out["title"] = str(title)
+        frame = self.frame()
+        if frame is not None:
+            out["columns"] = [str(c) for c in frame.columns]
+        return out
 
     def export_styled(self, path: str, *, ink: str = "", background: str = "",
                       grid: Optional[bool] = None) -> Optional[str]:

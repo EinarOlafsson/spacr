@@ -2,7 +2,7 @@
 SAVING A GRAPH MAKES A FOLDER, NOT A FILE
 ================================================================================
 
-Status:    filed 2026-08-21, not started.
+Status:    DONE 2026-08-21.
 Requested: 2026-08-21 -- "whenever i save a graph i want to generate a folder
            not a file. the folder should contain a pdf and a png version of
            the graph, and a csv with the data the graph is based on, and
@@ -81,3 +81,48 @@ HOW TO KNOW IT WORKED
 * A graph with nothing to compare still gets every file, and the statistics
   file says why it is empty.
 * The pdf and the png are the SAME figure -- rendered once, written twice.
+
+--------------------------------------------------------------------------------
+DONE 2026-08-21
+--------------------------------------------------------------------------------
+
+`spacr/figures/bundle.py`, and `FastPlot.export_bundle` on every plot -- so
+it is not a feature of one graph that the next one built will be missing.
+
+THE STATISTICS ARE `figures.stats.compare`, called, with a test that spies
+on the call so a second implementation cannot creep in later. The assumption
+rows read the check's OWN `passed`, never re-derive it from the p-value:
+the normality check compares the worst of k groups against a Bonferroni
+threshold, and re-deriving `p >= 0.05` silently discards the correction --
+which in this codebase sent 18% of four-group comparisons on normal data to
+a rank test instead of 5%.
+
+A CHECK THAT COULD NOT SEE SAYS "could not tell", not "holds". Recording an
+underpowered check as a pass is the more misleading of the two.
+
+A REFUSED COMPARISON SAYS REFUSED AND WHY. `compare` raises rather than
+returning NaN, and the file carries the reason rather than an empty cell --
+a comparison that could not be made is not a comparison with an unknown
+answer.
+
+NOTHING TO COMPARE IS AN ANSWER TOO. A scatter or a one-column histogram
+gets all five files, and `statistics.csv` says there is nothing to compare,
+because an absent file reads as a bug. `comparison_groups()` returns None on
+the base class rather than guessing: inventing groups would put a p-value in
+the folder for a comparison nobody made.
+
+A SECOND SAVE SITS BESIDE THE FIRST rather than on it. Overwriting a folder
+is a bigger act than overwriting a file -- a file replaced loses one thing
+the user can see, a folder replaced can take an earlier save's data and
+statistics with it, silently.
+
+TWO MENU ENTRIES, AND THAT IS NOT THE 187 D DUPLICATION. "Save figure…" and
+"Save figure, data and statistics…" produce DIFFERENT things: a user who
+wants a png for Slack should not have to take a folder of five files.
+
+THE PDF AND THE PNG ARE THE SAME FIGURE -- `export` called twice from
+unchanged state, never a redraw between them.
+
+THE SETTINGS GO IN THE FOLDER. The data csv is the rows AFTER filtering,
+which is what the graph shows, so without the filters beside it the numbers
+cannot be reproduced.
