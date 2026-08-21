@@ -534,7 +534,13 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     #    2  spacr.settings_advisor completed-run readers
     #    1  RegressionResultsPanel.colour_channels
     # Nothing retired; these contracts enter the regenerated API catalogs.
-    expected = 8033
+    # +14/-0 for response-transformation diagnostics and reproducible figure
+    # bundles:
+    #    6  spacr.response_distribution
+    #    4  FastPlot bundle and comparison accessors
+    #    4  spacr.figures.bundle
+    # Nothing retired; these contracts enter the regenerated API catalogs.
+    expected = 8047
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -549,7 +555,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8152
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8166
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
