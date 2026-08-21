@@ -2,7 +2,7 @@
 DRAG IMAGES IN, AND THE REGEX IS WORKED OUT FOR YOU
 ================================================================================
 
-Status:    filed 2026-08-18.
+Status:    DONE 2026-08-20. See the closing section.
 Requested: 2026-08-18 --
 
   "for the import data modulation the user should be able to drag and drop
@@ -230,3 +230,63 @@ that names the expected label is what caught it.
 STILL OWED: A, C and D -- the drop TABLE, the role dropdowns and the live
 Test panel. The engine is done, headless and now reachable from the existing
 dialog, so that work is a table widget rather than any more invention.
+
+--------------------------------------------------------------------------------
+2026-08-20 (later) -- A, C AND D. AND EVERY SAVED REGEX MATCHED NOTHING.
+--------------------------------------------------------------------------------
+
+A. DROP FILES IN, GET A TABLE. `qt/widgets/import_workbench.py` accepts a
+drop of files or a folder, walks it for images, and holds one row per file.
+Nothing is copied, moved or renamed.
+
+C. THE COLUMNS ARE THE USER'S, FROM A CLOSED SET. One dropdown per inferred
+GROUP, offering `plateID` / `wellID` / `fieldID` / `chanID` / `timeID` /
+`sliceID` / ignore -- the names `_rename_and_organize_image_files` and
+`_move_to_chan_folder` read BY NAME, which is why typing them is what the
+dropdown makes impossible. A group already called `wellID` defaults to it, so
+a good proposal costs no clicks. TWO GROUPS ON ONE ROLE IS SAID ON THE SPOT,
+and so is a missing required role.
+
+D. TEST SHOWS, IT DOES NOT WRITE -- and there is no Test button, because the
+table IS the preview and re-runs on every edit. A button would imply the
+answer is stale until it is pressed, and the whole failure being fixed is a
+regex that looked right and grouped the files wrong. Beside the table, the
+FOLDER TREE it would produce, with the counts at each level. Unmatched files
+are rows that say "no match" in red, never dropped in silence.
+
+THE NEW NAME IS `io`'S OWN. `spacr/import_plan.py` composes it with
+`io._escaped_field_stem`, so what this previews is what the import writes,
+down to the plate escaping `schema.parse_field_stem` reads back -- a plate
+called `exp_1` previews as `exp%5F1_A01_001_`, not as five components for a
+four-component grammar.
+
+--------------------------------------------------------------------------------
+AND THE THING THIS FOUND, WHICH IS WORSE THAN WHAT IT WAS BUILT FOR
+--------------------------------------------------------------------------------
+
+EVERY REGEX SAVED FROM THE DROP EDITOR MATCHED NOTHING.
+
+`utils._get_regex` builds the custom pattern as::
+
+    f"({custom_regex}).{img_format}"
+
+-- it appends the extension ITSELF. And `auto_detect_regex` returns a pattern
+ending `\.(?:tif|tiff|png|jpg|jpeg)$`, which `RegexEditorDialog._on_save`
+pushed into `custom_regex` verbatim. The composed pattern was
+
+    ((?P<plateID>.*)_..._C(?P<chanID>.*)\.(?:tif|tiff|png|jpg|jpeg)$)..tif
+
+an anchor with characters after it. MEASURED through the real path -- drop,
+auto-detect, save, `_get_regex` -- on eight cellvoyager filenames: 0 of 8.
+
+WITH NO ERROR ANYWHERE. The import runs, finds no files, and reports only
+that it found none; the pattern in the box looks exactly right; and the
+preview inside the editor is matched against WHOLE filenames, so it says the
+pattern is fine, because inside that dialog it is.
+
+`import_plan.for_get_regex` trims the tail, and both the editor and the
+workbench go through it. Same eight names, same path: 8 of 8, with `wellID`
+reading back `A01`. A test pins the old behaviour too, so the trim cannot be
+removed as tidying.
+
+50 tests in tests/test_the_import_workbench_shows_before_it_writes.py.
