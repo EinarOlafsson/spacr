@@ -259,3 +259,58 @@ narrower than it looks -- the background is a MEDIAN over control wells, so
 in any well where the contaminant runs above its median, subtraction leaves
 the excess behind and calls it a real guide. Exclusion does not care how much
 there is.
+
+--------------------------------------------------------------------------------
+THE EXCLUSION IS ONE POINT, ABOVE EVERYTHING, AND TAKES GENES
+--------------------------------------------------------------------------------
+
+    "this should be moved to controls and filters, and make sure it is
+     removed first. right?" ... "in the exclude i should be able to put in
+     several guides or genes."
+
+RIGHT, AND THE FIRST VERSION WAS WRONG IN EXACTLY THE WAY THAT QUESTION
+ANTICIPATES. It filtered inside `_well_guide_fractions`, which the posterior
+pickers read -- but `select_montage` computes `well_totals` by summing the
+fraction column over the FULL count table, and `normalised_share` divides by
+that sum. The contaminant was still in that denominator, so `rank` -- the
+default picker -- kept every real guide's share held down by the
+contaminant's own.
+
+There is now exactly ONE exclusion point, on the count table itself, before
+`well_totals`, before the per-well fractions, before any posterior. Measured
+on a synthetic well: excluding a 50% contaminant doubles the cells expected
+for a guide at 30%, which is the suppression the ordering prevents.
+
+GENES AND GUIDES, several of each, resolved by `control_names.rows_for` --
+the same resolver `controls`, `positive_control` and `negative_control` use,
+so an exclusion is typed in the spelling those already accept. A gene takes
+all of its guides, so excluding a contaminated amplicon does not mean listing
+four of its five.
+
+A MISSPELLED EXCLUSION EXCLUDES NOTHING AND LOOKS LIKE IT WORKED, which is
+how a known contaminant survives the filter meant to remove it.
+`unmatched_exclusions` names them and the montage notes carry it.
+
+Moved from the trailing "Other" section -- where an uncategorised setting
+lands -- into "Plate Layout & Controls", beside `controls` and the two
+control settings.
+
+--------------------------------------------------------------------------------
+AND A LIVE BUG FOUND ON THE WAY: THE GENE COLUMN BRANCH OF `matches`
+--------------------------------------------------------------------------------
+
+NOT ABOUT EXCLUSION. `control_names.matches` has three branches, and both
+outer ones carry long comments about `resolve_control` stripping the measured
+organism prefix off what the user typed, so each compares against the
+stripped AND the unstripped spelling. THE BRANCH BETWEEN THEM DID NOT.
+
+It is the branch a screen WITH a gene column takes. A gene column spelling a
+gene `TGGT1_220950` against a spec whose value is `220950` matched NOTHING --
+and `controls`, `positive_control` and `negative_control` all arrive through
+`rows_for`, so a gene-level control on such a screen selected zero rows in
+silence, leaving the thresholds to fall back and the baseline at zero while
+the run finished normally.
+
+Fixed, with a test that the two paths -- gene column present and absent --
+reach the same rows, because which columns a screen happens to carry must not
+change which cells are controls.

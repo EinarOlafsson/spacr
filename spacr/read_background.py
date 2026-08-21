@@ -50,6 +50,8 @@ import numpy as np
 
 __all__ = [
     "drop_guides",
+    "resolve_exclusions",
+    "unmatched_exclusions",
     "background_from_controls",
     "suggest_threshold",
     "subtract_background",
@@ -78,13 +80,75 @@ def drop_guides(fractions: Mapping[str, float],
     fraction by a quarter, which moves guides across the annotatability
     floor. It is not a tidying step.
     """
-    drop = {str(g) for g in (exclude or ())}
+    names = [str(g) for g in fractions]
+    drop = resolve_exclusions(exclude, names)
     kept = {str(g): float(v) for g, v in fractions.items()
             if str(g) not in drop and np.isfinite(float(v))}
     total = sum(kept.values())
     if renormalise and total > 0:
         return {g: v / total for g, v in kept.items()}
     return kept
+
+
+def resolve_exclusions(exclude: Optional[Iterable[str]],
+                       guides: Sequence[str],
+                       genes: Optional[Sequence[str]] = None) -> Set[str]:
+    """Which guide names an exclusion list actually names.
+
+    ACCEPTS GUIDES AND GENES, several of each: "in the exclude i should be
+    able to put in several guides or genes". A gene selects every guide
+    assigned to it, so excluding a contaminated amplicon does not mean
+    listing its four guides and missing the fifth.
+
+    `control_names.rows_for` does the resolving, and reusing it is the
+    point rather than a convenience: it is what `controls`,
+    `positive_control` and `negative_control` already use, so an exclusion
+    is typed in exactly the spelling those accept -- with or without the
+    organism prefix -- and cannot drift into a second dialect of the same
+    names.
+
+    An entry that matches nothing is returned in neither set; the caller
+    that cares should say so, because a misspelled exclusion silently
+    excluding nothing is how a contaminant survives a filter that was
+    supposed to remove it.
+    """
+    wanted = [e for e in (exclude or ()) if str(e).strip()]
+    if not wanted:
+        return set()
+    names = [str(g) for g in guides]
+    try:
+        import pandas as pd
+
+        from .control_names import rows_for
+
+        series = pd.Series(names, dtype=object)
+        out: Set[str] = set()
+        for entry in wanted:
+            mask, _note = rows_for(entry, series, genes, names=names)
+            out.update(series[np.asarray(mask, dtype=bool)].tolist())
+        return out
+    except Exception:                                        # noqa: BLE001
+        # A resolver that cannot run must not silently exclude NOTHING --
+        # that would leave a known contaminant in the denominator. Fall back
+        # to the exact names, which is the subset everybody agrees on.
+        return {str(e) for e in wanted}
+
+
+def unmatched_exclusions(exclude: Optional[Iterable[str]],
+                         guides: Sequence[str],
+                         genes: Optional[Sequence[str]] = None) -> List[str]:
+    """Entries in ``exclude`` that name nothing in this screen.
+
+    A MISSPELLED EXCLUSION EXCLUDES NOTHING AND LOOKS LIKE IT WORKED, which
+    is the failure this exists to make visible. Every caller that filters
+    should report these rather than proceeding quietly.
+    """
+    wanted = [str(e) for e in (exclude or ()) if str(e).strip()]
+    missing: List[str] = []
+    for entry in wanted:
+        if not resolve_exclusions([entry], guides, genes):
+            missing.append(entry)
+    return missing
 
 
 def background_from_controls(

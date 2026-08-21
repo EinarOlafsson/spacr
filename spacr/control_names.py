@@ -184,7 +184,21 @@ def matches(spec: Optional[ControlSpec], guides, genes=None):
     if genes is not None:
         gene_series = pd.Series(genes).astype(str)
         gene_series.index = series.index
-        return gene_series == spec.value
+        # THE PREFIX HERE TOO, AND THIS BRANCH IS THE ONE THAT WAS MISSED.
+        # The two branches on either side of it carry long comments about
+        # `resolve_control` stripping the measured organism prefix off what
+        # the user typed; both were fixed and this one, between them, was
+        # not. A gene column that keeps its prefix -- `TGGT1_220950` against
+        # a spec whose value is `220950` -- matched NOTHING.
+        #
+        # It is the branch a screen WITH a gene column takes, so this is not
+        # an edge: `controls`, `positive_control` and `negative_control` all
+        # arrive through `rows_for`, and a gene-level control on such a
+        # screen selected zero rows in silence. Found on 2026-08-21 while
+        # excluding a contaminant by gene name, which is the same code path.
+        head = f"{spec.prefix}{SEPARATOR}" if spec.prefix else ""
+        return (gene_series == spec.value)\
+            | (gene_series == head + spec.value)
     # No gene column: a guide belongs to the gene its name CONTAINS as its
     # middle component.
     #
