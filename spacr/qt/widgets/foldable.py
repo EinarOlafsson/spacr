@@ -133,11 +133,41 @@ class Folder:
 
 
 def make_foldable(heading: QLabel, body: QWidget, name: str = "",
-                  on_change: Optional[Callable[[bool], None]] = None
-                  ) -> Folder:
+                  on_change: Optional[Callable[[bool], None]] = None,
+                  *, persist_key: str = "") -> Folder:
     """Make clicking ``heading`` fold ``body`` away. Returns the Folder.
 
     The Folder is returned so the caller can hold it: it owns the event
     filter, and a Folder nobody keeps stops working silently.
+
+    :param persist_key: ``"<module>/<panel>"``. Given, the fold survives a
+        restart. Empty means it does not, which is what a bare panel in a
+        test wants -- a test that wrote to the real preferences would fold a
+        panel on the user's next launch.
     """
-    return Folder(heading, body, name=name, on_change=on_change)
+    key = str(persist_key or "").strip()
+    shut_at_start = False
+    if key:
+        try:
+            from ..preferences import get_folded_panels
+
+            shut_at_start = bool(get_folded_panels().get(key))
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not read the folded panels", exc_info=True)
+
+    def remember(shut: bool) -> None:
+        if key:
+            try:
+                from ..preferences import set_folded_panel
+
+                set_folded_panel(key, shut)
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not store the fold", exc_info=True)
+        if on_change is not None:
+            on_change(shut)
+
+    folder = Folder(heading, body, name=name,
+                    on_change=remember if key else on_change)
+    if shut_at_start:
+        folder.set_shut(True)
+    return folder

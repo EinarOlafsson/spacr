@@ -215,3 +215,80 @@ class TestEveryModuleThatHasThem:
         assert card is not None and card.folder is not None
         _click(card.title_label)
         assert card.body.isHidden()
+
+
+class TestTheStateSurvivesARestart:
+    """The last of the instruction's criteria. A restart is simulated by
+    building a second Folder against the same key -- which is exactly what a
+    relaunch does."""
+
+    @pytest.fixture(autouse=True)
+    def _own_config(self, tmp_path, monkeypatch):
+        """A config dir of this test's own.
+
+        WITHOUT THIS THE TEST FOLDS A PANEL ON THE USER'S NEXT LAUNCH. The
+        preferences are real QSettings on a real path, and a test that writes
+        to them is a test that edits the machine it runs on.
+        """
+        monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+        import importlib
+
+        from spacr.qt import preferences
+
+        importlib.reload(preferences)
+        yield
+        importlib.reload(preferences)
+
+    def test_a_folded_panel_comes_back_folded(self, app):
+        from spacr.qt.widgets.foldable import make_foldable
+
+        first = make_foldable(QLabel("Console"), QWidget(),
+                              persist_key="mask/Console")
+        first.toggle()
+        assert first.shut
+
+        second = make_foldable(QLabel("Console"), QWidget(),
+                               persist_key="mask/Console")
+        assert second.shut, "the fold did not survive the restart"
+
+    def test_an_unfolded_one_comes_back_open(self, app):
+        from spacr.qt.widgets.foldable import make_foldable
+
+        first = make_foldable(QLabel("Console"), QWidget(),
+                              persist_key="measure/Console")
+        first.toggle()
+        first.toggle()
+        second = make_foldable(QLabel("Console"), QWidget(),
+                               persist_key="measure/Console")
+        assert not second.shut
+
+    def test_it_is_per_module(self, app):
+        """Folding the console on Mask must not fold it on Sequencing: the
+        modules are used for different work and want different room."""
+        from spacr.qt.widgets.foldable import make_foldable
+
+        make_foldable(QLabel("Console"), QWidget(),
+                      persist_key="mask/Console").toggle()
+        other = make_foldable(QLabel("Console"), QWidget(),
+                              persist_key="sequencing/Console")
+        assert not other.shut
+
+    def test_no_key_means_no_writing(self, app):
+        """A bare panel in a test must not touch the preferences."""
+        from spacr.qt.preferences import get_folded_panels
+        from spacr.qt.widgets.foldable import make_foldable
+
+        make_foldable(QLabel("Console"), QWidget()).toggle()
+        assert get_folded_panels() == {}
+
+    def test_an_open_panel_is_not_stored(self, app):
+        """The default is open, so storing it would grow the dict by one
+        entry for every panel ever touched and never shrink it."""
+        from spacr.qt.preferences import get_folded_panels
+        from spacr.qt.widgets.foldable import make_foldable
+
+        folder = make_foldable(QLabel("System"), QWidget(),
+                               persist_key="mask/System")
+        folder.toggle()
+        folder.toggle()
+        assert "mask/System" not in get_folded_panels()

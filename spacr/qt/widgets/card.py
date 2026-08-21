@@ -22,12 +22,14 @@ class Card(QFrame):
     """
 
     def __init__(self, title: str = "", subtitle: str = "", parent=None,
-                 *, foldable: bool = False):
+                 *, foldable: bool = False, fold_key: str = ""):
         """
         :param foldable: make clicking the TITLE fold the body away
             (instruction 228). Off by default -- most cards in spaCR are the
             only thing in their slot, and folding one would leave a strip
             over empty space rather than giving the room to anything.
+        :param fold_key: ``"<module>/<panel>"``; given, the fold survives a
+            restart.
         """
         super().__init__(parent)
         self.setObjectName("Card")
@@ -75,4 +77,5 @@ class Card(QFrame):
             # The BODY folds, not the card: the title has to stay to be
             # clicked again, which is what makes the folded state a strip
             # that names itself rather than a disappearance.
-            self.folder = make_foldable(title_label, self.body, name=title)
+            self.folder = make_foldable(title_label, self.body, name=title,
+                                        persist_key=fold_key)

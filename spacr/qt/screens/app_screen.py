@@ -2855,7 +2855,8 @@ class AppScreen(QWidget):
 
         self._console_folder = make_foldable(
             console_header, self._console, name="Console",
-            on_change=self._console_folded)
+            on_change=self._console_folded,
+            persist_key=f"{self.app_key}/Console")
 
         # Exactly one of these cards occupies the slot above the console.
         # Nulled here rather than in every branch: the chain has grown to six
@@ -3030,7 +3031,8 @@ class AppScreen(QWidget):
         # Usage card. FOLDABLE: clicking "System" folds it, which the
         # maintainer asked for in those words, and it sits directly under the
         # container that wants the room.
-        usage_card = Card(title="System", foldable=True)
+        usage_card = Card(title="System", foldable=True,
+                          fold_key=f"{self.app_key}/System")
         self._usage_card = usage_card
         self._usage_ram = UsageBar("RAM")
         self._usage_gpu = UsageBar("GPU")
