@@ -7039,9 +7039,26 @@ def _perform_regression(settings):
     volcano_path = os.path.join(res_folder, 'volcano_plot.pdf')
 
     if isinstance(settings['filter_value'], list):
-        filter_value = settings['filter_value']
+        filter_value = list(settings['filter_value'])
     else:
         filter_value = []
+    # THE CONTROL BLOCKS COME OUT TOO, WITHOUT BEING TYPED TWICE (221). A
+    # well of pure control is not a screen well -- it holds one guide by
+    # construction, so its phenotype says what that guide does and nothing
+    # about any gene under test -- and left in it is modelled as a random
+    # draw from the library, at high leverage when the control is strong.
+    #
+    # ADDED TO `filter_value` RATHER THAN FILTERED SEPARATELY, so there is
+    # one removal, one printed line per well and one place a reader has to
+    # look to know what left the run.
+    try:
+        from .well_spec import control_block_wells
+
+        for well in control_block_wells(settings):
+            if well not in filter_value:
+                filter_value.append(well)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not resolve the control blocks", exc_info=True)
     # filter_column used to be bound only in the `isinstance(..., str)` branch,
     # so both None (the natural "do not filter" value) and the list form that
     # process_reads documents left it unbound and the process_reads call below

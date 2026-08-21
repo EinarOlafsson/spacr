@@ -585,5 +585,7 @@ def offered_values(key: str, source=None, frame=None) -> Tuple[str, ...]:
             ("assigned", "assigned — every cell in the well gets one guide"),
             ("multivariate", "multivariate — every measurement, not just the "
                              "score (needs a sweep)"),
+            ("sudoku", "sudoku — learns each guide's look from every well "
+                       "it is in, then decides this one"),
         )
     return ()

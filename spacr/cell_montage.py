@@ -265,8 +265,12 @@ def round_half_up(value: float) -> int:
 #: ``assigned``   the constrained assignment -- every cell in the well gets
 #:                exactly one guide and each guide gets exactly the number of
 #:                cells its reads imply. Shows the cells assigned to this one.
+#: ``sudoku``     label propagation across WELLS. The others decide a well
+#:                from its own cells; this one learns what a guide's cells
+#:                look like from every well the guide is in, and applies it
+#:                here. `spacr.sudoku`.
 PICKING_MODES: Tuple[str, ...] = ("rank", "attributed", "assigned",
-                                 "multivariate")
+                                 "multivariate", "sudoku")
 
 
 #: What a sweep writes its per-measurement effects to, inside the run folder.
@@ -1209,6 +1213,77 @@ def _object_sort_key(objects: pd.DataFrame) -> pd.Series:
     return pd.Series(objects.index.astype(str), index=objects.index)
 
 
+def _sudoku_calls(work, counts, keys, guide_column, fraction_column,
+                  score_column, name, notes):
+    """One guide name per cell, decided across every well at once.
+
+    :returns: ``{well label: [guide per cell, in that well's row order]}``,
+        or ``None`` when the screen cannot support it.
+
+    THE ORDER IS THE CONTRACT. The caller indexes this positionally against
+    its own per-well frame, so the rows here must arrive in the order the
+    caller will see them.
+    """
+    try:
+        from .sudoku import sudoku as _sudoku
+
+        frame = work.copy()
+        frame["_montage_well"] = _well_labels(frame, keys)
+        scores = pd.to_numeric(frame[score_column], errors="coerce")
+        frame = frame[scores.notna()]
+        if not len(frame):
+            notes.append("sudoku: no cell carries a classification score")
+            return None
+
+        # THE FEATURES ARE THE MEASUREMENTS, NOT THE SCORE. The anchors are
+        # chosen BY the score, so a graph built on it would place every
+        # high-scoring cell beside every guide's anchors and affirm all of
+        # them. `spacr.sudoku` leaves the score out for the same reason.
+        numeric = frame.select_dtypes(include=[np.number])
+        features = numeric.drop(
+            columns=[c for c in numeric.columns
+                     if str(c) == str(score_column)
+                     or str(c).startswith("_montage")],
+            errors="ignore")
+        if features.shape[1] == 0:
+            notes.append("sudoku: the objects carry no numeric measurement "
+                         "to build a graph on")
+            return None
+
+        wells = [str(w) for w in frame["_montage_well"]]
+        fractions = {}
+        for label in sorted(set(wells)):
+            here = _well_guide_fractions(counts, label, keys, guide_column,
+                                         fraction_column)
+            if here:
+                fractions[label] = here
+        if not fractions:
+            notes.append("sudoku: no well has a guide fraction to constrain "
+                         "the propagation")
+            return None
+
+        guides = sorted({g for here in fractions.values() for g in here})
+        result = _sudoku(
+            features.to_numpy(dtype=float),
+            pd.to_numeric(frame[score_column],
+                          errors="coerce").to_numpy(dtype=float),
+            wells, fractions, guides)
+        notes.append(
+            f"sudoku: {result.called():,} of {len(frame):,} cell(s) "
+            f"annotated across {len(fractions)} well(s); "
+            f"{result.report.get('abstained', 0):,} abstained")
+        out = {}
+        for label in sorted(set(wells)):
+            out[label] = [result.guides[i]
+                          for i, w in enumerate(wells) if w == label]
+        return out
+    except Exception as exc:                                 # noqa: BLE001
+        # A PICKER THAT CANNOT RUN SAYS SO AND THE MONTAGE STILL DRAWS.
+        notes.append(f"sudoku could not run ({type(exc).__name__}: {exc}); "
+                     f"the montage fell back to rank")
+        return None
+
+
 def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
                    name: str, effect: float, *,
                    level: Optional[str] = None,
@@ -1430,6 +1505,17 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
             # be the reason a montage does not draw.
             pass
 
+    # SUDOKU RUNS ONCE, OVER THE WHOLE SCREEN, BEFORE THE WELL LOOP.
+    # Every other picker decides a well from that well's own cells, so it
+    # can be computed inside the loop. Sudoku cannot: what a guide's cells
+    # look like is learned from every well the guide is in, and running it
+    # per well would throw away the one thing it is for.
+    sudoku_calls = None
+    if str(picking or "rank") == "sudoku":
+        sudoku_calls = _sudoku_calls(
+            work, counts, keys, guide_column, fraction_column,
+            score_column, name, notes)
+
     for _, row in well_frame.iterrows():
         here = grouped.get(tuple(row[k] for k in keys))
         label = "_".join(str(row[k]) for k in keys)
@@ -1535,6 +1621,22 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
                 wanted = "attributed"
                 picked_by = ("attributed (this well has one guide, or none of "
                              "the swept measurements are on the objects)")
+        if wanted == "sudoku":
+            # ACROSS WELLS, WHICH IS THE WHOLE POINT (209), and also the
+            # reason it cannot be computed inside this per-well loop the way
+            # the others are: a guide's appearance is learned from every
+            # well it is in. `_sudoku_calls` runs once for the whole screen
+            # before the loop and this reads its answer for this well.
+            called = (sudoku_calls or {}).get(label)
+            if called is not None:
+                mask = np.array([g == name for g in called[:len(ranked)]]) \
+                    if len(called) else np.zeros(len(ranked), dtype=bool)
+                if mask.size == len(ranked):
+                    top = ranked[mask]
+                    picked_by = "sudoku (propagated across wells)"
+            else:
+                picked_by = ("sudoku could not run on this well; fell back "
+                             "to rank")
         if wanted in ("attributed", "assigned") and effects:
             here_fractions = _well_guide_fractions(
                 counts, label, keys, guide_column, fraction_column)
