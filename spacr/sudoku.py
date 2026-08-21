@@ -222,32 +222,36 @@ def similarity_graph(features: np.ndarray, *,
 def propagate(graph, seeds: np.ndarray, *,
               alpha: float = 0.9,
               iterations: int = 100,
-              tolerance: float = 1e-6) -> np.ndarray:
-    """Spread the anchor mass along the graph.
+              tolerance: float = 1e-4,
+              dtype=np.float32) -> np.ndarray:
+    """Propagate guide-anchor mass through a cell-similarity graph.
 
-    :param graph: the affinity from :func:`similarity_graph`.
-    :param seeds: ``(n_cells, n_guides)``, non-zero on anchor rows only.
-    :param alpha: how much a cell listens to its neighbours against its own
-        seed. 0.9 is the usual value; at 1.0 the seeds are forgotten and the
-        answer is the graph's leading eigenvector, which says nothing about
-        guides.
-    :returns: ``(n_cells, n_guides)`` propagated mass, NOT normalised.
+    :param graph: Sparse affinity matrix returned by
+        :func:`similarity_graph`, with shape ``(n_cells, n_cells)``.
+    :param seeds: Anchor weights with shape ``(n_cells, n_guides)``. Rows for
+        unanchored cells should contain zeros.
+    :param alpha: Relative weight assigned to neighbouring cells. Values near
+        one favour graph propagation; ``alpha=1`` removes the seed term and
+        is therefore unsuitable for guide assignment.
+    :param iterations: Maximum number of propagation updates.
+    :param tolerance: Stop when the largest element-wise update is no greater
+        than this value.
+    :param dtype: Floating-point type used for the seed and normalized graph
+        matrices. The ``float32`` default reduces memory and runtime for large
+        screens; use ``float64`` when additional numerical precision is
+        required.
+    :returns: Unnormalized propagated mass with shape
+        ``(n_cells, n_guides)``.
 
-    Zhou et al.'s local-and-global-consistency iteration, ``F <- a S F +
-    (1-a) Y`` with ``S = D^-1/2 W D^-1/2``. It converges to
-    ``(1-a)(I - aS)^-1 Y`` and is run as an iteration rather than a solve
-    because the matrix is sparse and the fixed point is reached in tens of
-    steps.
-
-    THE MASS IS RETURNED UNNORMALISED and that is deliberate. Row-normalising
-    here would turn a cell that received almost nothing -- a cell unlike
-    every anchor of every guide -- into a confident-looking row summing to
-    one. That cell is the interesting one, and :func:`sudoku` finds it by
-    looking at the row's TOTAL before anything is normalised.
+    The update follows local-and-global consistency,
+    ``F <- alpha S F + (1 - alpha) Y``, where
+    ``S = D^-1/2 W D^-1/2``. The result is intentionally not row-normalized:
+    :func:`sudoku` uses the total received mass to distinguish cells with
+    weak support from confident assignments.
     """
     from scipy import sparse
 
-    values = np.asarray(seeds, dtype=float)
+    values = np.asarray(seeds, dtype=dtype)
     n = values.shape[0]
     if n == 0 or graph.shape[0] != n:
         return np.zeros_like(values)
@@ -256,7 +260,7 @@ def propagate(graph, seeds: np.ndarray, *,
     good = degree > 0
     inverse[good] = 1.0 / np.sqrt(degree[good])
     scaler = sparse.diags(inverse)
-    normalised = scaler @ graph @ scaler
+    normalised = (scaler @ graph @ scaler).astype(dtype)
 
     a = float(alpha)
     field_ = values.copy()
