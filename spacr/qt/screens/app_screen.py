@@ -245,6 +245,13 @@ SECTION_HINTS = CATEGORY_TOOLTIPS
 COLUMN_TABLES = {
     "annotation_column":  "png_list",
     "annotation_columns": "png_list",
+    # `classes` is a COMPOSITE, and its button goes on the column combo
+    # inside it -- see `_attach_column_picker`. It is here because it is a
+    # setting that names a column, and the whole point of this table is that
+    # such a setting should never have to be typed blind. Without it the one
+    # setting that decides every class in the module was the one setting with
+    # no way to fill it in when no table had been loaded yet.
+    "classes":            "png_list",
     # custom_measurement is gone: it was collected and never read, so a SQL
     # column picker for it offered to fill in a control that did nothing.
     "measurement":        None,
@@ -2013,6 +2020,16 @@ class AppScreen(QWidget):
         from .settings_model import _CsvColumnField
 
         if isinstance(widget, _CsvColumnField):
+            return
+        # A COMPOSITE PUTS ITS OWN BUTTON. The Classes editor's column combo
+        # is several widgets down; wrapping the composite would place the
+        # button beside the whole table rather than beside the field it
+        # fills, and could not write into it either.
+        from ..widgets.class_editor import ClassEditorWidget
+
+        if isinstance(widget, ClassEditorWidget):
+            widget.attach_sql_picker(self._settings_src_path,
+                                     COLUMN_TABLES[key] or "png_list")
             return
         from ..widgets.column_picker import attach_column_picker
         attach_column_picker(widget, self._settings_src_path,
