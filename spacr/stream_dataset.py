@@ -21,7 +21,8 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import (Any, Dict, Iterable, List, Mapping, Optional, Sequence,
+                    Tuple)
 
 import numpy as np
 import pandas as pd
@@ -278,3 +279,164 @@ def cut(stack: np.ndarray, mask: np.ndarray, label: int, *,
     return crop_object(data, np.asarray(mask), int(label),
                        channels=planes,
                        shape="bounding_box" if bounding_box else "object")
+
+
+# ---------------------------------------------------------------------------
+# The pass that writes the dataset
+# ---------------------------------------------------------------------------
+
+def _field_stem(row) -> str:
+    """`plate_row_column_field`, which is what a crop name is built on."""
+    from .schema import COLUMN_KEY, FIELD_KEY, PLATE_KEY, ROW_KEY
+
+    parts = [str(row.get(key, "") or "")
+             for key in (PLATE_KEY, ROW_KEY, COLUMN_KEY, FIELD_KEY)]
+    return "_".join(p for p in parts if p)
+
+
+def _stem_of(row) -> str:
+    """The field this object belongs to, preferring what was recorded.
+
+    `source` carries the .npy the object was READ from when the selection
+    came by that route, and a name that was read is always right. The
+    rebuilt stem is the fallback for a table built from the object table,
+    where there is no file name to have kept.
+    """
+    source = str(row.get("source", "") or "")
+    if source.startswith("npy:"):
+        return os.path.splitext(source.split(":", 1)[1].strip())[0]
+    return _field_stem(row)
+
+
+def _stack_for(merged_folder: str, stem: str) -> Optional[str]:
+    """The .npy holding this field, or None.
+
+    MATCHED ON THE STEM rather than assembled from it: a merged file's name
+    carries the plate exactly as the acquisition wrote it, and rebuilding it
+    from the parsed parts is how a plate whose name contains an underscore
+    stops being found.
+    """
+    if not os.path.isdir(str(merged_folder)):
+        return None
+    wanted = str(stem)
+    for name in sorted(os.listdir(str(merged_folder))):
+        if not name.endswith(".npy"):
+            continue
+        if os.path.splitext(name)[0] == wanted:
+            return os.path.join(str(merged_folder), name)
+    # A field written as `plate_A01_1_0.npy` has a trailing token the stem
+    # does not; match on the prefix as a second pass rather than a first, so
+    # an exact name always wins.
+    for name in sorted(os.listdir(str(merged_folder))):
+        if name.endswith(".npy") and name.startswith(wanted):
+            return os.path.join(str(merged_folder), name)
+    return None
+
+
+def stream(selection: pd.DataFrame, merged_folder: str, dst: str, *,
+           channel_arrays: Sequence[int] = (0, 1, 2),
+           mask_index: Optional[int] = None,
+           bounding_box: bool = True,
+           crop_mode: str = "cell",
+           write=None) -> Dict[str, Any]:
+    """Write the dataset the selection table describes. Returns a report.
+
+    AFTER THE TABLE, NEVER INSTEAD OF IT. This walks what was already
+    decided and saved; it makes no choices of its own about which objects
+    are in the training set, which is what makes the run reproducible from
+    the file rather than from the code.
+
+    ONE STACK READ PER FIELD, not per object. A field holds hundreds of
+    objects and a merged stack is tens of megabytes; re-reading it per crop
+    is the difference between a minute and an afternoon.
+
+    :param write: called with ``(path, array)``. Injected so the pass can be
+        tested without a dataset on disk -- the default writes a .npy beside
+        the name `measure_crop` would have used.
+    :returns: ``written``, ``missing``, ``fields``, ``folders``.
+    """
+    from .schema import OBJECT_KEY
+
+    if write is None:
+        def write(path, array):
+            np.save(os.path.splitext(path)[0] + ".npy", np.asarray(array))
+
+    report: Dict[str, Any] = {"written": 0, "missing": 0, "fields": 0,
+                              "folders": [], "trouble": []}
+    if selection is None or not len(selection):
+        report["trouble"].append(
+            "the selection table is empty, so there is nothing to stream")
+        return report
+
+    frame = selection.copy()
+    # THE TABLE ALREADY KNOWS WHICH FILE EACH OBJECT CAME FROM when it was
+    # built from the .npy stacks, and that beats rebuilding the name from
+    # the parsed parts: a merged file is named `plate1_A01_1_0.npy` while
+    # the parts come back as r1/c1, so a rebuilt stem matches NOTHING. The
+    # first attempt at this missed every field for exactly that reason.
+    frame["_stem"] = [
+        _stem_of(row) for _, row in frame.iterrows()]
+    for split in sorted(set(map(str, frame.get("split", ["train"])))):
+        folder = os.path.join(str(dst), str(split))
+        os.makedirs(folder, exist_ok=True)
+        report["folders"].append(folder)
+
+    for stem, here in frame.groupby("_stem", sort=True):
+        path = _stack_for(merged_folder, str(stem))
+        if path is None:
+            # COUNTED, NOT SKIPPED SILENTLY. A dataset short by a field is a
+            # dataset trained on a different screen from the one the table
+            # describes, and nothing else would say so.
+            report["missing"] += int(len(here))
+            report["trouble"].append(f"no merged stack for {stem}")
+            continue
+        try:
+            stack = np.load(path)
+        except Exception as error:                           # noqa: BLE001
+            report["missing"] += int(len(here))
+            report["trouble"].append(f"{stem}: {type(error).__name__}")
+            continue
+        report["fields"] += 1
+        plane = -1 if mask_index is None else int(mask_index)
+        mask = stack[..., plane] if getattr(stack, "ndim", 0) >= 3 else stack
+        for _, row in here.iterrows():
+            try:
+                label = int(float(row[OBJECT_KEY]))
+            except (TypeError, ValueError):
+                report["missing"] += 1
+                continue
+            crop = cut(stack, mask, label, bounding_box=bounding_box,
+                       channels=list(channel_arrays))
+            if crop is None:
+                report["missing"] += 1
+                continue
+            name = crop_name(str(stem), label, crop_mode=crop_mode)
+            out = os.path.join(str(dst), str(row.get("split", "train")), name)
+            write(out, crop)
+            report["written"] += 1
+    return report
+
+
+def stream_dataset(settings: Mapping[str, Any], dst: str, *,
+                   objects: Optional[pd.DataFrame] = None) -> Dict[str, Any]:
+    """Build the selection, save it, then stream. THE WHOLE PASS.
+
+    THE ORDER IS THE CONTRACT: "after the table is generated the streamin
+    begins to generate the datasets on disk". A pass that streamed first and
+    recorded afterwards would record what it happened to write rather than
+    what it set out to.
+    """
+    merged = str(settings.get("merged_folder")
+                 or os.path.join(str(settings.get("src", "")), "merged"))
+    table, path = build_selection(
+        dst, objects=objects, merged_folder=merged,
+        object_array=str(settings.get("object_array") or "cell"),
+        test_split=float(settings.get("test_split") or 0.2),
+        seed=int(settings.get("random_seed") or 0))
+    report = stream(
+        table, merged, dst,
+        channel_arrays=list(settings.get("channel_arrays") or (0, 1, 2)),
+        bounding_box=bool(settings.get("bounding_box", True)),
+        crop_mode=str(settings.get("object_array") or "cell"))
+    report["selection"] = path
+    return report
