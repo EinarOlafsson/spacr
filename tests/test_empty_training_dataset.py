@@ -49,7 +49,7 @@ def test_the_message_points_at_the_settings_that_cause_it(tmp_path):
     with pytest.raises(ValueError) as e:
         spacrDataset(root, ["nc", "pc"])
     msg = str(e.value)
-    assert "class_metadata" in msg and "metadata_type_by" in msg
+    assert "class_metadata" in msg and "Classes editor" in msg
 
 
 def test_a_non_empty_dataset_is_unaffected(tmp_path):

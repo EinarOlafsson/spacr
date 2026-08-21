@@ -707,24 +707,30 @@ def test_generate_training_dataset_metadata_column_is_missing(tmp_path, rng):
             _gtd(src, metadata_rules=None, metadata_type_by="condition",
                  class_metadata=["c1"]))
     assert "'condition'" in str(excinfo.value)
-    assert "metadata_type_by" in str(excinfo.value)
+    assert "Classes editor" in str(excinfo.value)
 
 
-def test_generate_training_dataset_measurement_rules(tmp_path, rng):
-    """measurement mode buckets rows with numeric where-clauses."""
+def test_the_retired_measurement_mode_is_migrated(tmp_path, rng):
+    """`dataset_mode='measurement'` is retired (229) and maps to annotation.
+
+    A REMOVAL THAT MAKES EVERY OLD SETTINGS FILE RAISE IS NOT A REMOVAL, it
+    is a break -- so the value is accepted and resolved rather than refused.
+    The mapping is not an approximation: the measurement path WROTE a label
+    column and then read it back as an annotation.
+    """
+    from spacr.training_basis import RETIRED_BASES
+
+    assert RETIRED_BASES["measurement"] == "annotation"
     src, _ = _build_png_src(tmp_path / "plate1", rng)
     train_dir, test_dir = IO.generate_training_dataset(_gtd(
-        src, dataset_mode="measurement", measurement_rules=[
-            {"name": "low", "where": [{"column": "test", "op": "<", "value": 2}]},
-            {"name": "high", "where": [{"column": "test", "op": ">=", "value": 2}]},
-        ]))
-    assert sorted(os.listdir(train_dir)) == ["high", "low"]
-    assert _class_counts(train_dir, test_dir) == {"high": (16, 4), "low": (16, 4)}
+        src, dataset_mode="measurement",
+        annotation_column="test", annotated_classes=[1, 2]))
+    assert sorted(os.listdir(train_dir)) == ["test_1", "test_2"]
 
 
 def test_generate_training_dataset_invalid_mode(tmp_path, rng, capsys):
     src, _ = _build_png_src(tmp_path / "plate1", rng, n=4)
-    with pytest.raises(ValueError, match="Invalid dataset_mode"):
+    with pytest.raises(ValueError, match="is not one of"):
         IO.generate_training_dataset(_gtd(src, dataset_mode="nonsense"))
 
 
