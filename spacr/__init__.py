@@ -93,6 +93,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     # from `sequencing` so the multiprocessing read workers do not import
     # the plotting and statistics only the post-run analysis needs.
     "sequencing_qc",
+    "read_background",
     # cell → nucleus → pathogen, read as the tree the `cell_id` links in
     # measurements.db already describe. Query-only; it adds no column.
     "lineage",
@@ -130,10 +131,14 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "attribution",
     "attribution_columns",
     "agreement",
+    "annotation_power",
+    "annotation_umap_qc",
+    "annotation_validation",
     "active_learning",
     # Correcting a mask and a track by hand, on the record: every edit is
     # journalled so a curated result still says where it came from.
     "curation",
+    "sudoku",
     "plate_qc",
     "seg_qc",
     "model_compare",
@@ -141,6 +146,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "batch",
     "batch_correction",
     "classifier_evaluation",
+    "classifier_quality",
     # The confusion matrix as a set of live queries rather than a picture —
     # "which objects are in this cell" is answerable, so a misclassified
     # object can be opened instead of counted.
