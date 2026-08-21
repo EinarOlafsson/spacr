@@ -2,7 +2,7 @@
 A CONTROL CAN BE NAMED AS A GENE OR AS A GUIDE
 ================================================================================
 
-Status:    filed 2026-08-20, not started.
+Status:    DONE 2026-08-20. See the closing section.
 Requested: 2026-08-20 -- "in the regression modual when adding controlls the
            user can add them as grna names (000000_1, 000000_2, 000000_3,
            ...), but they should also be able to add the grnas as a 'gene',
@@ -177,3 +177,17 @@ STILL OWED
     per-well control LOCATIONS (c1, c2), a different vocabulary, and were
     left alone deliberately. Worth confirming that is right rather than
     assumed.
+
+--------------------------------------------------------------------------------
+2026-08-20 (later) -- DONE. AND `spacr.control_names` IS NOW THE ONE READER.
+--------------------------------------------------------------------------------
+
+All four checklist items hold, and the resolver has since been picked up by
+the code written after it rather than staying a regression-only helper:
+`ml`, `cell_montage_view`, `gene_measurement_compare` and the Compare panel
+all resolve a control through it. 187 B's "against the controls" contrast is
+the newest caller -- a gene, a guide, a prefixed name and a bare one all
+name the same control wells there, without that panel growing a fifth
+opinion about what a control looks like.
+
+71 pass across the control-naming and example-data suites.
