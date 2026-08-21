@@ -158,3 +158,61 @@ This also reframes section A. The reported pile-up at 1 and 0 sits on a
 screen where two thirds of the guides cannot be annotated at all, so a
 method appearing to annotate them confidently is the first thing to
 disbelieve.
+
+--------------------------------------------------------------------------------
+THE THRESHOLD CAN BE MEASURED INSTEAD OF GUESSED (proposed 2026-08-21)
+--------------------------------------------------------------------------------
+
+    "another way to calculate the gRNA fraction threshold is measure the
+     total fraction and the individual guide fractions in that are detected
+     in the first 3 columns."
+
+RIGHT, AND THE ANSWER IS THE PER-GUIDE FACTOR RATHER THAN THE SINGLE VALUE.
+`spacr/read_background.py` implements it. A column of known composition is a
+direct measurement of the spurious rate: every read that is not the intended
+guide is noise by construction.
+
+WHAT THE PLATE ACTUALLY CONTAINS, checked before anything was built on the
+description, because it differs from it in three ways that matter:
+
+  * column 1 is 56-73% `TGGT1_233460_4`, not 100%;
+  * column 2 is 55-87% `TGGT1_239740_1`. The request named 249730; the reads
+    say 239740. Worth confirming which is meant;
+  * column 3 is the stated mix, and
+  * `TGGT1_220950_1` IS IN ALL 48 CONTROL WELLS at 4-16%, where the request
+    says there should be no other guides. It is also the largest guide in
+    column 4 at 23%.
+
+Measured over the 48 control wells:
+
+    spurious mass per well        median 31.1%  (4.9% - 69.8%)
+    median guide background            0.0133%
+    99th percentile (outliers out)     0.147%
+    TGGT1_220950_1                     9.22%  --  693x the median, 48/48 wells
+
+SO A SINGLE THRESHOLD CANNOT SERVE BOTH POPULATIONS. The diffuse haze is
+trace-level and the current 2% constant is more than an order of magnitude
+above it -- it deletes real biology to remove noise that 0.15% would have
+removed. And no threshold low enough to be sensible touches 220950, which
+sails through at 9%.
+
+THE READS CANNOT SAY WHAT 220950 IS. Either a sequencing artefact -- index
+hopping, a barcode collision -- or a guide genuinely over-represented in the
+library and really in those cells. The correction is opposite in the two
+cases. The IMAGING can separate them: a guide really present moves its
+cells' phenotype and an artefact does not. `suspicious()` reports the
+candidate and refuses the verdict.
+
+AND THE CONTROL COLUMNS OVERSTATE THE BACKGROUND FOR AN ORDINARY WELL. Index
+hopping scales with the abundance of the source, and a control well has one
+guide at seventy per cent where an ordinary well's largest is five.
+`subtract_background` takes a `scale` for that reason and 1.0 is the
+conservative end.
+
+A FAULT THE TESTS CAUGHT IN THE FIRST IMPLEMENTATION: the suggested
+threshold took a quantile over ALL the backgrounds, so it was contaminated
+by exactly the outliers it was meant to exclude. On a 42-guide fixture one
+outlier at 9% dragged the 99th percentile to 6.6%. On the real 1,325-guide
+screen the same outlier hid inside the quantile instead, which is worse --
+nothing looked wrong. The outliers are now removed before the quantile, by
+the same rule `suspicious` uses.
