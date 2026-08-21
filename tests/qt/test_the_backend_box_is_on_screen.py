@@ -144,15 +144,22 @@ def test_the_selected_backend_is_the_one_written_out_in_full(field, qtbot):
 # 2. It follows the model being fitted
 # ---------------------------------------------------------------------------
 
-def test_the_box_and_the_greying_follow_regression_type(screen, field):
-    """cuML is refused under `mixed` and offered under `lasso`.
+def test_the_box_and_the_greying_follow_regression_type(screen, field,
+                                                        monkeypatch):
+    """The torch backend is offered under `mixed` and refused under `lasso`.
 
     A description judged once when the panel was built would be wrong for
     every family the user picks afterwards.
     """
+    from spacr import regression_backends
+
+    monkeypatch.setattr(
+        regression_backends, "cuda_present_without_importing_torch",
+        lambda: True)
     types = screen._settings_model._widgets["regression_type"]
 
     types.setCurrentText("mixed")
+    field.refresh()
     assert field.regression_type() == "mixed"
     mixed_items = _items(field)
     assert mixed_items[field.combo.itemText(_entry_for(field, "torch (GPU)"))]

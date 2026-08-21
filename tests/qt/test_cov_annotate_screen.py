@@ -1701,17 +1701,11 @@ def test_cancelling_the_providers_dialog_leaves_the_menu_as_it_was(
 # ---------------------------------------------------------------------------
 
 def test_closing_waits_for_a_running_retrain_then_lets_it_go(
-        qtbot, qt_theme_applied, experiment: Path, monkeypatch):
+        qtbot, qt_theme_applied, monkeypatch):
     """A fit and its score write-back are native/SQLite work; tearing the
     widget down under them is an abort, not a clean close."""
     scr = annotate_mod.AnnotateScreen()
     qtbot.addWidget(scr)
-    scr._settings.grid_rows = 1
-    scr._settings.grid_cols = 1
-    scr._compute_grid_dims = lambda: None
-    scr._rebuild_grid()
-    scr._open_source(str(experiment))
-    qtbot.waitUntil(lambda: len(scr._page_paths) == 1, timeout=10000)
     worker = annotate_mod._RetrainWorker(scr._settings.db_path, "annotate", {})
     scr._retrain_worker = worker
     drained = []

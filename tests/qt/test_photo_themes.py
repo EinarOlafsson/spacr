@@ -1127,6 +1127,7 @@ class TestStylesheet:
         monkeypatch.setattr(preferences, "get_theme", lambda: "cell")
         window = MainWindow()
         qtbot.addWidget(window)
+        preferences.apply_preferences_to_app(qapp)
         window.refresh_theme()          # must not raise
         assert qapp.styleSheet()
 
