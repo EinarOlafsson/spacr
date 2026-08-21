@@ -1355,7 +1355,12 @@ def test_the_two_entries_everyone_reaches_for_stay_one_click_away(volcano):
            if action.menu() is None and not action.isSeparator()]
 
     assert "Reset view" in top
-    assert "Export…" in top
+    # "Save figure…", NOT "Export…" (187 D). There were two top-level ways to
+    # write a file and one of them produced a broken one -- no preview and no
+    # styling pass, so a page sized in millimetres got text scaled for the
+    # screen. The remaining door shows what it will write. The rule this test
+    # is for is unchanged: writing the figure stays one click away.
+    assert "Save figure…" in top
 
 
 def test_what_changes_the_claim_comes_before_what_changes_the_look(volcano):

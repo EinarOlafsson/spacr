@@ -57,9 +57,17 @@ def test_the_figure_tab_offers_a_text_colour(qtbot, figure):
     dialog = FigureSettingsDialog(figure)
     qtbot.addWidget(dialog)
 
-    labels = _row_labels(dialog)
-    assert any("text colour" in text.lower() for text in labels), labels
-    assert any("background" in text.lower() for text in labels), (
+    labels = [text.lower() for text in _row_labels(dialog)]
+    # ONE CONTROL BECAME TWO (152). This looked for "text colour", which was
+    # the single row that drove the labels, the spines and the tick marks
+    # together -- and the maintainer asked for them apart: "so a user can now
+    # say 'dark axes, coloured labels'". The rows are "Line colour" and
+    # "Font colour" now, and the thing this test is for -- that the dialog
+    # offers a colour for the text at all -- is satisfied by the second.
+    assert any("font colour" in text for text in labels), labels
+    assert any("line colour" in text for text in labels), (
+        "152 split the one colour into two; the line half is missing")
+    assert any("background" in text for text in labels), (
         "the background row went missing while adding the colour row")
 
 
