@@ -409,3 +409,154 @@ class TestThePropagationPrecision:
         assert np.allclose(settled,
                            module.propagate(graph, seeds, iterations=400),
                            atol=1e-3)
+
+
+class TestTheCallsLandOnTheRightCells:
+    """A silent misalignment, found on a real run.
+
+    `_sudoku_calls` returned its answers POSITIONALLY, and the montage
+    matches them against `ranked` -- the well's rows SORTED BY SCORE. Same
+    length, different cells: the calls landed on the wrong objects, and
+    where the lengths disagreed nothing was marked at all.
+
+    The run said "sudoku: 59 of 1,076 cell(s) annotated" and then
+    highlighted ZERO in every well, which is the signature: the work was
+    done and the answer was applied to the wrong rows.
+    """
+
+    @staticmethod
+    def _screen(wells=6, per_well=80, seed=0):
+        import pandas as pd
+
+        rng = np.random.default_rng(seed)
+        objects = pd.DataFrame([
+            {"prc": f"p1_w{w}", "prcfo": f"p1_w{w}_f1_o{i}",
+             "pred": float(rng.random()),
+             "area": float(rng.normal(100, 20)),
+             "intensity": float(rng.normal(50, 10))}
+            for w in range(wells) for i in range(per_well)])
+        counts = pd.DataFrame([
+            {"prc": f"p1_w{w}", "grna": guide, "gene": guide.split("_")[0],
+             "fraction": share}
+            for w in range(wells)
+            for guide, share in (("A_1", 0.55), ("B_1", 0.45))])
+        return objects, counts
+
+    def test_the_calls_are_keyed_by_index_not_position(self):
+        """An index cannot be misaligned by a sort.
+
+        Asserted on the RETURN rather than by grepping the body: the
+        function also selects rows positionally on its way there, with
+        `.iloc`, and that is correct -- what must not be positional is the
+        answer it hands back."""
+        import pandas as pd
+
+        from spacr.cell_montage import _sudoku_calls
+
+        rng = np.random.default_rng(0)
+        frame = pd.DataFrame(
+            {"prc": ["p1_w1"] * 40 + ["p1_w2"] * 40,
+             "pred": rng.random(80),
+             "area": rng.normal(100, 20, 80)},
+            # A NON-TRIVIAL INDEX, so a positional answer cannot pass by
+            # coincidence.
+            index=range(1000, 1080))
+        counts = pd.DataFrame([
+            {"prc": w, "grna": g, "gene": g.split("_")[0], "fraction": f}
+            for w in ("p1_w1", "p1_w2")
+            for g, f in (("A_1", 0.6), ("B_1", 0.4))])
+        notes = []
+        called = _sudoku_calls(frame, counts, ["prc"], "grna", "fraction",
+                               "pred", "A_1", notes)
+
+        assert called, notes
+        assert set(called) <= set(frame.index)
+        assert min(called) >= 1000
+
+    def test_cells_are_actually_highlighted(self):
+        """The end of the contract: annotated cells reach the montage."""
+        from spacr.cell_montage import select_montage
+
+        objects, counts = self._screen()
+        plan = select_montage(objects, counts, "A_1", 1.0,
+                              score_column="pred", picking="sudoku",
+                              show_all=True)
+
+        said = " ".join(str(w.note) for w in plan.wells)
+        assert "none is highlighted" not in said
+        annotated = [n for n in (plan.notes or []) if "annotated across" in n]
+        assert annotated, "the run reported what it annotated"
+
+    def test_what_the_screen_pass_annotated_reaches_the_wells(self):
+        """The number in the summary and the number highlighted must agree
+        in kind: a screen pass that annotates hundreds cannot leave every
+        well empty."""
+        from spacr.cell_montage import (ANNOTATION_COLUMN, NOT_ANNOTATED,
+                                        select_montage)
+
+        objects, counts = self._screen()
+        plan = select_montage(objects, counts, "A_1", 1.0,
+                              score_column="pred", picking="sudoku",
+                              show_all=True)
+        frame = plan.objects
+        named = (frame[ANNOTATION_COLUMN] != NOT_ANNOTATED).sum()
+        assert named > 0
+
+
+class TestTheNoteDescribesThePickerThatRan:
+    """The fraction arithmetic is how `rank` decides. Every other picker
+    decides some other way and does not consult it -- printing it regardless
+    reported a calculation that did not happen."""
+
+    @staticmethod
+    def _one_well():
+        import pandas as pd
+
+        rng = np.random.default_rng(0)
+        objects = pd.DataFrame([
+            {"prc": "p1_w1", "prcfo": f"p1_w1_f1_o{i}",
+             "pred": float(rng.random()), "area": float(rng.normal(100, 20))}
+            for i in range(80)])
+        counts = pd.DataFrame([
+            {"prc": "p1_w1", "grna": "A_1", "gene": "A", "fraction": 0.11},
+            {"prc": "p1_w1", "grna": "B_1", "gene": "B", "fraction": 0.74}])
+        return objects, counts
+
+    def test_rank_still_shows_its_arithmetic(self):
+        from spacr.cell_montage import select_montage
+
+        objects, counts = self._one_well()
+        plan = select_montage(objects, counts, "A_1", 1.0,
+                              score_column="pred", picking="rank",
+                              show_all=True)
+        said = " ".join(str(w.note) for w in plan.wells)
+        assert "round(" in said
+        assert "highest scores" in said
+
+    def test_another_picker_does_not_borrow_it(self):
+        from spacr.cell_montage import select_montage
+
+        objects, counts = self._one_well()
+        plan = select_montage(objects, counts, "A_1", 1.0,
+                              score_column="pred", picking="sudoku",
+                              show_all=True)
+        said = " ".join(str(w.note) for w in plan.wells)
+        assert "normalised by" not in said
+        assert "sudoku" in said
+        # It still states what the fraction WOULD support, since the gap
+        # between that and what was chosen is the interesting part.
+        assert "fraction would support" in said
+
+    def test_a_picker_that_chose_nothing_says_so_plainly(self):
+        """"the 0 with the highest scores are highlighted" describes the
+        picture with the wrong rule and reads as a bug."""
+        from spacr.cell_montage import select_montage
+
+        objects, counts = self._one_well()
+        plan = select_montage(objects, counts, "A_1", 1.0,
+                              score_column="pred", picking="sudoku",
+                              show_all=True)
+        said = " ".join(str(w.note) for w in plan.wells)
+        if "none is highlighted" in said:
+            assert "0 with the" not in said
+            assert "annotated none of this well" in said
