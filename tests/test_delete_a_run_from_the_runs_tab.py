@@ -262,14 +262,30 @@ def test_the_context_menu_puts_the_safe_entry_first(qtbot, tmp_path):
     # another run was a single click.
     assert verbs[0] == "load"
     assert actions[0].text() == "Load this run"
-    assert verbs[1] == "remove"
-    assert actions[1].text().startswith("Remove 1 run from the list")
+    # BY POSITION IN THE ORDER, NOT BY INDEX. This read `verbs[1]`, which is
+    # a claim about how many entries the menu has -- and it broke the moment
+    # 180 D's "Restore what this run had open…" landed between Load and
+    # Remove, on a menu whose ordering rule was still perfectly satisfied.
+    # The rule is what this test is for.
+    remove = actions[verbs.index("remove")]
+    assert remove.text().startswith("Remove 1 run from the list")
+    assert verbs.index("remove") < verbs.index("delete")
     # DESTRUCTIVE LAST, whatever else the menu grows. 116's "open beside"
     # arrived between the two and the ordering rule is the one that matters:
     # what is at the top must not be the irreversible one.
     assert verbs[-1] == "delete"
     assert actions[-1].text().startswith("Delete 1 run from disk")
-    assert all(action.isEnabled() for action in actions)
+    # THE ENTRIES THIS TEST IS ABOUT. `restore` is deliberately offered and
+    # greyed for a run that saved no workspace -- instruction 106, so that an
+    # entry appearing only for runs that happen to have a bundle is not one
+    # nobody learns exists -- and this fixture's run saved none. Asserting
+    # "everything is enabled" turned that correct behaviour into a failure.
+    for verb in ("load", "remove", "delete"):
+        assert actions[verbs.index(verb)].isEnabled(), verb
+    greyed = [a for a in actions if not a.isEnabled()]
+    assert all(a.toolTip() for a in greyed), (
+        "a greyed entry with no tooltip is the 'present but inert' control "
+        "instruction 106 forbids")
 
 
 def test_load_is_greyed_while_the_run_is_still_going(qtbot, tmp_path):
