@@ -63,7 +63,18 @@ class TestItNamesTheInstallState:
         row = _rows(None)["gpytorch"]
         if package_installed("gpytorch"):
             pytest.skip("gpytorch is installed in this environment")
-        assert "pip install" in row["short_reason"]
+        assert "install" in row["short_reason"]
+
+    def test_every_short_reason_fits_the_dropdown_entry(self):
+        """`short_reason` is appended to the entry's own text, so it has a
+        hard budget. Asserted here as well as in the backend suite because
+        this file is what added the types and the install state to it."""
+        for regression_type in ("mixed", "ols", "lasso", None):
+            for row in backend_menu(regression_type):
+                if row["enabled"]:
+                    continue
+                assert len(row["short_reason"]) <= 80, (
+                    regression_type, row["name"], row["short_reason"])
 
     def test_pymer4_still_names_r(self):
         """pip alone cannot make it work -- R is a system package."""
@@ -74,12 +85,26 @@ class TestItNamesTheInstallState:
 
     def test_not_wired_up_is_said_alongside_not_installed(self):
         """Installing the package alone would not make it choosable, and
-        wiring it up alone would not either."""
+        wiring it up alone would not either -- so both facts are carried.
+
+        THE SHORT FORM SPELLS "NOT INSTALLED" AS THE PIP COMMAND. It has to
+        fit inside a dropdown entry and there is an 80-character test
+        holding it there; the first version of this message ran to 94 and
+        broke it. The long `reason` has room to say both in words."""
         row = _rows(None)["numpyro"]
         if package_installed("numpyro"):
             pytest.skip("numpyro is installed in this environment")
-        assert "not wired up" in row["short_reason"]
-        assert "not installed" in row["short_reason"]
+
+        short = row["short_reason"]
+        assert "not wired up" in short
+        # HOW TO GET IT, in whatever spelling -- the exact wording of this
+        # message is being tuned, so this asserts the SUBSTANCE. A test that
+        # pins prose turns every improvement into a failure.
+        assert "install" in short
+        assert len(short) <= 80
+
+        assert "not installed" in row["reason"]
+        assert "does not route any fit" in row["reason"]
 
 
 class TestTheCapabilityMessageIsUnchanged:
