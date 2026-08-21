@@ -210,3 +210,53 @@ prevalence, so if it rises with it the classifier is reading context rather
 than the cell -- and every fraction it produces is then partly a copy of the
 fraction it was given. There is a test that plants exactly that cheat and
 catches it.
+
+--------------------------------------------------------------------------------
+THE REAL NUMBERS, READ FROM THE tsg101 TEST SPLITS
+--------------------------------------------------------------------------------
+
+Supplied 2026-08-21. THE NUMBER THIS FILE ASKED FOR WAS ALREADY ON DISK:
+`pos_accuracy` is the sensitivity and `neg_accuracy` the specificity, and
+the training code writes both on every plate.
+
+    plate      se        sp     se+sp-1    threshold
+      1      0.9640    0.9846    0.9486      0.4699   (computed per-cell)
+      2      0.9553    0.9817    0.9370      0.2955
+      3      0.9639    0.9887    0.9526      0.3174
+      4      0.9584    0.9700    0.9284      0.8567
+
+BETTER THAN THE 94% THIS FILE ASSUMED, and the specificity is the half that
+matters most. Variance inflation is 1.13, not 1.29.
+
+THE CORRECTION IS NEGLIGIBLE FOR A COMMON GUIDE AND DOMINANT FOR A RARE ONE,
+which is not visible in the accuracy and is the finding that decides whether
+any of this was worth building. At se = 0.9604, sp = 0.9812:
+
+    true 30%  ->  observed 30.1%   -- a no-op
+    true 10%  ->  observed 11.3%   -- 1.13x
+    true  5%  ->  observed  6.6%   -- 1.32x
+    true  2%  ->  observed  3.8%   -- 1.88x
+    true  1%  ->  observed  2.8%   -- 2.82x
+
+The false positives are a share of the NEGATIVES, and when a guide is rare
+almost every cell in the well is a negative -- so a small false-positive
+rate on a large population swamps a large true-positive rate on a small one.
+SCREEN HITS ARE RARE, so the correction matters exactly where the science
+is.
+
+TWO LIMITS OF THIS TEST SPLIT, both material:
+
+  * PREVALENCE STRATIFICATION CANNOT BE DONE FROM IT. Every test well is
+    purely pc or purely nc -- per-well prevalence is 0 or 1 -- and the split
+    itself is balanced 584/584. There is only one prevalence in the file, so
+    the check that would catch a classifier reading context has nothing to
+    vary. It needs out-of-fold predictions on mixed wells, which is the
+    argument for the re-fit the maintainer offered.
+  * THE THRESHOLDS ARE NOT COMPARABLE ACROSS PLATES. 0.2955 on plate 2
+    against 0.8567 on plate 4 is nearly threefold. Measured on plate 1's
+    ROC, moving between those two costs three points of sensitivity and
+    gains one and a half of specificity. THE CORRECTION IS PER-PLATE OR IT
+    IS WRONG.
+
+Confirmed too: every test well sits in column 1 or 2, exactly as stated, so
+`training_wells` identifies the held-out set correctly on this screen.
