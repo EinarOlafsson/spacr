@@ -2,7 +2,7 @@
 THE PERMUTATION TEST SHOWS THE RESIDUALS IT PERMUTES
 ================================================================================
 
-Status:    filed 2026-08-21, not started.
+Status:    filed 2026-08-21, DONE 2026-08-21.
 Requested: 2026-08-21 -- "phenotype are first residualised against the block
            but no residual graph."
 Owner:     Regression QC, guide_permutation
@@ -64,3 +64,52 @@ HOW TO KNOW IT WORKED
 * Where autocorrelation is found, the panel names `guide_nuisance_columns`
   as the remedy rather than only reporting the number.
 * A run with position already in the nuisance columns shows the difference.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+`spacr/permutation_qc.py` measures the assumption and `_report_exchangeability`
+runs it at the end of the permutation branch.
+
+  * `autocorrelation` -- Durbin-Watson on the residuals THAT WERE PERMUTED,
+    not on a model that was not fitted.
+  * `position_effect` -- how much of the residual one position column
+    explains, per block and pooled.
+  * `exchangeability_verdict` -- and it NAMES THE REMEDY. "Durbin-Watson
+    1.22" is a number; "add rowID to guide_nuisance_columns" is something
+    the reader can do, and it is the same setting the run already has.
+
+PER BLOCK AS WELL AS POOLED, because the shuffle is within-block: a pooled
+statistic can look healthy while one plate is badly structured, and that
+plate is where the false positives come from. There is a test with a ramp in
+one plate of three that the pooled figure hides.
+
+A BUG THIS MODULE'S OWN TEST CAUGHT IMMEDIATELY: the first version compared
+eta-squared to a fixed 0.05. Under the null eta-squared has an expected
+value of about (k-1)/(n-1), so with sixteen levels pure noise scores near
+0.05 and the check flagged the control case that was written to pass. It now
+uses an F test, whose degrees of freedom already account for the level
+count, and reports omega-squared beside it because that one is unbiased and
+will not contradict the p-value.
+
+--------------------------------------------------------------------------------
+RUN ON THE REAL SCREEN
+--------------------------------------------------------------------------------
+
+    position NOT removed:
+      rowID explains 3.2% of the residual variance across 16 level(s)
+      (p = 0.0028) -- wells at different rowID values are not alike, so
+      they are not swappable.
+
+    position removed (the default set the same day):
+      nothing found. Durbin-Watson 2.06 over 606 well(s) in 4 block(s),
+      and no position column explains the residual.
+
+So the row effect was real, the default removes it, and the diagnostic
+confirms the removal rather than assuming it. POSITION IS MEASURED EVEN WHEN
+IT WAS REMOVED for exactly that reason: a column already in the nuisance set
+should come back explaining nothing, and if it does not, the removal did not
+work.
+
+Tests: `tests/test_the_permutation_shows_its_residuals.py`, 15 passing.
