@@ -4243,11 +4243,9 @@ class FastPlot(QWidget):
     # ------------------------------------------------------- multi-select
 
     def selected_keys(self) -> List[str]:
-        """Every selected identifier, in the order they were picked.
+        """Return selected identifiers in pick order.
 
-        THE ONE SOURCE OF TRUTH for instruction 206. The gene tile, the image
-        tabs and the cell-table graphs all read this, so none of them can be
-        showing a different guide from the others.
+        Linked gene, image, and cell-table views read this shared selection.
         """
         return list(self._selected_keys)
 
@@ -7507,11 +7505,9 @@ class ResultsTable(QWidget):
 
     row_selected = Signal(int)
     key_selected = Signal(str)
-    #: EVERY selected identifier (instruction 206). The multi-select funnel,
-    #: beside `key_selected` rather than instead of it: the consumers that
-    #: can only show one thing keep working unchanged, and the ones that can
-    #: show several read this. Both are emitted from `select_keys`, so they
-    #: cannot disagree about what is selected.
+    #: Emitted with the complete selection. ``key_selected`` remains available
+    #: to consumers that can display only one row; both signals are emitted by
+    #: :meth:`select_keys` from the same live selection.
     keys_selected = Signal(list)
 
     def __init__(self, parent=None):
@@ -7809,11 +7805,10 @@ class ResultsTable(QWidget):
         return found
 
     def selected_keys(self) -> list:
-        """The identifiers of every selected row, top to bottom.
+        """Return selected row identifiers in visual order.
 
-        READ OFF THE WIDGET, not off a remembered list. The user can extend
-        the selection in the table itself with ctrl-click, and a cached copy
-        would not know -- which is the drift instruction 206 is about.
+        The method reads the live widget selection so Ctrl-click changes are
+        represented immediately.
         """
         if self._frame is None or not self._key_column:
             return []

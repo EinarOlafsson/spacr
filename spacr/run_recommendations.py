@@ -1,21 +1,10 @@
-"""What the run's own numbers say to change, and nothing else.
+"""Generate reproducible recommendations from regression diagnostics.
 
-Instruction 225: "at the end of summary there should be a new section that
-outlines recomendations based on the results of the run. not AI generated
-but dynamic data driven recommendations".
-
-EVERY RECOMMENDATION IS A RULE WITH A THRESHOLD. It fires from a measured
-value or it does not appear. No sentence is composed at run time: the
-wording is fixed and the CONDITION is measured. That is the difference
-between advice and a paragraph that always says something.
-
-EACH ONE NAMES A SETTING. "172 observations above the 4/n rule" is a number;
-"consider regression_type='rlm'" is something the reader can do. A finding
-with no action attached belongs in the diagnostics, not here.
-
-AND EACH NAMES THE MEASUREMENT THAT TRIGGERED IT, so the reader can
-disagree. A recommendation whose evidence is invisible is indistinguishable
-from a default opinion.
+Each recommendation is a fixed rule triggered by a measured threshold. The
+result names the setting to change, the proposed action, the evidence that
+triggered it, and whether the issue blocks interpretation. Rules that do not
+fire are omitted, so the summary contains only actions supported by the
+current run.
 """
 from __future__ import annotations
 

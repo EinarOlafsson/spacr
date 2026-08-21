@@ -3354,7 +3354,7 @@ tooltips = {
     #  spaCR with no hover help on any row.                             #
     # ---------------------------------------------------------------- #
     'response_speed':
-        "How much thinking the provider is asked for on each reply. "
+        "(str) - How much thinking the provider is asked for on each reply. "
         "'fast' answers quickest and is enough for a question about what a "
         "setting does; 'deep' costs more of your subscription's quota per "
         "reply and is worth it for reading a traceback or a run summary. "
@@ -3362,23 +3362,23 @@ tooltips = {
         "the same choice means the same thing across providers. "
         "Default 'balanced'.",
     'auto_file_issues':
-        "Offer to open a GitHub issue when a run fails. spaCR drafts the "
+        "(bool) - Offer to open a GitHub issue when a run fails. spaCR drafts the "
         "report from the traceback and the settings that produced it and "
         "SHOWS IT TO YOU FIRST -- nothing is sent without your pressing "
         "send, because a settings dict can carry the paths of your own "
         "data. Default False.",
     'route_errors_through_ai':
-        "Send a failing run's traceback to the AI Console automatically, so "
+        "(bool) - Send a failing run's traceback to the AI Console automatically, so "
         "an explanation is waiting rather than asked for. The traceback and "
         "the settings leave your machine when this is on; leave it off if "
         "your paths or filenames are themselves sensitive. Default False.",
     'console_aware':
-        "Let the assistant read the console output of the run you are "
+        "(bool) - Let the assistant read the console output of the run you are "
         "asking about, instead of only your typed question. This is what "
         "makes 'why did that fail' answerable without pasting anything. "
         "Default True.",
     'system_prompt':
-        "Text prepended to every conversation, for standing instructions "
+        "(str) - Text prepended to every conversation, for standing instructions "
         "the assistant should not need reminding of -- which organism you "
         "work on, which conventions your plates follow, how you want "
         "answers formatted. Empty uses spaCR's own prompt unchanged. "
