@@ -2,7 +2,7 @@
 "COLOUR BY" TAKES MORE THAN ONE COLUMN
 ================================================================================
 
-Status:    filed 2026-08-21, not started.
+Status:    DONE 2026-08-21.
 Requested: 2026-08-21 -- "when choosing color by i should be able to choose a
            selection of options not only one".
 Owner:     Qt GUI (results panel, graph builder)
@@ -45,3 +45,39 @@ HOW TO KNOW IT WORKED
 * A selection beyond the cap is refused with the reason, not silently
   truncated.
 * Clearing the selection returns to unlcoloured, and that is reachable.
+
+--------------------------------------------------------------------------------
+DONE 2026-08-21
+--------------------------------------------------------------------------------
+
+LAYERED, which is the design decision the item said had to be made rather
+than left to the plotting call. Hue, then marker SHAPE, then OPACITY, and
+ALWAYS IN THAT ORDER so the same choice always produces the same picture.
+
+COMBINING WAS THE ALTERNATIVE AND IT LOSES. Two columns of three levels is
+nine legend entries and three is twenty-seven -- and 122 already measured a
+twenty-seven entry legend at 40 ms of every redraw, before anybody tries to
+read it.
+
+THREE ORDERED COMBOS, NOT A CHECKLIST. The order IS the encoding, and a
+checklist has no way to say which column is the colour and which is the
+shape. Adding a channel is filling in the next box.
+
+THREE REFUSALS, EACH A REAL ANSWER RATHER THAN AN OVERSIGHT: no first
+channel turns the others off, because a shape meaning one thing beside a
+colour meaning the q-value is two claims on one dot with nothing saying
+which; a column repeated on a second channel draws the same fact twice; and
+there is no fourth box at all.
+
+FOUR SHAPES, because four is how many pyqtgraph symbols a reader can tell
+apart at eight pixels -- a star and a pentagon are the same blob at that
+size, and a legend distinguishing them lies about what is on screen. Past
+four they repeat, and the legend hands back what each level ACTUALLY got so
+a collision is visible rather than silent.
+
+OPACITY NEVER REACHES ZERO. A fully transparent point is an absent point,
+and a channel that can delete a datapoint is not an encoding.
+
+THE CONTROL IS VISIBLE AGAIN. It was hidden because it duplicated the
+volcano's own "Colour by a column…"; it now does something that menu cannot,
+and a feature nobody can reach is not a feature.
