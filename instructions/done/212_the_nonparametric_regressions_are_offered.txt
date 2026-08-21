@@ -2,7 +2,7 @@
 THE NONPARAMETRIC REGRESSIONS ARE OFFERED
 ================================================================================
 
-Status:    filed 2026-08-21, PREMISE CORRECTED 2026-08-21. Not started.
+Status:    filed 2026-08-21, DONE 2026-08-21.
 Requested: 2026-08-21 -- "there are nonparametric versions of regression these
            should be included!"
 Owner:     Regression
@@ -138,3 +138,46 @@ HOW TO KNOW IT WORKED
 * The dropdown says what each family assumes.
 * Nothing is described as nonparametric that is merely robust.
 * A settings CSV written before this produces the same fit.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE, AND WHAT WAS DELIBERATELY NOT
+--------------------------------------------------------------------------------
+
+`guide_statistic` -- `'pearson'` (the historical default) or `'rank'`.
+
+THE INFERENCE WAS ALWAYS DISTRIBUTION-FREE; THE STATISTIC WAS NOT, and that
+is the gap this closes. The permutation builds its own null, so the p-value
+needs no assumption -- but the quantity being permuted was a partial
+CORRELATION, which is a least-squares object. One extreme well moves it
+exactly as it moves a regression coefficient. `'rank'` ranks the phenotype
+before residualising, making the statistic a Spearman-type partial
+correlation: monotone rather than linear, and unmovable by a single well
+because a rank has nowhere extreme to go.
+
+MEASURED ON THIS SCREEN, which is why it is not academic: the residuals came
+back with excess kurtosis +8.89 and skew +1.64, 455 of 1,781 observations
+above the leverage guide, and a maximum Cook's distance of 1.01. On a
+synthetic screen with one planted outlier the rank statistic recovers an
+effect more than twice the size the correlation reports -- the outlier
+dilutes the correlation and cannot dilute the rank.
+
+RANKED BEFORE RESIDUALISING, not after. Ranking the residual would rank a
+quantity the nuisance fit has already shaped; ranking the phenotype first
+makes the whole statistic a function of order, and the projection then
+removes the block from the RANKS. There is a test that a strictly increasing
+transform of the response changes nothing, which is the defining property.
+
+A ROBUST REGRESSION WAS NOT OFFERED HERE, and the reason is arithmetic
+rather than taste. Both statistics are ONE MATRIX PRODUCT across all guides
+and all permutations at once, which is what makes 200,000 permutations
+feasible. A quantile or Huber fit would need one fit per guide per
+permutation -- 789 x 200,000 on this screen -- which is not a slower option,
+it is a different program. `quantile`, `rlm` and `huber` remain available
+as PARAMETRIC fits, which is where they can be computed.
+
+Tests: `tests/test_the_permutation_can_use_ranks.py`, 8 passing.
+
+WHAT IS STILL OPEN from section 2 of this file: the dropdown does not yet
+group the nineteen families by what they assume. That is the
+discoverability half, and it is what made this instruction get filed for
+methods that already existed.
