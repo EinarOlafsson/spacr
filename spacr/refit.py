@@ -121,6 +121,7 @@ def prune_for_type(settings: dict, regression_type) -> Tuple[dict, List[str]]:
 def refit_settings(base: dict, *, regression_type=None,
                    correction_method: Optional[str] = None,
                    fdr_alpha: Optional[float] = None,
+                   level: Optional[str] = None,
                    alpha=None) -> Tuple[dict, List[str]]:
     """The settings for a second run of the same screen through a new model.
 
@@ -129,6 +130,13 @@ def refit_settings(base: dict, *, regression_type=None,
     :param correction_method: the new multiple-testing correction, or ``None``
         to keep the old one. Written to :data:`CORRECTION_KEY`.
     :param fdr_alpha: the new significance level, or ``None`` to keep it.
+    :param level: ``'grna'``, ``'gene'`` or ``'both'``, or ``None`` to keep
+        the old one. THE ONE THAT TURNS A BLUP INTO AN ESTIMATE: a mixed fit
+        makes the guide a random effect, so its guide rows are shrunken
+        predictions with no p value. Re-fitting at ``'grna'`` with a
+        fixed-effect model gives a coefficient and a p value per guide
+        instead -- which is the question a user asks the moment they see an
+        empty guide volcano.
     :param alpha: the new PENALTY weight, where the new backend reads one --
         a different number from ``fdr_alpha`` despite the name.
     :returns: ``(settings, [notes for the user])``.
@@ -158,6 +166,18 @@ def refit_settings(base: dict, *, regression_type=None,
 
     for key in RESOLVED_OUTPUT_KEYS:
         settings.pop(key, None)
+
+    if level is not None:
+        from .settings import REGRESSION_LEVELS
+
+        level = str(level).strip().lower()
+        if level not in REGRESSION_LEVELS:
+            raise ValueError(
+                f"level={level!r} must be one of {list(REGRESSION_LEVELS)}.")
+        old_level = str(settings.get("level", "both")).strip().lower()
+        if level != old_level:
+            settings["level"] = level
+            notes.append(f"level {old_level!r} -> {level!r}")
 
     old_type = settings.get("regression_type")
     if regression_type is not None and regression_type != old_type:
@@ -198,6 +218,20 @@ def refit_settings(base: dict, *, regression_type=None,
     if settings.get("random_row_column_effects") and chosen not in (
             None, "mixed"):
         settings["random_row_column_effects"] = False
+
+    # A GUIDE-LEVEL MIXED FIT STILL HAS NO GUIDE P VALUES, and saying so here
+    # is the difference between a re-fit that answers the question and one
+    # that returns the same empty volcano under a new folder name. `mixed`
+    # makes the guide a RANDOM effect at every level, so asking for
+    # level='grna' does not turn its BLUPs into estimates.
+    if (str(settings.get("level", "")).lower() == "grna"
+            and str(chosen or "").lower() == "mixed"):
+        notes.append(
+            "level='grna' with regression_type='mixed' still gives BLUPs "
+            "and no per-guide p value, because a mixed model makes the "
+            "guide a random effect. For per-guide significance choose a "
+            "fixed-effect model such as 'ols', 'rlm' or 'quantile', or use "
+            "inference='nonparametric'.")
         notes.append("random row/column effects off (they fit a mixed model, "
                      f"and {chosen!r} was asked for)")
 
