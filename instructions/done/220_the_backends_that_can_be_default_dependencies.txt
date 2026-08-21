@@ -2,7 +2,7 @@
 WHICH REGRESSION BACKENDS CAN BE DEFAULT DEPENDENCIES
 ================================================================================
 
-Status:    filed 2026-08-21, MEASURED. Not applied.
+Status:    filed 2026-08-21, DONE 2026-08-21.
 Requested: 2026-08-21 -- "i get that cuML is disruptive and should be opt in
            because it limits to 3.11 and 3.12. but cant the other dependencies
            be included by default, check again if they would cause problems if
@@ -81,3 +81,23 @@ implementation to delete by raising it, so the case for raising is about
 what it would unlock, and 3.11 unlocks nothing -- numpyro needs 3.11 but its
 jax needs 3.12. The only floor that buys anything is 3.12, and the only one
 that costs nothing is 3.10.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+`pyfixest`, `glum` and `gpytorch` are core dependencies, each gated
+`python_version >= "3.10"` -- the floor `torch>=2.0` already imposes, since
+torch's last cp39 wheel is 2.8.0. A 3.9 install does without all three and
+still runs.
+
+THE EXTRA NAMES SURVIVE AS ALIASES, with pins byte-identical to the core
+ones. `pip install spacr[pyfixest]` keeps working for anyone scripting it,
+and the identical string is required rather than tidy: there is a test
+asserting an extra never contradicts core, because two pins for one package
+is how an environment ends up with a version neither line asked for.
+
+numpyro and pymer4 stay extras, and the reasons are in the table above.
+
+Tests: `tests/test_the_gpu_falls_back_rather_than_failing.py` covers the
+promotion and asserts the two exclusions stay excluded.

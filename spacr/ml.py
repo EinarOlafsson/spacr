@@ -519,10 +519,64 @@ def perform_mixed_model(y, X, groups, alpha=None,
 
         # No variance components: this is the plain random-intercept model
         # `MixedLM(y, X, groups=groups)` fits, which is `re_formula='1'`.
-        fit = fit_mixed_reml_torch(y, X, groups)
+        #
+        # THE GPU IS SHARED, AND RUNNING OUT ON IT IS NOT A CRASH. Reported
+        # 2026-08-21: `CUDACachingAllocator ... memory allocation failed with
+        # OOM on device 0 while trying to allocate 2587885568 bytes (free:
+        # 2000093184, total: 25295519744)` -- a 25 GB card with 2 GB free,
+        # because something else on the machine had the rest.
+        #
+        # `mixed_gpu._refuse_if_too_large` already checks free memory before
+        # building the DESIGN, and it cannot be enough on a shared device:
+        # it covers one allocation, the optimiser makes others, and the free
+        # figure it read can be stale by the time any of them run. A
+        # co-tenant that allocates between the check and the fit turns a
+        # correct check into a wrong one.
+        #
+        # So the fit falls back to the CPU rather than failing. The same
+        # model, the same numbers, slower -- which is the trade the user
+        # would have made if asked, and asking is not possible from inside a
+        # worker thread twenty minutes into a run.
+        try:
+            fit = fit_mixed_reml_torch(y, X, groups)
+        except Exception as exc:                             # noqa: BLE001
+            if not _is_out_of_memory(exc):
+                raise
+            print(f"■ The GPU ran out of memory during the mixed fit "
+                  f"({exc.__class__.__name__}). The card is shared, and what "
+                  f"was free when the design was checked was gone by the "
+                  f"time the fit asked for it. Falling back to "
+                  f"statsmodels on the CPU: same model, same numbers, "
+                  f"slower. Re-run when the card is quieter, or set "
+                  f"regression_backend='statsmodels (CPU)' to skip the "
+                  f"attempt.")
+            try:
+                import torch
+
+                torch.cuda.empty_cache()
+            except Exception:                                # noqa: BLE001
+                pass
+            return MixedLM(y, X, groups=groups).fit()
         print(fit.summary_line())
         return fit
     return MixedLM(y, X, groups=groups).fit()
+
+def _is_out_of_memory(exc) -> bool:
+    """Is this exception a device or host memory exhaustion?
+
+    Matched by NAME as well as by type, because `torch.cuda.OutOfMemoryError`
+    only exists once torch is imported and this must not import it to find
+    out. A plain `MemoryError` counts too -- `mixed_gpu` raises one
+    deliberately when the design will not fit.
+    """
+    if isinstance(exc, MemoryError):
+        return True
+    name = type(exc).__name__
+    if "OutOfMemory" in name:
+        return True
+    text = str(exc).lower()
+    return "out of memory" in text or "cuda error: out of memory" in text
+
 
 def create_volcano_filename(csv_path, regression_type, alpha, dst):
     """Build the path this run's volcano plot will be saved to.

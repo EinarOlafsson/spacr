@@ -299,6 +299,29 @@ dependencies = [
     # 0.47.0 publishes cp39 wheels, so the floor stays reachable on 3.9.
     'shap>=0.47.0,<1.0',
     'torch>=2.0,<3.0',
+    # THE THREE REGRESSION BACKENDS THAT COST NOTHING TO SHIP (220).
+    # Measured 2026-08-21 rather than estimated:
+    #
+    #   pyfixest  0 new packages beyond what spaCR already pulls, >=3.10
+    #   glum      0 new packages beyond what spaCR already pulls, >=3.10
+    #   gpytorch  2 new packages, 288 KB total, >=3.10
+    #
+    # GATED AT 3.10 BECAUSE THAT IS WHERE TORCH ALREADY SITS. `torch>=2.0`
+    # directly above resolves to 2.8.0 on Python 3.9 (the last release with
+    # cp39 wheels) and to 3.10+ builds after that, so these three add no
+    # interpreter constraint spaCR did not already have -- a 3.9 install
+    # simply does without them and still runs.
+    #
+    # numpyro and pymer4 stay EXTRAS and that is not symmetry for its own
+    # sake. numpyro drags jax and jaxlib: 88 MB, and jaxlib requires >=3.12,
+    # so as a default it would be absent on half the interpreters spaCR
+    # supports while costing every user who never selects it. pymer4 cannot
+    # be a default at any gate -- it needs R, rpy2 and lme4, and R is a
+    # system package pip cannot provide, so `pip install pymer4` succeeds
+    # and the backend still does not run.
+    'pyfixest>=0.40.1,<1; python_version >= "3.10"',
+    'glum>=3.1.2,<4; python_version >= "3.10"',
+    'gpytorch>=1.11,<2; python_version >= "3.10"',
     # PyTorch's official SummaryWriter backend. Vision training writes
     # loss/accuracy/F1/LR events to each run folder for an interactive
     # TensorBoard dashboard; 2.21 is the release exercised by the Python 3.12
@@ -979,8 +1002,14 @@ setup(
         # These floors are the oldest Python 3.9 wheels checked against the
         # exact APIs spaCR calls: pyfixest.core.demean.demean and glum's
         # GeneralizedLinearRegressor offset/sample_weight fit path.
-        'pyfixest': ['pyfixest>=0.40.1,<1'],
-        'glum': ['glum>=3.1.2,<4'],
+        # CORE NOW (220), and these names stay as aliases so a script that
+        # says `pip install spacr[pyfixest]` keeps working. The pin must be
+        # BYTE-IDENTICAL to the core one -- there is a test asserting an
+        # extra never contradicts core, because two pins for one package is
+        # how an environment ends up with a version neither line asked for.
+        'pyfixest': ['pyfixest>=0.40.1,<1; python_version >= "3.10"'],
+        'glum': ['glum>=3.1.2,<4; python_version >= "3.10"'],
+        'gpytorch': ['gpytorch>=1.11,<2; python_version >= "3.10"'],
 
         # `pip install spacr[zarr]` — `spacr.ome_zarr`, the OME-NGFF
         # (OME-Zarr) reader/writer. The emerging standard for large
