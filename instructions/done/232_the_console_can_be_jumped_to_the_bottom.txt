@@ -2,7 +2,7 @@
 THE BOTTOM OF A CONSOLE IS ONE GESTURE AWAY
 ================================================================================
 
-Status:    filed 2026-08-21, not started.
+Status:    DONE 2026-08-21.
 Requested: 2026-08-21 -- "it should be possible to go to the bottom of a
            console section without having to scroll through everything".
 Owner:     Qt GUI (console widget, every module that has one)
@@ -39,3 +39,36 @@ HOW TO KNOW IT WORKED
 * A test drives the scrollbar and the append, not the internal flag.
 * It is true of every module's console, asserted by walking them rather than
   by naming them.
+
+--------------------------------------------------------------------------------
+DONE 2026-08-21
+--------------------------------------------------------------------------------
+
+HALF OF IT ALREADY EXISTED, which is why the item is small. `_follow_output`
+and `_on_console_scrolled` already did the other direction: the view follows
+the tail, scrolling up stops it, scrolling back down restores it. What was
+missing was the way BACK.
+
+Ctrl+End, and a visible control for the people who do not know it.
+
+SHOWN ONLY WHEN IT WOULD DO SOMETHING. A button that is always there and
+usually inert is furniture, and the user stops seeing it -- which is exactly
+the state it is most needed in.
+
+THE JUMP RESUMES THE FOLLOW, and the two are one decision rather than two.
+A console that jumped without resuming would slide back off the end on the
+very next line written, and the user would press it again.
+
+THE SHORTCUT IS HELD on the panel. Qt keeps a bare pointer to a QShortcut,
+and one that only the constructor referenced stops working as soon as the
+call returns -- the same trap as the event filters in 228 and 202.
+
+THE TOLERANCE IS SHARED. `at_the_end` uses the same few pixels
+`_on_console_scrolled` does, because a scrollbar dragged to the end does not
+always land exactly on maximum() and two different answers to "is this the
+end" would disagree at the boundary.
+
+ONE NOTE ON THE TEST: the headless console lays out no entries, so its
+scrollbar maximum is 0 and every position IS the end. The tests set the
+range directly -- the behaviour is what matters, not how the content got
+tall.
