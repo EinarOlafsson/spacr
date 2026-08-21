@@ -87,6 +87,7 @@ caller that only wants the selection never pays for torch.
 
 from __future__ import annotations
 
+import logging
 import math
 import os
 from dataclasses import dataclass
@@ -96,6 +97,9 @@ import numpy as np
 import pandas as pd
 
 from . import portable_paths
+
+
+LOG = logging.getLogger(__name__)
 
 __all__ = [
     "INFERENCE_NOTICE",
