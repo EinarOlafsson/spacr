@@ -2,7 +2,7 @@
 THE PICTURE SETTINGS TOOLTIPS STAY WHILE THEY ARE BEING READ
 ================================================================================
 
-Status:    filed 2026-08-21, not started.
+Status:    filed 2026-08-21, HOVER RULE DONE 2026-08-21. The API help is not.
 Requested: 2026-08-21 -- "the tooltipps for the settings in picture settings
            dissapear when the the mouse is hovering over the tooltip text. the
            tooltip should appera when hovering over the setting title text and
@@ -70,3 +70,48 @@ HOW TO KNOW IT WORKED
 * Every annotation method's help says what it does with objects it cannot
   annotate.
 * A failed lookup shows the failure, not an empty box.
+
+--------------------------------------------------------------------------------
+WHAT WAS FOUND, AND IT WAS NOT WHERE THE FILE SAID
+--------------------------------------------------------------------------------
+
+Restated 2026-08-21 with visible impatience -- "i have asked for this like
+10 times" -- so it was measured rather than reasoned about. On the
+regression panel and in the picture settings dialog:
+
+    titles firing on hover          136 of 136,  25 of 25
+    fields firing on hover            0 of  62,   0 of 25
+
+TWO OF THE THREE REQUIREMENTS WERE ALREADY MET. The tooltip is on the title,
+and the field is silent -- `install_api_tooltips` clears the field's tooltip
+and removes the filter from it whenever it finds a label.
+
+THE ONE THAT WAS NOT MET COULD NOT BE REPRODUCED HERE, and that turned out
+to be the finding. Survival while the pointer is on the popup was decided by
+`underMouse()`, which reports whether Qt DELIVERED an Enter -- and a
+`Qt.ToolTip` window is exactly the kind a platform may decline to send mouse
+events to. Measured on this machine, `underMouse()` is wrong in BOTH
+directions: True with the cursor outside the rectangle, False with it
+inside.
+
+So the popup survived here and vanished on the maintainer's desktop, and no
+amount of re-reading the code would have shown it. It is now decided by
+`frameGeometry().contains(QCursor.pos())`, which every platform answers the
+same way, and `underMouse()` is not consulted at all -- a source wrong in
+both directions cannot improve an answer by being asked first.
+
+A SECOND FIX, smaller: a composite field -- a `_ScalarEdit` inside a
+`_CsvColumnField`, a line edit inside a chip field -- was reaching the
+branch meant for a self-labelling `QCheckBox`, which installs the hover
+filter on the widget itself. Qt delivers `Enter` to a parent when the
+pointer crosses into any child, so that branch would have put the help on
+the field. Thirty-three editors sit inside such a composite on the
+regression panel. Where there is no title to carry the help, the help now
+goes nowhere: a tooltip on the field is not a lesser version of the
+requested behaviour, it is the behaviour that was asked against.
+
+Tests: `tests/qt/test_the_tooltip_is_on_the_title_only.py`, 7 passing,
+including one that forces `underMouse()` to lie and asserts nothing changes.
+
+STILL OPEN: section B of this file -- whether the API help ARRIVES -- and
+section C, what the annotation help must say.

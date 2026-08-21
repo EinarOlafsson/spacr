@@ -80,6 +80,16 @@ def organelle_label(role: str) -> str:
 #: Python's ``str.capitalize`` lower-cases the remaining characters, so the
 #: shared label formatter restores forms such as ``gRNA``, ``DNA``, and
 #: ``UMAP`` consistently across every settings surface.
+#: Keys whose label is not a de-underscored capitalisation at all.
+#:
+#: `controls` renders as "Controls", which says nothing about WHAT is being
+#: named -- it sits beside `positive_control_wells` and its neighbours, all
+#: of which name wells, and it names guides or genes. Asked for 2026-08-21:
+#: "change Controls to Control gRNA/Gene".
+EXACT_LABELS = {
+    "controls": "Control gRNA/Gene",
+}
+
 CASED_TERMS = {
     "grna": "gRNA",
     "grnas": "gRNAs",
@@ -119,6 +129,8 @@ def setting_label(key: str) -> str:
             return (organelle_label(role) if not suffix else
                     f'{organelle_label(role)} — '
                     f'{_recase(suffix.capitalize())}')
+    if key in EXACT_LABELS:
+        return EXACT_LABELS[key]
     spaced = _split_id_suffix(key).replace('_', ' ').strip()
     return _recase(spaced.capitalize())
 

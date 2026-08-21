@@ -868,8 +868,43 @@ class HoverTooltip(QFrame):
         QToolTip.hideText()
 
     # ------------------------------------------------------------------
+    def _pointer_is_on_me(self) -> bool:
+        """Is the pointer over this popup, asked in a way every platform
+        answers the same.
+
+        `underMouse()` IS NOT RELIABLE HERE and that is the whole reason this
+        exists. It reports whether Qt has delivered an Enter to the widget,
+        and a `Qt.ToolTip` window is precisely the kind of window a platform
+        may decline to send mouse events to -- so on one desktop the popup
+        knows the pointer is on it and survives, and on another it never
+        learns and hides while being read.
+
+        Reported repeatedly against the picture settings ("the tooltipps ...
+        dissapear when the the mouse is hovering over the tooltip text") and
+        NOT REPRODUCIBLE on the development machine, where `underMouse()`
+        answers True. A behaviour that depends on which window manager is
+        running is not a behaviour; the geometry test does not.
+        """
+        from PySide6.QtGui import QCursor
+
+        # THE GEOMETRY DECIDES, and `underMouse()` is not consulted at all.
+        # It was, as a first answer with the geometry as a fallback, and that
+        # inherited exactly the unreliability it was added to work around:
+        # measured here, `underMouse()` reports True with the cursor
+        # demonstrably outside the popup's rectangle, and elsewhere it
+        # reports False with the pointer on it. A source that is wrong in
+        # both directions cannot improve an answer by being consulted first.
+        #
+        # `frameGeometry`, not `geometry`: the popup is frameless so they
+        # agree, and if a platform ever adds a frame the pointer is still on
+        # the popup when it is over that frame.
+        try:
+            return self.frameGeometry().contains(QCursor.pos())
+        except (RuntimeError, TypeError):        # pragma: no cover
+            return False
+
     def _maybe_hide(self) -> None:
-        if self.underMouse():
+        if self._pointer_is_on_me():
             return
         # `self._anchor is not None` is not enough. The tooltip is a
         # process-wide singleton holding a plain reference to a widget it does
@@ -882,7 +917,10 @@ class HoverTooltip(QFrame):
         anchor = self._anchor
         if anchor is not None:
             try:
-                if anchor.underMouse():
+                from PySide6.QtGui import QCursor
+
+                if anchor.rect().contains(
+                        anchor.mapFromGlobal(QCursor.pos())):
                     return
             except RuntimeError:
                 # The anchored widget is gone; nothing can be hovering it.
