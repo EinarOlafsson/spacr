@@ -334,3 +334,119 @@ def training_wells(wells: Sequence[str], *,
         if found and int(found.group(1)) in wanted:
             out[index] = True
     return out
+
+
+# ---------------------------------------------------------------------------
+# Reading a real test split
+# ---------------------------------------------------------------------------
+#
+# The maintainer supplied the tsg101 screen's test splits on 2026-08-21, in
+# TWO shapes, and both are read here because both are what the training code
+# writes:
+#
+#   * PER-CELL (`*_test_acc.csv`): one row per test crop with `true_label`,
+#     `predicted_label` and `class_1_probability`. Everything can be computed
+#     from this -- any threshold, the whole ROC.
+#   * SUMMARY (`*_test_result.csv`): one row with `accuracy`, `neg_accuracy`,
+#     `pos_accuracy`, `prauc` and `optimal_threshold`.
+#
+# `pos_accuracy` IS THE SENSITIVITY and `neg_accuracy` IS THE SPECIFICITY.
+# That is the number instruction 214 asked for and it was already being
+# written to disk on every plate -- which is worth saying plainly, because
+# the request was answered by a file that already existed.
+
+#: What the four tsg101 plates measured, read from the files above on
+#: 2026-08-21. Kept as a documented reference rather than a default: these
+#: belong to one screen and one model, and another screen's classifier is
+#: not this one.
+TSG101_TEST_SPLIT: Dict[int, Dict[str, float]] = {
+    1: {"sensitivity": 0.9640, "specificity": 0.9846, "threshold": 0.4699},
+    2: {"sensitivity": 0.9553, "specificity": 0.9817, "threshold": 0.2955},
+    3: {"sensitivity": 0.9639, "specificity": 0.9887, "threshold": 0.3174},
+    4: {"sensitivity": 0.9584, "specificity": 0.9700, "threshold": 0.8567},
+}
+
+
+def from_test_split(path: str, *,
+                    threshold: Optional[float] = None) -> Dict[str, float]:
+    """Sensitivity and specificity from a written test split.
+
+    :param path: a per-cell ``*_test_acc.csv`` or a summary
+        ``*_test_result.csv``.
+    :param threshold: for a per-cell file, the score to call positive at.
+        ``None`` takes the Youden point. Ignored for a summary file, which
+        has already chosen one.
+    :returns: sensitivity, specificity, the threshold, and ``per_cell`` to
+        say which shape was read -- because only a per-cell file supports
+        asking the same question again at a different threshold.
+    """
+    import pandas as pd
+
+    frame = pd.read_csv(path)
+    columns = {str(c).lower() for c in frame.columns}
+
+    if {"pos_accuracy", "neg_accuracy"} <= columns:
+        row = frame.iloc[0]
+        return {
+            "sensitivity": float(row["pos_accuracy"]),
+            "specificity": float(row["neg_accuracy"]),
+            "threshold": float(row.get("optimal_threshold", float("nan"))),
+            "accuracy": float(row.get("accuracy", float("nan"))),
+            "per_cell": 0.0,
+            "n": float(len(frame)),
+        }
+
+    if {"true_label", "class_1_probability"} <= columns:
+        scores = frame["class_1_probability"].to_numpy(dtype=float)
+        truth = frame["true_label"].to_numpy(dtype=float) == 1
+        point = (confusion(scores, truth, float(threshold))
+                 if threshold is not None else best_threshold(scores, truth))
+        return {
+            "sensitivity": float(point.sensitivity),
+            "specificity": float(point.specificity),
+            "threshold": float(point.threshold),
+            "accuracy": float(point.accuracy),
+            "prevalence": float(point.prevalence),
+            "per_cell": 1.0,
+            "n": float(len(frame)),
+        }
+
+    raise ValueError(
+        f"{path}: not a test split this can read. Expected either "
+        f"pos_accuracy/neg_accuracy or true_label/class_1_probability, "
+        f"found {sorted(columns)}")
+
+
+def inflation_by_prevalence(sensitivity: float, specificity: float, *,
+                            prevalences: Sequence[float] = (
+                                0.5, 0.3, 0.2, 0.1, 0.05, 0.02, 0.01),
+                            ) -> List[Dict[str, float]]:
+    """What the classifier does to a fraction, as the fraction gets rarer.
+
+    THE RESULT THAT DECIDES WHETHER ANY OF THIS MATTERS, and it is not
+    intuitive from the accuracy. At the tsg101 classifiers' measured
+    ``se = 0.960``, ``sp = 0.981``:
+
+        a true 30% is observed as 30% -- the correction is a no-op;
+        a true  1% is observed as  2.8% -- nearly THREE TIMES too high.
+
+    The false positives are a share of the NEGATIVES, and when a guide is
+    rare almost every cell in the well is a negative, so a small
+    false-positive rate on a large population swamps a large true-positive
+    rate on a small one.
+
+    SCREEN HITS ARE RARE. So the correction is negligible everywhere it does
+    not matter and dominant exactly where it does.
+    """
+    se, sp = float(sensitivity), float(specificity)
+    out: List[Dict[str, float]] = []
+    for true in prevalences:
+        observed = se * float(true) + (1.0 - sp) * (1.0 - float(true))
+        back = rogan_gladen(observed, se, sp)
+        out.append({
+            "true": float(true),
+            "observed": float(observed),
+            "corrected": float(back.get("corrected", float("nan"))),
+            "inflation": float(observed / true) if true else float("nan"),
+        })
+    return out

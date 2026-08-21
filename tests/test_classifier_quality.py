@@ -188,3 +188,98 @@ class TestTheTrainingWells:
     def test_the_columns_are_a_parameter(self):
         mask = module.training_wells(["r1_c1", "r1_c5"], columns=(5,))
         assert mask.tolist() == [False, True]
+
+
+class TestReadingARealTestSplit:
+    """The tsg101 splits, supplied 2026-08-21.
+
+    THE NUMBER 214 ASKED FOR WAS ALREADY ON DISK. `pos_accuracy` is the
+    sensitivity and `neg_accuracy` the specificity, written by the training
+    code on every plate. The request was answered by a file that existed.
+    """
+
+    def test_a_summary_file_is_read(self, tmp_path):
+        import pandas as pd
+
+        path = tmp_path / "x_test_result.csv"
+        pd.DataFrame([{"accuracy": 0.968, "neg_accuracy": 0.9817,
+                       "pos_accuracy": 0.9553, "loss": 0.0008,
+                       "prauc": 0.994, "optimal_threshold": 0.2955}]
+                     ).to_csv(path, index=False)
+
+        got = module.from_test_split(str(path))
+
+        assert got["sensitivity"] == pytest.approx(0.9553)
+        assert got["specificity"] == pytest.approx(0.9817)
+        assert got["per_cell"] == 0.0
+
+    def test_a_per_cell_file_is_read_and_can_be_re_asked(self, tmp_path):
+        """Only a per-cell file supports a different threshold, which is why
+        the two shapes are distinguished rather than merged."""
+        import pandas as pd
+
+        rng = np.random.default_rng(4)
+        n = 600
+        truth = np.arange(n) < n // 2
+        scores = np.where(truth, rng.beta(8, 2, n), rng.beta(2, 8, n))
+        path = tmp_path / "x_test_acc.csv"
+        pd.DataFrame({"filename": [f"plate1_A0{i%9+1}_1_{i}.png"
+                                   for i in range(n)],
+                      "true_label": truth.astype(float),
+                      "predicted_label": (scores >= 0.5).astype(float),
+                      "class_1_probability": scores}).to_csv(path, index=False)
+
+        loose = module.from_test_split(str(path), threshold=0.2)
+        tight = module.from_test_split(str(path), threshold=0.8)
+
+        assert loose["per_cell"] == 1.0
+        assert loose["sensitivity"] > tight["sensitivity"]
+        assert loose["specificity"] < tight["specificity"]
+
+    def test_an_unreadable_shape_is_refused_by_name(self, tmp_path):
+        import pandas as pd
+
+        path = tmp_path / "wrong.csv"
+        pd.DataFrame({"something": [1, 2]}).to_csv(path, index=False)
+        with pytest.raises(ValueError, match="not a test split"):
+            module.from_test_split(str(path))
+
+
+class TestWhatTheClassifierDoesToARareGuide:
+    """The result that decides whether any of this matters."""
+
+    def test_it_is_a_no_op_for_a_common_class(self):
+        rows = module.inflation_by_prevalence(0.9604, 0.9812,
+                                              prevalences=(0.30,))
+        assert rows[0]["inflation"] == pytest.approx(1.0, abs=0.02)
+
+    def test_it_nearly_triples_a_one_percent_guide(self):
+        """False positives are a share of the NEGATIVES, and when a guide is
+        rare almost every cell in the well is a negative -- so a small
+        false-positive rate on a large population swamps a large
+        true-positive rate on a small one. Screen hits are rare."""
+        rows = module.inflation_by_prevalence(0.9604, 0.9812,
+                                              prevalences=(0.01,))
+        assert rows[0]["inflation"] > 2.5
+
+    def test_the_correction_undoes_it_at_every_prevalence(self):
+        rows = module.inflation_by_prevalence(0.9604, 0.9812)
+        for row in rows:
+            assert row["corrected"] == pytest.approx(row["true"], abs=1e-6)
+
+
+class TestTheMeasuredReference:
+
+    def test_every_plate_is_recorded_with_both_numbers(self):
+        assert set(module.TSG101_TEST_SPLIT) == {1, 2, 3, 4}
+        for plate, values in module.TSG101_TEST_SPLIT.items():
+            assert 0.9 < values["sensitivity"] < 1.0, plate
+            assert 0.9 < values["specificity"] < 1.0, plate
+
+    def test_the_thresholds_differ_enough_to_matter_per_plate(self):
+        """0.2955 on plate 2 against 0.8567 on plate 4 is not a rounding
+        difference. A single global threshold would give materially
+        different sensitivity on different plates, so the correction is
+        per-plate or it is wrong."""
+        thresholds = [v["threshold"] for v in module.TSG101_TEST_SPLIT.values()]
+        assert max(thresholds) > 2.5 * min(thresholds)
