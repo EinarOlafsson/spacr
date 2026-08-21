@@ -114,13 +114,17 @@ def test_inapplicable_is_exactly_the_other_bases(basis):
     assert mine | theirs == everything
 
 
-def test_the_measurement_basis_owns_the_rules_the_pipeline_reads():
-    """`measurement_rules` is what spacr.io and spacr.ml both consume, so a
-    panel that greyed it under the measurement basis would disable the only
-    control that basis has."""
-    assert "measurement_rules" in tb.settings_for_basis("measurement")
-    assert "measurement_rules" in tb.inapplicable_settings("metadata")
-    assert "measurement_rules" in tb.inapplicable_settings("annotation")
+def test_the_measurement_basis_is_retired_and_migrated():
+    """It defined classes by threshold rules on measured features, which the
+    Classes editor now covers -- a class is a column and a value, and a
+    threshold is a rule about a column. It is REMOVED, but a settings CSV
+    naming it must not become a file that raises on load."""
+    assert "measurement" not in tb.TRAINING_BASES
+    assert tb.RETIRED_BASES["measurement"] == "annotation"
+    assert tb.resolve_basis({"dataset_mode": "measurement"}) == "annotation"
+    # And its settings are gone from every basis, not merely greyed.
+    for basis in tb.TRAINING_BASES:
+        assert "measurement_rules" not in tb.settings_for_basis(basis)
 
 
 def test_every_basis_can_describe_itself():

@@ -71,6 +71,10 @@ def organelle_label(role: str) -> str:
 #: not confused in settings forms.
 EXACT_LABELS = {
     "controls": "Control gRNA/Gene",
+    # "Sample" reads as the thing being sampled; it is a CAP on how many
+    # crops are drawn. The key stays `sample` -- every settings CSV in
+    # existence uses it, and this renames the label, not the setting.
+    "sample": "Sample size limit",
 }
 
 CASED_TERMS = {

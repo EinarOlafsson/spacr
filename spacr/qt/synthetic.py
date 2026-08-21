@@ -1051,7 +1051,7 @@ def demo_settings(app_key: str, src: str,
             "plot": False,
             # The crops are labelled in png_list, not by well metadata, so the
             # dataset has to be built in 'annotation' mode. The shipped
-            # default is 'metadata', which selects on metadata_type_by
+            # default is 'metadata', which selects on the class column
             # ('columnID') and would build two classes out of one well.
             "dataset_mode": "annotation",
             # Only the singular key: generate_training_dataset falls back to

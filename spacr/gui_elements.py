@@ -5846,7 +5846,7 @@ class AnnotateApp:
 
         # --- Left column (general) --------------------------------------------
         r = 0
-        dataset_mode_cbx = ttk.Combobox(gen_form, values=['annotation','metadata','measurement'], state='readonly')
+        dataset_mode_cbx = ttk.Combobox(gen_form, values=['annotation','metadata'], state='readonly')
         dataset_mode_cbx.set(defaults.get('dataset_mode', 'annotation'))
         _row(gen_form, r, "dataset_mode", dataset_mode_cbx); r += 1
 
@@ -5881,10 +5881,6 @@ class AnnotateApp:
         if defaults.get('file_metadata') not in (None, []):
             file_metadata_entry.insert(0, ",".join(defaults['file_metadata']) if isinstance(defaults['file_metadata'], list) else str(defaults['file_metadata']))
         _row(gen_form, r, "file_metadata (csv)", file_metadata_entry); r += 1
-
-        metadata_type_by_cbx = ttk.Combobox(gen_form, state='readonly', values=['columnID','something_else'])
-        metadata_type_by_cbx.set(defaults.get('metadata_type_by','columnID'))
-        _row(gen_form, r, "metadata_type_by", metadata_type_by_cbx); r += 1
 
         class_metadata_entry = tk.Entry(gen_form)
         class_metadata_entry.insert(0, str(defaults.get('class_metadata', [['c1'],['c2']])))
@@ -6197,7 +6193,6 @@ class AnnotateApp:
             settings['png_type'] = ft
             settings['tables'] = _parse_csv_list(tables_entry.get(), None)
             settings['file_metadata'] = _parse_csv_list(file_metadata_entry.get(), None)
-            settings['metadata_type_by'] = metadata_type_by_cbx.get().strip()
             settings['class_metadata'] = _parse_list_literal(class_metadata_entry.get(), defaults.get('class_metadata'))
             settings['class_folder_names'] = _parse_list_literal(
                 classes_entry.get(), defaults.get('class_folder_names'))

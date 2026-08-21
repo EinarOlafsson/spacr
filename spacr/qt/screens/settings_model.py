@@ -689,7 +689,6 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             # annotation basis
             "annotation_column",
             # measurement basis
-            "measurement_rules",
         )),
         ("Feature Preparation", (
             "channel_of_interest", "exclude", "nuclei_limit",
@@ -1634,12 +1633,19 @@ def categories_for_app(
             "Labels & Classes": [
                 # `classes` is what each class MEANS; `class_folder_names`
                 # is where its crops are written. One key used to be both.
+                # `metadata_type_by` and `measurement_rules` are GONE, not
+                # hidden. The first named the column a class is defined by,
+                # which is the Classes editor's own column field; the second
+                # was a second vocabulary for "a class is a rule about a
+                # column", written as hand-edited JSON because it had no
+                # editor. Both were answers to a question `classes` now asks
+                # once.
                 "dataset_mode", "classes", "class_folder_names",
                 "annotation_column",
-                "class_metadata", "metadata_type_by",
+                "class_metadata",
                 "metadata_item_1_name", "metadata_item_1_value",
                 "metadata_item_2_name", "metadata_item_2_value",
-                "measurement_rules", "balance_to_smallest", "test_split",
+                "balance_to_smallest", "test_split",
                 "val_split", "sample"],
 
             "Images & Cropping": [

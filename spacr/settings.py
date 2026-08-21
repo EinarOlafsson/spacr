@@ -1232,7 +1232,6 @@ def set_default_analyze_screen(settings):
     from .training_basis import resolve_basis
     if not settings.get('dataset_mode'):
         settings['dataset_mode'] = resolve_basis(settings)
-    settings.setdefault('measurement_rules', None)
     settings.setdefault('annotation_column', None)
     settings.setdefault('save_to_db', False)
     settings.setdefault('model_type_ml','xgboost')
@@ -1354,7 +1353,7 @@ def set_generate_training_dataset_defaults(settings):
     settings.setdefault('tables', ['cell', 'nucleus', 'pathogen', 'cytoplasm'])
     settings.setdefault('dataset_mode','metadata')
     settings.setdefault('annotation_column','test')
-    # class_metadata holds VALUES OF metadata_type_by ('columnID'), so the
+    # class_metadata holds VALUES OF the class column ('columnID'), so the
     # entries have to be well ids. It was set twice, and the first call won:
     # ['nc','pc'] -- the CLASS NAMES from deep_spacr_defaults' 'classes' key,
     # pasted onto the wrong setting. No columnID is ever so the shipped
@@ -1368,7 +1367,6 @@ def set_generate_training_dataset_defaults(settings):
     settings.setdefault('test_split',0.1)
     settings.setdefault('cv_group_by','well')
     settings.setdefault('class_metadata',[['c1'],['c2']])
-    settings.setdefault('metadata_type_by','columnID')
     settings.setdefault('channel_of_interest',3)
     settings.setdefault('nuclei_limit',True)
     settings.setdefault('pathogen_limit',True)
@@ -1394,7 +1392,6 @@ def deep_spacr_defaults(settings):
     settings.setdefault('class_folder_names', ['nc','pc'])
     settings.setdefault('test_split',0.1)
     settings.setdefault('class_metadata',[['c1'],['c2']])
-    settings.setdefault('metadata_type_by','columnID')
     settings.setdefault('channel_of_interest',3)
     settings.setdefault('tables',None)
     settings.setdefault('custom_model',False)
@@ -2629,7 +2626,6 @@ expected_types = {
     "png_dims": list,
     "png_channel_mapping": dict,
     "classifier_family": str,
-    "measurement_rules": (list, type(None)),
     "measurement_class_column": (str, type(None)),
     "normalize_by": str,
     "save_measurements": bool,
@@ -2956,7 +2952,6 @@ expected_types = {
     "annotated_classes":list,
     "annotation_column":str,
     "apply_model_to_dataset":bool,
-    "metadata_type_by":str,
     "custom_model":bool,
     "png_type":str,
     "path_string":str,
@@ -3780,9 +3775,8 @@ tooltips = {
     "write_random_annotation_column": "(bool) - In annotation mode, persist an automatically selected unannotated comparison group into png_list as <column>_random. This makes an automatically generated control class reproducible and auditable. Default False.",
     "train_channels": "(list) - Which colour planes of each object crop the classifier sees, chosen from 'r', 'g' and 'b'. Fewer channels means a smaller input tensor and a model that cannot use the dropped stain, so drop a channel only when it carries no signal for your phenotype. The joined letters also become part of the saved model's filename. Default ['r', 'g', 'b'].",
     "classifier_family": "(str) - Which classifier the merged Classify module runs: 'cv' trains a Torch model on object crops (the Classify (CV) pipeline), 'ml' fits a gradient-boosted model on measured features (the Classify (ML) pipeline). The settings the other family uses are greyed out, not hidden - they keep their values. Both original modules remain available on their own. Default 'cv'.",
-    "measurement_rules": "(list of dict) - Class definitions by threshold on measured features, shared by Classify (CV) and Classify (ML). Each entry is {'name': <class>, 'where': [{'column': <feature>, 'op': '>'|'>='|'<'|'<='|'=='|'!=', 'value': <number>}, ...]} and the clauses within one rule are ANDed - use more than one, since a single threshold is a gate rather than a class definition. Rows matching no rule stay unlabelled and are dropped, never assigned to a class. Used when dataset_mode is 'measurement'. Default None.",
     "measurement_class_column": "(str) - Name of the column the measurement rules write their class labels into before training. Only needs setting if the default collides with a real measurement column. Default '_spacr_measurement_class'.",
-    "dataset_mode": "(str) - How training classes are defined: 'metadata' splits crops by well metadata (class_metadata or metadata_rules), 'annotation' by the values in one or more annotation columns of png_list, 'measurement' by threshold rules on measured features (measurement_rules). Any other value aborts and returns no dataset. Default 'metadata'.",
+    "dataset_mode": "(str) - How training classes are defined: 'metadata' splits crops by well metadata, 'annotation' by the values in one or more annotation columns of png_list. Either way the classes themselves are set in the Classes editor, which names a column and a value per class. A settings file written before the 'measurement' basis was removed still loads: it is read as 'annotation', which is what its threshold rules resolved to after writing their label column. Any other value aborts and returns no dataset. Default 'metadata'.",
     "annotated_classes": "(list) - INERT. Nothing in spaCR reads this setting; it survives only as a direct parameter of io.training_dataset_from_annotation and io.training_dataset_from_annotation_metadata. Choose classes with dataset_mode instead: annotation_columns / annotation_values under 'annotation', or class_metadata and the rule lists under 'metadata' and 'measurement'. Default [1, 2], with no effect.",
     "um_per_pixel": "(float) - Physical size of one image pixel in micrometres, taken from your objective and camera. It is used only to convert scale_bar_length_um into pixels when a scale bar is drawn on representative-image grids, so a wrong value gives a wrong-length bar; it never rescales or resamples the images. The plotting helpers default to 0.1.",
     "pathogen_model": "(str or None) - Path to a custom Cellpose checkpoint used to detect pathogen objects, overriding pathogen_model_name when set. It must be a CPSAM-architecture checkpoint (one your own Train Cellpose run produced); a Cellpose-3 CPnet file cannot load into Cellpose 4. A path that does not exist stops the run rather than falling back to the stock weights silently. Default None.",
@@ -4077,7 +4071,6 @@ tooltips = {
     'loss_type': "(str) - Loss used to train the classifier. For a 2+ class head: 'focal_loss' (down-weights easy examples), 'cross_entropy', 'label_smoothing' (epsilon 0.1), 'ce_weighted' (inverse-frequency class weights), 'logit_adjust_ce' and 'asl'. 'binary_cross_entropy_with_logits' is legal ONLY for a single-logit head and raises otherwise. Reach for a weighted or focal loss when the classes are imbalanced, which for a screen they usually are. Default 'focal_loss'.",
     'metadata_files': "(list) - Gene-annotation CSVs, each with a 'Gene ID' column, that are joined onto the regression results by gene, writing an extra results CSV per file. These are gene tables, not plate/well metadata. When toxo is True the order matters: index 0 is read as the ME49 transcription table and index 1 as the GT1 phenotype table. Default [].",
     'paired_data': "(list of dicts) - Regression input table: each row explicitly pairs one score CSV with one count CSV. Plate identity comes from both files when they agree, from the partner when only one declares plateID, or from the row order when neither does. A conflict is refused. Legacy score_data/count_data lists are migrated positionally and logged. Default [].",
-    'metadata_type_by': "(str) - Which png_list column the class_metadata values are matched against when dataset_mode is 'metadata'. Normally 'columnID' or 'rowID' -- the two well-metadata columns filepaths_to_database writes -- but any png_list column is accepted, including 'condition' once annotate_conditions has added it. If the values in class_metadata do not appear in this column, the class simply gets no crops rather than erroring. Default 'columnID'.",
     'min_n': "(int) - Observation count a significant hit must strictly exceed to appear in results_significant_filtered.csv: gRNA hits need n_grna > min_n, gene hits need n_gene > min_n. The unfiltered hit list is still written alongside it. Raise it to drop hits resting on one or two wells. Default 0, which filters nothing.",
     'normalization_percentiles': "(list) - Two-element [low, high] percentile pair used to stretch each channel's non-zero pixels to the full display range in plot_merged; applied only when normalize is True. Narrowing the pair (e.g. [5, 95]) boosts contrast but saturates bright objects; widening it flattens the image. Default [2, 98].",
     'nr_imgs': "(int) - How many object crops are pulled into each representative-image grid: the sampler takes this many per condition, or all of them if fewer exist. Raise it for a more representative panel at the cost of a bigger, slower figure; lower it for a quick look. Positive integer; the plotting helpers default to 16.",
@@ -4364,7 +4357,7 @@ categories = {
     # offers it any more: it is an ALIAS, not a dead setting (the Classes
     # translation still reads it), and a key that falls out of `categories`
     # altogether is one nothing can ever group again.
-    "Training Classes": ["dataset_mode", "classes", "class_folder_names", "class_metadata", "metadata_type_by", "metadata_item_1_name", "metadata_item_1_value", "metadata_item_2_name", "metadata_item_2_value", "annotation_column", "annotated_classes", "measurement_rules", "write_random_annotation_column"],
+    "Training Classes": ["dataset_mode", "classes", "class_folder_names", "class_metadata", "metadata_item_1_name", "metadata_item_1_value", "metadata_item_2_name", "metadata_item_2_value", "annotation_column", "annotated_classes", "write_random_annotation_column"],
 
     # WHERE THE PIXELS COME FROM, whichever way they are obtained: crops
     # already on disk, cut on demand from merged, or generated first.
