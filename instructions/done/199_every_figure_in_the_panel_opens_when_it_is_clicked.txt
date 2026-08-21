@@ -2,7 +2,7 @@
 EVERY FIGURE IN THE PANEL OPENS WHEN IT IS CLICKED
 ================================================================================
 
-Status:    filed 2026-08-21, not started.
+Status:    filed 2026-08-21, DONE 2026-08-21.
 Requested: 2026-08-21 -- "in the figure pannel. i am able to click on the
            colcano plot to open it but not the other pyqtgraphs. for the
            matplot lib graphs, i can not see #2 when i click on it this run."
@@ -70,3 +70,54 @@ HOW TO KNOW IT WORKED
 * A test drives the CLICK -- not the handler -- for one figure of each
   renderer, because a handler that works and a tile that does not reach it
   is exactly what was reported.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+A. THE PYQTGRAPH PANELS
+
+The diagnosis in section A was right about the symptom and wrong about the
+cause, and the difference mattered. The grid was NOT ignorant of the live
+tiles: it photographs nine panels, gives each a key, and emits
+`live_tile_activated(key)` when one is pressed. What was missing was the
+receiver -- `app_screen` connected only `pinned_activated`, which the grid
+emits for the volcano alone. Eight tiles reached a signal nobody listened
+to.
+
+The grid's own comment had predicted it: "a screen that has not yet learned
+about the other panels must go on working". The screen never learned.
+
+`RegressionResultsPanel.show_panel(key)` is the door. It names the SPLITTER
+where a tab is a plot plus its table -- `setCurrentWidget` only accepts a
+page the tab bar owns, so naming the inner plot would be a silent no-op,
+which is the failure this was fixing. It returns False rather than guessing
+when a key has no tab in this panel: the tab set is not fixed, and the
+volcano and gene tabs are absent when the volcano is shown outside. The
+screen says so in the console rather than going quiet. Right-click got the
+same generalisation.
+
+B. THE FIGURE THAT SHOWED NOTHING
+
+Of the three candidates listed, the THIRD IS RULED OUT: `set_figures`
+enumerates over the queue's own list and skips holes with `continue`, so a
+missing figure does not renumber the tiles after it. There are tests holding
+that, because it is the kind of thing a later tidy-up rewrites into a
+filter.
+
+The remaining cause is the first two, and they are now distinguishable
+instead of silent. `show_index` called `set_pixmap` ONLY when it had a
+pixmap -- so a figure it could not produce left the PREVIOUS figure on
+screen. Clicking figure 2 showed figure 1. That is worse than blank: the
+reader has no way to know they are looking at the wrong picture.
+
+It now always sets something, and when there is no picture that something
+says which of the three happened -- never saved, saved and gone, or present
+and unreadable -- with the path, so it can be checked. Painted from the
+palette, never a literal, per 178 and 198.
+
+Tests: `tests/qt/test_every_live_tile_opens.py` (9) and
+`tests/qt/test_a_figure_that_cannot_be_shown_says_why.py` (10). The first
+drives the MOUSE rather than the handler, because what was broken was the
+connection -- calling the handler would have passed against the broken
+build.

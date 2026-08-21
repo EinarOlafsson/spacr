@@ -1073,8 +1073,20 @@ class FigureQueue(QWidget):
             return
         self._show_raster()
         pixmap = self._pixmap_for(idx)
-        if pixmap is not None:
-            self._view.set_pixmap(pixmap)
+        if pixmap is None:
+            # SAY WHY, RATHER THAN OPEN BLANK (199 B). Reported as "i can not
+            # see #2 when i click on it this run": the tile HAS a picture on
+            # it -- `set_pinned` refuses a null pixmap -- so the raster
+            # existed and the full-size view showed nothing.
+            #
+            # Leaving the view untouched is worse than empty: it keeps the
+            # PREVIOUS figure, so clicking figure 2 shows figure 1 and the
+            # user reads it as figure 2.
+            #
+            # "figure 2 could not be restored from its spill" is an answer.
+            # An empty panel is the fault this is against.
+            pixmap = self._explanation_pixmap(self._why_not_shown(idx))
+        self._view.set_pixmap(pixmap)
         if self._list.currentRow() != idx:
             self._list.blockSignals(True)
             self._list.setCurrentRow(idx)
@@ -1938,6 +1950,64 @@ class FigureQueue(QWidget):
         self._figures[idx] = figure
         self._trim_live_figures()
         return self._figures.get(idx, figure)
+
+    def _why_not_shown(self, idx: int) -> str:
+        """Why figure ``idx`` has no picture -- in the user's terms.
+
+        THE THREE CANDIDATES instruction 199 lists, told apart rather than
+        merged into one apology, because they call for different actions: a
+        spill that will not restore is a disk problem, a missing path is a
+        figure that was never saved, and an unreadable file is a corrupt
+        one.
+        """
+        number = idx + 1
+        path = self._png_paths.get(idx)
+        if not path:
+            return (f"Figure {number} has no saved image.\n\n"
+                    f"Its live copy was released past the figure cap and "
+                    f"nothing was written to disk, so there is nothing left "
+                    f"to draw. Raising 'live figures' in Preferences keeps "
+                    f"more of them.")
+        if not Path(path).is_file():
+            return (f"Figure {number}'s saved image is gone.\n\n{path}\n\n"
+                    f"The run wrote it and it is no longer there -- a cleared "
+                    f"temporary folder is the usual reason.")
+        return (f"Figure {number}'s saved image could not be read.\n\n"
+                f"{path}\n\nThe file is there but is not a picture Qt can "
+                f"open, which usually means it was written incompletely.")
+
+    def _explanation_pixmap(self, text: str) -> QPixmap:
+        """The reason, painted as the picture -- so the view can show it.
+
+        A pixmap rather than a QLabel swapped into the stack: every reader of
+        this view already handles a pixmap, including the zoom, the export
+        and the peer-mirroring, and none of them would know what to do with a
+        widget that appeared in its place.
+
+        FROM THE PALETTE, never a literal -- the same rule instruction 178
+        settled for the figures and 198 for the headings.
+        """
+        from PySide6.QtCore import QRect
+        from PySide6.QtGui import QColor, QPainter
+
+        from ..theme import active_palette
+
+        palette = active_palette()
+        pixmap = QPixmap(720, 360)
+        pixmap.fill(QColor(palette.get("surface", palette["bg"])))
+        painter = QPainter(pixmap)
+        try:
+            painter.setPen(QColor(palette["fg"]))
+            font = painter.font()
+            font.setPointSizeF(max(font.pointSizeF(), 10.0))
+            painter.setFont(font)
+            painter.drawText(QRect(36, 36, 648, 288),
+                             int(Qt.AlignLeft | Qt.AlignVCenter
+                                 | Qt.TextWordWrap),
+                             str(text))
+        finally:
+            painter.end()
+        return pixmap
 
     def _pixmap_for(self, idx: int) -> Optional[QPixmap]:
         """Return the full-res pixmap for ``idx`` — from RAM if resident,
