@@ -34248,16 +34248,16 @@
       "source_blocks_sha256": [
         "b654dd40cf89c98e8b1b64132636713b2ff303614a814de8b0dc29fd475a3e4a",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "11b0d79ae13e92c1647e8fd17efce010c8d4941c9c705c2323f149b6cd94b1f0",
+        "7baa4f6b95a3a618dc54b68462893c6a89dcb2933aef5ccf2c8882d431f6adbf",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "7b221e6be119337751aa38ff1e74cecd07f85acd94c3f984053259275b7c8107"
       ],
-      "source_sha256": "eb562e829c303aa413221f09f0b971e8393c17e97c9eafaad0d47f6b9e0965c4",
-      "text": "Sameinuðu sömu blanda myndavél með statsmodels og PyTorch og sameina þá.\n\nFæribreytur\n-----------\ny : array-like of shape (n_observations,) viðbrögð. X : array-like of shape (n_observations, n_fixed_effects) Fixed-effects design. groups : array-like of shape (n_observations,) Utsamlegir grúðarmerkingar. vc : mapping of str til áætla-líkur, valandi Nested variance-komponentetikum. device : str, optional Verkefni notuð af PyTorch passa.\n\nSkilar\n-------\n, hröðun, hámarks ósamræmi milli fastra áhrifa og afbrigðisþátta, ósætti um afgangsstærð, leyst tæki og PyTorch fráviksmat.",
+      "source_sha256": "5617d805ae7fcbd78492f761d2f1c5f46c6c478952245db8797f72c85eb81f53",
+      "text": "Sameinuðu sömu blanda myndavél með statsmodels og PyTorch og sameina þá.\n\nFæribreytur\n-----------\ny : array-like viðbrögð gildi með form ``(n_observations,)``. X : array-like Fixed-effects hönnun með form ``(n_observations, n_fixed_effects)``. groups : array-like Outer grúðarmerki með form ``(n_observations,)``. vc : mapping of str til upptöku líkur, óþægilegt Nested variance-komponentetikum. device : str, optional tæki sem notuð er af PyTorch fit.\n\nSkilar\n-------\n, hröðun, hámarks ósamræmi milli fastra áhrifa og afbrigðisþátta, ósætti um afgangsstærð, leyst tæki og PyTorch fráviksmat.",
       "translation_source_blocks_sha256": [
         "b654dd40cf89c98e8b1b64132636713b2ff303614a814de8b0dc29fd475a3e4a",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "11b0d79ae13e92c1647e8fd17efce010c8d4941c9c705c2323f149b6cd94b1f0",
+        "7baa4f6b95a3a618dc54b68462893c6a89dcb2933aef5ccf2c8882d431f6adbf",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "b04590ef7b7f6ec0270c9191f2b15995f8bf8869ef21f50753471dd2b55b90a8"
       ]
@@ -34300,7 +34300,7 @@
       "source_blocks_sha256": [
         "8a637e79ca140391f11b524baac3e1dc562a091c8d7a57e26a84d911f3465abd",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "22af8530da615e8def0aceb82d286c1386fbc4c08a4c005db25e39f381ce926b",
+        "56c8c7e1eedbd85332fa91d83c84e9ffa4a24b0e008080be2abc47248d63a23c",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "69f08849fe0bbbc817839764badebb5a064afd7575e4f0dfa52ebc1c589bc9b2",
         "e97e76330ffc318c5d276e6c0bbaa184ffe7b94e1c2592eb35b1b49163167311",
@@ -34311,12 +34311,12 @@
         "b54fd49f9b77794509f7997fd7712679a43b3f5993742dbe179ab45ded1b1023",
         "936578ce86bcc75111cb3bb61bba26605518996665cdb9019077c860e05f19e9"
       ],
-      "source_sha256": "a6f61ac5db22dbd84a98f92e15766bf8262507b8c1fca9bd6e210097b3925f7a",
-      "text": "Uppfylla ``y ~ X + (1 | groups) + variance components`` með REML.\n\nFæribreytur\n-----------\ny : array-like of shape (n_observations,) viðbrögð virði. X : array-like of shape (n_observations, n_fixed_effects) Fixed-effects hönnun. A DataFrame varðveita stefnunarnaminn sína í :attr:`TorchMixedResults.fe_params`. groups : array-like of shape (n_observations,) Outside hópur skilaboð. Það er alltaf með tilfinningalegum ákvarðanum, sem samsvarar við ``re_formula='1'``. vc : mapping of str til að fylgjast með, óþægilegt Aðalgreiningar tákn. Hver inntali definir eitt breytingskomponent sett inn í ``groups``, sem samsvarar við statsmodels ``vc_formula`` semantikum. device : str, optional PyTorch tæki. Requesting CUDA hækkar í stað þess að falla aftur til CPU þegar engin CUDA tæki er í boði. max_iter : int, optional Maximum L-BFGS ítaðir. Týpsamlegur sjónarhæð passar notkun 20-40; staðsetningu 400 er öryggi. verbose : bool, optional Tryggja fjarlægð á hverri uppgötvandi.\n\nSkilar\n-------\nTorchMixedResults Fixed Effects, breytingskomponent, skilyrði og eftirliti, BLUPs, konvergence diagnostics, og tími upplýsingar.\n\nUpphæð\n------\nMixedBackendUnavailable Ef PyTorch eða leyfilegt tæki er ekki til staðar. ValueError Ef innfangarþrýstingar mismunandi eða fasta-efta design er ekki viðeigandi. MemoryError ef þungur tilfinnilegur-effta design yfirheyrir uppbyggð hlutfall til staðsett tæki minningu.\n\nnotum\n-----\nÁkvarðan gegn statsmodels ``MixedLM(...).fit()`` gerði eftirfarandi mismunandi:\n\nlač ==================== ================== ======================================= magn hreiður innréttingu skimun-lagaður festing (1.620 raðir) (1,830 röð, , p=388, =1,097) ==================== ================== ======================================= föst áhrif 1,20e-7 alger 2,39e-4 alger (2,0e -4 af einni SE) dreifingarþættir 1.29e -3 hlutfallsleg 2.02e - 4 hlutfallslegt leifar mælikvarða 4.12e-6 hlutfallslega 194e-5 hlutfallslegur staðall  3.88e-4 hlutfallslega 1.04e-3 miðgildi;  1.80e-2 hámark yfir 388 leiðbeiningar BLUPs 7.64e-5 algerlega ekki metin ==================== ================== =======================================\n\nÁ skreinn-shaped staðfestingu, þetta staðfesting endar á gradient normi 1.3e-11 og log-sannsynda -804.143968098; staðfest statsmodels staðfestingar aftur -804143 968682. staðfestings statsmodels ``gtol=1e-12`` gerði staðfest-efta mismunandi til 1.52e-8 absolute og staðfestinga variance-komponent mismunandandi til 1.02e-4 samræmi.\n\n. Tilvísun enda-til-endir sinnum fyrir þá innréttingu voru 11.3 s fyrir statsmodels, 0.80 s fyrir þetta bakenda á CPU, og 0,47 s á RTX 3090.  undir samtímis CPU álagi tók statsmodels 21,3 s og CUDA bakenda 0,57 s.",
+      "source_sha256": "05be30b03dd042401e59e8c9137e3c7f61dbb7f492c443782a0c44709d1dd272",
+      "text": "Uppfylla ``y ~ X + (1 | groups) + variance components`` með REML.\n\nFæribreytur\n-----------\ny : array-like viðbrögð gildi með form ``(n_observations,)``. X : array-like Fixed-effects hönnun með form ``(n_observations, n_fixed_effects)``. A DataFrame varðveita stefnunarnar sínar í :attr:`TorchMixedResults.fe_params`. groups : array-like Outer grúðarmerki með form ``(n_observations,)``. Það er alltaf með tilfinningalegum ákvarðanum, sem samsvarar við ``re_formula='1'``. vc : mapping of str til upptöku líkur, óþægilegt Aðalgreiningar tákn. Hver inntali definir eitt breytingskomponent sett inn í ``groups``, sem samsvarar við statsmodels ``vc_formula`` semantikum. device : str, optional PyTorch tæki. Requesting CUDA hækkar í stað þess að falla aftur til CPU þegar engin CUDA tæki er í boði. max_iter : int, optional Maximum L-BFGS aðgerðir. Týpsamlegur skreinn stærð passar notkun 20-40; staðsetningu 400 er öryggi takmörk. verbose : bool, optional Tryggja fjarlægð á hverri uppgötvandi.\n\nSkilar\n-------\nTorchMixedResults Fixed Effects, breytingskomponent, skilyrði og eftirliti, BLUPs, konvergence diagnostics, og tími upplýsingar.\n\nUpphæð\n------\nMixedBackendUnavailable Ef PyTorch eða leyfilegt tæki er ekki til staðar. ValueError Ef innfangarþrýstingar mismunandi eða fasta-efta design er ekki viðeigandi. MemoryError ef þungur tilfinnilegur-effta design yfirheyrir uppbyggð hlutfall til staðsett tæki minningu.\n\nnotum\n-----\nÁkvarðan gegn statsmodels ``MixedLM(...).fit()`` gerði eftirfarandi mismunandi:\n\nlač ==================== ================== ======================================= magn hreiður innréttingu skimun-lagaður festing (1.620 raðir) (1,830 röð, , p=388, =1,097) ==================== ================== ======================================= föst áhrif 1,20e-7 alger 2,39e-4 alger (2,0e -4 af einni SE) dreifingarþættir 1.29e -3 hlutfallsleg 2.02e - 4 hlutfallslegt leifar mælikvarða 4.12e-6 hlutfallslega 194e-5 hlutfallslegur staðall  3.88e-4 hlutfallslega 1.04e-3 miðgildi;  1.80e-2 hámark yfir 388 leiðbeiningar BLUPs 7.64e-5 algerlega ekki metin ==================== ================== =======================================\n\nÁ skreinn-shaped staðfestingu, þetta staðfesting endar á gradient normi 1.3e-11 og log-sannsynda -804.143968098; staðfest statsmodels staðfestingar aftur -804143 968682. staðfestings statsmodels ``gtol=1e-12`` gerði staðfest-efta mismunandi til 1.52e-8 absolute og staðfestinga variance-komponent mismunandandi til 1.02e-4 samræmi.\n\n. Tilvísun enda-til-endir sinnum fyrir þá innréttingu voru 11.3 s fyrir statsmodels, 0.80 s fyrir þetta bakenda á CPU, og 0,47 s á RTX 3090.  undir samtímis CPU álagi tók statsmodels 21,3 s og CUDA bakenda 0,57 s.",
       "translation_source_blocks_sha256": [
         "8a637e79ca140391f11b524baac3e1dc562a091c8d7a57e26a84d911f3465abd",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "22af8530da615e8def0aceb82d286c1386fbc4c08a4c005db25e39f381ce926b",
+        "56c8c7e1eedbd85332fa91d83c84e9ffa4a24b0e008080be2abc47248d63a23c",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "69f08849fe0bbbc817839764badebb5a064afd7575e4f0dfa52ebc1c589bc9b2",
         "e97e76330ffc318c5d276e6c0bbaa184ffe7b94e1c2592eb35b1b49163167311",
@@ -54811,17 +54811,17 @@
     "spacr.qt.maturity": {
       "source_blocks_sha256": [
         "2c92e7ccb76be09eb4fa80559ff7d7af2f5dac9ae8a0bfde350f8281dad985fb",
-        "413a18e96599714450f56638f4fcc505079a6b34a2465b63cf7cc2b888d59fa6",
+        "809cefc8900a36b265c059f5717965a1543d42284f0eb39e591f1f70849814dd",
         "0fe7342d59911ebcdbd9b7ae4a7a770aac4be2b9b6ac143482dbba96eb098a5f",
         "dedb1a7ac33d428a0e583c12a55aaa7a17d5b69be22ac5ffc7d7e0180c8dded0",
         "390f0320c4c7da4aa27f8ab7909b4afe00cbaf50d5dea0446e1991a7d1bd4618",
         "669d478bf85ca5ed369600a6ccb25251ca2fbe1e6b095ddb87adeb3d84596616"
       ],
-      "source_sha256": "bfb26b3e5bbb3cc28e58b3c1a69b2e7f3be955081d356dd3a57c48b72c760b89",
-      "text": "Ákvarða skýrslur sem byggir á skýrslum fyrir Qt notkun.\n\nÁvöxtun á notkun er hækkað út úr prófum, styðjandi stefnumót eða tilkynnt GUI-eina sviði, tákn, kennslum og notkun af öðrum SPACR hlutum.\n\n``stable`` Áætlunin hefur vinnufluða eða bókasafn, breiður prófabréfið og notandadokumentation.\n\n``beta`` Sýnin er virkileg og prófaður en hefur minna tákn eða vinnslu notkun en stöðugt notkun.\n\n:func:`apply` er uppfærður :data:`spacr.qt.app.APP_STAGE` frá niðurstöðum hér að neðan. Ákvarðanir án endurskoðun eða útskýrða skref er gefið :data:`UNASSESSED_STAGE` (``\"alpha\"``). Explicit beta tákn eru haldið áfram, en skráðir athygli taka fyrri.\n\n:data:`PROMOTIONS` inniheldur notkun sem er breytt með merki; :data:`AFFIRMED` inni athygli notkun þar sem merki voru þegar viðeigandi.",
+      "source_sha256": "97e45f37efeb2b664870996daaa9fa11b8540be29470f0dce0991cfed3db0598",
+      "text": "Ákvarða skýrslur sem byggir á skýrslum fyrir Qt notkun.\n\nÁvöxtun á notkun er hættur úr prófunum, stefnumót-stefnu eða tilkynnt GUI-einnum sviði, tákn, kennslum og notkun af öðrum spaCR hlutum.\n\n``stable`` Áætlunin hefur vinnufluða eða bókasafn, breiður prófabréfið og notandadokumentation.\n\n``beta`` Sýnin er virkileg og prófaður en hefur minna tákn eða vinnslu notkun en stöðugt notkun.\n\n:func:`apply` er uppfærður :data:`spacr.qt.app.APP_STAGE` frá niðurstöðum hér að neðan. Ákvarðanir án endurskoðun eða útskýrða skref er gefið :data:`UNASSESSED_STAGE` (``\"alpha\"``). Explicit beta tákn eru haldið áfram, en skráðir athygli taka fyrri.\n\n:data:`PROMOTIONS` inniheldur notkun sem er breytt með merki; :data:`AFFIRMED` inni athygli notkun þar sem merki voru þegar viðeigandi.",
       "translation_source_blocks_sha256": [
         "2c92e7ccb76be09eb4fa80559ff7d7af2f5dac9ae8a0bfde350f8281dad985fb",
-        "413a18e96599714450f56638f4fcc505079a6b34a2465b63cf7cc2b888d59fa6",
+        "809cefc8900a36b265c059f5717965a1543d42284f0eb39e591f1f70849814dd",
         "4dfda822f65684b60d8d5228adffecbefc6f539a928ed2e6afba787fec1c8e6b",
         "dedb1a7ac33d428a0e583c12a55aaa7a17d5b69be22ac5ffc7d7e0180c8dded0",
         "390f0320c4c7da4aa27f8ab7909b4afe00cbaf50d5dea0446e1991a7d1bd4618",
@@ -58884,10 +58884,10 @@
         "c3c71e6e4c6728e92dc058bc103865097dde2daeec5d8931ecc1f61f4b6d1362",
         "53574eb95ed47eb357d3539beb3a89a30729b0ad08279acbeb578d50b6778b84",
         "22d3da6b0ce573ea4c94ec13ce6ba7f7047b339762bf019d79995ccb84c4d0da",
-        "61da88b878d33db59001b8c29c982f37f31c51cf08f3f2caf44a3c174d00e5d8"
+        "3431127e447551d49eaa5a26cb48b3420d3a7bb372518fd50b13fba532bea67e"
       ],
-      "source_sha256": "b438dbc644e50cf2da24d3c72304e6f9900d7c971d135c142389b5674c9d36a8",
-      "text": "Sjáðu og skráðu út úrgreiningar myndar á Qt tengslum.\n\nÞað sýnir síð af klukkustundum myndum sem styðist af ``png_list`` í ``measurements/measurements.db``. Hægri smellur veitir verðlaun 1, hægri klicka veitirði 2, og með því að klikka á viðeigandi verðlauna endurtekur það. Ákvarðanir eru stöðugt í gegnum :class:`spacr.qt.annotate_engine.SaveWorker`.\n\n-lag sem er aðeins fyrir lyklaborð situr ofan á sömu skrifleið (sjá :meth:`AnnotateScreen.handle_key`): ``1``–``9`` úthluta bekk og fara sjálfkrafa á næsta ómerkta myndsvæði,  ``0`` hreinsar,  / ``hjkl`` færa fókus,  ``Space`` / ``Backspace`` skref án merkingar,  ``u`` afturkallar og ``Enter`` framkvæmir síðuna.\n\nHvert afgreiðað mynd svæðið er tekin sem runda kvarts (sjá :class:`_Thumbnail`) með tveimur sjálfstættum litum bandum, þannig að þremur stöðum hennar eru að lesa saman en að skrifa á milli:\n\n* **resting** — smá græna ring sem hugsar myndina\n* **klasified** — það sama ringa í klasafarni (:func:`~spacr.qt.annotate_engine.label_to_hex`, einn klasa→farnarkarta á appinu)\n* **núverandi** — hvítan ringi *extra* út úr því á einum tileinu næstu smellingu eða keystroke verður hit\n\nLeikurinn og keyboard flytja sömu núverandi tile: að fara inn í tile gerir það núvert, og steinklappur flytja það fjarlægð. Það er engin annað \"hovered\" heild sem gæti sýnt annars staðar.\n\nQt forritið býður ekki upp á UMAP glugga, Deep SPACR þjálfun sjósetja, eða mælingar-þröskuld síun.  Hægt er að slá inn þröskuld í stillingum, en síðufyrirspurnir nota það ekki.",
+      "source_sha256": "5fc2b7cde765cfd0f332a20222cddd88100332638c0be94c0415b049bba48d87",
+      "text": "Sjáðu og skráðu út úrgreiningar myndar á Qt tengslum.\n\nÞað sýnir síð af klukkustundum myndum sem styðist af ``png_list`` í ``measurements/measurements.db``. Hægri smellur veitir verðlaun 1, hægri klicka veitirði 2, og með því að klikka á viðeigandi verðlauna endurtekur það. Ákvarðanir eru stöðugt í gegnum :class:`spacr.qt.annotate_engine.SaveWorker`.\n\n-lag sem er aðeins fyrir lyklaborð situr ofan á sömu skrifleið (sjá :meth:`AnnotateScreen.handle_key`): ``1``–``9`` úthluta bekk og fara sjálfkrafa á næsta ómerkta myndsvæði,  ``0`` hreinsar,  / ``hjkl`` færa fókus,  ``Space`` / ``Backspace`` skref án merkingar,  ``u`` afturkallar og ``Enter`` framkvæmir síðuna.\n\nHvert afgreiðað mynd svæðið er tekin sem runda kvarts (sjá :class:`_Thumbnail`) með tveimur sjálfstættum litum bandum, þannig að þremur stöðum hennar eru að lesa saman en að skrifa á milli:\n\n* **resting** — smá græna ring sem hugsar myndina\n* **klasified** — það sama ringa í klasafarni (:func:`~spacr.qt.annotate_engine.label_to_hex`, einn klasa→farnarkarta á appinu)\n* **núverandi** — hvítan ringi *extra* út úr því á einum tileinu næstu smellingu eða keystroke verður hit\n\nLeikurinn og keyboard flytja sömu núverandi tile: að fara inn í tile gerir það núvert, og steinklappur flytja það fjarlægð. Það er engin annað \"hovered\" heild sem gæti sýnt annars staðar.\n\ne Qt forritið býður ekki upp á UMAP glugga, Deep spaCR þjálfun sjósetja, eða mælingar-þröskuld síun.  Hægt er að slá inn þröskuld í stillingum, en síðufyrirspurnir nota það ekki.",
       "translation_source_blocks_sha256": [
         "48bcb4f903deef031f7ef2f4b768a4ed0db2e72244e8911a0fba50c48a334767",
         "be777aa4db4f2d686f5e6eda40045343ae537bc156fcd6f9e82d7f3e9c338eca",
@@ -58897,7 +58897,7 @@
         "c3c71e6e4c6728e92dc058bc103865097dde2daeec5d8931ecc1f61f4b6d1362",
         "53574eb95ed47eb357d3539beb3a89a30729b0ad08279acbeb578d50b6778b84",
         "22d3da6b0ce573ea4c94ec13ce6ba7f7047b339762bf019d79995ccb84c4d0da",
-        "243bb46ffcc385ee7944cc9b775daa3ba046faa59428f77372e411e007ae4188"
+        "5d87055602d4ec3a8da7323a22c51da58dfd3798bf635e2f2324c740e6e3582f"
       ]
     },
     "spacr.qt.screens.annotate.AnnotateScreen": {
@@ -89195,14 +89195,18 @@
       "source_blocks_sha256": [
         "26e5f5a095c3970d59366ad424b8cb9ac418a42e3df7ca6fbc9d1bfea6323022",
         "819fe1d1f4fd1d57c3ea0cc017e4aa32cf6175f432086f45e85122fb69cce58d",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "09278b3be119642289bf9565fa48f492c1cfeedd40245c0e8180b07f4bb0cb51",
         "4b0ed88f7d99420fb3ba2c68e20992280f6dcac4afaf32da17bee89c656c2ccf",
         "be3aa91295d92aa7805fb9581097933da62b6ca5ad786f7aa6419e456d6204c0"
       ],
-      "source_sha256": "513c96284f6b43aeb6b3a94baaab0b6e3bdd463e3987b5813b3e41b6e695f0b2",
-      "text": "Gerðu einu regressíu á valda kolumna af sameiginlegri mælingastölunni.\n\nHver dálkur framleiðir sjálfstæða vinnslulotumöppu og Runs-flipa færslu. Verk eru keyrð í röð í gegnum :class:`~spacr.qt.job_runner.JobRunner`, hægt er að stöðva á milli passas og halda áfram eftir einstaka passabilun.\n\naðilum\n----------\nfit_started : Signal útgáfur ``(column, settings)`` þegar hvert skipti byrjar. fit_finished : Signað útgáfu ``(column, outcome)`` þegar skipti gerist eða misnotur. queue_finished : Segnaður útgáfa ``(fitted, failed)`` þegar vinnuleikinn er lokið. queue_progress : Signal útgjöf ``(column, index, total)`` áður en hver skipti.",
+      "source_sha256": "3084e623c8ec14f362b07d8580eb380db8810c34a57eb6e77d7b2d989ea1694c",
+      "text": "Gerðu einu regressíu á valda kolumna af sameiginlegri mælingastölunni.\n\nHver dálkur framleiðir sjálfstæða vinnslulotumöppu og Runs-flipa færslu. Verk eru keyrð í röð í gegnum :class:`~spacr.qt.job_runner.JobRunner`, hægt er að stöðva á milli passas og halda áfram eftir einstaka passabilun.\n\nFæribreytur\n-----------\nframe_provider : callable or None, optional Kallbreyta án viðfanga sem skilar sameinuðum mælingaramma. settings_provider : callable or None, optional Kallbreyta án viðfanga sem skilar núverandi stillingum aðhvarfsskjásins fyrir líkan, leiðréttingu og talningu. Hver mátun í biðröð afritar þessar stillingar og breytir aðeins svarbreytudálkinum. parent : QWidget or None, optional Yfirviðmót. score_provider : callable or None, optional Kallbreyta án viðfanga sem skilar slóð að vistaða sameinaða rammanum. Hver mátun í biðröð les sömu skrá. threaded : bool, default=True Keyrir mátanir í gegnum bakgrunnsverkstjóra. Stilltu á ``False`` fyrir samstillt próf eða kalla án grafísks viðmóts. fit : callable or None, optional Fall sem er kallað með stillingum einnar mátunar. ``None`` notar venjulegu aðhvarfsútfærsluna. Sérstakt fall heldur biðröðinni sjálfstætt prófanlegri og kemur í veg fyrir innflutning á öllum tölfræðihugbúnaðinum þegar fyrsti glugginn er smíðaður.\n\naðilum\n----------\nfit_started : Signal útgáfur ``(column, settings)`` þegar hvert skipti byrjar. fit_finished : Signað útgáfu ``(column, outcome)`` þegar skipti gerist eða misnotur. queue_finished : Segnaður útgáfa ``(fitted, failed)`` þegar vinnuleikinn er lokið. queue_progress : Signal útgjöf ``(column, index, total)`` áður en hver skipti.",
       "translation_source_blocks_sha256": [
         "26e5f5a095c3970d59366ad424b8cb9ac418a42e3df7ca6fbc9d1bfea6323022",
         "85019d5b550c7b00a841d3eb65e90352d339373bb1eecfa2c0844abbcecf0df7",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "5e3eac29c20c160d9fbd7cc907951c88960729672269bf4ce56dd30ff5c0dc07",
         "4b0ed88f7d99420fb3ba2c68e20992280f6dcac4afaf32da17bee89c656c2ccf",
         "8999dcc539a568887270b7bec6d22767c2d401282dd035a3cd537f7502e1ba9f"
       ]
