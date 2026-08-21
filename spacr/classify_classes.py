@@ -493,3 +493,70 @@ def assign_classes(frame: pd.DataFrame, settings: Mapping[str, Any], *,
         labels.loc[chosen] = complement.name
 
     return labels
+
+
+# ---------------------------------------------------------------------------
+# 229: what `classes` now says on behalf of the settings it replaces
+# ---------------------------------------------------------------------------
+
+def annotation_column_of(settings) -> str:
+    """The column the classes are defined by, for `annotation_column`.
+
+    "The Classes Column setting should also replace the annotation column."
+    ONE SETTING NAMING THE COLUMN THAT HOLDS THE LABEL, not two that can
+    point at different columns -- which is the failure, because nothing
+    downstream reads both and compares them.
+
+    The old key is honoured when `classes` defines nothing, so a settings
+    file written before the Classes editor still runs.
+
+    :returns: the column, or ``""`` when nothing names one.
+    """
+    raw = settings.get(CLASSES)
+    if isinstance(raw, Mapping):
+        for rule in raw.values():
+            if isinstance(rule, Mapping):
+                column = str(rule.get("column") or "").strip()
+                if column:
+                    return column
+    return str(settings.get("annotation_column") or "").strip()
+
+
+def class_metadata_of(settings) -> list:
+    """The per-class values, for `class_metadata`.
+
+    "class metadata should be replaced by the Classes Class and value." The
+    pair IS what identifies a class; a free-form metadata list beside it was
+    a second place for the same fact, kept in a different shape.
+
+    :returns: ``[[value], [value], ...]`` in class order, or the old
+        setting's value when no class is defined.
+    """
+    raw = settings.get(CLASSES)
+    if isinstance(raw, Mapping) and raw:
+        out = []
+        for rule in raw.values():
+            if isinstance(rule, Mapping) and rule.get("value") is not None:
+                out.append([rule["value"]])
+        if out:
+            return out
+    value = settings.get("class_metadata")
+    return list(value) if isinstance(value, (list, tuple)) else []
+
+
+def fold_into_classes(settings) -> dict:
+    """Fill `annotation_column` and `class_metadata` FROM `classes`.
+
+    Called where the defaults are applied. THE DERIVED VALUES ARE WRITTEN
+    BACK rather than computed at every read: every consumer downstream reads
+    those two keys, and rewriting each of them to ask this module instead
+    would be a large change for a small gain -- and one of them would be
+    missed.
+    """
+    column = annotation_column_of(settings)
+    if column:
+        settings["annotation_column"] = column
+    values = class_metadata_of(settings)
+    if values:
+        settings["class_metadata"] = values
+    return settings

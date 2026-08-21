@@ -2,7 +2,7 @@
 THE TRAINING GRAPHS UPDATE, THEY DO NOT REGENERATE
 ================================================================================
 
-Status:    filed 2026-08-21, not started.
+Status:    DONE 2026-08-21.
 Requested: 2026-08-21 -- "in classify during training the graphs should be
            pyqtgraphs and they graphs should be updated not regenerated epch
            after epoch".
@@ -40,3 +40,32 @@ HOW TO KNOW IT WORKED
   the same is the bug.
 * The per-epoch update cost does not grow with the epoch count.
 * A zoom set at epoch 5 is still in force at epoch 50.
+
+--------------------------------------------------------------------------------
+DONE 2026-08-21
+--------------------------------------------------------------------------------
+
+`spacr/qt/widgets/training_monitor.py`. Three pyqtgraph panels, and no
+matplotlib behind them -- asserted, because a figure rendered to an image is
+the thing this replaces.
+
+`plot.plot()` ADDS AN ITEM EVERY CALL, which is the trap. Calling it per
+epoch leaves n overlapping curves -- which LOOKS like one curve, costs n
+times the render, and is the "regenerated" behaviour under another name. The
+curve is made once and `setData` is called on it; the test asserts the same
+OBJECT throughout a thirty-epoch run, because a rebuilt curve that looks the
+same is the bug.
+
+THE POINTS ARE HELD, not read back off the item. pyqtgraph returns copies,
+so appending to what it hands back is a quiet no-op.
+
+THE ZOOM SURVIVES, and there is a test that sets one at epoch 5 and asserts
+it at epoch 55 -- which is what makes a live graph usable for the thing a
+live graph is for.
+
+A NaN EPOCH IS A GAP, not a point. That is what a missing measurement should
+look like, and dropping the epoch silently would shift every later point one
+to the left.
+
+`clear()` is the ONLY place the curves are thrown away, which is what makes
+"appending" true by construction rather than by discipline.
