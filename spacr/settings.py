@@ -3354,12 +3354,7 @@ DYNAMIC_ORGANELLE_SETTINGS = frozenset(
 # control is built) while an old settings CSV still runs unchanged.
 
 def _outlier_criteria():
-    """The four objects an outlier filter can be set on (instruction 210).
-
-    READ FROM `spacr.outlier_filter`, so the settings and the filter cannot
-    disagree about which four they are -- a fifth added there and not here
-    would be a setting nobody could set.
-    """
+    """Return criteria shared by outlier settings and filtering logic."""
     try:
         from .outlier_filter import CRITERIA
 
@@ -3381,31 +3376,25 @@ tooltips = {
     #  spaCR with no hover help on any row.                             #
     # ---------------------------------------------------------------- #
     # ---------------------------------------------------------------- #
-    #  Removing segmentation artefacts BEFORE annotation (210).         #
+    #  Optional outlier removal before annotation.                       #
     # ---------------------------------------------------------------- #
     'cell_area_outlier_mads':
-        "Drop objects whose CELL AREA is further than this many MADs from "
-        "the median, BEFORE the guide fractions are computed. None is off, "
-        "which is the default: this changes which cells exist, and a filter "
-        "that silently drops objects will be forgotten and then blamed on "
-        "the annotation. THE ORDER IS THE POINT -- removing a merged-object "
-        "artefact after the fractions are formed leaves its reads "
-        "redistributed across the guides in its well; removing it first "
-        "means it never contributed. A MAD cut rather than a standard "
-        "deviation because areas are skewed, and an SD cut on skewed data "
-        "removes real cells from the long tail. 5 is loose enough not to "
-        "touch a normal screen and tight enough to catch an artefact an "
-        "order of magnitude out. Default None.",
+        "Optionally remove objects whose cell area exceeds this many scaled "
+        "median absolute deviations from the median. Filtering occurs before "
+        "guide fractions are computed, so removed objects do not contribute "
+        "to normalization. MAD-based limits are robust to skewed area "
+        "distributions. Set to None to disable; a value of 5 is a conservative "
+        "starting point. Default None.",
     'nucleus_area_outlier_mads':
-        "The same cut on NUCLEUS AREA. See cell_area_outlier_mads for why "
-        "it runs before annotation and why it is a MAD. Default None.",
+        "Optionally apply the same scaled-MAD filter to nucleus area before "
+        "guide annotation. Set to None to disable. Default None.",
     'cell_intensity_outlier_mads':
-        "The same cut on the CELL CHANNEL INTENSITY. Catches a field that "
-        "was over-exposed or a cell sitting on a debris fleck, both of "
-        "which survive segmentation and neither of which is a measurement. "
-        "Default None.",
+        "Optionally apply the scaled-MAD filter to cell-channel intensity "
+        "before guide annotation. This can exclude extreme measurements from "
+        "overexposure or bright debris. Set to None to disable. Default None.",
     'nucleus_intensity_outlier_mads':
-        "The same cut on the NUCLEUS CHANNEL INTENSITY. Default None.",
+        "Optionally apply the scaled-MAD filter to nucleus-channel intensity "
+        "before guide annotation. Set to None to disable. Default None.",
 
     'response_speed':
         "(str) - How much thinking the provider is asked for on each reply. "
