@@ -1367,6 +1367,13 @@ def set_generate_training_dataset_defaults(settings):
     settings.setdefault('test_split',0.1)
     settings.setdefault('cv_group_by','well')
     settings.setdefault('class_metadata',[['c1'],['c2']])
+    # AND THEN `classes` OVERRULES BOTH (instruction 229). The Classes
+    # editor already names the column each class is defined by and the value
+    # that defines it, so `annotation_column` and `class_metadata` are two
+    # more places for the same two facts -- and nothing downstream reads
+    # both and compares them. Derived here, AFTER the defaults, so a
+    # settings file that defines no class keeps exactly what it had.
+    _fold_the_classes(settings)
     settings.setdefault('channel_of_interest',3)
     settings.setdefault('nuclei_limit',True)
     settings.setdefault('pathogen_limit',True)
@@ -3441,6 +3448,20 @@ def _coordinate_columns_for(object_array):
         return [coordinate_column(object_array)]
     except Exception:                                            # noqa: BLE001
         return None
+
+
+def _fold_the_classes(settings):
+    """Fill `annotation_column` and `class_metadata` from `classes`.
+
+    THROUGH `classify_classes`, so the panel, the defaults and the pipeline
+    cannot disagree about what a class means.
+    """
+    try:
+        from .classify_classes import fold_into_classes
+
+        return fold_into_classes(settings)
+    except Exception:                                            # noqa: BLE001
+        return settings
 
 
 def _outlier_criteria():
