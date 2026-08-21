@@ -1,0 +1,60 @@
+================================================================================
+"SETTINGS FOR MY DATA" ADVISES THE REST OF THE RUN
+================================================================================
+
+Status:    filed 2026-08-21, DONE 2026-08-21.
+Requested: 2026-08-21 -- "settings for your data should also tell the user
+           what transformation they should do, recomend a fraction and cell
+           count threshold and a min n threshold, batch correction method,
+           aggregation type".
+Owner:     Regression (settings_advisor)
+
+--------------------------------------------------------------------------------
+WHAT WAS ALREADY THERE
+--------------------------------------------------------------------------------
+
+TWO OF THE SIX, and worth saying so rather than rebuilding them: the
+TRANSFORMATION is proposed by `_family_and_transform` and the BATCH
+CORRECTION METHOD by `_plate`, which also refuses ever to propose ComBat
+without a covariate.
+
+--------------------------------------------------------------------------------
+WHAT WAS ADDED
+--------------------------------------------------------------------------------
+
+`_thresholds` and `_aggregation`.
+
+THE FRACTION THRESHOLD IS THE ONE THAT QUIETLY DELETES A SCREEN, and it is a
+constant by default. A constant cannot know how crowded a well is: with four
+guides per well a 2% cut removes nothing, and with four hundred it removes
+almost everything, because the typical guide is then a quarter of one per
+cent.
+
+So the advice is measured against the screen's OWN fraction distribution --
+which `read_the_counts` computed and threw away -- and where the usual
+default would discard most of the library it says so WITH THE NUMBER:
+
+    "the usual 0.02 would keep only 0.8% of the guide-in-well pairs here,
+     because the typical guide is 0.023% of its well"
+
+AND IT SAYS WHAT IT CANNOT DO. A threshold is a noise floor, and nothing in
+a count table alone measures noise. Control wells of known composition do,
+directly, and `spacr.read_background` computes it from them (instruction
+207). The advice names that as the real answer and its own proposal as a
+value chosen to keep the library rather than to remove noise.
+
+`min_n` comes from the measured wells per guide; `min_cell_count` from the
+objects per well; `agg_type` from the measured SKEW of the response, because
+a mean over cells is dragged by the tail and on a classification score the
+tail is where the interesting cells are.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* All six are proposed, each with a reason that names a measured quantity.
+* The fraction advice states what the default would cost THIS screen.
+* It names the control-well measurement as the better route rather than
+  presenting its own proposal as noise-derived.
+* Nothing is proposed that the run would refuse -- `advise_that_runs` still
+  filters the whole proposal.

@@ -76,6 +76,46 @@ def organelle_label(role: str) -> str:
     return f"Organelle {organelle_index(role)}"
 
 
+#: Words a settings label must not lower-case. `capitalize()` lower-cases
+#: everything after the first character, so `grna` becomes `Grna` and
+#: `exclude_grnas` becomes `Exclude grnas` -- which is how the tool spells a
+#: term of art nowhere else in its own documentation.
+#:
+#: Asked for 2026-08-21: "whenever you write grna write gRNA". Fixed HERE,
+#: in the one function that builds every label, rather than in the four
+#: settings that happen to contain it today -- the fifth would arrive
+#: spelled wrong.
+CASED_TERMS = {
+    "grna": "gRNA",
+    "grnas": "gRNAs",
+    "dna": "DNA",
+    "rna": "RNA",
+    "umap": "UMAP",
+    "csv": "CSV",
+    "png": "PNG",
+    "qc": "QC",
+    "id": "ID",
+}
+
+
+def _recase(text: str) -> str:
+    """Restore the terms `capitalize()` flattened."""
+    return " ".join(CASED_TERMS.get(word.lower(), word)
+                    for word in str(text).split(" "))
+
+
+def _split_id_suffix(key: str) -> str:
+    """`plateID` -> `plate ID`, so the identifier keys read as words.
+
+    The five identifier columns instruction 213 standardises -- `plateID`,
+    `rowID`, `columnID`, `fieldID`, `objectID` -- are camelCase, so the
+    underscore split leaves them whole and `capitalize()` renders `Plateid`.
+    """
+    import re
+
+    return re.sub(r'(?<=[a-z])(ID)\b', r' \1', str(key))
+
+
 def setting_label(key: str) -> str:
     """Humanise a setting key, giving organelle slots numbered labels."""
     key = str(key)
@@ -83,8 +123,10 @@ def setting_label(key: str) -> str:
         if key == role or key.startswith(f'{role}_'):
             suffix = key[len(role):].lstrip('_').replace('_', ' ')
             return (organelle_label(role) if not suffix else
-                    f'{organelle_label(role)} — {suffix.capitalize()}')
-    return key.replace('_', ' ').strip().capitalize()
+                    f'{organelle_label(role)} — '
+                    f'{_recase(suffix.capitalize())}')
+    spaced = _split_id_suffix(key).replace('_', ' ').strip()
+    return _recase(spaced.capitalize())
 
 
 def role_setting(role: str, suffix: str) -> str:
