@@ -191,6 +191,13 @@ class _ProvidersDialog(QDialog):
                 self._speed_combo.setCurrentIndex(i)
                 break
         self._speed_combo.currentIndexChanged.connect(self._on_speed_changed)
+        # THE HEADING IS THIS FIELD'S LABEL, and `install_api_tooltips` has no
+        # way to work that out: it finds labels through QFormLayout and QGrid,
+        # and this tab is a plain column of heading-then-control pairs. Without
+        # the pointer the helper concludes there is no label and deliberately
+        # installs no help at all -- which is why this was the one settings
+        # dialog in spaCR with no hover help on its combo or its editor.
+        self._speed_combo._spacr_setting_label = speed_label
         col.addWidget(self._speed_combo)
 
         col.addWidget(Divider())
@@ -278,6 +285,8 @@ class _ProvidersDialog(QDialog):
         col.addWidget(prompt_label)
 
         self._prompt_edit = QTextEdit()
+        # Its heading, for the same reason as the speed combo above.
+        self._prompt_edit._spacr_setting_label = prompt_label
         self._prompt_edit.setPlainText(ai_settings.get_system_prompt())
         self._prompt_edit.setMinimumHeight(240)
         col.addWidget(self._prompt_edit, 1)
