@@ -2,7 +2,7 @@
 THE MERGED DATABASE KEEPS THE gRNA ANNOTATION
 ================================================================================
 
-Status:    filed 2026-08-21, not started.
+Status:    DONE 2026-08-21.
 Requested: 2026-08-21 -- "when i merge the databases and pick a database
            measurement to compare i am not able to compare the gRNA annotated
            groups any longer. so the predictions do not seem to be merged with
@@ -54,3 +54,35 @@ HOW TO KNOW IT WORKED
   and a test asserts that on a real merged pair rather than on a fixture
   built to match.
 * A join that matches nothing raises or is reported, never drawn as empty.
+
+--------------------------------------------------------------------------------
+SETTLED BY COUNTING, 2026-08-21
+--------------------------------------------------------------------------------
+
+THE ANSWER WAS BOTH, which is why the question was worth asking first.
+
+ONE: the merge RAN and dropped the column. `join_measurements` filters the
+incoming columns to `is_numeric_dtype`, which is right for measurements and
+wrong for the one column the compare panel needs -- a gRNA name is a STRING,
+and it is the grouping the whole screen exists to serve. `ANNOTATION_COLUMNS`
+now names the non-numeric columns that come across. NAMED rather than "every
+object column": a merge that brought paths and filenames over would put
+hundreds of useless entries in the measurement chooser.
+
+TWO: a join that matched nothing was passed on quietly. There is no run
+where none of the objects have a measurement, so zero matches is a join key
+that does not line up -- and it looks exactly like a merge that worked on an
+empty column once it reaches a panel that draws it. It now returns the
+ORIGINAL rows with a sentence saying so, rather than a frame of all-NaN
+measurement columns: handing those on is how the empty plot gets drawn, and
+giving the caller back what they already had leaves them exactly where they
+were.
+
+A PARTIAL MATCH IS STILL KEPT AND REPORTED. Some rows unmatched is a real
+screen; none is a bug, and the two get different treatment.
+
+THE TEST IS ON A REAL MERGE, NOT A FIXTURE BUILT TO MATCH. It writes a
+`measurements.db` with sqlite, reads it back through spaCR's own table
+join and identity resolution, and counts the annotated objects on both
+sides. A second case merges TWO databases into one frame, because one
+database cannot show a concatenation bug.

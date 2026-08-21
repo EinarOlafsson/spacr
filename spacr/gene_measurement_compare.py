@@ -909,6 +909,20 @@ def measurements_are_joined(objects: "pd.DataFrame") -> bool:
                for c in columns)
 
 
+#: Columns that come across a merge even though they are not numeric.
+#:
+#: THE gRNA ANNOTATION IS THE GROUPING THE WHOLE SCREEN EXISTS TO SERVE, and
+#: it is a string -- so the numeric filter that keeps a merge from dragging
+#: every path and label across was also dropping the one column the compare
+#: panel needs to offer a group at all. Named rather than "every object
+#: column", because a merge that brought paths and filenames over would put
+#: hundreds of useless entries in the measurement chooser.
+ANNOTATION_COLUMNS: frozenset = frozenset({
+    "grna", "grna_name", "gene", "gene_name", "condition", "prediction",
+    "predicted_class", "annotation", "class",
+})
+
+
 def join_measurements(objects: "pd.DataFrame",
                       databases: Sequence[str],
                       *, keep_uninfected: bool = True
@@ -977,7 +991,8 @@ def join_measurements(objects: "pd.DataFrame",
     have = set(map(str, objects.columns))
     fresh = [c for c in wide.columns
              if str(c) not in have and str(c) != "_prcfo"
-             and pd.api.types.is_numeric_dtype(wide[c])]
+             and (pd.api.types.is_numeric_dtype(wide[c])
+                  or str(c) in ANNOTATION_COLUMNS)]
     if not fresh:
         return objects, ("the measurement tables add no column these rows "
                          "do not already have")
@@ -1012,6 +1027,24 @@ def join_measurements(objects: "pd.DataFrame",
 
     matched = int(added[fresh[0]].notna().sum())
     note = ""
+    if not matched and len(objects):
+        # A SILENT ZERO IS THE REAL FAULT (instruction 203). There is no run
+        # where NONE of the objects have a measurement, so zero matches is
+        # a join key that does not line up -- and a merge that matched
+        # nothing looks exactly like a merge that worked on an empty column
+        # once it reaches a panel that draws it.
+        #
+        # THE ORIGINAL ROWS GO BACK, not the widened ones. Handing on a
+        # frame of all-NaN measurement columns is how the empty plot gets
+        # drawn; returning what the caller already had leaves them exactly
+        # where they were, with a sentence saying why.
+        return objects, (
+            f"THE MERGE MATCHED NOTHING: none of {len(objects):,} object "
+            f"row(s) were found in the measurement tables, so no measurement "
+            f"was joined. This is a join-key problem rather than an empty "
+            f"screen — the object identities on the two sides do not line "
+            f"up. Nothing was changed."
+            + (" · " + "; ".join(troubles) if troubles else ""))
     if matched < len(objects):
         # SAID, ALWAYS -- the same rule the dropped denominators follow. A
         # measurement that is missing on a third of the cells produces a
