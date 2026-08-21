@@ -574,6 +574,21 @@ def _write(figure, path) -> None:
             figure.patch.set_alpha(1.0)
             restore.append(lambda: (figure.patch.set_facecolor(before),
                                     figure.patch.set_alpha(alpha)))
+            # AND EACH AXES' OWN GROUND. The figure patch is the margin; the
+            # axes patch is the PAGE the data sits on, and on a heatmap it is
+            # very nearly the whole image. Flipping only the figure was
+            # invisible while rcParams were matplotlib's defaults -- the axes
+            # were already white -- and showed up the moment this module drew
+            # inside the house style, where the screen palette colours them
+            # dark. Measured: `plot_sweep` saved onto (141, 12, 37).
+            for axes in figure.axes:
+                was = axes.get_facecolor()
+                was_alpha = axes.patch.get_alpha()
+                axes.set_facecolor(ground)
+                axes.patch.set_alpha(1.0)
+                restore.append(
+                    lambda a=axes, c=was, al=was_alpha: (
+                        a.set_facecolor(c), a.patch.set_alpha(al)))
         for axes in figure.axes:
             for artist, getter, setter in _chrome_of(axes):
                 replacement = export_colour(getter(), "chrome", look)
