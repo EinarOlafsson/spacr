@@ -1343,11 +1343,18 @@ def _sudoku_calls(work, counts, keys, guide_column, fraction_column,
             f"sudoku: {result.called():,} of {len(frame):,} cell(s) "
             f"annotated across {len(fractions)} well(s); "
             f"{result.report.get('abstained', 0):,} abstained")
-        out = {}
-        for label in sorted(set(wells)):
-            out[label] = [result.guides[i]
-                          for i, w in enumerate(wells) if w == label]
-        return out
+        # KEYED BY THE FRAME'S INDEX, NOT BY POSITION.
+        #
+        # THIS WAS THE BUG, and it was silent: the caller matches these
+        # against `ranked`, which is the well's rows SORTED BY SCORE, while
+        # this list was in the order the rows arrived. Same length, different
+        # cells -- so the calls landed on the wrong objects, and where the
+        # lengths disagreed nothing was marked at all. A real run reported
+        # "59 of 1,076 cells annotated" and then highlighted zero in every
+        # well.
+        #
+        # An index cannot be misaligned by a sort.
+        return dict(zip(frame.index, result.guides))
     except Exception as exc:                                 # noqa: BLE001
         # A PICKER THAT CANNOT RUN SAYS SO AND THE MONTAGE STILL DRAWS.
         notes.append(f"sudoku could not run ({type(exc).__name__}: {exc}); "
@@ -1713,17 +1720,18 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
             # reason it cannot be computed inside this per-well loop the way
             # the others are: a guide's appearance is learned from every
             # well it is in. `_sudoku_calls` runs once for the whole screen
-            # before the loop and this reads its answer for this well.
-            called = (sudoku_calls or {}).get(label)
-            if called is not None:
-                mask = np.array([g == name for g in called[:len(ranked)]]) \
-                    if len(called) else np.zeros(len(ranked), dtype=bool)
-                if mask.size == len(ranked):
-                    top = ranked[mask]
-                    picked_by = "sudoku (propagated across wells)"
+            # before the loop and this reads its answer for these rows.
+            #
+            # BY INDEX. `ranked` is sorted by score, so a positional lookup
+            # would put each cell's call on a different cell.
+            if sudoku_calls:
+                mask = np.array([sudoku_calls.get(i) == name
+                                 for i in ranked.index], dtype=bool)
+                top = ranked[mask]
+                picked_by = "sudoku (propagated across wells)"
             else:
-                picked_by = ("sudoku could not run on this well; fell back "
-                             "to rank")
+                picked_by = ("sudoku could not run on this screen; fell "
+                             "back to rank")
         if wanted in ("attributed", "assigned") and effects:
             here_fractions = _well_guide_fractions(
                 counts, label, keys, guide_column, fraction_column)
@@ -1752,7 +1760,28 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
                     top = ranked[mask]
                     picked_by = "attributed"
         direction = "lowest" if coefficient.effect < 0 else "highest"
-        if normalise_fraction:
+        # THE NOTE MUST DESCRIBE THE PICKER THAT RAN. The fraction
+        # arithmetic below is how `rank` decides; every other picker decides
+        # some other way and does not consult it. Printing it regardless
+        # reported a calculation that did not happen -- observed on a sudoku
+        # montage that highlighted nothing and still said "round(0.1267 x
+        # 187) = 24", which is a number the run never used.
+        #
+        # `expected` stays computed either way: it is the count the
+        # SEQUENCING supports, which is worth stating next to what the
+        # picker actually chose, because the gap between them is the
+        # interesting part.
+        _by_rank = str(picked_by).startswith("rank")
+        if not _by_rank:
+            chosen_here = int(len(top))
+            arithmetic = (
+                f"{picked_by} chose {chosen_here} of {n_classified} "
+                f"classified cell(s); the fraction would support "
+                f"{expected}")
+            if chosen_here == 0:
+                arithmetic += (" -- this picker annotated none of this "
+                               "well's cells to this guide")
+        elif normalise_fraction:
             arithmetic = (f"round({share:.4g} x {n_classified}) = {expected}, "
                           f"where {share:.4g} is this guide's {fraction:.4g} "
                           f"normalised by {factor:.4g} (the well's fractions "
@@ -1771,6 +1800,7 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
             # highlight the cells most likely to be whatever gene is picked".
             take = ranked.copy()
             take["montage_candidate"] = take.index.isin(top.index)
+            _n_marked = int(take["montage_candidate"].sum())
             # AND THE REST ARE NAMED, NOT MERELY UNMARKED (207 B). Asked for
             # 2026-08-21: "i an the non annotated datapoints to be annotated
             # as Non_annotated and shown".
@@ -1783,10 +1813,20 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
             take[ANNOTATION_COLUMN] = np.where(
                 take["montage_candidate"], str(name), NOT_ANNOTATED)
             n_taken = int(len(take))
+            if _n_marked and _by_rank:
+                marked = (f"the {_n_marked} with the {direction} scores are "
+                          f"highlighted and the rest are {NOT_ANNOTATED}")
+            elif _n_marked:
+                # NOT "the N with the highest scores" -- a picker that is not
+                # `rank` did not choose by score, and saying it did explains
+                # the picture with the wrong rule.
+                marked = (f"{_n_marked} are highlighted and the rest are "
+                          f"{NOT_ANNOTATED}")
+            else:
+                marked = (f"none is highlighted; every cell here is "
+                          f"{NOT_ANNOTATED}")
             note = (f"showing all {n_taken} classified cells in the well; "
-                    f"the {int(take['montage_candidate'].sum())} with the "
-                    f"{direction} scores are highlighted and the rest are "
-                    f"{NOT_ANNOTATED} -- {arithmetic}")
+                    f"{marked} -- {arithmetic}")
         else:
             take = top.copy()
             take["montage_candidate"] = True
