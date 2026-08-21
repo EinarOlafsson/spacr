@@ -42,9 +42,6 @@ BOTH_MODES: Tuple[str, ...] = (
     # effect, this asks what the whole well looks like and where they are in
     # it -- and a reader who cannot see the well cannot judge the window.
     "show_all_in_well",
-    # How many cells one page of a well holds. A well capped at 300 drawn as
-    # one grid is a scroll nobody reads to the end of.
-    "cells_per_page",
     # THE MONTAGE'S OWN CONTROLS, moved off the toolbar 2026-08-19: "the
     # half-width baseline, score column, and max objects can be moved to the
     # settings panel", and the three combos beside them read as stray labels
@@ -78,7 +75,6 @@ OWN_DEFAULTS: Dict[str, object] = {
     # DISAGREE WITH IT, which makes it useless as a check and misleading as
     # a picture.
     "show_all_in_well": True,
-    "cells_per_page": 60,
     "object_type": "cell",
     "crop_source": LOAD_IMAGES,
     "half_widths": 1.0,
@@ -672,3 +668,34 @@ def offered_values(key: str, source=None, frame=None) -> Tuple[str, ...]:
                        "it is in, then decides this one"),
         )
     return ()
+
+
+#: Settings that no longer exist, and what happened to them. RETIRED, NOT
+#: MERELY ABSENT: instruction 211 asks that `cells_per_page`'s current value
+#: be "migrated out rather than left in the saved preferences to confuse a
+#: later reader", and a reader who meets an unexplained key in their own
+#: settings file has no way to find out it was deliberate.
+RETIRED: dict = {
+    "cells_per_page": (
+        "removed: the page size is now a consequence of the container size "
+        "and the image size, so a configured count could only contradict "
+        "the geometry -- producing a half-empty page or a clipped row, with "
+        "no way for the user to tell which"),
+}
+
+
+def drop_retired(picture) -> tuple:
+    """``(settings, [note])`` with the retired keys taken out.
+
+    Called wherever a saved picture-settings blob is read. The notes are
+    returned rather than printed, so the caller decides whether this is
+    worth a line -- it is worth one the first time and noise every time
+    after.
+    """
+    out = dict(picture or {})
+    notes = []
+    for key, why in RETIRED.items():
+        if key in out:
+            out.pop(key)
+            notes.append(f"{key}: {why}")
+    return out, notes

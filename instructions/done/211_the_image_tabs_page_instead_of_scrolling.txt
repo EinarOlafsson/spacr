@@ -2,7 +2,7 @@
 THE IMAGE TABS PAGE INSTEAD OF SCROLLING
 ================================================================================
 
-Status:    filed 2026-08-21, not started.
+Status:    DONE 2026-08-21.
 Requested: 2026-08-21 -- "for the image tabs fit the images to fit in the
            visable part of the container, do not use scroll, use next and
            preveous page instead. and remove the cell_per_page settings. this
@@ -42,3 +42,40 @@ HOW TO KNOW IT WORKED
   were.
 * The page count is stated -- "page 3 of 11" -- because paging without a
   total is navigation without a map.
+
+--------------------------------------------------------------------------------
+DONE 2026-08-21
+--------------------------------------------------------------------------------
+
+`fits_on_a_page(width, height, thumb_px)` -- the count is a CONSEQUENCE of
+the geometry, computed from the scroll area's viewport every time it is
+asked. A cached number would be the PREVIOUS window's answer, and the window
+is exactly what changes.
+
+THE PAGE HOLDS WHOLE ROWS, asserted: a page ending mid-row is the clipped
+row this replaces.
+
+A VIEWPORT TOO SMALL FOR ONE THUMBNAIL STILL SHOWS ONE, clipped. An empty
+page is indistinguishable from a well with no cells in it.
+
+THE SCROLLBARS ARE OFF, both of them. A page that scrolls is not a page --
+it is a grid with a smaller window over it, which is the thing being
+replaced. Hiding the bar also makes a wrong page size VISIBLE instead of
+navigable.
+
+THE ANCHOR IS THE FIRST IMAGE, NOT THE PAGE NUMBER. The same page number is
+a different set of cells once the page holds a different number of them, so
+keeping it across a resize teleports the reader. `resizeEvent` reads
+`first_on_page()` before the relayout and calls `show_crop()` after.
+
+`cells_per_page` IS GONE from the settings, the tooltips and the picture
+defaults -- and `picture_settings.RETIRED` carries what happened to it, so a
+saved preferences blob that still names it is migrated out with a reason
+rather than leaving an unexplained key for a later reader. `_per_page_of`
+survives returning 0, which means "work it out from the container": a
+settings CSV that still carries the number has it IGNORED rather than
+honoured, because honouring a count that disagrees with the geometry is the
+bug the setting was removed for.
+
+The pager already said "page 3 of 11" and already disabled at both ends;
+both are tested now rather than assumed.
