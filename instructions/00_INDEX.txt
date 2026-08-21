@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-190 done / 15 open (92%).
+190 done / 16 open (92%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -68,6 +68,9 @@ OPEN
 
   212  THE NONPARAMETRIC REGRESSIONS ARE OFFERED
        212_the_nonparametric_regressions_are_offered.txt
+
+  213  THE MERGE OFFERS png_list AND THE DEPENDENT VARIABLE
+       213_the_merge_offers_png_list_and_the_dependent_variable.txt
 
 --------------------------------------------------------------------------------
 DONE

@@ -1,0 +1,94 @@
+================================================================================
+THE MERGE OFFERS png_list AND THE DEPENDENT VARIABLE
+================================================================================
+
+Status:    filed 2026-08-21, not started.
+Requested: 2026-08-21 -- "in merge the tables in each database in the
+           measurements tab, the png_list table should also be a box as well
+           as a box called dependent variable".
+Owner:     Measurements tab (merge), multi_database
+
+--------------------------------------------------------------------------------
+A. TWO MORE BOXES
+--------------------------------------------------------------------------------
+
+The merge control lists the object tables -- cell, nucleus, pathogen,
+cytoplasm. Two more join them:
+
+  * `png_list`
+  * DEPENDENT VARIABLE -- the table carrying the value the screen is
+    regressing on.
+
+Both are already the substance of the analysis and neither can be reached
+from this control today.
+
+--------------------------------------------------------------------------------
+B. HOW THE DEPENDENT VARIABLE JOINS, WITH TWO FALLBACKS
+--------------------------------------------------------------------------------
+
+    "in my cas the dependent variable has plate, row, col, field, object
+     which is enough to join with cell table but it also necessarily has the
+     path to each image with is necessarily plate_well_field_object which can
+     be split into its parts and merged directly or well translated into row
+     and column and (with the format r1 and c2) and merged into the cell
+     table so the latter two can be backups if any of the plate, row, col,
+     filed, object columns cant be found or are missed for wahtever reason."
+
+THREE ROUTES, TRIED IN ORDER, and the order is the instruction:
+
+  1. THE ID COLUMNS. `plateID`, `rowID`, `columnID`, `fieldID`, `objectID`.
+     The direct join, used whenever all five are present.
+
+  2. SPLIT THE IMAGE PATH. The path is necessarily
+     `plate_well_field_object`, so the five parts can be recovered from it.
+     Used when a column from route 1 is missing.
+
+  3. TRANSLATE WELL TO ROW AND COLUMN. The well from the path becomes
+     `r1` / `c2`, which is the spelling `png_list.rowID` already uses --
+     `spacr/predictions.py` documents that this column returns `'r1'`,
+     `'r2'` rather than a number, and a route that produced `1` would not
+     match.
+
+A FALLBACK IS A FALLBACK, NOT A SECRET. Which route was used goes in the
+merge report, with the number of rows it matched. A join that silently
+changed method is a join whose result cannot be reasoned about, and route 2
+recovering what route 1 should have supplied is a fact about the data worth
+knowing -- it means a column is missing upstream.
+
+AND A ROUTE THAT MATCHES NOTHING IS A FAILURE, not an empty answer. The same
+rule instruction 203 states for the object tables.
+
+--------------------------------------------------------------------------------
+C. THE COLUMN NAMES ARE THE IMPORT'S, EVERYWHERE
+--------------------------------------------------------------------------------
+
+    "these columns will of course be interperated as plateID, rowID,
+     columnID, fieldID, objectID, as the import logic dictates for
+     standardization (which should be true acress the board in spacr)."
+
+`plateID`, `rowID`, `columnID`, `fieldID`, `objectID` -- the import's
+spelling, applied here and ACROSS THE BOARD. The parenthesis is a general
+instruction, not an aside about this dialog: a module reading `plate` where
+the rest of spaCR writes `plateID` is a module that will silently match
+nothing the first time it meets a real database.
+
+So this instruction has a second half: find where the spellings disagree and
+make them agree. `spacr/predictions.py` already records one trap worth
+reading before starting -- `png_list` has a `rowID` column, and SQLite will
+answer a query for it with the plate row rather than the row number, which
+is how a test built by hand without that column passed while the real table
+did not.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* `png_list` and the dependent variable are both boxes on the merge control
+  and both merge.
+* The dependent variable joins by the ID columns when they are there.
+* Removing one ID column falls back to the path split and STILL JOINS, and
+  removing the path falls back to row/column translation.
+* The report names the route used and the rows matched.
+* Zero matches is reported as a failure.
+* The five identifier spellings agree across spaCR, checked by a test that
+  greps for the wrong ones rather than by inspection.
