@@ -490,13 +490,34 @@ def _thumb_px_of(picture) -> int:
     return max(24, min(value, 512)) if value else 0
 
 
+def fits_on_a_page(width: int, height: int, thumb_px: int,
+                   spacing: int = 6) -> Tuple[int, int]:
+    """``(columns, per_page)`` for a viewport of this size.
+
+    THE COUNT IS A CONSEQUENCE OF THE GEOMETRY (instruction 211), never a
+    setting. `cells_per_page` contradicted the container it was drawn in, so
+    it produced a half-empty page or a clipped row depending on which way it
+    disagreed -- and the user had no way to know which.
+
+    AT LEAST ONE OF EACH. A viewport too small for a single thumbnail still
+    shows one, clipped, rather than a page holding nothing: an empty page is
+    indistinguishable from a well with no cells in it.
+    """
+    step = max(1, int(thumb_px) + int(spacing))
+    columns = max(1, int(width) // step)
+    rows = max(1, int(height) // step)
+    return columns, columns * rows
+
+
 def _per_page_of(picture) -> int:
-    """How many cells one page of a well holds, from the picture settings."""
-    try:
-        value = int((picture or {}).get("cells_per_page") or 0)
-    except (TypeError, ValueError):
-        return 0
-    return max(1, value) if value else 0
+    """RETIRED. Always 0, which means "work it out from the container".
+
+    `cells_per_page` is gone from the settings and the defaults. This
+    survives only to translate a settings CSV that still carries it: the
+    value is ignored rather than honoured, because honouring a count that
+    disagrees with the geometry is the bug the setting was removed for.
+    """
+    return 0
 
 
 def _show_all_of(picture) -> bool:
@@ -1108,6 +1129,13 @@ class _WellTab(QWidget):
         self._grid.setSpacing(4)
         self._grid.setAlignment(Qt.AlignTop | Qt.AlignLeft)
         self._scroll.setWidget(self._body)
+        # NO SCROLLBAR (instruction 211). The visible area IS the page, and
+        # a page that scrolls is not a page -- it is a grid with a smaller
+        # window over it, which is what this replaces. If anything is below
+        # the fold the page size is wrong, and hiding the bar makes that
+        # visible instead of navigable.
+        self._scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self._scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         split.addWidget(self._scroll)
 
         # HOW BIG THE CELLS ARE DRAWN AND HOW MANY FIT ON A PAGE. Both are
@@ -1174,11 +1202,46 @@ class _WellTab(QWidget):
 
     # ------------------------------------------------------------- paging
 
+    def per_page(self) -> int:
+        """How many crops fit in the viewport as it is now.
+
+        MEASURED, NOT CONFIGURED (instruction 211). The visible area IS the
+        page, so this is read off the scroll area's viewport every time it
+        is asked -- a cached number would be the previous window's answer,
+        and the window is what changes.
+        """
+        area = self._scroll.viewport()
+        columns, count = fits_on_a_page(area.width(), area.height(),
+                                        self._thumb_px)
+        return count
+
     def page_count(self) -> int:
         """How many pages this well's crops take at the current page size."""
-        if not self._per_page or not self._crops:
+        size = self.per_page()
+        if not size or not self._crops:
             return 1
-        return max(1, -(-len(self._crops) // self._per_page))
+        return max(1, -(-len(self._crops) // size))
+
+    def first_on_page(self) -> int:
+        """The index of the first crop on the page now shown.
+
+        THE ANCHOR A RESIZE KEEPS. Keeping the PAGE NUMBER across a resize
+        teleports the reader: the same page number is a different set of
+        cells once the page holds a different number of them.
+        """
+        return self._page * max(1, self.per_page())
+
+    def show_crop(self, index: int) -> int:
+        """Turn to the page holding crop ``index``. Returns the page."""
+        size = max(1, self.per_page())
+        return self.show_page(int(index) // size)
+
+    def resizeEvent(self, event):               # noqa: N802 - Qt naming
+        """Relay out, and keep the reader where they were."""
+        anchor = self.first_on_page()
+        super().resizeEvent(event)
+        # THE FIRST IMAGE ON THE PAGE STAYS PUT, not the page number.
+        self.show_crop(anchor)
 
     def page(self) -> int:
         """The page now shown, counting from zero."""
@@ -1192,11 +1255,11 @@ class _WellTab(QWidget):
 
     def _page_slice(self):
         """The crops and rows for the page now shown."""
-        if not self._per_page:
+        size = self.per_page()
+        if not size:
             return list(range(len(self._crops)))
-        start = self._page * self._per_page
-        return list(range(start, min(start + self._per_page,
-                                     len(self._crops))))
+        start = self._page * size
+        return list(range(start, min(start + size, len(self._crops))))
 
     def caption_text(self) -> str:
         """This tab's caption, exactly as it is on screen."""
@@ -1264,8 +1327,9 @@ class _WellTab(QWidget):
         if pages <= 1:
             self._pager.setVisible(False)
             return
-        first = self._page * self._per_page + 1
-        last = min(first + self._per_page - 1, len(self._crops))
+        size = max(1, self.per_page())
+        first = self._page * size + 1
+        last = min(first + size - 1, len(self._crops))
         self._page_label.setText(
             f"cells {first}-{last} of {len(self._crops)}   "
             f"(page {self._page + 1} of {pages})")
