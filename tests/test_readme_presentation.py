@@ -161,15 +161,17 @@ def test_workflow_modules_are_dark_linked_tiles_with_separate_white_arrows():
         for line in app_rows
     )
     # Percent widths and zero-width RST separators keep the declared number
-    # of tiles on each row at every normal documentation viewport width.
+    # of tiles on each row at every normal documentation viewport width. The
+    # secondary modules are deliberately smaller than the core workflow so
+    # five square buttons retain visible spacing between them.
     top_width = (
         6 * generator.PIPELINE_DISPLAY_PERCENT
         + 5 * generator.ARROW_DISPLAY_PERCENT
     )
     app_width = 5 * generator.APP_DISPLAY_PERCENT
     assert top_width < 100
-    assert app_width < 100
-    assert abs(top_width - app_width) <= 1
+    assert 85 <= app_width <= 92
+    assert top_width - app_width >= 7
     assert (
         generator.ARROW_CANVAS_WIDTH / generator.ARROW_CANVAS_HEIGHT
         == generator.ARROW_DISPLAY_PERCENT

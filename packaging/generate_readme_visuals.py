@@ -53,7 +53,10 @@ README_LOGO_MARK = 340
 # moves the last tile onto a new line.
 PIPELINE_DISPLAY_PERCENT = 14.5
 ARROW_DISPLAY_PERCENT = 2.5
-APP_DISPLAY_PERCENT = 19.8
+# Secondary modules remain five per row, but do not fill the row edge to edge.
+# The resulting whitespace distinguishes them from the six-stage core path
+# without changing the underlying square artwork or click targets.
+APP_DISPLAY_PERCENT = 18.0
 APP_TILE_PADDING = 16
 PIPELINE_DISPLAY_WIDTH = f"{PIPELINE_DISPLAY_PERCENT}%"
 ARROW_DISPLAY_WIDTH = f"{ARROW_DISPLAY_PERCENT}%"
