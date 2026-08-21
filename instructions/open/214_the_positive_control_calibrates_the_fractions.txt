@@ -1,0 +1,132 @@
+================================================================================
+THE POSITIVE CONTROL CALIBRATES THE gRNA FRACTIONS
+================================================================================
+
+Status:    filed 2026-08-21, proposed. Discussion held 2026-08-21; see
+           WHAT WAS SAID BACK before building.
+Requested: 2026-08-21 -- "we could search for the positive controll in the
+           wells, then assumin on average the positive controll does not
+           co-habit wells with screen hits the gRNA fraction for the positive
+           controll gRNAs should map onto the fraction of cell scores scored
+           to be simmilar to the positive controll (with an error rate of 6%
+           baked in because the classifiers where 94% acurate). this should be
+           an alternative method to caluclating the grna fraction threshold
+           somehow, or something we could do before calculating the gRNA
+           threshold."
+Owner:     Sequencing annotation, classification
+
+--------------------------------------------------------------------------------
+THE IDEA
+--------------------------------------------------------------------------------
+
+A well containing a positive-control guide gives TWO independent measures of
+the same quantity:
+
+  * SEQUENCING says the guide is a fraction `f` of the well's reads;
+  * IMAGING says a fraction `p` of the well's cells look like the positive
+    control phenotype.
+
+If the positive control is the only thing in that well producing that
+phenotype, the two must agree. Where they systematically disagree, the
+disagreement measures the bias in `f` -- which is exactly the quantity
+instruction 207 D is arguing about without evidence.
+
+THIS IS A CALIBRATION CURVE MADE OUT OF KNOWN TRUTH, and it is the only
+proposal so far that can settle raw-versus-normalised with data rather than
+reasoning.
+
+--------------------------------------------------------------------------------
+WHAT IT ACTUALLY MEASURES -- READ THIS BEFORE BUILDING
+--------------------------------------------------------------------------------
+
+The slope of `p` on `f` is NOT the fraction bias alone. It is
+
+    slope  =  penetrance  x  fraction-bias
+
+and a single positive control cannot separate them. A guide that produces
+the phenotype in 70% of the cells it enters gives a slope of 0.7 with
+perfectly unbiased fractions, and reading that as "the fractions are 30%
+too high" would be wrong.
+
+THE COMPARISON SURVIVES ANYWAY, and this is what makes the method worth
+building: penetrance is a property of the guide and does not change when the
+fraction definition changes. So fitting the SAME wells twice -- once against
+raw fractions, once against normalised -- gives two slopes whose RATIO is
+free of penetrance. Which of the two is closer to internally consistent is
+then an answer, even though neither slope is interpretable on its own.
+
+--------------------------------------------------------------------------------
+THE SHARPEST FORM: SWEEP THE THRESHOLD, DO NOT REPLACE IT
+--------------------------------------------------------------------------------
+
+The request offers "an alternative method to calculating the threshold, or
+something before it". It is better as neither. `fraction_threshold` exists to
+drop spurious barcodes -- a different job from fixing the SCALE of the
+fractions, which is what this measures.
+
+But it can CHOOSE the threshold, which is stronger than replacing it: for
+each candidate `t`, recompute the fractions, refit `p` on `f`, and take the
+`t` whose fit is most consistent. The default 0.02 becomes a measured number
+for this screen instead of a constant.
+
+--------------------------------------------------------------------------------
+THE CLASSIFIER CORRECTION IS A RESCALING, NOT AN ERROR BAR
+--------------------------------------------------------------------------------
+
+"6% baked in" is right to include and wrong in shape. With sensitivity `se`
+and specificity `sp`,
+
+    p_observed = se * p_true + (1 - sp) * (1 - p_true)
+
+so the correction is Rogan-Gladen:
+
+    p_true = (p_observed - (1 - sp)) / (se + sp - 1)
+
+At se = sp = 0.94 that is `(p_obs - 0.06) / 0.88`. It MOVES the estimate, it
+does not widen it -- and at `p_obs = 0.06` it says the true fraction is
+zero, the whole signal being false positives. It also inflates the variance
+by `1 / (se + sp - 1)^2` = 1.29.
+
+AND ACCURACY IS THE WRONG NUMBER. `se` and `sp` are two quantities and 94%
+accuracy is one. On an imbalanced well -- which is every well, since a
+positive control is a minority of the cells -- accuracy is dominated by the
+majority class and the sensitivity can be far worse than the accuracy
+suggests. THE CONFUSION MATRIX IS REQUIRED, not the accuracy.
+
+--------------------------------------------------------------------------------
+THE CO-HABITATION ASSUMPTION IS ONE-SIDED, WHICH HELPS
+--------------------------------------------------------------------------------
+
+"on average the positive controll does not co-habit wells with screen hits"
+is mostly true and fails in one direction only: a hit sharing the well ADDS
+positive-looking cells and never removes them. So the contamination is
+one-sided, which is precisely the case where least squares is worst and a
+QUANTILE fit is right -- the same argument instruction 212 makes for the
+regression itself. Fit the median, not the mean.
+
+--------------------------------------------------------------------------------
+AND IT MUST NOT BE CIRCULAR
+--------------------------------------------------------------------------------
+
+If the classifier was trained on cells from these same positive-control
+wells, `p` is fitted to them and the agreement is guaranteed by
+construction. The calibration wells must be held out from training, or the
+method measures nothing.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* The fit is reported per screen with its slope, its spread and the number
+  of control wells it used -- and refuses, rather than reporting, below a
+  stated minimum.
+* Raw and normalised fractions are both fitted and both slopes shown; the
+  comparison is presented as a ratio, not as two absolute calibrations.
+* The classifier correction uses a confusion matrix, and the screen says so
+  if only an accuracy is available.
+* The fit is a median fit, and the one-sided reasoning is written where it
+  is used.
+* The calibration wells are held out from classifier training, checked
+  rather than assumed.
+* On simulated data with a known penetrance and a known fraction bias, the
+  method recovers their PRODUCT and says that is what it recovered.
