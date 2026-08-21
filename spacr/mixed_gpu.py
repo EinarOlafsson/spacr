@@ -356,14 +356,15 @@ def fit_mixed_reml_torch(y, X, groups, vc=None, *, device: str = GPU_DEVICE,
 
     Parameters
     ----------
-    y : array-like of shape (n_observations,)
-        Response values.
-    X : array-like of shape (n_observations, n_fixed_effects)
-        Fixed-effects design. A DataFrame preserves its column names in
-        :attr:`TorchMixedResults.fe_params`.
-    groups : array-like of shape (n_observations,)
-        Outer grouping labels. A random intercept is always included,
-        equivalent to ``re_formula='1'``.
+    y : array-like
+        Response values with shape ``(n_observations,)``.
+    X : array-like
+        Fixed-effects design with shape
+        ``(n_observations, n_fixed_effects)``. A DataFrame preserves its
+        column names in :attr:`TorchMixedResults.fe_params`.
+    groups : array-like
+        Outer grouping labels with shape ``(n_observations,)``. A random
+        intercept is always included, equivalent to ``re_formula='1'``.
     vc : mapping of str to array-like, optional
         Additional grouping labels. Each entry defines one variance component
         nested within ``groups``, matching statsmodels ``vc_formula``
@@ -768,12 +769,13 @@ def benchmark_against_statsmodels(y, X, groups, vc=None, *,
 
     Parameters
     ----------
-    y : array-like of shape (n_observations,)
-        Response values.
-    X : array-like of shape (n_observations, n_fixed_effects)
-        Fixed-effects design.
-    groups : array-like of shape (n_observations,)
-        Outer grouping labels.
+    y : array-like
+        Response values with shape ``(n_observations,)``.
+    X : array-like
+        Fixed-effects design with shape
+        ``(n_observations, n_fixed_effects)``.
+    groups : array-like
+        Outer grouping labels with shape ``(n_observations,)``.
     vc : mapping of str to array-like, optional
         Nested variance-component labels.
     device : str, optional
