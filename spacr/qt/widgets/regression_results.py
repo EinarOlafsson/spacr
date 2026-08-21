@@ -697,6 +697,25 @@ class RegressionResultsPanel(QWidget):
         spread.addWidget(self.homogeneity)
         self.tabs.addTab(self._scale_location_tab, "Scale-location")
         self.tabs.addTab(self.influence, "Influence")
+        # WHERE THE ANNOTATED CELLS LAND (215). An independent check: the
+        # annotation is made from sequencing fractions plus a phenotype
+        # call, and this asks where the cell sits among the CONTROLS using
+        # every measurement at once. Agreement between two routes that
+        # different is worth more than either alone.
+        #
+        # Nothing is computed until the tab is opened and its button
+        # pressed. A UMAP over a screen's cells is seconds of work, and a
+        # tab that embedded on construction would charge that to every user
+        # who never looks at it.
+        try:
+            from .annotation_umap_tab import AnnotationUmapTab
+
+            self.annotation_umap = AnnotationUmapTab(self)
+            self.tabs.addTab(self.annotation_umap, "Annotation check")
+        except Exception:                                    # noqa: BLE001
+            # A panel that cannot build its optional tab is still a panel.
+            self.annotation_umap = None
+
         # The statsmodels summary closes the diagnostic group: it is the
         # model-level readout the panels above it are pictures of.
         self.tabs.addTab(self._summary, "Summary")
@@ -1079,6 +1098,7 @@ class RegressionResultsPanel(QWidget):
         "scale_location": "_scale_location_tab",
         "influence": "influence",
         "gene": "gene",
+        "annotation_check": "annotation_umap",
     }
 
     def show_panel(self, key: str) -> bool:

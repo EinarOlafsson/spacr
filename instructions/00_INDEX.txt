@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-201 done / 17 open (92%).
+201 done / 18 open (91%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -74,6 +74,9 @@ OPEN
 
   225  THE SUMMARY MARKS A BROKEN ASSUMPTION, AND ENDS WITH WHAT TO DO
        225_the_summary_flags_broken_assumptions_and_recommends.txt
+
+  226  "SETTINGS FOR MY DATA" READS THE LAST RUN, NOT ONLY THE INPUT
+       226_the_advisor_reads_the_last_run.txt
 
 --------------------------------------------------------------------------------
 DONE
