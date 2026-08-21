@@ -47,6 +47,8 @@ __all__ = [
     "rogan_gladen",
     "deconvolve",
     "training_wells",
+    "discover_test_splits",
+    "measure_screen",
 ]
 
 
@@ -355,16 +357,73 @@ def training_wells(wells: Sequence[str], *,
 # written to disk on every plate -- which is worth saying plainly, because
 # the request was answered by a file that already existed.
 
-#: What the four tsg101 plates measured, read from the files above on
-#: 2026-08-21. Kept as a documented reference rather than a default: these
-#: belong to one screen and one model, and another screen's classifier is
-#: not this one.
-TSG101_TEST_SPLIT: Dict[int, Dict[str, float]] = {
-    1: {"sensitivity": 0.9640, "specificity": 0.9846, "threshold": 0.4699},
-    2: {"sensitivity": 0.9553, "specificity": 0.9817, "threshold": 0.2955},
-    3: {"sensitivity": 0.9639, "specificity": 0.9887, "threshold": 0.3174},
-    4: {"sensitivity": 0.9584, "specificity": 0.9700, "threshold": 0.8567},
-}
+# NO SCREEN'S NUMBERS LIVE IN THIS FILE. A table of the tsg101 plates'
+# measured sensitivities was here for one commit and was removed on request:
+#
+#     "wahtever information you use from my screen any calculated
+#      coefficients need to be recalculable for users whou do their own
+#      screens"
+#
+# WHICH IS RIGHT, AND NOT ONLY ON PRINCIPLE. A constant in a library becomes
+# a default the moment somebody is in a hurry, and a sensitivity measured on
+# one model, one stain and one microscope is wrong for every other screen in
+# a way that produces plausible numbers rather than an error. Every function
+# here takes `sensitivity` and `specificity` as REQUIRED arguments for that
+# reason -- there is nothing to fall back to.
+#
+# `discover_test_splits` finds a user's own files; `from_test_split` reads
+# them. The tsg101 figures are recorded in `instructions/done/`, which is a
+# log and cannot be imported.
+
+
+def discover_test_splits(root: str, *,
+                        pattern: str = "*test_*.csv") -> Dict[str, str]:
+    """Find the written test splits under a screen's folder.
+
+    :param root: the screen directory holding one folder per plate.
+    :param pattern: how the training code named them. The default matches
+        both shapes spaCR writes -- `*_test_acc.csv` and
+        `*_test_result.csv`.
+    :returns: ``{plate folder name: path}``, one per plate, newest first
+        where a plate has several.
+
+    THIS IS THE ROUTE, and there is no other. Nothing in spaCR carries a
+    measured sensitivity for a screen it has not been shown, so a user with
+    their own screen gets their own numbers by pointing this at their own
+    folder -- which is the only arrangement in which the correction can be
+    right for more than one experiment.
+    """
+    from pathlib import Path
+
+    base = Path(root)
+    if not base.is_dir():
+        raise ValueError(f"{root}: not a directory")
+    out: Dict[str, str] = {}
+    for folder in sorted(p for p in base.iterdir() if p.is_dir()):
+        found = sorted(folder.glob(pattern),
+                       key=lambda f: f.stat().st_mtime, reverse=True)
+        if found:
+            out[folder.name] = str(found[0])
+    return out
+
+
+def measure_screen(root: str, *,
+                   pattern: str = "*test_*.csv",
+                   threshold: Optional[float] = None) -> Dict[str, Dict[str, float]]:
+    """Sensitivity and specificity per plate, from a user's own screen.
+
+    The whole of what this module offers, in one call, for somebody who has
+    run their own screen and wants the correction to be about it.
+
+    PER PLATE AND NOT POOLED, deliberately. Plates are trained separately
+    and their thresholds are not comparable -- on the screen this was
+    developed against they spanned 0.2955 to 0.8567, which is three points
+    of sensitivity. Averaging them would produce one number that is wrong
+    for every plate.
+    """
+    return {name: from_test_split(path, threshold=threshold)
+            for name, path in discover_test_splits(root,
+                                                   pattern=pattern).items()}
 
 
 def from_test_split(path: str, *,
