@@ -1877,28 +1877,17 @@ class CellMontageView(QWidget):
                     ([self._key] if self._key else []))
 
     def build_every_selected(self) -> int:
-        """Load a montage for EVERY coefficient in the selection, in turn.
+        """Queue one montage for each selected coefficient.
 
-        Instruction 206's remaining half. A montage is of ONE coefficient --
-        the crops are chosen by how well each cell agrees with THAT
-        coefficient's effect -- so three at once in one grid would be three
-        different questions in one picture with nothing saying which cell
-        answered which.
+        Loads are chained in selection order because montage construction is
+        asynchronous. Completed well tabs remain available, enabling comparison
+        across coefficients while preserving each montage's guide-specific crop
+        ranking.
 
-        WHAT MAKES THE WHOLE SELECTION VISIBLE IS THAT THE WELL TABS STAY.
-        `_drop_montage` deliberately keeps them: "comparing one gene's cells
-        with another's is what a montage that vanishes on the next click
-        makes impossible". So loading each coefficient in turn ACCUMULATES
-        tabs, each captioned with its own guide -- which is a comparison the
-        reader can actually make, rather than a grid they cannot decode.
-
-        ONE AT A TIME, CHAINED. `build` is asynchronous, and firing every
-        load at once would put n reads of the same databases in flight and
-        deliver them in whatever order they finished -- so the tabs would
-        arrive in an order that depends on disk timing rather than on the
-        selection.
-
-        :returns: how many coefficients were queued.
+        Returns
+        -------
+        int
+            Number of selected coefficients queued for loading.
         """
         keys = self.selected_coefficients()
         if not keys:
