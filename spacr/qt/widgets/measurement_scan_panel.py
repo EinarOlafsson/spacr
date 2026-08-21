@@ -2119,6 +2119,28 @@ class ColumnRegressionPanel(QWidget):
     execute sequentially through :class:`~spacr.qt.job_runner.JobRunner`, can
     be stopped between fits, and continue after individual fit failures.
 
+    Parameters
+    ----------
+    frame_provider : callable or None, optional
+        Zero-argument callable returning the merged measurement frame.
+    settings_provider : callable or None, optional
+        Zero-argument callable returning the regression screen's current
+        model, correction, and count settings. Each queued fit copies these
+        settings and changes only the response column.
+    parent : QWidget or None, optional
+        Parent widget.
+    score_provider : callable or None, optional
+        Zero-argument callable returning the path to the saved merged frame.
+        Every queued fit reads this same file.
+    threaded : bool, default=True
+        Run fits through the background job runner. Set to ``False`` for
+        synchronous tests or headless callers.
+    fit : callable or None, optional
+        Function called with one fit's settings. ``None`` uses the standard
+        regression implementation. Supplying a callable keeps the queue
+        independently testable and avoids importing the full statistics stack
+        while the first window is constructed.
+
     Attributes
     ----------
     fit_started : Signal
@@ -2146,19 +2168,7 @@ class ColumnRegressionPanel(QWidget):
     def __init__(self, frame_provider=None, settings_provider=None,
                  parent=None, *, score_provider=None, threaded: bool = True,
                  fit=None):
-        """
-        :param frame_provider: called with no arguments for the merged frame.
-        :param settings_provider: called with no arguments for the regression
-            screen's own settings -- the model, the correction, the counts.
-            Only the RESPONSE varies between these runs, which is what makes
-            them comparable.
-        :param score_provider: called with no arguments for the path the
-            merged frame was written to. THE ARTEFACT, not the frame: every
-            fit reads the same file, written once by the merge.
-        :param fit: called with one fit's settings. Injected so the queue is
-            testable without `spacr.ml`, and so importing this widget does
-            not drag statsmodels into the first window.
-        """
+        """Initialize the sequential column-regression queue."""
         import threading
 
         from ..job_runner import JobRunner
