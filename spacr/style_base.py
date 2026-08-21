@@ -102,12 +102,11 @@ FigureStyle.CHOICES = dict(SHARED_CHOICES)
 
 
 def style_kind(style: Any) -> str:
-    """``VolcanoStyle`` -> ``'volcano'``, from the CLASS.
+    """Return a stable figure kind derived from a style class name.
 
-    Derived rather than declared, because a caller naming its own kind would
-    eventually name two the same and one lab's house style would land on
-    another figure type. Duplicated from `fast_plots.style_kind` deliberately
-    -- this module imports no Qt, so a headless caller can ask.
+    For example, ``VolcanoStyle`` becomes ``"volcano"``. Deriving the value
+    prevents independently declared names from colliding and keeps this
+    headless helper independent of the Qt plotting widgets.
     """
     name = type(style).__name__
     if name.endswith("Style"):
@@ -116,13 +115,10 @@ def style_kind(style: Any) -> str:
 
 
 def apply_page(figure, axes, style: FigureStyle) -> None:
-    """Put the shared half of ``style`` onto a drawn figure.
+    """Apply shared axes, typography, grid, spine, and page settings.
 
-    THE SHARED HALF ONLY. A renderer draws its own marks and then calls this
-    for the furniture, so the grid, the type scale, the spines and the page
-    are done once rather than once per figure type -- which is the actual
-    payoff of the base class, and the reason two figures cannot drift on what
-    "grid off" means.
+    Call this after drawing plot-specific marks. It changes figure and axes
+    presentation only; it does not add or remove data marks.
     """
     figure.set_size_inches(float(style.figure_width),
                            float(style.figure_height))
@@ -171,11 +167,11 @@ def apply_page(figure, axes, style: FigureStyle) -> None:
 
 
 def write(figure, save_path, style: FigureStyle) -> str:
-    """Write ``figure`` to ``save_path`` through the one writer (108 point 6).
+    """Write a styled figure with spaCR's standard export pipeline.
 
-    The CALLER'S extension wins -- `save_path` is a filename someone chose --
-    and everything else `save_figure` decides is gained: the resolution rule,
-    the TrueType embedding, and the repaint for paper.
+    The extension in ``save_path`` selects the format. Raster outputs use the
+    style's DPI; font embedding, paper repainting, transparency, and bounding
+    box behavior are delegated to :func:`spacr.plot.save_figure`.
     """
     import os
 

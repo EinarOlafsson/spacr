@@ -176,14 +176,11 @@ def _plate_of(wells: "pd.Series") -> "pd.Series":
 
 
 def read_the_counts(paths: Sequence[str]) -> Dict[str, Any]:
-    """Plates, wells, guides, genes and the two ratios, from the count CSVs.
+    """Measure plates, wells, guides, genes, and replication from count data.
 
-    EXACT, not sampled: a count table is one row per well and guide, and the
-    biggest in the reference screen is 4.3 MB. Every number here is the one
-    the fit will see, because the fractions come from
-    :func:`spacr.cell_montage.fractions_from_counts`, which is
-    `process_reads`' own arithmetic rather than a second implementation of
-    it.
+    All count rows are used. Per-well fractions are calculated with
+    :func:`spacr.cell_montage.fractions_from_counts`, matching the values used
+    by the regression pipeline.
     """
     from .cell_montage import fractions_from_counts
     from .control_names import common_prefix
@@ -450,13 +447,10 @@ QUESTIONS: Tuple[Question, ...] = (
 
 
 def questions_for(reading: Reading) -> Tuple[Question, ...]:
-    """The questions worth asking THIS screen.
+    """Return questions that cannot be answered from this screen's data.
 
-    A question that CAN be read from the data and is asked anyway is a
-    question that should not have been there -- so the controls question is
-    dropped when the count tables already name a non-targeting set, and the
-    direction question is dropped when the response is binary, where "an
-    increase" is the only direction there is.
+    The direction question is omitted for a binary response, where only an
+    increase can represent the positive outcome.
     """
     out = []
     for question in QUESTIONS:
@@ -751,12 +745,10 @@ def _controls(reading: Reading, answers: Dict[str, Any],
 
 def advise(reading: Reading,
            answers: Optional[Dict[str, Any]] = None) -> Advice:
-    """Turn a :class:`Reading` and the answers into a proposal.
+    """Build a regression-setting proposal from measurements and answers.
 
-    NOTHING IS WRITTEN. The caller shows what would change, with the current
-    value beside the new one, and the user accepts or rejects. A button that
-    rewrites a carefully-tuned panel with one click and no undo is a button
-    people learn not to press.
+    This function has no settings side effects. The caller decides whether
+    and how to display or apply the returned :class:`Advice`.
     """
     answers = dict(answers or {})
     chosen: List[Choice] = []

@@ -314,16 +314,11 @@ class ImportWorkbenchDialog(QDialog):
         outer.addWidget(buttons)
 
     def chosen_regex(self) -> str:
-        r"""The pattern to hand `_get_regex`'s 'custom' branch.
+        r"""Return the accepted pattern for ``_get_regex`` custom mode.
 
-        WITHOUT THE EXTENSION, and that is not tidiness. `_get_regex` builds
-        the custom pattern as ``f"({custom_regex}).{img_format}"`` -- it
-        appends the extension itself -- so a pattern already ending in
-        ``\.tif`` becomes ``...\.tif..tif``, which matches nothing. Silently:
-        the import runs, finds no files, and says only that it found none.
-
-        The inferred proposals DO end in the extension, because they are
-        matched against whole filenames in this window. Stripping it here is
-        the one place that knows both facts.
+        The workbench previews patterns against complete filenames, while
+        ``_get_regex`` appends the selected image extension. This method
+        removes that trailing extension with :func:`for_get_regex` to avoid
+        duplicating it in the import pattern.
         """
         return for_get_regex(self.workbench.regex.text())
