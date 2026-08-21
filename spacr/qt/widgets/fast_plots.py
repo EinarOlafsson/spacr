@@ -3428,6 +3428,65 @@ class FastPlot(QWidget):
                   for i, name in enumerate(names)}
         return brushes, legend
 
+    #: The marker shapes a second colour-by column cycles through, in the
+    #: order they are used. FOUR, and they are the four pyqtgraph symbols a
+    #: reader can actually tell apart at eight pixels -- a star and a
+    #: pentagon are the same blob at that size, and a legend that
+    #: distinguishes them is a legend that lies about what is on screen.
+    SHAPES = ("o", "s", "t", "d")
+
+    @classmethod
+    def _categorical_symbols(cls, values):
+        """``(symbols, {level: shape})`` for one shape-per-value.
+
+        THE SECOND ENCODING CHANNEL (instruction 222). Beyond
+        :data:`SHAPES` the shapes repeat, and the legend says so by handing
+        back what each level actually got -- two levels sharing a shape is
+        visible in the legend rather than being a silent collision.
+        """
+        import pandas as _pd
+
+        categorical = _pd.Categorical(_pd.Series(values).astype(str))
+        names = list(categorical.categories)
+        shapes = {name: cls.SHAPES[i % len(cls.SHAPES)]
+                  for i, name in enumerate(names)}
+        order = [cls.SHAPES[i % len(cls.SHAPES)] for i in range(len(names))]
+        out = [order[c] if c >= 0 else cls.SHAPES[0]
+               for c in categorical.codes]
+        return out, shapes
+
+    @staticmethod
+    def _categorical_opacity(brush_list, values, count):
+        """Fade each point by its level in ``values``. THE THIRD CHANNEL.
+
+        The levels are spread over a floor and full opacity rather than
+        [0, 1]: a fully transparent point is an absent point, and a channel
+        that can delete a datapoint is not an encoding.
+        """
+        import pandas as _pd
+
+        categorical = _pd.Categorical(_pd.Series(values).astype(str))
+        names = list(categorical.categories)
+        if not names:
+            return brush_list
+        floor, top = 70, 255
+        step = 0 if len(names) < 2 else (top - floor) / (len(names) - 1)
+        alphas = [int(round(floor + step * i)) for i in range(len(names))]
+        base = list(brush_list) if brush_list is not None else \
+            [pg.mkBrush(colour_for(0))] * count
+        out = []
+        for index, code in enumerate(categorical.codes[:len(base)]):
+            brush = base[index]
+            colour = QColor(brush.color()) if hasattr(brush, "color") \
+                else QColor(colour_for(0))
+            colour.setAlpha(alphas[code] if code >= 0 else top)
+            out.append(pg.mkBrush(colour))
+        # A frame shorter than the drawn points leaves the rest untouched
+        # rather than dropping them: a missing level is not a reason for a
+        # point to vanish.
+        out.extend(base[len(out):])
+        return out
+
     def _export_ground(self):
         """Return the page colour for the current export as a ``QColor``.
 
@@ -3968,11 +4027,18 @@ class FastPlot(QWidget):
     def add_scatter(self, x, y, *, colours=None, brush_list=None,
                     size: float = 8.0, size_list=None,
                     labels: Sequence[str] = (),
-                    symbol: str = "o", name: str = "",
+                    symbol: str = "o", symbol_list=None, name: str = "",
                     rows=None) -> ScatterPlotItem:
         """Add points and wire up clicking them.
 
         :param colours: one QColor per point, or None for a single colour.
+        :param symbol_list: one pyqtgraph symbol per point, or None for
+            ``symbol`` everywhere. THE SECOND ENCODING CHANNEL (instruction
+            222): a second colour-by column becomes the marker shape rather
+            than multiplying the legend into every combination of the two.
+            Like ``size_list`` this costs nothing per point -- pyqtgraph
+            takes the array straight into its own -- unlike a brush per
+            point.
         :param size_list: one diameter per point, or None for ``size``
             everywhere. A plain float array -- pyqtgraph takes it straight
             into its own arrays, so unlike a brush per point this costs
@@ -4037,8 +4103,16 @@ class FastPlot(QWidget):
         sizes = size
         if size_list is not None:
             sizes = np.asarray(size_list, dtype=float)[drawn]
+        symbols = symbol
+        if symbol_list is not None:
+            # SUBSET BY `drawn`, exactly as the sizes and the brushes are.
+            # A per-point array indexed in frame order against points that
+            # have been filtered is the same misalignment `rows` exists to
+            # prevent, and it would put the wrong shape on the right dot --
+            # silently, because something is drawn.
+            symbols = [symbol_list[int(i)] for i in drawn]
         item = pg.ScatterPlotItem(
-            x=x[keep], y=y[keep], size=sizes, symbol=symbol,
+            x=x[keep], y=y[keep], size=sizes, symbol=symbols,
             pen=pg.mkPen(None),
             brush=brushes if brushes is not None else pg.mkBrush(colour_for(0)),
             hoverable=len(drawn) <= HOVER_LIMIT, tip=self._point_tip,
@@ -5258,6 +5332,8 @@ class VolcanoPlot(FastPlot):
     def set_results(self, frame, *, effect: str = "coefficient",
                     p_column: str = "p_value", label_column: str = "feature",
                     category_column: Optional[str] = None,
+                    symbol_column: Optional[str] = None,
+                    opacity_column: Optional[str] = None,
                     alpha: float = 0.05,
                     effect_threshold: Optional[float] = None,
                     key_column: Optional[str] = None,
@@ -5266,6 +5342,21 @@ class VolcanoPlot(FastPlot):
                     q_column: Optional[str] = None,
                     run_method: Optional[str] = None):
         """Draw ``frame``. Returns the number of points actually plotted.
+
+        :param symbol_column: a SECOND colouring column, encoded as the
+            marker shape. :param opacity_column: a THIRD, encoded as opacity.
+
+            LAYERED, NOT COMBINED (instruction 222). Two columns of three
+            levels combined is a nine-entry legend and three is
+            twenty-seven, which 122 measured at 40 ms of every redraw --
+            and which nobody can read back anyway. Hue, then shape, then
+            opacity, ALWAYS IN THAT ORDER, so the same choice always
+            produces the same picture.
+
+            There is no fourth. Past three encodings a point carries more
+            than a reader can decode, and refusing with a sentence beats
+            drawing something uninterpretable -- the caller does the
+            refusing, because it is the one with a place to say so.
 
         :param p_column: the RAW P value. Not the corrected one -- the height
             is the raw P by default and the correction is recomputed here.
@@ -5579,7 +5670,26 @@ class VolcanoPlot(FastPlot):
             size_list = self._q_sizes(q)
         elif self._q_mark == "opacity":
             brush_list = self._q_opacity(brush_list, q, len(neglog))
+        # THE SECOND AND THIRD CHANNELS. Only when the FIRST is in force:
+        # a shape that means one thing beside a colour that means the q
+        # value is two claims on one dot with nothing saying which.
+        symbol_list = None
+        layered = bool(category_column) and not compartment
+        if layered and symbol_column and symbol_column in frame:
+            symbol_list, shapes = self._categorical_symbols(
+                frame[symbol_column])
+            legend = dict(legend or {})
+            self._shape_legend = (symbol_column, shapes)
+        else:
+            self._shape_legend = None
+        if layered and opacity_column and opacity_column in frame:
+            brush_list = self._categorical_opacity(
+                brush_list, frame[opacity_column], len(neglog))
+            self._opacity_legend = opacity_column
+        else:
+            self._opacity_legend = None
         self.add_scatter(effects, neglog, brush_list=brush_list,
+                         symbol_list=symbol_list,
                          size_list=size_list)
         controls = METHODS[method].controls
         level = f"{controls} {self._alpha:g}" if controls != "nothing" \
