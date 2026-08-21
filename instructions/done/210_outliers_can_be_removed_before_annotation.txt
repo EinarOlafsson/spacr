@@ -2,7 +2,7 @@
 OUTLIERS CAN BE REMOVED BEFORE ANNOTATION
 ================================================================================
 
-Status:    filed 2026-08-21, not started.
+Status:    DONE 2026-08-21.
 Requested: 2026-08-21 -- "there should also be a remove outlier based on,
            cell_area, nucleus_area, cell_channel_intensity, nucleus
            channel_intensity that can be optionally applied before
@@ -48,3 +48,44 @@ HOW TO KNOW IT WORKED
   the removal, not before it.
 * A test shows that removing an object changes the fractions of the guides in
   its well -- which is the reason the order matters.
+
+--------------------------------------------------------------------------------
+DONE 2026-08-21
+--------------------------------------------------------------------------------
+
+`spacr/outlier_filter.py`, called in `perform_regression` right after
+`clean_controls` and BEFORE the cell-count threshold, the fractions and the
+aggregation -- every one of which has its denominator set by which objects
+are present.
+
+THE TEST THE INSTRUCTION ASKS FOR IS THERE, and so is its counterfactual:
+one asserts that removing an object moves the fractions of the guides in its
+well, the other computes the fractions BOTH ways round and shows the
+artefact's share going back to the guide that earned it. If the fractions
+did not move, the order would not matter and this instruction would be about
+nothing.
+
+A MAD, NOT A STANDARD DEVIATION, and the tests measure why: on 5,000
+lognormal values a 5-MAD cut keeps over 4,700, which is the long tail an SD
+cut would take -- and the long tail is the population a screen is usually
+looking for.
+
+A MAD OF ZERO REMOVES NOTHING. It means over half the values are identical,
+which happens on a small or quantised column, and a rule flagging every
+non-modal value there would empty the table.
+
+OFF BY DEFAULT, ALL FOUR, and always reported PER CRITERION: "412 objects
+removed" does not tell a user whether their area cut or their intensity cut
+was the loose one.
+
+A FILTER THAT FOUND NO COLUMN SAYS SO. It removed nothing, and a run silent
+about it looks exactly like one where the filter worked and found nothing.
+A filter that RAISED says so too, in the run output, because the numbers
+below would be the unfiltered ones and nothing else would say it.
+
+THE INTENSITY COLUMNS CARRY THEIR CHANNEL IN THEIR NAME, and the channel is
+the user's -- so the resolver accepts the first column of the right shape
+rather than insisting on channel 1.
+
+The four criteria are read from `outlier_filter.CRITERIA` by `settings.py`,
+so a fifth added there cannot become a setting nobody can set.
