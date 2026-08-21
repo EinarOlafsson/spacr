@@ -145,12 +145,20 @@ def test_the_run_hands_its_settings_to_the_panel(qtbot):
 
 
 def test_the_regression_returns_its_settings():
-    """The panel can only be handed them if the run returns them."""
+    """The panel can only be handed them if the run returns them.
+
+    THROUGH THE DELEGATION. `perform_regression` is a thin wrapper that adds
+    the stage reporting and hands the work to `_perform_regression`, so
+    reading only the wrapper's source found nothing and failed while the
+    behaviour was intact. The result dict is built wherever the work is.
+    """
     import inspect
 
     from spacr import ml
 
-    source = inspect.getsource(ml.perform_regression)
+    source = "\n".join(
+        inspect.getsource(f)
+        for f in (ml.perform_regression, ml._perform_regression))
     assert "'settings': dict(settings)" in source
 
 
