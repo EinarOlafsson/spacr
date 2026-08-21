@@ -3490,61 +3490,67 @@ tooltips = {
     #  Streaming crops instead of reading them off disk (230).          #
     # ---------------------------------------------------------------- #
     'image_source':
-        "Where the training images come from. 'load images' reads crops "
-        "that were exported to disk; 'stream images' cuts them from the "
-        "merged stacks as training runs. STREAMING MAKES THE COMBINATION A "
-        "SETTING rather than a directory: every combination of objects, "
-        "channels and bounding-box choice would otherwise be a separate "
-        "export somebody has to remember to make. Default 'load_images'.",
+        "(str) - Source of classification images. 'load_images' reads "
+        "previously exported object crops; 'stream_images' generates crops "
+        "from merged image and mask arrays during training. Streaming avoids "
+        "creating a separate export for each object, channel, and crop-shape "
+        "combination. Default 'load_images'.",
     'load_path_regex':
-        "The pattern that finds the exported crops -- what file_metadata, "
-        "path_string and file_type used to say between them. ONE SETTING, "
-        "because three describing one pattern is three chances to describe "
-        "it inconsistently; a settings file naming any of the old three "
-        "still loads. Read only when image_source is 'load images'. "
-        "Default 'cell_png'.",
+        "(str) - Pattern used to select previously exported crops when "
+        "image_source is 'load_images'. Use a pattern that identifies the "
+        "intended object crop type and excludes incompatible images. Legacy "
+        "file_metadata, path_string, and file_type values are normalized to "
+        "this setting. Default 'cell_png'.",
     'stream_method':
-        "How the objects to stream are chosen. 'column' takes their "
-        "coordinates from a column in the object table and needs "
-        "object_array and channel_arrays. 'array' takes their object "
-        "numbers from a mask array and needs mask_array, channel_arrays and "
-        "bounding_box. The two read different settings, which is why this "
-        "is one control rather than a pair of flags -- a panel showing the "
-        "settings of the method you did not choose is asking you to fill in "
-        "something nothing reads. Default 'column'.",
+        "(str) - Method used to locate objects for streamed crops. 'column' "
+        "uses coordinates stored in the object table and requires "
+        "object_array and channel_arrays. 'array' uses labelled objects in a "
+        "mask plane and requires mask_array, channel_arrays, and bounding_box. "
+        "Settings that do not apply to the selected method are ignored. "
+        "Default 'column'.",
     'channel_arrays':
-        "Which planes of the merged stack become the streamed image. Read "
-        "by both stream methods. Default [0, 1, 2].",
+        "(list[int]) - Zero-based intensity-plane indices included in each "
+        "streamed image, in output-channel order. This setting applies to "
+        "both stream methods; changing the order changes the channel mapping "
+        "presented to the model. Default [0, 1, 2].",
     'mask_array':
-        "Which mask the object numbers are read from when stream_method is "
-        "'array'. Default 'cell'.",
+        "(str) - Labelled mask plane that defines object identifiers when "
+        "stream_method is 'array'. Select the mask corresponding to the "
+        "biological object being classified; this setting is ignored by the "
+        "'column' method. Default 'cell'.",
     'bounding_box':
-        "With stream_method='array': True streams the BOX around the "
-        "object, False streams ONLY THE PIXELS THAT OVERLAP THE MASK with "
-        "the rest zeroed. Both are wanted and they are DIFFERENT TRAINING "
-        "SETS, not two renderings of one -- the second shows the model the "
-        "object's shape and nothing of its surroundings. Default True.",
+        "(bool) - Crop geometry used when stream_method is 'array'. True "
+        "retains the rectangular region enclosing each labelled object, "
+        "including local background and neighbouring signal. False retains "
+        "only pixels within the object mask and sets surrounding pixels to "
+        "zero. Default True.",
 
     # ---------------------------------------------------------------- #
     #  Optional outlier removal before annotation.                       #
     # ---------------------------------------------------------------- #
     'cell_area_outlier_mads':
-        "Optionally remove objects whose cell area exceeds this many scaled "
+        "(float | None) - Optionally remove objects whose cell area exceeds "
+        "this many scaled "
         "median absolute deviations from the median. Filtering occurs before "
         "guide fractions are computed, so removed objects do not contribute "
         "to normalization. MAD-based limits are robust to skewed area "
         "distributions. Set to None to disable; a value of 5 is a conservative "
         "starting point. Default None.",
     'nucleus_area_outlier_mads':
-        "Optionally apply the same scaled-MAD filter to nucleus area before "
-        "guide annotation. Set to None to disable. Default None.",
+        "(float | None) - Scaled median-absolute-deviation threshold for "
+        "nucleus area before guide annotation. Lower values remove more "
+        "nucleus-size extremes before guide fractions and normalization are "
+        "computed. Set to None to disable. Default None.",
     'cell_intensity_outlier_mads':
-        "Optionally apply the scaled-MAD filter to cell-channel intensity "
+        "(float | None) - Optionally apply the scaled-MAD filter to "
+        "cell-channel intensity "
         "before guide annotation. This can exclude extreme measurements from "
         "overexposure or bright debris. Set to None to disable. Default None.",
     'nucleus_intensity_outlier_mads':
-        "Optionally apply the scaled-MAD filter to nucleus-channel intensity "
-        "before guide annotation. Set to None to disable. Default None.",
+        "(float | None) - Scaled median-absolute-deviation threshold for "
+        "nucleus-channel intensity before guide annotation. Lower values "
+        "remove more extreme measurements, including saturated nuclei or "
+        "bright debris. Set to None to disable. Default None.",
 
     'response_speed':
         "(str) - How much thinking the provider is asked for on each reply. "
@@ -3566,10 +3572,11 @@ tooltips = {
         "the settings leave your machine when this is on; leave it off if "
         "your paths or filenames are themselves sensitive. Default False.",
     'console_aware':
-        "(bool) - Let the assistant read the console output of the run you are "
-        "asking about, instead of only your typed question. This is what "
-        "makes 'why did that fail' answerable without pasting anything. "
-        "Default True.",
+        "(bool) - Include new console output and complete tracebacks as "
+        "context when a question is sent through the AI Console. This adds "
+        "execution details without manual copying. The attached console "
+        "content is sent to the configured provider; disable this setting "
+        "when output may contain sensitive information. Default True.",
     'system_prompt':
         "(str) - Text prepended to every conversation, for standing instructions "
         "the assistant should not need reminding of -- which organism you "
