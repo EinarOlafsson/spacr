@@ -34248,16 +34248,16 @@
       "source_blocks_sha256": [
         "b654dd40cf89c98e8b1b64132636713b2ff303614a814de8b0dc29fd475a3e4a",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "11b0d79ae13e92c1647e8fd17efce010c8d4941c9c705c2323f149b6cd94b1f0",
+        "7baa4f6b95a3a618dc54b68462893c6a89dcb2933aef5ccf2c8882d431f6adbf",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "7b221e6be119337751aa38ff1e74cecd07f85acd94c3f984053259275b7c8107"
       ],
-      "source_sha256": "eb562e829c303aa413221f09f0b971e8393c17e97c9eafaad0d47f6b9e0965c4",
-      "text": "동일한 혼합 모델과 함께 statsmodels 그리고 PyTorch 그리고 그들을 비교하라.\n\n파라미터\n----------\ny : array-like of shape (n_observations,) 응답의 가치 X : array-like of shape (n_observations, n_fixed_effects) 고정 효과 디자인 groups : array-like of shape (n_observations,) 외부 그룹 레이블 vc : mapping of str 아라리와 유사한, 선택적 Nested 변수 구성 요소 라벨. device : str, optional 사용하는 장치에 대 한 PyTorch 적합한\n\n돌아오는\n-------\n키 값 지도 시간, 속도 업, 최대 고정 효과 및 변수 구성 요소 분쟁, 나머지 스케일 차이, 해결된 장치 및 PyTorch 변수 평가 계산.",
+      "source_sha256": "5617d805ae7fcbd78492f761d2f1c5f46c6c478952245db8797f72c85eb81f53",
+      "text": "동일한 혼합 모델과 함께 statsmodels 그리고 PyTorch 그리고 그들을 비교하라.\n\n파라미터\n----------\ny : array-like 모양의 응답 값 ``(n_observations,)``. X : array-like 고정 효과 디자인 모양 ``(n_observations, n_fixed_effects)``. groups : array-like 모양을 가진 외부 그룹링 라벨 ``(n_observations,)``. vc : mapping of str 유사한, 옵션 Nested 변수 구성 요소 라벨. device : str, optional 장치에 의해 사용되는 PyTorch 적합한\n\n돌아오는\n-------\n키 값 지도 시간, 속도 업, 최대 고정 효과 및 변수 구성 요소 분쟁, 나머지 스케일 차이, 해결된 장치 및 PyTorch 변수 평가 계산.",
       "translation_source_blocks_sha256": [
         "b654dd40cf89c98e8b1b64132636713b2ff303614a814de8b0dc29fd475a3e4a",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "11b0d79ae13e92c1647e8fd17efce010c8d4941c9c705c2323f149b6cd94b1f0",
+        "7baa4f6b95a3a618dc54b68462893c6a89dcb2933aef5ccf2c8882d431f6adbf",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "b04590ef7b7f6ec0270c9191f2b15995f8bf8869ef21f50753471dd2b55b90a8"
       ]
@@ -34300,7 +34300,7 @@
       "source_blocks_sha256": [
         "8a637e79ca140391f11b524baac3e1dc562a091c8d7a57e26a84d911f3465abd",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "22af8530da615e8def0aceb82d286c1386fbc4c08a4c005db25e39f381ce926b",
+        "56c8c7e1eedbd85332fa91d83c84e9ffa4a24b0e008080be2abc47248d63a23c",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "69f08849fe0bbbc817839764badebb5a064afd7575e4f0dfa52ebc1c589bc9b2",
         "e97e76330ffc318c5d276e6c0bbaa184ffe7b94e1c2592eb35b1b49163167311",
@@ -34311,12 +34311,12 @@
         "b54fd49f9b77794509f7997fd7712679a43b3f5993742dbe179ab45ded1b1023",
         "936578ce86bcc75111cb3bb61bba26605518996665cdb9019077c860e05f19e9"
       ],
-      "source_sha256": "a6f61ac5db22dbd84a98f92e15766bf8262507b8c1fca9bd6e210097b3925f7a",
-      "text": "``y ~ X + (1 | groups) + variance components``에 맞는 프로필 REML.\n\n파라미터\n----------\ny : array-like of shape (n_observations,) 반응값. X : array-like of shape (n_observations, n_fixed_effects) 고정 효과 설계 행렬. DataFrame 을 전달하면 열 이름이 :attr:`TorchMixedResults.fe_params`에 보존됩니다. groups : array-like of shape (n_observations,) 외부 그룹 레이블. ``re_formula='1'``과 동등한 임의 절편이 항상 포함됩니다. vc : mapping of str to array-like, optional 추가 그룹 레이블. 각 항목은 ``groups`` 안에 중첩된 하나의 분산 성분을 정의하며 statsmodels 의 ``vc_formula`` 의미론과 일치합니다. device : str, optional PyTorch 장치. CUDA 장치를 사용할 수 없을 때 CUDA 를 요청하면 CPU 로 대체하지 않고 오류가 발생합니다. max_iter : int, optional 최대 L-BFGS 반복 횟수. 일반적인 스크리닝 크기의 적합에는 20--40회가 사용되며 기본값 400은 안전 한도입니다. verbose : bool, optional 각 최적화 평가에서 deviance를 출력합니다.\n\n돌아오는\n-------\nTorchMixedResults 고정 효과, 변수 구성 요소, 조건 설정 값 및 폐기물, BLUP, 접근 진단 및 타이밍 정보.\n\n상승\n------\nMixedBackendUnavailable PyTorch 또는 요청된 장치가 사용할 수 없는 경우. ValueError 입력 차원이 동의하지 않는 경우 또는 고정 효과 디자인이 식별할 수 없습니다. MemoryError 밀접한 우연 효과 디자인은 사용 가능한 장치 메모리의 구성된 비율을 초과하는 경우.\n\n노트\n-----\nstatsmodels ``MixedLM(...).fit()``에 대한 검증은 다음과 같은 차이를 생성했습니다.\n\n[중고] [동문] [중문] (동문) [중문의] [ 중문의] (중문의) (중문) ( 중문의) [ 중문]\n\n스크린 형식의 고정에서,이 적합성은 그라디언트 표준 1.3e-11 및 로그 확률 -804.143968098로 끝났다; 기본 statsmodels 적합성이 돌아 왔습니다 -804 143968682. 설정 statsmodels ``gtol=1e-12`` 고정 효과 분쟁을 1.52e-8 절대 및 고정 변수 구성 요소 분쟁 1.02e-4 상대로 줄였습니다.\n\n그 고정에 대한 참조 끝에서 끝까지 시간은 11.3 s였습니다. statsmodels, 0.80 s 이 후반에 대 한 CPU, RTX 3090에서 0.47 s를 사용합니다. CPU 부담을 하며, statsmodels 21.3 S 및 S를 사용합니다. CUDA 뒷면 0.57 s.",
+      "source_sha256": "05be30b03dd042401e59e8c9137e3c7f61dbb7f492c443782a0c44709d1dd272",
+      "text": "``y ~ X + (1 | groups) + variance components``에 맞는 프로필 REML.\n\n파라미터\n----------\ny : array-like ``(n_observations,)`` 형태의 반응값. X : array-like ``(n_observations, n_fixed_effects)`` 형태의 고정 효과 설계 행렬. DataFrame 을 전달하면 열 이름이 :attr:`TorchMixedResults.fe_params`에 보존됩니다. groups : array-like ``(n_observations,)`` 형태의 외부 그룹 레이블. ``re_formula='1'``과 동등한 임의 절편이 항상 포함됩니다. vc : mapping of str to array-like, optional 추가 그룹 레이블. 각 항목은 ``groups`` 안에 중첩된 하나의 분산 성분을 정의하며 statsmodels 의 ``vc_formula`` 의미론과 일치합니다. device : str, optional PyTorch 장치. CUDA 장치를 사용할 수 없을 때 CUDA 를 요청하면 CPU 로 대체하지 않고 오류가 발생합니다. max_iter : int, optional 최대 L-BFGS 반복 횟수. 일반적인 스크리닝 크기의 적합에는 20--40회가 사용되며 기본값 400은 안전 한도입니다. verbose : bool, optional 각 최적화 평가에서 deviance를 출력합니다.\n\n돌아오는\n-------\nTorchMixedResults 고정 효과, 변수 구성 요소, 조건 설정 값 및 폐기물, BLUP, 접근 진단 및 타이밍 정보.\n\n상승\n------\nMixedBackendUnavailable PyTorch 또는 요청된 장치가 사용할 수 없는 경우. ValueError 입력 차원이 동의하지 않는 경우 또는 고정 효과 디자인이 식별할 수 없습니다. MemoryError 밀접한 우연 효과 디자인은 사용 가능한 장치 메모리의 구성된 비율을 초과하는 경우.\n\n노트\n-----\nstatsmodels ``MixedLM(...).fit()``에 대한 검증은 다음과 같은 차이를 생성했습니다.\n\n[중고] [동문] [중문] (동문) [중문의] [ 중문의] (중문의) (중문) ( 중문의) [ 중문]\n\n스크린 형식의 고정에서,이 적합성은 그라디언트 표준 1.3e-11 및 로그 확률 -804.143968098로 끝났다; 기본 statsmodels 적합성이 돌아 왔습니다 -804 143968682. 설정 statsmodels ``gtol=1e-12`` 고정 효과 분쟁을 1.52e-8 절대 및 고정 변수 구성 요소 분쟁 1.02e-4 상대로 줄였습니다.\n\n그 고정에 대한 참조 끝에서 끝까지 시간은 11.3 s였습니다. statsmodels, 0.80 s 이 후반에 대 한 CPU, RTX 3090에서 0.47 s를 사용합니다. CPU 부담을 하며, statsmodels 21.3 S 및 S를 사용합니다. CUDA 뒷면 0.57 s.",
       "translation_source_blocks_sha256": [
         "8a637e79ca140391f11b524baac3e1dc562a091c8d7a57e26a84d911f3465abd",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "22af8530da615e8def0aceb82d286c1386fbc4c08a4c005db25e39f381ce926b",
+        "56c8c7e1eedbd85332fa91d83c84e9ffa4a24b0e008080be2abc47248d63a23c",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "69f08849fe0bbbc817839764badebb5a064afd7575e4f0dfa52ebc1c589bc9b2",
         "e97e76330ffc318c5d276e6c0bbaa184ffe7b94e1c2592eb35b1b49163167311",
@@ -54811,17 +54811,17 @@
     "spacr.qt.maturity": {
       "source_blocks_sha256": [
         "2c92e7ccb76be09eb4fa80559ff7d7af2f5dac9ae8a0bfde350f8281dad985fb",
-        "413a18e96599714450f56638f4fcc505079a6b34a2465b63cf7cc2b888d59fa6",
+        "809cefc8900a36b265c059f5717965a1543d42284f0eb39e591f1f70849814dd",
         "0fe7342d59911ebcdbd9b7ae4a7a770aac4be2b9b6ac143482dbba96eb098a5f",
         "dedb1a7ac33d428a0e583c12a55aaa7a17d5b69be22ac5ffc7d7e0180c8dded0",
         "390f0320c4c7da4aa27f8ab7909b4afe00cbaf50d5dea0446e1991a7d1bd4618",
         "669d478bf85ca5ed369600a6ccb25251ca2fbe1e6b095ddb87adeb3d84596616"
       ],
-      "source_sha256": "bfb26b3e5bbb3cc28e58b3c1a69b2e7f3be955081d356dd3a57c48b72c760b89",
-      "text": "증거 기반 성숙 라벨을 Qt 응용 프로그램에 할당합니다.\n\n응용 프로그램 성숙은 테스트, 명령 라인 지원 또는 지정된 GUI-만 범위, 문서, 튜토리얼 및 다른 SPACR 구성 요소에 의해 사용으로 평가됩니다.\n\n``stable`` 응용 프로그램에는 작업 흐름 또는 도서관, 광범위한 테스트 커버 및 사용자 문서가 있습니다.\n\n``beta`` 응용 프로그램은 기능적이고 테스트되었지만 안정적인 응용보다 문서화 또는 운영 사용량이 적습니다.\n\n:func:`apply` 기능 업데이트 :data:`spacr.qt.app.APP_STAGE` 아래의 평가에서. 평가 또는 명시적으로 선언 된 단계가없는 응용 프로그램은 :data:`UNASSESSED_STAGE` (``\"alpha\"``)로 지정됩니다.\n\n:data:`PROMOTIONS`에는 라벨이 변경된 응용 프로그램이 포함되어 있으며, :data:`AFFIRMED`에는 이미 적절한 라벨을 가진 검토된 애플리케이션이 포함됩니다.",
+      "source_sha256": "97e45f37efeb2b664870996daaa9fa11b8540be29470f0dce0991cfed3db0598",
+      "text": "증거 기반 성숙 라벨을 Qt 응용 프로그램에 할당합니다.\n\n응용 프로그램 성숙은 테스트, 명령 라인 지원 또는 지정된 GUI-만 범위, 문서, 튜토리얼 및 다른 spaCR 구성 요소에 의해 사용으로 평가됩니다.\n\n``stable`` 응용 프로그램에는 작업 흐름 또는 도서관, 광범위한 테스트 커버 및 사용자 문서가 있습니다.\n\n``beta`` 응용 프로그램은 기능적이고 테스트되었지만 안정적인 응용보다 문서화 또는 운영 사용량이 적습니다.\n\n:func:`apply` 기능 업데이트 :data:`spacr.qt.app.APP_STAGE` 아래의 평가에서. 평가 또는 명시적으로 선언 된 단계가없는 응용 프로그램은 :data:`UNASSESSED_STAGE` (``\"alpha\"``)로 지정됩니다.\n\n:data:`PROMOTIONS`에는 라벨이 변경된 응용 프로그램이 포함되어 있으며, :data:`AFFIRMED`에는 이미 적절한 라벨을 가진 검토된 애플리케이션이 포함됩니다.",
       "translation_source_blocks_sha256": [
         "2c92e7ccb76be09eb4fa80559ff7d7af2f5dac9ae8a0bfde350f8281dad985fb",
-        "413a18e96599714450f56638f4fcc505079a6b34a2465b63cf7cc2b888d59fa6",
+        "809cefc8900a36b265c059f5717965a1543d42284f0eb39e591f1f70849814dd",
         "4dfda822f65684b60d8d5228adffecbefc6f539a928ed2e6afba787fec1c8e6b",
         "dedb1a7ac33d428a0e583c12a55aaa7a17d5b69be22ac5ffc7d7e0180c8dded0",
         "390f0320c4c7da4aa27f8ab7909b4afe00cbaf50d5dea0446e1991a7d1bd4618",
@@ -58884,10 +58884,10 @@
         "c3c71e6e4c6728e92dc058bc103865097dde2daeec5d8931ecc1f61f4b6d1362",
         "53574eb95ed47eb357d3539beb3a89a30729b0ad08279acbeb578d50b6778b84",
         "22d3da6b0ce573ea4c94ec13ce6ba7f7047b339762bf019d79995ccb84c4d0da",
-        "61da88b878d33db59001b8c29c982f37f31c51cf08f3f2caf44a3c174d00e5d8"
+        "3431127e447551d49eaa5a26cb48b3420d3a7bb372518fd50b13fba532bea67e"
       ],
-      "source_sha256": "b438dbc644e50cf2da24d3c72304e6f9900d7c971d135c142389b5674c9d36a8",
-      "text": "Qt 인터페이스에서 추출 된 이미지 영역을 표시하고 기록합니다.\n\n클릭할 수 있는 이미지 템플릿의 페이지화된 네트워크를 표시합니다. ``png_list`` 안에서 ``measurements/measurements.db``왼쪽 클릭은 값을 부여합니다 1, 오른쪽 클릭으로 값이 부여됩니다 2, 클릭하면 부여된 값은 다시 정리됩니다. :class:`spacr.qt.annotate_engine.SaveWorker`.\n\n키보드 - 단순히 빠른 메모 레이어는 같은 글쓰기 경로의 상단에 앉아있다 (보기 :meth:`AnnotateScreen.handle_key`): ``1``-``9`` 다음 표시되지 않은 추출 이미지 영역에 클래스와 자동 진전을 부여, ``0`` 클리어, 끈 / ``hjkl`` 이동 초점, ``Space``/``Backspace`` 단계 표시되지 않고, ``u`` undoes 및 ``Enter`` 페이지를 수행합니다.\n\n각 추출 된 이미지 지역은 2 개의 독립적 인 색상 밴드와 함께 둥근 평방으로 그려집니다 (보기 :class:`_Thumbnail`), 따라서 세 개의 국가가 서로를 과장하는 대신 함께 읽을 수 있도록 유지됩니다 :\n\n* **resting** — 그림을 덮는 얇은 회색 반지\n* **분류** - 클래스 색상에서 동일한 반지 (:func:`~spacr.qt.annotate_engine.label_to_hex`, 앱의 하나의 클래스를 →색상지도)\n* **현재** - *extra* 흰색 반지가 다음 클릭 또는 키스트로크에 단일 탭에서 그 밖으로 타격됩니다.\n\n코커와 키보드는 동일한 흐름을 움직인다 : 흐르는 흐르기를 입력하고, 열쇠가 그것을 멀리 옮깁니다. 다른 곳에서 지적 할 수있는 두 번째 \"hovered\" 고점이 없습니다.\n\nQt 응용 프로그램 보기에서는 현재 UMAP 창, 깊은 SPACR 훈련 시작기 또는 측정 경계 필터링을 제공하지 않습니다.",
+      "source_sha256": "5fc2b7cde765cfd0f332a20222cddd88100332638c0be94c0415b049bba48d87",
+      "text": "Qt 인터페이스에서 추출 된 이미지 영역을 표시하고 기록합니다.\n\n클릭할 수 있는 이미지 템플릿의 페이지화된 네트워크를 표시합니다. ``png_list`` 안에서 ``measurements/measurements.db``왼쪽 클릭은 값을 부여합니다 1, 오른쪽 클릭으로 값이 부여됩니다 2, 클릭하면 부여된 값은 다시 정리됩니다. :class:`spacr.qt.annotate_engine.SaveWorker`.\n\n키보드 - 단순히 빠른 메모 레이어는 같은 글쓰기 경로의 상단에 앉아있다 (보기 :meth:`AnnotateScreen.handle_key`): ``1``-``9`` 다음 표시되지 않은 추출 이미지 영역에 클래스와 자동 진전을 부여, ``0`` 클리어, 끈 / ``hjkl`` 이동 초점, ``Space``/``Backspace`` 단계 표시되지 않고, ``u`` undoes 및 ``Enter`` 페이지를 수행합니다.\n\n각 추출 된 이미지 지역은 2 개의 독립적 인 색상 밴드와 함께 둥근 평방으로 그려집니다 (보기 :class:`_Thumbnail`), 따라서 세 개의 국가가 서로를 과장하는 대신 함께 읽을 수 있도록 유지됩니다 :\n\n* **resting** — 그림을 덮는 얇은 회색 반지\n* **분류** - 클래스 색상에서 동일한 반지 (:func:`~spacr.qt.annotate_engine.label_to_hex`, 앱의 하나의 클래스를 →색상지도)\n* **현재** - *extra* 흰색 반지가 다음 클릭 또는 키스트로크에 단일 탭에서 그 밖으로 타격됩니다.\n\n코커와 키보드는 동일한 흐름을 움직인다 : 흐르는 흐르기를 입력하고, 열쇠가 그것을 멀리 옮깁니다. 다른 곳에서 지적 할 수있는 두 번째 \"hovered\" 고점이 없습니다.\n\nQt 응용 프로그램 보기에서는 현재 UMAP 창, 깊은 spaCR 훈련 시작기 또는 측정 경계 필터링을 제공하지 않습니다.",
       "translation_source_blocks_sha256": [
         "48bcb4f903deef031f7ef2f4b768a4ed0db2e72244e8911a0fba50c48a334767",
         "be777aa4db4f2d686f5e6eda40045343ae537bc156fcd6f9e82d7f3e9c338eca",
@@ -58897,7 +58897,7 @@
         "c3c71e6e4c6728e92dc058bc103865097dde2daeec5d8931ecc1f61f4b6d1362",
         "53574eb95ed47eb357d3539beb3a89a30729b0ad08279acbeb578d50b6778b84",
         "22d3da6b0ce573ea4c94ec13ce6ba7f7047b339762bf019d79995ccb84c4d0da",
-        "243bb46ffcc385ee7944cc9b775daa3ba046faa59428f77372e411e007ae4188"
+        "5d87055602d4ec3a8da7323a22c51da58dfd3798bf635e2f2324c740e6e3582f"
       ]
     },
     "spacr.qt.screens.annotate.AnnotateScreen": {
@@ -89195,14 +89195,18 @@
       "source_blocks_sha256": [
         "26e5f5a095c3970d59366ad424b8cb9ac418a42e3df7ca6fbc9d1bfea6323022",
         "819fe1d1f4fd1d57c3ea0cc017e4aa32cf6175f432086f45e85122fb69cce58d",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "09278b3be119642289bf9565fa48f492c1cfeedd40245c0e8180b07f4bb0cb51",
         "4b0ed88f7d99420fb3ba2c68e20992280f6dcac4afaf32da17bee89c656c2ccf",
         "be3aa91295d92aa7805fb9581097933da62b6ca5ad786f7aa6419e456d6204c0"
       ],
-      "source_sha256": "513c96284f6b43aeb6b3a94baaab0b6e3bdd463e3987b5813b3e41b6e695f0b2",
-      "text": "혼합 측정 테이블의 선택된 열 당 1 회 회복을 실행합니다.\n\n각 열은 독립적인 처리 세션 폴더와 실행 탭 항목을 생성합니다.  :class:`~spacr.qt.job_runner.JobRunner`을 통해 순차적으로 실행되며, 맞춤 사이에 중지될 수 있으며, 개별적인 적합 실패 후에 계속될 수 있다.\n\n속성들\n----------\nfit_started : 신호 발행 ``(column, settings)`` 각 조정이 시작되면. fit_finished : 시호 발송 ``(column, outcome)`` 조정에 성공하거나 실패할 때. queue_finished : 작업 목록이 끝날 때 신호 발표 ``(fitted, failed)`` queue_progress : 모든 조정 전에 신호 배출 ``(column, index, total)``.",
+      "source_sha256": "3084e623c8ec14f362b07d8580eb380db8810c34a57eb6e77d7b2d989ea1694c",
+      "text": "혼합 측정 테이블의 선택된 열 당 1 회 회복을 실행합니다.\n\n각 열은 독립적인 처리 세션 폴더와 실행 탭 항목을 생성합니다.  :class:`~spacr.qt.job_runner.JobRunner`을 통해 순차적으로 실행되며, 맞춤 사이에 중지될 수 있으며, 개별적인 적합 실패 후에 계속될 수 있다.\n\n파라미터\n----------\nframe_provider : callable or None, optional 조합 측정 프레임을 반환하는 제로 논쟁 호출 가능. settings_provider : callable or None, optional 제로 토론 호출 가능한 회복 응용 프로그램 시각의 현재 모델, 수정 및 계산 설정을 반환합니다. 각 조합이 이러한 설정을 복사하고 응답 열만 변경합니다. 원주민 : QWidget 또는 None, 선택적 부모 위젯. score_provider : callable or None, optional 제로는 논쟁을 호출할 수 있습니다. 저장 된 조합 플레임으로 경로를 반환 합니다. 모든 조합된 조합은 동일한 파일을 읽습니다. threaded : bool, default=True 실행은 배경 작업 실행기를 통해 일치합니다. 시뮬레이션 테스트 또는 헤드없는 호출을 위해 ``False``로 설정합니다. fit : callable or None, optional 기능은 하나의 조합 설정을 사용하여 호출됩니다. ``None`` 표준 regression 구현을 사용합니다. callable를 공급하면 소프트웨어 작업 목록이 독립적으로 테스트 가능하며 첫 번째 창이 건설되는 동안 전체 통계 스택을 수입하는 것을 피합니다.\n\n속성들\n----------\nfit_started : 신호 발행 ``(column, settings)`` 각 조정이 시작되면. fit_finished : 시호 발송 ``(column, outcome)`` 조정에 성공하거나 실패할 때. queue_finished : 작업 목록이 끝날 때 신호 발표 ``(fitted, failed)`` queue_progress : 모든 조정 전에 신호 배출 ``(column, index, total)``.",
       "translation_source_blocks_sha256": [
         "26e5f5a095c3970d59366ad424b8cb9ac418a42e3df7ca6fbc9d1bfea6323022",
         "85019d5b550c7b00a841d3eb65e90352d339373bb1eecfa2c0844abbcecf0df7",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "5e3eac29c20c160d9fbd7cc907951c88960729672269bf4ce56dd30ff5c0dc07",
         "4b0ed88f7d99420fb3ba2c68e20992280f6dcac4afaf32da17bee89c656c2ccf",
         "8999dcc539a568887270b7bec6d22767c2d401282dd035a3cd537f7502e1ba9f"
       ]

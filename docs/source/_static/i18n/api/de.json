@@ -34248,16 +34248,16 @@
       "source_blocks_sha256": [
         "b654dd40cf89c98e8b1b64132636713b2ff303614a814de8b0dc29fd475a3e4a",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "11b0d79ae13e92c1647e8fd17efce010c8d4941c9c705c2323f149b6cd94b1f0",
+        "7baa4f6b95a3a618dc54b68462893c6a89dcb2933aef5ccf2c8882d431f6adbf",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "7b221e6be119337751aa38ff1e74cecd07f85acd94c3f984053259275b7c8107"
       ],
-      "source_sha256": "eb562e829c303aa413221f09f0b971e8393c17e97c9eafaad0d47f6b9e0965c4",
-      "text": "Passen Sie das gleiche gemischte Modell mit statsmodels und PyTorch und vergleichen Sie sie.\n\nParameter\n----------\ny : array-like of shape (n_observations,) Response-Werte. X : array-like of shape (n_observations, n_fixed_effects) Fixed-Effekte-Design. groups : array-like of shape (n_observations,) Outer-Gruppierungsetiketten. vc : mapping of str zu array-ähnlichen, optionalen Nested Variance-Komponenten-Labels. device : str, optional Gerät von der PyTorch passen verwendet.\n\nRückgaben\n---------\nKey-Value-Mapping Zeitpunkte, Geschwindigkeit, maximale Fixed-Effekt- und Variance-Komponenten-Uneinigkeit, Uneinigkeit im Restmaßstab, aufgelöstes Gerät und PyTorch Abweichungs-Evaluierungs-Anzahl.",
+      "source_sha256": "5617d805ae7fcbd78492f761d2f1c5f46c6c478952245db8797f72c85eb81f53",
+      "text": "Passen Sie das gleiche gemischte Modell mit statsmodels und PyTorch und vergleichen Sie sie.\n\nParameter\n----------\ny : array-like Ansprechwerte mit Form ``(n_observations,)``. X : array-like Fixed-effects-Design mit Form ``(n_observations, n_fixed_effects)``. groups : array-like Außengruppenetiketten mit Form ``(n_observations,)``. vc : mapping of str zu array-ähnlichen, optionalen Verschachtelten Varianz-Komponenten-Etiketten. device : str, optional Gerät, das von der PyTorch Passform verwendet wird.\n\nRückgaben\n---------\nKey-Value-Mapping Zeitpunkte, Geschwindigkeit, maximale Fixed-Effekt- und Variance-Komponenten-Uneinigkeit, Uneinigkeit im Restmaßstab, aufgelöstes Gerät und PyTorch Abweichungs-Evaluierungs-Anzahl.",
       "translation_source_blocks_sha256": [
         "b654dd40cf89c98e8b1b64132636713b2ff303614a814de8b0dc29fd475a3e4a",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "11b0d79ae13e92c1647e8fd17efce010c8d4941c9c705c2323f149b6cd94b1f0",
+        "7baa4f6b95a3a618dc54b68462893c6a89dcb2933aef5ccf2c8882d431f6adbf",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "b04590ef7b7f6ec0270c9191f2b15995f8bf8869ef21f50753471dd2b55b90a8"
       ]
@@ -34300,7 +34300,7 @@
       "source_blocks_sha256": [
         "8a637e79ca140391f11b524baac3e1dc562a091c8d7a57e26a84d911f3465abd",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "22af8530da615e8def0aceb82d286c1386fbc4c08a4c005db25e39f381ce926b",
+        "56c8c7e1eedbd85332fa91d83c84e9ffa4a24b0e008080be2abc47248d63a23c",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "69f08849fe0bbbc817839764badebb5a064afd7575e4f0dfa52ebc1c589bc9b2",
         "e97e76330ffc318c5d276e6c0bbaa184ffe7b94e1c2592eb35b1b49163167311",
@@ -34311,12 +34311,12 @@
         "b54fd49f9b77794509f7997fd7712679a43b3f5993742dbe179ab45ded1b1023",
         "936578ce86bcc75111cb3bb61bba26605518996665cdb9019077c860e05f19e9"
       ],
-      "source_sha256": "a6f61ac5db22dbd84a98f92e15766bf8262507b8c1fca9bd6e210097b3925f7a",
-      "text": "Passen Sie ``y ~ X + (1 | groups) + variance components`` nach Profil REML an.\n\nParameter\n----------\ny : array-like of shape (n_observations,) Ansprechwerte. X : array-like of shape (n_observations, n_fixed_effects) Entwurf von Festeffekten. Ein DataFrame bewahrt seine Spaltennamen in :attr:`TorchMixedResults.fe_params`. groups : array-like of shape (n_observations,) Outer gruppieren Etiketten. Ein zufälliger Abfang ist immer enthalten, was ``re_formula='1'`` entspricht. vc : mapping of str zu array-ähnlichen, optionalen zusätzlichen Gruppierungsetiketten. Jeder Eintrag definiert eine Varianzkomponente, die innerhalb von ``groups`` verschachtelt ist, passend zu statsmodels ``vc_formula`` Semantik. device : str, optional PyTorch Gerät. Die Anfrage CUDA erhöht, anstatt auf CPU zurückzufallen, wenn kein CUDA Gerät verfügbar ist. max_iter : int, optional Maximale L-BFGS-Iterationen. Typische Siebgröße passt verwenden 20--40; die Voreinstellung von 400 ist ein Sicherheitslimit. verbose : bool, optional Drucken Sie die Abweichung bei jeder Optimierungsauswertung aus.\n\nRückgaben\n---------\nTorchMixedErgebnisse Feste Effekte, Varianzkomponenten, bedingte Einbauwerte und Reste, BLUPs, Konvergenzdiagnostik und Timing-Informationen.\n\nErhöht\n------\nMixedBackendUnavailable Wenn PyTorch oder das angeforderte Gerät nicht verfügbar ist. ValueError Wenn die Eingangsmaße nicht übereinstimmen oder das Fixed-Effects-Design nicht identifizierbar ist. MemoryError Wenn das dichte Zufallseffekte-Design den konfigurierten Anteil des verfügbaren Gerätespeichers übersteigt.\n\nAnmerkungen\n-----------\nDie Validierung gegen statsmodels ``MixedLM(...).fit()`` ergab folgende Unterschiede:\n\n==================== ================== ======================================= Menge geschachtelte Vorrichtung rasterförmige Vorrichter (1.620 Zeilen) (1,830 Zeile, p=388, q=1.097) ==================== ================== ======================================= Fixe Effekte 1,20e-7 absolut 2,39e-4 absolut (2,0 e-4 von einem SE) Varianzkomponenten 1.29e -3 relativ 2.02e -4 relativ Restskala 4.12e-6 relativ 194e-5 relativ Standard Fehler 3.88e-4 relativ 1.04e-3 Median; 1.80e-2 maximal über 388 Guide BLUPs 7.64e-5 absolut nicht ausgewertet ==================== ================== =======================================\n\nBeide Backends maximieren das gleiche REML-Kriterium. Auf der bildschirmförmigen Halterung endete diese Passform bei Gradientennorm 1.3e-11 und Log-Likelihood -804.143968098; die Standardeinstellung statsmodels fit ergab -804.143968682. Einstellung statsmodels ``gtol=1e-12`` reduzierte die Fix-Effekt-Uneinigkeit auf 1,52e-8 absolute und Fix-Varianz-Komponente Uneinigkeit zu 1,02e-4 relativ.\n\nDie Referenzend-zu-End-Zeiten für diese Vorrichtung waren 11,3 s für statsmodels, 0,80 s in diesem Backend auf CPU und 0,47 s auf einem RTX 3090. Unter gleichzeitiger CPU Last nahm statsmodels 21,3 s und das CUDA Backend 0.57 s ein.",
+      "source_sha256": "05be30b03dd042401e59e8c9137e3c7f61dbb7f492c443782a0c44709d1dd272",
+      "text": "Passen Sie ``y ~ X + (1 | groups) + variance components`` nach Profil REML an.\n\nParameter\n----------\ny : array-like Ansprechwerte mit Form ``(n_observations,)``. X : array-like Fixed-effects-Design mit Form ``(n_observations, n_fixed_effects)``. Ein DataFrame bewahrt seine Spaltennamen in :attr:`TorchMixedResults.fe_params`. groups : array-like Außengruppenetiketten mit Form ``(n_observations,)``. Ein zufälliger Abfang ist immer enthalten, was ``re_formula='1'`` entspricht. vc : mapping of str zu array-ähnlichen, optionalen zusätzlichen Gruppierungsetiketten. Jeder Eintrag definiert eine Varianzkomponente, die innerhalb von ``groups`` verschachtelt ist, passend zu statsmodels ``vc_formula`` Semantik. device : str, optional PyTorch Gerät. Die Anfrage CUDA erhöht, anstatt auf CPU zurückzufallen, wenn kein CUDA Gerät verfügbar ist. max_iter : int, optional Maximale L-BFGS-Iterationen. Typische Siebgröße passt verwenden 20--40; die Voreinstellung von 400 ist ein Sicherheitslimit. verbose : bool, optional Drucken Sie die Abweichung bei jeder Optimierungsauswertung aus.\n\nRückgaben\n---------\nTorchMixedErgebnisse Feste Effekte, Varianzkomponenten, bedingte Einbauwerte und Reste, BLUPs, Konvergenzdiagnostik und Timing-Informationen.\n\nErhöht\n------\nMixedBackendUnavailable Wenn PyTorch oder das angeforderte Gerät nicht verfügbar ist. ValueError Wenn die Eingangsmaße nicht übereinstimmen oder das Fixed-Effects-Design nicht identifizierbar ist. MemoryError Wenn das dichte Zufallseffekte-Design den konfigurierten Anteil des verfügbaren Gerätespeichers übersteigt.\n\nAnmerkungen\n-----------\nDie Validierung gegen statsmodels ``MixedLM(...).fit()`` ergab folgende Unterschiede:\n\n==================== ================== ======================================= Menge geschachtelte Vorrichtung rasterförmige Vorrichter (1.620 Zeilen) (1,830 Zeile, p=388, q=1.097) ==================== ================== ======================================= Fixe Effekte 1,20e-7 absolut 2,39e-4 absolut (2,0 e-4 von einem SE) Varianzkomponenten 1.29e -3 relativ 2.02e -4 relativ Restskala 4.12e-6 relativ 194e-5 relativ Standard Fehler 3.88e-4 relativ 1.04e-3 Median; 1.80e-2 maximal über 388 Guide BLUPs 7.64e-5 absolut nicht ausgewertet ==================== ================== =======================================\n\nBeide Backends maximieren das gleiche REML-Kriterium. Auf der bildschirmförmigen Halterung endete diese Passform bei Gradientennorm 1.3e-11 und Log-Likelihood -804.143968098; die Standardeinstellung statsmodels fit ergab -804.143968682. Einstellung statsmodels ``gtol=1e-12`` reduzierte die Fix-Effekt-Uneinigkeit auf 1,52e-8 absolute und Fix-Varianz-Komponente Uneinigkeit zu 1,02e-4 relativ.\n\nDie Referenzend-zu-End-Zeiten für diese Vorrichtung waren 11,3 s für statsmodels, 0,80 s in diesem Backend auf CPU und 0,47 s auf einem RTX 3090. Unter gleichzeitiger CPU Last nahm statsmodels 21,3 s und das CUDA Backend 0.57 s ein.",
       "translation_source_blocks_sha256": [
         "8a637e79ca140391f11b524baac3e1dc562a091c8d7a57e26a84d911f3465abd",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "22af8530da615e8def0aceb82d286c1386fbc4c08a4c005db25e39f381ce926b",
+        "56c8c7e1eedbd85332fa91d83c84e9ffa4a24b0e008080be2abc47248d63a23c",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "69f08849fe0bbbc817839764badebb5a064afd7575e4f0dfa52ebc1c589bc9b2",
         "e97e76330ffc318c5d276e6c0bbaa184ffe7b94e1c2592eb35b1b49163167311",
@@ -54811,17 +54811,17 @@
     "spacr.qt.maturity": {
       "source_blocks_sha256": [
         "2c92e7ccb76be09eb4fa80559ff7d7af2f5dac9ae8a0bfde350f8281dad985fb",
-        "413a18e96599714450f56638f4fcc505079a6b34a2465b63cf7cc2b888d59fa6",
+        "809cefc8900a36b265c059f5717965a1543d42284f0eb39e591f1f70849814dd",
         "0fe7342d59911ebcdbd9b7ae4a7a770aac4be2b9b6ac143482dbba96eb098a5f",
         "dedb1a7ac33d428a0e583c12a55aaa7a17d5b69be22ac5ffc7d7e0180c8dded0",
         "390f0320c4c7da4aa27f8ab7909b4afe00cbaf50d5dea0446e1991a7d1bd4618",
         "669d478bf85ca5ed369600a6ccb25251ca2fbe1e6b095ddb87adeb3d84596616"
       ],
-      "source_sha256": "bfb26b3e5bbb3cc28e58b3c1a69b2e7f3be955081d356dd3a57c48b72c760b89",
-      "text": "Zuweisen von evidenzbasierten Laufzeitetiketten an Qt-Anwendungen.\n\nDie Anwendungsreife wird anhand von Tests, Kommandozeilenunterstützung oder einem angegebenen GUI-Nur-Bereich, Dokumentation, Tutorials und Verwendung durch andere SPACR-Komponenten bewertet.\n\n``stable`` Die Anwendung verfügt über einen Arbeitsablauf oder eine Bibliothek, eine breite Testabdeckung und eine Benutzerdokumentation.\n\n``beta`` Die Anwendung ist funktional und getestet, hat aber weniger Dokumentation oder Betrieb als eine stabile Anwendung.\n\nDie :func:`apply`-Funktion aktualisiert :data:`spacr.qt.app.APP_STAGE` aus den nachstehenden Bewertungen. Eine Anwendung ohne Bewertung oder eine explizit deklarierte Stufe wird :data:`UNASSESSED_STAGE` (``\"alpha\"``) zugewiesen. Explizite Beta-Etiketten werden beibehalten, während aufgezeichnete Bewertungen Vorrang haben.\n\n:data:`PROMOTIONS` enthält Anwendungen, deren Etiketten geändert wurden; :data:`AFFIRMED` enthält überprüfte Anwendungen, die bereits geeignet waren.",
+      "source_sha256": "97e45f37efeb2b664870996daaa9fa11b8540be29470f0dce0991cfed3db0598",
+      "text": "Zuweisen von evidenzbasierten Laufzeitetiketten an Qt-Anwendungen.\n\nDie Anwendungsreife wird anhand von Tests, Kommandozeilenunterstützung oder einem angegebenen GUI-Nur-Bereich, Dokumentation, Tutorials und Verwendung durch andere spaCR-Komponenten bewertet.\n\n``stable`` Die Anwendung verfügt über einen Arbeitsablauf oder eine Bibliothek, eine breite Testabdeckung und eine Benutzerdokumentation.\n\n``beta`` Die Anwendung ist funktional und getestet, hat aber weniger Dokumentation oder Betrieb als eine stabile Anwendung.\n\nDie :func:`apply`-Funktion aktualisiert :data:`spacr.qt.app.APP_STAGE` aus den nachstehenden Bewertungen. Eine Anwendung ohne Bewertung oder eine explizit deklarierte Stufe wird :data:`UNASSESSED_STAGE` (``\"alpha\"``) zugewiesen. Explizite Beta-Etiketten werden beibehalten, während aufgezeichnete Bewertungen Vorrang haben.\n\n:data:`PROMOTIONS` enthält Anwendungen, deren Etiketten geändert wurden; :data:`AFFIRMED` enthält überprüfte Anwendungen, die bereits geeignet waren.",
       "translation_source_blocks_sha256": [
         "2c92e7ccb76be09eb4fa80559ff7d7af2f5dac9ae8a0bfde350f8281dad985fb",
-        "413a18e96599714450f56638f4fcc505079a6b34a2465b63cf7cc2b888d59fa6",
+        "809cefc8900a36b265c059f5717965a1543d42284f0eb39e591f1f70849814dd",
         "4dfda822f65684b60d8d5228adffecbefc6f539a928ed2e6afba787fec1c8e6b",
         "dedb1a7ac33d428a0e583c12a55aaa7a17d5b69be22ac5ffc7d7e0180c8dded0",
         "390f0320c4c7da4aa27f8ab7909b4afe00cbaf50d5dea0446e1991a7d1bd4618",
@@ -58884,10 +58884,10 @@
         "c3c71e6e4c6728e92dc058bc103865097dde2daeec5d8931ecc1f61f4b6d1362",
         "53574eb95ed47eb357d3539beb3a89a30729b0ad08279acbeb578d50b6778b84",
         "22d3da6b0ce573ea4c94ec13ce6ba7f7047b339762bf019d79995ccb84c4d0da",
-        "61da88b878d33db59001b8c29c982f37f31c51cf08f3f2caf44a3c174d00e5d8"
+        "3431127e447551d49eaa5a26cb48b3420d3a7bb372518fd50b13fba532bea67e"
       ],
-      "source_sha256": "b438dbc644e50cf2da24d3c72304e6f9900d7c971d135c142389b5674c9d36a8",
-      "text": "Zeigt und kommentiert extrahierte Bildregionen in der Qt-Schnittstelle.\n\nZeigt ein paginiertes Grid aus anklickbaren Bild-Vorschaubildern an, die von ``png_list`` in ``measurements/measurements.db`` unterstützt werden. Linksklick weist Wert 1 zu, Rechtsklick ordnet Wert 2, und das Klicken auf den zugewiesenen Wert löscht ihn erneut. Anmerkungen werden über :class:`spacr.qt.annotate_engine.SaveWorker` fortgesetzt.\n\nAuf dem gleichen Schreibpfad (siehe :meth:`AnnotateScreen.handle_key`): ``1``–``9`` weist der nächsten nicht markierten extrahierten Bildregion eine Klasse und einen Auto-Advance zu, ``0`` ist frei, Pfeile / ``hjkl`` bewegen Fokus, Schritt ``Space``/``Backspace`` ohne Kennzeichnung, ``u`` undoes und ``Enter`` übergeben die Seite.\n\nJede extrahierte Bildregion wird als abgerundetes Quadrat (siehe :class:`_Thumbnail`) mit zwei unabhängigen Farbbändern gezeichnet, so dass ihre drei Zustände zusammen lesbar bleiben und sich nicht überschreiben:\n\n* **Ausruhen** — ein dünner grauer Ring, der das Bild umarmt\n* **klassifiziert** — derselbe Ring in der Klassenfarbe (:func:`~spacr.qt.annotate_engine.label_to_hex`, die eine Klasse der App →Farbkarte)\n* **current** — ein *extra* weißer Ring außerhalb davon auf der einzigen Kachel, der mit dem nächsten Klick oder Tastendruck getroffen wird\n\nDer Cursor und die Tastatur bewegen die gleiche aktuelle Kachel: die Eingabe einer Kachel macht sie aktuell, und eine Pfeiltaste bewegt sie weg. Es gibt kein zweites \"hovered\" Highlight, das irgendwo anders zeigen könnte.\n\nDie Qt-Anwendungsansicht liefert derzeit nicht das UMAP-Fenster, Deep SPACR-Trainingsstarter oder Messschwellenfilterung. In Einstellungen kann ein Schwellenwert eingegeben werden, aber Seitenabfragen gelten nicht.",
+      "source_sha256": "5fc2b7cde765cfd0f332a20222cddd88100332638c0be94c0415b049bba48d87",
+      "text": "Zeigt und kommentiert extrahierte Bildregionen in der Qt-Schnittstelle.\n\nZeigt ein paginiertes Grid aus anklickbaren Bild-Vorschaubildern an, die von ``png_list`` in ``measurements/measurements.db`` unterstützt werden. Linksklick weist Wert 1 zu, Rechtsklick ordnet Wert 2, und das Klicken auf den zugewiesenen Wert löscht ihn erneut. Anmerkungen werden über :class:`spacr.qt.annotate_engine.SaveWorker` fortgesetzt.\n\nAuf dem gleichen Schreibpfad (siehe :meth:`AnnotateScreen.handle_key`): ``1``–``9`` weist der nächsten nicht markierten extrahierten Bildregion eine Klasse und einen Auto-Advance zu, ``0`` ist frei, Pfeile / ``hjkl`` bewegen Fokus, Schritt ``Space``/``Backspace`` ohne Kennzeichnung, ``u`` undoes und ``Enter`` übergeben die Seite.\n\nJede extrahierte Bildregion wird als abgerundetes Quadrat (siehe :class:`_Thumbnail`) mit zwei unabhängigen Farbbändern gezeichnet, so dass ihre drei Zustände zusammen lesbar bleiben und sich nicht überschreiben:\n\n* **Ausruhen** — ein dünner grauer Ring, der das Bild umarmt\n* **klassifiziert** — derselbe Ring in der Klassenfarbe (:func:`~spacr.qt.annotate_engine.label_to_hex`, die eine Klasse der App →Farbkarte)\n* **current** — ein *extra* weißer Ring außerhalb davon auf der einzigen Kachel, der mit dem nächsten Klick oder Tastendruck getroffen wird\n\nDer Cursor und die Tastatur bewegen die gleiche aktuelle Kachel: die Eingabe einer Kachel macht sie aktuell, und eine Pfeiltaste bewegt sie weg. Es gibt kein zweites \"hovered\" Highlight, das irgendwo anders zeigen könnte.\n\nDie Qt-Anwendungsansicht liefert derzeit nicht das UMAP-Fenster, Deep spaCR-Trainingsstarter oder Messschwellenfilterung. In Einstellungen kann ein Schwellenwert eingegeben werden, aber Seitenabfragen gelten nicht.",
       "translation_source_blocks_sha256": [
         "48bcb4f903deef031f7ef2f4b768a4ed0db2e72244e8911a0fba50c48a334767",
         "be777aa4db4f2d686f5e6eda40045343ae537bc156fcd6f9e82d7f3e9c338eca",
@@ -58897,7 +58897,7 @@
         "c3c71e6e4c6728e92dc058bc103865097dde2daeec5d8931ecc1f61f4b6d1362",
         "53574eb95ed47eb357d3539beb3a89a30729b0ad08279acbeb578d50b6778b84",
         "22d3da6b0ce573ea4c94ec13ce6ba7f7047b339762bf019d79995ccb84c4d0da",
-        "243bb46ffcc385ee7944cc9b775daa3ba046faa59428f77372e411e007ae4188"
+        "5d87055602d4ec3a8da7323a22c51da58dfd3798bf635e2f2324c740e6e3582f"
       ]
     },
     "spacr.qt.screens.annotate.AnnotateScreen": {
@@ -89195,14 +89195,18 @@
       "source_blocks_sha256": [
         "26e5f5a095c3970d59366ad424b8cb9ac418a42e3df7ca6fbc9d1bfea6323022",
         "819fe1d1f4fd1d57c3ea0cc017e4aa32cf6175f432086f45e85122fb69cce58d",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "09278b3be119642289bf9565fa48f492c1cfeedd40245c0e8180b07f4bb0cb51",
         "4b0ed88f7d99420fb3ba2c68e20992280f6dcac4afaf32da17bee89c656c2ccf",
         "be3aa91295d92aa7805fb9581097933da62b6ca5ad786f7aa6419e456d6204c0"
       ],
-      "source_sha256": "513c96284f6b43aeb6b3a94baaab0b6e3bdd463e3987b5813b3e41b6e695f0b2",
-      "text": "Führen Sie eine Regression pro ausgewählte Spalte einer zusammengeführten Messtabelle aus.\n\nJede Spalte erzeugt einen unabhängigen Verarbeitungssitzungsordner und einen Eintrag auf der Registerkarte Ausführungen. Jobs werden sequenziell bis :class:`~spacr.qt.job_runner.JobRunner` ausgeführt, können zwischen Fits angehalten und nach einzelnen Fit-Fehlern fortgesetzt werden.\n\nAttribute\n----------\nfit_started : Signal-Emits ``(column, settings)`` wie jede Passform beginnt. fit_finished : Signal Emits ``(column, outcome)`` wenn eine Passform erfolgreich oder fehlschlägt. queue_finished : Signal Ermits ``(fitted, failed)`` wenn die Arbeitsliste endet. queue_progress : Signal Emits ``(column, index, total)`` vor jeder Passform.",
+      "source_sha256": "3084e623c8ec14f362b07d8580eb380db8810c34a57eb6e77d7b2d989ea1694c",
+      "text": "Führen Sie eine Regression pro ausgewählte Spalte einer zusammengeführten Messtabelle aus.\n\nJede Spalte erzeugt einen unabhängigen Verarbeitungssitzungsordner und einen Eintrag auf der Registerkarte Ausführungen. Jobs werden sequenziell bis :class:`~spacr.qt.job_runner.JobRunner` ausgeführt, können zwischen Fits angehalten und nach einzelnen Fit-Fehlern fortgesetzt werden.\n\nParameter\n----------\nframe_provider : callable or None, optional Nullargument berufbar Rückgabe des zusammengeführten Messrahmens. settings_provider : callable or None, optional Null-Argument berufbar Rückgabe der aktuellen Modell-, Korrektur- und Zähleinstellungen der Regressionsanwendungsansicht. Jede Schlange passt kopiert diese Einstellungen und ändert nur die Antwortspalte. parent : QWidget oder None, optional Parent-Widget. score_provider : callable or None, optional Null-Argument berufbar Rückgabe des Pfades zum gespeicherten zusammengeführten Frame. Jede angekreuzte Passform liest diese gleiche Datei. threaded : bool, default=True Run passt durch den Hintergrund Job Runner. Set auf ``False`` für synchrone Tests oder kopflose Anrufer. fit : callable or None, optional Funktion mit den Einstellungen eines Fits aufgerufen. ``None`` verwendet die Standard-Regressionsimplementierung. Die Bereitstellung eines Callables hält die Software-Jobliste unabhängig testbar und vermeidet den Import des vollen Statistikstapels, während das erste Fenster konstruiert ist.\n\nAttribute\n----------\nfit_started : Signal-Emits ``(column, settings)`` wie jede Passform beginnt. fit_finished : Signal Emits ``(column, outcome)`` wenn eine Passform erfolgreich oder fehlschlägt. queue_finished : Signal Ermits ``(fitted, failed)`` wenn die Arbeitsliste endet. queue_progress : Signal Emits ``(column, index, total)`` vor jeder Passform.",
       "translation_source_blocks_sha256": [
         "26e5f5a095c3970d59366ad424b8cb9ac418a42e3df7ca6fbc9d1bfea6323022",
         "85019d5b550c7b00a841d3eb65e90352d339373bb1eecfa2c0844abbcecf0df7",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "5e3eac29c20c160d9fbd7cc907951c88960729672269bf4ce56dd30ff5c0dc07",
         "4b0ed88f7d99420fb3ba2c68e20992280f6dcac4afaf32da17bee89c656c2ccf",
         "8999dcc539a568887270b7bec6d22767c2d401282dd035a3cd537f7502e1ba9f"
       ]

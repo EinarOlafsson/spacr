@@ -34248,16 +34248,16 @@
       "source_blocks_sha256": [
         "b654dd40cf89c98e8b1b64132636713b2ff303614a814de8b0dc29fd475a3e4a",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "11b0d79ae13e92c1647e8fd17efce010c8d4941c9c705c2323f149b6cd94b1f0",
+        "7baa4f6b95a3a618dc54b68462893c6a89dcb2933aef5ccf2c8882d431f6adbf",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "7b221e6be119337751aa38ff1e74cecd07f85acd94c3f984053259275b7c8107"
       ],
-      "source_sha256": "eb562e829c303aa413221f09f0b971e8393c17e97c9eafaad0d47f6b9e0965c4",
-      "text": "Coloque o mesmo modelo misto com statsmodels e  PyTorch e compare-os.\n\nParâmetros\n----------\ny : array-like of shape (n_observations,) Valores de resposta. X : array-like of shape (n_observations, n_fixed_effects) Design de efeitos fixos. groups : array-like of shape (n_observations,) Rótulos de agrupamento externo. vc : mapping of str para rótulos de componentes de variância aninhados opcionais. device : str, optional Dispositivo usado pelo ajuste PyTorch.\n\nDevoluções\n----------\nmapeamento de chave-valor Timings, speedup, máximo de efeito fixo e discordância de variância-componente, discordância de escala residual, dispositivo resolvido e PyTorch contagem de avaliação de desvio.",
+      "source_sha256": "5617d805ae7fcbd78492f761d2f1c5f46c6c478952245db8797f72c85eb81f53",
+      "text": "Coloque o mesmo modelo misto com statsmodels e  PyTorch e compare-os.\n\nParâmetros\n----------\ny : array-like Valores de resposta com forma ``(n_observations,)``. X : array-like Design de efeitos fixos com forma ``(n_observations, n_fixed_effects)``. groups : array-like Etiquetas de agrupamento externas com forma ``(n_observations,)``. vc : mapping of str para etiquetas de componentes de variância aninhadas opcionais semelhantes a matrizes. device : str, optional Dispositivo usado pelo ajuste PyTorch.\n\nDevoluções\n----------\nmapeamento de chave-valor Timings, speedup, máximo de efeito fixo e discordância de variância-componente, discordância de escala residual, dispositivo resolvido e PyTorch contagem de avaliação de desvio.",
       "translation_source_blocks_sha256": [
         "b654dd40cf89c98e8b1b64132636713b2ff303614a814de8b0dc29fd475a3e4a",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "11b0d79ae13e92c1647e8fd17efce010c8d4941c9c705c2323f149b6cd94b1f0",
+        "7baa4f6b95a3a618dc54b68462893c6a89dcb2933aef5ccf2c8882d431f6adbf",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "b04590ef7b7f6ec0270c9191f2b15995f8bf8869ef21f50753471dd2b55b90a8"
       ]
@@ -34300,7 +34300,7 @@
       "source_blocks_sha256": [
         "8a637e79ca140391f11b524baac3e1dc562a091c8d7a57e26a84d911f3465abd",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "22af8530da615e8def0aceb82d286c1386fbc4c08a4c005db25e39f381ce926b",
+        "56c8c7e1eedbd85332fa91d83c84e9ffa4a24b0e008080be2abc47248d63a23c",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "69f08849fe0bbbc817839764badebb5a064afd7575e4f0dfa52ebc1c589bc9b2",
         "e97e76330ffc318c5d276e6c0bbaa184ffe7b94e1c2592eb35b1b49163167311",
@@ -34311,12 +34311,12 @@
         "b54fd49f9b77794509f7997fd7712679a43b3f5993742dbe179ab45ded1b1023",
         "936578ce86bcc75111cb3bb61bba26605518996665cdb9019077c860e05f19e9"
       ],
-      "source_sha256": "a6f61ac5db22dbd84a98f92e15766bf8262507b8c1fca9bd6e210097b3925f7a",
-      "text": "Ajuste ``y ~ X + (1 | groups) + variance components`` por REML perfilado.\n\nParâmetros\n----------\ny : array-like of shape (n_observations,) Valores de resposta. X : array-like of shape (n_observations, n_fixed_effects) Projeto de efeitos fixos. Um DataFrame preserva seus nomes de coluna em :attr:`TorchMixedResults.fe_params`. groups : array-like of shape (n_observations,) Rótulos de agrupamento externos. Uma interceptação aleatória é sempre incluída, equivalente a ``re_formula='1'``. vc : mapping of str para array-like, opcional Etiquetas de agrupamento adicionais. Cada entrada define um componente de variância aninhado dentro de ``groups``, correspondendo à semântica statsmodels ``vc_formula``. Dispositivo device : str, optional PyTorch. Solicitando CUDA aumenta em vez de cair de volta para CPU quando nenhum dispositivo CUDA está disponível. max_iter : int, optional iterações máximas L-BFGS. Os ajustes típicos do tamanho da triagem usam 20-40; o padrão de 400 é um limite de segurança. verbose : bool, optional Imprima o desvio em cada avaliação do otimizador.\n\nDevoluções\n----------\nTorchMixedResults Efeitos fixos, componentes de variância, valores e resíduos condicionados ajustados, BLUPs, diagnósticos de convergência e informações de temporização.\n\nAumentos\n--------\nMixedBackendIndisponível Se PyTorch ou o dispositivo solicitado não estiver disponível.  ValueError Se as dimensões de entrada discordarem ou o design de efeitos fixos não for identificável. #MemoryError Se o desenho de efeitos aleatórios denso exceder o compartilhamento configurado da memória do dispositivo disponível.\n\nNotas\n-----\nValidação contra statsmodels  ``MixedLM(...).fit()`` produziu as seguintes diferenças:\n\nquantidade aninhada fixação em forma de triagem de fixação (1.620 linhas) (1.830 linhas, p388, q1.097)  -  efeitos fixos 1.20e-7 absoluto 2.39e-4 absoluto (2.0e-4 de um SE) componentes de variância 1.29e-3 relativa 2.02e-4 escala residual relativa 4.12e-6 relativa 1.94e-5 erros padrão máximos 3.88e-4 absoluta  1,04-3\n\nAmbos os backends maximizam o mesmo critério REML. No dispositivo elétrico em forma de triagem, esse ajuste terminou na norma de gradiente 1.3e-11 e no log-likelihood -804.143968098; o padrão statsmodels fit retornou -804.14396882. Definindo  statsmodels ``gtol=1e-12`` reduziu a discordância de efeito fixo para 1.52e-8 absoluta e a discordância do componente de variância de fixação para 1.0e-4 relativa.\n\nOs tempos de referência de ponta a ponta para esse dispositivo elétrico foram 11,3 s para statsmodels, 0,80 s nesse backend em CPU, e 0,47 s em um RTX 3090. Sob a carga concorrente de CPU, statsmodels levou 21,3 e o backend CUDA 0,57 s.",
+      "source_sha256": "05be30b03dd042401e59e8c9137e3c7f61dbb7f492c443782a0c44709d1dd272",
+      "text": "Ajuste ``y ~ X + (1 | groups) + variance components`` por REML perfilado.\n\nParâmetros\n----------\ny : array-like Valores de resposta com forma ``(n_observations,)``. X : array-like Projeto de efeitos fixos com forma ``(n_observations, n_fixed_effects)``. Um DataFrame preserva seus nomes de coluna em :attr:`TorchMixedResults.fe_params`. groups : array-like Etiquetas de agrupamento exterior com forma ``(n_observations,)``. Uma interceptação aleatória é sempre incluída, equivalente a ``re_formula='1'``. vc : mapping of str para array-like, opcional Etiquetas de agrupamento adicionais. Cada entrada define um componente de variância aninhado dentro de ``groups``, correspondendo à semântica statsmodels ``vc_formula``. Dispositivo device : str, optional PyTorch. Solicitando CUDA aumenta em vez de cair de volta para CPU quando nenhum dispositivo CUDA está disponível. max_iter : int, optional iterações máximas L-BFGS. Os ajustes típicos do tamanho da triagem usam 20-40; o padrão de 400 é um limite de segurança. verbose : bool, optional Imprima o desvio em cada avaliação do otimizador.\n\nDevoluções\n----------\nTorchMixedResults Efeitos fixos, componentes de variância, valores e resíduos condicionados ajustados, BLUPs, diagnósticos de convergência e informações de temporização.\n\nAumentos\n--------\nMixedBackendIndisponível Se PyTorch ou o dispositivo solicitado não estiver disponível.  ValueError Se as dimensões de entrada discordarem ou o design de efeitos fixos não for identificável. #MemoryError Se o desenho de efeitos aleatórios denso exceder o compartilhamento configurado da memória do dispositivo disponível.\n\nNotas\n-----\nValidação contra statsmodels  ``MixedLM(...).fit()`` produziu as seguintes diferenças:\n\nquantidade aninhada fixação em forma de triagem de fixação (1.620 linhas) (1.830 linhas, p388, q1.097)  -  efeitos fixos 1.20e-7 absoluto 2.39e-4 absoluto (2.0e-4 de um SE) componentes de variância 1.29e-3 relativa 2.02e-4 escala residual relativa 4.12e-6 relativa 1.94e-5 erros padrão máximos 3.88e-4 absoluta  1,04-3\n\nAmbos os backends maximizam o mesmo critério REML. No dispositivo elétrico em forma de triagem, esse ajuste terminou na norma de gradiente 1.3e-11 e no log-likelihood -804.143968098; o padrão statsmodels fit retornou -804.14396882. Definindo  statsmodels ``gtol=1e-12`` reduziu a discordância de efeito fixo para 1.52e-8 absoluta e a discordância do componente de variância de fixação para 1.0e-4 relativa.\n\nOs tempos de referência de ponta a ponta para esse dispositivo elétrico foram 11,3 s para statsmodels, 0,80 s nesse backend em CPU, e 0,47 s em um RTX 3090. Sob a carga concorrente de CPU, statsmodels levou 21,3 e o backend CUDA 0,57 s.",
       "translation_source_blocks_sha256": [
         "8a637e79ca140391f11b524baac3e1dc562a091c8d7a57e26a84d911f3465abd",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "22af8530da615e8def0aceb82d286c1386fbc4c08a4c005db25e39f381ce926b",
+        "56c8c7e1eedbd85332fa91d83c84e9ffa4a24b0e008080be2abc47248d63a23c",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "69f08849fe0bbbc817839764badebb5a064afd7575e4f0dfa52ebc1c589bc9b2",
         "e97e76330ffc318c5d276e6c0bbaa184ffe7b94e1c2592eb35b1b49163167311",
@@ -54811,17 +54811,17 @@
     "spacr.qt.maturity": {
       "source_blocks_sha256": [
         "2c92e7ccb76be09eb4fa80559ff7d7af2f5dac9ae8a0bfde350f8281dad985fb",
-        "413a18e96599714450f56638f4fcc505079a6b34a2465b63cf7cc2b888d59fa6",
+        "809cefc8900a36b265c059f5717965a1543d42284f0eb39e591f1f70849814dd",
         "0fe7342d59911ebcdbd9b7ae4a7a770aac4be2b9b6ac143482dbba96eb098a5f",
         "dedb1a7ac33d428a0e583c12a55aaa7a17d5b69be22ac5ffc7d7e0180c8dded0",
         "390f0320c4c7da4aa27f8ab7909b4afe00cbaf50d5dea0446e1991a7d1bd4618",
         "669d478bf85ca5ed369600a6ccb25251ca2fbe1e6b095ddb87adeb3d84596616"
       ],
-      "source_sha256": "bfb26b3e5bbb3cc28e58b3c1a69b2e7f3be955081d356dd3a57c48b72c760b89",
-      "text": "Atribua rótulos de maturidade baseados em evidências a aplicativos Qt.\n\nA maturidade do aplicativo é avaliada a partir de testes, suporte de linha de comando ou um escopo, documentação, tutoriais e uso somente GUI por outros componentes do SPACR. Os rótulos têm os seguintes significados:\n\n``stable`` O aplicativo tem um fluxo de trabalho ou biblioteca, ampla cobertura de teste e documentação do usuário.\n\n``beta`` O aplicativo é funcional e testado, mas tem menos documentação ou uso operacional do que um aplicativo estável.\n\nA função :func:`apply` atualiza  :data:`spacr.qt.app.APP_STAGE` a partir das avaliações abaixo. Um aplicativo sem uma avaliação ou um estágio explicitamente declarado é atribuído  :data:`UNASSESSED_STAGE` ( ``\"alpha\"``). As etiquetas beta explícitas são mantidas, enquanto as avaliações registradas têm precedência.\n\n:data:`PROMOTIONS` contém aplicações cujos rótulos foram alterados;  :data:`AFFIRMED` contém aplicativos revisados cujos rótulos já eram apropriados.",
+      "source_sha256": "97e45f37efeb2b664870996daaa9fa11b8540be29470f0dce0991cfed3db0598",
+      "text": "Atribua rótulos de maturidade baseados em evidências a aplicativos Qt.\n\nA maturidade do aplicativo é avaliada a partir de testes, suporte de linha de comando ou um escopo declarado somente GUI, documentação, tutoriais e uso por outros componentes  spaCR. Os rótulos têm os seguintes significados:\n\n``stable`` O aplicativo tem um fluxo de trabalho ou biblioteca, ampla cobertura de teste e documentação do usuário.\n\n``beta`` O aplicativo é funcional e testado, mas tem menos documentação ou uso operacional do que um aplicativo estável.\n\nA função :func:`apply` atualiza  :data:`spacr.qt.app.APP_STAGE` a partir das avaliações abaixo. Um aplicativo sem uma avaliação ou um estágio explicitamente declarado é atribuído  :data:`UNASSESSED_STAGE` ( ``\"alpha\"``). As etiquetas beta explícitas são mantidas, enquanto as avaliações registradas têm precedência.\n\n:data:`PROMOTIONS` contém aplicações cujos rótulos foram alterados;  :data:`AFFIRMED` contém aplicativos revisados cujos rótulos já eram apropriados.",
       "translation_source_blocks_sha256": [
         "2c92e7ccb76be09eb4fa80559ff7d7af2f5dac9ae8a0bfde350f8281dad985fb",
-        "413a18e96599714450f56638f4fcc505079a6b34a2465b63cf7cc2b888d59fa6",
+        "809cefc8900a36b265c059f5717965a1543d42284f0eb39e591f1f70849814dd",
         "4dfda822f65684b60d8d5228adffecbefc6f539a928ed2e6afba787fec1c8e6b",
         "dedb1a7ac33d428a0e583c12a55aaa7a17d5b69be22ac5ffc7d7e0180c8dded0",
         "390f0320c4c7da4aa27f8ab7909b4afe00cbaf50d5dea0446e1991a7d1bd4618",
@@ -58884,10 +58884,10 @@
         "c3c71e6e4c6728e92dc058bc103865097dde2daeec5d8931ecc1f61f4b6d1362",
         "53574eb95ed47eb357d3539beb3a89a30729b0ad08279acbeb578d50b6778b84",
         "22d3da6b0ce573ea4c94ec13ce6ba7f7047b339762bf019d79995ccb84c4d0da",
-        "61da88b878d33db59001b8c29c982f37f31c51cf08f3f2caf44a3c174d00e5d8"
+        "3431127e447551d49eaa5a26cb48b3420d3a7bb372518fd50b13fba532bea67e"
       ],
-      "source_sha256": "b438dbc644e50cf2da24d3c72304e6f9900d7c971d135c142389b5674c9d36a8",
-      "text": "Exibir e anotar regiões de imagem extraídas na interface Qt.\n\nExibe uma grade paginada de miniaturas de imagens clicáveis apoiadas por ``png_list`` em  ``measurements/measurements.db``. Clicar com o botão esquerdo atribui valor 1, clicar com o direito atribui valor 2 e clicar no valor atribuído novamente limpa-o. As anotações são persistidas através de  :class:`spacr.qt.annotate_engine.SaveWorker`.\n\nUma camada de anotação rápida apenas para teclado fica no topo do mesmo caminho de gravação (veja :meth:`AnnotateScreen.handle_key`): ``1``–``9`` atribuir uma classe e avanço automático para a próxima região de imagem extraída não rotulada, ``0`` limpa, setas / ``hjkl`` mover o foco, ``Space``/``Backspace`` passo sem rotulagem, ``u`` Desfaz e ``Enter`` Commits a página.\n\nCada região de imagem extraída é desenhada como um quadrado arredondado (veja :class:`_Thumbnail`) com duas faixas independentes de cor, de modo que seus três estados permanecem legíveis juntos em vez de sobrescrever um ao outro:\n\n* **descanso** um anel cinza fino abraçando a imagem\n* **classified** o mesmo anel na cor da classe (:func:`~spacr.qt.annotate_engine.label_to_hex`, o mapa de uma classe→color do aplicativo)\n* **current** um anel branco  *extra* fora dele no único bloco, o próximo clique ou pressionamento de tecla será atingido\n\nO cursor e o teclado movem o mesmo bloco atual: entrar em um bloco o torna atual e uma tecla de seta o afasta. Não há segundo destaque \"hovered\" que possa apontar para outro lugar.\n\nA visualização do aplicativo Qt atualmente não fornece a janela  UMAP, o iniciador de treinamento Deep SPACR ou a filtragem de limiar de medição. Um limite pode ser inserido nas configurações, mas as consultas de página não a aplicam.",
+      "source_sha256": "5fc2b7cde765cfd0f332a20222cddd88100332638c0be94c0415b049bba48d87",
+      "text": "Exibir e anotar regiões de imagem extraídas na interface Qt.\n\nExibe uma grade paginada de miniaturas de imagens clicáveis apoiadas por ``png_list`` em  ``measurements/measurements.db``. Clicar com o botão esquerdo atribui valor 1, clicar com o direito atribui valor 2 e clicar no valor atribuído novamente limpa-o. As anotações são persistidas através de  :class:`spacr.qt.annotate_engine.SaveWorker`.\n\nUma camada de anotação rápida apenas para teclado fica no topo do mesmo caminho de gravação (veja :meth:`AnnotateScreen.handle_key`): ``1``–``9`` atribuir uma classe e avanço automático para a próxima região de imagem extraída não rotulada, ``0`` limpa, setas / ``hjkl`` mover o foco, ``Space``/``Backspace`` passo sem rotulagem, ``u`` Desfaz e ``Enter`` Commits a página.\n\nCada região de imagem extraída é desenhada como um quadrado arredondado (veja :class:`_Thumbnail`) com duas faixas independentes de cor, de modo que seus três estados permanecem legíveis juntos em vez de sobrescrever um ao outro:\n\n* **descanso** um anel cinza fino abraçando a imagem\n* **classified** o mesmo anel na cor da classe (:func:`~spacr.qt.annotate_engine.label_to_hex`, o mapa de uma classe→color do aplicativo)\n* **current** um anel branco  *extra* fora dele no único bloco, o próximo clique ou pressionamento de tecla será atingido\n\nO cursor e o teclado movem o mesmo bloco atual: entrar em um bloco o torna atual e uma tecla de seta o afasta. Não há segundo destaque \"hovered\" que possa apontar para outro lugar.\n\nA visualização do aplicativo Qt atualmente não fornece a janela  UMAP, o iniciador de treinamento Deep  spaCR ou a filtragem de limiar de medição. Um limite pode ser inserido nas configurações, mas as consultas de página não a aplicam.",
       "translation_source_blocks_sha256": [
         "48bcb4f903deef031f7ef2f4b768a4ed0db2e72244e8911a0fba50c48a334767",
         "be777aa4db4f2d686f5e6eda40045343ae537bc156fcd6f9e82d7f3e9c338eca",
@@ -58897,7 +58897,7 @@
         "c3c71e6e4c6728e92dc058bc103865097dde2daeec5d8931ecc1f61f4b6d1362",
         "53574eb95ed47eb357d3539beb3a89a30729b0ad08279acbeb578d50b6778b84",
         "22d3da6b0ce573ea4c94ec13ce6ba7f7047b339762bf019d79995ccb84c4d0da",
-        "243bb46ffcc385ee7944cc9b775daa3ba046faa59428f77372e411e007ae4188"
+        "5d87055602d4ec3a8da7323a22c51da58dfd3798bf635e2f2324c740e6e3582f"
       ]
     },
     "spacr.qt.screens.annotate.AnnotateScreen": {
@@ -89195,14 +89195,18 @@
       "source_blocks_sha256": [
         "26e5f5a095c3970d59366ad424b8cb9ac418a42e3df7ca6fbc9d1bfea6323022",
         "819fe1d1f4fd1d57c3ea0cc017e4aa32cf6175f432086f45e85122fb69cce58d",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "09278b3be119642289bf9565fa48f492c1cfeedd40245c0e8180b07f4bb0cb51",
         "4b0ed88f7d99420fb3ba2c68e20992280f6dcac4afaf32da17bee89c656c2ccf",
         "be3aa91295d92aa7805fb9581097933da62b6ca5ad786f7aa6419e456d6204c0"
       ],
-      "source_sha256": "513c96284f6b43aeb6b3a94baaab0b6e3bdd463e3987b5813b3e41b6e695f0b2",
-      "text": "Execute uma regressão por coluna selecionada de uma tabela de medição mesclada.\n\nCada coluna produz uma pasta de sessão de processamento independente e uma entrada de guia Executar. As tarefas são executadas sequencialmente através de :class:`~spacr.qt.job_runner.JobRunner`, podem ser interrompidas entre ajustes e continuar após falhas de ajuste individuais.\n\nAtributos\n----------\nfit_started : Signal Emits ``(column, settings)`` como cada ajuste começa. fit_finished : Sinal emits ``(column, outcome)`` quando um ajuste é bem-sucedido ou falha. queue_finished : sinal emite ``(fitted, failed)`` quando a lista de trabalho termina. queue_progress : sinais emite ``(column, index, total)`` antes de cada ajuste.",
+      "source_sha256": "3084e623c8ec14f362b07d8580eb380db8810c34a57eb6e77d7b2d989ea1694c",
+      "text": "Execute uma regressão por coluna selecionada de uma tabela de medição mesclada.\n\nCada coluna produz uma pasta de sessão de processamento independente e uma entrada de guia Executar. As tarefas são executadas sequencialmente através de :class:`~spacr.qt.job_runner.JobRunner`, podem ser interrompidas entre ajustes e continuar após falhas de ajuste individuais.\n\nParâmetros\n----------\nframe_provider : callable or None, optional Callable de argumento zero retornando o quadro de medição mesclado. settings_provider : callable or None, optional Chamable Zero-argumento retornando as configurações de modelo atual, correção e contagem da visualização de aplicativo de regressão. Cada ajuste em fila copia essas configurações e altera apenas a coluna de resposta. pai: QWidget ou None, widget pai opcional. score_provider : callable or None, optional Callable de argumento zero retornando o caminho para o quadro mesclado salvo. Cada ajuste de fila lê esse mesmo arquivo. threaded : bool, default=True Executar se encaixa através do corredor de trabalho de fundo. Defina como ``False`` para testes síncronos ou chamadas sem interface gráfica. fit : callable or None, optional Função chamada com as configurações de um ajuste. ``None`` usa a implementação de regressão padrão. Fornecer um callable mantém a lista de tarefas do software testável de forma independente e evita importar a pilha de estatísticas completa enquanto a primeira janela é construída.\n\nAtributos\n----------\nfit_started : Signal Emits ``(column, settings)`` como cada ajuste começa. fit_finished : Sinal emits ``(column, outcome)`` quando um ajuste é bem-sucedido ou falha. queue_finished : sinal emite ``(fitted, failed)`` quando a lista de trabalho termina. queue_progress : sinais emite ``(column, index, total)`` antes de cada ajuste.",
       "translation_source_blocks_sha256": [
         "26e5f5a095c3970d59366ad424b8cb9ac418a42e3df7ca6fbc9d1bfea6323022",
         "85019d5b550c7b00a841d3eb65e90352d339373bb1eecfa2c0844abbcecf0df7",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "5e3eac29c20c160d9fbd7cc907951c88960729672269bf4ce56dd30ff5c0dc07",
         "4b0ed88f7d99420fb3ba2c68e20992280f6dcac4afaf32da17bee89c656c2ccf",
         "8999dcc539a568887270b7bec6d22767c2d401282dd035a3cd537f7502e1ba9f"
       ]

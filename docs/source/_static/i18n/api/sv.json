@@ -34248,16 +34248,16 @@
       "source_blocks_sha256": [
         "b654dd40cf89c98e8b1b64132636713b2ff303614a814de8b0dc29fd475a3e4a",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "11b0d79ae13e92c1647e8fd17efce010c8d4941c9c705c2323f149b6cd94b1f0",
+        "7baa4f6b95a3a618dc54b68462893c6a89dcb2933aef5ccf2c8882d431f6adbf",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "7b221e6be119337751aa38ff1e74cecd07f85acd94c3f984053259275b7c8107"
       ],
-      "source_sha256": "eb562e829c303aa413221f09f0b971e8393c17e97c9eafaad0d47f6b9e0965c4",
-      "text": "Montera samma blandade modell med statsmodels och PyTorch och jämför dem.\n\nFör en driftspänning av mer än 1000 V men högst 1000 V\n------------------------------------------------------\ny : array-like of shape (n_observations,) Svarsvärden. X : array-like of shape (n_observations, n_fixed_effects) Fasta effekter design. groups : array-like of shape (n_observations,) Yttre grupperingsetiketter. vc : mapping of str till array-liknande, valfritt Nested varians-komponent etiketter. device : str, optional Enhet som används av PyTorch passform.\n\nÅtersändande\n------------\nKartläggning av nyckelvärden Tidtabeller, hastighetsförbättringar, maximal fast effekt och oenighet mellan varianskomponenter, oenighet i resterande skala, lösta anordningar och PyTorch värde för avvikelseutvärdering.",
+      "source_sha256": "5617d805ae7fcbd78492f761d2f1c5f46c6c478952245db8797f72c85eb81f53",
+      "text": "Montera samma blandade modell med statsmodels och PyTorch och jämför dem.\n\nFör en driftspänning av mer än 1000 V men högst 1000 V\n------------------------------------------------------\ny : array-like Svarsvärden med form ``(n_observations,)``. X : array-like Fasta effekter design med form ``(n_observations, n_fixed_effects)``. groups : array-like Yttre grupperingsetiketter med form ``(n_observations,)``. vc : mapping of str till array-liknande, valfria Nested varians-komponent etiketter. device : str, optional Enhet som används av PyTorch passform.\n\nÅtersändande\n------------\nKartläggning av nyckelvärden Tidtabeller, hastighetsförbättringar, maximal fast effekt och oenighet mellan varianskomponenter, oenighet i resterande skala, lösta anordningar och PyTorch värde för avvikelseutvärdering.",
       "translation_source_blocks_sha256": [
         "b654dd40cf89c98e8b1b64132636713b2ff303614a814de8b0dc29fd475a3e4a",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "11b0d79ae13e92c1647e8fd17efce010c8d4941c9c705c2323f149b6cd94b1f0",
+        "7baa4f6b95a3a618dc54b68462893c6a89dcb2933aef5ccf2c8882d431f6adbf",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "b04590ef7b7f6ec0270c9191f2b15995f8bf8869ef21f50753471dd2b55b90a8"
       ]
@@ -34300,7 +34300,7 @@
       "source_blocks_sha256": [
         "8a637e79ca140391f11b524baac3e1dc562a091c8d7a57e26a84d911f3465abd",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "22af8530da615e8def0aceb82d286c1386fbc4c08a4c005db25e39f381ce926b",
+        "56c8c7e1eedbd85332fa91d83c84e9ffa4a24b0e008080be2abc47248d63a23c",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "69f08849fe0bbbc817839764badebb5a064afd7575e4f0dfa52ebc1c589bc9b2",
         "e97e76330ffc318c5d276e6c0bbaa184ffe7b94e1c2592eb35b1b49163167311",
@@ -34311,12 +34311,12 @@
         "b54fd49f9b77794509f7997fd7712679a43b3f5993742dbe179ab45ded1b1023",
         "936578ce86bcc75111cb3bb61bba26605518996665cdb9019077c860e05f19e9"
       ],
-      "source_sha256": "a6f61ac5db22dbd84a98f92e15766bf8262507b8c1fca9bd6e210097b3925f7a",
-      "text": "Anpassa ``y ~ X + (1 | groups) + variance components`` genom profilerad REML.\n\nFör en driftspänning av mer än 1000 V men högst 1000 V\n------------------------------------------------------\ny : array-like of shape (n_observations,) Svarsvärden. X : array-like of shape (n_observations, n_fixed_effects) Fasta effekter design. A DataFrame bevarar sina kolumnnamn i :attr:`TorchMixedResults.fe_params`. groups : array-like of shape (n_observations,) Yttre grupperingsetiketter. En slumpmässig träff ingår alltid, motsvarande ``re_formula='1'``. vc : mapping of str till array-liknande, valfritt Ytterligare grupperingsetiketter. Varje post definierar en varianskomponent inbäddad i ``groups``, motsvarande statsmodels ``vc_formula`` semantik. device : str, optional PyTorch enhet. Begär CUDA höjningar istället för att falla tillbaka till CPU när ingen CUDA enhet är tillgänglig. max_iter : int, optional Maximal L-BFGS iterationer. Typisk skärmstorlek passar med 20-40; standardvärdet på 400 är en säkerhetsgräns. verbose : bool, optional Skriv ut avvikelsen vid varje optimizerutvärdering.\n\nÅtersändande\n------------\nTorchMixedResultat Fasta effekter, varianskomponenter, villkorade monterade värden och restvärden, BLUP, konvergensdiagnostik och tidsinformation.\n\nHöjningar\n---------\nMixed BackendOtillgängligt Om PyTorch eller den begärda enheten inte finns tillgänglig. ValueError Om inmatningsmåtten inte stämmer överens eller om konstruktionen med fasta effekter inte är identifierbar. MemoryError Om konstruktionen av de täta slumpeffekterna överskrider den inställda andelen av tillgängligt enhetsminne.\n\nAnmärkningar\n------------\nValidering mot statsmodels ``MixedLM(...).fit()`` gav följande skillnader:\n\n==================== ================== ======================================= kvantitet kapslade fixturer skärmformade fixturer (1620 rader) (1830 p=388, q=1,097) ==================== ================== =========================== fasta effekter 1,20e-7 absolut 2,39e-4 absolut (2,0 e-4 av en SE) varianskomponenter fel 3.88e-4 relativt 1.04e-3 median; 1.80e-2 maximalt över 388 guide BLUPs 7.64e-5 absolut ej utvärderat ==================== ================== =======================================\n\nBåda backends maximerar samma REML-kriterium. På den skärmformade fixturen slutade detta vid gradientnorm 1.3e-11 och log-likelihood -804.143968098; standardvärdet statsmodels passar tillbaka -804.443968682. Inställning statsmodels ``gtol=1e-12`` reducerat avstånd mellan fasta effekter till 1.52e-8 absolut och fixture varians-komponent oenighet till 1.02e-4 relativ.\n\nReferenstiderna från början till slut för den fixturen var 11,3 s för statsmodels, 0,80 s för detta gränssnitt på CPU och 0,47 s på en RTX 3090. Vid samtidig CPU belastning tog statsmodels 21,3 s och CUDA-baksidan 0,57 s.",
+      "source_sha256": "05be30b03dd042401e59e8c9137e3c7f61dbb7f492c443782a0c44709d1dd272",
+      "text": "Anpassa ``y ~ X + (1 | groups) + variance components`` genom profilerad REML.\n\nFör en driftspänning av mer än 1000 V men högst 1000 V\n------------------------------------------------------\ny : array-like Svarsvärden med form ``(n_observations,)``. X : array-like Fasta effekter design med form ``(n_observations, n_fixed_effects)``. A DataFrame bevarar sina kolumnnamn i :attr:`TorchMixedResults.fe_params`. groups : array-like Yttre grupperingsetiketter med form ``(n_observations,)``. En slumpmässig träff ingår alltid, motsvarande ``re_formula='1'``. vc : mapping of str till array-liknande, valfritt Ytterligare grupperingsetiketter. Varje post definierar en varianskomponent inbäddad i ``groups``, motsvarande statsmodels ``vc_formula`` semantik. device : str, optional PyTorch enhet. Begär CUDA höjningar istället för att falla tillbaka till CPU när ingen CUDA enhet är tillgänglig. max_iter : int, optional Maximum L-BFGS iterationer. Typisk skärmstorlek passar med 20-40; standardvärdet på 400 är en säkerhetsgräns. verbose : bool, optional Skriv ut avvikelsen vid varje optimizerutvärdering.\n\nÅtersändande\n------------\nTorchMixedResultat Fasta effekter, varianskomponenter, villkorade monterade värden och restvärden, BLUP, konvergensdiagnostik och tidsinformation.\n\nHöjningar\n---------\nMixed BackendOtillgängligt Om PyTorch eller den begärda enheten inte finns tillgänglig. ValueError Om inmatningsmåtten inte stämmer överens eller om konstruktionen med fasta effekter inte är identifierbar. MemoryError Om konstruktionen av de täta slumpeffekterna överskrider den inställda andelen av tillgängligt enhetsminne.\n\nAnmärkningar\n------------\nValidering mot statsmodels ``MixedLM(...).fit()`` gav följande skillnader:\n\n==================== ================== ======================================= kvantitet kapslade fixturer skärmformade fixturer (1620 rader) (1830 p=388, q=1,097) ==================== ================== =========================== fasta effekter 1,20e-7 absolut 2,39e-4 absolut (2,0 e-4 av en SE) varianskomponenter fel 3.88e-4 relativt 1.04e-3 median; 1.80e-2 maximalt över 388 guide BLUPs 7.64e-5 absolut ej utvärderat ==================== ================== =======================================\n\nBåda backends maximerar samma REML-kriterium. På den skärmformade fixturen slutade detta vid gradientnorm 1.3e-11 och log-likelihood -804.143968098; standardvärdet statsmodels passar tillbaka -804.443968682. Inställning statsmodels ``gtol=1e-12`` reducerat avstånd mellan fasta effekter till 1.52e-8 absolut och fixture varians-komponent oenighet till 1.02e-4 relativ.\n\nReferenstiderna från början till slut för den fixturen var 11,3 s för statsmodels, 0,80 s för detta gränssnitt på CPU och 0,47 s på en RTX 3090. Vid samtidig CPU belastning tog statsmodels 21,3 s och CUDA-baksidan 0,57 s.",
       "translation_source_blocks_sha256": [
         "8a637e79ca140391f11b524baac3e1dc562a091c8d7a57e26a84d911f3465abd",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "22af8530da615e8def0aceb82d286c1386fbc4c08a4c005db25e39f381ce926b",
+        "56c8c7e1eedbd85332fa91d83c84e9ffa4a24b0e008080be2abc47248d63a23c",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "69f08849fe0bbbc817839764badebb5a064afd7575e4f0dfa52ebc1c589bc9b2",
         "e97e76330ffc318c5d276e6c0bbaa184ffe7b94e1c2592eb35b1b49163167311",
@@ -54811,17 +54811,17 @@
     "spacr.qt.maturity": {
       "source_blocks_sha256": [
         "2c92e7ccb76be09eb4fa80559ff7d7af2f5dac9ae8a0bfde350f8281dad985fb",
-        "413a18e96599714450f56638f4fcc505079a6b34a2465b63cf7cc2b888d59fa6",
+        "809cefc8900a36b265c059f5717965a1543d42284f0eb39e591f1f70849814dd",
         "0fe7342d59911ebcdbd9b7ae4a7a770aac4be2b9b6ac143482dbba96eb098a5f",
         "dedb1a7ac33d428a0e583c12a55aaa7a17d5b69be22ac5ffc7d7e0180c8dded0",
         "390f0320c4c7da4aa27f8ab7909b4afe00cbaf50d5dea0446e1991a7d1bd4618",
         "669d478bf85ca5ed369600a6ccb25251ca2fbe1e6b095ddb87adeb3d84596616"
       ],
-      "source_sha256": "bfb26b3e5bbb3cc28e58b3c1a69b2e7f3be955081d356dd3a57c48b72c760b89",
-      "text": "Tilldela evidensbaserade löptidsetiketter till Qt-tillämpningar.\n\nApplikationens mognad bedöms utifrån tester, kommandoradsstöd eller en angiven GUI-endast omfattning, dokumentation, handledningar och användning av andra SPCR-komponenter. Etiketterna har följande betydelser:\n\n``stable`` Programmet har ett fungerande arbetsflöde eller bibliotek, bred testtäckning och användardokumentation.\n\n``beta`` Applikationen är funktionell och testad men har mindre dokumentation eller operativ användning än en stabil applikation.\n\nFunktionsuppdateringarna :func:`apply` :data:`spacr.qt.app.APP_STAGE` från bedömningarna nedan. En ansökan utan bedömning eller ett uttryckligen deklarerat steg tilldelas :data:`UNASSESSED_STAGE` (``\"alpha\"``). Explicit beta-märkning behålls, medan registrerade bedömningar har företräde.\n\n:data:`PROMOTIONS` innehåller ansökningar vars etiketter har ändrats. :data:`AFFIRMED` innehåller granskade ansökningar vars märkning redan var lämplig.",
+      "source_sha256": "97e45f37efeb2b664870996daaa9fa11b8540be29470f0dce0991cfed3db0598",
+      "text": "Tilldela evidensbaserade löptidsetiketter till Qt-tillämpningar.\n\nAnsökans mognad bedöms utifrån tester, kommandoradsstöd eller en angiven GUI-endast omfattning, dokumentation, handledning och användning av andra spaCR komponenter. Etiketterna har följande betydelser:\n\n``stable`` Programmet har ett fungerande arbetsflöde eller bibliotek, bred testtäckning och användardokumentation.\n\n``beta`` Applikationen är funktionell och testad men har mindre dokumentation eller operativ användning än en stabil applikation.\n\nFunktionsuppdateringarna :func:`apply` :data:`spacr.qt.app.APP_STAGE` från bedömningarna nedan. En ansökan utan bedömning eller ett uttryckligen deklarerat steg tilldelas :data:`UNASSESSED_STAGE` (``\"alpha\"``). Explicit beta-märkning behålls, medan registrerade bedömningar har företräde.\n\n:data:`PROMOTIONS` innehåller ansökningar vars etiketter har ändrats. :data:`AFFIRMED` innehåller granskade ansökningar vars märkning redan var lämplig.",
       "translation_source_blocks_sha256": [
         "2c92e7ccb76be09eb4fa80559ff7d7af2f5dac9ae8a0bfde350f8281dad985fb",
-        "413a18e96599714450f56638f4fcc505079a6b34a2465b63cf7cc2b888d59fa6",
+        "809cefc8900a36b265c059f5717965a1543d42284f0eb39e591f1f70849814dd",
         "4dfda822f65684b60d8d5228adffecbefc6f539a928ed2e6afba787fec1c8e6b",
         "dedb1a7ac33d428a0e583c12a55aaa7a17d5b69be22ac5ffc7d7e0180c8dded0",
         "390f0320c4c7da4aa27f8ab7909b4afe00cbaf50d5dea0446e1991a7d1bd4618",
@@ -58884,10 +58884,10 @@
         "c3c71e6e4c6728e92dc058bc103865097dde2daeec5d8931ecc1f61f4b6d1362",
         "53574eb95ed47eb357d3539beb3a89a30729b0ad08279acbeb578d50b6778b84",
         "22d3da6b0ce573ea4c94ec13ce6ba7f7047b339762bf019d79995ccb84c4d0da",
-        "61da88b878d33db59001b8c29c982f37f31c51cf08f3f2caf44a3c174d00e5d8"
+        "3431127e447551d49eaa5a26cb48b3420d3a7bb372518fd50b13fba532bea67e"
       ],
-      "source_sha256": "b438dbc644e50cf2da24d3c72304e6f9900d7c971d135c142389b5674c9d36a8",
-      "text": "Visa och kommentera extraherade bildregioner i gränssnittet Qt.\n\nVisar ett sidnumrerat rutnät med klickbara bildthumbnails som stöds av ``png_list`` i ``measurements/measurements.db``. Vänsterklicka tilldelar värde 1, högerklicka tilldela värde 2, och klicka på det tilldelade värdet rensar igen det. Anteckningar kvarstår genom :class:`spacr.qt.annotate_engine.SaveWorker`.\n\nEtt snabbtanmärkningsskikt med tangentbord sitter på toppen av samma skrivväg (se :meth:`AnnotateScreen.handle_key`): ``1``– ``9`` tilldela en klass och autoanvisning till nästa omärkta extraherade bildregion, ``0`` rensar, pilar / ``hjkl`` flytta fokus, ``Space``/ ``Backspace`` steg utan märkning, ``u`` ångrar och ``Enter`` förbinder sidan.\n\nVarje extraherad bildregion ritas som en rundad kvadrat (se :class:`_Thumbnail`) med två oberoende färgband, så dess tre delstater förblir läsbara tillsammans i stället för att skriva över varandra:\n\n* **vilande** – en tunn grå ring som kramar bilden\n* **klassificerad** – samma ring i klassfärgen (:func:`~spacr.qt.annotate_engine.label_to_hex`, appens enklass →färgkarta)\n* **nuvarande** – en *extra* vit ring utanför den på den enda brickan kommer nästa klick eller tangenttryckning att träffa\n\nMarkören och tangentbordet flyttar samma nuvarande bricka: att mata in en bricka gör den aktuell, och en piltangent flyttar bort den. Det finns ingen andra \"hovered\" markering som kan peka någon annanstans.\n\nApplikationsvyn Qt tillhandahåller för närvarande inte fönstret UMAP, Deep SPACR-utbildningsstartaren eller mättröskelfiltrering. Ett tröskelvärde kan anges i inställningar, men sidfrågor gäller inte.",
+      "source_sha256": "5fc2b7cde765cfd0f332a20222cddd88100332638c0be94c0415b049bba48d87",
+      "text": "Visa och kommentera extraherade bildregioner i gränssnittet Qt.\n\nVisar ett sidnumrerat rutnät med klickbara bildthumbnails som stöds av ``png_list`` i ``measurements/measurements.db``. Vänsterklicka tilldelar värde 1, högerklicka tilldela värde 2, och klicka på det tilldelade värdet rensar igen det. Anteckningar kvarstår genom :class:`spacr.qt.annotate_engine.SaveWorker`.\n\nEtt snabbtanmärkningsskikt med tangentbord sitter på toppen av samma skrivväg (se :meth:`AnnotateScreen.handle_key`): ``1``– ``9`` tilldela en klass och autoanvisning till nästa omärkta extraherade bildregion, ``0`` rensar, pilar / ``hjkl`` flytta fokus, ``Space``/ ``Backspace`` steg utan märkning, ``u`` ångrar och ``Enter`` förbinder sidan.\n\nVarje extraherad bildregion ritas som en rundad kvadrat (se :class:`_Thumbnail`) med två oberoende färgband, så dess tre delstater förblir läsbara tillsammans i stället för att skriva över varandra:\n\n* **vilande** – en tunn grå ring som kramar bilden\n* **klassificerad** – samma ring i klassfärgen (:func:`~spacr.qt.annotate_engine.label_to_hex`, appens enklass →färgkarta)\n* **nuvarande** – en *extra* vit ring utanför den på den enda brickan kommer nästa klick eller tangenttryckning att träffa\n\nMarkören och tangentbordet flyttar samma nuvarande bricka: att mata in en bricka gör den aktuell, och en piltangent flyttar bort den. Det finns ingen andra \"hovered\" markering som kan peka någon annanstans.\n\nProgramvyn Qt tillhandahåller för närvarande inte fönstret UMAP, utbildningsstartaren Deep spaCR eller mättröskelfiltrering. En tröskel kan skrivas in i inställningar, men sidfrågor gäller inte.",
       "translation_source_blocks_sha256": [
         "48bcb4f903deef031f7ef2f4b768a4ed0db2e72244e8911a0fba50c48a334767",
         "be777aa4db4f2d686f5e6eda40045343ae537bc156fcd6f9e82d7f3e9c338eca",
@@ -58897,7 +58897,7 @@
         "c3c71e6e4c6728e92dc058bc103865097dde2daeec5d8931ecc1f61f4b6d1362",
         "53574eb95ed47eb357d3539beb3a89a30729b0ad08279acbeb578d50b6778b84",
         "22d3da6b0ce573ea4c94ec13ce6ba7f7047b339762bf019d79995ccb84c4d0da",
-        "243bb46ffcc385ee7944cc9b775daa3ba046faa59428f77372e411e007ae4188"
+        "5d87055602d4ec3a8da7323a22c51da58dfd3798bf635e2f2324c740e6e3582f"
       ]
     },
     "spacr.qt.screens.annotate.AnnotateScreen": {
@@ -89195,14 +89195,18 @@
       "source_blocks_sha256": [
         "26e5f5a095c3970d59366ad424b8cb9ac418a42e3df7ca6fbc9d1bfea6323022",
         "819fe1d1f4fd1d57c3ea0cc017e4aa32cf6175f432086f45e85122fb69cce58d",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "09278b3be119642289bf9565fa48f492c1cfeedd40245c0e8180b07f4bb0cb51",
         "4b0ed88f7d99420fb3ba2c68e20992280f6dcac4afaf32da17bee89c656c2ccf",
         "be3aa91295d92aa7805fb9581097933da62b6ca5ad786f7aa6419e456d6204c0"
       ],
-      "source_sha256": "513c96284f6b43aeb6b3a94baaab0b6e3bdd463e3987b5813b3e41b6e695f0b2",
-      "text": "Kör en regression per markerad kolumn i en sammanslagen mättabell.\n\nVarje kolumn ger en oberoende bearbetningssessionsmapp och en post på fliken Körningar. Jobb körs sekventiellt genom :class:`~spacr.qt.job_runner.JobRunner`, kan stoppas mellan anpassningar och fortsätta efter enskilda anpassningsfel.\n\nAttribut\n----------\nfit_started : Signal Emits ``(column, settings)`` när varje passform börjar. fit_finished . Signal Emiter ``(column, outcome)`` när en träff lyckas eller misslyckas. queue_finished ; Signal Emit ``(fitted, failed)`` när arbetslistan slutar. queue_progress , Signal Emets ``(column, index, total)`` före varje passform.",
+      "source_sha256": "3084e623c8ec14f362b07d8580eb380db8810c34a57eb6e77d7b2d989ea1694c",
+      "text": "Kör en regression per markerad kolumn i en sammanslagen mättabell.\n\nVarje kolumn ger en oberoende bearbetningssessionsmapp och en post på fliken Körningar. Jobb körs sekventiellt genom :class:`~spacr.qt.job_runner.JobRunner`, kan stoppas mellan anpassningar och fortsätta efter enskilda anpassningsfel.\n\nFör en driftspänning av mer än 1000 V men högst 1000 V\n------------------------------------------------------\nframe_provider : callable or None, optional Noll-argument som går att kalla tillbaka den sammanslagna mätramen. settings_provider : callable or None, optional Zero-arguiment kallare returnerar regressionsprogrammets nuvarande modell, korrigering och räkna inställningar. Varje köad passar kopior av dessa inställningar och ändrar bara svarskolumnen. överliggande : QWidget eller None, valfri föräldrakomponent. score_provider : callable or None, optional Noll argument inkallbar returnerar sökvägen till den sparade sammanfogade ramen. Varje könad passform läser samma fil. threaded : bool, default=True Kör passar genom bakgrundsjobbslöparen. Ställ in på ``False`` för synkrona tester eller huvudlösa anropare. fit : callable or None, optional Funktionen kallas med en passforms inställningar. ``None`` använder standard regressionsimplementering. Att tillhandahålla en inkallbar håller jobblistan för programvara oberoende testbar och undviker att importera hela statistikstacken medan det första fönstret är konstruerat.\n\nAttribut\n----------\nfit_started : Signal Emits ``(column, settings)`` när varje passform börjar. fit_finished . Signal Emiter ``(column, outcome)`` när en träff lyckas eller misslyckas. queue_finished ; Signal Emit ``(fitted, failed)`` när arbetslistan slutar. queue_progress , Signal Emets ``(column, index, total)`` före varje passform.",
       "translation_source_blocks_sha256": [
         "26e5f5a095c3970d59366ad424b8cb9ac418a42e3df7ca6fbc9d1bfea6323022",
         "85019d5b550c7b00a841d3eb65e90352d339373bb1eecfa2c0844abbcecf0df7",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "5e3eac29c20c160d9fbd7cc907951c88960729672269bf4ce56dd30ff5c0dc07",
         "4b0ed88f7d99420fb3ba2c68e20992280f6dcac4afaf32da17bee89c656c2ccf",
         "8999dcc539a568887270b7bec6d22767c2d401282dd035a3cd537f7502e1ba9f"
       ]

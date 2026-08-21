@@ -34249,16 +34249,16 @@
       "source_blocks_sha256": [
         "b654dd40cf89c98e8b1b64132636713b2ff303614a814de8b0dc29fd475a3e4a",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "11b0d79ae13e92c1647e8fd17efce010c8d4941c9c705c2323f149b6cd94b1f0",
+        "7baa4f6b95a3a618dc54b68462893c6a89dcb2933aef5ccf2c8882d431f6adbf",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "7b221e6be119337751aa38ff1e74cecd07f85acd94c3f984053259275b7c8107"
       ],
-      "source_sha256": "eb562e829c303aa413221f09f0b971e8393c17e97c9eafaad0d47f6b9e0965c4",
-      "text": "将相同的混合模型与 statsmodels 和 PyTorch 匹配并比较。\n\n参数\n----------\ny : array-like of shape (n_observations,) 响应值. X : array-like of shape (n_observations, n_fixed_effects) 固定效应设计. groups : array-like of shape (n_observations,) 外部组合标签. vc : mapping of str 以序列类似,可选 Nested 变量组件标签。 device : str, optional 由 PyTorch 适合使用的设备。\n\n返回\n-------\n关键值地图时间、加速、最大固定效应和变量组件不一致、剩余规模不一致,解决的设备和 PyTorch 偏差评估计算。",
+      "source_sha256": "5617d805ae7fcbd78492f761d2f1c5f46c6c478952245db8797f72c85eb81f53",
+      "text": "将相同的混合模型与 statsmodels 和 PyTorch 匹配并比较。\n\n参数\n----------\ny : array-like 答案值与形状 ``(n_observations,)``。 X : array-like 固定效果设计 ``(n_observations, n_fixed_effects)`` 形状。 groups : array-like 以 ``(n_observations,)`` 形状的外部组合标签。 vc : mapping of str 到类似于序列,可选的 Nested 变量组件标签。 device : str, optional 由 PyTorch 相匹配的设备。\n\n返回\n-------\n关键值地图时间、加速、最大固定效应和变量组件不一致、剩余规模不一致,解决的设备和 PyTorch 偏差评估计算。",
       "translation_source_blocks_sha256": [
         "b654dd40cf89c98e8b1b64132636713b2ff303614a814de8b0dc29fd475a3e4a",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "11b0d79ae13e92c1647e8fd17efce010c8d4941c9c705c2323f149b6cd94b1f0",
+        "7baa4f6b95a3a618dc54b68462893c6a89dcb2933aef5ccf2c8882d431f6adbf",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "b04590ef7b7f6ec0270c9191f2b15995f8bf8869ef21f50753471dd2b55b90a8"
       ]
@@ -34301,7 +34301,7 @@
       "source_blocks_sha256": [
         "8a637e79ca140391f11b524baac3e1dc562a091c8d7a57e26a84d911f3465abd",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "22af8530da615e8def0aceb82d286c1386fbc4c08a4c005db25e39f381ce926b",
+        "56c8c7e1eedbd85332fa91d83c84e9ffa4a24b0e008080be2abc47248d63a23c",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "69f08849fe0bbbc817839764badebb5a064afd7575e4f0dfa52ebc1c589bc9b2",
         "e97e76330ffc318c5d276e6c0bbaa184ffe7b94e1c2592eb35b1b49163167311",
@@ -34312,12 +34312,12 @@
         "b54fd49f9b77794509f7997fd7712679a43b3f5993742dbe179ab45ded1b1023",
         "936578ce86bcc75111cb3bb61bba26605518996665cdb9019077c860e05f19e9"
       ],
-      "source_sha256": "a6f61ac5db22dbd84a98f92e15766bf8262507b8c1fca9bd6e210097b3925f7a",
-      "text": "按 ``y ~ X + (1 | groups) + variance components`` 配置的 REML。\n\n参数\n----------\ny : array-like of shape (n_observations,) 回复值。 X : array-like of shape (n_observations, n_fixed_effects) 固定效应设计。 DataFrame 保留其列名称为 :attr:`TorchMixedResults.fe_params`. groups : array-like of shape (n_observations,) 外部集合标签。 随机接收总是包含,相当于``re_formula='1'``. vc : mapping of str 到 序列类似,可选 附加集合标签。 每个输入都定义了一个变量组成部分在 ``groups`` 内,相当于 statsmodels ``vc_formula`` 序列。 device : str, optional PyTorch 装置 要求 CUDA 升高而不是回到 CPU 时没有 CUDA 设备可用。 max_iter : int, optional 最大 L-BFGS 重定向。 典型的筛选大小适合使用 20 - 40;默认情况为 400 是安全限制。 verbose : bool, optional 在每个优化器评估时打印偏差。\n\n返回\n-------\nTorchMixedResults 固定效应、变量组件、条件配置值和残留物、BLUP、近距离诊断和时间信息。\n\n升高\n------\nMixedBackendUnavailable 如果 PyTorch 或所要求的设备不可用. ValueError 如果输入尺寸不同意或固定效果设计无法识别. MemoryError 如果密度随机效果设计超过可用的设备内存的配置份额。\n\n笔记\n-----\n对 statsmodels ``MixedLM(...).fit()`` 的验证产生了以下差异:\n\n========================== ================================================= 数量 嵌套夹具 屏形夹具(1,620行 ) ( 1,830行, =388， (q=1,097) ============================================ 固定效应 1.20e-7 绝对值 2.39e-4 绝对值(一个标准差的2.0 e-4) 方差分量 1,29 e-3 相对值 误差3.88e-4，相对误差1.04e-3；  1.80e-2 跨 388 个引导 BLUP 的最大值 7.64e-5 绝对值未评估 ==================================== ================== ==========================================\n\n在筛选形状的固定,这个匹配结束在格拉迪特标准1.3e-11和日志概率 -804.143968098;默认的 statsmodels 匹配返回 -804 143968682. 设置 statsmodels ``gtol=1e-12`` 减少固定效应不一致为 1.52e-8 绝对和固定变量组件不一致于 1.02e-4 相对。\n\n该固定器的参考终端到终端时间为 statsmodels 的 11.3 秒, CPU 的 0.80 秒。, 在 RTX 3090 的 0.47 秒下,在 CPU 负载下, statsmodels 接收了 21.3 秒, CUDA 后端 0.57 秒。",
+      "source_sha256": "05be30b03dd042401e59e8c9137e3c7f61dbb7f492c443782a0c44709d1dd272",
+      "text": "按 ``y ~ X + (1 | groups) + variance components`` 配置的 REML。\n\n参数\n----------\ny : array-like 答案值与形状 ``(n_observations,)``。 X : array-like 固定效果设计 ``(n_observations, n_fixed_effects)`` 形状。 DataFrame 保留其列名称为 :attr:`TorchMixedResults.fe_params`. groups : array-like 以 ``(n_observations,)`` 形状的外部组合标签。 随机接收总是包含,相当于``re_formula='1'``. vc : mapping of str 到 序列类似,可选 附加集合标签。 每个输入都定义了一个变量组成部分在 ``groups`` 内,匹配 statsmodels ``vc_formula`` 序列。 device : str, optional PyTorch 装置 要求 CUDA 升高而不是回到 CPU 时没有 CUDA 设备可用。 max_iter : int, optional 最大 L-BFGS 重定向。 典型的筛选大小适合使用 20 - 40;默认情况为 400 是安全限制。 verbose : bool, optional 在每个优化器评估时打印偏差。\n\n返回\n-------\nTorchMixedResults 固定效应、变量组件、条件配置值和残留物、BLUP、近距离诊断和时间信息。\n\n升高\n------\nMixedBackendUnavailable 如果 PyTorch 或所要求的设备不可用. ValueError 如果输入尺寸不同意或固定效果设计无法识别. MemoryError 如果密度随机效果设计超过可用的设备内存的配置份额。\n\n笔记\n-----\n对 statsmodels ``MixedLM(...).fit()`` 的验证产生了以下差异:\n\n========================== ================================================= 数量 嵌套夹具 屏形夹具(1,620行 ) ( 1,830行, =388， (q=1,097) ============================================ 固定效应 1.20e-7 绝对值 2.39e-4 绝对值(一个标准差的2.0 e-4) 方差分量 1,29 e-3 相对值 误差3.88e-4，相对误差1.04e-3；  1.80e-2 跨 388 个引导 BLUP 的最大值 7.64e-5 绝对值未评估 ==================================== ================== ==========================================\n\n在筛选形状的固定,这个匹配结束在格拉迪特标准1.3e-11和日志概率 -804.143968098;默认的 statsmodels 匹配返回 -804 143968682. 设置 statsmodels ``gtol=1e-12`` 减少固定效应不一致为 1.52e-8 绝对和固定变量组件不一致于 1.02e-4 相对。\n\n该固定器的参考终端到终端时间为 statsmodels 的 11.3 秒, CPU 的 0.80 秒。, 在 RTX 3090 的 0.47 秒下,在 CPU 负载下, statsmodels 接收了 21.3 秒, CUDA 后端 0.57 秒。",
       "translation_source_blocks_sha256": [
         "8a637e79ca140391f11b524baac3e1dc562a091c8d7a57e26a84d911f3465abd",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "22af8530da615e8def0aceb82d286c1386fbc4c08a4c005db25e39f381ce926b",
+        "56c8c7e1eedbd85332fa91d83c84e9ffa4a24b0e008080be2abc47248d63a23c",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "69f08849fe0bbbc817839764badebb5a064afd7575e4f0dfa52ebc1c589bc9b2",
         "e97e76330ffc318c5d276e6c0bbaa184ffe7b94e1c2592eb35b1b49163167311",
@@ -54812,17 +54812,17 @@
     "spacr.qt.maturity": {
       "source_blocks_sha256": [
         "2c92e7ccb76be09eb4fa80559ff7d7af2f5dac9ae8a0bfde350f8281dad985fb",
-        "413a18e96599714450f56638f4fcc505079a6b34a2465b63cf7cc2b888d59fa6",
+        "809cefc8900a36b265c059f5717965a1543d42284f0eb39e591f1f70849814dd",
         "0fe7342d59911ebcdbd9b7ae4a7a770aac4be2b9b6ac143482dbba96eb098a5f",
         "dedb1a7ac33d428a0e583c12a55aaa7a17d5b69be22ac5ffc7d7e0180c8dded0",
         "390f0320c4c7da4aa27f8ab7909b4afe00cbaf50d5dea0446e1991a7d1bd4618",
         "669d478bf85ca5ed369600a6ccb25251ca2fbe1e6b095ddb87adeb3d84596616"
       ],
-      "source_sha256": "bfb26b3e5bbb3cc28e58b3c1a69b2e7f3be955081d356dd3a57c48b72c760b89",
-      "text": "将基于证据的成熟标签分配到 Qt 应用程序。\n\n应用程式成熟度从测试、命令线支援或指定的 GUI - 仅限范围、文书、教程和其他 SPACR 组件的使用中评估。\n\n``stable`` 该应用程序具有工作流或图书馆,广泛的测试覆盖范围和用户文档。\n\n``beta`` 该应用程序具有功能性和测试性,但具有较少的文档或操作用途,而不是稳定的应用程序。\n\n:func:`apply` 函数更新 :data:`spacr.qt.app.APP_STAGE` 从下面的评估. 没有评估或明确表示阶段的申请被分配为 :data:`UNASSESSED_STAGE`(``\"alpha\"``)。\n\n:data:`PROMOTIONS` 包含已更改标签的应用程序; :data:`AFFIRMED` 含有已审查标签已适用的应用程序。",
+      "source_sha256": "97e45f37efeb2b664870996daaa9fa11b8540be29470f0dce0991cfed3db0598",
+      "text": "将基于证据的成熟标签分配到 Qt 应用程序。\n\n应用成熟度通过测试、命令线支持或声明 GUI 只有范围、文档、教程和其他人使用 spaCR 组件. 标签具有以下含义:\n\n``stable`` 该应用程序具有工作流或图书馆,广泛的测试覆盖范围和用户文档。\n\n``beta`` 该应用程序具有功能性和测试性,但具有较少的文档或操作用途,而不是稳定的应用程序。\n\n:func:`apply` 函数更新 :data:`spacr.qt.app.APP_STAGE` 从下面的评估. 没有评估或明确表示阶段的申请被分配为 :data:`UNASSESSED_STAGE`(``\"alpha\"``)。\n\n:data:`PROMOTIONS` 包含已更改标签的应用程序; :data:`AFFIRMED` 含有已审查标签已适用的应用程序。",
       "translation_source_blocks_sha256": [
         "2c92e7ccb76be09eb4fa80559ff7d7af2f5dac9ae8a0bfde350f8281dad985fb",
-        "413a18e96599714450f56638f4fcc505079a6b34a2465b63cf7cc2b888d59fa6",
+        "809cefc8900a36b265c059f5717965a1543d42284f0eb39e591f1f70849814dd",
         "4dfda822f65684b60d8d5228adffecbefc6f539a928ed2e6afba787fec1c8e6b",
         "dedb1a7ac33d428a0e583c12a55aaa7a17d5b69be22ac5ffc7d7e0180c8dded0",
         "390f0320c4c7da4aa27f8ab7909b4afe00cbaf50d5dea0446e1991a7d1bd4618",
@@ -58885,10 +58885,10 @@
         "c3c71e6e4c6728e92dc058bc103865097dde2daeec5d8931ecc1f61f4b6d1362",
         "53574eb95ed47eb357d3539beb3a89a30729b0ad08279acbeb578d50b6778b84",
         "22d3da6b0ce573ea4c94ec13ce6ba7f7047b339762bf019d79995ccb84c4d0da",
-        "61da88b878d33db59001b8c29c982f37f31c51cf08f3f2caf44a3c174d00e5d8"
+        "3431127e447551d49eaa5a26cb48b3420d3a7bb372518fd50b13fba532bea67e"
       ],
-      "source_sha256": "b438dbc644e50cf2da24d3c72304e6f9900d7c971d135c142389b5674c9d36a8",
-      "text": "在 Qt 接口中显示和标记提取的图像区域。\n\n显示一个可点击的图像小组的页面网络,支持 ``png_list`` 在 ``measurements/measurements.db``. 左点击指定值 1, 右点击设置值 2, 然后再次点击所指定值清除它. 通知通过 :class:`spacr.qt.annotate_engine.SaveWorker` 持续。\n\n键盘单纯快速标记层位于同一写路的顶部(参见 :meth:`AnnotateScreen.handle_key`): ``1`` - ``9`` 将一个类和自动进展分配到下一个未标记的提取图像区域, ``0`` 点亮, 箭头 / ``hjkl`` 移动焦点, ``Space`` / ``Backspace`` 没有标记步骤, ``u`` 无线和 ``Enter`` 承诺页面。\n\n每个提取的图像区域都以两个独立的颜色带(:class:`_Thumbnail`)的圆形平方形描绘,因此其三个状态相同可阅读,而不是互相过写:\n\n* **resting** — 一个薄灰色戒指覆盖图像\n* **分类** - 类颜色中的相同戒指(:func:`~spacr.qt.annotate_engine.label_to_hex`,应用程序的单一级→颜色地图)\n* **当前** — *extra* 白色戒指在单条上,下一个命中或键打击\n\n路由器和键盘移动相同的流动线:输入一个线使它流动,而一个箭头键将它移动。 没有第二个 \"hovered\" 突出点可以指向其他地方。\n\nQt 应用程序视图目前不提供 UMAP 窗口、深 SPACR 培训启动器或测量边界过滤器。",
+      "source_sha256": "5fc2b7cde765cfd0f332a20222cddd88100332638c0be94c0415b049bba48d87",
+      "text": "在 Qt 接口中显示和标记提取的图像区域。\n\n显示一个可点击的图像小组的页面网络,支持 ``png_list`` 在 ``measurements/measurements.db``. 左点击指定值 1, 右点击设置值 2, 然后再次点击所指定值清除它. 通知通过 :class:`spacr.qt.annotate_engine.SaveWorker` 持续。\n\n键盘单纯快速标记层位于同一写路的顶部(参见 :meth:`AnnotateScreen.handle_key`): ``1`` - ``9`` 将一个类和自动进展分配到下一个未标记的提取图像区域, ``0`` 点亮, 箭头 / ``hjkl`` 移动焦点, ``Space`` / ``Backspace`` 没有标记步骤, ``u`` 无线和 ``Enter`` 承诺页面。\n\n每个提取的图像区域都以两个独立的颜色带(:class:`_Thumbnail`)的圆形平方形描绘,因此其三个状态相同可阅读,而不是互相过写:\n\n* **resting** — 一个薄灰色戒指覆盖图像\n* **分类** - 类颜色中的相同戒指(:func:`~spacr.qt.annotate_engine.label_to_hex`,应用程序的单一级→颜色地图)\n* **当前** — *extra* 白色戒指在单条上,下一个命中或键打击\n\n路由器和键盘移动相同的流动线:输入一个线使它流动,而一个箭头键将它移动。 没有第二个 \"hovered\" 突出点可以指向其他地方。\n\nQt 应用程序视图目前不提供 UMAP 窗口、深 spaCR 培训启动器或测量边界过滤器。",
       "translation_source_blocks_sha256": [
         "48bcb4f903deef031f7ef2f4b768a4ed0db2e72244e8911a0fba50c48a334767",
         "be777aa4db4f2d686f5e6eda40045343ae537bc156fcd6f9e82d7f3e9c338eca",
@@ -58898,7 +58898,7 @@
         "c3c71e6e4c6728e92dc058bc103865097dde2daeec5d8931ecc1f61f4b6d1362",
         "53574eb95ed47eb357d3539beb3a89a30729b0ad08279acbeb578d50b6778b84",
         "22d3da6b0ce573ea4c94ec13ce6ba7f7047b339762bf019d79995ccb84c4d0da",
-        "243bb46ffcc385ee7944cc9b775daa3ba046faa59428f77372e411e007ae4188"
+        "5d87055602d4ec3a8da7323a22c51da58dfd3798bf635e2f2324c740e6e3582f"
       ]
     },
     "spacr.qt.screens.annotate.AnnotateScreen": {
@@ -89196,14 +89196,18 @@
       "source_blocks_sha256": [
         "26e5f5a095c3970d59366ad424b8cb9ac418a42e3df7ca6fbc9d1bfea6323022",
         "819fe1d1f4fd1d57c3ea0cc017e4aa32cf6175f432086f45e85122fb69cce58d",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "09278b3be119642289bf9565fa48f492c1cfeedd40245c0e8180b07f4bb0cb51",
         "4b0ed88f7d99420fb3ba2c68e20992280f6dcac4afaf32da17bee89c656c2ccf",
         "be3aa91295d92aa7805fb9581097933da62b6ca5ad786f7aa6419e456d6204c0"
       ],
-      "source_sha256": "513c96284f6b43aeb6b3a94baaab0b6e3bdd463e3987b5813b3e41b6e695f0b2",
-      "text": "每列合并测量表中运行一个回归。\n\n每个列都产生一个独立的处理会议文件夹和Runs-tab输入. 工作顺序通过 :class:`~spacr.qt.job_runner.JobRunner` 执行,可以在匹配之间停止,并在单个匹配失败后继续。\n\n属性\n----------\nfit_started : 信号发出 ``(column, settings)`` 每匹配开始时. fit_finished : 在匹配成功或失败时发出信号 ``(column, outcome)`` . queue_finished :在工作列表结束时发出的信号``(fitted, failed)`` queue_progress . 在每个匹配之前发出 Signal ``(column, index, total)``。",
+      "source_sha256": "3084e623c8ec14f362b07d8580eb380db8810c34a57eb6e77d7b2d989ea1694c",
+      "text": "每列合并测量表中运行一个回归。\n\n每个列都产生一个独立的处理会议文件夹和Runs-tab输入. 工作顺序通过 :class:`~spacr.qt.job_runner.JobRunner` 执行,可以在匹配之间停止,并在单个匹配失败后继续。\n\n参数\n----------\nframe_provider : callable or None, optional 零论点可召回合并的测量框. settings_provider : callable or None, optional 0论点可以召回回回归应用程序视图的当前模型,纠正和计算设置. 每个字符匹配复制这些设置,并只改变答案列. 主人: QWidget 或 None,可选的 父母 widget. score_provider : callable or None, optional Zero 论点不可召回返回路径到保存的合并框. 每一个字符合并阅读相同的文件。 threaded : bool, default=True Run 适用于背景工作运行器. 设置为 ``False`` 为同步测试或无图形界面呼叫器。 fit : callable or None, optional 函数称为单个字符的设置。 ``None`` 使用标准退化实施. 提供呼叫器保持软体工作列表独立测试,并避免在第一个窗口建造时输入完整的统计条件。\n\n属性\n----------\nfit_started : 信号发出 ``(column, settings)`` 每匹配开始时. fit_finished : 在匹配成功或失败时发出信号 ``(column, outcome)`` . queue_finished :在工作列表结束时发出的信号``(fitted, failed)`` queue_progress . 在每个匹配之前发出 Signal ``(column, index, total)``。",
       "translation_source_blocks_sha256": [
         "26e5f5a095c3970d59366ad424b8cb9ac418a42e3df7ca6fbc9d1bfea6323022",
         "85019d5b550c7b00a841d3eb65e90352d339373bb1eecfa2c0844abbcecf0df7",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "5e3eac29c20c160d9fbd7cc907951c88960729672269bf4ce56dd30ff5c0dc07",
         "4b0ed88f7d99420fb3ba2c68e20992280f6dcac4afaf32da17bee89c656c2ccf",
         "8999dcc539a568887270b7bec6d22767c2d401282dd035a3cd537f7502e1ba9f"
       ]
