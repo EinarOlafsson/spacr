@@ -318,10 +318,29 @@ def test_save_publishes_the_regex_and_accepts(make_dialog, qtbot):
     assert save is not None
     with qtbot.waitSignal(dlg.accepted, timeout=1000):
         qtbot.mouseClick(save, Qt.LeftButton)
-    assert dlg.regex == rd.YOKOGAWA      # surrounding whitespace stripped
+    # TRIMMED FOR `_get_regex`, not equal to what the box held. That function
+    # builds the custom pattern as `f"({custom_regex}).{img_format}"` -- it
+    # appends the extension itself -- so a pattern already ending in the
+    # extension became `(...$)..tif`, an anchor with characters after it,
+    # which matched NOTHING. Measured through the real path on eight
+    # cellvoyager names: 0 of 8, silently.
+    from spacr.import_plan import for_get_regex
+
+    assert dlg.regex == for_get_regex(rd.YOKOGAWA)
     assert dlg.result() == QDialog.Accepted
-    # The saved pattern is the one the preview was built from.
+    # AND WHAT MATTERS IS THAT IT STILL MATCHES. The preview inside this
+    # dialog is matched against WHOLE filenames, so it needs the extension;
+    # what is SAVED is the half `_get_regex` does not add for itself.
     assert re.compile(dlg.regex).match(YOKO[0]).group("wellID") == "A01"
+
+    from spacr.utils import _get_regex
+
+    # `"tif"`, NOT `".tif"`. `_get_regex` builds `f"({custom}).{img_format}"`
+    # and supplies the separator itself -- its own default is `'tif'` -- so a
+    # dotted format composes `..tif`, two wildcards before the extension,
+    # which needs a name with a spare character in it.
+    composed = re.compile(_get_regex("custom", "tif", dlg.regex))
+    assert composed.match(YOKO[0]).group("wellID") == "A01"
 
 
 def test_cancel_leaves_the_regex_unset(make_dialog, qtbot):

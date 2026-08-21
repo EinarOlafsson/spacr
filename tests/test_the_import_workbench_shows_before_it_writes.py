@@ -366,7 +366,7 @@ class TestTheDialogHandsBackTheRegex:
         qtbot.addWidget(dialog)
 
         composed = re.compile(
-            _get_regex("custom", ".tif", dialog.chosen_regex()))
+            _get_regex("custom", "tif", dialog.chosen_regex()))
         matched = [n for n in _names() if composed.search(n)]
         assert len(matched) == 8
         assert composed.search(_names()[0]).group("wellID") == "A01"
@@ -400,7 +400,7 @@ class TestASavedRegexActuallyMatches:
 
         from spacr.utils import _get_regex
 
-        return re.compile(_get_regex("custom", ".tif", pattern))
+        return re.compile(_get_regex("custom", "tif", pattern))
 
     def test_the_detectors_own_answer_survives_get_regex(self):
         from spacr.import_plan import for_get_regex
