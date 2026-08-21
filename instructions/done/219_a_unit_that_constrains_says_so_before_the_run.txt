@@ -2,7 +2,7 @@
 A UNIT THAT CONSTRAINS THE DESIGN SAYS SO BEFORE THE RUN
 ================================================================================
 
-Status:    filed 2026-08-21. Refusal DONE; the panel lock is not.
+Status:    DONE 2026-08-21.
 Requested: 2026-08-21 -- "i still haven gotten analasys unit cell to work" and
            "if cell is only compatible with certain settings, if cell is
            chosen then the settings it needs should be chosen and displayed
@@ -49,7 +49,7 @@ a test that applying the requirements clears the refusals, so what a panel
 would set is known to be runnable.
 
 --------------------------------------------------------------------------------
-WHAT IS LEFT: THE PANEL
+THE PANEL, DONE 2026-08-21
 --------------------------------------------------------------------------------
 
 The settings panel must APPLY those requirements when `cell` is chosen, show
@@ -67,3 +67,35 @@ HOW TO KNOW IT WORKED
   picture settings already do.
 * The refusal remains as the backstop for a settings CSV that never passed
   through a panel.
+
+--------------------------------------------------------------------------------
+HOW THE PANEL DOES IT
+--------------------------------------------------------------------------------
+
+`SettingsWidgets._refresh_analysis_unit_lock`, called when the panel is
+built and whenever `analysis_unit` changes.
+
+THE LIST LIVES IN `settings_advisor`. A copy in the panel would be a second
+opinion about what the unit forces, and the run would keep the casting vote
+-- so the panel would grey a control the preflight then refused, or leave
+one editable that the run ignored.
+
+SET IT, THEN GREY IT. A greyed control still showing the old value tells the
+user the run will use that value, and it will not -- which is worse than an
+editable control that disagrees, because it looks settled. The test sets
+`inference='nonparametric'`, chooses `cell`, and asserts the box now reads
+`parametric`.
+
+RELEASE EVERY KEY ANY UNIT LOCKS, not the current unit's. Refreshing only
+what `cell` constrains would leave a control greyed after the reason for it
+had been withdrawn.
+
+TWO OF THE THREE ALREADY HAD A REASON, AND KEEP IT. `analysis_mode` is
+greyed because `inference='parametric'` selects it, and `agg_type` because
+the unit is not 'well' -- both MORE specific than "the unit fixed this". The
+gap this filled was `inference`, which had no rule of its own. What every
+greyed control carries either way is the house sentence saying the value is
+kept, which is what tells the user the run will use what they can see.
+
+THE REFUSAL STAYS as the backstop for a settings CSV that never passed
+through a panel, and a test asserts that what the panel applies passes it.
