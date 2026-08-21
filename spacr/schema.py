@@ -27,7 +27,8 @@ __all__ = [
     'SchemaError', 'WellParseError', 'KeyParseError',
     'ObjectTableSchemaError',
     # key names
-    'PLATE_KEY', 'ROW_KEY', 'COLUMN_KEY', 'FIELD_KEY', 'TIME_KEY',
+    'PLATE_KEY', 'ROW_KEY', 'COLUMN_KEY', 'FIELD_KEY', 'OBJECT_KEY',
+    'TIME_KEY',
     'CHANNEL_KEY', 'SLICE_KEY', 'OBJECT_LABEL_KEY', 'OBJECT_TYPE_KEY',
     'SCREEN_KEY', 'DEFAULT_SCREEN',
     'FIELD_KEY_COLUMNS', 'TIMEPOINT_KEY_COLUMNS', 'WELL_KEY_COLUMNS',
@@ -133,6 +134,12 @@ CHANNEL_KEY = 'chanID'
 SLICE_KEY = 'sliceID'
 #: The integer label of an object inside its field's mask.
 OBJECT_LABEL_KEY = 'object_label'
+#: The object inside its field, as the import writes it. THE FIFTH
+#: IDENTIFIER, and it was the only one of the five with no constant here --
+#: which is how `object_id` came to be a column name four modules spelled
+#: differently while `plate_id`, `row_id`, `column_id` and `field_id` were
+#: all normalised (instruction 213 C).
+OBJECT_KEY = 'objectID'
 
 #: ``plate_row_column`` — the well. Identifies a well across every field.
 PRC_KEY = 'prc'
@@ -328,6 +335,15 @@ LEGACY_COLUMN_NAMES: Dict[str, str] = {
     'well':         WELL_KEY,
     'well_name':    WELL_KEY,
     'well_id':      WELL_KEY,
+    # THE FIFTH IDENTIFIER (instruction 213 C). Its unambiguous spellings
+    # only: a bare `object` column is NOT here, because in a measurement
+    # table it as often means the object TYPE -- cell, nucleus, pathogen --
+    # as the object's number, and renaming that into an identifier would
+    # corrupt the join it lands in rather than merely mislabel a column.
+    # That is the same trap the docstring above records for `c`.
+    'object_id':     OBJECT_KEY,
+    'objectid':      OBJECT_KEY,
+    'object_number': OBJECT_KEY,
 }
 
 #: Every canonical metadata key -- the closed vocabulary that
