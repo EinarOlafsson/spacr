@@ -220,10 +220,10 @@ def test_qt_suite_has_room_for_its_measured_runtime():
     workflow = WORKFLOW.read_text(encoding="utf-8")
     qt_block = workflow.split("\n  qt:", 1)[1].split("\n  gpu:", 1)[0]
 
-    # The full shard reached 76% after 57 minutes of pytest on a standard
-    # hosted runner. Ninety minutes covers the projected serial tail and
-    # installation without weakening or dropping any Qt contract.
-    assert 'timeout_minutes: 90' in qt_block
+    # The full shard reached 91% at the old 90-minute job limit on a standard
+    # hosted runner. Two hours covers the measured tail and installation
+    # without weakening or dropping any Qt contract.
+    assert 'timeout_minutes: 120' in qt_block
 
 
 def test_informational_windows_sweep_cannot_cancel_the_matrix():
