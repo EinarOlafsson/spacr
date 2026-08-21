@@ -1,0 +1,51 @@
+================================================================================
+THE EVALUATION SETTINGS ARE SPLIT BY CATEGORY, AND BY ML VS CV
+================================================================================
+
+Status:    filed 2026-08-21, not started.
+Requested: 2026-08-21 -- "the evaluation section of classify has too many
+           setting please devide them on category and machine learning vs
+           computer vision and ther subcategories ther, best is if these
+           settings can be added to categories that already exist. shared
+           settings should not moove to cv or ml specific setting
+           categories."
+Owner:     Qt GUI (classify settings panel), spacr.settings category map
+
+--------------------------------------------------------------------------------
+WHAT IS ASKED
+--------------------------------------------------------------------------------
+
+The Evaluation section is one long list. Split it TWO WAYS at once:
+
+  * BY CATEGORY -- the ordinary grouping every other section has.
+  * BY ML VS CV -- a setting that only the classical-ML path reads and one
+    that only the computer-vision path reads are not the same question, and
+    a single list makes the user work out which of the two they are looking
+    at from the name.
+
+PREFER AN EXISTING CATEGORY. "best is if these settings can be added to
+categories that already exist" -- a new heading is a new place to look, and
+the panel already has headings that several of these belong under. Only
+invent a heading where nothing existing fits.
+
+THE ONE HARD RULE: A SHARED SETTING STAYS SHARED. A setting both paths read
+must NOT be filed under a CV-specific or ML-specific heading. Doing so tells
+the user it applies to one path when it applies to both, and they will set
+it in one module and not the other. When in doubt about whether a setting is
+shared, CHECK WHAT READS IT rather than guessing from its name -- that audit
+is the work of this item.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* No section of the classify panel is a long undifferentiated list.
+* Each moved setting's new heading is justified by what actually reads it,
+  and a test asserts the ML-only and CV-only lists against the modules that
+  consume them rather than against a hand-written list that can drift.
+* Every setting read by BOTH paths is under a shared heading -- asserted,
+  because this is the failure the item names.
+* The number of NEW headings is small, and each one is there because nothing
+  existing fit.
+* No setting is lost in the move: the set of keys the panel renders is the
+  same before and after.
