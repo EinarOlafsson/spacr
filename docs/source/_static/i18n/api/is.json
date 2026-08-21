@@ -62177,6 +62177,16 @@
         "19c49fa615bddff20814365f7d0a7c265789612bd4a9a793342b2034ccef4f97"
       ]
     },
+    "spacr.qt.screens.experiment_design.ExperimentDesignScreen.begin_well_drag": {
+      "source_blocks_sha256": [
+        "733fc90116e95a93fa4b254065e2af371b07a81db1587a5e86948f48e5409cd0"
+      ],
+      "source_sha256": "733fc90116e95a93fa4b254065e2af371b07a81db1587a5e86948f48e5409cd0",
+      "text": "Anchor val á einum mikrónaplaðs sýnstæði.",
+      "translation_source_blocks_sha256": [
+        "dae7238b164d58e9d83f3f998251f736bee37f465adac2c1ba47ce722f64cbcb"
+      ]
+    },
     "spacr.qt.screens.experiment_design.ExperimentDesignScreen.conditions": {
       "source_blocks_sha256": [
         "cc07ccb1d9b6c5bb4a302362f039c654e5e86099a8c4c447e2ed3cb630c76ff8",
@@ -62197,6 +62207,16 @@
       "text": "Þessar tegundir lýsa núna.",
       "translation_source_blocks_sha256": [
         "7b42ec29cc4431dcaf91c223131452f9cb117864b8e5f469191efe86ee5d194b"
+      ]
+    },
+    "spacr.qt.screens.experiment_design.ExperimentDesignScreen.drag_wells_to": {
+      "source_blocks_sha256": [
+        "fc5d161bcaa5c3ac94decb92964fec69a9bd2e9d69880e071b7446df54ee892b"
+      ],
+      "source_sha256": "fc5d161bcaa5c3ac94decb92964fec69a9bd2e9d69880e071b7446df54ee892b",
+      "text": "Prófa rektangulinn frá anchor til mikroplaðs staðar undir einum punkti.",
+      "translation_source_blocks_sha256": [
+        "0226f740fd0e4b64429ae29791099c255eb59694f85fd63c4ebc112c89c68eb6"
       ]
     },
     "spacr.qt.screens.experiment_design.ExperimentDesignScreen.export_to": {
@@ -62223,6 +62243,16 @@
         "2030b2ccc81df3c16485ab065eb7a77c2af785e2370a39c099c31e468272393f"
       ]
     },
+    "spacr.qt.screens.experiment_design.ExperimentDesignScreen.finish_well_drag": {
+      "source_blocks_sha256": [
+        "ddf16d3e58d9ef3a6395c2dd90633920b4c9beb13ffd8dba978c9eaa0aa32787"
+      ],
+      "source_sha256": "ddf16d3e58d9ef3a6395c2dd90633920b4c9beb13ffd8dba978c9eaa0aa32787",
+      "text": "Endur gestur. úrvalin er nú þegar það sem fyrirmyndin sýndi.",
+      "translation_source_blocks_sha256": [
+        "ddf16d3e58d9ef3a6395c2dd90633920b4c9beb13ffd8dba978c9eaa0aa32787"
+      ]
+    },
     "spacr.qt.screens.experiment_design.ExperimentDesignScreen.is_busy": {
       "source_blocks_sha256": [
         "75fe8a0a693458b70537127551f116eae9bef5c63a34240cd3516267e6edbf4e"
@@ -62243,6 +62273,26 @@
         "d1dff0020a100377e1679f70135dc02f10b0aa4efe9f56a8f5284b74819d52c3"
       ]
     },
+    "spacr.qt.screens.experiment_design.ExperimentDesignScreen.selected_well_names": {
+      "source_blocks_sha256": [
+        "94bf2e2f64ed8914b3886d722b9902815a9756da5d782add361dcc7e06839b7b"
+      ],
+      "source_sha256": "94bf2e2f64ed8914b3886d722b9902815a9756da5d782add361dcc7e06839b7b",
+      "text": "Valinn mikróplata staður sem nafn, í lesundarráð.",
+      "translation_source_blocks_sha256": [
+        "936eff174b042d162796a2010afacb686b58adc19d12d4f11d2870b9eb9dcd8b"
+      ]
+    },
+    "spacr.qt.screens.experiment_design.ExperimentDesignScreen.selected_wells": {
+      "source_blocks_sha256": [
+        "c107c0685a895eb7e3aabd2a847f3dace8a42569aeeb53b8031cef9ff0261102"
+      ],
+      "source_sha256": "c107c0685a895eb7e3aabd2a847f3dace8a42569aeeb53b8031cef9ff0261102",
+      "text": "Hver ``(row, column)`` valdur núna á kartanum.",
+      "translation_source_blocks_sha256": [
+        "c107c0685a895eb7e3aabd2a847f3dace8a42569aeeb53b8031cef9ff0261102"
+      ]
+    },
     "spacr.qt.screens.experiment_design.ExperimentDesignScreen.status_text": {
       "source_blocks_sha256": [
         "c20f0bb0cd9556e266951a97c6302146487db4eae1c195552acd345e21c87353"
@@ -62251,6 +62301,16 @@
       "text": "Hugbúnaður fyrir próf.",
       "translation_source_blocks_sha256": [
         "c20f0bb0cd9556e266951a97c6302146487db4eae1c195552acd345e21c87353"
+      ]
+    },
+    "spacr.qt.screens.experiment_design.ExperimentDesignScreen.well_at": {
+      "source_blocks_sha256": [
+        "61a3ffd4811978e17db237df974aeb9721cc0a0bb33762ae55c6dc56c261a558"
+      ],
+      "source_sha256": "61a3ffd4811978e17db237df974aeb9721cc0a0bb33762ae55c6dc56c261a558",
+      "text": "``(row, column)`` undir GLOBAL stig, eða ``None``.",
+      "translation_source_blocks_sha256": [
+        "61a3ffd4811978e17db237df974aeb9721cc0a0bb33762ae55c6dc56c261a558"
       ]
     },
     "spacr.qt.screens.experiment_design.make_experiment_design_screen": {
@@ -69613,12 +69673,34 @@
     },
     "spacr.qt.shortcuts.ShortcutSpec": {
       "source_blocks_sha256": [
-        "a6c4f71ac22e5fe89dc55fdcb171b2d4634e6f439a29719aa230731e3819029f"
+        "a6c4f71ac22e5fe89dc55fdcb171b2d4634e6f439a29719aa230731e3819029f",
+        "33a904a6848932931ddac43dd2080a5d6bf2f3599449fdf9dc4f23eb42053d5f",
+        "1a6e6c2e5914c57d8deec984ac8ce16f82cede10769170f5db728993b871370f",
+        "4c5d2c3ee550923e5a590b753bc5a0a6c19cfa3b806330f96af16332fd33b92c",
+        "ba91da429ad23b473c435409a0535cd6848e7f3f33d88763a66a885cb179d9f5"
       ],
-      "source_sha256": "a6c4f71ac22e5fe89dc55fdcb171b2d4634e6f439a29719aa230731e3819029f",
-      "text": "Eitt stutt útskýrunar.",
+      "source_sha256": "a6aa1284df56b5124b21ff67b5983ec214af2c6d53ffb41b1f116e9bb8f59178",
+      "text": "Eitt stutt útskýrunar.\n\n:param keys: bandið, í bragðlegri spellingu Qt. Það er printað í gegnum `QKeySequence.toString(NativeText)`, svo `Ctrl` lætur sem Command símbol á macOS - að skrifa \"Ctrl+H\" í merki myndi hard-kód einn plattform í hjálp.\n:param label: Það sem keypinn er að gera.\n:param category: hópurinn sem er sýnt undir.\n:param scope: þar sem það virkar. Þannig er allt vinstri; bandið á skreinn nefnir skrin sitt.",
       "translation_source_blocks_sha256": [
-        "a6c4f71ac22e5fe89dc55fdcb171b2d4634e6f439a29719aa230731e3819029f"
+        "a6c4f71ac22e5fe89dc55fdcb171b2d4634e6f439a29719aa230731e3819029f",
+        "33a904a6848932931ddac43dd2080a5d6bf2f3599449fdf9dc4f23eb42053d5f",
+        "1a6e6c2e5914c57d8deec984ac8ce16f82cede10769170f5db728993b871370f",
+        "4c5d2c3ee550923e5a590b753bc5a0a6c19cfa3b806330f96af16332fd33b92c",
+        "ba91da429ad23b473c435409a0535cd6848e7f3f33d88763a66a885cb179d9f5"
+      ]
+    },
+    "spacr.qt.shortcuts.discover": {
+      "source_blocks_sha256": [
+        "01a2e4ba9eb179fded984ee665b3e689f299f01f1ad3f9bb7e731497a770afe0",
+        "31db50aa67a10b6a7e5d6196f7a7858cc86d9e5a8e0e864cc3140ed17d1c9136",
+        "55270b2ccc89bd3c5b09e4d7169da58e7c3fbcb522c689e8fa2647bb2c72a2cb"
+      ],
+      "source_sha256": "f7b95924c332dafe17dcb5f6149cb9976c522b1c6e18cb0cb0ad21ff57d6ed03",
+      "text": "Allir skortur Live á ``window``, hvort sem útskýrtir eða ekki.\n\nTólin er það sem kartan er tekin frá, vegna þess að sambandi á skrinum er ekki til þess að skrin er byggð og kartan þarf að lýsa það alls.: Að bæta upp í runtime -- Plugin, aðgerðir í menni -- Það kemur út án þess að einhver breytir listan.\n\nAllt sem er í :data:`SHORTCUTS` er kvartað til útskýrunarinnar, sem er þar sem tákn og sviði býr.",
+      "translation_source_blocks_sha256": [
+        "01a2e4ba9eb179fded984ee665b3e689f299f01f1ad3f9bb7e731497a770afe0",
+        "31db50aa67a10b6a7e5d6196f7a7858cc86d9e5a8e0e864cc3140ed17d1c9136",
+        "55270b2ccc89bd3c5b09e4d7169da58e7c3fbcb522c689e8fa2647bb2c72a2cb"
       ]
     },
     "spacr.qt.shortcuts.install": {
@@ -69631,6 +69713,38 @@
       "translation_source_blocks_sha256": [
         "45e7b4b654ca3fd84ad04bc622cc6bdb4f934b253eccc6059f392ec9597d6089",
         "94994e4024a2237591817fc37be0e9fe3460bfd1b0c8f9ae8fc9c854ff815e0e"
+      ]
+    },
+    "spacr.qt.shortcuts.installed": {
+      "source_blocks_sha256": [
+        "85768c2a9f1dfea2148a9f900d3702e18c4bdf622ef7e1a7ff54dd4928c2cb9a"
+      ],
+      "source_sha256": "85768c2a9f1dfea2148a9f900d3702e18c4bdf622ef7e1a7ff54dd4928c2cb9a",
+      "text": "Hluti `install()` er ábyrgð á bindingu.",
+      "translation_source_blocks_sha256": [
+        "85768c2a9f1dfea2148a9f900d3702e18c4bdf622ef7e1a7ff54dd4928c2cb9a"
+      ]
+    },
+    "spacr.qt.shortcuts.mapped": {
+      "source_blocks_sha256": [
+        "05d096e52d2653e99c6f5c0885930c2a22f882c9e40c87e39c431262cc91851d"
+      ],
+      "source_sha256": "05d096e52d2653e99c6f5c0885930c2a22f882c9e40c87e39c431262cc91851d",
+      "text": "Í hverri skreytingu á kartanum lýsir: glugga, þá á skrin.",
+      "translation_source_blocks_sha256": [
+        "05d096e52d2653e99c6f5c0885930c2a22f882c9e40c87e39c431262cc91851d"
+      ]
+    },
+    "spacr.qt.shortcuts.native": {
+      "source_blocks_sha256": [
+        "bd0383e539fc052e6afe2b2383a6f6e59b85a6c2dcd7900b8fc33e3b472311a2",
+        "fbe2de2982d512acbe7d659840b1ed69a634f66fb945e6fc937da4bd80896b55"
+      ],
+      "source_sha256": "3a7a2e662ccf87ef7d783396c214452618d06fd805cd2e97286b83b04d02c570",
+      "text": "``keys`` í spellingu hefur notandinn eigin keyboard.\n\n`Ctrl` er kommandamálið á macOS og Qt veit nú þegar; skrifa \"Ctrl+H\" í merki hard-codes einn plattform í hjálp.",
+      "translation_source_blocks_sha256": [
+        "bd0383e539fc052e6afe2b2383a6f6e59b85a6c2dcd7900b8fc33e3b472311a2",
+        "fbe2de2982d512acbe7d659840b1ed69a634f66fb945e6fc937da4bd80896b55"
       ]
     },
     "spacr.qt.shortcuts.show_cheat_sheet": {
@@ -92554,6 +92668,42 @@
         "35b82c1b99bd09aa7282bc7bbea9ddeea0a2376681ff93b876f2c2e224258d62"
       ]
     },
+    "spacr.qt.widgets.plate_map_picker.PlateMapPicker.begin_drag": {
+      "source_blocks_sha256": [
+        "c6f7963877fb1381ea3337639c4e9b6ce67631f626eccbb93b6cd95d4e96e41d",
+        "315fe97240ff33116aacf7a67058bb6fd683f2d0c5520617580d0926ce5a5355"
+      ],
+      "source_sha256": "0d11fcaf71258493ff2cf0f8c1e70534c8798260c9bae1166c417df5d4eada26",
+      "text": "Anchor þreyting á einum mikrónaplaðs staði.\n\n:param modifiers: lyklaborðsstöðuna við að ýta á takka.  Ctrl er rétthyrningurinn BÆTTUR við það sem þegar er valið;  án þess að draga skiptir um val, sem er það sem hvert annað rist í þessu forriti gerir.",
+      "translation_source_blocks_sha256": [
+        "8af3b3fdefec12e6ea6c98e764adc14cdd1d5270f534cf55030bcf17a6b8dfb4",
+        "315fe97240ff33116aacf7a67058bb6fd683f2d0c5520617580d0926ce5a5355"
+      ]
+    },
+    "spacr.qt.widgets.plate_map_picker.PlateMapPicker.drag_to": {
+      "source_blocks_sha256": [
+        "6bfc5630ba8912c1f483567248acb1a1635d7b73ddff7d8180f866231670f1ef",
+        "f3602600bc0481a249d55accdada3edef91307fde8981e7827ed0ed3f870a9b0"
+      ],
+      "source_sha256": "427022807b0471281a870ad4c0bf89c7b8ed85d2658abbb5fd19e181e5425c40",
+      "text": "Vinsamlegast skýrðu rektangleð frá anchor til mikroplaðs staðar undir ``position``.\n\nSýndur þegar drákur, vegna þess að val sem þú getur ekki séð þar til þú leyft að fara er einn sem þú þarft að undo til að laga.",
+      "translation_source_blocks_sha256": [
+        "ffed2a041c9524678aefc16a139b3774b6d1fb37317c04c1cd63d196c49fac53",
+        "f3602600bc0481a249d55accdada3edef91307fde8981e7827ed0ed3f870a9b0"
+      ]
+    },
+    "spacr.qt.widgets.plate_map_picker.PlateMapPicker.finish_drag": {
+      "source_blocks_sha256": [
+        "b46d4878389ae8a101237adf60dcb02cf4539569b79be29d581f2908bb3a2b11",
+        "972250844c64105880ccfb483a04f316ab9adc1e56d0fe8b70d7740f2ffeb583"
+      ],
+      "source_sha256": "b682f4c3117322aa22af9bbeb36a7c2c95c32f46f663ffd5c34c20d7355a0e29",
+      "text": "Síðast er að snúa aftur hvort eitthvað gerist í alvöru.\n\n`True` segir mikrópabandinn staðsetningu til að svala útgáfu sínu: réttangurinn er þegar litinn, og leyfa klickað í gegnum myndi taka áankorinn í annað skipti.",
+      "translation_source_blocks_sha256": [
+        "b46d4878389ae8a101237adf60dcb02cf4539569b79be29d581f2908bb3a2b11",
+        "5cebd26423c459d377a445219867faaf1f70221dbc0547a326df36aa3ef5d482"
+      ]
+    },
     "spacr.qt.widgets.plate_map_picker.PlateMapPicker.select_region": {
       "source_blocks_sha256": [
         "76337ef933cbaa29b400d5cb3a9728667553a85bc6300dcf1ef2c7e8fb8f23d4",
@@ -92598,6 +92748,18 @@
       "text": "Til baka sérialised val fyrir mikróplata staðsyns-specifikandi mikroskópur sviði sýn.",
       "translation_source_blocks_sha256": [
         "18627c081e0b054539a18a90f62adda90419a5a8688bd91cb7146b42d64221c1"
+      ]
+    },
+    "spacr.qt.widgets.plate_map_picker.PlateMapPicker.well_at": {
+      "source_blocks_sha256": [
+        "0e82400e533181d9c3b475fc273a7631056d2896a9e3e79a53851b30b454dd47",
+        "9cf44a9d107963a8f3dc986e9feff8caf5cccb0c96bf626c2831754c14e6c653"
+      ],
+      "source_sha256": "d87b7a732e31872056116cc799e6b89da730f315693078d4c27a5094a7ac6da7",
+      "text": "Mikrónplata staður undir GLOBAL stig, eða ``None``.\n\nAlþjóðlegur, vegna þess að sýnari er yfir bróður af widgetinu sem er að fá árangri - pressur maðurinn hallar greipinn.",
+      "translation_source_blocks_sha256": [
+        "6ad8f401508c92d601180654e8b464076daa485426bcf5de194f2cc6a5dfaaeb",
+        "9cf44a9d107963a8f3dc986e9feff8caf5cccb0c96bf626c2831754c14e6c653"
       ]
     },
     "spacr.qt.widgets.power_design": {
@@ -94490,6 +94652,22 @@
       "text": "Hversu margir breyta breidd er skorturinn.",
       "translation_source_blocks_sha256": [
         "e7a47df059917a021daef2290ec8cfa5986defb1615aa9c8fd20b369548a38a5"
+      ]
+    },
+    "spacr.qt.widgets.regression_results.RegressionResultsPanel.show_panel": {
+      "source_blocks_sha256": [
+        "9e8c8d2e94e89a38fc4ea2df121e2bfaaff3757c8667d304af3cfe317cd3f6cd",
+        "a9b5eb2c3ab0a0fcd5cd83d51fd9c0fee09888bb3899d01e9225b026f55be686",
+        "8d82a976bc98dac7d22cbc898a0b21cc80b16a68fac600abba00c86b47e40ff3",
+        "da68757fe487b1b12f628b78015a768fe158e5ba71798d88d4a621bbb295337f"
+      ],
+      "source_sha256": "38af8fe41c1a708835b744bbc5ef63ba5c4c91f93e7552c3fd2b1527614186a7",
+      "text": "Hættu tabinn sem hallar live panelinn sem heitir ``key``.\n\nÞetta er veitingastað 199 fannst saknað. gríðið myndar tíu lifandi panla og gefur hverjum tile key, en aðeins key vulkanin hafði hvar að fara - þannig að átta tile tók klicka og gerði ekkert, sem lesa sem brjóta notkun en sem mynd með engum dyrum.\n\n:param key: Hluti frá :meth:`FigureGridView.set_live_tiles`.\n:returns: True ef skilaboð er hækkað. FALSE er raunverulegur svör og hringandi verður að virka á það: Tab-seturinn er ekki staðfest -- A fit með engin tegund hefur engin eftirliti tab, og vulkaninn og geinabúðir eru fjarlægðir þegar vulkanin er útlendur -- þannig að lykill getur verið fullkomlega gildi og hafa engin skilyrði í þessum skálum núna.",
+      "translation_source_blocks_sha256": [
+        "9e8c8d2e94e89a38fc4ea2df121e2bfaaff3757c8667d304af3cfe317cd3f6cd",
+        "a9b5eb2c3ab0a0fcd5cd83d51fd9c0fee09888bb3899d01e9225b026f55be686",
+        "8d82a976bc98dac7d22cbc898a0b21cc80b16a68fac600abba00c86b47e40ff3",
+        "da68757fe487b1b12f628b78015a768fe158e5ba71798d88d4a621bbb295337f"
       ]
     },
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.start_load": {
@@ -108761,6 +108939,18 @@
         "352a0c780dbafe0aeaebc49740809675109be140ca54aeea3443fc7f0a00c4aa"
       ]
     },
+    "spacr.settings_advisor.advise_that_runs": {
+      "source_blocks_sha256": [
+        "edafe03f41d62bd282ce367894a019043c2981b7ca44a0931b01dc782e2183a3",
+        "301e001ac58426b7aa4b3c7e0abf945594110e889028782ff5165740d74ae85d"
+      ],
+      "source_sha256": "0e35d88b1c46385f8270f02a063af629eb47d7d207b76dfb330d89dd4d1e4348",
+      "text": ":func:`advise`, með því að forræðan var athugið gegn ferli.\n\nA neyðja er ekki hlýtur: setting sem gerir það er MOVED OUT af forritið og í `undecided`, með því að fara með eigin frétti af neyða kóða. Að yfirgefa panelina eins og notandi hafði það og segja hvers vegna er heiðarlega svarið - hlýtið breyta gildi til að gera athygli er hvernig fyrirritið hættir þýðir allt.",
+      "translation_source_blocks_sha256": [
+        "edafe03f41d62bd282ce367894a019043c2981b7ca44a0931b01dc782e2183a3",
+        "301e001ac58426b7aa4b3c7e0abf945594110e889028782ff5165740d74ae85d"
+      ]
+    },
     "spacr.settings_advisor.advise_the_screen": {
       "source_blocks_sha256": [
         "082b43d1f6c20feca19ac5faa39cbe37391b252cc8e7a6bba30d600495293e8e"
@@ -108823,6 +109013,26 @@
       "text": "Mærðu bæði hálfa innfangsins og endurtekið :class:`Reading`.",
       "translation_source_blocks_sha256": [
         "9004a749cbb5d82fa2a169fd64a808aa16d016cab0c9d9fd8f9d3123f3861f63"
+      ]
+    },
+    "spacr.settings_advisor.refusals": {
+      "source_blocks_sha256": [
+        "fc37ae3cc07df8811b0f1a8fe7b9b076d8931b22fc4af60bcd8db7bc18b0cd35",
+        "6ef17e23e4d9aa49f8ce922c9cb5d38632b692d9ca52d99aafc2b1d1ed49f88c",
+        "abd3089e2780f62aad6b3cd564b15ae5a90cf22fc1f751042300e808b6ef8eac",
+        "1c49d7e93da631e80c228e948131f28d668a292c0354e50ae8b38f1edbececb2",
+        "70798532a39ba5a3a74abf5e305a3bd25b69413705a787eb84bcd0f007aae16c",
+        "bb2be6a7d1a6700126e5d0309adf44227b4634086feed37b63408fa5ff00218d"
+      ],
+      "source_sha256": "8d238abc8984b9658c1896fd184699000b0fa90aaa4d934adb3eef748a6f5ea3",
+      "text": "Hvers vegna RUN myndi neita ``settings``, í eigin orðum.\n\nTHE CANONICALISER IS NOT THE VALIDATOR, and that distinction is what 196 is about. `get_perform_regression_default_settings` fills defaults and coerces types; it says nothing about whether the combination can be fitted. A test asserted every proposed key survived canonicalisation, it passed, and the run still stopped on\n\n    ValueError: batch_correction='combat' þarf að vita hvaða biólógur að halda.\n\nSvo þetta spyr það sem raunverulega neita, áður en notandi er sagt spurningin er sett. Hver innfang er neitað kóða OWN orð þar sem það er einn - paraphrase myndi flýja frá því.\n\n:param settings: áætlun, eða hvaða setting key-value mapping.\n:returns: Eitt lausn á nefnd, þreytt þegar ferlið ætti að byrja.",
+      "translation_source_blocks_sha256": [
+        "fc37ae3cc07df8811b0f1a8fe7b9b076d8931b22fc4af60bcd8db7bc18b0cd35",
+        "6ef17e23e4d9aa49f8ce922c9cb5d38632b692d9ca52d99aafc2b1d1ed49f88c",
+        "abd3089e2780f62aad6b3cd564b15ae5a90cf22fc1f751042300e808b6ef8eac",
+        "1c49d7e93da631e80c228e948131f28d668a292c0354e50ae8b38f1edbececb2",
+        "b4507a556f164df146ee05a7a1982709b5890828969738efbd7af68cb16d37e3",
+        "bb2be6a7d1a6700126e5d0309adf44227b4634086feed37b63408fa5ff00218d"
       ]
     },
     "spacr.settings_spec": {

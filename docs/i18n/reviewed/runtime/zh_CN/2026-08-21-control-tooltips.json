@@ -6,16 +6,20 @@
     {
       "table": "setting_tooltips",
       "key": "controls",
-      "source_sha256": "187b253370c05b9ce13683aebe6f29e8d1f30c2b028e4fe5ee9060227d074039",
-      "source": "gRNA identifiers treated as non-targeting controls. Their coefficients define the effect-size cutoff drawn on the volcano plot: abs(median(control coefficients)) + threshold_multiplier × spread, where threshold_method selects the spread estimator. A wider control distribution raises the cutoff. None disables the effect-size cutoff. Default ['000000'] -- the non-cutting control GENE, which spaCR resolves to every one of its guides in the library you loaded, rather than a hand-typed list that goes stale. A guide id works too, and so does either spelling with or without the organism prefix.",
+      "source_sha256": "43ba71845fdaebb41887c315b8d858b97af68bca7ee3932fd847da07f56ae23c",
+      "source": "gRNA identifiers treated as non-targeting controls. Their coefficients define the effect-size cutoff drawn on the volcano plot: abs(median(control coefficients)) + threshold_multiplier × spread, where threshold_method selects the spread estimator. A wider control distribution raises the cutoff. None disables the effect-size cutoff. Default ['000000'] -- the non-cutting control GENE, which spaCR resolves to every one of its guides in the library you loaded, rather than a hand-typed list that goes stale. A guide id works too, with or without the organism prefix.",
       "translation": "作为非靶向对照处理的 gRNA 标识符。其系数定义火山图上绘制的效应量阈值：abs(median(control coefficients)) + threshold_multiplier × spread，其中 threshold_method 选择离散度估计方法。对照系数分布越宽，阈值越高。None 会禁用效应量阈值。默认值为 ['000000']——这是非切割对照 GENE；spaCR 会根据已加载的文库将它解析为该基因的所有向导，而不是使用容易过时的手工列表。也可以提供单个向导 ID；带或不带物种前缀的两种写法都可用。"
     },
     {
       "table": "setting_tooltips",
       "key": "exclude_grnas",
-      "source_sha256": "dcaf202122289b1b7efdc3363e44e683ca4bbba343a6993249afee7c7e7ed0e5",
-      "source": "gRNA names that are NOT in any cell and must be removed from the count table before fractions are formed: primer or plasmid carry-over, which lives in the library prep and never in a nucleus. This is an EXCLUSION, not a background subtraction -- the reads are not spurious copies of a real guide, the sequence is not a guide at all -- so the survivors are renormalised over what remains. Leaving a contaminant in holds every real guide's fraction down by its share: on one real plate a single plasmid contaminant was 19.9% of ALL reads, so removing it raised every other guide by a quarter and moved guides across the annotatability floor. Default None.",
-      "translation": "必须在计算比例前从计数表中删除的 gRNA 名称，因为这些序列不存在于任何细胞中；例如引物或质粒残留，它们来自文库制备过程而不在细胞核内。这是排除操作，不是背景扣除：这些读段并非某个真实向导的伪拷贝，该序列本身就不是向导。因此，剩余向导会按新的总数重新归一化。若保留污染物，每个真实向导的比例都会按污染物所占份额被压低：在一个实际平板中，单个质粒污染物占全部读段的 19.9%，移除后其他每个向导的比例提高了四分之一，并使部分向导跨过可注释性阈值。默认值为 None。"
+      "source_sha256": "9ab00bce68d05eb485ee0e981f0ec0757cc996b5ca22828186158b4471589f5b",
+      "source": "gRNA or gene identifiers known not to occur in cells, such as primer or plasmid carry-over. These sequences are removed before guide fractions are calculated, and retained guides are renormalized. This differs from background subtraction, which corrects spurious reads assigned to a real guide. A gene identifier matches all of its guides. Default None.",
+      "translation": "已知不存在于细胞中的 gRNA 或基因标识符，例如引物或质粒残留。这些序列会在计算向导片段占比之前被移除，保留下来的向导会重新归一化。这与背景扣除不同：背景扣除校正的是错误分配给某个真实向导的读数。基因标识符会匹配该基因的所有向导。默认值为 None。"
     }
-  ]
+  ],
+  "review_notes": {
+    "controls": "re-stamped 2026-08-21: the English dropped a redundant clause ('and so does either spelling') with no change of meaning; the translation already said exactly this",
+    "exclude_grnas": "re-reviewed 2026-08-21: the English was rewritten to drop the screen-specific figures, so the previous translation described text that no longer exists"
+  }
 }
