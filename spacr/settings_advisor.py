@@ -417,15 +417,17 @@ QUESTIONS: Tuple[Question, ...] = (
     ),
     Question(
         key="controls",
-        prompt="What are your non-targeting controls called? (blank if there "
+        prompt="What are your NON-CUTTING controls called? (blank if there "
                "are none)",
         kind="text",
         default="",
         why_it_matters=(
-            "A gene name takes every one of its guides; a guide name takes "
-            "just that guide, in any of the four spellings spaCR reads. With "
-            "controls named, the effects can be measured FROM them rather "
-            "than from zero, and the batch correction can centre on them."),
+            "The guides that BIND WITHOUT CUTTING -- the screen's empirical "
+            "null, and not the negative control, which is a real gene "
+            "knocked out. A gene name takes every one of its guides; a guide "
+            "name takes just that guide, in any of the four spellings spaCR "
+            "reads. With them named, effects can be measured FROM the null "
+            "rather than from zero."),
     ),
     Question(
         key="cost",
@@ -625,11 +627,46 @@ def _plate(reading: Reading, chosen: List[Choice],
             f"there is {reading.plates} plate, and a batch correction needs "
             f"at least two batches to estimate anything"))
     else:
+        # PER-PLATE CENTRING, which needs nothing but the plate. It removes
+        # the plate's own mean and estimates NOTHING from the residuals, so
+        # there is no design for it to mistake signal for noise against.
         chosen.append(Choice(
-            "batch_correction", "combat",
-            f"{reading.plates} plates, so plate is a batch the response can "
-            f"carry; ComBat removes it while keeping the within-plate "
-            f"variance the fit needs"))
+            "batch_correction", "center",
+            f"{reading.plates} plates, so plate is a batch the response "
+            f"carries; per-plate centring removes it without estimating "
+            f"anything from the residuals"))
+        # `control_center` IS THE BETTER ONE AND IS NOT PROPOSED, because it
+        # centres each plate on its CONTROL WELLS -- values in a column --
+        # and which wells those are is not in the count or score tables.
+        # Naming it here is the difference between a default and a ceiling.
+        undecided.append(Undecided(
+            "batch_control_values",
+            "left alone. `batch_correction='control_center'` is the stronger "
+            "correction -- each plate centred on its own controls rather "
+            "than on all its wells -- but it needs to know WHICH WELLS hold "
+            "them, and that is not in these tables. Set batch_control_column "
+            "and batch_control_values and it becomes available."))
+
+    # NOT ComBat, AND THAT IS A DECISION (196). ComBat estimates the plate
+    # effect from whatever the design does not explain, and it REFUSES to run
+    # until the caller says which biology to protect from that -- correctly,
+    # because in a pooled screen the biology is the per-well GUIDE
+    # COMPOSITION, which is continuous and is not a categorical covariate
+    # column. There is nothing honest to pass, so proposing ComBat means
+    # proposing a run that either refuses or removes the effects being
+    # looked for.
+    #
+    # This module used to propose it anyway, with no covariate. The proposal
+    # was accepted, the run was pressed, and it failed on the refusal --
+    # which is the whole reason 196 exists.
+    if reading.plates > 1:
+        undecided.append(Undecided(
+            "batch_covariate_column",
+            "not needed: the proposed correction estimates nothing from the "
+            "residuals, so there is no biology for a covariate to protect. "
+            "It is required only by ComBat, which is not proposed here for "
+            "exactly that reason -- in a pooled screen the signal is the "
+            "per-well guide composition, and that is not a column."))
     if reading.rows > 1 and reading.columns > 1:
         chosen.append(Choice(
             "model_plate_position", True,
@@ -726,21 +763,31 @@ def _significance(reading: Reading, answers: Dict[str, Any],
 
 def _controls(reading: Reading, answers: Dict[str, Any],
               chosen: List[Choice], undecided: List[Undecided]) -> None:
-    """The controls, resolved through the one reader (184)."""
-    typed = str(answers.get("controls") or "").strip()
+    """The non-cutting controls, resolved through the one reader (184).
+
+    `controls`, NOT `negative_control`, AND THE TWO ARE DIFFERENT THINGS.
+    Corrected by the maintainer 2026-08-21: "233460 is the negative control,
+    000000 is the non cutting control." The negative control is a real gene
+    knocked out and expected to show nothing; the non-cutting guides bind
+    without cutting and are the EMPIRICAL NULL every threshold and baseline
+    is measured against. This question asks for the second, so writing its
+    answer into the first would rename the screen's null.
+    """
+    typed = [t.strip() for t in
+             str(answers.get("controls") or "").split(",") if t.strip()]
     if not typed:
         undecided.append(Undecided(
-            "negative_control",
-            "no non-targeting control was named, so effects stay measured "
-            "from zero — 'no dose-response' — rather than from an untargeted "
-            "well. That is a defensible baseline and it is not the one a "
-            "reader of a screen figure assumes."))
+            "controls",
+            "no non-cutting control was named, so effects stay measured from "
+            "zero -- 'no dose-response' -- rather than from the guides that "
+            "cut nothing. That is a defensible baseline and it is not the "
+            "one a reader of a screen figure assumes."))
         return
     chosen.append(Choice(
-        "negative_control", typed,
-        f"you named {typed!r}; spaCR resolves a gene to every one of its "
-        f"guides and a guide to itself, in any of the four spellings a "
-        f"library writes"))
+        "controls", typed,
+        f"you named {', '.join(repr(t) for t in typed)} as the non-cutting "
+        f"control; spaCR resolves a gene to every one of its guides and a "
+        f"guide to itself, in any of the four spellings a library writes"))
 
 
 def advise(reading: Reading,
@@ -769,3 +816,102 @@ def advise_the_screen(counts: Sequence[str] = (), scores: Sequence[str] = (),
     """Read and advise in one call, for a caller that has only paths."""
     return advise(read_the_screen(counts, scores, dependent_variable,
                                   row_cap=row_cap), answers)
+
+
+# ---------------------------------------------------------------------------
+# 196 B: a proposal that the run would refuse is not a proposal
+# ---------------------------------------------------------------------------
+
+def refusals(settings: Mapping[str, Any]) -> Tuple[str, ...]:
+    """Why the RUN would refuse ``settings``, in its own words.
+
+    THE CANONICALISER IS NOT THE VALIDATOR, and that distinction is what
+    196 is about. `get_perform_regression_default_settings` fills defaults
+    and coerces types; it says nothing about whether the combination can be
+    fitted. A test asserted every proposed key survived canonicalisation, it
+    passed, and the run still stopped on
+
+        ValueError: batch_correction='combat' needs to know which biology to
+        keep.
+
+    So this asks the things that actually refuse, before the user is told
+    the question is settled. Each entry is the refusing code's OWN sentence
+    where there is one -- a paraphrase would drift from it.
+
+    :param settings: a proposal, or any settings dict.
+    :returns: one sentence per refusal, empty when the run would start.
+    """
+    said: List[str] = []
+    got = dict(settings or {})
+
+    # 1. ComBat without a covariate. The one that was actually hit.
+    if str(got.get("batch_correction") or "").lower() == "combat":
+        from .batch_correction import NO_COVARIATE
+
+        covariate = got.get("batch_covariate_column")
+        if covariate is None or (isinstance(covariate, str)
+                                 and not covariate.strip()):
+            said.append(
+                "batch_correction='combat' needs to know which biology to "
+                "keep, and no batch_covariate_column is set. Name the "
+                f"condition/treatment column, or set it to {NO_COVARIATE!r} "
+                "to state that there is nothing to preserve.")
+
+    # 2. `control_center` with nothing to centre on.
+    if str(got.get("batch_correction") or "").lower() == "control_center":
+        if not got.get("batch_control_column"):
+            said.append(
+                "batch_correction='control_center' requires "
+                "batch_control_column and at least one batch_control_value.")
+
+    # 3. A setting the chosen estimator cannot read. `perform_regression`
+    #    REFUSES these rather than ignoring them, so a number left on the
+    #    panel from another model stops the run.
+    kind = str(got.get("regression_type") or "").lower()
+    try:
+        from .regression_spec import REGRESSION_SETTINGS_USED
+
+        if kind and kind not in REGRESSION_SETTINGS_USED:
+            said.append(
+                f"regression_type={kind!r} is not one of "
+                f"{', '.join(sorted(REGRESSION_SETTINGS_USED))}.")
+    except Exception:                                        # noqa: BLE001
+        pass
+
+    return tuple(said)
+
+
+def advise_that_runs(reading: Reading,
+                     answers: Optional[Dict[str, Any]] = None) -> Advice:
+    """:func:`advise`, with the proposal checked against the run.
+
+    A refusal is not silently patched: the setting that causes it is MOVED
+    OUT of the proposal and into `undecided`, carrying the refusing code's
+    own sentence. Leaving the panel as the user had it and saying why is
+    the honest answer -- quietly changing a value to make a check pass is
+    how a proposal stops meaning anything.
+    """
+    advice = advise(reading, answers)
+    from .settings import get_perform_regression_default_settings
+
+    try:
+        whole = get_perform_regression_default_settings(
+            dict(advice.as_settings()))
+    except Exception:                                        # noqa: BLE001
+        whole = dict(advice.as_settings())
+    said = refusals(whole)
+    if not said:
+        return advice
+
+    # WHICH SETTING TO WITHDRAW. Named from the sentence rather than guessed:
+    # every refusal above quotes the key it is about.
+    chosen, withdrawn = [], list(advice.undecided)
+    for choice in advice.chosen:
+        blamed = [s for s in said if choice.key in s]
+        if blamed:
+            withdrawn.append(Undecided(
+                choice.key,
+                f"withdrawn: the run would refuse it. {blamed[0]}"))
+        else:
+            chosen.append(choice)
+    return Advice(tuple(chosen), tuple(withdrawn), advice.reading)
