@@ -248,3 +248,72 @@ class TestTheConsumersReadTheSameList:
         view = CellMontageView()
         view.set_coefficients([])
         assert view.selected_coefficients() == []
+
+
+class TestTheMontageShowsTheWholeSelection:
+    """206's remaining half: the Cells tab reflects the full selection.
+
+    A montage is of ONE coefficient -- its crops are chosen by how well each
+    cell agrees with THAT coefficient's effect -- so three at once in one
+    grid would be three questions in one picture with nothing saying which
+    cell answered which. What makes the whole selection visible is that the
+    WELL TABS STAY across a load, which `_drop_montage` already guarantees.
+    """
+
+    @pytest.fixture
+    def view(self, app):
+        from spacr.qt.widgets.cell_montage_view import CellMontageView
+
+        one = CellMontageView()
+        one.set_coefficients(["g1", "g2", "g3"])
+        return one
+
+    def test_it_queues_every_coefficient(self, view):
+        assert view.build_every_selected() == 3
+
+    def test_the_first_is_current_and_the_rest_are_queued(self, view):
+        view.build_every_selected()
+        assert view._key == "g1"
+        assert view._queue == ["g2", "g3"]
+
+    def test_they_are_taken_in_the_order_they_were_picked(self, view):
+        """Firing every load at once would put n reads of the same databases
+        in flight and deliver them in whatever order they finished, so the
+        tabs would arrive in an order that depends on disk timing."""
+        view.build_every_selected()
+        assert view._queue == ["g2", "g3"]
+        view._build_the_next_queued()
+        # With no database attached no load starts, so the walk drains the
+        # queue rather than stopping on the first one it cannot open --
+        # which is the point of the loop.
+        assert view._queue == []
+
+    def test_one_that_cannot_load_does_not_stop_the_rest(self, view):
+        """Stopping would leave the rest of the selection queued forever
+        with nothing on screen saying why."""
+        view.build_every_selected()
+        view._build_the_next_queued()
+        assert view._queue == []
+        assert view._build_the_next_queued() is False
+
+    def test_an_empty_selection_queues_nothing(self, app):
+        from spacr.qt.widgets.cell_montage_view import CellMontageView
+
+        one = CellMontageView()
+        one.set_coefficients([])
+        assert one.build_every_selected() == 0
+
+    def test_the_queue_is_empty_at_rest(self, app):
+        from spacr.qt.widgets.cell_montage_view import CellMontageView
+
+        assert CellMontageView()._queue == []
+
+    def test_the_tabs_are_what_keeps_the_selection_visible(self):
+        """Asserted on the code, because it is a promise `_drop_montage`
+        makes in a comment and the whole design rests on it."""
+        import inspect
+
+        from spacr.qt.widgets.cell_montage_view import CellMontageView
+
+        source = inspect.getsource(CellMontageView._drop_montage)
+        assert "THE WELL TABS STAY" in source

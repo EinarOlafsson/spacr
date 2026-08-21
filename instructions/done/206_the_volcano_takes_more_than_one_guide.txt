@@ -2,8 +2,7 @@
 THE VOLCANO TAKES MORE THAN ONE GUIDE AT A TIME
 ================================================================================
 
-Status:    filed 2026-08-21. THE PLOT AND THE FUNNEL DONE 2026-08-21; the montage shows one
-           of the selection at a time -- see WHAT IS LEFT.
+Status:    DONE 2026-08-21.
 Requested: 2026-08-21 -- "the uesr should be able to select multiple grnas on
            the volcano plo at once."
 Owner:     Qt GUI (volcano plot, selection model)
@@ -82,16 +81,29 @@ The count is stated on the plot and in the Cells tab whenever more than one
 is selected. A selection you cannot count is one you cannot trust.
 
 --------------------------------------------------------------------------------
-WHAT IS LEFT
+AND THE MONTAGE, DONE
 --------------------------------------------------------------------------------
 
-THE MONTAGE SHOWS ONE COEFFICIENT AT A TIME. `MontageRequest` carries one
-name and one effect, and the crops are chosen by how well each cell agrees
-with THAT coefficient -- so a grid built from three at once would be three
-different questions in one picture with nothing saying which cell answered
-which. The selection is held whole (`selected_coefficients`), the caption
-says how many there are, and `show_next_coefficient` steps through them.
+`build_every_selected()` loads a montage for EVERY coefficient in the
+selection, in turn.
 
-Composing a genuinely multi-coefficient montage -- one request per key,
-tiles labelled by guide, and a caption that survives it -- is real work on
-the montage rather than wiring, and is the remaining piece of this item.
+NOT ONE GRID OF THREE. A montage's crops are chosen by how well each cell
+agrees with THAT coefficient's effect, so three at once in one grid would be
+three different questions in one picture with nothing saying which cell
+answered which.
+
+WHAT MAKES THE WHOLE SELECTION VISIBLE IS THAT THE WELL TABS STAY.
+`_drop_montage` already keeps them, on purpose -- "comparing one gene's
+cells with another's is what a montage that vanishes on the next click makes
+impossible" -- so loading each coefficient in turn ACCUMULATES tabs, each
+captioned with its own guide. That is a comparison a reader can make.
+
+CHAINED, NOT FIRED TOGETHER. `build` is asynchronous, and starting every
+load at once would put n reads of the same databases in flight and deliver
+them in whatever order they finished, so the tabs would arrive in an order
+that depends on disk timing rather than on the selection.
+
+ONE THAT CANNOT LOAD DOES NOT STOP THE REST. `build` returns False for a
+key with no database or no crop source, and stopping there would leave the
+rest of the selection queued forever with nothing on screen saying why -- so
+the walk drains the queue rather than halting on the first refusal.

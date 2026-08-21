@@ -1521,6 +1521,9 @@ class CellMontageView(QWidget):
         #: Every coefficient in the current selection. The grid shows one at
         #: a time while preserving the complete selection for linked views.
         self._keys: List[str] = []
+        #: Coefficients still to load, when `build_every_selected` is
+        #: walking the selection. Empty at rest.
+        self._queue: List[str] = []
         self._level: str = "gene"
         self._effect: Optional[float] = None
         self._plans: Tuple[Any, ...] = ()
@@ -1873,6 +1876,55 @@ class CellMontageView(QWidget):
         return list(getattr(self, "_keys", []) or
                     ([self._key] if self._key else []))
 
+    def build_every_selected(self) -> int:
+        """Load a montage for EVERY coefficient in the selection, in turn.
+
+        Instruction 206's remaining half. A montage is of ONE coefficient --
+        the crops are chosen by how well each cell agrees with THAT
+        coefficient's effect -- so three at once in one grid would be three
+        different questions in one picture with nothing saying which cell
+        answered which.
+
+        WHAT MAKES THE WHOLE SELECTION VISIBLE IS THAT THE WELL TABS STAY.
+        `_drop_montage` deliberately keeps them: "comparing one gene's cells
+        with another's is what a montage that vanishes on the next click
+        makes impossible". So loading each coefficient in turn ACCUMULATES
+        tabs, each captioned with its own guide -- which is a comparison the
+        reader can actually make, rather than a grid they cannot decode.
+
+        ONE AT A TIME, CHAINED. `build` is asynchronous, and firing every
+        load at once would put n reads of the same databases in flight and
+        deliver them in whatever order they finished -- so the tabs would
+        arrive in an order that depends on disk timing rather than on the
+        selection.
+
+        :returns: how many coefficients were queued.
+        """
+        keys = self.selected_coefficients()
+        if not keys:
+            return 0
+        self._queue = list(keys[1:])
+        self.set_coefficient(keys[0])
+        self.build()
+        return len(keys)
+
+    def _build_the_next_queued(self) -> bool:
+        """Start the next queued coefficient. Returns whether one was taken.
+
+        ONE COEFFICIENT THAT CANNOT LOAD MUST NOT STOP THE REST. `build`
+        returns False when this key has no request -- no database, no crop
+        source -- and stopping there would leave the rest of the selection
+        queued forever with nothing on screen saying why. So the queue is
+        walked until a load actually starts or it is empty, and the ones
+        that could not load have already said so in their own status.
+        """
+        while getattr(self, "_queue", None):
+            key = self._queue.pop(0)
+            self.set_coefficient(key)
+            if self.build():
+                return True
+        return False
+
     def show_next_coefficient(self) -> Optional[str]:
         """Move the grid to the next coefficient in the selection.
 
@@ -2221,6 +2273,11 @@ class CellMontageView(QWidget):
         self._refresh_controls()
         self._ensure_graph_tab()
         self.montage_ready.emit(result.n_objects)
+        # AND THE NEXT ONE, if `build_every_selected` queued any. Chained
+        # here rather than started together, so the tabs arrive in the order
+        # the user picked the guides rather than in the order the disk
+        # happened to answer.
+        self._build_the_next_queued()
 
     def _on_job_failed(self, message: str) -> None:
         """The runner itself raised. Say so rather than staying blank."""
