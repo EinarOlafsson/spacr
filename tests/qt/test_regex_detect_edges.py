@@ -150,19 +150,31 @@ def test_auto_detect_hit_count_always_matches_reality(files):
     assert hits == real, f"{label} claimed {hits}/{len(files)}, really {real}"
 
 
-def test_synthesised_regex_generalises_a_bare_digit_run():
+def test_a_bare_digit_run_is_generalised_not_baked_in():
     """BUG (fixed): a numeric token was escaped literally into the regex.
 
-    ``IMG_0001.tif`` yielded ``(?P<plateID>...)_0001\\.(?:tif|...)$``,
-    which matched the one template file and nothing else in the folder.
+    ``IMG_0001.tif`` yielded ``(?P<plateID>...)_0001\\.(?:tif|...)$``, which
+    matched the one template file and nothing else in the folder.
+
+    THE PROPERTY, NOT THE PRODUCER. This asserted `label == "synthesised"`
+    and that the varying token came back as `plateID`; 137's inference now
+    wins this set with `IMG_(?P<chanID>\\d+)\\.tif`, which fixes the same bug
+    better -- it aligns the whole set instead of templating one file.
+
+    AND NEITHER ROLE IS KNOWABLE HERE. `IMG_0001/0002/0003` is a run of
+    sequentially numbered images; whether that number is a plate, a field or
+    a channel is not in the names, which is exactly why 137 C put a dropdown
+    on it and did not let the detector decide. So what is asserted is what
+    the bug was about: the digits are generalised, every file matches, and
+    the varying token is captured under SOME name.
     """
     files = ["IMG_0001.tif", "IMG_0002.tif", "IMG_0003.tif"]
-    pattern, label, hits = rd.auto_detect_regex(files)
-    assert label == "synthesised"
+    pattern, _label, _hits = rd.auto_detect_regex(files)
     assert "0001" not in pattern, pattern
     rx = re.compile(pattern)
     assert [f for f in files if rx.match(f)] == files
-    assert rx.match("IMG_0002.tif").group("plateID") == "IMG"
+    got = rx.match("IMG_0002.tif").groupdict()
+    assert "0002" in got.values(), got
 
 
 # ---------------------------------------------------------------------------

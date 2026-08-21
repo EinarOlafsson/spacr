@@ -4681,8 +4681,16 @@ def regression_model_explainer(regression_type: Any,
 #: per-threshold family is the `for threshold in thresholds` loop that
 #: corrects each support level on its own.
 _PERMUTATION_NOTE = (
+    # BOTH THE PLAIN WORDS AND THE TERM. The longhand -- "one coefficient in
+    # a design holding every guide at once" -- is what a reader who does not
+    # know the vocabulary needs; "conditional coefficients" is what a reader
+    # who does will look for, and it is the phrase
+    # `guide_freedman_lane_test`'s own docstring uses when it says the test
+    # "does not claim to estimate a simultaneous conditional coefficient".
+    # Dropping the term left the distinction true but unsearchable.
     "Each guide is tested independently, as a marginal association rather "
-    "than as one coefficient in a design holding every guide at once. Its "
+    "than as one coefficient in a design holding every guide at once -- so "
+    "these are marginal associations, not conditional coefficients. Its "
     "read fraction and the well phenotype are first residualised against "
     "the block (normally plateID) and any nuisance columns; the P value is "
     "then the share of Freedman-Lane permutations -- the phenotype residual "
