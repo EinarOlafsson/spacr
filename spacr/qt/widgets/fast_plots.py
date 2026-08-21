@@ -4813,19 +4813,27 @@ class FastPlot(QWidget):
 
     def export_bundle(self, folder: Optional[str] = None,
                       name: str = "") -> Optional[str]:
-        """Save this graph as a FOLDER: pdf, png, data and statistics.
+        """Export the graph with its data, statistics, and settings.
 
-        Instruction 223. A pdf on its own cannot be checked -- six months
-        later the question is always what the numbers were and whether the
-        difference was tested, and a figure file answers neither.
+        Parameters
+        ----------
+        folder : str, optional
+            Parent directory for the bundle. A directory chooser opens when
+            omitted.
+        name : str, optional
+            Bundle and graph name. The plot title is used when omitted.
 
-        THE PDF AND THE PNG ARE THE SAME FIGURE. `export` is called twice
-        from unchanged state rather than the plot being redrawn between
-        them, so the two cannot differ.
+        Returns
+        -------
+        str or None
+            Created bundle directory, or ``None`` when directory selection is
+            cancelled.
 
-        :param folder: where to put the bundle; a dialog opens when omitted.
-        :param name: the graph's name; its title, then "graph".
-        :returns: the folder written, or None if the user cancelled.
+        Notes
+        -----
+        PDF and PNG files are exported from the same plot state. The bundle
+        also records the displayed data, statistical comparison, and relevant
+        plot settings.
         """
         if isinstance(folder, bool):        # a signal's checked state
             folder = None
@@ -4845,30 +4853,22 @@ class FastPlot(QWidget):
                     settings=self.export_settings())
 
     def comparison_groups(self) -> Optional[dict]:
-        """``{label: values}`` for the statistics file, or ``None``.
+        """Return labeled values for export-time statistical comparison.
 
-        NONE IS THE HONEST DEFAULT. A scatter or a one-column histogram has
-        no test to run, and inventing groups for it would put a p-value in
-        the folder for a comparison nobody made. A subclass that DOES draw
-        groups overrides this; the bundle then says what was compared.
+        Returns
+        -------
+        dict or None
+            Mapping of group labels to values. The base plot has no defined
+            comparison; grouped subclasses override this method.
         """
         return None
 
     def comparison_unit(self) -> str:
-        """What one observation is -- 'well', 'cell', 'guide'.
-
-        Stated because a test across cells when the replicate is the well is
-        pseudoreplication and returns p < 1e-10 on noise.
-        """
+        """Return the experimental unit used by exported statistics."""
         return "observation"
 
     def export_settings(self) -> dict:
-        """What produced this graph, for `settings.json`.
-
-        The data csv is the rows AFTER filtering, which is what the graph
-        shows -- so without the filters recorded beside it the numbers
-        cannot be reproduced.
-        """
+        """Return plot metadata written to the bundle settings file."""
         out = {"plot": type(self).__name__}
         title = getattr(self.plot.plotItem.titleLabel, "text", "")
         if title:

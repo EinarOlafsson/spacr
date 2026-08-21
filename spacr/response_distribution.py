@@ -1,22 +1,9 @@
-"""One panel showing the response before and after its transform.
+"""Compare a response distribution before and after transformation.
 
-Instruction 218: "i want to see a histogram of the dependent variable
-distribution after and before transformation (same graph) in the graphs
-clearly stating what type of distribution each is, normal bets, etcetera".
-
-THE TRANSFORM IS THE MOST CONSEQUENTIAL SETTING NOBODY LOOKS AT. It decides
-which model family is even appropriate, it is chosen from a dropdown, and
-its effect is invisible until the coefficients come out the other end -- so
-a user who picks the wrong one gets a fit that runs, plots, exports and is
-wrong in a way no error can catch.
-
-ONE GRAPH, NOT TWO. The question is what CHANGED, and two panels side by
-side is a comparison the reader has to do themselves.
-
-THE NAME COMES FROM `spacr.ml.check_distribution`, which is the function
-that picks the regression family. Writing a second classifier for the
-picture would let the panel and the fitted model disagree about the same
-data, and the panel is the one the user would believe.
+The module applies the same transformation and distribution classifier used
+by the regression pipeline. Its combined histogram therefore provides a
+diagnostic of how the selected transformation changes the response and the
+candidate model family.
 """
 from __future__ import annotations
 
@@ -27,9 +14,7 @@ import numpy as np
 
 LOG = logging.getLogger("spacr.response_distribution")
 
-#: What each `check_distribution` answer is called on the panel. Its return
-#: values are REGRESSION FAMILIES, and a histogram labelled "quasi_binomial"
-#: tells a reader what spaCR would fit rather than what they are looking at.
+#: Human-readable distribution labels for ``check_distribution`` results.
 FAMILY_NAMES: Dict[str, str] = {
     "logit": "binary",
     "quasi_binomial": "bounded, touching 0 or 1",
@@ -38,24 +23,26 @@ FAMILY_NAMES: Dict[str, str] = {
     "glm": "non-negative and skewed",
 }
 
-#: Transforms whose output is not comparable on the input's axis. A log of a
-#: proportion and the proportion itself share no scale, so the two histograms
-#: get their own x axes rather than being forced onto one that flatters
-#: neither.
+#: Transformations whose output requires a separate horizontal axis.
 RESCALING = ("log", "sqrt", "square", "beta", "logit")
 
 
 def describe(values: Sequence[float]) -> Dict[str, Any]:
-    """Name the distribution of ``values``, and give the numbers behind it.
+    """Summarize and classify a response distribution.
 
-    THE STATISTIC TRAVELS WITH THE NAME so the label can be disagreed with.
-    A panel that says "normal" and shows nothing else is asking to be taken
-    on faith about the one thing the reader came to check.
+    Parameters
+    ----------
+    values : sequence of float
+        Response values before or after transformation. Non-finite values
+        are excluded.
 
-    :param values: the response, before or after its transform.
-    :returns: ``family``, ``name``, ``normality_p``, ``skew``, ``n``,
-        ``low``, ``high``. ``family`` is ``""`` when there is too little
-        data to classify, which is an answer rather than a failure.
+    Returns
+    -------
+    dict
+        Sample size, range, skewness, D'Agostino normality-test p-value,
+        regression-family identifier, and display label. The family is empty
+        when fewer than eight finite observations are available or
+        classification fails.
     """
     data = np.asarray(values, dtype=float)
     data = data[np.isfinite(data)]
@@ -95,12 +82,21 @@ def describe(values: Sequence[float]) -> Dict[str, Any]:
 
 
 def transformed(values: Sequence[float], transform: str) -> np.ndarray:
-    """Apply ``transform`` the way a run would. Returns the new values.
+    """Apply the regression pipeline's response transformation.
 
-    THROUGH `spacr.ml.apply_transformation`, never a second implementation:
-    a panel showing a log the fit did not take is worse than no panel.
-    ``'none'`` and anything unrecognised come back unchanged, which is what
-    the run does with them too.
+    Parameters
+    ----------
+    values : sequence of float
+        Response values to transform.
+    transform : str
+        Transformation accepted by :func:`spacr.ml.apply_transformation`.
+
+    Returns
+    -------
+    numpy.ndarray
+        Transformed values. Values are returned unchanged for ``"none"``, an
+        unsupported transformation, or a transformation that cannot be
+        applied.
     """
     data = np.asarray(values, dtype=float)
     name = str(transform or "").strip().lower()
@@ -125,10 +121,21 @@ def transformed(values: Sequence[float], transform: str) -> np.ndarray:
 
 
 def compare(values: Sequence[float], transform: str) -> Dict[str, Any]:
-    """Both distributions and both names, for the panel and for a test.
+    """Compare response distributions before and after transformation.
 
-    :returns: ``before``, ``after`` (each a :func:`describe` dict),
-        ``transform``, ``changed`` and ``rescaled``.
+    Parameters
+    ----------
+    values : sequence of float
+        Response values. Non-finite values are excluded.
+    transform : str
+        Transformation to evaluate.
+
+    Returns
+    -------
+    dict
+        The original and transformed arrays, their summaries, the normalized
+        transformation name, and flags indicating whether values changed and
+        whether the transformed values require a separate axis.
     """
     data = np.asarray(values, dtype=float)
     data = data[np.isfinite(data)]
@@ -150,7 +157,7 @@ def compare(values: Sequence[float], transform: str) -> Dict[str, Any]:
 
 
 def caption(result: Dict[str, Any]) -> str:
-    """The sentence under the panel. Names both, with their statistics."""
+    """Format a statistical caption for a :func:`compare` result."""
     before, after = result["before"], result["after"]
 
     def one(part: Dict[str, Any]) -> str:
@@ -174,14 +181,25 @@ def caption(result: Dict[str, Any]) -> str:
 
 def panel(values: Sequence[float], transform: str, ax=None,
           dependent_variable: str = ""):
-    """Draw both histograms on one axes. Returns the :func:`compare` dict.
+    """Plot response distributions before and after transformation.
 
-    :param ax: draw here; a new figure is made when omitted. Through
-        ``matplotlib.figure.Figure`` rather than pyplot in that case -- a
-        Figure pyplot never sees cannot be leaked into its global registry,
-        which this repo has been bitten by more than once.
-    :param dependent_variable: named on the axis, so a panel pasted into a
-        notebook still says what it is about.
+    Parameters
+    ----------
+    values : sequence of float
+        Response values to compare.
+    transform : str
+        Transformation to apply.
+    ax : matplotlib.axes.Axes, optional
+        Axes on which to draw. A standalone figure and axes are created when
+        omitted.
+    dependent_variable : str, optional
+        Response name shown on the horizontal axis.
+
+    Returns
+    -------
+    dict
+        Result from :func:`compare`, augmented with the primary axes under
+        ``"axes"``.
     """
     result = compare(values, transform)
     if ax is None:

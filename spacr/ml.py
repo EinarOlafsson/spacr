@@ -1857,16 +1857,11 @@ def process_model_coefficients(model, regression_type, X, y, nc, pc, controls,
     return coef_df[~coef_df['feature'].str.contains('row|column')]
 
 def _show_response_distribution(before_df, dependent_variable, settings):
-    """Put the before/after transform panel on the figure grid.
+    """Display the response distribution before and after transformation.
 
-    THROUGH `plt.show()`, which the Qt bridge intercepts, so the panel lands
-    in the figure queue beside every other panel of the run rather than
-    being written to a file nobody opens.
-
-    IT DRAWS EVEN WHEN THE TRANSFORM IS 'none'. An absent panel reads as a
-    missing feature rather than as an answer, and "this setting is currently
-    doing nothing" is exactly what a user who picked the wrong one needs to
-    see (instruction 218).
+    The panel is emitted through Matplotlib so the Qt bridge can add it to the
+    figure queue. It is also shown when no transformation is selected, making
+    the unchanged distribution explicit.
     """
     if before_df is None or not settings.get('plot', True):
         return

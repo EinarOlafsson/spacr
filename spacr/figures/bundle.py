@@ -1,19 +1,9 @@
-"""Saving a graph writes a FOLDER, not a file (instruction 223).
+"""Export a graph with its data, statistics, and generating settings.
 
-    <graph name>/
-        <graph name>.pdf      vector, for the manuscript
-        <graph name>.png      raster, for slides and Slack
-        data.csv              the rows the graph was drawn from
-        statistics.csv        the test, its assumptions, and its result
-        settings.json         what produced it
-
-A PDF ON ITS OWN CANNOT BE CHECKED. Six months later the question is always
-the same -- what were the numbers, and was that difference tested -- and a
-figure file answers neither.
-
-THE STATISTICS COME FROM `spacr.figures.stats.compare`, never a second
-implementation. A figure whose saved statistics disagree with the same
-comparison drawn on screen is worse than one with no statistics at all.
+Each export creates a uniquely named directory containing PDF and PNG
+renderings, the plotted data, a statistical summary, and a JSON settings
+record. Statistical summaries use :func:`spacr.figures.stats.compare`, the
+same comparison engine used by interactive figures.
 """
 from __future__ import annotations
 
@@ -59,12 +49,18 @@ def _unique(folder: str) -> str:
 
 
 def statistics_rows(comparison) -> list:
-    """One :class:`~spacr.figures.stats.Comparison` as csv rows.
+    """Convert a statistical comparison into labeled CSV rows.
 
-    A P-VALUE ALONE IS NOT A RESULT, so every row the instruction lists is
-    here: the groups and their n, the unit, both assumption checks with the
-    test used for each and why, the chosen test and the reason it was chosen,
-    the statistic, the p-value, and an effect size with its interval.
+    Parameters
+    ----------
+    comparison : spacr.figures.stats.Comparison
+        Comparison containing group sizes, assumption checks, test results,
+        and effect estimates.
+
+    Returns
+    -------
+    list of tuple
+        ``(item, value, note)`` rows suitable for ``statistics.csv``.
     """
     rows = [("unit", comparison.unit,
              "what ONE observation is; a test across cells when the "
@@ -107,11 +103,23 @@ def statistics_rows(comparison) -> list:
 def statistics_frame(groups: Optional[Mapping[str, Sequence]] = None, *,
                      unit: str = "observation",
                      paired: bool = False) -> pd.DataFrame:
-    """The statistics table for these groups. Never raises.
+    """Build the statistical table stored with an exported graph.
 
-    A COMPARISON THAT COULD NOT BE MADE IS NOT A COMPARISON WITH AN UNKNOWN
-    ANSWER. `compare` raises rather than returning NaN, and the file says the
-    comparison was refused and WHY rather than leaving an empty cell.
+    Parameters
+    ----------
+    groups : mapping of str to sequence, optional
+        Values grouped by comparison label. Fewer than two groups produce an
+        explanatory row rather than a statistical test.
+    unit : str, default="observation"
+        Experimental unit represented by one value.
+    paired : bool, default=False
+        Whether observations are paired across groups.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Columns ``item``, ``value``, and ``note``. Comparison errors are
+        recorded in the table instead of being raised.
     """
     columns = ["item", "value", "note"]
     if not groups or len(groups) < 2:
@@ -135,21 +143,32 @@ def save(folder: str, name: str, *,
          unit: str = "observation",
          paired: bool = False,
          settings: Optional[Mapping[str, Any]] = None) -> str:
-    """Write the whole bundle. Returns the folder actually written.
+    """Write a reproducible figure-export bundle.
 
-    :param folder: where the bundle folder goes.
-    :param name: the graph's name; the folder and both figures take it.
-    :param render: called with a path per format. RENDERED ONCE PER FORMAT
-        BY THE CALLER, because only the caller knows how to draw itself --
-        but from the same state both times, so the pdf and the png are the
-        same figure rather than two draws that could differ.
-    :param data: the rows the graph was drawn from, AFTER filtering, which
-        is what the graph shows.
-    :param groups: ``{label: values}`` for the statistics, or None for a
-        graph with nothing to compare.
-    :param settings: what produced it. Without the filters recorded beside
-        the data the numbers cannot be reproduced.
-    :returns: the folder path.
+    Parameters
+    ----------
+    folder : str
+        Parent directory for the export.
+    name : str
+        Graph name used for the directory and image files.
+    render : callable
+        Function called once with the PDF path and once with the PNG path.
+    data : pandas.DataFrame, optional
+        Filtered rows represented by the graph.
+    groups : mapping of str to sequence, optional
+        Values used to generate ``statistics.csv``.
+    unit : str, default="observation"
+        Experimental unit represented by one value.
+    paired : bool, default=False
+        Whether group observations are paired.
+    settings : mapping, optional
+        Settings and filters used to generate the graph.
+
+    Returns
+    -------
+    str
+        Path to the newly created bundle directory. A numeric suffix is added
+        when the requested directory already exists.
     """
     safe = "".join(c if c.isalnum() or c in "-_. " else "_"
                    for c in str(name or "graph")).strip() or "graph"
