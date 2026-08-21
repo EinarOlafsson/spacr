@@ -3763,6 +3763,12 @@ def _count_files_of(settings) -> list:
     return paths
 
 
+#: Where the scan records which plate a count file stands for, when the file
+#: itself does not say. A frame attribute rather than a column, so nothing
+#: downstream sees an invented plate in the data.
+_FILE_PLATE = "spacr_scan_plate"
+
+
 def _well_keys(frame):
     """One identifier per well in a count frame, or ``None``.
 
@@ -3780,8 +3786,21 @@ def _well_keys(frame):
         return (frame["plate_row"].astype(str) + KEY_SEPARATOR
                 + frame["columnID"].astype(str))
     if {"rowID", "columnID"} <= columns:
-        plate = (frame["plateID"].astype(str) if "plateID" in columns
-                 else "plate1")
+        if "plateID" in columns:
+            plate = frame["plateID"].astype(str)
+        else:
+            # NO PLATE COLUMN, SO THE WELLS OF THIS FILE ARE THIS FILE'S.
+            # It used to substitute the literal "plate1", which is the guess
+            # its own docstring forbids -- and it cost exactly what that
+            # sentence predicts: the example screen's four count files each
+            # name the same 384 row/column pairs, so the union across them
+            # was 384 for a 1,536-well screen. Off by the number of plates,
+            # stated confidently, on the first line of the console.
+            #
+            # `_FILE_PLATE` is filled by the caller with the file's position,
+            # which is the same rule `load_regression_input_pairs` uses when
+            # neither side declares a plate: the pair-row order.
+            plate = str(frame.attrs.get(_FILE_PLATE, "plate1"))
         return (plate + KEY_SEPARATOR + frame["rowID"].astype(str)
                 + KEY_SEPARATOR + frame["columnID"].astype(str))
     return None
@@ -3838,18 +3857,33 @@ def regression_design_scan(settings) -> dict:
         out["note"] = "no count files in the settings"
         return out
 
-    import pandas as pd
+    # THE ONE READER (145), and this line is why. Reading raw, the count
+    # tables of the example screen -- which spell their keys `row_name` and
+    # `column_name` -- carried no column this scan recognises, so it reported
+    # "no 'prc', 'plate_row' or 'rowID'/'columnID' column, so wells were not
+    # counted" over 642,551 rows that name 1,536 wells perfectly well.
+    #
+    # A count of NOTHING, printed confidently, on a table that has the
+    # answer: exactly the failure instruction 145 exists to stop, and the
+    # first line of the console a user reads before a run.
+    #
+    # `report=None`, because a column-collision note belongs to the run and
+    # not to a sizing scan the user did not ask for.
+    from ...tabular import read_table
 
     names, wells, unread = set(), set(), []
     no_wells = False
     for path in paths:
         try:
-            frame = pd.read_csv(path)
+            frame = read_table(path, report=None)
         except Exception as error:                              # noqa: BLE001
             unread.append(f"{path} ({type(error).__name__})")
             continue
         out["files"] += 1
         out["rows"] += int(len(frame))
+        # ONE FILE IS ONE PLATE when the file does not say otherwise, which
+        # is `load_regression_input_pairs`' rule for the same question.
+        frame.attrs[_FILE_PLATE] = f"plate{out['files']}"
         column = ("grna" if "grna" in frame.columns else
                   "grna_name" if "grna_name" in frame.columns else None)
         if column is not None:

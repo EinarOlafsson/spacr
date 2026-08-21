@@ -207,3 +207,50 @@ def Advice_with(advice, key, value):
     got = dict(advice.as_settings())
     got[key] = value
     return got
+
+
+# --------------------------------------------------------------------------- #
+#  The acceptance criterion, end to end
+# --------------------------------------------------------------------------- #
+
+@pytest.mark.slow
+def test_the_proposal_runs_on_the_example_screen(tmp_path):
+    """"Press the button on the example screen, accept, press Run: the
+    regression RUNS."
+
+    THE ONLY TEST THAT COULD HAVE CAUGHT THIS. Every other assertion here
+    checks the proposal against a validator; this one hands it to
+    `perform_regression`, which is what the user pressed. Marked slow
+    because it fits four plates -- about three minutes -- and skipped when
+    the example screen has not been downloaded.
+    """
+    import glob
+
+    from spacr.ml import perform_regression
+    from spacr.settings import get_perform_regression_default_settings
+    from spacr.settings_advisor import read_the_screen
+
+    from spacr.example_data import cache_folder
+
+    folder = cache_folder()
+    counts = sorted(glob.glob(f"{folder}/*unique_combinations.csv"))
+    scores = sorted(glob.glob(f"{folder}/plate?_dv.csv"))
+    if len(counts) != 4 or len(scores) != 4:
+        pytest.skip("the example screen is not downloaded; "
+                    "run spacr.example_data.fetch()")
+
+    advice = advise_that_runs(
+        read_the_screen(counts, scores, "pred"), ANSWERS)
+    assert refusals(advice.as_settings()) == ()
+
+    settings = {
+        "paired_data": [{"score": s, "count": c}
+                        for s, c in zip(scores, counts)],
+        "dependent_variable": "pred",
+        "dst": str(tmp_path),
+    }
+    settings.update(advice.as_settings())
+
+    # NO try/except. A failure here IS the report, and swallowing it to say
+    # something friendlier is what let the original bug reach the user.
+    perform_regression(get_perform_regression_default_settings(settings))
