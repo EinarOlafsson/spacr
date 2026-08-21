@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-186 done / 4 open (97%).
+187 done / 3 open (98%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -29,9 +29,6 @@ OPEN
 
   193  NO BUTTON EVER CUTS OFF ITS OWN TEXT
        193_no_button_ever_cuts_off_its_own_text.txt
-
-  194  THE PLATE MAP IS SQUARES YOU DRAG ACROSS, AND IT DOES NOT DRIFT
-       194_the_plate_map_is_squares_you_drag_across.txt
 
   197  THE HOTKEY MAP IS IN THE HELP MENU
        197_the_hotkey_map_is_in_the_help_menu.txt
@@ -224,5 +221,6 @@ DONE
   190  A RUN OPENS ON DOUBLE-CLICK, AND THE TAB DOES NOT MOVE ON ITS OWN
   191  EXAMPLE DATA THAT DOWNLOADS ITSELF AND FILLS THE RIGHT SLOTS
   192  A BUTTON THAT PICKS THE SETTINGS FOR YOUR DATA
+  194  THE PLATE MAP IS SQUARES YOU DRAG ACROSS, AND IT DOES NOT DRIFT
   195  THE DEFAULT CONTROL IN REGRESSION IS 000000
   196  THE ADVISOR'S SETTINGS HAVE TO ACTUALLY RUN
