@@ -2,7 +2,7 @@
 A RUN OPENS ON DOUBLE-CLICK, AND THE TAB DOES NOT MOVE ON ITS OWN
 ================================================================================
 
-Status:    filed 2026-08-20, not started.
+Status:    DONE 2026-08-20. See the closing section.
 Requested: 2026-08-20 -- "for some reason clicking once on a run shows the
            results. double click should loade the results, but the user
            should have to click the results tab to go there, no auto
@@ -37,3 +37,33 @@ HOW TO KNOW IT WORKED
 * Double-clicking loads it.
 * The current tab is the same before and after, in both cases.
 * Something says the results are ready without moving the user to them.
+
+--------------------------------------------------------------------------------
+2026-08-20 (later) -- DONE, AND THE THREE TESTS IT LEFT BEHIND ARE FIXED.
+--------------------------------------------------------------------------------
+
+The behaviour shipped at `ecbc0410`: selection shows the run's photograph and
+its detail and costs nothing, double-click loads, and nothing raises the
+Results tab. The console says the run opened, since the tab no longer moves
+to prove it.
+
+WHAT WAS NOT DONE THEN was the tests that described the old behaviour, and
+each was wrong differently:
+
+  * `_pick` did `selectRow` and called it a click. It selects and
+    double-clicks now.
+  * The read is OFF THE GUI THREAD (159), so asserting on the next line
+    asserts against a run that has not finished being read. Two helpers spin
+    for it and fail saying what they actually got.
+  * One test asserted that picking a run RAISED the Results tab, which is the
+    exact opposite of what this instruction asks for. Inverted, with the
+    supersession written into it so the next reader does not put it back.
+
+AND TWO THAT WERE NOT ABOUT 190 AT ALL, found while fixing those. A menu
+order test read `verbs[1] == "remove"` -- a claim about how many entries the
+menu has -- and broke when 180 D's Restore entry landed between Load and
+Remove, on a menu whose ordering rule still held. And `all(isEnabled())`
+turned instruction 106 into a failure: `restore` is deliberately greyed with
+a reason for a run that saved no workspace.
+
+54 pass across the four runs-tab suites.

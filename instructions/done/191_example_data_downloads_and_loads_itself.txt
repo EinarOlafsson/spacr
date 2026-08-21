@@ -2,7 +2,7 @@
 EXAMPLE DATA THAT DOWNLOADS ITSELF AND FILLS THE RIGHT SLOTS
 ================================================================================
 
-Status:    filed 2026-08-20, not started.
+Status:    DONE 2026-08-20. See the closing section.
 Requested: 2026-08-20 -- "add my cound and dependent variable csvs to the
            datafolder in spacr and add a button that auto loads them into the
            correct slots", then, on being shown the size and the packaging:
@@ -71,3 +71,18 @@ HOW TO KNOW IT WORKED
 * A truncated or missing file is an error naming the file, not a parse error.
 * With no network, the button says so and changes nothing.
 * `pip install spacr` is not measurably larger than before.
+
+--------------------------------------------------------------------------------
+2026-08-20 (later) -- DONE, AND THE CONDITION HOLDS.
+--------------------------------------------------------------------------------
+
+"as long as the files dont get included in pip releases or conda releases."
+
+CHECKED, NOT ASSUMED. `spacr/resources/data` holds 8 CSVs and 4.8 MB, none
+of them the example screen: the eight count and dependent-variable tables are
+a GitHub release download under `~/.cache/spacr/example_data`, verified on
+size and then SHA-256, written to `.part` and renamed. `MANIFEST.in` and
+`setup.py`'s `package_data` reach only `resources/data`, so the wheel is the
+size it was.
+
+Measured: 24.5 s cold, 0.02 s warm.
