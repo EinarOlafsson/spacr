@@ -1383,6 +1383,16 @@ def deep_spacr_defaults(settings):
     :param settings: dict to fill in place.
     :returns: the settings dict with defaults applied.
     """
+    # BEFORE ANY DEFAULT LANDS (instruction 230 A). `extract_channels` is
+    # removed and `train_channels` takes its place -- the channels that
+    # matter are the ones the model sees. A settings file that set the old
+    # key and not the new one MEANT those channels, so the value is moved
+    # rather than being silently outvoted by the default filled in below.
+    if settings.get('extract_channels') and not settings.get(
+            'train_channels'):
+        settings['train_channels'] = list(settings['extract_channels'])
+    settings.pop('extract_channels', None)
+
     cores = _default_worker_count(reserve=4)
     
     settings.setdefault('src','path')
@@ -1393,7 +1403,11 @@ def deep_spacr_defaults(settings):
     settings.setdefault('test_split',0.1)
     settings.setdefault('class_metadata',[['c1'],['c2']])
     settings.setdefault('channel_of_interest',3)
-    settings.setdefault('tables',None)
+    # THE FOUR OBJECTS spaCR MEASURES, which is what the default should
+    # always have been (instruction 230 A). `None` meant "work it out", and
+    # what it worked out was frequently nothing.
+    settings.setdefault('tables', ['cell', 'nucleus', 'pathogen',
+                                   'cytoplasm'])
     settings.setdefault('custom_model',False)
     settings.setdefault('custom_model_path','')
     settings.setdefault('train',True)
@@ -1443,11 +1457,39 @@ def deep_spacr_defaults(settings):
     settings.setdefault('tar_path','')
     settings.setdefault('n_top_examples',20)
     settings.setdefault('random_seed',42)
-    settings.setdefault('crop_source','pre_generated')
-    settings.setdefault('path_string', settings.get('png_type') or 'cell_png')
-    settings.setdefault('extract_channels', [0, 1, 2])
+    # ---- instruction 230 A: renamed, merged and derived ---------------
+    #
+    # `crop_source` is IMAGE SOURCE now, and its two values are the two
+    # things a user actually chooses between. The old spellings are
+    # accepted, because every settings CSV in existence carries one.
+    settings.setdefault('image_source', settings.get('crop_source')
+                        or 'load_images')
+    settings['image_source'] = _canonical_image_source(
+        settings['image_source'])
+    settings['crop_source'] = settings['image_source']   # the old reader
+
+    # ONE PATTERN, NOT THREE. `file_metadata`, `path_string` and `file_type`
+    # between them described one thing, which is three chances to describe
+    # it inconsistently. The old three are read when present so an old CSV
+    # still loads.
+    settings.setdefault('load_path_regex',
+                        settings.get('path_string')
+                        or settings.get('png_type')
+                        or settings.get('file_type')
+                        or 'cell_png')
+
     settings.setdefault('object_array', 'cell')
-    settings.setdefault('coordinate_columns', None)
+    # DERIVED, NOT ASKED FOR. "coordinate column will always be the same so
+    # figure that out from object array" -- asking is asking the user to
+    # restate something spaCR knows, and giving them a way to get it wrong.
+    settings['coordinate_columns'] = _coordinate_columns_for(
+        settings.get('object_array'))
+
+    # ---- instruction 230 B: the stream method and its settings ---------
+    settings.setdefault('stream_method', 'column')
+    settings.setdefault('channel_arrays', [0, 1, 2])
+    settings.setdefault('mask_array', 'cell')
+    settings.setdefault('bounding_box', True)
     settings.setdefault('crop_shape', 'bounding_box')
     settings.setdefault('normalization', 'imagenet')
     settings.setdefault('normalization_scope', 'image')
@@ -2734,6 +2776,13 @@ expected_types = {
     "exclude": (str, type(None)),
     "exclude_grnas": (list, type(None)),
     "normalise_fraction": bool,
+    # ---- instruction 230 ---------------------------------------------
+    "image_source": str,
+    "load_path_regex": str,
+    "stream_method": str,
+    "channel_arrays": list,
+    "mask_array": str,
+    "bounding_box": bool,
     "cell_area_outlier_mads": (float, int, type(None)),
     "nucleus_area_outlier_mads": (float, int, type(None)),
     "cell_intensity_outlier_mads": (float, int, type(None)),
@@ -2965,7 +3014,6 @@ expected_types = {
     "png_type":str,
     "path_string":str,
     "crop_source":str,
-    "extract_channels":list,
     "object_array":str,
     "coordinate_columns":list,
     "crop_shape":str,
@@ -3353,6 +3401,48 @@ DYNAMIC_ORGANELLE_SETTINGS = frozenset(
 # right to refuse it. They stop being OFFERED (their defaults are gone, so no
 # control is built) while an old settings CSV still runs unchanged.
 
+#: The old `crop_source` spellings and what they mean now. ACCEPTED, NOT
+#: REFUSED: every settings CSV in existence carries one of them.
+_IMAGE_SOURCES = {
+    "pre_generated": "load_images",
+    "png": "load_images",
+    "load_images": "load_images",
+    "merged": "stream_images",
+    "stream": "stream_images",
+    "stream_images": "stream_images",
+}
+
+
+def _canonical_image_source(value) -> str:
+    """One of ``load_images`` / ``stream_images``.
+
+    An unrecognised value falls back to loading rather than raising: a
+    settings file naming a source spaCR never had should still open the
+    module, and the panel shows what it resolved to.
+    """
+    return _IMAGE_SOURCES.get(str(value or "").strip().lower(),
+                              "load_images")
+
+
+def _coordinate_columns_for(object_array):
+    """The coordinate column(s) for an object array, or None.
+
+    THROUGH `stream_dataset`, so the derivation and the streamer cannot
+    disagree about which column an object is identified by.
+
+    A LIST, because `coordinate_columns` is declared `list` and has been
+    since before this derivation existed. Handing back the bare string would
+    make every run of the module fail its own settings validation -- which
+    is what it did on the first attempt.
+    """
+    try:
+        from .stream_dataset import coordinate_column
+
+        return [coordinate_column(object_array)]
+    except Exception:                                            # noqa: BLE001
+        return None
+
+
 def _outlier_criteria():
     """Return criteria shared by outlier settings and filtering logic."""
     try:
@@ -3375,6 +3465,45 @@ tooltips = {
     #  controls with an empty tooltip -- the only settings dialog in    #
     #  spaCR with no hover help on any row.                             #
     # ---------------------------------------------------------------- #
+    # ---------------------------------------------------------------- #
+    #  Streaming crops instead of reading them off disk (230).          #
+    # ---------------------------------------------------------------- #
+    'image_source':
+        "Where the training images come from. 'load images' reads crops "
+        "that were exported to disk; 'stream images' cuts them from the "
+        "merged stacks as training runs. STREAMING MAKES THE COMBINATION A "
+        "SETTING rather than a directory: every combination of objects, "
+        "channels and bounding-box choice would otherwise be a separate "
+        "export somebody has to remember to make. Default 'load_images'.",
+    'load_path_regex':
+        "The pattern that finds the exported crops -- what file_metadata, "
+        "path_string and file_type used to say between them. ONE SETTING, "
+        "because three describing one pattern is three chances to describe "
+        "it inconsistently; a settings file naming any of the old three "
+        "still loads. Read only when image_source is 'load images'. "
+        "Default 'cell_png'.",
+    'stream_method':
+        "How the objects to stream are chosen. 'column' takes their "
+        "coordinates from a column in the object table and needs "
+        "object_array and channel_arrays. 'array' takes their object "
+        "numbers from a mask array and needs mask_array, channel_arrays and "
+        "bounding_box. The two read different settings, which is why this "
+        "is one control rather than a pair of flags -- a panel showing the "
+        "settings of the method you did not choose is asking you to fill in "
+        "something nothing reads. Default 'column'.",
+    'channel_arrays':
+        "Which planes of the merged stack become the streamed image. Read "
+        "by both stream methods. Default [0, 1, 2].",
+    'mask_array':
+        "Which mask the object numbers are read from when stream_method is "
+        "'array'. Default 'cell'.",
+    'bounding_box':
+        "With stream_method='array': True streams the BOX around the "
+        "object, False streams ONLY THE PIXELS THAT OVERLAP THE MASK with "
+        "the rest zeroed. Both are wanted and they are DIFFERENT TRAINING "
+        "SETS, not two renderings of one -- the second shows the model the "
+        "object's shape and nothing of its surroundings. Default True.",
+
     # ---------------------------------------------------------------- #
     #  Optional outlier removal before annotation.                       #
     # ---------------------------------------------------------------- #
@@ -4154,7 +4283,6 @@ tooltips = {
     'pathogens': "(list) - Names of the pathogen conditions scored by annotate_filter_vision, e.g. ['wt','mutant']. Element i is written into the pathogen column for every well in pathogen_loc[i] and folded into the combined condition label. Must match pathogen_loc element for element; if pathogen_loc is None, only the first name is applied to every row. Default None.",
     'path_string': "(str) - A substring that must appear in a crop's path for it to join the dataset, e.g. 'cell_png' or 'nucleus_png'. It was called png_type, which named a type it never was: this is a path filter and nothing more. The old name still works. Default 'cell_png'.",
     'crop_source': "(str) - Select where image crops come from. Viewers use 'png' (LOAD IMAGES) for exported crops in data/ or 'merged' (STREAM IMAGES) to cut from merged/*.npy using the measurements database; spaCR reports any fallback. Training uses 'pre_generated' for existing crops, 'on_demand' to cut during training, or 'generate' to write a crop set first. Controls that do not apply to the selected source are disabled. Default 'png' in viewers and 'pre_generated' in training.",
-    'extract_channels': "(list) - On-demand crops: which planes of merged/*.npy are INTENSITY channels, in the order they become image channels. Default [0, 1, 2].",
     'object_array': "(str) - On-demand crops: which object the crops are cut around - 'cell', 'nucleus', 'pathogen', 'cytoplasm' or 'organelle'. Its mask plane in merged/*.npy is what defines each object's extent. Default 'cell'.",
     'coordinate_columns': "(list) - On-demand crops from a DATABASE instead of masks: the columns holding each object's position, e.g. ['centroid_x', 'centroid_y']. Only bounding-box crops are possible this way, because a coordinate has no outline. None uses the merged masks, which is the default and the better source. Default None.",
     'crop_shape': "(str) - 'bounding_box' cuts the smallest rectangle containing the object; 'object' masks everything outside it away. Database-sourced crops can only be bounding boxes. Default 'bounding_box'.",
@@ -4404,7 +4532,11 @@ categories = {
     # WHERE THE PIXELS COME FROM, whichever way they are obtained: crops
     # already on disk, cut on demand from merged, or generated first.
     # `crop_source` decides which of these apply and greys the rest.
-    "Computer Vision Data Source": ["crop_source", "path_string", "png_type", "file_type", "file_metadata", "image_size", "size", "train_channels", "extract_channels", "object_array", "coordinate_columns", "crop_shape", "sample", "test_split", "val_split", "balance_to_smallest", "augment"],
+    # INSTRUCTION 230 A AND B. `crop_source` becomes `image_source`; the
+    # three path settings become `load_path_regex`; `extract_channels` is
+    # gone and `train_channels` is what the model sees; `coordinate_columns`
+    # is DERIVED from `object_array` and so is not a control at all.
+    "Computer Vision Data Source": ["image_source", "load_path_regex", "image_size", "size", "train_channels", "stream_method", "object_array", "mask_array", "channel_arrays", "bounding_box", "crop_shape", "sample", "test_split", "val_split", "balance_to_smallest", "augment"],
 
     # WHICH MODEL, and how its input is scaled. A custom model path that loads
     # supersedes model_type, so no boolean is needed to say which to believe.
