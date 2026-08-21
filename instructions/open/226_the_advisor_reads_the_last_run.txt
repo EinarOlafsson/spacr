@@ -1,0 +1,70 @@
+================================================================================
+"SETTINGS FOR MY DATA" READS THE LAST RUN, NOT ONLY THE INPUT
+================================================================================
+
+Status:    filed 2026-08-21, not started.
+Requested: 2026-08-21 -- "the settings for my data button should base its
+           choise also of the summary data if a run has been done".
+Owner:     Regression (settings_advisor)
+
+--------------------------------------------------------------------------------
+WHAT IT CURRENTLY SEES, AND WHAT IT MISSES
+--------------------------------------------------------------------------------
+
+`read_the_screen` opens the count tables and the score tables. From those it
+measures plates, wells, guides, genes, replication, the response's range and
+skew -- everything knowable BEFORE a fit.
+
+AND THE MOST INFORMATIVE THINGS ABOUT A SCREEN ARE ONLY KNOWABLE AFTER ONE.
+A run writes diagnostics the advisor is currently blind to, and every one of
+them maps onto a setting it already proposes:
+
+    what the run measured            what it should change
+    ------------------------------   ------------------------------------
+    residuals not normal             inference='nonparametric'
+    heavy kurtosis                   guide_statistic='rank'
+    Durbin-Watson far from 2         guide_nuisance_columns
+    high leverage / Cook's D         a robust family, or min_cell_count
+    high VIF / condition number      a penalised family
+    few wells per guide after the
+      threshold                      fraction_threshold
+    control coefficients' spread     threshold_multiplier
+
+The advisor proposes a transform from the response's SHAPE and a family from
+its BOUNDS. After a run it could propose them from the RESIDUALS, which is
+what the assumption actually concerns -- a response can be skewed while the
+residuals are fine, and normal while they are not.
+
+--------------------------------------------------------------------------------
+IT MUST STILL WORK WITH NO RUN
+--------------------------------------------------------------------------------
+
+The button's whole point is answering before anything has been fitted, so
+the run data is an ADDITION and never a requirement. With no previous run
+the advice is exactly what it is today.
+
+AND IT MUST SAY WHICH RUN IT READ. Advice derived from a fit the user has
+since changed the settings of is advice about a different screen, so the
+proposal names the run folder and the reader can disbelieve it. A stale
+summary is worse than none, because it looks like measurement.
+
+--------------------------------------------------------------------------------
+WHERE THE NUMBERS ARE
+--------------------------------------------------------------------------------
+
+`_write_regression_qc` writes them into `<run>/regression_qc/`, and
+`spacr.regression_qc` computes them. This is a READ of what already exists,
+not a second diagnostic pass -- and it must stay that way, or the advisor
+and the QC panel will disagree about the same fit.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* With no previous run, the advice is unchanged.
+* With one, each affected choice cites the measurement that moved it.
+* The proposal names the run it read.
+* A run whose settings no longer match the panel is reported as stale
+  rather than used silently.
+* The numbers come from the written QC, not recomputed -- checked by a test
+  that changes the file and sees the advice change.
