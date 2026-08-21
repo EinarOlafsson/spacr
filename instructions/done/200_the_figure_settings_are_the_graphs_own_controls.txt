@@ -2,7 +2,7 @@
 THE FIGURE SETTINGS ARE THE GRAPH'S OWN CONTROLS
 ================================================================================
 
-Status:    filed 2026-08-21. A, B, C, D AND E DONE 2026-08-21; F is not.
+Status:    DONE 2026-08-21.
 Requested: 2026-08-21 -- "when i right click and press Figure settings i get
            figure settings but i get some settings i dont want and lack some
            settings i want."
@@ -250,11 +250,31 @@ added to those IS a control -- and a test asserts each one reaches
 the user cannot reach.
 
 --------------------------------------------------------------------------------
-WHAT IS LEFT: F
+A AND F, DONE TOGETHER
 --------------------------------------------------------------------------------
 
-"the default graph type for each data type". `GRAPH_DEFAULTS` is keyed by
-GRAPH KIND, and F asks for a default keyed by DATA TYPE -- categorical vs
-continuous, continuous vs continuous. That is a second axis on the same
-table rather than more entries in it, and it is the same question A answers
-about which types fit, so the two should be built together.
+`spacr/graph_types.py`, and they ARE one table because they are the same
+question asked twice: which types fit this data, and which of them it is
+born as.
+
+KEYED ON WHAT THE AXES ARE, not on the module. The same frame drawn by two
+modules is the same question, and a table keyed by module would answer it
+twice and eventually differently.
+
+ORDERED IS A PROPERTY OF THE VALUES, NOT THE DTYPE. A continuous x that is
+sorted and unique is a series and takes a line; one that repeats is a cloud,
+and joining a cloud with a line is 178 A's bug. So `ordered_continuous` is
+its own shape rather than a flag on `continuous_continuous`.
+
+EVERY TYPE IS RETURNED, WITH ITS REASON. `offer` puts the fitting ones first
+and hands back the rest carrying why they do not fit -- greyed rather than
+absent, because a list that silently shortens leaves the user wondering
+whether they misremembered. Instruction 106's rule.
+
+THE DEFAULT ALWAYS FITS ITS OWN SHAPE, and there is a test for exactly that:
+a default that cannot draw the data it defaults for is the bug this whole
+table exists to prevent, arriving by the front door.
+
+`bar_jitter` FOR GROUPS, because 139 B argues for showing the summary AND
+the observations: a bar alone hides the spread it was computed from, and a
+reader cannot tell three points from three hundred.
