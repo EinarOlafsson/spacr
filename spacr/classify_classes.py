@@ -1,40 +1,16 @@
-"""What defines a training class: a dict of name -> (column, value).
+"""Define classification classes from annotation or plate-metadata values.
 
-``settings['classes']`` was a list of names -- ``['nc', 'pc']`` -- and
-everything about which OBJECTS those names referred to lived somewhere else:
-``annotation_column`` said where to look, ``annotated_classes`` said which
-values counted, ``write_random_annotation_column`` invented a comparison group,
-and in metadata mode ``location_column`` plus ``positive_control`` and
-``negative_control`` said it all again in different words.
-
-Four settings to say one thing, and none of them able to say "class A is
-value 1 of column X and class B is value 3 of column Y". So:
+Each class maps a display name to either a source-column/value pair or a
+random-complement rule. For example::
 
     {"infected": {"column": "annot_1", "value": 1},
      "uninfected": {"column": "annot_2", "value": 0}}
 
-The name is the key, because the name is what the user picks. Each rule names
-the VALUE and the COLUMN it came from, which is what makes more than one
-annotation column usable at once -- the thing the old shape could not express
-at all.
-
-**The random complement.** Annotating one class is the normal case: a user
-marks the infected cells and stops. The second class is then "everything not
-annotated", chosen at random, and that is a KIND OF RULE rather than a button
-pressed beforehand -- ``{"control": {"random_complement": true}}``. This
-replaces ``write_random_annotation_column``.
-
-**Metadata mode changes only which columns are on offer.** Under
-``dataset_mode='metadata'`` the same dict is filled from plate / row / column /
-field / well instead of user-defined annotation columns, which is why
-``location_column``, ``positive_control`` and ``negative_control`` are no
-longer needed: "positive control is column 3" is exactly a rule.
-
-**Old settings keep working.** Every retired key is translated here, once, by
-:func:`normalize_settings` -- the same discipline as
-:mod:`spacr.training_basis`. A settings CSV written before this exists in
-every user's project folder, and a run from one has to produce the same
-training set it did before.
+This representation supports classes derived from different annotation
+columns. In metadata mode, the same rules may reference plate, row, column,
+field, or well identifiers. :func:`normalize_settings` converts supported
+legacy classification settings to this representation without mutating the
+input mapping.
 """
 from __future__ import annotations
 
@@ -496,21 +472,25 @@ def assign_classes(frame: pd.DataFrame, settings: Mapping[str, Any], *,
 
 
 # ---------------------------------------------------------------------------
-# 229: what `classes` now says on behalf of the settings it replaces
+# Compatibility values derived from class definitions
 # ---------------------------------------------------------------------------
 
 def annotation_column_of(settings) -> str:
-    """The column the classes are defined by, for `annotation_column`.
+    """Return the annotation column represented by class settings.
 
-    "The Classes Column setting should also replace the annotation column."
-    ONE SETTING NAMING THE COLUMN THAT HOLDS THE LABEL, not two that can
-    point at different columns -- which is the failure, because nothing
-    downstream reads both and compares them.
+    The first non-empty ``column`` in the ordered ``classes`` mapping is
+    returned. If no class rule supplies a column, the legacy
+    ``annotation_column`` value is used.
 
-    The old key is honoured when `classes` defines nothing, so a settings
-    file written before the Classes editor still runs.
+    Parameters
+    ----------
+    settings : mapping
+        Classification settings in current or legacy form.
 
-    :returns: the column, or ``""`` when nothing names one.
+    Returns
+    -------
+    str
+        Annotation column name, or an empty string when none is defined.
     """
     raw = settings.get(CLASSES)
     if isinstance(raw, Mapping):
@@ -523,14 +503,19 @@ def annotation_column_of(settings) -> str:
 
 
 def class_metadata_of(settings) -> list:
-    """The per-class values, for `class_metadata`.
+    """Return legacy-shaped metadata values derived from class rules.
 
-    "class metadata should be replaced by the Classes Class and value." The
-    pair IS what identifies a class; a free-form metadata list beside it was
-    a second place for the same fact, kept in a different shape.
+    Parameters
+    ----------
+    settings : mapping
+        Classification settings in current or legacy form.
 
-    :returns: ``[[value], [value], ...]`` in class order, or the old
-        setting's value when no class is defined.
+    Returns
+    -------
+    list
+        Class values as ``[[value], ...]`` in class order. The legacy
+        ``class_metadata`` list is returned when no current class rule has a
+        value; otherwise an empty list is returned.
     """
     raw = settings.get(CLASSES)
     if isinstance(raw, Mapping) and raw:
@@ -545,13 +530,18 @@ def class_metadata_of(settings) -> list:
 
 
 def fold_into_classes(settings) -> dict:
-    """Fill `annotation_column` and `class_metadata` FROM `classes`.
+    """Populate compatibility keys from current class definitions.
 
-    Called where the defaults are applied. THE DERIVED VALUES ARE WRITTEN
-    BACK rather than computed at every read: every consumer downstream reads
-    those two keys, and rewriting each of them to ask this module instead
-    would be a large change for a small gain -- and one of them would be
-    missed.
+    Parameters
+    ----------
+    settings : mutable mapping
+        Classification settings to update in place.
+
+    Returns
+    -------
+    dict
+        The same mapping, with non-empty ``annotation_column`` and
+        ``class_metadata`` values derived from ``classes``.
     """
     column = annotation_column_of(settings)
     if column:

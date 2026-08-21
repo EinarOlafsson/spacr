@@ -1,15 +1,8 @@
-"""The live training graphs, in pyqtgraph, appending rather than redrawing.
+"""Incrementally display loss and accuracy during model training.
 
-Instruction 231: "in classify during training the graphs should be
-pyqtgraphs and they graphs should be updated not regenerated epch after
-epoch".
-
-EACH EPOCH APPENDS A POINT. It does not rebuild the figure. Regenerating
-costs a full re-render of every point drawn so far, so the run gets SLOWER
-THE LONGER IT GOES -- at exactly the moment the user is watching it most
-closely. It also flickers, and it throws away anything the user did to the
-view: a zoom into the last twenty epochs is undone by epoch twenty-one,
-which makes the live graph unusable for the thing a live graph is for.
+The widget retains one plot item per metric and updates its data as epochs
+complete. This preserves the current view and avoids creating overlapping
+plot items during long training runs.
 """
 from __future__ import annotations
 
@@ -22,12 +15,9 @@ from PySide6.QtWidgets import QVBoxLayout, QWidget
 
 LOG = logging.getLogger("spacr.qt.training_monitor")
 
-#: The panels, in order, as ``(key, title, y label)``.
-#:
-#: THREE PANELS, NOT TWO, and the third is the one that earns its place: the
-#: aggregate accuracy answers "is it learning", the per-class panel answers
-#: "is it learning ALL of it" -- which is the question a 96% aggregate
-#: hiding a class at 40% gets wrong, invisibly, for the whole run.
+#: Plot panels in display order as ``(key, title, y-axis label)``. Separate
+#: aggregate and per-class accuracy panels expose class-specific performance
+#: that may be obscured by an aggregate metric.
 PANELS: Tuple[Tuple[str, str, str], ...] = (
     ("loss", "Loss", "loss"),
     ("accuracy", "Accuracy", "accuracy"),
@@ -36,11 +26,21 @@ PANELS: Tuple[Tuple[str, str, str], ...] = (
 
 
 class TrainingMonitor(QWidget):
-    """Live training curves that grow a point at a time.
+    """Display training metrics as incrementally updated curves.
 
-    :ivar curves: ``{name: PlotDataItem}``. THE SAME OBJECTS FOR THE WHOLE
-        RUN -- a rebuilt curve that looks the same is the bug this widget
-        exists to fix, so the tests assert identity rather than appearance.
+    Parameters
+    ----------
+    parent : QWidget, optional
+        Parent widget.
+
+    Attributes
+    ----------
+    plots : dict of str to pyqtgraph.PlotWidget
+        Plot widgets keyed by ``"loss"``, ``"accuracy"``, and
+        ``"per_class"``.
+    curves : dict of str to pyqtgraph.PlotDataItem
+        Persistent plot items keyed by metric name. Each item is created when
+        its metric first appears and reused for subsequent epochs.
     """
 
     def __init__(self, parent: Optional[QWidget] = None):
@@ -68,13 +68,7 @@ class TrainingMonitor(QWidget):
     # ------------------------------------------------------------- drawing
 
     def _curve(self, panel: str, name: str):
-        """The curve for one series, made once and kept.
-
-        MADE ONCE IS THE WHOLE POINT. `plot.plot()` ADDS an item every time
-        it is called, so calling it per epoch leaves n overlapping curves --
-        which looks like one curve, costs n times the render, and is exactly
-        the "regenerated" behaviour under another name.
-        """
+        """Return the persistent plot item for a metric series."""
         if name in self.curves:
             return self.curves[name]
         colour = pg.intColor(len(self.curves), hues=9)
@@ -85,11 +79,22 @@ class TrainingMonitor(QWidget):
         return curve
 
     def append(self, epoch: float, values: Dict[str, float]) -> int:
-        """Add one epoch's numbers. Returns how many series were touched.
+        """Append finite metric values for one epoch.
 
-        :param values: ``{series: value}``. A series named ``loss`` or
-            ``val_loss`` goes on the loss panel, ``accuracy`` on the
-            accuracy panel, and anything else on the per-class panel.
+        Parameters
+        ----------
+        epoch : float
+            Epoch coordinate assigned to each accepted value.
+        values : dict of str to float
+            Metric values keyed by series name. Names containing ``loss``
+            are placed on the loss panel; aggregate accuracy names are placed
+            on the accuracy panel; other names are treated as per-class
+            metrics. Non-numeric and non-finite values are ignored.
+
+        Returns
+        -------
+        int
+            Number of series updated.
         """
         touched = 0
         for name, value in (values or {}).items():
@@ -98,17 +103,14 @@ class TrainingMonitor(QWidget):
             except (TypeError, ValueError):
                 continue
             if not np.isfinite(y):
-                # NOT PLOTTED AND NOT DROPPED SILENTLY -- a NaN epoch is a
-                # gap in the curve, which is what it should look like.
+                # Omitting the point represents a non-finite epoch as a gap.
                 continue
             panel = self._panel_for(str(name))
             curve = self._curve(panel, str(name))
             xs, ys = self._points[str(name)]
             xs.append(float(epoch))
             ys.append(y)
-            # setData ON THE SAME ITEM, which is the append. pyqtgraph
-            # re-uploads only the arrays; nothing about the view, the zoom
-            # or the legend is rebuilt.
+            # Updating the existing item preserves the view and legend.
             curve.setData(xs, ys)
             touched += 1
         return touched
@@ -124,16 +126,28 @@ class TrainingMonitor(QWidget):
         return "per_class"
 
     def series(self) -> Tuple[str, ...]:
-        """Every series drawn so far, in the order they first appeared."""
+        """Return metric names in the order they first appeared."""
         return tuple(self.curves)
 
     def points(self, name: str) -> Tuple[Tuple[float, ...], ...]:
-        """``(xs, ys)`` for one series."""
+        """Return epoch and value coordinates for a metric series.
+
+        Parameters
+        ----------
+        name : str
+            Metric series name.
+
+        Returns
+        -------
+        tuple of tuple of float
+            ``(epochs, values)``. Both tuples are empty when the series has
+            not been observed.
+        """
         xs, ys = self._points.get(str(name), ([], []))
         return tuple(xs), tuple(ys)
 
     def clear(self) -> None:
-        """Start a new run. THE ONLY PLACE THE CURVES ARE THROWN AWAY."""
+        """Remove all curves and stored points for a new training run."""
         for panel in self.plots.values():
             panel.clear()
             panel.addLegend()
