@@ -1727,6 +1727,24 @@ class MainWindow(QMainWindow):
         demo_menu.addAction(act_e2e)
 
         help_menu = mb.addMenu("&Help")
+        # THE HOTKEY MAP, FIRST (197). Asked for 2026-08-21: "add hotkey map
+        # to help tab".
+        #
+        # `show_cheat_sheet` has drawn this map for a long time and was
+        # reachable from exactly two places -- the `?` key, which you have to
+        # know about, and the command palette, which you have to know about.
+        # The Help menu is where a user who does NOT already know a shortcut
+        # goes to look for one, which is the entire population this screen is
+        # for.
+        #
+        # ABOVE THE WEB LINKS because it is the only entry here that answers
+        # without a browser.
+        act_keys = QAction("Keyboard shortcuts", self)
+        act_keys.setStatusTip(
+            "Every key spaCR binds, what it does, and where it works.")
+        act_keys.triggered.connect(self._show_shortcuts)
+        help_menu.addAction(act_keys)
+        help_menu.addSeparator()
         # Label kept verbatim: `spacr/qt/i18n.py` keys its catalog on the
         # English string, so renaming this action drops its translation in
         # all nine languages.
@@ -2062,6 +2080,13 @@ class MainWindow(QMainWindow):
         if hasattr(widget, "_open_folder"):
             widget._open_folder(str(layout.src))
             return
+
+    def _show_shortcuts(self) -> None:
+        """Open the hotkey map. The same screen `?` and the palette open --
+        one map, three doors, not three maps."""
+        from .shortcuts import show_cheat_sheet
+
+        show_cheat_sheet(self)
 
     def _show_about(self):
         """Show the About panel: mark, name, version, licence, lab.

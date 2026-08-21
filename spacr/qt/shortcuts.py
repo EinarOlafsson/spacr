@@ -31,12 +31,28 @@ from PySide6.QtWidgets import (
 LOG = logging.getLogger("spacr.qt.shortcuts")
 
 
+#: Where a shortcut works. A key that only works on one screen and is listed
+#: without saying so sends a user to press it somewhere it does nothing.
+EVERYWHERE = "anywhere in spaCR"
+
+
 @dataclass(frozen=True)
 class ShortcutSpec:
-    """One shortcut declaration."""
+    """One shortcut declaration.
+
+    :param keys: the binding, in Qt's portable spelling. It is PRINTED
+        through `QKeySequence.toString(NativeText)`, so `Ctrl` reads as the
+        Command symbol on macOS -- writing "Ctrl+H" into a label would
+        hard-code one platform into the help.
+    :param label: what the key does.
+    :param category: the group it is shown under.
+    :param scope: where it works. The default is the whole window; a
+        per-screen binding names its screen.
+    """
     keys:     str
     label:    str
     category: str = "General"
+    scope:    str = EVERYWHERE
 
 
 SHORTCUTS: List[ShortcutSpec] = [
@@ -52,12 +68,128 @@ SHORTCUTS: List[ShortcutSpec] = [
     ShortcutSpec("Ctrl+9",       "Switch to 9th app",      "Navigation"),
     ShortcutSpec("Ctrl+K",       "Open command palette",   "Navigation"),
     ShortcutSpec("Ctrl+,",       "Open preferences",       "Navigation"),
+    ShortcutSpec("Ctrl+B",       "Show the full app list", "Navigation"),
     ShortcutSpec("Ctrl+/",       "Toggle AI Console",      "Actions"),
     ShortcutSpec("Ctrl+F",       "Search this module's settings", "Actions"),
     ShortcutSpec("Ctrl+Shift+R", "Settings recipes",       "Actions"),
     ShortcutSpec("F1",           "Show this cheat sheet",  "Help"),
-    ShortcutSpec("?",            "Show this cheat sheet",  "Help"),
+    ShortcutSpec("?",            "Show this cheat sheet",  "Help")
 ]
+
+
+#: THE PER-SCREEN BINDINGS, kept apart from :data:`SHORTCUTS` on purpose.
+#:
+#: `SHORTCUTS` is what `install()` BINDS on the main window, and a test
+#: asserts every entry in it is wired there. These keys are bound by the
+#: screens that own them and do not exist until such a screen is built --
+#: so putting them in the same table made "declared" and "wired" stop
+#: meaning the same thing, and four tests said so at once.
+#:
+#: THE MAP IS BOTH (:func:`mapped`). The distinction is real -- one set is
+#: always live and the other is not -- and it is the same distinction the
+#: `scope` field states to the reader.
+SCREEN_SHORTCUTS: List[ShortcutSpec] = [
+ShortcutSpec("Left",         "Previous image",         "Annotate",
+                 "the Annotate and Make Masks screens"),
+    ShortcutSpec("Right",        "Next image",             "Annotate",
+                 "the Annotate and Make Masks screens"),
+    ShortcutSpec("PageUp",       "Previous image",         "Annotate",
+                 "the Annotate screen"),
+    ShortcutSpec("PageDown",     "Next image",             "Annotate",
+                 "the Annotate screen"),
+    ShortcutSpec("Alt+Left",     "Previous image",         "Annotate",
+                 "the Annotate screen"),
+    ShortcutSpec("Alt+Right",    "Next image",             "Annotate",
+                 "the Annotate screen"),
+
+    ShortcutSpec("B",            "Brush",                  "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("E",            "Erase",                  "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("W",            "Magic wand — add",       "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("Z",            "Zoom",                   "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("Esc",          "Reset the zoom",         "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("Ctrl+S",       "Save the mask",          "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("Ctrl+Z",       "Undo",                   "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("Ctrl+Y",       "Redo",                   "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("Ctrl+Shift+Z", "Redo",                   "Make Masks",
+                 "the Make Masks screen"),
+]
+
+
+#: Window-wide keys that something OTHER than `install()` binds. `Ctrl+B`
+#: opens the full app list and is set on the menu action -- which is a real
+#: binding and reaches the same place -- so it belongs on the map and does
+#: not belong in `install()`'s count.
+BOUND_ELSEWHERE = frozenset({"Ctrl+B"})
+
+
+def installed() -> List[ShortcutSpec]:
+    """The window-wide keys `install()` is responsible for binding."""
+    return [s for s in SHORTCUTS if s.keys not in BOUND_ELSEWHERE]
+
+
+def mapped() -> List[ShortcutSpec]:
+    """Every shortcut the map describes: window-wide, then per-screen."""
+    return list(SHORTCUTS) + list(SCREEN_SHORTCUTS)
+
+
+def native(keys: str) -> str:
+    """``keys`` in the spelling the user's own keyboard has.
+
+    `Ctrl` is the Command symbol on macOS and Qt already knows; writing
+    "Ctrl+H" into a label hard-codes one platform into the help.
+    """
+    try:
+        return QKeySequence(str(keys)).toString(QKeySequence.NativeText) \
+            or str(keys)
+    except Exception:                                    # noqa: BLE001
+        return str(keys)
+
+
+def discover(window) -> List[ShortcutSpec]:
+    """Every shortcut LIVE on ``window``, whether declared or not.
+
+    The declared table is what the map is drawn from, because a per-screen
+    binding does not exist until that screen is built and the map has to
+    describe it anyway. This is the other half: a shortcut added at runtime
+    -- a plugin, a menu action -- appears without anyone editing a list.
+
+    Anything already in :data:`SHORTCUTS` is left to its declaration, which
+    is where the label and the scope live.
+    """
+    from PySide6.QtGui import QAction
+
+    known = {native(spec.keys) for spec in SHORTCUTS}
+    out: List[ShortcutSpec] = []
+    seen = set()
+    try:
+        holders = list(window.findChildren(QShortcut)) \
+            + list(window.findChildren(QAction))
+    except Exception:                                    # noqa: BLE001
+        return out
+    for holder in holders:
+        try:
+            sequence = holder.key() if isinstance(holder, QShortcut) \
+                else holder.shortcut()
+            printed = sequence.toString(QKeySequence.NativeText)
+        except Exception:                                # noqa: BLE001
+            continue
+        if not printed or printed in known or printed in seen:
+            continue
+        seen.add(printed)
+        label = ""
+        if isinstance(holder, QAction):
+            label = holder.text().replace("&", "").strip()
+        out.append(ShortcutSpec(printed, label or "(not described)",
+                                "Other"))
+    return out
 
 
 def install(window: QMainWindow) -> None:
@@ -247,22 +379,47 @@ class ShortcutOverlay(QWidget):
         grid.addWidget(title, 0, 0, 1, 2)
 
         by_cat: dict[str, list[ShortcutSpec]] = {}
-        for spec in SHORTCUTS:
+        # THE DECLARED TABLE PLUS WHATEVER IS LIVE (197 A). A per-screen
+        # binding is declared, because it does not exist until that screen
+        # is built and the map has to describe it anyway; anything else the
+        # window happens to carry is discovered, so a shortcut added at
+        # runtime appears without a list being edited.
+        for spec in mapped() + discover(self.parent()):
             by_cat.setdefault(spec.category, []).append(spec)
 
+        # THE CARD HAS TO FIT THE WINDOW. One column-pair per category made
+        # the card 1,640 px wide against a 1,280 px overlay the moment the
+        # map grew from 17 rows to 33 -- a map that runs off the screen is
+        # the same fault as a map that leaves keys out. Categories are laid
+        # out in as many pairs as fit and then wrapped.
+        room = max(int(self.width() * 0.9), 640)
+        per_pair = 300
+        pairs = max(1, min(len(by_cat), room // per_pair))
+        band = 1
         column = 0
-        for category, specs in by_cat.items():
-            row = 1
+        for index, (category, specs) in enumerate(by_cat.items()):
+            if index and index % pairs == 0:
+                band = grid.rowCount() + 1
+                column = 0
+            row = band
             header = QLabel(category.upper(), self._card)
             header.setObjectName("ShortcutOverlayCategory")
             grid.addWidget(header, row, column, 1, 2)
             row += 1
             for spec in specs:
-                keys = QLabel(spec.keys, self._card)
+                # PRINTED IN THE PLATFORM'S OWN SPELLING. `Ctrl` is the
+                # Command symbol on macOS and Qt already knows.
+                keys = QLabel(native(spec.keys), self._card)
                 keys.setObjectName("ShortcutOverlayKeys")
                 keys.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
                 grid.addWidget(keys, row, column)
-                label = QLabel(spec.label, self._card)
+                # AND WHERE IT WORKS, when that is not everywhere. A key
+                # that works on one screen and is listed without saying so
+                # sends a user to press it somewhere it does nothing.
+                said = spec.label
+                if spec.scope and spec.scope != EVERYWHERE:
+                    said = f"{said}  —  {spec.scope}"
+                label = QLabel(said, self._card)
                 label.setObjectName("ShortcutOverlayLabel")
                 grid.addWidget(label, row, column + 1)
                 row += 1
