@@ -6954,6 +6954,7 @@ class SettingsWidgets:
 
         self._refresh_contextual_widgets()
         self._refresh_umap_reducer_enablement()
+        self._refresh_analysis_unit_lock()
         self._refresh_regression_backend()
 
         # Bucket into sections.
@@ -7505,6 +7506,8 @@ class SettingsWidgets:
             self._refresh_setting_dependencies()
         if key in {"reduction_method", "spectral_affinity"}:
             self._refresh_umap_reducer_enablement()
+        if key == "analysis_unit":
+            self._refresh_analysis_unit_lock()
         return True
 
     def set_hidden_value(self, key: str, value: Any) -> bool:
@@ -7549,6 +7552,62 @@ class SettingsWidgets:
     def _on_umap_reducer_changed(self, *_args) -> None:
         """Re-grey method-specific Image UMAP controls immediately."""
         self._refresh_umap_reducer_enablement()
+
+    def _refresh_analysis_unit_lock(self) -> None:
+        """Apply what `analysis_unit` forces, show it, and grey it.
+
+        REFUSING AT THE SEAM IS THE FLOOR, NOT THE ANSWER (instruction 219).
+        `settings_advisor.refusals` already stops the incompatible
+        combination before anything is read, and that stays as the backstop
+        for a settings CSV that never passed through a panel -- but a user
+        who has to run and read an error to learn that two controls disagree
+        is being taught by failure.
+
+        THE LIST LIVES IN `settings_advisor`, so the panel and the preflight
+        cannot drift apart about what the unit forces. A copy here would be
+        a second opinion, and the run would keep the casting vote.
+        """
+        control = self._widgets.get("analysis_unit")
+        if control is None:
+            return
+        try:
+            from ...settings_advisor import requirements_for_unit
+        except Exception:                                    # noqa: BLE001
+            return
+        unit = str(self._read_widget(control) or "well").strip().lower()
+        required = requirements_for_unit(unit)
+        # EVERY SETTING ANY UNIT CONSTRAINS, so switching back to `well`
+        # releases what `cell` locked. Refreshing only the current unit's
+        # keys would leave a control greyed after the reason for it was
+        # withdrawn.
+        try:
+            from ...settings_advisor import UNIT_REQUIREMENTS
+
+            owned = set().union(*(set(v) for v in UNIT_REQUIREMENTS.values()))
+        except Exception:                                    # noqa: BLE001
+            owned = set(required)
+        note = (f"Fixed by analysis_unit={unit!r}: the run reads this value "
+                f"and no other, so it is shown rather than left editable. "
+                f"Choose analysis_unit='well' to set it yourself.")
+        for key in sorted(owned):
+            widget = self._widgets.get(key)
+            if widget is None:
+                continue
+            if key in required:
+                # SET IT, THEN GREY IT. A greyed control still showing the
+                # old value tells the user the run will use that value, and
+                # it will not -- which is worse than an editable control
+                # that disagrees, because it looks settled.
+                # `set_value_for_key`, which is the one writer -- a second
+                # way of putting a value into a widget is a second set of
+                # type rules to keep in step. It re-enters this method only
+                # for `analysis_unit` itself, which is never a required key.
+                self.set_value_for_key(key, required[key])
+                widget.setEnabled(False)
+                _apply_greyed_note(widget, note)
+            else:
+                widget.setEnabled(True)
+                _clear_greyed_note(widget)
 
     def _refresh_umap_reducer_enablement(self) -> None:
         """Enable only the settings the selected reducer actually reads."""
