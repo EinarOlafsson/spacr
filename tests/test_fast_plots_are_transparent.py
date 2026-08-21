@@ -85,11 +85,28 @@ def test_restyle_with_no_arguments_re_reads_the_preferences(plot):
     assert plot._foreground == fg
 
 
-def test_an_exported_png_keeps_its_transparency(plot, tmp_path):
-    """The one place transparency matters most is the file that leaves the
-    app, and it was the one place it was lost."""
+def _corners(image):
+    width, height = image.size
+    return ((0, 0), (width - 1, 0), (0, height - 1))
+
+
+def test_an_exported_png_keeps_its_transparency(plot, tmp_path, monkeypatch):
+    """TRANSPARENT IS NOW A MODE, NOT THE ONLY ANSWER (150 B).
+
+    This asserted that every export was transparent, which was right when
+    the only complaint was "figures should not have a background". 150 B
+    answered the other half: dark ink on no background is still unreadable
+    on a dark slide, and a figure going into a manuscript is going onto
+    white. So `print` -- the default -- writes an explicit light page,
+    `screen` keeps what is on screen, and `transparent` keeps this
+    behaviour for anyone compositing onto their own colour.
+
+    The mode is what this asserts now, and both halves of it: see
+    `test_the_default_export_writes_a_page` below.
+    """
     from PIL import Image
 
+    monkeypatch.setenv("SPACR_FIGURE_SAVE_MODE", "transparent")
     plot.add_scatter([0.0, 1.0, 2.0], [0.0, 1.0, 0.5])
     target = tmp_path / "plot.png"
     plot.export(str(target))
@@ -98,10 +115,30 @@ def test_an_exported_png_keeps_its_transparency(plot, tmp_path):
     image = Image.open(target)
     assert image.mode == "RGBA", f"exported as {image.mode}, not RGBA"
     # The corners are outside the axes, so they must be fully transparent.
-    width, height = image.size
-    for corner in ((0, 0), (width - 1, 0), (0, height - 1)):
+    for corner in _corners(image):
         assert image.getpixel(corner)[3] == 0, (
             f"pixel {corner} is opaque -- the export painted a background")
+
+
+def test_the_default_export_writes_a_page(plot, tmp_path, monkeypatch):
+    """The other half of 150 B, asserted so neither can drift alone.
+
+    A transparent PNG dropped into a manuscript picks up whatever is behind
+    it, and the default has to be the one that survives that.
+    """
+    from PIL import Image
+
+    monkeypatch.delenv("SPACR_FIGURE_SAVE_MODE", raising=False)
+    plot.add_scatter([0.0, 1.0, 2.0], [0.0, 1.0, 0.5])
+    target = tmp_path / "plot.png"
+    plot.export(str(target))
+
+    image = Image.open(target).convert("RGBA")
+    for corner in _corners(image):
+        pixel = image.getpixel(corner)
+        assert pixel[3] == 255, f"pixel {corner} is see-through by default"
+        assert sum(pixel[:3]) / 3 > 200, (
+            f"pixel {corner} is {pixel[:3]}: the default page is not light")
 
 
 def test_the_colour_helper_survives_no_settings_store():
