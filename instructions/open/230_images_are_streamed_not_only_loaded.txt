@@ -2,7 +2,8 @@
 IMAGES ARE STREAMED, NOT ONLY LOADED
 ================================================================================
 
-Status:    filed 2026-08-21, not started.
+Status:    filed 2026-08-21. A, B AND THE SELECTION TABLE DONE 2026-08-21;
+           the streaming LOOP is not -- see WHAT IS LEFT.
 Requested: 2026-08-21 -- "in Computer vision images and cropping, change crop
            sourse to Image sourse and chang it to a drop down with the
            options load images and stream images. / Tables default should be
@@ -126,3 +127,73 @@ HOW TO KNOW IT WORKED
 * The .npy fallback is exercised by a test with NO object table present.
 * Bounding box off streams only mask-overlapping pixels, and a test
   measures that the corners are background rather than trusting the flag.
+
+--------------------------------------------------------------------------------
+A AND B, DONE 2026-08-21
+--------------------------------------------------------------------------------
+
+Every rename, merge and derivation, with the old spellings accepted because
+every settings CSV in existence carries one:
+
+  * `crop_source` -> `image_source`, values `load_images` / `stream_images`.
+    An unrecognised value resolves to loading rather than raising: a file
+    naming a source spaCR never had should still OPEN the module.
+  * `file_metadata` + `path_string` + `file_type` -> `load_path_regex`.
+  * `extract_channels` -> `train_channels`, and the migration runs BEFORE
+    any default lands. `train_channels` already existed with a default of
+    its own, so a later `setdefault` would have silently outvoted the value
+    an old file actually meant -- which is what the first attempt did.
+  * `tables` defaults to the four objects spaCR measures. `None` meant "work
+    it out", and what it worked out was frequently nothing.
+  * `coordinate_columns` is DERIVED from `object_array` and is no longer a
+    control. It comes back as a LIST because that is how it has always been
+    declared -- returning the bare string made every run fail its own
+    settings validation.
+
+B. `stream_method`, and `METHOD_SETTINGS` is the single source for what each
+one reads -- a list living in the GUI would drift from what the streamer
+reads, and the symptom would be a control that changes nothing. An unknown
+method RAISES rather than returning an empty tuple, which would grey every
+setting and look like a UI bug.
+
+--------------------------------------------------------------------------------
+C: THE TABLE, DONE
+--------------------------------------------------------------------------------
+
+`spacr/stream_dataset.py`. THE TABLE IS WRITTEN BEFORE ANY IMAGE IS, and the
+split is SEEDED -- a shuffle nobody can reproduce turns the saved table into
+a record of one run rather than a recipe, which is the opposite of why it is
+saved.
+
+THE OBJECT TABLE FIRST, THE .npy FALLBACK SECOND, in the instruction's own
+order. The fallback is not a worse answer; it is the answer for a screen
+that was masked but never measured. Both refuse rather than return an empty
+table: a selection with no rows would stream nothing and report success.
+
+BACKGROUND IS NOT AN OBJECT, and each row records which file it came from.
+
+THE NAMING IS `measure_crop`'s OWN. `crop_name` calls
+`spacr.utils._generate_names`, the same function, and the test asserts the
+two agree by calling both -- a second naming rule would drift, and the drift
+would only show up as two folders that cannot be pooled.
+
+THE CUTTER IS THE SHARED ONE. `cut` delegates to
+`crop_source.crop_object`, which already solves the plane check, the bounds
+and the mask-out; this only translates instruction 230's vocabulary into
+that function's, where `bounding_box=False` is `shape='object'`. A test
+asserts the delegation, because a second cutter is the thing worth
+preventing rather than the thing worth writing.
+
+--------------------------------------------------------------------------------
+WHAT IS LEFT
+--------------------------------------------------------------------------------
+
+THE LOOP THAT WALKS THE SAVED TABLE AND WRITES THE DATASET. Every piece it
+needs is built and tested -- the table, the naming, the cutter, the settings
+that choose between them -- and what remains is the pass that reads the
+merged stack per field, cuts each selected object and writes it under its
+`crop_name` into the train/test folders the table annotates.
+
+Deliberately last, and deliberately separate: it is the only part that
+cannot be tested without writing a dataset to disk, and everything it
+depends on can be.
