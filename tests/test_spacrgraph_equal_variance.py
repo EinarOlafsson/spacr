@@ -179,8 +179,15 @@ def test_welch_anova_matches_pingouin():
         "v": np.concatenate(groups),
         "g": np.concatenate([[i] * len(x) for i, x in enumerate(groups)])})
     ref = pg.welch_anova(data=long, dv="v", between="g")
+    # Pingouin 0.6 made its result-column names valid Python identifiers,
+    # renaming ``p-unc`` to ``p_unc``. The statistic and p-value contract did
+    # not change, so accept both supported result schemas while retaining the
+    # independent numerical comparison.
+    p_column = next((name for name in ("p_unc", "p-unc")
+                     if name in ref.columns), None)
+    assert p_column is not None, f"Pingouin returned {list(ref.columns)!r}"
     assert stat == pytest.approx(float(ref["F"][0]))
-    assert p == pytest.approx(float(ref["p-unc"][0]))
+    assert p == pytest.approx(float(ref[p_column][0]))
 
 
 # ---------------------------------------------------------------------------
