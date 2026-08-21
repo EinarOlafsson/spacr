@@ -36,7 +36,14 @@ GLOBAL_RC = re.compile(r"(?:plt|mpl|matplotlib)\.rcParams\s*(?:\.update\(|\[)")
 #: `plt.subplots(` / `plt.figure(` in the tree, styled or not, so it caps how
 #: many figures spaCR draws by hand -- it does NOT say whether they are in the
 #: house style. `UNSTYLED_CEILING` below is the one that says that.
-CEILING = 145
+#:
+#: 145 -> 146 on 2026-08-20, for `gene_measurement_compare.render_comparison`
+#: -- the second implementation of instruction 108's renderer contract, and
+#: the thing that proves the shared style base has more than one user. It
+#: draws INSIDE `figure_style`, so `UNSTYLED_CEILING` is untouched at 0.
+#: Raising THIS number is allowed for a new figure that is properly styled;
+#: raising the other one is not.
+CEILING = 146
 
 #: The ceiling on figure creations that are NOT inside the house style.
 #:
