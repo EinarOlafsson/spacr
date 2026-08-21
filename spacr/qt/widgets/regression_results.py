@@ -1058,6 +1058,62 @@ class RegressionResultsPanel(QWidget):
         """
         return (self.residuals, self.scale_location, self.influence)
 
+    #: Live-tile key -> the attribute holding the tab page that shows it.
+    #: THE GRID'S KEYS, not the tab labels: the grid photographs panels by
+    #: key and a label is a display string somebody will translate or
+    #: shorten. Where the page is a splitter carrying the plot plus a table
+    #: (`Volcano`, `Guide support`) or a plot plus its spread
+    #: (`Scale-location`), the SPLITTER is named -- `setCurrentWidget` only
+    #: accepts a widget the tab bar itself owns, so naming the inner plot
+    #: would be a silent no-op, which is the whole failure this map exists
+    #: to end.
+    _PANEL_TABS = {
+        "regression": "_volcano_tab",
+        "effect_rank": "effect_rank",
+        "effect_distribution": "effect_distribution",
+        "p_values": "p_values",
+        "qq": "qq",
+        "controls": "controls",
+        "agreement": "_support_tab",
+        "residuals": "residuals",
+        "scale_location": "_scale_location_tab",
+        "influence": "influence",
+        "gene": "gene",
+    }
+
+    def show_panel(self, key: str) -> bool:
+        """Raise the tab that holds the live panel named ``key``.
+
+        This is the door instruction 199 found missing. The grid photographs
+        nine live panels and gives every tile a key, but only the volcano's
+        key had anywhere to go -- so eight tiles took a click and did
+        nothing, which reads as a broken application rather than as a
+        picture with no door.
+
+        :param key: a key from :meth:`FigureGridView.set_live_tiles`.
+        :returns: True if a tab was raised. FALSE IS A REAL ANSWER and the
+            caller must act on it: the tab set is not fixed -- a fit with no
+            model has no residual tab, and the volcano and gene tabs are
+            absent when the volcano is external -- so a key can be perfectly
+            valid and have no tab in THIS panel right now.
+        """
+        attribute = self._PANEL_TABS.get(str(key))
+        if attribute is None:
+            return False
+        page = getattr(self, attribute, None)
+        if page is None:
+            return False
+        try:
+            # -1 when the widget exists but was never added, which is the
+            # ordinary state of the volcano and gene tabs on a screen that
+            # shows the volcano outside the panel.
+            if self.tabs.indexOf(page) < 0:
+                return False
+            self.tabs.setCurrentWidget(page)
+        except (RuntimeError, TypeError):             # pragma: no cover
+            return False
+        return True
+
     def clear_diagnostics(self, reason: str = "") -> None:
         """Empty the three well-level tabs and SAY why they are empty.
 

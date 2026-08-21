@@ -2422,6 +2422,18 @@ class AppScreen(QWidget):
                     self._show_regression_graph)
                 self._figure_grid.pinned_menu_requested.connect(
                     self._pinned_menu)
+                # EVERY LIVE TILE, not only the volcano (199). The grid
+                # emits `live_tile_activated` for all nine panels it
+                # photographs; connecting only the pinned signal is what left
+                # eight tiles clickable and inert.
+                self._figure_grid.live_tile_activated.connect(
+                    self._open_live_tile)
+                self._figure_grid.live_tile_menu_requested.connect(
+                    self._live_tile_menu)
+                # The pinned signal stays connected for the volcano's sake --
+                # it is the route that already works and the one older tests
+                # name -- and `_open_live_tile` returns early on that key so
+                # the graph is not raised twice.
                 # Picking a guide raises the graph its ring was drawn on.
                 # Highlighting a point on a view nobody is looking at is the
                 # same as not highlighting it.
@@ -4461,6 +4473,86 @@ class AppScreen(QWidget):
             ]) + self._gene_tile_entry(panel))
         except Exception:
             LOG.debug("could not pin the live regression graph", exc_info=True)
+
+    #: Live-tile key -> the panel attribute holding the live widget, for
+    #: the right-click menu. Only panels that HAVE a style menu appear:
+    #: absent here means the tile opens on a left click and has no menu,
+    #: which is the honest state, not a bug.
+    _LIVE_TILE_WIDGETS = {
+        "regression": "volcano",
+        "effect_rank": "effect_rank",
+        "p_values": "p_values",
+        "qq": "qq",
+        "controls": "controls",
+        "agreement": "agreement",
+        "residuals": "residuals",
+        "scale_location": "scale_location",
+        "influence": "influence",
+    }
+
+    def _open_live_tile(self, key: str) -> None:
+        """A live tile was pressed: raise the panel it photographs.
+
+        THE MISSING DOOR (199). "i am able to click on the colcano plot to
+        open it but not the other pyqtgraphs" -- because the grid emits
+        `live_tile_activated` for all nine live tiles and this screen was
+        connected only to `pinned_activated`, which the grid emits for the
+        volcano alone. Eight tiles were drawn, took a click, and reached a
+        signal with no receiver.
+
+        A TILE THAT DOES NOT OPEN IS WORSE THAN NO TILE: the user clicks
+        twice and concludes the application is broken rather than that this
+        particular picture has no door.
+        """
+        from ..widgets.figure_grid_view import PINNED_KEY
+
+        # The volcano keeps its own route. It is not in the results panel's
+        # tabs at all on this screen -- it is a PAGE of the figures stack,
+        # because the gene tile goes beside it -- so the tab lookup below
+        # would correctly find nothing for it.
+        if str(key) == PINNED_KEY:
+            # Already handled: the grid emits `pinned_activated` alongside
+            # this signal for the volcano, and that connection is what
+            # raises it. Acting here too would raise it twice.
+            return
+        panel = getattr(self, "_results_panel", None)
+        if panel is None:
+            return
+        if not panel.show_panel(str(key)):
+            # THE TILE SAID SO RATHER THAN GOING QUIET. A key with no tab in
+            # this panel is the one case that still ends in nothing visible
+            # happening, so it is the one case that has to be said out loud.
+            self._console.append_notice(
+                "■ That panel has no tab in this run's results.\n")
+            return
+        self._raise_the_results_tab()
+
+    def _live_tile_menu(self, key: str, position) -> None:
+        """Right-click on any live tile: that graph's OWN menu, in place.
+
+        The general form of :meth:`_pinned_menu`, and missing for the same
+        reason the open route was: `live_tile_menu_requested` had no
+        receiver, so the gesture worked on the volcano and nowhere else.
+        """
+        from ..widgets.figure_grid_view import PINNED_KEY
+
+        if str(key) == PINNED_KEY:
+            return                      # `pinned_menu_requested` has it.
+        panel = getattr(self, "_results_panel", None)
+        attribute = self._LIVE_TILE_WIDGETS.get(str(key))
+        if panel is None or attribute is None:
+            return
+        widget = getattr(panel, attribute, None)
+        builder = getattr(widget, "build_style_menu", None)
+        if builder is None:
+            return
+        try:
+            builder().exec(position)
+        except Exception:
+            LOG.debug("could not open the live tile's menu", exc_info=True)
+        # The menu may have restyled the graph and the tile is a photograph
+        # of it, so the photograph has to be retaken.
+        self._pin_regression_graph()
 
     def _pinned_menu(self, position) -> None:
         """Right-click on the live tile: the graph's OWN menu, in place.
