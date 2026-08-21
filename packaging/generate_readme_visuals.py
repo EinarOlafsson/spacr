@@ -54,6 +54,7 @@ README_LOGO_MARK = 340
 PIPELINE_DISPLAY_PERCENT = 14.5
 ARROW_DISPLAY_PERCENT = 2.5
 APP_DISPLAY_PERCENT = 19.8
+APP_TILE_PADDING = 16
 PIPELINE_DISPLAY_WIDTH = f"{PIPELINE_DISPLAY_PERCENT}%"
 ARROW_DISPLAY_WIDTH = f"{ARROW_DISPLAY_PERCENT}%"
 APP_DISPLAY_WIDTH = f"{APP_DISPLAY_PERCENT}%"
@@ -277,8 +278,13 @@ def render_pipeline_tile(key: str, label: str) -> Image.Image:
 
 
 def render_app_tile(key: str, label: str) -> Image.Image:
-    """Render one non-pipeline application as the same square GUI tile."""
-    return _render_workflow_tile(key, label)
+    """Render a non-pipeline tile with an even transparent gutter."""
+    tile = _render_workflow_tile(key, label)
+    inner_size = tile.width - 2 * APP_TILE_PADDING
+    tile = tile.resize((inner_size, inner_size), Image.Resampling.LANCZOS)
+    canvas = Image.new("RGBA", (512, 512), (0, 0, 0, 0))
+    canvas.alpha_composite(tile, (APP_TILE_PADDING, APP_TILE_PADDING))
+    return canvas
 
 
 def render_pipeline_arrow() -> Image.Image:
