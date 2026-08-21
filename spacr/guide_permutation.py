@@ -32,6 +32,17 @@ from .multiple_testing import (
 from .figures.style import figure_style, theme_target
 
 
+
+def _separator() -> str:
+    """What goes between a marker and the page it sits on (178 A).
+
+    Read at DRAW TIME, because the theme can change while the process runs.
+    """
+    from .figures.style import resolve_label_ground, theme_target
+
+    return resolve_label_ground(theme_target())
+
+
 def _normalise_thresholds(min_wells) -> tuple[int, ...]:
     """Return sorted unique positive minimum-well thresholds."""
     if isinstance(min_wells, (int, np.integer)):
@@ -553,7 +564,10 @@ def plot_guide_permutation_volcano(
             data.loc[~significant, "minus_log10_adjusted_p"],
             s=24,
             color="#B8BDC5",
-            edgecolor="white",
+            # 178 A: the page, not white -- an outline that is brighter than
+            # the marker it surrounds is the reverse of what a separator is
+            # for, and on the dark theme white is exactly that.
+            edgecolor=_separator(),
             linewidth=0.35,
             label=f"{adjusted_label} >= {float(data['alpha'].iloc[0]):g}",
         )

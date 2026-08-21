@@ -81,6 +81,30 @@ def resolve_ink(target: str = "screen", ink: Optional[str] = None) -> str:
     return INK_PRINT if target == "print" else INK_SCREEN
 
 
+#: The page a LABEL sits on, per target. Not the figure's ground -- that is
+#: transparent by design (118) -- but what goes behind a text box that has to
+#: stay readable over the data underneath it.
+#:
+#: THIS EXISTS BECAUSE A BOX WAS HARD-CODED WHITE while its text followed the
+#: theme, so on the dark theme it was white ink on a white box: a label that
+#: was there, was drawn, and could not be read. `resolve_ink`'s opposite
+#: number, and used the same way.
+LABEL_GROUND_PRINT = "#FFFFFF"
+LABEL_GROUND_SCREEN = "#1B1E20"
+
+
+def resolve_label_ground(target: str = "screen",
+                         ground: Optional[str] = None) -> str:
+    """The colour behind a text label, for where this figure is going.
+
+    :param target: ``'screen'`` for the GUI, ``'print'`` for a file.
+    :param ground: an explicit override, which always wins.
+    """
+    if ground:
+        return ground
+    return LABEL_GROUND_PRINT if target == "print" else LABEL_GROUND_SCREEN
+
+
 def user_overrides(kind: Optional[str] = None) -> dict:
     """Return explicit preference changes that override the house style.
 
