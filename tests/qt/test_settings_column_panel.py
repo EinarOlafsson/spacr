@@ -365,7 +365,13 @@ def test_the_column_between_the_categories_is_the_page(qtbot,
 
         gap between categories   0.702 (with the container) -> 1.000
     """
-    _window, screen = _show(qtbot, "measure")
+    # `illumination`, NOT `measure`. Instruction 177 C made measure's
+    # categories TABS, so exactly one of them is on screen at a time and
+    # there is no gap BETWEEN categories left to measure -- the helper below
+    # said so out loud, "the categories are flush against each other". This
+    # test is about the column's theme showing between stacked cards, which
+    # every screen that is not in `SETTINGS_AS_TABS` still does.
+    _window, screen = _show(qtbot, "illumination")
     alpha = _transmission(screen)
     for gap in _gaps(screen)[:4]:
         measured = _mean(alpha, gap)
@@ -444,7 +450,13 @@ def test_the_probe_can_see_a_container_behind_the_categories(
                 f"{pane_surface('surface_alt', palette['theme'], opacity)}; }}")
 
     monkeypatch.setitem(theme_mod._WIDGET_QSS, SETTINGS_PANEL_NAME, container)
-    _window, screen = _show(qtbot, "measure")
+    # `illumination`, NOT `measure`. Instruction 177 C made measure's
+    # categories TABS, so exactly one of them is on screen at a time and
+    # there is no gap BETWEEN categories left to measure -- the helper below
+    # said so out loud, "the categories are flush against each other". This
+    # test is about the column's theme showing between stacked cards, which
+    # every screen that is not in `SETTINGS_AS_TABS` still does.
+    _window, screen = _show(qtbot, "illumination")
     alpha = _transmission(screen)
     gap = _mean(alpha, _gaps(screen)[0])
     assert gap < 0.95, (

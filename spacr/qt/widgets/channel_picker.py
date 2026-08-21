@@ -9,7 +9,9 @@ from __future__ import annotations
 from typing import Any, Iterable, Optional
 
 from PySide6.QtCore import Signal
-from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QWidget
+from PySide6.QtWidgets import QHBoxLayout, QWidget
+
+from .toggle import Toggle
 
 #: The three channels, in the order they are stored and displayed.
 CHANNELS = ("r", "g", "b")
@@ -88,7 +90,9 @@ class ChannelPicker(QWidget):
         layout.setSpacing(10)
         chosen = set(parse(value))
         for name in CHANNELS:
-            box = QCheckBox(LABELS[name], self)
+            # `Toggle`, which subclasses the plain control: same behaviour,
+            # and the look every other boolean in spaCR has.
+            box = Toggle(LABELS[name], self)
             box.setChecked(name in chosen)
             box.setStyleSheet(f"QCheckBox {{ color: {TINTS[name]}; }}")
             box.setToolTip(f"Show the {LABELS[name]} channel.")
@@ -103,7 +107,10 @@ class ChannelPicker(QWidget):
             # Blocked so this correction does not re-enter and does not
             # announce a value the user never chose.
             box = self.sender()
-            if isinstance(box, QCheckBox):
+            # `Toggle`, which is what the boxes above are. Checked at all
+            # because `sender()` is typed as QObject and this runs from a
+            # signal.
+            if isinstance(box, Toggle):
                 box.blockSignals(True)
                 box.setChecked(True)
                 box.blockSignals(False)

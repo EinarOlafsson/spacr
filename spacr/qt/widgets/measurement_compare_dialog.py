@@ -9,10 +9,12 @@ import logging
 from typing import Any, Dict, Optional
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (QCheckBox, QComboBox, QDialog, QDialogButtonBox,
+from PySide6.QtWidgets import (QComboBox, QDialog, QDialogButtonBox,
                                QFileDialog, QHBoxLayout, QLabel, QLineEdit,
                                QPlainTextEdit, QPushButton, QVBoxLayout,
                                QWidget)
+
+from .toggle import Toggle
 
 from ...gene_measurement_compare import (CONTRASTS, LEVELS, OPERATORS, PLOTS,
                                          build, control_wells,
@@ -40,7 +42,12 @@ class _WellChoice(QDialog):
             "A well left out is dropped from BOTH sides: it is not moved "
             "into the comparison group."))
         for well in offered:
-            box = QCheckBox(str(well), self)
+            # `Toggle`, not a bare check box: it subclasses one, so nothing
+            # about the behaviour changes, and it is what every other boolean
+            # in spaCR looks like. A test greps the Qt package for the bare
+            # constructor precisely to stop the two drifting -- which is why
+            # this comment does not write it out.
+            box = Toggle(str(well), self)
             # EVERYTHING ON BY DEFAULT. `None` means "all of them", and a
             # panel that opened with nothing ticked would read as "nothing
             # is being compared", which is not what was happening.
