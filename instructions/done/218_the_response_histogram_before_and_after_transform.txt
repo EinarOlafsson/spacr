@@ -2,7 +2,7 @@
 THE RESPONSE HISTOGRAM, BEFORE AND AFTER THE TRANSFORM, ON ONE GRAPH
 ================================================================================
 
-Status:    filed 2026-08-21, not started.
+Status:    DONE 2026-08-21.
 Requested: 2026-08-21 -- "i want to see a histogram of the dependent variable
            distribution after and before transformation (same graph) in the
            graphs clearly stating what type of distribution each is, normal
@@ -58,3 +58,39 @@ HOW TO KNOW IT WORKED
 * Selecting 'none' draws the panel rather than omitting it.
 * A skewed response that becomes symmetric is visibly so, checked on
   generated data where the answer is known.
+
+--------------------------------------------------------------------------------
+DONE 2026-08-21
+--------------------------------------------------------------------------------
+
+`spacr/response_distribution.py`, on the run's figure grid through
+`plt.show()` -- so it arrives beside every other panel of the run rather
+than being written to a file nobody opens.
+
+THE NAME COMES FROM `check_distribution`, the same call, not a second
+opinion. Its return values are REGRESSION FAMILIES, so they are translated
+for the panel: a histogram labelled "quasi_binomial" tells a reader what
+spaCR would FIT rather than what they are looking at. The test asserts the
+panel's family against a direct call, so the two cannot drift.
+
+THE STATISTIC TRAVELS WITH THE NAME. D'Agostino's p and the skew, both from
+the same measurement that chose the family, so the label can be disagreed
+with -- a panel that says "normal" and shows nothing else asks to be taken
+on faith about the one thing the reader came to check.
+
+THE RESPONSE IS COMPUTED TWICE, ONCE WITH THE TRANSFORM AND ONCE WITHOUT.
+`process_scores` applies the transform and hands back only the result, so
+the untransformed values are unrecoverable afterwards -- and the comparison
+is the whole point. The second call is wrapped: a panel is not worth losing
+a run to.
+
+A RESCALING TRANSFORM GETS ITS OWN X AXIS. A log of a proportion and the
+proportion itself share no scale, and forcing them onto one puts every point
+of the smaller into a single bar -- which looks like a finding and is an
+artefact of the axis. Everything else shares one axis, which is what makes
+"what changed" readable at a glance.
+
+'none' DRAWS. Both curves identical and the caption saying so in those
+words, because an absent panel reads as a missing feature rather than as an
+answer -- and "this setting is currently doing nothing" is exactly what a
+user who picked the wrong one needs to see.
