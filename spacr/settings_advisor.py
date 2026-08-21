@@ -1062,15 +1062,15 @@ UNIT_REQUIREMENTS: Dict[str, Dict[str, Any]] = {
 
 
 def requirements_for_unit(unit: str) -> Dict[str, Any]:
-    """Settings that ``analysis_unit`` forces, for a panel to apply and lock.
+    """Return settings required by an analysis unit.
 
     :param unit: ``'cell'`` or ``'well'``.
     :returns: ``{setting: required value}``, empty when the unit constrains
         nothing.
 
-    THE PANEL SHOULD APPLY THESE AND SHOW THEM GREYED, not merely refuse
-    later. A run that discovers an impossible combination after thirty
-    seconds of work has already cost the user the thing the check was for.
+    User interfaces can apply these values immediately and disable the
+    corresponding controls, preventing incompatible combinations from
+    reaching runtime validation.
     """
     return dict(UNIT_REQUIREMENTS.get(str(unit).lower(), {}))
 

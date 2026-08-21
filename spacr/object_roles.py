@@ -1,27 +1,11 @@
-"""The one place that says what object kinds spaCR has.
+"""Shared object-role vocabulary and role-aware settings helpers.
 
-Eleven modules used to spell this out independently -- ``OBJECT_TYPES`` in
-:mod:`spacr.measure_hooks`, :mod:`spacr.feature_dict`, :mod:`spacr.schema`,
-:mod:`spacr.crops` and :mod:`spacr.diameter`; ``OBJECT_TABLES`` in
-:mod:`spacr.schema`, :mod:`spacr.filters` and :mod:`spacr.merge_tables`;
-``CROP_OBJECT_TYPES`` in :mod:`spacr.io`; ``CROP_MODES`` in
-:mod:`spacr.measure`; and ``OBJECT_NAMES`` in :mod:`spacr.validate`. Only two
-of the eleven derived from another.
-
-They agreed on MEMBERSHIP and disagreed on ORDER -- three different orderings
-of the same five names, plus two four-name variants that leave out cytoplasm.
-That is the shape of the problem: adding a sixth kind meant finding all
-eleven, and missing one produced a column that silently vanished from a model
-matrix rather than an error.
-
-ORDER IS NOT INCIDENTAL, which is why this module does not impose one. The
-merged-array plane order, the object-table order and the crop-mode order are
-each load-bearing in their own module and are deliberately kept there. What
-lives here is the MEMBERSHIP and the distinction between roles, so a new kind
-is declared once.
-
-Keeping the vocabulary derivable from one source also allows additional
-organelle roles to be introduced without editing every consumer.
+The schema defines membership in segmented, derived, child, and organelle
+roles. This module exposes those relationships to consumers that need labels,
+setting keys, table anchors, or join behavior. Consumers retain their own
+ordering where array planes, table layout, or crop modes require a specific
+sequence; the shared registry defines which names are valid and how their
+roles relate.
 """
 from __future__ import annotations
 
@@ -82,10 +66,9 @@ def organelle_label(role: str) -> str:
 #: ``UMAP`` consistently across every settings surface.
 #: Keys whose label is not a de-underscored capitalisation at all.
 #:
-#: `controls` renders as "Controls", which says nothing about WHAT is being
-#: named -- it sits beside `positive_control_wells` and its neighbours, all
-#: of which name wells, and it names guides or genes. Asked for 2026-08-21:
-#: "change Controls to Control gRNA/Gene".
+#: ``controls`` names guide or gene identifiers, whereas the neighbouring
+#: control settings name wells. Use an explicit label so the two concepts are
+#: not confused in settings forms.
 EXACT_LABELS = {
     "controls": "Control gRNA/Gene",
 }

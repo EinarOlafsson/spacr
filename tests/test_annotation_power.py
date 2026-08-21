@@ -129,7 +129,7 @@ class TestTheTextbox:
 
     def test_it_says_abstaining_is_correct(self):
         text = module.quality_report({"x": self._Verdict(1.0, 0.2, 0.2)})
-        assert "declined to abstain" in text
+        assert "Coverage, precision, and recall are reported separately" in text
 
     def test_it_reports_the_unreachable_guides(self):
         fractions = {"w0": {"big": 0.9, "trace": 0.001}}
@@ -137,7 +137,7 @@ class TestTheTextbox:
             {"x": self._Verdict(0.1, 0.9, 0.09)},
             power=module.annotatable(fractions, sensitivity=0.96,
                                      specificity=0.98))
-        assert "never reach it in ANY well" in text
+        assert "never reach it in any well" in text
 
     def test_it_says_more_cells_do_not_help(self):
         """The counterintuitive part, and the one worth printing before
@@ -148,11 +148,11 @@ class TestTheTextbox:
             {"x": self._Verdict(0.1, 0.9, 0.09)},
             size=module.screen_size_for(fractions, sensitivity=0.96,
                                         specificity=0.98))
-        assert "MORE CELLS PER WELL DO NOT MOVE ANY OF THIS" in text
+        assert "More cells per well increase" in text
 
     def test_it_works_with_nothing_but_the_verdicts(self):
         text = module.quality_report({"x": self._Verdict(0.5, 0.8, 0.4)})
-        assert "ANNOTATION QUALITY" in text
+        assert "Annotation quality" in text
 
 
 class TestNothingIsBakedIn:

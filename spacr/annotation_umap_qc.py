@@ -1,48 +1,14 @@
-"""Do annotated cells land where their guide's effect says they should?
+"""Evaluate guide annotations against positive and negative control cells.
 
-Proposed 2026-08-21: "generate a umap, perform a hyperparamiter search find
-stucture that separates the positive and negative controlls and see where the
-annotated cells land, do they cluster with PC or NC ... this would be a
-quality controll and a proof of sorts that the annotation is working".
+The workflow tunes an embedding on one control subset, evaluates separation
+on held-out controls, and summarizes each annotated cell by the fraction of
+nearby controls that are positive. Guide-level purity can then be compared
+with independently estimated effect signs by permutation testing.
 
-IT IS A GOOD CHECK BECAUSE IT IS INDEPENDENT. The annotation is made from
-sequencing fractions plus a phenotype call; this asks a different question of
-a different space -- where does the cell sit among the controls, using every
-measurement at once -- and the controls supply a frame of reference that owes
-nothing to the annotation.
-
-TURNING IT INTO A TEST RATHER THAN A PICTURE takes three things, and without
-them it will agree with whatever it is shown:
-
-  1. THE HYPERPARAMETERS MUST NOT BE CHOSEN ON THE CELLS BEING JUDGED.
-     Searching until PC and NC separate is fitting the projection to the
-     labels, and with enough measurements some setting always separates two
-     groups. :func:`fit_on_controls` splits the CONTROL wells, tunes on one
-     half, and reports the separation achieved on the other. A search that
-     only separates the half it was tuned on has found nothing.
-
-  2. THE READOUT MUST BE A NUMBER. "Do they cluster with PC" is answered by
-     :func:`neighbour_purity`: the share of a cell's nearest CONTROL
-     neighbours that are positive controls. Eyeballing a UMAP is not a
-     measurement -- cluster sizes and the distances between them are
-     artefacts of the projection, and only the neighbourhoods mean anything.
-
-  3. THERE MUST BE A NULL. Cells land somewhere whatever the annotation
-     says. :func:`effect_agreement` asks whether purity tracks the guides'
-     EFFECT SIGNS, and compares that against the same statistic with the
-     effects shuffled between guides.
-
-THE TRAP THIS CANNOT ESCAPE, and it decides which methods may be judged this
-way at all. A method that PICKS CELLS BY THE PHENOTYPE SCORE will produce
-cells that sit near the positive controls whatever else is true -- that is
-what it selected for. `rank` takes the top-scoring cells in the well, so its
-annotated cells clustering with PC is a restatement of how it chose them and
-proves nothing.
-
-The check is informative exactly for methods whose cell choice did not use
-the score: `sudoku` with the score out of the graph, `assigned`, and
-`attributed` where the effect comes from the regression rather than the
-score. :func:`circularity_warning` refuses to be quiet about it.
+This check is circular when the annotation method selected cells using the
+same phenotype score, or when that score is included among the embedding
+features. :func:`circularity_warning` reports those cases so apparent control
+agreement is not presented as independent validation.
 """
 from __future__ import annotations
 
@@ -71,11 +37,10 @@ SCORE_PICKED = frozenset({"rank", "top_by_score"})
 
 def circularity_warning(method: str, *,
                         score_in_features: bool = False) -> str:
-    """Why this check may not be informative for ``method``, or ``""``.
+    """Return a warning when control agreement is not independent.
 
-    A method that selected cells BY the score will place them near the
-    positive controls by construction. Reporting that as validation would be
-    reporting the selection rule back to itself.
+    An empty string means that neither the method name nor the supplied
+    feature flag identifies a known circularity.
     """
     if str(method) in SCORE_PICKED:
         return (f"{method} chooses cells by the phenotype score, so its "
@@ -94,19 +59,29 @@ def fit_on_controls(features: np.ndarray,
                     seed: int = 0,
                     holdout: float = 0.5,
                     neighbours: int = 15) -> Dict[str, object]:
-    """Choose an embedding on half the controls, score it on the other half.
+    """Select an embedding recipe using held-out control separation.
 
-    :param features: ``(n_cells, n_features)`` for the CONTROL cells only.
-    :param labels: :data:`POSITIVE` or :data:`NEGATIVE` per control cell.
-    :param recipes: candidate UMAP parameter sets to try.
-    :returns: the winning recipe, its held-out separation, and every trial.
+    Parameters
+    ----------
+    features : numpy.ndarray
+        Control-cell feature matrix with shape ``(n_cells, n_features)``.
+    labels : sequence of str
+        :data:`POSITIVE` or :data:`NEGATIVE` for each control cell.
+    recipes : sequence of mappings
+        Candidate UMAP parameter dictionaries.
+    seed : int, default=0
+        Random seed for splitting and embedding.
+    holdout : float, default=0.5
+        Fraction of controls reserved for evaluation.
+    neighbours : int, default=15
+        Neighbour count passed to the embedding score.
 
-    THE HELD-OUT NUMBER IS THE ONLY ONE WORTH READING. Tuning until two
-    labelled groups separate always succeeds given enough parameters to try;
-    the question is whether the separation survives on cells the search
-    never saw. A large gap between the tuned and held-out scores means the
-    search fitted the split rather than the biology, and the embedding
-    should not then be used to judge anything.
+    Returns
+    -------
+    dict
+        Winning recipe, tuned and held-out silhouette scores, overfit gap,
+        trustworthiness flag, and all attempted trials. Error dictionaries
+        are returned when the controls cannot be split or scored.
     """
     from sklearn.model_selection import train_test_split
 
@@ -167,24 +142,13 @@ def fit_on_controls(features: np.ndarray,
 def neighbour_purity(embedding: np.ndarray,
                      control_labels: Sequence[Optional[str]], *,
                      k: int = 25) -> np.ndarray:
-    """Share of each cell's nearest CONTROL neighbours that are positive.
+    """Compute the positive-control share among each cell's neighbours.
 
-    :param embedding: ``(n_cells, 2)`` with controls and annotated cells
-        embedded together.
-    :param control_labels: :data:`POSITIVE`, :data:`NEGATIVE`, or ``None``
-        for a cell that is not a control.
-    :returns: one value per cell in ``[0, 1]``; ``nan`` where no control
-        neighbour was found.
-
-    NEIGHBOURHOODS, NOT CLUSTERS, and not distances. A UMAP's cluster sizes
-    and the gaps between them are artefacts of the layout; what it does
-    preserve, and all it preserves, is who is near whom. A statistic built
-    on anything else is reading the projection rather than the data.
-
-    A control cell's own purity counts its neighbours and NOT ITSELF, so
-    the controls can be scored on the same footing as everything else --
-    which is what makes them usable as a reference for what a "pure" score
-    even looks like here.
+    ``embedding`` contains controls and annotated cells together.
+    ``control_labels`` uses :data:`POSITIVE`, :data:`NEGATIVE`, or ``None``
+    for non-control cells. Each control cell is excluded from its own
+    neighbourhood. The result contains one value in ``[0, 1]`` per cell, or
+    ``nan`` when no eligible control neighbour is available.
     """
     from sklearn.neighbors import NearestNeighbors
 
@@ -216,11 +180,11 @@ def purity_by_guide(purity: np.ndarray,
                     guides: Sequence[str], *,
                     abstain: str = "Non_annotated",
                     minimum_cells: int = 10) -> Dict[str, Dict[str, float]]:
-    """Average purity per annotated guide, with the count behind it.
+    """Summarize neighbour purity for each sufficiently represented guide.
 
-    :param minimum_cells: guides with fewer annotated cells are left out
-        rather than reported noisily. A guide with three cells has a purity
-        that can only be 0, 1/3, 2/3 or 1.
+    The abstention label is excluded. Guides with fewer than
+    ``minimum_cells`` finite values are omitted; retained rows report mean
+    purity, standard deviation, and cell count.
     """
     values = np.asarray(purity, dtype=float)
     names = np.asarray([str(g) for g in guides])
@@ -245,20 +209,13 @@ def effect_agreement(purity: Mapping[str, Mapping[str, float]],
                      effects: Mapping[str, float], *,
                      permutations: int = 999,
                      seed: int = 0) -> Dict[str, object]:
-    """Does purity track the guides' effect signs, beyond chance?
+    """Test whether guide effects agree with positive-control proximity.
 
-    THE CLAIM BEING TESTED, in the terms it was proposed: "the cells with a
-    positive effect size cluster with the positive controll and the cells
-    that do not have a positive coeffisient do not".
-
-    :returns: the rank correlation between effect and purity, a permutation
-        p-value, and the group means for guides with positive, negative and
-        near-zero effects.
-
-    THE NULL SHUFFLES THE EFFECTS BETWEEN GUIDES and keeps everything else,
-    so it preserves how many guides there are, how many cells each has, and
-    the purity distribution -- and destroys only the correspondence being
-    claimed. A correlation that survives that is about the annotation.
+    The observed statistic is Spearman correlation between guide effect and
+    mean neighbour purity. The permutation null shuffles effects between
+    guides while preserving the purity values and guide counts. The result
+    includes the correlation, two-sided permutation p-value, group means for
+    positive and negative effects, and a boolean separation call.
     """
     from scipy.stats import spearmanr
 

@@ -34,7 +34,7 @@ __all__ = [
 
 @dataclass(frozen=True)
 class Confusion:
-    """A confusion matrix, and the two numbers that actually get used."""
+    """Binary confusion counts and their operating characteristics."""
 
     true_positive: int
     false_positive: int
@@ -44,24 +44,22 @@ class Confusion:
 
     @property
     def sensitivity(self) -> float:
-        """Of the cells that ARE positive, the share called positive."""
+        """Return the true-positive rate among positive cells."""
         real = self.true_positive + self.false_negative
         return (self.true_positive / real) if real else float("nan")
 
     @property
     def specificity(self) -> float:
-        """Of the cells that are NOT, the share called negative."""
+        """Return the true-negative rate among negative cells."""
         real = self.true_negative + self.false_positive
         return (self.true_negative / real) if real else float("nan")
 
     @property
     def accuracy(self) -> float:
-        """The number that should not be used, provided so it can be
-        compared against the two that should.
+        """Return the correctly classified share of all cells.
 
-        ON AN IMBALANCED WELL IT IS THE MAJORITY CLASS WEARING A HAT. A
-        classifier that calls everything negative on a well that is 10%
-        positive is 90% accurate and has a sensitivity of zero.
+        Accuracy should be interpreted with sensitivity and specificity when
+        class prevalence is imbalanced.
         """
         total = (self.true_positive + self.false_positive
                  + self.true_negative + self.false_negative)
@@ -117,11 +115,10 @@ def confusion(scores: Sequence[float],
 def operating_points(scores: Sequence[float],
                      labels: Sequence[bool], *,
                      steps: int = 50) -> List[Confusion]:
-    """The confusion matrix across the score range -- the ROC, as matrices.
+    """Return confusion matrices across quantile-based score thresholds.
 
-    THE THRESHOLD IS A CHOICE AND HAS TO BE SEEN AS ONE. A single confusion
-    matrix at 0.5 answers "how good is it there" and hides that moving the
-    threshold trades exactly the two quantities the correction divides by.
+    The sequence exposes the sensitivity-specificity trade-off rather than
+    evaluating only the conventional threshold of 0.5.
     """
     values = np.asarray(list(scores), dtype=float)
     values = values[np.isfinite(values)]
@@ -137,12 +134,11 @@ def operating_points(scores: Sequence[float],
 def best_threshold(scores: Sequence[float],
                    labels: Sequence[bool], *,
                    criterion: str = "youden") -> Confusion:
-    """The operating point to run the annotation at.
+    """Select an operating point for annotation.
 
     :param criterion: ``'youden'`` maximises ``se + sp - 1``, which is the
-        exact denominator of the Rogan-Gladen correction -- so it is not an
-        arbitrary choice here, it is the point at which the correction is
-        most stable and its variance inflation smallest.
+        denominator of the Rogan--Gladen correction and therefore favours
+        stable prevalence correction.
     """
     points = operating_points(scores, labels)
     if not points:
@@ -160,18 +156,11 @@ def sensitivity_by_prevalence(scores: Sequence[float],
                               wells: Sequence[str], *,
                               threshold: float = 0.5,
                               bins: int = 4) -> List[Dict[str, float]]:
-    """Sensitivity within bands of well prevalence.
+    """Measure classifier performance across well-prevalence bands.
 
-    THE NUMBER 214 ASKED FOR, and the reason it asked. Sensitivity is a
-    property of the classifier and specificity is too -- neither should
-    depend on prevalence at all. If they DO here, the classifier is using
-    context rather than the cell: a model that has learned "this well looks
-    crowded, so call more of it positive" will show rising sensitivity with
-    prevalence, and every fraction it produces is then partly a copy of the
-    fraction it was given.
-
-    :returns: one row per band with the band's prevalence, its sensitivity,
-        its specificity and its size.
+    Returns one row per populated band with prevalence, sensitivity,
+    specificity, accuracy, and cell count. Dependence on prevalence can reveal
+    that a classifier is using well context rather than only cell phenotype.
     """
     values = np.asarray(list(scores), dtype=float)
     truth = np.asarray(list(labels), dtype=bool)
@@ -208,18 +197,15 @@ def sensitivity_by_prevalence(scores: Sequence[float],
 
 def rogan_gladen(observed: float, sensitivity: float, specificity: float, *,
                  n: Optional[int] = None) -> Dict[str, float]:
-    """Correct an observed positive share for classifier error.
+    """Apply the Rogan--Gladen correction to an observed positive share.
 
         p_true = (p_observed - (1 - sp)) / (se + sp - 1)
 
-    IT MOVES THE ESTIMATE; IT DOES NOT WIDEN IT. At ``se = sp = 0.94`` an
-    observed 0.06 corrects to exactly zero -- the whole observed signal being
-    false positives -- and an observed 0.244 corrects to 0.20.
-
     :param n: the number of cells, if the standard error is wanted. The
-        correction inflates variance by ``1 / (se + sp - 1)^2``, which at
-        0.94/0.94 is 1.29, so an interval computed before correcting is too
-        narrow as well as centred in the wrong place.
+        correction inflates variance by ``1 / (se + sp - 1)^2``.
+
+    The result includes the unclipped denominator, a clipping indicator, and
+    variance inflation. Correction is unusable when ``se + sp`` is one.
     """
     se, sp = float(sensitivity), float(specificity)
     denominator = se + sp - 1.0
@@ -244,19 +230,13 @@ def rogan_gladen(observed: float, sensitivity: float, specificity: float, *,
 
 def deconvolve(scores: Sequence[float], *,
                seed: int = 0) -> Dict[str, float]:
-    """Estimate the two class distributions from unlabelled scores.
+    """Estimate two class distributions from unlabelled scores.
 
-    THE FALLBACK, AND IT IS A FALLBACK. With no labels this fits the score
-    column as two Gaussian components and reports what they imply. It is
-    the only route when nothing is labelled, and it is the weakest, because
-    it assumes the shape of the two components AND that they are far enough
-    apart to be told apart at all.
-
-    ``separation`` is the health check and must be read before the numbers
-    beside it: the gap between the component means in pooled standard
-    deviations. Below about 2 the fit is choosing between many equally good
-    answers, and the sensitivity it reports is an artefact of the starting
-    point rather than a fact about the classifier.
+    A two-component Gaussian mixture estimates prevalence, sensitivity,
+    specificity, and a midpoint threshold. ``separation`` is the distance
+    between component means in pooled standard deviations; the result marks
+    estimates trustworthy only when separation is at least two. This is a
+    model-based fallback and is weaker evidence than a labelled test split.
     """
     from sklearn.mixture import GaussianMixture
 
@@ -363,20 +343,14 @@ def training_wells(wells: Sequence[str], *,
 
 def discover_test_splits(root: str, *,
                         pattern: str = "*test_*.csv") -> Dict[str, str]:
-    """Find the written test splits under a screen's folder.
+    """Find classifier test outputs under a screen directory.
 
     :param root: the screen directory holding one folder per plate.
     :param pattern: how the training code named them. The default matches
         both shapes spaCR writes -- `*_test_acc.csv` and
         `*_test_result.csv`.
-    :returns: ``{plate folder name: path}``, one per plate, newest first
-        where a plate has several.
-
-    THIS IS THE ROUTE, and there is no other. Nothing in spaCR carries a
-    measured sensitivity for a screen it has not been shown, so a user with
-    their own screen gets their own numbers by pointing this at their own
-    folder -- which is the only arrangement in which the correction can be
-    right for more than one experiment.
+    :returns: ``{plate folder name: path}``, with the newest matching file
+        selected when a plate contains several.
     """
     from pathlib import Path
 
@@ -395,16 +369,11 @@ def discover_test_splits(root: str, *,
 def measure_screen(root: str, *,
                    pattern: str = "*test_*.csv",
                    threshold: Optional[float] = None) -> Dict[str, Dict[str, float]]:
-    """Sensitivity and specificity per plate, from a user's own screen.
+    """Measure sensitivity and specificity for each plate in a screen.
 
-    The whole of what this module offers, in one call, for somebody who has
-    run their own screen and wants the correction to be about it.
-
-    PER PLATE AND NOT POOLED, deliberately. Plates are trained separately
-    and their thresholds are not comparable -- on the screen this was
-    developed against they spanned 0.2955 to 0.8567, which is three points
-    of sensitivity. Averaging them would produce one number that is wrong
-    for every plate.
+    Plates are evaluated separately because their classifiers and selected
+    thresholds can differ. The return value maps plate-folder names to the
+    metrics produced by :func:`from_test_split`.
     """
     return {name: from_test_split(path, threshold=threshold)
             for name, path in discover_test_splits(root,
@@ -420,9 +389,9 @@ def from_test_split(path: str, *,
     :param threshold: for a per-cell file, the score to call positive at.
         ``None`` takes the Youden point. Ignored for a summary file, which
         has already chosen one.
-    :returns: sensitivity, specificity, the threshold, and ``per_cell`` to
-        say which shape was read -- because only a per-cell file supports
-        asking the same question again at a different threshold.
+    :returns: sensitivity, specificity, threshold, accuracy, sample count,
+        and ``per_cell`` indicating which file shape was read. Only per-cell
+        files support recalculation at a different threshold.
     """
     import pandas as pd
 
@@ -465,22 +434,12 @@ def inflation_by_prevalence(sensitivity: float, specificity: float, *,
                             prevalences: Sequence[float] = (
                                 0.5, 0.3, 0.2, 0.1, 0.05, 0.02, 0.01),
                             ) -> List[Dict[str, float]]:
-    """What the classifier does to a fraction, as the fraction gets rarer.
+    """Quantify classifier-induced fraction inflation across prevalences.
 
-    THE RESULT THAT DECIDES WHETHER ANY OF THIS MATTERS, and it is not
-    intuitive from the accuracy. At the tsg101 classifiers' measured
-    ``se = 0.960``, ``sp = 0.981``:
-
-        a true 30% is observed as 30% -- the correction is a no-op;
-        a true  1% is observed as  2.8% -- nearly THREE TIMES too high.
-
-    The false positives are a share of the NEGATIVES, and when a guide is
-    rare almost every cell in the well is a negative, so a small
-    false-positive rate on a large population swamps a large true-positive
-    rate on a small one.
-
-    SCREEN HITS ARE RARE. So the correction is negligible everywhere it does
-    not matter and dominant exactly where it does.
+    For each true prevalence, the function reports the expected observed
+    prevalence, the Rogan--Gladen-corrected value, and their ratio. False
+    positives can dominate rare classes because they are applied to the much
+    larger negative population.
     """
     se, sp = float(sensitivity), float(specificity)
     out: List[Dict[str, float]] = []

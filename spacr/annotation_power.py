@@ -1,43 +1,16 @@
-"""How many cells CAN be annotated, and how big the screen would have to be.
+"""Estimate which guide assignments a pooled screen can support.
 
-Asked 2026-08-21: "i dont need all cells annotated. for each method i want as
-many cells as the method can reasonably annotate annotated ... with no method
-can we annotate every cell, for that we would need a much largesr screen.
-that is something that can be printed in the textbox under the graph, all the
-quality metricks that can be caluclated for each method and how large the
-screen would have to be based on these data".
+The calculations combine each guide's within-well fraction with classifier
+sensitivity and specificity. They report the minimum fraction required for a
+phenotype-positive call to reach a requested posterior probability, identify
+guides that never reach that fraction, and estimate the screen design needed
+to improve coverage.
 
-COVERAGE IS NOT A GOAL, which reverses how the benchmark should be read. A
-method that annotates every cell has not done well; it has declined to
-abstain. The question each method answers is "which cells can I speak about",
-and the honest ones leave most of a pooled screen alone.
-
-THE LIMIT IS ARITHMETIC, NOT EFFORT. Take the simplest method's model: a
-guide `g` is a fraction `pi` of a well's reads, only `g` produces the
-phenotype, and the classifier has sensitivity `se` and specificity `sp`. A
-cell called phenotype-positive carries `g` with probability
-
-    P(g | +)  =  pi * se  /  ( pi * se  +  (1 - pi) * (1 - sp) )
-
-and the second term in that denominator is the trap. FALSE POSITIVES ARE A
-SHARE OF THE NEGATIVES. When `pi` is small nearly every cell in the well is a
-negative, so a small false-positive rate applied to almost everything
-outnumbers a large true-positive rate applied to almost nothing. Below a
-certain `pi` a positive call is more likely to be a mistake than a hit, and
-NO METHOD USING THAT EVIDENCE CAN DO BETTER -- it is not a limitation of the
-algorithm but of what the well contains.
-
-Rearranged, the fraction a guide must reach for a decision at confidence
-``t``:
-
-    pi*  =  t (1 - sp)  /  ( se (1 - t)  +  t (1 - sp) )
-
-MORE CELLS PER WELL DO NOT HELP, and this is the counterintuitive part worth
-stating before anyone images more fields. `pi` is a fraction: doubling the
-cells doubles the true positives and the false positives together, so the
-per-cell confidence is unchanged. It buys more annotated cells at the same
-rate, never a higher rate. The rate moves only when the guide's SHARE moves
--- fewer guides per well -- or when the classifier separates better.
+Increasing the number of cells in a well increases the number of possible
+assignments but does not change the posterior probability for an individual
+cell. That probability changes when guide fractions or classifier performance
+change. The functions in this module therefore keep annotation coverage and
+assignment confidence as separate quantities.
 """
 from __future__ import annotations
 
@@ -56,7 +29,23 @@ __all__ = [
 
 def posterior_for_prior(prior: float, sensitivity: float,
                         specificity: float) -> float:
-    """P(the cell carries the guide | it was called phenotype-positive)."""
+    """Return guide probability after a phenotype-positive classifier call.
+
+    Parameters
+    ----------
+    prior : float
+        Guide fraction before observing the classifier call.
+    sensitivity : float
+        Probability of a positive call for a guide-carrying cell.
+    specificity : float
+        Probability of a negative call for a cell without the guide.
+
+    Returns
+    -------
+    float
+        Posterior guide probability, or ``nan`` when the call has zero total
+        probability under the supplied rates.
+    """
     pi = float(prior)
     hit = pi * float(sensitivity)
     miss = (1.0 - pi) * (1.0 - float(specificity))
@@ -66,11 +55,11 @@ def posterior_for_prior(prior: float, sensitivity: float,
 
 def required_fraction(sensitivity: float, specificity: float, *,
                       decision: float = 0.55) -> float:
-    """The smallest guide fraction that can support a call at ``decision``.
+    """Return the minimum guide fraction for a requested posterior.
 
-    Below this the arithmetic is against you whatever the method: a
-    phenotype-positive cell in such a well is more likely to be one of the
-    many negatives misread than one of the few positives.
+    ``decision`` is the minimum probability that a phenotype-positive cell
+    carries the guide. The calculation accounts for false positives among
+    cells that do not carry the guide.
     """
     se, sp = float(sensitivity), float(specificity)
     t = float(decision)
@@ -85,18 +74,26 @@ def annotatable(fractions: Mapping[str, Mapping[str, float]], *,
                 decision: float = 0.55,
                 cells_per_well: Optional[Mapping[str, int]] = None,
                 ) -> Dict[str, object]:
-    """How much of a screen is reachable at all, given its own fractions.
+    """Summarize the annotatable portion of a screen.
 
-    :param fractions: ``{well: {guide: fraction}}`` -- the screen as it is.
-    :param cells_per_well: optional, to turn the share of well-guide pairs
-        into a share of CELLS.
-    :returns: the floor, what clears it, and what that leaves unreachable.
+    Parameters
+    ----------
+    fractions : mapping
+        Nested mapping ``{well: {guide: fraction}}``.
+    sensitivity, specificity : float
+        Classifier performance used to compute the minimum guide fraction.
+    decision : float, default=0.55
+        Required posterior probability for a guide assignment.
+    cells_per_well : mapping, optional
+        Cell count for each well. When supplied, the result includes an
+        upper bound on the number of reachable cells.
 
-    THE UNREACHABLE GUIDES ARE THE HEADLINE. A guide that never reaches
-    `pi*` in any well cannot be annotated anywhere in the screen, so no
-    amount of method development will produce a single cell for it. That is
-    a fact about the experiment, available before any method is run, and it
-    is the number that should decide whether to run one.
+    Returns
+    -------
+    dict
+        Minimum fraction, reachable well-guide pairs and guides, and optional
+        cell-count bounds. A guide is unreachable when it fails to meet the
+        minimum fraction in every well.
     """
     floor = required_fraction(sensitivity, specificity, decision=decision)
     pairs = 0
@@ -148,18 +145,30 @@ def screen_size_for(fractions: Mapping[str, Mapping[str, float]], *,
                     specificity: float,
                     decision: float = 0.55,
                     target: float = 0.80) -> Dict[str, object]:
-    """What the screen would have to be for ``target`` of guides to be
-    reachable.
+    """Estimate the screen design needed to improve guide reachability.
 
-    THE ONE LEVER IS GUIDES PER WELL. A guide's fraction is its share of the
-    well, so the way to raise it is to put fewer guides in each well -- and
-    holding the library and the coverage per guide fixed, that means more
-    wells, in direct proportion.
+    Parameters
+    ----------
+    fractions : mapping
+        Nested mapping ``{well: {guide: fraction}}``.
+    sensitivity, specificity : float
+        Classifier performance used to compute the minimum guide fraction.
+    decision : float, default=0.55
+        Required posterior probability for a guide assignment.
+    target : float, default=0.80
+        Target share recorded in the result for reporting.
 
-    :param target: the share of guides that should reach the floor.
-    :returns: the current shape, the shape needed, and the ratio between --
-        plus what the same result would cost through the classifier
-        instead, since a better model is the other way to move the floor.
+    Returns
+    -------
+    dict
+        Current screen shape, estimated guides per well and wells required,
+        size multiplier, and the specificity required at the current shape.
+
+    Notes
+    -----
+    The estimate holds library size and mean wells per guide fixed. It raises
+    typical guide fractions by placing fewer guides in each well and therefore
+    increasing the number of wells proportionally.
     """
     floor = required_fraction(sensitivity, specificity, decision=decision)
     wells = len(fractions)
@@ -222,17 +231,25 @@ def quality_report(verdicts: Mapping[str, object], *,
                    power: Optional[Mapping[str, object]] = None,
                    size: Optional[Mapping[str, object]] = None,
                    width: int = 78) -> str:
-    """The textbox under the graph: every method's metrics, and the ceiling.
+    """Format annotation quality and power metrics as a text report.
 
-    :param verdicts: ``{method: Verdict}`` from
-        :func:`spacr.annotation_validation.score_annotation`.
-    :param power: the :func:`annotatable` result for this screen.
-    :param size: the :func:`screen_size_for` result.
+    Parameters
+    ----------
+    verdicts : mapping
+        Mapping from method name to
+        :class:`spacr.annotation_validation.Verdict`.
+    power : mapping, optional
+        Result from :func:`annotatable`.
+    size : mapping, optional
+        Result from :func:`screen_size_for`.
+    width : int, default=78
+        Rule width used in the text layout.
 
-    COVERAGE IS PRINTED BESIDE PRECISION AND NEVER BLENDED WITH IT. The
-    methods are ordered by the cells they got RIGHT, which is the only
-    ranking that does not reward either annotating everything badly or
-    annotating nothing safely.
+    Returns
+    -------
+    str
+        Report that presents coverage, precision, and recall separately,
+        followed by optional reachability and screen-size estimates.
     """
     lines: List[str] = []
     rows = []
@@ -243,7 +260,7 @@ def quality_report(verdicts: Mapping[str, object], *,
                      int(getattr(verdict, "n", 0))))
     rows.sort(key=lambda r: -r[3])
 
-    lines.append("ANNOTATION QUALITY")
+    lines.append("Annotation quality")
     lines.append("-" * width)
     lines.append(f"{'method':<22}{'annotated':>11}{'of those':>11}"
                  f"{'right, all':>12}")
@@ -252,12 +269,12 @@ def quality_report(verdicts: Mapping[str, object], *,
         lines.append(f"{name:<22}{coverage:>10.1%}{precision:>11.1%}"
                      f"{recall:>12.1%}")
     lines.append("")
-    lines.append("A method that annotates everything has not done well, it")
-    lines.append("has declined to abstain. Ranked by cells got right.")
+    lines.append("Coverage, precision, and recall are reported separately.")
+    lines.append("Methods are ranked by the share of all cells called correctly.")
 
     if power:
         lines.append("")
-        lines.append("WHAT THIS SCREEN CAN SUPPORT AT ALL")
+        lines.append("Screen reachability")
         lines.append("-" * width)
         floor = float(power.get("floor", float("nan")))
         lines.append(
@@ -282,16 +299,14 @@ def quality_report(verdicts: Mapping[str, object], *,
         if unreachable:
             lines.append("")
             lines.append(
-                f"  {unreachable:,} guides never reach it in ANY well. No "
+                f"  {unreachable:,} guides never reach it in any well. No "
                 f"method can")
             lines.append(
-                "  annotate a single cell for them -- that is the "
-                "experiment,")
-            lines.append("  not the algorithm.")
+                "  annotate cells for those guides from this screen design.")
 
     if size:
         lines.append("")
-        lines.append("HOW MUCH BIGGER THE SCREEN WOULD HAVE TO BE")
+        lines.append("Estimated screen size")
         lines.append("-" * width)
         lines.append(
             f"  now    : {int(size.get('wells_now', 0)):,} wells, "
@@ -315,9 +330,8 @@ def quality_report(verdicts: Mapping[str, object], *,
                 f"  Or raise specificity to {needed_sp:.5f} at the current "
                 f"shape.")
         lines.append("")
-        lines.append("  MORE CELLS PER WELL DO NOT MOVE ANY OF THIS. The")
-        lines.append("  fraction is a share, so more cells give more")
-        lines.append("  annotated cells at the same rate, never a better")
-        lines.append("  rate.")
+        lines.append("  More cells per well increase the number of possible")
+        lines.append("  assignments but do not change the guide fraction or")
+        lines.append("  per-cell assignment probability.")
 
     return "\n".join(lines)
