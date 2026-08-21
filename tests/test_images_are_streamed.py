@@ -297,3 +297,108 @@ class TestBoundingBoxOrTheMaskAlone:
         from spacr import stream_dataset
 
         assert "crop_object" in inspect.getsource(stream_dataset.cut)
+
+
+class TestTheStreamingPass:
+    """"after the table is generated the streamin begins to generate the
+    datasets on disk"."""
+
+    @pytest.fixture
+    def screen(self, tmp_path):
+        merged = tmp_path / "merged"
+        merged.mkdir()
+        for field in (1, 2):
+            stack = np.zeros((24, 24, 3), dtype=np.int32)
+            stack[..., 0] = 5
+            stack[..., 1] = 6
+            stack[2:8, 2:8, 2] = 1
+            stack[10:16, 10:16, 2] = 2
+            np.save(merged / f"plate1_A01_{field}_0.npy", stack)
+        return str(merged), str(tmp_path / "dataset")
+
+    def test_it_writes_every_selected_object(self, screen):
+        from spacr.stream_dataset import stream_dataset
+
+        merged, dst = screen
+        report = stream_dataset({"merged_folder": merged, "test_split": 0.5,
+                                 "random_seed": 1}, dst)
+        assert report["written"] == 4
+        assert report["missing"] == 0
+
+    def test_the_table_is_written_first(self, screen):
+        """A pass that streamed first and recorded afterwards would record
+        what it happened to write rather than what it set out to."""
+        from spacr.stream_dataset import stream_dataset
+
+        merged, dst = screen
+        report = stream_dataset({"merged_folder": merged}, dst)
+        assert os.path.isfile(report["selection"])
+
+    def test_the_splits_become_folders(self, screen):
+        from spacr.stream_dataset import stream_dataset
+
+        merged, dst = screen
+        stream_dataset({"merged_folder": merged, "test_split": 0.5,
+                        "random_seed": 1}, dst)
+        assert os.path.isdir(os.path.join(dst, "train"))
+        assert os.path.isdir(os.path.join(dst, "test"))
+
+    def test_the_crops_carry_the_object_id(self, screen):
+        from spacr.stream_dataset import stream_dataset
+
+        merged, dst = screen
+        stream_dataset({"merged_folder": merged, "test_split": 0.5,
+                        "random_seed": 1}, dst)
+        names = []
+        for split in ("train", "test"):
+            names += os.listdir(os.path.join(dst, split))
+        assert any(n.endswith("_1.npy") for n in names)
+        assert any(n.endswith("_2.npy") for n in names)
+
+    def test_a_field_with_no_stack_is_counted_not_skipped(self, tmp_path):
+        """A dataset short by a field is a dataset trained on a different
+        screen from the one the table describes."""
+        from spacr.stream_dataset import stream
+
+        table = pd.DataFrame({
+            "plateID": ["p1"], "rowID": ["r1"], "columnID": ["c1"],
+            "fieldID": ["9"], "objectID": ["1"], "object_array": ["cell"],
+            "split": ["train"], "source": ["object table"],
+        })
+        report = stream(table, str(tmp_path), str(tmp_path / "out"))
+        assert report["missing"] == 1
+        assert report["trouble"]
+
+    def test_an_empty_selection_says_so(self, tmp_path):
+        from spacr.stream_dataset import stream
+
+        report = stream(pd.DataFrame(), str(tmp_path), str(tmp_path / "o"))
+        assert "nothing to stream" in " ".join(report["trouble"])
+
+    def test_the_stack_is_read_once_per_field(self, screen, monkeypatch):
+        """A field holds hundreds of objects and a merged stack is tens of
+        megabytes; re-reading per crop is a minute against an afternoon."""
+        from spacr import stream_dataset as module
+
+        merged, dst = screen
+        reads = []
+        original = np.load
+
+        def counted(path, *args, **kwargs):
+            reads.append(str(path))
+            return original(path, *args, **kwargs)
+
+        monkeypatch.setattr(module.np, "load", counted)
+        module.stream_dataset({"merged_folder": merged}, dst)
+        # Two fields, and each .npy opened once for the selection scan and
+        # once for the cutting pass.
+        assert len(reads) <= 4, reads
+
+    def test_the_recorded_source_file_beats_a_rebuilt_name(self, screen):
+        """A merged file is named plate1_A01_1_0.npy while the parsed parts
+        come back as r1/c1, so a rebuilt stem matches nothing."""
+        from spacr.stream_dataset import stream_dataset
+
+        merged, dst = screen
+        report = stream_dataset({"merged_folder": merged}, dst)
+        assert report["fields"] == 2, report["trouble"]

@@ -2,8 +2,7 @@
 IMAGES ARE STREAMED, NOT ONLY LOADED
 ================================================================================
 
-Status:    filed 2026-08-21. A, B AND THE SELECTION TABLE DONE 2026-08-21;
-           the streaming LOOP is not -- see WHAT IS LEFT.
+Status:    DONE 2026-08-21.
 Requested: 2026-08-21 -- "in Computer vision images and cropping, change crop
            sourse to Image sourse and chang it to a drop down with the
            options load images and stream images. / Tables default should be
@@ -185,15 +184,28 @@ asserts the delegation, because a second cutter is the thing worth
 preventing rather than the thing worth writing.
 
 --------------------------------------------------------------------------------
-WHAT IS LEFT
+AND THE PASS THAT WRITES IT, DONE
 --------------------------------------------------------------------------------
 
-THE LOOP THAT WALKS THE SAVED TABLE AND WRITES THE DATASET. Every piece it
-needs is built and tested -- the table, the naming, the cutter, the settings
-that choose between them -- and what remains is the pass that reads the
-merged stack per field, cuts each selected object and writes it under its
-`crop_name` into the train/test folders the table annotates.
+`stream_dataset(settings, dst)` builds the selection, SAVES it, and only
+then streams -- which is the instruction's own order. A pass that streamed
+first and recorded afterwards would record what it happened to write rather
+than what it set out to.
 
-Deliberately last, and deliberately separate: it is the only part that
-cannot be tested without writing a dataset to disk, and everything it
-depends on can be.
+ONE STACK READ PER FIELD, not per object. A field holds hundreds of objects
+and a merged stack is tens of megabytes; re-reading it per crop is the
+difference between a minute and an afternoon, and a test counts the reads.
+
+THE RECORDED SOURCE FILE BEATS A REBUILT NAME, and this cost a whole pass to
+learn. A merged file is named `plate1_A01_1_0.npy` while the parsed parts
+come back as r1/c1, so a stem rebuilt from the table matched NOTHING -- the
+first run wrote zero crops and reported two missing fields. The selection
+table already records which .npy each object was read from, and a name that
+was READ is always right.
+
+A FIELD WITH NO STACK IS COUNTED, NOT SKIPPED SILENTLY. A dataset short by
+a field is a dataset trained on a different screen from the one the table
+describes, and nothing else would say so.
+
+The splits become the folders, and each crop lands under the name
+`measure_crop` would have given it.
