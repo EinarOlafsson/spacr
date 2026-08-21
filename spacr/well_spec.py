@@ -27,11 +27,8 @@ WELL_SETTINGS = (
 WELL_ONLY_SETTINGS = (
     "cell_loc", "control_wells", "filter_value", "pathogen_loc",
     "treatment_loc",
-    # THE THREE CONTROL BLOCKS (221). Asked for 2026-08-21: "they should all
-    # have the same field and plate button as control wells. like all
-    # settings that hold plate metadata." A setting that holds wells and
-    # cannot be picked off a plate map is a setting the user types by hand
-    # from a layout they are reading off paper.
+    # Control-block settings contain only wells, so the plate-map picker can
+    # replace their complete value without discarding mixed metadata.
     "positive_control_wells", "negative_control_wells",
     "mixed_control_wells",
 )
@@ -44,20 +41,16 @@ CONTROL_BLOCK_SETTINGS = ("negative_control_wells", "positive_control_wells",
 
 
 def control_block_wells(settings) -> list:
-    """Every well named by the three control-block settings, deduplicated.
+    """Return the wells named by the three control-block settings.
 
     :param settings: the run's settings mapping.
     :returns: well/row/column names, in the order the blocks are declared,
         with duplicates removed and order otherwise preserved.
 
-    THESE COME OUT OF THE REGRESSION. A well of pure control is not a screen
-    well: it holds one guide by construction, so its phenotype says what that
-    guide does and nothing about any gene under test. Left in, it is modelled
-    as though it were a random draw from the library, and with a strong
-    control it is a high-leverage one.
-
-    The maintainer removed them by hand with `filter_value` before this
-    existed, which works and has to be remembered on every run.
+    Pure-control wells are excluded from regression because each contains a
+    guide fixed by design rather than a random draw from the screened library.
+    A strong control left in the model can otherwise become a high-leverage
+    observation for a gene under test.
     """
     seen: list = []
     for key in CONTROL_BLOCK_SETTINGS:
