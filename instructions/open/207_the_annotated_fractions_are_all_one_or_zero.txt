@@ -111,3 +111,50 @@ HOW TO KNOW IT WORKED
   figure says which it drew.
 * The four methods' capacity for unannotated objects is settled IN WRITING
   against the code, including `attributed`, which is currently unknown.
+
+--------------------------------------------------------------------------------
+AND THE SCREEN'S OWN CEILING, MEASURED 2026-08-21
+--------------------------------------------------------------------------------
+
+Asked for alongside this: "for each method i want as many cells as the
+method can reasonably annotate annotated ... with no method can we annotate
+every cell, for that we would need a much largesr screen."
+
+COVERAGE IS NOT A GOAL. A method that annotates every cell has not done
+well, it has declined to abstain. `spacr/annotation_power.py` computes what
+a screen can support at all, before any method is run.
+
+The limit is arithmetic. A phenotype-positive cell carries guide `g` with
+
+    P = pi se / ( pi se + (1 - pi)(1 - sp) )
+
+and false positives are a share of the NEGATIVES -- so when a guide is rare
+almost every cell in the well is a negative, and a small false-positive rate
+on nearly everything outnumbers a large true-positive rate on almost
+nothing. Below
+
+    pi* = t(1 - sp) / ( se(1 - t) + t(1 - sp) )
+
+no method using that evidence can do better. It is not the algorithm.
+
+RUN ON PLATE 1 OF THE tsg101 SCREEN, with its own measured classifier and
+its own counts, at t = 0.55:
+
+    floor pi*                        1.9% of a well
+    well-guide pairs clearing it     1,430 of 172,756  (0.8%)
+    guides reachable anywhere        451 of 1,379     (32.7%)
+    guides reachable NOWHERE         928
+
+    now     384 wells, 440 guides in a typical well
+    needed   52 guides per well, so 3,308 wells -- 8.6x the plates
+    or       hold the wells and cut the library to 160 guides
+    or       raise specificity to 0.9982 at the current shape
+
+MORE CELLS PER WELL MOVE NONE OF IT. The fraction is a share, so imaging
+more fields gives more annotated cells at the same rate and never a better
+rate. Worth printing before anyone images more.
+
+This also reframes section A. The reported pile-up at 1 and 0 sits on a
+screen where two thirds of the guides cannot be annotated at all, so a
+method appearing to annotate them confidently is the first thing to
+disbelieve.
