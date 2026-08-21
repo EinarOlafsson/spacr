@@ -1,31 +1,10 @@
-"""What a bar's whisker means, and how long it is.
+"""Compute and label uncertainty or dispersion for bar charts.
 
-Instruction 204: "for the cell table graphs if bar is chosen the user should
-be able to choose SD, Var, or SEM error bars", and instruction 200 asks for
-the same choice in the figure settings.
-
-ONE IMPLEMENTATION, TWO SCREENS. 204 says so directly -- "one
-implementation, used by both, or the two screens will disagree about what
-SEM means on the same data" -- and that is not a hypothetical: SD and SEM
-differ by a factor of sqrt(n), so two screens using different definitions of
-the same word would draw whiskers fifty-five times apart at n=3000 and both
-label them the same.
-
-THEY ARE NOT INTERCHANGEABLE AND THE PLOT MUST SAY WHICH IT DREW.
-
-    SD   describes the CELLS: how spread out the population is. It does not
-         shrink as you measure more of them.
-    SEM  describes the MEAN: how precisely the centre is located. It shrinks
-         as sqrt(n), so it is small whenever n is large, whatever the
-         biology does.
-    VAR  is SD squared, so it is in squared units and does not share the
-         axis with the bar it sits on. Offered because it was asked for;
-         drawn, but the label has to carry the units or the picture is
-         wrong in a way that looks fine.
-
-A reader who assumes the wrong one reads a real effect as noise, or noise as
-a real effect. The choice belongs in the axis label or the legend -- not
-only in the settings dialog the reader never opens.
+The standard deviation (SD) describes variation among observations, whereas
+the standard error of the mean (SEM) describes precision of the estimated
+mean and decreases with sample size. Variance is SD squared and therefore has
+squared units. Shared helpers keep these definitions and their plot labels
+consistent across graph-building surfaces.
 """
 from __future__ import annotations
 
@@ -60,20 +39,15 @@ SPREAD_CHOICES: Tuple[Tuple[str, str], ...] = (
 
 
 def spread_of(values: Sequence[float], kind: str) -> float:
-    """The half-length of the whisker for ``values``.
+    """Return the whisker half-length for a sequence of observations.
 
     :param values: the observations behind one bar.
     :param kind: one of :data:`SPREAD_CHOICES`' values.
     :returns: the spread, or ``nan`` when it is not defined.
 
-    THE SAMPLE STANDARD DEVIATION, ``ddof=1``, and that is a choice with a
-    reason: these are cells drawn from a population, not the population, and
-    the population formula understates the spread by ``sqrt((n-1)/n)`` --
-    ten per cent at n=5, which is exactly the well that needed the whisker.
-
-    ONE OBSERVATION HAS NO SPREAD. It returns ``nan`` rather than zero: a
-    zero-length whisker on a bar of one cell says "no variation measured"
-    where the truth is "not measurable", and those look identical on a plot.
+    SD and variance use the sample definition (``ddof=1``). Fewer than two
+    finite observations return ``nan`` because their spread is not
+    measurable; a zero would incorrectly claim that no variation was found.
     """
     array = np.asarray(list(values), dtype=float)
     array = array[np.isfinite(array)]
@@ -94,12 +68,9 @@ def spread_of(values: Sequence[float], kind: str) -> float:
 
 
 def spread_label(kind: str, *, unit: str = "") -> str:
-    """What to write on the axis so the whisker is not ambiguous.
+    """Return an axis label that identifies the whisker statistic.
 
-    :param unit: the measurement's unit, if there is one. VARIANCE SQUARES
-        IT, which is the whole reason this takes the argument -- a variance
-        whisker on an axis labelled with the plain unit is wrong in a way
-        that looks fine.
+    :param unit: measurement unit. Variance labels append a squared unit.
     """
     if kind == SPREAD_NONE:
         return ""
@@ -114,10 +85,10 @@ def spread_label(kind: str, *, unit: str = "") -> str:
 
 def summarise(groups: Dict[str, Sequence[float]],
               kind: str) -> Dict[str, Dict[str, float]]:
-    """``{level: {"mean", "spread", "n"}}`` for a bar chart.
+    """Summarize grouped observations for a bar chart.
 
-    A level with no finite observation is omitted rather than drawn at
-    zero -- an empty bar and a bar of zeros are different claims.
+    :returns: ``{level: {"mean", "spread", "n"}}``. Groups without finite
+        observations are omitted rather than drawn as zero-valued bars.
     """
     out: Dict[str, Dict[str, float]] = {}
     for level, values in groups.items():

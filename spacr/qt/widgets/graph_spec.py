@@ -281,9 +281,9 @@ class GraphSpec:
     shared_y: bool = True
     point_budget: int = DEFAULT_POINT_BUDGET
     seed: int = 0
-    #: What a bar's whisker means: one of `figures.spread.SPREAD_CHOICES`.
-    #: Instruction 204. Only read when the bar has a numeric channel to
-    #: average -- a count bar has nothing to be spread about.
+    #: Whisker statistic selected from ``figures.spread.SPREAD_CHOICES``.
+    #: Used only when a bar averages a numeric channel; count bars have no
+    #: within-group measurement distribution to summarize.
     spread: str = "none"
 
     def __post_init__(self) -> None:
