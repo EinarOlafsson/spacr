@@ -1960,6 +1960,7 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('guide_permutation_seed', 0)
     settings.setdefault('guide_permutation_block', 'plateID')
     settings.setdefault('guide_nuisance_columns', [])
+    settings.setdefault('guide_statistic', 'pearson')
     settings.setdefault('guide_presence_threshold', 0.0)
     settings.setdefault('guide_permutation_batch_size', 500)
     # 'none' by default: the correction to apply is a judgement about the
@@ -2818,6 +2819,7 @@ expected_types = {
     "guide_permutation_seed": int,
     "guide_permutation_block": str,
     "guide_nuisance_columns": list,
+    "guide_statistic": str,
     "guide_presence_threshold": (int, float),
     "guide_permutation_batch_size": int,
     "multiple_testing_method": str,
@@ -3537,6 +3539,7 @@ tooltips = {
     "guide_primary_min_wells": "(int or None) - Which guide_min_wells family supplies results_significant.csv and the returned 'significant' table. Default None chooses the smallest requested threshold.",
     "guide_permutations": "(int) - Number of plate-blocked Freedman--Lane residual permutations used for empirical two-sided guide P values. The P value IS (exceedances + 1) / (permutations + 1), where an exceedance is a permuted statistic at least as extreme as the observed one -- so the smallest it can be is 1 / (permutations + 1), reached only when nothing exceeded: 1,000 permutations resolve to about 1e-3, 10,000 to 1e-4, and the default 200,000 to 5e-6. Raise this when the volcano shows a flat row of guides at the P-value floor; runtime increases linearly. Default 200000.",
     "guide_permutation_seed": "(int) - Random seed for reproducible residual permutations. Keep it fixed to reproduce exact empirical P values; change it to check Monte Carlo sensitivity. Default 0.",
+    "guide_statistic": "(str) - What the permutation test permutes: 'pearson' (default) is a partial correlation between the guide's fraction and the phenotype, 'rank' is the same on the RANKED phenotype. The inference was always distribution-free; the STATISTIC was not -- a correlation is a least-squares object, so one extreme well moves it as it moves a regression coefficient. Rank is monotone rather than linear and cannot be moved far by one well. Both cost one matrix product, so neither is slower. Default 'pearson'.",
     "guide_permutation_block": "(str) - Column defining exchangeability blocks for permutations, normally plateID. Residuals are never shuffled between its levels. Default 'plateID'.",
     "guide_nuisance_columns": "(list) - Additional measured well-level covariates to residualize from both phenotype and guide fraction before testing. Do not put post-treatment outcomes here. Default [].",
     "guide_presence_threshold": "(float) - A guide counts as present in a well only when its fraction is above this value. The effect still uses the unthresholded fraction. Default 0.0.",
