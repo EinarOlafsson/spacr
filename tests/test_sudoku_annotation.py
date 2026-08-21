@@ -237,3 +237,87 @@ class TestTheSequentialForm:
         # With one column every row sums to one over that column alone.
         reached = out.posterior[:, 0] > 0
         assert np.allclose(out.posterior[reached, 0], 1.0)
+
+
+class TestSudokuIsScopedToTheWellsThatHoldTheGuide:
+    """Which cells does it annotate?
+
+    Asked 2026-08-21: "will suduko only annotate cells in wells with the
+    chosen genes or will it annotate all cells it can annotat?"
+
+    THE WELLS THAT HOLD THE GUIDE, and within those, every guide that
+    co-occurs there. Two reasons, and the second is the one that would have
+    stopped a real run.
+
+    STATISTICAL: a posterior is a COMPARISON, and a guide that never shares
+    a well with this one cannot be compared against it. It contributes a
+    column of zeros and a constraint of zero -- not evidence, arithmetic on
+    an empty set.
+
+    ARITHMETIC: unscoped, the seed matrix is (all cells x all guides) and
+    the propagation holds about three of them. On the maintainer's screen --
+    143,765 cells, 1,379 guides -- that is 1.6 GB each and roughly 4.8 GB
+    live, to draw a montage of ONE coefficient.
+    """
+
+    @staticmethod
+    def _screen():
+        import pandas as pd
+
+        rng = np.random.default_rng(0)
+        objects = pd.DataFrame([
+            {"prc": f"p1_w{w}", "prcfo": f"p1_w{w}_f1_o{i}",
+             "pred": float(rng.random()),
+             "area": float(rng.normal(100, 20)),
+             "intensity": float(rng.normal(50, 10))}
+            for w in range(10) for i in range(60)])
+        rows = []
+        for w in range(10):
+            pairs = ([("A_1", 0.6), ("B_1", 0.4)] if w < 4
+                     else [("B_1", 0.5), ("C_1", 0.5)])
+            for guide, share in pairs:
+                rows.append({"prc": f"p1_w{w}", "grna": guide,
+                             "gene": guide.split("_")[0], "fraction": share})
+        return objects, pd.DataFrame(rows)
+
+    def _note(self, plan):
+        return " | ".join(n for n in (plan.notes or [])
+                          if "sudoku" in n.lower())
+
+    def test_it_reads_only_the_wells_holding_the_guide(self):
+        from spacr.cell_montage import select_montage
+
+        objects, counts = self._screen()
+        plan = select_montage(objects, counts, "A_1", 1.0,
+                              score_column="pred", picking="sudoku")
+
+        said = self._note(plan)
+        assert "across 4 well(s)" in said, said
+        # 4 wells x 60 cells, not the whole 600-cell plate.
+        assert "of 240 cell(s)" in said, said
+
+    def test_it_annotates_every_cell_in_those_wells_not_only_the_guide_s(self):
+        """Within the scope it decides EVERY cell it can -- the other guides
+        are what this one is compared against, so leaving them out would
+        leave nothing to compare with."""
+        from spacr.cell_montage import select_montage
+
+        objects, counts = self._screen()
+        plan = select_montage(objects, counts, "A_1", 1.0,
+                              score_column="pred", picking="sudoku")
+
+        said = self._note(plan)
+        annotated = int(said.split(" of ")[0].split()[-1].replace(",", ""))
+        assert annotated > 120, said
+
+    def test_a_guide_in_no_well_here_is_said_rather_than_drawn(self):
+        from spacr.cell_montage import select_montage
+
+        objects, counts = self._screen()
+        plan = select_montage(objects, counts, "C_1", 1.0,
+                              score_column="pred", picking="sudoku")
+
+        # C_1 IS present, in the other six wells -- so this must scope to
+        # those and not to A_1's.
+        said = self._note(plan)
+        assert "across 6 well(s)" in said, said
