@@ -18,9 +18,41 @@ from PySide6.QtWidgets import (QAbstractItemView, QComboBox, QDialog,
                                QTableWidget, QTableWidgetItem, QVBoxLayout,
                                QWidget)
 
-from ...settings_advisor import Advice, Reading, advise, questions_for
+from ...settings_advisor import (QUESTIONS, ROW_CAP, Advice, Reading, advise,
+                                 questions_for)
+from ..i18n import set_translatable_text, tr
 
 LOG = logging.getLogger("spacr.qt.settings_advisor")
+
+_ADVISOR_CHROME_SOURCES = (
+    "These are the only questions your tables cannot answer. Everything "
+    "else on the next page was measured.",
+    "in 1,000",
+    "Read {plates} plate(s), {wells} well(s), {guides} guide(s), {genes} "
+    "gene(s) and {objects} object row(s).",
+    "Read {plates} plate(s), {wells} well(s), {guides} guide(s), {genes} "
+    "gene(s) and {objects} object row(s). The response was read from the "
+    "first {objects} object row(s); the score table is larger than the "
+    "{row_cap}-row sample this reads.",
+    "unchanged",
+    "Not decided — left unchanged:",
+    "Every setting this advisor can decide was decided.",
+    "none",
+    "on",
+    "off",
+    "See what it would change",
+    "Apply",
+)
+
+# Exact presentation strings assembled from the headless question records are
+# not visible to the Qt literal extractor. Export them as one deterministic
+# private inventory for the runtime-catalog builder and its coverage tests.
+_SETTINGS_ADVISOR_UI_SOURCES = tuple(dict.fromkeys((
+    *_ADVISOR_CHROME_SOURCES,
+    *(question.prompt for question in QUESTIONS),
+    *(question.why_it_matters for question in QUESTIONS),
+    *(label for question in QUESTIONS for _value, label in question.options),
+)))
 
 
 def _muted(text: str, parent=None) -> QLabel:
@@ -58,7 +90,7 @@ class QuestionsPage(QWidget):
             box = QSpinBox(self)
             box.setRange(0, 1000)
             box.setValue(int(question.default or 0))
-            box.setSuffix(" in 1,000")
+            box.setSuffix(" " + tr("in 1,000"))
             return box
         if question.kind == "text":
             box = QLineEdit(self)
@@ -94,6 +126,8 @@ class ProposalPage(QWidget):
 
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
+        self._advice: Optional[Advice] = None
+        self._current: Dict[str, Any] = {}
         outer = QVBoxLayout(self)
         self.summary = _muted("", self)
         outer.addWidget(self.summary)
@@ -111,14 +145,29 @@ class ProposalPage(QWidget):
 
     def show_the_proposal(self, advice: Advice, current: Dict[str, Any]) -> None:
         """Display proposed values, current values, and supporting reasons."""
+        self._advice = advice
+        self._current = dict(current or {})
+        self._render()
+
+    def _render(self, language: Optional[str] = None) -> None:
+        """Render the current proposal using localized application chrome."""
+        advice = self._advice
+        current = self._current
+        if advice is None:
+            return
         reading = advice.reading
         if reading is not None:
-            note = reading.sample_note()
-            self.summary.setText(
-                f"Read {reading.plates} plate(s), {reading.wells:,} well(s), "
-                f"{reading.guides:,} guide(s), {reading.genes:,} gene(s) and "
-                f"{reading.n_response:,} object row(s)."
-                + (f" The response was read {note}." if note else ""))
+            values = {
+                "plates": f"{reading.plates}",
+                "wells": f"{reading.wells:,}",
+                "guides": f"{reading.guides:,}",
+                "genes": f"{reading.genes:,}",
+                "objects": f"{reading.n_response:,}",
+                "row_cap": f"{ROW_CAP:,}",
+            }
+            source = _ADVISOR_CHROME_SOURCES[3 if reading.capped else 2]
+            set_translatable_text(
+                self.summary, source, language=language, **values)
         self.table.setRowCount(len(advice.chosen))
         for row, choice in enumerate(advice.chosen):
             was = current.get(choice.key, "—")
@@ -126,8 +175,9 @@ class ProposalPage(QWidget):
             # differences would read as "everything else is wrong", when
             # most of a tuned panel is usually already right.
             same = _same(was, choice.value)
-            cells = (choice.key, _text(was),
-                     _text(choice.value) + ("  (unchanged)" if same else ""),
+            cells = (choice.key, _text(was, language),
+                     _text(choice.value, language)
+                     + (f"  ({tr('unchanged', language)})" if same else ""),
                      choice.why)
             for column, text in enumerate(cells):
                 item = QTableWidgetItem(text)
@@ -139,18 +189,23 @@ class ProposalPage(QWidget):
         self.table.resizeColumnToContents(0)
         if advice.undecided:
             self.undecided.setPlainText(
-                "NOT DECIDED — left exactly as they are:\n"
+                tr("Not decided — left unchanged:", language) + "\n"
                 + "\n".join(f"  • {u.key}: {u.why}" for u in advice.undecided))
         else:
             self.undecided.setPlainText(
-                "Every setting this button decides was decided.")
+                tr("Every setting this advisor can decide was decided.",
+                   language))
+
+    def retranslate_dynamic_content(self, language: str) -> None:
+        """Refresh proposal chrome after the application language changes."""
+        self._render(language)
 
 
-def _text(value: Any) -> str:
+def _text(value: Any, language: Optional[str] = None) -> str:
     if value is None:
-        return "none"
+        return tr("none", language)
     if isinstance(value, bool):
-        return "on" if value else "off"
+        return tr("on" if value else "off", language)
     return str(value)
 
 

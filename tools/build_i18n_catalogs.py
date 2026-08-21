@@ -2759,6 +2759,9 @@ def canonical_sources() -> dict[str, object]:
         resolve_default_settings,
         SettingsWidgets,
     )
+    from spacr.qt.widgets.settings_advisor_dialog import (
+        _SETTINGS_ADVISOR_UI_SOURCES,
+    )
     from spacr.qt.app import APPS, _SECTION_NOTE_LIBRARY
     from spacr.qt.screens.app_screen import (
         APP_INTROS,
@@ -2815,6 +2818,7 @@ def canonical_sources() -> dict[str, object]:
     ui_sources = set(extract_static_ui_sources())
     ui_sources.update(_GENE_TILE_UI_SOURCES)
     ui_sources.update(_SETTINGS_MODEL_UI_SOURCES)
+    ui_sources.update(_SETTINGS_ADVISOR_UI_SOURCES)
     ui_sources.update(str(value) for value in APP_INTROS.values())
     ui_sources.update(str(value) for value in APP_TITLES.values())
     ui_sources.update(str(value) for value in _SECTION_NOTE_LIBRARY.values())
