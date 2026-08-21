@@ -1056,6 +1056,12 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         # thresholds under hit calling. Nothing here is read unless inference
         # resolves to the nonparametric test.
         ("Permutation Test", (
+            # FIRST: it says WHAT is measured, and everything after it says
+            # how the null is built and who is eligible -- answers to a
+            # question this setting asks. Absent from this list it fell to
+            # the trailing "Additional Settings", which is where a reader
+            # looks last.
+            "grna_statistic",
             "guide_min_wells", "guide_primary_min_wells",
             "guide_permutations", "guide_permutation_seed",
             "guide_permutation_block", "guide_nuisance_columns",

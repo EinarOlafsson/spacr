@@ -28,14 +28,34 @@ the movable-dialog rule, each fixed once centrally after being applied by
 hand to a handful of places.
 
 --------------------------------------------------------------------------------
+WHAT THE USER CLICKS
+--------------------------------------------------------------------------------
+
+    "the colapsing of the console and AI box should be controlled bt
+     clicking on the Console text and colapsing of System by clicking on
+     System"
+
+THE PANEL'S OWN NAME IS THE CONTROL. No separate chevron, no button beside
+it: the word "Console" folds the console, the word "System" folds system.
+
+THAT SETTLES WHAT IS LEFT BEHIND, which the section below asks. A folded
+panel keeps its name, because the name is how it comes back -- so the strip
+is not a decision to make, it is a consequence of where the click is.
+
+AND IT HAS TO LOOK CLICKABLE. A word that folds a panel and looks exactly
+like a word that does not is a control the user finds by accident. The
+pointer changes over it and it responds to hover, the way the folding
+section headings already do -- `CollapsibleSection` solved this and its
+header is the same gesture on the same kind of thing.
+
+--------------------------------------------------------------------------------
 WHAT HAS TO BE DECIDED
 --------------------------------------------------------------------------------
 
-  * WHAT IS LEFT WHEN ONE IS FOLDED. A header strip with the name and a way
-    back, or nothing at all. Nothing at all is unrecoverable without a menu,
-    so it has to be a strip -- and the strip should say when the panel it
-    hides has something new in it, or a folded console is a console whose
-    errors are invisible.
+  * WHAT THE STRIP SAYS WHEN THE PANEL HAS NEWS. A folded console is a
+    console whose errors are invisible, so the strip has to mark that
+    something arrived -- and mark it in a way that survives being ignored,
+    since the reason it is folded is that the user is looking elsewhere.
   * WHETHER THE STATE PERSISTS. A user who folds the chat on every launch is
     telling you something; a layout that resets each time makes them say it
     again every day. It belongs with the other panel geometry spaCR already
@@ -47,6 +67,9 @@ WHAT HAS TO BE DECIDED
 HOW TO KNOW IT WORKED
 --------------------------------------------------------------------------------
 
+* Clicking the panel's NAME folds it, and clicking the name again brings it
+  back.
+* The name looks clickable -- pointer and hover -- before it is clicked.
 * Each of the three folds and unfolds, on every module that has them.
 * The container above takes the released space, measured rather than
   eyeballed -- its height before and after differs by what was folded.
