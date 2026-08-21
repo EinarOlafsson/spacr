@@ -76,7 +76,7 @@ import matplotlib
 # THE HOUSE STYLE (136). `figures.style` imports matplotlib only
 # inside its own functions, so naming it here costs nothing at
 # import time.
-from .figures.style import figure_style, theme_target
+from .figures.style import ROLES, figure_style, theme_target
 
 # Only demote to Agg when there is genuinely nowhere to draw. Doing it
 # unconditionally at import time silently killed inline plotting for anyone
@@ -1311,9 +1311,14 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
 
         if settings['min_cell_count'] is None:
             # Mark the elbow point (inflection) on the plot
-            ax.axvline(elbow_point['sample_size'], color='black', linestyle='--', label='Elbow Point')
+            # THE REFERENCE ROLE, NOT BLACK (178 A). A black guide line is
+            # invisible on spaCR's dark theme, which is the "no figure has
+            # invisible text at either setting" half of the ask.
+            ax.axvline(elbow_point['sample_size'], color=ROLES["reference"],
+                       linestyle='--', label='Elbow Point')
         else:
-            ax.axvline(settings['min_cell_count'], color='black', linestyle='--', label='Elbow Point')
+            ax.axvline(settings['min_cell_count'], color=ROLES["reference"],
+                       linestyle='--', label='Elbow Point')
 
         # Formatting the plot
         ax.set_xlabel('Sample Size')

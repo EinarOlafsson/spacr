@@ -111,7 +111,8 @@ from matplotlib.patches import Rectangle
 from . import schema
 from .figures.style import (ROLES, TRANSPARENT, TYPE_SCALE, WEIGHTS, annotate,
                             descriptor, figure_style, reference_line,
-                            resolve_ink, rotate_ticks, text_legend,
+                            resolve_ink, resolve_label_ground, rotate_ticks,
+                            text_legend,
                             theme_target)
 
 __all__ = [
@@ -1710,7 +1711,10 @@ def _note(ax, text, loc="upper left", color="#222222"):
     }[loc]
     ax.text(x, y, text, transform=ax.transAxes, ha=ha, va=va, fontsize=7,
             color=color, linespacing=1.35,
-            bbox=dict(boxstyle="round,pad=0.3", facecolor="white",
+            # 178 A: the same fault, the same fix -- this box carries the
+            # panel's own note in `color`, which follows the theme.
+            bbox=dict(boxstyle="round,pad=0.3",
+                      facecolor=resolve_label_ground(theme_target()),
                       edgecolor="#cccccc", alpha=0.85))
 
 
@@ -3808,7 +3812,13 @@ def draw_verdict(ax, verdict) -> None:
     ax.text(0.02, 0.02, f"{verdict.word}  {verdict.headline}",
             transform=ax.transAxes, ha="left", va="bottom",
             fontsize=TYPE_SCALE["annotation"], color=ink, zorder=6,
-            bbox=dict(boxstyle="round,pad=0.28", facecolor="white",
+            # THE BOX FOLLOWS THE THEME TOO (178 A). It was hard-coded
+            # white while its text is `ink` -- which on the dark theme IS
+            # white -- so the verdict was drawn, was there, and could not be
+            # read. A label that is invisible at one theme setting is the
+            # exact fault this instruction names.
+            bbox=dict(boxstyle="round,pad=0.28",
+                      facecolor=resolve_label_ground(theme_target()),
                       edgecolor=ink, linewidth=WEIGHTS["spine"], alpha=0.9))
 
 

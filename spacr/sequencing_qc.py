@@ -65,7 +65,7 @@ from . import schema
 # THE HOUSE STYLE (136). `figures.style` imports matplotlib
 # only inside its own functions, so naming it here costs
 # nothing at import time.
-from .figures.style import figure_style, theme_target
+from .figures.style import ROLES, figure_style, theme_target
 
 #: The app key this module registers its settings under.
 APP_KEY = "barcode_qc"
@@ -1278,7 +1278,8 @@ def plot_threshold_sweep(sweep: pd.DataFrame, choice: ThresholdChoice,
         top.plot(sweep["threshold"], sweep["grnas_per_well_retained"],
                  color=teal, lw=1.2, ls=":",
                  label="gRNAs per well (retained wells only)")
-        top.axhline(choice.target, color="black", ls="--", lw=1,
+        # 178 A: the reference role, so the line is visible in both themes.
+        top.axhline(choice.target, color=ROLES["reference"], ls="--", lw=1,
                     label=f"target ({choice.target:g})")
         # linscale keeps the 0-1 linear band from eating a third of the panel;
         # "no guides left" needs to be visible, not prominent.
@@ -1301,7 +1302,7 @@ def plot_threshold_sweep(sweep: pd.DataFrame, choice: ThresholdChoice,
         bottom.legend(loc="center left", fontsize=8)
 
         for axis in (top, bottom):
-            axis.axvline(choice.threshold, color="black", lw=1.2)
+            axis.axvline(choice.threshold, color=ROLES["reference"], lw=1.2)
         # Anchored in axes coordinates on the y and data coordinates on the x,
         # so the label rides the line at a fixed height whatever the symlog
         # axis does with its limits.
@@ -1355,7 +1356,7 @@ def plot_barcode_qc(counts: pd.DataFrame, *, per_well: pd.DataFrame,
                 alpha=0.85)
         cutoff = starved.attrs.get("cutoff")
         if cutoff:
-            ax.axvline(cutoff, color="black", ls="--", lw=1.2,
+            ax.axvline(cutoff, color=ROLES["reference"], ls="--", lw=1.2,
                        label=f"starved below {cutoff:,.0f} reads "
                              f"({len(starved)} well(s))")
             ax.legend(fontsize=8)
@@ -1391,7 +1392,7 @@ def plot_barcode_qc(counts: pd.DataFrame, *, per_well: pd.DataFrame,
                       else f"{a[0]}:{b}"
                       for a, b in zip(ordered["axis"], ordered["label"])]
             ax.bar(range(len(ordered)), ordered["ratio_to_plate"], color=colors)
-            ax.axhline(1.0, color="black", lw=1)
+            ax.axhline(1.0, color=ROLES["reference"], lw=1)
             ax.set_xticks(range(len(ordered)))
             ax.set_xticklabels(labels, rotation=90, fontsize=7)
             ax.set_ylabel("median reads / plate median")
@@ -1406,7 +1407,7 @@ def plot_barcode_qc(counts: pd.DataFrame, *, per_well: pd.DataFrame,
             share = np.concatenate([[0.0], np.cumsum(values) / values.sum()])
             x = np.linspace(0, 1, share.size)
             ax.plot(x, share, color=(0 / 255, 155 / 255, 155 / 255), lw=2)
-            ax.plot([0, 1], [0, 1], color="black", ls="--", lw=1)
+            ax.plot([0, 1], [0, 1], color=ROLES["reference"], ls="--", lw=1)
             ax.set_xlabel("gRNAs, least abundant first")
             ax.set_ylabel("cumulative share of reads")
             dropout = depth.get("dropout_fraction")

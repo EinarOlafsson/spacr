@@ -55,6 +55,23 @@ _GOOD = ROLES["up"]                # a passed check
 _MARK = ROLES["highlight"]         # the one series a panel is about
 _REFERENCE = ROLES["reference"]    # thresholds and guides
 
+
+def _separator() -> str:
+    """The hairline between adjacent histogram bars, or around a marker.
+
+    THE PAGE, NOT WHITE (178 A). It is there to separate one bar from the
+    next, so it has to be whatever is behind them; hard-coded white it was a
+    bright grid of outlines drawn over the data on spaCR's dark theme, which
+    is the "nothing is hard-coded black or white" half of the ask.
+
+    Read at DRAW TIME rather than at import, because the theme can change
+    while the process is running and a module-level constant would keep
+    whatever it was when spaCR started.
+    """
+    from .figures.style import resolve_label_ground, theme_target
+
+    return resolve_label_ground(theme_target())
+
 __all__ = [
     "design_report",
     "score_design",
@@ -579,7 +596,7 @@ def plot_design_diagnostics(fractions: pd.DataFrame, *,
 
         axis = axes[0, 0]
         axis.hist(support, bins=min(40, max(int(support.max()), 1)),
-                  color=_DATA, edgecolor="white")
+                  color=_DATA, edgecolor=_separator())
         axis.set_xlabel("Wells containing the guide")
         axis.set_ylabel("Guides")
         axis.set_title("Guide support")
@@ -590,7 +607,7 @@ def plot_design_diagnostics(fractions: pd.DataFrame, *,
 
         axis = axes[0, 1]
         axis.hist(per_well, bins=min(30, max(int(per_well.max()), 1)),
-                  color=_GOOD, edgecolor="white")
+                  color=_GOOD, edgecolor=_separator())
         axis.set_xlabel("Guides retained in the well")
         axis.set_ylabel("Wells")
         axis.set_title("Guides per well")
@@ -646,7 +663,7 @@ def plot_design_diagnostics(fractions: pd.DataFrame, *,
             axis.set_axis_off()
         else:
             axis.hist(pairs["correlation"].abs(), bins=30, color=_DATA,
-                      edgecolor="white")
+                      edgecolor=_separator())
             severe = int((pairs["correlation"].abs() >= 0.95).sum())
             axis.set_xlabel("|correlation| between guide well patterns")
             axis.set_ylabel("Guide pairs")
@@ -732,7 +749,7 @@ def plot_residual_diagnostics(observed, fitted, *,
 
         axis = flat[3]
         axis.hist(residual, bins=min(40, max(int(np.sqrt(residual.size)), 5)),
-                  color=_MARK, edgecolor="white", density=True)
+                  color=_MARK, edgecolor=_separator(), density=True)
         if scale > 0:
             grid = np.linspace(residual.min(), residual.max(), 200)
             axis.plot(grid, stats.norm.pdf(grid, residual.mean(), scale),
@@ -814,7 +831,7 @@ def plot_inference_diagnostics(p_values, *, adjusted=None, alpha: float = 0.05,
 
         axis = axes[0]
         axis.hist(values, bins=20, range=(0, 1), color=_DATA,
-                  edgecolor="white")
+                  edgecolor=_separator())
         axis.axhline(n / 20.0, color=_BAD, linestyle="--", linewidth=1,
                      label="uniform null")
         axis.set_xlabel("P value")

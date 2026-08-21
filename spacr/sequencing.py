@@ -15,7 +15,7 @@ from .plot import plot_plates
 # THE HOUSE STYLE (136). `figures.style` imports matplotlib
 # only inside its own functions, so naming it here costs
 # nothing at import time.
-from .figures.style import figure_style, theme_target
+from .figures.style import ROLES, figure_style, theme_target
 try:
     from IPython.display import display
 except Exception:
@@ -1121,9 +1121,13 @@ def graph_sequencing_stats(settings):
 
         fig, ax = _line_plot(df=results_df, x='fraction_threshold', y='unique_count', log_x=log_x, log_y=log_y)
 
-        plt.axvline(x=closest_threshold['fraction_threshold'], color='black', linestyle='--',
+        # 178 A: the reference role rather than black, which spaCR's dark
+        # theme makes invisible.
+        plt.axvline(x=closest_threshold['fraction_threshold'],
+                    color=ROLES["reference"], linestyle='--',
                     label=f'Closest Threshold ({closest_threshold["fraction_threshold"]:.4f})')
-        plt.axhline(y=target_unique_count, color='black', linestyle='--',
+        plt.axhline(y=target_unique_count, color=ROLES["reference"],
+                    linestyle='--',
                     label=f'Target Unique Count ({target_unique_count})')
         
         plt.xlim(0,0.1)
