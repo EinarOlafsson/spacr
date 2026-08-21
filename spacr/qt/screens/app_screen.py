@@ -1702,7 +1702,12 @@ class AppScreen(QWidget):
         button.setToolTip(
             "Pick the wells off a plate map. Rows (r1), columns (c1) and "
             "wells (A01) all read, and what it writes reads back.")
-        button.setFixedWidth(58)
+        # NO FIXED WIDTH (193). It was 58 px, chosen by eye against the
+        # English "Plate…" -- and every translation is longer, so the label
+        # was elided to "Plat…" in languages the author does not read. A
+        # button's width is a CONSEQUENCE of its text, never an input to it:
+        # `sizeHint()` already accounts for the label, the icon, the padding
+        # and the current font, so the layout is given that instead.
         button.clicked.connect(
             lambda *_, w=widget, k=str(key): self.pick_wells_for(w, k))
         row.addWidget(button)

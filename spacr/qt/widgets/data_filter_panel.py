@@ -172,7 +172,12 @@ class _ClauseRow(QFrame):
         head.addWidget(label, 1)
         drop = QPushButton("×")
         drop.setObjectName("FilterClauseRemove")
-        drop.setFixedWidth(22)
+        # A CAP THAT CANNOT CUT (193). The number keeps this
+        # control compact; `sizeHint` is the floor, so a larger
+        # font or a glyph a theme renders wider grows the button
+        # rather than clipping it.
+        drop.setMinimumWidth(max(22, drop.sizeHint().width()))
+        drop.setMaximumWidth(max(22, drop.sizeHint().width()))
         drop.setToolTip(f"Stop filtering on {column}")
         drop.clicked.connect(lambda: self.removed.emit(self.column))
         head.addWidget(drop)

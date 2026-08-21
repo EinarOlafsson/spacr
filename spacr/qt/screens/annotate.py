@@ -1969,7 +1969,12 @@ class AnnotateScreen(QWidget):
         self._legend_toggle = QPushButton("?")
         self._legend_toggle.setFocusPolicy(Qt.NoFocus)
         self._legend_toggle.setCursor(Qt.PointingHandCursor)
-        self._legend_toggle.setFixedWidth(28)
+        # A CAP THAT CANNOT CUT (193). The number keeps this
+        # control compact; `sizeHint` is the floor, so a larger
+        # font or a glyph a theme renders wider grows the button
+        # rather than clipping it.
+        self._legend_toggle.setMinimumWidth(max(28, self._legend_toggle.sizeHint().width()))
+        self._legend_toggle.setMaximumWidth(max(28, self._legend_toggle.sizeHint().width()))
         self._legend_toggle.setToolTip("Show the full keyboard reference")
         self._legend_toggle.clicked.connect(self._toggle_legend)
         lay.addWidget(self._legend_toggle, 0)

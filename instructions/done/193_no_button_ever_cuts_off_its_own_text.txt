@@ -2,7 +2,7 @@
 NO BUTTON EVER CUTS OFF ITS OWN TEXT
 ================================================================================
 
-Status:    filed 2026-08-21, not started.
+Status:    DONE 2026-08-21. See the closing section.
 Requested: 2026-08-21 -- "some buttons like the plate button cut off the text.
            make it impossible for any button to cut of anny text."
 Owner:     Qt GUI (every screen)
@@ -69,3 +69,56 @@ HOW TO KNOW IT WORKED
 * No button paints elided text.
 * The "Plate…" button shows "Plate…" in full, and still does when the
   settings pane is dragged narrow.
+
+--------------------------------------------------------------------------------
+2026-08-21 -- DONE. SEVEN SITES, AND A CHECK THAT KNOWS WHAT A BUTTON IS.
+--------------------------------------------------------------------------------
+
+THE REPORTED ONE FIRST, AND IT WAS EXACTLY AS DESCRIBED. "Plate…" was
+`setFixedWidth(58)`, measured by eye against the English. Every translation
+spaCR ships is longer:
+
+    de  'Teller...'      fr 'Plaque...'     es 'Plato...'
+    is  'Plötu...'       sv 'Plåt...'       ko '플레이트 ...'
+
+The cap is gone; the layout gets the button's own `sizeHint`, which already
+accounts for the label, the icon, the padding and the current font. Measured
+after: 100 px against an 80 px hint.
+
+SIX MORE, ALL SINGLE-GLYPH CONTROLS -- the `×` that removes a class chip, a
+filter clause, a graph drop zone and a pivot well, and the `?` legend toggle.
+Each keeps its compact number as a FLOOR rather than a ceiling:
+
+    setMinimumWidth(max(20, b.sizeHint().width()))
+    setMaximumWidth(max(20, b.sizeHint().width()))
+
+so the chip stays 20 px wide at the shipped font and grows instead of
+clipping at a larger one. A `×` is text, and a rule that exempts it is a rule
+with a hole the size of every icon-shaped label.
+
+THE CHECK KNOWS WHAT A BUTTON IS, and getting that wrong twice is what the
+first two drafts did. A scan for `setFixedWidth` across files that build
+buttons flagged 14 sites, of which zero were buttons -- a panel at 330, a
+progress bar at 140, a spin box at 220. The AST tracks names ASSIGNED a
+`QPushButton`/`QToolButton` and flags width pins on those, which is precise
+enough to have found the six real ones and quiet enough to be worth keeping.
+
+TWO EXEMPTIONS, BOTH ARGUED:
+
+  * a cap computed FROM `sizeHint()` is not pinning -- it is a preferred
+    size with the text as its floor, which is the rule and not a breach;
+  * a button with NO TEXT has nothing to cut. `QPushButton()` with no label
+    is a swatch or an icon, and pinning its size is describing a picture.
+    The DNA-rain colour swatch is that, and the plate maps' wells (194) are
+    squares standing for physical wells.
+
+AND THE SCREENS ARE MEASURED, NOT JUST THE SOURCE. Four module screens are
+built and every visible button on them is checked two ways: at least as wide
+as its own `sizeHint`, and -- the direct one, which catches what a width
+comparison misses after a layout has squeezed something --
+`QFontMetrics.elidedText(...) == text`. The reported button is checked
+against its LONGEST translation across all nine catalogues, because the
+author reads one of them.
+
+15 tests in tests/qt/test_no_button_cuts_off_its_text.py; 1,004 pass across
+the suites of every widget touched.
