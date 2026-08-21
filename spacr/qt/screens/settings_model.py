@@ -300,8 +300,16 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
     # the rename working. They are not OFFERED, for the reason `png_type`
     # is not: offering both halves of a superseded pair is how a user sets
     # one and wonders why the other wins.
-    "classify": {"png_type", "crop_source", "file_metadata", "file_type",
-                 "coordinate_columns"},
+    "classify": {
+        "png_type", "crop_source", "file_metadata", "file_type",
+        "path_string", "extract_channels", "coordinate_columns",
+        "class_metadata", "annotation_column",
+    },
+    "classify_merged": {
+        "png_type", "crop_source", "file_metadata", "file_type",
+        "path_string", "extract_channels", "coordinate_columns",
+        "class_metadata", "annotation_column",
+    },
     # One action-strip GPU toggle drives both the main reducer and the search.
     # The setting remains in _defaults and therefore in collect(); only the
     # duplicate form control is hidden.
@@ -1671,9 +1679,9 @@ def categories_for_app(
                 "val_split", "sample"],
 
             "Images & Cropping": [
-                "crop_source", "tables", "channel_of_interest",
-                "path_string", "file_type", "file_metadata",
-                "extract_channels", "object_array", "coordinate_columns",
+                "image_source", "load_path_regex", "tables",
+                "channel_of_interest", "stream_method", "object_array",
+                "mask_array", "channel_arrays", "bounding_box",
                 "crop_shape", "train_channels", "image_size", "augment"],
 
             "Model & Regularization": [
