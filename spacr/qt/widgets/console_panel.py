@@ -1072,7 +1072,34 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         self._follow_output = True
         self._scroll.verticalScrollBar().valueChanged.connect(
             self._on_console_scrolled)
+        self._scroll.verticalScrollBar().valueChanged.connect(
+            self._refresh_jump_button)
         box_lay.addWidget(self._scroll, 1)
+
+        # A VISIBLE AFFORDANCE FOR THE PEOPLE WHO DO NOT KNOW THE SHORTCUT
+        # (instruction 232). A long run writes thousands of lines and the
+        # one that matters is the last; getting to it must not be a scroll
+        # through everything above it.
+        #
+        # SHOWN ONLY WHEN IT WOULD DO SOMETHING. A button that is always
+        # there and usually inert is furniture, and the user stops seeing
+        # it -- which is the state it is most needed in.
+        from PySide6.QtGui import QKeySequence, QShortcut
+        from PySide6.QtWidgets import QPushButton
+
+        self._jump = QPushButton("↓ jump to the end", self._console_box)
+        self._jump.setToolTip(
+            "Go to the newest line. Ctrl+End does the same from anywhere in "
+            "the scrollback.")
+        self._jump.clicked.connect(self.jump_to_the_end)
+        self._jump.setVisible(False)
+        box_lay.addWidget(self._jump)
+
+        # HELD, like every other shortcut and filter in this codebase: Qt
+        # keeps a bare pointer, and one only the constructor referenced
+        # stops working as soon as the call returns.
+        self._end_shortcut = QShortcut(QKeySequence("Ctrl+End"), self)
+        self._end_shortcut.activated.connect(self.jump_to_the_end)
         self._split.addWidget(self._console_box)
 
         # AI chat input — a separate row UNDER the console box (not inside it),
@@ -1269,6 +1296,34 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         scrollbar = self._scroll.verticalScrollBar()
         if value >= scrollbar.maximum() - 4:
             self._follow_output = True
+
+    def jump_to_the_end(self) -> None:
+        """Show the newest line, and follow the tail again.
+
+        BOTH HALVES, because they are one decision. A console that jumped
+        without resuming the follow would slide back off the end on the very
+        next line written, and the user would press it again.
+        """
+        bar = self._scroll.verticalScrollBar()
+        bar.setValue(bar.maximum())
+        self._follow_output = True
+        self._refresh_jump_button()
+
+    def at_the_end(self) -> bool:
+        """Whether the view is showing the newest line.
+
+        A few pixels of tolerance, because a scrollbar dragged to the end
+        does not always land exactly on maximum() -- the same tolerance
+        `_on_console_scrolled` uses, and for the same reason.
+        """
+        bar = self._scroll.verticalScrollBar()
+        return bar.value() >= bar.maximum() - 4
+
+    def _refresh_jump_button(self, *_args) -> None:
+        """Show the control only when it would do something."""
+        button = getattr(self, "_jump", None)
+        if button is not None:
+            button.setVisible(not self.at_the_end())
 
     def _needs_topic(self, kind: str) -> bool:
         return self._last_entry_kind != kind
