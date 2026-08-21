@@ -177,10 +177,19 @@ class ClassEditorWidget(QWidget):
             "Choosing a column fills the table below with its values, one row "
             "per class. Choosing a SECOND column adds its values alongside — "
             "classes can be defined across more than one column.")
+        # EDITABLE, because the combo is filled from a LOADED TABLE and there
+        # is not always one. With no frame the list came back empty, the "Add
+        # values" button was disabled, and a non-editable empty combo left no
+        # way at all to name a column -- so no class could be added and the
+        # module could not be configured. Typing a name is the fallback; the
+        # SQL button below is the answer when a database is there to ask.
+        self.column.setEditable(True)
+        self.column.setInsertPolicy(QComboBox.NoInsert)
         picker.addWidget(self.column, 1)
         self._add = QPushButton("Add values", self)
         self._add.clicked.connect(self.populate_from_column)
         picker.addWidget(self._add)
+        self._picker_row = picker
         outer.addLayout(picker)
 
         # TWO FIELDS, SIDE BY SIDE -- the gesture the maintainer asked for:
@@ -274,12 +283,46 @@ class ClassEditorWidget(QWidget):
         self.column.blockSignals(True)
         self.column.clear()
         self.column.addItems([str(c) for c in columns])
-        if current in columns:
+        # A NAME TYPED OR PICKED STAYS PUT. `set_frame` runs again whenever
+        # the basis changes or a table is attached, and clearing the combo
+        # used to throw away a column the user had already named -- silently,
+        # because an empty combo looks the same as one nobody has touched.
+        if current:
             self.column.setCurrentText(current)
         self.column.blockSignals(False)
-        self._add.setEnabled(bool(columns) and frame is not None)
+        self._add.setEnabled(bool(self.column.currentText().strip())
+                             and frame is not None)
         if frame is None:
-            self._say("Load a table to fill classes in from a column.")
+            self._say("Load a table, or press SQL to read the column names "
+                      "out of the database, to fill classes in from a "
+                      "column.")
+
+    def attach_sql_picker(self, db_path_getter, table: str = "png_list"):
+        """Put the SQL button beside the column combo.
+
+        ASKED FOR BECAUSE THE COMBO COULD BE EMPTY. The columns come from a
+        loaded table, and the user reaches this panel before loading one --
+        so the setting that decides every class in the module was the one
+        setting with no way to fill it in. The button reads the columns from
+        the database the src field names, which is where they actually are.
+
+        :param db_path_getter: callable giving the run folder or database
+            path, called on each press so a path edited later is picked up.
+        :returns: the button, or ``None`` if it could not be built.
+        """
+        from .column_picker import attach_column_picker
+
+        try:
+            return attach_column_picker(
+                self.column, db_path_getter, table,
+                layout=self._picker_row,
+                on_pick=lambda _name: self._add.setEnabled(True),
+                tooltip=("Read the column names out of this run's database, "
+                         "rather than typing one and finding out at run "
+                         "time whether it exists."))
+        except Exception:                                       # noqa: BLE001
+            LOG.debug("could not attach the column picker", exc_info=True)
+            return None
 
     def set_basis(self, basis: str) -> None:
         """Metadata or annotation: it decides which columns are offered.
