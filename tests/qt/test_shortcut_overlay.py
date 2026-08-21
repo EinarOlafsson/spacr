@@ -73,17 +73,49 @@ def test_the_card_is_centred_and_fits(window, qtbot):
 
 
 def test_every_registered_shortcut_is_on_the_card(window, qtbot):
+    """EVERY MAPPED ONE, not only the window's own (197).
+
+    `SHORTCUTS` is what `install()` binds; `SCREEN_SHORTCUTS` is what the
+    screens bind and the map still has to describe. `mapped()` is both.
+    """
+    from spacr.qt.shortcuts import mapped, native
+
     overlay = show_cheat_sheet(window)
     qtbot.addWidget(overlay)
     rendered = {label.text() for label in overlay._card.findChildren(QLabel)}
-    for spec in SHORTCUTS:
-        assert spec.keys in rendered, f"{spec.keys} is bound but not shown"
-        assert spec.label in rendered, f"{spec.label} is missing its row"
+    for spec in mapped():
+        # PRINTED IN THE PLATFORM'S SPELLING, so the comparison is against
+        # what the card actually shows rather than Qt's portable form.
+        assert native(spec.keys) in rendered, \
+            f"{spec.keys} is bound but not shown"
+        # A ROW STARTS WITH THE LABEL and may continue with the scope --
+        # "Brush  —  the Make Masks screen" -- because a key that works on
+        # one screen and is listed without saying so sends a user to press
+        # it somewhere it does nothing.
+        assert any(text.startswith(spec.label) for text in rendered), \
+            f"{spec.label} is missing its row"
+    overlay.dismiss()
+
+
+def test_a_per_screen_row_says_where_it_works(window, qtbot):
+    overlay = show_cheat_sheet(window)
+    qtbot.addWidget(overlay)
+    rendered = {label.text() for label in overlay._card.findChildren(QLabel)}
+
+    assert any("Make Masks screen" in text for text in rendered)
     overlay.dismiss()
 
 
 def test_the_categories_are_laid_out_in_columns(window, qtbot):
-    """Fifteen bindings in one column is a scroll; in three it is a glance."""
+    """Fifteen bindings in one column is a scroll; in three it is a glance.
+
+    TILED, NOT ONE PAIR PER CATEGORY. The map grew from 17 rows to 33 (197)
+    and a column-pair for every category made the card 1,640 px wide against
+    a 1,280 px overlay -- a map that runs off the screen is the same fault
+    as one that leaves keys out. Categories fill the width and then wrap, so
+    what is asserted is that they SHARE ROWS, not that every one has a
+    column of its own.
+    """
     overlay = show_cheat_sheet(window)
     qtbot.addWidget(overlay)
     overlay.show()
@@ -92,7 +124,17 @@ def test_the_categories_are_laid_out_in_columns(window, qtbot):
                if lbl.objectName() == "ShortcutOverlayCategory"]
     assert len(headers) >= 2
     xs = {lbl.x() for lbl in headers}
-    assert len(xs) == len(headers), "the categories stacked instead of tiling"
+    assert len(xs) > 1, "the categories stacked instead of tiling"
+
+
+def test_the_card_never_runs_off_the_overlay(window, qtbot):
+    """The reason the layout wraps at all."""
+    overlay = show_cheat_sheet(window)
+    qtbot.addWidget(overlay)
+    overlay.show()
+    qtbot.waitExposed(overlay)
+
+    assert overlay._card.width() <= overlay.width()
     overlay.dismiss()
 
 
@@ -135,8 +177,15 @@ def test_the_new_bindings_are_both_declared_and_wired(window):
     declared = {s.keys for s in SHORTCUTS}
     assert {"Ctrl+F", "Ctrl+Shift+R"} <= declared
 
-    from PySide6.QtGui import QShortcut
+    # A QAction'S SHORTCUT IS BOUND TOO. `Ctrl+B` opens the full app list
+    # and is set on the menu action rather than on a QShortcut -- looking
+    # only at QShortcut called a wired key unwired. The rule this test is
+    # for is "documented and reachable", and either kind reaches.
+    from PySide6.QtGui import QAction, QShortcut
+
     bound = {sc.key().toString() for sc in window.findChildren(QShortcut)}
+    bound |= {a.shortcut().toString() for a in window.findChildren(QAction)
+              if not a.shortcut().isEmpty()}
     for keys in declared:
         assert keys in bound, f"{keys} is on the cheat sheet but not bound"
 

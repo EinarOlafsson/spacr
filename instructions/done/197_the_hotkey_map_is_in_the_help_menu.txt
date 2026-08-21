@@ -2,7 +2,7 @@
 THE HOTKEY MAP IS IN THE HELP MENU
 ================================================================================
 
-Status:    filed 2026-08-21, not started.
+Status:    DONE 2026-08-21. See the closing section.
 Requested: 2026-08-21 -- "add hotkey map to help tab"
 Owner:     Qt GUI (Help menu, spacr/qt/shortcuts.py)
 
@@ -77,3 +77,59 @@ HOW TO KNOW IT WORKED
 * The keys are printed in the platform's own spelling.
 * `?` and the command palette still reach the same screen -- one map, three
   doors, not three maps.
+
+--------------------------------------------------------------------------------
+2026-08-21 -- DONE. AND THE MAP WAS MISSING FIFTEEN OF ITS THIRTY-THREE KEYS.
+--------------------------------------------------------------------------------
+
+Help > Keyboard shortcuts, above the web links because it is the only entry
+there that answers without a browser. It opens `show_cheat_sheet` -- the same
+screen `?` and the command palette open. One map, three doors.
+
+A. THE MAP IS EVERY KEY NOW. `SHORTCUTS` held 17 and the package binds these
+as well, none of which were on it:
+
+    Ctrl+B                      the full app list
+    Left / Right                previous / next image
+    PageUp / PageDown           the same, for older muscle memory
+    Alt+Left / Alt+Right        the same again
+    B  E  W  Z                  brush, erase, magic wand, zoom
+    Esc                         reset the zoom
+    Ctrl+S                      save the mask
+    Ctrl+Z / Ctrl+Y / Ctrl+Shift+Z   undo and redo
+
+THE SCAN HAD TO READ BOTH SPELLINGS. `QKeySequence("Ctrl+S")` and
+`QKeySequence(Qt.Key_Left)` are both bindings, and a scan for string literals
+misses the second entirely -- which is how the image navigation is bound. The
+test reads the tree for both and prints them through Qt, so the comparison is
+against what the card actually shows.
+
+B. AND `SHORTCUTS` WAS DOING TWO JOBS AT ONCE, which is why adding to it
+broke four tests in one run. It was both "what `install()` binds on the main
+window" and "what the map shows" -- and a per-screen key does not exist until
+that screen is built, so it can never be the first. Three names now:
+
+    SHORTCUTS         what `install()` is responsible for
+    SCREEN_SHORTCUTS  what a screen binds and the map still has to describe
+    mapped()          both, which is what the card is drawn from
+
+`BOUND_ELSEWHERE` names the one window-wide key something else binds:
+`Ctrl+B` is set on the menu action that opens the app list, which is a real
+binding and reaches the same place -- so it is on the map and is not in
+`install()`'s count. A test called it unwired because it only looked for
+`QShortcut`; it looks for a QAction's shortcut too now.
+
+C. SCOPE AND SPELLING. A key that works on one screen says so in its row --
+"Brush — the Make Masks screen" -- because one listed without that sends a
+user to press it somewhere it does nothing. And every key is printed through
+`QKeySequence.toString(NativeText)`, so `Ctrl` reads as the Command symbol on
+macOS; writing "Ctrl+H" into a label hard-codes one platform into the help.
+
+D. THE CARD HAD TO LEARN TO WRAP. One column-pair per category made it
+1,640 px wide against a 1,280 px overlay the moment the map went from 17 rows
+to 33. A map that runs off the screen is the same fault as one that leaves
+keys out. Categories fill the width and wrap, and a test asserts the card
+fits.
+
+13 tests in tests/qt/test_the_hotkey_map_is_the_whole_map.py; 1,251 pass
+across the shortcut, palette, window and menu suites.
