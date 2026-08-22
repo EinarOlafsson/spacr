@@ -24,6 +24,24 @@ pytestmark = [
 ]
 
 
+@pytest.fixture(autouse=True)
+def _from_a_known_peak():
+    """Start each test from a peak this test set.
+
+    THE READING IS CUMULATIVE ACROSS THE PROCESS -- that is the whole point
+    of it, and it is what makes these assertions order-dependent. Run alone
+    the peak starts near zero and a 64 MB block raises it; run after the
+    cellpose and training tests in `pytest -m gpu` the peak is already
+    gigabytes and 64 MB does not move it, so `held >= before + 60 MB`
+    fails on a reading that is working perfectly.
+
+    Measured: green alone, red at position 78 of a 78-test GPU run.
+    """
+    torch.cuda.reset_peak_memory_stats()
+    yield
+    torch.cuda.reset_peak_memory_stats()
+
+
 def test_the_peak_is_still_reported_after_the_tensor_is_freed():
     before = gpu_allocated()
     block = torch.zeros(64 * 1024 * 1024 // 4, device="cuda")   # 64 MB
