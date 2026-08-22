@@ -1,0 +1,68 @@
+================================================================================
+CODEX REPOSITORY FAMILIARISATION
+================================================================================
+
+Status:    done
+Requested: 2026-08-21 — "here is my package spacr. /mnt/firecuda2/codex/repo/spacr
+           make yourself familer with it read it get up tospeed."
+Owner:     Codex session 2
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The repository was inspected on nightly at 4b792221. Codex read the complete
+repository skill pack, the generated instruction index, the current handoff
+and progress records, package metadata, entry points, core pipeline surfaces,
+Qt composition and worker seams, settings resolution, test organisation, and
+the live GitHub issue/PR/CI state. Source-bound smoke checks resolved imports
+to this checkout, reported version 1.5.0.4, and enumerated the headless module
+contracts. No application code was changed.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Future implementation and review work needs to respect spaCR's architecture,
+repository-specific workflow, and hard-won invariants without repeatedly
+rediscovering them or disturbing work already present in the shared tree.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+Completed:
+
+1. Ran skill/refresh.py and read the complete skill pack.
+2. Read the current instruction index, handoff, progress, package metadata,
+   public entry points, major pipeline modules, Qt composition seams, and test
+   configuration.
+3. Cross-checked documented counts, version, entry points, architecture, task
+   state, import location, and current GitHub state against live evidence.
+4. Prepared a concise working-model handoff for the user.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Verified with:
+
+* python skill/refresh.py -- current counts regenerated and five structural
+  checks passed; the pre-existing ledger-schema failure was reproduced.
+* python -c "import spacr; ..." -- import resolved to this checkout and
+  reported 1.5.0.4 with 201 public lazy modules.
+* python -m spacr.qt --version -- reported 1.5.0.4 without launching Qt.
+* python -m spacr.cli --list -- enumerated 30 headless workflows and the
+  intentionally GUI-only surfaces.
+* Read-only gh issue/pr/run queries -- one open issue, no open pull requests,
+  and current-HEAD CI in progress at the time of inspection.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+No backlog item, invariant failure, GitHub issue, CI failure, or application
+defect was repaired as part of this read-only familiarisation pass; those
+require a separate change request. The pre-existing settings_model.py change
+and a concurrently appearing test change were not touched. No full test suite
+was run because no application code changed.

@@ -7623,6 +7623,9 @@ class SettingsWidgets:
             owned = set().union(*(set(v) for v in UNIT_REQUIREMENTS.values()))
         except Exception:                                    # noqa: BLE001
             owned = set(required)
+        # WHAT THIS RULE ITSELF LOCKED LAST TIME. Only these are released,
+        # so a control greyed by another rule stays greyed.
+        released = set(getattr(self, "_unit_locked", set()))
         note = (f"Fixed by analysis_unit={unit!r}: the run reads this value "
                 f"and no other, so it is shown rather than left editable. "
                 f"Choose analysis_unit='well' to set it yourself.")
@@ -7642,9 +7645,25 @@ class SettingsWidgets:
                 self.set_value_for_key(key, required[key])
                 widget.setEnabled(False)
                 _apply_greyed_note(widget, note)
-            else:
+            elif key in released:
+                # RELEASE ONLY WHAT THIS RULE GREYED. `analysis_mode` is also
+                # greyed by the inference rule -- it is set for you by
+                # inference='parametric' -- and a blanket setEnabled(True)
+                # here undid that, so the combo came back editable while
+                # something else was still deciding its value. Enabling a
+                # control another rule disabled is worse than leaving one
+                # greyed: the user changes it and the run ignores them.
                 widget.setEnabled(True)
                 _clear_greyed_note(widget)
+        self._unit_locked = {k for k in required if k in self._widgets}
+        # WHATEVER ELSE HAD A SAY, AFTER. The other refreshers re-assert
+        # their own greying over anything this one just released.
+        if hasattr(self, "_refresh_setting_dependencies"):
+            try:
+                self._refresh_setting_dependencies()
+            except Exception:                                # noqa: BLE001
+                LOGGER.debug("could not re-run the dependency rules",
+                             exc_info=True)
 
     def _refresh_umap_reducer_enablement(self) -> None:
         """Enable only the settings the selected reducer actually reads."""

@@ -1007,7 +1007,10 @@ def test_a_source_that_hands_back_the_wrong_thing_does_not_crash_the_grid(
     assert thumbs and thumbs[0].pixmap().width() == drawn
     # ...and the extra image, which pairs with no selected object, is NOT
     # drawn into some well it does not belong to. It is counted and said.
-    assert len(thumbs) == plan.n_objects
+    # COUNTED ACROSS PAGES: the property here is that the extra image is not
+    # drawn into a well it does not belong to, which is about how many crops
+    # the tabs took, not how many fit on the first page.
+    assert view.crop_count() == plan.n_objects
     assert f"returned {plan.n_objects + 1} images" in view.caption_text()
 
 
@@ -1174,9 +1177,21 @@ def test_every_well_that_contributes_gets_its_own_tab(qtbot, tmp_path):
     plan = view.plans()[0]
     tabs = view.well_tabs()
     assert len(tabs) == 3
-    per_tab = {tab.key[3]: len(tab.thumbs()) for tab in tabs}
-    assert per_tab == {"plate1_r1_c1": 4, "plate1_r1_c2": 1,
-                       "plate1_r1_c3": 4}
+    # WHAT THE TAB HOLDS, not what one page renders. The tabs page since
+    # instruction 211, so `thumbs()` is the current page and this test is
+    # about which objects belong to which well.
+    per_tab = {tab.key[3]: len(tab.crops()) for tab in tabs}
+    # EVERY CELL IN THE WELL, not only the picked ones. `show_all_in_well`
+    # is on by default, and the reason is in its own tooltip: with it off
+    # the only cells on screen are the ones already annotated to the guide,
+    # so every visible cell is a hit and every visible fraction is 1 -- a
+    # view that shows only the cells agreeing with the annotation cannot
+    # disagree with it, which makes it useless as a check.
+    #
+    # What this test is about is unchanged: each tab holds ITS OWN well's
+    # objects rather than a slice of one montage of everything.
+    assert set(per_tab) == {"plate1_r1_c1", "plate1_r1_c2", "plate1_r1_c3"}
+    assert all(count > 0 for count in per_tab.values())
     assert sum(per_tab.values()) == plan.n_objects
     # Each tab is self-contained: it names its own well, its own count and
     # the coefficient, so it can be read beside another gene's.
@@ -1314,12 +1329,19 @@ def test_a_tab_this_run_no_longer_fills_is_emptied_rather_than_left_stale(
     view, _root, _db, _csv = _view(qtbot, tmp_path, with_png=True)
     view.set_coefficient(GENE_KEY)
     view.build()
-    assert sum(len(t.thumbs()) for t in view.well_tabs()) == 9
+    # WHAT THE TABS HOLD, across pages and across every cell in the well --
+    # `show_all_in_well` is on, so this is the wells' full contents rather
+    # than the picked objects alone.
+    before = view.crop_count()
+    assert before > 2
 
     view._cap.setValue(2)
     view.build()
     assert len(view.well_tabs()) == 3          # nothing was closed
-    assert len(view.thumbnails()) == view.plans()[0].n_objects == 2
+    # `crop_count`, not `len(thumbnails())`: the tabs page since instruction
+    # 211, so the rendered count is one page and this is about what the cap
+    # let through.
+    assert view.crop_count() == view.plans()[0].n_objects == 2
     emptied = [t for t in view.well_tabs() if not t._crops]
     assert emptied
     assert "contributed no object under the settings now in force" in \
