@@ -576,15 +576,36 @@ def test_mixed_model_fits_a_single_plate_because_the_cluster_is_the_gene(
 def test_a_penalty_that_zeroes_every_coefficient_is_an_error(tmp_path, stubs):
     """An all-zero lasso reaches the user as "no hits", which is a real result.
 
-    The default alpha=1 does exactly this to a fraction-scale design, so the
-    stock settings used to produce an empty hit list rather than a complaint.
+    THE PENALTY HAS TO BE ONE SOMEBODY CHOSE. `alpha=1` is what the panel
+    posts when nobody has touched the field -- it is the UNPENALISED
+    families' default -- so it is now rewritten to 'auto' before the fit
+    (see the test below). A number nobody could have posted by accident is
+    what this guard is for.
+    """
+    from spacr.ml import perform_regression
+
+    score, count = write_screen(tmp_path)
+    settings = settings_for(score, count, regression_type="lasso", alpha=25.0)
+    with pytest.raises(ValueError, match="shrank all .* to exactly zero"):
+        perform_regression(settings)
+
+
+def test_the_stock_settings_cross_validate_the_penalty_instead_of_failing(
+        tmp_path, stubs):
+    """alpha=1 used to be a guaranteed refusal on a fraction-scale design,
+    and the refusal was an improvement on the silent empty hit list it
+    replaced. Choosing the penalty is the improvement on the refusal.
+
+    Driven on the tsg101 screen (instruction 236 C7): lasso and elasticnet
+    both refused the maintainer's own saved settings, in which alpha had
+    never been touched.
     """
     from spacr.ml import perform_regression
 
     score, count = write_screen(tmp_path)
     settings = settings_for(score, count, regression_type="lasso", alpha=1.0)
-    with pytest.raises(ValueError, match="shrank all .* to exactly zero"):
-        perform_regression(settings)
+    perform_regression(settings)
+    assert settings["alpha"] == "auto"
 
 
 def test_wls_actually_weights_by_the_cell_count():

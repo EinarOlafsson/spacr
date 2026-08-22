@@ -1914,12 +1914,20 @@ def _reject_a_threshold_that_cannot_mean_what_it_says(settings):
             f"{permutations!r}. The smallest P value the null can report is "
             f"about 1/rra_permutations.")
     penalty = settings['group_lasso_lambda']
-    if isinstance(penalty, bool) or not isinstance(penalty, (int, float)) \
-            or penalty < 0:
+    # 'auto' and a blank both mean "cross-validate it", which is what the
+    # panel now posts for this backend -- see the group_lasso branch of
+    # `spacr.ml.regression_model`.
+    chose_the_penalty = not (
+        penalty is None
+        or (isinstance(penalty, str)
+            and penalty.strip().lower() in ('', 'auto')))
+    if chose_the_penalty and (
+            isinstance(penalty, bool)
+            or not isinstance(penalty, (int, float)) or penalty < 0):
         raise ValueError(
-            f"group_lasso_lambda must be zero or positive; got {penalty!r}. "
-            f"A negative penalty rewards large coefficients instead of "
-            f"shrinking them.")
+            f"group_lasso_lambda must be zero or positive, or 'auto' to "
+            f"cross-validate it; got {penalty!r}. A negative penalty rewards "
+            f"large coefficients instead of shrinking them.")
     for key in ('count_grna_column', 'count_value_column'):
         name = settings[key]
         if not isinstance(name, str) or not name.strip():
@@ -1928,6 +1936,12 @@ def _reject_a_threshold_that_cannot_mean_what_it_says(settings):
                 f"An empty name cannot be looked up, and the failure would "
                 f"come out of pandas rather than out of the settings.")
     return settings
+
+
+#: What the panel posted for `group_lasso_lambda` before it defaulted to
+#: 'auto'. Every settings file written up to 2026-08-22 carries it, and it
+#: means "untouched" in all of them.
+LEGACY_GROUP_LASSO_LAMBDA = 0.05
 
 
 def get_perform_regression_default_settings(settings):
@@ -2260,14 +2274,27 @@ def get_perform_regression_default_settings(settings):
         # the value the panel had lying around. Cross-validating instead is
         # strictly better than a guaranteed refusal, and it is ANNOUNCED
         # rather than done quietly -- a penalty chosen for the user and never
-        # named is one they cannot put in a methods section. A user who wants
-        # a literal 1 writes 1.0.
-        if settings.get('alpha') == 1 and not isinstance(settings['alpha'], float):
+        # named is one they cannot put in a methods section.
+        #
+        # ANY 1, WHATEVER ITS TYPE. This used to spare a FLOAT 1.0, on the
+        # reading that an integer is the posted default and a float is a
+        # deliberate answer. That was true of the Tk panel and is not true of
+        # this one: the Qt field is a double spin box and the settings CSV it
+        # writes says `alpha,1.0`, so the rescue never fired for anyone
+        # running the current GUI. Driven on the tsg101 screen's own saved
+        # settings (236 C7), lasso and elasticnet both refused the run --
+        # "shrank all 298 coefficients to exactly zero at alpha=1.0" -- from
+        # a settings file in which nobody had ever touched alpha.
+        #
+        # Nothing is lost by dropping the escape hatch: a literal penalty of
+        # exactly 1 on a fraction-scale design is the value the guard
+        # downstream refuses anyway, and any other number is honoured.
+        if settings.get('alpha') == 1:
             settings['alpha'] = 'auto'
             print(f"alpha=1 is the unpenalised families' default and shrinks a "
                   f"fraction-scale design to nothing, so "
                   f"{settings['regression_type']} is cross-validating the "
-                  f"penalty instead (alpha='auto'). Set a float such as 0.01 "
+                  f"penalty instead (alpha='auto'). Set a number such as 0.01 "
                   f"to choose it yourself.")
     else:
         settings.setdefault('alpha', 1)
@@ -2297,7 +2324,26 @@ def get_perform_regression_default_settings(settings):
     # ends each tooltip with "Read by regression_type '...'", and the same
     # table generates the rule that greys the control out. A second,
     # hand-written list would be the one that drifted.
-    settings.setdefault('group_lasso_lambda', 0.05)
+    # 'auto' RATHER THAN A NUMBER. A penalty is only large or small
+    # relative to the design it is applied to, and 0.05 is nearly half of
+    # the tsg101 screen's own ceiling -- it emptied all 297 gene blocks and
+    # the run was refused, from settings nobody had touched (236 C7).
+    settings.setdefault('group_lasso_lambda', 'auto')
+    # AND A SAVED 0.05 IS THE OLD DEFAULT, not an answer. It was what the
+    # panel posted for the whole of this setting's life, so every settings
+    # file written before today carries it -- and now that it is no longer
+    # the default, leaving it in place would make those files ask for a
+    # penalty under every OTHER regression type, which refuses a setting it
+    # cannot read. Converted rather than tolerated, so the old file means
+    # today what it meant when it was written: nobody chose this.
+    if settings.get('group_lasso_lambda') == LEGACY_GROUP_LASSO_LAMBDA:
+        settings['group_lasso_lambda'] = 'auto'
+        if settings.get('regression_type') == 'group_lasso':
+            print(f"group_lasso_lambda={LEGACY_GROUP_LASSO_LAMBDA} was this "
+                  f"setting's old default and empties every gene block on a "
+                  f"fraction-scale design, so the penalty is being cross-"
+                  f"validated instead (group_lasso_lambda='auto'). Set a "
+                  f"number to choose it yourself.")
     # The diagnostic suite, on by default because one analysis wants it and
     # the person running one analysis is the one who will not think to ask.
     # It is NOT a per-family knob: every regression_type is fitted through the
@@ -2910,7 +2956,7 @@ expected_types = {
     # is how a Tk panel once discarded the regression_type a user picked.
     "rra_alpha": (int, float),
     "rra_permutations": int,
-    "group_lasso_lambda": (int, float),
+    "group_lasso_lambda": (int, float, str, type(None)),
     # The count CSV's two variable column names, hard-coded in spacr.ml until
     # instruction 135 B.
     "count_grna_column": str,
@@ -3921,7 +3967,7 @@ tooltips = {
     "hinge_n_boot": "(int) - Number of bootstrap resamples behind the hinge p-values. A support vector machine has no likelihood and so no Wald test; spaCR refits it on this many resamples of the wells and compares each coefficient to its bootstrap standard deviation. Treat the result as a stability statistic, not a hypothesis test. Higher is steadier and linearly slower; below about 50 the standard deviations are too noisy to rank on. Default 200.",
     "huber_t": "(float) - Where Huber's loss switches from squared to linear, in units of the estimated residual scale, for the robust fits. Smaller values downweight more wells and resist heavier contamination; larger values approach ordinary least squares. The default 1.345 gives 95 percent of the efficiency of OLS when the residuals really are normal. Read only by regression_type 'rlm' and 'huber'. Default 1.345.",
     "lasso_n_boot": "(int) - Number of bootstrap resamples used to rank lasso and elastic-net hits by how often each gRNA survives the penalty. These models have no valid p-values, so selection frequency replaces the significance test entirely. Higher is steadier and linearly slower; the cost is one full penalised fit per resample, doubled when alpha is 'auto' because each resample cross-validates. Default 200.",
-    "group_lasso_lambda": "(float) - Penalty weight of the group lasso, which shrinks all of one gene's guides together rather than one at a time, so a gene enters or leaves the model as a unit instead of on its luckiest guide. Larger values keep fewer genes; 0 leaves the fit unpenalised and negative is refused. Default 0.05.",
+    "group_lasso_lambda": "(float) - Penalty weight of the group lasso, which shrinks all of one gene's guides together rather than one at a time, so a gene enters or leaves the model as a unit instead of on its luckiest guide. Larger values keep fewer genes; 0 leaves the fit unpenalised and negative is refused. Set it to 'auto' to choose it by 5-fold cross-validation over a path down from this design's own ceiling, which is usually what you want because a penalty is only large or small relative to the design: 0.05 is nearly half the ceiling of a typical fraction-scale screen and empties every gene block. Default 'auto'.",
     "lasso_selection_threshold": "(float) - Minimum bootstrap selection frequency, between 0 and 1, for a lasso or elastic-net coefficient to be called a hit. 0.6 means the gRNA kept a non-zero coefficient in at least three fifths of the resamples. Raise it for a shorter, harder-to-argue-with list; lowering it below about 0.5 admits terms the penalty drops as often as it keeps. Default 0.6.",
     "regression_qc": "(bool) - Write the regression QC suite -- variance homogeneity, residual, design, influence and calibration panels -- into <res_folder>/regression_qc/ as figures, a combined PDF and a text report. Roughly 5.8 seconds and 19 files per fit: right for one analysis, which is why it is on by default. A sweep turns it off on its own, since a hundred trials is ten minutes and two thousand files nobody opens; reopen a single trial to get its diagnostics back. Applies to every regression_type, because any of them can be badly specified. Default True.",
     "model_plate_position": "(bool) - Include plate row and column (rowID, columnID) in the model. random_row_column_effects then chooses fixed or random terms. Turning this off while random effects are on is refused because there is nothing left to make random. In a 610-well screen, the 35 position terms were jointly significant (p=6.7e-23); omitting them increased residual SD 7.2% and changed the hit list. With no position effect, including them increased standard errors 1.6%. Default False; enable it when edge, row, or column effects are plausible.",
