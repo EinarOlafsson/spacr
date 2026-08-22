@@ -496,6 +496,8 @@ class RegressionResultsPanel(QWidget):
                                  ResidualPlot, ResultsTable,
                                  ScaleLocationPlot, VolcanoPlot)
 
+        from .flow import FlowHost, FlowLayout
+
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(4)
@@ -522,9 +524,20 @@ class RegressionResultsPanel(QWidget):
         # model is marked as loaded i still see the mixed results"). A panel
         # that names its own run makes the disagreement visible in the view
         # that is wrong, rather than in the one that is right.
+        # THE SECOND ROW, AND IT WRAPS. Everything below has a minimum
+        # width -- three combo boxes at 140, 120 and 120 plus two labels --
+        # and a QHBoxLayout asked for more than the panel has does not
+        # shrink its children below their minimum: it lets them OVERLAP.
+        # Measured on the real screen at a 577 px panel, the second combo
+        # began 48 px inside the first, the third began 27 px inside the
+        # second, and the third ran 32 px off the right edge of the panel.
+        # `FlowLayout` puts the overflow on a new line instead (236 C10).
+        controls_row = FlowHost()
+        controls = FlowLayout(controls_row, spacing=6)
+
         self._run_label = QLabel(self.NO_RUN_NAMED)
         self._run_label.setObjectName("resultsRunName")
-        header.addWidget(self._run_label)
+        controls.addWidget(self._run_label)
         # THE CONTROL BELONGS ON THE FIGURE IT CHANGES. Asked for 2026-08-19:
         # "the color by in results can be removed as its alos in the right
         # click for the volcano graph the only place it is used i think" --
@@ -558,11 +571,11 @@ class RegressionResultsPanel(QWidget):
             "Choosing nothing in the first box turns the other two off as "
             "well: a shape that means one thing beside a colour that means "
             "the q-value is two claims on one dot.")
-        header.addWidget(self._colour_by_label)
+        controls.addWidget(self._colour_by_label)
         self._colour_by = QComboBox()
         self._colour_by.setMinimumWidth(140)
         self._colour_by.currentIndexChanged.connect(self._redraw_volcano)
-        header.addWidget(self._colour_by)
+        controls.addWidget(self._colour_by)
         # THE SECOND AND THIRD COLUMNS (instruction 222). Separate combos
         # rather than one checkable list, because the ORDER is the encoding:
         # first is hue, second is shape, third is opacity, and a checklist
@@ -576,15 +589,16 @@ class RegressionResultsPanel(QWidget):
             "levels combined would be a nine-entry legend, and three would "
             "be twenty-seven.")
         self._colour_by_2.currentIndexChanged.connect(self._redraw_volcano)
-        header.addWidget(self._colour_by_2)
+        controls.addWidget(self._colour_by_2)
         self._colour_by_3 = QComboBox()
         self._colour_by_3.setMinimumWidth(120)
         self._colour_by_3.setToolTip(
             "A THIRD column, drawn as opacity. There is no fourth: past "
             "three encodings a point carries more than a reader can decode.")
         self._colour_by_3.currentIndexChanged.connect(self._redraw_volcano)
-        header.addWidget(self._colour_by_3)
+        controls.addWidget(self._colour_by_3)
         layout.addLayout(header)
+        layout.addWidget(controls_row)
 
         self.tabs = QTabWidget()
         layout.addWidget(self.tabs, 1)

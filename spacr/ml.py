@@ -2305,6 +2305,19 @@ def binarise_response(y, threshold=None, name='response'):
         f"the software decides the hypothesis, not the biology.")
 
 
+def _left_blank(value) -> bool:
+    """Whether a policed setting was left empty rather than answered.
+
+    None is the usual empty; ``''`` is what a Qt line edit and a saved
+    settings CSV produce for the same untouched box; whitespace is what a
+    hand-edited CSV produces. None of the policed settings takes a string
+    value, so a blank one can only mean "not answered".
+    """
+    if value is None:
+        return True
+    return isinstance(value, str) and not value.strip()
+
+
 def _reject_unused_settings(regression_type, supplied):
     """Raise when a setting the chosen backend cannot read was set anyway.
 
@@ -2315,13 +2328,20 @@ def _reject_unused_settings(regression_type, supplied):
     Comparing against the default is what makes this usable from a GUI, which
     posts every widget on the panel whether or not the user touched it.
 
+    A BLANK IS NOT A REQUEST. An empty box in the panel, and the empty cell
+    a saved settings CSV writes for it, both arrive here as ``''`` -- which
+    is not equal to a default of ``None`` and was therefore refused. The
+    symptom was that the screen's OWN saved settings could not be reloaded
+    and refitted under a different regression type: `hinge_threshold` had
+    never been typed into, and switching to 'ols' raised on it.
+
     :param regression_type: The backend about to be fitted.
     :param supplied: ``{name: (value, default)}`` for the policed settings.
     :raises ValueError: naming the setting, the type and the alternative.
     """
     used = REGRESSION_SETTINGS_USED.get(regression_type, ())
     for name, (value, default) in supplied.items():
-        if name in used or value == default:
+        if name in used or value == default or _left_blank(value):
             continue
         raise ValueError(
             f"regression_type={regression_type!r} does not read {name}="
@@ -3118,6 +3138,15 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
 
     y_flat = np.asarray(y, dtype=float).reshape(-1)
     use_auto_alpha = alpha is None or (isinstance(alpha, str) and alpha == 'auto')
+
+    # AN EMPTY COVARIANCE BOX IS NO COVARIANCE ESTIMATOR, not an estimator
+    # named ''. The panel's line edit and a saved settings CSV both write
+    # `''` for a box nobody typed in, and three of the branches below pass
+    # it on when it "is not None" -- so a logit, probit or quasi_binomial
+    # fit from the screen's own saved settings died inside statsmodels with
+    # "cov_type not recognized", naming a value the user never chose.
+    if _left_blank(cov_type):
+        cov_type = None
 
     supplied = {
         # 'auto' and None mean "no penalty chosen, cross-validate it", which
