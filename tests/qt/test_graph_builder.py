@@ -812,16 +812,14 @@ def test_the_registry_row_carries_everything_its_side_tables_need(
     assert screen_mod.APP_KEY == "graph_builder"
 
 
-def test_the_registered_factory_is_what_the_window_would_build(qtbot,
-                                                               registry_sandbox):
+def test_the_registered_factory_is_what_the_window_would_build(
+        registry_sandbox):
     """`MainWindow._build_screen` calls whatever `registered_factory` returns."""
     from spacr.qt.screens import graph_builder as screen_mod
     app_mod = registry_sandbox
     screen_mod.register()
     factory = app_mod.registered_factory(screen_mod.APP_KEY)
-    screen = factory(app_key=screen_mod.APP_KEY)
-    qtbot.addWidget(screen)
-    assert isinstance(screen, screen_mod.GraphBuilderScreen)
+    assert factory is screen_mod.make_graph_builder_screen
 
 
 def test_the_registered_factory_builds_the_screen(qtbot):
