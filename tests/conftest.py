@@ -388,11 +388,39 @@ def _automatic_ci_markers(path):
     return markers
 
 
-def pytest_collection_modifyitems(items):
-    """Apply structural CI markers before pytest evaluates ``-m``."""
+def _ci_file_shard(path, count):
+    """Return a stable zero-based CI shard for one test module path."""
+    test_path = Path(str(path))
+    try:
+        label = test_path.resolve().relative_to(_REPO_ROOT).as_posix()
+    except ValueError:
+        label = test_path.as_posix()
+    digest = _hashlib.sha256(label.encode("utf-8")).digest()
+    return int.from_bytes(digest[:8], "big") % int(count)
+
+
+def pytest_collection_modifyitems(config, items):
+    """Apply structural CI markers and an optional file-level CI shard."""
     for item in items:
         for marker in _automatic_ci_markers(item.path):
             item.add_marker(getattr(pytest.mark, marker))
+
+    count = int(os.environ.get("SPACR_PYTEST_FILE_SHARD_COUNT", "1"))
+    index = int(os.environ.get("SPACR_PYTEST_FILE_SHARD_INDEX", "0"))
+    if count < 1 or index < 0 or index >= count:
+        raise pytest.UsageError(
+            "SPACR_PYTEST_FILE_SHARD_INDEX must be within "
+            f"[0, {count}); got {index}"
+        )
+    if count == 1:
+        return
+
+    selected = [item for item in items
+                if _ci_file_shard(item.path, count) == index]
+    deselected = [item for item in items
+                  if _ci_file_shard(item.path, count) != index]
+    items[:] = selected
+    config.hook.pytest_deselected(items=deselected)
 
 
 # Try to import matplotlib once with the Agg backend fixed. If unavailable,

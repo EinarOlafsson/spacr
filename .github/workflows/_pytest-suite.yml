@@ -29,6 +29,21 @@ on:
         required: false
         default: 0
         type: number
+      file_shard_index:
+        description: Zero-based deterministic test-file shard
+        required: false
+        default: 0
+        type: number
+      file_shard_count:
+        description: Number of deterministic test-file shards
+        required: false
+        default: 1
+        type: number
+      run_serial_tail:
+        description: Run the process-local Qt measurement files after pytest
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   pytest:
@@ -125,6 +140,9 @@ jobs:
           PY
 
       - name: Run ${{ inputs.suite_name }} tests
+        env:
+          SPACR_PYTEST_FILE_SHARD_INDEX: ${{ inputs.file_shard_index }}
+          SPACR_PYTEST_FILE_SHARD_COUNT: ${{ inputs.file_shard_count }}
         run: |
           xdist_args=()
           if [ "${{ inputs.xdist_workers }}" -gt 0 ]; then
@@ -138,14 +156,16 @@ jobs:
             --ignore=tests/qt/test_figure_queue.py \
             --ignore=tests/qt/test_pca.py \
             "${xdist_args[@]}" -v --tb=short
-          if [ "${{ inputs.xdist_workers }}" -gt 0 ]; then
+          if [ "${{ inputs.run_serial_tail }}" = "true" ]; then
             # These files measure process-local memory, event-loop latency,
             # and real hover pixels. Running them beside three multi-GB Qt
             # workers measures scheduler contention and races the offscreen
             # platform's shared synthetic cursor, not the product contracts.
-            # Keep all three measurement suites serial on the same clean
-            # runner after the parallel functional suite has exited.
-            python -m pytest \
+            # Keep the measurement suites serial after the parallel functional
+            # workers have exited. Reset file sharding so every measurement
+            # file runs exactly once on the designated shard.
+            SPACR_PYTEST_FILE_SHARD_INDEX=0 \
+            SPACR_PYTEST_FILE_SHARD_COUNT=1 python -m pytest \
               tests/test_perf_guard.py \
               tests/qt/test_gui_responsiveness.py \
               tests/qt/test_home_stage_and_dock.py \
