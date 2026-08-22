@@ -1,0 +1,34 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "context": "Real pooled screening experiments do not provide cell-level guide ground truth. Validation therefore combines four complementary checks: simulated screening experiments with known assignments, guide-to-well permutations that should reduce performance to chance, held-out controls, and order-sensitivity analysis for sequential methods.",
+      "label": "spacr.annotation_validation#1",
+      "source": "Real pooled screens do not provide cell-level guide ground truth. Validation therefore combines four complementary checks: simulated screens with known assignments, guide-to-well permutations that should reduce performance to chance, held-out controls, and order-sensitivity analysis for sequential methods.",
+      "source_sha256": "69c0cd79ffc9437b39dbf411550e07e63c18895d58b5a10fca29dd6ac8d5c139",
+      "translation": "Reale gepoolte Screening-Experimente liefern keine Referenzzuordnung der Guides auf Zellebene. Die Validierung kombiniert daher vier ergänzende Prüfungen: simulierte Screening-Experimente mit bekannten Zuordnungen, Guide-zu-Well-Permutationen, die die Leistung auf Zufallsniveau reduzieren sollten, zurückgehaltene Kontrollen und eine Analyse der Reihenfolgeempfindlichkeit sequenzieller Methoden."
+    },
+    {
+      "context": "Each scenario is paired with its own guide-to-well permutation. The reported gain is the difference between real and null precision. The sequencing-only majority and chance baselines are included automatically.",
+      "label": "spacr.annotation_validation.benchmark#4",
+      "source": "Each scenario is paired with its own guide-to-well permutation. The reported gain is the difference between real and null precision. The sequencing-only majority and chance baselines are included automatically.",
+      "source_sha256": "58a624b31f8d86c197516f5ecd0d3f1d7b088a2d9573ea08813a7702c35c7083",
+      "translation": "Jedes Szenario wird mit einer eigenen Guide-zu-Well-Permutation gepaart. Der berichtete Zugewinn ist die Differenz zwischen tatsächlicher Präzision und Nullpräzision. Die nur auf Sequenzierung beruhende Mehrheits-Baseline und die Zufalls-Baseline werden automatisch einbezogen."
+    },
+    {
+      "context": "Shared click-to-fold behavior for titled Qt panels.",
+      "label": "spacr.qt.widgets.foldable#0",
+      "source": "Shared click-to-fold behavior for titled Qt panels.",
+      "source_sha256": "e1cad5e5fe6f6038ab00448399dd3e12f432975d8ccc6c1f369fafeea4c05174",
+      "translation": "Gemeinsames Verhalten zum Ein- und Ausklappen betitelter Qt-Bedienfelder durch Anklicken."
+    },
+    {
+      "context": "Guides at least ``outlier_factor`` times the median are excluded from the quantile calculation and counted separately because a single threshold does not describe them. The result reports the threshold, sample counts, and the number of guides that require guide-specific review or correction.",
+      "label": "spacr.read_background.suggest_threshold#1",
+      "source": "Guides at least ``outlier_factor`` times the median are excluded from the quantile calculation and counted separately because a single threshold does not describe them. The result reports the threshold, sample counts, and the number of guides that require guide-specific review or correction.",
+      "source_sha256": "c559bdaef6184929d4b2543bb607e2a95272114a7dd02869808bb420f172b804",
+      "translation": "Guides mit mindestens dem ``outlier_factor``-Fachen des Medians werden von der Quantilberechnung ausgeschlossen und separat gezählt, da ein einzelner Schwellenwert sie nicht beschreibt. Das Ergebnis gibt den Schwellenwert, die Stichprobenzahlen und die Anzahl der Guides an, die einzeln überprüft oder korrigiert werden müssen."
+    }
+  ],
+  "schema": 1
+}

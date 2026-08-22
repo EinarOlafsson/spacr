@@ -1,0 +1,13 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "context": "selection : pandas.DataFrame Selection produced by :func:`build_selection`. merged_folder : str Directory containing merged ``.npy`` arrays. dst : str Destination for split-specific extracted image region directories. channel_arrays : sequence of int, default=(0, 1, 2) image data channels to retain. mask_index : int, optional mask image layer index. The final image layer is used when omitted. bounding_box : bool, default=True Whether extracted image regions retain every pixel in the object bounding box. crop_mode : str, default=\"cell\" Object type used for extracted image region naming. write : callable, optional Function accepting ``(path, array)``. The default writes NumPy arrays.",
+      "label": "spacr.stream_dataset.stream#3",
+      "source": "selection : pandas.DataFrame Selection produced by :func:`build_selection`. merged_folder : str Directory containing merged ``.npy`` arrays. dst : str Destination for split-specific crop directories. channel_arrays : sequence of int, default=(0, 1, 2) Image channels to retain. mask_index : int, optional Mask plane index. The final plane is used when omitted. bounding_box : bool, default=True Whether crops retain every pixel in the object bounding box. crop_mode : str, default=\"cell\" Object type used for crop naming. write : callable, optional Function accepting ``(path, array)``. The default writes NumPy arrays.",
+      "source_sha256": "b9fbd879317b7e53819ad2b027d90f5a76f8a3f3c975fe04fe98134a791154e8",
+      "translation": "selection : pandas.DataFrame 由 :func:`build_selection` 生成的选择结果。 merged_folder : str 包含合并 ``.npy`` 数组的目录。 dst : str 按数据拆分保存裁剪图像的目标目录。 channel_arrays : sequence of int, default=(0, 1, 2) 要保留的图像通道。 mask_index : int, optional 掩膜平面索引；省略时使用最后一个平面。 bounding_box : bool, default=True 是否保留对象边界框中的所有像素。 crop_mode : str, default=\"cell\" 用于裁剪命名的对象类型。 write : callable, optional 接受 ``(path, array)`` 的函数；默认写入 NumPy 数组。"
+    }
+  ],
+  "schema": 1
+}

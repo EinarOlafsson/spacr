@@ -1,0 +1,90 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "context": "key-value mapping Minimum fraction, reachable well-guide pairs and guides, and optional cell-count bounds. A guide is unreachable when it fails to meet the minimum fraction in every well.",
+      "label": "spacr.annotation_power.annotatable#4",
+      "source": "dict Minimum fraction, reachable well-guide pairs and guides, and optional cell-count bounds. A guide is unreachable when it fails to meet the minimum fraction in every well.",
+      "source_sha256": "7bce83028bb85eeeb222b1dc1eea183dfd7865b42266751c2ef57b333dc54a3c",
+      "translation": "dict Lágmarkshlutfall, náanleg pör brunna og leiðarvísa, náanlegir leiðarvísar og valfrjáls mörk á frumufjölda. Leiðarvísir er ónáanlegur ef hann nær ekki lágmarkshlutfallinu í neinum brunni."
+    },
+    {
+      "context": "The observed statistic is Spearman correlation between guide effect and mean neighbour purity. The permutation null shuffles effects between guides while preserving the purity values and guide counts. The result includes the correlation, two-sided permutation p-value, group means for positive and negative effects, and a boolean separation call.",
+      "label": "spacr.annotation_umap_qc.effect_agreement#1",
+      "source": "The observed statistic is Spearman correlation between guide effect and mean neighbour purity. The permutation null shuffles effects between guides while preserving the purity values and guide counts. The result includes the correlation, two-sided permutation p-value, group means for positive and negative effects, and a boolean separation call.",
+      "source_sha256": "055d90ab1a8d01b673261a9d13226a3b9bf666dc169336b7081771884231d336",
+      "translation": "Mæld prófstærð er Spearman-fylgni milli áhrifa leiðarvísis og meðaltals hreinleika nágranna. Núlltilgátudreifing umraðana stokkar áhrif milli leiðarvísa en varðveitir hreinleikagildi og fjölda leiðarvísa. Niðurstaðan inniheldur fylgnina, tvíhliða p-gildi umraðana, hópmeðaltöl fyrir jákvæð og neikvæð áhrif og Boole-gildi sem segir hvort hóparnir aðskiljist."
+    },
+    {
+      "context": "The permutation preserves cells, features, machine-learning classification model scores, well sizes, and the distribution of guide fractions while breaking the sequencing-to- imaging relationship. Truth and fractions are permuted together so the returned object remains internally consistent for null benchmarking.",
+      "label": "spacr.annotation_validation.permuted#1",
+      "source": "The permutation preserves cells, features, classifier scores, well sizes, and the distribution of guide fractions while breaking the sequencing-to- imaging relationship. Truth and fractions are permuted together so the returned object remains internally consistent for null benchmarking.",
+      "source_sha256": "c56b9446737ab56eb6435666b8b34cf38d7f25fb0c7e8c40570175194355e595",
+      "translation": "Umröðunin varðveitir frumur, eiginleika, stig flokkunarlíkans, stærðir brunna og dreifingu hlutfalla leiðarvísa en rýfur tengsl raðgreiningar og myndgreiningar. Rétt merking og hlutföll eru stokkuð saman svo skilaði hluturinn haldist innbyrðis samkvæmur fyrir núllviðmiðun."
+    },
+    {
+      "context": "A confusion matrix requires labelled outcomes; an unlabelled score column cannot establish sensitivity or specificity by itself. Use a labelled test split or out-of-fold predictions when available. When labels are unavailable, :func:`deconvolve` estimates two score distributions and reports whether their separation is sufficient to support the estimate.",
+      "label": "spacr.classifier_quality#1",
+      "source": "A confusion matrix requires labelled outcomes; an unlabelled score column cannot establish sensitivity or specificity by itself. Use a labelled test split or out-of-fold predictions when available. When labels are unavailable, :func:`deconvolve` estimates two score distributions and reports whether their separation is sufficient to support the estimate.",
+      "source_sha256": "3b528fc58946ff54785dcbac45932dc4659d32290d22b6b5a07450e9e307aed7",
+      "translation": "Ruglingsfylki krefst merktra niðurstaðna; ómerktur stigadálkur getur ekki einn og sér ákvarðað næmi eða sértæki. Notaðu merkt prófunarsafn eða spár utan þjálfunarbrots þegar þær eru tiltækar. Þegar merkingar vantar metur :func:`deconvolve` tvær stigadreifingar og greinir frá því hvort aðskilnaður þeirra nægi til að styðja matið."
+    },
+    {
+      "context": "pandas.DataFrame Rows retained after all enabled criteria. list of key-value mapping Per-criterion measurement column, threshold, removal count, and any validation note.",
+      "label": "spacr.outlier_filter.apply#4",
+      "source": "pandas.DataFrame Rows retained after all enabled criteria. list of dict Per-criterion measurement column, threshold, removal count, and any validation note.",
+      "source_sha256": "74cc85019bfe60a613f502f5837f1e6d9a4d84df7999aaf24bf699087aa3a877",
+      "translation": "pandas.DataFrame Raðir sem eru varðveittar eftir öll virk skilyrði. list of dict Mælingadálkur, þröskuldur, fjöldi fjarlægðra raða og athugasemd um staðfestingu fyrir hvert skilyrði."
+    },
+    {
+      "context": "The retained frame supports graph-type compatibility checks, redrawing, data export, and statistical comparison without reconstructing the plot from rendered graphics.",
+      "label": "spacr.qt.widgets.grouped_plot.PlotSpec#1",
+      "source": "The retained frame supports graph-type compatibility checks, redrawing, data export, and statistical comparison without reconstructing the plot from rendered graphics.",
+      "source_sha256": "08fa51e5a5908497cb51a7a9b85a16dc6a7f0a54601a2921989667794978bd18",
+      "translation": "Varðveitti gagnaramminn styður samhæfniprófanir fyrir grafgerðir, endurteiknun, útflutning gagna og tölfræðilegan samanburð án þess að endurbyggja grafið úr myndgerðri framsetningu."
+    },
+    {
+      "context": "Shared click-to-fold behavior for titled Qt panels.",
+      "label": "spacr.qt.widgets.foldable#0",
+      "source": "Shared click-to-fold behavior for titled Qt panels.",
+      "source_sha256": "e1cad5e5fe6f6038ab00448399dd3e12f432975d8ccc6c1f369fafeea4c05174",
+      "translation": "Sameiginleg hegðun til að fella saman Qt-spjöld með titli með því að smella á þau."
+    },
+    {
+      "context": "``True`` when the corresponding tab exists and was raised; otherwise ``False``. The available tabs depend on the fitted model and whether the volcano is displayed outside this panel.",
+      "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.show_panel#2",
+      "source": "``True`` when the corresponding tab exists and was raised; otherwise ``False``. The available tabs depend on the fitted model and whether the volcano is displayed outside this panel.",
+      "source_sha256": "6999120706d97256e82307d97d7a89df6e7512e9936e603b807a13ac64dd0aef",
+      "translation": "``True`` þegar samsvarandi flipi er til og var færður fremst; annars ``False``. Tiltækir flipar ráðast af mátaða líkaninu og því hvort eldfjallaritið sé birt utan þessa spjalds."
+    },
+    {
+      "context": "The widget retains one plot item per metric and updates its data as epochs complete. This preserves the current view and avoids creating overlapping plot items during long training processing sessions.",
+      "label": "spacr.qt.widgets.training_monitor#1",
+      "source": "The widget retains one plot item per metric and updates its data as epochs complete. This preserves the current view and avoids creating overlapping plot items during long training runs.",
+      "source_sha256": "57e01c23a2269f66f2f4ee3c61a521de7d571f4b03f2151ad187b0a2c918fab1",
+      "translation": "Græjan varðveitir eitt grafatriði fyrir hverja mælingu og uppfærir gögn þess þegar þjálfunarlotum lýkur. Þetta varðveitir núverandi sýn og kemur í veg fyrir að grafatriði skarist við langar þjálfunarkeyrslur."
+    },
+    {
+      "context": "key-value mapping Sample size, range, skewness, D'Agostino normality-test p-value, regression-family identifier, and display label. The family is empty when fewer than eight finite observations are available or classification fails.",
+      "label": "spacr.response_distribution.describe#4",
+      "source": "dict Sample size, range, skewness, D'Agostino normality-test p-value, regression-family identifier, and display label. The family is empty when fewer than eight finite observations are available or classification fails.",
+      "source_sha256": "23055abc4e0f0146128df50105b829312996042e7fa1adb9ebf44f567e45dfba",
+      "translation": "dict Úrtaksstærð, bil, skekkja, p-gildi D'Agostino-prófs fyrir normaldreifingu, auðkenni aðhvarfsfjölskyldu og birtingarheiti. Fjölskyldan er tóm þegar færri en átta endanlegar athuganir eru tiltækar eða flokkun mistekst."
+    },
+    {
+      "context": "selection : pandas.DataFrame Selection produced by :func:`build_selection`. merged_folder : str Directory containing merged ``.npy`` arrays. dst : str Destination for split-specific extracted image region directories. channel_arrays : sequence of int, default=(0, 1, 2) image data channels to retain. mask_index : int, optional mask image layer index. The final image layer is used when omitted. bounding_box : bool, default=True Whether extracted image regions retain every pixel in the object bounding box. crop_mode : str, default=\"cell\" Object type used for extracted image region naming. write : callable, optional Function accepting ``(path, array)``. The default writes NumPy arrays.",
+      "label": "spacr.stream_dataset.stream#3",
+      "source": "selection : pandas.DataFrame Selection produced by :func:`build_selection`. merged_folder : str Directory containing merged ``.npy`` arrays. dst : str Destination for split-specific crop directories. channel_arrays : sequence of int, default=(0, 1, 2) Image channels to retain. mask_index : int, optional Mask plane index. The final plane is used when omitted. bounding_box : bool, default=True Whether crops retain every pixel in the object bounding box. crop_mode : str, default=\"cell\" Object type used for crop naming. write : callable, optional Function accepting ``(path, array)``. The default writes NumPy arrays.",
+      "source_sha256": "b9fbd879317b7e53819ad2b027d90f5a76f8a3f3c975fe04fe98134a791154e8",
+      "translation": "selection : pandas.DataFrame Val sem :func:`build_selection` býr til. merged_folder : str Mappa með sameinuðum ``.npy`` fylkjum. dst : str Áfangamappa fyrir klippur sem skipt er eftir gagnahluta. channel_arrays : sequence of int, default=(0, 1, 2) Myndrásir sem á að varðveita. mask_index : int, optional Vísir grímuplans. Síðasta planið er notað ef honum er sleppt. bounding_box : bool, default=True Hvort klippur varðveiti alla pixla innan umlykjandi rétthyrnings hlutarins. crop_mode : str, default=\"cell\" Gerð hlutar sem er notuð í heiti klippu. write : callable, optional Fall sem tekur við ``(path, array)``. Sjálfgefið er að skrifa NumPy-fylki."
+    },
+    {
+      "context": "pandas.DataFrame Selected rows. The well scope adds :data:`MATE_COLUMN` to distinguish selected-guide objects from their well-mates. key-value mapping Scope, selections, row counts, and any explanatory note.",
+      "label": "spacr.well_scope.select#4",
+      "source": "pandas.DataFrame Selected rows. The well scope adds :data:`MATE_COLUMN` to distinguish selected-guide objects from their well-mates. dict Scope, selections, row counts, and any explanatory note.",
+      "source_sha256": "99277f2624a1d3a7e6b80b298396927740f1cace6f7423e88bd52850bc626331",
+      "translation": "pandas.DataFrame Valdar raðir. Brunnasviðið bætir :data:`MATE_COLUMN` við til að aðgreina hluti valinna leiðarvísa frá öðrum hlutum í sömu brunnum. dict Svið, val, fjöldi raða og skýring þegar við á."
+    }
+  ],
+  "schema": 1
+}
