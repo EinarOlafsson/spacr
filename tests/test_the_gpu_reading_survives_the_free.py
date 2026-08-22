@@ -12,8 +12,16 @@ from spacr.fit_resources import gpu_allocated, readable
 
 torch = pytest.importorskip("torch")
 
-pytestmark = pytest.mark.skipif(not torch.cuda.is_available(),
-                                reason="the reading is a CUDA reading")
+# `gpu` AS WELL AS the CUDA check: these allocate 64 MB on the card, and the
+# card is shared. `tests/conftest.py::pytest_runtest_setup` skips a
+# gpu-marked test when another session has filled it, which is the ordinary
+# state of this machine -- without the marker they fail on an allocation
+# that has nothing to do with what they measure.
+pytestmark = [
+    pytest.mark.gpu,
+    pytest.mark.skipif(not torch.cuda.is_available(),
+                       reason="the reading is a CUDA reading"),
+]
 
 
 def test_the_peak_is_still_reported_after_the_tensor_is_freed():

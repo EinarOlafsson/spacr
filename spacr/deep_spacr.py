@@ -55,6 +55,53 @@ def _class_folder_names(settings):
     return folder_names(settings)
 
 
+#: How much of the card a run needs before it is worth starting there, in
+#: MiB. A batch of 224x224 crops through a small backbone fits in far less;
+#: this is the room to hold weights, optimiser state and one batch without
+#: immediately fragmenting.
+GPU_ROOM_MB = 1024
+
+
+def pick_device(room_mb: int = GPU_ROOM_MB, what: str = "this run"):
+    """(device, note). CUDA when there is room on it, otherwise CPU.
+
+    THE CARD IS SHARED, and spaCR is not the only thing on it. Every entry
+    point here read `torch.device("cuda" if torch.cuda.is_available() else
+    "cpu")`, which asks whether a GPU EXISTS rather than whether it can be
+    used -- so a run started while somebody else held 21 GiB of 24 died on
+    `torch.OutOfMemoryError: Tried to allocate 20.00 MiB`, out of
+    `optim/adam.py`, after the dataset had been built and the model built.
+
+    A slow run that finishes beats a fast one that does not, so this falls
+    back to the CPU. It is ANNOUNCED, never quiet: the difference between
+    ten minutes and ten hours is not something to discover afterwards, and
+    the note names the process holding the memory so the user can decide
+    whether to wait instead.
+
+    :param room_mb: how much free memory counts as usable.
+    :param what: named in the note, so a log with several stages says which
+        one fell back.
+    :returns: ``(torch.device, note)`` -- the note is '' when nothing needs
+        saying.
+    """
+    if not torch.cuda.is_available():
+        return torch.device("cpu"), ""
+    try:
+        free, total = torch.cuda.mem_get_info()
+    except Exception:                                        # noqa: BLE001
+        # An older driver with no mem_get_info. Use the card and let a real
+        # OOM be a real failure; guessing would be worse.
+        return torch.device("cuda"), ""
+    free_mb, total_mb = free / (1024 * 1024), total / (1024 * 1024)
+    if free_mb >= room_mb:
+        return torch.device("cuda"), ""
+    return torch.device("cpu"), (
+        f"The GPU has {free_mb:.0f} MiB free of {total_mb:.0f} and {what} "
+        f"needs about {room_mb} MiB, so it is running on the CPU instead. "
+        f"That is much slower. Something else is using the card -- "
+        f"`nvidia-smi` names it -- so free it and re-run for GPU speed.")
+
+
 def _empty_device_cache() -> None:
     """Release accelerator caches without touching unavailable backends."""
     if torch.cuda.is_available():
@@ -129,7 +176,9 @@ def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True,
     from .io import NoClassDataset
     from .utils import print_progress
     
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device, note = pick_device(what="inference")
+    if note:
+        print(note)
     
     if normalize:
         # WHICH statistics is now a setting. spaCR has always used 0.5/0.5,
@@ -231,7 +280,9 @@ def apply_model_to_tar(settings=None):
     tar_path = settings['tar_path']
     model_path = settings['model_path']
 
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device, note = pick_device(what="inference")
+    if note:
+        print(note)
 
     if settings['normalize']:
         # See the note on the other transform: which statistics is a setting
@@ -615,7 +666,9 @@ def evaluate_model_performance(model, loader, epoch, loss_type='auto',
     """
     from .utils import build_loss
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device, note = pick_device(what="this stage")
+    if note:
+        print(note)
     model.eval().to(device)
 
     total_loss, total_samples = 0.0, 0
@@ -733,7 +786,9 @@ def test_model_core(model, loader, loader_name, epoch, loss_type):
     """
     from .utils import calculate_loss
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device, note = pick_device(what="this stage")
+    if note:
+        print(note)
     model.eval().to(device)
 
     total_loss = 0.0
@@ -834,7 +889,32 @@ def test_model_performance(loaders, model, loader_name_list, epoch, loss_type):
 #: Scalar metrics worth aggregating across folds. ``Accuracy`` is a duplicate
 #: of ``accuracy`` and ``epoch``/``num_classes`` are bookkeeping, so neither
 #: belongs in a spread statistic.
-CV_METRIC_KEYS = ('accuracy', 'loss', 'prauc', 'neg_accuracy', 'pos_accuracy')
+#:
+#: ``f1_macro`` IS HERE BECAUSE THE OTHER FIVE ARE BINARY-SHAPED.
+#: ``neg_accuracy``, ``pos_accuracy`` and ``optimal_threshold`` are NaN by
+#: construction on a three-class run -- the epoch metrics say so in their
+#: own comments -- so a cross-validation over three classes summarised
+#: accuracy, loss and prauc and nothing about the classes at all
+#: (instruction 236 D13, driven on a three-class dataset from plate1).
+#: Anything NaN is dropped from the spread anyway, so the binary names cost
+#: nothing where they do not apply.
+CV_METRIC_KEYS = ('accuracy', 'loss', 'prauc', 'f1_macro',
+                  'neg_accuracy', 'pos_accuracy')
+
+def cv_metric_keys(metrics) -> list:
+    """Which metric columns to carry across folds, for THIS class count.
+
+    :data:`CV_METRIC_KEYS` plus every ``acc_class_<name>`` the epoch
+    metrics carry -- named by :data:`PER_CLASS_ACC_PREFIX`, which is
+    already the one spelling of that prefix in this module. Two classes get
+    what they always got; three or more get their per-class accuracies as
+    well, which is the only part of the summary that says anything about
+    the classes.
+    """
+    present = [key for key in CV_METRIC_KEYS if key in metrics]
+    per_class = sorted(key for key in metrics
+                       if str(key).startswith(PER_CLASS_ACC_PREFIX))
+    return present + per_class
 
 
 def resolve_class_balance_loss(loss_type, class_balance, num_classes):
@@ -890,7 +970,7 @@ def summarize_cv_metrics(fold_df, metric_keys=None):
         ``min``, ``max``, ``range`` and ``cv_percent`` columns.
     """
     if metric_keys is None:
-        metric_keys = [k for k in CV_METRIC_KEYS if k in fold_df.columns]
+        metric_keys = cv_metric_keys(fold_df.columns)
     rows = []
     for key in metric_keys:
         vals = pd.to_numeric(fold_df[key], errors='coerce').dropna()
@@ -1258,9 +1338,15 @@ def _cross_validate_model(settings, num_classes):
                'n_val': len(val_loader.dataset)}
         if fold_model_path:
             row['model_path'] = str(fold_model_path)
-        for key in CV_METRIC_KEYS:
-            if key in metrics:
-                row[key] = metrics[key]
+        # FLATTENED FIRST. The per-class accuracies live in `metrics` as a
+        # LIST under 'per_class_accuracy', which no spread statistic can
+        # aggregate; `attach_per_class_columns` is what turns them into one
+        # scalar column per class, and it had only ever been called on the
+        # way to the epoch CSVs. So a cross-validation over three classes
+        # reported accuracy, loss and prauc and nothing per class.
+        attach_per_class_columns(metrics, settings.get('classes'))
+        for key in cv_metric_keys(metrics):
+            row[key] = metrics[key]
         rows.append(row)
         oof_probabilities.append(fold_probabilities)
         oof_labels.extend(fold_labels.tolist())
@@ -2394,8 +2480,10 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
     if test_loaders is not None:
         print(f'Test batches:{len(test_loaders)}')
 
-    use_cuda = torch.cuda.is_available()
-    device = torch.device("cuda" if use_cuda else "cpu")
+    device, note = pick_device(what="training")
+    if note:
+        print(note)
+    use_cuda = device.type == "cuda"
     print(f'Using {device} for Torch')
 
     head_dim = max(1, int(num_classes))
@@ -2846,8 +2934,10 @@ def generate_activation_map(settings):
     gc.collect()
     
     plt.clf()
-    use_cuda = torch.cuda.is_available()
-    device = torch.device("cuda" if use_cuda else "cpu")
+    device, note = pick_device(what="training")
+    if note:
+        print(note)
+    use_cuda = device.type == "cuda"
     
     source_folder = os.path.dirname(os.path.dirname(settings['dataset']))
     settings['src'] = source_folder
@@ -3221,8 +3311,10 @@ def visualize_integrated_gradients(src, model_path, target_label_idx=0, image_si
         channels = [1,2,3]
     from .utils import IntegratedGradients, preprocess_image
 
-    use_cuda = torch.cuda.is_available()
-    device = torch.device("cuda" if use_cuda else "cpu")
+    device, note = pick_device(what="training")
+    if note:
+        print(note)
+    use_cuda = device.type == "cuda"
 
     model, _ = _load_inference_model(model_path, device)
     model.to(device)
@@ -3334,8 +3426,10 @@ def visualize_smooth_grad(src, model_path, target_label_idx, image_size=224, cha
         channels = [1,2,3]
     from .utils import preprocess_image
 
-    use_cuda = torch.cuda.is_available()
-    device = torch.device("cuda" if use_cuda else "cpu")
+    device, note = pick_device(what="training")
+    if note:
+        print(note)
+    use_cuda = device.type == "cuda"
 
     model, _ = _load_inference_model(model_path, device)
     model.to(device)
