@@ -203,13 +203,28 @@ def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True,
 
     print(model)
     
-    print(f'Loading dataset in {src} with {len(src)} images')
+    # `len(dataset)`, NOT `len(src)`. Both of these counted the CHARACTERS
+    # IN THE PATH: a run over a folder whose name happened to be 98
+    # characters long announced "Loading dataset ... with 98 images" and
+    # then "Loaded 98 images", and returned an empty frame. The number was
+    # plausible, it was printed twice, and it had nothing to do with the
+    # data (236 B5).
     dataset = NoClassDataset(data_dir=src, transform=transform, shuffle=False,
                              load_to_memory=False)
+    print(f'Loading dataset in {src} with {len(dataset)} images')
+    if not len(dataset):
+        # AND AN EMPTY FOLDER IS NOT A RESULT. It returned a frame with the
+        # right columns and no rows, which reads downstream as "the model
+        # scored nothing" rather than "there was nothing to score".
+        raise ValueError(
+            f"No images to score in {src!r}. `apply_model` reads the "
+            f"pictures lying DIRECTLY in that folder -- it does not walk "
+            f"class subfolders, because inference has no classes to walk. "
+            f"Point it at one folder of crops, or at each class folder in "
+            f"turn.")
     data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False,
                              num_workers=n_jobs,
                              pin_memory=(device.type == "cuda"))
-    print(f'Loaded {len(src)} images')
     
     result_loc = os.path.splitext(model_path)[0]+datetime.date.today().strftime('%y%m%d')+'_'+os.path.splitext(model_path)[1]+'_test_result.csv'
     print(f'Results wil be saved in: {result_loc}')
