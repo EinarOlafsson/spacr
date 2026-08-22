@@ -141,15 +141,17 @@ def test_the_card_is_behind_the_contents_not_in_the_layout(glassed):
 
 
 def test_the_card_is_sized_to_the_dialog_and_follows_a_resize(glassed):
+    """THE CARD IS THE WINDOW. It used to sit eight pixels inside, and
+    those eight pixels were the "box with square edges behind the box with
+    rounded edges" reported on 2026-08-22 -- a band of the dialog's own
+    background running all the way round the rounded card."""
     dialog = _popup(glassed)
     try:
         card = _card(dialog)
         dialog.resize(700, 520)
         for _ in range(6):
             glassed.processEvents()
-        assert card.width() < dialog.width()
-        assert card.width() > dialog.width() - 60, card.geometry()
-        assert card.height() > dialog.height() - 60, card.geometry()
+        assert card.geometry() == dialog.rect()
     finally:
         dialog.deleteLater()
 
@@ -268,17 +270,41 @@ def test_the_backdrop_honours_the_ambient_preference(glassed, monkeypatch):
         dialog.deleteLater()
 
 
-def test_the_backdrop_is_installed_when_it_is_wanted(glassed, monkeypatch):
+def test_the_backdrop_is_installed_when_it_is_asked_for(glassed,
+                                                        monkeypatch):
+    """A MOVING BACKDROP IS OPT-IN NOW. The default is 'off', asked for on
+    2026-08-22 -- what belongs behind a screen of figures is not what
+    belongs behind a form you are reading. Choosing one still works, which
+    is what this checks."""
     from spacr.qt import preferences
     from spacr.qt.widgets.ambient import AmbientWidget
 
     monkeypatch.setattr(preferences, "get_ambient_enabled", lambda: True)
+    monkeypatch.setattr(preferences, "get_popup_backdrop", lambda: "aurora")
     dialog = _popup(glassed)
     try:
         assert dialog.findChildren(AmbientWidget), (
             "the card has nothing to be translucent over")
     finally:
         dialog.deleteLater()
+
+
+def test_no_backdrop_is_installed_by_default(glassed):
+    """'off' drops the MOVEMENT and keeps the card and the rim."""
+    from spacr.qt import preferences
+    from spacr.qt.widgets.ambient import AmbientWidget
+
+    before = preferences.get_popup_backdrop()
+    preferences.set_popup_backdrop(preferences.DEFAULT_POPUP_BACKDROP)
+    try:
+        dialog = _popup(glassed)
+        try:
+            assert not dialog.findChildren(AmbientWidget)
+            assert _card(dialog) is not None
+        finally:
+            dialog.deleteLater()
+    finally:
+        preferences.set_popup_backdrop(before)
 
 
 # ---------------------------------------------------------------------------

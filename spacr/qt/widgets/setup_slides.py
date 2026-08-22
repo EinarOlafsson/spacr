@@ -358,33 +358,66 @@ class SetupSlides(QDialog):
         except Exception:                                    # noqa: BLE001
             LOG.debug("GitHub auth is not readable here", exc_info=True)
             source = None
+        import shutil
+
+        # THE BUTTON IS NEVER DEAD. All three states had a use and two of
+        # them were greyed out, so on a machine where `gh` is already signed
+        # in -- the common case, and the maintainer's own -- the row read
+        # "Signed in" beside a button nothing happened on. Reported
+        # 2026-08-22 as "i cant click the github sign in", which is exactly
+        # what a disabled control looks like from the outside.
+        #
+        # Signing in AGAIN is a real thing to want: a second account, or a
+        # token that has expired while `auth_source` still finds a stale
+        # one. `gh auth login` handles both, so the button offers it.
+        self._gh_button.setEnabled(True)
         if source:
             self._gh_status.setText(
                 self.GITHUB_SOURCES.get(source, "signed in"))
-            self._gh_button.setText("Signed in")
-            self._gh_button.setEnabled(False)
+            self._gh_button.setText("Sign in again")
+            self._gh_button.setToolTip(
+                f"You are {self.GITHUB_SOURCES.get(source, 'signed in')}. "
+                f"This runs `gh auth login` again, which is how you switch "
+                f"to another account or replace a token that has expired.")
+            self._gh_action = "login"
             return
-        import shutil
 
         if shutil.which("gh") is None:
             # NAMED, not "sign-in failed". The CLI being absent and the CLI
-            # being logged out need different things from the user.
+            # being logged out need different things from the user -- and
+            # what the absent one needs is the install page, which is
+            # something this button can actually do.
             self._gh_status.setText(
                 "the GitHub CLI is not installed — reports open in your "
                 "browser")
-            self._gh_button.setText("Sign in")
-            self._gh_button.setEnabled(False)
+            self._gh_button.setText("Install gh")
             self._gh_button.setToolTip(
-                "Install the GitHub CLI (`gh`) and this signs you in. "
-                "Without it, filing an issue still works -- it opens in "
-                "whichever browser you are already signed in to.")
+                "Opens the GitHub CLI's install page. With `gh` installed "
+                "this button signs you in. Without it, filing an issue "
+                "still works -- it opens in whichever browser you are "
+                "already signed in to.")
+            self._gh_action = "install"
             return
+
         self._gh_status.setText("not signed in — reports open in your browser")
         self._gh_button.setText("Sign in")
-        self._gh_button.setEnabled(True)
+        self._gh_button.setToolTip(
+            "Runs `gh auth login`, the GitHub CLI's own browser sign-in. "
+            "GitHub stores the credential; spaCR never sees it.")
+        self._gh_action = "login"
+
+    #: Where the GitHub CLI is installed from. Opened when `gh` is absent,
+    #: because "install this" is a thing a button can do and "the CLI is not
+    #: installed" beside a dead button is not.
+    GITHUB_CLI_PAGE = "https://cli.github.com/"
+
+    #: What the button does next: 'login' or 'install'. Set by
+    #: `_refresh_github`, which is the only thing that knows which state the
+    #: machine is in.
+    _gh_action = "login"
 
     def _sign_in_to_github(self) -> bool:
-        """Start `gh auth login`. True when it was started.
+        """Start `gh auth login`, or open the install page. True if started.
 
         DETACHED, and the dialog does not wait on it: `gh` runs its own
         browser flow and can take as long as the user takes, and a modal
@@ -392,6 +425,13 @@ class SetupSlides(QDialog):
         crashed. The status re-reads when the process ends.
         """
         from PySide6.QtCore import QProcess
+
+        if self._gh_action == "install":
+            from PySide6.QtCore import QUrl
+            from PySide6.QtGui import QDesktopServices
+
+            return bool(QDesktopServices.openUrl(
+                QUrl(self.GITHUB_CLI_PAGE)))
 
         process = QProcess(self)
         process.finished.connect(lambda *_a: self._refresh_github())
