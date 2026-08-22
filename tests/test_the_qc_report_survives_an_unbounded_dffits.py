@@ -33,7 +33,13 @@ from spacr import regression_qc as rq
 
 @pytest.fixture()
 def saturated_context():
-    """A fit with one perfectly-fitted row, so its DFFITS is ``+inf``."""
+    """A real OLS context with one explicitly saturated influence row.
+
+    Statsmodels releases differ in whether the singleton dummy's computed
+    leverage rounds to exactly one or to the preceding float. The report
+    contract starts at the influence diagnostics, so pin that boundary here
+    instead of making the fixture depend on a linear-algebra rounding choice.
+    """
     rng = np.random.default_rng(0)
     n = 24
     frame = pd.DataFrame({"x": rng.normal(size=n)})
@@ -42,7 +48,13 @@ def saturated_context():
     design = sm.add_constant(frame)
     response = rng.normal(size=n)
     model = sm.OLS(response, design).fit()
-    return rq.build_context(model, design, response, regression_type="ols")
+    context = rq.build_context(
+        model, design, response, regression_type="ols")
+    context.leverage = np.asarray(context.leverage, dtype=float).copy()
+    context.std_resid = np.asarray(context.std_resid, dtype=float).copy()
+    context.leverage[0] = 1.0
+    context.std_resid[0] = 1.0
+    return context
 
 
 def test_the_fixture_really_does_produce_an_infinite_dffits(saturated_context):

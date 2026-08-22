@@ -393,9 +393,9 @@ def from_test_split(path: str, *,
         and ``per_cell`` indicating which file shape was read. Only per-cell
         files support recalculation at a different threshold.
     """
-    import pandas as pd
+    from .tabular import read_table
 
-    frame = pd.read_csv(path)
+    frame = read_table(path)
     columns = {str(c).lower() for c in frame.columns}
 
     if {"pos_accuracy", "neg_accuracy"} <= columns:

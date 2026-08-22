@@ -75,7 +75,7 @@ def test_the_key_itself_is_not_retired_because_explain_cv_still_uses_it():
     assert S.expected_types["score_column"] is str
     assert "cv_predictions" in S.tooltips["score_column"]
     homes = [c for c, keys in S.categories.items() if "score_column" in keys]
-    assert homes == ["Model Evaluation"], homes
+    assert homes == ["Evaluation Reports"], homes
 
 
 # ---------------------------------------------------------------------------
