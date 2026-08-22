@@ -100,7 +100,11 @@ FADE_MS = 260
 #: in the chosen language" -- the greeting is the only proof the language
 #: choice took, and it appears on the slide the user is leaving. Without a
 #: pause it is on screen for one frame of a fade.
-GREETING_MS = 850
+#:
+#: THE HOLD INCLUDES THE FADE. At 850 ms the word reached full opacity at
+#: about 500 and was gone by 850, so it was properly legible for a third of
+#: a second and was reported as never appearing at all.
+GREETING_MS = 1600
 
 #: The face every slide is set in.
 #:
@@ -113,6 +117,14 @@ SLIDE_FONT = "Open Sans"
 
 #: Point size of the word on the closing slide.
 DONE_POINTS = 44
+
+#: Point size of the greeting.
+#:
+#: BIG ENOUGH TO BE SEEN AT ALL. At body size it was one short word in the
+#: corner of a card, at full opacity for about a third of a second -- which
+#: is why it was reported as not appearing. It is the answer to the question
+#: just asked, so it is the size of an answer.
+GREETING_POINTS = 30
 
 #: Milliseconds the greeting takes to fade up.
 #:
@@ -412,14 +424,26 @@ class SetupSlides(QDialog):
         column.setSpacing(10)
         column.addStretch(1)
 
-        self._done_word = QLabel(str(title).upper())
+        # AS IT IS WRITTEN, not shouted: "Done", not "DONE".
+        self._done_word = QLabel(str(title))
         self._done_word.setAlignment(Qt.AlignCenter)
         # THE SIZE GOES IN A STYLESHEET, not through setFont. The
         # application sheet already gives every QLabel a font-size, and QSS
         # beats a font set on the widget -- so setPointSize was overruled
         # and the word came out the size of the sentence beneath it.
+        #
+        # THE ACCENT BLUE, which is the blue the wordmark uses and the same
+        # one the greeting arrives in -- one blue for the things this screen
+        # is saying, rather than a second one invented for the last slide.
+        try:
+            from ..theme import active_palette
+
+            ink = f"color: {active_palette()['accent']}; "
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("no palette for the closing word", exc_info=True)
+            ink = ""
         self._done_word.setStyleSheet(
-            f"font-family: '{SLIDE_FONT}'; font-weight: 300; "
+            f"{ink}font-family: '{SLIDE_FONT}'; font-weight: 300; "
             f"font-size: {DONE_POINTS}pt;")
         column.addWidget(self._done_word)
 
@@ -557,8 +581,13 @@ class SetupSlides(QDialog):
             from ..theme import active_palette
 
             accent = active_palette()["accent"]
+            # THE SIZE GOES IN THE SHEET TOO. The application stylesheet
+            # gives every QLabel a font-size and QSS beats a font set on the
+            # widget, so setPointSize here would be overruled and the word
+            # would come out the size of the prose above it.
             self._greeting.setStyleSheet(
-                f"color: {accent}; font-weight: 700;")
+                f"color: {accent}; font-family: '{SLIDE_FONT}'; "
+                f"font-weight: 300; font-size: {GREETING_POINTS}pt;")
         except Exception:                                    # noqa: BLE001
             LOG.debug("no palette for the greeting", exc_info=True)
         self._greeting.setVisible(True)
@@ -614,6 +643,12 @@ class SetupSlides(QDialog):
         self._back.setEnabled(index > 0)
         self._next.setText("Start spaCR" if index == len(SLIDES) - 1
                            else "Next ›")
+        # A LEFTOVER FADE IS DROPPED WHETHER OR NOT A NEW ONE STARTS. The
+        # effect belongs to the page STACK, not to a page, so one still
+        # running when the slide changes again leaves the new page wearing
+        # an opacity that stopped part-way -- which draws an empty card and
+        # is indistinguishable from a page that failed to build.
+        self._drop_the_fade()
         if fade:
             self._fade_in()
 
@@ -633,6 +668,10 @@ class SetupSlides(QDialog):
         try:
             effect = QGraphicsOpacityEffect(self._pages)
             self._pages.setGraphicsEffect(effect)
+            # `setGraphicsEffect` takes ownership and deletes whatever was
+            # there, so the old animation is now driving a dead object.
+            # `_drop_the_fade` above has already stopped it; this is the
+            # note for anyone who moves that call.
             animation = QPropertyAnimation(effect, b"opacity", self)
             animation.setDuration(FADE_MS)
             animation.setStartValue(0.0)
@@ -647,8 +686,18 @@ class SetupSlides(QDialog):
             self._fade = None
 
     def _drop_the_fade(self) -> None:
-        """Take the opacity effect back off the page stack."""
-        self._fade = None
+        """Stop any running fade and take the effect off the page stack.
+
+        STOPPED, not just forgotten: an animation still running would go on
+        driving an effect this is about to delete, and the page would be
+        left at whatever opacity it had reached.
+        """
+        animation, self._fade = self._fade, None
+        if animation is not None:
+            try:
+                animation.stop()
+            except Exception:                                # noqa: BLE001
+                pass
         try:
             self._pages.setGraphicsEffect(None)
         except Exception:                                    # noqa: BLE001

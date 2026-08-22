@@ -3107,6 +3107,11 @@ def launch(argv: Optional[list[str]] = None) -> int:
     apply_preferences_to_app(app)
     from .i18n import install_dialog_translation
     install_dialog_translation(app)
+    # EVERY POPUP GETS THE CARD AND THE RIM, from one install rather than
+    # from thirty-nine edits that the fortieth dialog would miss. See
+    # spacr.qt.widgets.glass.
+    from .widgets.glass import install_glass_everywhere
+    install_glass_everywhere(app)
 
     # Real Python logging → rotating file + Qt signal so ConsolePanel
     # can render records inline. Set it up before the launch breadcrumb and

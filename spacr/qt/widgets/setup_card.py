@@ -23,15 +23,12 @@ class SetupCard(QWidget):
     :param arc: how far along each edge the accent runs, in pixels.
     """
 
-    #: How hard the accent chases the pointer, per ~16 ms frame.
+    #: Fallback chase fraction, when the preference cannot be read.
     #:
-    #: RAISED FROM 0.18 (reported 2026-08-22: "more responsive"). At 0.18 the
-    #: head needed a third of a second to cross half the rim, which reads as
-    #: the light deciding whether to come rather than as water finding the
-    #: low point. Still an ease and not a jump -- a value of 1.0 would put
-    #: the head under the pointer with no travel at all, and the travel is
-    #: the whole effect.
-    EASE = 0.34
+    #: THE PREFERENCE IS THE REAL ONE -- see `spacr.qt.preferences.
+    #: get_rim_lag`. This is what the card uses when there is no settings
+    #: store to ask, which is the case in a bare widget test.
+    EASE = 0.16
 
     #: Frames the tail is smeared over, as a fraction of the arc.
     #:
@@ -58,10 +55,19 @@ class SetupCard(QWidget):
     MAX_STEPS = 320
 
     def __init__(self, parent: Optional[QWidget] = None, *,
-                 radius: int = 18, arc: int = 280):
+                 radius: int = 18, arc: Optional[int] = None,
+                 lag: Optional[float] = None, align: str = ""):
         super().__init__(parent)
         self._radius = int(radius)
-        self._arc = int(arc)
+        # THE THREE THAT ARE A MATTER OF TASTE come from the preference
+        # store unless the caller names one. How long the run is, how hard
+        # it chases, and whether it is centred on the pointer or trails
+        # behind it are all things to look at and decide about, so they are
+        # settings rather than constants -- and a caller that wants a
+        # particular look for a particular card can still say so.
+        self._arc = int(arc) if arc is not None else self._preferred_arc()
+        self._lag = float(lag) if lag is not None else None
+        self._align = str(align or "").strip().lower()
         self._corner = 0
         #: Accent position as a clockwise fraction of the card perimeter,
         #: measured from the top-left corner. A continuous position lets the
@@ -258,6 +264,47 @@ class SetupCard(QWidget):
         self._towards = target
         return moved
 
+    @staticmethod
+    def _preferred_arc() -> int:
+        """The stored rim length, or the shipped default."""
+        try:
+            from ..preferences import get_rim_length
+
+            return int(get_rim_length())
+        except Exception:                                    # noqa: BLE001
+            return 280
+
+    def ease(self) -> float:
+        """How far the accent closes the gap to the pointer each frame."""
+        if self._lag is not None:
+            return float(self._lag)
+        try:
+            from ..preferences import get_rim_lag
+
+            return float(get_rim_lag())
+        except Exception:                                    # noqa: BLE001
+            return float(self.EASE)
+
+    def alignment(self) -> str:
+        """``'centre'`` or ``'head'`` -- where the run sits on the pointer."""
+        if self._align:
+            return self._align
+        try:
+            from ..preferences import get_rim_alignment
+
+            return str(get_rim_alignment())
+        except Exception:                                    # noqa: BLE001
+            return "centre"
+
+    def reread_the_preferences(self) -> None:
+        """Take the length, lag and alignment again, and redraw.
+
+        Called when the settings that own them change, so the card the user
+        is looking at while they drag a slider is the one that answers.
+        """
+        self._arc = self._preferred_arc()
+        self.update()
+
     def _start(self) -> None:
         if not self._timer.isActive():
             self._timer.start()
@@ -305,7 +352,7 @@ class SetupCard(QWidget):
                     return
                 self._at = self._towards
             else:
-                self._at += gap * self.EASE   # ease, not jump: water
+                self._at += gap * self.ease()  # ease, not jump: water
         self._corner = int((self.position + 0.125) % 1.0 * 4) % 4
         self.update()
 
@@ -362,16 +409,25 @@ class SetupCard(QWidget):
         total = max(1.0, rim.length())
         return min(0.62, max(0.04, float(self._arc) * 2.0 / total))
 
-    def accent_alpha(self, along: float) -> float:
-        """Opacity at ``along`` (0 at the tail, 1 at the head), 0..1.
+    def accent_peak(self) -> float:
+        """Where along the run the accent is brightest, 0..1.
 
-        BRIGHTEST JUST BEHIND THE HEAD, not at the middle: a highlight that
-        peaks in the centre reads as a bar, and one that peaks at the front
-        reads as something moving. Both ends fall to zero, so neither has an
-        edge to arrive or leave by.
+        THE BRIGHT PART IS WHAT THE POINTER IS ON. With the run CENTRED on
+        the pointer the peak belongs in the middle, or the brightest part
+        sits to one side of the thing it is pointing at; with the run
+        trailing from its head, it belongs near the front, where a wake is
+        brightest.
+        """
+        return 0.5 if self.alignment() == "centre" else 0.72
+
+    def accent_alpha(self, along: float) -> float:
+        """Opacity at ``along`` (0 at one end, 1 at the peak), 0..1.
+
+        Both ends fall to zero, so neither has an edge to arrive or leave
+        by. Where the peak sits is :meth:`accent_peak`.
         """
         along = min(max(float(along), 0.0), 1.0)
-        peak = 0.72
+        peak = self.accent_peak()
         if along <= peak:
             ramp = along / peak
         else:
@@ -380,8 +436,20 @@ class SetupCard(QWidget):
         # -- the shape a wake has.
         return max(0.0, min(1.0, ramp ** (1.0 + self.FADE)))
 
+    def accent_start(self, span: float) -> float:
+        """Where the lit run begins, as a fraction of the rim.
+
+        With ``centre`` alignment the MIDDLE of the run lands on
+        :attr:`position`, which is what puts the light on the pointer
+        rather than beside it; with ``head`` the run ends there and trails
+        backwards.
+        """
+        if self.alignment() == "centre":
+            return self.position - span / 2.0
+        return self.position - span
+
     def _accent_path(self, rect: QRectF) -> QPainterPath:
-        """The lit run of rim, centred on :attr:`position`, as one path.
+        """The lit run of rim, as one path.
 
         Kept because the SHAPE of the run is worth asserting on its own,
         separately from how it is shaded. THE WHOLE RIM IS BUILT ONCE and
@@ -392,7 +460,7 @@ class SetupCard(QWidget):
         rim = QPainterPath()
         rim.addRoundedRect(rect, self._radius, self._radius)
         span = self.accent_span(rect)
-        start = self.position - span
+        start = self.accent_start(span)
 
         out = QPainterPath()
         steps = 48
@@ -408,15 +476,14 @@ class SetupCard(QWidget):
     def _paint_accent(self, painter, colour: QColor, rect: QRectF) -> None:
         """Stroke the lit run as segments that fade towards both ends.
 
-        THE HEAD IS AT :attr:`position` and the tail runs BEHIND it, rather
-        than the run being centred: a light that is chasing the pointer has
-        a front, and putting the pointer in the middle of the glow is what
-        made it read as a segment rather than as movement.
+        WHERE THE RUN SITS ON THE POINTER is :meth:`accent_start`, and it
+        is a setting: centred puts the middle of the light on the pointer,
+        head puts its leading end there and trails the rest behind.
         """
         rim = QPainterPath()
         rim.addRoundedRect(rect, self._radius, self._radius)
         span = self.accent_span(rect)
-        start = self.position - span
+        start = self.accent_start(span)
         # ONE STEP PER `STEP_PX` OF RIM, not a fixed count. At 24 segments a
         # run this long was 23 px a step: the alpha moved in visible jumps
         # and every corner was cut into four straight chords, which is the
