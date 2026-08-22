@@ -211,3 +211,88 @@ def test_the_gallery_keeps_one_slot_for_the_whole_run(tmp_path,
     assert queue._count == 1, (
         f"the gallery grew to {queue._count} entries; a live figure must "
         f"replace its slot, not append")
+
+
+# ---------------------------------------------------------------------------
+# The live monitor, at however many classes there are
+# ---------------------------------------------------------------------------
+#
+# Instruction 236 B5 asks for live monitoring and D13 for an arbitrary class
+# count, and the two meet here: the panel that says how each class is doing
+# is the one part of the monitor whose SHAPE depends on the run. Two classes
+# must not be a special case that six breaks.
+
+def _class_history(classes, epochs=4):
+    """Epoch dicts as `compute_metrics` produces them, flattened the way
+    the trainer flattens them before they reach a CSV or this plot."""
+    from spacr.deep_spacr import attach_per_class_columns
+
+    made = []
+    for epoch in range(1, epochs + 1):
+        metrics = {
+            "epoch": epoch,
+            "loss": 1.2 - 0.1 * epoch,
+            "accuracy": 0.3 + 0.05 * epoch,
+            "prauc": 0.4 + 0.02 * epoch,
+            "f1_macro": 0.3 + 0.04 * epoch,
+            "num_classes": len(classes),
+            "per_class_accuracy": [0.2 + 0.05 * epoch + 0.1 * index
+                                   for index in range(len(classes))],
+            "class_support": [30] * len(classes),
+        }
+        made.append(attach_per_class_columns(metrics, classes))
+    return made
+
+
+@pytest.mark.parametrize("classes", [
+    ["neg", "pos"],
+    ["c1", "c2", "c3"],
+    [f"k{i}" for i in range(6)],
+])
+def test_the_live_monitor_draws_however_many_classes_there_are(classes):
+    history = _class_history(classes)
+    figure = _plot_training_curves(history, history, 5, None)
+    assert figure is not None
+    titles = [axis.get_title() for axis in figure.axes]
+    assert "Loss" in titles and "Accuracy" in titles
+    assert any("Per-class" in title for title in titles)
+
+
+@pytest.mark.parametrize("classes", [
+    ["neg", "pos"],
+    ["c1", "c2", "c3"],
+    [f"k{i}" for i in range(6)],
+])
+def test_every_class_gets_its_own_line(classes):
+    """A per-class panel that drew two lines for six classes would be
+    hiding four of them behind a title that claims otherwise."""
+    history = _class_history(classes)
+    figure = _plot_training_curves(history, history, 5, None)
+    panel = next(axis for axis in figure.axes
+                 if "Per-class" in axis.get_title())
+    assert len(panel.get_lines()) >= len(classes)
+
+
+def test_the_class_lines_are_named_by_the_class():
+    """A legend reading 0, 1, 2 makes the reader map indices to folder
+    names in their head, every time they look at it."""
+    classes = ["c1", "c2", "c3"]
+    figure = _plot_training_curves(_class_history(classes),
+                                   _class_history(classes), 5, None)
+    panel = next(axis for axis in figure.axes
+                 if "Per-class" in axis.get_title())
+    labelled = {line.get_label() for line in panel.get_lines()}
+    for name in classes:
+        assert any(name in str(label) for label in labelled), name
+
+
+def test_the_same_figure_is_reused_across_epochs_at_three_classes():
+    """The monitor updates ONE figure; a new one per epoch is a window that
+    multiplies while the run goes on."""
+    classes = ["c1", "c2", "c3"]
+    history = _class_history(classes, epochs=1)
+    figure = _plot_training_curves(history, history, 5, None)
+    for epoch in range(2, 5):
+        history = _class_history(classes, epochs=epoch)
+        again = _plot_training_curves(history, history, 5, figure)
+        assert again is figure
