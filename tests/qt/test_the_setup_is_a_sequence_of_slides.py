@@ -308,3 +308,71 @@ class TestItIsStillDismissible:
 
         slides.accept()
         assert not should_open()
+
+
+class TestItIsReachableFromHelp:
+    """Requested 2026-08-21: "the startup should be in the help menue".
+
+    It ran once on the first launch and then never -- and it is the only
+    place several of these settings are EXPLAINED rather than merely
+    offered, so a user who dismissed it lost the explanation with the
+    questions.
+    """
+
+    @pytest.fixture
+    def window(self, app):
+        from spacr.qt.app import MainWindow
+
+        return MainWindow()
+
+    def _help_menu(self, window):
+        for menu in window.menuBar().findChildren(type(
+                window.menuBar().addMenu("scratch"))):
+            if "Help" in menu.title():
+                return menu
+        return None
+
+    def test_there_is_an_entry(self, window):
+        menu = self._help_menu(window)
+        assert menu is not None
+        assert any("Set spaCR up" in a.text() for a in menu.actions())
+
+    def test_it_says_what_it_opens(self, window):
+        action = next(a for a in self._help_menu(window).actions()
+                      if "Set spaCR up" in a.text())
+        assert "language" in action.statusTip()
+
+    def test_it_opens_even_when_already_answered(self, window,
+                                                 monkeypatch):
+        """`open_setup_if_needed` asks `should_open` and would refuse. A
+        menu item that does nothing on the second launch is the inert
+        control this codebase keeps meeting."""
+        import ast
+        import inspect
+        import textwrap
+
+        from spacr.qt.app import MainWindow
+
+        # THE CODE, NOT THE PROSE. The docstring explains why
+        # `open_setup_if_needed` is not used, so a plain substring search
+        # finds the very name it is asserting the absence of -- which is
+        # what the first version of this test did.
+        tree = ast.parse(textwrap.dedent(
+            inspect.getsource(MainWindow._show_setup)))
+        called = {node.id for node in ast.walk(tree)
+                  if isinstance(node, ast.Name)}
+        called |= {node.attr for node in ast.walk(tree)
+                   if isinstance(node, ast.Attribute)}
+        assert "SetupSlides" in called
+        assert "open_setup_if_needed" not in called
+        assert "should_open" not in called
+
+    def test_the_launcher_still_asks_first(self):
+        """The automatic path keeps its guard: it must not reappear every
+        launch."""
+        import inspect
+
+        from spacr.qt.widgets import setup_slides
+
+        source = inspect.getsource(setup_slides.open_setup_if_needed)
+        assert "should_open" in source

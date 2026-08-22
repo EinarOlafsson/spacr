@@ -1744,6 +1744,23 @@ class MainWindow(QMainWindow):
             "Every key spaCR binds, what it does, and where it works.")
         act_keys.triggered.connect(self._show_shortcuts)
         help_menu.addAction(act_keys)
+
+        # THE SETUP SCREEN, REACHABLE AGAIN. It ran once on the first launch
+        # and then never -- and it is the only place several of these
+        # settings are explained rather than merely offered, so a user who
+        # dismissed it lost the explanation along with the questions.
+        #
+        # IN HELP because that is where somebody goes to be told what a
+        # choice means. Preferences is where they go when they already know
+        # and want to change it; both exist, and they answer different
+        # questions.
+        act_setup = QAction("Set spaCR up again…", self)
+        act_setup.setStatusTip(
+            "The first-run questions, with the explanation of each -- "
+            "language, theme, how it runs, the assistant, and what may "
+            "leave this machine.")
+        act_setup.triggered.connect(self._show_setup)
+        help_menu.addAction(act_setup)
         help_menu.addSeparator()
         # Label kept verbatim: `spacr/qt/i18n.py` keys its catalog on the
         # English string, so renaming this action drops its translation in
@@ -2080,6 +2097,21 @@ class MainWindow(QMainWindow):
         if hasattr(widget, "_open_folder"):
             widget._open_folder(str(layout.src))
             return
+
+    def _show_setup(self) -> None:
+        """Open the setup slides, whether or not they have been answered.
+
+        NOT `open_setup_if_needed`, which asks `should_open` and would
+        refuse: the whole point of a menu entry is that the user is asking
+        for it, and a menu item that does nothing on the second launch is
+        the inert control this codebase keeps meeting.
+        """
+        try:
+            from .widgets.setup_slides import SetupSlides
+
+            SetupSlides(self).exec()
+        except Exception:
+            LOG.debug("could not open the setup screen", exc_info=True)
 
     def _show_shortcuts(self) -> None:
         """Open the hotkey map. The same screen `?` and the palette open --

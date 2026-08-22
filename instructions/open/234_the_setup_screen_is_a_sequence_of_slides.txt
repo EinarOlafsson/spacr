@@ -138,3 +138,25 @@ HOW TO KNOW IT WORKED
   survives anywhere in the slides.
 * Closing at any slide writes the defaults and does not reopen.
 * With the animation disabled the same answers are still written.
+
+
+--------------------------------------------------------------------------------
+AND IT IS IN THE HELP MENU
+--------------------------------------------------------------------------------
+
+    2026-08-21: "the startup should be in the help menue"
+
+It ran once on the first launch and then never. That is right for the
+AUTOMATIC path -- a screen that reappears every launch cannot be dismissed
+-- and wrong as the only path, because this screen is the one place several
+of these settings are EXPLAINED rather than merely offered. A user who
+dismissed it lost the explanation along with the questions.
+
+IN HELP, NOT PREFERENCES. Help is where somebody goes to be told what a
+choice means; Preferences is where they go when they already know and want
+to change it. Both exist and they answer different questions.
+
+THE MENU ENTRY DOES NOT ASK `should_open`. It would refuse on every launch
+after the first, and a menu item that does nothing is the inert control this
+codebase keeps meeting -- three of them were reported on the same day this
+was added. The automatic path keeps its guard; the menu is the user asking.
