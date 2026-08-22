@@ -1,0 +1,20 @@
+{
+  "language": "pt",
+  "records": [
+    {
+      "context": "The sequence exposes the sensitivity-specificity trade-off rather than evaluating only the conventional threshold of 0.5.",
+      "label": "spacr.classifier_quality.operating_points#1",
+      "source": "The sequence exposes the sensitivity-specificity trade-off rather than evaluating only the conventional threshold of 0.5.",
+      "source_sha256": "67af57c9f39a7d8bf9453e2f9b5244494ce7e155003094db1a7462edab8a567d",
+      "translation": "A sequência explicita o compromisso entre sensibilidade e especificidade, em vez de avaliar apenas o limiar convencional de 0.5."
+    },
+    {
+      "context": "The direct identifier columns are preferred. When they are incomplete, extracted image region paths provide a documented fallback from which laboratory microplate, microplate sample position, microscope field of view, and object identifiers can be recovered. Each successful join reports the route used and the number of matched rows; a join with no matches raises an error.",
+      "label": "spacr.dependent_join#1",
+      "source": "The direct identifier columns are preferred. When they are incomplete, crop paths provide a documented fallback from which plate, well, field, and object identifiers can be recovered. Each successful join reports the route used and the number of matched rows; a join with no matches raises an error.",
+      "source_sha256": "6eb814aaa48f36d16773cc87a9d3c83e3e711884b26c27b6054f8c7c6316cc12",
+      "translation": "As colunas de identificadores diretos têm preferência. Quando estão incompletas, os caminhos das regiões de imagem extraídas fornecem uma alternativa documentada a partir da qual podem ser recuperados os identificadores de microplaca, poço, campo microscópico e objeto. Cada associação concluída informa a rota utilizada e o número de linhas correspondentes; uma associação sem correspondências gera um erro."
+    }
+  ],
+  "schema": 1
+}
