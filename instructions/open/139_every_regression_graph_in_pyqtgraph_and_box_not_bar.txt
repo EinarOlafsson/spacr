@@ -2,7 +2,9 @@
 EVERY REGRESSION GRAPH IN PYQTGRAPH, AND A BOXPLOT WHERE THERE WAS A BAR
 ================================================================================
 
-Status:    filed 2026-08-18.
+Status:    REOPENED 2026-08-21. SECTION C WAS DONE AND THE FILE WAS CLOSED ON
+           IT. SECTION A -- the conversion this instruction is named for --
+           WAS NEVER DONE, and the count has gone UP.
 Requested: 2026-08-18 --
 
   "in the regression modual all of the generated graphs should be generated
@@ -655,3 +657,67 @@ statistics are). It is a mechanical sweep with a decided answer, not an open
 question, so it does not need this instruction held open to be done.
 
 7 tests in tests/test_a_bar_at_a_mean_hides_the_spread.py.
+
+================================================================================
+REOPENED 2026-08-21
+================================================================================
+
+    "i also asked you to change all figures to pyqtgraph ... that obviously
+     did not happen"
+
+CORRECT, AND THE FILE SAID OTHERWISE. Section C -- publishing the figures
+into the gallery -- was done on 2026-08-18 and the file was moved to `done/`
+on the strength of it. SECTION A, which is the thing this instruction is
+NAMED for, was not started. Closing an instruction on one of its sections is
+how a backlog comes to disagree with the application.
+
+THE COUNT HAS GONE UP, WHICH IS WORSE THAN STANDING STILL. Measured again
+2026-08-21, matplotlib figure creations on the regression path:
+
+    spacr/ml.py                       11   (was 5)
+    spacr/regression_diagnostics.py    7   (was 8)
+    spacr/toxo.py                      7   (was 7)
+    spacr/guide_permutation.py         3   (was 1)
+                                      28   (was 21)
+
+AND SOME OF THEM ARE MINE. The before/after transform panel added for
+instruction 218 on 2026-08-21 is matplotlib, written into `ml.py` while this
+instruction sat in `done/` saying the path had moved. A closed instruction
+stops being read, which is exactly how that happened.
+
+--------------------------------------------------------------------------------
+WHAT SECTION A STILL NEEDS
+--------------------------------------------------------------------------------
+
+The mechanism is not the missing part. `FastPlot` exists, `FastPlot.snapshot`
+already photographs a live widget, and `figure_sink.publish` already puts a
+rendered scene in the gallery -- section C built that road. What is missing
+is that TWENTY-EIGHT CALL SITES still draw with matplotlib instead of
+driving it.
+
+THE RULE FOR EVERY NEW FIGURE, from today: a new plot on the regression path
+is a `FastPlot`. Adding a matplotlib one adds to this number, and this
+instruction stays open until the number is zero -- which is the only way the
+count stops being a thing that grows while the file says it shrank.
+
+NOT EVERY ONE IS A STRAIGHT SWAP, and the file should say so rather than
+implying twenty-eight identical conversions:
+
+  * the polar plot in `ml.py` has no pyqtgraph equivalent and needs one
+    written or a decision that it stays;
+  * `shap_analysis` draws through SHAP's own matplotlib API, so converting
+    it means not using that API;
+  * the rest are scatters, histograms and bars, which `FastPlot` already
+    draws.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* A test COUNTS the matplotlib figure creations on the regression path and
+  fails when the number goes up. Written first, so the number cannot grow
+  again while this is open.
+* The count reaches zero, or every remaining site is named in this file with
+  the reason it is not convertible.
+* Each converted figure is the SAME scene the screen shows, rendered -- not
+  a second drawing, which is the duplication this instruction exists to end.
