@@ -484,7 +484,11 @@ class TestRoundTrip:
         first = scr._settings_model.collect()
         applied = scr.apply_settings_dict(first)
         second = scr._settings_model.collect()
-        assert applied == len(scr._settings_model._widgets)
+        from spacr.qt.screens.settings_model import _APP_HIDDEN_KEYS
+
+        accepted = set(scr._settings_model._widgets)
+        accepted.update(_APP_HIDDEN_KEYS.get(app_key, set()))
+        assert applied == len(set(first) & accepted)
         assert set(first) == set(second)
         drifted = {k: (first[k], second[k])
                    for k in first if first[k] != second[k]}
@@ -803,7 +807,7 @@ class TestEmptyStateAndSrc:
     def test_column_fields_get_a_sql_button_bound_to_the_live_src(self, qtbot):
         """The picker must read src when clicked, not when built."""
         from spacr.qt.widgets.column_picker import ColumnPickerButton
-        scr = _make_screen(qtbot, "classify")
+        scr = _make_screen(qtbot, "ml_analyze")
         assert "annotation_column" in COLUMN_TABLES
         field = scr._settings_model._widgets["annotation_column"]
         buttons = [b for b in scr.findChildren(ColumnPickerButton)
@@ -811,7 +815,7 @@ class TestEmptyStateAndSrc:
         assert len(buttons) == 1
         btn = buttons[0]
         assert btn.table == COLUMN_TABLES["annotation_column"] == "png_list"
-        scr._settings_model.set_value_for_key("src", ["/data/plate9"])
+        scr._settings_model.set_value_for_key("src", "/data/plate9")
         assert btn.db_path() == "/data/plate9"
 
     def test_non_column_fields_get_no_picker(self, qtbot):

@@ -6333,6 +6333,8 @@ class AppScreen(QWidget):
         for key, val in settings.items():
             w = self._settings_model._widgets.get(key)
             if w is None:
+                if self._settings_model.set_hidden_value(key, val):
+                    applied += 1
                 continue
             try:
                 self._apply_value(w, val)
