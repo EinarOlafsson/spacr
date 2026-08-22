@@ -47,9 +47,8 @@ KURTOSIS_HEAVY = 3.0
 #: is worth acting on.
 DW_TOLERANCE = 0.4
 
-#: Cook's distance above this marks a single observation that alone moves
-#: the fit. The classic rule of thumb, and it is a rule about ONE point
-#: rather than about a count of them.
+#: Cook's-distance threshold for an observation with substantial individual
+#: influence on the fitted model.
 COOKS_INFLUENTIAL = 1.0
 
 #: The usual collinearity bar.
@@ -81,9 +80,8 @@ def recommend(diagnostics: Mapping[str, Any], *,
     """Derive recommendations from a run's measured diagnostics.
 
     :param diagnostics: the numbers the QC computed.
-    :param settings: what the run used, so a recommendation already taken is
-        not offered again. TELLING SOMEBODY TO DO WHAT THEY DID IS HOW A
-        RECOMMENDATIONS SECTION BECOMES SOMETHING PEOPLE SKIP.
+    :param settings: settings used for the run. Recommendations already
+        satisfied by these values are omitted.
     :returns: the recommendations that fired, blocking ones first.
     """
     settings = dict(settings or {})
@@ -162,10 +160,10 @@ def recommend(diagnostics: Mapping[str, Any], *,
 
 
 def format_recommendations(items: List[Recommendation]) -> str:
-    """The section as it appears at the end of the summary.
+    """Format recommendations for the end of a run summary.
 
-    AN EMPTY SECTION SAYS SO. Its absence would read as a bug, and "every
-    check passed" is a result worth stating rather than implying by silence.
+    An empty input is reported explicitly so a completed check with no
+    recommendations is distinguishable from a missing result.
     """
     if not items:
         return ("RECOMMENDATIONS\n"
