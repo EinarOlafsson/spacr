@@ -255,7 +255,10 @@ def test_a_base_dict_carrying_the_key_no_longer_defeats_the_sweep(tmp_path):
 # ---------------------------------------------------------------------------
 
 DECLARED_FOR_OTHER_SLICES = {
-    "group_lasso_lambda": 0.05,
+    # 'auto' since 2026-08-22: 0.05 is a NUMBER, and whether a number is a
+    # large penalty depends entirely on the design. On the tsg101 screen it
+    # was nearly half the ceiling and emptied all 297 gene blocks.
+    "group_lasso_lambda": "auto",
     "rra_alpha": 0.25,
     "rra_permutations": 10000,
     "count_grna_column": "grna",
@@ -317,11 +320,20 @@ def test_a_permutation_count_that_cannot_build_a_null_is_refused(bad):
     assert "positive integer" in str(raised.value)
 
 
-@pytest.mark.parametrize("bad", [-0.1, "0.05", None, True])
+@pytest.mark.parametrize("bad", [-0.1, "0.05", True, "small"])
 def test_a_penalty_that_is_not_a_penalty_is_refused(bad):
     with pytest.raises(ValueError) as raised:
         defaults(group_lasso_lambda=bad)
     assert "group_lasso_lambda" in str(raised.value)
+
+
+@pytest.mark.parametrize("unanswered", [None, "", "  ", "auto", "AUTO"])
+def test_an_unanswered_penalty_is_cross_validated(unanswered):
+    """A blank box and the word 'auto' both mean "choose it for me", which
+    is what the panel now posts. `None` used to be refused, so a settings
+    CSV with an empty cell could not start a group lasso run at all."""
+    assert defaults(group_lasso_lambda=unanswered)[
+        "group_lasso_lambda"] == "auto"
 
 
 def test_an_unpenalised_group_lasso_is_allowed():
