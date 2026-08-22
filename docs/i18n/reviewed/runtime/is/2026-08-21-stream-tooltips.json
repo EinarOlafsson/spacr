@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "is",
+  "reviewed_at": "2026-08-21",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "mask_array",
+      "source_sha256": "5635def8fdf222ecda4e0e5986b73ae0787c93e5ed5a589a5218ca3b9cd8c461",
+      "source": "Labelled mask plane that defines object identifiers when stream_method is 'array'. Select the mask corresponding to the biological object being classified; this setting is ignored by the 'column' method. Default 'cell'.",
+      "translation": "Merkt maskalag sem skilgreinir auðkenni hluta þegar stream_method er 'array'. Veldu maska fyrir þann líffræðilega hlut sem verið er að flokka; 'column'-aðferðin hunsar þessa stillingu. Sjálfgefið gildi er 'cell'."
+    }
+  ]
+}
