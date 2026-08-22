@@ -282,7 +282,8 @@ def test_a_missing_gpu_greys_the_entry_with_its_reason(screen, field,
                         "will not quietly run it on the CPU instead")
 
 
-def test_the_six_unwired_backends_say_so_and_say_what_would_install_them():
+def test_the_six_unwired_backends_say_so_and_say_what_would_install_them(
+        monkeypatch):
     """Instruction 141 C, and honesty about what is inventory.
 
     Only statsmodels and torch fit anything today. The other six are
@@ -291,13 +292,18 @@ def test_the_six_unwired_backends_say_so_and_say_what_would_install_them():
     alongside the first rather than instead of it. Installing pymer4 would
     not make it choosable, and neither would wiring it up alone.
     """
-    from spacr.regression_backends import backend_status
+    from spacr import regression_backends
     from spacr.regression_spec import REGRESSION_BACKENDS
 
+    # This test covers the not-installed wording. A developer machine may
+    # already carry one of these packages, which should instead say that it
+    # is installed rather than recommend installing it again.
+    monkeypatch.setattr(regression_backends, "package_installed",
+                        lambda _package: False)
     for name, spec in REGRESSION_BACKENDS.items():
         if spec["implemented"]:
             continue
-        status = backend_status(name, spec["types"][0])
+        status = regression_backends.backend_status(name, spec["types"][0])
         assert not status["enabled"], name
         assert "does not route any fit through it yet" in status["reason"]
         assert spec["pip"] in status["reason"] or spec["pip"] is None, (

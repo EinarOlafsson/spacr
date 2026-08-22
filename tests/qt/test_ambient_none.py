@@ -152,6 +152,7 @@ def test_none_installs_no_widget_and_paints_no_frames(qtbot):
 
     # -- and with None: nothing is constructed, so nothing can tick.
     prefs.set_ambient_animation(ambient.NO_ANIMATION)
+    prefs.apply_ambient_preferences()
     quiet = _screen(qtbot)
     quiet.show()
     qtbot.waitExposed(quiet)
