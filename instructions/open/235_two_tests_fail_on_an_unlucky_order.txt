@@ -1,0 +1,54 @@
+================================================================================
+TWO TESTS FAIL ON AN UNLUCKY ORDER, AND THE SUITE HIDES IT
+================================================================================
+
+Status:    OPEN. Found 2026-08-22 while verifying an unrelated change.
+Owner:     Test suite
+
+--------------------------------------------------------------------------------
+WHAT IS WRONG
+--------------------------------------------------------------------------------
+
+`pytest-randomly` is installed and reshuffles the whole suite on every run
+with a fresh seed. That is a good thing -- it surfaces order dependence
+rather than causing it -- but it means A GREEN RUN IS NOT EVIDENCE, and two
+tests fail on some orders and not others:
+
+    tests/qt/test_the_backend_row_offers_to_install_itself.py
+        ::test_leaving_the_popup_with_no_panel_open_leaves_it_alone
+    tests/qt/test_space_theme.py
+        ::TestPreferencesWiring::test_apply_preferences_only_pays_for_space
+
+Both reproduce at `--randomly-seed=4242` over `-k "dialog or preferences or
+popup"`, and both pass in isolation and in small groups.
+
+THEY ARE NOT CAUSED BY THE GLASS SWEEP. The same seed was run with
+`tests/qt/test_every_popup_has_the_card_and_the_rim.py` deselected and the
+same two failed -- 592 passed rather than 618, which is exactly that file's
+26 tests and nothing else.
+
+--------------------------------------------------------------------------------
+WHAT IS ALREADY KNOWN ABOUT EACH
+--------------------------------------------------------------------------------
+
+`test_apply_preferences_only_pays_for_space` COUNTS LIVE WIDGETS. It asserts
+the application pays for ONE wallpaper lookup, and every `AppScreen` still
+alive adds two -- see its own docstring and the `deferred_deletions_flushed`
+fixture written for it. So it fails whenever some earlier test leaves a
+screen alive that nothing asked to delete. The fix is to find that test, not
+to raise the number: the count is the assertion.
+
+`test_leaving_the_popup_with_no_panel_open_leaves_it_alone` depends on
+`AvailabilityPanel.instance()` -- a SINGLETON -- being dismissed. The
+`field` fixture in its own file dismisses it on teardown, so the leak comes
+from a different file that opens the panel and does not.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* `--randomly-seed=4242` over that selection is green, and so are five other
+  seeds. One seed proves nothing here, which is the whole point of the item.
+* The leak is fixed where it happens -- a test that opens a singleton panel
+  or leaves a screen alive closes it -- rather than by relaxing either
+  assertion.
