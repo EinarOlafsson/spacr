@@ -33,14 +33,12 @@ figure both leave the spine alone: `ax.patch.set_visible(False)` and
 `ax.set_facecolor('#ff0000')` change what is UNDER the axis line, and the
 sample was taken ON it.
 
-THE GROUND IS PAINTED UNDER THE PANEL, NOT BY A STYLESHEET ON ITS HOST. A
-`setStyleSheet("background: magenta")` on a host CASCADES to every descendant,
-so a canvas that paints its host's magenta and a canvas that lets the magenta
-through are the same pixels, and a probe built that way reports transparency
-that is not there. Ablating all six of the things `show_live_canvas` does to
-the canvas reads as "no effect at all" through a cascading host and as
-"the canvas goes fully opaque" through this one. The rig below fills a QImage
-and renders the children onto it.
+TRANSPARENCY IS MEASURED ON THE CANVAS' OWN ALPHA CHANNEL. Rendering a whole
+top-level widget makes Qt composite a transparent child against a platform
+backing store first; the offscreen and X11 plugins do not promise the same
+backing-store colour. The rig below renders the canvas into an alpha-capable
+QImage instead. Alpha zero is the portable statement that the parent can show
+through, independent of which colour that parent happens to paint.
 """
 from __future__ import annotations
 
@@ -57,11 +55,6 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 pytestmark = pytest.mark.qt
 
-#: Nothing in a figure or a theme is this colour, so every pixel still holding
-#: it is ground that nothing painted over.
-GROUND = (255, 0, 255)
-
-
 @pytest.fixture(autouse=True)
 def _transparent_figure_preference(monkeypatch):
     """Make the transparent-background precondition explicit and isolated."""
@@ -71,51 +64,37 @@ def _transparent_figure_preference(monkeypatch):
         preferences, "get_figure_colors", lambda: ("none", "#ffffff"))
 
 
-def _over_the_ground(host):
-    """``(height, width, 3)`` of ``host``'s children drawn onto the ground."""
+def _render_with_alpha(canvas):
+    """Return the canvas pixels as RGBA without platform compositing."""
     from PySide6.QtCore import QPoint
-    from PySide6.QtGui import QColor, QImage, QPainter, QPalette, QRegion
+    from PySide6.QtGui import QColor, QImage, QPainter, QRegion
     from PySide6.QtWidgets import QWidget
 
-    # Paint the ground as the host's real background. Prefilling only the
-    # target QImage is not portable: some Qt backing-store implementations
-    # composite a transparent child against the top-level widget before
-    # QWidget.render() reaches that image, exposing the default Window brush
-    # instead of the pixels beneath it. A palette is local to this host (and
-    # therefore does not cascade into the canvas like a stylesheet), so it
-    # measures the same parent-through-child composition the screen uses.
-    palette = host.palette()
-    palette.setColor(QPalette.Window, QColor(*GROUND))
-    host.setPalette(palette)
-    host.setAutoFillBackground(True)
-    image = QImage(host.size(), QImage.Format_RGB32)
-    image.fill(QColor(*GROUND))
+    image = QImage(canvas.size(), QImage.Format_ARGB32_Premultiplied)
+    image.fill(QColor(0, 0, 0, 0))
     painter = QPainter(image)
     try:
-        host.render(painter, QPoint(0, 0), QRegion(),
-                    QWidget.RenderFlag.DrawWindowBackground
-                    | QWidget.RenderFlag.DrawChildren)
+        canvas.render(painter, QPoint(0, 0), QRegion(),
+                      QWidget.RenderFlag.DrawWindowBackground
+                      | QWidget.RenderFlag.DrawChildren)
     finally:
         painter.end()
     raw = np.frombuffer(memoryview(image.constBits()), dtype=np.uint8,
                         count=image.sizeInBytes())
     raw = raw.reshape(image.height(), image.bytesPerLine() // 4,
                       4)[:, :image.width()]
-    return raw[..., [2, 1, 0]]          # Format_RGB32 is BGRA in memory
+    return raw[..., [2, 1, 0, 3]]       # ARGB32 is BGRA in memory
 
 
 class _Rendered:
     """A FigureQueue drawn over the ground, and the pixels it produced."""
 
     def __init__(self, pixels, host, queue):
-        from PySide6.QtCore import QPoint
-
         self.pixels = pixels
         self.host = host
         self.queue = queue
         canvas = queue._canvas
-        origin = canvas.mapTo(host, QPoint(0, 0))
-        self.x, self.y = origin.x(), origin.y()
+        self.x = self.y = 0
         self.width, self.height = canvas.width(), canvas.height()
 
     @property
@@ -128,12 +107,13 @@ class _Rendered:
         area = self.canvas_pixels
         if not area.size:
             return 0.0
-        return float((area == np.array(GROUND)).all(axis=-1).mean())
+        return float((area[..., 3] == 0).mean())
 
     def white_rows_at(self, column: int):
         """Canvas-local rows that are pure white in the given host column."""
         strip = self.pixels[self.y:self.y + self.height, column]
-        return np.flatnonzero((strip == 255).all(axis=-1)).tolist()
+        white = (strip[..., :3] == 255).all(axis=-1) & (strip[..., 3] == 255)
+        return np.flatnonzero(white).tolist()
 
 
 def _render(qtbot, tweak=None, host_size=(900, 620)):
@@ -166,7 +146,7 @@ def _render(qtbot, tweak=None, host_size=(900, 620)):
         qtbot.waitExposed(host)
         for _ in range(8):
             qtbot.wait(1)
-        return _Rendered(_over_the_ground(host), host, queue)
+        return _Rendered(_render_with_alpha(queue._canvas), host, queue)
     finally:
         plt.close(figure)
 
@@ -226,7 +206,7 @@ def test_the_transparent_pixels_are_where_the_axes_are_not(qtbot):
     assert len(white) > 200, "the spine should run the width of the axes"
 
     above = shown.pixels[spine - 5, shown.x:shown.x + shown.width]
-    still_ground = (above[white] == np.array(GROUND)).all(axis=-1)
+    still_ground = above[white, 3] == 0
     assert still_ground.mean() > 0.95, (
         "five rows above the axis line the same columns are not ground, so "
         "there really is something filling the axes rectangle")
@@ -311,8 +291,8 @@ def test_a_stock_matplotlib_canvas_is_the_opaque_one(qtbot):
         qtbot.waitExposed(host)
         for _ in range(8):
             qtbot.wait(1)
-        pixels = _over_the_ground(host)
-        ground = (pixels == np.array(GROUND)).all(axis=-1).mean()
+        pixels = _render_with_alpha(canvas)
+        ground = (pixels[..., 3] == 0).mean()
         assert ground < 0.05, (
             f"a stock canvas let {ground:.1%} of the ground through, so it is "
             f"no longer what show_live_canvas is undoing -- re-measure the "
