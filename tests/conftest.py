@@ -399,6 +399,59 @@ def _ci_file_shard(path, count):
     return int.from_bytes(digest[:8], "big") % int(count)
 
 
+#: How much of the card a `@pytest.mark.gpu` test needs before it is worth
+#: starting, in MiB. Generous: the tiles and batches in this suite are tiny,
+#: so this is a check that the card is USABLE rather than a measurement of
+#: any particular test. Override with SPACR_PYTEST_GPU_ROOM_MB.
+GPU_ROOM_MB = int(os.environ.get("SPACR_PYTEST_GPU_ROOM_MB", "1500"))
+
+
+def _no_room_on_the_gpu():
+    """Why a GPU test cannot run right now, or '' when it can.
+
+    THE CARD IS SHARED. Another session's training run holding 21 GiB of 24
+    is the ordinary state of this machine, and nothing here may do anything
+    about it -- a test does not get to kill somebody's training. Nine tests
+    across four files failed with `torch.OutOfMemoryError: Tried to allocate
+    20.00 MiB` for exactly that reason, which is red for a condition that
+    has nothing to do with spaCR.
+
+    Checked ONCE PER TEST rather than at collection, because the card fills
+    and empties while a long suite runs.
+    """
+    try:
+        import torch
+    except Exception:                                        # noqa: BLE001
+        return "torch is not installed"
+    if not torch.cuda.is_available():
+        return "no CUDA device"
+    try:
+        free, total = torch.cuda.mem_get_info()
+    except Exception:                                        # noqa: BLE001
+        # An older driver with no mem_get_info: let the test try, and let a
+        # real OOM be a real failure. Guessing would be worse.
+        return ""
+    free_mb, total_mb = free / (1024 * 1024), total / (1024 * 1024)
+    if free_mb >= GPU_ROOM_MB:
+        return ""
+    return (f"the GPU is busy: {free_mb:.0f} MiB free of {total_mb:.0f}, "
+            f"and this needs about {GPU_ROOM_MB}")
+
+
+def pytest_runtest_setup(item):
+    """Skip a GPU-marked test when the shared card has no room for it.
+
+    ONE PLACE RATHER THAN PER FILE. Every test that needs the card already
+    carries `@pytest.mark.gpu`, and a guard written into each file is a
+    guard the next file will not have.
+    """
+    if item.get_closest_marker("gpu") is None:
+        return
+    trouble = _no_room_on_the_gpu()
+    if trouble:
+        pytest.skip(trouble)
+
+
 def pytest_collection_modifyitems(config, items):
     """Apply structural CI markers and an optional file-level CI shard."""
     for item in items:
