@@ -246,7 +246,9 @@ def build_selection(dst: str, *, objects: Optional[pd.DataFrame] = None,
     path = os.path.join(str(dst), SELECTION_FILE)
     # WRITTEN BEFORE ANY IMAGE IS. A training set decided at run time and
     # never recorded cannot be re-made or audited.
-    table.to_csv(path, index=False)
+    from .tabular import write_table
+
+    write_table(table, path)
     return table, path
 
 

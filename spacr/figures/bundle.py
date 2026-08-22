@@ -184,10 +184,13 @@ def save(folder: str, name: str, *,
         except Exception:                                        # noqa: BLE001
             LOG.debug("could not write %s", path, exc_info=True)
 
+    from ..tabular import write_table
+
     frame = data if isinstance(data, pd.DataFrame) else pd.DataFrame()
-    frame.to_csv(os.path.join(out, "data.csv"), index=False)
-    statistics_frame(groups, unit=unit, paired=paired).to_csv(
-        os.path.join(out, "statistics.csv"), index=False)
+    write_table(frame, os.path.join(out, "data.csv"))
+    write_table(
+        statistics_frame(groups, unit=unit, paired=paired),
+        os.path.join(out, "statistics.csv"))
 
     payload = {str(k): _plain(v) for k, v in dict(settings or {}).items()}
     payload.setdefault("graph", safe)

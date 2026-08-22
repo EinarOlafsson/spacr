@@ -57,7 +57,12 @@ RAW_CALL = re.compile(r"pd\.read_csv\(|pd\.read_sql\w*\(|\.to_csv\(|\.to_sql\(")
 #: and grouped on the other, so the frame it produced could never match. That
 #: is what canonicalising at the read fixes, and it is why counting is worth
 #: doing: the reader did not FAIL, it returned an empty answer.
-CEILING = 254
+#:
+#: 257 -> 253 on 2026-08-22: classifier test-split input and the reproducible
+#: figure-bundle and streaming-dataset outputs now use the shared reader or
+#: writer. These are scientific tables with schema-bearing columns, so there
+#: is no reason for them to bypass canonicalisation.
+CEILING = 253
 
 #: Files allowed to hold raw calls without argument, and why.
 EXPECTED_HOMES = {
