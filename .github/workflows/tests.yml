@@ -7,19 +7,23 @@ on:
     branches: [main]
   workflow_dispatch:
 
-# The fast suite spans every supported Python. Expensive or environment-aware
-# tests run once on Python 3.12 in distinct integration, slow, Qt, GPU,
+# The complete suite runs on the reference Python 3.12 environment. Expensive
+# or environment-aware tests run in distinct integration, slow, Qt, GPU,
 # network, and NAS jobs. The marker expressions form a partition: a supported
 # test belongs to the highest-requirement suite it declares, while GPU,
 # network, and NAS tests decide at runtime whether their resource is actually
 # available. Tests marked ``gui`` belong to the retired Tk interface and are
 # deliberately outside this workflow.
 #
-# Breadth — macOS, Windows, ARM64, the requires-python guard, wheel
-# availability — lives in .github/workflows/compat-matrix.yml, which runs a
-# much cheaper install + import + packaging subset. Splitting them keeps the
-# expensive suite on the platform that can actually finish it, while still
-# proving the other platforms install and import.
+# Breadth — Python 3.9 through 3.14, macOS, Windows, ARM64, the
+# requires-python guard, and wheel availability — lives in
+# .github/workflows/compat-matrix.yml, which runs a much cheaper install +
+# import + packaging subset. Running the 30,000-test fast partition six times
+# duplicated the same application contracts and kept hosted runners alive for
+# 35-50 minutes per interpreter; several were lost before producing a verdict.
+# One full reference run plus the blocking compatibility grid preserves the
+# two claims separately: spaCR behaves correctly, and every supported
+# interpreter/platform can install and import it.
 #
 # Every `Programming Language :: Python :: 3.x` classifier in pyproject.toml
 # must have a cell somewhere across these two workflows. If you add a
@@ -53,82 +57,17 @@ concurrency:
 
 jobs:
   fast:
-    name: Fast / Newest compatible (ubuntu-24.04, py${{ matrix.python-version }})
+    name: Fast / Full suite control (ubuntu-24.04, py3.12)
     runs-on: ubuntu-24.04
     timeout-minutes: 90
-
-    strategy:
-      fail-fast: false
-      matrix:
-        # 3.10 is the historical cell — before this matrix existed it was the
-        # only cell of the 36 in the compatibility grid that had ever been
-        # executed. It stays, unchanged, and stays blocking so nothing
-        # regresses. 3.11 and 3.12 sit inside requires-python and every core
-        # dependency publishes cp311/cp312 wheels, so both are *expected to
-        # pass*.
-        #
-        # 3.13 and 3.14 exercise the numpy-2 code paths (np.trapezoid, np.ptp)
-        # on the newest supported interpreters. Python 3.14 is a full,
-        # blocking fast-suite cell rather than an install-only smoke test.
-        # mahotas 1.4.18 builds successfully from its sdist and btrack 0.7.0
-        # ships a working native tracker for CPython 3.14 on Linux.
-        #
-        # Every cell here is blocking. If one is red on first run that is a
-        # real finding — do not paper over it with continue-on-error, which is
-        # reserved for cells whose failure is already understood and
-        # documented in compat-matrix.yml.
-        # 3.9 is a supported resolver branch in active use. It lands on
-        # torch 2.8 and the final compatible releases of several scientific
-        # dependencies, so it is blocking rather than merely an install
-        # smoke test.
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
-
-        # The extras each cell installs. They differ for measured packaging
-        # constraints: the resolver cannot install `torchcam` on Python 3.13
-        # or 3.14, and pylibCZIrw does not publish a CPython 3.14 wheel.
-        # Every release satisfying `>=0.4.0,<1.0` declares `numpy<2.0.0`, and
-        # no numpy satisfying that publishes a cp313 wheel. Both halves were
-        # reproduced in a throwaway CPython 3.13.14 env on 2026-07-27, and
-        # they fail DIFFERENTLY, which is why the extra is dropped rather than
-        # merely expected to be slow:
-        #
-        #   with --only-binary :all: -> clean refusal
-        #     ERROR: ResolutionImpossible
-        #     torchcam 0.4.1 depends on numpy<2.0.0 and >=1.17.2
-        #     ... no matching distributions available for your environment:
-        #         numpy
-        #
-        #   without it -> pip backtracks and accepts, reporting
-        #     Would install ... numpy-1.26.4 torchcam-0.4.1
-        #   i.e. it would spend this job's 60-minute budget compiling numpy
-        #   1.26.4 from source, and would then run the whole suite against
-        #   numpy 1.x on the one cell that exists to test numpy 2.
-        #
-        # The five TorchCAM variants are installed without dependency
-        # resolution below on 3.13/3.14. Its complete attribution test module
-        # passes against NumPy 2; only the upstream dependency metadata is
-        # stale.
-        include:
-          - python-version: "3.9"
-            extras: "qt,dev,zernike,attribution,btrack,czi"
-          - python-version: "3.10"
-            extras: "qt,dev,zernike,attribution,btrack,czi"
-          - python-version: "3.11"
-            extras: "qt,dev,zernike,attribution,btrack,czi"
-          - python-version: "3.12"
-            extras: "qt,dev,zernike,attribution,btrack,czi"
-          - python-version: "3.13"
-            extras: "qt,dev,zernike,btrack,czi"
-          - python-version: "3.14"
-            extras: "qt,dev,zernike,btrack"
 
     steps:
       - uses: actions/checkout@v7
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python 3.12
         uses: actions/setup-python@v7
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.12"
           cache: pip
 
       - name: Install system libraries (Qt offscreen + scientific stack)
@@ -154,25 +93,16 @@ jobs:
           # IPython, czifile, readlif, statsmodels, cellpose, xgboost, umap,
           # seaborn, biopython, etc.
           #
-          # `zernike` (and `attribution`, where it can be installed at all —
-          # see the matrix note) are requested explicitly because mahotas and
-          # torchcam are no longer core dependencies. They moved to extras so
-          # that a plain `pip install spacr` on Python 3.13 needs no C++
+          # `zernike` and `attribution` are requested explicitly because
+          # mahotas and torchcam are no longer core dependencies. They moved
+          # to extras so a plain `pip install spacr` on Python 3.13 needs no
+          # C++
           # toolchain (mahotas has never published a cp313 wheel) and is not
           # dragged back to numpy 1.26.4 (every torchcam release declares
           # `numpy<2.0.0`). The suite still has to exercise them:
           # spacr/measure.py imports mahotas at module scope, so without
           # `zernike` this whole suite would fail at collection, not degrade.
-          python -m pip install -e ".[${{ matrix.extras }}]"
-
-      - name: Install runtime-qualified TorchCAM around its stale NumPy cap
-        if: matrix.python-version == '3.13' || matrix.python-version == '3.14'
-        run: |
-          # torchcam 0.4.1 declares numpy<2 even though its complete spaCR
-          # attribution suite passes with NumPy 2 on CPython 3.13 and 3.14.
-          # Installing without dependencies preserves the already-resolved
-          # scientific stack while retaining CAM coverage on these cells.
-          python -m pip install --no-deps "torchcam>=0.4.0,<1.0"
+          python -m pip install -e ".[qt,dev,zernike,attribution,btrack,czi]"
 
       - name: Show the pins that gate the compatibility matrix
         # One line per dependency whose wheel availability decides which

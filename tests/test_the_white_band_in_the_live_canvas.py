@@ -74,15 +74,27 @@ def _transparent_figure_preference(monkeypatch):
 def _over_the_ground(host):
     """``(height, width, 3)`` of ``host``'s children drawn onto the ground."""
     from PySide6.QtCore import QPoint
-    from PySide6.QtGui import QColor, QImage, QPainter, QRegion
+    from PySide6.QtGui import QColor, QImage, QPainter, QPalette, QRegion
     from PySide6.QtWidgets import QWidget
 
+    # Paint the ground as the host's real background. Prefilling only the
+    # target QImage is not portable: some Qt backing-store implementations
+    # composite a transparent child against the top-level widget before
+    # QWidget.render() reaches that image, exposing the default Window brush
+    # instead of the pixels beneath it. A palette is local to this host (and
+    # therefore does not cascade into the canvas like a stylesheet), so it
+    # measures the same parent-through-child composition the screen uses.
+    palette = host.palette()
+    palette.setColor(QPalette.Window, QColor(*GROUND))
+    host.setPalette(palette)
+    host.setAutoFillBackground(True)
     image = QImage(host.size(), QImage.Format_RGB32)
     image.fill(QColor(*GROUND))
     painter = QPainter(image)
     try:
         host.render(painter, QPoint(0, 0), QRegion(),
-                    QWidget.RenderFlag.DrawChildren)
+                    QWidget.RenderFlag.DrawWindowBackground
+                    | QWidget.RenderFlag.DrawChildren)
     finally:
         painter.end()
     raw = np.frombuffer(memoryview(image.constBits()), dtype=np.uint8,
@@ -131,6 +143,11 @@ def _render(qtbot, tweak=None, host_size=(900, 620)):
     host = QWidget()
     qtbot.addWidget(host)
     host.resize(*host_size)
+    # The real application stylesheet gives tagged page containers this
+    # exact rule. Install only that rule here so the test is independent of
+    # whichever application-wide theme a preceding xdist test left behind.
+    host.setStyleSheet(
+        '*[spacrTransparent="true"] { background: transparent; }')
     layout = QVBoxLayout(host)
     layout.setContentsMargins(0, 0, 0, 0)
     queue = FigureQueue()

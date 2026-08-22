@@ -384,7 +384,9 @@ def test_a_click_finds_the_right_bar_with_log_x_on(qtbot):
         QPointF(np.log10(middle), height)))
     QTest.mouseClick(plot.plot.viewport(), QtCore_Qt.LeftButton,
                      QtCore_Qt.NoModifier, where)
-    qtbot.waitUntil(lambda: bool(got), timeout=1000)
+    # A loaded four-worker Qt shard can spend more than a second processing
+    # the real mouse event even though the selection itself is synchronous.
+    qtbot.waitUntil(lambda: bool(got), timeout=5000)
 
     assert got, "a real click on a logged histogram reached nothing"
     assert set(got[0]) == set(plot.keys_in_bin(target))

@@ -395,7 +395,11 @@ class ShortcutOverlay(QWidget):
         # the same fault as a map that leaves keys out. Categories are laid
         # out in as many pairs as fit and then wrapped.
         room = max(int(self.width() * 0.9), 640)
-        per_pair = 300
+        # A pair contains the key plus a possibly scoped description. About
+        # 420 px per pair keeps two pairs inside a 1280 px window even with
+        # the longest scope text; narrower estimates let the size hint grow
+        # beyond the overlay on hosted Open Sans rasterizers.
+        per_pair = 420
         pairs = max(1, min(len(by_cat), room // per_pair))
         band = 1
         column = 0
