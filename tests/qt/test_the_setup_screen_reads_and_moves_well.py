@@ -24,7 +24,7 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QPointF, QRectF                    # noqa: E402
+from PySide6.QtCore import QPointF, QRectF, Qt                    # noqa: E402
 from PySide6.QtWidgets import (QApplication, QPushButton,     # noqa: E402
                                QWidget)
 
@@ -234,14 +234,21 @@ def test_the_mark_is_inside_the_box_it_was_given():
         assert box.adjusted(-1, -1, 1, 1).contains(bounds), (code, bounds)
 
 
-def test_an_unavailable_provider_is_shown_and_not_chooseable(app):
+def test_an_unavailable_provider_is_shown_and_still_chooseable(app):
+    """Reported 2026-08-22: "for the ai assistant i can only click claude".
+
+    Availability is INFORMATION, not a gate. The setup screen writes a
+    preference and launches nothing, so choosing a provider whose CLI is
+    not installed yet is an ordinary thing to want; the console says so at
+    the point it would actually be used.
+    """
     from spacr.qt.widgets.provider_marks import ProviderMark
 
     mark = ProviderMark("claude", "Claude", available=False)
     picked = []
     mark.chosen.connect(picked.append)
     mark.mousePressEvent(_left_click())
-    assert picked == [], "an unusable provider accepted a choice"
+    assert picked == ["claude"]
 
 
 def test_an_available_provider_emits_its_code(app):
@@ -337,6 +344,11 @@ def test_it_still_arrives_rather_than_overshooting(app):
 
     card = SetupCard()
     card.resize(600, 440)
+    # THE CURSOR READ IS STUBBED. Every tick now aims at wherever the
+    # pointer actually is -- see `_aim_at_the_cursor` -- and on a test
+    # machine that is wherever the last thing to touch it left it, which
+    # would move the target out from under the assertion.
+    card._aim_at_the_cursor = lambda: False
     card._towards = 0.4
     seen = []
     for _ in range(60):
@@ -416,3 +428,267 @@ def test_the_slides_work_with_no_animation_at_all(slides, monkeypatch):
         pytest.fail("a slide change depended on the animation")
     assert slides.slide() == 2
     assert set(slides.answers()) >= {"language", "theme"}
+
+
+# ---------------------------------------------------------------------------
+# 6. The rim tracks the pointer, wherever it is
+# ---------------------------------------------------------------------------
+
+def test_the_pointer_over_the_card_steers_the_rim(app):
+    """Reported 2026-08-22: "its uncynked on the inside".
+
+    `_follow` -- the card's own mouse and hover handler -- used to set only
+    the legacy corner index, which `_tick` recomputes from the position on
+    the very next frame. So while the pointer was over the CARD, which is
+    nearly the whole dialog, nothing steered the rim at all: only the 44 px
+    margin, which the dialog handles itself, ever moved it.
+    """
+    from spacr.qt.widgets.setup_card import SetupCard
+
+    card = SetupCard()
+    card.resize(600, 420)
+    card._follow(QPointF(590, 210))          # hard right, inside the card
+    right = card._towards
+    card._follow(QPointF(10, 210))           # hard left
+    assert card._towards != right, "the pointer moved and the target did not"
+
+
+def test_a_pointer_outside_the_card_still_names_a_place_on_the_rim(app):
+    """Reported 2026-08-22: "the rim dosnt track the mouse on the outside".
+
+    A widget is sent mouse events only while the pointer is over it, and a
+    modal dialog gets none once the pointer leaves the window -- so the
+    target has to be computable for a point that is nowhere near the card.
+    """
+    from spacr.qt.widgets.setup_card import SetupCard
+
+    card = SetupCard()
+    card.resize(600, 420)
+    left = card.perimeter_position(QPointF(-400, 210))
+    right = card.perimeter_position(QPointF(1400, 210))
+    above = card.perimeter_position(QPointF(300, -400))
+    below = card.perimeter_position(QPointF(300, 900))
+    assert None not in (left, right, above, below)
+    # Clockwise from the top-left: top is 0-0.25, right 0.25-0.5, bottom
+    # 0.5-0.75, left 0.75-1.
+    assert 0.0 <= above <= 0.25, above
+    assert 0.25 <= right <= 0.5, right
+    assert 0.5 <= below <= 0.75, below
+    assert 0.75 <= left <= 1.0, left
+
+
+def test_the_target_is_continuous_across_a_diagonal(app):
+    """THE RAY, NOT THE NEAREST EDGE. Projecting onto whichever edge is
+    closest jumps as the pointer crosses a diagonal -- from the middle of
+    the top edge to the middle of the left -- which is the unsynced feel
+    being reported. A ray from the centre moves smoothly."""
+    from spacr.qt.widgets.setup_card import SetupCard
+
+    card = SetupCard()
+    card.resize(600, 420)
+    # A path that sweeps past the top-left diagonal.
+    steps = [card.perimeter_position(QPointF(x, 40.0))
+             for x in range(20, 320, 10)]
+    assert None not in steps
+    jumps = [abs(((b - a + 0.5) % 1.0) - 0.5)
+             for a, b in zip(steps, steps[1:])]
+    assert max(jumps) < 0.05, max(jumps)
+
+
+def test_dead_centre_names_no_direction(app):
+    """A point with no direction must not be read as the top-left corner,
+    which is where a zero would put it."""
+    from spacr.qt.widgets.setup_card import SetupCard
+
+    card = SetupCard()
+    card.resize(600, 420)
+    assert card.perimeter_position(QPointF(300, 210)) is None
+
+
+def test_a_centre_point_is_ignored_rather_than_obeyed(app):
+    from spacr.qt.widgets.setup_card import SetupCard
+
+    card = SetupCard()
+    card.resize(600, 420)
+    card._towards = 0.4
+    card.flow_towards(QPointF(300, 210))
+    assert card._towards == 0.4
+
+
+def test_the_card_follows_while_it_is_on_screen(app, qtbot=None):
+    """The timer is what reads the cursor, so it has to be running for the
+    whole time the card is up -- not only while an easing is unfinished."""
+    from spacr.qt.widgets.setup_card import SetupCard
+
+    card = SetupCard()
+    card.resize(600, 420)
+    card.show()
+    try:
+        assert card._timer.isActive()
+        card.hide()
+        assert not card._timer.isActive(), (
+            "a card nobody is looking at does not need sixty frames a second")
+    finally:
+        card.deleteLater()
+
+
+def test_the_run_is_drawn_finely_enough_not_to_step(app):
+    """Reported 2026-08-22: "looks chunkey because of the segments".
+
+    A QPen carries one colour, so a run that fades along its length has to
+    be many short strokes. At a fixed 24 of them this run was 23 px a step:
+    the alpha moved in visible jumps and each corner was cut into four
+    straight chords. The count follows the LENGTH now.
+    """
+    from spacr.qt.widgets.setup_card import SetupCard
+
+    card = SetupCard()
+    card.resize(600, 420)
+    rect = QRectF(card.rect())
+    run_px = card.accent_span(rect) * (2.0 * (rect.width() + rect.height()))
+    steps = min(SetupCard.MAX_STEPS, max(24.0, run_px / SetupCard.STEP_PX))
+    assert run_px / steps <= 6.0, (
+        f"{run_px / steps:.1f} px a segment is inside what the eye resolves")
+
+
+def test_the_segment_count_is_capped(app):
+    """At sixty frames a second the cost is paid every frame, so a very
+    large card must not turn into a thousand strokes."""
+    from spacr.qt.widgets.setup_card import SetupCard
+
+    card = SetupCard()
+    card.resize(6000, 4000)
+    rect = QRectF(card.rect())
+    run_px = card.accent_span(rect) * (2.0 * (rect.width() + rect.height()))
+    steps = min(SetupCard.MAX_STEPS, max(24.0, run_px / SetupCard.STEP_PX))
+    assert steps <= SetupCard.MAX_STEPS
+
+
+def test_an_arrived_rim_stops_repainting(app):
+    """The timer stays alive to notice the cursor moving, but a repaint of
+    a card that has not changed is sixty needless composites a second over
+    a live backdrop."""
+    from spacr.qt.widgets.setup_card import SetupCard
+
+    card = SetupCard()
+    card.resize(600, 420)
+    card._aim_at_the_cursor = lambda: False
+    card._towards = card._at = 0.3
+    painted = []
+    card.update = lambda *a: painted.append(1)
+    card._tick()
+    assert painted == []
+
+
+# ---------------------------------------------------------------------------
+# 7. The closing slide, the sign-in, and the face
+# ---------------------------------------------------------------------------
+
+def test_the_last_slide_says_done_in_the_middle(slides):
+    from spacr.qt.widgets.setup_slides import SLIDES
+
+    slides._greeted = True
+    slides._show_slide(len(SLIDES) - 1)
+    assert slides._done_word.text() == "DONE"
+    assert slides._done_word.alignment() & Qt.AlignHCenter
+
+
+def test_the_closing_word_is_big(slides):
+    """`setFont` is overruled by the application stylesheet, which already
+    gives every QLabel a font-size -- so the size has to be set in a sheet
+    of the label's own or the word comes out the size of the sentence
+    under it."""
+    from spacr.qt.widgets.setup_slides import DONE_POINTS, SLIDES
+
+    slides._greeted = True
+    slides._show_slide(len(SLIDES) - 1)
+    assert f"{DONE_POINTS}pt" in slides._done_word.styleSheet()
+    assert DONE_POINTS >= 28
+
+
+def test_the_shared_header_steps_aside_on_the_last_slide(slides):
+    """The title is the word in the middle; having it twice on one screen
+    is the layout saying it does not know which one is the heading."""
+    from spacr.qt.widgets.setup_slides import SLIDES
+
+    slides._greeted = True
+    slides._show_slide(len(SLIDES) - 1)
+    assert slides._title.isHidden()
+    assert slides._blurb.isHidden()
+    slides._show_slide(1)
+    assert not slides._title.isHidden()
+
+
+def test_every_slide_is_set_in_open_sans_light(slides):
+    """Set on the CARD, so Qt propagates it to every child that has not
+    asked for a font of its own."""
+    from PySide6.QtGui import QFont
+
+    from spacr.qt.widgets.setup_slides import SLIDE_FONT
+
+    face = slides.card.font()
+    assert face.family() == SLIDE_FONT
+    assert face.weight() == QFont.Light
+
+
+def test_the_light_face_is_really_there(app):
+    """A weight with no matching face is a synthesised approximation, and
+    `OpenSans-Light.ttf` ships in spacr/resources/font/open_sans/static so
+    it does not have to be one."""
+    from PySide6.QtGui import QFontDatabase
+
+    from spacr.qt.app import _load_bundled_fonts
+    from spacr.qt.widgets.setup_slides import SLIDE_FONT
+
+    _load_bundled_fonts()
+    assert "Light" in QFontDatabase.styles(SLIDE_FONT), \
+        QFontDatabase.styles(SLIDE_FONT)
+
+
+def test_the_issues_slide_offers_a_github_sign_in(slides):
+    """Asked for 2026-08-22. Filing an issue works without it, through the
+    browser, which is why it is a row on the slide and not a gate."""
+    assert slides._gh_button is not None
+    assert slides._gh_status.text(), "the row says nothing about its state"
+
+
+def test_the_sign_in_says_which_way_it_is_signed_in(slides, monkeypatch):
+    """'signed in' is not enough: a token from GITHUB_TOKEN and one from
+    the CLI are revoked in different places."""
+    from spacr.qt.ai import github_auth
+
+    monkeypatch.setattr(github_auth, "auth_source", lambda: "gh")
+    slides._refresh_github()
+    assert "CLI" in slides._gh_status.text()
+    monkeypatch.setattr(github_auth, "auth_source", lambda: "env")
+    slides._refresh_github()
+    assert "GITHUB_TOKEN" in slides._gh_status.text()
+
+
+def test_a_missing_cli_is_named_rather_than_called_a_failure(slides,
+                                                             monkeypatch):
+    """The CLI being absent and the CLI being logged out need different
+    things from the user."""
+    import shutil
+
+    from spacr.qt.ai import github_auth
+    from spacr.qt.widgets import setup_slides as module
+
+    monkeypatch.setattr(github_auth, "auth_source", lambda: None)
+    monkeypatch.setattr(shutil, "which", lambda _name: None)
+    slides._refresh_github()
+    assert "not installed" in slides._gh_status.text()
+    assert not slides._gh_button.isEnabled()
+
+
+def test_spacr_never_asks_for_the_token_itself(slides):
+    """The GitHub CLI owns the credential: it goes in the platform
+    credential manager, which is the one place a user can revoke it from
+    and the one place that is not a second copy of a secret."""
+    import inspect
+
+    from spacr.qt.widgets import setup_slides as module
+
+    source = inspect.getsource(module)
+    assert "setEchoMode" not in source
+    assert "gh" in source and "auth" in source
