@@ -23,6 +23,22 @@ GRAPH_TYPES: Tuple[Tuple[str, str], ...] = (
     ("scatter", "two continuous axes"),
 )
 
+#: What each kind is CALLED on a menu, as against what it shows.
+#:
+#: `GRAPH_TYPES` pairs a kind with its DESCRIPTION, which belongs in a
+#: tooltip; a menu entry reading "one value per group" instead of "Bar" is a
+#: menu nobody can scan. Two different jobs, two tables.
+GRAPH_NAMES: Dict[str, str] = {
+    "bar": "Bar",
+    "bar_jitter": "Bar with jitter",
+    "jitter": "Jitter",
+    "box": "Box",
+    "violin": "Violin",
+    "line": "Line",
+    "scatter": "Scatter",
+}
+
+
 #: Supported combinations of axis data types.
 DATA_SHAPES: Tuple[Tuple[str, str], ...] = (
     ("categorical_continuous", "groups against a measurement"),
