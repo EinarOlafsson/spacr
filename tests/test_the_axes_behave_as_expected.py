@@ -375,16 +375,32 @@ def test_a_click_finds_the_right_bar_with_log_x_on(qtbot):
     plot._fill_bins(values, 10)
     plot.add_bars()
     assert plot.set_log_axes(x=True) == (True, False), plot.log_reason("x")
+    # RANGE THE VIEW BEFORE MAPPING THROUGH IT. Under the offscreen platform
+    # `waitExposed` returns without a paint having happened, so the viewbox
+    # still holds its startup range and a point mapped through it lands
+    # thousands of pixels outside the widget -- the click then hits nothing
+    # and the failure looks like the coordinate conversion under test rather
+    # than like a window that was never laid out.
+    view = plot.plot.plotItem.vb
+    view.autoRange()
+    qtbot.wait(1)
     got = []
     plot.keys_selected.connect(got.append)
 
     target = 3
     middle = float((plot._edges[target] + plot._edges[target + 1]) / 2)
-    viewbox = plot.plot.plotItem.vb
-    viewbox.updateAutoRange()
-    (_x0, _x1), (y0, y1) = viewbox.viewRange()
-    where = plot.plot.mapFromScene(viewbox.mapViewToScene(
+    # SENT, NOT POSTED, and no waitUntil. Both sides of this merge found the
+    # same offscreen problem and fixed it differently: delivering the press
+    # and release synchronously means the selection has happened by the time
+    # the call returns, so there is no timeout to be flaky about.
+    view.updateAutoRange()
+    (_x0, _x1), (y0, y1) = view.viewRange()
+    where = plot.plot.mapFromScene(view.mapViewToScene(
         QPointF(np.log10(middle), (y0 + y1) / 2)))
+    # AND THE POINT HAS TO BE ON THE WIDGET. Without this the failure below
+    # reads as a coordinate bug rather than as a window that was never laid
+    # out, which is exactly the confusion this test was rescued from.
+    assert plot.plot.viewport().rect().contains(where), where
     for kind in (QEvent.MouseButtonPress, QEvent.MouseButtonRelease):
         QApplication.sendEvent(plot.plot.viewport(), QMouseEvent(
             kind, where, QtCore_Qt.LeftButton, QtCore_Qt.LeftButton,

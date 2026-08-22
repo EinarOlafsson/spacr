@@ -10,6 +10,7 @@ the whole app is usable without a mouse:
     F1  / ?       Show the shortcuts cheat sheet
     Ctrl+,        Open Preferences
     Ctrl+/        Open the AI Console
+    Ctrl+End      Jump to the newest console line
     Esc           Close any open dialog / popup
 
 :func:`install` is called once from ``MainWindow.__init__``. Every
@@ -70,6 +71,10 @@ SHORTCUTS: List[ShortcutSpec] = [
     ShortcutSpec("Ctrl+,",       "Open preferences",       "Navigation"),
     ShortcutSpec("Ctrl+B",       "Show the full app list", "Navigation"),
     ShortcutSpec("Ctrl+/",       "Toggle AI Console",      "Actions"),
+    # A long run writes thousands of lines and the one that matters is the
+    # last; getting to it must not be a scroll through everything above it.
+    ShortcutSpec("Ctrl+End",     "Jump to the newest console line",
+                 "Actions",      scope="the console"),
     ShortcutSpec("Ctrl+F",       "Search this module's settings", "Actions"),
     ShortcutSpec("Ctrl+Shift+R", "Settings recipes",       "Actions"),
     ShortcutSpec("F1",           "Show this cheat sheet",  "Help"),

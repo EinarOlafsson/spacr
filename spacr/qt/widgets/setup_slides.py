@@ -4,16 +4,21 @@ Each slide covers one preference group and writes through the existing setup
 model. The animated backdrop, translucent card, and pointer-responsive border
 are decorative; preference editing and persistence remain available when
 those effects cannot be rendered.
+
+:mod:`spacr.qt.setup_screen` holds the model and is the only writer of a
+preference; this module is presentation alone. ``setup_dialog`` is the
+earlier grouped-form layout of the same questions.
 """
 from __future__ import annotations
 
 import logging
 from typing import Any, Dict, List, Optional, Tuple
 
-from PySide6.QtCore import QEvent, QPointF, Qt
-from PySide6.QtWidgets import (QComboBox, QDialog, QHBoxLayout, QLabel,
-                               QPushButton, QStackedWidget, QVBoxLayout,
-                               QWidget)
+from PySide6.QtCore import (QEasingCurve, QEvent, QPointF,
+                            QPropertyAnimation, Qt, QTimer)
+from PySide6.QtWidgets import (QComboBox, QDialog, QGraphicsOpacityEffect,
+                               QHBoxLayout, QLabel, QPushButton,
+                               QStackedWidget, QVBoxLayout, QWidget)
 
 LOG = logging.getLogger("spacr.qt.setup_slides")
 
@@ -79,6 +84,23 @@ BACKDROP_SPEED = 1.5
 #: the active palette.
 BACKDROP_THEME = "aurora"
 
+#: Milliseconds one slide takes to fade into the next.
+#:
+#: A CROSS-FADE, NOT A CUT. `QStackedWidget.setCurrentIndex` swaps the page
+#: between two frames, so the card's contents changed instantly under a rim
+#: that took half a second to travel -- two speeds in one gesture, which is
+#: what read as unfinished. 260 ms is long enough to see and short enough
+#: that six slides do not feel like waiting.
+FADE_MS = 260
+
+#: Milliseconds the greeting is held before the first Next takes effect.
+#:
+#: "there should be a lag after the first next click to make time for Hello
+#: in the chosen language" -- the greeting is the only proof the language
+#: choice took, and it appears on the slide the user is leaving. Without a
+#: pause it is on screen for one frame of a fade.
+GREETING_MS = 850
+
 
 def greeting_for(code: str) -> str:
     """"Hello" in ``code``, falling back to English."""
@@ -124,6 +146,14 @@ class SetupSlides(QDialog):
         self._blurb.setWordWrap(True)
         column.addWidget(self._blurb)
 
+        # THE GREETING HAS ITS OWN LINE. It used to be prepended to the
+        # explanation, so choosing a language rewrote the paragraph under
+        # the title and the one word that changed was buried in it.
+        self._greeting = QLabel("")
+        self._greeting.setObjectName("CardTitle")
+        self._greeting.setAlignment(Qt.AlignLeft)
+        column.addWidget(self._greeting)
+
         self._pages = QStackedWidget()
         column.addWidget(self._pages)
         self._build_pages()
@@ -143,8 +173,40 @@ class SetupSlides(QDialog):
         row.addWidget(self._next)
         column.addLayout(row)
 
+        # NO BLACK BOXES INSIDE THE CARD (reported 2026-08-22). The card
+        # paints itself translucent over the drifting backdrop, but every
+        # plain QWidget between the two -- the page stack, each page, the
+        # provider strip -- is caught by the blanket `QWidget` rule and
+        # paints an opaque `bg`, which is a solid dark rectangle sitting on
+        # top of the animation the dialog just installed.
+        #
+        # THE CONTAINERS ONLY. The combos and buttons stay opaque: they are
+        # the readable surface, and a control you can see through is a
+        # control you cannot read.
+        self._clear_the_containers()
+
+        self._fade = None
+        self._pending = None
+        #: Whether the greeting has already been waited for once.
+        self._greeted = False
         self._show_slide(0)
         self.resize(720, 560)
+
+    def _clear_the_containers(self) -> None:
+        """Stop the layout containers painting over the backdrop."""
+        try:
+            from ..theme import make_transparent
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("no theme helper for transparency", exc_info=True)
+            return
+        holders = [self._pages]
+        holders += [self._pages.widget(i) for i in range(self._pages.count())]
+        holders += [w for w in self.findChildren(QWidget)
+                    if w.property("spacrProviderStrip")]
+        try:
+            make_transparent(*[w for w in holders if w is not None])
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("a container would not go transparent", exc_info=True)
 
     # --------------------------------------------------------- the slides
 
@@ -157,7 +219,11 @@ class SetupSlides(QDialog):
         for title, _blurb, keys in SLIDES:
             page = QWidget()
             form = QVBoxLayout(page)
-            form.setContentsMargins(0, 8, 0, 0)
+            # A MARGIN ON THE RIGHT. The controls are right-aligned, so with
+            # none they finish exactly on the card's content edge and their
+            # drop-down arrow is drawn flush against it -- which reads as a
+            # clipped control rather than as a control that fits.
+            form.setContentsMargins(0, 8, 8, 0)
             form.setSpacing(14)
             for key in keys:
                 if key not in asked:
@@ -213,27 +279,39 @@ class SetupSlides(QDialog):
         return slider
 
     def _provider_buttons(self, value) -> QWidget:
-        """Claude, GPT and Gemini as buttons rather than a list."""
+        """Claude, GPT and Gemini as their MARKS rather than as three words.
+
+        "the claude gpt and gemeni buttons should be the logos for each not
+        just buttons" -- a mark is recognised before it is read, and this is
+        the one question where the user already knows the answer and only
+        has to point at it. The marks are drawn, not shipped: see
+        :mod:`spacr.qt.widgets.provider_marks`.
+        """
+        from .provider_marks import ProviderMark
+
         holder = QWidget()
+        # Tagged so `_clear_the_containers` can find it without knowing the
+        # shape of the page it ended up on.
+        holder.setProperty("spacrProviderStrip", True)
         row = QHBoxLayout(holder)
         row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(10)
         holder._chosen = str(value or "")
         holder._buttons = {}
         for code, label, command in PROVIDERS:
-            button = QPushButton(label)
-            button.setCheckable(True)
-            button.setChecked(holder._chosen == code)
             ready = self._provider_is_installed(command)
-            button.setEnabled(ready)
-            button.setToolTip(
+            mark = ProviderMark(code, label, ready, holder)
+            mark.set_chosen(holder._chosen == code)
+            mark.setToolTip(
                 f"Use {label}." if ready else
                 f"{label} is not set up on this machine: spaCR drives the "
                 f"vendor's own `{command}` command, and it is not installed "
                 f"or not logged in. Installing it is all that is needed.")
-            button.clicked.connect(
-                lambda _c=False, k=code, h=holder: self._choose_provider(h, k))
-            row.addWidget(button)
-            holder._buttons[code] = button
+            mark.chosen.connect(
+                lambda picked, h=holder: self._choose_provider(h, picked))
+            row.addWidget(mark)
+            holder._buttons[code] = mark
+        row.addStretch(1)
         return holder
 
     @staticmethod
@@ -251,18 +329,18 @@ class SetupSlides(QDialog):
     @staticmethod
     def _choose_provider(holder, code: str) -> None:
         holder._chosen = str(code)
-        for name, button in holder._buttons.items():
-            button.setChecked(name == code)
+        for name, mark in holder._buttons.items():
+            mark.set_chosen(name == code)
 
     # ------------------------------------------------------- what it shows
 
     def _say_hello(self, *_args) -> None:
-        """Greet in the language just chosen."""
+        """Greet in the language just chosen, on its own line."""
         box = self._editors.get("language")
         if box is None:
             return
-        self._blurb.setText(
-            f"{greeting_for(box.currentData())}\n\n{SLIDES[0][1]}")
+        self._greeting.setText(greeting_for(box.currentData()))
+        self._greeting.setVisible(True)
 
     def _apply_look(self, key: str) -> None:
         """Put the theme or colour-blind choice into effect immediately."""
@@ -279,30 +357,114 @@ class SetupSlides(QDialog):
             # still written with the rest on accept.
             LOG.debug("could not apply %s live", key, exc_info=True)
 
-    def _show_slide(self, index: int) -> None:
+    def _show_slide(self, index: int, *, fade: bool = False) -> None:
         index = max(0, min(int(index), len(SLIDES) - 1))
         self._index = index
         title, blurb, _keys = SLIDES[index]
         self._pages.setCurrentIndex(index)
         self._title.setText(f"<b>{title}</b>")
         self._blurb.setText(blurb)
+        # THE GREETING BELONGS TO THE LANGUAGE SLIDE and nowhere else: a
+        # "Hello" left standing over the theme question is a word with no
+        # job on that page.
+        self._greeting.setVisible(index == 0)
         if index == 0:
             self._say_hello()
         self._where.setText(f"{index + 1} of {len(SLIDES)}")
         self._back.setEnabled(index > 0)
         self._next.setText("Start spaCR" if index == len(SLIDES) - 1
                            else "Next ›")
+        if fade:
+            self._fade_in()
+
+    def _fade_in(self) -> None:
+        """Bring the new slide up from transparent.
+
+        HELD ON THE INSTANCE. A QPropertyAnimation with no owner is
+        collected the moment the method returns, and the fade never runs --
+        which looks exactly like not having written one.
+
+        The effect is REMOVED when the fade finishes rather than left in
+        place: a QGraphicsOpacityEffect renders its widget into an offscreen
+        pixmap on every repaint, and leaving six of them alive over a
+        drifting backdrop is a cost paid on every frame for an animation
+        that has ended.
+        """
+        try:
+            effect = QGraphicsOpacityEffect(self._pages)
+            self._pages.setGraphicsEffect(effect)
+            animation = QPropertyAnimation(effect, b"opacity", self)
+            animation.setDuration(FADE_MS)
+            animation.setStartValue(0.0)
+            animation.setEndValue(1.0)
+            animation.setEasingCurve(QEasingCurve.OutCubic)
+            animation.finished.connect(self._drop_the_fade)
+            self._fade = animation
+            animation.start()
+        except Exception:                                    # noqa: BLE001
+            # INVARIANTS 10: the slide is shown either way.
+            LOG.debug("no cross-fade on this platform", exc_info=True)
+            self._fade = None
+
+    def _drop_the_fade(self) -> None:
+        """Take the opacity effect back off the page stack."""
+        self._fade = None
+        try:
+            self._pages.setGraphicsEffect(None)
+        except Exception:                                    # noqa: BLE001
+            pass
 
     # ------------------------------------------------------------ moving
 
     def next(self) -> int:
-        """Forward one slide, and one CLOCKWISE circuit of the rim."""
+        """Forward one slide, and one CLOCKWISE circuit of the rim.
+
+        LEAVING THE LANGUAGE SLIDE WAITS. "there should be a lag after the
+        first next click to make time for Hello in the chosen language" --
+        the greeting is the only proof the choice took, and it lives on the
+        page being left, so without a pause it is on screen for one frame of
+        a fade. The rim starts its circuit immediately, so the click is
+        answered at once and only the page change is held.
+
+        The wait happens ONCE. A pause on every return to the first slide
+        would be a delay the user has already sat through.
+        """
         if self._index >= len(SLIDES) - 1:
             self.accept()
             return self._index
         self.card.circuit(clockwise=True)
-        self._show_slide(self._index + 1)
+        if self._index == 0 and not self._greeted:
+            self._greeted = True
+            return self._advance_after_the_greeting()
+        self._show_slide(self._index + 1, fade=True)
         return self._index
+
+    def _advance_after_the_greeting(self) -> int:
+        """Hold the greeting, then move on. Returns the slide still showing.
+
+        The Next button is disabled for the wait rather than left live: a
+        second click during the pause would queue a second advance and skip
+        a slide.
+        """
+        self._next.setEnabled(False)
+        self._greeting.setVisible(True)
+        try:
+            self._pending = QTimer(self)
+            self._pending.setSingleShot(True)
+            self._pending.timeout.connect(self._finish_the_greeting)
+            self._pending.start(GREETING_MS)
+        except Exception:                                    # noqa: BLE001
+            # INVARIANTS 10: without a timer the slides still advance, they
+            # just do not wait.
+            LOG.debug("no timer for the greeting pause", exc_info=True)
+            self._finish_the_greeting()
+        return self._index
+
+    def _finish_the_greeting(self) -> None:
+        """The pause is over: move to the next slide."""
+        self._pending = None
+        self._next.setEnabled(True)
+        self._show_slide(min(self._index + 1, len(SLIDES) - 1), fade=True)
 
     def previous(self) -> int:
         """Back one slide, and one ANTICLOCKWISE circuit.
@@ -313,7 +475,7 @@ class SetupSlides(QDialog):
         if self._index <= 0:
             return self._index
         self.card.circuit(clockwise=False)
-        self._show_slide(self._index - 1)
+        self._show_slide(self._index - 1, fade=True)
         return self._index
 
     def slide(self) -> int:

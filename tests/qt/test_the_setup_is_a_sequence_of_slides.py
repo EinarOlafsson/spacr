@@ -23,6 +23,19 @@ from spacr.qt.widgets.setup_slides import (GREETINGS, PROVIDERS, SLIDES,
                                            SetupSlides, greeting_for)
 
 
+def _past_the_greeting(slides):
+    """Take the slides off the language page, pause included.
+
+    The first Next holds the greeting on screen for GREETING_MS; a test that
+    does not want to wait for a real timer calls the timeout itself.
+    """
+    if slides.slide() == 0:
+        slides.next()
+        if slides.slide() == 0:
+            slides._finish_the_greeting()
+    return slides.slide()
+
+
 @pytest.fixture(scope="module")
 def app():
     return QApplication.instance() or QApplication([])
@@ -85,10 +98,18 @@ class TestOneQuestionPerSlide:
         assert slides._pages.count() == len(SLIDES)
 
     def test_next_moves_one_slide(self, slides):
-        assert slides.next() == 1
+        """Off the FIRST slide it waits, so the greeting can be read.
+
+        `next` returns the slide still showing, which is 0 during the pause;
+        `_finish_the_greeting` is what the timer would call.
+        """
+        assert slides.next() == 0
+        slides._finish_the_greeting()
+        assert slides.slide() == 1
+        assert slides.next() == 2, "only the FIRST Next waits"
 
     def test_previous_moves_back_one(self, slides):
-        slides.next()
+        _past_the_greeting(slides)
         slides.next()
         assert slides.previous() == 1
 
@@ -100,7 +121,8 @@ class TestOneQuestionPerSlide:
         assert "1 of 6" in slides._where.text()
 
     def test_the_last_button_starts_spacr(self, slides):
-        for _ in range(len(SLIDES) - 1):
+        _past_the_greeting(slides)
+        for _ in range(len(SLIDES) - 2):
             slides.next()
         assert "spaCR" in slides._next.text()
 
@@ -116,12 +138,22 @@ class TestTheGreeting:
         assert offered <= set(GREETINGS), offered - set(GREETINGS)
 
     def test_it_is_shown_on_the_first_slide(self, slides):
-        assert slides._blurb.text().startswith(GREETINGS["en"])
+        """ON ITS OWN LINE. It was prepended to the explanation, so choosing
+        a language rewrote the paragraph under the title and the one word
+        that changed was buried in it."""
+        assert slides._greeting.text() == GREETINGS["en"]
+        assert slides._greeting.isVisible() or not slides.isVisible()
 
     def test_it_changes_with_the_choice(self, slides):
         box = slides._editors["language"]
         box.setCurrentIndex(box.findData("sv"))
-        assert slides._blurb.text().startswith("Hej")
+        assert slides._greeting.text() == "Hej"
+
+    def test_it_is_only_on_the_language_slide(self, slides):
+        """A "Hello" left standing over the theme question is a word with no
+        job on that page."""
+        _past_the_greeting(slides)
+        assert not slides._greeting.isVisibleTo(slides)
 
     def test_a_language_with_no_greeting_falls_back(self):
         assert greeting_for("xx") == GREETINGS["en"]
@@ -171,10 +203,10 @@ class TestTheProviderIsALogoButton:
     def test_choosing_one_unchooses_the_rest(self, slides):
         holder = slides._editors["ai_provider"]
         slides._choose_provider(holder, "claude")
-        assert holder._buttons["claude"].isChecked()
+        assert holder._buttons["claude"].is_chosen()
         slides._choose_provider(holder, "gpt")
-        assert not holder._buttons["claude"].isChecked()
-        assert holder._buttons["gpt"].isChecked()
+        assert not holder._buttons["claude"].is_chosen()
+        assert holder._buttons["gpt"].is_chosen()
 
     def test_the_choice_reaches_the_answers(self, slides):
         slides._choose_provider(slides._editors["ai_provider"], "gemini")
@@ -185,9 +217,9 @@ class TestTheProviderIsALogoButton:
         the user would blame spaCR."""
         holder = slides._editors["ai_provider"]
         for code, _label, _command in PROVIDERS:
-            button = holder._buttons[code]
-            if not button.isEnabled():
-                assert "not set up on this machine" in button.toolTip()
+            mark = holder._buttons[code]
+            if not mark.available:
+                assert "not set up on this machine" in mark.toolTip()
 
 
 class TestTheRim:

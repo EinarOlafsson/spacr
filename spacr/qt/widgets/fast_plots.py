@@ -4393,6 +4393,466 @@ class FastPlot(QWidget):
                 pass
         self._extra_highlights = []
 
+    # ------------------------------------------------------- ranked bars
+
+    #: Longest tick label a ranked-bar chart shows before it is elided.
+    RANK_LABEL = 34
+
+    def add_ranked_bars(self, labels, values, *, colour=None,
+                        highlight: int = 0, thickness: float = 0.72,
+                        descending: bool = True) -> int:
+        """Draw a HORIZONTAL bar per label, longest at the top.
+
+        The shape a feature-importance chart is: twenty names against one
+        number each. It is horizontal because twenty names on a vertical
+        axis are unreadable at any font size that fits them -- which is why
+        matplotlib's ``barh`` was reached for, and why this plot could not
+        replace it until now.
+
+        NOT ``add_group_mark``. That method draws at categorical positions
+        in x, one group at a time, and every one of its eight marks assumes
+        the measurement is y. A named orientation flag through all of them
+        would be eight branches doubled to serve one chart; this is the one
+        chart, drawn directly.
+
+        Parameters
+        ----------
+        labels : sequence of str
+            One name per bar, in the caller's own order.
+        values : array-like
+            One number per label.
+        colour : color-like or None, default=None
+            Bar colour. The first categorical colour is used by default.
+        highlight : int, default=0
+            How many of the leading bars carry the accent. The house rule is
+            that everything is grey except what the sentence is about, so 0
+            means "no claim is being made about any particular one".
+        thickness : float, default=0.72
+            Bar thickness as a fraction of the row spacing.
+        descending : bool, default=True
+            Sort by value, largest first. False keeps the caller's order,
+            which is what a chart of an already-ranked table wants.
+
+        Returns
+        -------
+        int
+            Number of bars drawn.
+        """
+        names = [str(name) for name in labels]
+        heights = _finite(values)
+        if len(names) != len(heights) or not len(names):
+            return 0
+        keep = ~np.isnan(heights)
+        if not keep.any():
+            return 0
+        names = [name for name, ok in zip(names, keep) if ok]
+        heights = heights[keep]
+
+        order = (np.argsort(heights)[::-1] if descending
+                 else np.arange(len(heights)))
+        heights = heights[order]
+        names = [names[int(i)] for i in order]
+
+        # LARGEST AT THE TOP, so `rank` counts DOWN the screen. pyqtgraph's
+        # y grows upward, so the first bar takes the highest number and the
+        # axis is inverted rather than the data being reversed -- the same
+        # picture, but the values stay in the order the caller can read off
+        # the frame they handed over.
+        rows = np.arange(len(heights), dtype=float)
+        accent = QColor(colour) if colour is not None else colour_for(0)
+        grey = QColor(self._foreground)
+        grey.setAlpha(110)
+
+        for index in range(len(heights)):
+            ink = accent if index < int(highlight) else grey
+            fill = QColor(ink)
+            fill.setAlpha(150)
+            self.plot.addItem(pg.BarGraphItem(
+                y=[float(rows[index])], x0=[0.0],
+                x1=[float(heights[index])], height=float(thickness),
+                brush=fill, pen=pg.mkPen(ink)))
+
+        axis = self.plot.getAxis("left")
+        axis.setTicks([[(float(rows[i]), names[i][:self.RANK_LABEL])
+                        for i in range(len(names))]])
+        self.plot.getViewBox().invertY(True)
+        self.plot.setYRange(-0.6, len(heights) - 0.4, padding=0.02)
+        span = float(np.max(heights)) if len(heights) else 1.0
+        self.plot.setXRange(min(0.0, float(np.min(heights))),
+                            span * 1.06 if span > 0 else 1.0, padding=0.0)
+        self._ranked = (names, heights)
+        return int(len(heights))
+
+    def ranked_frame(self):
+        """The last ranked-bar chart as a frame, or ``None``.
+
+        WHAT THE BUNDLE WRITES BESIDE THE PICTURE. A bar chart's data is its
+        labels and its numbers, and without this the folder beside the
+        figure would hold an empty ``data.csv``.
+        """
+        ranked = getattr(self, "_ranked", None)
+        if ranked is None:
+            return None
+        import pandas as pd
+
+        names, heights = ranked
+        return pd.DataFrame({"name": list(names),
+                             "value": [float(v) for v in heights]})
+
+    # ------------------------------------------------------ curve + band
+
+    def add_curve(self, x, y, *, colour=None, width: float = 2.0,
+                  low=None, high=None, name: str = "") -> int:
+        """A line through ordered points, optionally inside a spread band.
+
+        The shape of a convergence or sweep chart: one series against an
+        ordered x, with the spread it was summarised from drawn behind it.
+        A line with no band claims a precision the data does not have, and
+        it is the band that tells a reader where the curve stops meaning
+        anything.
+
+        Parameters
+        ----------
+        x, y : array-like
+            The series. Points are drawn in the order given.
+        colour : color-like or None, default=None
+            Line colour; the first categorical colour by default.
+        width : float, default=2.0
+            Line width in pixels.
+        low, high : array-like or None, default=None
+            The band's edges, one per point. Both are needed; either alone
+            is ignored, because half a band is a second line pretending to
+            be one.
+        name : str, default=""
+            Legend entry, when the plot has a legend.
+
+        Returns
+        -------
+        int
+            Number of points drawn.
+        """
+        xs = _finite(x)
+        ys = _finite(y)
+        keep = ~(np.isnan(xs) | np.isnan(ys))
+        if not keep.any():
+            return 0
+        xs, ys = xs[keep], ys[keep]
+        ink = QColor(colour) if colour is not None else colour_for(0)
+
+        if low is not None and high is not None:
+            bottom = _finite(low)[keep]
+            top = _finite(high)[keep]
+            shade = QColor(ink)
+            shade.setAlpha(64)
+            lower = pg.PlotDataItem(x=xs, y=bottom)
+            upper = pg.PlotDataItem(x=xs, y=top)
+            band = pg.FillBetweenItem(lower, upper, brush=pg.mkBrush(shade))
+            band.setZValue(-10)
+            self.plot.addItem(band)
+
+        self.plot.plot(xs, ys, pen=pg.mkPen(ink, width=width),
+                       name=name or None)
+        self._curve = (xs, ys)
+        return int(len(xs))
+
+    def curve_frame(self):
+        """The last curve as a frame, or ``None``. What the bundle writes."""
+        curve = getattr(self, "_curve", None)
+        if curve is None:
+            return None
+        import pandas as pd
+
+        xs, ys = curve
+        return pd.DataFrame({"x": [float(v) for v in xs],
+                             "y": [float(v) for v in ys]})
+
+    # --------------------------------------------------------- beeswarm
+
+    #: Colour scale a beeswarm encodes the FEATURE VALUE on.
+    BEESWARM_SCALE = "viridis"
+
+    #: Vertical room one feature's points may use, as a fraction of a row.
+    BEESWARM_SPREAD = 0.62
+
+    def add_beeswarm(self, labels, contributions, feature_values=None, *,
+                     rings: int = 0, size: float = 5.0,
+                     colormap: str = "") -> int:
+        """One row per feature, every observation's contribution as a point.
+
+        The shape of a SHAP summary: for each of the top features, every
+        sample's contribution as a dot on that feature's row, spread by how
+        many share a value, and coloured by how large that sample's own
+        feature value was. Reading it is the point of the chart -- a wide
+        row matters more than a narrow one, and the colour split along it
+        says which direction the feature pushes.
+
+        DRAWN HERE RATHER THAN BY THE LIBRARY. ``shap.summary_plot`` draws
+        into a matplotlib figure it makes itself, so it cannot be handed a
+        pyqtgraph scene; it was the last thing on this path that kept the
+        second renderer alive. It is not much of a chart to reproduce, and
+        reproducing it is what makes the saved file and the tab the same
+        picture.
+
+        Parameters
+        ----------
+        labels : sequence of str
+            One feature name per row, in the order they should appear.
+        contributions : array-like, shape (n_samples, n_features)
+            Each sample's contribution for each feature.
+        feature_values : array-like or None, default=None
+            The same shape, holding the feature's own value per sample; it
+            becomes the point colour. Without it every point is one colour
+            and the direction of the effect is not shown.
+        rings : int, default=0
+            Unused; accepted so the three chart methods share a signature.
+        size : float, default=5.0
+            Point diameter.
+        colormap : str, default=""
+            Colour scale for ``feature_values``; :data:`BEESWARM_SCALE` when
+            empty.
+
+        Returns
+        -------
+        int
+            Number of points drawn.
+        """
+        names = [str(name) for name in labels]
+        matrix = np.asarray(contributions, dtype=float)
+        if matrix.ndim != 2 or matrix.shape[1] != len(names) or not len(names):
+            return 0
+
+        scale = str(colormap or self.BEESWARM_SCALE)
+        lookup = None
+        if feature_values is not None and scale in COLORMAPS:
+            try:
+                lookup = pg.colormap.get(scale).getLookupTable(
+                    nPts=COLORMAP_STEPS, alpha=True)
+            except Exception:                                # noqa: BLE001
+                lookup = None
+        colours_source = (np.asarray(feature_values, dtype=float)
+                          if feature_values is not None else None)
+        if colours_source is not None and colours_source.shape != matrix.shape:
+            colours_source = None
+
+        drawn = 0
+        for column, name in enumerate(names):
+            values = _finite(matrix[:, column])
+            keep = ~np.isnan(values)
+            if not keep.any():
+                continue
+            values = values[keep]
+            offsets = self._beeswarm_offsets(values)
+            row = float(column)
+            if colours_source is not None and lookup is not None:
+                shades = _finite(colours_source[:, column])[keep]
+                inks = self._shade(shades, lookup)
+            else:
+                inks = [colour_for(0)] * len(values)
+            self.add_scatter(values, row + offsets, size=size,
+                             rows=None, colours=inks)
+            drawn += int(len(values))
+
+        self.add_line(x=0.0, colour=REFERENCE, width=1.0)
+        axis = self.plot.getAxis("left")
+        axis.setTicks([[(float(i), names[i][:self.RANK_LABEL])
+                        for i in range(len(names))]])
+        self.plot.getViewBox().invertY(True)
+        self.plot.setYRange(-0.7, len(names) - 0.3, padding=0.02)
+        self._beeswarm = (names, matrix)
+        return drawn
+
+    @staticmethod
+    def _beeswarm_offsets(values) -> np.ndarray:
+        """Vertical offsets that spread a row by local DENSITY.
+
+        NOT PLAIN JITTER. Random offsets scatter a row evenly whatever its
+        distribution, so a bimodal feature and a single tight cluster draw
+        the same band of noise. Stacking outward from the centre within each
+        narrow slice makes the row BULGE where observations pile up and go
+        thin along the tails, which is the shape the reader is looking for.
+
+        The row's full height is used either way -- the vertical extent
+        carries no meaning and is not a second encoding of anything.
+        """
+        values = np.asarray(values, dtype=float)
+        if len(values) < 2:
+            return np.zeros(len(values))
+        bins = max(8, min(64, int(np.sqrt(len(values)) * 3)))
+        edges = np.linspace(float(np.min(values)), float(np.max(values)),
+                            bins + 1)
+        which = np.clip(np.digitize(values, edges) - 1, 0, bins - 1)
+        counts = np.bincount(which, minlength=bins)
+        busiest = max(1, int(counts.max()))
+        seen: dict = {}
+        offsets = np.zeros(len(values))
+        for index, slot in enumerate(which):
+            rank = seen.get(int(slot), 0)
+            seen[int(slot)] = rank + 1
+            here = max(1, int(counts[int(slot)]))
+            # Centred: rank 0 in the middle, then alternating out.
+            step = ((rank + 1) // 2) * (1 if rank % 2 else -1)
+            offsets[index] = (step / max(1.0, here)) * \
+                (here / busiest) * FastPlot.BEESWARM_SPREAD
+        return offsets
+
+    @staticmethod
+    def _shade(values, lookup) -> list:
+        """One QColor per value, through ``lookup``. NaN takes the grey."""
+        values = np.asarray(values, dtype=float)
+        usable = values[~np.isnan(values)]
+        if not len(usable):
+            return [QColor(MISSING_COLOUR)] * len(values)
+        low, high = float(usable.min()), float(usable.max())
+        span = (high - low) or 1.0
+        out = []
+        for value in values:
+            if np.isnan(value):
+                out.append(QColor(MISSING_COLOUR))
+                continue
+            step = int(np.clip(round((value - low) / span
+                                     * (COLORMAP_STEPS - 1)),
+                               0, COLORMAP_STEPS - 1))
+            r, g, b, a = (int(c) for c in lookup[step])
+            out.append(QColor(r, g, b, a))
+        return out
+
+    def beeswarm_frame(self):
+        """The last beeswarm as a long frame, or ``None``."""
+        swarm = getattr(self, "_beeswarm", None)
+        if swarm is None:
+            return None
+        import pandas as pd
+
+        names, matrix = swarm
+        rows = []
+        for column, name in enumerate(names):
+            for value in matrix[:, column]:
+                rows.append({"feature": name, "contribution": float(value)})
+        return pd.DataFrame(rows)
+
+    # ------------------------------------------------------------- radar
+
+    #: Grid rings drawn behind a radar polygon.
+    RADAR_RINGS = 4
+
+    def add_radar(self, labels, values, *, colour=None,
+                  rings: int = 0, label_pad: float = 1.16) -> int:
+        """Draw a closed radar polygon, one spoke per label.
+
+        A RADAR IS A POLYGON, NOT AN AXIS. pyqtgraph has no polar view, and
+        matplotlib's ``subplot_kw=dict(polar=True)`` was the only reason two
+        of this module's figures could not move to the screen's renderer.
+        The chart itself is elementary once that is said out loud: each
+        label takes an angle, each value a radius, and the whole thing is a
+        line through the resulting points with the axes hidden.
+
+        THE GRID IS DRAWN, not inherited. A radar read against a square grid
+        is unreadable -- the reference a reader needs is the concentric
+        rings, which say what a radius is worth.
+
+        Parameters
+        ----------
+        labels : sequence of str
+            One name per spoke, clockwise from the top.
+        values : array-like
+            One radius per label. Negative values are clipped to zero: a
+            radar has no inside-out.
+        colour : color-like or None, default=None
+            Polygon colour. The first categorical colour is used by default.
+        rings : int, default=0
+            Grid rings; :data:`RADAR_RINGS` when 0.
+        label_pad : float, default=1.16
+            Where the names sit, as a multiple of the outer ring.
+
+        Returns
+        -------
+        int
+            Number of spokes drawn.
+        """
+        import math
+
+        names = [str(name) for name in labels]
+        radii = _finite(values)
+        if len(names) != len(radii) or len(names) < 3:
+            return 0
+        keep = ~np.isnan(radii)
+        if not keep.all():
+            names = [n for n, ok in zip(names, keep) if ok]
+            radii = radii[keep]
+        if len(names) < 3:
+            return 0
+        radii = np.clip(radii, 0.0, None)
+        outer = float(np.max(radii)) or 1.0
+
+        # CLOCKWISE FROM THE TOP, which is how every radar chart anybody has
+        # seen is laid out; counter-clockwise from the right is the maths
+        # convention and reads as a different chart.
+        angles = np.array([math.pi / 2.0 - 2.0 * math.pi * i / len(names)
+                           for i in range(len(names))])
+
+        grid = QColor(self._foreground)
+        grid.setAlpha(48)
+        pen = pg.mkPen(grid, width=1.0)
+        steps = int(rings or self.RADAR_RINGS)
+        circle = np.linspace(0.0, 2.0 * np.pi, 90)
+        for step in range(1, steps + 1):
+            ring = outer * step / steps
+            self.plot.plot(ring * np.cos(circle), ring * np.sin(circle),
+                           pen=pen)
+        for angle in angles:
+            self.plot.plot([0.0, outer * math.cos(angle)],
+                           [0.0, outer * math.sin(angle)], pen=pen)
+
+        ink = QColor(colour) if colour is not None else colour_for(0)
+        closed_x = np.append(radii * np.cos(angles),
+                             radii[0] * math.cos(angles[0]))
+        closed_y = np.append(radii * np.sin(angles),
+                             radii[0] * math.sin(angles[0]))
+        fill = QColor(ink)
+        fill.setAlpha(64)
+        self.plot.addItem(pg.PlotCurveItem(
+            x=closed_x, y=closed_y, pen=pg.mkPen(ink, width=2.0),
+            fillLevel=None, brush=None))
+        # THE FILL IS ITS OWN ITEM. `fillLevel` fills to a horizontal line,
+        # which on a closed polygon shades a half-moon rather than the
+        # inside -- so the interior is a second, brushed curve.
+        area = pg.PlotDataItem(x=closed_x, y=closed_y,
+                               pen=pg.mkPen(None), fillLevel=0,
+                               brush=fill, connect="all")
+        area.setZValue(-5)
+        self.plot.addItem(area)
+
+        ink_text = QColor(self._font_colour or self._foreground)
+        for name, angle in zip(names, angles):
+            text = pg.TextItem(name, color=ink_text, anchor=(0.5, 0.5))
+            text.setPos(outer * label_pad * math.cos(angle),
+                        outer * label_pad * math.sin(angle))
+            self.plot.addItem(text)
+
+        # A RADAR HAS NO AXES: the numbers live on the rings, and a pair of
+        # cartesian scales beside a polar chart is two coordinate systems on
+        # one picture.
+        for side in ("left", "bottom"):
+            self.plot.getAxis(side).setTicks([[]])
+        self.plot.showGrid(x=False, y=False)
+        self.plot.getViewBox().setAspectLocked(True)
+        reach = outer * (label_pad + 0.16)
+        self.plot.setXRange(-reach, reach, padding=0.0)
+        self.plot.setYRange(-reach, reach, padding=0.0)
+        self._radar = (names, radii)
+        return int(len(names))
+
+    def radar_frame(self):
+        """The last radar as a frame, or ``None``. What the bundle writes."""
+        radar = getattr(self, "_radar", None)
+        if radar is None:
+            return None
+        import pandas as pd
+
+        names, radii = radar
+        return pd.DataFrame({"name": list(names),
+                             "value": [float(v) for v in radii]})
+
     def add_line(self, *, x=None, y=None, colour: str = "#C44E52",
                  style=Qt.DashLine, width: float = 1.5, label: str = ""):
         """A threshold line. ``x`` for vertical, ``y`` for horizontal."""

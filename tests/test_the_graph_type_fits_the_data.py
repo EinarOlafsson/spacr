@@ -143,10 +143,20 @@ class TestTheDefaultIsPerDataType:
         for shape, _ in DATA_SHAPES:
             assert fits(shape, default_for(shape)), shape
 
-    def test_groups_default_to_the_summary_and_the_observations(self):
-        """139 B: a bar alone hides the spread it was computed from, and a
-        reader cannot tell three points from three hundred."""
-        assert default_for("categorical_continuous") == "bar_jitter"
+    def test_groups_default_to_the_five_numbers_and_the_observations(self):
+        """A BOX with jitter, which is what was asked for.
+
+        This asserted ``bar_jitter`` and cited the same request, which asks
+        for the opposite: "the bargraphs with jutter plot backgrounds should
+        be boxplots with jutter". A bar drawn at a mean shows ONE number, so
+        two groups with the same mean and completely different spreads draw
+        the same bar; the box shows the median, the quartiles and the
+        whiskers, and the jitter stays because the box summarises while the
+        points are the evidence. ``spacr.plot.create_grouped_plot`` and the
+        three ``graph_type`` settings already default to ``jitter_box``, so
+        this table saying otherwise was a second answer to one question.
+        """
+        assert default_for("categorical_continuous") == "box_jitter"
 
     def test_two_measurements_default_to_a_scatter(self):
         assert default_for("continuous_continuous") == "scatter"

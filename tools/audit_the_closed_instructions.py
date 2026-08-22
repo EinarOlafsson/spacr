@@ -31,18 +31,11 @@ def check(item, ask, fn):
     R.append((item, ok, ask, detail))
 
 # 193 no button cuts off its text
-def _193():
-    from spacr.qt.screens.settings_model import SettingsWidgets
-    w = SettingsWidgets("regression"); w.build_sections()
-    from PySide6.QtWidgets import QPushButton
-    bad = []
-    for b in w.findChildren(QPushButton):
-        if not b.text(): continue
-        need = b.fontMetrics().horizontalAdvance(b.text())
-        if b.sizeHint().width() < need:
-            bad.append(b.text())
-    return (not bad), f"{len(w.findChildren(QPushButton))} buttons; clipped: {bad[:3]}"
-check("193", "no button cuts off its text", _193)
+# 193 IS DRIVEN ONCE, further down, THROUGH AppScreen. There was a second
+# driver here that called `findChildren` on a `SettingsWidgets`, which is not
+# a QWidget and never had the method -- so the check reported the FEATURE as
+# broken when what was broken was the check. The same mistake this file
+# exists to catch, in the file itself.
 
 # 195 default control 000000
 def _195():
@@ -369,3 +362,70 @@ for item, ok, ask, detail in R:
     if not ok: print(f"         -> {detail}")
 print()
 print("FAILED:", [i for i,ok,_,_ in R if not ok] or "none")
+
+# --------------------------------------------------------------------------
+# THE THREE THIS FILE HAD NOT REACHED. Closed the same day as the rest and
+# left out of the sweep, which is the gap the sweep exists to close.
+# --------------------------------------------------------------------------
+
+# 219 a unit that constrains says so before the run
+def _219():
+    from spacr.qt.screens.settings_model import SettingsWidgets
+    w = SettingsWidgets("regression"); w.build_sections()
+    w.set_value_for_key("analysis_unit", "cell")
+    w._refresh_analysis_unit_lock()
+    locked = [k for k in w._widgets if not w._widgets[k].isEnabled()]
+    said = [k for k in locked if w._widgets[k].toolTip()]
+    w.set_value_for_key("analysis_unit", "well")
+    w._refresh_analysis_unit_lock()
+    freed = [k for k in locked if w._widgets[k].isEnabled()]
+    return (bool(locked) and len(said) == len(locked) and bool(freed)), \
+        f"locked={locked} explained={len(said)}/{len(locked)} released={freed}"
+check("219", "cell locks the settings it needs and says why", _219)
+
+# 221 the first-run setup screen
+def _221():
+    from spacr.qt.widgets.setup_slides import SLIDES, SetupSlides
+    screen = SetupSlides()
+    asked = [key for _title, _blurb, keys in SLIDES for key in keys]
+    # ONE QUESTION PER SLIDE with an explanation beside it, which is what
+    # was asked for -- so every slide carries prose, and the eleven
+    # settings are spread across them rather than stacked on one page.
+    blurbs = [blurb for _title, blurb, _keys in SLIDES if blurb.strip()]
+    return (len(SLIDES) >= 5 and len(asked) >= 8
+            and len(blurbs) == len(SLIDES) and screen.slide() == 0), \
+        f"{len(SLIDES)} slides asking {len(asked)} settings"
+check("221", "first run opens a setup screen", _221)
+
+# 228 the bottom panels collapse
+def _228():
+    from spacr.qt.screens.app_screen import AppScreen
+    bad = []
+    for key in ("mask", "measure", "regression"):
+        screen = AppScreen(key)
+        folder = getattr(screen, "_console_folder", None)
+        if folder is None:
+            bad.append(f"{key}: console does not fold"); continue
+        folder.toggle()
+        if not screen._console.isHidden():
+            bad.append(f"{key}: console stayed up")
+        # THE AI CHAT GOES WITH IT: it is the console panel's own second half
+        # and has no heading of its own to click.
+        if screen._console._chat_row.isVisibleTo(screen):
+            bad.append(f"{key}: the chat row stayed on screen")
+        folder.toggle()
+        if screen._console.isHidden():
+            bad.append(f"{key}: console did not come back")
+        card = getattr(screen, "_usage_card", None)
+        if card is not None and card.folder is None:
+            bad.append(f"{key}: system card does not fold")
+        screen.deleteLater()
+    return (not bad), "; ".join(bad) or "console, chat and system fold on each"
+check("228", "console, AI chat and system all collapse", _228)
+
+print(f"{'item':6} {'ok':4} ask")
+for item, ok, ask, detail in R[-3:]:
+    print(f"{item:6} {'PASS' if ok else 'FAIL'} {ask}")
+    if not ok: print(f"         -> {detail}")
+print()
+print("FAILED:", [i for i, ok, _, _ in R[-3:] if not ok] or "none")

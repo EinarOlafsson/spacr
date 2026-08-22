@@ -322,17 +322,42 @@ def test_a_run_leaves_both_threshold_graphs_in_its_own_folder(tmp_path):
         os.path.join(str(folder), "results", "fraction_threshold.pdf"))
 
 
-def test_a_set_fraction_threshold_says_why_there_is_no_sweep_graph(tmp_path,
-                                                                   capsys):
-    """The graph is a by-product of CHOOSING the threshold, so setting one --
-    including loading a settings CSV carrying a value an earlier run derived
-    -- means it is never drawn. Silence there is indistinguishable from the
-    figure having gone missing, which is how it was reported."""
+def test_a_set_fraction_threshold_still_draws_the_sweep(tmp_path, capsys):
+    """THE SENTENCE WAS REPLACED BY THE GRAPH, on the second report.
+
+    This used to assert that setting a threshold printed an explanation of
+    why there was no sweep. That WAS the fix the first time it was reported
+    -- silence and a missing figure look the same -- but the second report
+    said the same thing again: "in the figure view i nevers ee the frna
+    threhsold graph".
+
+    The gate was the problem, not the silence. The graph was drawn only when
+    `fraction_threshold is None`, and the default is 0.02, so the one case
+    it fired in was the case nobody is in. The sweep is a fact about the
+    SCREEN -- how many guides survive at each threshold -- and it is worth
+    the same whichever way the threshold was chosen, arguably more when the
+    user chose it, because then it is the only thing saying where their
+    number sits on the curve.
+    """
+    import pathlib as _pathlib
+
+    from spacr import ml
+
+    source = _pathlib.Path(ml.__file__).read_text()
+    # The explanation is gone, because the thing it explained is gone.
+    assert "sweep graph is not drawn" not in source
+    # Both branches draw, and both keep what they drew with the run.
+    assert "_draw_the_threshold_sweep(settings, res_folder)" in source
+    assert source.count("_keep_figures_with_the_run") >= 2
+
+
+def test_the_sweep_does_not_move_a_threshold_the_user_set(tmp_path):
+    """It draws the curve and leaves the number alone -- the whole reason
+    the drawing could be separated from the choosing."""
     import inspect
 
-    from spacr.ml import _perform_regression
+    from spacr.ml import _draw_the_threshold_sweep
 
-    source = inspect.getsource(_perform_regression)
-    assert "the gRNA fraction-threshold sweep graph is not drawn" in source
-    body = source.split("if settings['fraction_threshold'] is None:", 1)[1]
-    assert "_keep_figures_with_the_run" in body
+    source = inspect.getsource(_draw_the_threshold_sweep)
+    assert "settings['fraction_threshold'] =" not in source
+    assert "_AUTOMATIC_SETTINGS" not in source

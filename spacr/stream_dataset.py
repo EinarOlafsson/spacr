@@ -246,6 +246,11 @@ def build_selection(dst: str, *, objects: Optional[pd.DataFrame] = None,
     path = os.path.join(str(dst), SELECTION_FILE)
     # WRITTEN BEFORE ANY IMAGE IS. A training set decided at run time and
     # never recorded cannot be re-made or audited.
+    #
+    # Through `tabular.write_table`, not `to_csv`: the selection names wells
+    # and plates, and those columns have three spellings in this codebase.
+    # A record written in whichever one the source frame happened to use is
+    # a record the next reader has to guess at.
     from .tabular import write_table
 
     write_table(table, path)

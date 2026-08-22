@@ -203,7 +203,14 @@ def test_btrack_with_nothing_to_track_still_writes_its_movie(tmp_path):
     It is the branch that runs when a field segmented to nothing, which is
     exactly the run whose movie a user goes looking for.  Nothing exercised it
     with ``save=True`` before, because doing so wrote a 4000 px animation.
+
+    btrack is an extra, and the empty-segmentation branch still needs it:
+    ``segmentation_to_objects`` is how the function learns there is nothing
+    to track. So the package has to be here for this branch to be reachable
+    at all -- ``importorskip`` names that, rather than a broad guard that
+    would turn a real fault into an excuse.
     """
+    pytest.importorskip("btrack")
     from spacr.timelapse import _btrack_track_cells
 
     src = tmp_path / "masks"

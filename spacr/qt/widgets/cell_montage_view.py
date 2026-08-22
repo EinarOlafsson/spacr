@@ -1294,11 +1294,11 @@ class _WellTab(QWidget):
     def fill(self, columns: int) -> None:
         """Lay the crops out, at the column count THIS TAB measures.
 
-        `columns` is a HINT and is deliberately overridden. The caller
-        derives it from a fixed cell size over the whole tab width; the page
-        size is derived from the real thumbnail size over the scroll area's
-        viewport. Two numbers meant one thing and disagreed, and the symptom
-        was cells running off the right edge with half the rows a page had
+        `columns` is a HINT and is deliberately overridden: the caller
+        derives it from a fixed cell size over the whole tab width, while
+        the page size comes from the real thumbnail size over the scroll
+        area's viewport. Two numbers for one thing disagree, and the symptom
+        is cells running off the right edge with half the rows a page has
         room for.
 
         The argument stays because every caller passes it and it is still

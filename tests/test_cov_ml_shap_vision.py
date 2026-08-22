@@ -152,8 +152,51 @@ def _install_fake_merge(monkeypatch, df, recorder):
     monkeypatch.setattr(spacr.io, "_read_and_merge_data", _fake)
 
 
+@pytest.fixture()
+def gallery(monkeypatch):
+    """Every figure the run announces, as ``(title, folder)``.
+
+    THE FIGURES MOVED TO PYQTGRAPH, so `plt.get_fignums()` is empty by
+    design and reading it would silently pass forever. A drawn figure is
+    observed where the user meets it: announced to the figure sink, with
+    its data beside it in the bundle. That is a real artefact rather than a
+    private hook, so a test that reads it is testing the delivery as well as
+    the drawing.
+    """
+    from spacr import figure_sink
+
+    seen = []
+    figure_sink.set_file_sink(
+        lambda path, title: seen.append((str(title or ""),
+                                         os.path.dirname(str(path)))))
+    yield seen
+    figure_sink.clear_sink()
+
+
+def _names_in(folder):
+    """The labels the figure in ``folder`` was drawn from.
+
+    Every bundle carries the numbers behind its picture, which for a radar
+    or a bar chart is exactly the list of labels -- so the assertion reads
+    the file the user would open.
+    """
+    frame = pd.read_csv(os.path.join(folder, "data.csv"))
+    column = "name" if "name" in frame.columns else frame.columns[0]
+    return set(frame[column].astype(str))
+
+
+def _titled(gallery, word):
+    """Folders of the announced figures whose title contains ``word``."""
+    return [folder for title, folder in gallery if word in title]
+
+
 def _polar_axes():
-    """Every polar Axes currently held by an open figure."""
+    """Every polar Axes currently held by an open figure.
+
+    Kept for the ONE assertion that still wants to prove there are none:
+    the radar moved to pyqtgraph, and a matplotlib polar axis appearing
+    again would mean the second renderer had come back.
+    """
     out = []
     for num in plt.get_fignums():
         for ax in plt.figure(num).axes:
@@ -165,6 +208,18 @@ def _polar_axes():
 # ===========================================================================
 # shap_analysis
 # ===========================================================================
+
+
+def _row_labels(plot):
+    """The feature names on a pyqtgraph plot's left axis.
+
+    The beeswarm's rows ARE its labels, so this is the pyqtgraph spelling of
+    what these tests used to read off `ax.get_yticklabels()`.
+    """
+    axis = plot.plot.getAxis("left")
+    return {str(text) for group in (axis._tickLevels or [])
+            for _value, text in group}
+
 
 def test_shap_analysis_returns_closed_summary_figure():
     """shap_analysis explains X_test and hands back a closed summary figure
@@ -180,15 +235,18 @@ def test_shap_analysis_returns_closed_summary_figure():
     X_train, X_test = X.iloc[:40], X.iloc[40:]
     model = LogisticRegression(max_iter=500).fit(X_train, y[:40])
 
-    fig = shap_analysis(model, X_train, X_test)
+    plot = shap_analysis(model, X_train, X_test)
 
-    assert isinstance(fig, matplotlib.figure.Figure)
-    assert len(fig.axes) >= 1
-    # SHAP labels the beeswarm rows with the feature names it explained.
-    tick_text = {t.get_text() for ax in fig.axes for t in ax.get_yticklabels()}
-    assert set(feats) & tick_text == set(feats)
-    # The function closes what it created: nothing is left on the pyplot stack.
-    assert fig.number not in plt.get_fignums()
+    # A PYQTGRAPH BEESWARM, not a matplotlib figure. `shap.summary_plot`
+    # draws into a figure it makes itself, so it could not be handed a
+    # scene -- it was the last thing on the explanation path keeping a
+    # second renderer alive, and two renderers is how one screen comes to
+    # produce two pictures of one number.
+    assert not isinstance(plot, matplotlib.figure.Figure)
+    assert _row_labels(plot) >= set(feats)
+    # And nothing was left on the pyplot stack, because nothing went on it.
+    assert plt.get_fignums() == []
+    plot.deleteLater()
 
 
 def test_shap_analysis_tree_model_labels_every_feature():
@@ -205,11 +263,10 @@ def test_shap_analysis_tree_model_labels_every_feature():
     model = RandomForestRegressor(n_estimators=8, random_state=0, n_jobs=1)
     model.fit(X, y)
 
-    fig = shap_analysis(model, X, X.iloc[:10])
+    plot = shap_analysis(model, X, X.iloc[:10])
 
-    assert isinstance(fig, matplotlib.figure.Figure)
-    tick_text = {t.get_text() for ax in fig.axes for t in ax.get_yticklabels()}
-    assert set(feats) <= tick_text
+    assert _row_labels(plot) >= set(feats)
+    plot.deleteLater()
 
 
 def test_shap_analysis_tree_classifier_selects_the_positive_class():
@@ -226,11 +283,10 @@ def test_shap_analysis_tree_classifier_selects_the_positive_class():
         n_estimators=8, random_state=0, n_jobs=1
     ).fit(X, y)
 
-    fig = shap_analysis(model, X, X.iloc[:10])
+    plot = shap_analysis(model, X, X.iloc[:10])
 
-    assert isinstance(fig, matplotlib.figure.Figure)
-    tick_text = {t.get_text() for ax in fig.axes for t in ax.get_yticklabels()}
-    assert set(feats) <= tick_text
+    assert _row_labels(plot) >= set(feats)
+    plot.deleteLater()
 
 
 # ===========================================================================
@@ -422,7 +478,7 @@ def test_calculate_similarity_accepts_list_valued_controls():
 # this module comfortably fast.
 
 
-def test_interperate_vision_model_maps_legacy_score_columns(tmp_path, monkeypatch):
+def test_interperate_vision_model_maps_legacy_score_columns(tmp_path, monkeypatch, gallery):
     """Legacy row/column names map to the canonical object-join columns.
 
     A missing ``object_label`` is also filled from ``object``.
@@ -468,15 +524,15 @@ def test_interperate_vision_model_maps_legacy_score_columns(tmp_path, monkeypatc
     assert rec["tables"] == ["cell"]
     assert rec["nuclei_limit"] == 1000 and rec["pathogen_limit"] == 1000
 
-    # feature-importance bar chart was drawn with the top-N features
-    bars = [ax for num in plt.get_fignums() for ax in plt.figure(num).axes
-            if ax.patches]
-    assert bars, "expected a feature-importance bar chart"
-    assert bars[0].get_xlabel() == "Importance"
-    assert "Top 3 Features" in bars[0].get_title()
+    # feature-importance chart was drawn with the top-N features
+    drawn = _titled(gallery, "Feature Importance")
+    assert drawn, "expected a feature-importance chart"
+    assert "Top 3 Features" in gallery[0][0]
+    assert len(_names_in(drawn[0])) == 3, "the top-N was not honoured"
+    assert not _polar_axes(), "a matplotlib figure came back"
 
 
-def test_interperate_vision_model_keeps_canonical_score_columns(tmp_path, monkeypatch):
+def test_interperate_vision_model_keeps_canonical_score_columns(tmp_path, monkeypatch, gallery):
     """When the scores CSV already carries rowID/columnID/object_label none of
     the legacy fallbacks fire and the merge still lines up 1:1."""
     from spacr.ml import interperate_vision_model
@@ -509,15 +565,14 @@ def test_interperate_vision_model_keeps_canonical_score_columns(tmp_path, monkey
 
     assert len(merged) == len(grid)
     assert merged["cv_predictions"].tolist() == list(labels)
-    # both bar charts (feature importance + permutation importance) exist
-    titled = [plt.figure(n).axes[0].get_title() for n in plt.get_fignums()
-              if plt.figure(n).axes]
-    assert any("Feature Importance" in t for t in titled)
-    assert any("Permutation Importance" in t for t in titled)
-    assert all("Top 2 Features" in t for t in titled)
+    # both charts (feature importance + permutation importance) exist
+    titles = [title for title, _folder in gallery]
+    assert any("Feature Importance" in t for t in titles), titles
+    assert any("Permutation Importance" in t for t in titles), titles
+    assert all("Top 2 Features" in t for t in titles), titles
 
 
-def test_interperate_vision_model_shap_without_subsampling(tmp_path, monkeypatch):
+def test_interperate_vision_model_shap_without_subsampling(tmp_path, monkeypatch, gallery):
     """shap_sample=False explains every merged object rather than a 1% draw,
     and the SHAP matrix is aggregated into compartment/channel radar plots."""
     from spacr.ml import interperate_vision_model
@@ -551,15 +606,16 @@ def test_interperate_vision_model_shap_without_subsampling(tmp_path, monkeypatch
 
     assert len(merged) == len(grid)
 
-    polars = _polar_axes()
-    assert len(polars) == 2
-    label_sets = [{t.get_text() for t in ax.get_xticklabels()} for ax in polars]
+    radars = _titled(gallery, "SHAP Importance by")
+    assert len(radars) == 2, [t for t, _f in gallery]
+    label_sets = [_names_in(folder) for folder in radars]
     compartments = next(s for s in label_sets if "nucleus" in s)
     assert compartments == {"cell", "nucleus", "cell + nucleus"}
     channels = next(s for s in label_sets if "morphology" in s)
     assert channels == {"channel_0", "channel_1", "morphology",
                         "channel_0 + channel_1", "channel_0 + morphology",
                         "channel_1 + morphology"}
+    assert not _polar_axes(), "the matplotlib radar came back"
 
 
 def test_interperate_vision_model_shap_sample_on_a_small_plate(tmp_path, monkeypatch):
@@ -778,7 +834,7 @@ def test_interperate_vision_model_shap_without_feature_importance(
 # End-to-end: real measurements.db through io._read_and_merge_data
 # ---------------------------------------------------------------------------
 
-def test_interperate_vision_model_end_to_end_real_db(tmp_path, capsys):
+def test_interperate_vision_model_end_to_end_real_db(tmp_path, capsys, gallery):
     """Feature importance + permutation importance + SHAP all run against a
     real sqlite measurements DB, and the SHAP contributions are folded into
     compartment/channel radar plots covering every channel token."""
@@ -836,9 +892,9 @@ def test_interperate_vision_model_end_to_end_real_db(tmp_path, capsys):
     assert "SHAP Analysis ..." in printed
 
     # ---- radar plots ------------------------------------------------------
-    polars = _polar_axes()
-    assert len(polars) == 2
-    label_sets = [{t.get_text() for t in ax.get_xticklabels()} for ax in polars]
+    radars = _titled(gallery, "SHAP Importance by")
+    assert len(radars) == 2, [t for t, _f in gallery]
+    label_sets = [_names_in(folder) for folder in radars]
 
     compartment_labels = next(s for s in label_sets if "cell" in s)
     # 'cells_per_well' must have been folded into the 'cell' compartment.
@@ -851,8 +907,12 @@ def test_interperate_vision_model_end_to_end_real_db(tmp_path, capsys):
     assert len(channel_labels) == 5 + (5 * 4) // 2
     assert "channel_0 + channel_1" in channel_labels
 
-    # the radar traces close the loop: one more vertex than labels
-    for ax in polars:
-        n_labels = len(ax.get_xticklabels())
-        assert len(ax.lines) == 1
-        assert len(ax.lines[0].get_xdata()) == n_labels + 1
+    # ONE VALUE PER LABEL in the data beside the picture. The old assertion
+    # counted vertices on the matplotlib line and allowed for the closing
+    # one; a pyqtgraph radar closes its own polygon inside `add_radar`, so
+    # what is worth asserting is that the recorded data has no phantom
+    # extra row.
+    for folder in radars:
+        frame = pd.read_csv(os.path.join(folder, "data.csv"))
+        assert len(frame) == len(set(frame["name"])), folder
+    assert not _polar_axes(), "the matplotlib radar came back"
