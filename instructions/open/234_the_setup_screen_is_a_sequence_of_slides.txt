@@ -58,6 +58,23 @@ leaves the machine.
      a list of what was chosen here would be a form again, at the end.
 
 --------------------------------------------------------------------------------
+EVERY BOOLEAN IS A SLIDER
+--------------------------------------------------------------------------------
+
+    "aslo in the startup all the booleans should be sliders"
+
+Not a checkbox anywhere on this screen. A tick box is a form control and
+this is not a form -- and a slider READS AS A STATE rather than as a task,
+which is what these settings are: the reproducibility hash, the assistant at
+launch, issue filing and log inclusion are all things that are on or off,
+not things to be done.
+
+spaCR already has `spacr.qt.widgets.toggle.Toggle`, which is what the rest
+of the application uses for exactly this. Use it rather than a second
+slider, so the gesture and the look are the ones the user meets everywhere
+else.
+
+--------------------------------------------------------------------------------
 THE RIM
 --------------------------------------------------------------------------------
 
@@ -117,5 +134,7 @@ HOW TO KNOW IT WORKED
 * Next runs one clockwise circuit and Previous one anticlockwise, asserted
   on the DIRECTION rather than on a frame count.
 * A pointer move during a circuit does not steer it.
+* Every boolean on the screen is a Toggle; a test asserts no QCheckBox
+  survives anywhere in the slides.
 * Closing at any slide writes the defaults and does not reopen.
 * With the animation disabled the same answers are still written.
