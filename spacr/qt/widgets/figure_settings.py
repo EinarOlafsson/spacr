@@ -1484,13 +1484,10 @@ def _which_types_fit(recipe) -> tuple:
 
 
 def _add_group_colours(menu, figure, recipe, on_change, parent) -> None:
-    """A colour per GROUP, which is what a reader of the plot sees.
+    """Add persistent colour controls for the groups represented in a plot.
 
-    THE GROUP IS THE UNIT (reported 2026-08-21). A jitter-over-bar draws
-    dozens of marks per group and the question a user has is "make THIS
-    CONDITION blue" -- not "make this bar blue and also these forty dots".
-    Colouring by group is also the only one of the two that survives a
-    redraw, because the redraw makes new artists.
+    Colours are stored on the redraw recipe so all marks in a group retain
+    the selected colour when the graph is redrawn or retyped.
     """
     from PySide6.QtWidgets import QMenu
 
@@ -1539,12 +1536,7 @@ def _add_group_colours(menu, figure, recipe, on_change, parent) -> None:
 
 
 def _add_bundle_save(menu, figure, parent) -> None:
-    """"Save figure, data and statistics…" on a matplotlib figure.
-
-    Instruction 223 built this on the pyqtgraph plots, which is not where
-    the run's figures are drawn -- so it was a feature that existed and
-    could not be reached. Same bundle, same statistics, same folder.
-    """
+    """Add a Matplotlib action that exports the figure and its evidence bundle."""
     from PySide6.QtWidgets import QFileDialog
 
     action = menu.addAction("Save figure, data and statistics…")
