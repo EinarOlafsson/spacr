@@ -845,6 +845,48 @@ def _sigma_to_stdev(sigma: float, x: torch.Tensor) -> float:
 # Adapter — attention rollout
 # ---------------------------------------------------------------------------
 
+def _ask_for_attention_weights(blocks):
+    """Make each MHA block return its weights. Returns an undo callable.
+
+    The override is by keyword only. `nn.MultiheadAttention.forward` takes
+    `need_weights` as its fifth positional parameter, and a caller that
+    passed it positionally would have its argument silently replaced -- so
+    those are left exactly as they are, and the existing "none returned
+    attention weights" refusal still covers them.
+
+    `average_attn_weights=False` because rollout fuses the heads itself:
+    'mean', 'max' and 'min' are the caller's choice, and a block that has
+    already averaged offers only one of the three.
+    """
+    originals = []
+
+    def _wrap(block):
+        original = block.forward
+
+        def forward(*args, **kwargs):
+            if len(args) < 5 and "need_weights" not in kwargs:
+                kwargs = dict(kwargs)
+                kwargs["need_weights"] = True
+                kwargs.setdefault("average_attn_weights", False)
+            elif kwargs.get("need_weights") is False:
+                kwargs = dict(kwargs)
+                kwargs["need_weights"] = True
+                kwargs.setdefault("average_attn_weights", False)
+            return original(*args, **kwargs)
+
+        block.forward = forward
+        return original
+
+    for block in blocks:
+        originals.append((block, _wrap(block)))
+
+    def restore():
+        for block, original in originals:
+            block.forward = original
+
+    return restore
+
+
 def attention_rollout(model: nn.Module, image: Any, *,
                       target: Optional[int] = None,
                       head_fusion: str = "mean",
@@ -908,10 +950,25 @@ def attention_rollout(model: nn.Module, image: Any, *,
             captured.append(out[1].detach())
 
     handles = [b.register_forward_hook(_hook) for b in blocks]
+    # THE BLOCKS ARE ASKED FOR THEIR WEIGHTS, not merely watched.
+    #
+    # A hook can only capture what `forward` RETURNS, and torchvision's ViT
+    # calls `self.self_attention(x, x, x, need_weights=False)` -- so nothing
+    # was ever returned to capture, and this method raised on the only
+    # architecture family it exists for. Driven on vit_b_16, which is one of
+    # the ten backbones spaCR offers: "has MultiheadAttention blocks but
+    # none returned attention weights". The docstring described what the
+    # blocks would do if they were asked, which nobody was doing.
+    #
+    # `need_weights=True` also takes PyTorch off its fused kernel, which is
+    # the point: the fused path computes no explicit attention matrix at
+    # all. It is slower and it runs once, under no_grad, for one image.
+    restore = _ask_for_attention_weights(blocks)
     try:
         with torch.no_grad():
             wrapped(x)
     finally:
+        restore()
         for h in handles:
             h.remove()
 
