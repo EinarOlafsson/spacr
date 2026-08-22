@@ -119,6 +119,42 @@ SECTION_ORDER = (
     "Design",
 )
 
+# The Qt registry is populated by modules that register themselves during
+# import.  Its membership is stable, but the order of those late registrations
+# depends on which screen a process imported first.  README assets must be
+# byte-for-byte reproducible in a clean generator process, a Sphinx process,
+# and a pytest worker, so the documented Home order is explicit here.  The
+# registry still supplies each current label, section, and API destination;
+# _grouped_apps rejects missing, additional, or refiled applications.
+APP_ORDER = {
+    "Core": (
+        "timelapse", "motility", "classify", "ml_analyze", "curate",
+    ),
+    "Data": (
+        "align", "convert", "foreign", "external_masks", "queue", "batch",
+        "distributed_jobs", "db_browser", "illumination", "data_manager",
+    ),
+    "Segmentation models": (
+        "make_masks", "train_cellpose", "cellpose_masks", "model_compare",
+        "model_zoo",
+    ),
+    "Results & QC": (
+        "plate_view", "agreement", "umap", "activation", "train_compare",
+        "classifier_evaluation", "run_history", "report", "barcode_qc",
+        "hit_list", "methods_export", "volcano_explorer", "parameter_sweep",
+        "run_compare", "explain_cv", "investigate_hit",
+    ),
+    "Explore": (
+        "pipeline_graph", "profiler", "qc_dashboard", "image_scatter",
+        "lineage", "layer_viewer", "graph_builder", "anndata_export", "pca",
+        "tabulate",
+    ),
+    "Toxoplasma": (
+        "analyze_plaques", "recruitment", "invasion", "replication",
+    ),
+    "Design": ("experiment_design", "power"),
+}
+
 
 def _font(size: int) -> ImageFont.FreeTypeFont:
     return ImageFont.truetype(str(FONT_DIR / "OpenSans-Light.ttf"), size)
@@ -361,11 +397,30 @@ def _api_urls() -> dict[str, str]:
 def _grouped_apps() -> dict[str, list[tuple[str, str]]]:
     apps = _registry()
     pipeline_keys = {key for key, _label in MAIN_PIPELINE}
-    return {
-        section: [(key, label) for key, label, _desc, actual in apps
-                  if actual == section and key not in pipeline_keys]
-        for section in SECTION_ORDER
+    by_key = {key: (label, section) for key, label, _desc, section in apps}
+    expected = {
+        key for keys in APP_ORDER.values() for key in keys
     }
+    actual = set(by_key) - pipeline_keys
+    if actual != expected:
+        missing = sorted(expected - actual)
+        additional = sorted(actual - expected)
+        raise ValueError(
+            "documented application order does not match the Home registry: "
+            f"missing={missing}, additional={additional}"
+        )
+
+    grouped = {}
+    for section in SECTION_ORDER:
+        keys = APP_ORDER[section]
+        refiled = [key for key in keys if by_key[key][1] != section]
+        if refiled:
+            raise ValueError(
+                f"documented applications are no longer in {section!r}: "
+                f"{refiled}"
+            )
+        grouped[section] = [(key, by_key[key][0]) for key in keys]
+    return grouped
 
 
 def _app_column(key: str) -> int:
