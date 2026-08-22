@@ -305,18 +305,43 @@ def build_surrogate_frame(db_path: str,
     features = _read_and_join_tables(db_path)
     if "prcfo" not in features.columns and features.index.name == "prcfo":
         features = features.reset_index()
-    if "prcfo" not in features.columns or "prcfo" not in bridged.columns:
-        raise SurrogateError(
-            "png_list and the measurement tables share no 'prcfo' object "
-            "key, so predictions cannot be attached to features.")
 
-    joined = features.merge(bridged[["prcfo", "cv_prediction"]], on="prcfo",
-                            how="inner", validate="one_to_one")
+    # THE CROP PATH IS AN OBJECT IDENTITY TOO, and on a real spaCR database
+    # it is the only one both sides have. `prcfo` is written into
+    # `png_list`; the measurement tables carry `plateID`, `rowID`,
+    # `columnID`, `fieldID` and `object_label` and compose it on demand, so
+    # the joined feature frame has no `prcfo` column at all -- and the
+    # surrogate refused every database spaCR has ever written (236 B6,
+    # driven on plate1 of the tsg101 screen).
+    #
+    # The basename is the same key `preds` was matched on ten lines above,
+    # for the same reason: two machines agree about a file name and not
+    # about a mount point.
+    if "prcfo" in features.columns and "prcfo" in bridged.columns:
+        on, left, right = "prcfo", features, bridged
+    elif "png_path" in features.columns and "png_path" in bridged.columns:
+        on = "_key"
+        left = features.copy()
+        left[on] = left["png_path"].astype(str).map(os.path.basename)
+        left = left.drop_duplicates(on)
+        right = bridged.copy()
+        right[on] = right["png_path"].astype(str).map(os.path.basename)
+        right = right.drop_duplicates(on)
+    else:
+        raise SurrogateError(
+            f"the measurement tables and png_list share no object key. "
+            f"Neither 'prcfo' nor 'png_path' is in both: the features have "
+            f"{[c for c in ('prcfo', 'png_path') if c in features.columns]} "
+            f"and the crop list has "
+            f"{[c for c in ('prcfo', 'png_path') if c in bridged.columns]}.")
+
+    joined = left.merge(right[[on, "cv_prediction"]], on=on, how="inner",
+                        validate="one_to_one")
     if joined.empty:
         raise SurrogateError(
             "the predictions matched crops, but those crops matched no "
             "measured objects.")
-    return joined
+    return joined.drop(columns=["_key"], errors="ignore")
 
 
 def _feature_columns(frame: pd.DataFrame) -> Tuple[List[str], List[str]]:
