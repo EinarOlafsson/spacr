@@ -53,11 +53,18 @@ README_LOGO_MARK = 340
 # moves the last tile onto a new line.
 PIPELINE_DISPLAY_PERCENT = 14.5
 ARROW_DISPLAY_PERCENT = 2.5
-# Secondary modules remain five per row, but do not fill the row edge to edge.
-# The resulting whitespace distinguishes them from the six-stage core path
-# without changing the underlying square artwork or click targets.
-APP_DISPLAY_PERCENT = 18.0
+# Five secondary-module canvases span the same 99.5% width as the core row.
+# The visible buttons stay smaller: their transparent gutters are distributed
+# from left to right so full rows meet both core-row edges with one constant
+# gap, while incomplete rows remain anchored to the left edge.
+APP_COLUMNS = 5
+APP_DISPLAY_PERCENT = (
+    6 * PIPELINE_DISPLAY_PERCENT
+    + 5 * ARROW_DISPLAY_PERCENT
+) / APP_COLUMNS
 APP_TILE_PADDING = 16
+APP_TILE_SIZE = BUTTON_SIZE - 2 * APP_TILE_PADDING
+APP_COLUMN_STEP = (BUTTON_SIZE - APP_TILE_SIZE) // (APP_COLUMNS - 1)
 PIPELINE_DISPLAY_WIDTH = f"{PIPELINE_DISPLAY_PERCENT}%"
 ARROW_DISPLAY_WIDTH = f"{ARROW_DISPLAY_PERCENT}%"
 APP_DISPLAY_WIDTH = f"{APP_DISPLAY_PERCENT}%"
@@ -281,12 +288,14 @@ def render_pipeline_tile(key: str, label: str) -> Image.Image:
 
 
 def render_app_tile(key: str, label: str) -> Image.Image:
-    """Render a non-pipeline tile with an even transparent gutter."""
+    """Render a smaller tile positioned for a five-column linked row."""
     tile = _render_workflow_tile(key, label)
-    inner_size = tile.width - 2 * APP_TILE_PADDING
-    tile = tile.resize((inner_size, inner_size), Image.Resampling.LANCZOS)
+    tile = tile.resize((APP_TILE_SIZE, APP_TILE_SIZE), Image.Resampling.LANCZOS)
     canvas = Image.new("RGBA", (512, 512), (0, 0, 0, 0))
-    canvas.alpha_composite(tile, (APP_TILE_PADDING, APP_TILE_PADDING))
+    canvas.alpha_composite(
+        tile,
+        (_app_column(key) * APP_COLUMN_STEP, APP_TILE_PADDING),
+    )
     return canvas
 
 
@@ -359,6 +368,15 @@ def _grouped_apps() -> dict[str, list[tuple[str, str]]]:
     }
 
 
+def _app_column(key: str) -> int:
+    """Return the zero-based column occupied by an application tile."""
+    for items in _grouped_apps().values():
+        for index, (candidate, _label) in enumerate(items):
+            if candidate == key:
+                return index % APP_COLUMNS
+    raise KeyError(f"unknown non-pipeline application: {key}")
+
+
 def _readme_workflow(icon_prefix: str) -> str:
     grouped = _grouped_apps()
     urls = _api_urls()
@@ -391,8 +409,8 @@ def _readme_workflow(icon_prefix: str) -> str:
             continue
         title = "More core tools" if section == "Core" else section
         lines.extend([f"**{title}**", ""])
-        for start in range(0, len(items), 5):
-            row = items[start:start + 5]
+        for start in range(0, len(items), APP_COLUMNS):
+            row = items[start:start + APP_COLUMNS]
             lines.extend([
                 _inline_image_row([f"|App_{key}|" for key, _ in row]),
                 "",
@@ -452,8 +470,8 @@ def _documentation_workflow() -> str:
             "^" * len(title),
             "",
         ])
-        for start in range(0, len(items), 5):
-            row = items[start:start + 5]
+        for start in range(0, len(items), APP_COLUMNS):
+            row = items[start:start + APP_COLUMNS]
             lines.extend([
                 _inline_image_row(
                     [f"|DocApp_{key}|" for key, _label in row]

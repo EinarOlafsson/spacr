@@ -139,9 +139,11 @@ def test_workflow_modules_are_dark_linked_tiles_with_separate_white_arrows():
         assert app.size == (512, 512)
         bounds = app.getchannel("A").getbbox()
         assert bounds is not None
-        assert bounds[0] >= generator.APP_TILE_PADDING
+        key = path.stem
+        left = generator._app_column(key) * generator.APP_COLUMN_STEP
+        assert bounds[0] >= left
         assert bounds[1] >= generator.APP_TILE_PADDING
-        assert bounds[2] <= app.width - generator.APP_TILE_PADDING
+        assert bounds[2] <= left + generator.APP_TILE_SIZE
         assert bounds[3] <= app.height - generator.APP_TILE_PADDING
 
     workflow_row = next(
@@ -155,23 +157,42 @@ def test_workflow_modules_are_dark_linked_tiles_with_separate_white_arrows():
         line for line in text.splitlines() if line.startswith("|App_")
     ]
     assert app_rows
-    assert max(line.count("|App_") for line in app_rows) == 5
+    assert max(line.count("|App_") for line in app_rows) == generator.APP_COLUMNS
     assert all(
         line.count(r"\ ") == line.count("|App_") - 1
         for line in app_rows
     )
     # Percent widths and zero-width RST separators keep the declared number
-    # of tiles on each row at every normal documentation viewport width. The
-    # secondary modules are deliberately smaller than the core workflow so
-    # five square buttons retain visible spacing between them.
+    # of tiles on each row at every normal documentation viewport width. Five
+    # secondary canvases meet both core-row edges; the visible buttons remain
+    # smaller and have one constant gap. Partial rows start at the left edge.
     top_width = (
         6 * generator.PIPELINE_DISPLAY_PERCENT
         + 5 * generator.ARROW_DISPLAY_PERCENT
     )
-    app_width = 5 * generator.APP_DISPLAY_PERCENT
+    app_width = generator.APP_COLUMNS * generator.APP_DISPLAY_PERCENT
     assert top_width < 100
-    assert 85 <= app_width <= 92
-    assert top_width - app_width >= 7
+    assert app_width == top_width
+    assert generator.APP_COLUMN_STEP * (generator.APP_COLUMNS - 1) == (
+        2 * generator.APP_TILE_PADDING
+    )
+    visible_gap = (
+        generator.BUTTON_SIZE
+        + generator.APP_COLUMN_STEP
+        - generator.APP_TILE_SIZE
+    )
+    assert visible_gap > 0
+    first_left = 0
+    last_right = (
+        (generator.APP_COLUMNS - 1) * generator.BUTTON_SIZE
+        + (generator.APP_COLUMNS - 1) * generator.APP_COLUMN_STEP
+        + generator.APP_TILE_SIZE
+    )
+    assert first_left == 0
+    assert last_right == generator.APP_COLUMNS * generator.BUTTON_SIZE
+    for items in generator._grouped_apps().values():
+        for start in range(0, len(items), generator.APP_COLUMNS):
+            assert generator._app_column(items[start][0]) == 0
     assert (
         generator.ARROW_CANVAS_WIDTH / generator.ARROW_CANVAS_HEIGHT
         == generator.ARROW_DISPLAY_PERCENT
