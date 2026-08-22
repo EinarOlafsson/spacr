@@ -296,3 +296,33 @@ def install_glass_everywhere(application=None) -> bool:
         LOG.debug("the glass filter would not install", exc_info=True)
         _INSTALLED = None
         return False
+
+
+def uninstall_glass_everywhere(application=None) -> bool:
+    """Take the filter back off. True when there was one to remove.
+
+    THE APPLICATION OUTLIVES ONE SCREEN'S WORTH OF INTENT. A filter that
+    can only be installed changes every dialog for the rest of the
+    process, which is right for a running spaCR and wrong for anything
+    that wants to look at a dialog as its author wrote it -- a test being
+    the obvious case, since one file installing this would otherwise
+    decide the look of every dialog examined after it.
+
+    Dialogs already treated keep their card: this removes the filter, not
+    the effect.
+    """
+    global _INSTALLED
+
+    if _INSTALLED is None:
+        return False
+    try:
+        from PySide6.QtWidgets import QApplication
+
+        application = application or QApplication.instance()
+        if application is not None:
+            application.removeEventFilter(_INSTALLED)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("the glass filter would not come off", exc_info=True)
+    finally:
+        _INSTALLED = None
+    return True
