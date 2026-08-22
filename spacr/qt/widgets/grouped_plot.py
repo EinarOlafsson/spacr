@@ -23,6 +23,7 @@ LOG = logging.getLogger("spacr.qt.grouped_plot")
 MARKS: Dict[str, str] = {
     "bar": "bar",
     "bar_jitter": "jitter_bar",
+    "box_jitter": "jitter_box",
     "jitter": "jitter",
     "box": "box",
     "violin": "violin",
@@ -52,6 +53,24 @@ class PlotSpec:
     unit: str = "observation"
     #: Colour per group, when the user has chosen one.
     colours: Dict[str, str] = field(default_factory=dict)
+    #: The group the figure is ABOUT, if any.
+    #:
+    #: THE HOUSE STYLE IS ONE ARGUMENT, NOT A RAINBOW: "everything is grey
+    #: except what the sentence is about; a box per group in a different
+    #: colour is a rainbow, not an argument". Naming a group here paints it
+    #: in the highlight role and everything else in the data grey. Left
+    #: empty, the groups take the categorical scale -- because a figure that
+    #: has not been told what it is about has no subject to single out, and
+    #: greying every group equally would leave a picture with no ink in it.
+    highlight: str = ""
+    #: A group that is by definition NOT the argument.
+    #:
+    #: The residual population -- "the rest", the unselected wells, the
+    #: background -- is what the coloured groups are being compared
+    #: AGAINST, so it takes the data grey whether or not a subject has been
+    #: named. Naming it is the other half of the same rule: the ink goes on
+    #: the claim, and this is the thing the claim is measured against.
+    background: str = ""
 
     def shape(self) -> str:
         """The data shape, for deciding which kinds fit."""
@@ -148,8 +167,11 @@ class GroupedPlot(FastPlot):
             return self._draw_xy(mark)
 
         labels = list(groups)
+        subject = str(spec.highlight or "")
+        background = str(spec.background or "")
         for position, label in enumerate(labels):
-            colour = spec.colours.get(label) or colour_for(position)
+            colour = spec.colours.get(label) or self._ink_for(
+                label, position, subject, background)
             self.add_group_mark(float(position), groups[label], mark,
                                 colour=colour, seed=position)
         # THE n IS ON THE AXIS, not only in the caption. A three-point
@@ -162,6 +184,30 @@ class GroupedPlot(FastPlot):
         self._label_axes(spec, categorical=True)
         self.set_status(self._caption(groups))
         return len(labels)
+
+    @staticmethod
+    def _ink_for(label: str, position: int, subject: str = "",
+                 background: str = ""):
+        """The colour one group's mark is drawn in.
+
+        The house style is one argument, not a rainbow. With a subject
+        named, that group takes the highlight role and every other group is
+        the data grey. A background group is grey either way -- it is what
+        the others are being compared against, so it is never the claim.
+        With neither named there is no claim to make, and the categorical
+        scale is what tells the groups apart.
+        """
+        from .fast_plots import colour_for
+
+        try:
+            from ...figures.style import ROLES
+        except Exception:                                    # noqa: BLE001
+            return colour_for(position)
+        if background and str(label) == background:
+            return ROLES["data"]
+        if not subject:
+            return colour_for(position)
+        return ROLES["highlight"] if str(label) == subject else ROLES["data"]
 
     def _draw_xy(self, mark: str) -> int:
         """Two continuous axes: a scatter, or a line through ordered x."""

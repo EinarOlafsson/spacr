@@ -160,3 +160,59 @@ THE MENU ENTRY DOES NOT ASK `should_open`. It would refuse on every launch
 after the first, and a menu item that does nothing is the inert control this
 codebase keeps meeting -- three of them were reported on the same day this
 was added. The automatic path keeps its guard; the menu is the user asking.
+
+--------------------------------------------------------------------------------
+DONE 2026-08-22 -- THE SECOND PASS, FROM SEEING IT RUN
+--------------------------------------------------------------------------------
+
+Everything above shipped, and then five things were reported on meeting the
+screen itself. All five are fixed and all five are MEASURED, because the
+first of them was invisible to a code reading.
+
+THE BLACK BOXES. This palette's `bg` is literally `#000000`, so every plain
+QWidget between the translucent card and the drifting backdrop -- the page
+stack, each page, the provider strip -- was caught by the blanket `QWidget`
+rule and painted a pure black rectangle over the animation the dialog had
+just installed. The widget tree gives no sign of this; it took a grab and a
+pixel count. 92% of the page stack was `#000000` and it is 0% now. THE
+CONTAINERS ONLY: the combos keep their surface, because a control you can
+see through is a control you cannot read.
+
+THE PAUSE FOR THE GREETING. "there should be a lag after the first next
+click to make time for Hello in the chosen language". The greeting is the
+only proof the language choice took and it lives on the page being LEFT, so
+without a pause it was on screen for one frame of a fade. The rim starts its
+circuit immediately -- the click is answered at once -- and only the page
+change waits. Next is disabled for the wait, or a second click would queue a
+second advance and skip a slide. It happens ONCE: a pause on every return to
+the first slide is a delay the user has already sat through.
+
+The greeting also has its own line now. It was prepended to the explanation,
+so choosing a language rewrote the paragraph under the title and the one
+word that changed was buried in it.
+
+THE PROVIDERS ARE THEIR MARKS. Claude's radiating burst, OpenAI's six-fold
+knot, Gemini's four-pointed spark, each a `QPainterPath` built in
+`spacr.qt.widgets.provider_marks`. DRAWN, NOT SHIPPED: a bitmap would be a
+vendor asset in the repository with its own licence, its own resolution and
+its own two versions for light and dark. The brand colour is used only where
+that vendor's CLI is actually installed -- colour is the fastest answer to
+"which of these can I use" -- and an absent one is drawn in the theme's
+muted ink rather than in a greyed version of its own colour.
+
+THE RIM. Longer, fading, and quicker. It was ONE FLAT STROKE, which has two
+hard ends that arrive and leave abruptly; it is twenty-four segments now,
+each with its own alpha and its own width, brightest just BEHIND THE HEAD
+and falling to nothing at both ends. A highlight that peaks in the middle
+reads as a bar; one that peaks at the front reads as something moving. The
+lit run went from 90 px to 150, and the ease from 0.18 to 0.34 -- still
+travel, not a jump, and asserted not to overshoot.
+
+AND ONE SPEED, NOT TWO. "most notably make the transitions smoother!"
+`setCurrentIndex` swapped the page between two frames while the rim took
+half a second to travel, so one gesture had two speeds -- which is what read
+as unfinished. The pages cross-fade over 260 ms. The animation is HELD on
+the dialog or Qt collects it before it runs, and the opacity effect comes
+back OFF when the fade ends: it renders its widget into an offscreen pixmap
+on every repaint, and six left alive over a drifting backdrop is a cost paid
+per frame for an animation that has finished.

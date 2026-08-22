@@ -752,7 +752,11 @@ class MeasurementComparePanel(QWidget):
                 frame=frame, value="value", group="group", kind=kind,
                 title=str(self.measurement.currentText() or ""),
                 y_label=str(self.measurement.currentText() or "value"),
-                unit=str(self.level.currentData() or "observation"))
+                unit=str(self.level.currentData() or "observation"),
+                # "the rest" is the population the selected genes are being
+                # compared AGAINST, so it is grey: the ink goes on the
+                # claim, not on what the claim is measured against.
+                background=REST)
             plot_widget = GroupedPlot(spec, parent=self)
             plot_widget.setMinimumHeight(260)
             return plot_widget

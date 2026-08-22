@@ -184,6 +184,10 @@ def save(folder: str, name: str, *,
         except Exception:                                        # noqa: BLE001
             LOG.debug("could not write %s", path, exc_info=True)
 
+    # `write_table`, not `to_csv`: the point of the bundle is that the
+    # numbers behind a figure can be read back and recomputed, and a well
+    # column spelled three ways across the codebase is the first thing that
+    # stops. Canonical on the way out is what makes the pair re-readable.
     from ..tabular import write_table
 
     frame = data if isinstance(data, pd.DataFrame) else pd.DataFrame()

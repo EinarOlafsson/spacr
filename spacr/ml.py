@@ -1346,76 +1346,27 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
     else:
         elbow_point = summary_df.iloc[-1]  # Fallback to last point
 
-    # Plot the mean absolute difference with standard deviation as shaded area
-    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-    # rcParams reach an artist when it is CREATED, so a
-    # context opened after `plt.subplots` would leave the
-    # spines, ticks and labels at the caller's globals.
-    with figure_style(theme_target()):
-        fig, ax = plt.subplots(figsize=(10, 10))
-        ax.plot(
-            summary_df['sample_size'], summary_df['smoothed_mean_abs_diff'], color='teal', label='Smoothed Mean Absolute Difference'
-        )
-        ax.fill_between(
-            summary_df['sample_size'],
-            summary_df['smoothed_mean_abs_diff'] - summary_df['std_abs_diff'],
-            summary_df['smoothed_mean_abs_diff'] + summary_df['std_abs_diff'],
-            color='teal', alpha=0.3, label='±1 Std. Dev.'
-        )
+    # THE SWEEP, IN PYQTGRAPH. A line through an ordered x with the spread
+    # it was summarised from behind it, and the chosen threshold marked --
+    # `FastPlot.add_curve` draws exactly that, so the file and the tab are
+    # one scene.
+    #
+    # WHERE THE FIGURE GOES. A `dst` the caller named is used as given; the
+    # fallback is the historical screen folder, and it is derived here rather
+    # than in the signature because it depends on `settings`.
+    if dst is None:
+        dst = os.path.join(os.path.dirname(settings['count_data'][0]),
+                           'results')
+    dst = os.path.abspath(os.path.expanduser(os.fspath(dst)))
+    os.makedirs(dst, exist_ok=True)
 
-        if settings['min_cell_count'] is None:
-            # Mark the elbow point (inflection) on the plot
-            # THE REFERENCE ROLE, NOT BLACK (178 A). A black guide line is
-            # invisible on spaCR's dark theme, which is the "no figure has
-            # invisible text at either setting" half of the ask.
-            ax.axvline(elbow_point['sample_size'], color=ROLES["reference"],
-                       linestyle='--', label='Elbow Point')
-        else:
-            ax.axvline(settings['min_cell_count'], color=ROLES["reference"],
-                       linestyle='--', label='Elbow Point')
-
-        # Formatting the plot
-        ax.set_xlabel('Sample Size')
-        ax.set_ylabel('Mean Absolute Difference')
-        ax.set_title('Mean Absolute Difference vs. Sample Size with Standard Deviation')
-        ax.legend().remove()
-
-        # WHERE THE FIGURE GOES. A `dst` the caller named is used as given; the
-        # fallback is the historical screen folder, and it is derived here rather
-        # than in the signature because it depends on `settings`.
-        #
-        # (The guard here once read `if dst is not None` over an
-        # `os.path.dirname(...)` that could never be None, so the branch was
-        # decoration. It is a real choice now.)
-        if dst is None:
-            dst = os.path.join(os.path.dirname(settings['count_data'][0]),
-                               'results')
-        dst = os.path.abspath(os.path.expanduser(os.fspath(dst)))
-        os.makedirs(dst, exist_ok=True)
-        fig_file_path = save_figure(fig, os.path.join(dst,
-                                                      'cell_min_threshold.pdf'),
-                                    bbox_inches='tight')
+    mark = (elbow_point['sample_size'] if settings['min_cell_count'] is None
+            else settings['min_cell_count'])
+    fig_file_path = _draw_the_cell_count_sweep(
+        summary_df, mark, os.path.join(dst, 'cell_min_threshold.pdf'))
+    if fig_file_path:
         print(f"Saved {fig_file_path}")
 
-        # PUBLISHED, NOT SHOWN. `plt.show()` here blocks forever anywhere there is
-        # no GUI event loop to hand it to: with the Qt backend it calls
-        # `start_main_loop`, and a script, a notebook or `spacr-run regression`
-        # then sits in `qt_compat._exec` until it is killed. Measured 2026-08-19
-        # by running the maintainer's own four plates headlessly -- the stack ends
-        # exactly here.
-        #
-        # Instruction 139 C already settled what the delivery mechanism should be:
-        # saved and visible are ONE event, through `figure_sink.publish`, and a
-        # figure reaching the gallery must not depend on somebody calling `show`.
-        # The Qt bridge still streams it in the GUI, because publish announces it;
-        # nothing is lost by not blocking.
-        try:
-            from .figure_sink import publish_file
-
-            publish_file(fig_file_path, title="Minimum cell count")
-        except Exception:                                            # noqa: BLE001
-            # Never lose a run over a figure -- the file above is already written.
-            pass
         return elbow_point['sample_size']
 
 def _statsmodels_p_values(model, coefs):
@@ -1905,13 +1856,20 @@ def _show_response_distribution(before_df, dependent_variable, settings):
             print("the response distribution panel was not drawn: the "
                   "aggregated table carries no numeric response column")
             return
-        with figure_style(theme_target()):
-            figure, axes = plt.subplots(figsize=(7.0, 4.2))
-            panel(before_df[column].to_numpy(dtype=float),
-                  str(settings.get('transform') or 'none'), ax=axes,
-                  dependent_variable=str(column))
-            figure.tight_layout()
-        plt.show()
+        # PYQTGRAPH, so the panel in the tab and the panel in the run
+        # folder are one scene. `fast_panel` overlays the two distributions
+        # as outlines on one pair of axes -- two shapes on separate axes
+        # with separate scales is the one layout that cannot answer whether
+        # the transform moved the shape.
+        #
+        # The matplotlib version this replaced was wrapped in
+        # `figure_style(theme_target())`, which is how a matplotlib artist
+        # takes the theme. A pyqtgraph scene takes it from the palette when
+        # it is built, so there is nothing left for that context to do.
+        _draw_response_panel_in_pyqtgraph(
+            before_df[column].to_numpy(dtype=float),
+            str(settings.get('transform') or 'none'), str(column),
+            settings.get('src'))
     except Exception as error:                                   # noqa: BLE001
         # A diagnostic figure must not invalidate the regression run, but a
         # rendering failure remains visible in the run log.
@@ -9203,7 +9161,7 @@ def generate_ml_scores(settings):
     permutation_fig_path = publish(figs[0], permutation_fig_path)
     feature_importance_fig_path = publish(
         figs[1], feature_importance_fig_path)
-    shap_fig_path = publish(shap_fig, shap_fig_path)
+    shap_fig_path = write_plot(shap_fig, shap_fig_path, "SHAP summary")
 
     # The model scored every object in every source database, so the scores
     # belong back on every one of those databases -- not only in a CSV, and not
@@ -9899,39 +9857,102 @@ def ml_analysis(
     return [df, permutation_df, feature_importance_df, model, X_train, X_test, y_train, y_test, metrics_df, features], [permutation_fig, feature_importance_fig]
 
 def shap_analysis(model, X_train, X_test):
-    """Return a SHAP summary-plot figure for ``model`` explaining ``X_test``.
+    """Return a SHAP summary BEESWARM for ``model`` explaining ``X_test``.
+
+    Drawn in pyqtgraph rather than by ``shap.summary_plot``, which makes its
+    own matplotlib figure and so cannot be given a scene. This was the last
+    figure on the explanation path keeping a second renderer alive, and the
+    cost of two renderers is that one screen produces two pictures of one
+    number from two code paths that can disagree.
+
+    THE RETURN IS A LIVE PLOT, not a file and not a matplotlib figure. The
+    caller decides where it goes, the same as before; :func:`write_plot` is
+    what turns it into a file in the user's chosen format.
 
     :param model: Fitted estimator compatible with ``shap.Explainer``.
     :param X_train: Training features used to seed the explainer.
     :param X_test: Test features to explain.
-    :returns: Matplotlib ``Figure`` holding the summary plot.
+    :returns: a ``FastPlot`` holding the beeswarm, or None when there is no
+        Qt to render under -- which is said out loud rather than logged.
     """
     import shap
 
     explainer = shap.Explainer(model, X_train)
     shap_values = explainer(X_test)
     # TreeExplainer returns one output axis for every classifier class in
-    # recent SHAP releases: (samples, features, classes).  summary_plot treats
-    # any 3-D input as interaction values, which both misrepresents the data
-    # and crashes when feature_names is a plain list.  The classifiers used by
-    # this pipeline are binary, so explain the positive class.  Keep the only
-    # output for estimators that expose a singleton output axis.
+    # recent SHAP releases: (samples, features, classes).  A 3-D input is
+    # interaction values to anything downstream, which both misrepresents
+    # the data and crashes when feature_names is a plain list.  The
+    # classifiers used by this pipeline are binary, so explain the positive
+    # class.  Keep the only output for estimators with a singleton axis.
     if len(shap_values.shape) == 3:
         output_index = 1 if shap_values.shape[-1] > 1 else 0
         shap_values = shap_values[..., output_index]
-    # Create a new figure
-    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-    # rcParams reach an artist when it is CREATED, so a
-    # context opened after `plt.subplots` would leave the
-    # spines, ticks and labels at the caller's globals.
-    with figure_style(theme_target()):
-        fig, ax = plt.subplots()
-        # Summary plot
-        shap.summary_plot(shap_values, X_test, show=False)
-        # Save the current figure (the one that SHAP just created)
-        fig = plt.gcf()
-        plt.close(fig)  # Close the figure to prevent it from displaying immediately
-        return fig
+
+    from .figures.headless import application
+
+    application_object, refusal = application()
+    if application_object is None:
+        print(refusal)
+        return None
+
+    from .qt.widgets.fast_plots import FastPlot
+
+    matrix = np.asarray(shap_values.values, dtype=float)
+    if matrix.ndim != 2 or not matrix.size:
+        return None
+    columns = list(X_test.columns)[:matrix.shape[1]]
+    # RANKED BY MEAN ABSOLUTE CONTRIBUTION, which is the order the library
+    # uses and the only one that answers "which of these matters": a feature
+    # that pushes hard in both directions has a mean near zero and belongs
+    # at the top, not the bottom.
+    order = np.argsort(np.nanmean(np.abs(matrix), axis=0))[::-1]
+    names = [str(columns[int(i)]) for i in order]
+    plot = FastPlot(title="SHAP summary", x_label="SHAP value", y_label="")
+    plot.resize(1200, max(420, 34 * len(names) + 140))
+    if not plot.add_beeswarm(names, matrix[:, order],
+                             X_test[names].to_numpy(dtype=float)):
+        plot.deleteLater()
+        return None
+    application_object.processEvents()
+    return plot
+
+
+def write_plot(plot, path, title=""):
+    """Write a pyqtgraph plot out and announce it, like ``publish`` does.
+
+    The counterpart of :func:`spacr.figure_sink.publish` for a scene rather
+    than a matplotlib figure: the format follows the user's preference, the
+    file NAME follows the format, and the written file reaches the gallery,
+    because saved and visible are the same event.
+
+    ``None`` writes nothing, announces nothing and returns None -- a plot
+    that could not be built must not take the run down after the model has
+    been fitted and every object scored.
+
+    :param plot: a ``FastPlot``, or None.
+    :param path: where to write it; the extension may be rewritten.
+    :param title: the name the gallery tile carries.
+    :returns: the path written, or None.
+    """
+    if plot is None:
+        return None
+    from .figure_sink import publish_file
+    from .plot import figure_output_preferences
+
+    chosen = str(figure_output_preferences()[0]).lower().lstrip('.')
+    stem, _ = os.path.splitext(str(path))
+    target = f"{stem}.{chosen}"
+    parent = os.path.dirname(os.path.abspath(target))
+    if parent:
+        os.makedirs(parent, exist_ok=True)
+    try:
+        written = plot.export(target)
+    finally:
+        plot.deleteLater()
+    if written:
+        publish_file(written, title or None)
+    return written
 
 def find_optimal_threshold(y_true, y_pred_proba):
     """Return the probability threshold maximising F1 on the precision-recall curve.
@@ -10020,6 +10041,305 @@ def _calculate_similarity(df, features, col_to_compare, val1, val2):
         print(f"Error calculating similarity scores: {e}")    
     return df
 
+def _announce_the_bundle(folder, title):
+    """Put ONE tile in the gallery for a bundle's figure.
+
+    ONE PICTURE, ONE TILE. A bundle holds the same figure twice, as a PDF
+    and as a PNG, because a folder somebody opens should carry both -- but
+    announcing both puts two tiles in the gallery for one picture, and a
+    reader clicking each of them to find out they are the same is exactly
+    the confusion the gallery exists to remove. The one announced is the
+    one in the format the user chose.
+
+    :param folder: the bundle directory.
+    :param title: the name the tile carries.
+    :returns: the path announced, or None when the folder holds no figure.
+    """
+    from .figure_sink import publish_file
+    from .plot import figure_output_preferences
+
+    if not folder or not os.path.isdir(folder):
+        return None
+    wanted = str(figure_output_preferences()[0]).lower().lstrip('.')
+    written = sorted(os.listdir(folder))
+    chosen = next((f for f in written if f.lower().endswith(f".{wanted}")),
+                  None)
+    if chosen is None:
+        # The preference names a format this bundle does not hold -- a
+        # bundle writes pdf and png whatever the preference says. Announce
+        # the vector one rather than nothing.
+        chosen = next((f for f in written if f.lower().endswith(".pdf")), None)
+    if chosen is None:
+        return None
+    return publish_file(os.path.join(folder, chosen), title)
+
+
+_EPHEMERAL_FIGURES = None
+
+
+def _figure_folder(src, save):
+    """Where a drawn figure goes: the run folder, or a temporary one.
+
+    `save` GATES THE RUN FOLDER, NOT THE PICTURE. Before these charts moved
+    to pyqtgraph they were `plt.show()`n and never written, so a `save=False`
+    run still SAW them -- and writing them into the user's results folder
+    now would be a behaviour change nobody asked for. A temporary directory
+    is what an ephemeral figure has always been; the gallery gets its tile
+    either way, because saved and visible are one event.
+
+    :param src: plate folder.
+    :param save: whether this run is writing its results.
+    :returns: a directory that exists.
+    """
+    global _EPHEMERAL_FIGURES
+
+    if save:
+        folder = os.path.join(str(src), 'results')
+        os.makedirs(folder, exist_ok=True)
+        return folder
+    if _EPHEMERAL_FIGURES is None:
+        import tempfile
+
+        _EPHEMERAL_FIGURES = tempfile.mkdtemp(prefix="spacr-figures-")
+    return _EPHEMERAL_FIGURES
+
+
+def _draw_response_panel_in_pyqtgraph(values, transform, column, src):
+    """Draw the response distribution before and after, and publish it.
+
+    :param values: the untransformed response.
+    :param transform: the transformation named in the settings.
+    :param column: the response's own column name.
+    :param src: plate folder, or None to draw without writing a file.
+    :returns: the path written, or None.
+    """
+    from .figures.headless import application
+
+    application_object, refusal = application()
+    if application_object is None:
+        print(refusal)
+        return None
+
+    from .response_distribution import fast_panel
+
+    plot = fast_panel(values, transform, dependent_variable=column)
+    if plot is None:
+        print("the response distribution panel was not drawn: the "
+              "response holds no finite values")
+        return None
+    plot.resize(1100, 660)
+    application_object.processEvents()
+    if not src:
+        plot.deleteLater()
+        return None
+    return write_plot(
+        plot, os.path.join(_figure_folder(src, True),
+                           'response_distribution.pdf'),
+        "Response distribution")
+
+
+def _draw_shap_summary_in_pyqtgraph(shap_values, sample, src, name, top,
+                                    save=True):
+    """Draw a SHAP beeswarm in pyqtgraph and write its bundle.
+
+    The features are ranked by MEAN ABSOLUTE contribution, which is the
+    order `shap.summary_plot` uses and the only one that answers "which of
+    these matters": a feature that pushes hard in both directions has a mean
+    near zero and belongs at the top, not the bottom.
+
+    :param shap_values: a shap Explanation, or anything with ``.values``.
+    :param sample: the frame the values were computed over.
+    :param src: plate folder; the bundle goes under ``<src>/results``.
+    :param name: bundle name.
+    :param top: how many features to show.
+    :returns: the folder written, or None when there is no Qt.
+    """
+    from .figures.headless import application
+    from .figure_sink import publish_file
+
+    application_object, refusal = application()
+    if application_object is None:
+        print(refusal)
+        return None
+
+    from .qt.widgets.fast_plots import FastPlot
+    from .figures.bundle import save as write_bundle
+
+    matrix = np.asarray(getattr(shap_values, 'values', shap_values),
+                        dtype=float)
+    if matrix.ndim != 2 or not matrix.size:
+        return None
+    columns = list(sample.columns)[:matrix.shape[1]]
+    strength = np.nanmean(np.abs(matrix), axis=0)
+    order = np.argsort(strength)[::-1][:int(top)]
+    names = [str(columns[int(i)]) for i in order]
+    picked = matrix[:, order]
+    values = sample[names].to_numpy(dtype=float)
+
+    title = f"SHAP summary - top {len(names)} features"
+    plot = FastPlot(title=title, x_label="SHAP value", y_label="")
+    try:
+        plot.resize(1200, max(420, 34 * len(names) + 140))
+        if not plot.add_beeswarm(names, picked, values):
+            return None
+        application_object.processEvents()
+        folder = write_bundle(_figure_folder(src, save), name,
+                              render=plot.export,
+                              data=plot.beeswarm_frame(), groups=None,
+                              unit="observation",
+                              settings={"top_features": int(top),
+                                        "figure": name})
+    finally:
+        plot.deleteLater()
+    _announce_the_bundle(folder, title)
+    return folder
+
+
+def _draw_the_cell_count_sweep(summary, mark, path):
+    """Draw the sample-size sweep in pyqtgraph and write it out.
+
+    PUBLISHED, NOT SHOWN. `plt.show()` here blocked forever anywhere there
+    was no GUI event loop to hand it to: with the Qt backend it calls
+    `start_main_loop`, and a script, a notebook or `spacr-run regression`
+    then sat in `qt_compat._exec` until it was killed. Saved and visible are
+    ONE event, through the figure sink, and a figure reaching the gallery
+    must not depend on somebody calling `show`.
+
+    :param summary: frame with ``sample_size``, ``smoothed_mean_abs_diff``
+        and ``std_abs_diff``.
+    :param mark: the sample size the threshold line is drawn at.
+    :param path: destination; the extension follows the format preference.
+    :returns: the path written, or None when there is no Qt to draw under.
+    """
+    from .figures.headless import application
+
+    application_object, refusal = application()
+    if application_object is None:
+        print(refusal)
+        return None
+
+    from .qt.widgets.fast_plots import FastPlot
+    from .figures.style import ROLES
+
+    sizes = summary['sample_size'].to_numpy(dtype=float)
+    middle = summary['smoothed_mean_abs_diff'].to_numpy(dtype=float)
+    spread = summary['std_abs_diff'].to_numpy(dtype=float)
+    plot = FastPlot(title="Mean absolute difference against sample size",
+                    x_label="Sample size",
+                    y_label="Mean absolute difference")
+    try:
+        plot.resize(1100, 760)
+        if not plot.add_curve(sizes, middle, low=middle - spread,
+                              high=middle + spread):
+            return None
+        # THE REFERENCE ROLE, NOT BLACK. A black guide line is invisible on
+        # spaCR's dark theme.
+        plot.add_line(x=float(mark), colour=ROLES["reference"],
+                      label="minimum cell count")
+        application_object.processEvents()
+        return write_plot(plot, path, "Minimum cell count")
+    except Exception:                                            # noqa: BLE001
+        plot.deleteLater()
+        raise
+
+
+def _figure_name_for(title):
+    """A filename from a figure title: lower case, words joined by _."""
+    keep = [ch.lower() if ch.isalnum() else " " for ch in str(title)]
+    return "_".join("".join(keep).split()) or "figure"
+
+
+def _draw_radar_in_pyqtgraph(labels, values, title, src, name,
+                             save=True):
+    """Draw a radar in pyqtgraph and write its bundle under ``<src>/results``.
+
+    Returns the folder, or None when there is no Qt to render under -- which
+    `render`'s own refusal explains rather than leaving the run silent.
+    """
+    from .figures.headless import application
+    from .figure_sink import publish_file
+
+    application_object, refusal = application()
+    if application_object is None:
+        print(refusal)
+        return None
+
+    from .qt.widgets.fast_plots import FastPlot
+    from .figures.bundle import save as write_bundle
+
+    plot = FastPlot(title=title, x_label="", y_label="")
+    try:
+        plot.resize(820, 780)
+        if not plot.add_radar(labels, values):
+            return None
+        application_object.processEvents()
+        folder = write_bundle(_figure_folder(src, save), name,
+                              render=plot.export,
+                              data=plot.radar_frame(), groups=None,
+                              unit="feature", settings={"figure": name})
+    finally:
+        plot.deleteLater()
+    _announce_the_bundle(folder, title)
+    return folder
+
+
+def _draw_importance_in_pyqtgraph(frame, title, src, name, top,
+                                  save=True):
+    """Draw a ranked importance chart in pyqtgraph and write it out.
+
+    The regression and explanation figures were drawn twice -- once in
+    pyqtgraph for the tab and once in matplotlib for the file -- so one
+    screen produced two pictures of one number from two code paths that can
+    disagree. These two were the last that could not move, because twenty
+    feature names need HORIZONTAL bars and the plot could not draw them.
+
+    Returns the bundle folder, or None when there is no Qt to render under.
+    A None is not a failure: the caller has already written the CSV, and
+    `render_bundle` says out loud why it could not draw.
+
+    :param frame: importance table with ``feature`` and ``importance``.
+    :param title: the figure's title.
+    :param src: plate folder; the bundle goes under ``<src>/results``.
+    :param name: bundle name.
+    :param top: how many features to show.
+    :returns: the folder written, or None.
+    """
+    from .figures.headless import application
+    from .figure_sink import publish_file
+
+    application_object, refusal = application()
+    if application_object is None:
+        print(refusal)
+        return None
+
+    from .qt.widgets.fast_plots import FastPlot
+    from .figures.bundle import save as write_bundle
+
+    shown = frame.head(int(top))
+    plot = FastPlot(title=title, x_label="Importance", y_label="")
+    try:
+        plot.resize(1200, max(420, 34 * len(shown) + 140))
+        # THE HOUSE RULE: everything grey except what the sentence is about.
+        # The sentence here is "these are the features that matter", so the
+        # leading three carry the accent and the rest are the context they
+        # are being compared against.
+        if not plot.add_ranked_bars(list(shown['feature']),
+                                    list(shown['importance']),
+                                    highlight=3, descending=False):
+            return None
+        application_object.processEvents()
+        folder = write_bundle(_figure_folder(src, save), name,
+                              render=plot.export,
+                              data=plot.ranked_frame(), groups=None,
+                              unit="feature",
+                              settings={"top_features": int(top),
+                                        "figure": name})
+    finally:
+        plot.deleteLater()
+    _announce_the_bundle(folder, title)
+    return folder
+
+
 def _save_importance_csv(df, src, filename):
     """Write an importance table to ``<src>/results/<filename>``.
 
@@ -10097,26 +10417,20 @@ def interpret_vision_model(settings=None):
     settings = set_interpret_vision_model_defaults(settings)
     save_settings(settings, name='interperate_vision_model', show=True)
 
-    # Function to create radar plot for individual and combined values
+    # Radar plot for individual and combined values, in pyqtgraph.
     def create_extended_radar_plot(values, labels, title):
-        """Draw a filled polar radar plot for ``values`` labelled by ``labels``."""
-        values = list(values) + [values[0]]  # Close the loop for radar chart
-        angles = [n / float(len(labels)) * 2 * pi for n in range(len(labels))]
-        angles += angles[:1]
+        """Draw a filled radar for ``values`` labelled by ``labels``.
 
-        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-        # rcParams reach an artist when it is CREATED, so a
-        # context opened after `plt.subplots` would leave the
-        # spines, ticks and labels at the caller's globals.
-        with figure_style(theme_target()):
-            fig, ax = plt.subplots(figsize=(8, 8), subplot_kw=dict(polar=True))
-            ax.plot(angles, values, linewidth=2, linestyle='solid')
-            ax.fill(angles, values, alpha=0.25)
-
-            ax.set_xticks(angles[:-1])
-            ax.set_xticklabels(labels, fontsize=10, rotation=45, ha='right')
-            plt.title(title, pad=20)
-            plt.show()
+        A RADAR IS A POLYGON, NOT AN AXIS. This was the last figure on the
+        explanation path that could not move to the screen's renderer, on
+        the grounds that pyqtgraph has no polar view -- which is true and
+        was never the obstacle: each label takes an angle, each value a
+        radius, and `FastPlot.add_radar` draws its own rings because a
+        radar read against a square grid is unreadable.
+        """
+        return _draw_radar_in_pyqtgraph(
+            list(labels), list(values), title,
+            settings['src'], _figure_name_for(title), settings['save'])
 
     def extract_compartment_channel(feature_name):
         """Return ``(compartment, channel)`` parsed from a feature column name."""
@@ -10305,21 +10619,20 @@ def interpret_vision_model(settings=None):
             print(f"Feature Importance ...")
             top_feature_importance_df = feature_importance_df.head(settings['top_features'])
 
-            # Plot Feature Importance
-            # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-            # rcParams reach an artist when it is CREATED, so a
-            # context opened after `plt.subplots` would leave the
-            # spines, ticks and labels at the caller's globals.
-            with figure_style(theme_target()):
-                plt.figure(figsize=(10, 6))
-                plt.barh(top_feature_importance_df['feature'], top_feature_importance_df['importance'])
-                plt.xlabel('Importance')
-                plt.title(f"Top {settings['top_features']} Features - Feature Importance")
-                plt.gca().invert_yaxis()
-                plt.show()
+            # DRAWN IN PYQTGRAPH, not matplotlib. The tab and the file are
+            # one scene now, so the picture in a paper is the picture on
+            # screen. `add_ranked_bars` is what made this possible: twenty
+            # feature names need horizontal bars, and until it existed the
+            # only thing that could draw them was `plt.barh`.
+            _draw_importance_in_pyqtgraph(
+                feature_importance_df,
+                f"Top {settings['top_features']} Features - Feature "
+                f"Importance",
+                settings['src'], 'feature_importance',
+                settings['top_features'], settings['save'])
 
-                if settings['save']:
-                    _save_importance_csv(feature_importance_df, settings['src'], 'feature_importance.csv')
+            if settings['save']:
+                _save_importance_csv(feature_importance_df, settings['src'], 'feature_importance.csv')
 
     # Step 2: Permutation Importance
     if settings['permutation_importance']:
@@ -10329,21 +10642,16 @@ def interpret_vision_model(settings=None):
         perm_importance_df = perm_importance_df.sort_values(by='importance', ascending=False)
         top_perm_importance_df = perm_importance_df.head(settings['top_features'])
 
-        # Plot Permutation Importance
-        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-        # rcParams reach an artist when it is CREATED, so a
-        # context opened after `plt.subplots` would leave the
-        # spines, ticks and labels at the caller's globals.
-        with figure_style(theme_target()):
-            plt.figure(figsize=(10, 6))
-            plt.barh(top_perm_importance_df['feature'], top_perm_importance_df['importance'])
-            plt.xlabel('Importance')
-            plt.title(f"Top {settings['top_features']} Features - Permutation Importance")
-            plt.gca().invert_yaxis()
-            plt.show()
-        
-            if settings['save']:
-                _save_importance_csv(perm_importance_df, settings['src'], 'permutation_importance.csv')
+        # PYQTGRAPH, for the reason given at the feature-importance chart.
+        _draw_importance_in_pyqtgraph(
+            perm_importance_df,
+            f"Top {settings['top_features']} Features - Permutation "
+            f"Importance",
+            settings['src'], 'permutation_importance',
+            settings['top_features'], settings['save'])
+
+        if settings['save']:
+            _save_importance_csv(perm_importance_df, settings['src'], 'permutation_importance.csv')
 
     # Step 3: SHAP Analysis
     if settings['shap']:
@@ -10374,8 +10682,16 @@ def interpret_vision_model(settings=None):
         explainer = shap.Explainer(model.predict, X_sample)
         shap_values = explainer(X_sample, max_evals=1500)
 
-        # Plot SHAP summary for the selected sample and top features
-        shap.summary_plot(shap_values, X_sample, max_display=settings['top_features'])
+        # THE SUMMARY, IN PYQTGRAPH. `shap.summary_plot` draws into a
+        # matplotlib figure it makes itself, so it cannot be handed a
+        # pyqtgraph scene -- it was the last thing on this path keeping the
+        # second renderer alive. The chart is a beeswarm: one row per
+        # feature, every sample's contribution as a point, coloured by that
+        # sample's own value for the feature. `FastPlot.add_beeswarm` draws
+        # exactly that, so the saved file and the tab are one picture.
+        _draw_shap_summary_in_pyqtgraph(
+            shap_values, X_sample, settings['src'], 'shap_summary',
+            settings['top_features'], settings['save'])
 
         # Convert SHAP values to a DataFrame for easier manipulation
         shap_df = pd.DataFrame(shap_values.values, columns=X_sample.columns)

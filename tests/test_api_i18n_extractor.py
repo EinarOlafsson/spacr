@@ -581,7 +581,26 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     #    1  FastPlot.graph_spec
     #    1  figure_settings.save_figure_bundle
     # Nothing retired; these contracts enter the regenerated API catalogs.
-    expected = 8135
+    # +4/-0 for rendering a pyqtgraph figure from a run that has no window:
+    # `spacr.figures.headless` itself, `application`, `render_offscreen` and
+    # `render_bundle`. Nothing retired.
+    # +10/-0 for the setup screen's second pass:
+    # `spacr.qt.widgets.provider_marks` with its three drawn marks and
+    # `ProviderMark`, and `SetupCard.accent_span` / `accent_alpha`, which
+    # are the rim's shape and its fade. Nothing retired.
+    # +10/-0 for the three charts that kept a second renderer alive:
+    # `FastPlot.add_ranked_bars` / `ranked_frame`, `add_radar` /
+    # `radar_frame`, `add_beeswarm` / `beeswarm_frame`, `add_curve` /
+    # `curve_frame`, `response_distribution.fast_panel` and
+    # `ml.write_plot`. Nothing retired -- `ml.shap_analysis` still exists
+    # and still explains the same model; it hands back a scene instead of a
+    # matplotlib figure.
+    #
+    # THE TOTAL IS MEASURED, NOT ADDED UP. Both sides of the 2026-08-22
+    # merge admitted the first block in their own words and then went on
+    # separately, so neither side's number could be carried across: this one
+    # was taken from the merged tree.
+    expected = 8159
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -596,7 +615,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8254
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8278
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:

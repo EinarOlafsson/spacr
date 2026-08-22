@@ -16,6 +16,7 @@ LOG = logging.getLogger("spacr.graph_types")
 GRAPH_TYPES: Tuple[Tuple[str, str], ...] = (
     ("bar", "one value per group"),
     ("bar_jitter", "the summary AND the observations"),
+    ("box_jitter", "the five numbers AND the observations"),
     ("jitter", "every observation"),
     ("box", "the distribution's shape, five numbers"),
     ("violin", "the distribution's shape, continuous"),
@@ -30,6 +31,7 @@ GRAPH_TYPES: Tuple[Tuple[str, str], ...] = (
 GRAPH_NAMES: Dict[str, str] = {
     "bar": "Bar",
     "bar_jitter": "Bar with jitter",
+    "box_jitter": "Box with jitter",
     "jitter": "Jitter",
     "box": "Box",
     "violin": "Violin",
@@ -48,8 +50,8 @@ DATA_SHAPES: Tuple[Tuple[str, str], ...] = (
 
 #: Which types FIT each shape.
 FITS: Dict[str, Tuple[str, ...]] = {
-    "categorical_continuous": ("bar_jitter", "bar", "jitter", "box",
-                               "violin"),
+    "categorical_continuous": ("box_jitter", "bar_jitter", "bar", "jitter",
+                               "box", "violin"),
     # NO BAR AND NO BOX HERE. Both need groups to summarise, and forming
     # groups out of a continuous x means binning it -- which is a different
     # graph of different data, not this one drawn another way.
@@ -61,8 +63,17 @@ FITS: Dict[str, Tuple[str, ...]] = {
 }
 
 #: Default graph type for each supported data shape.
+#:
+#: A BOX, NOT A BAR, for groups against a measurement. A bar drawn at a
+#: mean shows one number and hides the shape of the data: two groups with
+#: the same mean and completely different spreads draw the same bar. The
+#: box shows the median, the quartiles and the whiskers, and the jitter
+#: stays because the box summarises and the points are the evidence.
+#: `spacr.plot` and `spacr.settings` already default to `jitter_box` for
+#: the same reason; this table disagreeing with them was a second answer
+#: to one question.
 DEFAULTS: Dict[str, str] = {
-    "categorical_continuous": "bar_jitter",
+    "categorical_continuous": "box_jitter",
     "continuous_continuous": "scatter",
     "ordered_continuous": "line",
     "continuous_only": "jitter",
@@ -76,6 +87,8 @@ WHY_NOT: Dict[Tuple[str, str], str] = {
     ("continuous_continuous", "bar_jitter"):
         "a bar needs groups to summarise, and grouping a continuous x means "
         "binning it -- a different graph of different data",
+    ("continuous_continuous", "box_jitter"):
+        "a box is five numbers per group, and a continuous x has no groups",
     ("continuous_continuous", "box"):
         "a box is five numbers per group, and a continuous x has no groups",
     ("continuous_continuous", "violin"):
@@ -91,6 +104,9 @@ WHY_NOT: Dict[Tuple[str, str], str] = {
         "no reason",
     ("continuous_only", "bar"):
         "a bar needs groups, and there is only one measurement here",
+    ("continuous_only", "box_jitter"):
+        "a box per group needs groups, and there is only one measurement "
+        "here -- the plain box draws the same five numbers",
     ("continuous_only", "line"):
         "a line needs an ordered x, and there is only one measurement here",
     ("continuous_only", "scatter"):

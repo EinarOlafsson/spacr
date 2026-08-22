@@ -1357,3 +1357,81 @@ The cross-check rule has now paid for itself five times and did NOT fire on
 settings_model, which is the first entry on that table to be roughly right.
 Keep the rule; it costs one `--co`.
 
+
+--------------------------------------------------------------------------------
+2026-08-22 -- A FRESH MEASUREMENT, AND WHY IT IS NOT THE PERCENTAGE
+--------------------------------------------------------------------------------
+
+THE WHOLE-SUITE COVERAGE RUN DID NOT FINISH, and that is a finding rather
+than an excuse. Two attempts, with the command this file records:
+
+  * `-n 4` reached 41% of the suite in about 50 minutes, projecting to some
+    six hours under the tracer;
+  * `-n 12` reached 98% in about 45 minutes and then STALLED there, at under
+    2% CPU across every worker, for over half an hour. `--timeout=900` did
+    not fire, which means whatever is blocked is blocked inside a C call
+    that pytest-timeout's default method cannot interrupt.
+
+So the next worker should NOT begin by running this command and waiting.
+Find the hanging test first -- `-p no:randomly` makes the order stable, so
+the run can be bisected -- and consider `--timeout-method=thread` for it.
+
+`pytest-xdist` was not installed in this environment and now is; the command
+above is unusable without it.
+
+WHAT WAS MEASURED INSTEAD, and it is the more actionable number anyway.
+
+    PUBLIC CALLABLES NO TEST FILE NAMES AT ALL: 604, across 227 files.
+
+Counted at MODULE level -- module functions, module classes, and those
+classes' own public methods -- excluding the six legacy Tk modules the
+2026-08-15 request excludes, and excluding `spacr/resources/`, which is
+generated icon and version code. A name here has not been read by anything
+except the person who wrote it, which is a different and worse state from
+"covered incidentally by something else".
+
+THE COUNT OVERSTATES THE GAP IN ONE DIRECTION AND UNDERSTATES IT IN ANOTHER,
+and both matter for reading it:
+
+  * a RESULT TYPE returned by a tested function is exercised even though its
+    name never appears -- `data_manager`'s ten are almost all of this kind;
+  * a function whose name appears once in an unrelated assertion counts as
+    named while none of its branches has been driven.
+
+It is a floor, not a percentage. It is worth having because it is cheap
+(one AST walk, seconds) and because every entry on it is a specific thing to
+write a test for, which the repository percentage is not.
+
+WHAT WAS CLOSED FROM IT TODAY: 143 tests across eight files, on the modules
+where an untested branch is felt soonest --
+
+    spacr.chaining          same_path, is_empty_path, looks_laid_out,
+                            db_candidates
+    spacr.schema            canonical_rename_plan, comparable_key_value(s)
+    spacr.qt.preferences    the provider, figure style defaults, log levels,
+                            the workspace preference
+    spacr.qt.widgets.fast_plots
+                            toggle_key, highlight_keys, the style note,
+                            highlight_bin, colour_for
+    spacr.qt.widgets.pca_model
+                            every PCAResult reader the exports use
+    spacr.qt.widgets.measurement_scan_panel
+                            anchor_tables, displayed_plates
+    spacr.data_manager      registered_bytes and the usage totals
+    spacr.cli_workspace, channel_mapping, dna_rain_settings
+                            the three modules NO test named at all
+    plus sixteen module helpers in utils, io, plot, settings, deep_spacr
+    and hyperparam.
+
+Two of those turned out to be worth the trip on their own. `same_path`
+decides whether the user EDITED a path, and an edit is pinned forever after
+-- so calling `['/plate']` and `'/plate'` different pins a value the user
+never touched, and Classify produces exactly that pair on every screen.
+`canonical_rename_plan` folds case because SQLite compares identifiers
+case-insensitively: `row` beside `rowid` already HAS the canonical column,
+and renaming it produced a database that would not open.
+
+WHERE THE NEXT WORKER SHOULD GO. `spacr/qt/widgets/ambient.py` (17),
+`measurement_scan_panel.py` (the remaining 13), `fast_plots.py` (the
+remaining 9), `umap_search_viewer.py` (8) and `preview_controls.py` (8) are
+the largest remaining clusters in scope.

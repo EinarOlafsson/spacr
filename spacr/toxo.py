@@ -8,6 +8,7 @@ was measured -- see :func:`custom_volcano_plot`.
 """
 
 import contextlib
+import os
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -385,11 +386,37 @@ def custom_volcano_plot(
             # Saved INSIDE the context: savefig.transparent and
             # savefig.facecolor are read at write time, so a save outside it
             # would put the default white ground back under the figure.
-            save_path = save_figure(fig, save_path, bbox_inches='tight')
+            save_path = _write_the_figure(fig, save_path,
+                                          bbox_inches='tight')
         plt.show()
 
         return hit_list
 
+
+
+
+def _write_the_figure(fig, save_path, title=None, **kwargs):
+    """Write ``fig`` through the SCENE renderer, not straight to matplotlib.
+
+    Every generated figure on this path is asked for in pyqtgraph, so the
+    file a run writes is the same scene the screen would show. The
+    translation is a whitelist: an artist nobody thought about leaves the
+    figure incomplete and the matplotlib page is written instead, with the
+    reason recorded rather than a piece of the picture quietly missing.
+
+    ``save_figure`` is still what runs in that fallback, so the format
+    preference and the DPI reach the file either way.
+
+    :param fig: the finished matplotlib figure.
+    :param save_path: destination; the extension follows the preference.
+    :param title: the name the gallery tile carries.
+    :returns: the path actually written.
+    """
+    from .figures.scene import write_figure
+
+    written, _drew, _why = write_figure(fig, os.fspath(save_path),
+                                        title=title, **kwargs)
+    return written or save_path
 
 
 def _fit_outside_legend(fig, legend, pad=0.02, min_axes_width=0.45):
@@ -766,7 +793,8 @@ def plot_gene_phenotypes(data, gene_list, x_column='Gene ID', data_column='T.gon
 
         # Save the plot if a path is provided
         if save_path:
-            save_path = save_figure(fig, save_path, bbox_inches='tight')
+            save_path = _write_the_figure(fig, save_path,
+                                          bbox_inches='tight')
             print(f"Figure saved to {save_path}")
 
         plt.show()
@@ -847,7 +875,8 @@ def plot_gene_heatmaps(data, gene_list, columns, x_column='Gene ID', normalize=F
 
         # Save the plot if a path is provided
         if save_path:
-            save_path = save_figure(fig, save_path, bbox_inches='tight')
+            save_path = _write_the_figure(fig, save_path,
+                                          bbox_inches='tight')
             print(f"Figure saved to {save_path}")
 
         plt.show()

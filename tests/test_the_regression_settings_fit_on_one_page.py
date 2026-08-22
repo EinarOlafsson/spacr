@@ -74,6 +74,11 @@ def test_the_key_itself_is_not_retired_because_explain_cv_still_uses_it():
         "cv_predictions"
     assert S.expected_types["score_column"] is str
     assert "cv_predictions" in S.tooltips["score_column"]
+    # ONE home, whatever it is called. The heading was "Model Evaluation"
+    # until the evaluation block was split in two; `score_column` names the
+    # column a report is written from, so it went with the reports. What
+    # this asserts is that it is in exactly one of them -- a key filed under
+    # two headings appears twice on the panel.
     homes = [c for c, keys in S.categories.items() if "score_column" in keys]
     assert homes == ["Evaluation Reports"], homes
 

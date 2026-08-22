@@ -676,11 +676,18 @@ def plot_guide_permutation_volcano(
         fig.tight_layout()
         save_path = Path(save_path)
         save_path.parent.mkdir(parents=True, exist_ok=True)
-        from .figure_sink import publish
+        # THROUGH THE SCENE RENDERER, so the file a run writes is the same
+        # picture the screen draws rather than a second rendering of the
+        # same numbers. `write_figure` announces it to the gallery itself,
+        # which is what `publish` was here for; it falls back to the
+        # matplotlib page, with the reason recorded, when an artist is
+        # outside the translation's whitelist.
+        from .figures.scene import write_figure
 
         try:
-            written = publish(fig, save_path,
-                              fmt=fmt or _named_format(save_path), dpi=dpi)
+            written, _drew, _why = write_figure(
+                fig, str(save_path), fmt=fmt or _named_format(save_path),
+                dpi=dpi, title="Guide permutation volcano")
         finally:
             # `publish(close=True)` clears the figure but does not release it:
             # this one comes from `plt.subplots`, so pyplot holds a reference

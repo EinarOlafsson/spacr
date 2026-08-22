@@ -294,10 +294,16 @@ def backend_status(name, regression_type=None) -> dict:
     # and neither would wiring it up alone.
     missing = not package_installed(spec['package'])
     if not spec['implemented']:
+        # "not wired up" in the long form as well as the short one. The
+        # long form used to carry the fact only as a paraphrase, and the
+        # install command was what a reader matched on -- so once a backend
+        # became a core dependency and had no install command to offer, the
+        # entry stopped naming its own state in the words the menu uses.
         reason = (
-            f"{spec['label']} is described here but spaCR does not route any "
-            f"fit through it yet, so choosing it would change nothing. "
-            f"Listed rather than hidden so the plan is visible.")
+            f"{spec['label']} is described here but is not wired up: spaCR "
+            f"does not route any fit through it yet, so choosing it would "
+            f"change nothing. Listed rather than hidden so the plan is "
+            f"visible.")
         short = "not wired up yet"
         if missing and spec['pip']:
             reason += (f" Its package is not installed here either: "

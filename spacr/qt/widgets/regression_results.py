@@ -543,19 +543,24 @@ class RegressionResultsPanel(QWidget):
         # ORDERED channels at once (instruction 222) -- and a feature nobody
         # can reach is not a feature.
         self._colour_by_label = QLabel("colour by")
+        # ONE TOOLTIP, ON THE NAME. The combo carried a second one saying
+        # what the first channel does, and `retarget_field_tooltips` leaves a
+        # field alone when its label already has help of its own -- so this
+        # was the one control on the panel whose hover help stayed on the
+        # field. Both sentences belong to the same name, so they are one
+        # tooltip on it.
         self._colour_by_label.setToolTip(
             "Up to THREE columns at once, layered rather than combined: the "
             "first is the colour, the second the marker shape, the third the "
             "opacity. Always in that order, so the same choice always gives "
             "the same picture. There is no fourth — past three encodings a "
-            "point carries more than a reader can decode.")
+            "point carries more than a reader can decode.\n\n"
+            "Choosing nothing in the first box turns the other two off as "
+            "well: a shape that means one thing beside a colour that means "
+            "the q-value is two claims on one dot.")
         header.addWidget(self._colour_by_label)
         self._colour_by = QComboBox()
         self._colour_by.setMinimumWidth(140)
-        self._colour_by.setToolTip(
-            "The colour channel. Choosing nothing here turns the other two "
-            "off as well: a shape that means one thing beside a colour that "
-            "means the q-value is two claims on one dot.")
         self._colour_by.currentIndexChanged.connect(self._redraw_volcano)
         header.addWidget(self._colour_by)
         # THE SECOND AND THIRD COLUMNS (instruction 222). Separate combos

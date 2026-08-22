@@ -105,13 +105,13 @@ def test_minimum_cell_simulation_returns_elbow_and_writes_pdf(tmp_path):
     pdf = tmp_path / "results" / "cell_min_threshold.pdf"
     assert pdf.is_file() and pdf.stat().st_size > 0
 
-    ax = plt.gcf().axes[0]
-    assert ax.get_xlabel() == "Sample Size"
-    assert ax.get_ylabel() == "Mean Absolute Difference"
-    # One curve (smoothed mean) + one dashed elbow marker.
-    vlines = [ln for ln in ax.lines if len(set(ln.get_xdata())) == 1]
-    assert len(vlines) == 1
-    assert float(vlines[0].get_xdata()[0]) == pytest.approx(2.0)
+    # DRAWN IN PYQTGRAPH, so there is no pyplot figure to read the axis
+    # labels off -- and that absence is itself the assertion. The plot is
+    # deleted as soon as it has been written, which is the point of a
+    # renderer a run drives rather than a figure it leaves lying about, so
+    # what the chart CONTAINS is asserted where it can be: directly, on the
+    # drawing methods, in test_the_sweep_chart_marks_where_the_threshold_is.
+    assert plt.get_fignums() == [], "a matplotlib figure came back"
 
 
 def test_minimum_cell_simulation_falls_back_to_last_point(tmp_path):
@@ -143,14 +143,25 @@ def test_minimum_cell_simulation_min_cell_count_overrides_marker(tmp_path,
     settings = _settings(tmp_path, str(csv), tolerance=0.9, min_cell_count=15)
     settings["count_data"] = ["counts.csv"]
 
+    from spacr import ml as ml_module
+
+    marks = []
+    real = ml_module._draw_the_cell_count_sweep
+    monkeypatch.setattr(
+        ml_module, "_draw_the_cell_count_sweep",
+        lambda summary, mark, path: (marks.append(float(mark))
+                                     or real(summary, mark, path)))
+
     out = minimum_cell_simulation(settings, num_repeats=3, increment=10)
 
     assert int(out) == 2                     # elbow itself is unchanged
     assert (tmp_path / "results" / "cell_min_threshold.pdf").is_file()
 
-    ax = plt.gcf().axes[0]
-    vlines = [ln for ln in ax.lines if len(set(ln.get_xdata())) == 1]
-    assert [float(ln.get_xdata()[0]) for ln in vlines] == [15.0]
+    # The marker is at min_cell_count rather than at the elbow -- asserted
+    # on the value handed to the drawing helper, which is the decision this
+    # test is about; the drawing itself is covered directly below.
+    assert plt.get_fignums() == [], "a matplotlib figure came back"
+    assert marks == [15.0], marks
 
 
 def test_minimum_cell_simulation_concatenates_multiple_score_files(tmp_path):
@@ -499,3 +510,54 @@ def test_pick_glm_family_negative_values_fall_back_to_gaussian():
     fam = pick_glm_family_and_link(y)
     assert isinstance(fam, sm.families.Gaussian)
     assert isinstance(fam.link, sm.families.links.Identity)
+
+
+def test_the_sweep_chart_marks_where_the_threshold_is(qapp):
+    """The chart itself: a curve inside its spread band, and one line.
+
+    Asserted on the drawing rather than through the whole simulation,
+    because the plot a run builds is written and deleted in the same
+    breath -- which is what a renderer a pipeline drives should do, and
+    leaves nothing for a test to reach into afterwards.
+    """
+    import numpy as np
+    import pyqtgraph as pg
+
+    from spacr.qt.widgets.fast_plots import FastPlot
+
+    sizes = np.arange(2, 40, 4, dtype=float)
+    middle = 1.0 / sizes
+    spread = middle * 0.2
+    plot = FastPlot(title="sweep", x_label="Sample size",
+                    y_label="Mean absolute difference")
+    try:
+        assert plot.add_curve(sizes, middle, low=middle - spread,
+                              high=middle + spread) == len(sizes)
+        plot.add_line(x=15.0, label="minimum cell count")
+        marks = [item for item in plot.plot.items()
+                 if isinstance(item, pg.InfiniteLine)]
+        assert len(marks) == 1
+        assert float(marks[0].value()) == pytest.approx(15.0)
+        bands = [item for item in plot.plot.items()
+                 if isinstance(item, pg.FillBetweenItem)]
+        assert len(bands) == 1, "the spread band was not drawn"
+        assert plot.curve_frame().shape == (len(sizes), 2)
+    finally:
+        plot.deleteLater()
+
+
+def test_half_a_band_is_not_drawn(qapp):
+    """Either edge alone is a second line pretending to be a band."""
+    import numpy as np
+    import pyqtgraph as pg
+
+    from spacr.qt.widgets.fast_plots import FastPlot
+
+    xs = np.arange(6, dtype=float)
+    plot = FastPlot(title="t", x_label="x", y_label="y")
+    try:
+        plot.add_curve(xs, xs, low=xs - 1)
+        assert not [item for item in plot.plot.items()
+                    if isinstance(item, pg.FillBetweenItem)]
+    finally:
+        plot.deleteLater()

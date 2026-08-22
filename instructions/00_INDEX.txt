@@ -2,7 +2,7 @@
 WHAT IS LEFT -- INDEX
 ================================================================================
 
-Regenerated 2026-08-21 by `tools/build_instruction_index.py`, from the files
+Regenerated 2026-08-22 by `tools/build_instruction_index.py`, from the files
 themselves. Do not hand-edit: it went nine days stale last time, and an index
 that disagrees with the folder is worse than none, because it is believed.
 
@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-224 done / 3 open (98%).
+226 done / 1 open (99%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -26,12 +26,6 @@ OPEN
 
    60  EVERY MODULE AT 100% TEST COVERAGE
        60_every_module_to_100_percent_test_coverage.txt
-
-  139  EVERY REGRESSION GRAPH IN PYQTGRAPH, AND A BOXPLOT WHERE THERE WAS A BAR
-       139_every_regression_graph_in_pyqtgraph_and_box_not_bar.txt
-
-  234  THE SETUP SCREEN IS A SEQUENCE OF SLIDES, NOT A FORM
-       234_the_setup_screen_is_a_sequence_of_slides.txt
 
 --------------------------------------------------------------------------------
 DONE
@@ -165,6 +159,7 @@ DONE
   136  THE OLD MATPLOTLIB FIGURES GET THE HOUSE STYLE
   137  DRAG IMAGES IN, AND THE REGEX IS WORKED OUT FOR YOU
   138  THE EXPLAINER TEXT FILLS THE WIDTH OF ITS BOX
+  139  EVERY REGRESSION GRAPH IN PYQTGRAPH, AND A BOXPLOT WHERE THERE WAS A BAR
   140  A LONG FIT SAYS IT WILL BE LONG, AND SAYS WHERE IT HAS GOT TO
   141  THE USER PICKS THE BACKEND, AND IS TOLD WHAT EACH ONE IS
   142  FORCE RESTART, FOR WHEN STOP DOES NOT STOP
@@ -261,3 +256,4 @@ DONE
   232  THE BOTTOM OF A CONSOLE IS ONE GESTURE AWAY
   233  THE EVALUATION SETTINGS ARE SPLIT BY CATEGORY, AND BY ML VS CV
   234  CODEX REPOSITORY FAMILIARISATION
+  234  THE SETUP SCREEN IS A SEQUENCE OF SLIDES, NOT A FORM

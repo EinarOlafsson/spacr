@@ -721,3 +721,121 @@ HOW TO KNOW IT WORKED
   the reason it is not convertible.
 * Each converted figure is the SAME scene the screen shows, rendered -- not
   a second drawing, which is the duplication this instruction exists to end.
+
+--------------------------------------------------------------------------------
+2026-08-21 -- B IS DONE, AND A HAS THE PIECE IT WAS MISSING
+--------------------------------------------------------------------------------
+
+SECTION B IS DONE. `spacr.plot.create_grouped_plot` and the three
+`graph_type` settings already defaulted to `jitter_box`; what was left was
+that the NEW retype table said `bar_jitter` for the same shape -- so the
+right-click menu and the generated figure disagreed about what grouped data
+is born as, and the table cited this instruction while contradicting it.
+`box_jitter` is a kind now: offered, named "Box with jitter", refused with a
+reason where it does not fit, and drawn through the `jitter_box` mark that
+already existed in `MARK_TYPES`.
+
+SECTION A, WHAT SHIPPED. `spacr.figures.headless` renders a `PlotSpec` to a
+file from a process with no window: `render_offscreen` writes one figure and
+`render_bundle` writes the whole folder -- figure, data, statistics,
+settings -- so a run produces exactly what the Save button produces.
+
+  * THE FORMAT FOLLOWS THE PREFERENCE, through
+    `plot.figure_output_preferences`, and the file NAME follows the format.
+  * SAVED AND VISIBLE ARE THE SAME EVENT: every render is announced through
+    `figure_sink.publish_file`.
+  * A HEADLESS RUN WRITES ITS FIGURES, measured with DISPLAY and
+    WAYLAND_DISPLAY both unset: a real vector PDF, 18 kB, on a machine with
+    no display.
+  * IT ASKS `scene.pyqtgraph_ready` RATHER THAN STARTING ITS OWN
+    QApplication. That function already knows two things this module must
+    not get wrong: pyqtgraph binds its Qt library on first import and this
+    environment also has PyQt6, and a QWidget built on the run's worker
+    thread lives on a thread that is about to end -- traced from two
+    segfaults that landed nowhere near the cause. A second answer to
+    "can a scene be built here" is how one of those gets forgotten.
+
+WHAT IS STILL OPEN IN A, and it is not a swap. The remaining generated
+figures need pyqtgraph to grow what matplotlib already has:
+
+  * HORIZONTAL BARS. `ml.plot_feature_importance` and
+    `ml.plot_permutation` draw twenty features as a horizontal barh, because
+    twenty feature names on a vertical axis are unreadable. `add_group_mark`
+    draws at categorical positions in x only, so this needs an orientation
+    before either can move.
+  * THE POLAR PLOT. `ml.py`'s radar chart is `subplot_kw=dict(polar=True)`.
+    pyqtgraph has no polar axis; this is a new plot, not a translation.
+  * SHAP. `shap_analysis` calls into SHAP's own matplotlib API, which draws
+    into a figure it makes itself. It cannot be handed a pyqtgraph scene.
+
+`spacr.figures.scene` already translates a completed matplotlib figure into
+a pyqtgraph scene for the seven duplicated panels, which is the bridge for
+everything that is a straight translation. The three above are the ones that
+are not, and they are what "21 figures" now means.
+
+--------------------------------------------------------------------------------
+DONE 2026-08-22 -- SECTION A, THE THREE THAT WERE NOT TRANSLATIONS
+--------------------------------------------------------------------------------
+
+The three obstacles named above were each a chart nobody had drawn yet
+rather than a limit of the library, and all three are drawn now.
+
+HORIZONTAL BARS -- `FastPlot.add_ranked_bars`. `add_group_mark` draws at
+categorical positions in x and every one of its eight marks assumes the
+measurement is y, so an orientation flag through all of them would have been
+eight branches doubled to serve one chart. This is the one chart, drawn
+directly: largest at the top with the axis inverted rather than the data
+reversed, the accent on the leading few and the rest grey, and
+`ranked_frame` so the bundle beside it is not empty.
+
+THE RADAR -- `FastPlot.add_radar`. pyqtgraph has no polar view, which is true
+and was never the obstacle: each label takes an angle, each value a radius.
+It draws its OWN concentric rings, because a radar read against a square grid
+is unreadable, hides the cartesian axes, because two coordinate systems on
+one picture is one too many, and locks the aspect, because otherwise the
+rings are ellipses and a radius is worth a different amount in every
+direction.
+
+THE SHAP SUMMARY -- `FastPlot.add_beeswarm`. `shap.summary_plot` draws into a
+matplotlib figure it makes itself, so it could not be handed a scene: it was
+a WRAPPER, not a limit. One row per feature, every sample's contribution as a
+point coloured by that sample's own value for the feature, spread by LOCAL
+DENSITY rather than by random jitter -- plain noise scatters a row evenly
+whatever its distribution, so a bimodal feature and a tight cluster draw the
+same band.
+
+AND TWO MORE WHILE THE PATH WAS OPEN. `add_curve` draws the cell-count sweep,
+a line inside the spread it was summarised from; `response_distribution.
+fast_panel` draws the before/after histograms overlaid as outlines on ONE
+pair of axes, because two shapes on separate axes with separate scales is the
+one layout that cannot answer whether the transform moved anything.
+
+WHAT THE COUNT IS NOW. `spacr/ml.py` creates ZERO matplotlib figures. `toxo`
+and `guide_permutation` write through `figures.scene`, as
+`regression_diagnostics` already did, so every generated file on the path is
+a pyqtgraph render and the matplotlib page survives only as a stated fallback
+for an artist outside the translation's whitelist. A test walks the five
+modules and fails on any that makes a figure and routes none of them.
+
+MEASURED HEADLESS, with DISPLAY and WAYLAND_DISPLAY both unset and no
+QApplication made by the caller: real vector PDFs, the format preference
+honoured, and a tile in the gallery for each.
+
+ONE PICTURE, ONE TILE. A bundle holds its figure as a PDF and a PNG so the
+folder somebody opens carries both, and announcing both put two tiles in the
+gallery for one picture. The one announced is the one in the chosen format.
+
+`save` STILL MEANS WHAT IT MEANT. These charts used to be shown and never
+written, so a `save=False` run saw them and kept nothing. Writing them into
+the user's results folder now would be a change nobody asked for; they go to
+a temporary directory instead, and the gallery gets its tile either way.
+
+AND THE HOUSE STYLE REACHES THE GROUPED COMPARISON. `PlotSpec.highlight`
+names the group the figure is ABOUT -- it takes the highlight role and every
+other group is the data grey -- and `PlotSpec.background` names the residual
+population, which is grey either way because it is what the others are being
+compared against. The compare panel passes `background=REST`, so the rule
+reaches a figure the user actually sees rather than being merely available.
+With neither named the categorical scale still tells the groups apart: a
+figure that has not been told what it is about has no subject to single out,
+and greying every group equally would leave a picture with no ink in it.

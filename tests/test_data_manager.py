@@ -1023,3 +1023,43 @@ def test_scan_plan_prune_leaves_a_project_that_can_be_rebuilt(project):
 
     after = DM.scan_project(root, registry=registry)
     assert after.total_bytes == usage.total_bytes - freed
+
+
+def test_the_registered_bytes_are_the_sum_of_the_kinds(project):
+    """Instruction 60: this property had no test at all.
+
+    It is the number the archive dialog subtracts from the total to say how
+    much of a project the registry does NOT know about -- so a wrong sum
+    tells the user they can safely delete something no artifact claims when
+    an artifact does claim it.
+    """
+    root, registry = project
+    usage = DM.scan_project(root, registry=registry)
+    assert usage.registered_bytes == sum(row.registered_bytes
+                                         for row in usage.kinds)
+
+
+def test_registered_and_unregistered_account_for_everything(project):
+    """The two halves are how the breakdown adds up; a project where they
+    do not is a report with bytes that belong to neither."""
+    root, registry = project
+    usage = DM.scan_project(root, registry=registry)
+    assert usage.registered_bytes + usage.unregistered_bytes == \
+        usage.total_bytes
+
+
+def test_a_registered_path_is_findable_by_its_name(project):
+    """`artifact_at` is what the dialog calls when the user clicks a row,
+    and a miss there leaves the panel empty with nothing said."""
+    root, registry = project
+    usage = DM.scan_project(root, registry=registry)
+    if not usage.artifacts:
+        pytest.skip("this project registered nothing")
+    first = usage.artifacts[0]
+    assert usage.artifact_at(first.path) is first
+
+
+def test_an_unregistered_path_is_a_none_not_a_guess(project):
+    root, registry = project
+    usage = DM.scan_project(root, registry=registry)
+    assert usage.artifact_at(os.path.join(root, "nothing-here")) is None

@@ -180,6 +180,9 @@ class TestEveryModuleThatHasThem:
     def test_the_console_folds_on_each(self, app, app_key):
         from spacr.qt.screens.app_screen import AppScreen
 
+        # BUILT, NOT TRIED. A module that will not build is the failure this
+        # is looking for, and swallowing it into a skip would report the
+        # missing fold as "nothing to check here".
         screen = AppScreen(app_key)
         folder = getattr(screen, "_console_folder", None)
         assert folder is not None, (

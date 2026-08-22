@@ -23,8 +23,27 @@ class SetupCard(QWidget):
     :param arc: how far along each edge the accent runs, in pixels.
     """
 
+    #: How hard the accent chases the pointer, per ~16 ms frame.
+    #:
+    #: RAISED FROM 0.18 (reported 2026-08-22: "more responsive"). At 0.18 the
+    #: head needed a third of a second to cross half the rim, which reads as
+    #: the light deciding whether to come rather than as water finding the
+    #: low point. Still an ease and not a jump -- a value of 1.0 would put
+    #: the head under the pointer with no travel at all, and the travel is
+    #: the whole effect.
+    EASE = 0.34
+
+    #: Frames the tail is smeared over, as a fraction of the arc.
+    #:
+    #: THE ENDS FADE OUT (reported 2026-08-22: "it could become more
+    #: transparent towards the ends"). A run of rim at one alpha has two hard
+    #: ends that arrive and leave abruptly; a run that fades has none, which
+    #: is what makes it read as a highlight travelling rather than as a
+    #: segment being switched on.
+    FADE = 0.5
+
     def __init__(self, parent: Optional[QWidget] = None, *,
-                 radius: int = 18, arc: int = 90):
+                 radius: int = 18, arc: int = 280):
         super().__init__(parent)
         self._radius = int(radius)
         self._arc = int(arc)
@@ -186,7 +205,7 @@ class SetupCard(QWidget):
                 self._at = self._towards
                 self._timer.stop()
             else:
-                self._at += gap * 0.18      # ease, not jump: it is water
+                self._at += gap * self.EASE   # ease, not jump: water
         self._corner = int((self.position + 0.125) % 1.0 * 4) % 4
         self.update()
 
@@ -211,36 +230,69 @@ class SetupCard(QWidget):
             painter.setPen(QPen(edge, 1.0))
             painter.drawRoundedRect(rect, self._radius, self._radius)
 
-            # THE ACCENT, a run of rim centred on `position`.
+            # THE ACCENT, a run of rim centred on `position`, FADING AT
+            # BOTH ENDS.
             #
-            # DRAWN AS A STROKE OF THE ROUNDED PATH ITSELF, clipped to a
-            # length, rather than as the four hand-built corner paths below.
-            # A continuous position cannot be expressed as one of four
-            # corners, and `QPainterPathStroker` would give the outline of
-            # the stroke rather than a segment of it -- so the segment comes
-            # from `QPainterPath.pointAtPercent` along the whole rim, which
-            # is the one thing Qt measures in arc length for us.
-            painter.setPen(QPen(QColor(palette["accent"]), 2.0,
-                                Qt.SolidLine, Qt.RoundCap))
-            painter.drawPath(self._accent_path(rect))
+            # DRAWN AS SEGMENTS OF THE ROUNDED PATH ITSELF rather than as
+            # the four hand-built corner paths below. A continuous position
+            # cannot be expressed as one of four corners, and
+            # `QPainterPathStroker` would give the outline of the stroke
+            # rather than a segment of it -- so the segments come from
+            # `QPainterPath.pointAtPercent` along the whole rim, which is
+            # the one thing Qt measures in arc length for us.
+            #
+            # SEGMENT BY SEGMENT, because a QPen carries ONE colour: a run
+            # that fades has to be many short strokes, each with its own
+            # alpha and its own width. Twenty-four of them is below the
+            # threshold at which the joins are visible and well inside the
+            # frame budget at 60 fps.
+            self._paint_accent(painter, QColor(palette["accent"]), rect)
         finally:
             painter.end()
 
-    def _accent_path(self, rect: QRectF) -> QPainterPath:
-        """The lit run of rim, centred on :attr:`position`.
+    def accent_span(self, rect: QRectF) -> float:
+        """How much of the rim is lit, as a fraction of its length.
 
-        THE WHOLE RIM IS BUILT ONCE and sampled along its length, so the run
-        crosses a corner without the seam four separate corner paths have --
-        which is what makes it read as flowing rather than as switching.
+        The arc is a length in PIXELS; as a fraction of the rim it depends
+        on how big the card is, which is right -- a fixed fraction would be
+        a hairline on a large card and half the rim on a small one.
         """
         rim = QPainterPath()
         rim.addRoundedRect(rect, self._radius, self._radius)
         total = max(1.0, rim.length())
-        # The arc is a length in pixels; as a fraction of the rim it depends
-        # on how big the card is, which is right -- a fixed FRACTION would
-        # be a hairline on a large card and half the rim on a small one.
-        span = min(0.45, max(0.04, float(self._arc) * 2.0 / total))
-        start = self.position - span / 2.0
+        return min(0.62, max(0.04, float(self._arc) * 2.0 / total))
+
+    def accent_alpha(self, along: float) -> float:
+        """Opacity at ``along`` (0 at the tail, 1 at the head), 0..1.
+
+        BRIGHTEST JUST BEHIND THE HEAD, not at the middle: a highlight that
+        peaks in the centre reads as a bar, and one that peaks at the front
+        reads as something moving. Both ends fall to zero, so neither has an
+        edge to arrive or leave by.
+        """
+        along = min(max(float(along), 0.0), 1.0)
+        peak = 0.72
+        if along <= peak:
+            ramp = along / peak
+        else:
+            ramp = (1.0 - along) / max(1e-6, 1.0 - peak)
+        # Squared, so the fall is gentle near the peak and quick at the ends
+        # -- the shape a wake has.
+        return max(0.0, min(1.0, ramp ** (1.0 + self.FADE)))
+
+    def _accent_path(self, rect: QRectF) -> QPainterPath:
+        """The lit run of rim, centred on :attr:`position`, as one path.
+
+        Kept because the SHAPE of the run is worth asserting on its own,
+        separately from how it is shaded. THE WHOLE RIM IS BUILT ONCE and
+        sampled along its length, so the run crosses a corner without the
+        seam four separate corner paths have -- which is what makes it read
+        as flowing rather than as switching.
+        """
+        rim = QPainterPath()
+        rim.addRoundedRect(rect, self._radius, self._radius)
+        span = self.accent_span(rect)
+        start = self.position - span
 
         out = QPainterPath()
         steps = 48
@@ -252,6 +304,35 @@ class SetupCard(QWidget):
             else:
                 out.lineTo(point)
         return out
+
+    def _paint_accent(self, painter, colour: QColor, rect: QRectF) -> None:
+        """Stroke the lit run as segments that fade towards both ends.
+
+        THE HEAD IS AT :attr:`position` and the tail runs BEHIND it, rather
+        than the run being centred: a light that is chasing the pointer has
+        a front, and putting the pointer in the middle of the glow is what
+        made it read as a segment rather than as movement.
+        """
+        rim = QPainterPath()
+        rim.addRoundedRect(rect, self._radius, self._radius)
+        span = self.accent_span(rect)
+        start = self.position - span
+        steps = 24
+        previous = rim.pointAtPercent(start % 1.0)
+        for index in range(1, steps + 1):
+            along = index / steps
+            point = rim.pointAtPercent((start + span * along) % 1.0)
+            alpha = self.accent_alpha(along)
+            if alpha > 0.01:
+                ink = QColor(colour)
+                ink.setAlpha(int(round(235 * alpha)))
+                # THE WIDTH TAPERS WITH THE ALPHA. A constant-width stroke
+                # fading to nothing still shows its full thickness where it
+                # is faint, which reads as a smear; a taper reads as a wake.
+                painter.setPen(QPen(ink, 1.0 + 2.0 * alpha,
+                                    Qt.SolidLine, Qt.RoundCap))
+                painter.drawLine(previous, point)
+            previous = point
 
     def _corner_path(self, rect: QRectF) -> QPainterPath:
         """The two edge runs meeting at the current corner, with its arc."""

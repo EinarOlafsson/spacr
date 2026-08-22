@@ -179,6 +179,73 @@ def caption(result: Dict[str, Any]) -> str:
             f"{one(after)}")
 
 
+def fast_panel(values: Sequence[float], transform: str, plot=None,
+               dependent_variable: str = ""):
+    """Draw the before/after comparison on a pyqtgraph plot.
+
+    The same picture :func:`panel` draws, on the screen's own renderer, so
+    the figure a run writes and the figure a tab shows are one scene. Both
+    distributions go on ONE pair of axes as outlines rather than on two
+    stacked panels: the question is whether the transform moved the shape,
+    and two shapes on separate axes with separate scales is the one layout
+    that cannot answer it.
+
+    Parameters
+    ----------
+    values : sequence of float
+        Response values. Non-finite values are excluded.
+    transform : str
+        Transformation name, as :func:`transformed` accepts.
+    plot : FastPlot or None, default=None
+        Where to draw. One is created when omitted.
+    dependent_variable : str, default=""
+        The response's name, for the axis label.
+
+    Returns
+    -------
+    FastPlot or None
+        The plot drawn on, or None when there is nothing finite to draw.
+    """
+    result = compare(values, transform)
+    before = np.asarray(result["values_before"], dtype=float)
+    after = np.asarray(result["values_after"], dtype=float)
+    if not before.size:
+        return None
+
+    if plot is None:
+        from .qt.widgets.fast_plots import FastPlot
+
+        plot = FastPlot(title="Response distribution",
+                        x_label=str(dependent_variable or "response"),
+                        y_label="wells")
+
+    from .qt.widgets.fast_plots import colour_for
+
+    bins = max(10, min(60, int(np.sqrt(before.size)) * 2))
+    for index, (series, name) in enumerate(
+            ((before, result["before"]["name"]),
+             (after, result["after"]["name"]))):
+        if not series.size:
+            continue
+        counts, edges = np.histogram(series, bins=bins)
+        # A STEP OUTLINE, NOT FILLED BARS. Two filled histograms on one axis
+        # hide each other whichever order they are drawn in; two outlines
+        # overlay and stay readable, which is the comparison being asked
+        # for.
+        xs = np.repeat(edges, 2)[1:-1]
+        ys = np.repeat(counts, 2)
+        plot.plot.plot(xs, ys, pen=_pen(colour_for(index), name))
+    plot.set_status(caption(result))
+    return plot
+
+
+def _pen(colour, name):
+    """A 2 px pen in ``colour``, named for the legend."""
+    import pyqtgraph as pg
+
+    return pg.mkPen(colour, width=2.0)
+
+
 def panel(values: Sequence[float], transform: str, ax=None,
           dependent_variable: str = ""):
     """Plot response distributions before and after transformation.
