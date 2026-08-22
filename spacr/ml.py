@@ -9171,13 +9171,24 @@ def generate_ml_scores(settings):
             settings['negative_control'] = str(unique_values[1]) if len(unique_values) > 1 else str(int(unique_values[0]) + 1)
             print(f"Automatically set positive control to {settings['positive_control']} and negative control to {settings['negative_control']} based on unique values in annotation column.")
     
-    if settings['channel_of_interest'] in [0,1,2,3]:
+    # RECRUITMENT NEEDS EXACTLY ONE CHANNEL, and the setting can now name
+    # several, or a shape group, or nothing. `feature_selection` returns a
+    # bare int only for the one-channel case -- which is the only case in
+    # which "the pathogen's intensity over the cytoplasm's" names a number.
+    #
+    # It used to read `settings['channel_of_interest'] in [0,1,2,3]`, so the
+    # panel's multi-select answer `[3]` -- the same feature space as the old
+    # `3` -- would have skipped recruitment silently.
+    from .utils import feature_selection
+
+    recruitment_channel = feature_selection(settings['channel_of_interest'])
+    if isinstance(recruitment_channel, int):
         # `if "a" and "b" in df.columns` only membership-tests "b": the first
         # operand is a non-empty literal and therefore always truthy. A
         # measurements DB whose pathogen table lacks the channel mean
         # intensity died with KeyError instead of skipping recruitment.
-        pathogen_col = f"pathogen_channel_{settings['channel_of_interest']}_mean_intensity"
-        cytoplasm_col = f"cytoplasm_channel_{settings['channel_of_interest']}_mean_intensity"
+        pathogen_col = f"pathogen_channel_{recruitment_channel}_mean_intensity"
+        cytoplasm_col = f"cytoplasm_channel_{recruitment_channel}_mean_intensity"
         if pathogen_col in df.columns and cytoplasm_col in df.columns:
             df['recruitment'] = df[pathogen_col]/df[cytoplasm_col]
     

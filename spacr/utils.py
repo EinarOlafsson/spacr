@@ -8659,6 +8659,133 @@ def remove_highly_correlated_columns(df, threshold=0.95, verbose=False):
     
     return df
 
+#: The morphology measurements, by their bare skimage names. A column
+#: belongs to this group when one of these appears anywhere in its name, so
+#: `cell_area`, `nucleus_solidity` and `pathogen_zernike_7` are all
+#: morphology whichever object they were measured on.
+MORPHOLOGY_FEATURES = (
+    'area', 'area_bbox', 'major_axis_length', 'minor_axis_length',
+    'eccentricity', 'extent', 'perimeter', 'euler_number', 'solidity',
+    'area_filled', 'convex_area', 'equivalent_diameter_area',
+    'feret_diameter_max',
+) + tuple(f'zernike_{i}' for i in range(25))
+
+#: The feature group meaning "the shape of the object, whatever it was
+#: stained with". Spelled out because it is a value a user picks, not an
+#: implementation detail.
+MORPHOLOGY = 'morphology'
+
+#: Every group the panel offers, in the order it offers them.
+FEATURE_GROUPS = (0, 1, 2, 3, MORPHOLOGY)
+
+
+def feature_selection(value):
+    """What the user asked the model to look at, in canonical form.
+
+    ONE SETTING, FIVE SHAPES, because a user picking a feature space is
+    answering one question and the answer arrives from four different
+    doors: a chip strip in the panel, a settings CSV, a script, and the
+    module's own default.
+
+    Returns ``None`` for "every feature", an ``int`` for one channel, the
+    string ``'morphology'``, a free-text substring filter, or a list mixing
+    channels and morphology.
+
+    Accepted:
+
+    ==========================  ==========================================
+    ``None``, ``''``, ``[]``    every feature
+    ``'all'``                   every feature
+    ``1``, ``'1'``              channel 1
+    ``[1, 2]``, ``'1,2'``       channels 1 and 2 together
+    ``'morphology'``            shape only, any object
+    ``[1, 'morphology']``       channel 1's intensities AND the shapes
+    ``'mean_intensity'``        anything whose column name contains it
+    ==========================  ==========================================
+
+    A single-member list collapses to its member, so ``[1]`` and ``1`` name
+    the same feature space AND the same results folder -- otherwise the
+    panel's chip strip would quietly write its answers somewhere the older
+    integer setting never did.
+    """
+    if value is None:
+        return None
+    if isinstance(value, str):
+        text = value.strip()
+        if not text or text.lower() in ('all', 'none'):
+            return None
+        if text.lower() == MORPHOLOGY:
+            return MORPHOLOGY
+        if ',' in text:
+            return feature_selection([part for part in text.split(',')])
+        try:
+            return int(text)
+        except ValueError:
+            return text
+    if isinstance(value, bool):
+        # A checkbox that reached here is a mistake worth naming, because
+        # True would otherwise be read as channel 1.
+        raise ValueError(
+            f"channel_of_interest={value!r} is a boolean; it names no "
+            f"channel. Use a channel number, 'morphology', or None for "
+            f"every feature.")
+    if isinstance(value, (int, np.integer)):
+        return int(value)
+    if isinstance(value, (list, tuple, set)):
+        members = [feature_selection(item) for item in value]
+        members = [m for m in members if m is not None]
+        # Order-preserving de-duplication: the same group twice is the same
+        # feature space, and a permutation must not change the output path.
+        seen, unique = set(), []
+        for member in members:
+            key = (type(member).__name__, member)
+            if key not in seen:
+                seen.add(key)
+                unique.append(member)
+        if not unique:
+            return None
+        return unique[0] if len(unique) == 1 else unique
+    raise ValueError(
+        f"channel_of_interest={value!r} is a {type(value).__name__}; it "
+        f"must be a channel number, 'morphology', a column-name fragment, a "
+        f"list of those, or None for every feature.")
+
+
+def feature_columns(columns, selection):
+    """Which of ``columns`` the selection keeps. Order preserved.
+
+    The union over the selection's members, so ``[1, 'morphology']`` is
+    channel 1's intensities AND the shapes rather than the empty
+    intersection of the two.
+
+    COLOCALISATION BELONGS TO BOTH CHANNELS IT MEASURES. A
+    ``cell_channel_1_channel_2_pearsons`` column names two channels and
+    survives a request for either -- which is what makes "localization"
+    reachable without a separate setting: ask for the channel and its
+    relationships come with it.
+    """
+    canonical = feature_selection(selection)
+    if canonical is None:
+        return list(columns)
+    members = canonical if isinstance(canonical, list) else [canonical]
+    keep = []
+    for column in columns:
+        name = str(column)
+        for member in members:
+            if member == MORPHOLOGY:
+                if any(base in name for base in MORPHOLOGY_FEATURES):
+                    keep.append(column)
+                    break
+            elif isinstance(member, int):
+                if f"channel_{member}" in name:
+                    keep.append(column)
+                    break
+            elif str(member) in name:
+                keep.append(column)
+                break
+    return keep
+
+
 def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_variance_features=True, remove_highly_correlated_features=True, verbose=False):
     """Restrict a features DataFrame to a channel of interest and clean up correlated/low-variance columns.
 
@@ -8711,65 +8838,27 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_
         
     df = df[declared_features].copy()
     
-    if not channel_of_interest is None:
-        if isinstance(channel_of_interest, list):
-            feature_strings = [f"channel_{channel}" for channel in channel_of_interest]
-
-        # NOTE: 'morphology' must be tested BEFORE the generic str branch.
-        # It is a str, so the isinstance(..., str) check used to swallow it,
-        # leaving the morphology branch unreachable and `columns_to_drop`
-        # unassigned -> UnboundLocalError on the documented option.
-        elif channel_of_interest == 'morphology':
-            morphological_features = ['area', 'area_bbox', 'major_axis_length', 'minor_axis_length', 'eccentricity', 'extent', 'perimeter', 'euler_number', 'solidity', 'zernike_0', 'zernike_1', 'zernike_2', 'zernike_3', 'zernike_4', 'zernike_5', 'zernike_6', 'zernike_7', 'zernike_8', 'zernike_9', 'zernike_10', 'zernike_11', 'zernike_12', 'zernike_13', 'zernike_14', 'zernike_15', 'zernike_16', 'zernike_17', 'zernike_18', 'zernike_19', 'zernike_20', 'zernike_21', 'zernike_22', 'zernike_23', 'zernike_24', 'area_filled', 'convex_area', 'equivalent_diameter_area', 'feret_diameter_max']
-            morphological_columns = [item for item in df.columns.tolist() if any(base in item for base in morphological_features)]
-            columns_to_drop = [col for col in df.columns if col not in morphological_columns]
-
-        elif isinstance(channel_of_interest, str):
-            feature_strings = [channel_of_interest]
-
-        elif isinstance(channel_of_interest, int):
-            feature_strings = [f"channel_{channel_of_interest}"]
-
-        if channel_of_interest != 'morphology':
-            # ONE rule: keep a column when it NAMES a requested channel (or,
-            # for a free-text filter, contains the requested text); drop it
-            # otherwise.
-            #
-            # There used to be a second, subtractive half: a hard-coded
-            # drop list ['channel_1'..'channel_4'] minus the request, and any
-            # column mentioning a leftover was dropped even if it also named
-            # the requested channel. That half is deleted, not amended, and
-            # the reason it can go is that it was inert everywhere except one
-            # place. A column naming exactly ONE channel is decided identically
-            # by both halves -- if it names the requested channel the drop list
-            # no longer contains that token, and if it names some other channel
-            # the `all(fs not in col)` test already drops it. So the drop list
-            # only ever changed the fate of a column carrying TWO channel
-            # tokens, and the only such family in the schema is
-            # `<object>_channel_<i>_channel_<j>_<stat>`: colocalisation.
-            #
-            # Colocalisation measures the relationship BETWEEN a pair of
-            # channels and therefore belongs to both members of the pair. It
-            # now survives when EITHER member is requested -- exactly the
-            # special case we want, obtained by REMOVING a rule rather than
-            # bolting a `channel_\d+_channel_\d+` exemption onto the drop list.
-            # Asking for channel 1 no longer means "only how channel 1 relates
-            # to channel 0"; it means how channel 1 relates to every channel it
-            # was measured against. Nothing is recomputed: the columns are
-            # already in measurements.db, this is a filter change only.
-            #
-            # Same edit also fixes free-text filters: filter_by='mean_intensity'
-            # used to keep only channel_0's mean_intensity because every other
-            # channel's column tripped the drop list.
-            #
-            # str(col) because column labels are not guaranteed to be str.
-            columns_to_drop = [col for col in df.columns
-                               if all(fs not in str(col) for fs in feature_strings)]
-
+    # WHICH FEATURES THE MODEL SEES, from one setting that takes every
+    # shape a user can mean by it -- a channel, several channels,
+    # 'morphology', a column-name fragment, or a mixture. See
+    # `feature_selection`, which is where the four doors into this question
+    # (the panel's chip strip, a settings CSV, a script, and the default)
+    # are made to agree.
+    #
+    # THE UNION, not the intersection: [1, 'morphology'] is channel 1's
+    # intensities AND the shapes, which is the combination the request asked
+    # to be straightforward. And colocalisation belongs to both channels it
+    # measures, so asking for channel 1 keeps
+    # `cell_channel_1_channel_2_pearsons` -- which is how "localization" is
+    # reachable without a setting of its own.
+    selection = feature_selection(channel_of_interest)
+    if selection is not None:
+        keep = feature_columns(df.columns, selection)
+        columns_to_drop = [col for col in df.columns if col not in set(keep)]
         df = df.drop(columns=columns_to_drop)
         if verbose:
             print(f"Removed columns: {columns_to_drop}")
-  
+
     if remove_low_variance_features:
         df = remove_low_variance_columns(df, threshold=0.01, verbose=verbose)
     
@@ -9576,6 +9665,34 @@ def process_vision_results(df, threshold=0.5):
 
     return df
 
+def feature_folder_name(channel_of_interest) -> str:
+    """A folder name for one feature selection. Safe on every filesystem.
+
+    ``None`` is ``all_features``; a channel is ``channel_1``; several are
+    ``channels_1_2``; ``morphology`` is itself; a mixture joins them in the
+    order given; and a free-text filter is slugified, because a user may
+    reasonably filter on ``mean_intensity`` and a column fragment can carry
+    anything.
+    """
+    selection = feature_selection(channel_of_interest)
+    if selection is None:
+        return 'all_features'
+
+    def _one(member):
+        if isinstance(member, int):
+            return str(member)
+        return re.sub(r'[^0-9A-Za-z]+', '_', str(member)).strip('_') or 'x'
+
+    if isinstance(selection, int):
+        return f"channel_{selection}"
+    if not isinstance(selection, list):
+        return _one(selection)
+    if all(isinstance(member, int) for member in selection):
+        return "channels_" + "_".join(str(m) for m in selection)
+    return "_".join(f"channel_{m}" if isinstance(m, int) else _one(m)
+                    for m in selection)
+
+
 def get_ml_results_paths(src, model_type='xgboost', channel_of_interest=1):
     """Return the standard set of ML output paths for the given model and channel selection.
 
@@ -9586,19 +9703,12 @@ def get_ml_results_paths(src, model_type='xgboost', channel_of_interest=1):
         permutation_fig, feature_importance_fig, shap_fig, plate_heatmap, settings, ml_features)``.
     :raises ValueError: if ``channel_of_interest`` has an unsupported type.
     """
-    if isinstance(channel_of_interest, list):
-        feature_string = "channels_" + "_".join(map(str, channel_of_interest))
-
-    elif isinstance(channel_of_interest, int):
-        feature_string = f"channel_{channel_of_interest}"
-
-    elif channel_of_interest == 'morphology':
-        feature_string = 'morphology'
-
-    elif channel_of_interest == None:
-        feature_string = 'all_features'
-    else:
-        raise ValueError(f"Unsupported channel_of_interest: {channel_of_interest}. Supported values are 'int', 'list', 'None', or 'morphology'.")
+    # NAMED FROM THE CANONICAL SELECTION, so two spellings of one feature
+    # space -- `1` and `[1]`, `'1,2'` and `[1, 2]` -- write to one folder.
+    # It used to raise on a free-text filter that `filter_dataframe_features`
+    # has always accepted, so `channel_of_interest='mean_intensity'` filtered
+    # the features and then died on the way to naming the folder.
+    feature_string = feature_folder_name(channel_of_interest)
 
     res_fldr = os.path.join(src, 'results', model_type, feature_string)
     print(f'Saving results to {res_fldr}')

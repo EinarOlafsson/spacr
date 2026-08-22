@@ -6345,6 +6345,24 @@ PATH_LIST_SINGLE_KEYS: Tuple[str, ...] = (
 #: whole class of confusion, which a text field cannot.
 FIXED_ALPHABETS: Dict[str, Tuple[Tuple[Any, str], ...]] = {
     "train_channels": (("r", "Red"), ("g", "Green"), ("b", "Blue")),
+    # WHAT THE MODEL IS ALLOWED TO LOOK AT (236 A2), asked for as "the user
+    # can train on channel_1 measurements only or morphological
+    # measurements or channel combinations, localization ... This should be
+    # straight forward and easy."
+    #
+    # `utils.filter_dataframe_features` has always taken a list,
+    # 'morphology' and a free-text fragment. The setting declared `int`, so
+    # a spin box was all the panel could draw and three of the four
+    # documented ways of choosing a feature space were unreachable. A
+    # multi-select says the whole question in one row: light one chip for
+    # one channel, two for the combination, Shape for morphology, none for
+    # every feature.
+    #
+    # LOCALISATION NEEDS NO CHIP. A colocalisation column names the two
+    # channels it measures and survives a request for either, so asking for
+    # channel 1 already brings channel 1's relationships with it.
+    "channel_of_interest": ((0, "Ch 0"), (1, "Ch 1"), (2, "Ch 2"),
+                            (3, "Ch 3"), ("morphology", "Shape")),
 }
 
 
