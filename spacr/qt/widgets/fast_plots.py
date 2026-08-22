@@ -4859,21 +4859,18 @@ class FastPlot(QWidget):
                     settings=self.export_settings())
 
     def graph_spec(self):
-        """What this plot draws, or ``None``.
+        """Return the data specification used to draw this plot, if present.
 
-        THE HOOK RETYPING HANGS ON. A plot that holds its data can be
-        redrawn as any kind the data supports; one that holds only a
-        rendering cannot, and `None` here is how a plot says so.
+        Plots that retain a specification can be redrawn using another
+        compatible graph type. Rendering-only plots return ``None``.
         """
         return getattr(self, "spec", None)
 
     def _offer_graph_kinds(self, menu) -> None:
-        """"Show as" -- only the kinds this data supports, the rest greyed.
+        """Add a ``Show as`` submenu for graph types compatible with the data.
 
-        Instruction 200 A, on the plots themselves rather than on the
-        matplotlib menu alone. Reported 2026-08-21, four times: "i want to
-        be able to right click on the graph and change the graph typem to
-        whatever is possibel with the underlying data".
+        Incompatible types remain visible but disabled, with a tooltip that
+        explains the data requirement they do not meet.
         """
         spec = self.graph_spec()
         if spec is None:

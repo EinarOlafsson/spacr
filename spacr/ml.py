@@ -1857,17 +1857,11 @@ def process_model_coefficients(model, regression_type, X, y, nc, pc, controls,
     return coef_df[~coef_df['feature'].str.contains('row|column')]
 
 def _draw_the_threshold_sweep(settings, res_folder) -> None:
-    """Draw the sweep for a threshold the user already chose.
+    """Draw the guide-fraction sweep without replacing a configured threshold.
 
-    THE SAME GRAPH, NOT A SECOND ONE. `graph_sequencing_stats` both draws
-    the sweep and RETURNS the threshold it would pick, so calling it here
-    and discarding the return gives the picture without touching the
-    setting -- which is the whole point: the user's number stands and the
-    curve says where it sits.
-
-    A DRAWING FAILURE IS NOT A RUN FAILURE. The threshold is already
-    decided; this is a diagnostic, and losing a fit to it would be the wrong
-    trade.
+    The sweep reports where the configured value lies relative to the value
+    derived from the current screen. Plotting is diagnostic; a rendering
+    failure is reported without invalidating the regression run.
     """
     try:
         chosen = settings.get('fraction_threshold')

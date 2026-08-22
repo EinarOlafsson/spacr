@@ -1218,19 +1218,10 @@ class _WellTab(QWidget):
     # ------------------------------------------------------------- paging
 
     def geometry_page(self) -> tuple:
-        """``(columns, per_page)`` for this tab's viewport, right now.
+        """Return ``(columns, per_page)`` for the current scroll viewport.
 
-        ONE CALCULATION, AND THE TAB OWNS IT. There were two: the view
-        computed columns from a FIXED `_CELL_PX` over the whole tab width
-        and handed them to `fill`, while the page size came from the REAL
-        thumbnail size over the SCROLL AREA's viewport. The page then held
-        one number's worth of cells laid out at the other's -- which is why
-        cells ran off to the right and a page with room for four rows drew
-        two.
-
-        Reported 2026-08-21: "the cells kind of fit into the container but i
-        see cells to the right . and never more that two rows ... where
-        there could be 3 almost 4 instead of the next page".
+        Both values use the live viewport and thumbnail dimensions so paging
+        capacity and grid geometry remain consistent after resizing.
         """
         area = self._scroll.viewport()
         return fits_on_a_page(area.width(), area.height(), self._thumb_px)
@@ -1293,10 +1284,9 @@ class _WellTab(QWidget):
         return tuple(self._crops)
 
     def thumbs(self) -> Tuple[QWidget, ...]:
-        """Every widget now in this tab's grid, in order.
+        """Return the current page's thumbnail widgets in display order.
 
-        THE CURRENT PAGE ONLY, since instruction 211. :meth:`crops` is what
-        the tab holds.
+        Use :meth:`crops` to retrieve all crops held by the tab.
         """
         return tuple(self._grid.itemAt(i).widget()
                      for i in range(self._grid.count()))
@@ -3054,12 +3044,10 @@ class CellMontageView(QWidget):
         return tuple(self._tabs.tabText(i) for i in range(self._tabs.count()))
 
     def crop_count(self) -> int:
-        """How many crops the tabs HOLD, across every page.
+        """Return the total number of crops held across all tab pages.
 
-        NOT `len(thumbnails())`, which counts what is RENDERED -- and since
-        instruction 211 that is one page, not the whole well. The two were
-        the same number until the tabs started paging, and every caller that
-        meant "how many objects are here" wants this one.
+        This differs from ``len(thumbnails())``, which counts only widgets on
+        the pages currently displayed.
         """
         return sum(len(tab.crops()) for tab in self.well_tabs())
 
