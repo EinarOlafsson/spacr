@@ -1237,7 +1237,7 @@ _SUDOKU_ANCHOR_SHARE = 0.5
 
 
 def _sudoku_calls(work, counts, keys, guide_column, fraction_column,
-                  score_column, name, notes):
+                  score_column, name, notes, guides=()):
     """One guide name per cell, decided across every well at once.
 
     :returns: ``{well label: [guide per cell, in that well's row order]}``,
@@ -1246,6 +1246,16 @@ def _sudoku_calls(work, counts, keys, guide_column, fraction_column,
     THE ORDER IS THE CONTRACT. The caller indexes this positionally against
     its own per-well frame, so the rows here must arrive in the order the
     caller will see them.
+
+    :param guides: THE COEFFICIENT'S GUIDES. `name` is the coefficient, and
+        for a GENE-level montage -- which is the ordinary case -- that is a
+        gene while everything here is keyed by GUIDE: the fractions come
+        from `guide_column` and `sudoku` returns guide names. Matching the
+        gene against them found nothing, every time, so `mine` was empty and
+        this returned None for every gene montage ever drawn.
+
+        Reported 2026-08-21: "i press sudoku and i get a bunch of wells with
+        3 cells in each none with a blue ring".
     """
     try:
         from .sudoku import sudoku as _sudoku
@@ -1308,9 +1318,15 @@ def _sudoku_calls(work, counts, keys, guide_column, fraction_column,
         # every guide that appears in them, the wells where that guide is
         # large enough to anchor. Those extra wells inform the graph and the
         # anchors; only this guide's wells are drawn.
-        mine = [label for label, here in fractions.items() if name in here]
+        # THE COEFFICIENT'S GUIDES, not its name. A gene is never a key in
+        # `here`, which is guide -> fraction.
+        wanted = {str(g) for g in (guides or ())} or {str(name)}
+        mine = [label for label, here in fractions.items()
+                if any(g in here for g in wanted)]
         if not mine:
-            notes.append(f"sudoku: {name} is in none of these wells")
+            notes.append(
+                f"sudoku: {name} is in none of these wells "
+                f"(looked for {', '.join(sorted(wanted))})")
             return None
         rivals = {g for label in mine for g in fractions[label]}
         anchoring = {
@@ -1593,7 +1609,7 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
     if str(picking or "rank") == "sudoku":
         sudoku_calls = _sudoku_calls(
             work, counts, keys, guide_column, fraction_column,
-            score_column, name, notes)
+            score_column, name, notes, guides=covered)
 
     for _, row in well_frame.iterrows():
         here = grouped.get(tuple(row[k] for k in keys))
@@ -1725,7 +1741,12 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
             # BY INDEX. `ranked` is sorted by score, so a positional lookup
             # would put each cell's call on a different cell.
             if sudoku_calls:
-                mask = np.array([sudoku_calls.get(i) == name
+                # AGAINST THE COEFFICIENT'S GUIDES. `sudoku` calls a cell
+                # for a GUIDE; a gene-level montage is named for the gene,
+                # and comparing the two matched nothing -- which is a
+                # montage of unringed cells and no error anywhere.
+                _wanted = {str(g) for g in (covered or ())} or {str(name)}
+                mask = np.array([sudoku_calls.get(i) in _wanted
                                  for i in ranked.index], dtype=bool)
                 top = ranked[mask]
                 picked_by = "sudoku (propagated across wells)"
