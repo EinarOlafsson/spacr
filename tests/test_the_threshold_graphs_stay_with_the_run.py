@@ -322,17 +322,30 @@ def test_a_run_leaves_both_threshold_graphs_in_its_own_folder(tmp_path):
         os.path.join(str(folder), "results", "fraction_threshold.pdf"))
 
 
-def test_a_set_fraction_threshold_says_why_there_is_no_sweep_graph(tmp_path,
-                                                                   capsys):
-    """The graph is a by-product of CHOOSING the threshold, so setting one --
-    including loading a settings CSV carrying a value an earlier run derived
-    -- means it is never drawn. Silence there is indistinguishable from the
-    figure having gone missing, which is how it was reported."""
-    import inspect
+def test_a_set_fraction_threshold_is_shown_on_the_sweep_and_kept(tmp_path,
+                                                                 capsys):
+    """A configured threshold remains in force while its sweep is retained."""
+    from spacr.ml import perform_regression
+    from spacr.settings import get_perform_regression_default_settings
 
-    from spacr.ml import _perform_regression
+    score, count, folder = _regression_screen(tmp_path)
+    settings = get_perform_regression_default_settings({
+        "score_data": [score], "count_data": [count],
+        "dependent_variable": "pred", "regression_type": "ols",
+        "inference": "parametric",
+        "min_cell_count": None, "fraction_threshold": 0.02,
+        "metadata_files": [], "toxo": False, "controls": None,
+        "outlier_detection": False, "alpha": 1.0, "regression_qc": False,
+    })
 
-    source = inspect.getsource(_perform_regression)
-    assert "the gRNA fraction-threshold sweep graph is not drawn" in source
-    body = source.split("if settings['fraction_threshold'] is None:", 1)[1]
-    assert "_keep_figures_with_the_run" in body
+    perform_regression(settings)
+    plt.close("all")
+
+    run_folder = os.path.join(str(folder), "results", "ols")
+    assert os.path.isfile(
+        os.path.join(run_folder, "fraction_threshold.pdf")
+    )
+    assert settings["fraction_threshold"] == pytest.approx(0.02)
+    message = capsys.readouterr().out
+    assert "gRNA fraction-threshold sweep drawn: you set 0.02" in message
+    assert "Your value is the one in force" in message
