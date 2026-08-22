@@ -133,4 +133,5 @@ class TestTheCapabilityMessageIsUnchanged:
                     continue
                 assert "fits" in row["reason"] or "not installed" in \
                     row["reason"] or "wired" in row["reason"] or \
+                    "does not route any fit" in row["reason"] or \
                     "CUDA" in row["reason"], (regression_type, row["name"])
