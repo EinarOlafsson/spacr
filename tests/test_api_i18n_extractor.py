@@ -568,11 +568,20 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     #    3  spacr.classify_classes
     #    6  spacr.qt.widgets.training_monitor
     # Nothing retired; these contracts enter the regenerated API catalogs.
-    # +2/-0 for reaching the end of a console (instruction 232):
+    # +2/-0 for reaching the end of a console:
     # ``ConsolePanel.jump_to_the_end`` and ``ConsolePanel.at_the_end``, which
     # expose the tail-following control without requiring widget internals.
     # Nothing retired; these contracts enter the regenerated API catalogs.
-    expected = 8107
+    # +28/-0 for setup slides, data-backed graph retyping, and paged montage
+    # counts:
+    #   10  spacr.qt.widgets.setup_slides
+    #    5  SetupCard animation and perimeter accessors
+    #   10  spacr.qt.widgets.grouped_plot
+    #    1  CellMontageView.crop_count
+    #    1  FastPlot.graph_spec
+    #    1  figure_settings.save_figure_bundle
+    # Nothing retired; these contracts enter the regenerated API catalogs.
+    expected = 8135
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -587,7 +596,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8226
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8254
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
