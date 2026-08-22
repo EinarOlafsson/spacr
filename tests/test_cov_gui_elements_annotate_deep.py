@@ -681,7 +681,12 @@ def test_defaults_with_scalar_fields_and_empty_src(tk_root, png_db, monkeypatch)
     dw = _open(app)
 
     assert dw.gen["sample (rows, optional)"].get() == ""
-    assert dw.gen["tables (csv)"].get() == ""
+    # THE FOUR OBJECTS spaCR MEASURES (instruction 230 A). `tables`
+    # used to default to None -- "work it out" -- and what it worked
+    # out was frequently nothing, so the field opened empty and the
+    # run read no object table at all.
+    assert dw.gen["tables (csv)"].get() == \
+        "cell,nucleus,pathogen,cytoplasm"
     assert dw.gen["file_metadata (csv)"].get() == "plateID"
     assert "custom_measurement (optional)" not in dw.gen
     assert dw.meas["measurement (csv: columns)"].get() == "m1"
