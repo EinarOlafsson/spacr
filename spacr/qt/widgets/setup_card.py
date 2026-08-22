@@ -42,6 +42,21 @@ class SetupCard(QWidget):
     #: segment being switched on.
     FADE = 0.5
 
+    #: Rim pixels per drawn segment.
+    #:
+    #: The stroke is many short lines because a QPen carries ONE colour and
+    #: this run has to fade along its length. Below about six pixels the
+    #: steps are past what the eye resolves against an anti-aliased edge;
+    #: four is comfortably under it.
+    STEP_PX = 4.0
+
+    #: Never more segments than this, however large the card.
+    #:
+    #: A ceiling rather than a guess: at sixty frames a second the cost is
+    #: paid every frame, and past this the extra lines are drawing detail
+    #: finer than the anti-aliasing that is already smoothing them.
+    MAX_STEPS = 320
+
     def __init__(self, parent: Optional[QWidget] = None, *,
                  radius: int = 18, arc: int = 280):
         super().__init__(parent)
@@ -109,13 +124,15 @@ class SetupCard(QWidget):
         return super().event(event)
 
     def _follow(self, position) -> None:
-        corner = self.nearest_corner(QPointF(position))
-        if corner != self._corner:
-            self._corner = corner
-            # ONLY THE BORDER REPAINTS. The card is translucent over a
-            # blurred backdrop, and repainting that on every mouse move is
-            # the difference between a smooth accent and a stuttering one.
-            self.update()
+        """Aim the accent at a point in this widget's own coordinates.
+
+        IT USED TO SET ONLY `_corner`, which `_tick` recomputes from `_at`
+        on the very next frame -- so while the pointer was over the CARD,
+        which is nearly the whole dialog, nothing steered the rim at all.
+        Only the dialog's margin, which has its own handler, ever moved it.
+        That is the "unsynced on the inside" of the 2026-08-22 report.
+        """
+        self.flow_towards(QPointF(position))
 
     # ------------------------------------------------------------------
     def paintEvent(self, event):                # noqa: N802 - Qt naming
@@ -129,32 +146,72 @@ class SetupCard(QWidget):
 
     # ---------------------------------------------------- where it flows to
 
-    def perimeter_position(self, point: QPointF) -> float:
+    def perimeter_position(self, point: QPointF):
         """Where on the rim ``point`` is, as a fraction clockwise from 0.
+
+        THE RAY FROM THE CENTRE, not the nearest edge. Projecting a point
+        onto whichever edge happens to be closest is discontinuous along
+        the diagonals: the pointer crosses one and the target jumps from
+        the middle of the top edge to the middle of the left, which is what
+        was reported as the rim being unsynced with the pointer inside the
+        card. The point where the ray from the centre through the pointer
+        leaves the rectangle moves continuously, and is always the place on
+        the rim that is actually in the pointer's direction -- which is what
+        "flows towards the mouse" has to mean if the mouse can be anywhere.
+
+        Because it is a RAY it needs no clamping, and answers for a pointer
+        outside the card as readily as for one inside it.
 
         THE RIM IS TREATED AS A RECTANGLE, not as the rounded path it is
         drawn on. The corner arcs are a few pixels of a perimeter hundreds
-        long, and paying for exact arc-length here would buy an accuracy no
+        long, and paying for exact arc length here would buy an accuracy no
         eye can see on a value that is chasing a mouse anyway.
+
+        :returns: the fraction, or None when the pointer is exactly at the
+            centre and no direction can be read from it.
         """
         rect = QRectF(self.rect())
         width = max(1.0, rect.width())
         height = max(1.0, rect.height())
+        half_w, half_h = width / 2.0, height / 2.0
+        dx = float(point.x()) - half_w
+        dy = float(point.y()) - half_h
+        if abs(dx) < 1e-9 and abs(dy) < 1e-9:
+            return None
+
+        # Scale the ray until it touches whichever pair of sides it reaches
+        # first. The larger of the two normalised components decides.
+        span = max(abs(dx) / half_w, abs(dy) / half_h)
+        x = half_w + dx / span
+        y = half_h + dy / span
+        # Rounding can leave it a hair outside; the run below assumes it is
+        # on the boundary.
+        x = min(max(x, 0.0), width)
+        y = min(max(y, 0.0), height)
+
         total = 2.0 * (width + height)
-        x = min(max(float(point.x()), 0.0), width)
-        y = min(max(float(point.y()), 0.0), height)
-        # Which edge is nearest, and how far along it.
-        gaps = ((y, x), (width - x, width + y),
-                (height - y, width + height + (width - x)),
-                (x, 2.0 * width + height + (height - y)))
-        _gap, run = min(gaps, key=lambda pair: pair[0])
+        if y <= 1e-6:                       # top edge, left to right
+            run = x
+        elif x >= width - 1e-6:             # right edge, down
+            run = width + y
+        elif y >= height - 1e-6:            # bottom edge, right to left
+            run = width + height + (width - x)
+        else:                               # left edge, up
+            run = 2.0 * width + height + (height - y)
         return (run / total) % 1.0
 
     def flow_towards(self, point: QPointF) -> None:
-        """Aim the accent at ``point``. Ignored while a circuit is running."""
+        """Aim the accent at ``point``. Ignored while a circuit is running.
+
+        A point at the exact centre names no direction and is ignored too,
+        rather than being read as the top-left corner.
+        """
         if self._laps:
             return
-        self._towards = self.perimeter_position(point)
+        target = self.perimeter_position(point)
+        if target is None:
+            return
+        self._towards = target
         self._start()
 
     def circuit(self, clockwise: bool = True) -> None:
@@ -177,9 +234,43 @@ class SetupCard(QWidget):
         """Whether a circuit is running."""
         return bool(self._laps)
 
+    def _aim_at_the_cursor(self) -> bool:
+        """Point the accent at wherever the cursor is. True if it moved.
+
+        READ, NOT RECEIVED. A widget is sent mouse events only while the
+        pointer is over it, and a modal dialog gets none at all once the
+        pointer leaves the window -- so an accent that tracks "towards the
+        mouse" cannot be driven by events and still follow a mouse that is
+        somewhere else. The cursor position is global and always readable,
+        which is the whole of the fix for "doesn't track the mouse on the
+        outside".
+        """
+        try:
+            from PySide6.QtGui import QCursor
+
+            here = self.mapFromGlobal(QCursor.pos())
+        except Exception:                        # pragma: no cover
+            return False
+        target = self.perimeter_position(QPointF(here))
+        if target is None:
+            return False
+        moved = abs(((target - self._towards + 0.5) % 1.0) - 0.5) > 1e-9
+        self._towards = target
+        return moved
+
     def _start(self) -> None:
         if not self._timer.isActive():
             self._timer.start()
+
+    def showEvent(self, event):                 # noqa: N802 - Qt naming
+        """Start following as soon as there is something to follow."""
+        super().showEvent(event)
+        self._start()
+
+    def hideEvent(self, event):                 # noqa: N802 - Qt naming
+        """A card nobody is looking at does not need sixty frames a second."""
+        super().hideEvent(event)
+        self._timer.stop()
 
     def _tick(self) -> None:
         """One frame: run the laps down, else ease towards the pointer."""
@@ -200,10 +291,19 @@ class SetupCard(QWidget):
                 self._at = round(self._at + self._laps, 6)
                 self._laps = 0.0
         else:
+            # WHERE THE POINTER IS NOW, read fresh every frame. See
+            # `_aim_at_the_cursor`: events cannot carry a pointer that is
+            # outside the window, and this accent is meant to follow one.
+            self._aim_at_the_cursor()
             gap = ((self._towards - self._at + 0.5) % 1.0) - 0.5
             if abs(gap) < 0.002:
+                if self._at == self._towards:
+                    # ARRIVED AND NOTHING MOVED. The timer keeps running --
+                    # it is what notices the cursor moving again -- but a
+                    # repaint of a card that has not changed is sixty
+                    # needless composites a second over a live backdrop.
+                    return
                 self._at = self._towards
-                self._timer.stop()
             else:
                 self._at += gap * self.EASE   # ease, not jump: water
         self._corner = int((self.position + 0.125) % 1.0 * 4) % 4
@@ -317,22 +417,42 @@ class SetupCard(QWidget):
         rim.addRoundedRect(rect, self._radius, self._radius)
         span = self.accent_span(rect)
         start = self.position - span
-        steps = 24
+        # ONE STEP PER `STEP_PX` OF RIM, not a fixed count. At 24 segments a
+        # run this long was 23 px a step: the alpha moved in visible jumps
+        # and every corner was cut into four straight chords, which is the
+        # "chunky" of the 2026-08-22 report. The count now follows the
+        # length being drawn, so it stays smooth on a card of any size and
+        # costs nothing on a small one.
+        run_px = max(1.0, span * rim.length())
+        steps = int(min(self.MAX_STEPS,
+                        max(24.0, run_px / self.STEP_PX)))
         previous = rim.pointAtPercent(start % 1.0)
+        previous_alpha = self.accent_alpha(0.0)
         for index in range(1, steps + 1):
             along = index / steps
             point = rim.pointAtPercent((start + span * along) % 1.0)
             alpha = self.accent_alpha(along)
-            if alpha > 0.01:
+            if alpha > 0.004 or previous_alpha > 0.004:
                 ink = QColor(colour)
-                ink.setAlpha(int(round(235 * alpha)))
+                # THE MIDPOINT ALPHA, so a segment is the shade of the rim
+                # it covers rather than of the end it stops at -- which is
+                # what leaves a visible edge between one segment and the
+                # next at the faint end.
+                middle = (alpha + previous_alpha) / 2.0
+                ink.setAlpha(int(round(235 * middle)))
                 # THE WIDTH TAPERS WITH THE ALPHA. A constant-width stroke
                 # fading to nothing still shows its full thickness where it
                 # is faint, which reads as a smear; a taper reads as a wake.
-                painter.setPen(QPen(ink, 1.0 + 2.0 * alpha,
-                                    Qt.SolidLine, Qt.RoundCap))
+                #
+                # ROUND CAPS AND JOINS: a round cap on a 5 px segment
+                # overlaps its neighbour by half a width, so the joins fill
+                # instead of leaving the pale notch a flat cap leaves.
+                pen = QPen(ink, 1.2 + 2.2 * middle, Qt.SolidLine,
+                           Qt.RoundCap, Qt.RoundJoin)
+                painter.setPen(pen)
                 painter.drawLine(previous, point)
             previous = point
+            previous_alpha = alpha
 
     def _corner_path(self, rect: QRectF) -> QPainterPath:
         """The two edge runs meeting at the current corner, with its arc."""

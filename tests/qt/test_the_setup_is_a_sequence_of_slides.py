@@ -137,17 +137,52 @@ class TestTheGreeting:
                    for code, _name in q[4]}
         assert offered <= set(GREETINGS), offered - set(GREETINGS)
 
-    def test_it_is_shown_on_the_first_slide(self, slides):
-        """ON ITS OWN LINE. It was prepended to the explanation, so choosing
-        a language rewrote the paragraph under the title and the one word
-        that changed was buried in it."""
-        assert slides._greeting.text() == GREETINGS["en"]
-        assert slides._greeting.isVisible() or not slides.isVisible()
+    def test_it_is_not_shown_until_the_first_next(self, slides):
+        """THE GREETING IS THE ANSWER TO THE QUESTION, so it comes after the
+        question is answered rather than sitting under it while it is still
+        being decided.
 
-    def test_it_changes_with_the_choice(self, slides):
+        ASSERTED ON `isHidden`, not `isVisible`: this dialog is never shown,
+        and every child of an unshown parent reports itself invisible -- so
+        `isVisible` would pass here whether or not the greeting had been
+        hidden on purpose.
+        """
+        assert slides._greeting.isHidden()
+
+    def test_the_first_next_shows_it(self, slides):
+        slides.next()
+        assert not slides._greeting.isHidden()
+        assert slides._greeting.text() == GREETINGS["en"].upper()
+
+    def test_it_is_in_capitals(self, slides):
+        """`.upper()` is right for every language spaCR is translated to:
+        on a script with no case it returns the greeting unchanged."""
+        slides.next()
+        assert slides._greeting.text() == slides._greeting.text().upper()
+
+    def test_it_follows_the_language_that_was_chosen(self, slides):
         box = slides._editors["language"]
         box.setCurrentIndex(box.findData("sv"))
-        assert slides._greeting.text() == "Hej"
+        slides.next()
+        assert slides._greeting.text() == "HEJ"
+
+    def test_it_is_in_the_accent_colour(self, slides):
+        """Blue, from the palette rather than a literal, so it matches the
+        rim running round the card as it arrives."""
+        from spacr.qt.theme import active_palette
+
+        slides.next()
+        assert active_palette()["accent"].lower() in \
+            slides._greeting.styleSheet().lower()
+
+    def test_it_fades_in_rather_than_appearing(self, slides):
+        """A word switched on reads as a label that was always going to be
+        there; one that fades up reads as an answer to what was just
+        chosen."""
+        slides.next()
+        assert slides._hello is not None
+        assert slides._hello.parent() is slides, (
+            "an animation nobody holds is collected before it runs")
 
     def test_it_is_only_on_the_language_slide(self, slides):
         """A "Hello" left standing over the theme question is a word with no
@@ -212,14 +247,20 @@ class TestTheProviderIsALogoButton:
         slides._choose_provider(slides._editors["ai_provider"], "gemini")
         assert slides.answers()["ai_provider"] == "gemini"
 
-    def test_an_uninstalled_provider_says_so(self, slides):
-        """Choosing it would leave the assistant silently unavailable, and
-        the user would blame spaCR."""
+    def test_an_uninstalled_provider_says_so_and_is_still_choosable(
+            self, slides):
+        """Reported 2026-08-22: "for the ai assistant i can only click
+        claude". The setup screen writes a PREFERENCE and launches nothing,
+        so choosing a provider before installing its CLI is an ordinary
+        thing to want -- the state is drawn and said, not enforced."""
         holder = slides._editors["ai_provider"]
-        for code, _label, _command in PROVIDERS:
+        for code, _label, command in PROVIDERS:
             mark = holder._buttons[code]
             if not mark.available:
-                assert "not set up on this machine" in mark.toolTip()
+                assert f"`{command}`" in mark.toolTip()
+                assert "install it later" in mark.toolTip()
+            slides._choose_provider(holder, code)
+            assert slides.answers()["ai_provider"] == code
 
 
 class TestTheRim:
@@ -273,17 +314,27 @@ class TestTheRim:
         card.flow_towards(QPointF(200, 60))
         assert card._towards == 0.0
 
-    def test_it_flows_rather_than_jumping(self, app):
+    def test_it_flows_rather_than_jumping(self, app, monkeypatch):
         """"the blue rim should flow like water towards the mouse", and
-        water does not teleport between corners."""
+        water does not teleport between corners.
+
+        The cursor read is stubbed out: every tick now aims at wherever the
+        pointer actually is, which on a test machine is wherever the last
+        thing to touch it left it -- so without this the target moves out
+        from under the assertion.
+        """
+        from spacr.qt.widgets import setup_card as module
         from spacr.qt.widgets.setup_card import SetupCard
 
         card = SetupCard()
         card.resize(200, 120)
+        monkeypatch.setattr(module.SetupCard, "_aim_at_the_cursor",
+                            lambda self: False)
         card.flow_towards(QPointF(200, 60))
+        target = card._towards
         card._tick()
         first = card.position
-        assert 0.0 < first < card._towards, (
+        assert 0.0 < first < target, (
             "one tick should move part of the way, not all of it")
 
 

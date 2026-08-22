@@ -16,6 +16,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from PySide6.QtCore import (QEasingCurve, QEvent, QPointF,
                             QPropertyAnimation, Qt, QTimer)
+from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (QComboBox, QDialog, QGraphicsOpacityEffect,
                                QHBoxLayout, QLabel, QPushButton,
                                QStackedWidget, QVBoxLayout, QWidget)
@@ -101,6 +102,25 @@ FADE_MS = 260
 #: pause it is on screen for one frame of a fade.
 GREETING_MS = 850
 
+#: The face every slide is set in.
+#:
+#: LIGHT, AND IT REALLY IS LIGHT: `OpenSans-Light.ttf` ships in
+#: `spacr/resources/font/open_sans/static`, so the weight resolves to the
+#: face rather than to a synthesised one -- provided the bundled fonts have
+#: been registered, which is why `_use_the_light_face` loads them itself
+#: instead of assuming the application already did.
+SLIDE_FONT = "Open Sans"
+
+#: Point size of the word on the closing slide.
+DONE_POINTS = 44
+
+#: Milliseconds the greeting takes to fade up.
+#:
+#: IT ARRIVES, it does not appear. A word that is simply switched on reads
+#: as a label that was always going to be there; one that fades up reads as
+#: an answer to what was just chosen, which is what it is.
+GREETING_FADE_MS = 420
+
 
 def greeting_for(code: str) -> str:
     """"Hello" in ``code``, falling back to English."""
@@ -149,9 +169,13 @@ class SetupSlides(QDialog):
         # THE GREETING HAS ITS OWN LINE. It used to be prepended to the
         # explanation, so choosing a language rewrote the paragraph under
         # the title and the one word that changed was buried in it.
+        # THE GREETING IS THE ANSWER TO THE LANGUAGE QUESTION, so it comes
+        # AFTER the question is answered rather than sitting under it while
+        # it is still being decided. It is hidden until the first Next.
         self._greeting = QLabel("")
         self._greeting.setObjectName("CardTitle")
         self._greeting.setAlignment(Qt.AlignLeft)
+        self._greeting.setVisible(False)
         column.addWidget(self._greeting)
 
         self._pages = QStackedWidget()
@@ -184,13 +208,38 @@ class SetupSlides(QDialog):
         # the readable surface, and a control you can see through is a
         # control you cannot read.
         self._clear_the_containers()
+        self._use_the_light_face()
 
         self._fade = None
+        self._hello = None
         self._pending = None
         #: Whether the greeting has already been waited for once.
         self._greeted = False
         self._show_slide(0)
         self.resize(720, 560)
+
+    def _use_the_light_face(self) -> None:
+        """Set every slide in Open Sans Light.
+
+        SET ON THE CARD, not on each label: Qt propagates a font to children
+        that have not asked for one of their own, so one call covers the
+        titles, the prose, the controls and the buttons -- and the two
+        labels that DO want a weight of their own (the closing word and the
+        greeting) set it after this and keep it.
+
+        The bundled faces are registered here rather than assumed: this
+        dialog is the FIRST thing a fresh profile sees, and on that path it
+        can be built before anything else has loaded them.
+        """
+        try:
+            from ..app import _load_bundled_fonts
+
+            _load_bundled_fonts()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("bundled fonts are not loadable here", exc_info=True)
+        face = QFont(SLIDE_FONT)
+        face.setWeight(QFont.Light)
+        self.card.setFont(face)
 
     def _clear_the_containers(self) -> None:
         """Stop the layout containers painting over the backdrop."""
@@ -216,7 +265,13 @@ class SetupSlides(QDialog):
 
         asked = {q[0]: q for q in questions()}
         answers = current()
-        for title, _blurb, keys in SLIDES:
+        for index, (title, blurb, keys) in enumerate(SLIDES):
+            if index == len(SLIDES) - 1 and not keys:
+                # THE CLOSING SLIDE IS NOT A FORM, so it is not laid out
+                # like one. It says one word, in the middle, with the
+                # sentence that qualifies it underneath.
+                self._pages.addWidget(self._closing_page(title, blurb))
+                continue
             page = QWidget()
             form = QVBoxLayout(page)
             # A MARGIN ON THE RIGHT. The controls are right-aligned, so with
@@ -225,6 +280,7 @@ class SetupSlides(QDialog):
             # clipped control rather than as a control that fits.
             form.setContentsMargins(0, 8, 8, 0)
             form.setSpacing(14)
+            signs_in = "issue_prompt" in keys
             for key in keys:
                 if key not in asked:
                     # A QUESTION THAT REMOVED ITSELF LEAVES NO GAP. The
@@ -233,7 +289,147 @@ class SetupSlides(QDialog):
                     # control rather than as a question that does not apply.
                     continue
                 form.addLayout(self._row(asked[key], answers.get(key)))
+            if signs_in:
+                form.addWidget(self._github_row())
             self._pages.addWidget(page)
+
+    def _github_row(self) -> QWidget:
+        """Sign in to GitHub, on the slide that decides about issues.
+
+        THE CLI OWNS THE CREDENTIAL. spaCR never captures or stores a token
+        -- `gh` puts it in the platform credential manager, which is the one
+        place a user can revoke it from and the one place that is not a
+        second copy of a secret. This row says whether a token is reachable
+        and starts `gh auth login` when it is not; it never asks for one.
+
+        Filing an issue works WITHOUT it, through the browser, which is why
+        this is a row on a slide and not a gate in front of one.
+        """
+        holder = QWidget()
+        holder.setProperty("spacrProviderStrip", True)
+        row = QHBoxLayout(holder)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(10)
+
+        label = QLabel("GitHub")
+        row.addWidget(label)
+        row.addStretch(1)
+
+        self._gh_status = QLabel("")
+        self._gh_status.setObjectName("Muted")
+        row.addWidget(self._gh_status)
+
+        self._gh_button = QPushButton("Sign in")
+        self._gh_button.setToolTip(
+            "Runs `gh auth login`, the GitHub CLI's own browser sign-in. "
+            "GitHub stores the credential; spaCR never sees it. Without it, "
+            "reports open in whichever browser you are already signed in to.")
+        self._gh_button.clicked.connect(self._sign_in_to_github)
+        row.addWidget(self._gh_button)
+
+        self._refresh_github()
+        return holder
+
+    #: What each token source is called on screen.
+    GITHUB_SOURCES = {
+        "gh": "signed in through the GitHub CLI",
+        "env": "signed in through GITHUB_TOKEN",
+        "token": "signed in with a stored token",
+    }
+
+    def _refresh_github(self) -> None:
+        """Say whether a token is reachable, and from where."""
+        try:
+            from ..ai import github_auth
+
+            source = github_auth.auth_source()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("GitHub auth is not readable here", exc_info=True)
+            source = None
+        if source:
+            self._gh_status.setText(
+                self.GITHUB_SOURCES.get(source, "signed in"))
+            self._gh_button.setText("Signed in")
+            self._gh_button.setEnabled(False)
+            return
+        import shutil
+
+        if shutil.which("gh") is None:
+            # NAMED, not "sign-in failed". The CLI being absent and the CLI
+            # being logged out need different things from the user.
+            self._gh_status.setText(
+                "the GitHub CLI is not installed — reports open in your "
+                "browser")
+            self._gh_button.setText("Sign in")
+            self._gh_button.setEnabled(False)
+            self._gh_button.setToolTip(
+                "Install the GitHub CLI (`gh`) and this signs you in. "
+                "Without it, filing an issue still works -- it opens in "
+                "whichever browser you are already signed in to.")
+            return
+        self._gh_status.setText("not signed in — reports open in your browser")
+        self._gh_button.setText("Sign in")
+        self._gh_button.setEnabled(True)
+
+    def _sign_in_to_github(self) -> bool:
+        """Start `gh auth login`. True when it was started.
+
+        DETACHED, and the dialog does not wait on it: `gh` runs its own
+        browser flow and can take as long as the user takes, and a modal
+        setup screen frozen behind it would be a setup screen that looks
+        crashed. The status re-reads when the process ends.
+        """
+        from PySide6.QtCore import QProcess
+
+        process = QProcess(self)
+        process.finished.connect(lambda *_a: self._refresh_github())
+        try:
+            process.start("gh", ["auth", "login", "--web"])
+            started = process.waitForStarted(3000)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("gh auth login would not start", exc_info=True)
+            started = False
+        if not started:
+            self._gh_status.setText(
+                "`gh auth login` would not start — run it in a terminal")
+            return False
+        self._gh_process = process
+        self._gh_status.setText("waiting for GitHub in your browser…")
+        self._gh_button.setEnabled(False)
+        return True
+
+    def _closing_page(self, title: str, blurb: str) -> QWidget:
+        """The last slide: one word, centred, with its sentence under it.
+
+        The shared header is HIDDEN for this slide rather than repeated --
+        the title is the word in the middle, and having it twice on one
+        screen is the layout saying it does not know which one is the
+        heading.
+        """
+        page = QWidget()
+        column = QVBoxLayout(page)
+        column.setContentsMargins(0, 0, 0, 0)
+        column.setSpacing(10)
+        column.addStretch(1)
+
+        self._done_word = QLabel(str(title).upper())
+        self._done_word.setAlignment(Qt.AlignCenter)
+        # THE SIZE GOES IN A STYLESHEET, not through setFont. The
+        # application sheet already gives every QLabel a font-size, and QSS
+        # beats a font set on the widget -- so setPointSize was overruled
+        # and the word came out the size of the sentence beneath it.
+        self._done_word.setStyleSheet(
+            f"font-family: '{SLIDE_FONT}'; font-weight: 300; "
+            f"font-size: {DONE_POINTS}pt;")
+        column.addWidget(self._done_word)
+
+        under = QLabel(str(blurb))
+        under.setObjectName("Muted")
+        under.setAlignment(Qt.AlignCenter)
+        under.setWordWrap(True)
+        column.addWidget(under)
+        column.addStretch(1)
+        return page
 
     def _row(self, question, value) -> QHBoxLayout:
         key, caption, _get, _set, choices = question
@@ -304,9 +500,10 @@ class SetupSlides(QDialog):
             mark.set_chosen(holder._chosen == code)
             mark.setToolTip(
                 f"Use {label}." if ready else
-                f"{label} is not set up on this machine: spaCR drives the "
-                f"vendor's own `{command}` command, and it is not installed "
-                f"or not logged in. Installing it is all that is needed.")
+                f"Use {label}. Its `{command}` command is not on this "
+                f"machine yet -- spaCR drives the vendor's own CLI, so "
+                f"installing it is all that is needed. You can choose "
+                f"{label} now and install it later.")
             mark.chosen.connect(
                 lambda picked, h=holder: self._choose_provider(h, picked))
             row.addWidget(mark)
@@ -335,12 +532,50 @@ class SetupSlides(QDialog):
     # ------------------------------------------------------- what it shows
 
     def _say_hello(self, *_args) -> None:
-        """Greet in the language just chosen, on its own line."""
+        """Set the greeting text for the language currently chosen.
+
+        Setting it is not showing it: :meth:`_show_the_greeting` is what
+        puts it on screen, and only the first Next calls that.
+        """
         box = self._editors.get("language")
         if box is None:
             return
-        self._greeting.setText(greeting_for(box.currentData()))
+        # UPPER CASE, and harmless where a script has no case: `.upper()` on
+        # 你好, नमस्ते or 안녕하세요 returns them unchanged, so the same call
+        # is right for every language spaCR is translated to.
+        self._greeting.setText(greeting_for(box.currentData()).upper())
+
+    def _show_the_greeting(self) -> None:
+        """Fade the greeting up, in the accent colour.
+
+        BLUE, FROM THE PALETTE rather than a literal: the accent is what the
+        theme calls its own, so the greeting matches the rim that is running
+        round the card as it appears.
+        """
+        self._say_hello()
+        try:
+            from ..theme import active_palette
+
+            accent = active_palette()["accent"]
+            self._greeting.setStyleSheet(
+                f"color: {accent}; font-weight: 700;")
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("no palette for the greeting", exc_info=True)
         self._greeting.setVisible(True)
+        try:
+            effect = QGraphicsOpacityEffect(self._greeting)
+            self._greeting.setGraphicsEffect(effect)
+            animation = QPropertyAnimation(effect, b"opacity", self)
+            animation.setDuration(GREETING_FADE_MS)
+            animation.setStartValue(0.0)
+            animation.setEndValue(1.0)
+            animation.setEasingCurve(QEasingCurve.OutCubic)
+            self._hello = animation
+            animation.start()
+        except Exception:                                    # noqa: BLE001
+            # INVARIANTS 10: without an animation it is simply there.
+            LOG.debug("no fade for the greeting", exc_info=True)
+            self._hello = None
 
     def _apply_look(self, key: str) -> None:
         """Put the theme or colour-blind choice into effect immediately."""
@@ -362,14 +597,19 @@ class SetupSlides(QDialog):
         self._index = index
         title, blurb, _keys = SLIDES[index]
         self._pages.setCurrentIndex(index)
+        closing = index == len(SLIDES) - 1
+        self._title.setVisible(not closing)
+        self._blurb.setVisible(not closing)
         self._title.setText(f"<b>{title}</b>")
         self._blurb.setText(blurb)
         # THE GREETING BELONGS TO THE LANGUAGE SLIDE and nowhere else: a
         # "Hello" left standing over the theme question is a word with no
         # job on that page.
-        self._greeting.setVisible(index == 0)
-        if index == 0:
-            self._say_hello()
+        # THE GREETING BELONGS TO THE MOMENT THE LANGUAGE IS CONFIRMED, not
+        # to a slide. It is shown by the first Next and hidden again by
+        # anything that leaves that moment behind.
+        if index != 0:
+            self._greeting.setVisible(False)
         self._where.setText(f"{index + 1} of {len(SLIDES)}")
         self._back.setEnabled(index > 0)
         self._next.setText("Start spaCR" if index == len(SLIDES) - 1
@@ -447,7 +687,7 @@ class SetupSlides(QDialog):
         a slide.
         """
         self._next.setEnabled(False)
-        self._greeting.setVisible(True)
+        self._show_the_greeting()
         try:
             self._pending = QTimer(self)
             self._pending.setSingleShot(True)

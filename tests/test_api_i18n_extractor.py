@@ -600,7 +600,14 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # merge admitted the first block in their own words and then went on
     # separately, so neither side's number could be carried across: this one
     # was taken from the merged tree.
-    expected = 8159
+    # +2/-0 for the card following the pointer wherever it is:
+    # `SetupCard.showEvent` and `hideEvent`, which start and stop the frame
+    # timer -- the timer is what reads the cursor, so it has to run for the
+    # whole time the card is up rather than only while an easing is
+    # unfinished. Nothing retired; `perimeter_position` still answers the
+    # same question, from the ray through the pointer rather than from the
+    # nearest edge, and may now answer None for a point at the exact centre.
+    expected = 8161
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -615,7 +622,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8278
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8280
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:

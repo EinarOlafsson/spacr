@@ -133,9 +133,17 @@ class ProviderMark(QWidget):
 
     :param code: provider key -- ``claude``, ``gpt`` or ``gemini``.
     :param label: the name under the mark.
-    :param available: whether the vendor CLI is on PATH. An unavailable
-        provider is still drawn and still says why, rather than vanishing.
+    :param available: whether the vendor CLI is on PATH. This is SHOWN, not
+        enforced: an unavailable provider is drawn in the muted ink and says
+        what would install it, and is still choosable. The setup screen
+        writes a PREFERENCE and launches nothing, so choosing a provider
+        before installing its CLI is an ordinary thing to want, and the
+        console says so at the point it would actually be used.
     """
+
+    # Gating the choice on availability was reported 2026-08-22 -- "for the
+    # ai assistant i can only click claude" -- and the report is right: a
+    # preference is not a launch.
 
     #: Emitted with the provider code when this mark is chosen.
     chosen = Signal(str)
@@ -151,8 +159,8 @@ class ProviderMark(QWidget):
         self.setMinimumSize(QSize(72, 82))
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         self.setAttribute(Qt.WA_Hover, True)
-        self.setCursor(Qt.PointingHandCursor if available
-                       else Qt.ForbiddenCursor)
+        # EVERY MARK IS CLICKABLE, so every one gets the hand.
+        self.setCursor(Qt.PointingHandCursor)
 
     # ------------------------------------------------------------- state
 
@@ -170,7 +178,10 @@ class ProviderMark(QWidget):
     # ------------------------------------------------------------ events
 
     def mousePressEvent(self, event):           # noqa: N802 - Qt naming
-        if self.available and event.button() == Qt.LeftButton:
+        # AVAILABILITY DOES NOT GATE THE CHOICE. It is drawn -- brand colour
+        # when the CLI is here, muted ink when it is not -- and said in the
+        # tooltip, which is information rather than obstruction.
+        if event.button() == Qt.LeftButton:
             self.chosen.emit(self.code)
         super().mousePressEvent(event)
 
