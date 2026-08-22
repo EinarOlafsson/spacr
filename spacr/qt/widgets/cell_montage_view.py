@@ -1266,8 +1266,16 @@ class _WellTab(QWidget):
         """This tab's caption, exactly as it is on screen."""
         return self._caption_text
 
+    def crops(self) -> Tuple[Any, ...]:
+        """Every crop this tab holds, across every page."""
+        return tuple(self._crops)
+
     def thumbs(self) -> Tuple[QWidget, ...]:
-        """Every widget now in this tab's grid, in order."""
+        """Every widget now in this tab's grid, in order.
+
+        THE CURRENT PAGE ONLY, since instruction 211. :meth:`crops` is what
+        the tab holds.
+        """
         return tuple(self._grid.itemAt(i).widget()
                      for i in range(self._grid.count()))
 
@@ -2989,8 +2997,22 @@ class CellMontageView(QWidget):
         """Every tab's text, summary first -- what a user reads across."""
         return tuple(self._tabs.tabText(i) for i in range(self._tabs.count()))
 
+    def crop_count(self) -> int:
+        """How many crops the tabs HOLD, across every page.
+
+        NOT `len(thumbnails())`, which counts what is RENDERED -- and since
+        instruction 211 that is one page, not the whole well. The two were
+        the same number until the tabs started paging, and every caller that
+        meant "how many objects are here" wants this one.
+        """
+        return sum(len(tab.crops()) for tab in self.well_tabs())
+
     def thumbnails(self) -> Tuple[QWidget, ...]:
-        """Every thumbnail on screen, across every open well tab."""
+        """Every thumbnail on screen, across every open well tab.
+
+        ON SCREEN means ON THE CURRENT PAGE. Use :meth:`crop_count` for how
+        many objects the tabs hold.
+        """
         out: List[QWidget] = []
         for tab in self.well_tabs():
             out.extend(t for t in tab.thumbs() if t is not None)

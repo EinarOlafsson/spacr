@@ -14,8 +14,7 @@ pytest.importorskip("PySide6")
 
 from PySide6.QtWidgets import QApplication  # noqa: E402
 
-from spacr.settings_advisor import (UNIT_REQUIREMENTS, refusals,
-                                    requirements_for_unit)
+from spacr.settings_advisor import refusals, requirements_for_unit
 
 
 @pytest.fixture(scope="module")
@@ -82,9 +81,21 @@ class TestChoosingWellReleasesThem:
 
     @pytest.mark.parametrize("key", LOCKED)
     def test_the_control_comes_back(self, panel, key):
+        """UNLESS ANOTHER RULE STILL GREYS IT, which is the whole point.
+
+        `analysis_mode` is greyed by the inference rule -- it is set for you
+        by inference='parametric' -- and that has nothing to do with the
+        unit. Releasing it here would enable a control something else is
+        still deciding the value of, and the user would change it and be
+        ignored. So what is asserted is that THIS rule's lock is gone, not
+        that the control is editable.
+        """
         panel.set_value_for_key("analysis_unit", "cell")
         panel.set_value_for_key("analysis_unit", "well")
-        assert panel._widgets[key].isEnabled()
+        if key in panel._unit_locked:
+            pytest.fail(f"{key} is still locked by the unit")
+        tip = panel._widgets[key].toolTip()
+        assert "analysis_unit" not in tip or "'well'" in tip
 
     @pytest.mark.parametrize("key", LOCKED)
     def test_the_reason_goes_with_it(self, panel, key):
@@ -95,12 +106,20 @@ class TestChoosingWellReleasesThem:
     def test_it_releases_every_key_any_unit_locks(self, panel):
         """Refreshing only the CURRENT unit's keys would leave a control
         greyed after the reason for it was withdrawn."""
-        owned = set().union(*(set(v) for v in UNIT_REQUIREMENTS.values()))
+        panel.set_value_for_key("analysis_unit", "cell")
+        assert panel._unit_locked
+        panel.set_value_for_key("analysis_unit", "well")
+        assert panel._unit_locked == set(), (
+            "a key this rule locked is still recorded as locked after the "
+            "reason for it was withdrawn")
+
+    def test_a_control_another_rule_greys_stays_greyed(self, panel):
+        """Enabling a control another rule disabled is worse than leaving
+        one greyed: the user changes it and the run ignores them."""
         panel.set_value_for_key("analysis_unit", "cell")
         panel.set_value_for_key("analysis_unit", "well")
-        for key in owned:
-            if key in panel._widgets:
-                assert panel._widgets[key].isEnabled()
+        panel.set_value_for_key("inference", "parametric")
+        assert not panel._widgets["analysis_mode"].isEnabled()
 
 
 class TestThePanelAndThePreflightAgree:
