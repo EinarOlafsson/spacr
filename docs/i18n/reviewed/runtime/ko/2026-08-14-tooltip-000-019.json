@@ -19,9 +19,9 @@
     {
       "table": "setting_tooltips",
       "key": "annotated_classes",
-      "source_sha256": "b3e305e21f5db39db1a15715eb9b5554f85e5854fee7c596b4eb9945d375ac42",
-      "source": "INERT. Nothing in spaCR reads this setting; it survives only as a direct parameter of io.training_dataset_from_annotation and io.training_dataset_from_annotation_metadata. Choose classes with dataset_mode instead: annotation_columns / annotation_values under 'annotation', or class_metadata and the rule lists under 'metadata' and 'measurement'. Default [1, 2], with no effect.",
-      "translation": "비활성 설정입니다. spaCR 내부에서는 이 설정을 읽지 않으며 io.training_dataset_from_annotation 및 io.training_dataset_from_annotation_metadata 의 직접 매개변수로만 남아 있습니다. 대신 dataset_mode 로 클래스를 선택하십시오. 'annotation' 에서는 annotation_columns / annotation_values 를, 'metadata' 와 'measurement' 에서는 class_metadata 와 규칙 목록을 사용합니다. 기본값 [1, 2] 이며 효과가 없습니다."
+      "source_sha256": "2c1fec8800dcf02fda22e227b74bc43f4669647c7fcf3322e71e7a2cd70fd552",
+      "source": "INERT. spaCR does not read this setting from a module configuration; it remains only as a direct parameter of io.training_dataset_from_annotation and io.training_dataset_from_annotation_metadata. Define classes with the Classes editor instead: choose metadata values in metadata mode, or annotation columns and values in annotation mode. Default [1, 2], with no effect.",
+      "translation": "비활성 설정입니다. spaCR 모듈 구성은 이 설정을 읽지 않으며, io.training_dataset_from_annotation 및 io.training_dataset_from_annotation_metadata 의 직접 매개변수로만 남아 있습니다. 대신 Classes 편집기에서 클래스를 정의하십시오. metadata 모드에서는 메타데이터 값을 선택하고 annotation 모드에서는 어노테이션 열과 값을 선택합니다. 기본값은 [1, 2] 이며 효과가 없습니다."
     },
     {
       "table": "setting_tooltips",
