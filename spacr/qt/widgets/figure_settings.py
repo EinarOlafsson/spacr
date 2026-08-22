@@ -1439,6 +1439,185 @@ def _replot(figure, kind: str, on_change=None):
     return drawn
 
 
+def _which_types_fit(recipe) -> tuple:
+    """``(fitting kinds, {kind: why not})`` for this figure's data.
+
+    THROUGH `spacr.graph_types`, which is where the fitness table lives --
+    a second opinion here would let the menu offer a type the drawer cannot
+    draw, which is the failure that table exists to prevent.
+
+    An empty first element means "could not tell", and then EVERY type is
+    offered: refusing them all because the shape could not be read would
+    take a working menu away over a question nobody asked.
+    """
+    try:
+        from ...graph_types import offer, shape_of
+
+        frame = recipe.get("df")
+        if frame is None or not len(frame):
+            return (), {}
+        shape = shape_of(frame, str(recipe.get("grouping_column") or ""),
+                         str(recipe.get("data_column") or ""))
+        rows = offer(frame, str(recipe.get("grouping_column") or ""),
+                     str(recipe.get("data_column") or ""))
+        del shape
+        fits, why = [], {}
+        for kind, _caption, reason in rows:
+            (why.__setitem__(kind, reason) if reason
+             else fits.append(kind))
+        # The two vocabularies differ: `graph_types` says `bar_jitter` where
+        # the drawer says `jitter_bar`, and it has no `jitter_box`. Map the
+        # ones that mean the same thing rather than renaming either -- one
+        # is the analysis vocabulary and the other the drawer's, and each is
+        # right in its own module.
+        alias = {"bar_jitter": ("jitter_bar", "jitter_box")}
+        for source, targets in alias.items():
+            if source in fits:
+                fits.extend(targets)
+            elif source in why:
+                for target in targets:
+                    why.setdefault(target, why[source])
+        return tuple(fits), why
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not work out which graph types fit", exc_info=True)
+        return (), {}
+
+
+def _add_group_colours(menu, figure, recipe, on_change, parent) -> None:
+    """A colour per GROUP, which is what a reader of the plot sees.
+
+    THE GROUP IS THE UNIT (reported 2026-08-21). A jitter-over-bar draws
+    dozens of marks per group and the question a user has is "make THIS
+    CONDITION blue" -- not "make this bar blue and also these forty dots".
+    Colouring by group is also the only one of the two that survives a
+    redraw, because the redraw makes new artists.
+    """
+    from PySide6.QtWidgets import QMenu
+
+    frame = recipe.get("df")
+    column = str(recipe.get("grouping_column") or "")
+    if frame is None or column not in getattr(frame, "columns", ()):
+        return
+    try:
+        groups = [str(g) for g in frame[column].astype(str).unique()]
+    except Exception:                                        # noqa: BLE001
+        return
+    if not groups:
+        return
+
+    colours = QMenu("Group colours", menu)
+    colours.setToolTipsVisible(True)
+    menu.addMenu(colours)
+
+    def _recolour(group: str) -> None:
+        current = dict(recipe.get("colors") or {})
+        start = str(current.get(group, "#4C72B0"))
+        chosen = pick_colour(parent, start, f"Colour for {group}")
+        if not chosen.isValid():
+            return
+        current[group] = chosen.name()
+        # STORED ON THE RECIPE AND REDRAWN, not painted onto the artists.
+        # Setting an artist's colour lasts until the next redraw and then
+        # silently reverts -- which is what "changing the colors changes
+        # nothing" looks like from the other side.
+        recipe["colors"] = current
+        figure._spacr_replot = recipe
+        _replot(figure, str(recipe.get("graph_type") or "bar"), on_change)
+
+    for group in groups[:24]:
+        action = colours.addAction(f"{group}…")
+        action.setToolTip(f"Colour every mark belonging to {group}.")
+        action.triggered.connect(
+            lambda _checked=False, g=group: _recolour(g))
+    if len(groups) > 24:
+        # NAMED, NOT SILENTLY DROPPED. A menu that shows the first
+        # twenty-four of ninety groups and says nothing looks like a menu
+        # that has them all.
+        note = colours.addAction(
+            f"({len(groups) - 24} more groups not listed)")
+        note.setEnabled(False)
+
+
+def _add_bundle_save(menu, figure, parent) -> None:
+    """"Save figure, data and statistics…" on a matplotlib figure.
+
+    Instruction 223 built this on the pyqtgraph plots, which is not where
+    the run's figures are drawn -- so it was a feature that existed and
+    could not be reached. Same bundle, same statistics, same folder.
+    """
+    from PySide6.QtWidgets import QFileDialog
+
+    action = menu.addAction("Save figure, data and statistics…")
+    action.setToolTip(
+        "Writes a FOLDER: the figure as pdf and png, the rows it was drawn "
+        "from, and the test that was run on them with its assumptions. A pdf "
+        "on its own cannot be checked -- six months later the question is "
+        "what the numbers were and whether the difference was tested, and a "
+        "figure file answers neither.")
+
+    def _save() -> None:
+        folder = QFileDialog.getExistingDirectory(
+            parent, "Save the graph, its data and its statistics")
+        if not folder:
+            return
+        try:
+            save_figure_bundle(figure, folder)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not write the figure bundle", exc_info=True)
+
+    action.triggered.connect(_save)
+
+
+def save_figure_bundle(figure, folder: str, name: str = "") -> str:
+    """Write one matplotlib figure as a bundle. Returns the folder.
+
+    THE GROUPS COME FROM THE RECIPE, which is what makes the statistics the
+    same comparison the picture shows. A figure with no recipe still gets
+    every file -- the statistics say there is nothing to compare, because an
+    absent file reads as a bug.
+    """
+    from ...figures.bundle import save
+
+    recipe = dict(getattr(figure, "_spacr_replot", None) or {})
+    frame = recipe.get("df")
+    column = str(recipe.get("grouping_column") or "")
+    value = str(recipe.get("data_column") or "")
+    groups = None
+    if frame is not None and column in getattr(frame, "columns", ()) \
+            and value in getattr(frame, "columns", ()):
+        # `observed=True`: a categorical grouping column would otherwise
+        # yield a group per unused CATEGORY as well, and an empty group is a
+        # comparison arm with no observations in it.
+        groups = {str(key): part[value].dropna().to_numpy()
+                  for key, part in frame.groupby(column, observed=True)}
+
+    title = name or _figure_title(figure) or "graph"
+
+    def _render(path: str) -> None:
+        # ONE FIGURE, WRITTEN TWICE. `savefig` picks the format from the
+        # extension, so the pdf and the png are the same render rather than
+        # two draws that could differ.
+        figure.savefig(path, bbox_inches="tight")
+
+    return save(folder, title, render=_render, data=frame, groups=groups,
+                unit=str(recipe.get("unit") or "observation"),
+                settings={k: v for k, v in recipe.items() if k != "df"})
+
+
+def _figure_title(figure) -> str:
+    """The figure's own title, for naming its folder."""
+    try:
+        if figure._suptitle is not None:
+            return str(figure._suptitle.get_text())
+    except Exception:                                        # noqa: BLE001
+        pass
+    for axis in getattr(figure, "axes", ()):
+        text = str(axis.get_title() or "")
+        if text:
+            return text
+    return ""
+
+
 def build_figure_context_menu(parent, figure, *, on_change=None,
                               open_settings=None) -> QMenu:
     """Build the context menu for a displayed figure.
@@ -1488,12 +1667,36 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
         show_as = QMenu("Show as", menu)
         menu.addMenu(show_as)
         current = str(recipe.get("graph_type") or "")
+        # ONLY THE TYPES THAT FIT THE DATA (instruction 200 A), and the rest
+        # greyed with the reason rather than absent -- a list that silently
+        # shortens leaves the user wondering whether they misremembered.
+        fits, why_not = _which_types_fit(recipe)
         for kind, label in GROUPED_PLOT_TYPES:
             action = show_as.addAction(label)
             action.setCheckable(True)
             action.setChecked(kind == current)
-            action.triggered.connect(
-                lambda _checked=False, k=kind: _replot(figure, k, on_change))
+            reason = why_not.get(kind, "")
+            if fits and kind not in fits:
+                action.setEnabled(False)
+                action.setToolTip(reason)
+            else:
+                action.triggered.connect(
+                    lambda _checked=False, k=kind: _replot(figure, k,
+                                                           on_change))
+        show_as.setToolTipsVisible(True)
+
+        # THE GROUPS, NOT THE ELEMENTS (reported 2026-08-21: "i also want to
+        # modify thing on the group level not individual points and barts").
+        # The Appearance menu below colours the FURNITURE -- spines, ticks,
+        # text -- which is why changing a colour there appeared to do
+        # nothing to the bars: it was never about them.
+        _add_group_colours(menu, figure, recipe, on_change, parent)
+
+    # AND THE WHOLE THING, on every figure that has its data (instruction
+    # 223). This was on the pyqtgraph plots only, which is not where these
+    # graphs are drawn -- so a feature that existed was unreachable from
+    # where the user was looking.
+    _add_bundle_save(menu, figure, parent)
 
     def _notify() -> None:
         """Redraw after a menu toggle, CHEAPLY.
