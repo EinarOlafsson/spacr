@@ -9672,6 +9672,32 @@ def ml_analysis(
     
     if verbose:
         print(f'Found {len(df1)} samples for {negative_control} and {len(df2)} samples for {positive_control}. Total: {len(combined_df)}')
+
+    # A CLASS NOBODY NAMED IS STILL SCORED, AND THAT HAS TO BE SAID.
+    #
+    # This fit is binary by construction: one arm is the negative control,
+    # the other the positive, and every remaining row of the input is scored
+    # afterwards by the model. That is the point of a screen -- the unknown
+    # population is what the scores are for -- but with THREE or more
+    # classes in the column it is easy to believe all of them were trained
+    # on. They were not, and nothing said so (instruction 236 D13).
+    #
+    # Both controls take a LIST, so classes can be pooled into the two arms
+    # deliberately: positive_control=['c3', 'c4'] trains one arm on both.
+    trained_on = set(df1[location_column].unique()) | set(
+        df2[location_column].unique()) if location_column in df.columns \
+        else set()
+    present = set(pd.Series(df[location_column]).dropna().unique()) \
+        if location_column in df.columns else set()
+    untrained = sorted(str(value) for value in present - trained_on)
+    if untrained:
+        print(f"{len(untrained)} class(es) of {location_column!r} are not in "
+              f"the training set and are SCORED by a model that never saw "
+              f"them: {untrained[:10]}"
+              f"{'...' if len(untrained) > 10 else ''}. This fit is binary: "
+              f"one arm is negative_control={negative_control!r} and the "
+              f"other positive_control={positive_control!r}. Both take a "
+              f"list, so name several values to pool them into one arm.")
     
     # REFUSE HERE, NAMING WHAT IS ACTUALLY IN THE COLUMN.
     #
