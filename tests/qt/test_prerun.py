@@ -422,7 +422,11 @@ def test_the_scoring_result_is_handled_on_the_gui_thread(
     original = banner._on_scored
 
     def _spy(box):
-        seen["thread"] = QThread.currentThread()
+        # Compare while the current-thread wrapper is alive. QThread's
+        # transient Python wrapper may be deleted when the worker retires,
+        # so retaining it and comparing object identity later can report a
+        # false worker-thread failure even though this callback ran here.
+        seen["on_gui"] = QThread.currentThread() is qapp.thread()
         return original(box)
 
     banner._on_scored = _spy
@@ -430,7 +434,7 @@ def test_the_scoring_result_is_handled_on_the_gui_thread(
     with qtbot.waitSignal(banner.refreshed, timeout=60000):
         banner._on_score_clicked()
 
-    assert seen["thread"] is qapp.thread()
+    assert seen["on_gui"] is True
 
 
 def test_scoring_from_the_banner_writes_the_card_and_updates_the_verdict(
