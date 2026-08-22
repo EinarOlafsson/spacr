@@ -82,12 +82,15 @@ def test_conda_recipe_covers_every_core_dependency():
     assert conda_names == expected | CONDA_APPLICATION_DEPENDENCIES
 
 
-def test_conda_recipe_is_noarch_and_uses_a_verified_tag_archive():
+def test_conda_recipe_is_noarch_and_uses_a_verified_pypi_archive():
     text = RECIPE.read_text(encoding="utf-8")
     recipe = yaml.safe_load(text)
     assert recipe["build"]["noarch"] == "python"
     assert "--no-deps" in recipe["build"]["script"]
-    assert "archive/refs/tags/v${{ version }}.tar.gz" in recipe["source"]["url"]
+    assert (
+        "pypi.org/packages/source/s/spacr/spacr-${{ version }}.tar.gz"
+        in recipe["source"]["url"]
+    )
     assert re.fullmatch(r"[0-9a-f]{64}", recipe["source"]["sha256"])
     assert recipe["extra"]["recipe-maintainers"] == ["EinarOlafsson"]
 
@@ -112,10 +115,10 @@ def test_conda_recipe_exercises_heavy_and_desktop_imports_without_pip_metadata()
     assert "pip check" not in RECIPE.read_text(encoding="utf-8")
 
 
-def test_conda_recipe_preserves_the_license_of_its_tagged_source():
+def test_conda_recipe_preserves_the_license_of_its_pypi_source():
     recipe = yaml.safe_load(RECIPE.read_text(encoding="utf-8"))
-    assert recipe["context"]["version"] in {"1.4.9.8", "1.4.9.9"}
-    assert recipe["about"]["license"] == "MIT"
+    assert recipe["context"]["version"] == "1.5.0.4"
+    assert recipe["about"]["license"] == "PolyForm-Noncommercial-1.0.0"
     assert recipe["about"]["license_file"] == "LICENSE"
 
 

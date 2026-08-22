@@ -1,13 +1,13 @@
 context:
-  version: "1.4.9.8"
+  version: "1.5.0.4"
 
 package:
   name: spacr
   version: ${{ version }}
 
 source:
-  url: https://github.com/EinarOlafsson/spacr/archive/refs/tags/v${{ version }}.tar.gz
-  sha256: 2eff332d28b86b9cddb5c8f71ecf490a9d1f0164824bd9c1cd4bb8c8de6834eb
+  url: https://pypi.org/packages/source/s/spacr/spacr-${{ version }}.tar.gz
+  sha256: 5efe7a89baa0db0e35e758be04aa4d56ffb161eb9ba42c44423cabf480590981
 
 build:
   noarch: python
@@ -107,10 +107,7 @@ about:
     spaCR is an end-to-end toolkit for microscopy segmentation,
     measurement, timelapse analysis, computer vision, image embeddings,
     barcode mapping, and integrated perturbation-screen analysis.
-  # Tagged releases through 1.4.9.9 were published under MIT. Change this
-  # field to PolyForm-Noncommercial-1.0.0 when the recipe first targets a
-  # later source archive.
-  license: MIT
+  license: PolyForm-Noncommercial-1.0.0
   license_file: LICENSE
   documentation: https://einarolafsson.github.io/spacr/
   repository: https://github.com/EinarOlafsson/spacr
