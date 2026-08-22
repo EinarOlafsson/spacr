@@ -13242,14 +13242,15 @@
       "source_blocks_sha256": [
         "f12c8852ae02f922486ebee2fbc83a5b80414899fd751ded4e45b19382166cca",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "068f6d14961400fe79691aad33389e0dc027f8a657e63aca31c7e1685c3b5d19",
+        "b449c80ef1035019e1c209b341a983f94c448d752295deae41b6e1bd84521c35",
+        "4250e970192be0cbece29270c70fc6fb49559153df660712d2fc000a394e221f",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "8685da87b5af4635214bc7a3e138fd45f94b4e333e2c96f8aad9ae3bbc01cf59",
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
         "5a1008d83af0cef5f0e9abdb7487f131a6b88da5b8008988e268d47b024b913e"
       ],
-      "source_sha256": "373684c9a2a9362d60cc577163721f0f281a4212e4d1e453d6b62dd234126d4d",
-      "text": "Join morphology measurements onto montage object rows.\n\nParameters\n----------\nobjects : pandas.DataFrame\n    Montage object table. Its index is preserved because group membership\n    is expressed with these index values.\ndatabases : sequence of path-like\n    ``measurements.db`` files containing object measurement tables.\nkeep_uninfected : bool, default True\n    Preserve cells without a pathogen row when reading joined tables.\n\nReturns\n-------\nframe : pandas.DataFrame\n    Original rows widened with new numeric measurement columns. Existing\n    columns are never replaced.\nnote : str\n    Empty after a clean join; otherwise a user-facing explanation of files\n    or rows that could not be read or matched.\n\nNotes\n-----\nObject identities are matched with :func:`object_identity`. Recoverable\nread and matching failures are reported in ``note`` so callers can still\nuse measurements already present on ``objects``."
+      "source_sha256": "cd5c0b47db22166b4b070ccd7ae99215e1b9aafc20188a08f8c169b3f8678056",
+      "text": "Join morphology measurements onto montage object rows.\n\nParameters\n----------\nobjects : pandas.DataFrame\n    Montage object table. Its index is preserved because group membership\n    is expressed with these index values.\ndatabases : sequence of path-like\n    ``measurements.db`` files containing object measurement tables.\nkeep_uninfected : bool, default True\n    Preserve cells without a pathogen row when reading joined tables.\npng_list : bool, default True\n    Join the crop table as well as the object tables. It carries the\n    classification score and the crop path, neither of which is in any\n    object table -- which is why it is on by default and why the panel\n    offers it at all.\n\n    THE ARGUMENT EXISTS SO THE BOX CAN MEAN SOMETHING. It was a\n    checkbox that was created, laid out and never read: a control the\n    user can change that changes nothing, which is the failure this\n    codebase writes comments about and shipped anyway.\n\nReturns\n-------\nframe : pandas.DataFrame\n    Original rows widened with new numeric measurement columns. Existing\n    columns are never replaced.\nnote : str\n    Empty after a clean join; otherwise a user-facing explanation of files\n    or rows that could not be read or matched.\n\nNotes\n-----\nObject identities are matched with :func:`object_identity`. Recoverable\nread and matching failures are reported in ``note`` so callers can still\nuse measurements already present on ``objects``."
     },
     "spacr.gene_measurement_compare.measurements_are_joined": {
       "source_blocks_sha256": [
@@ -48288,6 +48289,14 @@
       "source_sha256": "b3e7839569071e65771638796c0319499bf2d3025b06a192219f7014636f9fb0",
       "text": "The COUNT CSVs attached to the run's input table.\n\nTHE SAME PROVIDER THE DATABASES COME FROM. The input table's rows are\n``{\"plate\", \"score\", \"count\", \"database\"}``, so the counts were always\none field away -- which is why requiring a run folder for the guide\nfractions was never necessary, only unexamined."
     },
+    "spacr.qt.widgets.cell_montage_view.CellMontageView.crop_count": {
+      "source_blocks_sha256": [
+        "b119ee7b27b8f4d8b1287e0fa9c53cc3c476a2d39c0717bdf375d13adc6ee4c1",
+        "69f3f18375b6322447d7fa881bc2360f7e26a21fc439734f857a18955a0d4708"
+      ],
+      "source_sha256": "8ca9eaa77704ee8b8dbeac58418e3f63d3731527aa20c3874905182e8af7d02c",
+      "text": "How many crops the tabs HOLD, across every page.\n\nNOT `len(thumbnails())`, which counts what is RENDERED -- and since\ninstruction 211 that is one page, not the whole well. The two were\nthe same number until the tabs started paging, and every caller that\nmeant \"how many objects are here\" wants this one."
+    },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.databases": {
       "source_blocks_sha256": [
         "b3a4e1b9a3121426f9cf454e114171c8c207a2d60e9cae7396a7fda57202bb46",
@@ -48481,10 +48490,11 @@
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.thumbnails": {
       "source_blocks_sha256": [
-        "213ae028a55287c4c65dfd83ac5de01a3765bf86e6cfaefd9eb3a65fbe5d5799"
+        "213ae028a55287c4c65dfd83ac5de01a3765bf86e6cfaefd9eb3a65fbe5d5799",
+        "7b5005e9377cfc1cda807c8f96a26cf9b8553bee14e8b7fb16dccb58520e51b7"
       ],
-      "source_sha256": "213ae028a55287c4c65dfd83ac5de01a3765bf86e6cfaefd9eb3a65fbe5d5799",
-      "text": "Every thumbnail on screen, across every open well tab."
+      "source_sha256": "6590580a999c9adc59a7e06e0239ad50a98e0657d8a50cdfd5e25481e6b1dff6",
+      "text": "Every thumbnail on screen, across every open well tab.\n\nON SCREEN means ON THE CURRENT PAGE. Use :meth:`crop_count` for how\nmany objects the tabs hold."
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.well_tabs": {
       "source_blocks_sha256": [
@@ -49409,6 +49419,14 @@
       "source_sha256": "610ccabfa60a9d238a3c6aa2cea1c402f4abaee2a40da1d251498b76204bd805",
       "text": "The console as plain text, section headers included.\n\n:param start: first entry index to include.\n:param stop: one past the last, or ``None`` for the rest.\n:returns: the text a person would have selected by hand."
     },
+    "spacr.qt.widgets.console_panel.ConsolePanel.at_the_end": {
+      "source_blocks_sha256": [
+        "48f0eb49cacb231bcca7a90233b1b1714ea425d36dba13a7885875880e6de74f",
+        "8a4c26c8f43d3b53c73afd4b3d34f4b793af34f7b08d8d78f46cb600a454114a"
+      ],
+      "source_sha256": "adde979eed069bed08e8234cc160e4067228e2febdd83cabf74956e9552194b3",
+      "text": "Whether the view is showing the newest line.\n\nA few pixels of tolerance, because a scrollbar dragged to the end\ndoes not always land exactly on maximum() -- the same tolerance\n`_on_console_scrolled` uses, and for the same reason."
+    },
     "spacr.qt.widgets.console_panel.ConsolePanel.begin_topic": {
       "source_blocks_sha256": [
         "31201b30782a9cb5d3e1abc363741cd95c3421cba6af5990d5ee338b4559d22f"
@@ -49457,6 +49475,14 @@
       ],
       "source_sha256": "00f17326b33ed475220bd132412edca48bb0e173fb19b9e4939df153ffc3616e",
       "text": "Return True while an AI response is being streamed."
+    },
+    "spacr.qt.widgets.console_panel.ConsolePanel.jump_to_the_end": {
+      "source_blocks_sha256": [
+        "4b17e71e7dba79d1543f07dded5e8a455a4e983bd69a0e02660e02fce1be1958",
+        "abb985a9ef190c2975149c92b15d7b2b94daea3ba78157125136a6e50adeb21e"
+      ],
+      "source_sha256": "76d29465b9c32644ab8e5a59436b7ff519551ef34ce6f1c555d75b9dfeb82e2c",
+      "text": "Show the newest line, and follow the tail again.\n\nBOTH HALVES, because they are one decision. A console that jumped\nwithout resuming the follow would slide back off the end on the very\nnext line written, and the user would press it again."
     },
     "spacr.qt.widgets.console_panel.ConsolePanel.open_error_flow": {
       "source_blocks_sha256": [
@@ -54160,6 +54186,14 @@
       ],
       "source_sha256": "501a662f4b8ecfa6e2c2029eab0d355d80cd7ae57ee248ddb16c402e51938da5",
       "text": "Save a figure using its current styling and export preferences.\n\nParameters\n----------\nparent : PySide6.QtWidgets.QWidget or None\n    Parent for the file chooser when ``path`` is empty.\nfigure : matplotlib.figure.Figure or None\n    Figure to save. ``None`` cancels the operation.\npath : str, optional\n    Destination path. If empty, prompt for a PNG, PDF, or SVG path.\n\nReturns\n-------\nstr\n    Path returned by the writer, or an empty string when saving is\n    cancelled or fails.\n\nNotes\n-----\nA recognized filename extension takes precedence over the default output\nformat. Available data, statistics, and caption metadata are exported by\n:func:`export_sidecars` beside the requested path."
+    },
+    "spacr.qt.widgets.figure_settings.save_figure_bundle": {
+      "source_blocks_sha256": [
+        "9ca4f6e3c03eb44d6a3deb5da3a73a8cc028c5fe11ec93cb0a17e47c442ed3b5",
+        "9047b33671b26a87e9469f1f69368b775587f9dfaf7583d9b6f46e5befcf8158"
+      ],
+      "source_sha256": "0c75ff80072169ee26800f9503fff30fcc766bf8df866168b0a18fe88f891971",
+      "text": "Write one matplotlib figure as a bundle. Returns the folder.\n\nTHE GROUPS COME FROM THE RECIPE, which is what makes the statistics the\nsame comparison the picture shows. A figure with no recipe still gets\nevery file -- the statistics say there is nothing to compare, because an\nabsent file reads as a bug."
     },
     "spacr.qt.widgets.figure_settings.save_graph_style": {
       "source_blocks_sha256": [
@@ -61984,12 +62018,27 @@
       "source_sha256": "5664acd3ef4e6abe03fcee6f51ef9b1d6a2cdeffed9ebd4e62a1234d69e010b3",
       "text": "A rounded, translucent card whose border lights at the near corner.\n\n:param radius: corner radius in pixels.\n:param arc: how far along each edge the accent runs, in pixels."
     },
+    "spacr.qt.widgets.setup_card.SetupCard.circuit": {
+      "source_blocks_sha256": [
+        "3fb4db5b124308362df26ad2a0b1a0392004cbab381b7674348f443e4451ccbe",
+        "a8003dbc4853faf5629f60fb5566022b4313f2d416f4070bdf8d10edf5dcacad"
+      ],
+      "source_sha256": "4ed0dcc5bec5a9c81effcb7c0be1112f01bf898dae9c9f01ddbbaecb9875351d",
+      "text": "Send the accent once round: clockwise, or anti- for Previous.\n\nTHE DIRECTION IS THE MESSAGE. It tells the user which way they went\nthrough the slides, which is worth more than the animation -- so a\ncircuit is never merged with another or shortened to catch up."
+    },
     "spacr.qt.widgets.setup_card.SetupCard.corner": {
       "source_blocks_sha256": [
         "0768872c51ba2250ae05f7529bf1546b6a7cbc44065f6c0312d9a16b26c958c3"
       ],
       "source_sha256": "0768872c51ba2250ae05f7529bf1546b6a7cbc44065f6c0312d9a16b26c958c3",
       "text": "The corner the accent is currently on."
+    },
+    "spacr.qt.widgets.setup_card.SetupCard.flow_towards": {
+      "source_blocks_sha256": [
+        "13d2561bbf32d45c57d6e1ef4402b6b4c83c83598f40bda9f18ea8f67497e76d"
+      ],
+      "source_sha256": "13d2561bbf32d45c57d6e1ef4402b6b4c83c83598f40bda9f18ea8f67497e76d",
+      "text": "Aim the accent at ``point``. Ignored while a circuit is running."
     },
     "spacr.qt.widgets.setup_card.SetupCard.nearest_corner": {
       "source_blocks_sha256": [
@@ -61998,6 +62047,28 @@
       ],
       "source_sha256": "aa99398e16e66442ec0b0e2baf007b65ea724f5349a9b359f605e4c9e6c675f5",
       "text": "Index into :data:`CORNERS` of the corner nearest ``point``.\n\nTies go to the earlier corner, which only happens at the exact\ncentre and is therefore never seen."
+    },
+    "spacr.qt.widgets.setup_card.SetupCard.perimeter_position": {
+      "source_blocks_sha256": [
+        "653266bb16db6402e9137a544726d5364b123dd53b8b0487fdec69e18b60c5d3",
+        "e1ce10f1f4344368eb743dac17b0270467d7e4fd3dd84ec6e60e48220867cbe1"
+      ],
+      "source_sha256": "542c89ca89bd2a901285baa4a6f83ae905f470c1597e7e0bb5bd243dd94eef7a",
+      "text": "Where on the rim ``point`` is, as a fraction clockwise from 0.\n\nTHE RIM IS TREATED AS A RECTANGLE, not as the rounded path it is\ndrawn on. The corner arcs are a few pixels of a perimeter hundreds\nlong, and paying for exact arc-length here would buy an accuracy no\neye can see on a value that is chasing a mouse anyway."
+    },
+    "spacr.qt.widgets.setup_card.SetupCard.position": {
+      "source_blocks_sha256": [
+        "999eb012e1b151ccfa5048c00f716e2521fffd1f0f6491211fd4d4154a2ff274"
+      ],
+      "source_sha256": "999eb012e1b151ccfa5048c00f716e2521fffd1f0f6491211fd4d4154a2ff274",
+      "text": "The accent's place on the rim, 0..1 clockwise from the top-left."
+    },
+    "spacr.qt.widgets.setup_card.SetupCard.spinning": {
+      "source_blocks_sha256": [
+        "08584583f85299d96e30683d36dd8eb76f041048c23acab2fb2ad0a6367cf9fa"
+      ],
+      "source_sha256": "08584583f85299d96e30683d36dd8eb76f041048c23acab2fb2ad0a6367cf9fa",
+      "text": "Whether a circuit is running."
     },
     "spacr.qt.widgets.setup_dialog": {
       "source_blocks_sha256": [
@@ -62048,6 +62119,83 @@
       ],
       "source_sha256": "dbbf0d943662a1aa92da9d8930e7cf2c45a86f8b40ad1a47971c32a2dc4f7869",
       "text": "Open the first-run setup dialog when required.\n\nParameters\n----------\nparent : QWidget, optional\n    Parent application window.\n\nReturns\n-------\nSetupDialog or None\n    Executed dialog, or ``None`` when setup has already been completed for\n    the current version."
+    },
+    "spacr.qt.widgets.setup_slides": {
+      "source_blocks_sha256": [
+        "59f7912bea64c9b26b828bc2a823231af3855c52cc8e07d45273db6aa529b562",
+        "d6ba6cff1cc6682b7b978041e8cd5937ccd81d7ddfddb1bd0da3662c7f335611",
+        "543facc840fd6c7829dfcba82cd2820e5e48c183338e3860b3981f82f06cc738",
+        "af9bd9d7d67d2c78cecb051079ad113ccb5492e77c86ffe336a2bfbcb3815096",
+        "8bd3d25de9e8e5cf45b1723408144612331fd2fea056f64fde8a545546906460"
+      ],
+      "source_sha256": "62b2fa34cfa6eafabb70b0096dff9852aef3c15fb7a9c7d07e8a7953eb797dd5",
+      "text": "The first-run setup as a sequence of slides (instruction 234).\n\n    \"i want one question per slide with a little explantaion ... then a\n     screen that just says Done ... it should feel like a smooth transition\n     into spacr\"\n\nA FORM ASKS EVERYTHING AT ONCE AND ANSWERS NOTHING. A slide asks one thing\nand has room to say why it matters, which is the difference between a screen\nsomebody fills in and one they read.\n\nThis supersedes the grouped-form layout instruction 221 shipped. 221's MODEL\n-- `spacr.qt.setup_screen`, its defaults and its persistence -- is unchanged\nand still the only thing that writes a preference; what changed is entirely\nthe presentation.\n\nINVARIANTS 10 THROUGHOUT: the rim animation, the strata and the blur are all\ndecoration. If none of them can be drawn the slides still work and still\nwrite the same answers, and the tests assert that rather than assuming it."
+    },
+    "spacr.qt.widgets.setup_slides.SetupSlides": {
+      "source_blocks_sha256": [
+        "f67104b6cfd4acc443ee5e226e8fd35ddbb291d650cde1723207be23e54f3024"
+      ],
+      "source_sha256": "f67104b6cfd4acc443ee5e226e8fd35ddbb291d650cde1723207be23e54f3024",
+      "text": "The setup screen: one question per slide, over a moving backdrop."
+    },
+    "spacr.qt.widgets.setup_slides.SetupSlides.answers": {
+      "source_blocks_sha256": [
+        "c26a3ecb0fd6b58a323569b4819404bc668aa9416738b75a1c84359a992433f4"
+      ],
+      "source_sha256": "c26a3ecb0fd6b58a323569b4819404bc668aa9416738b75a1c84359a992433f4",
+      "text": "What the slides currently say."
+    },
+    "spacr.qt.widgets.setup_slides.SetupSlides.mouseMoveEvent": {
+      "source_blocks_sha256": [
+        "3f8cffdf1b9c37d49c316cdcfb9ef55d88163d7a561d1f730634fe1255141aea"
+      ],
+      "source_sha256": "3f8cffdf1b9c37d49c316cdcfb9ef55d88163d7a561d1f730634fe1255141aea",
+      "text": "Aim the rim at the pointer. Ignored while a circuit runs."
+    },
+    "spacr.qt.widgets.setup_slides.SetupSlides.next": {
+      "source_blocks_sha256": [
+        "1ae5346efd4c3dc9ac59ed4ddd464029c7ed60dfa2b392582086254cc790fe3e"
+      ],
+      "source_sha256": "1ae5346efd4c3dc9ac59ed4ddd464029c7ed60dfa2b392582086254cc790fe3e",
+      "text": "Forward one slide, and one CLOCKWISE circuit of the rim."
+    },
+    "spacr.qt.widgets.setup_slides.SetupSlides.previous": {
+      "source_blocks_sha256": [
+        "a6f9936151fe5e899886d0490b2a06806cd9dbf11ecfa2aefb0b2f98bdafdf8b",
+        "3b5315e1597ef12d5f7a8be51edd5be42a441a4d3350d9a3ae2050a73864ab2b"
+      ],
+      "source_sha256": "7a3f88902caba03fa05f3ab70c317a8b11af0024f6b4b3e0ad6cea6442fa73b1",
+      "text": "Back one slide, and one ANTICLOCKWISE circuit.\n\nTHE DIRECTION IS THE MESSAGE: it tells the user which way they went,\nwhich is worth more than the animation."
+    },
+    "spacr.qt.widgets.setup_slides.SetupSlides.reject": {
+      "source_blocks_sha256": [
+        "2feff32126c098bcd7f42a2571c23c0aabf23a1e6a433339df0d4116c5e68783",
+        "f32c7741a33dd5bbb3a7d5571813f0b2a2e8a5777971c58f9135940048c0470c"
+      ],
+      "source_sha256": "323cfc3e3bb386002aa05ce99555cc629ea14f0d2f4e4bcabefa65140432c43a",
+      "text": "Dismissed at any slide. STILL MARKED ANSWERED.\n\nEvery question has a working default, so a user who closes this has\nchosen them -- and reopening on every launch until it is filled in\nwould make dismissing it impossible."
+    },
+    "spacr.qt.widgets.setup_slides.SetupSlides.slide": {
+      "source_blocks_sha256": [
+        "9859d449846c75053a648ac604633e53210216db822a92a5942a23729d5b28c8"
+      ],
+      "source_sha256": "9859d449846c75053a648ac604633e53210216db822a92a5942a23729d5b28c8",
+      "text": "Which slide is showing, counting from zero."
+    },
+    "spacr.qt.widgets.setup_slides.greeting_for": {
+      "source_blocks_sha256": [
+        "8b385a5141b64617015da34f516265b1e9b1f5fe5a76558c8c97597e0ab4e55a"
+      ],
+      "source_sha256": "8b385a5141b64617015da34f516265b1e9b1f5fe5a76558c8c97597e0ab4e55a",
+      "text": "\"Hello\" in ``code``, falling back to English."
+    },
+    "spacr.qt.widgets.setup_slides.open_setup_if_needed": {
+      "source_blocks_sha256": [
+        "bc00e426b8c8550066500d993775b6b200df2f41b3d18d9f250fee2169ae06b1",
+        "4628e82a5b9368a3262f277aba7002897b90a05c543c94d709b4d5021a728ba5"
+      ],
+      "source_sha256": "fee91694dadebb94b97c19e2b696e02e278635ec0d2d7c47cb34b96795924330",
+      "text": "Show the setup slides if they have not been answered.\n\nTHE CALLER DOES NOT DECIDE WHETHER TO ASK -- `should_open` does, from the\nrecorded version. A screen each caller gated for itself is one that\nappears twice on one launch and never on another."
     },
     "spacr.qt.widgets.sweep_panel": {
       "source_blocks_sha256": [
