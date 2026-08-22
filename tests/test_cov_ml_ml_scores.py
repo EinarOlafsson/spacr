@@ -478,8 +478,15 @@ def test_ml_analysis_duplicate_location_column_matches_nothing(rng):
 @pytest.mark.parametrize("model_type,cls_name", [("svm", "CalibratedClassifierCV"),
                                                  ("mlp", "MLPClassifier")])
 def test_ml_analysis_models_without_feature_importances(model_type, cls_name, rng):
-    """svm / mlp have no feature_importances_ -> empty importance table and
-    no importance figure, but a fully scored frame."""
+    """svm / mlp have no `feature_importances_`, and they get the panel
+    anyway -- from the PERMUTATION importance, which is model-agnostic by
+    construction and was already computed a few lines earlier.
+
+    This used to assert the opposite: an empty table and no figure. That
+    was the behaviour, and it meant a user who picked logistic_regression
+    -- which the setting's own tooltip recommends as a linear sanity check
+    -- lost a QC panel and was told nothing about it.
+    """
     import spacr.ml as ML
 
     output, figs = ML.ml_analysis(
@@ -487,8 +494,13 @@ def test_ml_analysis_models_without_feature_importances(model_type, cls_name, rn
         model_type=model_type, n_estimators=20, verbose=False, **COMMON)
 
     assert type(output[3]).__name__ == cls_name
-    assert output[2].empty
-    assert figs[1] is None
+    assert not output[2].empty
+    assert figs[1] is not None
+    # AND IT SAYS WHICH QUANTITY IT DREW. Permutation importance is what
+    # the fitted model loses when a column is shuffled, not how often a
+    # tree split on it, so a panel that did not say so would be passing one
+    # off as the other.
+    assert "permutation" in figs[1].axes[0].get_title().lower()
     assert isinstance(figs[0], matplotlib.figure.Figure)
     assert output[0]["predictions"].isin([0, 1]).all()
 
