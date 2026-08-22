@@ -29,10 +29,9 @@ class SetupCard(QWidget):
         self._radius = int(radius)
         self._arc = int(arc)
         self._corner = 0
-        #: WHERE THE ACCENT IS, as a fraction of the way round the rim
-        #: clockwise from the top-left. Continuous rather than one of four
-        #: corners (instruction 234): "the blue rim should flow like water
-        #: towards the mouse", and water does not teleport between corners.
+        #: Accent position as a clockwise fraction of the card perimeter,
+        #: measured from the top-left corner. A continuous position lets the
+        #: highlight move smoothly between corners.
         self._at = 0.0
         #: Where it is heading. The gap between the two is what the easing
         #: closes, one tick at a time.

@@ -2099,13 +2099,7 @@ class MainWindow(QMainWindow):
             return
 
     def _show_setup(self) -> None:
-        """Open the setup slides, whether or not they have been answered.
-
-        NOT `open_setup_if_needed`, which asks `should_open` and would
-        refuse: the whole point of a menu entry is that the user is asking
-        for it, and a menu item that does nothing on the second launch is
-        the inert control this codebase keeps meeting.
-        """
+        """Open the setup slides without applying the first-run gate."""
         try:
             from .widgets.setup_slides import SetupSlides
 

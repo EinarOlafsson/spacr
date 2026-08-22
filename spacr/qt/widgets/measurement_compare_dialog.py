@@ -64,14 +64,10 @@ class _WellChoice(QDialog):
         return {b.text() for b in self._boxes if b.isChecked()}
 
 
-#: This panel's plot names -> `spacr.graph_types` kinds.
+#: Map Measurement Compare plot names to :mod:`spacr.graph_types` names.
 #:
-#: THE PANEL'S LIST IS OLDER and names a `jitter_box`, which the fitness
-#: table has no entry for -- it treats a box with points over it as the same
-#: question as a bar with points over it, which for "does this kind fit this
-#: data" it is. Mapped rather than renamed: the panel's list is what the
-#: user has been choosing from, and the fitness table is what the analysis
-#: vocabulary calls things.
+#: ``jitter_box`` uses the same data-shape compatibility rules as
+#: ``bar_jitter`` while retaining the panel's established display choice.
 _SPEC_KINDS = {
     "jitter_box": "bar_jitter",
     "box": "box",
@@ -737,12 +733,10 @@ class MeasurementComparePanel(QWidget):
         self._figure_holder.addWidget(self._canvas)
 
     def _live_plot(self, showing):
-        """A `GroupedPlot` of this comparison, or ``None``.
+        """Return a live grouped comparison or a Matplotlib fallback.
 
-        FALLS BACK TO THE FIGURE rather than to nothing. pyqtgraph is a
-        screen library and a machine without it should still see its
-        comparison -- the same rule every other decoration in this codebase
-        follows.
+        The fallback preserves access to the comparison if the interactive
+        pyqtgraph renderer is unavailable.
         """
         from ...gene_measurement_compare import REST
 

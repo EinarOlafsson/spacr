@@ -1,21 +1,9 @@
-"""The first-run setup as a sequence of slides (instruction 234).
+"""Present first-run preferences as a short sequence of explained choices.
 
-    "i want one question per slide with a little explantaion ... then a
-     screen that just says Done ... it should feel like a smooth transition
-     into spacr"
-
-A FORM ASKS EVERYTHING AT ONCE AND ANSWERS NOTHING. A slide asks one thing
-and has room to say why it matters, which is the difference between a screen
-somebody fills in and one they read.
-
-This supersedes the grouped-form layout instruction 221 shipped. 221's MODEL
--- `spacr.qt.setup_screen`, its defaults and its persistence -- is unchanged
-and still the only thing that writes a preference; what changed is entirely
-the presentation.
-
-INVARIANTS 10 THROUGHOUT: the rim animation, the strata and the blur are all
-decoration. If none of them can be drawn the slides still work and still
-write the same answers, and the tests assert that rather than assuming it.
+Each slide covers one preference group and writes through the existing setup
+model. The animated backdrop, translucent card, and pointer-responsive border
+are decorative; preference editing and persistence remain available when
+those effects cannot be rendered.
 """
 from __future__ import annotations
 
@@ -29,11 +17,10 @@ from PySide6.QtWidgets import (QComboBox, QDialog, QHBoxLayout, QLabel,
 
 LOG = logging.getLogger("spacr.qt.setup_slides")
 
-#: The slides, in the maintainer's order, as
-#: ``(title, explanation, [setting keys])``.
+#: Setup slides as ``(title, explanation, setting keys)`` tuples.
 #:
-#: THE ORDER IS NOT ARBITRARY: it runs from what changes the screen the user
-#: is looking at, through how spaCR runs, to what leaves the machine.
+#: The order moves from interface choices, through execution preferences, to
+#: assistant and data-sharing choices.
 SLIDES: Tuple[Tuple[str, str, Tuple[str, ...]], ...] = (
     ("Language",
      "Every label, tooltip and message spaCR shows you. You can change it "
@@ -64,12 +51,10 @@ SLIDES: Tuple[Tuple[str, str, Tuple[str, ...]], ...] = (
      ()),
 )
 
-#: "Hello" in each language spaCR is translated to, for the language slide.
+#: A localized greeting for every language offered on the language slide.
 #:
-#: THE DEMONSTRATION IS THE POINT (instruction 234): "for the language
-#: chosen say Hello underneeth". The only way to know a language choice took
-#: is to SEE it, and a greeting is the smallest thing that shows it without
-#: redrawing the screen underneath.
+#: The greeting provides immediate confirmation without redrawing the window
+#: beneath the setup dialog.
 GREETINGS: Dict[str, str] = {
     "en": "Hello", "sv": "Hej", "de": "Hallo", "es": "Hola",
     "fr": "Bonjour", "pt": "Olá", "is": "Halló", "hi": "नमस्ते",
@@ -88,9 +73,10 @@ PROVIDERS: Tuple[Tuple[str, str, str], ...] = (
 #: How much faster the backdrop runs than the ambient default.
 BACKDROP_SPEED = 1.5
 
-#: Stratified layers with their own drift. `aurora` is spaCR's own banded
-#: theme -- a SECOND background system would be a second thing to keep in
-#: step with the palette, which is what instruction 234 forbids.
+#: Ambient theme used for the stratified, independently drifting backdrop.
+#:
+#: Reusing the application theme keeps the setup backdrop synchronized with
+#: the active palette.
 BACKDROP_THEME = "aurora"
 
 

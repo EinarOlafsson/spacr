@@ -1238,24 +1238,18 @@ _SUDOKU_ANCHOR_SHARE = 0.5
 
 def _sudoku_calls(work, counts, keys, guide_column, fraction_column,
                   score_column, name, notes, guides=()):
-    """One guide name per cell, decided across every well at once.
+    """Assign one guide name per cell across the available wells.
 
     :returns: ``{well label: [guide per cell, in that well's row order]}``,
         or ``None`` when the screen cannot support it.
 
-    THE ORDER IS THE CONTRACT. The caller indexes this positionally against
-    its own per-well frame, so the rows here must arrive in the order the
-    caller will see them.
+    Returned assignments preserve each well's input row order because callers
+    align them positionally with their per-well frames.
 
-    :param guides: THE COEFFICIENT'S GUIDES. `name` is the coefficient, and
-        for a GENE-level montage -- which is the ordinary case -- that is a
-        gene while everything here is keyed by GUIDE: the fractions come
-        from `guide_column` and `sudoku` returns guide names. Matching the
-        gene against them found nothing, every time, so `mine` was empty and
-        this returned None for every gene montage ever drawn.
-
-        Reported 2026-08-21: "i press sudoku and i get a bunch of wells with
-        3 cells in each none with a blue ring".
+    :param guides: Guide identifiers represented by the coefficient. For a
+        gene-level montage, ``name`` is a gene while fractions and Sudoku
+        assignments are guide keyed; this parameter supplies the corresponding
+        guide identifiers for filtering and highlighting.
     """
     try:
         from .sudoku import sudoku as _sudoku

@@ -23,11 +23,10 @@ GRAPH_TYPES: Tuple[Tuple[str, str], ...] = (
     ("scatter", "two continuous axes"),
 )
 
-#: What each kind is CALLED on a menu, as against what it shows.
+#: Concise menu labels for the graph types described by :data:`GRAPH_TYPES`.
 #:
-#: `GRAPH_TYPES` pairs a kind with its DESCRIPTION, which belongs in a
-#: tooltip; a menu entry reading "one value per group" instead of "Bar" is a
-#: menu nobody can scan. Two different jobs, two tables.
+#: Descriptions remain available for explanatory tooltips, while these names
+#: keep graph-selection menus compact and scannable.
 GRAPH_NAMES: Dict[str, str] = {
     "bar": "Bar",
     "bar_jitter": "Bar with jitter",
