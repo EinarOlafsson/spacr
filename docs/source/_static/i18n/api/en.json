@@ -48291,11 +48291,11 @@
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.crop_count": {
       "source_blocks_sha256": [
-        "b119ee7b27b8f4d8b1287e0fa9c53cc3c476a2d39c0717bdf375d13adc6ee4c1",
-        "69f3f18375b6322447d7fa881bc2360f7e26a21fc439734f857a18955a0d4708"
+        "8c60c5784771b861707e83c600801fee83dc30eb0e90679a94af51ddfd3e5e85",
+        "3947acc874bc96c46be64cf354732d57286bc55f4000ee587f98b777d58a1f9c"
       ],
-      "source_sha256": "8ca9eaa77704ee8b8dbeac58418e3f63d3731527aa20c3874905182e8af7d02c",
-      "text": "How many crops the tabs HOLD, across every page.\n\nNOT `len(thumbnails())`, which counts what is RENDERED -- and since\ninstruction 211 that is one page, not the whole well. The two were\nthe same number until the tabs started paging, and every caller that\nmeant \"how many objects are here\" wants this one."
+      "source_sha256": "a15489a16b39f1fed1cd9240c163971a41517562c2b34e771dacddcd7349a504",
+      "text": "Return the total number of crops held across all tab pages.\n\nThis differs from ``len(thumbnails())``, which counts only widgets on\nthe pages currently displayed."
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.databases": {
       "source_blocks_sha256": [
@@ -48490,11 +48490,11 @@
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.thumbnails": {
       "source_blocks_sha256": [
-        "213ae028a55287c4c65dfd83ac5de01a3765bf86e6cfaefd9eb3a65fbe5d5799",
-        "7b5005e9377cfc1cda807c8f96a26cf9b8553bee14e8b7fb16dccb58520e51b7"
+        "2483fbbf7d213de530d7afc9471bd8a92903be575aa987fae2900d458fef4b15",
+        "135481b32e6fd5f3e68496ac5dca52404dcd99768ab6011c3f9dee440ce68d33"
       ],
-      "source_sha256": "6590580a999c9adc59a7e06e0239ad50a98e0657d8a50cdfd5e25481e6b1dff6",
-      "text": "Every thumbnail on screen, across every open well tab.\n\nON SCREEN means ON THE CURRENT PAGE. Use :meth:`crop_count` for how\nmany objects the tabs hold."
+      "source_sha256": "ffa75d3629537287383e7391733aeaa3e8105ce35d2ead2d78fcd2e9c85d8472",
+      "text": "Return thumbnails visible on the currently displayed tab pages.\n\nUse :meth:`crop_count` to obtain the total number of objects held\nacross all well tabs, including pages that are not displayed."
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.well_tabs": {
       "source_blocks_sha256": [
@@ -51953,6 +51953,14 @@
       "source_sha256": "5121f4f02d80aef75a74ce49d62299d5ee0d41c6c7542c6e72489f2a6121e0d1",
       "text": "The table this plot was drawn from, or ``None``.\n\nThe two column-mapping controls need it -- \"cmap (choose any column)\"\nand \"point shape (choose any column)\" both name a column of THIS\nplot's own table -- and a plot handed bare arrays honestly has none,\nwhich is why those entries grey out rather than offering a list of\nnothing."
     },
+    "spacr.qt.widgets.fast_plots.FastPlot.graph_spec": {
+      "source_blocks_sha256": [
+        "3c6e4b7ba5659addf1b707a071d38df1a55e5cc1c971a0ea4cc922698668b81e",
+        "7f52b622bb2cdb18e025184a92453732386ed349fc9317f915c0c20033ffe635"
+      ],
+      "source_sha256": "4415173f0ec76aeef9af8f6bd00f34ae4f1b0fb89e412a3e18a81d0e70aa6c22",
+      "text": "Return the data specification used to draw this plot, if present.\n\nPlots that retain a specification can be redrawn using another\ncompatible graph type. Rendering-only plots return ``None``."
+    },
     "spacr.qt.widgets.fast_plots.FastPlot.grid_shown": {
       "source_blocks_sha256": [
         "a71cf52e99c0f47e3443d8db7eba6890583b38d14ddf2d48e0ccfa471183be6c"
@@ -52199,13 +52207,12 @@
     "spacr.qt.widgets.fast_plots.FastPlot.select_in_rect": {
       "source_blocks_sha256": [
         "4e6a4b667e2f4c91d7dbec5261ce4f7a3411341fdb13f1a0f125bdc3dfd3f8c6",
-        "84359973f7a72b073d136c2c9c9128ac2446e9a9c45a69a1f3c258722d6b8e59",
-        "f1c73babc8a370b2710cc3dbb716f89d4fb45ea8e31259d8ac52cc6f37bd8deb",
-        "4b34c5f289845fc6a161ed290b640b8d8ea03ede520faf3efe11673c7857a97f",
-        "90ef60f487cb3a22eae8ad466a7777e23abead169995210a366ca86fbcf2da9e"
+        "d83eaa2f297777e0d0e5c84d1f49797ac22ad80c355462c938be7ebf992e2145",
+        "0ac41a840e5e2132523486be8aa7157013cf04511a41efe806e56149fd1339eb",
+        "e4ccc06c216cc06b70d0a6d0255ff935d43d31371279c57588312b5e8a605c30"
       ],
-      "source_sha256": "8035b9f0b78585a56ce95caec5200ea5405d2206406541a8aa54dcb807b9beb1",
-      "text": "Select every plotted point inside the data-coordinate rectangle.\n\nTHE GESTURE THE SHAPE OF A VOLCANO INVITES: the interesting guides\nare a corner of the cloud, and picking them one click at a time is\nthe work this replaces.\n\nPoints with no drawn position are not in any rectangle -- a band\nselects what it visibly encloses, which is the only reading a user\ncan check.\n\n:param add: extend the current selection rather than replacing it,\n    for a band drawn with the modifier still down.\n:returns: the selection after the band, in pick order."
+      "source_sha256": "e419cef53e12de9d69245c3361dfa06357f765938045095062c2a09f289c270e",
+      "text": "Select every plotted point inside the data-coordinate rectangle.\n\nPoints without a plotted position cannot be selected. Rectangle\nselection therefore contains exactly the points visibly enclosed by\nthe supplied bounds.\n\n:param add: extend the current selection rather than replacing it,\n    as used when a modifier key is held during selection.\n:returns: selected keys in pick order."
     },
     "spacr.qt.widgets.fast_plots.FastPlot.selected_keys": {
       "source_blocks_sha256": [
@@ -52628,12 +52635,13 @@
     },
     "spacr.qt.widgets.fast_plots.ResultsTable.select_keys": {
       "source_blocks_sha256": [
-        "fc781b8aecfb2dcd793563df086b73735fe84506f0aa01d0b70293adfd6ad8af",
-        "6c6d69bb13839ed47a5037b8268372f92aba91ad74604e59db3a02abedcced6d",
-        "20f1325cbd5f60f1b00281463b76dea0ca49229173dc4b2e912456da054af87c"
+        "55a3baa1c0e2684826864bf0257cd23a1daadea8aba60a6576636c83f2a913a7",
+        "80af7e436fa5cf3724a1146d8775b1242086660b18b188d43c53878735e03271",
+        "0cf35293e20d450847461abbbca262495335b90dc50438adbe60bdb5f6eb2b7b",
+        "978bdc22e52170a5ca63fe43dfcf172f307a2f29d7e47f87960a6099a444bfc0"
       ],
-      "source_sha256": "a3ad84f9ff028fa81079743d4e19cee6b06bbcad7498a76e54e9f793328706f0",
-      "text": "Select every row named in ``keys``. Returns how many were found.\n\nTHE ONE PLACE A MULTI-SELECTION ENTERS THE TABLE, so the two signals\nbelow are emitted together and no consumer can be looking at a\ndifferent selection from its neighbour.\n\nThe table selects rows rather than filtering them: narrowing to the\nselection is what `show_keys` does for a histogram bar, and doing\nboth from one gesture would hide the unselected guides the user is\ncomparing against."
+      "source_sha256": "3c5ab5f2d8722166d89b0d900531711d87467db6fb5b006f45ffdb50c9420b54",
+      "text": "Select table rows whose keys occur in ``keys``.\n\nBoth selection signals are emitted here so every consumer receives\nthe same ordered selection. Rows remain visible; :meth:`show_keys`\nperforms filtering when a plot interaction requires it.\n\n:param keys: row keys to select, in the desired selection order.\n:returns: number of matching rows selected."
     },
     "spacr.qt.widgets.fast_plots.ResultsTable.selected_keys": {
       "source_blocks_sha256": [
@@ -54189,11 +54197,15 @@
     },
     "spacr.qt.widgets.figure_settings.save_figure_bundle": {
       "source_blocks_sha256": [
-        "9ca4f6e3c03eb44d6a3deb5da3a73a8cc028c5fe11ec93cb0a17e47c442ed3b5",
-        "9047b33671b26a87e9469f1f69368b775587f9dfaf7583d9b6f46e5befcf8158"
+        "5a362dac2e2d6e359d94105925036c996f826a4987de0b8a0c27e94fd6d4bbe3",
+        "6b1c0ed0acb6c182cfa8d006a2edf35deecb03e0b902b1a4e3d2396d472c5b63",
+        "f5a473b285b528f02dfd7ef0e69288a8ddae96cdd5bc265bf0c06f8227172612",
+        "4a31d914370c8448a9d22136127d5fc0ebc9e24f426d27a76a6b248864a29303",
+        "fb91c5a6dd871971b2362e4caf2f508082252e18b91159c0d7ff3ec6a36fd692",
+        "c7b4a4073481da4663a4a8e302dabaec1c30a629ff3a293a1f0a4e2857d06bde"
       ],
-      "source_sha256": "0c75ff80072169ee26800f9503fff30fcc766bf8df866168b0a18fe88f891971",
-      "text": "Write one matplotlib figure as a bundle. Returns the folder.\n\nTHE GROUPS COME FROM THE RECIPE, which is what makes the statistics the\nsame comparison the picture shows. A figure with no recipe still gets\nevery file -- the statistics say there is nothing to compare, because an\nabsent file reads as a bug."
+      "source_sha256": "e55bc3d26931994ed734c5026a87138646b72a59cf427c8ed5cbaf9e02e9c932",
+      "text": "Export a Matplotlib figure with its source data and statistics.\n\nGroup definitions come from the attached replot recipe so statistical\ncomparisons match the displayed figure. When no recipe is available, the\nstandard files are still written and the statistics artifact records that\nno comparison could be formed.\n\n:param figure: Matplotlib figure to export.\n:param folder: destination directory for the bundle.\n:param name: optional base name for generated files.\n:returns: path to the written bundle directory."
     },
     "spacr.qt.widgets.figure_settings.save_graph_style": {
       "source_blocks_sha256": [
@@ -56880,6 +56892,82 @@
       ],
       "source_sha256": "6202dd1b3a08e85eb648cfc19e6acdbadea05853330502555f207df70ceaad0d",
       "text": "Which column each *axis* actually carries, once the kind is known.\n\nAlmost always ``(spec.x, spec.y)``. The exception is a lone column on Y\nthat infers a histogram or a bar chart: those draw the column along the\nhorizontal axis and counts up the vertical one, whichever zone it was\ndropped in. Without this the scales would be computed for an axis nothing\nis drawn on, panels would autoscale independently, and a faceted\n\"histogram of Y\" would quietly stop sharing its bins."
+    },
+    "spacr.qt.widgets.grouped_plot": {
+      "source_blocks_sha256": [
+        "836043c08e8dde095c3ee198cfefe73ddb35526d1d9ccb8c54f7041e4b0ab42e",
+        "d7adcb8ab1bea24e17bfc79f14ef10cb68f0aa3543040f11a99757677dd0cbc8"
+      ],
+      "source_sha256": "ec12ca0485068edc2abc4ea02c9e024f90920114bc0089e133a00a1cdef6bbbd",
+      "text": "Render data-backed grouped comparisons with interchangeable graph types.\n\nA :class:`PlotSpec` retains the source frame, group and value columns,\nobservation unit, and selected graph type. Retaining these data allows the\nwidget to redraw compatible graph types and export the figure together with\nits source rows and statistical comparison."
+    },
+    "spacr.qt.widgets.grouped_plot.GroupedPlot": {
+      "source_blocks_sha256": [
+        "29acd5cdce42cf091df9894fa911973b3547124aa5c78495e963388038df9ebf",
+        "42c57662519177b70a817ee9735596ffcd46d1240f038655365c3e46bf48e3bf"
+      ],
+      "source_sha256": "9a40941bed717bf71ac53bd0bb3c0ba096f3bb2b5191458da84df1bb3d5ba61c",
+      "text": "A pyqtgraph plot of a :class:`PlotSpec`, redrawable as any kind.\n\n:ivar spec: what is drawn. Assign through :meth:`show_spec`."
+    },
+    "spacr.qt.widgets.grouped_plot.GroupedPlot.comparison_groups": {
+      "source_blocks_sha256": [
+        "88486dd4ee6edd3ee3da67eaf4217a303427cc8445902b88d11eb2c687136e6f",
+        "22b6c74f5275ea73d80940f4051356586dfa45e5099ae530f39c8e1973f8b7a2"
+      ],
+      "source_sha256": "5cb5971db318b77e8a6b45388809819c1b336dd0fae62b68a1b96d9c942be739",
+      "text": "Return grouped values for export-time statistical comparison.\n\nReturns ``None`` unless the retained specification contains at least\ntwo groups."
+    },
+    "spacr.qt.widgets.grouped_plot.GroupedPlot.frame": {
+      "source_blocks_sha256": [
+        "1ebfd766c5240ef44f480ec3ab590fd4c1f15f9bdb6d1545983c1070d3d5926b"
+      ],
+      "source_sha256": "1ebfd766c5240ef44f480ec3ab590fd4c1f15f9bdb6d1545983c1070d3d5926b",
+      "text": "Return the source rows exported to ``data.csv``."
+    },
+    "spacr.qt.widgets.grouped_plot.GroupedPlot.show_as": {
+      "source_blocks_sha256": [
+        "20472c556a54b6cd2b31d611e2d775b092af5f44d2d8efa7887592b1047f374a",
+        "8c0091246ee0fecd0cfe46038e707ce50d9ad8d4a68e7a76bce549e07e2eeb33"
+      ],
+      "source_sha256": "de6737f51daed123276c7020379b7dd59cf4948f1118cf9200ccfb4d045f6a8e",
+      "text": "Redraw the retained data using graph type ``kind``.\n\n:raises ValueError: for a kind this data cannot support. Drawing it\n    would otherwise imply a relationship unsupported by the available\n    data shape."
+    },
+    "spacr.qt.widgets.grouped_plot.GroupedPlot.show_spec": {
+      "source_blocks_sha256": [
+        "30fe6b01ee11b6964873a79c2c6b0199854b830c9537b84afbabd2aaafb8f839"
+      ],
+      "source_sha256": "30fe6b01ee11b6964873a79c2c6b0199854b830c9537b84afbabd2aaafb8f839",
+      "text": "Draw ``spec``. Returns the number of groups drawn."
+    },
+    "spacr.qt.widgets.grouped_plot.PlotSpec": {
+      "source_blocks_sha256": [
+        "378f3994a88e90bda2043e5fbc4f417ea89a6927c8adf0650bcf2cc61eba455f",
+        "08fa51e5a5908497cb51a7a9b85a16dc6a7f0a54601a2921989667794978bd18"
+      ],
+      "source_sha256": "dc98dffa80578da0bc985dff68497d058f52ec76be3027522ced7998ea03ba30",
+      "text": "Data and display metadata required to render a grouped plot.\n\nThe retained frame supports graph-type compatibility checks, redrawing,\ndata export, and statistical comparison without reconstructing the plot\nfrom rendered graphics."
+    },
+    "spacr.qt.widgets.grouped_plot.PlotSpec.default_kind": {
+      "source_blocks_sha256": [
+        "5602484c183dd514ed8ff86517e5abbe6d1617bbe675c2f26556e174e3a69b54"
+      ],
+      "source_sha256": "5602484c183dd514ed8ff86517e5abbe6d1617bbe675c2f26556e174e3a69b54",
+      "text": "What this data is born as, when no kind is named."
+    },
+    "spacr.qt.widgets.grouped_plot.PlotSpec.groups": {
+      "source_blocks_sha256": [
+        "aec0278988ac67af6738f59fa90c3a0194df75ed34fe5b5d33416013a25c1dcd",
+        "d6f44a2933a3f7d39b392318acdc9d5d1e5c3a053952708258e95812119e09e9"
+      ],
+      "source_sha256": "b8dc06648aee463b4d6b8eb47b3e17f546f23111610f201b688973e82fcf6d78",
+      "text": "Return ``{label: values}`` while preserving frame order.\n\nPreserving first occurrence keeps deliberately ordered experimental\nconditions, including controls, in their configured display order."
+    },
+    "spacr.qt.widgets.grouped_plot.PlotSpec.shape": {
+      "source_blocks_sha256": [
+        "9c47bfb57a6ee3ebceecd31440931791db14faa1dc9a13c7f2ffcf959e4c6f1e"
+      ],
+      "source_sha256": "9c47bfb57a6ee3ebceecd31440931791db14faa1dc9a13c7f2ffcf959e4c6f1e",
+      "text": "The data shape, for deciding which kinds fit."
     },
     "spacr.qt.widgets.home": {
       "source_blocks_sha256": [
@@ -62122,14 +62210,11 @@
     },
     "spacr.qt.widgets.setup_slides": {
       "source_blocks_sha256": [
-        "59f7912bea64c9b26b828bc2a823231af3855c52cc8e07d45273db6aa529b562",
-        "d6ba6cff1cc6682b7b978041e8cd5937ccd81d7ddfddb1bd0da3662c7f335611",
-        "543facc840fd6c7829dfcba82cd2820e5e48c183338e3860b3981f82f06cc738",
-        "af9bd9d7d67d2c78cecb051079ad113ccb5492e77c86ffe336a2bfbcb3815096",
-        "8bd3d25de9e8e5cf45b1723408144612331fd2fea056f64fde8a545546906460"
+        "83593fa228c74b4e408a4b5b5499752bebc1bd4801b3561ed10ff881dd95ae09",
+        "114c29b4348bd362e34fca44c1b5f2cc5e10da0e53f07e909809eb61494415ff"
       ],
-      "source_sha256": "62b2fa34cfa6eafabb70b0096dff9852aef3c15fb7a9c7d07e8a7953eb797dd5",
-      "text": "The first-run setup as a sequence of slides (instruction 234).\n\n    \"i want one question per slide with a little explantaion ... then a\n     screen that just says Done ... it should feel like a smooth transition\n     into spacr\"\n\nA FORM ASKS EVERYTHING AT ONCE AND ANSWERS NOTHING. A slide asks one thing\nand has room to say why it matters, which is the difference between a screen\nsomebody fills in and one they read.\n\nThis supersedes the grouped-form layout instruction 221 shipped. 221's MODEL\n-- `spacr.qt.setup_screen`, its defaults and its persistence -- is unchanged\nand still the only thing that writes a preference; what changed is entirely\nthe presentation.\n\nINVARIANTS 10 THROUGHOUT: the rim animation, the strata and the blur are all\ndecoration. If none of them can be drawn the slides still work and still\nwrite the same answers, and the tests assert that rather than assuming it."
+      "source_sha256": "9328565a1b55fe717a19f7d12d17afeb8b5e2e61ec4d0b1306f8c77ef337098e",
+      "text": "Present first-run preferences as a short sequence of explained choices.\n\nEach slide covers one preference group and writes through the existing setup\nmodel. The animated backdrop, translucent card, and pointer-responsive border\nare decorative; preference editing and persistence remain available when\nthose effects cannot be rendered."
     },
     "spacr.qt.widgets.setup_slides.SetupSlides": {
       "source_blocks_sha256": [
@@ -62191,11 +62276,11 @@
     },
     "spacr.qt.widgets.setup_slides.open_setup_if_needed": {
       "source_blocks_sha256": [
-        "bc00e426b8c8550066500d993775b6b200df2f41b3d18d9f250fee2169ae06b1",
-        "4628e82a5b9368a3262f277aba7002897b90a05c543c94d709b4d5021a728ba5"
+        "936cb3c5c3784e8c37bbe2cb8f75efd4b4b65bf11513a721f7ad1b60c2357536",
+        "533729d3973e27be0f91c7f9efe41c66de9123518eabdaca9b14a2dbf1bcfea2"
       ],
-      "source_sha256": "fee91694dadebb94b97c19e2b696e02e278635ec0d2d7c47cb34b96795924330",
-      "text": "Show the setup slides if they have not been answered.\n\nTHE CALLER DOES NOT DECIDE WHETHER TO ASK -- `should_open` does, from the\nrecorded version. A screen each caller gated for itself is one that\nappears twice on one launch and never on another."
+      "source_sha256": "39339dd2fed00f1441e06c1772af330e7cc21b2e69a180bd4ff45f8f673ea351",
+      "text": "Show the setup slides when the recorded setup state requires them.\n\nThe centralized :func:`spacr.qt.setup_screen.should_open` check prevents\nindependent callers from opening duplicate dialogs during one launch."
     },
     "spacr.qt.widgets.sweep_panel": {
       "source_blocks_sha256": [
@@ -67644,21 +67729,21 @@
     },
     "spacr.run_recommendations.format_recommendations": {
       "source_blocks_sha256": [
-        "94d7c5d065897ab9ee8d7b833f0b1b56c3f5c1a4d230fb76a5d009b4546c9c80",
-        "5023596fc71d826fc4976b1050c22f7886830b8bb00994a382e9ec7dbf334a6e"
+        "7de5317a1ceb1305b2fb29647f3168b8ea33681eb4eb165db0cba06d6dbd243e",
+        "ebd9a809f6261e8eff3bf06ea46ed0727447eafbca4eedc47f69d36b027310af"
       ],
-      "source_sha256": "594412b9096e1521862e693e3ab1cac162ecbe6ae2bd0e2d5b6f908f5e252b36",
-      "text": "The section as it appears at the end of the summary.\n\nAN EMPTY SECTION SAYS SO. Its absence would read as a bug, and \"every\ncheck passed\" is a result worth stating rather than implying by silence."
+      "source_sha256": "965dafcc30f90d9a237ad86bbb731000998f086db7c46e2285d2e3c6bdce0305",
+      "text": "Format recommendations for the end of a run summary.\n\nAn empty input is reported explicitly so a completed check with no\nrecommendations is distinguishable from a missing result."
     },
     "spacr.run_recommendations.recommend": {
       "source_blocks_sha256": [
         "f7ab26ea65b09a07163a7026157b71c0588af9f7d60d728262d56dbb44a039bf",
         "4f90c9043cbd6f48e0149d9c6913144874a9f989b28ca8e6caa8fbb5d77bd736",
-        "91222ceae062e34f6225c0f9496797dca33fc88a29cd494f5e92b47c1d2cdf7e",
+        "f2e3a9f9f8d161f972bcd176f230b27d7d4110d2fd1dd9a758f64adc7c967b8f",
         "e4f2bed9658d4584346676aa2d4792e1cf9ed0af6f7dddc6e6f7ab65a239ad56"
       ],
-      "source_sha256": "a6dd2f6fc40fbabd4091a8722e19631ca50012c5f78436f31e32b9aa2921caeb",
-      "text": "Derive recommendations from a run's measured diagnostics.\n\n:param diagnostics: the numbers the QC computed.\n:param settings: what the run used, so a recommendation already taken is\n    not offered again. TELLING SOMEBODY TO DO WHAT THEY DID IS HOW A\n    RECOMMENDATIONS SECTION BECOMES SOMETHING PEOPLE SKIP.\n:returns: the recommendations that fired, blocking ones first."
+      "source_sha256": "d858cb71683cde3d13d499bd88c8233b200da6c14f46c1006568dfefaf4ca109",
+      "text": "Derive recommendations from a run's measured diagnostics.\n\n:param diagnostics: the numbers the QC computed.\n:param settings: settings used for the run. Recommendations already\n    satisfied by these values are omitted.\n:returns: the recommendations that fired, blocking ones first."
     },
     "spacr.runctx": {
       "source_blocks_sha256": [
@@ -72609,17 +72694,17 @@
     },
     "spacr.sudoku.SudokuResult": {
       "source_blocks_sha256": [
-        "259961c60b0a260dc8d90924ad0a02c1f27daeb1d4a3f78579e3f27ecfc5d4df",
-        "b133cb63caf150909107fbdda390ce582730020f52d586f39d752a010b3b84b7",
-        "80527d2b3d77943e3caa8b9283999d0a9f9f2053c69c7b78825fbb5ef1c71bdd",
-        "125fe5ffa550f064b7e959b6c49ac86a94e7253b4c755fda02fe4f9dd96eaa33",
-        "0ba7c441293ede3a909873f64ea7273f3bd5cfc5c212cb0c94634526840f948f",
+        "d9284ef5bcd7bfea85f2d2329d0ab8d3bf456084a3a592bb3c9a568e1f0d88d7",
+        "7124a0dc2fd2578db7688f06e9d04b4632c44a19142d6b54666e251a5f4ebda7",
+        "a38fa0e721d25346f415c3f2aaee2191b452b77a8e8541250c1392262cefd13f",
+        "8cbd90aca0dc570bca4c05ababc7c43f190a7dc69ff49aa23025dd131392d487",
+        "060df21c36f9993274fa4ac923ec580fad6e391d84b4138341e53b1dd28098b7",
         "aee5d6ead903cfdd1faf6431bb03a5ee306d4a7fd7ebf8a48d648e47780bd18c",
         "8e0e840760dd542656a1e3fcdf2f7203a4d6f56c2c9d7f043cd51571a794db7b",
-        "ca6a433c0d92112bad90a52cff1cb398ed4c5bb6d02a18cb4eac2bfad2f734e6"
+        "d0df92a521cce19f8e16a5490171f6b5b82416056ba6eba0026402fe22dd8e4a"
       ],
-      "source_sha256": "595ce16b97d003e41144db061fba8aaddf4e1e6cad4a7ed4d5d1c763201a909c",
-      "text": "What sudoku concluded, with both scores kept apart.\n\n:ivar guides: one name per cell, in the order the cells came, or\n    :data:`ABSTAIN`.\n:ivar affirm: ``(n_cells, n_guides)`` -- how much each cell looks like\n    each guide's anchors.\n:ivar eliminate: ``(n_cells, n_guides)`` -- how much it looks like\n    anything ELSE. Kept separate on purpose: \"probably not this guide\"\n    and \"probably this guide\" are different claims, and a cell can be\n    low on both, which is the cell worth looking at. A single ratio\n    maps that onto the same value as a cell that is high on both.\n:ivar reach: ``(n_cells,)`` -- total anchor mass that arrived. Low reach\n    IS the fourth quadrant: unlike every anchor, of any guide.\n:ivar posterior: ``(n_cells, n_guides)`` after the well constraint.\n:ivar names: the guide names, in the column order of the matrices.\n:ivar report: counts and settings, for the record."
+      "source_sha256": "6bd46376eb25a040a8f7492e365430ae6fe0cf7918ffd38456ff82394cfbdd91",
+      "text": "Cell-level guide assignments and their separate evidence components.\n\n:ivar guides: one guide name per input cell, or\n    :data:`ABSTAIN`.\n:ivar affirm: ``(n_cells, n_guides)`` support from each guide's anchors.\n:ivar eliminate: ``(n_cells, n_guides)`` support from competing anchors.\n    Keeping this separate from ``affirm`` distinguishes ambiguous cells\n    from cells unsupported by any anchor population.\n:ivar reach: ``(n_cells,)`` total propagated anchor mass.\n:ivar posterior: ``(n_cells, n_guides)`` after the well constraint.\n:ivar names: the guide names, in the column order of the matrices.\n:ivar report: assignment counts, settings, and diagnostic warnings."
     },
     "spacr.sudoku.SudokuResult.abstained": {
       "source_blocks_sha256": [
@@ -72642,22 +72727,22 @@
         "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
         "eb6d1129a7427ddaac6242fac73e735fe733bb3c770b45a89c0fedcec718c51d",
         "33383acbfc2b22043321abda95fd91eab8de7cd2ce40806283ead68ecefcb8fb",
-        "6f58baeeba7bf761cddba3fc7a9d693dad9dece10a419590c02167dee6f6f3e9",
-        "87ab4bf6db33ed4b547f6f3df1f084aa38a3e9c85e5a0b1c7d2cee3a73823198",
+        "9fc4ad659add555c5826011406b96a6a69466e7ec818cf8c9a1a810476d47f54",
+        "454fd6ae910e47f023bd623ef1b950cc8f1b12629cd1733a19814a1845346177",
         "f64250843e1ee6f51bcf8a430ab51b081928e528c11d97c4532dd21f8b5d1fb2",
-        "e096de447ddbc931a4db8907de22c8f52bb4f7bde626b5be68c540a94a63c30d"
+        "5da0f1e7b6e38632fbf33f5db59fda31183237b8587208c6322fd2b0be59cac2"
       ],
-      "source_sha256": "d984295d47b2d4a9e29b9c4a8edd224f35ecd5021380b0428dec1e3ba74bac07",
-      "text": "Indices of the cells taken as near-certain examples of ``guide``.\n\n:param wells: one well label per cell.\n:param fractions: ``{well: {guide: fraction}}``.\n:param scores: the classification score per cell.\n:param quantile: within an anchor well, the score quantile above which a\n    cell is taken.\n:param min_fraction: only wells where the guide is at least this share\n    are used. THE POINT OF THE WHOLE THING: in a well where the guide is\n    70% of the reads, a top-scoring cell is very probably that guide. In\n    a well where it is 5%, it is probably not, and an anchor set built\n    from such wells teaches the graph the wrong shape.\n:param max_per_well: a cap, so one enormous well cannot define the\n    guide's appearance on its own.\n:returns: cell indices, possibly empty.\n\nTHE ANCHORS ARE WHERE CIRCULARITY ENTERS, and it is entered knowingly.\nThey are chosen BY SCORE, so a profile built from the score alone would\nsay \"a `g` cell has a high score\" -- true by construction and worthless.\n:func:`sudoku` therefore excludes the score from the graph features by\ndefault. The score picks the anchors; the morphology decides everyone\nelse."
+      "source_sha256": "d37bdf31ead22b4030243e76c0a9b530ef3d0ff211dfceeedbbc4f298e0eb254",
+      "text": "Indices of the cells taken as near-certain examples of ``guide``.\n\n:param wells: one well label per cell.\n:param fractions: ``{well: {guide: fraction}}``.\n:param scores: the classification score per cell.\n:param quantile: within an anchor well, the score quantile above which a\n    cell is taken.\n:param min_fraction: minimum sequencing fraction for a well to contribute\n    anchors. This limits anchor selection to wells in which a high-scoring\n    cell is plausibly associated with the guide.\n:param max_per_well: maximum anchors contributed by one well.\n:returns: cell indices, possibly empty.\n\nAnchor selection uses the classifier score. To avoid circular inference,\n:func:`sudoku` excludes that score from graph features by default; cell\nmorphology then determines propagation beyond the anchors."
     },
     "spacr.sudoku.constrain_to_fractions": {
       "source_blocks_sha256": [
         "69cfa77b758c1b77ee9e7a2c0df6b168641fcf2a719b80ca21efb22353cad00f",
         "11bbd0d6d2dfdc5d3b3b820c1e772bac5f6ff65223fc6332475fd1aaee271433",
-        "9b5248d10e847ccf36b75c4786c0d076f262ebb081cc554d58b437fe4e1d96b0"
+        "dd6e55726281e559e5c5fd9722d3e004d7b4066489551825e3bd1292cd7c6430"
       ],
-      "source_sha256": "63a9ab6f61d3025ac4ece3a7a5d16d61fec4631278a0f79c9dd341a4375de19e",
-      "text": "Project the propagated mass onto the counts sequencing implies.\n\nWithin each well, scale the guide columns so each sums to ``pi_g * N_w``\nand renormalise the rows to 1, alternately. This is iterative\nproportional fitting -- the same fixed point\n:func:`spacr.guide_attribution.posterior` uses, applied here to\ngraph-propagated evidence instead of a one-dimensional likelihood.\n\nIT IS THE ROW CONSTRAINT OF THE PUZZLE. Without it the graph would\nhappily give every cell in a well to whichever guide had the most\nanchors, because nothing would say a well has only so many of each."
+      "source_sha256": "0d17064e4e31d2ead777621e4c5ef302d315f5b5ff16e39990265a6e940fd3ae",
+      "text": "Project the propagated mass onto the counts sequencing implies.\n\nWithin each well, scale the guide columns so each sums to ``pi_g * N_w``\nand renormalise the rows to 1, alternately. This is iterative\nproportional fitting -- the same fixed point\n:func:`spacr.guide_attribution.posterior` uses, applied here to\ngraph-propagated evidence instead of a one-dimensional likelihood.\n\nThe row constraint prevents the graph from assigning every cell in a well\nto the guide with the greatest anchor mass when sequencing supports only\na limited fraction for that guide."
     },
     "spacr.sudoku.propagate": {
       "source_blocks_sha256": [
@@ -72676,44 +72761,46 @@
     },
     "spacr.sudoku.similarity_graph": {
       "source_blocks_sha256": [
-        "c9871a550ffd5d21ea05091e57f74828c59fc9b2f6c745898c57468fe3c4c4b4",
+        "c242bf899774f6ac0d0b5dbae2e588b2ccd47aa502fdb86792b4b15c43926ce9",
         "ba3bb25058b7e01078e1f18c0897e076359041e9b2df27603f6937a63319a65c",
-        "cf4cdd0174f724805681f17b68510a5d342eea4c43a621935a9539622433015f",
-        "cbd75f91a86f44ace476fa41a7558bd0285c1bb5f3433e3ce6f94729b4c91ef7",
-        "29ebd8819b449b41120ade352b913de2e7fae5e1115f86b0d9099bd92890b474",
-        "411e5b5577d51c97d922269d13384e35843ad0675d795083073ffa61751af267"
+        "6b0bea6610214e309431c5ae0c5893b52badd3fd73e13caf9339868a6aa8a0e1",
+        "89c4fdbbc2d4e608837929127b504c8372191b8e0d454bf55b13f0856f2d833c",
+        "11eefbccfd5dace7419e6d4d086bd2f688453f4557210c9ea650f993ece1b3c5",
+        "c78d1be8c0cf52d1072f8cf197e0160ac6f15d82553d43f8253c4599851984af"
       ],
-      "source_sha256": "fc07a926a49d4cfec0cee8b5f3f6a52eeaf2eb4f5e05b5bbf27a22e2ce0270ac",
-      "text": "A symmetric k-nearest-neighbour affinity over cells.\n\n:param features: ``(n_cells, n_features)``, standardised here.\n:param neighbours: k.\n:param mutual: keep an edge only where BOTH cells list the other. A\n    plain kNN graph gives an outlier k edges it did not earn -- it has\n    to have SOME nearest neighbours -- and label mass then flows into\n    cells that resemble nothing. Mutual kNN lets an outlier end up with\n    no edges at all, which is the honest answer and is what\n    :attr:`SudokuResult.reach` reports.\n:returns: a sparse CSR affinity with a zero diagonal.\n\nWeights are the heat kernel with a SELF-TUNING scale: each cell's own\ndistance to its kth neighbour. One global sigma assumes the cloud has\none density, and a screen's cells do not -- a dense healthy population\nbeside a sparse dying one gets either no edges in the sparse region or\nan over-connected dense one."
+      "source_sha256": "ec623cf3d37abef233396e9a6b10c610496b2556ca9773e37cf3e75632cf0733",
+      "text": "Construct a symmetric k-nearest-neighbour cell-affinity graph.\n\n:param features: ``(n_cells, n_features)``, standardised here.\n:param neighbours: number of nearest neighbours considered per cell.\n:param mutual: retain an edge only when both cells identify each other as\n    neighbours. This allows isolated outliers to have zero reach rather\n    than receiving forced connections.\n:returns: sparse CSR affinity matrix with a zero diagonal.\n\nEdge weights use a heat kernel with a local scale defined by each cell's\ndistance to its kth neighbour. Local scaling supports populations with\ndifferent sampling densities."
     },
     "spacr.sudoku.sudoku": {
       "source_blocks_sha256": [
-        "9565fd87072a18706ea83f75aded36f448874f0ae4e09578fabd5644e0382455",
+        "77000659763f57fa1f500f58a56b71e0050431fae61617b761358e2b32cf728d",
         "d1c68c2d44b7928ca72b5af71fd02b75f04415dec889b7093db3ce7092a8e09c",
-        "b8fb34ca7ab0762b881ef5a04536f195f13adc8f3365036ebd82f0d98c53df65",
+        "799b8de714f983f73115cd2038bc09fe10a531fdc95b2fd68f0fbdbe7792bad0",
         "4e74a48dde732283c8bbd6fcdc368d9c610e80f18cf2e91ba720611dd97dd427",
         "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
-        "67fdbb17464bcd148b97766fc52d68279c5ea952e263a0dc4b764e975a40e688",
+        "8173cac1902037307894f7fbb0e56e1ee085500ec6103c674772171adea1e29c",
         "e5db01064629bc5c506f3ec56ead6109b227163fbd50841b5040227a6931e21e",
-        "9a0786d984efff1e26f0d5cb79497ad18d00d935127f3bd61951fa6cee3436f7",
+        "3a2270f21f846985c7cbe5791e9041f065b14b10e6953e8fa8db61b4a0e70425",
         "bb448ce3b066fb995254a78bb5161513381d0ffdadf22dbc87beb40d854672c6",
-        "2485395b525b7e370cd9e86447ae6fb393d3b5b02913fb4c7a6968b17fbde259",
-        "96b5593df006be77dbbee1e739b980b29f87747f42bac4c77656006a4a0f86e2"
+        "66de95662abaada9f85cb6bfa99ae59474386fa4aa6e40c3a6f8fe27725c35c8",
+        "d372db15e0ed540d4917252ae3da5c71207204e6815760a624c079b8abf1313a",
+        "c0c5400fd56c56272017da907234b7d4c61bc74c3081d4f20a8d528b368ce565",
+        "a7b3969fbd62ca315e9b553c6e65c9755000a0152864f1d829fc510d7140a80f",
+        "bdb3bd391ff55d6c1e975b7f332996580a5c310c3eac0bf97c4fbd929eff0cf1"
       ],
-      "source_sha256": "71817567844b193e55ca0d5f126229e61aa03c81c48f6dceff82e4961cab7c60",
-      "text": "Annotate every cell, across wells, with two scores kept apart.\n\n:param features: ``(n_cells, n_features)`` cell measurements.\n:param scores: the classification score per cell -- used to CHOOSE\n    anchors, and by default not used as a graph feature.\n:param wells: one well label per cell.\n:param fractions: ``{well: {guide: fraction}}``.\n:param guides: the guides to annotate. The user's choice, and several is\n    the point: \"the user may choose several high scoring guides\".\n:param anchors: optional explicit anchor indices per guide, overriding\n    :func:`anchors_for`.\n:param use_score_as_feature: put the classification score in the graph\n    as well. **Off by default and that is a correctness decision, not a\n    preference**: the anchors are chosen by score, so a graph built on\n    the score would place every high-scoring cell near every guide's\n    anchors and affirm all of them. Turning this on makes the method\n    partly tautological, and the report says so when it is on.\n:returns: the :class:`SudokuResult`.\n\nTHE FOUR OUTCOMES, which is why two scores are carried rather than one:\n\n  affirm high, eliminate low   -- confidently this guide\n  affirm low,  eliminate high  -- confidently NOT this guide\n  affirm high, eliminate high  -- the guides do not separate here\n  affirm low,  eliminate low   -- unlike every anchor: the odd cell,\n                                  and the one a single ratio hides by\n                                  mapping it to the same value as the\n                                  row above."
+      "source_sha256": "48ca7de1dac47a026fc6a0c51fc2ae1b2b4e272ceb331c370a666757d40d60f5",
+      "text": "Assign guides to cells while retaining competing evidence separately.\n\n:param features: ``(n_cells, n_features)`` cell measurements.\n:param scores: classification score per cell, used to choose\n    anchors, and by default not used as a graph feature.\n:param wells: one well label per cell.\n:param fractions: ``{well: {guide: fraction}}``.\n:param guides: guide identifiers to consider for assignment.\n:param anchors: optional explicit anchor indices per guide, overriding\n    :func:`anchors_for`.\n:param use_score_as_feature: include the classifier score in graph\n    features. Disabled by default because the score also selects anchors;\n    enabling it introduces circular evidence and is recorded in the\n    result report.\n:returns: the :class:`SudokuResult`.\n\nSeparate support and competing-label evidence distinguish four outcomes:\n\n* high support, low competition: confident assignment;\n* low support, high competition: confident exclusion;\n* high support, high competition: ambiguous between guides;\n* low support, low competition: unsupported by the anchor populations."
     },
     "spacr.sudoku.sudoku_all": {
       "source_blocks_sha256": [
-        "810b655532d874a39399f11e67931d6211b319c107a7e6a6ef40e16fcd08a0ff",
+        "6cf743111111c8ac848205cdecd639414505e9fda0d6e691ec10823a2eebb333",
         "29ac08550b61f9b96e7fffd9817b6110583b059d63522cc50a50d13f28de4bdb",
-        "4d44af735702647f73491a4c8640a43ded90d040e176d8b772d91d9091191e8e",
+        "03a52d9271cbf4b5f4dbb3c9e56b2af42c26da25fc15a4b4ca5abf61f2781caa",
         "b9bac12fe498fa8e45c54ec7f754958812619f307e6742622428f682e99d42ed",
-        "3eadcaaf70d7abe0f4dabae2a1bf2a702b67597e7eec44da6682a174c9434634",
-        "06aba2aa8422f8b4869545c3b55f2cad954365e459ba71af351290dc947967a2"
+        "9401231904aa0bf1e645db70bece2e60156086bbf96ef8ffd1c42021590fc8a0"
       ],
-      "source_sha256": "79d15de126efcfa2e121b6c2ee25189b91c6b4f4822eb780836545c70a042034",
-      "text": "Sudoku over every guide, in confidence order, claiming as it goes.\n\n:param ranking: ``[(guide, confidence)]`` in descending processing order.\n    The caller defines confidence, for example by combining effect size\n    and statistical significance.\n:param max_guides: a stop, so a screen with 1,500 guides does not run\n    1,500 graph builds by accident.\n:returns: one :class:`SudokuResult` over all cells.\n\nEach round runs :func:`sudoku` for one guide over the cells still\nunclaimed, keeps the cells it decides, and removes them. It stops when a\nround claims nothing -- which is the coin flip, reached rather than\ncounted.\n\nTHE ORDER IS THE RISK, and the report carries what is needed to judge\nit: `claimed_by_round`. A greedy method commits early, the first guide's\nmistakes are inherited by every later one, and cells it takes are never\nreconsidered. A caller that wants to know how much that mattered runs\nthis twice with the order perturbed and compares -- which is what\n:mod:`spacr.annotation_validation` does."
+      "source_sha256": "c0b59d5aa89a06438fe9ec6483269fc2811893996c893d7c6835a21b0aec5102",
+      "text": "Assign guides sequentially in descending confidence order.\n\n:param ranking: ``[(guide, confidence)]`` in descending processing order.\n    The caller defines confidence, for example by combining effect size\n    and statistical significance.\n:param max_guides: maximum number of ranked guides to process.\n:returns: one :class:`SudokuResult` over all cells.\n\nEach round applies :func:`sudoku` to unclaimed cells and removes accepted\nassignments. Processing stops when a round assigns no cells. Because this\ngreedy procedure is order-sensitive, ``claimed_by_round`` is retained in\nthe report; :mod:`spacr.annotation_validation` evaluates sensitivity to\nranking order."
     },
     "spacr.surrogate": {
       "source_blocks_sha256": [
