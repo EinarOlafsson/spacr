@@ -2489,7 +2489,7 @@
         "7bce83028bb85eeeb222b1dc1eea183dfd7865b42266751c2ef57b333dc54a3c"
       ],
       "source_sha256": "85e9f756b9a026c98fea0ca5363c01820c02360d9cd7e4d9e6794fa4ffb7868c",
-      "text": "Sameinuðu annotable hluti af skrinni.\n\nFæribreytur\n-----------\nfractions : mapping Nestið mapping ``{well: {guide: fraction}}``. sensitivity, specificity : float mála-lærun kennslutækni mönnun sem notuð er til að reikna minnsta leiðbeiningarflokkinn. decision : float, default=0.55 Er nauðsynlegt eftirfarandi sannleika fyrir leiðbeininga. cells_per_well : mapping, optional Cell tákn fyrir hvern mikróplata prófun staðsetningu. Þegar gefur, niðurstöður inniheldur hærra tengd á fjölda aðgengilegar celler.\n\nSkilar\n-------\ndict Minimum fraction, reachable well-guide pairs and guides, and optional cell-count bounds. A guide is unreachable when it fails to meet the minimum fraction in every well.",
+      "text": "Sameinuðu annotable hluti af skrinni.\n\nFæribreytur\n-----------\nfractions : mapping Nestið mapping ``{well: {guide: fraction}}``. sensitivity, specificity : float mála-lærun kennslutækni mönnun sem notuð er til að reikna minnsta leiðbeiningarflokkinn. decision : float, default=0.55 Er nauðsynlegt eftirfarandi sannleika fyrir leiðbeininga. cells_per_well : mapping, optional Cell tákn fyrir hvern mikróplata prófun staðsetningu. Þegar gefur, niðurstöður inniheldur hærra tengd á fjölda aðgengilegar celler.\n\nSkilar\n-------\ndict Lágmarkshlutfall, náanleg pör brunna og leiðarvísa, náanlegir leiðarvísar og valfrjáls mörk á frumufjölda. Leiðarvísir er ónáanlegur ef hann nær ekki lágmarkshlutfallinu í neinum brunni.",
       "translation_source_blocks_sha256": [
         "49958daf6b989acc305a7ab8d042b7e3e1ef50f89233f10b5d886cc79115963d",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
@@ -2600,7 +2600,7 @@
         "055d90ab1a8d01b673261a9d13226a3b9bf666dc169336b7081771884231d336"
       ],
       "source_sha256": "3b92780e44a139a3026a306955bc5f3bf1fe50a56e36b381a59ef252b40be6cc",
-      "text": "Að prófa hvort leiðbeiningar áhrif eru samræmi við jákvæð stjórn nálgun.\n\nThe observed statistic is Spearman correlation between guide effect and mean neighbour purity. The permutation null shuffles effects between guides while preserving the purity values and guide counts. The result includes the correlation, two-sided permutation p-value, group means for positive and negative effects, and a boolean separation call.",
+      "text": "Að prófa hvort leiðbeiningar áhrif eru samræmi við jákvæð stjórn nálgun.\n\nMæld prófstærð er Spearman-fylgni milli áhrifa leiðarvísis og meðaltals hreinleika nágranna. Núlltilgátudreifing umraðana stokkar áhrif milli leiðarvísa en varðveitir hreinleikagildi og fjölda leiðarvísa. Niðurstaðan inniheldur fylgnina, tvíhliða p-gildi umraðana, hópmeðaltöl fyrir jákvæð og neikvæð áhrif og Boole-gildi sem segir hvort hóparnir aðskiljist.",
       "translation_source_blocks_sha256": [
         "60f2d13a73081c922f532227a12dce7b8d16a01c93aa78299da9f1f7da869d60",
         "055d90ab1a8d01b673261a9d13226a3b9bf666dc169336b7081771884231d336"
@@ -2846,7 +2846,7 @@
         "c56b9446737ab56eb6435666b8b34cf38d7f25fb0c7e8c40570175194355e595"
       ],
       "source_sha256": "79d0c875bbf4ff22fbf6a37c8d62037f8c9735e4b24b9e98049dd1b4cc9c6b38",
-      "text": "Til baka skýringu sýn með leiðbeiningar til góðar uppgötvunar áreiðanir.\n\nThe permutation preserves cells, features, classifier scores, well sizes, and the distribution of guide fractions while breaking the sequencing-to- imaging relationship. Truth and fractions are permuted together so the returned object remains internally consistent for null benchmarking.",
+      "text": "Til baka skýringu sýn með leiðbeiningar til góðar uppgötvunar áreiðanir.\n\nUmröðunin varðveitir frumur, eiginleika, stig flokkunarlíkans, stærðir brunna og dreifingu hlutfalla leiðarvísa en rýfur tengsl raðgreiningar og myndgreiningar. Rétt merking og hlutföll eru stokkuð saman svo skilaði hluturinn haldist innbyrðis samkvæmur fyrir núllviðmiðun.",
       "translation_source_blocks_sha256": [
         "fc3e82b24a5fd14cfcad487f65db80e5c6604f7b82f895fda8ef3f13ca990cd4",
         "b7d5f105ec1759bda72c5bd04f563bff5836a91cfeee246ad81829c5b2b917a7"
@@ -8473,7 +8473,7 @@
         "e88c5d78138871350b76089d165987c78dd5e92ebc20b998790a599bf71f303e"
       ],
       "source_sha256": "99717d0e8d97a587fb2b775d2187d865e50fce60d4a0c843be6bee9cf6863c67",
-      "text": "Mærið véllækni kennslutækni mótmæli og rétt beðið klásfraktioner.\n\nA confusion matrix requires labelled outcomes; an unlabelled score column cannot establish sensitivity or specificity by itself. Use a labelled test split or out-of-fold predictions when available. When labels are unavailable, :func:`deconvolve` estimates two score distributions and reports whether their separation is sufficient to support the estimate.\n\nMaður-lærun klassið mönnun mistök bias athygli jákvæða fraktion en ekki einfaldlega breyta óvissu hennar. Korrétandi hjálparnir sýna að bias á yfirleittum stigum og neita Rogan-Gladen korrétur þegar tilfinningalega og sérstökleika er ekki að viðurkenna það.",
+      "text": "Mærið véllækni kennslutækni mótmæli og rétt beðið klásfraktioner.\n\nRuglingsfylki krefst merktra niðurstaðna; ómerktur stigadálkur getur ekki einn og sér ákvarðað næmi eða sértæki. Notaðu merkt prófunarsafn eða spár utan þjálfunarbrots þegar þær eru tiltækar. Þegar merkingar vantar metur :func:`deconvolve` tvær stigadreifingar og greinir frá því hvort aðskilnaður þeirra nægi til að styðja matið.\n\nMaður-lærun klassið mönnun mistök bias athygli jákvæða fraktion en ekki einfaldlega breyta óvissu hennar. Korrétandi hjálparnir sýna að bias á yfirleittum stigum og neita Rogan-Gladen korrétur þegar tilfinningalega og sérstökleika er ekki að viðurkenna það.",
       "translation_source_blocks_sha256": [
         "ef3738cdee2740bb64b9f0af2b6cd67e2aae5398511c2337684e1a856a513420",
         "3b528fc58946ff54785dcbac45932dc4659d32290d22b6b5a07450e9e307aed7",
@@ -41631,7 +41631,7 @@
         "74cc85019bfe60a613f502f5837f1e6d9a4d84df7999aaf24bf699087aa3a877"
       ],
       "source_sha256": "67952bac74155340d096227f7533c371e08acfc19a49bdd87eb6ea3262035da1",
-      "text": "Áætlaðu leyfað útlendri kröfur á hluttabla.\n\nFæribreytur\n-----------\nframe : pandas.DataFrame Mæranir á hlutinn. settings : dict, optional Grænir keypt sem ``\"<criterion>_outlier_mads\"``. Mistandi eða ``None`` reikningar inniheldur þessar kröfur.\n\nSkilar\n-------\npandas.DataFrame Rows retained after all enabled criteria. list of dict Per-criterion measurement column, threshold, removal count, and any validation note.",
+      "text": "Áætlaðu leyfað útlendri kröfur á hluttabla.\n\nFæribreytur\n-----------\nframe : pandas.DataFrame Mæranir á hlutinn. settings : dict, optional Grænir keypt sem ``\"<criterion>_outlier_mads\"``. Mistandi eða ``None`` reikningar inniheldur þessar kröfur.\n\nSkilar\n-------\npandas.DataFrame Raðir sem eru varðveittar eftir öll virk skilyrði. list of dict Mælingadálkur, þröskuldur, fjöldi fjarlægðra raða og athugasemd um staðfestingu fyrir hvert skilyrði.",
       "translation_source_blocks_sha256": [
         "de81022564da7266bb7fd48a1741b0ba8078285972ac9af448169275ee2288ae",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
@@ -76029,14 +76029,14 @@
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.crop_count": {
       "source_blocks_sha256": [
-        "b119ee7b27b8f4d8b1287e0fa9c53cc3c476a2d39c0717bdf375d13adc6ee4c1",
-        "69f3f18375b6322447d7fa881bc2360f7e26a21fc439734f857a18955a0d4708"
+        "8c60c5784771b861707e83c600801fee83dc30eb0e90679a94af51ddfd3e5e85",
+        "3947acc874bc96c46be64cf354732d57286bc55f4000ee587f98b777d58a1f9c"
       ],
-      "source_sha256": "8ca9eaa77704ee8b8dbeac58418e3f63d3731527aa20c3874905182e8af7d02c",
-      "text": "Hversu mörg útgreiddar myndar fylgja reikningunum HOLD, á hverri síðu.\n\nEkki `len(thumbnails())`, sem talar hvað er RENDERED - og eftir leiðbeiningu 211 sem er einn síðu, ekki allt vel. Þau tveir voru sömu fjölda þar til tabs byrjaðu að versla, og hver kallaður sem þýðir \"hversu margir hlutur eru hér\" vill þetta.",
+      "source_sha256": "a15489a16b39f1fed1cd9240c163971a41517562c2b34e771dacddcd7349a504",
+      "text": "Til baka sams fjölda af útgreiddum myndum svæðum sem hafa verið haldið yfir allar tabs.\n\nÞetta er öðruvísi en ``len(thumbnails())``, sem talar aðeins widgets á síðum sem nú eru sýnt.",
       "translation_source_blocks_sha256": [
-        "9096d2205a7d6d9b19ec4276280cee7c9feb2d45a19dcf3cf40d9fad267dc220",
-        "69f3f18375b6322447d7fa881bc2360f7e26a21fc439734f857a18955a0d4708"
+        "cb15dc4ee82907e90ca00e96977b217a8da9d8023be8390129be8787364c038d",
+        "3947acc874bc96c46be64cf354732d57286bc55f4000ee587f98b777d58a1f9c"
       ]
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.databases": {
@@ -76327,14 +76327,14 @@
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.thumbnails": {
       "source_blocks_sha256": [
-        "213ae028a55287c4c65dfd83ac5de01a3765bf86e6cfaefd9eb3a65fbe5d5799",
-        "7b5005e9377cfc1cda807c8f96a26cf9b8553bee14e8b7fb16dccb58520e51b7"
+        "2483fbbf7d213de530d7afc9471bd8a92903be575aa987fae2900d458fef4b15",
+        "135481b32e6fd5f3e68496ac5dca52404dcd99768ab6011c3f9dee440ce68d33"
       ],
-      "source_sha256": "6590580a999c9adc59a7e06e0239ad50a98e0657d8a50cdfd5e25481e6b1dff6",
-      "text": "Hver smá á sýningu notkun, yfir hverri opnu vel tab.\n\nÁ viðtalið þýðir á núverandi síðu. Notaðu :meth:`crop_count` fyrir hversu mörg hlutur tabs halda.",
+      "source_sha256": "ffa75d3629537287383e7391733aeaa3e8105ce35d2ead2d78fcd2e9c85d8472",
+      "text": "Til baka smáorð sýnilegar á núna sýnilda tabs.\n\nNotaðu :meth:`crop_count` til að fá sams fjölda hlutum sem eru haldið á öllum vel tabum, þar á meðal síður sem eru ekki sýnt.",
       "translation_source_blocks_sha256": [
-        "ff5e60fb13502906df6e4ffabb366a5f9503c173b102a67cc91aaa331421d7d4",
-        "15a46b70f9a8f25bc4cbf2f872e163baebeefa7bc2a43fe34d0f66807de66285"
+        "2483fbbf7d213de530d7afc9471bd8a92903be575aa987fae2900d458fef4b15",
+        "135481b32e6fd5f3e68496ac5dca52404dcd99768ab6011c3f9dee440ce68d33"
       ]
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.well_tabs": {
@@ -81663,6 +81663,18 @@
         "ce9a6e97631ca1b5f4218767d999fbce2147862594d6acdbab134accebf7700f"
       ]
     },
+    "spacr.qt.widgets.fast_plots.FastPlot.graph_spec": {
+      "source_blocks_sha256": [
+        "3c6e4b7ba5659addf1b707a071d38df1a55e5cc1c971a0ea4cc922698668b81e",
+        "7f52b622bb2cdb18e025184a92453732386ed349fc9317f915c0c20033ffe635"
+      ],
+      "source_sha256": "4415173f0ec76aeef9af8f6bd00f34ae4f1b0fb89e412a3e18a81d0e70aa6c22",
+      "text": "Til baka skýringu gögnum sem notað er til að draga þetta plöt, ef til.\n\nPlots sem bjarga skilaboð er hægt að snúa með öðrum samkomandi grafi tegund. Rendering bara plots aftur ``None``.",
+      "translation_source_blocks_sha256": [
+        "3c6e4b7ba5659addf1b707a071d38df1a55e5cc1c971a0ea4cc922698668b81e",
+        "7f52b622bb2cdb18e025184a92453732386ed349fc9317f915c0c20033ffe635"
+      ]
+    },
     "spacr.qt.widgets.fast_plots.FastPlot.grid_shown": {
       "source_blocks_sha256": [
         "a71cf52e99c0f47e3443d8db7eba6890583b38d14ddf2d48e0ccfa471183be6c"
@@ -82040,19 +82052,17 @@
     "spacr.qt.widgets.fast_plots.FastPlot.select_in_rect": {
       "source_blocks_sha256": [
         "4e6a4b667e2f4c91d7dbec5261ce4f7a3411341fdb13f1a0f125bdc3dfd3f8c6",
-        "84359973f7a72b073d136c2c9c9128ac2446e9a9c45a69a1f3c258722d6b8e59",
-        "f1c73babc8a370b2710cc3dbb716f89d4fb45ea8e31259d8ac52cc6f37bd8deb",
-        "4b34c5f289845fc6a161ed290b640b8d8ea03ede520faf3efe11673c7857a97f",
-        "90ef60f487cb3a22eae8ad466a7777e23abead169995210a366ca86fbcf2da9e"
+        "d83eaa2f297777e0d0e5c84d1f49797ac22ad80c355462c938be7ebf992e2145",
+        "0ac41a840e5e2132523486be8aa7157013cf04511a41efe806e56149fd1339eb",
+        "e4ccc06c216cc06b70d0a6d0255ff935d43d31371279c57588312b5e8a605c30"
       ],
-      "source_sha256": "8035b9f0b78585a56ce95caec5200ea5405d2206406541a8aa54dcb807b9beb1",
-      "text": "Veldu hvert plotted punkt inn í gögn samræmi rektangle.\n\nTHE GESTURE THE SHAPE OF A VOLCANO INVITES: the interesting guides are a corner of the cloud, and picking them one click at a time is the work this replaces.\n\nNokkur með engum skreytingu eru ekki í hvaða rektangle - bandinn velur það sem það sýnilega fer inn, sem er eina lesun sem notandinn getur skoðað.\n\n:param add: breyta núverandi valkostum í stað þess að skipta um það, fyrir bandi með breytandi enn niður.\n:returns: Þannig að útval eftir bandinu, í ákveðnum orðum.",
+      "source_sha256": "e419cef53e12de9d69245c3361dfa06357f765938045095062c2a09f289c270e",
+      "text": "Veldu hvert plotted punkt inn í gögn samræmi rektangle.\n\nNokkrar án plotted stöðu er ekki hægt að velja. Rectangle valur því inniheldur nákvæmlega punkturnar sem sýnilega eru lokaðir af veittum tengslum.\n\n:param add: breyta núverandi val á stað þess að skipta það, eins og það er notað þegar breytandi keyfi er haldið á meðan valur.\n:returns: Valinn keyfi í valiðum orðum.",
       "translation_source_blocks_sha256": [
         "4e6a4b667e2f4c91d7dbec5261ce4f7a3411341fdb13f1a0f125bdc3dfd3f8c6",
-        "84359973f7a72b073d136c2c9c9128ac2446e9a9c45a69a1f3c258722d6b8e59",
-        "f1c73babc8a370b2710cc3dbb716f89d4fb45ea8e31259d8ac52cc6f37bd8deb",
-        "4b34c5f289845fc6a161ed290b640b8d8ea03ede520faf3efe11673c7857a97f",
-        "90ef60f487cb3a22eae8ad466a7777e23abead169995210a366ca86fbcf2da9e"
+        "d83eaa2f297777e0d0e5c84d1f49797ac22ad80c355462c938be7ebf992e2145",
+        "0ac41a840e5e2132523486be8aa7157013cf04511a41efe806e56149fd1339eb",
+        "e4ccc06c216cc06b70d0a6d0255ff935d43d31371279c57588312b5e8a605c30"
       ]
     },
     "spacr.qt.widgets.fast_plots.FastPlot.selected_keys": {
@@ -82703,16 +82713,18 @@
     },
     "spacr.qt.widgets.fast_plots.ResultsTable.select_keys": {
       "source_blocks_sha256": [
-        "fc781b8aecfb2dcd793563df086b73735fe84506f0aa01d0b70293adfd6ad8af",
-        "6c6d69bb13839ed47a5037b8268372f92aba91ad74604e59db3a02abedcced6d",
-        "20f1325cbd5f60f1b00281463b76dea0ca49229173dc4b2e912456da054af87c"
+        "55a3baa1c0e2684826864bf0257cd23a1daadea8aba60a6576636c83f2a913a7",
+        "80af7e436fa5cf3724a1146d8775b1242086660b18b188d43c53878735e03271",
+        "0cf35293e20d450847461abbbca262495335b90dc50438adbe60bdb5f6eb2b7b",
+        "978bdc22e52170a5ca63fe43dfcf172f307a2f29d7e47f87960a6099a444bfc0"
       ],
-      "source_sha256": "a3ad84f9ff028fa81079743d4e19cee6b06bbcad7498a76e54e9f793328706f0",
-      "text": "Veldu hverri röð sem er nefndur í ``keys``. Tilheyrir hversu mörg var fundið.\n\nTHE ONE PLACE A MULTI-SELECTION ENTERS THE TABLE, so the two signals below are emitted together and no consumer can be looking at a different selection from its neighbour.\n\nTólinn velur ránum en ekki að snýta þá: þreytingu til úrvalsins er það sem `show_keys` gerir fyrir histogrammar, og að gera bæði frá einum gestum myndi fela óvalda leiðbeininga sem notandi er að mæla við.",
+      "source_sha256": "3c5ab5f2d8722166d89b0d900531711d87467db6fb5b006f45ffdb50c9420b54",
+      "text": "Vinsamlegast velur tablaarrænir, þar sem struktuð gögnnafnir birtast í ``keys``.\n\nBæði valdsignal eru útlendur hér þannig að allir notendur fá sömu valsignal. Röfur eru enn sýnilegar; :meth:`show_keys` gerur uppsettingu þegar tegund samskipti krefst það.\n\n:param keys: ránum viðeigendur til að velja, í þörfinu valsemi.\n:returns: Númerur af samkeppnunum ránum sem eru valið.",
       "translation_source_blocks_sha256": [
-        "fc781b8aecfb2dcd793563df086b73735fe84506f0aa01d0b70293adfd6ad8af",
-        "6c6d69bb13839ed47a5037b8268372f92aba91ad74604e59db3a02abedcced6d",
-        "20f1325cbd5f60f1b00281463b76dea0ca49229173dc4b2e912456da054af87c"
+        "857453c50b18462adcab937ceb59bc49835701aeb823c1123d68c853f4f2a26a",
+        "80af7e436fa5cf3724a1146d8775b1242086660b18b188d43c53878735e03271",
+        "e85e066b9d519d51ed44752058d57fb0a55535ed8ca82cadc811528437ecc6e5",
+        "978bdc22e52170a5ca63fe43dfcf172f307a2f29d7e47f87960a6099a444bfc0"
       ]
     },
     "spacr.qt.widgets.fast_plots.ResultsTable.selected_keys": {
@@ -85117,14 +85129,22 @@
     },
     "spacr.qt.widgets.figure_settings.save_figure_bundle": {
       "source_blocks_sha256": [
-        "9ca4f6e3c03eb44d6a3deb5da3a73a8cc028c5fe11ec93cb0a17e47c442ed3b5",
-        "9047b33671b26a87e9469f1f69368b775587f9dfaf7583d9b6f46e5befcf8158"
+        "5a362dac2e2d6e359d94105925036c996f826a4987de0b8a0c27e94fd6d4bbe3",
+        "6b1c0ed0acb6c182cfa8d006a2edf35deecb03e0b902b1a4e3d2396d472c5b63",
+        "f5a473b285b528f02dfd7ef0e69288a8ddae96cdd5bc265bf0c06f8227172612",
+        "4a31d914370c8448a9d22136127d5fc0ebc9e24f426d27a76a6b248864a29303",
+        "fb91c5a6dd871971b2362e4caf2f508082252e18b91159c0d7ff3ec6a36fd692",
+        "c7b4a4073481da4663a4a8e302dabaec1c30a629ff3a293a1f0a4e2857d06bde"
       ],
-      "source_sha256": "0c75ff80072169ee26800f9503fff30fcc766bf8df866168b0a18fe88f891971",
-      "text": "Skrifaðu matplotlib reikninginn sem pakka.\n\nFólkið kom út úr kvikmyndum, sem er það sem gerir statistíkjanna sömu samræmi sem myndin sýnir. tölur með engin uppskrift er enn fær hvert skjöl -- Sérfræðingar segja að það er ekkert að mæla, Því að fjarlægð skrá lætur eins og bug.",
+      "source_sha256": "e55bc3d26931994ed734c5026a87138646b72a59cf427c8ed5cbaf9e02e9c932",
+      "text": "Exporðu Matplotlib tölvu með upprunalegum gögnum og stefnumótum.\n\nSamfélög skilgreiningar koma úr viðbótum replot uppskrift þannig að statískir samræmi samanstendur sýnt tákn. Þegar engin uppskrift er í boði, standa skrifnir eru enn skrifað og statistíkjanna listanir að engin samskipti gæti verið stofnað.\n\n:param figure: Matplotlib tákn til útlendingar.\n:param folder: Leikstæðin fyrir pakka.\n:param name: legt grunnnafn fyrir búnar skrár.\n:returns: leið til skriðbundna skrifstofu.",
       "translation_source_blocks_sha256": [
-        "9ca4f6e3c03eb44d6a3deb5da3a73a8cc028c5fe11ec93cb0a17e47c442ed3b5",
-        "9047b33671b26a87e9469f1f69368b775587f9dfaf7583d9b6f46e5befcf8158"
+        "5a362dac2e2d6e359d94105925036c996f826a4987de0b8a0c27e94fd6d4bbe3",
+        "6b1c0ed0acb6c182cfa8d006a2edf35deecb03e0b902b1a4e3d2396d472c5b63",
+        "f5a473b285b528f02dfd7ef0e69288a8ddae96cdd5bc265bf0c06f8227172612",
+        "4a31d914370c8448a9d22136127d5fc0ebc9e24f426d27a76a6b248864a29303",
+        "fb91c5a6dd871971b2362e4caf2f508082252e18b91159c0d7ff3ec6a36fd692",
+        "c7b4a4073481da4663a4a8e302dabaec1c30a629ff3a293a1f0a4e2857d06bde"
       ]
     },
     "spacr.qt.widgets.figure_settings.save_graph_style": {
@@ -85449,7 +85469,7 @@
         "3095a3deb42c704e21a7af2d7609f8f7ec4d7519b8418ebdf0d68b48c6932ebc"
       ],
       "source_sha256": "46b5c07c85cd46bf968c8ee7ac7b8af44dfb9a4d04875013af6b46824d5b21ac",
-      "text": "Shared click-to-fold behavior for titled Qt panels.\n\nFolding fela panel líkamann þannig að það veitir ekki lengur þátt í skilmála hönnun; viðbótandi þreytandi efni getur þá taka upp frelsað pláss. heildin er sýnilegt og veitir stjórn fyrir endurheimningu líkamans.",
+      "text": "Sameiginleg hegðun til að fella saman Qt-spjöld með titli með því að smella á þau.\n\nFolding fela panel líkamann þannig að það veitir ekki lengur þátt í skilmála hönnun; viðbótandi þreytandi efni getur þá taka upp frelsað pláss. heildin er sýnilegt og veitir stjórn fyrir endurheimningu líkamans.",
       "translation_source_blocks_sha256": [
         "e1cad5e5fe6f6038ab00448399dd3e12f432975d8ccc6c1f369fafeea4c05174",
         "3095a3deb42c704e21a7af2d7609f8f7ec4d7519b8418ebdf0d68b48c6932ebc"
@@ -89229,6 +89249,118 @@
       "translation_source_blocks_sha256": [
         "cafd17427723f1b983c0b7d39564c15ce460199ab12768b433ff3692a4eacfba",
         "e7638a4c88426da8b5ee9dacf1b6139de3de9885f895e159568738da47196342"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot": {
+      "source_blocks_sha256": [
+        "836043c08e8dde095c3ee198cfefe73ddb35526d1d9ccb8c54f7041e4b0ab42e",
+        "d7adcb8ab1bea24e17bfc79f14ef10cb68f0aa3543040f11a99757677dd0cbc8"
+      ],
+      "source_sha256": "ec12ca0485068edc2abc4ea02c9e024f90920114bc0089e133a00a1cdef6bbbd",
+      "text": "Render data-backed hópur samanburðir með skiptandi grafi tegundir.\n\nA :class:`PlotSpec` geymir kjarna kerfi, hópur og gildi hjólum, athygli einkefni, og valda graftíp. Haldið þessar gögnum leyfir widget til að endurskoða samkomandi graftípur og útgreiða tölvu ásamt kjarnarríðum og statískum samanburði.",
+      "translation_source_blocks_sha256": [
+        "836043c08e8dde095c3ee198cfefe73ddb35526d1d9ccb8c54f7041e4b0ab42e",
+        "d7adcb8ab1bea24e17bfc79f14ef10cb68f0aa3543040f11a99757677dd0cbc8"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.GroupedPlot": {
+      "source_blocks_sha256": [
+        "29acd5cdce42cf091df9894fa911973b3547124aa5c78495e963388038df9ebf",
+        "42c57662519177b70a817ee9735596ffcd46d1240f038655365c3e46bf48e3bf"
+      ],
+      "source_sha256": "9a40941bed717bf71ac53bd0bb3c0ba096f3bb2b5191458da84df1bb3d5ba61c",
+      "text": "A pyqtgraph plot af :class:`PlotSpec`, endurnýjandi eins og hvaða tegund.\n\n:ivar spec: Það sem er tekin. ákvarðað með :meth:`show_spec`.",
+      "translation_source_blocks_sha256": [
+        "29acd5cdce42cf091df9894fa911973b3547124aa5c78495e963388038df9ebf",
+        "42c57662519177b70a817ee9735596ffcd46d1240f038655365c3e46bf48e3bf"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.GroupedPlot.comparison_groups": {
+      "source_blocks_sha256": [
+        "88486dd4ee6edd3ee3da67eaf4217a303427cc8445902b88d11eb2c687136e6f",
+        "22b6c74f5275ea73d80940f4051356586dfa45e5099ae530f39c8e1973f8b7a2"
+      ],
+      "source_sha256": "5cb5971db318b77e8a6b45388809819c1b336dd0fae62b68a1b96d9c942be739",
+      "text": "Til baka hópur reikningar fyrir útgáfu-tíma statískt samanburði.\n\nTil baka ``None`` nema viðbótin tengist að minnsta kosti tveimur hópum.",
+      "translation_source_blocks_sha256": [
+        "88486dd4ee6edd3ee3da67eaf4217a303427cc8445902b88d11eb2c687136e6f",
+        "22b6c74f5275ea73d80940f4051356586dfa45e5099ae530f39c8e1973f8b7a2"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.GroupedPlot.frame": {
+      "source_blocks_sha256": [
+        "1ebfd766c5240ef44f480ec3ab590fd4c1f15f9bdb6d1545983c1070d3d5926b"
+      ],
+      "source_sha256": "1ebfd766c5240ef44f480ec3ab590fd4c1f15f9bdb6d1545983c1070d3d5926b",
+      "text": "Hættu upp kjarnorðin sem eru út til ``data.csv``.",
+      "translation_source_blocks_sha256": [
+        "1ebfd766c5240ef44f480ec3ab590fd4c1f15f9bdb6d1545983c1070d3d5926b"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.GroupedPlot.show_as": {
+      "source_blocks_sha256": [
+        "20472c556a54b6cd2b31d611e2d775b092af5f44d2d8efa7887592b1047f374a",
+        "8c0091246ee0fecd0cfe46038e707ce50d9ad8d4a68e7a76bce549e07e2eeb33"
+      ],
+      "source_sha256": "de6737f51daed123276c7020379b7dd59cf4948f1118cf9200ccfb4d045f6a8e",
+      "text": "Að endurtekið geymda gögnum með greininum ``kind``.\n\n:raises ValueError: í einhverju tegund þessi gögn getur ekki stuðlað. að taka það annars myndi þýða samskipti sem ekki er stuðlaður af áætlað gögn form.",
+      "translation_source_blocks_sha256": [
+        "20472c556a54b6cd2b31d611e2d775b092af5f44d2d8efa7887592b1047f374a",
+        "8c0091246ee0fecd0cfe46038e707ce50d9ad8d4a68e7a76bce549e07e2eeb33"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.GroupedPlot.show_spec": {
+      "source_blocks_sha256": [
+        "30fe6b01ee11b6964873a79c2c6b0199854b830c9537b84afbabd2aaafb8f839"
+      ],
+      "source_sha256": "30fe6b01ee11b6964873a79c2c6b0199854b830c9537b84afbabd2aaafb8f839",
+      "text": "Takið ``spec``. Tilfengi fjölda hópum sem þreytist.",
+      "translation_source_blocks_sha256": [
+        "30fe6b01ee11b6964873a79c2c6b0199854b830c9537b84afbabd2aaafb8f839"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.PlotSpec": {
+      "source_blocks_sha256": [
+        "378f3994a88e90bda2043e5fbc4f417ea89a6927c8adf0650bcf2cc61eba455f",
+        "08fa51e5a5908497cb51a7a9b85a16dc6a7f0a54601a2921989667794978bd18"
+      ],
+      "source_sha256": "dc98dffa80578da0bc985dff68497d058f52ec76be3027522ced7998ea03ba30",
+      "text": "Data og sýning metadata sem er nauðsynleg til að framkvæma hópur rita.\n\nVarðveitti gagnaramminn styður samhæfniprófanir fyrir grafgerðir, endurteiknun, útflutning gagna og tölfræðilegan samanburð án þess að endurbyggja grafið úr myndgerðri framsetningu.",
+      "translation_source_blocks_sha256": [
+        "378f3994a88e90bda2043e5fbc4f417ea89a6927c8adf0650bcf2cc61eba455f",
+        "08fa51e5a5908497cb51a7a9b85a16dc6a7f0a54601a2921989667794978bd18"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.PlotSpec.default_kind": {
+      "source_blocks_sha256": [
+        "5602484c183dd514ed8ff86517e5abbe6d1617bbe675c2f26556e174e3a69b54"
+      ],
+      "source_sha256": "5602484c183dd514ed8ff86517e5abbe6d1617bbe675c2f26556e174e3a69b54",
+      "text": "Hvað þessi gögn er fæddur sem, þegar engin tegund er nafn.",
+      "translation_source_blocks_sha256": [
+        "5602484c183dd514ed8ff86517e5abbe6d1617bbe675c2f26556e174e3a69b54"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.PlotSpec.groups": {
+      "source_blocks_sha256": [
+        "aec0278988ac67af6738f59fa90c3a0194df75ed34fe5b5d33416013a25c1dcd",
+        "d6f44a2933a3f7d39b392318acdc9d5d1e5c3a053952708258e95812119e09e9"
+      ],
+      "source_sha256": "b8dc06648aee463b4d6b8eb47b3e17f546f23111610f201b688973e82fcf6d78",
+      "text": "Til baka ``{label: values}`` meðan á að halda ramma orði.\n\nAð vernda fyrstu sýningu hallar áætlað tilraunarréttar, þar á meðal stjórnunar, í uppbyggðri sýnilegum orðum þeirra.",
+      "translation_source_blocks_sha256": [
+        "aec0278988ac67af6738f59fa90c3a0194df75ed34fe5b5d33416013a25c1dcd",
+        "d6f44a2933a3f7d39b392318acdc9d5d1e5c3a053952708258e95812119e09e9"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.PlotSpec.shape": {
+      "source_blocks_sha256": [
+        "9c47bfb57a6ee3ebceecd31440931791db14faa1dc9a13c7f2ffcf959e4c6f1e"
+      ],
+      "source_sha256": "9c47bfb57a6ee3ebceecd31440931791db14faa1dc9a13c7f2ffcf959e4c6f1e",
+      "text": "Dati formur, til að ákveða hvaða tegund passar.",
+      "translation_source_blocks_sha256": [
+        "9c47bfb57a6ee3ebceecd31440931791db14faa1dc9a13c7f2ffcf959e4c6f1e"
       ]
     },
     "spacr.qt.widgets.home": {
@@ -96469,7 +96601,7 @@
         "6999120706d97256e82307d97d7a89df6e7512e9936e603b807a13ac64dd0aef"
       ],
       "source_sha256": "000c4dd992d691a8af8e3045979eabc53acbcebd3e2bb9b6cbeaf629d83f55c4",
-      "text": "Hættu tabinn sem hallar live panelinn sem heitir ``key``.\n\n:param key: Hluti frá :meth:`FigureGridView.set_live_tiles`.\n:returns: ``True`` when the corresponding tab exists and was raised; otherwise ``False``. The available tabs depend on the fitted model and whether the volcano is displayed outside this panel.",
+      "text": "Hættu tabinn sem hallar live panelinn sem heitir ``key``.\n\n:param key: Hluti frá :meth:`FigureGridView.set_live_tiles`.\n:returns: ``True`` þegar samsvarandi flipi er til og var færður fremst; annars ``False``. Tiltækir flipar ráðast af mátaða líkaninu og því hvort eldfjallaritið sé birt utan þessa spjalds.",
       "translation_source_blocks_sha256": [
         "9e8c8d2e94e89a38fc4ea2df121e2bfaaff3757c8667d304af3cfe317cd3f6cd",
         "8d82a976bc98dac7d22cbc898a0b21cc80b16a68fac600abba00c86b47e40ff3",
@@ -97310,20 +97442,14 @@
     },
     "spacr.qt.widgets.setup_slides": {
       "source_blocks_sha256": [
-        "59f7912bea64c9b26b828bc2a823231af3855c52cc8e07d45273db6aa529b562",
-        "d6ba6cff1cc6682b7b978041e8cd5937ccd81d7ddfddb1bd0da3662c7f335611",
-        "543facc840fd6c7829dfcba82cd2820e5e48c183338e3860b3981f82f06cc738",
-        "af9bd9d7d67d2c78cecb051079ad113ccb5492e77c86ffe336a2bfbcb3815096",
-        "8bd3d25de9e8e5cf45b1723408144612331fd2fea056f64fde8a545546906460"
+        "83593fa228c74b4e408a4b5b5499752bebc1bd4801b3561ed10ff881dd95ae09",
+        "114c29b4348bd362e34fca44c1b5f2cc5e10da0e53f07e909809eb61494415ff"
       ],
-      "source_sha256": "62b2fa34cfa6eafabb70b0096dff9852aef3c15fb7a9c7d07e8a7953eb797dd5",
-      "text": "Fyrsti hlaupið setup sem eftirliti af slides (eðferð 234).\n\n    \"Ég vil eitt spurning á slide með smá útbreytingu ... þá skreinn sem bara segir Done ... það ætti að líta eins og fljótt breyting í spacr\"\n\nA form snýst allt á einu og svara ekkert. A slide spyr eitt hlut og hefur pláss til að segja hvers vegna það er mikilvægt, sem er munurinn milli skrin sem einhver fylgir í og einn sem þeir lesa.\n\nÞetta skiptir um hópur-forma uppsetningu leiðbeiningu 221 send. 221 MODEL - `spacr.qt.setup_screen`, uppsetningar hennar og þörf hennar - er óbreytt og enn það eina sem skrifa forrit; það sem breytist er alveg sýninguna.\n\nINVARIANTS 10 THROUGHOUT: rímanimating, strata og blur eru öll dekor. Ef enginn af þeim er hægt að draga slides enn að vinna og enn skrifa sömu svör, og prófunir segja að í stað þess að taka það.",
+      "source_sha256": "9328565a1b55fe717a19f7d12d17afeb8b5e2e61ec4d0b1306f8c77ef337098e",
+      "text": "Tilkynna fyrstu flutninga eins og stutt sekk af útskýrðum valum.\n\nHver slide dekkar einn uppáhalds hópur og skrifa í gegnum núverandi setup-móli. Animated bakgrunds, flutningskort, og pointer-responsive grind eru dekorative; uppáhaldsetningu og stöðvun eru til staðar þegar þessar áhrif geta ekki verið gerðar.",
       "translation_source_blocks_sha256": [
-        "59f7912bea64c9b26b828bc2a823231af3855c52cc8e07d45273db6aa529b562",
-        "d6ba6cff1cc6682b7b978041e8cd5937ccd81d7ddfddb1bd0da3662c7f335611",
-        "543facc840fd6c7829dfcba82cd2820e5e48c183338e3860b3981f82f06cc738",
-        "af9bd9d7d67d2c78cecb051079ad113ccb5492e77c86ffe336a2bfbcb3815096",
-        "8bd3d25de9e8e5cf45b1723408144612331fd2fea056f64fde8a545546906460"
+        "83593fa228c74b4e408a4b5b5499752bebc1bd4801b3561ed10ff881dd95ae09",
+        "114c29b4348bd362e34fca44c1b5f2cc5e10da0e53f07e909809eb61494415ff"
       ]
     },
     "spacr.qt.widgets.setup_slides.SetupSlides": {
@@ -97412,14 +97538,14 @@
     },
     "spacr.qt.widgets.setup_slides.open_setup_if_needed": {
       "source_blocks_sha256": [
-        "bc00e426b8c8550066500d993775b6b200df2f41b3d18d9f250fee2169ae06b1",
-        "4628e82a5b9368a3262f277aba7002897b90a05c543c94d709b4d5021a728ba5"
+        "936cb3c5c3784e8c37bbe2cb8f75efd4b4b65bf11513a721f7ad1b60c2357536",
+        "533729d3973e27be0f91c7f9efe41c66de9123518eabdaca9b14a2dbf1bcfea2"
       ],
-      "source_sha256": "fee91694dadebb94b97c19e2b696e02e278635ec0d2d7c47cb34b96795924330",
-      "text": "sýna setup slides ef þeir hafa ekki verið svarað.\n\nTHE CALLER DOES NOT DECIDE WHETHER TO ASK -- `should_open` does, from the recorded version. A screen each caller gated for itself is one that appears twice on one launch and never on another.",
+      "source_sha256": "39339dd2fed00f1441e06c1772af330e7cc21b2e69a180bd4ff45f8f673ea351",
+      "text": "sýna setup slides þegar skráð setup staður krefst þá.\n\nSentralised :func:`spacr.qt.setup_screen.should_open` athygli hindrar sjálfstætt samtalamenn frá því að opna duplicate samskipti á einu skreytingu.",
       "translation_source_blocks_sha256": [
-        "bc00e426b8c8550066500d993775b6b200df2f41b3d18d9f250fee2169ae06b1",
-        "4628e82a5b9368a3262f277aba7002897b90a05c543c94d709b4d5021a728ba5"
+        "936cb3c5c3784e8c37bbe2cb8f75efd4b4b65bf11513a721f7ad1b60c2357536",
+        "533729d3973e27be0f91c7f9efe41c66de9123518eabdaca9b14a2dbf1bcfea2"
       ]
     },
     "spacr.qt.widgets.sweep_panel": {
@@ -98756,7 +98882,7 @@
         "57e01c23a2269f66f2f4ee3c61a521de7d571f4b03f2151ad187b0a2c918fab1"
       ],
       "source_sha256": "99bd1f81184900e29a5b932dfb117390a7e39afcf81e0f14b660a28b4869dc70",
-      "text": "Stærri sýnir tap og nákvæmni á meðan móður þjálfun.\n\nThe widget retains one plot item per metric and updates its data as epochs complete. This preserves the current view and avoids creating overlapping plot items during long training runs.",
+      "text": "Stærri sýnir tap og nákvæmni á meðan móður þjálfun.\n\nGræjan varðveitir eitt grafatriði fyrir hverja mælingu og uppfærir gögn þess þegar þjálfunarlotum lýkur. Þetta varðveitir núverandi sýn og kemur í veg fyrir að grafatriði skarist við langar þjálfunarkeyrslur.",
       "translation_source_blocks_sha256": [
         "4e36079f122613677be95743bdf42b73cd1a5a3eaaf210b60b4c8b33514a94aa",
         "f72bd2676647f9357062eb777c1987c075ecde0cd7560af50cf5b270eabdc64e"
@@ -103342,7 +103468,7 @@
         "23055abc4e0f0146128df50105b829312996042e7fa1adb9ebf44f567e45dfba"
       ],
       "source_sha256": "b70c272a570ce40700c1a56bb08e55639e96c60fc89e22722cfe3e97d5ce3092",
-      "text": "Summarize og skipuleggja svörun.\n\nFæribreytur\n-----------\nvalues : sequence of float Svarar fyrir eða eftir breytingu.\n\nSkilar\n-------\ndict Sample size, range, skewness, D'Agostino normality-test p-value, regression-family identifier, and display label. The family is empty when fewer than eight finite observations are available or classification fails.",
+      "text": "Summarize og skipuleggja svörun.\n\nFæribreytur\n-----------\nvalues : sequence of float Svarar fyrir eða eftir breytingu.\n\nSkilar\n-------\ndict Úrtaksstærð, bil, skekkja, p-gildi D'Agostino-prófs fyrir normaldreifingu, auðkenni aðhvarfsfjölskyldu og birtingarheiti. Fjölskyldan er tóm þegar færri en átta endanlegar athuganir eru tiltækar eða flokkun mistekst.",
       "translation_source_blocks_sha256": [
         "3ce79ed5e6bd8e129d933699e2c6e7a3f3d8cb7101b97ea89fc884cea933faea",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
@@ -105917,29 +106043,29 @@
     },
     "spacr.run_recommendations.format_recommendations": {
       "source_blocks_sha256": [
-        "94d7c5d065897ab9ee8d7b833f0b1b56c3f5c1a4d230fb76a5d009b4546c9c80",
-        "5023596fc71d826fc4976b1050c22f7886830b8bb00994a382e9ec7dbf334a6e"
+        "7de5317a1ceb1305b2fb29647f3168b8ea33681eb4eb165db0cba06d6dbd243e",
+        "ebd9a809f6261e8eff3bf06ea46ed0727447eafbca4eedc47f69d36b027310af"
       ],
-      "source_sha256": "594412b9096e1521862e693e3ab1cac162ecbe6ae2bd0e2d5b6f908f5e252b36",
-      "text": "Semi eins og það birtist í lok sumarinnar.\n\nSjálfur segir efnahagslegur aðstæður þetta. Þessar aðstæður myndi lesa sem bug, og \"every check passed\" er niðurstöður sem er þess virði að segja í stað þess að fylgjast með hljóð.",
+      "source_sha256": "965dafcc30f90d9a237ad86bbb731000998f086db7c46e2285d2e3c6bdce0305",
+      "text": "Sættu ráðleggingar til að lokum ferða samræmi.\n\nLeiður innfang er sérstaklega útskýrt þannig að fullkominn athygli með engum ráðleggingum er skilgreinandi frá mismunandi árangri.",
       "translation_source_blocks_sha256": [
-        "94d7c5d065897ab9ee8d7b833f0b1b56c3f5c1a4d230fb76a5d009b4546c9c80",
-        "5023596fc71d826fc4976b1050c22f7886830b8bb00994a382e9ec7dbf334a6e"
+        "7de5317a1ceb1305b2fb29647f3168b8ea33681eb4eb165db0cba06d6dbd243e",
+        "ebd9a809f6261e8eff3bf06ea46ed0727447eafbca4eedc47f69d36b027310af"
       ]
     },
     "spacr.run_recommendations.recommend": {
       "source_blocks_sha256": [
         "f7ab26ea65b09a07163a7026157b71c0588af9f7d60d728262d56dbb44a039bf",
         "4f90c9043cbd6f48e0149d9c6913144874a9f989b28ca8e6caa8fbb5d77bd736",
-        "91222ceae062e34f6225c0f9496797dca33fc88a29cd494f5e92b47c1d2cdf7e",
+        "f2e3a9f9f8d161f972bcd176f230b27d7d4110d2fd1dd9a758f64adc7c967b8f",
         "e4f2bed9658d4584346676aa2d4792e1cf9ed0af6f7dddc6e6f7ab65a239ad56"
       ],
-      "source_sha256": "a6dd2f6fc40fbabd4091a8722e19631ca50012c5f78436f31e32b9aa2921caeb",
-      "text": "Vinsamlegir ráðstafanir frá mættum rannsóknum.\n\n:param diagnostics: Númerur sem QC er reiknað.\n:param settings: það sem flutningin var notað, þannig að ráðlegging sem hefur verið tekið er ekki tilbúinn aftur. Að segja einhvern tíma til að gera það sem þeir segja er eins og ráðgjöf skilyrði koma í einu fólksskip.\n:returns: Þessir ráðstafanir sem flýja, blokkir þá fyrst.",
+      "source_sha256": "d858cb71683cde3d13d499bd88c8233b200da6c14f46c1006568dfefaf4ca109",
+      "text": "Vinsamlegir ráðstafanir frá mættum rannsóknum.\n\n:param diagnostics: Númerur sem QC er reiknað.\n:param settings: Sættir notaðar fyrir meðferðarhúsinu. ráðgjöf sem hefur verið uppfyllt af þessum gildi eru yfirgefið.\n:returns: Þessir ráðstafanir sem flýja, blokkir þá fyrst.",
       "translation_source_blocks_sha256": [
         "f7ab26ea65b09a07163a7026157b71c0588af9f7d60d728262d56dbb44a039bf",
         "4f90c9043cbd6f48e0149d9c6913144874a9f989b28ca8e6caa8fbb5d77bd736",
-        "91222ceae062e34f6225c0f9496797dca33fc88a29cd494f5e92b47c1d2cdf7e",
+        "e4a8353d0294c30996c1d688ceb4d782d2e1f284e51443b9e7f6cd5d3758c326",
         "e4f2bed9658d4584346676aa2d4792e1cf9ed0af6f7dddc6e6f7ab65a239ad56"
       ]
     },
@@ -113447,7 +113573,7 @@
         "70ccd2f03a8357b08e61c91eb9df0ad5f22e594936ad51bbbfb7d5fb27503d66"
       ],
       "source_sha256": "28d2a9dc3e6affc77828f74b1e0245b7284f717707f540f528ffa97ab30aab7f",
-      "text": "Skrifaðu útgreiddar myndum svæðum sem lýst er með sparað valtakvöru.\n\nHver samsetur mikroskópur sjónarfelli er hlaðið einu sinni og allar valda hlutar frá þessum mikroskopur sjónarrp eru útgreidd áður en framtíð.\n\nFæribreytur\n-----------\nselection : pandas.DataFrame Selection produced by :func:`build_selection`. merged_folder : str Directory containing merged ``.npy`` arrays. dst : str Destination for split-specific crop directories. channel_arrays : sequence of int, default=(0, 1, 2) Image channels to retain. mask_index : int, optional Mask plane index. The final plane is used when omitted. bounding_box : bool, default=True Whether crops retain every pixel in the object bounding box. crop_mode : str, default=\"cell\" Object type used for crop naming. write : callable, optional Function accepting ``(path, array)``. The default writes NumPy arrays.\n\nSkilar\n-------\nkey-value mapping Skrifað og missað myndarregion tölur, meðhöndlað mikroskópum sviði sjónarregning, markmiða síðu, og per-microscope sviði sýningar vandamál.",
+      "text": "Skrifaðu útgreiddar myndum svæðum sem lýst er með sparað valtakvöru.\n\nHver samsetur mikroskópur sjónarfelli er hlaðið einu sinni og allar valda hlutar frá þessum mikroskopur sjónarrp eru útgreidd áður en framtíð.\n\nFæribreytur\n-----------\nselection : pandas.DataFrame Val sem :func:`build_selection` býr til. merged_folder : str Mappa með sameinuðum ``.npy`` fylkjum. dst : str Áfangamappa fyrir klippur sem skipt er eftir gagnahluta. channel_arrays : sequence of int, default=(0, 1, 2) Myndrásir sem á að varðveita. mask_index : int, optional Vísir grímuplans. Síðasta planið er notað ef honum er sleppt. bounding_box : bool, default=True Hvort klippur varðveiti alla pixla innan umlykjandi rétthyrnings hlutarins. crop_mode : str, default=\"cell\" Gerð hlutar sem er notuð í heiti klippu. write : callable, optional Fall sem tekur við ``(path, array)``. Sjálfgefið er að skrifa NumPy-fylki.\n\nSkilar\n-------\nkey-value mapping Skrifað og missað myndarregion tölur, meðhöndlað mikroskópum sviði sjónarregning, markmiða síðu, og per-microscope sviði sýningar vandamál.",
       "translation_source_blocks_sha256": [
         "293c6f618a60efd3262e14fe6d9bdbeb156bb944c1747c9fa1e7e25f3716710f",
         "eda6893d4c9b7ed1ea3b8ebf206118e753be894c07c32576a4dd7be3b51c7c36",
@@ -114031,26 +114157,26 @@
     },
     "spacr.sudoku.SudokuResult": {
       "source_blocks_sha256": [
-        "259961c60b0a260dc8d90924ad0a02c1f27daeb1d4a3f78579e3f27ecfc5d4df",
-        "b133cb63caf150909107fbdda390ce582730020f52d586f39d752a010b3b84b7",
-        "80527d2b3d77943e3caa8b9283999d0a9f9f2053c69c7b78825fbb5ef1c71bdd",
-        "125fe5ffa550f064b7e959b6c49ac86a94e7253b4c755fda02fe4f9dd96eaa33",
-        "0ba7c441293ede3a909873f64ea7273f3bd5cfc5c212cb0c94634526840f948f",
+        "d9284ef5bcd7bfea85f2d2329d0ab8d3bf456084a3a592bb3c9a568e1f0d88d7",
+        "7124a0dc2fd2578db7688f06e9d04b4632c44a19142d6b54666e251a5f4ebda7",
+        "a38fa0e721d25346f415c3f2aaee2191b452b77a8e8541250c1392262cefd13f",
+        "8cbd90aca0dc570bca4c05ababc7c43f190a7dc69ff49aa23025dd131392d487",
+        "060df21c36f9993274fa4ac923ec580fad6e391d84b4138341e53b1dd28098b7",
         "aee5d6ead903cfdd1faf6431bb03a5ee306d4a7fd7ebf8a48d648e47780bd18c",
         "8e0e840760dd542656a1e3fcdf2f7203a4d6f56c2c9d7f043cd51571a794db7b",
-        "ca6a433c0d92112bad90a52cff1cb398ed4c5bb6d02a18cb4eac2bfad2f734e6"
+        "d0df92a521cce19f8e16a5490171f6b5b82416056ba6eba0026402fe22dd8e4a"
       ],
-      "source_sha256": "595ce16b97d003e41144db061fba8aaddf4e1e6cad4a7ed4d5d1c763201a909c",
-      "text": "Það sem Sudoku tók niður, með báðum stigum haldið út.\n\n:ivar guides: einn nafn á celi, í orði sem cellernir komu, eða :data:`ABSTAIN`.\n:ivar affirm: ``(n_cells, n_guides)`` - hversu mikið hver cella lítur út eins og anchors á hverjum leiðbeiningu.\n:ivar eliminate: ``(n_cells, n_guides)`` -- how much it looks like anything ELSE. Kept separate on purpose: \"probably not this guide\" and \"probably this guide\" are different claims, and a cell can be low on both, which is the cell worth looking at. A single ratio maps that onto the same value as a cell that is high on both.\n:ivar reach: ``(n_cells,)`` - total anchor mass sem kom. Lágt nálgun er fjórða kvadrantinn: í mismunandi við hvert anchor, af öllum leiðbeiningum.\n:ivar posterior: ``(n_cells, n_guides)`` eftir að mikróplata staðsyn er takmörkuð.\n:ivar names: nafni leiðbeiningar, í eftirliti kolumna matríksins.\n:ivar report: Lætur og settingar, fyrir rekstur.",
+      "source_sha256": "6bd46376eb25a040a8f7492e365430ae6fe0cf7918ffd38456ff82394cfbdd91",
+      "text": "Celle-level leiðbeiningar uppgötvun og sérstaka tilraunaraðila þeirra.\n\n:ivar guides: 1 leiðbeiningarnafn á inntali, eða :data:`ABSTAIN`.\n:ivar affirm: ``(n_cells, n_guides)`` stuðning frá anchors á hverjum leiðbeiningum.\n:ivar eliminate: ``(n_cells, n_guides)`` stuðning frá samkeppnandi anchors. Haldið þetta fjarlægð frá ``affirm`` skiljar óþekkt celler frá cellerum sem ekki styðjast af hvaða anchor íbúð.\n:ivar reach: ``(n_cells,)`` heildarbreytandi anchor mass.\n:ivar posterior: ``(n_cells, n_guides)`` eftir að mikróplata staðsyn er takmörkuð.\n:ivar names: nafni leiðbeiningar, í eftirliti kolumna matríksins.\n:ivar report: skammtur, settingar, og diagnostar varningar.",
       "translation_source_blocks_sha256": [
-        "259961c60b0a260dc8d90924ad0a02c1f27daeb1d4a3f78579e3f27ecfc5d4df",
-        "b133cb63caf150909107fbdda390ce582730020f52d586f39d752a010b3b84b7",
-        "80527d2b3d77943e3caa8b9283999d0a9f9f2053c69c7b78825fbb5ef1c71bdd",
-        "125fe5ffa550f064b7e959b6c49ac86a94e7253b4c755fda02fe4f9dd96eaa33",
-        "0ba7c441293ede3a909873f64ea7273f3bd5cfc5c212cb0c94634526840f948f",
+        "d9284ef5bcd7bfea85f2d2329d0ab8d3bf456084a3a592bb3c9a568e1f0d88d7",
+        "7124a0dc2fd2578db7688f06e9d04b4632c44a19142d6b54666e251a5f4ebda7",
+        "a38fa0e721d25346f415c3f2aaee2191b452b77a8e8541250c1392262cefd13f",
+        "8cbd90aca0dc570bca4c05ababc7c43f190a7dc69ff49aa23025dd131392d487",
+        "060df21c36f9993274fa4ac923ec580fad6e391d84b4138341e53b1dd28098b7",
         "88c3b9b3414b7a1e7b0098e88b361962c63ddd35c46ffd58aa9da65cb164312c",
         "8e0e840760dd542656a1e3fcdf2f7203a4d6f56c2c9d7f043cd51571a794db7b",
-        "ca6a433c0d92112bad90a52cff1cb398ed4c5bb6d02a18cb4eac2bfad2f734e6"
+        "d0df92a521cce19f8e16a5490171f6b5b82416056ba6eba0026402fe22dd8e4a"
       ]
     },
     "spacr.sudoku.SudokuResult.abstained": {
@@ -114080,37 +114206,37 @@
         "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
         "eb6d1129a7427ddaac6242fac73e735fe733bb3c770b45a89c0fedcec718c51d",
         "33383acbfc2b22043321abda95fd91eab8de7cd2ce40806283ead68ecefcb8fb",
-        "6f58baeeba7bf761cddba3fc7a9d693dad9dece10a419590c02167dee6f6f3e9",
-        "87ab4bf6db33ed4b547f6f3df1f084aa38a3e9c85e5a0b1c7d2cee3a73823198",
+        "9fc4ad659add555c5826011406b96a6a69466e7ec818cf8c9a1a810476d47f54",
+        "454fd6ae910e47f023bd623ef1b950cc8f1b12629cd1733a19814a1845346177",
         "f64250843e1ee6f51bcf8a430ab51b081928e528c11d97c4532dd21f8b5d1fb2",
-        "e096de447ddbc931a4db8907de22c8f52bb4f7bde626b5be68c540a94a63c30d"
+        "5da0f1e7b6e38632fbf33f5db59fda31183237b8587208c6322fd2b0be59cac2"
       ],
-      "source_sha256": "d984295d47b2d4a9e29b9c4a8edd224f35ecd5021380b0428dec1e3ba74bac07",
-      "text": "Ísættir af cellernum sem taka eru nánast vissir dæmi um ``guide``.\n\n:param wells: Eina mikróplata staðarmerki á celið.\n:param fractions: ``{well: {guide: fraction}}``.\n:param scores: Skammsökun á celið.\n:param quantile: inn í anchor well, kvantitímapunktur yfir sem cella er tekið.\n:param min_fraction: Aðeins mikróplata próf stöðu þar sem leiðbeiningin er að minnsta kosti þetta hlut er notað. STÍM TÍM: í mikrókra próf stað þar sem guðurinn er 70% af lesunum, hægri skóring cella er mjög líklegt að leiðbein. Í mikrópra prófa stað þar að það er 5%, það er líklega ekki, og anchor set byggð frá slíkum mikróbra prófan stöðum kennir grafin á rangt form.\n:param max_per_well: a cap, svo ótrúlegt vel getur ekki ákveðið útlit leiðtogi á sjálfum sér.\n:returns: Sjálfsögn, kannski óþægilegt.\n\nTHE ANCHORS ARE WHERE CIRCULARITY ENTERS, and it is entered knowingly. They are chosen BY SCORE, so a profile built from the score alone would say \"a `g` cell has a high score\" -- true by construction and worthless. :func:`sudoku` therefore excludes the score from the graph features by default. The score picks the anchors; the morphology decides everyone else.",
+      "source_sha256": "d37bdf31ead22b4030243e76c0a9b530ef3d0ff211dfceeedbbc4f298e0eb254",
+      "text": "Ísættir af cellernum sem taka eru nánast vissir dæmi um ``guide``.\n\n:param wells: Eina mikróplata staðarmerki á celið.\n:param fractions: ``{well: {guide: fraction}}``.\n:param scores: Skammsökun á celið.\n:param quantile: inn í anchor well, kvantitímapunktur yfir sem cella er tekið.\n:param min_fraction: mínim sekreiðslu flokk fyrir mikroplaðs staðar til að stuðla að anchors. Þetta takmarka útval anchors til mikroplat staðar þar sem hár skóring cella er sönnunlega tengd við leiðbeininguna.\n:param max_per_well: Maximal anchors stuðlað með einum mikróplata prófun staðsetningu.\n:returns: Sjálfsögn, kannski óþægilegt.\n\nTil að koma í veg fyrir cirkular niðurstöðu, :func:`sudoku` fjarlægir þessar niðurstöður frá greininum eiginleika af staðsetningu; cell morphology þá ákveður fjölbreytingu yfir anchors.",
       "translation_source_blocks_sha256": [
         "7d95102aa928905030ec5ff146531d6f498bdcb85547288a97f4d286765c677d",
         "c0467ab89b7b6826cc65ed13aa61d4446f461fe4b6fafd4aa5e161c994e19a03",
         "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
         "eb6d1129a7427ddaac6242fac73e735fe733bb3c770b45a89c0fedcec718c51d",
         "33383acbfc2b22043321abda95fd91eab8de7cd2ce40806283ead68ecefcb8fb",
-        "d0b92b598a796eedcf8f217ba477cf795c0eb1842bfbfa2e00a95e8d3fa4d2a7",
-        "87ab4bf6db33ed4b547f6f3df1f084aa38a3e9c85e5a0b1c7d2cee3a73823198",
+        "0f876f164e6a31ce9dbdc6be33335b5691437ba863a48ee52b44b135e4c6ad65",
+        "20f55e3f73a48c3e80b76929bac0a93c1ceee2425e995267fff56f8c7a14151e",
         "f64250843e1ee6f51bcf8a430ab51b081928e528c11d97c4532dd21f8b5d1fb2",
-        "e096de447ddbc931a4db8907de22c8f52bb4f7bde626b5be68c540a94a63c30d"
+        "6b7fb067f44cceef775d25e2f164a877868804d1d0c4ab7fb2eebc433c5e7241"
       ]
     },
     "spacr.sudoku.constrain_to_fractions": {
       "source_blocks_sha256": [
         "69cfa77b758c1b77ee9e7a2c0df6b168641fcf2a719b80ca21efb22353cad00f",
         "11bbd0d6d2dfdc5d3b3b820c1e772bac5f6ff65223fc6332475fd1aaee271433",
-        "9b5248d10e847ccf36b75c4786c0d076f262ebb081cc554d58b437fe4e1d96b0"
+        "dd6e55726281e559e5c5fd9722d3e004d7b4066489551825e3bd1292cd7c6430"
       ],
-      "source_sha256": "63a9ab6f61d3025ac4ece3a7a5d16d61fec4631278a0f79c9dd341a4375de19e",
-      "text": "Hugsað breiða massa á tölur sekkunar þýðir.\n\nÍ hverri mikrónaplaðs sýnstæði skaltu leiðbeiningarkolum svo að hver sumur á ``pi_g * N_w`` og renormalize ránir til 1, í öðruvísi. Þetta er iterative proportional fitning - sömu staðsettu punkti :func:`spacr.guide_attribution.posterior` nota, notað hér til graf-propagated getu í stað þess að eindimensional sannleika.\n\nÞannig væri grafin án þess að gefa hverjum celi í mikrópabúðstað til hverri leiðbeining hafði flest anchors, vegna þess að ekkert myndi segja að mikróbabúðiðstaðstaður hefur aðeins svo margt af hverjum.",
+      "source_sha256": "0d17064e4e31d2ead777621e4c5ef302d315f5b5ff16e39990265a6e940fd3ae",
+      "text": "Hugsað breiða massa á tölur sekkunar þýðir.\n\nÍ hverri mikrónaplaðs sýnstæði skaltu leiðbeiningarkolum svo að hver sumur á ``pi_g * N_w`` og renormalize ránir til 1, í öðruvísi. Þetta er iterative proportional fitning - sömu staðsettu punkti :func:`spacr.guide_attribution.posterior` nota, notað hér til graf-propagated getu í stað þess að eindimensional sannleika.\n\nLágmarkið hindrar grafinn frá því að skipta hvert celt í mikrópskrauna stöðu við leiðbeininguna með stærsta anchor mass þegar eftirliti styður aðeins takmarkað hluta til þessar leiðbein.",
       "translation_source_blocks_sha256": [
         "69cfa77b758c1b77ee9e7a2c0df6b168641fcf2a719b80ca21efb22353cad00f",
         "c6a2877eb39cb08d834dbff7acb390dbce2d08b211ca3547526c7529402df6fb",
-        "6ae2c2a3c91105f4a21f4a68514c88b2f90f0452e927efb7740772818709cb18"
+        "91da02d0365e5b18d0296aeaaabdec541acf57e796561539b71e82f1ad4aabf9"
       ]
     },
     "spacr.sudoku.propagate": {
@@ -114141,72 +114267,76 @@
     },
     "spacr.sudoku.similarity_graph": {
       "source_blocks_sha256": [
-        "c9871a550ffd5d21ea05091e57f74828c59fc9b2f6c745898c57468fe3c4c4b4",
+        "c242bf899774f6ac0d0b5dbae2e588b2ccd47aa502fdb86792b4b15c43926ce9",
         "ba3bb25058b7e01078e1f18c0897e076359041e9b2df27603f6937a63319a65c",
-        "cf4cdd0174f724805681f17b68510a5d342eea4c43a621935a9539622433015f",
-        "cbd75f91a86f44ace476fa41a7558bd0285c1bb5f3433e3ce6f94729b4c91ef7",
-        "29ebd8819b449b41120ade352b913de2e7fae5e1115f86b0d9099bd92890b474",
-        "411e5b5577d51c97d922269d13384e35843ad0675d795083073ffa61751af267"
+        "6b0bea6610214e309431c5ae0c5893b52badd3fd73e13caf9339868a6aa8a0e1",
+        "89c4fdbbc2d4e608837929127b504c8372191b8e0d454bf55b13f0856f2d833c",
+        "11eefbccfd5dace7419e6d4d086bd2f688453f4557210c9ea650f993ece1b3c5",
+        "c78d1be8c0cf52d1072f8cf197e0160ac6f15d82553d43f8253c4599851984af"
       ],
-      "source_sha256": "fc07a926a49d4cfec0cee8b5f3f6a52eeaf2eb4f5e05b5bbf27a22e2ce0270ac",
-      "text": "Símmetrískt k-nærsta-nægri tengsl yfir célum.\n\n:param features: ``(n_cells, n_features)``, standað hér.\n:param neighbours: k.\n:param mutual: keep an edge only where BOTH cells list the other. A plain kNN graph gives an outlier k edges it did not earn -- it has to have SOME nearest neighbours -- and label mass then flows into cells that resemble nothing. Mutual kNN lets an outlier end up with no edges at all, which is the honest answer and is what :attr:`SudokuResult.reach` reports.\n:returns: CSR viðhald með nulldiagonal.\n\nVeganir eru heitu kjarna með SELF-TUNING skala: hvert celið er eigin fjarlægð til gríðarins. Einn alþjóðleg sigma ákvað að skugga hefur eitt þunglyndi, og celler á skrinni eru ekki - þungur heilbrigður fjölmiðla, þar sem sparsæta dauða einn fær hvergi engin hliðar í sparsögu eða of tengd þunglin einn.",
+      "source_sha256": "ec623cf3d37abef233396e9a6b10c610496b2556ca9773e37cf3e75632cf0733",
+      "text": "Að byggja symmetrískum k-nærsta-næstu cell-affinity graf.\n\n:param features: ``(n_cells, n_features)``, standað hér.\n:param neighbours: Númerur nærustu nágrannar á celi.\n:param mutual: Að halda hliðinn aðeins þegar báðir celler skilja hvort annað sem nágrannar. Þetta gerir að einstaka útlendingar hafa null nálgun en að fá forðandi tengslum.\n:returns: CSR-afinity matrix með nulldiagonal.\n\nEdge þyngd nota hita kjarna með staðbundna skala sem er ákveðið af fjarlægð á hverjum celi til gríðarins. staðbundin skalað styður íbúðir með mismunandi prófdæssum.",
       "translation_source_blocks_sha256": [
-        "c9871a550ffd5d21ea05091e57f74828c59fc9b2f6c745898c57468fe3c4c4b4",
+        "c242bf899774f6ac0d0b5dbae2e588b2ccd47aa502fdb86792b4b15c43926ce9",
         "ba3bb25058b7e01078e1f18c0897e076359041e9b2df27603f6937a63319a65c",
-        "cf4cdd0174f724805681f17b68510a5d342eea4c43a621935a9539622433015f",
-        "cbd75f91a86f44ace476fa41a7558bd0285c1bb5f3433e3ce6f94729b4c91ef7",
-        "29ebd8819b449b41120ade352b913de2e7fae5e1115f86b0d9099bd92890b474",
-        "411e5b5577d51c97d922269d13384e35843ad0675d795083073ffa61751af267"
+        "6b0bea6610214e309431c5ae0c5893b52badd3fd73e13caf9339868a6aa8a0e1",
+        "89c4fdbbc2d4e608837929127b504c8372191b8e0d454bf55b13f0856f2d833c",
+        "11eefbccfd5dace7419e6d4d086bd2f688453f4557210c9ea650f993ece1b3c5",
+        "c78d1be8c0cf52d1072f8cf197e0160ac6f15d82553d43f8253c4599851984af"
       ]
     },
     "spacr.sudoku.sudoku": {
       "source_blocks_sha256": [
-        "9565fd87072a18706ea83f75aded36f448874f0ae4e09578fabd5644e0382455",
+        "77000659763f57fa1f500f58a56b71e0050431fae61617b761358e2b32cf728d",
         "d1c68c2d44b7928ca72b5af71fd02b75f04415dec889b7093db3ce7092a8e09c",
-        "b8fb34ca7ab0762b881ef5a04536f195f13adc8f3365036ebd82f0d98c53df65",
+        "799b8de714f983f73115cd2038bc09fe10a531fdc95b2fd68f0fbdbe7792bad0",
         "4e74a48dde732283c8bbd6fcdc368d9c610e80f18cf2e91ba720611dd97dd427",
         "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
-        "67fdbb17464bcd148b97766fc52d68279c5ea952e263a0dc4b764e975a40e688",
+        "8173cac1902037307894f7fbb0e56e1ee085500ec6103c674772171adea1e29c",
         "e5db01064629bc5c506f3ec56ead6109b227163fbd50841b5040227a6931e21e",
-        "9a0786d984efff1e26f0d5cb79497ad18d00d935127f3bd61951fa6cee3436f7",
+        "3a2270f21f846985c7cbe5791e9041f065b14b10e6953e8fa8db61b4a0e70425",
         "bb448ce3b066fb995254a78bb5161513381d0ffdadf22dbc87beb40d854672c6",
-        "2485395b525b7e370cd9e86447ae6fb393d3b5b02913fb4c7a6968b17fbde259",
-        "96b5593df006be77dbbee1e739b980b29f87747f42bac4c77656006a4a0f86e2"
+        "66de95662abaada9f85cb6bfa99ae59474386fa4aa6e40c3a6f8fe27725c35c8",
+        "d372db15e0ed540d4917252ae3da5c71207204e6815760a624c079b8abf1313a",
+        "c0c5400fd56c56272017da907234b7d4c61bc74c3081d4f20a8d528b368ce565",
+        "a7b3969fbd62ca315e9b553c6e65c9755000a0152864f1d829fc510d7140a80f",
+        "bdb3bd391ff55d6c1e975b7f332996580a5c310c3eac0bf97c4fbd929eff0cf1"
       ],
-      "source_sha256": "71817567844b193e55ca0d5f126229e61aa03c81c48f6dceff82e4961cab7c60",
-      "text": "Tilkynna hvert celið, yfir mikróplata prófun stöðu, með tveimur stigum haldið út.\n\n:param features: ``(n_cells, n_features)`` mætting á celium.\n:param scores: a klassifikation score per cell - notað til að velja anchors, og í staðsetningu ekki notað sem graffiti eiginleika.\n:param wells: Eina mikróplata staðarmerki á celið.\n:param fractions: ``{well: {guide: fraction}}``.\n:param guides: Valinn notanda, og nokkrar er málin: \" notandinn getur valið nokkrar hagsmynda leiðbeiningar\".\n:param anchors: akkeri vísitölur fyrir hverja leiðsögn, yfirstíga :func:`anchors_for`.\n:param use_score_as_feature: **Off eftir skammt og það er réttlætis ákvörðun, ekki forrit**: anchors eru valið eftir skóre, þannig að graf byggð á skóre myndi setja hvert high-score celt nálægt hverri leiðandi anchors og staðfesti allt.\n:returns: Þetta er :class:`SudokuResult`.\n\nÞær fjögur hliðar, Það er ástæðan fyrir því að tveir niðurstöður eru gerðar í stað þess að einn:\n\n  staðfestir hár, fjarlægð lítið - vissulega þessi leiðbeining staðfesti lítið, fjarlægt hár - visslega NEIN þessi leiðbi staðfestu hár og fjarlæggið hár. - leiðbeinarnir skilja ekki hér staðfestar lítið og fjarlægja lítið. - í öðruvísi við hver annar: óþægilegt celler, og einn einn hlutfall fela með því að mappingu það til sömu gildi sem rás yfir.",
+      "source_sha256": "48ca7de1dac47a026fc6a0c51fc2ae1b2b4e272ceb331c370a666757d40d60f5",
+      "text": "Ákvarða leiðbeiningar til celler og haldið samkeppnandi getu sérstakt.\n\n:param features: ``(n_cells, n_features)`` mætting á celium.\n:param scores: klassið skóre á celið, notað til að velja anchors, og í staðsetningu ekki notað sem graffiti eiginleika.\n:param wells: Eina mikróplata staðarmerki á celið.\n:param fractions: ``{well: {guide: fraction}}``.\n:param guides: leiðbeiningar til að hafa í huga fyrir uppsetningu.\n:param anchors: akkeri vísitölur fyrir hverja leiðsögn, yfirstíga :func:`anchors_for`.\n:param use_score_as_feature: inniheldur móðurlækni skoðun mönnun í grafi eiginleika. áætlaður vegna þess að skoðun er einnig að velja anchors; gerir það hægt að veita kringum staðreynd og er skráður í niðurstöður skýrslu.\n:returns: Þetta er :class:`SudokuResult`.\n\nSérstök stuðning og samkeppnandi tákn skilja fjórar niðurstöður:\n\n* hár stuðning, lítið samkeppni: öruggt verkefni;\n* Lágt stuðning, hár samkeppni: öruggur útskot;\n* hár stuðning, hár samkeppni: tvöfaldur milli leiðtogi;\n* Mjög stuðning, lítið samkeppni: ekki stuðlað af anchor populations.",
       "translation_source_blocks_sha256": [
-        "bb271fc5c5e8510d634b277435e17dc4dfc1742c142df9e42f38229b6e76c0b1",
+        "77000659763f57fa1f500f58a56b71e0050431fae61617b761358e2b32cf728d",
         "d1c68c2d44b7928ca72b5af71fd02b75f04415dec889b7093db3ce7092a8e09c",
-        "b8fb34ca7ab0762b881ef5a04536f195f13adc8f3365036ebd82f0d98c53df65",
+        "799b8de714f983f73115cd2038bc09fe10a531fdc95b2fd68f0fbdbe7792bad0",
         "c0467ab89b7b6826cc65ed13aa61d4446f461fe4b6fafd4aa5e161c994e19a03",
         "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
-        "67fdbb17464bcd148b97766fc52d68279c5ea952e263a0dc4b764e975a40e688",
+        "8173cac1902037307894f7fbb0e56e1ee085500ec6103c674772171adea1e29c",
         "e5db01064629bc5c506f3ec56ead6109b227163fbd50841b5040227a6931e21e",
-        "9a0786d984efff1e26f0d5cb79497ad18d00d935127f3bd61951fa6cee3436f7",
+        "437836f560d9213612c7a51e7eea06257007c797e0d0f82f11c177042fcd26b7",
         "bb448ce3b066fb995254a78bb5161513381d0ffdadf22dbc87beb40d854672c6",
-        "2485395b525b7e370cd9e86447ae6fb393d3b5b02913fb4c7a6968b17fbde259",
-        "96b5593df006be77dbbee1e739b980b29f87747f42bac4c77656006a4a0f86e2"
+        "66de95662abaada9f85cb6bfa99ae59474386fa4aa6e40c3a6f8fe27725c35c8",
+        "d372db15e0ed540d4917252ae3da5c71207204e6815760a624c079b8abf1313a",
+        "c0c5400fd56c56272017da907234b7d4c61bc74c3081d4f20a8d528b368ce565",
+        "a7b3969fbd62ca315e9b553c6e65c9755000a0152864f1d829fc510d7140a80f",
+        "bdb3bd391ff55d6c1e975b7f332996580a5c310c3eac0bf97c4fbd929eff0cf1"
       ]
     },
     "spacr.sudoku.sudoku_all": {
       "source_blocks_sha256": [
-        "810b655532d874a39399f11e67931d6211b319c107a7e6a6ef40e16fcd08a0ff",
+        "6cf743111111c8ac848205cdecd639414505e9fda0d6e691ec10823a2eebb333",
         "29ac08550b61f9b96e7fffd9817b6110583b059d63522cc50a50d13f28de4bdb",
-        "4d44af735702647f73491a4c8640a43ded90d040e176d8b772d91d9091191e8e",
+        "03a52d9271cbf4b5f4dbb3c9e56b2af42c26da25fc15a4b4ca5abf61f2781caa",
         "b9bac12fe498fa8e45c54ec7f754958812619f307e6742622428f682e99d42ed",
-        "3eadcaaf70d7abe0f4dabae2a1bf2a702b67597e7eec44da6682a174c9434634",
-        "06aba2aa8422f8b4869545c3b55f2cad954365e459ba71af351290dc947967a2"
+        "9401231904aa0bf1e645db70bece2e60156086bbf96ef8ffd1c42021590fc8a0"
       ],
-      "source_sha256": "79d15de126efcfa2e121b6c2ee25189b91c6b4f4822eb780836545c70a042034",
-      "text": "Sudoku yfir hverri leiðbeining, í trúarlegri orði, viðurkennd eins og það er.\n\n:param ranking: ``[(guide, confidence)]`` í niðurstöður meðferð ákvarðanir. samtalinn ákveður öryggi, til dæmis með því að sameina áhrifum stærð og statískt mikilvægi.\n:param max_guides: Stopp, þannig að skrin með 1.500 leiðbeininga fer ekki 1.500 graffiti byggingar á ótta.\n:returns: Einn :class:`SudokuResult` á öllum cellerum.\n\nHver runda rennt :func:`sudoku` fyrir einn leiðbeining yfir cellernar enn óþekkt, hallar cellerna sem hún ákveður, og fjarlægir þá. Það hættir þegar runda segir ekkert - sem er mynda flip, náð í stað þess að talast.\n\nOrðið er áhættu, og skýrslu tekur það sem þarf til að rannsaka það: `claimed_by_round`. A grætur aðferð gerist snemma, mistök fyrstu leiðbeininga er erfitt af hverjum síðar, og cellerna sem það tekur eru aldrei endurhugað. Spurninginn sem vil vita hversu mikið þetta skiptir þetta tvö sinnum með orðinu mismunandi og samanburður - sem er það sem :mod:`spacr.annotation_validation` gerir.",
+      "source_sha256": "c0b59d5aa89a06438fe9ec6483269fc2811893996c893d7c6835a21b0aec5102",
+      "text": "Skilja leiðbeiningar sekúndlega í niðurstaða trúarlegri orði.\n\n:param ranking: ``[(guide, confidence)]`` í niðurstöður meðferð ákvarðanir. samtalinn ákveður öryggi, til dæmis með því að sameina áhrifum stærð og statískt mikilvægi.\n:param max_guides: Maximum fjölda áætlaða leiðbeininga til að meðhöndla.\n:returns: Einn :class:`SudokuResult` á öllum cellerum.\n\nHver runda ákvarða :func:`sudoku` til óþekkt celler og fjarlægir samþykkt uppsetningar. Ferðing hættir þegar runda er ekki uppsetur celler. Því að þetta greiðanleg ferli er leyndarmál, ``claimed_by_round`` er haldið í skýrslu; :mod:`spacr.annotation_validation` athygli á rangamál.",
       "translation_source_blocks_sha256": [
-        "810b655532d874a39399f11e67931d6211b319c107a7e6a6ef40e16fcd08a0ff",
+        "6cf743111111c8ac848205cdecd639414505e9fda0d6e691ec10823a2eebb333",
         "29ac08550b61f9b96e7fffd9817b6110583b059d63522cc50a50d13f28de4bdb",
-        "4d44af735702647f73491a4c8640a43ded90d040e176d8b772d91d9091191e8e",
+        "03a52d9271cbf4b5f4dbb3c9e56b2af42c26da25fc15a4b4ca5abf61f2781caa",
         "b9bac12fe498fa8e45c54ec7f754958812619f307e6742622428f682e99d42ed",
-        "3eadcaaf70d7abe0f4dabae2a1bf2a702b67597e7eec44da6682a174c9434634",
-        "06aba2aa8422f8b4869545c3b55f2cad954365e459ba71af351290dc947967a2"
+        "9401231904aa0bf1e645db70bece2e60156086bbf96ef8ffd1c42021590fc8a0"
       ]
     },
     "spacr.surrogate": {
@@ -120372,7 +120502,7 @@
         "c9800c52ca1aa53a8f48d261499cfdad3dab0fc9637c0865c477a6de3f0a948e"
       ],
       "source_sha256": "b05b3ceb7228da58c9489e9c3809fc2b4d81c68c58a5584b3b8619cb2e3252d4",
-      "text": "Veldu objekta fjölmiðla sem er beðið af plötu.\n\nFæribreytur\n-----------\nframe : pandas.DataFrame Object tól sem inniheldur leiðbeiningar og vel viðeigandi. scope : {\"guides\", \"wells\", \"all\"}, default=\"guides\" fjölmiðla til að halda. guides : sequence of str, optional Valinn leiðbeiningar. wells : sequence of str, optional Skýrlega vel undirsetur fyrir ``scope=\"wells\"``. Þegar takmarkaður er mikrónaplata staður eru afleiðar frá ``guides``.\n\nSkilar\n-------\npandas.DataFrame Selected rows. The well scope adds :data:`MATE_COLUMN` to distinguish selected-guide objects from their well-mates. dict Scope, selections, row counts, and any explanatory note.\n\nUpphæð\n------\nValueError Ef ``scope`` er ekki aðstoð.",
+      "text": "Veldu objekta fjölmiðla sem er beðið af plötu.\n\nFæribreytur\n-----------\nframe : pandas.DataFrame Object tól sem inniheldur leiðbeiningar og vel viðeigandi. scope : {\"guides\", \"wells\", \"all\"}, default=\"guides\" fjölmiðla til að halda. guides : sequence of str, optional Valinn leiðbeiningar. wells : sequence of str, optional Skýrlega vel undirsetur fyrir ``scope=\"wells\"``. Þegar takmarkaður er mikrónaplata staður eru afleiðar frá ``guides``.\n\nSkilar\n-------\npandas.DataFrame Valdar raðir. Brunnasviðið bætir :data:`MATE_COLUMN` við til að aðgreina hluti valinna leiðarvísa frá öðrum hlutum í sömu brunnum. dict Svið, val, fjöldi raða og skýring þegar við á.\n\nUpphæð\n------\nValueError Ef ``scope`` er ekki aðstoð.",
       "translation_source_blocks_sha256": [
         "dc335a049660c22ee0f86e90233609070a887712ce8632827bd5041c04da4fdf",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",

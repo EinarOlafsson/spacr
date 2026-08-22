@@ -76030,14 +76030,14 @@
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.crop_count": {
       "source_blocks_sha256": [
-        "b119ee7b27b8f4d8b1287e0fa9c53cc3c476a2d39c0717bdf375d13adc6ee4c1",
-        "69f3f18375b6322447d7fa881bc2360f7e26a21fc439734f857a18955a0d4708"
+        "8c60c5784771b861707e83c600801fee83dc30eb0e90679a94af51ddfd3e5e85",
+        "3947acc874bc96c46be64cf354732d57286bc55f4000ee587f98b777d58a1f9c"
       ],
-      "source_sha256": "8ca9eaa77704ee8b8dbeac58418e3f63d3731527aa20c3874905182e8af7d02c",
-      "text": "提取的图像在每个页面上包含多少个区域。\n\n没有 `len(thumbnails())`,计算什么是发送 - 因为指示 211 这是一个页面,而不是整个好. 两个是相同的数字,直到选项卡开始播放,每个呼叫者意思“这里有多少对象”想要这个。",
+      "source_sha256": "a15489a16b39f1fed1cd9240c163971a41517562c2b34e771dacddcd7349a504",
+      "text": "返回在所有选项卡页面上保持的提取图像区域的总数。\n\n这与 ``len(thumbnails())`` 不同,仅计算目前显示的页面上的 widgets。",
       "translation_source_blocks_sha256": [
-        "9096d2205a7d6d9b19ec4276280cee7c9feb2d45a19dcf3cf40d9fad267dc220",
-        "69f3f18375b6322447d7fa881bc2360f7e26a21fc439734f857a18955a0d4708"
+        "cb15dc4ee82907e90ca00e96977b217a8da9d8023be8390129be8787364c038d",
+        "3947acc874bc96c46be64cf354732d57286bc55f4000ee587f98b777d58a1f9c"
       ]
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.databases": {
@@ -76328,14 +76328,14 @@
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.thumbnails": {
       "source_blocks_sha256": [
-        "213ae028a55287c4c65dfd83ac5de01a3765bf86e6cfaefd9eb3a65fbe5d5799",
-        "7b5005e9377cfc1cda807c8f96a26cf9b8553bee14e8b7fb16dccb58520e51b7"
+        "2483fbbf7d213de530d7afc9471bd8a92903be575aa987fae2900d458fef4b15",
+        "135481b32e6fd5f3e68496ac5dca52404dcd99768ab6011c3f9dee440ce68d33"
       ],
-      "source_sha256": "6590580a999c9adc59a7e06e0239ad50a98e0657d8a50cdfd5e25481e6b1dff6",
-      "text": "应用程序视图上的每一个小组,在每个开放好的选项卡上。\n\n在应用视图上意味着在当前页面上。 使用 :meth:`crop_count` 查看选项卡包含多少个对象。",
+      "source_sha256": "ffa75d3629537287383e7391733aeaa3e8105ce35d2ead2d78fcd2e9c85d8472",
+      "text": "返回图标可在目前显示的选项卡页面上看到。\n\n使用 :meth:`crop_count` 获取在所有好选项卡上保持的对象的总数,包括未显示的页面。",
       "translation_source_blocks_sha256": [
-        "ff5e60fb13502906df6e4ffabb366a5f9503c173b102a67cc91aaa331421d7d4",
-        "15a46b70f9a8f25bc4cbf2f872e163baebeefa7bc2a43fe34d0f66807de66285"
+        "2483fbbf7d213de530d7afc9471bd8a92903be575aa987fae2900d458fef4b15",
+        "135481b32e6fd5f3e68496ac5dca52404dcd99768ab6011c3f9dee440ce68d33"
       ]
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.well_tabs": {
@@ -81664,6 +81664,18 @@
         "ce9a6e97631ca1b5f4218767d999fbce2147862594d6acdbab134accebf7700f"
       ]
     },
+    "spacr.qt.widgets.fast_plots.FastPlot.graph_spec": {
+      "source_blocks_sha256": [
+        "3c6e4b7ba5659addf1b707a071d38df1a55e5cc1c971a0ea4cc922698668b81e",
+        "7f52b622bb2cdb18e025184a92453732386ed349fc9317f915c0c20033ffe635"
+      ],
+      "source_sha256": "4415173f0ec76aeef9af8f6bd00f34ae4f1b0fb89e412a3e18a81d0e70aa6c22",
+      "text": "返回用于绘制这个字符串的数据规格,如果存在。\n\n保留规格的图可以使用其他兼容的图形类型重新绘制。 渲染图返回 ``None``。",
+      "translation_source_blocks_sha256": [
+        "3c6e4b7ba5659addf1b707a071d38df1a55e5cc1c971a0ea4cc922698668b81e",
+        "7f52b622bb2cdb18e025184a92453732386ed349fc9317f915c0c20033ffe635"
+      ]
+    },
     "spacr.qt.widgets.fast_plots.FastPlot.grid_shown": {
       "source_blocks_sha256": [
         "a71cf52e99c0f47e3443d8db7eba6890583b38d14ddf2d48e0ccfa471183be6c"
@@ -82041,19 +82053,17 @@
     "spacr.qt.widgets.fast_plots.FastPlot.select_in_rect": {
       "source_blocks_sha256": [
         "4e6a4b667e2f4c91d7dbec5261ce4f7a3411341fdb13f1a0f125bdc3dfd3f8c6",
-        "84359973f7a72b073d136c2c9c9128ac2446e9a9c45a69a1f3c258722d6b8e59",
-        "f1c73babc8a370b2710cc3dbb716f89d4fb45ea8e31259d8ac52cc6f37bd8deb",
-        "4b34c5f289845fc6a161ed290b640b8d8ea03ede520faf3efe11673c7857a97f",
-        "90ef60f487cb3a22eae8ad466a7777e23abead169995210a366ca86fbcf2da9e"
+        "d83eaa2f297777e0d0e5c84d1f49797ac22ad80c355462c938be7ebf992e2145",
+        "0ac41a840e5e2132523486be8aa7157013cf04511a41efe806e56149fd1339eb",
+        "e4ccc06c216cc06b70d0a6d0255ff935d43d31371279c57588312b5e8a605c30"
       ],
-      "source_sha256": "8035b9f0b78585a56ce95caec5200ea5405d2206406541a8aa54dcb807b9beb1",
-      "text": "选择数据协调直角内部的每个插点。\n\n火山邀请的形状:有趣的引导 RNA是云的一个角落,同时单击它们是它所取代的工作。\n\n没有拖动位置的点不在任何直角 - 一条带选择了它显而易见的关闭,这是用户可以检查的唯一阅读。\n\n:param add: 延伸目前的选项,而不是取代它,以便带有更改器仍然下降。\n:returns: 乐队之后的选择,按选项顺序。",
+      "source_sha256": "e419cef53e12de9d69245c3361dfa06357f765938045095062c2a09f289c270e",
+      "text": "选择数据协调直角内部的每个插点。\n\n因此,直角选项包含准确的点显然被供应的边界关闭。\n\n:param add: 延长当前选项,而不是取代它,如在选项期间保留变更密钥时所使用。\n:returns: 选择的关键在选择顺序。",
       "translation_source_blocks_sha256": [
         "4e6a4b667e2f4c91d7dbec5261ce4f7a3411341fdb13f1a0f125bdc3dfd3f8c6",
-        "84359973f7a72b073d136c2c9c9128ac2446e9a9c45a69a1f3c258722d6b8e59",
-        "f1c73babc8a370b2710cc3dbb716f89d4fb45ea8e31259d8ac52cc6f37bd8deb",
-        "4b34c5f289845fc6a161ed290b640b8d8ea03ede520faf3efe11673c7857a97f",
-        "90ef60f487cb3a22eae8ad466a7777e23abead169995210a366ca86fbcf2da9e"
+        "d83eaa2f297777e0d0e5c84d1f49797ac22ad80c355462c938be7ebf992e2145",
+        "0ac41a840e5e2132523486be8aa7157013cf04511a41efe806e56149fd1339eb",
+        "e4ccc06c216cc06b70d0a6d0255ff935d43d31371279c57588312b5e8a605c30"
       ]
     },
     "spacr.qt.widgets.fast_plots.FastPlot.selected_keys": {
@@ -82704,16 +82714,18 @@
     },
     "spacr.qt.widgets.fast_plots.ResultsTable.select_keys": {
       "source_blocks_sha256": [
-        "fc781b8aecfb2dcd793563df086b73735fe84506f0aa01d0b70293adfd6ad8af",
-        "6c6d69bb13839ed47a5037b8268372f92aba91ad74604e59db3a02abedcced6d",
-        "20f1325cbd5f60f1b00281463b76dea0ca49229173dc4b2e912456da054af87c"
+        "55a3baa1c0e2684826864bf0257cd23a1daadea8aba60a6576636c83f2a913a7",
+        "80af7e436fa5cf3724a1146d8775b1242086660b18b188d43c53878735e03271",
+        "0cf35293e20d450847461abbbca262495335b90dc50438adbe60bdb5f6eb2b7b",
+        "978bdc22e52170a5ca63fe43dfcf172f307a2f29d7e47f87960a6099a444bfc0"
       ],
-      "source_sha256": "a3ad84f9ff028fa81079743d4e19cee6b06bbcad7498a76e54e9f793328706f0",
-      "text": "选择在 ``keys`` 中命名的每个行。 返回已找到多少行。\n\n一个地方 一个多选项进入桌子,所以下面的两个信号都发出在一起,没有消费者可以从邻居那里看到不同的选择。\n\n图表选择行,而不是过滤它们:缩小选择范围是 `show_keys` 对直方图条所做的,从一个手势同时做这两件事会隐藏用户正在比较的未选定参考线。",
+      "source_sha256": "3c5ab5f2d8722166d89b0d900531711d87467db6fb5b006f45ffdb50c9420b54",
+      "text": "选择图表行,其结构化数据名称在 ``keys`` 中出现。\n\n两个选择信号都会在这里发出,因此每个消费者都会收到相同的订单。 线路仍然可见; :meth:`show_keys` 进行过滤,当一个集合互动需要它时。\n\n:param keys: 序列识别器选择,在所需的选择顺序。\n:returns: 选择的匹配行数。",
       "translation_source_blocks_sha256": [
-        "fc781b8aecfb2dcd793563df086b73735fe84506f0aa01d0b70293adfd6ad8af",
-        "6c6d69bb13839ed47a5037b8268372f92aba91ad74604e59db3a02abedcced6d",
-        "20f1325cbd5f60f1b00281463b76dea0ca49229173dc4b2e912456da054af87c"
+        "857453c50b18462adcab937ceb59bc49835701aeb823c1123d68c853f4f2a26a",
+        "80af7e436fa5cf3724a1146d8775b1242086660b18b188d43c53878735e03271",
+        "e85e066b9d519d51ed44752058d57fb0a55535ed8ca82cadc811528437ecc6e5",
+        "978bdc22e52170a5ca63fe43dfcf172f307a2f29d7e47f87960a6099a444bfc0"
       ]
     },
     "spacr.qt.widgets.fast_plots.ResultsTable.selected_keys": {
@@ -85118,14 +85130,22 @@
     },
     "spacr.qt.widgets.figure_settings.save_figure_bundle": {
       "source_blocks_sha256": [
-        "9ca4f6e3c03eb44d6a3deb5da3a73a8cc028c5fe11ec93cb0a17e47c442ed3b5",
-        "9047b33671b26a87e9469f1f69368b775587f9dfaf7583d9b6f46e5befcf8158"
+        "5a362dac2e2d6e359d94105925036c996f826a4987de0b8a0c27e94fd6d4bbe3",
+        "6b1c0ed0acb6c182cfa8d006a2edf35deecb03e0b902b1a4e3d2396d472c5b63",
+        "f5a473b285b528f02dfd7ef0e69288a8ddae96cdd5bc265bf0c06f8227172612",
+        "4a31d914370c8448a9d22136127d5fc0ebc9e24f426d27a76a6b248864a29303",
+        "fb91c5a6dd871971b2362e4caf2f508082252e18b91159c0d7ff3ec6a36fd692",
+        "c7b4a4073481da4663a4a8e302dabaec1c30a629ff3a293a1f0a4e2857d06bde"
       ],
-      "source_sha256": "0c75ff80072169ee26800f9503fff30fcc766bf8df866168b0a18fe88f891971",
-      "text": "写一个 matplotlib 字符作为包。 返回文件夹。\n\n一个没有食谱的数字仍然得到每个文件 - 统计数据说没有什么可以比较,因为一个缺席的文件会被视为错误。",
+      "source_sha256": "e55bc3d26931994ed734c5026a87138646b72a59cf427c8ed5cbaf9e02e9c932",
+      "text": "出口 Matplotlib 数字与其来源数据和统计数据。\n\n组定义来自附带的复制食谱,因此统计比较与显示的数字相匹配。当没有食谱可用时,标准文件仍然是写的,统计文档记录,没有比较可以形成。\n\n:param figure: Matplotlib 数字出口。\n:param folder: 目的地目录为包装。\n:param name: 创建的文件的可选基础名称。\n:returns: 通往书面包目录的路径。",
       "translation_source_blocks_sha256": [
-        "9ca4f6e3c03eb44d6a3deb5da3a73a8cc028c5fe11ec93cb0a17e47c442ed3b5",
-        "9047b33671b26a87e9469f1f69368b775587f9dfaf7583d9b6f46e5befcf8158"
+        "5a362dac2e2d6e359d94105925036c996f826a4987de0b8a0c27e94fd6d4bbe3",
+        "6b1c0ed0acb6c182cfa8d006a2edf35deecb03e0b902b1a4e3d2396d472c5b63",
+        "f5a473b285b528f02dfd7ef0e69288a8ddae96cdd5bc265bf0c06f8227172612",
+        "4a31d914370c8448a9d22136127d5fc0ebc9e24f426d27a76a6b248864a29303",
+        "fb91c5a6dd871971b2362e4caf2f508082252e18b91159c0d7ff3ec6a36fd692",
+        "c7b4a4073481da4663a4a8e302dabaec1c30a629ff3a293a1f0a4e2857d06bde"
       ]
     },
     "spacr.qt.widgets.figure_settings.save_graph_style": {
@@ -89230,6 +89250,118 @@
       "translation_source_blocks_sha256": [
         "cafd17427723f1b983c0b7d39564c15ce460199ab12768b433ff3692a4eacfba",
         "e7638a4c88426da8b5ee9dacf1b6139de3de9885f895e159568738da47196342"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot": {
+      "source_blocks_sha256": [
+        "836043c08e8dde095c3ee198cfefe73ddb35526d1d9ccb8c54f7041e4b0ab42e",
+        "d7adcb8ab1bea24e17bfc79f14ef10cb68f0aa3543040f11a99757677dd0cbc8"
+      ],
+      "source_sha256": "ec12ca0485068edc2abc4ea02c9e024f90920114bc0089e133a00a1cdef6bbbd",
+      "text": "Render 数据支持的集体比较与可交换的图形类型。\n\n:class:`PlotSpec` 保留源框、组和值列、观察单元和所选择的图形类型. 保存这些数据允许 widget 重新绘制兼容的图表类型并将图像与其源行和统计比较一起出口。",
+      "translation_source_blocks_sha256": [
+        "836043c08e8dde095c3ee198cfefe73ddb35526d1d9ccb8c54f7041e4b0ab42e",
+        "d7adcb8ab1bea24e17bfc79f14ef10cb68f0aa3543040f11a99757677dd0cbc8"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.GroupedPlot": {
+      "source_blocks_sha256": [
+        "29acd5cdce42cf091df9894fa911973b3547124aa5c78495e963388038df9ebf",
+        "42c57662519177b70a817ee9735596ffcd46d1240f038655365c3e46bf48e3bf"
+      ],
+      "source_sha256": "9a40941bed717bf71ac53bd0bb3c0ba096f3bb2b5191458da84df1bb3d5ba61c",
+      "text": "一个 :class:`PlotSpec` 的 pyqtgraph 字符串,可以像任何类型一样重复。\n\n:ivar spec: 什么是引导. 通过 :meth:`show_spec` 分配。",
+      "translation_source_blocks_sha256": [
+        "29acd5cdce42cf091df9894fa911973b3547124aa5c78495e963388038df9ebf",
+        "42c57662519177b70a817ee9735596ffcd46d1240f038655365c3e46bf48e3bf"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.GroupedPlot.comparison_groups": {
+      "source_blocks_sha256": [
+        "88486dd4ee6edd3ee3da67eaf4217a303427cc8445902b88d11eb2c687136e6f",
+        "22b6c74f5275ea73d80940f4051356586dfa45e5099ae530f39c8e1973f8b7a2"
+      ],
+      "source_sha256": "5cb5971db318b77e8a6b45388809819c1b336dd0fae62b68a1b96d9c942be739",
+      "text": "返回出口时间统计比较的集体值。\n\n返回 ``None`` 除非保留的规格至少包含两组。",
+      "translation_source_blocks_sha256": [
+        "88486dd4ee6edd3ee3da67eaf4217a303427cc8445902b88d11eb2c687136e6f",
+        "22b6c74f5275ea73d80940f4051356586dfa45e5099ae530f39c8e1973f8b7a2"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.GroupedPlot.frame": {
+      "source_blocks_sha256": [
+        "1ebfd766c5240ef44f480ec3ab590fd4c1f15f9bdb6d1545983c1070d3d5926b"
+      ],
+      "source_sha256": "1ebfd766c5240ef44f480ec3ab590fd4c1f15f9bdb6d1545983c1070d3d5926b",
+      "text": "返回出口的源行为 ``data.csv``。",
+      "translation_source_blocks_sha256": [
+        "1ebfd766c5240ef44f480ec3ab590fd4c1f15f9bdb6d1545983c1070d3d5926b"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.GroupedPlot.show_as": {
+      "source_blocks_sha256": [
+        "20472c556a54b6cd2b31d611e2d775b092af5f44d2d8efa7887592b1047f374a",
+        "8c0091246ee0fecd0cfe46038e707ce50d9ad8d4a68e7a76bce549e07e2eeb33"
+      ],
+      "source_sha256": "de6737f51daed123276c7020379b7dd59cf4948f1118cf9200ccfb4d045f6a8e",
+      "text": "使用图形类型 ``kind`` 恢复保存的数据。\n\n:raises ValueError: 在某种程度上,这些数据无法支持,绘制它否则会意味着与可用的数据形式不支持的关系。",
+      "translation_source_blocks_sha256": [
+        "20472c556a54b6cd2b31d611e2d775b092af5f44d2d8efa7887592b1047f374a",
+        "8c0091246ee0fecd0cfe46038e707ce50d9ad8d4a68e7a76bce549e07e2eeb33"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.GroupedPlot.show_spec": {
+      "source_blocks_sha256": [
+        "30fe6b01ee11b6964873a79c2c6b0199854b830c9537b84afbabd2aaafb8f839"
+      ],
+      "source_sha256": "30fe6b01ee11b6964873a79c2c6b0199854b830c9537b84afbabd2aaafb8f839",
+      "text": "绘制 ``spec``. 返回绘制的组数。",
+      "translation_source_blocks_sha256": [
+        "30fe6b01ee11b6964873a79c2c6b0199854b830c9537b84afbabd2aaafb8f839"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.PlotSpec": {
+      "source_blocks_sha256": [
+        "378f3994a88e90bda2043e5fbc4f417ea89a6927c8adf0650bcf2cc61eba455f",
+        "08fa51e5a5908497cb51a7a9b85a16dc6a7f0a54601a2921989667794978bd18"
+      ],
+      "source_sha256": "dc98dffa80578da0bc985dff68497d058f52ec76be3027522ced7998ea03ba30",
+      "text": "数据和显示数据需要进行组合图。\n\n保留的框架支持图形类型兼容性检查、重新绘制、数据出口和统计比较,而无需重新构建图形的图形。",
+      "translation_source_blocks_sha256": [
+        "378f3994a88e90bda2043e5fbc4f417ea89a6927c8adf0650bcf2cc61eba455f",
+        "08fa51e5a5908497cb51a7a9b85a16dc6a7f0a54601a2921989667794978bd18"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.PlotSpec.default_kind": {
+      "source_blocks_sha256": [
+        "5602484c183dd514ed8ff86517e5abbe6d1617bbe675c2f26556e174e3a69b54"
+      ],
+      "source_sha256": "5602484c183dd514ed8ff86517e5abbe6d1617bbe675c2f26556e174e3a69b54",
+      "text": "这些数据出生为什么,当没有类型被命名。",
+      "translation_source_blocks_sha256": [
+        "5602484c183dd514ed8ff86517e5abbe6d1617bbe675c2f26556e174e3a69b54"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.PlotSpec.groups": {
+      "source_blocks_sha256": [
+        "aec0278988ac67af6738f59fa90c3a0194df75ed34fe5b5d33416013a25c1dcd",
+        "d6f44a2933a3f7d39b392318acdc9d5d1e5c3a053952708258e95812119e09e9"
+      ],
+      "source_sha256": "b8dc06648aee463b4d6b8eb47b3e17f546f23111610f201b688973e82fcf6d78",
+      "text": "返回 ``{label: values}`` 同时保持框架顺序。\n\n保留第一次出现,故意命令的实验条件,包括控制,在其配置的显示顺序。",
+      "translation_source_blocks_sha256": [
+        "aec0278988ac67af6738f59fa90c3a0194df75ed34fe5b5d33416013a25c1dcd",
+        "d6f44a2933a3f7d39b392318acdc9d5d1e5c3a053952708258e95812119e09e9"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.PlotSpec.shape": {
+      "source_blocks_sha256": [
+        "9c47bfb57a6ee3ebceecd31440931791db14faa1dc9a13c7f2ffcf959e4c6f1e"
+      ],
+      "source_sha256": "9c47bfb57a6ee3ebceecd31440931791db14faa1dc9a13c7f2ffcf959e4c6f1e",
+      "text": "数据形式,决定哪种类型适合。",
+      "translation_source_blocks_sha256": [
+        "9c47bfb57a6ee3ebceecd31440931791db14faa1dc9a13c7f2ffcf959e4c6f1e"
       ]
     },
     "spacr.qt.widgets.home": {
@@ -97311,20 +97443,14 @@
     },
     "spacr.qt.widgets.setup_slides": {
       "source_blocks_sha256": [
-        "59f7912bea64c9b26b828bc2a823231af3855c52cc8e07d45273db6aa529b562",
-        "d6ba6cff1cc6682b7b978041e8cd5937ccd81d7ddfddb1bd0da3662c7f335611",
-        "543facc840fd6c7829dfcba82cd2820e5e48c183338e3860b3981f82f06cc738",
-        "af9bd9d7d67d2c78cecb051079ad113ccb5492e77c86ffe336a2bfbcb3815096",
-        "8bd3d25de9e8e5cf45b1723408144612331fd2fea056f64fde8a545546906460"
+        "83593fa228c74b4e408a4b5b5499752bebc1bd4801b3561ed10ff881dd95ae09",
+        "114c29b4348bd362e34fca44c1b5f2cc5e10da0e53f07e909809eb61494415ff"
       ],
-      "source_sha256": "62b2fa34cfa6eafabb70b0096dff9852aef3c15fb7a9c7d07e8a7953eb797dd5",
-      "text": "第一次运行设置作为幻灯片的序列(指示234)。\n\n    “我想要一个问题,每张幻灯片,有点扩展......然后一个筛选,只是说Done......它应该感觉像一个顺利的过渡到 spacr”\n\n一个幻灯片问了一件事,有空间告诉你为什么重要,这是一个筛选的人填满和一个他们阅读之间的区别。\n\n221的模型 - `spacr.qt.setup_screen`,其偏见和持久性 - 是不可改变的,仍然是唯一写出偏好的东西;所改变的是完全介绍。\n\nINVARIANTS 10 THROUGHOUT:RIM动画,斯特拉和布尔都是装饰,如果没有它们可以被拖动,幻灯片仍然工作,仍然写出相同的答案,而测试表明,而不是假设它。",
+      "source_sha256": "9328565a1b55fe717a19f7d12d17afeb8b5e2e61ec4d0b1306f8c77ef337098e",
+      "text": "提供第一行偏好作为解释选项的短序列。\n\n每个幻灯片都包含一个偏好组,并通过现有的设置模型写作。 动画背景、透明卡和指标响应边界是装饰性的; 偏好编辑和持久性仍然可用,当这些效果无法实现时。",
       "translation_source_blocks_sha256": [
-        "59f7912bea64c9b26b828bc2a823231af3855c52cc8e07d45273db6aa529b562",
-        "d6ba6cff1cc6682b7b978041e8cd5937ccd81d7ddfddb1bd0da3662c7f335611",
-        "543facc840fd6c7829dfcba82cd2820e5e48c183338e3860b3981f82f06cc738",
-        "af9bd9d7d67d2c78cecb051079ad113ccb5492e77c86ffe336a2bfbcb3815096",
-        "8bd3d25de9e8e5cf45b1723408144612331fd2fea056f64fde8a545546906460"
+        "83593fa228c74b4e408a4b5b5499752bebc1bd4801b3561ed10ff881dd95ae09",
+        "114c29b4348bd362e34fca44c1b5f2cc5e10da0e53f07e909809eb61494415ff"
       ]
     },
     "spacr.qt.widgets.setup_slides.SetupSlides": {
@@ -97413,14 +97539,14 @@
     },
     "spacr.qt.widgets.setup_slides.open_setup_if_needed": {
       "source_blocks_sha256": [
-        "bc00e426b8c8550066500d993775b6b200df2f41b3d18d9f250fee2169ae06b1",
-        "4628e82a5b9368a3262f277aba7002897b90a05c543c94d709b4d5021a728ba5"
+        "936cb3c5c3784e8c37bbe2cb8f75efd4b4b65bf11513a721f7ad1b60c2357536",
+        "533729d3973e27be0f91c7f9efe41c66de9123518eabdaca9b14a2dbf1bcfea2"
       ],
-      "source_sha256": "fee91694dadebb94b97c19e2b696e02e278635ec0d2d7c47cb34b96795924330",
-      "text": "显示设置幻灯片,如果它们没有得到回复。\n\n广播公司不会决定什么 -- `should_open`做,从录制的版本. 一个筛选,每个呼叫器为自己打开,是一个,在一个启动上出现两次,而从来没有在另一个。",
+      "source_sha256": "39339dd2fed00f1441e06c1772af330e7cc21b2e69a180bd4ff45f8f673ea351",
+      "text": "显示设置幻灯片,当记录的设置状态要求它们时。\n\n中央检查 :func:`spacr.qt.setup_screen.should_open` 阻止独立呼叫者在一次启动期间开启双重对话。",
       "translation_source_blocks_sha256": [
-        "bc00e426b8c8550066500d993775b6b200df2f41b3d18d9f250fee2169ae06b1",
-        "4628e82a5b9368a3262f277aba7002897b90a05c543c94d709b4d5021a728ba5"
+        "936cb3c5c3784e8c37bbe2cb8f75efd4b4b65bf11513a721f7ad1b60c2357536",
+        "533729d3973e27be0f91c7f9efe41c66de9123518eabdaca9b14a2dbf1bcfea2"
       ]
     },
     "spacr.qt.widgets.sweep_panel": {
@@ -105918,29 +106044,29 @@
     },
     "spacr.run_recommendations.format_recommendations": {
       "source_blocks_sha256": [
-        "94d7c5d065897ab9ee8d7b833f0b1b56c3f5c1a4d230fb76a5d009b4546c9c80",
-        "5023596fc71d826fc4976b1050c22f7886830b8bb00994a382e9ec7dbf334a6e"
+        "7de5317a1ceb1305b2fb29647f3168b8ea33681eb4eb165db0cba06d6dbd243e",
+        "ebd9a809f6261e8eff3bf06ea46ed0727447eafbca4eedc47f69d36b027310af"
       ],
-      "source_sha256": "594412b9096e1521862e693e3ab1cac162ecbe6ae2bd0e2d5b6f908f5e252b36",
-      "text": "部分如它出现在总结的结尾。\n\nAN EMPTY SECTION SAYS SO. Its absence would read as a bug, and \"every check passed\" is a result worth stating rather than implying by silence.",
+      "source_sha256": "965dafcc30f90d9a237ad86bbb731000998f086db7c46e2285d2e3c6bdce0305",
+      "text": "编写建议,以完成一个运行总结。\n\n一个空入口是显而易见的,因此没有建议的完成检查可以从缺失的结果中区分出来。",
       "translation_source_blocks_sha256": [
-        "94d7c5d065897ab9ee8d7b833f0b1b56c3f5c1a4d230fb76a5d009b4546c9c80",
-        "5023596fc71d826fc4976b1050c22f7886830b8bb00994a382e9ec7dbf334a6e"
+        "7de5317a1ceb1305b2fb29647f3168b8ea33681eb4eb165db0cba06d6dbd243e",
+        "ebd9a809f6261e8eff3bf06ea46ed0727447eafbca4eedc47f69d36b027310af"
       ]
     },
     "spacr.run_recommendations.recommend": {
       "source_blocks_sha256": [
         "f7ab26ea65b09a07163a7026157b71c0588af9f7d60d728262d56dbb44a039bf",
         "4f90c9043cbd6f48e0149d9c6913144874a9f989b28ca8e6caa8fbb5d77bd736",
-        "91222ceae062e34f6225c0f9496797dca33fc88a29cd494f5e92b47c1d2cdf7e",
+        "f2e3a9f9f8d161f972bcd176f230b27d7d4110d2fd1dd9a758f64adc7c967b8f",
         "e4f2bed9658d4584346676aa2d4792e1cf9ed0af6f7dddc6e6f7ab65a239ad56"
       ],
-      "source_sha256": "a6dd2f6fc40fbabd4091a8722e19631ca50012c5f78436f31e32b9aa2921caeb",
-      "text": "来自一个测量的诊断的推荐。\n\n:param diagnostics: 计算的数字是 QC。\n:param settings: 使用的是什么,所以已经采取的建议不再提供。 告诉某个时候做他们所说的事情是如何一个建议部分接到某个人民船。\n:returns: 投射的建议,阻止他们首先。",
+      "source_sha256": "d858cb71683cde3d13d499bd88c8233b200da6c14f46c1006568dfefaf4ca109",
+      "text": "来自一个测量的诊断的推荐。\n\n:param diagnostics: 计算的数字是 QC。\n:param settings: 处理会议所使用的设置 已满足这些值的建议被忽略。\n:returns: 投射的建议,阻止他们首先。",
       "translation_source_blocks_sha256": [
         "f7ab26ea65b09a07163a7026157b71c0588af9f7d60d728262d56dbb44a039bf",
         "4f90c9043cbd6f48e0149d9c6913144874a9f989b28ca8e6caa8fbb5d77bd736",
-        "91222ceae062e34f6225c0f9496797dca33fc88a29cd494f5e92b47c1d2cdf7e",
+        "e4a8353d0294c30996c1d688ceb4d782d2e1f284e51443b9e7f6cd5d3758c326",
         "e4f2bed9658d4584346676aa2d4792e1cf9ed0af6f7dddc6e6f7ab65a239ad56"
       ]
     },
@@ -113448,7 +113574,7 @@
         "70ccd2f03a8357b08e61c91eb9df0ad5f22e594936ad51bbbfb7d5fb27503d66"
       ],
       "source_sha256": "28d2a9dc3e6affc77828f74b1e0245b7284f717707f540f528ffa97ab30aab7f",
-      "text": "写出通过保存选项表描述的提取图像区域。\n\n每个合并的显微镜视野被加载一次,并在前进之前提取所有从显微镜视野中选择的对象。\n\n参数\n----------\nselection : pandas.DataFrame Selection produced by :func:`build_selection`. merged_folder : str Directory containing merged ``.npy`` arrays. dst : str Destination for split-specific crop directories. channel_arrays : sequence of int, default=(0, 1, 2) Image channels to retain. mask_index : int, optional Mask plane index. The final plane is used when omitted. bounding_box : bool, default=True Whether crops retain every pixel in the object bounding box. crop_mode : str, default=\"cell\" Object type used for crop naming. write : callable, optional Function accepting ``(path, array)``. The default writes NumPy arrays.\n\n返回\n-------\n关键值地图 编写和错过的图像区域计算,处理的显微镜字段视图计算,目的地文件夹和显微镜字段观图问题。",
+      "text": "写出通过保存选项表描述的提取图像区域。\n\n每个合并的显微镜视野被加载一次,并在前进之前提取所有从显微镜视野中选择的对象。\n\n参数\n----------\nselection : pandas.DataFrame 由 :func:`build_selection` 生成的选择结果。 merged_folder : str 包含合并 ``.npy`` 数组的目录。 dst : str 按数据拆分保存裁剪图像的目标目录。 channel_arrays : sequence of int, default=(0, 1, 2) 要保留的图像通道。 mask_index : int, optional 掩膜平面索引；省略时使用最后一个平面。 bounding_box : bool, default=True 是否保留对象边界框中的所有像素。 crop_mode : str, default=\"cell\" 用于裁剪命名的对象类型。 write : callable, optional 接受 ``(path, array)`` 的函数；默认写入 NumPy 数组。\n\n返回\n-------\n关键值地图 编写和错过的图像区域计算,处理的显微镜字段视图计算,目的地文件夹和显微镜字段观图问题。",
       "translation_source_blocks_sha256": [
         "293c6f618a60efd3262e14fe6d9bdbeb156bb944c1747c9fa1e7e25f3716710f",
         "eda6893d4c9b7ed1ea3b8ebf206118e753be894c07c32576a4dd7be3b51c7c36",
@@ -114032,26 +114158,26 @@
     },
     "spacr.sudoku.SudokuResult": {
       "source_blocks_sha256": [
-        "259961c60b0a260dc8d90924ad0a02c1f27daeb1d4a3f78579e3f27ecfc5d4df",
-        "b133cb63caf150909107fbdda390ce582730020f52d586f39d752a010b3b84b7",
-        "80527d2b3d77943e3caa8b9283999d0a9f9f2053c69c7b78825fbb5ef1c71bdd",
-        "125fe5ffa550f064b7e959b6c49ac86a94e7253b4c755fda02fe4f9dd96eaa33",
-        "0ba7c441293ede3a909873f64ea7273f3bd5cfc5c212cb0c94634526840f948f",
+        "d9284ef5bcd7bfea85f2d2329d0ab8d3bf456084a3a592bb3c9a568e1f0d88d7",
+        "7124a0dc2fd2578db7688f06e9d04b4632c44a19142d6b54666e251a5f4ebda7",
+        "a38fa0e721d25346f415c3f2aaee2191b452b77a8e8541250c1392262cefd13f",
+        "8cbd90aca0dc570bca4c05ababc7c43f190a7dc69ff49aa23025dd131392d487",
+        "060df21c36f9993274fa4ac923ec580fad6e391d84b4138341e53b1dd28098b7",
         "aee5d6ead903cfdd1faf6431bb03a5ee306d4a7fd7ebf8a48d648e47780bd18c",
         "8e0e840760dd542656a1e3fcdf2f7203a4d6f56c2c9d7f043cd51571a794db7b",
-        "ca6a433c0d92112bad90a52cff1cb398ed4c5bb6d02a18cb4eac2bfad2f734e6"
+        "d0df92a521cce19f8e16a5490171f6b5b82416056ba6eba0026402fe22dd8e4a"
       ],
-      "source_sha256": "595ce16b97d003e41144db061fba8aaddf4e1e6cad4a7ed4d5d1c763201a909c",
-      "text": "苏多库得出的结论,两分都分开了。\n\n:ivar guides: 每个细胞的一个名称,细胞到达的顺序,或:data:`ABSTAIN`。\n:ivar affirm: ``(n_cells, n_guides)`` - - 每个单元格看起来有多像每个参考线的锚点。\n:ivar eliminate: ``(n_cells, n_guides)`` - 它看起来像什么 ELSE。 以目的分开: \"probably not this guide\" 和 \"probably this guide\" 是不同的要求,一个细胞可以低于两者,这就是细胞值得一看。 一个单一的比例地图与相同值的细胞,在两者都很高。\n:ivar reach: ``(n_cells,)`` - 到达的总轴重量。 低距离是第四个四角形:与任何引导 RNA不同。\n:ivar posterior: ``(n_cells, n_guides)`` 微板样品位置限制后。\n:ivar names: 引导 RNA名称,在列顺序的矩阵。\n:ivar report: 计算和设置,为记录。",
+      "source_sha256": "6bd46376eb25a040a8f7492e365430ae6fe0cf7918ffd38456ff82394cfbdd91",
+      "text": "细胞级引导 RNA任务及其单独的证据组成部分。\n\n:ivar guides: 每个输入单元格的引导 RNA名称,或 :data:`ABSTAIN`。\n:ivar affirm: ``(n_cells, n_guides)`` 从每个引导 RNA的 anchors 支持。\n:ivar eliminate: ``(n_cells, n_guides)`` 来自竞争对手的支持。 保持此与 ``affirm`` 分开,区分双重细胞与任何 anchor 人口不支持的细胞。\n:ivar reach: ``(n_cells,)`` 总扩散的 anchor 质量。\n:ivar posterior: ``(n_cells, n_guides)`` 微板样品位置限制后。\n:ivar names: 引导 RNA名称,在列顺序的矩阵。\n:ivar report: 任命计算、设置和诊断警告。",
       "translation_source_blocks_sha256": [
-        "259961c60b0a260dc8d90924ad0a02c1f27daeb1d4a3f78579e3f27ecfc5d4df",
-        "b133cb63caf150909107fbdda390ce582730020f52d586f39d752a010b3b84b7",
-        "80527d2b3d77943e3caa8b9283999d0a9f9f2053c69c7b78825fbb5ef1c71bdd",
-        "125fe5ffa550f064b7e959b6c49ac86a94e7253b4c755fda02fe4f9dd96eaa33",
-        "0ba7c441293ede3a909873f64ea7273f3bd5cfc5c212cb0c94634526840f948f",
+        "d9284ef5bcd7bfea85f2d2329d0ab8d3bf456084a3a592bb3c9a568e1f0d88d7",
+        "7124a0dc2fd2578db7688f06e9d04b4632c44a19142d6b54666e251a5f4ebda7",
+        "a38fa0e721d25346f415c3f2aaee2191b452b77a8e8541250c1392262cefd13f",
+        "8cbd90aca0dc570bca4c05ababc7c43f190a7dc69ff49aa23025dd131392d487",
+        "060df21c36f9993274fa4ac923ec580fad6e391d84b4138341e53b1dd28098b7",
         "88c3b9b3414b7a1e7b0098e88b361962c63ddd35c46ffd58aa9da65cb164312c",
         "8e0e840760dd542656a1e3fcdf2f7203a4d6f56c2c9d7f043cd51571a794db7b",
-        "ca6a433c0d92112bad90a52cff1cb398ed4c5bb6d02a18cb4eac2bfad2f734e6"
+        "d0df92a521cce19f8e16a5490171f6b5b82416056ba6eba0026402fe22dd8e4a"
       ]
     },
     "spacr.sudoku.SudokuResult.abstained": {
@@ -114081,37 +114207,37 @@
         "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
         "eb6d1129a7427ddaac6242fac73e735fe733bb3c770b45a89c0fedcec718c51d",
         "33383acbfc2b22043321abda95fd91eab8de7cd2ce40806283ead68ecefcb8fb",
-        "6f58baeeba7bf761cddba3fc7a9d693dad9dece10a419590c02167dee6f6f3e9",
-        "87ab4bf6db33ed4b547f6f3df1f084aa38a3e9c85e5a0b1c7d2cee3a73823198",
+        "9fc4ad659add555c5826011406b96a6a69466e7ec818cf8c9a1a810476d47f54",
+        "454fd6ae910e47f023bd623ef1b950cc8f1b12629cd1733a19814a1845346177",
         "f64250843e1ee6f51bcf8a430ab51b081928e528c11d97c4532dd21f8b5d1fb2",
-        "e096de447ddbc931a4db8907de22c8f52bb4f7bde626b5be68c540a94a63c30d"
+        "5da0f1e7b6e38632fbf33f5db59fda31183237b8587208c6322fd2b0be59cac2"
       ],
-      "source_sha256": "d984295d47b2d4a9e29b9c4a8edd224f35ecd5021380b0428dec1e3ba74bac07",
-      "text": "细胞的指数作为几乎确定的例子 ``guide``。\n\n:param wells: 每个细胞一个微板样本位置标签。\n:param fractions: ``{well: {guide: fraction}}``.\n:param scores: 每个细胞的分类分数。\n:param quantile: 锚点孔内,采集单元格所在的得分分位数。\n:param min_fraction: 只使用导板至少为此份额的微型板样品位置。 目的:在一个微板样品位置中,引物占读数的70 %, 得分最高的细胞很可能就是该引物。 位置为 5% 的微型板样本位置中,它可能不是,从此类微型片样本的位置构建的锚点集会将错误的形状传递给图形。\n:param max_per_well: 一个帽子,所以一个巨大的好不能自定义引导 RNA的外观。\n:returns: 细胞指数,可能是空的。\n\nWHERE 是循环输入,它是故意输入的. 它们是由分数选择的,所以一个从分数单独构建的个人资料会说“一个 `g` 细胞具有高分数” - 是由构建和无价值的。 :func:`sudoku` 因此,从图表功能中排除分数默认。",
+      "source_sha256": "d37bdf31ead22b4030243e76c0a9b530ef3d0ff211dfceeedbbc4f298e0eb254",
+      "text": "细胞的指数作为几乎确定的例子 ``guide``。\n\n:param wells: 每个细胞一个微板样本位置标签。\n:param fractions: ``{well: {guide: fraction}}``.\n:param scores: 每个细胞的分类分数。\n:param quantile: 锚点孔内,采集单元格所在的得分分位数。\n:param min_fraction: 一个微板样本位置的最小序列分,以便有助于 anchors。 这限制了 anchor 选择到微板样本位置,其中一个高色细胞可靠地与引导 RNA相关联。\n:param max_per_well: 最大轴承由一个微板样本位置提供。\n:returns: 细胞指数,可能是空的。\n\n为了避免循环结论, :func:`sudoku` 默认排除图表特征的分数; 细胞形态然后确定扩散超越 anchors。",
       "translation_source_blocks_sha256": [
         "7d95102aa928905030ec5ff146531d6f498bdcb85547288a97f4d286765c677d",
         "c0467ab89b7b6826cc65ed13aa61d4446f461fe4b6fafd4aa5e161c994e19a03",
         "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
         "eb6d1129a7427ddaac6242fac73e735fe733bb3c770b45a89c0fedcec718c51d",
         "33383acbfc2b22043321abda95fd91eab8de7cd2ce40806283ead68ecefcb8fb",
-        "d0b92b598a796eedcf8f217ba477cf795c0eb1842bfbfa2e00a95e8d3fa4d2a7",
-        "87ab4bf6db33ed4b547f6f3df1f084aa38a3e9c85e5a0b1c7d2cee3a73823198",
+        "0f876f164e6a31ce9dbdc6be33335b5691437ba863a48ee52b44b135e4c6ad65",
+        "20f55e3f73a48c3e80b76929bac0a93c1ceee2425e995267fff56f8c7a14151e",
         "f64250843e1ee6f51bcf8a430ab51b081928e528c11d97c4532dd21f8b5d1fb2",
-        "e096de447ddbc931a4db8907de22c8f52bb4f7bde626b5be68c540a94a63c30d"
+        "6b7fb067f44cceef775d25e2f164a877868804d1d0c4ab7fb2eebc433c5e7241"
       ]
     },
     "spacr.sudoku.constrain_to_fractions": {
       "source_blocks_sha256": [
         "69cfa77b758c1b77ee9e7a2c0df6b168641fcf2a719b80ca21efb22353cad00f",
         "11bbd0d6d2dfdc5d3b3b820c1e772bac5f6ff65223fc6332475fd1aaee271433",
-        "9b5248d10e847ccf36b75c4786c0d076f262ebb081cc554d58b437fe4e1d96b0"
+        "dd6e55726281e559e5c5fd9722d3e004d7b4066489551825e3bd1292cd7c6430"
       ],
-      "source_sha256": "63a9ab6f61d3025ac4ece3a7a5d16d61fec4631278a0f79c9dd341a4375de19e",
-      "text": "将散布的大量投向数序列的含义。\n\n在每个微板样本位置内,将引导 RNA列规模为 ``pi_g * N_w`` 并将行列重定为 1 相替。 这是 iterative proportional fit - 相同的固定点 :func:`spacr.guide_attribution.posterior` 使用,在这里应用到图形宣传的证据而不是单维的概率。\n\n没有它,图表会幸运地给每个细胞在一个微板样本位置的任何引导 RNA有最多的轴承,因为没有什么会说一个微盘样本的位置只有那么多。",
+      "source_sha256": "0d17064e4e31d2ead777621e4c5ef302d315f5b5ff16e39990265a6e940fd3ae",
+      "text": "将散布的大量投向数序列的含义。\n\n在每个微板样本位置内,将引导 RNA列规模为 ``pi_g * N_w`` 并将行列重定为 1 相替。 这是 iterative proportional fit - 相同的固定点 :func:`spacr.guide_attribution.posterior` 使用,在这里应用到图形宣传的证据而不是单维的概率。\n\n序列限制阻止图表将每个细胞在微板样本位置分配到引导 RNA中,当序列仅支持该引导 RNA的一个有限的分数时,最大的 anchor 质量。",
       "translation_source_blocks_sha256": [
         "69cfa77b758c1b77ee9e7a2c0df6b168641fcf2a719b80ca21efb22353cad00f",
         "c6a2877eb39cb08d834dbff7acb390dbce2d08b211ca3547526c7529402df6fb",
-        "6ae2c2a3c91105f4a21f4a68514c88b2f90f0452e927efb7740772818709cb18"
+        "91da02d0365e5b18d0296aeaaabdec541acf57e796561539b71e82f1ad4aabf9"
       ]
     },
     "spacr.sudoku.propagate": {
@@ -114142,72 +114268,76 @@
     },
     "spacr.sudoku.similarity_graph": {
       "source_blocks_sha256": [
-        "c9871a550ffd5d21ea05091e57f74828c59fc9b2f6c745898c57468fe3c4c4b4",
+        "c242bf899774f6ac0d0b5dbae2e588b2ccd47aa502fdb86792b4b15c43926ce9",
         "ba3bb25058b7e01078e1f18c0897e076359041e9b2df27603f6937a63319a65c",
-        "cf4cdd0174f724805681f17b68510a5d342eea4c43a621935a9539622433015f",
-        "cbd75f91a86f44ace476fa41a7558bd0285c1bb5f3433e3ce6f94729b4c91ef7",
-        "29ebd8819b449b41120ade352b913de2e7fae5e1115f86b0d9099bd92890b474",
-        "411e5b5577d51c97d922269d13384e35843ad0675d795083073ffa61751af267"
+        "6b0bea6610214e309431c5ae0c5893b52badd3fd73e13caf9339868a6aa8a0e1",
+        "89c4fdbbc2d4e608837929127b504c8372191b8e0d454bf55b13f0856f2d833c",
+        "11eefbccfd5dace7419e6d4d086bd2f688453f4557210c9ea650f993ece1b3c5",
+        "c78d1be8c0cf52d1072f8cf197e0160ac6f15d82553d43f8253c4599851984af"
       ],
-      "source_sha256": "fc07a926a49d4cfec0cee8b5f3f6a52eeaf2eb4f5e05b5bbf27a22e2ce0270ac",
-      "text": "对细胞的相同性 k - 最接近的亲密性。\n\n:param features: ``(n_cells, n_features)``,在这里标准化。\n:param neighbours: k.\n:param mutual: 保持一个边缘只有在BOTH细胞列出另一个。 一个平坦的 kNN 图表给了一个外部 k 边缘它没有赚钱 - 它必须有某些最接近的邻居 - 标签质量然后流入细胞,看起来不像什么。 相互 kNN 允许一个外端没有任何边缘,这是诚实的答案,这是 :attr:`SudokuResult.reach` 报告。\n:returns: 与零 diagonal 相连的 CSR 相似之处。\n\n重量是温度核心具有一个自我调节尺寸:每个细胞与其周边的旋转距离。 一个全球的西格玛假设云有一个密度,而筛选的细胞没有 - 一个密集的健康人口除了一个分裂的死亡一个得到或没有边缘在分裂区域或一个过于连接的密度一个。",
+      "source_sha256": "ec623cf3d37abef233396e9a6b10c610496b2556ca9773e37cf3e75632cf0733",
+      "text": "构建一个相似的 k - 最接近 - 邻近的细胞 - 相关性图表。\n\n:param features: ``(n_cells, n_features)``,在这里标准化。\n:param neighbours: 每个细胞中最接近的邻居的数量。\n:param mutual: 保持一个边缘只有当两个细胞相互识别为邻居时,这使孤立的外观者能够获得零接口,而不是接收强迫连接。\n:returns: CSR 属性矩阵与零直径。\n\n边缘重量使用一个温度核心,每个细胞与其周边的旋转距离所定义的局部规模,当地规模支持不同样品密度的人口。",
       "translation_source_blocks_sha256": [
-        "c9871a550ffd5d21ea05091e57f74828c59fc9b2f6c745898c57468fe3c4c4b4",
+        "c242bf899774f6ac0d0b5dbae2e588b2ccd47aa502fdb86792b4b15c43926ce9",
         "ba3bb25058b7e01078e1f18c0897e076359041e9b2df27603f6937a63319a65c",
-        "cf4cdd0174f724805681f17b68510a5d342eea4c43a621935a9539622433015f",
-        "cbd75f91a86f44ace476fa41a7558bd0285c1bb5f3433e3ce6f94729b4c91ef7",
-        "29ebd8819b449b41120ade352b913de2e7fae5e1115f86b0d9099bd92890b474",
-        "411e5b5577d51c97d922269d13384e35843ad0675d795083073ffa61751af267"
+        "6b0bea6610214e309431c5ae0c5893b52badd3fd73e13caf9339868a6aa8a0e1",
+        "89c4fdbbc2d4e608837929127b504c8372191b8e0d454bf55b13f0856f2d833c",
+        "11eefbccfd5dace7419e6d4d086bd2f688453f4557210c9ea650f993ece1b3c5",
+        "c78d1be8c0cf52d1072f8cf197e0160ac6f15d82553d43f8253c4599851984af"
       ]
     },
     "spacr.sudoku.sudoku": {
       "source_blocks_sha256": [
-        "9565fd87072a18706ea83f75aded36f448874f0ae4e09578fabd5644e0382455",
+        "77000659763f57fa1f500f58a56b71e0050431fae61617b761358e2b32cf728d",
         "d1c68c2d44b7928ca72b5af71fd02b75f04415dec889b7093db3ce7092a8e09c",
-        "b8fb34ca7ab0762b881ef5a04536f195f13adc8f3365036ebd82f0d98c53df65",
+        "799b8de714f983f73115cd2038bc09fe10a531fdc95b2fd68f0fbdbe7792bad0",
         "4e74a48dde732283c8bbd6fcdc368d9c610e80f18cf2e91ba720611dd97dd427",
         "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
-        "67fdbb17464bcd148b97766fc52d68279c5ea952e263a0dc4b764e975a40e688",
+        "8173cac1902037307894f7fbb0e56e1ee085500ec6103c674772171adea1e29c",
         "e5db01064629bc5c506f3ec56ead6109b227163fbd50841b5040227a6931e21e",
-        "9a0786d984efff1e26f0d5cb79497ad18d00d935127f3bd61951fa6cee3436f7",
+        "3a2270f21f846985c7cbe5791e9041f065b14b10e6953e8fa8db61b4a0e70425",
         "bb448ce3b066fb995254a78bb5161513381d0ffdadf22dbc87beb40d854672c6",
-        "2485395b525b7e370cd9e86447ae6fb393d3b5b02913fb4c7a6968b17fbde259",
-        "96b5593df006be77dbbee1e739b980b29f87747f42bac4c77656006a4a0f86e2"
+        "66de95662abaada9f85cb6bfa99ae59474386fa4aa6e40c3a6f8fe27725c35c8",
+        "d372db15e0ed540d4917252ae3da5c71207204e6815760a624c079b8abf1313a",
+        "c0c5400fd56c56272017da907234b7d4c61bc74c3081d4f20a8d528b368ce565",
+        "a7b3969fbd62ca315e9b553c6e65c9755000a0152864f1d829fc510d7140a80f",
+        "bdb3bd391ff55d6c1e975b7f332996580a5c310c3eac0bf97c4fbd929eff0cf1"
       ],
-      "source_sha256": "71817567844b193e55ca0d5f126229e61aa03c81c48f6dceff82e4961cab7c60",
-      "text": "记录每个细胞,在微板样本位置,两个分数保持分开。\n\n:param features: ``(n_cells, n_features)`` 细胞测量。\n:param scores: 单元格分类分数 - 用于 CHOOSE anchors,并且默认不作为图形功能。\n:param wells: 每个细胞一个微板样本位置标签。\n:param fractions: ``{well: {guide: fraction}}``.\n:param guides: 的引导 RNA来标注。 是用户的选择,而多个就是重点 : “ 用户可选择多个高分导航 ” 。\n:param anchors: 可选的明确指标指标,指标为 :func:`anchors_for`。\n:param use_score_as_feature: 把分类分数也放在图表中. **Off 默认情况下,这是一个准确的决定,而不是一个偏好**:按分数选择的 anchors,所以在分数上构建的图表将把每个高分数细胞放在每个引导 RNA的 anchor附近,并确认所有这些。\n:returns: 是:class:`SudokuResult`。\n\n四个出口,这就是为什么两个分数而不是一个:\n\n  确认高,排除低 - 确信这个引导 RNA确认低,清除高 - 确信 此引导 RNA不确信高,清理高 - 不分开的引导 RNA在这里确认较低,消除较低 - 不像每个 anchor:奇怪的细胞,而一个单一的比例隐藏,将其地图到相同的值,如上行。",
+      "source_sha256": "48ca7de1dac47a026fc6a0c51fc2ae1b2b4e272ceb331c370a666757d40d60f5",
+      "text": "将引导 RNA分配给细胞,同时单独保留竞争证据。\n\n:param features: ``(n_cells, n_features)`` 细胞测量。\n:param scores: 分类分数为单元格,用于选择 anchors,并且默认不作为图形功能。\n:param wells: 每个细胞一个微板样本位置标签。\n:param fractions: ``{well: {guide: fraction}}``.\n:param guides: 引导 RNA标识符要考虑任务。\n:param anchors: 可选的明确指标指标,指标为 :func:`anchors_for`。\n:param use_score_as_feature: 在图形功能中包含机器学习分类模型分数,因为分数也选择 anchors; 允许它输入圆形证据并记录在结果报告中。\n:returns: 是:class:`SudokuResult`。\n\n单独的支持和竞争标签的证据区分了四个结果:\n\n* 高支持,低竞争:信任任务;\n* 低支持,高竞争:自信排斥;\n* 高支持,高竞争:引导 RNA之间的双重性;\n* 低支持,低竞争:不受安克尔人口的支持。",
       "translation_source_blocks_sha256": [
-        "bb271fc5c5e8510d634b277435e17dc4dfc1742c142df9e42f38229b6e76c0b1",
+        "77000659763f57fa1f500f58a56b71e0050431fae61617b761358e2b32cf728d",
         "d1c68c2d44b7928ca72b5af71fd02b75f04415dec889b7093db3ce7092a8e09c",
-        "b8fb34ca7ab0762b881ef5a04536f195f13adc8f3365036ebd82f0d98c53df65",
+        "799b8de714f983f73115cd2038bc09fe10a531fdc95b2fd68f0fbdbe7792bad0",
         "c0467ab89b7b6826cc65ed13aa61d4446f461fe4b6fafd4aa5e161c994e19a03",
         "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
-        "67fdbb17464bcd148b97766fc52d68279c5ea952e263a0dc4b764e975a40e688",
+        "8173cac1902037307894f7fbb0e56e1ee085500ec6103c674772171adea1e29c",
         "e5db01064629bc5c506f3ec56ead6109b227163fbd50841b5040227a6931e21e",
-        "9a0786d984efff1e26f0d5cb79497ad18d00d935127f3bd61951fa6cee3436f7",
+        "437836f560d9213612c7a51e7eea06257007c797e0d0f82f11c177042fcd26b7",
         "bb448ce3b066fb995254a78bb5161513381d0ffdadf22dbc87beb40d854672c6",
-        "2485395b525b7e370cd9e86447ae6fb393d3b5b02913fb4c7a6968b17fbde259",
-        "96b5593df006be77dbbee1e739b980b29f87747f42bac4c77656006a4a0f86e2"
+        "66de95662abaada9f85cb6bfa99ae59474386fa4aa6e40c3a6f8fe27725c35c8",
+        "d372db15e0ed540d4917252ae3da5c71207204e6815760a624c079b8abf1313a",
+        "c0c5400fd56c56272017da907234b7d4c61bc74c3081d4f20a8d528b368ce565",
+        "a7b3969fbd62ca315e9b553c6e65c9755000a0152864f1d829fc510d7140a80f",
+        "bdb3bd391ff55d6c1e975b7f332996580a5c310c3eac0bf97c4fbd929eff0cf1"
       ]
     },
     "spacr.sudoku.sudoku_all": {
       "source_blocks_sha256": [
-        "810b655532d874a39399f11e67931d6211b319c107a7e6a6ef40e16fcd08a0ff",
+        "6cf743111111c8ac848205cdecd639414505e9fda0d6e691ec10823a2eebb333",
         "29ac08550b61f9b96e7fffd9817b6110583b059d63522cc50a50d13f28de4bdb",
-        "4d44af735702647f73491a4c8640a43ded90d040e176d8b772d91d9091191e8e",
+        "03a52d9271cbf4b5f4dbb3c9e56b2af42c26da25fc15a4b4ca5abf61f2781caa",
         "b9bac12fe498fa8e45c54ec7f754958812619f307e6742622428f682e99d42ed",
-        "3eadcaaf70d7abe0f4dabae2a1bf2a702b67597e7eec44da6682a174c9434634",
-        "06aba2aa8422f8b4869545c3b55f2cad954365e459ba71af351290dc947967a2"
+        "9401231904aa0bf1e645db70bece2e60156086bbf96ef8ffd1c42021590fc8a0"
       ],
-      "source_sha256": "79d15de126efcfa2e121b6c2ee25189b91c6b4f4822eb780836545c70a042034",
-      "text": "苏多库在每一个引导 RNA上,以信任的顺序,声称如往。\n\n:param ranking: ``[(guide, confidence)]`` 在下载处理顺序中,呼叫器定义了信任,例如通过结合效果大小和统计意义。\n:param max_guides: 一站,所以一个筛选有1500引导 RNA不会随机运行1500图形构建。\n:returns: 每个细胞都有一个:class:`SudokuResult`。\n\n每个轮子运行 :func:`sudoku` 为一个引导 RNA的细胞仍然不被要求,保持细胞它决定,并删除它们. 它停止,当一个轮子声称什么都没有 - 这是硬币的流动,达到而不是计算。\n\n命令是危险,报告带有所需的判断: `claimed_by_round`。 一个贪婪的方法早点完成,第一引导 RNA的错误由每一个后者继承,需要的细胞永远不会重新考虑。 一个打电话的人想知道这个问题有多大,这两次与被打扰的命令进行,并比较 - 这是:mod:`spacr.annotation_validation`所做的事情。",
+      "source_sha256": "c0b59d5aa89a06438fe9ec6483269fc2811893996c893d7c6835a21b0aec5102",
+      "text": "在下载信任顺序中分别分配指导方针。\n\n:param ranking: ``[(guide, confidence)]`` 在下载处理顺序中,呼叫器定义了信任,例如通过结合效果大小和统计意义。\n:param max_guides: 最多排序引导 RNA的数量进行处理。\n:returns: 每个细胞都有一个:class:`SudokuResult`。\n\n每个轮子都适用于 :func:`sudoku` 不被要求的细胞,并删除接受的任务. 处理停止时,一个轮子没有分配细胞. 因为这个可爱的程序是命令敏感, ``claimed_by_round`` 保持在报告中; :mod:`spacr.annotation_validation` 评估对排序敏感性。",
       "translation_source_blocks_sha256": [
-        "810b655532d874a39399f11e67931d6211b319c107a7e6a6ef40e16fcd08a0ff",
+        "6cf743111111c8ac848205cdecd639414505e9fda0d6e691ec10823a2eebb333",
         "29ac08550b61f9b96e7fffd9817b6110583b059d63522cc50a50d13f28de4bdb",
-        "4d44af735702647f73491a4c8640a43ded90d040e176d8b772d91d9091191e8e",
+        "03a52d9271cbf4b5f4dbb3c9e56b2af42c26da25fc15a4b4ca5abf61f2781caa",
         "b9bac12fe498fa8e45c54ec7f754958812619f307e6742622428f682e99d42ed",
-        "3eadcaaf70d7abe0f4dabae2a1bf2a702b67597e7eec44da6682a174c9434634",
-        "06aba2aa8422f8b4869545c3b55f2cad954365e459ba71af351290dc947967a2"
+        "9401231904aa0bf1e645db70bece2e60156086bbf96ef8ffd1c42021590fc8a0"
       ]
     },
     "spacr.surrogate": {

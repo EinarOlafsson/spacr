@@ -76029,14 +76029,14 @@
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.crop_count": {
       "source_blocks_sha256": [
-        "b119ee7b27b8f4d8b1287e0fa9c53cc3c476a2d39c0717bdf375d13adc6ee4c1",
-        "69f3f18375b6322447d7fa881bc2360f7e26a21fc439734f857a18955a0d4708"
+        "8c60c5784771b861707e83c600801fee83dc30eb0e90679a94af51ddfd3e5e85",
+        "3947acc874bc96c46be64cf354732d57286bc55f4000ee587f98b777d58a1f9c"
       ],
-      "source_sha256": "8ca9eaa77704ee8b8dbeac58418e3f63d3731527aa20c3874905182e8af7d02c",
-      "text": "कितनी छवियों को हटा दिया गया है, प्रत्येक पृष्ठ पर टैबों को बनाए रखें।\n\nनहीं `len(thumbnails())`, जो गिनती करता है कि क्या रेंडर किया जाता है - और निर्देश 211 के बाद से यह एक पृष्ठ है, पूरी तरह से ठीक नहीं. दोनों एक ही संख्या थी जब तक कि टैब पेज करना शुरू नहीं करते थे, और हर कॉलर जिसका मतलब था \"कितने वस्तुएं यहां हैं\" यह चाहता है।",
+      "source_sha256": "a15489a16b39f1fed1cd9240c163971a41517562c2b34e771dacddcd7349a504",
+      "text": "सभी टैब पृष्ठों पर रखे गए निकाले गए छवि क्षेत्रों की कुल संख्या वापस करें।\n\nयह ``len(thumbnails())`` से अलग है, जो वर्तमान में प्रदर्शित पृष्ठों पर केवल विजेटों की गिनती करता है।",
       "translation_source_blocks_sha256": [
-        "9096d2205a7d6d9b19ec4276280cee7c9feb2d45a19dcf3cf40d9fad267dc220",
-        "69f3f18375b6322447d7fa881bc2360f7e26a21fc439734f857a18955a0d4708"
+        "cb15dc4ee82907e90ca00e96977b217a8da9d8023be8390129be8787364c038d",
+        "3947acc874bc96c46be64cf354732d57286bc55f4000ee587f98b777d58a1f9c"
       ]
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.databases": {
@@ -76327,14 +76327,14 @@
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.thumbnails": {
       "source_blocks_sha256": [
-        "213ae028a55287c4c65dfd83ac5de01a3765bf86e6cfaefd9eb3a65fbe5d5799",
-        "7b5005e9377cfc1cda807c8f96a26cf9b8553bee14e8b7fb16dccb58520e51b7"
+        "2483fbbf7d213de530d7afc9471bd8a92903be575aa987fae2900d458fef4b15",
+        "135481b32e6fd5f3e68496ac5dca52404dcd99768ab6011c3f9dee440ce68d33"
       ],
-      "source_sha256": "6590580a999c9adc59a7e06e0239ad50a98e0657d8a50cdfd5e25481e6b1dff6",
-      "text": "प्रत्येक एप्लिकेशन विज़ुअल, प्रत्येक खुले अच्छी टैब के माध्यम से।\n\nअनुप्रयोग दृष्टि का मतलब वर्तमान पृष्ठ पर है। टैब में कितने वस्तुओं को रखने के लिए :meth:`crop_count` का उपयोग करें।",
+      "source_sha256": "ffa75d3629537287383e7391733aeaa3e8105ce35d2ead2d78fcd2e9c85d8472",
+      "text": "वर्तमान में प्रदर्शित टैब पृष्ठों पर दिखाई देने वाले छोटे टुकड़े लौटें।\n\n:meth:`crop_count` का उपयोग सभी अच्छे टैब पर रखे गए वस्तुओं की कुल संख्या प्राप्त करने के लिए करें, जिसमें पृष्ठ भी शामिल हैं जो प्रदर्शित नहीं होते हैं।",
       "translation_source_blocks_sha256": [
-        "ff5e60fb13502906df6e4ffabb366a5f9503c173b102a67cc91aaa331421d7d4",
-        "15a46b70f9a8f25bc4cbf2f872e163baebeefa7bc2a43fe34d0f66807de66285"
+        "2483fbbf7d213de530d7afc9471bd8a92903be575aa987fae2900d458fef4b15",
+        "135481b32e6fd5f3e68496ac5dca52404dcd99768ab6011c3f9dee440ce68d33"
       ]
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.well_tabs": {
@@ -81663,6 +81663,18 @@
         "ce9a6e97631ca1b5f4218767d999fbce2147862594d6acdbab134accebf7700f"
       ]
     },
+    "spacr.qt.widgets.fast_plots.FastPlot.graph_spec": {
+      "source_blocks_sha256": [
+        "3c6e4b7ba5659addf1b707a071d38df1a55e5cc1c971a0ea4cc922698668b81e",
+        "7f52b622bb2cdb18e025184a92453732386ed349fc9317f915c0c20033ffe635"
+      ],
+      "source_sha256": "4415173f0ec76aeef9af8f6bd00f34ae4f1b0fb89e412a3e18a81d0e70aa6c22",
+      "text": "इस स्क्रिप्ट को खींचने के लिए उपयोग किए गए डेटा विनिर्देश को वापस करें, यदि मौजूद है।\n\nएक विनिर्देश को बनाए रखने वाले स्लॉट को एक और संगत ग्राफिक्स प्रकार का उपयोग करके रड्राउंग किया जा सकता है. रेंडरिंग-केवल स्लॉल रिटर्न ``None``।",
+      "translation_source_blocks_sha256": [
+        "3c6e4b7ba5659addf1b707a071d38df1a55e5cc1c971a0ea4cc922698668b81e",
+        "7f52b622bb2cdb18e025184a92453732386ed349fc9317f915c0c20033ffe635"
+      ]
+    },
     "spacr.qt.widgets.fast_plots.FastPlot.grid_shown": {
       "source_blocks_sha256": [
         "a71cf52e99c0f47e3443d8db7eba6890583b38d14ddf2d48e0ccfa471183be6c"
@@ -82040,19 +82052,17 @@
     "spacr.qt.widgets.fast_plots.FastPlot.select_in_rect": {
       "source_blocks_sha256": [
         "4e6a4b667e2f4c91d7dbec5261ce4f7a3411341fdb13f1a0f125bdc3dfd3f8c6",
-        "84359973f7a72b073d136c2c9c9128ac2446e9a9c45a69a1f3c258722d6b8e59",
-        "f1c73babc8a370b2710cc3dbb716f89d4fb45ea8e31259d8ac52cc6f37bd8deb",
-        "4b34c5f289845fc6a161ed290b640b8d8ea03ede520faf3efe11673c7857a97f",
-        "90ef60f487cb3a22eae8ad466a7777e23abead169995210a366ca86fbcf2da9e"
+        "d83eaa2f297777e0d0e5c84d1f49797ac22ad80c355462c938be7ebf992e2145",
+        "0ac41a840e5e2132523486be8aa7157013cf04511a41efe806e56149fd1339eb",
+        "e4ccc06c216cc06b70d0a6d0255ff935d43d31371279c57588312b5e8a605c30"
       ],
-      "source_sha256": "8035b9f0b78585a56ce95caec5200ea5405d2206406541a8aa54dcb807b9beb1",
-      "text": "डेटा-कॉर्डिंग रेटिंग के अंदर प्रत्येक प्लॉट बिंदु का चयन करें।\n\nVOLCANO INVITES का प्रबंधन: दिलचस्प गाइड क्लाउड के एक कोने हैं, और उन्हें एक बार में एक क्लिक लेना यह काम है जो इसे प्रतिस्थापित करता है।\n\nबिंदु जिनके पास कोई खींचने की स्थिति नहीं है, वे किसी भी सीधे कोने में नहीं हैं - एक बैंड यह चुनता है कि यह स्पष्ट रूप से क्या बंद करता है, जो केवल पढ़ने के लिए है एक उपयोगकर्ता जांच कर सकता है।\n\n:param add: वर्तमान चयन का विस्तार करने के बजाय इसे प्रतिस्थापित करने के लिए, एक बैंड को संशोधक के साथ खींचने के लिए अभी भी नीचे है।\n:returns: बैंड के बाद, चयन के आदेश में।",
+      "source_sha256": "e419cef53e12de9d69245c3361dfa06357f765938045095062c2a09f289c270e",
+      "text": "डेटा-कॉर्डिंग रेटिंग के अंदर प्रत्येक प्लॉट बिंदु का चयन करें।\n\nनिहित स्थिति के बिना बिंदुओं का चयन नहीं किया जा सकता है. इसलिए, सीधे कोने का चयन सटीक रूप से प्रदान की गई सीमाओं द्वारा स्पष्ट रूप से बंद बिंदियों को शामिल करता है.\n\n:param add: इसे प्रतिस्थापित करने के बजाय वर्तमान चयन का विस्तार करें, जैसा कि जब चयन के दौरान एक संशोधक कुंजी रखी जाती है।\n:returns: चयन के आदेश में कुंजी चुनें।",
       "translation_source_blocks_sha256": [
         "4e6a4b667e2f4c91d7dbec5261ce4f7a3411341fdb13f1a0f125bdc3dfd3f8c6",
-        "84359973f7a72b073d136c2c9c9128ac2446e9a9c45a69a1f3c258722d6b8e59",
-        "f1c73babc8a370b2710cc3dbb716f89d4fb45ea8e31259d8ac52cc6f37bd8deb",
-        "4b34c5f289845fc6a161ed290b640b8d8ea03ede520faf3efe11673c7857a97f",
-        "90ef60f487cb3a22eae8ad466a7777e23abead169995210a366ca86fbcf2da9e"
+        "d83eaa2f297777e0d0e5c84d1f49797ac22ad80c355462c938be7ebf992e2145",
+        "0ac41a840e5e2132523486be8aa7157013cf04511a41efe806e56149fd1339eb",
+        "e4ccc06c216cc06b70d0a6d0255ff935d43d31371279c57588312b5e8a605c30"
       ]
     },
     "spacr.qt.widgets.fast_plots.FastPlot.selected_keys": {
@@ -82703,16 +82713,18 @@
     },
     "spacr.qt.widgets.fast_plots.ResultsTable.select_keys": {
       "source_blocks_sha256": [
-        "fc781b8aecfb2dcd793563df086b73735fe84506f0aa01d0b70293adfd6ad8af",
-        "6c6d69bb13839ed47a5037b8268372f92aba91ad74604e59db3a02abedcced6d",
-        "20f1325cbd5f60f1b00281463b76dea0ca49229173dc4b2e912456da054af87c"
+        "55a3baa1c0e2684826864bf0257cd23a1daadea8aba60a6576636c83f2a913a7",
+        "80af7e436fa5cf3724a1146d8775b1242086660b18b188d43c53878735e03271",
+        "0cf35293e20d450847461abbbca262495335b90dc50438adbe60bdb5f6eb2b7b",
+        "978bdc22e52170a5ca63fe43dfcf172f307a2f29d7e47f87960a6099a444bfc0"
       ],
-      "source_sha256": "a3ad84f9ff028fa81079743d4e19cee6b06bbcad7498a76e54e9f793328706f0",
-      "text": "प्रत्येक पंक्ति का चयन करें जिसे ``keys`` में नामित किया गया है. यह वापस करता है कि कितने पाए गए हैं.\n\nएक स्थान एक बहु-चयन तालिका में प्रवेश करता है, इसलिए नीचे दिए गए दो संकेतों को एक साथ जारी किया जाता है और कोई भी उपभोक्ता अपने पड़ोसी से एक अलग चयन देख सकता है।\n\nतालिका उन्हें फ़िल्टर करने के बजाय पंक्तियों को चुनती है: चयन के लिए संकीर्ण करना यह है कि `show_keys` एक हिस्टोग्राम पट्टी के लिए क्या करता है, और दोनों को एक ही रीति से करना उपयोगकर्ता द्वारा तुलना की जाने वाली अनदेखी गाइडों को छिपाएगा।",
+      "source_sha256": "3c5ab5f2d8722166d89b0d900531711d87467db6fb5b006f45ffdb50c9420b54",
+      "text": "तालिका पंक्तियों का चयन करें जिनके संरचित डेटा नाम ``keys`` में दिखाई देते हैं।\n\nदोनों चयन संकेत यहाँ जारी किए जाते हैं ताकि प्रत्येक उपभोक्ता को उसी ऑर्डर किए गए चयन प्राप्त हो. रॉड दिखाई देते रहते हैं; :meth:`show_keys` फ़िल्टर करता है जब एक प्लेट इंटरैक्शन की आवश्यकता होती है.\n\n:param keys: पंक्ति पहचानकर्ताओं का चयन करने के लिए, वांछित चयन क्रम में।\n:returns: चुने गए टुकड़ों की संख्या।",
       "translation_source_blocks_sha256": [
-        "fc781b8aecfb2dcd793563df086b73735fe84506f0aa01d0b70293adfd6ad8af",
-        "6c6d69bb13839ed47a5037b8268372f92aba91ad74604e59db3a02abedcced6d",
-        "20f1325cbd5f60f1b00281463b76dea0ca49229173dc4b2e912456da054af87c"
+        "857453c50b18462adcab937ceb59bc49835701aeb823c1123d68c853f4f2a26a",
+        "80af7e436fa5cf3724a1146d8775b1242086660b18b188d43c53878735e03271",
+        "e85e066b9d519d51ed44752058d57fb0a55535ed8ca82cadc811528437ecc6e5",
+        "978bdc22e52170a5ca63fe43dfcf172f307a2f29d7e47f87960a6099a444bfc0"
       ]
     },
     "spacr.qt.widgets.fast_plots.ResultsTable.selected_keys": {
@@ -85117,14 +85129,22 @@
     },
     "spacr.qt.widgets.figure_settings.save_figure_bundle": {
       "source_blocks_sha256": [
-        "9ca4f6e3c03eb44d6a3deb5da3a73a8cc028c5fe11ec93cb0a17e47c442ed3b5",
-        "9047b33671b26a87e9469f1f69368b775587f9dfaf7583d9b6f46e5befcf8158"
+        "5a362dac2e2d6e359d94105925036c996f826a4987de0b8a0c27e94fd6d4bbe3",
+        "6b1c0ed0acb6c182cfa8d006a2edf35deecb03e0b902b1a4e3d2396d472c5b63",
+        "f5a473b285b528f02dfd7ef0e69288a8ddae96cdd5bc265bf0c06f8227172612",
+        "4a31d914370c8448a9d22136127d5fc0ebc9e24f426d27a76a6b248864a29303",
+        "fb91c5a6dd871971b2362e4caf2f508082252e18b91159c0d7ff3ec6a36fd692",
+        "c7b4a4073481da4663a4a8e302dabaec1c30a629ff3a293a1f0a4e2857d06bde"
       ],
-      "source_sha256": "0c75ff80072169ee26800f9503fff30fcc766bf8df866168b0a18fe88f891971",
-      "text": "एक पैकेज के रूप में एक matplotlib आंकड़ा लिखें. फ़ोल्डर को वापस लाएं.\n\nएक आंकड़ा जिसमें कोई व्यंजन नहीं है अभी भी हर फ़ाइल प्राप्त करता है - आंकड़ों का कहना है कि तुलना करने के लिए कुछ भी नहीं है, क्योंकि एक अनुपस्थित फाइल एक त्रुटि के रूप में पढ़ता है।",
+      "source_sha256": "e55bc3d26931994ed734c5026a87138646b72a59cf427c8ed5cbaf9e02e9c932",
+      "text": "स्रोत डेटा और सांख्यिकी के साथ एक Matplotlib आंकड़ा निर्यात करें।\n\nसमूह परिभाषाएँ संलग्न रिकॉर्ड से आती हैं ताकि सांख्यिकीय तुलनाएँ प्रदर्शित आंकड़े के अनुरूप हों. जब कोई नुस्खा उपलब्ध नहीं है, तो मानक फ़ाइलें अभी भी लिखी जाती हैं और आंकड़ों का आर्टिफैक्ट रिकार्ड है कि कोई तुलना नहीं बनाई जा सकती है.\n\n:param figure: Matplotlib आंकड़ा निर्यात करने के लिए।\n:param folder: पैकेज के लिए डिज़ाइन निर्देशिका।\n:param name: उत्पन्न फ़ाइलों के लिए वैकल्पिक आधार नाम।\n:returns: लिखित बंडल निर्देशिका के लिए मार्ग।",
       "translation_source_blocks_sha256": [
-        "9ca4f6e3c03eb44d6a3deb5da3a73a8cc028c5fe11ec93cb0a17e47c442ed3b5",
-        "9047b33671b26a87e9469f1f69368b775587f9dfaf7583d9b6f46e5befcf8158"
+        "5a362dac2e2d6e359d94105925036c996f826a4987de0b8a0c27e94fd6d4bbe3",
+        "6b1c0ed0acb6c182cfa8d006a2edf35deecb03e0b902b1a4e3d2396d472c5b63",
+        "f5a473b285b528f02dfd7ef0e69288a8ddae96cdd5bc265bf0c06f8227172612",
+        "4a31d914370c8448a9d22136127d5fc0ebc9e24f426d27a76a6b248864a29303",
+        "fb91c5a6dd871971b2362e4caf2f508082252e18b91159c0d7ff3ec6a36fd692",
+        "c7b4a4073481da4663a4a8e302dabaec1c30a629ff3a293a1f0a4e2857d06bde"
       ]
     },
     "spacr.qt.widgets.figure_settings.save_graph_style": {
@@ -89229,6 +89249,118 @@
       "translation_source_blocks_sha256": [
         "cafd17427723f1b983c0b7d39564c15ce460199ab12768b433ff3692a4eacfba",
         "e7638a4c88426da8b5ee9dacf1b6139de3de9885f895e159568738da47196342"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot": {
+      "source_blocks_sha256": [
+        "836043c08e8dde095c3ee198cfefe73ddb35526d1d9ccb8c54f7041e4b0ab42e",
+        "d7adcb8ab1bea24e17bfc79f14ef10cb68f0aa3543040f11a99757677dd0cbc8"
+      ],
+      "source_sha256": "ec12ca0485068edc2abc4ea02c9e024f90920114bc0089e133a00a1cdef6bbbd",
+      "text": "रेंडर डेटा-आधारित समूह तुलनाओं के साथ विनिमय योग्य ग्राफिक्स प्रकार।\n\nएक :class:`PlotSpec` स्रोत फ्रेम, समूह और मूल्य स्तंभों, अवलोकन इकाई, और चुने गए ग्राफिक्स प्रकार को बनाए रखता है. इन डेटा को रखने से विगेट संगत ग्राफ प्रकारों को पुनर्विचार करने और आंकड़े को इसके स्रोत पंक्तियों और सांख्यिकीय तुलना के साथ निर्यात करने की अनुमति देता है.",
+      "translation_source_blocks_sha256": [
+        "836043c08e8dde095c3ee198cfefe73ddb35526d1d9ccb8c54f7041e4b0ab42e",
+        "d7adcb8ab1bea24e17bfc79f14ef10cb68f0aa3543040f11a99757677dd0cbc8"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.GroupedPlot": {
+      "source_blocks_sha256": [
+        "29acd5cdce42cf091df9894fa911973b3547124aa5c78495e963388038df9ebf",
+        "42c57662519177b70a817ee9735596ffcd46d1240f038655365c3e46bf48e3bf"
+      ],
+      "source_sha256": "9a40941bed717bf71ac53bd0bb3c0ba096f3bb2b5191458da84df1bb3d5ba61c",
+      "text": "एक pyqtgraph plot का :class:`PlotSpec`, किसी भी प्रकार के रूप में पुनरावृत्ति योग्य है।\n\n:ivar spec: क्या खींचता है. :meth:`show_spec` के माध्यम से आवंटित करें.",
+      "translation_source_blocks_sha256": [
+        "29acd5cdce42cf091df9894fa911973b3547124aa5c78495e963388038df9ebf",
+        "42c57662519177b70a817ee9735596ffcd46d1240f038655365c3e46bf48e3bf"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.GroupedPlot.comparison_groups": {
+      "source_blocks_sha256": [
+        "88486dd4ee6edd3ee3da67eaf4217a303427cc8445902b88d11eb2c687136e6f",
+        "22b6c74f5275ea73d80940f4051356586dfa45e5099ae530f39c8e1973f8b7a2"
+      ],
+      "source_sha256": "5cb5971db318b77e8a6b45388809819c1b336dd0fae62b68a1b96d9c942be739",
+      "text": "आयात-समय सांख्यिकीय तुलना के लिए समूह मूल्य वापस करें।\n\nवापस ``None`` जब तक कि शेष विनिर्देश में कम से कम दो समूह शामिल नहीं हैं।",
+      "translation_source_blocks_sha256": [
+        "88486dd4ee6edd3ee3da67eaf4217a303427cc8445902b88d11eb2c687136e6f",
+        "22b6c74f5275ea73d80940f4051356586dfa45e5099ae530f39c8e1973f8b7a2"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.GroupedPlot.frame": {
+      "source_blocks_sha256": [
+        "1ebfd766c5240ef44f480ec3ab590fd4c1f15f9bdb6d1545983c1070d3d5926b"
+      ],
+      "source_sha256": "1ebfd766c5240ef44f480ec3ab590fd4c1f15f9bdb6d1545983c1070d3d5926b",
+      "text": "निर्यात किए गए स्रोत पंक्तियों को ``data.csv`` पर वापस करें।",
+      "translation_source_blocks_sha256": [
+        "1ebfd766c5240ef44f480ec3ab590fd4c1f15f9bdb6d1545983c1070d3d5926b"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.GroupedPlot.show_as": {
+      "source_blocks_sha256": [
+        "20472c556a54b6cd2b31d611e2d775b092af5f44d2d8efa7887592b1047f374a",
+        "8c0091246ee0fecd0cfe46038e707ce50d9ad8d4a68e7a76bce549e07e2eeb33"
+      ],
+      "source_sha256": "de6737f51daed123276c7020379b7dd59cf4948f1118cf9200ccfb4d045f6a8e",
+      "text": "ग्राफिक्स टाइप ``kind`` का उपयोग करके संग्रहीत डेटा को पुनर्स्थापित करें।\n\n:raises ValueError: किसी प्रकार के लिए, यह डेटा समर्थन नहीं कर सकता है. खींचना अन्यथा एक रिश्ते का मतलब होगा जो उपलब्ध डेटा फॉर्म द्वारा समर्थित नहीं है.",
+      "translation_source_blocks_sha256": [
+        "20472c556a54b6cd2b31d611e2d775b092af5f44d2d8efa7887592b1047f374a",
+        "8c0091246ee0fecd0cfe46038e707ce50d9ad8d4a68e7a76bce549e07e2eeb33"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.GroupedPlot.show_spec": {
+      "source_blocks_sha256": [
+        "30fe6b01ee11b6964873a79c2c6b0199854b830c9537b84afbabd2aaafb8f839"
+      ],
+      "source_sha256": "30fe6b01ee11b6964873a79c2c6b0199854b830c9537b84afbabd2aaafb8f839",
+      "text": "खींचें ``spec``. खींचा गया समूहों की संख्या वापस करता है.",
+      "translation_source_blocks_sha256": [
+        "30fe6b01ee11b6964873a79c2c6b0199854b830c9537b84afbabd2aaafb8f839"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.PlotSpec": {
+      "source_blocks_sha256": [
+        "378f3994a88e90bda2043e5fbc4f417ea89a6927c8adf0650bcf2cc61eba455f",
+        "08fa51e5a5908497cb51a7a9b85a16dc6a7f0a54601a2921989667794978bd18"
+      ],
+      "source_sha256": "dc98dffa80578da0bc985dff68497d058f52ec76be3027522ced7998ea03ba30",
+      "text": "डेटा और प्रदर्शित मेटाडेटा एक समूह रिकॉर्ड बनाने के लिए आवश्यक है।\n\nबनाए रखा फ्रेम ग्राफिक्स-टाइप संगतता की जांच, पुनरावृत्ति, डेटा निर्यात, और सांख्यिकीय तुलना का समर्थन करता है, रेंडर किए गए चार्ट से प्लेट को पुनर्निर्माण किए बिना।",
+      "translation_source_blocks_sha256": [
+        "378f3994a88e90bda2043e5fbc4f417ea89a6927c8adf0650bcf2cc61eba455f",
+        "08fa51e5a5908497cb51a7a9b85a16dc6a7f0a54601a2921989667794978bd18"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.PlotSpec.default_kind": {
+      "source_blocks_sha256": [
+        "5602484c183dd514ed8ff86517e5abbe6d1617bbe675c2f26556e174e3a69b54"
+      ],
+      "source_sha256": "5602484c183dd514ed8ff86517e5abbe6d1617bbe675c2f26556e174e3a69b54",
+      "text": "क्या इस डेटा के रूप में पैदा होता है, जब कोई प्रकार नामित नहीं किया जाता है।",
+      "translation_source_blocks_sha256": [
+        "5602484c183dd514ed8ff86517e5abbe6d1617bbe675c2f26556e174e3a69b54"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.PlotSpec.groups": {
+      "source_blocks_sha256": [
+        "aec0278988ac67af6738f59fa90c3a0194df75ed34fe5b5d33416013a25c1dcd",
+        "d6f44a2933a3f7d39b392318acdc9d5d1e5c3a053952708258e95812119e09e9"
+      ],
+      "source_sha256": "b8dc06648aee463b4d6b8eb47b3e17f546f23111610f201b688973e82fcf6d78",
+      "text": "फ्रेम ऑर्डर बनाए रखने के दौरान ``{label: values}`` लौटें।\n\nपहली घटना को बनाए रखने से जानबूझकर अनुभवी परिस्थितियों, नियंत्रण सहित, उनके कॉन्फ़िगर किए गए डिस्प्ले क्रम में बनाए रखा जाता है।",
+      "translation_source_blocks_sha256": [
+        "aec0278988ac67af6738f59fa90c3a0194df75ed34fe5b5d33416013a25c1dcd",
+        "d6f44a2933a3f7d39b392318acdc9d5d1e5c3a053952708258e95812119e09e9"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.PlotSpec.shape": {
+      "source_blocks_sha256": [
+        "9c47bfb57a6ee3ebceecd31440931791db14faa1dc9a13c7f2ffcf959e4c6f1e"
+      ],
+      "source_sha256": "9c47bfb57a6ee3ebceecd31440931791db14faa1dc9a13c7f2ffcf959e4c6f1e",
+      "text": "डेटा आकार, यह निर्धारित करने के लिए कि कौन सा प्रकार फिट है।",
+      "translation_source_blocks_sha256": [
+        "9c47bfb57a6ee3ebceecd31440931791db14faa1dc9a13c7f2ffcf959e4c6f1e"
       ]
     },
     "spacr.qt.widgets.home": {
@@ -97310,20 +97442,14 @@
     },
     "spacr.qt.widgets.setup_slides": {
       "source_blocks_sha256": [
-        "59f7912bea64c9b26b828bc2a823231af3855c52cc8e07d45273db6aa529b562",
-        "d6ba6cff1cc6682b7b978041e8cd5937ccd81d7ddfddb1bd0da3662c7f335611",
-        "543facc840fd6c7829dfcba82cd2820e5e48c183338e3860b3981f82f06cc738",
-        "af9bd9d7d67d2c78cecb051079ad113ccb5492e77c86ffe336a2bfbcb3815096",
-        "8bd3d25de9e8e5cf45b1723408144612331fd2fea056f64fde8a545546906460"
+        "83593fa228c74b4e408a4b5b5499752bebc1bd4801b3561ed10ff881dd95ae09",
+        "114c29b4348bd362e34fca44c1b5f2cc5e10da0e53f07e909809eb61494415ff"
       ],
-      "source_sha256": "62b2fa34cfa6eafabb70b0096dff9852aef3c15fb7a9c7d07e8a7953eb797dd5",
-      "text": "स्लाइड्स की एक श्रृंखला के रूप में पहला चलने वाला सेटअप (प्रशिक्षण 234)।\n\n    \"मैं थोड़ा विस्तार के साथ स्लाइड के लिए एक सवाल चाहता हूं ... फिर एक स्क्रीनिंग जो बस कहती है डोन ... यह spacr में एक चिकनी संक्रमण की तरह महसूस करना चाहिए\"\n\nएक स्लाइड एक चीज पूछता है और यह बताने के लिए जगह है कि यह क्यों मायने रखता है, जो एक स्क्रीनिंग के बीच का अंतर है जो किसी को भर देता है और एक वह पढ़ता है।\n\n221 का मॉडल - `spacr.qt.setup_screen`, इसके डिफ़ॉल्ट और इसकी स्थायित्व - अपरिवर्तित है और अभी भी एक प्राथमिकता लिखने वाली एकमात्र चीज है; जो बदल गया है वह पूरी तरह से प्रस्तुति है।\n\nINVARIANTS 10 THROUGHOUT: रिम एनीमेशन, तार और ब्लोर सभी सजावट हैं. यदि उनमें से कोई भी नहीं खींचा जा सकता है, तो स्लाइड्स अभी भी काम करते हैं और अभी भी एक ही जवाब लिखते हैं, और परीक्षणों का दावा है कि इसके बजाय इसे मानते हैं।",
+      "source_sha256": "9328565a1b55fe717a19f7d12d17afeb8b5e2e61ec4d0b1306f8c77ef337098e",
+      "text": "प्रथम-चालित प्राथमिकताओं को समझाए गए विकल्पों की एक संक्षिप्त श्रृंखला के रूप में प्रस्तुत करें।\n\nप्रत्येक स्लाइड एक प्राथमिकता समूह को कवर करता है और मौजूदा सेटअप मॉडल के माध्यम से लिखता है. एनिमेटेड पृष्ठभूमि, पारदर्शी कार्ड, और संकेतक-प्रतिबिंबित सीमा सजावटी हैं; प्राथमिकता संपादन और निरंतरता तब उपलब्ध रहती है जब ये प्रभाव प्रस्तुत नहीं किए जा सकते हैं.",
       "translation_source_blocks_sha256": [
-        "59f7912bea64c9b26b828bc2a823231af3855c52cc8e07d45273db6aa529b562",
-        "d6ba6cff1cc6682b7b978041e8cd5937ccd81d7ddfddb1bd0da3662c7f335611",
-        "543facc840fd6c7829dfcba82cd2820e5e48c183338e3860b3981f82f06cc738",
-        "af9bd9d7d67d2c78cecb051079ad113ccb5492e77c86ffe336a2bfbcb3815096",
-        "8bd3d25de9e8e5cf45b1723408144612331fd2fea056f64fde8a545546906460"
+        "83593fa228c74b4e408a4b5b5499752bebc1bd4801b3561ed10ff881dd95ae09",
+        "114c29b4348bd362e34fca44c1b5f2cc5e10da0e53f07e909809eb61494415ff"
       ]
     },
     "spacr.qt.widgets.setup_slides.SetupSlides": {
@@ -97412,14 +97538,14 @@
     },
     "spacr.qt.widgets.setup_slides.open_setup_if_needed": {
       "source_blocks_sha256": [
-        "bc00e426b8c8550066500d993775b6b200df2f41b3d18d9f250fee2169ae06b1",
-        "4628e82a5b9368a3262f277aba7002897b90a05c543c94d709b4d5021a728ba5"
+        "936cb3c5c3784e8c37bbe2cb8f75efd4b4b65bf11513a721f7ad1b60c2357536",
+        "533729d3973e27be0f91c7f9efe41c66de9123518eabdaca9b14a2dbf1bcfea2"
       ],
-      "source_sha256": "fee91694dadebb94b97c19e2b696e02e278635ec0d2d7c47cb34b96795924330",
-      "text": "सेटअप स्लाइड्स दिखाएं यदि उन्हें जवाब नहीं दिया गया है।\n\nकैलेंडर किसी भी चीज का फैसला नहीं करता है -- `should_open` करता है, रिकॉर्ड किए गए संस्करण से. एक स्क्रीनिंग प्रत्येक कॉलर खुद के लिए गेट है जो एक लॉन्च पर दो बार दिखाई देता है और कभी दूसरे पर नहीं।",
+      "source_sha256": "39339dd2fed00f1441e06c1772af330e7cc21b2e69a180bd4ff45f8f673ea351",
+      "text": "सेटअप स्लाइड्स दिखाएं जब रिकॉर्ड की स्थापना स्थिति उन्हें चाहती है।\n\nकेंद्रीय :func:`spacr.qt.setup_screen.should_open` चेक स्वतंत्र कॉल करने वालों को एक ही लॉन्च के दौरान डुप्लिकेट वार्तालाप खोलने से रोकता है।",
       "translation_source_blocks_sha256": [
-        "bc00e426b8c8550066500d993775b6b200df2f41b3d18d9f250fee2169ae06b1",
-        "4628e82a5b9368a3262f277aba7002897b90a05c543c94d709b4d5021a728ba5"
+        "936cb3c5c3784e8c37bbe2cb8f75efd4b4b65bf11513a721f7ad1b60c2357536",
+        "533729d3973e27be0f91c7f9efe41c66de9123518eabdaca9b14a2dbf1bcfea2"
       ]
     },
     "spacr.qt.widgets.sweep_panel": {
@@ -105917,29 +106043,29 @@
     },
     "spacr.run_recommendations.format_recommendations": {
       "source_blocks_sha256": [
-        "94d7c5d065897ab9ee8d7b833f0b1b56c3f5c1a4d230fb76a5d009b4546c9c80",
-        "5023596fc71d826fc4976b1050c22f7886830b8bb00994a382e9ec7dbf334a6e"
+        "7de5317a1ceb1305b2fb29647f3168b8ea33681eb4eb165db0cba06d6dbd243e",
+        "ebd9a809f6261e8eff3bf06ea46ed0727447eafbca4eedc47f69d36b027310af"
       ],
-      "source_sha256": "594412b9096e1521862e693e3ab1cac162ecbe6ae2bd0e2d5b6f908f5e252b36",
-      "text": "अनुभाग जैसा कि सारांश के अंत में दिखाई देता है।\n\nइसका अनुपस्थिति एक त्रुटि के रूप में पढ़ी जाएगी, और \"every check passed\" एक परिणाम है जो चुप्पी के बजाय उल्लेख करने के लायक है।",
+      "source_sha256": "965dafcc30f90d9a237ad86bbb731000998f086db7c46e2285d2e3c6bdce0305",
+      "text": "एक प्रक्रिया सारांश के अंत के लिए सिफारिशों को प्रारूपित करें।\n\nएक खाली इनपुट विशेष रूप से स्पष्ट रूप से है, इसलिए कोई सिफारिश के बिना एक पूरा जांच एक अनुपस्थित परिणाम से अलग की जा सकती है।",
       "translation_source_blocks_sha256": [
-        "94d7c5d065897ab9ee8d7b833f0b1b56c3f5c1a4d230fb76a5d009b4546c9c80",
-        "5023596fc71d826fc4976b1050c22f7886830b8bb00994a382e9ec7dbf334a6e"
+        "7de5317a1ceb1305b2fb29647f3168b8ea33681eb4eb165db0cba06d6dbd243e",
+        "ebd9a809f6261e8eff3bf06ea46ed0727447eafbca4eedc47f69d36b027310af"
       ]
     },
     "spacr.run_recommendations.recommend": {
       "source_blocks_sha256": [
         "f7ab26ea65b09a07163a7026157b71c0588af9f7d60d728262d56dbb44a039bf",
         "4f90c9043cbd6f48e0149d9c6913144874a9f989b28ca8e6caa8fbb5d77bd736",
-        "91222ceae062e34f6225c0f9496797dca33fc88a29cd494f5e92b47c1d2cdf7e",
+        "f2e3a9f9f8d161f972bcd176f230b27d7d4110d2fd1dd9a758f64adc7c967b8f",
         "e4f2bed9658d4584346676aa2d4792e1cf9ed0af6f7dddc6e6f7ab65a239ad56"
       ],
-      "source_sha256": "a6dd2f6fc40fbabd4091a8722e19631ca50012c5f78436f31e32b9aa2921caeb",
-      "text": "एक चलने के मापा निदान से प्राप्त सिफारिशें।\n\n:param diagnostics: यह संख्या QC की गणना की जाती है।\n:param settings: क्या चलने का उपयोग किया गया है, इसलिए पहले से ही एक सिफारिश की पेशकश नहीं की जाती है. कुछ समय के लिए बताने के लिए जो वे कहते हैं वह कैसे है एक अनुशंसा अनुभाग एक बार लोगों के जहाज के साथ आता है.\n:returns: उन सिफारिशों को फेंक दिया, पहले उन्हें अवरुद्ध किया।",
+      "source_sha256": "d858cb71683cde3d13d499bd88c8233b200da6c14f46c1006568dfefaf4ca109",
+      "text": "एक चलने के मापा निदान से प्राप्त सिफारिशें।\n\n:param diagnostics: यह संख्या QC की गणना की जाती है।\n:param settings: प्रसंस्करण सत्र के लिए उपयोग किए जाने वाले सेटिंग्स. इन मूल्यों से पहले से ही संतुष्ट सिफारिशें अनदेखी की जाती हैं.\n:returns: उन सिफारिशों को फेंक दिया, पहले उन्हें अवरुद्ध किया।",
       "translation_source_blocks_sha256": [
         "f7ab26ea65b09a07163a7026157b71c0588af9f7d60d728262d56dbb44a039bf",
         "4f90c9043cbd6f48e0149d9c6913144874a9f989b28ca8e6caa8fbb5d77bd736",
-        "91222ceae062e34f6225c0f9496797dca33fc88a29cd494f5e92b47c1d2cdf7e",
+        "e4a8353d0294c30996c1d688ceb4d782d2e1f284e51443b9e7f6cd5d3758c326",
         "e4f2bed9658d4584346676aa2d4792e1cf9ed0af6f7dddc6e6f7ab65a239ad56"
       ]
     },
@@ -114031,26 +114157,26 @@
     },
     "spacr.sudoku.SudokuResult": {
       "source_blocks_sha256": [
-        "259961c60b0a260dc8d90924ad0a02c1f27daeb1d4a3f78579e3f27ecfc5d4df",
-        "b133cb63caf150909107fbdda390ce582730020f52d586f39d752a010b3b84b7",
-        "80527d2b3d77943e3caa8b9283999d0a9f9f2053c69c7b78825fbb5ef1c71bdd",
-        "125fe5ffa550f064b7e959b6c49ac86a94e7253b4c755fda02fe4f9dd96eaa33",
-        "0ba7c441293ede3a909873f64ea7273f3bd5cfc5c212cb0c94634526840f948f",
+        "d9284ef5bcd7bfea85f2d2329d0ab8d3bf456084a3a592bb3c9a568e1f0d88d7",
+        "7124a0dc2fd2578db7688f06e9d04b4632c44a19142d6b54666e251a5f4ebda7",
+        "a38fa0e721d25346f415c3f2aaee2191b452b77a8e8541250c1392262cefd13f",
+        "8cbd90aca0dc570bca4c05ababc7c43f190a7dc69ff49aa23025dd131392d487",
+        "060df21c36f9993274fa4ac923ec580fad6e391d84b4138341e53b1dd28098b7",
         "aee5d6ead903cfdd1faf6431bb03a5ee306d4a7fd7ebf8a48d648e47780bd18c",
         "8e0e840760dd542656a1e3fcdf2f7203a4d6f56c2c9d7f043cd51571a794db7b",
-        "ca6a433c0d92112bad90a52cff1cb398ed4c5bb6d02a18cb4eac2bfad2f734e6"
+        "d0df92a521cce19f8e16a5490171f6b5b82416056ba6eba0026402fe22dd8e4a"
       ],
-      "source_sha256": "595ce16b97d003e41144db061fba8aaddf4e1e6cad4a7ed4d5d1c763201a909c",
-      "text": "जो सुडोकू ने समाप्त किया, दोनों स्कोर अलग रखा गया था।\n\n:ivar guides: प्रत्येक सेल के लिए एक नाम, जिस क्रम में सेल आते हैं, या :data:`ABSTAIN`।\n:ivar affirm: ``(n_cells, n_guides)`` - प्रत्येक कोशिका प्रत्येक गाइड के एंकर की तरह कितनी दिखती है।\n:ivar eliminate: ``(n_cells, n_guides)`` - कितना यह कुछ भी ELSE की तरह दिखता है. केप को उद्देश्य से अलग किया जाता है: \"probably not this guide\" और \"probably this guide\" अलग-अलग दावे होते हैं, और एक सेल दोनों पर कम हो सकता है, जो सेल को देखने लायक है. एक एकल अनुपात मानचित्र जो एक ही मूल्य पर होता है जैसा कि दोनों पर उच्च है.\n:ivar reach: ``(n_cells,)`` - पहुंचने वाली कुल एंकोर मात्रा. कम पहुंच आईएस चौथा वर्ग है: किसी भी मार्गदर्शक के विपरीत।\n:ivar posterior: ``(n_cells, n_guides)`` माइक्रोप्लेट नमूना स्थिति को सीमित करने के बाद।\n:ivar names: मार्गदर्शक नाम, मैट्रिक्स के स्तंभ क्रम में।\n:ivar report: रिकॉर्ड के लिए गिनती और सेटिंग्स।",
+      "source_sha256": "6bd46376eb25a040a8f7492e365430ae6fe0cf7918ffd38456ff82394cfbdd91",
+      "text": "सेल स्तर के मार्गदर्शक कार्यों और उनके अलग सबूत घटकों।\n\n:ivar guides: प्रत्येक इनपुट सेल के लिए एक गाइड नाम, या :data:`ABSTAIN`।\n:ivar affirm: ``(n_cells, n_guides)`` प्रत्येक गाइड के एंकर से समर्थन।\n:ivar eliminate: ``(n_cells, n_guides)`` प्रतिस्पर्धी एंकरों से समर्थन. ``affirm`` से यह अलग रखने से, किसी भी एंकर आबादी द्वारा समर्थित सेल से अस्पष्ट कोशिकाओं को अलग किया जाता है.\n:ivar reach: ``(n_cells,)`` कुल प्रसारित एंकोर वजन।\n:ivar posterior: ``(n_cells, n_guides)`` माइक्रोप्लेट नमूना स्थिति को सीमित करने के बाद।\n:ivar names: मार्गदर्शक नाम, मैट्रिक्स के स्तंभ क्रम में।\n:ivar report: नियुक्ति गिनती, सेटिंग्स, और निदान चेतावनी।",
       "translation_source_blocks_sha256": [
-        "259961c60b0a260dc8d90924ad0a02c1f27daeb1d4a3f78579e3f27ecfc5d4df",
-        "b133cb63caf150909107fbdda390ce582730020f52d586f39d752a010b3b84b7",
-        "80527d2b3d77943e3caa8b9283999d0a9f9f2053c69c7b78825fbb5ef1c71bdd",
-        "125fe5ffa550f064b7e959b6c49ac86a94e7253b4c755fda02fe4f9dd96eaa33",
-        "0ba7c441293ede3a909873f64ea7273f3bd5cfc5c212cb0c94634526840f948f",
+        "d9284ef5bcd7bfea85f2d2329d0ab8d3bf456084a3a592bb3c9a568e1f0d88d7",
+        "7124a0dc2fd2578db7688f06e9d04b4632c44a19142d6b54666e251a5f4ebda7",
+        "a38fa0e721d25346f415c3f2aaee2191b452b77a8e8541250c1392262cefd13f",
+        "8cbd90aca0dc570bca4c05ababc7c43f190a7dc69ff49aa23025dd131392d487",
+        "060df21c36f9993274fa4ac923ec580fad6e391d84b4138341e53b1dd28098b7",
         "88c3b9b3414b7a1e7b0098e88b361962c63ddd35c46ffd58aa9da65cb164312c",
         "8e0e840760dd542656a1e3fcdf2f7203a4d6f56c2c9d7f043cd51571a794db7b",
-        "ca6a433c0d92112bad90a52cff1cb398ed4c5bb6d02a18cb4eac2bfad2f734e6"
+        "d0df92a521cce19f8e16a5490171f6b5b82416056ba6eba0026402fe22dd8e4a"
       ]
     },
     "spacr.sudoku.SudokuResult.abstained": {
@@ -114080,37 +114206,37 @@
         "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
         "eb6d1129a7427ddaac6242fac73e735fe733bb3c770b45a89c0fedcec718c51d",
         "33383acbfc2b22043321abda95fd91eab8de7cd2ce40806283ead68ecefcb8fb",
-        "6f58baeeba7bf761cddba3fc7a9d693dad9dece10a419590c02167dee6f6f3e9",
-        "87ab4bf6db33ed4b547f6f3df1f084aa38a3e9c85e5a0b1c7d2cee3a73823198",
+        "9fc4ad659add555c5826011406b96a6a69466e7ec818cf8c9a1a810476d47f54",
+        "454fd6ae910e47f023bd623ef1b950cc8f1b12629cd1733a19814a1845346177",
         "f64250843e1ee6f51bcf8a430ab51b081928e528c11d97c4532dd21f8b5d1fb2",
-        "e096de447ddbc931a4db8907de22c8f52bb4f7bde626b5be68c540a94a63c30d"
+        "5da0f1e7b6e38632fbf33f5db59fda31183237b8587208c6322fd2b0be59cac2"
       ],
-      "source_sha256": "d984295d47b2d4a9e29b9c4a8edd224f35ecd5021380b0428dec1e3ba74bac07",
-      "text": "कोशिकाओं के सूचकांक ``guide`` के लगभग निश्चित उदाहरण के रूप में लिया गया है।\n\n:param wells: एक माइक्रोप्लेट नमूना स्थिति लेबल प्रति सेल।\n:param fractions: ``{well: {guide: fraction}}``.\n:param scores: प्रत्येक सेल के लिए वर्गीकरण स्कोर।\n:param quantile: एक द्वार के भीतर, उस क्वांटम स्कोर से ऊपर जिस पर एक कोशिका ली जाती है।\n:param min_fraction: केवल माइक्रोप्लेट नमूना पदों जहां मार्गदर्शक कम से कम यह हिस्सा है का उपयोग किया जाता है. सब कुछ का बिंदु: एक माइक्लॉट नमूने पदों में जहां दिशानिर्देश 70 प्रतिशत है, एक शीर्ष स्कोर सेल बहुत संभव है कि गाइड है. एक माईक्लॉन नमूनी पद पर जहां यह 5%, यह संभवतः नहीं है, और इस तरह के माइकलप्लेट सॉम्पल पदों से बना एक एंकर सेट ग्राफिक्स को गलत आकार सिखाता है।\n:param max_per_well: एक कवर, इसलिए एक विशाल अच्छी तरह से गाइड की उपस्थिति को स्वयं से परिभाषित नहीं कर सकता है।\n:returns: सील सूचकांक, संभवतः खाली।\n\nANCHORS WHERE सर्किट इनर्स है, और यह जानबूझकर दर्ज किया जाता है। वे स्कोर द्वारा चुने जाते हैं, इसलिए एक प्रोफ़ाइल जो केवल स्क्रॉल से बना है, वह कहता है कि \"एक `g` सेल में एक उच्च स्केल है\" - निर्माण और बेकार के आधार पर सच है। :func:`sudoku` इसलिए डिफ़ॉल्ट रूप से ग्राफिक्स सुविधाओं से स्कोर को बाहर निकालता है। स्कोर एंकरों को पिक करता है; मर्फोलॉजी हर किसी को चुनती है।",
+      "source_sha256": "d37bdf31ead22b4030243e76c0a9b530ef3d0ff211dfceeedbbc4f298e0eb254",
+      "text": "कोशिकाओं के सूचकांक ``guide`` के लगभग निश्चित उदाहरण के रूप में लिया गया है।\n\n:param wells: एक माइक्रोप्लेट नमूना स्थिति लेबल प्रति सेल।\n:param fractions: ``{well: {guide: fraction}}``.\n:param scores: प्रत्येक सेल के लिए वर्गीकरण स्कोर।\n:param quantile: एक द्वार के भीतर, उस क्वांटम स्कोर से ऊपर जिस पर एक कोशिका ली जाती है।\n:param min_fraction: एक माइक्रोप्लेट नमूना स्थिति के लिए न्यूनतम अनुक्रमित फ्रैक्शन एंक्रोस में योगदान करने के लिए. यह अन्कोर चयन को माइकलप्लेट सॉम्पल स्थितियों तक सीमित करता है जहां एक उच्च स्कोर कोशिका मार्गदर्शक के साथ स्थिर रूप से जुड़ी हुई है.\n:param max_per_well: अधिकतम एंकर एक माइक्रोप्लेट नमूना स्थिति द्वारा योगदान दिया जाता है।\n:returns: सील सूचकांक, संभवतः खाली।\n\nमशीन-लर्निंग वर्गीकरण मॉडल स्कोर का उपयोग करते हैं. सर्कल संदर्भ से बचने के लिए, :func:`sudoku` डिफ़ॉल्ट रूप से ग्राफिक्स विशेषताओं से उस स्कोरिंग को बाहर निकालता है; सेल मॉर्फोलॉजी फिर एंकरों से परे प्रसार को निर्धारित करती है.",
       "translation_source_blocks_sha256": [
         "7d95102aa928905030ec5ff146531d6f498bdcb85547288a97f4d286765c677d",
         "c0467ab89b7b6826cc65ed13aa61d4446f461fe4b6fafd4aa5e161c994e19a03",
         "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
         "eb6d1129a7427ddaac6242fac73e735fe733bb3c770b45a89c0fedcec718c51d",
         "33383acbfc2b22043321abda95fd91eab8de7cd2ce40806283ead68ecefcb8fb",
-        "d0b92b598a796eedcf8f217ba477cf795c0eb1842bfbfa2e00a95e8d3fa4d2a7",
-        "87ab4bf6db33ed4b547f6f3df1f084aa38a3e9c85e5a0b1c7d2cee3a73823198",
+        "0f876f164e6a31ce9dbdc6be33335b5691437ba863a48ee52b44b135e4c6ad65",
+        "20f55e3f73a48c3e80b76929bac0a93c1ceee2425e995267fff56f8c7a14151e",
         "f64250843e1ee6f51bcf8a430ab51b081928e528c11d97c4532dd21f8b5d1fb2",
-        "e096de447ddbc931a4db8907de22c8f52bb4f7bde626b5be68c540a94a63c30d"
+        "6b7fb067f44cceef775d25e2f164a877868804d1d0c4ab7fb2eebc433c5e7241"
       ]
     },
     "spacr.sudoku.constrain_to_fractions": {
       "source_blocks_sha256": [
         "69cfa77b758c1b77ee9e7a2c0df6b168641fcf2a719b80ca21efb22353cad00f",
         "11bbd0d6d2dfdc5d3b3b820c1e772bac5f6ff65223fc6332475fd1aaee271433",
-        "9b5248d10e847ccf36b75c4786c0d076f262ebb081cc554d58b437fe4e1d96b0"
+        "dd6e55726281e559e5c5fd9722d3e004d7b4066489551825e3bd1292cd7c6430"
       ],
-      "source_sha256": "63a9ab6f61d3025ac4ece3a7a5d16d61fec4631278a0f79c9dd341a4375de19e",
-      "text": "प्रोजेक्ट प्रसारित मात्रा पर गिनती अनुक्रम का मतलब है।\n\nप्रत्येक माइक्रोप्लेट नमूना स्थिति के भीतर, मार्गदर्शक स्तंभों को स्केल करें ताकि प्रत्येक राशि ``pi_g * N_w`` हो और क्रमशः 1 में रीनॉर्मल करें. यह इथेरेटिव अनुपात फिटिंग है - एक ही निश्चित बिंदु :func:`spacr.guide_attribution.posterior` का उपयोग, यहां एक-आयामी संभावना के बजाय ग्राफिक्स-प्रसारित सबूत पर लागू किया जाता है.\n\nइसके बिना, चार्ट खुशी से प्रत्येक कोशिका को एक माइक्रोप्लेट नमूना स्थिति में देगा, जिसके पास सबसे अधिक एंक्रोस था, क्योंकि कुछ भी नहीं कह सकता था कि एक माईक्रोपलेट नमून स्थिति में केवल उनमें से बहुत कुछ है।",
+      "source_sha256": "0d17064e4e31d2ead777621e4c5ef302d315f5b5ff16e39990265a6e940fd3ae",
+      "text": "प्रोजेक्ट प्रसारित मात्रा पर गिनती अनुक्रम का मतलब है।\n\nप्रत्येक माइक्रोप्लेट नमूना स्थिति के भीतर, मार्गदर्शक स्तंभों को स्केल करें ताकि प्रत्येक राशि ``pi_g * N_w`` हो और क्रमशः 1 में रीनॉर्मल करें. यह इथेरेटिव अनुपात फिटिंग है - एक ही निश्चित बिंदु :func:`spacr.guide_attribution.posterior` का उपयोग, यहां एक-आयामी संभावना के बजाय ग्राफिक्स-प्रसारित सबूत पर लागू किया जाता है.\n\nक्रम सीमा ग्राफ को एक माइक्रोप्लेट नमूना स्थिति में प्रत्येक कोशिका को सबसे अधिक एंकोर वॉल्यूम के साथ मार्गदर्शक के लिए आवंटित करने से रोकती है जब अनुक्रम केवल उस मार्गदर्शिका के लिए एक सीमित टुकड़ा का समर्थन करता है।",
       "translation_source_blocks_sha256": [
         "69cfa77b758c1b77ee9e7a2c0df6b168641fcf2a719b80ca21efb22353cad00f",
         "c6a2877eb39cb08d834dbff7acb390dbce2d08b211ca3547526c7529402df6fb",
-        "6ae2c2a3c91105f4a21f4a68514c88b2f90f0452e927efb7740772818709cb18"
+        "91da02d0365e5b18d0296aeaaabdec541acf57e796561539b71e82f1ad4aabf9"
       ]
     },
     "spacr.sudoku.propagate": {
@@ -114141,72 +114267,76 @@
     },
     "spacr.sudoku.similarity_graph": {
       "source_blocks_sha256": [
-        "c9871a550ffd5d21ea05091e57f74828c59fc9b2f6c745898c57468fe3c4c4b4",
+        "c242bf899774f6ac0d0b5dbae2e588b2ccd47aa502fdb86792b4b15c43926ce9",
         "ba3bb25058b7e01078e1f18c0897e076359041e9b2df27603f6937a63319a65c",
-        "cf4cdd0174f724805681f17b68510a5d342eea4c43a621935a9539622433015f",
-        "cbd75f91a86f44ace476fa41a7558bd0285c1bb5f3433e3ce6f94729b4c91ef7",
-        "29ebd8819b449b41120ade352b913de2e7fae5e1115f86b0d9099bd92890b474",
-        "411e5b5577d51c97d922269d13384e35843ad0675d795083073ffa61751af267"
+        "6b0bea6610214e309431c5ae0c5893b52badd3fd73e13caf9339868a6aa8a0e1",
+        "89c4fdbbc2d4e608837929127b504c8372191b8e0d454bf55b13f0856f2d833c",
+        "11eefbccfd5dace7419e6d4d086bd2f688453f4557210c9ea650f993ece1b3c5",
+        "c78d1be8c0cf52d1072f8cf197e0160ac6f15d82553d43f8253c4599851984af"
       ],
-      "source_sha256": "fc07a926a49d4cfec0cee8b5f3f6a52eeaf2eb4f5e05b5bbf27a22e2ce0270ac",
-      "text": "कोशिकाओं के ऊपर एक सिमेट्रिक k-अन्य-अंतरिक्ष संबंध है।\n\n:param features: ``(n_cells, n_features)``, यहां मानकीकृत है।\n:param neighbours: k.\n:param mutual: एक सीधा kNN ग्राफ एक अतिरिक्त k किनारों को देता है जिसे वह नहीं कमाता है - यह कुछ निकटतम पड़ोसियों के साथ होना चाहिए - और लेबल मांस फिर कोशिकाओं में बहता है जो कुछ भी नहीं दिखता है. पारस्परिक kNN किसी अतिरिक्ष को बिल्कुल भी कोई किनारे के साथ समाप्त करता है, जो ईमानदार जवाब है और यह है कि :attr:`SudokuResult.reach` रिपोर्ट क्या है.\n:returns: एक शून्य डायग्नल के साथ एक छोटे सीएसआर संबद्धता।\n\nएक वैश्विक सिग्मा का मानना है कि बादल में एक घनत्व है, और स्क्रीनिंग की कोशिकाएं नहीं करती हैं - एक घनी स्वस्थ आबादी के अलावा एक खराब मरने वाला एक या तो खराब क्षेत्र में कोई किनारा नहीं मिलता है या एक अत्यधिक जुड़ा हुआ घना एक।",
+      "source_sha256": "ec623cf3d37abef233396e9a6b10c610496b2556ca9773e37cf3e75632cf0733",
+      "text": "एक सिमेट्रिक k- निकटतम पड़ोसी सेल-अफिनिटी ग्राफ बनाएं।\n\n:param features: ``(n_cells, n_features)``, यहां मानकीकृत है।\n:param neighbours: प्रत्येक सेल के लिए निकटतम पड़ोसियों की संख्या माना जाता है।\n:param mutual: एक किनारे को केवल तब बनाए रखें जब दोनों कोशिकाएं एक-दूसरे को पड़ोसियों के रूप में पहचानती हैं. यह इन्सुलेटेड आउटलीर्स को मजबूर कनेक्शन प्राप्त करने के बजाय शून्य पहुंच प्राप्त करने की अनुमति देता है.\n:returns: सीएसआर एफिनिटी मैट्रिक्स एक शून्य डायगोनल के साथ है।\n\nEdge Weights एक स्थानीय स्केल के साथ एक गर्मी कोर का उपयोग करता है जिसे प्रत्येक कोशिका के अपने kth पड़ोसी से दूरी द्वारा परिभाषित किया जाता है. Local Scaling विभिन्न नमूना घनत्व वाले आबादी का समर्थन करता है.",
       "translation_source_blocks_sha256": [
-        "c9871a550ffd5d21ea05091e57f74828c59fc9b2f6c745898c57468fe3c4c4b4",
+        "c242bf899774f6ac0d0b5dbae2e588b2ccd47aa502fdb86792b4b15c43926ce9",
         "ba3bb25058b7e01078e1f18c0897e076359041e9b2df27603f6937a63319a65c",
-        "cf4cdd0174f724805681f17b68510a5d342eea4c43a621935a9539622433015f",
-        "cbd75f91a86f44ace476fa41a7558bd0285c1bb5f3433e3ce6f94729b4c91ef7",
-        "29ebd8819b449b41120ade352b913de2e7fae5e1115f86b0d9099bd92890b474",
-        "411e5b5577d51c97d922269d13384e35843ad0675d795083073ffa61751af267"
+        "6b0bea6610214e309431c5ae0c5893b52badd3fd73e13caf9339868a6aa8a0e1",
+        "89c4fdbbc2d4e608837929127b504c8372191b8e0d454bf55b13f0856f2d833c",
+        "11eefbccfd5dace7419e6d4d086bd2f688453f4557210c9ea650f993ece1b3c5",
+        "c78d1be8c0cf52d1072f8cf197e0160ac6f15d82553d43f8253c4599851984af"
       ]
     },
     "spacr.sudoku.sudoku": {
       "source_blocks_sha256": [
-        "9565fd87072a18706ea83f75aded36f448874f0ae4e09578fabd5644e0382455",
+        "77000659763f57fa1f500f58a56b71e0050431fae61617b761358e2b32cf728d",
         "d1c68c2d44b7928ca72b5af71fd02b75f04415dec889b7093db3ce7092a8e09c",
-        "b8fb34ca7ab0762b881ef5a04536f195f13adc8f3365036ebd82f0d98c53df65",
+        "799b8de714f983f73115cd2038bc09fe10a531fdc95b2fd68f0fbdbe7792bad0",
         "4e74a48dde732283c8bbd6fcdc368d9c610e80f18cf2e91ba720611dd97dd427",
         "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
-        "67fdbb17464bcd148b97766fc52d68279c5ea952e263a0dc4b764e975a40e688",
+        "8173cac1902037307894f7fbb0e56e1ee085500ec6103c674772171adea1e29c",
         "e5db01064629bc5c506f3ec56ead6109b227163fbd50841b5040227a6931e21e",
-        "9a0786d984efff1e26f0d5cb79497ad18d00d935127f3bd61951fa6cee3436f7",
+        "3a2270f21f846985c7cbe5791e9041f065b14b10e6953e8fa8db61b4a0e70425",
         "bb448ce3b066fb995254a78bb5161513381d0ffdadf22dbc87beb40d854672c6",
-        "2485395b525b7e370cd9e86447ae6fb393d3b5b02913fb4c7a6968b17fbde259",
-        "96b5593df006be77dbbee1e739b980b29f87747f42bac4c77656006a4a0f86e2"
+        "66de95662abaada9f85cb6bfa99ae59474386fa4aa6e40c3a6f8fe27725c35c8",
+        "d372db15e0ed540d4917252ae3da5c71207204e6815760a624c079b8abf1313a",
+        "c0c5400fd56c56272017da907234b7d4c61bc74c3081d4f20a8d528b368ce565",
+        "a7b3969fbd62ca315e9b553c6e65c9755000a0152864f1d829fc510d7140a80f",
+        "bdb3bd391ff55d6c1e975b7f332996580a5c310c3eac0bf97c4fbd929eff0cf1"
       ],
-      "source_sha256": "71817567844b193e55ca0d5f126229e61aa03c81c48f6dceff82e4961cab7c60",
-      "text": "प्रत्येक कोशिका को माइक्रोप्लेट नमूना पदों के माध्यम से रिकॉर्ड करें, जिसमें दो स्कोर अलग रखा गया है।\n\n:param features: ``(n_cells, n_features)`` सेल माप।\n:param scores: सेल के लिए वर्गीकरण स्कोर - CHOOSE anchors के लिए उपयोग किया जाता है, और डिफ़ॉल्ट रूप से एक ग्राफिक्स फ़ंक्शन के रूप में उपयोग नहीं की जाती है।\n:param wells: एक माइक्रोप्लेट नमूना स्थिति लेबल प्रति सेल।\n:param fractions: ``{well: {guide: fraction}}``.\n:param guides: उपयोगकर्ता का विकल्प, और कई बिंदु है: \"उपयोगकर्ता कई उच्च स्कोर गाइड चुन सकता है।\n:param anchors: वैकल्पिक स्पष्ट एन्कोर सूचकांक प्रत्येक गाइड के लिए, :func:`anchors_for` से ऊपर।\n:param use_score_as_feature: वर्गीकरण स्कोर भी चार्ट में रखें. **आधारित रूप से बंद और यह एक सटीकता निर्णय है, न कि एक प्राथमिकता**: एंकरों को स्कोरिंग द्वारा चुना जाता है, इसलिए स्कोरी पर बनाया गया एक चार्ट प्रत्येक हाई-स्कोर कोशिका के पास रखेगा और प्रत्येक गाइड के एनकरों की पुष्टि करेगा और उनमें से सभी को सत्यापित करेगा. इस पर मोड़ने से विधि को आंशिक रूप से टैटोलॉजिकल बनाता है, और रिपोर्ट ऐसा कहती है जब यह चल रहा है.\n:returns: :class:`SudokuResult` के बारे में।\n\nचार बाहर निकलते हैं, यही कारण है कि एक के बजाय दो स्कोर किए जाते हैं:\n\n  उच्च पुष्टि करें, कम खत्म करें - निश्चित रूप से यह मार्गदर्शिका कम पुष्टि करती है, उच्च खत्म करती है - निश्चय ही इस मार्गदर्शक को उच्च नहीं पुष्टि करते हैं, उच्च को खत्म करते हैं - मार्गदर्शकों को यहां अलग नहीं किया जाता है, नीचे पुष्टि की जाती है, कम से हटा दिया जाता है - प्रत्येक एंकर के विपरीत: अजीब कोशिका, और एक एकल अनुपात इसे ऊपर की पंक्ति के समान मूल्य पर मैप करके छिपाता है।",
+      "source_sha256": "48ca7de1dac47a026fc6a0c51fc2ae1b2b4e272ceb331c370a666757d40d60f5",
+      "text": "कोशिकाओं को गाइड निर्धारित करें, जबकि प्रतिस्पर्धी सबूतों को अलग-अलग रखें।\n\n:param features: ``(n_cells, n_features)`` सेल माप।\n:param scores: वर्गीकरण स्कोर प्रति सेल, एंकरों का चयन करने के लिए इस्तेमाल किया जाता है, और डिफ़ॉल्ट रूप से एक ग्राफिक्स सुविधा के रूप में उपयोग नहीं की जाती है।\n:param wells: एक माइक्रोप्लेट नमूना स्थिति लेबल प्रति सेल।\n:param fractions: ``{well: {guide: fraction}}``.\n:param guides: मार्गदर्शक पहचानकर्ताओं को नियुक्ति के लिए विचार करने के लिए।\n:param anchors: वैकल्पिक स्पष्ट एन्कोर सूचकांक प्रत्येक गाइड के लिए, :func:`anchors_for` से ऊपर।\n:param use_score_as_feature: मशीन-लर्निंग वर्गीकरण मॉडल स्कोर को ग्राफिक्स सुविधाओं में शामिल करें. डिफ़ॉल्ट रूप से अक्षम है क्योंकि स्काउंट भी एंकरों का चयन करता है; इसे सर्कल सबूत दर्ज करने की अनुमति देता है और परिणाम रिपोर्ट में रिकॉर्ड किया जाता है.\n:returns: :class:`SudokuResult` के बारे में।\n\nअलग समर्थन और प्रतिस्पर्धी लेबल सबूत चार परिणामों को अलग करते हैं:\n\n* उच्च समर्थन, कम प्रतिस्पर्धा: आत्मविश्वास से नियुक्ति;\n* कम समर्थन, उच्च प्रतिस्पर्धा: आत्मविश्वास से बाहर निकलना;\n* उच्च समर्थन, उच्च प्रतिस्पर्धा: गाइड के बीच अस्पष्टता;\n* कम समर्थन, कम प्रतिस्पर्धा: एंकर आबादी द्वारा समर्थित नहीं है।",
       "translation_source_blocks_sha256": [
-        "bb271fc5c5e8510d634b277435e17dc4dfc1742c142df9e42f38229b6e76c0b1",
+        "77000659763f57fa1f500f58a56b71e0050431fae61617b761358e2b32cf728d",
         "d1c68c2d44b7928ca72b5af71fd02b75f04415dec889b7093db3ce7092a8e09c",
-        "b8fb34ca7ab0762b881ef5a04536f195f13adc8f3365036ebd82f0d98c53df65",
+        "799b8de714f983f73115cd2038bc09fe10a531fdc95b2fd68f0fbdbe7792bad0",
         "c0467ab89b7b6826cc65ed13aa61d4446f461fe4b6fafd4aa5e161c994e19a03",
         "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
-        "67fdbb17464bcd148b97766fc52d68279c5ea952e263a0dc4b764e975a40e688",
+        "8173cac1902037307894f7fbb0e56e1ee085500ec6103c674772171adea1e29c",
         "e5db01064629bc5c506f3ec56ead6109b227163fbd50841b5040227a6931e21e",
-        "9a0786d984efff1e26f0d5cb79497ad18d00d935127f3bd61951fa6cee3436f7",
+        "437836f560d9213612c7a51e7eea06257007c797e0d0f82f11c177042fcd26b7",
         "bb448ce3b066fb995254a78bb5161513381d0ffdadf22dbc87beb40d854672c6",
-        "2485395b525b7e370cd9e86447ae6fb393d3b5b02913fb4c7a6968b17fbde259",
-        "96b5593df006be77dbbee1e739b980b29f87747f42bac4c77656006a4a0f86e2"
+        "66de95662abaada9f85cb6bfa99ae59474386fa4aa6e40c3a6f8fe27725c35c8",
+        "d372db15e0ed540d4917252ae3da5c71207204e6815760a624c079b8abf1313a",
+        "c0c5400fd56c56272017da907234b7d4c61bc74c3081d4f20a8d528b368ce565",
+        "a7b3969fbd62ca315e9b553c6e65c9755000a0152864f1d829fc510d7140a80f",
+        "bdb3bd391ff55d6c1e975b7f332996580a5c310c3eac0bf97c4fbd929eff0cf1"
       ]
     },
     "spacr.sudoku.sudoku_all": {
       "source_blocks_sha256": [
-        "810b655532d874a39399f11e67931d6211b319c107a7e6a6ef40e16fcd08a0ff",
+        "6cf743111111c8ac848205cdecd639414505e9fda0d6e691ec10823a2eebb333",
         "29ac08550b61f9b96e7fffd9817b6110583b059d63522cc50a50d13f28de4bdb",
-        "4d44af735702647f73491a4c8640a43ded90d040e176d8b772d91d9091191e8e",
+        "03a52d9271cbf4b5f4dbb3c9e56b2af42c26da25fc15a4b4ca5abf61f2781caa",
         "b9bac12fe498fa8e45c54ec7f754958812619f307e6742622428f682e99d42ed",
-        "3eadcaaf70d7abe0f4dabae2a1bf2a702b67597e7eec44da6682a174c9434634",
-        "06aba2aa8422f8b4869545c3b55f2cad954365e459ba71af351290dc947967a2"
+        "9401231904aa0bf1e645db70bece2e60156086bbf96ef8ffd1c42021590fc8a0"
       ],
-      "source_sha256": "79d15de126efcfa2e121b6c2ee25189b91c6b4f4822eb780836545c70a042034",
-      "text": "हर मार्गदर्शक पर सुडोकू, आत्मविश्वास के आदेश में, जैसा कि चलता है, दावा करता है।\n\n:param ranking: ``[(guide, confidence)]`` नीचे प्रसंस्करण क्रम में कॉलर आत्मविश्वास को परिभाषित करता है, उदाहरण के लिए, प्रभाव के आकार और सांख्यिकीय महत्व को जोड़कर।\n:param max_guides: एक स्टॉप, इसलिए 1,500 गाइड के साथ एक स्क्रीनिंग दुर्घटना में 1,500 ग्राफिक्स इमारतों को चलाता नहीं है।\n:returns: सभी कोशिकाओं पर एक :class:`SudokuResult`।\n\nप्रत्येक चक्र अभी भी अवांछित कोशिकाओं के ऊपर एक मार्गदर्शक के लिए :func:`sudoku` चलाता है, यह उन सेलों को बनाए रखता है जिन्हें वह तय करता है, और उन्हें हटा देता है. यह रुकता है जब एक चक्र कुछ भी दावा नहीं करता है - जो सिक्के फ्लिप है, जो गिनती के बजाय पहुंच गया है।\n\nआदेश जोखिम है, और रिपोर्ट में यह पता चलता है कि इसे न्याय करने के लिए क्या आवश्यक है: `claimed_by_round`. एक भयावह तरीका जल्दी करता है, पहले गाइड की गलतियां हर बाद में विरासत में होती हैं, और इसे लेने वाली कोशिकाओं को कभी पुनर्विचार नहीं किया जाता है. एक कॉलर जो यह जानना चाहता था कि यह कितना मायने रखता है, इस बार दो बार गुजरता है और आदेश को परेशान करता है और तुलना करता है - जो कि :mod:`spacr.annotation_validation` क्या करता है।",
+      "source_sha256": "c0b59d5aa89a06438fe9ec6483269fc2811893996c893d7c6835a21b0aec5102",
+      "text": "नीचे आने वाले आत्मविश्वास के आदेश में क्रमशः गाइड निर्धारित करें।\n\n:param ranking: ``[(guide, confidence)]`` नीचे प्रसंस्करण क्रम में कॉलर आत्मविश्वास को परिभाषित करता है, उदाहरण के लिए, प्रभाव के आकार और सांख्यिकीय महत्व को जोड़कर।\n:param max_guides: प्रसंस्करण के लिए रैंक किए गए गाइड की अधिकतम संख्या।\n:returns: सभी कोशिकाओं पर एक :class:`SudokuResult`।\n\nप्रत्येक दौर अवांछित कोशिकाओं के लिए :func:`sudoku` लागू होता है और स्वीकार किए गए आवंटन को हटा देता है. प्रसंस्करण बंद हो जाता है जब एक दौर को कोई सेल नहीं आवंटित करता है. चूंकि यह आरामदायक प्रक्रिया आदेश-संवेदनशील है, ``claimed_by_round`` रिपोर्ट में रखा जाता है; :mod:`spacr.annotation_validation` रैंकिंग आदेश के लिए संवेदनशीलता का मूल्यांकन करता है।",
       "translation_source_blocks_sha256": [
-        "810b655532d874a39399f11e67931d6211b319c107a7e6a6ef40e16fcd08a0ff",
+        "6cf743111111c8ac848205cdecd639414505e9fda0d6e691ec10823a2eebb333",
         "29ac08550b61f9b96e7fffd9817b6110583b059d63522cc50a50d13f28de4bdb",
-        "4d44af735702647f73491a4c8640a43ded90d040e176d8b772d91d9091191e8e",
+        "03a52d9271cbf4b5f4dbb3c9e56b2af42c26da25fc15a4b4ca5abf61f2781caa",
         "b9bac12fe498fa8e45c54ec7f754958812619f307e6742622428f682e99d42ed",
-        "3eadcaaf70d7abe0f4dabae2a1bf2a702b67597e7eec44da6682a174c9434634",
-        "06aba2aa8422f8b4869545c3b55f2cad954365e459ba71af351290dc947967a2"
+        "9401231904aa0bf1e645db70bece2e60156086bbf96ef8ffd1c42021590fc8a0"
       ]
     },
     "spacr.surrogate": {

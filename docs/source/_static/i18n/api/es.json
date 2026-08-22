@@ -76029,14 +76029,14 @@
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.crop_count": {
       "source_blocks_sha256": [
-        "b119ee7b27b8f4d8b1287e0fa9c53cc3c476a2d39c0717bdf375d13adc6ee4c1",
-        "69f3f18375b6322447d7fa881bc2360f7e26a21fc439734f857a18955a0d4708"
+        "8c60c5784771b861707e83c600801fee83dc30eb0e90679a94af51ddfd3e5e85",
+        "3947acc874bc96c46be64cf354732d57286bc55f4000ee587f98b777d58a1f9c"
       ],
-      "source_sha256": "8ca9eaa77704ee8b8dbeac58418e3f63d3731527aa20c3874905182e8af7d02c",
-      "text": "¿Cuántas regiones de imágenes extraídas las pestañas HOLD, a través de cada página.\n\nNO `len(thumbnails())`, que cuenta lo que se RENDIÓ -- y desde la instrucción 211 que es una página, no todo bien. Los dos eran el mismo número hasta que las pestañas comenzaron a buscar, y cada llamante que significa \"cuántos objetos están aquí\" quiere este.",
+      "source_sha256": "a15489a16b39f1fed1cd9240c163971a41517562c2b34e771dacddcd7349a504",
+      "text": "Devuelve el número total de regiones de imágenes extraídas en todas las pestañas.\n\nEsto difiere de ``len(thumbnails())``, que sólo cuenta con widgets en las páginas que se muestran actualmente.",
       "translation_source_blocks_sha256": [
-        "9096d2205a7d6d9b19ec4276280cee7c9feb2d45a19dcf3cf40d9fad267dc220",
-        "69f3f18375b6322447d7fa881bc2360f7e26a21fc439734f857a18955a0d4708"
+        "cb15dc4ee82907e90ca00e96977b217a8da9d8023be8390129be8787364c038d",
+        "3947acc874bc96c46be64cf354732d57286bc55f4000ee587f98b777d58a1f9c"
       ]
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.databases": {
@@ -76327,14 +76327,14 @@
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.thumbnails": {
       "source_blocks_sha256": [
-        "213ae028a55287c4c65dfd83ac5de01a3765bf86e6cfaefd9eb3a65fbe5d5799",
-        "7b5005e9377cfc1cda807c8f96a26cf9b8553bee14e8b7fb16dccb58520e51b7"
+        "2483fbbf7d213de530d7afc9471bd8a92903be575aa987fae2900d458fef4b15",
+        "135481b32e6fd5f3e68496ac5dca52404dcd99768ab6011c3f9dee440ce68d33"
       ],
-      "source_sha256": "6590580a999c9adc59a7e06e0239ad50a98e0657d8a50cdfd5e25481e6b1dff6",
-      "text": "Cada miniatura en la vista de aplicación, a través de cada pestaña de pozo abierto.\n\nON Application view significa EN LA PÁGINA ACTUAL. Use :meth:`crop_count` para cuántos objetos tienen las pestañas.",
+      "source_sha256": "ffa75d3629537287383e7391733aeaa3e8105ce35d2ead2d78fcd2e9c85d8472",
+      "text": "Devuelve las miniaturas visibles en las páginas de las pestañas que se muestran actualmente.\n\nUtilice :meth:`crop_count` para obtener el número total de objetos contenidos en todas las pestañas del pozo, incluidas las páginas que no se muestran.",
       "translation_source_blocks_sha256": [
-        "ff5e60fb13502906df6e4ffabb366a5f9503c173b102a67cc91aaa331421d7d4",
-        "15a46b70f9a8f25bc4cbf2f872e163baebeefa7bc2a43fe34d0f66807de66285"
+        "2483fbbf7d213de530d7afc9471bd8a92903be575aa987fae2900d458fef4b15",
+        "135481b32e6fd5f3e68496ac5dca52404dcd99768ab6011c3f9dee440ce68d33"
       ]
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.well_tabs": {
@@ -81663,6 +81663,18 @@
         "ce9a6e97631ca1b5f4218767d999fbce2147862594d6acdbab134accebf7700f"
       ]
     },
+    "spacr.qt.widgets.fast_plots.FastPlot.graph_spec": {
+      "source_blocks_sha256": [
+        "3c6e4b7ba5659addf1b707a071d38df1a55e5cc1c971a0ea4cc922698668b81e",
+        "7f52b622bb2cdb18e025184a92453732386ed349fc9317f915c0c20033ffe635"
+      ],
+      "source_sha256": "4415173f0ec76aeef9af8f6bd00f34ae4f1b0fb89e412a3e18a81d0e70aa6c22",
+      "text": "Devuelve la especificación de datos utilizada para dibujar este gráfico, si está presente.\n\nLos gráficos que conservan una especificación pueden ser redibujados usando otro tipo de gráfico compatible. Las parcelas de solo renderización devuelven ``None``.",
+      "translation_source_blocks_sha256": [
+        "3c6e4b7ba5659addf1b707a071d38df1a55e5cc1c971a0ea4cc922698668b81e",
+        "7f52b622bb2cdb18e025184a92453732386ed349fc9317f915c0c20033ffe635"
+      ]
+    },
     "spacr.qt.widgets.fast_plots.FastPlot.grid_shown": {
       "source_blocks_sha256": [
         "a71cf52e99c0f47e3443d8db7eba6890583b38d14ddf2d48e0ccfa471183be6c"
@@ -82040,19 +82052,17 @@
     "spacr.qt.widgets.fast_plots.FastPlot.select_in_rect": {
       "source_blocks_sha256": [
         "4e6a4b667e2f4c91d7dbec5261ce4f7a3411341fdb13f1a0f125bdc3dfd3f8c6",
-        "84359973f7a72b073d136c2c9c9128ac2446e9a9c45a69a1f3c258722d6b8e59",
-        "f1c73babc8a370b2710cc3dbb716f89d4fb45ea8e31259d8ac52cc6f37bd8deb",
-        "4b34c5f289845fc6a161ed290b640b8d8ea03ede520faf3efe11673c7857a97f",
-        "90ef60f487cb3a22eae8ad466a7777e23abead169995210a366ca86fbcf2da9e"
+        "d83eaa2f297777e0d0e5c84d1f49797ac22ad80c355462c938be7ebf992e2145",
+        "0ac41a840e5e2132523486be8aa7157013cf04511a41efe806e56149fd1339eb",
+        "e4ccc06c216cc06b70d0a6d0255ff935d43d31371279c57588312b5e8a605c30"
       ],
-      "source_sha256": "8035b9f0b78585a56ce95caec5200ea5405d2206406541a8aa54dcb807b9beb1",
-      "text": "Seleccione cada punto trazado dentro del rectángulo de coordenadas de datos.\n\nLA GESTURA LA FORMA DE UN VOLCANO INVITA: las guías interesantes son un rincón de la nube, y escogerlas un clic a la vez es el trabajo que esto reemplaza.\n\nLos puntos sin posición dibujada no están en ningún rectángulo; una banda selecciona lo que encierra visiblemente, que es la única lectura que un usuario puede comprobar.\n\n:param add: extender la selección actual en lugar de reemplazarla, para una banda dibujada con el modificador todavía hacia abajo.\n:returns: la selección después de la banda, en orden de selección.",
+      "source_sha256": "e419cef53e12de9d69245c3361dfa06357f765938045095062c2a09f289c270e",
+      "text": "Seleccione cada punto trazado dentro del rectángulo de coordenadas de datos.\n\nNo se pueden seleccionar puntos sin una posición trazada. Por lo tanto, la selección Rectángulo contiene exactamente los puntos visiblemente encerrados por los límites suministrados.\n\n:param add: extender la selección actual en lugar de reemplazarla, como se utiliza cuando una tecla modificadora se mantiene durante la selección.\n:returns: teclas seleccionadas en orden de selección.",
       "translation_source_blocks_sha256": [
         "4e6a4b667e2f4c91d7dbec5261ce4f7a3411341fdb13f1a0f125bdc3dfd3f8c6",
-        "84359973f7a72b073d136c2c9c9128ac2446e9a9c45a69a1f3c258722d6b8e59",
-        "f1c73babc8a370b2710cc3dbb716f89d4fb45ea8e31259d8ac52cc6f37bd8deb",
-        "4b34c5f289845fc6a161ed290b640b8d8ea03ede520faf3efe11673c7857a97f",
-        "90ef60f487cb3a22eae8ad466a7777e23abead169995210a366ca86fbcf2da9e"
+        "d83eaa2f297777e0d0e5c84d1f49797ac22ad80c355462c938be7ebf992e2145",
+        "0ac41a840e5e2132523486be8aa7157013cf04511a41efe806e56149fd1339eb",
+        "e4ccc06c216cc06b70d0a6d0255ff935d43d31371279c57588312b5e8a605c30"
       ]
     },
     "spacr.qt.widgets.fast_plots.FastPlot.selected_keys": {
@@ -82703,16 +82713,18 @@
     },
     "spacr.qt.widgets.fast_plots.ResultsTable.select_keys": {
       "source_blocks_sha256": [
-        "fc781b8aecfb2dcd793563df086b73735fe84506f0aa01d0b70293adfd6ad8af",
-        "6c6d69bb13839ed47a5037b8268372f92aba91ad74604e59db3a02abedcced6d",
-        "20f1325cbd5f60f1b00281463b76dea0ca49229173dc4b2e912456da054af87c"
+        "55a3baa1c0e2684826864bf0257cd23a1daadea8aba60a6576636c83f2a913a7",
+        "80af7e436fa5cf3724a1146d8775b1242086660b18b188d43c53878735e03271",
+        "0cf35293e20d450847461abbbca262495335b90dc50438adbe60bdb5f6eb2b7b",
+        "978bdc22e52170a5ca63fe43dfcf172f307a2f29d7e47f87960a6099a444bfc0"
       ],
-      "source_sha256": "a3ad84f9ff028fa81079743d4e19cee6b06bbcad7498a76e54e9f793328706f0",
-      "text": "Seleccione cada fila llamada en ``keys``. Devuelve cuántos fueron encontrados.\n\nEL ÚNICO LUGAR DE UNA MULTI-SELECCIÓN ENTRA EN LA MESA, por lo que las dos señales de abajo se emiten juntas y ningún consumidor puede estar mirando una selección diferente de su vecino.\n\nLa tabla selecciona las filas en lugar de filtrarlas: estrechar a la selección es lo que `show_keys` hace para una barra de histogramas, y hacer ambos desde un gesto ocultaría las guías no seleccionadas con las que el usuario está comparando.",
+      "source_sha256": "3c5ab5f2d8722166d89b0d900531711d87467db6fb5b006f45ffdb50c9420b54",
+      "text": "Seleccione filas de tabla cuyos nombres de datos estructurados ocurran en ``keys``.\n\nAmbas señales de selección se emiten aquí para que cada consumidor reciba la misma selección ordenada. Las filas permanecen visibles; :meth:`show_keys` realiza el filtrado cuando una interacción del gráfico lo requiere.\n\n:param keys: identificadores de fila para seleccionar, en el orden de selección deseado.\n:returns: número de filas coincidentes seleccionadas.",
       "translation_source_blocks_sha256": [
-        "fc781b8aecfb2dcd793563df086b73735fe84506f0aa01d0b70293adfd6ad8af",
-        "6c6d69bb13839ed47a5037b8268372f92aba91ad74604e59db3a02abedcced6d",
-        "20f1325cbd5f60f1b00281463b76dea0ca49229173dc4b2e912456da054af87c"
+        "857453c50b18462adcab937ceb59bc49835701aeb823c1123d68c853f4f2a26a",
+        "80af7e436fa5cf3724a1146d8775b1242086660b18b188d43c53878735e03271",
+        "e85e066b9d519d51ed44752058d57fb0a55535ed8ca82cadc811528437ecc6e5",
+        "978bdc22e52170a5ca63fe43dfcf172f307a2f29d7e47f87960a6099a444bfc0"
       ]
     },
     "spacr.qt.widgets.fast_plots.ResultsTable.selected_keys": {
@@ -85117,14 +85129,22 @@
     },
     "spacr.qt.widgets.figure_settings.save_figure_bundle": {
       "source_blocks_sha256": [
-        "9ca4f6e3c03eb44d6a3deb5da3a73a8cc028c5fe11ec93cb0a17e47c442ed3b5",
-        "9047b33671b26a87e9469f1f69368b775587f9dfaf7583d9b6f46e5befcf8158"
+        "5a362dac2e2d6e359d94105925036c996f826a4987de0b8a0c27e94fd6d4bbe3",
+        "6b1c0ed0acb6c182cfa8d006a2edf35deecb03e0b902b1a4e3d2396d472c5b63",
+        "f5a473b285b528f02dfd7ef0e69288a8ddae96cdd5bc265bf0c06f8227172612",
+        "4a31d914370c8448a9d22136127d5fc0ebc9e24f426d27a76a6b248864a29303",
+        "fb91c5a6dd871971b2362e4caf2f508082252e18b91159c0d7ff3ec6a36fd692",
+        "c7b4a4073481da4663a4a8e302dabaec1c30a629ff3a293a1f0a4e2857d06bde"
       ],
-      "source_sha256": "0c75ff80072169ee26800f9503fff30fcc766bf8df866168b0a18fe88f891971",
-      "text": "Escriba una figura matplotlib como un paquete. Devuelve la carpeta.\n\nLos grupos vienen de la receta, que es lo que hace a las estadísticas la misma comparación que muestra la imagen. Una figura sin receta todavía recibe todos los archivos -- las estadísticas dicen que no hay nada que comparar, porque un archivo ausente se lee como un error.",
+      "source_sha256": "e55bc3d26931994ed734c5026a87138646b72a59cf427c8ed5cbaf9e02e9c932",
+      "text": "Exportar una cifra de Matplotlib con sus datos y estadísticas de origen.\n\nLas definiciones de grupo vienen de la receta de replot adjunta para que las comparaciones estadísticas coincidan con la figura mostrada. Cuando no hay ninguna receta disponible, los archivos estándar todavía están escritos y los registros de artefactos estadísticos que no se pudo hacer ninguna comparación.\n\n:param figure: Figura de Matplotlib para exportar.\n:param folder: directorio de destino para el paquete.\n:param name: nombre base opcional para los archivos generados.\n:returns: ruta al directorio del paquete escrito.",
       "translation_source_blocks_sha256": [
-        "9ca4f6e3c03eb44d6a3deb5da3a73a8cc028c5fe11ec93cb0a17e47c442ed3b5",
-        "9047b33671b26a87e9469f1f69368b775587f9dfaf7583d9b6f46e5befcf8158"
+        "5a362dac2e2d6e359d94105925036c996f826a4987de0b8a0c27e94fd6d4bbe3",
+        "6b1c0ed0acb6c182cfa8d006a2edf35deecb03e0b902b1a4e3d2396d472c5b63",
+        "f5a473b285b528f02dfd7ef0e69288a8ddae96cdd5bc265bf0c06f8227172612",
+        "4a31d914370c8448a9d22136127d5fc0ebc9e24f426d27a76a6b248864a29303",
+        "fb91c5a6dd871971b2362e4caf2f508082252e18b91159c0d7ff3ec6a36fd692",
+        "c7b4a4073481da4663a4a8e302dabaec1c30a629ff3a293a1f0a4e2857d06bde"
       ]
     },
     "spacr.qt.widgets.figure_settings.save_graph_style": {
@@ -89229,6 +89249,118 @@
       "translation_source_blocks_sha256": [
         "cafd17427723f1b983c0b7d39564c15ce460199ab12768b433ff3692a4eacfba",
         "e7638a4c88426da8b5ee9dacf1b6139de3de9885f895e159568738da47196342"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot": {
+      "source_blocks_sha256": [
+        "836043c08e8dde095c3ee198cfefe73ddb35526d1d9ccb8c54f7041e4b0ab42e",
+        "d7adcb8ab1bea24e17bfc79f14ef10cb68f0aa3543040f11a99757677dd0cbc8"
+      ],
+      "source_sha256": "ec12ca0485068edc2abc4ea02c9e024f90920114bc0089e133a00a1cdef6bbbd",
+      "text": "Comparaciones agrupadas respaldadas por datos de render con tipos de gráficos intercambiables.\n\nA :class:`PlotSpec` conserva el marco de origen, las columnas de grupo y de valor, la unidad de observación y el tipo de gráfico seleccionado. La retención de estos datos permite al widget volver a dibujar tipos de gráficos compatibles y exportar la figura junto con sus filas de origen y la comparación estadística.",
+      "translation_source_blocks_sha256": [
+        "836043c08e8dde095c3ee198cfefe73ddb35526d1d9ccb8c54f7041e4b0ab42e",
+        "d7adcb8ab1bea24e17bfc79f14ef10cb68f0aa3543040f11a99757677dd0cbc8"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.GroupedPlot": {
+      "source_blocks_sha256": [
+        "29acd5cdce42cf091df9894fa911973b3547124aa5c78495e963388038df9ebf",
+        "42c57662519177b70a817ee9735596ffcd46d1240f038655365c3e46bf48e3bf"
+      ],
+      "source_sha256": "9a40941bed717bf71ac53bd0bb3c0ba096f3bb2b5191458da84df1bb3d5ba61c",
+      "text": "Una trama de pyqtgraph de un :class:`PlotSpec`, redibujable como cualquier tipo.\n\n:ivar spec: lo que se dibuja. Asignar a través de :meth:`show_spec`.",
+      "translation_source_blocks_sha256": [
+        "29acd5cdce42cf091df9894fa911973b3547124aa5c78495e963388038df9ebf",
+        "42c57662519177b70a817ee9735596ffcd46d1240f038655365c3e46bf48e3bf"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.GroupedPlot.comparison_groups": {
+      "source_blocks_sha256": [
+        "88486dd4ee6edd3ee3da67eaf4217a303427cc8445902b88d11eb2c687136e6f",
+        "22b6c74f5275ea73d80940f4051356586dfa45e5099ae530f39c8e1973f8b7a2"
+      ],
+      "source_sha256": "5cb5971db318b77e8a6b45388809819c1b336dd0fae62b68a1b96d9c942be739",
+      "text": "Valores agrupados de retorno para la comparación estadística de tiempo de exportación.\n\nDevuelve ``None`` a menos que la especificación conservada contenga al menos dos grupos.",
+      "translation_source_blocks_sha256": [
+        "88486dd4ee6edd3ee3da67eaf4217a303427cc8445902b88d11eb2c687136e6f",
+        "22b6c74f5275ea73d80940f4051356586dfa45e5099ae530f39c8e1973f8b7a2"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.GroupedPlot.frame": {
+      "source_blocks_sha256": [
+        "1ebfd766c5240ef44f480ec3ab590fd4c1f15f9bdb6d1545983c1070d3d5926b"
+      ],
+      "source_sha256": "1ebfd766c5240ef44f480ec3ab590fd4c1f15f9bdb6d1545983c1070d3d5926b",
+      "text": "Devuelve las filas de origen exportadas a ``data.csv``.",
+      "translation_source_blocks_sha256": [
+        "1ebfd766c5240ef44f480ec3ab590fd4c1f15f9bdb6d1545983c1070d3d5926b"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.GroupedPlot.show_as": {
+      "source_blocks_sha256": [
+        "20472c556a54b6cd2b31d611e2d775b092af5f44d2d8efa7887592b1047f374a",
+        "8c0091246ee0fecd0cfe46038e707ce50d9ad8d4a68e7a76bce549e07e2eeb33"
+      ],
+      "source_sha256": "de6737f51daed123276c7020379b7dd59cf4948f1118cf9200ccfb4d045f6a8e",
+      "text": "Redibuje los datos retenidos utilizando el tipo de gráfico ``kind``.\n\n:raises ValueError: para un tipo que estos datos no pueden soportar. Dibujar de otro modo implicaría una relación no soportada por la forma de datos disponible.",
+      "translation_source_blocks_sha256": [
+        "20472c556a54b6cd2b31d611e2d775b092af5f44d2d8efa7887592b1047f374a",
+        "8c0091246ee0fecd0cfe46038e707ce50d9ad8d4a68e7a76bce549e07e2eeb33"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.GroupedPlot.show_spec": {
+      "source_blocks_sha256": [
+        "30fe6b01ee11b6964873a79c2c6b0199854b830c9537b84afbabd2aaafb8f839"
+      ],
+      "source_sha256": "30fe6b01ee11b6964873a79c2c6b0199854b830c9537b84afbabd2aaafb8f839",
+      "text": "Dibujar ``spec``. Devuelve el número de grupos dibujados.",
+      "translation_source_blocks_sha256": [
+        "30fe6b01ee11b6964873a79c2c6b0199854b830c9537b84afbabd2aaafb8f839"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.PlotSpec": {
+      "source_blocks_sha256": [
+        "378f3994a88e90bda2043e5fbc4f417ea89a6927c8adf0650bcf2cc61eba455f",
+        "08fa51e5a5908497cb51a7a9b85a16dc6a7f0a54601a2921989667794978bd18"
+      ],
+      "source_sha256": "dc98dffa80578da0bc985dff68497d058f52ec76be3027522ced7998ea03ba30",
+      "text": "Datos y metadatos de visualización necesarios para representar un gráfico agrupado.\n\nEl marco retenido admite comprobaciones de compatibilidad tipo gráfico, redibujo, exportación de datos y comparación estadística sin reconstruir el gráfico a partir de gráficos renderizados.",
+      "translation_source_blocks_sha256": [
+        "378f3994a88e90bda2043e5fbc4f417ea89a6927c8adf0650bcf2cc61eba455f",
+        "08fa51e5a5908497cb51a7a9b85a16dc6a7f0a54601a2921989667794978bd18"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.PlotSpec.default_kind": {
+      "source_blocks_sha256": [
+        "5602484c183dd514ed8ff86517e5abbe6d1617bbe675c2f26556e174e3a69b54"
+      ],
+      "source_sha256": "5602484c183dd514ed8ff86517e5abbe6d1617bbe675c2f26556e174e3a69b54",
+      "text": "Lo que estos datos nacen como, cuando ningún tipo es nombrado.",
+      "translation_source_blocks_sha256": [
+        "5602484c183dd514ed8ff86517e5abbe6d1617bbe675c2f26556e174e3a69b54"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.PlotSpec.groups": {
+      "source_blocks_sha256": [
+        "aec0278988ac67af6738f59fa90c3a0194df75ed34fe5b5d33416013a25c1dcd",
+        "d6f44a2933a3f7d39b392318acdc9d5d1e5c3a053952708258e95812119e09e9"
+      ],
+      "source_sha256": "b8dc06648aee463b4d6b8eb47b3e17f546f23111610f201b688973e82fcf6d78",
+      "text": "Return ``{label: values}`` mientras se conserva el orden del marco.\n\nLa conservación de la primera ocurrencia mantiene deliberadamente ordenadas condiciones experimentales, incluyendo controles, en su orden de visualización configurado.",
+      "translation_source_blocks_sha256": [
+        "aec0278988ac67af6738f59fa90c3a0194df75ed34fe5b5d33416013a25c1dcd",
+        "d6f44a2933a3f7d39b392318acdc9d5d1e5c3a053952708258e95812119e09e9"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.PlotSpec.shape": {
+      "source_blocks_sha256": [
+        "9c47bfb57a6ee3ebceecd31440931791db14faa1dc9a13c7f2ffcf959e4c6f1e"
+      ],
+      "source_sha256": "9c47bfb57a6ee3ebceecd31440931791db14faa1dc9a13c7f2ffcf959e4c6f1e",
+      "text": "La forma de los datos, para decidir qué tipos caben.",
+      "translation_source_blocks_sha256": [
+        "9c47bfb57a6ee3ebceecd31440931791db14faa1dc9a13c7f2ffcf959e4c6f1e"
       ]
     },
     "spacr.qt.widgets.home": {
@@ -97310,20 +97442,14 @@
     },
     "spacr.qt.widgets.setup_slides": {
       "source_blocks_sha256": [
-        "59f7912bea64c9b26b828bc2a823231af3855c52cc8e07d45273db6aa529b562",
-        "d6ba6cff1cc6682b7b978041e8cd5937ccd81d7ddfddb1bd0da3662c7f335611",
-        "543facc840fd6c7829dfcba82cd2820e5e48c183338e3860b3981f82f06cc738",
-        "af9bd9d7d67d2c78cecb051079ad113ccb5492e77c86ffe336a2bfbcb3815096",
-        "8bd3d25de9e8e5cf45b1723408144612331fd2fea056f64fde8a545546906460"
+        "83593fa228c74b4e408a4b5b5499752bebc1bd4801b3561ed10ff881dd95ae09",
+        "114c29b4348bd362e34fca44c1b5f2cc5e10da0e53f07e909809eb61494415ff"
       ],
-      "source_sha256": "62b2fa34cfa6eafabb70b0096dff9852aef3c15fb7a9c7d07e8a7953eb797dd5",
-      "text": "La configuración de la primera carrera como una secuencia de diapositivas (instrucción 234).\n\n    \"Quiero una pregunta por diapositiva con un poco de explantación ... a continuación, una cribado que acaba de decir Hecho ... debería sentirse como una transición suave en spacr\"\n\nUna forma pregunta todo una vez y no responde nada. Una diapositiva pregunta una cosa y tiene espacio para decir por qué importa, que es la diferencia entre una cribado que alguien llena y una que lee.\n\nEsto reemplaza la instrucción de diseño de formulario agrupado 221 enviada. El MODELO de 221 -- `spacr.qt.setup_screen`, sus valores predeterminados y su persistencia -- no ha cambiado y sigue siendo la única cosa que escribe una preferencia; lo que cambió es por completo la presentación.\n\nINVARIANTES 10 A TRAVÉS: la animación del borde, los estratos y el desenfoque son toda decoración. Si ninguna de ellas puede ser dibujada las diapositivas todavía funcionan y todavía escriben las mismas respuestas, y las pruebas afirman que en lugar de asumirlo.",
+      "source_sha256": "9328565a1b55fe717a19f7d12d17afeb8b5e2e61ec4d0b1306f8c77ef337098e",
+      "text": "Presente las preferencias de la primera carrera como una breve secuencia de opciones explicadas.\n\nCada diapositiva cubre un grupo de preferencia y escribe a través del modelo de configuración existente. El fondo animado, la tarjeta translúcida y el borde sensible a punteros son decorativos; la edición de preferencias y la persistencia permanecen disponibles cuando esos efectos no pueden ser renderizados.",
       "translation_source_blocks_sha256": [
-        "59f7912bea64c9b26b828bc2a823231af3855c52cc8e07d45273db6aa529b562",
-        "d6ba6cff1cc6682b7b978041e8cd5937ccd81d7ddfddb1bd0da3662c7f335611",
-        "543facc840fd6c7829dfcba82cd2820e5e48c183338e3860b3981f82f06cc738",
-        "af9bd9d7d67d2c78cecb051079ad113ccb5492e77c86ffe336a2bfbcb3815096",
-        "8bd3d25de9e8e5cf45b1723408144612331fd2fea056f64fde8a545546906460"
+        "83593fa228c74b4e408a4b5b5499752bebc1bd4801b3561ed10ff881dd95ae09",
+        "114c29b4348bd362e34fca44c1b5f2cc5e10da0e53f07e909809eb61494415ff"
       ]
     },
     "spacr.qt.widgets.setup_slides.SetupSlides": {
@@ -97412,14 +97538,14 @@
     },
     "spacr.qt.widgets.setup_slides.open_setup_if_needed": {
       "source_blocks_sha256": [
-        "bc00e426b8c8550066500d993775b6b200df2f41b3d18d9f250fee2169ae06b1",
-        "4628e82a5b9368a3262f277aba7002897b90a05c543c94d709b4d5021a728ba5"
+        "936cb3c5c3784e8c37bbe2cb8f75efd4b4b65bf11513a721f7ad1b60c2357536",
+        "533729d3973e27be0f91c7f9efe41c66de9123518eabdaca9b14a2dbf1bcfea2"
       ],
-      "source_sha256": "fee91694dadebb94b97c19e2b696e02e278635ec0d2d7c47cb34b96795924330",
-      "text": "Mostrar las diapositivas de configuración si no han sido contestadas.\n\nEL LLAMADOR NO DECIDIA HACER QUE PREGUNTAR -- `should_open` sí, de la versión grabada. Una cribado que cada persona que llama cerrada por sí misma es una que aparece dos veces en un lanzamiento y nunca en otro.",
+      "source_sha256": "39339dd2fed00f1441e06c1772af330e7cc21b2e69a180bd4ff45f8f673ea351",
+      "text": "Mostrar las diapositivas de configuración cuando el estado de configuración registrado los requiera.\n\nLa comprobación centralizada :func:`spacr.qt.setup_screen.should_open` impide que los llamantes independientes abran diálogos duplicados durante un lanzamiento.",
       "translation_source_blocks_sha256": [
-        "bc00e426b8c8550066500d993775b6b200df2f41b3d18d9f250fee2169ae06b1",
-        "4628e82a5b9368a3262f277aba7002897b90a05c543c94d709b4d5021a728ba5"
+        "936cb3c5c3784e8c37bbe2cb8f75efd4b4b65bf11513a721f7ad1b60c2357536",
+        "533729d3973e27be0f91c7f9efe41c66de9123518eabdaca9b14a2dbf1bcfea2"
       ]
     },
     "spacr.qt.widgets.sweep_panel": {
@@ -105917,29 +106043,29 @@
     },
     "spacr.run_recommendations.format_recommendations": {
       "source_blocks_sha256": [
-        "94d7c5d065897ab9ee8d7b833f0b1b56c3f5c1a4d230fb76a5d009b4546c9c80",
-        "5023596fc71d826fc4976b1050c22f7886830b8bb00994a382e9ec7dbf334a6e"
+        "7de5317a1ceb1305b2fb29647f3168b8ea33681eb4eb165db0cba06d6dbd243e",
+        "ebd9a809f6261e8eff3bf06ea46ed0727447eafbca4eedc47f69d36b027310af"
       ],
-      "source_sha256": "594412b9096e1521862e693e3ab1cac162ecbe6ae2bd0e2d5b6f908f5e252b36",
-      "text": "La sección tal como aparece al final del resumen.\n\nUna sección vacía dice así. Su ausencia se leería como un error, y \"every check passed\" es un resultado que vale la pena decir en lugar de implicar por el silencio.",
+      "source_sha256": "965dafcc30f90d9a237ad86bbb731000998f086db7c46e2285d2e3c6bdce0305",
+      "text": "Formatee las recomendaciones para el final de un resumen de ejecución.\n\nUna entrada vacía se informa explícitamente para que una comprobación completada sin recomendaciones sea distinguible de un resultado faltante.",
       "translation_source_blocks_sha256": [
-        "94d7c5d065897ab9ee8d7b833f0b1b56c3f5c1a4d230fb76a5d009b4546c9c80",
-        "5023596fc71d826fc4976b1050c22f7886830b8bb00994a382e9ec7dbf334a6e"
+        "7de5317a1ceb1305b2fb29647f3168b8ea33681eb4eb165db0cba06d6dbd243e",
+        "ebd9a809f6261e8eff3bf06ea46ed0727447eafbca4eedc47f69d36b027310af"
       ]
     },
     "spacr.run_recommendations.recommend": {
       "source_blocks_sha256": [
         "f7ab26ea65b09a07163a7026157b71c0588af9f7d60d728262d56dbb44a039bf",
         "4f90c9043cbd6f48e0149d9c6913144874a9f989b28ca8e6caa8fbb5d77bd736",
-        "91222ceae062e34f6225c0f9496797dca33fc88a29cd494f5e92b47c1d2cdf7e",
+        "f2e3a9f9f8d161f972bcd176f230b27d7d4110d2fd1dd9a758f64adc7c967b8f",
         "e4f2bed9658d4584346676aa2d4792e1cf9ed0af6f7dddc6e6f7ab65a239ad56"
       ],
-      "source_sha256": "a6dd2f6fc40fbabd4091a8722e19631ca50012c5f78436f31e32b9aa2921caeb",
-      "text": "Recomendaciones derivadas de los diagnósticos medidos de una carrera.\n\n:param diagnostics: los números QC calculados.\n:param settings: lo que la carrera utilizó, por lo que una recomendación ya tomada no se ofrece de nuevo. DICIR A ALGUIEN QUE HACER LO QUE HIZO ES CÓMO UNA SECCION DE RECOMENDACIONES CONCEDE ALGO PUEBLO.\n:returns: las recomendaciones que se hicieron, bloqueando primero las recomendaciones.",
+      "source_sha256": "d858cb71683cde3d13d499bd88c8233b200da6c14f46c1006568dfefaf4ca109",
+      "text": "Recomendaciones derivadas de los diagnósticos medidos de una carrera.\n\n:param diagnostics: los números QC calculados.\n:param settings: ajustes utilizados para la sesión de procesamiento. Se omiten las recomendaciones ya satisfechas por estos valores.\n:returns: las recomendaciones que se hicieron, bloqueando primero las recomendaciones.",
       "translation_source_blocks_sha256": [
         "f7ab26ea65b09a07163a7026157b71c0588af9f7d60d728262d56dbb44a039bf",
         "4f90c9043cbd6f48e0149d9c6913144874a9f989b28ca8e6caa8fbb5d77bd736",
-        "91222ceae062e34f6225c0f9496797dca33fc88a29cd494f5e92b47c1d2cdf7e",
+        "e4a8353d0294c30996c1d688ceb4d782d2e1f284e51443b9e7f6cd5d3758c326",
         "e4f2bed9658d4584346676aa2d4792e1cf9ed0af6f7dddc6e6f7ab65a239ad56"
       ]
     },
@@ -114031,26 +114157,26 @@
     },
     "spacr.sudoku.SudokuResult": {
       "source_blocks_sha256": [
-        "259961c60b0a260dc8d90924ad0a02c1f27daeb1d4a3f78579e3f27ecfc5d4df",
-        "b133cb63caf150909107fbdda390ce582730020f52d586f39d752a010b3b84b7",
-        "80527d2b3d77943e3caa8b9283999d0a9f9f2053c69c7b78825fbb5ef1c71bdd",
-        "125fe5ffa550f064b7e959b6c49ac86a94e7253b4c755fda02fe4f9dd96eaa33",
-        "0ba7c441293ede3a909873f64ea7273f3bd5cfc5c212cb0c94634526840f948f",
+        "d9284ef5bcd7bfea85f2d2329d0ab8d3bf456084a3a592bb3c9a568e1f0d88d7",
+        "7124a0dc2fd2578db7688f06e9d04b4632c44a19142d6b54666e251a5f4ebda7",
+        "a38fa0e721d25346f415c3f2aaee2191b452b77a8e8541250c1392262cefd13f",
+        "8cbd90aca0dc570bca4c05ababc7c43f190a7dc69ff49aa23025dd131392d487",
+        "060df21c36f9993274fa4ac923ec580fad6e391d84b4138341e53b1dd28098b7",
         "aee5d6ead903cfdd1faf6431bb03a5ee306d4a7fd7ebf8a48d648e47780bd18c",
         "8e0e840760dd542656a1e3fcdf2f7203a4d6f56c2c9d7f043cd51571a794db7b",
-        "ca6a433c0d92112bad90a52cff1cb398ed4c5bb6d02a18cb4eac2bfad2f734e6"
+        "d0df92a521cce19f8e16a5490171f6b5b82416056ba6eba0026402fe22dd8e4a"
       ],
-      "source_sha256": "595ce16b97d003e41144db061fba8aaddf4e1e6cad4a7ed4d5d1c763201a909c",
-      "text": "Lo que sudoku concluyó, con ambos puntajes mantenidos separados.\n\n:ivar guides: un nombre por celda, en el orden en que las celdas vinieron, o :data:`ABSTAIN`.\n:ivar affirm: ``(n_cells, n_guides)`` -- cuánto se parece cada celda a los anclajes de cada guía.\n:ivar eliminate: ``(n_cells, n_guides)`` -- cuánto se parece a cualquier cosa ELSE. Se mantuvo separado a propósito: \"probably not this guide\" y \"probably this guide\" son afirmaciones diferentes, y una celda puede ser baja en ambos, que es la celda que vale la pena mirar. Una única proporción mapea el mismo valor que una celda que es alta en ambos.\n:ivar reach: ``(n_cells,)`` -- masa total de anclaje que llegó. El alcance bajo ES el cuarto cuadrante: a diferencia de cada ancla, de cualquier guía.\n:ivar posterior: ``(n_cells, n_guides)`` después de la restricción de posición de la muestra de microplaca.\n:ivar names: los nombres de la guía, en el orden de la columna de las matrices.\n:ivar report: cuenta y ajustes, para que conste.",
+      "source_sha256": "6bd46376eb25a040a8f7492e365430ae6fe0cf7918ffd38456ff82394cfbdd91",
+      "text": "Las tareas de guía a nivel de célula y sus componentes de evidencia separados.\n\n:ivar guides: un nombre de guía por celda de entrada, o :data:`ABSTAIN`.\n:ivar affirm: Soporte ``(n_cells, n_guides)`` de los anclajes de cada guía.\n:ivar eliminate: ``(n_cells, n_guides)`` soporte de anclajes competidores. Mantener esto separado de ``affirm`` distingue las células ambiguas de las celdas no soportadas por cualquier población de anclaje.\n:ivar reach: ``(n_cells,)`` masa total de anclaje propagada.\n:ivar posterior: ``(n_cells, n_guides)`` después de la restricción de posición de la muestra de microplaca.\n:ivar names: los nombres de la guía, en el orden de la columna de las matrices.\n:ivar report: asignación cuenta, configuración y advertencias de diagnóstico.",
       "translation_source_blocks_sha256": [
-        "259961c60b0a260dc8d90924ad0a02c1f27daeb1d4a3f78579e3f27ecfc5d4df",
-        "b133cb63caf150909107fbdda390ce582730020f52d586f39d752a010b3b84b7",
-        "80527d2b3d77943e3caa8b9283999d0a9f9f2053c69c7b78825fbb5ef1c71bdd",
-        "125fe5ffa550f064b7e959b6c49ac86a94e7253b4c755fda02fe4f9dd96eaa33",
-        "0ba7c441293ede3a909873f64ea7273f3bd5cfc5c212cb0c94634526840f948f",
+        "d9284ef5bcd7bfea85f2d2329d0ab8d3bf456084a3a592bb3c9a568e1f0d88d7",
+        "7124a0dc2fd2578db7688f06e9d04b4632c44a19142d6b54666e251a5f4ebda7",
+        "a38fa0e721d25346f415c3f2aaee2191b452b77a8e8541250c1392262cefd13f",
+        "8cbd90aca0dc570bca4c05ababc7c43f190a7dc69ff49aa23025dd131392d487",
+        "060df21c36f9993274fa4ac923ec580fad6e391d84b4138341e53b1dd28098b7",
         "88c3b9b3414b7a1e7b0098e88b361962c63ddd35c46ffd58aa9da65cb164312c",
         "8e0e840760dd542656a1e3fcdf2f7203a4d6f56c2c9d7f043cd51571a794db7b",
-        "ca6a433c0d92112bad90a52cff1cb398ed4c5bb6d02a18cb4eac2bfad2f734e6"
+        "d0df92a521cce19f8e16a5490171f6b5b82416056ba6eba0026402fe22dd8e4a"
       ]
     },
     "spacr.sudoku.SudokuResult.abstained": {
@@ -114080,37 +114206,37 @@
         "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
         "eb6d1129a7427ddaac6242fac73e735fe733bb3c770b45a89c0fedcec718c51d",
         "33383acbfc2b22043321abda95fd91eab8de7cd2ce40806283ead68ecefcb8fb",
-        "6f58baeeba7bf761cddba3fc7a9d693dad9dece10a419590c02167dee6f6f3e9",
-        "87ab4bf6db33ed4b547f6f3df1f084aa38a3e9c85e5a0b1c7d2cee3a73823198",
+        "9fc4ad659add555c5826011406b96a6a69466e7ec818cf8c9a1a810476d47f54",
+        "454fd6ae910e47f023bd623ef1b950cc8f1b12629cd1733a19814a1845346177",
         "f64250843e1ee6f51bcf8a430ab51b081928e528c11d97c4532dd21f8b5d1fb2",
-        "e096de447ddbc931a4db8907de22c8f52bb4f7bde626b5be68c540a94a63c30d"
+        "5da0f1e7b6e38632fbf33f5db59fda31183237b8587208c6322fd2b0be59cac2"
       ],
-      "source_sha256": "d984295d47b2d4a9e29b9c4a8edd224f35ecd5021380b0428dec1e3ba74bac07",
-      "text": "Índices de las células tomadas como ejemplos casi ciertos de ``guide``.\n\n:param wells: una etiqueta de posición de la muestra de microplaca por celda.\n:param fractions: ``{well: {guide: fraction}}``.\n:param scores: la puntuación de clasificación por celda.\n:param quantile: dentro de un pozo ancla, la puntuación cuantil por encima de la cual se toma una célula.\n:param min_fraction: Sólo se utilizan las posiciones de muestra de microplaca donde la guía es al menos esta parte. EL PUNTO DE TODA LA COSA: en una posición de muestra microplata donde la Guía es el 70% de las lecturas, una celda de puntuación superior es muy probablemente esa guía. En una posición muestral de micro plata donde es el 5%, probablemente no lo es, y un conjunto de anclaje construido a partir de tales posiciones muestra microlamina enseña al gráfico la forma incorrecta.\n:param max_per_well: una tapa, por lo que un enorme pozo no puede definir la apariencia de la guía por sí solo.\n:returns: índices celulares, posiblemente vacíos.\n\nLOS ANCHORES SON WHERE CIRCULARITY ENTERS, y se introduce a sabiendas. Son elegidos por SCORE, por lo que un perfil construido a partir de la partitura por sí solo diría \"una celda `g` tiene una puntuación alta\" -- verdadero por construcción y sin valor. :func:`sudoku` por lo tanto excluye la puntuación de las características del gráfico por defecto. La puntuación escoge los anclajes; la morfología decide todos los demás.",
+      "source_sha256": "d37bdf31ead22b4030243e76c0a9b530ef3d0ff211dfceeedbbc4f298e0eb254",
+      "text": "Índices de las células tomadas como ejemplos casi ciertos de ``guide``.\n\n:param wells: una etiqueta de posición de la muestra de microplaca por celda.\n:param fractions: ``{well: {guide: fraction}}``.\n:param scores: la puntuación de clasificación por celda.\n:param quantile: dentro de un pozo ancla, la puntuación cuantil por encima de la cual se toma una célula.\n:param min_fraction: fracción mínima de secuenciación para una posición de muestra de microplaca para aportar anclajes. Esto limita la selección de anclajes a posiciones de muestra microplata en las que una celda de alto puntaje está plausiblemente asociada con la guía.\n:param max_per_well: anclajes máximos aportados por una posición de muestra microplaca.\n:returns: índices celulares, posiblemente vacíos.\n\nLa selección de anclas utiliza la puntuación del modelo de clasificación de aprendizaje automático. Para evitar inferencias circulares, :func:`sudoku` excluye esa puntuación de las características gráficas por defecto; la morfología celular determina la propagación más allá de los anclajes.",
       "translation_source_blocks_sha256": [
         "7d95102aa928905030ec5ff146531d6f498bdcb85547288a97f4d286765c677d",
         "c0467ab89b7b6826cc65ed13aa61d4446f461fe4b6fafd4aa5e161c994e19a03",
         "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
         "eb6d1129a7427ddaac6242fac73e735fe733bb3c770b45a89c0fedcec718c51d",
         "33383acbfc2b22043321abda95fd91eab8de7cd2ce40806283ead68ecefcb8fb",
-        "d0b92b598a796eedcf8f217ba477cf795c0eb1842bfbfa2e00a95e8d3fa4d2a7",
-        "87ab4bf6db33ed4b547f6f3df1f084aa38a3e9c85e5a0b1c7d2cee3a73823198",
+        "0f876f164e6a31ce9dbdc6be33335b5691437ba863a48ee52b44b135e4c6ad65",
+        "20f55e3f73a48c3e80b76929bac0a93c1ceee2425e995267fff56f8c7a14151e",
         "f64250843e1ee6f51bcf8a430ab51b081928e528c11d97c4532dd21f8b5d1fb2",
-        "e096de447ddbc931a4db8907de22c8f52bb4f7bde626b5be68c540a94a63c30d"
+        "6b7fb067f44cceef775d25e2f164a877868804d1d0c4ab7fb2eebc433c5e7241"
       ]
     },
     "spacr.sudoku.constrain_to_fractions": {
       "source_blocks_sha256": [
         "69cfa77b758c1b77ee9e7a2c0df6b168641fcf2a719b80ca21efb22353cad00f",
         "11bbd0d6d2dfdc5d3b3b820c1e772bac5f6ff65223fc6332475fd1aaee271433",
-        "9b5248d10e847ccf36b75c4786c0d076f262ebb081cc554d58b437fe4e1d96b0"
+        "dd6e55726281e559e5c5fd9722d3e004d7b4066489551825e3bd1292cd7c6430"
       ],
-      "source_sha256": "63a9ab6f61d3025ac4ece3a7a5d16d61fec4631278a0f79c9dd341a4375de19e",
-      "text": "Proyectar la masa propagada en la secuenciación de conteos implica.\n\nDentro de cada posición de muestra de microplaca, escalar las columnas guía para que cada suma a ``pi_g * N_w`` y volver a normalizar las filas a 1, alternativamente. Esto es ajuste proporcional iterativo -- el mismo punto fijo :func:`spacr.guide_attribution.posterior` utiliza, aplicado aquí a la evidencia grafo-propagada en lugar de una probabilidad unidimensional.\n\nES LA RESTRICCIÓN DE LA RUEDA DEL PUZZLE. Sin ella el gráfico daría felizmente a cada celda en una posición de muestra microplaca a la que más anclas tuviera la guía, porque nada diría que una posición muestra micro placa tenga sólo tantas de cada una.",
+      "source_sha256": "0d17064e4e31d2ead777621e4c5ef302d315f5b5ff16e39990265a6e940fd3ae",
+      "text": "Proyectar la masa propagada en la secuenciación de conteos implica.\n\nDentro de cada posición de muestra de microplaca, escalar las columnas guía para que cada suma a ``pi_g * N_w`` y volver a normalizar las filas a 1, alternativamente. Esto es ajuste proporcional iterativo -- el mismo punto fijo :func:`spacr.guide_attribution.posterior` utiliza, aplicado aquí a la evidencia grafo-propagada en lugar de una probabilidad unidimensional.\n\nLa restricción de la fila impide que el gráfico asigne cada celda en una posición de muestra de microplaca a la guía con la mayor masa de anclaje cuando la secuenciación soporta sólo una fracción limitada para esa guía.",
       "translation_source_blocks_sha256": [
         "69cfa77b758c1b77ee9e7a2c0df6b168641fcf2a719b80ca21efb22353cad00f",
         "c6a2877eb39cb08d834dbff7acb390dbce2d08b211ca3547526c7529402df6fb",
-        "6ae2c2a3c91105f4a21f4a68514c88b2f90f0452e927efb7740772818709cb18"
+        "91da02d0365e5b18d0296aeaaabdec541acf57e796561539b71e82f1ad4aabf9"
       ]
     },
     "spacr.sudoku.propagate": {
@@ -114141,72 +114267,76 @@
     },
     "spacr.sudoku.similarity_graph": {
       "source_blocks_sha256": [
-        "c9871a550ffd5d21ea05091e57f74828c59fc9b2f6c745898c57468fe3c4c4b4",
+        "c242bf899774f6ac0d0b5dbae2e588b2ccd47aa502fdb86792b4b15c43926ce9",
         "ba3bb25058b7e01078e1f18c0897e076359041e9b2df27603f6937a63319a65c",
-        "cf4cdd0174f724805681f17b68510a5d342eea4c43a621935a9539622433015f",
-        "cbd75f91a86f44ace476fa41a7558bd0285c1bb5f3433e3ce6f94729b4c91ef7",
-        "29ebd8819b449b41120ade352b913de2e7fae5e1115f86b0d9099bd92890b474",
-        "411e5b5577d51c97d922269d13384e35843ad0675d795083073ffa61751af267"
+        "6b0bea6610214e309431c5ae0c5893b52badd3fd73e13caf9339868a6aa8a0e1",
+        "89c4fdbbc2d4e608837929127b504c8372191b8e0d454bf55b13f0856f2d833c",
+        "11eefbccfd5dace7419e6d4d086bd2f688453f4557210c9ea650f993ece1b3c5",
+        "c78d1be8c0cf52d1072f8cf197e0160ac6f15d82553d43f8253c4599851984af"
       ],
-      "source_sha256": "fc07a926a49d4cfec0cee8b5f3f6a52eeaf2eb4f5e05b5bbf27a22e2ce0270ac",
-      "text": "Una afinidad simétrica k-nearest-neighbour sobre las células.\n\n:param features: ``(n_cells, n_features)``, normalizado aquí.\n:param neighbours: k.\n:param mutual: mantener un borde sólo donde las células AMBAS listan el otro. Un gráfico kNN plano da un borde k atípico que no ganó - tiene que tener ALGUNOS vecinos más cercanos - y la masa de la etiqueta fluye en las células que no se parecen a nada. Mutual kNN permite que un atígrado termine sin bordes en absoluto, que es la respuesta honesta y es lo que :attr:`SudokuResult.reach` informes.\n:returns: una escasa afinidad de la RSC con una diagonal cero.\n\nLos pesos son el núcleo de calor con una escala AUTO-ATOMIZACIÓN: la distancia de cada célula a su vecino Kth. Un sigma global asume que la nube tiene una densidad, y las células de una cribado no -- una población saludable densa junto a un moribundo escaso no tiene bordes en la región escasa o una densa sobre-conectada.",
+      "source_sha256": "ec623cf3d37abef233396e9a6b10c610496b2556ca9773e37cf3e75632cf0733",
+      "text": "Construir un gráfico simétrico de afinidad celular k-nearest-neighbour.\n\n:param features: ``(n_cells, n_features)``, normalizado aquí.\n:param neighbours: número de vecinos más cercanos considerados por celda.\n:param mutual: mantener un borde sólo cuando ambas células se identifican entre sí como vecinos, lo que permite a los atípicos aislados tener un alcance cero en lugar de recibir conexiones forzadas.\n:returns: matriz de afinidad CSR escasa con una diagonal cero.\n\nLos pesos de borde utilizan un núcleo de calor con una escala local definida por la distancia de cada célula a su vecino kth. La escala local soporta poblaciones con diferentes densidades de muestreo.",
       "translation_source_blocks_sha256": [
-        "c9871a550ffd5d21ea05091e57f74828c59fc9b2f6c745898c57468fe3c4c4b4",
+        "c242bf899774f6ac0d0b5dbae2e588b2ccd47aa502fdb86792b4b15c43926ce9",
         "ba3bb25058b7e01078e1f18c0897e076359041e9b2df27603f6937a63319a65c",
-        "cf4cdd0174f724805681f17b68510a5d342eea4c43a621935a9539622433015f",
-        "cbd75f91a86f44ace476fa41a7558bd0285c1bb5f3433e3ce6f94729b4c91ef7",
-        "29ebd8819b449b41120ade352b913de2e7fae5e1115f86b0d9099bd92890b474",
-        "411e5b5577d51c97d922269d13384e35843ad0675d795083073ffa61751af267"
+        "6b0bea6610214e309431c5ae0c5893b52badd3fd73e13caf9339868a6aa8a0e1",
+        "89c4fdbbc2d4e608837929127b504c8372191b8e0d454bf55b13f0856f2d833c",
+        "11eefbccfd5dace7419e6d4d086bd2f688453f4557210c9ea650f993ece1b3c5",
+        "c78d1be8c0cf52d1072f8cf197e0160ac6f15d82553d43f8253c4599851984af"
       ]
     },
     "spacr.sudoku.sudoku": {
       "source_blocks_sha256": [
-        "9565fd87072a18706ea83f75aded36f448874f0ae4e09578fabd5644e0382455",
+        "77000659763f57fa1f500f58a56b71e0050431fae61617b761358e2b32cf728d",
         "d1c68c2d44b7928ca72b5af71fd02b75f04415dec889b7093db3ce7092a8e09c",
-        "b8fb34ca7ab0762b881ef5a04536f195f13adc8f3365036ebd82f0d98c53df65",
+        "799b8de714f983f73115cd2038bc09fe10a531fdc95b2fd68f0fbdbe7792bad0",
         "4e74a48dde732283c8bbd6fcdc368d9c610e80f18cf2e91ba720611dd97dd427",
         "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
-        "67fdbb17464bcd148b97766fc52d68279c5ea952e263a0dc4b764e975a40e688",
+        "8173cac1902037307894f7fbb0e56e1ee085500ec6103c674772171adea1e29c",
         "e5db01064629bc5c506f3ec56ead6109b227163fbd50841b5040227a6931e21e",
-        "9a0786d984efff1e26f0d5cb79497ad18d00d935127f3bd61951fa6cee3436f7",
+        "3a2270f21f846985c7cbe5791e9041f065b14b10e6953e8fa8db61b4a0e70425",
         "bb448ce3b066fb995254a78bb5161513381d0ffdadf22dbc87beb40d854672c6",
-        "2485395b525b7e370cd9e86447ae6fb393d3b5b02913fb4c7a6968b17fbde259",
-        "96b5593df006be77dbbee1e739b980b29f87747f42bac4c77656006a4a0f86e2"
+        "66de95662abaada9f85cb6bfa99ae59474386fa4aa6e40c3a6f8fe27725c35c8",
+        "d372db15e0ed540d4917252ae3da5c71207204e6815760a624c079b8abf1313a",
+        "c0c5400fd56c56272017da907234b7d4c61bc74c3081d4f20a8d528b368ce565",
+        "a7b3969fbd62ca315e9b553c6e65c9755000a0152864f1d829fc510d7140a80f",
+        "bdb3bd391ff55d6c1e975b7f332996580a5c310c3eac0bf97c4fbd929eff0cf1"
       ],
-      "source_sha256": "71817567844b193e55ca0d5f126229e61aa03c81c48f6dceff82e4961cab7c60",
-      "text": "Anote cada celda, a través de las posiciones de la muestra microplaca, con dos puntuaciones separadas.\n\n:param features: ``(n_cells, n_features)`` mediciones de células.\n:param scores: la puntuación de clasificación por celda -- se utiliza para seleccionar anclajes, y por defecto no se utiliza como función gráfica.\n:param wells: una etiqueta de posición de la muestra de microplaca por celda.\n:param fractions: ``{well: {guide: fraction}}``.\n:param guides: la guía para anotar. La elección del usuario, y varios es el punto: \"el usuario puede elegir varias guías de puntuación alta\".\n:param anchors: índices de anclaje explícitos opcionales por guía, sobresaliendo :func:`anchors_for`.\n:param use_score_as_feature: poner la puntuación de clasificación en el gráfico también. **Off por defecto y que es una decisión de corrección, no una preferencia**: los anclajes se eligen por puntuación, por lo que un gráfico construido en la puntuación colocaría cada celda de alta puntuación cerca de cada guía anclas y afirmar todos ellos. Al encender esto hace que el método en parte tautológico, y el informe lo dice cuando está encendido.\n:returns: el :class:`SudokuResult`.\n\nLOS CUATRO RESULTADOS, por lo que se llevan dos puntuaciones en lugar de una:\n\n  Afirmar alto, eliminar bajo - con confianza esta guía afirma bajo, eliminar alto - con seguridad NO esta guía afirmar alto, suprimir alto - las guías no se separan aquí afirman bajo, eliminan bajo - a diferencia de cada ancla: la célula impar, y el uno una sola razón oculta mapeándolo al mismo valor que la fila de arriba.",
+      "source_sha256": "48ca7de1dac47a026fc6a0c51fc2ae1b2b4e272ceb331c370a666757d40d60f5",
+      "text": "Asignar guías a las celdas mientras se conservan pruebas competidoras por separado.\n\n:param features: ``(n_cells, n_features)`` mediciones de células.\n:param scores: puntuación de clasificación por celda, utilizado para elegir anclajes, y por defecto no se utiliza como función de gráfico.\n:param wells: una etiqueta de posición de la muestra de microplaca por celda.\n:param fractions: ``{well: {guide: fraction}}``.\n:param guides: Identificadores de guía a considerar para la asignación.\n:param anchors: índices de anclaje explícitos opcionales por guía, sobresaliendo :func:`anchors_for`.\n:param use_score_as_feature: incluir la puntuación del modelo de clasificación de aprendizaje automático en las características del gráfico. Deshabilitada por defecto porque la puntuación también selecciona anclajes; lo que permite introducir pruebas circulares y se registra en el informe de resultados.\n:returns: el :class:`SudokuResult`.\n\nEl apoyo separado y la evidencia de la etiqueta competidora distinguen cuatro resultados:\n\n* alto soporte, baja competencia: asignación segura;\n* bajo apoyo, alta competencia: exclusión segura;\n* alto soporte, alta competencia: ambiguo entre guías;\n* bajo apoyo, baja competencia: no apoyado por las poblaciones ancla.",
       "translation_source_blocks_sha256": [
-        "bb271fc5c5e8510d634b277435e17dc4dfc1742c142df9e42f38229b6e76c0b1",
+        "77000659763f57fa1f500f58a56b71e0050431fae61617b761358e2b32cf728d",
         "d1c68c2d44b7928ca72b5af71fd02b75f04415dec889b7093db3ce7092a8e09c",
-        "b8fb34ca7ab0762b881ef5a04536f195f13adc8f3365036ebd82f0d98c53df65",
+        "799b8de714f983f73115cd2038bc09fe10a531fdc95b2fd68f0fbdbe7792bad0",
         "c0467ab89b7b6826cc65ed13aa61d4446f461fe4b6fafd4aa5e161c994e19a03",
         "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
-        "67fdbb17464bcd148b97766fc52d68279c5ea952e263a0dc4b764e975a40e688",
+        "8173cac1902037307894f7fbb0e56e1ee085500ec6103c674772171adea1e29c",
         "e5db01064629bc5c506f3ec56ead6109b227163fbd50841b5040227a6931e21e",
-        "9a0786d984efff1e26f0d5cb79497ad18d00d935127f3bd61951fa6cee3436f7",
+        "437836f560d9213612c7a51e7eea06257007c797e0d0f82f11c177042fcd26b7",
         "bb448ce3b066fb995254a78bb5161513381d0ffdadf22dbc87beb40d854672c6",
-        "2485395b525b7e370cd9e86447ae6fb393d3b5b02913fb4c7a6968b17fbde259",
-        "96b5593df006be77dbbee1e739b980b29f87747f42bac4c77656006a4a0f86e2"
+        "66de95662abaada9f85cb6bfa99ae59474386fa4aa6e40c3a6f8fe27725c35c8",
+        "d372db15e0ed540d4917252ae3da5c71207204e6815760a624c079b8abf1313a",
+        "c0c5400fd56c56272017da907234b7d4c61bc74c3081d4f20a8d528b368ce565",
+        "a7b3969fbd62ca315e9b553c6e65c9755000a0152864f1d829fc510d7140a80f",
+        "bdb3bd391ff55d6c1e975b7f332996580a5c310c3eac0bf97c4fbd929eff0cf1"
       ]
     },
     "spacr.sudoku.sudoku_all": {
       "source_blocks_sha256": [
-        "810b655532d874a39399f11e67931d6211b319c107a7e6a6ef40e16fcd08a0ff",
+        "6cf743111111c8ac848205cdecd639414505e9fda0d6e691ec10823a2eebb333",
         "29ac08550b61f9b96e7fffd9817b6110583b059d63522cc50a50d13f28de4bdb",
-        "4d44af735702647f73491a4c8640a43ded90d040e176d8b772d91d9091191e8e",
+        "03a52d9271cbf4b5f4dbb3c9e56b2af42c26da25fc15a4b4ca5abf61f2781caa",
         "b9bac12fe498fa8e45c54ec7f754958812619f307e6742622428f682e99d42ed",
-        "3eadcaaf70d7abe0f4dabae2a1bf2a702b67597e7eec44da6682a174c9434634",
-        "06aba2aa8422f8b4869545c3b55f2cad954365e459ba71af351290dc947967a2"
+        "9401231904aa0bf1e645db70bece2e60156086bbf96ef8ffd1c42021590fc8a0"
       ],
-      "source_sha256": "79d15de126efcfa2e121b6c2ee25189b91c6b4f4822eb780836545c70a042034",
-      "text": "Sudoku sobre cada guía, en orden de confianza, reclamando como va.\n\n:param ranking: ``[(guide, confidence)]`` en orden de procesamiento descendente. La persona que llama define la confianza, por ejemplo combinando el tamaño del efecto y la significación estadística.\n:param max_guides: una parada, por lo que una cribado con 1.500 guías no funciona 1.500 gráficos se construye por accidente.\n:returns: una :class:`SudokuResult` sobre todas las células.\n\nCada ronda corre :func:`sudoku` para una guía sobre las celdas aún no reclamadas, mantiene las celdas que decide, y las elimina. Se detiene cuando una ronda no reclama nada -- que es el giro de moneda, alcanzado en lugar de contar.\n\nEL ORDEN ES EL RIESGO, y el informe lleva lo que se necesita para juzgarlo: `claimed_by_round`. Un método codicioso comete temprano, los errores de la primera guía son heredados por cada uno posterior, y las células que toma nunca son reconsideradas. Un llamante que quiere saber cuánto importa funciona esto dos veces con el orden perturbado y compara -- que es lo que hace :mod:`spacr.annotation_validation`.",
+      "source_sha256": "c0b59d5aa89a06438fe9ec6483269fc2811893996c893d7c6835a21b0aec5102",
+      "text": "Asignar guías secuencialmente en orden de confianza descendente.\n\n:param ranking: ``[(guide, confidence)]`` en orden de procesamiento descendente. La persona que llama define la confianza, por ejemplo combinando el tamaño del efecto y la significación estadística.\n:param max_guides: número máximo de guías clasificadas a procesar.\n:returns: una :class:`SudokuResult` sobre todas las células.\n\nCada ronda se aplica :func:`sudoku` a celdas no reclamadas y elimina asignaciones aceptadas. El procesamiento se detiene cuando una ronda no asigna celdas. Debido a que este procedimiento codicioso es sensible al orden, ``claimed_by_round`` se mantiene en el informe; :mod:`spacr.annotation_validation` evalúa la sensibilidad al orden de clasificación.",
       "translation_source_blocks_sha256": [
-        "810b655532d874a39399f11e67931d6211b319c107a7e6a6ef40e16fcd08a0ff",
+        "6cf743111111c8ac848205cdecd639414505e9fda0d6e691ec10823a2eebb333",
         "29ac08550b61f9b96e7fffd9817b6110583b059d63522cc50a50d13f28de4bdb",
-        "4d44af735702647f73491a4c8640a43ded90d040e176d8b772d91d9091191e8e",
+        "03a52d9271cbf4b5f4dbb3c9e56b2af42c26da25fc15a4b4ca5abf61f2781caa",
         "b9bac12fe498fa8e45c54ec7f754958812619f307e6742622428f682e99d42ed",
-        "3eadcaaf70d7abe0f4dabae2a1bf2a702b67597e7eec44da6682a174c9434634",
-        "06aba2aa8422f8b4869545c3b55f2cad954365e459ba71af351290dc947967a2"
+        "9401231904aa0bf1e645db70bece2e60156086bbf96ef8ffd1c42021590fc8a0"
       ]
     },
     "spacr.surrogate": {

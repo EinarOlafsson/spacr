@@ -8473,7 +8473,7 @@
         "e88c5d78138871350b76089d165987c78dd5e92ebc20b998790a599bf71f303e"
       ],
       "source_sha256": "99717d0e8d97a587fb2b775d2187d865e50fce60d4a0c843be6bee9cf6863c67",
-      "text": "Mät maskininlärning klassificering modell prestanda och korrekt observerade klass fraktioner.\n\nA confusion matrix requires labelled outcomes; an unlabelled score column cannot establish sensitivity or specificity by itself. Use a labelled test split or out-of-fold predictions when available. When labels are unavailable, :func:`deconvolve` estimates two score distributions and reports whether their separation is sufficient to support the estimate.\n\nMaskininlärning klassifikation modell fel partisk den observerade positiva fraktionen snarare än bara öka sin osäkerhet. Korrektionshjälparna visar att skevhet över prevalensnivåer och vägra Rogan-Gladen korrigering när känslighet och specificitet inte identifiera det.",
+      "text": "Mät maskininlärning klassificering modell prestanda och korrekt observerade klass fraktioner.\n\nEn förväxlingsmatris kräver märkta utfall; en omärkt poängkolumn kan inte ensam fastställa sensitivitet eller specificitet. Använd en märkt testuppdelning eller prediktioner utanför folden när sådana finns. När etiketter saknas uppskattar :func:`deconvolve` två poängfördelningar och rapporterar om separationen mellan dem är tillräcklig för att stödja skattningen.\n\nMaskininlärning klassifikation modell fel partisk den observerade positiva fraktionen snarare än bara öka sin osäkerhet. Korrektionshjälparna visar att skevhet över prevalensnivåer och vägra Rogan-Gladen korrigering när känslighet och specificitet inte identifiera det.",
       "translation_source_blocks_sha256": [
         "ef3738cdee2740bb64b9f0af2b6cd67e2aae5398511c2337684e1a856a513420",
         "3b528fc58946ff54785dcbac45932dc4659d32290d22b6b5a07450e9e307aed7",
@@ -76029,14 +76029,14 @@
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.crop_count": {
       "source_blocks_sha256": [
-        "b119ee7b27b8f4d8b1287e0fa9c53cc3c476a2d39c0717bdf375d13adc6ee4c1",
-        "69f3f18375b6322447d7fa881bc2360f7e26a21fc439734f857a18955a0d4708"
+        "8c60c5784771b861707e83c600801fee83dc30eb0e90679a94af51ddfd3e5e85",
+        "3947acc874bc96c46be64cf354732d57286bc55f4000ee587f98b777d58a1f9c"
       ],
-      "source_sha256": "8ca9eaa77704ee8b8dbeac58418e3f63d3731527aa20c3874905182e8af7d02c",
-      "text": "Hur många extraherade bild regioner flikarna HOLD, över varje sida.\n\nINTE `len(thumbnails())`, vilket räknas vad som är UNDANTAGET - och eftersom instruktion 211 som är en sida, inte hela brunnen. De två var samma nummer tills flikarna började söka, och varje uppringare som betydde \"hur många objekt är här\" vill ha den här.",
+      "source_sha256": "a15489a16b39f1fed1cd9240c163971a41517562c2b34e771dacddcd7349a504",
+      "text": "Returnera det totala antalet extraherade bildregioner som hålls på alla fliksidor.\n\nDetta skiljer sig från ``len(thumbnails())``, som bara räknar grafiska komponenter på de sidor som för närvarande visas.",
       "translation_source_blocks_sha256": [
-        "9096d2205a7d6d9b19ec4276280cee7c9feb2d45a19dcf3cf40d9fad267dc220",
-        "69f3f18375b6322447d7fa881bc2360f7e26a21fc439734f857a18955a0d4708"
+        "cb15dc4ee82907e90ca00e96977b217a8da9d8023be8390129be8787364c038d",
+        "3947acc874bc96c46be64cf354732d57286bc55f4000ee587f98b777d58a1f9c"
       ]
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.databases": {
@@ -76327,14 +76327,14 @@
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.thumbnails": {
       "source_blocks_sha256": [
-        "213ae028a55287c4c65dfd83ac5de01a3765bf86e6cfaefd9eb3a65fbe5d5799",
-        "7b5005e9377cfc1cda807c8f96a26cf9b8553bee14e8b7fb16dccb58520e51b7"
+        "2483fbbf7d213de530d7afc9471bd8a92903be575aa987fae2900d458fef4b15",
+        "135481b32e6fd5f3e68496ac5dca52404dcd99768ab6011c3f9dee440ce68d33"
       ],
-      "source_sha256": "6590580a999c9adc59a7e06e0239ad50a98e0657d8a50cdfd5e25481e6b1dff6",
-      "text": "Varje miniatyrbild på programvyn, över varje öppen välflik.\n\nOM ANVÄNDNINGSvy betyder PÅ DEN LÄMNA SIDAN. Använd :meth:`crop_count` för hur många objekt flikarna håller.",
+      "source_sha256": "ffa75d3629537287383e7391733aeaa3e8105ce35d2ead2d78fcd2e9c85d8472",
+      "text": "Returnera miniatyrbilder synliga på fliksidorna som för närvarande visas.\n\nAnvänd :meth:`crop_count` för att få det totala antalet objekt som hålls på alla brunnsflikar, inklusive sidor som inte visas.",
       "translation_source_blocks_sha256": [
-        "ff5e60fb13502906df6e4ffabb366a5f9503c173b102a67cc91aaa331421d7d4",
-        "15a46b70f9a8f25bc4cbf2f872e163baebeefa7bc2a43fe34d0f66807de66285"
+        "2483fbbf7d213de530d7afc9471bd8a92903be575aa987fae2900d458fef4b15",
+        "135481b32e6fd5f3e68496ac5dca52404dcd99768ab6011c3f9dee440ce68d33"
       ]
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.well_tabs": {
@@ -81663,6 +81663,18 @@
         "ce9a6e97631ca1b5f4218767d999fbce2147862594d6acdbab134accebf7700f"
       ]
     },
+    "spacr.qt.widgets.fast_plots.FastPlot.graph_spec": {
+      "source_blocks_sha256": [
+        "3c6e4b7ba5659addf1b707a071d38df1a55e5cc1c971a0ea4cc922698668b81e",
+        "7f52b622bb2cdb18e025184a92453732386ed349fc9317f915c0c20033ffe635"
+      ],
+      "source_sha256": "4415173f0ec76aeef9af8f6bd00f34ae4f1b0fb89e412a3e18a81d0e70aa6c22",
+      "text": "Returnera dataspecifikationen som används för att rita denna diagram, om det finns.\n\nTomter som behåller en specifikation kan ritas om med hjälp av en annan kompatibel graftyp. Rendering-bara tomter returnerar ``None``.",
+      "translation_source_blocks_sha256": [
+        "3c6e4b7ba5659addf1b707a071d38df1a55e5cc1c971a0ea4cc922698668b81e",
+        "7f52b622bb2cdb18e025184a92453732386ed349fc9317f915c0c20033ffe635"
+      ]
+    },
     "spacr.qt.widgets.fast_plots.FastPlot.grid_shown": {
       "source_blocks_sha256": [
         "a71cf52e99c0f47e3443d8db7eba6890583b38d14ddf2d48e0ccfa471183be6c"
@@ -82040,19 +82052,17 @@
     "spacr.qt.widgets.fast_plots.FastPlot.select_in_rect": {
       "source_blocks_sha256": [
         "4e6a4b667e2f4c91d7dbec5261ce4f7a3411341fdb13f1a0f125bdc3dfd3f8c6",
-        "84359973f7a72b073d136c2c9c9128ac2446e9a9c45a69a1f3c258722d6b8e59",
-        "f1c73babc8a370b2710cc3dbb716f89d4fb45ea8e31259d8ac52cc6f37bd8deb",
-        "4b34c5f289845fc6a161ed290b640b8d8ea03ede520faf3efe11673c7857a97f",
-        "90ef60f487cb3a22eae8ad466a7777e23abead169995210a366ca86fbcf2da9e"
+        "d83eaa2f297777e0d0e5c84d1f49797ac22ad80c355462c938be7ebf992e2145",
+        "0ac41a840e5e2132523486be8aa7157013cf04511a41efe806e56149fd1339eb",
+        "e4ccc06c216cc06b70d0a6d0255ff935d43d31371279c57588312b5e8a605c30"
       ],
-      "source_sha256": "8035b9f0b78585a56ce95caec5200ea5405d2206406541a8aa54dcb807b9beb1",
-      "text": "Välj varje plottad punkt inuti den datakoordinata rektangeln.\n\nGESTUREN EN VOLKANOS SHAPE UPPMANAR: de intressanta guiderna är ett hörn av molnet, och att välja dem ett klick i taget är det arbete som detta ersätter.\n\nPoäng utan dragen position finns inte i någon rektangel – ett band väljer vad det synligt omsluter, vilket är den enda läsning en användare kan kontrollera.\n\n:param add: utöka det nuvarande urvalet snarare än att ersätta det, för ett band som dras med modifiern fortfarande nere.\n:returns: valet efter bandet, i plocka ordning.",
+      "source_sha256": "e419cef53e12de9d69245c3361dfa06357f765938045095062c2a09f289c270e",
+      "text": "Välj varje plottad punkt inuti den datakoordinata rektangeln.\n\nPoäng utan en plottad position kan inte väljas. Rektangelval innehåller därför exakt de punkter som synbart omges av de angivna gränserna.\n\n:param add: utöka nuvarande urval snarare än ersätta det, som används när en modifier-nyckel hålls under urvalet.\n:returns: markerade tangenter i plockordning.",
       "translation_source_blocks_sha256": [
         "4e6a4b667e2f4c91d7dbec5261ce4f7a3411341fdb13f1a0f125bdc3dfd3f8c6",
-        "84359973f7a72b073d136c2c9c9128ac2446e9a9c45a69a1f3c258722d6b8e59",
-        "f1c73babc8a370b2710cc3dbb716f89d4fb45ea8e31259d8ac52cc6f37bd8deb",
-        "4b34c5f289845fc6a161ed290b640b8d8ea03ede520faf3efe11673c7857a97f",
-        "90ef60f487cb3a22eae8ad466a7777e23abead169995210a366ca86fbcf2da9e"
+        "d83eaa2f297777e0d0e5c84d1f49797ac22ad80c355462c938be7ebf992e2145",
+        "0ac41a840e5e2132523486be8aa7157013cf04511a41efe806e56149fd1339eb",
+        "e4ccc06c216cc06b70d0a6d0255ff935d43d31371279c57588312b5e8a605c30"
       ]
     },
     "spacr.qt.widgets.fast_plots.FastPlot.selected_keys": {
@@ -82703,16 +82713,18 @@
     },
     "spacr.qt.widgets.fast_plots.ResultsTable.select_keys": {
       "source_blocks_sha256": [
-        "fc781b8aecfb2dcd793563df086b73735fe84506f0aa01d0b70293adfd6ad8af",
-        "6c6d69bb13839ed47a5037b8268372f92aba91ad74604e59db3a02abedcced6d",
-        "20f1325cbd5f60f1b00281463b76dea0ca49229173dc4b2e912456da054af87c"
+        "55a3baa1c0e2684826864bf0257cd23a1daadea8aba60a6576636c83f2a913a7",
+        "80af7e436fa5cf3724a1146d8775b1242086660b18b188d43c53878735e03271",
+        "0cf35293e20d450847461abbbca262495335b90dc50438adbe60bdb5f6eb2b7b",
+        "978bdc22e52170a5ca63fe43dfcf172f307a2f29d7e47f87960a6099a444bfc0"
       ],
-      "source_sha256": "a3ad84f9ff028fa81079743d4e19cee6b06bbcad7498a76e54e9f793328706f0",
-      "text": "Välj varje rad som heter ``keys``. Returnerar hur många som hittades.\n\nDEN ENA PLATSEN A MULTI-URVALEN PÅ TABELLEN, så de två signalerna nedan avges tillsammans och ingen konsument kan titta på ett annat urval än sin granne.\n\nTabellen väljer rader istället för att filtrera dem: att begränsa till valet är vad `show_keys` gör för en histogram bar, och att göra båda från en gest skulle dölja de ovalda guider användaren jämför mot.",
+      "source_sha256": "3c5ab5f2d8722166d89b0d900531711d87467db6fb5b006f45ffdb50c9420b54",
+      "text": "Välj tabellrader vars strukturerade datanamn förekommer i ``keys``.\n\nBåda markeringssignalerna sänds ut här så att varje konsument får samma beställda markering. Rader förblir synliga; :meth:`show_keys` utför filtrering när en diagraminteraktion kräver det.\n\n:param keys: Radidentifierare att välja i önskad urvalsordning.\n:returns: Antal matchande rader markerade.",
       "translation_source_blocks_sha256": [
-        "fc781b8aecfb2dcd793563df086b73735fe84506f0aa01d0b70293adfd6ad8af",
-        "6c6d69bb13839ed47a5037b8268372f92aba91ad74604e59db3a02abedcced6d",
-        "20f1325cbd5f60f1b00281463b76dea0ca49229173dc4b2e912456da054af87c"
+        "857453c50b18462adcab937ceb59bc49835701aeb823c1123d68c853f4f2a26a",
+        "80af7e436fa5cf3724a1146d8775b1242086660b18b188d43c53878735e03271",
+        "e85e066b9d519d51ed44752058d57fb0a55535ed8ca82cadc811528437ecc6e5",
+        "978bdc22e52170a5ca63fe43dfcf172f307a2f29d7e47f87960a6099a444bfc0"
       ]
     },
     "spacr.qt.widgets.fast_plots.ResultsTable.selected_keys": {
@@ -85117,14 +85129,22 @@
     },
     "spacr.qt.widgets.figure_settings.save_figure_bundle": {
       "source_blocks_sha256": [
-        "9ca4f6e3c03eb44d6a3deb5da3a73a8cc028c5fe11ec93cb0a17e47c442ed3b5",
-        "9047b33671b26a87e9469f1f69368b775587f9dfaf7583d9b6f46e5befcf8158"
+        "5a362dac2e2d6e359d94105925036c996f826a4987de0b8a0c27e94fd6d4bbe3",
+        "6b1c0ed0acb6c182cfa8d006a2edf35deecb03e0b902b1a4e3d2396d472c5b63",
+        "f5a473b285b528f02dfd7ef0e69288a8ddae96cdd5bc265bf0c06f8227172612",
+        "4a31d914370c8448a9d22136127d5fc0ebc9e24f426d27a76a6b248864a29303",
+        "fb91c5a6dd871971b2362e4caf2f508082252e18b91159c0d7ff3ec6a36fd692",
+        "c7b4a4073481da4663a4a8e302dabaec1c30a629ff3a293a1f0a4e2857d06bde"
       ],
-      "source_sha256": "0c75ff80072169ee26800f9503fff30fcc766bf8df866168b0a18fe88f891971",
-      "text": "Skriv en matplotlib figur som ett paket. Returnerar korgen.\n\nGRUPPERNA KOMMER FRÅN RECIPE, vilket är vad som gör statistiken samma jämförelse bilden visar. En siffra utan recept fortfarande får varje fil -- statistiken säger att det inte finns något att jämföra, eftersom en frånvarande fil läser som ett fel.",
+      "source_sha256": "e55bc3d26931994ed734c5026a87138646b72a59cf427c8ed5cbaf9e02e9c932",
+      "text": "Exportera en Matplotlib siffra med dess källdata och statistik.\n\nGruppdefinitioner kommer från det bifogade replot receptet så statistiska jämförelser matchar den visade siffran. När inget recept är tillgängligt, skrivs standardfilerna fortfarande och statistiken artefaktposter som ingen jämförelse kunde bildas.\n\n:param figure: Matplotlib siffra att exportera.\n:param folder: Destinationskatalog för bunten.\n:param name: Valfritt basnamn för genererade filer.\n:returns: sökväg till den skrivna buntkatalogen.",
       "translation_source_blocks_sha256": [
-        "9ca4f6e3c03eb44d6a3deb5da3a73a8cc028c5fe11ec93cb0a17e47c442ed3b5",
-        "9047b33671b26a87e9469f1f69368b775587f9dfaf7583d9b6f46e5befcf8158"
+        "5a362dac2e2d6e359d94105925036c996f826a4987de0b8a0c27e94fd6d4bbe3",
+        "6b1c0ed0acb6c182cfa8d006a2edf35deecb03e0b902b1a4e3d2396d472c5b63",
+        "f5a473b285b528f02dfd7ef0e69288a8ddae96cdd5bc265bf0c06f8227172612",
+        "4a31d914370c8448a9d22136127d5fc0ebc9e24f426d27a76a6b248864a29303",
+        "fb91c5a6dd871971b2362e4caf2f508082252e18b91159c0d7ff3ec6a36fd692",
+        "c7b4a4073481da4663a4a8e302dabaec1c30a629ff3a293a1f0a4e2857d06bde"
       ]
     },
     "spacr.qt.widgets.figure_settings.save_graph_style": {
@@ -89229,6 +89249,118 @@
       "translation_source_blocks_sha256": [
         "cafd17427723f1b983c0b7d39564c15ce460199ab12768b433ff3692a4eacfba",
         "e7638a4c88426da8b5ee9dacf1b6139de3de9885f895e159568738da47196342"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot": {
+      "source_blocks_sha256": [
+        "836043c08e8dde095c3ee198cfefe73ddb35526d1d9ccb8c54f7041e4b0ab42e",
+        "d7adcb8ab1bea24e17bfc79f14ef10cb68f0aa3543040f11a99757677dd0cbc8"
+      ],
+      "source_sha256": "ec12ca0485068edc2abc4ea02c9e024f90920114bc0089e133a00a1cdef6bbbd",
+      "text": "Render data-backed grupperade jämförelser med utbytbara graftyper.\n\nA :class:`PlotSpec` behåller källkodsram, grupp- och värdekolumner, observationsenhet och vald graftyp. Genom att behålla dessa data kan komponenten rita om kompatibla graftyper och exportera figuren tillsammans med källraderna och statistisk jämförelse.",
+      "translation_source_blocks_sha256": [
+        "836043c08e8dde095c3ee198cfefe73ddb35526d1d9ccb8c54f7041e4b0ab42e",
+        "d7adcb8ab1bea24e17bfc79f14ef10cb68f0aa3543040f11a99757677dd0cbc8"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.GroupedPlot": {
+      "source_blocks_sha256": [
+        "29acd5cdce42cf091df9894fa911973b3547124aa5c78495e963388038df9ebf",
+        "42c57662519177b70a817ee9735596ffcd46d1240f038655365c3e46bf48e3bf"
+      ],
+      "source_sha256": "9a40941bed717bf71ac53bd0bb3c0ba096f3bb2b5191458da84df1bb3d5ba61c",
+      "text": "En pyqtgraph-plot av ett :class:`PlotSpec` som kan ritas om som något slag.\n\n:ivar spec: Vad ritas. Tilldela genom :meth:`show_spec`.",
+      "translation_source_blocks_sha256": [
+        "29acd5cdce42cf091df9894fa911973b3547124aa5c78495e963388038df9ebf",
+        "42c57662519177b70a817ee9735596ffcd46d1240f038655365c3e46bf48e3bf"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.GroupedPlot.comparison_groups": {
+      "source_blocks_sha256": [
+        "88486dd4ee6edd3ee3da67eaf4217a303427cc8445902b88d11eb2c687136e6f",
+        "22b6c74f5275ea73d80940f4051356586dfa45e5099ae530f39c8e1973f8b7a2"
+      ],
+      "source_sha256": "5cb5971db318b77e8a6b45388809819c1b336dd0fae62b68a1b96d9c942be739",
+      "text": "Returgrupperade värden för statistisk jämförelse mellan exporttid och exporttid.\n\nReturnerar ``None`` om inte den bibehållna specifikationen innehåller minst två grupper.",
+      "translation_source_blocks_sha256": [
+        "88486dd4ee6edd3ee3da67eaf4217a303427cc8445902b88d11eb2c687136e6f",
+        "22b6c74f5275ea73d80940f4051356586dfa45e5099ae530f39c8e1973f8b7a2"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.GroupedPlot.frame": {
+      "source_blocks_sha256": [
+        "1ebfd766c5240ef44f480ec3ab590fd4c1f15f9bdb6d1545983c1070d3d5926b"
+      ],
+      "source_sha256": "1ebfd766c5240ef44f480ec3ab590fd4c1f15f9bdb6d1545983c1070d3d5926b",
+      "text": "Returnera de exporterade källraderna till ``data.csv``.",
+      "translation_source_blocks_sha256": [
+        "1ebfd766c5240ef44f480ec3ab590fd4c1f15f9bdb6d1545983c1070d3d5926b"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.GroupedPlot.show_as": {
+      "source_blocks_sha256": [
+        "20472c556a54b6cd2b31d611e2d775b092af5f44d2d8efa7887592b1047f374a",
+        "8c0091246ee0fecd0cfe46038e707ce50d9ad8d4a68e7a76bce549e07e2eeb33"
+      ],
+      "source_sha256": "de6737f51daed123276c7020379b7dd59cf4948f1118cf9200ccfb4d045f6a8e",
+      "text": "Dra om de lagrade uppgifterna med hjälp av graftypen ``kind``.\n\n:raises ValueError: för en typ av data som inte kan stödja. Ritning skulle annars innebära ett förhållande som inte stöds av den tillgängliga dataformen.",
+      "translation_source_blocks_sha256": [
+        "20472c556a54b6cd2b31d611e2d775b092af5f44d2d8efa7887592b1047f374a",
+        "8c0091246ee0fecd0cfe46038e707ce50d9ad8d4a68e7a76bce549e07e2eeb33"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.GroupedPlot.show_spec": {
+      "source_blocks_sha256": [
+        "30fe6b01ee11b6964873a79c2c6b0199854b830c9537b84afbabd2aaafb8f839"
+      ],
+      "source_sha256": "30fe6b01ee11b6964873a79c2c6b0199854b830c9537b84afbabd2aaafb8f839",
+      "text": "Rita ``spec``. Returnerar antalet grupper som dras.",
+      "translation_source_blocks_sha256": [
+        "30fe6b01ee11b6964873a79c2c6b0199854b830c9537b84afbabd2aaafb8f839"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.PlotSpec": {
+      "source_blocks_sha256": [
+        "378f3994a88e90bda2043e5fbc4f417ea89a6927c8adf0650bcf2cc61eba455f",
+        "08fa51e5a5908497cb51a7a9b85a16dc6a7f0a54601a2921989667794978bd18"
+      ],
+      "source_sha256": "dc98dffa80578da0bc985dff68497d058f52ec76be3027522ced7998ea03ba30",
+      "text": "Data och visa metadata som krävs för att göra en grupperad diagram.\n\nDen bevarade ramen stöder kontroll av graftypkompatibilitet, omritning, dataexport och statistisk jämförelse utan att rekonstruera grafen från utgiven grafik.",
+      "translation_source_blocks_sha256": [
+        "378f3994a88e90bda2043e5fbc4f417ea89a6927c8adf0650bcf2cc61eba455f",
+        "08fa51e5a5908497cb51a7a9b85a16dc6a7f0a54601a2921989667794978bd18"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.PlotSpec.default_kind": {
+      "source_blocks_sha256": [
+        "5602484c183dd514ed8ff86517e5abbe6d1617bbe675c2f26556e174e3a69b54"
+      ],
+      "source_sha256": "5602484c183dd514ed8ff86517e5abbe6d1617bbe675c2f26556e174e3a69b54",
+      "text": "Hur denna data är född som, när ingen sort namnges.",
+      "translation_source_blocks_sha256": [
+        "5602484c183dd514ed8ff86517e5abbe6d1617bbe675c2f26556e174e3a69b54"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.PlotSpec.groups": {
+      "source_blocks_sha256": [
+        "aec0278988ac67af6738f59fa90c3a0194df75ed34fe5b5d33416013a25c1dcd",
+        "d6f44a2933a3f7d39b392318acdc9d5d1e5c3a053952708258e95812119e09e9"
+      ],
+      "source_sha256": "b8dc06648aee463b4d6b8eb47b3e17f546f23111610f201b688973e82fcf6d78",
+      "text": "Returnera ``{label: values}`` samtidigt som ramordningen bevaras.\n\nBevarandet av den första händelsen håller medvetet ordnade experimentella förhållanden, inklusive kontroller, i deras konfigurerade visningsordning.",
+      "translation_source_blocks_sha256": [
+        "aec0278988ac67af6738f59fa90c3a0194df75ed34fe5b5d33416013a25c1dcd",
+        "d6f44a2933a3f7d39b392318acdc9d5d1e5c3a053952708258e95812119e09e9"
+      ]
+    },
+    "spacr.qt.widgets.grouped_plot.PlotSpec.shape": {
+      "source_blocks_sha256": [
+        "9c47bfb57a6ee3ebceecd31440931791db14faa1dc9a13c7f2ffcf959e4c6f1e"
+      ],
+      "source_sha256": "9c47bfb57a6ee3ebceecd31440931791db14faa1dc9a13c7f2ffcf959e4c6f1e",
+      "text": "Datan form, för att avgöra vilka typer passar.",
+      "translation_source_blocks_sha256": [
+        "9c47bfb57a6ee3ebceecd31440931791db14faa1dc9a13c7f2ffcf959e4c6f1e"
       ]
     },
     "spacr.qt.widgets.home": {
@@ -97310,20 +97442,14 @@
     },
     "spacr.qt.widgets.setup_slides": {
       "source_blocks_sha256": [
-        "59f7912bea64c9b26b828bc2a823231af3855c52cc8e07d45273db6aa529b562",
-        "d6ba6cff1cc6682b7b978041e8cd5937ccd81d7ddfddb1bd0da3662c7f335611",
-        "543facc840fd6c7829dfcba82cd2820e5e48c183338e3860b3981f82f06cc738",
-        "af9bd9d7d67d2c78cecb051079ad113ccb5492e77c86ffe336a2bfbcb3815096",
-        "8bd3d25de9e8e5cf45b1723408144612331fd2fea056f64fde8a545546906460"
+        "83593fa228c74b4e408a4b5b5499752bebc1bd4801b3561ed10ff881dd95ae09",
+        "114c29b4348bd362e34fca44c1b5f2cc5e10da0e53f07e909809eb61494415ff"
       ],
-      "source_sha256": "62b2fa34cfa6eafabb70b0096dff9852aef3c15fb7a9c7d07e8a7953eb797dd5",
-      "text": "Den första körningen som en sekvens av diabilder (instruktion 234).\n\n    \"Jag vill ha en fråga per bild med lite explantaion ... sedan en screening som bara säger Gör ... det ska kännas som en smidig övergång till spacr\"\n\nETT FORMULÄR ASKS ALLTING PÅ ONCE OCH SVARER INTE. En bild frågar en sak och har utrymme att säga varför det spelar roll, vilket är skillnaden mellan en screening någon fyller i och en de läser.\n\nDetta ersätter den grupperade layoutinstruktionen 221 som levereras. 221's MODEL -- `spacr.qt.setup_screen`, dess standardvärden och dess varaktighet -- är oförändrad och fortfarande det enda som skriver en preferens; det som ändrades är helt och hållet presentationen.\n\nINVARIANTERNA 10 Throughout: fälganimeringen, skikten och oskärpa är alla dekorationer. Om ingen av dem kan ritas fungerar bilderna fortfarande och ändå skriva samma svar, och testerna hävdar att snarare än att anta det.",
+      "source_sha256": "9328565a1b55fe717a19f7d12d17afeb8b5e2e61ec4d0b1306f8c77ef337098e",
+      "text": "Presentera första run preferenser som en kort sekvens av förklarade val.\n\nVarje bild täcker en preferensgrupp och skriver genom den befintliga inställningsmodellen. Den animerade bakgrunden, genomskinliga kortet och pekarkänsliga gränsen är dekorativa; preferensredigering och beständighet förblir tillgängliga när dessa effekter inte kan återges.",
       "translation_source_blocks_sha256": [
-        "59f7912bea64c9b26b828bc2a823231af3855c52cc8e07d45273db6aa529b562",
-        "d6ba6cff1cc6682b7b978041e8cd5937ccd81d7ddfddb1bd0da3662c7f335611",
-        "543facc840fd6c7829dfcba82cd2820e5e48c183338e3860b3981f82f06cc738",
-        "af9bd9d7d67d2c78cecb051079ad113ccb5492e77c86ffe336a2bfbcb3815096",
-        "8bd3d25de9e8e5cf45b1723408144612331fd2fea056f64fde8a545546906460"
+        "83593fa228c74b4e408a4b5b5499752bebc1bd4801b3561ed10ff881dd95ae09",
+        "114c29b4348bd362e34fca44c1b5f2cc5e10da0e53f07e909809eb61494415ff"
       ]
     },
     "spacr.qt.widgets.setup_slides.SetupSlides": {
@@ -97412,14 +97538,14 @@
     },
     "spacr.qt.widgets.setup_slides.open_setup_if_needed": {
       "source_blocks_sha256": [
-        "bc00e426b8c8550066500d993775b6b200df2f41b3d18d9f250fee2169ae06b1",
-        "4628e82a5b9368a3262f277aba7002897b90a05c543c94d709b4d5021a728ba5"
+        "936cb3c5c3784e8c37bbe2cb8f75efd4b4b65bf11513a721f7ad1b60c2357536",
+        "533729d3973e27be0f91c7f9efe41c66de9123518eabdaca9b14a2dbf1bcfea2"
       ],
-      "source_sha256": "fee91694dadebb94b97c19e2b696e02e278635ec0d2d7c47cb34b96795924330",
-      "text": "Visa inställningsbilder om de inte har blivit besvarade.\n\nKALLAREN FÖRSÄKRAR INTE OM ATT FRÅGA – `should_open` gör det, från den inspelade versionen. En screening som varje uppringare gated för sig själv är en som visas två gånger på en uppskjutning och aldrig på en annan.",
+      "source_sha256": "39339dd2fed00f1441e06c1772af330e7cc21b2e69a180bd4ff45f8f673ea351",
+      "text": "Visa inställningsbilder när det inspelade inställningstillståndet kräver dem.\n\nDen centraliserade :func:`spacr.qt.setup_screen.should_open`-kontrollen förhindrar oberoende samtal från att öppna dubblettdialogrutor under en uppskjutning.",
       "translation_source_blocks_sha256": [
-        "bc00e426b8c8550066500d993775b6b200df2f41b3d18d9f250fee2169ae06b1",
-        "4628e82a5b9368a3262f277aba7002897b90a05c543c94d709b4d5021a728ba5"
+        "936cb3c5c3784e8c37bbe2cb8f75efd4b4b65bf11513a721f7ad1b60c2357536",
+        "533729d3973e27be0f91c7f9efe41c66de9123518eabdaca9b14a2dbf1bcfea2"
       ]
     },
     "spacr.qt.widgets.sweep_panel": {
@@ -105917,29 +106043,29 @@
     },
     "spacr.run_recommendations.format_recommendations": {
       "source_blocks_sha256": [
-        "94d7c5d065897ab9ee8d7b833f0b1b56c3f5c1a4d230fb76a5d009b4546c9c80",
-        "5023596fc71d826fc4976b1050c22f7886830b8bb00994a382e9ec7dbf334a6e"
+        "7de5317a1ceb1305b2fb29647f3168b8ea33681eb4eb165db0cba06d6dbd243e",
+        "ebd9a809f6261e8eff3bf06ea46ed0727447eafbca4eedc47f69d36b027310af"
       ],
-      "source_sha256": "594412b9096e1521862e693e3ab1cac162ecbe6ae2bd0e2d5b6f908f5e252b36",
-      "text": "Avsnittet som det finns i slutet av sammanfattningen.\n\nEN EMPTY SEKTION SÄGER SÅ. Dess frånvaro skulle läsas som ett fel, och \"every check passed\" är ett resultat värt att ange snarare än antyda genom tystnad.",
+      "source_sha256": "965dafcc30f90d9a237ad86bbb731000998f086db7c46e2285d2e3c6bdce0305",
+      "text": "Format rekommendationer för slutet av en kör sammanfattning.\n\nEn tom inmatning rapporteras explicit så att en fullständig kontroll utan rekommendationer kan särskiljas från ett resultat som saknas.",
       "translation_source_blocks_sha256": [
-        "94d7c5d065897ab9ee8d7b833f0b1b56c3f5c1a4d230fb76a5d009b4546c9c80",
-        "5023596fc71d826fc4976b1050c22f7886830b8bb00994a382e9ec7dbf334a6e"
+        "7de5317a1ceb1305b2fb29647f3168b8ea33681eb4eb165db0cba06d6dbd243e",
+        "ebd9a809f6261e8eff3bf06ea46ed0727447eafbca4eedc47f69d36b027310af"
       ]
     },
     "spacr.run_recommendations.recommend": {
       "source_blocks_sha256": [
         "f7ab26ea65b09a07163a7026157b71c0588af9f7d60d728262d56dbb44a039bf",
         "4f90c9043cbd6f48e0149d9c6913144874a9f989b28ca8e6caa8fbb5d77bd736",
-        "91222ceae062e34f6225c0f9496797dca33fc88a29cd494f5e92b47c1d2cdf7e",
+        "f2e3a9f9f8d161f972bcd176f230b27d7d4110d2fd1dd9a758f64adc7c967b8f",
         "e4f2bed9658d4584346676aa2d4792e1cf9ed0af6f7dddc6e6f7ab65a239ad56"
       ],
-      "source_sha256": "a6dd2f6fc40fbabd4091a8722e19631ca50012c5f78436f31e32b9aa2921caeb",
-      "text": "Härled rekommendationer från en körnings uppmätta diagnostik.\n\n:param diagnostics: Siffrorna QC beräknas.\n:param settings: Vad körningen använde, så en rekommendation som redan tagits inte erbjuds igen. Att berätta något för att göra vad de gjorde är hur en rekommendation avsnitt kommer att något människor skip.\n:returns: De rekommendationer som avfyrade, blockerade dem först.",
+      "source_sha256": "d858cb71683cde3d13d499bd88c8233b200da6c14f46c1006568dfefaf4ca109",
+      "text": "Härled rekommendationer från en körnings uppmätta diagnostik.\n\n:param diagnostics: Siffrorna QC beräknas.\n:param settings: Inställningar som används för bearbetningssessionen. Rekommendationer som redan är uppfyllda av dessa värden utelämnas.\n:returns: De rekommendationer som avfyrade, blockerade dem först.",
       "translation_source_blocks_sha256": [
         "f7ab26ea65b09a07163a7026157b71c0588af9f7d60d728262d56dbb44a039bf",
         "4f90c9043cbd6f48e0149d9c6913144874a9f989b28ca8e6caa8fbb5d77bd736",
-        "91222ceae062e34f6225c0f9496797dca33fc88a29cd494f5e92b47c1d2cdf7e",
+        "e4a8353d0294c30996c1d688ceb4d782d2e1f284e51443b9e7f6cd5d3758c326",
         "e4f2bed9658d4584346676aa2d4792e1cf9ed0af6f7dddc6e6f7ab65a239ad56"
       ]
     },
@@ -114031,26 +114157,26 @@
     },
     "spacr.sudoku.SudokuResult": {
       "source_blocks_sha256": [
-        "259961c60b0a260dc8d90924ad0a02c1f27daeb1d4a3f78579e3f27ecfc5d4df",
-        "b133cb63caf150909107fbdda390ce582730020f52d586f39d752a010b3b84b7",
-        "80527d2b3d77943e3caa8b9283999d0a9f9f2053c69c7b78825fbb5ef1c71bdd",
-        "125fe5ffa550f064b7e959b6c49ac86a94e7253b4c755fda02fe4f9dd96eaa33",
-        "0ba7c441293ede3a909873f64ea7273f3bd5cfc5c212cb0c94634526840f948f",
+        "d9284ef5bcd7bfea85f2d2329d0ab8d3bf456084a3a592bb3c9a568e1f0d88d7",
+        "7124a0dc2fd2578db7688f06e9d04b4632c44a19142d6b54666e251a5f4ebda7",
+        "a38fa0e721d25346f415c3f2aaee2191b452b77a8e8541250c1392262cefd13f",
+        "8cbd90aca0dc570bca4c05ababc7c43f190a7dc69ff49aa23025dd131392d487",
+        "060df21c36f9993274fa4ac923ec580fad6e391d84b4138341e53b1dd28098b7",
         "aee5d6ead903cfdd1faf6431bb03a5ee306d4a7fd7ebf8a48d648e47780bd18c",
         "8e0e840760dd542656a1e3fcdf2f7203a4d6f56c2c9d7f043cd51571a794db7b",
-        "ca6a433c0d92112bad90a52cff1cb398ed4c5bb6d02a18cb4eac2bfad2f734e6"
+        "d0df92a521cce19f8e16a5490171f6b5b82416056ba6eba0026402fe22dd8e4a"
       ],
-      "source_sha256": "595ce16b97d003e41144db061fba8aaddf4e1e6cad4a7ed4d5d1c763201a909c",
-      "text": "Vad sudoku avslutade, med båda poängen hålls isär.\n\n:ivar guides: ett namn per cell, i den ordning cellerna kom, eller :data:`ABSTAIN`.\n:ivar affirm: ``(n_cells, n_guides)`` – hur mycket varje cell ser ut som varje guides ankare.\n:ivar eliminate: ``(n_cells, n_guides)`` -- hur mycket det ser ut som något ELSE. Varit separat med flit: \"probably not this guide\" och \"probably this guide\" är olika påståenden, och en cell kan vara låg på båda, vilket är cellen värd att titta på. En enda proportion kartor som på samma värde som en cell som är hög på båda.\n:ivar reach: ``(n_cells,)`` -- total ankarmassa som kom. Låg räckvidd är den fjärde kvadranten: till skillnad från varje ankare, av någon guide.\n:ivar posterior: ``(n_cells, n_guides)`` efter mikroplattans provpositionsrestriktion.\n:ivar names: Guidenamnen, i kolumnordning för matriserna.\n:ivar report: räkna och inställningar, för protokollet.",
+      "source_sha256": "6bd46376eb25a040a8f7492e365430ae6fe0cf7918ffd38456ff82394cfbdd91",
+      "text": "Ledningsuppdrag på cellnivå och deras separata beviskomponenter.\n\n:ivar guides: Ett guidenamn per ingångscell, eller :data:`ABSTAIN`.\n:ivar affirm: ``(n_cells, n_guides)`` stöd från varje guides ankare.\n:ivar eliminate: ``(n_cells, n_guides)`` stöd från konkurrerande ankare. Att hålla detta åtskilt från ``affirm`` skiljer tvetydiga celler från celler som inte stöds av någon ankarpopulation.\n:ivar reach: ``(n_cells,)`` total förökad ankarmassa.\n:ivar posterior: ``(n_cells, n_guides)`` efter mikroplattans provpositionsrestriktion.\n:ivar names: Guidenamnen, i kolumnordning för matriserna.\n:ivar report: uppdrag räknas, inställningar och diagnostiska varningar.",
       "translation_source_blocks_sha256": [
-        "259961c60b0a260dc8d90924ad0a02c1f27daeb1d4a3f78579e3f27ecfc5d4df",
-        "b133cb63caf150909107fbdda390ce582730020f52d586f39d752a010b3b84b7",
-        "80527d2b3d77943e3caa8b9283999d0a9f9f2053c69c7b78825fbb5ef1c71bdd",
-        "125fe5ffa550f064b7e959b6c49ac86a94e7253b4c755fda02fe4f9dd96eaa33",
-        "0ba7c441293ede3a909873f64ea7273f3bd5cfc5c212cb0c94634526840f948f",
+        "d9284ef5bcd7bfea85f2d2329d0ab8d3bf456084a3a592bb3c9a568e1f0d88d7",
+        "7124a0dc2fd2578db7688f06e9d04b4632c44a19142d6b54666e251a5f4ebda7",
+        "a38fa0e721d25346f415c3f2aaee2191b452b77a8e8541250c1392262cefd13f",
+        "8cbd90aca0dc570bca4c05ababc7c43f190a7dc69ff49aa23025dd131392d487",
+        "060df21c36f9993274fa4ac923ec580fad6e391d84b4138341e53b1dd28098b7",
         "88c3b9b3414b7a1e7b0098e88b361962c63ddd35c46ffd58aa9da65cb164312c",
         "8e0e840760dd542656a1e3fcdf2f7203a4d6f56c2c9d7f043cd51571a794db7b",
-        "ca6a433c0d92112bad90a52cff1cb398ed4c5bb6d02a18cb4eac2bfad2f734e6"
+        "d0df92a521cce19f8e16a5490171f6b5b82416056ba6eba0026402fe22dd8e4a"
       ]
     },
     "spacr.sudoku.SudokuResult.abstained": {
@@ -114080,37 +114206,37 @@
         "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
         "eb6d1129a7427ddaac6242fac73e735fe733bb3c770b45a89c0fedcec718c51d",
         "33383acbfc2b22043321abda95fd91eab8de7cd2ce40806283ead68ecefcb8fb",
-        "6f58baeeba7bf761cddba3fc7a9d693dad9dece10a419590c02167dee6f6f3e9",
-        "87ab4bf6db33ed4b547f6f3df1f084aa38a3e9c85e5a0b1c7d2cee3a73823198",
+        "9fc4ad659add555c5826011406b96a6a69466e7ec818cf8c9a1a810476d47f54",
+        "454fd6ae910e47f023bd623ef1b950cc8f1b12629cd1733a19814a1845346177",
         "f64250843e1ee6f51bcf8a430ab51b081928e528c11d97c4532dd21f8b5d1fb2",
-        "e096de447ddbc931a4db8907de22c8f52bb4f7bde626b5be68c540a94a63c30d"
+        "5da0f1e7b6e38632fbf33f5db59fda31183237b8587208c6322fd2b0be59cac2"
       ],
-      "source_sha256": "d984295d47b2d4a9e29b9c4a8edd224f35ecd5021380b0428dec1e3ba74bac07",
-      "text": "Index för cellerna tagna som nära vissa exempel på ``guide``.\n\n:param wells: En mikropläterad provpositionsetikett per cell.\n:param fractions: ``{well: {guide: fraction}}``.\n:param scores: Klassificeringspoäng per cell.\n:param quantile: i en ankarbrunn, den värderingskvartal ovanför vilken en cell tas.\n:param min_fraction: Endast mikroplattor prov positioner där guiden är åtminstone denna andel används. PUNKTEN i den HELA TINGEN: i en mikroplatta provposition där guiden ligger 70% av avläsningarna, är en topp-skorrerande cell mycket troligt att vägleda. I en mikroplatte provposition var det är 5%, är det förmodligen inte, och en ankare uppsättning byggd från sådana mikroplate prov positioner lär grafen fel form.\n:param max_per_well: en mössa, så en enorm brunn kan inte definiera guidens utseende på egen hand.\n:returns: cellindex, eventuellt tomma.\n\nANKURRARNA ÄR WHERE CIRKULARITETSENTER, och det skrivs in medvetet. De väljs av SCORE, så en profil byggd enbart från poängen skulle säga \"en `g` cell har en hög poäng\" -- sant genom konstruktion och värdelös. :func:`sudoku` utesluter därför poängen från graffunktionerna som standard. Poängen plockar ankaret; morfologin bestämmer alla andra.",
+      "source_sha256": "d37bdf31ead22b4030243e76c0a9b530ef3d0ff211dfceeedbbc4f298e0eb254",
+      "text": "Index för cellerna tagna som nära vissa exempel på ``guide``.\n\n:param wells: En mikropläterad provpositionsetikett per cell.\n:param fractions: ``{well: {guide: fraction}}``.\n:param scores: Klassificeringspoäng per cell.\n:param quantile: i en ankarbrunn, den värderingskvartal ovanför vilken en cell tas.\n:param min_fraction: minsta sekvensfraktion för en mikroplattas provposition för att bidra till ankare. Detta begränsar ankringsvalet till mikroplattors provpositioner där en högskorningscell är rimligt förbunden med guiden.\n:param max_per_well: Maximiankare som tillförs genom en mikroplattas provposition.\n:returns: cellindex, eventuellt tomma.\n\nFör att undvika cirkulär inferens, exkluderar :func:`sudoku` denna poäng från graffunktioner som standard; cellmorfologi bestämmer sedan förökning utanför ankaret.",
       "translation_source_blocks_sha256": [
         "7d95102aa928905030ec5ff146531d6f498bdcb85547288a97f4d286765c677d",
         "c0467ab89b7b6826cc65ed13aa61d4446f461fe4b6fafd4aa5e161c994e19a03",
         "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
         "eb6d1129a7427ddaac6242fac73e735fe733bb3c770b45a89c0fedcec718c51d",
         "33383acbfc2b22043321abda95fd91eab8de7cd2ce40806283ead68ecefcb8fb",
-        "d0b92b598a796eedcf8f217ba477cf795c0eb1842bfbfa2e00a95e8d3fa4d2a7",
-        "87ab4bf6db33ed4b547f6f3df1f084aa38a3e9c85e5a0b1c7d2cee3a73823198",
+        "0f876f164e6a31ce9dbdc6be33335b5691437ba863a48ee52b44b135e4c6ad65",
+        "20f55e3f73a48c3e80b76929bac0a93c1ceee2425e995267fff56f8c7a14151e",
         "f64250843e1ee6f51bcf8a430ab51b081928e528c11d97c4532dd21f8b5d1fb2",
-        "e096de447ddbc931a4db8907de22c8f52bb4f7bde626b5be68c540a94a63c30d"
+        "6b7fb067f44cceef775d25e2f164a877868804d1d0c4ab7fb2eebc433c5e7241"
       ]
     },
     "spacr.sudoku.constrain_to_fractions": {
       "source_blocks_sha256": [
         "69cfa77b758c1b77ee9e7a2c0df6b168641fcf2a719b80ca21efb22353cad00f",
         "11bbd0d6d2dfdc5d3b3b820c1e772bac5f6ff65223fc6332475fd1aaee271433",
-        "9b5248d10e847ccf36b75c4786c0d076f262ebb081cc554d58b437fe4e1d96b0"
+        "dd6e55726281e559e5c5fd9722d3e004d7b4066489551825e3bd1292cd7c6430"
       ],
-      "source_sha256": "63a9ab6f61d3025ac4ece3a7a5d16d61fec4631278a0f79c9dd341a4375de19e",
-      "text": "Projicera den förökade massan på det antal sekvensering innebär.\n\nI varje mikroplatta provposition, skala guidekolumnerna så att varje belopp till ``pi_g * N_w`` och normalisera raderna till 1, växelvis. Detta är iterativ proportionell montering -- samma fasta punkt :func:`spacr.guide_attribution.posterior` använder, tillämpas här för graf-förutsatt bevis i stället för en endimensionell sannolikhet.\n\nDET ÄR DEN RÅDA KONSTRUMENTET AV PUZZLEN. Utan den skulle grafen gärna ge varje cell i en mikroplatta provposition till vilken guide som hade flest ankare, eftersom ingenting skulle säga att en mikroplate provposition har bara så många av varje.",
+      "source_sha256": "0d17064e4e31d2ead777621e4c5ef302d315f5b5ff16e39990265a6e940fd3ae",
+      "text": "Projicera den förökade massan på det antal sekvensering innebär.\n\nI varje mikroplatta provposition, skala guidekolumnerna så att varje belopp till ``pi_g * N_w`` och normalisera raderna till 1, växelvis. Detta är iterativ proportionell montering -- samma fasta punkt :func:`spacr.guide_attribution.posterior` använder, tillämpas här för graf-förutsatt bevis i stället för en endimensionell sannolikhet.\n\nRadrestriktionen hindrar grafen från att tilldela varje cell i en mikroplatta provposition till guiden med den största ankarmassan när sekvensering stöder endast ett begränsat bråk för den guiden.",
       "translation_source_blocks_sha256": [
         "69cfa77b758c1b77ee9e7a2c0df6b168641fcf2a719b80ca21efb22353cad00f",
         "c6a2877eb39cb08d834dbff7acb390dbce2d08b211ca3547526c7529402df6fb",
-        "6ae2c2a3c91105f4a21f4a68514c88b2f90f0452e927efb7740772818709cb18"
+        "91da02d0365e5b18d0296aeaaabdec541acf57e796561539b71e82f1ad4aabf9"
       ]
     },
     "spacr.sudoku.propagate": {
@@ -114141,72 +114267,76 @@
     },
     "spacr.sudoku.similarity_graph": {
       "source_blocks_sha256": [
-        "c9871a550ffd5d21ea05091e57f74828c59fc9b2f6c745898c57468fe3c4c4b4",
+        "c242bf899774f6ac0d0b5dbae2e588b2ccd47aa502fdb86792b4b15c43926ce9",
         "ba3bb25058b7e01078e1f18c0897e076359041e9b2df27603f6937a63319a65c",
-        "cf4cdd0174f724805681f17b68510a5d342eea4c43a621935a9539622433015f",
-        "cbd75f91a86f44ace476fa41a7558bd0285c1bb5f3433e3ce6f94729b4c91ef7",
-        "29ebd8819b449b41120ade352b913de2e7fae5e1115f86b0d9099bd92890b474",
-        "411e5b5577d51c97d922269d13384e35843ad0675d795083073ffa61751af267"
+        "6b0bea6610214e309431c5ae0c5893b52badd3fd73e13caf9339868a6aa8a0e1",
+        "89c4fdbbc2d4e608837929127b504c8372191b8e0d454bf55b13f0856f2d833c",
+        "11eefbccfd5dace7419e6d4d086bd2f688453f4557210c9ea650f993ece1b3c5",
+        "c78d1be8c0cf52d1072f8cf197e0160ac6f15d82553d43f8253c4599851984af"
       ],
-      "source_sha256": "fc07a926a49d4cfec0cee8b5f3f6a52eeaf2eb4f5e05b5bbf27a22e2ce0270ac",
-      "text": "En symmetrisk k-nearest-granne-affinitet över celler.\n\n:param features: ``(n_cells, n_features)``, standardiserat här.\n:param neighbours: k.\n:param mutual: hålla en kant bara där BÅDE celler listar den andra. En vanlig kNN graf ger en avvikande k kanter som den inte tjänade -- den måste ha några närmaste grannar -- och märka massa sedan strömmar in i celler som liknar ingenting. Ömsesidig kNN låter en utlier hamna utan kanter alls, vilket är det ärliga svaret och är vad :attr:`SudokuResult.reach` rapporterar.\n:returns: ett glest CSR-affinitet med en noll diagonal.\n\nVikter är värmekärnan med en SELF-TUNING skala: varje cells egna avstånd till sin kth granne. En global sigma antar molnet har en densitet, och en screening celler inte -- en tät frisk befolkning bredvid en gles döende man får antingen inga kanter i gles region eller en överansluten tät.",
+      "source_sha256": "ec623cf3d37abef233396e9a6b10c610496b2556ca9773e37cf3e75632cf0733",
+      "text": "Skapa en symmetrisk k-nearest-neighbour cellaffinitetskurva.\n\n:param features: ``(n_cells, n_features)``, standardiserat här.\n:param neighbours: Antal närmaste grannar som beaktas per cell.\n:param mutual: behålla en kant endast när båda cellerna identifierar varandra som grannar. Detta gör det möjligt för isolerade avvikelser att ha noll räckvidd snarare än att ta emot påtvingade anslutningar.\n:returns: gles CSR affinitetsmatris med en noll diagonal.\n\nKantvikter använder en värmekärna med en lokal skala som definieras av varje cells avstånd till sin kth granne. Lokal skalning stöder populationer med olika provtagningstätheter.",
       "translation_source_blocks_sha256": [
-        "c9871a550ffd5d21ea05091e57f74828c59fc9b2f6c745898c57468fe3c4c4b4",
+        "c242bf899774f6ac0d0b5dbae2e588b2ccd47aa502fdb86792b4b15c43926ce9",
         "ba3bb25058b7e01078e1f18c0897e076359041e9b2df27603f6937a63319a65c",
-        "cf4cdd0174f724805681f17b68510a5d342eea4c43a621935a9539622433015f",
-        "cbd75f91a86f44ace476fa41a7558bd0285c1bb5f3433e3ce6f94729b4c91ef7",
-        "29ebd8819b449b41120ade352b913de2e7fae5e1115f86b0d9099bd92890b474",
-        "411e5b5577d51c97d922269d13384e35843ad0675d795083073ffa61751af267"
+        "6b0bea6610214e309431c5ae0c5893b52badd3fd73e13caf9339868a6aa8a0e1",
+        "89c4fdbbc2d4e608837929127b504c8372191b8e0d454bf55b13f0856f2d833c",
+        "11eefbccfd5dace7419e6d4d086bd2f688453f4557210c9ea650f993ece1b3c5",
+        "c78d1be8c0cf52d1072f8cf197e0160ac6f15d82553d43f8253c4599851984af"
       ]
     },
     "spacr.sudoku.sudoku": {
       "source_blocks_sha256": [
-        "9565fd87072a18706ea83f75aded36f448874f0ae4e09578fabd5644e0382455",
+        "77000659763f57fa1f500f58a56b71e0050431fae61617b761358e2b32cf728d",
         "d1c68c2d44b7928ca72b5af71fd02b75f04415dec889b7093db3ce7092a8e09c",
-        "b8fb34ca7ab0762b881ef5a04536f195f13adc8f3365036ebd82f0d98c53df65",
+        "799b8de714f983f73115cd2038bc09fe10a531fdc95b2fd68f0fbdbe7792bad0",
         "4e74a48dde732283c8bbd6fcdc368d9c610e80f18cf2e91ba720611dd97dd427",
         "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
-        "67fdbb17464bcd148b97766fc52d68279c5ea952e263a0dc4b764e975a40e688",
+        "8173cac1902037307894f7fbb0e56e1ee085500ec6103c674772171adea1e29c",
         "e5db01064629bc5c506f3ec56ead6109b227163fbd50841b5040227a6931e21e",
-        "9a0786d984efff1e26f0d5cb79497ad18d00d935127f3bd61951fa6cee3436f7",
+        "3a2270f21f846985c7cbe5791e9041f065b14b10e6953e8fa8db61b4a0e70425",
         "bb448ce3b066fb995254a78bb5161513381d0ffdadf22dbc87beb40d854672c6",
-        "2485395b525b7e370cd9e86447ae6fb393d3b5b02913fb4c7a6968b17fbde259",
-        "96b5593df006be77dbbee1e739b980b29f87747f42bac4c77656006a4a0f86e2"
+        "66de95662abaada9f85cb6bfa99ae59474386fa4aa6e40c3a6f8fe27725c35c8",
+        "d372db15e0ed540d4917252ae3da5c71207204e6815760a624c079b8abf1313a",
+        "c0c5400fd56c56272017da907234b7d4c61bc74c3081d4f20a8d528b368ce565",
+        "a7b3969fbd62ca315e9b553c6e65c9755000a0152864f1d829fc510d7140a80f",
+        "bdb3bd391ff55d6c1e975b7f332996580a5c310c3eac0bf97c4fbd929eff0cf1"
       ],
-      "source_sha256": "71817567844b193e55ca0d5f126229e61aa03c81c48f6dceff82e4961cab7c60",
-      "text": "Anteckna varje cell, över mikroplatta provpositioner, med två poäng hålls isär.\n\n:param features: ``(n_cells, n_features)`` cellmätningar.\n:param scores: klassificeringspoängen per cell – som används för att KORTA ankare, och som standard inte används som en graffunktion.\n:param wells: En mikropläterad provpositionsetikett per cell.\n:param fractions: ``{well: {guide: fraction}}``.\n:param guides: Guider till kommentera. Användarens val, och flera är poängen: \"användaren kan välja flera höga poängguider\".\n:param anchors: valfritt explicit förankringsindex per guide, överskridande :func:`anchors_for`.\n:param use_score_as_feature: sätta klassificeringspoängen i grafen också. **Off som standard och det är ett korrekt beslut, inte en preferens**: ankarna väljs efter poäng, så en graf byggd på poängen skulle placera varje högskorserande cell nära varje guides ankare och bekräfta dem alla. Slå på detta gör metoden delvis tautologisk, och rapporten säger så när den är på.\n:returns: för :class:`SudokuResult`.\n\nFYRA UTKOMMER, vilket är anledningen till att två poäng överförs snarare än en:\n\n  bekräfta hög, eliminera låg -- säker på att denna guide bekräftar låg, eliminera hög -- tillitsfullt INTE denna guide bekräfta högt, eliminera höga -- guider inte separera här bekräfta låg, ta bort låg - till skillnad från varje ankare: den udda cellen, och den en enda förhållande döljer genom att mappa den till samma värde som raden ovan.",
+      "source_sha256": "48ca7de1dac47a026fc6a0c51fc2ae1b2b4e272ceb331c370a666757d40d60f5",
+      "text": "Tilldela guider till celler samtidigt behålla konkurrerande bevis separat.\n\n:param features: ``(n_cells, n_features)`` cellmätningar.\n:param scores: klassificeringspoäng per cell, används för att välja ankare, och som standard inte används som en graf funktion.\n:param wells: En mikropläterad provpositionsetikett per cell.\n:param fractions: ``{well: {guide: fraction}}``.\n:param guides: Vägledande identifierare att överväga för tilldelning.\n:param anchors: valfritt explicit förankringsindex per guide, överskridande :func:`anchors_for`.\n:param use_score_as_feature: inkludera maskininlärning klassificering modell score i graf funktioner. Inaktiverad som standard eftersom poängen också väljer ankare; gör det möjligt att införa cirkulära bevis och registreras i resultatrapporten.\n:returns: för :class:`SudokuResult`.\n\nSeparat stöd och konkurrerande bevis skiljer fyra resultat:\n\n* Högt stöd, låg konkurrens: säker tilldelning.\n* lågt stöd, hög konkurrens: säker utestängning,\n* Högt stöd, hög konkurrens: tvetydigheter mellan vägledningarna.\n* lågt stöd, låg konkurrens: utan stöd från ankarpopulationerna.",
       "translation_source_blocks_sha256": [
-        "bb271fc5c5e8510d634b277435e17dc4dfc1742c142df9e42f38229b6e76c0b1",
+        "77000659763f57fa1f500f58a56b71e0050431fae61617b761358e2b32cf728d",
         "d1c68c2d44b7928ca72b5af71fd02b75f04415dec889b7093db3ce7092a8e09c",
-        "b8fb34ca7ab0762b881ef5a04536f195f13adc8f3365036ebd82f0d98c53df65",
+        "799b8de714f983f73115cd2038bc09fe10a531fdc95b2fd68f0fbdbe7792bad0",
         "c0467ab89b7b6826cc65ed13aa61d4446f461fe4b6fafd4aa5e161c994e19a03",
         "e1c3741bd7b0512078a467a9bf1fccc1f296878ec7d66b9bc9cd85f5253084a2",
-        "67fdbb17464bcd148b97766fc52d68279c5ea952e263a0dc4b764e975a40e688",
+        "8173cac1902037307894f7fbb0e56e1ee085500ec6103c674772171adea1e29c",
         "e5db01064629bc5c506f3ec56ead6109b227163fbd50841b5040227a6931e21e",
-        "9a0786d984efff1e26f0d5cb79497ad18d00d935127f3bd61951fa6cee3436f7",
+        "437836f560d9213612c7a51e7eea06257007c797e0d0f82f11c177042fcd26b7",
         "bb448ce3b066fb995254a78bb5161513381d0ffdadf22dbc87beb40d854672c6",
-        "2485395b525b7e370cd9e86447ae6fb393d3b5b02913fb4c7a6968b17fbde259",
-        "96b5593df006be77dbbee1e739b980b29f87747f42bac4c77656006a4a0f86e2"
+        "66de95662abaada9f85cb6bfa99ae59474386fa4aa6e40c3a6f8fe27725c35c8",
+        "d372db15e0ed540d4917252ae3da5c71207204e6815760a624c079b8abf1313a",
+        "c0c5400fd56c56272017da907234b7d4c61bc74c3081d4f20a8d528b368ce565",
+        "a7b3969fbd62ca315e9b553c6e65c9755000a0152864f1d829fc510d7140a80f",
+        "bdb3bd391ff55d6c1e975b7f332996580a5c310c3eac0bf97c4fbd929eff0cf1"
       ]
     },
     "spacr.sudoku.sudoku_all": {
       "source_blocks_sha256": [
-        "810b655532d874a39399f11e67931d6211b319c107a7e6a6ef40e16fcd08a0ff",
+        "6cf743111111c8ac848205cdecd639414505e9fda0d6e691ec10823a2eebb333",
         "29ac08550b61f9b96e7fffd9817b6110583b059d63522cc50a50d13f28de4bdb",
-        "4d44af735702647f73491a4c8640a43ded90d040e176d8b772d91d9091191e8e",
+        "03a52d9271cbf4b5f4dbb3c9e56b2af42c26da25fc15a4b4ca5abf61f2781caa",
         "b9bac12fe498fa8e45c54ec7f754958812619f307e6742622428f682e99d42ed",
-        "3eadcaaf70d7abe0f4dabae2a1bf2a702b67597e7eec44da6682a174c9434634",
-        "06aba2aa8422f8b4869545c3b55f2cad954365e459ba71af351290dc947967a2"
+        "9401231904aa0bf1e645db70bece2e60156086bbf96ef8ffd1c42021590fc8a0"
       ],
-      "source_sha256": "79d15de126efcfa2e121b6c2ee25189b91c6b4f4822eb780836545c70a042034",
-      "text": "Sudoku över varje guide, i förtroende ordning, hävdar som det går.\n\n:param ranking: ``[(guide, confidence)]`` i fallande bearbetningsordning. Anroparen definierar självförtroende, till exempel genom att kombinera effektstorlek och statistisk signifikans.\n:param max_guides: ett stopp, så en screening med 1.500 guider inte kör 1.500 graf bygger av misstag.\n:returns: En :class:`SudokuResult` över alla celler.\n\nVarje runda körs :func:`sudoku` för en guide över cellerna fortfarande obetald, håller cellerna som den bestämmer, och tar bort dem. Den stannar när en runda hävdar ingenting -- vilket är myntflip, nådde snarare än räknade.\n\nORDNINGEN ÄR RISKEN, och rapporten bär på det som behövs för att bedöma den: `claimed_by_round`. En girig metod begår tidigt, den första guidens misstag ärvs av varje senare, och celler som krävs omprövas aldrig. En uppringare som vill veta hur mycket som betyder något kör detta två gånger med ordern störd och jämför - vilket är vad :mod:`spacr.annotation_validation` gör.",
+      "source_sha256": "c0b59d5aa89a06438fe9ec6483269fc2811893996c893d7c6835a21b0aec5102",
+      "text": "Tilldela guidar sekventiellt i fallande förtroende ordning.\n\n:param ranking: ``[(guide, confidence)]`` i fallande bearbetningsordning. Anroparen definierar självförtroende, till exempel genom att kombinera effektstorlek och statistisk signifikans.\n:param max_guides: Maximalt antal rangordnade guider som ska behandlas.\n:returns: En :class:`SudokuResult` över alla celler.\n\nVarje omgång gäller :func:`sudoku` för oansökta celler och tar bort godkända uppdrag. Processering upphör när en omgång inte tilldelar några celler. Eftersom denna giriga procedur är ordningskänslig behålls ``claimed_by_round`` i rapporten; :mod:`spacr.annotation_validation` utvärderar känsligheten för rangordningsordning.",
       "translation_source_blocks_sha256": [
-        "810b655532d874a39399f11e67931d6211b319c107a7e6a6ef40e16fcd08a0ff",
+        "6cf743111111c8ac848205cdecd639414505e9fda0d6e691ec10823a2eebb333",
         "29ac08550b61f9b96e7fffd9817b6110583b059d63522cc50a50d13f28de4bdb",
-        "4d44af735702647f73491a4c8640a43ded90d040e176d8b772d91d9091191e8e",
+        "03a52d9271cbf4b5f4dbb3c9e56b2af42c26da25fc15a4b4ca5abf61f2781caa",
         "b9bac12fe498fa8e45c54ec7f754958812619f307e6742622428f682e99d42ed",
-        "3eadcaaf70d7abe0f4dabae2a1bf2a702b67597e7eec44da6682a174c9434634",
-        "06aba2aa8422f8b4869545c3b55f2cad954365e459ba71af351290dc947967a2"
+        "9401231904aa0bf1e645db70bece2e60156086bbf96ef8ffd1c42021590fc8a0"
       ]
     },
     "spacr.surrogate": {
