@@ -1856,6 +1856,33 @@ def process_model_coefficients(model, regression_type, X, y, nc, pc, controls,
 
     return coef_df[~coef_df['feature'].str.contains('row|column')]
 
+def _draw_the_threshold_sweep(settings, res_folder) -> None:
+    """Draw the sweep for a threshold the user already chose.
+
+    THE SAME GRAPH, NOT A SECOND ONE. `graph_sequencing_stats` both draws
+    the sweep and RETURNS the threshold it would pick, so calling it here
+    and discarding the return gives the picture without touching the
+    setting -- which is the whole point: the user's number stands and the
+    curve says where it sits.
+
+    A DRAWING FAILURE IS NOT A RUN FAILURE. The threshold is already
+    decided; this is a diagnostic, and losing a fit to it would be the wrong
+    trade.
+    """
+    try:
+        chosen = settings.get('fraction_threshold')
+        derived = _graph_sequencing_stats(settings)
+        if derived is not None and chosen is not None:
+            print(f"gRNA fraction-threshold sweep drawn: you set "
+                  f"{chosen}; the sweep's own pick on this screen is "
+                  f"{derived}. Your value is the one in force.")
+    except Exception as error:                                # noqa: BLE001
+        print(f"the gRNA fraction-threshold sweep could not be drawn "
+              f"({type(error).__name__}: {error}); the run is unaffected "
+              f"and fraction_threshold={settings.get('fraction_threshold')} "
+              f"is still in force")
+
+
 def _show_response_distribution(before_df, dependent_variable, settings):
     """Display the response distribution before and after transformation.
 
@@ -1870,19 +1897,38 @@ def _show_response_distribution(before_df, dependent_variable, settings):
 
         from .response_distribution import panel
 
-        column = dependent_variable if dependent_variable in before_df \
-            else None
+        # THE COLUMN IS LOOKED FOR, NOT ASSUMED. `process_scores` RENAMES
+        # the response -- it hands back the name it produced, which is not
+        # the name the untransformed frame carries -- so a straight lookup
+        # missed every time and the panel returned without drawing. Reported
+        # 2026-08-21: "i dont see the distribution graph to the right in the
+        # figure panels".
+        wanted = [str(dependent_variable),
+                  str(settings.get('dependent_variable') or "")]
+        column = next((c for c in wanted if c and c in before_df), None)
         if column is None:
+            # THE LAST NUMERIC COLUMN is what `process_scores` leaves the
+            # aggregated response in, whatever it decided to call it.
+            numeric = [c for c in before_df.columns
+                       if pd.api.types.is_numeric_dtype(before_df[c])]
+            column = numeric[-1] if numeric else None
+        if column is None:
+            print("the response distribution panel was not drawn: the "
+                  "aggregated table carries no numeric response column")
             return
         figure, axes = plt.subplots(figsize=(7.0, 4.2))
         panel(before_df[column].to_numpy(dtype=float),
               str(settings.get('transform') or 'none'), ax=axes,
-              dependent_variable=str(dependent_variable))
+              dependent_variable=str(column))
         figure.tight_layout()
         plt.show()
-    except Exception:                                            # noqa: BLE001
-        # Same trade as above: the picture is optional, the run is not.
-        pass
+    except Exception as error:                                   # noqa: BLE001
+        # THE PICTURE IS OPTIONAL, THE RUN IS NOT -- but a bare `pass` here
+        # is why this went missing without a word. A panel that cannot draw
+        # says so; that costs one line and is the difference between a
+        # missing figure and a mystery.
+        print(f"the response distribution panel could not be drawn "
+              f"({type(error).__name__}: {error}); the run is unaffected")
 
 
 def check_distribution(y, epsilon=1e-6):
@@ -7388,15 +7434,25 @@ def _perform_regression(settings):
                                                res_folder):
             print(f"Kept with the run: {kept}")
     else:
-        # SAY WHY THERE IS NO SWEEP GRAPH. The graph is a by-product of
-        # CHOOSING the threshold, so setting one -- including loading a
-        # settings CSV that carries a value this module derived on an earlier
-        # run -- means it is never drawn. Silence there is indistinguishable
-        # from the figure having gone missing.
-        print(f"fraction_threshold={settings['fraction_threshold']} was set, "
-              f"so the gRNA fraction-threshold sweep graph is not drawn; it "
-              f"is produced only when the threshold has to be chosen. Set "
-              f"fraction_threshold to None to see it.")
+        # AND IT IS DRAWN ANYWAY. Reported twice -- "for some reason now i
+        # dont see the grna threshold graph", and again 2026-08-21: "in the
+        # figure view i nevers ee the frna threhsold graph".
+        #
+        # THE ANSWER LAST TIME WAS A SENTENCE SAYING WHY, which is not what
+        # was asked for. The sweep is a fact about the SCREEN -- how many
+        # guides survive at each threshold -- and it is worth the same
+        # whether spaCR chose the threshold or the user did. It is arguably
+        # worth MORE when the user chose one, because then it is the only
+        # thing that says where their number sits on the curve.
+        #
+        # The default is 0.02, so the old gate meant the graph was never
+        # drawn on an ordinary run: the one case it fired in was the one
+        # nobody was in.
+        before_sweep = _figure_stamps(screen_folders)
+        _draw_the_threshold_sweep(settings, res_folder)
+        for kept in _keep_figures_with_the_run(before_sweep, screen_folders,
+                                               res_folder):
+            print(f"Kept with the run: {kept}")
 
     # WHAT THE RUN ACTUALLY USED, said where the settings are read.
     #
