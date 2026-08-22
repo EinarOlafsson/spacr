@@ -3326,6 +3326,13 @@ class AnnotateScreen(QWidget):
         without one (window hidden, cursor warped), and a hover nobody is
         pointing at any more must not survive.
         """
+        # ``drain_thread`` processes Qt events while closeEvent waits for an
+        # active page load.  The observed widgets can therefore deliver a
+        # queued event after teardown has started.  None of these interactions
+        # has meaning once the screen is closing, and touching the partly
+        # dismantled widget tree here raises from Qt's event loop.
+        if getattr(self, "_closing", False):
+            return False
         try:
             etype = event.type()
         except Exception:
@@ -3335,9 +3342,32 @@ class AnnotateScreen(QWidget):
             return True
         if etype == QEvent.Leave:
             self._set_hover_slot(None)
-        if obj is self._grid_holder and self._band_event(etype, event):
+        grid_holder = getattr(self, "_grid_holder", None)
+        if obj is grid_holder and grid_holder is not None and self._band_event(
+            etype, event
+        ):
             return True
         return super().eventFilter(obj, event)
+
+    def _detach_event_filters(self) -> None:
+        """Stop observed grid widgets from calling back during teardown."""
+        observed = []
+        scroll = getattr(self, "_grid_scroll", None)
+        if scroll is not None:
+            observed.append(scroll)
+            try:
+                observed.append(scroll.viewport())
+            except RuntimeError:
+                pass
+        holder = getattr(self, "_grid_holder", None)
+        if holder is not None:
+            observed.append(holder)
+        for widget in observed:
+            try:
+                widget.removeEventFilter(self)
+            except RuntimeError:
+                # A child can already have been deleted by its Qt parent.
+                pass
 
     # ------------------------------------------------------------------
     # Rubber-band selection
@@ -3465,6 +3495,7 @@ class AnnotateScreen(QWidget):
     def closeEvent(self, event):
         """Drain every native/Python worker before Qt destroys this screen."""
         self._closing = True
+        self._detach_event_filters()
         # Withdraw the routing registration first, so a request arriving
         # during teardown cannot reach a half-destroyed screen. The bound
         # method is passed on purpose: with two Annotate screens opened in a
