@@ -319,7 +319,9 @@ def test_ml_analysis_cross_validation():
 
 
 def test_ml_analysis_logistic_regression():
-    # logistic_regression has no feature_importances_ → else branch
+    # logistic_regression has no feature_importances_ → else branch, which
+    # now FILLS the panel from the permutation importance rather than
+    # handing back an empty frame and no figure.
     # (regression test: previously raised UnboundLocalError on the return)
     df = _feature_df()
     output, figs = ML.ml_analysis(
@@ -328,8 +330,9 @@ def test_ml_analysis_logistic_regression():
         model_type="logistic_regression", n_repeats=2, test_size=0.25,
         split_by="cell",
         remove_highly_correlated_features=False, n_jobs=1)
-    assert output[2].empty       # empty feature_importance_df for LR
-    assert figs[1] is None       # no feature-importance figure
+    assert not output[2].empty
+    assert figs[1] is not None
+    assert "permutation" in figs[1].axes[0].get_title().lower()
 
 
 def test_ml_analysis_gradient_boosting():
@@ -344,4 +347,7 @@ def test_ml_analysis_gradient_boosting():
         n_estimators=20,
         remove_highly_correlated_features=False, n_jobs=1)
     assert output[0] is not None
-    assert figs[1] is None
+    # HistGradientBoostingClassifier exposes no `feature_importances_`, so
+    # the panel is drawn from the permutation importance and says so.
+    assert figs[1] is not None
+    assert "permutation" in figs[1].axes[0].get_title().lower()

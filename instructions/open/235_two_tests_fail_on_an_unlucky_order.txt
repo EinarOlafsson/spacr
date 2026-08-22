@@ -19,6 +19,32 @@ tests fail on some orders and not others:
     tests/qt/test_space_theme.py
         ::TestPreferencesWiring::test_apply_preferences_only_pays_for_space
 
+FOUR MORE, found 2026-08-22 in two full sweeps. Each passes on its own and
+in its own file; each fails somewhere in a run of thousands.
+
+    tests/qt/test_cov_annotate_screen.py
+        ::test_an_auto_annotation_repaints_the_crops_already_on_screen
+        -- FIXED. Not order at all: four waits in that file asked only
+        whether the worker thread was busy, and `busy` is False in the
+        moment between a batch being queued and the worker picking it up.
+        The wait returned at once and the assertion read an empty table.
+        It reproduces under load and never on an idle machine.
+    tests/test_regression_screen_layout.py
+        ::test_a_burst_of_figures_is_one_rebuild
+    tests/test_the_measurements_tab_reaches_a_regression.py
+        ::test_the_queue_runs_off_the_gui_thread
+        -- both still open. Qt, both about a rebuild or a thread, both
+        green alone and green together.
+
+AND FIVE THAT WERE NOT ORDER DEPENDENT AT ALL:
+
+    tests/test_models_regression_umap.py::test_build_and_eval_cellpose_model
+        -- FIXED. `torch.OutOfMemoryError: Tried to allocate 20.00 MiB`
+        because another session's training run held 21 GiB of the shared
+        24. `_require_gpu` now checks for room and SKIPS with the free
+        memory in the reason, so "cellpose is broken" and "there was no
+        room today" are different lines in the summary.
+
 Both reproduce at `--randomly-seed=4242` over `-k "dialog or preferences or
 popup"`, and both pass in isolation and in small groups.
 
