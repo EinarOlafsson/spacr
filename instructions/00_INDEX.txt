@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-226 done / 1 open (99%).
+226 done / 2 open (99%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -26,6 +26,9 @@ OPEN
 
    60  EVERY MODULE AT 100% TEST COVERAGE
        60_every_module_to_100_percent_test_coverage.txt
+
+  235  TWO TESTS FAIL ON AN UNLUCKY ORDER, AND THE SUITE HIDES IT
+       235_two_tests_fail_on_an_unlucky_order.txt
 
 --------------------------------------------------------------------------------
 DONE
