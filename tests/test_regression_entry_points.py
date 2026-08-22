@@ -53,7 +53,19 @@ _HELPER_MODULES = (
     # Instruction 156: the per-mode run summary is handed the settings so it
     # can state what was fitted. Same reason as the line above.
     "spacr.regression_summary",
+    # The optional outlier pass receives the complete settings mapping and
+    # reads its own source/filter keys. Keep it in the same AST contract as
+    # every other helper reached by the regression entry point.
+    "spacr.outlier_filter",
+    "spacr.well_spec",
 )
+
+# Local import aliases whose public module name is intentionally different.
+# The AST sees the local callee, while the contract must inspect the function
+# that name resolves to.
+_HELPER_ALIASES = {
+    "_drop_outliers": ("spacr.outlier_filter", "apply"),
+}
 
 #: Keys ``perform_regression`` reads without a default, because it derives
 #: them itself before reading them. A derived key is NOT an exemption from
@@ -175,6 +187,10 @@ def _helpers_given_the_settings_dict():
 
 
 def _resolve(name):
+    if name in _HELPER_ALIASES:
+        module, attribute = _HELPER_ALIASES[name]
+        obj = getattr(importlib.import_module(module), attribute, None)
+        return obj if callable(obj) else None
     for module in _HELPER_MODULES:
         obj = getattr(importlib.import_module(module), name, None)
         if callable(obj):

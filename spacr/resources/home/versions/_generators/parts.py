@@ -554,15 +554,16 @@ def htile_height(icon_px: int) -> int:
     return max(72, icon_px + 28)
 
 
-#: Narrowest an ``HTile`` may be drawn before "Annotator Agreement"
+#: Narrowest an ``HTile`` may be drawn before "Classifier Evaluation"
 #: elides, measured by bisection (see the module notes in VARIANTS.md).
 #: ``{name font px: {icon px: min width}}``; the shipped tile uses the
-#: 17 px subtitle size and therefore needs 255-263 px.
+#: 17 px subtitle size and therefore needs 255-263 px. Compact sizes include
+#: four pixels of tolerance for supported Open Sans rasterizers.
 HTILE_MIN_WIDTH = {
     0:  {32: 243, 36: 247, 40: 251, 44: 255, 52: 263},
-    12: {32: 192, 36: 196, 40: 200},
-    13: {32: 202, 36: 206, 40: 210},
-    14: {32: 212, 36: 216, 40: 220},
+    12: {32: 196, 36: 200, 40: 204},
+    13: {32: 206, 36: 210, 40: 214},
+    14: {32: 216, 36: 220, 40: 224},
 }
 
 
