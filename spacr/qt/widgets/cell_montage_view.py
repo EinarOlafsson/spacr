@@ -3052,10 +3052,10 @@ class CellMontageView(QWidget):
         return sum(len(tab.crops()) for tab in self.well_tabs())
 
     def thumbnails(self) -> Tuple[QWidget, ...]:
-        """Every thumbnail on screen, across every open well tab.
+        """Return thumbnails visible on the currently displayed tab pages.
 
-        ON SCREEN means ON THE CURRENT PAGE. Use :meth:`crop_count` for how
-        many objects the tabs hold.
+        Use :meth:`crop_count` to obtain the total number of objects held
+        across all well tabs, including pages that are not displayed.
         """
         out: List[QWidget] = []
         for tab in self.well_tabs():
