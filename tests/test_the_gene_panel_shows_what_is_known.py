@@ -115,12 +115,13 @@ def test_the_annotation_loads_on_a_worker_thread_and_lands_on_the_gui_thread(
 
     seen = []
     widget.annotation_ready.connect(
-        lambda _n: seen.append(QThread.currentThread()))
+        lambda _n: seen.append(
+            QThread.currentThread() is QApplication.instance().thread()))
     with qtbot.waitSignal(widget.annotation_ready, timeout=60000):
         pass
 
     assert widget.is_warm()
-    assert seen and seen[0] is QApplication.instance().thread(), (
+    assert seen == [True], (
         "the result was delivered on the worker thread; a widget touched "
         "from there is undefined behaviour")
     assert len(widget.annotation_columns()) == 23
