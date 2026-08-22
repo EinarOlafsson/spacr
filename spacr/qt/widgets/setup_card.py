@@ -56,8 +56,18 @@ class SetupCard(QWidget):
 
     def __init__(self, parent: Optional[QWidget] = None, *,
                  radius: int = 18, arc: Optional[int] = None,
-                 lag: Optional[float] = None, align: str = ""):
+                 lag: Optional[float] = None, align: str = "",
+                 mode: str = ""):
         super().__init__(parent)
+        self._mode = str(mode or "").strip().lower()
+        #: Radians of the animation cycle, advanced one frame at a time.
+        #:
+        #: COUNTED IN FRAMES, not read off a clock. The timer is the only
+        #: thing driving this and it ticks at a known interval, so a frame
+        #: count is a phase -- and unlike `time.time()` it stops when the
+        #: card is hidden, which is what keeps a pulse from jumping when a
+        #: dialog is reopened.
+        self._phase = 0.0
         self._radius = int(radius)
         # THE THREE THAT ARE A MATTER OF TASTE come from the preference
         # store unless the caller names one. How long the run is, how hard
@@ -285,6 +295,35 @@ class SetupCard(QWidget):
         except Exception:                                    # noqa: BLE001
             return float(self.EASE)
 
+    def mode(self) -> str:
+        """``'glow'``, ``'rainbow'`` or ``'beat'``."""
+        if self._mode:
+            return self._mode
+        try:
+            from ..preferences import get_rim_mode
+
+            return str(get_rim_mode())
+        except Exception:                                    # noqa: BLE001
+            return "glow"
+
+    def period(self) -> float:
+        """Seconds for one pulse, or one turn of the hue."""
+        try:
+            from ..preferences import get_rim_period
+
+            return float(get_rim_period())
+        except Exception:                                    # noqa: BLE001
+            return 2.4
+
+    def animates(self) -> bool:
+        """Whether the rim changes when nothing else does.
+
+        A pulse and a moving spectrum have to repaint on a still card; a
+        plain glow must NOT, or an arrived rim costs sixty composites a
+        second over a live backdrop for no visible change.
+        """
+        return self.mode() in ("rainbow", "beat")
+
     def alignment(self) -> str:
         """``'centre'`` or ``'head'`` -- where the run sits on the pointer."""
         if self._align:
@@ -321,6 +360,9 @@ class SetupCard(QWidget):
 
     def _tick(self) -> None:
         """One frame: run the laps down, else ease towards the pointer."""
+        # The animation clock advances whatever else happens, so a pulse
+        # keeps its rhythm through a circuit and across a slide change.
+        self._phase += self._timer.interval() / 1000.0
         if self._laps:
             step = 0.03 if self._laps > 0 else -0.03
             self._at += step
@@ -344,11 +386,12 @@ class SetupCard(QWidget):
             self._aim_at_the_cursor()
             gap = ((self._towards - self._at + 0.5) % 1.0) - 0.5
             if abs(gap) < 0.002:
-                if self._at == self._towards:
+                if self._at == self._towards and not self.animates():
                     # ARRIVED AND NOTHING MOVED. The timer keeps running --
                     # it is what notices the cursor moving again -- but a
                     # repaint of a card that has not changed is sixty
                     # needless composites a second over a live backdrop.
+                    # A pulsing or spectral rim DOES change, so it paints.
                     return
                 self._at = self._towards
             else:
@@ -473,6 +516,38 @@ class SetupCard(QWidget):
                 out.lineTo(point)
         return out
 
+    def ink_at(self, along: float, accent: QColor) -> QColor:
+        """The colour of the run at ``along`` (0 at the tail, 1 at the head).
+
+        `glow` and `beat` are the theme's accent the whole way; `rainbow`
+        walks the hue along the run and turns it over time, so the light
+        carries a spectrum that moves rather than a band that sits still.
+        """
+        if self.mode() != "rainbow":
+            return QColor(accent)
+        turn = self._phase / max(0.1, self.period())
+        hue = (float(along) + turn) % 1.0
+        spectral = QColor()
+        # SATURATION AND VALUE FROM THE ACCENT, so a rainbow on a pale
+        # theme is not the same searing colour as one on a dark theme.
+        spectral.setHsvF(hue, min(1.0, accent.saturationF() + 0.25),
+                         max(accent.valueF(), 0.85))
+        return spectral
+
+    def beat(self) -> float:
+        """A multiplier on the run's brightness, 0..1.
+
+        One for every mode but `beat`, which breathes: the run brightens
+        and dims on a steady cycle. It never reaches zero -- a rim that
+        vanishes reads as a fault rather than as a pulse.
+        """
+        if self.mode() != "beat":
+            return 1.0
+        import math
+
+        cycle = math.sin(2.0 * math.pi * self._phase / max(0.1, self.period()))
+        return 0.45 + 0.55 * (0.5 + 0.5 * cycle)
+
     def _paint_accent(self, painter, colour: QColor, rect: QRectF) -> None:
         """Stroke the lit run as segments that fade towards both ends.
 
@@ -495,18 +570,19 @@ class SetupCard(QWidget):
                         max(24.0, run_px / self.STEP_PX)))
         previous = rim.pointAtPercent(start % 1.0)
         previous_alpha = self.accent_alpha(0.0)
+        previous_along = 0.0
         for index in range(1, steps + 1):
             along = index / steps
             point = rim.pointAtPercent((start + span * along) % 1.0)
             alpha = self.accent_alpha(along)
             if alpha > 0.004 or previous_alpha > 0.004:
-                ink = QColor(colour)
                 # THE MIDPOINT ALPHA, so a segment is the shade of the rim
                 # it covers rather than of the end it stops at -- which is
                 # what leaves a visible edge between one segment and the
                 # next at the faint end.
                 middle = (alpha + previous_alpha) / 2.0
-                ink.setAlpha(int(round(235 * middle)))
+                ink = self.ink_at((along + previous_along) / 2.0, colour)
+                ink.setAlpha(int(round(235 * middle * self.beat())))
                 # THE WIDTH TAPERS WITH THE ALPHA. A constant-width stroke
                 # fading to nothing still shows its full thickness where it
                 # is faint, which reads as a smear; a taper reads as a wake.
@@ -520,6 +596,7 @@ class SetupCard(QWidget):
                 painter.drawLine(previous, point)
             previous = point
             previous_alpha = alpha
+            previous_along = along
 
     def _corner_path(self, rect: QRectF) -> QPainterPath:
         """The two edge runs meeting at the current corner, with its arc."""

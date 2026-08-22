@@ -138,11 +138,28 @@ class TestTheCornerAccent:
         assert CORNERS[card.nearest_corner(QPointF(*point))] == expected
 
     def test_moving_the_pointer_moves_the_accent(self, card):
+        """It ARRIVES at the corner rather than jumping to it.
+
+        Two changes since this test was written. The light EASES towards
+        the pointer, so one call moves it a sixth of the way and `corner()`
+        still names where it was -- the frames have to be run. And every
+        frame re-reads the real cursor, which is what lets it follow a
+        pointer that has left the window; here that would steer the accent
+        at whatever the machine's pointer happens to be doing, so the
+        re-aim is silenced and only the easing is under test.
+        """
         from PySide6.QtCore import QPointF
 
-        card._follow(QPointF(5, 5))
+        card._aim_at_the_cursor = lambda: False
+
+        def settle(point):
+            card._follow(QPointF(*point))
+            for _ in range(200):
+                card._tick()
+
+        settle((5, 5))
         assert card.corner() == "topLeft"
-        card._follow(QPointF(395, 295))
+        settle((395, 295))
         assert card.corner() == "bottomRight"
 
     def test_it_paints_without_raising(self, card):

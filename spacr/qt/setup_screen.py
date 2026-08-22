@@ -52,6 +52,53 @@ def should_open(version: Optional[str] = None) -> bool:
     return answered_version() != running
 
 
+#: The flag a launcher passes, and the variable a server sets, to go
+#: straight to the application. Both spellings, because the flag is typed by
+#: hand and the variable is set in a job script.
+SKIP_FLAGS = ("--no-setup", "--skip-setup", "--headless-setup")
+SKIP_ENV = "SPACR_NO_SETUP"
+
+
+def skipped_on_purpose(environ=None) -> bool:
+    """Has this launch asked not to be shown the setup screen?
+
+    THE SCREEN IS MODAL AND IT IS NOW THE FIRST THING A LAUNCH DRAWS, which
+    is right at a desk and wrong on a server: a batch job that inherits a
+    stale profile would sit on an invisible modal dialog until it was
+    killed, and the only symptom would be a run that never starts.
+
+    So a launch can say no, and one already has when it runs under the
+    offscreen or minimal platform plugin -- nobody is there to answer a
+    question drawn into a buffer nothing displays.
+    """
+    import os
+
+    environ = os.environ if environ is None else environ
+    said = str(environ.get(SKIP_ENV, "")).strip().lower()
+    if said in ("1", "true", "yes", "on"):
+        return True
+    if said in ("0", "false", "no", "off"):
+        return False
+    return str(environ.get("QT_QPA_PLATFORM", "")).strip().lower() in (
+        "offscreen", "minimal", "vnc")
+
+
+def take_the_setup_flags(argv):
+    """(remaining argv, asked to skip). Consumes the flags it recognises.
+
+    They are consumed rather than ignored because `launch` reads the first
+    argument as the module to open into, and an unconsumed `--no-setup`
+    would be looked up as a module name and quietly open nothing.
+    """
+    kept, asked = [], False
+    for word in list(argv or []):
+        if str(word).strip().lower() in SKIP_FLAGS:
+            asked = True
+        else:
+            kept.append(word)
+    return kept, asked
+
+
 #: The questions, in the order the request listed them, each as
 #: ``(key, label, getter, setter, choices)``.
 #:

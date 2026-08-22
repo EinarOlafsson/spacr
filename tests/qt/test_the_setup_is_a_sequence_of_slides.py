@@ -152,19 +152,22 @@ class TestTheGreeting:
     def test_the_first_next_shows_it(self, slides):
         slides.next()
         assert not slides._greeting.isHidden()
-        assert slides._greeting.text() == GREETINGS["en"].upper()
+        assert slides._greeting.text() == GREETINGS["en"]
 
-    def test_it_is_in_capitals(self, slides):
-        """`.upper()` is right for every language spaCR is translated to:
-        on a script with no case it returns the greeting unchanged."""
+    def test_it_is_written_not_shouted(self, slides):
+        """"Hello", not "HELLO", and the equivalent in every language --
+        GREETINGS holds each in its own conventional form already."""
+        from spacr.qt.widgets.setup_slides import GREETINGS
+
         slides.next()
-        assert slides._greeting.text() == slides._greeting.text().upper()
+        assert slides._greeting.text() == GREETINGS["en"]
+        assert slides._greeting.text() != slides._greeting.text().upper()
 
     def test_it_follows_the_language_that_was_chosen(self, slides):
         box = slides._editors["language"]
         box.setCurrentIndex(box.findData("sv"))
         slides.next()
-        assert slides._greeting.text() == "HEJ"
+        assert slides._greeting.text() == "Hej"
 
     def test_it_is_in_the_accent_colour(self, slides):
         """Blue, from the palette rather than a literal, so it matches the

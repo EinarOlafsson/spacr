@@ -3319,6 +3319,60 @@ class PreferencesDialog:
             "light behind.")
         appearance.addRow(tr("Rim alignment"), rim_align_combo)
 
+        rim_mode_combo = QComboBox()
+        rim_mode_combo.setObjectName("RimMode")
+        for label, key in (("Glow", "glow"), ("Rainbow", "rainbow"),
+                           ("Beat", "beat")):
+            rim_mode_combo.addItem(tr(label), key)
+        index = rim_mode_combo.findData(get_rim_mode())
+        rim_mode_combo.setCurrentIndex(index if index >= 0 else 0)
+        rim_mode_combo.setToolTip(
+            "Glow is the theme's accent with a fading tail. Rainbow walks "
+            "the hue along the light and turns it over time. Beat keeps the "
+            "accent and pulses it. Rainbow and Beat repaint every frame; "
+            "Glow only repaints when the light moves.")
+        appearance.addRow(tr("Rim mode"), rim_mode_combo)
+
+        rim_period_slider = QSlider(Qt.Horizontal)
+        rim_period_slider.setObjectName("RimPeriod")
+        # Stored in seconds, shown in tenths, because a slider from 0.4 to
+        # 12.0 has no readable integer positions.
+        rim_period_slider.setRange(int(RIM_PERIOD_RANGE[0] * 10),
+                                   int(RIM_PERIOD_RANGE[1] * 10))
+        rim_period_slider.setSingleStep(1)
+        rim_period_slider.setPageStep(5)
+        rim_period_slider.setValue(int(round(get_rim_period() * 10)))
+        rim_period_slider.setToolTip(
+            "How long one pulse of Beat takes, or one full turn of "
+            "Rainbow's hue. Ignored by Glow, which does not animate.")
+        rim_period_value = QLabel()
+
+        def _rim_period_says(tenths):
+            rim_period_value.setText(tr("%.1f s") % (int(tenths) / 10.0))
+
+        _rim_period_says(rim_period_slider.value())
+        rim_period_slider.valueChanged.connect(_rim_period_says)
+        rim_period_row = QHBoxLayout()
+        rim_period_row.setContentsMargins(0, 0, 0, 0)
+        rim_period_row.addWidget(rim_period_slider, 1)
+        rim_period_row.addWidget(rim_period_value)
+        appearance.addRow(tr("Rim cycle"), _hbox_wrap(rim_period_row))
+
+        popup_backdrop_combo = QComboBox()
+        popup_backdrop_combo.setObjectName("PopupBackdrop")
+        for key in POPUP_BACKDROPS:
+            popup_backdrop_combo.addItem(
+                tr("None") if key == "off" else tr(key.capitalize()), key)
+        index = popup_backdrop_combo.findData(get_popup_backdrop())
+        popup_backdrop_combo.setCurrentIndex(index if index >= 0 else 0)
+        popup_backdrop_combo.setToolTip(
+            "Which animation drifts behind a settings window. Separate from "
+            "the module screens' own backdrop above: what belongs behind a "
+            "screen of figures is not necessarily what belongs behind a form "
+            "you are reading. None keeps the card and the rim and drops only "
+            "the movement.")
+        appearance.addRow(tr("Settings backdrop"), popup_backdrop_combo)
+
         # Colour-blind mode
         cb_combo = QComboBox()
         for label, key in (
@@ -3801,6 +3855,9 @@ class PreferencesDialog:
             set_rim_length(rim_length_slider.value())
             set_rim_lag(rim_lag_slider.value() / 100.0)
             set_rim_alignment(rim_align_combo.currentData())
+            set_rim_mode(rim_mode_combo.currentData())
+            set_rim_period(rim_period_slider.value() / 10.0)
+            set_popup_backdrop(popup_backdrop_combo.currentData())
             _tell_the_cards_the_rim_changed()
             set_language(language_combo.currentData())
             set_theme_choice(theme_combo.currentData())
@@ -4194,5 +4251,91 @@ def set_rim_alignment(name: str) -> str:
         value = DEFAULT_RIM_ALIGNMENT
     settings = _settings()
     settings.setValue(_KEY_RIM_ALIGNMENT, value)
+    settings.sync()
+    return value
+
+
+#: How the lit run of rim is coloured.
+#:
+#: `glow` is the accent colour with a fading tail. `rainbow` walks the hue
+#: along the run so the light carries a spectrum. `beat` keeps the accent
+#: colour and PULSES it, brightening and dimming on a steady cycle.
+_KEY_RIM_MODE = "rim/mode"
+RIM_MODES = ("glow", "rainbow", "beat")
+DEFAULT_RIM_MODE = "glow"
+
+#: Seconds for one full pulse of `beat`, or one full hue turn of `rainbow`.
+_KEY_RIM_PERIOD = "rim/period_s"
+DEFAULT_RIM_PERIOD = 2.4
+RIM_PERIOD_RANGE = (0.4, 12.0)
+
+
+def get_rim_mode() -> str:
+    """Which way the rim is coloured -- glow, rainbow or beat."""
+    value = str(_settings().value(_KEY_RIM_MODE,
+                                  DEFAULT_RIM_MODE) or "").strip().lower()
+    return value if value in RIM_MODES else DEFAULT_RIM_MODE
+
+
+def set_rim_mode(name: str) -> str:
+    """Store the rim mode. An unknown name stores the default instead."""
+    value = str(name or "").strip().lower()
+    if value not in RIM_MODES:
+        value = DEFAULT_RIM_MODE
+    settings = _settings()
+    settings.setValue(_KEY_RIM_MODE, value)
+    settings.sync()
+    return value
+
+
+def get_rim_period() -> float:
+    """Seconds for one pulse of `beat` or one hue turn of `rainbow`."""
+    low, high = RIM_PERIOD_RANGE
+    try:
+        value = float(_settings().value(_KEY_RIM_PERIOD, DEFAULT_RIM_PERIOD))
+    except (TypeError, ValueError):
+        return DEFAULT_RIM_PERIOD
+    return max(low, min(high, value))
+
+
+def set_rim_period(seconds) -> float:
+    """Store the pulse period. Returns the value actually stored."""
+    low, high = RIM_PERIOD_RANGE
+    try:
+        value = max(low, min(high, float(seconds)))
+    except (TypeError, ValueError):
+        value = DEFAULT_RIM_PERIOD
+    settings = _settings()
+    settings.setValue(_KEY_RIM_PERIOD, value)
+    settings.sync()
+    return value
+
+
+#: Which animation drifts behind a settings popup.
+#:
+#: SEPARATE FROM THE MODULE SCREENS' OWN. A backdrop that is right behind a
+#: full screen of figures is not necessarily the one somebody wants behind a
+#: form they are reading; `off` keeps the card and the rim and drops only the
+#: movement.
+_KEY_POPUP_BACKDROP = "rim/popup_backdrop"
+POPUP_BACKDROPS = ("off", "aurora", "blobs", "bokeh", "cells", "drift",
+                   "ripple")
+DEFAULT_POPUP_BACKDROP = "aurora"
+
+
+def get_popup_backdrop() -> str:
+    """Which ambient theme drifts behind a settings popup, or ``'off'``."""
+    value = str(_settings().value(_KEY_POPUP_BACKDROP,
+                                  DEFAULT_POPUP_BACKDROP) or "").strip().lower()
+    return value if value in POPUP_BACKDROPS else DEFAULT_POPUP_BACKDROP
+
+
+def set_popup_backdrop(name: str) -> str:
+    """Store the popup backdrop. An unknown name stores the default."""
+    value = str(name or "").strip().lower()
+    if value not in POPUP_BACKDROPS:
+        value = DEFAULT_POPUP_BACKDROP
+    settings = _settings()
+    settings.setValue(_KEY_POPUP_BACKDROP, value)
     settings.sync()
     return value

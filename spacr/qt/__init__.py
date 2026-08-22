@@ -251,6 +251,25 @@ def _missing_qt_extra(exc: ImportError) -> str | None:
     return None
 
 
+def run_without_setup(argv: list[str] | None = None) -> int:
+    """Launch the GUI without the first-run setup screen.
+
+    The `spacr-server` command. Identical to :func:`run` except that the
+    setup slides are never offered, which is what a launch with nobody in
+    front of it needs: the screen is modal and is now the first thing a
+    launch draws, so an unattended job on a profile that has never answered
+    would sit on an invisible dialog until it was killed.
+
+    The same thing can be said to `spacr` itself with ``--no-setup`` or
+    ``SPACR_NO_SETUP=1``; this exists so that a job script does not have to
+    remember either.
+    """
+    import sys as _sys
+
+    argv = list(_sys.argv[1:] if argv is None else argv)
+    return run(["--no-setup", *argv])
+
+
 def run(argv: list[str] | None = None) -> int:
     """Launch the Qt GUI. Public entry point used by both `spacr-qt` and
     `python -m spacr.qt`.

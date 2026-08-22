@@ -564,10 +564,10 @@ class SetupSlides(QDialog):
         box = self._editors.get("language")
         if box is None:
             return
-        # UPPER CASE, and harmless where a script has no case: `.upper()` on
-        # 你好, नमस्ते or 안녕하세요 returns them unchanged, so the same call
-        # is right for every language spaCR is translated to.
-        self._greeting.setText(greeting_for(box.currentData()).upper())
+        # AS THE WORD IS WRITTEN in each language -- "Hello", "Hej", "Hallo",
+        # 你好 -- rather than shouted. GREETINGS already holds each in its
+        # own conventional form, so there is nothing to do to it.
+        self._greeting.setText(greeting_for(box.currentData()))
 
     def _show_the_greeting(self) -> None:
         """Fade the greeting up, in the accent colour.
@@ -849,9 +849,12 @@ def open_setup_if_needed(parent=None) -> Optional[SetupSlides]:
     The centralized :func:`spacr.qt.setup_screen.should_open` check prevents
     independent callers from opening duplicate dialogs during one launch.
     """
-    from ..setup_screen import should_open
+    from ..setup_screen import should_open, skipped_on_purpose
 
-    if not should_open():
+    # WHETHER THIS PROFILE IS DUE and whether THIS LAUNCH CAN ASK are two
+    # different questions. `should_open` answers the first; a batch job on a
+    # server can be due and still have nobody to answer.
+    if skipped_on_purpose() or not should_open():
         return None
     dialog = SetupSlides(parent)
     dialog.exec()

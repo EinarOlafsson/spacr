@@ -680,6 +680,11 @@ setup(
             'spacr=spacr.qt:run',
             'spacr-qt=spacr.qt:run',
             'spacr-nightly=spacr.qt:run',
+            # Same GUI with the first-run setup screen never offered.
+            # For a launch with nobody in front of it: the screen is
+            # modal and opens before the main window, so an
+            # unattended job would block on it.
+            'spacr-server=spacr.qt:run_without_setup',
             'spacr-tutorial=spacr.qt.tutorial.__main__:main',
             # spacr-repro <run-folder> — replay a recorded run journal
             'spacr-repro=spacr.cli_repro:main',
