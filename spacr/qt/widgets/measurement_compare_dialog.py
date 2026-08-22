@@ -279,8 +279,10 @@ class MeasurementComparePanel(QWidget):
             "Join the crop table: its path and its classification score. "
             "Every morphological measurement is in the object tables beside "
             "it, and the score is not in any of them.")
+        self.join_png_list.toggled.connect(self._on_join_choice)
         extras.addWidget(self.join_png_list)
         self.join_dependent = QCheckBox("dependent variable")
+        self.join_dependent.toggled.connect(self._on_join_choice)
         self.join_dependent.setToolTip(
             "Join the table carrying the value the screen is regressing on. "
             "It joins by plateID, rowID, columnID, fieldID and objectID when "
@@ -470,14 +472,20 @@ class MeasurementComparePanel(QWidget):
             return "no measurements database is attached"
         self.join_button.setEnabled(False)
         try:
-            wide, trouble = join_measurements(self._objects,
-                                              self._databases)
+            # THE BOX IS READ. It was created, laid out and never
+            # consulted -- a control the user can change that changes
+            # nothing, which is worse than no control at all because it
+            # says the option exists.
+            wide, trouble = join_measurements(
+                self._objects, self._databases,
+                png_list=bool(self.join_png_list.isChecked()))
         except Exception as exc:                             # noqa: BLE001
             LOG.debug("could not join the measurement tables", exc_info=True)
             self.join_note.setText(f"Could not join: {exc}")
             self.join_button.setEnabled(True)
             return str(exc)
         self.join_button.setEnabled(True)
+        self._joined_once = True
         wide, dependent_note = self._join_the_dependent_variable(wide)
         if dependent_note:
             trouble = f"{trouble} {dependent_note}".strip()
@@ -555,6 +563,16 @@ class MeasurementComparePanel(QWidget):
             LOG.debug("could not install the hover tooltip", exc_info=True)
         self.headings[str(field)] = label
         return label
+
+    def _on_join_choice(self, *_args) -> None:
+        """A join box moved: re-join, if a join has already been made.
+
+        WITHOUT THIS THE BOX TAKES EFFECT ON THE NEXT PRESS of a button the
+        user has already pressed, which reads as a box that does nothing --
+        the same complaint by a slower route.
+        """
+        if getattr(self, "_joined_once", False):
+            self.join_the_tables()
 
     def _join_the_dependent_variable(self, wide):
         """Attach the dependent-variable table when the option is enabled.

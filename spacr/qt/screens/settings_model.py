@@ -304,11 +304,33 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
         "png_type", "crop_source", "file_metadata", "file_type",
         "path_string", "extract_channels", "coordinate_columns",
         "class_metadata", "annotation_column",
+        # AND THE FOLDER NAMES (instruction 229, reported again 2026-08-21:
+        # "i asked you to remove class folder names and just use the classes
+        # given in the classes setting"). The first pass only made the class
+        # field OUTRANK it, which left a control on screen that could
+        # disagree with the classes above it and lose -- a control the user
+        # can change that changes nothing.
+        #
+        # It stays in the settings dict because dataset generation WRITES
+        # it: it records what actually went to disk, which is a different
+        # fact from what the user asked for.
+        "class_folder_names",
     },
     "classify_merged": {
         "png_type", "crop_source", "file_metadata", "file_type",
         "path_string", "extract_channels", "coordinate_columns",
         "class_metadata", "annotation_column",
+        # AND THE FOLDER NAMES (instruction 229, reported again 2026-08-21:
+        # "i asked you to remove class folder names and just use the classes
+        # given in the classes setting"). The first pass only made the class
+        # field OUTRANK it, which left a control on screen that could
+        # disagree with the classes above it and lose -- a control the user
+        # can change that changes nothing.
+        #
+        # It stays in the settings dict because dataset generation WRITES
+        # it: it records what actually went to disk, which is a different
+        # fact from what the user asked for.
+        "class_folder_names",
     },
     # One action-strip GPU toggle drives both the main reducer and the search.
     # The setting remains in _defaults and therefore in collect(); only the
