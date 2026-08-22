@@ -920,12 +920,24 @@ def measurements_are_joined(objects: "pd.DataFrame") -> bool:
 ANNOTATION_COLUMNS: frozenset = frozenset({
     "grna", "grna_name", "gene", "gene_name", "condition", "prediction",
     "predicted_class", "annotation", "class",
+    # FROM `png_list`, and the reason it is worth joining at all: the score
+    # and the call are there and in no object table. `png_path` stays out --
+    # a path is not a measurement and it would be offered in the comparison
+    # chooser.
+    "pred", "score", "test", "cv_predicted_class",
 })
+
+
+#: The object tables, without the crop table. `_read_and_join_tables`
+#: defaults to these PLUS `png_list`, so leaving it out has to be said
+#: explicitly.
+OBJECT_TABLES: Tuple[str, ...] = ("cell", "cytoplasm", "nucleus", "pathogen")
 
 
 def join_measurements(objects: "pd.DataFrame",
                       databases: Sequence[str],
-                      *, keep_uninfected: bool = True
+                      *, keep_uninfected: bool = True,
+                      png_list: bool = True
                       ) -> Tuple["pd.DataFrame", str]:
     """Join morphology measurements onto montage object rows.
 
@@ -938,6 +950,16 @@ def join_measurements(objects: "pd.DataFrame",
         ``measurements.db`` files containing object measurement tables.
     keep_uninfected : bool, default True
         Preserve cells without a pathogen row when reading joined tables.
+    png_list : bool, default True
+        Join the crop table as well as the object tables. It carries the
+        classification score and the crop path, neither of which is in any
+        object table -- which is why it is on by default and why the panel
+        offers it at all.
+
+        THE ARGUMENT EXISTS SO THE BOX CAN MEAN SOMETHING. It was a
+        checkbox that was created, laid out and never read: a control the
+        user can change that changes nothing, which is the failure this
+        codebase writes comments about and shipped anyway.
 
     Returns
     -------
@@ -967,7 +989,8 @@ def join_measurements(objects: "pd.DataFrame",
         try:
             wide = _read_and_join_tables(
                 str(path), keep_uninfected=keep_uninfected,
-                require_crops=False)
+                require_crops=False,
+                table_names=None if png_list else list(OBJECT_TABLES))
         except Exception as exc:                             # noqa: BLE001
             troubles.append(f"{path}: {exc}")
             continue
