@@ -171,6 +171,28 @@ class TestSavingWritesTheWholeFolder:
         assert sorted(os.listdir(out)) == [
             "data.csv", "g.pdf", "g.png", "settings.json", "statistics.csv"]
 
+    def test_both_images_use_the_shared_figure_writer(
+            self, grouped, tmp_path, monkeypatch):
+        from spacr import plot
+        from spacr.qt.widgets.figure_settings import save_figure_bundle
+
+        calls = []
+
+        def _save(_figure, path, **kwargs):
+            calls.append((os.path.basename(path), kwargs))
+            with open(path, "wb") as handle:
+                handle.write(b"rendered")
+            return path
+
+        monkeypatch.setattr(plot, "save_figure", _save)
+        out = save_figure_bundle(grouped, str(tmp_path), name="g")
+
+        assert [name for name, _kwargs in calls] == ["g.pdf", "g.png"]
+        assert [kwargs["fmt"] for _name, kwargs in calls] == ["pdf", "png"]
+        assert all(kwargs["close"] is False for _name, kwargs in calls)
+        assert sorted(os.listdir(out)) == [
+            "data.csv", "g.pdf", "g.png", "settings.json", "statistics.csv"]
+
     def test_the_data_is_the_rows_it_was_drawn_from(self, grouped, tmp_path):
         from spacr.qt.widgets.figure_settings import save_figure_bundle
 
