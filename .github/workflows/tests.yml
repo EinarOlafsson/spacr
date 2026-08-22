@@ -237,14 +237,21 @@ jobs:
 
   qt:
     name: Qt
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1]
     uses: ./.github/workflows/_pytest-suite.yml
     with:
-      suite_name: Qt
+      suite_name: Qt shard ${{ matrix.shard }} of 2
       python_version: "3.12"
       extras: "qt,dev,zernike,attribution,btrack,czi"
       marker_expression: "qt and not slow and not heavy and not gpu and not network and not nas and not gui"
       timeout_minutes: 120
       xdist_workers: 4
+      file_shard_index: ${{ matrix.shard }}
+      file_shard_count: 2
+      run_serial_tail: ${{ matrix.shard == 0 }}
 
   gpu:
     name: GPU
