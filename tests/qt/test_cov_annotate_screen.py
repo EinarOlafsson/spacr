@@ -882,7 +882,14 @@ def test_class_counts_names_every_class_with_the_colour_it_is_drawn_in(
     scr._on_thumb_left(0)      # class 1
     scr._on_thumb_right(1)     # class 2
     scr._flush_pending()
-    qtbot.waitUntil(lambda: not scr._worker.busy, timeout=10000)
+    # THE QUEUE AS WELL AS THE THREAD. `busy` is False in the moment
+    # between a batch being queued and the worker picking it up, so
+    # this waited for nothing and the assertion below read the
+    # database before anything had been written to it -- which is
+    # what a loaded machine reproduces and an idle one does not.
+    qtbot.waitUntil(
+        lambda: scr._worker.pending_batches == 0
+        and not scr._worker.busy, timeout=10000)
     info = _Recorder()
     monkeypatch.setattr(QMessageBox, "information", staticmethod(info))
     scr._on_class_counts()
@@ -1247,7 +1254,9 @@ def test_declining_the_clear_column_warning_leaves_every_annotation(
     scr = screen
     scr._on_thumb_left(0)
     scr._flush_pending()
-    qtbot.waitUntil(lambda: not scr._worker.busy, timeout=10000)
+    qtbot.waitUntil(
+        lambda: scr._worker.pending_batches == 0
+        and not scr._worker.busy, timeout=10000)
     ask = _Recorder(answer=QMessageBox.No)
     monkeypatch.setattr(QMessageBox, "question", staticmethod(ask))
     scr._on_clear_column()
@@ -1263,7 +1272,9 @@ def test_confirming_clear_column_empties_it_and_drops_unsaved_labels(
     scr = screen
     scr._on_thumb_left(0)
     scr._flush_pending()
-    qtbot.waitUntil(lambda: not scr._worker.busy, timeout=10000)
+    qtbot.waitUntil(
+        lambda: scr._worker.pending_batches == 0
+        and not scr._worker.busy, timeout=10000)
     scr._on_thumb_left(1)
     assert scr._pending_updates
     monkeypatch.setattr(QMessageBox, "question",
@@ -1373,7 +1384,9 @@ def test_an_auto_annotation_repaints_the_crops_already_on_screen(
     assert scr._page_paths[2][1] == 5
     assert scr._page_paths[1][1] is None
     assert "Auto-annotated 2 object(s) as 5." == scr._kbd_hint.text()
-    qtbot.waitUntil(lambda: not scr._worker.busy, timeout=10000)
+    qtbot.waitUntil(
+        lambda: scr._worker.pending_batches == 0
+        and not scr._worker.busy, timeout=10000)
     assert dict(engine.class_counts(scr._settings.db_path,
                                      scr._settings.annotation_column)) == {5: 2}
 
