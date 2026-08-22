@@ -25,7 +25,7 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QPointF, QRectF                    # noqa: E402
+from PySide6.QtCore import QEvent, QPointF, QRectF            # noqa: E402
 from PySide6.QtWidgets import (QApplication, QComboBox,       # noqa: E402
                                QDialog, QLabel, QVBoxLayout)
 
@@ -58,6 +58,23 @@ def own_config():
     preferences.set_rim_length(before[0])
     preferences.set_rim_lag(before[1])
     preferences.set_rim_alignment(before[2])
+
+
+@pytest.fixture(autouse=True)
+def nothing_is_left_ticking(app):
+    """Deliver this file's own deleteLater calls before the next test.
+
+    EVERY GLASSED DIALOG CARRIES AN AMBIENT WIDGET WITH A RUNNING TIMER.
+    `deleteLater` only posts an event, and a headless test file may never
+    spin a loop -- so without this the dialogs built here stay alive,
+    keep ticking, and go on answering PaletteChange for the rest of the
+    session. `test_space_theme` counts exactly that, and a test that fails
+    because of a widget another file forgot is the least useful kind of
+    failure there is.
+    """
+    yield
+    app.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+    app.processEvents()
 
 
 @pytest.fixture()
