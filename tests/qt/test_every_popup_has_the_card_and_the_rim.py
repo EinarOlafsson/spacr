@@ -21,8 +21,6 @@ twice, which is the definition of a matter of taste.
 """
 from __future__ import annotations
 
-import importlib
-
 import pytest
 
 pytest.importorskip("PySide6")
@@ -38,26 +36,47 @@ def app():
 
 
 @pytest.fixture(autouse=True)
-def own_config(tmp_path, monkeypatch):
-    """A settings store of this test's own, or it rewrites the maintainer's
-    rim preferences on their real machine."""
-    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+def own_config():
+    """The three rim keys saved and put back, and nothing else touched.
+
+    NOT `importlib.reload`, which several older files in this directory
+    use. Reloading swaps the module object while every other module goes
+    on holding the old one, and anything that sandboxed its settings
+    through that module quietly stops being sandboxed -- measured here as
+    a neighbouring GitHub test seeing a stored token that a LATER test in
+    its own file had written.
+
+    `_settings()` builds a fresh QSettings per call, so there is nothing
+    cached that a reload would have been clearing anyway. Saving the three
+    values and putting them back is exact, and leaks in neither direction.
+    """
     from spacr.qt import preferences
 
-    importlib.reload(preferences)
+    before = (preferences.get_rim_length(), preferences.get_rim_lag(),
+              preferences.get_rim_alignment())
     yield preferences
-    importlib.reload(preferences)
+    preferences.set_rim_length(before[0])
+    preferences.set_rim_lag(before[1])
+    preferences.set_rim_alignment(before[2])
 
 
 @pytest.fixture()
 def glassed(app):
-    """The filter installed, as it is at startup."""
+    """The filter installed, as it is at startup -- and taken off after.
+
+    A FILTER LEFT ON DECIDES THE LOOK OF EVERY DIALOG EXAMINED AFTER IT.
+    This file sorts early, so without the teardown every later dialog test
+    in the same process would be looking at a card and a backdrop that its
+    author never put there.
+    """
     from spacr.qt.preferences import apply_preferences_to_app
-    from spacr.qt.widgets.glass import install_glass_everywhere
+    from spacr.qt.widgets.glass import (install_glass_everywhere,
+                                        uninstall_glass_everywhere)
 
     apply_preferences_to_app(app)
     install_glass_everywhere(app)
-    return app
+    yield app
+    uninstall_glass_everywhere(app)
 
 
 def _popup(glassed, title="a settings popup"):
@@ -381,3 +400,35 @@ def test_the_default_chase_is_slower_than_it_was(own_config):
     """"it should allign slower than now" -- 0.34 was the value being
     described."""
     assert own_config.DEFAULT_RIM_LAG < 0.34
+
+
+def test_the_filter_can_be_taken_back_off(app):
+    """An installer with no uninstaller changes every dialog for the rest
+    of the process -- right for a running spaCR, wrong for anything that
+    wants to see a dialog as its author wrote it."""
+    from spacr.qt.widgets.glass import (install_glass_everywhere,
+                                        uninstall_glass_everywhere)
+
+    install_glass_everywhere(app)
+    assert uninstall_glass_everywhere(app) is True
+    assert uninstall_glass_everywhere(app) is False, "twice is not an error"
+    try:
+        dialog = QDialog()
+        QVBoxLayout(dialog).addWidget(QLabel("after"))
+        dialog.show()
+        for _ in range(6):
+            app.processEvents()
+        assert _card(dialog) is None, "the filter was still acting"
+    finally:
+        dialog.deleteLater()
+
+
+def test_installing_twice_installs_one_filter(app):
+    """Two filters is every event in the application handled twice."""
+    from spacr.qt.widgets.glass import (install_glass_everywhere,
+                                        uninstall_glass_everywhere)
+
+    uninstall_glass_everywhere(app)
+    assert install_glass_everywhere(app) is True
+    assert install_glass_everywhere(app) is False
+    uninstall_glass_everywhere(app)

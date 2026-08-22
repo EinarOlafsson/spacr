@@ -82,6 +82,15 @@ def ai_env(monkeypatch, tmp_path, qt_theme_applied):
     monkeypatch.delenv("GITHUB_TOKEN", raising=False)
     monkeypatch.delenv("GH_TOKEN", raising=False)
     monkeypatch.setattr(github_auth, "_gh_cli_token", lambda: "")
+    # AND THE PROCESS TOKEN, which is the one piece of state this fixture
+    # did not reach. `set_stored_token` writes a module-level global, not
+    # QSettings -- deliberately, because the token is never persisted -- so
+    # sandboxing `_settings` left it untouched. A test that injects a
+    # credential therefore left one set for every test that ran afterwards,
+    # and `test_dialog_never_prefills_a_process_token` does exactly that:
+    # whenever it happened to run before a test expecting "Not signed in",
+    # that test failed on a credential it never asked for.
+    monkeypatch.setattr(github_auth, "_EPHEMERAL_TOKEN", "")
 
     state = {"providers": []}
 
