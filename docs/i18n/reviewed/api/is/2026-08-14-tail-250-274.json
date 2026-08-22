@@ -93,13 +93,6 @@
       "translation": "``\"module:function\"`` af sjálfgefinni aðstoð sem gerir **ekki** búa í :mod:`spacr.settings`. Sex innbyggð vinnuflæði geyma sín eigin (``foreign``, ``external_masks``, ``convert``, ``illumination``, ``barcode_qc``, ``anndata_export``), sem og hver viðbótarforrit, því nöfn þeirra á uppbyggðum gögnum eru þeirra einungis; án þessa myndi CLI leysa upp tóman lykil-gildi kort fyrir þau, og ``--set`` myndi þá hafna öllum nöfnum þeirra á uppbyggðum gögnum sem stillingu sem ekki er til."
     },
     {
-      "context": "**The random complement.** Annotating one class is the normal case: a user marks the infected cells and stops. The second class is then \"everything not annotated\", chosen at random, and that is a KIND OF RULE rather than a button pressed beforehand -- ``{\"control\": {\"random_complement\": true}}``. This replaces ``write_random_annotation_column``.",
-      "label": "spacr.classify_classes#4",
-      "source": "**The random complement.** Annotating one class is the normal case: a user marks the infected cells and stops. The second class is then \"everything not annotated\", chosen at random, and that is a KIND OF RULE rather than a button pressed beforehand -- ``{\"control\": {\"random_complement\": true}}``. This replaces ``write_random_annotation_column``.",
-      "source_sha256": "4130e3515c664a95037612868d71185ffef49c7ad9e1c7688a1bf4d1ccfa90d8",
-      "translation": "**Hinn handahófskenndi viðbótinn.** Að merkja einn flokk er venjulegt tilfelli: notandi merkir sýktu frumurnar og hættir. Annar flokkurinn er þá \"everything not annotated\", valinn af handahófi, og það er EINHVER REGLA frekar en hnappur sem er ýtt á fyrirfram -- ``{\"control\": {\"random_complement\": true}}``. Þetta kemur í stað ``write_random_annotation_column``."
-    },
-    {
       "context": "The mapping CSV format is intentionally compatible with the one :mod:`spacr.pipeline_v2` writes so the two flows share downstream tooling.",
       "label": "spacr.qt.folder_metadata#4",
       "source": "The mapping CSV format is intentionally compatible with the one :mod:`spacr.pipeline_v2` writes so the two flows share downstream tooling.",

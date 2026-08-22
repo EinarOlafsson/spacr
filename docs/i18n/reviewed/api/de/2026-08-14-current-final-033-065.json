@@ -199,13 +199,6 @@
       "translation": "Begrenzt, wie viel Breite dieser Schalter innerhalb seiner Zeile beanspruchen darf."
     },
     {
-      "label": "spacr.qt.widgets.class_editor#4",
-      "source_sha256": "0f5379dbec7912890d3475a6528865875124cf9c9a056a01f7a60afb5506fb32",
-      "source": "**The random complement.** One row can be \"everything not claimed, chosen at random\", which is what the retired ``write_random_annotation_column`` used to arrange. It is a KIND OF ROW here rather than a button pressed beforehand, because it is a way of defining a class and belongs where the other class definitions are.",
-      "context": "**The random complement.** One row can be \"everything not claimed, chosen at random\", which is what the retired ``write_random_annotation_column`` used to arrange. It is a KIND OF ROW here rather than a button pressed beforehand, because it is a way of defining a class and belongs where the other class definitions are.",
-      "translation": "**Die zufällige Ergänzung.** Eine Zeile kann „alles nicht bereits Zugeordnete, zufällig ausgewählt“ bedeuten; genau dies wurde früher von ``write_random_annotation_column`` eingerichtet. Hier ist es ein ZEILENTYP und keine zuvor betätigte Schaltfläche, denn es definiert eine Klasse und gehört dorthin, wo auch die übrigen Klassendefinitionen stehen."
-    },
-    {
       "label": "spacr.qt.widgets.console_panel.ConsolePanel#0",
       "source_sha256": "08e292bfd05b0ea0e575b2e10624e159b6b6376b293a2ac5c6e3858dcb690a85",
       "source": "Merged pipeline stdout + AI chat panel.",

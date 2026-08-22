@@ -73,13 +73,6 @@
       "translation": "시그모이드의 R²는 거의 쓸모가 없습니다. 충분히 표본화된 용량-반응을 지나는 단조 곡선은 거의 모두 0.95를 넘습니다. 총제곱합이 두 평탄부의 차이에 지배되고 *어떤* S자 곡선도 이를 포착하기 때문입니다. :meth:`DoseResponseResult.caveats`는 매번 수치 옆에서 이 사실을 설명합니다."
     },
     {
-      "label": "spacr.qt.widgets.class_editor#4",
-      "source_sha256": "0f5379dbec7912890d3475a6528865875124cf9c9a056a01f7a60afb5506fb32",
-      "source": "**The random complement.** One row can be \"everything not claimed, chosen at random\", which is what the retired ``write_random_annotation_column`` used to arrange. It is a KIND OF ROW here rather than a button pressed beforehand, because it is a way of defining a class and belongs where the other class definitions are.",
-      "context": "**The random complement.** One row can be \"everything not claimed, chosen at random\", which is what the retired ``write_random_annotation_column`` used to arrange. It is a KIND OF ROW here rather than a button pressed beforehand, because it is a way of defining a class and belongs where the other class definitions are.",
-      "translation": "**무작위 여집합.** 한 행을 \"어떤 클래스에도 포함되지 않은 항목 중 무작위로 선택\"으로 정의할 수 있습니다. 폐기된 ``write_random_annotation_column``이 하던 일입니다. 여기서는 미리 누르는 버튼이 아니라 행의 종류입니다. 클래스를 정의하는 방법이므로 다른 클래스 정의와 함께 있어야 합니다."
-    },
-    {
       "label": "spacr.convert.assign_wells#3",
       "source_sha256": "663806a9fc48ed9378b61c2f7e7fed201fc98707c0283c774a4a19c4d33f3924",
       "source": "All three are deterministic — the same folder names always produce the same wells — and step 3 is only *reversible* because the map file records ``source_well`` next to ``well``. Which is the point: after conversion ``plate1_A01`` means nothing without the map, so :func:`plan` also reports every synthetic assignment by name.",
