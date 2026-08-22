@@ -1,0 +1,121 @@
+================================================================================
+THE SETUP SCREEN IS A SEQUENCE OF SLIDES, NOT A FORM
+================================================================================
+
+Status:    filed 2026-08-21, not started.
+Requested: 2026-08-21 -- "for the spacr start up. i want one question per
+           slide with a little explantaion. the blue rim should flow like
+           water towards the mouse and every time i press nezt it should
+           make one round clockwise and preveous goes counter clockwise. ...
+           then a screen that just says Done / the background should be
+           stratified with random moovement at 150% speed. / it should feel
+           like a smooth transition into spacr".
+Owner:     Qt GUI (setup screen)
+
+This SUPERSEDES the grouped-form layout instruction 221 shipped. 221's model
+(`spacr/qt/setup_screen.py`) and its persistence are unchanged and stay --
+what changes is entirely how the questions are presented.
+
+--------------------------------------------------------------------------------
+ONE QUESTION PER SLIDE
+--------------------------------------------------------------------------------
+
+A form asks everything at once and answers nothing; a slide asks one thing
+and has room to say why it matters. EACH SLIDE CARRIES A LITTLE EXPLANATION
+-- not the setting's full tooltip, which is reference text, but the sentence
+a person needs to choose.
+
+THE ORDER IS THE MAINTAINER'S, and it is not arbitrary: it runs from what
+changes the screen the user is looking at, through how spaCR runs, to what
+leaves the machine.
+
+  1. LANGUAGE
+     And HELLO IN THE CHOSEN LANGUAGE underneath it. That is the request and
+     it is also the demonstration -- the only way to know a language choice
+     took is to see it, and the greeting is the smallest thing that shows it
+     without redrawing the screen.
+
+  2. THEME and COLOUR-BLIND MODE
+     Together because they are one question: what this looks like. Both
+     should apply as they are chosen, for the same reason the greeting does.
+
+  3. spaCR MODE and the REPRODUCIBILITY HASH
+     How it runs.
+
+  4. THE ASSISTANT -- provider, and on at launch
+     THE PROVIDER IS A LOGO BUTTON, one each for Claude, GPT and Gemini.
+     A dropdown of three names is a dropdown; three logos is a choice
+     somebody makes in one glance. A provider whose CLI is not installed
+     must say so rather than being offered as though it were ready.
+
+  5. USER FEEDBACK -- file GitHub issues, include logs in the report,
+     GitHub login
+     Grouped because they are one decision with three parts: what leaves
+     this machine, and under whose name.
+
+  6. DONE
+     A screen that says only that. It is the transition, not a summary --
+     a list of what was chosen here would be a form again, at the end.
+
+--------------------------------------------------------------------------------
+THE RIM
+--------------------------------------------------------------------------------
+
+    "the blue rim should flow like water towards the mouse and every time i
+     press nezt it should make one round clockwise and preveous goes counter
+     clockwise"
+
+TWO BEHAVIOURS ON ONE ELEMENT, and they have to compose rather than fight:
+
+  * AT REST it FLOWS TOWARDS THE POINTER. 221's card already picks the
+    nearest corner and this is the continuous version of it -- the accent
+    eases along the rim to where the mouse is, rather than jumping between
+    four positions.
+  * ON NEXT it makes ONE FULL CIRCUIT CLOCKWISE; on PREVIOUS, one
+    ANTICLOCKWISE. The direction is what tells the user which way they went,
+    which is worth more than the animation.
+
+WHILE A CIRCUIT IS RUNNING THE POINTER DOES NOT STEER IT. A lap that gets
+dragged off course by a mouse movement is not a lap, and the user cannot
+tell whether it went round. The follow resumes when the circuit finishes.
+
+--------------------------------------------------------------------------------
+THE BACKGROUND
+--------------------------------------------------------------------------------
+
+    "stratified with random moovement at 150% speed"
+
+Stratified layers, each drifting on its own, at 1.5x the ambient theme's
+rate. It is the existing blob/ambient background driven faster and split
+into strata -- not a second background system, which would be a second thing
+to keep in step with the theme.
+
+--------------------------------------------------------------------------------
+AND IT MUST STILL BE DISMISSIBLE
+--------------------------------------------------------------------------------
+
+221's rules survive intact and are not up for renegotiation by the redesign:
+
+  * every question has a working default, so the screen can be closed at any
+    slide without answering;
+  * closing it MARKS IT ANSWERED, because a screen that reopens until it is
+    filled in cannot be dismissed;
+  * INVARIANTS 10 -- if the blur, the rim animation or the strata cannot be
+    drawn, the slides still work and still write the same answers. Every one
+    of these is decoration, and decoration must never be load-bearing.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Six slides in the maintainer's order, one question each, each with its own
+  sentence of explanation.
+* The greeting under the language slide is in the chosen language and
+  changes when the choice does.
+* Theme and colour-blind mode take effect on the slide that sets them.
+* The provider is chosen by logo, and an uninstalled provider says so.
+* Next runs one clockwise circuit and Previous one anticlockwise, asserted
+  on the DIRECTION rather than on a frame count.
+* A pointer move during a circuit does not steer it.
+* Closing at any slide writes the defaults and does not reopen.
+* With the animation disabled the same answers are still written.
