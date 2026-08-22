@@ -180,10 +180,7 @@ class TestEveryModuleThatHasThem:
     def test_the_console_folds_on_each(self, app, app_key):
         from spacr.qt.screens.app_screen import AppScreen
 
-        try:
-            screen = AppScreen(app_key)
-        except Exception as error:                       # pragma: no cover
-            pytest.skip(f"{app_key} did not build: {error}")
+        screen = AppScreen(app_key)
         folder = getattr(screen, "_console_folder", None)
         assert folder is not None, (
             f"{app_key} has a console with no fold; two panels that fold and "
@@ -207,10 +204,7 @@ class TestEveryModuleThatHasThem:
     def test_the_system_card_folds_on_each(self, app, app_key):
         from spacr.qt.screens.app_screen import AppScreen
 
-        try:
-            screen = AppScreen(app_key)
-        except Exception as error:                       # pragma: no cover
-            pytest.skip(f"{app_key} did not build: {error}")
+        screen = AppScreen(app_key)
         card = getattr(screen, "_usage_card", None)
         assert card is not None and card.folder is not None
         _click(card.title_label)

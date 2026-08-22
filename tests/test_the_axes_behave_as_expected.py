@@ -360,8 +360,9 @@ def test_a_click_finds_the_right_bar_with_log_x_on(qtbot):
     ``(0, 1)`` and the effect one draws a reference line at zero -- and the
     coordinate conversion under test belongs to the base class either way.
     """
-    from PySide6.QtCore import QPointF, Qt as QtCore_Qt
-    from PySide6.QtTest import QTest
+    from PySide6.QtCore import QEvent, QPointF, Qt as QtCore_Qt
+    from PySide6.QtGui import QMouseEvent
+    from PySide6.QtWidgets import QApplication
     from spacr.qt.widgets.fast_plots import BinnedPlot
 
     plot = BinnedPlot(title="Counts", x_label="value", y_label="rows")
@@ -379,14 +380,16 @@ def test_a_click_finds_the_right_bar_with_log_x_on(qtbot):
 
     target = 3
     middle = float((plot._edges[target] + plot._edges[target + 1]) / 2)
-    height = float(plot._counts[target]) / 2 or 1.0
-    where = plot.plot.mapFromScene(plot.plot.plotItem.vb.mapViewToScene(
-        QPointF(np.log10(middle), height)))
-    QTest.mouseClick(plot.plot.viewport(), QtCore_Qt.LeftButton,
-                     QtCore_Qt.NoModifier, where)
-    # A loaded four-worker Qt shard can spend more than a second processing
-    # the real mouse event even though the selection itself is synchronous.
-    qtbot.waitUntil(lambda: bool(got), timeout=5000)
+    viewbox = plot.plot.plotItem.vb
+    viewbox.updateAutoRange()
+    (_x0, _x1), (y0, y1) = viewbox.viewRange()
+    where = plot.plot.mapFromScene(viewbox.mapViewToScene(
+        QPointF(np.log10(middle), (y0 + y1) / 2)))
+    for kind in (QEvent.MouseButtonPress, QEvent.MouseButtonRelease):
+        QApplication.sendEvent(plot.plot.viewport(), QMouseEvent(
+            kind, where, QtCore_Qt.LeftButton, QtCore_Qt.LeftButton,
+            QtCore_Qt.NoModifier))
+    QApplication.processEvents()
 
     assert got, "a real click on a logged histogram reached nothing"
     assert set(got[0]) == set(plot.keys_in_bin(target))
