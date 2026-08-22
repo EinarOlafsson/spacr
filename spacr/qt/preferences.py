@@ -4320,7 +4320,13 @@ def set_rim_period(seconds) -> float:
 _KEY_POPUP_BACKDROP = "rim/popup_backdrop"
 POPUP_BACKDROPS = ("off", "aurora", "blobs", "bokeh", "cells", "drift",
                    "ripple")
-DEFAULT_POPUP_BACKDROP = "aurora"
+#: NO MOVING BACKDROP BEHIND A SETTINGS WINDOW unless the user asks for
+#: one. Asked for 2026-08-22: "the default for the setings windows should
+#: be no theme (but the user should be able to cahnge that)". The card and
+#: the rim stay either way -- 'off' drops only the movement, which is what
+#: is distracting behind a form you are reading rather than behind a screen
+#: of figures.
+DEFAULT_POPUP_BACKDROP = "off"
 
 
 def get_popup_backdrop() -> str:

@@ -701,7 +701,11 @@ def test_a_missing_cli_is_named_rather_than_called_a_failure(slides,
     monkeypatch.setattr(shutil, "which", lambda _name: None)
     slides._refresh_github()
     assert "not installed" in slides._gh_status.text()
-    assert not slides._gh_button.isEnabled()
+    # AND THE BUTTON OFFERS THE INSTALL. It used to be greyed out, which
+    # told the user what was wrong and gave them nothing to do about it --
+    # and reads from the outside exactly like a button that is broken.
+    assert slides._gh_button.isEnabled()
+    assert "install" in slides._gh_button.text().lower()
 
 
 def test_spacr_never_asks_for_the_token_itself(slides):

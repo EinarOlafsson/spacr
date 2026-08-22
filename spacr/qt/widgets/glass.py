@@ -53,10 +53,17 @@ NO_GLASS = "spacrNoGlass"
 
 #: Pixels between the dialog's edge and the card's.
 #:
-#: SMALL, because a dialog is sized to its contents and every pixel here is
-#: taken off what the contents were given. The setup screen can afford 44
-#: because it chose its own size; a settings dialog cannot.
-INSET = 8
+#: ZERO. It was 8, and those eight pixels were the "box with square edges
+#: behind the box with rounded edges" reported on 2026-08-22: a band of the
+#: dialog's own background running all the way round the rounded card, in
+#: the one place a square corner is most visible. The card IS the window
+#: now, so there is no band to see -- and nothing depends on the
+#: compositor except the four corner arcs themselves, rather than a full
+#: frame.
+#:
+#: The rim still has room: `_make_room_for_the_rim` widens the DIALOG's
+#: layout margins, which is a different thing from insetting the card.
+INSET = 0
 
 #: Extra margin given to the dialog's own layout, so the rim has room.
 #:
@@ -142,12 +149,31 @@ def spin_on_every_button(dialog: QDialog, card) -> int:
 
 
 def wants_glass(widget: QWidget) -> bool:
-    """Whether ``widget`` should be given the card and the rim."""
+    """Whether ``widget`` should be given the card and the rim.
+
+    A DIALOG THAT BROUGHT ITS OWN CARD IS LEFT ALONE. The setup screen
+    builds one and lays its slides out inside it; glassing it added a
+    SECOND card, and the second one covered the first one's contents --
+    `childAt` over the GitHub button returned the card, so the click never
+    reached the button. Reported 2026-08-22 as "i cant click the github
+    sign in".
+
+    Checked by looking rather than by asking, so anything else that builds
+    its own card is covered without having to remember to say so.
+    """
     if not isinstance(widget, QDialog):
         return False
     if widget.property(NO_GLASS):
         return False
-    return not widget.property(GLASSED)
+    if widget.property(GLASSED):
+        return False
+    try:
+        from .setup_card import SetupCard
+
+        return not widget.findChildren(SetupCard)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not look for a card", exc_info=True)
+        return True
 
 
 def clear_the_containers(dialog: QWidget) -> int:
@@ -232,6 +258,31 @@ class _DragByBackground(QObject):
         return False
 
 
+#: What the dialog's own body paints once the card is behind it: nothing.
+#: `background: transparent` rather than a colour, because any colour is a
+#: square of it in the eight-pixel band around the rounded card.
+NO_BACKGROUND = "QDialog { background: transparent; border: none; }"
+
+
+def _paint_nothing_behind_the_card(dialog: QDialog) -> bool:
+    """Stop the dialog painting its own square background. True if applied.
+
+    ADDITIVE, because a dialog may carry a stylesheet of its own and this
+    must not replace it. Appended, so it wins over an earlier `QDialog`
+    rule in the same sheet, and the application-wide sheet loses to a
+    widget sheet by Qt's own precedence.
+    """
+    try:
+        existing = dialog.styleSheet() or ""
+        if NO_BACKGROUND in existing:
+            return False
+        dialog.setStyleSheet(f"{existing}\n{NO_BACKGROUND}".strip())
+        return True
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("a dialog would not drop its background", exc_info=True)
+        return False
+
+
 def make_frameless(dialog: QDialog) -> bool:
     """Drop the title bar and let the card's rounded corners show.
 
@@ -258,9 +309,22 @@ def make_frameless(dialog: QDialog) -> bool:
         # and hiding one of those would leave it hidden when its parent
         # finally opened.
         was_showing = not dialog.isHidden()
+        # THE ATTRIBUTE BEFORE THE FLAGS. `setWindowFlags` RECREATES the
+        # native window, and a translucency asked for afterwards applies to
+        # a window that already exists -- which on X11 means it does not
+        # apply at all. Reported 2026-08-22: "there is a box with square
+        # edges behind the box with rounded edges."
+        dialog.setAttribute(Qt.WA_TranslucentBackground, True)
         dialog.setWindowFlags(dialog.windowFlags()
                               | Qt.FramelessWindowHint)
-        dialog.setAttribute(Qt.WA_TranslucentBackground, True)
+        # AND THE STYLESHEET HAS TO AGREE. WA_TranslucentBackground stops Qt
+        # filling the window with the palette's base; it does NOT stop the
+        # application stylesheet's `QDialog { background: ... }` rule, which
+        # paints the square box this is about. Scoped to the dialog itself
+        # with `#objectName`-free `QDialog` -- a bare `QDialog` selector in
+        # a widget stylesheet applies to that widget and inherits to its
+        # QDialog children, of which a settings popup has none.
+        _paint_nothing_behind_the_card(dialog)
         _DragByBackground(dialog)
         if was_showing and dialog.isHidden():
             dialog.show()
