@@ -396,10 +396,13 @@ def test_bundled_resource_defaults_are_portable(monkeypatch):
     assert eval(rendered) == str(resource.resolve())
 
 
-def test_machine_sized_worker_defaults_are_rendered_as_expressions():
+@pytest.mark.parametrize("dotted", [
+    "spacr.core.preprocess_generate_masks",
+    "spacr.core.preprocess_generate_masks_timelapse",
+])
+def test_machine_sized_worker_defaults_are_rendered_as_expressions(dotted):
     """A notebook generated on CI must match one generated on a workstation."""
     tool = _tool()
-    dotted = "spacr.core.preprocess_generate_masks"
     workstation = tool._literal(28, dotted=dotted, key="n_jobs")
     hosted_runner = tool._literal(1, dotted=dotted, key="n_jobs")
 

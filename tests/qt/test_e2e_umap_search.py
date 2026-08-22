@@ -43,6 +43,7 @@ def _measurements_project(root):
     return root, n
 
 
+@pytest.mark.heavy
 def test_image_umap_adaptive_search_runs_twice_with_fresh_module_settings(
         qtbot, qt_theme_applied, tmp_path):
     available, reason = umap_available()

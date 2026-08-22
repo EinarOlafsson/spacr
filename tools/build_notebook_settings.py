@@ -669,6 +669,8 @@ _DYNAMIC_LITERALS = {
     # and regeneration is independent of the machine doing the check.
     ("spacr.core.preprocess_generate_masks", "n_jobs"):
         "max(1, (__import__('os').cpu_count() or 1) - 4)",
+    ("spacr.core.preprocess_generate_masks_timelapse", "n_jobs"):
+        "max(1, (__import__('os').cpu_count() or 1) - 4)",
     ("spacr.measure.measure_crop", "n_jobs"):
         "max(1, (__import__('os').cpu_count() or 1) - 2)",
     ("spacr.deep_spacr.deep_spacr", "n_jobs"):

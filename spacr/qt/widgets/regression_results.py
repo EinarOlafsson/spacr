@@ -962,14 +962,19 @@ class RegressionResultsPanel(QWidget):
         self._offer_baselines()
         self._offer_compartments()
 
-        # HOVER HELP BELONGS ON THE SETTING'S NAME, NOT ON THE CONTROL
-        # (instruction 113, restated across every module 2026-08-19: "the
-        # tooltip should only be visable when hovering the mouse over the
-        # setting name text, and not when hovering over the field, checkbox,
-        # or whatever the setting controlls"). One post-pass rather than a
-        # convention every hand-built row has to remember -- which is what
-        # `tests/test_tooltips_are_on_the_setting_not_the_field.py` exists to
-        # catch, and did catch this screen.
+        # These three editors share one visible setting name. Keep each
+        # channel's detailed help, but expose it from that name instead of
+        # requiring the pointer to discover help on the editable fields.
+        self._colour_by_label.setToolTip("\n\n".join([
+            self._colour_by_label.toolTip(),
+            self._colour_by.toolTip(),
+            self._colour_by_2.toolTip(),
+            self._colour_by_3.toolTip(),
+        ]))
+        for field in (self._colour_by, self._colour_by_2, self._colour_by_3):
+            field.setToolTip("")
+
+        # Move any remaining editor help to the label that names its setting.
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
