@@ -3131,7 +3131,11 @@ def launch(argv: Optional[list[str]] = None) -> int:
     # once: `should_open` reads the recorded version, and dismissing it
     # records one too, so a user who closes it is not asked again.
     try:
-        from .widgets.setup_dialog import open_setup_if_needed
+        # THE SLIDES, not the grouped form (instruction 234). `setup_dialog`
+        # is 221's version and stays: it is the fallback nothing currently
+        # uses, and deleting it would take its tests with it while the new
+        # presentation is still settling.
+        from .widgets.setup_slides import open_setup_if_needed
 
         open_setup_if_needed(win)
     except Exception:
