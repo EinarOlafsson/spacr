@@ -1949,6 +1949,8 @@ def get_perform_regression_default_settings(settings):
     :param settings: dict to fill in place.
     :returns: the settings dict with defaults applied.
     """
+    inference_was_supplied = 'inference' in settings
+
     # One row states one score/count relationship. Legacy score_data and
     # count_data keys supplied by an older settings file remain in ``settings``
     # and are migrated by ml.normalize_regression_input_pairs; they are not
@@ -1986,11 +1988,10 @@ def get_perform_regression_default_settings(settings):
     # design it cannot support: perform_regression prints an unmissable
     # warning naming the counts when the parametric path is asked to fit more
     # parameters than it has wells. See ml.resolve_auto_inference.
-    # NONPARAMETRIC BY DEFAULT, at the maintainer's direction 2026-08-19.
-    # The plate-blocked permutation test assumes less: no normal residuals, no
-    # equal variance, no leverage. It is slower and it cannot express a P
-    # below 1/(permutations + 1) -- 149 C -- and the summary now says both,
-    # which is what makes it a safe default rather than a silent one.
+    # The plate-blocked permutation test is the conservative default for
+    # well-level analysis. It assumes neither normal residuals nor equal
+    # variance, although it is slower and its P-value resolution is bounded
+    # by 1/(permutations + 1).
     settings.setdefault('inference', 'nonparametric')
     # Preserve the historical, public ``agg_type=None`` spelling for a
     # per-cell analysis.  New settings use the explicit dropdown, but an old
@@ -2000,6 +2001,12 @@ def get_perform_regression_default_settings(settings):
         settings['analysis_unit'] = (
             'cell' if 'agg_type' in settings and settings['agg_type'] is None
             else 'well')
+    # A cell-level fit cannot use the well-blocked permutation test. When the
+    # caller selected only the unit (including legacy ``agg_type=None``), let
+    # the resolver choose the compatible parametric path. An explicitly
+    # requested nonparametric analysis remains a conflict and is rejected.
+    if settings['analysis_unit'] == 'cell' and not inference_was_supplied:
+        settings['inference'] = 'auto'
     settings.setdefault('guide_min_wells', [1, 2, 3, 4])
     settings.setdefault('guide_primary_min_wells', None)
     settings.setdefault('guide_permutations', 200000)

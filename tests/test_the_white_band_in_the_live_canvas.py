@@ -62,6 +62,15 @@ pytestmark = pytest.mark.qt
 GROUND = (255, 0, 255)
 
 
+@pytest.fixture(autouse=True)
+def _transparent_figure_preference(monkeypatch):
+    """Make the transparent-background precondition explicit and isolated."""
+    import spacr.qt.preferences as preferences
+
+    monkeypatch.setattr(
+        preferences, "get_figure_colors", lambda: ("none", "#ffffff"))
+
+
 def _over_the_ground(host):
     """``(height, width, 3)`` of ``host``'s children drawn onto the ground."""
     from PySide6.QtCore import QPoint

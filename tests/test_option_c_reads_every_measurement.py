@@ -230,7 +230,9 @@ def test_the_settings_window_offers_it():
     from spacr.picture_settings import offered_values
 
     offered = {value for value, _label in offered_values("cell_picking")}
-    assert offered == {"rank", "attributed", "assigned", "multivariate"}
+    assert offered == {
+        "rank", "attributed", "assigned", "multivariate", "sudoku",
+    }
 
 
 def test_the_label_says_it_needs_a_sweep():
@@ -241,3 +243,10 @@ def test_the_label_says_it_needs_a_sweep():
 
     labels = dict(offered_values("cell_picking"))
     assert "sweep" in labels["multivariate"].lower()
+
+
+def test_the_sudoku_label_explains_its_cross_well_evidence():
+    from spacr.picture_settings import offered_values
+
+    label = dict(offered_values("cell_picking"))["sudoku"].lower()
+    assert "every well" in label

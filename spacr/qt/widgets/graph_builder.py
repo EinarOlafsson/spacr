@@ -493,8 +493,14 @@ def _canvas_class():
 
         def draw_idle(self):
             self._draw_pending = True
-            if not self._spacr_draw_timer.isActive():
-                self._spacr_draw_timer.start(0)
+            try:
+                if not self._spacr_draw_timer.isActive():
+                    self._spacr_draw_timer.start(0)
+            except RuntimeError:
+                # A queued host redraw may arrive after Qt has destroyed the
+                # canvas-owned timer during window teardown. There is no live
+                # surface left to update, so discard the pending draw.
+                self._draw_pending = False
 
         def _spacr_draw(self):
             if not self._draw_pending:
@@ -506,7 +512,10 @@ def _canvas_class():
                 return
 
         def cancel_pending_draw(self):
-            self._spacr_draw_timer.stop()
+            try:
+                self._spacr_draw_timer.stop()
+            except RuntimeError:
+                pass
             self._draw_pending = False
 
     _CANVAS_CLASS = OwnedTimerFigureCanvas

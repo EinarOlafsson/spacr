@@ -5979,8 +5979,11 @@ class _RegressionBackendField(QWidget):
 
     def eventFilter(self, obj, event):  # noqa: N802 - Qt contract
         """Route hover and Shift+F1 to the shared availability panel."""
+        combo = getattr(self, "combo", None)
+        if combo is None:
+            return super().eventFilter(obj, event)
         try:
-            view = self.combo.view()
+            view = combo.view()
         except RuntimeError:                             # pragma: no cover
             return super().eventFilter(obj, event)
         viewport = view.viewport() if view is not None else None
@@ -5991,7 +5994,7 @@ class _RegressionBackendField(QWidget):
             elif kind == QEvent.Leave:
                 # Leaving the popup is how the pointer travels to the panel.
                 self._release_popup()
-        elif obj is self.combo:
+        elif obj is combo:
             if kind == QEvent.KeyPress and self._is_help_key(event):
                 self.open_availability_panel()
                 return True
@@ -7586,7 +7589,7 @@ class SettingsWidgets:
         if key not in self._defaults or key not in _APP_HIDDEN_KEYS.get(
                 self.app_key, set()):
             return False
-        self._defaults[key] = value
+        self._defaults[key] = self._coerce_to_expected_type(key, value)
         return True
 
     def _on_regression_type_changed(self, *_args) -> None:

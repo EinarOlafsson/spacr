@@ -89,7 +89,9 @@ SHORTCUTS: List[ShortcutSpec] = [
 #: always live and the other is not -- and it is the same distinction the
 #: `scope` field states to the reader.
 SCREEN_SHORTCUTS: List[ShortcutSpec] = [
-ShortcutSpec("Left",         "Previous image",         "Annotate",
+    ShortcutSpec("Ctrl+End",     "Jump to the newest line", "Console",
+                 "the Console panel"),
+    ShortcutSpec("Left",         "Previous image",         "Annotate",
                  "the Annotate and Make Masks screens"),
     ShortcutSpec("Right",        "Next image",             "Annotate",
                  "the Annotate and Make Masks screens"),

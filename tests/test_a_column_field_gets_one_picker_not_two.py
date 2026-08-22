@@ -70,7 +70,6 @@ def test_the_dependent_variable_reads_the_input_csvs_too(qtbot):
 
 
 @pytest.mark.parametrize("app_key, key", [
-    ("classify", "annotation_column"),
     ("classify_merged", "exclude"),
     ("ml_analyze", "annotation_column"),
     ("umap", "color_by"),
@@ -87,6 +86,15 @@ def test_a_field_that_really_does_name_a_database_column_keeps_its_picker(
     screen = _screen(qtbot, app_key)
     widget = screen._settings_model._widgets[key]
     assert len(_sql_buttons_around(widget)) == 1
+
+
+def test_classify_defines_source_columns_in_the_classes_editor(qtbot):
+    """Classify has one source-column control rather than two competitors."""
+    screen = _screen(qtbot, "classify")
+    widgets = screen._settings_model._widgets
+
+    assert "classes" in widgets
+    assert "annotation_column" not in widgets
 
 
 def test_the_rule_is_read_off_the_widget_not_a_second_table():

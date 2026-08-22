@@ -1891,18 +1891,13 @@ def _show_response_distribution(before_df, dependent_variable, settings):
 
         from .response_distribution import panel
 
-        # THE COLUMN IS LOOKED FOR, NOT ASSUMED. `process_scores` RENAMES
-        # the response -- it hands back the name it produced, which is not
-        # the name the untransformed frame carries -- so a straight lookup
-        # missed every time and the panel returned without drawing. Reported
-        # 2026-08-21: "i dont see the distribution graph to the right in the
-        # figure panels".
+        # ``process_scores`` can rename the response, while ``before_df``
+        # retains its original name. Prefer the requested names and otherwise
+        # use the final numeric response column in the aggregated table.
         wanted = [str(dependent_variable),
                   str(settings.get('dependent_variable') or "")]
         column = next((c for c in wanted if c and c in before_df), None)
         if column is None:
-            # THE LAST NUMERIC COLUMN is what `process_scores` leaves the
-            # aggregated response in, whatever it decided to call it.
             numeric = [c for c in before_df.columns
                        if pd.api.types.is_numeric_dtype(before_df[c])]
             column = numeric[-1] if numeric else None
@@ -1910,17 +1905,16 @@ def _show_response_distribution(before_df, dependent_variable, settings):
             print("the response distribution panel was not drawn: the "
                   "aggregated table carries no numeric response column")
             return
-        figure, axes = plt.subplots(figsize=(7.0, 4.2))
-        panel(before_df[column].to_numpy(dtype=float),
-              str(settings.get('transform') or 'none'), ax=axes,
-              dependent_variable=str(column))
-        figure.tight_layout()
+        with figure_style(theme_target()):
+            figure, axes = plt.subplots(figsize=(7.0, 4.2))
+            panel(before_df[column].to_numpy(dtype=float),
+                  str(settings.get('transform') or 'none'), ax=axes,
+                  dependent_variable=str(column))
+            figure.tight_layout()
         plt.show()
     except Exception as error:                                   # noqa: BLE001
-        # THE PICTURE IS OPTIONAL, THE RUN IS NOT -- but a bare `pass` here
-        # is why this went missing without a word. A panel that cannot draw
-        # says so; that costs one line and is the difference between a
-        # missing figure and a mystery.
+        # A diagnostic figure must not invalidate the regression run, but a
+        # rendering failure remains visible in the run log.
         print(f"the response distribution panel could not be drawn "
               f"({type(error).__name__}: {error}); the run is unaffected")
 

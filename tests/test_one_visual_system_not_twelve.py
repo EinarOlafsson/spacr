@@ -43,7 +43,10 @@ GLOBAL_RC = re.compile(r"(?:plt|mpl|matplotlib)\.rcParams\s*(?:\.update\(|\[)")
 #: draws INSIDE `figure_style`, so `UNSTYLED_CEILING` is untouched at 0.
 #: Raising THIS number is allowed for a new figure that is properly styled;
 #: raising the other one is not.
-CEILING = 146
+# 146 -> 147 for ``ml._show_response_distribution``. The diagnostic panel
+# creates its axes inside
+# ``figure_style(theme_target())``; the unstyled ceiling remains zero.
+CEILING = 147
 
 #: The ceiling on figure creations that are NOT inside the house style.
 #:

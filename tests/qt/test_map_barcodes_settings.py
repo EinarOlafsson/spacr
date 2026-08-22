@@ -103,7 +103,7 @@ def test_map_barcodes_ui_uses_sequencing_dropdowns_and_no_stray_tabs(
         "Output & Storage", "Runtime & Reliability",
     ]
     assert {"N jobs", "Test"} <= rows["Runtime & Reliability"]
-    assert {"Grna csv", "Row csv", "Column csv"} == rows["Barcode References"]
+    assert {"gRNA CSV", "Row CSV", "Column CSV"} == rows["Barcode References"]
 
     expected = {
         "mode": ["paired", "single"],
