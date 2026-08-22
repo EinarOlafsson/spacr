@@ -306,16 +306,24 @@ def test_the_rim_fades_to_nothing_at_both_ends(app):
     card = SetupCard()
     assert card.accent_alpha(0.0) == pytest.approx(0.0, abs=1e-6)
     assert card.accent_alpha(1.0) == pytest.approx(0.0, abs=1e-6)
-    assert card.accent_alpha(0.72) > 0.9, "it never reaches full brightness"
+    assert card.accent_alpha(card.accent_peak()) > 0.9, (
+        "it never reaches full brightness")
 
 
-def test_the_rim_is_brightest_behind_the_head_not_in_the_middle(app):
-    """A highlight that peaks in the centre reads as a bar; one that peaks
-    at the front reads as something moving."""
+def test_the_bright_part_is_what_the_pointer_is_on(app):
+    """THE PEAK FOLLOWS THE ALIGNMENT. Centred on the pointer, the bright
+    part belongs in the middle of the run, or it sits to one side of the
+    thing it is pointing at; trailing from the head, it belongs near the
+    front, where a wake is brightest."""
     from spacr.qt.widgets.setup_card import SetupCard
 
-    card = SetupCard()
-    assert card.accent_alpha(0.72) > card.accent_alpha(0.5)
+    centred = SetupCard(align="centre")
+    assert centred.accent_peak() == pytest.approx(0.5)
+    assert centred.accent_alpha(0.5) > centred.accent_alpha(0.72)
+
+    trailing = SetupCard(align="head")
+    assert trailing.accent_peak() > 0.6
+    assert trailing.accent_alpha(0.72) > trailing.accent_alpha(0.5)
 
 
 def test_the_alpha_ramp_is_monotonic_on_each_side(app):
@@ -323,19 +331,28 @@ def test_the_alpha_ramp_is_monotonic_on_each_side(app):
     from spacr.qt.widgets.setup_card import SetupCard
 
     card = SetupCard()
-    rising = [card.accent_alpha(i / 40.0 * 0.72) for i in range(41)]
-    falling = [card.accent_alpha(0.72 + i / 40.0 * 0.28) for i in range(41)]
+    peak = card.accent_peak()
+    rising = [card.accent_alpha(i / 40.0 * peak) for i in range(41)]
+    falling = [card.accent_alpha(peak + i / 40.0 * (1.0 - peak))
+               for i in range(41)]
     assert rising == sorted(rising)
     assert falling == sorted(falling, reverse=True)
 
 
-def test_the_accent_chases_harder_than_it_did(app):
+def test_the_chase_is_a_setting_within_sane_bounds(app):
+    """It was a constant, twice reported on and twice changed -- so it is a
+    preference now. What stays fixed is the range: at 1.0 the light is
+    under the pointer with no travel at all, and the travel is the effect.
+    """
+    from spacr.qt.preferences import (DEFAULT_RIM_LAG, RIM_LAG_RANGE,
+                                      get_rim_lag)
     from spacr.qt.widgets.setup_card import SetupCard
 
-    assert SetupCard.EASE > 0.18, "this is the value that was reported slow"
-    assert SetupCard.EASE < 1.0, (
-        "at 1.0 the head is under the pointer with no travel, and the "
-        "travel is the whole effect")
+    low, high = RIM_LAG_RANGE
+    assert 0.0 < low <= DEFAULT_RIM_LAG <= high <= 1.0
+    assert low <= get_rim_lag() <= high
+    assert SetupCard(lag=0.42).ease() == pytest.approx(0.42), (
+        "a card told a lag must use it rather than the stored one")
 
 
 def test_it_still_arrives_rather_than_overshooting(app):
@@ -585,12 +602,18 @@ def test_an_arrived_rim_stops_repainting(app):
 # ---------------------------------------------------------------------------
 
 def test_the_last_slide_says_done_in_the_middle(slides):
+    """AS IT IS WRITTEN, not shouted, and in the accent blue -- the same
+    blue the greeting arrives in, rather than a second one invented for
+    the last slide."""
+    from spacr.qt.theme import active_palette
     from spacr.qt.widgets.setup_slides import SLIDES
 
     slides._greeted = True
     slides._show_slide(len(SLIDES) - 1)
-    assert slides._done_word.text() == "DONE"
+    assert slides._done_word.text() == "Done"
     assert slides._done_word.alignment() & Qt.AlignHCenter
+    assert active_palette()["accent"].lower() in \
+        slides._done_word.styleSheet().lower()
 
 
 def test_the_closing_word_is_big(slides):

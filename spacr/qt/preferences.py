@@ -3250,6 +3250,75 @@ class PreferencesDialog:
         field_fade_check.setChecked(get_field_fade_enabled())
         appearance.addRow(tr("Field fade"), field_fade_check)
 
+        # ---- The travelling rim -------------------------------------
+        #
+        # THREE SETTINGS, NOT THREE CONSTANTS. How long the light is, how
+        # hard it chases and whether it sits centred on the pointer are
+        # matters of taste, and taste is what a preference is for.
+        rim_length_slider = QSlider(Qt.Horizontal)
+        rim_length_slider.setObjectName("RimLength")
+        rim_length_slider.setRange(*RIM_LENGTH_RANGE)
+        rim_length_slider.setSingleStep(10)
+        rim_length_slider.setPageStep(40)
+        rim_length_slider.setValue(get_rim_length())
+        rim_length_slider.setToolTip(
+            "How far the accent runs along the edge of a settings card, in "
+            "pixels. Short reads as a dash sitting on one edge; past about "
+            "half the perimeter it stops being a highlight and becomes a "
+            "border.")
+        rim_length_value = QLabel()
+
+        def _rim_length_says(px):
+            rim_length_value.setText(tr("%d px") % int(px))
+
+        _rim_length_says(rim_length_slider.value())
+        rim_length_slider.valueChanged.connect(_rim_length_says)
+        rim_length_row = QHBoxLayout()
+        rim_length_row.setContentsMargins(0, 0, 0, 0)
+        rim_length_row.addWidget(rim_length_slider, 1)
+        rim_length_row.addWidget(rim_length_value)
+        appearance.addRow(tr("Rim length"), _hbox_wrap(rim_length_row))
+
+        rim_lag_slider = QSlider(Qt.Horizontal)
+        rim_lag_slider.setObjectName("RimLag")
+        # Stored as a fraction; shown as a percentage, because a slider
+        # from 0.02 to 1.0 is a slider with no readable numbers on it.
+        rim_lag_slider.setRange(int(RIM_LAG_RANGE[0] * 100),
+                                int(RIM_LAG_RANGE[1] * 100))
+        rim_lag_slider.setSingleStep(1)
+        rim_lag_slider.setPageStep(5)
+        rim_lag_slider.setValue(int(round(get_rim_lag() * 100)))
+        rim_lag_slider.setToolTip(
+            "How much of the distance to the pointer the accent covers each "
+            "frame. Lower is a longer, lazier trail; at 100% it is under "
+            "the pointer with no travel at all, and the travel is the whole "
+            "effect.")
+        rim_lag_value = QLabel()
+
+        def _rim_lag_says(percent):
+            rim_lag_value.setText(tr("%d%%") % int(percent))
+
+        _rim_lag_says(rim_lag_slider.value())
+        rim_lag_slider.valueChanged.connect(_rim_lag_says)
+        rim_lag_row = QHBoxLayout()
+        rim_lag_row.setContentsMargins(0, 0, 0, 0)
+        rim_lag_row.addWidget(rim_lag_slider, 1)
+        rim_lag_row.addWidget(rim_lag_value)
+        appearance.addRow(tr("Rim chase"), _hbox_wrap(rim_lag_row))
+
+        rim_align_combo = QComboBox()
+        rim_align_combo.setObjectName("RimAlignment")
+        for label, key in (("Centred on the pointer", "centre"),
+                           ("Trailing behind it", "head")):
+            rim_align_combo.addItem(tr(label), key)
+        index = rim_align_combo.findData(get_rim_alignment())
+        rim_align_combo.setCurrentIndex(index if index >= 0 else 0)
+        rim_align_combo.setToolTip(
+            "Centred puts the middle of the lit run under the pointer; "
+            "trailing puts its leading end there and drags the rest of the "
+            "light behind.")
+        appearance.addRow(tr("Rim alignment"), rim_align_combo)
+
         # Colour-blind mode
         cb_combo = QComboBox()
         for label, key in (
@@ -3727,6 +3796,12 @@ class PreferencesDialog:
         reset_button.clicked.connect(_reset_to_defaults)
 
         def _save():
+            # The rim first: every open card rereads these, and doing it
+            # before the theme work means one repaint rather than two.
+            set_rim_length(rim_length_slider.value())
+            set_rim_lag(rim_lag_slider.value() / 100.0)
+            set_rim_alignment(rim_align_combo.currentData())
+            _tell_the_cards_the_rim_changed()
             set_language(language_combo.currentData())
             set_theme_choice(theme_combo.currentData())
             # One write for the whole Animation row: it stores the choice,
@@ -3826,6 +3901,34 @@ def _refresh_owner_window(parent) -> None:
             refresh()
         except Exception:
             pass
+
+
+def _tell_the_cards_the_rim_changed() -> int:
+    """Make every card on screen take the new rim settings. Returns how many.
+
+    A PREFERENCE THE USER CANNOT SEE TAKE EFFECT is a preference they will
+    set twice. The cards read length, chase and alignment when they draw,
+    so all this has to do is tell them to draw -- and re-read the length,
+    which is the one they cache.
+    """
+    try:
+        from PySide6.QtWidgets import QApplication
+
+        from .widgets.setup_card import SetupCard
+    except Exception:                                        # noqa: BLE001
+        return 0
+    application = QApplication.instance()
+    if application is None:
+        return 0
+    told = 0
+    for widget in application.allWidgets():
+        if isinstance(widget, SetupCard):
+            try:
+                widget.reread_the_preferences()
+                told += 1
+            except Exception:                                # noqa: BLE001
+                LOG.debug("a card would not reread the rim", exc_info=True)
+    return told
 
 
 def _hbox_wrap(layout):
@@ -3987,3 +4090,109 @@ def apply_workspace_preference() -> str:
     from ..workspace import set_default_mode
 
     return set_default_mode(get_save_workspace(), get_workspace_copy_limit_mb())
+
+
+# ---------------------------------------------------------------------------
+# The travelling rim
+# ---------------------------------------------------------------------------
+#
+# The accent that runs round a settings card follows the pointer, and how it
+# does that is a matter of taste rather than of correctness -- so it is three
+# settings rather than three constants.
+
+_KEY_RIM_LENGTH = "rim/length_px"
+_KEY_RIM_LAG = "rim/lag"
+_KEY_RIM_ALIGNMENT = "rim/alignment"
+
+#: How far the lit run reaches along the rim, in pixels.
+DEFAULT_RIM_LENGTH = 280
+
+#: How hard the accent chases the pointer, per frame. Smaller is slower.
+DEFAULT_RIM_LAG = 0.16
+
+#: Where the run sits relative to the pointer.
+RIM_ALIGNMENTS = ("centre", "head")
+DEFAULT_RIM_ALIGNMENT = "centre"
+
+#: Bounds the settings panel and the reader both honour.
+RIM_LENGTH_RANGE = (60, 900)
+RIM_LAG_RANGE = (0.02, 1.0)
+
+
+def get_rim_length() -> int:
+    """Pixels of rim the accent lights up.
+
+    Clamped on READ as well as on write: the stored value can come from a
+    settings file written by hand or by an older build, and a rim longer
+    than its own perimeter is a border rather than a highlight.
+    """
+    low, high = RIM_LENGTH_RANGE
+    try:
+        value = int(_settings().value(_KEY_RIM_LENGTH, DEFAULT_RIM_LENGTH))
+    except (TypeError, ValueError):
+        return DEFAULT_RIM_LENGTH
+    return max(low, min(high, value))
+
+
+def set_rim_length(pixels) -> int:
+    """Store the rim length. Returns the value actually stored."""
+    low, high = RIM_LENGTH_RANGE
+    try:
+        value = max(low, min(high, int(pixels)))
+    except (TypeError, ValueError):
+        value = DEFAULT_RIM_LENGTH
+    settings = _settings()
+    settings.setValue(_KEY_RIM_LENGTH, value)
+    settings.sync()
+    return value
+
+
+def get_rim_lag() -> float:
+    """How far the accent closes the gap to the pointer each frame.
+
+    SMALLER IS SLOWER, and the name is the user's: what they see is the lag
+    between the pointer arriving and the light catching up. 1.0 would put
+    the light under the pointer with no travel at all, and the travel is
+    the whole effect -- so that is the top of the range, not past it.
+    """
+    low, high = RIM_LAG_RANGE
+    try:
+        value = float(_settings().value(_KEY_RIM_LAG, DEFAULT_RIM_LAG))
+    except (TypeError, ValueError):
+        return DEFAULT_RIM_LAG
+    return max(low, min(high, value))
+
+
+def set_rim_lag(fraction) -> float:
+    """Store the chase fraction. Returns the value actually stored."""
+    low, high = RIM_LAG_RANGE
+    try:
+        value = max(low, min(high, float(fraction)))
+    except (TypeError, ValueError):
+        value = DEFAULT_RIM_LAG
+    settings = _settings()
+    settings.setValue(_KEY_RIM_LAG, value)
+    settings.sync()
+    return value
+
+
+def get_rim_alignment() -> str:
+    """Where the lit run sits relative to the pointer.
+
+    ``centre`` puts the MIDDLE of the run under the pointer, ``head`` puts
+    its leading end there and trails the rest behind.
+    """
+    value = str(_settings().value(_KEY_RIM_ALIGNMENT,
+                                  DEFAULT_RIM_ALIGNMENT) or "").strip().lower()
+    return value if value in RIM_ALIGNMENTS else DEFAULT_RIM_ALIGNMENT
+
+
+def set_rim_alignment(name: str) -> str:
+    """Store the alignment. An unknown name stores the default instead."""
+    value = str(name or "").strip().lower()
+    if value not in RIM_ALIGNMENTS:
+        value = DEFAULT_RIM_ALIGNMENT
+    settings = _settings()
+    settings.setValue(_KEY_RIM_ALIGNMENT, value)
+    settings.sync()
+    return value
