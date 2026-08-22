@@ -1,21 +1,20 @@
 # spaCR on conda-forge
 
 Conda-forge requires one human-reviewed onboarding pull request before it can
-publish a new package. The ready-to-submit recipe is in `recipe/recipe.yaml`.
+publish a new package. The spaCR onboarding request is
+[`conda-forge/staged-recipes#34352`](https://github.com/conda-forge/staged-recipes/pull/34352).
+The reference v1 recipe in `recipe/recipe.yaml` uses the same immutable PyPI
+source archive and license metadata.
 
 ## One-time onboarding
 
-1. Fork
-   [`conda-forge/staged-recipes`](https://github.com/conda-forge/staged-recipes).
-2. Create a branch in that fork and copy this repository's `recipe` directory
-   to `recipes/spacr`.
-3. Open a pull request to `conda-forge/staged-recipes`.
-4. Respond to the conda-forge review. After merge, conda-forge creates
+1. Keep the onboarding pull request green and respond to conda-forge review.
+2. After merge, conda-forge creates
    `conda-forge/spacr-feedstock` and publishes the initial package.
-5. Copy `conda-forge.yml` from this directory to the root of the generated
+3. Copy `conda-forge.yml` from this directory to the root of the generated
    feedstock and merge that feedstock change.
 
-The recipe uses the tagged GitHub source archive. Its dependency names are
+The recipe uses the PyPI source archive. Its dependency names are
 translated to their conda-forge distribution names, including `torch` to
 `pytorch`, `opencv-python-headless` to `opencv`, `tables` to `pytables`, and
 `nvidia-ml-py` to `pynvml`.
