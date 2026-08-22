@@ -181,20 +181,25 @@ def test_train_model_counts_classes_from_train_folder(tmp_path, monkeypatch, cap
     assert "Class counts (from folders): {'nc': 3, 'pc': 5}" in out
 
 
-def test_train_model_invalid_model_type_bails_out(tmp_path, monkeypatch, capsys):
-    """choose_model returning None must abort before any training happens."""
+def test_train_model_invalid_model_type_fails_by_name(tmp_path):
+    """An unbuildable backbone stops the run, naming the setting.
+
+    It used to print "Model X not found" and return (None, None). The
+    caller then failed on something else entirely, so a typo in
+    `model_type` was reported as a fault somewhere downstream. Nothing is
+    trained and nothing is written either way -- but now the message names
+    what to fix (instruction 236 B4).
+    """
     from spacr.deep_spacr import train_model
-    monkeypatch.setattr("spacr.utils.choose_model", lambda *a, **k: None)
-    dst = tmp_path / "model"; dst.mkdir()
 
-    out = train_model(str(tmp_path), str(dst), "not_a_real_backbone", _loaders(1),
-                      epochs=1, num_classes=2)
+    dst = tmp_path / "model"
+    dst.mkdir()
 
-    # nothing trained, nothing written. The bail-out must keep the 2-tuple arity
-    # of the success path, or the caller's unpack raises TypeError instead.
-    assert out == (None, None)
+    with pytest.raises(ValueError, match="not_a_real_backbone"):
+        train_model(str(tmp_path), str(dst), "not_a_real_backbone",
+                    _loaders(1), epochs=1, num_classes=2)
+
     assert list(dst.iterdir()) == []
-    assert "Model not_a_real_backbone not found" in capsys.readouterr().out
 
 
 # ---------------------------------------------------------------------------

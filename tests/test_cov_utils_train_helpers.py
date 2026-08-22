@@ -113,15 +113,34 @@ def test_list_torchvision_model_names_falls_back_when_list_models_raises(monkeyp
     assert "NOT_CALLABLE" not in names       # non-callable filtered
 
 
-def test_list_torchvision_model_names_uses_list_models_when_available(monkeypatch):
-    """The newer API result is unioned with the __dict__ scan."""
+def test_list_torchvision_model_names_trusts_the_api_when_it_answers(
+        monkeypatch):
+    """The newer API answers exactly this question, so the __dict__ scan is
+    a FALLBACK rather than a supplement.
+
+    It used to be unioned in, which added the classes the factories build
+    and every weights enum -- so `list_models` itself was offered as a
+    model name, and `AlexNet_Weights` passed the name check and failed
+    inside the wrapper instead.
+    """
     fake = types.ModuleType("fake_tv_models")
     fake.list_models = lambda module=None: ["from_api"]
     fake.from_dict = lambda **kw: None
     monkeypatch.setattr(U, "tv_models", fake)
 
-    names = U._list_torchvision_model_names()
-    assert {"from_api", "from_dict", "list_models"} <= names
+    assert U._list_torchvision_model_names() == {"from_api"}
+
+
+def test_the_fallback_keeps_only_factories(monkeypatch):
+    """An older torchvision with no `list_models`: the factories are
+    lower_snake_case and the classes and weights enums are not."""
+    fake = types.ModuleType("fake_tv_models")
+    fake.resnet18 = lambda **kw: None
+    fake.ResNet = type("ResNet", (), {})
+    fake.ResNet18_Weights = type("ResNet18_Weights", (), {})
+    monkeypatch.setattr(U, "tv_models", fake)
+
+    assert U._list_torchvision_model_names() == {"resnet18"}
 
 
 # ---------------------------------------------------------------------------
@@ -149,13 +168,36 @@ def _fake_torch_model(z, record):
     return _FakeTorchModel
 
 
-def test_choose_model_unknown_name_returns_none_and_reports(capsys):
-    """An unknown architecture is rejected before any model is built."""
-    out = U.choose_model("definitely_not_a_torchvision_model", torch.device("cpu"))
-    assert out is None
-    printed = capsys.readouterr().out
-    assert "Invalid model_type" in printed
-    assert "definitely_not_a_torchvision_model" in printed
+def test_choose_model_unknown_name_is_refused_by_name():
+    """An unknown architecture is rejected before any model is built -- and
+    RAISED, not printed.
+
+    It used to print "Invalid model_type" and return None; the caller
+    printed "Model X not found", returned (None, None), and the run failed
+    further downstream on something else. A typo in one setting was
+    reported as a fault in another (instruction 236 B4).
+    """
+    with pytest.raises(ValueError,
+                       match="definitely_not_a_torchvision_model"):
+        U.choose_model("definitely_not_a_torchvision_model",
+                       torch.device("cpu"))
+
+
+def test_a_near_miss_is_named():
+    """"resnet_18" and "efficientnet-b0" are the two spellings this
+    actually receives, and neither is findable in a list of eighty."""
+    with pytest.raises(ValueError, match="resnet18"):
+        U.choose_model("resnet_18", torch.device("cpu"))
+
+
+def test_the_names_offered_are_names_that_work():
+    """The suggestion list used to begin "AlexNet, AlexNet_Weights,
+    ConvNeXt, ConvNeXt_Base_Weights" -- twenty entries, not one of them a
+    name `choose_model` accepts."""
+    names = U._list_torchvision_model_names()
+    assert names
+    assert not [n for n in names if n.endswith("_Weights")]
+    assert "resnet18" in names
 
 
 def test_choose_model_custom_raises_not_implemented():
@@ -164,47 +206,40 @@ def test_choose_model_custom_raises_not_implemented():
         U.choose_model("custom", torch.device("cpu"))
 
 
-def test_choose_model_returns_none_when_forward_yields_dict(monkeypatch, capsys):
-    """A backbone that returns a dict fails the sanity check -> None."""
+def test_choose_model_refuses_a_backbone_that_yields_a_dict(monkeypatch):
+    """A backbone that builds and does not produce logits is a BROKEN
+    model, not a missing one, and returning None sent it down the same
+    silent path as a misspelled name."""
     record = {}
     monkeypatch.setattr(
         U, "TorchModel", _fake_torch_model({"logits": torch.zeros(1, 2)}, record)
     )
 
-    out = U.choose_model("resnet18", torch.device("cpu"), init_weights=False,
-                         num_classes=2, height=16, width=16)
-
-    assert out is None
-    printed = capsys.readouterr().out
-    assert "sanity-check failed" in printed
-    assert "dict, not logits" in printed
+    with pytest.raises(ValueError, match="dict, not logits"):
+        U.choose_model("resnet18", torch.device("cpu"), init_weights=False,
+                       num_classes=2, height=16, width=16)
     assert record["eval_called"] is True
 
 
-def test_choose_model_returns_none_on_wrong_logit_width(monkeypatch, capsys):
+def test_choose_model_refuses_the_wrong_logit_width(monkeypatch):
     """Logits whose class dimension disagrees with num_classes are rejected."""
     record = {}
     monkeypatch.setattr(U, "TorchModel", _fake_torch_model(torch.zeros(1, 5), record))
 
-    out = U.choose_model("resnet18", torch.device("cpu"), init_weights=False,
-                         num_classes=2, height=16, width=16)
-
-    assert out is None
-    printed = capsys.readouterr().out
-    assert "Expected logits of shape (1,2)" in printed
+    with pytest.raises(ValueError, match=r"Expected logits of shape \(1,2\)"):
+        U.choose_model("resnet18", torch.device("cpu"), init_weights=False,
+                       num_classes=2, height=16, width=16)
     assert record["forward_shape"] == (1, 3, 16, 16)
 
 
-def test_choose_model_returns_none_on_non_tensor_output(monkeypatch, capsys):
+def test_choose_model_refuses_a_non_tensor_output(monkeypatch):
     """A non-Tensor, non-dict return also trips the sanity check."""
     record = {}
     monkeypatch.setattr(U, "TorchModel", _fake_torch_model([0.1, 0.9], record))
 
-    out = U.choose_model("resnet18", torch.device("cpu"), init_weights=False,
-                         num_classes=2, height=16, width=16)
-
-    assert out is None
-    assert "Expected logits of shape (1,2)" in capsys.readouterr().out
+    with pytest.raises(ValueError, match=r"Expected logits of shape \(1,2\)"):
+        U.choose_model("resnet18", torch.device("cpu"), init_weights=False,
+                       num_classes=2, height=16, width=16)
 
 
 def test_choose_model_verbose_prints_model_and_forwards_kwargs(monkeypatch, capsys):

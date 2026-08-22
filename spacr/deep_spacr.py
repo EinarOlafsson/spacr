@@ -2434,12 +2434,10 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
                          dropout_rate,
                          use_checkpoint, verbose=verbose, num_classes=head_dim,
                          height=image_size, width=image_size)
-    if model is None:
-        print(f'Model {model_type} not found')
-        # Match the 2-tuple arity of the success path below. A bare `return` made
-        # the caller's `model, model_path = train_model(...)` raise
-        # "cannot unpack non-iterable NoneType object", burying this message.
-        return None, None
+    # NO `if model is None` BRANCH. `choose_model` raises now, naming the
+    # setting, the value it was given and the nearest spellings -- which is
+    # what "Model X not found" followed by (None, None) and a failure three
+    # frames later never managed to say. See instruction 236 B4.
 
     resume_payload = None
     if initialization_path:

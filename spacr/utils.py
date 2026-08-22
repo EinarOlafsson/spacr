@@ -4462,18 +4462,33 @@ def compute_irm_penalty(losses, dummy_w, device):
 #    return
 
 def _list_torchvision_model_names() -> set[str]:
-    """Robustly collect available torchvision model factory names."""
-    names: set[str] = set()
-    # Newer API
+    """Every torchvision classification FACTORY, and nothing else.
+
+    THE FALLBACK USED TO POLLUTE THE ANSWER. It added every public callable
+    in ``torchvision.models``, which is the factories plus the classes they
+    build (``AlexNet``, ``ResNet``) plus every weights enum
+    (``AlexNet_Weights``). Two consequences, both real: the names offered
+    to a user who mistyped began "AlexNet, AlexNet_Weights, ConvNeXt,
+    ConvNeXt_Base_Weights" -- twenty entries and not one of them a name
+    that works -- and `choose_model('AlexNet_Weights')` passed the name
+    check and failed inside the wrapper instead.
+
+    The modern API answers exactly this question, so the fallback runs only
+    when it answers nothing, and then keeps only lower-case factory names.
+    """
     try:
-        names |= set(tv_models.list_models(module=tv_models))
-    except Exception:
-        pass
-    # Fallback for older torchvision
-    for n, fn in tv_models.__dict__.items():
-        if not n.startswith("_") and callable(fn):
-            names.add(n)
-    return names
+        names = set(tv_models.list_models(module=tv_models))
+    except Exception:                                        # noqa: BLE001
+        names = set()
+    if names:
+        return names
+    # Older torchvision: the factories are lower_snake_case and the classes
+    # and weights enums are not.
+    return {
+        name for name, value in tv_models.__dict__.items()
+        if not name.startswith("_") and callable(value)
+        and name.islower() and not name.endswith("_weights")
+    }
 
 
 def choose_model(model_type: str,
@@ -4506,23 +4521,44 @@ def choose_model(model_type: str,
     :param num_classes: output class count; ``1`` yields a single-logit BCE head.
     :param verbose: print the model structure when ``True``.
 
-    :returns:
-        The instantiated ``nn.Module``, or ``None`` if ``model_type`` is unknown
-        or the forward sanity check fails.
+    :returns: the instantiated ``nn.Module``.
+    :raises ValueError: ``model_type`` names no backbone, or the built model
+        does not produce logits of the requested shape.
+
+    IT RAISES RATHER THAN RETURNING ``None`` (instruction 236 B4). It used
+    to print "Invalid model_type" and hand back None; the caller printed
+    "Model X not found" and returned ``(None, None)``, and the run then
+    failed further downstream on something else -- a typo in one setting
+    reported as a fault in another. The docstring recorded the behaviour
+    faithfully, which made it a bug with a docstring rather than a fix.
+
+    A near miss is named. "resnet_18" and "efficientnet-b0" are the two
+    spellings this actually receives, and neither is findable in a list of
+    twenty names beginning with "AlexNet".
     """
+    import difflib
 
     tv_names = _list_torchvision_model_names()
     valid_names = set(tv_names) | {"custom"}
 
     if model_type not in valid_names:
-        print(f"[choose_model] Invalid model_type '{model_type}'. "
-              f"Known TorchVision models include e.g.: {sorted(list(tv_names))[:20]} ...")
-        return None
+        close = difflib.get_close_matches(str(model_type), sorted(tv_names),
+                                          n=5, cutoff=0.6)
+        suggestion = (f" Did you mean {close}?" if close else
+                      f" Names spaCR can build include "
+                      f"{sorted(tv_names)[:8]} and {len(tv_names) - 8} more.")
+        raise ValueError(
+            f"model_type={model_type!r} names no classification backbone "
+            f"torchvision provides.{suggestion}")
 
+    # NOT `end="\r"`. A carriage return with no newline leaves the cursor at
+    # the start of THIS line, so whatever is printed next overwrites it --
+    # and in a captured log the two run together as
+    # "use_checkpoint: FalsePASS". The banner is one line of its own.
     print(
         f"Model parameters: Architecture: {model_type} "
         f"init_weights: {init_weights} dropout_rate: {dropout_rate} "
-        f"use_checkpoint: {use_checkpoint}", end="\r", flush=True
+        f"use_checkpoint: {use_checkpoint}", flush=True
     )
 
     # --- CUSTOM BRANCH -------------------------------------------------------
@@ -4559,9 +4595,14 @@ def choose_model(model_type: str,
                 raise RuntimeError(
                     f"Expected logits of shape (1,{head_dim}); got {type(z)} / {getattr(z, 'shape', None)}"
                 )
-    except Exception as e:
-        print(f"\n[choose_model] Model forward sanity-check failed: {e}")
-        return None
+    except Exception as error:                               # noqa: BLE001
+        # ALSO RAISES. A backbone that builds and does not produce logits is
+        # a broken model, not a missing one, and returning None sent it down
+        # the same silent path as a misspelled name.
+        raise ValueError(
+            f"model_type={model_type!r} built, but its forward pass does not "
+            f"produce {head_dim} logit(s) at {img_size}x{img_size}: {error}"
+        ) from error
 
     if verbose:
         print("\n", base_model)
