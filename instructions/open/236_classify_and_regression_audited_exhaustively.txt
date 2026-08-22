@@ -2,7 +2,15 @@
 CLASSIFY AND REGRESSION, AUDITED EXHAUSTIVELY AGAINST A REAL SCREEN
 ================================================================================
 
-Status:    OPEN. Requested 2026-08-22.
+Status:    OPEN, most of the way. Requested 2026-08-22.
+
+           A: 1, 2 and 3 DONE.
+           B: 4, 5 and 6 DONE for everything the shared card allows. The
+              GPU has been at 23-24 GB of 24.5 all day, held by another
+              session, so every torch item was driven on CPU. Nothing was
+              killed to make room.
+           C: 7, 8, 9, 10 and 11 DONE.
+           D: 12 in progress, 13 DONE.
 Requested: "exhaustively test the classify and regression modules ... This
            should be a completely exhaustive check that tests everything in
            these modals and finds all bugs ... if something is missing from
@@ -71,6 +79,114 @@ D. BOTH
 
 13. ANNOTATIONS OR MEASUREMENTS, AND AN ARBITRARY NUMBER OF CLASSES, in
     both modules. Two classes must not be a special case that three breaks.
+
+--------------------------------------------------------------------------------
+WHAT WAS FOUND, PER ITEM
+--------------------------------------------------------------------------------
+
+A1  Nine models fit and score. Four of them -- gradient_boosting,
+    logistic_regression, svm, mlp -- had NO feature-importance panel at
+    all; they get the permutation importance, and the panel names which
+    quantity it drew.
+
+A2  THREE OF THE FOUR DOCUMENTED FEATURE SPACES WERE UNREACHABLE.
+    `filter_dataframe_features` has always taken a list, 'morphology' and a
+    free-text fragment; `expected_types` declared `int`, so the panel could
+    only draw a spin box and `check_settings` refused the rest. One
+    `feature_selection` reads every shape a user can mean; the panel draws
+    the multi-select it already had for train_channels. Driven on plate1:
+    194 / 53 / 43 / 85 / 179 / 15 / 68 / 11 features.
+
+A3  THREE OF THE NINE COULD NOT PRODUCE SHAP, one of them the default.
+    xgboost raised "Categorical split is not yet supported" -- when CALLED,
+    not when built, so a fallback chosen at construction never ran. svm and
+    mlp are neither trees nor linear and the model-agnostic explainer takes
+    a function.
+
+B4  A misspelled backbone printed and returned None, and the run failed
+    three frames later on something else. It raises now, with the nearest
+    spellings. The names it offered began "AlexNet, AlexNet_Weights,
+    ConvNeXt, ConvNeXt_Base_Weights" -- twenty entries, not one of them a
+    name that works.
+
+B5  Dataset generation at 2, 3 and 4 classes; the training loop and 3-fold
+    CV, both on CPU, three classes. THE K-FOLD SUMMARY SAID NOTHING ABOUT
+    THE CLASSES -- three of its five metrics are NaN in multiclass. It
+    carries f1_macro and the per-class accuracies now; plate1's three
+    classes show a fold-to-fold sigma of 0.47 on one of them.
+    INFERENCE COUNTED THE CHARACTERS IN THE PATH and called them images,
+    twice, then returned an empty frame.
+    Live monitoring already handled N classes; nothing said so.
+
+B6  TWELVE OF FOURTEEN attribution methods run on resnet18. ATTENTION
+    ROLLOUT COULD NOT RUN ON ANY BACKBONE spaCR BUILDS: it watched the
+    attention blocks without asking them for their weights, and
+    torchvision's ViT calls them with need_weights=False.
+    THE SURROGATE REFUSED EVERY DATABASE spaCR HAS EVER WRITTEN -- `prcfo`
+    is in png_list and nowhere else. On 2,000 real objects the three
+    families reach 0.883, 0.893 and 0.890 against a 0.688 baseline.
+    torchcam is an extra, not a core dependency, and deliberately so: both
+    of its releases declare a spurious numpy<2 pin.
+
+C7  TWELVE OF THE EIGHTEEN regression types could not be fitted from the
+    screen's OWN saved settings. A blank cell reads back as '' and is not
+    equal to a default of None. All eighteen fit now.
+    Every nonparametric route was down too: `int('')` on a blank
+    `guide_primary_min_wells`.
+
+C8  Runs / Results / Measurements / Cells all open and fill on a real
+    results table.
+
+C9  All five pickers -- rank, attributed, assigned, multivariate, sudoku --
+    run, and each says which one produced the montage and what it did.
+    Two came back empty on plate1 for reasons they stated in full.
+
+C10 THE RESULTS HEADER OVERLAPPED ITSELF. At a 577 px panel the second
+    combo began 48 px inside the first, the third 27 px inside the second,
+    and the third ran 32 px off the edge. Measured at six widths now.
+
+C11 An ols run writes 50 PDFs, 18 CSVs, 2 JSON and 6 TXT. One real gap: a
+    `guide_min_wells` rung nothing reached killed the whole plotting loop
+    AFTER the analysis had finished.
+
+D12 The dead-setting policy already forbids the strongest form of this: a
+    declared setting is a read setting, enforced by
+    tests/test_dead_settings.py. A name-similarity sweep over the 131
+    classify and regression settings found one confusable pair and no
+    redundant one:
+
+        min_cell_count      (Regression: Quality Filters) -- wells with
+                            fewer scored objects are dropped before the fit
+        minimum_cell_count  (Machine Learning Model and Features) -- wells
+                            with fewer measured cells are dropped from the
+                            ML plate heatmap
+
+    They are different filters in different modules and NEVER APPEAR ON THE
+    SAME SCREEN -- `regression` offers the first, `ml_analyze` and
+    `classify_merged` the second -- so this is confusable rather than
+    redundant. LEFT ALONE for now: renaming either breaks every settings
+    CSV that names it, including the maintainer's own, and the dead-setting
+    policy has no migration path any more. Worth a sentence in each tooltip
+    naming the other.
+
+D13 Dataset generation and the CV trainer take an arbitrary N. The tabular
+    classifier is BINARY BY CONSTRUCTION -- one arm each control -- and a
+    third class silently sat out the fit while being scored by a model that
+    had never seen it. It says so now, and says that both controls take a
+    list.
+
+--------------------------------------------------------------------------------
+WHAT IS LEFT
+--------------------------------------------------------------------------------
+
+* Every torch item was driven on CPU because the shared card has been full
+  since this began. The GPU watcher in the session scratchpad polls every
+  ten minutes and starts nothing until there is room; it has never touched
+  another process. What a GPU run would add is speed and a larger dataset,
+  not a different code path -- except for AMP, which is CUDA-only and has
+  not been exercised.
+
+* D12's confusable pair, above.
 
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED
