@@ -3175,6 +3175,12 @@ class FastPlot(QWidget):
         # checkable six months from now should not have to assemble it by
         # hand. Two doors here is not the 187 D duplication -- they produce
         # DIFFERENT things, and each says which.
+        # AND CHANGE WHAT KIND OF GRAPH IT IS. On the base class, so every
+        # plot that holds a spec gets it and no plot that does not shows an
+        # empty submenu. `_offer_graph_kinds` returns without adding
+        # anything when there is nothing to offer.
+        self._offer_graph_kinds(menu)
+
         bundle = menu.addAction("Save figure, data and statistics…",
                                 lambda: self.export_bundle())
         bundle.setToolTip(
@@ -4851,6 +4857,67 @@ class FastPlot(QWidget):
                     data=self.frame(), groups=self.comparison_groups(),
                     unit=self.comparison_unit(),
                     settings=self.export_settings())
+
+    def graph_spec(self):
+        """What this plot draws, or ``None``.
+
+        THE HOOK RETYPING HANGS ON. A plot that holds its data can be
+        redrawn as any kind the data supports; one that holds only a
+        rendering cannot, and `None` here is how a plot says so.
+        """
+        return getattr(self, "spec", None)
+
+    def _offer_graph_kinds(self, menu) -> None:
+        """"Show as" -- only the kinds this data supports, the rest greyed.
+
+        Instruction 200 A, on the plots themselves rather than on the
+        matplotlib menu alone. Reported 2026-08-21, four times: "i want to
+        be able to right click on the graph and change the graph typem to
+        whatever is possibel with the underlying data".
+        """
+        spec = self.graph_spec()
+        if spec is None:
+            return
+        try:
+            from ...graph_types import GRAPH_NAMES, GRAPH_TYPES, offer
+        except Exception:                                    # noqa: BLE001
+            return
+        frame = getattr(spec, "frame", None)
+        if frame is None or not len(frame):
+            return
+        rows = offer(frame, getattr(spec, "group", ""),
+                     getattr(spec, "value", ""))
+        if not rows:
+            return
+        from PySide6.QtWidgets import QMenu
+
+        show_as = QMenu("Show as", menu)
+        show_as.setToolTipsVisible(True)
+        menu.addMenu(show_as)
+        described = dict(GRAPH_TYPES)
+        current = str(getattr(spec, "kind", "") or "")
+        for kind, caption, reason in rows:
+            # THE NAME ON THE ENTRY, THE DESCRIPTION IN THE TOOLTIP. A menu
+            # reading "one value per group" instead of "Bar" cannot be
+            # scanned, which is what a menu is for.
+            action = show_as.addAction(str(GRAPH_NAMES.get(kind, kind)))
+            action.setToolTip(reason or str(described.get(kind, caption)))
+            action.setCheckable(True)
+            action.setChecked(kind == current)
+            if reason:
+                # GREYED WITH THE REASON, never absent: a list that silently
+                # shortens leaves the user wondering whether they
+                # misremembered (instruction 106).
+                action.setEnabled(False)
+            else:
+                action.triggered.connect(
+                    lambda _checked=False, k=kind: self._show_as_kind(k))
+
+    def _show_as_kind(self, kind: str) -> None:
+        try:
+            self.show_as(kind)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not redraw as %r", kind, exc_info=True)
 
     def comparison_groups(self) -> Optional[dict]:
         """Return labeled values for export-time statistical comparison.
