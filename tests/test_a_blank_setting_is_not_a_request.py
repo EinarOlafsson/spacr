@@ -119,3 +119,88 @@ class TestABlankCovarianceIsNoCovariance:
         with pytest.raises(Exception):
             regression_model(design, response, regression_type='ols',
                              cov_type='HC99', verbose=False)
+
+
+class TestABlankHingeThresholdIsNoCut:
+    """`hinge` READS hinge_threshold, so the blank was not refused: it
+    reached `binarise_response`, which asked `float('')` for a number."""
+
+    @pytest.mark.parametrize("blank", BLANKS)
+    def test_the_failure_names_the_setting_rather_than_the_conversion(
+            self, blank):
+        from spacr.ml import binarise_response
+
+        with pytest.raises(ValueError, match="hinge_threshold"):
+            binarise_response(np.linspace(0.0, 1.0, 40), blank)
+
+    @pytest.mark.parametrize("blank", BLANKS)
+    def test_a_binary_response_needs_no_cut_at_all(self, blank):
+        """A blank means "no cut", and a response that is already 0/1 does
+        not need one -- so this is the case that must keep working."""
+        from spacr.ml import binarise_response
+
+        out = binarise_response([0, 1, 1, 0, 1], blank)
+        assert list(out) == [0.0, 1.0, 1.0, 0.0, 1.0]
+
+    def test_a_cut_that_was_chosen_is_still_applied(self):
+        from spacr.ml import binarise_response
+
+        out = binarise_response([0.1, 0.2, 0.6, 0.9], 0.5)
+        assert list(out) == [0.0, 0.0, 1.0, 1.0]
+
+    def test_zero_is_a_cut_and_not_a_blank(self):
+        from spacr.ml import binarise_response
+
+        out = binarise_response([-1.0, -0.5, 0.5, 1.0], 0)
+        assert list(out) == [0.0, 0.0, 1.0, 1.0]
+
+
+class TestThePenaltyThePanelPostedIsNotAPenaltyAnybodyChose:
+    """alpha=1 is the UNPENALISED families' default and shrinks a
+    fraction-scale design to nothing. There was already a rescue for it,
+    and it spared a FLOAT 1.0 on the reading that an integer is the posted
+    default and a float is a deliberate answer.
+
+    That was true of the Tk panel and is not true of this one: the Qt field
+    is a double spin box and the settings CSV it writes says `alpha,1.0`.
+    So the rescue never fired for anyone running the current GUI, and lasso
+    and elasticnet both refused the tsg101 screen -- "shrank all 298
+    coefficients to exactly zero at alpha=1.0" -- from a settings file in
+    which nobody had touched alpha.
+    """
+
+    @pytest.mark.parametrize("posted", [1, 1.0])
+    @pytest.mark.parametrize("kind", ["lasso", "ridge", "elasticnet"])
+    def test_the_posted_default_cross_validates(self, kind, posted):
+        from spacr.settings import get_perform_regression_default_settings
+
+        settings = get_perform_regression_default_settings(
+            {'regression_type': kind, 'alpha': posted})
+        assert settings['alpha'] == 'auto'
+
+    @pytest.mark.parametrize("chosen", [0.01, 0.5, 2.0, 10])
+    def test_a_penalty_somebody_chose_is_kept(self, chosen):
+        from spacr.settings import get_perform_regression_default_settings
+
+        settings = get_perform_regression_default_settings(
+            {'regression_type': 'lasso', 'alpha': chosen})
+        assert settings['alpha'] == chosen
+
+    def test_the_unpenalised_families_keep_their_1(self):
+        """They ignore alpha, and `_reject_unused_settings` compares it
+        against the default of 1 -- so rewriting it to 'auto' here would
+        make every OLS run look like a request."""
+        from spacr.settings import get_perform_regression_default_settings
+
+        settings = get_perform_regression_default_settings(
+            {'regression_type': 'ols', 'alpha': 1.0})
+        assert settings['alpha'] == 1.0
+
+    def test_it_says_so_rather_than_doing_it_quietly(self, capsys):
+        """A penalty chosen for the user and never named is one they cannot
+        put in a methods section."""
+        from spacr.settings import get_perform_regression_default_settings
+
+        get_perform_regression_default_settings(
+            {'regression_type': 'lasso', 'alpha': 1.0})
+        assert "auto" in capsys.readouterr().out

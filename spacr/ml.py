@@ -2276,6 +2276,13 @@ def binarise_response(y, threshold=None, name='response'):
             f"hinge regression requires a finite {name}; remove or impute the "
             f"NaN/infinite values before fitting.")
 
+    # A BLANK BOX IS NO CUT, not a cut spelled ''. Both callers can be
+    # reached from the panel, and `float('')` is not an error anybody can act
+    # on. Cut here as well as in `regression_model` because the QC path
+    # (`_write_regression_qc`) comes in by the other door.
+    if _left_blank(threshold):
+        threshold = None
+
     if threshold is not None:
         cut = float(threshold)
         binary = (values > cut).astype(float)
@@ -3022,7 +3029,7 @@ _GLUM_DESIGN_CLASS = type('GLM', (_AbsorbedDesign,),
 def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
                      cov_type=None, weights=None, l1_ratio=0.5, quantile=0.5,
                      hinge_threshold=None, huber_t=1.345, exposure=None,
-                     group_lasso_lambda=0.05, rra_alpha=0.25,
+                     group_lasso_lambda='auto', rra_alpha=0.25,
                      rra_permutations=10000,
                      regression_backend=DEFAULT_REGRESSION_BACKEND,
                      verbose=False, response_name="", transform="",
@@ -3147,6 +3154,13 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
     # "cov_type not recognized", naming a value the user never chose.
     if _left_blank(cov_type):
         cov_type = None
+    # AND AN EMPTY THRESHOLD BOX IS NO THRESHOLD. `hinge` READS
+    # hinge_threshold, so nothing refused the blank: it reached
+    # `binarise_response`, which asked float('') for a number and died with
+    # "could not convert string to float: ''" -- a message with neither the
+    # setting's name nor the model's in it.
+    if _left_blank(hinge_threshold):
+        hinge_threshold = None
 
     supplied = {
         # 'auto' and None mean "no penalty chosen, cross-validate it", which
@@ -3431,7 +3445,33 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
         columns = _named_design('group_lasso')
         design = np.asarray(X, dtype=float)
         blocks = _design_column_groups(columns)
-        lam = float(group_lasso_lambda)
+        # WHICH COLUMNS THE ANSWER IS ABOUT, computed before the fit because
+        # the cross-validation below needs it too: a penalty that leaves two
+        # row dummies standing and not one gene has selected nothing this
+        # module can report.
+        gene_terms = _level_term_mask(columns)
+        # 'auto' CROSS-VALIDATES THE PENALTY, and it is what the panel posts
+        # for this backend. A penalty is only large or small relative to the
+        # design it is applied to: the shipped 0.05 is nearly half of the
+        # tsg101 screen's own ceiling of 0.1285, so every one of its 297 gene
+        # blocks came back exactly zero and the run was refused -- from
+        # settings in which nobody had touched the penalty (236 C7).
+        #
+        # ANNOUNCED, never quiet. A penalty chosen for the user and not named
+        # is one they cannot put in a methods section.
+        if _left_blank(group_lasso_lambda) or (
+                isinstance(group_lasso_lambda, str)
+                and group_lasso_lambda.strip().lower() == 'auto'):
+            lam = group_lasso_module.choose_lambda(
+                design, y_flat, blocks,
+                required=gene_terms if gene_terms.any() else None)
+            print(f"group_lasso_lambda='auto': cross-validated over "
+                  f"{group_lasso_module.PATH_POINTS} penalties down from "
+                  f"this design's ceiling of "
+                  f"{group_lasso_module.max_lambda(design, y_flat, blocks):.4g}"
+                  f", chose {lam:.4g}.")
+        else:
+            lam = float(group_lasso_lambda)
         beta, intercept, converged = group_lasso_module.fit(
             design, y_flat, blocks, lam=lam)
 
@@ -3445,7 +3485,6 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
         # downstream as "0 significant gRNAs" and is indistinguishable from a
         # screen with no hits. That is the same failure the lasso branch
         # below refuses, and it has to be refused on the same grounds.
-        gene_terms = _level_term_mask(columns)
         if not gene_terms.any():
             raise ValueError(
                 "regression_type='group_lasso' penalises a GENE's guide "
@@ -3470,9 +3509,10 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
                 f"information about any gene. This design's "
                 f"group_lasso.max_lambda -- the penalty above which nothing "
                 f"at all survives -- is {ceiling:.4g}, and the gene blocks "
-                f"empty well below it, so try a small fraction of that. Or "
-                f"fit an unpenalised model ('ols') to see the effect sizes "
-                f"the penalty is shrinking away.")
+                f"empty well below it. Set group_lasso_lambda='auto' to "
+                f"cross-validate it, or a small fraction of that ceiling to "
+                f"choose it yourself. Or fit an unpenalised model ('ols') to "
+                f"see the effect sizes the penalty is shrinking away.")
 
         if not converged:
             print(f"Warning: the group lasso did not reach its tolerance in "
@@ -4248,7 +4288,7 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
                dst=None, cov_type=None, plot=False, l1_ratio=0.5, quantile=0.5,
                hinge_threshold=None, hinge_n_boot=200, huber_t=1.345, qc=True,
                legacy_volcano=False, level='grna', level_dst=None,
-               draw_shared_panels=True, group_lasso_lambda=0.05,
+               draw_shared_panels=True, group_lasso_lambda='auto',
                rra_alpha=0.25, rra_permutations=10000,
                model_plate_position=True,
                regression_backend=DEFAULT_REGRESSION_BACKEND,
@@ -6457,7 +6497,7 @@ def _call_level_hits(coef_df, level, settings, regression_type,
             random_state=0,
             regression_type=regression_type,
             l1_ratio=settings['l1_ratio'],
-            group_lasso_lambda=settings.get('group_lasso_lambda', 0.05),
+            group_lasso_lambda=settings.get('group_lasso_lambda', 'auto'),
         )
         # One row per model term on both sides: coef_df['feature'] is the
         # design-matrix column index (X.columns for lasso), sel_df['feature']
@@ -7009,7 +7049,7 @@ def _perform_regression(settings):
     def bootstrap_selection_frequencies(X, y, formula, alpha='auto', n_boot=200,
                                         random_state=None,
                                         regression_type='lasso', l1_ratio=0.5,
-                                        group_lasso_lambda=0.05):
+                                        group_lasso_lambda='auto'):
         """Return per-feature selection frequencies from a nonparametric bootstrap.
 
         Output ranks features by how often their coefficient is non-zero
@@ -7050,7 +7090,9 @@ def _perform_regression(settings):
                     else Lasso(alpha=alpha, max_iter=10000))
 
         # Build the reference design once so the feature index is stable.
-        _, X0 = dmatrices(formula, data=X, return_type='dataframe')
+        # The response comes back with it, because choosing a group-lasso
+        # penalty below needs the pair rather than the design alone.
+        y0, X0 = dmatrices(formula, data=X, return_type='dataframe')
         feature_index = pd.Index(X0.columns)
 
         # THE GROUP LASSO IS RESAMPLED THROUGH ITS OWN SOLVER, not through
@@ -7069,6 +7111,24 @@ def _perform_regression(settings):
         # number in the column means the same thing whichever penalty wrote it.
         blocks = (_design_column_groups(feature_index)
                   if regression_type == 'group_lasso' else None)
+        # THE SAME PENALTY THE FIT USED, chosen once rather than per
+        # resample. 'auto' reaches here too -- it is the panel's default for
+        # this backend -- and `float('auto')` is not a number. Cross-
+        # validating inside the bootstrap would also mean 200 different
+        # penalties, so the frequency would be "how often a gene survives
+        # SOME penalty", which is a different and weaker claim.
+        block_penalty = None
+        if blocks is not None:
+            from . import group_lasso as group_lasso_module
+
+            if _left_blank(group_lasso_lambda) or (
+                    isinstance(group_lasso_lambda, str)
+                    and group_lasso_lambda.strip().lower() == 'auto'):
+                block_penalty = group_lasso_module.choose_lambda(
+                    np.asarray(X0, dtype=float),
+                    np.asarray(y0, dtype=float).ravel(), blocks)
+            else:
+                block_penalty = float(group_lasso_lambda)
 
         def _resample_coefficients(design, response):
             if blocks is not None:
@@ -7077,7 +7137,7 @@ def _perform_regression(settings):
                 beta, _intercept, _converged = group_lasso_module.fit(
                     np.asarray(design, dtype=float),
                     np.asarray(response, dtype=float).ravel(),
-                    blocks, lam=float(group_lasso_lambda))
+                    blocks, lam=block_penalty)
                 return np.asarray(beta, dtype=float).ravel()
             return np.asarray(_estimator().fit(design, response).coef_).ravel()
 
@@ -7787,7 +7847,7 @@ def _perform_regression(settings):
         # run -- and every one of these three is only read by the backend that
         # names it, so its default is never the difference between two
         # answers for any other type.
-        group_lasso_lambda=settings.get('group_lasso_lambda', 0.05),
+        group_lasso_lambda=settings.get('group_lasso_lambda', 'auto'),
         rra_alpha=settings.get('rra_alpha', 0.25),
         rra_permutations=settings.get('rra_permutations', 10000),
         # THE QC SUITE HAS TO BE DECLINABLE, and until this line it was not.

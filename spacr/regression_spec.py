@@ -173,7 +173,10 @@ _MODEL_LEVEL_DEFAULTS = {
     # `spacr.group_lasso` and `spacr.rra` document for themselves, so a panel
     # that posts the untouched widget posts the value the module would have
     # used anyway and no other backend is refused because of it.
-    'group_lasso_lambda': 0.05,
+    # 'auto' means "cross-validate it", the same way `alpha`'s 'auto' does,
+    # and it is what the panel posts. A number here would make the posted
+    # default a request every other backend then had to refuse.
+    'group_lasso_lambda': 'auto',
     'rra_alpha': 0.25,
     'rra_permutations': 10000,
 }

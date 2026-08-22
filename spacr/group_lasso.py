@@ -173,6 +173,143 @@ def fit(X, y, labels, *, lam: float = 0.05, max_iterations: int = MAX_ITERATIONS
     return beta, intercept, converged
 
 
+#: How many penalties a cross-validated path tries, and how far below
+#: :func:`max_lambda` it reaches. Both are the conventional choices: a
+#: hundred points is more than enough resolution on a log grid, and a
+#: thousandth of the ceiling is well past the point where a screen's design
+#: stops selecting anything at all.
+PATH_POINTS = 40
+PATH_DEPTH = 1e-3
+
+#: How many folds :func:`choose_lambda` splits the wells into.
+PATH_FOLDS = 5
+
+
+def penalty_path(X, y, labels, *, points: int = PATH_POINTS,
+                 depth: float = PATH_DEPTH):
+    """Penalties from :func:`max_lambda` down, log-spaced.
+
+    Starting at the ceiling rather than at an absolute number is what makes
+    the path scale-free: a design of fractions and a design of counts have
+    ceilings three orders of magnitude apart, and a fixed grid that suits
+    one is entirely above or entirely below the other.
+    """
+    ceiling = max_lambda(X, y, labels)
+    if not np.isfinite(ceiling) or ceiling <= 0:
+        return np.zeros(1)
+    return np.logspace(np.log10(ceiling), np.log10(ceiling * depth),
+                       int(points))
+
+
+#: How many further decades :func:`choose_lambda` will reach for when the
+#: whole path selects nothing. A screen whose gene blocks only survive four
+#: orders of magnitude below the ceiling is unusual and not impossible, and
+#: an empty answer is worse than a slow one.
+PATH_EXTENSIONS = 3
+
+
+def choose_lambda(X, y, labels, *, folds: int = PATH_FOLDS,
+                  points: int = PATH_POINTS, depth: float = PATH_DEPTH,
+                  required=None, seed: int = 0, **kwargs) -> float:
+    """The penalty with the lowest held-out error. Never the empty fit.
+
+    WHY THIS EXISTS. The shipped default of 0.05 is a number, and whether a
+    number is a large penalty or a small one depends entirely on the scale
+    of the design it is applied to. On the tsg101 screen its ceiling is
+    0.1285, so 0.05 is nearly half of it and every one of the 297 gene
+    blocks came back exactly zero -- from a settings file in which nobody
+    had ever touched the penalty (instruction 236 C7).
+
+    AN ALL-ZERO FIT IS NEVER CHOSEN, even when it has the lowest error.
+    With a weak signal the emptiest model often does predict best on held-out
+    wells, and a screen that answers "no gene does anything" because that
+    minimised a mean squared error has told the user nothing they can check.
+    Candidates that select nothing are dropped, and only if EVERY candidate
+    is empty does the smallest penalty on the path win by default.
+
+    WHICH BLOCKS HAVE TO SURVIVE IS THE CALLER'S TO SAY. A regression
+    design carries plate, row and column dummies beside the guides, and each
+    of those is a singleton group with a far larger correlation than any
+    guide block -- so they stand at penalties that have already emptied
+    every gene. "Something is non-zero" is therefore not the test: on the
+    tsg101 screen it was satisfied by row terms while all 297 gene blocks
+    were zero, which reads downstream as a screen with no hits.
+
+    :param folds: how many held-out splits. Wells, not guides.
+    :param required: optional boolean mask over COLUMNS. A penalty counts as
+        selecting only when one of these columns is non-zero. Defaults to
+        every column.
+    :param seed: fixes the split, so two runs of one screen agree.
+    :returns: the chosen penalty, as a float.
+    """
+    X = np.asarray(X, dtype=float)
+    y = np.asarray(y, dtype=float).ravel()
+    if required is None:
+        wanted = np.ones(X.shape[1], dtype=bool)
+    else:
+        wanted = np.asarray(required, dtype=bool).reshape(-1)
+        if wanted.size != X.shape[1]:
+            raise ValueError(
+                f"required has {wanted.size} entr(ies) and X has "
+                f"{X.shape[1]} column(s); they must match")
+
+    rows = X.shape[0]
+    folds = int(max(2, min(folds, rows)))
+    order = np.random.default_rng(seed).permutation(rows)
+    splits = np.array_split(order, folds)
+
+    def score(candidates):
+        """(errors, selects) for one path, both aligned to ``candidates``.
+
+        THE ERROR IS HELD-OUT AND THE SELECTION IS NOT. Whether a penalty
+        predicts well is a question about unseen wells; whether it selects
+        anything is a question about THE FIT THE CALLER WILL GET, which is
+        fitted on every well. Reading selection off the folds instead picked
+        a penalty at which four fifths of the wells kept a gene and all of
+        them together kept none -- measured on the tsg101 screen, where it
+        chose 0.000183 and the full fit was empty.
+        """
+        errors = np.full(candidates.size, np.inf)
+        selects = np.zeros(candidates.size, dtype=bool)
+        for index, lam in enumerate(candidates):
+            whole, _intercept, _converged = fit(X, y, labels, lam=float(lam),
+                                                **kwargs)
+            selects[index] = bool(np.any(whole[wanted]))
+            total, counted = 0.0, 0
+            for held in splits:
+                keep = np.setdiff1d(order, held, assume_unique=False)
+                if keep.size < 2 or held.size < 1:
+                    continue
+                beta, intercept, _converged = fit(X[keep], y[keep], labels,
+                                                  lam=float(lam), **kwargs)
+                predicted = X[held] @ beta + intercept
+                total += float(np.mean((y[held] - predicted) ** 2))
+                counted += 1
+            if counted:
+                errors[index] = total / counted
+        return errors, selects
+
+    floor = depth
+    smallest = 0.0
+    for _reach in range(PATH_EXTENSIONS + 1):
+        candidates = penalty_path(X, y, labels, points=points, depth=floor)
+        if candidates.size < 2:
+            return float(candidates[0]) if candidates.size else 0.0
+        smallest = float(candidates[-1])
+        errors, selects = score(candidates)
+        usable = np.where(selects & np.isfinite(errors))[0]
+        if usable.size:
+            return float(candidates[usable[int(np.argmin(errors[usable]))]])
+        # NOTHING ON THE PATH SAID ANYTHING. Reach a further decade down
+        # rather than handing back a penalty already known to be empty.
+        floor *= 0.01
+    # Even four decades below the ceiling selects nothing. The smallest
+    # penalty tried is the one with any chance, and the caller's own guard
+    # will refuse the fit if it still says nothing -- which is the honest
+    # outcome for a design with no group signal in it at all.
+    return smallest
+
+
 def gene_effects(X, y, labels, **kwargs):
     """One number per gene: the L2 norm of its guide block.
 
