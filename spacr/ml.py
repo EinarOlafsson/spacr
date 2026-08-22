@@ -5773,8 +5773,14 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
     thresholds = sorted({int(value) for value in thresholds})
     if not thresholds or any(value < 1 for value in thresholds):
         raise ValueError('guide_min_wells must contain positive integers')
+    # A BLANK BOX MEANS "the first threshold", the same as an absent key.
+    # `guide_primary_min_wells` is an optional field, so the panel leaves it
+    # empty and the settings CSV writes an empty cell -- which read back as
+    # '' and reached int(''), taking the whole nonparametric path down with
+    # "invalid literal for int() with base 10: ''". The permutation test was
+    # unreachable from the screen's own saved settings (236 C7).
     primary = settings.get('guide_primary_min_wells')
-    primary = thresholds[0] if primary is None else int(primary)
+    primary = thresholds[0] if _left_blank(primary) else int(primary)
     if primary not in thresholds:
         raise ValueError(
             f'guide_primary_min_wells={primary} is not in '
@@ -5942,6 +5948,23 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
         single = len(outcomes) == 1
         for response in outcomes:
             for threshold in thresholds:
+                # A THRESHOLD NOTHING REACHES IS AN ANSWER, NOT A FAILURE.
+                # `guide_min_wells` is a SWEEP -- [1, 2, 3, 4] asks the same
+                # question four times at four strictnesses -- and on a
+                # one-plate screen no guide appears in four wells. The
+                # analysis is finished by the time this loop runs, so
+                # raising here threw away the results for 1, 2 and 3 as
+                # well, at the drawing stage, with a message about a plot.
+                # Reported by driving the tsg101 screen (236 C7).
+                have = results.loc[
+                    (results['outcome'] == response)
+                    & (results['minimum_wells_threshold'] == int(threshold))]
+                if have.empty:
+                    print(f"No guide reached {threshold} well(s) for "
+                          f"{response!r}, so that panel of the "
+                          f"guide_min_wells sweep is not drawn. The "
+                          f"thresholds that did have guides are unaffected.")
+                    continue
                 for suffix in ('pdf', 'png'):
                     # One response keeps the historical filenames and keys, so
                     # scripts that look for guide_permutation_min_1_wells.pdf
