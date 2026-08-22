@@ -1,5 +1,6 @@
 """PyTorch dataset generation, classification, inference, and attribution."""
 
+import contextlib
 import os, torch, time, gc, datetime, logging
 torch.backends.cudnn.benchmark = True
 import numpy as np
@@ -60,6 +61,51 @@ def _class_folder_names(settings):
 #: this is the room to hold weights, optimiser state and one batch without
 #: immediately fragmenting.
 GPU_ROOM_MB = 1024
+
+
+def resolve_mixed_precision(asked, device):
+    """(on, note). Whether to train in half precision on THIS machine.
+
+    WHY IT IS WORTH HAVING. The forward pass and the loss run in float16
+    while the weights and the optimiser stay in float32. On a card with
+    tensor cores that is most of the speed and about half the activation
+    memory -- which on a screen is not a nicety, it is the difference
+    between a batch of 32 and a batch of 64 at 224 px.
+
+    CUDA ONLY, AND SAID SO. `torch.autocast` accepts a CPU device type and
+    bfloat16, but on the CPUs spaCR runs on it is slower rather than
+    faster, so asking for it there is answered rather than obeyed.
+
+    :param asked: what the `amp` setting says.
+    :param device: the device training will actually run on.
+    :returns: ``(on, note)`` -- the note is '' when nothing needs saying.
+    """
+    if not asked:
+        return False, ""
+    if device.type != "cuda":
+        return False, (
+            "amp=True asks for half precision, which needs a CUDA device "
+            f"with tensor cores; this run is on {device.type!r}, so it is "
+            "training in full precision instead.")
+    return True, (
+        "amp=True: the forward pass and the loss run in float16 and the "
+        "weights stay in float32. Faster and about half the activation "
+        "memory on this card. Numerics differ slightly from a full-"
+        "precision run, so do not compare scores across the two.")
+
+
+@contextlib.contextmanager
+def autocasting(on, device):
+    """Half precision for the block, or nothing at all.
+
+    A context manager either way, so the training loop has ONE shape
+    rather than a branch around every forward pass.
+    """
+    if not on:
+        yield
+        return
+    with torch.autocast(device_type=device.type, dtype=torch.float16):
+        yield
 
 
 def pick_device(room_mb: int = GPU_ROOM_MB, what: str = "this run"):
@@ -2665,6 +2711,16 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
     _curve_ledger = RunLedger('train_model:live_curves')
     tensorboard_writer, _ = _open_tensorboard_writer(dst, tensorboard)
 
+    # MIXED PRECISION, asked for by `amp` and only ever taken on a card
+    # that has tensor cores. `mixed_precision` is the answer for THIS
+    # machine, so everything below is one code path rather than two.
+    mixed_precision, amp_note = resolve_mixed_precision(
+        settings.get('amp', False) if isinstance(settings, dict) else False,
+        device)
+    if amp_note:
+        print(amp_note)
+    scaler = torch.amp.GradScaler(device.type, enabled=mixed_precision)
+
     print('Training ...')
     for epoch in range(start_epoch, epochs + 1):
         model.train()
@@ -2678,34 +2734,44 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
 
         for batch_idx, (data, target, filenames) in enumerate(train_loaders, start=1):
             data = data.to(device)
-            logits = model(data)
+            # HALF PRECISION FOR THE FORWARD AND THE LOSS, full precision
+            # for the weights. See `autocasting`: on a card with tensor
+            # cores this is most of the speed and half the activation
+            # memory, and outside one it is a no-op context.
+            with autocasting(mixed_precision, device):
+                logits = model(data)
 
-            is_multiclass = (logits.ndim == 2 and logits.size(1) >= 2)
+                is_multiclass = (logits.ndim == 2 and logits.size(1) >= 2)
 
-            if is_multiclass:
-                if target.ndim == 2:
-                    target = target.argmax(dim=1)
-                target = target.to(device).long()
-                if not (logits.ndim == 2 and logits.size(1) == head_dim):
-                    raise RuntimeError(
-                        f"Expected logits (N,{head_dim}) for CE, got {tuple(logits.shape)}")
-            else:
-                target = target.to(device).float()
+                if is_multiclass:
+                    if target.ndim == 2:
+                        target = target.argmax(dim=1)
+                    target = target.to(device).long()
+                    if not (logits.ndim == 2 and logits.size(1) == head_dim):
+                        raise RuntimeError(
+                            f"Expected logits (N,{head_dim}) for CE, got {tuple(logits.shape)}")
+                else:
+                    target = target.to(device).float()
 
-            loss = loss_fn(logits, target)
+                loss = loss_fn(logits, target)
 
             if gradient_accumulation:
                 loss = loss / gradient_accumulation_steps
 
-            loss.backward()
+            # SCALED, or float16 gradients underflow to zero and the model
+            # simply does not learn. The scaler is a no-op when it is
+            # disabled, so this is one code path rather than two.
+            scaler.scale(loss).backward()
 
             if (not gradient_accumulation) or (batch_idx % gradient_accumulation_steps == 0):
-                optimizer.step()
+                scaler.step(optimizer)
+                scaler.update()
                 optimizer.zero_grad(set_to_none=True)
 
         # flush leftover accumulated gradients at the end of the epoch
         if gradient_accumulation and (n_batches % gradient_accumulation_steps != 0):
-            optimizer.step()
+            scaler.step(optimizer)
+            scaler.update()
             optimizer.zero_grad(set_to_none=True)
 
         # Epoch end: evaluate

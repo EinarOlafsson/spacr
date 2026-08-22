@@ -1316,6 +1316,7 @@ def set_default_train_test_model(settings):
     settings.setdefault('init_weights',True)
     settings.setdefault('amsgrad',True)
     settings.setdefault('use_checkpoint',True)
+    settings.setdefault('amp', False)
     settings.setdefault('gradient_accumulation',True)
     settings.setdefault('gradient_accumulation_steps',4)
     settings.setdefault('intermedeate_save',True)
@@ -1436,6 +1437,7 @@ def deep_spacr_defaults(settings):
     settings.setdefault('init_weights',True)
     settings.setdefault('amsgrad',True)
     settings.setdefault('use_checkpoint',True)
+    settings.setdefault('amp', False)
     settings.setdefault('gradient_accumulation',True)
     settings.setdefault('gradient_accumulation_steps',4)
     settings.setdefault('label_smoothing',0.1)
@@ -1539,6 +1541,7 @@ def get_train_test_model_settings(settings):
      settings.setdefault('init_weights', True)
      settings.setdefault('amsgrad', True)
      settings.setdefault('use_checkpoint', True)
+     settings.setdefault('amp', False)
      settings.setdefault('gradient_accumulation', True)
      settings.setdefault('gradient_accumulation_steps', 4)
      settings.setdefault('intermedeate_save',True)
@@ -2914,6 +2917,7 @@ expected_types = {
     "amsgrad": bool,
     "use_checkpoint": bool,
     "gradient_accumulation": bool,
+    "amp": bool,
     "gradient_accumulation_steps": int,
     "intermedeate_save": (bool, list, tuple, type(None)),
     "pin_memory": bool,
@@ -3887,6 +3891,7 @@ tooltips = {
     "fraction_threshold": "(float) - Minimum relative abundance, 0-1, that a gRNA must reach within a well's total read count to be kept. Raising it strips low-abundance and bleed-through gRNAs and lowers the mean gRNAs per well; set it too high and every row is removed and the run errors out. Leave None to auto-pick the cutoff giving target_unique_count gRNAs per well. Default None.",
     "normalise_fraction": "(bool) - Divide a gRNA's fraction by the sum of the fractions that remain in its well after fraction_threshold, before deciding how many cells it is given. On, a gRNA's share is measured against what survived the threshold; off, it is measured against every read the well produced, including those the threshold removed. The two differ whenever the threshold removes anything: normalising raises every surviving share, and by more the more was removed. Default True.",
     "from_scratch": "(bool) - Start from randomly initialised weights instead of fine-tuning the pretrained model. Almost always leave OFF: fine-tuning needs tens of images where from-scratch needs thousands. Default False.",
+    "amp": "(bool) - Train in mixed precision: the forward pass and the loss run in float16 while the weights and the optimizer stay in float32. On a card with tensor cores this is most of the speed and about half the activation memory, which is the difference between a batch of 32 and a batch of 64 at 224 px. It needs CUDA; asked for on a CPU it is answered rather than obeyed, and the run says so. Numerics differ slightly from a full-precision run, so do not compare scores across the two. Default False.",
     "gradient_accumulation": "(bool) - Sum gradients over several batches before each optimizer step instead of stepping on every batch, giving an effective batch size of batch_size x gradient_accumulation_steps without extra GPU memory. Enable when you had to shrink batch_size to fit in VRAM and training is noisy. Leftover gradients are flushed at the end of each epoch. Default True.",
     "gradient_accumulation_steps": "(int) - How many batches are summed per optimizer step when gradient_accumulation is on; the loss is divided by this value so gradient magnitude stays comparable. Effective batch size = batch_size x this. Raise it (4-16) to emulate a larger batch on limited VRAM, at the cost of fewer weight updates per epoch. Ignored when gradient_accumulation is False. Default 4.",
     "grayscale": "(bool) - Force the Cellpose channel pair to [0, 0] so the network treats the input as a single combined channel, overriding the [cytoplasm, nucleus] pair otherwise inferred from model_name (cyto -> [1,0], cyto2 -> [2,1], nucleus -> [0,0]). Leave it on for single-channel inputs; switch it off only when feeding a genuine two-channel stack. Default True.",
@@ -4639,7 +4644,7 @@ categories = {
     "Computer Vision Model": ["model_type", "model_name", "custom_model", "init_weights", "normalization", "normalization_scope"],
 
     # HOW IT IS FITTED: the optimisation and the loss.
-    "Computer Vision Training": ["train", "test", "epochs", "learning_rate", "optimizer_type", "schedule", "loss_type", "label_smoothing", "focal_gamma", "focal_alpha", "logit_adjust_tau", "class_balance", "amsgrad", "gradient_accumulation", "gradient_accumulation_steps", "early_stopping_patience", "pin_memory", "intermedeate_save", "tensorboard", "random_seed",
+    "Computer Vision Training": ["train", "test", "epochs", "learning_rate", "optimizer_type", "schedule", "loss_type", "label_smoothing", "focal_gamma", "focal_alpha", "logit_adjust_tau", "class_balance", "amsgrad", "amp", "gradient_accumulation", "gradient_accumulation_steps", "early_stopping_patience", "pin_memory", "intermedeate_save", "tensorboard", "random_seed",
         # CV-ONLY by `classify.FAMILY_SETTINGS` (instruction 233).
         "n_top_examples"],
 
