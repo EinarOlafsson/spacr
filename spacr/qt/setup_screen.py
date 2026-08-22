@@ -67,8 +67,13 @@ def questions() -> List[Tuple[str, str, Callable, Callable, Any]]:
         return [(n, str(n).replace("_", " ")) for n in names]
 
     out: List[Tuple[str, str, Callable, Callable, Any]] = [
+        # THE NATIVE NAME, not the code. A user choosing their own language
+        # is the one person who cannot be expected to recognise its ISO
+        # code, and `getattr(prefs, "VALID_LANGUAGES", ("en",))` -- which is
+        # what this read before -- found no such attribute and offered
+        # English alone, on a screen whose first question is the language.
         ("language", "Language", prefs.get_language, prefs.set_language,
-         choices_of(getattr(prefs, "VALID_LANGUAGES", ("en",)))),
+         _language_choices()),
         # FLIPPED, because `theme_choices()` is (caption, value) while every
         # other list here is (value, caption). Normalised at the source
         # rather than special-cased in the screen: a screen that knows which
@@ -95,6 +100,20 @@ def questions() -> List[Tuple[str, str, Callable, Callable, Any]]:
          prefs.set_preferred_provider, _provider_choices()),
     ]
     return [q for q in out if q[4] is None or q[4]]
+
+
+def _language_choices():
+    """``[(code, native name)]`` for every language spaCR is translated to.
+
+    IN THEIR OWN SCRIPT, because the reader of this list is by definition
+    somebody who may not read the current one.
+    """
+    try:
+        from .i18n import LANGUAGES
+
+        return [(one.code, one.native_name) for one in LANGUAGES]
+    except Exception:                                        # noqa: BLE001
+        return [("en", "English")]
 
 
 def _provider_choices():
