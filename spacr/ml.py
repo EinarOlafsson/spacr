@@ -9842,8 +9842,30 @@ def ml_analysis(
             feature_importance_fig.show()
 
     else:
-        feature_importance_df = pd.DataFrame()
-        feature_importance_fig = None
+        # NO NATIVE IMPORTANCES IS NOT NO IMPORTANCES. Four of the nine
+        # models this module offers -- gradient_boosting, logistic_
+        # regression, svm and mlp -- do not expose `feature_importances_`,
+        # and this branch used to hand back an empty frame and no figure.
+        # A user who picks logistic_regression, which the setting's own
+        # tooltip recommends as "a good linear sanity check", lost the
+        # feature-importance QC panel entirely and was told nothing.
+        #
+        # THE PERMUTATION IMPORTANCE IS ALREADY COMPUTED, a few lines up,
+        # for every model, because it is model-agnostic by construction.
+        # It is a DIFFERENT QUANTITY from a tree's split-gain importance --
+        # it measures what the fitted model loses when a column is shuffled
+        # -- so the panel says which one it is drawing rather than passing
+        # one off as the other.
+        feature_importance_df = permutation_df.rename(
+            columns={"importance_mean": "importance"}
+        )[["feature", "importance"]].sort_values(
+            by="importance", ascending=False).head(top_features)
+        feature_importance_fig = plot_feature_importance(
+            feature_importance_df,
+            title=f"Top {len(feature_importance_df)} features "
+                  f"(permutation importance)")
+        if verbose:
+            feature_importance_fig.show()
 
     df = _calculate_similarity(df, features, location_column, positive_control, negative_control)
 
