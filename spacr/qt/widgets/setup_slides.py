@@ -393,11 +393,10 @@ class SetupSlides(QDialog):
 
 
 def open_setup_if_needed(parent=None) -> Optional[SetupSlides]:
-    """Show the setup slides if they have not been answered.
+    """Show the setup slides when the recorded setup state requires them.
 
-    THE CALLER DOES NOT DECIDE WHETHER TO ASK -- `should_open` does, from the
-    recorded version. A screen each caller gated for itself is one that
-    appears twice on one launch and never on another.
+    The centralized :func:`spacr.qt.setup_screen.should_open` check prevents
+    independent callers from opening duplicate dialogs during one launch.
     """
     from ..setup_screen import should_open
 

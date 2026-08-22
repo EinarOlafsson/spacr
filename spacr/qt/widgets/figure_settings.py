@@ -1561,12 +1561,17 @@ def _add_bundle_save(menu, figure, parent) -> None:
 
 
 def save_figure_bundle(figure, folder: str, name: str = "") -> str:
-    """Write one matplotlib figure as a bundle. Returns the folder.
+    """Export a Matplotlib figure with its source data and statistics.
 
-    THE GROUPS COME FROM THE RECIPE, which is what makes the statistics the
-    same comparison the picture shows. A figure with no recipe still gets
-    every file -- the statistics say there is nothing to compare, because an
-    absent file reads as a bug.
+    Group definitions come from the attached replot recipe so statistical
+    comparisons match the displayed figure. When no recipe is available, the
+    standard files are still written and the statistics artifact records that
+    no comparison could be formed.
+
+    :param figure: Matplotlib figure to export.
+    :param folder: destination directory for the bundle.
+    :param name: optional base name for generated files.
+    :returns: path to the written bundle directory.
     """
     from ...figures.bundle import save
 

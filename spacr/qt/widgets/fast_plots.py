@@ -4320,17 +4320,13 @@ class FastPlot(QWidget):
     def select_in_rect(self, x0, y0, x1, y1, *, add: bool = False) -> List[str]:
         """Select every plotted point inside the data-coordinate rectangle.
 
-        THE GESTURE THE SHAPE OF A VOLCANO INVITES: the interesting guides
-        are a corner of the cloud, and picking them one click at a time is
-        the work this replaces.
-
-        Points with no drawn position are not in any rectangle -- a band
-        selects what it visibly encloses, which is the only reading a user
-        can check.
+        Points without a plotted position cannot be selected. Rectangle
+        selection therefore contains exactly the points visibly enclosed by
+        the supplied bounds.
 
         :param add: extend the current selection rather than replacing it,
-            for a band drawn with the modifier still down.
-        :returns: the selection after the band, in pick order.
+            as used when a modifier key is held during selection.
+        :returns: selected keys in pick order.
         """
         low_x, high_x = sorted((float(x0), float(x1)))
         low_y, high_y = sorted((float(y0), float(y1)))
@@ -7811,16 +7807,14 @@ class ResultsTable(QWidget):
         return False
 
     def select_keys(self, keys) -> int:
-        """Select every row named in ``keys``. Returns how many were found.
+        """Select table rows whose keys occur in ``keys``.
 
-        THE ONE PLACE A MULTI-SELECTION ENTERS THE TABLE, so the two signals
-        below are emitted together and no consumer can be looking at a
-        different selection from its neighbour.
+        Both selection signals are emitted here so every consumer receives
+        the same ordered selection. Rows remain visible; :meth:`show_keys`
+        performs filtering when a plot interaction requires it.
 
-        The table selects rows rather than filtering them: narrowing to the
-        selection is what `show_keys` does for a histogram bar, and doing
-        both from one gesture would hide the unselected guides the user is
-        comparing against.
+        :param keys: row keys to select, in the desired selection order.
+        :returns: number of matching rows selected.
         """
         wanted = [str(k) for k in (keys or ())]
         if self._frame is None or not self._key_column:

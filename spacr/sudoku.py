@@ -36,41 +36,33 @@ __all__ = [
     "sudoku_all",
 ]
 
-#: What a cell is annotated when the method declines to name a guide.
-#: The same spelling `guide_attribution` uses, so a consumer that already
-#: handles one handles the other.
+#: Annotation assigned when the method cannot identify a guide. The value is
+#: shared with :mod:`spacr.guide_attribution` for downstream compatibility.
 ABSTAIN = "Non_annotated"
 
-#: Below this share of the anchor mass a cell is "unlike everything" -- the
-#: fourth quadrant of the two-score table, which a single ratio hides. It is
-#: a share of the median reach, not an absolute, because the mass a graph
-#: delivers depends on its size and its edge weights.
+#: Minimum anchor reach, expressed as a fraction of median reach, required to
+#: assign a guide. Relative scaling accommodates graph size and edge weights.
 DEFAULT_REACH_FLOOR = 0.15
 
-#: The coin flip, as a number. The sequential form stops when the best
-#: remaining cell cannot beat this posterior. 0.55 is `0.5 + delta` at
-#: `delta = 0.05`, matching `guide_attribution.DEFAULT_THRESHOLD`.
+#: Minimum posterior probability required for assignment. The value matches
+#: ``guide_attribution.DEFAULT_THRESHOLD`` for ``delta = 0.05``.
 DEFAULT_DECISION = 0.55
 
 
 @dataclass(frozen=True)
 class SudokuResult:
-    """What sudoku concluded, with both scores kept apart.
+    """Cell-level guide assignments and their separate evidence components.
 
-    :ivar guides: one name per cell, in the order the cells came, or
+    :ivar guides: one guide name per input cell, or
         :data:`ABSTAIN`.
-    :ivar affirm: ``(n_cells, n_guides)`` -- how much each cell looks like
-        each guide's anchors.
-    :ivar eliminate: ``(n_cells, n_guides)`` -- how much it looks like
-        anything ELSE. Kept separate on purpose: "probably not this guide"
-        and "probably this guide" are different claims, and a cell can be
-        low on both, which is the cell worth looking at. A single ratio
-        maps that onto the same value as a cell that is high on both.
-    :ivar reach: ``(n_cells,)`` -- total anchor mass that arrived. Low reach
-        IS the fourth quadrant: unlike every anchor, of any guide.
+    :ivar affirm: ``(n_cells, n_guides)`` support from each guide's anchors.
+    :ivar eliminate: ``(n_cells, n_guides)`` support from competing anchors.
+        Keeping this separate from ``affirm`` distinguishes ambiguous cells
+        from cells unsupported by any anchor population.
+    :ivar reach: ``(n_cells,)`` total propagated anchor mass.
     :ivar posterior: ``(n_cells, n_guides)`` after the well constraint.
     :ivar names: the guide names, in the column order of the matrices.
-    :ivar report: counts and settings, for the record.
+    :ivar report: assignment counts, settings, and diagnostic warnings.
     """
 
     guides: Tuple[str, ...]
@@ -109,21 +101,15 @@ def anchors_for(guide: str,
     :param scores: the classification score per cell.
     :param quantile: within an anchor well, the score quantile above which a
         cell is taken.
-    :param min_fraction: only wells where the guide is at least this share
-        are used. THE POINT OF THE WHOLE THING: in a well where the guide is
-        70% of the reads, a top-scoring cell is very probably that guide. In
-        a well where it is 5%, it is probably not, and an anchor set built
-        from such wells teaches the graph the wrong shape.
-    :param max_per_well: a cap, so one enormous well cannot define the
-        guide's appearance on its own.
+    :param min_fraction: minimum sequencing fraction for a well to contribute
+        anchors. This limits anchor selection to wells in which a high-scoring
+        cell is plausibly associated with the guide.
+    :param max_per_well: maximum anchors contributed by one well.
     :returns: cell indices, possibly empty.
 
-    THE ANCHORS ARE WHERE CIRCULARITY ENTERS, and it is entered knowingly.
-    They are chosen BY SCORE, so a profile built from the score alone would
-    say "a `g` cell has a high score" -- true by construction and worthless.
-    :func:`sudoku` therefore excludes the score from the graph features by
-    default. The score picks the anchors; the morphology decides everyone
-    else.
+    Anchor selection uses the classifier score. To avoid circular inference,
+    :func:`sudoku` excludes that score from graph features by default; cell
+    morphology then determines propagation beyond the anchors.
     """
     labels = np.asarray(wells)
     values = np.asarray(scores, dtype=float)
@@ -155,23 +141,18 @@ def anchors_for(guide: str,
 def similarity_graph(features: np.ndarray, *,
                      neighbours: int = 15,
                      mutual: bool = True):
-    """A symmetric k-nearest-neighbour affinity over cells.
+    """Construct a symmetric k-nearest-neighbour cell-affinity graph.
 
     :param features: ``(n_cells, n_features)``, standardised here.
-    :param neighbours: k.
-    :param mutual: keep an edge only where BOTH cells list the other. A
-        plain kNN graph gives an outlier k edges it did not earn -- it has
-        to have SOME nearest neighbours -- and label mass then flows into
-        cells that resemble nothing. Mutual kNN lets an outlier end up with
-        no edges at all, which is the honest answer and is what
-        :attr:`SudokuResult.reach` reports.
-    :returns: a sparse CSR affinity with a zero diagonal.
+    :param neighbours: number of nearest neighbours considered per cell.
+    :param mutual: retain an edge only when both cells identify each other as
+        neighbours. This allows isolated outliers to have zero reach rather
+        than receiving forced connections.
+    :returns: sparse CSR affinity matrix with a zero diagonal.
 
-    Weights are the heat kernel with a SELF-TUNING scale: each cell's own
-    distance to its kth neighbour. One global sigma assumes the cloud has
-    one density, and a screen's cells do not -- a dense healthy population
-    beside a sparse dying one gets either no edges in the sparse region or
-    an over-connected dense one.
+    Edge weights use a heat kernel with a local scale defined by each cell's
+    distance to its kth neighbour. Local scaling supports populations with
+    different sampling densities.
     """
     from scipy import sparse
     from sklearn.neighbors import NearestNeighbors
@@ -291,9 +272,9 @@ def constrain_to_fractions(mass: np.ndarray,
     :func:`spacr.guide_attribution.posterior` uses, applied here to
     graph-propagated evidence instead of a one-dimensional likelihood.
 
-    IT IS THE ROW CONSTRAINT OF THE PUZZLE. Without it the graph would
-    happily give every cell in a well to whichever guide had the most
-    anchors, because nothing would say a well has only so many of each.
+    The row constraint prevents the graph from assigning every cell in a well
+    to the guide with the greatest anchor mass when sequencing supports only
+    a limited fraction for that guide.
     """
     values = np.asarray(mass, dtype=float).copy()
     labels = np.asarray(wells)
@@ -357,34 +338,28 @@ def sudoku(features: np.ndarray,
            anchor_min_fraction: float = 0.5,
            use_score_as_feature: bool = False,
            mutual: bool = True) -> SudokuResult:
-    """Annotate every cell, across wells, with two scores kept apart.
+    """Assign guides to cells while retaining competing evidence separately.
 
     :param features: ``(n_cells, n_features)`` cell measurements.
-    :param scores: the classification score per cell -- used to CHOOSE
+    :param scores: classification score per cell, used to choose
         anchors, and by default not used as a graph feature.
     :param wells: one well label per cell.
     :param fractions: ``{well: {guide: fraction}}``.
-    :param guides: the guides to annotate. The user's choice, and several is
-        the point: "the user may choose several high scoring guides".
+    :param guides: guide identifiers to consider for assignment.
     :param anchors: optional explicit anchor indices per guide, overriding
         :func:`anchors_for`.
-    :param use_score_as_feature: put the classification score in the graph
-        as well. **Off by default and that is a correctness decision, not a
-        preference**: the anchors are chosen by score, so a graph built on
-        the score would place every high-scoring cell near every guide's
-        anchors and affirm all of them. Turning this on makes the method
-        partly tautological, and the report says so when it is on.
+    :param use_score_as_feature: include the classifier score in graph
+        features. Disabled by default because the score also selects anchors;
+        enabling it introduces circular evidence and is recorded in the
+        result report.
     :returns: the :class:`SudokuResult`.
 
-    THE FOUR OUTCOMES, which is why two scores are carried rather than one:
+    Separate support and competing-label evidence distinguish four outcomes:
 
-      affirm high, eliminate low   -- confidently this guide
-      affirm low,  eliminate high  -- confidently NOT this guide
-      affirm high, eliminate high  -- the guides do not separate here
-      affirm low,  eliminate low   -- unlike every anchor: the odd cell,
-                                      and the one a single ratio hides by
-                                      mapping it to the same value as the
-                                      row above.
+    * high support, low competition: confident assignment;
+    * low support, high competition: confident exclusion;
+    * high support, high competition: ambiguous between guides;
+    * low support, low competition: unsupported by the anchor populations.
     """
     values = np.asarray(features, dtype=float)
     if values.ndim == 1:
@@ -478,26 +453,19 @@ def sudoku_all(features: np.ndarray,
                decision: float = DEFAULT_DECISION,
                max_guides: int = 50,
                **kwargs) -> SudokuResult:
-    """Sudoku over every guide, in confidence order, claiming as it goes.
+    """Assign guides sequentially in descending confidence order.
 
     :param ranking: ``[(guide, confidence)]`` in descending processing order.
         The caller defines confidence, for example by combining effect size
         and statistical significance.
-    :param max_guides: a stop, so a screen with 1,500 guides does not run
-        1,500 graph builds by accident.
+    :param max_guides: maximum number of ranked guides to process.
     :returns: one :class:`SudokuResult` over all cells.
 
-    Each round runs :func:`sudoku` for one guide over the cells still
-    unclaimed, keeps the cells it decides, and removes them. It stops when a
-    round claims nothing -- which is the coin flip, reached rather than
-    counted.
-
-    THE ORDER IS THE RISK, and the report carries what is needed to judge
-    it: `claimed_by_round`. A greedy method commits early, the first guide's
-    mistakes are inherited by every later one, and cells it takes are never
-    reconsidered. A caller that wants to know how much that mattered runs
-    this twice with the order perturbed and compares -- which is what
-    :mod:`spacr.annotation_validation` does.
+    Each round applies :func:`sudoku` to unclaimed cells and removes accepted
+    assignments. Processing stops when a round assigns no cells. Because this
+    greedy procedure is order-sensitive, ``claimed_by_round`` is retained in
+    the report; :mod:`spacr.annotation_validation` evaluates sensitivity to
+    ranking order.
     """
     values = np.asarray(features, dtype=float)
     if values.ndim == 1:
