@@ -1,0 +1,86 @@
+================================================================================
+CLASSIFY AND REGRESSION, AUDITED EXHAUSTIVELY AGAINST A REAL SCREEN
+================================================================================
+
+Status:    OPEN. Requested 2026-08-22.
+Requested: "exhaustively test the classify and regression modules ... This
+           should be a completely exhaustive check that tests everything in
+           these modals and finds all bugs ... if something is missing from
+           either modal in your opinions then add it."
+Owner:     Classify, Regression
+Data:      /mnt/firecuda2/Claude/toxoplasma_projects/tsg101_screen/plate1..4
+           Each carries measurements/measurements.db with cell, nucleus,
+           pathogen, cytoplasm and png_list. plate1's cell table is 166
+           columns over four channels -- 48 morphology, 40 channel_0, 33
+           channel_1, 26 channel_2, 19 channel_3 -- and 60,816 rows, which
+           is the shape the feature-subsetting work below needs.
+
+--------------------------------------------------------------------------------
+A. CLASSIFY -- THE TABULAR HALF
+--------------------------------------------------------------------------------
+
+1. EVERY ML MODEL ACTUALLY FITS AND SCORES. `model_type_ml` offers xgboost,
+   lightgbm, catboost, random_forest, extra_trees, gradient_boosting,
+   logistic_regression, svm and mlp. Each is driven on real measurements,
+   not asserted from the settings table.
+
+2. THE USER CAN CHOOSE WHAT TO TRAIN ON, EASILY. Channel_1 only. Morphology
+   only. Any combination of channels. Localization. This is the request's
+   own emphasis -- "This should be straight forward and easy" -- so it is a
+   usability finding as much as a correctness one: if it takes a regex or a
+   hand-typed column list, that is the bug.
+
+3. QC IS INTUITIVE: SHAP, feature importance, permutation importance, and
+   anything else worth adding. A QC step that produces a figure nobody can
+   reach is not a QC step.
+
+--------------------------------------------------------------------------------
+B. CLASSIFY -- THE COMPUTER-VISION HALF
+--------------------------------------------------------------------------------
+
+4. EVERY TORCH MODEL. `model_type` takes any TorchVision classification
+   name. Its own tooltip already records that an unrecognised name is not
+   fatal when read -- `choose_model` prints "Invalid model_type", returns
+   None, and training fails later -- which is a bug with a docstring rather
+   than a fix.
+
+5. DATASET GENERATION, CROSS-VALIDATION, THE TRAINING LOOP, LIVE
+   MONITORING, INFERENCE. Each driven end to end.
+
+6. GRAD-CAM, SALIENCY, AND THE SURROGATE MODELS.
+
+--------------------------------------------------------------------------------
+C. REGRESSION
+--------------------------------------------------------------------------------
+
+7. EVERY REGRESSION TYPE AND EVERY NONPARAMETRIC TEST.
+8. THE MEASUREMENTS TAB AND THE CELL TAB.
+9. THE ANNOTATION ALGORITHMS in the cell tab.
+10. NO ELEMENT OVERLAPS ANOTHER, measured on rendered widgets rather than
+    read off a layout.
+11. EVERY FIGURE THAT SHOULD BE GENERATED IS.
+
+--------------------------------------------------------------------------------
+D. BOTH
+--------------------------------------------------------------------------------
+
+12. THE SETTINGS ARE ORGANISED INTUITIVELY AND ARE NOT REDUNDANT. Two
+    settings that mean one thing is the failure mode this codebase has hit
+    repeatedly -- png_type/path_string, crop_source/image_source,
+    class_metadata/classes.
+
+13. ANNOTATIONS OR MEASUREMENTS, AND AN ARBITRARY NUMBER OF CLASSES, in
+    both modules. Two classes must not be a special case that three breaks.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Every item above is DRIVEN on plate1..4 rather than reasoned about. The
+  standing rule from 2026-08-21 applies: a feature is done when its ask can
+  be driven, not when the code that was meant to satisfy it has been
+  written.
+* Every bug found is fixed or written down with its reproduction; none is
+  merely narrated.
+* The GPU is shared. Nothing here kills another session's process, and the
+  torch work runs on whatever is free -- or says it could not.

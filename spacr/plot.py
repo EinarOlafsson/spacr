@@ -3968,11 +3968,17 @@ def plot_permutation(permutation_df):
         fig.tight_layout()
     return fig
 
-def plot_feature_importance(feature_importance_df):
+def plot_feature_importance(feature_importance_df, title=""):
     """Plot a horizontal bar chart of raw feature importances.
 
     :param feature_importance_df: DataFrame with columns ``feature`` and
         ``importance``.
+    :param title: what the bars MEAN, when it is not the model's own
+        importances. Four of the classifiers spaCR offers expose no
+        ``feature_importances_`` and are drawn from permutation importance
+        instead -- a different quantity, measuring what the fitted model
+        loses when a column is shuffled -- and a panel that did not say so
+        would be passing one off as the other.
     :returns: The generated ``Figure``.
     """
     num_features = len(feature_importance_df)
@@ -3994,6 +4000,8 @@ def plot_feature_importance(feature_importance_df):
                 feature_importance_df['importance'], dtype=float))) < 0:
             reference_line(ax, x=0)
         ax.set_xlabel('Feature Importance', fontsize=font_size)
+        if title:
+            ax.set_title(str(title), fontsize=font_size + 1)
         ax.tick_params(axis='both', which='major', labelsize=font_size)
         fig.tight_layout()
     return fig
