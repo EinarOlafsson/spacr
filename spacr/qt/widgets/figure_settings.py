@@ -1591,10 +1591,14 @@ def save_figure_bundle(figure, folder: str, name: str = "") -> str:
     title = name or _figure_title(figure) or "graph"
 
     def _render(path: str) -> None:
-        # ONE FIGURE, WRITTEN TWICE. `savefig` picks the format from the
-        # extension, so the pdf and the png are the same render rather than
-        # two draws that could differ.
-        figure.savefig(path, bbox_inches="tight")
+        # A bundle deliberately contains both formats, but each rendering
+        # still uses the shared export path so print colours, embedded fonts,
+        # and raster DPI match every other figure the user keeps.
+        from ...plot import save_figure
+
+        extension = os.path.splitext(path)[1].lower().lstrip(".")
+        save_figure(figure, path, fmt=extension, bbox_inches="tight",
+                    close=False)
 
     return save(folder, title, render=_render, data=frame, groups=groups,
                 unit=str(recipe.get("unit") or "observation"),
