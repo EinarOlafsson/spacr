@@ -157,13 +157,6 @@
       "translation": "Providerabstraktion – en klass per AI-leverantör. Varje skal ut till leverantörens egen kodning-agent CLI så autentisering piggy-backs på användarens chatt prenumeration (Claude.ai Pro, ChatGPT Plus/Pro/Team, Google-konto) — ingen separat API fakturering."
     },
     {
-      "label": "spacr.qt.ai.settings#3",
-      "source_sha256": "4febb54dcb3f9f43a31b81c460d185c6afbc19865ec18485267d2224fcf60c6b",
-      "source": "``system_prompt`` — the spaCR-aware persona string. Users can edit it in the Settings tab of the Providers dialog to change how the assistant frames answers (e.g. shorter, or with a different emphasis). :func:`reset_system_prompt` restores the default.",
-      "context": "``system_prompt`` — the spaCR-aware persona string. Users can edit it in the Settings tab of the Providers dialog to change how the assistant frames answers (e.g. shorter, or with a different emphasis). :func:`reset_system_prompt` restores the default.",
-      "translation": "``system_prompt`` — den spaCR-medvetna persona-strängen. Användare kan redigera den på fliken Inställningar i dialogrutan Leverantörer för att ändra hur assistenten ramar in svar (till exempel kortare, eller med en annan betoning). :func:`reset_system_prompt` återställer standardinställningen."
-    },
-    {
       "label": "spacr.qt.command_palette#9",
       "source_sha256": "b29e3f1597423bee4271d197da73e23f34b39e2c1d2d035f1f5bad8eb8cae1f0",
       "source": "Fuzzy match is a plain substring case-insensitive scan — good enough for the ~30 commands the palette will ever hold.",

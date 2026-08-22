@@ -86,13 +86,6 @@
       "translation": "Röð er föst: kjarni, fruma, sýkill, frumulíffæri (sleppir öllum sem eru None eða fjarverandi). Notar sama C-ás samviseinu og ``spacr.qt.synthetic.CHANNEL_LAYOUT`` notar svo sýnidata flæðir óbreytt í gegnum v2 frá upphafi til enda."
     },
     {
-      "context": "The resulting ``class_folder_names`` and ``nr_classes`` are written back into the key-value mapping for downstream training. A pre-split list-shaped ``classes`` entry is retired only after those folders are written; key-value mapping-shaped class definitions remain untouched.",
-      "label": "spacr.io.generate_training_dataset#21",
-      "source": "The resulting ``class_folder_names`` and ``nr_classes`` are written back into the dict for downstream training. A pre-split list-shaped ``classes`` entry is retired only after those folders are written; dict-shaped class definitions remain untouched.",
-      "source_sha256": "e2d868911bb70706815ced94a0b95521a53e05dbea4f22096e6b8017ecf45e0a",
-      "translation": "Niðurstaðan ``class_folder_names`` og ``nr_classes`` er skrifuð aftur inn í lykil-gildi kortlagningu fyrir frekari þjálfun. Fyrir-skipt lista-laga ``classes`` skrá er afskráð aðeins eftir að þessar möppur hafa verið skrifaðar; lykil-gildi kortlagningu-laga flokks skilgreiningar eru óbreyttar."
-    },
-    {
       "context": "The resulting distribution is emphatically *not* uniform: by construction the fraction brighter than ``k·F_min`` is ``k^-1.5``, i.e. ~65 % of stars sit in the faintest factor-of-two bin while only ~4 % are 8x brighter than the limit.",
       "label": "spacr.qt.space.sample_star_fluxes#2",
       "source": "The resulting distribution is emphatically *not* uniform: by construction the fraction brighter than ``k·F_min`` is ``k^-1.5``, i.e. ~65 % of stars sit in the faintest factor-of-two bin while only ~4 % are 8x brighter than the limit.",

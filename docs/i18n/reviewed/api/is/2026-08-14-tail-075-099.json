@@ -59,13 +59,6 @@
       "translation": "Óþekkt heiti skipulagðra gagna eru hunsuð, skortandi heiti skipulagðra gagna eru sett sem sjálfgefin, svo uppsetning sem önnur útgáfa skrifaði opnast samt: QC töflu sem enginn getur hlaðið aftur er QC töflu sem enginn keyrir aftur."
     },
     {
-      "label": "spacr.qt.widgets.class_editor#4",
-      "source_sha256": "0f5379dbec7912890d3475a6528865875124cf9c9a056a01f7a60afb5506fb32",
-      "source": "**The random complement.** One row can be \"everything not claimed, chosen at random\", which is what the retired ``write_random_annotation_column`` used to arrange. It is a KIND OF ROW here rather than a button pressed beforehand, because it is a way of defining a class and belongs where the other class definitions are.",
-      "context": "**The random complement.** One row can be \"everything not claimed, chosen at random\", which is what the retired ``write_random_annotation_column`` used to arrange. It is a KIND OF ROW here rather than a button pressed beforehand, because it is a way of defining a class and belongs where the other class definitions are.",
-      "translation": "**Tilviljanakennd viðhengi.**Einn röð getur verið „allt sem ekki er krafist, valið af handahófi“, sem er það sem eftirlaunaður ``write_random_annotation_column`` var vanur að útvega. Þetta er TEGUND RÖÐAR hér frekar en hnappur sem er ýtt áður, vegna þess að það er leið til að skilgreina flokk og á heima þar sem aðrar flokks skilgreiningar eru."
-    },
-    {
       "label": "spacr.measure.generate_object_dataset#24",
       "source_sha256": "e6ac29d352608d45a78d13af86714e86e41867df5c263b405034e2dd687d75a1",
       "source": "**The crop keeps the merged array's dtype.** A ``uint16`` field gives ``uint16`` crops, in the manifest and in the ``.npy`` written for more than three channels; ``normalize`` stretches into that dtype's full range, not into 0-255. The single narrowing to 8 bit happens in :func:`_save_object_crop`, where PIL needs it, and it *rescales* (:func:`_crop_to_uint8`).",
