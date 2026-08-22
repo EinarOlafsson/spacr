@@ -141,3 +141,68 @@ class TestTheTab:
         assert tab.first_on_page() <= anchor
         assert tab.first_on_page() + tab.per_page() > anchor, (
             "the crop the reader was looking at is no longer on the page")
+
+
+class TestThePageAndTheLayoutAgree:
+    """Reported 2026-08-21: "the cells kind of fit into the container but i
+    see cells to the right . and never more that two rows ... where there
+    could be 3 almost 4 instead of the next page".
+
+    TWO NUMBERS MEANT ONE THING. The view computed columns from a fixed cell
+    size over the whole tab width; the page size came from the real
+    thumbnail size over the scroll area's viewport. The page held one
+    number's worth of cells laid out at the other's.
+    """
+
+    @pytest.fixture
+    def tab(self, app):
+        import pandas as pd
+
+        from spacr.qt.widgets.cell_montage_view import _WellTab
+
+        one = _WellTab("p1_r1_c1", "A01")
+        one.resize(700, 420)
+        one.show()
+        QApplication.processEvents()
+        rows = pd.DataFrame({"prcfo": [f"x{i}" for i in range(60)]})
+        one.set_content(rows, [None] * 60, "caption", columns=3)
+        QApplication.processEvents()
+        return one
+
+    def test_the_layout_uses_the_measured_column_count(self, tab):
+        columns, _per = tab.geometry_page()
+        assert tab._columns == columns
+
+    def test_the_hint_from_the_caller_does_not_win(self, tab):
+        """It is derived from a fixed cell size and the whole tab width,
+        which is not what the grid is drawn into."""
+        tab.fill(2)
+        assert tab._columns == tab.geometry_page()[0]
+
+    def test_a_page_is_whole_rows_at_that_count(self, tab):
+        columns, per_page = tab.geometry_page()
+        assert per_page % columns == 0
+
+    def test_nothing_is_drawn_past_the_page(self, tab):
+        """Cells to the right of the container is the overflow this fixes."""
+        assert len(tab.thumbs()) <= tab.per_page()
+
+    def test_the_last_row_is_not_charged_for_spacing(self):
+        """n items span n*thumb + (n-1)*spacing, so a page with room for
+        exactly three rows must offer three, not two."""
+        from spacr.qt.widgets.cell_montage_view import fits_on_a_page
+
+        thumb, gap = 96, 6
+        exactly_three = 3 * thumb + 2 * gap
+        _columns, per_page = fits_on_a_page(700, exactly_three, thumb,
+                                            spacing=gap)
+        columns, _ = fits_on_a_page(700, exactly_three, thumb, spacing=gap)
+        assert per_page // columns == 3
+
+    def test_and_the_same_for_the_columns(self):
+        from spacr.qt.widgets.cell_montage_view import fits_on_a_page
+
+        thumb, gap = 96, 6
+        exactly_five = 5 * thumb + 4 * gap
+        columns, _per = fits_on_a_page(exactly_five, 400, thumb, spacing=gap)
+        assert columns == 5
