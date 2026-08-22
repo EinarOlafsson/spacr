@@ -511,9 +511,16 @@ def fits_on_a_page(width: int, height: int, thumb_px: int,
         Total thumbnails per page. Both values are at least one, including
         when the viewport is smaller than a thumbnail.
     """
-    step = max(1, int(thumb_px) + int(spacing))
-    columns = max(1, int(width) // step)
-    rows = max(1, int(height) // step)
+    # THE LAST ROW NEEDS NO TRAILING SPACING, and charging it one loses a
+    # whole row whenever the fit is close -- reported as "never more that
+    # two rows ... where there could be 3 almost 4". n items span
+    # n*thumb + (n-1)*spacing, so the capacity is (available + spacing)
+    # divided by the step, not available // step.
+    thumb = max(1, int(thumb_px))
+    gap = max(0, int(spacing))
+    step = thumb + gap
+    columns = max(1, (int(width) + gap) // step)
+    rows = max(1, (int(height) + gap) // step)
     return columns, columns * rows
 
 
@@ -1210,16 +1217,31 @@ class _WellTab(QWidget):
 
     # ------------------------------------------------------------- paging
 
+    def geometry_page(self) -> tuple:
+        """``(columns, per_page)`` for this tab's viewport, right now.
+
+        ONE CALCULATION, AND THE TAB OWNS IT. There were two: the view
+        computed columns from a FIXED `_CELL_PX` over the whole tab width
+        and handed them to `fill`, while the page size came from the REAL
+        thumbnail size over the SCROLL AREA's viewport. The page then held
+        one number's worth of cells laid out at the other's -- which is why
+        cells ran off to the right and a page with room for four rows drew
+        two.
+
+        Reported 2026-08-21: "the cells kind of fit into the container but i
+        see cells to the right . and never more that two rows ... where
+        there could be 3 almost 4 instead of the next page".
+        """
+        area = self._scroll.viewport()
+        return fits_on_a_page(area.width(), area.height(), self._thumb_px)
+
     def per_page(self) -> int:
         """Return the number of crops that fit in the current viewport.
 
         Capacity is recalculated from the live viewport and thumbnail size so
         it follows window resizing.
         """
-        area = self._scroll.viewport()
-        columns, count = fits_on_a_page(area.width(), area.height(),
-                                        self._thumb_px)
-        return count
+        return self.geometry_page()[1]
 
     def page_count(self) -> int:
         """Return the pages required for this well at the current capacity."""
@@ -1280,8 +1302,20 @@ class _WellTab(QWidget):
                      for i in range(self._grid.count()))
 
     def fill(self, columns: int) -> None:
-        """Lay the crops out at ``columns`` per row."""
-        self._columns = max(int(columns), 1)
+        """Lay the crops out, at the column count THIS TAB measures.
+
+        `columns` is a HINT and is deliberately overridden. The caller
+        derives it from a fixed cell size over the whole tab width; the page
+        size is derived from the real thumbnail size over the scroll area's
+        viewport. Two numbers meant one thing and disagreed, and the symptom
+        was cells running off the right edge with half the rows a page had
+        room for.
+
+        The argument stays because every caller passes it and it is still
+        the right fallback before there is a viewport to measure.
+        """
+        measured, _count = self.geometry_page()
+        self._columns = max(int(measured or columns), 1)
         self.clear()
         if self._rows is None or not len(self._crops):
             self._note.setText(
@@ -2935,6 +2969,28 @@ class CellMontageView(QWidget):
             "Write the montage and its caption as a figure, in the format "
             "the figure preferences name." if savable else
             "There is no montage to save yet — load one first.")
+
+        # AND THE COMPARE BUTTON, which had neither (reported 2026-08-21:
+        # "now i press compare a measurement and nothing hapens").
+        #
+        # It was ENABLED with nothing to compare, and its refusal went to
+        # the status line -- which is exactly a button that appears to do
+        # nothing. Show and Save have greyed with a reason since they were
+        # written; this one was simply missed, and the same rule applies:
+        # a control that cannot act says so before it is pressed rather
+        # than after.
+        comparable = bool(self._plans) and bool(self.picked_groups())
+        self._compare_button.setEnabled(comparable)
+        self._compare_button.setToolTip(
+            "Compare any measurement between the cells this tab picked for "
+            "each gene and the rest of the screen. Cell, well or plate "
+            "level; five ways of drawing it; the test chosen from the "
+            "normality and variance checks and reported with n; and one "
+            "folder holding the figure, the data, the statistics and the "
+            "settings." if comparable else
+            "There is nothing to compare yet — press “Show the cells” "
+            "first. The comparison groups the cells by what the picker "
+            "chose, and nothing is picked until a montage is loaded.")
 
     def _announce(self) -> None:
         """Put the current situation in the status line.
