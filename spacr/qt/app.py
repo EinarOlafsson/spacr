@@ -2984,6 +2984,12 @@ def launch(argv: Optional[list[str]] = None) -> int:
     if argv is None:
         argv = sys.argv[1:]
 
+    # `--no-setup` and friends are taken out first, because the next line
+    # reads argv[0] as a module name and would look one of them up.
+    from .setup_screen import take_the_setup_flags
+
+    argv, told_to_skip_setup = take_the_setup_flags(argv)
+
     # Support `spacr-qt <app>` to open directly into an app.
     initial_app = argv[0] if argv else None
 
@@ -3146,6 +3152,38 @@ def launch(argv: Optional[list[str]] = None) -> int:
     # So the main window decides, and it is the only thing that does.
     app.setQuitOnLastWindowClosed(False)
 
+    # THE FIRST RUN ASKS ITS QUESTIONS BEFORE THERE IS AN APPLICATION TO
+    # ASK THEM OVER (instruction 221, reordered).
+    #
+    # It used to run after `win.show()` so that it had something to blur.
+    # That put a half-built main window -- wrong language, wrong theme,
+    # wrong font -- on screen for as long as the setup took, and then
+    # restyled it under the user while they were reading. The answers given
+    # here decide how the main window is BUILT, so they have to be given
+    # first. The screen carries its own backdrop and does not need a window
+    # behind it.
+    #
+    # A launch can decline: `--no-setup`, `SPACR_NO_SETUP=1`, or an
+    # offscreen platform plugin. See `setup_screen.skipped_on_purpose`.
+    if not told_to_skip_setup:
+        try:
+            # THE SLIDES, not the grouped form (instruction 234).
+            # `setup_dialog` is 221's version and stays: it is the fallback
+            # nothing currently uses, and deleting it would take its tests
+            # with it while the new presentation is still settling.
+            from .widgets.setup_slides import open_setup_if_needed
+
+            open_setup_if_needed(None)
+            # An answer may have changed the language, the theme or the font
+            # scale, and the main window has not been built yet -- so it is
+            # built from the new values rather than restyled into them.
+            apply_preferences_to_app(app)
+        except Exception:
+            # A setup screen is not worth a launch. Every question it asks
+            # has a working default, so a user who never sees it is exactly
+            # where a user who dismissed it would be.
+            LOG.debug("could not open the setup screen", exc_info=True)
+
     win = MainWindow(initial_app=initial_app)
     # Opens at its own size rather than maximised. Maximising assumes a
     # desktop: over X11 forwarding, VNC or a virtual framebuffer the
@@ -3155,25 +3193,6 @@ def launch(argv: Optional[list[str]] = None) -> int:
     # and the 1200x720 minimum this window declares is a sane opening size
     # on a real display.
     win.show()
-
-    # THE FIRST RUN ASKS ITS QUESTIONS (instruction 221), and it asks them
-    # AFTER `show()` -- the screen blurs what is behind it, and there is
-    # nothing behind a window that has not been shown. It opens at most
-    # once: `should_open` reads the recorded version, and dismissing it
-    # records one too, so a user who closes it is not asked again.
-    try:
-        # THE SLIDES, not the grouped form (instruction 234). `setup_dialog`
-        # is 221's version and stays: it is the fallback nothing currently
-        # uses, and deleting it would take its tests with it while the new
-        # presentation is still settling.
-        from .widgets.setup_slides import open_setup_if_needed
-
-        open_setup_if_needed(win)
-    except Exception:
-        # A setup screen is not worth a launch. Every question it asks has a
-        # working default, so a user who never sees it is exactly where a
-        # user who dismissed it would be.
-        LOG.debug("could not open the setup screen", exc_info=True)
 
     # Pre-warm the heavy imports that a module screen needs (spacr.gui_utils
     # pulls torch + cv2 ≈ 3-4 s; spacr.settings ≈ 1 s) in a BACKGROUND thread

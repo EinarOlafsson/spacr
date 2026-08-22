@@ -205,3 +205,6 @@ tutorial_colab.ipynb
 /path/
 
 build/
+
+# catboost writes a training log beside the working directory
+catboost_info/

@@ -34,14 +34,18 @@ import logging
 from typing import Optional
 
 from PySide6.QtCore import QEvent, QObject, Qt
-from PySide6.QtWidgets import (QAbstractItemView, QAbstractSpinBox, QComboBox,
-                               QDialog, QLineEdit, QPushButton, QTextEdit,
-                               QWidget)
+from PySide6.QtWidgets import (QAbstractButton, QAbstractItemView,
+                               QAbstractSpinBox, QComboBox, QDialog,
+                               QDialogButtonBox, QLineEdit, QPushButton,
+                               QTextEdit, QWidget)
 
 LOG = logging.getLogger("spacr.qt.glass")
 
 #: Set on a dialog that has already been treated, so a second show is cheap
 #: and a re-show never stacks two cards.
+#: Set on a button already wired to send the rim round, so a second pass
+#: over the same dialog does not connect it twice.
+SPINS = "spacrSpinsTheRim"
 GLASSED = "spacrGlassed"
 
 #: Set on a dialog that must keep its own painting.
@@ -69,6 +73,72 @@ RIM_ROOM = 10
 #: the thing the user came to read.
 OPAQUE = (QComboBox, QLineEdit, QTextEdit, QAbstractSpinBox, QPushButton,
           QAbstractItemView)
+
+
+#: Button texts that mean "go on" and "go back", for a dialog whose
+#: buttons carry no QDialogButtonBox role.
+#:
+#: LOWER CASE AND SUBSTRING-MATCHED, because a button may read "Next ›",
+#: "&Save" or "Start spaCR". Anything unmatched spins nothing rather than
+#: guessing -- a wrong direction is worse than none, since the direction is
+#: the whole message.
+FORWARD_WORDS = ("next", "ok", "save", "apply", "yes", "start", "continue",
+                 "run", "accept", "done", "finish", "install")
+BACKWARD_WORDS = ("cancel", "close", "back", "previous", "no", "discard",
+                  "reset", "abort", "quit")
+
+
+def button_direction(button: QAbstractButton) -> Optional[bool]:
+    """True for a forward button, False for a back one, None if unclear.
+
+    THE ROLE FIRST. A `QDialogButtonBox` already knows which of its buttons
+    accepts and which rejects, and that answer is better than any reading
+    of the label -- it survives translation, which the words below do not.
+    """
+    box = button.parentWidget()
+    while box is not None and not isinstance(box, QDialogButtonBox):
+        box = box.parentWidget()
+    if isinstance(box, QDialogButtonBox):
+        role = box.buttonRole(button)
+        if role in (QDialogButtonBox.AcceptRole, QDialogButtonBox.ApplyRole,
+                    QDialogButtonBox.YesRole):
+            return True
+        if role in (QDialogButtonBox.RejectRole, QDialogButtonBox.NoRole,
+                    QDialogButtonBox.DestructiveRole):
+            return False
+    said = button.text().replace("&", "").strip().lower()
+    if any(word in said for word in FORWARD_WORDS):
+        return True
+    if any(word in said for word in BACKWARD_WORDS):
+        return False
+    return None
+
+
+def spin_on_every_button(dialog: QDialog, card) -> int:
+    """Send the rim round on each button. Returns how many were wired.
+
+    A POSITIVE CLICK GOES CLOCKWISE AND A NEGATIVE ONE BACK. The direction
+    is the message -- it says which way through the dialog the click just
+    took you -- which is why a button nobody can classify spins nothing at
+    all rather than being guessed at.
+
+    ONCE PER BUTTON. A dialog reaches the installer on Polish and again on
+    Show, and a second connection would send the light round twice on one
+    click -- which, since the two laps run down together, reads as a rim
+    moving at double speed rather than as a bug.
+    """
+    wired = 0
+    for button in dialog.findChildren(QAbstractButton):
+        if button.property(SPINS):
+            continue
+        forward = button_direction(button)
+        if forward is None:
+            continue
+        button.clicked.connect(
+            lambda _checked=False, c=card, f=forward: c.circuit(clockwise=f))
+        button.setProperty(SPINS, True)
+        wired += 1
+    return wired
 
 
 def wants_glass(widget: QWidget) -> bool:
@@ -119,6 +189,85 @@ def _ancestors(widget: QWidget, stop: QWidget):
     while parent is not None and parent is not stop:
         yield parent
         parent = parent.parentWidget()
+
+
+class _DragByBackground(QObject):
+    """Move a frameless dialog by dragging its empty background.
+
+    THE TITLE BAR WAS WHERE A WINDOW WAS DRAGGED FROM, so taking it away
+    takes that with it -- and instruction 216 is explicit that every popup
+    stays a window the user can move. A press that lands on a control is
+    left entirely alone; only one on the dialog itself starts a drag.
+    """
+
+    def __init__(self, dialog: QDialog):
+        super().__init__(dialog)
+        self._dialog = dialog
+        self._grab = None
+        dialog.installEventFilter(self)
+
+    def eventFilter(self, watched, event):      # noqa: N802 - Qt naming
+        if watched is not self._dialog:
+            return False
+        try:
+            kind = event.type()
+            if kind == QEvent.Type.MouseButtonPress and \
+                    event.button() == Qt.LeftButton:
+                # ONLY ON THE BACKGROUND. `childAt` answers None when the
+                # press is on the dialog itself rather than on something
+                # in it, which is exactly the empty space a title bar used
+                # to be.
+                where = event.position().toPoint()
+                if self._dialog.childAt(where) is None:
+                    self._grab = (event.globalPosition().toPoint()
+                                  - self._dialog.frameGeometry().topLeft())
+            elif kind == QEvent.Type.MouseMove and self._grab is not None:
+                self._dialog.move(event.globalPosition().toPoint()
+                                  - self._grab)
+            elif kind == QEvent.Type.MouseButtonRelease:
+                self._grab = None
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("a drag went wrong", exc_info=True)
+            self._grab = None
+        return False
+
+
+def make_frameless(dialog: QDialog) -> bool:
+    """Drop the title bar and let the card's rounded corners show.
+
+    "they also dont need the x and minus at the top make the edges rounded
+    on all" -- a settings window is dismissed by its own Cancel or by
+    Escape, so the close and minimise buttons were chrome around chrome.
+
+    TRANSLUCENT, or the corners are not round: the card paints a rounded
+    body, and without this the square window behind it fills the four
+    corners with the theme's background and the shape is lost.
+
+    AND STILL MOVABLE. See `_DragByBackground` -- the title bar was where a
+    window was dragged from.
+
+    IT PUTS BACK A DIALOG IT HAD TO HIDE. `setWindowFlags` on a VISIBLE
+    widget hides it, and Qt requires `show()` to bring it back. This runs
+    from the filter below, which fires while a dialog is being shown -- so
+    without the restore, opening Preferences hid Preferences, and an
+    `exec()` sat on an invisible modal window with no way to dismiss it.
+    """
+    try:
+        # `isVisible()` is not the test: a child of a parent that has never
+        # been shown reports False while still being marked visible itself,
+        # and hiding one of those would leave it hidden when its parent
+        # finally opened.
+        was_showing = not dialog.isHidden()
+        dialog.setWindowFlags(dialog.windowFlags()
+                              | Qt.FramelessWindowHint)
+        dialog.setAttribute(Qt.WA_TranslucentBackground, True)
+        _DragByBackground(dialog)
+        if was_showing and dialog.isHidden():
+            dialog.show()
+        return True
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not make a dialog frameless", exc_info=True)
+        return False
 
 
 class _Backdrop(QObject):
@@ -192,6 +341,15 @@ def glass(dialog: QDialog) -> bool:
         if backdrop is not None:
             backdrop.lower()
         _make_room_for_the_rim(dialog)
+        make_frameless(dialog)
+        spin_on_every_button(dialog, card)
+        # AND THE DIALOG'S OWN VERDICT, for the paths that never touch a
+        # button -- Escape rejects, and code can accept directly.
+        try:
+            dialog.accepted.connect(lambda c=card: c.circuit(clockwise=True))
+            dialog.rejected.connect(lambda c=card: c.circuit(clockwise=False))
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("a dialog had no verdict to follow", exc_info=True)
         _Backdrop(dialog, card)
         clear_the_containers(dialog)
         dialog.setProperty(GLASSED, True)
@@ -230,8 +388,9 @@ def _install_the_backdrop(dialog: QDialog) -> Optional[QWidget]:
     first-run screen are recognisably the same surface rather than two
     takes on one idea.
     """
+    theme = "aurora"
     try:
-        from ..preferences import get_ambient_enabled
+        from ..preferences import get_ambient_enabled, get_popup_backdrop
 
         # THE USER'S OWN ANSWER ABOUT ANIMATED BACKGROUNDS. Somebody who
         # turned the backdrop off on the module screens has not asked for
@@ -239,14 +398,20 @@ def _install_the_backdrop(dialog: QDialog) -> Optional[QWidget]:
         # look is the same one, just still.
         if not get_ambient_enabled():
             return None
+        theme = get_popup_backdrop()
+        # AND THEIR ANSWER FOR POPUPS IN PARTICULAR. What belongs behind a
+        # screen full of figures is not necessarily what belongs behind a
+        # form somebody is reading, so `off` drops the movement and keeps
+        # the card and the rim.
+        if theme == "off":
+            return None
     except Exception:                                        # noqa: BLE001
         LOG.debug("could not read the ambient preference", exc_info=True)
     try:
         from .ambient import install_ambient
-        from .setup_slides import BACKDROP_SPEED, BACKDROP_THEME
+        from .setup_slides import BACKDROP_SPEED
 
-        return install_ambient(dialog, theme=BACKDROP_THEME,
-                               speed=BACKDROP_SPEED)
+        return install_ambient(dialog, theme=theme, speed=BACKDROP_SPEED)
     except Exception:                                        # noqa: BLE001
         # INVARIANTS 10: with no ambient engine the card is still a card,
         # and the dialog still works.
@@ -259,7 +424,14 @@ class _GlassInstaller(QObject):
 
     def eventFilter(self, watched, event):      # noqa: N802 - Qt naming
         try:
-            if event.type() == QEvent.Type.Show and wants_glass(watched):
+            # POLISH FIRST, SHOW AS THE FALLBACK. Polish arrives before a
+            # widget is visible, which is when the window flags can be
+            # changed without hiding it. Not every dialog is polished
+            # before its first show -- one built and exec'd in a single
+            # expression may not be -- so Show still catches it, and
+            # `make_frameless` puts back what it had to hide.
+            if (event.type() in (QEvent.Type.Polish, QEvent.Type.Show)
+                    and wants_glass(watched)):
                 glass(watched)
         except Exception:                                    # noqa: BLE001
             LOG.debug("the glass filter tripped", exc_info=True)
