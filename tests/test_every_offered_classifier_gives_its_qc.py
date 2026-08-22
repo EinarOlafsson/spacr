@@ -144,3 +144,83 @@ def test_an_unknown_model_is_refused_by_name():
         ml_analysis(_controls(), model_type="quantum_forest",
                     location_column="columnID", positive_control="c2",
                     negative_control="c1", n_estimators=4, n_repeats=1)
+
+
+# ---------------------------------------------------------------------------
+# SHAP, for every one of them
+# ---------------------------------------------------------------------------
+#: Models `shap.Explainer(model, X)` cannot explain on its own, and why.
+#:
+#: THREE OF THE NINE, including the panel's DEFAULT. Driven rather than
+#: reasoned about (instruction 236 A3):
+#:
+#: * xgboost raised "Categorical split is not yet supported. You can still
+#:   use TreeExplainer with feature_perturbation=tree_path_dependent" -- an
+#:   error carrying its own fix, and NOT at construction: the explainer was
+#:   built happily and raised when it was called, so a fallback chosen at
+#:   construction time would never have run.
+#: * svm and mlp raised "The passed model is not callable and cannot be
+#:   analyzed directly with the given masker". A support vector machine and
+#:   a neural net are neither trees nor linear, and the model-agnostic
+#:   explainer takes a FUNCTION rather than an estimator.
+NEEDED_A_DIFFERENT_EXPLAINER = ("xgboost", "svm", "mlp")
+
+
+@pytest.mark.parametrize("model_type,package",
+                         OFFERED, ids=[m for m, _ in OFFERED])
+def test_every_offered_model_can_be_explained(model_type, package):
+    """SHAP is a QC step the module advertises for the classifier, and a
+    classifier that cannot be explained has silently lost it."""
+    if package:
+        pytest.importorskip(package)
+    pytest.importorskip("shap")
+    from spacr.ml import shap_analysis
+
+    output, _figures = _run(model_type)
+    model, x_train, x_test = output[3], output[4], output[5]
+    plot = shap_analysis(model, x_train, x_test)
+    assert plot is not None, f"{model_type} produced no SHAP panel"
+
+
+@pytest.mark.parametrize("model_type", NEEDED_A_DIFFERENT_EXPLAINER)
+def test_a_model_needing_another_explainer_says_which_one(model_type,
+                                                          capsys):
+    """The three explainers do not compute the same quantity --
+    `tree_path_dependent` conditions on the tree's own splits, and the
+    model-agnostic one ESTIMATES rather than solves -- so a panel that
+    switched silently would be passing one off as another."""
+    if model_type == "xgboost":
+        pytest.importorskip("xgboost")
+    pytest.importorskip("shap")
+    from spacr.ml import shap_analysis
+
+    output, _figures = _run(model_type)
+    shap_analysis(output[3], output[4], output[5])
+    said = capsys.readouterr().out.lower()
+    assert "shap:" in said, "it switched explainers without saying so"
+
+
+def test_a_tree_model_is_not_pushed_onto_the_slow_path():
+    """The model-agnostic explainer is O(background x features) per row.
+    Using it where an exact tree explainer works would turn a QC panel into
+    a coffee break."""
+    pytest.importorskip("shap")
+    from spacr.ml import _shap_explainers
+
+    output, _figures = _run("random_forest")
+    first, note = next(iter(_shap_explainers(output[3], output[4])))
+    assert note == "", note
+
+
+def test_a_model_nothing_can_explain_fails_by_name():
+    """Not with SHAP's own message about maskers, which names neither the
+    model nor the panel it was for."""
+    pytest.importorskip("shap")
+    from spacr.ml import _shap_values
+
+    class Opaque:
+        """No predict, no predict_proba, no tree."""
+
+    with pytest.raises(RuntimeError, match="Opaque"):
+        _shap_values(Opaque(), pd.DataFrame({"a": [1.0, 2.0]}),
+                     pd.DataFrame({"a": [1.0]}))

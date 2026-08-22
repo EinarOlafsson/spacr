@@ -10001,6 +10001,104 @@ def ml_analysis(
     
     return [df, permutation_df, feature_importance_df, model, X_train, X_test, y_train, y_test, metrics_df, features], [permutation_fig, feature_importance_fig]
 
+#: How many background rows a model-agnostic explainer is given. The
+#: permutation explainer is O(background x features) per explained row, so
+#: the whole training set turns a 0.3 s panel into minutes. Summarising the
+#: background is what the SHAP authors recommend for exactly this.
+SHAP_BACKGROUND = 100
+
+
+def _shap_values(model, X_train, X_test):
+    """(values, note). SHAP contributions for every model the panel offers.
+
+    THE FAILURE IS NOT ALWAYS AT CONSTRUCTION. `shap.Explainer(model, X)`
+    accepts an xgboost booster happily and raises "Categorical split is not
+    yet supported" only when it is CALLED -- so a fallback chosen at
+    construction time never ran, and the panel's DEFAULT model produced no
+    SHAP at all. Each candidate is therefore tried all the way through.
+    """
+    import shap
+
+    attempts = list(_shap_explainers(model, X_train))
+    trouble = ""
+    for explainer, note in attempts:
+        try:
+            return explainer(X_test), note
+        except Exception as error:                           # noqa: BLE001
+            trouble = f"{type(error).__name__}: {error}"
+            LOG.debug("a SHAP explainer would not run", exc_info=True)
+    raise RuntimeError(
+        f"No SHAP explainer could explain {type(model).__name__}. The last "
+        f"failure was: {trouble}")
+
+
+def _shap_explainers(model, X_train):
+    """Every explainer worth trying for this estimator, best first.
+
+
+    THREE OF THE NINE MODELS THE PANEL OFFERS COULD NOT BE EXPLAINED AT
+    ALL, including the default (instruction 236 A3, found by driving each
+    one):
+
+    * `xgboost` raised "Categorical split is not yet supported. You can
+      still use TreeExplainer with feature_perturbation=tree_path_dependent"
+      -- an error carrying its own fix, which nothing acted on.
+    * `svm` and `mlp` raised "The passed model is not callable and cannot be
+      analyzed directly with the given masker". A support vector machine and
+      a neural net are not trees and not linear; the model-agnostic
+      explainer takes a FUNCTION, not an estimator.
+
+    The note is returned rather than printed here so the caller decides
+    where it goes, and it is said out loud because the three explainers do
+    not compute the same quantity: `tree_path_dependent` conditions on the
+    tree's own splits rather than on an independent background, and the
+    permutation explainer estimates rather than solves.
+    """
+    import shap
+
+    try:
+        yield shap.Explainer(model, X_train), ""
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("the default SHAP explainer would not build",
+                  exc_info=True)
+
+    # A tree whose splits are categorical. The library's own message names
+    # this remedy, and it is what xgboost needs.
+    try:
+        yield (shap.TreeExplainer(
+            model, feature_perturbation="tree_path_dependent"),
+            "SHAP: this model has categorical splits, so it is explained "
+            "with feature_perturbation='tree_path_dependent' -- which "
+            "conditions on the tree's own splits rather than on an "
+            "independent background.")
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("this model is not a tree", exc_info=True)
+
+    # Not a tree and not linear -- a support vector machine, a neural net.
+    # The model-agnostic explainer takes a FUNCTION, not an estimator, and
+    # the background is summarised because it costs O(background) per
+    # explained row.
+    predict = (getattr(model, "predict_proba", None)
+               or getattr(model, "decision_function", None)
+               or getattr(model, "predict", None))
+    if predict is None:
+        return
+    background = X_train
+    if hasattr(X_train, "shape") and X_train.shape[0] > SHAP_BACKGROUND:
+        background = shap.utils.sample(X_train, SHAP_BACKGROUND,
+                                       random_state=0)
+    try:
+        yield (shap.Explainer(predict, background),
+               f"SHAP: {type(model).__name__} is neither a tree nor a "
+               f"linear model, so it is explained through its predictions "
+               f"over {len(background)} background row(s). That is an "
+               f"ESTIMATE of each contribution rather than an exact "
+               f"decomposition.")
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("the model-agnostic SHAP explainer would not build",
+                  exc_info=True)
+
+
 def shap_analysis(model, X_train, X_test):
     """Return a SHAP summary BEESWARM for ``model`` explaining ``X_test``.
 
@@ -10022,8 +10120,9 @@ def shap_analysis(model, X_train, X_test):
     """
     import shap
 
-    explainer = shap.Explainer(model, X_train)
-    shap_values = explainer(X_test)
+    shap_values, note = _shap_values(model, X_train, X_test)
+    if note:
+        print(note)
     # TreeExplainer returns one output axis for every classifier class in
     # recent SHAP releases: (samples, features, classes).  A 3-D input is
     # interaction values to anything downstream, which both misrepresents
