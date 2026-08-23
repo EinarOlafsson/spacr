@@ -1355,3 +1355,34 @@ def test_module_source_mentions_no_heavy_imports():
                    "from cellpose", "import tensorflow", "from skimage",
                    "import scipy", "from scipy"):
         assert banned not in source, banned
+
+
+def test_a_png_list_row_names_its_object_the_prcfo_way(tmp_path):
+    """`png_list.cell_id` is 'o2', not 2 -- and it is the annotator's column."""
+    data = _make_field(seed=211)
+    path = _write_field(tmp_path, data)
+    src = MergedCropSource(spec=CropSpec(merged_path="", mask_dims=MASK_DIMS))
+    spec = src.spec_for({"path_name": path, "cell_id": "o1"})
+    assert spec.label == 1
+    assert np.array_equal(src.get_array({"path_name": path, "cell_id": "o1"}),
+                          src.get_array({"path_name": path, "object_label": 1}))
+
+
+def test_an_object_label_that_is_not_a_label_says_so(tmp_path):
+    src = MergedCropSource(spec=CropSpec(merged_path="", mask_dims=MASK_DIMS))
+    with pytest.raises(CropError, match="is not a label"):
+        src.spec_for({"path_name": str(tmp_path / "x.npy"), "cell_id": "left"})
+
+
+def test_a_png_list_file_name_resolves_to_the_field_it_was_cut_from(tmp_path):
+    """`png_list.file_name` is the crop; the merged array is its field."""
+    data = _make_field(seed=213)
+    path = _write_field(tmp_path, data, "plate1_A01_1_1.npy")
+    field = _write_field(tmp_path, data, "plate1_A01_1.npy")
+    src = MergedCropSource(spec=CropSpec(merged_path="", mask_dims=MASK_DIMS),
+                           merged_root=os.path.dirname(field))
+    # The crop's own name carries the object label: plate1_A01_1 field, object 2.
+    spec = src.spec_for({"file_name": "plate1_A01_1_2.png", "cell_id": "o2"})
+    assert spec.merged_path == field
+    # A field whose real name ends in a number is not mistaken for a crop.
+    assert src.resolve_path({"file_name": "plate1_A01_1_1"}) == path

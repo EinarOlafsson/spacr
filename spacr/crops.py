@@ -2904,6 +2904,35 @@ def reanchor_frame(df, root: str, columns: Sequence[str] = PATH_COLUMNS,
                               n_already=already, failures=tuple(failures))
 
 
+def _object_label(value: Any) -> int:
+    """The integer label, whichever of spaCR's two spellings arrived.
+
+    `cell` stores `object_label` as an integer. `png_list` stores the SAME
+    object as `cell_id`, in the prcfo spelling: `o2`, not `2`. The label
+    reader accepts either column, so a row from `png_list` reached
+    `int('o2')` and the run stopped with "invalid literal for int() with
+    base 10: 'o2'" -- naming neither the column nor the annotator, which is
+    where those rows come from. Streaming crops for the annotator failed on
+    every database spaCR writes.
+
+    :raises CropError: for anything that is not a label at all, naming the
+        value rather than leaving a bare ValueError from int().
+    """
+    if isinstance(value, (int, np.integer)) and not isinstance(value, bool):
+        return int(value)
+    text = str(value).strip()
+    if text[:1].isalpha():
+        # `o2`, and the same shape for the other object types.
+        text = text[1:]
+    try:
+        return int(text)
+    except (TypeError, ValueError):
+        raise CropError(
+            f"object label {value!r} is not a label: spaCR writes it as an "
+            f"integer in the measurement tables and as 'o<n>' in png_list, "
+            f"and this is neither.") from None
+
+
 def _row_get(row: Any, *names: str, default: Any = None) -> Any:
     """Read the first present key/attribute of ``row`` out of ``names``."""
     for name in names:
@@ -3200,7 +3229,32 @@ class MergedCropSource(CropSource):
                     f"row has no 'path_name' and its metadata does not name a "
                     f"field: {exc}") from exc
             stem = f"{plate}_{well}_{field}"
-        return os.path.join(self.merged_root, f"{stem}.npy")
+        return self._merged_named(stem)
+
+    def _merged_named(self, stem: str) -> str:
+        """Return ``<merged_root>/<stem>.npy``, dropping a crop's object suffix.
+
+        The two tables spell ``file_name`` differently. ``cell`` holds the
+        field it was measured in -- ``plate1_E01_16_1`` -- while ``png_list``
+        holds the crop -- ``plate1_E01_17_1_2.png``, the same field with the
+        object label appended. Rebuilding the merged name from ``png_list``
+        therefore asked for ``plate1_E01_17_1_2.npy``, which no run writes,
+        and every annotator row failed with :class:`MergedFileMissing`.
+        png_list rows are the annotator's rows, so streaming crops for it
+        could not work against any database spaCR writes.
+
+        The trailing ``_<n>`` is dropped only when the full name is absent
+        and the shortened one is really there, so a field whose own name ends
+        in a number is never mistaken for a crop.
+        """
+        path = os.path.join(self.merged_root, f"{stem}.npy")
+        if not os.path.isfile(path):
+            head, sep, tail = stem.rpartition("_")
+            if sep and head and tail.isdigit():
+                candidate = os.path.join(self.merged_root, f"{head}.npy")
+                if os.path.isfile(candidate):
+                    return candidate
+        return path
 
     def spec_for(self, row: Any) -> CropSpec:
         """Return the :class:`CropSpec` describing ``row``'s crop.
@@ -3222,6 +3276,7 @@ class MergedCropSource(CropSource):
                          "pathogen_id", "cytoplasm_id")
         if label is None:
             raise CropError("row has no 'object_label'")
+        label = _object_label(label)
         obj = _row_get(row, "object_type", default=self.spec.object_type)
         bbox = None
         # skimage regionprops stores bbox as (min_row, min_col, max_row, max_col);
@@ -3230,7 +3285,7 @@ class MergedCropSource(CropSource):
         if all(v is not None for v in b):
             bbox = (int(b[0]), int(b[2]), int(b[1]), int(b[3]))
         return replace(self.spec, merged_path=self.resolve_path(row),
-                       object_type=str(obj), label=int(label), bbox=bbox)
+                       object_type=str(obj), label=label, bbox=bbox)
 
     # -- crops -------------------------------------------------------------
     def get_array(self, row: Any) -> np.ndarray:
