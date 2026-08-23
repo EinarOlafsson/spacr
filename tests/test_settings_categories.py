@@ -234,6 +234,15 @@ KEYS_RETIRED = frozenset({
 
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # ---- added 2026-08-22 -------------------------------------------
+    # Mixed precision. The training loop had no autocast and no gradient
+    # scaler at all, so there was nothing for a setting to switch; the
+    # `amp` key a caller could pass was dropped by check_settings before it
+    # reached anything. It sits in Computer Vision Training beside
+    # `gradient_accumulation`, which is the other way to fit a larger
+    # effective batch into the same VRAM and the thing a user weighs it
+    # against.
+    "mixed_precision",
     # ---- added 2026-08-21 -------------------------------------------
     # 227/224: the control wells the mixed-ratio calibration is anchored on,
     # the contaminant exclusion, the permutation statistic, and the

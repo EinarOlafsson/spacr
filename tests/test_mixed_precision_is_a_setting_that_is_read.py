@@ -77,10 +77,13 @@ class TestTheContext:
     def test_it_is_a_context_manager_either_way(self):
         """So the training loop has ONE shape rather than a branch around
         every forward pass."""
-        with autocasting(False, torch.device("cpu")):
-            pass
-        with autocasting(False, torch.device("cuda")):
-            pass
+        for device in ("cpu", "cuda"):
+            with autocasting(False, torch.device(device)) as handed_back:
+                # It yields nothing and enables nothing; what matters is
+                # that it IS a context, so the loop needs no branch.
+                assert handed_back is None
+                assert not torch.is_autocast_enabled()
+            assert not torch.is_autocast_enabled()
 
     @pytest.mark.gpu
     def test_it_turns_autocast_on_and_off_again(self):

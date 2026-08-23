@@ -34,7 +34,12 @@ class TestTheGuardLetsABlankThrough:
         from spacr.ml import _reject_unused_settings
 
         # 'ols' does not read hinge_threshold; a blank one is not a request.
-        _reject_unused_settings('ols', {'hinge_threshold': (blank, None)})
+        assert _reject_unused_settings(
+            'ols', {'hinge_threshold': (blank, None)}) is None
+        # AND THE GUARD IS STILL LIVE on the same call. Without this the
+        # test would pass against a function that had been emptied out.
+        with pytest.raises(ValueError, match="hinge_threshold"):
+            _reject_unused_settings('ols', {'hinge_threshold': (0.5, None)})
 
     def test_a_value_that_was_actually_chosen_is_still_refused(self):
         """The guard is the reason a wrong number never becomes a result;
@@ -70,9 +75,14 @@ class TestTheGuardLetsABlankThrough:
         from spacr.ml import _reject_unused_settings
         from spacr.regression_spec import _MODEL_LEVEL_DEFAULTS
 
-        _reject_unused_settings('ols', {
-            name: ('', default)
-            for name, default in _MODEL_LEVEL_DEFAULTS.items()})
+        blanks = {name: ('', default)
+                  for name, default in _MODEL_LEVEL_DEFAULTS.items()}
+        assert len(blanks) >= 6, "the policed set shrank; check this list"
+        assert _reject_unused_settings('ols', blanks) is None
+        # One of them answered is still refused, by name.
+        answered = dict(blanks, quantile=(0.9, 0.5))
+        with pytest.raises(ValueError, match="quantile"):
+            _reject_unused_settings('ols', answered)
 
 
 class TestABlankCovarianceIsNoCovariance:
