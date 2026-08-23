@@ -3510,6 +3510,23 @@ class PreferencesDialog:
         )
         figures.addRow(tr("Editable figures kept"), live_cache_spin)
 
+        # CELLS PER ROW IN A MONTAGE, decided rather than measured. The well
+        # tab used to divide the panel width by a fixed cell size, so the
+        # montage changed shape whenever the window did and two wells looked
+        # at side by side were not laid out the same way.
+        montage_columns_spin = QSpinBox()
+        montage_columns_spin.setRange(*MONTAGE_COLUMNS_RANGE)
+        montage_columns_spin.setValue(get_montage_columns())
+        montage_columns_spin.setToolTip(
+            "How many cells a well's montage puts on a row. The count stays "
+            "the same whatever size the window is — a wider panel draws the "
+            "same cells larger, up to their natural size, rather than "
+            "fitting more of them in, so two wells are always laid out "
+            "alike. How many ROWS fit is still measured, because that is "
+            "what decides the page."
+        )
+        figures.addRow(tr("Cells per montage row"), montage_columns_spin)
+
         dynamic_check = QCheckBox()
         dynamic_check.setChecked(get_figure_dynamic())
         dynamic_check.setToolTip(
@@ -3913,6 +3930,7 @@ class PreferencesDialog:
             set_figure_format(fig_format_combo.currentData())
             set_figure_png_dpi(png_dpi_combo.currentData())
             set_figure_live_cache(live_cache_spin.value())
+            set_montage_columns(montage_columns_spin.value())
             set_figure_dynamic(dynamic_check.isChecked())
             style_general, style_per_graph = style_panel.values()
             set_figure_style(style_general)
@@ -4158,6 +4176,47 @@ def apply_workspace_preference() -> str:
 # settings rather than three constants.
 
 _KEY_RIM_LENGTH = "rim/length_px"
+#: How many cells the montage puts on a row, per well.
+_KEY_MONTAGE_COLUMNS = "montage/columns"
+
+#: The default number of cells per row in a well's montage tab.
+#:
+#: A DECIDED NUMBER, not one that falls out of the window. The tab used to
+#: compute `viewport_width // cell_px`, so a narrow panel showed three cells
+#: per well and widening it showed more -- "the cell tab shows 3 cells per
+#: well and then more if i change the size of the container". The count is
+#: now the same whatever the window does, and the THUMBNAILS take up the
+#: slack instead, which is the half of the geometry it makes sense to let a
+#: container drive.
+DEFAULT_MONTAGE_COLUMNS = 6
+
+#: Sensible bounds. One column is a list; past a dozen the thumbnails are
+#: smaller than the objects in them on any ordinary screen.
+MONTAGE_COLUMNS_RANGE = (1, 12)
+
+
+def get_montage_columns() -> int:
+    """Cells per row in a well's montage tab."""
+    low, high = MONTAGE_COLUMNS_RANGE
+    try:
+        value = int(_settings().value(_KEY_MONTAGE_COLUMNS,
+                                      DEFAULT_MONTAGE_COLUMNS))
+    except (TypeError, ValueError):
+        return DEFAULT_MONTAGE_COLUMNS
+    return max(low, min(high, value))
+
+
+def set_montage_columns(columns) -> int:
+    """Store the cells-per-row count. Returns the value actually stored."""
+    low, high = MONTAGE_COLUMNS_RANGE
+    try:
+        value = max(low, min(high, int(columns)))
+    except (TypeError, ValueError):
+        value = DEFAULT_MONTAGE_COLUMNS
+    _settings().setValue(_KEY_MONTAGE_COLUMNS, value)
+    return value
+
+
 _KEY_RIM_LAG = "rim/lag"
 _KEY_RIM_ALIGNMENT = "rim/alignment"
 

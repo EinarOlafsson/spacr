@@ -78,6 +78,19 @@ THUMBNAIL_PX = 96
 #: to decide the column count from the viewport, so the grid reflows.
 _CELL_PX = THUMBNAIL_PX + 10
 
+#: Pixels between thumbnails in the montage grid.
+GRID_SPACING = 10
+
+#: The smallest a thumbnail is allowed to shrink to.
+#:
+#: A fixed column count means a narrow panel makes the pictures smaller
+#: rather than showing fewer of them. Below this they stop being pictures of
+#: a cell, and a scroll bar is the better answer.
+MIN_THUMBNAIL_PX = 32
+
+#: Fallback when the preference store cannot be read (a bare widget test).
+DEFAULT_MONTAGE_COLUMNS = 6
+
 #: Which mask plane a crop is cut by -- the "which array the masks are in"
 #: half of the request. The vocabulary is :data:`spacr.crops.OBJECT_TYPES`
 #: and is read from there rather than retyped; these are the four a measured
@@ -1220,11 +1233,47 @@ class _WellTab(QWidget):
     def geometry_page(self) -> tuple:
         """Return ``(columns, per_page)`` for the current scroll viewport.
 
-        Both values use the live viewport and thumbnail dimensions so paging
-        capacity and grid geometry remain consistent after resizing.
+        THE COLUMN COUNT IS DECIDED, the row count is measured. It used to be
+        `viewport_width // cell_px`, so the number of cells on a row -- the
+        thing a reader compares across wells -- changed every time the window
+        did: "the cell tab shows 3 cells per well and then more if i change
+        the size of the container". A montage whose shape depends on the
+        window is not comparable with itself.
+
+        So the columns come from the preference and the THUMBNAILS take up
+        the slack: a wider panel draws the same cells bigger, up to the
+        natural size, rather than fitting more of them. How many rows fit is
+        still measured, because that is what paging means.
         """
         area = self._scroll.viewport()
-        return fits_on_a_page(area.width(), area.height(), self._thumb_px)
+        columns = self.column_count()
+        self._thumb_px = self._thumbnail_px_for(area.width(), columns)
+        _measured, per_page = fits_on_a_page(area.width(), area.height(),
+                                             self._thumb_px)
+        rows = max(1, per_page // max(1, _measured))
+        return columns, columns * rows
+
+    def column_count(self) -> int:
+        """Cells per row: the user's preference, not the window's width."""
+        try:
+            from ..preferences import get_montage_columns
+
+            return max(1, int(get_montage_columns()))
+        except Exception:                                    # noqa: BLE001
+            return max(1, int(DEFAULT_MONTAGE_COLUMNS))
+
+    def _thumbnail_px_for(self, width: int, columns: int) -> int:
+        """The thumbnail size that puts ``columns`` of them across ``width``.
+
+        Never larger than :data:`THUMBNAIL_PX`: past its natural size a crop
+        is an interpolated blur, and a row of six blurs is worse than a row
+        of six small sharp pictures with space around them.
+        """
+        gap = GRID_SPACING
+        usable = max(0, int(width)) - gap * max(0, columns - 1)
+        if columns <= 0 or usable <= 0:
+            return THUMBNAIL_PX
+        return max(MIN_THUMBNAIL_PX, min(THUMBNAIL_PX, usable // columns))
 
     def per_page(self) -> int:
         """Return the number of crops that fit in the current viewport.
@@ -3115,8 +3164,13 @@ class CellMontageView(QWidget):
         widget.deleteLater()
 
     def _column_count(self) -> int:
-        width = max(self._tabs.width() - 40, _CELL_PX)
-        return max(1, width // _CELL_PX)
+        """Cells per row. The preference, not the tab's width."""
+        try:
+            from ..preferences import get_montage_columns
+
+            return max(1, int(get_montage_columns()))
+        except Exception:                                    # noqa: BLE001
+            return max(1, int(DEFAULT_MONTAGE_COLUMNS))
 
     def _fill(self) -> None:
         """Open or refresh one tab per well, and write the summary.
