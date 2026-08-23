@@ -736,7 +736,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Feature Preparation", (
             "channel_of_interest", "exclude", "nuclei_limit",
             "pathogen_limit", "remove_highly_correlated_features",
-            "remove_low_variance_features", "minimum_cell_count",
+            "remove_low_variance_features", "min_cell_count",
         )),
         ("Plate & Batch Correction", (
             "batch_correction", "batch_column", "batch_control_column",
@@ -1768,7 +1768,7 @@ def categories_for_app(
                     "cross_validation", "reg_alpha", "reg_lambda",
                     "exclude", "nuclei_limit", "pathogen_limit",
                     "remove_highly_correlated_features",
-                    "remove_low_variance_features", "minimum_cell_count",
+                    "remove_low_variance_features", "min_cell_count",
                     "prune_features", "top_features", "n_repeats"],
             })
             # The heatmap is not a machine-learning setting: it is how a

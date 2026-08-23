@@ -166,7 +166,7 @@ def test_stage3_generate_ml_scores(pipeline):
         "location_column": "columnID",
         "positive_control": "c2", "negative_control": "c1",
         "model_type_ml": "random_forest", "heatmap_feature": "predictions",
-        "grouping": "mean", "min_max": "allq", "minimum_cell_count": 25,
+        "grouping": "mean", "min_max": "allq", "min_cell_count": 25,
         "n_repeats": 2, "top_features": 20, "test_size": 0.25,
         "n_estimators": 50, "n_jobs": 2, "reg_alpha": 0.1, "reg_lambda": 1.0,
         "learning_rate": 0.001, "remove_low_variance_features": True,

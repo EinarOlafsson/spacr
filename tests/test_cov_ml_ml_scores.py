@@ -142,7 +142,7 @@ def _ml_settings(src, **over):
         n_estimators=5,
         n_repeats=1,
         test_size=0.25,
-        minimum_cell_count=1,
+        min_cell_count=1,
         cross_validation=False,
         remove_highly_correlated_features=False,
         nuclei_limit=True,

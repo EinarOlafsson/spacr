@@ -9246,7 +9246,7 @@ def generate_ml_scores(settings):
                                 grouping=settings['grouping'],
                                 min_max=settings['min_max'],
                                 cmap=settings['cmap'],
-                                min_count=settings['minimum_cell_count'],
+                                min_count=settings['min_cell_count'],
                                 verbose=settings['verbose'])
 
     data_path, permutation_path, feature_importance_path, model_metricks_path, permutation_fig_path, feature_importance_fig_path, shap_fig_path, plate_heatmap_path, settings_csv, ml_features = get_ml_results_paths(src1, settings['model_type_ml'], settings['channel_of_interest'])

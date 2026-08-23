@@ -58,7 +58,7 @@ FAMILY_SETTINGS: Dict[str, Tuple[str, ...]] = {
     ),
     "ml": (
         "model_type_ml", "n_estimators", "reg_alpha", "reg_lambda",
-        "prune_features", "top_features", "n_repeats", "minimum_cell_count",
+        "prune_features", "top_features", "n_repeats", "min_cell_count",
         "remove_low_variance_features", "remove_highly_correlated_features",
         "heatmap_feature", "grouping", "min_max", "cmap", "save_to_db",
         "batch_correction", "batch_column", "batch_control_column",

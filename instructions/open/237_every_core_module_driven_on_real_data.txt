@@ -1,0 +1,118 @@
+================================================================================
+EVERY CORE MODULE DRIVEN ON REAL DATA, AND FULLY TESTED
+================================================================================
+
+Status:    OPEN. Requested 2026-08-23.
+Requested: "run through the core modules with real data: mask, measure,
+           classify, map barcodes, regression ... Test everything in these
+           modular and fix any bugs or anything else you find."
+           "Make sure all modules excluding legacy inter only modules are
+           fully tested, 100% test. And that the tests for all core modules
+           properly test everything."
+           "If there are features that my core modules are missing, where I
+           could add a setting to add, propose these features."
+Owner:     Mask, Measure, Classify, Map barcodes, Regression
+
+--------------------------------------------------------------------------------
+THE DATA THAT ALREADY EXISTS
+--------------------------------------------------------------------------------
+
+Nothing needs downloading. Three sources, each already on disk:
+
+  /home/olafsson/datasets/plate1              2.5 GB
+      A COMPLETE PIPELINE, stage by stage, which is what makes it the right
+      fixture for mask and measure:
+        orig/          Yokogawa TIFs, four channels    395 MB
+        stack/         per-field .npy                   395 MB
+        merged/        merged planes                    691 MB
+        masks/         cell, nucleus and pathogen       888 MB
+        data/          exported crops                    65 MB
+        measurements/  measurements.db                  7.4 MB
+        results/, model/, datasets/
+      With the settings the maintainer actually ran, in
+      /home/olafsson/datasets/settings: gen_masks_settings.csv and
+      crop_measure_settings.csv.
+
+  /mnt/firecuda2/Claude/toxoplasma_projects/tsg101_screen
+      The four-plate screen instruction 236 was driven on: plate1..4 with
+      measurements, the per-plate score CSVs, the guide count CSVs, the
+      barcode definitions under barcodes/, and settings/regression.csv.
+
+  /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/map_barcodes
+      demo_R1_001.fastq.gz and demo_R2_001.fastq.gz -- paired reads for the
+      barcode mapper. NO REAL FASTQ IS ON THIS MACHINE: the screen folder
+      has the barcode CSVs and the resulting count tables but not the reads
+      they came from. If real reads exist on the NAS they are better; the
+      synthetic pair is the fallback and the test must say which it used.
+
+A driven module is one whose ASK can be reproduced end to end, not one
+whose code has been read. Copy into a scratch tree; never write into the
+folders above.
+
+--------------------------------------------------------------------------------
+A. THE FIVE MODULES, END TO END
+--------------------------------------------------------------------------------
+
+ 1. MASK. orig/ -> stack -> merged -> masks, on plate1's own
+    gen_masks_settings.csv. Every segmentation method the settings offer,
+    every object type, and the QC that follows. The masks already in the
+    folder are the reference: a rerun that produces different objects is
+    either a bug or a change that has to be explained.
+
+ 2. MEASURE. masks + merged -> measurements.db, on crop_measure_settings.csv.
+    Every measurement family, the crop export, and png_list. The shipped
+    measurements.db is the reference for column set and row count.
+
+ 3. CLASSIFY. Both halves. The tabular one on the tsg101 measurements; the
+    computer-vision one on plate1's datasets/ folder. Instruction 236 drove
+    a great deal of this -- what is NOT yet driven is what to spend time on:
+    dataset generation from annotations rather than metadata, the
+    annotation app's own path, and inference back into a database.
+
+ 4. MAP BARCODES. The reads above -> a guide count table, compared against
+    the screen's own plate_N_unique_combinations.csv. Every barcode
+    orientation the folder carries (the _RC files are there because the
+    orientation is a real and repeated source of silent zero counts), the
+    row/column primer scheme, chunking, and the QC.
+
+ 5. REGRESSION. Driven in 236 and DONE there. Re-run only what the
+    measurements produced above changes.
+
+--------------------------------------------------------------------------------
+B. TESTS THAT ACTUALLY TEST
+--------------------------------------------------------------------------------
+
+ 6. 100% COVERAGE FOR EVERY MODULE THAT IS NOT LEGACY OR INTERNAL-ONLY.
+    Instruction 60 has the standing coverage goal and the runner note; this
+    is the same target scoped to the core five first. Legacy modules and
+    internal-only helpers are OUT -- name each exclusion and why, in the
+    instruction, so the list is arguable rather than assumed.
+
+ 7. AND THE TESTS HAVE TO TEST THE THING. Coverage is a floor, not the
+    goal. The failure mode this repo has hit repeatedly is a test that
+    executes a function and asserts it did not raise --
+    tests/test_test_suite_hygiene.py already refuses new ones. For each
+    core module, read its existing tests and ask what a wrong answer would
+    look like and whether anything would catch it.
+
+--------------------------------------------------------------------------------
+C. WHAT IS MISSING
+--------------------------------------------------------------------------------
+
+ 8. PROPOSE FEATURES, do not add them. Where a core module is missing
+    something a setting could switch on, write it up: what it would do,
+    which setting would control it, what it would cost, and what it would
+    let the maintainer stop doing by hand. Proposals go in this file for a
+    decision before any of them is built.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Every item above is DRIVEN on the data named above rather than reasoned
+  about, and each driver script is kept so the run can be repeated.
+* Every bug found is fixed or written down with its reproduction; none is
+  merely narrated.
+* The GPU drives the display on this machine. Cap every batch job -- see
+  /mnt/firecuda2/Claude/repo/spacr_gpu_queue/leave_room_for_the_desktop.py.
+  Taking the whole card once already killed the maintainer's editor.
