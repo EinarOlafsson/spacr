@@ -1036,3 +1036,57 @@ def test_an_anchor_that_is_many_rows_per_cell_is_refused_by_name(two_plates):
 
     assert "pathogen" in str(refusal.value)
     assert "cell" in str(refusal.value)
+
+
+# --------------------------------------------------------------------------- #
+# png_list is one of the tables you can join
+# --------------------------------------------------------------------------- #
+
+def test_png_list_is_offered_as_a_joinable_table(qtbot, tmp_path):
+    """Asked for repeatedly, and the backend was ready the whole time.
+
+    ``merge_tables.mergeable_tables`` has always returned ``png_list`` when
+    the database has it, and ``merge_tables.object_keys`` exists for the sole
+    purpose of translating that table's ``'o5'`` spelling of the object key
+    into the integer the object tables carry. The panel filtered it straight
+    back out: it intersected the mergeable list with ``OBJECT_TABLES``, which
+    is the object-ROLE registry -- cell, nucleus, pathogen, cytoplasm and the
+    organelle slots -- and deliberately does not contain a table of PNG
+    paths. So the checkbox was one name missing from one list.
+    """
+    from spacr.qt.widgets.measurement_scan_panel import joinable_tables
+
+    path = _database(tmp_path / "p1", "plate1")
+    with sqlite3.connect(path) as db:
+        pd.DataFrame({
+            "plateID": ["plate1"] * 3, "rowID": ["r1"] * 3,
+            "columnID": ["c1"] * 3, "fieldID": ["f1"] * 3,
+            "cell_id": ["o1", "o2", "o3"],
+            "png_path": [f"/x/plate1_A01_1_{i}.png" for i in (1, 2, 3)],
+        }).to_sql("png_list", db, index=False)
+
+    offered = joinable_tables([path])
+    assert "png_list" in offered
+    # And it comes last: the object tables stay in role order ahead of it.
+    assert offered.index("png_list") == len(offered) - 1
+    assert "cell" in offered
+
+
+def test_png_list_is_only_offered_when_every_database_has_it(qtbot, tmp_path):
+    """The list is an intersection, and adding png_list must not change that.
+
+    Offering a table one database lacks makes `describe_merge` raise a bare
+    sqlite3.OperationalError, which is the reason the intersection exists.
+    """
+    from spacr.qt.widgets.measurement_scan_panel import joinable_tables
+
+    with_png = _database(tmp_path / "p1", "plate1")
+    with sqlite3.connect(with_png) as db:
+        pd.DataFrame({"plateID": ["plate1"], "rowID": ["r1"],
+                      "columnID": ["c1"], "fieldID": ["f1"],
+                      "cell_id": ["o1"], "png_path": ["/x/a.png"]}).to_sql(
+            "png_list", db, index=False)
+    without_png = _database(tmp_path / "p2", "plate2")
+
+    assert "png_list" not in joinable_tables([with_png, without_png])
+    assert "png_list" in joinable_tables([with_png])

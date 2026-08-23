@@ -34,7 +34,8 @@ from PySide6.QtWidgets import (
 
 from ...merge_tables import (AGGREGATION_RULES, DEFAULT_AGGREGATION,
                              DEFAULT_PRIMARY, IDENTITY, OBJECT_COLUMN,
-                             OBJECT_TABLES, TEXT_AGGREGATION, MergeError,
+                             OBJECT_TABLES, PNG_TABLE, TEXT_AGGREGATION,
+                             MergeError,
                              MergePolicy, _align_keys, _apply_na_policy,
                              aggregation_plan, mergeable_tables, roll_up)
 from ...multi_database import (SCREEN_COLUMN, SOURCE_COLUMN, MergeCancelled,
@@ -204,18 +205,27 @@ def joinable_tables(paths: Sequence[str]) -> Tuple[str, ...]:
     only what all of them have means the user never picks that.
 
     :param paths: measurement databases.
-    :returns: names from :data:`spacr.merge_tables.OBJECT_TABLES` -- which is
-        the object-role registry, cell/nucleus/pathogen/cytoplasm and every
-        organelle slot, rather than four names typed here.
+    :returns: names from :data:`spacr.merge_tables.OBJECT_TABLES` -- the
+        object-role registry, cell/nucleus/pathogen/cytoplasm and every
+        organelle slot, rather than four names typed here -- followed by
+        ``png_list`` where every database has it.
     :raises sqlite3.Error: a path that is not a readable database.
     """
+    # png_list IS OFFERED. `merge_tables.mergeable_tables` has always
+    # returned it, and `object_keys` exists specifically to translate its
+    # 'o5' spelling of the object key into the integer the object tables
+    # use -- so the backend was ready and the panel filtered it back out by
+    # intersecting with OBJECT_TABLES, which is the object-ROLE registry and
+    # deliberately does not list it. Asked for repeatedly; the answer was
+    # always one name missing from a list, not a missing feature.
+    offered = tuple(OBJECT_TABLES) + (PNG_TABLE,)
     shared: Optional[set] = None
     for path in paths:
-        present = set(mergeable_tables(str(path))) & set(OBJECT_TABLES)
+        present = set(mergeable_tables(str(path))) & set(offered)
         shared = present if shared is None else (shared & present)
     if not shared:
         return ()
-    return tuple(name for name in OBJECT_TABLES if name in shared)
+    return tuple(name for name in offered if name in shared)
 
 
 def anchor_tables(tables: Sequence[str]) -> Tuple[str, ...]:
@@ -1341,8 +1351,12 @@ class DatabaseMergePanel(QWidget):
             out[path] = {"label": os.path.basename(path), "tables": "",
                          "plates": "", "rows": "", "status": "ready"}
             try:
+                # png_list too -- see `joinable_tables`. This list is what
+                # the row shows as "tables", so leaving it out here made
+                # the panel report a database as not having a table it has.
+                offered = set(OBJECT_TABLES) | {PNG_TABLE}
                 tables[path] = [name for name in mergeable_tables(path)
-                                if name in OBJECT_TABLES]
+                                if name in offered]
             except Exception as error:  # noqa: BLE001 - one bad file, not all
                 tables[path] = []
                 out[path]["status"] = f"could not be read: {error}"
