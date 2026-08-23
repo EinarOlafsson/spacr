@@ -1240,7 +1240,7 @@ def set_default_analyze_screen(settings):
     settings.setdefault('min_max','allq')
     settings.setdefault('cmap','viridis')
     settings.setdefault('channel_of_interest',3)
-    settings.setdefault('minimum_cell_count',25)
+    settings.setdefault('min_cell_count', 25)
     settings.setdefault('reg_alpha',0.1)
     settings.setdefault('reg_lambda',1.0)
     settings.setdefault('learning_rate',0.001)
@@ -2894,7 +2894,6 @@ expected_types = {
     "heatmap_feature": str,
     "grouping": str,
     "min_max": str,
-    "minimum_cell_count": int,
     "n_estimators": int,
     "test_size": float,
     "location_column": str,
@@ -3916,7 +3915,7 @@ tooltips = {
     "measurement": "(str) - Measurement column(s) from measurements.db used to prefilter which object crops the annotator loads, applied together with threshold and threshold_direction. Accepts a single column, a comma-separated list (each paired with the same-index threshold), or a JSON list-of-lists where an inner pair is filtered as a ratio (first divided by second). Empty (default) loads every crop unfiltered.",
     "merge_edge_pathogen_cells": "(bool) - During measurement, reconcile pathogens straddling two host-cell masks: if 90 percent or more of the pathogen lies in one cell, its pixels in the neighbours are erased; otherwise the overlapping cell labels are fused into a single cell. Switch off to keep the raw cell segmentation when parasites legitimately touch two cells. Default True.",
     "metric": "(str) - Distance metric used both by the reducer (UMAP or t-SNE) and by DBSCAN clustering, e.g. 'euclidean', 'manhattan', 'cosine' or 'correlation'. Correlation-type metrics compare feature profiles regardless of magnitude and often separate phenotypes better than euclidean on scaled data. Default 'euclidean'.",
-    "min_cell_count": "(int) - Wells with fewer than this many scored objects are dropped before regression. Raising it removes noisy, sparsely imaged wells at the cost of statistical power. Set it to None and spaCR simulates the count at which a well's mean score stabilises within tolerance and uses that value instead. Default 100.",
+    "min_cell_count": "(int) - Wells with fewer than this many cells are dropped. In a regression it is scored objects and the well is left out of the fit; in the machine-learning screen it is measured cells and the well is left out of the plate heatmap, whose pivot is then filled with 0, so an excluded well renders at the bottom of the colour scale rather than blank. Raising it removes noisy, sparsely imaged wells at the cost of power. Set 0 to switch it off. Default 100 for a regression, 25 for the screen.",
     "min_dist": "(float) - UMAP's minimum spacing between points in the 2-D embedding, range 0.0-1.0. Low values (0.0-0.1) let clusters pack tightly and look crisply separated; higher values spread points out and preserve more of the global layout at the cost of visible cluster structure. Ignored when reduction_method is 'tsne'. Default 0.1.",
     "tsne_perplexity": "(float) - t-SNE neighborhood scale. It must be smaller than the number of rows; values around 5-50 are typical. Low values emphasize very local structure and can fragment populations; high values smooth them together. Used only by t-SNE. Default 30.",
     "tsne_learning_rate": "(float) - t-SNE optimization step size. Too small crowds points into a dense ball; too large can scatter them. Used only by t-SNE. Default 200.",
@@ -4063,7 +4062,6 @@ tooltips = {
     "plot_points": "(bool) - Show the scatter marker for each object in the embedding. When False the markers are still drawn but at alpha 0, so cluster colors and the legend survive while only the outlines and overlaid thumbnails stay visible - handy for image-only UMAP figures. Marker size comes from dot_size. Default True.",
     "pos": "(str) - Column ID marking positive-control wells in the image UMAP. Rows whose columnID equals it are labelled cond='pos', so exclude_conditions can drop them; and when embedding_by_controls is True the rows whose col_to_compare equals it help fit the reducer. Default 'c1' (note: not 'c2').",
     "neg": "(str) - Column ID marking negative-control wells in the image UMAP. Rows whose columnID equals it are labelled cond='neg', so exclude_conditions can drop them; and when embedding_by_controls is True the rows whose col_to_compare equals it join pos in fitting the reducer. Default 'c2' (note: not 'c1').",
-    "minimum_cell_count": "(int) - Wells with fewer than this many measured cells are removed before the ML plate heatmap is built. They are not left blank: the pivot is filled with 0 afterwards, so excluded wells render at the bottom of the colour scale and look like a genuine zero, and the 'allq' 2-98 percent limits are taken over that zero-filled matrix. It affects this heatmap only - the classifier and the saved results table still use every well. Set 0 to switch the filter off. Default 25.",
     "pathogen_plate_metadata": "(list of lists) - Well locations of each pathogen condition, one inner list per entry in pathogen_types. Every item must be a row or column ID string such as 'c1' or 'r3'; anything else is silently ignored and those wells stay unannotated. Ranges like 'c2-c11' are not expanded - list each row/column. Do not leave it None while pathogen_types is set: annotation is not skipped, every row is labelled with the first pathogen_types entry. Defaults: None in the plot-from-db settings, [['c1','c2','c3'],['c4','c5','c6']] for recruitment analysis.",
     "treatment_plate_metadata": "(list of lists) - Wells that received each entry of treatments, one inner list per treatment in the same order, e.g. [['r1','r2','r3'],['r4','r5','r6']]. Entries must start with 'r' (row) or 'c' (column); anything else is IGNORED and those wells get no treatment label rather than an error. Wells you do not list are still kept -- 'condition' joins whatever cell/pathogen/treatment labels exist, so an unlisted well simply carries fewer. Default None.",
     "regex": "(str) - Regex applied with re.match to each extracted read window; it must define the named groups columnID, grna and rowID, whose captured sequences are looked up in the three barcode CSVs. Non-matching reads are silently dropped, so a wrong group name or barcode orientation yields zero counts. The default captures an 8 bp column, 20-21 bp gRNA and 8 bp row barcode.",
@@ -4693,7 +4691,7 @@ categories = {
     # decides whether it goes back to the database -- neither is read on
     # the computer-vision path, and both were in a list a CV user was
     # reading top to bottom.
-    "Machine Learning Model and Features": ["model_type_ml", "n_estimators", "test_size", "cross_validation", "reg_lambda", "reg_alpha", "prune_features", "top_features", "n_repeats", "minimum_cell_count", "save_to_db"],
+    "Machine Learning Model and Features": ["model_type_ml", "n_estimators", "test_size", "cross_validation", "reg_lambda", "reg_alpha", "prune_features", "top_features", "n_repeats", "save_to_db"],
 
     "Embedding & Clustering": ["reduction_method", "n_neighbors", "min_dist", "metric", "tsne_perplexity", "tsne_learning_rate", "tsne_early_exaggeration", "tsne_max_iter", "pca_whiten", "pca_svd_solver", "isomap_n_neighbors", "isomap_path_method", "spectral_affinity", "spectral_n_neighbors", "log_data", "embedding_by_controls", "col_to_compare", "resnet_features", "visualize", "clustering", "eps", "min_samples", "remove_cluster_noise", "analyze_clusters"],
 

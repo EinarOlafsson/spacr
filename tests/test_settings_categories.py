@@ -169,6 +169,19 @@ KEYS_BEFORE_REGROUP = frozenset({
 #: legitimately dropping out of the category map is distinguishable from one
 #: that fell out by accident -- which is the whole point of this file.
 KEYS_RETIRED = frozenset({
+    # MERGED into `min_cell_count` on 2026-08-23, at the maintainer's
+    # instruction ("Merge the names, and fix whatever breaks, never mind
+    # old runs"). The two were one idea under two names that differ by
+    # four letters: drop a well that holds too few cells. `min_cell_count`
+    # did it before a regression fit, `minimum_cell_count` before the
+    # machine-learning plate heatmap. They never appeared on the same
+    # screen, so nobody could see they were different -- which is what made
+    # the pair a trap rather than a choice.
+    #
+    # The surviving name is the one with the wider reach and the better
+    # reading. Each module keeps its own default: 100 for a well entering a
+    # fit, 25 for a heatmap tile.
+    "minimum_cell_count",
     "all_to_mip", "barecode_length_1", "barecode_length_2",
     "class_1_threshold", "custom_measurement", "gene_weights_csv",
     "metadata_types", "nc", "nc_loc", "nucleus_loc", "pc", "pc_loc",
