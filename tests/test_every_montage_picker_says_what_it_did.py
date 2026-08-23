@@ -202,13 +202,19 @@ class TestEachModeAccountsForItself:
 
     def test_multivariate_says_when_it_had_no_grid_to_read(self):
         """It falls back to the single-score attribution -- correctly, and
-        the fallback is only honest because it is named. It was unreachable
-        for its whole life before instruction 186 A, and nothing said so."""
+        the fallback is only honest because it is NAMED. It was unreachable
+        for its whole life until the sweep began writing a grid, and
+        nothing said so: the caption read exactly like a multivariate
+        pick.
+
+        This fixture supplies no grid, so the fallback is the path under
+        test.
+        """
         plan = self._plan("multivariate")
         caption = str(plan.caption()).lower()
-        if "sweep" in caption or "grid" in caption:
-            return
-        pytest.skip("this fixture supplied a grid")
+        assert "sweep" in caption or "grid" in caption, caption
+        # And it says what it fell back TO, not merely that it fell back.
+        assert "attributed" in caption, caption
 
 
 class TestTheCaptionIsTheEvidence:
