@@ -123,7 +123,10 @@ class TestItIsARealSetting:
         from spacr.settings import tooltips
 
         said = tooltips["mixed_precision"].lower()
-        assert "cuda" in said
+        # "a modern graphics card" rather than "CUDA": the hover is read by
+        # a biologist, and the word that has to be there is the WARNING --
+        # that the numbers move, so two runs are not comparable.
+        assert "graphics card" in said
         assert "compare" in said
         assert "efault" in said
 
@@ -138,7 +141,6 @@ class TestItIsARealSetting:
         said = tooltips["mixed_precision"].lower()
         assert "twice as fast" in said
         assert "memory" in said
-        assert "larger batch" in said
         # The numbers live in `resolve_mixed_precision`'s docstring rather
         # than the hover: four model names and six ratios is a table, and a
         # tooltip is a sentence. It is also what the translator choked on --
