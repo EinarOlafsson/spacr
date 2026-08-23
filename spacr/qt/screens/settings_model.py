@@ -275,6 +275,26 @@ def resolve_default_settings(app_key: str) -> Dict[str, Any]:
 #: layout does not place lands in "Additional Settings", which is the bucket
 #: the layouts exist to keep empty. This is the mechanism that actually
 #: hides one.
+#: Settings no code in spaCR reads, which therefore may not be offered.
+#:
+#: Each of these was checked, not assumed: no `settings[...]`, `.get`, `.pop`
+#: or membership test anywhere in the package outside the tables that DECLARE
+#: them, no `**settings` splat exists in the package at all, and the two
+#: names that collide with a function parameter -- `compartments` in
+#: `submodules.generate_comparison_columns` and `compression` in
+#: `io.save_object_mask` -- are never passed the setting.
+#:
+#: They stay DECLARED so a settings CSV that carries one still loads; they
+#: are not rendered, because a control the user can change that changes
+#: nothing is worse than no control at all. `test_the_inert_settings_list_
+#: only_shrinks.py` is what keeps the list from growing.
+INERT_SETTINGS_NOT_OFFERED = frozenset({
+    "barcode_coordinates", "barcode_mapping", "compartments", "compression",
+    "correlate", "downstream", "split_axis_lims", "upscale",
+    "upscale_factor", "upstream",
+})
+
+
 _APP_HIDDEN_KEYS: Dict[str, set] = {
     # This module IS the timelapse one. A user who turned this off would be
     # left looking at a screen whose every remaining control is about a time
@@ -300,6 +320,7 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
     # the rename working. They are not OFFERED, for the reason `png_type`
     # is not: offering both halves of a superseded pair is how a user sets
     # one and wonders why the other wins.
+    "regression": {"Toxoplasma"},
     "classify": {
         "png_type", "crop_source", "file_metadata", "file_type",
         "path_string", "extract_channels", "coordinate_columns",
@@ -389,6 +410,16 @@ _APP_HIDDEN_CATEGORIES: Dict[str, set] = {
     # module and its ~50 knobs would swamp the tracking settings.
     "timelapse": {"Motility (beta)", "Motility Advanced (beta)"},
 }
+
+# EVERY APP HIDES THE INERT ONES. Folded in here rather than typed into
+# each entry: the list is a property of the CODE -- these keys have no
+# reader -- not of any one module, and an app added later must not have to
+# remember them.
+for _app_key in set(_APP_HIDDEN_KEYS) | {"mask", "timelapse"}:
+    _APP_HIDDEN_KEYS[_app_key] = (set(_APP_HIDDEN_KEYS.get(_app_key, ()))
+                                  | set(INERT_SETTINGS_NOT_OFFERED))
+del _app_key
+
 
 #: The batch-correction alphabet, offered identically by every screen that
 #: shows the setting.
@@ -1075,7 +1106,16 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             # of them are one question: what counts as a hit.
             "multiple_testing_method", "fdr_alpha", "p_threshold_alpha",
             "p_threshold_kind", "threshold_method",
-            "threshold_multiplier", "Toxoplasma",
+            "threshold_multiplier",
+            # THE FIELD, NOT THE BOOLEAN. `annotation_source` supersedes
+            # `Toxoplasma`: empty or 'toxoplasma' is the bundled tables
+            # exactly as the True case was, and any organism name, taxon id
+            # or accession is a UniProt lookup. The boolean stays in the
+            # settings dict, because every CSV in existence carries it and
+            # `_annotation_source` still reads it, but offering both halves
+            # of a superseded pair is how a user sets one and wonders why
+            # the other wins.
+            "annotation_source",
         )),
         # The estimator-specific knobs, added by the robust and regularised
         # fits after this layout was first written. They landed in

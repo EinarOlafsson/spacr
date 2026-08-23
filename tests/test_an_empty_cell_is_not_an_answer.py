@@ -61,11 +61,13 @@ def test_an_ols_run_is_not_refused_over_an_unfilled_box():
     """The refusal this was found through."""
     from spacr.ml import _reject_unused_settings
 
-    # Nothing raised: the two blanks are not requests.
-    _reject_unused_settings("ols", {
+    # Nothing raised: the two blanks are not requests. The return value is
+    # asserted rather than the absence of an exception, so the test fails if
+    # the function is ever changed to REPORT instead of raise.
+    assert _reject_unused_settings("ols", {
         "hinge_threshold": (float("nan"), None),
         "cov_type": ("", None),
-    })
+    }) is None
 
 
 def test_a_setting_that_really_was_asked_for_is_still_refused():

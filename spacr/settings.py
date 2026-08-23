@@ -4815,7 +4815,7 @@ categories = {
         # chose which table it drew has nothing left to choose. Leaving the
         # name in a category made the panel offer a control with no
         # expected_types entry and no default.
-        "threshold_multiplier", "Toxoplasma",
+        "threshold_multiplier", "Toxoplasma", "annotation_source",
         # WHAT THE RUN MEANS BY SIGNIFICANT, which the plot could previously
         # contradict from its right-click menu (instruction 135), and the two
         # knobs of the RRA hit caller.
