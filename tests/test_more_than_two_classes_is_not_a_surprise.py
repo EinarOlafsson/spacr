@@ -116,6 +116,20 @@ class TestPoolingIsARealOption:
         metrics = output[8]
         assert float(metrics.loc["accuracy"].iloc[0]) > 0.6
 
+    def test_the_warning_cannot_break_a_run(self):
+        """IT SITS ABOVE THE GUARD THAT REFUSES A DUPLICATED COLUMN, where
+        `df[location_column]` is a DataFrame rather than a Series. It
+        raised AttributeError there and masked the guard's own message --
+        which is the one the user needed, and the one that turned ten
+        auto-filed sklearn tracebacks into a sentence. A cosmetic line must
+        never be able to do that."""
+        frame = _three_classes()
+        frame["dup"] = frame["columnID"]
+        frame.columns = ["columnID" if c == "dup" else c
+                         for c in frame.columns]
+        with pytest.raises(ValueError, match="columns named 'columnID'"):
+            _fit(frame, "c3")
+
     def test_a_control_naming_nothing_still_fails_by_name(self):
         """The pooling must not have loosened the guard that turned ten
         auto-filed sklearn tracebacks into one sentence."""
