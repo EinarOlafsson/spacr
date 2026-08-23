@@ -249,6 +249,33 @@ def _sql_value(value, sql_type: str):
     return str(value)
 
 
+def _clean_prcfo(value) -> Optional[str]:
+    """A ``prcfo`` key with the plate id in the form spaCR keys on.
+
+    THE PLATE IS THE HALF THAT DISAGREES. A screen written by an older run
+    stamps its plate `pplate1` while everything computed since stamps it
+    `plate1`, and `schema.canonical_plate_id` is the one rule that collapses
+    the doubled prefix. It is applied on read for the columns in
+    `PLATE_BEARING_COLUMNS` -- which includes `prcfo` -- but only by two
+    callers, and neither is on this path.
+
+    So a classifier's scores keyed `plate1_r10_c11_f10_o101` met a png_list
+    keyed `pplate1_r8_c19_f11_o84` and NOTHING matched: an ML run over
+    60,816 real cells fitted, scored, explained and plotted, then wrote zero
+    scores back and said the results "probably come from a different
+    experiment", about the same database it had just read.
+
+    Applied to the prcfo key only. A png_path or a file_name is not a plate
+    id and must not have its first two characters rewritten.
+    """
+    text = _clean_key(value)
+    if text is None:
+        return None
+    from . import schema
+
+    return schema.canonical_plate_id(text)
+
+
 def _clean_key(value) -> Optional[str]:
     """Return ``value`` as a usable key string, or ``None`` when it is not one."""
     if value is None:
@@ -395,7 +422,7 @@ def _db_keys(kind: str, frame: pd.DataFrame) -> Optional[pd.Series]:
     """Build the ``kind`` key for rows already in the database."""
     if kind == "prcfo":
         if "prcfo" in frame.columns:
-            return frame["prcfo"].map(_clean_key)
+            return frame["prcfo"].map(_clean_prcfo)
         return _prcfo_from_metadata(frame)
     if kind == "png_path":
         if "png_path" in frame.columns:
@@ -415,9 +442,10 @@ def _result_keys(kind: str, results: pd.DataFrame, timelapse: bool) -> Optional[
     """Build the ``kind`` key for rows of a classifier's results frame."""
     if kind == "prcfo":
         if "prcfo" in results.columns:
-            return results["prcfo"].map(_clean_key)
+            return results["prcfo"].map(_clean_prcfo)
         if results.index.name == "prcfo":
-            return pd.Series(results.index, index=results.index).map(_clean_key)
+            return pd.Series(results.index,
+                             index=results.index).map(_clean_prcfo)
         name_col = _name_column(results)
         if name_col is None:
             return None
