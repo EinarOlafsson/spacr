@@ -116,3 +116,99 @@ HOW TO KNOW IT WORKED
 * The GPU drives the display on this machine. Cap every batch job -- see
   /mnt/firecuda2/Claude/repo/spacr_gpu_queue/leave_room_for_the_desktop.py.
   Taking the whole card once already killed the maintainer's editor.
+
+--------------------------------------------------------------------------------
+D. PROPOSALS (item 8) -- written 2026-08-23, awaiting a decision
+--------------------------------------------------------------------------------
+
+P1. REGRESSION: make the Toxoplasma boolean a field that takes any UniProt
+    ID or organism name.  ASKED FOR BY THE MAINTAINER.
+
+    Today `toxoplasma` is a bool. When true, regression annotates its gene
+    table from a Toxo-specific hardcoded source; when false, genes stay
+    bare accessions. So the one thing the module knows about biology is
+    welded to one parasite, and a Plasmodium or a host-gene screen gets
+    nothing.
+
+    Proposal: replace the bool with `annotation_source`, a free-text field.
+      * empty or "toxoplasma" -> exactly today's behaviour, the hardcoded
+        Toxo table, no network, defaults unchanged. This is the default.
+      * an organism name ("Plasmodium falciparum") or a taxon id -> resolve
+        against UniProt's proteome endpoint and pull that organism's
+        reviewed entries: accession, gene name, protein name, and the
+        annotation columns regression already shows.
+      * a single UniProt accession -> pull that one entry (useful for a
+        one-gene sanity check, and it is what the maintainer typed).
+      * anything unresolvable -> the run does NOT stop. It warns, names
+        the near-misses UniProt returned, and continues unannotated.
+    Cost: one cached HTTP client (UniProt's REST API needs no key), a
+    disk cache under the project so a rerun is offline, and a fixture set
+    for tests so CI never touches the network. The Toxo path must stay
+    reachable with no network at all -- that is the regression guard.
+    Buys: the module stops being Toxo-only, and the maintainer stops
+    hand-joining gene tables for every non-Toxo screen.
+
+P2. CLASSIFY/ANNOTATE: three declared settings that nothing reads.
+    THIS IS A DEFECT, NOT ONLY A PROPOSAL.
+
+    `image_source`, `stream_method` and `load_path_regex` are declared in
+    settings.py, offered in the Qt panel (settings_model.py), documented
+    to the user -- and read by NOTHING. Zero consumers each; the only
+    greps for `image_source` are `image_sources`, an unrelated local in
+    foreign.py. tests/test_dead_settings.py passes anyway, so the guard
+    that exists to catch exactly this does not catch these three.
+
+    Meanwhile the work is really done by two live vocabularies. In
+    crops.py, `crop_source` ('png'|'merged'|'auto') picks where pixels come
+    from, and the array-vs-column choice the maintainer asked about is made
+    automatically, not by a setting: MergedCropSource.spec_for reads
+    `bbox-0..3` off the row when they are there (column method, coordinates
+    straight from the database) and scans the mask plane when they are not
+    (array method). In crop_source.py -- which classify.py calls before
+    training -- the same ideas are spelled `crop_source`, `crop_shape`,
+    `coordinate_columns`, `object_array` and `extract_channels`.
+
+    So the three are not unfinished wiring; they are the SUPERSEDED
+    spellings of settings that already exist and work: `image_source` ->
+    `crop_source`, `stream_method` -> `crop_shape` + `coordinate_columns`,
+    `load_path_regex` -> `path_string`/`file_metadata`. They survived a
+    rename in settings.py and in the panel but not in the code. Same
+    redundant-setting failure as 236 D12.
+
+    Proposal: DELETE all three, under the standing rule that a setting
+    spaCR declares is a setting spaCR reads, and drop their nine
+    translations with them. Then fix tests/test_dead_settings.py so it
+    would have caught them -- that it passes today is the more important
+    half of this item, because whatever it is measuring, it is not "does
+    any code read this".
+
+P3. MASK: no way to re-run one field. A mask run is all-or-nothing over a
+    plate, so fixing one bad field means redoing the plate. Proposal: a
+    `fields` setting (a list, or a glob against the field id) that limits
+    the run and merges its output into the existing masks folder.
+
+P4. MEASURE: the object filters are minimums only. `min_cell_count` and
+    friends have no upper bound, so a segmentation blow-up -- one "cell"
+    covering a quarter of the field -- is measured and carried into
+    classification. Proposal: paired `max_*_area` settings, defaulting off
+    so no existing run changes, and a line in the log naming how many
+    objects each bound dropped.
+
+P5. MAP BARCODES: the barcode mismatch budget is fixed in code. Proposal:
+    `barcode_mismatches` (int, default whatever the code does today) plus
+    a per-barcode breakdown in the summary, so a failing library can be
+    told apart from a failing read.
+
+P6. CLASSIFY: no held-out plate. Cross-validation splits within the data
+    it is given, so a model can learn plate rather than phenotype and
+    nothing reports it. Proposal: `holdout_plate` -- name a plate, train
+    without it, score on it, print both numbers. Cheap, and it is the one
+    number that says whether a classifier generalises.
+
+P7. ALL MODULES: settings are not recorded with the output. A results
+    folder does not say which settings produced it, so a rerun months
+    later is guesswork. Proposal: always write `settings.json` beside the
+    output, no setting to switch it on, and have the Qt panel offer to
+    load one back.
+
+    (P7 is the cheapest of these and the one most likely to save a day.)
