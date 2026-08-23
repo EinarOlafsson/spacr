@@ -9684,12 +9684,22 @@ def ml_analysis(
     #
     # Both controls take a LIST, so classes can be pooled into the two arms
     # deliberately: positive_control=['c3', 'c4'] trains one arm on both.
-    trained_on = set(df1[location_column].unique()) | set(
-        df2[location_column].unique()) if location_column in df.columns \
-        else set()
-    present = set(pd.Series(df[location_column]).dropna().unique()) \
-        if location_column in df.columns else set()
-    untrained = sorted(str(value) for value in present - trained_on)
+    # A SENTENCE MUST NOT BE ABLE TO BREAK A RUN. This is cosmetic, and it
+    # sits ABOVE the guard that refuses a table with two columns of one
+    # name -- where `df[location_column]` is a DataFrame and `.unique()`
+    # does not exist. It raised AttributeError there and masked the guard's
+    # own message, which is the one the user needed.
+    untrained = []
+    try:
+        column = df[location_column] if location_column in df.columns else None
+        if isinstance(column, pd.Series):
+            trained_on = set(df1[location_column].unique()) | set(
+                df2[location_column].unique())
+            present = set(column.dropna().unique())
+            untrained = sorted(str(value) for value in present - trained_on)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not list the classes outside the training set",
+                  exc_info=True)
     if untrained:
         print(f"{len(untrained)} class(es) of {location_column!r} are not in "
               f"the training set and are SCORED by a model that never saw "

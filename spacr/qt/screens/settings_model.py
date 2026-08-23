@@ -1717,7 +1717,7 @@ def categories_for_app(
                 "epochs", "optimizer_type", "learning_rate", "schedule",
                 "amsgrad", "loss_type", "class_balance", "label_smoothing",
                 "focal_gamma", "focal_alpha", "logit_adjust_tau",
-                "batch_size", "gradient_accumulation",
+                "batch_size", "mixed_precision", "gradient_accumulation",
                 "gradient_accumulation_steps", "early_stopping_patience"],
 
             "Evaluation & Results": [
