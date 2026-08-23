@@ -119,3 +119,62 @@ def test_an_inert_setting_still_says_so_to_the_user(key):
     assert key in S.expected_types
     assert _admits_it_is_dead(key), (
         f"{key!r} is listed as inert but its description no longer says so")
+
+
+# ---------------------------------------------------------------------------
+# and none of them is a control the user can change
+# ---------------------------------------------------------------------------
+
+def test_no_app_offers_a_setting_nothing_reads(qapp):
+    """A control that changes nothing is worse than no control at all.
+
+    Verified before hiding rather than assumed: none of the ten has a
+    `settings[...]`, `.get`, `.pop` or membership test anywhere in the
+    package outside the tables that DECLARE it; there is no `**settings`
+    splat in the package at all; and the two names that collide with a
+    function parameter -- `compartments` in
+    `submodules.generate_comparison_columns`, `compression` in
+    `io.save_object_mask` -- are never passed the setting.
+
+    Mask and Timelapse were rendering `compression`, `upscale` and
+    `upscale_factor`.
+    """
+    from spacr.qt.screens import app_screen
+    from spacr.qt.screens.settings_model import (INERT_SETTINGS_NOT_OFFERED,
+                                                 _APP_HIDDEN_KEYS,
+                                                 resolve_default_settings)
+
+    offenders = {}
+    for app_key in sorted(getattr(app_screen, "APP_TITLES", {})):
+        try:
+            offered = set(resolve_default_settings(app_key))
+        except Exception:                                    # noqa: BLE001
+            continue
+        shown = (offered & set(INERT_SETTINGS_NOT_OFFERED)
+                 - set(_APP_HIDDEN_KEYS.get(app_key, ())))
+        if shown:
+            offenders[app_key] = sorted(shown)
+
+    assert not offenders, (
+        f"these apps render a setting nothing reads: {offenders}")
+
+
+def test_hiding_them_did_not_drop_them(qapp):
+    """The key stays in the dict, or an old settings CSV stops loading.
+
+    Hiding and dropping are different: a dropped key is absent from the
+    run's settings, the pipeline falls back to ITS default, and the two can
+    disagree. These stay at the value the module resolved.
+    """
+    from spacr.qt.screens.settings_model import resolve_default_settings
+
+    defaults = resolve_default_settings("mask")
+    for key in ("compression", "upscale", "upscale_factor"):
+        assert key in defaults, f"{key} was dropped rather than hidden"
+
+
+def test_the_two_lists_are_the_same_ten():
+    """One list of inert settings, not two that can drift apart."""
+    from spacr.qt.screens.settings_model import INERT_SETTINGS_NOT_OFFERED
+
+    assert set(INERT_SETTINGS_NOT_OFFERED) == set(INERT_SETTINGS)
