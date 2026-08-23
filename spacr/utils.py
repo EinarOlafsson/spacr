@@ -4525,7 +4525,7 @@ def choose_model(model_type: str,
     :raises ValueError: ``model_type`` names no backbone, or the built model
         does not produce logits of the requested shape.
 
-    IT RAISES RATHER THAN RETURNING ``None`` (instruction 236 B4). It used
+    IT RAISES RATHER THAN RETURNING ``None``. It used
     to print "Invalid model_type" and hand back None; the caller printed
     "Model X not found" and returned ``(None, None)``, and the run then
     failed further downstream on something else -- a typo in one setting

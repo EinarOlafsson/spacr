@@ -268,14 +268,33 @@ def test_get_ml_results_paths_is_idempotent(tmp_path):
     assert os.path.isdir(os.path.dirname(first[0]))
 
 
-@pytest.mark.parametrize("bad", [2.5, "nucleus", (1, 2), {"a": 1}])
+@pytest.mark.parametrize("bad", [2.5, {"a": 1}, object()])
 def test_get_ml_results_paths_rejects_unsupported_channel(tmp_path, bad):
+    """The message names the value and its type, and says what a feature
+    space may be. It used to say only "Unsupported channel_of_interest"."""
     from spacr.utils import get_ml_results_paths
 
-    with pytest.raises(ValueError, match="Unsupported channel_of_interest"):
+    with pytest.raises(ValueError, match="channel_of_interest"):
         get_ml_results_paths(str(tmp_path), channel_of_interest=bad)
     # nothing was created for the rejected input
     assert not os.path.exists(os.path.join(str(tmp_path), "results"))
+
+
+@pytest.mark.parametrize("good,folder", [
+    ("nucleus", "nucleus"),
+    ((1, 2), "channels_1_2"),
+    ("mean_intensity", "mean_intensity"),
+])
+def test_get_ml_results_paths_names_the_feature_spaces_it_now_accepts(
+        tmp_path, good, folder):
+    """A free-text column fragment and a tuple of channels are both
+    feature spaces `filter_dataframe_features` has always accepted. This
+    function used to raise on them, so the features were filtered and the
+    run then died on the way to naming a folder for them."""
+    from spacr.utils import get_ml_results_paths
+
+    paths = get_ml_results_paths(str(tmp_path), channel_of_interest=good)
+    assert folder in paths[0]
 
 
 # ---------------------------------------------------------------------------

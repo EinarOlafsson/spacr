@@ -269,6 +269,43 @@ class TestTheSetupScreen:
             slides.close()
             slides.deleteLater()
 
+    def test_it_has_no_title_bar_either(self, glassed):
+        """LEAVING IT ALONE LEFT IT WITH ITS FRAME. Excluding it from the
+        glass filter -- which is right, it builds its own card -- also took
+        away the frameless treatment, so it kept a square window with a
+        close and a minimise button around its rounded card. It goes
+        frameless itself now."""
+        from PySide6.QtCore import Qt
+        from spacr.qt.widgets.setup_slides import SetupSlides
+
+        slides = SetupSlides()
+        slides.show()
+        for _ in range(10):
+            glassed.processEvents()
+        try:
+            assert bool(slides.windowFlags() & Qt.FramelessWindowHint)
+            assert slides.testAttribute(Qt.WA_TranslucentBackground)
+            assert "transparent" in (slides.styleSheet() or "")
+        finally:
+            slides.close()
+            slides.deleteLater()
+
+    def test_it_can_still_be_moved_without_one(self, glassed):
+        """The title bar was the only way to drag it."""
+        from spacr.qt.widgets.glass import _DragByBackground
+        from spacr.qt.widgets.setup_slides import SetupSlides
+
+        slides = SetupSlides()
+        slides.show()
+        for _ in range(10):
+            glassed.processEvents()
+        try:
+            assert any(isinstance(child, _DragByBackground)
+                       for child in slides.children())
+        finally:
+            slides.close()
+            slides.deleteLater()
+
     def test_a_dialog_that_brought_its_own_card_is_left_alone(self, glassed):
         """Checked by LOOKING rather than by asking, so anything else that
         builds its own card is covered without having to remember to say

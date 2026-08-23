@@ -32,8 +32,8 @@ class SetupCard(QWidget):
 
     #: Frames the tail is smeared over, as a fraction of the arc.
     #:
-    #: THE ENDS FADE OUT (reported 2026-08-22: "it could become more
-    #: transparent towards the ends"). A run of rim at one alpha has two hard
+    #: THE ENDS FADE OUT rather than stopping. A run of rim at one alpha
+    #: has two hard
     #: ends that arrive and leave abruptly; a run that fades has none, which
     #: is what makes it read as a highlight travelling rather than as a
     #: segment being switched on.

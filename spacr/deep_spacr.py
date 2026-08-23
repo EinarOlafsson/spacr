@@ -964,12 +964,11 @@ def test_model_performance(loaders, model, loader_name_list, epoch, loss_type):
 #:
 #: ``f1_macro`` IS HERE BECAUSE THE OTHER FIVE ARE BINARY-SHAPED.
 #: ``neg_accuracy``, ``pos_accuracy`` and ``optimal_threshold`` are NaN by
-#: construction on a three-class run -- the epoch metrics say so in their
-#: own comments -- so a cross-validation over three classes summarised
-#: accuracy, loss and prauc and nothing about the classes at all
-#: (instruction 236 D13, driven on a three-class dataset from plate1).
-#: Anything NaN is dropped from the spread anyway, so the binary names cost
-#: nothing where they do not apply.
+#: construction on a three-class run, so a cross-validation over three
+#: classes would otherwise summarise accuracy, loss and prauc and nothing
+#: about the classes at all. Anything NaN is dropped from the spread, so
+#: the binary names cost nothing where they do not apply.
+# Driven on a three-class dataset built from plate1 of the tsg101 screen.
 CV_METRIC_KEYS = ('accuracy', 'loss', 'prauc', 'f1_macro',
                   'neg_accuracy', 'pos_accuracy')
 

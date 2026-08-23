@@ -10073,8 +10073,7 @@ def _shap_explainers(model, X_train):
 
 
     THREE OF THE NINE MODELS THE PANEL OFFERS COULD NOT BE EXPLAINED AT
-    ALL, including the default (instruction 236 A3, found by driving each
-    one):
+    ALL, including the default:
 
     * `xgboost` raised "Categorical split is not yet supported. You can
       still use TreeExplainer with feature_perturbation=tree_path_dependent"
