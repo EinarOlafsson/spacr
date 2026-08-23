@@ -35,7 +35,7 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QObject, Signal
+from PySide6.QtCore import QEvent, QObject, Signal
 from PySide6.QtWidgets import QPushButton
 
 from spacr import artifacts, chaining, ports
@@ -55,6 +55,45 @@ def _isolated_state(monkeypatch, tmp_path):
     chaining.pin_store(refresh=True)
     yield
     chaining.pin_store(refresh=True)
+
+
+@pytest.fixture(autouse=True)
+def _no_screen_outlives_its_test(qapp):
+    """Dispose of the ``AppScreen``s this file builds, and only those.
+
+    This file makes real module screens without handing them to ``qtbot``,
+    so nothing ever closed them: they stayed alive for the rest of the
+    session, and a live ``AppScreen`` answers ``PaletteChange`` with a
+    wallpaper lookup. That is what made
+    ``test_space_theme::test_apply_preferences_only_pays_for_space`` count
+    more than one -- green whenever it ran first, red whenever this file
+    ran before it. Instruction 235's second failure.
+
+    ONLY THE ONES THIS TEST CREATED. The difference between the set before
+    and the set after is the whole of what gets closed; nothing reaches
+    across the session's other widgets. `deleteLater` plus a flush, not
+    destruction -- the fixture that reached in and deleted things outright
+    was removed on 2026-08-08 for segfaulting the run three ways.
+    """
+    from PySide6.QtWidgets import QApplication
+
+    from spacr.qt.screens.app_screen import AppScreen
+
+    def alive():
+        return {id(w) for w in QApplication.allWidgets()
+                if isinstance(w, AppScreen)}
+
+    before = alive()
+    yield
+    for widget in QApplication.allWidgets():
+        if isinstance(widget, AppScreen) and id(widget) not in before:
+            try:
+                widget.close()
+                widget.deleteLater()
+            except RuntimeError:
+                pass                       # already gone; nothing owed
+    qapp.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+    qapp.processEvents()
 
 
 @pytest.fixture

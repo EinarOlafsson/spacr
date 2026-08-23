@@ -2,7 +2,36 @@
 TWO TESTS FAIL ON AN UNLUCKY ORDER, AND THE SUITE HIDES IT
 ================================================================================
 
-Status:    OPEN. Found 2026-08-22 while verifying an unrelated change.
+Status:    DONE. Found 2026-08-22, fixed 2026-08-23.
+
+           BOTH WERE THE SAME MISTAKE IN TWO PLACES: a test whose premise
+           was established by whatever happened to run before it.
+
+           `test_leaving_the_popup_with_no_panel_open_leaves_it_alone`
+           needs no AvailabilityPanel open -- it says so in its name. The
+           panel is a SINGLETON, and the fixture dismissed it only at
+           teardown, which trusts the previous test to have got that far.
+           One that failed, or one a `-k` filter deselected partway through
+           the file, left the panel up; the filter under test then took its
+           other branch and closed the popup, exactly as it should. The
+           fixture dismisses at setup as well now, and the test asserts its
+           own premise before acting rather than assuming it.
+
+           `test_apply_preferences_only_pays_for_space` counts wallpaper
+           lookups, and every live `AppScreen` answers PaletteChange with
+           one. `tests/qt/test_chaining_gui.py` builds real module screens
+           without handing them to `qtbot`, so they outlived their tests
+           and went on answering for the rest of the session. That file now
+           disposes of the screens IT created -- the difference between the
+           set alive before and after each test, closed and deleteLater'd
+           and flushed. Nothing reaches across the session's other widgets:
+           the fixture that did that was removed on 2026-08-08 for
+           segfaulting the run three ways.
+
+           Verified by reproducing both first -- the popup one over the
+           recorded `-k` selection at seed 4242, the wallpaper one
+           deterministically by running the AppScreen-building files ahead
+           of it -- and then re-running at seeds 4242, 11 and 777.
 Owner:     Test suite
 
 --------------------------------------------------------------------------------
