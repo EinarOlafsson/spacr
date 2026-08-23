@@ -1,0 +1,132 @@
+================================================================================
+GRAPH TYPE ON EVERY PLOT, THE CELL TAB, AND ONE CROP FROM THREE METHODS
+================================================================================
+
+Status:    OPEN. Requested 2026-08-23. Items 1 and 3 asked for REPEATEDLY
+           before that and still not done.
+Owner:     Regression results, the measurements/cell tab, crops.
+
+--------------------------------------------------------------------------------
+1. GRAPH TYPE, ON THE RIGHT-CLICK MENU OF EVERY PLOT      <-- ASKED MANY TIMES
+--------------------------------------------------------------------------------
+
+Verbatim: "in regression, i have asked many times at this point for an
+option when i right click on a graph, called graph type that would allow
+the user to switch between graph types. but still you have not implemented
+this... please this time implement this, and i want this for all graphs in
+the core modules, really for all matplotlib graphs in the software."
+
+SCOPE IS EVERY PLOT, not the regression panel alone. A right-click menu
+entry named "Graph type" with the alternatives that make sense for the data
+on that axis -- bar/box/violin/strip for a per-group distribution,
+line/scatter for a series, and so on -- switching in place.
+
+Note before starting: spaCR's figures do NOT all come from matplotlib.
+`spacr/ml.py` draws through pyqtgraph (see `_draw_*_in_pyqtgraph`) and the
+rest write through `figures.scene`. So "all matplotlib graphs" means every
+plot the user sees, and the menu has to be installed at the ONE seam both
+back ends pass through, or it will be added to half of them again.
+
+--------------------------------------------------------------------------------
+2. THE CELL TAB LAYS OUT THREE CELLS PER WELL
+--------------------------------------------------------------------------------
+
+"the cell tab shows 3 cells per well and then more if i change the size of
+the container... change this"
+
+The count per row is falling out of the container width instead of being
+decided. Decide it, and keep it stable when the panel is resized.
+
+--------------------------------------------------------------------------------
+3. ONE CROP, WHATEVER CUT IT                              <-- ASKED BEFORE
+--------------------------------------------------------------------------------
+
+"with the streaming you need to make sure that all methods generate the
+same single crop images. so the coordinate table (which also must use the
+cell_id or object_number to name the png it generates), object id in array
+method and png crop during measure_crop should all generate the exact same
+files named with the same object number."
+
+Three producers, one result required:
+  a. `measure_crop`'s PNG export,
+  b. the ARRAY method (label plane scanned for the object),
+  c. the COLUMN/coordinate method (bbox read from the database).
+
+Same pixels AND same filename, and the filename carries the object number.
+The coordinate method is the one named as wrong today: it must name its PNG
+from `cell_id` / the object number like the other two.
+
+Already verified on 2026-08-23: (a) and (b) are byte-identical on plate1.
+(c) is NOT yet compared, and its naming is the open defect.
+
+--------------------------------------------------------------------------------
+4. JOINING THE MEASUREMENTS TABLE HANGS SPACR
+--------------------------------------------------------------------------------
+
+"pressing join the measurements table in the cell tab in the regression
+module makes spacr unresponsive"
+
+A join on a real screen is long work on the GUI thread. It belongs on a
+worker with progress and a cancel, like every other long run.
+
+--------------------------------------------------------------------------------
+5. THE JOIN WARNS ABOUT 60,095 OF 60,816 OBJECTS
+--------------------------------------------------------------------------------
+
+    the same column arrived from two tables with different values for the
+    same object:
+      'object_label': 60095 of 60816 objects disagree between cell and
+      pathogen (e.g. prcfo 0, 1, 2, 3, 4)
+
+This is not a corruption: a cell's object_label and a pathogen's
+object_label are DIFFERENT OBJECTS' labels and there is no reason they
+should agree. The warning is comparing two columns that were never the same
+quantity, so it fires on every healthy screen and says something alarming.
+Either exclude the object key from the disagreement check (it is the join
+key, not a measurement) or say what it really means.
+
+--------------------------------------------------------------------------------
+6. THE MEASUREMENT COLUMNS ARE STILL NOT IN "COMPARE"
+--------------------------------------------------------------------------------
+
+"still dont see the measurement database columns in measurement in the cell
+tab under compare ... fix this"
+
+Asked before. The columns of the joined measurement database have to be
+selectable there.
+
+--------------------------------------------------------------------------------
+7. UNIPROT: WHICH ORGANISMS MUST WORK
+--------------------------------------------------------------------------------
+
+Decided 2026-08-23, replacing the "defaults to Toxo" proposal in 237 P1
+with a named list. The field takes a UniProt ID or an organism name and
+must resolve, at minimum:
+
+  Hosts people image        human, mouse, rat, hamster, rhesus macaque,
+                            and the other common cell-culture hosts
+                            (bovine, porcine, canine, chicken, zebrafish,
+                            Drosophila, C. elegans, Xenopus).
+  Apicomplexa, ALL studied  Toxoplasma gondii, Plasmodium falciparum and
+                            the other human Plasmodium species, Neospora
+                            caninum, Eimeria, Cryptosporidium, Babesia,
+                            Theileria, Sarcocystis, Cyclospora, Cystoisospora.
+  Other parasites           Trypanosoma brucei and cruzi, Leishmania,
+                            Giardia, Entamoeba, Trichomonas, Schistosoma,
+                            Plasmodium's vectors where relevant.
+
+Toxoplasma stays the default and its hardcoded data stays the offline path.
+Nothing may require the network to open the module.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Right-clicking ANY plot in any module offers "Graph type" and switching
+  redraws in place.
+* The cell tab shows a decided number per row and does not reflow on resize.
+* One object cut three ways gives three identical files with one name.
+* Joining a four-plate screen keeps the window responsive and can be
+  cancelled.
+* A healthy screen produces no object_label disagreement warning.
+* Every organism named above resolves; Toxoplasma still works offline.
