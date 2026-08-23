@@ -249,12 +249,11 @@ class _DragByBackground(QObject):
                 # in it, which is exactly the empty space a title bar used
                 # to be.
                 where = event.position().toPoint()
-                if self._dialog.childAt(where) is None:
+                if dialog.childAt(where) is None:
                     self._grab = (event.globalPosition().toPoint()
-                                  - self._dialog.frameGeometry().topLeft())
+                                  - dialog.frameGeometry().topLeft())
             elif kind == QEvent.Type.MouseMove and self._grab is not None:
-                self._dialog.move(event.globalPosition().toPoint()
-                                  - self._grab)
+                dialog.move(event.globalPosition().toPoint() - self._grab)
             elif kind == QEvent.Type.MouseButtonRelease:
                 self._grab = None
         except Exception:                                    # noqa: BLE001
@@ -355,15 +354,28 @@ class _Backdrop(QObject):
 
     def _fit(self) -> None:
         try:
-            self._card.setGeometry(self._dialog.rect().adjusted(
+            dialog = getattr(self, "_dialog", None)
+            card = getattr(self, "_card", None)
+            if dialog is None or card is None:
+                return
+            card.setGeometry(dialog.rect().adjusted(
                 INSET, INSET, -INSET, -INSET))
-            self._card.lower()
+            card.lower()
         except Exception:                                    # noqa: BLE001
             LOG.debug("the backdrop would not fit", exc_info=True)
 
     def eventFilter(self, watched, event):      # noqa: N802 - Qt naming
-        if watched is self._dialog and event.type() in (
-                QEvent.Type.Resize, QEvent.Type.Show):
+        # `getattr`, for the reason spelled out on `_DragByBackground`: the
+        # C++ QObject outlives this Python object's `__dict__`, so a filter
+        # still installed during teardown is asked about events after its
+        # attributes are gone. Reading `self._dialog` directly raised
+        # AttributeError on every one of them, and Qt printed the whole
+        # traceback -- "Error calling Python override of
+        # QObject::eventFilter" -- at spaCR startup.
+        dialog = getattr(self, "_dialog", None)
+        if dialog is None or watched is not dialog:
+            return False
+        if event.type() in (QEvent.Type.Resize, QEvent.Type.Show):
             self._fit()
         return False
 

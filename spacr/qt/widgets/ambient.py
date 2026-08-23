@@ -3309,8 +3309,17 @@ class AmbientWidget(QWidget):
                  size: Optional[float] = None,
                  resolution: Optional[float] = None,
                  density: Optional[float] = None,
-                 direction: Optional[str] = None):
+                 direction: Optional[str] = None,
+                 corner_radius: int = 0):
         super().__init__(parent)
+        #: Corner radius the backdrop is clipped to; 0 leaves it square.
+        #:
+        #: A backdrop normally fills a rectangular screen and wants no
+        #: rounding. The setup dialog is the case that does: it is a
+        #: frameless translucent window holding ONE rounded card, and a
+        #: square backdrop behind a rounded card is visible as a second
+        #: surface -- which is exactly what it looked like.
+        self._corner_radius = max(0, int(corner_radius))
         # -- the shading thread ---------------------------------------
         # First, before anything that could reach a setter: every one of
         # them takes the lock, so a construction order that reached one
@@ -3931,6 +3940,15 @@ class AmbientWidget(QWidget):
         _TOTAL_FRAMES += 1
         painter = QPainter(self)
         rect = self.rect()
+        if self._corner_radius > 0:
+            # Clip BEFORE the base fill, so the flat page colour is rounded
+            # too. Anti-aliased, because a setMask() region would give the
+            # corners hard stair-steps against the card's smooth rim.
+            painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+            path = QPainterPath()
+            path.addRoundedRect(QRectF(rect), self._corner_radius,
+                                self._corner_radius)
+            painter.setClipPath(path)
         self._paint_base(painter, rect)
         width, height = rect.width(), rect.height()
 
@@ -3961,7 +3979,8 @@ class AmbientWidget(QWidget):
 def install_ambient(host: QWidget, layout=None, *,
                     theme: str = DEFAULT_THEME,
                     palette: str = DEFAULT_PALETTE,
-                    backdrop=None, **kwargs) -> AmbientWidget:
+                    backdrop=None, corner_radius: int = 0,
+                    **kwargs) -> AmbientWidget:
     """Put a live ambient backdrop behind ``host``.
 
     The widget becomes a child of ``host``, tracks its geometry, and is
@@ -3985,6 +4004,11 @@ def install_ambient(host: QWidget, layout=None, *,
     :param palette: one of :func:`palettes_for` for that theme.
     :param backdrop: wallpaper to composite over; see
         :meth:`AmbientWidget.set_backdrop`.
+    :param corner_radius: clip the backdrop to rounded corners of this
+        radius. Zero -- the default, and right for a full screen -- leaves
+        it square. A frameless dialog holding one rounded card needs the
+        backdrop rounded to the SAME radius, or the square corners read as a
+        second window behind the card.
     :param kwargs: forwarded to :class:`AmbientWidget` (``background``,
         ``fps``, ``seed``, ``blur``, ``speed``, ``size``, ``resolution``,
         ``density``, ``direction``). Everything from ``blur`` on defaults to
@@ -3993,7 +4017,8 @@ def install_ambient(host: QWidget, layout=None, *,
     :returns: the widget, already shown and lowered.
     """
     widget = AmbientWidget(host, theme=theme, palette=palette,
-                           backdrop=backdrop, **kwargs)
+                           backdrop=backdrop, corner_radius=corner_radius,
+                           **kwargs)
     widget.follow_parent()
     widget.show()
     return widget

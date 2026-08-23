@@ -116,6 +116,15 @@ GREETING_MS = 1600
 SLIDE_FONT = "Open Sans"
 
 #: Point size of the word on the closing slide.
+#: Corner radius of the setup window, in pixels.
+#:
+#: ONE NUMBER FOR TWO SURFACES. The card and the ambient backdrop behind it
+#: are the same rectangle, so they must round by the same amount or the
+#: backdrop's corners show past the card's and the dialog looks like two
+#: stacked windows. SetupCard's own default is 18; this names it so the
+#: backdrop can be told the same thing.
+CARD_RADIUS = 18
+
 DONE_POINTS = 44
 
 #: Point size of the greeting.
@@ -168,7 +177,7 @@ class SetupSlides(QDialog):
 
         from .setup_card import SetupCard
 
-        self.card = SetupCard(self)
+        self.card = SetupCard(self, radius=CARD_RADIUS)
         # THE RIM FOLLOWS THE POINTER, so the card has to see it move even
         # when no button is down -- which is not the default.
         self.card.setMouseTracking(True)
@@ -909,17 +918,27 @@ class SetupSlides(QDialog):
         try:
             from .ambient import install_ambient
 
+            # ROUNDED TO THE CARD'S RADIUS. The dialog is frameless and
+            # translucent and holds exactly one card; a square backdrop
+            # behind a rounded card is a second surface, and looked like
+            # one -- "there is a square window with the theme and in front
+            # of that window is a dark square with rounded edges".
             return install_ambient(self, theme=BACKDROP_THEME,
-                                   speed=BACKDROP_SPEED)
+                                   speed=BACKDROP_SPEED,
+                                   corner_radius=CARD_RADIUS)
         except Exception:                                    # noqa: BLE001
             LOG.debug("no ambient backdrop on this platform", exc_info=True)
             return None
 
     def resizeEvent(self, event):               # noqa: N802 - Qt naming
         super().resizeEvent(event)
-        margin = 44
-        self.card.setGeometry(self.rect().adjusted(
-            margin, margin, -margin, -margin))
+        # NO MARGIN. The card used to be inset by 44px inside the ambient
+        # backdrop, which put a themed square around a rounded card and made
+        # the dialog read as two windows. The card now IS the window: same
+        # rectangle as the backdrop, same corner radius, so there is one
+        # rounded translucent surface and the settings sit on it rather
+        # than in a container floating over it.
+        self.card.setGeometry(self.rect())
         self.card.raise_()
 
 
