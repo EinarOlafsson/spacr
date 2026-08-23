@@ -354,3 +354,166 @@ def clear_cache() -> None:
 
 __all__ = ["SOURCES", "annotate", "clear_cache", "columns", "gene_number",
            "supplementary"]
+
+
+# ---------------------------------------------------------------------------
+# Any organism, not only this one
+# ---------------------------------------------------------------------------
+
+#: Columns UniProt is asked for, and what the joined table calls them.
+#:
+#: RENAMED, because the bundled path's columns are what every downstream
+#: panel and export already reads. A UniProt annotation that called its gene
+#: name "Gene Names" would be a second vocabulary for the same facts.
+UNIPROT_COLUMNS = {
+    "Entry": "uniprot_accession",
+    "Entry Name": "uniprot_entry",
+    "Protein names": "product",
+    "Gene Names": "gene_name",
+    "Organism": "organism",
+    "Length": "protein_length",
+    "Subcellular location [CC]": "localisation",
+    "Function [CC]": "function",
+    "Signal peptide": "signal_peptide",
+    "Transmembrane": "transmembrane",
+    "Gene Ontology (biological process)": "go_process",
+    "Gene Ontology (cellular component)": "go_component",
+    "Gene Ontology (molecular function)": "go_function",
+    "AlphaFoldDB": "alphafold",
+}
+
+
+def _uniprot_keys(values):
+    """Every spelling of a gene in a UniProt "Gene Names" cell, lower case.
+
+    UniProt puts the synonyms in one space-separated cell -- "TP53 P53" --
+    so a screen naming either one has to match. Returned as a list per row
+    so the frame can be exploded onto them.
+    """
+    out = []
+    for value in values:
+        names = str(value or "").replace(",", " ").split()
+        out.append([n.strip().lower() for n in names if n.strip()])
+    return out
+
+
+def _uniprot_key_column(frame) -> Optional[str]:
+    """The column naming a gene, for a table that is NOT Toxoplasma's.
+
+    `_key_column` parses every candidate with :func:`gene_number`, which is
+    the bundled path's key space: a bare Toxoplasma gene NUMBER. Human,
+    mouse and Plasmodium screens name their targets `TP53`, `Cdkn1a`,
+    `PF3D7_1206100` -- none of which is a number -- so that finder rejected
+    every column and the UniProt join reported "this table names no gene
+    column" about tables that named nothing else.
+
+    Same preference order, different test: a column counts when it holds
+    text at all.
+    """
+    for name in ("gene", "gene_name", "gene_id", "Gene ID", "gene_nr",
+                 "grna", "feature", "variable", "index"):
+        if name not in getattr(frame, "columns", ()):
+            continue
+        values = frame[name].astype(str).str.strip()
+        if values.replace("", None).notna().any() and (values != "").any():
+            return name
+    return None
+
+
+def annotate_from_uniprot(frame, source, *, cache_dir=None,
+                          key_column: Optional[str] = None,
+                          quiet: bool = False):
+    """``frame`` with UniProt's annotation for ``source`` joined onto it.
+
+    The non-bundled half of :func:`annotate_with`. Joins on the gene NAME --
+    UniProt's own, including its synonyms -- and on the accession, because a
+    screen library names its targets one way or the other and neither is
+    wrong.
+
+    Never raises and never multiplies rows: the annotation is collapsed to
+    one row per key before the merge, and the merge is ``many_to_one``, for
+    the reason this module's header gives.
+
+    :returns: ``(frame, note)``. The frame is unchanged when nothing could
+        be joined, and the note says why.
+    """
+    import pandas as pd
+
+    from .uniprot import annotation_for
+
+    if frame is None or not len(getattr(frame, "columns", ())):
+        return frame, ""
+    # THE GENES THIS TABLE NAMES, so the query can ask for them rather than
+    # for a whole proteome. Read before the key column is resolved because
+    # the key finder is cheap and the fetch is not.
+    asked = _uniprot_key_column(frame) if key_column is None else key_column
+    genes = (frame[asked].astype(str).tolist()
+             if asked and asked in frame.columns else None)
+    table, note = annotation_for(source, cache_dir=cache_dir, genes=genes)
+    if table is None or not len(table):
+        return frame, note
+
+    key = key_column or _uniprot_key_column(frame)
+    if key is None or key not in frame.columns:
+        return frame, ("this table names no gene column, so the UniProt "
+                       "annotation was not joined onto it.")
+
+    table = table.rename(columns=UNIPROT_COLUMNS)
+    keep = [c for c in UNIPROT_COLUMNS.values() if c in table.columns]
+    if not keep:
+        return frame, "UniProt returned no usable columns."
+    table = table[keep].copy()
+
+    # ONE ROW PER KEY. A gene name that appears on two entries -- an isoform
+    # pair, a duplicated locus -- would otherwise turn one coefficient into
+    # two rows, which is the failure this module was written to prevent.
+    table["_key"] = _uniprot_keys(table.get("gene_name", ""))
+    exploded = table.explode("_key").dropna(subset=["_key"])
+    if "uniprot_accession" in table.columns:
+        by_accession = table.copy()
+        by_accession["_key"] = (by_accession["uniprot_accession"]
+                                .astype(str).str.strip().str.lower())
+        exploded = pd.concat([exploded, by_accession], ignore_index=True)
+    exploded = exploded.drop_duplicates(subset=["_key"], keep="first")
+
+    joined = frame.copy()
+    joined["_key"] = joined[key].astype(str).str.strip().str.lower()
+    # Columns the caller already computed are theirs, not UniProt's.
+    new = [c for c in keep if c not in frame.columns]
+    if not new:
+        return frame, ""
+    merged = joined.merge(exploded[["_key", *new]], on="_key", how="left",
+                          validate="many_to_one")
+    merged = merged.drop(columns=["_key"])
+    matched = int(merged[new[0]].notna().sum()) if new else 0
+    if not quiet:
+        print(f"UniProt annotation ({source}): {matched} of {len(merged)} "
+              f"rows matched, {len(new)} column(s) joined.")
+    if matched == 0:
+        note = (note + " " if note else "") + (
+            f"none of the {len(frame)} gene identifiers matched a UniProt "
+            f"entry for {source}.")
+    return merged, note
+
+
+def annotate_with(frame, source, *, cache_dir=None,
+                  key_column: Optional[str] = None, quiet: bool = False):
+    """Annotate ``frame`` from whatever ``source`` names.
+
+    The one call the pipeline makes. ``source`` is the ``annotation_source``
+    setting:
+
+    * empty or any spelling of Toxoplasma -- the BUNDLED tables, offline,
+      exactly as before. This is the default and it does not touch
+      :mod:`spacr.uniprot` at all;
+    * an organism name or taxon id -- that organism from UniProt;
+    * an accession -- that entry.
+
+    :returns: ``(frame, note)``; the note is empty on a clean join.
+    """
+    from .uniprot import resolve
+
+    if resolve(source).kind == "bundled":
+        return annotate(frame, key_column=key_column, quiet=quiet), ""
+    return annotate_from_uniprot(frame, source, cache_dir=cache_dir,
+                                 key_column=key_column, quiet=quiet)

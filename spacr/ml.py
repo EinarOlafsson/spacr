@@ -6385,6 +6385,10 @@ def _level_control_rows(frame, level, controls):
 TOXOPLASMA_KEYS = ('Toxoplasma', 'toxo')
 
 
+#: What `annotation_source` calls the bundled, offline Toxoplasma path.
+BUNDLED_ANNOTATION = "toxoplasma"
+
+
 def _toxoplasma_is_on(settings) -> bool:
     """Whether the bundled *Toxoplasma* annotation was asked for.
 
@@ -6395,6 +6399,30 @@ def _toxoplasma_is_on(settings) -> bool:
         if key in settings:
             return bool(settings[key])
     return False
+
+
+def _annotation_source(settings) -> str:
+    """Which organism's annotation this run asked for, or "" for none.
+
+    `Toxoplasma=True` and `annotation_source='toxoplasma'` are the same
+    request and the field wins, because a user who typed a name meant it.
+    `Toxoplasma=False` with no field is the one case that means NO
+    annotation, and it has to keep meaning that.
+    """
+    named = str(settings.get('annotation_source', '') or '').strip()
+    if named:
+        return named
+    return BUNDLED_ANNOTATION if _toxoplasma_is_on(settings) else ""
+
+
+def _annotation_cache(settings):
+    """Where a UniProt answer is kept, so a rerun needs no network."""
+    src = settings.get('src')
+    if isinstance(src, (list, tuple)):
+        src = src[0] if src else None
+    if not src:
+        return None
+    return os.path.join(str(src), 'annotation_cache')
 
 
 def _call_level_hits(coef_df, level, settings, regression_type,
@@ -7994,19 +8022,26 @@ def _perform_regression(settings):
     # source to one row per gene first, so this cannot change a row count.
     # It is checked anyway: this table's contract is one row per coefficient
     # and it is worth being the kind of code that says so.
-    if _toxoplasma_is_on(settings):
-        from .annotation import annotate, supplementary
+    if _annotation_source(settings):
+        from .annotation import annotate_with, supplementary
 
-        annotated = {}
+        source = _annotation_source(settings)
+        cache = _annotation_cache(settings)
+        annotated, notes = {}, []
         for name, frame in (('results', coef_df), ('gene', gene_coef_df),
                             ('grna', grna_coef_df),
                             ('significant', significant)):
             before = len(frame)
-            annotated[name] = annotate(frame, quiet=(name != 'results'))
+            annotated[name], note = annotate_with(
+                frame, source, cache_dir=cache, quiet=(name != 'results'))
+            if note and name == 'results':
+                notes.append(note)
             if len(annotated[name]) != before:
                 raise ValueError(
-                    f"the Toxoplasma annotation changed {name} from {before} "
+                    f"the {source} annotation changed {name} from {before} "
                     f"to {len(annotated[name])} row(s).")
+        for note in notes:
+            print(f"Annotation: {note}")
         coef_df = annotated['results']
         gene_coef_df = annotated['gene']
         grna_coef_df = annotated['grna']
