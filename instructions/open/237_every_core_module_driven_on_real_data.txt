@@ -341,3 +341,43 @@ ALSO FOUND: `src` must hold the images directly. Pointing it at a plate
 folder whose images are already in `orig/` finds zero fields -- the error
 says so clearly and names the sub-folders, so this is a note rather than a
 defect.
+
+
+--------------------------------------------------------------------------------
+G. REGRESSION AND CLASSIFY, DRIVEN -- 2026-08-23
+--------------------------------------------------------------------------------
+
+REGRESSION, on the real four-plate tsg101 screen, its own
+settings/regression.csv, score and count tables copied to scratch. Runs end
+to end: OLS at guide and gene level, hits called with their per-gene
+explanations, the bundled Toxoplasma annotation joined onto 380 of 1171
+rows, 23 columns, plus the DeepTMHMM topology for 322 proteins, and the
+figures written. Driver: spacr_drivers/drive_regression_on_tsg101.py
+
+It was refused before any of that, over a blank. `hinge_threshold,` on a
+line is what a saved settings file looks like for an unfilled box; pandas
+reads the empty cell as NaN; `_left_blank` knew None, '' and whitespace but
+not NaN, so the blank read as an ANSWER and the run stopped with
+"regression_type='ols' does not read hinge_threshold=nan". Fixed.
+
+CLASSIFY, on plate1's merged/ and measurements.db. The streaming half is
+confirmed through the module's own entry point: `classify()` with
+`image_source='stream_images'` now prints
+
+    Crop source: merged crop source (stream images: selected by the user
+    (crop settings recovered from measurements.db))
+
+which is the fix for "streaming was unreachable from the Classify panel"
+verified where a user would meet it, rather than through the API underneath.
+
+TRAINING ITSELF IS NOT DRIVEN YET, and the blocker is the fixture rather
+than the code: plate1's crop table carries one class-bearing field, so a
+leakage-safe split correctly refuses --
+
+    A leakage-safe field-grouped split cannot put every class in both train
+    and test. Independent groups per class: {'0': 1, '1': 1}.
+
+which is the right answer, well worded, and means this dataset cannot train
+a classifier. It needs an annotated screen with more than one field per
+class -- the tsg101 plates have one, and driving CV training on those is
+what remains of item 3.
