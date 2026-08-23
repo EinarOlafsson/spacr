@@ -7412,11 +7412,37 @@ class SettingsWidgets:
                 continue
         return value
 
+    #: Settings whose value has ONE canonical form, whatever shape the
+    #: widget hands back. `channel_of_interest` is drawn as a multi-select,
+    #: so one channel comes back as `[3]` where the default is `3` -- the
+    #: same feature space, but a panel that rewrites a default makes every
+    #: settings file differ from it and breaks "has this been changed?".
+    CANONICAL_READERS = {
+        "channel_of_interest": "spacr.utils:feature_selection",
+    }
+
+    def _canonical(self, key: str, value: Any) -> Any:
+        """Put a widget's answer into the one form the setting is stored in."""
+        where = self.CANONICAL_READERS.get(key)
+        if where is None:
+            return value
+        module_name, function_name = where.split(":")
+        try:
+            import importlib
+
+            reader = getattr(importlib.import_module(module_name),
+                             function_name)
+            return reader(value)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not canonicalise %s", key, exc_info=True)
+            return value
+
     def collect(self) -> Dict[str, Any]:
         """Read all widgets and return the current settings dict."""
         out: Dict[str, Any] = {}
         for key, w in self._widgets.items():
-            out[key] = self._coerce_to_expected_type(key, self._read_widget(w))
+            out[key] = self._canonical(
+                key, self._coerce_to_expected_type(key, self._read_widget(w)))
         # Also carry over any defaults we didn't render (e.g. things not
         # in the categories map that convert_settings_dict_for_gui also
         # skipped).
