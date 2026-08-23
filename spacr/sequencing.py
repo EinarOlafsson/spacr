@@ -72,14 +72,38 @@ def map_sequences_to_names(csv_file, sequences, rc):
         raise ValueError(
             f"Barcode mapping {csv_file!r} is missing required column(s): "
             f"{', '.join(sorted(missing))}.")
+    # A SEQUENCE ON TWO NAMES IS DROPPED, NOT A REASON TO REFUSE THE LIBRARY.
+    #
+    # The safety property is that such a read must never be attributed: it
+    # genuinely cannot be told which guide it came from, and picking one
+    # would put another gene's counts on it. That property is kept -- those
+    # sequences map to NA, so the reads carrying them fall out of the
+    # per-well counts.
+    #
+    # Refusing the whole FILE was too blunt. The real tsg101 gRNA library is
+    # 1,385 guides of which THREE sequences are shared -- two guides of
+    # TGGT1_241310 also appear under TGGT1_411210 and TGGT1_411710 -- so
+    # spaCR would not map the maintainer's own screen at all, and the 1,382
+    # unambiguous guides were unusable because of eight rows. A library with
+    # a few shared sequences is an ordinary thing; one with NOTHING left after
+    # they are dropped is a mis-built or mis-columned file, and that still
+    # raises rather than mapping every read to nothing in silence.
     duplicate_sequences = df["sequence"].dropna().duplicated(keep=False)
     if duplicate_sequences.any():
-        examples = sorted(
-            df.loc[duplicate_sequences, "sequence"].astype(str).unique())[:5]
-        raise ValueError(
-            f"Barcode mapping {csv_file!r} contains duplicate sequences; "
-            f"each sequence must identify exactly one name. Examples: "
-            f"{', '.join(examples)}.")
+        ambiguous = set(df.loc[duplicate_sequences, "sequence"].astype(str))
+        examples = sorted(ambiguous)[:5]
+        kept = df[~df["sequence"].astype(str).isin(ambiguous)]
+        if not len(kept):
+            raise ValueError(
+                f"Barcode mapping {csv_file!r} has no usable barcode: every "
+                f"one of its {len(df)} sequences appears under more than one "
+                f"name, so none of them can identify a guide. Examples: "
+                f"{', '.join(examples)}.")
+        print(f"Barcode mapping {csv_file!r}: {len(ambiguous)} sequence(s) "
+              f"appear under more than one name and cannot identify a guide. "
+              f"Reads carrying them are counted as unassigned. Examples: "
+              f"{', '.join(examples)}.")
+        df = kept
     if rc:
         df['sequence'] = df['sequence'].apply(rev_comp)
     

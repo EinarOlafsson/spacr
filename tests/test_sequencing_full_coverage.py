@@ -67,15 +67,30 @@ def test_map_sequences_to_names_rejects_a_csv_missing_its_columns(tmp_path):
     assert "name" in msg and "sequence" in msg
 
 
-def test_map_sequences_to_names_rejects_duplicate_sequences(tmp_path):
+def test_map_sequences_to_names_drops_duplicate_sequences(tmp_path, capsys):
+    """A shared sequence is unassigned; the rest of the library still maps.
+
+    THE CLAIM CHANGED, and the property it was protecting did not. One
+    sequence resolving to two names would make the well assignment depend on
+    dict insertion order, so such a read must never be attributed -- it maps
+    to NA and falls out of the counts.
+
+    What changed is the blast radius. This used to raise and take the WHOLE
+    FILE with it, and the real tsg101 gRNA library is 1,385 guides of which
+    three sequences are shared: spaCR would not map the maintainer's own
+    screen, and 1,382 unambiguous guides were unusable because of eight
+    rows. The ambiguous ones are dropped and named instead.
+    """
     csv = _write_csv(tmp_path / "dup.csv",
                      ["ACGT", "ACGT", "TTGG"], ["b1", "b2", "b3"])
-    with pytest.raises(ValueError) as exc:
-        SEQ.map_sequences_to_names(csv, ["ACGT"], rc=False)
-    # One sequence resolving to two names would make the well assignment
-    # depend on dict insertion order. The example is named so it can be found.
-    assert "duplicate sequences" in str(exc.value)
-    assert "ACGT" in str(exc.value)
+
+    mapped = SEQ.map_sequences_to_names(csv, ["ACGT", "TTGG"], rc=False)
+
+    assert pd.isna(mapped[0]), "an ambiguous read was given a name"
+    assert mapped[1] == "b3", "an unambiguous barcode was lost with it"
+    # Named, so a count that went missing can be found.
+    said = capsys.readouterr().out
+    assert "ACGT" in said and "more than one name" in said
 
 
 def test_map_sequences_to_names_ignores_duplicate_nan_rows(tmp_path):
