@@ -4457,6 +4457,58 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box
             sns.stripplot(x=grouping_column, y=data_column, data=df,
                           jitter=True, color=ROLES['data'], size=3.0,
                           linewidth=0, order=order)
+        elif graph_type == 'jitter_bar':
+            # THE BAR IS THE SUMMARY, THE POINTS ARE THE DATA -- the same
+            # rule as jitter_box above, so the fill is dropped and the
+            # observations carry the ink.
+            _ink = resolve_ink(theme_target())
+            summary_df = df.groupby(
+                grouping_column, observed=False)[data_column].agg(
+                    [summary_func, 'std', 'sem'])
+            spread = summary_df['sem' if error_bar_type == 'sem' else 'std']
+            sns.barplot(
+                x=grouping_column, y=summary_func, hue=grouping_column,
+                data=summary_df.reset_index(), errorbar=None, order=order,
+                palette=color_palette, legend=False, fill=False,
+                edgecolor=_ink, linewidth=WEIGHTS['spine'])
+            plt.errorbar(x=np.arange(len(summary_df)),
+                         y=summary_df[summary_func], yerr=spread,
+                         fmt='none', c=_ink, capsize=5,
+                         lw=WEIGHTS['reference'])
+            sns.stripplot(x=grouping_column, y=data_column, data=df,
+                          jitter=True, color=ROLES['data'], size=3.0,
+                          linewidth=0, order=order)
+        elif graph_type in ('line', 'line_std'):
+            # A LINE ACROSS THE GROUPS. One data column means there is no
+            # second column to put on x, so the group is the x axis and the
+            # point on each group is the same summary the bar chart would
+            # draw -- the two pictures agree about the data.
+            _ink = resolve_ink(theme_target())
+            summary_df = df.groupby(
+                grouping_column, observed=False)[data_column].agg(
+                    [summary_func, 'std', 'sem'])
+            if order:
+                summary_df = summary_df.reindex(order)
+            spread = summary_df['sem' if error_bar_type == 'sem' else 'std']
+            positions = np.arange(len(summary_df))
+            plt.errorbar(x=positions, y=summary_df[summary_func],
+                         yerr=spread.fillna(0.0), marker='o', markersize=6,
+                         capsize=4, lw=WEIGHTS['data'],
+                         color=color_palette[0] if color_palette else _ink)
+            plt.xticks(positions, [str(v) for v in summary_df.index])
+            plt.xlabel(str(grouping_column))
+            plt.ylabel(str(data_column))
+
+        # THE BRANCH CHAIN COVERS EVERY TYPE THE MENU OFFERS. `line` and
+        # `jitter_bar` had no branch at all: they fell through it, drew
+        # nothing, and `plt.gcf()` below handed back an EMPTY figure. Two of
+        # the seven entries in the right-click Graph type menu blanked the
+        # plot and reported no error.
+        elif graph_type not in ('bar', 'violin', 'jitter', 'box',
+                                'jitter_box'):
+            raise ValueError(
+                f"graph_type={graph_type!r} is not one of bar, violin, "
+                f"jitter, box, jitter_box, jitter_bar, line")
 
         # Create a DataFrame to summarize the test results
         results_df = pd.DataFrame(test_results)
@@ -5521,8 +5573,24 @@ class spacrGraph:
             ax.set_xscale('log')
 
     def _create_line_graph(self, ax):
-        """Helper method to create a line graph with one line per group based on epochs and accuracy."""
-        #display(self.df)
+        """Helper method to create a line graph with one line per group.
+
+        TWO SHAPES, because "line" means two different pictures here. With
+        two data columns it is the one this was written for -- epochs against
+        accuracy, one line per group. With ONE data column there is no second
+        column to put on x, and the group itself is the x axis: a line across
+        the groups, which is what every other graph type in the menu draws
+        the groups as.
+
+        The one-column case used to index ``data_column[1]`` regardless and
+        raise IndexError, which `create_grouped_plot` swallowed -- so
+        choosing "Line" on an ordinary grouped plot returned an EMPTY figure
+        and said nothing. Same for a caller asking for graph_type='line'
+        directly.
+        """
+        if len(self.data_column) < 2:
+            self._create_line_across_groups(ax)
+            return
         # Ensure epoch is used on the x-axis and accuracy on the y-axis
         x_axis_column = self.data_column[0]
         y_axis_column = self.data_column[1]
@@ -5554,6 +5622,38 @@ class spacrGraph:
         # Adjust axis labels
         ax.set_xlabel(f"{x_axis_column}")
         ax.set_ylabel(f"{y_axis_column}")
+
+    def _create_line_across_groups(self, ax):
+        """A line over the groups, for the single-data-column case.
+
+        The point on each group is the summary the rest of the panel uses
+        (:attr:`summary_func`), so the line agrees with what the bar chart
+        of the same data would show, and the error bar is the same spread.
+        """
+        value_column = self.data_column[0]
+        frame = self.df_melted if getattr(self, "df_melted", None) is not None \
+            else self.df
+        column = 'Value' if 'Value' in getattr(frame, "columns", []) \
+            else value_column
+        order = list(self.order) if self.order else \
+            list(dict.fromkeys(frame[self.grouping_column]))
+        summary = (frame.groupby([self.grouping_column], observed=False)
+                   .agg(centre=(column, self.summary_func or 'mean'),
+                        spread=(column, 'std'))
+                   .reindex(order).reset_index())
+        self.summary_df = summary
+        colour = self._plot_palette(1)
+        colour = colour[0] if colour is not None and len(colour) else None
+        ax.errorbar(range(len(summary)), summary['centre'],
+                    yerr=summary['spread'].fillna(0.0), marker='o',
+                    linewidth=1, markersize=6, capsize=3,
+                    color=colour)
+        ax.set_xticks(range(len(summary)))
+        ax.set_xticklabels([str(v) for v in summary[self.grouping_column]])
+        ax.set_xlabel(str(self.grouping_column))
+        ax.set_ylabel(str(value_column))
+        if self.log_y:
+            ax.set_yscale('log')
 
     def _create_line_with_std_area(self, ax):
         """Helper method to create a line graph with shaded area representing standard deviation."""

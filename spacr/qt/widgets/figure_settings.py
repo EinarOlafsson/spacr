@@ -9,9 +9,12 @@ reusable graph-style files and optional data, statistics, and caption sidecars.
 from __future__ import annotations
 
 import logging
+import math
 import os
 from json import JSONDecodeError
 from typing import Callable, Optional
+
+import numpy
 
 LOG = logging.getLogger(__name__)
 
@@ -1395,6 +1398,153 @@ GROUPED_PLOT_TYPES = (
 )
 
 
+#: Column names the derived frame uses.
+#:
+#: A figure that was not drawn by `create_grouped_plot` has no recipe and so
+#: no column names either. These are what the reconstructed frame calls its
+#: two columns, and they are what the axis labels are replaced by when the
+#: figure is redrawn -- so they are read by a user, not only by the drawer.
+DERIVED_GROUP = "group"
+DERIVED_VALUE = "value"
+
+
+def _tick_labels(axes) -> dict:
+    """Map x position -> tick text, for an axis with categorical ticks."""
+    out = {}
+    try:
+        locations = list(axes.get_xticks())
+        texts = [t.get_text() for t in axes.get_xticklabels()]
+    except Exception:                                        # noqa: BLE001
+        return out
+    for position, text in zip(locations, texts):
+        text = str(text).strip()
+        if text:
+            out[round(float(position), 6)] = text
+    return out
+
+
+def _named(labels, x):
+    """The tick label at ``x``, or the number itself when there is none."""
+    key = round(float(x), 6)
+    if key in labels:
+        return labels[key]
+    nearest = min(labels, key=lambda k: abs(k - key)) if labels else None
+    if nearest is not None and abs(nearest - key) < 0.5:
+        return labels[nearest]
+    return f"{float(x):g}"
+
+
+def _pairs_from_axes(axes):
+    """Every (group, value) pair an axes actually drew, or an empty list.
+
+    Reads the ARTISTS rather than any data the caller kept, because for these
+    figures nobody kept any: this is the path for a figure that arrived
+    without a recipe. Three artist families cover what spaCR draws --
+    rectangles for bars, path collections for scatter and strip, and lines
+    for series and for the markers matplotlib draws as lines.
+    """
+    labels = _tick_labels(axes)
+    pairs = []
+
+    # BARS. Height is the value and the bar's centre picks the tick label.
+    # Patches that span the whole axes are backgrounds, not data.
+    try:
+        from matplotlib.patches import Rectangle
+
+        span = axes.get_xlim()
+        width = abs(span[1] - span[0]) or 1.0
+        for patch in list(axes.patches):
+            if not isinstance(patch, Rectangle):
+                continue
+            if patch.get_width() >= width * 0.98:
+                continue
+            height = patch.get_height()
+            if height is None or not math.isfinite(float(height)):
+                continue
+            centre = patch.get_x() + patch.get_width() / 2.0
+            pairs.append((_named(labels, centre), float(height)))
+    except Exception:                                        # noqa: BLE001
+        pass
+
+    # SCATTER AND STRIP.
+    try:
+        for collection in list(axes.collections):
+            offsets = collection.get_offsets()
+            if offsets is None or len(offsets) == 0:
+                continue
+            for x, y in numpy.asarray(offsets, dtype=float):
+                if math.isfinite(x) and math.isfinite(y):
+                    pairs.append((_named(labels, x), float(y)))
+    except Exception:                                        # noqa: BLE001
+        pass
+
+    # LINES AND MARKERS. A line with no marker and two points is usually a
+    # reference line rather than data, and is left out.
+    try:
+        for line in list(axes.lines):
+            data = line.get_xydata()
+            if data is None or len(data) == 0:
+                continue
+            if len(data) <= 2 and (line.get_marker() in (None, "", "None")):
+                continue
+            for x, y in numpy.asarray(data, dtype=float):
+                if math.isfinite(x) and math.isfinite(y):
+                    pairs.append((_named(labels, x), float(y)))
+    except Exception:                                        # noqa: BLE001
+        pass
+
+    return pairs
+
+
+def derive_replot_recipe(figure):
+    """Reconstruct a replot recipe from a figure that never carried one.
+
+    "I want this for all graphs in the core modules, really for all
+    matplotlib graphs in the software." Only `create_grouped_plot` attaches
+    ``_spacr_replot``, so the Graph type menu appeared on the handful of
+    figures it draws and on nothing else -- every QC panel, every diagnostic,
+    every plot any other module makes was skipped.
+
+    The data is read back OUT OF THE ARTISTS. That is exact for what these
+    figures draw: a bar knows its height, a scatter point its position. It is
+    lossy for a box or a violin, which draw a summary rather than the
+    observations -- so a figure whose only content is a box plot yields the
+    five numbers it drew and not the distribution behind them, and the menu
+    is still better than no menu. A figure drawn by `create_grouped_plot`
+    never reaches here; it has the real frame.
+
+    :param figure: a matplotlib Figure.
+    :returns: a recipe dict for :func:`spacr.plot.create_grouped_plot`, or
+        None when nothing plottable could be read.
+    """
+    try:
+        import pandas
+    except Exception:                                        # noqa: BLE001
+        return None
+    axes = [a for a in getattr(figure, "axes", []) if a is not None]
+    if len(axes) != 1:
+        # ONE AXES ONLY. A grid of panels redrawn as a single violin would
+        # throw away every panel but one, silently.
+        return None
+    pairs = _pairs_from_axes(axes[0])
+    if len(pairs) < 2:
+        return None
+    frame = pandas.DataFrame(pairs, columns=[DERIVED_GROUP, DERIVED_VALUE])
+    if frame[DERIVED_GROUP].nunique() < 1:
+        return None
+    return {
+        "df": frame,
+        "grouping_column": DERIVED_GROUP,
+        "data_column": DERIVED_VALUE,
+        "graph_type": "",
+        "summary_func": "mean",
+        "order": None,
+        "colors": None,
+        "y_lim": None,
+        "error_bar_type": "std",
+    }
+
+
 def _replot(figure, kind: str, on_change=None):
     """Redraw ``figure`` in place as ``kind``. Returns whether it changed.
 
@@ -1659,13 +1809,30 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
     # a menu entry that cannot redraw the figure it is on is worse than an
     # absent one. Every other figure in spaCR simply does not get the group.
     recipe = getattr(figure, "_spacr_replot", None)
+    if not (isinstance(recipe, dict) and recipe.get("df") is not None):
+        # NO RECIPE, SO READ ONE BACK OFF THE AXES. Only
+        # `create_grouped_plot` attaches `_spacr_replot`, which left the
+        # menu on a handful of figures and absent from every other plot in
+        # the software. Derived recipes are marked so a redraw does not
+        # claim to be the original data.
+        derived = derive_replot_recipe(figure)
+        if derived is not None:
+            recipe = derived
+            try:
+                figure._spacr_replot = derived
+                figure._spacr_replot_derived = True
+            except Exception:                                # noqa: BLE001
+                pass
     if isinstance(recipe, dict) and recipe.get("df") is not None:
         # Give Python and C++ an explicit ownership chain. ``addMenu(str)``
         # can leave the Python wrapper as the submenu's only live owner, so a
         # caller retrieving it through the parent action gets an already
         # deleted QMenu. This is the same lifetime rule used by Appearance
         # and Axis scale below.
-        show_as = QMenu("Show as", menu)
+        # NAMED "Graph type", which is what it was asked for by: "an option
+        # when i right click on a graph, called graph type that would allow
+        # the user to switch between graph types".
+        show_as = QMenu("Graph type", menu)
         menu.addMenu(show_as)
         current = str(recipe.get("graph_type") or "")
         # ONLY THE TYPES THAT FIT THE DATA (instruction 200 A), and the rest
