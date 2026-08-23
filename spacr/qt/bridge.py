@@ -21,6 +21,7 @@ import sys
 import threading
 import time
 import traceback
+import functools
 from typing import Any, Callable, Dict, List, Optional
 
 from PySide6.QtCore import QObject, QThread, Qt, Signal
@@ -1256,6 +1257,50 @@ def _tag(app_key: str, fn: Optional[Callable]) -> Optional[Callable]:
     return fn
 
 
+def _say_what_is_wrong_with_the_settings(app_key, fn):
+    """Wrap a pipeline entry so it reports settings problems before it runs.
+
+    ``spacr.validate.validate_settings`` knows that ``n_job`` is not a
+    setting and that ``n_jobs`` is. The CLI and the batch runner both ask it.
+    The GUI did not: this bridge hands the settings dict straight to the
+    pipeline, so a settings CSV loaded into a screen ran with its typos
+    intact and the key did nothing. That is not hypothetical -- the
+    real `crop_measure_settings.csv` in use here asks for `n_job`, and a
+    measure run started thirty workers while the file said four.
+
+    It REPORTS and runs anyway rather than refusing. The panel itself cannot
+    produce an unknown key, so the only source is a file the user chose to
+    load, and a screen that silently declines to start would be a worse
+    failure than one that says what it ignored. The CLI still refuses.
+
+    Validation never breaks a run: anything it raises is swallowed, because
+    a broken checker must not stop work the checker was only advising on.
+    """
+    if fn is None:
+        return None
+
+    @functools.wraps(fn)
+    def run(settings=None, *args, **kwargs):
+        if isinstance(settings, dict):
+            try:
+                from spacr.validate import ERROR, validate_settings
+
+                found = list(validate_settings(dict(settings), app_key))
+            except Exception:                                    # noqa: BLE001
+                found = []
+            for problem in found:
+                mark = "ERROR" if problem.severity == ERROR else "WARNING"
+                where = f" [{problem.setting}]" if problem.setting else ""
+                print(f"[settings] {mark}{where}: {problem.message}")
+                if problem.fix:
+                    print(f"[settings]     {problem.fix}")
+        if settings is None:
+            return fn(*args, **kwargs)
+        return fn(settings, *args, **kwargs)
+
+    return run
+
+
 def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | None:
     """Return the pipeline function that runs a given app, or None if the
     app is interactive-only (annotate / make_masks) or unknown.
@@ -1273,7 +1318,7 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
     from .verbose_logger import log_call
 
     def _ret(fn):
-        return _tag(app_key, fn)
+        return _tag(app_key, _say_what_is_wrong_with_the_settings(app_key, fn))
 
     try:
         if app_key == "mask":
