@@ -1,0 +1,121 @@
+================================================================================
+THE SETUP WINDOW, THE STARTUP NOISE, AND THE PROVIDER LOGINS
+================================================================================
+
+Status:    OPEN. Requested 2026-08-23.
+Owner:     spacr/qt -- setup slides, glass, home, preferences.
+
+--------------------------------------------------------------------------------
+1. ONE WINDOW, NOT A BOX INSIDE A BOX
+--------------------------------------------------------------------------------
+
+Asked for, verbatim: "for the startup window there is a square window with
+the theme and in front of that window is a dark square with rounded edges
+with all the settings. I only want that dark square with rounded edges."
+
+"I want the settings on a window with rounded edges, that window should be
+translucent (like the current black one is), and it should hold the
+settings and not another container with the settings."
+
+"So either make the background window look like I want, or make the inside
+container exactly the same dimensions as the background window and give the
+background window rounded edges."
+
+So: ONE surface. Rounded, translucent, carrying the settings itself. Not a
+themed square with a rounded card floating on it. Either route is
+acceptable; the test is that a screenshot shows one rounded translucent
+window and no second rectangle behind it at any theme.
+
+Note the history: INSET was already taken to 0 and `_paint_nothing_behind_
+the_card` was added, and the maintainer still sees two surfaces. So the
+remaining rectangle is NOT the inset -- find what is actually painting it
+before changing anything else.
+
+--------------------------------------------------------------------------------
+2. HELLO LEAVES BADLY
+--------------------------------------------------------------------------------
+
+"The transition to Hello is good, but the transition away from Hello is
+abrupt and bad. Make Hello appear somewhere where there will be nothing in
+the next page and make it fade gracefully."
+
+Two parts, both required:
+  * POSITION it over a region the following page leaves empty, so nothing
+    has to move out of its way;
+  * FADE it out rather than cutting.
+
+--------------------------------------------------------------------------------
+3. SPACR MODE HAS ONE OPTION AND THE WRONG DESCRIPTION
+--------------------------------------------------------------------------------
+
+"There is only one option for spaCR mode, balanced, where there should be
+3. And the description is terrible. spaCR mode is about how many background
+processes spaCR starts, which takes resources."
+
+Three options. The description says what it really controls: how many
+background processes spaCR starts, and therefore how much of the machine it
+takes while running.
+
+--------------------------------------------------------------------------------
+4. THE AI PROVIDERS DO NOT LOG YOU IN
+--------------------------------------------------------------------------------
+
+"If the user clicks an AI provider they should get prompted to login right
+away, and the icon should be coloured if they are logged in, like the
+Claude one is for me now."
+
+  * Clicking a provider starts its login immediately -- no second step.
+  * A provider that is signed in shows its icon in COLOUR; one that is not
+    shows it greyed. Claude already behaves this way; the rest must match.
+
+--------------------------------------------------------------------------------
+5. THE GITHUB LOGIN NEVER OPENS A BROWSER
+--------------------------------------------------------------------------------
+
+"The GitHub login says 'waiting for GitHub in your browser', but a GitHub
+login should be spawned in the default browser, which it is not."
+
+  * Actually open the default browser at the device-login page. The message
+    currently claims something that does not happen.
+  * "If spaCR detects the login there should also be a GitHub logo that
+    gains colour, and the button should be the icon without colour (if the
+    colour of the icon is black and white, go from grey to black and
+    white)." So: signed out = greyed logo; signed in = full colour, and for
+    a monochrome mark that means grey -> true black-and-white.
+
+--------------------------------------------------------------------------------
+6. STARTUP CONSOLE NOISE
+--------------------------------------------------------------------------------
+
+Reported twice at startup:
+
+    Qt warning: inotify_add_watch(...ibus...) failed: (No space left on device)
+
+NOT A SPACR BUG, and confirmed so on 2026-08-23: the machine's inotify
+watch limit is 65,536 and 65,434 were already in use -- syncthing held
+45,078 and VS Code 20,019. spaCR holds none. The device is not out of disk;
+it is out of watches, which is what ENOSPC means here.
+
+spaCR still should not print somebody else's environment problem twice at
+every start. Recognise this message and either drop it or say once, in
+plain words, what it means and that raising fs.inotify.max_user_watches is
+a system setting. Do NOT change the user's sysctl.
+
+    home.py:830 FutureWarning: The pynvml package is deprecated. Please
+    install nvidia-ml-py instead.
+
+That one IS ours. Move to nvidia-ml-py, keeping pynvml as a fallback so an
+environment that only has the old package still reports the GPU.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* A screenshot of the setup window shows ONE rounded translucent surface.
+* Hello fades out and nothing jumps.
+* spaCR mode offers three choices whose description names background
+  processes.
+* Every provider icon is grey when signed out and colour when signed in,
+  and clicking one starts its login.
+* The GitHub button opens the default browser.
+* Starting spaCR prints neither the ibus line nor the pynvml warning.
