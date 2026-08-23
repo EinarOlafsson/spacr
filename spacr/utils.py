@@ -9683,8 +9683,18 @@ def process_vision_results(df, threshold=0.5):
     :param threshold: cutoff used to derive ``cv_predictions``.
     :returns: enriched DataFrame with ``plateID``, ``rowID``, ``columnID``, ``fieldID``, ``prc``, ``cv_predictions``.
     """
-    # Split the 'path' column using _map_wells function
-    mapped_values = df['path'].apply(lambda x: _map_wells(x))
+    # `_map_wells_png`, NOT `_map_wells`. These paths are CROPS --
+    # `plate1_E01_18_1_250.png`, which is plate_well_field_time_object -- and
+    # `_map_wells` parses a FIELD stem, which is three parts or four with a
+    # timepoint. Five parts is neither, so it raised for every row and
+    # returned its 'error' tuple, and an entire inference run came out with
+    # plateID/rowID/columnID/fieldID = 'error' and prc = 'error_error_error'.
+    #
+    # Which means the scores could not be joined back to a well: no per-well
+    # aggregate, no regression on a CV model's output, and the only sign was
+    # a screenful of "Error processing filename" that the run scrolled past
+    # while reporting success. The crop parser has always existed beside it.
+    mapped_values = df['path'].apply(lambda x: _map_wells_png(x))
     
     df['plateID'] = mapped_values.apply(lambda x: x[0])
     df['rowID'] = mapped_values.apply(lambda x: x[1])
