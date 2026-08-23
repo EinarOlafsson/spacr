@@ -4700,12 +4700,22 @@ def _crop_shape_overrides(settings):
 #: accepts -- reached `resolve_crop_source`, raised CropError, was swallowed,
 #: and the run trained on pre-cut PNGs instead. The user's explicit choice
 #: was ignored in silence.
+#:
+#: `load_images` and `stream_images` are the CURRENT spelling -- the one the
+#: Classify panel writes -- and they were missing here, so the defect the
+#: paragraph above describes came straight back under new names. Worse than
+#: before: `settings._canonical_image_source` rewrites EVERY choice into this
+#: pair, so `crop_source='merged'` became `'stream_images'` and no value the
+#: panel could produce survived the lookup. Streaming was unreachable from
+#: the GUI; every run trained on pre-cut PNGs and said nothing.
 CROP_SOURCE_ALIASES = {
     'pre_generated': 'png',
     'generate': 'png',
     'png': 'png',
+    'load_images': 'png',
     'on_demand': 'merged',
     'merged': 'merged',
+    'stream_images': 'merged',
     'auto': 'auto',
 }
 

@@ -3476,20 +3476,33 @@ DYNAMIC_ORGANELLE_SETTINGS = frozenset(
 #: REFUSED: every settings CSV in existence carries one of them.
 _IMAGE_SOURCES = {
     "pre_generated": "load_images",
+    "generate": "load_images",
     "png": "load_images",
     "load_images": "load_images",
     "merged": "stream_images",
+    "on_demand": "stream_images",
     "stream": "stream_images",
     "stream_images": "stream_images",
+    "auto": "auto",
 }
 
 
 def _canonical_image_source(value) -> str:
-    """One of ``load_images`` / ``stream_images``.
+    """One of ``load_images`` / ``stream_images`` / ``auto``.
 
     An unrecognised value falls back to loading rather than raising: a
     settings file naming a source spaCR never had should still open the
     module, and the panel shows what it resolved to.
+
+    Two old spellings used to fall into that unrecognised branch and come
+    back as ``load_images``. ``on_demand`` is the older name for STREAMING,
+    so a settings file asking for it was answered with the opposite source;
+    and ``auto`` -- which is what `crops.resolve_crop_source` defaults to,
+    and means "PNGs if they were exported, merged planes if they were not"
+    -- was flattened to a fixed choice, so a project with no `data/` folder
+    stopped finding its own crops. Both are mapped explicitly now, and
+    ``auto`` survives as itself because both readers downstream understand
+    it.
     """
     return _IMAGE_SOURCES.get(str(value or "").strip().lower(),
                               "load_images")
