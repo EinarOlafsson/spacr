@@ -65,13 +65,14 @@ def test_the_menu_offers_show_as(figure, qtbot):
     menu = build_figure_context_menu(None, figure)
 
     titles = [a.menu().title() for a in menu.actions() if a.menu()]
-    assert "Show as" in titles
+    # RENAMED to "Graph type", which is the name it was asked for by.
+    assert "Graph type" in titles
 
 
 def test_the_current_type_is_ticked(figure, qtbot):
     menu = build_figure_context_menu(None, figure)
     show_as = next(a.menu() for a in menu.actions()
-                   if a.menu() and a.menu().title() == "Show as")
+                   if a.menu() and a.menu().title() == "Graph type")
 
     checked = [a.text() for a in show_as.actions() if a.isChecked()]
     assert checked == ["Jitter over bar"]
@@ -109,9 +110,20 @@ def test_the_caller_is_handed_the_new_figure(figure):
     assert handed[0].axes
 
 
-def test_a_figure_with_no_recipe_gets_no_menu_entry(qtbot):
-    """Every other figure in spaCR simply does not offer this, because an
-    entry that cannot redraw its figure is worse than an absent one."""
+def test_a_figure_with_nothing_plottable_gets_no_menu_entry(qtbot):
+    """The rule CHANGED, and this is what is left of it.
+
+    It used to be "only a figure carrying a recipe offers this", which meant
+    only the figures `create_grouped_plot` draws -- so the entry was absent
+    from nearly every plot in spaCR. Asked to put it on all of them, the
+    menu now DERIVES a recipe from the artists when there is no recipe (see
+    `figure_settings.derive_replot_recipe`).
+
+    What survives is the narrower claim: an entry that cannot redraw its
+    figure is still worse than an absent one. A two-point line with no
+    marker is a reference line rather than data, the deriver says so, and
+    nothing is offered.
+    """
     import matplotlib.pyplot as plt
 
     plain = plt.figure()
@@ -119,7 +131,7 @@ def test_a_figure_with_no_recipe_gets_no_menu_entry(qtbot):
     menu = build_figure_context_menu(None, plain)
 
     titles = [a.menu().title() for a in menu.actions() if a.menu()]
-    assert "Show as" not in titles
+    assert "Graph type" not in titles
 
 
 def test_a_replot_that_cannot_work_is_not_a_crash(figure):
