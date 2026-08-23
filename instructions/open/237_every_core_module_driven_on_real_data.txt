@@ -241,3 +241,71 @@ P8. TEN INERT SETTINGS, kept only so old settings CSVs load. A DECISION,
     it was not a superseded feature but a MISSPELLING of the live
     `comp_level`. The panel offered two HDF5 compression-level boxes and
     one of them did nothing. Deleted.
+
+
+--------------------------------------------------------------------------------
+E. PROGRESS -- 2026-08-23
+--------------------------------------------------------------------------------
+
+DRIVEN AND VERIFIED
+
+  MEASURE, on three real plate1 fields (f1, f9, f10) against the reference
+  measurements.db the maintainer's own run wrote:
+      object counts IDENTICAL -- 143 cells, 151 nuclei, 149 pathogens,
+      143 cytoplasms;
+      168 of 176 shared numeric columns equal to 1e-6 relative.
+      The 8 that differ are frac_high90 / frac_low10 on all four channels,
+      and the difference is a FIX already documented in feature_dict.py:
+      the old database thresholded on each object's OWN percentile, which
+      pins the value near 0.10 for every object. The reference column is
+      0.0945-0.1000 across all 143 cells; the new one spans 0 to 0.71.
+      Zernike columns are absent because mahotas is not installed, which
+      the run says.
+      Driver: spacr_drivers/drive_measure_on_plate1.py
+
+  MAP BARCODES, on the synthetic 4,800-read demo, both modes and both
+  single-end directions. Paired and single/R1 account for all 4,800 reads
+  across 288 combinations. single/R2 correctly finds nothing and warns --
+  the single-end path does not reverse-complement -- but the warning comes
+  from worker processes, so a parent-side redirect_stdout does not see it.
+      Driver: spacr_drivers/drive_map_barcodes.py
+
+  CLASSIFY / ANNOTATE crop streaming, on plate1's merged/ and
+  measurements.db. Streamed crops are byte-identical to the exported PNGs.
+
+BUGS FOUND AND FIXED
+
+  1. Streaming was unreachable from the Classify panel. Instruction 230
+     renamed the vocabulary and io.CROP_SOURCE_ALIASES was not updated, so
+     NO value the panel could produce survived the lookup: the error was
+     swallowed and every run trained on pre-cut PNGs. `on_demand` was
+     mapped to loading, its opposite; `auto` was flattened to a fixed
+     choice.
+  2. Crop streaming for the ANNOTATOR could never work. png_list spells
+     both fields unlike the measurement tables -- cell_id is 'o2', and
+     file_name is the crop rather than the field -- so it hit int('o2'),
+     then asked for a merged array named after a crop.
+  3. Map barcodes corrupted BOTH its output tables past the first chunk:
+     one junk column per chunk in the count table, and one row per chunk
+     in the QC table instead of a total.
+  4. The GUI ran settings files with their typos intact. validate_settings
+     catches `n_job` and names `n_jobs`; the Qt bridge never asked it.
+  5. `complevel` was a misspelled duplicate of the live `comp_level`, so
+     the Map barcodes panel offered two compression boxes and one did
+     nothing.
+
+TESTS ADDED
+
+  * every one of the 127 mode values the panel offers is now named by a
+    test, and a guard re-derives the alphabets so a new mode fails until
+    it is tested. Seven were untested and are now driven for the property
+    that makes them worth offering, not merely for not raising.
+  * the documented-inert settings list is closed and can only shrink.
+  * both barcode writers are tested over five chunks; one chunk cannot
+    fail either way, which is why the old tests passed.
+
+STILL TO DO
+
+  * MASK end to end on plate1's own gen_masks_settings.csv (item 1).
+  * CLASSIFY and REGRESSION driven on the tsg101 screen (items 3 and 5).
+  * The untested functions in measure.py (9) and ml.py (38).
