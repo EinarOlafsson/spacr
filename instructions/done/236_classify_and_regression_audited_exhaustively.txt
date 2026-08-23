@@ -2,7 +2,30 @@
 CLASSIFY AND REGRESSION, AUDITED EXHAUSTIVELY AGAINST A REAL SCREEN
 ================================================================================
 
-Status:    OPEN, most of the way. Requested 2026-08-22.
+Status:    DONE. Requested 2026-08-22, verified 2026-08-23.
+
+           Every one of the thirteen items is driven. Re-verified against
+           the current tree after the reboot rather than carried on trust:
+           all eighteen regression types fit the four-plate screen, the
+           permutation test runs on all four plates (789 guides, 380
+           genes), and the 191 tests written for this instruction pass.
+
+           THREE TYPES REFUSE A RESPONSE OF THE WRONG SHAPE, and that is
+           the data, not a defect. poisson and horseshoe model a well's
+           positive COUNT and get it by summing the response per well; the
+           screen's `pred` is a classification SCORE, so summing 152 cells
+           at ~0.14 gives 21.68, which is not a count of anything. hinge
+           separates two classes and `pred` holds 153 distinct values. Each
+           says so in a sentence naming the setting and the alternative,
+           and each FITS when given a response of the right shape --
+           driven with `cv_predictions`, the per-cell 0/1 label the same
+           screen carries, and with `hinge_threshold=0.15`:
+
+               poisson    26.1s   72 files
+               horseshoe  15.6s   32 files
+               hinge      33.2s   80 files
+
+           Those three guards are the reason to keep them.
 
            A: 1, 2 and 3 DONE.
            B: 4, 5 and 6 DONE for everything the shared card allows. The
