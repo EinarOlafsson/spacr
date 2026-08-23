@@ -127,18 +127,28 @@ def save_unique_combinations_to_csv(unique_combinations, csv_file):
             unique_combinations = unique_combinations.groupby(
                 ['rowID', 'columnID', 'grna_name'], as_index=False).sum()
 
-        unique_combinations.to_csv(csv_file, index=True)
+        # index=False: the frame comes out of a groupby with as_index=False,
+        # so its index is a RangeIndex carrying nothing. Written out, the next
+        # chunk read it back as a column named 'Unnamed: 0', summed it with
+        # the counts, and wrote a fresh index beside it -- one junk column per
+        # chunk, in the count table the whole run exists to produce. A real
+        # run is hundreds of chunks.
+        unique_combinations.to_csv(csv_file, index=False)
     except Exception as e:
         print(f"Error while saving unique combinations to CSV: {e}")
         raise
 
 def save_qc_df_to_csv(qc_df, qc_csv_file):
-    """Write a QC DataFrame to a CSV, index-aligning it with any existing file.
+    """Accumulate a one-row QC frame into a CSV, summing it with what is there.
 
-    An existing CSV is re-read and combined via ``DataFrame.add(..., fill_value=0)``,
-    and the result overwrites the file with ``index=False``. Because the index is
-    never written, the incoming ``NaN_Counts`` row does not align with the re-read
-    ``RangeIndex``, so the CSV gains a row per call rather than accumulating totals.
+    Both frames are put on a positional index before they are added. The
+    incoming row is labelled ``NaN_Counts`` and is written with
+    ``index=False``, so the copy read back from disk is labelled ``0``:
+    ``DataFrame.add`` aligned those two labels to nothing, took the union,
+    and the file gained a ROW per chunk instead of accumulating. A run of
+    five chunks reported five sets of totals and no total; the QC column a
+    reader would check for dropped reads was one chunk's worth, whichever
+    landed last.
 
     :param qc_df: numeric QC metrics (e.g. missing counts, total reads).
     :param qc_csv_file: destination CSV path.
@@ -151,8 +161,10 @@ def save_qc_df_to_csv(qc_df, qc_csv_file):
         except FileNotFoundError:
             existing_qc_df = pd.DataFrame()
 
+        qc_df = qc_df.reset_index(drop=True)
         if not existing_qc_df.empty:
-            qc_df = qc_df.add(existing_qc_df, fill_value=0)
+            qc_df = qc_df.add(existing_qc_df.reset_index(drop=True),
+                              fill_value=0)
 
         qc_df.to_csv(qc_csv_file, index=False)
     except Exception as e:
