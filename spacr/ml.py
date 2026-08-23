@@ -9283,6 +9283,7 @@ def generate_ml_scores(settings):
                                settings['cross_validation'],
                                settings['verbose'],
                                split_by=settings.get('cv_group_by', 'well'),
+                               holdout_plate=settings.get('holdout_plate'),
                                **batch_kwargs)
     
     shap_fig = shap_analysis(output[3], output[4], output[5])
@@ -9442,6 +9443,7 @@ def ml_analysis(
     verbose=False,
     *,
     split_by='well',
+    holdout_plate=None,
     batch_correction='none',
     batch_column='plateID',
     batch_control_column=None,
@@ -9830,9 +9832,25 @@ def ml_analysis(
     split_frame = combined_df[['prcfo']].reset_index(drop=True)
     split_level, split_groups = split_group_values(
         group_by=split_by, frame=split_frame, table='ML control measurements')
-    train_index, test_index, split_report = grouped_split(
-        split_groups, y.to_numpy(), test_size, seed=random_state,
-        group_by=split_level)
+    # A NAMED HOLDOUT BEATS A RANDOM ONE. Cross-validation splits within the
+    # data it is given, so a model can learn the PLATE rather than the
+    # phenotype and every number it reports still looks fine. Naming a plate
+    # trains without it and scores on it, which is the one number that says
+    # whether the classifier generalises.
+    held = holdout_plate
+    if held is not None and not isinstance(held, (list, tuple, set)):
+        held = [held]
+    if held:
+        _plate_level, plate_groups = split_group_values(
+            group_by='plate', frame=split_frame,
+            table='ML control measurements')
+        train_index, test_index, split_report = grouped_split(
+            plate_groups, y.to_numpy(), test_size, seed=random_state,
+            group_by='plate', hold_out_groups=held)
+    else:
+        train_index, test_index, split_report = grouped_split(
+            split_groups, y.to_numpy(), test_size, seed=random_state,
+            group_by=split_level)
     X_train, X_test = X.iloc[train_index], X.iloc[test_index]
     y_train, y_test = y.iloc[train_index], y.iloc[test_index]
     print(split_report.summary())

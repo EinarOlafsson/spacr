@@ -27,7 +27,17 @@ except Exception:
         pass
 
 # Function to map sequences to names (same as your original)
-def map_sequences_to_names(csv_file, sequences, rc):
+#: How many mismatched bases a barcode may carry and still be matched.
+#:
+#: Set from `settings['barcode_mismatches']` by `generate_barecode_mapping`
+#: rather than threaded through as an argument, because the mapping runs in
+#: worker processes whose arguments are a fixed tuple built in three places
+#: -- and a run-scoped budget is one value for the whole run by definition.
+#: The workers are forked, so they inherit it.
+BARCODE_MISMATCHES = 0
+
+
+def map_sequences_to_names(csv_file, sequences, rc, mismatches=None):
     """Look up barcode / gRNA names for a list of DNA reads against a ``sequence,name`` mapping CSV.
 
     Used inside the spacr sequencing pipeline to translate the row,
@@ -108,7 +118,59 @@ def map_sequences_to_names(csv_file, sequences, rc):
         df['sequence'] = df['sequence'].apply(rev_comp)
     
     csv_sequences = pd.Series(df['name'].values, index=df['sequence']).to_dict()
-    return [csv_sequences.get(sequence, pd.NA) for sequence in sequences]
+    budget = BARCODE_MISMATCHES if mismatches is None else mismatches
+    if not budget:
+        return [csv_sequences.get(sequence, pd.NA) for sequence in sequences]
+    return _map_within(csv_sequences, sequences, int(budget))
+
+
+def _map_within(reference, sequences, mismatches):
+    """Map each sequence to its reference, allowing ``mismatches`` bases.
+
+    THE BUDGET WAS FIXED AT ZERO. Every barcode had to match a reference
+    exactly, so one sequencing error anywhere in a barcode threw the read
+    away -- and on a long barcode that is a real fraction of the library.
+    The budget is a setting now.
+
+    AMBIGUITY IS NOT A MATCH. A read within the budget of TWO references
+    cannot be told which it came from, so it is unassigned rather than given
+    to whichever came first -- the same rule as a sequence that appears
+    under two names. Attributing it would put one guide's counts on another.
+
+    Exact matches never go through the search, so a run with a budget of
+    zero costs nothing and a clean read costs one dict lookup.
+    """
+    by_length = {}
+    for text, name in reference.items():
+        by_length.setdefault(len(str(text)), []).append((str(text), name))
+
+    cache = {}
+
+    def resolve(sequence):
+        text = str(sequence)
+        if text in reference:
+            return reference[text]
+        if text in cache:
+            return cache[text]
+        hit = pd.NA
+        found = 0
+        for candidate, name in by_length.get(len(text), ()):
+            wrong = 0
+            for a, b in zip(text, candidate):
+                if a != b:
+                    wrong += 1
+                    if wrong > mismatches:
+                        break
+            if wrong <= mismatches:
+                found += 1
+                if found > 1:          # ambiguous: two references fit
+                    hit = pd.NA
+                    break
+                hit = name
+        cache[text] = hit
+        return hit
+
+    return [resolve(sequence) for sequence in sequences]
 
 # Functions to save data (same as your original)
 def save_df_to_hdf5(df, hdf5_file, key='df', comp_type='zlib', comp_level=5):
@@ -940,6 +1002,17 @@ def generate_barecode_mapping(settings=None):
 
     settings = set_default_generate_barecode_mapping(settings)
     save_settings(settings, name=f"sequencing_{settings['mode']}_{settings['single_direction']}", show=True)
+
+    # THE MISMATCH BUDGET FOR THIS RUN. Set here, before any worker is
+    # forked, because the mapping happens inside worker processes whose
+    # arguments are a fixed tuple assembled in three places -- and a budget
+    # is one value for the whole run by definition.
+    global BARCODE_MISMATCHES
+    BARCODE_MISMATCHES = int(settings.get('barcode_mismatches') or 0)
+    if BARCODE_MISMATCHES:
+        print(f"Barcodes may carry up to {BARCODE_MISMATCHES} mismatched "
+              f"base(s). A read within the budget of TWO barcodes is left "
+              f"unassigned rather than given to whichever was found first.")
 
     regex = settings['regex']
 

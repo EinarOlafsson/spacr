@@ -236,13 +236,25 @@ def split_group_values(*, group_by: Any = "well",
 
 
 def grouped_split(groups: Sequence[Any], labels: Sequence[Any], holdout: float,
-                  seed: int = 0, *, group_by: Any = "well"
+                  seed: int = 0, *, group_by: Any = "well",
+                  hold_out_groups: Optional[Sequence[Any]] = None
                   ) -> Tuple[np.ndarray, np.ndarray, SplitReport]:
     """Return a stratified holdout while keeping named groups intact.
 
     A grouped design is refused when either side cannot contain every class.
     This is intentionally stricter than silently scoring a model on siblings
     of its training rows or on a holdout that contains only one class.
+
+    :param hold_out_groups: groups that go to the TEST side whatever the
+        fraction says. This is what `holdout_plate` is: cross-validation
+        splits within the data it is given, so a model can learn the plate
+        rather than the phenotype and every number it reports will look
+        fine. Naming a plate here trains without it and scores on it, which
+        is the one number that says whether a classifier generalises.
+
+        The class check still applies: a named holdout that leaves either
+        side without every class is refused, for the same reason a random
+        one is.
     """
     from sklearn.model_selection import (GroupShuffleSplit,
                                          StratifiedGroupKFold,
@@ -259,6 +271,42 @@ def grouped_split(groups: Sequence[Any], labels: Sequence[Any], holdout: float,
     if len(y) < 2:
         raise ValueError("a train/test split needs at least two labelled cells")
     classes = np.unique(y)
+
+    # A NAMED HOLDOUT SHORT-CIRCUITS THE SAMPLING. There is nothing to
+    # stratify: the caller has said which groups are the test side.
+    if hold_out_groups:
+        wanted = {str(g).strip() for g in hold_out_groups if str(g).strip()}
+        as_text = np.array([str(g) for g in group_values])
+        test_mask = np.isin(as_text, list(wanted))
+        if not test_mask.any():
+            raise ValueError(
+                f"none of the held-out {level}(s) {sorted(wanted)} appear in "
+                f"the data; it has {sorted(set(as_text))[:8]}")
+        if test_mask.all():
+            raise ValueError(
+                f"the held-out {level}(s) {sorted(wanted)} are ALL of the "
+                f"data, so there is nothing left to train on")
+        train_idx = np.where(~test_mask)[0]
+        test_idx = np.where(test_mask)[0]
+        for side, name in ((train_idx, "training"), (test_idx, "held-out")):
+            missing = set(classes) - set(np.unique(y[side]))
+            if missing:
+                raise ValueError(
+                    f"holding out {level}(s) {sorted(wanted)} leaves the "
+                    f"{name} side without class(es) {sorted(missing)}, so the "
+                    f"score would not mean what it says")
+        total_groups = len(set(as_text))
+        test_groups = len(set(as_text[test_mask]))
+        report = SplitReport(
+            group_by=level,
+            requested_fraction=float(fraction),
+            cell_fraction=float(test_mask.sum()) / float(len(y)),
+            group_fraction=float(test_groups) / float(max(1, total_groups)),
+            train_cells=int(len(train_idx)), test_cells=int(len(test_idx)),
+            train_groups=int(total_groups - test_groups),
+            test_groups=int(test_groups), total_groups=int(total_groups),
+            rule=f"held out by name: {', '.join(sorted(wanted))}")
+        return train_idx, test_idx, report
 
     indices = np.arange(len(y))
     distinct = np.unique(group_values.astype(str))

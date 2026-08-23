@@ -2207,6 +2207,60 @@ def delete_empty_subdirectories(folder_path):
                 # An error occurred, likely because the directory is not empty
                 #print(f"Skipping non-empty directory: {full_dir_path}")
 
+def select_fields(names, fields):
+    """Keep only the ``names`` whose field is in ``fields``.
+
+    A mask run is otherwise all-or-nothing over a plate, so fixing one bad
+    field means redoing every field beside it -- hours of segmentation to
+    replace one image.
+
+    :param names: stack file names, as written by
+        `_rename_and_organize_image_files`.
+    :param fields: what to keep. ``None`` or empty keeps everything, which
+        is the default and the behaviour every existing run has. A list, or
+        a comma-separated string, of field ids in any spelling the rest of
+        spaCR accepts -- ``'f3'``, ``3``, ``'F003'`` -- or a glob such as
+        ``'f1*'`` matched against the field id.
+    :returns: the kept names, in the order given.
+    """
+    import fnmatch
+
+    from . import schema
+
+    if fields is None or (hasattr(fields, '__len__') and not len(fields)):
+        return list(names)
+    if isinstance(fields, str):
+        wanted = [part.strip() for part in fields.split(',') if part.strip()]
+    elif isinstance(fields, (list, tuple, set)):
+        wanted = [str(part).strip() for part in fields if str(part).strip()]
+    else:
+        wanted = [str(fields).strip()]
+    if not wanted:
+        return list(names)
+
+    # NORMALISED THROUGH schema, so 'f3', '3' and 'F003' are one field --
+    # the same rule the file names themselves were written by.
+    def field_of(token):
+        try:
+            index = schema.field_index(token)
+        except Exception:                                    # noqa: BLE001
+            index = None
+        return f'f{index}' if index is not None else str(token).strip().lower()
+
+    patterns = [field_of(w) if not any(c in str(w) for c in '*?[')
+                else str(w).strip().lower() for w in wanted]
+    kept = []
+    for name in names:
+        try:
+            this = schema.parse_field_stem(name).fieldID
+        except Exception:                                    # noqa: BLE001
+            continue
+        this = str(this).lower()
+        if any(fnmatch.fnmatch(this, pattern) for pattern in patterns):
+            kept.append(name)
+    return kept
+
+
 def preprocess_img_data(settings):
     """Convert raw microscopy images into normalized, channel-merged ``.npy`` stacks ready for mask generation.
 
@@ -2404,6 +2458,7 @@ def preprocess_img_data(settings):
 
     stacked = ([f for f in os.listdir(stack_path) if f.endswith('.npy')]
                if os.path.isdir(stack_path) else [])
+    stacked = select_fields(stacked, settings.get('fields'))
     if not stacked:
         # Emptiness, not absence: _rename_and_organize_image_files creates
         # stack/ before it has anything to put in it, so a folder with no
