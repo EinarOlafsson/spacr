@@ -182,30 +182,30 @@ P2. CLASSIFY/ANNOTATE: three declared settings that nothing reads.
     half of this item, because whatever it is measuring, it is not "does
     any code read this".
 
-P3. MASK: no way to re-run one field. A mask run is all-or-nothing over a
+P3. [BUILT 2026-08-23 -- `fields`] MASK: no way to re-run one field. A mask run is all-or-nothing over a
     plate, so fixing one bad field means redoing the plate. Proposal: a
     `fields` setting (a list, or a glob against the field id) that limits
     the run and merges its output into the existing masks folder.
 
-P4. MEASURE: the object filters are minimums only. `min_cell_count` and
+P4. [BUILT 2026-08-23 -- `*_max_size`] MEASURE: filters are minimums only. `min_cell_count` and
     friends have no upper bound, so a segmentation blow-up -- one "cell"
     covering a quarter of the field -- is measured and carried into
     classification. Proposal: paired `max_*_area` settings, defaulting off
     so no existing run changes, and a line in the log naming how many
     objects each bound dropped.
 
-P5. MAP BARCODES: the barcode mismatch budget is fixed in code. Proposal:
+P5. [BUILT 2026-08-23 -- `barcode_mismatches`] MAP BARCODES: budget fixed. Proposal:
     `barcode_mismatches` (int, default whatever the code does today) plus
     a per-barcode breakdown in the summary, so a failing library can be
     told apart from a failing read.
 
-P6. CLASSIFY: no held-out plate. Cross-validation splits within the data
+P6. [BUILT 2026-08-23 -- `holdout_plate`] CLASSIFY: no held-out plate. Cross-validation splits within the data
     it is given, so a model can learn plate rather than phenotype and
     nothing reports it. Proposal: `holdout_plate` -- name a plate, train
     without it, score on it, print both numbers. Cheap, and it is the one
     number that says whether a classifier generalises.
 
-P7. ALL MODULES: settings are not recorded with the output. A results
+P7. [BUILT 2026-08-23 -- settings.json] ALL MODULES: settings not recorded. A results
     folder does not say which settings produced it, so a rerun months
     later is guesswork. Proposal: always write `settings.json` beside the
     output, no setting to switch it on, and have the Qt panel offer to
@@ -430,3 +430,40 @@ package, no `**settings` splat exists at all, and the two names that
 collide with a function parameter are never passed the setting -- and are
 now hidden from every app while staying declared, so an old CSV still
 loads. Mask and Timelapse had been rendering three of them.
+
+
+--------------------------------------------------------------------------------
+I. WHAT IS LEFT -- 2026-08-23
+--------------------------------------------------------------------------------
+
+DONE SINCE H: classify's ML/tabular half driven on the tsg101 measurements
+(60,816 cells, controls c1/c2); the annotation app's own path driven
+through `qt.annotate_engine` on plate1's 553 crops; drivers kept for both
+halves of classify and for the annotator; and P3-P7 built.
+
+  FOUND AND FIXED driving the ML half: it merged 0 of 60,816 rows and said
+  the results "probably come from a different experiment than png_list",
+  about the database it had just read. The screen on disk stamps its plate
+  `pplate1` and everything computed since stamps it `plate1`;
+  schema.canonical_plate_id is the rule that collapses the doubled prefix
+  and it was not reaching this join. 45,777 rows now match.
+
+STILL OPEN, and each for a reason rather than for want of trying:
+
+  A4  Barcode counts cannot be compared against the screen's own
+      plate_N_unique_combinations.csv, because the FASTQ reads that
+      produced them are not on this machine. Everything reachable without
+      them is done.
+
+  A1  The mask rerun does not reproduce the reference masks -- Cellpose
+      4.2.1.1 `cpsam` against the reference's Cellpose 3 `cyto`/`nuclei`,
+      up to 2.4x on cell counts. Explained, not resolved: whether the new
+      segmentation is BETTER is a question only the maintainer can answer
+      by looking at it. `magnification: 40` is set while `diameter` is
+      None, so nothing tells cpsam how big a cell is.
+
+  B6  100% coverage. Instruction 60, deferred by the maintainer.
+
+  P8  The ten inert settings are hidden but still declared. Deleting them
+      would stop an old settings CSV loading, which is the maintainer's
+      call.
