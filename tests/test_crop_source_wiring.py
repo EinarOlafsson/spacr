@@ -1160,3 +1160,74 @@ def test_an_unusable_crop_source_says_so_without_verbose(project, capsys):
                      verbose=False)
     printed = capsys.readouterr().out
     assert "nonsense" in printed
+
+
+# ---------------------------------------------------------------------------
+# EVERY image_source spelling, end to end through the settings the panel writes
+#
+# The chain has three vocabularies: what the panel offers, what
+# `settings._canonical_image_source` normalises it to, and what
+# `crops.resolve_crop_source` understands. Instruction 230 renamed the first
+# two and left the third, so `_canonical_image_source` rewrote EVERY choice
+# into a pair of words `io.CROP_SOURCE_ALIASES` did not contain,
+# `resolve_crop_source` raised, `open_crop_source` swallowed it, and every
+# run trained on pre-cut PNGs whatever the user picked. Streaming was
+# unreachable from the GUI and nothing said so.
+#
+# These two tests are deliberately different in kind. The first drives every
+# spelling and checks the source that comes back. The second needs no project
+# at all: it asserts the vocabularies still MEET, so the next rename fails
+# here rather than in a silent fallback six months later.
+# ---------------------------------------------------------------------------
+
+#: Panel spelling -> the crop source class it has to produce. Both halves of
+#: each pair are spellings a real settings CSV carries.
+IMAGE_SOURCE_MEANS = {
+    "load_images": "PngCropSource",
+    "png": "PngCropSource",
+    "pre_generated": "PngCropSource",
+    "generate": "PngCropSource",
+    "stream_images": "MergedCropSource",
+    "merged": "MergedCropSource",
+    "on_demand": "MergedCropSource",
+    "stream": "MergedCropSource",
+}
+
+
+@pytest.mark.parametrize("spelling,expected", sorted(IMAGE_SOURCE_MEANS.items()))
+def test_every_image_source_spelling_reaches_the_source_it_names(
+        project, spelling, expected):
+    """The user's choice survives normalisation and opens that source."""
+    from spacr.io import open_crop_source
+    from spacr.settings import deep_spacr_defaults
+
+    settings = deep_spacr_defaults({"image_source": spelling, "src": project})
+    source = open_crop_source(settings, src=project, verbose=False)
+    assert source is not None, (
+        f"image_source={spelling!r} opened no crop source at all; a swallowed "
+        f"CropError here is the silent fallback to pre-cut PNGs")
+    assert type(source).__name__ == expected
+
+
+def test_every_source_the_normaliser_can_produce_is_a_word_the_reader_knows():
+    """The two vocabularies must meet, or the choice is dropped in silence.
+
+    No project and no filesystem: this is a claim about the code, and it is
+    the one that would have caught the rename. `_canonical_image_source`
+    decides what `crop_source` ends up holding; `io.CROP_SOURCE_ALIASES` is
+    what turns that back into a word `crops.resolve_crop_source` accepts.
+    Every output of the first has to be a key of the second.
+    """
+    from spacr.io import CROP_SOURCE_ALIASES
+    from spacr.settings import _IMAGE_SOURCES, _canonical_image_source
+
+    produced = {_canonical_image_source(v) for v in _IMAGE_SOURCES}
+    # The fallback for an unrecognised value counts: it is what a typo gets.
+    produced.add(_canonical_image_source("a source spaCR never had"))
+    unknown = sorted(produced - set(CROP_SOURCE_ALIASES))
+    assert not unknown, (
+        f"_canonical_image_source can produce {unknown}, which "
+        f"io.CROP_SOURCE_ALIASES does not translate. resolve_crop_source "
+        f"will raise on it and open_crop_source will swallow the error.")
+    # And every alias has to name a word resolve_crop_source really takes.
+    assert set(CROP_SOURCE_ALIASES.values()) <= {"png", "merged", "auto"}
