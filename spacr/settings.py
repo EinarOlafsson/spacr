@@ -2491,6 +2491,21 @@ def get_perform_regression_default_settings(settings):
     if 'toxo' in settings:
         settings.setdefault('Toxoplasma', settings.pop('toxo'))
     settings.setdefault('Toxoplasma', True)
+    # `Toxoplasma` BECAME A FIELD on 2026-08-23: "it would be cool if that
+    # was a field that you could fill with any uniprot id or organism name
+    # and it would pull what uniprot has. Defaults to Toxo and Toxo data
+    # hardcoded as before."
+    #
+    # The boolean is kept and still read, because every settings CSV in
+    # existence carries it and because `ml._toxoplasma_is_on` is what the
+    # bundled path asks. True means the bundled Toxoplasma tables, which is
+    # what `annotation_source` defaults to; False means no annotation at
+    # all, which is the one thing a NAME cannot express -- so it maps to the
+    # empty string and `spacr.uniprot.resolve` reads that as the bundled
+    # path being off.
+    settings.setdefault(
+        'annotation_source',
+        'toxoplasma' if settings.get('Toxoplasma', True) else '')
     # perform_regression prints a per-stage row count and display()s the whole
     # per-object score table under verbose, which is millions of rows on a real
     # screen, so this pipeline is one of the False ones.
@@ -2854,6 +2869,7 @@ expected_types = {
     "channel_arrays": list,
     "mask_array": str,
     "bounding_box": bool,
+    "annotation_source": str,
     "cell_area_outlier_mads": (float, int, type(None)),
     "nucleus_area_outlier_mads": (float, int, type(None)),
     "cell_intensity_outlier_mads": (float, int, type(None)),
@@ -3604,6 +3620,17 @@ tooltips = {
     # ---------------------------------------------------------------- #
     #  Optional outlier removal before annotation.                       #
     # ---------------------------------------------------------------- #
+    'annotation_source':
+        "(str) - Which organism's annotation to join onto the regression "
+        "results. Empty or 'toxoplasma' uses the bundled Toxoplasma gondii "
+        "tables, which need no network and are the default. Any other "
+        "organism name or NCBI taxon id -- 'human', 'Plasmodium "
+        "falciparum', 'Neospora caninum', '9606' -- pulls that organism's "
+        "entries from UniProt, and a single accession such as P04637 pulls "
+        "that one entry. The answer is cached beside the results, so a "
+        "rerun needs no network. A name spaCR does not recognise leaves the "
+        "results unannotated and says which names were close. Default "
+        "'toxoplasma'.",
     'cell_area_outlier_mads':
         "(float | None) - Optionally remove objects whose cell area exceeds "
         "this many scaled "
