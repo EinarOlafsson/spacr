@@ -883,9 +883,47 @@ def object_identity(frame: "pd.DataFrame") -> Optional["pd.Series"]:
         head = frame["prcf"].astype(str)
     elif "prc" in columns and "fieldID" in columns:
         head = frame["prc"].astype(str) + "_" + frame["fieldID"].astype(str)
+    elif all(c in columns for c in FIELD_KEY):
+        # THE FOUR COLUMNS ARE THE FIELD KEY. `prcf` is nothing but
+        # plateID_rowID_columnID_fieldID pasted together -- `plate1_r5_c1_f16`
+        # -- and `png_list` carries the four without ever carrying the paste.
+        # So the crop table, which is the object table the Compare panel
+        # starts from, had "no object identity" and the join refused it:
+        # "these object rows carry no object identity (prcfo, or prcf and an
+        # object label)". Every morphological measurement in the screen was
+        # unreachable from that panel because of a column that was not
+        # written rather than data that was not there.
+        head = frame[FIELD_KEY[0]].astype(str)
+        for column in FIELD_KEY[1:]:
+            head = head + "_" + frame[column].astype(str)
     else:
         return None
-    return head + "_" + frame[label].astype(str)
+    return head + "_" + _label_text(frame[label])
+
+
+#: The columns `prcf` is built from, in the order it pastes them.
+FIELD_KEY: Tuple[str, ...] = ("plateID", "rowID", "columnID", "fieldID")
+
+
+def _label_text(values: "pd.Series") -> "pd.Series":
+    """Object labels as the text `prcfo` uses, whichever spelling arrived.
+
+    The object tables store the label as an integer; `png_list` stores the
+    SAME object as `cell_id` in the prcfo spelling -- `o2`, not `2`. Pasting
+    those two into an identity gives `..._f17_o2` on one side and `..._f17_2`
+    on the other, so every row would match nothing and the join would come
+    back empty while reporting no trouble at all.
+    """
+    import pandas as pd
+
+    text = values.astype(str).str.strip()
+    leading_letter = text.str.match(r"^[A-Za-z]")
+    if not bool(leading_letter.any()):
+        return text
+    from .utils import object_label_from_png_id
+
+    return pd.Series(object_label_from_png_id(values),
+                     index=values.index).astype("Int64").astype(str)
 
 
 def measurements_are_joined(objects: "pd.DataFrame") -> bool:

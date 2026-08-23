@@ -107,6 +107,16 @@ class MeasurementComparePanel(QWidget):
         self._settings = dict(settings or {})
         self._databases = tuple(databases or ())
         self._counts = counts
+        # THE JOIN RUNS OFF THE GUI THREAD. It reads every object table out
+        # of every attached database and joins them onto the crop rows:
+        # measured at 3.2 s for one plate's 553 objects, so a four-plate
+        # screen of 60,000 is minutes with the window frozen solid --
+        # reported as "pressing join the measurements table in the cell tab
+        # in the regression module makes spacr unresponsive".
+        from ..job_runner import JobRunner
+
+        self._jobs = JobRunner(self, app_key="join measurements")
+        self._joining = False
         self._comparison = None
         self._canvas = None
         # THE WELLS THE USER LEFT IN. `None` means "all of them", which is
@@ -483,21 +493,44 @@ class MeasurementComparePanel(QWidget):
         """
         if not self._databases:
             return "no measurements database is attached"
+        if self._joining:
+            return ""
+        # READ ON THE GUI THREAD, because a worker may not touch a widget.
+        png_list = bool(self.join_png_list.isChecked())
+        objects, databases = self._objects, self._databases
+        self._joining = True
         self.join_button.setEnabled(False)
-        try:
-            # THE BOX IS READ. It was created, laid out and never
-            # consulted -- a control the user can change that changes
-            # nothing, which is worse than no control at all because it
-            # says the option exists.
-            wide, trouble = join_measurements(
-                self._objects, self._databases,
-                png_list=bool(self.join_png_list.isChecked()))
-        except Exception as exc:                             # noqa: BLE001
-            LOG.debug("could not join the measurement tables", exc_info=True)
-            self.join_note.setText(f"Could not join: {exc}")
+        self.join_button.setText("Joining…")
+
+        def work():
+            """Off the GUI thread. Returns, never raises: a failed join is
+            a message in the panel, not a traceback in the console."""
+            try:
+                wide, trouble = join_measurements(objects, databases,
+                                                  png_list=png_list)
+                return {"wide": wide, "trouble": trouble}
+            except Exception as exc:                         # noqa: BLE001
+                LOG.debug("could not join the measurement tables",
+                          exc_info=True)
+                return {"error": str(exc)}
+
+        started = self._jobs.submit(work, self._finish_join)
+        if not started:                      # pragma: no cover - JobRunner
+            self._joining = False            # always returns True today
             self.join_button.setEnabled(True)
-            return str(exc)
+            self.join_button.setText("Join the measurement tables")
+        return ""
+
+    def _finish_join(self, outcome: Dict[str, Any]) -> str:
+        """Put the joined frame into the panel. Always on the GUI thread."""
+        self._joining = False
         self.join_button.setEnabled(True)
+        self.join_button.setText("Join the measurement tables")
+        if not isinstance(outcome, dict) or "error" in (outcome or {}):
+            why = (outcome or {}).get("error", "the join returned nothing")
+            self.join_note.setText(f"Could not join: {why}")
+            return str(why)
+        wide, trouble = outcome["wide"], outcome["trouble"]
         self._joined_once = True
         wide, dependent_note = self._join_the_dependent_variable(wide)
         if dependent_note:
