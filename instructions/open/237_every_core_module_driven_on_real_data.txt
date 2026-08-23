@@ -212,3 +212,32 @@ P7. ALL MODULES: settings are not recorded with the output. A results
     load one back.
 
     (P7 is the cheapest of these and the one most likely to save a day.)
+
+P8. TEN INERT SETTINGS, kept only so old settings CSVs load. A DECISION,
+    not a proposal: deleting them is a user-facing change and is the
+    maintainer's call.
+
+    tests/test_dead_settings.py enforces "a setting spaCR declares is a
+    setting spaCR reads", but waives any key whose own description admits
+    nothing reads it. That exemption had no floor and ten keys sit behind
+    it. tests/test_the_inert_settings_list_only_shrinks.py now names them
+    and refuses an eleventh.
+
+      barcode_coordinates, barcode_mapping, upstream, downstream
+          Map barcodes. Superseded by target_sequence + offset_start for
+          the read window, and by grna_csv / row_csv / column_csv for the
+          references.
+      compartments, compression, correlate, split_axis_lims,
+      upscale, upscale_factor
+          Superseded elsewhere.
+
+    Deleting them means an old settings CSV naming one stops loading, with
+    the generic "names a setting that does not exist -- did you mean ...?"
+    Keeping them means the panel keeps offering controls that do nothing.
+    The repo's written rule says delete; this file records the cost so the
+    decision is made rather than inherited.
+
+    ALREADY DONE, because it cost nothing: `complevel` was an eleventh, and
+    it was not a superseded feature but a MISSPELLING of the live
+    `comp_level`. The panel offered two HDF5 compression-level boxes and
+    one of them did nothing. Deleted.
