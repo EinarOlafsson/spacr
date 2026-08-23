@@ -2982,7 +2982,7 @@ _SCOPE_SOURCE = (
     "measurement, annotation and classification half runs on its own."
 )
 _TAGLINE_SOURCE = "**Spatial phenotype analysis of CRISPR screens.**"
-_ATTRIBUTION_SOURCE = "Translation model attribution"
+_ATTRIBUTION_SOURCE = "translation model attribution"
 _STORAGE_SOURCE = (
     "Images, masks, crops, measurements, annotations, predictions, barcodes "
     "and well identifiers live in one SQLite project, so a number in a "
@@ -2992,13 +2992,6 @@ _EXECUTION_SOURCE = (
     "Run spaCR as a desktop application or headlessly on a workstation, "
     "server or cluster. Both drive the same modules, and CUDA is used "
     "automatically where a module supports it."
-)
-_WORKFLOW_SOURCE = (
-    "Microscopy images (TIFF, OME-TIFF, LIF, CZI, ND2) and sequencing reads "
-    "(FASTQ) enter complementary image-analysis and barcode-mapping "
-    "pipelines. Object tables, crops, annotations, predictions, guide "
-    "identities, QC results and well-level summaries are then analyzed "
-    "together."
 )
 REVIEWED_README_BLOCKS = {
     _SUMMARY_SOURCE: {
@@ -3067,17 +3060,6 @@ REVIEWED_README_BLOCKS = {
         "is": "Keyrðu spaCR sem skjáborðsforrit eða án grafísks viðmóts á vinnustöð, þjóni eða reikniklasa. Báðar leiðir nota sömu einingar og CUDA er virkjað sjálfkrafa þegar einingin styður það.",
         "fr": "Exécutez spaCR comme application de bureau ou sans interface graphique sur une station de travail, un serveur ou un cluster. Les deux modes utilisent les mêmes modules et CUDA est activé automatiquement lorsqu’un module le prend en charge.",
     },
-    _WORKFLOW_SOURCE: {
-        "sv": "Mikroskopibilder (TIFF, OME-TIFF, LIF, CZI, ND2) och sekvenseringsläsningar (FASTQ) matas in i kompletterande arbetsflöden för bildanalys och streckkodsmappning. Objekttabeller, bildutsnitt, annoteringar, prediktioner, guideidentiteter, QC-resultat och sammanfattningar per brunn analyseras sedan tillsammans.",
-        "de": "Mikroskopiebilder (TIFF, OME-TIFF, LIF, CZI, ND2) und Sequenzierungs-Reads (FASTQ) durchlaufen einander ergänzende Pipelines für Bildanalyse und Barcode-Zuordnung. Objekttabellen, Bildausschnitte, Annotationen, Vorhersagen, Guide-Identitäten, QC-Ergebnisse und Zusammenfassungen auf Well-Ebene werden anschließend gemeinsam analysiert.",
-        "es": "Las imágenes de microscopía (TIFF, OME-TIFF, LIF, CZI, ND2) y las lecturas de secuenciación (FASTQ) pasan por flujos complementarios de análisis de imágenes y asignación de códigos de barras. Después se analizan conjuntamente las tablas de objetos, los recortes, las anotaciones, las predicciones, las identidades de guía, los resultados de QC y los resúmenes por pocillo.",
-        "zh_CN": "显微镜图像（TIFF、OME-TIFF、LIF、CZI、ND2）和测序读段（FASTQ）分别进入互补的图像分析与条形码映射流程。随后对对象表、图像裁剪、标注、预测、向导 RNA 身份、QC 结果和孔位级汇总进行联合分析。",
-        "pt": "Imagens de microscopia (TIFF, OME-TIFF, LIF, CZI, ND2) e leituras de sequenciamento (FASTQ) entram em fluxos complementares de análise de imagens e mapeamento de códigos de barras. Em seguida, tabelas de objetos, recortes, anotações, previsões, identidades de guia, resultados de QC e resumos por poço são analisados em conjunto.",
-        "hi": "माइक्रोस्कोपी छवियाँ (TIFF, OME-TIFF, LIF, CZI, ND2) और सीक्वेंसिंग रीड (FASTQ) पूरक इमेज-विश्लेषण तथा बारकोड-मैपिंग कार्यप्रवाह में जाती हैं। इसके बाद ऑब्जेक्ट तालिकाएँ, इमेज क्रॉप, एनोटेशन, पूर्वानुमान, गाइड पहचान, QC परिणाम और प्रति-वेल सारांश एक साथ विश्लेषित किए जाते हैं।",
-        "ko": "현미경 영상(TIFF, OME-TIFF, LIF, CZI, ND2)과 시퀀싱 리드(FASTQ)는 서로 보완적인 영상 분석 및 바코드 매핑 작업 흐름으로 들어갑니다. 그런 다음 객체 테이블, 이미지 크롭, 주석, 예측, 가이드 식별 정보, QC 결과 및 웰 단위 요약을 함께 분석합니다.",
-        "is": "Smásjármyndir (TIFF, OME-TIFF, LIF, CZI, ND2) og raðgreiningarlestur (FASTQ) fara í samverkandi ferli fyrir myndgreiningu og strikamerkjavörpun. Síðan eru viðfangstöflur, myndúrklippur, merkingar, spár, auðkenni leiðarsameinda, QC-niðurstöður og samantektir fyrir hvern brunn greind saman.",
-        "fr": "Les images de microscopie (TIFF, OME-TIFF, LIF, CZI, ND2) et les lectures de séquençage (FASTQ) alimentent des flux complémentaires d’analyse d’images et d’association des codes-barres. Les tables d’objets, recadrages, annotations, prédictions, identités des guides, résultats de QC et résumés par puits sont ensuite analysés ensemble.",
-    },
 }
 
 _LANGUAGE_SUPPORT_SOURCE = (
@@ -3109,7 +3091,7 @@ REVIEWED_README_BLOCKS.update({
         "fr": "L’interface prend en charge dix langues dans la navigation et les préférences. Les commandes AI et LIVE, les descriptions des modules et l’aide contextuelle révisée sont également traduites. Changez de langue sous **spaCR → Préférences → Langue** sans redémarrer. Les journaux, chemins, valeurs de base de données et mesures ne sont jamais traduits ; les résultats scientifiques restent en anglais canonique. Consultez la `politique d’aide contextuelle <docs/source/localization.rst#contextual-help>`_.",
         "hi": "इंटरफ़ेस नेविगेशन और प्राथमिकताओं में दस भाषाओं का समर्थन करता है। AI और LIVE नियंत्रण, मॉड्यूल विवरण और समीक्षित संदर्भ सहायता भी अनुवादित हैं। पुनः आरंभ किए बिना **spaCR → प्राथमिकताएँ → भाषा** में भाषा बदलें। लॉग, पथ, डेटाबेस मान और मापन कभी अनुवादित नहीं होते; वैज्ञानिक आउटपुट मानक अंग्रेज़ी में रहता है। `संदर्भ-सहायता नीति <docs/source/localization.rst#contextual-help>`_ देखें।",
         "is": "Viðmótið styður tíu tungumál í leiðsögn og stillingum. AI- og LIVE-stýringar, lýsingar á einingum og yfirfarin samhengishjálp eru einnig þýdd. Skiptu um tungumál undir **spaCR → Stillingar → Tungumál** án endurræsingar. Annálar, slóðir, gagnagrunnsgildi og mælingar eru aldrei þýdd; vísindaleg úttök haldast á viðurkenndri ensku. Sjá `stefnu um samhengishjálp <docs/source/localization.rst#contextual-help>`_.",
-        "ko": "인터페이스는 탐색 및 환경 설정에서 10개 언어를 지원합니다. AI 및 LIVE 컨트롤, 모듈 설명과 검토된 상황별 도움말도 번역됩니다. 다시 시작하지 않고 **spaCR → 환경 설정 → 언어**에서 언어를 변경할 수 있습니다. 로그, 경로, 데이터베이스 값과 측정값은 번역하지 않으며 과학적 출력은 표준 영어로 유지됩니다. `상황별 도움말 정책 <docs/source/localization.rst#contextual-help>`_을 참조하세요.",
+        "ko": "인터페이스는 탐색 및 환경 설정에서 10개 언어를 지원합니다. AI 및 LIVE 컨트롤, 모듈 설명과 검토된 상황별 도움말도 번역됩니다. 다시 시작하지 않고 **spaCR → 환경 설정 → 언어** 메뉴에서 언어를 변경할 수 있습니다. 로그, 경로, 데이터베이스 값과 측정값은 번역하지 않으며 과학적 출력은 표준 영어로 유지됩니다. `상황별 도움말 정책 <docs/source/localization.rst#contextual-help>`_ 문서를 참조하세요.",
         "pt": "A interface oferece dez idiomas na navegação e nas preferências. Os controles AI e LIVE, as descrições dos módulos e a ajuda contextual revisada também são traduzidos. Altere o idioma em **spaCR → Preferências → Idioma** sem reiniciar. Logs, caminhos, valores de banco de dados e medições nunca são traduzidos; a saída científica permanece em inglês canônico. Consulte a `política de ajuda contextual <docs/source/localization.rst#contextual-help>`_.",
         "sv": "Gränssnittet stöder tio språk i navigering och inställningar. AI- och LIVE-kontroller, modulbeskrivningar och granskad kontexthjälp översätts också. Byt språk under **spaCR → Inställningar → Språk** utan att starta om. Loggar, sökvägar, databasvärden och mätningar översätts aldrig; vetenskapliga utdata förblir på kanonisk engelska. Se `policyn för kontexthjälp <docs/source/localization.rst#contextual-help>`_.",
         "zh_CN": "界面的导航和首选项支持十种语言。AI 和 LIVE 控件、模块说明以及经过审核的上下文帮助也会翻译。无需重启，即可在 **spaCR → 首选项 → 语言** 中更改语言。日志、路径、数据库值和测量结果不会被翻译；科学输出始终使用规范英语。请参阅 `上下文帮助政策 <docs/source/localization.rst#contextual-help>`_。",
@@ -3120,7 +3102,7 @@ REVIEWED_README_BLOCKS.update({
         "fr": "Les paramètres accompagnés d’une explication visuelle proposent une commande **Animation** dans leur infobulle. Parcourez la `galerie des animations de paramètres <https://einarolafsson.github.io/spacr/setting_animations.html>`_ ou le `registre des animations de paramètres <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.",
         "hi": "दृश्य व्याख्या वाली सेटिंग के टूलटिप में **Animation** नियंत्रण मिलता है। `सेटिंग एनिमेशन गैलरी <https://einarolafsson.github.io/spacr/setting_animations.html>`_ या `सेटिंग एनिमेशन रजिस्ट्री <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_ देखें।",
         "is": "Stillingar með sjónræna skýringu bjóða upp á **Animation**-stýringu í verkfæraábendingunni. Skoðaðu `myndasafn stillingahreyfimynda <https://einarolafsson.github.io/spacr/setting_animations.html>`_ eða `skrá stillingahreyfimynda <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.",
-        "ko": "시각적 설명이 있는 설정은 도구 설명에 **Animation** 컨트롤을 제공합니다. `설정 애니메이션 갤러리 <https://einarolafsson.github.io/spacr/setting_animations.html>`_ 또는 `설정 애니메이션 레지스트리 <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_를 살펴보세요.",
+        "ko": "시각적 설명이 있는 설정은 도구 설명에 **Animation** 컨트롤을 제공합니다. 다음 리소스를 살펴보세요: `설정 애니메이션 갤러리 <https://einarolafsson.github.io/spacr/setting_animations.html>`_ 및 `설정 애니메이션 레지스트리 <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.",
         "pt": "As configurações com uma explicação visual oferecem um controle **Animation** na dica de ferramenta. Consulte a `galeria de animações de configurações <https://einarolafsson.github.io/spacr/setting_animations.html>`_ ou o `registro de animações de configurações <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.",
         "sv": "Inställningar med en visuell förklaring har kontrollen **Animation** i verktygstipset. Bläddra i `galleriet med inställningsanimationer <https://einarolafsson.github.io/spacr/setting_animations.html>`_ eller `registret över inställningsanimationer <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.",
         "zh_CN": "带有视觉说明的设置会在工具提示中提供 **Animation** 控件。浏览 `设置动画图库 <https://einarolafsson.github.io/spacr/setting_animations.html>`_ 或 `设置动画注册表 <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_。",
@@ -3131,10 +3113,225 @@ REVIEWED_README_BLOCKS.update({
         "fr": "spaCR repose sur des logiciels scientifiques ouverts, notamment NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch et Qt. Consultez l’`attribution des modèles de traduction <docs/i18n/TRANSLATION_MODELS.md>`_ pour connaître les modèles utilisés dans la documentation multilingue et les catalogues de l’interface.",
         "hi": "spaCR NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch और Qt सहित मुक्त वैज्ञानिक सॉफ़्टवेयर पर आधारित है। बहुभाषी दस्तावेज़ और इंटरफ़ेस कैटलॉग तैयार करने में उपयोग किए गए मॉडल के लिए `अनुवाद मॉडल श्रेय <docs/i18n/TRANSLATION_MODELS.md>`_ देखें।",
         "is": "spaCR byggir á opnum vísindahugbúnaði, meðal annars NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch og Qt. Sjá `upplýsingar um þýðingarlíkön <docs/i18n/TRANSLATION_MODELS.md>`_ fyrir líkönin sem voru notuð við gerð fjöltyngdra skjala og viðmótsskráa.",
-        "ko": "spaCR는 NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch 및 Qt를 비롯한 개방형 과학 소프트웨어를 기반으로 합니다. 다국어 문서와 인터페이스 카탈로그 작성에 사용된 모델은 `번역 모델 표기 <docs/i18n/TRANSLATION_MODELS.md>`_에서 확인할 수 있습니다.",
+        "ko": "spaCR는 NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch 및 Qt를 비롯한 개방형 과학 소프트웨어를 기반으로 합니다. 다국어 문서와 인터페이스 카탈로그 작성에 사용된 모델은 `번역 모델 표기 <docs/i18n/TRANSLATION_MODELS.md>`_ 문서에서 확인할 수 있습니다.",
         "pt": "O spaCR utiliza software científico aberto, incluindo NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch e Qt. Consulte a `atribuição dos modelos de tradução <docs/i18n/TRANSLATION_MODELS.md>`_ para ver os modelos usados na documentação multilíngue e nos catálogos da interface.",
         "sv": "spaCR bygger på öppen vetenskaplig programvara, bland annat NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch och Qt. Se `information om översättningsmodellerna <docs/i18n/TRANSLATION_MODELS.md>`_ för modellerna som användes till den flerspråkiga dokumentationen och gränssnittskatalogerna.",
         "zh_CN": "spaCR 构建于开放科学软件之上，包括 NumPy、pandas、scikit-image、scikit-learn、Cellpose、PyTorch 和 Qt。有关多语言文档和界面目录所使用的模型，请参阅`翻译模型署名 <docs/i18n/TRANSLATION_MODELS.md>`_。",
+    },
+})
+
+# These compact, frequently read blocks need domain-aware translations.  The
+# general models repeatedly left whole clauses in English or chose literal
+# false friends (for example, translating "maps" as the noun "maps" and
+# "held-out" as physical restraint).  Keep the canonical module names so the
+# prose matches the GUI and API navigation, but review the surrounding text in
+# every supported language.
+_MAIN_PATH_SOURCE = (
+    "Select a workflow module to open its API page. The grid contains every "
+    "other application in the same categories and order used on the spaCR "
+    "home screen."
+)
+_LINUX_INSTALLER_SOURCE = (
+    "On Linux, make the downloaded file executable and run it:"
+)
+_PYTHON_SUPPORT_SOURCE = (
+    "spaCR supports Python **3.9 through 3.14**, except Python 3.14.1, which "
+    "torchvision excludes. Linux is recommended for CUDA workflows; macOS "
+    "and Windows are also supported."
+)
+_HEADLESS_INSTALL_SOURCE = (
+    "For a server, cluster or CI runner, omit Qt:"
+)
+_CORE_MODULE_SOURCES = (
+    "**Mask** segments cells, nuclei, pathogens and organelles with Cellpose.",
+    "**Measure** writes morphology, intensity, texture, spatial and "
+    "colocalization features, together with object crops, to SQLite.",
+    "**Annotate** labels crops in a keyboard-driven grid and supports "
+    "active-learning queues.",
+    "**Classify** trains image or measurement-based models and records "
+    "held-out performance with each checkpoint.",
+    "**Map Barcodes** maps FASTQ reads to wells and gRNAs, with abundance, "
+    "collision and coverage QC.",
+    "**Regression** estimates guide, gene, condition and control effects with "
+    "model families suited to continuous, fractional and count responses.",
+)
+_SUPPORT_SOURCE = (
+    "Bug reports and focused feature requests are welcome through `GitHub "
+    "Issues <https://github.com/EinarOlafsson/spacr/issues>`_. When reporting "
+    "a failure, include the spaCR version, operating system, Python version, "
+    "module settings and the relevant log excerpt. ``spacr-doctor`` collects "
+    "most of that for you."
+)
+_LICENSE_SOURCE = (
+    "The current development branch is source-available under the `PolyForm "
+    "Noncommercial License 1.0.0 "
+    "<https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_. Commercial "
+    "use requires a separate license from the copyright holder. Released "
+    "versions through spaCR 1.4.9.9 remain available under the MIT License "
+    "that accompanied those releases."
+)
+_TUTORIAL_LIBRARY_SOURCE = (
+    "The `interactive spaCR tutorial library "
+    "<https://einarolafsson.github.io/spacr/tutorials/>`_ contains narrated, "
+    "captioned walkthroughs of installation and of each application workflow, "
+    "in 73 lessons with 50 voices across eight languages."
+)
+_CITATION_PROMPT_SOURCE = "If spaCR contributes to your research, cite:"
+
+REVIEWED_README_BLOCKS.update({
+    _MAIN_PATH_SOURCE: {
+        "sv": "Välj en arbetsflödesmodul för att öppna dess API-sida. Rutnätet innehåller alla övriga program i samma kategorier och ordning som på spaCR:s startsida.",
+        "de": "Wählen Sie ein Workflow-Modul aus, um dessen API-Seite zu öffnen. Das Raster enthält alle weiteren Anwendungen in denselben Kategorien und in derselben Reihenfolge wie auf der spaCR-Startseite.",
+        "es": "Seleccione un módulo del flujo de trabajo para abrir su página de API. La cuadrícula contiene las demás aplicaciones, organizadas en las mismas categorías y en el mismo orden que en la pantalla de inicio de spaCR.",
+        "zh_CN": "选择一个工作流程模块以打开其 API 页面。网格包含其余所有应用，其分类和顺序与 spaCR 主屏幕一致。",
+        "pt": "Selecione um módulo do fluxo de trabalho para abrir sua página da API. A grade contém todos os outros aplicativos, organizados nas mesmas categorias e na mesma ordem da tela inicial do spaCR.",
+        "hi": "किसी कार्यप्रवाह मॉड्यूल का API पृष्ठ खोलने के लिए उसे चुनें। ग्रिड में अन्य सभी ऐप उसी श्रेणी और क्रम में हैं जैसा spaCR की होम स्क्रीन पर है।",
+        "ko": "작업 흐름 모듈을 선택하면 해당 API 페이지가 열립니다. 격자에는 나머지 모든 애플리케이션이 spaCR 홈 화면과 동일한 범주와 순서로 배치되어 있습니다.",
+        "is": "Veldu verkflæðiseiningu til að opna API-síðu hennar. Taflan sýnir öll önnur forrit í sömu flokkum og röð og á upphafssíðu spaCR.",
+        "fr": "Sélectionnez un module du flux de travail pour ouvrir sa page d’API. La grille contient toutes les autres applications, classées dans les mêmes catégories et dans le même ordre que sur l’écran d’accueil de spaCR.",
+    },
+    _LINUX_INSTALLER_SOURCE: {
+        "sv": "Gör den hämtade filen körbar i Linux och kör den:",
+        "de": "Machen Sie die heruntergeladene Datei unter Linux ausführbar und führen Sie sie aus:",
+        "es": "En Linux, marque el archivo descargado como ejecutable y ejecútelo:",
+        "zh_CN": "在 Linux 上，将下载的文件设为可执行文件并运行：",
+        "pt": "No Linux, torne o arquivo baixado executável e execute-o:",
+        "hi": "Linux पर डाउनलोड की गई फ़ाइल को निष्पादन योग्य बनाएँ और चलाएँ:",
+        "ko": "Linux에서는 다운로드한 파일에 실행 권한을 부여한 후 실행합니다:",
+        "is": "Í Linux skaltu gera skrána sem var sótt keyranlega og keyra hana:",
+        "fr": "Sous Linux, rendez le fichier téléchargé exécutable, puis exécutez-le :",
+    },
+    _PYTHON_SUPPORT_SOURCE: {
+        "sv": "spaCR stöder Python **3.9 till 3.14**, med undantag för Python 3.14.1 som inte stöds av torchvision. Linux rekommenderas för CUDA-arbetsflöden; macOS och Windows stöds också.",
+        "de": "spaCR unterstützt Python **3.9 bis 3.14** mit Ausnahme von Python 3.14.1, das von torchvision ausgeschlossen wird. Für CUDA-Workflows wird Linux empfohlen; macOS und Windows werden ebenfalls unterstützt.",
+        "es": "spaCR admite Python **3.9 a 3.14**, salvo Python 3.14.1, que torchvision excluye. Se recomienda Linux para los flujos de trabajo con CUDA; macOS y Windows también son compatibles.",
+        "zh_CN": "spaCR 支持 Python **3.9 至 3.14**，但不支持 torchvision 排除的 Python 3.14.1。建议在 Linux 上运行 CUDA 工作流程；同时也支持 macOS 和 Windows。",
+        "pt": "O spaCR oferece suporte ao Python **3.9 a 3.14**, exceto ao Python 3.14.1, que é excluído pelo torchvision. Recomenda-se Linux para fluxos de trabalho com CUDA; macOS e Windows também são compatíveis.",
+        "hi": "spaCR Python **3.9 से 3.14** तक समर्थित है, लेकिन Python 3.14.1 समर्थित नहीं है क्योंकि torchvision उसे बाहर रखता है। CUDA कार्यप्रवाहों के लिए Linux अनुशंसित है; macOS और Windows भी समर्थित हैं।",
+        "ko": "spaCR는 Python **3.9~3.14**를 지원하지만 torchvision이 제외하는 Python 3.14.1은 지원하지 않습니다. CUDA 작업 흐름에는 Linux를 권장하며 macOS와 Windows도 지원합니다.",
+        "is": "spaCR styður Python **3.9 til 3.14**, að undanskildu Python 3.14.1 sem torchvision styður ekki. Mælt er með Linux fyrir CUDA-verkflæði; macOS og Windows eru einnig studd.",
+        "fr": "spaCR prend en charge Python **3.9 à 3.14**, à l’exception de Python 3.14.1, exclu par torchvision. Linux est recommandé pour les flux CUDA ; macOS et Windows sont également pris en charge.",
+    },
+    _HEADLESS_INSTALL_SOURCE: {
+        "sv": "Utelämna Qt på en server, ett beräkningskluster eller en CI-körare:",
+        "de": "Lassen Sie Qt auf einem Server, Cluster oder CI-Runner weg:",
+        "es": "En un servidor, clúster o ejecutor de CI, omita Qt:",
+        "zh_CN": "在服务器、集群或 CI 运行器上安装时，请省略 Qt：",
+        "pt": "Em um servidor, cluster ou executor de CI, omita o Qt:",
+        "hi": "सर्वर, क्लस्टर या CI रनर पर Qt को छोड़ दें:",
+        "ko": "서버, 클러스터 또는 CI 실행 환경에서는 Qt를 제외합니다:",
+        "is": "Slepptu Qt á þjóni, reikniklasa eða CI-keyrsluumhverfi:",
+        "fr": "Sur un serveur, un cluster ou un exécuteur CI, omettez Qt :",
+    },
+    _CORE_MODULE_SOURCES[0]: {
+        "sv": "**Mask** segmenterar celler, cellkärnor, patogener och organeller med Cellpose.",
+        "de": "**Mask** segmentiert Zellen, Zellkerne, Pathogene und Organellen mit Cellpose.",
+        "es": "**Mask** segmenta células, núcleos, patógenos y orgánulos con Cellpose.",
+        "zh_CN": "**Mask** 使用 Cellpose 分割细胞、细胞核、病原体和细胞器。",
+        "pt": "**Mask** segmenta células, núcleos, patógenos e organelas com Cellpose.",
+        "hi": "**Mask** Cellpose से कोशिकाओं, नाभिकों, रोगजनकों और कोशिकांगों का विभाजन करता है।",
+        "ko": "**Mask** Cellpose로 세포, 핵, 병원체 및 세포소기관을 분할합니다.",
+        "is": "**Mask** hlutgreinir frumur, frumukjarna, sýkla og frumulíffæri með Cellpose.",
+        "fr": "**Mask** segmente les cellules, les noyaux, les agents pathogènes et les organites avec Cellpose.",
+    },
+    _CORE_MODULE_SOURCES[1]: {
+        "sv": "**Measure** skriver morfologiska, intensitets-, textur-, rumsliga och kolokaliseringsmått samt objektutsnitt till SQLite.",
+        "de": "**Measure** schreibt Morphologie-, Intensitäts-, Textur-, räumliche und Kolokalisationsmerkmale sowie Objektausschnitte nach SQLite.",
+        "es": "**Measure** guarda en SQLite características morfológicas, de intensidad, textura, espaciales y de colocalización, junto con recortes de objetos.",
+        "zh_CN": "**Measure** 将形态、强度、纹理、空间和共定位特征以及对象图像裁剪写入 SQLite。",
+        "pt": "**Measure** grava no SQLite características de morfologia, intensidade, textura, espaciais e de colocalização, além de recortes dos objetos.",
+        "hi": "**Measure** आकृति-विज्ञान, तीव्रता, टेक्सचर, स्थानिक और सह-स्थानीकरण विशेषताओं के साथ ऑब्जेक्ट क्रॉप को SQLite में लिखता है।",
+        "ko": "**Measure** 형태, 강도, 텍스처, 공간 및 공위치 특성과 객체 크롭을 SQLite에 저장합니다.",
+        "is": "**Measure** skrifar lögunar-, styrkleika-, áferðar-, rúm- og samstaðsetningareiginleika ásamt myndúrklippum viðfanga í SQLite.",
+        "fr": "**Measure** enregistre dans SQLite les caractéristiques morphologiques, d’intensité, de texture, spatiales et de colocalisation, ainsi que les vignettes des objets.",
+    },
+    _CORE_MODULE_SOURCES[2]: {
+        "sv": "**Annotate** märker objektutsnitt i ett tangentbordsstyrt rutnät och stöder köer för aktiv inlärning.",
+        "de": "**Annotate** beschriftet Objektausschnitte in einem tastaturgesteuerten Raster und unterstützt Active-Learning-Warteschlangen.",
+        "es": "**Annotate** etiqueta recortes en una cuadrícula controlada con el teclado y admite colas de aprendizaje activo.",
+        "zh_CN": "**Annotate** 在键盘驱动的网格中标注图像裁剪，并支持主动学习队列。",
+        "pt": "**Annotate** rotula recortes em uma grade controlada pelo teclado e oferece suporte a filas de aprendizado ativo.",
+        "hi": "**Annotate** कीबोर्ड से संचालित ग्रिड में क्रॉप को लेबल करता है और सक्रिय-अधिगम कतारों का समर्थन करता है।",
+        "ko": "**Annotate** 키보드로 조작하는 격자에서 크롭에 라벨을 지정하고 능동 학습 대기열을 지원합니다.",
+        "is": "**Annotate** merkir myndúrklippur í lyklaborðsstýrðu hnitaneti og styður biðraðir virks náms.",
+        "fr": "**Annotate** annote les vignettes dans une grille pilotée au clavier et prend en charge les files d’apprentissage actif.",
+    },
+    _CORE_MODULE_SOURCES[3]: {
+        "sv": "**Classify** tränar bild- eller mätningsbaserade modeller och sparar prestandan på undanhållna data med varje kontrollpunkt.",
+        "de": "**Classify** trainiert bild- oder messwertbasierte Modelle und speichert mit jedem Checkpoint die Leistung auf zurückgehaltenen Daten.",
+        "es": "**Classify** entrena modelos basados en imágenes o mediciones y registra con cada punto de control el rendimiento en los datos reservados.",
+        "zh_CN": "**Classify** 训练基于图像或测量值的模型，并在每个检查点记录留出数据上的性能。",
+        "pt": "**Classify** treina modelos baseados em imagens ou medições e registra, em cada checkpoint, o desempenho nos dados de validação reservados.",
+        "hi": "**Classify** छवि- या मापन-आधारित मॉडल प्रशिक्षित करता है और प्रत्येक चेकपॉइंट के साथ होल्ड-आउट डेटा पर प्रदर्शन दर्ज करता है।",
+        "ko": "**Classify** 이미지 또는 측정값 기반 모델을 학습하고 각 체크포인트에 홀드아웃 데이터 성능을 기록합니다.",
+        "is": "**Classify** þjálfar líkön byggð á myndum eða mælingum og skráir frammistöðu á fráteknum gögnum með hverjum varðpunkti.",
+        "fr": "**Classify** entraîne des modèles fondés sur les images ou les mesures et enregistre, avec chaque checkpoint, les performances sur les données réservées.",
+    },
+    _CORE_MODULE_SOURCES[4]: {
+        "sv": "**Map Barcodes** kopplar FASTQ-läsningar till brunnar och gRNA:er och rapporterar QC för förekomst, kollisioner och täckning.",
+        "de": "**Map Barcodes** ordnet FASTQ-Reads Wells und gRNAs zu und liefert QC für Häufigkeit, Kollisionen und Abdeckung.",
+        "es": "**Map Barcodes** asigna las lecturas FASTQ a los pocillos y los gRNA, con controles de calidad de abundancia, colisiones y cobertura.",
+        "zh_CN": "**Map Barcodes** 将 FASTQ 读段映射到孔位和 gRNA，并提供丰度、碰撞和覆盖度质控。",
+        "pt": "**Map Barcodes** associa as leituras FASTQ aos poços e gRNAs, com controle de qualidade de abundância, colisões e cobertura.",
+        "hi": "**Map Barcodes** FASTQ रीड को वेल और gRNA से मैप करता है तथा प्रचुरता, टकराव और कवरेज का QC प्रदान करता है।",
+        "ko": "**Map Barcodes** FASTQ 리드를 웰과 gRNA에 매핑하고 풍부도, 충돌 및 커버리지 QC를 제공합니다.",
+        "is": "**Map Barcodes** varpar FASTQ-lestrum á brunna og gRNA og veitir gæðamat fyrir magn, árekstra og þekju.",
+        "fr": "**Map Barcodes** associe les lectures FASTQ aux puits et aux gRNA, avec un contrôle qualité de l’abondance, des collisions et de la couverture.",
+    },
+    _CORE_MODULE_SOURCES[5]: {
+        "sv": "**Regression** skattar effekter för guider, gener, betingelser och kontroller med modellfamiljer för kontinuerliga data, andelar och antal.",
+        "de": "**Regression** schätzt Guide-, Gen-, Bedingungs- und Kontrolleffekte mit Modellfamilien für kontinuierliche Werte, Anteile und Zähldaten.",
+        "es": "**Regression** estima los efectos de guías, genes, condiciones y controles con familias de modelos adecuadas para respuestas continuas, fraccionarias y de recuento.",
+        "zh_CN": "**Regression** 使用适合连续值、比例和计数响应的模型族估计向导 RNA、基因、条件和对照效应。",
+        "pt": "**Regression** estima efeitos de guias, genes, condições e controles com famílias de modelos adequadas a respostas contínuas, fracionárias e de contagem.",
+        "hi": "**Regression** सतत, भिन्नात्मक और गणना प्रतिक्रियाओं के अनुकूल मॉडल परिवारों से गाइड, जीन, स्थिति और नियंत्रण प्रभावों का अनुमान लगाता है।",
+        "ko": "**Regression** 연속형, 비율형 및 계수형 반응에 적합한 모델 계열로 가이드, 유전자, 조건 및 대조군 효과를 추정합니다.",
+        "is": "**Regression** metur áhrif leiðarsameinda, gena, skilyrða og viðmiða með líkanafjölskyldum sem henta samfelldum gildum, hlutföllum og talningum.",
+        "fr": "**Regression** estime les effets des guides, des gènes, des conditions et des contrôles avec des familles de modèles adaptées aux réponses continues, fractionnelles et de comptage.",
+    },
+    _SUPPORT_SOURCE: {
+        "sv": "Felrapporter och avgränsade funktionsförslag är välkomna via `GitHub-ärenden <https://github.com/EinarOlafsson/spacr/issues>`_. Ange spaCR-version, operativsystem, Python-version, modulinställningar och relevant loggutdrag när du rapporterar ett fel. ``spacr-doctor`` samlar in det mesta av detta åt dig.",
+        "de": "Fehlerberichte und klar umrissene Funktionswünsche sind über `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_ willkommen. Geben Sie bei einem Fehlerbericht die spaCR-Version, das Betriebssystem, die Python-Version, die Moduleinstellungen und den relevanten Protokollauszug an. ``spacr-doctor`` erfasst die meisten dieser Angaben automatisch.",
+        "es": "Los informes de errores y las solicitudes de funciones concretas son bienvenidos en `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_. Al informar de un fallo, incluya la versión de spaCR, el sistema operativo, la versión de Python, los ajustes del módulo y el fragmento de registro pertinente. ``spacr-doctor`` recopila automáticamente la mayor parte de esta información.",
+        "zh_CN": "欢迎通过 `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_ 提交错误报告和范围明确的功能请求。报告故障时，请提供 spaCR 版本、操作系统、Python 版本、模块设置和相关日志片段。``spacr-doctor`` 可自动收集其中的大部分信息。",
+        "pt": "Relatos de erros e solicitações de recursos bem definidos são bem-vindos no `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_. Ao relatar uma falha, inclua a versão do spaCR, o sistema operacional, a versão do Python, as configurações do módulo e o trecho relevante do log. O ``spacr-doctor`` coleta automaticamente a maior parte dessas informações.",
+        "hi": "त्रुटि रिपोर्ट और स्पष्ट रूप से सीमित फीचर अनुरोध `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_ पर आमंत्रित हैं। विफलता की रिपोर्ट में spaCR संस्करण, ऑपरेटिंग सिस्टम, Python संस्करण, मॉड्यूल सेटिंग और संबंधित लॉग अंश शामिल करें। ``spacr-doctor`` इनमें से अधिकांश जानकारी स्वतः एकत्र करता है।",
+        "ko": "오류 보고와 범위가 명확한 기능 요청은 `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_에서 접수합니다. 오류를 보고할 때는 spaCR 버전, 운영 체제, Python 버전, 모듈 설정 및 관련 로그 일부를 포함하세요. ``spacr-doctor``가 이 정보의 대부분을 자동으로 수집합니다.",
+        "is": "Vel afmarkaðar villuskýrslur og beiðnir um eiginleika eru velkomnar í `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_. Þegar bilun er tilkynnt skaltu láta spaCR-útgáfu, stýrikerfi, Python-útgáfu, einingastillingar og viðeigandi bút úr annál fylgja. ``spacr-doctor`` safnar flestum þessara upplýsinga sjálfkrafa.",
+        "fr": "Les rapports de bogues et les demandes de fonctionnalités bien délimitées sont les bienvenus dans `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_. Pour signaler un échec, indiquez la version de spaCR, le système d’exploitation, la version de Python, les paramètres du module et l’extrait de journal pertinent. ``spacr-doctor`` recueille automatiquement la plupart de ces informations.",
+    },
+    _LICENSE_SOURCE: {
+        "sv": "Den aktuella utvecklingsgrenen är källkodstillgänglig under `PolyForm Noncommercial License 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_. Kommersiell användning kräver en separat licens från upphovsrättsinnehavaren. Utgivna versioner till och med spaCR 1.4.9.9 är fortsatt tillgängliga under den MIT-licens som medföljde dessa versioner.",
+        "de": "Der aktuelle Entwicklungszweig ist unter der `PolyForm Noncommercial License 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_ quelloffen einsehbar. Für die kommerzielle Nutzung ist eine separate Lizenz des Urheberrechtsinhabers erforderlich. Veröffentlichte Versionen bis einschließlich spaCR 1.4.9.9 bleiben unter der jeweils mitgelieferten MIT-Lizenz verfügbar.",
+        "es": "El código fuente de la rama de desarrollo actual está disponible bajo la `PolyForm Noncommercial License 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_. El uso comercial requiere una licencia independiente del titular de los derechos de autor. Las versiones publicadas hasta spaCR 1.4.9.9 siguen disponibles bajo la licencia MIT que acompañaba a esas versiones.",
+        "zh_CN": "当前开发分支以源码可见方式依据 `PolyForm Noncommercial License 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_ 发布。商业使用需另行获得版权所有者许可。spaCR 1.4.9.9 及更早的已发布版本仍适用其发布时附带的 MIT License。",
+        "pt": "O código-fonte da ramificação de desenvolvimento atual está disponível sob a `PolyForm Noncommercial License 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_. O uso comercial exige uma licença separada do titular dos direitos autorais. As versões publicadas até o spaCR 1.4.9.9 continuam disponíveis sob a licença MIT que acompanhava essas versões.",
+        "hi": "वर्तमान विकास शाखा का स्रोत `PolyForm Noncommercial License 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_ के अंतर्गत उपलब्ध है। व्यावसायिक उपयोग के लिए कॉपीराइट धारक से अलग लाइसेंस आवश्यक है। spaCR 1.4.9.9 तक जारी किए गए संस्करण उनके साथ जारी MIT License के अंतर्गत उपलब्ध रहेंगे।",
+        "ko": "현재 개발 브랜치의 소스는 `PolyForm Noncommercial License 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_에 따라 공개됩니다. 상업적 사용에는 저작권자의 별도 라이선스가 필요합니다. spaCR 1.4.9.9까지의 릴리스는 해당 릴리스와 함께 제공된 MIT License에 따라 계속 사용할 수 있습니다.",
+        "is": "Frumkóði núverandi þróunargreinar er aðgengilegur samkvæmt `PolyForm Noncommercial License 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_. Notkun í atvinnuskyni krefst sérstaks leyfis frá höfundarréttarhafa. Útgefnar útgáfur til og með spaCR 1.4.9.9 eru áfram tiltækar samkvæmt MIT-leyfinu sem fylgdi þeim útgáfum.",
+        "fr": "Le code source de la branche de développement actuelle est consultable sous la `PolyForm Noncommercial License 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_. Toute utilisation commerciale nécessite une licence distincte du détenteur des droits d’auteur. Les versions publiées jusqu’à spaCR 1.4.9.9 restent disponibles sous la licence MIT qui accompagnait ces versions.",
+    },
+    _TUTORIAL_LIBRARY_SOURCE: {
+        "sv": "Det `interaktiva biblioteket med spaCR-handledningar <https://einarolafsson.github.io/spacr/tutorials/>`_ innehåller berättade och textade genomgångar av installationen och varje programflöde: 73 lektioner med 50 röster på åtta språk.",
+        "de": "Die `interaktive spaCR-Tutorialsammlung <https://einarolafsson.github.io/spacr/tutorials/>`_ enthält vertonte und untertitelte Anleitungen zur Installation und zu jedem Anwendungsablauf: 73 Lektionen mit 50 Stimmen in acht Sprachen.",
+        "es": "La `biblioteca interactiva de tutoriales de spaCR <https://einarolafsson.github.io/spacr/tutorials/>`_ contiene recorridos narrados y subtitulados de la instalación y de cada flujo de trabajo: 73 lecciones con 50 voces en ocho idiomas.",
+        "zh_CN": "`spaCR 交互式教程库 <https://einarolafsson.github.io/spacr/tutorials/>`_ 提供安装和各应用工作流程的配音、字幕教程，共有 73 节课程、50 种语音，涵盖八种语言。",
+        "pt": "A `biblioteca interativa de tutoriais do spaCR <https://einarolafsson.github.io/spacr/tutorials/>`_ contém demonstrações narradas e legendadas da instalação e de cada fluxo de trabalho: 73 lições, com 50 vozes em oito idiomas.",
+        "hi": "`इंटरैक्टिव spaCR ट्यूटोरियल लाइब्रेरी <https://einarolafsson.github.io/spacr/tutorials/>`_ में स्थापना और प्रत्येक ऐप कार्यप्रवाह के वर्णित तथा कैप्शनयुक्त मार्गदर्शन हैं: आठ भाषाओं में 50 आवाज़ों के साथ 73 पाठ।",
+        "ko": "`대화형 spaCR 튜토리얼 라이브러리 <https://einarolafsson.github.io/spacr/tutorials/>`_에는 설치 및 각 애플리케이션 작업 흐름을 설명하는 음성·자막 안내가 있으며, 8개 언어의 50개 음성으로 제작된 73개 강의가 포함되어 있습니다.",
+        "is": "`Gagnvirka spaCR-kennslusafnið <https://einarolafsson.github.io/spacr/tutorials/>`_ inniheldur talsettar og textaðar leiðbeiningar um uppsetningu og hvert verkflæði: 73 kennslustundir með 50 röddum á átta tungumálum.",
+        "fr": "La `bibliothèque interactive de tutoriels spaCR <https://einarolafsson.github.io/spacr/tutorials/>`_ propose des parcours commentés et sous-titrés sur l’installation et chaque flux d’application : 73 leçons avec 50 voix dans huit langues.",
+    },
+    _CITATION_PROMPT_SOURCE: {
+        "sv": "Om spaCR bidrar till din forskning, citera:",
+        "de": "Wenn spaCR zu Ihrer Forschung beiträgt, zitieren Sie:",
+        "es": "Si spaCR contribuye a su investigación, cite:",
+        "zh_CN": "如果 spaCR 对您的研究有所帮助，请引用：",
+        "pt": "Se o spaCR contribuir para sua pesquisa, cite:",
+        "hi": "यदि spaCR आपके शोध में योगदान देता है, तो इसका उद्धरण दें:",
+        "ko": "spaCR가 연구에 기여했다면 다음을 인용해 주세요:",
+        "is": "Ef spaCR nýtist við rannsóknina skaltu vitna í:",
+        "fr": "Si spaCR contribue à vos recherches, citez:",
     },
 })
 
@@ -3492,6 +3689,38 @@ REVIEWED_README_BADGE_ALT_TEXT = {
     "sv": ("Dokumentation", "Interaktiva handledningar", "PyPI-version", "Python 3.9 till 3.14", "Testsvit", "Qt-gränssnitt", "Källkod på GitHub", "GitHub-ärenden", "PolyForm Noncommercial-licens", "Zenodo-DOI", "Senaste installationsprogrammen", "conda-forge-recept", "spaCR"),
     "zh_CN": ("文档", "交互式教程", "PyPI 版本", "Python 3.9 至 3.14", "测试套件", "Qt 界面", "GitHub 源代码", "GitHub 问题", "PolyForm 非商业许可证", "Zenodo DOI", "最新安装程序", "conda-forge 配方", "spaCR"),
 }
+
+# Workflow tiles keep their canonical module names so visual navigation, GUI
+# names and API paths agree.  The surrounding action is accessibility text,
+# however, and must be in the reader's selected language.
+REVIEWED_README_MODULE_ALT_TEMPLATES = {
+    "de": "API für {module} öffnen",
+    "es": "Abrir la API de {module}",
+    "fr": "Ouvrir l’API de {module}",
+    "hi": "{module} API खोलें",
+    "is": "Opna API-skjölin fyrir {module}",
+    "ko": "{module} API 열기",
+    "pt": "Abrir a API de {module}",
+    "sv": "Öppna API-dokumentationen för {module}",
+    "zh_CN": "打开 {module} API",
+}
+
+
+def _localize_workflow_alt_text(text: str, language: str) -> str:
+    """Localize the action in each linked workflow tile's alt text."""
+    template = REVIEWED_README_MODULE_ALT_TEMPLATES[language]
+
+    def replace(match: re.Match[str]) -> str:
+        return (
+            f"{match.group('indent')}:alt: "
+            f"{template.format(module=match.group('module'))}"
+        )
+
+    return re.sub(
+        r"(?m)^(?P<indent>\s*):alt: Open the (?P<module>.+) API$",
+        replace,
+        str(text),
+    )
 
 REVIEWED_README_LANGUAGE_OVERRIDES = {
     "es": {
@@ -6069,6 +6298,9 @@ def main() -> int:
                 "<docs/source/", "<../../source/",
             ).replace(
                 ":target: docs/source/", ":target: ../../source/",
+            )
+            localized_readme = _localize_workflow_alt_text(
+                localized_readme, language,
             )
             for source_text, target_text in (
                 REVIEWED_README_LANGUAGE_OVERRIDES.get(language, {}).items()

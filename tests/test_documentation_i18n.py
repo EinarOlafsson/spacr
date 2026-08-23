@@ -1241,13 +1241,40 @@ def test_github_summary_has_reviewed_domain_translations():
     from build_documentation_i18n import (
         REVIEWED_README_BLOCKS,
         REVIEWED_README_HEADINGS,
+        translatable_blocks,
     )
 
-    assert len(REVIEWED_README_BLOCKS) == 10
-    for reviewed in REVIEWED_README_BLOCKS.values():
+    assert len(REVIEWED_README_BLOCKS) >= 23
+    canonical = (ROOT / "README.rst").read_text(encoding="utf-8")
+    canonical_blocks, _layout = translatable_blocks(canonical)
+    canonical_normalized = re.sub(r"\s+", " ", canonical)
+    for source, reviewed in REVIEWED_README_BLOCKS.items():
+        is_document_block = canonical_blocks.count(source) == 1
+        assert (
+            is_document_block
+            or canonical_normalized.count(source) == 1
+        ), source
         assert set(reviewed) == {
             "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr",
         }
+        for language, target in reviewed.items():
+            if not is_document_block:
+                # Link labels are also translated independently so their
+                # destination can remain byte-for-byte canonical.  Their
+                # reviewed wording may be absorbed into a larger reviewed
+                # paragraph rather than appearing as a standalone value.
+                continue
+            localized = (
+                ROOT / "docs" / "i18n" / "readme"
+                / f"README.{language}.rst"
+            ).read_text(encoding="utf-8")
+            contract_localized = localized.replace(
+                "<../TRANSLATION_MODELS.md>",
+                "<docs/i18n/TRANSLATION_MODELS.md>",
+            ).replace(
+                "<../../source/", "<docs/source/",
+            )
+            assert target in contract_localized, (source, language)
     joined = {
         language: " ".join(block[language] for block in REVIEWED_README_BLOCKS.values())
         for language in next(iter(REVIEWED_README_BLOCKS.values()))
@@ -2830,6 +2857,19 @@ def test_localized_readmes_do_not_leave_long_english_feature_copy():
         "Most screens follow six modules",
         "The same project can also design plates",
         "Choose the next page by what you want to do",
+        "Select a workflow module to open its API page",
+        "segments cells, nuclei, pathogens and organelles",
+        "writes morphology, intensity, texture, spatial and colocalization",
+        "labels crops in a keyboard-driven grid",
+        "trains image or measurement-based models",
+        "maps FASTQ reads to wells and gRNAs",
+        "estimates guide, gene, condition and control effects",
+        "On Linux, make the downloaded file executable",
+        "For a server, cluster or CI runner, omit Qt",
+        "When reporting a failure, include the spaCR version",
+        "Commercial use requires a separate license",
+        "contains narrated, captioned walkthroughs",
+        "If spaCR contributes to your research, cite",
     }
     for language, text in localized.items():
         leftovers = sorted(fragment for fragment in forbidden if fragment in text)
@@ -2862,6 +2902,16 @@ def test_localized_readmes_keep_the_badge_row_structurally_intact():
 
 
 def test_localized_readme_images_have_reviewed_accessible_text():
+    from build_documentation_i18n import (
+        REVIEWED_README_MODULE_ALT_TEMPLATES,
+    )
+
+    canonical = (ROOT / "README.rst").read_text(encoding="utf-8")
+    canonical_alt = re.findall(r"(?m)^   :alt: (.+)$", canonical)
+    module_names = [
+        re.fullmatch(r"Open the (.+) API", alt).group(1)
+        for alt in canonical_alt[13:71]
+    ]
     readme_root = ROOT / "docs" / "i18n" / "readme"
     for language in ("de", "es", "fr", "hi", "is", "ko", "pt", "sv", "zh_CN"):
         text = (readme_root / f"README.{language}.rst").read_text(
@@ -2881,10 +2931,12 @@ def test_localized_readme_images_have_reviewed_accessible_text():
                 alt_text[13:19],
             )
         )
-        assert all(
-            alt.startswith("Open the ") and alt.endswith(" API")
-            for alt in alt_text[13:71]
-        )
+        assert alt_text[13:71] == [
+            REVIEWED_README_MODULE_ALT_TEMPLATES[language].format(
+                module=module,
+            )
+            for module in module_names
+        ]
         assert "Interactive tutorials" not in alt_text
         assert "Latest installers" not in alt_text
 
