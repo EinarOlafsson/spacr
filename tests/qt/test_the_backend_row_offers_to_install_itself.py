@@ -21,15 +21,55 @@ from spacr.qt.widgets.availability_panel import (       # noqa: E402
     AvailabilityPanel)
 
 
+def _release_any_grab():
+    """Give the mouse and keyboard back before and after each test.
+
+    A QComboBox popup is a ``Qt.Popup`` WITH AN ACTIVE MOUSE GRAB -- the
+    tests below say so themselves. A test that closes one through the
+    Leave event filter rather than `hidePopup()` can leave that grab held,
+    and the next `showPopup()` then does not map: `view.isVisible()` is
+    False and the assertion fails on a popup that was never refused, only
+    never shown.
+
+    Process-global state, so a fixture is the only place it can be reset.
+    It is why these two tests failed on some shuffles and not others, and
+    why they passed whenever they were run alone.
+    """
+    from PySide6.QtWidgets import QApplication, QWidget
+
+    for holder in (QWidget.mouseGrabber(), QWidget.keyboardGrabber()):
+        if holder is not None:
+            holder.releaseMouse()
+            holder.releaseKeyboard()
+    app = QApplication.instance()
+    if app is not None:
+        for popup in list(app.topLevelWidgets()):
+            if popup.isVisible() and popup.windowType() == Qt.Popup:
+                popup.close()
+        app.processEvents()
+
+
 @pytest.fixture
 def field(qtbot):
+    # DISMISSED AT SETUP AS WELL AS AT TEARDOWN. `AvailabilityPanel` is a
+    # SINGLETON shared by every test in the process, and dismissing it only
+    # on the way out trusts the previous test to have got that far. One
+    # that failed, or one deselected by a `-k` filter partway through the
+    # file, leaves the panel up -- and the next test that asks "what
+    # happens when no panel is open" is then measuring the other branch.
+    # That is the whole of instruction 235's first failure: green alone,
+    # red on some shuffles, and never anything wrong with the code.
+    AvailabilityPanel.instance().dismiss()
+    _release_any_grab()
     widget = settings_model._RegressionBackendField(
         default="statsmodels (CPU)", regression_type="mixed")
     qtbot.addWidget(widget)
     widget.show()
     yield widget
+    widget.combo.hidePopup()
     AvailabilityPanel.instance().dismiss()
     AvailabilityPanel.instance().set_install_handler(None)
+    _release_any_grab()
 
 
 def _greyed_rows(field):
@@ -214,6 +254,10 @@ def test_leaving_the_popup_closes_it_so_the_panel_can_be_clicked(field):
 def test_leaving_the_popup_with_no_panel_open_leaves_it_alone(field):
     field.combo.showPopup()
     view = field.combo.view()
+    # THE PREMISE IS IN THE NAME: no panel open. The panel is a SINGLETON,
+    # so a test that leaves one up hands it to whatever runs next -- and
+    # this test then measures the other branch of the filter.
+    assert AvailabilityPanel.instance().isVisible() is False
     field.eventFilter(view.viewport(), QEvent(QEvent.Leave))
     assert view.isVisible()
     field.combo.hidePopup()
