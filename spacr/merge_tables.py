@@ -377,9 +377,49 @@ CONFLICT_POLICIES: Tuple[str, ...] = ("warn", "raise")
 #: ``area`` are SUPPOSED to differ, and reporting that as a conflict would
 #: bury the real ones.
 MUST_AGREE: Tuple[str, ...] = IDENTITY + (
-    "prc", "prcf", "prcfo", "object_label", "cell_id", "timeID", "time_id",
+    "prc", "prcf", "prcfo", "cell_id", "timeID", "time_id",
     "plate_name", "row_name", "column_name", "field_name",
 )
+
+
+#: Columns that must agree only between tables sharing one LABEL SPACE.
+#:
+#: `object_label` was in MUST_AGREE and should not have been. A cell's
+#: object_label is its label in the CELL mask and a pathogen's is its label
+#: in the PATHOGEN mask -- two separate labellings of two separate objects,
+#: with no reason on earth to coincide. Joining cell to pathogen therefore
+#: warned about nearly every row of every healthy screen:
+#:
+#:     'object_label': 60095 of 60816 objects disagree between cell and
+#:     pathogen (e.g. prcfo 0, 1, 2, 3, 4)
+#:
+#: which says "a defect in the data no analysis should quietly average
+#: over" about data that is exactly right. A warning that fires on the
+#: normal case teaches its reader to ignore it, and the real conflicts it
+#: was built for go with it.
+#:
+#: Cytoplasm is the exception and the reason the column is not simply
+#: dropped from the check: it is the cell minus its nucleus, carries the
+#: CELL's label, and a disagreement there is a genuine mismatch.
+SAME_LABEL_SPACE: Dict[str, Tuple[str, ...]] = {
+    "object_label": ("cell", "cytoplasm"),
+}
+
+
+def _shares_a_label_space(column: str, left_name: str, right_name: str) -> bool:
+    """Whether ``column`` has to agree between these two tables in particular.
+
+    :data:`MUST_AGREE` is a flat list and cannot express "these two columns
+    are the same fact only when the tables are related". `object_label` is
+    that case -- see :data:`SAME_LABEL_SPACE`.
+
+    :returns: True when both table names are in the column's label space.
+    """
+    space = SAME_LABEL_SPACE.get(str(column))
+    if not space:
+        return False
+    return all(any(name in str(side) for name in space)
+               for side in (left_name, right_name))
 
 
 class ColumnConflict(MergeError):
@@ -448,7 +488,8 @@ def reconcile_duplicates(frame: pd.DataFrame, suffix: str, *,
         if bool(agree.all()):
             drop.append(right_col)
             continue
-        if left_col not in MUST_AGREE:
+        if left_col not in MUST_AGREE and not _shares_a_label_space(
+                left_col, left_name, right_name):
             # Two measurements that happen to share a name. They describe
             # different objects, so they differ by design and both are kept.
             continue
