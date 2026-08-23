@@ -427,12 +427,23 @@ class ColumnConflict(MergeError):
 
 
 def _columns_agree(left: pd.Series, right: pd.Series) -> pd.Series:
-    """Row-wise equality that treats two missing values as agreement.
+    """Row-wise equality where a missing value cannot disagree with anything.
 
     ``NaN != NaN`` is right for arithmetic and wrong here: a column absent
     from both tables for a given object is not a disagreement about it.
+
+    EITHER side missing, not only both. An UNINFECTED CELL is a cell kept on
+    purpose -- ``keep_uninfected=True`` -- that has no pathogen row, so every
+    column from the pathogen table is absent for it. Comparing a present
+    plateID against that absence counted as a conflict, and plate1 reported
+
+        'plateID': 172 of 553 objects disagree between cell and pathogen
+
+    where 172 is exactly the number of cells with no pathogen in them. The
+    data is right, the cells were kept deliberately, and the identity columns
+    were being compared against nothing at all.
     """
-    both_missing = left.isna() & right.isna()
+    both_missing = left.isna() | right.isna()
     if (pd.api.types.is_numeric_dtype(left)
             and pd.api.types.is_numeric_dtype(right)):
         # Two tables can reach the same number by different arithmetic, so
