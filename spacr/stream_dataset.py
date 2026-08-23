@@ -438,8 +438,18 @@ def stream(selection: pd.DataFrame, merged_folder: str, dst: str, *,
         mask = stack[..., plane] if getattr(stack, "ndim", 0) >= 3 else stack
         for _, row in here.iterrows():
             try:
-                label = int(float(row[OBJECT_KEY]))
-            except (TypeError, ValueError):
+                # THROUGH THE ONE PARSER. The coordinate method takes its
+                # object id from the object table's own column, and
+                # `png_list` spells it `cell_id = 'o2'` -- so `int(float(...))`
+                # raised on every row of the crop table and each object was
+                # counted as missing and dropped in silence. The array method
+                # never hit it, because a label scanned off a mask plane is
+                # already an integer, so the two methods produced different
+                # datasets from the same screen.
+                from .crops import object_label
+
+                label = object_label(row[OBJECT_KEY])
+            except Exception:                                # noqa: BLE001
                 report["missing"] += 1
                 continue
             crop = cut(stack, mask, label, bounding_box=bounding_box,
