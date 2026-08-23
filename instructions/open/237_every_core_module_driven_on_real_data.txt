@@ -309,3 +309,35 @@ STILL TO DO
   * MASK end to end on plate1's own gen_masks_settings.csv (item 1).
   * CLASSIFY and REGRESSION driven on the tsg101 screen (items 3 and 5).
   * The untested functions in measure.py (9) and ml.py (38).
+
+
+--------------------------------------------------------------------------------
+F. MASK, DRIVEN -- 2026-08-23
+--------------------------------------------------------------------------------
+
+Two real plate1 fields (F001, F009) run end to end on the maintainer's own
+gen_masks_settings.csv: orig -> stack -> merged -> masks, segmentation QC
+("all 2 fields are clean"), cell adjustment against nuclei and pathogens,
+and the merge. Driver: spacr_drivers/drive_mask_on_plate1.py
+
+A DECISION IS NEEDED. The rerun does not reproduce the reference masks:
+
+    field            cell         nucleus     pathogen
+    plate1_E01_1_1   586 vs 240    36 vs  52   70 vs 137
+    plate1_E01_9_1   410 vs 530    77 vs  93   69 vs 205
+
+The cause is the model. The masks in the dataset were segmented with
+Cellpose 3 (`cyto`, `nuclei`); the installed Cellpose is 4.2.1.1 and spaCR
+asks it for `cpsam` with diameter=None. A different network and a different
+diameter estimate give a different segmentation, so this is a change to
+explain rather than a bug to fix -- but it moves every downstream number,
+in both directions and by up to 2.4x, and whether the new segmentation is
+BETTER is a question only the maintainer can answer by looking at it.
+
+Worth checking as part of that: `magnification: 40` is in the settings and
+`diameter` is None, so nothing is telling cpsam how big a cell is.
+
+ALSO FOUND: `src` must hold the images directly. Pointing it at a plate
+folder whose images are already in `orig/` finds zero fields -- the error
+says so clearly and names the sub-folders, so this is a note rather than a
+defect.
