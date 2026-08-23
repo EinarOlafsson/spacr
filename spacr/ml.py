@@ -2319,10 +2319,27 @@ def _left_blank(value) -> bool:
     settings CSV produce for the same untouched box; whitespace is what a
     hand-edited CSV produces. None of the policed settings takes a string
     value, so a blank one can only mean "not answered".
+
+    AND NaN, which is the FOURTH spelling of empty and the one that
+    actually reaches this function. `pandas.read_csv` turns an empty cell
+    into `float('nan')`, so a settings CSV with `hinge_threshold,` on a line
+    -- which is what a saved file looks like for every box the user did not
+    fill -- arrived here as a float. It is not None and not a str, so it
+    read as "answered", and an ordinary OLS run was refused with
+
+        regression_type='ols' does not read hinge_threshold=nan
+
+    about a value nobody typed. NaN is never a threshold, a covariance type
+    or a quantile, so there is no reading of it that means "answered".
     """
     if value is None:
         return True
-    return isinstance(value, str) and not value.strip()
+    if isinstance(value, str):
+        return not value.strip()
+    try:
+        return bool(value != value)      # NaN is the only value unequal to itself
+    except Exception:                                        # noqa: BLE001
+        return False
 
 
 def _reject_unused_settings(regression_type, supplied):
