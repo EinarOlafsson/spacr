@@ -12,6 +12,7 @@ earlier grouped-form layout of the same questions.
 from __future__ import annotations
 
 import logging
+import re
 from typing import Any, Dict, List, Optional, Tuple
 
 from PySide6.QtCore import (QEasingCurve, QEvent, QPointF,
@@ -38,9 +39,13 @@ SLIDES: Tuple[Tuple[str, str, Tuple[str, ...]], ...] = (
      "them, so you can see what you are choosing.",
      ("theme", "colour_blind")),
     ("How it runs",
-     "The mode decides how much spaCR does for you before asking. The "
-     "reproducibility hash records what went into a run, so a result can be "
-     "traced back to the exact inputs that produced it.",
+     "The mode decides how much of this machine spaCR keeps for itself: how "
+     "many background processes it starts and holds, and whether it hands "
+     "back its caches and GPU memory between runs. Balanced keeps them, "
+     "which is fastest; the other two give them up so the rest of your "
+     "machine has more to work with. The reproducibility hash records what "
+     "went into a run, so a result can be traced back to the exact inputs "
+     "that produced it.",
      ("spacr_mode", "hash_inputs")),
     ("The assistant",
      "spaCR can explain an error or a result through a coding assistant you "
@@ -135,6 +140,20 @@ DONE_POINTS = 44
 #: just asked, so it is the size of an answer.
 GREETING_POINTS = 30
 
+#: How far down the card the greeting floats, as a fraction of its height.
+#:
+#: A BAND NOTHING ELSE USES. The question rows sit in the upper half and the
+#: buttons along the bottom edge, so this is empty on every slide -- which
+#: is what lets the word leave slowly instead of being switched off to make
+#: room for what comes next.
+GREETING_BAND = 0.72
+
+#: Milliseconds the greeting takes to fade AWAY.
+#:
+#: Slower than it arrives. A word that leaves at the speed it came reads as
+#: being taken away; one that lingers reads as being finished with.
+GREETING_LEAVE_MS = 700
+
 #: Milliseconds the greeting takes to fade up.
 #:
 #: IT ARRIVES, it does not appear. A word that is simply switched on reads
@@ -206,11 +225,19 @@ class SetupSlides(QDialog):
         # THE GREETING IS THE ANSWER TO THE LANGUAGE QUESTION, so it comes
         # AFTER the question is answered rather than sitting under it while
         # it is still being decided. It is hidden until the first Next.
-        self._greeting = QLabel("")
+        # NOT IN THE COLUMN. The greeting used to be a row in the layout, so
+        # it took space on the language slide and had to be switched off the
+        # moment the next slide arrived -- and switched off is what it looked
+        # like: "the transition away from Hello is abrupt and bad".
+        #
+        # It floats over the card instead, low and centred, in a band the
+        # question rows never reach on any slide. Nothing has to move out of
+        # its way, so it can take its time leaving.
+        self._greeting = QLabel("", self.card)
         self._greeting.setObjectName("CardTitle")
-        self._greeting.setAlignment(Qt.AlignLeft)
+        self._greeting.setAlignment(Qt.AlignCenter)
+        self._greeting.setAttribute(Qt.WA_TransparentForMouseEvents, True)
         self._greeting.setVisible(False)
-        column.addWidget(self._greeting)
 
         self._pages = QStackedWidget()
         column.addWidget(self._pages)
@@ -372,8 +399,20 @@ class SetupSlides(QDialog):
         row.setContentsMargins(0, 0, 0, 0)
         row.setSpacing(10)
 
-        label = QLabel("GitHub")
-        row.addWidget(label)
+        # THE MARK, WHICH IS THE STATE. "if spacr detects the login there
+        # should also be a github logo that gains colour" -- signed out it
+        # is drawn in the muted ink, signed in in GitHub's own black. The
+        # mark is the same widget the AI providers use, so one rule covers
+        # every sign-in on this screen.
+        from .provider_marks import ProviderMark
+
+        self._gh_mark = ProviderMark("github", "GitHub", False, holder)
+        # NOT A SECOND WAY TO SIGN IN. The button beside it is the control;
+        # the mark is the indicator, and a mark that also acted would be two
+        # controls that must not disagree.
+        self._gh_mark.setCursor(Qt.ArrowCursor)
+        self._gh_mark.setToolTip("")
+        row.addWidget(self._gh_mark)
         row.addStretch(1)
 
         self._gh_status = QLabel("")
@@ -420,6 +459,13 @@ class SetupSlides(QDialog):
         # token that has expired while `auth_source` still finds a stale
         # one. `gh auth login` handles both, so the button offers it.
         self._gh_button.setEnabled(True)
+        # THE MARK FIRST, because every branch below returns.
+        mark = getattr(self, "_gh_mark", None)
+        if mark is not None:
+            signed_in = bool(source)
+            if bool(mark.available) != signed_in:
+                mark.available = signed_in
+                mark.update()
         if source:
             self._gh_status.setText(
                 self.GITHUB_SOURCES.get(source, "signed in"))
@@ -465,27 +511,57 @@ class SetupSlides(QDialog):
     #: machine is in.
     _gh_action = "login"
 
+    #: The greeting's fade-out, held so it is not collected mid-animation.
+    _goodbye = None
+
+    #: Whether the browser has already been opened for THIS sign-in.
+    #:
+    #: `gh` reprints its code as it polls, and opening a tab per line would
+    #: bury the one the user is typing into.
+    _gh_opened = False
+
+    #: GitHub's device-code page, which is where `gh auth login --web` sends
+    #: you. Opened by spaCR rather than by `gh` -- see `_sign_in_to_github`.
+    GITHUB_DEVICE_PAGE = "https://github.com/login/device"
+
+    #: The shape of the one-time code `gh` prints before it opens a browser.
+    GH_CODE = re.compile(r"\b([A-Z0-9]{4}-[A-Z0-9]{4})\b")
+
     def _sign_in_to_github(self) -> bool:
         """Start `gh auth login`, or open the install page. True if started.
 
-        DETACHED, and the dialog does not wait on it: `gh` runs its own
-        browser flow and can take as long as the user takes, and a modal
-        setup screen frozen behind it would be a setup screen that looks
+        THE BROWSER IS OPENED HERE, and that is the whole point of this
+        method. `gh auth login --web` does open one -- after printing a
+        one-time code and waiting for Enter ON A TERMINAL. Started from a
+        GUI there is no terminal, so `gh` sat forever on a prompt nobody
+        could answer while the dialog said "waiting for GitHub in your
+        browser…" about a browser that never opened. Reported exactly that
+        way.
+
+        So spaCR reads the code out of `gh`'s output, shows it, opens
+        GitHub's device page itself, and then answers the prompt. The user
+        sees the code they have to type and the page to type it into.
+
+        DETACHED, and the dialog does not wait: the flow takes as long as
+        the user takes, and a modal setup screen frozen behind it would look
         crashed. The status re-reads when the process ends.
         """
         from PySide6.QtCore import QProcess
 
         if self._gh_action == "install":
-            from PySide6.QtCore import QUrl
-            from PySide6.QtGui import QDesktopServices
+            return self._open_in_the_browser(self.GITHUB_CLI_PAGE)
 
-            return bool(QDesktopServices.openUrl(
-                QUrl(self.GITHUB_CLI_PAGE)))
-
+        self._gh_opened = False
         process = QProcess(self)
+        # ONE STREAM. `gh` prints the code on stderr and the prompt on
+        # stdout, and reading only one of them loses half the exchange.
+        process.setProcessChannelMode(QProcess.MergedChannels)
+        process.readyReadStandardOutput.connect(
+            lambda: self._read_github_output(process))
         process.finished.connect(lambda *_a: self._refresh_github())
         try:
-            process.start("gh", ["auth", "login", "--web"])
+            process.start("gh", ["auth", "login", "--web",
+                                 "--hostname", "github.com"])
             started = process.waitForStarted(3000)
         except Exception:                                    # noqa: BLE001
             LOG.debug("gh auth login would not start", exc_info=True)
@@ -495,9 +571,47 @@ class SetupSlides(QDialog):
                 "`gh auth login` would not start — run it in a terminal")
             return False
         self._gh_process = process
-        self._gh_status.setText("waiting for GitHub in your browser…")
+        self._gh_status.setText("starting GitHub sign-in…")
         self._gh_button.setEnabled(False)
         return True
+
+    def _open_in_the_browser(self, url: str) -> bool:
+        """Open ``url`` in the user's default browser. True if it opened."""
+        from PySide6.QtCore import QUrl
+        from PySide6.QtGui import QDesktopServices
+
+        try:
+            return bool(QDesktopServices.openUrl(QUrl(str(url))))
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not open %r", url, exc_info=True)
+            return False
+
+    def _read_github_output(self, process) -> str:
+        """Show `gh`'s one-time code, open the device page, answer the prompt.
+
+        :returns: the code found this time, or "".
+        """
+        try:
+            chunk = bytes(process.readAllStandardOutput()).decode(
+                "utf-8", "replace")
+        except Exception:                                    # noqa: BLE001
+            return ""
+        found = self.GH_CODE.search(chunk or "")
+        if found and not self._gh_opened:
+            self._gh_opened = True
+            code = found.group(1)
+            opened = self._open_in_the_browser(self.GITHUB_DEVICE_PAGE)
+            where = ("your browser" if opened
+                     else self.GITHUB_DEVICE_PAGE)
+            self._gh_status.setText(f"enter {code} in {where}")
+            # AND ANSWER THE PROMPT `gh` is sitting on, so it proceeds to
+            # poll GitHub. Without this it waits on Enter forever.
+            try:
+                process.write(b"\n")
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not answer the gh prompt", exc_info=True)
+            return code
+        return found.group(1) if found else ""
 
     def _closing_page(self, title: str, blurb: str) -> QWidget:
         """The last slide: one word, centred, with its sentence under it.
@@ -602,21 +716,33 @@ class SetupSlides(QDialog):
         # Tagged so `_clear_the_containers` can find it without knowing the
         # shape of the page it ended up on.
         holder.setProperty("spacrProviderStrip", True)
-        row = QHBoxLayout(holder)
+        # A COLUMN: the marks on one line, and under them a note, so that
+        # choosing a provider can say what it started. Without somewhere to
+        # say it, the sign-in would begin with no sign of it.
+        column = QVBoxLayout(holder)
+        column.setContentsMargins(0, 0, 0, 0)
+        column.setSpacing(4)
+        row = QHBoxLayout()
         row.setContentsMargins(0, 0, 0, 0)
         row.setSpacing(10)
+        column.addLayout(row)
         holder._chosen = str(value or "")
         holder._buttons = {}
+        holder._note = QLabel("")
+        holder._note.setObjectName("Muted")
+        holder._note.setWordWrap(True)
+        column.addWidget(holder._note)
         for code, label, command in PROVIDERS:
-            ready = self._provider_is_installed(command)
+            # SIGNED IN, not merely installed -- that is what the colour is
+            # for. An installed-but-signed-out provider used to look exactly
+            # like one that was ready to answer.
+            ready = self._provider_is_signed_in(code, command)
             mark = ProviderMark(code, label, ready, holder)
             mark.set_chosen(holder._chosen == code)
             mark.setToolTip(
-                f"Use {label}." if ready else
-                f"Use {label}. Its `{command}` command is not on this "
-                f"machine yet -- spaCR drives the vendor's own CLI, so "
-                f"installing it is all that is needed. You can choose "
-                f"{label} now and install it later.")
+                f"Use {label}. You are signed in." if ready else
+                f"Use {label}. Choosing it starts the sign-in; spaCR drives "
+                f"the vendor's own CLI and never sees the credential.")
             mark.chosen.connect(
                 lambda picked, h=holder: self._choose_provider(h, picked))
             row.addWidget(mark)
@@ -637,10 +763,119 @@ class SetupSlides(QDialog):
         return shutil.which(str(command)) is not None
 
     @staticmethod
-    def _choose_provider(holder, code: str) -> None:
+    def _provider_is_signed_in(code: str, command: str) -> bool:
+        """Whether this provider is installed AND logged in.
+
+        WHAT THE COLOUR MEANS. The mark is drawn in the brand colour when
+        this is true and in muted ink when it is not -- "the icon should be
+        coloured if they are logged in". It used to mean only "the CLI is on
+        PATH", so a provider that was installed and signed out looked
+        identical to one that was ready to answer.
+        """
+        try:
+            from ..ai.providers import get_provider
+
+            provider = get_provider(str(code))
+            if provider is not None:
+                return bool(provider.is_configured())
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not ask %r whether it is signed in", code,
+                      exc_info=True)
+        return SetupSlides._provider_is_installed(command)
+
+    #: Terminal emulators tried, in order, for an interactive CLI login.
+    #:
+    #: These logins are conversations -- a code to copy, a key to paste --
+    #: and a GUI child process has no terminal to have them in. Started
+    #: without one they hang on a prompt nobody can see, which is exactly
+    #: how the GitHub button used to fail.
+    TERMINALS: Tuple[Tuple[str, Tuple[str, ...]], ...] = (
+        ("x-terminal-emulator", ("-e",)),
+        ("gnome-terminal", ("--",)),
+        ("konsole", ("-e",)),
+        ("xfce4-terminal", ("-e",)),
+        ("xterm", ("-e",)),
+    )
+
+    def _run_in_a_terminal(self, command: str) -> bool:
+        """Run ``command`` in the user's terminal. True if one was found."""
+        import shutil
+        import sys
+
+        from PySide6.QtCore import QProcess
+
+        parts = str(command).split()
+        if not parts:
+            return False
+        if sys.platform == "darwin":
+            return QProcess.startDetached(
+                "osascript", ["-e", f'tell app "Terminal" to do script '
+                                    f'"{command}"'])
+        if sys.platform.startswith("win"):
+            return QProcess.startDetached("cmd", ["/c", "start", *parts])
+        for terminal, flag in self.TERMINALS:
+            if shutil.which(terminal) is None:
+                continue
+            return bool(QProcess.startDetached(terminal,
+                                               [*flag, *parts]))
+        return False
+
+    def _start_provider_login(self, code: str) -> str:
+        """Begin ``code``'s sign-in. Returns what the user should be told.
+
+        "If the user clicks an AI provider they should get prompted to login
+        right away." Choosing one used to do nothing but tick it, and the
+        login instructions lived in another screen entirely.
+        """
+        try:
+            from ..ai.providers import get_provider
+
+            provider = get_provider(str(code))
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("no provider registry", exc_info=True)
+            return ""
+        if provider is None:
+            return ""
+        if not provider.is_installed():
+            return (f"{provider.label}'s `{provider.cli_name}` command is "
+                    f"not installed yet.")
+        if provider.is_logged_in():
+            return ""
+        command = str(getattr(provider, "login_command", "") or "")
+        if not command:
+            return ""
+        if self._run_in_a_terminal(command):
+            return f"Signing in to {provider.label} in a terminal…"
+        # NO TERMINAL TO OPEN. Naming the command is the honest fallback --
+        # better than starting it where its prompts cannot be answered.
+        return f"Run `{command}` to sign in to {provider.label}."
+
+    def _choose_provider(self, holder, code: str) -> None:
+        """Select a provider AND start its login if it needs one."""
         holder._chosen = str(code)
         for name, mark in holder._buttons.items():
             mark.set_chosen(name == code)
+        note = self._start_provider_login(code)
+        status = getattr(holder, "_note", None)
+        if note and status is not None:
+            status.setText(note)
+        # The mark's colour is the login state, so it has to be re-asked.
+        self._refresh_provider_marks(holder)
+
+    def _refresh_provider_marks(self, holder) -> None:
+        """Re-colour every mark from its CURRENT sign-in state."""
+        for code, label, command in PROVIDERS:
+            mark = getattr(holder, "_buttons", {}).get(code)
+            if mark is None:
+                continue
+            signed_in = self._provider_is_signed_in(code, command)
+            if bool(mark.available) != bool(signed_in):
+                mark.available = bool(signed_in)
+                mark.update()
+            mark.setToolTip(
+                f"Use {label}. You are signed in." if signed_in else
+                f"Use {label}. Choosing it starts the sign-in; spaCR drives "
+                f"the vendor's own CLI and never sees the credential.")
 
     # ------------------------------------------------------- what it shows
 
@@ -679,6 +914,7 @@ class SetupSlides(QDialog):
                 f"font-weight: 300; font-size: {GREETING_POINTS}pt;")
         except Exception:                                    # noqa: BLE001
             LOG.debug("no palette for the greeting", exc_info=True)
+        self._place_the_greeting()
         self._greeting.setVisible(True)
         try:
             effect = QGraphicsOpacityEffect(self._greeting)
@@ -694,6 +930,50 @@ class SetupSlides(QDialog):
             # INVARIANTS 10: without an animation it is simply there.
             LOG.debug("no fade for the greeting", exc_info=True)
             self._hello = None
+
+    def _fade_the_greeting_away(self) -> None:
+        """Take the greeting off gently, and only if it is on.
+
+        The abrupt version was ``setVisible(False)`` the instant the slide
+        changed. Nothing depends on the word being gone -- it floats over a
+        band no slide uses -- so it can be given the time to leave.
+        """
+        # `isVisibleTo`, NOT `isVisible`. The latter is False whenever an
+        # ancestor is hidden -- a dialog built but not yet shown -- so the
+        # guard skipped the fade and left the word marked visible for
+        # whenever the dialog did appear. The question here is whether this
+        # widget is marked visible, which is what isVisibleTo answers.
+        if not self._greeting.isVisibleTo(self.card):
+            return
+        try:
+            effect = QGraphicsOpacityEffect(self._greeting)
+            self._greeting.setGraphicsEffect(effect)
+            animation = QPropertyAnimation(effect, b"opacity", self)
+            animation.setDuration(GREETING_LEAVE_MS)
+            animation.setStartValue(1.0)
+            animation.setEndValue(0.0)
+            animation.setEasingCurve(QEasingCurve.InCubic)
+            # HIDDEN AT THE END, not at the start: a hidden widget does not
+            # animate, so hiding first is the abrupt cut with extra steps.
+            animation.finished.connect(
+                lambda: self._greeting.setVisible(False))
+            self._goodbye = animation
+            animation.start()
+        except Exception:                                    # noqa: BLE001
+            # INVARIANTS 10: without an animation it simply goes.
+            LOG.debug("no fade for the greeting", exc_info=True)
+            self._greeting.setVisible(False)
+            self._goodbye = None
+
+    def _place_the_greeting(self) -> None:
+        """Put the greeting in its band, across the width of the card."""
+        card = getattr(self, "card", None)
+        if card is None or not self._greeting:
+            return
+        height = self._greeting.sizeHint().height()
+        self._greeting.setGeometry(
+            0, int(card.height() * GREETING_BAND), card.width(), height)
+        self._greeting.raise_()
 
     def _apply_look(self, key: str) -> None:
         """Put the theme or colour-blind choice into effect immediately."""
@@ -727,7 +1007,7 @@ class SetupSlides(QDialog):
         # to a slide. It is shown by the first Next and hidden again by
         # anything that leaves that moment behind.
         if index != 0:
-            self._greeting.setVisible(False)
+            self._fade_the_greeting_away()
         self._where.setText(f"{index + 1} of {len(SLIDES)}")
         self._back.setEnabled(index > 0)
         self._next.setText("Start spaCR" if index == len(SLIDES) - 1
@@ -940,6 +1220,7 @@ class SetupSlides(QDialog):
         # than in a container floating over it.
         self.card.setGeometry(self.rect())
         self.card.raise_()
+        self._place_the_greeting()
 
 
 def open_setup_if_needed(parent=None) -> Optional[SetupSlides]:

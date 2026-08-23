@@ -189,8 +189,25 @@ class TestTheGreeting:
 
     def test_it_is_only_on_the_language_slide(self, slides):
         """A "Hello" left standing over the theme question is a word with no
-        job on that page."""
+        job on that page.
+
+        IT NOW TAKES 700ms TO GO. This used to assert the word was gone the
+        instant the slide changed, which was true because it was switched
+        off -- and being switched off is what "the transition away from
+        Hello is abrupt and bad" was about. It fades now, so the claim is
+        the same and the moment it becomes true is later.
+        """
+        import time
+
+        from PySide6.QtWidgets import QApplication
+
+        from spacr.qt.widgets.setup_slides import GREETING_LEAVE_MS
+
         _past_the_greeting(slides)
+        deadline = time.time() + (GREETING_LEAVE_MS / 1000.0) + 2.0
+        while time.time() < deadline and slides._greeting.isVisibleTo(slides):
+            QApplication.processEvents()
+            time.sleep(0.02)
         assert not slides._greeting.isVisibleTo(slides)
 
     def test_a_language_with_no_greeting_falls_back(self):
@@ -250,18 +267,28 @@ class TestTheProviderIsALogoButton:
         slides._choose_provider(slides._editors["ai_provider"], "gemini")
         assert slides.answers()["ai_provider"] == "gemini"
 
-    def test_an_uninstalled_provider_says_so_and_is_still_choosable(
-            self, slides):
+    def test_a_provider_that_is_not_ready_is_still_choosable(self, slides):
         """Reported 2026-08-22: "for the ai assistant i can only click
-        claude". The setup screen writes a PREFERENCE and launches nothing,
-        so choosing a provider before installing its CLI is an ordinary
-        thing to want -- the state is drawn and said, not enforced."""
+        claude". Whatever state a provider is in, picking it must work --
+        the state is drawn and said, not enforced.
+
+        WHAT CHANGED. This used to add "and launches nothing": the screen
+        wrote a preference and the login instructions lived on a different
+        screen entirely. Asked for on 2026-08-23 -- "if the user clicks an
+        AI provider they should get prompted to login right away" -- so
+        choosing one now starts its sign-in as well as recording it. The
+        tooltip says that instead of saying the CLI can be installed later,
+        and the mark's colour means SIGNED IN rather than merely installed.
+
+        The launch is stubbed here: this test is about the choice being
+        possible, and a real `codex login` would open a terminal.
+        """
+        slides._run_in_a_terminal = lambda command: True
         holder = slides._editors["ai_provider"]
-        for code, _label, command in PROVIDERS:
+        for code, _label, _command in PROVIDERS:
             mark = holder._buttons[code]
             if not mark.available:
-                assert f"`{command}`" in mark.toolTip()
-                assert "install it later" in mark.toolTip()
+                assert "sign-in" in mark.toolTip()
             slides._choose_provider(holder, code)
             assert slides.answers()["ai_provider"] == code
 
