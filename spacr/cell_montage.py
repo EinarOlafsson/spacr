@@ -287,6 +287,29 @@ ANNOTATION_COLUMN = "montage_annotation"
 PICKING_MODES: Tuple[str, ...] = ("rank", "attributed", "assigned",
                                  "multivariate", "sudoku")
 
+#: What each mode does, in one line, for anyone reading the code rather
+#: than the panel.
+#:
+#: SUDOKU IS DOCUMENTED HERE AND NOT IN THE `cell_picking` TOOLTIP, which
+#: names the other four. Adding a fifth sentence to that tooltip changed
+#: its text, which invalidated nine hand-built translations of it -- and
+#: the Chinese one could not be rebuilt: every rewording still failed the
+#: target-script gate, so the panel would have shown English there. The
+#: dropdown names all five (see `picture_settings.offered_values`) and each
+#: entry carries its own hover help (`PICKING_HELP`), so nothing is
+#: unreachable; only the summary tooltip is one short.
+PICKING_NOTES = {
+    "rank": "the highest scoring cells, as many as the read fraction implies",
+    "attributed": "each cell's posterior probability of carrying the guide, "
+                  "above a threshold",
+    "assigned": "one guide per cell, so each guide gets exactly the cells "
+                "its reads imply",
+    "multivariate": "the same from every measurement rather than the score "
+                    "alone; needs the gene x measurement sweep",
+    "sudoku": "learns a guide's cells from every well the guide is in, and "
+              "abstains rather than guessing when it cannot tell",
+}
+
 
 #: What a sweep writes its per-measurement effects to, inside the run folder.
 #:

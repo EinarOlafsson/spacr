@@ -906,11 +906,23 @@ SOURCE_CONTEXT_REPLACEMENTS: Mapping[
         (r"\bflow field\b", "流量", "流"),
         (r"\bmasks?\b", "口罩", "掩膜"),
         (r"\bcells?\b", "电池", "细胞"),
+        # A SPREADSHEET CELL. The model reaches for it whenever the
+        # sentence is about picking or selecting -- "which cells to show"
+        # became 要显示的单元格, which is a row-and-column cell.
+        (r"\bcells?\b", "单元格", "细胞"),
         (r"\bwells?\b", "水井", "孔"),
         (r"\bwells?\b", "井", "孔"),
+        # AN OIL WELL, which is what "every well it appears in" drew.
+        (r"\bwells?\b", "油井", "孔"),
         (r"\bhits?\b", "点击", "命中"),
         (r"\bguides?\b", "指南", "引导 RNA"),
         (r"\bguides?\b", "向导 RNA", "引导 RNA"),
+        # NO BARE 向导 RULE. It reads as a software wizard to an English
+        # eye, but a human reviewer chose exactly that word for gRNAs in
+        # docs/i18n/reviewed/runtime/zh_CN/2026-08-21-control-tooltips.json,
+        # and rewriting it there made that reviewed target non-idempotent --
+        # which the builder refuses, and rightly: a review is authority and
+        # a substitution table is a guess.
         (r"\bmasks?\b", "面具", "掩膜"),
         (r"\bplates?\b", "板块", "微孔板"),
         (_COMPUTE_RUN_SOURCE, "赛跑", "运行"),

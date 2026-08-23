@@ -157,8 +157,8 @@ class TestItIsReachableFromThePanel:
         from spacr.settings import tooltips
 
         said = tooltips["channel_of_interest"].lower()
-        for expected in ("morphology", "combination", "colocalisation",
-                         "every feature"):
+        for expected in ("shape", "combination", "colocalisation",
+                         "every measurement"):
             assert expected in said, expected
 
 
