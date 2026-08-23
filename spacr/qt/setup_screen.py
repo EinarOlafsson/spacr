@@ -130,9 +130,19 @@ def questions() -> List[Tuple[str, str, Callable, Callable, Any]]:
          [(value, caption) for caption, value in prefs.theme_choices()]),
         ("colour_blind", "Colour-blind mode", prefs.get_color_blind_mode,
          prefs.set_color_blind_mode, choices_of(prefs.VALID_CB_MODES)),
+        # THE SAME DEFECT AS THE LANGUAGE ONE ABOVE, left in place when that
+        # was fixed. There is no `prefs.VALID_SPACR_MODES`; the tuple is
+        # called `SPACR_MODES`, so the getattr found nothing, fell back to
+        # its one-item default, and the setup screen offered "balanced" as
+        # the only mode there is -- reported as "there is only one option
+        # for spaCR mode, ballanced, where there should be 3".
+        #
+        # Named directly rather than through getattr, so a rename breaks the
+        # import instead of silently shortening the list.
         ("spacr_mode", "spaCR mode", prefs.get_spacr_mode,
          prefs.set_spacr_mode,
-         choices_of(getattr(prefs, "VALID_SPACR_MODES", ("balanced",)))),
+         [(mode, prefs.MODE_LABELS.get(mode, str(mode).replace("_", " ")))
+          for mode in prefs.SPACR_MODES]),
         ("hash_inputs", "Reproducibility hash", prefs.get_hash_inputs,
          prefs.set_hash_inputs, None),
         ("issue_prompt", "One-click issue filing",

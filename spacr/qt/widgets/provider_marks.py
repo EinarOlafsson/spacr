@@ -37,6 +37,11 @@ BRAND: Dict[str, str] = {
     "claude": "#D97757",
     "gpt": "#10A37F",
     "gemini": "#4285F4",
+    # GitHub's mark is monochrome, so "in colour" means in the theme's own
+    # ink rather than in a brand hue -- "if the colour of the icon is black
+    # and white go from grey to black and white". Signed out it takes the
+    # muted ink like any other unavailable mark.
+    "github": "#181717",
 }
 
 #: How much of the widget the mark occupies, leaving room for the label.
@@ -111,11 +116,44 @@ def gemini_path(box: QRectF) -> QPainterPath:
     return path
 
 
+def github_path(box: QRectF) -> QPainterPath:
+    """The Octocat silhouette, reduced to a circle with ears and a tail.
+
+    Not a traced logo: a recognisable mark drawn from primitives, like every
+    other mark here. The head is the circle, two arcs above it are the ears,
+    and the tail is the stroke that makes it read as the GitHub mark rather
+    than as a plain dot.
+    """
+    path = QPainterPath()
+    centre = box.center()
+    reach = min(box.width(), box.height()) / 2.0
+    head = reach * 0.82
+    path.addEllipse(centre, head, head)
+
+    # The two ears, as small circles just inside the top of the head.
+    ear = head * 0.30
+    for side in (-1.0, 1.0):
+        path.addEllipse(QPointF(centre.x() + side * head * 0.52,
+                                centre.y() - head * 0.62), ear, ear)
+
+    # The tail, curving down and out from the lower right of the head.
+    tail = QPainterPath()
+    start = QPointF(centre.x() + head * 0.10, centre.y() + head * 0.62)
+    tail.moveTo(start)
+    tail.quadTo(QPointF(centre.x() + head * 0.72, centre.y() + head * 0.88),
+                QPointF(centre.x() + head * 0.86, centre.y() + reach * 0.98))
+    tail.quadTo(QPointF(centre.x() + head * 0.62, centre.y() + head * 0.96),
+                start)
+    path.addPath(tail)
+    return path
+
+
 #: Provider code -> the function that draws its mark.
 MARKS = {
     "claude": claude_path,
     "gpt": gpt_path,
     "gemini": gemini_path,
+    "github": github_path,
 }
 
 
