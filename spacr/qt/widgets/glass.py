@@ -1,9 +1,8 @@
 """Give every popup the translucent card and the travelling rim.
 
-    "i want every settings pop up throughout the entire spacr program
-     (preferences, hyperparamiters, settings, live settings, AI settings,
-     figure settings, etc.) to have the same transparent background with the
-     new rim"
+Every settings popup in the program -- preferences, the hyperparameter
+search, live settings, AI settings, figure settings and the rest -- gets
+the same translucent background and the same rim.
 
 ONE INSTALL POINT, NOT THIRTY-NINE EDITS. There are thirty-nine ``QDialog``
 subclasses in this package and there will be more next week; a look applied
