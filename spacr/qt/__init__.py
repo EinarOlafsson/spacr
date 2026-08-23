@@ -44,6 +44,36 @@ _QT_NOISE = re.compile(
     r"This plugin does not support (propagateSizeHints|raise)"
 )
 
+#: The inotify line, which is somebody else's problem and says so badly.
+#:
+#: Qt reports it as "No space left on device", which reads as a full disk and
+#: is not: ENOSPC from `inotify_add_watch` means the per-user WATCH limit is
+#: exhausted, not the filesystem. On the machine this was reported from,
+#: `fs.inotify.max_user_watches` was 65,536 with 65,434 already taken --
+#: 45,078 by syncthing and 20,019 by VS Code. spaCR held none of them.
+#:
+#: It fires twice at every start, so it is filtered; but it is explained
+#: once rather than dropped, because a user who sees inotify failures in one
+#: application is about to see them in others.
+_QT_INOTIFY = re.compile(r"inotify_add_watch.*No space left on device")
+
+_SAID_IT_ONCE = False
+
+
+def _explain_the_inotify_line() -> None:
+    """Say what ENOSPC from inotify really means, once per process."""
+    global _SAID_IT_ONCE
+    if _SAID_IT_ONCE:
+        return
+    _SAID_IT_ONCE = True
+    print(
+        "Note: this machine has run out of inotify FILE WATCHES (not disk "
+        "space -- Qt reports the same error code for both). Applications "
+        "that watch files, spaCR included, may stop noticing changes. "
+        "Raising fs.inotify.max_user_watches is a system setting and spaCR "
+        "does not change it for you.",
+        file=sys.stderr)
+
 
 def _install_quiet_qt_logging() -> None:
     """Drop known-harmless Qt log lines, pass everything else through.
@@ -60,6 +90,9 @@ def _install_quiet_qt_logging() -> None:
 
     def handler(mode, context, message):
         if _QT_NOISE.search(message or ""):
+            return
+        if _QT_INOTIFY.search(message or ""):
+            _explain_the_inotify_line()
             return
         stream = sys.stderr
         label = {

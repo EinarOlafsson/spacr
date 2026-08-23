@@ -38,6 +38,7 @@ consistent.
 from __future__ import annotations
 
 import os
+import warnings
 from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
 from PySide6.QtCore import QEvent, QSize, Qt, QTimer, Signal
@@ -827,10 +828,11 @@ class SystemPanel(Panel):
     @staticmethod
     def gpu_util() -> str:
         try:
-            import pynvml
-            pynvml.nvmlInit()
-            handle = pynvml.nvmlDeviceGetHandleByIndex(0)
-            return f"{pynvml.nvmlDeviceGetUtilizationRates(handle).gpu}%"
+            nvml = _nvml()
+            if nvml is None:
+                raise RuntimeError("no NVML")
+            handle = nvml.nvmlDeviceGetHandleByIndex(0)
+            return f"{nvml.nvmlDeviceGetUtilizationRates(handle).gpu}%"
         except Exception:
             try:
                 import torch
@@ -841,10 +843,11 @@ class SystemPanel(Panel):
     @staticmethod
     def gpu_vram() -> str:
         try:
-            import pynvml
-            pynvml.nvmlInit()
-            handle = pynvml.nvmlDeviceGetHandleByIndex(0)
-            info = pynvml.nvmlDeviceGetMemoryInfo(handle)
+            nvml = _nvml()
+            if nvml is None:
+                raise RuntimeError("no NVML")
+            handle = nvml.nvmlDeviceGetHandleByIndex(0)
+            info = nvml.nvmlDeviceGetMemoryInfo(handle)
             return f"{info.used / 1e9:.1f} / {info.total / 1e9:.0f} GB"
         except Exception:
             try:
@@ -863,6 +866,43 @@ class SystemPanel(Panel):
             return f"{int(100 * usage.used / usage.total)}%"
         except Exception:
             return "n/a"
+
+
+#: Sentinel so a machine with no GPU is probed once, not once per refresh.
+_UNSET = object()
+_NVML = _UNSET
+
+
+def _nvml():
+    """Return an initialised NVML module, or None when there is no NVIDIA GPU.
+
+    ``nvidia-ml-py`` is the maintained package and ``pynvml`` is the retired
+    one, and BOTH install a module called ``pynvml`` -- so the import line is
+    the same either way and only the installed distribution differs. The
+    retired one warns on import, which reached the console at every start.
+
+    The suppression is local rather than a global filter because a global
+    one was already in place and did not hold: the warning is raised while
+    the module body executes, and anything that has reset the warning
+    filters by then -- a Qt plugin, a library imported earlier -- lets it
+    through. ``catch_warnings`` around the import itself cannot be reset by
+    somebody else.
+
+    :returns: the NVML module with ``nvmlInit`` already called, or None.
+    """
+    global _NVML
+    if _NVML is _UNSET:
+        try:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", FutureWarning)
+                warnings.simplefilter("ignore", DeprecationWarning)
+                import pynvml
+            pynvml.nvmlInit()
+            _NVML = pynvml
+        except Exception:                                        # noqa: BLE001
+            # No NVIDIA driver, no package, or a driver too old to init.
+            _NVML = None
+    return _NVML
 
 
 class TotalsPanel(Panel):
