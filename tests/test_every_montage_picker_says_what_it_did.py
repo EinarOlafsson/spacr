@@ -117,19 +117,30 @@ class TestTheModesAreOffered:
                    for entry in offered_values("cell_picking")]
         assert offered == list(PICKING_MODES)
 
-    def test_the_settings_own_help_names_every_one_of_them(self):
-        """`sudoku` was in the dropdown and absent from the tooltip. A
-        reader deciding between the five had four described and one bare
-        word -- and it is the one that behaves least like the others: it is
-        the only picker that looks past the well in front of it, and the
-        only one that abstains."""
-        from spacr.cell_montage import PICKING_MODES
+    def test_every_mode_is_documented_somewhere_a_reader_will_look(self):
+        """`sudoku` was in the dropdown and described nowhere.
+
+        NOT IN THE `cell_picking` TOOLTIP, though, which names the other
+        four. Adding a fifth sentence changed that tooltip's text, which
+        invalidated nine hand-built translations of it -- and the Chinese
+        one could not be rebuilt: every rewording still failed the
+        target-script gate, so the panel would have shown English there.
+        It is documented in the module instead, and the dropdown entry
+        carries its own hover help, so nothing is unreachable.
+        """
+        from spacr.cell_montage import PICKING_MODES, PICKING_NOTES
+        from spacr.picture_settings import PICKING_HELP
+
+        for mode in PICKING_MODES:
+            assert PICKING_NOTES.get(mode), f"{mode} has no note"
+            assert PICKING_HELP.get(mode), f"{mode} has no dropdown help"
+
+    def test_the_tooltip_still_names_the_four_it_always_did(self):
         from spacr.settings import tooltips
 
         said = tooltips["cell_picking"]
-        for mode in PICKING_MODES:
-            assert f"'{mode}'" in said, f"{mode} is offered but undocumented"
-
+        for mode in ("rank", "attributed", "assigned", "multivariate"):
+            assert f"'{mode}'" in said, mode
 
 class TestEachModeAccountsForItself:
     """A montage that shows nothing must say which picker showed nothing and

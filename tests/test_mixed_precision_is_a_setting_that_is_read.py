@@ -5,9 +5,9 @@ thing a CPU cannot exercise is mixed precision. Driving it turned up that
 there was nothing to exercise:
 
     grep -rn "autocast\\|GradScaler" spacr/*.py   ->  nothing
-    "amp" in spacr.settings.expected_types        ->  False
+    "mixed_precision" in spacr.settings.expected_types        ->  False
 
-So a run with `amp=True` and a run with `amp=False` were the same run
+So a run with `mixed_precision=True` and a run with `mixed_precision=False` were the same run
 twice. Measured on plate1's three classes, 16,875 crops, resnet18, two
 epochs on a 3090: 476.4 s and 479.3 s. Identical, because the flag was
 dropped by `check_settings` before it reached anything.
@@ -99,14 +99,14 @@ class TestItIsARealSetting:
         exactly how the flag reached nothing."""
         from spacr.settings import expected_types
 
-        assert expected_types["amp"] is bool
+        assert expected_types["mixed_precision"] is bool
 
     def test_it_has_a_default(self):
         """Off. Turning it on changes the numbers, and no existing run's
         scores should move because spaCR gained a feature."""
         from spacr.settings import get_train_test_model_settings
 
-        assert get_train_test_model_settings({}).get("amp") is False
+        assert get_train_test_model_settings({}).get("mixed_precision") is False
 
     def test_the_panel_offers_it_beside_the_other_memory_knob(self):
         """`gradient_accumulation` is the other way to fit a bigger
@@ -115,17 +115,40 @@ class TestItIsARealSetting:
         from spacr.settings import categories
 
         training = categories["Computer Vision Training"]
-        assert "amp" in training
-        assert abs(training.index("amp")
+        assert "mixed_precision" in training
+        assert abs(training.index("mixed_precision")
                    - training.index("gradient_accumulation")) <= 2
 
     def test_its_help_says_what_it_costs(self):
         from spacr.settings import tooltips
 
-        said = tooltips["amp"].lower()
+        said = tooltips["mixed_precision"].lower()
         assert "cuda" in said
         assert "compare" in said
         assert "efault" in said
+
+    def test_its_help_says_what_it_BUYS(self):
+        """A setting whose help says only what it costs is one nobody
+        turns on. Measured on an RTX 3090 at 224 px over 30 training steps
+        after 5 warm-up: resnet50 1.77x on 0.58x the memory at batch 32 and
+        1.78x on 0.55x at batch 64, maxvit_t 1.62x on 0.60x, vit_b_16 2.46x
+        on 0.67x. `bench_amp.py` in the GPU queue folder reproduces it."""
+        from spacr.settings import tooltips
+
+        said = tooltips["mixed_precision"].lower()
+        assert "twice as fast" in said
+        assert "memory" in said
+        assert "larger batch" in said
+        # The numbers live in `resolve_mixed_precision`'s docstring rather
+        # than the hover: four model names and six ratios is a table, and a
+        # tooltip is a sentence. It is also what the translator choked on --
+        # a hover that is mostly protected literals comes back untranslated.
+        import inspect
+
+        from spacr.deep_spacr import resolve_mixed_precision
+
+        table = inspect.getdoc(resolve_mixed_precision)
+        assert "3090" in table and "1.77x" in table
 
 
 class TestTheLoopUsesIt:

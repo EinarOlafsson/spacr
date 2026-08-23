@@ -47,11 +47,33 @@ def test_the_panels_posted_default_counts_as_absent(family, capsys):
 
 @pytest.mark.parametrize("family", PENALISED_REGRESSION_TYPES)
 def test_a_penalty_the_user_actually_chose_is_left_alone(family, capsys):
-    assert defaults({"regression_type": family, "alpha": 0.01})["alpha"] == 0.01
-    # A literal float 1.0 is a choice; the integer 1 is what the panel had
-    # lying around. The distinction is the whole of the rule.
-    assert defaults({"regression_type": family, "alpha": 1.0})["alpha"] == 1.0
+    for chosen in (0.01, 0.5, 2.0, 10):
+        assert defaults({"regression_type": family,
+                         "alpha": chosen})["alpha"] == chosen
     assert "alpha='auto'" not in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("family", PENALISED_REGRESSION_TYPES)
+def test_a_float_one_is_the_posted_default_too(family):
+    """THE INT-VERSUS-FLOAT ESCAPE HATCH IS GONE.
+
+    The rule used to spare a literal `1.0` on the reading that an integer
+    is what the panel had lying around and a float is a deliberate answer.
+    That was true of the Tk panel. The Qt field is a double spin box and
+    the settings CSV it writes says `alpha,1.0`, so the rescue never fired
+    for anyone running the current GUI -- and lasso and elasticnet both
+    refused the maintainer's own saved settings for the tsg101 screen,
+    "shrank all 298 coefficients to exactly zero at alpha=1.0", from a file
+    in which alpha had never been touched.
+
+    Nothing is lost by dropping the escape hatch. A literal penalty of
+    exactly 1 on a fraction-scale design is the value the guard downstream
+    refuses anyway; any other number is honoured, including 0.99.
+    """
+    assert defaults({"regression_type": family, "alpha": 1.0})["alpha"] \
+        == "auto"
+    assert defaults({"regression_type": family, "alpha": 0.99})["alpha"] \
+        == 0.99
 
 
 def test_an_unpenalised_family_keeps_the_historical_default():

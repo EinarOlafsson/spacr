@@ -67,10 +67,21 @@ def resolve_mixed_precision(asked, device):
     """(on, note). Whether to train in half precision on THIS machine.
 
     WHY IT IS WORTH HAVING. The forward pass and the loss run in float16
-    while the weights and the optimiser stay in float32. On a card with
-    tensor cores that is most of the speed and about half the activation
-    memory -- which on a screen is not a nicety, it is the difference
-    between a batch of 32 and a batch of 64 at 224 px.
+    while the weights and the optimiser stay in float32. Measured on an
+    RTX 3090 over 30 training steps after 5 warm-up, at 224 px
+    (`bench_amp.py` in the GPU queue folder reproduces it):
+
+    ==================  =======  =============
+    model               speedup  peak memory
+    ==================  =======  =============
+    resnet50, batch 32  1.77x    0.58x
+    resnet50, batch 64  1.78x    0.55x
+    maxvit_t, batch 16  1.62x    0.60x
+    vit_b_16, batch 32  2.46x    0.67x
+    ==================  =======  =============
+
+    Half the memory is not a nicety on a screen: it is the difference
+    between a batch of 32 and a batch of 64 at the same crop size.
 
     CUDA ONLY, AND SAID SO. `torch.autocast` accepts a CPU device type and
     bfloat16, but on the CPUs spaCR runs on it is slower rather than
@@ -2715,7 +2726,7 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
     # that has tensor cores. `mixed_precision` is the answer for THIS
     # machine, so everything below is one code path rather than two.
     mixed_precision, amp_note = resolve_mixed_precision(
-        settings.get('amp', False) if isinstance(settings, dict) else False,
+        settings.get('mixed_precision', False) if isinstance(settings, dict) else False,
         device)
     if amp_note:
         print(amp_note)

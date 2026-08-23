@@ -617,7 +617,38 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     #       run sits on the pointer and where it is brightest -- one value
     #       each, because the alignment setting moves both together
     # Nothing retired.
-    expected = 8177
+    # +43/-0 for the classify-and-regression audit of 2026-08-22
+    # (instruction 236) and the settings work beside it:
+    #    9  choosing what a model trains on -- `utils.feature_selection`,
+    #       `feature_columns`, `feature_folder_name`, `MORPHOLOGY`,
+    #       `MORPHOLOGY_FEATURES`, `FEATURE_GROUPS`, and the widened
+    #       `channel_of_interest` contract they serve
+    #    7  the group lasso choosing its own penalty --
+    #       `group_lasso.choose_lambda`, `penalty_path`, `PATH_POINTS`,
+    #       `PATH_DEPTH`, `PATH_FOLDS`, `PATH_EXTENSIONS`, and
+    #       `ml._left_blank`, which is what makes a blank box mean nothing
+    #    6  mixed precision -- `deep_spacr.resolve_mixed_precision`,
+    #       `autocasting`, `GPU_ROOM_MB`, `pick_device`, `cv_metric_keys`
+    #       and `CV_PER_CLASS_PREFIX`'s replacement by the module's own
+    #    5  the wrapping row lifted out of the settings panel so the
+    #       regression header can use it -- `qt.widgets.flow`, `FlowLayout`,
+    #       `FlowHost` and the two settings_model aliases that kept working
+    #    5  the card and the rim on every dialog -- `glass.make_frameless`,
+    #       `button_direction`, `spin_on_every_button`, `SPINS` and
+    #       `_paint_nothing_behind_the_card`
+    #    5  the first run deciding when to open -- `setup_screen.
+    #       skipped_on_purpose`, `take_the_setup_flags`, `SKIP_FLAGS`,
+    #       `SKIP_ENV` and `qt.run_without_setup`
+    #    4  the rim's modes -- `SetupCard.mode`, `period`, `animates` and
+    #       `ink_at`
+    #    2  `cell_montage.PICKING_NOTES`, which is where `sudoku` is
+    #       described now that its tooltip cannot carry a fifth sentence
+    #       without losing nine translations, and `ml._shap_explainers`'s
+    #       public partner `_shap_values`
+    # Nothing retired: every name above is new, and the four functions whose
+    # behaviour changed -- `choose_model`, `apply_model`, `shap_analysis`,
+    # `build_surrogate_frame` -- kept their signatures.
+    expected = 8220
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -632,7 +663,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8296
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8339
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
