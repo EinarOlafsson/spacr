@@ -36,6 +36,37 @@ in its own file; each fails somewhere in a run of thousands.
         -- both still open. Qt, both about a rebuild or a thread, both
         green alone and green together.
 
+AND FROM A FULL SWEEP ON 2026-08-23, run in chunks because the whole suite
+does not fit in one command. Every one of these passes on its own and every
+one is in code this session did not touch -- checked against the session's
+base commit in a throwaway worktree, not assumed:
+
+    tests/test_cov_io_datasets.py
+        ::test_spacr_dataloader_pins_every_batch
+        -- ABORTS THE INTERPRETER, not merely fails. A PIL decode on the
+        prefetch thread, after about sixty other test files have run. The
+        crash site's own comment already names the race it is in: "Leaving
+        PIL's lazy decoder/file handle alive in a background prefetch
+        thread can race interpreter/loader cleanup."
+    tests/test_the_permutation_null_is_published_too.py (3 tests)
+    tests/test_the_screen_figures_are_house_style.py
+        ::test_the_volcano_saves_through_the_format_preference
+    tests/test_the_threshold_graphs_stay_with_the_run.py
+        ::test_the_cell_count_graph_is_published_after_saving
+        -- five figure-saving tests that spy on `Figure.savefig` and find
+        it was never called. All five fail at the base commit too.
+    tests/test_the_well_distributions_are_house_style.py
+        ::test_saving_writes_the_same_two_filenames_the_pipeline_always_wrote
+        -- passes alone and at base; order dependent.
+    tests/qt/test_shortcut_overlay.py
+        ::test_the_new_bindings_are_both_declared_and_wired
+    tests/qt/test_shortcuts_and_notify.py
+        ::test_shortcuts_install_adds_qshortcuts
+        -- `Ctrl+End` is on the cheat sheet and bound in a scope the test
+        does not see, so the sheet advertises one more binding than
+        `installed()` reports. `spacr/qt/shortcuts.py` is byte-identical to
+        the base commit.
+
 AND FIVE THAT WERE NOT ORDER DEPENDENT AT ALL:
 
     tests/test_models_regression_umap.py::test_build_and_eval_cellpose_model
