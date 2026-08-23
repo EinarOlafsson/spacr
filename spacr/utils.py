@@ -1727,9 +1727,53 @@ def save_settings(settings, name='settings', show=False):
         os.makedirs(os.path.join(src,'settings'), exist_ok=True)
         print(f"Saving settings to {settings_csv}")
         settings_df.to_csv(settings_csv, index=False)
+        _save_settings_json(settings, os.path.splitext(settings_csv)[0] + '.json')
     except (OSError, PermissionError) as e:
         print(f"Warning: could not save settings to {settings_csv}: {e}. "
               f"Continuing without writing the settings copy.")
+
+
+def _save_settings_json(settings, path):
+    """Write the same settings as JSON beside the CSV.
+
+    THE CSV LOSES THE TYPES. Every value in it is text, so a list comes back
+    as ``"[0, 1, 2]"``, ``None`` as ``""`` and ``False`` as ``"False"`` --
+    which is why loading one needs `ast.literal_eval` and a pile of special
+    cases, and why a settings file that round-trips through the panel is not
+    always the file that ran. JSON keeps the shape, so a results folder can
+    say exactly what produced it.
+
+    The CSV stays: it is what every existing loader reads and what a user
+    opens in a spreadsheet. This is a sibling, not a replacement.
+
+    Never raises. A settings copy that cannot be written is a note, not a
+    reason to lose a finished run.
+    """
+    import json
+
+    def plain(value):
+        """The value as something JSON can hold, or its repr."""
+        if value is None or isinstance(value, (bool, int, float, str)):
+            return value
+        if isinstance(value, dict):
+            return {str(k): plain(v) for k, v in value.items()}
+        if isinstance(value, (list, tuple, set)):
+            return [plain(v) for v in value]
+        try:
+            import numpy as _np
+
+            if isinstance(value, _np.generic):
+                return value.item()
+        except Exception:                                    # noqa: BLE001
+            pass
+        return repr(value)
+
+    try:
+        with open(path, 'w', encoding='utf-8') as out:
+            json.dump({str(k): plain(v) for k, v in dict(settings).items()},
+                      out, indent=2, sort_keys=True)
+    except Exception as error:                               # noqa: BLE001
+        print(f"Warning: could not write {path}: {error}")
 
 def print_progress(files_processed, files_to_process, n_jobs, time_ls=None, batch_size=None, operation_type=""):
     """Print a one-line progress report with an ETA derived from mean step time.
@@ -6389,11 +6433,34 @@ def _merge_overlapping_objects(mask1, mask2):
                     mask2[mask2 == m2_label] = overlapping_2_labels[0]
     return mask1, mask2
 
-def _filter_object(mask, min_value):
-    """Zero out label values whose pixel count is below ``min_value``."""
+def _filter_object(mask, min_value, max_value=None):
+    """Zero out label values outside the allowed pixel-count range.
+
+    :param min_value: drop objects smaller than this. 0 or None disables it.
+    :param max_value: drop objects LARGER than this. None -- the default,
+        and what every existing run does -- disables it.
+    :returns: ``mask``, filtered in place.
+
+    THE UPPER BOUND EXISTS BECAUSE THE LOWER ONE IS NOT ENOUGH. A
+    segmentation blow-up -- one "cell" covering a quarter of the field, two
+    cells merged by a bright bridge -- passes every minimum there is, gets
+    measured, and carries its area into the classifier and the regression.
+    A minimum can only remove debris.
+
+    :returns: the number of objects removed is NOT returned; the caller
+        counts them, because it is the caller that knows which object type
+        this is and can say so.
+    """
     count = np.bincount(mask.ravel())
-    to_remove = np.where(count < min_value)
-    mask[np.isin(mask, to_remove)] = 0
+    too_small = count < (min_value or 0)
+    if max_value:
+        too_big = count > max_value
+    else:
+        too_big = np.zeros_like(too_small)
+    # Label 0 is the background and is never an object.
+    remove = np.where(too_small | too_big)[0]
+    remove = remove[remove != 0]
+    mask[np.isin(mask, remove)] = 0
     return mask
 
 def _filter_cp_masks(masks, flows, filter_size, filter_intensity, minimum_size, maximum_size, remove_border_objects, merge, batch, plot, figuresize):

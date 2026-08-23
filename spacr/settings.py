@@ -1131,6 +1131,10 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('cytoplasm',False)
     settings.setdefault('uninfected',True)
     settings.setdefault('cell_min_size',0)
+    # UPPER BOUNDS, off by default so no existing run changes.
+    settings.setdefault('cell_max_size',None)
+    settings.setdefault('nucleus_max_size',None)
+    settings.setdefault('pathogen_max_size',None)
     settings.setdefault('nucleus_min_size',0)
     settings.setdefault('pathogen_min_size',0)
     settings.setdefault('organelle_min_size',0)
@@ -1331,6 +1335,7 @@ def set_default_train_test_model(settings):
     settings.setdefault('cross_validation_folds',0)
     settings.setdefault('cross_validation_enabled',False)
     settings.setdefault('cv_group_by','well')
+    settings.setdefault('holdout_plate', None)
     _set_classifier_evaluation_defaults(settings)
     # Fail-loud policy. None means "not set here" and defers to the
     # SPACR_STRICT_ERRORS environment variable, which is how a cluster turns
@@ -1367,6 +1372,7 @@ def set_generate_training_dataset_defaults(settings):
     settings.setdefault('metadata_item_2_value',None) #e.g. [['r1','r2'],['r3','r4']]
     settings.setdefault('test_split',0.1)
     settings.setdefault('cv_group_by','well')
+    settings.setdefault('holdout_plate', None)
     settings.setdefault('class_metadata',[['c1'],['c2']])
     # AND THEN `classes` OVERRULES BOTH (instruction 229). The Classes
     # editor already names the column each class is defined by and the value
@@ -1508,6 +1514,7 @@ def deep_spacr_defaults(settings):
     settings.setdefault('cross_validation_folds',0)
     settings.setdefault('cross_validation_enabled',False)
     settings.setdefault('cv_group_by','well')
+    settings.setdefault('holdout_plate', None)
     _set_classifier_evaluation_defaults(settings)
     return settings
 
@@ -2870,6 +2877,12 @@ expected_types = {
     "mask_array": str,
     "bounding_box": bool,
     "annotation_source": str,
+    "fields": (list, str, type(None)),
+    "barcode_mismatches": int,
+    "holdout_plate": (str, list, type(None)),
+    "cell_max_size": (int, float, type(None)),
+    "nucleus_max_size": (int, float, type(None)),
+    "pathogen_max_size": (int, float, type(None)),
     "cell_area_outlier_mads": (float, int, type(None)),
     "nucleus_area_outlier_mads": (float, int, type(None)),
     "cell_intensity_outlier_mads": (float, int, type(None)),
@@ -3620,6 +3633,42 @@ tooltips = {
     # ---------------------------------------------------------------- #
     #  Optional outlier removal before annotation.                       #
     # ---------------------------------------------------------------- #
+    'holdout_plate':
+        "(str | list | None) - Train without this plate and score on it. "
+        "None -- the default -- splits within the data as before. "
+        "Cross-validation splits within what it is given, so a model can "
+        "learn the PLATE rather than the phenotype and every number it "
+        "reports still looks fine; a held-out plate is the one number that "
+        "says whether the classifier generalises. Refused if holding it out "
+        "leaves either side without every class.",
+    'barcode_mismatches':
+        "(int) - How many mismatched bases a barcode may carry and still be "
+        "matched. 0 -- the default, and what every existing run does -- "
+        "requires an exact match, so a single sequencing error anywhere in a "
+        "barcode throws the read away. A read that falls within the budget "
+        "of TWO barcodes is left unassigned rather than given to whichever "
+        "was found first: it cannot be told which it came from, and "
+        "attributing it would put one guide's counts on another.",
+    'cell_max_size':
+        "(int | None) - Drop cells LARGER than this many pixels. None -- the "
+        "default -- disables it and is what every existing run does. The "
+        "minimum sizes remove debris; only a maximum removes a segmentation "
+        "blow-up, which passes every minimum and carries its area into the "
+        "classifier and the regression. The run prints how many objects each "
+        "bound dropped.",
+    'nucleus_max_size':
+        "(int | None) - Drop nuclei larger than this many pixels. See "
+        "cell_max_size. Default None.",
+    'pathogen_max_size':
+        "(int | None) - Drop pathogens larger than this many pixels. See "
+        "cell_max_size. Default None.",
+    'fields':
+        "(list | str | None) - Which fields to process, so one bad field can "
+        "be re-run without redoing the plate beside it. None -- the default "
+        "-- processes every field found. A list or a comma-separated string "
+        "of field ids in any spelling spaCR accepts ('f3', 3, 'F003'), or a "
+        "glob such as 'f1*'. The run writes only the fields named, into the "
+        "same folders, so a re-run replaces those and leaves the rest.",
     'annotation_source':
         "(str) - Which organism's annotation to join onto the regression "
         "results. Empty or 'toxoplasma' uses the bundled Toxoplasma gondii "
@@ -4615,7 +4664,7 @@ categories = {
     #   * parasite_table / compartment, from "Invasion Assay", which name the
     #     table and compartment the objects are read from. Leaving them there
     #     made the Replication module render a heading called "Invasion Assay".
-    "Measurements": ["save_measurements", "calculate_correlation", "corrected_manders", "spatial_measurements", "manders_thresholds", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
+    "Measurements": ["save_measurements", "calculate_correlation", "corrected_manders", "spatial_measurements", "manders_thresholds", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
 
     # png_dims stays listed although it is no longer rendered: it has no
     # default any more, so convert_settings_dict_for_gui never builds a
@@ -4708,7 +4757,7 @@ categories = {
     # So the headings below are NEUTRAL, and the two exclusives went to the
     # family headings that already exist.
     "Model Evaluation": ["cross_validation_enabled", "cross_validation_folds",
-                         "cv_group_by", "nested_cv_inner_folds"],
+                         "cv_group_by", "holdout_plate", "nested_cv_inner_folds"],
 
     "Evaluation Reports": ["classifier_evaluation", "evaluation_calibration",
                            "evaluation_bins", "score_threshold",
@@ -4847,7 +4896,7 @@ categories = {
 
     "Activation Maps": ["smoothgrad_samples", "smoothgrad_sigma", "occlusion_window", "occlusion_stride", "ig_steps", "ig_baseline", "attribution_steps", "attribution_baseline", "sanity_check", "object_type", "cam_type", "target_layer", "overlay", "correlation", "normalize_input"],
 
-    "Sequencing": ["mode", "single_direction", "target_sequence", "regex", "offset_start", "expected_end", "chunk_size", "fill_na", "save_h5", "comp_type", "comp_level"],
+    "Sequencing": ["mode", "single_direction", "target_sequence", "regex", "offset_start", "expected_end", "barcode_mismatches", "chunk_size", "fill_na", "save_h5", "comp_type", "comp_level"],
 
     "Plot": ["cmap", "figuresize", "normalize_plots", "black_background", "save_figure", "log_x", "log_y", "x_lim", "y_lims", "split_axis_lims", "examples_to_plot", "plot_control", "plot_nr", "nr_imgs", "um_per_pixel", "image_nr", "dot_size", "point_color", "point_alpha", "outline_width", "umap_canvas_width", "umap_sidebar_width", "img_zoom", "row_limit", "color_by", "plot_images", "remove_image_canvas", "plot_points", "plot_outlines", "smooth_lines", "plot_by_cluster", "plot_cluster_grids", "heatmap_feature", "grouping", "min_max"],
     # Replication-specific vacuole assignment and scoring. The shared parasite
@@ -5946,6 +5995,7 @@ def set_default_generate_barecode_mapping(settings=None):
     # processors in sequencing.py read match.group('columnID') /
     # match.group('rowID'), so a default regex naming them column/row raised
     # "IndexError: no such group" — the shipped default was unusable.
+    settings.setdefault('barcode_mismatches', 0)
     settings.setdefault('regex', DEFAULT_BARCODE_REGEX)
     settings.setdefault('target_sequence', 'TGCTGTTTCCAGCATAGCTCTTAAAC')
     settings.setdefault('offset_start', -8)

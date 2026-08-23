@@ -2802,8 +2802,20 @@ def _measure_crop_core(index, time_ls, file, settings):
         if settings['cell_mask_dim'] is not None:
             cell_mask = data[..., settings['cell_mask_dim']].astype(data_type)
 
-            if settings['cell_min_size'] is not None and settings['cell_min_size'] != 0:
-                cell_mask = _filter_object(cell_mask, settings['cell_min_size'])
+            # AN UPPER BOUND TOO. A minimum removes debris; only a maximum
+            # removes a segmentation blow-up, which passes every minimum
+            # and carries its area into everything downstream.
+            cell_max = settings.get('cell_max_size')
+            if ((settings['cell_min_size'] is not None
+                 and settings['cell_min_size'] != 0) or cell_max):
+                before = int(len(np.unique(cell_mask)) - 1)
+                cell_mask = _filter_object(
+                    cell_mask, settings['cell_min_size'],
+                    max_value=cell_max)
+                dropped = before - int(len(np.unique(cell_mask)) - 1)
+                if dropped and cell_max:
+                    print(f'cell: {dropped} object(s) outside '
+                          f'[{settings["cell_min_size"]}, {cell_max}] px')
         else:
             cell_mask = np.zeros_like(data[..., 0])
             settings['cytoplasm'] = False
@@ -2813,8 +2825,20 @@ def _measure_crop_core(index, time_ls, file, settings):
             nucleus_mask = data[..., settings['nucleus_mask_dim']].astype(data_type)
             if settings['cell_mask_dim'] is not None:
                 nucleus_mask, cell_mask = _merge_overlapping_objects(mask1=nucleus_mask, mask2=cell_mask)
-            if settings['nucleus_min_size'] is not None and settings['nucleus_min_size'] != 0:
-                nucleus_mask = _filter_object(nucleus_mask, settings['nucleus_min_size'])
+            # AN UPPER BOUND TOO. A minimum removes debris; only a maximum
+            # removes a segmentation blow-up, which passes every minimum
+            # and carries its area into everything downstream.
+            nucleus_max = settings.get('nucleus_max_size')
+            if ((settings['nucleus_min_size'] is not None
+                 and settings['nucleus_min_size'] != 0) or nucleus_max):
+                before = int(len(np.unique(nucleus_mask)) - 1)
+                nucleus_mask = _filter_object(
+                    nucleus_mask, settings['nucleus_min_size'],
+                    max_value=nucleus_max)
+                dropped = before - int(len(np.unique(nucleus_mask)) - 1)
+                if dropped and nucleus_max:
+                    print(f'nucleus: {dropped} object(s) outside '
+                          f'[{settings["nucleus_min_size"]}, {nucleus_max}] px')
             if settings['timelapse_objects'] == 'nucleus':
                 if settings['cell_mask_dim'] is not None:
                     cell_mask, nucleus_mask = _relabel_parent_with_child_labels(cell_mask, nucleus_mask)
@@ -2830,8 +2854,20 @@ def _measure_crop_core(index, time_ls, file, settings):
             if settings['merge_edge_pathogen_cells']:
                 if settings['cell_mask_dim'] is not None:
                     pathogen_mask, cell_mask = _merge_overlapping_objects(mask1=pathogen_mask, mask2=cell_mask)
-            if settings['pathogen_min_size'] is not None and settings['pathogen_min_size'] != 0:
-                pathogen_mask = _filter_object(pathogen_mask, settings['pathogen_min_size'])
+            # AN UPPER BOUND TOO. A minimum removes debris; only a maximum
+            # removes a segmentation blow-up, which passes every minimum
+            # and carries its area into everything downstream.
+            pathogen_max = settings.get('pathogen_max_size')
+            if ((settings['pathogen_min_size'] is not None
+                 and settings['pathogen_min_size'] != 0) or pathogen_max):
+                before = int(len(np.unique(pathogen_mask)) - 1)
+                pathogen_mask = _filter_object(
+                    pathogen_mask, settings['pathogen_min_size'],
+                    max_value=pathogen_max)
+                dropped = before - int(len(np.unique(pathogen_mask)) - 1)
+                if dropped and pathogen_max:
+                    print(f'pathogen: {dropped} object(s) outside '
+                          f'[{settings["pathogen_min_size"]}, {pathogen_max}] px')
         else:
             pathogen_mask = np.zeros_like(data[..., 0])
 
