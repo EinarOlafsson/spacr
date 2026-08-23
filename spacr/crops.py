@@ -2904,7 +2904,7 @@ def reanchor_frame(df, root: str, columns: Sequence[str] = PATH_COLUMNS,
                               n_already=already, failures=tuple(failures))
 
 
-def _object_label(value: Any) -> int:
+def object_label(value: Any) -> int:
     """The integer label, whichever of spaCR's two spellings arrived.
 
     `cell` stores `object_label` as an integer. `png_list` stores the SAME
@@ -2931,6 +2931,11 @@ def _object_label(value: Any) -> int:
             f"object label {value!r} is not a label: spaCR writes it as an "
             f"integer in the measurement tables and as 'o<n>' in png_list, "
             f"and this is neither.") from None
+
+
+#: The old private name. Kept because the function is now the ONE parser for
+#: an object label and other modules import it.
+_object_label = object_label
 
 
 def _row_get(row: Any, *names: str, default: Any = None) -> Any:
@@ -3276,7 +3281,7 @@ class MergedCropSource(CropSource):
                          "pathogen_id", "cytoplasm_id")
         if label is None:
             raise CropError("row has no 'object_label'")
-        label = _object_label(label)
+        label = object_label(label)
         obj = _row_get(row, "object_type", default=self.spec.object_type)
         bbox = None
         # skimage regionprops stores bbox as (min_row, min_col, max_row, max_col);
