@@ -53,10 +53,10 @@ NO_GLASS = "spacrNoGlass"
 
 #: Pixels between the dialog's edge and the card's.
 #:
-#: ZERO. It was 8, and those eight pixels were the "box with square edges
-#: behind the box with rounded edges" reported on 2026-08-22: a band of the
-#: dialog's own background running all the way round the rounded card, in
-#: the one place a square corner is most visible. The card IS the window
+#: ZERO. It was 8, and those eight pixels read as a box with square edges
+#: behind the box with rounded ones: a band of the dialog's own background
+#: running all the way round the rounded card, in the one place a square
+#: corner is most visible. The card IS the window
 #: now, so there is no band to see -- and nothing depends on the
 #: compositor except the four corner arcs themselves, rather than a full
 #: frame.
@@ -155,8 +155,7 @@ def wants_glass(widget: QWidget) -> bool:
     builds one and lays its slides out inside it; glassing it added a
     SECOND card, and the second one covered the first one's contents --
     `childAt` over the GitHub button returned the card, so the click never
-    reached the button. Reported 2026-08-22 as "i cant click the github
-    sign in".
+    reached it.
 
     Checked by looking rather than by asking, so anything else that builds
     its own card is covered without having to remember to say so.
@@ -221,9 +220,9 @@ class _DragByBackground(QObject):
     """Move a frameless dialog by dragging its empty background.
 
     THE TITLE BAR WAS WHERE A WINDOW WAS DRAGGED FROM, so taking it away
-    takes that with it -- and instruction 216 is explicit that every popup
-    stays a window the user can move. A press that lands on a control is
-    left entirely alone; only one on the dialog itself starts a drag.
+    takes that with it, and every popup has to stay a window the user can
+    move. A press that lands on a control is left entirely alone; only one
+    on the dialog itself starts a drag.
     """
 
     def __init__(self, dialog: QDialog):
@@ -233,7 +232,14 @@ class _DragByBackground(QObject):
         dialog.installEventFilter(self)
 
     def eventFilter(self, watched, event):      # noqa: N802 - Qt naming
-        if watched is not self._dialog:
+        # `getattr`, NOT `self._dialog`. The C++ QObject outlives this
+        # Python object's attributes: during teardown Qt goes on delivering
+        # events to a filter whose `__dict__` has already been cleared, and
+        # the AttributeError is printed by Qt on every one of them --
+        # "Error calling Python override of QObject::eventFilter" -- which
+        # is noise nobody can act on in a test log.
+        dialog = getattr(self, "_dialog", None)
+        if dialog is None or watched is not dialog:
             return False
         try:
             kind = event.type()

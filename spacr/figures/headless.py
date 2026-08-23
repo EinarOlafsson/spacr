@@ -41,9 +41,9 @@ LOG = logging.getLogger("spacr.figures.headless")
 #: laid out at 200 px wide exports its cramped decisions faithfully.
 RENDER_SIZE: Tuple[int, int] = (1400, 900)
 
-#: What to say when there is no Qt at all. Instruction 106: a run that
-#: silently stops writing figures is the worst outcome, so the refusal is
-#: loud and names the fix.
+#: What to say when there is no Qt at all. A run that silently stops
+#: writing figures is the worst outcome, so the refusal is loud and names
+#: the fix.
 NO_QT = ("PySide6 is not importable, so the pyqtgraph figures cannot be "
          "rendered. Install it with `pip install spacr` (it is a core "
          "dependency) or run with `regression_qc=False` to skip them.")

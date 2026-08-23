@@ -149,6 +149,19 @@ class SetupSlides(QDialog):
         self._editors: Dict[str, QWidget] = {}
         self._index = 0
 
+        # NO TITLE BAR HERE EITHER. The card this screen builds has rounded
+        # corners, and a square window frame around it -- with a close and a
+        # minimise button on top -- is the box the settings dialogs had
+        # until they went frameless. This screen builds its own card, so
+        # the glass filter deliberately leaves it alone, and leaving it
+        # alone left it with its frame.
+        #
+        # Same order as `glass.make_frameless`: the attribute BEFORE the
+        # flags, because the flags recreate the native window and a
+        # translucency asked for afterwards applies to one that no longer
+        # exists.
+        self._go_frameless()
+
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
         self._backdrop = self._install_backdrop()
@@ -304,6 +317,33 @@ class SetupSlides(QDialog):
             if signs_in:
                 form.addWidget(self._github_row())
             self._pages.addWidget(page)
+
+    def _go_frameless(self) -> bool:
+        """Drop the title bar and let the card's rounded corners show.
+
+        The setup screen is dismissed by its own buttons and by Escape, so
+        the close and minimise buttons were chrome around chrome. It stays
+        movable: `glass._DragByBackground` drags a window by its empty
+        background, which is what the title bar used to be for.
+        """
+        from PySide6.QtCore import Qt
+
+        try:
+            self.setAttribute(Qt.WA_TranslucentBackground, True)
+            self.setWindowFlags(self.windowFlags()
+                                | Qt.FramelessWindowHint)
+            # The window's own body paints nothing: `WA_TranslucentBackground`
+            # stops Qt filling it from the palette, and this stops the
+            # application stylesheet's `QDialog` rule doing it anyway.
+            from .glass import _DragByBackground, _paint_nothing_behind_the_card
+
+            _paint_nothing_behind_the_card(self)
+            _DragByBackground(self)
+            return True
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("the setup screen would not go frameless",
+                      exc_info=True)
+            return False
 
     def _github_row(self) -> QWidget:
         """Sign in to GitHub, on the slide that decides about issues.

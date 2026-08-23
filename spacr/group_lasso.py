@@ -218,7 +218,7 @@ def choose_lambda(X, y, labels, *, folds: int = PATH_FOLDS,
     of the design it is applied to. On the tsg101 screen its ceiling is
     0.1285, so 0.05 is nearly half of it and every one of the 297 gene
     blocks came back exactly zero -- from a settings file in which nobody
-    had ever touched the penalty (instruction 236 C7).
+    had ever touched the penalty.
 
     AN ALL-ZERO FIT IS NEVER CHOSEN, even when it has the lowest error.
     With a weak signal the emptiest model often does predict best on held-out
