@@ -381,3 +381,52 @@ which is the right answer, well worded, and means this dataset cannot train
 a classifier. It needs an annotated screen with more than one field per
 class -- the tsg101 plates have one, and driving CV training on those is
 what remains of item 3.
+
+
+--------------------------------------------------------------------------------
+H. CLASSIFY TRAINING AND MAP BARCODES -- 2026-08-23
+--------------------------------------------------------------------------------
+
+CLASSIFY, DRIVEN END TO END on a real annotated project. plate1's exported
+crops carry two real phenotypes in their folder names -- 518
+single_nucleus, 35 multiple_nucleus, over 13 fields -- so writing those
+into `png_list.annotate` gives a genuine two-class problem with enough
+independent fields for a leakage-safe split. Dataset generation from
+ANNOTATIONS (not metadata), training, model card, checkpoint selection,
+testing and inference back into the project all run.
+
+  FOUND AND FIXED: an inference run scored 553 crops and could not say
+  where any of them came from. `process_vision_results` called `_map_wells`,
+  which parses a FIELD stem (three parts, or four with a timepoint) on a
+  CROP name (plate_well_field_time_object, five). Every row came out with
+  plateID/rowID/columnID/fieldID = 'error' and prc = 'error_error_error',
+  so the scores could not be joined to a well and nothing downstream of a
+  CV model was possible. `_map_wells_png` sits directly beneath it and
+  parses that shape. Now: 0 errors, 553 rows over 13 fields.
+
+MAP BARCODES, against the screen's own references.
+
+  FOUND AND FIXED: spaCR would not map the maintainer's own gRNA library.
+  It is 1,385 guides; three sequences appear under more than one name
+  (TGGT1_241310's guides 2 and 10 also appear under TGGT1_411210 and
+  TGGT1_411710), and `map_sequences_to_names` refused the WHOLE FILE. 1,382
+  unambiguous guides were unusable because of eight rows. Ambiguous
+  sequences are now dropped and named -- the read still cannot be
+  attributed, which is the property the refusal protected -- and 1,377 map.
+
+  VERIFIED: all 9 _RC files in barcodes/ are true reverse complements of
+  their forward files (1,561 barcodes, checked with spaCR's own
+  reverse_complement). Orientation is the documented source of silent zero
+  counts and these files are not a source of it.
+
+  STILL OPEN: the counts cannot be compared against
+  plate_N_unique_combinations.csv, because the reads that produced them are
+  not on this machine -- which A4 already says. Everything reachable
+  without them is done.
+
+REDUNDANT SETTINGS ARE NO LONGER CONTROLS. The ten inert settings were
+checked rather than assumed -- no settings read of any kind anywhere in the
+package, no `**settings` splat exists at all, and the two names that
+collide with a function parameter are never passed the setting -- and are
+now hidden from every app while staying declared, so an old CSV still
+loads. Mask and Timelapse had been rendering three of them.
