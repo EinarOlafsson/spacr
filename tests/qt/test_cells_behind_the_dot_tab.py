@@ -1003,8 +1003,17 @@ def test_a_source_that_hands_back_the_wrong_thing_does_not_crash_the_grid(
     assert view.plans() == (plan,)
     thumbs = view.thumbnails()
     # The greyscale array is widened to RGB rather than refused...
-    drawn = _thumb_px_of(view.picture_settings()) or THUMBNAIL_PX
-    assert thumbs and thumbs[0].pixmap().width() == drawn
+    # THE SIZE THE VIEW CHOSE, not the ceiling. A thumbnail is scaled so
+    # that `column_count` of them fit the width, so it is THUMBNAIL_PX only
+    # on a tab wide enough to afford it.
+    # THE SIZE THE WELL CHOSE, and the setting is its CEILING. A thumbnail
+    # is scaled so that the chosen number of them fit the width, so it
+    # reaches the requested size only on a tab wide enough to afford it --
+    # the same relationship the size test above asserts.
+    tab = view.well_tabs()[0]
+    asked = _thumb_px_of(view.picture_settings()) or THUMBNAIL_PX
+    assert thumbs and thumbs[0].pixmap().width() == tab._thumb_px
+    assert 0 < tab._thumb_px <= asked
     # ...and the extra image, which pairs with no selected object, is NOT
     # drawn into some well it does not belong to. It is counted and said.
     # COUNTED ACROSS PAGES: the property here is that the extra image is not
@@ -1036,9 +1045,16 @@ def test_saving_through_the_dialog_honours_a_cancelled_dialog(qtbot, tmp_path,
     assert "saved to" in view.status_text()
 
 
-def test_the_grid_reflows_when_the_tab_gets_wider(qtbot, tmp_path):
-    """300 thumbnails re-laid out on every resize event is a stutter, so the
-    reflow is debounced and only runs when the column count actually moved."""
+def test_the_grid_does_not_reflow_when_the_tab_gets_wider(qtbot, tmp_path):
+    """THE COUNT PER ROW IS DECIDED, not derived from the window.
+
+    This asserted the opposite -- that widening the tab put more cells in
+    a row -- and that behaviour is what was reported: "the cell tab shows
+    3 cells per well and then more if i change the size of the
+    container... change this". `column_count` is the user's preference
+    now, so a resize changes the SIZE of each thumbnail and not how many
+    there are, and 300 of them are not re-laid out on every resize event.
+    """
     view, _root, _db, _csv = _view(qtbot, tmp_path, with_png=True)
     # SHOWN, and that is not incidental: an unshown QScrollArea keeps its
     # size-hint viewport whatever the widget is resized to, so the column
@@ -1052,11 +1068,17 @@ def test_the_grid_reflows_when_the_tab_gets_wider(qtbot, tmp_path):
     assert narrow >= 1
     assert view.well_tabs()
 
-    view.resize(1600, 900)
-    qtbot.waitUntil(lambda: view._columns > narrow, timeout=5000)
-    # A second reflow at the same width is a no-op rather than a rebuild.
     tab = view.well_tabs()[0]
     before = tab._grid.count()
+
+    view.resize(1600, 900)
+    qtbot.wait(250)          # past the reflow's debounce
+
+    assert view._columns == narrow, (
+        f"widening the tab moved the row from {narrow} to {view._columns} "
+        f"cells; the count is a preference, not a function of the width")
+    assert view._columns == view._column_count()
+    # And a reflow at the same width is a no-op rather than a rebuild.
     view._relayout()
     assert tab._grid.count() == before
 
