@@ -1,0 +1,135 @@
+================================================================================
+THE GUI PASS: NAVIGATION, WINDOW CHROME, AND THE LANGUAGE
+================================================================================
+
+Status:    OPEN. Requested 2026-08-23, in several messages while the
+           previous pass was still running.
+Owner:     spacr/qt -- app registry, dock, window chrome, i18n.
+
+--------------------------------------------------------------------------------
+1. EVERY WORD IN THE CHOSEN LANGUAGE                        <-- BIGGEST ITEM
+--------------------------------------------------------------------------------
+
+"when the user picks a language that is not english all of the text in and
+outside of settings fields needs to be in the chosen language, now most of
+it is still english."
+
+INSIDE and OUTSIDE the settings fields. The setting labels and tooltips are
+translated; what is not is everything around them -- buttons, group
+headers, status lines, menu entries, dialog text, the console.
+
+The catalogs exist (`spacr/qt/i18n_catalogs/`, nine languages) and `tr()` is
+the seam. The work is finding every user-facing string that never goes
+through it. Start by driving the app in a non-English language and reading
+what is still English, rather than by grepping: a string that is translated
+but never re-rendered on a language change looks identical to one that was
+never translated.
+
+--------------------------------------------------------------------------------
+2. THE MODULE ORDER AND THE CATEGORIES
+--------------------------------------------------------------------------------
+
+Core, in this order:
+
+    mask, measure, annotate, classify, map barcodes, regression
+
+The other current core modules move:
+
+    Assays               Timelapse, Motility assay
+    Segmentation models  Curate
+
+("Toxoplasma" was the first name given for the Assays category and then
+changed to Assays in the same message. Assays is the name.)
+
+THE API REFERENCE AND THE README FOLLOW. "for all modules that move to
+different categories make sure the API reference reflects this as well as
+the readme and anything else where they are referenced. same for those that
+are removed (classify CV and Classify ML)."
+
+Classify (CV) and Classify (ML) are already out of the app registry, the
+README and docs/source; the generated API pages under docs/ still need a
+rebuild.
+
+--------------------------------------------------------------------------------
+3. THE WINDOW BUTTONS
+--------------------------------------------------------------------------------
+
+DONE: minimise and full screen, top right, in that order.
+
+STILL TO DO: an x to the RIGHT of the full-screen icon, which "should act
+exactly like pressing quit in preferences". Colours:
+
+    x            red on hover and on press
+    full screen  blue on hover and on press
+    minimise     stays white
+
+--------------------------------------------------------------------------------
+4. THE TWO NAVIGATION SURFACES
+--------------------------------------------------------------------------------
+
+THE spaCR MENU (top left): the modules should be in category dropdowns
+rather than one flat list, "to make it more digestable".
+
+THE DOCK: the categories are all there and all open. They should be
+COLLAPSED except Core, which starts open. A category's text is blue when it
+is open, and when the pointer is over it.
+
+--------------------------------------------------------------------------------
+5. RANK ALL, IN THE MEASUREMENTS TAB
+--------------------------------------------------------------------------------
+
+Pressing it produces thousands of lines of
+
+    0.735573 vs 0.778142: these groups have fewer than 2 usable
+    observations and cannot be tested: ['0.735573', '0.778142']
+
+The group labels are FLOATING-POINT MEASUREMENTS. Something is grouping by
+a continuous column -- so every "group" holds one observation, every
+pairwise test is impossible, and the pair count is quadratic in the number
+of rows. Two defects in one:
+
+  a. the grouping column is wrong. A comparison is between CATEGORIES, and
+     a column of floats is not one. Refuse it at the door and name the
+     column, rather than emitting a message per pair;
+  b. even when the grouping is right, one line per untestable pair is not a
+     report. Say it once, with a count.
+
+--------------------------------------------------------------------------------
+6. THE MEASURE SETTINGS LAYOUT
+--------------------------------------------------------------------------------
+
+"the measure module settings categories are for some reason in Tabs that
+seem like they are cut off half way when opened. please fix this, make it
+normal, or the same structure as the other core modules like mask with
+settings categories."
+
+--------------------------------------------------------------------------------
+7. INOTIFY -- NEEDS ONE ROOT COMMAND, WHICH SPACR MUST NOT RUN
+--------------------------------------------------------------------------------
+
+The machine's per-user inotify watch limit is exhausted: 65,536 with 65,434
+in use (syncthing 45,078, VS Code 20,019). spaCR holds none, filters the
+message and explains it once.
+
+Making it never happen again is a system setting and needs root:
+
+    echo 'fs.inotify.max_user_watches=524288' | \
+        sudo tee /etc/sysctl.d/99-spacr-inotify.conf
+    sudo sysctl --system
+
+`sudo` requires a password here, so spaCR cannot and should not do it.
+
+--------------------------------------------------------------------------------
+DONE IN THIS PASS, for the record
+--------------------------------------------------------------------------------
+
+* the setup window is one rounded translucent surface;
+* a glassed dialog paints no square behind its card, and one with no button
+  says "press Escape to close";
+* three provider states, brand fill only when ready, brand tint on hover,
+  and a dialog that offers the install page or the sign-in;
+* "AI assistant on at launch" is read;
+* window buttons top right; Demos under Help;
+* Classify (CV) and Classify (ML) removed from the registry, README, docs;
+* the Tkinter GUI gathered into `spacr.legacy_tk`;
+* "Save figure, data and statistics…" is now "Save".
