@@ -40,6 +40,7 @@ from PySide6.QtWidgets import (
 )
 
 from .colour_picker import pick_colour
+from ..i18n import tr
 
 #: Axis scales offered by the figure settings dialog. ``symlog`` supports
 #: signed values that cannot be represented on a standard logarithmic scale.
@@ -1371,17 +1372,17 @@ def add_graph_style_file_entries(menu, parent=None, *, on_change=None) -> None:
             except TypeError:
                 on_change()
 
-    save = QAction("Save graph style…", owner)
-    save.setToolTip(
+    save = QAction(tr("Save graph style…"), owner)
+    save.setToolTip(tr(
         "Write the general and per-graph settings from Preferences to a "
-        "file, so a lab's house style can be shared and re-applied.")
+        "file, so a lab's house style can be shared and re-applied."))
     save.triggered.connect(_save)
     menu.addAction(save)
 
-    load = QAction("Load graph style…", owner)
-    load.setToolTip(
+    load = QAction(tr("Load graph style…"), owner)
+    load.setToolTip(tr(
         "Read a saved house style and make it this project's default, so "
-        "every figure drawn from now on uses it.")
+        "every figure drawn from now on uses it."))
     load.triggered.connect(_load)
     menu.addAction(load)
 
@@ -1652,14 +1653,15 @@ def _add_group_colours(menu, figure, recipe, on_change, parent) -> None:
     if not groups:
         return
 
-    colours = QMenu("Group colours", menu)
+    colours = QMenu(tr("Group colours"), menu)
     colours.setToolTipsVisible(True)
     menu.addMenu(colours)
 
     def _recolour(group: str) -> None:
         current = dict(recipe.get("colors") or {})
         start = str(current.get(group, "#4C72B0"))
-        chosen = pick_colour(parent, start, f"Colour for {group}")
+        chosen = pick_colour(parent, start, tr("Colour for {group}",
+                                               group=group))
         if not chosen.isValid():
             return
         current[group] = chosen.name()
@@ -1673,7 +1675,8 @@ def _add_group_colours(menu, figure, recipe, on_change, parent) -> None:
 
     for group in groups[:24]:
         action = colours.addAction(f"{group}…")
-        action.setToolTip(f"Colour every mark belonging to {group}.")
+        action.setToolTip(
+            tr("Colour every mark belonging to {group}.", group=group))
         action.triggered.connect(
             lambda _checked=False, g=group: _recolour(g))
     if len(groups) > 24:
@@ -1681,7 +1684,7 @@ def _add_group_colours(menu, figure, recipe, on_change, parent) -> None:
         # twenty-four of ninety groups and says nothing looks like a menu
         # that has them all.
         note = colours.addAction(
-            f"({len(groups) - 24} more groups not listed)")
+            tr("({count} more groups not listed)", count=len(groups) - 24))
         note.setEnabled(False)
 
 
@@ -1689,13 +1692,13 @@ def _add_bundle_save(menu, figure, parent) -> None:
     """Add a Matplotlib action that exports the figure and its evidence bundle."""
     from PySide6.QtWidgets import QFileDialog
 
-    action = menu.addAction("Save")
-    action.setToolTip(
+    action = menu.addAction(tr("Save"))
+    action.setToolTip(tr(
         "Writes a FOLDER: the figure as pdf and png, the rows it was drawn "
         "from, and the test that was run on them with its assumptions. A pdf "
         "on its own cannot be checked -- six months later the question is "
         "what the numbers were and whether the difference was tested, and a "
-        "figure file answers neither.")
+        "figure file answers neither."))
 
     def _save() -> None:
         folder = QFileDialog.getExistingDirectory(
@@ -1797,7 +1800,7 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
     """
     menu = QMenu(parent)
     if figure is None:
-        action = QAction("This figure can no longer be restyled", parent)
+        action = QAction(tr("This figure can no longer be restyled"), parent)
         action.setEnabled(False)
         menu.addAction(action)
         return menu
@@ -1832,7 +1835,7 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
         # NAMED "Graph type", which is what it was asked for by: "an option
         # when i right click on a graph, called graph type that would allow
         # the user to switch between graph types".
-        show_as = QMenu("Graph type", menu)
+        show_as = QMenu(tr("Graph type"), menu)
         menu.addMenu(show_as)
         current = str(recipe.get("graph_type") or "")
         # ONLY THE TYPES THAT FIT THE DATA (instruction 200 A), and the rest
@@ -1892,7 +1895,7 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
         _notify()
 
     legend_present = any(a.get_legend() is not None for a in axes)
-    legend_action = QAction("Legend", parent)
+    legend_action = QAction(tr("Legend"), parent)
     legend_action.setCheckable(True)
     legend_action.setChecked(
         legend_present and all(a.get_legend().get_visible()
@@ -1909,7 +1912,7 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
     legend_action.toggled.connect(toggle_legend)
     menu.addAction(legend_action)
 
-    grid_action = QAction("Grid", parent)
+    grid_action = QAction(tr("Grid"), parent)
     grid_action.setCheckable(True)
     grid_action.setChecked(any(line.get_visible()
                                for axis in axes
@@ -1918,13 +1921,13 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
         lambda checked: _apply(lambda a: a.grid(checked)))
     menu.addAction(grid_action)
 
-    scales = QMenu("Axis scale", menu)      # see "Appearance" below for why
+    scales = QMenu(tr("Axis scale"), menu)  # see "Appearance" below for why
     menu.addMenu(scales)
     for name, setter in (("X", "set_xscale"), ("Y", "set_yscale")):
         submenu = QMenu(name, scales)
         scales.addMenu(submenu)
         for scale in AXIS_SCALES:
-            action = QAction(scale, parent)
+            action = QAction(tr(scale), parent)
             action.triggered.connect(
                 lambda _checked=False, s=scale, m=setter:
                 _apply(lambda a: getattr(a, m)(s)))
@@ -1941,7 +1944,7 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
     # the C++ object is deleted under the still-visible parent action. Driving
     # the entry then raises "Internal C++ object (QMenu) already deleted",
     # which is what a user would see as a submenu that opens empty.
-    appearance = QMenu("Appearance", menu)
+    appearance = QMenu(tr("Appearance"), menu)
     menu.addMenu(appearance)
 
     def _pick_ink(title, apply_to):
@@ -1956,35 +1959,35 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
             apply_to(figure, chosen.name())
             _notify()
 
-    line_action = QAction("Line colour…", parent)
-    line_action.setToolTip(
+    line_action = QAction(tr("Line colour…"), parent)
+    line_action.setToolTip(tr(
         "Every line in the figure, the axis spines and the tick marks "
         "included. The numbers beside the ticks are text and follow the "
-        "font colour.")
+        "font colour."))
     line_action.triggered.connect(
-        lambda: _pick_ink("Line colour", apply_line_colour))
+        lambda: _pick_ink(tr("Line colour"), apply_line_colour))
     appearance.addAction(line_action)
 
-    font_action = QAction("Font colour…", parent)
-    font_action.setToolTip(
+    font_action = QAction(tr("Font colour…"), parent)
+    font_action.setToolTip(tr(
         "Every piece of text in the figure: the title, the axis labels, the "
-        "tick labels, the legend and any annotation.")
+        "tick labels, the legend and any annotation."))
     font_action.triggered.connect(
-        lambda: _pick_ink("Font colour", apply_font_colour))
+        lambda: _pick_ink(tr("Font colour"), apply_font_colour))
     appearance.addAction(font_action)
 
-    theme_action = QAction("Follow the theme (colours)", parent)
-    theme_action.setToolTip(
-        "Put both colours back to the app theme and the figure preferences.")
+    theme_action = QAction(tr("Follow the theme (colours)"), parent)
+    theme_action.setToolTip(tr(
+        "Put both colours back to the app theme and the figure preferences."))
     theme_action.triggered.connect(
         lambda: (figure_follows_the_theme(figure), _notify()))
     appearance.addAction(theme_action)
 
     menu.addSeparator()
-    save = QAction("Save figure as…", parent)
-    save.setToolTip(
+    save = QAction(tr("Save figure as…"), parent)
+    save.setToolTip(tr(
         "Write this figure to a file using its current plot styling and the "
-        "configured export background, format and resolution.")
+        "configured export background, format and resolution."))
     save.triggered.connect(lambda: save_figure_as(parent, figure))
     menu.addAction(save)
 
@@ -1992,17 +1995,17 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
     # change all of theis for the saved graph, get a preview then save."
     # Beside the direct save rather than replacing it: writing what is on
     # screen is one click and remains one click.
-    styled = QAction("Save figure with a preview…", parent)
-    styled.setToolTip(
+    styled = QAction(tr("Save figure with a preview…"), parent)
+    styled.setToolTip(tr(
         "Choose the ink, background, grid, size and resolution for the saved "
         "file, preview the result, then export it. The figure on screen is "
-        "not changed.")
+        "not changed."))
     styled.triggered.connect(lambda: _open_styled_save(parent, figure))
     menu.addAction(styled)
 
     add_graph_style_file_entries(menu, parent, on_change=on_change)
 
-    settings = QAction("Figure settings…", parent)
+    settings = QAction(tr("Figure settings…"), parent)
     if open_settings is not None:
         settings.triggered.connect(lambda: open_settings())
     menu.addAction(settings)

@@ -22,6 +22,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ..i18n import tr
 from ..theme import SPACING, STAGE_LABEL, STAGE_NOTE
 
 
@@ -51,7 +52,20 @@ class Section(QFrame):
         # the following letter underlined as an accelerator that goes
         # nowhere. Section headers are not keyboard shortcuts, so the '&' is
         # escaped for display. `title()` still answers with the real text.
-        self._title = title.upper()
+        #
+        # THE CATALOG IS KEYED ON THE WRITTEN CATEGORY NAME, so the source is
+        # kept as the caller wrote it and uppercased only on the way to the
+        # button. Looking up a caption that has already been uppercased finds
+        # nothing and leaves the header in English.
+        self._title_source = str(title)
+        self._title = self._title_source.upper()
+        # The caption is composed -- the category, and for beta or alpha a
+        # maturity badge -- so the generic language pass would ask for the
+        # finished line as one key and never find it. Keep that pass off the
+        # button and rebuild the caption from the translated parts whenever
+        # the language changes.
+        self._header.setProperty("i18nSkipText", True)
+        self._header.retranslate_dynamic_content = self._refresh_header_text
         self._refresh_header_text()
         self._header.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         self._header.setArrowType(Qt.RightArrow)
@@ -218,20 +232,24 @@ class Section(QFrame):
         style.unpolish(widget)
         style.polish(widget)
 
-    def _refresh_header_text(self) -> None:
-        text = self._title
+    def _refresh_header_text(self, language: Optional[str] = None) -> None:
+        text = tr(self._title_source, language).upper()
         if self._maturity != "stable":
-            stage = STAGE_LABEL[self._maturity].upper()
+            stage = tr(STAGE_LABEL[self._maturity], language).upper()
             # Category names historically carried their own ``(BETA)`` or
             # were simply named ``Beta``. Maturity styling then appended a
             # second ``· BETA`` badge, producing ``BETA · BETA``. Keep the
             # original title for configuration lookups, but render one badge.
-            text = re.sub(
-                rf"\s*(?:\(\s*{re.escape(stage)}\s*\)|{re.escape(stage)})\s*$",
-                "",
-                text,
-                flags=re.IGNORECASE,
-            ).strip()
+            # Both spellings are stripped: a translated caption can still
+            # carry the English badge if the catalog left that word alone.
+            for badge in dict.fromkeys(
+                    (stage, STAGE_LABEL[self._maturity].upper())):
+                text = re.sub(
+                    rf"\s*(?:\(\s*{re.escape(badge)}\s*\)|{re.escape(badge)})\s*$",
+                    "",
+                    text,
+                    flags=re.IGNORECASE,
+                ).strip()
             text = f"{text}   ·   {stage}" if text else f"·   {stage}"
         text = text.replace("&", "&&")
         self._header.setText(text)

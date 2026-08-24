@@ -50085,6 +50085,18 @@
         "7f583e856fac9ad165729b3c12e898ecace49ae1b37a7bfec5645d4b10b88d8a"
       ]
     },
+    "spacr.qt.app.MainWindow.changeEvent": {
+      "source_blocks_sha256": [
+        "de5b21bc1f733f8b123311f10cdd2352e8fecc4f42fa0186b287433a91a32ce6",
+        "b11819d22d5766b23d7f8a5d6bbab8c912b25da9c80692ad17ee0c3ab326d271"
+      ],
+      "source_sha256": "638248318dfb3e0da4fe8eb7abae39956083d91dd2d503371b6aa1a05594e24a",
+      "text": "重新插入菜单栏,当窗口状态变化时。\n\n一个菜单打开,在那里 BAR SAYS 其行动是. 走到全屏重新绘制栏和其角的 widget 在一个步骤,并在配置被捕获之前打开的菜单被放置在之前的行动直角 - 这是如何按 spaCR 下方下方放下菜单。",
+      "translation_source_blocks_sha256": [
+        "de5b21bc1f733f8b123311f10cdd2352e8fecc4f42fa0186b287433a91a32ce6",
+        "b11819d22d5766b23d7f8a5d6bbab8c912b25da9c80692ad17ee0c3ab326d271"
+      ]
+    },
     "spacr.qt.app.MainWindow.closeEvent": {
       "source_blocks_sha256": [
         "2e498c062b65e03c95d8b50b1159b47131f09bad8460b5303ae5f3f3a6a64ac7"
@@ -61123,6 +61135,16 @@
       "text": "重新调整小网后重定义活动设置。",
       "translation_source_blocks_sha256": [
         "fe81296739918d4cc045b757b7bad40e9e46e26b770549fbda9f6ce04d27e484"
+      ]
+    },
+    "spacr.qt.screens.annotate.AnnotateScreen.retranslate_dynamic_content": {
+      "source_blocks_sha256": [
+        "b32163b95b6329d0893a11e0022f0e962ba12187ec57525ce871310fe0ffec1f"
+      ],
+      "source_sha256": "b32163b95b6329d0893a11e0022f0e962ba12187ec57525ce871310fe0ffec1f",
+      "text": "重新播放此筛选由现场状态组成。",
+      "translation_source_blocks_sha256": [
+        "b32163b95b6329d0893a11e0022f0e962ba12187ec57525ce871310fe0ffec1f"
       ]
     },
     "spacr.qt.screens.annotate.current_ring_color": {
@@ -98726,13 +98748,13 @@
     "spacr.qt.widgets.setup_card.SetupCard.accent_span": {
       "source_blocks_sha256": [
         "569d3e2788f5ef8a7ee939a90c4541a89e0d1cf103edea4de1f82ef983fe9af0",
-        "bd7a8e054dfa6cac08cd14535bfbef7058ef26e01c789705b96a0175b9678f70"
+        "62a723308c7799d86ab0cedacc63660689b026ef01a55c93a2f6ae7200dcb740"
       ],
-      "source_sha256": "5598107b9d95e20b3c8db95e5066b100deee792d1cd26285c92f3afacfff8e1b",
-      "text": "河流的多大部分是光明的,作为它的长度的一部分。\n\n弓是PIXELS的长度;作为条纹的一部分,它取决于卡片的尺寸,这是正确的 - 固定条纹将是一个头发线在一个大卡片和半条纹在一个小卡片。",
+      "source_sha256": "b5b7cd85ae85ebcb563fc073ba1873de80ccaa8f8bed779431915bdb9858ea87",
+      "text": "河流的多大部分是光明的,作为它的长度的一部分。\n\n相同的分裂在每个卡,所以一个设置点和第一次运行的窗口穿着一个带,而不是两个带在它上. 弓偏好是长度在像素,并被阅读的长度它应该看在参考表面; 测量对每个卡的自己的周围,相同 280 倍覆盖一个设置窗口的六分之一和两个五分之一的小点点,而短一读为一个厚的明亮带 - “带是厚而明亮的,使带和窗口看起来正如设置 spacr 窗口。",
       "translation_source_blocks_sha256": [
         "569d3e2788f5ef8a7ee939a90c4541a89e0d1cf103edea4de1f82ef983fe9af0",
-        "bd7a8e054dfa6cac08cd14535bfbef7058ef26e01c789705b96a0175b9678f70"
+        "62a723308c7799d86ab0cedacc63660689b026ef01a55c93a2f6ae7200dcb740"
       ]
     },
     "spacr.qt.widgets.setup_card.SetupCard.accent_start": {

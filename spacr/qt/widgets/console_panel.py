@@ -331,7 +331,13 @@ class _TopicBar(QFrame):
         # a reader points at, and hand-selecting a section out of a long
         # console is exactly the chore this removes.
         self._copy_btn = _CopyGlyphButton(self)
-        self._copy_btn.setToolTip("Copy this section, header and all")
+        # Topic bars are built as output arrives, long after the panel's own
+        # translation pass, so this tooltip is translated here. The English
+        # source is kept on the widget so a later language switch can
+        # retranslate it from the original rather than from Swedish.
+        copy_tip = "Copy this section, header and all"
+        self._copy_btn.setProperty("_spacr_i18n_tooltip", copy_tip)
+        self._copy_btn.setToolTip(tr(copy_tip))
         self._copy_btn.clicked.connect(self._copy_section)
         lay.addWidget(self._copy_btn)
         lay.addStretch(1)
@@ -1361,7 +1367,7 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         parts = [tr(head)]
         mod = self._run_module or self._active_app_label
         if mod:
-            parts.append(str(mod))
+            parts.append(tr(str(mod)))
         if self._run_function:
             parts.append(str(self._run_function))
         return "  —  ".join(parts)
@@ -1739,7 +1745,7 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         from ..ai import settings as ai_settings
 
         if not ai_settings.get_console_aware():
-            label = "Console context off"
+            label = tr("Console context off")
             return "", label
 
         pieces = []
@@ -1757,7 +1763,7 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
             current_lengths[key] = len(full_text)
 
         if not pieces:
-            label = "Console context: no new output"
+            label = tr("Console context: no new output")
             return "", label
 
         tracebacks = [text for kind, text, _fresh in pieces
@@ -1781,9 +1787,11 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
             sections.append(traceback_text)
         context = "\n".join(sections)
         self._console_sent_lengths.update(current_lengths)
-        label = f"Console context: {len(context):,} chars sent"
+        # The counts are interpolated after translation so the catalog keys
+        # stay free of digits and a translator can move the number.
+        label = tr("Console context: {n} chars sent", n=f"{len(context):,}")
         if dropped:
-            label += f", {dropped:,} dropped"
+            label += tr(", {n} dropped", n=f"{dropped:,}")
         # Returned, not written to a persistent label: the caller stamps it on
         # the message this context went with, where it stays true. A shared
         # label is stale from the moment the next question is typed.

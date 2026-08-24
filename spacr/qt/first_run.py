@@ -240,8 +240,12 @@ class _TourOverlay(QWidget):
         col.setContentsMargins(20, 20, 20, 20)
         col.setSpacing(8)
 
+        from .i18n import tr
         from .theme import font_px
-        self._step_lbl = QLabel("Step 1 / 5")
+        # THE STEP COUNTER IS COMPOSED FROM A TEMPLATE, so the catalog is
+        # asked for a key that exists rather than for the numbers baked in.
+        self._step_lbl = QLabel(tr("Step {n} / {total}", n=1,
+                                   total=len(steps)))
         self._step_lbl.setStyleSheet(
             "font-family: 'Open Sans', sans-serif;"
             f"font-weight: 600; font-size: {font_px(10)}px;"
@@ -249,14 +253,14 @@ class _TourOverlay(QWidget):
         )
         col.addWidget(self._step_lbl)
 
-        self._title_lbl = QLabel(steps[0].title)
+        self._title_lbl = QLabel(tr(steps[0].title))
         self._title_lbl.setStyleSheet(
             "font-family: 'Open Sans', sans-serif;"
             f"font-weight: 400; font-size: {font_px(20)}px; color: #e5e5e5;"
         )
         col.addWidget(self._title_lbl)
 
-        self._body_lbl = QLabel(steps[0].body)
+        self._body_lbl = QLabel(tr(steps[0].body))
         self._body_lbl.setWordWrap(True)
         self._body_lbl.setStyleSheet(
             "font-family: 'Open Sans', sans-serif;"
@@ -272,14 +276,14 @@ class _TourOverlay(QWidget):
         row.setContentsMargins(0, 8, 0, 0)
         row.setSpacing(8)
 
-        self._skip_btn = QPushButton("Skip")
+        self._skip_btn = QPushButton(tr("Skip"))
         self._skip_btn.setStyleSheet(_ghost_btn_qss())
         self._skip_btn.clicked.connect(self._skip)
         row.addWidget(self._skip_btn)
 
         row.addStretch(1)
 
-        self._next_btn = QPushButton("Next")
+        self._next_btn = QPushButton(tr("Next"))
         self._next_btn.setStyleSheet(_primary_btn_qss())
         self._next_btn.clicked.connect(self._next)
         row.addWidget(self._next_btn)
@@ -353,12 +357,15 @@ class _TourOverlay(QWidget):
         if self._idx >= len(self._steps):
             self._finish()
             return
+        from .i18n import tr
+
         step = self._steps[self._idx]
-        self._step_lbl.setText(f"Step {self._idx + 1} / {len(self._steps)}")
-        self._title_lbl.setText(step.title)
-        self._body_lbl.setText(step.body)
+        self._step_lbl.setText(tr("Step {n} / {total}", n=self._idx + 1,
+                                  total=len(self._steps)))
+        self._title_lbl.setText(tr(step.title))
+        self._body_lbl.setText(tr(step.body))
         if self._idx == len(self._steps) - 1:
-            self._next_btn.setText("Finish")
+            self._next_btn.setText(tr("Finish"))
         self._update_card_position()
         self.update()
 

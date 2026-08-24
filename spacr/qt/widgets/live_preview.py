@@ -66,6 +66,7 @@ from .preview_contract import (
     LivePreviewContract, preview_cellpose_model, preview_failure_message,
 )
 from .toggle import Toggle
+from ..i18n import tr
 from ..job_runner import JobRunner
 
 LOG = logging.getLogger("spacr.qt.live_preview")
@@ -2924,7 +2925,7 @@ class LiveSettingsDialog(QDialog):
     def __init__(self, panel: "LivePreviewPanel"):
         super().__init__(panel)
         self._panel = panel
-        self.setWindowTitle("Live settings")
+        self.setWindowTitle(tr("Live settings"))
         outer = QVBoxLayout(self)
 
         # Show the widgets we'll be adding, then re-hide them on close.

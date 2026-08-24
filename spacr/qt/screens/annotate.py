@@ -1529,6 +1529,11 @@ class AnnotateScreen(QWidget):
             self._src_label.setText(
                 f"Suggested (last used): {self._suggested_source}"
             )
+            # The subtitle now carries a filesystem path, which a language
+            # switch must reproduce byte-for-byte. Only the placeholder it
+            # replaced is prose, so the opt-out belongs here rather than on
+            # the label itself.
+            self._src_label.setProperty("i18nSkipText", True)
 
     # ------------------------------------------------------------------
     def _build_ui(self):
@@ -1549,10 +1554,8 @@ class AnnotateScreen(QWidget):
         title = QLabel("Annotate")
         title.setObjectName("TitleHeading")
         hbox.addWidget(title)
-        self._src_label = QLabel("No source selected — click Open source…")
+        self._src_label = QLabel(tr("No source selected — click Open source…"))
         self._src_label.setObjectName("SubtitleSmall")
-        # This label becomes a live filesystem path after a source is opened.
-        self._src_label.setProperty("i18nSkipText", True)
         hbox.addWidget(self._src_label)
         outer.addWidget(header)
         outer.addWidget(Divider())
@@ -1801,12 +1804,15 @@ class AnnotateScreen(QWidget):
         bottom_row = QHBoxLayout(bottom)
         bottom_row.setContentsMargins(0, 0, 0, 0)
         bottom_row.setSpacing(SPACING["sm"])
-        self._status_label = QLabel("Ready.")
+        self._status_label = QLabel(tr("Ready."))
         self._status_label.setObjectName("SubtitleSmall")
-        self._status_label.setProperty("i18nSkipText", True)
         bottom_row.addWidget(self._status_label, 1)
 
         self._console_switch = QToolButton(self)
+        # The caption ends in a state arrow, so the generic text pass would
+        # translate the composed string and drop it. This screen re-renders
+        # the caption itself from `retranslate_dynamic_content`.
+        self._console_switch.setProperty("i18nSkipText", True)
         self._set_console_switch_text(False)
         self._console_switch.setCheckable(True)
         self._console_switch.setCursor(Qt.PointingHandCursor)
@@ -1845,11 +1851,23 @@ class AnnotateScreen(QWidget):
             self._runtime_splitter.setSizes(
                 [max(240, int(height * 0.62)), max(180, int(height * 0.38))])
 
-    def _set_console_switch_text(self, expanded: bool) -> None:
-        """Render the localized caption without losing the arrow state."""
-        source = "Console ▴" if expanded else "Console ▾"
-        self._console_switch.setProperty("_spacr_i18n_text", source)
-        self._console_switch.setText(tr(source))
+    def _set_console_switch_text(self, expanded: bool,
+                                 language: Optional[str] = None) -> None:
+        """Render the localized caption without losing the arrow state.
+
+        Only the word is looked up. The arrow is state rather than prose, and
+        a caption composed with it first asks the catalog for a key that can
+        never exist.
+        """
+        arrow = "▴" if expanded else "▾"
+        self._console_switch.setText(f"{tr('Console', language)} {arrow}")
+
+    def retranslate_dynamic_content(
+        self, language: Optional[str] = None,
+    ) -> None:
+        """Re-render the captions this screen composes from live state."""
+        self._set_console_switch_text(
+            self._console_switch.isChecked(), language)
 
     def _on_ai_switch(self, on: bool) -> None:
         """Enable chat routing and reveal the console when AI is selected."""
@@ -2114,6 +2132,8 @@ class AnnotateScreen(QWidget):
         self._worker.start()
         self._offset = 0
         self._src_label.setText(f"{src}  →  {db_path}")
+        # From here on the subtitle is a pair of filesystem paths, not prose.
+        self._src_label.setProperty("i18nSkipText", True)
         self._console.append_notice("Opened {name}\n", name=db_path)
         prefs.push_recent_source("annotate", src)
         # Show the grid page FIRST so its viewport is realized, then defer the
@@ -3475,7 +3495,7 @@ class AnnotateScreen(QWidget):
     def _refresh_status_label(self):
         w = self._worker
         if w is None:
-            self._status_label.setText("Ready.")
+            self._status_label.setText(tr("Ready."))
             return
         parts = []
         if w.last_error:
@@ -3489,7 +3509,8 @@ class AnnotateScreen(QWidget):
             parts.append(f"{w.pending_batches} batch queued")
         if w.last_save_ts is not None and not parts:
             parts.append("saved")
-        self._status_label.setText(" · ".join(parts) if parts else "Ready.")
+        self._status_label.setText(
+            " · ".join(parts) if parts else tr("Ready."))
 
     # ------------------------------------------------------------------
     def closeEvent(self, event):

@@ -370,6 +370,39 @@ def make_frameless(dialog: QDialog) -> bool:
         return False
 
 
+def round_the_corners(dialog: QWidget, radius: int = CARD_RADIUS) -> bool:
+    """Cut the window itself to the card's rounded shape. True if applied.
+
+    TRANSLUCENCY IS NOT ENOUGH, AND THAT IS THE WHOLE POINT OF THIS.
+    `WA_TranslucentBackground` asks the window manager to composite the
+    corner pixels away; a mask REMOVES them from the window's shape, so
+    the corners are gone whether or not anything is compositing, and
+    whether or not the surface came back with an alpha channel after its
+    flags were rewritten. It is the one way to be sure no square is left
+    round a rounded card, which is what kept coming back.
+
+    The mask is rebuilt on every resize -- see :class:`_Backdrop` -- and
+    it follows the same radius the card paints, so the cut edge sits
+    under the rim rather than beside it.
+    """
+    try:
+        from PySide6.QtCore import QRectF
+        from PySide6.QtGui import QPainterPath, QRegion
+
+        rect = dialog.rect()
+        if rect.width() <= 0 or rect.height() <= 0:
+            return False
+        path = QPainterPath()
+        path.addRoundedRect(QRectF(rect), float(radius), float(radius))
+        dialog.setMask(QRegion(path.toFillPolygon().toPolygon()))
+        return True
+    except Exception:                                        # noqa: BLE001
+        # A window that cannot be masked is a window with square corners,
+        # which is worse-looking and still perfectly usable.
+        LOG.debug("could not round the window corners", exc_info=True)
+        return False
+
+
 class _Backdrop(QObject):
     """Keeps one card at the size of the dialog it sits behind.
 
@@ -393,6 +426,7 @@ class _Backdrop(QObject):
             card.setGeometry(dialog.rect().adjusted(
                 INSET, INSET, -INSET, -INSET))
             card.lower()
+            round_the_corners(dialog)
         except Exception:                                    # noqa: BLE001
             LOG.debug("the backdrop would not fit", exc_info=True)
 
@@ -460,6 +494,7 @@ def glass(dialog: QDialog) -> bool:
             backdrop.lower()
         _make_room_for_the_rim(dialog)
         make_frameless(dialog)
+        round_the_corners(dialog)
         spin_on_every_button(dialog, card)
         # AND THE DIALOG'S OWN VERDICT, for the paths that never touch a
         # button -- Escape rejects, and code can accept directly.

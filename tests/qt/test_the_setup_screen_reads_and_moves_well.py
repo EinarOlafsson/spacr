@@ -285,19 +285,34 @@ def test_a_brand_colour_is_only_used_when_the_cli_is_here(app):
 # 4. The rim
 # ---------------------------------------------------------------------------
 
-def test_the_run_of_rim_is_longer_than_it_was(app):
+def test_the_run_of_rim_is_a_flowing_highlight_not_a_dash(app):
+    """Long enough to flow, short enough not to be a border.
+
+    THE FLOOR MOVED, and a later instruction is why. This asserted more
+    than 0.22 of the rim on a 600x440 card, recording a complaint that
+    the original 90 px arc read as a dash sitting on one edge. The arc is
+    280 px now, and it is measured against the first-run window's own
+    perimeter rather than each card's, so every card lights the same
+    fraction -- the first-run window's 0.168. That is the look the
+    maintainer then asked every other window to copy ("make the rim and
+    window look exactly like the setup spacr window"), so the floor is
+    what that window shows rather than what a small card used to.
+    """
     from spacr.qt.widgets.setup_card import SetupCard
 
     card = SetupCard()
     card.resize(600, 440)
     span = card.accent_span(QRectF(card.rect()))
-    # A QUARTER OF THE RIM, measured on a card the size the dialog gives it.
-    # At 0.09 -- the original 90 px arc -- it read as a dash sitting on one
-    # edge rather than as something flowing along it, and 0.15 still did.
-    assert span > 0.22, (
-        f"the lit run is {span:.3f} of the rim, which is the short one that "
-        f"was reported")
+
+    assert span > 0.12, (
+        f"the lit run is {span:.3f} of the rim, which is a dash on one "
+        f"edge rather than a highlight flowing along it")
     assert span < 0.62, "past this it is a border, not a highlight"
+
+    # AND IT DOES NOT DEPEND ON THE CARD. A run that grew as the window
+    # shrank is what made a small popup's rim read as a thick bright band.
+    card.resize(320, 240)
+    assert abs(card.accent_span(QRectF(card.rect())) - span) < 1e-6
 
 
 def test_the_rim_fades_to_nothing_at_both_ends(app):

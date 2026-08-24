@@ -50084,6 +50084,18 @@
         "7f583e856fac9ad165729b3c12e898ecace49ae1b37a7bfec5645d4b10b88d8a"
       ]
     },
+    "spacr.qt.app.MainWindow.changeEvent": {
+      "source_blocks_sha256": [
+        "de5b21bc1f733f8b123311f10cdd2352e8fecc4f42fa0186b287433a91a32ce6",
+        "b11819d22d5766b23d7f8a5d6bbab8c912b25da9c80692ad17ee0c3ab326d271"
+      ],
+      "source_sha256": "638248318dfb3e0da4fe8eb7abae39956083d91dd2d503371b6aa1a05594e24a",
+      "text": "Legen Sie die Menüleiste neu ein, wenn sich der Fensterzustand ändert.\n\nEin Menü öffnet sich, wo die BAR SAYS ihre Aktion ist. Wenn man die Leiste und ihr Eck-Widget in einem Schritt ändert, wird ein Menü geöffnet, bevor das Layout aufgefangen hat, gegen das vorherige Aktions-Rechteck gesetzt -- so wird das Drücken von spaCR ein Menü unter Hilfe fallen lassen.",
+      "translation_source_blocks_sha256": [
+        "de5b21bc1f733f8b123311f10cdd2352e8fecc4f42fa0186b287433a91a32ce6",
+        "b11819d22d5766b23d7f8a5d6bbab8c912b25da9c80692ad17ee0c3ab326d271"
+      ]
+    },
     "spacr.qt.app.MainWindow.closeEvent": {
       "source_blocks_sha256": [
         "2e498c062b65e03c95d8b50b1159b47131f09bad8460b5303ae5f3f3a6a64ac7"
@@ -61122,6 +61134,16 @@
       "text": "Nach der Größenänderung wird das Thumbnail-Grid neu angepasst.",
       "translation_source_blocks_sha256": [
         "fe81296739918d4cc045b757b7bad40e9e46e26b770549fbda9f6ce04d27e484"
+      ]
+    },
+    "spacr.qt.screens.annotate.AnnotateScreen.retranslate_dynamic_content": {
+      "source_blocks_sha256": [
+        "b32163b95b6329d0893a11e0022f0e962ba12187ec57525ce871310fe0ffec1f"
+      ],
+      "source_sha256": "b32163b95b6329d0893a11e0022f0e962ba12187ec57525ce871310fe0ffec1f",
+      "text": "Re-render die Bildunterschriften dieses Bildschirms komponiert aus Live-Zustand.",
+      "translation_source_blocks_sha256": [
+        "b32163b95b6329d0893a11e0022f0e962ba12187ec57525ce871310fe0ffec1f"
       ]
     },
     "spacr.qt.screens.annotate.current_ring_color": {
@@ -98725,13 +98747,13 @@
     "spacr.qt.widgets.setup_card.SetupCard.accent_span": {
       "source_blocks_sha256": [
         "569d3e2788f5ef8a7ee939a90c4541a89e0d1cf103edea4de1f82ef983fe9af0",
-        "bd7a8e054dfa6cac08cd14535bfbef7058ef26e01c789705b96a0175b9678f70"
+        "62a723308c7799d86ab0cedacc63660689b026ef01a55c93a2f6ae7200dcb740"
       ],
-      "source_sha256": "5598107b9d95e20b3c8db95e5066b100deee792d1cd26285c92f3afacfff8e1b",
-      "text": "Wie viel von der Felge ist beleuchtet, als Bruchteil seiner Länge.\n\nDer Bogen ist eine Länge in PIXELS; als Bruchteil des Rands hängt er davon ab, wie groß die Karte ist, was richtig ist - ein fester Bruch wäre ein Haaransatz auf einer großen Karte und die Hälfte des Randes auf einer kleinen.",
+      "source_sha256": "b5b7cd85ae85ebcb563fc073ba1873de80ccaa8f8bed779431915bdb9858ea87",
+      "text": "Wie viel von der Felge ist beleuchtet, als Bruchteil seiner Länge.\n\nDIE GLEICHE FRACTION AUF JEDER CARD, so dass eine Einstellung Popup und das erste laufende Fenster tragen einen Rand statt zwei nimmt es. Der Bogen Präferenz ist eine Länge in Pixeln und wird gelesen, wie die Länge sollte es auf der REFERENCE-Oberfläche aussehen; gemessen an jeder Karte eigenen Umfang statt, die gleiche 280 px deckt ein Sechstel des Setup-Fensters und zwei Fünftel eines kleinen Popup, und die kurze liest sich als ein dickes helles Band - \"die Felge ist zu dick und hell. lassen Sie den Rand und Fenster genau wie das Setup spacr Fenster aussehen.\"",
       "translation_source_blocks_sha256": [
         "569d3e2788f5ef8a7ee939a90c4541a89e0d1cf103edea4de1f82ef983fe9af0",
-        "bd7a8e054dfa6cac08cd14535bfbef7058ef26e01c789705b96a0175b9678f70"
+        "62a723308c7799d86ab0cedacc63660689b026ef01a55c93a2f6ae7200dcb740"
       ]
     },
     "spacr.qt.widgets.setup_card.SetupCard.accent_start": {

@@ -31140,6 +31140,14 @@
       "source_sha256": "38ff0ebce7931106bb784003baa07f65111a40147c2ecd339095eff1c6df1d08",
       "text": "Put the app list where the preference says it goes.\n\nThree modes, one ``Sidebar`` object:\n\n``auto``    the sidebar lives inside the :class:`EdgeDrawer` and\n            reveals on dwell against the left edge.\n``locked``  the sidebar is re-parented into the window's dock\n            slot, where it is an ordinary column: it never\n            animates, never overlays the page, and the hot strip\n            is switched off so it cannot also slide in on top of\n            itself.\n``hidden``  the drawer is closed, its hot strip hidden, and the\n            slot stays empty. The \"All apps\" action is disabled\n            with a tooltip that says where to turn it back on —\n            a control that silently does nothing is worse than\n            one that is greyed out.\n\nIdempotent, and safe to call before the menu exists."
     },
+    "spacr.qt.app.MainWindow.changeEvent": {
+      "source_blocks_sha256": [
+        "de5b21bc1f733f8b123311f10cdd2352e8fecc4f42fa0186b287433a91a32ce6",
+        "b11819d22d5766b23d7f8a5d6bbab8c912b25da9c80692ad17ee0c3ab326d271"
+      ],
+      "source_sha256": "638248318dfb3e0da4fe8eb7abae39956083d91dd2d503371b6aa1a05594e24a",
+      "text": "Re-lay the menu bar when the window state changes.\n\nA menu opens where the BAR SAYS its action is. Going fullscreen\nresizes the bar and its corner widget in one step, and a menu\nopened before the layout has caught up is placed against the\nprevious action rectangle -- which is how pressing spaCR drops a\nmenu under Help."
+    },
     "spacr.qt.app.MainWindow.closeEvent": {
       "source_blocks_sha256": [
         "2e498c062b65e03c95d8b50b1159b47131f09bad8460b5303ae5f3f3a6a64ac7"
@@ -38472,6 +38480,13 @@
       ],
       "source_sha256": "fe81296739918d4cc045b757b7bad40e9e46e26b770549fbda9f6ce04d27e484",
       "text": "Re-fit the thumbnail grid after resize activity settles."
+    },
+    "spacr.qt.screens.annotate.AnnotateScreen.retranslate_dynamic_content": {
+      "source_blocks_sha256": [
+        "b32163b95b6329d0893a11e0022f0e962ba12187ec57525ce871310fe0ffec1f"
+      ],
+      "source_sha256": "b32163b95b6329d0893a11e0022f0e962ba12187ec57525ce871310fe0ffec1f",
+      "text": "Re-render the captions this screen composes from live state."
     },
     "spacr.qt.screens.annotate.current_ring_color": {
       "source_blocks_sha256": [
@@ -63030,10 +63045,10 @@
     "spacr.qt.widgets.setup_card.SetupCard.accent_span": {
       "source_blocks_sha256": [
         "569d3e2788f5ef8a7ee939a90c4541a89e0d1cf103edea4de1f82ef983fe9af0",
-        "bd7a8e054dfa6cac08cd14535bfbef7058ef26e01c789705b96a0175b9678f70"
+        "62a723308c7799d86ab0cedacc63660689b026ef01a55c93a2f6ae7200dcb740"
       ],
-      "source_sha256": "5598107b9d95e20b3c8db95e5066b100deee792d1cd26285c92f3afacfff8e1b",
-      "text": "How much of the rim is lit, as a fraction of its length.\n\nThe arc is a length in PIXELS; as a fraction of the rim it depends\non how big the card is, which is right -- a fixed fraction would be\na hairline on a large card and half the rim on a small one."
+      "source_sha256": "b5b7cd85ae85ebcb563fc073ba1873de80ccaa8f8bed779431915bdb9858ea87",
+      "text": "How much of the rim is lit, as a fraction of its length.\n\nTHE SAME FRACTION ON EVERY CARD, so a settings popup and the\nfirst-run window wear one rim rather than two takes on it. The arc\npreference is a length in pixels and is read as the length it\nshould look on the REFERENCE surface; measured against each card's\nown perimeter instead, the same 280 px covers a sixth of the setup\nwindow and two fifths of a small popup, and the short one reads as\na thick bright band -- \"the rim is to thick and bright. make the\nrim and window look exactly like the setup spacr window.\""
     },
     "spacr.qt.widgets.setup_card.SetupCard.accent_start": {
       "source_blocks_sha256": [
