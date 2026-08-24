@@ -359,6 +359,11 @@ class SetupSlides(QDialog):
         self._gpu_note.setAlignment(Qt.AlignCenter)
         self._gpu_note.setWordWrap(True)
         self._gpu_note.setAttribute(Qt.WA_TransparentForMouseEvents, True)
+        # THE FIRST SLIDE ONLY. It answers "can this machine run spaCR",
+        # which is a question the reader has once, at the start; carried
+        # down the rest of the slides it would be a banner that stopped
+        # being read on slide two and took the space anyway.
+        self._gpu_note.setVisible(False)
         self._say_what_the_gpu_is()
 
         self._pages = QStackedWidget()
@@ -1288,7 +1293,7 @@ class SetupSlides(QDialog):
         self._greeting.raise_()
 
         note = getattr(self, "_gpu_note", None)
-        if note is None:
+        if note is None or not note.isVisible():
             return
         # ACROSS THE CARD, INSIDE ITS MARGINS. The greeting is one word and
         # can be centred in the full width; this is two lines of prose and
@@ -1405,6 +1410,9 @@ class SetupSlides(QDialog):
         # THE GREETING BELONGS TO THE MOMENT THE LANGUAGE IS CONFIRMED, not
         # to a slide. It is shown by the first Next and hidden again by
         # anything that leaves that moment behind.
+        note = getattr(self, "_gpu_note", None)
+        if note is not None:
+            note.setVisible(index == 0)
         if index != 0:
             self._fade_the_greeting_away()
         self._where.setText(

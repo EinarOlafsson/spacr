@@ -162,3 +162,23 @@ def test_the_command_it_names_is_one_that_exists():
     setup = pathlib.Path(__file__).resolve().parents[2] / "setup.py"
     assert "spacr-doctor=spacr.doctor:main" in setup.read_text()
     assert "spacr-doctor" in GPU_DOCTOR_HINT
+
+
+def test_the_note_is_on_the_first_slide_and_no_other(slides, qtbot):
+    """It answers "can this machine run spaCR", which is a question the
+    reader has once. Carried down the rest of the slides it would be a
+    banner that stopped being read on slide two and took the space
+    anyway."""
+    from spacr.qt.widgets.setup_slides import SLIDES
+
+    slides._show_slide(0)
+    assert slides._gpu_note.isVisibleTo(slides)
+
+    for index in range(1, len(SLIDES)):
+        slides._show_slide(index)
+        assert not slides._gpu_note.isVisibleTo(slides), (
+            f"the GPU note is still on slide {index} ({SLIDES[index][0]!r})")
+
+    # And coming back to the first slide brings it back.
+    slides._show_slide(0)
+    assert slides._gpu_note.isVisibleTo(slides)
