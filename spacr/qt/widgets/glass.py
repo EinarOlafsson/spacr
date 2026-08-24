@@ -50,6 +50,14 @@ GLASSED = "spacrGlassed"
 #: Set on a dialog that must keep its own painting.
 NO_GLASS = "spacrNoGlass"
 
+#: Set on a dialog whose window flags this module has already rewritten.
+#:
+#: `spacr.qt.dialogs._DetachEveryDialog` reads it and leaves such a dialog
+#: alone: a second `setWindowFlags` would recreate the native window a
+#: second time, and the surface that comes back is not translucent on
+#: every window manager.
+DETACHED = "spacrDetached"
+
 #: Pixels between the dialog's edge and the card's.
 #:
 #: ZERO. It was 8, and those eight pixels read as a box with square edges
@@ -330,8 +338,21 @@ def make_frameless(dialog: QDialog) -> bool:
         # apply at all. Reported 2026-08-22: "there is a box with square
         # edges behind the box with rounded edges."
         dialog.setAttribute(Qt.WA_TranslucentBackground, True)
-        dialog.setWindowFlags(dialog.windowFlags()
+        # ONE FLAGS CHANGE, NOT TWO. `spacr.qt.dialogs._DetachEveryDialog`
+        # also rewrites the flags on Polish, to turn Qt.Dialog into
+        # Qt.Window so a window manager cannot glue the popup to its
+        # parent. Each `setWindowFlags` RECREATES the native window, and a
+        # window recreated after the translucent one was made is where the
+        # square corners came back -- reported as "the rectangular
+        # non-rounded black corners are still visible around the
+        # preferences and settings windows". So the detach happens here,
+        # in the same call, and the marker below tells that filter this
+        # dialog is already done.
+        dialog.setWindowFlags((dialog.windowFlags()
+                               & ~Qt.WindowType.Dialog)
+                              | Qt.WindowType.Window
                               | Qt.FramelessWindowHint)
+        dialog.setProperty(DETACHED, True)
         # AND THE STYLESHEET HAS TO AGREE. WA_TranslucentBackground stops Qt
         # filling the window with the palette's base; it does NOT stop the
         # application stylesheet's `QDialog { background: ... }` rule, which

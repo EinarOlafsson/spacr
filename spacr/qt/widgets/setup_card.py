@@ -15,6 +15,13 @@ from PySide6.QtWidgets import QWidget
 #: Corner order: top-left, top-right, bottom-right, bottom-left.
 CORNERS = ("topLeft", "topRight", "bottomRight", "bottomLeft")
 
+#: The surface the arc preference is measured against, in pixels.
+#:
+#: The first-run window's own size. It is the card the look was tuned on,
+#: so every other card lights the same fraction of its rim as this one
+#: does -- see :meth:`SetupCard.accent_span`.
+REFERENCE_CARD = (980.0, 700.0)
+
 
 class SetupCard(QWidget):
     """A rounded, translucent card whose border lights at the near corner.
@@ -443,12 +450,18 @@ class SetupCard(QWidget):
     def accent_span(self, rect: QRectF) -> float:
         """How much of the rim is lit, as a fraction of its length.
 
-        The arc is a length in PIXELS; as a fraction of the rim it depends
-        on how big the card is, which is right -- a fixed fraction would be
-        a hairline on a large card and half the rim on a small one.
+        THE SAME FRACTION ON EVERY CARD, so a settings popup and the
+        first-run window wear one rim rather than two takes on it. The arc
+        preference is a length in pixels and is read as the length it
+        should look on the REFERENCE surface; measured against each card's
+        own perimeter instead, the same 280 px covers a sixth of the setup
+        window and two fifths of a small popup, and the short one reads as
+        a thick bright band -- "the rim is to thick and bright. make the
+        rim and window look exactly like the setup spacr window."
         """
         rim = QPainterPath()
-        rim.addRoundedRect(rect, self._radius, self._radius)
+        rim.addRoundedRect(QRectF(0.0, 0.0, *REFERENCE_CARD),
+                           self._radius, self._radius)
         total = max(1.0, rim.length())
         return min(0.62, max(0.04, float(self._arc) * 2.0 / total))
 

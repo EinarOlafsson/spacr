@@ -40,7 +40,9 @@ BRAND: Dict[str, str] = {
     # GitHub's mark is monochrome, so "in colour" means in the theme's own
     # ink rather than in a brand hue -- "if the colour of the icon is black
     # and white go from grey to black and white". Signed out it takes the
-    # muted ink like any other unavailable mark.
+    # muted ink like any other unavailable mark. The value here is the
+    # LIGHT-theme ink; on a dark theme `_ready_ink` inverts it, because
+    # GitHub's own near-black on a near-black card is an invisible mark.
     "github": "#181717",
 }
 
@@ -270,6 +272,22 @@ class ProviderMark(QWidget):
             # control that answers the question when it is clicked.
             pass
 
+    def _ready_ink(self, palette) -> QColor:
+        """The mark's colour once the tool behind it is ready to use.
+
+        A brand hue for the three assistants, and the READABLE end of
+        monochrome for GitHub: white on a dark card, GitHub's own near-
+        black on a light one. A mark drawn in #181717 on #0d0e10 is a
+        signed-in state nobody can see.
+        """
+        if self.code != "github":
+            return QColor(BRAND.get(self.code, palette["accent"]))
+        # THE THEME'S OWN INK, which is the end of monochrome that can be
+        # read against the card it sits on: white on a dark theme, near
+        # black on a light one. GitHub's #181717 IS the light-theme value;
+        # painted on a dark card it is a signed-in state nobody can see.
+        return QColor(palette.get("fg", BRAND["github"]))
+
     def _colours(self) -> Tuple[QColor, QColor]:
         """``(ink, halo)`` for the current state."""
         from ..theme import active_palette
@@ -287,7 +305,7 @@ class ProviderMark(QWidget):
             halo = QColor(BRAND.get(self.code, palette["accent"]))
             halo.setAlpha(30 if self._hovered else 0)
             return ink, halo
-        ink = QColor(BRAND.get(self.code, palette["accent"]))
+        ink = self._ready_ink(palette)
         halo = QColor(ink)
         if self._chosen:
             halo.setAlpha(46)

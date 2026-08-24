@@ -70,6 +70,12 @@ def detach_from_window_manager(dialog: Any) -> Any:
     return dialog
 
 
+#: The property `spacr.qt.widgets.glass` sets on a dialog whose flags it
+#: has already rewritten. Named here rather than imported, because
+#: importing the widgets package from this one would be a cycle.
+_GLASS_DETACHED = "spacrDetached"
+
+
 class _DetachEveryDialog:
     """Application-wide filter: every dialog is a window the user can drag.
 
@@ -107,7 +113,14 @@ class _DetachEveryDialog:
 
             if event.type() == QEvent.Type.Polish and isinstance(obj, QDialog):
                 key = id(obj)
-                if key not in self._done:
+                # ALREADY DONE BY THE GLASS INSTALLER, which detaches and
+                # goes frameless in ONE flags change. Doing it again here
+                # recreates the native window a second time, and on some
+                # window managers what comes back has square opaque
+                # corners behind the rounded card.
+                if obj.property(_GLASS_DETACHED):
+                    self._done.add(key)
+                elif key not in self._done:
                     self._done.add(key)
                     detach_from_window_manager(obj)
         except Exception:                     # pragma: no cover

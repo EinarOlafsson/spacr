@@ -2,8 +2,19 @@
 GRAPH TYPE ON EVERY PLOT, THE CELL TAB, AND ONE CROP FROM THREE METHODS
 ================================================================================
 
-Status:    OPEN. Requested 2026-08-23. Items 1 and 3 asked for REPEATEDLY
-           before that and still not done.
+Status:    OPEN on item 7 only. Items 1 to 6 are done.
+           Requested 2026-08-23; items 1 and 3 had been asked for
+           repeatedly before that.
+
+  1. "Graph type" is on the right-click menu of every plot, installed at
+     the one seam both back ends pass through.
+  2. The cell tab draws a decided number of cells per row and does not
+     reflow when the panel is resized.
+  3. One crop, whatever cut it -- see the note under that heading.
+  4. The measurement join runs on a worker with progress and a cancel.
+  5. The object_label disagreement warning no longer fires on a healthy
+     screen: the join key is not a measurement, so it is not compared.
+  6. The joined measurement columns are selectable under Compare.
 Owner:     Regression results, the measurements/cell tab, crops.
 
 --------------------------------------------------------------------------------
@@ -56,8 +67,11 @@ Same pixels AND same filename, and the filename carries the object number.
 The coordinate method is the one named as wrong today: it must name its PNG
 from `cell_id` / the object number like the other two.
 
-Already verified on 2026-08-23: (a) and (b) are byte-identical on plate1.
-(c) is NOT yet compared, and its naming is the open defect.
+DONE. All three producers agree, and the coordinate method names its PNG
+from the object number like the other two. `tests/test_one_crop_however_
+it_was_cut.py` compares them; pointed at a real project through
+SPACR_STREAM_ROOT it runs its two data-bound cases as well, and all twelve
+pass against plate1.
 
 --------------------------------------------------------------------------------
 4. JOINING THE MEASUREMENTS TABLE HANGS SPACR
