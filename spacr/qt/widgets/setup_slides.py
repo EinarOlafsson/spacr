@@ -146,7 +146,27 @@ GREETING_POINTS = 30
 #: buttons along the bottom edge, so this is empty on every slide -- which
 #: is what lets the word leave slowly instead of being switched off to make
 #: room for what comes next.
-GREETING_BAND = 0.72
+#:
+#: It sits a row higher than it did, to leave the row beneath it for what
+#: the machine can actually run.
+GREETING_BAND = 0.64
+
+#: How far down the card the GPU note sits: the row the greeting left.
+GPU_NOTE_BAND = 0.78
+
+#: What spaCR needs a GPU for, said once on the first slide.
+#:
+#: NOT A WARNING AND NOT A GATE. Everything else works without one -- the
+#: measurements, the regression, every figure -- so this says which two
+#: steps are the ones that will be slow or impossible, and leaves the
+#: decision to the reader.
+GPU_REQUIREMENT = (
+    "Segmentation and object classification need an NVIDIA GPU. "
+    "Everything else runs without one.")
+
+#: The colours the verdict is drawn in.
+GPU_YES_INK = "#3FB950"
+GPU_NO_INK = "#F85149"
 
 #: Milliseconds the greeting takes to fade AWAY.
 #:
@@ -165,6 +185,45 @@ GREETING_FADE_MS = 420
 def greeting_for(code: str) -> str:
     """"Hello" in ``code``, falling back to English."""
     return GREETINGS.get(str(code or ""), GREETINGS["en"])
+
+
+def graphics_card() -> Tuple[bool, str]:
+    """``(usable, name)`` for the machine's graphics card.
+
+    USABLE MEANS TORCH CAN REACH IT, which is the only sense that matters
+    here: a card spaCR cannot run on is not a compatible card however well
+    the driver reports it. Torch is asked first for that reason, and NVML
+    second because it names the card even when torch was built without
+    CUDA -- which is the case worth telling apart, since the answer there
+    is "install a CUDA build", not "buy a card".
+
+    :returns: ``(True, 'NVIDIA GeForce RTX 3090')`` when segmentation can
+        run on it; ``(False, name)`` when it cannot, with the best name
+        available; ``(False, '')`` when nothing could be identified.
+    """
+    name = ""
+    usable = False
+    try:
+        import torch
+
+        if torch.cuda.is_available() and torch.cuda.device_count():
+            usable = True
+            name = str(torch.cuda.get_device_name(0))
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("torch could not be asked about the GPU", exc_info=True)
+    if name:
+        return usable, name
+    try:
+        from ..widgets.home import _nvml
+
+        nvml = _nvml()
+        if nvml is not None and nvml.nvmlDeviceGetCount():
+            handle = nvml.nvmlDeviceGetHandleByIndex(0)
+            raw = nvml.nvmlDeviceGetName(handle)
+            name = raw.decode() if isinstance(raw, bytes) else str(raw)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("NVML could not name the GPU", exc_info=True)
+    return usable, name
 
 
 def _say(text: str, **values) -> str:
@@ -279,6 +338,17 @@ class SetupSlides(QDialog):
         self._greeting.setAlignment(Qt.AlignCenter)
         self._greeting.setAttribute(Qt.WA_TransparentForMouseEvents, True)
         self._greeting.setVisible(False)
+
+        # WHAT THIS MACHINE CAN RUN, in the row the greeting moved up out
+        # of. It floats over the card the same way, for the same reason:
+        # the question rows never reach this band, so nothing has to move
+        # for it and it can stay while the greeting comes and goes.
+        self._gpu_note = QLabel("", self.card)
+        self._gpu_note.setObjectName("Muted")
+        self._gpu_note.setAlignment(Qt.AlignCenter)
+        self._gpu_note.setWordWrap(True)
+        self._gpu_note.setAttribute(Qt.WA_TransparentForMouseEvents, True)
+        self._say_what_the_gpu_is()
 
         self._pages = QStackedWidget()
         column.addWidget(self._pages)
@@ -1197,7 +1267,7 @@ class SetupSlides(QDialog):
             self._goodbye = None
 
     def _place_the_greeting(self) -> None:
-        """Put the greeting in its band, across the width of the card."""
+        """Put the greeting and the GPU note in their bands."""
         card = getattr(self, "card", None)
         if card is None or not self._greeting:
             return
@@ -1205,6 +1275,38 @@ class SetupSlides(QDialog):
         self._greeting.setGeometry(
             0, int(card.height() * GREETING_BAND), card.width(), height)
         self._greeting.raise_()
+
+        note = getattr(self, "_gpu_note", None)
+        if note is None:
+            return
+        # ACROSS THE CARD, INSIDE ITS MARGINS. The greeting is one word and
+        # can be centred in the full width; this is two lines of prose and
+        # would otherwise run into the rounded corners.
+        margin = 28
+        width = max(1, card.width() - 2 * margin)
+        note.setFixedWidth(width)
+        note.setGeometry(margin, int(card.height() * GPU_NOTE_BAND),
+                         width, note.sizeHint().height())
+        note.raise_()
+
+    def _say_what_the_gpu_is(self) -> None:
+        """Write the requirement and this machine's verdict into the note.
+
+        GREEN OR RED, and the card is named either way: "no compatible
+        GPU" on its own leaves the reader wondering whether spaCR looked.
+        """
+        usable, name = graphics_card()
+        if name:
+            verdict = _say("Compatible GPU") if usable else _say(
+                "No compatible GPU")
+            line = f"{verdict} — {name}"
+        else:
+            usable = False
+            line = _say("No compatible GPU — none detected")
+        ink = GPU_YES_INK if usable else GPU_NO_INK
+        self._gpu_note.setText(
+            f'<div>{_say(GPU_REQUIREMENT)}</div>'
+            f'<div style="color:{ink}; font-weight:600;">{line}</div>')
 
     def _apply_language(self, *_args) -> None:
         """Put the chosen language into effect and redraw this screen in it.
