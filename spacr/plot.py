@@ -4341,8 +4341,32 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box
     # produced three rows labelled 'One-way ANOVA' that were each an ANOVA
     # across two groups -- arithmetically a t-test, reported under a name
     # nobody could act on.
+    # A CONTINUOUS COLUMN IS NOT A GROUPING. Asked to compare by a column of
+    # measurements, every "group" holds one observation, every pair is
+    # untestable, and the pair count is quadratic -- which is how pressing
+    # Rank produced thousands of lines reading
+    #
+    #     0.735573 vs 0.778142: these groups have fewer than 2 usable
+    #     observations and cannot be tested
+    #
+    # Refused at the door, naming the column, rather than discovered one
+    # impossible pair at a time.
+    from .figures.stats import MIN_N_FOR_TEST
+
+    singletons = sum(1 for values in grouped_data.values()
+                     if len(values) < MIN_N_FOR_TEST)
+    if len(unique_groups) > 20 and singletons > 0.9 * len(unique_groups):
+        raise ValueError(
+            f"{grouping_column!r} is not a grouping: it has "
+            f"{len(unique_groups)} distinct values and {singletons} of them "
+            f"appear on a single row, so there is nothing to compare. That "
+            f"is what a column of measurements looks like -- group by a "
+            f"category (a well, a plate, a condition, a gene) and put the "
+            f"measurement on the y axis.")
+
     comparisons = list(itertools.combinations(unique_groups, 2))
     chosen_names = []
+    untestable = []
 
     for (group1, group2) in comparisons:
         pair = {group1: grouped_data[group1], group2: grouped_data[group2]}
@@ -4351,7 +4375,12 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box
         except ValueError as refusal:
             # A group too small to test. Reported rather than raised: the
             # caller wants the figure and the other pairs.
-            print(f"{group1} vs {group2}: {refusal}")
+            #
+            # COLLECTED, NOT PRINTED HERE. One line per impossible pair is
+            # not a report -- it is the same sentence a quadratic number of
+            # times, and it buries whatever else the run said. Summarised
+            # once after the loop.
+            untestable.append((group1, group2, str(refusal)))
             test_results.append({
                 'Comparison': f'{group1} vs {group2}',
                 'Test Statistic': float('nan'), 'p-value': float('nan'),
@@ -4362,6 +4391,22 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box
         test_results.append({'Comparison': f'{group1} vs {group2}',
                              'Test Statistic': result.statistic,
                              'p-value': result.p_value, 'Test Name': name})
+
+    # ONE LINE FOR ALL OF THEM. The pairs that could not be tested are in
+    # `test_results` either way, named and marked 'not testable', so nothing
+    # is hidden -- what is not repeated is the sentence explaining why.
+    if untestable:
+        # THE THIN GROUPS, not every group that appears in a failed pair. A
+        # pair fails because ONE side is too small, and naming both makes a
+        # healthy group look like the problem.
+        thin = sorted(group for group, values in grouped_data.items()
+                      if len(values) < MIN_N_FOR_TEST)
+        print(f"{len(untestable)} of {len(comparisons)} comparison(s) could "
+              f"not be tested, because {len(thin)} group(s) have fewer than "
+              f"{MIN_N_FOR_TEST} usable observations: "
+              f"{', '.join(str(g) for g in thin[:5])}"
+              f"{'...' if len(thin) > 5 else ''}. "
+              f"They are in the results table marked 'not testable'.")
 
     # The title names every test that ran, because with the choice made per
     # pair they need not all be the same one.

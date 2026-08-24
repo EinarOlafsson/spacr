@@ -533,13 +533,13 @@ def test_the_replication_assay_is_a_first_class_module():
     as a section. #16j put every app back under what it is *about* and
     made maturity a colour, so this is a Toxoplasma assay again — and
     separately a beta one, which is now a lookup in ``APP_STAGE``."""
-    from spacr.qt.app import SECTION_TOXO, app_stage
+    from spacr.qt.app import SECTION_ASSAYS, app_stage
     from spacr.qt.screens.app_screen import APP_INTROS, APP_TITLES
     from spacr.qt.screens.settings_model import resolve_default_settings
 
     row = next((a for a in APPS if a[0] == "replication"), None)
     assert row is not None, "replication is not in the app registry"
-    assert row[3] == SECTION_TOXO
+    assert row[3] == SECTION_ASSAYS
     assert app_stage("replication") == "beta"
     assert row[3] in SECTIONS
     assert row[1] and row[2]
@@ -594,11 +594,14 @@ def test_the_categories_are_the_ones_that_were_asked_for():
     assert app_mod.SECTION_MODELS == "Segmentation models"
     assert app_mod.SECTION_RESULTS == "Results & QC"
     assert app_mod.SECTION_EXPLORE == "Explore"
-    assert app_mod.SECTION_TOXO == "Toxoplasma"
+    # RENAMED to Assays on 2026-08-23: nothing in the section is
+    # Toxoplasma-specific except by habit, and Timelapse and the
+    # Motility assay moved into it from Core.
+    assert app_mod.SECTION_ASSAYS == "Assays"
     assert app_mod.SECTION_DESIGN == "Design"
     assert app_mod.SECTIONS == (
         "Core", "Data", "Segmentation models", "Results & QC", "Explore",
-        "Toxoplasma", "Design")
+        "Assays", "Design")
     # Design draws a tab now: Power / Design claimed it, which is the last
     # of the seven declared sections to be claimed. It was the example of
     # a declared-but-empty section for as long as it was empty.
@@ -903,7 +906,12 @@ def test_every_tab_uses_the_same_large_tile(home):
     # than derived twice so that an app arriving in Core is a line changed
     # here, but the property being tested is the equality on its left: the
     # tab draws its members and nothing else.
-    assert len(core) == len(section_members("Core")) == 11
+    # 11 -> 6 on 2026-08-23. Core is the pipeline in the order you run
+    # it -- mask, measure, annotate, classify, map barcodes,
+    # regression. Timelapse and the Motility assay moved to Assays,
+    # Curate to Segmentation models, and Classify (CV) and (ML) were
+    # removed in favour of the one Classify screen.
+    assert len(core) == len(section_members("Core")) == 6
     for index in range(home._tabs.count()):
         for tile in home._tabs.widget(index).findChildren(AppTile):
             assert tile.sizeHint().height() >= scaled_px(HomePage.TILE_H)
@@ -1089,19 +1097,22 @@ def test_a_running_module_is_reflected_on_home(home, qapp):
 def test_concurrent_runs_are_stacked_oldest_first_on_home(home, qapp):
     first, _ = _fake_run("mask")
     second, _ = _fake_run("measure")
-    third, _ = _fake_run("classify")
+    # `classify_merged`, because "classify" -- the CV-only screen --
+    # was removed from the registry on 2026-08-23 and an unknown key
+    # falls back to showing the key itself.
+    third, _ = _fake_run("classify_merged")
     qapp.processEvents()
 
     visible = [banner for banner in home._banners if banner.isVisible()]
     assert len(visible) == 3
-    assert ["Mask", "Measure", "Classify (CV)"] == [
+    assert ["Mask", "Measure", "Classify"] == [
         banner._title.text().split(" ·", 1)[0] for banner in visible
     ]
 
     bridge.registry().unregister(second)
     qapp.processEvents()
     visible = [banner for banner in home._banners if banner.isVisible()]
-    assert ["Mask", "Classify (CV)"] == [
+    assert ["Mask", "Classify"] == [
         banner._title.text().split(" ·", 1)[0] for banner in visible
     ]
     bridge.registry().unregister(first)
