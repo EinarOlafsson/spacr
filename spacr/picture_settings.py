@@ -77,6 +77,13 @@ OWN_DEFAULTS: Dict[str, object] = {
     "show_all_in_well": True,
     "object_type": "cell",
     "crop_source": LOAD_IMAGES,
+    # EMPTY IS THE COORDINATE ROUTE. A plane index switches to the mask
+    # array, which is the only route that can cut an object shape.
+    "mask_array": "",
+    # AND THE BOX IS THE SAFE ANSWER: it is the one cut both routes can
+    # make, so a settings dict that has not been thought about produces a
+    # picture rather than a refusal.
+    "bounding_box": True,
     "half_widths": 1.0,
     "baseline": "screen_median",
     "score_column": "pred",
@@ -129,6 +136,25 @@ STREAM_ONLY: Dict[str, str] = {
     "crop_shape": (
         "chooses between an object-shaped cut and a bounding box, and a crop "
         "that was already written to disk has been cut already"),
+    # THE TWO WAYS A STREAMED CROP IS LOCATED, and what each needs. Both
+    # cut from merged/*.npy and both use the channels the montage already
+    # asks for; what differs is how the object is found in the field:
+    #
+    #   a coordinate column   the measurement table's own <object>_id, so
+    #                         the object type is the whole question and the
+    #                         cut can only be the recorded box;
+    #   a mask array          the labelled plane, where the object number
+    #                         IS the label at those pixels, so the cut can
+    #                         follow the outline as well as the box.
+    #
+    # `mask_array` empty means the first; a plane index means the second.
+    "mask_array": (
+        "names the labelled plane the object number is read from, and a "
+        "crop that was already written to disk was located when it was "
+        "written"),
+    "bounding_box": (
+        "chooses the box over the object's own outline, and a crop that "
+        "was already written to disk has been cut already"),
 }
 
 #: Every key this module has an opinion about, in the order a panel shows them.
@@ -197,9 +223,18 @@ def bounding_box_only(settings) -> bool:
     try:
         chosen = str(settings.get("crop_source") or LOAD_IMAGES).lower()
         columns = settings.get("coordinate_columns")
+        plane = settings.get("mask_array")
     except AttributeError:
         return False
-    return chosen == STREAM_IMAGES and bool(columns)
+    if chosen != STREAM_IMAGES:
+        return False
+    # A MASK ARRAY IS WHAT MAKES THE OUTLINE AVAILABLE. With one, the
+    # object's own pixels are the ones carrying its label and the cut can
+    # follow them; without one there is a row in a table and a rectangle,
+    # and nothing to follow.
+    if str(plane).strip() not in ("", "None"):
+        return False
+    return bool(columns)
 
 
 #: The annotator's name for a setting -> the crop layer's name for it.
@@ -348,6 +383,30 @@ def to_crop_settings(picture) -> Dict[str, object]:
             out["use_bounding_box"] = True
         elif shape == "object":
             out["use_bounding_box"] = False
+
+    if mode == STREAM_IMAGES:
+        # WHICH OBJECT, AND HOW IT IS FOUND. The object type names the
+        # coordinate column through `stream_dataset.coordinate_column`, so
+        # the type is the only thing to ask for; a mask-array index says
+        # to read the label out of that plane instead.
+        object_type = str(items.get("object_type") or "").strip().lower()
+        if object_type:
+            out["object_array"] = object_type
+        plane = str(items.get("mask_array", "")).strip()
+        if plane not in ("", "None"):
+            try:
+                out["mask_array"] = int(plane)
+                out["stream_method"] = "array"
+            except (TypeError, ValueError):
+                out["stream_method"] = "column"
+        else:
+            out["stream_method"] = "column"
+        # AND THE BOX WINS WHERE IT IS THE ONLY CUT AVAILABLE, rather than
+        # the panel promising an outline the route cannot follow.
+        if bounding_box_only(items):
+            out["use_bounding_box"] = True
+        elif "bounding_box" in items:
+            out["use_bounding_box"] = bool(items.get("bounding_box"))
     return out
 
 
@@ -653,7 +712,10 @@ def offered_values(key: str, source=None, frame=None) -> Tuple[str, ...]:
             ("r,g,b", f"every channel"),
         )
     if name == "object_type":
-        return ("cell", "nucleus", "pathogen", "cytoplasm")
+        # Every object a measure run can write a plane for, in the order
+        # the pipeline names them.
+        return ("cell", "nucleus", "pathogen", "cytoplasm",
+                "organelle", "organelleb", "organellec", "organelled")
     if name == "baseline":
         return ("screen_median", "control_median", "zero")
     if name == "cell_picking":
