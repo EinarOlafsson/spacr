@@ -118,7 +118,10 @@ THE REGRESSION
     origin), control (the response centred on the negative controls, so
     the intercept IS the control level), and value (pinned at a number the
     user gives, by shifting the response AND suppressing the term).
-    THE SETTINGS ENTRY AND THE PANEL CONTROL ARE STILL TO COME -- the
-    engine takes it, the form does not offer it yet;
+    OFFERED IN THE FORM: `intercept` is a dropdown of the four under
+    "Regression: Model", `intercept_value` is the number beside it, and
+    the number is greyed for the three modes that do not read it, with
+    the reason naming the mode actually in force. A settings file written
+    before the keys existed still runs, and fits as it did;
   * rank refuses a continuous column as a grouping, by name, and names the
     thin groups once instead of one line per pair.

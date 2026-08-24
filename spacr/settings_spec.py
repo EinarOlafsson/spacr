@@ -259,6 +259,12 @@ def convert_settings_dict_for_gui(settings):
         'grouping': ('combo', ['mean', 'median'], 'mean'),
         'min_max': ('combo', ['allq', 'all'], 'allq'),
         'transform': ('combo', ['log', 'sqrt', 'square', 'beta', None], None),
+        # The four intercept modes, from spacr.ml.INTERCEPT_MODES. A combo
+        # rather than free text: each name selects a different construction
+        # of the design matrix, and an unrecognised one is refused at the
+        # door by prepare_formula rather than quietly fitted.
+        'intercept': ('combo', ['fitted', 'zero', 'control', 'value'],
+                      'fitted'),
         # The ONE visible organelle choice (instruction 72). A combo, not a
         # free-text field: the nine names are a closed set, and
         # `organelle_types.resolve_type` raises on anything else -- typing it

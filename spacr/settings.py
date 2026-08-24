@@ -2217,6 +2217,20 @@ def get_perform_regression_default_settings(settings):
     # moves.
     settings.setdefault('regression_type', 'mixed')
     settings.setdefault('glm_transform_conflict', 'untransformed')
+    # WHAT THE INTERCEPT IS, offered rather than assumed.
+    #
+    # 'fitted' estimates it from the data, which is what every run before
+    # this key existed did and is why it is the default. The other three
+    # exist because a fitted intercept answers a question a screen does not
+    # always ask: it is the response of a well whose every predictor is at
+    # its reference level, which for a one-hot gene design is whichever gene
+    # patsy happened to drop. 'control' pins it at the negative controls, so
+    # every coefficient reads as a difference FROM the controls -- the thing
+    # a screen is usually asking about. 'zero' fits through the origin, and
+    # 'value' pins it at `intercept_value`.
+    settings.setdefault('intercept', 'fitted')
+    # Read only under intercept='value'; the panel greys it otherwise.
+    settings.setdefault('intercept_value', 0.0)
     # WHO FITS IT, as opposed to WHAT is fitted (instruction 141 A). The two
     # are independent: the same mixed model can be fitted by statsmodels on
     # the CPU or by spacr.mixed_gpu on the GPU, and the answer should be the
@@ -3135,6 +3149,8 @@ expected_types = {
     "regression_qc": bool,
     "transform": (str, type(None)),
     "glm_transform_conflict": str,
+    "intercept": str,
+    "intercept_value": float,
     "agg_type": str,
     "min_cell_count": int,
     "denoise":bool,
@@ -4195,6 +4211,8 @@ tooltips = {
     "treatments": "(list) - Names of the drug or treatment conditions in the experiment, e.g. ['dmso','lovastatin']. Each name is written into the treatment column and folded into the combined condition label used for grouping and plotting; positionally paired with treatment_plate_metadata (or treatment_loc), which lists the wells for each. Default ['cm','lovastatin'].",
     "top_features": "(int) - Feature cap in the ML screen analysis: how many rows the feature-importance and permutation-importance bar plots show, and how many top-ranked features the SHAP refit and its summary plot use. It is also the k of the SelectKBest pruning applied before the model is fitted, but only when prune_features is True - with prune_features at its default False the classifier trains on every feature and this is reporting/SHAP scope only. Raise for a fuller picture, lower for readable plots. Default 30.",
     "train": "(bool) - Run the training stage. Turn OFF to apply an existing model_path to a dataset without retraining, which is the usual way to score a new plate with a model trained earlier. Default True.",
+    "intercept": "(str) - What the intercept of the fit is. 'fitted' estimates it from the data, so it is the predicted response of a well with every predictor at its reference level - for a one-hot gene design that is whichever gene patsy dropped, which is rarely a quantity anyone wanted. 'control' subtracts the negative controls' mean response before fitting and suppresses the term, so the intercept IS the control level and every coefficient reads as a difference from the controls. 'zero' fits through the origin. 'value' pins it at intercept_value. Default 'fitted'.",
+    "intercept_value": "(float) - The number the intercept is pinned to when intercept is 'value'. The response is shifted by it and the term suppressed, so the fit is exactly y = intercept_value + terms. Read for no other intercept setting, and the panel greys it out for them. Default 0.0.",
     "glm_transform_conflict": "(str) - Response scale to fit when transform is itself a link ('log' or 'logit') and the automatically selected GLM family also has a non-identity link. 'untransformed' fits the measured response and lets the family link transform it; use this for a proportion that was unnecessarily transformed first. 'transformed' keeps the transformed response and fits a Gaussian identity-link model. 'warn' reproduces the legacy double-transform behavior and prints a warning. This setting has no effect for other transforms or regression types. Default 'untransformed'.",
     "transform": "(str) - Optional transform applied to the aggregated per-well response before fitting: 'log' (log1p), 'sqrt', 'square', 'beta' (logit, for a response that is a proportion - the endpoints are squeezed off 0 and 1 first and the summary says so), or None for none. Reach for it when the response is skewed and the normality check fails; the fit then reports coefficients for the transformed column, named '<transform>_<dependent_variable>'. Default None.",
     "val_split": "(float) - Fraction of src/train randomly held out as a validation set each run (0.1 = 10 percent). The validation score drives checkpoint selection, early stopping and the live training curves; at 0 there is no validation loader, so checkpointing falls back to training accuracy, which rewards memorisation. Raise it on small datasets for a less noisy estimate. With a grouping level set the holdout is whole groups, so the realised share is quantised to them and can land well off what you asked for; both numbers are reported rather than quietly rounded. Default 0.1.",
@@ -4934,8 +4952,14 @@ categories = {
     # the two are one decision read in order (instruction 141 A): the first
     # says WHAT is fitted, the second says WHO fits it, and the second's
     # options are greyed by the first's value.
+    # `intercept` and `intercept_value` sit after the backend and before
+    # the plate-position pair because they are still part of WHAT is
+    # fitted rather than which terms are in it: they say where the
+    # fitted line is anchored, and every coefficient below is read
+    # relative to that anchor.
     "Regression: Model": [
         "inference", "analysis_mode", "regression_type", "regression_backend",
+        "intercept", "intercept_value",
         "model_plate_position", "random_row_column_effects", "cov_type",
     ],
     # Per-family knobs. spacr.ml.REGRESSION_SETTINGS_USED says which family
@@ -5423,6 +5447,25 @@ def get_setting_dependencies():
             "both would fit logit(log(y)). Choose 'transformed' to keep this "
             "transform and fit an identity link instead. The value is kept "
             "and saved."),
+    )
+
+    # THE PINNED NUMBER IS DEAD UNLESS THE INTERCEPT IS PINNED.
+    #
+    # `intercept_value` is read by exactly one of the four modes. Under the
+    # other three the field is still shown -- so the user can see what it
+    # would be -- but greyed, with the reason naming the mode that is
+    # actually in force rather than the one that would read it.
+    setting_dependencies['intercept_value'] = _combined(
+        setting_dependencies.get('intercept_value'),
+        ('intercept',),
+        lambda settings, _context: str(
+            settings.get('intercept') or 'fitted').strip().lower() == 'value',
+        lambda settings, _context: (
+            f"intercept={str(settings.get('intercept') or 'fitted')!r} does "
+            "not read a pinned number: 'fitted' estimates the intercept, "
+            "'zero' fits through the origin and 'control' pins it at the "
+            "negative controls. Choose intercept='value' to use this field. "
+            "The value is kept and saved."),
     )
 
     setting_dependencies.setdefault('group_lasso_lambda', rule(

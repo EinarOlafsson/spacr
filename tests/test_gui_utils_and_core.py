@@ -1,85 +1,24 @@
-"""
-Tests for spacr.gui_utils and spacr.gui_core pure helpers.
+"""What the settings panel makes of a settings dict.
 
-Most of these modules is Tk-driven event handling; here we cover the
-pure functions (parse_list, convert_settings_dict_for_gui, ...) plus
-the widget-construction bits that can be exercised with a headless
-Toplevel.
+WHAT THIS FILE USED TO BE: the pure helpers of `spacr.gui_utils` and
+`spacr.gui_core`, the Tkinter interface's two support modules. That
+interface is gone and so are they, and with them `parse_list`,
+`convert_to_number`, `attach_dependency_listeners`, `hide_all_settings`,
+`generate_annotate_fields` and the legacy console -- every one of which
+existed to drive a Tk widget and has no definition left in the tree.
+
+`convert_settings_dict_for_gui` outlived them. It lives in
+`spacr.settings_spec`, `gui_utils` only re-exported it, and it is what
+decides whether a setting reaches the panel as a combo, a check or an
+entry. These are the only tests holding the combo option lists to what
+the pipeline actually accepts -- including the regression that
+`organelle_method` must not offer 'stardist', which is the no-TensorFlow
+rule -- so they stay, pointed at the real module.
 """
 from __future__ import annotations
 
-import pytest
+import spacr.settings_spec as GU
 
-# Unguarded on purpose: tests/conftest.py stubs mouseinfo, pyautogui and
-# screeninfo before any test module loads, so the display-less import failure
-# this guard was written for cannot happen. An ImportError here is a bug in
-# spacr.gui_utils, and skipping the whole file on it is exactly how such a bug
-# survives a release.
-import spacr.gui_utils as GU
-
-
-# ---------------------------------------------------------------------------
-# parse_list: string -> Python list, with rejection of mixed types
-# ---------------------------------------------------------------------------
-
-@pytest.mark.parametrize("s,expected", [
-    ("[1, 2, 3]", [1, 2, 3]),
-    ("['a', 'b']", ["a", "b"]),
-    ("[1.5, 2.5]", [1.5, 2.5]),
-    ("[]", []),
-])
-def test_parse_list_homogeneous(s, expected):
-    assert GU.parse_list(s) == expected
-
-
-def test_parse_list_tuple_single_element():
-    # A single-element tuple string is unwrapped.
-    assert GU.parse_list("(42,)") == [42]
-
-
-def test_parse_list_tuple_multi_element_becomes_list():
-    assert GU.parse_list("(1, 2, 3)") == [1, 2, 3]
-
-
-def test_parse_list_rejects_mixed_types():
-    with pytest.raises(ValueError):
-        # Lists of dicts should be rejected.
-        GU.parse_list("[{'a': 1}, 2]")
-
-
-def test_parse_list_rejects_non_list_scalar():
-    with pytest.raises(ValueError):
-        GU.parse_list("42")
-
-
-def test_parse_list_rejects_garbage_syntax():
-    with pytest.raises(ValueError):
-        GU.parse_list("not a list at all")
-
-
-# ---------------------------------------------------------------------------
-# convert_to_number: same shape as app_annotate.convert_to_number
-# ---------------------------------------------------------------------------
-
-def test_gui_convert_to_number_int():
-    assert GU.convert_to_number("7") == 7
-    assert isinstance(GU.convert_to_number("7"), int)
-
-
-def test_gui_convert_to_number_float():
-    v = GU.convert_to_number("7.5")
-    assert v == pytest.approx(7.5)
-
-
-def test_gui_convert_to_number_rejects_garbage():
-    with pytest.raises(ValueError):
-        GU.convert_to_number("nope")
-
-
-# ---------------------------------------------------------------------------
-# convert_settings_dict_for_gui: coerces a settings dict into the
-# (widget-type, options, default) triples the GUI uses.
-# ---------------------------------------------------------------------------
 
 def test_convert_settings_dict_bool_becomes_check():
     out = GU.convert_settings_dict_for_gui({"verbose": True, "plot": False})
@@ -128,97 +67,3 @@ def test_convert_settings_dict_special_case_organelle_method_no_stardist():
 
 
 # ---------------------------------------------------------------------------
-# attach_dependency_listeners: verify no crash on synthetic vars_dict.
-# ---------------------------------------------------------------------------
-
-def test_attach_dependency_listeners_is_callable():
-    assert callable(GU.attach_dependency_listeners)
-
-
-def test_hide_all_settings_is_callable():
-    assert callable(GU.hide_all_settings)
-
-
-# ---------------------------------------------------------------------------
-# generate_annotate_fields — construct against a real Tk root.
-# ---------------------------------------------------------------------------
-
-@pytest.mark.gui
-def test_generate_annotate_fields_populates_dict(tk_root):
-    import tkinter as tk
-    frame = tk.Frame(tk_root)
-    frame.pack()
-    vars_dict = GU.generate_annotate_fields(frame)
-    assert isinstance(vars_dict, dict)
-    assert len(vars_dict) > 0
-    tk_root.update_idletasks()
-
-
-# ---------------------------------------------------------------------------
-# gui_core: pure helpers importable
-# ---------------------------------------------------------------------------
-
-def test_gui_core_public_entry_points_importable():
-    import spacr.gui_core as GC
-    for name in ("toggle_settings", "display_figure", "clear_unused_figures",
-                 "show_previous_figure", "show_next_figure",
-                 "process_fig_queue", "update_figure",
-                 "setup_plot_section", "setup_settings_panel",
-                 "setup_console", "setup_button_section", "setup_usage_panel",
-                 "initiate_abort", "check_src_folders_files",
-                 "start_process", "process_console_queue",
-                 "main_thread_update_function"):
-        assert callable(getattr(GC, name, None)), f"gui_core.{name} not callable"
-
-
-def test_legacy_console_rounded_rectangle_points_are_bounded():
-    import spacr.gui_core as GC
-
-    points = GC._rounded_rectangle_points(100, 50, 12)
-    xs = points[0::2]
-    ys = points[1::2]
-    assert len(points) == 24
-    assert min(xs) == 0 and max(xs) == 100
-    assert min(ys) == 0 and max(ys) == 50
-    # Oversized radii are clamped to half the shortest side.
-    clamped = GC._rounded_rectangle_points(20, 10, 999)
-    assert clamped[0] == 5
-
-
-def test_legacy_startup_no_longer_contains_the_microscopy_tagline():
-    import inspect
-    from spacr.gui import MainApp
-
-    source = inspect.getsource(MainApp.create_startup_screen)
-    assert "Spatial single-cell analysis for microscopy" not in source
-    assert "spatial single-cell analysis tools for microscopy" not in source
-
-
-def test_legacy_console_uses_open_sans_and_text_spacing():
-    import inspect
-    import spacr.gui_core as GC
-
-    source = inspect.getsource(GC.setup_console)
-    assert 'family="Open Sans"' in source
-    assert "spacing1=" in source
-    assert "spacing3=" in source
-
-
-def test_legacy_keepalive_does_not_discard_console_messages():
-    """Only the console callback may consume worker output and errors."""
-    from queue import Queue
-    import spacr.gui_core as GC
-
-    queued = Queue()
-    queued.put("Error: worker failed")
-    scheduled = []
-
-    class Root:
-        def after(self, interval, callback):
-            scheduled.append((interval, callback))
-
-    GC.uppdate_frequency = 250
-    GC.main_thread_update_function(Root(), queued, object(), object())
-
-    assert queued.get_nowait() == "Error: worker failed"
-    assert scheduled and scheduled[0][0] == 250

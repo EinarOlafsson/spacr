@@ -8056,6 +8056,12 @@ def _perform_regression(settings):
         # is exactly what you want, which is why it stays on by default.
         qc=bool(settings.get('regression_qc', True)),
         legacy_volcano=bool(settings.get('legacy_volcano', False)),
+        # WHAT THE INTERCEPT IS. `.get`, not indexed, for the reason the
+        # three above give: no settings CSV written before this key existed
+        # carries it, and the value an absent one meant is a fitted
+        # intercept -- which is what every run before it did.
+        intercept=str(settings.get('intercept') or 'fitted'),
+        intercept_value=float(settings.get('intercept_value') or 0.0),
     )
     regression_type = next(iter(fits.values()))[2]
 
