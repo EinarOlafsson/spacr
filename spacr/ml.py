@@ -712,9 +712,74 @@ def _level_term(level):
         f"{LEVEL_CHOICES!r}.")
 
 
+#: What the intercept of a screen regression may be asked to be.
+#:
+#: 'fitted'   the model estimates it, which is what every fit did before
+#:            this was a choice;
+#: 'zero'     no intercept at all -- the fit passes through the origin, so
+#:            a guide's coefficient is its whole predicted score rather
+#:            than a departure from a baseline;
+#: 'control'  the response is centred on the negative controls before
+#:            fitting, so the intercept IS the control level and every
+#:            coefficient reads as "above or below the controls".
+INTERCEPT_MODES = ("fitted", "zero", "control")
+
+
+def centre_on_controls(df, dependent_variable, nc):
+    """Subtract the negative controls' median response. Returns (df, offset).
+
+    THIS IS WHAT MAKES THE INTERCEPT MEAN SOMETHING. A fitted intercept is
+    the response where every predictor is zero, which on a screen design is
+    a well with no guide in it -- a point that does not exist. Centred on
+    the negative controls, the intercept is the control level, and every
+    coefficient reads directly as "this far above or below the controls".
+
+    The offset is returned rather than swallowed so the caller can report
+    it: a coefficient table whose response was shifted, with nothing saying
+    by how much, is a table nobody can compare with another run.
+
+    :param df: the long frame the fit runs on.
+    :param dependent_variable: the response column.
+    :param nc: the negative-control guide or gene, as the settings name it.
+    :returns: ``(frame, offset)``. The frame is a copy when it was changed
+        and the original when it was not; ``offset`` is 0.0 when no control
+        row could be identified, and the caller is expected to say so.
+    """
+    import numpy as _np
+
+    if not nc or dependent_variable not in getattr(df, "columns", ()):
+        return df, 0.0
+    wanted = str(nc).strip().lower()
+    if not wanted:
+        return df, 0.0
+    # THE GUIDE COLUMN OR THE GENE COLUMN, whichever this frame carries and
+    # whichever the control names. `nc` is read as a GENE when it is bare
+    # and as a GUIDE when it holds an underscore, which is the rule the
+    # rest of the module already applies to it.
+    mask = None
+    for column in ("grna", "gene", "grna_name", "gene_name"):
+        if column not in df.columns:
+            continue
+        found = df[column].astype(str).str.strip().str.lower() == wanted
+        mask = found if mask is None else (mask | found)
+    if mask is None or not bool(mask.any()):
+        return df, 0.0
+    values = _np.asarray(df.loc[mask, dependent_variable], dtype=float)
+    values = values[_np.isfinite(values)]
+    if not values.size:
+        return df, 0.0
+    offset = float(_np.median(values))
+    if offset == 0.0:
+        return df, 0.0
+    shifted = df.copy()
+    shifted[dependent_variable] = (
+        _np.asarray(shifted[dependent_variable], dtype=float) - offset)
+    return shifted, offset
+
+
 def prepare_formula(dependent_variable, random_row_column_effects=False,
                     block_screen=False, level='grna',
-                    model_plate_position=True):
+                    model_plate_position=True, intercept='fitted'):
     """Build a fixed-effects formula for one screen-analysis level.
 
     Parameters
@@ -730,6 +795,13 @@ def prepare_formula(dependent_variable, random_row_column_effects=False,
     level : {'grna', 'gene'}, default='grna'
         Resolution represented by the formula. ``'grna'`` uses
         ``fraction:grna`` and ``'gene'`` uses ``gene_fraction:gene``.
+    intercept : {'fitted', 'zero', 'control'}, default='fitted'
+        What the intercept is. ``'fitted'`` estimates it. ``'zero'`` takes
+        it out of the design, so the fit passes through the origin and a
+        coefficient is a whole predicted score rather than a departure from
+        a baseline. ``'control'`` keeps the term and is completed by the
+        caller, which centres the response on the negative controls first --
+        the intercept is then the control level by construction.
     model_plate_position : bool, default=True
         Include plate position in the model. With
         ``random_row_column_effects=False`` it is included as fixed row and
@@ -759,6 +831,18 @@ def prepare_formula(dependent_variable, random_row_column_effects=False,
 
     term = _level_term(level)
     screen = f' + {SCREEN_KEY}' if block_screen else ''
+    mode = str(intercept or "fitted").strip().lower()
+    if mode not in INTERCEPT_MODES:
+        raise ValueError(
+            f"intercept={intercept!r} is not one of {list(INTERCEPT_MODES)}. "
+            f"'fitted' estimates it, 'zero' fits through the origin, and "
+            f"'control' centres the response on the negative controls so "
+            f"the intercept is the control level.")
+    # PATSY'S OWN SUPPRESSION. `- 1` removes the intercept column from the
+    # design; there is no other way to say it in a formula, and taking the
+    # column out of the design matrix afterwards would leave the formula
+    # describing a model that was not the one fitted.
+    origin = ' - 1' if mode == 'zero' else ''
     if random_row_column_effects and not model_plate_position:
         raise ValueError(
             "model_plate_position=False takes rowID and columnID out of the "
@@ -776,12 +860,12 @@ def prepare_formula(dependent_variable, random_row_column_effects=False,
         # randomised layout -- or the caller is spending its 35 parameters
         # somewhere else; see the measurement in this function's docstring for
         # what that costs on a plate that does have one.
-        return f'{dependent_variable} ~ {term}{screen}'
+        return f'{dependent_variable} ~ {term}{screen}{origin}'
     if random_row_column_effects:
         # Row and column become variance components in fit_mixed_model, so
         # they must not also be fixed terms here.
-        return f'{dependent_variable} ~ {term}{screen}'
-    return f'{dependent_variable} ~ {term} + rowID + columnID{screen}'
+        return f'{dependent_variable} ~ {term}{screen}{origin}'
+    return f'{dependent_variable} ~ {term} + rowID + columnID{screen}{origin}'
 
 
 def screen_is_blockable(df) -> bool:
@@ -4310,7 +4394,8 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
                model_plate_position=True,
                regression_backend=DEFAULT_REGRESSION_BACKEND,
                verbose=False, transform="",
-               glm_transform_conflict=DEFAULT_GLM_TRANSFORM_CONFLICT):
+               glm_transform_conflict=DEFAULT_GLM_TRANSFORM_CONFLICT,
+               intercept='fitted'):
     """Run the full regression pipeline: clean, fit, extract coefficients, optional volcano plot.
 
     :param df: Long-format DataFrame with gRNA/gene fractions and the
@@ -4424,6 +4509,22 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
 
     df = check_and_clean_data(df, dependent_variable)
 
+    # WHAT THE INTERCEPT IS, decided before the design is built so the fit,
+    # the coefficient table and every panel read one response. 'control'
+    # shifts the response; 'zero' takes the term out of the formula below;
+    # 'fitted' does neither and is what every run did before this existed.
+    intercept_offset = 0.0
+    if str(intercept or 'fitted').strip().lower() == 'control':
+        df, intercept_offset = centre_on_controls(df, dependent_variable, nc)
+        if intercept_offset:
+            print(f"Intercept set to the negative controls: {dependent_variable} "
+                  f"centred by {intercept_offset:.6g}, so a coefficient reads "
+                  f"as its distance from {nc!r}.")
+        else:
+            print(f"Intercept left as fitted: no rows match "
+                  f"negative_control={nc!r}, so there is no control level to "
+                  f"centre on.")
+
     # The QC report needs the design that was fitted. The mixed branch below
     # never builds one -- fit_mixed_model takes the formula and the frame and
     # keeps its design to itself -- so X and y simply do not exist there, and
@@ -4461,7 +4562,8 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
             dependent_variable,
             random_row_column_effects=random_row_column_effects,
             block_screen=block_screen, level='gene',
-            model_plate_position=model_plate_position)
+            model_plate_position=model_plate_position,
+            intercept=intercept)
         mixed_model, coef_df = fit_mixed_model(
             df, formula, level_dst,
             random_row_column_effects=random_row_column_effects,
@@ -4471,7 +4573,8 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         formula = prepare_formula(dependent_variable,
                                   random_row_column_effects=False,
                                   block_screen=block_screen, level=level,
-                                  model_plate_position=model_plate_position)
+                                  model_plate_position=model_plate_position,
+                                  intercept=intercept)
         y, X = dmatrices(formula, data=df, return_type='dataframe')
         # Rows patsy actually kept. Every per-row vector handed to the model
         # below - weights, groups, exposure - is taken through this index, so
