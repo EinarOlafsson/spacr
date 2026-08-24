@@ -421,8 +421,14 @@ class SetupCard(QWidget):
             painter.setBrush(body)
             painter.drawRoundedRect(rect, self._radius, self._radius)
 
-            edge = QColor(palette["fg"])
-            edge.setAlpha(38)
+            # THE RESTING RIM IS DARK GREY, not a faint white. It was the
+            # foreground ink at alpha 38, which on a dark theme is a pale
+            # line round the card and competes with the accent travelling
+            # along it -- the lit part should be the only bright part.
+            # `border` is the palette's own dark grey, and on a light
+            # theme it is the grey that reads against white.
+            edge = QColor(palette.get("border", palette["fg"]))
+            edge.setAlpha(235)
             painter.setBrush(Qt.NoBrush)
             painter.setPen(QPen(edge, 1.0))
             painter.drawRoundedRect(rect, self._radius, self._radius)

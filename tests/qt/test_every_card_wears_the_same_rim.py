@@ -101,3 +101,41 @@ def test_the_detach_filter_leaves_a_glassed_dialog_alone(qapp, qtbot):
     dialogs._DetachEveryDialog().eventFilter(dialog, QEvent(QEvent.Type.Polish))
 
     assert dialog.windowFlags() == before
+
+
+@pytest.mark.parametrize("theme_name", ("dark", "light"))
+def test_the_resting_rim_is_the_palette_grey_not_the_ink(qapp, monkeypatch,
+                                                         theme_name):
+    """"the default rim should be dark dark gray not white".
+
+    The un-lit rim was the foreground ink at alpha 38, which on a dark
+    theme is a pale line all the way round and competes with the accent
+    travelling along it. Read off the PIXELS, on the bottom edge, which
+    is the far side from where the accent rests.
+    """
+    from PySide6.QtCore import Qt
+    from PySide6.QtGui import QImage
+
+    from spacr.qt import preferences as prefs, theme
+
+    monkeypatch.setattr(prefs, "resolve_effective_theme", lambda: theme_name)
+    qapp.setStyleSheet(theme.stylesheet(theme_name))
+    card = SetupCard(radius=18)
+    card.resize(400, 300)
+    card.show()
+    qapp.processEvents()
+    try:
+        image = QImage(card.size(), QImage.Format_ARGB32_Premultiplied)
+        image.fill(Qt.transparent)
+        card.render(image)
+        rim = image.pixelColor(200, 299)
+    finally:
+        card.hide()
+
+    if theme_name == "dark":
+        assert rim.lightness() < 60, f"the rim is {rim.name()}, not dark grey"
+    else:
+        assert rim.lightness() > 200, f"the rim is {rim.name()}, not light grey"
+    # And it is grey rather than a hue: no channel far from the others.
+    assert max(rim.red(), rim.green(), rim.blue()) - \
+        min(rim.red(), rim.green(), rim.blue()) < 24
