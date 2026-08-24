@@ -49,7 +49,7 @@ from spacr.qt.app import (
     SECTION_EXPLORE,
     SECTION_MODELS,
     SECTION_RESULTS,
-    SECTION_TOXO,
+    SECTION_ASSAYS,
     SECTIONS,
     MainWindow,
     Sidebar,
@@ -214,18 +214,19 @@ EXPECTED_SECTIONS = {
     "pca":             SECTION_EXPLORE,
     "tabulate":        SECTION_EXPLORE,
     "mask":            SECTION_CORE,
-    "timelapse":       SECTION_CORE,
-    "motility":        SECTION_CORE,
+    # MOVED 2026-08-23. Core is the pipeline you run, in the order you
+    # run it; a timelapse and a motility assay are assays.
+    "timelapse":       SECTION_ASSAYS,
+    "motility":        SECTION_ASSAYS,
     "measure":         SECTION_CORE,
     "annotate":        SECTION_CORE,
     "classify_merged": SECTION_CORE,
-    "classify":        SECTION_CORE,
-    "ml_analyze":      SECTION_CORE,
     "map_barcodes":    SECTION_CORE,
     "regression":      SECTION_CORE,
     # Correcting a mask and its tracks by hand is part of getting the data,
     # not a reading of what came out — so Core, beside Mask and Timelapse.
-    "curate":          SECTION_CORE,
+    # Curate fixes a mask by hand, which is a segmentation-model job.
+    "curate":          SECTION_MODELS,
     "align":           SECTION_DATA,
     "convert":         SECTION_DATA,
     "foreign":         SECTION_DATA,
@@ -301,10 +302,10 @@ EXPECTED_SECTIONS = {
     # whether they agree, which is a question about a run rather than a
     # report of one.
     "qc_dashboard":    SECTION_EXPLORE,
-    "analyze_plaques": SECTION_TOXO,
-    "recruitment":     SECTION_TOXO,
-    "invasion":        SECTION_TOXO,
-    "replication":     SECTION_TOXO,
+    "analyze_plaques": SECTION_ASSAYS,
+    "recruitment":     SECTION_ASSAYS,
+    "invasion":        SECTION_ASSAYS,
+    "replication":     SECTION_ASSAYS,
     # Design's first app. The section had been declared and empty since the
     # sections were named; its note ("Plan the experiment before it runs:
     # power, sample size, plate layout, controls and replicates") was
@@ -396,7 +397,11 @@ def test_every_app_carries_the_maturity_it_was_given():
     # 39 alpha since the two model-explanation stages arrived.
     # 39 -> 41 on 2026-08-17: the Volcano Explorer and the Parameter Sweep
     # were registered without any of this file's three ledgers being updated.
-    assert counts == {"alpha": 41, "beta": 9, "stable": 8}
+    # 8 -> 6 stable on 2026-08-23: Classify (CV) and Classify (ML) were
+    # removed from the registry. Both were stable, and the merged Classify
+    # screen that replaces them is the one entry now. Their entry points are
+    # untouched -- see HEADLESS_ONLY in test_app_registry_parity.
+    assert counts == {"alpha": 41, "beta": 9, "stable": 6}
 
 
 def test_no_section_is_used_that_was_never_declared():
@@ -1036,10 +1041,10 @@ def test_the_command_palette_filters_by_section_name(win, qtbot):
     from spacr.qt.command_palette import CommandPalette
     palette = CommandPalette(win)
     qtbot.addWidget(palette)
-    palette._on_filter(SECTION_TOXO)
+    palette._on_filter(SECTION_ASSAYS)
     rows = [palette._list.item(i).text()
             for i in range(palette._list.count())]
-    for name in (n for _k, n, _d, s in APPS if s == SECTION_TOXO):
+    for name in (n for _k, n, _d, s in APPS if s == SECTION_ASSAYS):
         assert any(name in r for r in rows), f"{name} not found by section"
 
 

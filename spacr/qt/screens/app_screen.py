@@ -5618,7 +5618,19 @@ class AppScreen(QWidget):
     #: rather than inferred from the count: a screen with many categories may
     #: still read better as a column, and this is a judgement about the
     #: screen and not about arithmetic.
-    SETTINGS_AS_TABS = frozenset({"measure"})
+    # EMPTY, AND THE MECHANISM STAYS. Measure was the one screen filed
+    # here, on 2026-08-19: "in measure i dont like the black categories. can
+    # we make them into measurement subtabs?" Reversed on 2026-08-23 --
+    # "the measure module settings categories are for some reason in Tabs
+    # that seem like they are cut off half way when opened. please fix this,
+    # make it normal, or the same structure as the other core modules like
+    # mask with settings categories."
+    #
+    # The set is kept rather than the code deleted: the tabs are a real
+    # answer to a real complaint about a wall of categories, and the next
+    # screen that grows one can be added here without rebuilding it. What
+    # was wrong was the tab BAR at Measure's width, not the idea.
+    SETTINGS_AS_TABS = frozenset()
 
     @staticmethod
     def _is_the_page(container, widget) -> bool:
