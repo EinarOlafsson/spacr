@@ -234,6 +234,119 @@ def _ancestors(widget: QWidget, stop: QWidget):
         parent = parent.parentWidget()
 
 
+#: How far inside an edge a press still counts as a grab, in pixels.
+#:
+#: Frameless windows have no resize handles: the ones a user reaches for
+#: belong to the title bar and the frame, and taking those away took the
+#: resize with them. This band is what puts it back, and it is wide enough
+#: to hit without aiming and narrow enough not to swallow a click on a
+#: control sitting near the edge.
+RESIZE_BAND = 6
+
+
+def _edges_at(widget, point):
+    """Which window edges ``point`` is on, as Qt edge flags (0 for none)."""
+    edges = Qt.Edge(0)
+    if point.x() <= RESIZE_BAND:
+        edges |= Qt.Edge.LeftEdge
+    elif point.x() >= widget.width() - RESIZE_BAND:
+        edges |= Qt.Edge.RightEdge
+    if point.y() <= RESIZE_BAND:
+        edges |= Qt.Edge.TopEdge
+    elif point.y() >= widget.height() - RESIZE_BAND:
+        edges |= Qt.Edge.BottomEdge
+    return edges
+
+
+def _cursor_for(edges):
+    """The pointer shape that says which way an edge will move."""
+    left = bool(edges & Qt.Edge.LeftEdge)
+    right = bool(edges & Qt.Edge.RightEdge)
+    top = bool(edges & Qt.Edge.TopEdge)
+    bottom = bool(edges & Qt.Edge.BottomEdge)
+    if (left and top) or (right and bottom):
+        return Qt.CursorShape.SizeFDiagCursor
+    if (right and top) or (left and bottom):
+        return Qt.CursorShape.SizeBDiagCursor
+    if left or right:
+        return Qt.CursorShape.SizeHorCursor
+    if top or bottom:
+        return Qt.CursorShape.SizeVerCursor
+    return None
+
+
+class _ResizeByEdge(QObject):
+    """Let a frameless window be resized by dragging its edges.
+
+    THROUGH THE WINDOW MANAGER, not by arithmetic. ``startSystemResize``
+    hands the drag to the compositor, which is what makes it feel like
+    every other window on the desktop -- it snaps, it shows the same
+    outline, and it does not fight the mask the rounded corners need.
+    Computing the geometry here instead works until the pointer moves
+    faster than the events arrive, and then the window walks away from the
+    cursor.
+
+    The cursor changes on hover so the edge is discoverable: a resize you
+    cannot see is one nobody finds.
+    """
+
+    def __init__(self, window):
+        super().__init__(window)
+        self._window = window
+        window.setMouseTracking(True)
+        window.installEventFilter(self)
+
+    def eventFilter(self, watched, event):      # noqa: N802 - Qt naming
+        # `getattr`, for the reason on `_DragByBackground`: Qt delivers to
+        # a filter whose Python attributes have already been cleared.
+        window = getattr(self, "_window", None)
+        if window is None or watched is not window:
+            return False
+        try:
+            kind = event.type()
+            if kind == QEvent.Type.MouseMove and not event.buttons():
+                edges = _edges_at(window, event.position().toPoint())
+                shape = _cursor_for(edges)
+                if shape is None:
+                    window.unsetCursor()
+                else:
+                    window.setCursor(shape)
+                return False
+            if (kind == QEvent.Type.MouseButtonPress
+                    and event.button() == Qt.MouseButton.LeftButton):
+                edges = _edges_at(window, event.position().toPoint())
+                if not edges:
+                    return False
+                handle = window.windowHandle()
+                if handle is None:
+                    return False
+                handle.startSystemResize(edges)
+                return True
+            if kind == QEvent.Type.Leave:
+                window.unsetCursor()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("the resize filter tripped", exc_info=True)
+        return False
+
+
+def let_the_user_resize(window) -> bool:
+    """Give ``window`` edge-drag resizing. True when it was installed.
+
+    Idempotent: a window that already carries the filter keeps the one it
+    has, so a dialog shown, closed and shown again does not collect two.
+    """
+    if window is None:
+        return False
+    if getattr(window, "_spacr_resizer", None) is not None:
+        return False
+    try:
+        window._spacr_resizer = _ResizeByEdge(window)
+        return True
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not make this window resizable", exc_info=True)
+        return False
+
+
 class _DragByBackground(QObject):
     """Move a frameless dialog by dragging its empty background.
 
@@ -362,6 +475,9 @@ def make_frameless(dialog: QDialog) -> bool:
         # QDialog children, of which a settings popup has none.
         _paint_nothing_behind_the_card(dialog)
         _DragByBackground(dialog)
+        # AND RESIZABLE. Dropping the frame dropped the resize grips with
+        # it, so a settings window could be moved and not resized.
+        let_the_user_resize(dialog)
         if was_showing and dialog.isHidden():
             dialog.show()
         return True
