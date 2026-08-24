@@ -3515,8 +3515,12 @@ def launch(argv: Optional[list[str]] = None) -> int:
     # dark defaults on the first launch when nothing is stored yet.
     from .preferences import apply_preferences_to_app
     apply_preferences_to_app(app)
-    from .i18n import install_dialog_translation
+    from .i18n import install_dialog_translation, install_qt_translations
     install_dialog_translation(app)
+    # AND QT'S OWN WORDS. Copy, Paste, Select All, a file dialog's whole
+    # chrome and every message box's buttons come from Qt's catalogs, not
+    # from spaCR's, so they stay English until this is loaded.
+    install_qt_translations(app)
     # EVERY POPUP GETS THE CARD AND THE RIM, from one install rather than
     # from thirty-nine edits that the fortieth dialog would miss. See
     # spacr.qt.widgets.glass.

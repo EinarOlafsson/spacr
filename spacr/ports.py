@@ -430,6 +430,29 @@ for _declaration in (_MASK_PORTS, _MEASURE_PORTS, _CLASSIFY_PORTS, _UMAP_PORTS,
                      _REGRESSION_PORTS, _ML_PORTS, _BARCODE_PORTS):
     register_module_ports(_declaration)
 
+# THE MERGED CLASSIFY IS BOTH CLASSIFIERS, so it consumes and produces
+# what either of them did. Without this the Core chain reads
+# measure -> (nothing) -> regression: `chained_app_keys` is the registry
+# intersected with the modules declared here, and the screen that took
+# over from `classify` and `ml_analyze` declared nothing.
+register_module_ports(ModulePorts(
+    key="classify_merged",
+    summary="crops or measured features to a trained classifier and "
+            "per-object scores",
+    # THE UNION OF BOTH HALVES, because the screen fits either family.
+    # The image classifier needs `png_list` to find its crops; the
+    # gradient-boosting one needs only the feature table, so requiring
+    # png_list here would report the screen as blocked on a project where
+    # it can perfectly well run.
+    consumes=(
+        Port(MEASUREMENTS_DB, "db", "measurements/measurements.db",
+             description="the feature table, and png_list when the image "
+                         "classifier is the one being fitted"),
+        Port(CROPS, "crops", "data", "**/*_png", required=False,
+             description="the crops themselves, when not read from a tar"),
+    ),
+    produces=_CLASSIFY_PORTS.produces))
+
 # The timelapse module *is* the mask pipeline with tracking on —
 # spacr.core.preprocess_generate_masks_timelapse calls
 # preprocess_generate_masks — so it has the mask pipeline's ports.

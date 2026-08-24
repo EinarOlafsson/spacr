@@ -175,8 +175,8 @@ except Exception:
 # analyze_endodyogeny via spacr.io._read_and_merge_data, both on
 # ``os.path.join(src, 'measurements/measurements.db')``.
 DB_APPS = frozenset({"umap", "ml_analyze", "regression", "recruitment",
-                     "activation", "classify", "invasion", "replication",
-                     "endodyogeny"})
+                     "activation", "classify", "classify_merged",
+                     "invasion", "replication", "endodyogeny"})
 
 # Apps that read the merged/*.npy stacks produced by the mask pipeline.
 MERGED_APPS = frozenset({"measure"})
@@ -1081,7 +1081,10 @@ def _check_required_paths(settings: Dict[str, Any], app: str) -> List[Problem]:
                     "Choose Cell, Nucleus, Pathogen or Organelle for every "
                     "mask group."))
 
-    if app == "classify":
+    # BOTH SPELLINGS. `classify_merged` is the screen that took this rule's
+    # job over; without it here, scoring a dataset with no model_path fell
+    # through to the run itself.
+    if app in ("classify", "classify_merged"):
         train = settings.get("train", settings.get("generate_training_dataset", False))
         needs_model = bool(settings.get("apply_model_to_dataset", False)) or bool(settings.get("test", False))
         if needs_model and not train:

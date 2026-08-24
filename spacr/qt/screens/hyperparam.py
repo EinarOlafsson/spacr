@@ -115,6 +115,20 @@ APP_PARAMS: Dict[str, Tuple[Tuple[str, str, str], ...]] = {
         ("epochs", "epochs", "int"),
         ("weight_decay", "weight_decay", "float"),
     ),
+    # THE MERGED SCREEN, which lost the search entirely when it took over
+    # from both classifiers -- its panel was None and there is no other
+    # door to the cross-validated search. The four Torch knobs come first
+    # because `classifier_family` defaults to the image classifier; the
+    # two gradient-boosting knobs follow, and a search that names one the
+    # selected family does not take simply leaves it at its setting.
+    "classify_merged": (
+        ("learning_rate", "learning_rate", "float"),
+        ("dropout_rate", "dropout_rate", "float"),
+        ("epochs", "epochs", "int"),
+        ("weight_decay", "weight_decay", "float"),
+        ("n_estimators", "n_estimators", "int"),
+        ("reg_alpha", "reg_alpha", "float"),
+    ),
     "ml_analyze": (
         ("learning_rate", "learning_rate", "float"),
         ("n_estimators", "n_estimators", "int"),

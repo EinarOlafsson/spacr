@@ -419,7 +419,15 @@ class SetupCard(QWidget):
             body.setAlpha(216)          # translucent: the blobs show through
             painter.setPen(Qt.NoPen)
             painter.setBrush(body)
-            painter.drawRoundedRect(rect, self._radius, self._radius)
+            # THE BODY COVERS THE WHOLE CARD, not the inset the rim is
+            # stroked on. Inset by a pixel it left a gap to whatever sits
+            # behind -- a hairline along the straight edges, but half again
+            # as wide across the diagonal of each corner, where the drifting
+            # backdrop showed through as a blue crescent on every rounded
+            # part. The rim still strokes the inset rect, so its width has
+            # somewhere to sit.
+            painter.drawRoundedRect(QRectF(self.rect()),
+                                    self._radius, self._radius)
 
             # THE RESTING RIM IS DARK GREY, not a faint white. It was the
             # foreground ink at alpha 38, which on a dark theme is a pale
