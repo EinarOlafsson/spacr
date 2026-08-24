@@ -1531,6 +1531,16 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "분할과 객체 분류에는 NVIDIA GPU 가 필요합니다. 나머지는 없어도 실행됩니다.",
         "Hlutun og flokkun hluta krefjast NVIDIA-skjákorts. Allt annað keyrir án þess.",
         "La segmentation et la classification d’objets nécessitent un GPU NVIDIA. Tout le reste fonctionne sans."),
+    "The card is there but torch cannot use it. Run spacr-doctor to find out which part of CUDA is missing.": _row(
+        "Kortet finns men torch kan inte använda det. Kör spacr-doctor för att ta reda på vilken del av CUDA som saknas.",
+        "Die Karte ist vorhanden, aber torch kann sie nicht nutzen. Führen Sie spacr-doctor aus, um herauszufinden, welcher Teil von CUDA fehlt.",
+        "La tarjeta está presente pero torch no puede usarla. Ejecuta spacr-doctor para averiguar qué parte de CUDA falta.",
+        "显卡在，但 torch 无法使用它。运行 spacr-doctor 查看缺少哪一部分 CUDA。",
+        "A placa existe mas o torch não a consegue usar. Execute spacr-doctor para descobrir que parte do CUDA falta.",
+        "कार्ड मौजूद है पर torch उसे उपयोग नहीं कर पा रहा। यह जानने के लिए कि CUDA का कौन-सा हिस्सा अनुपस्थित है, spacr-doctor चलाएँ।",
+        "카드는 있지만 torch 가 사용할 수 없습니다. CUDA 의 어느 부분이 빠졌는지 확인하려면 spacr-doctor 를 실행하세요.",
+        "Kortið er til staðar en torch getur ekki notað það. Keyrðu spacr-doctor til að sjá hvaða hluta CUDA vantar.",
+        "La carte est présente mais torch ne peut pas l’utiliser. Lancez spacr-doctor pour savoir quelle partie de CUDA manque."),
     "Compatible GPU": _row(
         "Kompatibel GPU", "Kompatible GPU", "GPU compatible", "兼容的 GPU",
         "GPU compatível", "संगत GPU", "호환되는 GPU", "Samhæft skjákort",
