@@ -168,6 +168,17 @@ GPU_REQUIREMENT = (
 GPU_YES_INK = "#3FB950"
 GPU_NO_INK = "#F85149"
 
+#: What to say when the card is there and torch cannot use it.
+#:
+#: A DIFFERENT PROBLEM FROM NO CARD, with a different fix, so it gets a
+#: different sentence. A CPU-only torch build and a driver older than the
+#: CUDA runtime torch was built against both present as "cuda not
+#: available", and `spacr-doctor` is what tells the two apart -- it exists
+#: for this case and says which one it is.
+GPU_DOCTOR_HINT = (
+    "The card is there but torch cannot use it. "
+    "Run spacr-doctor to find out which part of CUDA is missing.")
+
 #: Milliseconds the greeting takes to fade AWAY.
 #:
 #: Slower than it arrives. A word that leaves at the speed it came reads as
@@ -1296,17 +1307,26 @@ class SetupSlides(QDialog):
         GPU" on its own leaves the reader wondering whether spaCR looked.
         """
         usable, name = graphics_card()
+        hint = ""
         if name:
             verdict = _say("Compatible GPU") if usable else _say(
                 "No compatible GPU")
             line = f"{verdict} — {name}"
+            if not usable:
+                # NAMED THE CARD, SO SAY WHAT TO DO ABOUT IT. Finding an
+                # NVIDIA card that torch cannot reach is a CUDA problem,
+                # not a hardware one, and the reader should not have to
+                # guess that from a red line.
+                hint = _say(GPU_DOCTOR_HINT)
         else:
             usable = False
             line = _say("No compatible GPU — none detected")
         ink = GPU_YES_INK if usable else GPU_NO_INK
-        self._gpu_note.setText(
-            f'<div>{_say(GPU_REQUIREMENT)}</div>'
-            f'<div style="color:{ink}; font-weight:600;">{line}</div>')
+        html = [f'<div>{_say(GPU_REQUIREMENT)}</div>',
+                f'<div style="color:{ink}; font-weight:600;">{line}</div>']
+        if hint:
+            html.append(f'<div>{hint}</div>')
+        self._gpu_note.setText("".join(html))
 
     def _apply_language(self, *_args) -> None:
         """Put the chosen language into effect and redraw this screen in it.

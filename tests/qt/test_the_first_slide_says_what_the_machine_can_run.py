@@ -16,10 +16,10 @@ import pytest
 pytest.importorskip("PySide6")
 
 from spacr.qt.widgets import setup_slides
-from spacr.qt.widgets.setup_slides import (GPU_NO_INK, GPU_NOTE_BAND,
-                                           GPU_REQUIREMENT, GPU_YES_INK,
-                                           GREETING_BAND, SetupSlides,
-                                           graphics_card)
+from spacr.qt.widgets.setup_slides import (GPU_DOCTOR_HINT, GPU_NO_INK,
+                                           GPU_NOTE_BAND, GPU_REQUIREMENT,
+                                           GPU_YES_INK, GREETING_BAND,
+                                           SetupSlides, graphics_card)
 
 
 @pytest.fixture
@@ -110,3 +110,55 @@ def test_the_sentence_is_translatable(slides):
     for source in (GPU_REQUIREMENT, "Compatible GPU", "No compatible GPU"):
         assert i18n.has_translation(source), f"no catalog entry for {source!r}"
         assert i18n.tr(source, "sv") != source
+
+
+def test_a_card_torch_cannot_reach_is_sent_to_the_doctor(qtbot, tmp_path,
+                                                         monkeypatch):
+    """A CUDA problem, not a hardware one, and the reader should not have
+    to guess that from a red line.
+
+    `spacr-doctor` exists for exactly this case: a CPU-only torch build
+    and a driver older than the CUDA runtime torch was built against both
+    present as "cuda not available" and need different fixes.
+    """
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    monkeypatch.setattr(setup_slides, "graphics_card",
+                        lambda: (False, "NVIDIA GeForce RTX 3090"))
+    made = SetupSlides()
+    qtbot.addWidget(made)
+
+    text = made._gpu_note.text()
+    assert "spacr-doctor" in text
+    assert "NVIDIA GeForce RTX 3090" in text
+
+
+def test_no_card_at_all_is_not_sent_to_the_doctor(qtbot, tmp_path,
+                                                  monkeypatch):
+    """There is nothing for it to diagnose: the fix is hardware."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    monkeypatch.setattr(setup_slides, "graphics_card", lambda: (False, ""))
+    made = SetupSlides()
+    qtbot.addWidget(made)
+
+    assert "spacr-doctor" not in made._gpu_note.text()
+
+
+def test_a_working_card_is_not_sent_to_the_doctor(qtbot, tmp_path,
+                                                  monkeypatch):
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    monkeypatch.setattr(setup_slides, "graphics_card",
+                        lambda: (True, "NVIDIA GeForce RTX 3090"))
+    made = SetupSlides()
+    qtbot.addWidget(made)
+
+    assert "spacr-doctor" not in made._gpu_note.text()
+
+
+def test_the_command_it_names_is_one_that_exists():
+    """The hint is only useful if the command is real -- `spacr-doctor`,
+    which setup.py installs as a console script."""
+    import pathlib
+
+    setup = pathlib.Path(__file__).resolve().parents[2] / "setup.py"
+    assert "spacr-doctor=spacr.doctor:main" in setup.read_text()
+    assert "spacr-doctor" in GPU_DOCTOR_HINT
