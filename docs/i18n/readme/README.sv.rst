@@ -107,10 +107,6 @@ Arbetsflödet i korthet
    :width: 2.5%
    :align: middle
 
-**More core tools**
-
-|App_timelapse|\ |App_motility|\ |App_classify|\ |App_ml_analyze|\ |App_curate|
-
 **Data**
 
 |App_align|\ |App_convert|\ |App_foreign|\ |App_external_masks|\ |App_queue|
@@ -120,6 +116,8 @@ Arbetsflödet i korthet
 **Segmentation models**
 
 |App_make_masks|\ |App_train_cellpose|\ |App_cellpose_masks|\ |App_model_compare|\ |App_model_zoo|
+
+|App_curate|
 
 **Results & QC**
 
@@ -137,9 +135,11 @@ Arbetsflödet i korthet
 
 |App_layer_viewer|\ |App_graph_builder|\ |App_anndata_export|\ |App_pca|\ |App_tabulate|
 
-**Toxoplasma**
+**Assays**
 
-|App_analyze_plaques|\ |App_recruitment|\ |App_invasion|\ |App_replication|
+|App_timelapse|\ |App_motility|\ |App_analyze_plaques|\ |App_recruitment|\ |App_invasion|
+
+|App_replication|
 
 **Design**
 
@@ -154,16 +154,6 @@ Arbetsflödet i korthet
    :width: 19.9%
    :alt: Open the Motility Assay API
    :target: https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html
-   :align: middle
-.. |App_classify| image:: ../../../spacr/resources/icons/workflow/apps/classify.png
-   :width: 19.9%
-   :alt: Open the Classify (CV) API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
-   :align: middle
-.. |App_ml_analyze| image:: ../../../spacr/resources/icons/workflow/apps/ml_analyze.png
-   :width: 19.9%
-   :alt: Open the Classify (ML) API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
    :align: middle
 .. |App_curate| image:: ../../../spacr/resources/icons/workflow/apps/curate.png
    :width: 19.9%

@@ -4,20 +4,6 @@
   "records": [
     {
       "table": "setting_tooltips",
-      "key": "barcode_coordinates",
-      "source_sha256": "3668db9d4c3209437d75ad94a9740ce3ae9c7ed5308e08e0a54cd8f96dbdaab0",
-      "source": "Intended to give the start/stop offsets of each barcode inside the read, but nothing reads settings['barcode_coordinates']. The pipeline slices the read from target_sequence, offset_start and the per-barcode lengths instead. Kept only so old settings CSVs still load. No default is set: no set_default_* function fills this key, so it is absent unless an old settings CSV supplies it.",
-      "translation": "原本用于给出读段中每个条形码的起止偏移量，但没有代码读取 settings['barcode_coordinates']。流水线实际根据 target_sequence、offset_start 和各条形码长度切分读段。保留此项只是为了让旧设置 CSV 仍可加载。它没有默认值：没有 set_default_* 函数填充此键，因此除非旧设置 CSV 提供它，否则该键不存在。"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "barcode_mapping",
-      "source_sha256": "ab06a04ab47e716a5ff2715f46954997f99d49a27cadfadd4cf06a9a17d41b49",
-      "source": "Inert: declared here but read by nothing in spaCR. The barcode-mapping pipeline takes its references from the separate grna_csv, row_csv and column_csv path settings, which sequencing.generate_barecode_mapping actually loads. Kept only so old settings CSVs still load. No default is set: no set_default_* function fills this key, so it is absent unless an old settings CSV supplies it.",
-      "translation": "当前不起作用：此处虽有声明，但 spaCR 中没有代码读取它。条形码映射流水线使用独立的 grna_csv、row_csv 和 column_csv 路径设置作为参考，sequencing.generate_barecode_mapping 实际加载的也是这些设置。保留此项只是为了让旧设置 CSV 仍可加载。它没有默认值：没有 set_default_* 函数填充此键，因此除非旧设置 CSV 提供它，否则该键不存在。"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "barcodes",
       "source_sha256": "4c3125b0f047a36722c65324a73341a7ceadd869f97ffbd9d0fe80610e96b1b4",
       "source": "Path to a CSV of screen/plate barcodes for the legacy barcode-mapping helper. Nothing in the current code reads this key: get_map_barcodes_default_settings, the only place it is defined, is never called by any pipeline, so setting it has no effect. The live equivalents consumed by generate_barecode_mapping are row_csv, column_csv and grna_csv.",
@@ -81,24 +67,10 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "compression",
-      "source_sha256": "4b0d7231cc42d8757ad42eed502ec5bb5a314b2927e5df6174dc7e2e76c1c898",
-      "source": "Legacy and currently inert: nothing in spaCR reads this key. The two preprocessing defaults set it to 'lzw' and the GUI offers lzw/zlib/none, but the live segmentation path writes masks as uint16 .npy via np.save, so no mask TIFF is ever produced and changing this setting changes nothing. The only functions that take a compression argument, io.save_object_mask and mask_io.save_mask (which hardcodes 'lzw'), are never called from anywhere in the package, and the sequencing HDF5 writer uses comp_type/comp_level instead. Leave it at its 'lzw' default.",
-      "translation": "旧版且当前不起作用：spaCR 中没有代码读取此键。两个预处理默认设置将其设为 'lzw'，GUI 提供 lzw/zlib/none，但当前分割路径通过 np.save 将掩模写为 uint16 .npy，因此不会产生掩模 TIFF，更改此设置也不会产生任何影响。仅有的两个接受 compression 参数的函数 io.save_object_mask 和 mask_io.save_mask（后者硬编码为 'lzw'）在包内从未被调用；测序 HDF5 写入器则改用 comp_type/comp_level。请保留默认值 'lzw'。"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "control_sgrnas",
       "source_sha256": "f71352dc4eb3fabb845ed087a5343d68618c8d99a34ce16f5cc905ba6c5418e8",
       "source": "gRNA names treated as controls when the mixed-condition fraction is computed; every fraction is measured relative to these. A wrong or incomplete list shifts every fraction on the plate in the same direction rather than raising, so check it against the library. Default None.",
       "translation": "计算混合条件比例时视为对照的 gRNA 名称；每个比例都相对于这些对照计算。错误或不完整的列表不会抛出异常，而是会使微孔板上的所有比例向同一方向偏移，因此请对照文库核验。默认值为 None。"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "correlate",
-      "source_sha256": "fafca6c74c5f325bb95eefe07a8ec4c374fd1b43ebbb731d75dc6cdf52924a04",
-      "source": "Intended to add pairwise correlations between selected measurements to the analysis output, but nothing reads settings['correlate']. Channel/activation correlations are controlled by the separate 'correlation' setting in the activation-map path. Kept only so old settings CSVs still load. No default is set: no set_default_* function fills this key, so it is absent unless an old settings CSV supplies it.",
-      "translation": "原本用于把所选测量值之间的成对相关性加入分析输出，但没有代码读取 settings['correlate']。图像数据通道/激活相关性由激活图路径中的独立 'correlation' 设置控制。保留此项只是为了让旧设置 CSV 仍可加载。它没有默认值：没有 set_default_* 函数填充此键，因此除非旧设置 CSV 提供它，否则该键不存在。"
     },
     {
       "table": "setting_tooltips",

@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "label": "spacr.legacy_tk.gui_elements.spacrSwitch.toggle#0",
+      "source_sha256": "691ea0f35c9978023b8e3632ecdd757abfdaee4d9fc91dc81c1bfb9deb381f01",
+      "source": "Flip the bound variable, animate the knob, and fire ``command``.",
+      "context": "Flip the bound variable, animate the knob, and fire ``command``.",
+      "translation": "翻转绑定的变量，让滑块产生动画，并触发 ``command``。"
+    },
+    {
+      "label": "spacr.qt.widgets.flow.FlowLayout.addItem#0",
+      "source_sha256": "b325b1e45736312aa3eca2e81c66de411aac294ef959ac2113aea861a1a5ee9b",
+      "source": "Append a layout item (Qt calls this for every added widget).",
+      "context": "Append a layout item (Qt calls this for every added widget).",
+      "translation": "追加一个布局项（Qt 会为每个添加的控件调用此方法）。"
+    },
+    {
+      "label": "spacr.qt.widgets.provider_marks.gemini_path#0",
+      "source_sha256": "a9f38012496757c525e138c4b2e71b026489053ae182aabdcf53736d626684af",
+      "source": "A four-pointed spark: a diamond with concave sides.",
+      "context": "A four-pointed spark: a diamond with concave sides.",
+      "translation": "四角星芒：一个四边内凹的菱形。"
+    },
+    {
+      "label": "spacr.qt.widgets.provider_marks.gpt_path#0",
+      "source_sha256": "9de5889252b76ebad6e138c022c351da9d30ddb447f78abd03dcc1d210bccb62",
+      "source": "A six-fold knot: six lobes on a common ring, drawn as one outline.",
+      "context": "A six-fold knot: six lobes on a common ring, drawn as one outline.",
+      "translation": "六重结：同一圆环上的六个花瓣，以一条轮廓线绘制。"
+    }
+  ]
+}

@@ -2868,9 +2868,10 @@ def test_localized_readme_images_have_reviewed_accessible_text():
             encoding="utf-8"
         )
         alt_text = re.findall(r"(?m)^   :alt: (.+)$", text)
-        # Thirteen badges, 58 linked applications, four installer/archive
-        # icons and five resource icons.
-        assert len(alt_text) == 80
+        # Thirteen badges, 56 linked applications, four installer/archive
+        # icons and five resource icons. It was 58 applications until
+        # Classify CV and Classify ML became the one merged Classify.
+        assert len(alt_text) == 78
         assert all(
             module in alt
             for module, alt in zip(
@@ -2883,14 +2884,14 @@ def test_localized_readme_images_have_reviewed_accessible_text():
         )
         assert all(
             alt.startswith("Open the ") and alt.endswith(" API")
-            for alt in alt_text[13:71]
+            for alt in alt_text[13:69]
         )
         assert "Interactive tutorials" not in alt_text
         assert "Latest installers" not in alt_text
 
         # The download icons carry the only text a screen reader gets for
         # them, so it has to be this language's own, not English left behind.
-        installers = alt_text[71:75]
+        installers = alt_text[69:73]
         for platform, alt in zip(("Windows", "macOS", "Linux"), installers[:3]):
             assert platform in alt, (
                 f"{language}: {alt!r} is not the {platform} download icon")
@@ -2898,7 +2899,7 @@ def test_localized_readme_images_have_reviewed_accessible_text():
         assert not any(alt.startswith("Download spaCR") for alt in installers), (
             f"{language} kept the canonical English download alt text")
 
-        resources = alt_text[75:80]
+        resources = alt_text[73:78]
         assert all(any(name in alt for name in (
             "BioStudies", "Hugging Face", "NCBI", "spaCRPower", "bioRxiv"
         )) for alt in resources)

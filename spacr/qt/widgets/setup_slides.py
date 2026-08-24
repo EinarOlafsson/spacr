@@ -167,6 +167,22 @@ def greeting_for(code: str) -> str:
     return GREETINGS.get(str(code or ""), GREETINGS["en"])
 
 
+def _say(text: str, **values) -> str:
+    """Translate one caption, falling back to the English it was given.
+
+    A local shim rather than a module-level `from ..i18n import tr`: this
+    module is imported during application start-up, before the language
+    preference has necessarily been read, so the lookup happens per call.
+    """
+    try:
+        from ..i18n import tr
+
+        return tr(text, **values)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("no translation available", exc_info=True)
+        return text.format(**values) if values else text
+
+
 def _let_go_of(process) -> None:
     """Detach a still-running `gh` from a dialog that is being destroyed.
 
@@ -518,7 +534,7 @@ class SetupSlides(QDialog):
             if mark is not None:
                 self._light_the_github_mark(mark, mark.READY)
             self._gh_status.setText(
-                self.GITHUB_SOURCES.get(source, "signed in"))
+                _say(self.GITHUB_SOURCES.get(source, "signed in")))
             if mark is not None:
                 mark.setToolTip(
                     f"You are {self.GITHUB_SOURCES.get(source, 'signed in')}."
@@ -540,9 +556,9 @@ class SetupSlides(QDialog):
                     "installed, clicking this signs you in. Without it, "
                     "filing an issue still works -- it opens in whichever "
                     "browser you are already signed in to.")
-            self._gh_status.setText(
+            self._gh_status.setText(_say(
                 "the GitHub CLI is not installed — reports open in your "
-                "browser")
+                "browser"))
             self._gh_action = "install"
             return
 
@@ -552,7 +568,8 @@ class SetupSlides(QDialog):
                 "Runs `gh auth login`, the GitHub CLI's own browser "
                 "sign-in. GitHub stores the credential; spaCR never sees "
                 "it.")
-        self._gh_status.setText("not signed in — reports open in your browser")
+        self._gh_status.setText(
+            _say("not signed in — reports open in your browser"))
         self._gh_action = "login"
 
     @staticmethod
@@ -641,11 +658,11 @@ class SetupSlides(QDialog):
             LOG.debug("gh auth login would not start", exc_info=True)
             started = False
         if not started:
-            self._gh_status.setText(
-                "`gh auth login` would not start — run it in a terminal")
+            self._gh_status.setText(_say(
+                "`gh auth login` would not start — run it in a terminal"))
             return False
         self._gh_process = process
-        self._gh_status.setText("starting GitHub sign-in…")
+        self._gh_status.setText(_say("starting GitHub sign-in…"))
         # The logo stays live while `gh` runs. There is no second control to
         # disable now, and disabling the only one would leave a user whose
         # browser never opened with nothing to click.
@@ -679,7 +696,8 @@ class SetupSlides(QDialog):
             opened = self._open_in_the_browser(self.GITHUB_DEVICE_PAGE)
             where = ("your browser" if opened
                      else self.GITHUB_DEVICE_PAGE)
-            self._gh_status.setText(f"enter {code} in {where}")
+            self._gh_status.setText(
+                _say("enter {code} in {where}", code=code, where=where))
             # AND ANSWER THE PROMPT `gh` is sitting on, so it proceeds to
             # poll GitHub. Without this it waits on Enter forever.
             try:
@@ -762,6 +780,13 @@ class SetupSlides(QDialog):
             box.setCurrentIndex(index if index >= 0 else 0)
             if key == "language":
                 box.currentIndexChanged.connect(self._say_hello)
+                # AND THE WHOLE SCREEN CHANGES LANGUAGE WITH IT. Reported
+                # 2026-08-23: "language in the startup is also not
+                # implemented (other than english...)". A screen whose
+                # first question is the language and which then goes on
+                # asking the rest of them in English is asking the user to
+                # take the setting on faith.
+                box.currentIndexChanged.connect(self._apply_language)
             if key in ("theme", "colour_blind"):
                 # APPLIED AS CHOSEN, for the same reason the greeting is:
                 # the only way to know a look took is to see it.
@@ -1183,6 +1208,49 @@ class SetupSlides(QDialog):
             0, int(card.height() * GREETING_BAND), card.width(), height)
         self._greeting.raise_()
 
+    def _apply_language(self, *_args) -> None:
+        """Put the chosen language into effect and redraw this screen in it.
+
+        The preference is written NOW rather than on accept, because
+        everything that renders text after this point -- the rest of the
+        slides, the tooltips, any dialog the screen opens -- reads the
+        stored language rather than being handed one.
+        """
+        box = self._editors.get("language")
+        if box is None:
+            return
+        code = str(box.currentData() or "")
+        if not code:
+            return
+        try:
+            from .. import preferences as prefs
+
+            prefs.set_language(code)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not store the language", exc_info=True)
+        self.retranslate()
+
+    def retranslate(self) -> None:
+        """Redraw every caption on this screen in the current language.
+
+        Through the catalog walker rather than through a `tr()` at each
+        call site: this screen builds its slides from tables, and a walker
+        that remembers each widget's English source can switch from
+        Swedish to Korean without translating a translation.
+        """
+        try:
+            from ..i18n import retranslate_widget_tree
+
+            retranslate_widget_tree(self)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not retranslate the setup screen",
+                      exc_info=True)
+        # THE TITLE AND THE BLURB ARE COMPOSED, so the walker sees the
+        # composition rather than the sentence, and the slide has to put
+        # them back itself.
+        self._show_slide(self._index)
+        self._say_hello()
+
     def _apply_look(self, key: str) -> None:
         """Put the theme or colour-blind choice into effect immediately."""
         from ..setup_screen import questions
@@ -1206,8 +1274,11 @@ class SetupSlides(QDialog):
         closing = index == len(SLIDES) - 1
         self._title.setVisible(not closing)
         self._blurb.setVisible(not closing)
-        self._title.setText(f"<b>{title}</b>")
-        self._blurb.setText(blurb)
+        # TRANSLATED HERE, not in the table. SLIDES holds the English the
+        # catalog is keyed on; a slide re-shown after the language changes
+        # picks up the new rendering because this runs again.
+        self._title.setText(f"<b>{_say(title)}</b>")
+        self._blurb.setText(_say(blurb))
         # THE GREETING BELONGS TO THE LANGUAGE SLIDE and nowhere else: a
         # "Hello" left standing over the theme question is a word with no
         # job on that page.
@@ -1216,10 +1287,11 @@ class SetupSlides(QDialog):
         # anything that leaves that moment behind.
         if index != 0:
             self._fade_the_greeting_away()
-        self._where.setText(f"{index + 1} of {len(SLIDES)}")
+        self._where.setText(
+            _say("{n} of {total}", n=index + 1, total=len(SLIDES)))
         self._back.setEnabled(index > 0)
-        self._next.setText("Start spaCR" if index == len(SLIDES) - 1
-                           else "Next ›")
+        self._next.setText(_say("Start spaCR") if index == len(SLIDES) - 1
+                           else _say("Next ›"))
         # A LEFTOVER FADE IS DROPPED WHETHER OR NOT A NEW ONE STARTS. The
         # effect belongs to the page STACK, not to a page, so one still
         # running when the slide changes again leaves the new page wearing

@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "records": [
+    {
+      "label": "spacr.legacy_tk.gui_elements.spacrButton.on_enter#0",
+      "source_sha256": "791ac83673993750f8421c00cf09432b74b7cc7ce617332775e47ec44ea9d154",
+      "source": "Fade to the active color, show description, and zoom in the icon.",
+      "context": "Fade to the active color, show description, and zoom in the icon.",
+      "translation": "Transita para a cor ativa, mostra a descrição e amplia o ícone."
+    }
+  ]
+}
