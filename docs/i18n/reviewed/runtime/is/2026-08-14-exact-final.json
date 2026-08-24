@@ -11,13 +11,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "compression",
-      "source_sha256": "4b0d7231cc42d8757ad42eed502ec5bb5a314b2927e5df6174dc7e2e76c1c898",
-      "source": "Legacy and currently inert: nothing in spaCR reads this key. The two preprocessing defaults set it to 'lzw' and the GUI offers lzw/zlib/none, but the live segmentation path writes masks as uint16 .npy via np.save, so no mask TIFF is ever produced and changing this setting changes nothing. The only functions that take a compression argument, io.save_object_mask and mask_io.save_mask (which hardcodes 'lzw'), are never called from anywhere in the package, and the sequencing HDF5 writer uses comp_type/comp_level instead. Leave it at its 'lzw' default.",
-      "translation": "Eldri stilling sem er nú óvirk: ekkert í spaCR les þennan lykil. Tvær sjálfgefnar forvinnslustillingar setja hann á 'lzw' og GUI býður lzw/zlib/none, en virka hlutunarleiðin skrifar grímur sem uint16 .npy með np.save. Engin grímu-TIFF skrá er því búin til og breyting á stillingunni hefur engin áhrif. Einu föllin sem taka compression viðfang, io.save_object_mask og mask_io.save_mask, sem festir 'lzw', eru hvergi kölluð í pakkanum; HDF5-skrifari raðgreiningar notar comp_type/comp_level í staðinn. Hafðu sjálfgefna gildið 'lzw'."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "grna_csv",
       "source_sha256": "e2a331afcfbb8bc68667976014fd817f9b1441f9099ce2a118862524a40df282",
       "source": "CSV mapping gRNA barcode sequences to gRNA names; it must have 'sequence' and 'name' columns. Reads are matched verbatim with no reverse-complementing, so orientation must match the reads (barecodes_reverse_complement flips a file). Rows whose gRNA does not match are written as NA and dropped from the counts. Default: the bundled spacr/resources/data/grna_barcodes.csv.",

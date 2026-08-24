@@ -420,19 +420,26 @@ class SettingsSearchBar(QWidget):
 
     def _compose_count(self, shown: int, total: int,
                        essentials: int) -> str:
+        # COMPOSED FROM TRANSLATED PARTS. The catalog is keyed on the
+        # sentence with its numbers as placeholders; a line built out of
+        # f-strings first and looked up after matches nothing, and this
+        # line sits under every settings panel in the program.
+        from .i18n import tr
+
         if shown == total:
             if self._level == ESSENTIALS and essentials:
-                return f"Showing all {total} settings."
-            return f"{total} settings."
-        parts = [f"Showing {shown} of {total} settings"]
+                return tr("Showing all {total} settings.", total=total)
+            return tr("{total} settings.", total=total)
+        parts = [tr("Showing {shown} of {total} settings",
+                    shown=shown, total=total)]
         if self._level == ESSENTIALS and essentials:
-            parts.append(
-                f"{total - essentials} more under All settings")
+            parts.append(tr("{n} more under All settings",
+                            n=total - essentials))
         if self._modified.isChecked():
-            parts.append("modified only")
+            parts.append(tr("modified only"))
         if shown == 0:
-            return ("No setting matches. Clear the search box, or switch to "
-                    "All settings.")
+            return tr("No setting matches. Clear the search box, or switch "
+                      "to All settings.")
         return " — ".join(parts) + "."
 
 

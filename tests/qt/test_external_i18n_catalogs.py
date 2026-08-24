@@ -24,6 +24,11 @@ API_EXACT_TEXT_ALLOWLIST = {
     "spacr.qt.settings_search.SettingsSearchBar.level",
     "spacr.qt.widgets.dose_response.DoseResponseResult.status",
     "spacr.qt.widgets.formula.Unary",
+    # "``'glow'``, ``'rainbow'`` or ``'beat'``" -- three literals, one
+    # conjunction, and nothing else to translate. Admitted when the API
+    # catalogs were regenerated on 2026-08-23; the docstring is older
+    # than that and was simply never in a rebuilt catalog before.
+    "spacr.qt.widgets.setup_card.SetupCard.mode",
     "spacr.qt.widgets.plate_layout.PlateDesign.shape",
     "spacr.resources.home.versions._generators.common.app_map",
     "spacr.run_compare.HitList.by_key",

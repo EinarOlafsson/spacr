@@ -648,7 +648,21 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # Nothing retired: every name above is new, and the four functions whose
     # behaviour changed -- `choose_model`, `apply_model`, `shap_analysis`,
     # `build_surrogate_frame` -- kept their signatures.
-    expected = 8220
+    # +12/-0 on 2026-08-23 for the spatial distances and the grouped
+    # navigation: `spacr.object_distances` itself with `object_distances`,
+    # `between_object_types`, `maxima_distances`, `local_maxima`,
+    # `intensity_centre_offset`, `surface_distance_transform` and
+    # `interior_distance_transform`; `Sidebar.section_is_open`,
+    # `toggle_section` and `eventFilter`, which are how a dock section
+    # opens; and `SetupSlides.retranslate`, which is how the setup screen
+    # redraws itself in the language just chosen. Nothing retired.
+    #
+    # AND 32 THAT WERE ALREADY OWED. Measured on the commit before this
+    # pass, the surface was 8252 against a ratchet reading 8220: earlier
+    # commits admitted names in this comment and did not move the number.
+    # It is moved to the MEASURED total here rather than to 8220+12, so
+    # the count means what it says again.
+    expected = 8264
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -663,7 +677,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8339
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8383
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:

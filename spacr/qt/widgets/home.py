@@ -1562,11 +1562,18 @@ class HomePage(QWidget):
 
         self._section_names = [title for title, _e in self._categories]
 
+        # THE NAME AND THE COUNT ARE TRANSLATED SEPARATELY. The catalog is
+        # keyed on "Core", not on "Core  (6)", so composing first and
+        # translating after finds nothing and leaves the one part of the
+        # Home screen that is a proper noun in English.
+        from ..i18n import tr
+
         self._tabs.addTab(self._build_home_tab(),
-                          f"Home  ({len(self._apps)})")
+                          f"{tr('Home')}  ({len(self._apps)})")
         for section, entries in self._categories:
-            self._tabs.addTab(self._build_category_tab(section, entries),
-                              _escape_amp(f"{section}  ({len(entries)})"))
+            self._tabs.addTab(
+                self._build_category_tab(section, entries),
+                _escape_amp(f"{tr(section)}  ({len(entries)})"))
         return self._tabs
 
     # -- tab 1: everything ---------------------------------------------
