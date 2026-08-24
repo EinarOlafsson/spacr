@@ -1,4 +1,11 @@
-"""Coverage-fill for cli_repro, __init__, __main__, logging_util."""
+"""Coverage-fill for cli_repro, __init__, __main__, logging_util.
+
+The ``__main__`` dispatch tests changed subject with the interface. Every
+window subcommand used to import its own Tk launcher module and call it;
+those modules are gone and each subcommand now opens the Qt application on
+one tab, so the tests assert the tab key that ``main`` hands to
+``spacr.qt.run`` instead of the launcher it used to call.
+"""
 from __future__ import annotations
 
 import json
@@ -36,14 +43,19 @@ def test_unknown_attr_raises():
 # ---------------------------------------------------------------------------
 
 def test_main_make_masks_command(monkeypatch):
-    # make-masks command path (lines 90-91).
+    """``make-masks`` opens the Qt application on the make_masks tab."""
     import spacr.__main__ as M
-    called = {}
-    import spacr.app_make_masks as AMM
-    monkeypatch.setattr(AMM, "start_make_mask_app",
-                        lambda: called.setdefault("ran", True))
+    import spacr.qt as QT
+    seen = {}
+
+    def _fake_run(argv=None):
+        seen["argv"] = list(argv or [])
+        return 0
+
+    monkeypatch.setattr(QT, "run", _fake_run)
     rc = M.main(["make-masks"])
-    assert rc == 0 and called.get("ran")
+    assert rc == 0
+    assert seen["argv"] == ["make_masks"]
 
 
 def test_main_unknown_command_errors(monkeypatch):
@@ -185,23 +197,58 @@ def test_timer_noop_when_not_started(monkeypatch, caplog):
 
 import pytest as _pytest
 
-@_pytest.mark.parametrize("command,module,fn", [
-    ("gui", "spacr.gui", "gui_app"),
-    ("mask", "spacr.app_mask", "start_mask_app"),
-    ("measure", "spacr.app_measure", "start_measure_app"),
-    ("classify", "spacr.app_classify", "start_classify_app"),
-    ("annotate", "spacr.app_annotate", "start_annotate_app"),
-    ("sequencing", "spacr.app_sequencing", "start_seq_app"),
-    ("umap", "spacr.app_umap", "start_umap_app"),
-])
-def test_main_each_command_dispatches(command, module, fn, monkeypatch):
-    import importlib
+#: subcommand -> the argv ``main`` must hand to ``spacr.qt.run``.
+#:
+#: ``gui`` names no tab, so it passes nothing and the window opens on Home;
+#: every other command names the tab that replaced its Tk launcher.
+_COMMAND_TABS = [
+    ("gui", []),
+    ("mask", ["mask"]),
+    ("measure", ["measure"]),
+    ("classify", ["classify_merged"]),
+    ("annotate", ["annotate"]),
+    ("sequencing", ["map_barcodes"]),
+    ("umap", ["umap"]),
+    ("make-masks", ["make_masks"]),
+]
+
+
+@_pytest.mark.parametrize("command,expected_argv", _COMMAND_TABS)
+def test_main_each_command_opens_its_tab(command, expected_argv, monkeypatch):
+    """Every window subcommand reaches the Qt app on the right screen."""
     import spacr.__main__ as M
-    mod = importlib.import_module(module)
-    called = {}
-    monkeypatch.setattr(mod, fn, lambda *a, **k: called.setdefault("x", 1))
+    import spacr.qt as QT
+    seen = {}
+
+    def _fake_run(argv=None):
+        seen["argv"] = list(argv or [])
+        return 0
+
+    monkeypatch.setattr(QT, "run", _fake_run)
     rc = M.main([command])
-    assert rc == 0 and called.get("x") == 1
+    assert rc == 0
+    assert seen["argv"] == expected_argv
+
+
+@_pytest.mark.parametrize(
+    "expected_argv", [a for _c, a in _COMMAND_TABS if a])
+def test_every_command_tab_is_a_real_app_screen(expected_argv):
+    """A tab key with no screen behind it opens the window on Home instead,
+    which looks to the user exactly like the subcommand being ignored."""
+    from spacr.qt.app import APPS
+
+    keys = {entry[0] for entry in APPS}
+    assert expected_argv[0] in keys
+
+
+def test_main_returns_the_exit_code_the_gui_returns(monkeypatch):
+    """``python -m spacr`` is what a job script waits on, so a GUI that exits
+    non-zero has to reach the shell as a non-zero status."""
+    import spacr.__main__ as M
+    import spacr.qt as QT
+
+    monkeypatch.setattr(QT, "run", lambda argv=None: 3)
+    assert M.main(["mask"]) == 3
 
 
 def test_init_lazy_submodule_import():

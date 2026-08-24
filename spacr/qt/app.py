@@ -737,8 +737,20 @@ _BUILTIN_APPS = [
     # mask by hand. It carried Train Cellpose's description verbatim, which
     # is the app directly below it.
     ("make_masks",     "Make Masks",     "Correct a mask by hand: brush, flood fill, relabel, fill, remove small",  SECTION_MODELS),
-    ("train_cellpose", "Train Cellpose", "Train custom Cellpose models",                                SECTION_MODELS),
-    ("cellpose_masks", "Cellpose Masks", "Cellpose mask generation",                                    SECTION_MODELS),
+    # ONE CELLPOSE SCREEN. Train Cellpose and Cellpose Masks are the two
+    # halves of one loop -- fine-tune a model on a few labelled fields, run
+    # it over the rest of the folder, correct what it got wrong, train
+    # again -- and they sat two rows apart with nothing in either line
+    # saying which to open, two rows from "Mask", which does a different
+    # job under a name that reads like the second one.
+    #
+    # BOTH KEYS ARE STILL REAL: the tabs keep them apart, `spacr-run
+    # train_cellpose` and `spacr-run cellpose_masks` run the same entry
+    # points, and a settings file for either still loads. What went is the
+    # second front door, not the second module.
+    ("train_cellpose", "Cellpose Workbench",
+     "Fine-tune a Cellpose model on your own labelled fields, then segment "
+     "a folder of images with it or with a stock model",                    SECTION_MODELS),
     ("model_compare",  "Model Compare",  "Two Cellpose models on the same fields: masks side by side, object-count and ARI deltas", SECTION_MODELS),
     ("model_zoo",      "Model Zoo",      "Browse, verify, download and bench Cellpose + classifier models on three of your fields", SECTION_MODELS),
     # -- Results & QC: look at what came out, decide whether to believe it,
@@ -810,7 +822,6 @@ APP_STAGE = {
     # -- beta: further along, in regular use, still not signed off (9)
     "make_masks":      STAGE_BETA,
     "train_cellpose":  STAGE_BETA,
-    "cellpose_masks":  STAGE_BETA,
     "timelapse":       STAGE_BETA,
     "motility":        STAGE_BETA,
     "analyze_plaques": STAGE_BETA,
@@ -3180,6 +3191,17 @@ class MainWindow(QMainWindow):
         if key == "make_masks":
             from .screens.make_masks import MakeMasksScreen
             return MakeMasksScreen()
+        if key == "train_cellpose":
+            # WRITTEN OUT RATHER THAN CALLING THE MODULE'S OWN FACTORY:
+            # tests/qt/test_all_module_smoke.py reads this method's
+            # bytecode for the `self._on_*` slots it wires, and a factory
+            # call hides them from it.
+            from .screens.train_cellpose import CellposeWorkbenchScreen
+            screen = CellposeWorkbenchScreen()
+            screen.error_explain_requested.connect(self._on_explain_error)
+            screen.remote_submit_requested.connect(
+                self._on_remote_submit_requested)
+            return screen
         if key == "queue":
             from .screens.queue import QueueScreen
             screen = QueueScreen()
@@ -3621,7 +3643,7 @@ def launch(argv: Optional[list[str]] = None) -> int:
     def _prewarm():
         try:
             import importlib
-            for mod in ("spacr.settings", "spacr.gui_utils"):
+            for mod in ("spacr.settings",):
                 importlib.import_module(mod)
         except Exception:
             LOG.debug("Could not prewarm GUI settings imports", exc_info=True)

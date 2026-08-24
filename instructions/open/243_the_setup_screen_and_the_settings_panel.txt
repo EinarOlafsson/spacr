@@ -1,0 +1,124 @@
+================================================================================
+THE SETUP SCREEN, THE SETTINGS PANEL, AND THE FIGURE EXPORT
+================================================================================
+
+Status:    OPEN on four items. The rest are done and recorded here so the
+           record is complete. Requested 2026-08-23 and 2026-08-24, across
+           many messages.
+Owner:     spacr/qt -- setup slides, preferences, the picture settings
+           dialog, the figure save dialog; spacr/ml.py for the intercept.
+
+--------------------------------------------------------------------------------
+STILL OPEN
+--------------------------------------------------------------------------------
+
+1. TERMS OF USE ON THE STARTUP SCREEN                        <-- NOT STARTED
+
+   "in startup spacr there should be a terms of use section the user has
+   to agree to."
+
+   A slide, or a section of one, carrying the terms, with an agreement the
+   user gives before setup can complete. It has to be RECORDED -- an
+   agreement nobody can look up afterwards is not one -- and the recording
+   belongs beside the other setup answers, with the version of the terms
+   that was agreed to, so a later change to the terms is a new agreement
+   rather than a silent one.
+
+   Note what must not happen: the Next button on that slide cannot simply
+   be disabled with no explanation. A control that does nothing and says
+   nothing is the thing the provider marks were reported for.
+
+2. THE SETTINGS WINDOW IN TABS                               <-- NOT STARTED
+
+   "divide the settings into tabs in the settings window."
+
+   The Cells-tab picture settings dialog is one long form. The module
+   screens group their settings into categories; this should do the same.
+
+3. PERCENTILES AS TWO FIELDS                                 <-- NOT STARTED
+
+   "percentiles shouldnt need to be in brackets, there should be one
+   setting wit two fields one for low % and 1 for high %."
+
+   The setting takes a bracketed pair today, typed as text. Two numeric
+   fields under one label, and the pair is assembled from them -- a user
+   typing `[1, 99]` into a text box is a user who can type `[1 99]` and
+   get an error from a parser instead of a picture.
+
+4. THE MONTAGE CAP AT 10,000                                 <-- NOT STARTED
+
+   "set the cap to 10000 images."
+
+   The Cells tab caps a montage at 300 objects. Raise it. Check what 10,000
+   crops does to the page count and the memory before calling it done: the
+   cap exists because a montage of everything was unusable, so the number
+   moving is a decision about where that limit now sits, not the removal
+   of one.
+
+--------------------------------------------------------------------------------
+DONE, FOR THE RECORD
+--------------------------------------------------------------------------------
+
+THE SETUP SCREEN
+  * one rounded translucent surface, with nothing square behind it;
+  * Hello moved up a row and fades out over a band the next page leaves
+    empty;
+  * three spaCR modes, described by what they hold;
+  * clicking a provider starts its sign-in, and offers the install page
+    when the CLI is absent; brand fill means ready, hover gives the brand
+    tint, muted ink means not installed;
+  * the GitHub sign-in opens the default browser at the device page and
+    shows the one-time code; the LOGO is the button, and it takes the
+    theme's own ink when a token is reachable -- white on dark;
+  * the language applies as it is chosen and redraws the screen in it;
+  * the first slide says segmentation and object classification need an
+    NVIDIA GPU, and names the card in green or red. A card that is present
+    but unreachable is sent to `spacr-doctor`, because that is a CUDA
+    problem and not a hardware one. First slide only;
+  * the last slide says "Done" and, under it, "Welcome to spaCR".
+
+THE WINDOWS
+  * frameless, with minimise / full screen / close top right, and the MARK
+    changes colour rather than a plate behind it: red x, blue square, blue
+    minus. The x spans the same box as the square;
+  * every popup is cut to the card's shape with a rounded mask, so no
+    compositor can leave a square corner;
+  * the resting rim is the palette's dark grey and every card lights the
+    same fraction of it, measured against the first-run window;
+  * the edges resize, handed to the window manager, because dropping the
+    frame dropped the grips;
+  * the menu bar lights its words in the accent on hover and press, and is
+    re-laid on a window-state change so a menu opens under the word that
+    was pressed.
+
+THE SETTINGS PANEL
+  * every Preferences row carries its tooltip ON THE LABEL, never on the
+    field, filled from one table and moved there by one pass over the
+    finished dialog -- so a row added later is covered without the author
+    having to remember the rule.
+
+THE CELLS TAB AND THE FIGURES
+  * three crop sources: load images, stream (array), stream (database).
+    The array route reads an object's label out of a mask plane and can
+    follow the outline; the database route reads its row in the
+    measurements table and can only cut the recorded box, and the panel
+    says so rather than offering a shape it cannot cut;
+  * the object types cover the four organelle roles, which had no
+    coordinate column and so could not be streamed at all;
+  * three fields map each colour to an array plane, so planes 1, 2 and 4
+    of a five-plane array are a mapping rather than a slice, and a blank
+    field means that colour is not drawn;
+  * crops fill their row instead of stopping at a hard-coded 96 px;
+  * the save dialog's preview is drawn on the page the FILE gets, and the
+    dialog offers aspect ratio, line width, an absolute text size and both
+    axis titles, all defaulting to "as drawn".
+
+THE REGRESSION
+  * the intercept is a choice in four states: fitted, zero (through the
+    origin), control (the response centred on the negative controls, so
+    the intercept IS the control level), and value (pinned at a number the
+    user gives, by shifting the response AND suppressing the term).
+    THE SETTINGS ENTRY AND THE PANEL CONTROL ARE STILL TO COME -- the
+    engine takes it, the form does not offer it yet;
+  * rank refuses a continuous column as a grouping, by name, and names the
+    thin groups once instead of one line per pair.

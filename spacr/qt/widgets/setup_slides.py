@@ -56,10 +56,11 @@ SLIDES: Tuple[Tuple[str, str, Tuple[str, ...]], ...] = (
      "What may leave this machine, and under whose name. Nothing is ever "
      "sent without you seeing it first and pressing send yourself.",
      ("issue_prompt", "share_logs")),
-    ("Done",
-     "That is everything. All of it is in Preferences if you change your "
-     "mind.",
-     ()),
+    # THE LAST SLIDE SAYS TWO THINGS AND NO MORE. "Done" is the answer to
+    # the six questions; "Welcome to spaCR" is what the screen is for. The
+    # paragraph that used to sit here explained where the settings live,
+    # which is a thing to find out when you go looking, not on the way in.
+    ("Done", "Welcome to spaCR", ()),
 )
 
 #: A localized greeting for every language offered on the language slide.

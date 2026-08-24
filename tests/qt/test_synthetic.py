@@ -579,8 +579,13 @@ def test_classify_demo_crops_live_where_the_dataset_builder_looks(tmp_path: Path
 
 def test_classify_demo_model_type_is_a_real_torchvision_model(tmp_path: Path):
     """model_type is handed to torchvision. 'cnn' is not a model name, and the
-    Classify screen's combo offers only names from this list."""
-    from spacr.gui_utils import _torchvision_model_names
+    Classify screen's combo offers only names from this list.
+
+    Reached through ``spacr.gui_utils`` while that module re-exported it;
+    imported from ``spacr.settings_spec``, which defines it, now that the Tk
+    module is deleted.
+    """
+    from spacr.settings_spec import _torchvision_model_names
     settings = syn.demo_settings("classify", str(tmp_path))
     assert settings["model_type"] in _torchvision_model_names()
 

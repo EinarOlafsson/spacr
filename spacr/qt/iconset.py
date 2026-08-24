@@ -638,7 +638,6 @@ _NAME_TO_GLYPH = {
     "analyze_plaques": "fa5s.microscope",
     "train_cellpose":  "fa5s.brain",
     "cellpose_masks":  "fa5s.shapes",
-    "cellpose_all":    "fa5s.th",
     # One square divided into four by its own seams: tiles registered into
     # a single canvas. Align & Stitch renders this glyph rather than a
     # bundled PNG (spacr.qt.app._FORCE_GLYPH) because no bundled artwork

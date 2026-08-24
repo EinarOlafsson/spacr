@@ -668,15 +668,12 @@ setup(
     install_requires=dependencies,
     entry_points={
         'console_scripts': [
-            'mask=spacr.app_mask:start_mask_app',
-            'measure=spacr.app_measure:start_measure_app',
-            'make_masks=spacr.app_make_masks:gui_make_masks',
-            'annotate=spacr.app_annotate:start_annotate_app',
-            'classify=spacr.app_classify:start_classify_app',
-            # 'sim=spacr.app_sim:gui_sim' removed: spacr/app_sim.py does not
-            # exist, so the installed `sim` command died with ImportError.
-            # Simulations run headless via `spacr-run simulation`.
-            # New Qt GUI is the default
+            # THE FIVE TK LAUNCHERS ARE GONE with the interface they
+            # opened: `mask`, `measure`, `make_masks`, `annotate` and
+            # `classify` each started a Tkinter window that the Qt
+            # application replaced screen for screen. Every one of them is
+            # a tab in `spacr` now, and `spacr-run <module>` is the
+            # headless route.
             'spacr=spacr.qt:run',
             'spacr-qt=spacr.qt:run',
             'spacr-nightly=spacr.qt:run',
@@ -712,10 +709,6 @@ setup(
             # file is sound. One line per check, a copyable fix on every line
             # that is not PASS, and a non-zero exit so CI can gate on it.
             'spacr-doctor=spacr.doctor:main',
-            # Classic Tk GUI remains available under new names
-            'spacr-tk=spacr.gui:gui_app',
-            'spacr-legacy=spacr.gui:gui_app',
-            'spaceout=spacr.gui:gui_app',
         ],
     },
     extras_require={

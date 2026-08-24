@@ -11,11 +11,15 @@
    followed by ``spacr``, but PySide6 lives in the ``qt`` extra, so that
    recipe ends in a bare ``ModuleNotFoundError``.
 
-Deliberately free of Qt and Tk imports so it runs on a core-only install.
+Deliberately free of Qt imports so it runs on a core-only install.
+
+ONE TEST IS GONE. The Tk startup screen's logo button opened the same
+library from a ``TUTORIALS_URL`` constant in ``legacy_tk/gui.py``, and that
+file is deleted -- the Qt help menu, asserted below from the source of
+``spacr/qt/app.py``, is the only place the link is now published from.
 """
 from __future__ import annotations
 
-import ast
 import re
 from pathlib import Path
 
@@ -42,17 +46,6 @@ def _scanned_sources():
     yield REPO_ROOT / "README.rst"
 
 
-def _module_constant(path: Path, name: str):
-    """Read a module-level string constant without importing the module."""
-    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
-    for node in tree.body:
-        if isinstance(node, ast.Assign):
-            for target in node.targets:
-                if isinstance(target, ast.Name) and target.id == name:
-                    return ast.literal_eval(node.value)
-    raise AssertionError(f"{path.name} has no module-level {name}")
-
-
 # --- the link ------------------------------------------------------------
 
 def test_nothing_links_to_the_404_singular_tutorial_path():
@@ -66,11 +59,6 @@ def test_nothing_links_to_the_404_singular_tutorial_path():
         "these link to a GitHub Pages 404 (the published path is "
         f"{LIVE_URL}):\n" + "\n".join(offenders)
     )
-
-
-def test_the_tk_gui_logo_button_opens_the_lesson_library():
-    """`spacr/gui.py` — the legacy Tk startup screen's logo button."""
-    assert _module_constant(PACKAGE / "legacy_tk" / "gui.py", "TUTORIALS_URL") == LIVE_URL
 
 
 def test_the_qt_gui_help_menu_targets_the_lesson_library():

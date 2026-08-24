@@ -821,6 +821,24 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "cytoplasm",
             "timelapse", "timelapse_objects",
         )),
+        # Illumination correction sits between the mapping and the features
+        # because that is where it runs: it rewrites the pixels every
+        # intensity feature below is then computed from. The Illumination
+        # screen spreads these across four tabs -- correction model, field
+        # sampling, QC, failure handling -- which is the right shape when
+        # estimating a field is the whole job. Inside Measure it is one
+        # decision with its details attached, so it is one section.
+        #
+        # `src` and `channels`, the other two keys the estimate reads, are
+        # not repeated here: Measure already offers them above, and the
+        # estimate deliberately reads the same fields the run measures.
+        ("Illumination Correction", (
+            "illumination_correction", "illumination_model",
+            "illumination_estimator", "illumination_degree",
+            "illumination_dark",
+            "illumination_per_plate", "illumination_max_fields",
+            "illumination_qc", "illumination_on_missing",
+        )),
         ("Measurement Features", (
             "save_measurements", "calculate_correlation",
             # Instruction 71's two opt-in measurements. They were added to
@@ -2652,6 +2670,15 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "Where the report is written and whether figures are drawn and kept. "
         "Leave saving off while you are still deciding which checks matter "
         "for this library.",
+    # Measure's single illumination heading. The Illumination screen's four
+    # tabs keep their own blurbs below; this one covers all of them, because
+    # under Measure they are one section.
+    "ILLUMINATION CORRECTION":
+        "Whether the microscope's uneven lighting is estimated from these "
+        "fields and divided out before any intensity is measured, and how "
+        "that estimate is made and checked. Turn it on when the same cell "
+        "measures differently depending on where in the field it sat; "
+        "leaving it off keeps that bias in every intensity feature.",
     # -- Illumination ------------------------------------------------------
     "CORRECTION MODEL":
         "How the uneven lighting field is estimated and removed — the family "

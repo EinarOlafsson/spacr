@@ -15,9 +15,13 @@ Fixtures provided:
     synth_masks_multi  dict of cell/nucleus/pathogen label masks
     synth_measurements pandas DataFrame with typical spacr columns
     synth_sqlite_db    file-backed sqlite with a minimal spacr schema
-    dark_style         style_out dict returned by set_dark_style() with
-                       a hidden Tk root; scope='function' to keep Tk
-                       state fresh across tests.
+
+Two fixtures are gone with the Tkinter interface. `dark_style` returned
+``spacr.gui_elements.set_dark_style(...)``, whose module is deleted, and
+`tk_root` handed out a hidden ``tkinter.Tk`` that only Tk widgets ever
+needed. Nothing spaCR ships draws through Tk any more, so a test that wants
+a live widget builds a Qt one -- see `tests/qt/` and the `qtbot` fixture
+pytest-qt provides.
 """
 from __future__ import annotations
 
@@ -40,15 +44,17 @@ if str(_REPO_ROOT) not in sys.path:
 os.environ.setdefault("MPLBACKEND", "Agg")
 
 # ---------------------------------------------------------------------------
-# Pre-empt display-touching imports before any test imports a spacr.gui*
-# module. Three culprits open the X display at IMPORT time:
+# Pre-empt display-touching imports. Three packages open the X display at
+# IMPORT time and throw Xlib.error.DisplayConnectionError in a display-less
+# subprocess run:
 #   * mouseinfo (transitive via pyautogui)
 #   * pyautogui itself (Linux backend probes the display)
-#   * screeninfo.get_monitors (used at module load in gui.py, gui_utils.py,
-#     gui_elements.py)
-# In display-less subprocess pytest runs, each of these throws
-# Xlib.error.DisplayConnectionError. Stub them all with no-op modules so
-# spacr.gui_* can be imported and their non-GUI code paths still tested.
+#   * screeninfo.get_monitors
+# The spacr modules that pulled them in at module load -- gui.py,
+# gui_utils.py, gui_elements.py -- are deleted, so nothing spaCR ships
+# reaches them now. The stubs stay because a test module, or a dependency
+# one of them imports, can still name any of the three, and a no-op module
+# is cheaper than an import that has to be guarded at every call site.
 # ---------------------------------------------------------------------------
 import types as _types
 
@@ -742,42 +748,6 @@ def check_cellpose_eval_call(x, channel_axis=MISSING_CHANNEL_AXIS, *,
             np.asarray(image), channel_axis=axis, z_axis=z_axis,
             do_3D=(do_3D or stitch_threshold > 0)))
     return converted
-
-
-# ---------------------------------------------------------------------------
-# GUI / Tk fixtures
-# ---------------------------------------------------------------------------
-
-@pytest.fixture
-def tk_root():
-    """A hidden Tk root; skips if there is no display available."""
-    import tkinter as tk
-    try:
-        root = tk.Tk()
-    except tk.TclError as e:
-        pytest.skip(f"no display available for Tk: {e}")
-    root.withdraw()
-    yield root
-    try:
-        root.destroy()
-    except Exception:
-        pass
-
-
-@pytest.fixture
-def dark_style(tk_root):
-    """The style_out dict returned by set_dark_style().
-
-    Skips cleanly if spacr.gui_elements can't be imported (which happens
-    when pyautogui's Xlib import fails in a display-less subprocess run)."""
-    from tkinter import ttk
-    try:
-        from spacr.gui_elements import set_dark_style
-    except Exception as e:
-        if "DisplayConnection" in type(e).__name__ or "Xauthority" in str(e):
-            pytest.skip(f"spacr.gui_elements needs a display: {e}")
-        raise
-    return set_dark_style(ttk.Style(), parent_frame=None)
 
 
 # ---------------------------------------------------------------------------

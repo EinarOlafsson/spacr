@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-229 done / 4 open (98%).
+230 done / 5 open (97%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -27,14 +27,17 @@ OPEN
   237  EVERY CORE MODULE DRIVEN ON REAL DATA, AND FULLY TESTED
        237_every_core_module_driven_on_real_data.txt
 
-  238  THE SETUP WINDOW, THE STARTUP NOISE, AND THE PROVIDER LOGINS
-       238_setup_window_and_startup_polish.txt
-
   239  GRAPH TYPE ON EVERY PLOT, THE CELL TAB, AND ONE CROP FROM THREE METHODS
        239_regression_graphs_streaming_and_the_cell_tab.txt
 
   240  THE GUI PASS: NAVIGATION, WINDOW CHROME, AND THE LANGUAGE
        240_the_gui_pass.txt
+
+  242  THE MODULE CONSOLIDATION: SEVENTEEN TILES BECOME BUTTONS
+       242_the_module_consolidation.txt
+
+  243  THE SETUP SCREEN, THE SETTINGS PANEL, AND THE FIGURE EXPORT
+       243_the_setup_screen_and_the_settings_panel.txt
 
 --------------------------------------------------------------------------------
 DONE
@@ -268,4 +271,5 @@ DONE
   234  THE SETUP SCREEN IS A SEQUENCE OF SLIDES, NOT A FORM
   235  TWO TESTS FAIL ON AN UNLUCKY ORDER, AND THE SUITE HIDES IT
   236  CLASSIFY AND REGRESSION, AUDITED EXHAUSTIVELY AGAINST A REAL SCREEN
+  238  THE SETUP WINDOW, THE STARTUP NOISE, AND THE PROVIDER LOGINS
   241  EVERY DISTANCE WORTH MEASURING, WITHIN AND BETWEEN OBJECTS

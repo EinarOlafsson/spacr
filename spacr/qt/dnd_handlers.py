@@ -19,13 +19,13 @@ Handler map (also read by ``get_handler``):
 | map_barcodes    | folder with FASTQ; also a raw .fastq.gz drop          |
 | umap            | folder with ``measurements/measurements.db``          |
 | ml_analyze      | ditto                                                 |
-| regression      | ditto — the database attaches to a PLATE ROW          |
+| regression      | ditto — the database attaches to a PLATE ROW; the     |
+|                 | sweep card also takes score / gRNA count CSVs         |
 | recruitment     | folder with per-well recruitment CSVs                 |
 | activation      | folder with saved activation maps or the CV model dir |
 | analyze_plaques | folder with plaque images                             |
 | train_cellpose  | folder with image+mask pairs                          |
 | cellpose_masks  | folder with images                                    |
-| cellpose_all    | ditto                                                 |
 | other modules   | an existing source folder or supported data file      |
 +-----------------+-------------------------------------------------------+
 
@@ -1194,6 +1194,25 @@ def _measurement_database(path: Path) -> Optional[Path]:
     return None
 
 
+def _sweep_panel(screen):
+    """The widget holding the sweep's score/count list pair, or None.
+
+    The sweep is reached two ways: as the panel itself, and as the card the
+    Regression screen builds from the same factory and keeps on ``_sweep``.
+    Resolved by looking for the two list widgets rather than by app key, so
+    the card answers wherever it is hosted -- the panel has no registry row of
+    its own any more, and a drop that only knew the standalone spelling would
+    find nothing to fill.
+    """
+    for candidate in (screen, getattr(screen, "_sweep", None)):
+        if candidate is None:
+            continue
+        if (getattr(candidate, "score_data", None) is not None
+                and getattr(candidate, "count_data", None) is not None):
+            return candidate
+    return None
+
+
 class SweepInputsDropHandler(DropHandler):
     """Route dropped CSVs into Parameter Sweep's score and count lists.
 
@@ -1232,10 +1251,10 @@ class SweepInputsDropHandler(DropHandler):
     def apply(self, path: Path, screen) -> None:
         from .widgets.file_list import side_for_header
 
-        score = getattr(screen, "score_data", None)
-        count = getattr(screen, "count_data", None)
-        if score is None or count is None:
+        panel = _sweep_panel(screen)
+        if panel is None:
             raise TypeError("Parameter Sweep has no score/count inputs.")
+        score, count = panel.score_data, panel.count_data
         tables = self._tables(path)
         if not tables:
             raise ValueError(self.error_message(path))
@@ -1244,6 +1263,50 @@ class SweepInputsDropHandler(DropHandler):
             target = count if side == "count" else score
             target.add_paths([str(table)])
             _log(screen, f"[drop] parameter_sweep {side} += {table}\n")
+
+
+class RegressionDropHandler(MeasurementsDropHandler):
+    """Regression's drop: a database to a plate row, CSVs to the sweep card.
+
+    Regression takes its measurements one row per plate, which is what
+    :class:`MeasurementsDropHandler` already does. It ALSO carries the
+    parameter sweep as a card, and that card takes the sweep's two CSV lists
+    -- per-object scores and gRNA counts -- which a measurements handler
+    rejects outright because they are not ``measurements.db``.
+
+    Both halves have to answer at one drop target. The sweep no longer has a
+    tile of its own, so the Regression screen is the ONLY place its inputs can
+    be dropped; without this, a dropped sweep bundle got "needs a plate folder
+    with measurements/measurements.db" and filled nothing.
+
+    The database shape is tried first: it is the screen's own input, and a
+    ``measurements.db`` is never one of the sweep's CSV lists, so the two
+    cannot compete for the same path.
+    """
+
+    def accepts_multiple(self) -> bool:
+        # The sweep half takes many CSVs at once, which is the gesture the
+        # card exists for -- one plate's scores and counts arrive together.
+        return True
+
+    def can_accept(self, path: Path) -> bool:
+        return (super().can_accept(path)
+                or bool(SweepInputsDropHandler._tables(path)))
+
+    def error_message(self, path: Path) -> str:
+        return ("Regression needs a plate folder with "
+                "measurements/measurements.db, or the parameter sweep's "
+                "per-object score / gRNA count CSVs.")
+
+    def apply(self, path: Path, screen) -> None:
+        if super().can_accept(path):
+            super().apply(path, screen)
+            return
+        if _sweep_panel(screen) is None:
+            raise TypeError("Regression has no parameter-sweep inputs.")
+        # Handed the HOST, not the card: the sweep handler resolves the panel
+        # itself, and the console the drop reports to is the host's.
+        SweepInputsDropHandler().apply(path, screen)
 
 
 class ExplainCvInputsDropHandler(DropHandler):
@@ -2291,14 +2354,15 @@ _HANDLERS = {
     "map_barcodes":    MapBarcodesDropHandler,
     "umap":            MeasurementsDropHandler,
     "ml_analyze":      MeasurementsDropHandler,
-    "regression":      MeasurementsDropHandler,
+    # Not MeasurementsDropHandler: the screen also hosts the sweep card, whose
+    # CSV inputs a measurements-only handler turns away. See the class.
+    "regression":      RegressionDropHandler,
     "recruitment":     MeasurementsDropHandler,
     "activation":      MeasurementsDropHandler,
     "invasion":        MeasurementsDropHandler,
     "analyze_plaques": MakeMasksDropHandler,      # plaque images
     "train_cellpose":  MakeMasksDropHandler,      # image + mask pairs
     "cellpose_masks":  MakeMasksDropHandler,
-    "cellpose_all":    MakeMasksDropHandler,
     "db_browser":      DatabaseDropHandler,
     "foreign":         ForeignProjectDropHandler,
     "align":           AlignDropHandler,
@@ -2348,6 +2412,9 @@ _HANDLERS = {
     "distributed_jobs": SubmissionSettingsDropHandler,
     "explain_cv":       ExplainCvInputsDropHandler,
     "investigate_hit":  InvestigateHitInputsDropHandler,
+    # Kept although the sweep has no tile any more: the handler is still the
+    # one that fills the card, reached through RegressionDropHandler, and
+    # get_handler("parameter_sweep") stays a working way to ask for it.
     "parameter_sweep":  SweepInputsDropHandler,
 }
 

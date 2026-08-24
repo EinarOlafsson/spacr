@@ -47,10 +47,11 @@ timeout and a 20 s ``urlopen`` timeout, so the worst case it replaced was
 
 ``first module open`` was not threaded, it was *deleted*. The 429 ms it lost
 was ``import spacr.gui_utils``, reached for one pure-Python function; that
-function now lives in ``spacr.settings_spec``, which imports nothing. An
-import is usually removable and work usually is not, so the first question
-about any stall here is which of the two it is. Threading a 3 s import off
-the GUI thread still costs the memory and still makes the user wait.
+function lives in ``spacr.settings_spec``, which imports nothing, and
+``gui_utils`` has since gone with the rest of the Tk interface. An import is
+usually removable and work usually is not, so the first question about any
+stall here is which of the two it is. Threading a 3 s import off the GUI
+thread still costs the memory and still makes the user wait.
 """
 from __future__ import annotations
 
@@ -713,8 +714,8 @@ def test_a_wedged_worker_cannot_hold_the_annotate_window_open(qtbot,
 
 # -- 3. the import that was deleted rather than threaded -------------------
 
-def test_opening_a_module_does_not_import_the_tk_interface(qtbot):
-    """The Qt settings panel must not reach ``spacr.gui_utils``.
+def test_opening_a_module_does_not_import_the_heavy_stack(qtbot):
+    """The Qt settings panel must not reach the expensive modules.
 
     It wanted one function, ``convert_settings_dict_for_gui``, which is a
     hundred lines of dictionary lookups. Reaching it through ``gui_utils``
@@ -722,6 +723,12 @@ def test_opening_a_module_does_not_import_the_tk_interface(qtbot):
     cv2, tkinter, huggingface_hub, requests, PIL, screeninfo -- for 770 ms
     on the GUI thread, and that was the whole remaining cost of opening the
     first module.
+
+    ``spacr.gui_utils`` has left the probe list because the module is
+    deleted: a name that cannot be imported by anything can only ever be
+    absent, which makes it a check that passes for the wrong reason. The
+    costs it used to drag in are each still named, so the same 770 ms cannot
+    return through a different import.
 
     Asserting on ``sys.modules`` rather than on a duration, because the
     duration is what CI is bad at measuring and the import is the actual
@@ -740,8 +747,9 @@ def test_opening_a_module_does_not_import_the_tk_interface(qtbot):
         "from spacr.qt.screens.settings_model import SettingsWidgets\n"
         "SettingsWidgets('mask').build_sections()\n"
         "import sys\n"
-        "print(','.join(m for m in ('spacr.gui_utils', 'spacr.utils',"
-        " 'torch', 'cv2', 'IPython', 'tkinter') if m in sys.modules))\n"
+        "print(','.join(m for m in ('spacr.utils', 'torch', 'cv2',"
+        " 'IPython', 'tkinter', 'matplotlib.pyplot', 'huggingface_hub',"
+        " 'requests', 'screeninfo') if m in sys.modules))\n"
     )
     out = subprocess.run([_sys.executable, "-c", code], capture_output=True,
                          text=True, timeout=600)
@@ -777,17 +785,23 @@ def test_the_settings_spec_module_imports_nothing_expensive():
         f"importing spacr.settings_spec took {float(elapsed) * 1000:.0f} ms")
 
 
-def test_gui_utils_still_exports_the_function_it_used_to_own():
-    """The Tk interface and every existing caller are unaffected."""
-    from spacr.gui_utils import (_TORCHVISION_MODELS_CURATED,
-                                 _torchvision_model_names,
-                                 convert_settings_dict_for_gui)
-    from spacr import settings_spec
+def test_settings_spec_owns_the_function_it_inherited():
+    """What moved out of ``gui_utils`` is all still there.
 
-    assert convert_settings_dict_for_gui is \
-        settings_spec.convert_settings_dict_for_gui
-    assert _torchvision_model_names is settings_spec._torchvision_model_names
+    This reached the three names through ``spacr.gui_utils``, which
+    re-exported them so that the Tk interface and every existing caller were
+    unaffected by the move. That module is deleted, and the names are
+    asserted where they actually live -- which is the point the move was
+    made for.
+    """
+    from spacr.settings_spec import (_TORCHVISION_MODELS_CURATED,
+                                     _torchvision_model_names,
+                                     convert_settings_dict_for_gui)
+
+    assert callable(convert_settings_dict_for_gui)
+    assert callable(_torchvision_model_names)
     assert "resnet50" in _TORCHVISION_MODELS_CURATED
+    assert set(_TORCHVISION_MODELS_CURATED) <= set(_torchvision_model_names())
     assert convert_settings_dict_for_gui({"epochs": 10}) == \
         {"epochs": ("entry", None, 10)}
 

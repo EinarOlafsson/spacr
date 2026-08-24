@@ -2,13 +2,14 @@
 
 spaCR resolves an app key to a pipeline function in three independent places:
 
-  * ``spacr.qt.bridge.resolve_pipeline_entry``   — the Qt GUI
-  * ``spacr.gui_utils.run_function_gui``         — the Tk GUI
+  * ``spacr.qt.bridge.resolve_pipeline_entry``   — the GUI
   * ``spacr.validate.APP_FUNCTIONS``             — pre-flight validation
   * ``spacr.cli.MODULES``                        — the headless runner
 
 and the settings panel is built from a fourth,
-``spacr.qt.screens.settings_model.resolve_default_settings``.
+``spacr.qt.screens.settings_model.resolve_default_settings``. A fifth,
+``gui_utils.run_function_gui``, went with the Tk interface; it is named
+here only because the divergence below is easier to read with it in view.
 
 When the dispatch and the panel disagree, the user is shown settings that are
 silently ignored. That is what happened to ``classify``: the Qt panel was built

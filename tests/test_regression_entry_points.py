@@ -1,11 +1,14 @@
 """Regression -- the step that produces the hits -- must start from every entry point.
 
 ``spacr.ml.perform_regression`` is the last step of the pooled-screen pipeline.
-All three dispatchers build its settings dict from one function:
+Both dispatchers build its settings dict from one function:
 
-  * Tk  -- ``gui_core.setup_settings_panel``            (settings_type 'regression')
-  * Qt  -- ``qt.screens.settings_model.resolve_default_settings('regression')``
+  * GUI -- ``qt.screens.settings_model.resolve_default_settings('regression')``
   * CLI -- ``cli.module_defaults(MODULES['regression'])``
+
+A third, ``gui_core.setup_settings_panel`` with ``settings_type ==
+'regression'``, went with the Tk interface, and the test that read it out of
+that file's source is gone with it.
 
 and every one of them called ``get_perform_regression_default_settings``, which
 returned 37 keys while ``perform_regression`` indexed six it did not supply --
@@ -460,16 +463,6 @@ def test_the_qt_panel_resolves_the_same_defaults():
     assert set(resolve_default_settings(APP_KEY)) == set(_defaults())
 
 
-def test_the_tk_panel_resolves_the_same_defaults():
-    """Read from source: importing gui_core needs a Tk display."""
-    import spacr.gui_core
-
-    source = inspect.getsource(spacr.gui_core.setup_settings_panel)
-    assert ("settings_type == 'regression'" in source
-            or 'settings_type == "regression"' in source)
-    assert "get_perform_regression_default_settings(settings={})" in source
-
-
 def test_the_resolved_dict_passes_its_own_pre_flight():
     """Stock defaults must not be reported as a problem by the CLI's own check.
 
@@ -490,7 +483,7 @@ def test_the_resolved_dict_passes_its_own_pre_flight():
 
 
 # ---------------------------------------------------------------------------
-# 2b. the Tk panel coerces the two newly-typed shapes correctly
+# 2b. check_settings coerces the two newly-typed shapes correctly
 # ---------------------------------------------------------------------------
 #
 # ``check_settings`` walks ``expected_types`` and parses each widget's raw

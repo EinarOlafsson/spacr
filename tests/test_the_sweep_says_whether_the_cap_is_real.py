@@ -14,6 +14,12 @@ container, a bare SSH session with no user manager — runs uncontained, and the
 one thing it must not do is let the user believe otherwise. A user who thinks
 a cap exists and is wrong is in a WORSE position than one who knows there is
 none: they will start the sweep that took the desktop down.
+
+The two Qt tests below build ``AppScreen("regression")``. They used to name a
+compound ``"ml_analyze_regression"`` key, which no module ever registered, so
+it reached the sweep only because the guards happened to list it beside the
+real key; ``"regression"`` is the app that actually owns the sweep card and it
+satisfies these assertions identically.
 """
 from __future__ import annotations
 
@@ -78,7 +84,7 @@ def test_the_sweep_panel_puts_it_on_screen(qtbot, monkeypatch):
 
     from spacr.qt.screens.app_screen import AppScreen
 
-    screen = AppScreen("ml_analyze_regression")
+    screen = AppScreen("regression")
     qtbot.addWidget(screen)
     panel = getattr(screen, "_sweep", None)
     assert panel is not None, "the screen built no parameter-sweep card"
@@ -100,7 +106,7 @@ def test_an_uncontained_machine_is_marked_as_a_warning(qtbot, monkeypatch):
 
     from spacr.qt.screens.app_screen import AppScreen
 
-    screen = AppScreen("ml_analyze_regression")
+    screen = AppScreen("regression")
     qtbot.addWidget(screen)
     panel = getattr(screen, "_sweep", None)
     assert panel is not None, "the screen built no parameter-sweep card"

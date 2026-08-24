@@ -1,133 +1,93 @@
-"""``set_dark_style`` → ``apply_theme``: the rename, and its alias.
+"""``set_dark_style`` → ``apply_theme``: the rename, finished.
 
-The Tk GUI calls the styling helper from ~40 places across
-``gui.py``, ``gui_core.py``, ``gui_utils.py`` and ``gui_elements.py``
-itself, and those modules sit in single digits of test coverage. The
-rename is therefore additive: ``apply_theme`` is the name, and
-``set_dark_style`` still works and still returns exactly what its
-callers destructure.
+The Tk GUI called its styling helper from ~40 places across ``gui.py``,
+``gui_core.py``, ``gui_utils.py`` and ``gui_elements.py`` itself, and those
+modules sat in single digits of test coverage. The rename was therefore
+additive: ``apply_theme`` was the name, and ``set_dark_style`` kept working
+and kept returning exactly what its callers destructured.
+
+THE ALIAS AND ITS TESTS ARE GONE. ``gui_elements`` is deleted, so there is no
+``set_dark_style`` left to forward, no signature to match against
+``apply_theme``, and no Tk palette dict to destructure — the five tests that
+asserted those things had no subject to point at. What replaced them is
+narrower and true of the code that ships: the old name appears nowhere, and
+the palette that survived the rename is ``spacr.qt.theme.palette_for``, which
+answers every theme with the same keys.
+
+The two tests about naming — no "dark/light mode" language now that there are
+four themes, and ``color_blind_mode`` being a different thing — are unchanged.
 """
 from __future__ import annotations
 
-import inspect
+import pathlib
 
-import pytest
+import spacr
 
-
-def _gui_elements():
-    try:
-        import spacr.gui_elements as ge
-    except Exception as exc:
-        if "DisplayConnection" in type(exc).__name__ or "Xauthority" in str(exc):
-            pytest.skip(f"spacr.gui_elements needs a display: {exc}")
-        raise
-    return ge
+_PACKAGE_ROOT = pathlib.Path(spacr.__file__).parent
 
 
-class TestRename:
-    def test_apply_theme_is_the_name(self):
-        ge = _gui_elements()
-        assert callable(ge.apply_theme)
-        assert ge.apply_theme.__name__ == "apply_theme"
+class TestRenameIsFinished:
+    def test_the_old_name_appears_nowhere(self):
+        """A forwarding alias only helps while something forwards to it."""
+        offenders = []
+        for path in sorted(_PACKAGE_ROOT.rglob("*.py")):
+            text = path.read_text(encoding="utf-8", errors="replace")
+            if "set_dark_style" in text:
+                offenders.append(str(path.relative_to(_PACKAGE_ROOT)))
+        assert not offenders, (
+            f"set_dark_style is back in {offenders}; the helper it named was "
+            "deleted with the Tk interface")
 
-    def test_set_dark_style_still_exists_and_forwards(self):
-        ge = _gui_elements()
-        assert callable(ge.set_dark_style)
-        assert "apply_theme" in ge.set_dark_style.__doc__
-
-    def test_alias_forwards_to_whatever_apply_theme_is(self, monkeypatch):
-        """Forwarding, not a rebinding — so patching one patches both."""
-        ge = _gui_elements()
-        seen = {}
-
-        def fake(style, **kwargs):
-            seen["style"] = style
-            seen["kwargs"] = kwargs
-            return {"bg_color": "#123456"}
-
-        monkeypatch.setattr(ge, "apply_theme", fake)
-        out = ge.set_dark_style("STYLE", font_size=9)
-        assert out == {"bg_color": "#123456"}
-        assert seen["style"] == "STYLE"
-        assert seen["kwargs"] == {"font_size": 9}
-
-    def test_signatures_match(self):
-        ge = _gui_elements()
-        sig = inspect.signature(ge.apply_theme)
-        assert list(sig.parameters) == [
-            "style", "parent_frame", "containers", "widgets",
-            "font_family", "font_size", "bg_color", "fg_color",
-            "active_color", "inactive_color",
-        ]
+    def test_the_scan_would_notice(self):
+        """The scan above passes trivially if it reads no files."""
+        scanned = list(_PACKAGE_ROOT.rglob("*.py"))
+        assert len(scanned) > 100, f"only scanned {len(scanned)} files"
 
 
-class TestAliasBehaviour:
-    """Both names must return the palette dict callers destructure."""
+class TestThePaletteThatSurvived:
+    """`palette_for` is what callers destructure now, and every theme
+    answers with the same keys — a theme missing one renders a widget with
+    an empty colour string, which Qt draws black on black."""
 
     EXPECTED_KEYS = {
-        "font_loader", "font_family", "font_size", "font_sizes",
-        "bg_color", "fg_color", "active_color", "inactive_color",
-        "border_color", "muted_color", "success_color", "warning_color",
-        "error_color", "spacing",
+        "bg", "fg", "fg_dim", "fg_muted", "accent", "border",
+        "surface", "surface_alt", "error", "warning", "success", "info",
     }
 
-    def test_set_dark_style_returns_what_its_callers_expect(self, tk_root):
-        from tkinter import ttk
-        ge = _gui_elements()
-        out = ge.set_dark_style(ttk.Style())
-        assert self.EXPECTED_KEYS.issubset(out)
-        assert out["bg_color"] == "#000000"
-        assert out["fg_color"] == "#ffffff"
-        assert set(out["spacing"]) == {"xs", "sm", "md", "lg", "xl"}
+    def test_every_theme_answers_with_the_same_keys(self):
+        from spacr.qt.theme import THEMES, palette_for
 
-    def test_both_names_return_the_same_thing(self, tk_root):
-        from tkinter import ttk
-        ge = _gui_elements()
-        assert ge.set_dark_style(ttk.Style()) == ge.apply_theme(ttk.Style())
+        assert len(THEMES) >= 3, "the rename was made because there are many"
+        reference = set(palette_for(THEMES[0]))
+        assert self.EXPECTED_KEYS.issubset(reference)
+        for theme in THEMES[1:]:
+            assert set(palette_for(theme)) == reference, (
+                f"theme {theme!r} is missing "
+                f"{sorted(reference - set(palette_for(theme)))}")
 
-    def test_custom_colours_still_pass_through_the_alias(self, tk_root):
-        from tkinter import ttk
-        ge = _gui_elements()
-        ge._cached_dark_style = None
-        try:
-            out = ge.set_dark_style(ttk.Style(), parent_frame=tk_root,
-                                    bg_color="#101010", fg_color="#eeeeee")
-            assert out["bg_color"] == "#101010"
-            assert out["fg_color"] == "#eeeeee"
-        finally:
-            ge._cached_dark_style = None
+    def test_the_themes_are_not_all_the_same_palette(self):
+        """One palette repeated under four names would satisfy the test above."""
+        from spacr.qt.theme import palette_for
+
+        assert palette_for("dark")["bg"] != palette_for("light")["bg"]
+
+    def test_every_colour_is_a_colour(self):
+        from spacr.qt.theme import THEMES, palette_for
+
+        for theme in THEMES:
+            for key, value in palette_for(theme).items():
+                assert isinstance(value, str) and value.strip(), (
+                    f"{theme}.{key} is {value!r}, which Qt reads as no colour")
 
 
-class TestCallSitesUseTheNewName:
-    """The modules this task owns should say `apply_theme`."""
-
-    @pytest.mark.parametrize("module", ["gui", "gui_core", "app_make_masks"])
-    def test_no_stale_call_sites(self, module):
-        import pathlib
-        import spacr
-        # The Tk GUI lives in its own subpackage now; the shim at the old
-        # path carries the names but not the source these assertions read.
-        path = (pathlib.Path(spacr.__file__).parent / "legacy_tk"
-                / f"{module}.py")
-        source = path.read_text(encoding="utf-8")
-        assert "set_dark_style" not in source, \
-            f"{module}.py still calls set_dark_style"
-        assert "apply_theme" in source
-
+class TestNaming:
     def test_no_user_facing_mode_language_left(self):
-        """"Dark mode" stopped being accurate at three themes."""
-        import pathlib
-        import spacr
-        root = pathlib.Path(spacr.__file__).parent
+        """"Dark mode" stopped being accurate at four themes."""
         offenders = []
-        for path in sorted(root.rglob("*.py")):
+        for path in sorted(_PACKAGE_ROOT.rglob("*.py")):
             text = path.read_text(encoding="utf-8", errors="replace").lower()
             for phrase in ("dark mode", "light mode"):
                 if phrase in text:
-                    # theme.py names the retired phrase on purpose, to
-                    # explain why it is retired.
-                    if path.name == "theme.py":
-                        continue
                     offenders.append(f"{path.name}: {phrase!r}")
         assert not offenders, offenders
 

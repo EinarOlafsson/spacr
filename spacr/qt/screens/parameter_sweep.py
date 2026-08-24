@@ -52,7 +52,7 @@ APP_CLI_NOTE = (
     "rank_trials give the comparison it draws.")
 
 __all__ = ["APP_KEY", "APP_NAME", "APP_DESCRIPTION", "APP_INTRO",
-           "APP_CLI_NOTE", "register"]
+           "APP_CLI_NOTE", "build_parameter_sweep_card", "sweepable"]
 
 
 def _make_screen(app_key=None, host=None):
@@ -632,20 +632,12 @@ def _make_screen(app_key=None, host=None):
     return ParameterSweepScreen(host=host)
 
 
-def register() -> bool:
-    """Add the module through spaCR's single application-registration seam."""
-    from ..app import APPS, SECTION_RESULTS, STAGE_ALPHA, register_app
-    if any(row[0] == APP_KEY for row in APPS):
-        return False
-    register_app(
-        APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_RESULTS,
-        factory=_make_screen, stage=STAGE_ALPHA, title=APP_NAME,
-        intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-        translations=APP_TRANSLATIONS)
-    return True
-
-
-register()
+# NO REGISTRY ROW. The sweep is reached as the Regression screen's sweep card
+# -- :func:`build_parameter_sweep_card`, built from the same
+# :func:`_make_screen` factory the tile used. The card is the superset of the
+# two: it seeds its axes from the regression form beside it, which a
+# standalone tile has nothing to seed from. The strings above are kept because
+# they are this module's public description and the i18n catalogs carry them.
 
 
 #: Text on the toggle that reveals the card, and its hover help. Mirrors
@@ -684,4 +676,4 @@ def sweepable(app_key: str) -> bool:
     Only the regression module for now: the sweep axes, the legality filters
     and the row-to-regression round trip are all specific to it.
     """
-    return app_key in ("regression", "ml_analyze_regression")
+    return app_key == "regression"
