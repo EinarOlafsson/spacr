@@ -431,10 +431,39 @@ halves of classify and for the annotator; and P3-P7 built.
 
 STILL OPEN, and each for a reason rather than for want of trying:
 
-  A4  Barcode counts cannot be compared against the screen's own
-      plate_N_unique_combinations.csv, because the FASTQ reads that
-      produced them are not on this machine. Everything reachable without
-      them is done.
-
   (P8 is DONE: the ten inert settings are deleted outright, on the
    maintainer's instruction of 2026-08-23.)
+
+
+--------------------------------------------------------------------------------
+J. MAP BARCODES ON THE REAL READS -- 2026-08-23  (A4 CLOSED)
+--------------------------------------------------------------------------------
+
+The reads are in /mnt/wd12tb/sequencing (283 GB). seq_3/EO1_R1+R2 are the
+EO1 lane, and the settings that produced the reference count table are kept
+beside them in seq_3/settings/sequencing_paired_R1.csv.
+
+THOSE SETTINGS ARE THE POINT, because they name the ORIENTATION:
+
+    column_csv   primers_3_column_barecodes.csv
+    grna_csv     grna_barcodes_RC.csv                 <- reverse complement
+    row_csv      primers_3_row_barecodes_RC.csv       <- reverse complement
+
+Run with the forward files instead and spaCR maps ZERO of 400,000 reads and
+reports nothing wrong. That is the silent-zero-count failure this item was
+filed about, reproduced on the real data.
+
+RESULT, on the first 400,000 reads of EO1:
+
+    284,047 reads mapped (71%)
+    40,417 (row, column, gRNA) combinations
+    40,416 of those 40,417 appear in the reference table built from the
+    full 130,310,126-read file
+
+One combination in 40,417 does not. The identity space matches.
+
+AND THE QC FIX, CONFIRMED ON REAL OUTPUT. The reference qc.csv has 1,848
+rows -- one per chunk, which is exactly the accumulation bug fixed earlier
+today -- and this run writes 1.
+
+Driver: spacr_drivers/drive_map_barcodes_on_real_reads.py
