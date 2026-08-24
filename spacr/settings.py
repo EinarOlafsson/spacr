@@ -484,9 +484,6 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('save_original_images', True)
     settings.setdefault('keep_intermediate', False)
     settings.setdefault('keep_original_images', False)
-    settings.setdefault('compression', 'lzw')
-    settings.setdefault('upscale', False)
-    settings.setdefault('upscale_factor', 2.0)
     settings.setdefault('adjust_cells', False)
 
     # 3D (Beta). Off by default and read only through
@@ -699,7 +696,6 @@ def set_default_settings_preprocess_img_data(settings):
     settings.setdefault('save_original_images', True)
     settings.setdefault('keep_intermediate', False)
     settings.setdefault('keep_original_images', False)
-    settings.setdefault('compression', 'lzw')
     settings.setdefault('cmap', 'inferno')
     settings.setdefault('figuresize', 10)
     settings.setdefault('normalize', True)
@@ -1665,8 +1661,6 @@ def get_analyze_reads_default_settings(settings):
     :returns: the settings dict with defaults applied.
     """
     settings.setdefault('src', 'path')
-    settings.setdefault('upstream', 'CTTCTGGTAAATGGGGATGTCAAGTT') 
-    settings.setdefault('downstream', 'GTTTAAGAGCTATGCTGGAAACAGCAG') #This is the reverce compliment of the column primer starting from the end #TGCTGTTTAAGAGCTATGCTGGAAACAGCA
     settings.setdefault('chunk_size', 1000000)
     settings.setdefault('test', False)
     return settings
@@ -2467,7 +2461,6 @@ def get_perform_regression_default_settings(settings):
     # what that run drew, so it is named on the way out instead of vanishing.
     for _retired, _forced in (('log_x', False), ('log_y', False),
                               ('x_lim', None), ('y_lims', None),
-                              ('split_axis_lims', ''),
                               ('guide_permutation_plot', True)):
         if _retired not in settings:
             continue
@@ -2779,7 +2772,6 @@ expected_types = {
     # ways of choosing what a model trains on were unreachable from the
     # panel and refused by `check_settings` (236 A2).
     "channel_of_interest": (int, str, list, type(None)),
-    "compartments": list,
     "measurement": str,
     "nr_imgs": int,
     "um_per_pixel": (int, float),
@@ -2813,8 +2805,6 @@ expected_types = {
     "normalization_percentiles": list,
     "filter": bool,
     "fill_in":bool,
-    "upscale": bool,
-    "upscale_factor": float,
     "adjust_cells": bool,
     "row_limit": int,
     "tables": list,
@@ -2963,8 +2953,6 @@ expected_types = {
     "plot_control": bool,
     "remove_background": bool,
     "target": str,
-    "upstream": str,
-    "downstream": str,
     "grna": str,
     "barcodes": str,
     # A list fits every named response in one run, correcting each as its own
@@ -3081,15 +3069,12 @@ expected_types = {
     "from_scratch": bool,
     "width_height": list,
     "resize": bool,
-    "compression": str,
     "fraction_threshold": float,
-    "barcode_mapping":dict,
     "mix":str,
     "model_type_ml":str,
     "exclude_conditions":list,
     "exclude_rows": (dict, type(None)),
     "remove_highly_correlated_features":bool,
-    'barcode_coordinates':list,  # This is a list of lists 
     'file_type':str,
     'model_path':str,
     'dataset':str,
@@ -3123,7 +3108,6 @@ expected_types = {
     "generate_training_dataset":bool,
     "normalize":bool,
     "overlay":bool,
-    "correlate":bool,
     "target_layer":str,
     "save_to_db":bool,
     "test_mode":bool,
@@ -3198,7 +3182,6 @@ expected_types = {
     "Toxoplasma":bool,
     "metadata_files":list,
     "filter_value":list,
-    "split_axis_lims":str,
     "x_lim":(list, type(None)),   # was (list, None) -- None is not a type
     "log_x":bool,
     "log_y":bool,
@@ -3918,7 +3901,6 @@ tooltips = {
     "clustering": "(str) - Algorithm run on the 2D embedding. 'dbscan' grows density-based clusters from eps and min_samples and labels sparse points as noise (-1), discovering the cluster count itself; 'kmeans' (that exact spelling) instead forces exactly min_samples clusters and assigns every point. Choose dbscan for a few distinct phenotypes over a diffuse background, kmeans when you want a fixed number of groups. Default 'dbscan'.",
     "col_to_compare": "(str) - Metadata column that identifies the control wells when embedding_by_controls is True: rows whose value equals pos or neg are used to train the reducer, and the column is then dropped before fitting. Typically 'columnID' or 'rowID' depending on where controls sit on the plate. Ignored otherwise. Default 'columnID'.",
     "color_by": "(str) - Name of a column in the joined measurement table (e.g. 'cond', 'columnID', 'plateID') used to color embedding points instead of the cluster labels. Set it to see how a known grouping such as condition or plate column falls across the map; leave it None to color by the clustering result. Setting it also disables remove_cluster_noise, plot_outlines and smooth_lines. Default None.",
-    "compartments": "(list) - Intended to name the object compartments ('cell', 'nucleus', 'pathogen', 'cytoplasm') to measure, but nothing reads settings['compartments']: the functions with a same-named parameter take it directly from their caller. Which compartments are measured is decided by the *_mask_dim / *_channel settings instead. No default is set: no set_default_* function fills this key, so it is absent unless an old settings CSV supplies it.",
     "consolidate": "(bool) - Before processing, recursively scan src for images and copy them into a single <src>/consolidated folder, prefixing each filename with its subfolder names so nothing collides; src is then repointed there. Use it when one plate's images are split across per-well or per-channel subfolders. Copies, so disk use roughly doubles. Default False.",
     "CP_prob": "(float) - Cellpose cellprob_threshold: the cell-probability cut-off applied to the network output when deciding which pixels belong to an object. Lower it (typically toward -6) to recover dim or partly detected objects and grow existing masks; raise it (toward 6) to drop faint false positives and shrink masks. Default 0.",
     "custom_model": '(str) - Path to a saved Cellpose model, loaded as pretrained_model by the mask-finetune tool. When set, model_type is passed as None and diameter as diam_mean (which Cellpose 4.x ignores with a warning), but model_name is STILL read: it selects the channel pair sent to model.eval. So a custom model with the wrong model_name segments the wrong channels. Default None.',
@@ -3957,7 +3939,6 @@ tooltips = {
     "outline_width": "(float) - Width in points of cluster outlines and interactive selection rings. Smaller values produce thinner boundaries. Default 1.0.",
     "umap_canvas_width": "(int) - Initial interactive UMAP chart width in pixels. The chart/sidebar divider can also be dragged while exploring. Default 900.",
     "umap_sidebar_width": "(int) - Initial interactive UMAP image and annotation sidebar width in pixels. The divider remains draggable. Default 280.",
-    "downstream": "(str) - Inert: nothing reads settings['downstream'], and sequencing.py never mentions it. The default is the reverse complement of the column primer this was meant to anchor on; the barcode reader uses target_sequence plus offset_start instead. Kept only so old settings CSVs still load.",
     "dropout_rate": "(float) - Dropout probability (0-1) written into every existing Dropout layer of the backbone and applied to a Dropout inserted before the final linear classifier; 0 or None removes dropout entirely. Raise it (0.2-0.5) when training accuracy runs well ahead of validation accuracy; lower it when the model underfits and training loss stalls high. Default 0.1.",
     "eps": "(float) - DBSCAN neighbourhood radius, expressed in the units of the UMAP/t-SNE embedding and measured with the 'metric' setting: two points are neighbours if they lie within this distance. Raise it to merge fragments into fewer, larger clusters and leave less noise; lower it to split clusters and push more points to noise (-1). Ignored when clustering is 'kmeans'. Default 0.9.",
     "epochs": "(int) - Number of full passes over the training set. It also sets the learning-rate schedule horizon - cosine anneals over exactly this many epochs and step_lr drops every epochs/5 - so changing it rescales the schedule. A checkpoint is always written on the final epoch and every 100th. Raise it for small datasets and use early_stopping_patience to cut runs short. Default 100.",
@@ -4100,17 +4081,11 @@ tooltips = {
     "train": "(bool) - Run the training stage. Turn OFF to apply an existing model_path to a dataset without retraining, which is the usual way to score a new plate with a model trained earlier. Default True.",
     "glm_transform_conflict": "(str) - Response scale to fit when transform is itself a link ('log' or 'logit') and the automatically selected GLM family also has a non-identity link. 'untransformed' fits the measured response and lets the family link transform it; use this for a proportion that was unnecessarily transformed first. 'transformed' keeps the transformed response and fits a Gaussian identity-link model. 'warn' reproduces the legacy double-transform behavior and prints a warning. This setting has no effect for other transforms or regression types. Default 'untransformed'.",
     "transform": "(str) - Optional transform applied to the aggregated per-well response before fitting: 'log' (log1p), 'sqrt', 'square', 'beta' (logit, for a response that is a proportion - the endpoints are squeezed off 0 and 1 first and the summary says so), or None for none. Reach for it when the response is skewed and the normality check fails; the fit then reports coefficients for the transformed column, named '<transform>_<dependent_variable>'. Default None.",
-    "upscale": "(bool) - Legacy image-upscaling toggle: no code in spaCR reads this key (or upscale_factor), so enabling it changes nothing about image size, segmentation or measurements. Kept only for settings-file compatibility. To change the working resolution use the Cellpose resize / target_height / target_width settings instead. Default False.",
-    "upscale_factor": "(float) - Scale factor that the inactive 'upscale' toggle would have applied. Nothing in spaCR reads this key, so changing it has no effect on image size, segmentation or measurements; use the Cellpose resize / target_height / target_width settings to change resolution. Default 2.0.",
-    "upstream": "(str) - Inert: nothing reads settings['upstream'], and sequencing.py never mentions it. The default is the forward primer sequence this was meant to anchor on; the barcode reader actually locates the window with target_sequence plus offset_start. Kept only so old settings CSVs still load.",
     "val_split": "(float) - Fraction of src/train randomly held out as a validation set each run (0.1 = 10 percent). The validation score drives checkpoint selection, early stopping and the live training curves; at 0 there is no validation loader, so checkpointing falls back to training accuracy, which rewards memorisation. Raise it on small datasets for a less noisy estimate. With a grouping level set the holdout is whole groups, so the realised share is quantised to them and can land well off what you asked for; both numbers are reported rather than quietly rounded. Default 0.1.",
     "visualize": "(bool) - Draw the embedding as a figure when the run finishes. Costs plotting time on a large dataset and nothing else -- the embedding itself is computed and saved either way. Default False.",
     "verbose": "(bool) - Print extra run detail instead of the minimal log: the resolved settings table, the channel and model choices per object type, per-table row counts, and how many objects survive each filter. It only adds console output, so turn it on when object counts come out unexpected and you need to see which stage removed them. The default differs per pipeline -- True for mask, UMAP, screen analysis, barcode mapping and Cellpose training; False for measure, the plotting helpers and regression.",
     "weight_decay": "(float) - L2 penalty applied to the weights on every optimizer step (AdamW applies it decoupled from the gradient). Raise it, toward 1e-3 to 1e-2, when validation loss climbs while training loss keeps falling; lower it toward 0 when the model cannot fit the training set at all. Every supported optimizer honours it. Default 0.00001.",
     "width_height": "(list of int) - [width, height] in pixels that every crop is resized to before it reaches the model, so a batch is uniform. Must match what the model was trained on. Default [224, 224].",
-    "barcode_coordinates": "(list) - Intended to give the start/stop offsets of each barcode inside the read, but nothing reads settings['barcode_coordinates']. The pipeline slices the read from target_sequence, offset_start and the per-barcode lengths instead. Kept only so old settings CSVs still load. No default is set: no set_default_* function fills this key, so it is absent unless an old settings CSV supplies it.",
-    "barcode_mapping": '(dict) - Inert: declared here but read by nothing in spaCR. The barcode-mapping pipeline takes its references from the separate grna_csv, row_csv and column_csv path settings, which sequencing.generate_barecode_mapping actually loads. Kept only so old settings CSVs still load. No default is set: no set_default_* function fills this key, so it is absent unless an old settings CSV supplies it.',
-    "compression": "(str) - Legacy and currently inert: nothing in spaCR reads this key. The two preprocessing defaults set it to 'lzw' and the GUI offers lzw/zlib/none, but the live segmentation path writes masks as uint16 .npy via np.save, so no mask TIFF is ever produced and changing this setting changes nothing. The only functions that take a compression argument, io.save_object_mask and mask_io.save_mask (which hardcodes 'lzw'), are never called from anywhere in the package, and the sequencing HDF5 writer uses comp_type/comp_level instead. Leave it at its 'lzw' default.",
     "file_type": "(str) - Substring that selects which object crops go into the dataset - only png_list rows whose PNG path contains it are used, e.g. 'cell_png', 'nucleus_png', 'pathogen_png', 'cytoplasm_png' or 'organelle_png'. In the GUI this one field writes both file_type and png_type, and only png_type is read downstream, so the two always hold the same value. Default 'cell_png'.",
     "model_path": "(str) - Path to a trained spaCR classifier saved as a whole PyTorch object (loaded with torch.load(weights_only=False), not a state_dict). Used when applying a model to a dataset tar and when generating activation maps. deep_spacr overwrites it with the freshly trained model whenever train is True, so set it only to score with an existing model. Default ''.",
     "dataset": "(str) - Path to the .tar archive of single-object PNG crops produced by generate_dataset, which the activation-map step opens with TarImageDataset. The plate folder is inferred two levels above it and CAM outputs are written next to it under <tar_name>/<cam_type>/. Must be a full path, not just a file name. Default ''.",
@@ -4317,7 +4292,6 @@ tooltips = {
     "annotation_column": "(str) - Integer column of the png_list table holding manual class calls. The Annotate app adds it with ALTER TABLE if missing and writes labels into it. It is the ground truth when dataset_mode is 'annotation', and the fallback when annotation_columns is unset. Setting it while leaving dataset_mode unset also SELECTS annotation mode, which is how an old settings file keeps working. Default None.",
     'cmap': "(str) - Matplotlib colormap applied to single-channel image previews and to plate heatmaps. Perceptually uniform maps ('viridis', 'inferno', 'magma') keep intensity differences honest; 'gray' matches how the raw microscope data looks. Any registered matplotlib name works, with an '_r' suffix to reverse it. Default 'inferno' for image plots, 'viridis' for plate heatmaps.",
     'controls': "(list) - gRNA identifiers treated as non-targeting controls. Their coefficients define the effect-size cutoff drawn on the volcano plot: abs(median(control coefficients)) + threshold_multiplier × spread, where threshold_method selects the spread estimator. A wider control distribution raises the cutoff. None disables the effect-size cutoff. Default ['000000'] -- the non-cutting control GENE, which spaCR resolves to every one of its guides in the library you loaded, rather than a hand-typed list that goes stale. A guide id works too, with or without the organism prefix.",
-    "correlate": "(bool) - Intended to add pairwise correlations between selected measurements to the analysis output, but nothing reads settings['correlate']. Channel/activation correlations are controlled by the separate 'correlation' setting in the activation-map path. Kept only so old settings CSVs still load. No default is set: no set_default_* function fills this key, so it is absent unless an old settings CSV supplies it.",
     'count_data': "(str or list) - CSV(s) of per-well gRNA read counts from the sequencing step (unique_combinations.csv); each must contain grna, count, rowID and columnID columns or the run raises ValueError. These are the regression's independent variable. Pass one path per plate, position-aligned with plates_count; results are written under the first file's folder. Default 'list of paths', a placeholder that must be replaced; the barcode QC module defaults this key to 'path to unique_combinations.csv'.",
     'cov_type': "(str) - Heteroscedasticity-robust covariance estimator passed to the likelihood fits: 'HC0', 'HC1', 'HC2' or 'HC3', or None for classical non-robust errors. It changes standard errors and p-values only, never the coefficients; reach for 'HC3' when residual variance grows with well cell count. The penalised, robust and quantile fits have no such estimator and refuse it rather than quietly reporting ordinary errors under a robust label. Default None.",
     "resume": '(bool) - Continue an interrupted run at its last verified safe boundary instead of starting over. Each module verifies before it accepts work as done: Mask revalidates existing mask and merged arrays, Measure takes only fields complete in every table it owns and clears partial rows before retrying, and the Format Converter reopens each TIFF it checkpointed. So resuming cannot inherit a half-written result -- the cost is the re-reading, not correctness. Default False.',
@@ -4473,7 +4447,6 @@ tooltips = {
     'save_to_db': "(bool) - After ML screen analysis, write the per-object model scores back into measurements.db as a 'predictions' column on the png_list table, matched on prcfo. Enable when you want to sort, filter or plot objects by score in the GUI; the CSV result files are written either way. Default False.",
     'score_data': "(str or list) - CSV(s) of per-object or per-well phenotype scores, typically from generate_ml_scores. Each must contain dependent_variable. Pass one path per plate, position-aligned with plates_score. The score filename does not name the output folder: runs go under src/results, named for the inference or regression kind and then suffixed _1, _2, and so on. When src is unset, results is created beside the first count_data file. Default 'list of paths'.",
     'single_direction': "(str) - Which mate to scan when mode is 'single': 'R1' or 'R2'. The chosen file is read as-is with no reverse-complementing, so selecting 'R2' means target_sequence and regex must be written in R2 orientation or nothing will match. Ignored when mode is 'paired'. Default 'R1'.",
-    "split_axis_lims": "(str) - Intended to fix the axis limits of split/faceted plots as [xmin, xmax, ymin, ymax], but nothing reads settings['split_axis_lims']; those plots always autoscale. Use the per-plot x_lim / y_lim settings where the plotting function exposes them. Kept only so old settings CSVs still load. Default empty.",
     'target_unique_count': "(int) - Desired mean number of distinct gRNAs per well. spaCR sweeps 1000 read-fraction thresholds, picks the one whose per-well mean unique gRNA count lands closest to this number, then discards every gRNA call below that fraction. Lower it for a stricter, cleaner well assignment; raise it to keep more gRNAs per well. Default 5.",
     'threshold_method': "(str) - Select the spread estimator for the control-based effect-size cutoff: 'std', legacy 'var' (squared units), 'mad', 'iqr', 'percentile' (the 95th percentile of absolute coefficients), or 'range'. 'none' disables the effect-size cutoff. Historical aliases such as 'standard_deveation', 'variance', and 'quantile' are accepted. Used only when controls are set. Default 'std'.",
     'threshold_multiplier': "(float) - Set how many control-distribution spreads are required for a hit. The cutoff is abs(median(control coefficients)) + threshold_multiplier × spread, using threshold_method for the spread. Larger values demand a larger effect; threshold_method='none' disables the cutoff. Used only when controls are set. Default 3.",
@@ -4525,7 +4498,7 @@ _name_the_family_in_every_estimator_tooltip()
 # box is ticked (see category_dependencies), so the toggle cannot live inside
 # the category it controls. Consumers that want "everything timelapse" should
 # use `timelapse_settings + ['timelapse']`.
-timelapse_settings = ['fps', 'timelapse_mode', 'trackastra_model', 'trackastra_linking', 'ultrack_max_distance', 'ultrack_division_weight', 'ultrack_contour_sigma', 'ultrack_n_workers', 'timelapse_displacement', 'timelapse_memory', 'timelapse_frame_limits', 'timelapse_remove_transient', 'timelapse_objects', 'compartments']
+timelapse_settings = ['fps', 'timelapse_mode', 'trackastra_model', 'trackastra_linking', 'ultrack_max_distance', 'ultrack_division_weight', 'ultrack_contour_sigma', 'ultrack_n_workers', 'timelapse_displacement', 'timelapse_memory', 'timelapse_frame_limits', 'timelapse_remove_transient', 'timelapse_objects']
 
 motility_settings = ['motility_analysis','tracked_object', 'infection_intensity_strategy', 'seconds_per_frame', 'pixels_per_um', 'motility_ylim', 'motility_xlim', 'infection_intensity_qc_scope']
 
@@ -4898,7 +4871,7 @@ categories = {
 
     "Sequencing": ["mode", "single_direction", "target_sequence", "regex", "offset_start", "expected_end", "barcode_mismatches", "chunk_size", "fill_na", "save_h5", "comp_type", "comp_level"],
 
-    "Plot": ["cmap", "figuresize", "normalize_plots", "black_background", "save_figure", "log_x", "log_y", "x_lim", "y_lims", "split_axis_lims", "examples_to_plot", "plot_control", "plot_nr", "nr_imgs", "um_per_pixel", "image_nr", "dot_size", "point_color", "point_alpha", "outline_width", "umap_canvas_width", "umap_sidebar_width", "img_zoom", "row_limit", "color_by", "plot_images", "remove_image_canvas", "plot_points", "plot_outlines", "smooth_lines", "plot_by_cluster", "plot_cluster_grids", "heatmap_feature", "grouping", "min_max"],
+    "Plot": ["cmap", "figuresize", "normalize_plots", "black_background", "save_figure", "log_x", "log_y", "x_lim", "y_lims", "examples_to_plot", "plot_control", "plot_nr", "nr_imgs", "um_per_pixel", "image_nr", "dot_size", "point_color", "point_alpha", "outline_width", "umap_canvas_width", "umap_sidebar_width", "img_zoom", "row_limit", "color_by", "plot_images", "remove_image_canvas", "plot_points", "plot_outlines", "smooth_lines", "plot_by_cluster", "plot_cluster_grids", "heatmap_feature", "grouping", "min_max"],
     # Replication-specific vacuole assignment and scoring. The shared parasite
     # area filters and empty-well seeding control remain listed once under
     # "Invasion Assay"; the Qt app-specific category map presents those shared
@@ -4930,7 +4903,7 @@ categories = {
     # nuclei_limit / pathogen_limit for "Measurements": all three change what
     # the run produces rather than how it is tuned, and hiding them here is
     # what put them at the bottom of the Classify (CV) dataset settings.
-    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "verbose", "n_jobs", "gpu", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "compression", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "upscale", "upscale_factor", "consolidate", "denoise"],
+    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "verbose", "n_jobs", "gpu", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "consolidate", "denoise"],
 
     # Experimental volumetric controls are deliberately split by dimensional
     # contract. `z_axis` lives with 3D because 4D builds on the same z plan;
@@ -5466,15 +5439,6 @@ def get_setting_dependencies():
                 "is kept."),
         )
 
-    setting_dependencies['split_axis_lims'] = rule(
-        ('y_lims',),
-        lambda settings, context: bool(settings.get('y_lims')) and any(
-            isinstance(item, (list, tuple))
-            for item in (settings.get('y_lims') or [])),
-        lambda settings, context: (
-            "split_axis_lims is used only when y_lims requests two axis "
-            "segments. The value is kept and saved."),
-    )
     # THE EFFECT-SIZE CUT APPLIES TO A PERMUTATION RUN TOO, so these two are
     # no longer greyed out under it.
     #
