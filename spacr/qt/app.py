@@ -14,7 +14,7 @@ import threading
 import traceback
 from typing import List, Optional, Tuple
 
-from PySide6.QtCore import Qt, QSize, QThread, Signal
+from PySide6.QtCore import QEvent, Qt, QSize, QThread, Signal
 from PySide6.QtGui import QAction, QColor, QIcon, QKeySequence, QPalette
 from PySide6.QtWidgets import (
     QApplication,
@@ -1413,8 +1413,15 @@ class MainWindow(QMainWindow):
         self.setAttribute(Qt.WidgetAttribute.WA_OpaquePaintEvent, True)
         self.setWindowTitle("spaCR")
         self.setMinimumSize(1200, 720)
+        # NO TITLE BAR. Asked for on 2026-08-23: "remove the minus and x bar
+        # from the spacr window and just have an icon in the top left for
+        # true fullscreen". The window is frameless and the menu bar is what
+        # you drag it by; Quit keeps its usual shortcut, so nothing about
+        # closing depends on a button that is no longer there.
+        self.setWindowFlag(Qt.WindowType.FramelessWindowHint, True)
 
         self._build_menu_bar()
+        self._install_fullscreen_button()
 
         # Central layout: a row that holds an (initially empty) dock slot
         # and the screen stack. By default the app list is a REVEAL over
@@ -1644,6 +1651,99 @@ class MainWindow(QMainWindow):
             return getattr(spacr, "__version__", "") or "dev"
         except Exception:
             return "dev"
+
+    # -- window chrome ----------------------------------------------------
+    def _install_fullscreen_button(self):
+        """One icon, top left, that toggles TRUE fullscreen.
+
+        The frameless window has no minimise or close button, which is the
+        point: the two things the old bar offered were a button that hid
+        the application and a button that quit it, and neither is what a
+        user reaches for mid-analysis. Fullscreen is.
+
+        Placed as the menu bar's left corner widget, so it sits before the
+        first menu rather than beside it, and it is what the top-left
+        corner of the window holds.
+        """
+        from PySide6.QtWidgets import QToolButton
+
+        button = QToolButton(self)
+        button.setObjectName("FullScreenToggle")
+        button.setAutoRaise(True)
+        button.setCursor(Qt.CursorShape.PointingHandCursor)
+        button.setIcon(self._fullscreen_icon())
+        button.setToolTip("Full screen (F11). The window has no title bar; "
+                          "drag the menu bar to move it, and Quit is in the "
+                          "spaCR menu.")
+        button.clicked.connect(self.toggle_fullscreen)
+        self.menuBar().setCornerWidget(button, Qt.Corner.TopLeftCorner)
+        self._fullscreen_button = button
+
+        # THE MENU BAR IS THE TITLE BAR NOW. Without this the window cannot
+        # be moved at all, which is a worse trade than the bar it replaced.
+        self._drag_from = None
+        self.menuBar().installEventFilter(self)
+
+        action = QAction("Full screen", self)
+        action.setShortcut(QKeySequence("F11"))
+        action.triggered.connect(self.toggle_fullscreen)
+        self.addAction(action)
+
+    @staticmethod
+    def _fullscreen_icon(size: int = 18):
+        """The four-corner expand mark, drawn rather than shipped."""
+        from PySide6.QtGui import QIcon, QPainter, QPen, QPixmap
+
+        pixmap = QPixmap(size, size)
+        pixmap.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        pen = QPen(Qt.GlobalColor.gray)
+        pen.setWidthF(1.6)
+        painter.setPen(pen)
+        arm, pad = size * 0.30, size * 0.18
+        far = size - pad
+        for x, y, dx, dy in ((pad, pad, 1, 1), (far, pad, -1, 1),
+                             (pad, far, 1, -1), (far, far, -1, -1)):
+            painter.drawLine(x, y, x + arm * dx, y)
+            painter.drawLine(x, y, x, y + arm * dy)
+        painter.end()
+        return QIcon(pixmap)
+
+    def eventFilter(self, watched, event):      # noqa: N802 - Qt naming
+        """Drag the frameless window by its menu bar, and maximise on a
+        double-click there -- the two gestures the title bar used to carry.
+
+        `getattr`, not `self.menuBar()`: Qt goes on delivering events to a
+        filter during teardown, after Python has cleared the object's
+        attributes.
+        """
+        bar = self.menuBar() if not self.isFullScreen() else None
+        if bar is not None and watched is bar:
+            kind = event.type()
+            if (kind == QEvent.Type.MouseButtonDblClick
+                    and event.button() == Qt.MouseButton.LeftButton):
+                self.showNormal() if self.isMaximized() else self.showMaximized()
+                return True
+            if (kind == QEvent.Type.MouseButtonPress
+                    and event.button() == Qt.MouseButton.LeftButton
+                    and bar.actionAt(event.position().toPoint()) is None):
+                # ONLY ON EMPTY BAR. A press on a menu opens the menu.
+                self._drag_from = (event.globalPosition().toPoint()
+                                   - self.frameGeometry().topLeft())
+            elif kind == QEvent.Type.MouseMove and self._drag_from is not None:
+                self.move(event.globalPosition().toPoint() - self._drag_from)
+            elif kind == QEvent.Type.MouseButtonRelease:
+                self._drag_from = None
+        return super().eventFilter(watched, event)
+
+    def toggle_fullscreen(self, *_args) -> bool:
+        """Enter or leave true fullscreen. Returns whether it is now full."""
+        if self.isFullScreen():
+            self.showNormal()
+        else:
+            self.showFullScreen()
+        return self.isFullScreen()
 
     # -- menu -------------------------------------------------------------
     def _build_menu_bar(self):

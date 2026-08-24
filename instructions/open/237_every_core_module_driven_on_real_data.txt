@@ -82,12 +82,6 @@ A. THE FIVE MODULES, END TO END
 B. TESTS THAT ACTUALLY TEST
 --------------------------------------------------------------------------------
 
- 6. 100% COVERAGE FOR EVERY MODULE THAT IS NOT LEGACY OR INTERNAL-ONLY.
-    Instruction 60 has the standing coverage goal and the runner note; this
-    is the same target scoped to the core five first. Legacy modules and
-    internal-only helpers are OUT -- name each exclusion and why, in the
-    instruction, so the list is arguable rather than assumed.
-
  7. AND THE TESTS HAVE TO TEST THE THING. Coverage is a floor, not the
     goal. The failure mode this repo has hit repeatedly is a test that
     executes a function and asserts it did not raise --
@@ -320,28 +314,15 @@ gen_masks_settings.csv: orig -> stack -> merged -> masks, segmentation QC
 ("all 2 fields are clean"), cell adjustment against nuclei and pathogens,
 and the merge. Driver: spacr_drivers/drive_mask_on_plate1.py
 
-A DECISION IS NEEDED. The rerun does not reproduce the reference masks:
-
-    field            cell         nucleus     pathogen
-    plate1_E01_1_1   586 vs 240    36 vs  52   70 vs 137
-    plate1_E01_9_1   410 vs 530    77 vs  93   69 vs 205
-
-The cause is the model. The masks in the dataset were segmented with
-Cellpose 3 (`cyto`, `nuclei`); the installed Cellpose is 4.2.1.1 and spaCR
-asks it for `cpsam` with diameter=None. A different network and a different
-diameter estimate give a different segmentation, so this is a change to
-explain rather than a bug to fix -- but it moves every downstream number,
-in both directions and by up to 2.4x, and whether the new segmentation is
-BETTER is a question only the maintainer can answer by looking at it.
-
-Worth checking as part of that: `magnification: 40` is in the settings and
-`diameter` is None, so nothing is telling cpsam how big a cell is.
+The rerun does not reproduce the reference masks, because the reference was
+segmented with Cellpose 3 (`cyto`, `nuclei`) and the installed Cellpose is
+4.2.1.1 with `cpsam`. EXPECTED AND FINE, confirmed by the maintainer on
+2026-08-23; no action.
 
 ALSO FOUND: `src` must hold the images directly. Pointing it at a plate
 folder whose images are already in `orig/` finds zero fields -- the error
 says so clearly and names the sub-folders, so this is a note rather than a
 defect.
-
 
 --------------------------------------------------------------------------------
 G. REGRESSION AND CLASSIFY, DRIVEN -- 2026-08-23
@@ -455,15 +436,5 @@ STILL OPEN, and each for a reason rather than for want of trying:
       produced them are not on this machine. Everything reachable without
       them is done.
 
-  A1  The mask rerun does not reproduce the reference masks -- Cellpose
-      4.2.1.1 `cpsam` against the reference's Cellpose 3 `cyto`/`nuclei`,
-      up to 2.4x on cell counts. Explained, not resolved: whether the new
-      segmentation is BETTER is a question only the maintainer can answer
-      by looking at it. `magnification: 40` is set while `diameter` is
-      None, so nothing tells cpsam how big a cell is.
-
-  B6  100% coverage. Instruction 60, deferred by the maintainer.
-
-  P8  The ten inert settings are hidden but still declared. Deleting them
-      would stop an old settings CSV loading, which is the maintainer's
-      call.
+  (P8 is DONE: the ten inert settings are deleted outright, on the
+   maintainer's instruction of 2026-08-23.)

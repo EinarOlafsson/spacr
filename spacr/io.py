@@ -3068,6 +3068,18 @@ def _read_and_join_tables(db_path, table_names=None,
                 joined_df = reconcile_duplicates(
                     joined_df, f'_{entity}', left_name='cell',
                     right_name=entity, on_conflict=duplicate_column_policy)
+    # EVERY PLATE ID COMES BACK IN ONE SPELLING. A screen written by an
+    # older run stamps its plate `pplate1` and everything computed since
+    # stamps it `plate1`, so the two never join: an ML run over 60,816 real
+    # cells scored every one of them and wrote none back, reporting that its
+    # own database "probably comes from a different experiment".
+    #
+    # `schema.normalise_plate_columns` is the one rule, and it is applied on
+    # READ -- nothing on disk is rewritten, so an old database keeps working
+    # and a re-read of it produces the same keys as a fresh run.
+    from . import schema as _schema
+
+    joined_df = _schema.normalise_plate_columns(joined_df)
     return joined_df
     
 #: Table holding the settings of the run that wrote the database **last**.
