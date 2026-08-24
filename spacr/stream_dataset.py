@@ -36,6 +36,14 @@ COORDINATE_COLUMNS: Dict[str, str] = {
     "nucleus": "nucleus_id",
     "pathogen": "pathogen_id",
     "cytoplasm": "cytoplasm_id",
+    # THE ORGANELLE ROLES TOO. The column is named after the object type
+    # in every case, so the four organelle planes a measure run can write
+    # follow the same rule -- and a user who segmented one and cannot
+    # stream it has an object type spaCR measured and will not show.
+    "organelle": "organelle_id",
+    "organelleb": "organelleb_id",
+    "organellec": "organellec_id",
+    "organelled": "organelled_id",
 }
 
 #: What the selection table records for each object.
