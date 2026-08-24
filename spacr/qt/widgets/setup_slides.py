@@ -508,9 +508,7 @@ class SetupSlides(QDialog):
         dialog -- the user finishes in a browser at their own pace -- and
         its `finished` signal lands here whenever that happens. If the
         setup screen has been closed by then, its child widgets are
-        deleted C++ objects and touching one raises. Reported on
-        2026-08-23 as `libshiboken: Internal C++ object (QPushButton)
-        already deleted` after the sign-in returned.
+        deleted C++ objects and touching one raises.
         """
         if not self._still_on_screen():
             return
