@@ -6,11 +6,6 @@ Core workflow
 Other applications
 ~~~~~~~~~~~~~~~~~~
 
-More core tools
-^^^^^^^^^^^^^^^
-
-|DocApp_timelapse|\ |DocApp_motility|\ |DocApp_classify|\ |DocApp_ml_analyze|\ |DocApp_curate|
-
 Data
 ^^^^
 
@@ -22,6 +17,8 @@ Segmentation models
 ^^^^^^^^^^^^^^^^^^^
 
 |DocApp_make_masks|\ |DocApp_train_cellpose|\ |DocApp_cellpose_masks|\ |DocApp_model_compare|\ |DocApp_model_zoo|
+
+|DocApp_curate|
 
 Results & QC
 ^^^^^^^^^^^^
@@ -41,10 +38,12 @@ Explore
 
 |DocApp_layer_viewer|\ |DocApp_graph_builder|\ |DocApp_anndata_export|\ |DocApp_pca|\ |DocApp_tabulate|
 
-Toxoplasma
-^^^^^^^^^^
+Assays
+^^^^^^
 
-|DocApp_analyze_plaques|\ |DocApp_recruitment|\ |DocApp_invasion|\ |DocApp_replication|
+|DocApp_timelapse|\ |DocApp_motility|\ |DocApp_analyze_plaques|\ |DocApp_recruitment|\ |DocApp_invasion|
+
+|DocApp_replication|
 
 Design
 ^^^^^^
@@ -85,31 +84,6 @@ Design
    :width: 2.5%
    :align: middle
 
-.. |DocApp_timelapse| image:: /_static/workflow/apps/timelapse.png
-   :width: 19.9%
-   :alt: Open the Timelapse API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
-   :align: middle
-.. |DocApp_motility| image:: /_static/workflow/apps/motility.png
-   :width: 19.9%
-   :alt: Open the Motility Assay API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html
-   :align: middle
-.. |DocApp_classify| image:: /_static/workflow/apps/classify.png
-   :width: 19.9%
-   :alt: Open the Classify (CV) API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
-   :align: middle
-.. |DocApp_ml_analyze| image:: /_static/workflow/apps/ml_analyze.png
-   :width: 19.9%
-   :alt: Open the Classify (ML) API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
-   :align: middle
-.. |DocApp_curate| image:: /_static/workflow/apps/curate.png
-   :width: 19.9%
-   :alt: Open the Curate API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/curate/index.html
-   :align: middle
 .. |DocApp_align| image:: /_static/workflow/apps/align.png
    :width: 19.9%
    :alt: Open the Align & Stitch API
@@ -184,6 +158,11 @@ Design
    :width: 19.9%
    :alt: Open the Model Zoo API
    :target: https://einarolafsson.github.io/spacr/api/spacr/model_zoo/index.html
+   :align: middle
+.. |DocApp_curate| image:: /_static/workflow/apps/curate.png
+   :width: 19.9%
+   :alt: Open the Curate API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/curate/index.html
    :align: middle
 .. |DocApp_plate_view| image:: /_static/workflow/apps/plate_view.png
    :width: 19.9%
@@ -314,6 +293,16 @@ Design
    :width: 19.9%
    :alt: Open the Tabulate API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/tabulate/index.html
+   :align: middle
+.. |DocApp_timelapse| image:: /_static/workflow/apps/timelapse.png
+   :width: 19.9%
+   :alt: Open the Timelapse API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
+   :align: middle
+.. |DocApp_motility| image:: /_static/workflow/apps/motility.png
+   :width: 19.9%
+   :alt: Open the Motility Assay API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html
    :align: middle
 .. |DocApp_analyze_plaques| image:: /_static/workflow/apps/analyze_plaques.png
    :width: 19.9%

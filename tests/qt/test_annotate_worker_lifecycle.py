@@ -139,6 +139,29 @@ def test_close_waits_for_active_page_worker_and_drops_pending_request(
     assert screen._pending_page_load is None
 
 
+def test_event_filter_is_inert_once_annotate_teardown_starts(
+    qtbot, qt_theme_applied,
+):
+    """Queued grid events cannot inspect widgets after close has begun."""
+    from PySide6.QtCore import QEvent
+
+    from spacr.qt.screens.annotate import AnnotateScreen
+
+    screen = AnnotateScreen()
+    qtbot.addWidget(screen)
+    holder = screen._grid_holder
+    screen._closing = True
+
+    # Mirror Shiboken's partially dismantled Python wrapper: the C++ event
+    # source can still exist even though this child is no longer addressable
+    # through the screen instance.
+    del screen._grid_holder
+    try:
+        assert screen.eventFilter(holder, QEvent(QEvent.Leave)) is False
+    finally:
+        screen._grid_holder = holder
+
+
 def test_cellpose_outline_model_is_never_evaluated_concurrently(monkeypatch):
     """The shared PyTorch/Cellpose model is protected across Python threads."""
     from spacr.qt import annotate_engine as engine

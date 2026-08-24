@@ -154,21 +154,6 @@ Workflow at a glance
 
 |App_experiment_design|\ |App_power|
 
-.. |App_timelapse| image:: spacr/resources/icons/workflow/apps/timelapse.png
-   :width: 19.9%
-   :alt: Open the Timelapse API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
-   :align: middle
-.. |App_motility| image:: spacr/resources/icons/workflow/apps/motility.png
-   :width: 19.9%
-   :alt: Open the Motility Assay API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html
-   :align: middle
-.. |App_curate| image:: spacr/resources/icons/workflow/apps/curate.png
-   :width: 19.9%
-   :alt: Open the Curate API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/curate/index.html
-   :align: middle
 .. |App_align| image:: spacr/resources/icons/workflow/apps/align.png
    :width: 19.9%
    :alt: Open the Align & Stitch API
@@ -243,6 +228,11 @@ Workflow at a glance
    :width: 19.9%
    :alt: Open the Model Zoo API
    :target: https://einarolafsson.github.io/spacr/api/spacr/model_zoo/index.html
+   :align: middle
+.. |App_curate| image:: spacr/resources/icons/workflow/apps/curate.png
+   :width: 19.9%
+   :alt: Open the Curate API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/curate/index.html
    :align: middle
 .. |App_plate_view| image:: spacr/resources/icons/workflow/apps/plate_view.png
    :width: 19.9%
@@ -373,6 +363,16 @@ Workflow at a glance
    :width: 19.9%
    :alt: Open the Tabulate API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/tabulate/index.html
+   :align: middle
+.. |App_timelapse| image:: spacr/resources/icons/workflow/apps/timelapse.png
+   :width: 19.9%
+   :alt: Open the Timelapse API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
+   :align: middle
+.. |App_motility| image:: spacr/resources/icons/workflow/apps/motility.png
+   :width: 19.9%
+   :alt: Open the Motility Assay API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html
    :align: middle
 .. |App_analyze_plaques| image:: spacr/resources/icons/workflow/apps/analyze_plaques.png
    :width: 19.9%

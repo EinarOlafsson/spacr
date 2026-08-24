@@ -3,7 +3,11 @@
 from __future__ import annotations
 
 import importlib.util
+import json
+import os
 import re
+import subprocess
+import sys
 from pathlib import Path
 
 
@@ -74,7 +78,8 @@ def test_every_workflow_button_tracks_the_home_screen_registry_and_api():
     urls = generator._api_urls()
     pipeline = dict(generator.MAIN_PIPELINE)
 
-    assert len(registry) == 58
+    # 56 since Classify CV and Classify ML became the one merged Classify.
+    assert len(registry) == 56
     assert set(urls) == {key for key, _label, _description, _section in registry}
     for key, label, _description, _section in registry:
         if key in pipeline:
@@ -198,6 +203,51 @@ def test_workflow_modules_are_dark_linked_tiles_with_separate_white_arrows():
         == generator.ARROW_DISPLAY_PERCENT
         / generator.PIPELINE_DISPLAY_PERCENT
     )
+
+
+def test_workflow_asset_columns_do_not_depend_on_qt_import_order():
+    """Late screen registration cannot move committed README artwork."""
+    script = r"""
+import importlib.util
+import json
+import os
+
+preimport = os.environ.get("SPACR_README_PREIMPORT")
+if preimport:
+    __import__(preimport)
+spec = importlib.util.spec_from_file_location(
+    "spacr_readme_visuals", "packaging/generate_readme_visuals.py"
+)
+generator = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(generator)
+columns = {
+    key: generator._app_column(key)
+    for items in generator._grouped_apps().values()
+    for key, _label in items
+}
+print("SPACR_COLUMNS=" + json.dumps(columns, sort_keys=True))
+"""
+
+    def columns(preimport: str) -> dict[str, int]:
+        env = dict(os.environ)
+        env["SPACR_README_PREIMPORT"] = preimport
+        result = subprocess.run(
+            [sys.executable, "-c", script],
+            cwd=ROOT,
+            env=env,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        line = next(
+            item for item in result.stdout.splitlines()
+            if item.startswith("SPACR_COLUMNS=")
+        )
+        return json.loads(line.partition("=")[2])
+
+    clean = columns("")
+    settings_first = columns("spacr.qt.screens.settings_model")
+    assert clean == settings_first
 
 
 def test_installer_guide_is_distinct_from_the_version_archive():
