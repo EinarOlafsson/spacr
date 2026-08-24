@@ -738,7 +738,13 @@ def step_header(number: int, title: str, parent=None):
     is all set up" is a complaint about a page with no headings on it, not
     about the arithmetic underneath.
     """
-    label = QLabel(f"{int(number)}. {str(title).upper()}", parent)
+    from ..i18n import tr
+
+    # THE NUMBER IS NOT PART OF THE TITLE. Upper-casing the composed line
+    # asks the catalog for "1. LOAD THE MEASUREMENT DATABASES", which no row
+    # can hold, so only the odd word came back translated. Look the title up
+    # on its own and number it afterwards.
+    label = QLabel(f"{int(number)}. {tr(str(title)).upper()}", parent)
     label.setObjectName("WorkflowStep")
     label.setWordWrap(True)
     font = label.font()

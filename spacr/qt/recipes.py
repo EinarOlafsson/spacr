@@ -66,6 +66,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from .i18n import tr
+
 LOG = logging.getLogger("spacr.qt.recipes")
 
 #: The button this module hangs on the settings-search strip.
@@ -601,11 +603,19 @@ def install(screen) -> Optional[QToolButton]:
         return None
     button = QToolButton(bar)
     button.setObjectName(RECIPE_BUTTON_NAME)
-    button.setText("Recipes")
+    # The button joins the strip after the window has already run its one
+    # language pass over the screen, so it translates its own caption. The
+    # English stays on the widget as the source `retranslate_widget_tree`
+    # reads, so a later language change still has something to translate
+    # rather than a translation.
+    caption = "Recipes"
+    button.setProperty("_spacr_i18n_text", caption)
+    button.setText(tr(caption))
     button.setCursor(Qt.PointingHandCursor)
-    button.setToolTip(
-        "Save these settings under a name, reuse a saved one, or share it "
-        "as a file.")
+    hint = ("Save these settings under a name, reuse a saved one, or share "
+            "it as a file.")
+    button.setProperty("_spacr_i18n_tooltip", hint)
+    button.setToolTip(tr(hint))
     handler = _RecipeButtonHandler(screen, button)
     button.clicked.connect(handler.on_clicked)
     button._spacr_recipe_handler = handler

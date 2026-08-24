@@ -50084,6 +50084,18 @@
         "7f583e856fac9ad165729b3c12e898ecace49ae1b37a7bfec5645d4b10b88d8a"
       ]
     },
+    "spacr.qt.app.MainWindow.changeEvent": {
+      "source_blocks_sha256": [
+        "de5b21bc1f733f8b123311f10cdd2352e8fecc4f42fa0186b287433a91a32ce6",
+        "b11819d22d5766b23d7f8a5d6bbab8c912b25da9c80692ad17ee0c3ab326d271"
+      ],
+      "source_sha256": "638248318dfb3e0da4fe8eb7abae39956083d91dd2d503371b6aa1a05594e24a",
+      "text": "창 상태가 변경되면 메뉴 바를 다시 삽입합니다.\n\nA menu opens where the BAR SAYS its action is. Going fullscreen resizes the bar and its corner widget in one step, and a menu opened before the layout has caught up is placed against the previous action rectangle -- which is how pressing spaCR drops a menu under Help.",
+      "translation_source_blocks_sha256": [
+        "de5b21bc1f733f8b123311f10cdd2352e8fecc4f42fa0186b287433a91a32ce6",
+        "b11819d22d5766b23d7f8a5d6bbab8c912b25da9c80692ad17ee0c3ab326d271"
+      ]
+    },
     "spacr.qt.app.MainWindow.closeEvent": {
       "source_blocks_sha256": [
         "2e498c062b65e03c95d8b50b1159b47131f09bad8460b5303ae5f3f3a6a64ac7"
@@ -61122,6 +61134,16 @@
       "text": "재시작 활동 설정 후 얇은 네트워크를 다시 적응합니다.",
       "translation_source_blocks_sha256": [
         "fe81296739918d4cc045b757b7bad40e9e46e26b770549fbda9f6ce04d27e484"
+      ]
+    },
+    "spacr.qt.screens.annotate.AnnotateScreen.retranslate_dynamic_content": {
+      "source_blocks_sha256": [
+        "b32163b95b6329d0893a11e0022f0e962ba12187ec57525ce871310fe0ffec1f"
+      ],
+      "source_sha256": "b32163b95b6329d0893a11e0022f0e962ba12187ec57525ce871310fe0ffec1f",
+      "text": "이 스크린은 라이브 상태로 구성된 캡션을 다시 전송합니다.",
+      "translation_source_blocks_sha256": [
+        "b32163b95b6329d0893a11e0022f0e962ba12187ec57525ce871310fe0ffec1f"
       ]
     },
     "spacr.qt.screens.annotate.current_ring_color": {
@@ -98725,13 +98747,13 @@
     "spacr.qt.widgets.setup_card.SetupCard.accent_span": {
       "source_blocks_sha256": [
         "569d3e2788f5ef8a7ee939a90c4541a89e0d1cf103edea4de1f82ef983fe9af0",
-        "bd7a8e054dfa6cac08cd14535bfbef7058ef26e01c789705b96a0175b9678f70"
+        "62a723308c7799d86ab0cedacc63660689b026ef01a55c93a2f6ae7200dcb740"
       ],
-      "source_sha256": "5598107b9d95e20b3c8db95e5066b100deee792d1cd26285c92f3afacfff8e1b",
-      "text": "얼마나 많은 림이 빛나는지, 그것의 길이의 부분으로.\n\n구멍은 PIXELS의 길이입니다; 림의 부분으로서 그것은 카드가 얼마나 큰지에 따라 달라집니다, 그것은 옳습니다 - 고정 된 부분은 큰 카드에 머리 라인과 작은 하나에 반 림이 될 것입니다.",
+      "source_sha256": "b5b7cd85ae85ebcb563fc073ba1873de80ccaa8f8bed779431915bdb9858ea87",
+      "text": "얼마나 많은 림이 빛나는지, 그것의 길이의 부분으로.\n\n각 카드에 동일한 부분, 그래서 설정 팝업과 첫 번째 실행 창은 두 개 대신 하나의 림을 착용합니다. 구멍 선호는 픽셀의 길이이며 참조 표면에서 볼 필요가있는 길이로 읽어집니다; 대신 각 카드는 자신의 범위에 대해 측정, 같은 280 px는 설정 창의 여섯 번째를 커버하고 작은 popup의 두 다섯 번째, 그리고 짧은 하나는 두꺼운 밝은 밴드로 읽을 것입니다 - \"림은 두꺼워지고 밝습니다. 림과 창은 설정 spacr 창과 정확하게 보이게합니다.\"",
       "translation_source_blocks_sha256": [
         "569d3e2788f5ef8a7ee939a90c4541a89e0d1cf103edea4de1f82ef983fe9af0",
-        "bd7a8e054dfa6cac08cd14535bfbef7058ef26e01c789705b96a0175b9678f70"
+        "62a723308c7799d86ab0cedacc63660689b026ef01a55c93a2f6ae7200dcb740"
       ]
     },
     "spacr.qt.widgets.setup_card.SetupCard.accent_start": {

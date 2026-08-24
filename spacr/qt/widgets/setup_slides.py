@@ -1498,6 +1498,15 @@ class SetupSlides(QDialog):
         # than in a container floating over it.
         self.card.setGeometry(self.rect())
         self.card.raise_()
+        # THE WINDOW IS CUT TO THE CARD'S SHAPE, the same way every glassed
+        # popup is, so the two surfaces are the same surface and not two
+        # takes on one idea.
+        try:
+            from .glass import round_the_corners
+
+            round_the_corners(self, CARD_RADIUS)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not round the setup window", exc_info=True)
         self._place_the_greeting()
 
 

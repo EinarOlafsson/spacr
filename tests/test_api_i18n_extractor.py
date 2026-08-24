@@ -662,7 +662,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # commits admitted names in this comment and did not move the number.
     # It is moved to the MEASURED total here rather than to 8220+12, so
     # the count means what it says again.
-    expected = 8264
+    # +2/-0 for the window chrome and the annotate screen's own language
+    # pass: `MainWindow.changeEvent`, which re-lays the menu bar so a menu
+    # opens under the word that was pressed, and
+    # `AnnotateScreen.retranslate_dynamic_content`, which recomposes the
+    # captions this screen builds from parts. Nothing retired.
+    expected = 8266
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -677,7 +682,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8383
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8385
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:

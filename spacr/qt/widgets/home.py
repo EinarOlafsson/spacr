@@ -710,7 +710,13 @@ class QueuedPanel(Panel):
                           P["accent"] if state == "running"
                           else P["fg_muted"]))
         if len(pending) > self.MAX_ROWS:
-            more = QLabel(f"+{len(pending) - self.MAX_ROWS} more")
+            # THE COUNT IS A VALUE, NOT PART OF THE KEY. Composing "+3 more"
+            # first asks the catalog for a phrase that changes with the queue
+            # depth, so no row could ever match it; tr() formats the count
+            # into the translation instead.
+            from ..i18n import tr
+
+            more = QLabel(tr("+{n} more", n=len(pending) - self.MAX_ROWS))
             more.setStyleSheet(
                 f"color: {P['fg_dim']}; font-size: {font_px(11)}px;"
                 "background: transparent;")
@@ -1036,8 +1042,14 @@ class NewsPanel(Panel):
     check_requested = Signal()
 
     def __init__(self, version: str = "", parent=None):
-        super().__init__(f"News · spaCR {version}" if version else "News",
-                         parent, beta=True)
+        # THE HEADING AND THE VERSION ARE SEPARATE. The catalog is keyed on
+        # "News", so composing the release into the caption first leaves the
+        # only aside panel that names a build in English.
+        from ..i18n import tr
+
+        heading = tr("News")
+        super().__init__(f"{heading} · spaCR {version}" if version
+                         else heading, parent, beta=True)
         P = active_palette()
         self.content: Optional[QWidget] = None
         self._placeholder = QLabel(

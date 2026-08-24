@@ -59,6 +59,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from .i18n import tr
 from .widgets.toggle import Toggle
 
 LOG = logging.getLogger("spacr.qt.settings_search")
@@ -122,6 +123,32 @@ def forget_disclosure(app_key: Optional[str] = None) -> None:
         store.remove(f"{_KEY_DISCLOSURE}/{app_key}")
 
 
+def _localize(widget: QWidget, setter_name: str, property_name: str,
+              source: str) -> None:
+    """Apply ``source`` in the user's language, keeping the English behind it.
+
+    The strip is built from ``stack.currentChanged``, which fires after the
+    window has run its one language pass over the screen, so every caption
+    here has to translate itself. That alone is not enough:
+    :func:`spacr.qt.i18n.retranslate_widget_tree` reads a widget's English
+    back out of two properties — the source it should translate, and the
+    rendering it last put on screen. Text written straight out in the user's
+    language leaves both unset, so the *next* language switch would translate
+    a translation; text re-applied by a handler looks instead like live data
+    the translator must leave alone. Writing both makes either safe.
+
+    :param widget: the widget to caption.
+    :param setter_name: the Qt setter, e.g. ``"setToolTip"``.
+    :param property_name: the i18n source property that setter reads, e.g.
+        ``"_spacr_i18n_tooltip"``.
+    :param source: the English string, exactly as the catalog keys it.
+    """
+    rendered = tr(source)
+    widget.setProperty(property_name, source)
+    widget.setProperty(f"{property_name}_last_rendered", rendered)
+    getattr(widget, setter_name)(rendered)
+
+
 # ---------------------------------------------------------------------------
 # The strip
 # ---------------------------------------------------------------------------
@@ -168,27 +195,35 @@ class SettingsSearchBar(QWidget):
         self._input = QLineEdit(self)
         self._input.setObjectName(INPUT_NAME)
         self._input.setClearButtonEnabled(True)
-        self._input.setPlaceholderText("Search settings…")
-        self._input.setToolTip(
+        _localize(self._input, "setPlaceholderText",
+                  "_spacr_i18n_placeholder", "Search settings…")
+        _localize(
+            self._input, "setToolTip", "_spacr_i18n_tooltip",
             "Search every setting in this module by name, by label, or by "
             "what its description says it does.")
-        self._input.setAccessibleName("Search settings")
+        _localize(self._input, "setAccessibleName",
+                  "_spacr_i18n_accessible_name", "Search settings")
         self._input.textChanged.connect(self._on_query_changed)
         row.addWidget(self._input, 1)
 
         # A `Toggle`, not a QCheckBox: every boolean control in the shell is
         # a switch, and `tests/qt/test_widgets.py` bans the plain checkbox
         # outright so one panel cannot quietly reintroduce it.
-        self._modified_label = QLabel("Modified", self)
+        self._modified_label = QLabel(self)
+        _localize(self._modified_label, "setText", "_spacr_i18n_text",
+                  "Modified")
         self._modified_label.setObjectName(MODIFIED_NAME + "Label")
         row.addWidget(self._modified_label, 0)
 
         self._modified = Toggle(parent=self)
         self._modified.setObjectName(MODIFIED_NAME)
-        self._modified.setToolTip(
+        _localize(
+            self._modified, "setToolTip", "_spacr_i18n_tooltip",
             "Show only the settings that no longer hold this module's "
             "default value.")
-        self._modified.setAccessibleName("Show modified settings only")
+        _localize(self._modified, "setAccessibleName",
+                  "_spacr_i18n_accessible_name",
+                  "Show modified settings only")
         self._modified.toggled.connect(self._on_modified_toggled)
         row.addWidget(self._modified, 0)
 
@@ -340,16 +375,24 @@ class SettingsSearchBar(QWidget):
 
     # -- internals ----------------------------------------------------
     def _refresh_disclosure_text(self) -> None:
+        """Caption the switch for the level it is now on.
+
+        Re-applied on every level change, which is why the captions go
+        through :func:`_localize`: a raw English literal here would put the
+        button back into English the first time somebody switched between
+        Essentials and All, undoing an otherwise successful language pass.
+        """
         if self._level == ALL:
-            self._disclosure.setText("All settings")
-            self._disclosure.setToolTip(
-                "Showing every setting. Click for the essentials only.")
+            caption = "All settings"
+            hint = "Showing every setting. Click for the essentials only."
         else:
-            self._disclosure.setText("Essentials")
-            self._disclosure.setToolTip(
-                "Showing the settings this module cannot run without. "
-                "Click for all of them.")
-        self._disclosure.setAccessibleName(self._disclosure.text())
+            caption = "Essentials"
+            hint = ("Showing the settings this module cannot run without. "
+                    "Click for all of them.")
+        _localize(self._disclosure, "setText", "_spacr_i18n_text", caption)
+        _localize(self._disclosure, "setToolTip", "_spacr_i18n_tooltip", hint)
+        _localize(self._disclosure, "setAccessibleName",
+                  "_spacr_i18n_accessible_name", caption)
 
     def _build_index(self) -> None:
         """Map each setting key to the section and field widget showing it.
@@ -424,8 +467,6 @@ class SettingsSearchBar(QWidget):
         # sentence with its numbers as placeholders; a line built out of
         # f-strings first and looked up after matches nothing, and this
         # line sits under every settings panel in the program.
-        from .i18n import tr
-
         if shown == total:
             if self._level == ESSENTIALS and essentials:
                 return tr("Showing all {total} settings.", total=total)
@@ -542,6 +583,17 @@ def install(screen: QWidget) -> Optional[SettingsSearchBar]:
         LOG.debug("could not install the settings search strip", exc_info=True)
         return None
     screen._settings_search = bar
+    # The strip captions itself in the user's language, but it is also an
+    # extension point — `spacr.qt.recipes` hangs a button on it — and it is
+    # built from `stack.currentChanged`, long after the window has run its
+    # one language pass over this screen. A pass over the finished strip is
+    # idempotent and means nothing added here can be left in English.
+    try:
+        from .i18n import retranslate_widget_tree
+        retranslate_widget_tree(bar)
+    except Exception:
+        LOG.debug("could not translate the settings search strip",
+                  exc_info=True)
     return bar
 
 

@@ -1619,6 +1619,44 @@ def needs_curated_layout(app_key: str) -> bool:
         return False
 
 
+#: The dash between a family prefix and the group name in a merged module's
+#: heading. Written once: an em dash swapped for a hyphen in an edit fails
+#: silently, because the lookups below simply stop matching.
+_FAMILY_HEADING_DASH = "—"
+
+
+def _family_heading(prefix: str, name: str) -> str:
+    """Compose one family-prefixed section heading and catalogue the pair.
+
+    The composed heading is a key as much as a caption: the blurb tables,
+    the hidden-category lists and the layout tests are all written against
+    the English ``Computer Vision — Images & Cropping``, so the heading is
+    returned in English and only its TRANSLATION is composed here. No
+    catalog can carry a row for every prefix and group name that meet, and
+    asking for the finished pair is what leaves these headings reading half
+    English; each half is looked up on its own and the halves joined, so a
+    row written for either one reaches the header — which knows only the
+    finished pair. A translation that already exists for the whole pair
+    wins, so a reviewed caption is never displaced by a composed one.
+    """
+    heading = f"{prefix} {_FAMILY_HEADING_DASH} {name}"
+    try:
+        from ..i18n import (VALID_LANGUAGE_CODES, _exact_translation,
+                            add_translation, tr)
+
+        add_translation(heading, [
+            _exact_translation(heading, code)
+            or f"{tr(prefix, code)} {_FAMILY_HEADING_DASH} {tr(name, code)}"
+            for code in VALID_LANGUAGE_CODES[1:]
+        ])
+    except (ImportError, AttributeError, ValueError):
+        # A catalog that will not take the row leaves the heading reading
+        # exactly as it does today. A panel that is otherwise ready to build
+        # must not fail over a caption.
+        pass
+    return heading
+
+
 def categories_for_app(
     app_key: str,
     categories: Dict[str, List[str]],
@@ -1811,8 +1849,8 @@ def categories_for_app(
             # The shared groups are deliberately NOT prefixed. "Labels &
             # Classes" applies to both families, and prefixing it would
             # imply it belonged to one.
-            cv_prefix = "Computer Vision — "
-            ml_prefix = "Machine Learning — "
+            cv_family = "Computer Vision"
+            ml_family = "Machine Learning"
             cv_groups = ("Images & Cropping", "Model & Regularization",
                          "Training & Loss")
             # Feature preparation and feature importance were two headings
@@ -1828,7 +1866,7 @@ def categories_for_app(
                     rebuilt[name] = ordered[name]
             for name in cv_groups:
                 if name in ordered:
-                    rebuilt[cv_prefix + name] = ordered[name]
+                    rebuilt[_family_heading(cv_family, name)] = ordered[name]
             for name in ml_groups:
                 # A rename of `label` to "Classifier & Validation" stood here,
                 # guarded on `name.startswith("ML Classifier")` so the heading
@@ -1836,7 +1874,7 @@ def categories_for_app(
                 # of `ml_groups` has been called that since the groups above
                 # were consolidated, so it could not run and was removed.
                 if name in ordered:
-                    rebuilt[ml_prefix + name] = ordered[name]
+                    rebuilt[_family_heading(ml_family, name)] = ordered[name]
             # Shared groups that come LAST -- evaluation applies to both
             # families, so prefixing it onto one would be a lie about who it
             # belongs to, and putting it first would bury the settings that
@@ -6137,6 +6175,7 @@ class _Chip(QFrame):
 
     def __init__(self, text: str, colours: dict, parent=None):
         super().__init__(parent)
+        from ..i18n import tr
         from ..theme import font_px
         self.setObjectName("SettingChip")
         self._text = text
@@ -6150,7 +6189,11 @@ class _Chip(QFrame):
         close.setObjectName("SettingChipClose")
         close.setText("×")
         close.setCursor(Qt.PointingHandCursor)
-        close.setToolTip(f"Remove {text}")
+        # THE VALUE IS A VALUE. Splicing it in first asks the catalog for
+        # "Remove Cell", "Remove cytoplasm" and one key per chip anyone ever
+        # types; the caption is looked up as a template and the value put in
+        # after, so the verb translates whatever the chip holds.
+        close.setToolTip(tr("Remove {value}", value=text))
         close.setFocusPolicy(Qt.NoFocus)
         close.clicked.connect(lambda: self.removed.emit(self))
         row.addWidget(close)

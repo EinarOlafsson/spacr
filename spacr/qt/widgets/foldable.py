@@ -12,6 +12,8 @@ from typing import Callable, Optional
 from PySide6.QtCore import QEvent, QObject, Qt
 from PySide6.QtWidgets import QLabel, QWidget
 
+from ..i18n import tr
+
 LOG = logging.getLogger("spacr.qt.foldable")
 
 #: What a folded heading shows, and what an open one does. The arrow is part
@@ -61,14 +63,15 @@ class Folder:
         self._shut = False
         self._alert = ""
         heading.setCursor(Qt.PointingHandCursor)
-        # THE NAME LOOKS CLICKABLE BEFORE IT IS CLICKED. A gesture nobody
-        # knows about is not a feature, and the pointer is the only hint a
-        # heading can carry without a second widget beside it.
-        heading.setToolTip(f"Click to fold {self.name} away, and click again "
-                           f"to bring it back. The panel above takes the "
-                           f"space.")
+        self._refresh_tooltip()
         self._filter = _ClickToFold(heading, self.toggle)
         heading.installEventFilter(self._filter)
+        # A HEADING IS COMPOSED, NOT WRITTEN. The line reads as an arrow, the
+        # panel name and sometimes an alert, so asking the catalog for the
+        # finished line asks for a key that cannot exist. Keep the generic
+        # language pass off it and rebuild it from the translated parts.
+        heading.setProperty("i18nSkipText", True)
+        heading.retranslate_dynamic_content = self._retranslate
         self._repaint()
 
     # ------------------------------------------------------------- state
@@ -112,9 +115,23 @@ class Folder:
         self._alert = str(note or "!")
         self._repaint()
 
-    def _repaint(self) -> None:
+    def _retranslate(self, language: Optional[str] = None) -> None:
+        """Rebuild the heading and its tooltip in ``language``."""
+        self._refresh_tooltip(language)
+        self._repaint(language)
+
+    def _refresh_tooltip(self, language: Optional[str] = None) -> None:
+        # THE NAME LOOKS CLICKABLE BEFORE IT IS CLICKED. A gesture nobody
+        # knows about is not a feature, and the pointer is the only hint a
+        # heading can carry without a second widget beside it.
+        self.heading.setToolTip(tr(
+            "Click to fold {name} away, and click again to bring it back. "
+            "The panel above takes the space.",
+            language, name=tr(self.name, language)))
+
+    def _repaint(self, language: Optional[str] = None) -> None:
         mark = SHUT_MARK if self._shut else OPEN_MARK
-        text = f"{mark} {self.name}"
+        text = f"{mark} {tr(self.name, language)}"
         if self._shut and self._alert:
             text = f"{text}  {self._alert}"
         self.heading.setText(text)

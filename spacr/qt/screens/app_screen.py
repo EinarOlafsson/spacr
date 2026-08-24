@@ -1319,6 +1319,12 @@ class AppScreen(QWidget):
         # under the cursor. Initialized in __init__.
         for title, rows in sections:
             section = Section(title)
+            # The category name as the layout writes it. Everything that
+            # looks a category up -- the blurb tables and the catalogs --
+            # is keyed on that spelling, and the header answers with the
+            # uppercased caption it draws, so the written name is kept
+            # where `_wire_category_hints` can read it back.
+            section.setProperty("settingsCategorySource", title)
             section.set_maturity(
                 settings_section_maturity(self.app_key, title)
             )
@@ -2184,8 +2190,16 @@ class AppScreen(QWidget):
         if existing and existing not in placeholders:
             return None
 
-        # Human-friendly title varies per app; the body is the same.
-        title = f"Point {APP_TITLES.get(self.app_key, self.app_key).lower()} at some data"
+        # Human-friendly title varies per app; the body is the same. THE
+        # MODULE NAME IS A VALUE, NOT PART OF THE KEY: baking it into the
+        # sentence first asks the catalog for "Point measure at some data"
+        # and every other module's variant of it, none of which any catalog
+        # can hold. The sentence is looked up as a template and the name --
+        # itself translated -- put in afterwards.
+        title = tr(
+            "Point {module} at some data",
+            module=tr(APP_TITLES.get(self.app_key, self.app_key)).lower(),
+        )
         # ...and so does the demo. This named "Demos → Mask demo…" on
         # every screen, so Measure, Timelapse, Classify and Sequencing all
         # offered a dataset that opens a DIFFERENT module: following the
@@ -2198,11 +2212,18 @@ class AppScreen(QWidget):
             demo = demo_label_for_app(self.app_key)
         except Exception:
             demo = None
-        offer = (f"use Demos → {demo} for a synthetic dataset"
-                 if demo else "pick a dataset from the Demos menu")
-        subtitle = (
-            f"Drop a folder of images anywhere on this window, or {offer}. "
-            "You can also type a path into the src field below."
+        # Same reason as the title above: the clause and the sentence are
+        # each looked up on their own, so the demo's name is the only part
+        # that is interpolated and the catalog is never asked for a key that
+        # contains it.
+        offer = (
+            tr("use Demos → {demo} for a synthetic dataset", demo=tr(demo))
+            if demo else tr("pick a dataset from the Demos menu")
+        )
+        subtitle = tr(
+            "Drop a folder of images anywhere on this window, or {offer}. "
+            "You can also type a path into the src field below.",
+            offer=offer,
         )
         card = EmptyState(
             title=title, subtitle=subtitle,
@@ -3438,7 +3459,14 @@ class AppScreen(QWidget):
             header = section.header()
             if header is None or header.property("categoryHintWired"):
                 continue
-            title = section.title()
+            # THE CATEGORY AS IT IS WRITTEN, not as the header shows it.
+            # `Section.title()` answers with the uppercased caption, and a
+            # catalog keyed on "Preview & Diagnostics" has nothing under
+            # "PREVIEW & DIAGNOSTICS" — so the strip would head a translated
+            # blurb with an English title. The written name is kept on the
+            # section for exactly this, and uppercased after the lookup.
+            title = (section.property("settingsCategorySource")
+                     or section.title())
             header.setProperty("settingsCategory", title)
             header.setProperty("categoryHintWired", True)
             header.removeEventFilter(self)
@@ -3461,7 +3489,10 @@ class AppScreen(QWidget):
         if strip is None:
             return
         text = category_tooltip(self.app_key, title)
-        heading = str(title or "").upper().strip()
+        # Translated first, uppercased second. The other order asks the
+        # catalog for a caption nobody wrote and leaves an English word in
+        # bold at the head of a translated sentence.
+        heading = tr(str(title or "")).upper().strip()
         strip.setText(
             f"<b>{escape(heading)}</b> — {escape(text)}"
             if heading else escape(text)

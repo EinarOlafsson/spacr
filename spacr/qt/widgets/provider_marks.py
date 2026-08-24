@@ -14,18 +14,25 @@ and its own two versions for light and dark. A path scales to any button
 size, takes the brand colour when the provider is available and the theme's
 muted ink when it is not, and adds nothing to the wheel.
 
-The shapes are the recognisable geometry of each mark, not a facsimile:
-Claude's radiating burst, OpenAI's six-fold knot, Gemini's four-pointed
-spark. They identify whose command-line tool spaCR would drive, which is
-what the question is asking.
+The three assistant shapes are the recognisable geometry of each mark, not
+a facsimile: Claude's radiating burst, OpenAI's six-fold knot, Gemini's
+four-pointed spark. They identify whose command-line tool spaCR would
+drive, which is what the question is asking.
+
+GITHUB IS THE EXCEPTION, and deliberately. GitHub publishes the Octocat's
+path data for use as a link mark, so that one is the real thing rather
+than a circle with ears -- still a path, still recoloured per theme,
+still nothing added to the wheel.
 """
 from __future__ import annotations
 
 import math
+import re
 from typing import Dict, Optional, Tuple
 
 from PySide6.QtCore import QPointF, QRectF, QSize, Qt, Signal
-from PySide6.QtGui import QColor, QPainter, QPainterPath
+from PySide6.QtGui import (QColor, QPainter, QPainterPath,
+                           QTransform)
 from PySide6.QtWidgets import QSizePolicy, QWidget
 
 #: Each provider's brand colour, used only when its CLI is actually here.
@@ -118,36 +125,173 @@ def gemini_path(box: QRectF) -> QPainterPath:
     return path
 
 
-def github_path(box: QRectF) -> QPainterPath:
-    """The Octocat silhouette, reduced to a circle with ears and a tail.
+#: GitHub's own mark: the path out of `Octicons-mark-github.svg`.
+#:
+#: TRACED FROM NOTHING AND INVENTED FROM NOTHING. The three assistant
+#: marks are drawn from primitives because their logos are not ours to
+#: reproduce; this one is the octicons mark itself, which GitHub ships
+#: under MIT for exactly this use. So the Octocat is the Octocat rather
+#: than a circle with ears, which is what stood here.
+#:
+#: Copied verbatim from the file, including its 16-unit coordinates --
+#: the SVG carries a `scale(64)` to reach its 1024 viewBox, and this is
+#: scaled into whatever box it is asked for instead.
+GITHUB_MARK = (
+    "M8 0C3.58 0 0 3.58 0 8C0 11.54 2.29 14.53 5.47 15.59C5.87 15.6"
+    "6 6.02 15.42 6.02 15.21C6.02 15.02 6.01 14.39 6.01 13.72C4 14."
+    "09 3.48 13.23 3.32 12.78C3.23 12.55 2.84 11.84 2.5 11.65C2.22 "
+    "11.5 1.82 11.13 2.49 11.12C3.12 11.11 3.57 11.7 3.72 11.94C4.4"
+    "4 13.15 5.59 12.81 6.05 12.6C6.12 12.08 6.33 11.73 6.56 11.53C"
+    "4.78 11.33 2.92 10.64 2.92 7.58C2.92 6.71 3.23 5.99 3.74 5.43C"
+    "3.66 5.23 3.38 4.41 3.82 3.31C3.82 3.31 4.49 3.1 6.02 4.13C6.6"
+    "6 3.95 7.34 3.86 8.02 3.86C8.7 3.86 9.38 3.95 10.02 4.13C11.55"
+    " 3.09 12.22 3.31 12.22 3.31C12.66 4.41 12.38 5.23 12.3 5.43C12"
+    ".81 5.99 13.12 6.7 13.12 7.58C13.12 10.65 11.25 11.33 9.47 11."
+    "53C9.76 11.78 10.01 12.26 10.01 13.01C10.01 14.08 10 14.94 10 "
+    "15.21C10 15.42 10.15 15.67 10.55 15.59C13.71 14.53 16 11.53 16"
+    " 8C16 3.58 12.42 0 8 0Z"
+)
 
-    Not a traced logo: a recognisable mark drawn from primitives, like every
-    other mark here. The head is the circle, two arcs above it are the ears,
-    and the tail is the stroke that makes it read as the GitHub mark rather
-    than as a plain dot.
+#: Every token an SVG path can hold: one command letter, or one number.
+_SVG_TOKEN = re.compile(r"[MmZzLlHhVvCcSsQqTtAa]|-?\d*\.?\d+(?:e[-+]?\d+)?")
+
+#: The parsed mark, kept because parsing it on every paint is waste.
+_GITHUB_PATH: Optional[QPainterPath] = None
+
+
+def _parse_svg_path(d: str) -> QPainterPath:
+    """An SVG path's ``d`` attribute as a QPainterPath.
+
+    Supports the commands the marks here actually use -- moves, lines,
+    cubics, smooth cubics, arcs and close. Anything else raises rather
+    than drawing something wrong quietly.
     """
+    tokens = _SVG_TOKEN.findall(d)
     path = QPainterPath()
-    centre = box.center()
-    reach = min(box.width(), box.height()) / 2.0
-    head = reach * 0.82
-    path.addEllipse(centre, head, head)
-
-    # The two ears, as small circles just inside the top of the head.
-    ear = head * 0.30
-    for side in (-1.0, 1.0):
-        path.addEllipse(QPointF(centre.x() + side * head * 0.52,
-                                centre.y() - head * 0.62), ear, ear)
-
-    # The tail, curving down and out from the lower right of the head.
-    tail = QPainterPath()
-    start = QPointF(centre.x() + head * 0.10, centre.y() + head * 0.62)
-    tail.moveTo(start)
-    tail.quadTo(QPointF(centre.x() + head * 0.72, centre.y() + head * 0.88),
-                QPointF(centre.x() + head * 0.86, centre.y() + reach * 0.98))
-    tail.quadTo(QPointF(centre.x() + head * 0.62, centre.y() + head * 0.96),
-                start)
-    path.addPath(tail)
+    i = 0
+    cmd = None
+    cur = QPointF(0, 0)
+    start = QPointF(0, 0)
+    last_c = None
+    def num():
+        nonlocal i
+        v = float(tokens[i]); i += 1; return v
+    while i < len(tokens):
+        if re.match(r"[A-Za-z]", tokens[i]):
+            cmd = tokens[i]; i += 1
+            if cmd in "Zz":
+                path.closeSubpath(); cur = QPointF(start); continue
+        rel = cmd.islower()
+        c = cmd.upper()
+        if c == "M":
+            x, y = num(), num()
+            p = QPointF(cur.x()+x, cur.y()+y) if rel else QPointF(x, y)
+            path.moveTo(p); cur = p; start = QPointF(p)
+            cmd = "l" if rel else "L"
+        elif c == "L":
+            x, y = num(), num()
+            p = QPointF(cur.x()+x, cur.y()+y) if rel else QPointF(x, y)
+            path.lineTo(p); cur = p
+        elif c == "H":
+            x = num(); p = QPointF(cur.x()+x if rel else x, cur.y())
+            path.lineTo(p); cur = p
+        elif c == "V":
+            y = num(); p = QPointF(cur.x(), cur.y()+y if rel else y)
+            path.lineTo(p); cur = p
+        elif c == "C":
+            x1,y1,x2,y2,x,y = (num() for _ in range(6))
+            if rel:
+                c1 = QPointF(cur.x()+x1, cur.y()+y1); c2 = QPointF(cur.x()+x2, cur.y()+y2)
+                p = QPointF(cur.x()+x, cur.y()+y)
+            else:
+                c1 = QPointF(x1,y1); c2 = QPointF(x2,y2); p = QPointF(x,y)
+            path.cubicTo(c1, c2, p); last_c = c2; cur = p
+        elif c == "S":
+            x2,y2,x,y = (num() for _ in range(4))
+            if rel:
+                c2 = QPointF(cur.x()+x2, cur.y()+y2); p = QPointF(cur.x()+x, cur.y()+y)
+            else:
+                c2 = QPointF(x2,y2); p = QPointF(x,y)
+            c1 = QPointF(2*cur.x()-last_c.x(), 2*cur.y()-last_c.y()) if last_c else QPointF(cur)
+            path.cubicTo(c1, c2, p); last_c = c2; cur = p
+        elif c == "A":
+            rx, ry, rot, laf, sf, x, y = (num() for _ in range(7))
+            p = QPointF(cur.x()+x, cur.y()+y) if rel else QPointF(x, y)
+            _svg_arc(path, cur, p, rx, ry, rot, int(laf), int(sf))
+            cur = p
+        else:
+            raise ValueError(f"unsupported command {cmd!r}")
     return path
+
+
+def _svg_arc(path: QPainterPath, p0: QPointF, p1: QPointF,
+             rx: float, ry: float, rot_deg: float,
+             large: int, sweep: int) -> None:
+    """SVG endpoint arc -> cubic segments (endpoint to centre conversion)."""
+    if rx == 0 or ry == 0:
+        path.lineTo(p1); return
+    phi = math.radians(rot_deg)
+    dx2, dy2 = (p0.x()-p1.x())/2.0, (p0.y()-p1.y())/2.0
+    x1 = math.cos(phi)*dx2 + math.sin(phi)*dy2
+    y1 = -math.sin(phi)*dx2 + math.cos(phi)*dy2
+    rx, ry = abs(rx), abs(ry)
+    lam = x1*x1/(rx*rx) + y1*y1/(ry*ry)
+    if lam > 1:
+        rx *= math.sqrt(lam); ry *= math.sqrt(lam)
+    num_ = rx*rx*ry*ry - rx*rx*y1*y1 - ry*ry*x1*x1
+    den = rx*rx*y1*y1 + ry*ry*x1*x1
+    co = math.sqrt(max(0.0, num_/den)) * (-1 if large == sweep else 1)
+    cx1 = co * rx * y1 / ry
+    cy1 = -co * ry * x1 / rx
+    cx = math.cos(phi)*cx1 - math.sin(phi)*cy1 + (p0.x()+p1.x())/2.0
+    cy = math.sin(phi)*cx1 + math.cos(phi)*cy1 + (p0.y()+p1.y())/2.0
+    def ang(ux, uy, vx, vy):
+        dot = ux*vx + uy*vy
+        n = math.hypot(ux, uy) * math.hypot(vx, vy)
+        a = math.acos(max(-1.0, min(1.0, dot/n)))
+        return -a if ux*vy - uy*vx < 0 else a
+    th1 = ang(1, 0, (x1-cx1)/rx, (y1-cy1)/ry)
+    dth = ang((x1-cx1)/rx, (y1-cy1)/ry, (-x1-cx1)/rx, (-y1-cy1)/ry)
+    if not sweep and dth > 0: dth -= 2*math.pi
+    elif sweep and dth < 0: dth += 2*math.pi
+    steps = max(1, int(abs(dth) / (math.pi/2) + 1))
+    delta = dth/steps
+    t = 4.0/3.0 * math.tan(delta/4.0)
+    for s in range(steps):
+        a0 = th1 + s*delta; a1 = a0 + delta
+        c0, s0 = math.cos(a0), math.sin(a0)
+        c1_, s1 = math.cos(a1), math.sin(a1)
+        def pt(c_, s_):
+            return QPointF(cx + rx*math.cos(phi)*c_ - ry*math.sin(phi)*s_,
+                           cy + rx*math.sin(phi)*c_ + ry*math.cos(phi)*s_)
+        p_start = pt(c0, s0); p_end = pt(c1_, s1)
+        d1 = QPointF(-rx*math.cos(phi)*s0 - ry*math.sin(phi)*c0,
+                     -rx*math.sin(phi)*s0 + ry*math.cos(phi)*c0)
+        d2 = QPointF(-rx*math.cos(phi)*s1 - ry*math.sin(phi)*c1_,
+                     -rx*math.sin(phi)*s1 + ry*math.cos(phi)*c1_)
+        path.cubicTo(QPointF(p_start.x()+t*d1.x(), p_start.y()+t*d1.y()),
+                     QPointF(p_end.x()-t*d2.x(), p_end.y()-t*d2.y()), p_end)
+
+
+def github_path(box: QRectF) -> QPainterPath:
+    """GitHub's Octocat mark, scaled to fill ``box``.
+
+    Uniform scale on the larger of the two ratios and centred, so the cat
+    keeps its proportions in a box of any shape.
+    """
+    global _GITHUB_PATH
+    if _GITHUB_PATH is None:
+        _GITHUB_PATH = _parse_svg_path(GITHUB_MARK)
+    bounds = _GITHUB_PATH.boundingRect()
+    if bounds.isEmpty() or box.isEmpty():
+        return QPainterPath(_GITHUB_PATH)
+    scale = min(box.width() / bounds.width(), box.height() / bounds.height())
+    transform = QTransform()
+    transform.translate(
+        box.center().x() - bounds.center().x() * scale,
+        box.center().y() - bounds.center().y() * scale)
+    transform.scale(scale, scale)
+    return transform.map(_GITHUB_PATH)
 
 
 #: Provider code -> the function that draws its mark.
