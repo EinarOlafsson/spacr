@@ -75,32 +75,32 @@ Arbetsflödet i korthet
 
 .. |Workflow_mask| image:: ../../../spacr/resources/icons/workflow/mask.png
    :width: 14.5%
-   :alt: Open the Mask API
+   :alt: Öppna API-dokumentationen för Mask
    :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
    :align: middle
 .. |Workflow_measure| image:: ../../../spacr/resources/icons/workflow/measure.png
    :width: 14.5%
-   :alt: Open the Measure API
+   :alt: Öppna API-dokumentationen för Measure
    :target: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html
    :align: middle
 .. |Workflow_annotate| image:: ../../../spacr/resources/icons/workflow/annotate.png
    :width: 14.5%
-   :alt: Open the Annotate API
+   :alt: Öppna API-dokumentationen för Annotate
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html
    :align: middle
 .. |Workflow_classify_merged| image:: ../../../spacr/resources/icons/workflow/classify_merged.png
    :width: 14.5%
-   :alt: Open the Classify API
+   :alt: Öppna API-dokumentationen för Classify
    :target: https://einarolafsson.github.io/spacr/api/spacr/classify/index.html
    :align: middle
 .. |Workflow_map_barcodes| image:: ../../../spacr/resources/icons/workflow/map_barcodes.png
    :width: 14.5%
-   :alt: Open the Map Barcodes API
+   :alt: Öppna API-dokumentationen för Map Barcodes
    :target: https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html
    :align: middle
 .. |Workflow_regression| image:: ../../../spacr/resources/icons/workflow/regression.png
    :width: 14.5%
-   :alt: Open the Regression API
+   :alt: Öppna API-dokumentationen för Regression
    :target: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
    :align: middle
 .. |Workflow_arrow| image:: ../../../spacr/resources/icons/workflow/arrow.png
@@ -145,260 +145,268 @@ Arbetsflödet i korthet
 
 |App_experiment_design|\ |App_power|
 
-.. |App_timelapse| image:: ../../../spacr/resources/icons/workflow/apps/timelapse.png
-   :width: 19.9%
-   :alt: Open the Timelapse API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
-   :align: middle
-.. |App_motility| image:: ../../../spacr/resources/icons/workflow/apps/motility.png
-   :width: 19.9%
-   :alt: Open the Motility Assay API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html
-   :align: middle
-.. |App_curate| image:: ../../../spacr/resources/icons/workflow/apps/curate.png
-   :width: 19.9%
-   :alt: Open the Curate API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/curate/index.html
-   :align: middle
 .. |App_align| image:: ../../../spacr/resources/icons/workflow/apps/align.png
    :width: 19.9%
-   :alt: Open the Align & Stitch API
+   :alt: Öppna API-dokumentationen för Align & Stitch
    :target: https://einarolafsson.github.io/spacr/api/spacr/align/index.html
    :align: middle
 .. |App_convert| image:: ../../../spacr/resources/icons/workflow/apps/convert.png
    :width: 19.9%
-   :alt: Open the Format Converter API
+   :alt: Öppna API-dokumentationen för Format Converter
    :target: https://einarolafsson.github.io/spacr/api/spacr/convert/index.html
    :align: middle
 .. |App_foreign| image:: ../../../spacr/resources/icons/workflow/apps/foreign.png
    :width: 19.9%
-   :alt: Open the Import Project API
+   :alt: Öppna API-dokumentationen för Import Project
    :target: https://einarolafsson.github.io/spacr/api/spacr/foreign/index.html
    :align: middle
 .. |App_external_masks| image:: ../../../spacr/resources/icons/workflow/apps/external_masks.png
    :width: 19.9%
-   :alt: Open the External Masks API
+   :alt: Öppna API-dokumentationen för External Masks
    :target: https://einarolafsson.github.io/spacr/api/spacr/external_masks/index.html
    :align: middle
 .. |App_queue| image:: ../../../spacr/resources/icons/workflow/apps/queue.png
    :width: 19.9%
-   :alt: Open the Plate Queue API
+   :alt: Öppna API-dokumentationen för Plate Queue
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/plate_queue/index.html
    :align: middle
 .. |App_batch| image:: ../../../spacr/resources/icons/workflow/apps/batch.png
    :width: 19.9%
-   :alt: Open the Batch Runner API
+   :alt: Öppna API-dokumentationen för Batch Runner
    :target: https://einarolafsson.github.io/spacr/api/spacr/batch/index.html
    :align: middle
 .. |App_distributed_jobs| image:: ../../../spacr/resources/icons/workflow/apps/distributed_jobs.png
    :width: 19.9%
-   :alt: Open the Distributed Jobs API
+   :alt: Öppna API-dokumentationen för Distributed Jobs
    :target: https://einarolafsson.github.io/spacr/api/spacr/remote_execution/index.html
    :align: middle
 .. |App_db_browser| image:: ../../../spacr/resources/icons/workflow/apps/db_browser.png
    :width: 19.9%
-   :alt: Open the Database Browser API
+   :alt: Öppna API-dokumentationen för Database Browser
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/db_browser/index.html
    :align: middle
 .. |App_illumination| image:: ../../../spacr/resources/icons/workflow/apps/illumination.png
    :width: 19.9%
-   :alt: Open the Illumination API
+   :alt: Öppna API-dokumentationen för Illumination
    :target: https://einarolafsson.github.io/spacr/api/spacr/illumination/index.html
    :align: middle
 .. |App_data_manager| image:: ../../../spacr/resources/icons/workflow/apps/data_manager.png
    :width: 19.9%
-   :alt: Open the Data Manager API
+   :alt: Öppna API-dokumentationen för Data Manager
    :target: https://einarolafsson.github.io/spacr/api/spacr/data_manager/index.html
    :align: middle
 .. |App_make_masks| image:: ../../../spacr/resources/icons/workflow/apps/make_masks.png
    :width: 19.9%
-   :alt: Open the Make Masks API
+   :alt: Öppna API-dokumentationen för Make Masks
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html
    :align: middle
 .. |App_train_cellpose| image:: ../../../spacr/resources/icons/workflow/apps/train_cellpose.png
    :width: 19.9%
-   :alt: Open the Train Cellpose API
+   :alt: Öppna API-dokumentationen för Train Cellpose
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
 .. |App_cellpose_masks| image:: ../../../spacr/resources/icons/workflow/apps/cellpose_masks.png
    :width: 19.9%
-   :alt: Open the Cellpose Masks API
+   :alt: Öppna API-dokumentationen för Cellpose Masks
    :target: https://einarolafsson.github.io/spacr/api/spacr/spacr_cellpose/index.html
    :align: middle
 .. |App_model_compare| image:: ../../../spacr/resources/icons/workflow/apps/model_compare.png
    :width: 19.9%
-   :alt: Open the Model Compare API
+   :alt: Öppna API-dokumentationen för Model Compare
    :target: https://einarolafsson.github.io/spacr/api/spacr/model_compare/index.html
    :align: middle
 .. |App_model_zoo| image:: ../../../spacr/resources/icons/workflow/apps/model_zoo.png
    :width: 19.9%
-   :alt: Open the Model Zoo API
+   :alt: Öppna API-dokumentationen för Model Zoo
    :target: https://einarolafsson.github.io/spacr/api/spacr/model_zoo/index.html
+   :align: middle
+.. |App_curate| image:: ../../../spacr/resources/icons/workflow/apps/curate.png
+   :width: 19.9%
+   :alt: Öppna API-dokumentationen för Curate
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/curate/index.html
    :align: middle
 .. |App_plate_view| image:: ../../../spacr/resources/icons/workflow/apps/plate_view.png
    :width: 19.9%
-   :alt: Open the Plate Viewer API
+   :alt: Öppna API-dokumentationen för Plate Viewer
    :target: https://einarolafsson.github.io/spacr/api/spacr/plate_qc/index.html
    :align: middle
 .. |App_agreement| image:: ../../../spacr/resources/icons/workflow/apps/agreement.png
    :width: 19.9%
-   :alt: Open the Annotator Agreement API
+   :alt: Öppna API-dokumentationen för Annotator Agreement
    :target: https://einarolafsson.github.io/spacr/api/spacr/agreement/index.html
    :align: middle
 .. |App_umap| image:: ../../../spacr/resources/icons/workflow/apps/umap.png
    :width: 19.9%
-   :alt: Open the Image UMAP API
+   :alt: Öppna API-dokumentationen för Image UMAP
    :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
    :align: middle
 .. |App_activation| image:: ../../../spacr/resources/icons/workflow/apps/activation.png
    :width: 19.9%
-   :alt: Open the Activation API
+   :alt: Öppna API-dokumentationen för Activation
    :target: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
    :align: middle
 .. |App_train_compare| image:: ../../../spacr/resources/icons/workflow/apps/train_compare.png
    :width: 19.9%
-   :alt: Open the Training Runs API
+   :alt: Öppna API-dokumentationen för Training Runs
    :target: https://einarolafsson.github.io/spacr/api/spacr/train_compare/index.html
    :align: middle
 .. |App_classifier_evaluation| image:: ../../../spacr/resources/icons/workflow/apps/classifier_evaluation.png
    :width: 19.9%
-   :alt: Open the Classifier Evaluation API
+   :alt: Öppna API-dokumentationen för Classifier Evaluation
    :target: https://einarolafsson.github.io/spacr/api/spacr/classifier_evaluation/index.html
    :align: middle
 .. |App_run_history| image:: ../../../spacr/resources/icons/workflow/apps/run_history.png
    :width: 19.9%
-   :alt: Open the Run History API
+   :alt: Öppna API-dokumentationen för Run History
    :target: https://einarolafsson.github.io/spacr/api/spacr/run_journal/index.html
    :align: middle
 .. |App_report| image:: ../../../spacr/resources/icons/workflow/apps/report.png
    :width: 19.9%
-   :alt: Open the Report API
+   :alt: Öppna API-dokumentationen för Report
    :target: https://einarolafsson.github.io/spacr/api/spacr/report/index.html
    :align: middle
 .. |App_barcode_qc| image:: ../../../spacr/resources/icons/workflow/apps/barcode_qc.png
    :width: 19.9%
-   :alt: Open the Barcode QC API
+   :alt: Öppna API-dokumentationen för Barcode QC
    :target: https://einarolafsson.github.io/spacr/api/spacr/sequencing_qc/index.html
    :align: middle
 .. |App_hit_list| image:: ../../../spacr/resources/icons/workflow/apps/hit_list.png
    :width: 19.9%
-   :alt: Open the Hit List API
+   :alt: Öppna API-dokumentationen för Hit List
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/hit_list/index.html
    :align: middle
 .. |App_methods_export| image:: ../../../spacr/resources/icons/workflow/apps/methods_export.png
    :width: 19.9%
-   :alt: Open the Methods & Results API
+   :alt: Öppna API-dokumentationen för Methods & Results
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/methods_export/index.html
    :align: middle
 .. |App_volcano_explorer| image:: ../../../spacr/resources/icons/workflow/apps/volcano_explorer.png
    :width: 19.9%
-   :alt: Open the Volcano Explorer API
+   :alt: Öppna API-dokumentationen för Volcano Explorer
    :target: https://einarolafsson.github.io/spacr/api/spacr/volcano_style/index.html
    :align: middle
 .. |App_parameter_sweep| image:: ../../../spacr/resources/icons/workflow/apps/parameter_sweep.png
    :width: 19.9%
-   :alt: Open the Parameter Sweep API
+   :alt: Öppna API-dokumentationen för Parameter Sweep
    :target: https://einarolafsson.github.io/spacr/api/spacr/parameter_sweep/index.html
    :align: middle
 .. |App_run_compare| image:: ../../../spacr/resources/icons/workflow/apps/run_compare.png
    :width: 19.9%
-   :alt: Open the Run Compare API
+   :alt: Öppna API-dokumentationen för Run Compare
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/run_compare/index.html
    :align: middle
 .. |App_explain_cv| image:: ../../../spacr/resources/icons/workflow/apps/explain_cv.png
    :width: 19.9%
-   :alt: Open the Explain CV Model API
+   :alt: Öppna API-dokumentationen för Explain CV Model
    :target: https://einarolafsson.github.io/spacr/api/spacr/surrogate/index.html
    :align: middle
 .. |App_investigate_hit| image:: ../../../spacr/resources/icons/workflow/apps/investigate_hit.png
    :width: 19.9%
-   :alt: Open the Investigate Hit API
+   :alt: Öppna API-dokumentationen för Investigate Hit
    :target: https://einarolafsson.github.io/spacr/api/spacr/hit_investigation/index.html
    :align: middle
 .. |App_pipeline_graph| image:: ../../../spacr/resources/icons/workflow/apps/pipeline_graph.png
    :width: 19.9%
-   :alt: Open the Pipeline Graph API
+   :alt: Öppna API-dokumentationen för Pipeline Graph
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/pipeline_graph/index.html
    :align: middle
 .. |App_profiler| image:: ../../../spacr/resources/icons/workflow/apps/profiler.png
    :width: 19.9%
-   :alt: Open the Prediction Profiler API
+   :alt: Öppna API-dokumentationen för Prediction Profiler
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/profiler/index.html
    :align: middle
 .. |App_qc_dashboard| image:: ../../../spacr/resources/icons/workflow/apps/qc_dashboard.png
    :width: 19.9%
-   :alt: Open the QC Dashboard API
+   :alt: Öppna API-dokumentationen för QC Dashboard
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/qc_dashboard/index.html
    :align: middle
 .. |App_image_scatter| image:: ../../../spacr/resources/icons/workflow/apps/image_scatter.png
    :width: 19.9%
-   :alt: Open the Image Scatter API
+   :alt: Öppna API-dokumentationen för Image Scatter
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/image_scatter/index.html
    :align: middle
 .. |App_lineage| image:: ../../../spacr/resources/icons/workflow/apps/lineage.png
    :width: 19.9%
-   :alt: Open the Lineage API
+   :alt: Öppna API-dokumentationen för Lineage
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/lineage/index.html
    :align: middle
 .. |App_layer_viewer| image:: ../../../spacr/resources/icons/workflow/apps/layer_viewer.png
    :width: 19.9%
-   :alt: Open the Layer Viewer API
+   :alt: Öppna API-dokumentationen för Layer Viewer
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/layer_viewer/index.html
    :align: middle
 .. |App_graph_builder| image:: ../../../spacr/resources/icons/workflow/apps/graph_builder.png
    :width: 19.9%
-   :alt: Open the Graph Builder API
+   :alt: Öppna API-dokumentationen för Graph Builder
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html
    :align: middle
 .. |App_anndata_export| image:: ../../../spacr/resources/icons/workflow/apps/anndata_export.png
    :width: 19.9%
-   :alt: Open the AnnData Export API
+   :alt: Öppna API-dokumentationen för AnnData Export
    :target: https://einarolafsson.github.io/spacr/api/spacr/anndata_export/index.html
    :align: middle
 .. |App_pca| image:: ../../../spacr/resources/icons/workflow/apps/pca.png
    :width: 19.9%
-   :alt: Open the PCA API
+   :alt: Öppna API-dokumentationen för PCA
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/pca/index.html
    :align: middle
 .. |App_tabulate| image:: ../../../spacr/resources/icons/workflow/apps/tabulate.png
    :width: 19.9%
-   :alt: Open the Tabulate API
+   :alt: Öppna API-dokumentationen för Tabulate
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/tabulate/index.html
+   :align: middle
+.. |App_timelapse| image:: ../../../spacr/resources/icons/workflow/apps/timelapse.png
+   :width: 19.9%
+   :alt: Öppna API-dokumentationen för Timelapse
+   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
+   :align: middle
+.. |App_motility| image:: ../../../spacr/resources/icons/workflow/apps/motility.png
+   :width: 19.9%
+   :alt: Öppna API-dokumentationen för Motility Assay
+   :target: https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html
    :align: middle
 .. |App_analyze_plaques| image:: ../../../spacr/resources/icons/workflow/apps/analyze_plaques.png
    :width: 19.9%
-   :alt: Open the Plaque Assay API
+   :alt: Öppna API-dokumentationen för Plaque Assay
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
 .. |App_recruitment| image:: ../../../spacr/resources/icons/workflow/apps/recruitment.png
    :width: 19.9%
-   :alt: Open the Recruitment API
+   :alt: Öppna API-dokumentationen för Recruitment
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
 .. |App_invasion| image:: ../../../spacr/resources/icons/workflow/apps/invasion.png
    :width: 19.9%
-   :alt: Open the Invasion Assay API
+   :alt: Öppna API-dokumentationen för Invasion Assay
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
 .. |App_replication| image:: ../../../spacr/resources/icons/workflow/apps/replication.png
    :width: 19.9%
-   :alt: Open the Replication Assay API
+   :alt: Öppna API-dokumentationen för Replication Assay
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
 .. |App_experiment_design| image:: ../../../spacr/resources/icons/workflow/apps/experiment_design.png
    :width: 19.9%
-   :alt: Open the Experiment Design API
+   :alt: Öppna API-dokumentationen för Experiment Design
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/experiment_design/index.html
    :align: middle
 .. |App_power| image:: ../../../spacr/resources/icons/workflow/apps/power.png
    :width: 19.9%
-   :alt: Open the Power / Design API
+   :alt: Öppna API-dokumentationen för Power / Design
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/power/index.html
    :align: middle
+.. |InstallerWindows| image:: ../../../spacr/resources/icons/platforms/windows.png
+   :width: 64
+   :alt: Hämta spaCR 1.5.0.4 för Windows 10/11
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
+.. |InstallerMacOS| image:: ../../../spacr/resources/icons/platforms/macos.png
+   :width: 64
+   :alt: Hämta spaCR 1.5.0.4 för macOS 11+ (Intel och Apple Silicon)
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
 
 .. spacr-workflow-end
 
-Huvudvägen är Mask → Mät → Annotat → Klassificera → Karta Streckkoder → Regression. Rutnätet nedan innehåller alla andra program i samma kategorier och ordning som används på startskärmen spaCR.
+Välj en arbetsflödesmodul för att öppna dess API-sida. Rutnätet innehåller alla övriga program i samma kategorier och ordning som på spaCR:s startsida.
 
 
 Installera spaCR
@@ -413,14 +421,6 @@ Skrivbordsinstallatörerna inkluderar en privat miljö Python, så conda och en 
 
 |InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerLegacy|
 
-.. |InstallerWindows| image:: ../../../spacr/resources/icons/platforms/windows.png
-   :width: 64
-   :alt: Hämta spaCR 1.5.0.4 för Windows 10/11
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
-.. |InstallerMacOS| image:: ../../../spacr/resources/icons/platforms/macos.png
-   :width: 64
-   :alt: Hämta spaCR 1.5.0.4 för macOS 11+ (Intel och Apple Silicon)
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
 .. |InstallerLinux| image:: ../../../spacr/resources/icons/platforms/linux.png
    :width: 64
    :alt: Hämta spaCR 1.5.0.4 för 64-bitars Linux
@@ -429,12 +429,20 @@ Skrivbordsinstallatörerna inkluderar en privat miljö Python, så conda och en 
    :width: 64
    :alt: Äldre spaCR-installationsprogram
    :target: ../../source/installers.rst
+.. |DataBioStudies| image:: ../../../spacr/resources/icons/databanks/biostudies_button.png
+   :width: 72
+   :alt: Öppna mikroskopidatamängden i BioStudies
+   :target: https://doi.org/10.6019/S-BIAD2135
+.. |DataHuggingFace| image:: ../../../spacr/resources/icons/databanks/huggingface_button.png
+   :width: 72
+   :alt: Öppna testdatamängden på Hugging Face
+   :target: https://huggingface.co/datasets/einarolafsson/toxo_mito
 
 .. spacr-installer-links-end
 
 De tre första ikonerna laddar ner den aktuella utgåvan. Ikonen spaCR öppnar hela installationsprogrammets arkiv. Installerlänkar och versionerade filnamn uppdateras av utgivningsarbetsflödet; tidigare installatörer finns kvar i samma utgivningsarkiv.
 
-På Linux, gör den nedladdade filen körbar och kör den:
+Gör den hämtade filen körbar i Linux och kör den:
 
 .. code-block:: bash
 
@@ -458,9 +466,9 @@ Python 3.12 har det bredaste valet av frivilliga vetenskapliga paket:
    python -m pip install "spacr[qt]"
    spacr
 
-spaCR stöder Python **3.9 till 3.14**, utom Python 3.14.1, som torchvision utesluter. Linux rekommenderas för CUDA arbetsflöden; macOS och Windows stöds också.
+spaCR stöder Python **3.9 till 3.14**, med undantag för Python 3.14.1 som inte stöds av torchvision. Linux rekommenderas för CUDA-arbetsflöden; macOS och Windows stöds också.
 
-För en server, kluster eller CI löpare, utelämna Qt:
+Utelämna Qt på en server, ett beräkningskluster eller en CI-körare:
 
 .. code-block:: bash
 
@@ -491,12 +499,12 @@ Det här kan du göra
 
 De flesta skärmarna följer sex moduler:
 
-- **Mask** segments cells, nuclei, pathogens and organelles with Cellpose.
-- **Measure** writes morphology, intensity, texture, spatial and colocalization features, together with object crops, to SQLite.
-- **Annotate** labels crops in a keyboard-driven grid and supports active-learning queues.
-- **Classify** tågbild eller mätbaserade modeller och register som hålls ut prestanda för varje kontrollpunkt.
-- **Map Barcodes** maps FASTQ reads to wells and gRNAs, with abundance, collision and coverage QC.
-- **Regression** estimates guide, gene, condition and control effects with model families suited to continuous, fractional and count responses.
+- **Mask** segmenterar celler, cellkärnor, patogener och organeller med Cellpose.
+- **Measure** skriver morfologiska, intensitets-, textur-, rumsliga och kolokaliseringsmått samt objektutsnitt till SQLite.
+- **Annotate** märker objektutsnitt i ett tangentbordsstyrt rutnät och stöder köer för aktiv inlärning.
+- **Classify** tränar bild- eller mätningsbaserade modeller och sparar prestandan på undanhållna data med varje kontrollpunkt.
+- **Map Barcodes** kopplar FASTQ-läsningar till brunnar och gRNA:er och rapporterar QC för förekomst, kollisioner och täckning.
+- **Regression** skattar effekter för guider, gener, betingelser och kontroller med modellfamiljer för kontinuerliga data, andelar och antal.
 
 Samma projekt kan också designa plattor, uppskatta effekt, korrigera batcheffekter, inspektera segmenteringskvalitet, utforska länkade tomter och bildutsnitt, exportera AnnData, återuppta avbrutet arbete och registrera inställningarna bakom varje resultat.
 
@@ -526,14 +534,6 @@ Referensdatauppsättningar
 
 |DataBioStudies| |DataHuggingFace| |DataNCBI| |DataSpaCRPower| |DataBioRxiv|
 
-.. |DataBioStudies| image:: ../../../spacr/resources/icons/databanks/biostudies_button.png
-   :width: 72
-   :alt: Öppna mikroskopidatamängden i BioStudies
-   :target: https://doi.org/10.6019/S-BIAD2135
-.. |DataHuggingFace| image:: ../../../spacr/resources/icons/databanks/huggingface_button.png
-   :width: 72
-   :alt: Öppna testdatamängden på Hugging Face
-   :target: https://huggingface.co/datasets/einarolafsson/toxo_mito
 .. |DataNCBI| image:: ../../../spacr/resources/icons/databanks/ncbi_button.png
    :width: 72
    :alt: Öppna sekvenseringsdatamängden hos NCBI
@@ -551,17 +551,17 @@ Referensdatauppsättningar
 Bidrag och support
 ------------------------
 
-Bug reports and focused feature requests are welcome through `GitHub Frågor <https://github.com/EinarOlafsson/spacr/issues>`_. When reporting a failure, include the spaCR version, operating system, Python version, module settings and the relevant log excerpt. ``spacr-doctor`` collects most of that for you.
+Felrapporter och avgränsade funktionsförslag är välkomna via `GitHub-ärenden <https://github.com/EinarOlafsson/spacr/issues>`_. Ange spaCR-version, operativsystem, Python-version, modulinställningar och relevant loggutdrag när du rapporterar ett fel. ``spacr-doctor`` samlar in det mesta av detta åt dig.
 
 Licens
 ~~~~~~~~~
 
-The current development branch is source-available under the `PolyForm Icke-kommersiell licens 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_. Commercial use requires a separate license from the copyright holder. Released versions through spaCR 1.4.9.9 remain available under the MIT License that accompanied those releases.
+Den aktuella utvecklingsgrenen är källkodstillgänglig under `PolyForm Noncommercial License 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_. Kommersiell användning kräver en separat licens från upphovsrättsinnehavaren. Utgivna versioner till och med spaCR 1.4.9.9 är fortsatt tillgängliga under den MIT-licens som medföljde dessa versioner.
 
 Handledningar
 ~~~~~~~~~~~~~
 
-Den `interaktivt spaCR handledningsbibliotek <https://einarolafsson.github.io/spacr/tutorials/>`_ innehåller berättad, bildtextade genomgångar av installation och av varje program arbetsflöde, i 73 lektioner med 50 röster över åtta språk.
+Det `interaktiva biblioteket med spaCR-handledningar <https://einarolafsson.github.io/spacr/tutorials/>`_ innehåller berättade och textade genomgångar av installationen och varje programflöde: 73 lektioner med 50 röster på åtta språk.
 
 Citera spaCR
 ~~~~~~~~~~~~

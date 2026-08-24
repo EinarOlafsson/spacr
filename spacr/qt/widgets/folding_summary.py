@@ -118,7 +118,7 @@ class _RejectionHighlighter(QSyntaxHighlighter):
 
     Cautions and small diagnostic values retain the normal text colour. The
     error colour comes from the active theme so rejection markers remain
-    readable on every theme.
+    readable in both light and dark themes.
     """
 
     #: What marks a line as a broken assumption. `REJECTED at` is written by

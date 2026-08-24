@@ -44,6 +44,14 @@ def _rows_of(text: str) -> list:
             if line.startswith(("g", "const")) and "  " in line]
 
 
+def _without_render_clock(text: str) -> str:
+    """Remove only statsmodels' wall-clock fields from a rendered summary."""
+    return "\n".join(
+        line for line in text.splitlines()
+        if not line.lstrip().startswith(("Date:", "Time:"))
+    )
+
+
 # -- what is printed --------------------------------------------------------
 
 def test_a_screen_sized_fit_does_not_put_its_coefficients_on_the_console():
@@ -80,19 +88,25 @@ def test_the_notes_survive_because_the_condition_number_is_the_collinearity():
 
 def test_a_fit_small_enough_to_read_is_printed_unchanged():
     model = _fit(3)
-    assert summary_for_console(model) == str(model.summary())
+    assert _without_render_clock(summary_for_console(model)) == (
+        _without_render_clock(str(model.summary()))
+    )
 
 
 def test_the_limit_is_the_boundary_it_says_it_is():
     small = _fit(CONSOLE_COEFFICIENT_LIMIT - 1)     # + the intercept
-    assert summary_for_console(small) == str(small.summary())
+    assert _without_render_clock(summary_for_console(small)) == (
+        _without_render_clock(str(small.summary()))
+    )
     big = _fit(CONSOLE_COEFFICIENT_LIMIT + 4)
     assert "coefficients — not printed here" in summary_for_console(big)
 
 
 def test_verbose_prints_every_row_because_that_is_what_verbose_is():
     model = _fit(400)
-    assert summary_for_console(model, verbose=True) == str(model.summary())
+    assert _without_render_clock(summary_for_console(model, verbose=True)) == (
+        _without_render_clock(str(model.summary()))
+    )
 
 
 def test_a_glm_is_cut_in_the_right_place_too():

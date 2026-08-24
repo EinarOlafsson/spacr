@@ -361,3 +361,31 @@ def test_the_sweep_does_not_move_a_threshold_the_user_set(tmp_path):
     source = inspect.getsource(_draw_the_threshold_sweep)
     assert "settings['fraction_threshold'] =" not in source
     assert "_AUTOMATIC_SETTINGS" not in source
+
+def test_a_set_fraction_threshold_is_shown_on_the_sweep_and_kept(tmp_path,
+                                                                 capsys):
+    """A configured threshold remains in force while its sweep is retained."""
+    from spacr.ml import perform_regression
+    from spacr.settings import get_perform_regression_default_settings
+
+    score, count, folder = _regression_screen(tmp_path)
+    settings = get_perform_regression_default_settings({
+        "score_data": [score], "count_data": [count],
+        "dependent_variable": "pred", "regression_type": "ols",
+        "inference": "parametric",
+        "min_cell_count": None, "fraction_threshold": 0.02,
+        "metadata_files": [], "toxo": False, "controls": None,
+        "outlier_detection": False, "alpha": 1.0, "regression_qc": False,
+    })
+
+    perform_regression(settings)
+    plt.close("all")
+
+    run_folder = os.path.join(str(folder), "results", "ols")
+    assert os.path.isfile(
+        os.path.join(run_folder, "fraction_threshold.pdf")
+    )
+    assert settings["fraction_threshold"] == pytest.approx(0.02)
+    message = capsys.readouterr().out
+    assert "gRNA fraction-threshold sweep drawn: you set 0.02" in message
+    assert "Your value is the one in force" in message
