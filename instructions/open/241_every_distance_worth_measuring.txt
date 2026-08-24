@@ -1,0 +1,110 @@
+================================================================================
+EVERY DISTANCE WORTH MEASURING, WITHIN AND BETWEEN OBJECTS
+================================================================================
+
+Status:    OPEN. Requested 2026-08-23.
+Owner:     Measure.
+
+Asked for: distances between every pair of measurable things -- "centre AND
+perimeter meaning closest point, so distance between centres and distance
+between centre and closest peripheral point and vice versa for each object
+pair", the same for LOCAL MAXIMA inside each object, and "other relatively
+cheap calculations regarding how far objects are away from things in the
+cell". The goal named: "capture the spatial distances between everything
+measurable within and between all objects captured."
+
+--------------------------------------------------------------------------------
+WHAT ALREADY EXISTS
+--------------------------------------------------------------------------------
+
+WITHIN ONE OBJECT TYPE (`measure._spatial_measurements`, opt-in via
+`spatial_measurements`), all centroid-to-centroid over a cKDTree:
+
+    neighbors_within_<r>, nearest_neighbor_distance,
+    second_neighbor_distance, percent_touching, touching_neighbors
+
+BETWEEN TYPES, one family only:
+
+    cell_channel_<ch>_distance_to_nucleus
+    cell_channel_<ch>_distance_to_pathogen
+
+and those are not object-to-object: they measure from a CHANNEL'S INTENSITY
+CENTRE OF MASS to the nearest nucleus/pathogen surface.
+
+So: no centre-to-centre between types, no centre-to-perimeter in either
+direction, no perimeter-to-perimeter, nothing about local maxima, and
+nothing about where an object sits inside its parent.
+
+--------------------------------------------------------------------------------
+WHAT TO ADD, AND WHY IT IS CHEAP
+--------------------------------------------------------------------------------
+
+THE TRICK IS THE DISTANCE TRANSFORM, one per object type per field. It
+answers "how far is this point from the nearest object of type T" for EVERY
+point at once, so the cost is O(field) per type rather than O(objects^2).
+Everything below is a lookup into one of those transforms.
+
+ 1. CENTRE TO NEAREST SURFACE, both directions, for every ordered pair of
+    object types:
+        <a>_centre_to_<b>_surface        dt_b[centroid_a]
+        <b>_centre_to_<a>_surface
+
+ 2. SURFACE TO SURFACE -- the true gap between two objects:
+        <a>_surface_to_<b>_surface       min over a's boundary of dt_b
+    Zero when they touch. This is the "closest point to closest point"
+    number and the one a biologist means by "how far apart are they".
+
+ 3. CENTRE TO CENTRE, for the NEAREST object of each other type. The full
+    N x M matrix is not cheap and is not what a per-object table can hold;
+    the nearest is, and it is what the existing within-type columns give.
+
+ 4. WHERE THE OBJECT SITS INSIDE ITS PARENT:
+        <a>_distance_to_own_boundary     dt of its own mask at the centroid
+        <a>_relative_radial_position     that, over the object's max radius:
+                                         0 at the centre, 1 at the rim
+        <a>_distance_to_field_edge       cheap, and it is what tells you an
+                                         object is clipped
+
+ 5. LOCAL MAXIMA, per object per channel. Find them once with
+    `skimage.feature.peak_local_max` inside the object, then for each
+    maximum look up the same transforms:
+        <a>_channel_<c>_maxima_count
+        <a>_channel_<c>_maxima_to_<b>_surface_min / _mean
+        <a>_channel_<c>_maxima_to_own_boundary_min / _mean
+        <a>_channel_<c>_maxima_spread    mean pairwise distance between the
+                                         maxima of one object -- are the
+                                         bright spots clustered or spread
+        <a>_channel_<c>_maxima_to_centre_min / _mean
+
+ 6. AND THE CHEAP EXTRAS worth having:
+        <a>_channel_<c>_intensity_centre_offset
+            how far the intensity centre of mass is from the geometric
+            centroid -- polarisation, in one number
+        <a>_<b>_overlap_fraction
+            fraction of a's area that is inside a b. Not a distance, but it
+            is the answer when the distance is zero, and it is one
+            `np.isin` per pair.
+
+--------------------------------------------------------------------------------
+RULES
+--------------------------------------------------------------------------------
+
+* OPT-IN, like `spatial_measurements` already is, under its own setting, and
+  OFF by default. This is real time on a 3-D field.
+* Units follow the row's `measurement_units` stamp, as the existing spatial
+  columns do -- pixels in 2-D, physical units when the voxel size is known.
+* NEVER NaN where a number is meaningful: an object with no partner of type
+  b is `inf`, not NaN, and an object with no local maxima is count 0 with
+  the derived columns absent rather than NaN.
+* One row per object, joined on `label`, exactly as the existing spatial
+  frame is.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Two touching objects give surface-to-surface 0 and centre-to-centre > 0.
+* An object entirely inside another gives overlap fraction 1.
+* A synthetic field with objects at known separations reproduces those
+  separations to within a pixel.
+* Driven on plate1 and the columns appear in measurements.db.
