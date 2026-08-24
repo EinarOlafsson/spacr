@@ -116,10 +116,6 @@ Workflow at a glance
    :width: 2.5%
    :align: middle
 
-**More core tools**
-
-|App_timelapse|\ |App_motility|\ |App_curate|
-
 **Data**
 
 |App_align|\ |App_convert|\ |App_foreign|\ |App_external_masks|\ |App_queue|
@@ -129,6 +125,8 @@ Workflow at a glance
 **Segmentation models**
 
 |App_make_masks|\ |App_train_cellpose|\ |App_cellpose_masks|\ |App_model_compare|\ |App_model_zoo|
+
+|App_curate|
 
 **Results & QC**
 
@@ -146,9 +144,11 @@ Workflow at a glance
 
 |App_layer_viewer|\ |App_graph_builder|\ |App_anndata_export|\ |App_pca|\ |App_tabulate|
 
-**Toxoplasma**
+**Assays**
 
-|App_analyze_plaques|\ |App_recruitment|\ |App_invasion|\ |App_replication|
+|App_timelapse|\ |App_motility|\ |App_analyze_plaques|\ |App_recruitment|\ |App_invasion|
+
+|App_replication|
 
 **Design**
 

@@ -213,7 +213,7 @@ SECTION_CORE = "Core"
 SECTION_DATA = "Data"
 SECTION_MODELS = "Segmentation models"
 SECTION_RESULTS = "Results & QC"
-SECTION_TOXO = "Toxoplasma"
+SECTION_ASSAYS = "Assays"
 #: Interactive analysis: build a plot, pivot a table, draw a gate, page
 #: through image layers. Results & QC is what a *finished run* produced —
 #: this is the user asking the numbers a question they did not plan for,
@@ -235,7 +235,7 @@ SECTION_DESIGN = "Design"
 #: This is the DECLARATION. :data:`SECTIONS` is the subset that has apps
 #: — see :func:`_refresh_sections`.
 SECTION_ORDER = (SECTION_CORE, SECTION_DATA, SECTION_MODELS,
-                 SECTION_RESULTS, SECTION_EXPLORE, SECTION_TOXO,
+                 SECTION_RESULTS, SECTION_EXPLORE, SECTION_ASSAYS,
                  SECTION_DESIGN)
 
 #: One line per section, drawn under its heading on that category's tab.
@@ -257,7 +257,7 @@ _SECTION_NOTE_LIBRARY = {
                       "hand it to someone else."),
     SECTION_EXPLORE: ("Ask the measurements a question you did not plan "
                       "for: build a plot, pivot a table, draw a gate."),
-    SECTION_TOXO: "Parasite-specific readouts.",
+    SECTION_ASSAYS: "Readouts that measure a biological assay rather than a pipeline stage.",
     SECTION_DESIGN: ("Plan the experiment before it runs: power, sample "
                      "size, plate layout, controls and replicates."),
 }
@@ -267,7 +267,7 @@ _PLUGIN_SECTION_MAP = {
     "data": SECTION_DATA,
     "models": SECTION_MODELS,
     "results": SECTION_RESULTS,
-    "toxo": SECTION_TOXO,
+    "toxo": SECTION_ASSAYS,
     # `spacr.plugins._SECTIONS` does not accept these two yet, so no
     # plugin can reach them today. They are mapped here so that widening
     # the plugin allow-list is a one-line change there rather than a
@@ -697,9 +697,12 @@ _BUILTIN_APPS = [
     #
     # -- Core pipeline: images in, single-object measurements out, hits
     #    called. Ctrl+1..9 map to these nine, in this order.
+    # CORE IS THE PIPELINE, IN THE ORDER YOU RUN IT: mask, measure,
+    # annotate, classify, map barcodes, regression. Nothing else belongs in
+    # it -- Timelapse and the Motility assay are assays and are filed as
+    # such, and a section that lists everything is a section that sorts
+    # nothing.
     ("mask",           "Mask",           "Generate cellpose masks for cells, nuclei and pathogens",   SECTION_CORE),
-    ("timelapse",      "Timelapse",      "Segment and track objects across the frames of a time series", SECTION_CORE),
-    ("motility",       "Motility Assay", "Automated motility assay: track velocity + infection QC",     SECTION_CORE),
     ("measure",        "Measure",        "Measure single-object intensity + morphology features",       SECTION_CORE),
     ("annotate",       "Annotate",       "Annotate single-object images on a grid; save to database",  SECTION_CORE),
     # ONE CLASSIFY SCREEN. "Classify (CV)" and "Classify (ML)" were the two
@@ -747,10 +750,12 @@ _BUILTIN_APPS = [
     ("run_history",    "Run History",    "Search every job's settings, files, warnings, failures and performance", SECTION_RESULTS),
     ("report",         "Report",         "One-click shareable HTML/PDF: QC verdict, figures, stats, settings, versions", SECTION_RESULTS),
     # -- Toxoplasma assays: parasite-specific readouts.
-    ("analyze_plaques", "Plaque Assay",  "Analyze plaque assay data",                                   SECTION_TOXO),
-    ("recruitment",    "Recruitment",    "Analyze recruitment data",                                    SECTION_TOXO),
-    ("invasion",       "Invasion Assay", "Two-colour outside/inside stain: attached vs invaded parasites, invasion efficiency per well", SECTION_TOXO),
-    ("replication",    "Replication Assay", "Endodyogeny: parasites per vacuole, scored into replication rate per condition", SECTION_TOXO),
+    ("timelapse",      "Timelapse",      "Segment and track objects across the frames of a time series", SECTION_ASSAYS),
+    ("motility",       "Motility Assay", "Automated motility assay: track velocity + infection QC",     SECTION_ASSAYS),
+    ("analyze_plaques", "Plaque Assay",  "Analyze plaque assay data",                                   SECTION_ASSAYS),
+    ("recruitment",    "Recruitment",    "Analyze recruitment data",                                    SECTION_ASSAYS),
+    ("invasion",       "Invasion Assay", "Two-colour outside/inside stain: attached vs invaded parasites, invasion efficiency per well", SECTION_ASSAYS),
+    ("replication",    "Replication Assay", "Endodyogeny: parasites per vacuole, scored into replication rate per condition", SECTION_ASSAYS),
 ]
 
 
@@ -1700,11 +1705,40 @@ class MainWindow(QMainWindow):
         button.setCursor(Qt.CursorShape.PointingHandCursor)
         button.setIcon(self._fullscreen_icon())
         button.setToolTip("Full screen (F11). The window has no title bar; "
-                          "drag the menu bar to move it, and Quit is in the "
-                          "spaCR menu.")
+                          "drag the menu bar to move it.")
         button.clicked.connect(self.toggle_fullscreen)
         row.addWidget(button)
         self._fullscreen_button = button
+
+        close = QToolButton(corner)
+        close.setObjectName("CloseWindow")
+        close.setAutoRaise(True)
+        close.setCursor(Qt.CursorShape.PointingHandCursor)
+        close.setIcon(self._close_icon())
+        close.setToolTip("Quit spaCR")
+        # THE SAME THING QUIT DOES. Not `close()` on the window -- Quit is
+        # what every other exit path goes through, and two ways of leaving
+        # that differ is how a session ends without saving something.
+        close.clicked.connect(self.close)
+        row.addWidget(close)
+        self._close_button = close
+
+        # THE COLOURS SAY WHAT THE BUTTON DOES. Red is the one that ends the
+        # session and is the only one worth flinching at; blue is the accent
+        # the rest of spaCR uses for "on"; minimise stays white because
+        # hiding a window is not a decision.
+        corner.setStyleSheet("""
+QToolButton { background: transparent; border: none; border-radius: 4px; }
+QToolButton#CloseWindow:hover, QToolButton#CloseWindow:pressed {
+    background: rgba(220, 60, 60, 0.85);
+}
+QToolButton#FullScreenToggle:hover, QToolButton#FullScreenToggle:pressed {
+    background: rgba(60, 130, 220, 0.85);
+}
+QToolButton#MinimiseWindow:hover, QToolButton#MinimiseWindow:pressed {
+    background: rgba(255, 255, 255, 0.18);
+}
+""")
 
         self.menuBar().setCornerWidget(corner, Qt.Corner.TopRightCorner)
         self._window_buttons = corner
@@ -1718,6 +1752,24 @@ class MainWindow(QMainWindow):
         action.setShortcut(QKeySequence("F11"))
         action.triggered.connect(self.toggle_fullscreen)
         self.addAction(action)
+
+    @staticmethod
+    def _close_icon(size: int = 18):
+        """An x, drawn rather than shipped, like the other two."""
+        from PySide6.QtGui import QIcon, QPainter, QPen, QPixmap
+
+        pixmap = QPixmap(size, size)
+        pixmap.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        pen = QPen(Qt.GlobalColor.gray)
+        pen.setWidthF(1.6)
+        painter.setPen(pen)
+        pad = size * 0.30
+        painter.drawLine(pad, pad, size - pad, size - pad)
+        painter.drawLine(size - pad, pad, pad, size - pad)
+        painter.end()
+        return QIcon(pixmap)
 
     @staticmethod
     def _minimise_icon(size: int = 18):
