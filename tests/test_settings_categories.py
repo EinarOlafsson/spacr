@@ -288,6 +288,12 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # `annotation_source` supersedes the `Toxoplasma` boolean: an organism
     # name, taxon id or accession instead of one hard-coded parasite.
     "annotation_source",
+    # WHAT THE INTERCEPT IS, and the number the fourth mode pins it at.
+    # A fitted intercept is the response of a well with every predictor at
+    # its reference level, which for a one-hot gene design is whichever
+    # gene patsy dropped -- so the screen's usual question, "how far from
+    # the controls", had no setting that asked it until these two.
+    "intercept", "intercept_value",
     # How many mismatches a barcode may carry and still be counted, and the
     # plate held out of a regression fit so a hit list can be checked
     # against a plate the model never saw.

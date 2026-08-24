@@ -1089,6 +1089,12 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             # the two belong adjacent, and `level` follows them.
             "inference", "analysis_mode", "regression_type",
             "regression_backend", "level",
+            # WHERE THE FITTED LINE IS ANCHORED. Still part of WHAT is
+            # fitted rather than which terms are in it, so it reads with
+            # the four above: `intercept` chooses fitted, zero, control or
+            # value, and `intercept_value` is the number the last of those
+            # pins it at -- greyed for the other three.
+            "intercept", "intercept_value",
             # `model_plate_position` decides whether rowID and columnID are in
             # the model at all; `random_row_column_effects` then decides fixed
             # vs random for terms that ARE in. Adjacent because setting one

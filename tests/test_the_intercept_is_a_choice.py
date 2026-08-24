@@ -141,3 +141,107 @@ def test_a_pinned_intercept_lands_exactly_where_it_was_asked_to():
         float(np.sum((y - pinned_at) * x) / np.sum(x * x)))
     reconstructed = pinned_at + float(held.params[0]) * x
     assert reconstructed[0] == pytest.approx(pinned_at)
+
+
+# --------------------------------------------------------------------------
+# The control reaches the user. The engine above is unreachable until the
+# setting is declared, described, typed, placed in a panel category and
+# passed to the fit -- five separate tables, any one of which can be
+# forgotten, and a forgotten one leaves a working engine no one can drive.
+# --------------------------------------------------------------------------
+
+def test_the_setting_defaults_to_a_fitted_intercept():
+    """An older settings file has no intercept key and must fit as it did."""
+    from spacr.settings import get_perform_regression_default_settings
+
+    filled = get_perform_regression_default_settings(
+        {'src': '/tmp', 'count_data': '/tmp', 'score_data': '/tmp'})
+    assert filled['intercept'] == 'fitted'
+    assert filled['intercept_value'] == 0.0
+
+
+def test_the_panel_offers_exactly_the_modes_the_engine_accepts():
+    """A fifth option in the dropdown would be refused by prepare_formula."""
+    from spacr.settings_spec import convert_settings_dict_for_gui
+
+    kind, options, default = convert_settings_dict_for_gui(
+        {'intercept': 'fitted'})['intercept']
+    assert kind == 'combo'
+    assert tuple(options) == INTERCEPT_MODES
+    assert default == 'fitted'
+
+
+def test_the_pinned_number_is_a_free_field():
+    """'value' means any number, so it cannot be a list of choices."""
+    from spacr.settings_spec import convert_settings_dict_for_gui
+
+    kind, options, _default = convert_settings_dict_for_gui(
+        {'intercept_value': 0.0})['intercept_value']
+    assert kind == 'entry'
+    assert options is None
+
+
+def test_both_keys_are_typed_and_explained():
+    from spacr.settings import expected_types, tooltips
+
+    assert expected_types['intercept'] is str
+    assert expected_types['intercept_value'] is float
+    # The tooltip has to say what each mode DOES, or the dropdown is four
+    # words with no way to choose between them.
+    text = tooltips['intercept']
+    for mode in INTERCEPT_MODES:
+        assert f"'{mode}'" in text, f"{mode} is offered and never explained"
+    assert 'intercept_value' in text
+    assert 'intercept' in tooltips['intercept_value']
+
+
+def test_both_keys_appear_in_the_model_panel():
+    """A declared setting with no category is editable nowhere."""
+    from spacr.settings import categories
+
+    model = categories['Regression: Model']
+    assert 'intercept' in model
+    assert 'intercept_value' in model
+    # Read in order: what the intercept is, then the number it may be
+    # pinned to. Reversed, the panel offers the refinement first.
+    assert model.index('intercept') < model.index('intercept_value')
+
+
+@pytest.mark.parametrize('mode', ['fitted', 'zero', 'control'])
+def test_the_pinned_number_is_greyed_for_the_modes_that_ignore_it(mode):
+    from spacr.settings import get_setting_dependencies
+
+    rule = get_setting_dependencies()['intercept_value']
+    assert 'intercept' in rule['sources']
+    assert not rule['predicate']({'intercept': mode}, None)
+    # The reason names the mode actually in force, not the one that reads it.
+    assert repr(mode) in rule['reason']({'intercept': mode}, None)
+
+
+def test_the_pinned_number_is_live_when_the_intercept_is_pinned():
+    from spacr.settings import get_setting_dependencies
+
+    rule = get_setting_dependencies()['intercept_value']
+    assert rule['predicate']({'intercept': 'value'}, None)
+
+
+def test_the_dropdown_itself_is_never_greyed():
+    """Nothing else decides what the intercept may be, so it is always live."""
+    from spacr.settings import get_setting_dependencies
+
+    assert get_setting_dependencies().get('intercept') is None
+
+
+def test_perform_regression_forwards_what_the_panel_set():
+    """The last link: the panel writes a settings key and the run has to hand
+    it to the fit. It is read with `.get` because a settings CSV written
+    before the key existed must still run, and what it meant is a fitted
+    intercept."""
+    import inspect
+
+    from spacr.ml import _perform_regression
+
+    source = inspect.getsource(_perform_regression)
+    assert "intercept=str(settings.get('intercept') or 'fitted')" in source
+    assert "intercept_value=float(settings.get('intercept_value') or 0.0)" \
+        in source
