@@ -2,13 +2,31 @@
 THE GUI PASS: NAVIGATION, WINDOW CHROME, AND THE LANGUAGE
 ================================================================================
 
-Status:    OPEN. Requested 2026-08-23, in several messages while the
-           previous pass was still running.
+Status:    OPEN on item 1 only. Items 2 to 7 are done; 7 needed a root
+           command the maintainer has since run. Requested 2026-08-23, in
+           several messages while the previous pass was still running.
 Owner:     spacr/qt -- app registry, dock, window chrome, i18n.
 
 --------------------------------------------------------------------------------
-1. EVERY WORD IN THE CHOSEN LANGUAGE                        <-- BIGGEST ITEM
+1. EVERY WORD IN THE CHOSEN LANGUAGE            <-- BIGGEST ITEM, IN HAND
 --------------------------------------------------------------------------------
+
+WHAT IS DONE. The setup screen translates and applies the language as it
+is chosen -- titles, blurbs, the step counter, the buttons and the GitHub
+row all redraw, and German to Korean goes through the English source
+rather than translating a translation. The Home chrome, the Demos menu and
+the settings-count line follow, the last composed from translated parts
+rather than from f-strings. All nine runtime catalogs and all nine API
+catalogs are rebuilt; where a model left prose in English the translation
+is hand-written as reviewed evidence.
+
+WHAT IS LEFT. A sweep of six surfaces in Swedish found 79 verified items:
+37 captions that need only a catalog row, 23 that never reach tr() at all,
+14 composed before lookup, and 5 re-set by a handler after the language
+pass. Two more, filed here because they fit no other heading: Qt's OWN
+menu text (&Copy, Select All) needs qtbase_<lang>.qm loaded into a
+QTranslator, and AIChatPanel is unreachable from the running application.
+
 
 "when the user picks a language that is not english all of the text in and
 outside of settings fields needs to be in the chosen language, now most of
@@ -54,25 +72,29 @@ rebuild.
 3. THE WINDOW BUTTONS
 --------------------------------------------------------------------------------
 
-DONE: minimise and full screen, top right, in that order.
+DONE. Minimise, full screen and an x, top right, in that order. The x
+goes through the same `close` every other exit path uses.
 
-STILL TO DO: an x to the RIGHT of the full-screen icon, which "should act
-exactly like pressing quit in preferences". Colours:
+THE MARK CHANGES COLOUR, NOT A PLATE BEHIND IT -- asked for as "i meant
+the x itself not the background of the x":
 
-    x            red on hover and on press
-    full screen  blue on hover and on press
-    minimise     stays white
+    x            red   (#DC3C3C) on hover and on press
+    full screen  blue  (#3C82DC) on hover and on press
+    minimise     blue  (#3C82DC) on hover and on press
+
+QSS cannot colour the inside of a QIcon, so the hover state is a second
+painting of the same drawn glyph, swapped in on enter and on press.
 
 --------------------------------------------------------------------------------
 4. THE TWO NAVIGATION SURFACES
 --------------------------------------------------------------------------------
 
-THE spaCR MENU (top left): the modules should be in category dropdowns
-rather than one flat list, "to make it more digestable".
+DONE, both. The spaCR menu opens onto one submenu per section. The dock
+starts with Core open and every other section collapsed, and a section
+header is the accent colour while it is open or hovered.
 
-THE DOCK: the categories are all there and all open. They should be
-COLLAPSED except Core, which starts open. A category's text is blue when it
-is open, and when the pointer is over it.
+The walks that read these had to learn to descend: a flat read of the
+menu bar's own actions now sees six section names and no apps at all.
 
 --------------------------------------------------------------------------------
 5. RANK ALL, IN THE MEASUREMENTS TAB
@@ -94,6 +116,10 @@ of rows. Two defects in one:
   b. even when the grouping is right, one line per untestable pair is not a
      report. Say it once, with a count.
 
+DONE. A grouping column of more than twenty values where over nine tenths
+hold fewer observations than a test needs is refused by name, and the
+thin groups that remain are named once in a single summary line.
+
 --------------------------------------------------------------------------------
 6. THE MEASURE SETTINGS LAYOUT
 --------------------------------------------------------------------------------
@@ -102,6 +128,9 @@ of rows. Two defects in one:
 seem like they are cut off half way when opened. please fix this, make it
 normal, or the same structure as the other core modules like mask with
 settings categories."
+
+DONE. Measure uses the same stacked category sections every other core
+module uses.
 
 --------------------------------------------------------------------------------
 7. INOTIFY -- NEEDS ONE ROOT COMMAND, WHICH SPACR MUST NOT RUN
@@ -118,6 +147,10 @@ Making it never happen again is a system setting and needs root:
     sudo sysctl --system
 
 `sudo` requires a password here, so spaCR cannot and should not do it.
+
+CLOSED. The maintainer ran it; /proc/sys/fs/inotify/max_user_watches now
+reads 524288. spaCR's own filter and one-time explanation stay, because
+the limit can be exhausted again on any machine.
 
 --------------------------------------------------------------------------------
 DONE IN THIS PASS, for the record

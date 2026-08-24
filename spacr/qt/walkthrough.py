@@ -431,6 +431,14 @@ def install_help_menu(window: QMainWindow) -> Optional[QMenu]:
     for key, name, desc, _section in rows:
         action = QAction(str(name), submenu)
         action.setStatusTip(str(desc))
+        # Carry the module identity so the retranslation pass rebuilds this
+        # status tip through the reviewed per-module summaries instead of
+        # translating the sentence word by word. Two thirds of the module
+        # descriptions have no catalog row of their own, so the word-level
+        # fallback leaves them wholly English; the summaries cover them all.
+        action.setProperty("moduleAppKey", key)
+        action.setProperty("moduleNameSource", str(name))
+        action.setProperty("moduleSummarySource", str(desc))
         trigger = _MenuTrigger(window, key)
         action.triggered.connect(trigger.on_triggered)
         action._spacr_walkthrough_trigger = trigger
