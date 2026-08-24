@@ -178,6 +178,15 @@ ORGANISMS: Dict[str, int] = {
     "theileria annulata": 5874,
     "theileria": 5875,
     "cytauxzoon felis": 88764,
+    # The three tissue-cyst and intestinal apicomplexans the genus name
+    # alone was missing. Each points at the species a screen would be run
+    # on rather than at the genus taxon, which carries no proteome.
+    "sarcocystis neurona": 42890,
+    "sarcocystis": 42890,
+    "cyclospora cayetanensis": 88456,
+    "cyclospora": 88456,
+    "cystoisospora suis": 483139,
+    "cystoisospora": 483139,
 
     # -- other parasites --------------------------------------------------
     "trypanosoma brucei": 185431,

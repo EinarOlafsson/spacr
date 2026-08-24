@@ -2,8 +2,27 @@
 THE SETUP WINDOW, THE STARTUP NOISE, AND THE PROVIDER LOGINS
 ================================================================================
 
-Status:    OPEN. Requested 2026-08-23.
+Status:    DONE, all six items, confirmed by the maintainer as each landed.
 Owner:     spacr/qt -- setup slides, glass, home, preferences.
+
+  1. One rounded translucent surface -- "the setup window now looks like i
+     want it to look". The second rectangle was the ambient backdrop
+     behind the card, not the inset; it is clipped to the same corner
+     radius now, and a glassed dialog paints nothing of its own.
+  2. Hello floats over a band the next page leaves empty and fades out.
+  3. Three spaCR modes, described by what they hold: how many background
+     processes spaCR keeps and whether it gives back caches and GPU memory
+     between runs.
+  4. Clicking a provider starts its sign-in, and offers the install page
+     when the CLI is absent. Brand fill means ready; hover gives the brand
+     tint; muted ink means not installed.
+  5. The GitHub sign-in opens the default browser at the device page and
+     shows the one-time code, because `gh auth login --web` waits on a
+     terminal prompt that a GUI has none of. The logo IS the button and
+     gains its colour when a token is reachable.
+  6. Both startup lines are gone: the inotify warning is recognised and
+     explained once, and the GPU readout uses nvidia-ml-py with pynvml as
+     the fallback.
 
 --------------------------------------------------------------------------------
 1. ONE WINDOW, NOT A BOX INSIDE A BOX
