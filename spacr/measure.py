@@ -1141,7 +1141,7 @@ def _morphology_of_organelle_type(settings):
 def _morphological_measurements(
         cell_mask, nucleus_mask, pathogen_mask, organelle_mask,
         cytoplasm_mask, settings, zernike=None, degree=8,
-        extra_organelle_masks=None):
+        extra_organelle_masks=None, channel_arrays=None):
     """Return morphology + Zernike DataFrames for cells, nuclei, pathogens, organelles, cytoplasm.
 
     :param cell_mask: Label mask of cells.
@@ -1210,6 +1210,50 @@ def _morphological_measurements(
     except (TypeError, ValueError):
         spatial_radius = 50
 
+    # EVERY DISTANCE WORTH MEASURING, opt-in and off by default for the same
+    # reason `spatial_measurements` is: it is real time on a 3-D field.
+    distances_on = bool(settings.get('object_distances', False))
+
+    def _all_masks():
+        """Object type -> label image, for the masks this run actually has."""
+        found = {}
+        for name, mask in (('cell', cell_mask), ('nucleus', nucleus_mask),
+                           ('pathogen', pathogen_mask)):
+            if mask is not None and getattr(mask, 'size', 0):
+                found[name] = mask
+        return found
+
+    def _with_distances(frame, mask, name):
+        """Merge the object-distance block onto a props frame.
+
+        Props on the LEFT for the reason `_with_spatial` gives: 'label' has
+        to keep column position 0.
+        """
+        if not distances_on or len(frame) == 0:
+            return frame
+        masks = _all_masks()
+        if name not in masks:
+            masks = dict(masks, **{name: mask})
+        try:
+            from .object_distances import object_distances
+
+            block = object_distances(
+                masks, images=channel_arrays if settings.get(
+                    'object_distance_intensity', True) else None,
+                primary=name, channels=tuple(settings.get('channels') or ()),
+                spacing=spacing,
+                maxima=bool(settings.get('object_distance_maxima', True)))
+        except Exception as error:                           # noqa: BLE001
+            # A MEASUREMENT FAMILY THAT FAILS IS NOT A FAILED RUN. Every
+            # other measurement in this frame is still correct.
+            print(f"[measure] object distances for {name} were not "
+                  f"measured: {type(error).__name__}: {error}")
+            return frame
+        if len(block.columns) <= 1:
+            return frame
+        return frame.merge(block, on='label', how='left',
+                           validate='one_to_one')
+
     def _with_spatial(frame, mask):
         """Merge the spatial block onto a props frame. Props on the LEFT."""
         if not spatial_on or len(frame) == 0:
@@ -1242,6 +1286,7 @@ def _morphological_measurements(
         cell_to_nucleus, cell_to_pathogen = get_components(cell_mask, nucleus_mask, pathogen_mask)
         cell_props = _props(cell_mask)
         cell_props = _with_spatial(cell_props, cell_mask)
+        cell_props = _with_distances(cell_props, cell_mask, 'cell')
         if zernike:
             cell_props = _calculate_zernike(
                 cell_mask, cell_props, degree=degree)
@@ -1254,6 +1299,7 @@ def _morphological_measurements(
     if settings['nucleus_mask_dim'] is not None:
         nucleus_props = _props(nucleus_mask)
         nucleus_props = _with_spatial(nucleus_props, nucleus_mask)
+        nucleus_props = _with_distances(nucleus_props, nucleus_mask, 'nucleus')
         if zernike:
             nucleus_props = _calculate_zernike(
                 nucleus_mask, nucleus_props, degree=degree)
@@ -1285,6 +1331,7 @@ def _morphological_measurements(
     if settings['pathogen_mask_dim'] is not None:
         pathogen_props = _props(pathogen_mask)
         pathogen_props = _with_spatial(pathogen_props, pathogen_mask)
+        pathogen_props = _with_distances(pathogen_props, pathogen_mask, 'pathogen')
         if zernike:
             pathogen_props = _calculate_zernike(
                 pathogen_mask, pathogen_props, degree=degree)
@@ -3037,7 +3084,12 @@ def _measure_crop_core(index, time_ls, file, settings):
                 _morphological_measurements(
                     cell_mask, nucleus_mask, pathogen_mask, organelle_mask,
                     cytoplasm_mask, settings,
-                    extra_organelle_masks=extra_organelle_masks)))
+                    extra_organelle_masks=extra_organelle_masks,
+                    # THE INTENSITY IMAGES, for the distance families that
+                    # need them: local maxima and the intensity-centre
+                    # offset. Optional, so a caller that only wants
+                    # geometry passes nothing and pays for nothing.
+                    channel_arrays=channel_arrays)))
             intensities = dict(zip(
                 role_order,
                 _intensity_measurements(
