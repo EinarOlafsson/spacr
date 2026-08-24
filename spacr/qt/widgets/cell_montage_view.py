@@ -1170,6 +1170,11 @@ class _WellTab(QWidget):
         # the user's, set from the picture settings; the defaults are what
         # this tab has always used, so a panel nobody touches is unchanged.
         self._thumb_px = THUMBNAIL_PX
+        #: The size the user asked for, which is the CEILING the fitted
+        #: size may grow to. Held separately because `_thumb_px` is
+        #: recomputed from the viewport on every relayout, and a ceiling
+        #: overwritten by a fitted value stops being a ceiling.
+        self._requested_px = THUMBNAIL_PX
         self._per_page = 0
         self._page = 0
         #: How the crops are drawn -- the annotator's settings, or none.
@@ -1221,6 +1226,7 @@ class _WellTab(QWidget):
         self._caption.setPlainText(self._caption_text)
         if thumb_px:
             self._thumb_px = int(thumb_px)
+            self._requested_px = int(thumb_px)
         if per_page:
             self._per_page = int(per_page)
         if picture is not None:
@@ -1265,15 +1271,24 @@ class _WellTab(QWidget):
     def _thumbnail_px_for(self, width: int, columns: int) -> int:
         """The thumbnail size that puts ``columns`` of them across ``width``.
 
-        Never larger than :data:`THUMBNAIL_PX`: past its natural size a crop
-        is an interpolated blur, and a row of six blurs is worse than a row
-        of six small sharp pictures with space around them.
+        THE CROPS FILL THE ROW. The ceiling used to be the module constant,
+        so a wide tab showing six columns drew six 96 px pictures with the
+        rest of the row empty -- "the image crops are not filling the space
+        where they should be in the cell tab". The ceiling is the size the
+        user asked for instead, so raising it in the settings lets the
+        pictures grow into the space that is there.
+
+        There is still a ceiling, and the reason has not changed: past its
+        natural size a crop is an interpolated blur. What changed is who
+        decides where that is.
         """
         gap = GRID_SPACING
         usable = max(0, int(width)) - gap * max(0, columns - 1)
+        ceiling = max(int(getattr(self, "_requested_px", THUMBNAIL_PX)),
+                      MIN_THUMBNAIL_PX)
         if columns <= 0 or usable <= 0:
-            return THUMBNAIL_PX
-        return max(MIN_THUMBNAIL_PX, min(THUMBNAIL_PX, usable // columns))
+            return ceiling
+        return max(MIN_THUMBNAIL_PX, min(ceiling, usable // columns))
 
     def per_page(self) -> int:
         """Return the number of crops that fit in the current viewport.

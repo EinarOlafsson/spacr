@@ -3384,15 +3384,34 @@ def _has_png_folder(root: str) -> bool:
 LOAD_IMAGES = "png"
 LOAD_IMAGES_LABEL = "load images"
 
-#: Cut them out of ``merged/*.npy`` as it goes.
+#: Cut them out of ``merged/*.npy`` as it goes, locating each object by the
+#: LABEL it carries in a mask plane of that array.
+#:
+#: The stored value stays ``'merged'``: it is what every settings file and
+#: every recorded run already holds, and it is still the mode that streams.
 STREAM_IMAGES = "merged"
-STREAM_IMAGES_LABEL = "stream images"
+STREAM_IMAGES_LABEL = "stream images (array)"
+
+#: Cut them out of ``merged/*.npy`` too, locating each object by its row in
+#: the measurement database instead.
+#:
+#: THE SAME PIXELS, A DIFFERENT WAY OF FINDING THEM. The array route reads
+#: the object's label out of a mask plane, so it can follow the outline; this
+#: one reads a coordinate column, which gives a rectangle and nothing to
+#: follow. Separating them at the source is what makes that difference
+#: visible before a crop is cut, rather than after.
+STREAM_FROM_DB = "merged_db"
+STREAM_FROM_DB_LABEL = "stream images (database)"
 
 #: ``(value, label)`` in the order a panel should offer them.
 PICTURE_SOURCES: Tuple[Tuple[str, str], ...] = (
     (LOAD_IMAGES, LOAD_IMAGES_LABEL),
     (STREAM_IMAGES, STREAM_IMAGES_LABEL),
+    (STREAM_FROM_DB, STREAM_FROM_DB_LABEL),
 )
+
+#: Every value that cuts from ``merged/*.npy``, whichever way it locates.
+STREAMING_SOURCES: Tuple[str, ...] = (STREAM_IMAGES, STREAM_FROM_DB)
 
 
 def picture_source_label(value: str) -> str:

@@ -15,8 +15,9 @@ from __future__ import annotations
 
 from typing import Dict, Optional, Tuple
 
-from .crops import (LOAD_IMAGES, LOAD_IMAGES_LABEL, STREAM_IMAGES,
-                    STREAM_IMAGES_LABEL)
+from .crops import (LOAD_IMAGES, LOAD_IMAGES_LABEL, STREAM_FROM_DB,
+                    STREAM_FROM_DB_LABEL, STREAM_IMAGES,
+                    STREAM_IMAGES_LABEL, STREAMING_SOURCES)
 
 #: Settings that shape the picture AFTER it has been obtained, so they mean
 #: the same thing whichever route produced it.
@@ -77,13 +78,9 @@ OWN_DEFAULTS: Dict[str, object] = {
     "show_all_in_well": True,
     "object_type": "cell",
     "crop_source": LOAD_IMAGES,
-    # EMPTY IS THE COORDINATE ROUTE. A plane index switches to the mask
-    # array, which is the only route that can cut an object shape.
+    # EMPTY MEANS THE OBJECT TYPE'S OWN PLANE. A number names a specific
+    # plane of the merged array instead.
     "mask_array": "",
-    # AND THE BOX IS THE SAFE ANSWER: it is the one cut both routes can
-    # make, so a settings dict that has not been thought about produces a
-    # picture rather than a refusal.
-    "bounding_box": True,
     "half_widths": 1.0,
     "baseline": "screen_median",
     "score_column": "pred",
@@ -136,25 +133,12 @@ STREAM_ONLY: Dict[str, str] = {
     "crop_shape": (
         "chooses between an object-shaped cut and a bounding box, and a crop "
         "that was already written to disk has been cut already"),
-    # THE TWO WAYS A STREAMED CROP IS LOCATED, and what each needs. Both
-    # cut from merged/*.npy and both use the channels the montage already
-    # asks for; what differs is how the object is found in the field:
-    #
-    #   a coordinate column   the measurement table's own <object>_id, so
-    #                         the object type is the whole question and the
-    #                         cut can only be the recorded box;
-    #   a mask array          the labelled plane, where the object number
-    #                         IS the label at those pixels, so the cut can
-    #                         follow the outline as well as the box.
-    #
-    # `mask_array` empty means the first; a plane index means the second.
+    # THE PLANE THE ARRAY ROUTE READS ITS LABELS FROM. The database route
+    # has no use for it -- it locates by a coordinate column -- and a crop
+    # already on disk was located when it was written.
     "mask_array": (
-        "names the labelled plane the object number is read from, and a "
-        "crop that was already written to disk was located when it was "
-        "written"),
-    "bounding_box": (
-        "chooses the box over the object's own outline, and a crop that "
-        "was already written to disk has been cut already"),
+        "names the labelled plane the object number is read from, and only "
+        "the array route reads one"),
 }
 
 #: Every key this module has an opinion about, in the order a panel shows them.
@@ -164,9 +148,17 @@ ALL_KEYS: Tuple[str, ...] = (
 
 
 def modes() -> Tuple[Tuple[str, str], ...]:
-    """``(value, label)`` for the two modes, default first."""
+    """``(value, label)`` for the three modes, default first.
+
+    Two of them stream from ``merged/*.npy`` and differ only in how they
+    find the object -- by its label in a mask plane, or by its row in the
+    measurement database. That difference decides whether the cut can
+    follow an outline, so it is a choice the user makes here rather than
+    something inferred from which other settings happen to be filled.
+    """
     return ((LOAD_IMAGES, LOAD_IMAGES_LABEL),
-            (STREAM_IMAGES, STREAM_IMAGES_LABEL))
+            (STREAM_IMAGES, STREAM_IMAGES_LABEL),
+            (STREAM_FROM_DB, STREAM_FROM_DB_LABEL))
 
 
 def applies_to_picking(key: str, picking: str) -> bool:
@@ -186,10 +178,20 @@ def applies_to(key: str, mode: str) -> bool:
     """
     name = str(key or "").strip()
     chosen = str(mode or LOAD_IMAGES).strip().lower()
+    streaming = chosen in STREAMING_SOURCES
     if name in LOAD_ONLY:
-        return chosen != STREAM_IMAGES
-    if name in STREAM_ONLY:
+        return not streaming
+    if name == "mask_array":
+        # ONLY THE ARRAY ROUTE READS A PLANE. The database route locates by
+        # a coordinate column, so a plane index there would be a setting
+        # that changes nothing.
         return chosen == STREAM_IMAGES
+    if name == "crop_shape":
+        # AND ONLY THE ARRAY ROUTE CAN FOLLOW AN OUTLINE, so the shape is
+        # not a choice on the database route -- it is a box.
+        return chosen == STREAM_IMAGES
+    if name in STREAM_ONLY:
+        return streaming
     return True
 
 
@@ -223,16 +225,14 @@ def bounding_box_only(settings) -> bool:
     try:
         chosen = str(settings.get("crop_source") or LOAD_IMAGES).lower()
         columns = settings.get("coordinate_columns")
-        plane = settings.get("mask_array")
     except AttributeError:
         return False
+    # THE DATABASE ROUTE HAS NOTHING TO FOLLOW. A coordinate column gives a
+    # rectangle; only the labelled plane the array route reads carries the
+    # object's own outline.
+    if chosen == STREAM_FROM_DB:
+        return True
     if chosen != STREAM_IMAGES:
-        return False
-    # A MASK ARRAY IS WHAT MAKES THE OUTLINE AVAILABLE. With one, the
-    # object's own pixels are the ones carrying its label and the cut can
-    # follow them; without one there is a row in a table and a rectangle,
-    # and nothing to follow.
-    if str(plane).strip() not in ("", "None"):
         return False
     return bool(columns)
 
@@ -384,7 +384,7 @@ def to_crop_settings(picture) -> Dict[str, object]:
         elif shape == "object":
             out["use_bounding_box"] = False
 
-    if mode == STREAM_IMAGES:
+    if mode in STREAMING_SOURCES:
         # WHICH OBJECT, AND HOW IT IS FOUND. The object type names the
         # coordinate column through `stream_dataset.coordinate_column`, so
         # the type is the only thing to ask for; a mask-array index says
@@ -392,21 +392,22 @@ def to_crop_settings(picture) -> Dict[str, object]:
         object_type = str(items.get("object_type") or "").strip().lower()
         if object_type:
             out["object_array"] = object_type
-        plane = str(items.get("mask_array", "")).strip()
-        if plane not in ("", "None"):
-            try:
-                out["mask_array"] = int(plane)
-                out["stream_method"] = "array"
-            except (TypeError, ValueError):
-                out["stream_method"] = "column"
-        else:
+        # THE SOURCE IS THE METHOD. Two entries in one list rather than a
+        # mode and a second setting that has to agree with it.
+        if mode == STREAM_FROM_DB:
             out["stream_method"] = "column"
+        else:
+            out["stream_method"] = "array"
+            plane = str(items.get("mask_array", "")).strip()
+            if plane not in ("", "None"):
+                try:
+                    out["mask_array"] = int(plane)
+                except (TypeError, ValueError):
+                    pass
         # AND THE BOX WINS WHERE IT IS THE ONLY CUT AVAILABLE, rather than
         # the panel promising an outline the route cannot follow.
         if bounding_box_only(items):
             out["use_bounding_box"] = True
-        elif "bounding_box" in items:
-            out["use_bounding_box"] = bool(items.get("bounding_box"))
     return out
 
 

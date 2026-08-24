@@ -5211,16 +5211,37 @@ class FastPlot(QWidget):
 
     @contextmanager
     def _dressed_for_the_file(self, ink: str = "", background: str = "",
-                              grid: Optional[bool] = None):
+                              grid: Optional[bool] = None, *,
+                              font_size: Optional[int] = None,
+                              line_width: Optional[float] = None,
+                              aspect: Optional[float] = None,
+                              x_title: Optional[str] = None,
+                              y_title: Optional[str] = None):
         """Apply export styling for one synchronous render, then restore it.
 
         Pyqtgraph scenes cannot be copied safely, so the live scene is styled
         only while an offscreen exporter or painter renders it. The original
-        colors and grid state are restored in ``finally``, including when the
-        export raises.
+        colors, grid, text size, line width, aspect and axis titles are
+        restored in ``finally``, including when the export raises.
+
+        EVERY KNOB THE SAVE DIALOG OFFERS COMES THROUGH HERE, so the preview
+        and the file are styled by one path. A second styling path is how a
+        preview comes to show something the file does not.
         """
         before_bg, before_fg = self._background, self._foreground
         before_grid = self._grid_on
+        before_font = self._font_size
+        before_labels = dict(getattr(self, "_base_labels", {}) or {})
+        before_width = None
+        if line_width is not None:
+            lines = self.line_items()
+            first = self._pen_of(lines[0]) if lines else None
+            before_width = float(first.widthF()) if first is not None else None
+        before_aspect = None
+        if aspect is not None:
+            box = self.plot.getViewBox()
+            state = box.state.get("aspectLocked", False)
+            before_aspect = float(state) if state else None
         # THE PAGE, not just the scene. Restyling the scene colours what is
         # DRAWN; the raster exporter fills the page behind it separately, and
         # it reads `_export_ground`. Recording the choice here is what lets
@@ -5234,16 +5255,42 @@ class FastPlot(QWidget):
             self._chosen_ground = str(background or "")
             if grid is not None:
                 self.set_grid(grid)
+            if font_size:
+                self.set_font_size(int(font_size))
+            if line_width:
+                self.set_line_style(width=float(line_width))
+            if aspect is not None:
+                self.set_aspect_ratio(aspect or None)
+            for edge, title in (("bottom", x_title), ("left", y_title)):
+                if title is not None:
+                    self.plot.setLabel(edge, str(title))
+            if x_title is not None or y_title is not None:
+                self.apply_text_style()
             yield self
         finally:
             self._chosen_ground = before_ground
+            for edge, title in (("bottom", x_title), ("left", y_title)):
+                if title is not None:
+                    self.plot.setLabel(edge, before_labels.get(edge, ""))
+            if aspect is not None:
+                self.set_aspect_ratio(before_aspect)
+            if line_width and before_width:
+                self.set_line_style(width=before_width)
+            if font_size:
+                # BACK TO WHAT IT WAS, INCLUDING None. `set_font_size` takes
+                # an int, so "no size of its own" -- the default state of
+                # every plot nobody has resized -- can only be restored by
+                # putting the attribute back and re-applying.
+                self._font_size = before_font
+                self.apply_text_style()
             if grid is not None:
                 self.set_grid(before_grid)
             if ink or background:
                 self.restyle(background=before_bg, foreground=before_fg)
 
     def styled_snapshot(self, width: int = SNAPSHOT_PX[0], *, ink: str = "",
-                        background: str = "", grid: Optional[bool] = None):
+                        background: str = "", grid: Optional[bool] = None,
+                        **styling):
         """Render a preview with the styling used for file export.
 
         Parameters
@@ -5270,8 +5317,12 @@ class FastPlot(QWidget):
         The on-screen plot is restored after rendering, including when export
         raises an exception.
         """
-        with self._dressed_for_the_file(ink, background, grid):
-            return self.snapshot(width)
+        with self._dressed_for_the_file(ink, background, grid, **styling):
+            # THE PAGE THE FILE WOULD GET. `_export_ground` is what the
+            # raster exporter fills behind the scene when the file is
+            # written, so a preview that left it out showed a transparent
+            # page for a file that will not have one.
+            return self.snapshot(width, ground=self._export_ground())
 
     def export_bundle(self, folder: Optional[str] = None,
                       name: str = "") -> Optional[str]:
@@ -5399,9 +5450,16 @@ class FastPlot(QWidget):
         return out
 
     def export_styled(self, path: str, *, ink: str = "", background: str = "",
-                      grid: Optional[bool] = None) -> Optional[str]:
-        """Write the plot with the FILE's styling, leaving the screen alone."""
-        with self._dressed_for_the_file(ink, background, grid):
+                      grid: Optional[bool] = None,
+                      **styling) -> Optional[str]:
+        """Write the plot with the FILE's styling, leaving the screen alone.
+
+        ``styling`` takes the same keywords :meth:`styled_snapshot` does --
+        ``font_size``, ``line_width``, ``aspect``, ``x_title``, ``y_title``
+        -- so the preview and the file go through one styling path and
+        cannot disagree.
+        """
+        with self._dressed_for_the_file(ink, background, grid, **styling):
             return self.export(path)
 
     def save_styled(self):
@@ -5437,7 +5495,7 @@ class FastPlot(QWidget):
         except Exception:       # pragma: no cover - a different exporter API
             pass
 
-    def snapshot(self, width: int = SNAPSHOT_PX[0]):
+    def snapshot(self, width: int = SNAPSHOT_PX[0], *, ground=None):
         """A picture of this plot, even on a page nobody has opened.
 
         :param width: pixels across. The height follows from the plot's own
@@ -5481,11 +5539,17 @@ class FastPlot(QWidget):
             exporter = exporters.ImageExporter(self.plot.plotItem)
             exporter.parameters()["width"] = int(width)
             try:
-                # TRANSPARENT, like the export and like the tile behind it.
-                # The exporter defaults to pyqtgraph's configured background,
+                # TRANSPARENT BY DEFAULT, like the tile behind it. The
+                # exporter otherwise uses pyqtgraph's configured background,
                 # and a tile painted onto an opaque slab is the "the graphs
                 # still have a black background" report all over again.
-                exporter.parameters()["background"] = QColor(0, 0, 0, 0)
+                #
+                # A CALLER MAY ASK FOR THE PAGE, and the save dialog does:
+                # its preview is meant to be the file, and a file written
+                # onto white while its preview showed transparent is a
+                # preview of something else.
+                exporter.parameters()["background"] = (
+                    QColor(0, 0, 0, 0) if ground is None else ground)
             except (KeyError, TypeError):   # pragma: no cover - old pyqtgraph
                 pass
             image = exporter.export(toBytes=True)
