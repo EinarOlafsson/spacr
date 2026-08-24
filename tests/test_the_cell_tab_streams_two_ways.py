@@ -28,7 +28,7 @@ def _streaming(**overrides):
 
 def test_the_panel_offers_the_three_settings():
     """Object type, mask array and bounding box, in the settings panel."""
-    for key in ("object_type", "mask_array", "bounding_box"):
+    for key in ("object_type", "mask_array", "crop_shape"):
         assert key in ALL_KEYS, f"{key} is not offered"
         assert key in OWN_DEFAULTS or key == "object_type"
 
@@ -55,8 +55,10 @@ def test_every_object_type_has_its_coordinate_column():
 
 def test_the_coordinate_route_can_only_cut_a_box():
     """No outline in a table, so the panel must not offer one."""
-    settings = _streaming(object_type="nucleus", mask_array="",
-                          coordinate_columns=["nucleus_id"])
+    from spacr.crops import STREAM_FROM_DB
+
+    settings = dict(OWN_DEFAULTS, crop_source=STREAM_FROM_DB,
+                    object_type="nucleus")
 
     assert bounding_box_only(settings)
     cut = to_crop_settings(settings)
@@ -67,8 +69,8 @@ def test_the_coordinate_route_can_only_cut_a_box():
 
 def test_the_mask_array_route_can_cut_either(monkeypatch):
     """A labelled plane carries the outline, so both cuts are available."""
-    shaped = _streaming(object_type="cell", mask_array=2, bounding_box=False,
-                        coordinate_columns=["cell_id"])
+    shaped = _streaming(object_type="cell", mask_array=2,
+                        crop_shape="object")
 
     # A MASK ARRAY OVERRIDES THE COLUMNS. Both may be present -- the table
     # is how the object is named either way -- and the labelled plane is
@@ -79,16 +81,19 @@ def test_the_mask_array_route_can_cut_either(monkeypatch):
     assert cut["mask_array"] == 2
     assert cut["use_bounding_box"] is False
 
-    boxed = _streaming(object_type="cell", mask_array=2, bounding_box=True)
+    boxed = _streaming(object_type="cell", mask_array=2, crop_shape="bbox")
     assert to_crop_settings(boxed)["use_bounding_box"] is True
 
 
 def test_both_routes_ask_for_the_same_object_and_the_same_box():
     """Same object type, same cut -- the two routes are two ways to find
     one crop, not two crops."""
-    column = to_crop_settings(_streaming(object_type="pathogen"))
+    from spacr.crops import STREAM_FROM_DB
+
+    column = to_crop_settings(dict(OWN_DEFAULTS, crop_source=STREAM_FROM_DB,
+                                   object_type="pathogen"))
     array = to_crop_settings(
-        _streaming(object_type="pathogen", mask_array=1, bounding_box=True))
+        _streaming(object_type="pathogen", mask_array=1, crop_shape="bbox"))
 
     assert column["object_array"] == array["object_array"]
     assert column["use_bounding_box"] == array["use_bounding_box"] is True
@@ -96,7 +101,7 @@ def test_both_routes_ask_for_the_same_object_and_the_same_box():
 
 def test_neither_setting_means_anything_when_the_crops_are_on_disk():
     """Greyed with a reason, never hidden."""
-    for key in ("mask_array", "bounding_box"):
+    for key in ("mask_array", "crop_shape"):
         assert not applies_to(key, LOAD_IMAGES)
         assert why_not(key, LOAD_IMAGES).strip()
         assert applies_to(key, STREAM_IMAGES)

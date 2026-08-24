@@ -16,7 +16,11 @@ from spacr.picture_settings import (ALL_KEYS, BOTH_MODES, applies_to,
 def test_load_images_is_offered_first():
     assert modes()[0][0] == LOAD_IMAGES
     assert modes()[0][1] == "load images"
-    assert modes()[1][1] == "stream images"
+    # THREE MODES SINCE THE STREAM SPLIT IN TWO: the array route reads an
+    # object's label out of a mask plane, the database route reads its row
+    # in the measurements table, and only the first can follow an outline.
+    assert modes()[1][1] == "stream images (array)"
+    assert modes()[2][1] == "stream images (database)"
 
 
 @pytest.mark.parametrize("key", BOTH_MODES)

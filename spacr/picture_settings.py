@@ -15,7 +15,8 @@ from __future__ import annotations
 
 from typing import Dict, Optional, Tuple
 
-from .crops import (LOAD_IMAGES, LOAD_IMAGES_LABEL, STREAM_FROM_DB,
+from .crops import (DEFAULT_PNG_CHANNEL_MAPPING, LOAD_IMAGES,
+                    LOAD_IMAGES_LABEL, STREAM_FROM_DB,
                     STREAM_FROM_DB_LABEL, STREAM_IMAGES,
                     STREAM_IMAGES_LABEL, STREAMING_SOURCES)
 
@@ -81,6 +82,13 @@ OWN_DEFAULTS: Dict[str, object] = {
     # EMPTY MEANS THE OBJECT TYPE'S OWN PLANE. A number names a specific
     # plane of the merged array instead.
     "mask_array": "",
+    # THE SHIPPED MAPPING, so a panel nobody touches cuts what it always
+    # cut. spaCR's own default is r=2, g=1, b=0 -- the inverted order the
+    # PNG path has always used -- and stating it here is what makes it
+    # visible and changeable instead of implicit.
+    "red_channel": DEFAULT_PNG_CHANNEL_MAPPING.get("r", 2),
+    "green_channel": DEFAULT_PNG_CHANNEL_MAPPING.get("g", 1),
+    "blue_channel": DEFAULT_PNG_CHANNEL_MAPPING.get("b", 0),
     "half_widths": 1.0,
     "baseline": "screen_median",
     "score_column": "pred",
@@ -139,6 +147,25 @@ STREAM_ONLY: Dict[str, str] = {
     "mask_array": (
         "names the labelled plane the object number is read from, and only "
         "the array route reads one"),
+    # WHICH SOURCE CHANNEL FEEDS EACH COLOUR. Cutting from merged/*.npy
+    # means choosing planes out of an array that may hold any number of
+    # them; a crop already on disk was made from a choice taken when it
+    # was written.
+    #
+    # THE PROBLEM THESE SOLVE: the mapping used to be fixed, so an array
+    # whose nucleus is plane 0 came out with the nucleus in whichever
+    # colour the default put plane 0 in -- "with stream i get the nucleus
+    # red". They also let a plane be picked that is not one of the first
+    # three: 1, 2 and 4 out of five is a mapping, not a slice.
+    "red_channel": (
+        "chooses the array plane drawn in red, and a crop already on disk "
+        "was made from a choice taken when it was written"),
+    "green_channel": (
+        "chooses the array plane drawn in green, and a crop already on "
+        "disk was made from a choice taken when it was written"),
+    "blue_channel": (
+        "chooses the array plane drawn in blue, and a crop already on "
+        "disk was made from a choice taken when it was written"),
 }
 
 #: Every key this module has an opinion about, in the order a panel shows them.
@@ -392,6 +419,25 @@ def to_crop_settings(picture) -> Dict[str, object]:
         object_type = str(items.get("object_type") or "").strip().lower()
         if object_type:
             out["object_array"] = object_type
+        # THE COLOURS THE USER MAPPED, which beat the letters: a mapping
+        # says which plane is red, and the letters can only say whether
+        # red is drawn at all. A field left blank means that colour is
+        # not drawn, which is how a two-channel picture is asked for.
+        chosen = {}
+        for colour, key in (("r", "red_channel"), ("g", "green_channel"),
+                            ("b", "blue_channel")):
+            raw = items.get(key, "")
+            text = str(raw).strip()
+            if text in ("", "None", "-1"):
+                chosen[colour] = None
+                continue
+            try:
+                chosen[colour] = int(float(text))
+            except (TypeError, ValueError):
+                chosen[colour] = None
+        if any(v is not None for v in chosen.values()):
+            out["png_channel_mapping"] = chosen
+
         # THE SOURCE IS THE METHOD. Two entries in one list rather than a
         # mode and a second setting that has to agree with it.
         if mode == STREAM_FROM_DB:

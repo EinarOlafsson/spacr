@@ -1865,6 +1865,17 @@ class MainWindow(QMainWindow):
         self._drag_from = None
         self.menuBar().installEventFilter(self)
 
+        # AND THE FRAME WAS WHERE IT WAS RESIZED. Dropping the frame took
+        # the grips with it, so the window could be moved and not resized;
+        # the edges do it now, handed to the window manager so the drag
+        # behaves like every other window on the desktop.
+        try:
+            from .widgets.glass import let_the_user_resize
+
+            let_the_user_resize(self)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("the window could not be made resizable", exc_info=True)
+
         action = QAction("Full screen", self)
         action.setShortcut(QKeySequence("F11"))
         action.triggered.connect(self.toggle_fullscreen)
