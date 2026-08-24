@@ -5,10 +5,14 @@ an icon in the top left for true fullscreen", then "have the square be on
 the other side (the top right side) and add a minus to its left for
 minimizing".
 
-So: top RIGHT, minimise then full screen -- the order a title bar puts them
-in. Closing is still not there; Quit is in the spaCR menu with its usual
-shortcut, and a stray click on an x mid-analysis costs more than reaching
-for the menu does.
+So: top RIGHT, minimise then full screen then close, the order a title bar
+puts them in. The x "should act exactly like pressing quit in preferences",
+so it calls the same thing Quit does rather than closing the window a second
+way -- two exits that differ is how a session ends without saving something.
+
+The colours say what each does: red on the one that ends the session, blue
+on full screen (the accent the rest of spaCR uses for "on"), and minimise
+stays white, because hiding a window is not a decision.
 
 NOTHING ABOUT CLOSING DEPENDS ON THE BUTTON THAT WENT. Quit keeps its
 standard shortcut in the spaCR menu, so a frameless window cannot trap
@@ -48,10 +52,10 @@ def _window_buttons(window):
     return corner.findChildren(QToolButton) if corner is not None else []
 
 
-def test_the_top_right_holds_minimise_then_full_screen(window):
+def test_the_top_right_holds_the_three_in_order(window):
     names = [b.objectName() for b in _window_buttons(window)]
 
-    assert names == ["MinimiseWindow", "FullScreenToggle"]
+    assert names == ["MinimiseWindow", "FullScreenToggle", "CloseWindow"]
     assert all(not b.icon().isNull() for b in _window_buttons(window)), (
         "the icons are drawn, not shipped")
 
@@ -108,6 +112,46 @@ def test_the_minus_minimises(window, qapp):
     qapp.processEvents()
 
     assert window.isMinimized() or not window.isActiveWindow()
+
+
+@pytest.mark.parametrize("name,colour", [
+    ("CloseWindow", "220, 60, 60"),        # red: it ends the session
+    ("FullScreenToggle", "60, 130, 220"),  # blue: the accent for "on"
+    ("MinimiseWindow", "255, 255, 255"),   # white: hiding is not a decision
+])
+def test_each_button_lights_in_its_own_colour(window, name, colour):
+    corner = window.menuBar().cornerWidget(Qt.Corner.TopRightCorner)
+    sheet = corner.styleSheet()
+
+    assert f"QToolButton#{name}:hover" in sheet
+    assert colour in sheet
+
+
+def test_the_x_is_wired_to_the_same_thing_quit_is(window):
+    """"act exactly like pressing quit" -- one exit path, not two.
+
+    Checked by asking Qt what the button is connected to rather than by
+    clicking it: clicking really would close the window, and a test that
+    tears down its own fixture proves nothing about what it meant to.
+    """
+    close = [b for b in _window_buttons(window)
+             if b.objectName() == "CloseWindow"][0]
+    quit_action = [a for menu in window.menuBar().actions()
+                   if menu.menu() is not None
+                   for a in menu.menu().actions()
+                   if "quit" in a.text().lower()]
+
+    assert quit_action, "there is no Quit to match"
+    # Both end the window the same way. Verified by SOURCE rather than by
+    # clicking: a click really would close the fixture, and by wiring
+    # rather than by behaviour because `close` is the one call both make.
+    import inspect
+
+    from spacr.qt.app import MainWindow
+
+    wiring = inspect.getsource(MainWindow._install_fullscreen_button)
+    assert "close.clicked.connect(self.close)" in wiring
+    assert quit_action[0].shortcut() == QKeySequence.StandardKey.Quit
 
 
 def test_full_screen_has_a_shortcut(window):

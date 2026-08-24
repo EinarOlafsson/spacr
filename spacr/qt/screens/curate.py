@@ -250,11 +250,14 @@ def register(*, section: Optional[str] = None, stage: Optional[str] = None,
 
     :returns: the registry row, or ``None`` when the key was already there.
     """
-    from ..app import APPS, SECTION_CORE, STAGE_ALPHA, register_app
+    from ..app import APPS, SECTION_MODELS, STAGE_ALPHA, register_app
     if any(row[0] == key for row in APPS):
         return None
     return register_app(
-        key, APP_NAME, APP_DESCRIPTION, section or SECTION_CORE,
+        # SEGMENTATION MODELS, not Core. Curate fixes a mask by hand;
+        # Core is the pipeline you run, and a section that lists
+        # everything sorts nothing.
+        key, APP_NAME, APP_DESCRIPTION, section or SECTION_MODELS,
         factory=make_curate_screen,
         stage=STAGE_ALPHA if stage is None else stage,
         intro=APP_INTRO, cli_note=APP_CLI_NOTE,
