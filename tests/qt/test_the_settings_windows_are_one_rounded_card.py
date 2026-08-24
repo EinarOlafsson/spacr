@@ -334,6 +334,10 @@ class TestTheSetupScreen:
 
 
 class TestTheGithubButtonAlwaysDoesSomething:
+    # The "button" is the GitHub LOGO since 2026-08-23 -- "i want the
+    # github button to also be a github logo just like the AI icons work".
+    # The text push button beside it is gone, so what each state offers is
+    # read off the mark's status and tooltip instead of off a caption.
     def _slides(self, app):
         from spacr.qt.widgets.setup_slides import SetupSlides
 
@@ -355,8 +359,9 @@ class TestTheGithubButtonAlwaysDoesSomething:
                 monkeypatch.setattr(
                     "spacr.qt.ai.github_auth.auth_source", lambda s=source: s)
                 slides._refresh_github()
-                assert slides._gh_button.isEnabled(), source
-                assert slides._gh_button.text().strip()
+                assert slides._gh_mark.isEnabled(), source
+                assert slides._gh_mark.toolTip().strip(), source
+                assert slides._gh_action in ("login", "install"), source
         finally:
             slides.close()
             slides.deleteLater()
@@ -370,7 +375,8 @@ class TestTheGithubButtonAlwaysDoesSomething:
         slides = self._slides(app)
         try:
             slides._refresh_github()
-            assert "again" in slides._gh_button.text().lower()
+            assert "again" in slides._gh_mark.toolTip().lower()
+            assert slides._gh_mark.status == slides._gh_mark.READY
             assert slides._gh_action == "login"
         finally:
             slides.close()
@@ -387,7 +393,8 @@ class TestTheGithubButtonAlwaysDoesSomething:
         slides = self._slides(app)
         try:
             slides._refresh_github()
-            assert "install" in slides._gh_button.text().lower()
+            assert "install" in slides._gh_mark.toolTip().lower()
+            assert slides._gh_mark.status == slides._gh_mark.NOT_INSTALLED
             assert slides._gh_action == "install"
         finally:
             slides.close()
@@ -424,7 +431,8 @@ class TestTheGithubButtonAlwaysDoesSomething:
         slides = self._slides(app)
         try:
             slides._refresh_github()
-            assert slides._gh_button.text() == "Sign in"
+            assert slides._gh_mark.status == slides._gh_mark.SIGNED_OUT
+            assert "sign-in" in slides._gh_mark.toolTip().lower()
             assert slides._gh_action == "login"
         finally:
             slides.close()
@@ -443,7 +451,7 @@ class TestTheGithubButtonAlwaysDoesSomething:
                 monkeypatch.setattr(shutil, "which", lambda name, w=which: w)
                 slides._refresh_github()
                 assert slides._gh_status.text().strip()
-                assert slides._gh_button.toolTip().strip()
+                assert slides._gh_mark.toolTip().strip()
         finally:
             slides.close()
             slides.deleteLater()

@@ -260,11 +260,18 @@ def test_demo_menu_has_expected_entries(qtbot, qt_theme_applied):
     """Menu wiring — every demo is a QAction under &Demos, including the
     real-dataset end-to-end option."""
     win = _new_mainwindow(qtbot, qt_theme_applied)
+    # Demos moved under Help on 2026-08-23, so the search descends.
     demos_menu = None
-    for act in win.menuBar().actions():
+    pending = list(win.menuBar().actions())
+    while pending:
+        act = pending.pop(0)
+        menu = act.menu()
+        if menu is None:
+            continue
         if act.text().replace("&", "") == "Demos":
-            demos_menu = act.menu()
+            demos_menu = menu
             break
+        pending.extend(menu.actions())
     assert demos_menu is not None, "no &Demos menu found"
     actions = [a for a in demos_menu.actions() if not a.isSeparator()]
     labels = {a.text() for a in actions}

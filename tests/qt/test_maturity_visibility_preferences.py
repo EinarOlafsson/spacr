@@ -132,6 +132,15 @@ def test_sidebar_refreshes_without_rebuilding_or_leaving_empty_headers(
     maturity_prefs.set_show_beta(False)
     sidebar.refresh_visibility()
 
+    # TWO REASONS A ROW CAN BE ABSENT, and this test is about one of them.
+    # Since 2026-08-23 the dock's sections are COLLAPSED except Core, so a
+    # stable module in a closed section is hidden for a reason that has
+    # nothing to do with maturity. Open every section first, and the
+    # maturity filter is the only thing left deciding.
+    for section in list(sidebar._section_headers):
+        if not sidebar.section_is_open(section):
+            sidebar.toggle_section(section)
+
     for key, button in buttons.items():
         assert button.isHidden() == (app_stage(key) != "stable")
     headers = {
@@ -184,13 +193,24 @@ def test_hidden_numeric_shortcut_does_not_open_a_filtered_module(
         def _on_nav_selected(self, key):
             self.opened.append(key)
 
+    # THE INDEXES ARE FOUND, NOT ASSUMED. `_nav_by_index` indexes into
+    # APPS, and APPS was reordered on 2026-08-23 -- Core is now the pipeline
+    # in the order you run it, and Timelapse (which used to sit at index 1)
+    # moved to Assays. A hard-coded index tests the ordering, not the
+    # filter.
+    from spacr.qt.app import APPS, app_stage
+
+    beta = next(i for i, row in enumerate(APPS) if app_stage(row[0]) == "beta")
+    stable = next(i for i, row in enumerate(APPS)
+                  if app_stage(row[0]) == "stable")
+
     window = Window()
     maturity_prefs.set_show_beta(False)
-    shortcuts._nav_by_index(window, 1)  # Timelapse is Beta.
+    shortcuts._nav_by_index(window, beta)
     assert window.opened == []
 
-    shortcuts._nav_by_index(window, 0)  # Mask is Stable.
-    assert window.opened == ["mask"]
+    shortcuts._nav_by_index(window, stable)
+    assert window.opened == [APPS[stable][0]]
 
 
 def test_command_palette_does_not_restore_hidden_modules(

@@ -989,20 +989,42 @@ def test_clicking_a_sidebar_row_navigates(win):
 
 
 def test_the_menu_bar_lists_every_app_and_its_entries_navigate(win):
+    # The apps sit one level down since 2026-08-23: the spaCR menu opens
+    # onto a submenu per section rather than onto sixty-five flat rows.
     seen = {}
+
+    def collect(menu):
+        for act in menu.actions():
+            if act.isSeparator():
+                continue
+            if act.menu() is not None:
+                collect(act.menu())
+            else:
+                seen[act.text()] = act.statusTip()
+
     for top in win.menuBar().actions():
         if top.text().replace("&", "") != "spaCR":
             continue
-        for act in top.menu().actions():
-            if not act.isSeparator():
-                seen[act.text()] = act.statusTip()
+        collect(top.menu())
         break
     for _key, name, desc, _s in APPS:
         assert seen.get(name) == desc, f"{name} missing/mislabelled in menu"
+    # Triggered through the section submenu it now lives in.
+    def find(menu, label):
+        for act in menu.actions():
+            if act.menu() is not None:
+                hit = find(act.menu(), label)
+                if hit is not None:
+                    return hit
+            elif act.text() == label:
+                return act
+        return None
+
     for top in win.menuBar().actions():
         if top.text().replace("&", "") != "spaCR":
             continue
-        act = next(a for a in top.menu().actions() if a.text() == "Image UMAP")
+        act = find(top.menu(), "Image UMAP")
+        assert act is not None, "Image UMAP is not on the spaCR menu"
         act.trigger()
         break
     assert win._status_app_label.text() == "Image UMAP"

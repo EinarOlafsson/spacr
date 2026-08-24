@@ -61,11 +61,17 @@ def _menu_labels(win, name: str):
     """
     mb = win.menuBar()
     labels: list = []
-    for top_act in mb.actions():
-        if top_act.text().replace("&", "") != name:
-            continue
+    stack = [act for act in mb.actions()]
+    while stack:
+        top_act = stack.pop(0)
         m = top_act.menu()
         if m is None:
+            continue
+        if top_act.text().replace("&", "") != name:
+            # Not this one -- but a menu can be nested now: Demos moved
+            # under Help on 2026-08-23, so a search that only looks at
+            # the bar's own actions finds nothing at all.
+            stack.extend(m.actions())
             continue
         for a in m.actions():
             if not a.isSeparator():

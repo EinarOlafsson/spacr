@@ -28,6 +28,7 @@ from PySide6.QtWidgets import (
     QStackedWidget,
     QStatusBar,
     QStyle,
+    QToolButton,
     QVBoxLayout,
     QWidget,
 )
@@ -1282,16 +1283,31 @@ class Sidebar(QWidget):
         home.clicked.connect(lambda: self.nav_selected.emit("__home__"))
         layout.addWidget(home)
 
-        # Group apps by section, in APPS order
+        # COLLAPSED, EXCEPT CORE. The dock listed every section open, which
+        # is fifty-six rows and a column taller than the screen -- so the
+        # sections were there and did no sorting. Core starts open because
+        # it is the pipeline and the reason the dock is on screen; the rest
+        # open when their header is clicked.
+        self._section_items: dict[str, list] = {}
+        self._open_sections: set = {SECTION_CORE}
+
         current_section = None
         for key, name, desc, section in APPS:
             if section != current_section:
                 header = QLabel(section)
                 header.setObjectName("SidebarSection")
+                header.setCursor(Qt.CursorShape.PointingHandCursor)
+                header.setProperty("sectionName", section)
+                # A LABEL, NOT A BUTTON: it is already styled as the dock's
+                # heading, and a button here would have to be un-styled back
+                # into one. The click comes through the event filter.
+                header.installEventFilter(self)
                 layout.addWidget(header)
                 self._section_headers[section] = header
+                self._section_items.setdefault(section, [])
                 current_section = section
             btn = self._make_item(name, desc, key)
+            self._section_items.setdefault(section, []).append(btn)
             icon = _icon_for_app(key)
             if icon is not None:
                 btn.setIcon(icon)
@@ -1300,7 +1316,60 @@ class Sidebar(QWidget):
             layout.addWidget(btn)
 
         layout.addStretch(1)
+        self._apply_section_state()
         self.refresh_visibility()
+
+    def eventFilter(self, watched, event):      # noqa: N802 - Qt naming
+        """Toggle a section when its header is clicked, and light it on hover."""
+        section = watched.property("sectionName") if watched else None
+        if not section:
+            return super().eventFilter(watched, event)
+        kind = event.type()
+        if (kind == QEvent.Type.MouseButtonRelease
+                and event.button() == Qt.MouseButton.LeftButton):
+            self.toggle_section(str(section))
+            return True
+        if kind in (QEvent.Type.Enter, QEvent.Type.Leave):
+            watched.setProperty("hovered", kind == QEvent.Type.Enter)
+            self._restyle(watched)
+        return super().eventFilter(watched, event)
+
+    def section_is_open(self, section: str) -> bool:
+        """Whether ``section``'s modules are showing."""
+        return str(section) in self._open_sections
+
+    def toggle_section(self, section: str) -> bool:
+        """Open or close one section. Returns whether it is now open."""
+        section = str(section)
+        if section in self._open_sections:
+            self._open_sections.discard(section)
+        else:
+            self._open_sections.add(section)
+        self._apply_section_state()
+        self.refresh_visibility()
+        return section in self._open_sections
+
+    def _apply_section_state(self) -> None:
+        """Show a section's modules only while it is open, and colour it."""
+        for section, buttons in self._section_items.items():
+            wanted = self.section_is_open(section)
+            for button in buttons:
+                button.setProperty("sectionClosed", not wanted)
+        for section, header in self._section_headers.items():
+            header.setProperty("open", self.section_is_open(section))
+            self._restyle(header)
+
+    @staticmethod
+    def _restyle(widget) -> None:
+        """Re-read the widget's own QSS after a property changed.
+
+        Qt does not repaint on a property change by itself, so a header that
+        just opened keeps the closed colour until something else forces it.
+        """
+        style = widget.style()
+        style.unpolish(widget)
+        style.polish(widget)
+        widget.update()
 
     def refresh_visibility(self) -> None:
         """Apply Alpha/Beta filters without rebuilding or reparenting the dock."""
@@ -1311,9 +1380,16 @@ class Sidebar(QWidget):
             if key == "__home__":
                 btn.setVisible(True)
                 continue
-            visible = app_is_visible(key)
+            # A CLOSED SECTION HIDES ITS MODULES, and the maturity filter
+            # still applies inside an open one -- the two are separate
+            # reasons for a row not to be there.
+            visible = app_is_visible(key) and not bool(
+                btn.property("sectionClosed"))
             btn.setVisible(visible)
-            if visible and key in section_by_key:
+            if app_is_visible(key) and key in section_by_key:
+                # THE HEADER STAYS whether the section is open or not: it is
+                # what you click to open it. It hides only when every module
+                # under it is filtered out by maturity.
                 visible_sections.add(section_by_key[key])
         for section, header in self._section_headers.items():
             header.setVisible(section in visible_sections)
@@ -1397,6 +1473,55 @@ class Sidebar(QWidget):
         here still carries its full name in its tooltip.
         """
         return [b for b in self._items if b.is_elided()]
+
+
+#: What each window-chrome mark turns when the pointer is on it or the
+#: button is held down. The COLOUR IS THE GLYPH's, not a background: red
+#: is the one that ends the session, and blue is the accent the rest of
+#: spaCR uses for a live control.
+CHROME_HOVER = {
+    "CloseWindow": "#DC3C3C",
+    "FullScreenToggle": "#3C82DC",
+    "MinimiseWindow": "#3C82DC",
+}
+
+
+class _ChromeButton(QToolButton):
+    """A frameless-window button whose MARK changes colour, not its plate.
+
+    QSS can colour a background on ``:hover`` but not the contents of a
+    QIcon, and these three marks are painted rather than shipped -- so
+    the hover state is a second painting of the same glyph in the hover
+    colour, swapped in on enter and on press and swapped back on leave.
+    """
+
+    def __init__(self, parent, painter, colour: str):
+        super().__init__(parent)
+        self._paint_icon = painter
+        self._hover_colour = colour
+        self.setAutoRaise(True)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._show(False)
+
+    def _show(self, lit: bool) -> None:
+        self.setIcon(self._paint_icon(colour=self._hover_colour)
+                     if lit else self._paint_icon())
+
+    def enterEvent(self, event):        # noqa: N802 - Qt naming
+        self._show(True)
+        super().enterEvent(event)
+
+    def leaveEvent(self, event):        # noqa: N802 - Qt naming
+        self._show(self.isDown())
+        super().leaveEvent(event)
+
+    def mousePressEvent(self, event):   # noqa: N802 - Qt naming
+        self._show(True)
+        super().mousePressEvent(event)
+
+    def mouseReleaseEvent(self, event):  # noqa: N802 - Qt naming
+        super().mouseReleaseEvent(event)
+        self._show(self.underMouse())
 
 
 class MainWindow(QMainWindow):
@@ -1676,8 +1801,6 @@ class MainWindow(QMainWindow):
         first menu rather than beside it, and it is what the top-left
         corner of the window holds.
         """
-        from PySide6.QtWidgets import QToolButton
-
         # TOP RIGHT, minimise then full screen -- the order a title bar
         # puts them in. Closing is not here: Quit is in the spaCR menu with
         # its usual shortcut, and a stray click on an x mid-analysis costs
@@ -1689,32 +1812,26 @@ class MainWindow(QMainWindow):
         row.setContentsMargins(0, 0, 6, 0)
         row.setSpacing(2)
 
-        minimise = QToolButton(corner)
+        minimise = _ChromeButton(corner, self._minimise_icon,
+                                 CHROME_HOVER["MinimiseWindow"])
         minimise.setObjectName("MinimiseWindow")
-        minimise.setAutoRaise(True)
-        minimise.setCursor(Qt.CursorShape.PointingHandCursor)
-        minimise.setIcon(self._minimise_icon())
         minimise.setToolTip("Minimise")
         minimise.clicked.connect(self.showMinimized)
         row.addWidget(minimise)
         self._minimise_button = minimise
 
-        button = QToolButton(corner)
+        button = _ChromeButton(corner, self._fullscreen_icon,
+                               CHROME_HOVER["FullScreenToggle"])
         button.setObjectName("FullScreenToggle")
-        button.setAutoRaise(True)
-        button.setCursor(Qt.CursorShape.PointingHandCursor)
-        button.setIcon(self._fullscreen_icon())
         button.setToolTip("Full screen (F11). The window has no title bar; "
                           "drag the menu bar to move it.")
         button.clicked.connect(self.toggle_fullscreen)
         row.addWidget(button)
         self._fullscreen_button = button
 
-        close = QToolButton(corner)
+        close = _ChromeButton(corner, self._close_icon,
+                              CHROME_HOVER["CloseWindow"])
         close.setObjectName("CloseWindow")
-        close.setAutoRaise(True)
-        close.setCursor(Qt.CursorShape.PointingHandCursor)
-        close.setIcon(self._close_icon())
         close.setToolTip("Quit spaCR")
         # THE SAME THING QUIT DOES. Not `close()` on the window -- Quit is
         # what every other exit path goes through, and two ways of leaving
@@ -1723,22 +1840,14 @@ class MainWindow(QMainWindow):
         row.addWidget(close)
         self._close_button = close
 
-        # THE COLOURS SAY WHAT THE BUTTON DOES. Red is the one that ends the
-        # session and is the only one worth flinching at; blue is the accent
-        # the rest of spaCR uses for "on"; minimise stays white because
-        # hiding a window is not a decision.
-        corner.setStyleSheet("""
-QToolButton { background: transparent; border: none; border-radius: 4px; }
-QToolButton#CloseWindow:hover, QToolButton#CloseWindow:pressed {
-    background: rgba(220, 60, 60, 0.85);
-}
-QToolButton#FullScreenToggle:hover, QToolButton#FullScreenToggle:pressed {
-    background: rgba(60, 130, 220, 0.85);
-}
-QToolButton#MinimiseWindow:hover, QToolButton#MinimiseWindow:pressed {
-    background: rgba(255, 255, 255, 0.18);
-}
-""")
+        # THE MARK CHANGES COLOUR, NOT THE PLATE BEHIND IT. The colour is
+        # painted into the glyph by `_ChromeButton` (see CHROME_HOVER):
+        # red on the x, blue on the square and on the minus. A filled
+        # rounded plate behind a 10 px mark reads as a button growing a
+        # background rather than as the mark itself lighting up, which is
+        # what was asked for.
+        corner.setStyleSheet(
+            "QToolButton { background: transparent; border: none; }")
 
         self.menuBar().setCornerWidget(corner, Qt.Corner.TopRightCorner)
         self._window_buttons = corner
@@ -1754,7 +1863,7 @@ QToolButton#MinimiseWindow:hover, QToolButton#MinimiseWindow:pressed {
         self.addAction(action)
 
     @staticmethod
-    def _close_icon(size: int = 18):
+    def _close_icon(size: int = 18, colour=None):
         """An x, drawn rather than shipped, like the other two."""
         from PySide6.QtGui import QIcon, QPainter, QPen, QPixmap
 
@@ -1762,7 +1871,7 @@ QToolButton#MinimiseWindow:hover, QToolButton#MinimiseWindow:pressed {
         pixmap.fill(Qt.GlobalColor.transparent)
         painter = QPainter(pixmap)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
-        pen = QPen(Qt.GlobalColor.gray)
+        pen = QPen(QColor(colour) if colour else QColor(Qt.GlobalColor.gray))
         pen.setWidthF(1.6)
         painter.setPen(pen)
         pad = size * 0.30
@@ -1772,7 +1881,7 @@ QToolButton#MinimiseWindow:hover, QToolButton#MinimiseWindow:pressed {
         return QIcon(pixmap)
 
     @staticmethod
-    def _minimise_icon(size: int = 18):
+    def _minimise_icon(size: int = 18, colour=None):
         """A single rule, drawn low, the way a minimise mark is."""
         from PySide6.QtGui import QIcon, QPainter, QPen, QPixmap
 
@@ -1780,7 +1889,7 @@ QToolButton#MinimiseWindow:hover, QToolButton#MinimiseWindow:pressed {
         pixmap.fill(Qt.GlobalColor.transparent)
         painter = QPainter(pixmap)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
-        pen = QPen(Qt.GlobalColor.gray)
+        pen = QPen(QColor(colour) if colour else QColor(Qt.GlobalColor.gray))
         pen.setWidthF(1.6)
         painter.setPen(pen)
         pad = size * 0.22
@@ -1789,7 +1898,7 @@ QToolButton#MinimiseWindow:hover, QToolButton#MinimiseWindow:pressed {
         return QIcon(pixmap)
 
     @staticmethod
-    def _fullscreen_icon(size: int = 18):
+    def _fullscreen_icon(size: int = 18, colour=None):
         """The four-corner expand mark, drawn rather than shipped."""
         from PySide6.QtGui import QIcon, QPainter, QPen, QPixmap
 
@@ -1797,7 +1906,7 @@ QToolButton#MinimiseWindow:hover, QToolButton#MinimiseWindow:pressed {
         pixmap.fill(Qt.GlobalColor.transparent)
         painter = QPainter(pixmap)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
-        pen = QPen(Qt.GlobalColor.gray)
+        pen = QPen(QColor(colour) if colour else QColor(Qt.GlobalColor.gray))
         pen.setWidthF(1.6)
         painter.setPen(pen)
         arm, pad = size * 0.30, size * 0.18
@@ -1868,19 +1977,33 @@ QToolButton#MinimiseWindow:hover, QToolButton#MinimiseWindow:pressed {
         app_menu.addAction(act_quit)
         app_menu.addSeparator()
 
+        # ONE SUBMENU PER CATEGORY. Fifty-six modules in one flat list is a
+        # column taller than most screens, and reading it means reading all
+        # of it -- "the modules should be in module category dropdowns to
+        # make it more digestable". The categories are the ones Home and the
+        # dock already use, in the same order, so the three surfaces agree.
         self._app_actions: dict[str, QAction] = {}
-        for key, name, desc, section in APPS:
-            act = QAction(name, self)
-            act.setStatusTip(desc)
-            # Translate the name and reviewed scientific summary as separate
-            # semantic fields; word-by-word translation of the combined text
-            # can produce misleading mixed-language help.
-            act.setProperty("moduleAppKey", key)
-            act.setProperty("moduleNameSource", name)
-            act.setProperty("moduleSummarySource", desc)
-            act.triggered.connect(lambda checked=False, k=key: self._on_nav_selected(k))
-            app_menu.addAction(act)
-            self._app_actions[key] = act
+        self._section_menus: dict[str, QMenu] = {}
+        for section in SECTION_ORDER:
+            members = [row for row in APPS if row[3] == section]
+            if not members:
+                continue
+            submenu = QMenu(section, self)
+            app_menu.addMenu(submenu)
+            self._section_menus[section] = submenu
+            for key, name, desc, _section in members:
+                act = QAction(name, self)
+                act.setStatusTip(desc)
+                # Translate the name and reviewed scientific summary as
+                # separate semantic fields; word-by-word translation of the
+                # combined text can produce misleading mixed-language help.
+                act.setProperty("moduleAppKey", key)
+                act.setProperty("moduleNameSource", name)
+                act.setProperty("moduleSummarySource", desc)
+                act.triggered.connect(
+                    lambda checked=False, k=key: self._on_nav_selected(k))
+                submenu.addAction(act)
+                self._app_actions[key] = act
         self._refresh_app_action_visibility()
 
         # "All apps" is NOT in the menu: a menu entry whose purpose is not
@@ -1909,7 +2032,14 @@ QToolButton#MinimiseWindow:hover, QToolButton#MinimiseWindow:pressed {
         # is for, and it was taking a top-level slot on a bar that has to
         # stay short. Built here, before Help, and added to it below --
         # the submenu is the same QMenu either way.
-        demo_menu = QMenu("&Demos", self)
+        # PARENTED TO THE MENU BAR, not to the window. `first_run.find_menu`
+        # -- which the walkthrough and the tutorial scripts both use --
+        # reaches a menu through `menuBar().findChildren(QMenu)`, because
+        # walking the bar's actions returns QMenu wrappers that go stale on
+        # PySide6 6.11. A menu parented elsewhere is invisible to that
+        # lookup, so Demos would have become unfindable the moment it
+        # stopped being a top-level menu.
+        demo_menu = QMenu("&Demos", mb)
         self._demo_menu = demo_menu
         self._demo_actions: dict[str, QAction] = {}
         for app_key, label in DEMO_LABELS.items():

@@ -167,6 +167,31 @@ def greeting_for(code: str) -> str:
     return GREETINGS.get(str(code or ""), GREETINGS["en"])
 
 
+def _let_go_of(process) -> None:
+    """Detach a still-running `gh` from a dialog that is being destroyed.
+
+    Its signals are disconnected first: they point at widgets that are
+    about to stop existing, and a `finished` delivered after that is the
+    `libshiboken: Internal C++ object already deleted` crash.
+    """
+    # PER SIGNAL, not `QObject.disconnect()`: the argument-less form is
+    # about connections FROM this object made through the QObject
+    # overload, and it left the `finished` lambda connected -- measured,
+    # not assumed.
+    for signal in ("finished", "readyReadStandardOutput", "errorOccurred",
+                   "readyReadStandardError"):
+        try:
+            getattr(process, signal).disconnect()
+        except (RuntimeError, TypeError, AttributeError):
+            # RuntimeError is Qt's "nothing was connected", which is the
+            # ordinary case for a process that never emitted.
+            pass
+    try:
+        process.setParent(None)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("gh process could not be detached", exc_info=True)
+
+
 class SetupSlides(QDialog):
     """The setup screen: one question per slide, over a moving backdrop."""
 
@@ -406,29 +431,52 @@ class SetupSlides(QDialog):
         # every sign-in on this screen.
         from .provider_marks import ProviderMark
 
+        # THE LOGO IS THE BUTTON, the way the three AI marks are. It used
+        # to be an indicator beside a "Sign in" push button, which the
+        # user asked to collapse into one thing on 2026-08-23: "i want the
+        # github button to also be a github logo just like the AI icons
+        # work". One control, so there is nothing for a second one to
+        # disagree with; what the click will DO is in the tooltip and
+        # spelled out in the status line beside it.
         self._gh_mark = ProviderMark("github", "GitHub", False, holder)
-        # NOT A SECOND WAY TO SIGN IN. The button beside it is the control;
-        # the mark is the indicator, and a mark that also acted would be two
-        # controls that must not disagree.
-        self._gh_mark.setCursor(Qt.ArrowCursor)
-        self._gh_mark.setToolTip("")
+        self._gh_mark.chosen.connect(lambda *_a: self._on_github_mark())
         row.addWidget(self._gh_mark)
         row.addStretch(1)
 
         self._gh_status = QLabel("")
         self._gh_status.setObjectName("Muted")
+        self._gh_status.setWordWrap(True)
         row.addWidget(self._gh_status)
-
-        self._gh_button = QPushButton("Sign in")
-        self._gh_button.setToolTip(
-            "Runs `gh auth login`, the GitHub CLI's own browser sign-in. "
-            "GitHub stores the credential; spaCR never sees it. Without it, "
-            "reports open in whichever browser you are already signed in to.")
-        self._gh_button.clicked.connect(self._sign_in_to_github)
-        row.addWidget(self._gh_button)
 
         self._refresh_github()
         return holder
+
+    def _on_github_mark(self) -> bool:
+        """What clicking the logo does, which `_sign_in_to_github` decides.
+
+        Signed out or signed in, it is `gh auth login` -- signing in again
+        is how you switch account or replace an expired token. With no
+        `gh` on PATH there is nothing to log into, and that method opens
+        the page that installs one.
+        """
+        return self._sign_in_to_github()
+
+    def _still_on_screen(self) -> bool:
+        """Whether this dialog's widgets are still real C++ objects.
+
+        ``shiboken6.isValid`` is the only way to ask: a deleted QWidget
+        keeps its Python wrapper, so ``is not None`` says yes right up
+        until the attribute access raises.
+        """
+        try:
+            from shiboken6 import isValid
+        except Exception:                                    # noqa: BLE001
+            return True
+        for name in ("_gh_status", "_gh_mark"):
+            widget = getattr(self, name, None)
+            if widget is not None and not isValid(widget):
+                return False
+        return isValid(self)
 
     #: What each token source is called on screen.
     GITHUB_SOURCES = {
@@ -438,7 +486,18 @@ class SetupSlides(QDialog):
     }
 
     def _refresh_github(self) -> None:
-        """Say whether a token is reachable, and from where."""
+        """Say whether a token is reachable, and from where.
+
+        SAFE AFTER THE SLIDES ARE GONE. `gh auth login` outlives this
+        dialog -- the user finishes in a browser at their own pace -- and
+        its `finished` signal lands here whenever that happens. If the
+        setup screen has been closed by then, its child widgets are
+        deleted C++ objects and touching one raises. Reported on
+        2026-08-23 as `libshiboken: Internal C++ object (QPushButton)
+        already deleted` after the sign-in returned.
+        """
+        if not self._still_on_screen():
+            return
         try:
             from ..ai import github_auth
 
@@ -448,32 +507,24 @@ class SetupSlides(QDialog):
             source = None
         import shutil
 
-        # THE BUTTON IS NEVER DEAD. All three states had a use and two of
-        # them were greyed out, so on a machine where `gh` is already signed
-        # in -- the common case, and the maintainer's own -- the row read
-        # "Signed in" beside a button nothing happened on. Reported
-        # 2026-08-22 as "i cant click the github sign in", which is exactly
-        # what a disabled control looks like from the outside.
-        #
-        # Signing in AGAIN is a real thing to want: a second account, or a
-        # token that has expired while `auth_source` still finds a stale
-        # one. `gh auth login` handles both, so the button offers it.
-        self._gh_button.setEnabled(True)
-        # THE MARK FIRST, because every branch below returns.
+        # THE LOGO IS NEVER DEAD. All three states have something to do --
+        # sign in, sign in again, or install `gh` -- and two of them used
+        # to be greyed out, so on a machine where `gh` is already signed in
+        # the row read "Signed in" beside a control nothing happened on.
+        # Reported 2026-08-22 as "i cant click the github sign in", which
+        # is exactly what a disabled control looks like from the outside.
         mark = getattr(self, "_gh_mark", None)
-        if mark is not None:
-            signed_in = bool(source)
-            if bool(mark.available) != signed_in:
-                mark.available = signed_in
-                mark.update()
         if source:
+            if mark is not None:
+                self._light_the_github_mark(mark, mark.READY)
             self._gh_status.setText(
                 self.GITHUB_SOURCES.get(source, "signed in"))
-            self._gh_button.setText("Sign in again")
-            self._gh_button.setToolTip(
-                f"You are {self.GITHUB_SOURCES.get(source, 'signed in')}. "
-                f"This runs `gh auth login` again, which is how you switch "
-                f"to another account or replace a token that has expired.")
+            if mark is not None:
+                mark.setToolTip(
+                    f"You are {self.GITHUB_SOURCES.get(source, 'signed in')}."
+                    f" Clicking runs `gh auth login` again, which is how you"
+                    f" switch to another account or replace a token that has"
+                    f" expired.")
             self._gh_action = "login"
             return
 
@@ -482,24 +533,41 @@ class SetupSlides(QDialog):
             # being logged out need different things from the user -- and
             # what the absent one needs is the install page, which is
             # something this button can actually do.
+            if mark is not None:
+                self._light_the_github_mark(mark, mark.NOT_INSTALLED)
+                mark.setToolTip(
+                    "Opens the GitHub CLI's install page. With `gh` "
+                    "installed, clicking this signs you in. Without it, "
+                    "filing an issue still works -- it opens in whichever "
+                    "browser you are already signed in to.")
             self._gh_status.setText(
                 "the GitHub CLI is not installed — reports open in your "
                 "browser")
-            self._gh_button.setText("Install gh")
-            self._gh_button.setToolTip(
-                "Opens the GitHub CLI's install page. With `gh` installed "
-                "this button signs you in. Without it, filing an issue "
-                "still works -- it opens in whichever browser you are "
-                "already signed in to.")
             self._gh_action = "install"
             return
 
+        if mark is not None:
+            self._light_the_github_mark(mark, mark.SIGNED_OUT)
+            mark.setToolTip(
+                "Runs `gh auth login`, the GitHub CLI's own browser "
+                "sign-in. GitHub stores the credential; spaCR never sees "
+                "it.")
         self._gh_status.setText("not signed in — reports open in your browser")
-        self._gh_button.setText("Sign in")
-        self._gh_button.setToolTip(
-            "Runs `gh auth login`, the GitHub CLI's own browser sign-in. "
-            "GitHub stores the credential; spaCR never sees it.")
         self._gh_action = "login"
+
+    @staticmethod
+    def _light_the_github_mark(mark, status: str) -> None:
+        """Put the mark in ``status`` and repaint it if anything moved.
+
+        `available` is what decides the brand fill, so it follows READY --
+        the same rule the AI marks use, where a filled mark means the tool
+        is there and usable and a muted one means it is not.
+        """
+        available = status == mark.READY
+        if mark.status != status or bool(mark.available) != available:
+            mark.status = status
+            mark.available = available
+            mark.update()
 
     #: Where the GitHub CLI is installed from. Opened when `gh` is absent,
     #: because "install this" is a thing a button can do and "the CLI is not
@@ -559,6 +627,12 @@ class SetupSlides(QDialog):
         process.readyReadStandardOutput.connect(
             lambda: self._read_github_output(process))
         process.finished.connect(lambda *_a: self._refresh_github())
+        # AND IT IS CLEANED UP IF THE DIALOG GOES FIRST. A QProcess
+        # destroyed with its child still running prints "QProcess:
+        # Destroyed while process is still running" and leaves `gh`
+        # parented to nothing -- so the dialog's destruction detaches it
+        # rather than taking it down mid-login.
+        self.destroyed.connect(lambda *_a: _let_go_of(process))
         try:
             process.start("gh", ["auth", "login", "--web",
                                  "--hostname", "github.com"])
@@ -572,7 +646,9 @@ class SetupSlides(QDialog):
             return False
         self._gh_process = process
         self._gh_status.setText("starting GitHub sign-in…")
-        self._gh_button.setEnabled(False)
+        # The logo stays live while `gh` runs. There is no second control to
+        # disable now, and disabling the only one would leave a user whose
+        # browser never opened with nothing to click.
         return True
 
     def _open_in_the_browser(self, url: str) -> bool:

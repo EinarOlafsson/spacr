@@ -25,12 +25,13 @@ who need per-cell measurements out of plate images. The GUI route needs no
 programming; the same steps are available as a scripted pipeline when a
 screen outgrows one desktop.
 
-The GUI ships 67 apps, grouped into seven categories: *Core* for the
+The GUI ships 65 apps, grouped into seven categories: *Core* for the
 segment-measure-classify pipeline, *Data* for import and inspection,
-*Segmentation models* for training and comparing them, *Results & QC* for
-regression and its diagnostics, *Explore* for the interactive figures,
-*Toxoplasma* for the parasite-specific analyses, and *Design* for planning a
-screen before it runs.
+*Segmentation models* for training, comparing and curating them,
+*Results & QC* for regression and its diagnostics, *Explore* for the
+interactive figures, *Assays* for the timelapse, motility and
+parasite-specific analyses, and *Design* for planning a screen before it
+runs.
 
 .. grid:: 2
    :gutter: 3

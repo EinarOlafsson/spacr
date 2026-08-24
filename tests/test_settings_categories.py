@@ -243,10 +243,44 @@ KEYS_RETIRED = frozenset({
     # matter are the ones the model sees. `deep_spacr_defaults` moves an old
     # file's value across before any default lands.
     "extract_channels",
+    # RETIRED 2026-08-22. Five keys that were offered and read by nothing:
+    # each was checked against expected_types, the set_default_* helpers and
+    # a grep of spacr/ (Tk included) before being named here.
+    #   compartments      -- superseded by the per-role object settings; a
+    #                        measure run derives what it measures from the
+    #                        masks it was given.
+    #   compression       -- an HDF5 argument from a storage backend spaCR
+    #                        stopped writing.
+    #   split_axis_lims   -- one of the plot-axis settings that went with
+    #                        instruction 135, when the limits stopped being
+    #                        settings and became something you change on the
+    #                        plot.
+    #   upscale, upscale_factor -- a Cellpose-1 resize that Cellpose 4 does
+    #                        itself from `diameter`.
+    "compartments", "compression", "split_axis_lims",
+    "upscale", "upscale_factor",
 })
 
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # ---- added 2026-08-23 -------------------------------------------
+    # THE SPATIAL DISTANCES, asked for as "the spatial distances between
+    # everything measurable within and between all objects captured".
+    # `object_distances` is the switch; the other two add the parts that
+    # cost real time -- per-channel intensity maxima, and the offset
+    # between an object's centroid and its intensity centre.
+    "object_distances", "object_distance_maxima", "object_distance_intensity",
+    # The upper bound each object filter was missing. `cell_min_size` had
+    # no partner, so a segmentation that merged two cells into one blob
+    # could only be filtered by hand afterwards.
+    "cell_max_size", "nucleus_max_size", "pathogen_max_size",
+    # `annotation_source` supersedes the `Toxoplasma` boolean: an organism
+    # name, taxon id or accession instead of one hard-coded parasite.
+    "annotation_source",
+    # How many mismatches a barcode may carry and still be counted, and the
+    # plate held out of a regression fit so a hit list can be checked
+    # against a plate the model never saw.
+    "barcode_mismatches", "holdout_plate",
     # ---- added 2026-08-22 -------------------------------------------
     # Mixed precision. The training loop had no autocast and no gradient
     # scaler at all, so there was nothing for a setting to switch; the

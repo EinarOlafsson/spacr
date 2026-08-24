@@ -2799,6 +2799,12 @@ QMenu::separator {{
     letter-spacing: 1px;
     background: {DOCK_BG};
 }}
+/* AN OPEN SECTION IS BLUE, and so is one under the pointer. The header is
+   the control that opens it, and a control that looks identical whether it
+   is on or off is a control nobody learns. */
+#SidebarSection[open="true"], #SidebarSection[hovered="true"] {{
+    color: {P["accent"]};
+}}
 QPushButton#SidebarItem {{
     text-align: left;
     background: transparent;

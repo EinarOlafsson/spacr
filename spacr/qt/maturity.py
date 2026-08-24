@@ -179,15 +179,13 @@ AFFIRMED: Dict[str, Tuple[str, str]] = {
                  "the one step with no headless meaning — with 12 test "
                  "files, 865 assertions, a standalone `spacr.app_annotate` "
                  "window and 7 tutorial files."),
-    "classify": ("stable",
-                 "12 test files and 697 assertions over `spacr.deep_spacr`, "
-                 "three `spacr-run` entry points, a standalone "
-                 "`spacr.app_classify` window and 5 tutorial files."),
-    "ml_analyze": ("stable",
-                   "8 test files and 637 assertions over `spacr.ml`, with "
-                   "2 `spacr-run` entry points; Regression, the hit list "
-                   "and the classifier-evaluation screen all read what it "
-                   "writes."),
+    "classify_merged": ("stable",
+                        "One screen over both classifiers: 20 test files "
+                        "and 1334 assertions across `spacr.deep_spacr` and "
+                        "`spacr.ml`, five `spacr-run` entry points, and 5 "
+                        "tutorial files. Regression, the hit list and the "
+                        "classifier-evaluation screen all read what it "
+                        "writes."),
     "map_barcodes": ("stable",
                      "8 test files and 530 assertions over "
                      "`spacr.sequencing`, 2 `spacr-run` entry points, and "

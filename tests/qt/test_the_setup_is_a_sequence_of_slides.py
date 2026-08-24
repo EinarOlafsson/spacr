@@ -246,6 +246,18 @@ class TestEveryBooleanIsASlider:
 
 class TestTheProviderIsALogoButton:
 
+    @pytest.fixture(autouse=True)
+    def _no_modal(self, slides, monkeypatch):
+        """Answer the set-up prompt instead of opening it.
+
+        Choosing a provider that is not installed now asks what to do
+        about that (open the page / sign in / copy the command), and a
+        QMessageBox has nobody to answer it in a headless run -- the
+        suite's own guard raises rather than letting it hang.
+        """
+        monkeypatch.setattr(slides, "_prompt_to_set_up",
+                            lambda *a, **k: None)
+
     def test_there_is_one_per_provider(self, slides):
         holder = slides._editors["ai_provider"]
         assert set(holder._buttons) == {code for code, _l, _c in PROVIDERS}

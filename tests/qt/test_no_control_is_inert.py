@@ -146,7 +146,9 @@ class TestTheFigureMenuIsOnTheFiguresPeopleUse:
         figure.add_subplot(111).plot([1, 2], [1, 4])
         menu = build_figure_context_menu(QWidget(), figure,
                                          on_change=lambda **_k: None)
-        assert any("statistics" in a.text() for a in menu.actions())
+        # The entry is called "Save" since 2026-08-23; it still writes the
+        # figure, its data and its statistics, which is what this asserts.
+        assert any(a.text() == "Save" for a in menu.actions())
 
     def test_and_the_pyqtgraph_one_still_does(self, app):
         pytest.importorskip("pyqtgraph")

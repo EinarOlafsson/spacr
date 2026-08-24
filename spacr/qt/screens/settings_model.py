@@ -300,7 +300,6 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
     # the rename working. They are not OFFERED, for the reason `png_type`
     # is not: offering both halves of a superseded pair is how a user sets
     # one and wonders why the other wins.
-    "regression": {"Toxoplasma"},
     "classify": {
         "png_type", "crop_source", "file_metadata", "file_type",
         "path_string", "extract_channels", "coordinate_columns",
@@ -375,6 +374,13 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
         # The invasion assay retains its separate control because there it
         # identifies wells without pre-permeabilisation stain.
         "control_wells",
+        # SUPERSEDED BY `annotation_source`, and hidden here rather than in
+        # a second "regression" entry further up this dict -- which is where
+        # it was, and which a later key of the same name silently replaced.
+        # A dict literal keeps the last value, so `Toxoplasma` was declared
+        # hidden and then offered anyway, ungrouped, in the bucket the
+        # layouts exist to keep empty.
+        "Toxoplasma",
     },
 }
 
@@ -826,6 +832,12 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "corrected_manders", "spatial_measurements",
             "manders_thresholds", "homogeneity", "homogeneity_distances",
             "radial_dist", "distance_gaussian_sigma",
+            # The spatial-distance block: how far every object is from
+            # every other, and from the intensity maxima inside it. Filed
+            # beside `radial_dist` because they answer the same kind of
+            # question, one object pair at a time instead of one radius.
+            "object_distances", "object_distance_maxima",
+            "object_distance_intensity",
             # Not a segmentation control -- it decides which organelle summary
             # TABLES a measure run writes, so it belongs with the other
             # what-gets-measured settings rather than under the mask
@@ -833,8 +845,10 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "summarize_organelles_by",
         )),
         ("Object Filtering", (
-            "uninfected", "cell_min_size", "cytoplasm_min_size",
-            "nucleus_min_size", "pathogen_min_size", "organelle_min_size",
+            "uninfected", "cell_min_size", "cell_max_size",
+            "cytoplasm_min_size",
+            "nucleus_min_size", "nucleus_max_size",
+            "pathogen_min_size", "pathogen_max_size", "organelle_min_size",
             *(f"{role}_min_size" for role in ORGANELLE_ROLES[1:]),
             "merge_edge_pathogen_cells",
         )),

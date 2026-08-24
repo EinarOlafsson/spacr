@@ -108,6 +108,7 @@ def _hover(qtbot, tile) -> None:
     "the cursor is already there".
     """
     _close_stray_popups()
+    _scroll_into_view(tile)
     window = tile.window()
     window.raise_()
     window.activateWindow()
@@ -132,6 +133,26 @@ def _hover(qtbot, tile) -> None:
         f"the synthetic pointer never reached {tile.text_label} — "
         "something else in this process is holding the mouse, and the "
         "pixels below would be measuring the un-hovered tile")
+
+
+def _scroll_into_view(tile) -> None:
+    """Bring ``tile`` inside the scrolled viewport before hovering it.
+
+    The Home tab is taller than the window, and a tile below the fold is
+    rendered nowhere: the pixel sampled at its mid-height comes back as
+    the panel underneath and reads as "the hover rule never fired". It
+    only started to matter when Core was cut back to the six pipeline
+    modules -- the first beta tile used to be near the top of the page
+    and is now most of a screen further down.
+    """
+    from PySide6.QtWidgets import QApplication, QScrollArea
+    parent = tile.parentWidget()
+    while parent is not None:
+        if isinstance(parent, QScrollArea):
+            parent.ensureWidgetVisible(tile, 0, 0)
+            QApplication.processEvents()
+            return
+        parent = parent.parentWidget()
 
 
 def _visible_tiles(page) -> list:
@@ -682,18 +703,31 @@ class TestDockModes:
     def test_hiding_the_dock_leaves_every_app_reachable(self, qtbot,
                                                         qt_theme_applied,
                                                         tmp_settings):
-        """A dock you cannot summon must not be a dead end."""
+        """A dock you cannot summon must not be a dead end.
+
+        The walk descends one level since 2026-08-23: the spaCR menu
+        groups its apps into a submenu per section, so a flat read of
+        its actions sees six section names and no apps at all.
+        """
         from spacr.qt import preferences as prefs
         prefs.set_dock_mode("hidden")
         win = MainWindow()
         qtbot.addWidget(win)
         labels: set = set()
+
+        def collect(menu):
+            for act in menu.actions():
+                if act.isSeparator():
+                    continue
+                if act.menu() is not None:
+                    collect(act.menu())
+                else:
+                    labels.add(act.text())
+
         for top in win.menuBar().actions():
             if top.text().replace("&", "") != "spaCR":
                 continue
-            for act in top.menu().actions():
-                if not act.isSeparator():
-                    labels.add(act.text())
+            collect(top.menu())
             break
         assert {name for _k, name, *_r in APPS} <= labels
         drawn = {t.text_label

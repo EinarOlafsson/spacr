@@ -385,9 +385,12 @@ def test_demos_menu_step_points_at_the_demos_menu(main_window, home_in_tmp,
     _widget, offset = menu_steps[0].target
     assert offset is not None
 
+    # DEMOS IS UNDER HELP now (2026-08-23), so it has no geometry of its own
+    # on the bar. The step points at the top-level menu you click to reach
+    # it, which is where a user's hand goes.
     mb = main_window.menuBar()
     demos = next(a for a in mb.actions()
-                   if a.text().replace("&", "") == "Demos")
+                   if a.text().replace("&", "") == "Help")
     rect = mb.actionGeometry(demos)
     assert rect.contains(*offset), (
         f"menu target {offset} is outside the Demos item {rect}")

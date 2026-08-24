@@ -115,16 +115,57 @@ def test_the_minus_minimises(window, qapp):
 
 
 @pytest.mark.parametrize("name,colour", [
-    ("CloseWindow", "220, 60, 60"),        # red: it ends the session
-    ("FullScreenToggle", "60, 130, 220"),  # blue: the accent for "on"
-    ("MinimiseWindow", "255, 255, 255"),   # white: hiding is not a decision
+    ("CloseWindow", "#DC3C3C"),        # red: it ends the session
+    ("FullScreenToggle", "#3C82DC"),   # blue: the accent for a live control
+    ("MinimiseWindow", "#3C82DC"),     # blue too, on the user's instruction
 ])
-def test_each_button_lights_in_its_own_colour(window, name, colour):
-    corner = window.menuBar().cornerWidget(Qt.Corner.TopRightCorner)
-    sheet = corner.styleSheet()
+def test_each_button_lights_in_its_own_colour(window, qapp, name, colour):
+    """The MARK lights, not a plate behind it.
 
-    assert f"QToolButton#{name}:hover" in sheet
-    assert colour in sheet
+    Rewritten on 2026-08-23: "i meant the x itself not the background of
+    the x". The colour used to be a rounded background in the corner
+    widget's stylesheet, which is why this read the stylesheet. It is now
+    painted into the glyph, so the assertion is on the PIXELS of the
+    icon -- the only place a QIcon's colour can be observed.
+    """
+    from PySide6.QtCore import QEvent, QPoint, QPointF, QSize
+    from PySide6.QtGui import QColor, QEnterEvent
+
+    button = [b for b in _window_buttons(window)
+              if b.objectName() == name][0]
+    wanted = QColor(colour)
+
+    def marks(icon):
+        image = icon.pixmap(QSize(18, 18)).toImage()
+        return [image.pixelColor(x, y)
+                for x in range(image.width())
+                for y in range(image.height())
+                if image.pixelColor(x, y).alpha() > 200]
+
+    resting = marks(button.icon())
+    assert resting, f"{name} draws no mark at all"
+    assert not any(_close_to(pixel, wanted) for pixel in resting), (
+        f"{name} is already {colour} before it is hovered")
+
+    local = QPointF(button.width() / 2, button.height() / 2)
+    button.event(QEnterEvent(local, local, local))
+    qapp.processEvents()
+
+    lit = marks(button.icon())
+    assert any(_close_to(pixel, wanted) for pixel in lit), (
+        f"hovering {name} did not paint its mark {colour}")
+
+    button.event(QEvent(QEvent.Type.Leave))
+    qapp.processEvents()
+    assert not any(_close_to(pixel, wanted) for pixel in marks(button.icon())), (
+        f"{name} stayed {colour} after the pointer left")
+
+
+def _close_to(pixel, wanted, tol: int = 24) -> bool:
+    """Antialiasing means the mark is a gradient, not one flat colour."""
+    return (abs(pixel.red() - wanted.red()) <= tol
+            and abs(pixel.green() - wanted.green()) <= tol
+            and abs(pixel.blue() - wanted.blue()) <= tol)
 
 
 def test_the_x_is_wired_to_the_same_thing_quit_is(window):
