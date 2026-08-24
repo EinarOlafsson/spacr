@@ -1078,6 +1078,11 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('save_measurements',True)
     settings.setdefault('radial_dist', True)
     settings.setdefault('spatial_measurements', False)
+    # EVERY DISTANCE WORTH MEASURING, off by default for the same
+    # reason: it is real time on a 3-D field.
+    settings.setdefault('object_distances', False)
+    settings.setdefault('object_distance_maxima', True)
+    settings.setdefault('object_distance_intensity', True)
     settings.setdefault('corrected_manders', False)
     settings.setdefault('calculate_correlation', True)
     settings.setdefault('manders_thresholds', [15,85,95])
@@ -2866,6 +2871,9 @@ expected_types = {
     "channel_arrays": list,
     "mask_array": str,
     "bounding_box": bool,
+    "object_distances": bool,
+    "object_distance_maxima": bool,
+    "object_distance_intensity": bool,
     "annotation_source": str,
     "fields": (list, str, type(None)),
     "barcode_mismatches": int,
@@ -3652,6 +3660,28 @@ tooltips = {
         "of field ids in any spelling spaCR accepts ('f3', 3, 'F003'), or a "
         "glob such as 'f1*'. The run writes only the fields named, into the "
         "same folders, so a re-run replaces those and leaves the rest.",
+    'object_distances':
+        "(bool) - Measure every distance between and within objects: centre "
+        "to centre, centre to the nearest surface of each other object type "
+        "(both directions), surface to surface -- which is zero when two "
+        "objects touch and is what 'how far apart are they' means -- the "
+        "overlap fraction, how far the centre sits from its own boundary, "
+        "and how close the object is to the edge of the field. Off by "
+        "default because it is real time on a 3-D field. The cost is one "
+        "distance transform per object type per field, not one per pair of "
+        "objects.",
+    'object_distance_maxima':
+        "(bool) - Also find the intensity maxima inside each object and "
+        "measure where they are: how many, how spread out, and how far each "
+        "is from the object's own boundary, its centre, and the nearest "
+        "surface of every other object type. The most expensive part of "
+        "object_distances, and ignored when that is off. Default True.",
+    'object_distance_intensity':
+        "(bool) - Include the families that need the intensity images: the "
+        "local maxima above, and how far each channel's intensity centre of "
+        "mass sits from the geometric centroid, which is polarisation in "
+        "one number. False measures geometry only. Ignored when "
+        "object_distances is off. Default True.",
     'annotation_source':
         "(str) - Which organism's annotation to join onto the regression "
         "results. Empty or 'toxoplasma' uses the bundled Toxoplasma gondii "
@@ -4637,7 +4667,7 @@ categories = {
     #   * parasite_table / compartment, from "Invasion Assay", which name the
     #     table and compartment the objects are read from. Leaving them there
     #     made the Replication module render a heading called "Invasion Assay".
-    "Measurements": ["save_measurements", "calculate_correlation", "corrected_manders", "spatial_measurements", "manders_thresholds", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
+    "Measurements": ["save_measurements", "calculate_correlation", "corrected_manders", "spatial_measurements", "manders_thresholds", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
 
     # png_dims stays listed although it is no longer rendered: it has no
     # default any more, so convert_settings_dict_for_gui never builds a
