@@ -296,7 +296,6 @@ APP_TITLES = {
     "umap":            "Image UMAP",
     "train_cellpose":  "Train Cellpose",
     "cellpose_masks":  "Cellpose Masks",
-    "cellpose_all":    "Cellpose (All)",
     "map_barcodes":    "Map Barcodes",
     "queue":           "Plate Queue",
     "ml_analyze":      "Classify (ML)",
@@ -2423,7 +2422,7 @@ class AppScreen(QWidget):
         #: Cell-montage tab, when this screen supports regression results.
         #: Initialised before tab-change handlers can read it.
         self._cell_montage = None
-        if self.app_key in ("regression", "ml_analyze_regression"):
+        if self.app_key == "regression":
             try:
                 from ..widgets.regression_results import RegressionResultsPanel
                 from ..preferences import get_figure_grid_size

@@ -484,15 +484,6 @@ _MODULE_LIST: Tuple[Module, ...] = (
         writes=("<dst>/ — one mask .tif per input image",),
     ),
     Module(
-        key="cellpose_all",
-        summary="Compare every available Cellpose model on the same images.",
-        entry="spacr.spacr_cellpose:check_cellpose_models",
-        defaults="get_check_cellpose_models_default_settings",
-        validate_key="cellpose_all",
-        requires=("src — folder of images",),
-        writes=("<src>/cellpose_test/ — masks and a comparison figure per model",),
-    ),
-    Module(
         key="convert",
         summary="Convert vendor images into mapped, collision-safe Yokogawa TIFFs.",
         entry="spacr.convert:convert_folder",
@@ -617,6 +608,12 @@ ALIASES: Dict[str, str] = {
     "anndata": "anndata_export",
     "h5ad": "anndata_export",
     "run_anndata_export": "anndata_export",
+    # cellpose_all was "benchmark every Cellpose model on one folder". Cellpose
+    # 4 ships exactly one model, so the comparison had a single entrant and the
+    # run was `cellpose_masks` under another name -- which already defaults
+    # model_name to the same stock 'cpsam'. Kept as an alias, not deleted, so a
+    # script or settings CSV that still says cellpose_all keeps running.
+    "cellpose_all": "cellpose_masks",
 }
 
 

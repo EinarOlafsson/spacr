@@ -263,6 +263,17 @@ KEYS_RETIRED = frozenset({
 
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # ---- added when Illumination was folded into Measure -------------
+    # The flat-field correction is applied before any intensity feature is
+    # computed, so it has to be settable on the measure run it changes.
+    # These are the nine keys `spacr.illumination.illumination_settings`
+    # owns beyond `src` and `channels`, which Measure already had; they are
+    # filed under one "Illumination Correction" heading rather than the four
+    # the Illumination screen splits them across.
+    "illumination_correction", "illumination_model",
+    "illumination_estimator", "illumination_degree", "illumination_dark",
+    "illumination_per_plate", "illumination_max_fields",
+    "illumination_qc", "illumination_on_missing",
     # ---- added 2026-08-23 -------------------------------------------
     # THE SPATIAL DISTANCES, asked for as "the spatial distances between
     # everything measurable within and between all objects captured".
@@ -1092,8 +1103,17 @@ def _rendered_sections(app_key):
             "Time Axes & Tracking (Beta)", "Visualization & Diagnostics",
             "Output & Storage", "Runtime & Reliability",
         ]),
+        # "Illumination Correction" joined the Measure panel when the
+        # illumination settings were folded into the measure defaults. The
+        # correction rewrites the pixels every intensity feature is computed
+        # from, so it is set on the run it affects; before, `measure`'s
+        # defaults held none of its keys and
+        # `prepare_illumination_correction` returned None on every GUI run.
+        # It sits after the channel mapping and before the features for the
+        # same reason: that is the order the run executes them in.
         ("measure", [
             "Input & Experiment", "Mask & Channel Mapping",
+            "Illumination Correction",
             "Measurement Features", "Object Filtering", "Crop Output",
             "Preview & Diagnostics", "3D Calibration (Beta)",
             "Runtime & Reliability",

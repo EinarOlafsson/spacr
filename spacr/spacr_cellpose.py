@@ -1,4 +1,4 @@
-"""Cellpose model evaluation, comparison, and mask-generation workflows."""
+"""Cellpose model evaluation and mask-generation workflows."""
 
 import os, gc, torch, time, random
 import numpy as np
@@ -13,7 +13,6 @@ except Exception:
     # contexts anyway; the Qt GUI ignores it.
     def display(*args, **kwargs):
         pass
-from multiprocessing import Pool
 from skimage.transform import resize as resizescikit
 
 from .tiff_io import write_tiff
@@ -414,110 +413,4 @@ def check_cellpose_models(settings):
         print(f'Using {model_name}')
         generate_masks_from_imgs(src, model, model_name, settings['batch_size'], settings['diameter'], settings['CP_prob'], settings['flow_threshold'], settings['grayscale'], settings['save'], settings['normalize'], settings['channels'], settings['percentiles'], settings['invert'], settings['plot'], settings['resize'], settings['target_height'], settings['target_width'], settings['remove_background'], settings['background'], settings['Signal_to_noise'], settings['verbose'])
 
-    return
-
-def save_results_and_figure(src, fig, results):
-    """Persist a comparison DataFrame and figure under ``<src>/results``.
-
-    :param src: Root directory used to locate/create the ``results/`` folder.
-    :param fig: Matplotlib figure to save as PDF.
-    :param results: DataFrame or list-of-dicts of comparison metrics.
-    :returns: None.
-    """
-    if not isinstance(results, pd.DataFrame):
-        results = pd.DataFrame(results)
-
-    results_dir = os.path.join(src, 'results')
-    os.makedirs(results_dir, exist_ok=True)
-    results_path = os.path.join(results_dir,f'results.csv')
-    fig_path = os.path.join(results_dir, f'model_comparison_plot.pdf')
-    results.to_csv(results_path, index=False)
-    # 108 point 6: through the one writer, for the resolution rule and the
-    # repaint for paper -- but `fmt` STAYS PDF. This path is announced to
-    # the user and asserted by name; a format preference that renamed it
-    # would break the sentence printed two lines down.
-    from .plot import save_figure
-
-    fig_path = save_figure(fig, fig_path, fmt="pdf")
-    print(f'Saved figure to {fig_path} and results to {results_path}')
-
-def compare_mask(args):
-    """Return pairwise IoU/F1/AP scores for one image across multiple mask directories.
-
-    Multiprocessing-friendly worker: unpacks its single tuple argument so it can
-    be dispatched with ``Pool.map``.
-
-    :param args: Tuple ``(src, filename, dirs, conditions)`` where ``dirs`` are
-        the mask directories to compare and ``conditions`` are their labels.
-    :returns: Dict of per-pair metrics, or None when the file is missing in
-        any directory.
-    """
-    src, filename, dirs, conditions = args
-    paths = [os.path.join(d, filename) for d in dirs]
-
-    if not all(os.path.exists(path) for path in paths):
-        return None
-
-    from .io import _read_mask
-    from .utils import boundary_f1_score, compute_segmentation_ap, jaccard_index
-
-    masks = [_read_mask(path) for path in paths]
-    file_results = {'filename': filename}
-
-    for i in range(len(masks)):
-        for j in range(i + 1, len(masks)):
-            mask_i, mask_j = masks[i], masks[j]
-            f1_score = boundary_f1_score(mask_i, mask_j)
-            jac_index = jaccard_index(mask_i, mask_j)
-            ap_score = compute_segmentation_ap(mask_i, mask_j)
-
-            file_results.update({
-                f'jaccard_{conditions[i]}_{conditions[j]}': jac_index,
-                f'boundary_f1_{conditions[i]}_{conditions[j]}': f1_score,
-                f'ap_{conditions[i]}_{conditions[j]}': ap_score
-            })
-    
-    return file_results
-
-def compare_cellpose_masks(src, verbose=False, processes=None, save=True):
-    """Compare masks across sibling subdirectories of ``src`` and plot the results.
-
-    :param src: Root directory whose subdirectories each hold masks from a
-        different condition/model.
-    :param verbose: When True, render per-image mask overlays via
-        :func:`spacr.plot.visualize_cellpose_masks`.
-    :param processes: Worker-pool size for :func:`compare_mask`. None uses the
-        default from ``multiprocessing.Pool``.
-    :param save: When True, persist overlay images to disk.
-    :returns: None.
-    """
-    from .plot import visualize_cellpose_masks, plot_comparison_results
-    from .io import _read_mask
-
-    dirs = [os.path.join(src, d) for d in os.listdir(src) if os.path.isdir(os.path.join(src, d)) and d != 'results']
-    dirs.sort()
-    conditions = [os.path.basename(d) for d in dirs]
-
-    # Get common files in all directories
-    common_files = set(os.listdir(dirs[0]))
-    for d in dirs[1:]:
-        common_files.intersection_update(os.listdir(d))
-    common_files = list(common_files)
-
-    # Create a pool of n_jobs
-    with Pool(processes=processes) as pool:
-        args = [(src, filename, dirs, conditions) for filename in common_files]
-        results = pool.map(compare_mask, args)
-
-    # Filter out None results (from skipped files)
-    results = [res for res in results if res is not None]
-    print(results)
-    if verbose:
-        for result in results:
-            filename = result['filename']
-            masks = [_read_mask(os.path.join(d, filename)) for d in dirs]
-            visualize_cellpose_masks(masks, titles=conditions, filename=filename, save=save, src=src)
-
-    fig = plot_comparison_results(results)
-    save_results_and_figure(src, fig, results)
     return

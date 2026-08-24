@@ -1,15 +1,37 @@
 """
-MakeMasksScreen — Qt widget replacing the Tk ModifyMaskApp.
+MakeMasksScreen — hand-correct a segmentation, on the record.
 
-Load a folder of images and their masks (in `<folder>/masks/`), draw
-brush/erase strokes on the mask, run object-level operations (fill,
-relabel, invert, remove small), zoom into a region for detailed edits,
-use a magic-wand flood-fill by intensity, undo/redo, and save the
-edited mask back to `<folder>/masks/<name>.tif` as a labeled uint16
-mask.
+Load a folder of images and their masks (in ``<folder>/masks/``), draw
+brush/erase strokes, run object-level operations (fill, relabel, invert,
+remove small, Otsu detect), zoom and pan into a region for detailed
+edits, flood-fill by intensity with the magic wand, undo/redo, and save
+the edited mask back to ``<folder>/masks/<name>.tif`` as labelled uint16.
 
-Advanced features still deferred (noted in the toolbar):
-dividing line and free-form polygon draw.
+Three things here are less obvious than the tool buttons:
+
+**Every edit is recorded.** The screen keeps a
+:class:`spacr.curation.CurationLog` per field, seeded from any ledger
+already beside the mask, and :func:`spacr.qt.mask_engine.save_mask`
+writes it back. So :func:`spacr.curation.is_curated` can tell a mask that
+was corrected by hand from one the pipeline produced, and the ledger says
+what was done to it. One gesture is one entry: a right-button sweep over
+six objects records a single ``sweep_delete`` of six, not six deletes,
+for the same reason it is a single undo step.
+
+**The magic-wand tolerance is a percentage by default.** An absolute
+tolerance means two different things on an 8-bit and a 16-bit image; a
+percentage of the image's own intensity range means one. See
+:func:`spacr.qt.mask_engine.relative_tolerance`.
+
+**The display percentiles carry six decimals.** On a 4-megapixel 16-bit
+field the difference between 99.9 and 99.9999 is the difference between
+clipping four thousand pixels and clipping four, and a few hot pixels are
+often the entire reason a field looks black.
+
+Two tools from the standalone curation tool are still absent: the
+dividing line that splits one merged object into two, and the free-form
+polygon that fills an outline into one object. Neither has a control on
+this panel, so nothing here claims they exist.
 """
 from __future__ import annotations
 
@@ -30,6 +52,8 @@ from PySide6.QtGui import (
 )
 from PySide6.QtWidgets import (
     QApplication,
+    QCheckBox,
+    QComboBox,
     QDoubleSpinBox,
     QFileDialog,
     QFormLayout,
@@ -46,6 +70,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ...curation import CurationLog
 from .. import iconset
 from .. import mask_engine as engine
 from .. import prefs
@@ -97,6 +122,23 @@ MODE_WAND_ADD = "wand_add"
 MODE_WAND_ERASE = "wand_erase"
 MODE_ZOOM = "zoom"
 
+# Held with the left button, these pan from ANY tool. Two of them because
+# window managers eat one or the other: Alt+drag moves the window on most
+# Linux desktops, and Shift+drag is taken by some tablet drivers. Whichever
+# one survives on this machine, panning still works without putting the
+# brush down.
+PAN_MODIFIERS = Qt.ShiftModifier | Qt.AltModifier
+
+#: Smallest zoom viewport, in image pixels. Below a handful of pixels the
+#: view is all interpolation and the wheel has nothing left to magnify.
+MIN_VIEWPORT = 8
+
+#: Decimals on the display-percentile boxes. Six, because the interesting
+#: end of a 16-bit histogram is the last few pixels: on a 2048x2048 field,
+#: 99.9999 clips four pixels and 99.9 clips four thousand, and the hot ones
+#: are usually the entire reason the field looks black.
+PERCENTILE_DECIMALS = 6
+
 
 class _MaskLoadWorker(QThread):
     """Decode one image/mask pair without blocking Qt's main thread."""
@@ -147,7 +189,16 @@ class _MaskCanvas(QLabel):
         self.norm_lo: float = 1.0
         self.norm_hi: float = 99.9
         self.wand_tolerance: float = 1000.0
+        self.wand_relative: bool = True
+        self.wand_tol_pct: float = 5.0
         self.wand_max_pixels: int = 100_000
+        self.zoom_speed: float = 1.15
+
+        #: What the stroke that just finished did — ``{"kind", "target",
+        #: "detail"}`` — for the screen to put in the curation ledger. Set
+        #: by :meth:`_emit_stroke_end` immediately before ``stroke_finished``
+        #: so a handler reads the edit it was told about, not the one before.
+        self.last_edit: Optional[dict] = None
 
         # Zoom viewport in image coords; None = full-image view.
         self._zoom_x0: Optional[int] = None
@@ -165,6 +216,14 @@ class _MaskCanvas(QLabel):
         self.setMinimumSize(600, 400)
         self._last_pt: Optional[QPoint] = None
         self._stroke_in_progress = False
+
+        # Right-button sweep-delete: one gesture, one undo step, one ledger
+        # entry naming every object it took out.
+        self._sweeping = False
+        self._sweep_labels: List[int] = []
+
+        # Shift/Alt + left-drag pan, in widget coords.
+        self._pan_from: Optional[QPoint] = None
 
     # ------------------------------------------------------------------
     # Data
@@ -253,6 +312,108 @@ class _MaskCanvas(QLabel):
         img_y = max(0, min(self.mask.shape[0] - 1, img_y))
         return img_x, img_y
 
+    def _image_delta(self, dx_px: float, dy_px: float) -> tuple:
+        """Widget-pixel drag -> the image-pixel shift the viewport must take.
+
+        Negated, because a pan moves the *view*, not the picture: dragging
+        the content to the right has to slide the window left over the
+        image for the pixel under the cursor to stay under the cursor.
+        """
+        p = self.pixmap()
+        if self.mask is None or p is None or p.isNull() or not p.width():
+            return (0, 0)
+        x0, y0, x1, y1 = self._viewport_bounds()
+        return (int(round(-dx_px * (x1 - x0) / p.width())),
+                int(round(-dy_px * (y1 - y0) / p.height())))
+
+    def pan_by(self, dx: int, dy: int) -> bool:
+        """Slide the zoom viewport by (dx, dy) image px; True if it moved.
+
+        Clamped to the image, so a pan cannot walk the view off the edge and
+        leave the user looking at nothing with no way back but Reset zoom.
+        Panning an unzoomed canvas does nothing and says so by returning
+        False: the whole image is already on screen, there is nowhere to go.
+        """
+        if self.mask is None or not self.is_zoomed():
+            return False
+        h, w = self.mask.shape[:2]
+        view_w = self._zoom_x1 - self._zoom_x0
+        view_h = self._zoom_y1 - self._zoom_y0
+        new_x0 = max(0, min(w - view_w, self._zoom_x0 + int(dx)))
+        new_y0 = max(0, min(h - view_h, self._zoom_y0 + int(dy)))
+        if new_x0 == self._zoom_x0 and new_y0 == self._zoom_y0:
+            return False
+        self._zoom_x0, self._zoom_x1 = new_x0, new_x0 + view_w
+        self._zoom_y0, self._zoom_y1 = new_y0, new_y0 + view_h
+        self.refresh()
+        return True
+
+    def zoom_at(self, img_x: int, img_y: int, factor: float) -> None:
+        """Scale the viewport by ``factor`` about the image point given.
+
+        ``factor > 1`` magnifies. The point under the cursor keeps its place
+        in the view, which is what makes wheel-zoom feel like it is aimed at
+        something rather than at the middle of the window. Zooming back out
+        past the whole image resets to the full-image view instead of
+        letting the viewport grow beyond the data.
+        """
+        if self.mask is None or factor <= 0:
+            return
+        h, w = self.mask.shape[:2]
+        x0, y0, x1, y1 = self._viewport_bounds()
+        view_w, view_h = max(1, x1 - x0), max(1, y1 - y0)
+        new_w = min(w, max(min(MIN_VIEWPORT, w), int(round(view_w / factor))))
+        new_h = min(h, max(min(MIN_VIEWPORT, h), int(round(view_h / factor))))
+        if new_w >= w and new_h >= h:
+            self.reset_zoom()
+            return
+        frac_x = (img_x - x0) / view_w
+        frac_y = (img_y - y0) / view_h
+        new_x0 = max(0, min(w - new_w, int(round(img_x - frac_x * new_w))))
+        new_y0 = max(0, min(h - new_h, int(round(img_y - frac_y * new_h))))
+        was_zoomed = self.is_zoomed()
+        self._zoom_x0, self._zoom_x1 = new_x0, new_x0 + new_w
+        self._zoom_y0, self._zoom_y1 = new_y0, new_y0 + new_h
+        if not was_zoomed:
+            self.zoom_changed.emit(True)
+        self.refresh()
+
+    def wheelEvent(self, event):
+        """Zoom about the cursor, ``zoom_speed`` per notch, from any tool.
+
+        The speed is adjustable because one step size does not suit both
+        jobs: finding a cell in a 4k field wants big jumps, trimming its
+        boundary wants a step small enough that the next notch does not
+        overshoot the object.
+        """
+        if self.mask is None:
+            return super().wheelEvent(event)
+        notches = event.angleDelta().y()
+        if not notches:
+            return super().wheelEvent(event)
+        speed = max(1.001, float(self.zoom_speed))
+        factor = speed if notches > 0 else 1.0 / speed
+        anchor = self._canvas_to_image(event.position().x(),
+                                        event.position().y())
+        if anchor is None:
+            x0, y0, x1, y1 = self._viewport_bounds()
+            anchor = ((x0 + x1) // 2, (y0 + y1) // 2)
+        self.zoom_at(anchor[0], anchor[1], factor)
+        event.accept()
+
+    def effective_wand_tolerance(self) -> float:
+        """The tolerance the wand will actually flood with, right now.
+
+        Relative by default: a percentage of this image's own intensity
+        range, so the same setting behaves the same on 8-bit and 16-bit
+        data. Switching ``wand_relative`` off restores a plain absolute
+        value for the case where somebody knows the exact grey-level
+        distance they want.
+        """
+        if self.wand_relative and self.image is not None:
+            return engine.relative_tolerance(self.image, self.wand_tol_pct)
+        return float(self.wand_tolerance)
+
     def _mask_radius_for_brush(self) -> int:
         """Scale the brush radius (in screen px) to full-image px, taking
         the current zoom into account."""
@@ -289,14 +450,72 @@ class _MaskCanvas(QLabel):
             self._stroke_in_progress = True
             self.stroke_started.emit()
 
-    def _emit_stroke_end(self):
-        if self._stroke_in_progress:
-            self._stroke_in_progress = False
-            self.stroke_finished.emit()
+    def _emit_stroke_end(self, kind: str = "paint", target=None, **detail):
+        """Close the open stroke, naming what it did for the ledger.
+
+        A no-op when no stroke is open, so the release handler can call it
+        unconditionally after a tool (erase-object, wand) that already
+        closed its own stroke on press — without that guard the release
+        would overwrite :attr:`last_edit` with a second, empty description
+        of an edit that has already been recorded.
+        """
+        if not self._stroke_in_progress:
+            return
+        self._stroke_in_progress = False
+        self.last_edit = {"kind": str(kind), "target": target,
+                           "detail": dict(detail)}
+        self.stroke_finished.emit()
+
+    # ------------------------------------------------------------------
+    # Right-button sweep-delete
+    # ------------------------------------------------------------------
+    def _sweep_delete_at(self, pt) -> bool:
+        """Delete the object under ``pt`` as part of the open sweep.
+
+        The stroke is opened here, on the first object actually hit, rather
+        than on the button press: a right-click that lands on background has
+        then changed nothing and leaves no undo step and no ledger entry to
+        step back through.
+        """
+        if self.mask is None or pt is None:
+            return False
+        x, y = pt
+        h, w = self.mask.shape[:2]
+        if not (0 <= y < h and 0 <= x < w) or int(self.mask[y, x]) <= 0:
+            return False
+        self._emit_stroke_start()
+        removed = engine.erase_object_in_place(self.mask, x, y)
+        if removed and removed not in self._sweep_labels:
+            self._sweep_labels.append(removed)
+        self.refresh()
+        return True
 
     def mousePressEvent(self, event):
-        """Dispatch a click to the current tool (brush/erase/wand/zoom/…)."""
-        if self.mode == MODE_NONE or self.mask is None:
+        """Dispatch a click to the current tool (brush/erase/wand/zoom/…).
+
+        Two gestures are checked before the tool, because they work from
+        *any* tool: the right button sweep-deletes, and Shift/Alt + left
+        pans. Both are things you want mid-edit without putting the brush
+        down and picking it up again.
+        """
+        if self.mask is None:
+            return super().mousePressEvent(event)
+
+        if event.button() == Qt.RightButton:
+            self._sweeping = True
+            self._sweep_labels = []
+            self._sweep_delete_at(
+                self._canvas_to_image(event.position().x(),
+                                       event.position().y()))
+            return
+
+        if event.button() == Qt.LeftButton and (
+                event.modifiers() & PAN_MODIFIERS):
+            self._pan_from = event.position().toPoint()
+            self.setCursor(Qt.ClosedHandCursor)
+            return
+
+        if self.mode == MODE_NONE:
             return super().mousePressEvent(event)
 
         if self.mode == MODE_ZOOM:
@@ -311,19 +530,25 @@ class _MaskCanvas(QLabel):
         self._emit_stroke_start()
 
         if self.mode == MODE_ERASE_OBJECT:
+            removed = int(self.mask[pt[1], pt[0]])
             self.mask = engine.erase_object_at(self.mask, *pt)
             self.refresh()
-            self._emit_stroke_end()
+            self._emit_stroke_end(kind="delete", target=removed)
             return
 
         if self.mode in (MODE_WAND_ADD, MODE_WAND_ERASE):
             action = "add" if self.mode == MODE_WAND_ADD else "erase"
+            tolerance = self.effective_wand_tolerance()
             self.mask = engine.magic_wand(
                 self.image, self.mask, pt[0], pt[1],
-                self.wand_tolerance, self.wand_max_pixels, action=action,
+                tolerance, self.wand_max_pixels, action=action,
             )
             self.refresh()
-            self._emit_stroke_end()
+            self._emit_stroke_end(
+                kind="wand", target=(255 if action == "add" else 0),
+                action=action, tolerance=round(float(tolerance), 3),
+                relative=bool(self.wand_relative),
+            )
             return
 
         # Brush / erase strokes
@@ -334,8 +559,23 @@ class _MaskCanvas(QLabel):
         self.refresh()
 
     def mouseMoveEvent(self, event):
-        """Extend a brush/erase stroke or a zoom-rectangle drag."""
+        """Extend a sweep, a pan, a brush/erase stroke, or a zoom drag."""
         if self.mask is None:
+            return
+        if self._sweeping and event.buttons() & Qt.RightButton:
+            self._sweep_delete_at(
+                self._canvas_to_image(event.position().x(),
+                                       event.position().y()))
+            return
+        if self._pan_from is not None and event.buttons() & Qt.LeftButton:
+            now = event.position().toPoint()
+            dx, dy = self._image_delta(now.x() - self._pan_from.x(),
+                                        now.y() - self._pan_from.y())
+            # Only re-anchor once the drag has actually moved the view:
+            # discarding sub-pixel drags instead of accumulating them is
+            # what makes a slow pan at high zoom stall completely.
+            if (dx or dy) and self.pan_by(dx, dy):
+                self._pan_from = now
             return
         if self.mode == MODE_ZOOM and self._zoom_drag_start is not None \
                 and event.buttons() & Qt.LeftButton:
@@ -362,7 +602,19 @@ class _MaskCanvas(QLabel):
             self.refresh()
 
     def mouseReleaseEvent(self, event):
-        """Commit a zoom-rectangle or finalize a brush/erase stroke."""
+        """Close a sweep or pan, commit a zoom rect, or finalize a stroke."""
+        if event.button() == Qt.RightButton and self._sweeping:
+            self._sweeping = False
+            labels, self._sweep_labels = self._sweep_labels, []
+            # ONE entry for the whole sweep. Six deletes in the ledger would
+            # say six decisions were made; the user made one.
+            self._emit_stroke_end(kind="sweep_delete", target=list(labels),
+                                   n_objects=len(labels))
+            return
+        if self._pan_from is not None and event.button() == Qt.LeftButton:
+            self._pan_from = None
+            self.unsetCursor()
+            return
         if self.mode == MODE_ZOOM and self._zoom_drag_start is not None \
                 and self._zoom_drag_end is not None:
             # Convert both endpoints to image coords and commit
@@ -383,7 +635,11 @@ class _MaskCanvas(QLabel):
             return
         if self._last_pt is not None:
             self._last_pt = None
-        self._emit_stroke_end()
+        self._emit_stroke_end(
+            kind="erase" if self.mode == MODE_ERASE else "paint",
+            target=(0 if self.mode == MODE_ERASE else 255),
+            radius=int(self.brush_radius),
+        )
 
     def resizeEvent(self, event):
         """Refit the composited pixmap to the new canvas size."""
@@ -408,6 +664,10 @@ class MakeMasksScreen(QWidget):
         self._image_files: List[str] = []
         self._current_index: int = 0
         self._history = engine.MaskHistory(capacity=25)
+        #: The ledger for the field on screen, seeded from any sidecar
+        #: already beside its mask so a second editing session appends to
+        #: the first one's record instead of replacing it.
+        self._log: Optional[CurationLog] = None
         self._load_token = 0
         self._load_worker: Optional[_MaskLoadWorker] = None
         self._pending_load = None
@@ -604,12 +864,31 @@ class MakeMasksScreen(QWidget):
         # Magic wand card
         wand_card = Card(title="Magic wand")
         wand_form = QFormLayout()
+        self._wand_relative = QCheckBox("Tolerance is % of image range")
+        self._wand_relative.setChecked(True)
+        self._wand_relative.setToolTip(
+            "On: the tolerance below is a percentage of THIS image's own "
+            "intensity range, so one setting behaves the same on 8-bit and "
+            "16-bit data. Off: a fixed grey-level distance, which selects "
+            "nothing on a 16-bit image at a value tuned for 8-bit and "
+            "floods the whole frame the other way round."
+        )
+        self._wand_relative.toggled.connect(self._on_wand_relative_changed)
+        wand_card.body_layout.addWidget(self._wand_relative)
+        self._wand_pct = QDoubleSpinBox()
+        self._wand_pct.setDecimals(3)
+        self._wand_pct.setRange(0.001, 100.0)
+        self._wand_pct.setSingleStep(0.5)
+        self._wand_pct.setValue(5.0)
+        self._wand_pct.valueChanged.connect(self._on_wand_pct_changed)
+        wand_form.addRow("Tolerance %", self._wand_pct)
         self._wand_tol = QDoubleSpinBox()
         self._wand_tol.setRange(0.0, 1_000_000.0)
         self._wand_tol.setSingleStep(50.0)
         self._wand_tol.setValue(1000.0)
+        self._wand_tol.setEnabled(False)
         self._wand_tol.valueChanged.connect(self._on_wand_tolerance_changed)
-        wand_form.addRow("Tolerance", self._wand_tol)
+        wand_form.addRow("Tolerance (absolute)", self._wand_tol)
         self._wand_max = QSpinBox()
         self._wand_max.setRange(1, 10_000_000)
         self._wand_max.setSingleStep(1000)
@@ -619,19 +898,92 @@ class MakeMasksScreen(QWidget):
         wand_card.body_layout.addLayout(wand_form)
         col.addWidget(wand_card)
 
-        # Normalize card
-        norm_card = Card(title="Normalize")
+        # Display card — contrast percentiles and wheel-zoom speed.
+        norm_card = Card(title="Display")
         norm_form = QFormLayout()
         self._norm_lo = QDoubleSpinBox()
-        self._norm_lo.setRange(0.0, 100.0); self._norm_lo.setValue(1.0)
+        # setDecimals BEFORE setRange/setValue: a QDoubleSpinBox rounds
+        # both to the precision it has at the time, so setting 99.9999
+        # against the default two decimals stores 100.0 and the control
+        # looks broken rather than imprecise.
+        self._norm_lo.setDecimals(PERCENTILE_DECIMALS)
+        self._norm_lo.setRange(0.0, 100.0)
+        self._norm_lo.setSingleStep(0.01)
+        self._norm_lo.setValue(1.0)
+        self._norm_lo.setToolTip(
+            "Percentile mapped to black. Raise it to sink background "
+            "speckle. Six decimals, so 0.0001 clips only the darkest few "
+            "pixels of a megapixel field."
+        )
         self._norm_lo.valueChanged.connect(self._on_normalize_changed)
         self._norm_hi = QDoubleSpinBox()
-        self._norm_hi.setRange(0.0, 100.0); self._norm_hi.setValue(99.9)
+        self._norm_hi.setDecimals(PERCENTILE_DECIMALS)
+        self._norm_hi.setRange(0.0, 100.0)
+        self._norm_hi.setSingleStep(0.01)
+        self._norm_hi.setValue(99.9)
+        self._norm_hi.setToolTip(
+            "Percentile mapped to white. Lower it to lift faint objects. "
+            "On a 16-bit field a handful of hot pixels hold the top of the "
+            "range on their own, so the useful setting is 99.9999 — the "
+            "top four pixels of four million — which needs six decimals."
+        )
         self._norm_hi.valueChanged.connect(self._on_normalize_changed)
         norm_form.addRow("Lower %", self._norm_lo)
         norm_form.addRow("Upper %", self._norm_hi)
+        self._zoom_speed = QDoubleSpinBox()
+        self._zoom_speed.setDecimals(2)
+        self._zoom_speed.setRange(1.01, 3.0)
+        self._zoom_speed.setSingleStep(0.05)
+        self._zoom_speed.setValue(1.15)
+        self._zoom_speed.setToolTip(
+            "How far one wheel notch zooms. Higher jumps across a large "
+            "field faster; lower gives the fine steps that trimming an "
+            "object boundary needs. Shift or Alt + drag pans, from any tool."
+        )
+        self._zoom_speed.valueChanged.connect(self._on_zoom_speed_changed)
+        norm_form.addRow("Zoom per notch", self._zoom_speed)
         norm_card.body_layout.addLayout(norm_form)
         col.addWidget(norm_card)
+
+        # Auto-filter card — size/intensity bounds applied on load.
+        filter_card = Card(
+            title="Auto-filter objects",
+            subtitle="Applied when a field loads. 0 switches a bound off.",
+        )
+        filter_form = QFormLayout()
+        self._filter_min_area = QSpinBox()
+        self._filter_min_area.setRange(0, 100_000_000)
+        self._filter_min_area.setToolTip(
+            "Drop objects smaller than this many pixels. 0 = no minimum.")
+        self._filter_max_area = QSpinBox()
+        self._filter_max_area.setRange(0, 100_000_000)
+        self._filter_max_area.setToolTip(
+            "Drop objects larger than this many pixels. 0 = no maximum.")
+        self._filter_min_int = QDoubleSpinBox()
+        self._filter_min_int.setDecimals(2)
+        self._filter_min_int.setRange(0.0, 65535.0)
+        self._filter_min_int.setSingleStep(1.0)
+        self._filter_min_int.setToolTip(
+            "Drop objects whose MEAN value on the raw image is below this. "
+            "Measured on the raw data, not on the contrast-stretched "
+            "display, so changing the percentiles above cannot move it. "
+            "0 = no minimum.")
+        self._filter_max_int = QDoubleSpinBox()
+        self._filter_max_int.setDecimals(2)
+        self._filter_max_int.setRange(0.0, 65535.0)
+        self._filter_max_int.setSingleStep(1.0)
+        self._filter_max_int.setToolTip(
+            "Drop objects whose MEAN raw value is above this. 0 = no maximum.")
+        filter_form.addRow("Min area (px)", self._filter_min_area)
+        filter_form.addRow("Max area (px)", self._filter_max_area)
+        filter_form.addRow("Min mean intensity", self._filter_min_int)
+        filter_form.addRow("Max mean intensity", self._filter_max_int)
+        filter_card.body_layout.addLayout(filter_form)
+        self._btn_filter = QPushButton("Apply filter now")
+        self._btn_filter.setCursor(Qt.PointingHandCursor)
+        self._btn_filter.clicked.connect(self._on_apply_filter)
+        filter_card.body_layout.addWidget(self._btn_filter)
+        col.addWidget(filter_card)
 
         # Object ops card
         obj_card = Card(title="Object operations")
@@ -657,6 +1009,31 @@ class MakeMasksScreen(QWidget):
         remove_row.addWidget(remove_btn)
         remove_wrap = QWidget(); remove_wrap.setLayout(remove_row)
         ops_col.addWidget(remove_wrap)
+        detect_row = QHBoxLayout()
+        detect_row.setSpacing(SPACING["sm"])
+        self._btn_otsu = QPushButton("Otsu detect")
+        self._btn_otsu.setCursor(Qt.PointingHandCursor)
+        self._btn_otsu.setToolTip(
+            "Threshold the image at Otsu's level and label what is left, "
+            "honouring the minimum area above.")
+        self._btn_otsu.clicked.connect(self._on_detect_otsu)
+        detect_row.addWidget(self._btn_otsu)
+        self._otsu_bright = QCheckBox("Bright")
+        self._otsu_bright.setChecked(True)
+        self._otsu_bright.setToolTip(
+            "On: objects are brighter than background, as in fluorescence. "
+            "Off: take the dark side instead, for brightfield or stain.")
+        detect_row.addWidget(self._otsu_bright)
+        self._combine_mode = QComboBox()
+        self._combine_mode.addItems(["replace", "merge"])
+        self._combine_mode.setToolTip(
+            "replace: the detection becomes the mask and what was there is "
+            "gone. merge: keep every existing object and add detected ones "
+            "only where nothing is labelled, so a detection run halfway "
+            "through cannot undo the editing done so far.")
+        detect_row.addWidget(self._combine_mode, 1)
+        detect_wrap = QWidget(); detect_wrap.setLayout(detect_row)
+        ops_col.addWidget(detect_wrap)
         clear_btn = QPushButton("Clear mask")
         clear_btn.setObjectName("DangerButton")
         clear_btn.clicked.connect(self._on_clear_mask)
@@ -701,8 +1078,25 @@ class MakeMasksScreen(QWidget):
     def _on_wand_tolerance_changed(self, v: float):
         self._canvas.wand_tolerance = float(v)
 
+    def _on_wand_pct_changed(self, v: float):
+        self._canvas.wand_tol_pct = float(v)
+
+    def _on_wand_relative_changed(self, on: bool):
+        """Switch the wand between a percentage and a fixed grey distance.
+
+        Only the box that is in force stays enabled, so the panel cannot
+        show two tolerances and leave which one the wand uses to be guessed
+        from a checkbox three rows up.
+        """
+        self._canvas.wand_relative = bool(on)
+        self._wand_pct.setEnabled(bool(on))
+        self._wand_tol.setEnabled(not on)
+
     def _on_wand_max_changed(self, v: int):
         self._canvas.wand_max_pixels = int(v)
+
+    def _on_zoom_speed_changed(self, v: float):
+        self._canvas.zoom_speed = float(v)
 
     def _on_reset_zoom(self):
         self._canvas.reset_zoom()
@@ -713,24 +1107,178 @@ class MakeMasksScreen(QWidget):
                                      else "Zoom reset")
 
     def _on_undo(self):
+        """Step the mask back one edit, and record that as an edit itself.
+
+        The ledger is append-only: taking a stroke back adds an ``undo``
+        entry rather than removing the entry for the stroke. That something
+        was painted and then reconsidered is part of what happened to the
+        data, and a history that can be quietly tidied is not evidence of
+        anything.
+        """
         prev = self._history.undo()
         if prev is None or self._canvas.mask is None:
             return
+        # Diffed against what is ON the canvas, not against the history
+        # head: undo() has already popped, so the head IS `prev` by now and
+        # comparing the two would measure every undo as having changed
+        # nothing — which is exactly how they went unrecorded.
+        changed = self._diff(self._canvas.mask, prev)
         self._canvas.mask = prev
         self._canvas.refresh()
+        self._record("undo", None, changed)
         self._refresh_history_buttons()
 
     def _on_redo(self):
+        """Restore the most recently undone edit, recorded as a ``redo``."""
         nxt = self._history.redo()
         if nxt is None or self._canvas.mask is None:
             return
+        changed = self._diff(self._canvas.mask, nxt)
         self._canvas.mask = nxt
         self._canvas.refresh()
+        self._record("redo", None, changed)
         self._refresh_history_buttons()
 
     def _refresh_history_buttons(self):
         self._btn_undo.setEnabled(self._history.can_undo())
         self._btn_redo.setEnabled(self._history.can_redo())
+
+    # ------------------------------------------------------------------
+    # The curation ledger
+    # ------------------------------------------------------------------
+    def _record(self, kind: str, target=None, n_changed: int = 0, **detail):
+        """Append one edit to this field's ledger, if it changed anything.
+
+        An edit that moved no pixels is not recorded, for the same reason
+        :mod:`spacr.napari_bridge` does not record one: a ledger padded with
+        entries for clicks that landed on background is a ledger nobody
+        reads, and ``is_curated`` would then answer True for every mask
+        anyone ever opened the editor on.
+        """
+        if self._log is None or int(n_changed) <= 0:
+            return None
+        return self._log.append(kind, target, n_changed=int(n_changed),
+                                 **detail)
+
+    @staticmethod
+    def _diff(before, after) -> int:
+        """How many pixels two masks disagree on.
+
+        A pair with no common shape is counted as everything ``after`` has
+        labelled, which is the honest answer when there is nothing to
+        compare against rather than a silent zero.
+        """
+        if after is None:
+            return 0
+        if before is None or before.shape != after.shape:
+            return int(np.count_nonzero(after))
+        return int(np.count_nonzero(before != after))
+
+    def _pixels_changed(self, after) -> int:
+        """How many pixels ``after`` differs from the last history snapshot.
+
+        The snapshot is the state the edit in progress started from, so this
+        is the size of that one edit — and it is what tells a stroke that
+        repainted a third of the field from one that was a stray click.
+        """
+        return self._diff(self._history.head(), after)
+
+    # ------------------------------------------------------------------
+    # Size / intensity auto-filter
+    # ------------------------------------------------------------------
+    def _filter_bounds(self) -> dict:
+        """The four filter bounds as :func:`mask_engine.filter_objects` wants."""
+        return {
+            "min_area": int(self._filter_min_area.value()),
+            "max_area": int(self._filter_max_area.value()),
+            "min_intensity": float(self._filter_min_int.value()),
+            "max_intensity": float(self._filter_max_int.value()),
+        }
+
+    def apply_object_filter(self, *, on_load: bool = False) -> int:
+        """Drop objects outside the size/intensity bounds; return how many.
+
+        Runs itself when a field loads — a draft segmentation usually
+        arrives with the same class of junk in every field, and clearing it
+        by hand once per field is the work this exists to remove — and again
+        whenever the user asks, since the bounds are tuned by looking at
+        what the last run left behind.
+
+        The result is one undo step and one ledger entry naming every object
+        it removed, so an automatic edit is as traceable and as reversible
+        as a click.
+
+        :param on_load: True when this is the automatic run. It only changes
+            what the status line says and what the ledger entry records; a
+            filter that removed nothing stays quiet on load rather than
+            reporting a non-event over the name of the field just opened.
+        """
+        if self._canvas.mask is None or self._canvas.image is None:
+            return 0
+        out, dropped = engine.filter_objects(
+            self._canvas.mask, self._canvas.image, **self._filter_bounds())
+        if not dropped:
+            if not on_load:
+                self._status_label.setText(
+                    "Size/intensity filter: nothing outside the bounds.")
+            return 0
+        changed = int(np.count_nonzero(self._canvas.mask != out))
+        self._canvas.mask = out
+        self._canvas.refresh()
+        self._record("filter", dropped, changed, n_objects=len(dropped),
+                      automatic=bool(on_load), **self._filter_bounds())
+        self._history.push(out)
+        self._refresh_history_buttons()
+        self._status_label.setText(
+            f"Size/intensity filter removed {len(dropped)} object(s) — "
+            "Ctrl+Z to undo"
+        )
+        return len(dropped)
+
+    def _on_apply_filter(self):
+        self.apply_object_filter(on_load=False)
+
+    def _on_detect_otsu(self):
+        """Threshold the image and fold the result in per replace/merge."""
+        if self._canvas.image is None or self._canvas.mask is None:
+            return
+        mode = self._combine_mode.currentText()
+        try:
+            detected = engine.otsu_instances(
+                self._canvas.image,
+                bright=self._otsu_bright.isChecked(),
+                min_area=int(self._min_area.value()),
+            )
+        except Exception as exc:
+            self._warn("Otsu detect failed", str(exc))
+            return
+        found = int(detected.max())
+        if not found:
+            # Replacing with nothing would silently wipe the mask on a flat
+            # field, or on one where the minimum area rejected everything.
+            # Clearing a mask is what the Clear button is for, and it asks.
+            self._status_label.setText(
+                "Otsu found no objects — the mask is unchanged. Lower the "
+                "minimum area, or try the other side."
+            )
+            return
+        try:
+            out = engine.combine_masks(self._canvas.mask, detected, mode)
+        except Exception as exc:
+            self._warn("Otsu detect failed", str(exc))
+            return
+        changed = self._pixels_changed(out)
+        self._canvas.mask = out
+        self._canvas.refresh()
+        self._record("detect", mode, changed, method="otsu", n_objects=found,
+                      bright=bool(self._otsu_bright.isChecked()),
+                      min_area=int(self._min_area.value()))
+        self._history.push(out)
+        self._refresh_history_buttons()
+        side = "bright" if self._otsu_bright.isChecked() else "dark"
+        self._status_label.setText(
+            f"Otsu ({side}) found {found} object(s) — {mode}d into the mask"
+        )
 
 
     # ------------------------------------------------------------------
@@ -902,6 +1450,7 @@ class MakeMasksScreen(QWidget):
         self._canvas.reset_zoom(silent=True)
         self._canvas.clear()
         self._history.clear()
+        self._log = None
         self._refresh_history_buttons()
         self._btn_reset_zoom.setEnabled(False)
         self._warn("Load failed", str(error))
@@ -922,10 +1471,39 @@ class MakeMasksScreen(QWidget):
         self._history.push(mask)
         self._refresh_history_buttons()
         self._btn_reset_zoom.setEnabled(False)
+        self._log = self._open_ledger(filename)
         self._status_label.setText(
             f"{filename}  "
             f"({self._current_index + 1}/{len(self._image_files)})"
         )
+        # Last, so its status message and its undo step sit on top of the
+        # freshly seeded history rather than being wiped by it.
+        self.apply_object_filter(on_load=True)
+
+    def _open_ledger(self, filename: str) -> CurationLog:
+        """The ledger for one field, ready to be appended to.
+
+        Read from beside the mask so this session continues the record
+        rather than starting a new one — the log is written back whole, and
+        a fresh one would erase what an earlier session, or the napari
+        round-trip, recorded about the same mask. A ledger that already
+        names a source keeps it: the tool that made each edit is recorded on
+        the edit, not on the file.
+        """
+        artifact = engine.mask_save_path(self._folder, filename)
+        try:
+            log = CurationLog.read_beside(artifact)
+        except Exception as exc:
+            # A damaged sidecar must not cost the user the edit they are
+            # about to make. Start a fresh log, and say so rather than
+            # quietly overwriting a record nobody can read.
+            LOG.warning("Unreadable curation ledger beside %s: %s",
+                        artifact, exc)
+            log = CurationLog()
+        if not log.artifact:
+            log.artifact = artifact
+            log.source = engine.CURATION_SOURCE
+        return log
 
     def _on_prev(self):
         if not self._image_files or self._current_index <= 0:
@@ -947,33 +1525,47 @@ class MakeMasksScreen(QWidget):
                 self._folder,
                 self._image_files[self._current_index],
                 self._canvas.mask,
+                log=self._log,
             )
         except Exception as e:
             self._warn("Save failed", str(e))
             return
-        self._status_label.setText(f"Saved → {path}")
+        edits = len(self._log) if self._log is not None else 0
+        note = f"  ({edits} edit(s) recorded)" if edits else ""
+        self._status_label.setText(f"Saved → {path}{note}")
 
-    def _apply_op(self, op):
-        """Run a mask -> mask function, refresh canvas, push to history."""
+    def _apply_op(self, op, kind: str = "edit", **detail):
+        """Run a mask -> mask function, refresh, record it, push to history.
+
+        :param kind: the verb this operation goes into the ledger under.
+            One word per button, so the ledger's own summary counts the
+            buttons the user pressed.
+        :param detail: anything about the operation worth keeping with the
+            entry, such as the threshold a removal used.
+        """
         if self._canvas.mask is None:
             return
-        self._canvas.mask = op(self._canvas.mask)
+        out = op(self._canvas.mask)
+        changed = self._pixels_changed(out)
+        self._canvas.mask = out
         self._canvas.refresh()
+        self._record(kind, None, changed, **detail)
         self._history.push(self._canvas.mask)
         self._refresh_history_buttons()
 
     def _on_fill_holes(self):
-        self._apply_op(engine.fill_holes)
+        self._apply_op(engine.fill_holes, "fill_holes")
 
     def _on_relabel(self):
-        self._apply_op(engine.relabel_objects)
+        self._apply_op(engine.relabel_objects, "relabel")
 
     def _on_invert(self):
-        self._apply_op(engine.invert_mask)
+        self._apply_op(engine.invert_mask, "invert")
 
     def _on_remove_small(self):
         area = int(self._min_area.value())
-        self._apply_op(lambda m: engine.remove_small_objects(m, area))
+        self._apply_op(lambda m: engine.remove_small_objects(m, area),
+                        "remove_small", min_area=area)
 
     def _on_clear_mask(self):
         if self._canvas.mask is None:
@@ -988,7 +1580,7 @@ class MakeMasksScreen(QWidget):
         The confirmation lives in :meth:`_on_clear_mask`; this is the
         scriptable entry point (and what the undo stack sees).
         """
-        self._apply_op(engine.clear_mask)
+        self._apply_op(engine.clear_mask, "clear")
 
     def _on_stroke_started(self):
         # Brush/erase strokes mutate the mask in place; nothing to record
@@ -997,9 +1589,21 @@ class MakeMasksScreen(QWidget):
         pass
 
     def _on_stroke_finished(self):
-        if self._canvas.mask is not None:
-            self._history.push(self._canvas.mask)
-            self._refresh_history_buttons()
+        """Record and commit the gesture the canvas just finished.
+
+        Recorded BEFORE the history push, because the entry's size is
+        measured against the snapshot the gesture started from and pushing
+        would make that snapshot the gesture's own result — every edit would
+        then be recorded as having changed nothing.
+        """
+        if self._canvas.mask is None:
+            return
+        edit = self._canvas.last_edit or {}
+        self._record(str(edit.get("kind") or "paint"), edit.get("target"),
+                      self._pixels_changed(self._canvas.mask),
+                      **dict(edit.get("detail") or {}))
+        self._history.push(self._canvas.mask)
+        self._refresh_history_buttons()
 
     # ------------------------------------------------------------------
     def _sync_button_states(self):
@@ -1007,5 +1611,6 @@ class MakeMasksScreen(QWidget):
         editable = has_files and not self._loading
         for b in (self._btn_prev, self._btn_next, self._btn_save,
                    self._btn_brush, self._btn_erase, self._btn_del_obj,
-                   self._btn_wand_add, self._btn_wand_erase, self._btn_zoom):
+                   self._btn_wand_add, self._btn_wand_erase, self._btn_zoom,
+                   self._btn_filter, self._btn_otsu):
             b.setEnabled(editable)

@@ -1,0 +1,167 @@
+================================================================================
+THE MODULE CONSOLIDATION: SEVENTEEN TILES BECOME BUTTONS
+================================================================================
+
+Status:    OPEN. Requested 2026-08-24.
+Owner:     spacr/qt -- the app registry, and the host screen of each fold.
+
+Asked for: "i feel like these modules are kind of redundant now" -- a list
+of screens that should stop being their own registry row and become a
+button, a tab or a mode inside the screen a user already has open when
+they want them.
+
+THE COUNT: the registry holds 63 apps. Every fold below takes it to 46.
+
+--------------------------------------------------------------------------------
+HOW A FOLDED MODULE APPEARS
+--------------------------------------------------------------------------------
+
+"for the modules that become buttons use the icon as the button, if they
+are alph the hover light up green and beta purple just like the moduals
+do."
+
+  * the button IS the module's icon, with no text;
+  * its tooltip is the module's own one-line description;
+  * hovering lights it in the stage colour the TILE uses, read from
+    `spacr.qt.theme.STAGE_HOVER` rather than retyped -- stable blue, beta
+    magenta, alpha green-cyan. The table is the source: a button and the
+    tile it replaced must light the same, and two colour tables drift.
+  * the strip goes on the host's masthead, through
+    `ModuleHeader.add_trailing`, right-aligned past the stretch.
+
+WHAT MUST NOT HAPPEN: a fold that loses a capability. Each entry below
+names what the folded screen can do that its host cannot, and that is the
+part that has to arrive with it.
+
+--------------------------------------------------------------------------------
+1. MAKE MASKS BECOMES THE SEGMENTATION WORKBENCH
+--------------------------------------------------------------------------------
+
+Folded in, each as a button:
+
+    Train                 the training half of Cellpose Workbench
+    Mask the whole folder replaces the `cellpose_all` CLI key: run the
+                          current model over every image in the folder
+    Compare               Model Compare
+    Model Zoo             Model Zoo
+    Curate                Curate
+    Open in napari        Napari Bridge
+
+Then `train_cellpose`, `model_compare`, `model_zoo`, `curate` and
+`napari_bridge` lose their rows.
+
+SUPERSEDES THE CELLPOSE WORKBENCH. Train Cellpose and Cellpose Masks were
+merged into one "Cellpose Workbench" row earlier the same day. This asks
+for the training logic in Make Masks instead, so the workbench folds in
+and its row goes with the others.
+
+TWO DEFECTS THIS FOLD MUST FIX, both verified:
+  a. CURATE NEVER WRITES A MASK. There is no imwrite / save / tifffile /
+     np.save anywhere in curate.py, curation_tool.py or curation.py: it
+     writes a ledger asserting edits beside a file whose pixels are
+     untouched, and `is_curated()` then returns True for it. Folding it
+     into a screen that CAN write is the fix.
+  b. `mask_engine.save_mask` does `label(mask > 0)`, relabelling every
+     connected component and destroying the object ids, and writes no
+     ledger. A hand-edited mask is byte-indistinguishable from a
+     segmented one.
+
+--------------------------------------------------------------------------------
+2. THE STRAIGHTFORWARD FOLDS
+--------------------------------------------------------------------------------
+
+    Classify        <- Explain CV Model, Classifier Evaluation
+    Measure         <- AnnData export
+    Mask            <- Timelapse, Motility, each unlocking its own
+                       settings category rather than opening a screen
+    Map Barcodes    <- Barcode QC, so the mapping and its QC are one visit
+    Annotate        <- Annotator agreement
+    Image UMAP      <- Image Scatter and PCA, as modes of one screen
+    Regression      <- Parameter sweep: ALREADY folded (the tile and the
+                       Regression sweep card are the same class from the
+                       same factory, and the card is a superset because it
+                       seeds from the regression form). Only the row is
+                       left to drop, and the sweep-bundle drop handler has
+                       to be folded into the regression one first or a
+                       dropped bundle loses its target.
+
+--------------------------------------------------------------------------------
+3. THREE THAT ARE NOT REDUNDANT -- FOLD, DO NOT DELETE
+--------------------------------------------------------------------------------
+
+VOLCANO EXPLORER. It is the only publication-figure path in spaCR: a
+56-field style over a MATPLOTLIB renderer, style save/load as JSON, every
+called point labelled, colour or shape driven by an outside annotation
+file merged on an inferred key, arbitrary x/y columns, and vector
+re-render at journal size. The regression volcano is pyqtgraph and can
+honour none of it -- its right-click menu has 88 entries and not one is a
+style entry. It belongs behind "Publication figure..." on the regression
+volcano's own menu, seeded with the frame already on screen.
+
+  DO NOT implement this by calling `offer_style()` on the pyqtgraph plot.
+  That hangs 56 style entries off a renderer that cannot honour one.
+
+  AND IT EXPOSED A PANEL BUG: `RegressionResultsPanel` does not know
+  `guide_permutation_results_long.csv` and does no `outcome` /
+  `minimum_wells_threshold` de-pooling, so it draws TWO BH correction
+  families on one volcano. Fix that whether or not the fold happens.
+
+HIT LIST. Joins arbitrary annotation CSVs across the WHOLE table -- the
+panel annotates only the one selected gene -- recomputes BH over the gene
+family, adds 95% CIs and per-gene guide sign agreement, and exports CSV,
+Markdown and self-contained HTML with the filters recorded as data. It
+belongs as a "Hits" TAB inside the results panel, beside Coefficients and
+Guide support, with its filter bar and its three export buttons as that
+tab's toolbar.
+
+METHODS & RESULTS. Builds a run digest -- package versions, timings, seed
+and error policy from manifest.json; per-module explicitly-set parameters
+parsed out of the emitted macro; the segmentation verdict and flag counts;
+current/stale/missing artifact counts from the pipeline graph; held-out
+accuracy, macro-F1 and split rule from the classifier checkpoint -- then
+drafts a Methods and Results section from it AND mechanically verifies
+every number in the draft against the digest, rejecting any figure not in
+the source record. It is the only place in spaCR that treats an LLM's
+output as untrusted. It belongs in Report, as "Draft Methods & Results...",
+because Report already discovers the project path this screen asks the
+user to type.
+
+--------------------------------------------------------------------------------
+4. CONTROL CHARTS: KEEP, AND HERE IS WHY
+--------------------------------------------------------------------------------
+
+Asked as a question -- "controll charts can potentially be added to
+classify or measure, what do you think" -- so this is the answer rather
+than a decision taken.
+
+NEITHER. It is a CROSS-PLATE CAMPAIGN VIEW: one point per plate, control
+limits from short-term variation (moving range / d2, S-bar / c4, or a
+robust median-MR / MAD variant), a stated Phase-I baseline applied
+forward, the eight Nelson / Western Electric rules with per-rule expected
+false-alarm arithmetic, and a per-plate Z-factor. Classify and Measure are
+both settings forms for ONE run over ONE plate folder, and folding a
+campaign view into a pipeline step misfiles it.
+
+It is also column-agnostic: Measure writes the object tables and Classify
+merges its scores back into the same file, so a chart of `cell_area` and
+a chart of `ml_pred` are the same screen with a different combo-box
+selection. "What it charts" cannot decide the host.
+
+If it must be folded, the host is Plate Viewer -- the other screen whose
+unit is the plate rather than the object.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* The registry holds 46 apps and every folded key still runs from
+  `spacr-run`, from chaining, and from a settings file written before the
+  fold.
+* Each button carries the folded module's icon and its description, and
+  lights in the stage colour its tile used.
+* Curate writes a mask, and a hand-edited mask carries a ledger that says
+  so.
+* The regression volcano draws one correction family, not two.
+* Nothing in the "not redundant" list lost a capability: the style file,
+  the annotation join, the three export formats and the number
+  verification all still work from their new homes.

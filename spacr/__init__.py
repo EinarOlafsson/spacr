@@ -151,17 +151,6 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     # "which objects are in this cell" is answerable, so a misclassified
     # object can be opened instead of counted.
     "confusion",
-    "gui_utils",
-    "gui_elements",
-    "gui_core",
-    "gui",
-    "app_annotate",
-    "app_make_masks",
-    "app_mask",
-    "app_measure",
-    "app_classify",
-    "app_sequencing",
-    "app_umap",
     "submodules",
     "ml",
     "predictions",

@@ -1,8 +1,10 @@
-"""The Tk dispatcher must call each worker with the signature it actually has.
+"""The dispatcher must call each pipeline with the signature it actually has.
 
-Two settings types raised TypeError on every single run and nobody noticed,
-because ``function_gui_wrapper`` catches the exception and posts it to a queue
-the user is not necessarily watching:
+This file was written against the Tk dispatcher, where ``run_function_gui``
+chose between three hard-coded call shapes with an integer ``imports`` flag
+and ``function_gui_wrapper`` swallowed the resulting TypeError into a queue
+nobody was necessarily watching. Two settings types raised on every run and
+nobody noticed:
 
   * ``regression`` was dispatched with ``imports=2``, i.e.
     ``perform_regression(src=..., settings=...)``, but ``ml.perform_regression``
@@ -11,12 +13,21 @@ the user is not necessarily watching:
     ``process_non_tif_non_2D_images(settings=...)``, but ``io.process_non_tif_
     non_2D_images`` takes a bare ``folder`` path.
 
-And an unrecognised ``imports`` value fell off the end of the if/elif with no
+and an unrecognised ``imports`` value fell off the end of the if/elif with no
 else, so the worker was never called and the wrapper returned as though the
 module had completed successfully.
 
-These tests bind each dispatched callable to its real signature, so a future
-change to either side breaks here instead of in front of a user.
+That dispatcher is gone with the Tk interface, and its successor states the
+same thing declaratively: every :class:`spacr.cli.Module` carries a
+``call_style``, and :func:`spacr.cli._call_entry` is the one place that turns
+it into a call. So the tests below bind each dispatched callable to its
+declared call style there instead, which is the same defect asked of the code
+that still runs it.
+
+One test did not survive the move. The Tk wrapper replaced ``plt.show`` for
+the duration of a run and had to put it back even when the worker raised;
+nothing in the Qt or headless path does that, so there is no longer anything
+to assert about it.
 """
 from __future__ import annotations
 
@@ -30,167 +41,134 @@ matplotlib.use("Agg")
 
 
 # ---------------------------------------------------------------------------
-# function_gui_wrapper call styles
+# _call_entry call styles
 # ---------------------------------------------------------------------------
 
-def _wrapper():
-    from spacr.gui_utils import function_gui_wrapper
-    return function_gui_wrapper
+def _module(**overrides):
+    """A throwaway :class:`spacr.cli.Module` with the given call style."""
+    from spacr.cli import Module
+
+    fields = dict(key="probe", summary="probe", entry="spacr.core:probe",
+                  defaults=None, validate_key="")
+    fields.update(overrides)
+    return Module(**fields)
 
 
-def test_call_style_1_passes_settings_as_a_keyword():
+def test_settings_call_style_passes_the_whole_dict():
+    from spacr.cli import _call_entry
+
     seen = {}
 
-    def worker(settings=None):
+    def worker(settings):
         seen["settings"] = settings
+        return "ran"
 
-    _wrapper()(worker, {"src": "/x"}, queue.Queue(), queue.Queue(), 1)
+    module = _module(call_style="settings")
+    assert _call_entry(module, worker, {"src": "/x"}) == "ran"
     assert seen["settings"] == {"src": "/x"}
 
 
-def test_call_style_2_passes_src_and_settings():
-    seen = {}
+def test_folder_call_style_passes_a_bare_path():
+    """The style a plugin declares: one positional path, no settings kwarg."""
+    from spacr.cli import _call_entry
 
-    def worker(src=None, settings=None):
-        seen["src"], seen["settings"] = src, settings
-
-    _wrapper()(worker, {"src": "/x"}, queue.Queue(), queue.Queue(), 2)
-    assert seen == {"src": "/x", "settings": {"src": "/x"}}
-
-
-def test_call_style_3_passes_a_bare_folder():
-    """The style `convert` needs: one positional path, no settings kwarg."""
     seen = {}
 
     def worker(folder):
         seen["folder"] = folder
+        return "ran"
 
-    _wrapper()(worker, {"src": "/images"}, queue.Queue(), queue.Queue(), 3)
+    module = _module(call_style="folder")
+    assert _call_entry(module, worker, {"src": "/images"}) == "ran"
     assert seen["folder"] == "/images"
 
 
-def test_unknown_call_style_reports_instead_of_silently_running_nothing():
-    """The bug: no else branch, so the worker was skipped and the run 'passed'."""
+@pytest.mark.parametrize("src", [None, "", "   ", 7, ["/a", "/b"]])
+def test_folder_call_style_refuses_an_src_that_is_not_one_folder(src):
+    """The worker must not run: `func(None)` and `func(['/a','/b'])` are the
+    calls that used to reach a pipeline and fail somewhere unrelated."""
+    from spacr.cli import SettingsError, _call_entry
+
     calls = []
-    q = queue.Queue()
-
-    def worker(settings=None):
-        calls.append(settings)
-
-    _wrapper()(worker, {"src": "/x"}, q, queue.Queue(), 99)
-
-    assert calls == [], "worker must not run under an unknown call style"
-    msg = q.get_nowait()
-    assert "unknown call style" in msg
-    assert "99" in msg
-
-
-def test_wrapper_restores_plt_show_even_when_the_worker_raises():
-    import matplotlib.pyplot as plt
-
-    original = plt.show
-
-    def boom(settings=None):
-        raise RuntimeError("worker exploded")
-
-    _wrapper()(boom, {}, queue.Queue(), queue.Queue(), 1)
-    assert plt.show is original
+    module = _module(call_style="folder")
+    with pytest.raises(SettingsError, match="needs a single folder"):
+        _call_entry(module, lambda folder: calls.append(folder),
+                    {"src": src})
+    assert calls == [], "worker must not run without a usable folder"
 
 
 # ---------------------------------------------------------------------------
 # The dispatch table must agree with the real signatures
 # ---------------------------------------------------------------------------
 
-def _dispatch(settings_type):
-    """Return (function, imports) for a settings_type without running anything.
+def _all_module_keys():
+    from spacr.cli import MODULES
+    return sorted(MODULES)
 
-    ``run_function_gui`` does its imports and dispatch inline, then calls the
-    wrapper, so we patch the wrapper and capture what it was handed.
-    """
-    import spacr.gui_utils as GU
 
-    captured = {}
-
-    def fake_wrapper(function=None, settings=None, q=None, fig_queue=None,
-                     imports=1, app_key=None):
-        captured["function"] = function
-        captured["imports"] = imports
-        captured["app_key"] = app_key
-
-    real_wrapper = GU.function_gui_wrapper
-    real_stdout = GU.process_stdout_stderr
-    GU.function_gui_wrapper = fake_wrapper
-    GU.process_stdout_stderr = lambda q: None
+def _accepts(func, *args, **kwargs):
+    """True if ``func(*args, **kwargs)`` would bind without a TypeError."""
     try:
-        class _Flag:
-            value = 0
-        GU.run_function_gui(settings_type, {"src": "/x"}, queue.Queue(),
-                            queue.Queue(), _Flag())
-    finally:
-        GU.function_gui_wrapper = real_wrapper
-        GU.process_stdout_stderr = real_stdout
-    return captured["function"], captured["imports"]
-
-
-def _accepts(func, **kwargs):
-    """True if ``func(**kwargs)`` would bind without a TypeError."""
-    try:
-        inspect.signature(func).bind(**kwargs)
+        inspect.signature(func).bind(*args, **kwargs)
         return True
     except TypeError:
         return False
 
 
-def _accepts_positional(func, n):
-    try:
-        inspect.signature(func).bind(*range(n))
-        return True
-    except TypeError:
-        return False
+def test_the_module_table_is_not_empty():
+    """A table that failed to build would make every test below vacuous."""
+    keys = _all_module_keys()
+    assert len(keys) >= 20, f"only found {len(keys)} headless modules"
+    for expected in ("mask", "measure", "classify", "regression", "convert"):
+        assert expected in keys
 
 
-@pytest.mark.parametrize("settings_type", [
-    "mask", "measure", "classify", "train_cellpose", "ml_analyze",
-    "cellpose_masks", "cellpose_all", "map_barcodes", "regression",
-    "recruitment", "umap", "analyze_plaques", "convert",
-])
-def test_every_dispatched_worker_binds_to_its_call_style(settings_type):
+@pytest.mark.parametrize("key", _all_module_keys())
+def test_every_dispatched_worker_binds_to_its_call_style(key):
     """The whole table, not just the two that were broken."""
-    func, imports = _dispatch(settings_type)
+    from spacr.cli import MODULES, import_entry
 
-    if imports == 1:
-        assert _accepts(func, settings={}), (
-            f"{settings_type}: dispatched as function(settings=...) but "
-            f"{func.__name__}{inspect.signature(func)} does not accept it")
-    elif imports == 2:
-        assert _accepts(func, src="/x", settings={}), (
-            f"{settings_type}: dispatched as function(src=..., settings=...) "
-            f"but {func.__name__}{inspect.signature(func)} does not accept it")
-    elif imports == 3:
-        assert _accepts_positional(func, 1), (
-            f"{settings_type}: dispatched as function(path) but "
-            f"{func.__name__}{inspect.signature(func)} does not accept it")
+    module = MODULES[key]
+    func = import_entry(module)
+
+    if module.call_style == "settings":
+        assert _accepts(func, {}), (
+            f"{key}: dispatched as function(settings) but "
+            f"{module.func_name}{inspect.signature(func)} does not accept it")
+    elif module.call_style == "folder":
+        assert _accepts(func, "/x"), (
+            f"{key}: dispatched as function(path) but "
+            f"{module.func_name}{inspect.signature(func)} does not accept it")
     else:
-        pytest.fail(f"{settings_type}: unknown call style {imports}")
+        pytest.fail(f"{key}: unknown call style {module.call_style!r}")
 
 
 def test_regression_is_dispatched_with_a_single_settings_argument():
+    from spacr.cli import MODULES, import_entry
     from spacr.ml import perform_regression
-    func, imports = _dispatch("regression")
-    assert func is perform_regression
-    assert imports == 1, "perform_regression(settings) takes one positional"
+
+    module = MODULES["regression"]
+    assert module.call_style == "settings", (
+        "perform_regression(settings) takes one positional")
+    assert import_entry(module) is perform_regression
 
 
-def test_convert_is_dispatched_with_a_bare_folder():
-    from spacr.io import process_non_tif_non_2D_images
-    func, imports = _dispatch("convert")
-    assert func is process_non_tif_non_2D_images
-    assert imports == 3, "process_non_tif_non_2D_images(folder) takes a path"
+def test_convert_is_dispatched_with_the_complete_settings_dict():
+    """The bug was a bare folder here; the entry now reads the whole dict, so
+    the keys the convert panel offers reach the pipeline."""
+    from spacr.cli import MODULES, import_entry
+
+    module = MODULES["convert"]
+    assert module.call_style == "settings"
+    assert _accepts(import_entry(module), {})
 
 
-def test_unknown_settings_type_raises():
-    with pytest.raises(ValueError, match="Invalid settings type"):
-        _dispatch("no_such_module")
+def test_unknown_settings_type_resolves_to_nothing():
+    """An unknown key must not fall through to a module that runs."""
+    from spacr.cli import _unknown_module_message, resolve_module
+
+    assert resolve_module("no_such_module") is None
+    assert "no_such_module" in _unknown_module_message("no_such_module")
 
 
 # ---------------------------------------------------------------------------

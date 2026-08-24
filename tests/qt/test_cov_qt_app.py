@@ -268,12 +268,14 @@ EXPECTED_SECTIONS = {
     "explain_cv":      SECTION_RESULTS,
     "investigate_hit": SECTION_RESULTS,
     # Registered without this list being updated, which is the drift this
-    # test exists to catch. Both belong here for the same reason as the pair
-    # above: neither asks the data anything new. The Volcano Explorer redraws
-    # a finished regression's coefficient table, and the Parameter Sweep
-    # reads the trials of a search that has already run.
+    # test exists to catch. It belongs here for the same reason as the pair
+    # above: it asks the data nothing new, it redraws a finished regression's
+    # coefficient table.
     "volcano_explorer": SECTION_RESULTS,
-    "parameter_sweep":  SECTION_RESULTS,
+    # The Parameter Sweep was here and has no registry row any more. It is
+    # the Regression screen's sweep card now -- a card seeds its axes from
+    # the regression form beside it, which a home tile has nothing to seed
+    # from -- so there is no section for it to be filed under.
     # Explore's first two. The section was declared and empty until they
     # registered -- "page through image layers" is the example in its own
     # definition, and the Graph Builder family is what it was named for.
@@ -351,7 +353,9 @@ EXPECTED_STAGES = {
     # screen that is built and reachable but not yet trusted end to end --
     # absent from this table they read as "stable", which is the one claim
     # nobody has earned yet.
-    "volcano_explorer": "alpha", "parameter_sweep": "alpha",
+    # The Parameter Sweep's entry stood beside this one until it stopped
+    # being a registry row; a stage is a property of a tile on Home.
+    "volcano_explorer": "alpha",
     "make_masks": "beta", "train_cellpose": "beta", "cellpose_masks": "beta",
     "timelapse": "beta", "motility": "beta", "analyze_plaques": "beta",
     "replication": "beta", "umap": "beta", "activation": "beta",
@@ -401,7 +405,10 @@ def test_every_app_carries_the_maturity_it_was_given():
     # removed from the registry. Both were stable, and the merged Classify
     # screen that replaces them is the one entry now. Their entry points are
     # untouched -- see HEADLESS_ONLY in test_app_registry_parity.
-    assert counts == {"alpha": 41, "beta": 9, "stable": 6}
+    # 41 -> 40 alpha: the Parameter Sweep gave up its registry row to become
+    # the Regression screen's sweep card. Nothing was signed off; the count
+    # falls because there is one fewer tile, not one more trusted app.
+    assert counts == {"alpha": 40, "beta": 9, "stable": 6}
 
 
 def test_no_section_is_used_that_was_never_declared():
@@ -2286,6 +2293,40 @@ def test_launch_with_no_arguments_opens_on_home(launched, qtbot,
     win.close()
 
 
+def _prewarmed_module_names():
+    """The module names ``launch``'s background pre-warm imports.
+
+    Read from the source of ``launch`` rather than hard-coded, so a name
+    added to or removed from the list is covered without editing this file.
+    """
+    import inspect
+    import re
+
+    source = inspect.getsource(app_mod.launch)
+    match = re.search(r"for mod in \(([^)]*)\):", source)
+    assert match, "launch no longer pre-warms a tuple of module names"
+    return [name.strip().strip("\"'")
+            for name in match.group(1).split(",") if name.strip()]
+
+
+def test_the_prewarm_list_names_modules_that_exist():
+    """The pre-warm swallows every failure, because it is an optimisation and
+    a slow first open is better than a crash on start. That silence has to be
+    paid for here: a name that no longer imports warms nothing, and the module
+    screen goes back to freezing on its first import with nothing said.
+    """
+    import importlib.util
+
+    names = _prewarmed_module_names()
+    assert names, "the pre-warm list is empty; nothing is warmed"
+    missing = [name for name in names
+               if importlib.util.find_spec(name) is None]
+    assert not missing, (
+        f"launch pre-warms {missing}, which no longer exist -- the import "
+        "fails into the debug log and the screen it was warming for is slow "
+        "again")
+
+
 def test_launch_prewarms_the_heavy_imports_off_thread(launched, qtbot,
                                                       monkeypatch):
     app_mod.launch([])
@@ -2299,8 +2340,16 @@ def test_launch_prewarms_the_heavy_imports_off_thread(launched, qtbot,
     assert thread.started is True
 
     thread.target()
-    assert "spacr.settings" in sys.modules
-    assert "spacr.gui_utils" in sys.modules
+    # That the thread body really imports, and that every name on the list
+    # can be imported, are two claims; the second belongs to
+    # `test_the_prewarm_list_names_modules_that_exist`, so a stale name is
+    # reported once rather than by both tests.
+    import importlib.util
+    warmed = [name for name in _prewarmed_module_names()
+              if importlib.util.find_spec(name) is not None]
+    assert warmed, "no pre-warmed module could be imported at all"
+    for name in warmed:
+        assert name in sys.modules, f"{name} was not pre-warmed"
 
     # A prewarm import that fails must stay silent — it is an optimisation.
     with monkeypatch.context() as m:

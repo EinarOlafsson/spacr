@@ -114,7 +114,6 @@ APP_FUNCTIONS: Dict[str, str] = {
     "train_cellpose": "spacr.submodules.train_cellpose",
     "ml_analyze": "spacr.ml.generate_ml_scores",
     "cellpose_masks": "spacr.spacr_cellpose.identify_masks_finetune",
-    "cellpose_all": "spacr.spacr_cellpose.check_cellpose_models",
     "map_barcodes": "spacr.sequencing.generate_barecode_mapping",
     "regression": "spacr.ml.perform_regression",
     "explain_cv": "spacr.surrogate.run_explain_cv",
@@ -150,6 +149,11 @@ APP_ALIASES: Dict[str, str] = {
     "embedding": "umap",
     "analyze_replication": "replication",
     "analyze_endodyogeny": "endodyogeny",
+    # Cellpose 4 ships one model, so "benchmark every model" had a single
+    # entrant and was cellpose_masks under another name. Aliased rather than
+    # dropped so pre-flight still recognises the old key instead of reporting
+    # it as an unknown app and running only the generic checks.
+    "cellpose_all": "cellpose_masks",
 }
 
 try:

@@ -1011,8 +1011,49 @@ def test_fields_of_a_different_shape_sit_the_estimate_out(tmp_path, capsys):
 # 7. Settings, registered through the seam and off by default
 # ---------------------------------------------------------------------------
 
+
+def _categories_in_the_settings_literal():
+    """``{category: [key, ...]}`` read out of the settings.py source.
+
+    Parsed rather than imported so it shows what EVERY process sees. The
+    live ``spacr.settings.categories`` also holds whatever the modules this
+    interpreter happened to import contributed through ``register_defaults``,
+    and a heading that is only there for some processes is a heading the
+    panel sometimes loses.
+    """
+    import ast
+    import pathlib
+
+    import spacr.settings as S
+
+    tree = ast.parse(pathlib.Path(S.__file__).read_text())
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Assign) or not isinstance(node.value, ast.Dict):
+            continue
+        if not any(getattr(t, 'id', None) == 'categories' for t in node.targets):
+            continue
+        return {
+            key.value: [k.value for k in value.elts]
+            for key, value in zip(node.value.keys, node.value.values)
+            if isinstance(key, ast.Constant) and isinstance(value, ast.List)
+        }
+    raise AssertionError('no `categories = {...}` literal in settings.py')
+
+
 def test_the_settings_are_registered_off_by_default_and_typed():
-    """Registered through register_defaults, not appended to settings.py."""
+    """Registered through register_defaults, not appended to settings.py.
+
+    The category half of this test was inverted when the illumination
+    settings were folded into Measure. It used to require that no
+    illumination key appear in ``spacr.settings.categories`` at all, on the
+    grounds that no shipped panel offered them; Measure now does, and an
+    offered key with no category is dumped into the panel's trailing
+    bucket. What made the old rule worth having -- that the map must not
+    depend on which modules a process happened to import -- is kept, and
+    checked directly: the keys are in the ``categories`` literal in
+    settings.py, which every process sees, not contributed by this module
+    at import time.
+    """
     import spacr.settings as S
 
     assert S.has_registered_defaults(ill.APP_KEY)
@@ -1027,12 +1068,14 @@ def test_the_settings_are_registered_off_by_default_and_typed():
         assert key in S.expected_types, f'{key} is untyped'
         assert key in S.tooltips, f'{key} has no tooltip'
         assert S.tooltips[key].startswith('('), f'{key} tooltip has no type'
-        # ...and NOT in the shared category map: that map's growth is checked
-        # by exact equality against a hand-kept list, and a key contributed at
-        # import time is only in it in a session that imported this module.
-        # See register_illumination_settings.
-        assert not any(key in keys for keys in S.categories.values()), \
-            f'{key} would make the shared category map import-order dependent'
+        homes = [name for name, keys in S.categories.items() if key in keys]
+        assert homes == ['Illumination Correction'], \
+            f'{key} is filed under {homes}, not one illumination heading'
+    # Contributed by the settings.py literal, not by this module:
+    # `register_illumination_settings` passes no categories, so the heading
+    # is there for a process that never imported spacr.illumination.
+    assert set(_categories_in_the_settings_literal()['Illumination Correction']) \
+        == {k for k in defaults if k.startswith('illumination_')}
     assert S.descriptions[ill.APP_KEY].startswith('Illumination')
     # Registering again is a no-op rather than a duplicate declaration.
     assert ill.register_illumination_settings() is False
@@ -1120,6 +1163,189 @@ def test_describe_says_what_the_field_is_and_where_it_came_from(tmp_path):
     assert 'polynomial degree 4 over 12 field(s)' in text
     assert model.meta['src'] == [os.path.abspath(merged)]
     assert model.field_for('plate1').nonuniformity()[0] > 0.1
+
+
+# ---------------------------------------------------------------------------
+# 8. Set on the run it affects: the settings belong to Measure
+# ---------------------------------------------------------------------------
+# The call in measure_crop was there, and the settings it reads were not:
+# `get_measure_crop_settings` returned 61 keys and none of them was
+# `illumination_correction`, so `prepare_illumination_correction` returned
+# None on every run started from the Measure panel. The switch that decides
+# whether every intensity feature carries a position-dependent bias could
+# only be thrown on the separate Illumination screen -- which enables the
+# correction by setting process environment variables, so whether a table
+# was corrected depended on what had been run in the same process before it.
+
+
+def test_measure_offers_every_illumination_setting():
+    """Measure's defaults are a superset of the Illumination module's."""
+    from spacr.settings import get_measure_crop_settings
+
+    measure = get_measure_crop_settings(settings={})
+    for key, value in ill.illumination_settings({}).items():
+        assert key in measure, (
+            f'{key} is not in the measure defaults, so a Measure run cannot '
+            f'set it and prepare_illumination_correction never sees it')
+        if key.startswith('illumination_'):
+            assert measure[key] == value, (
+                f'{key} defaults to {measure[key]!r} under Measure and '
+                f'{value!r} under Illumination; the same run would be '
+                f'corrected differently depending on which screen started it')
+
+    # Measure's own `src` and `channels` win. The estimate reads the fields
+    # the run measures, and Illumination's three-channel default would
+    # silently drop the fourth channel of a four-channel measure run.
+    assert measure['channels'] == [0, 1, 2, 3]
+    assert measure['src'] == 'path'
+
+
+def test_the_measure_panel_shows_them_under_one_heading():
+    """Folded into one section, not the four the Illumination screen uses.
+
+    Illumination splits its knobs across Correction Model, Field Sampling and
+    QC & Failure Handling because estimating a field is that screen's whole
+    job. Inside Measure it is one decision -- correct these fields or do not
+    -- so it is one group, and every key is in it: a key the layout does not
+    place lands in the trailing "Additional Settings" bucket, which is not a
+    heading anyone chose.
+    """
+    pytest.importorskip('PySide6')
+    from spacr.qt.screens.settings_model import (
+        categories_for_app, resolve_default_settings,
+    )
+    import spacr.settings as S
+
+    sections = categories_for_app('measure', S.categories)
+    defaults = resolve_default_settings('measure')
+    illumination_keys = {k for k in defaults if k.startswith('illumination_')}
+    assert illumination_keys, 'the Measure panel offers no illumination keys'
+    homes = {name for name, keys in sections.items()
+             if illumination_keys & set(keys)}
+    assert homes == {'Illumination Correction'}
+    assert illumination_keys <= set(sections['Illumination Correction'])
+    # The trailing bucket is built from the whole shared map, so it always
+    # exists; what matters is that nothing Measure OFFERS ends up in it,
+    # because those are the keys that would render under that non-heading.
+    assert not [key for key in sections.get('Additional Settings', ())
+                if key in defaults]
+
+
+def test_a_measure_run_hands_the_panel_settings_to_the_correction(
+        tmp_path, monkeypatch):
+    """The whole point: the values set on Measure reach the correction.
+
+    Driven from `resolve_default_settings('measure')` -- what the Qt panel
+    builds its widgets from -- rather than from a hand-written dict, so the
+    test fails if the keys stop being offered there. Every illumination key
+    is checked by VALUE and not merely by presence: the defect was a dict
+    that lacked them, and a dict that carries them at somebody else's
+    defaults corrects the plate with settings the user never chose.
+    """
+    pytest.importorskip('PySide6')
+    from spacr import measure as measure_mod
+    from spacr.qt.screens.settings_model import resolve_default_settings
+
+    seen = {}
+    monkeypatch.setattr(ill, 'prepare_illumination_correction',
+                        lambda settings, **kw: seen.update(settings) or None)
+    monkeypatch.setattr(measure_mod, '_start_manager',
+                        lambda *a, **k: (_ for _ in ()).throw(
+                            RuntimeError('stop before the pool')))
+
+    plate = tmp_path / 'plate'
+    merged = plate / 'merged'
+    os.makedirs(merged)
+    write_plate(merged, quadratic_vignette((64, 64)), n_fields=2,
+                n_objects=2, radius=5)
+
+    settings = resolve_default_settings('measure')
+    settings.update({
+        'src': str(plate), 'channels': [0, 1],
+        'cell_mask_dim': 2, 'nucleus_mask_dim': 3, 'pathogen_mask_dim': 4,
+        'save_measurements': False, 'save_png': False, 'save_arrays': False,
+        'plot': False, 'verbose': False, 'timelapse': False,
+        'crop_mode': ['cell'], 'normalize': [1, 99], 'normalize_by': 'png',
+        'experiment': 'exp', 'n_jobs': 1, 'test_mode': False,
+    })
+    # What a user changes on the panel, in the panel's own dict.
+    chosen = {
+        'illumination_correction': True,
+        'illumination_estimator': 'smooth',
+        'illumination_degree': 3,
+        'illumination_per_plate': False,
+        'illumination_max_fields': 12,
+        'illumination_dark': 2.5,
+        'illumination_qc': False,
+        'illumination_on_missing': 'skip',
+        'illumination_model': '',
+    }
+    # ASSIGNED, not injected. `settings.update(chosen)` would put the keys in
+    # the dict whether or not the panel offers them, and measure_crop's
+    # `get_measure_crop_settings` only ever setdefaults -- so the test would
+    # pass against exactly the defect it exists to catch. Writing into keys
+    # that must already be there is what makes it a control.
+    for key, value in chosen.items():
+        assert key in settings, (
+            f'{key} is not among the settings the Measure panel builds, so '
+            f'there is no control for it and no value for the correction '
+            f'to read')
+        settings[key] = value
+
+    try:
+        measure_mod.measure_crop(settings)
+    except Exception:
+        # Stopped at the worker pool on purpose; the call under test is
+        # everything that happened before it.
+        pass
+
+    assert seen, 'measure_crop never called prepare_illumination_correction'
+    for key, value in chosen.items():
+        assert seen.get(key) == value, (
+            f'the correction was handed {key}={seen.get(key)!r} instead of '
+            f'the {value!r} the Measure panel was set to')
+
+
+def test_a_saved_model_is_reused_and_nothing_is_re_estimated(tmp_path,
+                                                             monkeypatch):
+    """`illumination_model` is a path, and filling it skips the estimate.
+
+    That is what makes the estimate a once-per-plate cost rather than a
+    once-per-run one: the first Measure run over a plate fits the field and
+    saves it, and every later run over the same plate points at the file. A
+    reuse that quietly re-fitted would still produce corrected numbers, so
+    the estimator is replaced by one that raises -- the only way to tell
+    "reused" from "re-derived the same answer".
+    """
+    from spacr.settings import get_measure_crop_settings
+
+    shape = (64, 64)
+    merged = write_plate(tmp_path / 'merged', quadratic_vignette(shape),
+                         n_fields=12, radius=5, n_objects=4)
+    first = get_measure_crop_settings(settings={})
+    first.update({'src': merged, 'channels': [0],
+                  'illumination_correction': True, 'verbose': False})
+    model = ill.prepare_illumination_correction(first)
+    saved = os.path.join(str(tmp_path), 'illumination',
+                         'illumination_model.npz')
+    assert os.path.isfile(saved)
+
+    mh.clear_measurement_hooks()
+
+    def no_estimate(*args, **kwargs):
+        raise AssertionError('re-estimated a field that was already saved')
+
+    monkeypatch.setattr(ill, 'estimate_illumination', no_estimate)
+    second = get_measure_crop_settings(settings={})
+    second.update({'src': merged, 'channels': [0],
+                   'illumination_correction': True, 'verbose': False,
+                   'illumination_model': saved})
+
+    reused = ill.prepare_illumination_correction(second)
+
+    np.testing.assert_array_equal(reused.field_for('plate1').flatfield,
+                                  model.field_for('plate1').flatfield)
+    assert [entry.name for entry in mh.preprocessing_hooks()] == [ill.HOOK_NAME]
 
 
 # ---------------------------------------------------------------------------

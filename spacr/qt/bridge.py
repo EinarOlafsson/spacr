@@ -1361,9 +1361,6 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
         if app_key == "cellpose_masks":
             from spacr.spacr_cellpose import identify_masks_finetune
             return _ret(log_call(identify_masks_finetune))
-        if app_key == "cellpose_all":
-            from spacr.spacr_cellpose import check_cellpose_models
-            return _ret(log_call(check_cellpose_models))
         if app_key == "map_barcodes":
             from spacr.sequencing import generate_barecode_mapping
             return _ret(log_call(generate_barecode_mapping))

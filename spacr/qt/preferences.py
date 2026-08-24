@@ -2714,6 +2714,133 @@ def run_resource_action(action: str, parent=None):
 # Preferences dialog
 # ---------------------------------------------------------------------------
 
+#: What each Preferences row means, keyed by the label it carries.
+#:
+#: ON THE LABEL, NOT THE FIELD, and that is the house rule everywhere in
+#: spaCR: the words are what a reader points at when they want to know
+#: what something is, and a tooltip on the control is one they find only
+#: after reaching for it. :func:`explain_every_row` moves any that were
+#: put on a field, so a row explained either way ends up explained the
+#: same way.
+PREFERENCE_TIPS = {
+    # -- logging -------------------------------------------------------
+    "Debug": "Everything, including the steps a run takes internally. Large, and the level to send with a bug report.",
+    "Info": "What a run is doing, one line per step. The level most people want.",
+    "Warning": "Only what spaCR thinks you should look at.",
+    "Error": "Only what failed.",
+    "Critical": "Only what stopped the run.",
+    # -- figures: type -------------------------------------------------
+    "Font family": "The typeface every saved figure is drawn in.",
+    "Font size": "Base text size. The three sizes below are measured from it.",
+    "Title size": "The figure's own title, relative to the base size.",
+    "Label size": "Axis titles, relative to the base size.",
+    "Tick size": "The numbers along the axes, relative to the base size.",
+    # -- figures: colour ----------------------------------------------
+    "Palette": "The colours a figure cycles through when it draws several series.",
+    "Background": "The page a figure is drawn on. Transparent leaves it to whatever the figure is placed on.",
+    "Foreground": "Axis lines, ticks and text.",
+    "Chrome colour": "The frame around a figure: its box, its ticks and its spines.",
+    "Mark colouring": "Whether points take their colour from the palette or from a column of the data.",
+    # -- figures: grid and frame ---------------------------------------
+    "Grid": "Draw grid lines behind the data.",
+    "Grid colour": "The grid's own colour, kept faint so it sits behind the data rather than in it.",
+    "Grid width": "How heavy the grid lines are, in points.",
+    "Grid style": "Solid, dashed or dotted.",
+    "Spines": "Which of the four frame edges are drawn. Two is the usual answer for a scatter.",
+    "Spine width": "How heavy those edges are, in points.",
+    # -- figures: marks ------------------------------------------------
+    "Marker size": "The size of a plotted point, in points squared.",
+    "Marker style": "The shape a point is drawn as.",
+    "Line width": "How heavy a plotted line is, in points.",
+    "Jitter width": "How far points are spread sideways so they do not sit on top of each other.",
+    "Point alpha": "How opaque a point is. Below 1 the overlaps show as darker.",
+    "Bar alpha": "How opaque a bar is.",
+    "Fill colour": "The inside of a bar or a histogram's bin.",
+    "Edge colour": "The outline around a bar or a bin.",
+    "Edge width": "How heavy that outline is.",
+    # -- figures: statistics drawn on the plot -------------------------
+    "Error bars": "What the bars show: a standard deviation, a standard error, or a confidence interval.",
+    "Reference style": "The line style for a reference or baseline drawn across a plot.",
+    "Reference colour": "The colour of that reference line.",
+    "Trend line": "Fit and draw a trend through the points.",
+    "Trend colour": "The trend line's colour.",
+    "Threshold style": "The line style for a significance or effect-size threshold.",
+    "Threshold colour": "The colour of that threshold line.",
+    "Threshold width": "How heavy the threshold line is.",
+    "Bins": "How many bins a histogram divides its range into.",
+    "Log y": "Draw the y axis on a log scale.",
+    "Split axis": "Leave a band out of an axis when one group sits far from the rest.",
+    "Centred": "Centre a diverging colour scale on zero, so the sign is readable from the colour.",
+    "Colormap": "The colour scale a continuous value is mapped through.",
+    # -- figures: labels and layout ------------------------------------
+    "Annotate": "Write values onto the plot.",
+    "Annotate cells": "Write each cell's value into a heatmap.",
+    "Label top n": "How many of the strongest points are labelled by name.",
+    "Legend": "Draw a legend, and where.",
+    "Per row": "How many panels are placed across a row of a grid figure.",
+    "Aspect": "The width-to-height ratio of each panel.",
+    "Page shape": "The proportions of the saved page.",
+    "Dpi": "Pixels per inch in the saved file. 300 is the usual minimum for print.",
+    "Format": "The file type a figure is saved as.",
+    "Tight layout": "Shrink the margins to fit the labels, rather than clipping them.",
+    # -- the application -----------------------------------------------
+    "Theme": "The application's colours. 'Follow system' takes them from the desktop.",
+    "Font scale": "Scale every word in the interface. Independent of the figure font sizes above.",
+    "Colour-blind mode": "Re-choose the interface and figure colours so they stay distinguishable without colour vision.",
+    "Module visibility": "Which maturity of module the navigation offers: stable only, or the beta and alpha ones as well.",
+    "Show busy spinner after": "How long a task may run before spaCR says it is working. Below this, a spinner is a flicker.",
+    "Page opacity": "How much of the drifting backdrop shows through a page.",
+    # -- the backdrop and the rim --------------------------------------
+    "Animation detail": "How much the backdrop draws. Lower it on a machine where the interface feels heavy.",
+    "Animation blur": "How soft the backdrop's shapes are.",
+    "Animation speed": "How fast the backdrop drifts.",
+    "Animation size": "How large its shapes are.",
+    "Animation density": "How many of them there are.",
+    "Rim length": "How much of a card's rim the travelling highlight covers.",
+    "Rim chase": "How hard the highlight follows the pointer. Lower is looser.",
+    "Rim cycle": "How long one lap of the rim takes.",
+}
+
+
+def explain_every_row(dialog) -> int:
+    """Put a tooltip on every Preferences LABEL. Returns how many it set.
+
+    Two jobs, and the second is why this walks the finished dialog rather
+    than being written at each call site: it fills in from
+    :data:`PREFERENCE_TIPS`, and it MOVES a tooltip that was put on the
+    control to the label beside it. A row explained either way ends up
+    explained the same way, and a row added later without a tooltip is
+    reported by the test rather than passing unnoticed.
+    """
+    from PySide6.QtWidgets import QFormLayout, QLabel
+
+    from .i18n import tr
+
+    explained = 0
+    for form in dialog.findChildren(QFormLayout):
+        for index in range(form.rowCount()):
+            label_item = form.itemAt(index, QFormLayout.LabelRole)
+            field_item = form.itemAt(index, QFormLayout.FieldRole)
+            if label_item is None or field_item is None:
+                continue
+            label = label_item.widget()
+            field = field_item.widget()
+            if not isinstance(label, QLabel) or field is None:
+                continue
+            text = (label.text() or "").replace("&", "").strip()
+            tip = PREFERENCE_TIPS.get(text, "")
+            if not tip:
+                # WHATEVER THE ROW ALREADY SAID, moved rather than
+                # duplicated: a tooltip on both reads as two answers.
+                tip = (field.toolTip() or "").strip()
+            if not tip:
+                continue
+            label.setToolTip(tr(tip))
+            field.setToolTip("")
+            explained += 1
+    return explained
+
+
 class PreferencesDialog:
     """Wrapper that builds the modal Preferences dialog on demand.
 
@@ -3947,6 +4074,10 @@ class PreferencesDialog:
 
         buttons.accepted.connect(_save)
         buttons.rejected.connect(dlg.reject)
+        # EVERY ROW EXPLAINED, ON ITS LABEL. Done here, over the finished
+        # dialog, so a row added anywhere above is covered without the
+        # author having to remember the rule.
+        explain_every_row(dlg)
         return dlg
 
 

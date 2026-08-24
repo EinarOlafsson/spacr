@@ -7,6 +7,13 @@ the result was a measure run that wrote no organelle table at all, with no
 error anywhere. So these tests assert what each default *means* — the value,
 the type it will survive `check_settings` as, and the behaviour it selects —
 rather than that a function returned a dict.
+
+THE `generate_fields` / `generate_fields_lazy` SECTION IS GONE. Those two
+build Tk widgets: they import `create_input_field` from `gui_utils` and
+`spacrToolTip` from `gui_elements`, both deleted with the interface, so there
+is no longer a widget for them to build or a tooltip for them to attach. The
+settings each field carried are still covered here through
+`check_settings`, which is the half of that round trip that survives.
 """
 from __future__ import annotations
 
@@ -1040,187 +1047,6 @@ def test_check_settings_round_trips_the_shipped_mask_defaults():
 
 
 # ---------------------------------------------------------------------------
-# generate_fields / generate_fields_lazy  (Tk)
-# ---------------------------------------------------------------------------
-
-class _Scrollable:
-    """The `.scrollable_frame` shape the settings panel hands these two."""
-
-    def __init__(self, frame):
-        self.scrollable_frame = frame
-
-
-@pytest.fixture
-def scrollable(tk_root):
-    import tkinter as tk
-    frame = tk.Frame(tk_root)
-    return _Scrollable(frame)
-
-
-def test_generate_fields_builds_a_widget_per_setting(scrollable):
-    variables = {
-        "src": ("entry", None, "/data"),
-        "plot": ("check", None, True),
-        "metadata_type": ("combo", ["cellvoyager", "cq1"], "cq1"),
-    }
-    vars_dict = S.generate_fields(variables, scrollable)
-    assert set(vars_dict) == set(variables)
-    for key, (label, widget, var, frame) in vars_dict.items():
-        assert widget is not None
-    # The widget really holds the default it was given — that is what the
-    # panel reads back through check_settings.
-    assert vars_dict["src"][2].get() == "/data"
-    assert vars_dict["plot"][2].get() is True
-    assert vars_dict["metadata_type"][2].get() == "cq1"
-
-
-def test_generate_fields_ticks_once_per_field(scrollable):
-    ticks = []
-    S.generate_fields({"src": ("entry", None, "/a"),
-                       "plot": ("check", None, False)},
-                      scrollable, tick_callback=lambda: ticks.append(1))
-    assert len(ticks) == 2
-
-
-def test_generate_fields_falls_back_to_a_type_default_on_a_bad_value(
-        scrollable, monkeypatch, capsys):
-    """A settings CSV can carry a value the widget cannot take. Losing the
-    field entirely would silently drop the setting from the run."""
-    calls = []
-    # generate_fields imports create_input_field from .gui_utils inside the
-    # function body, so patching the module attribute is what it will see.
-    import spacr.gui_utils as GU
-    original = GU.create_input_field
-
-    def _picky(frame, key, row, var_type, options, default_value):
-        calls.append(default_value)
-        if default_value == "!!bad!!":
-            raise ValueError("widget refuses this")
-        return original(frame, key, row, var_type, options, default_value)
-
-    monkeypatch.setattr(GU, "create_input_field", _picky)
-    vars_dict = S.generate_fields({"src": ("entry", None, "!!bad!!")},
-                                  scrollable)
-    assert calls == ["!!bad!!", ""]          # retried with the type default
-    assert vars_dict["src"][2].get() == ""
-    assert "reverting to" in capsys.readouterr().out
-
-
-@pytest.mark.parametrize("var_type,options,fallback", [
-    ("check", None, False),
-    ("entry", None, ""),
-    ("combo", ["a", "b"], "a"),
-    ("int", None, 0),
-    ("float", None, 0.0),
-])
-def test_generate_fields_fallback_matches_the_widget_type(
-        scrollable, monkeypatch, var_type, options, fallback):
-    seen = []
-    import spacr.gui_utils as GU
-    original = GU.create_input_field
-
-    def _picky(frame, key, row, vt, opts, default_value):
-        seen.append(default_value)
-        if len(seen) == 1:
-            raise ValueError("no")
-        return original(frame, key, row, vt, opts, default_value)
-
-    monkeypatch.setattr(GU, "create_input_field", _picky)
-    S.generate_fields({"k": (var_type, options, object())}, scrollable)
-    assert seen[1] == fallback
-
-
-def test_generate_fields_skips_a_field_that_fails_twice(scrollable,
-                                                        monkeypatch, capsys):
-    import spacr.gui_utils as GU
-
-    def _always_fails(*a, **kw):
-        raise ValueError("no widget for you")
-
-    monkeypatch.setattr(GU, "create_input_field", _always_fails)
-    vars_dict = S.generate_fields({"src": ("entry", None, "/a"),
-                                   "plot": ("check", None, True)}, scrollable)
-    assert vars_dict == {}
-    out = capsys.readouterr().out
-    assert out.count("Could not create field") == 2
-
-
-def test_generate_fields_attaches_a_tooltip_where_one_exists(scrollable,
-                                                             monkeypatch):
-    attached = []
-    import spacr.gui_elements as GE
-    monkeypatch.setattr(GE, "spacrToolTip",
-                        lambda widget, text: attached.append(text))
-    key = next(k for k in S.tooltips if k)
-    S.generate_fields({key: ("entry", None, ""),
-                       "not_a_real_setting_key": ("entry", None, "")},
-                      scrollable)
-    assert attached == [S.tooltips[key]]
-
-
-def test_generate_fields_lazy_defers_the_categorised_settings(scrollable):
-    categorised = next(k for keys in S.categories.values() for k in keys)
-    variables = {categorised: ("entry", None, "x"),
-                 "not_a_real_setting_key": ("entry", None, "y")}
-    vars_dict = S.generate_fields_lazy(variables, scrollable)
-    # A categorised key is a placeholder: no widget is built until its
-    # heading is expanded. That is the whole point of the lazy variant.
-    assert vars_dict[categorised] is None
-    assert vars_dict["not_a_real_setting_key"] is not None
-    # The definitions and the next row are stashed for the deferred build.
-    assert scrollable._field_variables == variables
-    assert scrollable._next_row == 2
-
-
-def test_generate_fields_lazy_ticks_only_for_what_it_built(scrollable):
-    categorised = next(k for keys in S.categories.values() for k in keys)
-    ticks = []
-    S.generate_fields_lazy(
-        {categorised: ("entry", None, "x"),
-         "not_a_real_setting_key": ("entry", None, "y")},
-        scrollable, tick_callback=lambda: ticks.append(1))
-    assert len(ticks) == 1
-
-
-def test_generate_fields_lazy_falls_back_and_then_skips(scrollable,
-                                                        monkeypatch, capsys):
-    import spacr.gui_utils as GU
-    original = GU.create_input_field
-    seen = []
-
-    def _picky(frame, key, row, vt, opts, default_value):
-        seen.append((key, default_value))
-        if key == "bad_key_never_works":
-            raise ValueError("no")
-        if key == "recovers_key" and default_value == "!!bad!!":
-            raise ValueError("no")
-        return original(frame, key, row, vt, opts, default_value)
-
-    monkeypatch.setattr(GU, "create_input_field", _picky)
-    vars_dict = S.generate_fields_lazy(
-        {"recovers_key": ("entry", None, "!!bad!!"),
-         "bad_key_never_works": ("entry", None, "x")}, scrollable)
-    assert vars_dict["recovers_key"][2].get() == ""
-    assert "bad_key_never_works" not in vars_dict
-    out = capsys.readouterr().out
-    assert "Warning: Invalid value for recovers_key" in out
-    assert "Could not create field for 'bad_key_never_works'" in out
-
-
-def test_generate_fields_lazy_attaches_tooltips_to_what_it_renders(
-        scrollable, monkeypatch):
-    uncategorised = next(
-        k for k in S.tooltips
-        if not any(k in keys for keys in S.categories.values()))
-    attached = []
-    import spacr.gui_elements as GE
-    monkeypatch.setattr(GE, "spacrToolTip",
-                        lambda widget, text: attached.append(text))
-    S.generate_fields_lazy({uncategorised: ("entry", None, "")}, scrollable)
-    assert attached == [S.tooltips[uncategorised]]
-
-
-# ---------------------------------------------------------------------------
 # the barcode-mapping defaults: the shipped regex has to actually work
 # ---------------------------------------------------------------------------
 
@@ -1348,18 +1174,19 @@ def test_a_defaults_factory_returns_a_json_shaped_dict(fn_name):
 # The invariant that catches the NEXT undeclared key
 # ---------------------------------------------------------------------------
 #
-# The panel builds its widget map from a module's own defaults factory, so any
-# key that factory ships becomes a field. check_settings answers a field it
-# cannot type with a "not found in expected types" warning and drops it, and
-# gui_core.import_settings then does `if len(errors) > 0: return` -- pressing
-# Run does nothing at all, with the reason only in the log queue. That is how
-# Map Barcodes came to be unstartable from the Tk GUI on eleven keys at once.
+# The panel builds its fields from a module's own defaults factory, so any key
+# that factory ships becomes a field. check_settings answers a field it cannot
+# type with a "not found in expected types" warning and drops it, and the Tk
+# importer then did `if len(errors) > 0: return` -- pressing Run did nothing at
+# all, with the reason only in the log queue. That is how Map Barcodes came to
+# be unstartable on eleven keys at once. An undeclared key is still a key the
+# validator cannot type, so the invariant is asserted whichever front end asks.
 
-#: The factories gui_core.setup_settings_panel dispatches, by module id. The
-#: widget map -- and therefore what check_settings is asked to type -- is
-#: exactly the keys these return. `categories` does NOT create a widget: it
-#: only groups keys that a factory already shipped, which is why 'highlight'
-#: and 'plate' can sit there, documented as inert, without costing anything.
+#: The factory each module's settings panel is built from, by module id. The
+#: fields -- and therefore what check_settings is asked to type -- come from
+#: the keys these return. `categories` does NOT create a field: it only groups
+#: keys that a factory already shipped, which is why 'highlight' and 'plate'
+#: can sit there, documented as inert, without costing anything.
 _PANEL_FACTORIES = {
     "mask": "set_default_settings_preprocess_generate_masks",
     "measure": "get_measure_crop_settings",
@@ -1376,15 +1203,25 @@ _PANEL_FACTORIES = {
 }
 
 
-def test_the_panel_factory_list_still_matches_gui_core():
-    """If gui_core learns a new module, this list has to learn it too, or the
-    guard below stops covering the module that was just added."""
-    import inspect as _inspect
-    import spacr.gui_core as GC
-    src = _inspect.getsource(GC.setup_settings_panel)
-    for module_id, fn_name in _PANEL_FACTORIES.items():
-        assert f"'{module_id}'" in src, module_id
-        assert fn_name in src, fn_name
+@pytest.mark.parametrize("module_id", sorted(_PANEL_FACTORIES))
+def test_the_panel_factory_list_still_matches_the_panel(module_id):
+    """This list read the Tk dispatcher's source; it reads the panel now.
+
+    A module whose panel is switched to a different factory starts showing
+    fields the factory named here does not ship, and the guard below then
+    stops covering the keys the user is actually given. The panel is allowed
+    to show FEWER: mask and umap withhold the keys that moved to modules of
+    their own, which is a deliberate subset rather than a different factory.
+    """
+    from spacr.qt.screens.settings_model import resolve_default_settings
+
+    shown = set(resolve_default_settings(module_id))
+    factory_keys = set(getattr(S, _PANEL_FACTORIES[module_id])({}))
+    assert shown, f"{module_id} opens a settings panel with no fields"
+    assert shown <= factory_keys, (
+        f"{module_id} shows {sorted(shown - factory_keys)}, which "
+        f"{_PANEL_FACTORIES[module_id]} does not ship -- the panel is no "
+        f"longer built from the factory this list names")
 
 
 def test_no_panel_factory_ships_a_key_that_has_no_declared_type():
@@ -1397,8 +1234,8 @@ def test_no_panel_factory_ships_a_key_that_has_no_declared_type():
             undeclared[module_id] = missing
     assert undeclared == {}, (
         "these settings become fields but have no declared type, so "
-        "check_settings drops them and gui_core's `if len(errors) > 0: "
-        f"return` refuses to start the run: {undeclared}")
+        "check_settings drops them and every caller that stops on a "
+        f"non-empty error list refuses to start the run: {undeclared}")
 
 
 @pytest.mark.parametrize("fn_name", [
@@ -1418,10 +1255,10 @@ def test_no_panel_factory_ships_a_key_that_has_no_declared_type():
 def test_a_module_can_be_started_with_its_own_untouched_defaults(fn_name):
     """The panel round trip, end to end, for one module.
 
-    Build the widget map the settings panel would build from this factory,
-    push it back through the validator gui_core runs, and require that every
-    key comes back. Any error at all here is a module whose Run button does
-    nothing until the user edits a field they were never told about.
+    Build the field map a settings panel would build from this factory, push
+    it back through check_settings, and require that every key comes back.
+    Any error at all here is a module whose Run button does nothing until the
+    user edits a field they were never told about.
     """
     defaults = getattr(S, fn_name)({})
     vd = _vd(**{k: ("None" if v is None else str(v))

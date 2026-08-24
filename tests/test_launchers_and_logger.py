@@ -1,12 +1,20 @@
 """
 Tests for the tiny launcher / logger surface of spacr:
 
-  * spacr.__main__: build_parser, `spacr version` dispatch, and error
-    handling for unknown commands.
+  * spacr.__main__: build_parser, `spacr version` dispatch, the Qt tab each
+    window subcommand opens on, and error handling for unknown commands.
   * spacr.logger: configure_logger idempotence, log_function_call
     decorator, _safe_repr truncation.
-  * The seven `app_*` modules: every start_*_app entry point exists,
-    is callable, and gets exercised by build_parser dispatch.
+  * The installed console scripts: every declared command names a target
+    that imports and is callable.
+
+The launcher section changed subject with the interface. It used to import
+the seven ``spacr.app_*`` modules and assert each exported a callable
+``start_*_app``; those modules opened Tk windows and are gone, and the
+commands they backed are gone from ``console_scripts`` with them. The
+question the section asks is unchanged — does every command spaCR installs
+actually start something — so it now asks it of the entry-point table
+itself, which is the only place the answer still lives.
 """
 from __future__ import annotations
 
@@ -53,28 +61,43 @@ def test_main_version_command_prints_and_exits_zero(capsys):
     assert "spacr version" in out.lower() or "python" in out.lower()
 
 
-@pytest.mark.parametrize("cmd,func_path", [
-    ("gui", "spacr.gui.gui_app"),
-    ("mask", "spacr.app_mask.start_mask_app"),
-    ("measure", "spacr.app_measure.start_measure_app"),
-    ("classify", "spacr.app_classify.start_classify_app"),
-    ("annotate", "spacr.app_annotate.start_annotate_app"),
-    ("sequencing", "spacr.app_sequencing.start_seq_app"),
-    ("umap", "spacr.app_umap.start_umap_app"),
-    ("make-masks", "spacr.app_make_masks.start_make_mask_app"),
-])
-def test_main_dispatches_each_command_to_its_entry_point(cmd, func_path):
-    """`spacr <cmd>` must import and invoke the matching start_*_app."""
+#: subcommand -> the tab key handed to ``spacr.qt.run``; ``gui`` names none
+#: and lands on Home.
+_COMMAND_TABS = [
+    ("gui", []),
+    ("mask", ["mask"]),
+    ("measure", ["measure"]),
+    ("classify", ["classify_merged"]),
+    ("annotate", ["annotate"]),
+    ("sequencing", ["map_barcodes"]),
+    ("umap", ["umap"]),
+    ("make-masks", ["make_masks"]),
+]
+
+
+@pytest.mark.parametrize("cmd,tab_argv", _COMMAND_TABS)
+def test_main_dispatches_each_command_to_its_tab(cmd, tab_argv):
+    """`spacr <cmd>` opens the Qt application on the screen that command names.
+
+    Each of these used to start its own Tk window. They are tabs now, so the
+    dispatch is asserted on the argv `main` hands to `spacr.qt.run`.
+    """
     from spacr.__main__ import main
-    try:
-        with patch(func_path) as spy:
-            rc = main([cmd])
-    except Exception as e:
-        if "DisplayConnection" in type(e).__name__ or "Xauthority" in str(e):
-            pytest.skip(f"dispatch target {func_path} needs a display: {e}")
-        raise
+
+    with patch("spacr.qt.run", return_value=0) as spy:
+        rc = main([cmd])
     assert rc == 0
     spy.assert_called_once()
+    passed = spy.call_args.args[0] if spy.call_args.args else []
+    assert list(passed) == tab_argv
+
+
+@pytest.mark.parametrize("tab_argv", [a for _c, a in _COMMAND_TABS if a])
+def test_each_command_tab_exists_in_the_app_registry(tab_argv):
+    """A tab key the registry does not know silently opens Home instead."""
+    from spacr.qt.app import APPS
+
+    assert tab_argv[0] in {entry[0] for entry in APPS}
 
 
 # ---------------------------------------------------------------------------
@@ -155,38 +178,96 @@ def test_log_function_call_reraises_exceptions(tmp_path, monkeypatch):
 
 
 # ---------------------------------------------------------------------------
-# 3. Every launcher module exports its start_*_app function
+# 3. Every console script names something that imports and is callable
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("mod_name,fn", [
-    ("app_mask",       "start_mask_app"),
-    ("app_measure",    "start_measure_app"),
-    ("app_classify",   "start_classify_app"),
-    ("app_annotate",   "start_annotate_app"),
-    ("app_sequencing", "start_seq_app"),
-    ("app_umap",       "start_umap_app"),
-    ("app_make_masks", "start_make_mask_app"),
-])
-def test_launcher_start_function_is_callable(mod_name, fn):
-    import importlib
-    try:
-        mod = importlib.import_module(f"spacr.{mod_name}")
-    except Exception as e:
-        # Launchers transitively import spacr.gui, which pulls in
-        # screeninfo/pyautogui; skip cleanly on display-less runs.
-        if "DisplayConnection" in type(e).__name__ or "Xauthority" in str(e):
-            pytest.skip(f"spacr.{mod_name} needs a display: {e}")
-        raise
-    entry = getattr(mod, fn, None)
-    assert callable(entry), f"spacr.{mod_name}.{fn} must be callable"
+#: The commands that used to open a Tk window. Each is a tab in `spacr` now,
+#: so an install that still declares one would put a command on the user's
+#: PATH that raises ModuleNotFoundError the moment it is typed.
+_DELETED_TK_COMMANDS = frozenset(
+    {"mask", "measure", "make_masks", "annotate", "classify"})
 
 
-def test_app_make_masks_initiate_helper_exists():
-    """The parent-frame initiator hook AnnotateApp / MainApp uses."""
-    try:
-        import spacr.app_make_masks as m
-    except Exception as e:
-        if "DisplayConnection" in type(e).__name__ or "Xauthority" in str(e):
-            pytest.skip(f"spacr.app_make_masks needs a display: {e}")
-        raise
-    assert callable(getattr(m, "initiate_make_mask_app", None))
+def _declared_console_scripts():
+    """``{command: 'module:attr'}`` parsed out of setup.py's source.
+
+    Read from the file rather than from installed metadata because an
+    editable install keeps whatever entry points it was built with, so a
+    command deleted from setup.py today still answers `importlib.metadata`
+    until someone reinstalls.
+    """
+    import ast
+    import pathlib
+
+    setup_py = pathlib.Path(__file__).resolve().parents[1] / "setup.py"
+    tree = ast.parse(setup_py.read_text(encoding="utf-8"))
+    scripts = {}
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Dict):
+            continue
+        for key, value in zip(node.keys, node.values):
+            if getattr(key, "value", None) != "console_scripts":
+                continue
+            for element in value.elts:
+                command, target = element.value.split("=", 1)
+                scripts[command.strip()] = target.strip()
+    return scripts
+
+
+def test_setup_py_declares_console_scripts():
+    """Every assertion below is vacuous if the parse found nothing."""
+    scripts = _declared_console_scripts()
+    assert len(scripts) >= 10, f"only parsed {len(scripts)} console scripts"
+    assert scripts.get("spacr") == "spacr.qt:run"
+
+
+def test_no_console_script_survives_from_the_deleted_tk_launchers():
+    """The five bare-word Tk commands went with the windows they opened."""
+    declared = set(_declared_console_scripts())
+    assert not (declared & _DELETED_TK_COMMANDS), (
+        f"setup.py still installs {sorted(declared & _DELETED_TK_COMMANDS)}, "
+        "whose launcher modules no longer exist")
+
+
+def test_the_headless_commands_are_still_installed():
+    """The GUI going Qt-only must not take the no-display commands with it."""
+    declared = set(_declared_console_scripts())
+    for command in ("spacr", "spacr-run", "spacr-repro", "spacr-workspace",
+                    "spacr-doctor", "spacr-remote"):
+        assert command in declared, f"{command} is no longer installed"
+
+
+@pytest.mark.parametrize("command", sorted(_declared_console_scripts()))
+def test_every_console_script_names_a_callable_that_exists(command):
+    """A command whose target attribute is gone dies with AttributeError the
+    first time it is typed, and nothing else in the suite types them.
+
+    Only the attribute half is asserted here. Whether the target MODULE still
+    exists is the subject of
+    ``test_gui_dispatch_call_styles.test_every_console_script_target_module_exists``,
+    so a deleted module is reported once, by name, in one place rather than
+    once per command that pointed at it.
+    """
+    import importlib.util
+
+    target = _declared_console_scripts()[command]
+    module_name, _, attr = target.partition(":")
+    if importlib.util.find_spec(module_name) is None:
+        pytest.skip(f"{module_name} is missing; that is the other test's subject")
+    module = importlib.import_module(module_name)
+    entry = getattr(module, attr, None)
+    assert callable(entry), f"{command} -> {target} is not callable"
+
+
+def test_make_masks_is_reachable_as_a_qt_screen():
+    """What ``app_make_masks.initiate_make_mask_app`` used to be asked here.
+
+    The Tk mask editor is `MakeMasksScreen`, opened from the registry key
+    `make_masks`, so the hand-correction tool is still reachable rather than
+    having been dropped along with its launcher.
+    """
+    from spacr.qt.app import APPS
+    from spacr.qt.screens.make_masks import MakeMasksScreen
+
+    assert "make_masks" in {entry[0] for entry in APPS}
+    assert isinstance(MakeMasksScreen, type)
