@@ -1520,6 +1520,36 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Hvað má fara af þessari vél og í hvers nafni. Ekkert er nokkurn tímann sent nema þú sjáir það fyrst og ýtir sjálf(ur) á senda.",
         "Ce qui peut quitter cette machine, et sous quel nom. Rien n’est jamais envoyé sans que vous l’ayez d’abord vu et appuyé vous-même sur envoyer."),
 
+    # ---- What the machine can run, on the first slide ----------------
+    "Segmentation and object classification need an NVIDIA GPU. Everything else runs without one.": _row(
+        "Segmentering och objektklassificering kräver en NVIDIA-GPU. Allt annat fungerar utan en.",
+        "Segmentierung und Objektklassifizierung brauchen eine NVIDIA-GPU. Alles andere läuft auch ohne.",
+        "La segmentación y la clasificación de objetos necesitan una GPU NVIDIA. Todo lo demás funciona sin ella.",
+        "分割和对象分类需要 NVIDIA GPU。其余功能没有它也能运行。",
+        "A segmentação e a classificação de objetos precisam de uma GPU NVIDIA. Todo o resto funciona sem ela.",
+        "सेगमेंटेशन और ऑब्जेक्ट वर्गीकरण के लिए NVIDIA GPU चाहिए। बाकी सब उसके बिना भी चलता है।",
+        "분할과 객체 분류에는 NVIDIA GPU 가 필요합니다. 나머지는 없어도 실행됩니다.",
+        "Hlutun og flokkun hluta krefjast NVIDIA-skjákorts. Allt annað keyrir án þess.",
+        "La segmentation et la classification d’objets nécessitent un GPU NVIDIA. Tout le reste fonctionne sans."),
+    "Compatible GPU": _row(
+        "Kompatibel GPU", "Kompatible GPU", "GPU compatible", "兼容的 GPU",
+        "GPU compatível", "संगत GPU", "호환되는 GPU", "Samhæft skjákort",
+        "GPU compatible"),
+    "No compatible GPU": _row(
+        "Ingen kompatibel GPU", "Keine kompatible GPU", "Sin GPU compatible",
+        "没有兼容的 GPU", "Sem GPU compatível", "कोई संगत GPU नहीं",
+        "호환되는 GPU 없음", "Ekkert samhæft skjákort", "Aucun GPU compatible"),
+    "No compatible GPU — none detected": _row(
+        "Ingen kompatibel GPU — ingen hittades",
+        "Keine kompatible GPU – keine gefunden",
+        "Sin GPU compatible: no se detectó ninguna",
+        "没有兼容的 GPU —— 未检测到",
+        "Sem GPU compatível — nenhuma detetada",
+        "कोई संगत GPU नहीं — कोई नहीं मिला",
+        "호환되는 GPU 없음 — 감지되지 않음",
+        "Ekkert samhæft skjákort — ekkert fannst",
+        "Aucun GPU compatible — aucun détecté"),
+
     # ---- Home screen chrome -----------------------------------------
     "Assays": _row("Analyser", "Assays", "Ensayos", "实验分析", "Ensaios", "एसे", "어세이", "Prófanir", "Essais"),
     "Alpha": _row("Alfa", "Alpha", "Alfa", "内测", "Alfa", "अल्फा", "알파", "Alfa", "Alpha"),

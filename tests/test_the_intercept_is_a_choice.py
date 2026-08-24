@@ -10,7 +10,8 @@ repeatedly. There are three answers now:
                  coefficient is a whole predicted score;
 * ``control`` -- centre the response on the negative controls first, so
                  the intercept IS the control level and a coefficient
-                 reads as its distance from the controls.
+                 reads as its distance from the controls;
+* ``value``   -- pin it at a number the user gives.
 """
 from __future__ import annotations
 
@@ -21,18 +22,23 @@ import pytest
 from spacr.ml import INTERCEPT_MODES, centre_on_controls, prepare_formula
 
 
-def test_the_three_modes_are_the_ones_offered():
-    assert INTERCEPT_MODES == ("fitted", "zero", "control")
+def test_the_four_modes_are_the_ones_offered():
+    assert INTERCEPT_MODES == ("fitted", "zero", "control", "value")
 
 
+@pytest.mark.parametrize("mode", ["zero", "value"])
 @pytest.mark.parametrize("plate_position", [True, False])
-def test_zero_takes_the_term_out_of_every_formula(plate_position):
+def test_the_term_is_suppressed_when_the_intercept_is_decided(mode,
+                                                              plate_position):
     """Patsy's own suppression, on each of the shapes this builds."""
     fitted = prepare_formula("pred", level="grna", intercept="fitted",
                              model_plate_position=plate_position)
-    origin = prepare_formula("pred", level="grna", intercept="zero",
+    origin = prepare_formula("pred", level="grna", intercept=mode,
                              model_plate_position=plate_position)
 
+    # A DECIDED INTERCEPT IS NOT AN ESTIMATED ONE. Leaving the term in
+    # while shifting the response would fit an intercept NEAR the value
+    # asked for, which reads as though the number had been a suggestion.
     assert not fitted.endswith("- 1")
     assert origin.endswith("- 1")
     assert origin.startswith(fitted)
@@ -97,9 +103,41 @@ def test_it_finds_the_control_by_gene_as_well_as_by_guide():
 
 
 def test_the_regression_entry_point_takes_the_setting():
-    """The whole point is that it can be set, so the parameter is there."""
+    """The whole point is that it can be set, so both parameters are
+    there: the mode, and the number the fourth mode pins it at."""
     import inspect
 
     from spacr.ml import regression
 
-    assert "intercept" in inspect.signature(regression).parameters
+    parameters = inspect.signature(regression).parameters
+    assert "intercept" in parameters
+    assert "intercept_value" in parameters
+    assert parameters["intercept"].default == "fitted"
+
+
+def test_a_pinned_intercept_lands_exactly_where_it_was_asked_to():
+    """The arithmetic behind the fourth mode, on a fit with a known answer.
+
+    Shifting the response by c and suppressing the term fits
+    ``y - c = Xb``, which is ``y = c + Xb`` -- so the intercept is c
+    exactly. This builds data whose true intercept is 5, pins it at 2, and
+    checks the slope is unchanged and the fitted line passes through 2.
+    """
+    import numpy as np
+    import statsmodels.api as sm
+
+    x = np.arange(20.0)
+    y = 5.0 + 3.0 * x
+
+    pinned_at = 2.0
+    design = sm.add_constant(x)
+    free = sm.OLS(y, design).fit()
+    held = sm.OLS(y - pinned_at, x.reshape(-1, 1)).fit()
+
+    assert free.params[0] == pytest.approx(5.0)
+    # The pinned fit reconstructs the response as c + slope*x, and the
+    # slope has absorbed the difference rather than the intercept moving.
+    assert float(held.params[0]) == pytest.approx(
+        float(np.sum((y - pinned_at) * x) / np.sum(x * x)))
+    reconstructed = pinned_at + float(held.params[0]) * x
+    assert reconstructed[0] == pytest.approx(pinned_at)

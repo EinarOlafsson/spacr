@@ -721,8 +721,11 @@ def _level_term(level):
 #:            than a departure from a baseline;
 #: 'control'  the response is centred on the negative controls before
 #:            fitting, so the intercept IS the control level and every
-#:            coefficient reads as "above or below the controls".
-INTERCEPT_MODES = ("fitted", "zero", "control")
+#:            coefficient reads as "above or below the controls";
+#: 'value'    the number the user gives. The response is shifted by it and
+#:            the term is suppressed, which pins the intercept at exactly
+#:            that value rather than estimating one near it.
+INTERCEPT_MODES = ("fitted", "zero", "control", "value")
 
 
 def centre_on_controls(df, dependent_variable, nc):
@@ -795,13 +798,16 @@ def prepare_formula(dependent_variable, random_row_column_effects=False,
     level : {'grna', 'gene'}, default='grna'
         Resolution represented by the formula. ``'grna'`` uses
         ``fraction:grna`` and ``'gene'`` uses ``gene_fraction:gene``.
-    intercept : {'fitted', 'zero', 'control'}, default='fitted'
+    intercept : {'fitted', 'zero', 'control', 'value'}, default='fitted'
         What the intercept is. ``'fitted'`` estimates it. ``'zero'`` takes
         it out of the design, so the fit passes through the origin and a
         coefficient is a whole predicted score rather than a departure from
         a baseline. ``'control'`` keeps the term and is completed by the
         caller, which centres the response on the negative controls first --
         the intercept is then the control level by construction.
+        ``'value'`` suppresses the term as well, because the caller has
+        shifted the response by a number the user gave and the intercept is
+        pinned at exactly that number.
     model_plate_position : bool, default=True
         Include plate position in the model. With
         ``random_row_column_effects=False`` it is included as fixed row and
@@ -835,14 +841,20 @@ def prepare_formula(dependent_variable, random_row_column_effects=False,
     if mode not in INTERCEPT_MODES:
         raise ValueError(
             f"intercept={intercept!r} is not one of {list(INTERCEPT_MODES)}. "
-            f"'fitted' estimates it, 'zero' fits through the origin, and "
+            f"'fitted' estimates it, 'zero' fits through the origin, "
             f"'control' centres the response on the negative controls so "
-            f"the intercept is the control level.")
+            f"the intercept is the control level, and 'value' pins it at a "
+            f"number you give.")
     # PATSY'S OWN SUPPRESSION. `- 1` removes the intercept column from the
     # design; there is no other way to say it in a formula, and taking the
     # column out of the design matrix afterwards would leave the formula
     # describing a model that was not the one fitted.
-    origin = ' - 1' if mode == 'zero' else ''
+    #
+    # 'value' SUPPRESSES IT TOO, and that is what pins it. Fitting
+    # `y - c ~ terms - 1` is fitting `y = c + terms`, so the intercept is
+    # exactly c; leaving the term in would estimate one NEAR c instead,
+    # which is not what asking for a number means.
+    origin = ' - 1' if mode in ('zero', 'value') else ''
     if random_row_column_effects and not model_plate_position:
         raise ValueError(
             "model_plate_position=False takes rowID and columnID out of the "
@@ -4395,7 +4407,7 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
                regression_backend=DEFAULT_REGRESSION_BACKEND,
                verbose=False, transform="",
                glm_transform_conflict=DEFAULT_GLM_TRANSFORM_CONFLICT,
-               intercept='fitted'):
+               intercept='fitted', intercept_value=0.0):
     """Run the full regression pipeline: clean, fit, extract coefficients, optional volcano plot.
 
     :param df: Long-format DataFrame with gRNA/gene fractions and the
@@ -4514,7 +4526,8 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     # shifts the response; 'zero' takes the term out of the formula below;
     # 'fitted' does neither and is what every run did before this existed.
     intercept_offset = 0.0
-    if str(intercept or 'fitted').strip().lower() == 'control':
+    intercept_mode = str(intercept or 'fitted').strip().lower()
+    if intercept_mode == 'control':
         df, intercept_offset = centre_on_controls(df, dependent_variable, nc)
         if intercept_offset:
             print(f"Intercept set to the negative controls: {dependent_variable} "
@@ -4524,6 +4537,19 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
             print(f"Intercept left as fitted: no rows match "
                   f"negative_control={nc!r}, so there is no control level to "
                   f"centre on.")
+    elif intercept_mode == 'value':
+        # PINNED, NOT NUDGED. Shifting the response by the number and
+        # suppressing the term fits `y = c + terms`, so the intercept is
+        # exactly what was asked for -- an estimated one would land near it
+        # and read as though the number had been a suggestion.
+        intercept_offset = float(intercept_value or 0.0)
+        if intercept_offset:
+            df = df.copy()
+            df[dependent_variable] = (
+                np.asarray(df[dependent_variable], dtype=float)
+                - intercept_offset)
+        print(f"Intercept pinned at {intercept_offset:.6g}: every "
+              f"coefficient reads as its distance from that value.")
 
     # The QC report needs the design that was fitted. The mixed branch below
     # never builds one -- fit_mixed_model takes the formula and the frame and
