@@ -19,6 +19,7 @@ from PySide6.QtGui import QAction, QColor, QIcon, QKeySequence, QPalette
 from PySide6.QtWidgets import (
     QApplication,
     QFrame,
+    QMenu,
     QHBoxLayout,
     QLabel,
     QMainWindow,
@@ -701,12 +702,17 @@ _BUILTIN_APPS = [
     ("motility",       "Motility Assay", "Automated motility assay: track velocity + infection QC",     SECTION_CORE),
     ("measure",        "Measure",        "Measure single-object intensity + morphology features",       SECTION_CORE),
     ("annotate",       "Annotate",       "Annotate single-object images on a grid; save to database",  SECTION_CORE),
-    # The merged module, and both originals. Keeping the originals is
-    # deliberate: a merged screen that replaced them would strand every
-    # saved settings CSV and every notebook importing their entry points.
+    # ONE CLASSIFY SCREEN. "Classify (CV)" and "Classify (ML)" were the two
+    # originals kept beside the merged one so a saved settings CSV would
+    # keep working -- but three entries for one job is three places to look
+    # and two of them are the same run with half the choices. Removed on
+    # 2026-08-23 at the maintainer's instruction.
+    #
+    # THE ENTRY POINTS ARE UNTOUCHED: `deep_spacr` and `generate_ml_scores`
+    # are what `classify.classify` dispatches to, so a notebook importing
+    # either still works and a settings CSV for either still runs -- through
+    # the one screen, which reads `classifier_family`.
     ("classify_merged", "Classify",      "Train a classifier on single objects - Torch on crops, or gradient boosting on measured features", SECTION_CORE),
-    ("classify",       "Classify (CV)",  "Train Torch CNNs/Transformers to classify single objects",   SECTION_CORE),
-    ("ml_analyze",     "Classify (ML)",  "Classical ML (XGBoost / random forest / …) on screen features", SECTION_CORE),
     ("map_barcodes",   "Map Barcodes",   "Map sequencing barcodes to screen data",                      SECTION_CORE),
     ("regression",     "Regression",     "Regression analysis of screen scores",                        SECTION_CORE),
     # -- Data & batch runs: get images and tables into a spaCR project,
@@ -1667,7 +1673,28 @@ class MainWindow(QMainWindow):
         """
         from PySide6.QtWidgets import QToolButton
 
-        button = QToolButton(self)
+        # TOP RIGHT, minimise then full screen -- the order a title bar
+        # puts them in. Closing is not here: Quit is in the spaCR menu with
+        # its usual shortcut, and a stray click on an x mid-analysis costs
+        # more than reaching for the menu does.
+        from PySide6.QtWidgets import QHBoxLayout, QWidget
+
+        corner = QWidget(self)
+        row = QHBoxLayout(corner)
+        row.setContentsMargins(0, 0, 6, 0)
+        row.setSpacing(2)
+
+        minimise = QToolButton(corner)
+        minimise.setObjectName("MinimiseWindow")
+        minimise.setAutoRaise(True)
+        minimise.setCursor(Qt.CursorShape.PointingHandCursor)
+        minimise.setIcon(self._minimise_icon())
+        minimise.setToolTip("Minimise")
+        minimise.clicked.connect(self.showMinimized)
+        row.addWidget(minimise)
+        self._minimise_button = minimise
+
+        button = QToolButton(corner)
         button.setObjectName("FullScreenToggle")
         button.setAutoRaise(True)
         button.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -1676,8 +1703,11 @@ class MainWindow(QMainWindow):
                           "drag the menu bar to move it, and Quit is in the "
                           "spaCR menu.")
         button.clicked.connect(self.toggle_fullscreen)
-        self.menuBar().setCornerWidget(button, Qt.Corner.TopLeftCorner)
+        row.addWidget(button)
         self._fullscreen_button = button
+
+        self.menuBar().setCornerWidget(corner, Qt.Corner.TopRightCorner)
+        self._window_buttons = corner
 
         # THE MENU BAR IS THE TITLE BAR NOW. Without this the window cannot
         # be moved at all, which is a worse trade than the bar it replaced.
@@ -1688,6 +1718,23 @@ class MainWindow(QMainWindow):
         action.setShortcut(QKeySequence("F11"))
         action.triggered.connect(self.toggle_fullscreen)
         self.addAction(action)
+
+    @staticmethod
+    def _minimise_icon(size: int = 18):
+        """A single rule, drawn low, the way a minimise mark is."""
+        from PySide6.QtGui import QIcon, QPainter, QPen, QPixmap
+
+        pixmap = QPixmap(size, size)
+        pixmap.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        pen = QPen(Qt.GlobalColor.gray)
+        pen.setWidthF(1.6)
+        painter.setPen(pen)
+        pad = size * 0.22
+        painter.drawLine(pad, size * 0.66, size - pad, size * 0.66)
+        painter.end()
+        return QIcon(pixmap)
 
     @staticmethod
     def _fullscreen_icon(size: int = 18):
@@ -1805,7 +1852,13 @@ class MainWindow(QMainWindow):
         #: a menu entry that says so.
         self._act_all_apps = act_all
 
-        demo_menu = mb.addMenu("&Demos")
+        # DEMOS LIVES UNDER HELP. A demo is something you reach for when
+        # you are learning what a module does, which is what the Help menu
+        # is for, and it was taking a top-level slot on a bar that has to
+        # stay short. Built here, before Help, and added to it below --
+        # the submenu is the same QMenu either way.
+        demo_menu = QMenu("&Demos", self)
+        self._demo_menu = demo_menu
         self._demo_actions: dict[str, QAction] = {}
         for app_key, label in DEMO_LABELS.items():
             act = QAction(label, self)
@@ -1827,6 +1880,8 @@ class MainWindow(QMainWindow):
         demo_menu.addAction(act_e2e)
 
         help_menu = mb.addMenu("&Help")
+        help_menu.addMenu(demo_menu)
+        help_menu.addSeparator()
         # THE HOTKEY MAP, FIRST (197). Asked for 2026-08-21: "add hotkey map
         # to help tab".
         #

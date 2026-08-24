@@ -39,7 +39,7 @@ unstable estimates from undersized batches.
 For ``control_center``, ``batch_control_column`` identifies the metadata field
 that contains the controls and ``batch_control_values`` selects one or more
 reference values. When blank, Image UMAP follows ``col_to_compare``/``neg``
-and Classify (ML) follows ``location_column``/``negative_control``.
+and Classify's ML family follows ``location_column``/``negative_control``.
 Regression requires an explicit reference value.
 ``batch_missing_control=error`` is the safe default;
 ``skip`` leaves an affected plate unchanged and records a warning.

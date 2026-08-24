@@ -105,7 +105,10 @@ class TestCallSitesUseTheNewName:
     def test_no_stale_call_sites(self, module):
         import pathlib
         import spacr
-        path = pathlib.Path(spacr.__file__).parent / f"{module}.py"
+        # The Tk GUI lives in its own subpackage now; the shim at the old
+        # path carries the names but not the source these assertions read.
+        path = (pathlib.Path(spacr.__file__).parent / "legacy_tk"
+                / f"{module}.py")
         source = path.read_text(encoding="utf-8")
         assert "set_dark_style" not in source, \
             f"{module}.py still calls set_dark_style"

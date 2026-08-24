@@ -55,6 +55,20 @@ HEADLESS_ONLY = {
     "endodyogeny": "the legacy area-derived size proxy remains headless; the "
                    "Replication button runs the parasite-count assay",
     "simulation": "the pooled-screen simulator, which has no GUI screen at all",
+    # THE TWO CLASSIFY SCREENS WERE REMOVED, their entry points were not.
+    # "Classify (CV)" and "Classify (ML)" were the originals kept beside the
+    # merged screen; three entries for one job is three places to look, and
+    # two of them are the same run with half the choices. Removed from the
+    # app registry on 2026-08-23.
+    #
+    # They stay in `cli.MODULES` and `validate.APP_FUNCTIONS` on purpose: a
+    # settings CSV written for either still runs, and a notebook importing
+    # `deep_spacr` or `generate_ml_scores` still works. The merged screen
+    # dispatches to exactly those two functions, so nothing is duplicated --
+    # only the second and third front doors are gone.
+    "classify": "the CV half of Classify, still runnable headless and from a "
+                "settings CSV; the Classify screen is the GUI for it",
+    "ml_analyze": "the ML half of Classify, same arrangement as `classify`",
 }
 
 

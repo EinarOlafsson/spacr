@@ -72,6 +72,17 @@ INSET = 0
 #: enough to leave the band the rim runs along clear.
 RIM_ROOM = 10
 
+#: Corner radius of a glassed dialog, shared by the card and the backdrop.
+#:
+#: ONE NUMBER FOR TWO SURFACES. They are the same rectangle, so they must
+#: round by the same amount or the backdrop's corners show past the card's.
+#: This is `SetupCard`'s own default, named here so the backdrop can be told
+#: the same thing.
+CARD_RADIUS = 18
+
+#: Marks a dialog that has already been told how to close itself.
+CLOSE_HINT = "spacrSaysPressEscape"
+
 #: Widget types that keep their own background.
 #:
 #: THE CONTROLS, not the containers. A combo you can see through is a combo
@@ -401,7 +412,12 @@ def glass(dialog: QDialog) -> bool:
         # is what "the same transparent background" means here.
         backdrop = _install_the_backdrop(dialog)
 
-        card = SetupCard(dialog)
+        # THE DIALOG PAINTS NOTHING OF ITS OWN. Without this its square
+        # background shows around the card wherever the card does not
+        # reach -- the black box behind the periphery.
+        _paint_nothing_behind_the_card(dialog)
+
+        card = SetupCard(dialog, radius=CARD_RADIUS)
         # BEHIND THE CONTENTS, IN FRONT OF THE BACKDROP, and never in the
         # layout: it is not added to one at all, because a backdrop that
         # took part in a layout would push the dialog's own contents
@@ -432,6 +448,7 @@ def glass(dialog: QDialog) -> bool:
         except Exception:                                    # noqa: BLE001
             LOG.debug("a dialog had no verdict to follow", exc_info=True)
         _Backdrop(dialog, card)
+        _say_how_to_close_it(dialog)
         clear_the_containers(dialog)
         dialog.setProperty(GLASSED, True)
         return True
@@ -459,6 +476,51 @@ def _make_room_for_the_rim(dialog: QDialog) -> bool:
         return True
     except Exception:                                        # noqa: BLE001
         LOG.debug("could not make room for the rim", exc_info=True)
+        return False
+
+
+def _say_how_to_close_it(dialog: QDialog) -> bool:
+    """Add "press Escape to close" to a dialog that has no way to be closed.
+
+    Glassing makes a dialog FRAMELESS, so its title bar goes and with it the
+    x. A dialog with an OK or a Close button is fine -- that button is the
+    way out and always was. One WITHOUT any button is not: "if i press about
+    spacr now i cannot close the window because there is no close button".
+
+    Only added where it is needed, and only once. A hint under a form that
+    already has a Cancel button is noise, and noise on every dialog is how a
+    hint stops being read.
+
+    :returns: whether a hint was added.
+    """
+    from PySide6.QtWidgets import (QAbstractButton, QDialogButtonBox, QLabel,
+                                   QVBoxLayout)
+
+    if dialog.property(CLOSE_HINT):
+        return False
+    # A BUTTON THAT CLOSES IT is any button at all: every dialog button box
+    # rejects or accepts, and a bare button in a dialog with no box is what
+    # a hand-built OK looks like.
+    if dialog.findChildren(QDialogButtonBox) or dialog.findChildren(
+            QAbstractButton):
+        return False
+    layout = dialog.layout()
+    if not isinstance(layout, QVBoxLayout):
+        return False
+    try:
+        from ..i18n import tr
+
+        hint = QLabel(tr("press Escape to close"), dialog)
+        hint.setObjectName("Muted")
+        hint.setAlignment(Qt.AlignHCenter)
+        # SMALL, as asked. It is a reminder, not a control.
+        hint.setStyleSheet("font-size: 10px;")
+        hint.setAttribute(Qt.WA_TransparentForMouseEvents, True)
+        layout.addWidget(hint)
+        dialog.setProperty(CLOSE_HINT, True)
+        return True
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not add the close hint", exc_info=True)
         return False
 
 
@@ -492,7 +554,12 @@ def _install_the_backdrop(dialog: QDialog) -> Optional[QWidget]:
         from .ambient import install_ambient
         from .setup_slides import BACKDROP_SPEED
 
-        return install_ambient(dialog, theme=theme, speed=BACKDROP_SPEED)
+        # ROUNDED TO THE CARD'S RADIUS, for the reason the setup window
+        # needed it: a SQUARE backdrop behind a rounded card is a second
+        # surface, and it is exactly the "non rounded edge black box behind
+        # the periphery" reported on About spaCR and the live mask settings.
+        return install_ambient(dialog, theme=theme, speed=BACKDROP_SPEED,
+                               corner_radius=CARD_RADIUS)
     except Exception:                                        # noqa: BLE001
         # INVARIANTS 10: with no ambient engine the card is still a card,
         # and the dialog still works.

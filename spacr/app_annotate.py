@@ -1,68 +1,18 @@
-"""Legacy annotation application and database update helpers."""
+"""Compatibility shim: this module now lives in :mod:`spacr.legacy_tk`.
 
-from .gui import MainApp
+The Tkinter GUI was gathered into one subpackage so it no longer sits beside
+the analysis code. This name is kept because setup.py's console scripts and
+every existing notebook import it from this path.
 
-def convert_to_number(value):
-    """Return ``value`` coerced to ``int`` when possible, else ``float``.
+IT IS THE SAME MODULE OBJECT, not a copy of its names. Re-exporting with
+`import *` would give two modules with two copies of every attribute, and
+patching one would not be seen by the other -- which is exactly what a test
+that monkeypatches `spacr.gui_elements.apply_theme` needs to work. Binding
+the old name in `sys.modules` makes `spacr.gui_elements` and
+`spacr.legacy_tk.gui_elements` one object with one identity.
+"""
+import sys
 
-    :param value: String or number-like value to convert.
-    :returns: ``int`` when parseable as integer, otherwise ``float``.
-    :raises ValueError: When ``value`` is neither an integer nor a float literal.
-    """
-    try:
-        return int(value)
-    except ValueError:
-        try:
-            return float(value)
-        except ValueError:
-            raise ValueError(f"Unable to convert '{value}' to an integer or float.")
+from .legacy_tk import app_annotate as _real
 
-def initiate_annotation_app(parent_frame):
-    """Prompt for an experiment directory and launch the AnnotateApp settings window.
-
-    Bootstraps the annotation UI by picking a ``src`` directory, verifying the
-    measurements database, then handing off to ``AnnotateApp.open_settings_window``.
-
-    :param parent_frame: Tk widget that owns the modal dialogs and Toplevel window.
-    :returns: The created ``AnnotateApp`` instance, or ``None`` if the user cancelled.
-    """
-    import os
-    import tkinter as tk
-    from tkinter import filedialog, messagebox, ttk
-    from .gui_elements import set_dark_style, AnnotateApp
-
-    # 1. Pick src (the only thing we need before instantiation)
-    src = filedialog.askdirectory(parent=parent_frame, title="Select experiment directory")
-    if not src or not os.path.isdir(src):
-        return  # user cancelled
-
-    db_path = os.path.join(src, 'measurements', 'measurements.db')
-    if not os.path.isfile(db_path):
-        if not messagebox.askyesno(
-            "Database not found",
-            f"No file at {db_path}. Continue anyway?",
-            parent=parent_frame,
-        ):
-            return
-
-    # 2. Create the AnnotateApp window with defaults; user refines later.
-    root = tk.Toplevel(parent_frame)
-    root.title("Annotate")
-    style_out = set_dark_style(ttk.Style())
-    root.configure(bg=style_out['bg_color'])
-
-    app = AnnotateApp(root=root, db_path=db_path, src=src)
-
-    # 3. Hand off to the single source-of-truth settings UI.
-    app.open_settings_window()
-
-    return app
-
-
-def start_annotate_app():
-    """Launch the main spacr GUI with the Annotate tab preselected."""
-    app = MainApp(default_app="Annotate")
-    app.mainloop()
-
-if __name__ == "__main__":
-    start_annotate_app()
+sys.modules[__name__] = _real

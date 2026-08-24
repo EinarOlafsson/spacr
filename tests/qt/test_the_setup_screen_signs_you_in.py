@@ -8,12 +8,14 @@ prompt forever while the dialog described a browser that never opened.
 spaCR now reads the code out of `gh`'s output, shows it, opens GitHub's
 device page itself, and answers the prompt so `gh` goes on to poll.
 
-THE AI PROVIDERS. Clicking one only ticked it. The colour of a mark meant
-"the CLI is on PATH", so a provider that was installed and signed out
-looked exactly like one ready to answer. The colour is the SIGN-IN state
-now, and choosing a provider starts its login -- in a terminal, because
-these logins are conversations and starting them without one is the same
-mistake the GitHub button was making.
+THE AI PROVIDERS. Clicking one only ticked it, and the colour of a mark
+meant "the CLI is on PATH" -- so installed-and-signed-out looked exactly
+like ready. There are three states now (ready / signed out / not
+installed), the brand FILL is what ready looks like, an unready mark shows
+its brand colour only on hover, and choosing one opens a dialog that says
+what it needs and offers to do it: open the install page, or run the sign-in
+in a terminal. A note under the row was not enough -- "there is no popup no
+prompt for installing or any guidance".
 
 GitHub gets a mark of its own for the same reason, monochrome because its
 logo is: grey signed out, GitHub's black signed in.
@@ -153,17 +155,41 @@ class _StubProvider:
 
 @pytest.fixture
 def stub_gpt(monkeypatch):
-    from spacr.qt.ai import providers
+    """GPT, in whatever state a test wants it.
 
+    Patched on `SetupSlides._provider_object` rather than on the registry:
+    the screen calls OpenAI's provider `gpt` and `ai.providers` files it
+    under `codex`, and the resolver that bridges the two is what every code
+    path here goes through.
+    """
     holder = {"provider": _StubProvider()}
-    real = providers.get_provider
     monkeypatch.setattr(
-        providers, "get_provider",
-        lambda name: holder["provider"] if name == "gpt" else real(name))
+        SetupSlides, "_provider_object",
+        staticmethod(lambda code, command="": holder["provider"]
+                     if str(code) in ("gpt", "codex") else None))
     return holder
 
 
-def test_choosing_a_signed_out_provider_starts_its_login(slides, stub_gpt):
+@pytest.fixture
+def answer_the_dialog(monkeypatch):
+    """Press the dialog's first accepting button, whatever it is."""
+    from PySide6.QtWidgets import QMessageBox
+
+    def press(self):
+        for button in self.buttons():
+            if self.buttonRole(button) == QMessageBox.ButtonRole.AcceptRole:
+                self.setProperty("_pressed", button)
+                return 0
+        return 0
+
+    monkeypatch.setattr(QMessageBox, "exec", press)
+    monkeypatch.setattr(QMessageBox, "clickedButton",
+                        lambda self: self.property("_pressed"))
+
+
+def test_choosing_a_signed_out_provider_offers_to_sign_it_in(
+        slides, stub_gpt, answer_the_dialog):
+    stub_gpt["provider"] = _StubProvider(installed=True, logged_in=False)
     launched = []
     slides._run_in_a_terminal = lambda cmd: (launched.append(cmd), True)[1]
 
@@ -173,7 +199,8 @@ def test_choosing_a_signed_out_provider_starts_its_login(slides, stub_gpt):
     assert "GPT" in note
 
 
-def test_a_signed_in_provider_is_not_asked_to_log_in_again(slides, stub_gpt):
+def test_a_signed_in_provider_is_not_asked_to_log_in_again(
+        slides, stub_gpt, answer_the_dialog):
     stub_gpt["provider"] = _StubProvider(installed=True, logged_in=True)
     launched = []
     slides._run_in_a_terminal = lambda cmd: (launched.append(cmd), True)[1]
@@ -182,19 +209,25 @@ def test_a_signed_in_provider_is_not_asked_to_log_in_again(slides, stub_gpt):
     assert launched == []
 
 
-def test_an_uninstalled_provider_says_so_instead(slides, stub_gpt):
+def test_an_uninstalled_provider_is_offered_its_install_page(
+        slides, stub_gpt, answer_the_dialog):
+    """"Install" is a thing a click can do, on every operating system."""
     stub_gpt["provider"] = _StubProvider(installed=False)
-    launched = []
+    opened, launched = [], []
+    slides._open_in_the_browser = lambda url: (opened.append(url), True)[1]
     slides._run_in_a_terminal = lambda cmd: (launched.append(cmd), True)[1]
 
     note = slides._start_provider_login("gpt")
 
-    assert "codex" in note and "not installed" in note
-    assert launched == []
+    assert opened == [SetupSlides.PROVIDER_PAGES["gpt"]]
+    assert launched == [], "an uninstalled CLI cannot be signed in to"
+    assert "browser" in note
 
 
-def test_with_no_terminal_the_command_is_named(slides, stub_gpt):
+def test_with_no_terminal_the_command_is_named(slides, stub_gpt,
+                                               answer_the_dialog):
     """Naming it beats starting it where its prompts cannot be answered."""
+    stub_gpt["provider"] = _StubProvider(installed=True, logged_in=False)
     slides._run_in_a_terminal = lambda cmd: False
 
     note = slides._start_provider_login("gpt")
@@ -202,16 +235,36 @@ def test_with_no_terminal_the_command_is_named(slides, stub_gpt):
     assert "codex login" in note
 
 
-def test_the_mark_colour_means_signed_in_not_installed(slides, stub_gpt):
-    """An installed-but-signed-out provider must not look ready."""
-    assert SetupSlides._provider_is_signed_in("gpt", "codex") is False
+@pytest.mark.parametrize("installed,logged_in,expected", [
+    (True, True, "ready"),
+    (True, False, "signed out"),
+    (False, False, "not installed"),
+])
+def test_the_three_states_are_told_apart(slides, stub_gpt, installed,
+                                         logged_in, expected):
+    """They need three different things from the user, so they are three."""
+    stub_gpt["provider"] = _StubProvider(installed, logged_in)
 
-    stub_gpt["provider"] = _StubProvider(installed=True, logged_in=True)
-    assert SetupSlides._provider_is_signed_in("gpt", "codex") is True
+    assert SetupSlides.provider_status("gpt", "codex") == expected
 
 
-def test_clicking_a_mark_selects_it_and_recolours_the_strip(slides, stub_gpt):
+def test_only_a_ready_provider_is_filled_with_its_brand_colour(qapp):
+    """"GPT and Gemini should only get their color fill when installed"."""
+    ready = ProviderMark("gpt", "GPT", True, None, status="ready")
+    unready = ProviderMark("gpt", "GPT", False, None, status="not installed")
+
+    assert BRAND["gpt"].lower() in ready._colours()[0].name().lower()
+    assert BRAND["gpt"].lower() not in unready._colours()[0].name().lower()
+
+    # And hovering an unready one shows the brand colour behind it.
+    unready._hovered = True
+    assert BRAND["gpt"].lower() in unready._colours()[1].name().lower()
+
+
+def test_clicking_a_mark_selects_it_and_recolours_the_strip(
+        slides, stub_gpt, answer_the_dialog):
     slides._run_in_a_terminal = lambda cmd: True
+    slides._open_in_the_browser = lambda url: True
     holder = slides._provider_buttons("")
 
     slides._choose_provider(holder, "gpt")
