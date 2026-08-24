@@ -32,12 +32,21 @@ def slides(qtbot):
 def test_refreshing_a_closed_dialog_is_a_no_op(slides, qtbot, qapp):
     """The exact crash: `finished` arriving after the screen is gone."""
     refresh = slides._refresh_github
+    status = slides._gh_status
+    before = status.text()
     slides.close()
     slides.deleteLater()
     for _ in range(3):
         qapp.processEvents()
 
     refresh()   # must not raise
+
+    # AND IT DID NOTHING, which is the other half. A guard that swallowed
+    # the exception while still writing to a deleted widget would pass a
+    # "does not raise" test and crash under a real Qt event loop.
+    from shiboken6 import isValid
+
+    assert not isValid(status) or status.text() == before
 
 
 def test_a_live_dialog_still_refreshes(slides, monkeypatch):
