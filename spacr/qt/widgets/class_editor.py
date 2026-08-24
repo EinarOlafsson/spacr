@@ -24,6 +24,7 @@ from ...classify_classes import (
     METADATA_COLUMNS, ClassDefinitionError, ClassRule, candidate_columns,
     values_in,
 )
+from ..i18n import set_translatable_text
 from ..theme import SPACING, register_widget_qss
 
 LOG = logging.getLogger("spacr.qt.class_editor")
@@ -267,9 +268,11 @@ class ClassEditorWidget(QWidget):
         self._add.setEnabled(bool(self.column.currentText().strip())
                              and frame is not None)
         if frame is None:
-            self._say("Load a table, or press SQL to read the column names "
-                      "out of the database, to fill classes in from a "
-                      "column.")
+            set_translatable_text(
+                self._hint,
+                "Load a table, or press SQL to read the column "
+                "names out of the database, to fill classes in "
+                "from a column.")
 
     def attach_sql_picker(self, db_path_getter, table: str = "png_list"):
         """Add a database-backed column picker beside the column field.
@@ -402,11 +405,12 @@ class ClassEditorWidget(QWidget):
         name = self.class_field.text().strip()
         value = self.value_field.text().strip()
         if not name:
-            self._say("give the class a name first")
+            set_translatable_text(self._hint, "give the class a name first")
             return
         column = self.column.currentText().strip()
         if not column:
-            self._say("choose the column the value comes from")
+            set_translatable_text(
+                self._hint, "choose the column the value comes from")
             return
         if not value:
             self._say(f"give {name!r} a value in {column!r}, or use "
@@ -436,8 +440,10 @@ class ClassEditorWidget(QWidget):
 
     def add_random_complement(self) -> None:
         if any(r.random_complement for r in self._rules):
-            self._say("there is already a random-rest class; two classes both "
-                      "meaning 'everything else' have no boundary between them")
+            set_translatable_text(
+                self._hint,
+                "there is already a random-rest class; two classes both "
+                "meaning 'everything else' have no boundary between them")
             return
         self._rules.append(ClassRule(name="rest", random_complement=True))
         self._rebuild()
@@ -516,6 +522,19 @@ class ClassEditorWidget(QWidget):
         self.value_changed.emit(self.value())
 
     def _say(self, message: str) -> None:
+        """Show a hint built from data — a column name, a count, an error.
+
+        The message is shown verbatim. Sending it through the translator
+        would rewrite the user's own column names and values word by word,
+        so a class on ``control`` would report itself as ``Kontroll``.
+        """
+        # Two things would otherwise rewrite this line on a language pass:
+        # the source a fixed sentence leaves behind, which would come back
+        # over this one, and the general label walk, which translates known
+        # words wherever it finds them. A fixed sentence set later still
+        # retranslates -- its template is consulted before the opt-out.
+        self._hint.setProperty("_spacr_i18n_text_template", None)
+        self._hint.setProperty("i18nSkipText", True)
         self._hint.setText(message)
 
 
