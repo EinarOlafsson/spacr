@@ -929,6 +929,14 @@ class WellSelection:
     n_in_window: int
     n_selected: int
     note: str = ""
+    #: The fraction that was actually multiplied to reach ``n_expected``.
+    #:
+    #: `fraction` is the guide's RAW share of the well; when the fractions
+    #: are normalised, the count is reached with the normalised one, and a
+    #: line printing the raw fraction beside the normalised count states an
+    #: equation that is false -- "round(105 x 0.0205) = 27" was on screen,
+    #: where the arithmetic gives 2. None means the two are the same.
+    share: Optional[float] = None
 
     @property
     def contributed(self) -> bool:
@@ -936,9 +944,14 @@ class WellSelection:
         return self.n_selected > 0
 
     def describe(self) -> str:
-        """Return the one-line account of this well's contribution."""
+        """Return the one-line account of this well's contribution.
+
+        The fraction shown is the one the count was reached with, so the
+        equation on screen is one the reader can check.
+        """
+        used = self.fraction if self.share is None else self.share
         line = (f"{self.well}: {self.n_selected} of "
-                f"round({self.n_objects} x {self.fraction:.4g}) = "
+                f"round({self.n_objects} x {used:.4g}) = "
                 f"{self.n_expected}")
         return f"{line} -- {self.note}" if self.note else line
 
@@ -1880,7 +1893,8 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
         selections.append(WellSelection(
             well=label, fraction=fraction, n_objects=n_objects,
             n_reported=n_reported, n_expected=expected,
-            n_in_window=n_in_window, n_selected=n_taken, note=note))
+            n_in_window=n_in_window, n_selected=n_taken, note=note,
+            share=float(share) if _by_rank else None))
         if n_taken:
             chosen.append(take)
 
@@ -1905,7 +1919,7 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
                 well=well.well, fraction=well.fraction,
                 n_objects=well.n_objects, n_reported=well.n_reported,
                 n_expected=well.n_expected, n_in_window=well.n_in_window,
-                n_selected=kept, note=note))
+                n_selected=kept, note=note, share=well.share))
         selections = trimmed
         picked = keep
 

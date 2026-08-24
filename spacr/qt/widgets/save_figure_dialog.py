@@ -9,8 +9,8 @@ from typing import Optional
 
 from PySide6.QtWidgets import (QCheckBox, QComboBox, QDialog, QDialogButtonBox,
                                QDoubleSpinBox, QFileDialog, QFormLayout,
-                               QHBoxLayout, QLabel, QPushButton, QSpinBox,
-                               QVBoxLayout, QWidget)
+                               QHBoxLayout, QLabel, QLineEdit, QPushButton,
+                               QSpinBox, QVBoxLayout, QWidget)
 
 LOG = logging.getLogger("spacr.qt.save_figure")
 
@@ -251,6 +251,64 @@ class SaveFigureDialog(QDialog):
         self.grid.toggled.connect(self.refresh)
         form.addRow("", self.grid)
 
+        # WHAT THE RIGHT-CLICK MENU OFFERS, AND MORE. A file is read at a
+        # size and on a page the screen never had, so the things worth
+        # changing for it are not the things worth changing on screen:
+        # the proportions, how heavy the ink is at print size, and what the
+        # axes are CALLED in a figure that has left the application.
+        #
+        # Each is empty or zero by default, and an untouched control
+        # changes nothing -- so a user who wants the figure as it looks
+        # still gets it in one click.
+        self.aspect = QDoubleSpinBox()
+        self.aspect.setRange(0.0, 20.0)
+        self.aspect.setDecimals(3)
+        self.aspect.setSingleStep(0.1)
+        self.aspect.setSpecialValueText("as drawn")
+        self.aspect.setToolTip(
+            "Lock one y unit to this many x units. 'as drawn' leaves the "
+            "proportions the plot already has; 1 makes the units square, "
+            "which is what a Q-Q or a diagonal needs to mean anything.")
+        self.aspect.valueChanged.connect(self.refresh)
+        form.addRow("aspect ratio", self.aspect)
+
+        self.line_width = QDoubleSpinBox()
+        self.line_width.setRange(0.0, 20.0)
+        self.line_width.setDecimals(1)
+        self.line_width.setSingleStep(0.5)
+        self.line_width.setSpecialValueText("as drawn")
+        self.line_width.setToolTip(
+            "Pen width in pixels for every line. A line that reads well on "
+            "screen is often too thin once the figure is a column wide.")
+        self.line_width.valueChanged.connect(self.refresh)
+        form.addRow("line width", self.line_width)
+
+        self.text_px = QSpinBox()
+        self.text_px.setRange(0, 72)
+        self.text_px.setSpecialValueText("as drawn")
+        self.text_px.setToolTip(
+            "Point size for labels, ticks and the title. This is an "
+            "absolute size, where 'text scale' above multiplies whatever "
+            "the plot already uses.")
+        self.text_px.valueChanged.connect(self.refresh)
+        form.addRow("text size", self.text_px)
+
+        self.x_title = QLineEdit()
+        self.x_title.setPlaceholderText("as drawn")
+        self.x_title.setToolTip(
+            "The x-axis title in the saved file. The plot on screen keeps "
+            "the one it has.")
+        self.x_title.textChanged.connect(self.refresh)
+        form.addRow("x axis title", self.x_title)
+
+        self.y_title = QLineEdit()
+        self.y_title.setPlaceholderText("as drawn")
+        self.y_title.setToolTip(
+            "The y-axis title in the saved file. The plot on screen keeps "
+            "the one it has.")
+        self.y_title.textChanged.connect(self.refresh)
+        form.addRow("y axis title", self.y_title)
+
         # Text scale is applied to a fresh copy on every preview refresh.
         self.font_scale = QDoubleSpinBox()
         self.font_scale.setRange(0.25, 4.0)
@@ -383,6 +441,26 @@ class SaveFigureDialog(QDialog):
         self._holder.addWidget(self._canvas)
         return self._preview
 
+    def _extra_styling(self) -> dict:
+        """The styling knobs that are only for the file, as keywords.
+
+        A control left at its special value is left OUT rather than passed
+        as zero: the render treats "no value" as "keep what the plot has",
+        and passing zero would mean "make it zero".
+        """
+        out: dict = {}
+        if self.aspect.value() > 0:
+            out["aspect"] = float(self.aspect.value())
+        if self.line_width.value() > 0:
+            out["line_width"] = float(self.line_width.value())
+        if self.text_px.value() > 0:
+            out["font_size"] = int(self.text_px.value())
+        if self.x_title.text().strip():
+            out["x_title"] = self.x_title.text().strip()
+        if self.y_title.text().strip():
+            out["y_title"] = self.y_title.text().strip()
+        return out
+
     def _refresh_fast_plot(self):
         """Build a fast-plot preview through its styled snapshot protocol.
 
@@ -397,7 +475,8 @@ class SaveFigureDialog(QDialog):
                 760,
                 ink=str(self.ink.currentData() or ""),
                 background=str(self.background.currentData() or ""),
-                grid=self.grid.isChecked())
+                grid=self.grid.isChecked(),
+                **self._extra_styling())
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not preview the plot", exc_info=True)
         self._clear_holder()
@@ -454,7 +533,8 @@ class SaveFigureDialog(QDialog):
                     chosen,
                     ink=str(self.ink.currentData() or ""),
                     background=str(self.background.currentData() or ""),
-                    grid=self.grid.isChecked())
+                    grid=self.grid.isChecked(),
+                    **self._extra_styling())
             except Exception:                                # noqa: BLE001
                 LOG.debug("could not save the plot", exc_info=True)
                 return ""
