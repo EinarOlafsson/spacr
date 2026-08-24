@@ -134,3 +134,61 @@ def _below(bounds, across, down):
     from PySide6.QtCore import QPointF
 
     return QPointF(bounds.width() * across, bounds.height() * down)
+
+
+def test_the_corner_arc_shows_no_more_of_the_backdrop_than_the_middle(qapp,
+                                                                      monkeypatch):
+    """No blue crescent on the rounded parts.
+
+    The card's body used to be painted on a rect inset by a pixel while
+    the backdrop behind it was not, so a ring of pure backdrop showed
+    round the edge -- a hairline along the straight sides, half again as
+    wide across each corner's diagonal, where it read as a blue crescent
+    on every rounded part.
+
+    Measured as a COMPARISON. The body is translucent on purpose, so an
+    absolute reading cannot tell a gap from the glass; what matters is
+    that a pixel on the corner arc lets no more through than one in the
+    middle.
+    """
+    from PySide6.QtCore import QPoint
+    from PySide6.QtGui import QColor, QImage
+    from PySide6.QtWidgets import QDialog
+
+    from spacr.qt import preferences as prefs, theme
+    from spacr.qt.widgets.glass import CARD_RADIUS, round_the_corners
+    from spacr.qt.widgets.setup_card import SetupCard
+
+    monkeypatch.setattr(prefs, "resolve_effective_theme", lambda: "dark")
+    qapp.setStyleSheet(theme.stylesheet("dark"))
+    card = SetupCard(radius=CARD_RADIUS)
+    card.resize(400, 300)
+    card.show()
+    qapp.processEvents()
+
+    def ground_showing(point):
+        readings = []
+        for ground in ("#000000", "#ffffff"):
+            image = QImage(card.size(), QImage.Format_ARGB32_Premultiplied)
+            image.fill(QColor(ground))
+            card.render(image)
+            readings.append(image.pixelColor(point).lightness())
+        return (readings[1] - readings[0]) / 255.0
+
+    holder = QDialog()
+    holder.resize(400, 300)
+    round_the_corners(holder, CARD_RADIUS)
+    mask = holder.mask()
+
+    middle = ground_showing(QPoint(200, 150))
+    on_the_arc = [QPoint(x, y) for x, y in
+                  ((4, 10), (10, 4), (389, 10), (10, 289), (5, 12))
+                  if mask.contains(QPoint(x, y))]
+    assert on_the_arc, "no sampled point is inside the mask"
+
+    for point in on_the_arc:
+        extra = ground_showing(point) - middle
+        assert extra < 0.05, (
+            f"{point} lets {extra:+.3f} more of the ground through than the "
+            f"middle does -- that is the crescent")
+    card.hide()

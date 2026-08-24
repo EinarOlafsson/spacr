@@ -3017,6 +3017,62 @@ def retranslate_widget_tree(root, language: Optional[str] = None) -> None:
         pass
 
 
+#: Our language codes mapped to the ones Qt names its own catalogs by.
+#:
+#: Qt ships `qtbase_<code>.qm` for its OWN strings -- the words in a file
+#: dialog, a message box's buttons, and the Copy/Paste/Select All that
+#: every text field offers on right-click. None of those are spaCR's to
+#: translate, and without this they stay English on a Swedish screen.
+#:
+#: Hindi and Icelandic are absent because Qt does not ship them. Their
+#: users get English in Qt's own menus and spaCR's own text translated,
+#: which is the best that can be done without writing those catalogs.
+QT_CATALOGS = {
+    "sv": "sv", "de": "de", "es": "es", "zh_CN": "zh_CN",
+    "pt": "pt_BR", "ko": "ko", "fr": "fr",
+}
+
+
+def install_qt_translations(app, language: Optional[str] = None) -> bool:
+    """Load Qt's own translations for ``language``. True if one loaded.
+
+    Idempotent: a translator installed by an earlier call is removed
+    first, so switching language twice does not leave the first one
+    underneath answering for strings the second does not carry.
+    """
+    if app is None:
+        return False
+    code = normalize_language(language or current_language())
+    try:
+        from PySide6.QtCore import QLibraryInfo, QTranslator
+    except Exception:                                        # noqa: BLE001
+        return False
+
+    previous = getattr(app, "_spacr_qt_translator", None)
+    if previous is not None:
+        try:
+            app.removeTranslator(previous)
+        except Exception:                                    # noqa: BLE001
+            pass
+        app._spacr_qt_translator = None
+
+    catalog = QT_CATALOGS.get(code)
+    if catalog is None:
+        return False
+    try:
+        path = QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+        translator = QTranslator(app)
+        if not translator.load(f"qtbase_{catalog}", path):
+            return False
+        app.installTranslator(translator)
+        # HELD ON THE APPLICATION. A QTranslator that is garbage collected
+        # is a QTranslator Qt goes on asking and getting nothing from.
+        app._spacr_qt_translator = translator
+        return True
+    except Exception:                                        # noqa: BLE001
+        return False
+
+
 def install_dialog_translation(app) -> None:
     """Translate transient Qt dialogs when they are shown.
 
@@ -3059,6 +3115,7 @@ __all__ = [
     "current_language",
     "has_translation",
     "install_dialog_translation",
+    "install_qt_translations",
     "language_choices",
     "normalize_language",
     "retranslate_widget_tree",

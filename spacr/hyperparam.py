@@ -205,6 +205,10 @@ APP_CRITERIA: Dict[str, List[str]] = {
     ],
     "classify": ["accuracy", "prauc", "loss"],
     "ml_analyze": ["accuracy", "roc_auc", "f1"],
+    # THE MERGED SCREEN SEARCHES EITHER FAMILY. The criteria both halves
+    # share come first, so a user who switches `classifier_family` keeps
+    # the one they picked.
+    "classify_merged": ["accuracy", "prauc", "roc_auc", "f1", "loss"],
     "activation": ["deletion_auc", "insertion_auc", "pointing_game",
                    "sanity_gap"],
 }
@@ -226,6 +230,12 @@ DEFAULT_SPACES: Dict[str, Dict[str, List[Any]]] = {
     "ml_analyze": {
         "learning_rate": [0.001, 0.01, 0.1],
         "n_estimators": [100, 500, 1000],
+    },
+    # Learning rate is the one knob both families take, so it is the
+    # default grid for the merged screen whichever one is selected.
+    "classify_merged": {
+        "learning_rate": [1e-4, 3e-4, 1e-3],
+        "dropout_rate": [0.0, 0.1, 0.3],
     },
     # One representative of each attribution family, because agreement within
     # a family is nearly worthless and disagreement across families is the
@@ -3772,7 +3782,14 @@ def run_search_for_app(app_key: str,
             run_sanity_check=bool(settings.get("sanity_check", True)),
             on_trial=on_trial, should_stop=should_stop)
 
-    if app_key == "classify":
+    # THE MERGED SCREEN TAKES THIS ARM WHEN IT IS THE TORCH FAMILY. Its
+    # `classifier_family` says which classifier it is about to fit, and
+    # the cross-validated image path is the one `classify` used to own;
+    # a gradient-boosting family falls through to the measured-feature
+    # path below, which is what `ml_analyze` used.
+    family = str(settings.get("classifier_family", "cv") or "cv").lower()
+    if app_key == "classify" or (
+            app_key == "classify_merged" and family in ("cv", "torch", "dl")):
         fit = classify_cv_fit_fn(settings, criterion=criterion,
                                  n_folds=n_folds)
         notes = [

@@ -389,12 +389,28 @@ def round_the_corners(dialog: QWidget, radius: int = CARD_RADIUS) -> bool:
         from PySide6.QtCore import QRectF
         from PySide6.QtGui import QPainterPath, QRegion
 
+        from PySide6.QtGui import QTransform
+
         rect = dialog.rect()
         if rect.width() <= 0 or rect.height() <= 0:
             return False
+        # BUILT AT FOUR TIMES THE SIZE AND SCALED BACK. `toFillPolygon`
+        # flattens the arcs at a fixed tolerance, and at real size that
+        # polygon keeps pixels just outside the curve the card paints --
+        # so a sliver of whatever drifts behind the card showed along
+        # each rounded corner. Flattening a four-times path puts the
+        # polygon's error below one pixel once it is scaled down.
+        # NOT ERODED. A mask a pixel inside the edge cuts the outermost
+        # row all the way round, which takes the rim with it -- the card
+        # paints the full rect, so the mask covers the full rect too.
+        step = 4.0
         path = QPainterPath()
-        path.addRoundedRect(QRectF(rect), float(radius), float(radius))
-        dialog.setMask(QRegion(path.toFillPolygon().toPolygon()))
+        path.addRoundedRect(
+            QRectF(0.0, 0.0, rect.width() * step, rect.height() * step),
+            float(radius) * step, float(radius) * step)
+        polygon = QTransform().scale(1.0 / step, 1.0 / step).map(
+            path.toFillPolygon())
+        dialog.setMask(QRegion(polygon.toPolygon()))
         return True
     except Exception:                                        # noqa: BLE001
         # A window that cannot be masked is a window with square corners,

@@ -2282,6 +2282,11 @@ _HANDLERS = {
     "external_masks":  ExternalMasksDropHandler,
     "annotate":        AnnotateDropHandler,
     "classify":        ClassifyDropHandler,
+    # THE MERGED SCREEN DROPS LIKE THE ONE IT REPLACED. Without a row it
+    # falls back to the generic source handler, which replaces `src` with
+    # ONE path -- and the merged screen's `src` is a list, so four plates
+    # dropped together silently became one.
+    "classify_merged": ClassifyDropHandler,
     "make_masks":      MakeMasksDropHandler,
     "map_barcodes":    MapBarcodesDropHandler,
     "umap":            MeasurementsDropHandler,

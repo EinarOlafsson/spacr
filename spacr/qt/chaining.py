@@ -681,6 +681,7 @@ class ChainingBar(QFrame):
             LOG.exception("could not work out what comes after %s",
                           self.app_key)
             steps = ()
+        steps = _only_what_the_gui_offers(steps)
         self._last_steps = steps
         if not steps:
             self._next_row.hide()
@@ -823,6 +824,53 @@ def _chained_app_screen(app_key: str, host=None):
     _connect_host(screen, host)
     install_chaining(screen)
     return screen
+
+
+#: Retired module keys and the screen that took each one over.
+#:
+#: The port graph still declares `classify` and `ml_analyze` because the
+#: CLI still runs them, and a headless chain that stopped resolving them
+#: would break scripts. The GUI has ONE Classify, so the strip that offers
+#: what comes next must not offer the same screen three times under three
+#: names.
+_SUCCEEDED_BY = {
+    "classify": "classify_merged",
+    "ml_analyze": "classify_merged",
+}
+
+
+def _only_what_the_gui_offers(steps):
+    """Drop successors with no screen, and fold retired keys onto theirs.
+
+    Ready steps win over blocked ones for the same screen: two keys can
+    resolve to one screen with different readiness, and the offer the
+    user should see is the one that can actually run.
+    """
+    try:
+        from .app import APPS
+
+        offered = {row[0] for row in APPS}
+    except Exception:                                        # noqa: BLE001
+        return steps
+    best = {}
+    for step in steps:
+        key = _SUCCEEDED_BY.get(step.module, step.module)
+        if key not in offered:
+            continue
+        current = best.get(key)
+        if current is None or (step.ok and not current.ok):
+            best[key] = step if key == step.module else _renamed(step, key)
+    return tuple(sorted(best.values(), key=lambda s: (not s.ok, s.module)))
+
+
+def _renamed(step, key: str):
+    """The same step under the key the GUI knows it by."""
+    try:
+        import dataclasses
+
+        return dataclasses.replace(step, module=key)
+    except Exception:                                        # noqa: BLE001
+        return step
 
 
 def chained_app_keys() -> Tuple[str, ...]:

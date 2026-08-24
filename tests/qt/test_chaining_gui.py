@@ -490,7 +490,14 @@ def test_a_finished_mask_run_offers_measure(qapp, tmp_path, pins,
 
 def test_an_unready_successor_is_shown_with_its_reason(qapp, tmp_path, pins,
                                                        no_recent_sources):
-    """Measure wrote no ``png_list``, so Classify is offered but disabled."""
+    """A successor that cannot run is still offered, carrying its reason.
+
+    The scenario moved when the two classifiers became one. Measure
+    writing no ``png_list`` used to block Classify outright; the merged
+    screen also fits gradient boosting on the feature table, which needs
+    no crops, so that project is one it CAN run in. What blocks it now is
+    the thing both families need: a measurements database.
+    """
     root = make_plate(tmp_path / "plateA", db_tables=("cell",))
     run_mask(root)
     artifacts.register_run_outputs(
@@ -500,13 +507,31 @@ def test_an_unready_successor_is_shown_with_its_reason(qapp, tmp_path, pins,
     screen._settings_model._widgets["src"].setText(root)
     bar._on_run_finished(True)
 
-    blocked = [s for s in bar.steps if s.module == "classify"]
+    # With a database and no png_list, the merged screen is offered and
+    # ENABLED: the feature-based family runs on what is there.
+    ready = [s for s in bar.steps if s.module == "classify_merged"]
+    assert ready and ready[0].ok
+
+    # Now take the database away, which is what both families need.
+    import os
+
+    os.remove(os.path.join(root, "measurements", "measurements.db"))
+    bar._on_run_finished(True)
+
+    # ONE CLASSIFY, UNDER THE KEY THE GUI OFFERS. The port graph still
+    # declares `classify` and `ml_analyze` for the CLI, and the strip
+    # folds both onto the merged screen rather than offering the same
+    # screen three times.
+    blocked = [s for s in bar.steps if s.module == "classify_merged"]
     assert blocked and not blocked[0].ok
+    assert not [s for s in bar.steps if s.module in ("classify", "ml_analyze")]
     button = next(b for b in bar.findChildren(QPushButton)
-                  if b.text().startswith("Classify (CV)"))
+                  if b.text().startswith("Classify"))
     assert not button.isEnabled()
     assert "not ready" in button.text()
-    assert "png_list" in button.toolTip()
+    # The reason names the thing that is missing, and the tooltip carries
+    # the fix as well as the complaint.
+    assert "measurements" in button.toolTip()
     assert blocked[0].fix in button.toolTip()
 
 
