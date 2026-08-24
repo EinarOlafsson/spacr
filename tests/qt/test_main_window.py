@@ -12,7 +12,9 @@ from spacr.qt.app import (APPS, MainWindow, Sidebar, _icon_for_app,
 def test_apps_list_shape():
     assert len(APPS) >= 10
     keys = {a[0] for a in APPS}
-    for expected in ("mask", "measure", "classify", "umap", "annotate"):
+    # `classify_merged` since the two classifier screens became one.
+    for expected in ("mask", "measure", "classify_merged", "umap",
+                     "annotate"):
         assert expected in keys
     # Every entry is (key, name, desc, section)
     for entry in APPS:

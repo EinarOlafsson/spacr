@@ -35,7 +35,7 @@ REVIEWED_SOURCE_HASHES = {
     "batch": "16f1fdd21fc4467e4ff8f5b2996096fbcf0e5c656263e374eeebe179e94c5cd3",
     "cellpose_masks": "07d8ffd08b802c9921bc7f1224f805f311a86ca911a6ca97a3664bd6b31fed55",
     "classifier_evaluation": "3f2f24d0bf059a02cfcfba5ba72e3c514a538c901116b54f916d7d80ebc89d50",
-    "classify": "64bc454c2acf4f71e86ede1feaa403915b4e600c88cc19bda35590679eb9c9f7",
+    "classify_merged": "cf5fcf39a32d74e18ab968761616ed6899f933795cea7f6ebaf99605dc46a241",
     "convert": "692de961836cf4a2badc716d9bf06d4c61d01693facd1f25e10e752f836a03d7",
     "db_browser": "049241d8dc8b71dc7704359553d2438395c7b1b9e651038039dcdd39d78bb7b6",
     "distributed_jobs": "af29f8dde164cdad47acd90526c375baa194dea7d0e52c122d47a856280b18dc",
@@ -45,7 +45,6 @@ REVIEWED_SOURCE_HASHES = {
     "map_barcodes": "17871b5accd848e33df1ee24fc94265a24fd5b3a55fbc0b42a8189fe9474871f",
     "mask": "b85d38a6265bf63680d1fc95ac7e693275643b38c090bfda7b7c2152321668cb",
     "measure": "a6b12c7d9673bcb9b2bdbfbffabf6644a11c8d900b8566ebfa2227a9f8dcf5c1",
-    "ml_analyze": "4da05e4bee0b369105382c4869cf789a2053e9184906a0f3c3572e4a5068efdb",
     "model_compare": "a119662250fc95faa7c7ee1b33e90d0deb1d43f0d92c94af605a1a732d6eb6cc",
     "model_zoo": "d1ace1a31bf95abac5b31fba3d562480f8a81f989a28f1b9949a229d1e9532b2",
     "motility": "f76b7701d1122fb1405912873b4d98caabab8c91fc65652a89c69220f0ecbb54",
@@ -106,7 +105,7 @@ def validate_module_summaries() -> None:
     key_sets = {frozenset(items) for items in MODULE_SUMMARIES.values()}
     assert len(key_sets) == 1
     reviewed_keys = next(iter(key_sets))
-    assert len(reviewed_keys) == 33
+    assert len(reviewed_keys) == 32
     assert set(REVIEWED_SOURCE_HASHES) == set(reviewed_keys)
 
 

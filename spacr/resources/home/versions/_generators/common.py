@@ -273,7 +273,7 @@ MOCK = {
     "recent": [
         ("mask",     "plate_07",  "18 min ago",  True,  "22 m 04 s"),
         ("measure",  "plate_07",  "1 h ago",     True,  "41 m 11 s"),
-        ("classify", "plate_06",  "yesterday",   False, "3 m 27 s"),
+        ("classify_merged", "plate_06", "yesterday", False, "3 m 27 s"),
         ("annotate", "plate_06",  "yesterday",   True,  "—"),
     ],
     "system": [("GPU", 41, "RTX 4090"), ("VRAM", 62, "14.9 / 24 GB"),
@@ -290,7 +290,8 @@ MOCK = {
 }
 
 #: Six apps a returning user is assumed to have pinned.
-PINNED = ["mask", "measure", "annotate", "classify", "plate_view", "report"]
+PINNED = ["mask", "measure", "annotate", "classify_merged", "plate_view",
+          "report"]
 
 #: Invented but plausible run counts, used by the frequency-ordered
 #: variants. Labelled as such wherever they are drawn.
@@ -299,8 +300,8 @@ PINNED = ["mask", "measure", "annotate", "classify", "plate_view", "report"]
 #: ``USE_COUNTS.get(k, 0)``, so an app missing here silently sinks to
 #: the bottom of every frequency-ordered variant instead of failing.
 USE_COUNTS = {
-    "mask": 412, "measure": 388, "annotate": 250, "classify": 164,
-    "plate_view": 131, "db_browser": 118, "ml_analyze": 96, "report": 88,
+    "mask": 412, "measure": 388, "annotate": 250, "classify_merged": 164,
+    "plate_view": 131, "db_browser": 118, "report": 88,
     "queue": 71, "batch": 64, "map_barcodes": 59, "regression": 52,
     "convert": 47, "umap": 41, "make_masks": 38, "run_history": 35,
     "timelapse": 33, "graph_builder": 31, "model_zoo": 29,
@@ -385,7 +386,7 @@ CATS_BROAD3 = _with_late_registrations([
                  "illumination", "make_masks", "train_cellpose",
                  "cellpose_masks", "model_zoo"]),
     ("Run", ["mask", "timelapse", "motility", "measure", "annotate",
-             "classify_merged", "classify", "ml_analyze",
+             "classify_merged",
              "map_barcodes", "regression", "parameter_sweep",
              "queue", "batch", "distributed_jobs", "analyze_plaques",
              "recruitment", "invasion", "replication"]),
@@ -579,7 +580,7 @@ CATS_STAGE5 = _with_late_registrations([
     # uncategorised key falls, never an argument that training a
     # classifier is a deliverable. Activation went the other way, to
     # Segment; the note there says why.
-    ("Analyse", ["classify_merged", "classify", "ml_analyze", "map_barcodes",
+    ("Analyse", ["classify_merged", "map_barcodes",
                  "barcode_qc", "regression", "umap", "graph_builder",
                  "anndata_export", "profiler", "parameter_sweep",
                  "investigate_hit"]),
@@ -626,7 +627,7 @@ CATS_NARROW8 = _with_late_registrations([
     # per-object classifier, so it is here with the two originals it
     # dispatches to rather than in the fallback band, which had been
     # swallowing it.
-    ("Classify",         ["classify_merged", "classify", "ml_analyze",
+    ("Classify",         ["classify_merged",
                           "activation", "train_compare",
                           "classifier_evaluation", "explain_cv"]),
     # The Prediction Profiler goes here rather than under "Classify":
@@ -668,7 +669,7 @@ CATS_QUESTIONS = _with_late_registrations([
     # is — it IS the list of genes that matter — and the Prediction
     # Profiler is how you interrogate the model that produced it.
     ("I have a screen. Which genes matter?",
-     ["classify_merged", "classify", "ml_analyze", "map_barcodes",
+     ["classify_merged", "map_barcodes",
       "regression", "umap", "activation", "graph_builder", "anndata_export",
       "hit_list", "profiler", "parameter_sweep", "investigate_hit"]),
     # Pipeline Graph belongs here for the literal reason: it marks the

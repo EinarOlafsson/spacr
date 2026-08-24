@@ -124,6 +124,21 @@ SCROLLBARS_ALLOWED = {1, 25, 30}
 #: band it already had room for — including v04, which stayed at ten only
 #: because the same commit filed ``classify_merged`` in the generator
 #: category tables; unfiled it falls to the tail bucket and v04 reads 17.
+#: Re-measured on 2026-08-23 at fifty-six apps, Classify CV and Classify
+#: ML having been retired in favour of the single merged Classify. Two
+#: numbers moved in opposite directions and one entry went away, which is
+#: what two fewer rows does to three different layouts:
+#:
+#: * v22, the A-to-Z index, drops from 38 clipped descriptions to 12. It
+#:   splits every key across three fixed columns, so it is the variant
+#:   most sensitive to the app count in either direction.
+#: * v24, the command-palette mock, fits again. It listed a fixed number
+#:   of hint rows against a 900 px canvas and was three over.
+#: * v13, everything-on-one-screen, gets WORSE — 11 clipped to 15. It is
+#:   the only variant that lays its columns out by section rather than by
+#:   count, and Core losing five apps to Assays and Segmentation models
+#:   made the tallest column taller. Fewer apps is not automatically a
+#:   shorter page when the shape is per-section.
 KNOWN_LAYOUT_DEFECTS: dict = {
     # New since the last record: v01 clips four descriptions and overflows.
     1:  {"clipped": 4, "overflow": 1},
@@ -133,14 +148,14 @@ KNOWN_LAYOUT_DEFECTS: dict = {
     # Not names: one-line descriptions given less height than they need.
     4:  {"clipped": 23},
     5:  {"elided": 8},
-    13: {"clipped": 11},
+    13: {"clipped": 15},
     17: {"overflow": 1},
     19: {"clipped": 1},
     20: {"elided": 1, "overflow": 1},
-    # The A-to-Z index has no bands to absorb added rows; at fifty-eight apps
+    # The A-to-Z index has no bands to absorb added rows; at fifty-six apps
     # its fixed three-column canvas clips the descriptions below the fold.
-    22: {"clipped": 38},
-    24: {"clipped": 3},
+    22: {"clipped": 12},
+    24: {"clipped": 1},
     28: {"elided": 5, "overflow": 1},
     30: {"elided": 5},
 }
@@ -151,10 +166,18 @@ KNOWN_LAYOUT_DEFECTS: dict = {
 # workstation clips one and two descriptions respectively. Keep both exact
 # profiles so a new/worse defect still fails instead of making font-hinting
 # differences look like a product regression.
-KNOWN_LAYOUT_DEFECT_PROFILES = (
-    KNOWN_LAYOUT_DEFECTS,
+#: The two variants that sit ON the boundary, one pixel either side.
+BOUNDARY_VARIANTS = (19, 24)
+
+#: Every combination of the boundary variants fitting or not. Both used
+#: to be listed as one pair -- either both clipped or neither -- and a
+#: run where 24 fitted while 19 clipped failed as a regression when
+#: nothing had regressed. They are independent measurements, so they are
+#: recorded independently.
+KNOWN_LAYOUT_DEFECT_PROFILES = tuple(
     {number: defects for number, defects in KNOWN_LAYOUT_DEFECTS.items()
-     if number not in {19, 24}},
+     if number not in dropped}
+    for dropped in ((), (19,), (24,), (19, 24))
 )
 
 
@@ -1574,11 +1597,18 @@ def test_the_variant_set_is_thirty_uniquely_slugged_pages(gen):
 
 
 def test_shortcuts_map_ctrl_1_to_9_onto_the_core_pipeline(gen):
+    """The mock's shortcut hints must name the apps the real binding opens.
+
+    Rewritten on 2026-08-23: this used to assert the nine keys land on
+    the nine Core apps, which stopped being true when Core was cut back
+    to the six pipeline modules. ``shortcuts._nav_by_index`` has always
+    indexed into ``APPS`` as a whole, so that is what the hint has to
+    agree with -- Core first, then whatever the registry lists next.
+    """
     shortcuts = gen.variants._shortcuts()
     assert list(shortcuts.values()) == [f"Ctrl+{i}" for i in range(1, 10)]
-    from spacr.qt.app import APPS, SECTION_CORE
-    assert list(shortcuts) == [k for k, _n, _d, s in APPS
-                               if s == SECTION_CORE][:9]
+    from spacr.qt.app import APPS
+    assert list(shortcuts) == [row[0] for row in APPS][:9]
 
 
 def test_every_variant_builds_and_draws_real_registry_text(

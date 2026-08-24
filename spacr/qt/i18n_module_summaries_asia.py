@@ -18,8 +18,7 @@ MODULE_SUMMARIES_ASIA: Dict[str, Dict[str, str]] = {
         "motility": "自动化运动性实验：跟踪速度并进行感染质量控制",
         "measure": "测量单个对象的强度和形态学特征",
         "annotate": "在网格中标注单个对象图像，并保存到数据库",
-        "classify": "训练 Torch CNN/Transformer，对单个对象进行分类",
-        "ml_analyze": "使用经典机器学习（XGBoost、随机森林等）分析筛选特征",
+        "classify_merged": "在单个对象上训练分类器——对裁剪图像使用 Torch，或对测量特征使用梯度提升",
         "map_barcodes": "将测序条形码映射到筛选数据",
         "regression": "对筛选评分进行回归分析",
         "align": "将图像块配准并拼接成一个画布；采用增量写入，因此无需将 20000×20000 的拼接图完整载入 RAM",
@@ -53,8 +52,7 @@ MODULE_SUMMARIES_ASIA: Dict[str, Dict[str, str]] = {
         "motility": "स्वचालित गतिशीलता परीक्षण: वेग ट्रैक करें और संक्रमण का गुणवत्ता नियंत्रण करें",
         "measure": "एकल ऑब्जेक्ट की तीव्रता और आकारिकी विशेषताएँ मापें",
         "annotate": "ग्रिड पर एकल-ऑब्जेक्ट छवियों को एनोटेट करें और डेटाबेस में सहेजें",
-        "classify": "एकल ऑब्जेक्ट को वर्गीकृत करने के लिए Torch CNN/Transformer प्रशिक्षित करें",
-        "ml_analyze": "स्क्रीनिंग फीचर्स पर पारंपरिक ML (XGBoost / random forest / …) लागू करें",
+        "classify_merged": "एकल ऑब्जेक्ट पर वर्गीकारक प्रशिक्षित करें — क्रॉप छवियों पर Torch, या मापी गई विशेषताओं पर ग्रेडिएंट बूस्टिंग",
         "map_barcodes": "अनुक्रमण बारकोड को स्क्रीनिंग डेटा से मैप करें",
         "regression": "स्क्रीनिंग स्कोर का प्रतिगमन विश्लेषण करें",
         "align": "टाइलों को पंजीकृत करके एक सिले हुए कैनवास में जोड़ें; क्रमिक लेखन के कारण 20000×20000 मोज़ेक को कभी भी पूरी तरह RAM में रखने की आवश्यकता नहीं होती",
@@ -88,8 +86,7 @@ MODULE_SUMMARIES_ASIA: Dict[str, Dict[str, str]] = {
         "motility": "자동 운동성 분석: 속도를 추적하고 감염 품질을 관리합니다",
         "measure": "개별 객체의 강도 및 형태학적 특징을 측정합니다",
         "annotate": "그리드에서 개별 객체 이미지를 주석 처리하고 데이터베이스에 저장합니다",
-        "classify": "개별 객체 분류를 위한 Torch CNN/Transformer를 학습합니다",
-        "ml_analyze": "스크리닝 특징에 고전적 ML(XGBoost, random forest 등)을 적용합니다",
+        "classify_merged": "개별 객체에 대한 분류기를 학습합니다 — 크롭 이미지에는 Torch, 측정된 특징에는 그래디언트 부스팅",
         "map_barcodes": "시퀀싱 바코드를 스크리닝 데이터에 매핑합니다",
         "regression": "스크리닝 점수를 회귀 분석합니다",
         "align": "타일을 하나의 캔버스로 정합하고 스티칭합니다. 점진적으로 기록하므로 20000×20000 모자이크 전체를 RAM에 올릴 필요가 없습니다",
@@ -126,7 +123,7 @@ _APP_KEY_SETS = {frozenset(summaries) for summaries in MODULE_SUMMARIES_ASIA.val
 assert set(MODULE_SUMMARIES_ASIA) == _EXPECTED_LANGUAGE_CODES
 assert len(_APP_KEY_SETS) == 1, "module-summary catalogs must contain identical app keys"
 assert all(
-    len(summaries) == 33 for summaries in MODULE_SUMMARIES_ASIA.values()
-), "each reviewed module-summary catalog must contain exactly 33 built-in apps"
+    len(summaries) == 32 for summaries in MODULE_SUMMARIES_ASIA.values()
+), "each reviewed module-summary catalog must contain exactly 32 built-in apps"
 
 del _APP_KEY_SETS, _EXPECTED_LANGUAGE_CODES

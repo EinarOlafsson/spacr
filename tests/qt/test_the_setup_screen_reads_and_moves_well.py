@@ -671,7 +671,10 @@ def test_the_light_face_is_really_there(app):
 def test_the_issues_slide_offers_a_github_sign_in(slides):
     """Asked for 2026-08-22. Filing an issue works without it, through the
     browser, which is why it is a row on the slide and not a gate."""
-    assert slides._gh_button is not None
+    # The control is the GitHub LOGO, the way the three AI marks are --
+    # the text push button beside it went away on 2026-08-23.
+    assert slides._gh_mark is not None
+    assert slides._gh_mark.code == "github"
     assert slides._gh_status.text(), "the row says nothing about its state"
 
 
@@ -701,11 +704,12 @@ def test_a_missing_cli_is_named_rather_than_called_a_failure(slides,
     monkeypatch.setattr(shutil, "which", lambda _name: None)
     slides._refresh_github()
     assert "not installed" in slides._gh_status.text()
-    # AND THE BUTTON OFFERS THE INSTALL. It used to be greyed out, which
+    # AND THE LOGO OFFERS THE INSTALL. It used to be greyed out, which
     # told the user what was wrong and gave them nothing to do about it --
     # and reads from the outside exactly like a button that is broken.
-    assert slides._gh_button.isEnabled()
-    assert "install" in slides._gh_button.text().lower()
+    assert slides._gh_mark.isEnabled()
+    assert slides._gh_action == "install"
+    assert "install" in slides._gh_mark.toolTip().lower()
 
 
 def test_spacr_never_asks_for_the_token_itself(slides):

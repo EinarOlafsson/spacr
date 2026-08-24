@@ -526,6 +526,14 @@ def measure_sidebar(app) -> Tuple[int, int]:
     ctx.apply_theme()
     from spacr.qt.app import Sidebar
     bar = Sidebar()
+    # EVERY SECTION OPEN. The dock now starts with Core open and the rest
+    # collapsed, so its resting height says nothing about whether the
+    # navigation fits -- it fits because most of it is folded away. The
+    # height worth measuring is the one a user sees after opening the
+    # sections they work in, which is the fully expanded dock.
+    for section in list(getattr(bar, "_section_headers", {})):
+        if not bar.section_is_open(section):
+            bar.toggle_section(section)
     bar.resize(bar.width(), 850)
     bar.show()
     app.processEvents()

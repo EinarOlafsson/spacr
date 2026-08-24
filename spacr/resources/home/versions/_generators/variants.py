@@ -101,9 +101,15 @@ def variant(slug: str, title: str, *, changes: str, adds: str,
 
 
 def _shortcuts() -> Dict[str, str]:
-    """Ctrl+1..9 as the app actually assigns them (the nine core apps)."""
+    """Ctrl+1..9 as the app actually assigns them.
+
+    ``shortcuts._nav_by_index`` indexes into ``APPS`` itself, not into a
+    section, so the ninth shortcut lands wherever the registry's ninth
+    row is -- which stopped being a Core app when Core was cut back to
+    the six pipeline modules.
+    """
     return {k: f"Ctrl+{i + 1}"
-            for i, k in enumerate(common.core_keys()[:9])}
+            for i, k in enumerate(common.all_keys()[:9])}
 
 
 # ---------------------------------------------------------------------------

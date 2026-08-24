@@ -14,8 +14,7 @@ _BUILTIN_APP_KEYS = (
     "motility",
     "measure",
     "annotate",
-    "classify",
-    "ml_analyze",
+    "classify_merged",
     "map_barcodes",
     "regression",
     "align",
@@ -55,8 +54,7 @@ MODULE_SUMMARIES_WEST: dict[str, dict[str, str]] = {
         "motility": "Automatiserad motilitetsanalys: spåra hastighet och kvalitetskontrollera infektion",
         "measure": "Mät intensitets- och morfologiegenskaper för enskilda objekt",
         "annotate": "Annotera bilder av enskilda objekt i ett rutnät och spara dem i databasen",
-        "classify": "Träna Torch-CNN:er/Transformer-modeller för att klassificera enskilda objekt",
-        "ml_analyze": "Klassisk maskininlärning (XGBoost/random forest/…) på screeningegenskaper",
+        "classify_merged": "Träna en klassificerare på enskilda objekt – Torch på bildutsnitt eller gradient boosting på uppmätta egenskaper",
         "map_barcodes": "Koppla sekvenseringsstreckkoder till screeningdata",
         "regression": "Regressionsanalys av screeningspoäng",
         "align": "Registrera bildplattor till en sammanfogad bildyta, som skrivs stegvis så att en mosaik på 20000 × 20000 aldrig måste få plats i RAM",
@@ -90,8 +88,7 @@ MODULE_SUMMARIES_WEST: dict[str, dict[str, str]] = {
         "motility": "Automatisierter Motilitätsassay: Geschwindigkeit verfolgen und Infektions-QC durchführen",
         "measure": "Intensitäts- und Morphologiemerkmale einzelner Objekte messen",
         "annotate": "Bilder einzelner Objekte in einem Raster annotieren und in der Datenbank speichern",
-        "classify": "Torch-CNNs/Transformer-Modelle zur Klassifizierung einzelner Objekte trainieren",
-        "ml_analyze": "Klassisches ML (XGBoost/Random Forest/…) auf Screening-Merkmalen",
+        "classify_merged": "Einen Klassifikator auf einzelnen Objekten trainieren – Torch auf Bildausschnitten oder Gradient Boosting auf gemessenen Merkmalen",
         "map_barcodes": "Sequenzierungs-Barcodes den Screening-Daten zuordnen",
         "regression": "Regressionsanalyse von Screening-Scores",
         "align": "Bildkacheln zu einer zusammengefügten Bildfläche registrieren; diese wird schrittweise geschrieben, sodass ein 20000 × 20000-Mosaik nie vollständig in den RAM passen muss",
@@ -125,8 +122,7 @@ MODULE_SUMMARIES_WEST: dict[str, dict[str, str]] = {
         "motility": "Ensayo de motilidad automatizado: seguimiento de la velocidad y control de calidad de la infección",
         "measure": "Medir características de intensidad y morfología de objetos individuales",
         "annotate": "Anotar imágenes de objetos individuales en una cuadrícula y guardarlas en la base de datos",
-        "classify": "Entrenar CNN/Transformers de Torch para clasificar objetos individuales",
-        "ml_analyze": "ML clásico (XGBoost/random forest/…) sobre características del cribado",
+        "classify_merged": "Entrenar un clasificador sobre objetos individuales: Torch sobre recortes o gradient boosting sobre características medidas",
         "map_barcodes": "Asignar códigos de barras de secuenciación a los datos del cribado",
         "regression": "Análisis de regresión de las puntuaciones del cribado",
         "align": "Registrar teselas en un único lienzo ensamblado, escrito de forma incremental para que un mosaico de 20000 × 20000 nunca tenga que caber por completo en RAM",
@@ -161,11 +157,11 @@ def validate_module_summaries_west() -> None:
     """Raise :class:`AssertionError` if this parallel catalog is incomplete."""
     expected_languages = {"sv", "de", "es"}
     assert set(MODULE_SUMMARIES_WEST) == expected_languages
-    assert len(_BUILTIN_APP_KEYS) == len(set(_BUILTIN_APP_KEYS)) == 33
+    assert len(_BUILTIN_APP_KEYS) == len(set(_BUILTIN_APP_KEYS)) == 32
 
     expected_keys = set(_BUILTIN_APP_KEYS)
     for language_code, summaries in MODULE_SUMMARIES_WEST.items():
-        assert len(summaries) == 33, language_code
+        assert len(summaries) == 32, language_code
         assert set(summaries) == expected_keys, language_code
         assert all(isinstance(text, str) and text.strip() for text in summaries.values())
         assert all("http://" not in text and "https://" not in text for text in summaries.values())

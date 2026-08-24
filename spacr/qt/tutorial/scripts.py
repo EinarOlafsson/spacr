@@ -158,9 +158,31 @@ def _menu_target(window, title: str):
     menu = _find_menu(window, title)
     if menu is not None:
         rect = mb.actionGeometry(menu.menuAction())
-        return (mb, (rect.center().x(), rect.center().y()))
+        if rect.isValid() and rect.width():
+            return (mb, (rect.center().x(), rect.center().y()))
+        # A SUBMENU HAS NO PLACE ON THE BAR. Demos moved under Help on
+        # 2026-08-23, so its own geometry is empty and the cursor would aim
+        # at (0, 0). Point at the top-level menu you actually click to
+        # reach it, which is where a user's hand goes.
+        parent = _top_level_menu_containing(window, menu)
+        if parent is not None:
+            rect = mb.actionGeometry(parent.menuAction())
+            return (mb, (rect.center().x(), rect.center().y()))
     LOG.warning("tutorial: menu bar has no %r menu", title)
     return (mb, None)
+
+
+def _top_level_menu_containing(window, menu):
+    """The menu-bar menu that ``menu`` is a submenu of, or None."""
+    mb = window.menuBar()
+    for action in mb.actions():
+        top = action.menu()
+        if top is None:
+            continue
+        for entry in top.actions():
+            if entry.menu() is menu:
+                return top
+    return None
 
 
 def _find_button(screen, label: str):

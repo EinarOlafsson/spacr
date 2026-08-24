@@ -17,7 +17,9 @@ def test_every_supported_non_english_language_covers_all_modules():
     key_sets = {frozenset(catalog) for catalog in MODULE_SUMMARIES.values()}
     assert len(key_sets) == 1
     reviewed_keys = next(iter(key_sets))
-    assert len(reviewed_keys) == 33
+    # 32 since Classify CV and Classify ML became one screen: their
+    # two reviewed rows collapsed into `classify_merged`.
+    assert len(reviewed_keys) == 32
     assert set(REVIEWED_SOURCE_HASHES) == set(reviewed_keys)
     assert all(text.strip() for catalog in MODULE_SUMMARIES.values()
                for text in catalog.values())

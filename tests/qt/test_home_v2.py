@@ -1429,13 +1429,22 @@ def test_the_drawer_is_not_the_only_way_to_reach_every_app(window, qapp):
     home_tab = window._startup._tabs.widget(0)
     assert {t.text_label for t in home_tab.findChildren(AppTile)} == {
         name for _k, name, *_r in APPS}
+    # Collected through the section submenus the apps sit in.
     menu_labels = set()
+
+    def collect(menu):
+        for act in menu.actions():
+            if act.isSeparator():
+                continue
+            if act.menu() is not None:
+                collect(act.menu())
+            else:
+                menu_labels.add(act.text())
+
     for top in window.menuBar().actions():
         if top.text().replace("&", "") != "spaCR":
             continue
-        for act in top.menu().actions():
-            if not act.isSeparator():
-                menu_labels.add(act.text())
+        collect(top.menu())
         break
     assert {name for _k, name, *_r in APPS} <= menu_labels
     assert "All apps" not in menu_labels, (

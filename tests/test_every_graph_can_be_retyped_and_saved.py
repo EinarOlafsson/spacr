@@ -66,29 +66,29 @@ def _submenu(menu, title):
 class TestTheGraphTypeCanBeChanged:
 
     def test_show_as_is_on_the_menu(self, menu):
-        assert _submenu(menu, "Show as") is not None
+        assert _submenu(menu, "Graph type") is not None
 
     def test_it_offers_the_grouped_types(self, menu):
         from spacr.qt.widgets.figure_settings import GROUPED_PLOT_TYPES
 
-        labels = {a.text() for a in _submenu(menu, "Show as").actions()}
+        labels = {a.text() for a in _submenu(menu, "Graph type").actions()}
         assert labels == {label for _k, label in GROUPED_PLOT_TYPES}
 
     def test_a_type_that_does_not_fit_is_greyed(self, menu):
         """"depending on the data" -- a line through unordered categories is
         a row of markers joined for no reason."""
-        line = next(a for a in _submenu(menu, "Show as").actions()
+        line = next(a for a in _submenu(menu, "Graph type").actions()
                     if a.text() == "Line")
         assert not line.isEnabled()
 
     def test_and_it_says_why(self, menu):
         """Greyed without a reason is a control the user keeps trying."""
-        line = next(a for a in _submenu(menu, "Show as").actions()
+        line = next(a for a in _submenu(menu, "Graph type").actions()
                     if a.text() == "Line")
         assert line.toolTip()
 
     def test_the_ones_that_fit_are_offered(self, menu):
-        offered = [a.text() for a in _submenu(menu, "Show as").actions()
+        offered = [a.text() for a in _submenu(menu, "Graph type").actions()
                    if a.isEnabled()]
         assert "Box" in offered and "Violin" in offered
 
@@ -162,7 +162,10 @@ class TestSavingWritesTheWholeFolder:
 
     def test_the_action_is_on_the_menu(self, menu):
         titles = [a.text() for a in menu.actions()]
-        assert "Save figure, data and statistics…" in titles
+        # SHORTENED to "Save" on 2026-08-23: the menu entry named its own
+        # implementation, and a four-word label on a right-click menu is
+        # read as four decisions.
+        assert "Save" in titles
 
     def test_it_writes_all_five_files(self, grouped, tmp_path):
         from spacr.qt.widgets.figure_settings import save_figure_bundle

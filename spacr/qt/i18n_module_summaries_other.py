@@ -14,8 +14,7 @@ _BUILTIN_APP_KEYS = (
     "motility",
     "measure",
     "annotate",
-    "classify",
-    "ml_analyze",
+    "classify_merged",
     "map_barcodes",
     "regression",
     "align",
@@ -55,8 +54,7 @@ MODULE_SUMMARIES_OTHER: dict[str, dict[str, str]] = {
         "motility": "Ensaio automatizado de motilidade: rastrear a velocidade e realizar o controle de qualidade da infecção",
         "measure": "Medir características de intensidade e morfologia de objetos individuais",
         "annotate": "Anotar imagens de objetos individuais em uma grade e salvá-las no banco de dados",
-        "classify": "Treinar CNNs/Transformers com Torch para classificar objetos individuais",
-        "ml_analyze": "Aprendizado de máquina clássico (XGBoost/random forest/…) aplicado às características da triagem",
+        "classify_merged": "Treinar um classificador em objetos individuais — Torch em recortes ou gradient boosting em características medidas",
         "map_barcodes": "Associar códigos de barras de sequenciamento aos dados da triagem",
         "regression": "Análise de regressão das pontuações da triagem",
         "align": "Registrar blocos em uma única tela montada, gravada de forma incremental para que um mosaico de 20000 × 20000 nunca precise caber inteiro na RAM",
@@ -90,8 +88,7 @@ MODULE_SUMMARIES_OTHER: dict[str, dict[str, str]] = {
         "motility": "Sjálfvirkt hreyfanleikapróf: rekja hraða og framkvæma gæðaeftirlit með sýkingu",
         "measure": "Mæla styrk og formfræðilega eiginleika stakra hluta",
         "annotate": "Merkja myndir af stökum hlutum í hnitaneti og vista þær í gagnagrunni",
-        "classify": "Þjálfa Torch CNN/Transformer-líkön til að flokka staka hluti",
-        "ml_analyze": "Hefðbundið vélanám (XGBoost/random forest/…) á eiginleikum úr skimun",
+        "classify_merged": "Þjálfa flokkara á stökum hlutum – Torch á myndbútum eða gradient boosting á mældum eiginleikum",
         "map_barcodes": "Tengja raðgreiningarstrikamerki við skimunargögn",
         "regression": "Aðhvarfsgreining á skimunarstigum",
         "align": "Samstilla myndflísar í einn samsettan myndflöt sem er skrifaður í áföngum svo 20000 × 20000 mósaík þurfi aldrei allt að rúmast í RAM",
@@ -125,8 +122,7 @@ MODULE_SUMMARIES_OTHER: dict[str, dict[str, str]] = {
         "motility": "Test de motilité automatisé : suivre la vitesse et effectuer le contrôle qualité de l'infection",
         "measure": "Mesurer les caractéristiques d'intensité et de morphologie de chaque objet",
         "annotate": "Annoter les images d'objets individuels dans une grille et les enregistrer dans la base de données",
-        "classify": "Entraîner des CNN/Transformers avec Torch pour classer des objets individuels",
-        "ml_analyze": "Apprentissage automatique classique (XGBoost/random forest/…) sur les caractéristiques de criblage",
+        "classify_merged": "Entraîner un classifieur sur des objets individuels : Torch sur des vignettes ou gradient boosting sur des caractéristiques mesurées",
         "map_barcodes": "Associer les codes-barres de séquençage aux données de criblage",
         "regression": "Analyse de régression des scores de criblage",
         "align": "Recaler les tuiles dans un canevas assemblé unique, écrit progressivement afin qu'une mosaïque de 20000 × 20000 n'ait jamais à tenir entièrement dans la RAM",
@@ -161,13 +157,13 @@ def validate_module_summaries_other() -> None:
     """Raise :class:`AssertionError` if this parallel catalog is incomplete."""
     expected_languages = {"pt", "is", "fr"}
     assert set(MODULE_SUMMARIES_OTHER) == expected_languages
-    assert len(_BUILTIN_APP_KEYS) == len(set(_BUILTIN_APP_KEYS)) == 33
+    assert len(_BUILTIN_APP_KEYS) == len(set(_BUILTIN_APP_KEYS)) == 32
 
     expected_keys = set(_BUILTIN_APP_KEYS)
     key_sets = {frozenset(summaries) for summaries in MODULE_SUMMARIES_OTHER.values()}
     assert key_sets == {frozenset(expected_keys)}
     for language_code, summaries in MODULE_SUMMARIES_OTHER.items():
-        assert len(summaries) == 33, language_code
+        assert len(summaries) == 32, language_code
         assert all(isinstance(text, str) and text.strip() for text in summaries.values())
         assert all("http://" not in text and "https://" not in text for text in summaries.values())
 

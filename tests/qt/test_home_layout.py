@@ -591,13 +591,22 @@ def test_menu_bar_lists_every_app(qtbot, qt_theme_applied):
     qtbot.addWidget(win)
     # Never hold a QMenu reference across statements — Qt owns it and
     # PySide will report it deleted (see _menu_labels in test_batch7).
+    # One level down since 2026-08-23: the menu groups apps by section.
     labels: set = set()
+
+    def collect(menu):
+        for act in menu.actions():
+            if act.isSeparator():
+                continue
+            if act.menu() is not None:
+                collect(act.menu())
+            else:
+                labels.add(act.text())
+
     for top in win.menuBar().actions():
         if top.text().replace("&", "") != "spaCR":
             continue
-        for act in top.menu().actions():
-            if not act.isSeparator():
-                labels.add(act.text())
+        collect(top.menu())
         break
     for _key, name, *_rest in APPS:
         assert name in labels, f"{name} missing from the spaCR menu"
