@@ -736,8 +736,9 @@ class SetupSlides(QDialog):
             # SIGNED IN, not merely installed -- that is what the colour is
             # for. An installed-but-signed-out provider used to look exactly
             # like one that was ready to answer.
-            ready = self._provider_is_signed_in(code, command)
-            mark = ProviderMark(code, label, ready, holder)
+            state = self.provider_status(code, command)
+            ready = state == ProviderMark.READY
+            mark = ProviderMark(code, label, ready, holder, status=state)
             mark.set_chosen(holder._chosen == code)
             mark.setToolTip(
                 f"Use {label}. You are signed in." if ready else
@@ -763,6 +764,32 @@ class SetupSlides(QDialog):
         return shutil.which(str(command)) is not None
 
     @staticmethod
+    def provider_status(code: str, command: str) -> str:
+        """``ready`` / ``signed out`` / ``not installed`` for one provider.
+
+        THREE STATES, because they need three different things from the
+        user. `available` was one boolean covering "the CLI is missing" and
+        "the CLI is there and signed out", so a mark could not say which,
+        and both were drawn as a ghost -- "GPT brings no text and no color
+        just a rim".
+        """
+        from .provider_marks import ProviderMark
+
+        try:
+            provider = SetupSlides._provider_object(code, command)
+            if provider is not None:
+                if not provider.is_installed():
+                    return ProviderMark.NOT_INSTALLED
+                return (ProviderMark.READY if provider.is_logged_in()
+                        else ProviderMark.SIGNED_OUT)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not ask %r what state it is in", code,
+                      exc_info=True)
+        return (ProviderMark.READY
+                if SetupSlides._provider_is_installed(command)
+                else ProviderMark.NOT_INSTALLED)
+
+    @staticmethod
     def _provider_is_signed_in(code: str, command: str) -> bool:
         """Whether this provider is installed AND logged in.
 
@@ -782,6 +809,47 @@ class SetupSlides(QDialog):
             LOG.debug("could not ask %r whether it is signed in", code,
                       exc_info=True)
         return SetupSlides._provider_is_installed(command)
+
+    @staticmethod
+    def _provider_object(code: str, command: str = ""):
+        """The registry entry for ``code``, whichever name it is filed under.
+
+        THE TWO VOCABULARIES DID NOT MEET. This screen calls OpenAI's
+        provider `gpt` -- which is what a user recognises -- and
+        `ai.providers` files it under `codex`, which is its CLI. So
+        `get_provider('gpt')` found nothing, GPT alone fell through every
+        state check to a bare PATH test, and it was the one mark that
+        rendered as neither installed nor signed in nor anything else.
+
+        Tried by code first and by CLI name second, so both spellings
+        resolve and neither module has to rename anything.
+        """
+        try:
+            from ..ai.providers import get_provider
+        except Exception:                                    # noqa: BLE001
+            return None
+        for name in (str(code), str(command)):
+            if not name:
+                continue
+            try:
+                found = get_provider(name)
+            except Exception:                                # noqa: BLE001
+                found = None
+            if found is not None:
+                return found
+        return None
+
+    #: Where each provider's CLI is installed from.
+    #:
+    #: A PAGE, NOT A COMMAND. The install one-liner differs by operating
+    #: system and by package manager, and running the wrong one is worse
+    #: than opening the page that lists them all -- which is also the only
+    #: step that behaves the same on Linux, macOS and Windows.
+    PROVIDER_PAGES = {
+        "claude": "https://docs.anthropic.com/en/docs/claude-code/setup",
+        "gpt": "https://github.com/openai/codex",
+        "gemini": "https://github.com/google-gemini/gemini-cli",
+    }
 
     #: Terminal emulators tried, in order, for an interactive CLI login.
     #:
@@ -827,28 +895,85 @@ class SetupSlides(QDialog):
         right away." Choosing one used to do nothing but tick it, and the
         login instructions lived in another screen entirely.
         """
-        try:
-            from ..ai.providers import get_provider
-
-            provider = get_provider(str(code))
-        except Exception:                                    # noqa: BLE001
-            LOG.debug("no provider registry", exc_info=True)
-            return ""
+        command = next((c for k, _l, c in PROVIDERS if k == code), "")
+        provider = self._provider_object(code, command)
         if provider is None:
             return ""
-        if not provider.is_installed():
-            return (f"{provider.label}'s `{provider.cli_name}` command is "
-                    f"not installed yet.")
-        if provider.is_logged_in():
+        if provider.is_installed() and provider.is_logged_in():
             return ""
-        command = str(getattr(provider, "login_command", "") or "")
-        if not command:
-            return ""
-        if self._run_in_a_terminal(command):
-            return f"Signing in to {provider.label} in a terminal…"
-        # NO TERMINAL TO OPEN. Naming the command is the honest fallback --
-        # better than starting it where its prompts cannot be answered.
-        return f"Run `{command}` to sign in to {provider.label}."
+        return self._prompt_to_set_up(provider, code)
+
+    def _prompt_to_set_up(self, provider, code: str) -> str:
+        """Ask what to do about a provider that is not ready, and do it.
+
+        A NOTE UNDER THE ROW WAS NOT ENOUGH -- "there is no popup no prompt
+        for installing or any guidance". Choosing a provider you have not
+        set up is the moment to say what it needs and offer to start it, so
+        this is a dialog with the command in it and buttons that act.
+
+        Every button works on every operating system: opening a page goes
+        through QDesktopServices, and the terminal launcher knows macOS,
+        Windows and the usual Linux emulators.
+
+        :returns: a short line for the row's note, or "".
+        """
+        from PySide6.QtWidgets import QMessageBox
+
+        installed = provider.is_installed()
+        page = self.PROVIDER_PAGES.get(str(code), "")
+        hint = str(getattr(provider, "install_hint", "") or "")
+        login = str(getattr(provider, "login_command", "") or "")
+
+        box = QMessageBox(self)
+        box.setIcon(QMessageBox.Icon.Information)
+        box.setWindowTitle(f"Set up {provider.label}")
+        if not installed:
+            box.setText(
+                f"{provider.label} is not installed yet.\n\n"
+                f"spaCR drives the vendor's own command-line tool, so "
+                f"installing `{provider.cli_name}` is all that is needed — "
+                f"spaCR never sees your credentials.")
+            box.setInformativeText(f"Install with:\n    {hint}"
+                                   if hint else "")
+        else:
+            box.setText(
+                f"{provider.label} is installed but not signed in.\n\n"
+                f"Signing in happens in the vendor's own tool; spaCR never "
+                f"sees the credential.")
+            box.setInformativeText(f"Sign in with:\n    {login}"
+                                   if login else "")
+
+        act_open = (box.addButton("Open the page",
+                                  QMessageBox.ButtonRole.AcceptRole)
+                    if (page and not installed) else None)
+        act_run = (box.addButton("Sign in now",
+                                 QMessageBox.ButtonRole.AcceptRole)
+                   if (installed and login) else None)
+        act_copy = box.addButton("Copy the command",
+                                 QMessageBox.ButtonRole.ActionRole)
+        box.addButton("Later", QMessageBox.ButtonRole.RejectRole)
+        box.exec()
+
+        clicked = box.clickedButton()
+        if act_open is not None and clicked is act_open:
+            self._open_in_the_browser(page)
+            return f"{provider.label}: its install page is open in your browser."
+        if act_run is not None and clicked is act_run:
+            if self._run_in_a_terminal(login):
+                return f"Signing in to {provider.label} in a terminal…"
+            return f"Run `{login}` to sign in to {provider.label}."
+        if clicked is act_copy:
+            command = hint if not installed else login
+            try:
+                from PySide6.QtWidgets import QApplication
+
+                QApplication.clipboard().setText(command)
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not copy the command", exc_info=True)
+            return f"Copied: {command}"
+        return (f"{provider.label} is not set up yet."
+                if not installed else
+                f"{provider.label} is installed but not signed in.")
 
     def _choose_provider(self, holder, code: str) -> None:
         """Select a provider AND start its login if it needs one."""
@@ -857,20 +982,27 @@ class SetupSlides(QDialog):
             mark.set_chosen(name == code)
         note = self._start_provider_login(code)
         status = getattr(holder, "_note", None)
-        if note and status is not None:
+        if status is not None:
+            # SET EVEN WHEN EMPTY. A provider that is ready has nothing to
+            # say, and leaving the previous provider's note standing under
+            # it says something untrue about the one now selected.
             status.setText(note)
         # The mark's colour is the login state, so it has to be re-asked.
         self._refresh_provider_marks(holder)
 
     def _refresh_provider_marks(self, holder) -> None:
         """Re-colour every mark from its CURRENT sign-in state."""
+        from .provider_marks import ProviderMark
+
         for code, label, command in PROVIDERS:
             mark = getattr(holder, "_buttons", {}).get(code)
             if mark is None:
                 continue
-            signed_in = self._provider_is_signed_in(code, command)
-            if bool(mark.available) != bool(signed_in):
-                mark.available = bool(signed_in)
+            state = self.provider_status(code, command)
+            signed_in = state == ProviderMark.READY
+            if mark.status != state or bool(mark.available) != signed_in:
+                mark.status = state
+                mark.available = signed_in
                 mark.update()
             mark.setToolTip(
                 f"Use {label}. You are signed in." if signed_in else

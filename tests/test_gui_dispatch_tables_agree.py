@@ -28,7 +28,7 @@ import pathlib
 import pytest
 
 SOURCE = pathlib.Path(
-    __import__("spacr").__file__).parent / "gui_core.py"
+    __import__("spacr").__file__).parent / "legacy_tk" / "gui_core.py"
 TREE = ast.parse(SOURCE.read_text(encoding="utf-8"))
 
 

@@ -1,11 +1,14 @@
 """The spaCR window has no minimise or close button, and one fullscreen icon.
 
-Asked for: "remove the minus and x bar from the spacr window and just have
-an icon in the top left for true fullscreen".
+Asked for in two steps: first "remove the minus and x bar ... and just have
+an icon in the top left for true fullscreen", then "have the square be on
+the other side (the top right side) and add a minus to its left for
+minimizing".
 
-The two things the title bar offered were a button that hid the application
-and a button that quit it, and neither is what a user reaches for
-mid-analysis. Fullscreen is.
+So: top RIGHT, minimise then full screen -- the order a title bar puts them
+in. Closing is still not there; Quit is in the spaCR menu with its usual
+shortcut, and a stray click on an x mid-analysis costs more than reaching
+for the menu does.
 
 NOTHING ABOUT CLOSING DEPENDS ON THE BUTTON THAT WENT. Quit keeps its
 standard shortcut in the spaCR menu, so a frameless window cannot trap
@@ -40,12 +43,21 @@ def test_the_window_is_frameless(window):
     assert bool(window.windowFlags() & Qt.WindowType.FramelessWindowHint)
 
 
-def test_the_top_left_holds_one_icon(window):
-    corner = window.menuBar().cornerWidget(Qt.Corner.TopLeftCorner)
+def _window_buttons(window):
+    corner = window.menuBar().cornerWidget(Qt.Corner.TopRightCorner)
+    return corner.findChildren(QToolButton) if corner is not None else []
 
-    assert isinstance(corner, QToolButton)
-    assert corner.objectName() == "FullScreenToggle"
-    assert not corner.icon().isNull(), "the icon is drawn, not shipped"
+
+def test_the_top_right_holds_minimise_then_full_screen(window):
+    names = [b.objectName() for b in _window_buttons(window)]
+
+    assert names == ["MinimiseWindow", "FullScreenToggle"]
+    assert all(not b.icon().isNull() for b in _window_buttons(window)), (
+        "the icons are drawn, not shipped")
+
+
+def test_nothing_is_left_in_the_top_left(window):
+    assert window.menuBar().cornerWidget(Qt.Corner.TopLeftCorner) is None
 
 
 def test_the_icon_toggles_true_fullscreen(window, qapp):
@@ -65,9 +77,10 @@ def test_the_icon_toggles_true_fullscreen(window, qapp):
 def test_the_button_is_what_calls_it(window, qapp):
     window.show()
     qapp.processEvents()
-    corner = window.menuBar().cornerWidget(Qt.Corner.TopLeftCorner)
+    full = [b for b in _window_buttons(window)
+            if b.objectName() == "FullScreenToggle"][0]
 
-    corner.click()
+    full.click()
     qapp.processEvents()
 
     assert window.isFullScreen()
@@ -82,6 +95,19 @@ def test_quitting_still_has_its_shortcut(window):
     assert quit_actions, "no Quit action anywhere in the menu bar"
     assert any(a.shortcut() == QKeySequence.StandardKey.Quit
                or not a.shortcut().isEmpty() for a in quit_actions)
+
+
+def test_the_minus_minimises(window, qapp):
+    """The other half of what the title bar used to offer."""
+    window.show()
+    qapp.processEvents()
+    minimise = [b for b in _window_buttons(window)
+                if b.objectName() == "MinimiseWindow"][0]
+
+    minimise.click()
+    qapp.processEvents()
+
+    assert window.isMinimized() or not window.isActiveWindow()
 
 
 def test_full_screen_has_a_shortcut(window):

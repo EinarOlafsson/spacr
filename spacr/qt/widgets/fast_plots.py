@@ -3181,7 +3181,7 @@ class FastPlot(QWidget):
         # anything when there is nothing to offer.
         self._offer_graph_kinds(menu)
 
-        bundle = menu.addAction("Save figure, data and statistics…",
+        bundle = menu.addAction("Save",
                                 lambda: self.export_bundle())
         bundle.setToolTip(
             "Writes a FOLDER: the figure as pdf and png, the rows it was "

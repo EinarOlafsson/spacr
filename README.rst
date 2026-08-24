@@ -118,7 +118,7 @@ Workflow at a glance
 
 **More core tools**
 
-|App_timelapse|\ |App_motility|\ |App_classify|\ |App_ml_analyze|\ |App_curate|
+|App_timelapse|\ |App_motility|\ |App_curate|
 
 **Data**
 
@@ -163,16 +163,6 @@ Workflow at a glance
    :width: 19.9%
    :alt: Open the Motility Assay API
    :target: https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html
-   :align: middle
-.. |App_classify| image:: spacr/resources/icons/workflow/apps/classify.png
-   :width: 19.9%
-   :alt: Open the Classify (CV) API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
-   :align: middle
-.. |App_ml_analyze| image:: spacr/resources/icons/workflow/apps/ml_analyze.png
-   :width: 19.9%
-   :alt: Open the Classify (ML) API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
    :align: middle
 .. |App_curate| image:: spacr/resources/icons/workflow/apps/curate.png
    :width: 19.9%

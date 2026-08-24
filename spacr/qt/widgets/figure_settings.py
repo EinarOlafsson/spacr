@@ -1689,7 +1689,7 @@ def _add_bundle_save(menu, figure, parent) -> None:
     """Add a Matplotlib action that exports the figure and its evidence bundle."""
     from PySide6.QtWidgets import QFileDialog
 
-    action = menu.addAction("Save figure, data and statistics…")
+    action = menu.addAction("Save")
     action.setToolTip(
         "Writes a FOLDER: the figure as pdf and png, the rows it was drawn "
         "from, and the test that was run on them with its assumptions. A pdf "

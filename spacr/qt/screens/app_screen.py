@@ -3310,6 +3310,14 @@ class AppScreen(QWidget):
         self._ai_menu_btn.setText("▾")
         self._ai_menu = QMenu(self._ai_menu_btn)
         self._ai_menu_btn.setMenu(self._ai_menu)
+        # "AI assistant on at launch" IS WHAT THIS CONTROLS. The preference
+        # was written by the setup screen and read by nothing, so a user who
+        # turned it on met a grey AI switch on every module and a setting
+        # that had done nothing.
+        #
+        # AFTER the menu exists: turning the switch on fires `toggled`,
+        # whose handler picks a provider and refreshes that menu.
+        self._apply_ai_default()
         row.addWidget(self._ai_menu_btn)
         self._refresh_ai_menu()
 
@@ -4071,6 +4079,29 @@ class AppScreen(QWidget):
         explorer.hide()
         if queue.count():
             queue.show()
+
+    def _apply_ai_default(self) -> None:
+        """Turn the AI switch on at launch when the preference says to.
+
+        Only ON is applied. The preference is "start with it on", not "keep
+        it on": a user who turns the switch off mid-session means it, and
+        re-asserting the default on the next screen would fight them.
+
+        Never raises: a preference that cannot be read is not a reason for a
+        module screen to fail to build.
+        """
+        try:
+            from ..preferences import get_ai_on_by_default
+
+            if not bool(get_ai_on_by_default()):
+                return
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not read the AI default", exc_info=True)
+            return
+        try:
+            self._ai_switch.setChecked(True)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not turn the AI switch on", exc_info=True)
 
     def _on_ai_switch(self, on: bool) -> None:
         self._console.set_ai_active(on)

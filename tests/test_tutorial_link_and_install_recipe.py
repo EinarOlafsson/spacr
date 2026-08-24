@@ -70,7 +70,7 @@ def test_nothing_links_to_the_404_singular_tutorial_path():
 
 def test_the_tk_gui_logo_button_opens_the_lesson_library():
     """`spacr/gui.py` — the legacy Tk startup screen's logo button."""
-    assert _module_constant(PACKAGE / "gui.py", "TUTORIALS_URL") == LIVE_URL
+    assert _module_constant(PACKAGE / "legacy_tk" / "gui.py", "TUTORIALS_URL") == LIVE_URL
 
 
 def test_the_qt_gui_help_menu_targets_the_lesson_library():

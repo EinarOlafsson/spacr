@@ -162,6 +162,6 @@ def test_the_environment_variables_keep_their_case():
 
 def test_the_tk_style_names_keep_their_case():
     """Both halves of a Tk style registration must still agree."""
-    source = (ROOT / "spacr" / "gui_elements.py").read_text(encoding="utf-8")
+    source = (ROOT / "spacr" / "legacy_tk" / "gui_elements.py").read_text(encoding="utf-8")
     configured = set(re.findall(r"['\"](Spacr\.[A-Za-z.]+)['\"]", source))
     assert configured, "the Tk style names vanished; the exemption is stale"

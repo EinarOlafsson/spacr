@@ -186,12 +186,35 @@ class ProviderMark(QWidget):
     #: Emitted with the provider code when this mark is chosen.
     chosen = Signal(str)
 
+    #: What a provider can be, and what the user has to do about it.
+    #:
+    #: THREE STATES, NOT TWO. `available` was one boolean covering both "the
+    #: CLI is missing" and "the CLI is there and signed out", and the two
+    #: need different things from the user -- one an install, the other a
+    #: sign-in. Drawn the same, they were also drawn as nearly nothing:
+    #: muted ink at alpha 110 over a mark with no halo, which is what "GPT
+    #: brings no text and no color just a rim" was.
+    READY = "ready"
+    SIGNED_OUT = "signed out"
+    NOT_INSTALLED = "not installed"
+
+    #: What the mark says under its name in each state.
+    STATUS_TEXT = {
+        READY: "",
+        SIGNED_OUT: "sign in",
+        NOT_INSTALLED: "install",
+    }
+
     def __init__(self, code: str, label: str, available: bool = True,
-                 parent: Optional[QWidget] = None):
+                 parent: Optional[QWidget] = None, status: str = ""):
         super().__init__(parent)
         self.code = str(code)
         self.label = str(label)
         self.available = bool(available)
+        #: One of READY / SIGNED_OUT / NOT_INSTALLED. Defaults from
+        #: ``available`` so every existing caller keeps working.
+        self.status = str(status) or (self.READY if available
+                                      else self.NOT_INSTALLED)
         self._chosen = False
         self._hovered = False
         self.setMinimumSize(QSize(72, 82))
@@ -253,9 +276,17 @@ class ProviderMark(QWidget):
 
         palette = active_palette()
         if not self.available:
+            # THE BRAND FILL IS WHAT "READY" LOOKS LIKE, so a provider that
+            # is not installed does not get one: "GPT and Gemini should only
+            # get their color fill when they are installed". The mark is
+            # muted ink -- legible, at alpha 190 rather than the 110 that
+            # made it a ghost -- and HOVER gives the brand background, so
+            # the colour still tells you which provider you are pointing at.
             ink = QColor(palette.get("muted", palette["fg"]))
-            ink.setAlpha(110)
-            return ink, QColor(0, 0, 0, 0)
+            ink.setAlpha(190)
+            halo = QColor(BRAND.get(self.code, palette["accent"]))
+            halo.setAlpha(30 if self._hovered else 0)
+            return ink, halo
         ink = QColor(BRAND.get(self.code, palette["accent"]))
         halo = QColor(ink)
         if self._chosen:
@@ -299,14 +330,28 @@ class ProviderMark(QWidget):
                 painter.setBrush(ink)
                 painter.drawPath(path)
 
-            text_ink = QColor(palette["fg"] if self.available
-                              else palette.get("muted", palette["fg"]))
-            if not self.available:
-                text_ink.setAlpha(150)
-            painter.setPen(text_ink)
-            painter.drawText(
-                QRectF(rect.left(), box.bottom() + 4.0,
-                       rect.width(), rect.bottom() - box.bottom() - 4.0),
-                Qt.AlignHCenter | Qt.AlignTop, self.label)
+            # THE NAME IS ALWAYS LEGIBLE. It used to fade with the mark, so
+            # a provider that was not set up had no readable name either.
+            painter.setPen(QColor(palette["fg"]))
+            below = QRectF(rect.left(), box.bottom() + 4.0,
+                           rect.width(), rect.bottom() - box.bottom() - 4.0)
+            painter.drawText(below, Qt.AlignHCenter | Qt.AlignTop, self.label)
+
+            # AND WHAT TO DO ABOUT IT, under the name, in the brand colour.
+            # A greyed control that does not say why is the thing this
+            # replaces.
+            note = self.STATUS_TEXT.get(self.status, "")
+            if note:
+                from ..i18n import tr
+
+                small = painter.font()
+                small.setPointSizeF(max(6.5, small.pointSizeF() - 2.0))
+                painter.setFont(small)
+                painter.setPen(QColor(BRAND.get(self.code,
+                                                palette["accent"])))
+                painter.drawText(
+                    below.adjusted(0, painter.fontMetrics().height() + 2,
+                                   0, 0),
+                    Qt.AlignHCenter | Qt.AlignTop, tr(note))
         finally:
             painter.end()

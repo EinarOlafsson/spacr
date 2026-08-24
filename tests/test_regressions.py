@@ -286,7 +286,7 @@ def test_gui_elements_does_not_import_pyautogui():
     crashed `spacr` in headless / xauth-broken environments even though
     pyautogui wasn't actually used (its only reference was a commented-out
     line). Guard that neither the source nor the install specs re-add it."""
-    src = (PKG_ROOT / "gui_elements.py").read_text()
+    src = (PKG_ROOT / "legacy_tk" / "gui_elements.py").read_text()
     for line in src.splitlines():
         stripped = line.strip()
         if stripped.startswith("#"):
