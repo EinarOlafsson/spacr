@@ -2742,9 +2742,12 @@ QMenuBar::item {{
     padding: {S["xs"]}px {S["sm"]}px;
     border-radius: {R["sm"]}px;
 }}
-QMenuBar::item:selected {{
-    background: {P["surface"]};
-    color: {P["fg"]};
+QMenuBar::item:selected, QMenuBar::item:pressed {{
+    /* THE WORD LIGHTS, not a plate behind it: the same accent the dock's
+       open section header takes, so pointing at spaCR or Help reads the
+       same way as pointing at a category. */
+    background: transparent;
+    color: {P["accent"]};
 }}
 QMenu {{
     background-color: {ELEVATED};

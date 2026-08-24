@@ -34,6 +34,7 @@ from PySide6.QtWidgets import (
 )
 
 
+from .i18n import tr
 from . import iconset
 # Nothing in this module uses a colour, a spacing or the palette API any
 # more — the Home page, the sidebar QSS and `apply_preferences_to_app`
@@ -1475,6 +1476,13 @@ class Sidebar(QWidget):
         return [b for b in self._items if b.is_elided()]
 
 
+#: Distance from the icon's edge to the mark inside it, as a fraction.
+#:
+#: ONE NUMBER FOR THE x AND THE SQUARE. They sit side by side and are read
+#: as a pair, so they occupy the same box; the x was drawn to a smaller one
+#: and looked like a different kind of control.
+CHROME_PAD = 0.18
+
 #: What each window-chrome mark turns when the pointer is on it or the
 #: button is held down. The COLOUR IS THE GLYPH's, not a background: red
 #: is the one that ends the session, and blue is the accent the rest of
@@ -1621,7 +1629,7 @@ class MainWindow(QMainWindow):
         self._status_version_label.setObjectName("Caption")
         status.addPermanentWidget(self._status_app_label)
         status.addPermanentWidget(self._status_version_label)
-        status.showMessage("Ready")
+        status.showMessage(tr("Ready"))
         self.setStatusBar(status)
 
         # The AI Console now lives inside each pipeline app's Console
@@ -1864,7 +1872,12 @@ class MainWindow(QMainWindow):
 
     @staticmethod
     def _close_icon(size: int = 18, colour=None):
-        """An x, drawn rather than shipped, like the other two."""
+        """An x, drawn rather than shipped, and the SIZE OF THE SQUARE.
+
+        It sits beside the full-screen mark, so the two are read as a
+        pair; drawn to its own smaller box the x looked like a different
+        control that happened to be next to one.
+        """
         from PySide6.QtGui import QIcon, QPainter, QPen, QPixmap
 
         pixmap = QPixmap(size, size)
@@ -1874,7 +1887,9 @@ class MainWindow(QMainWindow):
         pen = QPen(QColor(colour) if colour else QColor(Qt.GlobalColor.gray))
         pen.setWidthF(1.6)
         painter.setPen(pen)
-        pad = size * 0.30
+        # THE SAME PAD THE FULL-SCREEN MARK USES, so the x spans exactly
+        # the box the square spans.
+        pad = size * CHROME_PAD
         painter.drawLine(pad, pad, size - pad, size - pad)
         painter.drawLine(size - pad, pad, pad, size - pad)
         painter.end()
@@ -1909,7 +1924,7 @@ class MainWindow(QMainWindow):
         pen = QPen(QColor(colour) if colour else QColor(Qt.GlobalColor.gray))
         pen.setWidthF(1.6)
         painter.setPen(pen)
-        arm, pad = size * 0.30, size * 0.18
+        arm, pad = size * 0.30, size * CHROME_PAD
         far = size - pad
         for x, y, dx, dy in ((pad, pad, 1, 1), (far, pad, -1, 1),
                              (pad, far, 1, -1), (far, far, -1, -1)):
@@ -1952,6 +1967,29 @@ class MainWindow(QMainWindow):
         else:
             self.showFullScreen()
         return self.isFullScreen()
+
+    def changeEvent(self, event):               # noqa: N802 - Qt naming
+        """Re-lay the menu bar when the window state changes.
+
+        A menu opens where the BAR SAYS its action is. Going fullscreen
+        resizes the bar and its corner widget in one step, and a menu
+        opened before the layout has caught up is placed against the
+        previous action rectangle -- which is how pressing spaCR drops a
+        menu under Help.
+        """
+        super().changeEvent(event)
+        try:
+            if event.type() == QEvent.Type.WindowStateChange:
+                bar = self.menuBar()
+                corner = bar.cornerWidget(Qt.Corner.TopRightCorner)
+                if corner is not None:
+                    corner.adjustSize()
+                bar.updateGeometry()
+                if bar.layout() is not None:
+                    bar.layout().activate()
+                bar.update()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not re-lay the menu bar", exc_info=True)
 
     # -- menu -------------------------------------------------------------
     def _build_menu_bar(self):
@@ -2044,9 +2082,7 @@ class MainWindow(QMainWindow):
         self._demo_actions: dict[str, QAction] = {}
         for app_key, label in DEMO_LABELS.items():
             act = QAction(label, self)
-            act.setStatusTip(
-                f"Generate a synthetic {app_key} dataset and open it "
-                "in the matching app.")
+            act.setStatusTip(tr(self.DEMO_STATUS_TIP, app=app_key))
             act.triggered.connect(
                 lambda checked=False, k=app_key: self._on_load_demo(k))
             demo_menu.addAction(act)
@@ -2236,6 +2272,13 @@ class MainWindow(QMainWindow):
         "timelapse": ("timelapse",  "generate_timelapse_demo"),
         "map_barcodes": ("map_barcodes", "generate_map_barcodes_demo"),
     }
+
+    #: Status tip shown for every Demos entry. A template with a placeholder
+    #: rather than a sentence built by an f-string: interpolating the app key
+    #: BEFORE the lookup asks the catalog for a sentence it can never hold,
+    #: which is why all six tips stayed English in every language.
+    DEMO_STATUS_TIP = ("Generate a synthetic {app} dataset and open it in "
+                       "the matching app.")
 
     def _on_load_demo(self, demo_key: str) -> None:
         """Generate a synthetic demo dataset, save its settings, then
@@ -2527,15 +2570,19 @@ class MainWindow(QMainWindow):
                 col.addSpacing(gap)
 
         _line("spaCR", 26, weight=600)
-        _line("Spatial phenotype analysis of CRISPR&#8209;Cas9 screens",
+        _line(tr("Spatial phenotype analysis of CRISPR&#8209;Cas9 screens"),
               13, muted=True, gap=10)
         _line(f"Version {version}", 12, muted=True)
         _line(build, 11, muted=True, gap=16) if build else col.addSpacing(16)
-        _line(
-            'Licensed under the '
+        # The license NAME is a legal identifier and stays English; the
+        # sentence around it does not. Kept as one placeholder so a language
+        # that puts the name elsewhere in the clause can move it.
+        license_link = (
             '<a href="https://polyformproject.org/licenses/noncommercial/1.0.0">'
-            'PolyForm Noncommercial License 1.0.0</a>.<br>'
-            'Free for research and other noncommercial use.',
+            'PolyForm Noncommercial License 1.0.0</a>')
+        _line(
+            tr("Licensed under the {name}.", name=license_link) + "<br>"
+            + tr("Free for research and other noncommercial use."),
             11, muted=True, gap=10)
         _line("© Olafsson Lab", 11, muted=True)
 
@@ -2612,6 +2659,23 @@ class MainWindow(QMainWindow):
             retranslate_widget_tree(self)
         except Exception:
             LOG.exception("Could not apply the selected UI language")
+        self._refresh_demo_status_tips()
+
+    def _refresh_demo_status_tips(self) -> None:
+        """Re-render the Demos status tips in the current language.
+
+        The retranslation pass caches whatever text a status tip already
+        holds and looks THAT up, which cannot work for a tip built from a
+        template: the cached sentence has the app key baked into it. These
+        six are rebuilt from :attr:`DEMO_STATUS_TIP` instead, so a language
+        chosen after the window opened reaches them like any other caption.
+        """
+        for app_key, action in getattr(self, "_demo_actions", {}).items():
+            try:
+                action.setStatusTip(tr(self.DEMO_STATUS_TIP, app=app_key))
+            except RuntimeError:
+                # A deleted action during shutdown must not stop the rest.
+                pass
 
     def _refresh_app_action_visibility(self) -> None:
         """Keep the spaCR menu in sync with module maturity preferences."""
@@ -2654,7 +2718,7 @@ class MainWindow(QMainWindow):
                                 f"Update check unavailable: {e}")
             return
 
-        self.statusBar().showMessage("Checking for updates…", 4000)
+        self.statusBar().showMessage(tr("Checking for updates…"), 4000)
         self._start_update_worker(
             "check", check_for_updates, self._on_update_check_done)
 
@@ -2697,7 +2761,7 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(
                 self, "Updates", f"Upgrade unavailable: {exc}")
             return
-        self.statusBar().showMessage("Upgrading spaCR…", 4000)
+        self.statusBar().showMessage(tr("Upgrading spaCR…"), 4000)
         self._start_update_worker(
             "upgrade", run_pip_upgrade, self._on_upgrade_done)
 
@@ -2951,8 +3015,12 @@ class MainWindow(QMainWindow):
             except Exception:
                 pass
             self._stack.setCurrentWidget(self._startup)
-            self._status_app_label.setText("Home")
-            self.statusBar().showMessage("Home", 2000)
+            # Translated here, not left raw: the startup pass renders this
+            # label once, and re-applying the English source over it both
+            # shows the wrong word and opts the label out of every later
+            # retranslation.
+            self._status_app_label.setText(tr("Home"))
+            self.statusBar().showMessage(tr("Home"), 2000)
             return
         if key not in self._screens:
             self._screens[key] = self._build_screen(key)
@@ -2986,7 +3054,6 @@ class MainWindow(QMainWindow):
             self._visit_order.remove(key)
         self._visit_order.append(key)
         # Find nice display name
-        from .i18n import tr
         name = tr(next((n for k, n, _d, _s in APPS if k == key), key))
         self._status_app_label.setText(name)
         self.statusBar().showMessage(tr("Opened {name}", name=name), 2000)
