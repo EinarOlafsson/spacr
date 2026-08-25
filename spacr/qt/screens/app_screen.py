@@ -20,7 +20,9 @@ from html import escape
 from typing import Callable, Optional
 from weakref import WeakMethod
 
-from PySide6.QtCore import QSize, QEvent, Qt, QTimer, QThread, Signal
+from PySide6.QtCore import (
+    QEvent, QObject, QSize, Qt, QThread, QTimer, Signal,
+)
 from PySide6.QtGui import QColor, QIcon, QPainter, QPalette, QPixmap
 from PySide6.QtWidgets import (
     QHBoxLayout,
@@ -48,6 +50,7 @@ from .settings_model import (
     CATEGORY_TOOLTIPS,
     SettingsWidgets,
     category_tooltip,
+    section_tooltip,
 )
 
 LOG = logging.getLogger(__name__)
@@ -528,6 +531,50 @@ def _elapsed_words(seconds: float) -> str:
     return f"{secs} s"
 
 
+class _LateCaptionTranslator(QObject):
+    """Runs the language pass over a subtree that arrives after the screen.
+
+    A screen is translated ONCE, by ``MainWindow`` when it builds it. What
+    is parented into it afterwards has never met the pass and never will,
+    so on a non-English screen it sits in English beside translated text.
+    The declared preview :mod:`spacr.qt.preview_registry` installs, and the
+    settings strip that :mod:`spacr.qt.settings_search` inserts, are both
+    that: built the first time a module is opened, which is after the pass.
+
+    Installed as an event filter on the hosts those land in.
+    ``QEvent.ChildAdded`` is the moment of parenting, and the pass is
+    deferred one turn of the event loop from there: a widget can be
+    parented before its own children exist, and
+    :func:`spacr.qt.i18n.retranslate_widget_tree` caches whatever caption a
+    widget holds the first time it sees one as that widget's English
+    source, so a pass that ran too early would record an empty caption and
+    opt the control out for good.
+    """
+
+    def eventFilter(self, watched, event):  # noqa: N802 - Qt override
+        if event.type() != QEvent.ChildAdded:
+            return False
+        child = event.child()
+        if not isinstance(child, QWidget):
+            return False
+        QTimer.singleShot(0, partial(self._translate, child))
+        return False
+
+    @staticmethod
+    def _translate(widget) -> None:
+        """Translate ``widget`` and its descendants, if it is still alive."""
+        try:
+            from ..i18n import retranslate_widget_tree
+
+            retranslate_widget_tree(widget)
+        except RuntimeError:
+            # The panel was closed again before the pass ran. Nothing to
+            # translate is not a failure.
+            pass
+        except Exception:
+            LOG.exception("could not translate a late settings panel")
+
+
 class AppScreen(QWidget):
     """Generic settings + runtime screen used by every non-interactive app.
 
@@ -631,6 +678,16 @@ class AppScreen(QWidget):
         # panel, the strip they describe themselves into belongs to the
         # runtime panel, so the two can only be connected once both exist.
         self._wire_category_hints()
+
+        # WHAT ARRIVES AFTER THE LANGUAGE PASS. `MainWindow` translates a
+        # screen once, when it builds it; anything parented into the screen
+        # afterwards arrives in English and nothing ever asks it again. The
+        # declared preview is exactly that -- `spacr.qt.preview_registry`
+        # installs it the first time the module is opened, which is after
+        # the pass, so on a Swedish screen its whole panel and the toggle it
+        # puts on the settings strip stay English. Watching the two hosts
+        # they land in translates each new subtree as it arrives.
+        self._watch_for_late_captions()
 
         # Two runners, not one, and the split is deliberate. Both of these are
         # background work — the usage poll shells out to nvidia-smi, filing an
@@ -1287,6 +1344,10 @@ class AppScreen(QWidget):
             layout.addWidget(self._empty_state_card)
 
         self._settings_sections = []
+        # Heading text -> the blurb its PATH resolved to, so the strip under
+        # the actions row can answer for a sub-heading whose bare word means
+        # something else somewhere else in the tool.
+        self._category_blurbs = {}
         # CATEGORIES AS TABS, where a screen has enough of them to be a wall.
         # Asked for 2026-08-19: "in measure i dont like the black categories.
         # can we make them into measurement subtabs?" -- and Measure is the
@@ -1296,9 +1357,10 @@ class AppScreen(QWidget):
         #
         # THE SECTIONS THEMSELVES ARE UNCHANGED. Each still knows its own
         # maturity, hint and rows, and `_settings_sections` still holds every
-        # one in order -- so applicability greying, tooltip retargeting and
-        # every test that walks that list work exactly as before. Only where
-        # they are MOUNTED changes.
+        # one -- so applicability greying, tooltip retargeting and everything
+        # else that walks that list works the same. Only where they are
+        # MOUNTED changes. (The list is deepest-first rather than in drawing
+        # order; `_build_settings_section` says why.)
         self._settings_tabs = None
         if str(self.app_key) in self.SETTINGS_AS_TABS and len(sections) > 2:
             self._settings_tabs = QTabWidget()
@@ -1316,152 +1378,8 @@ class AppScreen(QWidget):
         # Map widget → plain-text hint so the bottom hint strip AND our
         # sticky HoverTooltip can look up the description for the object
         # under the cursor. Initialized in __init__.
-        for title, rows in sections:
-            section = Section(title)
-            # The category name as the layout writes it. Everything that
-            # looks a category up -- the blurb tables and the catalogs --
-            # is keyed on that spelling, and the header answers with the
-            # uppercased caption it draws, so the written name is kept
-            # where `_wire_category_hints` can read it back.
-            section.setProperty("settingsCategorySource", title)
-            section.set_maturity(
-                settings_section_maturity(self.app_key, title)
-            )
-            self._settings_sections.append(section)
-            # The category blurb. Its primary home is the strip under the
-            # actions row (see `_wire_category_hints`); `set_hint` keeps the
-            # same text on the header for screen readers and for the
-            # beta/alpha caution note it appends. `category_tooltip` resolves
-            # the module's own override first, then the shared table, then a
-            # generic sentence, so a section is never left without text.
-            section.set_hint(category_tooltip(self.app_key, title))
-            for label, widget in rows:
-                # THE KEY, NOT THE LABEL. `build_sections` hands out
-                # `('Control wells', widget)` -- a title-cased sentence for a
-                # human -- and both wrappers below match on the SETTING NAME.
-                # Passing the label meant `control_wells` was never equal to
-                # 'Control wells' and the plate map (185) appeared on nothing
-                # at all. Its tests passed because they called
-                # `pick_wells_for` directly rather than driving the row the
-                # user actually sees.
-                setting_key = self._key_of(widget)
-                # A PLATE MAP BESIDE THE FIELDS THAT TAKE WELLS (185).
-                # "to the right of the field should be a button they can
-                # press that spawns a window". Only the settings whose value
-                # is ONLY wells: the picker writes the whole field, and one
-                # that overwrote `classes` or `negative_control` -- which
-                # mix wells with another vocabulary -- would destroy a value
-                # it does not understand.
-                # THE INNER FIELD IS KEPT, because everything below binds to
-                # IT and not to the row it now sits in: the tooltip is read
-                # off it, the label is bound to it, and `_widgets` still
-                # holds it. Losing this reference is what made a wrapped row
-                # lose its `settingKey` and its help the moment the wrapper
-                # stopped being a no-op.
-                field = widget
-                widget = self._with_a_plate_map(widget, setting_key)
-                # AND THE ADVISOR BESIDE `inference` (192). "a button to the
-                # left of inference alligned with the text box to the left in
-                # model & inference".
-                widget = self._with_a_settings_advisor(widget, setting_key)
-                if widget is not field:
-                    # THE ROW IS THE FIELD AS FAR AS THE PANEL IS CONCERNED.
-                    # `Section._row_widgets` records what it is handed, and
-                    # the module smoke test reads `settingKey` off that -- so
-                    # the holder has to carry it too, or a row with a button
-                    # beside it reads as a field belonging to no setting.
-                    widget.setProperty("settingKey", setting_key)
-                    widget.setProperty("settingsAppKey", self.app_key)
-                lbl_widget = QLabel(label)
-                # Give the label a subtle affordance so users know
-                # it's the hover target for tooltips (fields can be
-                # focused / clicked — tooltips on labels are calmer).
-                lbl_widget.setCursor(Qt.WhatsThisCursor)
-                field_key = None
-                # MATCHED ON THE INNER FIELD, not on `widget`: `widget` may
-                # now be the row that holds it, which `_widgets` has never
-                # heard of.
-                for key, w in getattr(self._settings_model, "_widgets", {}).items():
-                    if w is field:
-                        field_key = key
-                        html = field.toolTip()
-                        hint = self._settings_model.plain_tooltip_for(key)
-                        body_source = field.property(
-                            "apiTooltipDescriptionSource") or ""
-                        lbl_widget.setProperty("settingsAppKey", self.app_key)
-                        lbl_widget.setProperty("settingKey", key)
-                        lbl_widget.setProperty(
-                            "apiTooltipDescriptionSource", body_source)
-                        lbl_widget.setProperty(
-                            "apiTooltipDescription", body_source)
-                        lbl_widget.setProperty("apiTooltipHtml", html)
-                        lbl_widget.setProperty(
-                            "apiTooltipDisplayRole", "tooltip")
-                        # Tooltips live on the LABEL only — hovering
-                        # the input field itself is left alone so
-                        # focus / edit interactions aren't disturbed.
-                        field.setToolTip("")
-                        # SettingsWidgets may already have disabled an
-                        # algorithm-specific field before this visual label
-                        # exists. Bind them now and mirror the state; later
-                        # reducer switches update both through the same link.
-                        #
-                        # ON THE FIELD, not on the row: the reducer that
-                        # later enables and disables this setting reaches it
-                        # through `_widgets`, which holds the field, so a
-                        # label bound to the holder would never be told.
-                        field._spacr_setting_label = lbl_widget
-                        lbl_widget.setEnabled(field.isEnabled())
-                        self._hint_map[lbl_widget] = hint
-                        self._html_tip_map[lbl_widget] = html
-                        lbl_widget.installEventFilter(self)
-                        break
-                # No API link dot on the settings form. It sat between the
-                # label and the field and carried a tooltip of its own, so
-                # the help popped when the pointer was over the row's
-                # right-hand side -- which reads as "the field has a
-                # tooltip", because from the user's side of the screen that
-                # is exactly what it looks like. 191 of them on the Mask
-                # form alone.
-                #
-                # Nothing is lost but the mark: the API link is still in the
-                # label's tooltip HTML (the `href=` several tests assert on),
-                # so the reference is one hover and one click away, and the
-                # help itself is unchanged and still on the label.
-                #
-                # The host stays, though, and is built here rather than by
-                # `Section.add_row` (which only makes one when there is an
-                # info widget to put in it). It is what right-aligns the
-                # label against the field: dropping it left the label
-                # left-aligned and half the row's width was suddenly the
-                # page showing through rather than the category surface.
-                section.add_row(lbl_widget, widget, info_widget=None,
-                                wrap_label=True)
-                # THE FIELD, for the same reason as the tooltip above: the
-                # column picker fills the setting's own widget, and handing
-                # it the row would give it something with no `setText`.
-                self._attach_column_picker(field_key, field)
-            # THE EXPLAINER GOES AT THE TOP OF THE SECTION IT EXPLAINS.
-            #
-            # Asked for on 2026-08-17: "just ad the text box i asked for (at
-            # the top)". It used to be appended to the PANE after
-            # `layout.addWidget(section)`, which put it BELOW every control it
-            # describes -- so a user read eleven settings and then found out
-            # what they were choosing between.
-            #
-            # `Section.add_prose`, not `Section.add_widget`: the second
-            # registers the widget in `_row_widgets`, where every entry is
-            # taken to BE a labelled setting row by
-            # `tests/qt/test_all_module_smoke.py::_setting_row_contract`. A
-            # prose box is neither a setting nor labelled.
-            from .settings_model import has_section_explainer
-
-            if has_section_explainer(self.app_key, title):
-                self._install_section_explainer(section, title)
-            # THE EXAMPLE SCREEN, where its tables belong (191 C). Asked for
-            # 2026-08-20: "that button should obviously be in input tables."
-            if title == "Input Tables" and self.app_key == "regression":
-                self._install_example_data_button(section)
+        for spec in sections:
+            section = self._build_settings_section(spec)
             if self._settings_tabs is not None:
                 page = QWidget()
                 page_layout = QVBoxLayout(page)
@@ -1472,7 +1390,8 @@ class AppScreen(QWidget):
                 holder.setWidgetResizable(True)
                 holder.setFrameShape(QScrollArea.NoFrame)
                 holder.setWidget(page)
-                self._settings_tabs.addTab(holder, str(title))
+                self._settings_tabs.addTab(
+                    holder, str(section.property("settingsCategorySource")))
                 # A TAB IS ALREADY THE DISCLOSURE, so the header inside it
                 # would be a second one saying the same thing. It stays
                 # expanded and keeps its hint for screen readers.
@@ -1484,6 +1403,235 @@ class AppScreen(QWidget):
         layout.addStretch(1)
         scroll.setWidget(content)
         return scroll
+
+    def _build_settings_section(self, spec, depth: int = 0):
+        """Build one heading of the settings TREE, and everything under it.
+
+        ``SettingsWidgets.build_sections`` returns a
+        :class:`~spacr.qt.screens.settings_model.SettingsSection`: still the
+        ``(title, rows)`` pair it always was, with ``own_rows`` for the rows
+        this heading owns itself and ``children`` for the headings nested
+        below it. Reading only the pair draws every control exactly once but
+        FLAT -- the umbrella renders as a single heading holding every
+        advanced row, and the sub-headings that say which object a row
+        belongs to are nowhere. This walks the tree instead: ``own_rows``
+        here, a nested :class:`Section` per child, added with ``add_prose``
+        because a heading is not a labelled setting row and
+        ``tests/qt/test_all_module_smoke.py`` reads every ``_row_widgets``
+        entry as one.
+
+        Sections are recorded in ``_settings_sections`` DEEPEST FIRST, so
+        everything that searches that list for the section holding a widget
+        -- the command palette, the search strip -- finds the innermost
+        heading rather than the umbrella two levels above it.
+
+        :param spec: a ``SettingsSection`` or a plain ``(title, rows)`` pair.
+        :param depth: 0 for a top-level category; deeper for a sub-heading.
+        :returns: the built :class:`Section` widget.
+        """
+        title = getattr(spec, "title", None)
+        if title is None:
+            title = spec[0]
+        title = str(title)
+        own_rows = getattr(spec, "own_rows", None)
+        rows = spec[1] if own_rows is None else own_rows
+        children = tuple(getattr(spec, "children", ()) or ())
+        section = Section(title)
+        # The category name as the layout writes it. Everything that
+        # looks a category up -- the blurb tables and the catalogs --
+        # is keyed on that spelling, and the header answers with the
+        # uppercased caption it draws, so the written name is kept
+        # where `_wire_category_hints` can read it back.
+        section.setProperty("settingsCategorySource", title)
+        section.set_maturity(
+            settings_section_maturity(self.app_key, title)
+        )
+        # The category blurb. Its primary home is the strip under the
+        # actions row (see `_wire_category_hints`); `set_hint` keeps the
+        # same text on the header for screen readers and for the
+        # beta/alpha caution note it appends. `section_tooltip` resolves a
+        # nested heading by its PATH -- "Cell" under "Object filtration" is
+        # not the "Cell" segmentation category -- and falls through to
+        # `category_tooltip` for a top-level one, which resolves the
+        # module's own override first, then the shared table, then a
+        # generic sentence, so a section is never left without text.
+        blurb = section_tooltip(self.app_key, spec)
+        section.set_hint(blurb)
+        # The strip under the actions row is fed by TITLE, because that is
+        # what a hovered header carries. A sub-heading's blurb is recorded
+        # here so the strip can answer with the one its path resolved
+        # rather than looking the bare word up again; `setdefault` leaves a
+        # top-level category owning its own name.
+        self._category_blurbs.setdefault(title, blurb)
+        for label, widget in rows:
+            # THE KEY, NOT THE LABEL. `build_sections` hands out
+            # `('Control wells', widget)` -- a title-cased sentence for a
+            # human -- and both wrappers below match on the SETTING NAME.
+            # Passing the label meant `control_wells` was never equal to
+            # 'Control wells' and the plate map (185) appeared on nothing
+            # at all. Its tests passed because they called
+            # `pick_wells_for` directly rather than driving the row the
+            # user actually sees.
+            setting_key = self._key_of(widget)
+            # A PLATE MAP BESIDE THE FIELDS THAT TAKE WELLS (185).
+            # "to the right of the field should be a button they can
+            # press that spawns a window". Only the settings whose value
+            # is ONLY wells: the picker writes the whole field, and one
+            # that overwrote `classes` or `negative_control` -- which
+            # mix wells with another vocabulary -- would destroy a value
+            # it does not understand.
+            # THE INNER FIELD IS KEPT, because everything below binds to
+            # IT and not to the row it now sits in: the tooltip is read
+            # off it, the label is bound to it, and `_widgets` still
+            # holds it. Losing this reference is what made a wrapped row
+            # lose its `settingKey` and its help the moment the wrapper
+            # stopped being a no-op.
+            field = widget
+            widget = self._with_a_plate_map(widget, setting_key)
+            # AND THE ADVISOR BESIDE `inference` (192). "a button to the
+            # left of inference alligned with the text box to the left in
+            # model & inference".
+            widget = self._with_a_settings_advisor(widget, setting_key)
+            if widget is not field:
+                # THE ROW IS THE FIELD AS FAR AS THE PANEL IS CONCERNED.
+                # `Section._row_widgets` records what it is handed, and
+                # the module smoke test reads `settingKey` off that -- so
+                # the holder has to carry it too, or a row with a button
+                # beside it reads as a field belonging to no setting.
+                widget.setProperty("settingKey", setting_key)
+                widget.setProperty("settingsAppKey", self.app_key)
+            lbl_widget = QLabel(label)
+            # Give the label a subtle affordance so users know
+            # it's the hover target for tooltips (fields can be
+            # focused / clicked — tooltips on labels are calmer).
+            lbl_widget.setCursor(Qt.WhatsThisCursor)
+            field_key = None
+            # MATCHED ON THE INNER FIELD, not on `widget`: `widget` may
+            # now be the row that holds it, which `_widgets` has never
+            # heard of.
+            for key, w in getattr(self._settings_model, "_widgets", {}).items():
+                if w is field:
+                    field_key = key
+                    html = field.toolTip()
+                    hint = self._settings_model.plain_tooltip_for(key)
+                    body_source = field.property(
+                        "apiTooltipDescriptionSource") or ""
+                    lbl_widget.setProperty("settingsAppKey", self.app_key)
+                    lbl_widget.setProperty("settingKey", key)
+                    lbl_widget.setProperty(
+                        "apiTooltipDescriptionSource", body_source)
+                    lbl_widget.setProperty(
+                        "apiTooltipDescription", body_source)
+                    lbl_widget.setProperty("apiTooltipHtml", html)
+                    lbl_widget.setProperty(
+                        "apiTooltipDisplayRole", "tooltip")
+                    # Tooltips live on the LABEL only — hovering
+                    # the input field itself is left alone so
+                    # focus / edit interactions aren't disturbed.
+                    field.setToolTip("")
+                    # SettingsWidgets may already have disabled an
+                    # algorithm-specific field before this visual label
+                    # exists. Bind them now and mirror the state; later
+                    # reducer switches update both through the same link.
+                    #
+                    # ON THE FIELD, not on the row: the reducer that
+                    # later enables and disables this setting reaches it
+                    # through `_widgets`, which holds the field, so a
+                    # label bound to the holder would never be told.
+                    field._spacr_setting_label = lbl_widget
+                    lbl_widget.setEnabled(field.isEnabled())
+                    self._hint_map[lbl_widget] = hint
+                    self._html_tip_map[lbl_widget] = html
+                    lbl_widget.installEventFilter(self)
+                    break
+            # No API link dot on the settings form. It sat between the
+            # label and the field and carried a tooltip of its own, so
+            # the help popped when the pointer was over the row's
+            # right-hand side -- which reads as "the field has a
+            # tooltip", because from the user's side of the screen that
+            # is exactly what it looks like. 191 of them on the Mask
+            # form alone.
+            #
+            # Nothing is lost but the mark: the API link is still in the
+            # label's tooltip HTML (the `href=` several tests assert on),
+            # so the reference is one hover and one click away, and the
+            # help itself is unchanged and still on the label.
+            #
+            # The host stays, though, and is built here rather than by
+            # `Section.add_row` (which only makes one when there is an
+            # info widget to put in it). It is what right-aligns the
+            # label against the field: dropping it left the label
+            # left-aligned and half the row's width was suddenly the
+            # page showing through rather than the category surface.
+            section.add_row(lbl_widget, widget, info_widget=None,
+                            wrap_label=True)
+            # THE FIELD, for the same reason as the tooltip above: the
+            # column picker fills the setting's own widget, and handing
+            # it the row would give it something with no `setText`.
+            self._attach_column_picker(field_key, field)
+        # THE HEADINGS BELOW THIS ONE, each a Section of its own inside this
+        # one's body. `add_prose`, not `add_widget`: the second registers
+        # what it is handed in `_row_widgets`, where every entry is taken to
+        # BE a labelled setting row by
+        # `tests/qt/test_all_module_smoke.py::_setting_row_contract`, and a
+        # heading is neither a setting nor labelled.
+        for child in children:
+            nested = self._build_settings_section(child, depth + 1)
+            section.add_prose(nested)
+            # A HEADING OPENED FROM OUTSIDE OPENS ITS ANCESTORS. The search
+            # strip and the command palette expand the section holding a
+            # match; expanding one that sits inside a collapsed umbrella
+            # shows the user nothing at all.
+            nested.toggled.connect(
+                partial(self._open_the_headings_above, section))
+        # THE EXPLAINER GOES AT THE TOP OF THE SECTION IT EXPLAINS.
+        #
+        # Asked for on 2026-08-17: "just ad the text box i asked for (at
+        # the top)". It used to be appended to the PANE after
+        # `layout.addWidget(section)`, which put it BELOW every control it
+        # describes -- so a user read eleven settings and then found out
+        # what they were choosing between.
+        #
+        # `Section.add_prose`, not `Section.add_widget`: the second
+        # registers the widget in `_row_widgets`, where every entry is
+        # taken to BE a labelled setting row by
+        # `tests/qt/test_all_module_smoke.py::_setting_row_contract`. A
+        # prose box is neither a setting nor labelled.
+        #
+        # TOP LEVEL ONLY, both of these. Both tables are keyed on the
+        # heading's text alone, and a sub-heading shares its word with a
+        # category somewhere else in the tool -- "Cell" under "Object
+        # filtration" is not the Cell segmentation category.
+        from .settings_model import has_section_explainer
+
+        if depth == 0 and has_section_explainer(self.app_key, title):
+            self._install_section_explainer(section, title)
+        # THE EXAMPLE SCREEN, where its tables belong (191 C). Asked for
+        # 2026-08-20: "that button should obviously be in input tables."
+        if (depth == 0 and title == "Input Tables"
+                and self.app_key == "regression"):
+            self._install_example_data_button(section)
+        # DEEPEST FIRST. Recorded after the children so the list a consumer
+        # scans for "which section holds this widget" answers with the
+        # innermost heading; the umbrella is an ancestor of every one of
+        # them and would otherwise always win.
+        self._settings_sections.append(section)
+        return section
+
+    @staticmethod
+    def _open_the_headings_above(parent, expanded: bool) -> None:
+        """Open ``parent`` when a heading inside it is opened.
+
+        Collapsing a sub-heading deliberately leaves the umbrella open: the
+        user still has the rest of the group in front of them.
+        """
+        if not expanded:
+            return
+        try:
+            if not parent.is_expanded():
+                parent.set_expanded(True)
+        except (AttributeError, RuntimeError):
+            pass
 
     def _install_section_explainer(self, section, title) -> None:
         """Add a section's read-only explanatory panel above its controls.
@@ -2009,7 +2157,10 @@ class AppScreen(QWidget):
         absent = missing()
         if absent and button is not None:
             button.setEnabled(False)
-            button.setText(f"Fetching {len(absent)} file(s)…")
+            # The count is substituted AFTER the lookup, so the catalog
+            # holds a sentence rather than one sentence per possible count.
+            button.setText(tr("Fetching {count} file(s)\u2026",
+                              count=len(absent)))
         try:
             got = fetch(download=download,
                         progress=self._say_the_download_is_moving)
@@ -2019,7 +2170,11 @@ class AppScreen(QWidget):
         finally:
             if button is not None:
                 button.setEnabled(True)
-                button.setText("Load the example screen…")
+                # Restored through `tr`: the language pass rendered this
+                # caption once, and putting the English source back would
+                # both show the wrong word and opt the button out of every
+                # later pass.
+                button.setText(tr("Load the example screen\u2026"))
 
         # `paired_data`, NOT `count_data`/`score_data`. The regression panel
         # holds ONE ROW PER PLATE -- its score CSV beside its count CSV --
@@ -2072,13 +2227,17 @@ class AppScreen(QWidget):
         if notice is None:
             return
         if hidden_stages:
-            labels = " and ".join(stage.title()
-                                  for stage in ("alpha", "beta")
-                                  if stage in hidden_stages)
-            notice.setText(
-                f"{labels} settings are hidden by Preferences. "
-                "Enable them in Preferences → Feature maturity."
-            )
+            # COMPOSED FROM TRANSLATED PARTS, not translated after being
+            # composed. The finished sentence names one stage or two, so it
+            # is a phrase no catalog can hold; the stage names and the
+            # sentence around them are looked up separately and joined.
+            stages = [stage for stage in ("alpha", "beta")
+                      if stage in hidden_stages]
+            labels = (tr("Alpha and Beta") if len(stages) > 1
+                      else tr(stages[0].title()))
+            notice.setText(tr(
+                "{stages} settings are hidden by Preferences. Enable them "
+                "in Preferences \u2192 Feature maturity.", stages=labels))
             notice.show()
         else:
             notice.hide()
@@ -2363,7 +2522,15 @@ class AppScreen(QWidget):
         return super().eventFilter(obj, event)
 
     def _default_hint(self) -> str:
-        return "Hover any setting for details, or select ⓘ for documentation."
+        """The prompt the per-setting strip falls back to, in the UI language.
+
+        Translated HERE rather than left to the language pass, because a
+        pointer leaving a setting writes this back over whatever the pass
+        rendered: the strip was Swedish until the first hover and English
+        from then on.
+        """
+        return tr(
+            "Hover any setting for details, or select \u24d8 for documentation.")
 
     def _build_runtime_panel(self) -> QWidget:
         wrap = QWidget()
@@ -3437,9 +3604,50 @@ class AppScreen(QWidget):
         strip.setFixedHeight(
             strip.fontMetrics().lineSpacing() * CATEGORY_STRIP_LINES)
 
+    def _watch_for_late_captions(self) -> None:
+        """Translate any subtree parented into this screen after it was built.
+
+        `MainWindow._on_nav_selected` runs one language pass over a screen,
+        once, when the screen is first constructed. Two things arrive after
+        that and never see a pass of their own: the preview
+        :mod:`spacr.qt.preview_registry` declares for a module -- built and
+        inserted into the runtime panel the first time the module is opened
+        -- and the toggle it puts on the settings strip. Measured on a
+        Swedish cold start, that left the whole Plaque analysis preview and
+        its toggle in English: 112 captions, on one screen.
+
+        `ChildAdded` is the moment a widget is parented, and by then the
+        widget it carries is fully built, so translating that subtree alone
+        costs a walk of the new panel rather than of the screen. The pass is
+        deferred by one turn of the event loop: a widget can be parented
+        before its own children exist, and a pass that ran now would cache
+        an empty caption as that child's English source.
+        """
+        # The runtime panel is where a preview CARD is inserted, and the
+        # body splitter is where the settings strip -- which the toggle
+        # beside it goes on -- is inserted. The strip does not exist yet:
+        # it is installed on the screen's first show, one hook before the
+        # preview, so by the time this pass runs the toggle is already
+        # inside the pane it arrived in and is translated with it.
+        hosts = (getattr(self, "_runtime_wrap", None),
+                 getattr(self, "_body_splitter", None))
+        watcher = _LateCaptionTranslator(self)
+        self._late_caption_watcher = watcher
+        for host in hosts:
+            if host is None:
+                continue
+            host.removeEventFilter(watcher)
+            host.installEventFilter(watcher)
+
     def _default_category_hint(self) -> str:
-        return ("Hover a settings category for what the group decides, "
-                "or open one to keep it here.")
+        """The prompt the category strip falls back to, in the UI language.
+
+        Same reason as :meth:`_default_hint`: leaving a header writes this
+        back, so an untranslated literal here turns a translated strip
+        English on the first hover and leaves it that way.
+        """
+        return tr("Hover a settings category for what the group decides, "
+                  "or open one to keep it here.")
 
     def _wire_category_hints(self) -> None:
         """Route every category header at the strip under the actions row.
@@ -3483,11 +3691,21 @@ class AppScreen(QWidget):
             self.clear_category_hint()
 
     def show_category_hint(self, title: str) -> None:
-        """Show one category's blurb in the strip under the actions row."""
+        """Show one category's blurb in the strip under the actions row.
+
+        The strip is fed by TITLE, because a hovered header carries its own
+        name and nothing else. A heading nested under another resolves its
+        help by PATH -- "Cell" under "Object filtration" is not the "Cell"
+        segmentation category -- so what that resolved to when the section
+        was built is read back here rather than looked up again by the bare
+        word, which would hand a filtration sub-heading the blurb about
+        Cellpose models.
+        """
         strip = getattr(self, "_category_hint", None)
         if strip is None:
             return
-        text = category_tooltip(self.app_key, title)
+        text = (getattr(self, "_category_blurbs", None) or {}).get(
+            str(title)) or category_tooltip(self.app_key, title)
         # Translated first, uppercased second. The other order asks the
         # catalog for a caption nobody wrote and leaves an English word in
         # bold at the head of a translated sentence.
@@ -3564,9 +3782,10 @@ class AppScreen(QWidget):
                 f"{self.app_key}.Run",
                 {"result": "not_runnable"})
             QMessageBox.information(
-                self, "Not runnable",
-                f"The '{self.app_key}' app is interactive-only in this Qt build. "
-                f"Use the classic Tk GUI (`spacr`) for now.",
+                self, tr("Not runnable"),
+                tr("The '{app}' app is interactive-only in this Qt build. "
+                   "Use the classic Tk GUI (`spacr`) for now.",
+                   app=self.app_key),
             )
             return
         try:
@@ -3576,7 +3795,7 @@ class AppScreen(QWidget):
             log_button_press(
                 f"{self.app_key}.Run",
                 {"result": "bad_settings", "error": str(e)})
-            QMessageBox.warning(self, "Bad settings", str(e))
+            QMessageBox.warning(self, tr("Bad settings"), str(e))
             return
         if self.app_key == "umap":
             # Resolve GUI colours on the GUI thread and pass plain strings to
@@ -3908,11 +4127,20 @@ class AppScreen(QWidget):
             self._console.append_error(f"Could not copy the console: {exc}\n")
             return
         lines = text.count("\n")
-        self._btn_copy_console.setText("Copied")
+        # TRANSLATED AT THE MOMENT OF WRITING, all three. The language pass
+        # ran when the screen was built and does not run again, so an
+        # English literal set by a handler is English for the rest of the
+        # session -- and worse, `retranslate_widget_tree` reads a caption it
+        # did not render as data and opts the widget out of every later
+        # pass. Pressing Copy console on a Swedish screen used to leave the
+        # button reading "Copy console" for good.
+        self._btn_copy_console.setText(tr("Copied"))
         QTimer.singleShot(
-            1200, lambda: self._btn_copy_console.setText("Copy console"))
+            1200,
+            lambda: self._btn_copy_console.setText(tr("Copy console")))
         try:
-            self.statusBar().showMessage(f"Copied {lines} lines", 3000)
+            self.statusBar().showMessage(
+                tr("Copied {count} lines", count=lines), 3000)
         except Exception:
             pass
 
@@ -3921,7 +4149,7 @@ class AppScreen(QWidget):
         try:
             settings = dict(self._settings_model.collect())
         except Exception as exc:
-            QMessageBox.warning(self, "Bad settings", str(exc))
+            QMessageBox.warning(self, tr("Bad settings"), str(exc))
             return
         self.remote_submit_requested.emit(self.app_key, settings)
 
@@ -6047,9 +6275,13 @@ class AppScreen(QWidget):
 
     def _on_import_settings(self):
         from PySide6.QtWidgets import QFileDialog
+        # A file dialog is built and executed in one expression, so the
+        # application-wide dialog pass in `spacr.qt.i18n` never sees it
+        # before it is on screen: its caption and filter are translated
+        # here instead.
         path, _ = QFileDialog.getOpenFileName(
-            self, "Import settings CSV",
-            filter="Settings (*.csv);;All files (*)",
+            self, tr("Import settings CSV"),
+            filter=f"{tr('Settings')} (*.csv);;{tr('All files')} (*)",
         )
         if not path:
             return
@@ -6062,7 +6294,7 @@ class AppScreen(QWidget):
             )
             self._warn_about_moved_settings(loaded)
         except Exception as e:
-            QMessageBox.warning(self, "Import failed", str(e))
+            QMessageBox.warning(self, tr("Import failed"), str(e))
 
     #: Key/value column-name pairs a spaCR settings CSV can use, in the order
     #: they are tried. Mirrors ``spacr.cli._CSV_COLUMNS``: ``Key,Value`` is

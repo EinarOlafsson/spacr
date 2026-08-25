@@ -147,8 +147,10 @@ def test_significance_merged_into_model_and_inference():
     """"merge all of these settings into Model and inference"."""
     sections = _regression_sections()
     assert "Significance & Hit Calling" not in sections
+    # `annotation_source` stands where `Toxoplasma` did: the boolean is
+    # superseded, hidden and no longer sectioned.
     for key in ("multiple_testing_method", "fdr_alpha", "threshold_method",
-                "threshold_multiplier", "Toxoplasma"):
+                "threshold_multiplier", "annotation_source"):
         assert key in sections["Model & Inference"], key
 
 
@@ -185,8 +187,11 @@ def test_no_setting_was_dropped_by_the_regroup():
     """Merging sections must not lose a key into Additional Settings."""
     sections = _regression_sections()
     everywhere = {key for keys in sections.values() for key in keys}
+    # `Toxoplasma` left this list when it stopped being offered: it is
+    # superseded by `annotation_source`, hidden on the panel, and still
+    # read from a settings file. A key nothing draws needs no section.
     for key in ("min_cell_count", "outlier_detection", "cov_type",
-                "multiple_testing_method", "fdr_alpha", "Toxoplasma",
+                "multiple_testing_method", "fdr_alpha", "annotation_source",
                 "threshold_method", "threshold_multiplier", "tolerance",
                 "target_unique_count"):
         assert key in everywhere, key
@@ -420,7 +425,35 @@ def test_ml_accepts_either_spelling(settings, expected):
     assert _toxoplasma_is_on(settings) is expected
 
 
-def test_the_setting_is_named_Toxoplasma_in_the_panel():
-    assert "Toxoplasma" in _regression_sections()["Model & Inference"]
+def test_the_annotation_source_replaced_the_Toxoplasma_flag():
+    """One control for one fact, and it is the one that can say more.
+
+    The boolean was renamed from `toxo` to `Toxoplasma` and then
+    superseded by `annotation_source`, which takes an organism name, a
+    taxon id or an accession instead of one hard-coded parasite. Both were
+    offered for a while, which is two controls that can disagree about the
+    same thing; the boolean is hidden now. It is still READ -- every
+    settings file in existence carries it, and it is what
+    `annotation_source` defaults from when a file predates the field --
+    which is the difference between migrating a setting and breaking one.
+    """
+    from spacr.qt.screens.settings_model import _APP_HIDDEN_KEYS
+
     everywhere = {k for keys in _regression_sections().values() for k in keys}
+    assert "annotation_source" in everywhere
     assert "toxo" not in everywhere
+    assert "Toxoplasma" in _APP_HIDDEN_KEYS["regression"]
+
+
+def test_the_superseded_flag_still_loads_from_an_old_settings_file():
+    """Hidden is not deleted: a file that carries it must still run."""
+    from spacr.settings import get_perform_regression_default_settings
+
+    off = get_perform_regression_default_settings(
+        {"src": "/tmp", "count_data": "/tmp", "score_data": "/tmp",
+         "Toxoplasma": False})
+    assert off["annotation_source"] == ""
+
+    on = get_perform_regression_default_settings(
+        {"src": "/tmp", "count_data": "/tmp", "score_data": "/tmp"})
+    assert on["annotation_source"] == "toxoplasma"

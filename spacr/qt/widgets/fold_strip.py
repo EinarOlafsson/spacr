@@ -24,14 +24,23 @@ Typical use, from a host screen's ``__init__``::
     ], parent=self)
     masthead_layout.addWidget(self.folds)
 
-Each entry is ``(app_key, callback)``. The key is the registry key the
-module had as a tile, which is what supplies the icon, the name and the
-stage; the callback is what the button does when pressed.
+Each entry is ``(app_key, callback)``, or ``(app_key, callback, checkable)``
+when the button is a switch rather than a press. The key is the registry
+key the module had as a tile, which is what supplies the icon, the name
+and the stage; the callback is what the button does when pressed.
+
+A CHECKABLE FOLD IS A MODULE THAT LIVES ON THE HOST. Where a folded
+module is nothing but a few settings categories its host does not show --
+Timelapse and Motility on Mask Generation are the case -- the button does
+not open anything: it reveals those categories and turns the pipeline
+gate they belong to on. That is a state, not an action, so the button
+holds it: it stays lit while the module is part of the run, and the
+callback is handed the new state rather than called bare.
 """
 
 from __future__ import annotations
 
-from typing import Callable, Iterable, Optional, Sequence, Tuple
+from typing import Callable, Iterable, Optional, Sequence, Tuple, Union
 
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtWidgets import QHBoxLayout, QPushButton, QWidget
@@ -51,6 +60,23 @@ GAP_PX = 6
 #: The objectName every fold button carries, so one QSS rule in
 #: :mod:`spacr.qt.theme` can style all of them at once.
 BUTTON_NAME = "FoldButton"
+
+#: One entry in a strip.
+#:
+#: ``(key, callback)`` for a button that opens something; the callback
+#: takes no arguments, because "pressed" carries no state worth passing
+#: on. ``(key, callback, True)`` for a switch, whose callback is handed
+#: the new state so that one function answers both directions.
+FoldEntry = Union[Tuple[str, Callable[[], None]],
+                  Tuple[str, Callable[[bool], None], bool]]
+
+#: How strongly a checked fold button is filled with its stage colour.
+#:
+#: Between the hover fill (0.22) and the pressed one (0.40) in
+#: :mod:`spacr.qt.theme`, so a switched-on module reads as more than
+#: hovered and less than held down -- and hovering one that is already on
+#: still changes it, which is what tells a user the button is live.
+CHECKED_ALPHA = 0.30
 
 
 def _describe(key: str) -> Tuple[str, str, str]:
@@ -78,7 +104,8 @@ def _describe(key: str) -> Tuple[str, str, str]:
 class FoldButton(QPushButton):
     """One folded module, drawn as its own icon and nothing else."""
 
-    def __init__(self, key: str, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, key: str, parent: Optional[QWidget] = None,
+                 checkable: bool = False) -> None:
         super().__init__(parent)
         self.app_key = key
         name, description, stage = _describe(key)
@@ -89,6 +116,9 @@ class FoldButton(QPushButton):
         # paint already has the right colour.
         self.setProperty("stage", stage)
         self.setFlat(True)
+        if checkable:
+            self.setCheckable(True)
+            self._install_checked_fill(stage)
         self.setCursor(Qt.PointingHandCursor)
         self.setFixedSize(QSize(BUTTON_PX, BUTTON_PX))
         self.setIconSize(QSize(ICON_PX, ICON_PX))
@@ -108,24 +138,72 @@ class FoldButton(QPushButton):
         self.setToolTip(f"{name}\n{description}".strip())
         self.setAccessibleName(name)
 
+    def _install_checked_fill(self, stage: str) -> None:
+        """Give a switch-shaped fold button a lit "on" state.
+
+        The application stylesheet dresses ``#FoldButton`` for hover and
+        for pressed, both of which are momentary; a checkable one also
+        has to say so while nobody is touching it, or the only way to
+        learn that Timelapse is part of the run is to press it and watch
+        what appears.
+
+        Written as a widget-local rule for the ``:checked`` state alone,
+        so it MERGES with the application's hover and pressed rules
+        rather than replacing them -- and the colour comes out of
+        :data:`spacr.qt.theme.STAGE_HOVER`, the table the tiles and the
+        hover rule read, so there is still exactly one place a stage
+        colour is written down.
+        """
+        from ..theme import STAGE_HOVER, css_color
+
+        hue = STAGE_HOVER.get(stage)
+        if hue is None:
+            # A maturity the table has never heard of: leave the button
+            # with the shipped hover and pressed rules rather than
+            # inventing a colour that no tile lights up in.
+            return
+        self.setStyleSheet(
+            f"QPushButton#{BUTTON_NAME}:checked {{\n"
+            f"    background-color: {css_color(hue, CHECKED_ALPHA)};\n"
+            f"    border: 1px solid {hue};\n"
+            f"}}"
+        )
+
 
 class FoldStrip(QWidget):
     """The row of :class:`FoldButton` for one host screen."""
 
     def __init__(
         self,
-        folds: Iterable[Tuple[str, Callable[[], None]]],
+        folds: Iterable[FoldEntry],
         parent: Optional[QWidget] = None,
     ) -> None:
+        """Build one button per fold.
+
+        :param folds: ``(key, callback)`` for a button that opens
+            something, or ``(key, callback, True)`` for one that switches
+            a module on and off. A switch is handed the new state, so the
+            one callback answers both directions; a plain button is
+            called with no arguments, because "pressed" carries no state
+            worth passing on.
+        :param parent: the masthead the strip is hung on.
+        """
         super().__init__(parent)
         self.buttons: list[FoldButton] = []
         row = QHBoxLayout(self)
         row.setContentsMargins(0, 0, 0, 0)
         row.setSpacing(GAP_PX)
-        for key, callback in folds:
-            button = FoldButton(key, self)
+        for entry in folds:
+            key, callback = entry[0], entry[1]
+            checkable = bool(entry[2]) if len(entry) > 2 else False
+            button = FoldButton(key, self, checkable=checkable)
             if callable(callback):
-                button.clicked.connect(lambda _checked=False, cb=callback: cb())
+                if checkable:
+                    button.toggled.connect(
+                        lambda on, cb=callback: cb(on))
+                else:
+                    button.clicked.connect(
+                        lambda _checked=False, cb=callback: cb())
             row.addWidget(button)
             self.buttons.append(button)
         row.addStretch(1)

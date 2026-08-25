@@ -220,6 +220,49 @@ def _concat_named_csvs(paths):
     return pd.concat(frames, ignore_index=True)
 
 
+def _well_block_tokens(settings, key):
+    """The row/column/well tokens one control-block setting names.
+
+    :param settings: the run's settings mapping.
+    :param key: ``'positive_control_wells'`` or its negative twin.
+    :returns: the tokens, lower-cased, with the empty ones dropped.
+
+    A list or a bare string, because both spellings reach here: the panel
+    writes a list and a settings CSV can carry either.
+    """
+    raw = (settings or {}).get(key)
+    if raw is None:
+        return []
+    values = raw if isinstance(raw, (list, tuple, set)) else [raw]
+    return [str(value).strip().lower() for value in values
+            if str(value).strip()]
+
+
+def _wells_in_block(labels, tokens):
+    """Which of ``labels`` the block ``tokens`` name.
+
+    :param labels: well labels as the score table carries them, ``prc`` form
+        -- ``plate_row_column``.
+    :param tokens: what the plate design calls the block: a column (``c2``),
+        a row (``r1``) or a whole well (``plate1_r1_c2``).
+    :returns: the matching labels, sorted and de-duplicated.
+
+    THE TOKEN IS MATCHED AGAINST A PART, NOT AS A SUBSTRING. ``'c2' in
+    'plate1_r1_c20'`` is true and says nothing, so a plate wider than nine
+    columns would fold column 20 into column 2's reference and shift the
+    endpoint the whole calibration is anchored on.
+    """
+    wanted = set(tokens)
+    out = set()
+    for label in labels:
+        text = str(label).strip()
+        parts = {part.strip().lower() for part in text.split('_')}
+        parts.add(text.lower())
+        if parts & wanted:
+            out.add(text)
+    return sorted(out)
+
+
 def _calibration_inputs(settings):
     """Gather what the fraction-threshold sweep needs, from the run's own files.
 
@@ -230,27 +273,43 @@ def _calibration_inputs(settings):
     the score table the run already loaded is the imaging side and no second
     source is needed.
 
-    THE PURE WELLS ARE NAMED, NOT INFERRED. They come from the plate design
-    through `positive_control` and `negative_control`. Identifying them by
+    THE PURE WELLS ARE NAMED FROM THE PLATE DESIGN, through
+    `positive_control_wells` and `negative_control_wells`. Identifying them by
     their reported fraction would be circular: that fraction is the quantity
     under test, and a bias large enough to matter pushes a pure well the
     wrong side of any cut-off.
+
+    THE WELLS AND THE GUIDE ARE TWO SETTINGS, and reading one for the other is
+    what stopped this running at all. `positive_control` is a gene or gRNA ID
+    SUBSTRING in a regression -- it defaults to '239740' -- and was being
+    matched against well labels, which no well label has ever contained. So
+    every screen that ticked the box was refused with "no well matched", and
+    the three control-block settings that exist to answer this were never
+    read. The guide is what `positive_guide` needs; the wells are what
+    `pure_pc_wells` needs.
 
     :param settings: the regression settings.
     :returns: keyword arguments for
         :func:`spacr.fraction_calibration.sweep_fraction_threshold`.
     :raises ValueError: when the screen cannot answer the question -- no
-        control wells named, or no score column to read. The caller turns
-        that into a printed reason and the threshold the settings gave.
+        control-well block named, no positive-control guide, or no score
+        column to read. The caller turns that into a printed reason and the
+        threshold the settings gave.
     """
     import numpy as np
 
-    positive = str(settings.get('positive_control') or '').strip()
-    negative = str(settings.get('negative_control') or '').strip()
-    if not positive or not negative:
+    positive_wells = _well_block_tokens(settings, 'positive_control_wells')
+    negative_wells = _well_block_tokens(settings, 'negative_control_wells')
+    if not positive_wells or not negative_wells:
         raise ValueError(
-            "the plate design names no positive and negative control, and a "
-            "control-well calibration has nothing to calibrate against")
+            "the plate design names no positive_control_wells and "
+            "negative_control_wells, and a control-well calibration has "
+            "nothing to calibrate against")
+    positive_guide = str(settings.get('positive_control') or '').strip()
+    if not positive_guide:
+        raise ValueError(
+            "positive_control names no gRNA, so there is no guide whose "
+            "sequenced share can be compared with the imaging")
 
     counts = _concat_named_csvs(settings.get('count_data'))
     scores = _concat_named_csvs(settings.get('score_data'))
@@ -268,18 +327,18 @@ def _calibration_inputs(settings):
     usable = scores[[well_column, score_column]].dropna()
     features = np.asarray(usable[score_column], dtype=float).reshape(-1, 1)
     wells = [str(w) for w in usable[well_column]]
-    pure_pc = sorted({w for w in wells if positive in w})
-    pure_nc = sorted({w for w in wells if negative in w})
+    pure_pc = _wells_in_block(wells, positive_wells)
+    pure_nc = _wells_in_block(wells, negative_wells)
     if not pure_pc or not pure_nc:
         raise ValueError(
-            f"no well matched {positive!r} and {negative!r}, so there is no "
-            f"pure control to anchor the fit")
+            f"no well matched {positive_wells} and {negative_wells}, so "
+            f"there is no pure control to anchor the fit")
 
     return {
         "counts": counts,
         "features": features,
         "wells": wells,
-        "positive_guide": positive,
+        "positive_guide": positive_guide,
         "pure_pc_wells": pure_pc,
         "pure_nc_wells": pure_nc,
         "normalise": bool(settings.get('normalise_fraction', True)),
@@ -316,7 +375,13 @@ def _calibrated_fraction_threshold(settings):
         # reason it did nothing, or they will believe it worked.
         print(f"fraction-threshold calibration did not run: {exc}")
         return None
-    chosen = result.get("threshold") if isinstance(result, dict) else None
+    # `chosen` IS THE KEY THE SWEEP WRITES. It reported `threshold` here,
+    # which `sweep_fraction_threshold` has never returned -- so every screen
+    # that ticked the box was told the sweep preferred nothing, whatever it
+    # had actually measured, and went on using the number the settings gave.
+    # `threshold` IS a key, on each row of `candidates`; reading it off the
+    # result was reading a per-candidate name at the top level.
+    chosen = result.get("chosen") if isinstance(result, dict) else None
     if chosen is None:
         print("fraction-threshold calibration found no cut-off it preferred; "
               "using the threshold as given")
@@ -2056,20 +2121,42 @@ def process_model_coefficients(model, regression_type, X, y, nc, pc, controls,
 
     return coef_df[~coef_df['feature'].str.contains('row|column')]
 
-def _draw_the_threshold_sweep(settings, res_folder) -> None:
-    """Draw the guide-fraction sweep without replacing a configured threshold.
+def _draw_the_threshold_sweep(settings, res_folder, *,
+                              measured: bool = False) -> None:
+    """Draw the guide-fraction sweep without replacing the threshold in force.
 
-    The sweep reports where the configured value lies relative to the value
-    derived from the current screen. Plotting is diagnostic; a rendering
-    failure is reported without invalidating the regression run.
+    :param settings: the regression settings, read for the threshold in force
+        and the count tables the sweep reads.
+    :param res_folder: this run's folder, kept in the signature because the
+        caller collects what the sweep drew into it.
+    :param measured: the threshold in force came from the control-well
+        calibration rather than from the user.
+
+    THE TWO ANSWERS, SIDE BY SIDE, AND NAMED. The sweep answers "how many
+    guides per well do I want" from the counts alone; the calibration answers
+    "which cut-off makes imaging and sequencing agree" from the control
+    wells. They are different questions, so neither replaces the other and
+    the run reports both -- but a run that says "you set 0.0168" about a
+    number the calibration measured is telling the user something untrue
+    about where their threshold came from, which is the one thing this line
+    exists to say.
+
+    Plotting is diagnostic; a rendering failure is reported without
+    invalidating the regression run.
     """
     try:
         chosen = settings.get('fraction_threshold')
         derived = _graph_sequencing_stats(settings)
         if derived is not None and chosen is not None:
-            print(f"gRNA fraction-threshold sweep drawn: you set "
+            whose, mine = (("the control-well calibration measured",
+                            "The measured value") if measured
+                           else ("you set", "Your value"))
+            print(f"gRNA fraction-threshold sweep drawn: {whose} "
                   f"{chosen}; the sweep's own pick on this screen is "
-                  f"{derived}. Your value is the one in force.")
+                  f"{derived}. The two answer different questions -- which "
+                  f"cut-off the control wells agree at, and how many guides "
+                  f"a well should keep -- so neither replaces the other. "
+                  f"{mine} is the one in force.")
     except Exception as error:                                # noqa: BLE001
         print(f"the gRNA fraction-threshold sweep could not be drawn "
               f"({type(error).__name__}: {error}); the run is unaffected "
@@ -7898,7 +7985,9 @@ def _perform_regression(settings):
         # drawn on an ordinary run: the one case it fired in was the one
         # nobody was in.
         before_sweep = _figure_stamps(screen_folders)
-        _draw_the_threshold_sweep(settings, res_folder)
+        _draw_the_threshold_sweep(
+            settings, res_folder,
+            measured='fraction_threshold' in _AUTOMATIC_SETTINGS)
         for kept in _keep_figures_with_the_run(before_sweep, screen_folders,
                                                res_folder):
             print(f"Kept with the run: {kept}")
@@ -10652,7 +10741,11 @@ def write_plot(plot, path, title=""):
     finally:
         plot.deleteLater()
     if written:
-        publish_file(written, title or None)
+        # BY NAME. `publish_file(path, title=None)` names its second
+        # parameter, and passing it positionally makes every caller that
+        # stands in for the sink -- a GUI bridge, a test double -- have to
+        # guess that the second positional is the tile's title.
+        publish_file(written, title=title or None)
     return written
 
 def find_optimal_threshold(y_true, y_pred_proba):

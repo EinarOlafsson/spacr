@@ -2,13 +2,15 @@
 THE MODULE CONSOLIDATION: SEVENTEEN TILES BECOME BUTTONS
 ================================================================================
 
-Status:    OPEN. Item 1, the Make Masks segmentation workbench, has landed
-           with both of its defects closed; five of item 2's seven
-           straightforward folds are buttons on their hosts; and item 3's
-           three are folded into the homes it names, with the panel's
-           two-correction-family bug closed. Each section below carries its
-           own DONE / STILL OPEN note. The registry still holds every folded
-           row, so the count below is still 63.
+Status:    OPEN. Every fold named below has landed, and none of them opens
+           a window any more: a folded module is a PAGE beside its host's
+           own, except Timelapse and Motility, which are settings
+           categories on Mask Generation and open nothing at all. Item 1's
+           two defects are closed and so is item 3's panel bug. What is
+           left is the registry: no row has been dropped, so the count
+           below is still 63, and the sequencing sweep row of item 2 still
+           needs its drop handler folded in first. Each section carries its
+           own DONE / STILL OPEN note.
 Owner:     spacr/qt -- the app registry, and the host screen of each fold.
 
 Asked for: "i feel like these modules are kind of redundant now" -- a list
@@ -100,26 +102,38 @@ TWO DEFECTS THIS FOLD MUST FIX, both verified:
      ledger. A hand-edited mask is byte-indistinguishable from a
      segmented one.
 
-PARTLY DONE, AND TWO THINGS ARE WRONG WITH WHAT LANDED.
+DONE, AND BOTH OF THE THINGS THAT WERE WRONG WITH IT ARE FIXED.
 
 The folds are a `FoldStrip` on the Make Masks masthead (`FOLD_ORDER` in
-`spacr/qt/screens/make_masks.py`) and every capability survived, but:
+`spacr/qt/screens/make_masks.py`) and every capability survived.
 
-  a. TIMELAPSE AND MOTILITY DO NOT BELONG HERE. They fold into MASK
-     GENERATION, whose settings they overlap -- "dont you see the
-     overlapping settings with mask generation not make masks?" Make
-     Masks is hand-curation of masks that exist; Timelapse and Motility
-     are things mask generation does over a series. Remove both from the
-     Make Masks strip; they have one home and it is Mask.
-  b. EVERY BUTTON OPENS A WINDOW, which is the last resort rather than
-     the first. See HOW A FOLDED MODULE APPEARS above: try toggling the
-     module's own settings categories first, then a tab or a panel over
-     the console, and only then a window. "Mask the whole folder" points the applying half of the
-Cellpose workbench at the open folder and starts it; the training half
-opens on its own tab with its own path untouched.
+  a. TIMELAPSE AND MOTILITY HAVE LEFT THIS STRIP. They did not belong
+     here -- "dont you see the overlapping settings with mask generation
+     not make masks?" Make Masks is hand-curation of masks that exist;
+     tracking a series and measuring how it moved are things mask
+     generation does over one. Both are gone from `FOLD_ORDER` and from
+     `make_masks.FOLD_FALLBACK`, and their one home is Mask Generation --
+     see item 2 below.
+  b. NO BUTTON OPENS A WINDOW ANY MORE. The folded module is a PAGE
+     beside the editor: the host's own body becomes the first page of a
+     `QTabWidget` (`map_barcodes.host_pages`), the module's whole screen
+     becomes the next one, and the window is what a fold falls back to
+     only when its host has no body to make pages out of. The module
+     itself is unchanged, so nothing moved house; closing a folded page
+     keeps the screen and everything it had loaded, which is more than
+     the window managed. "Mask the whole folder" still points the
+     applying half of the Cellpose workbench at the open folder and
+     starts it; the training half opens on its own tab with its own path
+     untouched.
+  c. AND CLOSING THE SCREEN NOW CLOSES EVERY MODULE IT BUILT, not only
+     the ones that were opened. Pointing Model Compare at the folder
+     builds it and starts a load thread before any button has been
+     pressed; `close_folded` walked only the panels, so that thread
+     outlived its widget and the process died of it in whatever ran
+     next.
 
 Both defects are closed. `MaskCuration.save_mask` writes the labels and
-the ledger together, and the Curate window carries a "Save mask" button
+the ledger together, and the Curate page carries a "Save mask" button
 that calls it; `mask_engine.save_mask` already preserved the ids through
 `canonical_labels` and already wrote the ledger, and `mask_io.save_mask`
 now refuses an id that would wrap to background instead of casting it.
@@ -154,8 +168,8 @@ host needs the same, or `FoldStrip` needs the fallback built in.
 DONE: Classify <- Explain CV Model + Classifier Evaluation; Measure <-
 AnnData Export; Map Barcodes <- Barcode QC; Annotate <- Annotator
 Agreement. Each is a `FoldStrip` button on the host masthead, right of
-the stretch, and each opens the folded module's OWN screen in a window
-over the host -- the settings form and its Run button, the evaluation
+the stretch, and each opens the folded module's OWN screen as a page
+beside the host's -- the settings form and its Run button, the evaluation
 bundle browser, the SHAP panel, the kappa table -- so no capability moved
 house. The generic settings screen learns nothing about who folded into
 it: `spacr.qt.screens.map_barcodes.install_window_hooks` walks the
@@ -163,7 +177,7 @@ window's screen stack and hangs the strip on each host named in
 `FOLD_HOST_MODULES`. Annotate builds its own masthead and its own strip.
 A folded settings screen keeps the host wiring its sidebar row gave it
 (`chaining.HOST_CONNECTIONS`), so "Explain error" and "Run on a cluster"
-still work from the window. `map_barcodes.FOLD_FALLBACK` holds what these
+still work from the page. `map_barcodes.FOLD_FALLBACK` holds what these
 five tiles said, so the buttons keep their sentence and their maturity
 colour after the rows are dropped.
 
@@ -171,7 +185,7 @@ DONE TOO: Image UMAP <- Image Scatter + PCA. The three are projections
 of one measurement table -- the embedding of the crops, any two measured
 columns, the whole feature block -- so the other two are buttons on the
 Image UMAP masthead (`spacr/qt/screens/image_umap.py`), each opening its
-own screen in a window with the hover crop, the axis pickers, the feature
+own screen as a page with the hover crop, the axis pickers, the feature
 picker, the scree plot, the loadings biplot and the CSV export intact.
 The source travels with the press: both open already pointed at the
 database the UMAP screen is set to read, resolved from its `src` through
@@ -180,14 +194,46 @@ module rather than three screens that read the same file.
 `ImageScatterScreen.set_database` is the supported way to seed that, so
 no caller reaches into the path box.
 
-STILL OPEN HERE: Mask <- Timelapse + Motility; and the Regression sweep
-row, which needs the sweep-bundle drop handler folded into the regression
-one before it goes. The rows above are also still in the registry -- and
-dropping them takes more than `unregister_app`, because a settings-driven
-fold reads its form out of `APP_META` (`defaults_module`, `entry`):
-Barcode QC and AnnData Export open on an empty form the moment their
-metadata goes. `image_umap.FOLD_FALLBACK` keeps what the Image Scatter
-and PCA tiles said, so those two buttons survive their rows.
+DONE TOO: Mask <- Timelapse + Motility, AND THEY OPEN NOTHING. Both are
+the mask pipeline with a flag on -- `preprocess_generate_masks_timelapse`
+forces `timelapse=True` and then calls `preprocess_generate_masks`
+unchanged, and `spacr.object` calls the motility assay from inside the
+segmentation loop when `timelapse and motility_analysis` are both true --
+so what is theirs is a handful of settings CATEGORIES and nothing else.
+The buttons are CHECKABLE (`spacr/qt/screens/mask.py`): pressing one
+mounts that module's own categories on the form already on screen and
+turns its gate on, pressing it again hides them and turns it off. Only
+what Mask does not already offer is mounted, derived rather than listed
+-- thirteen tracking settings and forty-eight assay ones -- so no setting
+gets a second control and `collect()` keeps one source of truth. The
+assay's switch brings tracking's with it, because the assay fires inside
+the timelapse branch. Loading a Timelapse settings file fills the
+tracking controls like any other and `mask.sync_folds` moves the switch,
+which the gate has no control to be moved by.
+
+AND THE OTHER FIVE STOPPED OPENING WINDOWS. Barcode QC, Classifier
+Evaluation, Explain CV Model, Annotator Agreement and AnnData Export are
+PAGES beside their host's own, through the same `map_barcodes.host_pages`
+the Make Masks folds use -- the module's own screen, whole, inside the
+window the user is already in. Image Scatter, PCA and item 3's three
+followed for free: they open through the same `FoldOpener`.
+
+STILL OPEN HERE: the Regression sweep row, which needs the sweep-bundle
+drop handler folded into the regression one before it goes. The rows
+above are also still in the registry -- and dropping them takes more than
+`unregister_app`, because a settings-driven fold reads its form out of
+`APP_META` (`defaults_module`, `entry`): Barcode QC and AnnData Export
+open on an empty form the moment their metadata goes.
+`image_umap.FOLD_FALLBACK` keeps what the Image Scatter and PCA tiles
+said, so those two buttons survive their rows.
+
+AND TWO SEAMS ARE STILL NOT CALLED. `spacr.qt.shortcuts.
+_install_window_hooks` does not call `map_barcodes.install_window_hooks`,
+so no host's strip reaches a running window -- Mask Generation's switches
+included. And `AppScreen.apply_settings_dict` does not call
+`spacr.qt.screens.mask.sync_folds`, so a Timelapse settings file loaded
+into Mask Generation fills its tracking controls and leaves the switch
+off. Both are one line.
 
 --------------------------------------------------------------------------------
 3. THREE THAT ARE NOT REDUNDANT -- FOLD, DO NOT DELETE
@@ -274,7 +320,8 @@ each keeps the icon, the sentence and the maturity colour its tile had
 after the row is dropped (`regression.FOLD_FALLBACK`). The buttons are
 handles on the same doors, not second ones: the Hits button raises the
 tab, and the Volcano Explorer button and the menu entry share one
-explorer window per screen.
+explorer per screen -- a page beside the regression form, now that a fold
+opens on the host rather than over it.
 
 THE PANEL BUG IS FIXED. `regression.single_correction_family` keeps the
 primary `minimum_wells_threshold` and the first `outcome`, and
@@ -287,11 +334,10 @@ each guide was drawn two to four times. The cut is asserted to keep the
 same rows as `volcano.load_results`, so the panel and the explorer cannot
 draw one run two ways.
 
-STILL OPEN HERE: neither host is reached yet.
-`map_barcodes.FOLD_HOST_MODULES` needs `"regression": "regression"` and
-`"umap": "image_umap"`, and that walker is still not called from
-`shortcuts._install_window_hooks`, so no strip reaches a running window
-from either host. `RegressionResultsPanel.RESULT_FILENAMES` still does not
+STILL OPEN HERE: `map_barcodes.FOLD_HOST_MODULES` now names
+`"regression"`, `"umap"` and `"mask"`, so the walker knows every host --
+but it is still not called from `shortcuts._install_window_hooks`, so no
+strip reaches a running window from any of them. `RegressionResultsPanel.RESULT_FILENAMES` still does not
 list `guide_permutation_results_long.csv`, so "Load results..." cannot
 find a permutation run's long table by hand -- it finds the primary
 `results.csv` beside it, which is already one family, so nothing is drawn
@@ -332,7 +378,9 @@ HOW TO KNOW IT WORKED
   `spacr-run`, from chaining, and from a settings file written before the
   fold.
 * Each button carries the folded module's icon and its description, and
-  lights in the stage colour its tile used.
+  lights in the stage colour its tile used. A button that is a switch
+  stays lit while its module is part of the run.
+* No fold opens a window on a host that can carry a page.
 * Curate writes a mask, and a hand-edited mask carries a ledger that says
   so.
 * The regression volcano draws one correction family, not two.

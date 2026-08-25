@@ -3621,6 +3621,34 @@ def _measure_crop_core(index, time_ls, file, settings):
     return index, average_time, cells, figs
 
 #@log_function_call
+def _record_organelle_caveats(settings, run):
+    """Put the per-type organelle caveats on the run journal.
+
+    :param settings: the measure settings for this source folder, read for
+        each slot's ``*_type`` and the count-dependent families it enabled.
+    :param run: the :class:`spacr.runctx.RunContext` the tables are written
+        under. Its logger stamps every record with the run id, so
+        :func:`spacr.runctx.read_run_log` gives the caveats back beside the
+        database they are about.
+    :returns: the caveats recorded, so a caller can see what was said.
+
+    NOTHING IS SWITCHED OFF: a family the organelle type makes doubtful is
+    still measured and still written, because a number that vanished without
+    being asked to is worse than one that comes with a caveat. What the type
+    buys is that the run SAYS SO -- and saying it only to the console leaves
+    the sentence out of the one record a batch is read back from.
+
+    Silent when there is nothing to say, so a run measuring punctate
+    organelles is not given a paragraph telling it everything is fine.
+    """
+    from .settings import organelle_measurement_caveats
+
+    caveats = organelle_measurement_caveats(settings)
+    for label, setting, reason in caveats:
+        run.log.warning("[organelle] %s: %s %s.", label, setting, reason)
+    return caveats
+
+
 def measure_crop(settings):
     """Extract per-object morphology/intensity measurements and (optionally) cropped PNGs from mask stacks.
 
@@ -3906,6 +3934,15 @@ def measure_crop(settings):
                 # one id, so the log of the run that produced a measurements.db
                 # can be pulled back with spacr.runctx.read_run_log().
                 run.adopt(ledger)
+                # WHAT THE ORGANELLE NUMBERS ABOUT TO BE WRITTEN WILL AND
+                # WILL NOT MEAN, on the run's own journal. The caveat reached
+                # the console and stopped there, so a run read back later --
+                # which is the only way anyone reads a batch -- carried the
+                # count-dependent columns with nothing beside them saying a
+                # reticular organelle is one connected object per cell and
+                # its neighbour count is therefore a fact about the
+                # segmentation.
+                _record_organelle_caveats(settings, run)
                 policy = run.policy.bind(ledger=ledger, record=False)
                 index_to_file = dict(enumerate(files))
                 reported_files = set()

@@ -61,8 +61,9 @@ SLIDES: Tuple[Tuple[str, str, Tuple[str, ...]], ...] = (
     # one is the condition the licence names, so it is the one slide that
     # has to be answered before the screen can finish.
     ("Terms of use",
-     "spaCR is licensed on the condition that you accept these terms. They "
-     "are short, and the whole licence is a click away.",
+     "spaCR is licensed on the condition that you accept these terms. Read "
+     "to the end -- the acceptance below stays greyed until you do -- and "
+     "the whole licence is one click away.",
      ()),
     # THE LAST SLIDE SAYS TWO THINGS AND NO MORE. "Done" is the answer to
     # the six questions; "Welcome to spaCR" is what the screen is for. The
@@ -77,6 +78,25 @@ SLIDES: Tuple[Tuple[str, str, Tuple[str, ...]], ...] = (
 #: sequence that is neither a form nor the closing word: it builds itself and
 #: it refuses to be left.
 TERMS_SLIDE = "Terms of use"
+
+#: The caption on the animation question, and the one row of the theme
+#: slide that is not one of the setup model's own questions.
+#:
+#: "in the startup, under theme should be annimation, degault to blobs." It
+#: is asked here rather than added to :func:`spacr.qt.setup_screen.questions`
+#: because it is not written through that screen's apply pass: the backdrop
+#: has one seam, :func:`spacr.qt.preferences.set_ambient_animation`, which
+#: both stores the choice and turns the backdrop on or off, and a second
+#: writer for the same preference is how a stored None ends up drawing.
+ANIMATION_LABEL = "Animation"
+
+#: How close to the bottom of the terms counts as having reached it.
+#:
+#: PIXELS, because a scroll bar does not always land exactly on its maximum:
+#: a wheel notch, a fling on a touchpad and a drag all stop where they stop,
+#: and a gate that demands the exact maximum is a gate that stays shut for a
+#: reader who is looking at the last line.
+TERMS_END_SLACK = 4
 
 #: A localized greeting for every language offered on the language slide.
 #:
@@ -500,6 +520,14 @@ class SetupSlides(QDialog):
                     # control rather than as a question that does not apply.
                     continue
                 form.addLayout(self._row(asked[key], answers.get(key)))
+                if key == "theme":
+                    # IMMEDIATELY UNDER THE THEME, which is where it was
+                    # asked for and where it belongs: the backdrop is part
+                    # of what spaCR looks like, and a reader deciding on
+                    # the look decides on both in one place.
+                    animation = self._animation_row()
+                    if animation is not None:
+                        form.addLayout(animation)
             if signs_in:
                 form.addWidget(self._github_row())
             self._pages.addWidget(page)
@@ -860,7 +888,14 @@ class SetupSlides(QDialog):
         return page
 
     def _terms_page(self) -> QWidget:
-        """The terms, an acceptance, and the line that says what is missing.
+        """The terms, an acceptance gated on having read them, and the line
+        that says what is missing.
+
+        THE ACCEPTANCE IS DISABLED UNTIL THE END OF THE TERMS HAS BEEN ON
+        SCREEN, and the terms are greyed with it: one state drawn on both
+        halves, so the page reads as one thing waiting rather than as a
+        switch that happens to be dead. The enabling IS the evidence that
+        the text went past the reader.
 
         THE NEXT BUTTON IS NOT DISABLED HERE. A control that does nothing
         and says nothing leaves the reader to guess which of the things on
@@ -886,6 +921,7 @@ class SetupSlides(QDialog):
         body.setObjectName("Muted")
         body.setWordWrap(True)
         body.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        self._terms_body = body
 
         # SCROLLED, BECAUSE THE TERMS MAY OUTGROW THE CARD. A card that
         # clips the last clause is a card asking for agreement to something
@@ -896,6 +932,16 @@ class SetupSlides(QDialog):
         scroll.setFrameShape(QScrollArea.NoFrame)
         scroll.setProperty("spacrClearContainer", True)
         scroll.viewport().setProperty("spacrClearContainer", True)
+        self._terms_scroll = scroll
+        # BOTH SIGNALS, because there are two ways to arrive at the end.
+        # `valueChanged` is the reader scrolling; `rangeChanged` is the
+        # viewport growing until the whole document fits in it, which is the
+        # case a gate written as "the scroll bar moved" turns into a trap on
+        # a large monitor.
+        bar = scroll.verticalScrollBar()
+        if bar is not None:
+            bar.valueChanged.connect(self._look_at_the_terms_gate)
+            bar.rangeChanged.connect(self._look_at_the_terms_gate)
         column.addWidget(scroll, 1)
 
         where = QLabel(
@@ -906,6 +952,14 @@ class SetupSlides(QDialog):
         where.setOpenExternalLinks(True)
         where.setWordWrap(True)
         column.addWidget(where)
+
+        # WHY THE SWITCH IS DEAD, said before the reader has to ask. It is
+        # visible from the moment the slide opens and goes when the gate
+        # does, so the greyed control is never unexplained.
+        self._scroll_hint = QLabel(_say(terms_module.SCROLL_HINT), page)
+        self._scroll_hint.setObjectName("Muted")
+        self._scroll_hint.setWordWrap(True)
+        column.addWidget(self._scroll_hint)
 
         # A SLIDER, like every other boolean on this screen. A tick box is a
         # form control and this is not a form.
@@ -926,7 +980,88 @@ class SetupSlides(QDialog):
         except Exception:                                    # noqa: BLE001
             LOG.debug("no palette for the terms note", exc_info=True)
         column.addWidget(self._agree_note)
+        # CLOSED UNTIL PROVEN READ. The gate is drawn shut here rather than
+        # measured: the page has not been on screen yet, so there is nothing
+        # for "the end is on screen" to be true of, and the safe direction
+        # for a licence is the one that asks.
+        self._terms_read = False
+        self._draw_the_terms_gate(False)
         return page
+
+    # ------------------------------------------------- the reading gate
+
+    def _look_at_the_terms_gate(self, *_args) -> None:
+        """Re-read the gate and redraw it. The signal handler."""
+        self._draw_the_terms_gate(self.terms_were_read())
+
+    def terms_were_read(self) -> bool:
+        """Whether the end of the terms has been on screen.
+
+        LATCHED ONCE IT HAS. Scrolling back up does not un-read what was
+        read, and a gate that closed again behind the reader would take the
+        acceptance away from somebody who had already earned it.
+
+        A VIEWPORT TALL ENOUGH FOR THE WHOLE DOCUMENT COUNTS AS READ: the
+        question is whether the end is on screen, not whether a scroll bar
+        moved, or a large monitor becomes a trap.
+        """
+        if getattr(self, "_terms_read", False):
+            return True
+        scroll = getattr(self, "_terms_scroll", None)
+        if scroll is None:
+            # NO SCROLL AREA IS NOT A CLOSED GATE. The page could not be
+            # built with one, so there is nothing to scroll and nothing to
+            # gate; refusing the acceptance would be refusing the licence
+            # over a widget that is missing.
+            self._terms_read = True
+            return True
+        try:
+            bar = scroll.verticalScrollBar()
+            on_screen = scroll.isVisible()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("the terms scroll area cannot be measured",
+                      exc_info=True)
+            return False
+        if bar is None or not on_screen:
+            # THE PAGE IS NOT ON SCREEN, so there is no answer to give:
+            # "the end is on screen" cannot be true of a page that is not.
+            # A scroll area that has never been shown reports whatever its
+            # unlaid-out geometry implies, and believing that would open
+            # the gate before the terms had a reader.
+            return False
+        if bar.maximum() <= bar.minimum():
+            self._terms_read = True
+        elif bar.value() >= bar.maximum() - TERMS_END_SLACK:
+            self._terms_read = True
+        return bool(self._terms_read)
+
+    def _draw_the_terms_gate(self, read: bool) -> None:
+        """Put the gate's one state on both halves of the page."""
+        box = getattr(self, "_agree", None)
+        if box is not None:
+            box.setEnabled(bool(read))
+        body = getattr(self, "_terms_body", None)
+        if body is not None:
+            # THE TEXT IS GREYED TOO, not only the switch. A live-looking
+            # document over a dead control reads as a broken control; one
+            # greyed page reads as a page waiting for something.
+            body.setStyleSheet("" if read else f"color: {self._dim_ink()};")
+        hint = getattr(self, "_scroll_hint", None)
+        if hint is not None:
+            hint.setVisible(not read)
+
+    @staticmethod
+    def _dim_ink() -> str:
+        """The palette's dim ink, or a grey that works without one."""
+        try:
+            from ..theme import active_palette
+
+            palette = active_palette()
+            return str(palette.get("fg_dim")
+                       or palette.get("fg_muted") or "#6b6f76")
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("no palette for the greyed terms", exc_info=True)
+            return "#6b6f76"
 
     def _on_agreement_toggled(self, agreed: bool) -> None:
         """Drop the complaint the moment the box is ticked."""
@@ -940,16 +1075,31 @@ class SetupSlides(QDialog):
         return bool(box is not None and box.isChecked())
 
     def _refuse_to_leave_the_terms(self) -> int:
-        """Say what is missing and stay put. Returns the slide still shown."""
+        """Say what is missing and stay put. Returns the slide still shown.
+
+        TWO THINGS CAN BE MISSING and they need different sentences. An
+        unticked switch is answered by :data:`spacr.qt.terms.WHY_NOT_YET`; a
+        switch that cannot be ticked yet is answered by that AND by the
+        reason it is greyed, because "tick the box above" is not actionable
+        advice about a box that will not take a tick.
+        """
         from .. import terms as terms_module
 
+        read = self.terms_were_read()
         note = getattr(self, "_agree_note", None)
         if note is not None:
-            note.setText(_say(terms_module.WHY_NOT_YET))
+            said = _say(terms_module.WHY_NOT_YET)
+            if not read:
+                said = f"{_say(terms_module.SCROLL_HINT)} {said}"
+            note.setText(said)
             note.setVisible(True)
-        box = getattr(self, "_agree", None)
-        if box is not None:
-            box.setFocus()
+        # THE KEYBOARD GOES WHERE THE WORK IS. A disabled switch cannot take
+        # focus, so a Next pressed before the end would leave the caret
+        # nowhere; the terms take it instead and Page Down carries on from
+        # where the reader is.
+        target = getattr(self, "_agree" if read else "_terms_scroll", None)
+        if target is not None:
+            target.setFocus()
         return self._index
 
     def _row(self, question, value) -> QHBoxLayout:
@@ -1001,6 +1151,94 @@ class SetupSlides(QDialog):
         slider = Toggle()
         slider.setChecked(bool(value))
         return slider
+
+    def _animation_row(self) -> Optional[QHBoxLayout]:
+        """The backdrop question, asked under the theme it belongs with.
+
+        EVERY CHOICE THE APPLICATION HAS, ``None`` included -- the list is
+        :data:`spacr.qt.widgets.ambient.ANIMATION_CHOICES`, so a reader who
+        finds the motion distracting can say so on the way in rather than
+        going looking for it afterwards.
+
+        IT OPENS ON WHAT IS ALREADY TRUE. The default is Blobs because that
+        is :data:`spacr.qt.widgets.ambient.DEFAULT_THEME` and what
+        :func:`spacr.qt.preferences.get_ambient_animation` falls back to --
+        the slide shows the application's own default rather than a second
+        opinion about it.
+
+        :returns: the row, or ``None`` when there is no ambient module to
+            ask -- in which case the theme slide is the two questions it
+            was, rather than a labelled row with nothing in it.
+        """
+        try:
+            from .ambient import (ANIMATION_CHOICES, DEFAULT_THEME,
+                                  animation_label, animation_note)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("no ambient module to ask about the backdrop",
+                      exc_info=True)
+            return None
+        try:
+            from ..preferences import get_ambient_animation
+
+            chosen = get_ambient_animation()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("the stored animation could not be read", exc_info=True)
+            chosen = DEFAULT_THEME
+
+        box = QComboBox()
+        box.setObjectName("SetupAnimation")
+        for index, name in enumerate(ANIMATION_CHOICES):
+            box.addItem(_say(animation_label(name)), name)
+            try:
+                box.setItemData(index, _say(animation_note(name)),
+                                Qt.ToolTipRole)
+            except Exception:                                # noqa: BLE001
+                LOG.debug("no note for animation %s", name, exc_info=True)
+        where = box.findData(chosen)
+        if where < 0:
+            where = box.findData(DEFAULT_THEME)
+        if where < 0:
+            # THE DEFAULT IS NOT IN THE LIST, which means the ambient module
+            # and its own default disagree. There is nothing better left to
+            # show than the first entry, and it is worth a line in the log.
+            LOG.debug("no %s among the animations offered", DEFAULT_THEME)
+            where = 0
+        box.setCurrentIndex(where)
+        # APPLIED AS CHOSEN, like the theme above it: a backdrop is a look,
+        # and the only way to know a look took is to see it.
+        box.currentIndexChanged.connect(self._apply_animation)
+        self._animation = box
+
+        row = QHBoxLayout()
+        row.addWidget(QLabel(_say(ANIMATION_LABEL)))
+        row.addStretch(1)
+        row.addWidget(box)
+        return row
+
+    def animation_choice(self) -> str:
+        """Which backdrop the slide is showing, or ``""`` with no row."""
+        box = getattr(self, "_animation", None)
+        return "" if box is None else str(box.currentData() or "")
+
+    def _apply_animation(self, *_args) -> None:
+        """Store the backdrop choice, through the one seam that owns it.
+
+        :func:`spacr.qt.preferences.set_ambient_animation` both records the
+        choice and turns the backdrop on or off, so writing the theme key
+        directly would leave a profile that chose None with the animation
+        still enabled -- and one that chose Blobs after switching it off
+        with silence.
+        """
+        name = self.animation_choice()
+        if not name:
+            return
+        try:
+            from ..preferences import set_ambient_animation
+
+            set_ambient_animation(name)
+        except Exception:                                    # noqa: BLE001
+            # A BACKDROP THAT WILL NOT APPLY IS NOT A REASON TO STOP SETUP.
+            LOG.debug("could not store the animation choice", exc_info=True)
 
     def _provider_buttons(self, value) -> QWidget:
         """Claude, GPT and Gemini as their MARKS rather than as three words.
@@ -1545,6 +1783,21 @@ class SetupSlides(QDialog):
         if fade:
             self._fade_in()
 
+    def showEvent(self, event):                 # noqa: N802 - Qt naming
+        """Measure the reading gate once the window is on screen.
+
+        THE GATE ASKS WHETHER THE END OF THE TERMS IS ON SCREEN, which has
+        no answer while the window is not. The check is deferred to the
+        event loop rather than run here, because the layout that decides
+        whether the document fits happens after this returns.
+        """
+        super().showEvent(event)
+        try:
+            QTimer.singleShot(0, self._look_at_the_terms_gate)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("the terms gate could not be re-measured",
+                      exc_info=True)
+
     def _fade_in(self) -> None:
         """Bring the new slide up from transparent.
 
@@ -1780,6 +2033,9 @@ class SetupSlides(QDialog):
         # than in a container floating over it.
         self.card.setGeometry(self.rect())
         self.card.raise_()
+        # A WINDOW MADE TALLER CAN PUT THE END OF THE TERMS ON SCREEN, and
+        # that is the whole of the gate's question.
+        self._look_at_the_terms_gate()
         # THE WINDOW IS CUT TO THE CARD'S SHAPE, the same way every glassed
         # popup is, so the two surfaces are the same surface and not two
         # takes on one idea.
@@ -1805,6 +2061,20 @@ def _catalogue_this_screen() -> None:
         terms_module.register_translations()
     except Exception:                                        # noqa: BLE001
         LOG.debug("the terms captions could not be catalogued", exc_info=True)
+    try:
+        from ..i18n import add_translation
+
+        # THE ONE ROW THIS MODULE OWNS. Every other caption on the screen
+        # comes from `setup_screen.questions()` or from `terms`; the
+        # animation question is asked here, so its caption is catalogued
+        # here, through the same seam.
+        add_translation(ANIMATION_LABEL, (
+            "Animation", "Animation", "Animación", "动画",
+            "Animação", "एनिमेशन",
+            "애니메이션", "Hreyfimynd", "Animation"))
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("the animation caption could not be catalogued",
+                  exc_info=True)
 
 
 _catalogue_this_screen()

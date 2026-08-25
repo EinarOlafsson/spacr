@@ -40,25 +40,38 @@ _TORCHVISION_MODELS_CURATED = [
 
 
 def _regression_type_choices():
-    """Every family that fits, in a stable order, mixed first.
+    """Every family that fits, as ``(stored value, label)``, grouped.
 
-    `spacr.regression_spec` imports nothing -- that is the whole reason it
-    was split out of `spacr.ml`, which pulls in torch through `spacr.plot` --
-    so asking it here costs a dict lookup rather than 2.2 seconds.
+    :returns: pairs whose first element is the stored ``regression_type`` and
+        whose second is the line the dropdown shows -- the family's name, the
+        kind of fit it is, and what it assumes.
 
-    Mixed first because it is the default and answers the most central
-    question; the rest alphabetically, so a family added to the inventory
-    lands somewhere predictable instead of at the end.
+    Nineteen unlabelled names in one alphabetical list is a menu that hides
+    its own contents: the quantile fit, the two robust losses and the rank
+    aggregation were all on it and none of them could be found.
+    :func:`spacr.regression_families.regression_family_choices` places each
+    family in one of three honest kinds -- parametric,
+    robust/semiparametric, rank-based -- and gives it a sentence saying what
+    has to be true of the data for its answer to mean anything.
+
+    Mixed leads because it is the default and answers the most central
+    question; then the rest of the parametric group, then the robust one,
+    then the rank-based one, so a family added to the inventory lands
+    somewhere predictable instead of at the end.
+
+    NOTHING IS RENAMED. The stored value is unchanged and leads its own
+    label, so a settings CSV written before the grouping asks for exactly the
+    fit it always asked for, and a user looking for 'quantile' still finds
+    the word.
+
+    `spacr.regression_families` imports only `spacr.regression_spec`, which
+    imports nothing -- that is the whole reason the vocabulary was split out
+    of `spacr.ml`, which pulls in torch through `spacr.plot` -- so asking it
+    here costs a dict lookup rather than 2.2 seconds.
     """
-    from .regression_spec import (REGRESSION_TYPES,
-                                  UNSUPPORTED_REGRESSION_TYPES)
+    from .regression_families import regression_family_choices
 
-    families = sorted(set(REGRESSION_TYPES)
-                      - set(UNSUPPORTED_REGRESSION_TYPES))
-    if 'mixed' in families:
-        families.remove('mixed')
-        families.insert(0, 'mixed')
-    return families
+    return regression_family_choices()
 
 
 def _regression_backend_choices():
@@ -228,9 +241,15 @@ def convert_settings_dict_for_gui(settings):
         # READ FROM THE INVENTORY, NOT LISTED BY HAND. The hand-written
         # list offered 'gls' -- which is in UNSUPPORTED_REGRESSION_TYPES and
         # RAISES -- and omitted six families that fit: huber, beta,
-        # quasi_binomial, elasticnet, hinge and horseshoe. So the Tk panel
+        # quasi_binomial, elasticnet, hinge and horseshoe. So the panel
         # could pick a type that fails and could not reach a third of the
-        # ones that work. Reported by the run that built instruction 132.
+        # ones that work.
+        # (value, label) PAIRS, GROUPED BY WHAT THEY ASSUME. Nineteen bare
+        # names in one alphabetical list hid the four families a user was
+        # looking for; the label says whether the fit is parametric,
+        # robust/semiparametric or rank-based and what it assumes. The
+        # stored values are unchanged, so every settings file already
+        # written goes on meaning what it meant.
         'regression_type': ('combo', _regression_type_choices(), 'mixed'),
         # WHO fits it (instruction 141 A). Default 'statsmodels (CPU)' --
         # every existing result was produced with it, and a default that

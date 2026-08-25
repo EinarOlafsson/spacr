@@ -14,10 +14,11 @@ description as the tooltip, lit on hover in the maturity colour its tile
 used -- see :class:`spacr.qt.widgets.fold_strip.FoldStrip`.
 
 NOTHING IS LOST IN THE MOVE. The buttons open the two modules
-themselves, in windows of their own, so the bundle browser, the leakage
-report, the backend choice, the SHAP panel and every navigation those
-screens offer arrive with them, and the training settings stay on screen
-behind them.
+themselves, as PAGES beside the training settings, so the bundle browser,
+the leakage report, the backend choice, the SHAP panel and every
+navigation those screens offer arrive with them, and the training
+settings are one tab away rather than behind a window. A window is what a
+fold becomes only when its host has no body to make pages out of.
 
 The shared half of a fold -- opening the module, wiring the host signals
 and hanging the strip off the masthead -- lives in

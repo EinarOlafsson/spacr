@@ -43,6 +43,11 @@ modules that used to be rows of their own are buttons on this screen's
 masthead — :data:`FOLD_ORDER` — each drawn as its own icon by
 :class:`~spacr.qt.widgets.fold_strip.FoldStrip`.
 
+WHAT THIS SCREEN IS NOT is a time series. Tracking objects across frames
+and the motility assay fold into Mask Generation, whose settings they
+overlap, and they fold in as settings categories rather than as anything
+that opens — see :mod:`spacr.qt.screens.mask`.
+
 Two of those buttons carry something the folded module did not have:
 
 * **Mask the whole folder** runs the applying half of the Cellpose
@@ -55,9 +60,9 @@ Two of those buttons carry something the folded module did not have:
   untouched file. :meth:`spacr.curation.MaskCuration.save_mask` writes
   the labels and the ledger together, and this button is what presses it.
 
-A folded module is opened as the widget it always was, in a window of its
-own (:class:`FoldedModuleDialog`), so nothing it could do is lost on the
-way in.
+A folded module is opened as the widget it always was, on a page beside
+the editor (:class:`FoldedModulePanel`), so nothing it could do is lost on
+the way in and nothing floats over the screen it came from.
 """
 from __future__ import annotations
 
@@ -81,7 +86,6 @@ from PySide6.QtWidgets import (
     QApplication,
     QCheckBox,
     QComboBox,
-    QDialog,
     QDialogButtonBox,
     QDoubleSpinBox,
     QFileDialog,
@@ -132,6 +136,13 @@ MASK_FOLDER_KEY = "cellpose_all"
 #: The modules that fold into this screen, in the order their buttons appear
 #: on the masthead. The button IS the module, so this is also the list of
 #: keys :meth:`MakeMasksScreen.folded_screen` knows how to build.
+#:
+#: TIMELAPSE AND MOTILITY ARE NOT HERE. They were, and they were in the
+#: wrong home: this screen is hand-curation of masks that already exist,
+#: and both of those are things mask GENERATION does over a series --
+#: their settings overlap that module's, not this one's tools. They fold
+#: into Mask Generation instead, as switches that reveal their own
+#: settings categories on its form; see :mod:`spacr.qt.screens.mask`.
 FOLD_ORDER = (
     "train_cellpose",
     MASK_FOLDER_KEY,
@@ -139,8 +150,6 @@ FOLD_ORDER = (
     "model_zoo",
     "curate",
     "napari_bridge",
-    "timelapse",
-    "motility",
 )
 
 #: ``key -> (name, description, stage)`` for a folded module whose registry
@@ -185,14 +194,6 @@ FOLD_FALLBACK = {
         "Napari Bridge",
         "Correct a mask in napari and bring the corrected labels back",
         "alpha"),
-    "timelapse": (
-        "Timelapse",
-        "Segment and track objects across the frames of a time series",
-        "beta"),
-    "motility": (
-        "Motility Assay",
-        "Automated motility assay: track velocity + infection QC",
-        "beta"),
 }
 
 #: A folded key that shares another key's screen. The two halves of the
@@ -794,8 +795,8 @@ def fold_description(key: str) -> tuple:
             stage or fallback[2])
 
 
-class FoldedModuleDialog(QDialog):
-    """One folded module, opened over its host as the whole screen it was.
+class FoldedModulePanel(QWidget):
+    """One folded module, as the whole screen it was, plus what the host adds.
 
     A fold that reimplemented the module it replaced would keep whatever the
     person doing the folding happened to think of and quietly drop the rest.
@@ -803,14 +804,18 @@ class FoldedModuleDialog(QDialog):
     every drop target it had as a tile is what arrives, and the only thing
     that changed is where it is opened from.
 
-    The window is not modal. The reason to fold Curate or the Model Zoo into
-    the mask editor is to use them ON the field that is open behind them, and
-    a modal window is one that cannot be looked past.
+    IT IS A PAGE ON THIS SCREEN, not a window over it. A window is the last
+    resort for a fold, and it is what this becomes only when the host has no
+    body to make pages out of — see
+    :func:`spacr.qt.screens.map_barcodes.show_as_page`. As a page it is
+    closed by the tab's own close button, so the standard Close button
+    below belongs to the window shape alone and is added with it.
 
     :param key: the folded module's registry key.
     :param screen: the module's own widget, already built.
-    :param title: the window title — the module's name.
-    :param actions: extra buttons for the button box, each
+    :param title: the page's caption and the window title — the module's
+        name.
+    :param actions: extra buttons for the button row, each
         ``(label, tooltip, callback)``. This is where a capability the folded
         module lacks and its host has arrives.
     """
@@ -820,14 +825,13 @@ class FoldedModuleDialog(QDialog):
         super().__init__(parent)
         self.app_key = key
         self.screen = screen
-        self.setObjectName("FoldedModuleDialog")
+        self.setObjectName("FoldedModulePanel")
         self.setWindowTitle(title)
-        self.setModal(False)
         column = QVBoxLayout(self)
         column.setContentsMargins(0, 0, 0, SPACING["sm"])
         column.setSpacing(SPACING["sm"])
         column.addWidget(screen, 1)
-        self.buttons = QDialogButtonBox(QDialogButtonBox.Close, self)
+        self.buttons = QDialogButtonBox(QDialogButtonBox.NoButton, self)
         #: Label -> button, for the extra actions.
         self.actions: dict = {}
         for label, tooltip, callback in actions:
@@ -841,7 +845,24 @@ class FoldedModuleDialog(QDialog):
                 lambda _checked=False, cb=callback: cb())
             self.actions[label] = button
         self.buttons.rejected.connect(self.close)
+        # An empty row would be a strip of padding under the module saying
+        # nothing; it appears the moment there is a button to put in it.
+        self.buttons.setVisible(bool(self.actions))
         column.addWidget(self.buttons)
+
+    def add_close_button(self) -> None:
+        """Give this panel the Close button a window needs.
+
+        A page is closed by its tab. A window has no tab, so the row that
+        carries the host's extra actions carries a Close beside them —
+        added when the panel becomes a window rather than always, so a
+        page never shows a button that would hide it inside its own tab.
+        """
+        if "Close" in self.actions:
+            return
+        button = self.buttons.addButton(QDialogButtonBox.Close)
+        self.actions["Close"] = button
+        self.buttons.setVisible(True)
         self.resize(1120, 780)
 
 
@@ -875,7 +896,14 @@ class MakeMasksScreen(QWidget):
         #: the paths, models and results the first one left.
         self._fold_screens: dict[str, QWidget] = {}
         #: Folded module key -> the window that screen lives in.
-        self._fold_dialogs: dict[str, FoldedModuleDialog] = {}
+        #: Folded module key -> the panel that screen lives in,
+        #: which is a page on this screen wherever it can be one.
+        self._fold_dialogs: dict[str, FoldedModulePanel] = {}
+        #: What this screen's own page is called once a folded module
+        #: puts a page beside it. Named here because this screen is not
+        #: the generic settings form and carries no registry key to be
+        #: looked up by.
+        self._fold_page_title = HEADER_TITLE
         self._build_ui()
         self._install_shortcuts()
         self._sync_button_states()
@@ -1089,6 +1117,10 @@ class MakeMasksScreen(QWidget):
         if key == "napari_bridge":
             from .napari_bridge import NapariBridgeScreen
             return NapariBridgeScreen()
+        # A module with no screen of its own gets the generic settings
+        # page — the same page its tile opened. Every key this screen
+        # folds today has a screen; this is what the next one gets if it
+        # does not.
         from .app_screen import AppScreen
         return AppScreen(app_key=key)
 
@@ -1105,28 +1137,38 @@ class MakeMasksScreen(QWidget):
                      self.save_curated_mask),)
         return ()
 
-    def open_folded(self, key: str) -> Optional[FoldedModuleDialog]:
-        """Open a folded module over this screen, pointed at the open field.
+    def open_folded(self, key: str) -> Optional[FoldedModulePanel]:
+        """Open a folded module on this screen, pointed at the open field.
+
+        The module arrives as a PAGE beside the editor, which is where a
+        fold belongs; it becomes a window only if this screen has no body
+        to make pages out of.
 
         :param key: one of :data:`FOLD_ORDER`.
-        :returns: the module's window, or ``None`` for a key this screen does
-            not fold. Pressing the same button again raises the window that
-            is already open rather than building a second one.
+        :returns: the module's panel, or ``None`` for a key this screen does
+            not fold. Pressing the same button again raises the page that is
+            already there rather than building a second one.
         """
+        from .map_barcodes import show_as_page, show_as_window
+
         host = FOLD_HOSTS.get(key, key)
         screen = self.folded_screen(host)
         if screen is None:
             return None
-        dialog = self._fold_dialogs.get(host)
-        if dialog is None:
-            dialog = FoldedModuleDialog(
-                host, screen, fold_description(host)[0], parent=self,
+        title = fold_description(host)[0]
+        panel = self._fold_dialogs.get(host)
+        if panel is None:
+            panel = FoldedModulePanel(
+                host, screen, title, parent=self,
                 actions=self._fold_actions(host))
-            self._fold_dialogs[host] = dialog
+            self._fold_dialogs[host] = panel
         self.seed_folded(key)
-        dialog.show()
-        dialog.raise_()
-        return dialog
+        if show_as_page(panel, self, title) is None:
+            panel.add_close_button()
+            show_as_window(panel, self, title)
+        panel.show()
+        panel.raise_()
+        return panel
 
     def seed_folded(self, key: str) -> dict:
         """Point a folded module at the field this screen has open.
@@ -1278,23 +1320,33 @@ class MakeMasksScreen(QWidget):
         return written
 
     def close_folded(self) -> None:
-        """Close every folded module window, and everything it started.
+        """Close every folded module, and everything it started.
 
-        Closing the window is not enough. A module page polls the machine's
-        RAM and GPU on a worker thread while it is visible, and Qt answers a
-        running QThread being destroyed by aborting the process — so the
-        page's own close handler, which drains that worker, has to run. A
-        page nested inside another module's tabs never gets one from Qt,
-        which is why they are closed by hand here.
+        Closing the panel is not enough. A module polls the machine's RAM
+        and GPU on a worker thread, and Qt answers a running QThread being
+        destroyed by aborting the process — so the module's own close
+        handler, which drains that worker, has to run. A page nested
+        inside another module's tabs never gets one from Qt, which is why
+        they are closed by hand here.
+
+        EVERY MODULE THAT WAS BUILT, not every module that was opened. A
+        module is built the moment something asks this screen to point it
+        at the open folder — :meth:`seed_folded` does, and so does any
+        test or caller reaching for :meth:`folded_screen` — and pointing
+        Model Compare at a folder starts a load thread before its panel
+        has ever been on screen. Walking the panels alone left those
+        threads running with nothing holding them, and the process died
+        of it several actions later, in whatever happened to be running
+        when the memory behind them was touched.
         """
         from .app_screen import AppScreen
 
-        for dialog in list(self._fold_dialogs.values()):
-            screen = dialog.screen
+        for screen in list(self._fold_screens.values()):
             for page in screen.findChildren(AppScreen):
                 page.close()
             screen.close()
-            dialog.close()
+        for panel in list(self._fold_dialogs.values()):
+            panel.close()
 
     def _build_tools_panel(self) -> QWidget:
         wrap = QWidget()

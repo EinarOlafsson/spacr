@@ -12,9 +12,10 @@ description as the tooltip, lit on hover in the maturity colour its tile
 used -- see :class:`spacr.qt.widgets.fold_strip.FoldStrip`.
 
 NOTHING IS LOST IN THE MOVE. The button opens the export module itself,
-settings form and Run button and console, in a window of its own; the
-headless path is untouched, because the button runs the same entry point
-``spacr-run anndata_export`` runs.
+settings form and Run button and console, as a PAGE beside the measure
+settings rather than in a window over them -- a window is the last resort
+for a fold. The headless path is untouched, because the button runs the
+same entry point ``spacr-run anndata_export`` runs.
 
 The shared half of a fold -- opening the module, wiring the host signals
 and hanging the strip off the masthead -- lives in
@@ -39,7 +40,20 @@ HOST_KEY = "measure"
 
 #: Registry keys of the modules folded into it, in the order the strip
 #: draws them.
-FOLDED_APPS: Tuple[str, ...] = ("anndata_export",)
+#:
+#: THE MOTILITY ASSAY IS A MEASUREMENT. It reads finished masks from
+#: ``merged/*.npy``, builds per-cell rows, writes them to
+#: ``measurements/measurements.db`` and adds per-track velocities -- which
+#: is this host's job description with a time axis. It does not make
+#: masks, so Mask Generation was the wrong home for it however much its
+#: settings looked like tracking's.
+#:
+#: It opens its own screen rather than becoming a settings category here,
+#: and that is not the fold rule being ignored. Its module runs on a
+#: folder that has ALREADY been segmented, and Measure's own run has no
+#: gate that would fire it -- so there is no seam to reveal, and inventing
+#: a pipeline path would be a bigger change than the fold.
+FOLDED_APPS: Tuple[str, ...] = ("anndata_export", "motility")
 
 
 def _build_anndata_export(host_window: Optional[QWidget]) -> QWidget:
@@ -47,10 +61,16 @@ def _build_anndata_export(host_window: Optional[QWidget]) -> QWidget:
     return build_settings_screen("anndata_export", host_window)
 
 
+def _build_motility(host_window: Optional[QWidget]) -> QWidget:
+    """The Motility Assay's own screen, run on masks that already exist."""
+    return build_settings_screen("motility", host_window)
+
+
 #: One builder per folded module — see
 #: :func:`spacr.qt.screens.map_barcodes.install_fold_strip`.
 BUILDERS: Dict[str, Callable[[Optional[QWidget]], QWidget]] = {
     "anndata_export": _build_anndata_export,
+    "motility": _build_motility,
 }
 
 

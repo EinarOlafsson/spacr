@@ -2,8 +2,9 @@
 THE POSITIVE CONTROL CALIBRATES THE gRNA FRACTIONS
 ================================================================================
 
-Status:    closed. Read WHAT WAS SAID BACK before changing any of it; the
-           threshold sweep is the last section.
+Status:    closed, sweep included and wired end to end. Read WHAT WAS SAID
+           BACK before changing any of it; the two defects that stopped the
+           opt-in switch reaching the sweep at all are the last section.
 Requested: 2026-08-21 -- "we could search for the positive controll in the
            wells, then assumin on average the positive controll does not
            co-habit wells with screen hits the gRNA fraction for the positive
@@ -379,12 +380,60 @@ control column has two guides competing for its reads and a screen well has
 hundreds. The threshold this chooses is the one that makes the CONTROL
 columns consistent.
 
-WHAT REMAINS: nothing calls it yet. `graph_sequencing_stats` still picks the
-threshold from `target_unique_count` alone, which is a different question --
-how many guides per well do I want -- and the two can be reported side by
-side.
-
 Tests: `tests/test_the_threshold_is_measured_per_screen.py`, 15 passing. On a
 control plate with a planted contaminant the sweep recovers the threshold
 that removes it, and the run keeping every read is shown fitting a perfect
 line while both measurements disagree.
+
+--------------------------------------------------------------------------------
+THE SWITCH IS WIRED, AND IT HAD NEVER ONCE REACHED THE SWEEP
+--------------------------------------------------------------------------------
+
+`calibrate_fraction_threshold` is declared, typed, tooltipped, on the panel
+and read by `ml._perform_regression`, which is why this looked done. Driven
+end to end on a synthetic control plate it returned NOTHING, every time, for
+two independent reasons -- and both were invisible because the tests either
+side of the seam agreed with themselves rather than with each other.
+
+ONE: THE ANSWER WAS READ OFF THE WRONG KEY. `_calibrated_fraction_threshold`
+took `result.get("threshold")`. `sweep_fraction_threshold` returns the
+answer as `chosen`; `threshold` is a per-candidate key, one on each row of
+`candidates`. So the reader was asking the top level for a name that only
+exists a level down, got None every time, and printed "found no cut-off it
+preferred" over a sweep that had chosen 0.02. The two tests covering it
+supplied `{"threshold": ...}` themselves, so the stand-in and the reader
+agreed about a shape the real producer has never had.
+
+TWO: THE WELLS WERE TAKEN FROM THE GUIDE SETTING. `_calibration_inputs`
+matched well labels against `positive_control` and `negative_control`. In a
+REGRESSION those are gene or gRNA ID substrings -- `positive_control` defaults
+to '239740' -- and no well label has ever contained one, so the sweep was
+refused with "no well matched" before it read a number. The three control
+BLOCK settings this file added for exactly this purpose,
+`positive_control_wells` and `negative_control_wells`, were never read. They
+are now, and the guide setting is used for the guide, which is what
+`positive_guide` needs. A token is matched against a PART of the `prc` label
+rather than as a substring of it: 'c2' in 'plate1_r1_c20' is true and says
+nothing, and folding column 20 into column 2's reference would shift the
+endpoint the whole calibration is anchored on.
+
+There is now a test that drives `_calibrated_fraction_threshold` onto the
+REAL sweep over a planted control plate and gets 0.02 back -- the claim
+neither stand-in could make.
+
+--------------------------------------------------------------------------------
+AND THE TWO ANSWERS ARE REPORTED SIDE BY SIDE, AND NAMED
+--------------------------------------------------------------------------------
+
+`graph_sequencing_stats` still picks its threshold from `target_unique_count`
+alone, and that is right: it answers "how many guides per well do I want" from
+the counts, and the calibration answers "which cut-off makes imaging and
+sequencing agree" from the control wells. Neither replaces the other.
+
+Both are on screen. When a threshold is in force the run draws the sweep
+anyway and `_draw_the_threshold_sweep` prints the sweep's own pick beside the
+number in force. What was wrong was the attribution: it said "you set 0.0168"
+about a number the calibration had measured, which tells the user something
+untrue about where their threshold came from -- the one thing that line
+exists to say. It now names the source, and says in the same sentence that
+the two answer different questions.

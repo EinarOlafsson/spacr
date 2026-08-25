@@ -16,6 +16,7 @@ from __future__ import annotations
 from functools import lru_cache
 import hashlib
 from importlib import import_module
+import re
 from types import ModuleType
 from typing import Optional
 
@@ -62,12 +63,29 @@ def _localized_value(
     return str(value) if isinstance(value, str) and value.strip() else None
 
 
+#: A bare snake_case name -- ``image_path``, ``fdr_bh``, ``RdBu_r``. These
+#: reach the catalogs because they are shown to the user, in a combo box or
+#: a status line, but they are NAMES rather than prose: a column, a
+#: correction method, a colour map. Whatever a translation model does to one
+#: it stops naming the thing it named, and where the caption is read back to
+#: choose the column it also stops matching. Measured in the shipped
+#: catalogs: ``image_path`` was stored as ``image_path.`` in four languages,
+#: ``png_list E-mail`` in Portuguese and ``RdBu_r( 빈 공간)`` in Korean.
+_IDENTIFIER = re.compile(r"^[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)+$")
+
+
 def ui_text(source: str, language: str) -> Optional[str]:
-    """Return an exact translation for spaCR-owned static Qt text."""
+    """Return an exact translation for spaCR-owned static Qt text.
+
+    An identifier answers with itself: see :data:`_IDENTIFIER`.
+    """
+    text = str(source)
+    if _IDENTIFIER.match(text):
+        return None
     module = _module(language)
     if module is None:
         return None
-    return _localized_value(module, "UI", str(source), str(source))
+    return _localized_value(module, "UI", text, text)
 
 
 def setting_label(

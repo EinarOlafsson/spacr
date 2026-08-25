@@ -125,3 +125,22 @@ taught nobody that.
 Pinned by tests/test_conftest_fixture_visibility.py, which runs the
 interleaving for real and then runs it again with the fix switched off, so the
 hazard and the guard are both demonstrated rather than asserted.
+
+--------------------------------------------------------------------------------
+RE-VERIFIED ON THIS TREE
+--------------------------------------------------------------------------------
+
+The reproduction command runs clean: 149 passed, 0 errors, ~59 s. Every test
+in the third file runs instead of erroring in setup, which is this file's own
+success criterion.
+
+The two suspects the WHAT TO DO section asked to rule out first are ruled out
+and stay ruled out. `collect_ignore_glob` is computed once, at the single
+import of tests/qt/conftest.py, and a sys.modules eviction would have to
+re-import it to matter; the module is imported exactly once either way. What
+was lost was the fixtures' VISIBILITY from a second collection node, which is
+what the fix addresses.
+
+tests/test_conftest_fixture_visibility.py passes, including the half that
+switches the shard off and shows the hazard returning, so the guard is
+demonstrated rather than asserted.

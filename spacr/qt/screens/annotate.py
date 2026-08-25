@@ -32,7 +32,9 @@ carrying a tile of its own: κ between annotation columns is a question
 about the labels this screen writes, asked by the person who wrote them
 while the crops are still in front of them. The button is that module's
 own icon, lit on hover in its maturity colour, and it opens the agreement
-screen itself in a window over this one — see :data:`FOLDED_APPS`.
+screen itself as a PAGE beside the grid rather than a window over it — a
+window is the last resort for a fold, and nothing here needs one. See
+:data:`FOLDED_APPS`.
 
 The Qt screen does not currently provide the UMAP window, Deep spaCR training
 launcher, or measurement-threshold filtering. A threshold can be entered in
@@ -1590,6 +1592,10 @@ class AnnotateScreen(QWidget):
 
         :returns: the strip, or None if it could not be built.
         """
+        # What this screen's own page is called once a folded module puts
+        # a page beside it. Named here because this screen builds its own
+        # masthead and carries no registry key to be looked up by.
+        self._fold_page_title = "Annotate"
         try:
             openers = [FoldOpener(self, key, FOLD_BUILDERS[key])
                        for key in FOLDED_APPS]
