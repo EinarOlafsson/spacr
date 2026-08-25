@@ -16,6 +16,12 @@ which a script written without them gets wrong quietly:
 * **Settings are checked before the work starts.** :func:`preflight` runs
   spaCR's own pre-flight validator and stops on any error it reports, which
   is the same check the GUI makes and the one a bare script skips.
+* **A wrong answer is an exit code, not a printed line.** :func:`check`
+  raises :class:`WrongAnswer`, which leaves the process with status 1 and the
+  reason on stderr. A driver that prints "0 of 4,800 reads mapped" and exits
+  0 has reported the failure to nobody: the caller sees success, and the
+  number scrolls away. Status 2 stays reserved for "the data is not here",
+  so a caller can still tell an absent disk from a broken run.
 
 Nothing here imports spaCR, numpy or torch at module scope: the refusal path
 must cost a bare interpreter start, so pointing a driver at an unmounted
@@ -37,6 +43,29 @@ class MissingData(Exception):
     Carries the whole list rather than the first offender: fixing one missing
     path at a time turns a mount that is not there into five runs.
     """
+
+
+class WrongAnswer(Exception):
+    """The run finished and produced the wrong result.
+
+    Distinct from :class:`MissingData`, which means it never started. A
+    driver exists to ask a question the test suite does not, and a question
+    whose wrong answer costs nothing has not been asked.
+    """
+
+
+def check(condition, message):
+    """Refuse unless ``condition`` holds, naming what the answer should be.
+
+    :param condition: the property the run had to have.
+    :param message: what was expected and what came out instead. It is the
+        whole report a caller gets, so it names both numbers rather than
+        saying a check failed.
+    :raises WrongAnswer: when ``condition`` is false.
+    """
+    if not condition:
+        raise WrongAnswer(message)
+    return True
 
 
 def dataset_root(argv, default):
@@ -264,13 +293,20 @@ def cap_gpu(fraction=0.80):
 def run(main):
     """Call a driver's ``main`` and turn a refusal into a clear exit.
 
-    A missing dataset exits 2 with the reason on stderr rather than a
-    traceback, so a caller can tell "the data is not here" from "the run
-    broke".
+    Three outcomes, three exit codes, because a caller has to be able to tell
+    them apart without reading the log:
+
+    * ``0`` the run finished and every check it makes held;
+    * ``1`` the run finished and produced a wrong answer -- the reason is on
+      stderr under ``WRONG ANSWER``;
+    * ``2`` the data is not on this machine, so the run never started.
     """
     try:
         main(sys.argv)
     except MissingData as refusal:
         print(f"REFUSED: {refusal}", file=sys.stderr)
         raise SystemExit(2)
+    except WrongAnswer as wrong:
+        print(f"WRONG ANSWER: {wrong}", file=sys.stderr)
+        raise SystemExit(1)
     return 0

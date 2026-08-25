@@ -6658,8 +6658,8 @@ COUNT_DEPENDENT_MEASUREMENTS = ('spatial_measurements', 'object_distances')
 #: ``'many'`` -- separable objects, the counting families are the phenotype.
 #: ``'one'``  -- one connected structure per cell, so a count is a
 #:               segmentation artefact rather than a measurement.
-#: ``'depends'`` -- the maintainer's own list mixes both, so the answer is
-#:               the structure, not the category.
+#: ``'depends'`` -- the category holds both kinds, so what decides it is
+#:               the structure in front of you rather than the name.
 #: ``'unknown'`` -- 'custom' recommends nothing and is not told what it is.
 ORGANELLE_OBJECTS_PER_CELL = {
     'custom': 'unknown',

@@ -160,12 +160,13 @@ class PlateMapPicker(QDialog):
         self._layout_size = int(layout)
         wanted = self.selection() if not keep else self._read(keep)
 
+        # EVERY ITEM IN THIS GRID IS A WIDGET -- it is built with `addWidget`
+        # alone, and the minimum sizes and stretches below add no items of
+        # their own -- so each one taken out is a label or a well to drop.
         while self._grid.count():
-            item = self._grid.takeAt(0)
-            widget = item.widget()
-            if widget is not None:
-                widget.setParent(None)
-                widget.deleteLater()
+            widget = self._grid.takeAt(0).widget()
+            widget.setParent(None)
+            widget.deleteLater()
         self._wells = {}
         # A GRID KEEPS ITS ROW AND COLUMN COUNT when its items are taken out,
         # so the stretch that absorbed the spare space on the previous layout

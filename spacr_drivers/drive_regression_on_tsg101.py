@@ -20,6 +20,15 @@ TWO THINGS ARE CHANGED FROM THE RECORDED SETTINGS, and both are printed:
   trip so a reloaded run still names them, and copying two gigabytes to prove
   they are unread is not worth it.
 
+THE SCREEN CARRIES ITS OWN RIGHT ANSWER, and it is the controls. A fixture
+that plants a coefficient is the usual way to ask a regression whether it
+recovered anything; a real screen does it with a positive control, and this
+one names ``positive_control=239740`` in its own settings file. A fit that
+writes every table and every figure and leaves that gene un-called, or calls
+it on the wrong side of zero, has produced a result nobody can use -- and
+counting the output files does not notice. So the driver reads the gene
+table back and checks where the controls landed.
+
 A BLANK IS NOT AN ANSWER. ``hinge_threshold,`` on a line is what a saved
 settings file looks like for a box nobody filled in, and a settings loader
 that reads that blank as a value refuses the run over a setting the chosen
@@ -33,8 +42,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from _support import (dataset_root, preflight, read_settings, require, run,
-                      scratch, settings_file, stage)
+from _support import (check, dataset_root, preflight, read_settings, require,
+                      run, scratch, settings_file, stage)
 
 DEFAULT_ROOT = "/mnt/firecuda2/Claude/toxoplasma_projects/tsg101_screen"
 
@@ -84,6 +93,37 @@ def summarise(work):
     return bool(written)
 
 
+def gene_table(work):
+    """The fitted gene-level table and the features the run called, or None.
+
+    :returns: ``(gene_rows, called_features)``, or ``None`` when the run did
+        not write a gene table at all.
+    """
+    import pandas as pd
+
+    tables = sorted(Path(work).rglob("results_gene.csv"))
+    if not tables:
+        return None
+    genes = pd.read_csv(tables[0])
+    called = set()
+    for path in sorted(Path(work).rglob("results_significant.csv")):
+        called |= set(pd.read_csv(path)["feature"].astype(str))
+    return genes, called
+
+
+def control_row(genes, control):
+    """The gene-level row for one control identifier, or None.
+
+    Features are spelled ``gene_fraction:gene[239740]``, so the control is
+    matched inside the feature name rather than against a bare column.
+    """
+    if control is None:
+        return None
+    hit = genes[genes["feature"].astype(str).str.contains(str(control),
+                                                          regex=False)]
+    return None if hit.empty else hit.iloc[0]
+
+
 def main(argv):
     """Stage the screen's score and count tables and fit its own settings."""
     root = require(dataset_root(argv, DEFAULT_ROOT), REQUIRED,
@@ -125,6 +165,59 @@ def main(argv):
 
     perform_regression(settings)
     summarise(work)
+    check_the_controls(work, settings)
+
+
+def check_the_controls(work, settings):
+    """Read the gene table back and say where the screen's controls landed.
+
+    :raises WrongAnswer: when the positive control never reached the fit, or
+        reached it and came out un-called or on the wrong side of zero.
+    """
+    tables = gene_table(work)
+    check(tables is not None,
+          "the run wrote no results_gene.csv, so there is no fitted gene "
+          "table to check the controls against")
+    genes, called = tables
+    check(len(genes) > 0, "results_gene.csv is empty: the fit produced no "
+                          "gene-level coefficients at all")
+    print(f"\ngene-level rows fitted: {len(genes)}; features called: "
+          f"{len(called)}")
+
+    positive = settings.get("positive_control")
+    row = control_row(genes, positive)
+    check(row is not None,
+          f"the positive control {positive!r} is named in the screen's own "
+          f"settings but no row of the {len(genes)}-row gene table carries "
+          f"it. A control the fit never saw is a join that lost it, not a "
+          f"result.")
+    print(f"positive control {positive}: coefficient {row['coefficient']:+.3f}"
+          f", q={row['q_value']:.3g}, "
+          f"{'called' if row['feature'] in called else 'NOT called'}")
+    check(row["coefficient"] > 0,
+          f"the positive control {positive} came out at "
+          f"{row['coefficient']:+.3f}. A positive control on the negative "
+          f"side of zero is the screen read backwards, which is the one "
+          f"failure a table of coefficients cannot show by existing.")
+    check(row["feature"] in called,
+          f"the positive control {positive} was fitted at "
+          f"{row['coefficient']:+.3f} (q={row['q_value']:.3g}) and was not "
+          f"called. If the strongest thing in the screen is not a hit, "
+          f"nothing else in the hit list means anything.")
+
+    negative = settings.get("negative_control")
+    quiet = control_row(genes, negative)
+    if quiet is None:
+        print(f"negative control {negative}: not a row of the gene table for "
+              f"this screen, so there is nothing to check it against")
+    else:
+        print(f"negative control {negative}: coefficient "
+              f"{quiet['coefficient']:+.3f}, "
+              f"{'CALLED' if quiet['feature'] in called else 'not called'}")
+        check(quiet["feature"] not in called,
+              f"the negative control {negative} was called a hit at "
+              f"{quiet['coefficient']:+.3f}; a screen that calls its own "
+              f"negative control is calling noise")
 
 
 if __name__ == "__main__":

@@ -15,6 +15,13 @@ Every driver follows the same contract:
 * **A missing dataset is a refusal, not a half-run.** Preconditions are checked
   before any heavy import, so pointing a driver at an unmounted disk answers in
   under a second, names every input it could not find, and exits 2.
+* **A wrong answer is an exit code.** Each driver checks the thing its module
+  is for -- the reads were attributed, the objects were found, the controls
+  came out where the screen says they should, the label landed on the crop it
+  was written for -- and exits **1** with `WRONG ANSWER:` and both numbers on
+  stderr when the check does not hold. Exit **0** means every check held;
+  exit **2** still means the data is not on this machine. A driver that prints
+  "0 of 4,800 reads mapped" and exits 0 has reported the failure to nobody.
 * **The dataset is never written to.** Inputs are copied into a scratch tree
   (`$SPACR_DRIVER_SCRATCH`, else the system temporary directory) and the run
   works there. `stage()` refuses a destination inside the dataset root.

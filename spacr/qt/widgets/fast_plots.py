@@ -519,7 +519,8 @@ def style_field_label(name: str, value, kind: str) -> str:
     return f"{pretty}: {value}…"
 
 
-def add_style_entries(menu, style, on_change=None, *, choices=None) -> list:
+def add_style_entries(menu, style, on_change=None, *, choices=None,
+                      labels=None) -> list:
     """Put EVERY field of ``style`` onto ``menu``, grouped and editable.
 
     The point 3: the menu is built FROM THE STYLE OBJECT'S
@@ -538,6 +539,10 @@ def add_style_entries(menu, style, on_change=None, *, choices=None) -> list:
         reading the menu wants and what a caller with nothing to redraw gets.
     :param choices: ``{field: values}`` for fields that are a closed set,
         overriding the field's own metadata and the style class's ``CHOICES``.
+    :param labels: ``{field: {value: what to call it}}``, for a closed set
+        whose stored values are not what a reader should be shown -- a marker
+        is stored as ``"o"`` and read as "Circle". Anything unnamed shows its
+        stored value, so a partial map is fine.
     :returns: the ``QAction`` objects added, in menu order.
 
     The groups match :func:`build_style_menu` and use the same order --
@@ -567,7 +572,7 @@ def add_style_entries(menu, style, on_change=None, *, choices=None) -> list:
         groups[name] = submenu
         for entry in wanted:
             added.append(_add_style_entry(submenu, style, entry.name,
-                                          on_change, choices))
+                                          on_change, choices, labels))
     return added
 
 
@@ -825,7 +830,7 @@ def apply_default_style(style, on_change=None) -> list:
     return apply_style_dict(style, saved, on_change) if saved else []
 
 
-def _add_style_entry(menu, style, name: str, on_change, choices):
+def _add_style_entry(menu, style, name: str, on_change, choices, labels=None):
     """One field of ``style`` as one entry on ``menu``."""
     from PySide6.QtWidgets import QMenu
 
@@ -836,7 +841,23 @@ def _add_style_entry(menu, style, name: str, on_change, choices):
     declared = next((str(entry.type) for entry in dataclasses.fields(style)
                      if entry.name == name), "")
     kind = style_field_kind(name, value, options, declared)
-    label = style_field_label(name, value, kind)
+    # WHAT A VALUE IS CALLED, where that is not what it is. A marker stored
+    # as "o" and a line style stored as "--" are what a saved style file
+    # says and are not what a reader picks off a menu.
+    named = dict((labels or {}).get(name) or {})
+
+    def _shown(option):
+        if option in named:
+            return str(named[option])
+        return "automatic" if option is None else str(option)
+
+    if kind == "multi":
+        label = style_field_label(name, [_shown(item) for item in
+                                         (value or ())], kind)
+    elif kind == "choice" and value in named:
+        label = style_field_label(name, named[value], kind)
+    else:
+        label = style_field_label(name, value, kind)
     if kind == "unsupported":
         action = menu.addAction(
             f"{label}  —  this setting is not one the menu can edit")
@@ -853,8 +874,7 @@ def _add_style_entry(menu, style, name: str, on_change, choices):
         for option in options:
             # `None` is a real option -- it is how a colour-by column is taken
             # back off -- and "None" is not what that reads as on a menu.
-            entry = submenu.addAction("automatic" if option is None
-                                      else str(option))
+            entry = submenu.addAction(_shown(option))
             entry.setCheckable(True)
             if kind == "multi":
                 entry.setChecked(option in chosen)

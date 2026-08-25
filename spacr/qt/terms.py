@@ -36,7 +36,7 @@ LICENSE_URL = "https://polyformproject.org/licenses/noncommercial/1.0.0"
 #: The notice the licence itself requires be carried with the software.
 REQUIRED_NOTICE = "Copyright 2025-2026 Einar Birnir Olafsson."
 
-#: The terms, in the words the user is asked to accept them in.
+#: The agreement, in the words it is accepted in.
 #:
 #: WRITTEN AS AN END USER LICENCE AGREEMENT, because that is the form a
 #: reader already knows how to read. The earlier draft explained itself in

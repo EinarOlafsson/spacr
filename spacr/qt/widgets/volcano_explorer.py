@@ -67,6 +67,10 @@ from ...volcano_style import (
     render_volcano,
 )
 
+#: What an optional column menu calls "leave this unset". Spelled once,
+#: because the menu has to tell it apart from a column actually named that.
+_NONE_ROW = "— none —"
+
 #: Columns never offered as a colour/shape source: they are the plot's own
 #: axes or bookkeeping, and mapping colour to the y axis says nothing.
 _NON_MAPPING_COLUMNS = frozenset({
@@ -332,24 +336,79 @@ class VolcanoExplorer(QWidget):
             self.set_style(self._style)
 
         add_style_entries(menu, self._style, changed,
-                          choices=self._style_choices())
+                          choices=self._style_choices(),
+                          labels=self._style_labels())
         menu.addSeparator()
         add_style_file_entries(menu, self._style, changed, parent=self)
         return menu
 
     def _style_choices(self) -> dict:
-        """``{field: values}`` for the style fields that are a closed set."""
-        choices = {}
-        for name in ("x_column", "y_column", "colour_by", "shape_by",
-                     "label_by"):
-            combo = self._controls.get(name)
-            if combo is None or not hasattr(combo, "count"):
+        """``{field: values}`` for every setting the side panel closes.
+
+        READ OFF THE PANEL ITSELF rather than from a list of names. The list
+        was written as ``colour_by`` and ``label_by`` while the controls --
+        and :class:`VolcanoStyle` -- spell them ``color_by`` and
+        ``label_column``, so those two never matched: the menu offered a text
+        box where the panel offered a picker, and one of the two routes let a
+        user type a column that does not exist. A panel control that IS a
+        closed list is now the definition of one, so the two cannot disagree
+        again and the marker, the colormap, the line style and the fonts get
+        their pickers on the menu as well.
+        """
+        choices: dict = {}
+        for name, widget in self._controls.items():
+            if isinstance(widget, _MultiSelect):
+                if widget.count():
+                    choices[name] = list(widget.options())
                 continue
-            values = [combo.itemData(i) if combo.itemData(i) is not None
-                      else combo.itemText(i) for i in range(combo.count())]
+            if not isinstance(widget, QComboBox):
+                continue
+            values = []
+            for index in range(widget.count()):
+                data = widget.itemData(index)
+                # A "— none —" row carries `None` as its data, and `None` IS
+                # the value there -- it is how a colour-by column is taken
+                # back off -- so it stays on the offered list. Any other row
+                # with no data falls back to what it says.
+                if data is None and widget.itemText(index) != _NONE_ROW:
+                    data = widget.itemText(index)
+                values.append(data)
             if values:
                 choices[name] = values
         return choices
+
+    def _style_labels(self) -> dict:
+        """``{field: {value: what the panel calls it}}``.
+
+        The panel says "Circle" and the style stores ``"o"``; the menu has to
+        say "Circle" too, or the two routes offer the same setting in two
+        vocabularies and only one of them is the one a reader recognises.
+        Only rows whose words differ from their value are listed, so the
+        common case costs nothing.
+        """
+        named: dict = {}
+        for name, widget in self._controls.items():
+            if not isinstance(widget, QComboBox):
+                continue
+            rows = {}
+            for index in range(widget.count()):
+                data = widget.itemData(index)
+                text = widget.itemText(index)
+                if text != ("" if data is None else str(data)):
+                    rows[data] = text
+            if rows:
+                named[name] = rows
+        return named
+
+    def menu_settings(self) -> set:
+        """The style fields the right-click menu offers, by name."""
+        from .fast_plots import style_menu_fields
+
+        return style_menu_fields(self.build_style_menu())
+
+    def panel_settings(self) -> set:
+        """The style fields the side panel offers, by name."""
+        return set(self._controls)
 
     def _style_menu(self, position) -> None:
         """Right-click on the canvas: build the menu and show it."""
@@ -422,25 +481,33 @@ class VolcanoExplorer(QWidget):
             ("y_label", self._line("Y axis title (blank = automatic)")),
             ("x_scale", self._combo(SCALES, "X axis scale")),
             ("y_scale", self._combo(SCALES, "Y axis scale")),
+            ("x_lim", self._optional(2, -1e9, 1e9, 4, "X axis limits")),
+            ("y_lim", self._optional(2, -1e9, 1e9, 4, "Y axis limits")),
             ("invert_x", self._check("Invert x axis")),
             ("invert_y", self._check("Invert y axis")),
             ("split_axis", self._check("Split the y axis (broken axis)")),
             ("split_height_ratio", self._spin(0.1, 0.9, 0.05, 2,
                                               "Height of the upper panel")),
+            ("split_y_lims", self._readonly(
+                "Where the y axis is split (set by ticking the split above)")),
         ]))
 
         layout.addWidget(self._group("Thresholds", [
             ("alpha", self._spin(1e-6, 0.5, 0.01, 6, "Significance level")),
             ("threshold_method", self._combo(
-                ["value", "std", "mad", "quantile"],
+                ["value", "std", "mad", "quantile", "control"],
                 "How the effect-size cut is derived")),
             ("threshold_multiplier", self._spin(
                 0.0, 100.0, 0.5, 4,
                 "Multiplier applied to the rule above (the quantile itself "
                 "when the method is 'quantile')")),
-            ("effect_threshold", self._spin(
-                -1e6, 1e6, 0.05, 4,
-                "Effect-size cut used when the method is 'value'")),
+            ("effect_threshold", self._optional(
+                1, -1e6, 1e6, 4,
+                "Effect-size cut used when the method is 'value'; automatic "
+                "draws no effect-size line at all")),
+            ("control_column", self._combo(
+                [], "Boolean column marking the non-targeting controls, for "
+                    "the 'control' method")),
             ("show_alpha_line", self._check("Draw the significance line")),
             ("show_effect_lines", self._check("Draw the effect-size lines")),
             ("show_zero_line", self._check("Draw the zero line")),
@@ -465,7 +532,19 @@ class VolcanoExplorer(QWidget):
             ("colormap", self._combo(
                 [name for group in COLORMAPS.values() for name in group],
                 "Colormap")),
+            ("color_vmin", self._optional(1, -1e9, 1e9, 4,
+                                          "Low end of the colour scale")),
+            ("color_vmax", self._optional(1, -1e9, 1e9, 4,
+                                          "High end of the colour scale")),
             ("shape_by", self._combo([], "Column that chooses each shape")),
+            # SEVERAL AT ONCE. Ticking two compartments asks one question
+            # about both, which is why this is a list of tick boxes and not
+            # a drop-down.
+            ("localizations", self._multi(
+                "Colour by localization — tick any combination")),
+            ("localization_column", self._combo(
+                [], "Column naming each row's gene, for the compartment "
+                    "lookup")),
             ("show_colorbar", self._check("Show the colour bar")),
         ]))
 
@@ -489,6 +568,8 @@ class VolcanoExplorer(QWidget):
                 ["normal", "bold", "light", "medium", "semibold", "heavy"],
                 "Font weight")),
             ("annotate_significant", self._check("Label every hit")),
+            ("annotations", self._readonly(
+                "Points labelled by name (set by clicking a point)")),
         ]))
 
         layout.addWidget(self._group("Frame", [
@@ -500,6 +581,8 @@ class VolcanoExplorer(QWidget):
             ("grid_color", self._line("Grid colour")),
             ("grid_width", self._spin(0, 5, 0.1, 2, "Grid line width")),
             ("hide_top_right_spines", self._check("Hide top/right spines")),
+            ("background_color", self._line(
+                "Background colour ('none' leaves the page showing through)")),
             ("legend", self._check("Show legend")),
             ("legend_location", self._combo(
                 ["best", "upper right", "upper left", "lower left",
@@ -594,6 +677,26 @@ class VolcanoExplorer(QWidget):
         widget.editingFinished.connect(self._on_control_changed)
         return widget
 
+    def _optional(self, count, low, high, decimals, caption):
+        widget = _OptionalNumbers(count, low, high, decimals, caption, self)
+        widget.setProperty("caption", caption)
+        widget.setToolTip(caption)
+        widget.changed.connect(self._on_control_changed)
+        return widget
+
+    def _multi(self, caption: str) -> "_MultiSelect":
+        widget = _MultiSelect(caption, self)
+        widget.setProperty("caption", caption)
+        widget.changed.connect(self._on_control_changed)
+        return widget
+
+    def _readonly(self, caption: str) -> "_ReadOnlyValue":
+        widget = _ReadOnlyValue("none", self)
+        widget.setProperty("caption", caption)
+        widget.setToolTip(caption)
+        widget.setEnabled(False)
+        return widget
+
     def _build_detail_panel(self) -> QWidget:
         box = QGroupBox("Selected point", self)
         layout = QVBoxLayout(box)
@@ -627,6 +730,8 @@ class VolcanoExplorer(QWidget):
                 ("label_column", columns, False),
                 ("color_by", mappable, True),
                 ("shape_by", mappable, True),
+                ("control_column", columns, True),
+                ("localization_column", columns, True),
             ):
                 widget = self._controls.get(key)
                 if widget is None:
@@ -634,15 +739,33 @@ class VolcanoExplorer(QWidget):
                 current = widget.currentData()
                 widget.clear()
                 if allow_none:
-                    widget.addItem("— none —", None)
+                    widget.addItem(_NONE_ROW, None)
                 for option in options:
                     widget.addItem(str(option), option)
                 index = widget.findData(current)
                 if index < 0:
                     index = widget.findData(getattr(self._style, key, None))
                 widget.setCurrentIndex(max(index, 0))
+            compartments = self._controls.get("localizations")
+            if compartments is not None:
+                compartments.setOptions(self.compartments())
         finally:
             self._updating = False
+
+    def compartments(self) -> list:
+        """The LOPIT compartments this screen actually has, commonest first.
+
+        NOT ALL 27 IN THE REFERENCE TABLE: a tick box that would colour
+        nothing is indistinguishable from a broken one. Empty when no column
+        of the results names a gene, which is a volcano without compartment
+        colouring rather than an error.
+        """
+        if self._results.empty:
+            return []
+        try:
+            return localizations_present(self._results, self._style)
+        except Exception:  # noqa: BLE001 - no reference table, no colouring
+            return []
 
     def _push_style_to_controls(self) -> None:
         """Write the style into every control without triggering a redraw."""
@@ -650,7 +773,13 @@ class VolcanoExplorer(QWidget):
         try:
             for key, widget in self._controls.items():
                 value = getattr(self._style, key, None)
-                if isinstance(widget, QCheckBox):
+                if isinstance(widget, _MultiSelect):
+                    widget.setValues(value or ())
+                elif isinstance(widget, _OptionalNumbers):
+                    widget.setValue(value)
+                elif isinstance(widget, _ReadOnlyValue):
+                    widget.show_value(value)
+                elif isinstance(widget, QCheckBox):
                     widget.setChecked(bool(value))
                 elif isinstance(widget, QComboBox):
                     index = widget.findData(value)
@@ -667,7 +796,15 @@ class VolcanoExplorer(QWidget):
 
     def _pull_style_from_controls(self) -> None:
         for key, widget in self._controls.items():
-            if isinstance(widget, QCheckBox):
+            if isinstance(widget, _ReadOnlyValue):
+                # Shown, not edited: reading a label back would write its
+                # printed form over the value it was printed from.
+                continue
+            if isinstance(widget, _MultiSelect):
+                setattr(self._style, key, tuple(widget.values()))
+            elif isinstance(widget, _OptionalNumbers):
+                setattr(self._style, key, widget.value())
+            elif isinstance(widget, QCheckBox):
                 setattr(self._style, key, bool(widget.isChecked()))
             elif isinstance(widget, QComboBox):
                 index = widget.currentIndex()
@@ -796,7 +933,8 @@ class VolcanoExplorer(QWidget):
     # ---------------------------------------------------------------- export
 
     def export(self, fmt: str = "pdf", path: str | None = None) -> str | None:
-        """Re-render at print size and write the file.
+        """Re-render at print size and write the file. Returns the path
+        written, or ``None``.
 
         Not a screenshot: the figure is drawn again from the same style, so a
         PDF stays vector and a PNG honours the dpi under Frame regardless of
@@ -816,16 +954,37 @@ class VolcanoExplorer(QWidget):
             path = f"{path}.{fmt}"
         from matplotlib.figure import Figure
 
+        from ...plot import FIGURE_FORMATS
+
         figure = Figure(figsize=(self._style.figure_width,
                                  self._style.figure_height),
                         dpi=self._style.dpi)
         try:
-            render_volcano(self._results, self._style, figure=figure,
-                           save_path=path)
+            if str(fmt).lower() in FIGURE_FORMATS:
+                render_volcano(self._results, self._style, figure=figure,
+                               save_path=path)
+                return path
+            # SVG IS OFFERED HERE AND THE ONE WRITER CANNOT KEEP IT. The
+            # renderer's `save_path` goes through `spacr.plot.save_figure`,
+            # which writes PNG and PDF and CORRECTS the file's extension to
+            # whichever it wrote -- so an .svg asked for here was written as a
+            # PDF beside it and this handed back the .svg path, naming a file
+            # that had never been created. `save_figure_as` is the writer that
+            # already answers for the vector formats, print rule included, and
+            # it reports the path it actually wrote.
+            from .figure_settings import save_figure_as
+
+            render_volcano(self._results, self._style, figure=figure)
+            written = save_figure_as(self, figure, path)
         except Exception as error:  # noqa: BLE001
             QMessageBox.warning(self, "Export failed", str(error))
             return None
-        return path
+        if not written:
+            QMessageBox.warning(
+                self, "Export failed",
+                f"Nothing could be written to {path}.")
+            return None
+        return written
 
     def _save_style(self) -> str | None:
         path, _selected = QFileDialog.getSaveFileName(

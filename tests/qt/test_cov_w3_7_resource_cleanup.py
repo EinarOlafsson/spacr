@@ -756,9 +756,37 @@ def test_the_summary_says_what_was_freed_what_grew_and_what_did_not_move():
     assert flat.summary() == "VRAM: freed nothing measurable."
 
 
-def test_an_attribute_that_cannot_be_read_does_not_stop_the_lru_sweep(
-        monkeypatch):
-    """A module property that raises on access is skipped, not fatal."""
+def test_a_name_that_cannot_be_fetched_is_skipped_not_fatal(monkeypatch):
+    """``dir()`` lists a name; fetching it raises. The sweep goes on.
+
+    A module that defines ``__getattr__`` (PEP 562) alongside ``__dir__`` can
+    advertise a name it cannot produce — which is what a lazy re-export looks
+    like once the thing it forwards to has gone.
+    """
+    from spacr.qt import iconset
+
+    probe = types.ModuleType("spacr_cov_w3_7_probe")
+    probe.__dir__ = lambda: ["a_name_that_is_not_there"]
+    monkeypatch.setitem(sys.modules, probe.__name__, probe)
+    monkeypatch.setattr(rc, "_LRU_CACHE_MODULES",
+                        rc._LRU_CACHE_MODULES + (probe.__name__,))
+
+    iconset.veil_color.cache_clear()
+    iconset.veil_color("dark")
+    assert any("veil_color" in line for line in rc._clear_lru_caches()), \
+        "the module after the unfetchable name was never swept"
+
+
+@pytest.mark.xfail(strict=True, reason=(
+    "_clear_lru_caches guards `getattr(module, attr)` against an attribute "
+    "that cannot be read, then reads `getattr(value, 'cache_clear')` on the "
+    "result outside that guard. A module-level object whose attribute access "
+    "raises anything other than AttributeError therefore throws out of "
+    "clear_ram itself, so the caches after it in the sweep are never dropped "
+    "-- the one thing the surrounding try/except exists to prevent. No module "
+    "spaCR ships holds such an object today; the gap is the missing guard."))
+def test_a_value_that_cannot_be_read_does_not_stop_the_lru_sweep(monkeypatch):
+    """One unreadable module attribute must not cost the whole cleanup."""
     from spacr.qt import iconset
 
     class Explodes:
@@ -908,3 +936,22 @@ def test_a_finished_run_alone_is_not_a_reason_to_clean_up(monkeypatch):
     monkeypatch.setattr(bridge, "registry",
                         lambda: types.SimpleNamespace(active=list))
     rc._on_registry_changed()
+
+
+def test_without_torch_there_is_no_vram_claim_to_make(monkeypatch):
+    """No torch means no CUDA context means nothing this process can free."""
+    monkeypatch.delitem(sys.modules, "torch", raising=False)
+    reclaim = rc.clear_vram()
+    assert reclaim.measured is False
+    assert reclaim.details == ()
+    assert reclaim.note == ("torch is not loaded in this process, so it "
+                            "holds no VRAM")
+
+
+@pytest.mark.parametrize("action", rc.ACTIONS)
+def test_every_button_can_say_what_it_is_about_to_do(action):
+    """A confirmation that cannot name the action is not a confirmation."""
+    title = rc.confirmation_title(action)
+    text = rc.confirmation_text(action)
+    assert title and title[0].isupper()
+    assert len(text) > 80

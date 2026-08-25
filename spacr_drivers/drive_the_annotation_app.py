@@ -10,6 +10,13 @@ measure run exported or stream them out of the merged planes on demand, and
 offering that choice is only safe if the two produce the same pixels. This
 driver compares them byte for byte.
 
+AND EVERY LABEL IS READ BACK AGAINST ITS OWN CROP. Counting how many rows
+were annotated does not distinguish a session that saved correctly from one
+that wrote each label onto its neighbour: the class totals are identical
+either way, and so is the number of rows touched. The only thing that tells
+them apart is the pair, so the driver submits a known label per crop and
+compares the table row by row.
+
 Streaming for the annotator has its own trap: ``png_list`` spells both key
 fields unlike the measurement tables -- the object id is ``o2`` rather than a
 number, and the file name is the crop rather than the field -- so a streamer
@@ -27,7 +34,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from _support import dataset_root, require, run, scratch, stage
+from _support import (WrongAnswer, check, dataset_root, require, run, scratch,
+                      stage)
 
 DEFAULT_ROOT = "/home/olafsson/datasets/plate1"
 
@@ -61,6 +69,26 @@ def streamed_matches_exported(project, database, limit=3):
         exported = read_crop_png(str(Path(project, "data", *tail)))
         matching += int(np.array_equal(crop, exported))
     return matching, len(rows)
+
+
+def annotations_on_disk(database, column, paths):
+    """The label the database holds for each of ``paths``.
+
+    Read back through ``png_path`` rather than through row order, because a
+    label written against the wrong crop is still a label on some row: it is
+    the pairing that has to be checked, and only the key carries it.
+
+    :returns: ``{png_path: label}``, missing keys left out.
+    """
+    import sqlite3
+
+    quoted = column.replace('"', '""')
+    with sqlite3.connect(database) as connection:
+        placeholders = ",".join("?" * len(paths))
+        rows = connection.execute(
+            f'SELECT png_path, "{quoted}" FROM png_list '
+            f"WHERE png_path IN ({placeholders})", list(paths)).fetchall()
+    return {path: label for path, label in rows if label is not None}
 
 
 def main(argv):
@@ -101,8 +129,15 @@ def main(argv):
             break
         time.sleep(0.2)
     print(f"annotations read back: {counts}")
-    print(f"resume offset: "
-          f"{engine.find_last_annotated_offset(database, COLUMN, PAGE)}")
+
+    stored = annotations_on_disk(database, COLUMN, list(written))
+    misplaced = {path: (written[path], stored.get(path))
+                 for path in written if stored.get(path) != written[path]}
+    print(f"labels that came back on the crop they were written for: "
+          f"{len(written) - len(misplaced)} of {len(written)}")
+
+    resume = engine.find_last_annotated_offset(database, COLUMN, PAGE)
+    print(f"resume offset: {resume}")
 
     matching, compared = streamed_matches_exported(work, database)
     print(f"streamed crops identical to the exported PNGs: "
@@ -111,10 +146,20 @@ def main(argv):
     engine.clear_column(database, COLUMN)
     print(f"after clearing the column: {engine.class_counts(database, COLUMN)}")
 
-    if sum(rows for _label, rows in counts) < len(written):
-        raise SystemExit("the save worker did not write every annotation")
-    if matching != compared:
-        raise SystemExit("streamed crops differ from the exported PNGs")
+    check(sum(rows for _label, rows in counts) >= len(written),
+          f"the save worker wrote {sum(r for _l, r in counts)} annotations of "
+          f"the {len(written)} it was given")
+    if misplaced:
+        crop, (submitted, stored_label) = next(iter(misplaced.items()))
+        raise WrongAnswer(
+            f"{len(misplaced)} of {len(written)} labels came back on a crop "
+            f"they were not written for -- {Path(crop).name} was given "
+            f"{submitted} and holds {stored_label}. The class totals are the "
+            f"same either way, so only the pairing shows it.")
+    check(matching == compared,
+          f"{compared - matching} of {compared} streamed crops differ from "
+          f"the exported PNGs, so the two crop sources are not "
+          f"interchangeable and offering the choice is not safe")
 
 
 if __name__ == "__main__":

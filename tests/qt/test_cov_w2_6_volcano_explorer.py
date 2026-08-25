@@ -469,23 +469,41 @@ def test_right_clicking_the_canvas_shows_that_menu_at_the_pointer(explorer,
 
 
 def test_the_closed_set_fields_offer_the_columns_the_panel_offers(explorer):
+    """Widened from a fixed list of five names to the panel itself.
+
+    `_style_choices` used to be a hand-written list of field names, so this
+    asserted that it stayed inside that list. It is now read off the panel --
+    a control that IS a closed list is the definition of one -- which is what
+    stops the menu offering free text where the panel offers a picker. The
+    claim worth holding is therefore that every closed set is a real style
+    field the panel closes, not that there are at most five of them.
+    """
+    import dataclasses
+
+    from spacr.volcano_style import VolcanoStyle
+
     choices = explorer._style_choices()
-    assert set(choices) <= {"x_column", "y_column", "color_by", "shape_by",
-                            "colour_by", "label_by", "label_column"}
+    fields = {f.name for f in dataclasses.fields(VolcanoStyle)}
+    assert set(choices) <= fields
     assert "standardized_marginal_effect" in choices["x_column"]
+    # The pickers the panel has always had, which the menu never got.
+    for closed in ("marker", "colormap", "line_style", "font_family"):
+        assert closed in choices, closed
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "`_style_choices` asks `_controls` for 'colour_by' and 'label_by', but "
-    "the controls (and VolcanoStyle) spell them 'color_by' and "
-    "'label_column'. So the right-click menu never gets the closed column "
-    "list for those two and offers free text where the side panel offers a "
-    "picker -- the two routes disagree about what the setting is."))
 def test_colour_by_and_the_label_column_are_offered_as_closed_sets(explorer):
+    """Was a strict xfail: `_style_choices` asked `_controls` for 'colour_by'
+    and 'label_by' while the controls -- and VolcanoStyle -- spell them
+    'color_by' and 'label_column', so the menu offered free text where the
+    panel offered a picker. The choices are now read off the panel's own
+    controls, so a name can no longer be spelled two ways."""
     choices = explorer._style_choices()
     assert "color_by" in choices
     assert "label_column" in choices
     assert "gene" in choices["color_by"]
+    # `None` is a value there -- it is how a colour-by column is taken back
+    # off -- so the menu has to offer it too.
+    assert None in choices["color_by"]
 
 
 def test_a_mapping_menu_that_is_not_on_this_panel_is_skipped(explorer):
@@ -496,3 +514,272 @@ def test_a_mapping_menu_that_is_not_on_this_panel_is_skipped(explorer):
     offered = [explorer._controls["color_by"].itemData(i)
                for i in range(explorer._controls["color_by"].count())]
     assert "gene" in offered
+
+
+# --------------------------------------------------------------------------
+# the menu and the panel are two routes to one figure
+# --------------------------------------------------------------------------
+
+def _menu_words(menu) -> list:
+    """Every word the menu shows a reader: entries and the groups holding
+    them."""
+    from spacr.qt.widgets.fast_plots import menu_entries, menu_groups
+
+    return ([action.text() for action in menu_entries(menu)]
+            + list(menu_groups(menu)))
+
+
+def _menu_action(menu, prefix: str):
+    from spacr.qt.widgets.fast_plots import menu_entries
+
+    for action in menu_entries(menu):
+        if action.text().startswith(prefix):
+            return action
+    raise AssertionError(
+        f"nothing on the menu starts with {prefix!r}: {_menu_words(menu)}")
+
+
+def test_the_menu_and_the_side_panel_offer_the_same_settings(explorer):
+    """Asserted as a set comparison, not by eye: two routes to one figure
+    that disagree about what can be set is the defect this closes."""
+    import dataclasses
+
+    fields = {f.name for f in dataclasses.fields(VolcanoStyle)}
+    assert explorer.menu_settings() == explorer.panel_settings()
+    assert explorer.panel_settings() == fields
+
+
+def test_the_axis_limits_and_labels_are_on_both_routes(explorer):
+    """Measured before the change: neither the menu NOR the side panel
+    offered `x_lim`/`y_lim`, though the style carried both."""
+    for setting in ("x_lim", "y_lim", "x_label", "y_label"):
+        assert setting in explorer.panel_settings(), setting
+        assert setting in explorer.menu_settings(), setting
+
+
+def test_every_appearance_setting_is_on_both_routes(explorer):
+    """Point size and opacity by name, because the ask named them."""
+    for setting in ("marker_size", "significant_marker_size", "marker_alpha",
+                    "marker_edge_width", "colormap", "color_vmin",
+                    "color_vmax", "background_color"):
+        assert setting in explorer.panel_settings(), setting
+        assert setting in explorer.menu_settings(), setting
+
+
+def test_a_setting_added_to_the_style_would_be_missing_from_the_panel(
+        explorer):
+    """The set comparison is the check that keeps the two in step, so it has
+    to be able to fail: dropping one control makes the sets differ."""
+    del explorer._controls["marker_size"]
+    assert explorer.menu_settings() != explorer.panel_settings()
+
+
+def test_a_limit_typed_into_the_menu_reaches_the_figure_and_the_file(
+        explorer, tmp_path, monkeypatch):
+    """Driven, then measured off the axes and off the written file -- an
+    x limit of ±8 puts tick labels on the page that the data alone
+    (roughly ±2.5) would never produce."""
+    from PySide6.QtWidgets import QInputDialog
+
+    answers = iter([(-8.0, True), (8.0, True)])
+    monkeypatch.setattr(QInputDialog, "getDouble",
+                        staticmethod(lambda *a, **k: next(answers)))
+    _menu_action(explorer.build_style_menu(), "X lim").trigger()
+
+    assert explorer.style().x_lim == (-8.0, 8.0)
+    explorer.refresh()
+    assert explorer._panels[0].get_xlim() == (-8.0, 8.0)
+    # And the side panel followed, rather than still showing "automatic".
+    assert explorer._controls["x_lim"].value() == (-8.0, 8.0)
+
+    path = tmp_path / "limited.svg"
+    assert explorer.export("svg", str(path)) == str(path)
+    written = path.read_text(encoding="utf-8")
+    ticks = [t.get_text() for t in explorer._panels[0].get_xticklabels()]
+    assert "−8" in ticks, ticks
+    for tick in ticks:
+        assert tick in written, f"{tick} never reached the file"
+
+
+def test_an_axis_label_typed_into_the_menu_reaches_the_figure_and_the_file(
+        explorer, tmp_path, monkeypatch):
+    from PySide6.QtWidgets import QInputDialog
+
+    monkeypatch.setattr(QInputDialog, "getText",
+                        staticmethod(lambda *a, **k: ("Effect, typed", True)))
+    _menu_action(explorer.build_style_menu(), "X label").trigger()
+
+    assert explorer.style().x_label == "Effect, typed"
+    explorer.refresh()
+    assert explorer._panels[0].get_xlabel() == "Effect, typed"
+    assert explorer._controls["x_label"].text() == "Effect, typed"
+
+    path = tmp_path / "labelled.svg"
+    explorer.export("svg", str(path))
+    assert "Effect, typed" in path.read_text(encoding="utf-8")
+
+
+def test_a_limit_can_be_taken_back_off_from_the_panel(explorer):
+    """A spin box alone cannot say `None`, so a limit set once could never be
+    cleared; the 'auto' tick is that third state."""
+    explorer._controls["x_lim"].setValue((-3.0, 3.0))
+    explorer._on_control_changed()
+    assert explorer.style().x_lim == (-3.0, 3.0)
+
+    explorer._controls["x_lim"].setValue(None)
+    explorer._on_control_changed()
+    assert explorer.style().x_lim is None
+    explorer.refresh()
+    assert explorer._panels[0].get_xlim() != (-3.0, 3.0)
+
+
+def test_an_effect_threshold_left_automatic_stays_none(explorer):
+    """It was a plain spin box, so the first touch of any control anywhere in
+    the panel wrote 0.0 over a threshold nobody had set."""
+    explorer._controls["marker_size"].setValue(31.0)
+    assert explorer.style().marker_size == 31.0
+    assert explorer.style().effect_threshold is None
+
+
+# --------------------------------------------------------------------------
+# colour by localization, several at once
+# --------------------------------------------------------------------------
+
+@pytest.fixture
+def localised(qapp, qtbot):
+    """A screen whose gene ids the bundled LOPIT table actually knows.
+
+    Two compartments, ten genes each, so "dense granules and rhoptries 1" is
+    a question this frame can answer.
+    """
+    from spacr.localisation import table
+
+    lookup = table()
+    if not lookup:
+        pytest.skip("no bundled localisation table to colour by")
+    genes = []
+    for compartment in ("dense granules", "rhoptries 1"):
+        genes += [f"TGGT1_{key}" for key, place in lookup.items()
+                  if place == compartment][:10]
+    rng = np.random.default_rng(1)
+    frame = pd.DataFrame({
+        "guide": [f"{gene}_1" for gene in genes],
+        "gene": genes,
+        "standardized_marginal_effect": rng.normal(size=len(genes)),
+        "adjusted_p_value": rng.random(len(genes)) * 0.5 + 1e-6,
+    })
+    widget = VolcanoExplorer(frame)
+    qtbot.addWidget(widget)
+    return widget
+
+
+def test_only_the_compartments_this_screen_has_are_offered(localised):
+    """A tick box that would colour nothing is indistinguishable from a
+    broken one."""
+    assert localised.compartments() == ["dense granules", "rhoptries 1"]
+    offered = localised._controls["localizations"].options()
+    assert offered == ["dense granules", "rhoptries 1"]
+
+
+def test_two_compartments_can_be_ticked_at_once_on_the_menu(localised):
+    """"all or any combination of localizations, e.g. dense granuals and
+    rhoptries 1 should be possible" -- so this is a submenu of tick boxes,
+    not a pick-one."""
+    menu = localised.build_style_menu()
+    ticks = [a for a in _menu_words(menu)]
+    assert "dense granules" in ticks and "rhoptries 1" in ticks
+
+    from spacr.qt.widgets.fast_plots import menu_entries
+
+    by_text = {a.text(): a for a in menu_entries(menu)}
+    by_text["dense granules"].setChecked(True)
+    assert localised.style().localizations == ("dense granules",)
+    by_text["rhoptries 1"].setChecked(True)
+    assert localised.style().localizations == ("dense granules",
+                                               "rhoptries 1")
+
+
+def test_ticking_two_compartments_recolours_the_points(localised):
+    localised._style.localizations = ("dense granules", "rhoptries 1")
+    localised.refresh()
+
+    drawn = {c.get_label(): tuple(np.asarray(c.get_facecolor())[0][:3])
+             for c in localised._panels[0].collections}
+    assert set(drawn) == {"dense granules", "rhoptries 1"}
+    # Two compartments, two colours: one colour for both would be a picture
+    # that cannot answer the question it was asked.
+    assert len(set(drawn.values())) == 2
+
+
+def test_unticking_a_compartment_puts_the_grey_back(localised):
+    localised._style.localizations = ("dense granules", "rhoptries 1")
+    localised.refresh()
+    localised._style.localizations = ("dense granules",)
+    localised.refresh()
+
+    labels = {c.get_label() for c in localised._panels[0].collections}
+    assert labels == {"dense granules", "elsewhere"}
+
+
+def test_the_menus_ticks_reach_the_side_panel(localised):
+    """Two ways to change one setting that disagree about what it now is
+    would be worse than having only one of them."""
+    from spacr.qt.widgets.fast_plots import menu_entries
+
+    menu = localised.build_style_menu()
+    next(a for a in menu_entries(menu)
+         if a.text() == "rhoptries 1").setChecked(True)
+
+    assert localised._controls["localizations"].values() == ("rhoptries 1",)
+
+
+def test_the_panels_ticks_reach_the_style_and_the_plot(localised):
+    widget = localised._controls["localizations"]
+    widget.setValues(("dense granules", "rhoptries 1"))
+    localised._on_control_changed()
+
+    assert localised.style().localizations == ("dense granules",
+                                               "rhoptries 1")
+    labels = {c.get_label() for c in localised._panels[0].collections}
+    assert labels == {"dense granules", "rhoptries 1"}
+
+
+def test_a_compartment_this_screen_lacks_survives_a_refill(localised):
+    """A style file naming a compartment the screen has none of must not
+    lose it the moment the panel is refilled."""
+    localised._style.localizations = ("apicoplast",)
+    localised.set_style(localised._style)
+    localised._repopulate_column_menus()
+
+    assert "apicoplast" in localised._controls["localizations"].values()
+
+
+def test_a_screen_with_no_recognised_genes_offers_no_compartments(explorer):
+    """`_results` names genes the reference table has never heard of, and a
+    volcano is still a volcano without compartment colouring."""
+    assert explorer.compartments() == []
+    assert explorer._controls["localizations"].count() == 0
+
+
+# --------------------------------------------------------------------------
+# nothing says "aspect ratio"
+# --------------------------------------------------------------------------
+
+def test_nothing_the_volcano_says_to_a_user_mentions_an_aspect_ratio(
+        explorer):
+    """A ratio is a number and the choice is a shape."""
+    from PySide6.QtWidgets import QAbstractButton, QGroupBox, QLabel, QWidget
+
+    words = _menu_words(explorer.build_style_menu())
+    for widget in explorer.findChildren(QWidget):
+        words.append(widget.toolTip())
+        caption = widget.property("caption")
+        if caption:
+            words.append(str(caption))
+        if isinstance(widget, QGroupBox):
+            words.append(widget.title())
+        elif isinstance(widget, (QAbstractButton, QLabel)):
+            words.append(widget.text())
+    offending = [word for word in words
+                 if word and "aspect ratio" in word.lower()]
+    assert offending == [], offending

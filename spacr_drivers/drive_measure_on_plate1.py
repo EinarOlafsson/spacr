@@ -26,7 +26,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from _support import (dataset_root, preflight, read_settings, require, run,
+from _support import (check, dataset_root, preflight, read_settings, require, run,
                       scratch, settings_file, stage, undeclared)
 
 DEFAULT_ROOT = "/home/olafsson/datasets/plate1"
@@ -190,6 +190,10 @@ def compare_with_reference(measured_db, reference_db, fields):
             query = f"SELECT * FROM {table} WHERE fieldID IN ({clause})"
             new = pd.read_sql(query, fresh, params=wanted)
             old = pd.read_sql(query, reference, params=wanted)
+        check(len(new) > 0,
+              f"the {table} table is empty for fields {', '.join(wanted)}. A "
+              f"measure run that writes a database and no rows leaves exactly "
+              f"the file a 'does measurements.db exist' check looks for.")
         if len(new) != len(old):
             agreed = False
             print(f"  {table}: {len(new)} objects, reference has {len(old)}")
@@ -271,8 +275,12 @@ def main(argv):
             print(f"  {name}: {table} cell_id matches the majority-overlap "
                   f"parent for {right}/{total}")
 
-    print("\nreproduces the reference" if agreed
-          else "\nDIFFERS from the reference; every difference is named above")
+    check(agreed,
+          "this run differs from the reference database in ways this driver "
+          "does not have a recorded explanation for; every one of them is "
+          "named above")
+    print("\nreproduces the reference: every object count matches and every "
+          "column that differs is a difference this driver can name")
 
 
 if __name__ == "__main__":

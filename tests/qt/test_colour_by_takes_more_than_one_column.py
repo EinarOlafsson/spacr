@@ -23,10 +23,26 @@ def app():
 
 
 @pytest.fixture
-def panel(app):
+def panel(qtbot):
+    """A results panel that is destroyed with the test that asked for it.
+
+    Handed to ``qtbot`` rather than merely built, because this panel is a
+    parentless top-level widget carrying a pyqtgraph plot per tab, and every
+    one of those plots builds its own context menu with ten submenus under
+    it. Nothing but this fixture ever refers to the panel, and a top-level
+    widget that is never closed cannot be freed at all: the running plot
+    timers hold bound methods of the panel through connections Qt owns, so
+    the cycle passes through C++ where Python's collector cannot see it.
+    Left to itself one test of this file retains about 160 windows, and the
+    file retained 1,760 of them -- for the rest of the process, slowing
+    every later restyle in it, because a palette change visits every live
+    widget. ``qtbot`` closes and deletes what it is given at teardown, which
+    is what makes that number nought.
+    """
     from spacr.qt.widgets.regression_results import RegressionResultsPanel
 
     one = RegressionResultsPanel()
+    qtbot.addWidget(one)
     one.set_frame(pd.DataFrame({
         "feature": [f"g{i}" for i in range(9)],
         "coefficient": [-2, -1, 0, 1, 2, 3, 0.5, -0.5, 1.5],
