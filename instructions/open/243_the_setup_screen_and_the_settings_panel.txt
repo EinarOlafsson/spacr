@@ -2,62 +2,179 @@
 THE SETUP SCREEN, THE SETTINGS PANEL, AND THE FIGURE EXPORT
 ================================================================================
 
-Status:    OPEN on four items. The rest are done and recorded here so the
-           record is complete. Requested 2026-08-23 and 2026-08-24, across
-           many messages.
-Owner:     spacr/qt -- setup slides, preferences, the picture settings
+Status:    OPEN on three. The montage cap's number; the terms of use, which
+           are REOPENED -- they need enough text to scroll, a gate on the
+           acceptance, and the three data-use clauses; and the animation
+           question under theme. The tabbed settings window and the two
+           percentile fields are done and recorded below.
+Owner:     spacr/qt -- setup slides, terms, preferences, the picture settings
            dialog, the figure save dialog; spacr/ml.py for the intercept.
 
 --------------------------------------------------------------------------------
 STILL OPEN
 --------------------------------------------------------------------------------
 
-1. TERMS OF USE ON THE STARTUP SCREEN                        <-- NOT STARTED
-
-   "in startup spacr there should be a terms of use section the user has
-   to agree to."
-
-   A slide, or a section of one, carrying the terms, with an agreement the
-   user gives before setup can complete. It has to be RECORDED -- an
-   agreement nobody can look up afterwards is not one -- and the recording
-   belongs beside the other setup answers, with the version of the terms
-   that was agreed to, so a later change to the terms is a new agreement
-   rather than a silent one.
-
-   Note what must not happen: the Next button on that slide cannot simply
-   be disabled with no explanation. A control that does nothing and says
-   nothing is the thing the provider marks were reported for.
-
-2. THE SETTINGS WINDOW IN TABS                               <-- NOT STARTED
-
-   "divide the settings into tabs in the settings window."
-
-   The Cells-tab picture settings dialog is one long form. The module
-   screens group their settings into categories; this should do the same.
-
-3. PERCENTILES AS TWO FIELDS                                 <-- NOT STARTED
-
-   "percentiles shouldnt need to be in brackets, there should be one
-   setting wit two fields one for low % and 1 for high %."
-
-   The setting takes a bracketed pair today, typed as text. Two numeric
-   fields under one label, and the pair is assembled from them -- a user
-   typing `[1, 99]` into a text box is a user who can type `[1 99]` and
-   get an error from a parser instead of a picture.
-
-4. THE MONTAGE CAP AT 10,000                                 <-- NOT STARTED
+1. THE MONTAGE CAP AT 10,000                          <-- MEASURED, NOT MOVED
 
    "set the cap to 10000 images."
 
-   The Cells tab caps a montage at 300 objects. Raise it. Check what 10,000
-   crops does to the page count and the memory before calling it done: the
-   cap exists because a montage of everything was unusable, so the number
-   moving is a decision about where that limit now sits, not the removal
-   of one.
+   THE MEASUREMENT IS DONE and it is recorded in the code, in
+   `picture_settings.MEASURED_PAGE_SIZES`, `MEASURED_CROP_BYTES` and
+   `MEASURED_MS_PER_CROP`, with `montage_cap_cost()` turning them into the
+   sentence the cap control now carries. What 10,000 costs, against 300:
+
+   ===============  ==================  ==================
+   what             cap 300             cap 10,000
+   ===============  ==================  ==================
+   pages            5 - 13              167 - 417
+   crops held       43 MB               1,436 MB
+   twelve well tabs 0.5 GB              16.8 GB
+   time to cut      0.1 - 3.4 s         4.9 - 114 s
+   ===============  ==================  ==================
+
+   Pages are measured with the tab's own geometry -- six columns, 96 px
+   thumbnails -- across the viewports the Cells tab is used at: 24 crops a
+   page in the narrowest panel the splitter allows, 36 in an ordinary one,
+   60 on a full screen. Memory is measured resident, not estimated: a well
+   tab holds EVERY crop it was given, because turning a page must not
+   re-cut, and 10,000 crops of 224x224x3 is 1,436 MB of them. Cutting time
+   is the recorded per-crop cost by route -- the low figure reads exported
+   PNGs, the high one cuts from merged arrays spread over many fields.
+
+   TWO CONSEQUENCES THE NUMBER DOES NOT CARRY ON ITS OWN, and both are
+   decisions rather than measurements:
+
+     * `MAX_WELL_TABS` is 12 and a tab is only ever closed by hand. Twelve
+       tabs at the raised cap is 16.8 GB, which is more than the machines
+       spaCR runs on have. The cap and the tab bound multiply, so raising
+       one is a decision about the other;
+     * the pager is a previous and a next button. At 300 the far end is 13
+       clicks away; at 10,000 it is 417. A cap that large wants a page to
+       jump to, or the last page is unreachable in practice.
+
+   WHAT IS LEFT IS THE NUMBER ITSELF. It lives in `cell_montage.MAX_OBJECTS`
+   and in the Cells-tab toolbar's own spin box, whose range stops at 5,000 --
+   so a settings window offering 10,000 would be silently clamped to 5,000 on
+   the way to the montage, which is worse than a cap that has not moved.
+   Those two, and `picture_settings.OWN_DEFAULTS['cap']`, have to move
+   together or not at all.
 
 --------------------------------------------------------------------------------
 DONE, FOR THE RECORD
 --------------------------------------------------------------------------------
+
+REOPENED: THE TERMS ARE TOO SHORT TO BE TERMS, AND NOTHING GATES THE
+ACCEPTANCE.
+
+"for the spacr terms there should be much more text, so the user has to
+scroll down. when they scroll down to the bottom the tick box stopps
+being grayed out and they can check it (the text should also be grayed
+out)."
+
+  * THE ACCEPTANCE IS GATED ON HAVING REACHED THE END. The control is
+    disabled, and drawn disabled, until the terms have been scrolled to
+    the bottom -- so the enabling IS the evidence that the text went past
+    the reader's eyes. A viewport tall enough to show the whole text at
+    once counts as read; the gate is "the end is on screen", not "a
+    scrollbar moved", or a large monitor becomes a trap;
+  * THE TEXT IS GREYED TOO while the gate is closed, not only the tick.
+    One state, drawn on both halves, so the page reads as one thing
+    waiting rather than as a tick that happens to be dead.
+
+WHAT THE TERMS MUST SAY, in the maintainer's own words:
+
+  * "the developers can use the users data to develope the software
+    further";
+  * "any image data or models generated and uploaded to shared resourses
+    by the user may be used by the developers to generate comunity
+    resourses such as object detection models";
+  * "the users logs and metadata may be used for making the software
+    better, and other uses."
+
+AND THE TERMS MUST MATCH WHAT THE SOFTWARE ACTUALLY DOES. The maintainer's
+reading of the report control -- "so if the user dosnt unclick include
+logs in report, i can use those logs for whatever i want" -- is what the
+terms now have to state plainly, because a permission nobody was told
+about is not a permission. Note the change that went with it: a bug
+report no longer PUBLISHES the log. The log is saved to the reporter's
+own machine and the public issue names the path, because "the github
+issue can be public but the users loggs can never be publicly facing,
+users whould not like that". So the terms grant the developers use of
+logs that are SENT; they do not put them on the tracker.
+
+THE ANIMATION QUESTION, UNDER THEME
+
+"in the startup, under theme should be annimation, degault to blobs."
+
+  * a question of its own on the same slide as the theme, immediately
+    under it, offering `ambient.ANIMATION_CHOICES` including None;
+  * it defaults to Blobs, which is already `ambient.DEFAULT_THEME` and
+    what `preferences.get_ambient_animation` falls back to -- so the
+    slide shows the default the application already has rather than a
+    second opinion about it;
+  * it writes through `preferences.set_ambient_animation`, which is the
+    one seam that both turns the backdrop on and stores the choice.
+
+THE TERMS OF USE
+  * a slide of its own, second to last: after the questions, before the
+    screen says it is finished. It carries the terms, the licence's name and
+    a link to the whole of it, and the required copyright notice;
+  * THE TERMS THEMSELVES ARE NOT TRANSLATED and everything around them is. A
+    translated licence summary is not the licence; the title, the sentence
+    introducing it, the acceptance and the refusal are the screen talking,
+    and they are catalogued in all nine languages through the same
+    registration seam an app's name uses;
+  * the acceptance is a slider, like every other boolean on that screen;
+  * THE NEXT BUTTON IS NOT GREYED. Pressed without the acceptance it stays
+    on the slide and says why -- a control that does nothing and says
+    nothing leaves the reader to guess which thing on the page is stopping
+    them;
+  * the acceptance is RECORDED, beside the other setup answers and under the
+    same `onboarding/` prefix, with the version of the terms and the time it
+    was given. `terms.agreement_record()` is the whole record in one call;
+  * A CHANGED VERSION IS A NEW AGREEMENT. `TERMS_VERSION` is compared against
+    what was recorded, so rewritten terms ask again instead of inheriting the
+    old answer;
+  * dismissing the screen records NOTHING -- a dismissal chooses the
+    defaults, it does not accept a licence -- and the screen comes back next
+    launch. A store that refuses the write is treated as not having agreed,
+    which is the safe direction. A launch that declined setup (a server, a
+    headless job) is still never asked.
+
+THE SETTINGS WINDOW IN TABS
+  * the picture-settings window is five tabs -- Source, Channels, Picture,
+    Outline, Which cells -- off one table, `picture_settings.categories()`,
+    the same shape the module screens group their settings with;
+  * the grouping is BY THE QUESTION EACH SETTING ANSWERS, not by which mode
+    uses it: a tab that appeared and vanished with the crop source would hide
+    the controls whose greyed reason explains the mode;
+  * every offered setting is on exactly one tab, and a setting added later
+    with no tab named for it lands on a trailing one rather than vanishing;
+  * a tab holding controls this mode cannot use says how many, and stays
+    selectable -- behind a tab, a greyed control's reason has to be findable.
+
+PERCENTILES AS TWO FIELDS
+  * one label, two numeric fields, low and high. The stored value is still
+    the two-element list every settings file holds;
+  * the fields constrain each other rather than validating afterwards: the
+    high end cannot go below the low one and the low end cannot go above the
+    high one, so an inverted window is not a value the panel can be left
+    holding;
+  * every spelling already on disk is MIGRATED, not refused: `[2, 98]`,
+    `(2, 98)`, `2,98`, `2;98`, and the `[1 99]` a user types when they use a
+    space. A pair given high-first is put in order; a percentile outside
+    0-100 is brought back, because numpy raises on one and the raise
+    surfaces as a lost montage with no mention of a setting;
+  * THE SHIPPED DEFAULT USED TO BE THROWN AWAY. `percentiles` was read by the
+    channel-list parser, which maps the position strings '0', '1' and '2'
+    onto the colours r, g and b -- right for `normalize_channels` and
+    destructive here. `[2, 98]` became `['b', '98']`, the float conversion
+    raised, and the caller fell back to a pair nobody asked for. Every
+    window whose low end was 0, 1 or 2 was silently replaced;
+  * the same migration at the crop layer: a `normalize` written as text
+    reached `CropSpec` as a truthy string that is not a sequence, so the cut
+    fell through to a full 0-100 stretch -- the window was configured, the
+    crop ignored it, and nothing said so.
 
 THE SETUP SCREEN
   * one rounded translucent surface, with nothing square behind it;
