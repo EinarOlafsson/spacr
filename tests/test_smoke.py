@@ -25,12 +25,16 @@ ALL_MODULES = sorted(
     if p.stem not in {"__init__", "__main__"}
 )
 
-# The set exposed via __init__.py's __getattr__ lazy loader.
+# A hand-written sample of the names __init__.py's __getattr__ lazy loader
+# must keep reachable. Deliberately not derived from the directory: the
+# derived comparison is test_lazy_loader_matches_files, and a list written
+# by hand is what catches a loader that stops resolving anything at all.
+# Every name here must still exist as spacr/<name>.py —
+# test_expected_lazy_names_all_exist holds that, so retiring a module
+# reports the retired name instead of an AttributeError from the loader.
 EXPECTED_LAZY = {
     "core", "io", "utils", "settings", "plot", "measure", "sequencing",
-    "timelapse", "deep_spacr", "gui_utils", "gui_elements", "gui_core",
-    "gui", "app_annotate", "app_make_masks", "app_mask", "app_measure",
-    "app_classify", "app_sequencing", "app_umap", "submodules", "ml",
+    "timelapse", "deep_spacr", "submodules", "ml",
     "toxo", "spacr_cellpose", "spacrops", "sp_stats", "sim", "object",
     "logger", "version",
 }
@@ -93,18 +97,25 @@ def test_lazy_loader_matches_files():
     assert not extra, f"in _SUBMODULES but no file: {extra}"
 
 
+def test_expected_lazy_names_all_exist():
+    """Every name in EXPECTED_LAZY is still a file in spacr/.
+
+    Retiring a module leaves EXPECTED_LAZY naming something that is gone,
+    and the loader answers that with a bare AttributeError which does not
+    say the module was deleted on purpose. This names it instead.
+    """
+    gone = sorted(EXPECTED_LAZY - set(ALL_MODULES))
+    assert not gone, (
+        "EXPECTED_LAZY names modules with no spacr/<name>.py: "
+        f"{gone} — drop them here if the retirement was intended"
+    )
+
+
 def test_lazy_loader_returns_modules():
     """Every listed submodule can actually be fetched via attribute access."""
     import spacr
     for name in EXPECTED_LAZY:
-        try:
-            mod = getattr(spacr, name)
-        except Exception as e:
-            # gui_* modules pull in pyautogui at import time; skip in
-            # display-less subprocess runs.
-            if "DisplayConnection" in type(e).__name__ or "Xauthority" in str(e):
-                continue
-            raise
+        mod = getattr(spacr, name)
         assert mod is not None, f"getattr(spacr, {name!r}) returned None"
 
 
@@ -155,12 +166,7 @@ def test_no_syntax_warnings_across_package():
     with warnings.catch_warnings(record=True) as recorded:
         warnings.simplefilter("always")
         for name in EXPECTED_LAZY:
-            try:
-                getattr(spacr, name)
-            except Exception as e:
-                if "DisplayConnection" in type(e).__name__ or "Xauthority" in str(e):
-                    continue
-                raise
+            getattr(spacr, name)
         syn = [w for w in recorded if issubclass(w.category, SyntaxWarning)]
     assert not syn, "SyntaxWarnings: " + "\n".join(f"  {w.filename}:{w.lineno} {w.message}" for w in syn)
 

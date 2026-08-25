@@ -43,6 +43,8 @@ __all__ = [
     "SCALES",
     "render_volcano",
     "point_details",
+    "point_localizations",
+    "localizations_present",
 ]
 
 #: Marker shapes offered, as ``(matplotlib code, label)``. Restricted to the
@@ -183,6 +185,18 @@ class VolcanoStyle(FigureStyle):
     #: Column whose values choose each point's SHAPE. Categorical only --
     #: a shape cannot encode a continuous value.
     shape_by: str | None = None
+    #: Which LOPIT compartments the colour channel is about. Empty leaves the
+    #: plot's own colouring alone. SEVERAL AT ONCE on purpose: "dense granules
+    #: and rhoptries 1" is one comparison, not two, so every point in ANY
+    #: ticked compartment is coloured -- each compartment its own colour --
+    #: and everything else stays `base_color`. Ticking a compartment takes the
+    #: colour channel over from `color_by`, because a dot cannot be coloured
+    #: for two things at once.
+    localizations: tuple[str, ...] = ()
+    #: Which column names each row's gene, for the compartment lookup. None
+    #: takes the first of ``feature``, ``gene``, the label column and
+    #: ``guide`` that the results actually have.
+    localization_column: str | None = None
 
     # ---- lines -----------------------------------------------------------
     line_width: float = 1.0
@@ -422,15 +436,112 @@ def _colour_values(frame: pd.DataFrame, style: VolcanoStyle):
     return column.astype(str).to_numpy(), True
 
 
+def point_localizations(results: pd.DataFrame, style: VolcanoStyle):
+    """Each row's LOPIT compartment as an array of names, ``''`` where unknown.
+
+    THE EXPLORER'S TABLE IS NOT THE REGRESSION'S.
+    :func:`spacr.localisation.of` reads a design term with the gene in square
+    brackets -- ``fraction:grna[233460_1]`` -- while the frame a user opens in
+    the explorer carries bare identifiers, ``TGGT1_233460`` or ``233460_1``.
+    Both are resolved here, and the bundled table's bare gene NUMBER is tried
+    as well, so compartment colouring works on the table the explorer actually
+    holds rather than only on the one the regression emits.
+
+    :returns: a numpy array of compartment names, or ``None`` when no column
+        of ``results`` can name a gene and when no table is bundled -- a
+        volcano is still a volcano without compartment colouring.
+    """
+    from .hits import _gene_id_of, gene_of
+    from .localisation import table
+
+    candidates = [style.localization_column, "feature", "gene",
+                  style.label_column, "guide"]
+    key = next((name for name in candidates
+                if name and name in results.columns), None)
+    lookup = table()
+    if key is None or not lookup:
+        return None
+    places = []
+    for value in results[key]:
+        text = str(value).strip()
+        gene = gene_of(text) or _gene_id_of(text) or ""
+        place = lookup.get(gene)
+        if place is None and "_" in gene:
+            place = lookup.get(gene.rsplit("_", 1)[-1])
+        places.append(place or "")
+    return np.asarray(places, dtype=object)
+
+
+def localizations_present(results: pd.DataFrame, style: VolcanoStyle,
+                          minimum: int | None = None) -> list:
+    """The compartments this screen actually has, commonest first.
+
+    NOT ALL 27. A menu listing every compartment in the reference table offers
+    choices that would colour nothing, and a choice that colours nothing is
+    indistinguishable from a broken one -- the same threshold
+    :func:`spacr.localisation.present` applies.
+    """
+    from .localisation import MIN_GENES
+
+    places = point_localizations(results, style)
+    if places is None or not len(places):
+        return []
+    counts = pd.Series(places)
+    counts = counts[counts != ""].value_counts()
+    floor = MIN_GENES if minimum is None else int(minimum)
+    return [str(name) for name, count in counts.items() if count >= floor]
+
+
+def _draw_by_localization(panels, frame, x, y, places, style, shapes) -> None:
+    """Colour the ticked compartments; leave every other point grey.
+
+    Several at once, because "dense granules and rhoptries 1" is one question.
+    The ticked compartments are what the figure is about, so they are drawn at
+    ``significant_marker_size`` and the rest at ``marker_size``: the emphasis
+    is on the compartment here, and the effect-size and alpha lines are still
+    where significance is read off.
+    """
+    import matplotlib as mpl
+
+    # `dict.fromkeys` keeps the offered order and drops a repeat, so the same
+    # combination is drawn the same however it was ticked.
+    wanted = list(dict.fromkeys(str(name) for name in style.localizations))
+    cmap = mpl.colormaps[style.colormap]
+    for axis in panels:
+        rest = np.ones(places.shape, bool)
+        for index, name in enumerate(wanted):
+            mask = places == name
+            rest &= ~mask
+            if not mask.any():
+                continue
+            colour = (cmap(index % cmap.N) if cmap.N <= 32
+                      else cmap(index / max(len(wanted) - 1, 1)))
+            _scatter_by_shape(axis, frame, x, y, mask, style, shapes,
+                              color=colour,
+                              size=style.significant_marker_size, label=name)
+        if rest.any():
+            _scatter_by_shape(axis, frame, x, y, rest, style, shapes,
+                              color=style.base_color, size=style.marker_size,
+                              label="elsewhere")
+
+
 def _draw_points(panels, frame, x, y, significant, style):
     """Scatter the points onto every panel; returns a mappable or None."""
-    colours = _colour_values(frame, style)
     shapes = {}
     if style.shape_by and style.shape_by in frame.columns:
         categories = list(pd.unique(frame[style.shape_by].astype(str)))
         codes = [code for code, _label in MARKER_SHAPES]
         shapes = {name: codes[index % len(codes)]
                   for index, name in enumerate(categories)}
+
+    if style.localizations:
+        places = point_localizations(frame, style)
+        if places is not None:
+            _draw_by_localization(panels, frame, x, y, places, style, shapes)
+            # No mappable: a compartment is a category, and a colour bar over
+            # categories is a scale that reads as continuous when it is not.
+            return None
+    colours = _colour_values(frame, style)
 
     mappable = None
     for axis in panels:

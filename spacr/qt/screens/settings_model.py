@@ -381,6 +381,13 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
         # hidden and then offered anyway, ungrouped, in the bucket the
         # layouts exist to keep empty.
         "Toxoplasma",
+        # THE FOUR OBJECT-OUTLIER FILTERS. Each excludes objects by a
+        # robust z-score over a measurement, and this module joins the
+        # measurements to the scores AFTER the fit -- so at the moment they
+        # would run there is no column to take a deviation over. They are
+        # still read from a settings file; they are not offered.
+        "cell_area_outlier_mads", "nucleus_area_outlier_mads",
+        "cell_intensity_outlier_mads", "nucleus_intensity_outlier_mads",
     },
 }
 
@@ -1063,11 +1070,6 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "positive_control_wells", "negative_control_wells",
             "mixed_control_wells", "exclude_grnas", "controls",
             "filter_column", "filter_value",
-            # BEFORE THE THRESHOLD, because they run before it: these four
-            # decide which objects EXIST, and the threshold divides by what
-            # is left (instruction 210).
-            "cell_area_outlier_mads", "nucleus_area_outlier_mads",
-            "cell_intensity_outlier_mads", "nucleus_intensity_outlier_mads",
             "min_cell_count", "min_n", "fraction_threshold",
             # DIRECTLY UNDER THE NUMBER IT REPLACES. It says "measure this
             # from the control wells instead", so it is only readable

@@ -5,6 +5,7 @@ pytest-qt is not installed so the rest of the suite still runs.
 """
 from __future__ import annotations
 
+import gc as _gc
 from importlib.util import find_spec
 import os
 
@@ -527,6 +528,56 @@ def _no_unguarded_modals(monkeypatch):
             _refuse_static._spacr_modal_guard = True
             monkeypatch.setattr(cls, name, staticmethod(_refuse_static),
                                 raising=False)
+
+
+#: Retained widgets above which the collector is run at a test boundary. Not
+#: zero, because collecting is not free: measured over a four-file cohort, 14
+#: collections cost 2.8 s in total. Not large either, because what it buys
+#: grows with the tree. See the fixture below for the numbers.
+COLLECT_ABOVE_WIDGETS = 2000
+
+
+@pytest.fixture(autouse=True)
+def the_retained_tree_does_not_grow_without_end(deferred_deletions_flushed):
+    """Let Python collect the widgets nothing references any more.
+
+    A Qt widget with bound-method connections is part of a reference cycle,
+    so its wrapper outlives the last reference to it and only the CYCLE
+    collector can free it. Until it does, the C++ widget is alive and in
+    ``QApplication.allWidgets()`` — and every global restyle visits all of
+    them. A suite that never collects therefore gets slower as it goes, and
+    the tests that pay are the ones that set a stylesheet.
+
+    What that costs, priced against ``test_field_fade.py`` (29 tests) with a
+    controlled number of extra live widgets:
+
+        0 extra          2.7 s
+        5,000           11.8 s
+        20,000          39.2 s
+
+    and what collecting buys, measured on a real four-file cohort ending in
+    that same file, with and without this rule:
+
+        without    the tree reaches 9,445, the file costs 18.0 s, run 42.1 s
+        with       the tree stays at 1,909, the file costs  7.0 s, run 33.2 s
+
+    This is NOT the teardown fixture removed above. It reaches across no
+    widgets, stops no threads, deletes nothing on its own initiative and
+    cannot touch anything still referenced: all it does is run the collector
+    Python would have run on its own schedule, at a boundary where the
+    previous test's teardown is complete. The one thing it changes is WHEN.
+
+    Above a threshold rather than every test, because a collection over a
+    large heap is not free and most tests leave nothing worth collecting.
+    """
+    app = deferred_deletions_flushed
+    try:
+        crowded = len(app.allWidgets()) >= COLLECT_ABOVE_WIDGETS
+    except Exception:
+        crowded = False
+    if crowded:
+        _gc.collect()
+    yield
 
 
 @pytest.fixture(autouse=True)

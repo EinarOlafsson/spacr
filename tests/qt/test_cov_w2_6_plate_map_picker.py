@@ -69,13 +69,10 @@ def _release(well):
 # a well has to be able to find its picker
 # --------------------------------------------------------------------------
 
-@pytest.mark.xfail(strict=True, reason=(
-    "`area.setWidget(self._holder)` reparents the holder into the scroll "
-    "area's VIEWPORT, so `_picker()` returns that viewport rather than the "
-    "PlateMapPicker. Every `hasattr(picker, 'begin_drag')` guard is then "
-    "False and press-move-release selects nothing. `_picker` has to walk up "
-    "to the PlateMapPicker ancestor instead of taking exactly two steps."))
 def test_a_well_finds_the_picker_it_belongs_to(picker):
+    """The scroll area reparents the holder into its own VIEWPORT, so a
+    walk of a fixed number of parents lands on that viewport instead of the
+    dialog: `_picker` searches its ancestors for the PlateMapPicker."""
     assert picker._wells[(1, 1)]._picker() is picker
 
 
@@ -135,10 +132,9 @@ def test_a_release_with_no_drag_behind_it_is_still_an_ordinary_click(
     assert wired_well.isChecked()
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "the same broken `_picker()` parent walk: a real well in the grid never "
-    "reaches the dialog, so dragging across the plate selects nothing"))
 def test_dragging_across_the_plate_selects_the_rectangle(picker, qapp):
+    """The gesture through a REAL well of the grid, whose holder sits in the
+    scroll area's viewport -- the route the fixed-step parent walk broke."""
     start, corner = picker._wells[(2, 2)], picker._wells[(4, 5)]
     _press(start)
     _move_to(start, corner)
@@ -376,13 +372,10 @@ def test_clicking_a_well_fills_it_and_clicking_again_empties_it(picker, qapp):
     assert EMPTY in well.styleSheet()
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "`set_selection` blocks the well's signals around setChecked, so the "
-    "`toggled -> _paint` connection never fires and a programmatically "
-    "chosen well -- the picker's own starting value, and everything kept "
-    "across a layout change -- is checked but still painted EMPTY. It has "
-    "to repaint after setting the state."))
 def test_a_well_chosen_without_a_click_still_looks_chosen(picker):
+    """`set_selection` blocks the wells' signals so the count is said once
+    rather than once per well, which also silences `toggled -> _paint`: it
+    repaints itself, or a chosen well is drawn empty."""
     picker.set_selection({(1, 1)})
     assert picker._wells[(1, 1)].isChecked()
     assert CHOSEN in picker._wells[(1, 1)].styleSheet()
