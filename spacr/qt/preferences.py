@@ -2782,7 +2782,10 @@ PREFERENCE_TIPS = {
     "Label top n": "How many of the strongest points are labelled by name.",
     "Legend": "Draw a legend, and where.",
     "Per row": "How many panels are placed across a row of a grid figure.",
-    "Aspect": "The width-to-height ratio of each panel.",
+    "Graph shape": "The proportions of each panel: square, a horizontal "
+                   "rectangle, or a vertical one. A ratio is a number and "
+                   "this is a choice, so it says which shape it draws "
+                   "rather than asking for one to be computed.",
     "Page shape": "The proportions of the saved page.",
     "Dpi": "Pixels per inch in the saved file. 300 is the usual minimum for print.",
     "Format": "The file type a figure is saved as.",

@@ -2358,6 +2358,19 @@ def _is_transparent_ground(value) -> bool:
     return str(value).strip().lower() in ("none", "transparent", "")
 
 
+#: Style keys whose capitalised name is not what the setting is called.
+#:
+#: `aspect` is the case this exists for. Capitalised it reads "Aspect",
+#: which a reader takes for the aspect RATIO -- a number tying one y unit
+#: to n x units, which is a statement about the data and is a different
+#: setting living under Axes. This one is the proportions of the panel,
+#: and it is a choice of shapes rather than a ratio to compute, so it is
+#: called what the graph's own right-click menu calls it.
+_STYLE_LABELS = {
+    "aspect": "Graph shape",
+}
+
+
 def style_setting_label(name: str) -> str:
     """Convert a style setting name to a display label.
 
@@ -2371,7 +2384,8 @@ def style_setting_label(name: str) -> str:
     str
         Capitalized, space-delimited label, such as ``'Grid colour'``.
     """
-    return str(name).replace("_", " ").strip().capitalize()
+    return _STYLE_LABELS.get(
+        str(name), str(name).replace("_", " ").strip().capitalize())
 
 
 class FigureStylePreferences(QWidget):
