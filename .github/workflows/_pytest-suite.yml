@@ -183,8 +183,16 @@ jobs:
           fi
           timeout_args=()
           if [ "${{ inputs.per_test_timeout_seconds }}" -gt 0 ]; then
+            # --max-worker-restart=0 is what keeps the ceiling from costing
+            # MORE than the hang it replaces. xdist otherwise replaces the
+            # ended worker and hands it the very same test, which wedges
+            # again, so a deterministic hang would pay the ceiling once per
+            # restart. With no restarts it is paid once: the crash is
+            # reported against the test id, the surviving workers finish
+            # their own files, and the shard prints a summary.
             timeout_args=(--timeout "${{ inputs.per_test_timeout_seconds }}"
-                          --timeout-method thread)
+                          --timeout-method thread
+                          --max-worker-restart=0)
           fi
           python -m pytest tests/ \
             -o faulthandler_timeout=900 \

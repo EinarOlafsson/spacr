@@ -2,12 +2,16 @@
 MAKE THE API PAGE LOOK PROFESSIONAL, CLEAN AND USEFUL
 ================================================================================
 
-Status:    in progress. The short underlines and the duplicate object
-           descriptions are gone and stay gone -- a clean rebuild reports 0
-           of each. A deleted module no longer reaches the page or the
-           localization payload. Two rendering defects and one blocked
-           regeneration are open, all in files this sweep does not own; they
-           are named at the end.
+Status:    THE BUILD IS AT 0 ERRORS AND 0 WARNINGS FROM AN EMPTY TREE. The
+           two rendering defects this file left open -- the broken definition
+           list in `spacr/object_distances.py` and the `shape` cross-
+           reference in `spacr/qt/widgets/fast_plots.py` -- are both repaired
+           in the source, verified by a rebuild that started from an empty
+           `docs/_build` and `docs/source/api`: 910 HTML pages, 447 module
+           pages, nothing reported. The short underlines and duplicate object
+           descriptions are still gone, and a deleted module still reaches
+           neither the page nor the localization payload. Two things remain
+           and neither is a rendering fault; both are named at the end.
 Requested: 2026-08-08 — "do a sweep of the API page and make sure everything looks as professions and clean and informative and usefull as you can make it"
 
 --------------------------------------------------------------------------------
@@ -786,53 +790,78 @@ the seven category names -- which the registry does confirm -- carry the
 same information without rotting. The two Tk references are gone.
 
 --------------------------------------------------------------------------------
+THE BUILD IS BACK AT 0 AND 0, AND THE WARNING CLASS NOW HAS A GUARD
+--------------------------------------------------------------------------------
+
+    sphinx-build -E -b html --keep-going, from an empty docs/_build and an
+    empty docs/source/api:
+
+        910 HTML pages, 447 generated module pages
+        0 errors, 0 warnings
+        tests/test_tooltip_api_links_resolve.py green against that build
+
+BOTH DEFECTS ARE FIXED IN THE SOURCE, exactly as this file diagnosed them:
+the "NO OBJECT-TYPE PREFIX ON THE COLUMNS" paragraph now sits BELOW
+`surface_to_surface`, so the three distance entries are contiguous and the
+block parses as one definition list; and no docstring under `spacr/` carries
+a shape inside a NumPy type field any more.
+
+WHAT WAS MISSING WAS A GUARD, and that is the part worth keeping. This file
+has now recorded the build sliding off 0/0 twice, and both times the only
+thing that could detect it was a five-minute build nobody runs locally. The
+`shape` fault is the worse of the two to debug, for the reason described
+above: Sphinx reports it against the document's TITLE line rather than the
+field, because the cross-reference is resolved after the field's own source
+position is gone.
+
+`tests/test_docstring_types_do_not_name_a_shape.py` states the rule instead.
+Napoleon turns everything right of the colon in a NumPy entry into a
+`:type:` field, and Sphinx resolves each token of a type field as a Python
+object -- so a size descriptor in a type is an ambiguous reference against
+every class that happens to define one. The test walks every docstring under
+`spacr/`, and a second test feeds it the exact offending form to prove the
+detector still has teeth; a rule that silently matches nothing is
+indistinguishable from a clean tree.
+
+The repair the rule asks for is the one this file wrote down:
+
+    contributions : array-like
+        Each sample's contribution for each feature, shaped
+        ``(n_samples, n_features)``.
+
+--------------------------------------------------------------------------------
 WHAT IS OPEN, AND WHY IT IS NOT CLOSED HERE
 --------------------------------------------------------------------------------
 
-A clean rebuild is 1 error and 1 warning, both regressions since the build
-was last at 0 and 0, and both in source files this sweep does not own:
+Neither remaining item is a rendering fault, and the page builds clean with
+both of them outstanding.
 
-  ERROR  Unexpected indentation, `spacr/object_distances.py` module
-         docstring. A paragraph beginning "NO OBJECT-TYPE PREFIX ON THE
-         COLUMNS" was inserted between the `centre_to_centre` entry and the
-         `centre_to_surface` entry of the definition list explaining the
-         three distances. The indented entries after it now follow an
-         ordinary paragraph, so the whole block renders as body text rather
-         than a definition list. The repair is to move that paragraph below
-         `surface_to_surface` so the three entries stay contiguous; the
-         blank line above it has to go too, or the list is still broken in
-         the same place. Run through docutils that takes the docstring from
-         one error to none.
+  BLOCKED `docs/source/_generated/workflow_grid.rst` still cannot be
+         regenerated, and the block is now much larger than the two keys this
+         file named. `packaging/generate_readme_visuals.py` refuses with
 
-  WARNING more than one target found for cross-reference 'shape',
-         `spacr/qt/widgets/fast_plots`. Not prose: a NumPy-style parameter
-         type, `contributions : array-like, shape (n_samples, n_features)`.
-         Napoleon turns that into a `:type:` field, and Sphinx resolves each
-         token of a type field as a Python object -- so `shape` matches the
-         nine classes that define one. The repair is to move the shape into
-         the description, where it is text rather than a type:
+             documented application order does not match the Home registry:
+             missing=['agreement', 'anndata_export', 'barcode_qc',
+             'cellpose_masks', 'classifier_evaluation', 'curate',
+             'explain_cv', 'illumination', 'image_scatter', 'model_compare',
+             'model_zoo', 'motility', 'parameter_sweep', 'pca', 'timelapse',
+             'train_cellpose', 'volcano_explorer']
 
-             contributions : array-like
-                 Each sample's contribution for each feature, shaped
-                 ``(n_samples, n_features)``.
+         Seventeen keys, not two. That is the module consolidation landing --
+         screens are being merged and retired as this is written -- so
+         reconciling APP_ORDER now would be stale before it was committed.
+         The grid should be regenerated once the Home registry settles, and
+         it is the generator's own refusal, not the docs build, that reports
+         it.
 
-         DO NOT GO LOOKING AT THE REPORTED LINE. Sphinx reports this class
-         against the document's title line, not the field -- 70 for a field
-         at 342 -- because the reference is resolved after the field's own
-         source position is gone. Reduced to a four-line project it does the
-         same thing, which is how the diagnosis was confirmed: two classes
-         with a `shape` attribute and one `:type: array-like, shape (...)`
-         reproduce the warning, and the description form does not.
+  RED    `tools/build_documentation_i18n.py --audit`, which the docs workflow
+         runs BEFORE sphinx-build, exits 1:
 
-  BLOCKED `docs/source/_generated/workflow_grid.rst` cannot be regenerated:
-         `packaging/generate_readme_visuals.py` refuses, because `APP_ORDER`
-         still documents `cellpose_masks` and `parameter_sweep` and neither
-         is registered on Home any more. Dropping those two keys unblocks
-         the generator, the grid and the README tiles.
+             ValueError: stale reviewed runtime source
+             setting_tooltips/anndata_nan_policy
 
-Separately, `tools/build_documentation_i18n.py --audit` is red for a reason
-that needs the translation model rather than an edit: the English manifest
-is 148 symbols behind the source and 6 ahead of it, and one reviewed record
-for `spacr.qt.mask_engine` no longer matches its docstring. Pruning the
-deleted modules does not touch that; it is the ordinary cost of docstrings
-changing faster than they are translated.
+         A reviewed translation is keyed by its English source string, so an
+         English string that changes orphans its review. This is the ordinary
+         cost of docstrings and settings moving faster than the translations
+         of them, it is not a documentation-rendering defect, and it needs
+         the translation model rather than an edit.

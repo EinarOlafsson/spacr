@@ -2120,11 +2120,23 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         chosen = box.currentIndex()
         blocked = box.blockSignals(True)
         try:
-            set_translatable_items(box, sources)
+            set_translatable_items(
+                box, sources, language=getattr(self, "_i18n_language", None))
             if 0 <= chosen < box.count():
                 box.setCurrentIndex(chosen)
         finally:
             box.blockSignals(blocked)
+
+    def retranslate_dynamic_content(self, language: str) -> None:
+        """Record the language this panel is showing.
+
+        The channel dropdown is refilled every time a folder is enumerated,
+        which is long after the language pass that translated it, and it has
+        to be rebuilt in the language ON SCREEN rather than the one the
+        preference happens to hold — a language chosen in Preferences
+        reaches the widget tree before it is persisted.
+        """
+        self._i18n_language = str(language)
 
     def _background_for_channel(self, channel: Optional[int]) -> Optional[float]:
         """The background threshold that applies to one displayed channel.

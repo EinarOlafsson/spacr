@@ -5,9 +5,15 @@ spaCR MUST RUN ON PYTHON 3.9 THROUGH 3.14, ON THE RIGHT DEPENDENCY VERSIONS
 Status:    "optimal" is DEFINED and enforced -- spaCR means the newest in
            each declared range, the floor is a promise rather than advice,
            and both ends have a blocking CI job. The Python range is settled
-           and every claimed interpreter has a cell. Two items remain, both
-           in WHAT IS LEFT; compat-matrix is red for a reason that belongs
-           to instruction 43, not to this file.
+           and every claimed interpreter has a cell. EVERY DECLARED FLOOR NOW
+           NAMES A RELEASE THAT EXISTS: nvidia-ml-py was the last that did
+           not, and its `>=11.5` is now `>=11.450.51`, which is the same set
+           of releases and the first one the minimum profile can pin. What is
+           left is the conda-forge half of that -- the recipe names `pynvml`,
+           which on conda-forge is a DIFFERENT package -- and the removal of
+           two dead Tk-only dependencies. Both are in WHAT IS LEFT and both
+           need conda-forge/recipe/recipe.yaml, which is why neither is done
+           here.
 Requested: 2026-08-08 — "make sure spacr works on python 3.9-3.14 and that the optimal dependency versions are allways used."
 
 --------------------------------------------------------------------------------

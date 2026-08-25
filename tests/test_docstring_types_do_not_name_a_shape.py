@@ -68,12 +68,17 @@ def _type_fields(docstring: str):
         if not inside:
             continue
         stripped = line.strip()
+        if not stripped:
+            continue
+        if line[:1].isspace():
+            # Indented: the description under an entry, where a shape is
+            # ordinary prose and exactly where this rule wants it.
+            continue
         entry = _FIELD.match(line)
-        if stripped and not line[:1].isspace() and not entry:
+        if entry is None:
             inside = False
             continue
-        if entry:
-            yield line.strip(), entry.group("type")
+        yield stripped, entry.group("type")
 
 
 def _label(path: Path) -> str:
@@ -154,15 +159,19 @@ def test_the_rule_recognises_the_form_that_costs_a_warning(tmp_path):
 
 
 def test_the_rule_leaves_the_repaired_form_alone():
-    """The description is where a shape belongs, and must not be flagged."""
+    """The description is where a shape belongs, and must not be flagged.
+
+    The word is the same one the rule bans; only the indentation differs, and
+    that is the whole distinction Napoleon makes between a type and prose.
+    """
     repaired = (
         "Draw a beeswarm.\n"
         "\n"
         "Parameters\n"
         "----------\n"
         "contributions : array-like\n"
-        "    Each sample's contribution for each feature, shaped\n"
-        "    ``(n_samples, n_features)``.\n"
+        "    Each sample's contribution for each feature, of\n"
+        "    shape ``(n_samples, n_features)``.\n"
     )
     flagged = [
         declared
