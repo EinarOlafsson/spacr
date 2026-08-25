@@ -1,0 +1,80 @@
+================================================================================
+THE PLATE VIEWER: ONE LOCKED GRID, SQUARE WELLS, AND DRAG TO SELECT
+================================================================================
+
+Status:    OPEN. Reported again 2026-08-25, having been asked for once
+           before and never built -- "a long time ago i told you that ...
+           none of this is true".
+Owner:     spacr/qt/widgets/plate_map_picker.py, and every screen that
+           offers a plate map (the regression control-well pickers are
+           where it was met).
+
+--------------------------------------------------------------------------------
+THE THREE ASKS
+--------------------------------------------------------------------------------
+
+1. EVERY PART OF THE PLATE IS LOCKED TO EVERY OTHER PART.
+
+   "all elements of the plate locked to each other (wells and column and
+   row axis labels)."
+
+   The row letters, the column numbers and the wells are one grid, not
+   three things that happen to be near each other. Resize the window and
+   they move together; scroll and they scroll together; a column label
+   sits over its column at every size, and a row letter beside its row.
+
+   The failure this is aimed at is the ordinary one: labels laid out in
+   their own strip drift out of register with the wells as soon as the
+   two are given different amounts of space.
+
+2. A WELL IS A SQUARE.
+
+   "the wells should be squares not rectangles."
+
+   A plate well is round in life and square on a map. Stretched into a
+   rectangle it reads as a grid of something else, and the eye stops
+   being able to count across it. The square survives every window size:
+   the grid takes the space it needs to keep them square and leaves the
+   rest, rather than dividing whatever it is given.
+
+3. CLICK AND DRAG SELECTS A RECTANGLE.
+
+   "the user should be able to click and drag to select not only click."
+
+   Press on a well, move, release: every well the pointer swept is
+   selected. Selecting a block of a plate is the common case -- a whole
+   column of controls, a quadrant, four wells in a corner -- and clicking
+   ninety-six times is not a way to do it.
+
+   NOTE, from the coverage pass: the drag gesture was WRITTEN and is
+   dead. `_Well._picker` walks exactly two parents to find the picker,
+   and `area.setWidget(self._holder)` reparents the holder into the
+   scroll area's VIEWPORT, so the walk lands on the viewport instead.
+   Every `hasattr(picker, "begin_drag")` guard is then False and a press
+   selects nothing. Pinned by
+   `tests/qt/test_cov_w2_6_plate_map_picker.py`. The walk has to find the
+   PlateMapPicker ancestor rather than counting steps.
+
+--------------------------------------------------------------------------------
+A FOURTH THING, FOUND WITH THEM
+--------------------------------------------------------------------------------
+
+`PlateMapPicker.set_selection` blocks the well's signals around
+`setChecked`, so the `toggled -> _paint` connection never fires: a
+programmatically chosen well -- which includes the picker's own starting
+value and everything kept across a layout change -- is checked and still
+painted EMPTY. It has to repaint after setting the state.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Driven, not eyeballed, at more than one window size:
+
+* a column label's centre x equals its column's centre x, and a row
+  label's centre y equals its row's centre y, at 700 px wide and at
+  1400 px wide;
+* every well's width equals its height, at both sizes;
+* press on B2, move to D5, release -> exactly the twelve wells of that
+  rectangle are selected, and the ones outside it are not;
+* `set_selection(["A01"])` leaves A01 painted as selected.
