@@ -566,6 +566,20 @@ def test_every_appearance_setting_is_on_both_routes(explorer):
         assert setting in explorer.menu_settings(), setting
 
 
+def test_the_menu_offers_a_setting_in_the_panels_own_words(explorer):
+    """The panel says "Circle" and the style stores "o". A menu offering the
+    stored value is the same setting in a second vocabulary, and only one of
+    the two is the one a reader recognises."""
+    from spacr.qt.widgets.fast_plots import menu_entries, menu_groups
+
+    menu = explorer.build_style_menu()
+    assert any(title.startswith("Marker: Circle")
+               for title in menu_groups(menu)), menu_groups(menu)
+    offered = {action.text() for action in menu_entries(menu)}
+    assert {"Circle", "Square", "Solid", "Dashed"} <= offered
+    assert "o" not in offered and "--" not in offered
+
+
 def test_a_setting_added_to_the_style_would_be_missing_from_the_panel(
         explorer):
     """The set comparison is the check that keeps the two in step, so it has

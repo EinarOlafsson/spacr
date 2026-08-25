@@ -25,6 +25,7 @@ pytest-qt provides.
 """
 from __future__ import annotations
 
+import gc
 import os
 import sqlite3
 import sys
@@ -322,6 +323,72 @@ def _inside_allowed_root(path) -> bool:
         except ValueError:
             continue
     return False
+
+
+#: How many retained widgets make a collection worth its cost at a test
+#: boundary. The same threshold ``tests/qt/conftest.py`` uses, for the same
+#: reason: collecting a large heap is not free and most tests leave nothing
+#: worth collecting.
+QT_COLLECT_ABOVE_WIDGETS = 2000
+
+
+@pytest.fixture(autouse=True)
+def _the_widget_tree_does_not_outgrow_the_session(_isolated_qsettings_store):
+    """Keep Qt's retained tree bounded for EVERY qt test, not just tests/qt.
+
+    ``tests/qt/conftest.py`` already delivers pending ``deleteLater`` calls
+    and collects the retained tree at each test boundary — but a conftest
+    only reaches its own directory, and the ``qt`` marker is much wider than
+    that directory. Well over a hundred modules directly under ``tests/``
+    carry ``@pytest.mark.qt``, build real widgets, and ran with none of that
+    housekeeping, so their widgets accumulated for the whole job.
+
+    That is what a Qt shard ends holding. Measured over thirty of those
+    modules in one process, 330 tests:
+
+        without this    peak 5,945 top-level windows / 39,713 widgets,
+                        3,161 windows still standing at the end
+        with it         peak   797 top-level windows /  5,709 widgets,
+                          158 windows still standing at the end
+
+    The cost of carrying that tree is paid by every test after it, because a
+    palette or style change visits every live widget — and at the end it is
+    paid once more by the process, which destroys the tree one object at a
+    time before it can print a summary.
+
+    Free for tests that are not Qt tests at all. PySide6 is never imported
+    here: a run that has not already loaded it has no widgets to flush, so
+    the fixture reads one entry in ``sys.modules`` and yields.
+
+    Nothing is reached across. ``sendPostedEvents`` delivers deletions their
+    owners already requested, and the collector only ever touches what
+    nothing references — both at SETUP, where the previous test's teardown is
+    complete and no widget is part-way through being closed. Reaching across
+    live widgets at TEARDOWN is what made an earlier cleanup fixture crash
+    this suite three different ways; that fixture and this one differ in
+    exactly that phase.
+
+    Ordered behind the QSettings sandbox, and depending on it by name rather
+    than by where it sits in this file, because destroying a widget can run
+    a ``closeEvent`` that writes a preference. Whatever those writes land in
+    has to be a sandbox already.
+    """
+    module = sys.modules.get("PySide6.QtWidgets")
+    if module is not None:
+        try:
+            from PySide6.QtCore import QEvent
+
+            app = module.QApplication.instance()
+            if app is not None:
+                module.QApplication.sendPostedEvents(
+                    None, QEvent.DeferredDelete)
+                if len(app.allWidgets()) >= QT_COLLECT_ABOVE_WIDGETS:
+                    gc.collect()
+                    module.QApplication.sendPostedEvents(
+                        None, QEvent.DeferredDelete)
+        except Exception:                                        # noqa: BLE001
+            pass
+    yield
 
 
 @pytest.fixture(autouse=True)

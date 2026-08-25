@@ -8,6 +8,8 @@ where the point is what happens when an optional piece is missing.
 """
 from __future__ import annotations
 
+import logging
+
 import pytest
 
 from PySide6.QtCore import QEvent, QSize
@@ -141,24 +143,47 @@ def test_the_same_key_on_two_holders_is_listed_once(window):
 # the window hooks
 # --------------------------------------------------------------------------
 
-@pytest.mark.parametrize("module_path,attribute", [
-    ("spacr.qt.widgets.feature_dictionary", "install_window_hooks"),
-    ("spacr.qt.settings_search", "install_window_hooks"),
-    ("spacr.qt.recipes", "install_window_hooks"),
-    ("spacr.qt.preview_registry", "install_window_hooks"),
-    ("spacr.qt.walkthrough", "install_window_hooks"),
-])
+#: Every optional module ``_install_window_hooks`` wires, in the order it
+#: reaches them.
+HOOK_MODULES = [
+    "spacr.qt.widgets.feature_dictionary",
+    "spacr.qt.settings_search",
+    "spacr.qt.recipes",
+    "spacr.qt.preview_registry",
+    "spacr.qt.walkthrough",
+]
+
+
+@pytest.mark.parametrize("broken", HOOK_MODULES)
 def test_an_optional_hook_that_fails_never_costs_anyone_a_window(
-        window, monkeypatch, module_path, attribute):
+        window, monkeypatch, broken):
+    """The failing hook is stepped over, not stopped at.
+
+    Every other hook still runs and so does the menu-role sweep that
+    follows them all -- which is the difference that matters, because
+    "nothing escaped" is equally true of a guard that ran no hook at all.
+    """
     import importlib
 
-    module = importlib.import_module(module_path)
+    ran = []
+    for path in HOOK_MODULES:
+        module = importlib.import_module(path)
+        if path == broken:
+            def _explode(_window, _path=path):
+                ran.append(_path)
+                raise RuntimeError(f"{_path} is unhappy")
+            monkeypatch.setattr(module, "install_window_hooks", _explode)
+        else:
+            monkeypatch.setattr(
+                module, "install_window_hooks",
+                lambda _window, _path=path: ran.append(_path))
+    swept = []
+    window.pin_all_menu_roles = lambda: swept.append(True)
 
-    def _explode(_window):
-        raise RuntimeError(f"{module_path} is unhappy")
+    sc._install_window_hooks(window)
 
-    monkeypatch.setattr(module, attribute, _explode)
-    sc._install_window_hooks(window)     # must not raise
+    assert ran == HOOK_MODULES
+    assert swept == [True]
 
 
 def test_the_macos_menu_roles_are_re_pinned_after_the_hooks_run(window):
@@ -171,11 +196,18 @@ def test_the_macos_menu_roles_are_re_pinned_after_the_hooks_run(window):
 
 
 def test_a_menu_role_sweep_that_fails_is_not_fatal_either(window):
+    """The sweep is the last thing the function does, so a swallowed failure
+    and a sweep that never ran look identical from outside; the call records
+    itself before it throws so the two can be told apart."""
+    calls = []
+
     def _explode():
+        calls.append(True)
         raise RuntimeError("no menu bar")
 
     window.pin_all_menu_roles = _explode
     sc._install_window_hooks(window)
+    assert calls == [True]
 
 
 # --------------------------------------------------------------------------
@@ -296,7 +328,18 @@ def test_a_hidden_app_is_not_reachable_by_its_number(monkeypatch):
 
 
 def test_a_navigation_key_on_a_window_without_the_route_is_ignored():
-    sc._nav(object(), "__home__")
+    """The missing route has to be the reason nothing happened, so the
+    lookup is recorded: a guard that bailed earlier would never have asked
+    for `_on_nav_selected` at all."""
+    asked = []
+
+    class NoRoute:
+        def __getattr__(self, name):
+            asked.append(name)
+            raise AttributeError(name)
+
+    sc._nav(NoRoute(), "__home__")
+    assert asked == ["_on_nav_selected"]
 
 
 def test_the_palette_key_opens_the_palette(monkeypatch, window):
@@ -316,14 +359,23 @@ def test_the_palette_key_opens_the_palette(monkeypatch, window):
     assert opened == [window]
 
 
-def test_a_palette_that_cannot_be_built_is_not_a_crash(monkeypatch, window):
+def test_a_palette_that_cannot_be_built_is_not_a_crash(monkeypatch, window,
+                                                       caplog):
+    """The palette was really reached -- a guard that never tried also does
+    not raise -- and what went wrong is left in the log rather than lost."""
     from spacr.qt import command_palette
 
-    def _explode(_parent):
+    tried = []
+
+    def _explode(parent):
+        tried.append(parent)
         raise RuntimeError("no registry")
 
     monkeypatch.setattr(command_palette, "CommandPalette", _explode)
-    sc._open_palette(window)
+    with caplog.at_level(logging.DEBUG, logger="spacr.qt.shortcuts"):
+        sc._open_palette(window)
+    assert tried == [window]
+    assert "no registry" in caplog.text
 
 
 def test_the_preferences_key_opens_preferences(monkeypatch, window):
@@ -343,14 +395,23 @@ def test_the_preferences_key_opens_preferences(monkeypatch, window):
     assert opened == [window]
 
 
-def test_preferences_that_cannot_be_built_is_not_a_crash(monkeypatch, window):
+def test_preferences_that_cannot_be_built_is_not_a_crash(monkeypatch, window,
+                                                        caplog):
+    """As with the palette: the dialog was attempted, and the reason it
+    could not be built survives in the log."""
     from spacr.qt import preferences
 
-    def _explode(_parent):
+    tried = []
+
+    def _explode(parent):
+        tried.append(parent)
         raise RuntimeError("no settings store")
 
     monkeypatch.setattr(preferences, "PreferencesDialog", _explode)
-    sc._open_preferences(window)
+    with caplog.at_level(logging.DEBUG, logger="spacr.qt.shortcuts"):
+        sc._open_preferences(window)
+    assert tried == [window]
+    assert "no settings store" in caplog.text
 
 
 def test_the_recipes_key_opens_the_recipe_menu(monkeypatch, window):
@@ -371,14 +432,22 @@ def test_the_recipes_key_opens_the_recipe_menu(monkeypatch, window):
 
 
 def test_a_recipe_dialog_that_is_unavailable_is_not_a_crash(monkeypatch,
-                                                            window):
+                                                            window, caplog):
+    """The handler was constructed against this window before it refused,
+    and the refusal is logged rather than silently dropped."""
     from spacr.qt import recipes
 
-    def _explode(_parent):
+    tried = []
+
+    def _explode(parent):
+        tried.append(parent)
         raise RuntimeError("no module on screen")
 
     monkeypatch.setattr(recipes, "_RecipeMenuHandler", _explode)
-    sc._open_recipes(window)
+    with caplog.at_level(logging.DEBUG, logger="spacr.qt.shortcuts"):
+        sc._open_recipes(window)
+    assert tried == [window]
+    assert "no module on screen" in caplog.text
 
 
 def test_the_ai_key_toggles_the_switch_on_the_visible_screen(monkeypatch):
@@ -412,11 +481,20 @@ def test_the_ai_key_toggles_the_switch_on_the_visible_screen(monkeypatch):
 
 
 def test_the_ai_key_on_a_window_that_cannot_be_searched_is_ignored():
+    """The sweep was attempted, and for the one type that carries the
+    switch: a handler that searched some other class would find a screen
+    without `_ai_switch` and toggle nothing while raising nothing either."""
+    from spacr.qt.screens.app_screen import AppScreen
+
+    searched = []
+
     class Hostile:
-        def findChildren(self, _kind):
+        def findChildren(self, kind):
+            searched.append(kind)
             raise RuntimeError("window is gone")
 
     sc._toggle_ai(Hostile())
+    assert searched == [AppScreen]
 
 
 # --------------------------------------------------------------------------
@@ -437,24 +515,51 @@ def test_ctrl_f_puts_the_caret_in_the_settings_search_box(qapp):
 
 
 def test_a_screen_with_no_search_strip_is_left_alone_not_swallowed():
-    screen = type("Screen", (), {})()
-    sc._focus_settings_search(_FakeStackWindow(screen))
+    """Left alone means exactly one question asked of the screen -- does it
+    have a search strip -- and nothing touched once the answer is no."""
+    asked = []
+
+    class Screen:
+        def __getattr__(self, name):
+            asked.append(name)
+            raise AttributeError(name)
+
+    sc._focus_settings_search(_FakeStackWindow(Screen()))
+    assert asked == ["_settings_search"]
 
 
 def test_a_window_with_no_stack_cannot_be_searched():
-    sc._focus_settings_search(object())
+    """It stops at the missing stack rather than going on to hunt for a
+    search strip on whatever `currentWidget` did not return."""
+    asked = []
+
+    class NoStack:
+        def __getattr__(self, name):
+            asked.append(name)
+            raise AttributeError(name)
+
+    sc._focus_settings_search(NoStack())
+    assert asked == ["_stack"]
 
 
-def test_a_search_box_that_refuses_focus_is_logged_not_raised():
+def test_a_search_box_that_refuses_focus_is_logged_not_raised(caplog):
+    """Logged is the whole claim: the box was really asked for the caret,
+    and the refusal reaches the log instead of disappearing."""
+    tried = []
+
     class Refusing:
         def setFocus(self):
+            tried.append("setFocus")
             raise RuntimeError("already deleted")
 
     bar = type("Bar", (), {})()
     bar._input = Refusing()
     screen = type("Screen", (), {})()
     screen._settings_search = bar
-    sc._focus_settings_search(_FakeStackWindow(screen))
+    with caplog.at_level(logging.DEBUG, logger="spacr.qt.shortcuts"):
+        sc._focus_settings_search(_FakeStackWindow(screen))
+    assert tried == ["setFocus"]
+    assert "settings search" in caplog.text
 
 
 # --------------------------------------------------------------------------
@@ -560,8 +665,16 @@ def test_re_showing_the_sheet_replaces_the_overlay_rather_than_stacking(
     second.dismiss()
 
 
-def test_an_overlay_whose_window_is_already_gone_dismisses_quietly(window):
+def test_an_overlay_whose_window_is_already_gone_dismisses_quietly(window,
+                                                                   qapp):
+    """Detaching the filter is the first half of dismissal; failing it must
+    not cost the second, or the overlay stays up over a dead window and is
+    never freed."""
+    from shiboken6 import isValid
+
     overlay = sc.show_cheat_sheet(window)
+    overlay.show()
+    assert not overlay.isHidden()
 
     class Gone:
         def removeEventFilter(self, _filter):
@@ -569,6 +682,9 @@ def test_an_overlay_whose_window_is_already_gone_dismisses_quietly(window):
 
     overlay._window = Gone()
     overlay.dismiss()
+    assert overlay.isHidden()
+    qapp.sendPostedEvents(None, QEvent.DeferredDelete)
+    assert not isValid(overlay)
 
 
 def test_a_stale_overlay_that_cannot_be_dismissed_is_replaced_anyway(window):

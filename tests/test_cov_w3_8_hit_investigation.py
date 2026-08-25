@@ -106,6 +106,32 @@ def test_a_prediction_file_without_the_score_column_is_refused(tmp_path):
         _read_cells(str(database), str(predictions), "phenotype_score", "path")
 
 
+def test_a_reader_that_returns_prcfo_as_the_index_still_joins(tmp_path,
+                                                              monkeypatch):
+    """``_read_and_join_tables`` indexes by ``prcfo`` for some schemas.
+
+    The join below is ``on="prcfo"``, so the key has to be a COLUMN by the
+    time it is reached; left as the index it matches nothing and the merge
+    raises instead of attributing a single cell.
+    """
+    import spacr.io
+
+    frame = pd.DataFrame(_cell_rows()).set_index("prcfo")
+    monkeypatch.setattr(spacr.io, "_read_and_join_tables",
+                        lambda *_args, **_kwargs: frame.copy())
+    database = _write_db(tmp_path)
+    predictions = tmp_path / "predictions.csv"
+    pd.DataFrame({"prcfo": ["p1_r01_c01_f1_o1", "p1_r01_c01_f1_o2"],
+                  "phenotype_score": [0.4, 0.6]}).to_csv(predictions,
+                                                         index=False)
+
+    cells = _read_cells(str(database), str(predictions), "phenotype_score",
+                        "path")
+
+    assert list(cells["prcfo"]) == ["p1_r01_c01_f1_o1", "p1_r01_c01_f1_o2"]
+    assert list(cells["phenotype_score"]) == [0.4, 0.6]
+
+
 def test_a_score_already_measured_is_used_without_a_join(tmp_path):
     """When the database already carries the score, no join is attempted."""
     rows = _cell_rows()

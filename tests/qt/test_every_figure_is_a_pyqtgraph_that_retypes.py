@@ -33,7 +33,19 @@ def app():
 
 
 @pytest.fixture
-def grouped(app):
+def grouped(qtbot):
+    """A plot that is destroyed with the test that asked for it.
+
+    Handed to ``qtbot`` rather than merely built. The plot is a parentless
+    top-level widget and pyqtgraph hangs a context menu with ten submenus
+    off it, every one of those top-level too; a top-level widget that is
+    never closed cannot be freed at all, because the connections holding it
+    run through Qt's C++ side where Python's collector cannot follow, so no
+    amount of collecting reclaims one. This file left 295 windows standing
+    for the rest of the process; registering the plot built here accounts
+    for 218 of them, and everything that restyles afterwards stops paying
+    for those.
+    """
     from spacr.qt.widgets.grouped_plot import GroupedPlot, PlotSpec
 
     rng = np.random.default_rng(0)
@@ -41,8 +53,10 @@ def grouped(app):
         "grp": ["nc"] * 30 + ["pc"] * 30,
         "val": list(rng.normal(0.0, 1.0, 30)) + list(rng.normal(1.0, 1.0, 30)),
     })
-    return GroupedPlot(PlotSpec(frame=frame, value="val", group="grp",
+    plot = GroupedPlot(PlotSpec(frame=frame, value="val", group="grp",
                                 unit="well", title="Area"))
+    qtbot.addWidget(plot)
+    return plot
 
 
 def _show_as(plot):
@@ -83,7 +97,7 @@ class TestItIsPyqtgraph:
         assert "matplotlib" not in body and "pyplot" not in body
         assert "pyqtgraph" in source
 
-    def test_the_compare_panel_draws_one(self, app):
+    def test_the_compare_panel_draws_one(self, qtbot):
         """The graph the user right-clicks, which was a Figure in a canvas."""
         from spacr.qt.widgets.measurement_compare_dialog import (
             MeasurementComparePanel)
@@ -101,6 +115,10 @@ class TestItIsPyqtgraph:
         panel = MeasurementComparePanel(rows, groups,
                                         settings={"cell_picking": "rank"},
                                         databases=[], counts=None)
+        # Registered, not merely built: an unclosed top-level panel keeps its
+        # plot and every submenu pyqtgraph hangs off it alive for the rest of
+        # the process.
+        qtbot.addWidget(panel)
         panel.level.setCurrentIndex(0)
         panel.refresh()
         assert panel._canvas is not None
@@ -147,13 +165,14 @@ class TestItRetypesToWhatTheDataSupports:
         grouped.show_as("violin")
         assert {k: len(v) for k, v in grouped.spec.groups().items()} == before
 
-    def test_two_continuous_axes_offer_a_scatter(self, app):
+    def test_two_continuous_axes_offer_a_scatter(self, qtbot):
         from spacr.qt.widgets.grouped_plot import GroupedPlot, PlotSpec
 
         rng = np.random.default_rng(1)
         frame = pd.DataFrame({"x": rng.normal(size=50),
                               "y": rng.normal(size=50)})
         plot = GroupedPlot(PlotSpec(frame=frame, value="y", group="x"))
+        qtbot.addWidget(plot)
         labels = {a.text() for a in _show_as(plot).actions() if a.isEnabled()}
         assert "Scatter" in labels
         assert "Bar" not in labels

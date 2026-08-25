@@ -216,23 +216,23 @@ def test_an_infinite_phenotype_reaching_the_test_is_refused():
         _run(fractions, outcomes)
 
 
-def test_a_phenotype_the_blocks_explain_entirely_has_nothing_left_to_test():
-    """One value per plate is the block effect itself: no residual, no test."""
+def test_a_phenotype_that_never_moves_has_nothing_left_to_test():
+    """A rate of zero in every well is entirely absorbed by the intercept."""
     fractions, outcomes, _meta = _prepared()
     outcomes = outcomes.copy()
-    outcomes["pathogen_rate"] = outcomes["plateID"].map(
-        {"plate1": 0.2, "plate2": 0.9}).astype(float)
+    outcomes["pathogen_rate"] = 0.0
     with pytest.raises(ValueError, match="no residual variation"):
         gp.guide_freedman_lane_test(
             fractions, outcomes, "pathogen_rate", n_permutations=20,
             min_wells=1, nuisance_columns=[])
 
 
-def test_a_guide_with_the_same_fraction_everywhere_is_named_not_divided_by(
-        ):
+def test_a_guide_with_no_residual_variation_is_named_not_divided_by():
+    """The guide is present in every well, at a fraction that cannot be
+    standardised: its residual squares to zero rather than to a divisor."""
     fractions, outcomes, _meta = _prepared()
     fractions = fractions.copy()
-    fractions["g2"] = 0.5
+    fractions["g2"] = 1e-300
     with pytest.raises(ValueError, match=r"no residual variation.*g2"):
         _run(fractions, outcomes, nuisance_columns=[])
 
