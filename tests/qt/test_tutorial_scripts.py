@@ -210,7 +210,12 @@ def test_every_script_lands_on_the_screen_it_narrates(app_key, main_window,
                                                         tmp_path,
                                                         qt_theme_applied):
     """After the script runs, the stack is showing the module the
-    tutorial is about — not whatever happened to be open."""
+    tutorial is about — not whatever happened to be open.
+
+    The timelapse track expects Mask: tracking is a settings category with
+    a switch on the Mask masthead rather than a destination of its own, so
+    the screen the tutorial is about IS mask generation.
+    """
     from spacr.qt.tutorial.scripts import build_steps
 
     expected = {"home": "mask",          # home ends by opening Mask
@@ -218,7 +223,7 @@ def test_every_script_lands_on_the_screen_it_narrates(app_key, main_window,
                  "measure": "measure",
                  "crop": "measure",       # crop is a measure output
                  "classify": "annotate",  # classify starts in annotate
-                 "timelapse": "timelapse"}[app_key]
+                 "timelapse": "mask"}[app_key]
 
     probe = _Probe(main_window, tmp_path)
     steps = build_steps(app_key, main_window)
@@ -330,7 +335,9 @@ def test_settings_and_console_steps_point_at_different_panels(
 @pytest.mark.parametrize("app_key,nav_key", [
     ("home", "mask"), ("mask", "mask"), ("measure", "measure"),
     ("crop", "measure"), ("classify", "annotate"),
-    ("timelapse", "timelapse"),
+    # Timelapse folded into mask generation as a settings category, so its
+    # script's sidebar step names the row that carries it.
+    ("timelapse", "mask"),
 ])
 def test_sidebar_steps_point_at_the_row_they_narrate(app_key, nav_key,
                                                        main_window,
@@ -429,7 +436,10 @@ def test_nav_to_returns_a_fresh_callable_per_key(main_window):
 
 @pytest.mark.parametrize("demo_key,target_app", [
     ("mask", "mask"), ("measure", "measure"), ("crop", "measure"),
-    ("classify", "annotate"), ("timelapse", "timelapse"),
+    ("classify", "annotate"),
+    # The timelapse demo lands on Mask, because that is where its settings
+    # file's `timelapse=True` has a control to move: the masthead switch.
+    ("timelapse", "mask"),
 ])
 def test_load_demo_generates_data_and_opens_the_target_app(
         demo_key, target_app, main_window, tmp_path, qt_theme_applied):
@@ -450,6 +460,37 @@ def test_load_demo_generates_data_and_opens_the_target_app(
         main_window._screens[target_app])
 
 
+def test_the_timelapse_track_lands_with_tracking_switched_on(
+        main_window, home_in_tmp, tmp_path, qt_theme_applied):
+    """The track has to reach the switch, not merely the screen that owns it.
+
+    Timelapse stopped being a destination and became a set of settings
+    categories on mask generation with a switch on its masthead. A script
+    that landed on Mask and narrated "the tracking knobs" while the switch
+    was off would be pointing at a form that is not showing them — and the
+    switch only moves if the window installed the fold strip and the demo's
+    settings dict was allowed to move it.
+    """
+    from spacr.qt.screens import mask as mask_folds
+    from spacr.qt.tutorial.scripts import build_steps
+
+    probe = _Probe(main_window, tmp_path)
+    records = _drive(main_window, build_steps("timelapse", main_window),
+                       probe, qt_theme_applied)
+
+    screen = main_window._screens["mask"]
+    folds = mask_folds.fold_set(screen)
+    assert folds is not None, "mask generation reached no fold switches"
+    assert folds.is_active("timelapse"), "the demo left tracking switched off"
+    assert screen._settings_model.collect()["timelapse"] is True
+
+    switch = screen._fold_strip.button_for("timelapse")
+    assert switch is not None
+    assert any(record["widget"] is switch for record in records), (
+        "no step points at the switch the script narrates")
+    probe.close()
+
+
 def test_load_demo_uses_the_windows_own_demo_targets(main_window,
                                                        tmp_path):
     """Every tutorial that loads a demo must name a key MainWindow knows,
@@ -461,7 +502,10 @@ def test_load_demo_uses_the_windows_own_demo_targets(main_window,
 def test_sidebar_button_resolves_by_nav_key(main_window):
     from PySide6.QtWidgets import QPushButton
     from spacr.qt.tutorial.scripts import _sidebar_button
-    for key in ("mask", "measure", "annotate", "timelapse", "__home__"):
+    # Every key here has to be a sidebar row: `timelapse` was one until it
+    # folded into mask generation, and the helper's job is resolving rows
+    # that exist, not inventing one for a module that has none.
+    for key in ("mask", "measure", "annotate", "regression", "__home__"):
         btn = _sidebar_button(main_window, key)
         assert isinstance(btn, QPushButton)
         assert btn.property("navKey") == key

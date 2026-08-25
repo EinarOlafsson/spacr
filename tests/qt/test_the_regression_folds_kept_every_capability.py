@@ -92,17 +92,24 @@ def test_a_regression_fold_button_is_its_module_icon_and_description(
 
     A button labelled with a word would be a new name for the module; the
     icon is the name it already had on Home.
-    """
-    from spacr.qt.app import APPS
 
-    descriptions = {row[0]: row[2] for row in APPS}
+    The sentence is read through
+    :func:`~spacr.qt.screens.map_barcodes.fold_description` rather than
+    straight out of ``APPS``: Volcano Explorer has no registry row left,
+    and that function is the seam :func:`regression.install_folds`
+    restates its buttons through, so it is what has to be right.
+    """
+    from spacr.qt.screens.map_barcodes import fold_description
+
     _screen, strip = _host(qtbot)
     for key in regression.FOLDED_APPS:
         button = strip.button_for(key)
         assert button is not None
         assert button.text() == "", f"{key}: the fold button has a caption"
         assert not button.icon().isNull(), f"{key}: no icon on the button"
-        assert descriptions[key] in button.toolTip()
+        description = fold_description(key)[1]
+        assert description, f"{key}: nothing says what this button is"
+        assert description in button.toolTip()
 
 
 def test_a_regression_fold_button_lights_in_the_stage_its_tile_lit_in(
@@ -110,38 +117,106 @@ def test_a_regression_fold_button_lights_in_the_stage_its_tile_lit_in(
     """The hover colour is the module's maturity, from the one table.
 
     Two colour tables drift. This asserts the button's ``stage`` property
-    -- what the stylesheet selects on -- against ``app_stage``, which is
-    what the tile reads, so signing a module off recolours both or
-    neither.
+    -- what the stylesheet selects on -- against the one answer the strip
+    itself uses: ``fold_description``, which reads ``app_stage`` while the
+    row exists and the fallback afterwards. Volcano Explorer's row is
+    gone, so for that key it is the fallback that has to still say alpha.
     """
+    from spacr.qt.screens.map_barcodes import fold_description
     from spacr.qt.theme import STAGE_HOVER, stylesheet
 
     _screen, strip = _host(qtbot)
     sheet = stylesheet()
     for key in regression.FOLDED_APPS:
-        stage = app_stage(key)
+        stage = fold_description(key)[2]
+        assert stage == "alpha", f"{key}: the button no longer lights alpha"
         assert strip.button_for(key).property("stage") == stage
         assert stage in STAGE_HOVER
         rule = f'QPushButton#FoldButton[stage="{stage}"]:hover'
         assert rule in sheet, f"{key}: nothing lights the button on hover"
 
 
-def test_the_fold_fallback_says_what_the_tile_said(qtbot):
-    """The kept copy of each tile's line agrees with the registry.
+def test_the_fold_fallback_is_in_the_table_that_is_actually_read(qtbot):
+    """Each folded key is named in the one table ``fold_description`` reads.
 
-    Folding a module ends in its row being dropped, and the strip reads a
-    button's name, tooltip and hover colour out of that row. The fallback
-    is what the button says afterwards, so while both exist they have to
-    agree or the button changes its mind the day the row goes.
+    This host used to keep its own ``FOLD_FALLBACK`` beside its
+    ``FOLDED_APPS``, which read well and answered nothing:
+    :func:`install_folds` restates its buttons through
+    :func:`map_barcodes.restate_fold_button`, and that looks in
+    ``map_barcodes.FOLD_FALLBACK`` and nowhere else. A fallback written
+    anywhere else leaves the buttons mute the day the rows go.
+    """
+    from spacr.qt.screens import map_barcodes
+
+    for key in regression.FOLDED_APPS:
+        assert key in map_barcodes.FOLD_FALLBACK, (
+            f"{key}: nothing would say what this button is once its row "
+            f"is dropped")
+
+
+def test_the_fold_fallback_agrees_with_whatever_still_knows(qtbot):
+    """The kept copy of each tile's line agrees with what is left to check it.
+
+    ``volcano_explorer`` has no registry row any more -- being folded is
+    what dropping it means -- so it is checked against
+    :mod:`spacr.qt.screens.volcano`'s own ``APP_NAME`` and
+    ``APP_DESCRIPTION``, which is what its tile was built out of. Hit
+    List and Methods & Results still have rows, and are still checked
+    against them.
     """
     from spacr.qt.app import APPS
+    from spacr.qt.screens import map_barcodes
+    from spacr.qt.screens import volcano as volcano_module
 
     rows = {row[0]: row for row in APPS}
-    for key, (name, description, stage) in regression.FOLD_FALLBACK.items():
-        assert key in rows, f"{key} is not in the registry"
-        assert rows[key][1] == name
-        assert rows[key][2] == description
-        assert app_stage(key) == stage
+    for key in regression.FOLDED_APPS:
+        name, description, stage = map_barcodes.FOLD_FALLBACK[key]
+        row = rows.get(key)
+        if row is not None:
+            assert row[1] == name
+            assert row[2] == description
+            assert app_stage(key) == stage
+        elif key == "volcano_explorer":
+            assert name == volcano_module.APP_NAME
+            assert description == volcano_module.APP_DESCRIPTION
+            assert stage == "alpha"
+
+
+def test_the_volcano_button_still_says_what_it_is_with_no_registry_row(qtbot):
+    """What the fallback exists for, asserted through the seam that uses it."""
+    from spacr.qt.app import APPS
+    from spacr.qt.screens import map_barcodes
+
+    assert "volcano_explorer" not in {row[0] for row in APPS}
+    name, description, stage = map_barcodes.fold_description(
+        "volcano_explorer")
+    assert name == "Volcano Explorer"
+    assert "vector PDF" in description
+    assert stage == "alpha"
+
+
+def test_the_window_seam_finds_this_host(qtbot, qt_theme_applied):
+    """The strip reaches a real window through the walker, not by hand.
+
+    Every test above calls :func:`regression.install_folds` directly. The
+    running window never does: ``shortcuts._install_window_hooks`` starts
+    :func:`map_barcodes.install_window_hooks`, which walks the screen
+    stack and looks each screen's key up in ``FOLD_HOST_MODULES``. A host
+    missing from that table has no strip in the running app however well
+    its own installer works -- and with the Volcano Explorer's row
+    dropped, a strip that never arrives is one fewer way in.
+    """
+    from spacr.qt.screens import map_barcodes
+
+    assert map_barcodes.FOLD_HOST_MODULES.get(regression.HOST_KEY) \
+        == "regression"
+    screen = AppScreen(app_key=regression.HOST_KEY)
+    qtbot.addWidget(screen)
+
+    strip = map_barcodes.install_folds_on(screen)
+
+    assert strip is not None, "the walker gave Regression no strip"
+    assert list(strip.keys()) == list(regression.FOLDED_APPS)
 
 
 def test_every_folded_key_can_be_opened(qtbot, qt_theme_applied):
@@ -460,6 +535,52 @@ def test_the_cut_agrees_with_the_explorers_own(tmp_path):
     assert list(mine["feature"]) == list(theirs["feature"])
     assert list(mine["minimum_wells_threshold"]) == list(
         theirs["minimum_wells_threshold"])
+
+
+def test_load_results_reaches_a_permutation_runs_long_table(
+        qtbot, qt_theme_applied, tmp_path):
+    """"Load results…" opens a run folder holding only the long table.
+
+    ``guide_permutation_results_long.csv`` is what a permutation run
+    writes, and the panel's search named three filenames without it -- so
+    a folder holding only that table answered "found none of
+    results.csv, results_grna.csv, results_gene.csv", and the run was
+    unreachable from the panel by hand. The panel is the only route back
+    to a run whose fit is no longer on screen.
+    """
+    screen, _strip = _host(qtbot)
+    panel = screen._results_panel
+    folder = tmp_path / "guide_permutation"
+    folder.mkdir()
+    _two_family_frame().to_csv(
+        folder / "guide_permutation_results_long.csv", index=False)
+
+    assert panel.load(str(folder)) is True
+    frame = panel.results_frame()
+    assert frame is not None and len(frame)
+    # The cut the fold installs is still in front of it, so the long table
+    # arrives as ONE correction family rather than as the stack it is.
+    assert set(frame["minimum_wells_threshold"]) == {1}
+
+
+def test_the_primary_table_still_opens_when_the_long_one_sits_beside_it(
+        qtbot, qt_theme_applied, tmp_path):
+    """Adding the long table must not change which one a run opens on.
+
+    ``results.csv`` is already the primary family and is what the panel
+    has always shown; the long table is named last precisely so that a
+    folder holding both goes on opening the same table it did before.
+    """
+    screen, _strip = _host(qtbot)
+    panel = screen._results_panel
+    folder = tmp_path / "run1"
+    folder.mkdir()
+    _two_family_frame().to_csv(
+        folder / "guide_permutation_results_long.csv", index=False)
+    _two_family_frame().head(2).to_csv(folder / "results.csv", index=False)
+
+    assert panel.load(str(folder)) is True
+    assert os.path.basename(str(panel._path)) == "results.csv"
 
 
 def test_installing_the_cut_twice_does_not_stack_two_of_them(

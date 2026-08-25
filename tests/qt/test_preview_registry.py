@@ -19,6 +19,7 @@ import pytest
 from spacr.qt.preview_registry import (
     PREVIEWS,
     PreviewSpec,
+    attach_folded,
     install,
     preview_app_keys,
     register_preview,
@@ -185,6 +186,55 @@ def test_installing_twice_attaches_one_card(window, qtbot):
     titles = [c for c in screen._runtime_wrap.findChildren(Card)
               if c is host.card]
     assert len(titles) == 1
+
+
+# ---------------------------------------------------------------------------
+# A preview whose module folded into somebody else's screen
+# ---------------------------------------------------------------------------
+
+def test_a_folded_modules_preview_attaches_to_its_host(window, qtbot):
+    """Folding a module must not cost the panel that judges its settings.
+
+    ``install`` answers for the screen's OWN key and skips anything
+    ``AppScreen`` builds itself. Timelapse's preview is both: declared
+    ``owned_by_screen`` and owned by a screen the fold means nobody opens
+    any more, so the panel would simply stop existing. ``attach_folded``
+    is how the host asks for somebody else's.
+    """
+    screen = _screen(window, qtbot, "mask")
+
+    host = attach_folded(screen, "timelapse")
+
+    assert host is not None
+    assert type(host.panel).__name__ == "TimelapsePreviewPanel"
+    assert host.toggle.text() == "Track preview"
+    # Hidden on arrival, toggle included: the host decides when to offer it.
+    assert not host.card.isVisibleTo(host.card.parentWidget())
+    assert not host.toggle.isVisibleTo(host.toggle.parentWidget())
+    # And the host's own preview is untouched.
+    assert screen._live_preview_card is not host.card
+
+
+def test_attaching_a_folded_preview_twice_attaches_one_card(window, qtbot):
+    """The stack walk reaches a host more than once; it gets one panel."""
+    screen = _screen(window, qtbot, "mask")
+    host = attach_folded(screen, "timelapse")
+
+    assert attach_folded(screen, "timelapse") is host
+
+    from spacr.qt.widgets.card import Card
+    cards = [c for c in screen._runtime_wrap.findChildren(Card)
+             if c is host.card]
+    assert len(cards) == 1
+
+
+def test_a_folded_key_that_declares_no_preview_attaches_nothing(window,
+                                                                  qtbot):
+    """Most folds have no panel of their own, and that costs a lookup."""
+    screen = _screen(window, qtbot, "mask")
+
+    assert attach_folded(screen, "curate") is None
+    assert "curate" not in getattr(screen, "_folded_previews", {})
 
 
 # ---------------------------------------------------------------------------

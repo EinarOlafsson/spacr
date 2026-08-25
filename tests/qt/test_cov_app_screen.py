@@ -705,21 +705,36 @@ class TestImportSettings:
 
     def test_moved_settings_are_called_out_on_import(self, qtbot, monkeypatch,
                                                      tmp_path, no_modals):
-        """An old Mask CSV with timelapse=True must say so, not go quiet."""
+        """An old Mask CSV with these flags must say what became of them.
+
+        Both used to be reported as IGNORED and the reader sent to a
+        sidebar row for each. Tracking is a settings category on this very
+        form now, with a switch on the masthead for the gate that has no
+        control — so on a screen carrying that switch the flag lands and
+        the note has to say so, and on one that is not, it really is
+        ignored and the note has to say that instead. This screen is built
+        without a masthead strip, which is the second case.
+        """
         path = _write_csv(tmp_path / "old.csv",
                           [("src", "/data/p3"), ("timelapse", "True"),
                            ("motility_analysis", "True")])
         monkeypatch.setattr(QFileDialog, "getOpenFileName",
                             staticmethod(lambda *a, **k: (str(path), "")))
         scr = _make_screen(qtbot, "mask")
+        from spacr.qt.screens.mask import fold_set
+        assert fold_set(scr) is None, "this case is the screen with no switch"
+
         scr._on_import_settings()
         text = _console_text(scr._console)
-        # Only src was applicable; the two moved keys are reported.
+
+        # Only src was applicable; both gates are reported, and neither
+        # note sends the reader to a sidebar row that no longer exists.
         assert "Loaded 1 settings" in text
         assert "timelapse=True was ignored" in text
-        assert "Timelapse module" in text
+        assert "carrying no Timelapse switch" in text
         assert "motility_analysis=True was ignored" in text
-        assert "Motility Assay module" in text
+        assert "Measure" in text
+        assert "sidebar" not in text
 
     def test_moved_settings_notice_is_mask_only(self, qtbot):
         scr = _make_screen(qtbot, "measure")

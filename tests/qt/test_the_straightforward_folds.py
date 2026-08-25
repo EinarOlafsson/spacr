@@ -107,17 +107,21 @@ def test_a_fold_button_is_its_module_icon_and_description(
 
     A button labelled with a word would be a new name for the module; the
     icon is the name it already had on Home.
-    """
-    from spacr.qt.app import APPS
 
-    descriptions = {row[0]: row[2] for row in APPS}
+    The sentence is asked of ``fold_description`` rather than of the
+    registry row, because these modules no longer have one -- that is
+    what folding them ended in -- and the button has to go on carrying
+    what the tile said either way.
+    """
     _screen, strip = _host_screen(qtbot, module, host_key)
     for key in module.FOLDED_APPS:
+        _name, description, _stage = map_barcodes.fold_description(key)
         button = strip.button_for(key)
         assert button is not None
         assert button.text() == "", f"{key}: the fold button has a caption"
         assert not button.icon().isNull(), f"{key}: the fold button has no icon"
-        assert descriptions[key] in button.toolTip()
+        assert description, f"{key}: the fold button says nothing"
+        assert description in button.toolTip()
 
 
 @pytest.mark.parametrize("module,host_key", SETTINGS_HOSTS,
@@ -127,16 +131,17 @@ def test_a_fold_button_lights_in_the_stage_its_tile_lit_in(
     """The hover colour is the module's maturity, from the one table.
 
     Two colour tables drift. This asserts the button's ``stage`` property
-    -- what the stylesheet selects on -- against ``app_stage``, which is
-    what the tile reads, so signing a module off recolours both or
-    neither.
+    -- what the stylesheet selects on -- against the one answer
+    ``fold_description`` gives, which reads the registry while the module
+    has a row and the fallback afterwards, so signing a module off
+    recolours both or neither.
     """
     from spacr.qt.theme import STAGE_HOVER, stylesheet
 
     _screen, strip = _host_screen(qtbot, module, host_key)
     sheet = stylesheet()
     for key in module.FOLDED_APPS:
-        stage = app_stage(key)
+        stage = map_barcodes.fold_description(key)[2]
         button = strip.button_for(key)
         assert button.property("stage") == stage
         assert stage in STAGE_HOVER
@@ -380,24 +385,30 @@ def test_every_folded_key_has_a_builder(qtbot):
     assert set(annotate.FOLDED_APPS) <= set(annotate.FOLD_BUILDERS)
 
 
-def test_the_folded_modules_still_have_their_registry_metadata(qtbot):
-    """The window title, icon and tooltip all come from the registry.
+def test_the_folded_modules_no_longer_need_a_registry_row(qtbot):
+    """The page title, icon and tooltip survive the row being deleted.
 
-    Folding a module removes its tile, not its row: drop the row and the
-    settings-driven folds open on an empty form and the buttons lose the
-    descriptions they show. Naming that dependency here means the fold
-    fails loudly rather than quietly.
+    This used to assert the opposite -- that every folded key still had
+    an ``APP_META`` entry, on the grounds that dropping it would open the
+    settings folds on an empty form and leave the buttons mute. Dropping
+    the row is what folding a module ends in, so the dependency was moved
+    rather than the row kept: the name and the sentence to
+    ``FOLD_FALLBACK``, the defaults module and the entry point to the
+    tables :func:`resolve_default_settings` and
+    :func:`resolve_pipeline_entry` read. The assertion is the same
+    question asked of the answer that is left.
     """
-    from spacr.qt.app import APP_META
+    from spacr.qt.app import APP_META, APPS
 
     folded = (list(map_barcodes.FOLDED_APPS) + list(classify.FOLDED_APPS)
               + list(measure.FOLDED_APPS) + list(ANNOTATE_FOLDS))
+    rows = {row[0] for row in APPS}
     for key in folded:
-        assert key in APP_META, f"{key} has no registry metadata"
-        assert APP_META[key]["intro"], f"{key} has no description to show"
-    for key in ("barcode_qc", "anndata_export"):
-        assert APP_META[key]["defaults_module"], (
-            f"{key} would open on an empty form")
+        assert key not in rows, f"{key} is folded but still draws a tile"
+        assert key not in APP_META, f"{key} kept a stale metadata entry"
+        name, description, stage = map_barcodes.fold_description(key)
+        assert name and description, f"{key} has nothing to show on a button"
+        assert stage in ("alpha", "beta", "stable"), f"{key}: {stage!r}"
 
 
 # ---------------------------------------------------------------------------
@@ -641,6 +652,37 @@ def test_the_fold_buttons_are_not_confused_with_the_screens_own_actions(
 # After the tile is gone
 # ---------------------------------------------------------------------------
 
+def _stage_at_launch(key: str) -> str:
+    """The maturity ``key`` carries in a window the user has open.
+
+    Not ``app_stage(key)``: :func:`spacr.qt.maturity.apply` runs from
+    :func:`spacr.qt.register_self_registering_modules` at launch and
+    promotes every module it has assessed, never demoting one. A test
+    process that only imported ``spacr.qt.app`` sees the pre-promotion
+    literal, which is how three fallbacks came to claim alpha for
+    modules whose tile lights magenta in the running application.
+
+    Computed rather than applied, so asking the question does not move
+    the live table under whatever runs next.
+    """
+    from spacr.qt import maturity
+
+    from spacr.qt.app import APPS
+
+    promoted = maturity.PROMOTIONS.get(key)
+    if key not in {row[0] for row in APPS}:
+        # No row means no ``APP_STAGE`` line to read: an absent key answers
+        # "stable" through :func:`app_stage`, which is the absence of an
+        # annotation rather than a claim, so the assessment is the whole
+        # answer for a module that has been folded.
+        return promoted[0] if promoted else ""
+    order = {"alpha": 0, "beta": 1, "stable": 2}
+    current = app_stage(key)
+    if promoted is None:
+        return current
+    return max((current, promoted[0]), key=order.__getitem__)
+
+
 def test_the_fold_fallback_agrees_with_the_registry(qtbot):
     """What the fallback says a module is must be what its tile said.
 
@@ -648,6 +690,10 @@ def test_the_fold_fallback_agrees_with_the_registry(qtbot):
     consulted after the row it duplicates has been deleted -- the moment
     nobody can compare them any more. So they are compared now, while
     both exist.
+
+    The stage is compared against the launch value rather than against
+    the raw ``APP_STAGE`` literal, because the launch value is what the
+    tile was drawn in and therefore what the button has to match.
     """
     from spacr.qt.app import APPS
 
@@ -658,7 +704,30 @@ def test_the_fold_fallback_agrees_with_the_registry(qtbot):
             continue
         assert name == row[1], f"{key}: the fallback name is out of date"
         assert description == row[2], f"{key}: the fallback line is stale"
-        assert stage == app_stage(key), f"{key}: the fallback stage is stale"
+        assert stage == _stage_at_launch(key), (
+            f"{key}: the fallback stage is stale")
+
+
+def test_a_folded_button_lights_in_the_stage_the_tile_lit_in(qtbot):
+    """Every fallback stage is the one the module carries at launch.
+
+    The same comparison as above, made for the keys whose row has ALREADY
+    been dropped -- where the loop above skips and the fallback is the
+    only answer left. A fold button is the tile's replacement, so it must
+    light in the colour the tile lit in: green-cyan for alpha, magenta
+    for beta, blue for stable. Retyping the stage into the fallback is
+    what let three of these claim alpha for a module the maturity
+    assessment had already promoted to beta.
+    """
+    from spacr.qt import maturity
+
+    for key, (_name, _description, stage) in map_barcodes.FOLD_FALLBACK.items():
+        promoted = maturity.PROMOTIONS.get(key)
+        if promoted is None:
+            continue
+        assert stage == _stage_at_launch(key), (
+            f"{key}: the fallback says {stage!r}, the maturity assessment "
+            f"says {promoted[0]!r}")
 
 
 def test_every_folded_module_has_a_fallback(qtbot):
@@ -674,9 +743,15 @@ def test_a_button_keeps_its_colour_when_the_registry_row_is_dropped(
     """Folding a module ends in deleting its row; the button survives it.
 
     ``unregister_app`` takes the key out of ``APP_STAGE`` as well as out
-    of ``APPS``, so with nothing else in place an alpha module's button
+    of ``APPS``, so with nothing else in place a beta module's button
     would come back stable-blue with an empty tooltip -- looking finished
     and saying nothing.
+
+    Beta, not alpha: the expected colour follows the stage the module
+    carries in a running window, and the maturity assessment promotes
+    AnnData Export at launch. The fallback said alpha because it was
+    copied from the pre-promotion literal, which drew this button
+    green-cyan where its tile lit magenta.
     """
     import spacr.qt.app as app_module
 
@@ -693,7 +768,7 @@ def test_a_button_keeps_its_colour_when_the_registry_row_is_dropped(
     strip = measure.install_folds(screen)
     button = strip.button_for("anndata_export")
 
-    assert button.property("stage") == "alpha"
+    assert button.property("stage") == "beta"
     assert "Write the measurements as .h5ad" in button.toolTip()
     assert button.accessibleName() == "AnnData Export"
 
@@ -902,3 +977,167 @@ def test_an_empty_stack_gives_the_hook_nothing_to_do(qtbot,
     watcher = map_barcodes.install_window_hooks(window)
 
     assert watcher.install_current() is None
+
+
+# ---------------------------------------------------------------------------
+# After the row is gone: everything that answers by key still answers
+# ---------------------------------------------------------------------------
+#
+# Folding a module ends in deleting its registry row, and four tables that
+# a `register_app` call was the only writer of go with it: the pipeline
+# entry point the Run button resolves, the module that owns the settings
+# defaults, the API page the ⓘ links point at, and the module's own name
+# in the nine non-English catalogues. Each test below takes the row away
+# and asks the question a user's next click asks.
+#
+# The row is removed by hand rather than through `unregister_app` on
+# purpose: `unregister_app` also pops the side tables, which is right for
+# a plugin that unloaded and wrong here -- the module is still installed,
+# still runs from `spacr-run`, and still opens as a page on its host.
+
+#: The three folded modules whose page is a settings form with a Run
+#: button, and the module each one's defaults and entry point live in.
+FOLDED_PIPELINES = {
+    "barcode_qc": "spacr.sequencing_qc",
+    "explain_cv": "spacr.surrogate",
+    "anndata_export": "spacr.anndata_export",
+}
+
+#: What each folded module's page has to go on being headed by.
+FOLDED_NAMES = {
+    "barcode_qc": "Barcode QC",
+    "classifier_evaluation": "Classifier Evaluation",
+    "explain_cv": "Explain CV Model",
+    "anndata_export": "AnnData Export",
+}
+
+
+def _without_the_row(monkeypatch, key):
+    """Take ``key``'s registry row and metadata away for one test."""
+    import spacr.qt.app as app_module
+
+    monkeypatch.setattr(
+        app_module, "APPS",
+        [row for row in app_module.APPS if row[0] != key])
+    monkeypatch.setattr(
+        app_module, "APP_META",
+        {k: v for k, v in app_module.APP_META.items() if k != key})
+
+
+@pytest.mark.parametrize("key", sorted(FOLDED_PIPELINES))
+def test_the_run_button_still_runs_when_the_row_is_gone(monkeypatch, key):
+    """``entry=`` lived only on the row; the Run button must not lose it.
+
+    ``AppScreen._on_run`` calls ``resolve_pipeline_entry`` and shows "Not
+    runnable" when it answers None, so a folded page whose entry point
+    went with its row is a form with a dead button -- while ``spacr-run
+    <key>`` goes on working, which is the confusing half of the failure.
+    """
+    from spacr import cli
+    from spacr.qt.bridge import resolve_pipeline_entry
+    from spacr.validate import APP_FUNCTIONS
+
+    _without_the_row(monkeypatch, key)
+
+    entry = resolve_pipeline_entry(key)
+    assert entry is not None and callable(entry), (
+        f"the folded {key} page reports 'Not runnable'")
+    # And it is the SAME callable the headless paths name, or the page
+    # validates against one function and runs another.
+    inner = getattr(entry, "__wrapped__", entry)
+    assert inner.__name__ == cli.MODULES[key].func_name
+    assert APP_FUNCTIONS[key].rsplit(".", 1)[-1] == inner.__name__
+
+
+@pytest.mark.parametrize("key", sorted(FOLDED_PIPELINES))
+def test_the_settings_form_is_still_drawn_when_the_row_is_gone(
+        monkeypatch, key):
+    """``defaults_module=`` lived only on the row too.
+
+    The form is drawn from ``spacr.settings``' registered defaults, which
+    are registered by the module's own import -- and nothing in a window
+    that never had a tile for it has any reason to have imported it. With
+    the row gone and the module unimported, ``resolve_default_settings``
+    used to fall through to the bare ``{"src": "path"}`` placeholder, so
+    the page opened on a one-box form. This drives exactly that state: no
+    row, no registered defaults, module not in ``sys.modules``.
+    """
+    import sys
+
+    import spacr.settings as settings_module
+    from spacr.qt.screens.settings_model import resolve_default_settings
+
+    _without_the_row(monkeypatch, key)
+    monkeypatch.setattr(
+        settings_module, "_DEFAULTS_REGISTRY",
+        {k: v for k, v in settings_module._DEFAULTS_REGISTRY.items()
+         if k != key})
+    monkeypatch.delitem(sys.modules, FOLDED_PIPELINES[key], raising=False)
+
+    settings = resolve_default_settings(key)
+
+    assert len(settings) > 1 and set(settings) != {"src"}, (
+        f"the folded {key} page opens on an empty settings form")
+
+
+@pytest.mark.parametrize("key", sorted(FOLDED_PIPELINES))
+def test_the_help_links_still_reach_the_module_when_the_row_is_gone(
+        monkeypatch, key):
+    """``api_module=`` lived only on the row; the ⓘ links follow it.
+
+    Without it every setting on the folded page links to the generated
+    API index rather than to the module that reads the setting.
+    """
+    from spacr.qt.screens.settings_model import _APP_API_MODULE, api_docs_url
+
+    _without_the_row(monkeypatch, key)
+
+    assert key in _APP_API_MODULE, f"{key} has no API doc module"
+    assert f"/spacr/{_APP_API_MODULE[key]}/" in api_docs_url(key)
+
+
+@pytest.mark.parametrize("key", sorted(FOLDED_NAMES))
+def test_the_module_name_is_still_translated_when_the_row_is_gone(
+        monkeypatch, key):
+    """``translations=`` lived only on the row.
+
+    The folded page still wears the module's name in its masthead, and
+    ``retranslate_widget_tree`` looks that name up in the catalogues --
+    so a name that reached them only through the registration leaves a
+    Korean window with an English heading.
+    """
+    from spacr.qt.i18n import CATALOGS, VALID_LANGUAGE_CODES
+
+    _without_the_row(monkeypatch, key)
+    name = FOLDED_NAMES[key]
+
+    for code in VALID_LANGUAGE_CODES:
+        if code == "en":
+            continue
+        assert CATALOGS[code].get(name, "").strip(), (
+            f"{key} ({name!r}) has no {code} translation, so its folded "
+            f"page is headed in English in a {code} window")
+
+
+@pytest.mark.parametrize("key", ["barcode_qc", "anndata_export"])
+def test_a_settings_driven_page_is_still_headed_by_its_own_name(
+        monkeypatch, qtbot, key):
+    """``title=`` and ``intro=`` lived only on the row as well.
+
+    These two modules have no screen class of their own -- every knob
+    each has is a registered settings key, so the generic ``AppScreen``
+    IS the module -- which means its masthead reads out of
+    ``APP_TITLES`` / ``APP_INTROS``. With nothing there the page is
+    headed "Barcode_Qc" with no sentence under it.
+    """
+    from spacr.qt.screens.app_screen import APP_INTROS, APP_TITLES
+
+    _without_the_row(monkeypatch, key)
+
+    assert APP_TITLES.get(key, "") == FOLDED_NAMES[key]
+    assert len(APP_INTROS.get(key, "")) > 40, (
+        f"the folded {key} page has no sentence saying what it does")
+
+    screen = AppScreen(app_key=key)
+    qtbot.addWidget(screen)
+    assert screen._header.title_label.text() == FOLDED_NAMES[key]

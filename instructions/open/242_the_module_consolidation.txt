@@ -23,10 +23,11 @@ of screens that should stop being their own registry row and become a
 button, a tab or a mode inside the screen a user already has open when
 they want them.
 
-THE COUNT: the registry holds 54 apps, down from 63. Fourteen rows are
-still registered for modules that have already been folded, and dropping
-exactly those fourteen is 46 -- the number this instruction has always
-named. They are:
+THE COUNT: the registry held 63 apps and holds 40.
+
+THE 46 IN THE ORIGINAL WAS 63 MINUS THE SEVENTEEN LISTED HERE, and nine
+more rows went in the fold work beyond those seventeen -- so 40 is what
+the arithmetic gives, not a miss. The fourteen dropped last were:
 
     train_cellpose  model_compare  model_zoo    curate
     timelapse       motility       barcode_qc   classifier_evaluation

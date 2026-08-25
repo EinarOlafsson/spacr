@@ -1,0 +1,121 @@
+================================================================================
+MAKE MASKS: THE TOOLS THAT ARE MISSING, AND THE ROW THEY BELONG IN
+================================================================================
+
+Status:    OPEN. Requested 2026-08-25.
+Owner:     spacr/qt/screens/make_masks.py, and spacr/spacr_cellpose.py /
+           spacr/object.py for the Cellpose settings it has to offer.
+
+Asked for: "for the make masks tool in spacr there is no: draw / divide /
+cellpose sam (and settings) / cell probability and flows with cellpose."
+
+--------------------------------------------------------------------------------
+1. FOUR TOOLS THAT ARE NOT THERE
+--------------------------------------------------------------------------------
+
+The canvas has brush, erase, erase-object, magic-wand add, magic-wand
+erase and zoom -- `MODE_*` in make_masks.py. These are missing:
+
+  * DRAW -- the free-form polygon: trace an outline and it fills into one
+    object. The module's own docstring already admits it: "the free-form
+    polygon that fills an outline into one object ... has no control on
+    this panel, so nothing here claims they exist";
+  * DIVIDE -- the dividing line that splits one merged object into two.
+    Same admission, same absence. This is the commonest correction a
+    segmentation needs and there is no way to make it;
+  * CELLPOSE SAM, with its settings, as a segmentation the screen can
+    run on the open image;
+  * CELL PROBABILITY AND FLOWS -- Cellpose's two intermediate outputs,
+    which are what tell a user WHY a mask came out the way it did. Being
+    able to see the probability map and the flow field beside the mask is
+    the difference between adjusting a threshold with reason and
+    adjusting it by guessing.
+
+--------------------------------------------------------------------------------
+2. THE STANDALONE TOOL IS AHEAD OF THIS ONE, AND ITS SETTINGS ARE WHY
+--------------------------------------------------------------------------------
+
+"look at all the settings in the settings pannel in the standalone
+application, i think some of the tools there are more sufisticated."
+
+THE TOOL IS ON THIS MACHINE, 1,856 lines:
+
+    /mnt/firecuda2/Claude/toxoplasma_projects/plaque_assay_model/
+        tools/curate_masks_qt.py
+
+READ IT. What follows is the first pass, taken from its own source, and
+it is a starting point rather than the finished comparison.
+
+ITS TOOLS -- `MODES` at line 135:
+
+    brush   erase   draw   wand   divide   pan   recrop
+
+Against this screen's `MODE_*`: brush, erase, erase-object, wand-add,
+wand-erase, zoom. So DRAW and DIVIDE are the two the maintainer named,
+`recrop` is a third this screen has no answer to, and the split of wand
+into add/erase is something THIS screen does better.
+
+ITS CELLPOSE -- one button, "Cellpose-SAM detect", against a model combo
+that lists the available weights with the production model sorted to the
+top. It fills two extra panes: `cellprob_heatmap` and a flow RGB, drawn
+as tabs beside the intensity image on the same scale, with a resting
+message that says "run Cellpose-SAM to see the probability / flow maps".
+Its defaults carry `cellprob_threshold` 0.0 and `flow_threshold` 0.4.
+That is exactly the "cell probability and flows" the maintainer asked
+for, already built once.
+
+ITS SETTINGS PANEL, by group:
+
+    Auto-filter on load   min/max area, min/max mean intensity, 0 = off
+    Display               contrast low/high percentile, zoom speed per
+                          wheel notch, stretch on well only, page level,
+                          mask opacity %, draw instance outlines
+    Magic wand            relative tolerance, tolerance as % of range,
+                          absolute auto tolerance, absolute manual
+                          tolerance, max flood px, salvage flood at max,
+                          trim directional runaway, runaway growth ratio,
+                          runaway warm-up, runaway min baseline, runaway
+                          confirmation, intensity border after runaway,
+                          intensity search steps, gradient-taper
+                          fallback, gradient smoothing, gradient
+                          transition band, gradient foreground inset
+    Tools                 brush radius, remove-small min area
+
+THE WAND IS WHERE IT IS FURTHEST AHEAD -- seventeen controls against
+this screen's two, and they are not knobs for their own sake: they are
+the answer to a flood that runs away down a bright seam, which is the
+failure mode a wand has on this kind of image. The runaway detector, the
+salvage-at-cap and the gradient taper are three different rescues for it.
+
+Compare control by control and record the decision for each -- ported,
+or deliberately not, with the reason. A table in this file, so the next
+person can see what was considered.
+
+--------------------------------------------------------------------------------
+3. THE LAYOUT: ONE ROW OF TOOLS, AND A SETTINGS BUTTON
+--------------------------------------------------------------------------------
+
+"I generally liek the layout of the Make Masks, but the tools can be in
+one row on the top there can also be a settings button to toggle all the
+settings."
+
+  * the layout stays -- this is a rearrangement, not a redesign;
+  * every tool in ONE ROW along the top, so the whole set is visible at
+    once instead of being found;
+  * a SETTINGS button that toggles the settings as a group. The canvas is
+    what the screen is for, and the settings are what you touch on the
+    way in and then stop looking at.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* draw traces a closed outline and yields ONE object with one label;
+* divide drawn across a merged object yields two objects where there was
+  one, and the labels of everything else are untouched;
+* Cellpose SAM runs on the open image from this screen, with its
+  settings on the panel rather than assumed;
+* the probability map and the flow field can be shown beside the mask;
+* every tool is in one row, asserted by reading the layout back;
+* the settings button hides and shows the settings as a group and the
+  canvas keeps the space.

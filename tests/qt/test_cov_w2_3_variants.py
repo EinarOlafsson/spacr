@@ -5,16 +5,16 @@ builders. Each one assembles a candidate Home screen out of the shipped
 Qt widgets and the live app registry, and each one is only exercised by
 actually building it -- there is no shorter path to its body.
 
-Seventeen of the thirty cannot be built from the categorisation tables
-``common`` ships, because those tables name two app keys the registry no
-longer defines. That is a defect in the tables, not in the builders: a
-builder's job is to lay out whatever ``(title, keys)`` table it is
-handed, and it does that correctly for every table whose keys exist.
-:func:`_registry_consistent` therefore drops the dangling keys before the
-builders run, which is precisely the invariant
-``common.check_coverage`` demands of a categorisation. The unrepaired
-case is asserted separately, and marked ``xfail(strict=True)`` so that
-repairing the tables turns it into a failure that announces itself.
+All thirty build from the tables ``common`` ships, and that is asserted
+directly. It was not always true: the tables named app keys the registry
+had stopped defining -- folding a module into a host drops its row, and
+the categorisations kept the name -- and ``common.name_of`` raised
+``KeyError`` for seventeen of the builders. That is a defect in the
+tables rather than in the builders, whose job is to lay out whatever
+``(title, keys)`` they are handed. :func:`_registry_consistent` still
+drops dangling keys for the fixtures that build a table by hand, which is
+the invariant ``common.check_coverage`` demands of a categorisation, and
+the direct assertion is what catches the tables drifting again.
 """
 from __future__ import annotations
 
@@ -264,18 +264,18 @@ def test_variant_decorator_appends_its_prose_and_returns_the_builder(gen):
         del gen.variants.VARIANTS[before:]
 
 
-@pytest.mark.xfail(strict=True, reason="common's categorisation tables name "
-                                       "app keys the registry dropped")
 def test_every_variant_builds_from_the_shipped_categorisations(gen,
                                                                frozen_home):
     """The thirty variants build from the tables ``common`` ships.
 
-    They do not: ``CATS_BROAD3``/``CATS_STAGE5``/``CATS_NARROW8``/
-    ``CATS_QUESTIONS`` still list ``cellpose_masks``, which was folded
-    into ``train_cellpose``, and none of them lists ``parameter_sweep``
-    in a way the registry agrees with -- so ``common.name_of`` raises
-    ``KeyError`` and seventeen builders die. Fixing the tables makes
-    this pass, and a strict xfail turns that into a failure that says so.
+    Unrepaired, they did not: ``CATS_BROAD3`` / ``CATS_STAGE5`` /
+    ``CATS_NARROW8`` / ``CATS_QUESTIONS`` listed keys whose rows had been
+    dropped -- ``cellpose_masks`` when it became the applying tab of the
+    Cellpose Workbench, and every module folded into a host masthead since
+    -- so ``common.name_of`` raised ``KeyError`` and seventeen builders
+    died. This ran as a strict xfail while that was true, which is what
+    announced the repair. It is a plain assertion now, and it is the one
+    that fails the next time a fold leaves a name behind in those tables.
     """
     ctx = gen.common.Ctx(gen.app, "dark")
     built = 0

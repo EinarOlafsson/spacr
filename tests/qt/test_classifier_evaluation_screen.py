@@ -93,16 +93,33 @@ EVALUATION_GROUP = "Evaluation & Results"
 
 
 def test_registration_metadata_matches_app_registry():
-    from spacr.qt.app import APPS
+    """It is a button on Classify now, not a tile of its own.
+
+    The row is gone -- a classifier is trained on one screen and argued
+    about on this one, so this is the second half of that visit rather
+    than a destination -- and with it went the copy of the name and the
+    sentence that lived in ``APPS``. What the tile said is
+    ``map_barcodes.FOLD_FALLBACK``, which is what the fold button reads;
+    the screen builds its own masthead from ``APP_NAME``. Two copies of
+    one name is what this now asserts agree.
+    """
+    from spacr.qt.app import APPS, SECTIONS
+    from spacr.qt.screens.classify import FOLDED_APPS
+    from spacr.qt.screens.map_barcodes import FOLD_FALLBACK
     from spacr.qt.screens.settings_model import (
         api_docs_url,
         categories_for_app,
         get_categories,
     )
 
-    row = next(item for item in APPS if item[0] == APP_KEY)
-    assert row[1] == APP_NAME == "Classifier Evaluation"
-    assert row[3] == APP_SECTION == "Results & QC"
+    assert not [item for item in APPS if item[0] == APP_KEY], (
+        "Classifier Evaluation is folded into Classify and must not draw "
+        "a tile of its own")
+    assert APP_KEY in FOLDED_APPS, "nothing opens the folded screen"
+    name, description, _stage = FOLD_FALLBACK[APP_KEY]
+    assert name == APP_NAME == "Classifier Evaluation"
+    assert description
+    assert APP_SECTION == "Results & QC" and APP_SECTION in SECTIONS
     assert APP_INTRO
     categories = categories_for_app("classify", get_categories())
     assert EVALUATION_GROUP in categories

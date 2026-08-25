@@ -159,10 +159,16 @@ def test_double_clicking_nothing_opens_nothing(qtbot):
 # -- companion registration --------------------------------------------------
 
 def test_a_companion_that_cannot_register_costs_only_itself(monkeypatch):
-    """An optional screen must never stop the window opening."""
+    """An optional screen must never stop the window opening.
+
+    The surviving companion was Image Scatter until it was folded onto
+    Image UMAP and lost the ``register()`` this seam calls; Lineage is
+    the one still riding in here, so it is the one the failure beside it
+    has to leave alone.
+    """
     monkeypatch.setattr(lv, "COMPANION_APPS", (
         ("spacr.qt.screens.no_such_companion", "register"),
-        ("spacr.qt.screens.image_scatter", "register"),
+        ("spacr.qt.screens.lineage", "register"),
     ))
     registered = lv.register_companion_apps()
-    assert registered == ("spacr.qt.screens.image_scatter",)
+    assert registered == ("spacr.qt.screens.lineage",)

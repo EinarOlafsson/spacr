@@ -717,18 +717,66 @@ def test_a_registered_block_actually_paints_the_widget(qtbot, qapp,
 #: and no screen of its own to explain why.
 WIRED_IN = {
     "illumination": "entry",
-    "barcode_qc": "entry",
     "layer_viewer": "factory",
     "graph_builder": "factory",
     # The three that landed just after the seam did and were unreachable
-    # for exactly the same reason. AnnData Export is the first app here
-    # with an `entry` and NO screen of its own on purpose: its settings
-    # are already typed and tooltipped, so the generic AppScreen draws the
-    # export form and the Run button runs the export.
+    # for exactly the same reason.
     "power": "factory",
     "run_compare": "factory",
+}
+
+#: The two that have since been FOLDED into a host screen and no longer
+#: have a row at all: Barcode QC onto Map Barcodes, AnnData Export onto
+#: Measure. AnnData Export is the app that made the case for `entry` with
+#: NO screen of its own -- its settings are already typed and tooltipped,
+#: so the generic AppScreen draws the export form and the Run button runs
+#: the export -- and that is still exactly how its folded page works.
+#:
+#: THE POINT OF KEEPING THEM HERE. Everything the registration seam
+#: delivered is still owed to a folded module: a header and a blurb on
+#: its page, a translated name, an API link, an answer to `spacr-run`,
+#: and a Run button that runs something. Only the tile went. Deleting
+#: these two out of this file when their rows went would have deleted the
+#: assertions that say so.
+FOLDED_IN = {
+    "barcode_qc": "entry",
     "anndata_export": "entry",
 }
+
+#: Both groups, for the checks a fold does not change.
+EVERY_FEATURE = {**WIRED_IN, **FOLDED_IN}
+
+#: What each folded module's page is headed by, now that no row holds it.
+FOLDED_NAMES = {
+    "barcode_qc": "Barcode QC",
+    "anndata_export": "AnnData Export",
+}
+
+#: Folded key → the module that hangs its button on the host masthead.
+FOLDED_HOSTS = {
+    "barcode_qc": "spacr.qt.screens.map_barcodes",
+    "anndata_export": "spacr.qt.screens.measure",
+}
+
+
+@pytest.mark.parametrize("key", sorted(FOLDED_IN))
+def test_the_folded_feature_has_no_row_and_is_reached_from_its_host(key):
+    """A folded module is a button on a host, not a tile of its own.
+
+    The other half of the row being dropped: it has to be gone from the
+    registry AND still reachable, or the fold has hidden a working
+    module rather than moved it.
+    """
+    from importlib import import_module
+
+    assert not [row for row in app_mod.APPS if row[0] == key], (
+        f"{key} was folded into another module, so it must not draw a "
+        f"tile of its own any more")
+    host = import_module(FOLDED_HOSTS[key])
+    assert key in host.FOLDED_APPS, (
+        f"{key} has no row and no button on {host.HOST_KEY}, so nothing "
+        f"opens it")
+    assert callable(host.BUILDERS[key])
 
 
 @pytest.mark.parametrize("key", sorted(WIRED_IN))
@@ -747,7 +795,7 @@ def test_the_waiting_feature_is_in_the_registry_under_a_live_section(key):
     assert key in bands[section]
 
 
-@pytest.mark.parametrize("key", sorted(WIRED_IN))
+@pytest.mark.parametrize("key", sorted(EVERY_FEATURE))
 def test_the_waiting_feature_has_a_header_and_an_intro(key):
     """The screen tables, which used to need a hand-edit per app."""
     from spacr.qt.screens.app_screen import APP_INTROS, APP_TITLES
@@ -761,21 +809,24 @@ def test_the_waiting_feature_has_a_header_and_an_intro(key):
         f"{intro!r}")
 
 
-@pytest.mark.parametrize("key", sorted(WIRED_IN))
+@pytest.mark.parametrize("key", sorted(EVERY_FEATURE))
 def test_the_waiting_feature_is_translated_into_every_ui_language(key):
     """`test_i18n` walks APPS and requires this; here it is per app."""
     from spacr.qt.i18n import CATALOGS, VALID_LANGUAGE_CODES
 
-    name = {row[0]: row[1] for row in app_mod.APPS}[key]
+    names = {row[0]: row[1] for row in app_mod.APPS}
+    names.update(FOLDED_NAMES)
+    name = names[key]
     for code in VALID_LANGUAGE_CODES:
         if code == "en":
             continue
         assert CATALOGS[code].get(name, "").strip(), (
             f"{key} ({name!r}) has no {code} translation, so its sidebar "
-            f"row is English in a Korean window")
+            f"row -- or, once it is folded, its page masthead -- is "
+            f"English in a Korean window")
 
 
-@pytest.mark.parametrize("key", sorted(WIRED_IN))
+@pytest.mark.parametrize("key", sorted(EVERY_FEATURE))
 def test_the_waiting_feature_links_to_its_own_api_page(key):
     """An unknown key lands on the generated API index instead."""
     from spacr.qt.screens.settings_model import _APP_API_MODULE, api_docs_url
@@ -786,7 +837,7 @@ def test_the_waiting_feature_links_to_its_own_api_page(key):
     assert _APP_API_MODULE[key] in url
 
 
-@pytest.mark.parametrize("key", sorted(WIRED_IN))
+@pytest.mark.parametrize("key", sorted(EVERY_FEATURE))
 def test_the_waiting_feature_answers_spacr_run(key):
     """Headless-runnable or declared GUI-only, with a sentence saying so.
 
@@ -796,7 +847,7 @@ def test_the_waiting_feature_answers_spacr_run(key):
     """
     from spacr import cli
 
-    if WIRED_IN[key] == "entry":
+    if EVERY_FEATURE[key] == "entry":
         assert key in cli.MODULES, (
             f"{key} has a pipeline entry point, so `spacr-run {key}` has to "
             f"work; it answers 'unknown module'")
@@ -809,7 +860,7 @@ def test_the_waiting_feature_answers_spacr_run(key):
         assert len(cli.INTERACTIVE_ONLY[key]) >= 40
 
 
-@pytest.mark.parametrize("key", sorted(k for k, v in WIRED_IN.items()
+@pytest.mark.parametrize("key", sorted(k for k, v in EVERY_FEATURE.items()
                                        if v == "entry"))
 def test_the_run_button_resolves_to_something_runnable(key):
     """The measured symptom: Run said "Not runnable" for all of these.
@@ -848,18 +899,21 @@ def test_the_screen_owning_app_builds_its_own_screen(qtbot, qt_theme_applied,
     assert isinstance(widget, QWidget)
 
 
-@pytest.mark.parametrize("key", sorted(WIRED_IN))
+@pytest.mark.parametrize("key", sorted(EVERY_FEATURE))
 def test_the_waiting_feature_has_a_settings_panel_or_a_screen(key):
     """A generic AppScreen with no defaults opens on an empty form.
 
     Illumination and Barcode QC register their settings at their own
     module's import, which the process drawing the panel has no reason
     to have done -- `register_app(..., defaults_module=...)` is what
-    closes that, and this is the assertion that it did.
+    closes that, and this is the assertion that it did. A module that
+    has been folded has no row left to say it from, so
+    `settings_model._FOLDED_DEFAULTS_MODULES` answers instead; either
+    way the form has to arrive full.
     """
     from spacr.qt.screens.settings_model import resolve_default_settings
 
-    if WIRED_IN[key] == "factory":
+    if EVERY_FEATURE[key] == "factory":
         pytest.skip(f"{key} builds its own screen, not a settings form")
     settings = resolve_default_settings(key)
     assert isinstance(settings, dict) and settings, (
@@ -975,10 +1029,16 @@ def test_the_empty_state_names_this_screens_own_demo():
     Measure, Timelapse, Classify and Sequencing each pointed the user at
     a dataset that opens a DIFFERENT module, so following the hint left
     the screen the user was trying to fill exactly as empty.
+
+    The timelapse demo now targets Mask, because Timelapse is a settings
+    category on Mask Generation rather than a module of its own -- so it
+    is Mask's banner the hint has to reach, and the folded key names no
+    demo because it opens no screen to put a banner on.
     """
     assert app_mod.demo_label_for_app("mask") == "Mask demo…"
     assert app_mod.demo_label_for_app("measure") == "Measure demo…"
-    assert app_mod.demo_label_for_app("timelapse") == "Timelapse demo…"
+    assert app_mod.MainWindow.DEMO_TARGETS["timelapse"][0] == "mask"
+    assert app_mod.demo_label_for_app("timelapse") is None
     # The classify demo lands on Annotate (it generates crops to label),
     # so that is where its hint belongs -- not on the Classify screen.
     assert app_mod.demo_label_for_app("annotate") == "Classify demo…"
@@ -995,7 +1055,10 @@ def test_the_empty_state_names_this_screens_own_demo():
 
 @pytest.mark.parametrize("app_key,expected", [
     ("measure", "Measure demo…"),
-    ("timelapse", "Timelapse demo…"),
+    # Mask, not Timelapse: the timelapse demo lands on Mask now that the
+    # module is a settings category there, and the first demo targeting
+    # Mask is the one its banner names.
+    ("mask", "Mask demo…"),
     # No demo lands on Image UMAP, so its banner must not name one --
     # this is the case that used to read "use Demos → Mask demo…".
     ("umap", None),

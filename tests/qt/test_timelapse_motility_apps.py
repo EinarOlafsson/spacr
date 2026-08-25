@@ -1,14 +1,20 @@
-"""Timelapse and Motility Assay as first-class home-screen modules.
+"""Timelapse and the Motility Assay as modules their hosts offer.
 
-Timelapse used to be a checkbox on Mask generation and the automated motility
-assay a pair of "(beta)" tabs hidden behind ``motility_analysis``. Both are now
-modules of their own — an ``APPS`` entry, a title, an intro, an icon, a
-settings group and a pipeline entry point each — and Mask offers neither.
+Both were checkboxes on Mask generation once, then modules of their own with
+a tile each, and are now folded back into the screens they belong to without
+losing anything on the way: Timelapse is a switch on the Mask masthead that
+reveals its tracking settings categories, and the Motility Assay is a button
+on the Measure masthead that opens its own screen. Neither has a registry row
+any more, which is what folding one ends in.
 
-The tests below pin all three halves of that:
+The tests below pin what survived that:
 
-  * the two new modules are fully wired (home screen -> screen -> pipeline),
-  * Mask no longer surfaces either group,
+  * both are still fully wired underneath — title, intro, icon, settings
+    group, pre-flight rules and a pipeline entry point each — and both still
+    run from ``spacr-run``;
+  * neither has a tile or a sidebar row, and the host that carries each one
+    names it;
+  * Mask surfaces neither module's settings until its switch is pressed;
   * and nothing that used to work through the *pipeline* stopped working: an
     archived mask settings CSV with ``timelapse=True`` still drives
     ``preprocess_generate_masks`` exactly as before.
@@ -29,43 +35,48 @@ NEW_APPS = ("timelapse", "motility")
 # home screen
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("key", NEW_APPS)
-def test_new_module_is_on_the_home_screen(key):
-    """Both modules are in the registry, under Core, marked beta.
+#: The host screen each folded module is reached from.
+HOSTS = {"timelapse": "mask", "motility": "measure"}
 
-    ``SECTION_CORE`` — "a first-class workflow, not a Tool" — is the
-    original assertion, and it holds again: #16i moved both into a "Beta
-    modules" section and #16j turned beta back into a maturity mark that
-    leaves the app where it belongs. Both are full entries with their
-    own screen, title, intro and settings, as the rest of this file
-    checks.
+
+@pytest.mark.parametrize("key", NEW_APPS)
+def test_the_module_has_no_tile_and_its_host_offers_it(key):
+    """Both were registry rows until they folded into the screens they suit.
+
+    This asserted the row, its section and its stage. What replaces it is
+    the same question asked of the fold: the tile is gone -- a tile that
+    opens what a button on the host already opens is a second front door
+    -- and the host that took it names it, so there is exactly one way in
+    rather than none.
     """
     from spacr.qt.app import APPS
-    entry = next((a for a in APPS if a[0] == key), None)
-    assert entry is not None, f"{key!r} missing from APPS"
-    app_key, name, desc, section = entry
-    assert name and desc
-    from spacr.qt.app import SECTION_CORE, app_stage
-    assert section == SECTION_CORE, (
-        f"{key!r} is a first-class workflow, not a Tool — got {section!r}")
-    # …and the user put both on the beta list. That says how finished it
-    # is, which the Home tile draws as a magenta hover.
-    assert app_stage(app_key) == "beta", (
-        f"{key!r} was staged into beta by the user")
+    from spacr.qt.screens import mask, measure
+
+    assert not any(row[0] == key for row in APPS), (
+        f"{key!r} still has a tile; the fold is not finished")
+    folded = {"mask": mask.FOLDED_APPS, "measure": measure.FOLDED_APPS}
+    assert key in folded[HOSTS[key]], (
+        f"{key!r} is on no host, so nothing in the GUI can open it")
 
 
-def test_timelapse_is_not_filed_as_legacy_or_deprecated():
-    """The user's ask: timelapse is a first-class capability.
+@pytest.mark.parametrize("key", NEW_APPS)
+def test_the_button_still_says_what_the_tile_said(key):
+    """The name, the sentence and the maturity colour survive the drop.
 
-    Still true, and still worth guarding. The user put it on the *beta*
-    list, so "beta" is not one of the words this test may refuse —
-    staged is not deprecated. The section and the stage are asserted
-    above; this is about how the entry describes itself."""
-    from spacr.qt.app import APPS
-    _, name, desc, _ = next(a for a in APPS if a[0] == "timelapse")
-    blob = f"{name} {desc}".lower()
+    ``FoldStrip`` reads all three out of the registry, which answers
+    nothing once the row is gone -- an empty tooltip and a stable-blue
+    hover for a module that is neither.
+    """
+    from spacr.qt.screens.map_barcodes import fold_description
+    from spacr.qt.theme import STAGE_HOVER
+
+    name, description, stage = fold_description(key)
+
+    assert name and description
+    assert stage in STAGE_HOVER
     for word in ("legacy", "deprecated", "experimental"):
-        assert word not in blob, f"timelapse entry calls itself {word!r}"
+        assert word not in f"{name} {description}".lower(), (
+            f"{key} describes itself as {word!r}")
 
 
 @pytest.mark.parametrize("key", NEW_APPS)
@@ -106,23 +117,30 @@ def test_icon_provider_returns_an_icon(qtbot, qt_theme_applied, key):
     assert not icon.isNull(), f"{key} icon is null — the PNG failed to load"
 
 
-def test_sidebar_and_home_page_render_the_new_modules(qtbot, qt_theme_applied):
+def test_neither_module_is_on_the_sidebar_or_the_home_page(
+        qtbot, qt_theme_applied):
+    """Both are reached from a host now, and a second door is the thing
+    the fold removed. Both surfaces are built from the registry, so a row
+    on either would mean the drop had not really happened.
+    """
     from PySide6.QtWidgets import QPushButton
     from spacr.qt.app import Sidebar, make_home_page
+    from spacr.qt.widgets.home import AppTile
 
     bar = Sidebar()
     qtbot.addWidget(bar)
     labels = {b.accessibleName() for b in bar.findChildren(QPushButton)}
-    assert "Timelapse" in labels
-    assert "Motility Assay" in labels
+    assert "Timelapse" not in labels
+    assert "Motility Assay" not in labels
+    # The hosts are still there, or the modules are reachable from nothing.
+    assert "Mask Generation" in labels or "Mask" in labels
+    assert "Measure" in labels
 
     page = make_home_page()  # the page MainWindow ships
     qtbot.addWidget(page)
-    from spacr.qt.widgets.home import AppTile
     tiles = {t.text_label for t in page.findChildren(AppTile)}
     assert tiles, "Home page rendered no tiles"
-    # The two new modules are on Home, not only in the sidebar.
-    assert {"Timelapse", "Motility Assay"} <= tiles
+    assert not ({"Timelapse", "Motility Assay"} & tiles)
 
 
 # ---------------------------------------------------------------------------
@@ -170,27 +188,150 @@ def test_timelapse_entry_accepts_an_empty_dict(monkeypatch):
     assert out["timelapse"] is True
 
 
-def test_main_window_builds_both_new_screens(qtbot, qt_theme_applied):
+def test_the_hosts_offer_both_modules_from_their_mastheads(
+        qtbot, qt_theme_applied):
+    """The one way in, driven the way a user drives it.
+
+    Mask's is a switch that mounts the tracking categories on the form
+    already on screen; Measure's is a button that opens the assay's own
+    settings screen. This walked to a sidebar row until both rows were
+    dropped, and the row is exactly what must not be what is checked.
+    """
     from spacr.qt.app import MainWindow
+    from spacr.qt.screens import mask as mask_folds
+    from spacr.qt.screens import measure as measure_folds
     from spacr.qt.screens.app_screen import AppScreen
+
     win = MainWindow()
     qtbot.addWidget(win)
-    for key in NEW_APPS:
-        win._on_nav_selected(key)
-        screen = win._screens.get(key)
-        assert isinstance(screen, AppScreen)
-        assert screen.app_key == key
+
+    win._on_nav_selected("mask")
+    mask_screen = win._screens["mask"]
+    assert mask_folds.install_folds(mask_screen) is not None
+    folds = mask_folds.fold_set(mask_screen)
+    assert folds is not None and "timelapse" in folds.order
+    folds.strip.button_for("timelapse").setChecked(True)
+    assert mask_screen._settings_model.collect()["timelapse"] is True
+
+    win._on_nav_selected("measure")
+    measure_screen = win._screens["measure"]
+    strip = measure_folds.install_folds(measure_screen)
+    assert strip is not None
+    opener = next(o for o in measure_screen._fold_openers
+                    if o.key == "motility")
+    opened = opener.open()
+    assert opened is not None
+    assay = (opened if isinstance(opened, AppScreen)
+               else next(iter(opened.findChildren(AppScreen)), None))
+    assert assay is not None and assay.app_key == "motility"
 
 
-def test_timelapse_demo_targets_the_timelapse_module(qtbot, qt_theme_applied):
-    """The demo writes timelapse=True; Mask has no widget for it any more."""
+def test_spacr_qt_timelapse_still_opens_the_timelapse_module(
+        qtbot, qt_theme_applied):
+    """``spacr-qt <app>`` is in shell histories and scripts.
+
+    The key it names is a switch on Mask Generation now rather than a
+    screen, so asking for it has to open the host WITH THE SWITCH ON --
+    mask generation with tracking off is not the module that was asked
+    for, and an orphan Timelapse page is not a module at all.
+    """
     from spacr.qt.app import MainWindow
+    from spacr.qt.screens import mask as mask_folds
+
+    win = MainWindow(initial_app="timelapse")
+    qtbot.addWidget(win)
+    win.show()
+    qt_theme_applied.processEvents()
+
+    assert "timelapse" not in win._screens
+    screen = win._screens["mask"]
+    assert win._stack.currentWidget() is screen
+    folds = mask_folds.fold_set(screen)
+    assert folds is not None and folds.is_active("timelapse")
+    assert screen._settings_model.collect()["timelapse"] is True
+
+
+def test_opening_a_module_that_still_has_a_screen_is_unchanged(
+        qtbot, qt_theme_applied):
+    """The resolution must not move anything that was never folded."""
+    from spacr.qt.app import MainWindow
+
+    win = MainWindow()
+    qtbot.addWidget(win)
+
+    assert win.open_module("measure") == "measure"
+    assert win._stack.currentWidget() is win._screens["measure"]
+
+
+def test_a_run_saved_before_the_fold_reopens_on_its_host(
+        qtbot, qt_theme_applied):
+    """Run History's "load this run's settings" must not build an orphan.
+
+    Every run journal ever written names the module key that ran, and
+    ``timelapse`` is in thousands of them. Navigating to a key with no row
+    still builds a screen -- one with no sidebar entry, no tile and no way
+    back to it -- so the key is resolved through the succession table
+    first, and the gate the seed carries moves the switch the way an
+    imported CSV does.
+    """
+    from spacr.qt.app import MainWindow
+    from spacr.qt.chaining import screen_for_module
+    from spacr.qt.screens import mask as mask_folds
+
+    assert screen_for_module("timelapse") == "mask"
+    assert screen_for_module("mask") == "mask"
+
+    win = MainWindow()
+    qtbot.addWidget(win)
+    win.show()
+    qt_theme_applied.processEvents()
+
+    # Exactly what RunHistoryScreen.settings_requested emits for a run
+    # recorded under the old key.
+    win._on_train_requested("timelapse", {"src": "/data/p9",
+                                            "timelapse_mode": "btrack",
+                                            "timelapse": True})
+    qt_theme_applied.processEvents()
+
+    assert "timelapse" not in win._screens, "an orphan screen was built"
+    screen = win._screens["mask"]
+    assert win._stack.currentWidget() is screen
+    folds = mask_folds.fold_set(screen)
+    assert folds is not None and folds.is_active("timelapse")
+    collected = screen._settings_model.collect()
+    assert collected["src"] == "/data/p9"
+    assert collected["timelapse_mode"] == "btrack"
+    assert collected["timelapse"] is True
+
+
+def test_the_timelapse_demo_lands_on_mask_with_tracking_switched_on(
+        qtbot, qt_theme_applied, tmp_path):
+    """The demo writes timelapse=True, and the switch is that key's control.
+
+    It targeted the Timelapse module because Mask had no widget for the
+    flag and it would have been silently dropped. It still has no widget
+    -- the masthead switch is the control -- so what has to be true is
+    that applying the demo's settings MOVES the switch.
+    """
+    from spacr.qt.app import MainWindow
+    from spacr.qt import synthetic as syn
+    from spacr.qt.screens import mask as mask_folds
+
     win = MainWindow()
     qtbot.addWidget(win)
     target_app, gen_name = win.DEMO_TARGETS["timelapse"]
-    assert target_app == "timelapse"
-    from spacr.qt import synthetic as syn
+
+    assert target_app == "mask"
     assert hasattr(syn, gen_name)
+
+    win._on_nav_selected("mask")
+    screen = win._screens["mask"]
+    assert mask_folds.install_folds(screen) is not None
+    screen.apply_settings_dict({"timelapse": "True",
+                                 "timelapse_objects": ["cell"]})
+
+    assert mask_folds.fold_set(screen).is_active("timelapse")
+    assert screen._settings_model.collect()["timelapse"] is True
 
 
 # ---------------------------------------------------------------------------
@@ -313,18 +454,30 @@ def test_mask_screen_still_offers_the_rest_of_its_settings(qtbot, qt_theme_appli
         assert key in collected
 
 
-def test_importing_a_legacy_mask_csv_reports_the_moved_settings(
+def test_importing_a_legacy_mask_csv_reports_what_it_did_with_the_flags(
         qtbot, qt_theme_applied):
-    """Non-modal console note, so the drop is never silent (and never hangs)."""
+    """Non-modal console note, so the import is never silent (and never hangs).
+
+    It said both flags had been IGNORED and sent the reader to a sidebar
+    row for each. Neither half is true now: tracking is a switch on this
+    form and the note has to report the switch moving, and the assay is a
+    module Measure opens rather than a row anywhere.
+    """
     from spacr.qt.screens.app_screen import AppScreen
+    from spacr.qt.screens import mask as mask_folds
+
     screen = AppScreen("mask")
     qtbot.addWidget(screen)
-    screen._warn_about_moved_settings(
-        {"timelapse": "True", "motility_analysis": True})
-    text = screen._console.toPlainText() if hasattr(screen._console, "toPlainText") \
-        else _console_text(screen)
-    assert "Timelapse module" in text
-    assert "Motility Assay module" in text
+    assert mask_folds.install_folds(screen) is not None
+    loaded = {"timelapse": "True", "motility_analysis": True}
+    screen.apply_settings_dict(loaded)
+    screen._warn_about_moved_settings(loaded)
+    text = _console_text(screen)
+
+    assert "switched Timelapse on" in text
+    assert "motility_analysis=True was ignored" in text
+    assert "Measure" in text
+    assert "sidebar" not in text
 
 
 def test_moved_settings_note_is_quiet_for_a_normal_csv(qtbot, qt_theme_applied):
@@ -332,7 +485,7 @@ def test_moved_settings_note_is_quiet_for_a_normal_csv(qtbot, qt_theme_applied):
     screen = AppScreen("mask")
     qtbot.addWidget(screen)
     screen._warn_about_moved_settings({"timelapse": False, "src": "/data"})
-    assert "Timelapse module" not in _console_text(screen)
+    assert "Timelapse" not in _console_text(screen)
 
 
 def _console_text(screen) -> str:

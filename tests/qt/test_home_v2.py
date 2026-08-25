@@ -246,8 +246,15 @@ def test_the_glyph_escape_hatch_is_kept_even_though_it_is_empty():
     assert _FORCE_GLYPH == set()
 
 
-#: The four apps that draw another app's artwork on purpose, each with a
-#: reason written next to its ``_ICON_OVERRIDES`` entry.
+#: The apps that draw another app's artwork on purpose, each with a reason
+#: written next to its ``_ICON_OVERRIDES`` entry.
+#:
+#: A pair is only checked while BOTH halves still have a tile. Model
+#: Compare, Annotator Agreement and Train Cellpose folded into hosts and
+#: lost their rows; each still borrows the same picture for its fold
+#: button, which is why the pair stays written down here rather than being
+#: deleted, but two tiles that cannot be told apart is a Home-page problem
+#: and Home no longer draws them.
 DELIBERATE_SHARED_ARTWORK = {
     frozenset({"Mask", "Model Compare"}),
     frozenset({"Annotate", "Annotator Agreement"}),
@@ -296,16 +303,22 @@ def test_no_two_apps_render_the_same_picture_by_accident(qapp):
         blob = bytes(icon.pixmap(48, 48).toImage().constBits())
         by_pixels.setdefault(blob, []).append(name)
     shared = {frozenset(v) for v in by_pixels.values() if len(v) > 1}
-    assert DELIBERATE_SHARED_ARTWORK <= shared, (
-        f"a documented borrowing stopped happening: "
-        f"{DELIBERATE_SHARED_ARTWORK - shared}")
+    # Only the borrowings whose BOTH tiles are still on Home. A module
+    # folded into a host stops having a tile, and its pair stops being
+    # drawn twice -- that is the fold working, not a borrowing that
+    # "stopped happening". The borrowing itself survives on the fold
+    # button, which reads the same `_ICON_OVERRIDES` entry.
+    drawn = {name for _key, name, *_rest in APPS}
+    expected = {pair for pair in DELIBERATE_SHARED_ARTWORK if pair <= drawn}
+    assert expected <= shared, (
+        f"a documented borrowing stopped happening: {expected - shared}")
     # Every app now has its own artwork, so the allowance below covers
     # nothing: `placeholders` is empty and any undocumented sharing fails.
     # Kept rather than deleted because a new app registered before its icon
     # is drawn lands on the placeholder again, and that should not fail this
     # test the day it is added.
     placeholders = apps_without_artwork()
-    for group in shared - DELIBERATE_SHARED_ARTWORK:
+    for group in shared - expected:
         assert group <= placeholders, (
             f"{sorted(group)} draw the same picture and nothing says why. "
             f"Either give one of them its own icon, or record the "
@@ -758,39 +771,48 @@ def test_each_tab_holds_exactly_its_own_members(home):
 #: that an app in one of these lists is still filed under what it does —
 #: it just lights a different colour on hover.
 ALPHA_MODULES = {
-    "align", "model_zoo", "convert", "foreign", "external_masks",
-    "model_compare", "queue", "batch", "invasion", "db_browser",
+    # `model_zoo` and `model_compare` stood at the front of this line until
+    # they became buttons on the Make Masks masthead. A stage is a property
+    # of a TILE, so both left with their rows -- the colour their buttons
+    # light in is `make_masks.FOLD_FALLBACK`'s now, and `spacr.qt.maturity`
+    # is still the assessment behind it.
+    "align", "convert", "foreign", "external_masks",
+    "queue", "batch", "invasion", "db_browser",
     "distributed_jobs",
-    "plate_view", "agreement", "train_compare", "classifier_evaluation",
+    "plate_view", "train_compare",
     "run_history", "report",
     # The four features that spent weeks finished, tested and unreachable
     # because a registry row was not enough to make an app. They arrive
     # alpha: built and reachable, not yet trusted end to end.
-    "illumination", "barcode_qc", "layer_viewer", "graph_builder",
+    "layer_viewer", "graph_builder",
     "data_manager",
     # And the three that landed just after the seam that would have made
     # them reachable, and waited the same way for the same reason.
-    "power", "anndata_export", "run_compare",
-    # The five built on the provenance and run-record work: the DAG of
+    "power", "run_compare",
+    # The four built on the provenance and run-record work: the DAG of
     # what produced what, the ranked hit list, the profiler that sweeps a
-    # fitted model, the methods-and-results exporter, and the scatter that
-    # shows you the object under the cursor. Same posture as the rest —
-    # built, tested and reachable, not yet trusted end to end.
+    # fitted model, and the methods-and-results exporter. Same posture as
+    # the rest — built, tested and reachable, not yet trusted end to end.
+    # Image Scatter was the fifth and is folded onto Image UMAP now; a
+    # stage is a property of a tile, so it left this list with its row.
     "pipeline_graph", "hit_list", "profiler", "methods_export",
-    "image_scatter",
     # And the two that read the links the database has always held rather
     # than adding anything to it: the cell → nucleus → pathogen tree, and
     # correcting a mask and its tracks by hand with every edit journalled.
     # Same posture again — reachable, tested, not yet trusted end to end.
-    "lineage", "curate",
+    # Curate stood beside Lineage here and is folded into Make Masks now:
+    # correcting a mask belongs in the screen that writes masks, which is
+    # also where it got the "Save mask" it never had.
+    "lineage",
     # And the two that claim the ends of the run nothing owned: the plate
     # layout and controls decided before an image exists, and the five QC
     # verdicts read back off a finished one.
     "experiment_design", "qc_dashboard",
-    # And the two that were written, tested and left unregistered: the
-    # component view and the pivot-table builder. Registering them is what
-    # made them alpha; they were not reachable at all before.
-    "pca", "tabulate",
+    # And the pivot-table builder, written, tested and left unregistered
+    # until a row made it alpha. PCA stood beside it here for the same
+    # reason and is folded onto Image UMAP now, so it left this list with
+    # its row.
+    "tabulate",
     # And the merged Classify screen, registered 2026-08-06 (2d4da7df).
     # It arrived alpha ON PURPOSE, and ``APP_STAGE`` says why: "stable" is
     # the ABSENCE of a line there, so omitting it would have claimed a
@@ -801,37 +823,46 @@ ALPHA_MODULES = {
     # Post-classifier interpretation and post-regression cell investigation.
     # Both are reachable and tested, but have not yet been trusted end to end
     # on an independent production run, so they arrive alpha on purpose.
-    "explain_cv", "investigate_hit",
-    # And the two regression companions: the sweep that runs the fit under
-    # many settings and compares what each concludes, and the reader that
-    # opens a finished result and lets you click a point. They were registered
-    # in APPS without reaching this list, cli.INTERACTIVE_ONLY, or the drop
-    # handlers -- half-wired, which is what this assertion exists to catch.
-    # Alpha for the usual reason: reachable and tested, not yet trusted end to
-    # end on an independent production run.
-    "parameter_sweep", "volcano_explorer",
+    "investigate_hit",
+    # The Parameter Sweep and the Volcano Explorer were the last two names
+    # in this list. Both are folded now -- the sweep is the Regression
+    # screen's sweep card and the explorer is "Publication figure…" on that
+    # screen's volcano -- and a stage is a property of a TILE, so both left
+    # this list with their rows. The sweep's row had already gone and its
+    # name had stayed, which is the drift the assertion below now catches
+    # in both directions.
 }
 BETA_MODULES = {
-    "make_masks", "train_cellpose", "cellpose_masks", "timelapse",
-    "motility", "analyze_plaques", "replication", "umap", "activation",
+    "make_masks",
+    # `cellpose_masks` stood here until it became the applying tab of the
+    # Cellpose Workbench rather than a tile of its own, and `train_cellpose`
+    # until that whole workbench became a button on the Make Masks masthead.
+    # Both rows went and both names stayed; this list counts tiles, so they
+    # come out too.
+    "analyze_plaques", "replication", "umap", "activation",
 }
 
 
 def test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for():
-    """41 alpha, 9 beta, named one at a time.
+    """Every alpha and every beta module, named one at a time.
 
     Spelling the lists out means a quiet drift fails here rather than
-    being noticed in a screenshot. It read 36 until the merged Classify
-    module was registered alpha on 2026-08-06, and 39 until Parameter Sweep
-    and Volcano Explorer were reconciled on 2026-08-16; the number moves with
-    the list above it, never on its own."""
+    being noticed in a screenshot. The counts are read off the lists
+    instead of typed beside them: folding modules into their hosts is
+    taking keys out of both lists, and a literal count would fail for the
+    list being right rather than for it being wrong."""
     from spacr.qt.app import app_stage
     by_stage: dict = {}
     for key, _name, _desc, _section in APPS:
         by_stage.setdefault(app_stage(key), set()).add(key)
     assert by_stage["alpha"] == ALPHA_MODULES
     assert by_stage["beta"] == BETA_MODULES
-    assert len(ALPHA_MODULES) == 41 and len(BETA_MODULES) == 9
+    # Every alpha and beta key is a tile: a module folded into a host has
+    # no tile and no stage, so it leaves both lists with its row.
+    registry = {key for key, *_rest in APPS}
+    assert (ALPHA_MODULES | BETA_MODULES) <= registry
+    assert len(ALPHA_MODULES) == len(by_stage["alpha"])
+    assert len(BETA_MODULES) == len(by_stage["beta"])
     assert by_stage["stable"] == (
         {row[0] for row in APPS} - ALPHA_MODULES - BETA_MODULES)
 

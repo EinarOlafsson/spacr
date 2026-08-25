@@ -1,0 +1,113 @@
+================================================================================
+SETTINGS APPEAR WHEN THEY APPLY, AND THE OBJECTS ARE NOT A FIXED FOUR
+================================================================================
+
+Status:    OPEN. Requested 2026-08-25.
+Priority:  HIGH -- item 3 below is part of the consolidation (242), which
+           the maintainer has put first.
+Owner:     spacr/settings.py and spacr/qt/screens/settings_model.py for
+           the generated settings; spacr/qt/screens/app_screen.py for the
+           masthead buttons; spacr/qt/app.py for the registry.
+
+--------------------------------------------------------------------------------
+1. AN ARBITRARY NUMBER OF OBJECTS, NOT ORGANELLE 1 TO 4
+--------------------------------------------------------------------------------
+
+"I do not like how you have parsed the object settings into object 1 - 4.
+the user should be able to generate an arbitrary inmber of objects."
+
+  * a NUMBER OF ORGANELLES setting, and the organelle settings are
+    generated from it -- two gives organelle 1 and organelle 2, seven
+    gives seven. The current fixed slots (organelle, organelle_1,
+    organelle_2, organelle_3) are the thing being replaced, not extended;
+  * the keys a run writes and a settings CSV carries must stay readable
+    across a change in that number: raising it adds slots and lowers it
+    hides them, and a file written at seven still loads at two rather
+    than erroring.
+
+--------------------------------------------------------------------------------
+2. A SETTING IS VISIBLE WHEN ITS OBJECT IS IN THE RUN
+--------------------------------------------------------------------------------
+
+"object settings should become visable as needed. same with cell,
+nucleus, pathogen. so if cell, nucleus, pathogen channel has a number and
+is not None the repective settings visability are toggledd on."
+
+  * CELL, NUCLEUS, PATHOGEN: the channel setting is the switch. A number
+    in `cell_channel` reveals the cell settings; None hides them. Same
+    for nucleus and pathogen;
+  * ORGANELLE N: the same rule, one slot at a time. `organelle_1_channel`
+    holding a number reveals organelle 1's settings;
+  * AND THE TYPE NARROWS IT FURTHER. "if number of organelles is 2 and
+    organelle 1 and 2 have organelle channel 3 and organelle channel 4,
+    and organelle 1 type is puncta and organelle type 2 is vesicular,
+    then only puncta and vesicular settings are visable." So the type
+    chosen for a slot decides WHICH of that slot's settings are shown:
+    a punctate organelle shows the punctate controls and not the network
+    or ring ones;
+  * HIDDEN, NOT DELETED. A hidden setting keeps its value and is still
+    written to the settings file, the way the greyed ones already do --
+    changing a channel back must bring the old answers back with it.
+
+--------------------------------------------------------------------------------
+3. TWO BUTTONS: 3D AND TIME
+--------------------------------------------------------------------------------
+
+"to the left of the Live button which sitts to the left of the AI button,
+i want to have 2 new buttons called 3D and Time which toggle the
+visability of the volumetric and Timelapse related settings. these rules
+should apply for Mask generation and measure."
+
+  * two toggles on the masthead, in that order, immediately left of Live;
+  * 3D reveals the volumetric settings, Time the timelapse ones;
+  * they are STATES, so they stay lit while on -- the same shape the
+    folded-module switches on Mask Generation already have;
+  * on Mask Generation and on Measure, both.
+
+--------------------------------------------------------------------------------
+4. EVERY FOLDED MODULE LEAVES THE REGISTRY
+--------------------------------------------------------------------------------
+
+"make sure you remove all the modules you have folded into others. for
+instance i still see illumination."
+
+Illumination folded into Measure and its row is still there. Sweep the
+registry against the fold tables rather than against a list written by
+hand: any key that appears in a host's FOLDED_APPS and also in APPS is a
+row that should have gone.
+
+--------------------------------------------------------------------------------
+5. ACTIVATION FOLDS INTO CLASSIFY
+--------------------------------------------------------------------------------
+
+"also fold activation into classify."
+
+Same rules as every other fold: integrate it rather than opening a
+window, and lose no capability.
+
+--------------------------------------------------------------------------------
+6. THE FOLDED ICONS ARE NOT WASTED
+--------------------------------------------------------------------------------
+
+"remomber where possible integrate the modules and if possible make use
+of the folded in moduals icons somwhere relevant."
+
+A module that became settings categories has no button, so its icon has
+nowhere obvious to go -- put it where the thing it names appears: beside
+the category heading it reveals, on the tab it became, or on the toggle
+that turns it on. An icon a user already associates with the module is
+the cheapest way to say which module a group of settings came from.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* setting `number_of_organelles` to 7 yields seven slots; back to 2
+  leaves the other five's values in the settings file;
+* `cell_channel = None` hides the cell settings and `cell_channel = 1`
+  shows them, asserted on the driven panel;
+* organelle 1 typed punctate and organelle 2 vesicular show exactly the
+  punctate and vesicular controls -- asserted as a set, not by eye;
+* the 3D and Time toggles sit immediately left of Live on both Mask
+  Generation and Measure, and each reveals its own settings;
+* no key appears in both a host's fold table and the registry.
