@@ -20,7 +20,17 @@ GENERAL_DEFAULTS: dict[str, Any] = {
     # Colour-blind-safe and print-safe. A screen's categories are nominal, so
     # a sequential map would imply an order that is not there.
     "palette": "colorblind",
-    "background": "#FFFFFF",
+    # TRANSPARENT, NOT WHITE. The store keeps deltas from this table, so
+    # choosing the default in the panel stores nothing and the figure
+    # renders on whatever is behind it -- which meant the declared default
+    # and the observed behaviour disagreed, and picking '#FFFFFF'
+    # deliberately was the one thing the panel could not express.
+    #
+    # 'none' is also the right answer for the job: a figure going into a
+    # paper or a slide takes the ground it is placed on, and a white
+    # rectangle behind it is visible on every dark background it lands on.
+    # A user who wants white can still say so, and now it stores.
+    "background": "none",
     "foreground": "#222222",
     "grid": True,
     "grid_colour": "#DDDDDD",
@@ -297,8 +307,8 @@ def rc_params(style: Mapping[str, Any]) -> dict:
         "axes.labelsize": float(style.get("label_size", 11.0)),
         "xtick.labelsize": float(style.get("tick_size", 9.0)),
         "ytick.labelsize": float(style.get("tick_size", 9.0)),
-        "figure.facecolor": style.get("background", "#FFFFFF"),
-        "axes.facecolor": style.get("background", "#FFFFFF"),
+        "figure.facecolor": style.get("background", "none"),
+        "axes.facecolor": style.get("background", "none"),
         "text.color": style.get("foreground", "#222222"),
         "axes.labelcolor": style.get("foreground", "#222222"),
         "xtick.color": style.get("foreground", "#222222"),

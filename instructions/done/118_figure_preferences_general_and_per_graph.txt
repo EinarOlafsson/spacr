@@ -2,9 +2,7 @@
 FIGURE PREFERENCES: GENERAL, AND PER GRAPH TYPE
 ================================================================================
 
-Status:    SHIPPED, except for one question that only the maintainer can
-           answer. It is the last section of this file and it is a yes
-           or a no, not work.
+Status:    DONE. The house style ships a transparent background.
 Requested: 2026-08-16 — "the graphs look pretty ugly. in the general app
            preferences in the figure tab theere should be general graph
            settings and specialized settings for al the possible different
@@ -352,3 +350,29 @@ delta if the default becomes "none", and draws the same figure it draws now.
 NOT CHANGED HERE. The value is left at "#FFFFFF" until this is answered,
 because guessing at the house style's default page is exactly the kind of
 change that is invisible until somebody's figure comes out wrong.
+
+--------------------------------------------------------------------------------
+CLOSED: THE BACKGROUND SHIPS AS 'none'
+--------------------------------------------------------------------------------
+
+The maintainer's answer: "ship as none."
+
+`figure_style.GENERAL_DEFAULTS["background"]` was '#FFFFFF' and the store
+keeps DELTAS from that table, so choosing white in the panel stored
+nothing and the figure rendered transparent anyway -- the declared
+default and the observed behaviour disagreed, and picking white
+deliberately was the one thing the panel could not express.
+
+It is 'none' now, which agrees with what was already happening and is the
+right answer for the job: a figure going into a paper or a slide takes
+the ground it is placed on, and a white rectangle behind it is visible on
+every dark background it lands on. An explicit white now STORES and
+applies, which is the capability that was missing.
+
+Four tests asserted the delta rather than the outcome and were the mirror
+image of the bug: they checked that ticking transparent wrote
+{'background': 'none'}, which with the new default correctly writes
+nothing. They assert what a drawn figure gets -- rc_params(resolve(...))
+-- which is the path a figure actually takes. The reset test was seeded
+with white first, because a reset from the default to the default proves
+nothing.

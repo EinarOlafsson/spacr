@@ -106,6 +106,11 @@ Section 2, in `spacr/qt/widgets/volcano_explorer.py`,
     read off the panel's own controls, which also gives the menu the
     marker, colormap, line-style and font pickers it never had. The strict
     xfail in tests/qt/test_cov_w2_6_volcano_explorer.py is cleared.
+  * SAME SETTING, SAME WORDS. `add_style_entries` gained a `labels`
+    argument and the explorer fills it from the panel's own rows, so the
+    menu says "Marker: Circle" where the style stores "o" and "Line style:
+    Dashed" where it stores "--". A closed set offered in two vocabularies
+    is the same disagreement in a quieter form.
   * An axis limit of +/-8 typed into the menu was read back off the axes,
     off the side panel, and off the written SVG's tick labels; an axis
     label typed into the menu was read back off the axes and out of the

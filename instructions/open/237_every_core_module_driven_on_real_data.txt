@@ -3,10 +3,17 @@ EVERY CORE MODULE DRIVEN ON REAL DATA, AND FULLY TESTED
 ================================================================================
 
 Status:    OPEN. All five modules are driven on real data, and the driver
-           scripts are now in the tree (spacr_drivers/) so every run this
-           file reports can be repeated from a checkout. What is left is
-           the 100%-test half, and the one-line assertion fixes section L
-           names for the five modules' end-to-end tests.
+           scripts are in the tree (spacr_drivers/) so every run this file
+           reports can be repeated from a checkout. The "tests that actually
+           test" read-through is DONE for all six modules -- mask, measure,
+           annotate, classify, map barcodes and regression -- and it is
+           demonstrated rather than argued: each module was broken on
+           purpose and the tests that claim to cover it were run against
+           the break (section L). The drivers now refuse a wrong answer
+           instead of printing one (section N), which found a real
+           intermittent defect on real data the same day (section O).
+           What is left is the 100%-test half and the assertion fixes
+           section L names, in files this item does not own (section P).
 Requested: "run through the core modules with real data: mask, measure,
            classify, map barcodes, regression ... Test everything in these
            modular and fix any bugs or anything else you find."
@@ -587,70 +594,285 @@ each core module was classified by whether it has any assertion beyond
 
 (A file that imports two of the modules counts under both.)
 
-THE PATTERN IS THE SAME IN ALL FIVE, and it is at the end-to-end tests --
-exactly the tests that would catch a wrong answer if they asked for one:
+AND THEN EACH MODULE WAS BROKEN ON PURPOSE. Counting weak assertions says
+where to look; it does not say what survives. So each module was broken at
+its own function, in a way that module can actually break, and the tests that
+claim to cover it were run against the break. A test that passes under the
+break does not test the thing the break destroys. The harness is a pytest
+plugin kept outside the tree -- it patches the imported module at
+`pytest_configure` and touches no file in the repository -- and every count
+below is a measured pass/fail, not a reading.
 
-  MASK. tests/test_real_data_image_modules.py:217, in
-  `test_module_preprocess_generate_masks_writes_cell_masks`, whose docstring
-  says "assert cell masks land on disk":
+Narrowed to the tests that CALL a module's entry point and assert nothing a
+wrong answer would break:
 
-      # just that segmentation returned SOMETHING.
-      assert int(arr.max()) >= 0
+    module          such tests   the break they were run against
+    mask                     6   NOT RUN: every mask end-to-end test skips
+                                 without a card, which is the finding
+    measure                  7   every measurement in the field raises
+    map barcodes             8   no read is attributed to any barcode
+    classify                14   every metric comes back 0.0
+    annotate                 3   each label saved against its neighbour's crop
+    regression              32   the response shuffled, and the response negated
 
-  An all-zero mask array -- segmentation found nothing at all -- has max 0
-  and passes. The comment says what was meant; `>= 1` is what says it.
-  The same file's mask tests otherwise assert only that folders exist and
-  that arrays have 2 or 3 dimensions.
+The annotate row is the addition: the earlier read-through covered five
+modules and the annotator was not one of them.
 
-  MEASURE. tests/test_real_data_image_modules.py:311 and
-  tests/test_full_pipeline_e2e.py:243 both end at `assert dbs` -- a
-  measurements.db FILE exists. A measure run that writes an empty database,
-  or one whose every intensity column is NaN, passes both.
 
-  MAP BARCODES. tests/test_sequencing.py:292,
-  `test_generate_barecode_mapping_end_to_end`, asserts that a count CSV and a
-  QC CSV were written and that the count CSV parses (`assert df is not None`)
-  -- and says so in its own comment. The mapper mapping zero of its reads,
-  which is the documented failure of this module and the one section J
-  reproduces on real data, passes it.
+MASK -- THE END-TO-END TESTS DO NOT RUN AT ALL WITHOUT A CARD
+--------------------------------------------------------------------------------
 
-  REGRESSION. tests/test_coverage_fill_ml2.py:49-79 builds
-  `y = X @ [0.8, -0.5, 0.3] + noise` -- the right answer is in the fixture --
-  and then asserts only `hasattr(model, "predict")`. DEMONSTRATED, not
-  assumed: with `regression_model` wrapped to fit on a SHUFFLED response,
-  test_regression_model_ols, test_regression_model_ols_cov_type,
-  test_regression_model_ridge and test_regression_model_glm all still pass.
-  test_regression_model_lasso_fixed_and_auto is the one that fails -- and it
-  fails because spaCR itself refuses an all-zero lasso fit, not because the
-  test looked. The product caught it; the test did not.
+Section L previously named tests/test_real_data_image_modules.py:217 for
 
-  CLASSIFY. The weakest are the "is it callable" tests --
-  tests/test_analysis_modules.py:171/195/240 assert only that a name exists
-  on a module. They are cheap import guards, not tests of behaviour, and
-  nothing above them checks that a trained model's accuracy beats chance or
-  that an inference row can name its own well.
+    # just that segmentation returned SOMETHING.
+    assert int(arr.max()) >= 0
+
+which an all-zero mask passes. That is true and the fix is `>= 1`. But the
+larger fact is that the assertion does not run. Every test in
+tests/test_real_data_image_modules.py and tests/test_full_pipeline_e2e.py
+carries `@pytest.mark.gpu`, and `pytest_runtest_setup` in tests/conftest.py
+skips a gpu-marked test
+whenever torch reports no CUDA device or under 1,500 MiB free. Measured on
+this machine with `CUDA_VISIBLE_DEVICES=""`:
+
+    tests/test_real_data_image_modules.py   6 skipped in 1.54s
+    SKIPPED [6] tests/conftest.py: no CUDA device
+
+So spaCR's only end-to-end mask tests, and its only end-to-end measure test
+in that file, are absent from every run on a machine without a free card --
+which includes CI and includes this one. The skip is right (the card drives
+the display and another session's training run is the ordinary state of it);
+what is wrong is that nothing else covers the same ground.
+
+The six tests that call a mask entry point and assert nothing a wrong answer
+would break:
+
+    tests/test_core_branches.py:69    test_settings_written_to_settings_folder
+    tests/test_core_branches.py:103   test_src_accepts_a_list_of_folders
+    tests/test_cov_object_cellpose_masks.py:414
+                                      test_generate_cellpose_masks_does_not_
+                                      pass_a_dead_channels_argument
+    tests/test_dry_run.py:300         (a dry run asserting no output: sound)
+    tests/test_full_pipeline_e2e.py:195  test_stage_1_mask_all_four_object_types
+    tests/test_real_data_image_modules.py:296
+
+
+MEASURE -- `assert index == 0` IS `assert 0 == 0`
+--------------------------------------------------------------------------------
+
+`_measure_crop_core` has exactly ONE `return` in its 670 lines, and it hands
+back the `index` argument it was given, unchanged, on every path -- because the
+whole measurement body sits inside one `except Exception`, which prints and
+sets the `cells = 0` sentinel. So `assert index == 0` cannot fail even when
+every measurement in the field raises. It is a "did not raise" test that does
+not assert even that.
+
+Six tests in tests/test_measure_crop_core_synth.py assert nothing else:
+
+    :113 test_measure_crop_core_nucleus_and_pathogen_crop_modes
+    :136 test_measure_crop_core_organelle_summary
+    :155 test_measure_crop_core_no_cell_mask
+    :165 test_measure_crop_core_float_input_converted
+    :200 test_measure_crop_core_dilate_and_cytoplasm_crop
+    :246 test_measure_crop_core_timelapse_nucleus_relabel
+
+DEMONSTRATED. With `_morphological_measurements` replaced by a function that
+raises, that file goes from 16 passed to
+
+    3 failed, 13 passed
+
+and the three that fail are the three that read the database back. The
+end-to-end test passes, and the measurements.db it leaves behind holds
+
+    settings_history, settings, run_status
+
+and no `cell`, `nucleus`, `pathogen`, `cytoplasm` or `png_list` table at all.
+The same test on the unbroken tree writes cell 4, nucleus 4, pathogen 2,
+cytoplasm 4, png_list 4 -- the fixture's own answer, already on disk, asserted
+by nothing.
+
+Seven tests call `measure_crop` and assert nothing a wrong answer would break:
+
+    tests/test_dry_run.py:186, :255            (dry runs: sound as written)
+    tests/test_e2e_real_dataset.py:180         test_e2e_real_stage_2_measure
+    tests/test_full_pipeline_e2e.py:243        test_stage_2_measure_and_crop
+    tests/test_hf_e2e_integration.py:304       test_hf_e2e_measure_stage
+    tests/test_measure_crop_core_synth.py:178  test_measure_crop_end_to_end_
+                                               single_field
+    tests/test_real_data_image_modules.py:296  test_module_measure_crop_writes_
+                                               measurements_db
+
+MOCKING IS NOT THE PROBLEM HERE. Fourteen measure tests replace part of the
+module they drive; thirteen replace orthogonal infrastructure -- the process
+pool, the manager, `_load_zernike_moments`, `regionprops_table` -- to reach one
+branch, which is legitimate and each is named for the branch. The only test
+that replaces `_measure_crop_core` itself is tests/test_dry_run.py:230, whose
+whole point is that a dry run never calls it.
+
+
+MAP BARCODES -- THE END-TO-END TEST MAPS ZERO READS TODAY
+--------------------------------------------------------------------------------
+
+This is not "would pass if the module broke". On the unmodified tree,
+tests/test_sequencing.py:292 `test_generate_barecode_mapping_end_to_end`
+maps 0 of its fixture's 40 reads and passes. Measured:
+
+    count table: (0, 4)     reads mapped: 0     combinations: 0
+    qc.csv: total_reads 0
+    the run's own stdout:
+        WARNING: No sequences matched ^(?P<columnID>.{8})TGCTG.*TAAAC... in chunk
+        Are barcode sequences in the correct orientation?
+
+The cause is in the fixture, not the mapper. `synth_illumina_reads`
+(tests/conftest.py, line 1431 today) builds each read as
+
+    col(8) + "TGCTG" + fill1 + "TAAAC" + grna + "AACTT" + fill2 + "AGAAG" + row
+
+with `fill1 = _rand_bases(rng, 6)`. The read therefore satisfies the default
+REGEX but not the default ANCHOR: `target_sequence` is
+`TGCTGTTTCCAGCATAGCTCTTAAAC`, which is `TGCTG` + a sixteen-base constant +
+`TAAAC`, and a random six-base fill is not that constant. No read carries the
+anchor, so every read is skipped before the regex is ever tried.
+
+THE FIX IS ONE CONSTANT, AND IT IS VERIFIED. Building the same fixture with
+`fill1 = "TTTCCAGCATAGCTCT"` -- the anchor's own middle -- and running the real
+`generate_barecode_mapping` on it:
+
+    count table: (22, 4)    reads mapped: 40    combinations: 22
+    fixture holds:          40 reads over       22 combinations
+
+no warning. The fixture's `truth` list already records the (row, column, gRNA)
+of every read, so both numbers are available to assert.
+
+DEMONSTRATED SEPARATELY. With `map_sequences_to_names` returning no match for
+any read, tests/test_sequencing.py goes from 21 passed to
+
+    2 failed, 19 passed
+
+and the two that fail are the unit tests of the lookup itself. The end-to-end
+test is not one of them.
+
+Eight tests call a map-barcodes entry point and assert nothing a wrong answer
+would break:
+
+    tests/test_coverage_fill_sequencing3.py:150, :174
+    tests/test_e2e_real_pipeline.py:189        test_stage4_sequencing_chunk
+    tests/test_sequencing.py:134, :292
+    tests/test_sequencing_full_coverage.py:708, :719  (empty-input cases: sound)
+    tests/test_the_five_proposed_settings.py:144
+
+
+CLASSIFY -- THE FIXTURES ARE PERFECT CLASSIFIERS AND NOBODY LOOKS
+--------------------------------------------------------------------------------
+
+DEMONSTRATED. With `_binary_metrics` and `_multiclass_metrics` forced to
+return 0.0 for every numeric they compute, tests/test_analysis_modules.py and
+tests/test_more_helpers_4.py go from 55 passed to `1 failed, 54 passed`. The
+one that fails is `test_deep_spacr_binary_metrics_perfect_classification`,
+which asserts `accuracy == 1.0`. The three beside it pass:
+
+    tests/test_analysis_modules.py:213  test_deep_spacr_binary_metrics_shape
+        fixture: y_true [0,1,0,1,1,0], probs [.1,.9,.2,.7,.6,.3] -- a perfect
+        separator -- and the assertions are `isinstance(m, dict)` and
+        `any(k in m for k in ("auc","accuracy","f1"))`.
+    tests/test_analysis_modules.py:222  test_deep_spacr_multiclass_metrics_shape
+        fixture: a perfectly separable 3-class problem; assertion `len(m) > 0`.
+    tests/test_more_helpers_4.py:199    the same shape, again.
+
+CROSS-VALIDATION IS TESTED WELL, AND IS NOT THE GAP. The six tests in
+tests/test_cross_validation.py that replace `DS.train_model` with a two-layer
+stub are testing the CV harness, not the model, and they assert real things
+about it: the fold destinations, `n_val` summing to 36, 36 out-of-fold
+predictions over folds {1,2,3}, a confusion matrix that sums to 36, and a
+leakage audit. Naming them as "mocks the thing under test" would be wrong.
+
+THE GAP IS THAT NOTHING ANYWHERE ASSERTS A TRAINED CLASSIFIER BEATS COUNTING.
+The tests that could are `@pytest.mark.gpu` and assert a file exists --
+tests/test_pipeline_training_analysis.py:209 says so in its own docstring:
+"report a finite loss (verified indirectly by the file's existence)".
+
+
+ANNOTATE -- A LABEL ON THE WRONG CROP IS INVISIBLE TO 132 OF 133 TESTS
+--------------------------------------------------------------------------------
+
+Not covered by the earlier read-through at all. The annotator's own failure is
+not a crash: it is a session's worth of labels landing one crop over, which
+leaves the same number of annotated rows and the same class totals.
+
+DEMONSTRATED. With `SaveWorker.submit` rotating the labels within each batch
+by one -- every label committed against its neighbour's crop --
+
+    tests/qt/test_annotate.py, test_annotate_engine_v2.py,
+    test_cov_w2_2_annotate_engine.py, test_annotate_worker_lifecycle.py
+    baseline: 133 passed
+    broken:   1 failed, 132 passed
+
+The one is tests/qt/test_annotate.py::test_save_worker_persists_and_null_clears.
+
+Resume, by contrast, IS tested: with `find_last_annotated_offset` forced to
+return 0, four of the 133 fail.
+
+Only three annotate tests call an engine entry point and assert nothing a
+wrong answer would break -- tests/qt/test_annotate_engine_v2.py:136 and :152,
+and tests/qt/test_cov_w2_2_annotate_engine.py:860. As a body of tests this is
+the strongest of the six modules.
+
+NOTED IN PASSING, not a test problem: `fetch_page`
+(spacr/qt/annotate_engine.py, `fetch_page`) pages with `LIMIT ? OFFSET ?` and no
+`ORDER BY`, while its docstring promises "insertion order". SQLite does not
+guarantee that, and a page order that shifts between two fetches shows up as
+crops the annotator skipped or saw twice.
+
+
+REGRESSION -- THE ORIENTATION FILE TESTS; THE COVERAGE FILE DOES NOT
+--------------------------------------------------------------------------------
+
+CONFIRMED, with the response SHUFFLED, tests/test_coverage_fill_ml2.py goes
+from 27 passed to `1 failed, 26 passed`, and the one failure is
+test_regression_model_lasso_fixed_and_auto -- which fails because spaCR itself
+refuses an all-zero lasso fit, not because the test looked.
+
+NEW, and worse, with the response NEGATED -- every fitted coefficient comes
+back with its sign reversed, which is a screen read backwards:
+
+    tests/test_coverage_fill_ml2.py                    27 of 27 still pass
+    tests/test_nothing_to_absorb_is_not_a_failure.py   all still pass
+    four files together                                9 failed, 83 passed
+
+    tests/test_regression_orientation.py               36 failed, 63 passed
+
+That last line is the point. There is a file in this repository that tests the
+answer, and it catches a sign inversion in 36 places. The coverage-fill files
+sitting beside it recover a planted coefficient and then assert
+`hasattr(model, "predict")`.
+
+Thirty-two regression tests call an entry point and assert nothing a wrong
+answer would break; the five in tests/test_coverage_fill_ml2.py:49-79 are the
+ones whose fixture already carries the right answer.
+
 
 WHAT WOULD FIX EACH, in one line, since a fixture already carries the answer:
 
   * mask: `>= 1`, and assert the object count is within a stated range.
-  * measure: read the database and assert the object counts per table and
-    that a named intensity column is finite.
-  * map barcodes: assert the count table's total equals the number of reads
-    the fixture wrote, and that the combination count equals the fixture's.
+  * measure: assert the object counts per table, not that a database file
+    exists -- the fixture writes cell 4 / nucleus 4 / pathogen 2 /
+    cytoplasm 4 / png_list 4.
+  * map barcodes: fix `fill1` to the anchor's constant and assert the count
+    table's total equals `synth_illumina_reads["n_reads"]` (40) and its row
+    count equals the distinct combinations in `truth` (22).
   * regression: assert the fitted coefficients recover the signs and rough
     magnitudes of the coefficients the fixture generated `y` with.
-  * classify: assert test accuracy beats the majority-class rate, and that no
-    scored row carries 'error' in plateID/rowID/columnID/fieldID.
+  * classify: assert the metrics of a perfectly separable fixture are 1.0,
+    assert test accuracy beats the majority-class rate, and assert no scored
+    row carries 'error' in plateID/rowID/columnID/fieldID.
+  * annotate: read the labels back BY png_path and assert each is the label
+    that crop was given. Class totals cannot tell a rotation from a correct
+    save.
 
-NONE OF THESE FILES IS EDITED HERE. The read-through is the deliverable; the
-edits are one line each and belong with whoever owns those files.
+NONE OF THOSE FILES IS EDITED HERE. The read-through is the deliverable and
+the edits belong with whoever owns those files; section N lists them.
 
-AND THE REAL-DATA DRIVERS NOW ASK THE QUESTION THE TESTS DO NOT.
-drive_measure_on_plate1.py does not stop at "a database exists": it compares
-object counts and every shared numeric column against the reference, names
-the reason for each column that differs, and re-derives every child object's
-parent cell from the mask planes. drive_map_barcodes.py checks the shape of
-both output tables over five chunks rather than their existence.
+AND THE REAL-DATA DRIVERS NOW ASK THE QUESTION THE TESTS DO NOT -- section N.
 
 --------------------------------------------------------------------------------
 M. THE RUNS, REPEATED FROM THE TREE
@@ -735,7 +957,18 @@ THE ANNOTATION APP, on the same 553 crops.
   byte-identical to the exported PNGs, which is what makes the crop-source
   choice safe to offer in the annotator.
 
-MASK AND REGRESSION: STARTED FROM THE TREE, LEFT RUNNING.
+REGRESSION HAS SINCE BEEN RUN TO COMPLETION FROM THE TREE, on the recorded
+  settings with regression_type='ols' over all four plates: 380 gene-level
+  rows, 789 guide-level rows, 11 features called, and the screen's own
+  positive control at +1.641 (q=7.3e-20) among them. See section N for the
+  check that is now made on it.
+
+  MEASURE WAS RUN THREE TIMES from the tree on the same three fields. Two runs
+  reproduce the reference exactly; one wrote nine duplicate nucleus rows for
+  field f10 -- section O.
+
+MASK AND REGRESSION AS THIS SECTION WAS FIRST WRITTEN: STARTED FROM THE TREE,
+LEFT RUNNING.
   Both drivers stage, load the recorded settings, pass spaCR's pre-flight and
   reach the work; neither finishes inside a session on the CPU, and the card
   drives the display so a session that must not take it cannot shorten them.
@@ -755,22 +988,198 @@ MASK AND REGRESSION: STARTED FROM THE TREE, LEFT RUNNING.
   them.
 
 --------------------------------------------------------------------------------
-N. WHAT IS STILL OPEN
+N. THE DRIVERS NOW REFUSE A WRONG ANSWER -- 2026-08-25
+--------------------------------------------------------------------------------
+
+Every driver computed the number that says whether its module worked, printed
+it, and exited 0. drive_map_barcodes.py printed "AT LEAST ONE OUTPUT TABLE IS
+MALFORMED"; drive_measure_on_plate1.py printed "DIFFERS from the reference";
+drive_classify_ml_on_tsg101.py printed "nothing merged"; all three exited 0.
+That is the same defect the tests have, one layer up: the failure is reported
+to a human reading a scrollback, and to nothing else.
+
+`_support.py` now carries `WrongAnswer` and `check(condition, message)`, and
+`run` gives the drivers three exit codes instead of two:
+
+    0   the run finished and every check held
+    1   the run finished and the answer is wrong -- `WRONG ANSWER:` on stderr,
+        with both numbers in it
+    2   the data is not on this machine, so the run never started
+
+WHAT EACH DRIVER NOW CHECKS, and how it was proved to catch a wrong answer:
+
+  drive_map_barcodes.py       Every mode's read total and combination count
+    against the demo's own 4,800 reads / 288 combinations -- and 0/0 for
+    single/R2, whose right answer IS zero because the single-end path does
+    not reverse-complement. RUN: paired/R1 and single/R1 both 288 / 4,800,
+    single/R2 0 / 0, one QC row each, exit 0. BROKEN (the mapper attributing
+    no read): exit 1, "paired/R1 mapped 0 reads into 0 combinations; the demo
+    pair holds 4800 reads over 288 combinations."
+
+  drive_the_annotation_app.py  Each label read back BY png_path and compared
+    with the label that crop was given. RUN on plate1's 553 crops: 6 of 6,
+    exit 0. BROKEN (each label committed against its neighbour's crop): exit
+    1, and the class totals were IDENTICAL in both runs -- [(1, 3), (2, 3)] --
+    which is why counting them cannot tell the two apart.
+
+  drive_regression_on_tsg101.py  The screen's own positive control. It is
+    named in the screen's settings (`positive_control=239740`), so the real
+    data carries the ground truth a fixture would have to plant: the control
+    must reach the fit, come out above zero, and be called. RUN (ols, four
+    plates): 380 gene rows, 11 features called, the control at +1.641,
+    q=7.3e-20, called -- exit 0. BROKEN three ways against the same real
+    output: every coefficient's sign flipped, the hit list emptied, and the
+    control dropped from the gene table. All three refused, each naming the
+    number it got and the number it needed.
+
+  drive_measure_on_plate1.py   The comparison it already made is now the exit
+    code, plus a refusal on any measurement table that comes back empty --
+    the case a "measurements.db exists" check cannot see.
+
+  drive_mask_on_plate1.py      One object is the floor. A field whose every
+    mask plane is empty is refused by name. Driven on built label planes:
+    a field with 2 cells / 1 nucleus / 1 pathogen passes, an all-zero field
+    is named, and `>= 0` would have passed both.
+
+  drive_classify_cv_on_plate1.py  Refuses any scored row whose
+    plate/row/column/field came back 'error', prints the majority-class rate
+    the project makes free (93.7% on plate1's 518/35 split), and refuses a
+    model whose predictions collapse to one class. Driven on inference tables
+    of the shape the run writes: healthy passes, all-'error' and
+    single-class are both refused.
+
+  drive_classify_ml_on_tsg101.py  Refuses when none of the png_list rows
+    carries a score, which is the plate-identity join failure section I
+    found -- it wrote every figure and reported success.
+
+  drive_map_barcodes_on_real_reads.py  Refuses zero reads in the recorded
+    orientation, and refuses a forward-reference run that does NOT map fewer:
+    if flipping every _RC file costs nothing, the references are not reaching
+    the match. NOT RUN -- /mnt/wd12tb is still unmounted.
+
+All eight still exit 2, in under a second, when pointed at a folder with no
+data in it, and tests/test_real_data_drivers.py is 48 passed.
+
+
+--------------------------------------------------------------------------------
+O. FOUND BY THE STRENGTHENED MEASURE DRIVER: DUPLICATE MEASUREMENT ROWS
+--------------------------------------------------------------------------------
+
+The first run of the strengthened drive_measure_on_plate1.py refused, and it
+was right to. Against the reference database, on the three recorded fields:
+
+    cell       143 objects, same as the reference
+    nucleus    160 objects, reference has 151
+    pathogen   149 objects, same as the reference
+    cytoplasm  143 objects, same as the reference
+
+The nine extra rows are not new objects. Every (fieldID, object_label) in this
+run is also in the reference and vice versa; field f10's nucleus labels 2
+through 10 -- the first nine rows of the frame -- are each written TWICE, with
+identical values. Two further runs of the same driver on the same data both
+came back at 151. So the duplication is INTERMITTENT: one run in three on this
+machine, which was under heavy parallel load at the time.
+
+THE MECHANISM, DEMONSTRATED. `spacr.utils._insert_frame` writes with
+`conn.executemany(...)` followed by `conn.commit()`, and rolls back on any
+exception. But the connection comes from `spacr.database_concurrency.connect`,
+which opens with `isolation_level=None` -- autocommit. In autocommit every
+INSERT commits on its own, so a failure part-way through `executemany` leaves
+the rows already inserted COMMITTED and `conn.rollback()` does nothing. Both
+retry loops above it -- `_append_frame`'s repair loop and the outer
+lock-contention retry -- then re-append the WHOLE frame, and whatever got in
+the first time is now in twice.
+
+Probed directly on that connection, with the failure at row 10 of 12:
+
+    isolation_level: None -> autocommit
+    append failed with: IntegrityError UNIQUE constraint failed
+    rows the rolled-back append left behind: 9 of 12
+    [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+Nine of twelve, exactly the shape seen on f10.
+
+TWO DOCSTRINGS SAY THE OPPOSITE, and are the reason this was believed safe:
+
+    spacr/utils.py, `_insert_frame`
+        "The transaction is committed here to retain to_sql's
+         all-or-error append contract; sqlite rolls it back if
+         executemany or commit fails."
+    spacr/utils.py, `_append_frame`
+        "A failed INSERT is rolled back before ALTER/retry, so a
+         frame cannot be partly duplicated or silently lost."
+
+THE FIX is to make the append a real transaction rather than a hoped-for one:
+open it explicitly around the `executemany` -- `spacr.database_concurrency`
+already ships `transaction(conn)` for exactly this, and its own `connect`
+docstring says "use :func:`transaction` for multi-statement writes". Then the
+rollback is real and both retry loops become safe. A duplicate-row guard on
+(fieldID, object_label) would catch the rest.
+
+WHAT IT COSTS TODAY: a duplicated object is counted twice in every per-well
+aggregate downstream -- fractions, counts and every regression built on them --
+and nothing in the pipeline reports it, because a duplicate row is a valid row.
+Neither file is owned by this item.
+
+--------------------------------------------------------------------------------
+P. WHAT IS STILL OPEN
 --------------------------------------------------------------------------------
 
 THE 100%-TEST HALF, which is the second half of the ask and is untouched
 here: every module excluding legacy-internal-only ones fully tested. The
 named gaps are the untested functions in measure.py (9) and ml.py (38).
 
-THE ONE-LINE ASSERTION FIXES section L names, in five files this item does
-not own. Each has its fixture already carrying the right answer; each is a
-test that currently passes against a wrong one.
+THE ASSERTION FIXES section L names, in files this item does not own. Each
+has its fixture already carrying the right answer; each is a test that passes
+against a wrong one today, and two of them pass against a wrong one RIGHT NOW
+on the unmodified tree.
 
+  tests/conftest.py `synth_illumina_reads` + tests/test_sequencing.py:292
+        THE URGENT ONE. `fill1 = _rand_bases(rng, 6)` puts a random six bases
+        where the default `target_sequence` anchor's constant belongs, so no
+        read carries the anchor and the module's own end-to-end test maps 0
+        of 40 reads and passes. Set `fill1 = "TTTCCAGCATAGCTCT"` -- verified
+        to give 40 of 40 reads over 22 combinations, with no warning -- and
+        then assert `df["count"].sum() == synth_illumina_reads["n_reads"]`
+        and that the row count equals the distinct (row, column, grna) in
+        `synth_illumina_reads["truth"]`.
+  tests/test_measure_crop_core_synth.py:113, 136, 155, 165, 200, 246
+        `assert index == 0` is `assert 0 == 0`: `_measure_crop_core` returns
+        the index it was given on every path, because its whole body is
+        inside `except Exception`. Assert the object count instead -- the
+        function already returns it as `cells`, and every one of these tests
+        throws it away.
+  tests/test_measure_crop_core_synth.py:178
+        assert the counts the fixture produces -- cell 4, nucleus 4,
+        pathogen 2, cytoplasm 4, png_list 4 -- not that a database file
+        exists. Measured on the unbroken tree; with the measurement body
+        raising, the database it writes has no measurement table at all and
+        this test passes.
   tests/test_real_data_image_modules.py:217   `>= 0` should be `>= 1`
   tests/test_real_data_image_modules.py:311   assert the object counts, not
   tests/test_full_pipeline_e2e.py:243           that a database file exists
-  tests/test_sequencing.py:292                assert the read total
-  tests/test_coverage_fill_ml2.py:49-79       assert the coefficients
+  tests/test_analysis_modules.py:213, :222    both fixtures are perfectly
+  tests/test_more_helpers_4.py:199              separable: assert 1.0
+  tests/test_coverage_fill_ml2.py:49-79       assert the coefficients; a
+                                              sign inversion passes all five
+
+AND THE MASK AND MEASURE END-TO-END TESTS DO NOT RUN WITHOUT A CARD. All six
+in tests/test_real_data_image_modules.py and all six in
+tests/test_full_pipeline_e2e.py are `@pytest.mark.gpu`, and skip on any
+machine with no CUDA device or under 1,500 MiB free -- CI included. Whoever
+owns those files should say whether a CPU-sized version of each belongs
+beside them, because at present the `>= 1` fix above would land on an
+assertion that never executes.
+
+THE INTERMITTENT DUPLICATE-ROW WRITE section O demonstrates, in
+spacr/utils.py (`_insert_frame` / `_append_frame`) and
+spacr/database_concurrency.py. The append is not the transaction its two
+docstrings say it is, so a retry duplicates whatever the failed attempt had
+already committed. Seen on real plate1 data once in three runs.
+
+THE PAGE ORDER THE ANNOTATOR PROMISES. spacr/qt/annotate_engine.py, `fetch_page`
+pages with `LIMIT ? OFFSET ?` and no `ORDER BY` while its docstring says
+"insertion order".
 
 THE SIX DEFECTS section K found, none of them in files this item owns:
 

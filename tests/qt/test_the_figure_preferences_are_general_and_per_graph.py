@@ -285,10 +285,20 @@ def _transparent_box(panel):
 
 
 def test_the_background_can_be_asked_to_be_transparent(panel):
+    """Asserted through what a figure gets, not through the delta.
+
+    The store keeps deltas from GENERAL_DEFAULTS, and the shipped default
+    is transparent now -- so ticking transparent stores NOTHING, which is
+    correct and is the opposite of what this used to assert. The panel
+    used to ship white, where the same mechanism meant that choosing
+    white deliberately was the one thing it could not express.
+    """
+    from spacr.figure_style import rc_params
+
     _transparent_box(panel).setChecked(True)
     general, per_graph = panel.values()
-    assert general == {"background": "none"}
     assert per_graph == {}
+    assert rc_params(resolve("volcano", general))["figure.facecolor"] == "none"
 
 
 def test_transparent_reaches_matplotlib(panel):
@@ -341,8 +351,11 @@ def test_the_colour_button_is_greyed_while_transparent(panel):
     from PySide6.QtWidgets import QPushButton
 
     box = _transparent_box(panel)
+    # THE BUTTON IS FOUND BY ITS ROW, not by matching its caption against
+    # the default -- the default is 'none' now and no colour button is
+    # captioned that.
     button = [b for b in panel.findChildren(QPushButton)
-              if b.text().lower() == GENERAL_DEFAULTS["background"].lower()]
+              if b.text().startswith("#")]
     assert button, [b.text() for b in panel.findChildren(QPushButton)]
     box.setChecked(True)
     assert not button[0].isEnabled()
@@ -356,14 +369,22 @@ def test_a_stored_transparent_comes_back_ticked(qtbot):
     widget = FigureStylePreferences({"background": "none"})
     qtbot.addWidget(widget)
     assert _transparent_box(widget).isChecked()
-    assert widget.values() == ({"background": "none"}, {})
+    # Nothing is stored, because transparent is what ships -- and the
+    # figure is transparent either way, which is the thing that matters.
+    general, per_graph = widget.values()
+    assert per_graph == {}
+    assert resolve("volcano", general)["background"] == "none"
 
 
 def test_reset_untickss_transparent(qtbot):
-    widget = FigureStylePreferences({"background": "none"})
+    widget = FigureStylePreferences({"background": "#FFFFFF"})
     qtbot.addWidget(widget)
-    widget.reset()
     assert not _transparent_box(widget).isChecked()
+    widget.reset()
+    # Reset goes back to the shipped default, which IS transparent, so the
+    # box comes back TICKED. It was seeded white here for that reason: a
+    # reset from the default to the default proves nothing.
+    assert _transparent_box(widget).isChecked()
     assert widget.values() == ({}, {})
 
 
