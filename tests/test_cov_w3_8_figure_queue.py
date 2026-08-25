@@ -106,14 +106,29 @@ def test_the_figures_own_size_is_used_when_none_is_given():
 
 
 def test_a_figure_that_cannot_be_restyled_is_left_alone():
-    """A half-built figure must not take the render worker down."""
+    """A half-built figure must not take the render worker down.
+
+    Left alone, not half-styled: the failure at the very first step stops
+    the pass, so the figure does not come back with a new background and
+    its old text colour. And the next figure in the queue styles normally,
+    because the worker is still whole.
+    """
+    axes_asked = []
+
     class Awkward:
         patch = None
 
         def get_axes(self):
+            axes_asked.append(True)
             return []
 
     fq._style_figure_colors(Awkward(), "#ffffff", "#000000", 12, "#000000")
+    assert axes_asked == []
+
+    figure = _figure()
+    fq._style_figure_colors(figure, "#ffffff", "#000000", 12, "#ff0000")
+    assert figure.axes[0].title.get_color() == "#000000"
+    assert figure.axes[0].spines["left"].get_edgecolor()[:3] == (1.0, 0.0, 0.0)
 
 
 # ---------------------------------------------------------------------------

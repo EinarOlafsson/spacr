@@ -185,12 +185,28 @@ def test_a_line_for_a_collected_console_is_dropped(vlog, qapp):
 
 
 def test_no_registered_console_at_all_is_not_an_error(vlog, qapp):
-    """``_console_ref`` is None before any panel registers."""
+    """``_console_ref`` is None before any panel registers.
+
+    The line is dropped and nothing is remembered from the drop: the panel
+    that registers a moment later gets the next one. "Nothing raised" is
+    equally true of a relay that gave up on the first empty delivery.
+    """
     vlog._console_ref = None
     relay = vlog._ConsoleRelay()
 
     relay._deliver("nobody has registered\n")
+    assert vlog._console_ref is None
 
+    written = []
+
+    class _Panel:
+        def append_stdout(self, text):
+            written.append(text)
+
+    panel = _Panel()
+    vlog._console_ref = lambda: panel
+    relay._deliver("a panel registered\n")
+    assert written == ["a panel registered\n"]
     relay.deleteLater()
 
 
@@ -220,31 +236,54 @@ def test_a_deleted_qwidget_target_is_forgotten_not_called(vlog, qapp):
 
 
 def test_a_target_without_append_stdout_is_not_called(vlog, qapp):
-    """Anything can be registered; only a real console gets written to."""
+    """Anything can be registered; only a real console gets written to.
+
+    Skipped, not dropped: a target with no ``append_stdout`` is a
+    registration this delivery cannot use, not a dead one to forget -- the
+    dead-widget case above is what clears the reference, and confusing the
+    two unregisters a console nobody asked to unregister.
+    """
     class _NotAConsole:
         pass
 
     target = _NotAConsole()
-    vlog._console_ref = lambda: target
+    ref = lambda: target                                    # noqa: E731
+    vlog._console_ref = ref
     relay = vlog._ConsoleRelay()
 
     relay._deliver("nothing to append to\n")
 
+    assert vlog._console_ref is ref
     relay.deleteLater()
 
 
 def test_a_console_that_raises_does_not_take_the_app_down(vlog, qapp):
-    """A logging failure must never escape into the application."""
+    """A logging failure must never escape into the application.
+
+    The line really was handed over -- a delivery that never reached the
+    console raises nothing either -- and the console stays registered, so
+    the next line is still offered to it rather than the panel being
+    written off after one bad append.
+    """
     class _Broken:
+        def __init__(self):
+            self.seen = []
+
         def append_stdout(self, text):
+            self.seen.append(text)
             raise RuntimeError("the document is gone")
 
     target = _Broken()
-    vlog._console_ref = lambda: target
+    ref = lambda: target                                    # noqa: E731
+    vlog._console_ref = ref
     relay = vlog._ConsoleRelay()
 
     relay._deliver("boom\n")
+    assert target.seen == ["boom\n"]
 
+    relay._deliver("and again\n")
+    assert target.seen == ["boom\n", "and again\n"]
+    assert vlog._console_ref is ref
     relay.deleteLater()
 
 
@@ -271,8 +310,20 @@ def test_the_forwarder_drops_records_made_during_a_console_write(vlog, qapp):
 
 
 def test_the_forwarder_says_nothing_when_no_console_is_registered(vlog, qapp):
-    """No panel means no work, not an exception."""
-    handler = vlog._ConsoleForwarder()
+    """No panel means no work, not an exception.
+
+    No work is measurable: the record is never even formatted. Formatting
+    it and throwing the line away costs the same as formatting it and
+    keeping it, on every record the app logs before a console exists.
+    """
+    formatted = []
+
+    class _Counting(vlog._ConsoleForwarder):
+        def format(self, record):
+            formatted.append(record)
+            return super().format(record)
+
+    handler = _Counting()
     handler.setFormatter(logging.Formatter("%(message)s"))
     record = logging.LogRecord("spacr", logging.INFO, __file__, 1,
                                "hello", (), None)
@@ -282,12 +333,35 @@ def test_the_forwarder_says_nothing_when_no_console_is_registered(vlog, qapp):
     vlog._console_ref = lambda: None
     handler.emit(record)
 
+    assert formatted == []
 
-def test_a_formatting_failure_inside_the_forwarder_is_swallowed(vlog, qapp):
-    """Never let a logging failure escape into the app."""
+
+def test_a_formatting_failure_inside_the_forwarder_is_swallowed(vlog, qapp,
+                                                               monkeypatch):
+    """Never let a logging failure escape into the app.
+
+    The format was attempted and nothing reached the relay: a line that
+    still went out after the formatter failed would be some half-built
+    string, and a format that was never attempted would swallow every
+    record whether or not the formatter was broken.
+    """
+    tried = []
+
     class _BrokenFormat(vlog._ConsoleForwarder):
         def format(self, record):
+            tried.append(record)
             raise ValueError("bad format string")
+
+    emitted = []
+
+    class _Line:
+        def emit(self, text):
+            emitted.append(text)
+
+    class _Relay:
+        line = _Line()
+
+    monkeypatch.setattr(vlog, "_ensure_relay", lambda: _Relay())
 
     handler = _BrokenFormat()
     target = object()
@@ -296,6 +370,9 @@ def test_a_formatting_failure_inside_the_forwarder_is_swallowed(vlog, qapp):
                                "hello", (), None)
 
     handler.emit(record)
+
+    assert tried == [record]
+    assert emitted == []
 
 
 def test_the_forwarder_reaches_the_registered_console(vlog, qapp):

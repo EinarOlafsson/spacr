@@ -540,12 +540,25 @@ def test_a_publish_that_fails_does_not_take_the_lasso_with_it(
     assert explorer._selected.tolist() == [0, 1]
 
 
-def test_closing_after_the_link_has_gone_still_closes(explorer, monkeypatch):
-    """At interpreter teardown the link's C++ side may already be deleted."""
+def test_closing_after_the_link_has_gone_still_closes(explorer, tmp_path,
+                                                      monkeypatch):
+    """At interpreter teardown the link's C++ side may already be deleted.
+
+    The unlink is the FIRST thing the close does, and the rest of the
+    teardown is what matters: a close that stopped there would leave the
+    lasso connected to a canvas Qt is about to delete, which is the crash
+    this teardown exists to prevent and which raises nothing here.
+    """
+    payload, _db = _payload(tmp_path)
+    explorer.set_payload(payload)
+    assert explorer._lasso is not None
+
     monkeypatch.setattr(type(explorer), "unlink_selection",
                         lambda self: (_ for _ in ()).throw(
                             RuntimeError("wrapped C/C++ object deleted")))
     explorer.close()
+    assert explorer._lasso is None
+    assert explorer.isVisible() is False
 
 
 def test_a_real_colour_paints_every_point_the_same(explorer, tmp_path):

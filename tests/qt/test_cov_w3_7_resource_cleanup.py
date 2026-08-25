@@ -681,17 +681,30 @@ def test_only_a_new_run_triggers_the_pre_run_cleanup(in_mode, monkeypatch):
 
 def test_a_pre_run_cleanup_that_fails_does_not_break_starting_a_run(
         monkeypatch):
+    """The run was cleaned for, the cleanup failed, and the run is still
+    marked seen -- so the next registry change does not try the same
+    failing cleanup again for the same run."""
     from spacr.qt import bridge
 
+    attempted = []
+
+    def _explode(key=""):
+        attempted.append(key)
+        raise RuntimeError("out of memory")
+
     monkeypatch.setattr(rc, "_SEEN_RUNS", set())
-    monkeypatch.setattr(rc, "run_pre_run_cleanup",
-                        lambda key="": (_ for _ in ()).throw(
-                            RuntimeError("out of memory")))
+    monkeypatch.setattr(rc, "run_pre_run_cleanup", _explode)
+    handles = [types.SimpleNamespace(app_key="x")]
     monkeypatch.setattr(bridge, "registry",
                         lambda: types.SimpleNamespace(
-                            active=lambda: [
-                                types.SimpleNamespace(app_key="x")]))
-    rc._on_registry_changed()  # must not raise
+                            active=lambda: handles))
+
+    rc._on_registry_changed()
+    assert attempted == ["x"]
+    assert len(rc._SEEN_RUNS) == 1
+
+    rc._on_registry_changed()
+    assert attempted == ["x"]
 
 
 def test_an_unavailable_registry_leaves_the_hook_uninstalled(monkeypatch):
@@ -801,6 +814,13 @@ def test_a_value_that_cannot_be_read_does_not_stop_the_lru_sweep(monkeypatch):
 
 
 def test_an_lru_that_refuses_to_report_its_size_is_skipped(monkeypatch):
+    """A cache that will not say how much it holds is left alone -- and the
+    sweep carries on to the caches after it.
+
+    ``dir()`` is alphabetical, so the broken attribute is reached before
+    ``veil_color``: a sweep that stopped at it would report nothing, and a
+    sweep that never ran would report nothing either.
+    """
     from spacr.qt import iconset
 
     class Broken:
@@ -810,9 +830,14 @@ def test_an_lru_that_refuses_to_report_its_size_is_skipped(monkeypatch):
         def cache_info(self):
             raise RuntimeError("no")
 
+    iconset.veil_color.cache_clear()
+    iconset.veil_color("dark")
     monkeypatch.setattr(iconset, "_spacr_cov_broken_cache", Broken(),
                         raising=False)
-    rc._clear_lru_caches()  # must not raise
+
+    cleared = rc._clear_lru_caches()
+    assert not any("_spacr_cov_broken_cache" in line for line in cleared)
+    assert any("veil_color" in line for line in cleared)
 
 
 def test_a_thumbnail_cache_that_will_not_empty_is_left_and_not_counted(qtbot,

@@ -282,7 +282,15 @@ def test_a_stack_that_refuses_the_connection_is_not_marked_wired(qtbot,
     assert handler is not None
 
 
-def test_a_stack_that_will_not_say_what_is_on_it_offers_nothing(qtbot):
+def test_a_stack_that_will_not_say_what_is_on_it_offers_nothing(qtbot,
+                                                                monkeypatch):
+    """Offers nothing is the outcome: a walkthrough shown for a screen
+    nobody could name would talk about the wrong module, which raises
+    nothing at all."""
+    offered = []
+    monkeypatch.setattr(W, "maybe_show",
+                        lambda window, app_key: offered.append(app_key))
+
     class Stack:
         def currentWidget(self):
             raise RuntimeError("mid-teardown")
@@ -290,7 +298,8 @@ def test_a_stack_that_will_not_say_what_is_on_it_offers_nothing(qtbot):
     window = _Window(stack=Stack())
     qtbot.addWidget(window)
     handler = W._WalkthroughHandler(window)
-    handler.on_current_changed(0)          # must not raise
+    handler.on_current_changed(0)
+    assert offered == []
 
 
 def test_a_bespoke_screen_is_not_walked_through(qtbot):

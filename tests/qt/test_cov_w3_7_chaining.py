@@ -250,8 +250,28 @@ def test_a_typed_path_schedules_one_refresh_not_one_per_keystroke(qtbot,
 # Following the run
 # ---------------------------------------------------------------------------
 
-def test_a_screen_with_no_run_button_is_not_followed(bar):
-    bar._wire_run_button()   # must not raise; there is nothing to connect
+def test_a_screen_with_no_run_button_is_not_followed(qtbot, pins):
+    """A screen with no Run button is a legitimate host for the strip.
+
+    So the strip has to LOOK for the button and stop there -- which is what
+    separates "there was nothing to connect" from "it connected to
+    something else", both of which raise nothing.
+    """
+    asked = []
+
+    class NoRunButton(_Host):
+        def __getattr__(self, name):      # only reached for missing seams
+            asked.append(name)
+            raise AttributeError(name)
+
+    host = NoRunButton()
+    qtbot.addWidget(host)
+    strip = ChainingBar(host, pins=pins)
+    qtbot.addWidget(strip)
+
+    asked.clear()                          # the constructor looks around too
+    strip._wire_run_button()
+    assert asked == ["_btn_run"]
 
 
 def test_a_run_button_that_refuses_the_connection(qtbot, pins, caplog):
@@ -270,14 +290,34 @@ def test_a_run_button_that_refuses_the_connection(qtbot, pins, caplog):
     assert "could not follow the Run button on measure" in caplog.text
 
 
-def test_pressing_run_without_a_worker_is_not_a_crash(qtbot, pins):
+def test_pressing_run_without_a_worker_is_not_a_crash(qtbot, pins,
+                                                      monkeypatch):
+    """The click is followed, the run is not -- there is no run yet.
+
+    Both halves are asserted because "nothing raised" is also true of a
+    strip that never saw the click at all, and of one that latched onto a
+    worker that appeared later and refreshed over the user's typing.
+    """
     button = QPushButton()
     qtbot.addWidget(button)
     host = _Host(run_button=button)
     qtbot.addWidget(host)
     strip = ChainingBar(host, pins=pins)
     qtbot.addWidget(strip)
-    button.click()           # the run never started; nothing to follow
+
+    clicks = []
+    monkeypatch.setattr(type(strip), "_capture_edits",
+                        lambda self: clicks.append(True))
+    button.click()
+    assert clicks == [True]
+
+    seen = []
+    monkeypatch.setattr(type(strip), "refresh",
+                        lambda self, **kwargs: seen.append(kwargs))
+    worker = _Worker()
+    host._worker = worker
+    worker.finished.emit(True)
+    assert seen == []
 
 
 def test_the_finished_run_is_followed_and_offers_the_next_step(qtbot, pins,
@@ -441,19 +481,43 @@ def test_a_screen_outside_a_window_has_no_navigation_host(bar, monkeypatch):
 
 
 def test_a_host_that_cannot_navigate_is_not_navigated(bar, monkeypatch):
-    monkeypatch.setattr(type(bar), "host_window", lambda self: object())
-    bar._on_continue(_step())
+    """It stops at the missing route rather than going on to find the
+    successor screen and seed it inside a window that never navigated."""
+    asked = []
 
-
-def test_a_navigation_that_fails_does_not_seed_anything(bar, monkeypatch):
     class Window:
-        _screens = {"classify": object()}
+        def __getattr__(self, name):
+            asked.append(name)
+            raise AttributeError(name)
+
+    monkeypatch.setattr(type(bar), "host_window", lambda self: Window())
+    bar._on_continue(_step())
+    assert asked == ["_on_nav_selected"]
+
+
+def test_a_navigation_that_fails_does_not_seed_anything(bar, monkeypatch,
+                                                        caplog):
+    """Seeding a screen the user was never taken to would rewrite settings
+    behind their back, so the failed navigation ends the continuation --
+    the successor screen is not touched at all."""
+    touched = []
+
+    class Target:
+        def __getattr__(self, name):
+            touched.append(name)
+            raise AttributeError(name)
+
+    class Window:
+        _screens = {"classify": Target()}
 
         def _on_nav_selected(self, module):
             raise RuntimeError("no such page")
 
     monkeypatch.setattr(type(bar), "host_window", lambda self: Window())
-    bar._on_continue(_step())        # logged, and no seeding attempted
+    with caplog.at_level(logging.ERROR, logger="spacr.qt.chaining"):
+        bar._on_continue(_step())
+    assert "could not open classify" in caplog.text
+    assert touched == []
 
 
 def test_continuing_to_a_screen_that_is_not_built_yet(bar, monkeypatch):
@@ -633,13 +697,38 @@ def test_a_screen_without_the_layout_seams_gets_no_strip(qtbot, pins):
 
 
 def test_a_host_missing_a_slot_is_skipped_rather_than_crashed_on(qtbot):
-    """``_build_screen`` is called against a stand-in host by the smoke test."""
-    class Screen:
-        error_explain_requested = None
-        remote_submit_requested = None
+    """``_build_screen`` is called against a stand-in host by the smoke test.
 
-    qt_chaining._connect_host(Screen(), object())
-    qt_chaining._connect_host(Screen(), None)
+    Skipped has to mean no connection was made: a signal wired to a slot
+    the host does not own fails later, on emit, far from here. And with no
+    host at all the screen is not even inspected.
+    """
+    class Recording:
+        def __init__(self):
+            self.connected = []
+
+        def connect(self, slot):
+            self.connected.append(slot)
+
+    class Screen:
+        def __init__(self):
+            self.error_explain_requested = Recording()
+            self.remote_submit_requested = Recording()
+
+    screen = Screen()
+    qt_chaining._connect_host(screen, object())      # a host with no slots
+    assert screen.error_explain_requested.connected == []
+    assert screen.remote_submit_requested.connected == []
+
+    asked = []
+
+    class Watched:
+        def __getattr__(self, name):
+            asked.append(name)
+            raise AttributeError(name)
+
+    qt_chaining._connect_host(Watched(), None)
+    assert asked == []
 
 
 def test_a_connection_the_host_refuses_is_logged_not_raised(caplog):

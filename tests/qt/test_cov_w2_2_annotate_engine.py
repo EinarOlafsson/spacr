@@ -16,12 +16,13 @@ from __future__ import annotations
 import os
 import sqlite3
 import sys
-import types
 from pathlib import Path
 
 import numpy as np
 import pytest
 from PIL import Image
+
+from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
 
 from spacr.qt import annotate_engine as ae
 from spacr.qt.annotate_engine import (METADATA_COLUMNS, SaveWorker,
@@ -310,29 +311,57 @@ def test_a_threshold_that_cannot_be_computed_falls_back_to_the_median(
 
 @pytest.fixture
 def stub_cellpose(monkeypatch):
-    """A Cellpose stand-in in `sys.modules`, so no weights and no GPU.
+    """`CellposeModel` swapped for a double on the real module, so no
+    weights and no GPU.
 
     The real model downloads `cpsam` and takes the card; what is under test
     here is the lazy construction, the caching, and the fallback -- none of
     which is about segmentation quality.
+
+    The double replaces the class ON the installed `cellpose.models` rather
+    than standing a synthetic package up in `sys.modules`. A synthetic
+    package answers any import, so it would keep passing if
+    `_get_cellpose_outline_model` reached for a module layout the library no
+    longer has -- and it also hides `cellpose.transforms`, which is the real
+    validator `check_cellpose_eval_call` runs the arguments through.
     """
+    from cellpose import models as cp_models
+
     built = []
 
     class _Model:
-        def __init__(self, gpu=False, pretrained_model="", device=None):
+        """A `CellposeModel` stand-in declaring the installed signatures.
+
+        Written out in full, with no `**kwargs`: a double that accepts every
+        keyword cannot fail when spaCR passes one this cellpose removed, and
+        `annotate_engine._cellpose_foreground` is a real call site.
+        """
+
+        def __init__(self, gpu=False, pretrained_model="cpsam",
+                     model_type=None, diam_mean=None, device=None, nchan=None,
+                     use_bfloat16=True):
             built.append({"gpu": gpu, "pretrained_model": pretrained_model})
 
-        def eval(self, image, **kwargs):
+        def eval(self, image, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None,
+                 normalize=True, invert=False, rescale=None, diameter=None,
+                 flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False,
+                 anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+                 min_size=15, max_size_fraction=0.4, niter=None,
+                 augment=False, tile_overlap=0.1, bsize=256,
+                 compute_masks=True, progress=None):
+            # This call site hands cellpose one 2-D plane and lets it
+            # auto-detect, so an axis is not required -- but whatever arrives
+            # must be one convert_image accepts.
+            check_cellpose_eval_call(image, channel_axis, z_axis=z_axis,
+                                     do_3D=do_3D,
+                                     stitch_threshold=stitch_threshold,
+                                     require_channel_axis=False)
             mask = np.zeros(np.shape(image), dtype=np.int32)
             mask[4:12, 4:12] = 1
             return [mask], None, None
 
-    models = types.ModuleType("cellpose.models")
-    models.CellposeModel = _Model
-    package = types.ModuleType("cellpose")
-    package.models = models
-    monkeypatch.setitem(sys.modules, "cellpose", package)
-    monkeypatch.setitem(sys.modules, "cellpose.models", models)
+    monkeypatch.setattr(cp_models, "CellposeModel", _Model)
     monkeypatch.setattr(ae, "_cellpose_outline_model", None)
     yield built
     ae._cellpose_outline_model = None

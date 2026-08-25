@@ -341,7 +341,17 @@ def test_a_step_whose_highlight_is_missing_still_dims_the_window(window,
 
 
 def test_a_highlight_that_raises_costs_the_ring_not_the_tour(window, qapp):
+    """The ring is lost, the step is not.
+
+    The paint carries on past the highlight that could not be resolved, so
+    the window is still dimmed and the step still says its piece -- which is
+    what separates a swallowed highlight from a paint that stopped dead at
+    it and left the tour invisible.
+    """
+    asked = []
+
     def _explode(_window):
+        asked.append("highlight")
         raise RuntimeError("the sidebar was deleted")
 
     step = fr.TourStep("Broken", "body", highlight=_explode)
@@ -349,7 +359,10 @@ def test_a_highlight_that_raises_costs_the_ring_not_the_tour(window, qapp):
     overlay.setGeometry(window.rect())
     overlay.show()
     qapp.processEvents()
-    _render(overlay)                     # must not raise
+    shot = _render(overlay)
+    assert asked                                    # it really was tried
+    assert QColor(shot.pixelColor(600, 300)).value() < 150
+    assert "Broken" in {lb.text() for lb in overlay.findChildren(QLabel)}
     overlay._finish()
     qapp.processEvents()
 

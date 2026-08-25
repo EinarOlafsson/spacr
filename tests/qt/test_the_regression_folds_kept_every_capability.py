@@ -25,6 +25,7 @@ several times.
 """
 from __future__ import annotations
 
+import logging
 import os
 
 import pytest
@@ -617,14 +618,17 @@ def test_a_second_call_returns_the_tab_the_first_one_made(
 
 
 def test_a_hits_tab_that_cannot_follow_the_run_says_nothing(
-        qtbot, qt_theme_applied):
+        qtbot, qt_theme_applied, caplog):
     """A failed follow is a stale tab, not a failed load.
 
     The panel has already put the run on screen by the time this runs, and
     an exception here would undo that.
     """
+    asked = []
+
     class _Hits:
-        def load_folder(self, _folder):
+        def load_folder(self, folder):
+            asked.append(folder)
             raise RuntimeError("cannot read that folder")
 
     panel = type("_Panel", (), {
@@ -632,7 +636,14 @@ def test_a_hits_tab_that_cannot_follow_the_run_says_nothing(
         "run_folder": lambda self: "/somewhere/ols_1",
     })()
 
-    regression._follow_the_run(panel)    # must not raise
+    with caplog.at_level(logging.DEBUG, logger="spacr.qt.screens.regression"):
+        regression._follow_the_run(panel)
+
+    # The tab really was pointed at the run -- "nothing escaped" is equally
+    # true of a follow that never looked -- and what went wrong is on the
+    # log rather than on the screen.
+    assert asked == ["/somewhere/ols_1"]
+    assert "could not follow the run" in caplog.text.lower()
 
 
 def test_a_panel_with_no_loaded_signal_still_gets_its_tab(

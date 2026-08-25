@@ -194,10 +194,19 @@ def test_no_categorisation_names_an_app_the_registry_dropped(shipped_common):
     """Each categorisation covers the live registry exactly once.
 
     ``check_coverage`` is the module's own statement of that contract. A
-    table that survives it is a table every builder can index.
+    table that survives it is a table every builder can index. The contract
+    is also spelled out here as assertions, so a drifted table is reported
+    by name and by key rather than as one opaque raise from the helper.
     """
-    for name in _table_names(shipped_common):
-        shipped_common.check_coverage(getattr(shipped_common, name))
+    live = set(shipped_common.all_keys())
+    tables = _table_names(shipped_common)
+    assert tables, "common ships no categorisation tables at all"
+    for name in tables:
+        table = getattr(shipped_common, name)
+        listed = [key for _title, keys in table for key in keys]
+        assert len(listed) == len(set(listed)), f"{name} lists a key twice"
+        assert set(listed) == live, f"{name} has drifted from the registry"
+        shipped_common.check_coverage(table)
 
 
 def test_every_registered_app_has_an_invented_use_count(kit):

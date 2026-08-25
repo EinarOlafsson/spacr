@@ -595,22 +595,45 @@ def test_filling_defaults_never_overwrites_what_the_caller_chose():
     assert given["random_seed"] == DEFAULT_SEED
 
 
-def test_declaring_the_settings_twice_is_a_no_op():
-    """Import runs it once; a second call finds the keys already declared."""
-    runctx._register_settings()          # must not raise
+def test_declaring_the_settings_twice_is_a_no_op(monkeypatch):
+    """Import runs it once; a second call finds the keys already declared.
+
+    A no-op means it does not register again: the registry refuses a second
+    declaration of the same key with a ValueError, so a guard that re-tried
+    would either raise or bury a real conflict in a debug line.
+    """
+    from spacr import settings as settings_module
+
+    runctx._register_settings()          # whatever the session left behind
+    assert settings_module.has_registered_defaults("runctx")
+
+    again = []
+    monkeypatch.setattr(settings_module, "register_defaults",
+                        lambda *args, **kwargs: again.append(args))
+    runctx._register_settings()
+    assert again == []
+    assert settings_module.has_registered_defaults("runctx")
 
 
 def test_without_the_settings_module_the_import_still_works(monkeypatch):
     """A trimmed install has no settings registry, and that is not fatal."""
     real_import = builtins.__import__
 
+    refused = []
+
     def blocked(name, globals=None, locals=None, fromlist=(), level=0):
         if level and name == "settings":
+            refused.append(name)
             raise ImportError("no settings module here")
         return real_import(name, globals, locals, fromlist, level)
 
     monkeypatch.setattr(builtins, "__import__", blocked)
-    runctx._register_settings()          # must not raise
+    runctx._register_settings()
+
+    # The import really was the thing that failed -- a guard that returned
+    # before reaching for the registry would also raise nothing -- and it is
+    # asked for once, then given up on rather than retried.
+    assert refused == ["settings"]
 
 
 def test_another_module_owning_a_key_is_logged_rather_than_fatal(monkeypatch,
