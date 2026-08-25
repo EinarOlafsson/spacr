@@ -530,6 +530,47 @@ def _no_unguarded_modals(monkeypatch):
 
 
 @pytest.fixture(autouse=True)
+def no_job_outlives_the_test_that_started_it(deferred_deletions_flushed):
+    """Nobody inherits a job the previous test left in the run registry.
+
+    ``bridge.make_thread`` registers a ``RunHandle`` in the PROCESS-WIDE
+    registry and relies on ``thread.finished`` to take it out again. A test
+    that stubs ``QThread.start``, or that builds a thread it never starts,
+    never emits ``finished`` — so the handle stays registered for the rest of
+    the process, holding its worker and its QThread with it.
+
+    What that costs is not the memory. ``registry().is_busy()`` answers True
+    from then on, the activity spinner turns for a job nobody started, and any
+    test that asks whether spaCR is running anything gets the previous file's
+    answer. It is the same shape as ``_restore_app_registry`` above: process
+    state one caller mutates and every later test reads.
+
+    Only handles with NO LIVE THREAD are removed — never started, finished, or
+    a QThread whose C++ half is already gone. A running job is left exactly
+    where it is: the fixture that reached across live Qt objects at teardown
+    is documented above as having crashed this suite three ways, and the whole
+    difference here is that this touches nothing that is still working.
+
+    At setup rather than teardown for the same reason ``linked_filter_starts_
+    empty`` is: ``unregister`` emits, subscribed views answer, and doing that
+    part-way through Qt teardown is the hazard. By the next test's setup the
+    previous test's widgets are already gone.
+    """
+    try:
+        from spacr.qt import bridge
+    except Exception:
+        yield
+        return
+    try:
+        for handle in list(bridge.registry().active()):
+            if bridge.thread_has_stopped(getattr(handle, "thread", None)):
+                bridge.registry().unregister(handle)
+    except Exception:
+        pass
+    yield
+
+
+@pytest.fixture(autouse=True)
 def linked_filter_starts_empty(deferred_deletions_flushed):
     """Nobody inherits the population another test narrowed.
 

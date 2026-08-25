@@ -161,8 +161,13 @@ def test_barcode_qc_opens_its_own_settings_form_and_run_button(
 
     assert isinstance(window, AppScreen)
     assert window.app_key == "barcode_qc"
-    assert window.isWindow(), "the folded module did not open as a window"
-    assert window.windowTitle() == "Barcode QC"
+    # A PAGE, NOT A WINDOW. A window is the last resort for a fold, and
+    # this host has a body to put pages in; the assertion moved with the
+    # behaviour rather than being dropped.
+    assert not window.isWindow()
+    assert screen._fold_pages.currentWidget() is window
+    assert screen._fold_pages.tabText(
+        screen._fold_pages.indexOf(window)) == "Barcode QC"
     assert len(window._settings_model.collect()) > 0
     assert window._btn_run is not None
 
@@ -178,7 +183,9 @@ def test_measure_opens_the_anndata_export_form(qtbot, qt_theme_applied):
 
     assert isinstance(window, AppScreen)
     assert window.app_key == "anndata_export"
-    assert window.windowTitle() == "AnnData Export"
+    assert not window.isWindow()
+    assert screen._fold_pages.tabText(
+        screen._fold_pages.indexOf(window)) == "AnnData Export"
     assert len(window._settings_model.collect()) > 0
 
 
@@ -215,8 +222,12 @@ def test_annotate_opens_the_agreement_screen(qtbot, qt_theme_applied):
     window = _opened(qtbot, screen._fold_openers[0])
 
     assert isinstance(window, AgreementScreen)
-    assert window.isWindow()
-    assert window.windowTitle() == "Annotator Agreement"
+    # A page beside the annotation grid rather than a window over it --
+    # see the barcode QC test for why the assertion moved.
+    assert not window.isWindow()
+    assert screen._fold_pages.tabText(0) == "Annotate"
+    assert screen._fold_pages.tabText(
+        screen._fold_pages.indexOf(window)) == "Annotator Agreement"
 
 
 def test_the_button_press_itself_opens_the_module(qtbot, qt_theme_applied):
@@ -522,7 +533,10 @@ def test_the_window_hook_strips_each_host_as_the_stack_reaches_it(
         screen = AppScreen(app_key=host_key)
         hosts[host_key] = screen
         window._stack.addWidget(screen)
-    other = AppScreen(app_key="mask")
+    # `external_masks` rather than `mask`: Mask Generation hosts folds of
+    # its own now, so it is no longer a screen the lookup has never heard
+    # of.
+    other = AppScreen(app_key="external_masks")
     window._stack.addWidget(other)
 
     watcher = map_barcodes.install_window_hooks(window)
@@ -745,8 +759,12 @@ def test_a_host_module_that_cannot_be_imported_costs_only_its_strip(
 
 def test_a_screen_the_lookup_has_never_heard_of_is_skipped(
         qtbot, qt_theme_applied):
-    """Most screens host nothing; asking about them must cost nothing."""
-    screen = AppScreen(app_key="mask")
+    """Most screens host nothing; asking about them must cost nothing.
+
+    Asked about `external_masks` rather than `mask`, which became a fold
+    host when Timelapse and Motility moved onto it.
+    """
+    screen = AppScreen(app_key="external_masks")
     qtbot.addWidget(screen)
 
     assert map_barcodes.install_folds_on(screen) is None

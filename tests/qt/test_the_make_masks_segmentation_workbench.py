@@ -98,7 +98,12 @@ def test_the_fold_fallback_agrees_with_the_registry(screen):
         assert row[1] == name, key
         assert row[2] == description, key
         assert app_module.app_stage(key) == stage, key
-    assert checked >= 5, "no folded module was still registered to check"
+    # Four, not five: Timelapse and Motility left this fallback for Mask
+    # Generation's, so the registered keys this table still describes are
+    # the screen-owning folds. `cellpose_all` never had a row to compare
+    # against, and a row genuinely dropped is what the fallback is for --
+    # so the floor only has to be high enough to prove the comparison ran.
+    assert checked >= 4, "no folded module was still registered to check"
 
 
 def test_a_folded_button_keeps_its_stage_after_the_row_is_dropped(
@@ -145,7 +150,7 @@ def test_the_two_cellpose_halves_share_one_workbench(screen):
             is screen.folded_screen(MASK_FOLDER_KEY))
 
 
-def test_opening_a_fold_twice_raises_the_window_it_already_made(
+def test_opening_a_fold_twice_raises_the_page_it_already_made(
         screen, field_folder: Path):
     """The second press finds the paths and results the first one left."""
     screen._open_folder(str(field_folder))
@@ -153,6 +158,40 @@ def test_opening_a_fold_twice_raises_the_window_it_already_made(
     second = screen.open_folded("model_compare")
     assert first is second
     assert first.screen is screen.folded_screen("model_compare")
+
+
+def test_a_folded_module_is_a_page_beside_the_editor_not_a_window(
+        screen, field_folder: Path):
+    """A window is the last resort for a fold, and this host needs none.
+
+    The editor keeps the first page and cannot be closed off the strip;
+    the module arrives beside it as the whole screen it was.
+    """
+    screen._open_folder(str(field_folder))
+    panel = screen.open_folded("curate")
+    pages = screen._fold_pages
+
+    assert not panel.isWindow()
+    assert pages.tabText(0) == mm.HEADER_TITLE
+    assert pages.tabText(pages.indexOf(panel)) == "Curate"
+    assert pages.currentWidget() is panel
+
+    pages.tabCloseRequested.emit(pages.indexOf(panel))
+    assert pages.indexOf(panel) < 0
+    assert screen.open_folded("curate") is panel
+    assert pages.indexOf(panel) > 0
+
+
+def test_the_editor_page_cannot_be_closed_off_the_strip(
+        screen, field_folder: Path):
+    """There is nothing behind the host's own page to fall back to."""
+    screen._open_folder(str(field_folder))
+    screen.open_folded("curate")
+    pages = screen._fold_pages
+
+    pages.tabCloseRequested.emit(0)
+
+    assert pages.tabText(0) == mm.HEADER_TITLE
 
 
 def test_a_key_this_screen_does_not_fold_opens_nothing(screen):
@@ -195,13 +234,39 @@ def test_the_mask_editors_are_handed_the_field_on_screen(
 
 
 def test_a_module_with_no_screen_of_its_own_gets_its_settings_page(
-        screen, field_folder: Path):
-    """Timelapse folds in as the settings page its tile opened, src filled."""
+        screen, field_folder: Path, monkeypatch):
+    """A settings-only fold arrives as the page its tile opened, src filled.
+
+    Driven through a monkeypatched fold list because every module this
+    screen folds today reaches a screen class of its own. The generic
+    settings page is the shape the next settings-only fold takes, and this
+    is what says it still works.
+    """
+    monkeypatch.setattr(mm, "FOLD_ORDER",
+                        tuple(FOLD_ORDER) + ("cellpose_masks",))
     screen._open_folder(str(field_folder))
-    assert screen.seed_folded("timelapse") == {"src": str(field_folder)}
-    page = screen.folded_screen("timelapse")
-    assert page.app_key == "timelapse"
+    assert screen.seed_folded("cellpose_masks") == {"src": str(field_folder)}
+    page = screen.folded_screen("cellpose_masks")
+    assert page.app_key == "cellpose_masks"
     assert page._settings_model.collect().get("src") == str(field_folder)
+
+
+def test_the_series_modules_do_not_fold_into_hand_curation(screen):
+    """Timelapse and Motility are not on this masthead, and cannot be.
+
+    Rewritten from a test that folded Timelapse in here. They fold into
+    MASK GENERATION, whose settings they overlap: this screen corrects
+    masks that already exist, while tracking a series and measuring how it
+    moved are things mask generation does over one. Asserted on the strip
+    the user sees as well as on the list, because a key removed from the
+    list and left wired to a button is the failure this guards.
+    """
+    for key in ("timelapse", "motility"):
+        assert key not in FOLD_ORDER
+        assert key not in mm.FOLD_FALLBACK
+        assert screen._folds.button_for(key) is None
+        assert screen.folded_screen(key) is None
+        assert screen.open_folded(key) is None
 
 
 def test_the_zoo_hands_its_comparison_to_the_folded_model_compare(
@@ -343,23 +408,54 @@ def test_a_curate_save_that_fails_is_reported_not_swallowed(
     assert "read-only file system" in screen._status_label.text()
 
 
-def test_closing_the_screen_closes_the_windows_it_opened(
+def test_closing_the_screen_closes_the_modules_it_opened(
         qtbot, qt_theme_applied, field_folder: Path):
-    """A folded module page polls the GPU on a worker while it is visible.
+    """A folded module polls the GPU on a worker while it is alive.
 
     Qt aborts the process when a running QThread is destroyed, so leaving a
-    folded page open behind a closed host is not a tidiness question.
+    folded module running behind a closed host is not a tidiness question.
+
+    Rewritten twice: the module opened is Curate rather than Timelapse,
+    which no longer folds in here, and it is asserted through the page it
+    now occupies rather than through a window's visibility -- a page is
+    only visible when its host is on screen, and this host never is.
     """
     made = MakeMasksScreen()
     qtbot.addWidget(made)
     made._open_folder(str(field_folder))
-    dialog = made.open_folded("timelapse")
-    assert dialog.isVisible()
+    panel = made.open_folded("curate")
+    pages = made._fold_pages
+    assert pages.currentWidget() is panel
 
     made.close()
 
-    assert not dialog.isVisible()
-    assert not made.folded_screen("timelapse").isVisible()
+    assert not panel.isVisible()
+    assert not made.folded_screen("curate").isVisible()
+
+
+def test_closing_the_screen_closes_a_module_that_was_never_opened(
+        qtbot, qt_theme_applied, field_folder: Path):
+    """Pointing a module at the folder builds it, and building starts work.
+
+    Model Compare loads the folder on a worker thread the moment it is
+    given one, which happens in `seed_folded` -- before any button has
+    been pressed and before it has a page. Walking only the panels left
+    that thread running with nothing holding it, and the process died of
+    it in whatever ran next.
+    """
+    made = MakeMasksScreen()
+    qtbot.addWidget(made)
+    made._open_folder(str(field_folder))
+    made.seed_folded("model_compare")
+    compare = made.folded_screen("model_compare")
+    assert compare is not None
+    assert "model_compare" not in made._fold_dialogs
+
+    made.close_folded()
+
+    assert not compare.isVisible()
+    assert all(not thread.isRunning()
+               for thread, _worker in list(compare._jobs))
 
 
 def test_fold_description_falls_back_only_when_the_row_is_gone(monkeypatch):
