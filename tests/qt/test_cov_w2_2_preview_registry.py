@@ -344,9 +344,16 @@ def test_propagation_with_no_rename_map_passes_names_straight_through(qapp):
 def test_propagating_into_a_screen_with_no_model_does_nothing(qapp):
     """Nothing to write to is a no-op, not an attribute error."""
     spec = PreviewSpec(builder=f"{_HERE}:_build_test_card")
-    host = _PreviewHost(_Screen("x", model=None), spec, _Panel(), QWidget())
-    host.on_propagate({"diameter": 12})      # must not raise
+    screen = _Screen("x", model=None)
+    host = _PreviewHost(screen, spec, _Panel(), QWidget())
+
+    host.on_propagate({"diameter": 12})
     host.on_propagate(None)
+
+    # A NO-OP LEAVES NO TRACE. A guard that caught the AttributeError
+    # after half-writing would also "not raise", so the assertion is that
+    # the screen still has no model rather than a half-built one.
+    assert screen._settings_model is None
 
 
 def test_a_form_that_refuses_a_value_does_not_stop_the_rest(qapp):

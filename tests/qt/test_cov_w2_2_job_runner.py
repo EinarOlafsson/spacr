@@ -12,6 +12,7 @@ The two branches that guard against a runner's C++ half being taken away are
 reached the way they happen: by deleting it.
 """
 
+import sys
 import threading
 
 import pytest
@@ -290,7 +291,22 @@ def test_a_completion_arriving_after_the_runner_is_gone_is_silent(qapp):
     doomed = JobRunner(app_key="testing")
     shiboken6.delete(doomed)
 
-    doomed._relay(1, True)   # must not raise
+    doomed._relay(1, True)
+
+    # SILENT, and asserted where the noise would appear: the guard exists
+    # because the exception surfaces inside Qt's event loop rather than
+    # here, so the assertion is that spinning the loop afterwards is
+    # clean.
+    errors = []
+    def collect(kind, value, trace):
+        errors.append(value)
+    old = sys.excepthook
+    sys.excepthook = collect
+    try:
+        qapp.processEvents()
+    finally:
+        sys.excepthook = old
+    assert errors == []
 
 
 # ---------------------------------------------------------------------------
