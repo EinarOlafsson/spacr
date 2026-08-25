@@ -2640,6 +2640,23 @@ QPushButton#AppTile[stage="{stage}"]:pressed {{
     border: 1px solid {hue};
 }}"""
         for stage, hue in STAGE_HOVER.items())
+    # THE FOLDED MODULES LIGHT UP LIKE THE TILES THEY REPLACED.
+    #
+    # A module folded into a host screen is a button on that host's
+    # masthead rather than a tile on Home, and the maturity it promises
+    # did not change when it moved. Same hue, same two states, read from
+    # the same STAGE_HOVER table -- so signing a module off recolours its
+    # button and its tile together, and neither can drift from the other.
+    FOLD_STAGE_RULES = "\n".join(
+        f"""QPushButton#FoldButton[stage="{stage}"]:hover {{
+    background-color: {css_color(hue, 0.22)};
+    border: 1px solid {hue};
+}}
+QPushButton#FoldButton[stage="{stage}"]:pressed {{
+    background-color: {css_color(hue, 0.40)};
+    border: 1px solid {hue};
+}}"""
+        for stage, hue in STAGE_HOVER.items())
     SECTION_STAGE_RULES = "\n".join(
         f"""QFrame#SectionCard[maturity="{stage}"] {{
     border: 1px solid {css_color(hue, 0.72)};
@@ -3799,6 +3816,12 @@ QWidget#SectionBody {{
    settings. Labels keep the theme's readable text ink; the coloured rule is
    the maturity signal, so alpha cyan remains legible on the light theme. */
 {SECTION_STAGE_RULES}
+{FOLD_STAGE_RULES}
+QPushButton#FoldButton {{
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 0px;
+}}
 
 /* -----------------------------------------------------------------
  *  Group box (used by settings sections)
