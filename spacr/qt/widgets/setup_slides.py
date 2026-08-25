@@ -332,6 +332,12 @@ def _held_at_the_top(label: QLabel) -> QWidget:
     them.
     """
     holder = QWidget()
+    # THE WRAPPER PAINTS NOTHING. A bare QWidget with no rule of its own
+    # takes the blanket window fill, which over this card reads as a black
+    # box behind the caption -- the wrapper exists to position the label,
+    # not to put a surface under it.
+    holder.setAttribute(Qt.WA_TranslucentBackground, True)
+    holder.setStyleSheet("background: transparent;")
     column = QVBoxLayout(holder)
     column.setContentsMargins(0, 0, 0, 0)
     column.setSpacing(0)

@@ -32,7 +32,6 @@ pytest.importorskip("PySide6")
 from PySide6.QtCore import QEvent
 from PySide6.QtWidgets import QApplication, QLabel, QPushButton
 
-from spacr.qt.app import app_stage
 from spacr.qt.screens import mask as mask_folds
 from spacr.qt.screens import map_barcodes
 from spacr.qt.screens.app_screen import AppScreen
@@ -74,7 +73,13 @@ def test_the_series_module_is_a_switch_on_the_mask_masthead(host):
 
 
 def test_a_switch_carries_the_name_sentence_and_stage_its_tile_had(host):
-    """The button must still be recognisable as the module it replaced."""
+    """The button must still be recognisable as the module it replaced.
+
+    Asked of ``fold_description`` and not of ``app_stage``: the fold
+    outlives its registry row, and once the row is dropped the registry
+    answers "stable" with no name and no sentence for every one of these
+    keys. What the button has to go on saying is what the TILE said.
+    """
     _screen, strip = host
 
     for key in mask_folds.FOLDED_APPS:
@@ -82,7 +87,33 @@ def test_a_switch_carries_the_name_sentence_and_stage_its_tile_had(host):
         name, description, stage = map_barcodes.fold_description(key)
         assert name and description
         assert button.toolTip() == f"{name}\n{description}"
-        assert button.property("stage") == stage == app_stage(key)
+        assert button.property("stage") == stage
+
+
+def test_the_recorded_stage_is_real_and_agrees_with_the_assessment(host):
+    """The fold fallback is the only record left of what the tile lit.
+
+    Once the row is dropped neither ``APP_STAGE`` nor ``maturity`` says
+    anything about the key -- ``app_stage`` answers "stable" for every
+    module it has never heard of, which is why the fallback exists at
+    all. What can still be checked is that the stage it records is one
+    the theme has a colour for, and that it does not contradict
+    ``maturity`` wherever maturity did assess the module: two tables
+    saying different things about one module's maturity is the drift the
+    fallback was written to avoid.
+    """
+    from spacr.qt import maturity
+    from spacr.qt.theme import STAGE_HOVER
+
+    for key in mask_folds.FOLDED_APPS:
+        _name, _description, stage = map_barcodes.fold_description(key)
+        assert stage in STAGE_HOVER, f"{key} records an unpaintable stage"
+        assessed = (maturity.PROMOTIONS.get(key)
+                      or maturity.AFFIRMED.get(key))
+        if assessed is not None:
+            assert stage == assessed[0], (
+                f"{key}: the fold says {stage!r}, maturity says "
+                f"{assessed[0]!r}")
 
 
 def test_the_lit_state_is_the_stage_colour_the_tile_used(host):
@@ -99,7 +130,7 @@ def test_the_lit_state_is_the_stage_colour_the_tile_used(host):
     rule = button.styleSheet()
 
     assert ":checked" in rule
-    assert STAGE_HOVER[app_stage("timelapse")] in rule
+    assert STAGE_HOVER[map_barcodes.fold_description("timelapse")[2]] in rule
 
 
 def test_pressing_a_switch_opens_no_window(host):
@@ -189,6 +220,82 @@ def test_a_folded_setting_answers_into_the_host_hint_strip(host):
 
 
 # ---------------------------------------------------------------------------
+# The panel the fold brought with it
+# ---------------------------------------------------------------------------
+
+def _preview(screen, key):
+    """The folded module's attached preview host on ``screen``."""
+    return getattr(screen, "_folded_previews", {}).get(key)
+
+
+def _shown(widget):
+    """Whether ``widget`` would be on screen if its window were."""
+    return widget.isVisibleTo(widget.parentWidget())
+
+
+def test_the_switch_brings_the_folded_modules_own_preview_with_it(host):
+    """A fold must not cost the panel that shows what its settings do.
+
+    Mask Generation's own preview segments one field with Cellpose and
+    answers "did the mask come out right". Timelapse's answers "did the
+    objects link up", which is the only question its settings are about,
+    and it was built by a screen that the fold means nobody opens any
+    more -- so without this the tracking settings would arrive with
+    nothing to judge them by.
+    """
+    screen, strip = host
+    preview = _preview(screen, "timelapse")
+
+    assert preview is not None, "the track preview did not come with the fold"
+    assert type(preview.panel).__name__ == "TimelapsePreviewPanel"
+    assert preview.toggle.text() == "Track preview"
+
+
+def test_the_track_preview_is_not_offered_until_tracking_is_on(host):
+    """Mask Generation must not grow a track preview for an untracked run."""
+    screen, strip = host
+    preview = _preview(screen, "timelapse")
+
+    assert not _shown(preview.toggle)
+    assert not _shown(preview.card)
+
+    strip.button_for("timelapse").setChecked(True)
+
+    assert _shown(preview.toggle)
+    # Offered, not opened: a preview costs a Cellpose pass over a field,
+    # so it waits to be asked for like every other one.
+    assert not _shown(preview.card)
+
+    preview.toggle.setChecked(True)
+    assert _shown(preview.card)
+
+
+def test_switching_tracking_off_closes_the_track_preview(host):
+    """A card left open would be showing tracks for an untracked run."""
+    screen, strip = host
+    preview = _preview(screen, "timelapse")
+    strip.button_for("timelapse").setChecked(True)
+    preview.toggle.setChecked(True)
+    assert _shown(preview.card)
+
+    strip.button_for("timelapse").setChecked(False)
+
+    assert not preview.toggle.isChecked()
+    assert not _shown(preview.card)
+    assert not _shown(preview.toggle)
+
+
+def test_the_hosts_own_preview_is_untouched_by_the_fold(host):
+    """The Cellpose live preview is Mask's and stays Mask's."""
+    screen, strip = host
+    strip.button_for("timelapse").setChecked(True)
+
+    assert screen._live_preview_card is not None
+    assert screen._live_preview_card is not _preview(screen,
+                                                      "timelapse").card
+
+
+# ---------------------------------------------------------------------------
 # What the run is handed
 # ---------------------------------------------------------------------------
 
@@ -240,18 +347,87 @@ def test_a_tracking_backend_typed_here_reaches_the_run(host):
 def test_loading_a_timelapse_settings_file_moves_the_switch(host):
     """The controls take their values; the gate has no control to take one.
 
-    Without this, a Timelapse settings file loaded into Mask Generation
-    fills in every tracking knob and leaves tracking switched off.
+    Driven through ``apply_settings_dict`` alone, which is the one door
+    every settings file, demo layout and chained hand-off comes in by. It
+    used to fill in every tracking knob and leave tracking switched off,
+    because the gate has no widget for a bulk apply to land in -- calling
+    ``sync_folds`` by hand in the test proved the mechanism and not the
+    wiring.
     """
     screen, strip = host
 
-    screen.apply_settings_dict({"timelapse": True,
-                                "timelapse_mode": "trackpy"})
-    assert screen._settings_model.collect()["timelapse_mode"] == "trackpy"
+    switched = screen.apply_settings_dict({"timelapse": "True",
+                                            "timelapse_mode": "trackpy"})
 
-    assert mask_folds.sync_folds(screen, {"timelapse": "True"}) == ("timelapse",)
+    assert switched
+    assert screen._settings_model.collect()["timelapse_mode"] == "trackpy"
     assert strip.button_for("timelapse").isChecked()
     assert screen._settings_model.collect()["timelapse"] is True
+
+
+def test_the_console_says_which_module_the_file_switched_on(host):
+    """Importing a settings CSV reports what it did, not what it ignored.
+
+    The notice used to say tracking had been IGNORED and send the reader
+    to a sidebar row -- true when tracking was a module of its own, and
+    wrong in both halves now that it is a switch on this form.
+    """
+    screen, strip = host
+    written = []
+    screen._console.append_notice = (
+        lambda text, **kw: written.append(text.format(**kw)))
+
+    screen.apply_settings_dict({"timelapse": "True"})
+    screen._warn_about_moved_settings({"timelapse": "True"})
+
+    assert strip.button_for("timelapse").isChecked()
+    said = " ".join(written)
+    assert "switched Timelapse on" in said
+    assert "ignored" not in said
+    assert "sidebar" not in said
+
+
+def test_a_screen_with_no_switch_says_the_flag_was_ignored(qtbot,
+                                                             qt_theme_applied):
+    """An honest report of the case the switch cannot answer.
+
+    A Mask screen that never got its strip -- the window hook did not run,
+    or the masthead could not carry one -- collects no `timelapse` key, so
+    the flag really is dropped and saying it landed would be a lie.
+    """
+    screen = AppScreen(app_key="mask")
+    qtbot.addWidget(screen)
+    written = []
+    screen._console.append_notice = (
+        lambda text, **kw: written.append(text.format(**kw)))
+
+    screen.apply_settings_dict({"timelapse": "True"})
+    screen._warn_about_moved_settings({"timelapse": "True"})
+
+    assert mask_folds.fold_set(screen) is None
+    assert "was ignored" in " ".join(written)
+
+
+def test_the_assay_is_reported_as_a_module_measure_opens(host):
+    """The motility gate has no switch here, and the notice says where it is.
+
+    The assay reads finished masks and writes a measurements table, so it
+    folded onto Measure as a screen of its own rather than onto this form
+    as a category -- and a CSV asking for it here is asking for something
+    this screen does not collect.
+    """
+    screen, _strip = host
+    written = []
+    screen._console.append_notice = (
+        lambda text, **kw: written.append(text.format(**kw)))
+
+    screen.apply_settings_dict({"motility_analysis": "True"})
+    screen._warn_about_moved_settings({"motility_analysis": "True"})
+
+    said = " ".join(written)
+    assert "motility_analysis=True was ignored" in said
+    assert "Measure" in said
+    assert "motility_analysis" not in screen._settings_model.collect()
 
 
 def test_a_settings_file_without_the_gate_leaves_the_switch_alone(host):

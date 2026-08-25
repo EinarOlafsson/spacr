@@ -85,10 +85,30 @@ def test_the_fold_fallback_agrees_with_the_registry(screen):
     Two tables that say the same thing drift the day one of them is edited.
     This is what stops the fallback from quietly becoming wrong before the
     registry row goes away and it becomes the only answer.
-    """
-    from spacr.qt import app as app_module
 
+    THE COMPARISON IS AGAINST THE LAUNCHED REGISTRY, not against the table
+    literal in ``app.py``. ``spacr.qt.maturity`` rewrites ``APP_STAGE`` at
+    launch, and it is the rewritten value the tile lights in -- so a fallback
+    checked against the un-promoted literal agreed with a colour no user ever
+    saw. Model Compare and Model Zoo were promoted to stable there while this
+    table still said alpha, which after the row is dropped is a button
+    lighting green-cyan where its tile lit blue.
+    """
+    from spacr.qt import app as app_module, maturity
+    from spacr.qt.screens import napari_bridge as napari_screen
+
+    # Napari Bridge owns its row and registers it at launch, so a bare test
+    # process has not got one. Registering it here is what launch does, and
+    # the autouse registry fixture puts the table back afterwards -- without
+    # it the one fold still holding a row would be skipped and this would
+    # compare nothing at all.
+    napari_screen.register()
     rows = {row[0]: row for row in app_module.APPS}
+    # The stage table as the running app has it: `maturity.apply` takes an
+    # injected dict, so the launch rewrite can be reproduced here without
+    # touching the live registry the rest of the suite shares.
+    launched = dict(app_module.APP_STAGE)
+    maturity.apply(launched, keys=list(rows))
     checked = 0
     for key, (name, description, stage) in FOLD_FALLBACK.items():
         row = rows.get(key)
@@ -97,13 +117,23 @@ def test_the_fold_fallback_agrees_with_the_registry(screen):
         checked += 1
         assert row[1] == name, key
         assert row[2] == description, key
-        assert app_module.app_stage(key) == stage, key
-    # Four, not five: Timelapse and Motility left this fallback for Mask
-    # Generation's, so the registered keys this table still describes are
-    # the screen-owning folds. `cellpose_all` never had a row to compare
-    # against, and a row genuinely dropped is what the fallback is for --
-    # so the floor only has to be high enough to prove the comparison ran.
-    assert checked >= 4, "no folded module was still registered to check"
+        assert launched.get(key, "stable") == stage, key
+    # One, not four. Train Cellpose, Model Compare, Model Zoo and Curate have
+    # had their rows dropped, so this table is the ONLY answer for them and
+    # there is nothing left to compare against; `cellpose_all` never had a row
+    # at all. What is still comparable is Napari Bridge, whose row is not part
+    # of this drop -- and the floor only has to be high enough to prove the
+    # comparison ran rather than skipping every key.
+    assert checked >= 1, "no folded module was still registered to check"
+    # And the other half of the same contract: a key with no row must have a
+    # complete entry here, because nothing else can answer for it.
+    for key in FOLD_ORDER:
+        if key in rows:
+            continue
+        name, description, stage = FOLD_FALLBACK[key]
+        assert name and description and stage, (
+            f"{key} has no row and no kept description; its button would show "
+            f"a bare title and light stable-blue")
 
 
 def test_a_folded_button_keeps_its_stage_after_the_row_is_dropped(
@@ -461,25 +491,26 @@ def test_closing_the_screen_closes_a_module_that_was_never_opened(
 def test_fold_description_falls_back_only_when_the_row_is_gone(monkeypatch):
     """The registry wins while it has the row; the kept copy answers after.
 
-    Proved by moving the registry's answer: if the fallback were preferred,
-    the changed row would not show through.
+    Proved by GIVING the registry an answer that differs from the kept one: if
+    the fallback were preferred, the row would not show through. The row is put
+    back rather than edited in place, because Model Zoo has none any more —
+    which is precisely the state the second half of this test describes.
     """
     from spacr.qt import app as app_module
 
-    moved = []
-    for row in app_module.APPS:
-        moved.append(("model_zoo", "Zoological Gardens", "a different line",
-                      row[3]) if row[0] == "model_zoo" else row)
-    monkeypatch.setattr(app_module, "APPS", moved)
+    restored = list(app_module.APPS) + [
+        ("model_zoo", "Zoological Gardens", "a different line", "Models")]
+    monkeypatch.setattr(app_module, "APPS", restored)
+    monkeypatch.setitem(app_module.APP_STAGE, "model_zoo", "beta")
 
     name, description, stage = fold_description("model_zoo")
     assert name == "Zoological Gardens"
     assert description == "a different line"
-    assert stage == "alpha"
+    assert stage == "beta"
 
     monkeypatch.setattr(
         app_module, "APPS",
-        [row for row in moved if row[0] != "model_zoo"])
+        [row for row in restored if row[0] != "model_zoo"])
     assert fold_description("model_zoo") == FOLD_FALLBACK["model_zoo"]
 
 
@@ -489,3 +520,155 @@ def test_the_masthead_carries_the_module_name_and_its_api_link(screen):
     assert screen._header.description_label.text() == mm.HEADER_DESCRIPTION
     assert screen._header.info_link is not None
     assert screen._folds.parent() is screen._header
+
+
+# ---------------------------------------------------------------------------
+# The rows are dropped
+# ---------------------------------------------------------------------------
+# Folding a module ends in it losing its registry row, which is what takes the
+# tile off Home. The row is load-bearing, though: `spacr-run`, pre-flight, the
+# settings form, the drop handlers and the fold button's own colour all key off
+# it. What follows is the contract each of those has to go on honouring for the
+# four modules this screen absorbed, with the row gone.
+
+#: The registry rows this screen's folds replaced. `cellpose_all` (the
+#: "Mask the whole folder" button) and `napari_bridge` are not here: the
+#: first never had a row, and the second is not part of this drop.
+DROPPED_HERE = ("train_cellpose", "model_compare", "model_zoo", "curate")
+
+
+def test_the_rows_this_screen_folded_have_left_the_registry():
+    """The tile is gone from Home, which is the whole point of the fold."""
+    import spacr.qt
+    from spacr.qt import app as app_module
+
+    spacr.qt.register_self_registering_modules()
+    live = {row[0] for row in app_module.APPS}
+    still_there = sorted(key for key in DROPPED_HERE if key in live)
+    assert not still_there, (
+        f"these modules are buttons on Make Masks and tiles on Home at the "
+        f"same time: {still_there}")
+
+
+def test_every_module_this_screen_folded_is_still_reachable_from_it(screen):
+    """A fold that cannot be opened is a deletion wearing a button.
+
+    Pressed rather than called: the strip is the only way in once the row is
+    gone, so the assertion has to go through the button a hand would find.
+    """
+    for key in DROPPED_HERE:
+        button = screen._folds.button_for(key)
+        assert button is not None, f"{key} has no button on the masthead"
+        button.click()
+        assert screen.folded_screen(key) is not None, (
+            f"{key}'s button opened nothing")
+
+
+def test_the_gui_only_sentence_is_written_in_cli_not_borrowed_from_a_row():
+    """`spacr-run curate` has to explain itself on a machine with no PySide6.
+
+    ``cli._absorb_registered_gui_only`` lifts the sentence out of a registered
+    app's ``cli_note=``, so while the row existed the table answered whether
+    or not anybody had written the sentence down. The row is gone and that
+    source with it — and the process that needs the answer most, a cluster
+    node with no Qt registry loaded at all, never had it. Read out of the
+    module's own literal, because that is the only copy left.
+    """
+    import ast
+    import pathlib
+
+    import spacr.cli as cli_module
+
+    source = pathlib.Path(cli_module.__file__).read_text()
+    written = set()
+    for node in ast.walk(ast.parse(source)):
+        if not isinstance(node, ast.AnnAssign):
+            continue
+        target = getattr(node.target, "id", "")
+        if target != "INTERACTIVE_ONLY" or not isinstance(node.value, ast.Dict):
+            continue
+        written = {key.value for key in node.value.keys
+                   if isinstance(key, ast.Constant)}
+    assert written, "cli.INTERACTIVE_ONLY is no longer a literal dict"
+    for key in ("model_compare", "model_zoo", "curate"):
+        assert key in written, (
+            f"{key} has no GUI-only sentence in cli.py; with its registry row "
+            f"dropped, `spacr-run {key}` answers 'unknown module' instead")
+        assert key in cli_module.INTERACTIVE_ONLY
+        assert "unknown module" not in cli_module._unknown_module_message(key)
+
+
+def test_the_training_half_still_runs_headless_with_no_row():
+    """`spacr-run train_cellpose` and pre-flight both key off the dropped name.
+
+    Unlike the other three this one is not GUI-only: it has an entry point, a
+    settings vocabulary and a validation rule set, and a cluster job written
+    before the fold names it. All four registries have to keep answering.
+    """
+    from spacr.qt.bridge import resolve_pipeline_entry
+    from spacr.qt.screens.settings_model import resolve_default_settings
+    from spacr.validate import APP_FUNCTIONS
+    import spacr.cli as cli_module
+
+    assert cli_module.MODULES["train_cellpose"].func_name == "train_cellpose"
+    assert APP_FUNCTIONS["train_cellpose"] == "spacr.submodules.train_cellpose"
+    entry = resolve_pipeline_entry("train_cellpose")
+    assert entry is not None, (
+        "the bridge lost train_cellpose's entry point with its registry row; "
+        "the Run button on the folded page does nothing")
+    inner = getattr(entry, "__wrapped__", entry)
+    assert inner.__name__ == "train_cellpose"
+    defaults = resolve_default_settings("train_cellpose")
+    assert {"n_epochs", "learning_rate"} <= set(defaults), (
+        f"the training form collapsed to {sorted(defaults)}")
+
+
+def test_a_settings_file_written_before_the_fold_still_fills_the_form(
+        screen, tmp_path, qtbot):
+    """A CSV names the module by key, and the key outlived the tile.
+
+    Round-tripped through the folded workbench rather than asserted against
+    the defaults table, because what a user has on disk is a file the training
+    page has to read.
+    """
+    workbench = screen.folded_screen("train_cellpose")
+    train = workbench.train_screen
+    assert train.app_key == "train_cellpose"
+    before = train._settings_model.collect()
+    assert {"n_epochs", "learning_rate", "model_type", "batch_size"} <= set(
+        before), (
+        f"the training form collapsed to {sorted(before)}; a settings file "
+        f"written before the fold names keys it no longer has a control for")
+
+    applied = train.apply_settings_dict({"n_epochs": 42, "learning_rate": 0.05})
+    assert applied == 2
+    collected = train._settings_model.collect()
+    assert int(collected["n_epochs"]) == 42
+    assert float(collected["learning_rate"]) == pytest.approx(0.05)
+
+
+def test_a_dropped_file_still_finds_a_handler_for_every_fold():
+    """The drop handlers are keyed by app key and never consult the registry."""
+    from spacr.qt.dnd_handlers import get_handler
+
+    for key in DROPPED_HERE:
+        assert get_handler(key) is not None, (
+            f"a file dropped on {key}'s page lands nowhere")
+
+
+def test_every_folded_button_lights_the_colour_its_tile_lit(screen):
+    """The stage the tile was showing the day its row went, and no other.
+
+    ``app_stage`` answers "stable" for a key the registry no longer holds, so
+    with nothing kept an alpha module's button would light blue. The kept
+    table is the only source left, and this asserts each button actually wears
+    what it says.
+    """
+    from spacr.qt.theme import STAGE_HOVER
+
+    for key in FOLD_ORDER:
+        _name, _description, stage = fold_description(key)
+        assert stage in STAGE_HOVER, f"{key} lights in no known colour"
+        assert screen._folds.button_for(key).property("stage") == stage, key
+    assert fold_description("model_compare")[2] == "stable"
+    assert fold_description("curate")[2] == "alpha"

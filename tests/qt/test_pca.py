@@ -702,80 +702,62 @@ def test_the_canvas_lets_go_of_the_link_on_close(qtbot, link):
 
 
 
-@pytest.fixture
-def registry_sandbox():
-    """Restore the whole app registry after the test.
+def test_the_screen_has_no_registry_row(qtbot):
+    """PCA is a fold now, so it must NOT be a tile as well.
 
-    A leaked row is a leaked tile, a leaked sidebar button and a leaked
-    keyboard binding for every test that runs afterwards, so the list object is
-    restored in place rather than trusting an unregister call.
-    """
-    from spacr.qt import app as app_mod
-    apps = list(app_mod.APPS)
-    factories = dict(app_mod.APP_FACTORIES)
-    stages = dict(app_mod.APP_STAGE)
-    meta = dict(app_mod.APP_META)
-    yield app_mod
-    app_mod.APPS[:] = apps
-    app_mod.APP_FACTORIES.clear()
-    app_mod.APP_FACTORIES.update(factories)
-    app_mod.APP_STAGE.clear()
-    app_mod.APP_STAGE.update(stages)
-    app_mod.APP_META.clear()
-    app_mod.APP_META.update(meta)
-    app_mod._refresh_sections()
+    This test has been inverted twice, and both inversions are the same
+    rule: assert whichever direction is true, because a test pinned to
+    the old state is how a screen stays invisible or how a deleted tile
+    quietly comes back. It first asserted the screen was unreachable,
+    then asserted the row in ``_SELF_REGISTERING_APPS`` had appeared,
+    and now asserts that row is gone -- PCA is a button on Image UMAP's
+    masthead, and a second front door on Home would be the redundancy
+    the fold was for.
 
-
-def test_the_screen_is_registered(qtbot):
-    """The one row in app.py's `_SELF_REGISTERING_APPS` is present.
-
-    This test used to assert the opposite. The screen was finished and
-    tested but deliberately switched off, because a new APPS row reddened
-    the per-app inventory tests and Explore stood at
-    MAX_APPS_PER_SECTION. Both reasons expired -- the ledgers were filled
-    in and Explore came back down to eight -- and the row landed in
-    `baa704fc`, at which point this file was the only thing still
-    claiming the screen was unreachable.
-
-    Inverted rather than deleted: "is it on the sidebar" is worth
-    asserting in whichever direction is currently true, and a test that
-    pins the old state is how a finished feature stays invisible.
+    The screen itself is still built here, because "no row" has to mean
+    "no tile" and not "no module".
     """
     from spacr.qt.app import APPS
     from spacr.qt.screens import pca as screen
 
-    assert any(row[0] == screen.APP_KEY for row in APPS), (
-        "pca is missing from APPS; its row in _SELF_REGISTERING_APPS "
-        "(spacr/qt/app.py) is what puts it there")
+    assert not any(row[0] == screen.APP_KEY for row in APPS), (
+        "pca is back in APPS; it is folded onto Image UMAP and its row in "
+        "app.py's _SELF_REGISTERING_APPS was dropped")
+    assert not hasattr(screen, "register"), (
+        "a register() nobody calls is a tile waiting to come back")
     qtbot.addWidget(screen.make_pca_screen())
 
 
-def test_registering_the_screen_reaches_every_reader_of_the_registry(
-        registry_sandbox):
-    """Driving `register()` is the same thing the one line will do."""
+def test_the_way_in_is_the_fold_on_image_umap(qtbot):
+    """With no row, the masthead button is the only front door.
+
+    Dropping a row is only safe if the module is still reachable, so the
+    reachability is asserted here rather than assumed: the key is one of
+    Image UMAP's folds, and the builder behind it makes this screen.
+    """
+    from spacr.qt.screens import image_umap
     from spacr.qt.screens import pca as screen
-    app_mod = registry_sandbox
 
-    # The sandbox SNAPSHOTS the registry and restores it afterwards; it does
-    # not empty it. So the screen is already registered here, from app.py's
-    # own call at import, and register() would correctly answer False. Take
-    # it back out first, then assert the round trip -- which is also the
-    # stronger test, because it exercises unregister as well.
-    assert app_mod.unregister_app(screen.APP_KEY) is True
-    assert not any(r[0] == screen.APP_KEY for r in app_mod.APPS)
+    assert screen.APP_KEY in image_umap.FOLDED_APPS
+    built = image_umap.BUILDERS[screen.APP_KEY]()
+    qtbot.addWidget(built)
+    assert isinstance(built, screen.PCAScreen)
 
-    assert screen.register() is True
-    assert screen.register() is False           # idempotent, not a raise
 
-    row = next(r for r in app_mod.APPS if r[0] == screen.APP_KEY)
-    assert row[1] == screen.APP_NAME
-    assert row[3] == app_mod.SECTION_EXPLORE
-    assert app_mod.APP_FACTORIES[screen.APP_KEY] is screen.make_pca_screen
-    assert app_mod.APP_STAGE[screen.APP_KEY] == app_mod.STAGE_ALPHA
+def test_the_gui_only_sentence_is_written_where_the_cli_reads_it():
+    """The sentence survived the row, in both of its copies.
 
-    # The strings fan out into the tables that used to need a hand-edit each.
+    It used to travel into ``cli.INTERACTIVE_ONLY`` as the row's
+    ``cli_note=``, and ``unregister_app`` takes a pushed entry back out
+    again -- so with the row gone and nothing written by hand,
+    ``spacr-run pca`` would stop saying "run it in the GUI" and start
+    guessing the user typed the name wrong. ``spacr.cli`` answers
+    ``--list`` on clusters with no PySide6, so it cannot import this
+    module to read the sentence; the two copies are pinned equal
+    instead.
+    """
     from spacr import cli
-    from spacr.qt.screens.app_screen import APP_INTROS, APP_TITLES
-    assert APP_TITLES[screen.APP_KEY] == screen.APP_NAME
-    assert APP_INTROS[screen.APP_KEY] == screen.APP_INTRO
+    from spacr.qt.screens import pca as screen
+
     assert cli.INTERACTIVE_ONLY[screen.APP_KEY] == screen.APP_CLI_NOTE
+    assert screen.APP_KEY not in cli.MODULES

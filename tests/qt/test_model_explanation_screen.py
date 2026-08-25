@@ -156,10 +156,21 @@ def test_umap_handoff_uses_the_promoted_annotation(qtbot, tmp_path):
                                 "color_by": "eaf1_hit_like"})]
 
 
-def test_registered_explain_app_uses_the_combined_factory(qtbot):
-    from spacr.qt.app import registered_factory
-    factory = registered_factory("explain_cv")
-    screen = factory()
+def test_the_explain_cv_fold_opens_the_combined_screen(qtbot):
+    """Explain CV Model has no registry row; Classify's button opens it.
+
+    It used to be reached through ``registered_factory("explain_cv")``,
+    which is the seam a TILE is built through. The module folded onto the
+    Classify masthead and the row went with the tile, so the builder on
+    the host is what has to produce the same screen -- the whole
+    workbench, not a digest of it.
+    """
+    from spacr.qt.app import APPS
+    from spacr.qt.screens.classify import BUILDERS, FOLDED_APPS
+
+    assert not [row for row in APPS if row[0] == "explain_cv"]
+    assert "explain_cv" in FOLDED_APPS
+    screen = BUILDERS["explain_cv"](None)
     qtbot.addWidget(screen)
     assert isinstance(screen, ModelExplanationScreen)
 

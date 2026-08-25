@@ -304,14 +304,11 @@ USE_COUNTS = {
     "plate_view": 131, "db_browser": 118, "report": 88,
     "queue": 71, "batch": 64, "map_barcodes": 59, "regression": 52,
     "convert": 47, "umap": 41, "make_masks": 38, "run_history": 35,
-    "timelapse": 33, "graph_builder": 31, "model_zoo": 29,
-    "illumination": 28, "cellpose_masks": 27, "barcode_qc": 25,
+    "graph_builder": 31,
     "align": 24, "layer_viewer": 23, "distributed_jobs": 22, "foreign": 21,
-    "external_masks": 20, "agreement": 19, "activation": 17,
-    "train_compare": 15, "model_compare": 13,
-    "classifier_evaluation": 12, "motility": 11,
-    "recruitment": 9, "analyze_plaques": 8, "invasion": 6,
-    "replication": 6, "train_cellpose": 5,
+    "external_masks": 20, "activation": 17,
+    "train_compare": 15, "recruitment": 9,
+    "analyze_plaques": 8, "invasion": 6, "replication": 6,
 }
 
 #: What an app nobody has invented a count for is given. Below the
@@ -367,9 +364,20 @@ def _with_late_registrations(
     :param fallback: the title of the band unfiled keys are appended to.
     :returns: a fresh list; the literal is not mutated.
     """
-    placed = {key for _title, keys in cats for key in keys}
+    live = set(all_keys())
+    # BOTH DIRECTIONS, because a table drifts from the registry both ways.
+    #
+    # An app that registered itself after these literals were written is
+    # added to the fallback, which is what this function was for. An app
+    # whose ROW WAS DROPPED is removed -- a module folded into a host
+    # screen keeps its screen and loses its tile, and a table that goes on
+    # naming it makes `name_of` raise and takes all thirty variants down.
+    # That has happened twice: once for `cellpose_masks` and once for
+    # `parameter_sweep`, both times as a crash rather than a missing tile.
+    result = [(title, [key for key in keys if key in live])
+              for title, keys in cats]
+    placed = {key for _title, keys in result for key in keys}
     missing = [key for key in all_keys() if key not in placed]
-    result = [(title, list(keys)) for title, keys in cats]
     if missing:
         for title, keys in result:
             if title == fallback:
@@ -383,21 +391,17 @@ CATS_BROAD3 = _with_late_registrations([
     # images exist. "Prepare" is the closest of these three to that, and
     # it is where a screener would look for it.
     ("Prepare", ["power", "convert", "align", "foreign", "external_masks",
-                 "illumination", "make_masks", "train_cellpose",
-                 "cellpose_masks", "model_zoo"]),
-    ("Run", ["mask", "timelapse", "motility", "measure", "annotate",
+                 "illumination", "make_masks"]),
+    ("Run", ["mask", "measure", "annotate",
              "classify_merged",
-             "map_barcodes", "regression", "parameter_sweep",
-             "queue", "batch", "distributed_jobs", "analyze_plaques",
+             "map_barcodes", "regression", "queue", "batch", "distributed_jobs", "analyze_plaques",
              "recruitment", "invasion", "replication"]),
-    ("Review", ["plate_view", "agreement", "umap", "activation",
-                "barcode_qc", "layer_viewer", "graph_builder",
-                "anndata_export", "pca", "tabulate", "run_compare",
-                "train_compare", "classifier_evaluation", "model_compare",
-                "run_history", "db_browser", "data_manager", "report",
-                "pipeline_graph", "hit_list", "profiler", "volcano_explorer",
-                "methods_export", "image_scatter", "explain_cv",
-                "investigate_hit"]),
+    ("Review", ["plate_view", "umap", "activation",
+                "layer_viewer", "graph_builder",
+                "tabulate", "run_compare",
+                "train_compare", "run_history", "db_browser", "data_manager", "report",
+                "pipeline_graph", "hit_list", "profiler",
+                "methods_export", "investigate_hit"]),
 ], fallback="Review")
 
 #: Five stages of a run. Variants 02 and 23 draw these as one seven-wide
@@ -516,12 +520,13 @@ CATS_STAGE5 = _with_late_registrations([
     # the one app in Analyse that never touches the measurement table or
     # the screen — it takes a trained model and a folder of crops and
     # paints what the model looked at, which is the job Layer Viewer does
-    # for a mask, in the band the models themselves are already in (Train
-    # Cellpose, Model Compare, and Model Zoo, which benches "Cellpose +
-    # classifier" models).
-    ("Segment", ["mask", "timelapse", "cellpose_masks", "make_masks",
-                 "train_cellpose", "model_zoo", "model_compare",
-                 "layer_viewer", "curate", "activation", "explain_cv"]),
+    # for a mask, in the band the models themselves are in. The three model
+    # apps that argument named are buttons on the Make Masks masthead now
+    # rather than keys of their own, so this band reaches them through
+    # ``make_masks`` -- which is why the band did not shrink by three when
+    # they left, and why Curate is not listed beside it either.
+    ("Segment", ["mask", "make_masks",
+                 "layer_viewer", "activation"]),
     # Annotator Agreement moves here from Report, beside Annotate. It is
     # not a report on the screen, it is the check on the labelling step:
     # kappa between two annotation columns says whether the labels this
@@ -529,11 +534,6 @@ CATS_STAGE5 = _with_late_registrations([
     # it for masks. Both other tables already put it with Annotate —
     # CATS_NARROW8 under "Label", CATS_QUESTIONS under "I have objects.
     # What are they like?" — so this is the third table agreeing.
-    # Image Scatter is here for the same reason Layer Viewer is in
-    # Segment: it is the eye on this band's work. Two measurements against
-    # each other with the object under the cursor beside them is how you
-    # find out whether what was measured is what you meant to measure —
-    # asked of the measurements, not of the screen they add up to.
     # Lineage is here for the third turn of the same argument, and it is
     # the strongest of the three: the cell → nucleus → pathogen tree is
     # not derived from the measurements, it IS one of them. Measure is
@@ -546,14 +546,8 @@ CATS_STAGE5 = _with_late_registrations([
     # asked OF the measurements, which is what this band is. It had been
     # landing in Report, and Report is only where an uncategorised key
     # falls -- not an argument that a contingency table is a deliverable.
-    # PCA asks the same table for its principal directions. It belongs beside
-    # Image Scatter here rather than beside the screen fits below: neither
-    # consumes barcode counts or a regression result, and both help inspect
-    # whether the measured feature space is the one the user intended.
-    ("Measure", ["measure", "annotate", "agreement", "motility",
-                 "image_scatter", "lineage", "analyze_plaques",
-                 "recruitment", "invasion", "replication", "tabulate",
-                 "pca"]),
+    ("Measure", ["measure", "annotate", "lineage", "analyze_plaques",
+                 "recruitment", "invasion", "replication", "tabulate"]),
     # Barcode QC sits beside Map Barcodes and Regression because the
     # number it derives — the abundance threshold — is what the
     # regression consumes as fraction_threshold. It is part of analysing
@@ -581,9 +575,8 @@ CATS_STAGE5 = _with_late_registrations([
     # classifier is a deliverable. Activation went the other way, to
     # Segment; the note there says why.
     ("Analyse", ["classify_merged", "map_barcodes",
-                 "barcode_qc", "regression", "umap", "graph_builder",
-                 "anndata_export", "profiler", "parameter_sweep",
-                 "investigate_hit"]),
+                 "regression", "umap", "graph_builder",
+                 "profiler", "investigate_hit"]),
     # Report is "decide whether to believe it, then hand it on", which is
     # where the two model/provenance QC apps belong: Classifier Evaluation
     # judges the classifier the Analyse stage trained, Run History says what
@@ -602,44 +595,44 @@ CATS_STAGE5 = _with_late_registrations([
     # The QC Dashboard is the most literal member this band has: five
     # verdicts on one screen, none of them recomputed, which is "decide
     # whether to believe it" with nothing else in it.
-    # Volcano Explorer is equally literal: it opens a finished regression,
-    # runs no analysis and lets the user inspect and export the result.
-    ("Report",  ["plate_view", "train_compare", "classifier_evaluation",
-                 "run_history", "run_compare", "db_browser", "report",
+    ("Report",  ["plate_view", "train_compare", "run_history", "run_compare", "db_browser", "report",
                  "pipeline_graph", "hit_list", "methods_export",
-                 "qc_dashboard", "volcano_explorer"]),
+                 "qc_dashboard"]),
 ], fallback="Report")
 
 CATS_NARROW8 = _with_late_registrations([
-    # Segment stays exactly three, and Measure and Label exactly two:
-    # variant 04's whole argument is that a narrow category can be named
-    # honestly ("'Segment' is three apps and it is obvious which three")
-    # at the cost of two categories too small for a heading. Layer Viewer
-    # would be a fourth here on a technicality — it is where you LOOK at
-    # a mask, not one of the three things that make one.
-    ("Segment",          ["mask", "timelapse", "cellpose_masks"]),
-    ("Train models",     ["make_masks", "train_cellpose", "model_zoo",
-                          "model_compare"]),
-    ("Measure",          ["measure", "motility", "image_scatter", "pca",
-                          "tabulate"]),
-    ("Label",            ["annotate", "agreement"]),
+    # The bands stay deliberately narrow: variant 04's whole argument is
+    # that a narrow category can be named honestly ("'Segment' is the
+    # apps that make a mask, and it is obvious which they are") at the
+    # cost of categories too small for a heading. Sizes are not asserted
+    # here because folding a module into its host removes its key from
+    # every one of these lists without changing what the band means.
+    # Layer Viewer would be one more here on a technicality — it is where
+    # you LOOK at a mask, not one of the things that make one.
+    # ONE SEGMENT BAND, not a "Train models" band beside it. Training a
+    # Cellpose model, comparing two and browsing the zoo are buttons on the
+    # Make Masks masthead, so "Train models" held nothing that trains --
+    # only Make Masks, which corrects a mask by hand and is a way of
+    # producing one. A band named for work none of its keys does is worse
+    # than a slightly wider band.
+    ("Segment",          ["mask", "make_masks"]),
+    ("Measure",          ["measure", "tabulate"]),
+    ("Label",            ["annotate"]),
     # Classify (the merged module) is one of the apps that trains a
     # per-object classifier, so it is here with the two originals it
     # dispatches to rather than in the fallback band, which had been
     # swallowing it.
     ("Classify",         ["classify_merged",
-                          "activation", "train_compare",
-                          "classifier_evaluation", "explain_cv"]),
+                          "activation", "train_compare"]),
     # The Prediction Profiler goes here rather than under "Classify":
     # what it sweeps is a screen's regression, which is this band's
     # subject, and variant 04's argument is that "Classify" is exactly
     # the six apps that train and judge a per-object classifier.
-    ("Screens & reports", ["map_barcodes", "barcode_qc", "regression",
+    ("Screens & reports", ["map_barcodes", "regression",
                            "umap", "graph_builder", "layer_viewer",
-                           "anndata_export", "plate_view", "report",
+                           "plate_view", "report",
                            "hit_list", "methods_export", "pipeline_graph",
-                           "profiler", "parameter_sweep", "volcano_explorer",
-                           "investigate_hit"]),
+                           "profiler", "investigate_hit"]),
     # Power / Design and Run Compare are both "things you do around a run
     # rather than to the images": one decides how big the run has to be,
     # the other reads two of them against each other. This is variant 04's
@@ -658,29 +651,25 @@ CATS_QUESTIONS = _with_late_registrations([
     # I have enough images?" — and the honest place for it is the band
     # about getting images, since that is the decision it feeds.
     ("I have images. Where are my objects?",
-     ["mask", "timelapse", "cellpose_masks", "make_masks", "train_cellpose",
-      "model_zoo", "model_compare", "align", "convert", "illumination",
+     ["mask", "make_masks", "align", "convert", "illumination",
       "foreign", "external_masks", "power"]),
     ("I have objects. What are they like?",
-     ["measure", "annotate", "motility", "analyze_plaques", "recruitment",
-      "invasion", "replication", "agreement", "layer_viewer",
-      "image_scatter", "pca", "tabulate"]),
+     ["measure", "annotate", "analyze_plaques", "recruitment",
+      "invasion", "replication", "layer_viewer", "tabulate"]),
     # Hit List answers this band's question in the most direct way there
     # is — it IS the list of genes that matter — and the Prediction
     # Profiler is how you interrogate the model that produced it.
     ("I have a screen. Which genes matter?",
      ["classify_merged", "map_barcodes",
-      "regression", "umap", "activation", "graph_builder", "anndata_export",
-      "hit_list", "profiler", "parameter_sweep", "investigate_hit"]),
+      "regression", "umap", "activation", "graph_builder", "hit_list", "profiler", "investigate_hit"]),
     # Pipeline Graph belongs here for the literal reason: it marks the
     # outputs that no longer follow from their inputs, which is the
     # question in the heading. Methods & Results is the other half — what
     # you write down once you have decided you do believe it.
     ("Should I believe any of this?",
-     ["plate_view", "barcode_qc", "train_compare", "classifier_evaluation",
-      "report", "run_history", "run_compare", "db_browser", "data_manager",
+     ["plate_view", "train_compare", "report", "run_history", "run_compare", "db_browser", "data_manager",
       "queue", "batch", "distributed_jobs", "pipeline_graph",
-      "methods_export", "explain_cv", "volcano_explorer"]),
+      "methods_export"]),
 ], fallback="Should I believe any of this?")
 
 CATS_INTENT4 = [

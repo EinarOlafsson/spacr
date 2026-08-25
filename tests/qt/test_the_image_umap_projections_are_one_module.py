@@ -27,7 +27,6 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from spacr.qt.app import app_stage
 from spacr.qt.screens import image_umap
 from spacr.qt.screens.app_screen import AppScreen
 from spacr.qt.screens.image_scatter import ImageScatterScreen
@@ -89,17 +88,25 @@ def test_image_umap_carries_the_two_projections_as_buttons(
 
 def test_a_projection_button_is_its_module_icon_and_description(
         qtbot, qt_theme_applied):
-    """No text, the module's own icon, the module's own line as tooltip."""
-    from spacr.qt.app import APPS
+    """No text, the module's own icon, the module's own line as tooltip.
 
-    descriptions = {row[0]: row[2] for row in APPS}
+    The sentence is read through
+    :func:`~spacr.qt.screens.map_barcodes.fold_description` rather than
+    straight out of ``APPS``: these two have no registry row left, and
+    that function is the seam the strip itself restates the buttons
+    through, so it is what has to be right.
+    """
+    from spacr.qt.screens.map_barcodes import fold_description
+
     _screen, strip = _host(qtbot)
     for key in image_umap.FOLDED_APPS:
         button = strip.button_for(key)
         assert button is not None
         assert button.text() == "", f"{key}: the fold button has a caption"
         assert not button.icon().isNull(), f"{key}: no icon on the button"
-        assert descriptions[key] in button.toolTip()
+        description = fold_description(key)[1]
+        assert description, f"{key}: nothing says what this button is"
+        assert description in button.toolTip()
 
 
 def test_a_projection_button_lights_in_the_stage_its_tile_lit_in(
@@ -107,37 +114,104 @@ def test_a_projection_button_lights_in_the_stage_its_tile_lit_in(
     """The hover colour is the module's maturity, from the one table.
 
     Two colour tables drift, so the button's ``stage`` property -- what
-    the stylesheet selects on -- is asserted against ``app_stage``, which
-    is what the tile reads.
+    the stylesheet selects on -- is asserted against the one answer the
+    strip itself uses. That is ``fold_description``, which reads
+    ``app_stage`` while the row exists and the fallback afterwards; these
+    two rows are gone, so it is the fallback that has to still say alpha.
     """
+    from spacr.qt.screens.map_barcodes import fold_description
     from spacr.qt.theme import STAGE_HOVER, stylesheet
 
     _screen, strip = _host(qtbot)
     sheet = stylesheet()
     for key in image_umap.FOLDED_APPS:
-        stage = app_stage(key)
+        stage = fold_description(key)[2]
+        assert stage == "alpha", f"{key}: the button no longer lights alpha"
         assert strip.button_for(key).property("stage") == stage
         assert stage in STAGE_HOVER
         rule = f'QPushButton#FoldButton[stage="{stage}"]:hover'
         assert rule in sheet, f"{key}: nothing lights the button on hover"
 
 
-def test_the_fold_fallback_says_what_the_tile_said():
-    """The kept copy of each tile's line agrees with the registry.
+def test_the_fold_fallback_is_in_the_table_that_is_actually_read():
+    """Each folded key is named in the one table ``fold_description`` reads.
 
-    Folding a module ends in its row being dropped, and the strip reads a
-    button's name, tooltip and hover colour out of that row. While both
-    exist they have to agree, or the button changes its mind the day the
-    row goes.
+    The host used to keep its own ``FOLD_FALLBACK`` beside its
+    ``FOLDED_APPS``, which read well and answered nothing: the strip is
+    restated through :func:`map_barcodes.restate_fold_button`, and that
+    looks in ``map_barcodes.FOLD_FALLBACK`` and nowhere else. A fallback
+    written anywhere else leaves the buttons mute the day the rows go.
+    """
+    from spacr.qt.screens import map_barcodes
+
+    for key in image_umap.FOLDED_APPS:
+        assert key in map_barcodes.FOLD_FALLBACK, (
+            f"{key}: nothing would say what this button is once its row "
+            f"is dropped")
+
+
+def test_the_fold_fallback_says_what_the_module_says_about_itself():
+    """The kept copy of each tile's line agrees with its module.
+
+    The registry rows for these two are gone -- being folded is what
+    dropping them means -- so the comparison that kept the fallback
+    honest against ``APPS`` has nothing left to compare against. Their
+    modules still declare the same ``APP_NAME`` and ``APP_DESCRIPTION``
+    the tiles were built out of, and those are what the button now has
+    to go on matching.
+    """
+    from spacr.qt.screens import image_scatter as image_scatter_module
+    from spacr.qt.screens import map_barcodes
+    from spacr.qt.screens import pca as pca_module
+
+    modules = {"image_scatter": image_scatter_module, "pca": pca_module}
+    for key, module in modules.items():
+        name, description, stage = map_barcodes.FOLD_FALLBACK[key]
+        assert name == module.APP_NAME
+        assert description == module.APP_DESCRIPTION
+        assert stage == "alpha"
+
+
+def test_a_button_still_says_what_it_is_with_no_registry_row():
+    """What the fallback exists for, asserted through the seam that uses it.
+
+    ``fold_description`` answers out of the registry while a row is there
+    and out of the fallback afterwards; these two rows are gone, so this
+    is the fallback answering and nothing else.
     """
     from spacr.qt.app import APPS
+    from spacr.qt.screens import map_barcodes
 
-    rows = {row[0]: row for row in APPS}
-    for key, (name, description, stage) in image_umap.FOLD_FALLBACK.items():
-        assert key in rows, f"{key} is not in the registry"
-        assert rows[key][1] == name
-        assert rows[key][2] == description
-        assert app_stage(key) == stage
+    live = {row[0] for row in APPS}
+    for key in image_umap.FOLDED_APPS:
+        assert key not in live, f"{key} still has a registry row"
+        name, description, stage = map_barcodes.fold_description(key)
+        assert name and description
+        assert stage == "alpha"
+
+
+def test_the_window_seam_finds_this_host(qtbot, qt_theme_applied):
+    """The strip reaches a real window through the walker, not by hand.
+
+    Every test above calls :func:`image_umap.install_folds` directly. The
+    running window never does: ``shortcuts._install_window_hooks`` starts
+    :func:`map_barcodes.install_window_hooks`, which walks the screen
+    stack and looks each screen's key up in ``FOLD_HOST_MODULES``. A host
+    missing from that table has no strip in the running app however well
+    its own installer works -- and with these two rows dropped, a strip
+    that never arrives is two modules with no way in at all.
+    """
+    from spacr.qt.screens import map_barcodes
+
+    assert map_barcodes.FOLD_HOST_MODULES.get(image_umap.HOST_KEY) \
+        == "image_umap"
+    screen = AppScreen(app_key=image_umap.HOST_KEY)
+    qtbot.addWidget(screen)
+
+    strip = map_barcodes.install_folds_on(screen)
+
+    assert strip is not None, "the walker gave Image UMAP no strip"
+    assert list(strip.keys()) == list(image_umap.FOLDED_APPS)
 
 
 def test_every_folded_key_has_a_builder():

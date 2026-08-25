@@ -207,26 +207,29 @@ def _tiles(page: HomePage) -> dict:
 #: how finished it is lives in :data:`EXPECTED_STAGES` below and is
 #: drawn as the tile's hover colour rather than as a place.
 EXPECTED_SECTIONS = {
-    # Both were finished and tested but deliberately unregistered while
-    # Explore sat at the old cap; `baa704fc` switched them on once it did
-    # not, and this ledger was the last thing still describing them as
-    # absent.
-    "pca":             SECTION_EXPLORE,
+    # Tabulate was finished and tested but deliberately unregistered while
+    # Explore sat at the old cap; `baa704fc` switched it on once it did
+    # not, and this ledger was the last thing still describing it as
+    # absent. PCA arrived beside it and has since been folded onto Image
+    # UMAP -- a section is a property of a tile, so the key that no longer
+    # has one drops out of this ledger with its row.
     "tabulate":        SECTION_EXPLORE,
     "mask":            SECTION_CORE,
     # MOVED 2026-08-23. Core is the pipeline you run, in the order you
-    # run it; a timelapse and a motility assay are assays.
-    "timelapse":       SECTION_ASSAYS,
-    "motility":        SECTION_ASSAYS,
+    # run it; a plaque assay and a recruitment readout are assays.
+    #
+    # Timelapse and the Motility Assay were filed here until they were
+    # folded -- tracking became a switch on Mask Generation and the assay
+    # became a button on Measure -- and a section is a property of a tile.
     "measure":         SECTION_CORE,
     "annotate":        SECTION_CORE,
     "classify_merged": SECTION_CORE,
     "map_barcodes":    SECTION_CORE,
     "regression":      SECTION_CORE,
-    # Correcting a mask and its tracks by hand is part of getting the data,
-    # not a reading of what came out — so Core, beside Mask and Timelapse.
-    # Curate fixes a mask by hand, which is a segmentation-model job.
-    "curate":          SECTION_MODELS,
+    # `curate` stood here, filed under Segmentation models because fixing a
+    # mask by hand is a segmentation-model job. It is a button on the Make
+    # Masks masthead now -- the same argument taken one step further, into
+    # the screen that writes masks -- and this ledger records tiles.
     "align":           SECTION_DATA,
     "convert":         SECTION_DATA,
     "foreign":         SECTION_DATA,
@@ -236,29 +239,23 @@ EXPECTED_SECTIONS = {
     "distributed_jobs": SECTION_DATA,
     "db_browser":      SECTION_DATA,
     "make_masks":      SECTION_MODELS,
-    # ONE ROW WHERE THERE WERE TWO. Train Cellpose and Cellpose Masks were
-    # the two halves of one loop -- fine-tune on a few labelled fields, run
-    # the model over the rest -- and they are now the tabs of a single
-    # "Cellpose Workbench" tile under `train_cellpose`. `cellpose_masks` is
-    # still a real app key (`spacr-run cellpose_masks` runs, a settings file
-    # for it still loads); what it no longer has is a tile of its own, and
-    # this ledger records tiles.
-    "train_cellpose":  SECTION_MODELS,
-    "model_compare":   SECTION_MODELS,
-    "model_zoo":       SECTION_MODELS,
+    # NO ROWS WHERE THERE WERE THREE. Train Cellpose and Cellpose Masks were
+    # first merged into one "Cellpose Workbench" tile under `train_cellpose`,
+    # and that tile then folded into Make Masks along with Model Compare and
+    # Model Zoo: segment, look, correct, train, segment again is one loop and
+    # it is one screen now. All three keys are still real -- `spacr-run
+    # train_cellpose` runs, `spacr-run model_compare` says where the module
+    # went, a settings file for either still loads -- and what none of them
+    # has is a tile, which is what this ledger records.
     # Illumination correction is done TO the images on the way in, like
     # stitching and conversion -- not a reading of what came out.
-    "illumination":    SECTION_DATA,
     "data_manager":    SECTION_DATA,
     "plate_view":      SECTION_RESULTS,
-    "agreement":       SECTION_RESULTS,
     "umap":            SECTION_RESULTS,
     "activation":      SECTION_RESULTS,
     "train_compare":   SECTION_RESULTS,
-    "classifier_evaluation": SECTION_RESULTS,
     "run_history":     SECTION_RESULTS,
     "report":          SECTION_RESULTS,
-    "barcode_qc":      SECTION_RESULTS,
     # Two runs of the same project read against each other is a reading of
     # what a finished run produced, which is what this section is.
     "run_compare":     SECTION_RESULTS,
@@ -271,17 +268,13 @@ EXPECTED_SECTIONS = {
     # Explanations read completed model/regression outputs. Explain CV has a
     # dedicated fidelity-first workbench; Investigate Hit is settings-driven
     # because its reproducible file inputs are also its headless API.
-    "explain_cv":      SECTION_RESULTS,
     "investigate_hit": SECTION_RESULTS,
-    # Registered without this list being updated, which is the drift this
-    # test exists to catch. It belongs here for the same reason as the pair
-    # above: it asks the data nothing new, it redraws a finished regression's
-    # coefficient table.
-    "volcano_explorer": SECTION_RESULTS,
-    # The Parameter Sweep was here and has no registry row any more. It is
-    # the Regression screen's sweep card now -- a card seeds its axes from
-    # the regression form beside it, which a home tile has nothing to seed
-    # from -- so there is no section for it to be filed under.
+    # The Volcano Explorer and the Parameter Sweep were both filed here and
+    # neither has a registry row any more. The sweep is the Regression
+    # screen's sweep card and the explorer is "Publication figure…" on that
+    # screen's volcano -- each seeded from the frame or the form beside it,
+    # which a home tile has nothing to seed from -- so there is no section
+    # for either to be filed under.
     # Explore's first two. The section was declared and empty until they
     # registered -- "page through image layers" is the example in its own
     # definition, and the Graph Builder family is what it was named for.
@@ -290,10 +283,10 @@ EXPECTED_SECTIONS = {
     # Explore's third, and it is Explore rather than Results & QC for the
     # same reason as the other two: handing measurements.db to scanpy or
     # scvi-tools is asking the numbers something spaCR did not plan for.
-    "anndata_export":  SECTION_EXPLORE,
-    # Explore's fourth: a scatter you can hover to see the cell a point
-    # stands for. Asking the measurements a question, not reading a run.
-    "image_scatter":   SECTION_EXPLORE,
+    # Explore's fourth was Image Scatter, a scatter you can hover to see the
+    # cell a point stands for. It is folded onto Image UMAP now -- the same
+    # objects, the same click, a second projection -- so it has no tile to
+    # file.
     # Explore's fifth: what is inside what. The cell_id links have been in
     # the database since the first Measure run and had no view.
     "lineage":         SECTION_EXPLORE,
@@ -332,47 +325,56 @@ EXPECTED_STAGES = {
     # New module, so alpha: the two pipelines it dispatches to are trusted,
     # the merged screen has not been run on real data.
     "classify_merged": "alpha",
-    "align": "alpha", "model_zoo": "alpha", "convert": "alpha",
+    "align": "alpha", "convert": "alpha",
     "foreign": "alpha", "external_masks": "alpha",
-    "model_compare": "alpha", "queue": "alpha",
+    "queue": "alpha",
     "batch": "alpha", "distributed_jobs": "alpha",
     "invasion": "alpha", "db_browser": "alpha",
-    "plate_view": "alpha", "agreement": "alpha", "train_compare": "alpha",
-    "classifier_evaluation": "alpha",
+    "plate_view": "alpha", "train_compare": "alpha",
     "run_history": "alpha", "report": "alpha",
-    "illumination": "alpha", "barcode_qc": "alpha",
     "layer_viewer": "alpha", "graph_builder": "alpha",
     "data_manager": "alpha",
-    "power": "alpha", "anndata_export": "alpha", "run_compare": "alpha",
-    "image_scatter": "alpha", "lineage": "alpha", "curate": "alpha",
+    "power": "alpha", "run_compare": "alpha",
+    "lineage": "alpha",
     "hit_list": "alpha", "methods_export": "alpha",
     "pipeline_graph": "alpha", "profiler": "alpha",
     "experiment_design": "alpha", "qc_dashboard": "alpha",
-    # PCA and Tabulate joined APPS when app.py's _SELF_REGISTERING_APPS
-    # started calling their register(); both arrive alpha, like every screen
-    # that is built and reachable but not yet trusted end to end. Absent from
-    # this table they read as "stable", which is the one claim nobody has
-    # earned yet.
-    "pca": "alpha", "tabulate": "alpha",
-    "explain_cv": "alpha", "investigate_hit": "alpha",
-    # Registered without these ledgers being updated. Alpha like every other
-    # screen that is built and reachable but not yet trusted end to end --
-    # absent from this table they read as "stable", which is the one claim
-    # nobody has earned yet.
-    # The Parameter Sweep's entry stood beside this one until it stopped
-    # being a registry row; a stage is a property of a tile on Home.
-    "volcano_explorer": "alpha",
+    # Tabulate joined APPS when app.py's _SELF_REGISTERING_APPS started
+    # calling its register(); it arrived alpha, like every screen that is
+    # built and reachable but not yet trusted end to end. Absent from this
+    # table it would read as "stable", which is the one claim nobody has
+    # earned yet. PCA arrived with it and has since been folded onto Image
+    # UMAP; what its button lights in now is the host fold fallback's to
+    # say.
+    "tabulate": "alpha", "investigate_hit": "alpha",
+    # The Volcano Explorer's entry stood here beside the Parameter Sweep's
+    # until it too stopped being a registry row; a stage is a property of a
+    # tile on Home. What the fold button lights in afterwards is the host
+    # fold fallback's to say, and it is asserted there.
     # `cellpose_masks` stood beside `train_cellpose` here until the two
-    # became one Cellpose Workbench tile. A maturity is a property of a
-    # tile on Home, so the key that no longer has one drops out.
-    "make_masks": "beta", "train_cellpose": "beta",
-    "timelapse": "beta", "motility": "beta", "analyze_plaques": "beta",
+    # became one Cellpose Workbench tile, and `train_cellpose` until that
+    # tile became a button on the Make Masks masthead. A maturity is a
+    # property of a tile on Home, so a key that no longer has one drops out;
+    # `make_masks.FOLD_FALLBACK` says what its button lights in, and
+    # `test_the_fold_fallback_agrees_with_the_registry` asserts it there.
+    "make_masks": "beta",
+    # A stage is a property of a tile on Home, so a key folded out of the
+    # registry drops out of this ledger with its row. What the button
+    # lights in afterwards is recorded in the host's fold fallback, and
+    # `test_the_switch_lights_in_the_stage_the_tile_LIT` holds it there.
+    "analyze_plaques": "beta",
     "replication": "beta", "umap": "beta", "activation": "beta",
 }
 
 
 def test_every_app_is_filed_under_the_section_it_belongs_to():
-    """Section assignment for every app, one entry at a time."""
+    """Section assignment for every app, one entry at a time.
+
+    Five keys left this table with their registry rows: the modules they
+    named are folded into a host screen and are reached from there, so
+    they have no section because they have no tile. A section is a
+    property of a TILE.
+    """
     actual = {key: section for key, _n, _d, section in APPS}
     assert actual == EXPECTED_SECTIONS, (
         "an app changed section (or was added/removed). That is allowed — "
@@ -420,7 +422,13 @@ def test_every_app_carries_the_maturity_it_was_given():
     # 9 -> 8 beta, for the same kind of reason: Cellpose Masks and Train
     # Cellpose became the two tabs of one Cellpose Workbench tile. Both keys
     # still run; only one of them is now a tile, and this counts tiles.
-    assert counts == {"alpha": 40, "beta": 8, "stable": 6}
+    # 40 -> 28 alpha and 8 -> 5 beta: the folded modules gave up their
+    # rows, Illumination among them -- its settings had been on Measure's
+    # panel for some time while its tile stayed on Home. Nothing was
+    # signed off and nothing regressed: this counts TILES, and every one
+    # of those modules is now a button or a settings category on the
+    # screen it was folded into.
+    assert counts == {"alpha": 28, "beta": 5, "stable": 6}
 
 
 def test_no_section_is_used_that_was_never_declared():
@@ -775,13 +783,20 @@ def test_a_tile_is_wide_enough_for_the_longest_name(home_page):
     every tile sized itself to its own name. Every tile is the same size
     now, so the contract is that the ONE size fits the longest name; a
     tile that were wider than its neighbour would be the bug.
+
+    Which tile that is comes from the page rather than being named here:
+    it was "Annotator Agreement" until that module folded onto Annotate
+    and lost its tile, and a hard-coded name turns "the longest tile is
+    now a different one" into a KeyError that says nothing about width.
     """
     from spacr.qt.preferences import scaled_px
     tiles = _tiles(home_page)
-    longest = tiles["Annotator Agreement"]
+    assert tiles, "the home page drew no tiles"
+    name = max(tiles, key=len)
+    longest = tiles[name]
     label = longest.name_label
     assert QFontMetrics(label.font()).horizontalAdvance(
-        "Annotator Agreement") <= label.available_text_width()
+        name) <= label.available_text_width()
     assert not label.is_elided()
     assert longest.width() <= scaled_px(HomePage.TILE_MAX_W)
 
@@ -1071,16 +1086,19 @@ def test_the_command_palette_filters_by_name_and_navigates(win, qtbot):
     palette = CommandPalette(win)
     qtbot.addWidget(palette)
 
-    palette._on_filter("annotator agree")
+    # Was "annotator agree" until Annotator Agreement folded onto Annotate
+    # and lost its row; the palette lists tiles, so the filter has to name
+    # one that still is one. Two words, one app, and nothing else close.
+    palette._on_filter("plate viewer")
     rows = [palette._list.item(i).text()
             for i in range(palette._list.count())]
-    assert any("Annotator Agreement" in r for r in rows)
+    assert any("Plate Viewer" in r for r in rows)
     assert not any("Mask" in r for r in rows), (
         f"filter let unrelated commands through: {rows}")
 
     palette._on_activate()
-    assert win._status_app_label.text() == "Annotator Agreement"
-    assert win._stack.currentWidget() is win._screens["agreement"]
+    assert win._status_app_label.text() == "Plate Viewer"
+    assert win._stack.currentWidget() is win._screens["plate_view"]
 
 
 def test_the_command_palette_filters_by_section_name(win, qtbot):
@@ -1934,27 +1952,40 @@ def test_the_legacy_explain_error_hook_is_inert(win):
 # 12. Train hand-off + seed values
 # ===========================================================================
 
-def test_train_requested_navigates_and_seeds_the_target(win):
+# The Train buttons emit ``classify``, and every run journal ever written
+# names the key that ran. Neither is a screen any more: Classify (CV) and
+# Classify (ML) became one merged Classify, so the hand-off is resolved
+# through ``chaining._SUCCEEDED_BY`` before it navigates. It used to
+# navigate to the raw key, which BUILT a screen for it -- a page with no
+# sidebar row, no tile and no way back to it -- and seeded that instead of
+# the screen the user can actually reach.
+
+def test_train_requested_navigates_to_the_screen_that_carries_the_key(win):
+    """The seed lands on the merged Classify, not on an orphan page."""
     win._on_train_requested("classify", {"src": "/data/plate1",
                                          "epochs": 7})
-    screen = win._screens["classify"]
+
+    assert "classify" not in win._screens, "an orphan screen was built"
+    screen = win._screens["classify_merged"]
     assert win._stack.currentWidget() is screen
+    # `src` is a list on the merged screen, so the value is read back
+    # through `collect()` rather than off a line edit.
+    assert screen._settings_model.collect()["src"] == ["/data/plate1"]
     widgets = screen._settings_model._widgets
-    assert widgets["src"].text() == "/data/plate1"
     if "epochs" in widgets:
         assert widgets["epochs"].value() == 7
 
 
 def test_train_requested_ignores_keys_the_target_does_not_have(win):
     win._on_train_requested("classify", {"no_such_setting_at_all": 1})
-    assert win._stack.currentWidget() is win._screens["classify"]
+    assert win._stack.currentWidget() is win._screens["classify_merged"]
 
 
 def test_train_requested_survives_a_value_the_widget_rejects(win):
     """A bad seed must not take the navigation down with it."""
     win._on_train_requested("classify", {"src": "/ok", "epochs": "not-a-number"})
-    widgets = win._screens["classify"]._settings_model._widgets
-    assert widgets["src"].text() == "/ok"
+    screen = win._screens["classify_merged"]
+    assert screen._settings_model.collect()["src"] == ["/ok"]
 
 
 def test_train_requested_to_home_is_a_no_op(win):

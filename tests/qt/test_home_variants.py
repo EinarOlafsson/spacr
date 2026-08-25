@@ -139,25 +139,38 @@ SCROLLBARS_ALLOWED = {1, 25, 30}
 #:   count, and Core losing five apps to Assays and Segmentation models
 #:   made the tallest column taller. Fewer apps is not automatically a
 #:   shorter page when the shape is per-section.
+#: Re-measured after the module consolidation dropped fourteen folded
+#: rows: the registry these variants draw went from sixty-three tiles to
+#: forty-nine, and SEVEN of the thirteen recorded defects went away
+#: entirely while five of the rest got smaller. Only v01 is unchanged.
+#:
+#: This is the direction this record is hardest to keep honest in. A
+#: bigger count is a layout that stopped fitting and fails loudly; a
+#: smaller one is an improvement that silently turns the ledger into an
+#: allowance for defects nobody has any more, so it has to be written
+#: down the day it happens or the record stops being one.
+#:
+#: * v04, v13, v17, v20 and v22 fit completely now. v22, the A-to-Z index
+#:   with a fixed three-column canvas and nowhere to absorb a row, is the
+#:   variant most sensitive to the app count in either direction, and
+#:   fourteen fewer rows is what it needed.
+#: * v02 and v03 lose their overflow as well as most of their elisions:
+#:   five bands of seven hold forty-nine exactly, so no band wraps.
+#: * v19 and v24 stay below as boundary cases, not as measurements: both
+#:   fit here, and :data:`BOUNDARY_VARIANTS` already makes each of them
+#:   optional in either direction.
 KNOWN_LAYOUT_DEFECTS: dict = {
-    # New since the last record: v01 clips four descriptions and overflows.
+    # v01 clips four descriptions and overflows, before and after.
     1:  {"clipped": 4, "overflow": 1},
-    # Five bands of seven, all five now wrapping to a second row.
-    2:  {"elided": 25, "overflow": 1},
-    3:  {"elided": 6, "overflow": 1},
-    # Not names: one-line descriptions given less height than they need.
-    4:  {"clipped": 23},
-    5:  {"elided": 8},
-    13: {"clipped": 15},
-    17: {"overflow": 1},
+    # Five bands of seven; at forty-nine tiles none of them wraps any more,
+    # so what is left is names too long for the column rather than rows.
+    2:  {"elided": 16},
+    3:  {"elided": 4},
+    5:  {"elided": 5},
     19: {"clipped": 1},
-    20: {"elided": 1, "overflow": 1},
-    # The A-to-Z index has no bands to absorb added rows; at fifty-six apps
-    # its fixed three-column canvas clips the descriptions below the fold.
-    22: {"clipped": 12},
     24: {"clipped": 1},
-    28: {"elided": 5, "overflow": 1},
-    30: {"elided": 5},
+    28: {"elided": 3},
+    30: {"elided": 3},
 }
 
 # Bundled Open Sans produces the same counts on supported platforms except
@@ -390,8 +403,16 @@ def test_the_three_late_apps_are_categorised(gen_common):
     so every proposed home screen was a screen three apps were missing
     from. ``check_coverage`` catches that generically; this names them,
     because the generic failure sat red without being acted on.
+
+    Two of the three are left. Classifier Evaluation folded onto Classify
+    and its registry row went with the tile, so a home screen that drew
+    it would be drawing a module the sidebar no longer offers -- the
+    opposite defect, and the one it must now be absent from.
     """
-    late = {"classifier_evaluation", "distributed_jobs", "run_history"}
+    assert "classifier_evaluation" not in set(gen_common.all_keys()), (
+        "Classifier Evaluation is a button on Classify now, so no home "
+        "variant may place a tile for it")
+    late = {"distributed_jobs", "run_history"}
     assert late <= set(gen_common.all_keys())
     assert late <= set(gen_common.USE_COUNTS)
     for name in ("CATS_BROAD3", "CATS_STAGE5", "CATS_NARROW8",
@@ -467,14 +488,21 @@ def test_no_stage_band_exceeds_the_seven_column_grid_by_more_than_a_row(
     """
     assert len(gen_common.CATS_STAGE5) == 5
     for title, keys in gen_common.CATS_STAGE5:
-        assert len(keys) <= 12, (
+        assert len(keys) <= 10, (
             f"{title} has {len(keys)} apps, which is more than the one "
             f"wrapped row a seven-column grid may take")
-    # ...and the floor is real: any cap below it would be unsatisfiable.
-    total = sum(len(keys) for _title, keys in gen_common.CATS_STAGE5)
-    assert -(-total // 5) == 12, (
-        f"{total} apps over five bands no longer needs a twelve-wide band; "
-        f"tighten the cap above rather than leaving the slack unused")
+    # ...AND THE FLOOR IS THE WIDEST BAND, not the average one.
+    #
+    # This compared the cap against ceil(total / 5), which is the floor
+    # only if the five bands are evenly filled. They are not: the bands
+    # are a hand-made judgement about which question an app answers, and
+    # Acquire and Report each hold ten while Segment holds four. With the
+    # folded modules gone the average said 8 and the widest band was
+    # still 10, so it asked for a cap that nothing could satisfy.
+    widest = max(len(keys) for _title, keys in gen_common.CATS_STAGE5)
+    assert widest == 10, (
+        f"the widest band is {widest}; the cap above is the width the "
+        f"grid must accommodate, so move them together")
 
 
 def test_check_coverage_names_what_is_wrong(gen_common):
@@ -724,11 +752,16 @@ def test_text_label_upper_and_colour_reach_the_widget(gen, ctx):
 
 
 def test_htile_shows_the_real_name_and_blurb(gen, ctx):
-    """The tile is the app's own ``HTile``, carrying registry text."""
-    tile = gen.parts.htile(ctx, "classifier_evaluation", width=260,
-                           icon_px=40)
-    assert gen.common.name_of("classifier_evaluation") in _texts(tile)
-    assert gen.common.blurb_of("classifier_evaluation") in tile.toolTip()
+    """The tile is the app's own ``HTile``, carrying registry text.
+
+    Asked of a key the registry actually holds, taken from the generator
+    itself: it used to name Classifier Evaluation, which folded onto
+    Classify and has no row to read a name or a blurb out of any more.
+    """
+    key = gen.common.all_keys()[0]
+    tile = gen.parts.htile(ctx, key, width=260, icon_px=40)
+    assert gen.common.name_of(key) in _texts(tile)
+    assert gen.common.blurb_of(key) in tile.toolTip()
     assert tile.width() == 260
     assert tile.height() == gen.parts.htile_height(40)
 
@@ -1793,13 +1826,17 @@ def test_no_variant_clips_elides_or_overflows(subprocess_audit):
         # and nineteen at fifty-three in the bands; twelve and eighteen
         # after the merged Classify module took it to fifty-four, then
         # thirteen and seventeen at fifty-six after the explanation tools
-        # were filed explicitly. Hosted Ubuntu's supported rasterizer fits
-        # two boundary labels, producing eleven and nineteen. Both exact
-        # pairs are asserted rather than derived so that a variant
-        # quietly joining the defective set is a failure and not a
-        # subtraction that still adds up.
+        # were filed explicitly. Six and twenty-four now that the module
+        # consolidation has folded fourteen modules into their hosts and
+        # taken the registry back down to forty-nine tiles: five of the
+        # thirteen defective variants fit completely, and the two boundary
+        # labels fit with them. Hosted Ubuntu's supported rasterizer clips
+        # those two, producing eight and twenty-two. Both exact pairs are
+        # asserted rather than derived so that a variant quietly joining
+        # the defective set is a failure and not a subtraction that still
+        # adds up.
         assert (len(measured), N_VARIANTS - len(measured)) in {
-            (13, 17), (11, 19),
+            (6, 24), (8, 22),
         }
     finally:
         _prefs.set_font_scale(_original_zoom)
