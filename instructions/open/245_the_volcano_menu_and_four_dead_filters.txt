@@ -1,0 +1,79 @@
+================================================================================
+THE VOLCANO'S RIGHT-CLICK MENU, AND FOUR FILTERS THAT CANNOT FIRE
+================================================================================
+
+Status:    OPEN. Requested 2026-08-25.
+Owner:     spacr/qt/widgets/volcano_explorer.py and the shared graph
+           right-click menu; spacr/settings.py for the four removals.
+
+--------------------------------------------------------------------------------
+1. FOUR OUTLIER FILTERS LEAVE THE REGRESSION MODULE
+--------------------------------------------------------------------------------
+
+"cell area outline mads, nucleus area outline mads, and Cell intensity
+outline mads, Nucleus intensity outline mads can be removed from the
+regression modual. these cannot be used because the measurements are only
+merged with scores after regression."
+
+    cell_area_outlier_mads
+    nucleus_area_outlier_mads
+    cell_intensity_outlier_mads
+    nucleus_intensity_outlier_mads
+
+THE REASON IS THE ORDER OF THE PIPELINE, not a preference. Each of these
+excludes objects by a robust z-score on a MEASUREMENT -- area, or mean
+intensity. The regression reads a score table and a count table; the
+measurements are joined to the scores AFTER the fit. So at the moment
+these would run there is no column to compute a median absolute deviation
+over, and a filter that cannot see its own input is a control that reads
+as doing something and does nothing.
+
+They are removed from the regression panel. They stay wherever the
+measurements ARE in hand -- that is where they were always meant to
+apply -- and a settings file carrying them still loads, because a removed
+control must not turn an old run into an error.
+
+--------------------------------------------------------------------------------
+2. WHAT THE VOLCANO'S RIGHT-CLICK MENU MUST ALSO OFFER
+--------------------------------------------------------------------------------
+
+Added to what is already on it:
+
+  * COLOUR BY LOCALIZATION, and it is a multi-select rather than a single
+    pick: "all or any combination of localizations, e.g. dense granuals
+    and rhoptries 1 should be possible". Choosing two compartments
+    colours the points belonging to either, so a reader can ask about a
+    combination without editing the table underneath;
+  * X AXIS LIMITS, and Y AXIS LIMITS;
+  * X AXIS LABEL, and Y AXIS LABEL;
+  * EVERY APPEARANCE SETTING -- point size, point opacity, and the rest
+    of what the style already holds. The menu and the side panel must
+    offer the same settings: two routes to one figure that disagree about
+    what can be set is the defect this is closing.
+
+--------------------------------------------------------------------------------
+3. "ASPECT RATIO" BECOMES "GRAPH SHAPE"
+--------------------------------------------------------------------------------
+
+A ratio is a number and this is a choice of three:
+
+    square | vertical rectangle | horizontal rectangle
+
+Named that way in the menu, in the save dialog and in the figure
+preferences, because a reader choosing how a figure sits on a page is
+choosing a shape, not entering a ratio. The stored value may stay
+whatever it is; the WORDS change.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* the four filters are absent from the regression panel, and a settings
+  CSV that names all four still loads and runs;
+* right-clicking the volcano offers colour-by-localization with two
+  compartments tickable at once, and the points recolour to match;
+* the axis limits and labels typed into the menu reach the drawn figure
+  AND the saved file;
+* the set of settings the menu offers equals the set the side panel
+  offers -- asserted as a set comparison, not by eye;
+* nothing anywhere says "aspect ratio" to a user.

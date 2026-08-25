@@ -248,6 +248,23 @@ CANVAS_SHAPES = (
     ("free", None),
 )
 
+#: What each stored shape is CALLED where a user meets it. A ratio is a
+#: number and this is a choice of three, so the menu says which shape it is
+#: drawing rather than asking for a figure the reader has to compute. The
+#: stored names are unchanged: they are what `set_canvas_shape` takes, what a
+#: saved preference holds, and renaming them would break every one of those.
+CANVAS_SHAPE_LABELS = {
+    "square": "square",
+    "wide": "horizontal rectangle",
+    "tall": "vertical rectangle",
+    "free": "free",
+}
+
+#: What the group holding them is called. "Graph shape", not "aspect ratio":
+#: the two are different quantities and only one of them is a ratio -- the
+#: axis LOCK, which lives under Axes and says so in its own name.
+GRAPH_SHAPE_MENU = "Graph shape"
+
 #: Qt's own "no maximum", which PySide6 does not re-export from QtWidgets --
 #: checked: ``from PySide6.QtWidgets import QWIDGETSIZE_MAX`` raises
 #: ImportError on 6.11.1. Needed to give a widget its stretch back after a
@@ -3310,13 +3327,17 @@ class FastPlot(QWidget):
         self._gated(look, "Opacity…", self._ask_opacity, points)
         self._gated(look, "Shape by a column…", self._ask_shape_column,
                     self.shape_reason())
-        shape = self._group(look, "Shape")
+        shape = self._group(look, GRAPH_SHAPE_MENU)
         for name, _ratio in CANVAS_SHAPES:
             entry = shape.addAction(
-                name, lambda _checked=False, which=name:
+                CANVAS_SHAPE_LABELS.get(name, name),
+                lambda _checked=False, which=name:
                 self.set_canvas_shape(which))
             entry.setCheckable(True)
             entry.setChecked(self._canvas_shape == name)
+            # The stored name travels with the entry, so a caller reading the
+            # menu back does not have to un-translate the label.
+            entry.setData(name)
         look.addAction("Font size…", self._ask_font_size)
         # EXACTLY TWO COLOUR CONTROLS, split by what a mark IS rather than by
         # which part of the code draws it (instruction 152 B). Font colour is

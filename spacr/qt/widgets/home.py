@@ -1495,8 +1495,37 @@ class HomePage(QWidget):
         # the labels inside it; without the name that sweep reaches nothing
         # and the masthead's type keeps the blanket window background.
         hero.setObjectName("Hero")
+        # THE MASTHEAD IS A PANEL, NOT A BLACK BAND. The mark and the
+        # wordmark sat on the blanket window fill, which over a light theme
+        # or an animated backdrop reads as a black box drawn behind the
+        # logo. It wears the surface every other panel in the application
+        # wears -- the translucent one, at the user's own pane opacity, with
+        # the same corner radius -- so it sits ON the backdrop rather than
+        # punching a hole in it.
+        try:
+            from ..preferences import resolve_effective_theme
+            from ..theme import RADIUS, pane_surface
+
+            # THE SAME CALL EVERY OTHER PANEL MAKES, told which theme it is
+            # in. Left to resolve its own, it answered a different question
+            # from "what is this page painted in" and put a near-white panel
+            # behind the wordmark on a dark page. Told, it matches the rest
+            # of the application by construction: the same surface, the same
+            # scrim, and the user's own pane-opacity preference.
+            hero.setStyleSheet(
+                f"QWidget#Hero {{"
+                f" background-color:"
+                f" {pane_surface('surface_alt', resolve_effective_theme())};"
+                f" border-radius: {RADIUS['lg']}px;"
+                f" }}")
+        except Exception:                                # noqa: BLE001
+            LOG.debug("the masthead would not take its surface",
+                      exc_info=True)
         row = QHBoxLayout(hero)
-        row.setContentsMargins(0, 0, 0, 0)
+        # Padding, because the panel now has an edge: type flush against a
+        # rounded corner reads as clipped.
+        row.setContentsMargins(SPACING["md"], SPACING["sm"],
+                               SPACING["md"], SPACING["sm"])
         row.setSpacing(SPACING["md"])
 
         # The mark and the wordmark move together, so both take the Zoom

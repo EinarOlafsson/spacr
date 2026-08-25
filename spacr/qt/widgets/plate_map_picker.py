@@ -4,6 +4,14 @@ Selections are parsed and serialized through :mod:`spacr.well_spec`, so rows,
 columns, and individual wells use the same validated vocabulary in the GUI and
 headless APIs. Rectangular selection is exposed through :meth:`select_region`
 for mouse-drag handling and programmatic use.
+
+ONE GRID, NOT THREE THINGS NEAR EACH OTHER. The column numbers, the row
+letters and the wells all live in a single :class:`QGridLayout`, every item
+centred in its cell, so a column number sits over its column and a row letter
+beside its row at every window size. The grid takes the width and height its
+square wells need and leaves the rest to a trailing empty row and column,
+rather than dividing whatever the window happens to give it -- which is what
+pulls the labels away from the wells they name.
 """
 from __future__ import annotations
 
@@ -21,6 +29,12 @@ from ...well_spec import (DEFAULT_LAYOUT, LAYOUTS, WellSpecError, parse,
 CHOSEN = "#4472C4"
 EMPTY = "rgba(255, 255, 255, 0.06)"
 
+#: The side of a well, in pixels. A well is a SQUARE at every window size --
+#: a plate map is a picture of a physical object, and a well stretched into a
+#: rectangle reads as a grid of something else. Pinning the side is what makes
+#: the grid ask for the space it needs instead of dividing what it is handed.
+WELL_SIDE = 22
+
 
 class _Well(QPushButton):
     """One well. Checkable, so its state IS the selection."""
@@ -29,7 +43,7 @@ class _Well(QPushButton):
         super().__init__(parent)
         self.row, self.column = int(row), int(column)
         self.setCheckable(True)
-        self.setFixedSize(18, 18)
+        self.setFixedSize(WELL_SIDE, WELL_SIDE)
         self.setToolTip(well_label(row, column))
         self._paint()
         self.toggled.connect(lambda *_: self._paint())
@@ -42,9 +56,19 @@ class _Well(QPushButton):
     # grid rather than by waiting to be told.
 
     def _picker(self):
-        """The dialog this well belongs to, or ``None``."""
-        holder = self.parent()
-        return holder.parent() if holder is not None else None
+        """The :class:`PlateMapPicker` this well belongs to, or ``None``.
+
+        FOUND BY ANCESTRY, NEVER BY COUNTING STEPS. A scroll area reparents
+        the widget it is given into its own viewport, so a fixed two-parent
+        walk lands on that viewport, every ``hasattr(picker, "begin_drag")``
+        guard below reads False, and the drag gesture silently does nothing.
+        """
+        node = self.parent()
+        while node is not None:
+            if isinstance(node, PlateMapPicker):
+                return node
+            node = node.parent()
+        return None
 
     def mousePressEvent(self, event):                # noqa: N802 - Qt
         picker = self._picker()
@@ -143,6 +167,13 @@ class PlateMapPicker(QDialog):
                 widget.setParent(None)
                 widget.deleteLater()
         self._wells = {}
+        # A GRID KEEPS ITS ROW AND COLUMN COUNT when its items are taken out,
+        # so the stretch that absorbed the spare space on the previous layout
+        # would sit in the middle of a smaller one.
+        for index in range(self._grid.rowCount()):
+            self._grid.setRowStretch(index, 0)
+        for index in range(self._grid.columnCount()):
+            self._grid.setColumnStretch(index, 0)
 
         for column in range(1, columns + 1):
             self._grid.addWidget(QLabel(str(column), self._holder),
@@ -155,8 +186,22 @@ class PlateMapPicker(QDialog):
                 well.pressed.connect(
                     lambda r=row, c=column: self._begin(r, c))
                 well.toggled.connect(lambda *_: self._say())
-                self._grid.addWidget(well, row, column)
+                # CENTRED, LIKE ITS LABEL. Both share the cell, so a column
+                # number is over its column and a row letter beside its row
+                # however wide the cell has had to grow for the text in it.
+                self._grid.addWidget(well, row, column, Qt.AlignCenter)
                 self._wells[(row, column)] = well
+
+        # The corner the labels live in is a cell of the plate too.
+        self._grid.setColumnMinimumWidth(0, WELL_SIDE)
+        self._grid.setRowMinimumHeight(0, WELL_SIDE)
+        # WHERE THE SPARE SPACE GOES: past the last well, into an empty row
+        # and column that hold nothing. The holder fills the scroll area, and
+        # a grid with nowhere to put the extra width shares it out among the
+        # cells -- which is exactly what pulls the numbers off their columns
+        # and the letters off their rows as the window grows.
+        self._grid.setRowStretch(rows + 1, 1)
+        self._grid.setColumnStretch(columns + 1, 1)
 
         kept = {cell for cell in wanted if cell in self._wells}
         lost = len(wanted) - len(kept)
@@ -186,11 +231,10 @@ class PlateMapPicker(QDialog):
 
     # ------------------------------------------------------------ the drag
     #
-    # `select_region` has been here since 185 and NOTHING CALLED IT FROM THE
-    # MOUSE. It was written as a method so a test could select a rectangle
-    # without a human, and that is what it was ever used for: the gesture a
-    # user expects from press-move-release was implemented and unreachable.
-    # Reported 2026-08-21 -- "the user should be able to drag and select".
+    # `select_region` SELECTS A RECTANGLE WITHOUT A HUMAN, which is all it can
+    # do on its own: press, move and release are what reach it from a mouse,
+    # and a picker that is only ever driven through the method below has the
+    # gesture implemented and unreachable.
 
     def begin_drag(self, row: int, column: int, modifiers=None) -> None:
         """Anchor a drag on one well.
@@ -281,11 +325,32 @@ class PlateMapPicker(QDialog):
                 if well.isChecked()}
 
     def set_selection(self, cells) -> None:
-        wanted = {(int(r), int(c)) for r, c in cells}
+        """Choose exactly ``cells`` and repaint the whole plate.
+
+        :param cells: one-based ``(row, column)`` pairs, well-specification
+            text such as ``"A01"`` or ``"c3"``, or a mixture. The field this
+            picker edits is written in the second vocabulary, so it is worth
+            answering to.
+
+        THE REPAINT IS NOT OPTIONAL. Signals are blocked so that setting a
+        hundred wells says the count once rather than a hundred times, and
+        that also silences the ``toggled -> _paint`` connection -- so a well
+        chosen without a click, which includes the picker's own starting
+        value and everything kept across a layout change, would be checked
+        and still drawn empty.
+        """
+        wanted: Set[Tuple[int, int]] = set()
+        for cell in cells:
+            if isinstance(cell, str):
+                wanted |= self._read(cell)
+            else:
+                row, column = cell
+                wanted.add((int(row), int(column)))
         for cell, well in self._wells.items():
             well.blockSignals(True)
             well.setChecked(cell in wanted)
             well.blockSignals(False)
+            well._paint()
         self._say()
 
     def _read(self, text) -> Set[Tuple[int, int]]:

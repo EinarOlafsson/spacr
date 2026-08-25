@@ -2190,9 +2190,19 @@ def get_perform_regression_default_settings(settings):
     # than one a version bump takes for them. Off, `fraction_threshold` is
     # read exactly as before.
     settings.setdefault('calibrate_fraction_threshold', False)
-    # OFF BY DEFAULT, all four (instruction 210). This changes which cells
-    # EXIST, and a filter that silently drops objects is a filter that will
-    # be forgotten and then blamed on the annotation.
+    # THE FOUR OBJECT-OUTLIER FILTERS ARE NOT OFFERED HERE, and the reason
+    # is the order of the pipeline rather than a preference.
+    #
+    # Each one excludes objects by a robust z-score over a MEASUREMENT --
+    # area, or mean intensity. This module reads a score table and a count
+    # table, and the measurements are joined to the scores AFTER the fit.
+    # So at the moment these would run there is no column to take a median
+    # absolute deviation over: the control read as doing something and did
+    # nothing.
+    #
+    # Still DEFAULTED, so a settings file that names all four loads and
+    # runs unchanged -- removing a control must not turn an old run into an
+    # error. It is the panel entry that goes, not the key.
     for _criterion, _caption in _outlier_criteria():
         settings.setdefault(f'{_criterion}_outlier_mads', None)
     # ONE COLUMN, NOT TWO (instruction 135 A). `score_column` named the column
@@ -5060,11 +5070,6 @@ categories = {
         # reader who meets it anywhere else has to go and find the
         # other one first.
         "normalise_fraction",
-        # BEFORE THE THRESHOLD IN THE PANEL because they run before it in
-        # the pipeline (instruction 210): these decide which objects exist,
-        # and the threshold divides by what is left.
-        "cell_area_outlier_mads", "nucleus_area_outlier_mads",
-        "cell_intensity_outlier_mads", "nucleus_intensity_outlier_mads",
         "target_unique_count", "tolerance", "outlier_detection", "other",
     ],
     # Not "was this gRNA significant" but "does this fit deserve to be
