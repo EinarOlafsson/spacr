@@ -270,7 +270,35 @@ class SaveFigureDialog(QDialog):
             "proportions the plot already has; 1 makes the units square, "
             "which is what a Q-Q or a diagonal needs to mean anything.")
         self.aspect.valueChanged.connect(self.refresh)
-        form.addRow("aspect ratio", self.aspect)
+        # "LOCK DATA UNITS", NOT "ASPECT RATIO". This ties one y unit to n x
+        # units and is a statement about the DATA -- what a Q-Q or a
+        # diagonal needs. It is not what "save it as a square" means, and
+        # calling both of them the aspect ratio is why the two were confused
+        # for each other. The shape of the page is the control below.
+        form.addRow("lock data units", self.aspect)
+
+        # THE SHAPE OF THE FIGURE, as a choice rather than a number. Asked
+        # for as "change aspect ratio to graph shape and have square,
+        # vertical and horizontal rectangle" -- a ratio is a number, and a
+        # reader deciding how a figure sits on a page is choosing a shape.
+        #
+        # THE SAME VOCABULARY THE GRAPH'S OWN MENU USES, read from the one
+        # table, so a figure shaped from the menu and one shaped here are
+        # shaped by the same names.
+        from .fast_plots import CANVAS_SHAPE_LABELS, CANVAS_SHAPES
+
+        self.graph_shape = QComboBox()
+        self.graph_shape.addItem("as drawn", "")
+        for name, _ratio in CANVAS_SHAPES:
+            if name == "free":
+                continue
+            self.graph_shape.addItem(CANVAS_SHAPE_LABELS[name], name)
+        self.graph_shape.setToolTip(
+            "The proportions of the saved figure. 'as drawn' keeps what is "
+            "on screen. This is the shape of the PAGE; locking data units "
+            "above is a statement about the axes.")
+        self.graph_shape.currentIndexChanged.connect(self.refresh)
+        form.addRow("graph shape", self.graph_shape)
 
         self.line_width = QDoubleSpinBox()
         self.line_width.setRange(0.0, 20.0)
@@ -451,6 +479,9 @@ class SaveFigureDialog(QDialog):
         out: dict = {}
         if self.aspect.value() > 0:
             out["aspect"] = float(self.aspect.value())
+        shape = self.graph_shape.currentData()
+        if shape:
+            out["canvas_shape"] = str(shape)
         if self.line_width.value() > 0:
             out["line_width"] = float(self.line_width.value())
         if self.text_px.value() > 0:
