@@ -2,7 +2,9 @@
 ONE PARSE PER INPUT FILE, NOT ONE PER PAIR ROW
 ================================================================================
 
-Status:    filed AND closed 2026-08-19, diagnosed on the live process.
+Status:    closed. Diagnosed on the live process; the parse, the
+           intermediate and the silence are all dealt with, except the
+           panel call site named under WHAT REMAINS.
 Reported:  2026-08-19 -- "i merged the measurements and ran pathogen_area as a
            regression but it looks like it is not running while it does say
            that it is running ... do you see anything running?"
@@ -25,12 +27,36 @@ because the caller assigns `plateID` onto what it gets and filters it down to
 one plate, so sharing the frame would let the first pair row's edits reach the
 second. Eight `read_table` calls become five on a four-plate screen.
 
-WHAT IS STILL OWED, and it is the larger half. The 2.75 GB intermediate is
-itself the cost: the frame is ALREADY IN MEMORY when it is written, and
-writing it took 160 seconds before anything read it back. Nothing requires
-that handoff to be a CSV. Fixing that properly is worth more than the caching
-and is not done.
+AND THE LARGER HALF, THE INTERMEDIATE ITSELF: the frame is ALREADY IN MEMORY
+when it is written, and writing it took 160 seconds before anything read it
+back. Nothing requires that handoff to be a CSV.
 
-AND NOTHING SAYS SO WHILE IT HAPPENS. There is no log line between the merge
-finishing and the fit starting, which is why a working run looked dead.
+`spacr/frame_handoff.py` is that handoff. A producer offers the frame under
+the path it wrote, and `load_regression_input_pairs` takes the object instead
+of parsing the file -- so the round trip costs nothing at all. The reference
+is WEAK, so an offer cannot keep a multi-gigabyte frame alive after its owner
+drops it, and a reader that was offered nothing reads the file exactly as
+before. `frame_handoff.stage` writes the durable artefact COLUMNAR, because
+the artefact is worth keeping (a user can open it, and every fit of a queue
+then reads the same numbers) and only its format has to change.
+
+MEASURED ON A 143 MB FRAME, which is the same shape as the screen one at a
+twentieth of the size:
+
+    csv       write 11.14 s   read 1.63 s   239.5 MB
+    parquet   write  0.63 s   read 0.11 s   106.9 MB
+    handoff   write     0 s   read    0 s   nothing written twice
+
+WHAT REMAINS: the Measurements panel's `write_merged_frame` still writes CSV
+and does not offer the frame. It is a three-line call site -- stage the frame
+instead of writing it, and release it when the queue ends -- and until it is
+made the mechanism sits unused by that path.
+
+AND NOW IT SAYS SO WHILE IT HAPPENS. Between the merge finishing and the fit
+starting the run printed nothing for minutes, which is why a working run
+looked dead. Each input file is announced with its size before it is parsed
+and its row count and elapsed time after; a frame handed over in memory says
+that instead; and every fit stage -- reading the input tables, reading the
+counts, fitting the model, the fit has returned -- names itself and its
+resident size as it is entered.
 Instruction 140 asks for exactly this and does not cover this path.

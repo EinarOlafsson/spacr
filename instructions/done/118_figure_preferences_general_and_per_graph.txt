@@ -2,7 +2,9 @@
 FIGURE PREFERENCES: GENERAL, AND PER GRAPH TYPE
 ================================================================================
 
-Status:    not started
+Status:    SHIPPED, except for one question that only the maintainer can
+           answer. It is the last section of this file and it is a yes
+           or a no, not work.
 Requested: 2026-08-16 — "the graphs look pretty ugly. in the general app
            preferences in the figure tab theere should be general graph
            settings and specialized settings for al the possible different
@@ -298,3 +300,55 @@ WHAT IS LEFT AND IS A DECISION, NOT WORK: `GENERAL_DEFAULTS["background"]` is
 still "#FFFFFF" -- the house style's DEFAULT page. A user can move it off, and
 the control 118 asked for is there; whether it should SHIP transparent is the
 maintainer's call and a one-line change.
+
+
+================================================================================
+THE ONE OPEN QUESTION, WITH WHAT IT COSTS EITHER WAY
+================================================================================
+
+  SHOULD `figure_style.GENERAL_DEFAULTS["background"]` SHIP AS "none"
+  (TRANSPARENT) INSTEAD OF "#FFFFFF"?   Yes / no.
+
+Everything else 118 asked for is built. This is one value in one dict and the
+edit is one line; what it needs is a decision, because it changes what a fresh
+install means by "the page" and no code can decide that.
+
+WHAT THAT DEFAULT ACTUALLY REACHES, measured rather than reasoned about. It is
+NOT what any shipped figure draws. The house style's own ground is already
+transparent, and the panel stores DELTAS -- only the keys a user moved -- so an
+untouched store contributes nothing:
+
+    GENERAL_DEFAULTS["background"]        "#FFFFFF"
+    user_overrides() on a fresh store     {}
+    the figure that is actually drawn     figure.facecolor "none",
+                                          savefig.transparent True
+
+So the default is the BASELINE the panel measures "did the user move this"
+against, and the value the panel shows in the row. Nothing else consumes it.
+
+WHAT SAYING YES BUYS. The two halves would agree, and one trap closes. Because
+the store keeps deltas, a value equal to the default stores nothing -- so
+today, WHITE IS THE ONE PAGE COLOUR THE PANEL CANNOT PRODUCE. Setting the
+background row to #FFFFFF, the value the row itself offers as the default,
+stores {} and the figure comes out transparent:
+
+    panel set to #FFFFFF   page corner (255, 255, 255, 0)   <- ALPHA ZERO
+    panel set to #EEEEEE   page corner (238, 238, 238, 255)
+
+Flip the default to "none" and #FFFFFF becomes a real delta that produces a
+real white page, which is what a user who picks it is asking for.
+
+WHAT SAYING NO KEEPS. The row's default reads as a colour rather than as an
+absence, which is easier to understand in a dialog full of colour buttons, and
+the "Transparent" tick box is then the explicit way to ask for nothing. The
+tick box already works either way.
+
+WHAT NEITHER ANSWER TOUCHES. The SAVE path has its own mode -- `print` is the
+default and paints `PRINT_GROUND` #FFFFFF under the figure -- so a manuscript
+figure is unaffected by this decision whichever way it goes. A stored
+{"background": "none"} from a user who already ticked the box collapses to no
+delta if the default becomes "none", and draws the same figure it draws now.
+
+NOT CHANGED HERE. The value is left at "#FFFFFF" until this is answered,
+because guessing at the house style's default page is exactly the kind of
+change that is invisible until somebody's figure comes out wrong.

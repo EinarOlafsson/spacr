@@ -25,7 +25,7 @@ who need per-cell measurements out of plate images. The GUI route needs no
 programming; the same steps are available as a scripted pipeline when a
 screen outgrows one desktop.
 
-The GUI ships 65 apps, grouped into seven categories: *Core* for the
+The GUI groups its applications into seven categories: *Core* for the
 segment-measure-classify pipeline, *Data* for import and inspection,
 *Segmentation models* for training, comparing and curating them,
 *Results & QC* for regression and its diagnostics, *Explore* for the
@@ -103,7 +103,7 @@ Learn spaCR
 The `interactive tutorial library <tutorials/>`_ contains |lesson-count| narrated,
 step-by-step lessons covering every module, with 50 voices across eight
 languages. It is also reachable from the GUI:
-**Help → Tutorial (web)**, or the spaCR logo on the classic Tk start screen.
+**Help → Tutorial (web)**.
 
 
 Contents

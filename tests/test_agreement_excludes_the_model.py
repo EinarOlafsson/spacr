@@ -246,17 +246,17 @@ def test_every_column_the_active_learning_ranker_reads_is_listed():
         assert candidate in _MODEL_COLUMNS, candidate
 
 
-def test_the_annotate_apps_xgboost_pass_is_listed():
-    """``gui_elements`` writes these two with a literal ``ALTER TABLE``.
+def test_the_xgboost_pass_columns_are_still_listed():
+    """Nothing writes these any more; the databases holding them remain.
 
-    Read out of the source rather than from a constant, because there is no
-    constant --- which is exactly why it needs pinning here.
+    They came from an in-app XGBoost pass that added them to ``png_list``
+    with a literal ``ALTER TABLE``. That writer is gone, so this can no
+    longer be checked against its source --- but every project database it
+    ever ran on still carries the two columns, still shaped exactly like a
+    human annotation pass. Dropping them from the exclusion list would put a
+    model's call back among the annotators in precisely the reports most
+    likely to be re-run: the old ones.
     """
-    import inspect
-
-    from spacr import gui_elements
-
-    source = inspect.getsource(gui_elements)
     for column in ('XGboost_annotation', 'XGboost_score'):
-        assert f'ALTER TABLE png_list ADD COLUMN {column}' in source, column
         assert column in _MODEL_COLUMNS, column
+        assert _is_model_column(column, ['png_path', column]) is True, column

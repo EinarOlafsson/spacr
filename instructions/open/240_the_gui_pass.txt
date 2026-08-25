@@ -2,9 +2,9 @@
 THE GUI PASS: NAVIGATION, WINDOW CHROME, AND THE LANGUAGE
 ================================================================================
 
-Status:    OPEN on item 1 only. Items 2 to 7 are done; 7 needed a root
-           command the maintainer has since run. Requested 2026-08-23, in
-           several messages while the previous pass was still running.
+Status:    OPEN on item 1 only, and now only on its call-site half: the
+           catalog half is carried. Items 2 to 7 are done; 7 needed a root
+           command the maintainer has since run.
 Owner:     spacr/qt -- app registry, dock, window chrome, i18n.
 
 --------------------------------------------------------------------------------
@@ -20,12 +20,28 @@ rather than from f-strings. All nine runtime catalogs and all nine API
 catalogs are rebuilt; where a model left prose in English the translation
 is hand-written as reviewed evidence.
 
-WHAT IS LEFT. A sweep of six surfaces in Swedish found 79 verified items:
-37 captions that need only a catalog row, 23 that never reach tr() at all,
-14 composed before lookup, and 5 re-set by a handler after the language
-pass. Two more, filed here because they fit no other heading: Qt's OWN
-menu text (&Copy, Select All) needs qtbase_<lang>.qm loaded into a
-QTranslator, and AIChatPanel is unreachable from the running application.
+A sweep of six surfaces in Swedish found 79 verified items. The 37 that
+needed only a catalog row are carried: 101 exact rows in every one of the
+nine catalogs, because several of the 37 name a family rather than one
+caption -- the preferences tabs and their theme, mode and colour-blind
+dropdowns, the four resource buttons and their row labels, the spaCR-mode
+notes and warnings, the glass "press Escape to close" hint, the thirteen
+live-preview compartment fields, twenty-three figure-settings form labels,
+the annotate empty state and its keyboard legend, the maturity hover
+sentences, the list-editor chip placeholders and the channel glosses. An
+exact row is what beats the word-by-word term fallback, which is what had
+been producing "Intensity Handling (all Objekt)" and "Platta Sources &
+Arbetsflode".
+
+WHAT IS LEFT. 23 captions that never reach tr() at all, 14 composed before
+lookup, and 5 re-set by a handler after the language pass; every one of
+them is a call-site change rather than a catalog row. Three more, filed
+here because they fit no other heading: Qt's OWN menu text (&Copy, Select
+All) needs qtbase_<lang>.qm loaded into a QTranslator; AIChatPanel is
+unreachable from the running application; and "Cellpose Workbench" is
+registered in `spacr.qt.app.APPS` without a row in `_ROWS`, which is the
+one place a registry phrase has to appear -- the catalogs translate it,
+but `tests/qt/test_i18n.py` walks `_ROWS` and fails on it.
 
 
 "when the user picks a language that is not english all of the text in and

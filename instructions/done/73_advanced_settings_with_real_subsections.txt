@@ -2,7 +2,8 @@
 AN "ADVANCED SETTINGS" CATEGORY, ORGANISED BY WHAT A SETTING DOES
 ================================================================================
 
-Status:    not started, 2026-08-10.
+Status:    done. Three levels exist and are rendered from the model;
+           one open dependency is named at the end.
 Requested: 2026-08-10 — "and actually when i think about it i would like to move several settings from the other object settings categories to a new 'advanced settings' category, move settings like remove background, intensity merge split, min distance, etc. but have all the similar settings here organized into sub and sub-sub sections with sub section headers like object filtration, image preprocessing with sub-sub sections for each object (cell, nuclei, pathogen, organelle)."
 
 --------------------------------------------------------------------------------
@@ -231,3 +232,98 @@ All six items are done, as the trailing STATUS note above records. The header
 still said "not started", which is the exact trap the handoff warns about --
 the header is written once and the trailing notes are the state. Filed to
 done/ 2026-08-12 after re-reading the file rather than its header.
+
+--------------------------------------------------------------------------------
+THE PANEL NESTS. THE DECISION IN ITEM 1 WAS REVISITED AND REVERSED.
+--------------------------------------------------------------------------------
+
+The earlier answer to item 1 was (b), the prefix trick, on the grounds that
+real nesting "would change the panel contract for every module to serve one
+request". That was the right reading of the cost and the wrong conclusion:
+the request asks for sub-sub-sections, and two levels cannot express one. The
+contract change turned out to be additive rather than breaking.
+
+`SettingsWidgets.build_sections` returns `SettingsSection`, a TUPLE SUBCLASS.
+It still IS the `(title, rows)` pair it always was -- every caller that
+unpacks it or `dict()`s it is untouched -- and its `rows` hold the whole
+subtree, so a panel that draws only the outer level still draws every control
+exactly once. The tree hangs off `own_rows`, `children` and `path` beside it.
+
+    Advanced settings
+      Image preprocessing (per object)
+        Cell / Nucleus / Pathogen / Organelle 1-4
+      Object filtration
+        Cell / Nucleus / Pathogen / Organelle 1-4
+      Intensity handling
+        Cell / Nucleus / Pathogen / Organelle 1-4
+
+THE UMBRELLA IS DECLARED, NOT SPELLED INTO THE HEADING.
+`spacr.settings.CATEGORY_PARENTS` says which category nests under which. The
+alternative -- renaming the category to "Advanced settings / Object
+filtration" -- is the prefix trick again, and the prefix trick is what broke
+every tooltip lookup for the Computer Vision groups, because the help table
+is keyed on the heading's exact text. A separate table leaves every existing
+name, blurb and dependency untouched. A module layout that renames a family
+inherits its place in the tree from the group it references, so the rename
+does not have to be listed a second time.
+
+THE PER-OBJECT LEVEL IS DERIVED FROM THE KEYS, so a family never repeats the
+object list and a new organelle slot appears without an edit. A member whose
+name gives no object stays with the family rather than being dropped: a
+control that reaches no heading is a control the user cannot reach.
+
+--------------------------------------------------------------------------------
+"IMAGE PREPROCESSING" EXISTS NOW, AND THE GAP IT SHOWS IS REAL
+--------------------------------------------------------------------------------
+
+It was left out before because cell, nucleus and pathogen have one key each
+and organelle has four, so "a shared heading would make three objects look
+like they have settings they do not have". With a per-object level that
+objection goes away: each sub-heading shows exactly the keys its object has,
+and the difference is visible rather than implied.
+
+The family holds twelve keys for the four primary objects:
+
+    Cell / Nucleus / Pathogen   3 each   *_background, *_Signal_to_noise,
+                                         remove_background_*
+    Organelle 1-4               4 each   *_rolling_ball, *_rolling_ball_radius,
+                                         *_clahe, *_clahe_clip_limit
+
+`remove_background_cell` puts the object at the END of the name while
+`cell_background` puts it at the front. The family matcher reads both, or
+spaCR's own inconsistency about which end the object goes on would split one
+decision in half.
+
+THE CAPABILITY GAP IS STILL OPEN: cell, nucleus and pathogen cannot do the
+rolling-ball flattening and CLAHE that organelle can. Closing it is a change
+to `spacr/io.py:normalize_stack`, which applies the per-object background
+floor today and is where the two extra steps belong -- per channel, before
+the percentile stretch, mirroring `spacr.object._preprocess_batch`. The
+settings, their types, their help and their place in the panel follow from
+that, not before it: a declared setting nothing reads is exactly what the
+dead-settings guard refuses.
+
+--------------------------------------------------------------------------------
+THE NUMBERS, AND WHAT REMAINS
+--------------------------------------------------------------------------------
+
+    heading      before  after 72/73  after this
+    Cell            21        8            5
+    Nucleus         20        7            4
+    Pathogen        21        8            5
+    Organelle        6        3            3
+
+Every heading in the tree has curated help, including the per-object
+sub-headings, which are resolved by PATH rather than by title: "Cell" under
+"Object filtration" is not the "Cell" segmentation category, and a
+title-only lookup would hand it the blurb about Cellpose models. The three
+per-object segmentation blurbs no longer promise a background floor they no
+longer hold.
+
+STILL OPEN, and it is one thing: the SCREEN draws the outer level only.
+`spacr/qt/screens/app_screen.py` builds one `Section` widget per top-level
+entry, so today the umbrella renders as a single heading holding every
+advanced row -- correct and complete, but flat. Drawing the tree means
+recursing over `section.children`, building a nested `Section` for each and
+adding it with `Section.add_widget`, using `own_rows` for the direct rows and
+`section_tooltip(app_key, section)` for the help.

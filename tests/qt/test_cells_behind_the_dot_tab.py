@@ -1455,7 +1455,7 @@ def test_the_score_column_and_the_cap_are_settings_the_caption_carries(
     view.build()
     assert view.plans()[0].n_objects == 3
     assert len(view.thumbnails()) == 3
-    assert "cap 3 objects instead of the default 300" in view.caption_text()
+    assert "cap 3 objects instead of the default 2,000" in view.caption_text()
 
     view._score.setText("no_such_column")
     view.build()

@@ -56,12 +56,27 @@ SLIDES: Tuple[Tuple[str, str, Tuple[str, ...]], ...] = (
      "What may leave this machine, and under whose name. Nothing is ever "
      "sent without you seeing it first and pressing send yourself.",
      ("issue_prompt", "share_logs")),
+    # THE ONE SLIDE THAT IS NOT A PREFERENCE. Every other question here has
+    # a working default and can be answered by dismissing the screen; this
+    # one is the condition the licence names, so it is the one slide that
+    # has to be answered before the screen can finish.
+    ("Terms of use",
+     "spaCR is licensed on the condition that you accept these terms. They "
+     "are short, and the whole licence is a click away.",
+     ()),
     # THE LAST SLIDE SAYS TWO THINGS AND NO MORE. "Done" is the answer to
     # the six questions; "Welcome to spaCR" is what the screen is for. The
     # paragraph that used to sit here explained where the settings live,
     # which is a thing to find out when you go looking, not on the way in.
     ("Done", "Welcome to spaCR", ()),
 )
+
+#: The title of the slide carrying the terms of use.
+#:
+#: Named rather than matched on, because that slide is the one page in the
+#: sequence that is neither a form nor the closing word: it builds itself and
+#: it refuses to be left.
+TERMS_SLIDE = "Terms of use"
 
 #: A localized greeting for every language offered on the language slide.
 #:
@@ -440,7 +455,8 @@ class SetupSlides(QDialog):
         holders = [self._pages]
         holders += [self._pages.widget(i) for i in range(self._pages.count())]
         holders += [w for w in self.findChildren(QWidget)
-                    if w.property("spacrProviderStrip")]
+                    if w.property("spacrProviderStrip")
+                    or w.property("spacrClearContainer")]
         try:
             make_transparent(*[w for w in holders if w is not None])
         except Exception:                                    # noqa: BLE001
@@ -455,6 +471,12 @@ class SetupSlides(QDialog):
         asked = {q[0]: q for q in questions()}
         answers = current()
         for index, (title, blurb, keys) in enumerate(SLIDES):
+            if title == TERMS_SLIDE:
+                # NOT A FORM AND NOT THE CLOSING WORD. It writes no
+                # preference; it records an acceptance, and it is the one
+                # page the sequence will not let go of unanswered.
+                self._pages.addWidget(self._terms_page())
+                continue
             if index == len(SLIDES) - 1 and not keys:
                 # THE CLOSING SLIDE IS NOT A FORM, so it is not laid out
                 # like one. It says one word, in the middle, with the
@@ -836,6 +858,99 @@ class SetupSlides(QDialog):
         column.addWidget(under)
         column.addStretch(1)
         return page
+
+    def _terms_page(self) -> QWidget:
+        """The terms, an acceptance, and the line that says what is missing.
+
+        THE NEXT BUTTON IS NOT DISABLED HERE. A control that does nothing
+        and says nothing leaves the reader to guess which of the things on
+        the page is stopping them, so the button stays live and answers the
+        press with :data:`spacr.qt.terms.WHY_NOT_YET` in the accent colour.
+        """
+        from PySide6.QtWidgets import QScrollArea
+
+        from .. import terms as terms_module
+        from .toggle import Toggle
+
+        page = QWidget()
+        column = QVBoxLayout(page)
+        column.setContentsMargins(0, 0, 0, 0)
+        column.setSpacing(10)
+
+        # NOT TRANSLATED, and deliberately. A translated licence summary is
+        # not the licence, and offering one as though it were would have the
+        # screen promise something the document does not. The terms are shown
+        # in the language the licence is written in, with its name and its
+        # URL beside them; everything else on this page IS translated.
+        body = QLabel(terms_module.terms_text())
+        body.setObjectName("Muted")
+        body.setWordWrap(True)
+        body.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+
+        # SCROLLED, BECAUSE THE TERMS MAY OUTGROW THE CARD. A card that
+        # clips the last clause is a card asking for agreement to something
+        # it did not show.
+        scroll = QScrollArea(page)
+        scroll.setWidgetResizable(True)
+        scroll.setWidget(body)
+        scroll.setFrameShape(QScrollArea.NoFrame)
+        scroll.setProperty("spacrClearContainer", True)
+        scroll.viewport().setProperty("spacrClearContainer", True)
+        column.addWidget(scroll, 1)
+
+        where = QLabel(
+            f'<a href="{terms_module.LICENSE_URL}">'
+            f"{terms_module.LICENSE_NAME}</a> &nbsp;·&nbsp; "
+            f"{terms_module.REQUIRED_NOTICE}")
+        where.setObjectName("Muted")
+        where.setOpenExternalLinks(True)
+        where.setWordWrap(True)
+        column.addWidget(where)
+
+        # A SLIDER, like every other boolean on this screen. A tick box is a
+        # form control and this is not a form.
+        self._agree = Toggle(_say(terms_module.AGREE_LABEL), page)
+        # AGREEING IS ITSELF THE ANSWER, so ticking the box clears the
+        # complaint rather than leaving it standing under a satisfied form.
+        self._agree.toggled.connect(self._on_agreement_toggled)
+        column.addWidget(self._agree)
+
+        self._agree_note = QLabel("", page)
+        self._agree_note.setWordWrap(True)
+        self._agree_note.setVisible(False)
+        try:
+            from ..theme import active_palette
+
+            self._agree_note.setStyleSheet(
+                f"color: {active_palette()['accent']};")
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("no palette for the terms note", exc_info=True)
+        column.addWidget(self._agree_note)
+        return page
+
+    def _on_agreement_toggled(self, agreed: bool) -> None:
+        """Drop the complaint the moment the box is ticked."""
+        note = getattr(self, "_agree_note", None)
+        if note is not None and agreed:
+            note.setVisible(False)
+
+    def agreed_to_terms(self) -> bool:
+        """Whether the acceptance box is ticked on this screen."""
+        box = getattr(self, "_agree", None)
+        return bool(box is not None and box.isChecked())
+
+    def _refuse_to_leave_the_terms(self) -> int:
+        """Say what is missing and stay put. Returns the slide still shown."""
+        from .. import terms as terms_module
+
+        note = getattr(self, "_agree_note", None)
+        if note is not None:
+            note.setText(_say(terms_module.WHY_NOT_YET))
+            note.setVisible(True)
+        box = getattr(self, "_agree", None)
+        if box is not None:
+            box.setFocus()
+        return self._index
 
     def _row(self, question, value) -> QHBoxLayout:
         key, caption, _get, _set, choices = question
@@ -1495,7 +1610,17 @@ class SetupSlides(QDialog):
 
         The wait happens ONCE. A pause on every return to the first slide
         would be a delay the user has already sat through.
+
+        THE TERMS SLIDE IS THE ONE PAGE THIS WILL NOT LEAVE. Pressing Next
+        there without the acceptance ticked stays on the slide and says why,
+        rather than greying the button and leaving the reader to work out
+        which control is holding them.
         """
+        if SLIDES[self._index][0] == TERMS_SLIDE and not self.agreed_to_terms():
+            # THE PRESS IS ANSWERED, just not with a page change. The button
+            # is live so the reader learns what is missing by using it.
+            self.card.circuit(clockwise=True)
+            return self._refuse_to_leave_the_terms()
         if self._index >= len(SLIDES) - 1:
             self.accept()
             return self._index
@@ -1579,6 +1704,7 @@ class SetupSlides(QDialog):
         if trouble:
             LOG.warning("some setup answers were refused: %s",
                         "; ".join(trouble))
+        self._record_the_agreement()
         mark_answered(current_version())
         super().accept()
 
@@ -1588,12 +1714,37 @@ class SetupSlides(QDialog):
         Every question has a working default, so a user who closes this has
         chosen them -- and reopening on every launch until it is filled in
         would make dismissing it impossible.
+
+        THE TERMS ARE THE EXCEPTION, and they are not marked. A dismissal is
+        a choice of defaults; it is not an acceptance of a licence, so
+        nothing is recorded and `open_setup_if_needed` asks again.
         """
         from ..setup_screen import apply, current_version, mark_answered
 
         apply(self.answers())
+        self._record_the_agreement()
         mark_answered(current_version())
         super().reject()
+
+    def _record_the_agreement(self) -> None:
+        """Store the accepted terms version, if the box was ticked.
+
+        WRITTEN ONLY WHEN IT WAS GIVEN. Recording an acceptance on the way
+        out of a screen that was closed would make the record say something
+        the user never did, which is worse than having no record.
+        """
+        if not self.agreed_to_terms():
+            return
+        try:
+            from .. import terms as terms_module
+
+            terms_module.record_agreement(terms_module.TERMS_VERSION)
+        except Exception:                                    # noqa: BLE001
+            # A STORE THAT WILL NOT TAKE THE RECORD ASKS AGAIN NEXT TIME,
+            # which is the safe direction: the alternative is treating an
+            # unwritten acceptance as given.
+            LOG.warning("the terms acceptance could not be recorded",
+                        exc_info=True)
 
     # --------------------------------------------------------- decoration
 
@@ -1641,18 +1792,46 @@ class SetupSlides(QDialog):
         self._place_the_greeting()
 
 
+def _catalogue_this_screen() -> None:
+    """Put the terms slide's captions in the translation catalogs.
+
+    Called once when this module is imported, because ``SLIDES`` is what a
+    reader (and the catalog check) looks at and it must already carry its
+    translations by then.
+    """
+    try:
+        from .. import terms as terms_module
+
+        terms_module.register_translations()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("the terms captions could not be catalogued", exc_info=True)
+
+
+_catalogue_this_screen()
+
+
 def open_setup_if_needed(parent=None) -> Optional[SetupSlides]:
     """Show the setup slides when the recorded setup state requires them.
 
     The centralized :func:`spacr.qt.setup_screen.should_open` check prevents
-    independent callers from opening duplicate dialogs during one launch.
+    independent callers from opening duplicate dialogs during one launch, and
+    :func:`spacr.qt.terms.needs_agreement` adds the one condition a default
+    cannot satisfy: terms that have never been accepted, or that have been
+    rewritten since they were.
     """
     from ..setup_screen import should_open, skipped_on_purpose
+    from ..terms import needs_agreement
 
     # WHETHER THIS PROFILE IS DUE and whether THIS LAUNCH CAN ASK are two
     # different questions. `should_open` answers the first; a batch job on a
     # server can be due and still have nobody to answer.
-    if skipped_on_purpose() or not should_open():
+    if skipped_on_purpose():
+        return None
+    # UNACCEPTED TERMS ARE THEIR OWN REASON TO ASK. Dismissing the screen
+    # marks the questions answered -- they all have defaults -- but a licence
+    # is not answered by a default, so terms that were never accepted, or
+    # accepted at an older version, bring the screen back.
+    if not should_open() and not needs_agreement():
         return None
     dialog = SetupSlides(parent)
     dialog.exec()

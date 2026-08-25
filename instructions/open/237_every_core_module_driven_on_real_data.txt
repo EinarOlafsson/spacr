@@ -2,7 +2,11 @@
 EVERY CORE MODULE DRIVEN ON REAL DATA, AND FULLY TESTED
 ================================================================================
 
-Status:    OPEN. Requested 2026-08-23.
+Status:    OPEN. All five modules are driven on real data, and the driver
+           scripts are now in the tree (spacr_drivers/) so every run this
+           file reports can be repeated from a checkout. What is left is
+           the 100%-test half, and the one-line assertion fixes section L
+           names for the five modules' end-to-end tests.
 Requested: "run through the core modules with real data: mask, measure,
            classify, map barcodes, regression ... Test everything in these
            modular and fix any bugs or anything else you find."
@@ -298,11 +302,10 @@ TESTS ADDED
   * both barcode writers are tested over five chunks; one chunk cannot
     fail either way, which is why the old tests passed.
 
-STILL TO DO
-
-  * MASK end to end on plate1's own gen_masks_settings.csv (item 1).
-  * CLASSIFY and REGRESSION driven on the tsg101 screen (items 3 and 5).
-  * The untested functions in measure.py (9) and ml.py (38).
+STILL TO DO AT THE TIME OF THIS SECTION -- mask, classify and regression
+were driven in F, G, H and I; the untested functions in measure.py (9) and
+ml.py (38) are the part that is still open, and are listed with the rest in
+section N.
 
 
 --------------------------------------------------------------------------------
@@ -429,10 +432,7 @@ halves of classify and for the annotator; and P3-P7 built.
   schema.canonical_plate_id is the rule that collapses the doubled prefix
   and it was not reaching this join. 45,777 rows now match.
 
-STILL OPEN, and each for a reason rather than for want of trying:
-
-  (P8 is DONE: the ten inert settings are deleted outright, on the
-   maintainer's instruction of 2026-08-23.)
+(P8 is DONE: the ten inert settings are deleted outright.)
 
 
 --------------------------------------------------------------------------------
@@ -467,3 +467,328 @@ rows -- one per chunk, which is exactly the accumulation bug fixed earlier
 today -- and this run writes 1.
 
 Driver: spacr_drivers/drive_map_barcodes_on_real_reads.py
+
+--------------------------------------------------------------------------------
+K. THE DRIVERS ARE IN THE TREE
+--------------------------------------------------------------------------------
+
+"Each driver script is kept so the run can be repeated" was not true: the
+scripts this file named were not in the repository, so none of the runs above
+could be re-checked from a checkout. They are now `spacr_drivers/`, and they
+keep one contract that `spacr_drivers/_support.py` holds and
+`tests/test_real_data_drivers.py` tests:
+
+  * THE DATASET ROOT IS THE FIRST ARGUMENT, defaulting to the path this file
+    records. A second argument points at a settings file kept elsewhere.
+  * A MISSING DATASET IS A REFUSAL, NOT A HALF-RUN. Preconditions are checked
+    before any heavy import, so a driver pointed at an unmounted disk answers
+    in well under a second, names EVERY input it could not find, and exits 2.
+    Reporting only the first missing file turns one unmounted disk into as
+    many failed runs as the driver has inputs.
+  * NOTHING IS WRITTEN INTO A DATASET. Inputs are copied to a scratch tree
+    ($SPACR_DRIVER_SCRATCH, else the system temporary directory), and staging
+    into the dataset root is REFUSED rather than remembered not to do. The
+    scratch tree is emptied first, because spaCR pipelines skip work whose
+    output is already there and a leftover tree makes the next run measure
+    nothing and still report success.
+  * SETTINGS COME FROM THE FILE THE RECORDED RUN USED, loaded with spaCR's own
+    loader, and go through spaCR's pre-flight check before the run starts.
+  * ANYTHING THAT TOUCHES CUDA CAPS ITSELF at 80% of the card.
+
+     drive_mask_on_plate1.py              drive_classify_cv_on_plate1.py
+     drive_measure_on_plate1.py           drive_classify_ml_on_tsg101.py
+     drive_map_barcodes.py                drive_regression_on_tsg101.py
+     drive_map_barcodes_on_real_reads.py  drive_the_annotation_app.py
+
+FOUND WHILE RECREATING THEM
+
+  1. THE DRIVERS RE-IMPLEMENTED SETTINGS LOADING, AND THE OBVIOUS
+     RE-IMPLEMENTATION IS WRONG in exactly the way section G records. Reading
+     a settings CSV with pandas turns every blank cell into NaN, and a blank
+     cell is what a saved settings file looks like for a box nobody filled in.
+     Loaded that way, `gen_masks_settings.csv` hands the mask pipeline
+     custom_regex=nan, pathogen_model=nan and timelapse_displacement=nan, and
+     spaCR's own pre-flight refuses the run with three type errors about
+     values nobody set. `spacr.cli.load_settings_file` -- which spaCR ships,
+     and which reads a blank as None -- gives a clean pre-flight on the same
+     file. The drivers use it now, and a test holds them to it.
+
+  2. THE SCREEN'S OWN REGRESSION SETTINGS DO NOT SURVIVE A ROUND TRIP.
+     `settings/regression.csv` stores positive_control=239740 and
+     negative_control=233460 -- gene identifiers that happen to be all
+     digits. `load_settings_file` literal-evals them back as ints, spaCR
+     declares both keys `str`, and pre-flight then refuses the run:
+
+         positive_control=239740 is a int, but str is expected.
+
+     The loader does not consult `expected_types`, so ANY settings value that
+     looks like a number comes back as a number even where spaCR declares the
+     key a string. Reproduce with two lines: load the screen's regression.csv
+     and validate it. The driver restores the strings and says so; the fix
+     belongs in the loader.
+
+  3. PRE-FLIGHT ASKS REGRESSION FOR A MEASUREMENTS DATABASE IT NEVER OPENS.
+     `validate_settings(settings, 'regression')` reports
+
+         src: measurements database not found: <src>/measurements/measurements.db
+
+     at ERROR level. Regression fits score and count tables; ml.py's own
+     comment on `paired_data` says the database it carries is never read by
+     the fit. So the check refuses a run that works, on the screen's own
+     settings. The driver names this as a known false positive rather than
+     waiving pre-flight wholesale.
+
+  4. THE MASK AND TIMELAPSE PANELS STILL OFFER TWO DELETED SETTINGS.
+     `upscale` and `upscale_factor` are named in `_APP_CATEGORY_SPECS` for
+     both apps in spacr/qt/screens/settings_model.py, and
+     `categories_for_app('mask')` returns them under "Image Preprocessing" --
+     but `spacr.settings` no longer declares either and no code in the
+     package reads either name. Section H says the ten inert settings were
+     hidden from every app; these two were deleted from settings.py and left
+     in the panel's layout table. (`all_to_mip`, `pick_slice` and `skip_mode`
+     are in the recorded mask settings CSV and are also read by nothing --
+     those are inert in the file, not offered in a panel.)
+
+  5. PRE-FLIGHT REFUSES A CLASSES LIST THAT CLASSIFY DOCUMENTS AND ACCEPTS.
+     `expected_types` declares `classes` a dict, and validate_settings
+     reports a list at ERROR level. But `classes`' own tooltip says "A
+     pre-split settings file holds a plain list and is translated on read",
+     and `spacr.classify_classes.normalize_settings` does exactly that --
+     `{'classes': ['nc','pc']}` comes back with class_folder_names and
+     class_names filled in. So pre-flight refuses a settings shape the
+     module supports. Either the declared type admits (dict, list) or the
+     problem is a warning; it is not an error.
+
+  6. WHAT SHOULD BE PASSED IS `class_folder_names`. The names of the folders
+     the crops were exported into are where the crops ARE; `classes` says
+     what they MEAN. The drivers use the former.
+
+--------------------------------------------------------------------------------
+L. TESTS THAT ACTUALLY TEST -- THE READ-THROUGH (item B7)
+--------------------------------------------------------------------------------
+
+THE QUESTION ASKED OF EACH MODULE: what would a wrong answer look like, and
+would anything catch it?
+
+tests/test_test_suite_hygiene.py already refuses a test with NO assertion and
+a test that swallows a failure into a skip, and both of its ratchets are at
+zero. What it does not refuse is an assertion that cannot fail: one that
+proves the value EXISTS rather than that it is right. Every test importing
+each core module was classified by whether it has any assertion beyond
+`assert x`, `assert x is not None`, `isinstance`, `hasattr`, `len(x) > 0` and
+`not df.empty`:
+
+    module          test files   tests   existence-only assertions
+    mask                    30     545        34
+    measure                 55    1187        19
+    classify                40     932        30
+    map barcodes            23     559        13
+    regression             132    2456        52
+
+(A file that imports two of the modules counts under both.)
+
+THE PATTERN IS THE SAME IN ALL FIVE, and it is at the end-to-end tests --
+exactly the tests that would catch a wrong answer if they asked for one:
+
+  MASK. tests/test_real_data_image_modules.py:217, in
+  `test_module_preprocess_generate_masks_writes_cell_masks`, whose docstring
+  says "assert cell masks land on disk":
+
+      # just that segmentation returned SOMETHING.
+      assert int(arr.max()) >= 0
+
+  An all-zero mask array -- segmentation found nothing at all -- has max 0
+  and passes. The comment says what was meant; `>= 1` is what says it.
+  The same file's mask tests otherwise assert only that folders exist and
+  that arrays have 2 or 3 dimensions.
+
+  MEASURE. tests/test_real_data_image_modules.py:311 and
+  tests/test_full_pipeline_e2e.py:243 both end at `assert dbs` -- a
+  measurements.db FILE exists. A measure run that writes an empty database,
+  or one whose every intensity column is NaN, passes both.
+
+  MAP BARCODES. tests/test_sequencing.py:292,
+  `test_generate_barecode_mapping_end_to_end`, asserts that a count CSV and a
+  QC CSV were written and that the count CSV parses (`assert df is not None`)
+  -- and says so in its own comment. The mapper mapping zero of its reads,
+  which is the documented failure of this module and the one section J
+  reproduces on real data, passes it.
+
+  REGRESSION. tests/test_coverage_fill_ml2.py:49-79 builds
+  `y = X @ [0.8, -0.5, 0.3] + noise` -- the right answer is in the fixture --
+  and then asserts only `hasattr(model, "predict")`. DEMONSTRATED, not
+  assumed: with `regression_model` wrapped to fit on a SHUFFLED response,
+  test_regression_model_ols, test_regression_model_ols_cov_type,
+  test_regression_model_ridge and test_regression_model_glm all still pass.
+  test_regression_model_lasso_fixed_and_auto is the one that fails -- and it
+  fails because spaCR itself refuses an all-zero lasso fit, not because the
+  test looked. The product caught it; the test did not.
+
+  CLASSIFY. The weakest are the "is it callable" tests --
+  tests/test_analysis_modules.py:171/195/240 assert only that a name exists
+  on a module. They are cheap import guards, not tests of behaviour, and
+  nothing above them checks that a trained model's accuracy beats chance or
+  that an inference row can name its own well.
+
+WHAT WOULD FIX EACH, in one line, since a fixture already carries the answer:
+
+  * mask: `>= 1`, and assert the object count is within a stated range.
+  * measure: read the database and assert the object counts per table and
+    that a named intensity column is finite.
+  * map barcodes: assert the count table's total equals the number of reads
+    the fixture wrote, and that the combination count equals the fixture's.
+  * regression: assert the fitted coefficients recover the signs and rough
+    magnitudes of the coefficients the fixture generated `y` with.
+  * classify: assert test accuracy beats the majority-class rate, and that no
+    scored row carries 'error' in plateID/rowID/columnID/fieldID.
+
+NONE OF THESE FILES IS EDITED HERE. The read-through is the deliverable; the
+edits are one line each and belong with whoever owns those files.
+
+AND THE REAL-DATA DRIVERS NOW ASK THE QUESTION THE TESTS DO NOT.
+drive_measure_on_plate1.py does not stop at "a database exists": it compares
+object counts and every shared numeric column against the reference, names
+the reason for each column that differs, and re-derives every child object's
+parent cell from the mask planes. drive_map_barcodes.py checks the shape of
+both output tables over five chunks rather than their existence.
+
+--------------------------------------------------------------------------------
+M. THE RUNS, REPEATED FROM THE TREE
+--------------------------------------------------------------------------------
+
+Every driver was run from this checkout against the data named in section A,
+except the one whose disk is not mounted -- which is what its refusal says.
+
+MEASURE, three real plate1 fields against the reference database.
+  143 cells / 151 nuclei / 149 pathogens / 143 cytoplasms, IDENTICAL to the
+  reference in every table. Of the shared numeric columns, everything agrees
+  to 1e-6 relative EXCEPT four families, and each is a fix the reference
+  predates rather than a regression:
+
+    frac_high90 / frac_low10, all four channels
+        the old value thresholded on each object's own percentile, which
+        pins it near 0.10 for every object.
+    rad_dist_channel_*_bin_0
+        bin 0 held the field BACKGROUND: the distance map was multiplied by
+        the cell mask, setting every pixel outside the cell to distance 0.
+        Old bin 0 reads ~267 on channel 0 (background); new reads ~1847,
+        which is the same order as bin 1. Bins 1-4 are unchanged.
+    rad_dist_channel_*_bin_5
+        the outermost bin is closed now, so the farthest pixel is kept.
+    blur, all four channels
+        the old value came from `image[label == region_label]` -- a 1-D
+        vector, which OpenCV reads as an Nx1 image, so it was a second
+        difference along raster order rather than a focus measure. The
+        reference also spells the column with its prefix twice
+        (`cell_channel_0_cell_channel_0_blur`); the driver folds that so the
+        VALUES are compared rather than the column reported as missing.
+
+  AND THE REFERENCE'S PARENT LINKS ARE WRONG. cell_id on nucleus and pathogen
+  disagreed, so the driver re-derives it from the mask planes -- the cell
+  label covering most of the child, which is the rule _map_child_to_parent
+  uses -- rather than trusting either database:
+
+      this run:       nucleus 145/151    pathogen 137/149
+      the reference:  nucleus  53/151    pathogen  41/149
+
+  The reference's assignments are a PERMUTATION of the right ones: nucleus 8
+  of field f1 covers 13,852 pixels of cell 20 and the reference calls it cell
+  15, while nucleus 10 lies entirely inside cell 15 and the reference calls
+  it cell 20. Current spaCR is right and the shipped database is not. (The
+  few that still disagree are the size filter: cells below cell_min_size are
+  dropped before children are linked, and a child whose majority parent was
+  dropped is then linked to the next one.)
+
+  Zernike columns are absent because mahotas is not installed, which the run
+  says.
+
+MAP BARCODES, the synthetic demo, all three modes, five chunks each.
+      paired/R1   288 combinations, 4,800 reads, qc rows 1
+      single/R1   288 combinations, 4,800 reads, qc rows 1
+      single/R2     0 combinations,     0 reads, qc rows 1
+  No stray index column in any count table, one QC row in each -- the two
+  per-chunk accumulation bugs stay fixed, checked over five chunks because
+  one chunk cannot fail either way. single/R2 finding nothing is correct:
+  the single-end path does not reverse-complement.
+
+MAP BARCODES ON THE REAL READS: NOT RUN. /mnt/wd12tb is not mounted, so
+  seq_3/EO1 is unreachable. The driver refuses in under a second and names
+  the three inputs. The orientation reproduction it does -- the same reads
+  once with the recorded references and once with the forward files -- is
+  written and kept, but has not been executed from this tree.
+
+CLASSIFY, tabular half, on tsg101 plate1.
+  60,816 objects, 15,039 dropped for having no nucleus row, 45,777 fitted,
+  and 45,777 of 60,816 png_list rows merged. The plate-identity fix holds.
+
+CLASSIFY, computer-vision half, on plate1's 553 real crops.
+  Labels written from the export folders (518 single_nucleus, 35
+  multiple_nucleus), leakage-safe field-grouped split, training, checkpoint
+  selection, test, and inference over the full dataset. 553 of 553 scored
+  rows merged, and ZERO rows whose plate/row/column/field could not be
+  resolved -- the crop-name parser fix, checked where it failed.
+
+THE ANNOTATION APP, on the same 553 crops.
+  Column ensured, 553 rows counted, a page fetched, a crop loaded (224x224
+  RGB), six annotations written through the save worker and read back as
+  written, the resume offset computed, the column cleared. Streamed crops are
+  byte-identical to the exported PNGs, which is what makes the crop-source
+  choice safe to offer in the annotator.
+
+MASK AND REGRESSION: STARTED FROM THE TREE, LEFT RUNNING.
+  Both drivers stage, load the recorded settings, pass spaCR's pre-flight and
+  reach the work; neither finishes inside a session on the CPU, and the card
+  drives the display so a session that must not take it cannot shorten them.
+
+    mask       Cellpose 4 ships one network, a SAM backbone, and a full
+               1994x1994 field on the CPU is hours against minutes on a card.
+               The driver says so before it starts and takes a
+               comma-separated field list as a third argument so one field
+               can be run instead of two.
+    regression The screen's own settings say regression_type='mixed', at both
+               guide and gene level over four plates. That is a run to leave
+               going. The driver prints the fit type and takes another as a
+               third argument; 'ols' on the same tables is minutes, and is
+               what section G recorded.
+
+  What each produces is section F and section G; nothing here contradicts
+  them.
+
+--------------------------------------------------------------------------------
+N. WHAT IS STILL OPEN
+--------------------------------------------------------------------------------
+
+THE 100%-TEST HALF, which is the second half of the ask and is untouched
+here: every module excluding legacy-internal-only ones fully tested. The
+named gaps are the untested functions in measure.py (9) and ml.py (38).
+
+THE ONE-LINE ASSERTION FIXES section L names, in five files this item does
+not own. Each has its fixture already carrying the right answer; each is a
+test that currently passes against a wrong one.
+
+  tests/test_real_data_image_modules.py:217   `>= 0` should be `>= 1`
+  tests/test_real_data_image_modules.py:311   assert the object counts, not
+  tests/test_full_pipeline_e2e.py:243           that a database file exists
+  tests/test_sequencing.py:292                assert the read total
+  tests/test_coverage_fill_ml2.py:49-79       assert the coefficients
+
+THE SIX DEFECTS section K found, none of them in files this item owns:
+
+  * spacr/cli.py -- `_load_settings_csv` does not consult
+    `spacr.settings.expected_types`, so a value that looks like a number
+    comes back a number even where spaCR declares the key `str`. The
+    tsg101 screen's own regression.csv is refused by pre-flight because of
+    it.
+  * spacr/validate.py -- regression is asked for
+    `<src>/measurements/measurements.db`, which regression never opens.
+  * spacr/validate.py -- `classes` given as a list is an ERROR, though
+    classify documents and implements the translation.
+  * spacr/qt/screens/settings_model.py -- `_APP_CATEGORY_SPECS` still names
+    `upscale` and `upscale_factor` for mask and timelapse; neither is
+    declared or read any more.
+
+MAP BARCODES ON THE REAL READS cannot be re-run here: /mnt/wd12tb is not
+mounted. The driver is written, refuses cleanly, and carries the orientation
+reproduction; it needs the disk.
+
+THE PROPOSALS IN SECTION D still awaiting a decision are P1 and P2.

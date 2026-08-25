@@ -2,7 +2,8 @@
 ONE CHANNEL VOCABULARY, TOOLTIPS ON EVERY CELL SETTING, AND A CALM TAB
 ================================================================================
 
-Status:    filed 2026-08-19.
+Status:    done. A, B and C are shipped and guarded by
+           tests/test_one_channel_vocabulary_and_a_calm_tab.py.
 Requested: 2026-08-19 -- "the measurements tab is ok now as long as only the
            attached databases tab in the measurements tab starts open" /
            "there needs to be Tooltips for all the options in the cell
@@ -83,3 +84,20 @@ C. Colour letters are TRANSLATED, not dropped and not read positionally.
    convention is the legacy inverted one. A colour the user did not pick is
    blank rather than absent, because an absent key falls back to the default
    and quietly restores a plane they turned off. An index form still works.
+
+--------------------------------------------------------------------------------
+ASK B IS CLOSED AT ZERO MISSING
+--------------------------------------------------------------------------------
+
+The three colour-plane choices -- `red_channel`, `green_channel`,
+`blue_channel` -- had explanatory text in `picture_settings.STREAM_ONLY`,
+which is the table that says WHY a control is greyed when crops are loaded,
+and no entry in `spacr.settings.tooltips`, which is the table the settings
+window reads for hover help. So the greyed reason was written and the help
+was not, and the guard this instruction installed
+(`test_every_cell_setting_has_hover_help`) caught it exactly as intended when
+the three keys were added later.
+
+They are in `spacr.settings.tooltips` now, beside the other streamed-crop
+keys and not in a second table, and each states its default -- 2, 1 and 0,
+spaCR's shipped inverted mapping -- as every setting must.

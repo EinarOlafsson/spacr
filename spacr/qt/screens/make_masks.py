@@ -32,11 +32,38 @@ Two tools from the standalone curation tool are still absent: the
 dividing line that splits one merged object into two, and the free-form
 polygon that fills an outline into one object. Neither has a control on
 this panel, so nothing here claims they exist.
+
+THE SEGMENTATION WORKBENCH
+--------------------------
+
+Everything a person does to a segmentation happens on one screen, because
+they are one job done in a loop: segment the folder, look at the masks,
+correct what came out wrong, train on the corrections, segment again. The
+modules that used to be rows of their own are buttons on this screen's
+masthead — :data:`FOLD_ORDER` — each drawn as its own icon by
+:class:`~spacr.qt.widgets.fold_strip.FoldStrip`.
+
+Two of those buttons carry something the folded module did not have:
+
+* **Mask the whole folder** runs the applying half of the Cellpose
+  workbench over every image in the folder that is open here, rather than
+  asking for the path a second time.
+* **Save mask**, on the Curate window, writes the corrected labels.
+  Curate paints and records and never wrote a pixel of its own: its
+  ledger asserted corrections beside a file the pipeline had produced,
+  and :func:`spacr.curation.is_curated` answered ``True`` for that
+  untouched file. :meth:`spacr.curation.MaskCuration.save_mask` writes
+  the labels and the ledger together, and this button is what presses it.
+
+A folded module is opened as the widget it always was, in a window of its
+own (:class:`FoldedModuleDialog`), so nothing it could do is lost on the
+way in.
 """
 from __future__ import annotations
 
 import logging
 import os
+from functools import partial
 from typing import List, Optional
 
 import numpy as np
@@ -54,6 +81,8 @@ from PySide6.QtWidgets import (
     QApplication,
     QCheckBox,
     QComboBox,
+    QDialog,
+    QDialogButtonBox,
     QDoubleSpinBox,
     QFileDialog,
     QFormLayout,
@@ -62,10 +91,12 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QPushButton,
     QScrollArea,
+    QSizePolicy,
     QSlider,
     QSpinBox,
     QSplitter,
     QStackedWidget,
+    QTabWidget,
     QVBoxLayout,
     QWidget,
 )
@@ -76,8 +107,99 @@ from .. import mask_engine as engine
 from .. import prefs
 from ..theme import SPACING, active_palette
 from ..widgets import Card, Divider, EmptyState
+from ..widgets.fold_strip import FoldStrip
+from .app_screen import ModuleHeader
 
 LOG = logging.getLogger("spacr.qt.make_masks")
+
+#: The registry key this screen answers to.
+APP_KEY = "make_masks"
+
+#: The masthead, matching the registry row so the page and the tile that
+#: opens it say the same thing.
+HEADER_TITLE = "Make Masks"
+HEADER_DESCRIPTION = (
+    "Correct a mask by hand: brush, flood fill, relabel, fill, remove small")
+HEADER_INSTRUCTION = (
+    "Open a folder of images, correct each mask, and save it back.")
+
+#: The applying half of the Cellpose loop, as a key. It has never had a tile
+#: of its own — :class:`~spacr.qt.screens.train_cellpose.CellposeWorkbenchScreen`
+#: carries it as a tab — but it has artwork and a settings form under this
+#: name, and it is what "mask the whole folder" runs.
+MASK_FOLDER_KEY = "cellpose_all"
+
+#: The modules that fold into this screen, in the order their buttons appear
+#: on the masthead. The button IS the module, so this is also the list of
+#: keys :meth:`MakeMasksScreen.folded_screen` knows how to build.
+FOLD_ORDER = (
+    "train_cellpose",
+    MASK_FOLDER_KEY,
+    "model_compare",
+    "model_zoo",
+    "curate",
+    "napari_bridge",
+    "timelapse",
+    "motility",
+)
+
+#: ``key -> (name, description, stage)`` for a folded module whose registry
+#: row has gone.
+#:
+#: :class:`~spacr.qt.widgets.fold_strip.FoldStrip` reads a button's name, its
+#: tooltip and its hover colour out of the app registry, which is right while
+#: the module still has a row and answers nothing once it is folded and the
+#: row is dropped: the tooltip empties and the stage falls back to stable, so
+#: an alpha module's button would light blue where its tile lit green-cyan.
+#: This is what the tile said, kept so the button can go on saying it.
+#:
+#: The registry still wins whenever it has the row, and
+#: ``test_the_fold_fallback_agrees_with_the_registry`` asserts the two agree
+#: for every key that has one — so the pair cannot drift apart while both
+#: exist, and what is left after the row goes is what was last true.
+FOLD_FALLBACK = {
+    "train_cellpose": (
+        "Cellpose Workbench",
+        "Fine-tune a Cellpose model on your own labelled fields, then "
+        "segment a folder of images with it or with a stock model",
+        "beta"),
+    MASK_FOLDER_KEY: (
+        "Mask the whole folder",
+        "Run the segmentation model over every image in the open folder",
+        "beta"),
+    "model_compare": (
+        "Model Compare",
+        "Two Cellpose models on the same fields: masks side by side, "
+        "object-count and ARI deltas",
+        "alpha"),
+    "model_zoo": (
+        "Model Zoo",
+        "Browse, verify, download and bench Cellpose + classifier models on "
+        "three of your fields",
+        "alpha"),
+    "curate": (
+        "Curate",
+        "Paint a mask right, and fix tracks by hand — on the record",
+        "alpha"),
+    "napari_bridge": (
+        "Napari Bridge",
+        "Correct a mask in napari and bring the corrected labels back",
+        "alpha"),
+    "timelapse": (
+        "Timelapse",
+        "Segment and track objects across the frames of a time series",
+        "beta"),
+    "motility": (
+        "Motility Assay",
+        "Automated motility assay: track velocity + infection QC",
+        "beta"),
+}
+
+#: A folded key that shares another key's screen. The two halves of the
+#: Cellpose loop are two tabs of one workbench, so pressing either button has
+#: to reach the same widget: a checkpoint trained on one tab is what the
+#: other tab segments with, and a second copy of the screen would not have it.
+FOLD_HOSTS = {MASK_FOLDER_KEY: "train_cellpose"}
 
 # Qt platform plugins that have no way for a human to click a dialog button.
 _HEADLESS_PLATFORMS = ("offscreen", "minimal", "minimalegl", "vnc")
@@ -648,6 +770,82 @@ class _MaskCanvas(QLabel):
 
 
 # ---------------------------------------------------------------------------
+# Folded modules
+# ---------------------------------------------------------------------------
+
+def fold_description(key: str) -> tuple:
+    """``(name, description, stage)`` for a folded module.
+
+    The app registry answers while it still holds the module's row; once the
+    row has been dropped — which is what folding a module ends in — the
+    answer comes from :data:`FOLD_FALLBACK`, so the button goes on carrying
+    the name, the sentence and the maturity colour its tile had.
+    """
+    from .. import app as app_module
+
+    name = description = stage = ""
+    for row in getattr(app_module, "APPS", ()):
+        if row and row[0] == key:
+            name, description = row[1] or "", row[2] or ""
+            stage = app_module.app_stage(key)
+            break
+    fallback = FOLD_FALLBACK.get(key, ("", "", ""))
+    return (name or fallback[0], description or fallback[1],
+            stage or fallback[2])
+
+
+class FoldedModuleDialog(QDialog):
+    """One folded module, opened over its host as the whole screen it was.
+
+    A fold that reimplemented the module it replaced would keep whatever the
+    person doing the folding happened to think of and quietly drop the rest.
+    So the button opens the module's OWN widget: every control, every worker,
+    every drop target it had as a tile is what arrives, and the only thing
+    that changed is where it is opened from.
+
+    The window is not modal. The reason to fold Curate or the Model Zoo into
+    the mask editor is to use them ON the field that is open behind them, and
+    a modal window is one that cannot be looked past.
+
+    :param key: the folded module's registry key.
+    :param screen: the module's own widget, already built.
+    :param title: the window title — the module's name.
+    :param actions: extra buttons for the button box, each
+        ``(label, tooltip, callback)``. This is where a capability the folded
+        module lacks and its host has arrives.
+    """
+
+    def __init__(self, key: str, screen: QWidget, title: str,
+                 parent: Optional[QWidget] = None, actions=()):
+        super().__init__(parent)
+        self.app_key = key
+        self.screen = screen
+        self.setObjectName("FoldedModuleDialog")
+        self.setWindowTitle(title)
+        self.setModal(False)
+        column = QVBoxLayout(self)
+        column.setContentsMargins(0, 0, 0, SPACING["sm"])
+        column.setSpacing(SPACING["sm"])
+        column.addWidget(screen, 1)
+        self.buttons = QDialogButtonBox(QDialogButtonBox.Close, self)
+        #: Label -> button, for the extra actions.
+        self.actions: dict = {}
+        for label, tooltip, callback in actions:
+            button = self.buttons.addButton(label,
+                                            QDialogButtonBox.ActionRole)
+            button.setToolTip(tooltip)
+            # The bool ``clicked`` emits is swallowed here rather than in
+            # every callback: these are the host's own methods, and one that
+            # took a stray positional would fail only when pressed.
+            button.clicked.connect(
+                lambda _checked=False, cb=callback: cb())
+            self.actions[label] = button
+        self.buttons.rejected.connect(self.close)
+        column.addWidget(self.buttons)
+        self.resize(1120, 780)
+
+
+# ---------------------------------------------------------------------------
 # MakeMasksScreen
 # ---------------------------------------------------------------------------
 
@@ -672,6 +870,12 @@ class MakeMasksScreen(QWidget):
         self._load_worker: Optional[_MaskLoadWorker] = None
         self._pending_load = None
         self._loading = False
+        #: Folded module key -> the module's own screen, built the first time
+        #: its button is pressed and kept afterwards so a second press finds
+        #: the paths, models and results the first one left.
+        self._fold_screens: dict[str, QWidget] = {}
+        #: Folded module key -> the window that screen lives in.
+        self._fold_dialogs: dict[str, FoldedModuleDialog] = {}
         self._build_ui()
         self._install_shortcuts()
         self._sync_button_states()
@@ -691,18 +895,26 @@ class MakeMasksScreen(QWidget):
                                   SPACING["lg"], SPACING["lg"])
         outer.setSpacing(SPACING["md"])
 
-        # Header
-        header = QVBoxLayout()
-        header.setContentsMargins(0, 0, 0, 0)
-        header.setSpacing(4)
-        title = QLabel("Make Masks")
-        title.setObjectName("TitleHeading")
-        header.addWidget(title)
+        # Masthead — the module's own name and blurb, the folder in force,
+        # and the strip of modules that fold into this one.
+        self._header = ModuleHeader(
+            HEADER_TITLE,
+            description=HEADER_DESCRIPTION,
+            instruction=HEADER_INSTRUCTION,
+            app_key=APP_KEY,
+        )
         self._src_label = QLabel("No folder selected — click Open folder…")
         self._src_label.setObjectName("SubtitleSmall")
-        header.addWidget(self._src_label)
-        header_wrap = QWidget(); header_wrap.setLayout(header)
-        outer.addWidget(header_wrap)
+        # A deep folder path must never widen the window or push the fold
+        # buttons off the end of the row: the label may shrink below its
+        # ideal width, and the tooltip carries what is cut off.
+        self._src_label.setSizePolicy(QSizePolicy.Maximum,
+                                      QSizePolicy.Preferred)
+        self._src_label.setMinimumWidth(0)
+        self._header.add_trailing(self._src_label)
+        self._folds = self._build_fold_strip()
+        self._header.add_trailing(self._folds)
+        outer.addWidget(self._header)
         outer.addWidget(Divider())
 
         # Body — a stack: EmptyState until a folder is opened, then splitter
@@ -780,6 +992,303 @@ class MakeMasksScreen(QWidget):
         self._status_label.setObjectName("SubtitleSmall")
         nav_row.addWidget(self._status_label)
         outer.addWidget(nav)
+
+    # ------------------------------------------------------------------
+    # The folded modules
+    # ------------------------------------------------------------------
+    def _build_fold_strip(self) -> FoldStrip:
+        """The masthead's strip of folded modules.
+
+        Built through :class:`~spacr.qt.widgets.fold_strip.FoldStrip` so each
+        button is the module's own icon, tooltipped with its own sentence and
+        lit on hover in its own maturity colour, read from the tables the
+        tiles read rather than from a second one here.
+        """
+        entries = []
+        for key in FOLD_ORDER:
+            if key == MASK_FOLDER_KEY:
+                entries.append((key, self.mask_whole_folder))
+            else:
+                entries.append((key, partial(self.open_folded, key)))
+        strip = FoldStrip(entries, parent=self)
+        for key in FOLD_ORDER:
+            self._restate_fold_button(strip.button_for(key), key)
+        return strip
+
+    @staticmethod
+    def _restate_fold_button(button, key: str) -> None:
+        """Give ``button`` the name, sentence and stage its tile carried.
+
+        A no-op while the registry still holds the row — the strip has
+        already read the same three things from the same place. It is what
+        keeps the button honest afterwards, when the row is gone and the
+        registry would report no description and a stable-blue hover for a
+        module that is neither.
+        """
+        if button is None:
+            return
+        name, description, stage = fold_description(key)
+        button.setToolTip(f"{name}\n{description}".strip())
+        button.setAccessibleName(name)
+        if button.property("stage") != stage:
+            button.setProperty("stage", stage)
+            # A property the stylesheet selects on is only read at polish, so
+            # a button already on screen keeps the old colour until it is
+            # polished again.
+            button.style().unpolish(button)
+            button.style().polish(button)
+
+    def folded_screen(self, key: str) -> Optional[QWidget]:
+        """The folded module's own screen, built on first use and kept.
+
+        :param key: one of :data:`FOLD_ORDER`. Keys that share a screen —
+            see :data:`FOLD_HOSTS` — resolve to the one widget that hosts
+            them both.
+        :returns: the screen, or ``None`` for a key this screen does not
+            fold.
+        """
+        host = FOLD_HOSTS.get(key, key)
+        if host not in FOLD_ORDER:
+            return None
+        screen = self._fold_screens.get(host)
+        if screen is None:
+            screen = self._build_folded_screen(host)
+            self._fold_screens[host] = screen
+        return screen
+
+    def _build_folded_screen(self, key: str) -> QWidget:
+        """Construct one folded module's widget.
+
+        Each branch builds the module's real screen class, and the generic
+        settings page is what a module with no screen of its own gets — the
+        same page its tile opened.
+        """
+        if key == "train_cellpose":
+            from .train_cellpose import CellposeWorkbenchScreen
+            return CellposeWorkbenchScreen()
+        if key == "model_compare":
+            from .model_compare import ModelCompareScreen
+            return ModelCompareScreen()
+        if key == "model_zoo":
+            from .model_zoo import ModelZooScreen
+            screen = ModelZooScreen()
+            # The zoo's "compare these two" hand-off is wired by whoever
+            # hosts it. Folded, that is this screen, or the button would
+            # select two models and open nothing.
+            screen.compare_requested.connect(self._on_zoo_compare_requested)
+            return screen
+        if key == "curate":
+            from .curate import CurateScreen
+            return CurateScreen()
+        if key == "napari_bridge":
+            from .napari_bridge import NapariBridgeScreen
+            return NapariBridgeScreen()
+        from .app_screen import AppScreen
+        return AppScreen(app_key=key)
+
+    def _fold_actions(self, key: str) -> tuple:
+        """Extra buttons for a folded module's window.
+
+        Where a capability the folded module never had and this screen does
+        arrives with the fold.
+        """
+        if key == "curate":
+            return (("Save mask",
+                     "Write the corrected labels back to the mask file, with "
+                     "the correction ledger beside them",
+                     self.save_curated_mask),)
+        return ()
+
+    def open_folded(self, key: str) -> Optional[FoldedModuleDialog]:
+        """Open a folded module over this screen, pointed at the open field.
+
+        :param key: one of :data:`FOLD_ORDER`.
+        :returns: the module's window, or ``None`` for a key this screen does
+            not fold. Pressing the same button again raises the window that
+            is already open rather than building a second one.
+        """
+        host = FOLD_HOSTS.get(key, key)
+        screen = self.folded_screen(host)
+        if screen is None:
+            return None
+        dialog = self._fold_dialogs.get(host)
+        if dialog is None:
+            dialog = FoldedModuleDialog(
+                host, screen, fold_description(host)[0], parent=self,
+                actions=self._fold_actions(host))
+            self._fold_dialogs[host] = dialog
+        self.seed_folded(key)
+        dialog.show()
+        dialog.raise_()
+        return dialog
+
+    def seed_folded(self, key: str) -> dict:
+        """Point a folded module at the field this screen has open.
+
+        The whole reason these are buttons on this masthead rather than rows
+        of their own is that the folder is already chosen here; a folded
+        module that opened on an empty path would have folded the file dialog
+        in with it.
+
+        :param key: one of :data:`FOLD_ORDER`. Note that this is the button's
+            key, not its host's: the two Cellpose halves share a screen and
+            seed different halves of it.
+        :returns: what was seeded, as ``{name: value}``. Empty when no folder
+            is open, which is not a failure — the module opens on its own
+            file picker exactly as its tile did.
+        """
+        if not self._folder:
+            return {}
+        screen = self.folded_screen(key)
+        if screen is None:
+            return {}
+        if key in ("train_cellpose", MASK_FOLDER_KEY):
+            return self._seed_cellpose(screen, key)
+        if key == "model_compare":
+            screen.set_source(self._folder)
+            return {"folder": self._folder}
+        if key == "model_zoo":
+            screen.set_fields_source(self._folder)
+            return {"folder": self._folder}
+        if key in ("curate", "napari_bridge"):
+            return self._seed_mask_editor(screen, key)
+        # A module with no screen of its own: a settings page, whose one
+        # path is the folder this screen already has open.
+        screen.apply_settings_dict({"src": self._folder})
+        return {"src": self._folder}
+
+    def _seed_cellpose(self, workbench: QWidget, key: str) -> dict:
+        """Open the Cellpose workbench on the half the button names.
+
+        Training and applying read ``src`` differently — training wants the
+        parent of ``train/images``, applying wants the folder of fields — so
+        only the applying half is given the folder this screen has open.
+        Training is opened on its own tab with its own path untouched, which
+        is the one thing that must not be guessed at.
+        """
+        target = (workbench.train_screen if key == "train_cellpose"
+                  else workbench.apply_screen)
+        tabs = workbench.findChild(QTabWidget)
+        if tabs is not None:
+            tabs.setCurrentWidget(target)
+        if key == "train_cellpose":
+            return {}
+        target.apply_settings_dict({"src": self._folder})
+        return {"src": self._folder}
+
+    def _seed_mask_editor(self, screen: QWidget, key: str) -> dict:
+        """Hand a mask editor the field on screen, image and mask both.
+
+        Nothing is opened for the user: both screens report on whether the
+        file they were given has been curated before, and reading a mask off
+        disk while the folder is being edited here would answer that question
+        about the wrong copy.
+        """
+        filename = self._image_files[self._current_index]
+        mask_path = engine.mask_save_path(self._folder, filename)
+        seeded = {"mask": mask_path}
+        screen._mask_edit.setText(mask_path)
+        if key == "napari_bridge":
+            image_path = os.path.join(self._folder, filename)
+            screen._image_edit.setText(image_path)
+            seeded["image"] = image_path
+        return seeded
+
+    def _on_zoo_compare_requested(self, request: dict) -> None:
+        """Open the folded Model Compare on the two models the zoo picked."""
+        dialog = self.open_folded("model_compare")
+        if dialog is None:
+            return
+        dialog.screen.configure(
+            model_a=request.get("model_a", ""),
+            model_b=request.get("model_b", ""),
+            folder=request.get("folder", ""),
+            n_fields=int(request.get("n_fields", 0) or 0),
+        )
+
+    def mask_whole_folder(self) -> bool:
+        """Segment every image in the open folder with the current model.
+
+        The one folded button that does something rather than opening
+        something: it points the applying half of the Cellpose workbench at
+        the folder already open here and starts it. "The current model" is
+        whatever that tab holds — the checkpoint the Train tab produced if
+        there is one, and the stock model otherwise.
+
+        :returns: whether a run was started. A folder that is not open, and a
+            confirmation that is declined, both answer ``False``.
+        """
+        if not self._folder or not self._image_files:
+            self._status_label.setText(
+                "Open a folder of images before masking it.")
+            return False
+        count = len(self._image_files)
+        if not self._confirm(
+                "Mask the whole folder",
+                f"Segment all {count} images in {self._folder}?\n\n"
+                f"Images that already have a mask are left alone."):
+            return False
+        dialog = self.open_folded(MASK_FOLDER_KEY)
+        if dialog is None:
+            return False
+        self._status_label.setText(
+            f"Masking {count} images in {self._folder}…")
+        self._start_folded_run(dialog.screen.apply_screen)
+        return True
+
+    @staticmethod
+    def _start_folded_run(screen) -> None:
+        """Press a folded module page's Run.
+
+        One line, named, because it is the seam between this screen and a job
+        that wants a GPU: a test drives everything up to it without starting
+        Cellpose.
+        """
+        screen._on_run()
+
+    def save_curated_mask(self) -> str:
+        """Write the labels Curate corrected back to the mask file.
+
+        The Curate screen paints and records and never wrote a pixel: its
+        ledger asserted corrections beside a file the pipeline had produced,
+        and :func:`spacr.curation.is_curated` answered ``True`` for that
+        untouched file. The write lives here because this is the screen that
+        writes masks.
+
+        :returns: the path written, or ``""`` when there is nothing to write.
+        """
+        screen = self._fold_screens.get("curate")
+        brush = getattr(screen, "brush", None)
+        if brush is None:
+            self._status_label.setText(
+                "Open a mask in Curate before saving it.")
+            return ""
+        try:
+            written = brush.session.save_mask()
+        except Exception as exc:
+            self._warn("Save failed", str(exc))
+            return ""
+        self._status_label.setText(f"Saved → {written}")
+        return written
+
+    def close_folded(self) -> None:
+        """Close every folded module window, and everything it started.
+
+        Closing the window is not enough. A module page polls the machine's
+        RAM and GPU on a worker thread while it is visible, and Qt answers a
+        running QThread being destroyed by aborting the process — so the
+        page's own close handler, which drains that worker, has to run. A
+        page nested inside another module's tabs never gets one from Qt,
+        which is why they are closed by hand here.
+        """
+        from .app_screen import AppScreen
+
+        for dialog in list(self._fold_dialogs.values()):
+            screen = dialog.screen
+            for page in screen.findChildren(AppScreen):
+                page.close()
+            screen.close()
+            dialog.close()
 
     def _build_tools_panel(self) -> QWidget:
         wrap = QWidget()
@@ -1418,9 +1927,14 @@ class MakeMasksScreen(QWidget):
         thread is still running")`` — a core dump, not an exception. The
         window is exactly as wide as one image decode, which is why it shows
         up in a loaded test shard and almost never by hand.
+
+        Any folded module still open goes with it: each one is a window of
+        its own, and several of them own worker threads and viewers that must
+        be told to stop rather than be collected out from under Qt.
         """
         from ..bridge import drain_thread
 
+        self.close_folded()
         self._pending_load = None
         worker, self._load_worker = self._load_worker, None
         if worker is not None:

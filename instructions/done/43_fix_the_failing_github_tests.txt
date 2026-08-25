@@ -2,8 +2,11 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 ================================================================================
 
-Status:    in progress 2026-08-08 - Linux went from all-failing
-           to all-passing; macOS and Windows still fail
+Status:    open - all three workflows are red on the newest push.
+           compat-matrix fails in every one of its eight suite cells on a
+           single assertion; tests fails on Lint, on both non-Qt suite jobs
+           and on both Qt shards; docs fails on a stale reviewed API
+           translation. See WHERE THE RUNS STAND at the end of this file.
 Requested: 2026-08-08 - "fix the failing GitHub tests."
 
 --------------------------------------------------------------------------------
@@ -373,3 +376,98 @@ Every failure this file named is fixed or explained. Five were fixed
 locally" claim was itself the defect -- the CI cells are conda envs on this
 machine. The one remaining, test_cov_io_tail, passes on 3.10, 3.12 and 3.14
 with the newest stack; the residual hypothesis is test ORDER and is recorded.
+
+--------------------------------------------------------------------------------
+WHERE THE RUNS STAND
+--------------------------------------------------------------------------------
+
+Read off the newest complete run of each workflow, not inferred. The
+per-failure detail below supersedes the CLOSED note above it.
+
+compat-matrix -- ONE ASSERTION, EIGHT CELLS
+
+  Every suite cell (3.9 floor, 3.10, 3.12 control, 3.13, 3.14, Linux ARM64,
+  Windows, macOS) fails on the same deciding step and the same three
+  assertions in tests/test_smoke.py. The wheels-only cells and the packaging
+  metadata cell are green. So this workflow is one fix from green, and the
+  fix is in two files:
+
+    spacr/__init__.py    _SUBMODULES is missing frame_handoff,
+                         object_distances and uniprot, which exist as files.
+    tests/test_smoke.py  EXPECTED_LAZY still names the eleven Tk modules the
+                         interface retirement deleted -- gui, gui_core,
+                         gui_elements, gui_utils, app_annotate, app_classify,
+                         app_make_masks, app_mask, app_measure, app_sequencing,
+                         app_umap. Attribute access on each is now an
+                         AttributeError, which is what the other two smoke
+                         failures are.
+
+  Verified: with those three names added and the eleven deleted ones dropped,
+  every surviving name imports, returns a module and emits no SyntaxWarning.
+
+  THIS IS THE FOURTH RECURRENCE of the _SUBMODULES half -- object_roles,
+  organelle_types, and now two more. A hand-maintained list of the files in
+  its own directory drifts every time a module lands, and each drift takes
+  the entire compatibility grid down. Deriving _SUBMODULES from the directory
+  and keeping the tuple only for names that must NOT be lazy would end it.
+
+tests -- FIVE RED JOBS
+
+  Lint / types / complexity    One fatal error, and the whole quality gate
+                               stops at it: ruff F821 undefined name `LOG` at
+                               spacr/qt/screens/settings_model.py, in an
+                               `except Exception` handler, so the logging call
+                               meant to explain a failed canonicalisation
+                               raises NameError instead. A repository-wide run
+                               of the same rule set finds this one and nothing
+                               else. mypy and xenon never run, so their state
+                               behind it is unknown.
+
+  Fast / Full suite control    Both stop at the same batch, on the same four
+  Minimum dependencies         tests: three in
+                               tests/test_analysis_mode_is_a_dropdown.py
+                               asserting a `Toxoplasma` key the regression
+                               sections no longer contain, and one in
+                               tests/test_agreement_excludes_the_model.py
+                               importing the deleted spacr.gui_elements.
+                               All four reproduce locally.
+
+  Qt shard 0 of 2              Hangs and is killed at the 2h job limit with no
+                               summary at all. Owned separately.
+
+  Qt shard 1 of 2              Reached 99% of its tests in 58 minutes and then
+                               lost its runner ("received a shutdown signal"),
+                               which is not the shard-0 hang and not a test
+                               failure.
+
+docs -- ONE STALE TRANSLATION
+
+  tools/build_documentation_i18n.py refuses a reviewed API source whose
+  docstring has since changed:
+  docs/i18n/reviewed/api/de/... for spacr.qt.mask_engine#1.
+
+WHAT THE RUN CANNOT TELL YOU, AND WHY THE COUNT IS NOT FOUR
+
+  tools/run_pytest_batches.py returns the moment a batch fails, so a tests
+  run reports the failures of ONE batch and never reaches the rest. The four
+  above are alphabetically early; they are not the total. Two more are
+  already known from running the later files directly:
+
+    tests/test_dependency_bounds.py::
+      test_every_directly_imported_third_party_module_is_declared
+        reads spacr/gui_elements.py, which no longer exists.
+    tests/test_user_facing_docstrings.py (two tests)
+        spacr/qt/ai/issue_report.py has task history in a docstring.
+
+  Until the runner finishes every batch and returns the first failing status
+  at the end, "re-triage from a fresh run" cannot be done from the run.
+
+WHAT IS FIXED HERE
+
+  A hung suite now says where it is hung. The reusable suite workflow passes
+  pytest's faulthandler timeout, so a test that overruns dumps every thread's
+  traceback and then carries on -- a hang names itself in the log instead of
+  arriving as a job killed with no output, which is exactly the shape
+  instruction 43 asked never to leave standing. Slow tests stay green;
+  the threshold is far below every caller's job timeout.
+

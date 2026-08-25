@@ -2,7 +2,9 @@
 IMAGE UMAP: DRAG TO ENLARGE THE PLOT WITHOUT ENLARGING THE IMAGES
 ================================================================================
 
-Status:    investigated - the hard half already works; see below
+Status:    JUDGED ON THE RUNNING WIDGET. The plot enlarges in both
+           directions and the points do not move. What is left is one
+           thing and it is the divider itself; see the last section.
 Requested: 2026-08-06 - "i should also be able to make the figure container larger to enlarge the UMAP plot, this dragging should apply to the plot itself but not the images, that is to say the images should keep their coordinates on the graph but their size should not change, that should be controlled by image zoom i think."
 
 --------------------------------------------------------------------------------
@@ -71,17 +73,57 @@ QSplitter(Qt.Horizontal) between the chart and the sidebar, and
 settings.py's own tooltip for `umap_canvas_width` says "The chart/sidebar
 divider can also be dragged while exploring."
 
-WHAT IS LEFT, and it needs the running GUI to judge:
+THE THREE QUESTIONS, ANSWERED ON A DRIVEN WIDGET AND MEASURED
 
-  * Does dragging the existing divider actually enlarge the PLOT, or only
-    the widget around it? If the canvas has a fixed size policy the splitter
-    moves the frame and not the axes.
-  * Is the explorer itself in a fixed-height panel, so the plot can only
-    grow sideways? "Make the figure container larger" may mean vertically,
-    which the horizontal splitter cannot do.
-  * Is the divider DISCOVERABLE? A handle nobody can see is a handle nobody
-    drags, and this may be the whole report.
+  1. DOES THE DRAG REACH THE PLOT, or only the frame around it?
+     IT REACHES THE PLOT. Moving `_body_splitter` from 1082/317 to 1161/238
+     took the figure from 10.64 to 11.43 inches wide. The canvas has no
+     fixed size policy; the axes grow with the widget.
 
-Start there rather than by changing the drawing code. The drawing code is
-right, and rewriting it would break behaviour that already does exactly what
-was asked.
+  2. CAN IT GROW VERTICALLY, or only sideways?
+     BOTH. The explorer follows its container in height as well as width:
+     4.72 in -> 8.37 in on a container grown by 400 px. Vertical room comes
+     from the figures/console divider one level up, which is a QSplitter,
+     so the figures card can be dragged taller at the console's expense --
+     and doing that grows the plot. The horizontal divider is not the only
+     handle, which is what the worry assumed.
+
+     And the points do not move when it grows. There was no test for that
+     and it is the criterion in HOW TO KNOW IT WORKED; there is one now.
+
+  3. IS THE DIVIDER DISCOVERABLE?
+     NO, AND THIS IS PROBABLY THE WHOLE REPORT. Measured, not eyeballed:
+
+       painted width      1 px   (theme QSS: QSplitter::handle:horizontal)
+       grab area          5 px
+       tooltip            none
+       cursor             SplitHCursor, only once already on it
+
+     THICKENING IT IS THE WRONG FIX and has already been rejected once: an
+     8 px handle lit up accent-blue on hover reads as a thick blue slab, and
+     `console_panel` records that. The pattern that reconciled the two is on
+     `ConsoleSplit`: keep the hairline PAINTED and widen the GRAB AREA --
+     `setHandleWidth(SPACING["sm"])` plus a per-splitter rule painting a 1 px
+     accent line inside a transparent 8 px handle.
+
+     SECOND, AND WORSE THAN THE WIDTH: the sidebar carries a 238 px floor
+     (the image preview's `setMinimumSize(220, 220)`). Below about 900 px of
+     explorer the sidebar is already at that floor, so the divider cannot
+     move AT ALL -- the first drag anyone tries does nothing, on any window
+     that is not wide. A handle that is invisible and, when found, inert is
+     indistinguishable from there being no handle.
+
+STILL TO DO, and it is in `spacr/qt/widgets/umap_explorer.py`:
+  * the grab area, by the `ConsoleSplit` pattern above;
+  * a tooltip on the splitter saying what it does -- `settings.py` already
+    tells the user "the chart/sidebar divider can also be dragged while
+    exploring", which is the right sentence in the wrong place;
+  * the sidebar floor, so a narrow explorer can still give the plot room.
+
+The drawing code is right and is not to be rewritten: thumbnails are sized in
+display units by image zoom alone, the coordinates survive, and every one of
+those is measured above.
+
+Tests: `tests/qt/test_umap_figure_container_drag.py`, 7 -- the plot growing
+in both directions, the divider reaching the axes rather than the frame, and
+no point moving when the container grows.

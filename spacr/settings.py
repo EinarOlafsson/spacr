@@ -1139,9 +1139,17 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('nucleus_min_size',0)
     settings.setdefault('pathogen_min_size',0)
     settings.setdefault('organelle_min_size',0)
+    # WHAT KIND OF ORGANELLE, on the measure side as well as the mask side.
+    # Measure has to know it to say which of its own numbers mean what they
+    # usually mean: "how many, and how spread out" is the phenotype for a
+    # punctate organelle and is a segmentation artefact for a reticular one.
+    # Defaults to 'custom', which makes no claim, so a settings file written
+    # before this existed still means exactly what it meant.
+    settings.setdefault('organelle_type', DEFAULT_ORGANELLE_TYPE)
     for _role in ORGANELLE_ROLES[1:]:
         settings.setdefault(f'{_role}_mask_dim', None)
         settings.setdefault(f'{_role}_min_size', 0)
+        settings.setdefault(f'{_role}_type', DEFAULT_ORGANELLE_TYPE)
     settings.setdefault('cytoplasm_min_size',0)
     settings.setdefault('merge_edge_pathogen_cells', True)
     
@@ -1177,6 +1185,14 @@ def get_measure_crop_settings(settings=None):
     # sets. Raw per-object tables are controlled solely by each slot's
     # ``*_mask_dim``; this setting controls only the optional parent rollups.
     settings.setdefault('summarize_organelles_by', 'cell')
+
+    # SAY WHAT THE NUMBERS WILL AND WILL NOT MEAN. Nothing is switched off:
+    # a family the organelle type makes doubtful is still measured, because
+    # a value that vanished without being asked to is worse than one that
+    # comes with a caveat. It is said out loud in the same voice the type
+    # preset uses to say what it set and what is weak about it.
+    if settings.get('verbose'):
+        explain_organelle_measurements(settings)
 
     # Illumination / flat-field correction. It divides the microscope's
     # uneven lighting out of every field BEFORE any intensity feature is
@@ -2160,6 +2176,20 @@ def get_perform_regression_default_settings(settings):
     # and is reported in the run summary's exclusions, which now counts what
     # it removed rather than only printing it (156).
     settings.setdefault('fraction_threshold', 0.02)
+    # MEASURE THE THRESHOLD INSTEAD OF NAMING IT, when the plate design
+    # says which wells are pure control.
+    #
+    # `fraction_threshold` is a number the user picks, and there is no
+    # obvious right one: too low and bleed-through gRNAs survive, too high
+    # and real ones are stripped. The control wells can answer it -- refit
+    # imaging on sequencing at each candidate cut-off and keep the one where
+    # the two agree best -- and `spacr.fraction_calibration` does that.
+    #
+    # OFFERED, NOT DEFAULTED. Turning it on changes which gRNAs survive in
+    # every well of the screen, so it is a decision the user takes rather
+    # than one a version bump takes for them. Off, `fraction_threshold` is
+    # read exactly as before.
+    settings.setdefault('calibrate_fraction_threshold', False)
     # OFF BY DEFAULT, all four (instruction 210). This changes which cells
     # EXIST, and a filter that silently drops objects is a filter that will
     # be forgotten and then blamed on the annotation.
@@ -3180,6 +3210,7 @@ expected_types = {
     "width_height": list,
     "resize": bool,
     "fraction_threshold": float,
+    "calibrate_fraction_threshold": bool,
     "mix":str,
     "model_type_ml":str,
     "exclude_conditions":list,
@@ -3750,11 +3781,21 @@ tooltips = {
         "classifier and the regression. The run prints how many objects each "
         "bound dropped.",
     'nucleus_max_size':
-        "(int | None) - Drop nuclei larger than this many pixels. See "
-        "cell_max_size. Default None.",
+        "(int | None) - Drop nuclei LARGER than this many pixels, counted "
+        "the same way nucleus_min_size counts them. None -- the default -- "
+        "disables it and is what every existing run does. A minimum removes "
+        "debris; only a maximum removes a nucleus mask that swallowed a "
+        "whole clump, which passes every minimum and then carries a wrong "
+        "area and a wrong DNA content into everything downstream. The run "
+        "prints how many objects each bound dropped.",
     'pathogen_max_size':
-        "(int | None) - Drop pathogens larger than this many pixels. See "
-        "cell_max_size. Default None.",
+        "(int | None) - Drop pathogens LARGER than this many pixels, counted "
+        "the same way pathogen_min_size counts them. None -- the default -- "
+        "disables it and is what every existing run does. This is the bound "
+        "that catches a vacuole of tightly packed parasites segmented as one "
+        "object: it passes every minimum size and inflates both the per-cell "
+        "burden and the mean parasite area. The run prints how many objects "
+        "each bound dropped.",
     'fields':
         "(list | str | None) - Which fields to process, so one bad field can "
         "be re-run without redoing the plate beside it. None -- the default "
@@ -3873,7 +3914,7 @@ tooltips = {
     "show_all_in_well": "(bool) - Show EVERY cell in the well and highlight the chosen ones, instead of showing only the chosen ones. The highlight is the annotation app's, so a picked cell looks the way an annotated one does. ON BY DEFAULT: with it off, the only cells on screen are the ones already annotated to the guide, so every visible cell is a hit and every visible fraction is 1 -- a view that shows only the cells agreeing with the annotation cannot disagree with it. Turn it off to see the picked cells alone. Default True.",
     "half_widths": "(float) - Set the score-window half-width in robust scales (1.4826 × median absolute deviation) on either side of the score implied by the coefficient. This value applies to every coefficient. It changes the range described in the montage caption, not the number of cells shown; the displayed count comes from guide-fraction estimates so narrow windows do not leave wells underrepresented. Default 1.0.",
     "baseline": "(str) - What the coefficient's effect is measured FROM when the implied score is worked out: 'screen_median' (every well), 'control_median' (the non-targeting controls) or 'zero'. The control baseline is the honest one when the screen's median is itself shifted. Default 'screen_median'.",
-    "cap": "(int) - The most objects to draw for one coefficient, across all its wells. A guard against a montage nobody can scroll; the caption says when it bit and how many were dropped. Default 300.",
+    "cap": "(int) - The most objects to draw for one coefficient, across all its wells. A guard against a montage nobody can scroll; the caption says when it bit and how many were dropped. Raising it costs memory and paging in proportion: at 2000 a well tab holds ~280 MB of thumbnails and runs to 33-83 pages. Default 2000.",
     "cell_picking": "(str) - How the cells to show are chosen. 'rank' takes the top ones by score - the count the fraction implies. 'attributed' gives each cell a probability of carrying this guide and takes those above the threshold. 'assigned' hands every cell in the well exactly one guide, so each guide gets exactly the cells its reads imply. 'multivariate' does the same from EVERY measurement rather than the score alone, and needs the gene x measurement sweep's effects grid. Default 'rank'.",
     "picking_threshold": "(float) - The probability a cell must reach before it is called for this guide, for the 'attributed' and 'multivariate' pickers. Below it a cell is ambiguous and is not shown. The other pickers compute no probability and ignore it. Default 0.55.",
 
@@ -4088,6 +4129,7 @@ tooltips = {
     "fill_in": '(bool) - Post-process each Cellpose mask with fill_holes_in_mask in the mask-finetune and plaque tools: the mask is re-labelled by connectivity over all non-zero pixels, then interior holes are filled component by component. Because re-labelling IGNORES the original label values, two touching objects become one -- so this repairs hollow objects at the risk of merging adjacent ones. Default False.',
     "flow_threshold": "(float) - Cellpose flow_threshold: the maximum allowed error between the predicted flow field and the flows recomputed from each candidate mask; masks above it are discarded. Raise it to keep more objects, including irregularly shaped ones; lower it to reject poorly formed masks and reduce false positives. Default 0.4.",
     "fps": "(int) - Playback rate of the per-channel movies written to <src>/movies from timelapse .npy stacks, and only when timelapse is True. Raise it to skim long acquisitions, lower it to inspect individual frames. Affects the movies only - never tracking, segmentation or measurements. Default 2.",
+    "calibrate_fraction_threshold": "(bool) - Measure fraction_threshold from the control wells instead of using the number above. The sweep recomputes each well's gRNA fractions at a range of candidate cut-offs, refits imaging on sequencing over the wells the plate design names as pure positive and pure negative control, and keeps the cut-off where the two agree best. It needs those control wells to be named in the plate design - naming them by their reported fraction would be circular, since that fraction is the quantity under test. Off, fraction_threshold is read as given. Changing this changes which gRNAs survive in every well, so it is off by default. Default False.",
     "fraction_threshold": "(float) - Minimum relative abundance, 0-1, that a gRNA must reach within a well's total read count to be kept. Raising it strips low-abundance and bleed-through gRNAs and lowers the mean gRNAs per well; set it too high and every row is removed and the run errors out. Leave None to auto-pick the cutoff giving target_unique_count gRNAs per well. Default None.",
     "normalise_fraction": "(bool) - Divide a gRNA's fraction by the sum of the fractions that remain in its well after fraction_threshold, before deciding how many cells it is given. On, a gRNA's share is measured against what survived the threshold; off, it is measured against every read the well produced, including those the threshold removed. The two differ whenever the threshold removes anything: normalising raises every surviving share, and by more the more was removed. Default True.",
     "from_scratch": "(bool) - Start from randomly initialised weights instead of fine-tuning the pretrained model. Almost always leave OFF: fine-tuning needs tens of images where from-scratch needs thousands. Default False.",
@@ -4572,6 +4614,9 @@ tooltips = {
     'object_array': "(str) - On-demand crops: which object the crops are cut around - 'cell', 'nucleus', 'pathogen', 'cytoplasm' or 'organelle'. Its mask plane in merged/*.npy is what defines each object's extent. Default 'cell'.",
     'coordinate_columns': "(list) - On-demand crops from a DATABASE instead of masks: the columns holding each object's position, e.g. ['centroid_x', 'centroid_y']. Only bounding-box crops are possible this way, because a coordinate has no outline. None uses the merged masks, which is the default and the better source. Default None.",
     'crop_shape': "(str) - 'bounding_box' cuts the smallest rectangle containing the object; 'object' masks everything outside it away. Database-sourced crops can only be bounding boxes. Default 'bounding_box'.",
+    'red_channel': "(int) - Streamed crops only: which plane of the merged array is drawn in the picture's red channel. Any plane may be named, not only the first three, so planes 1, 2 and 4 of a five-plane array is a mapping rather than a slice. A crop already written to disk was coloured when it was written, so this is greyed out when crops are loaded. Default 2, spaCR's shipped mapping.",
+    'green_channel': "(int) - Streamed crops only: which plane of the merged array is drawn in the picture's green channel. Name the plane holding the stain you want to read as green; it is a choice of source plane, not a position in the array. A crop already written to disk was coloured when it was written, so this is greyed out when crops are loaded. Default 1.",
+    'blue_channel': "(int) - Streamed crops only: which plane of the merged array is drawn in the picture's blue channel. Set it together with the red and green choices, because the three together decide which stain reads as which colour. A crop already written to disk was coloured when it was written, so this is greyed out when crops are loaded. Default 0.",
     'normalization': "(str) - Which normalisation the images get: 'imagenet' (the mean and standard deviation the pretrained backbones were trained with), 'dataset' (this dataset's own statistics), 'percentile' (per-image contrast stretch), 'none', or 'custom'. Default 'imagenet'.",
     'normalization_scope': "(str) - Whether normalisation statistics are computed per 'image', per 'batch', or once over the whole 'dataset'. Per-image is the safest default: batch statistics leak information between the objects in a batch, and dataset statistics have to be recomputed whenever the dataset changes. Default 'image'.",
     'png_type': "(str) - Which object crop type is pulled from the png_list table when building the training dataset - a row is kept only if its PNG path contains this substring. Use 'cell_png', 'nucleus_png', 'pathogen_png', 'cytoplasm_png' or 'organelle_png' to train on whole cells, nuclei, parasites, cytoplasm or organelles. It must match a crop_mode that measure_crop actually saved. Default 'cell_png'.",
@@ -5001,6 +5046,7 @@ categories = {
     # obvious that four separate settings each drop data.
     "Regression: Quality Filters": [
         "min_cell_count", "min_n", "fraction_threshold",
+        "calibrate_fraction_threshold",
         # DIRECTLY UNDER THE THRESHOLD IT DIVIDES BY. It is only
         # meaningful in terms of what that threshold removed, so a
         # reader who meets it anywhere else has to go and find the
@@ -5105,29 +5151,83 @@ categories = {
 # unrelated knobs; filed under one heading they read as one decision applied
 # four times, which is what they are.
 #
-# THREE HEADINGS, NOT TWELVE, AND THAT IS THE FLAT PANEL SHOWING THROUGH.
-# The request asks for sub-sections by function with sub-SUB-sections per
-# object. `SettingsWidgets.build_sections` returns
-# List[Tuple[str, List[Tuple[str, QWidget]]]] -- one flat header then its
-# rows, no third level and no recursion -- so a sub-sub-section cannot be
-# expressed without changing that contract for every module in the tool.
-# Within each heading the keys are therefore ORDERED BY OBJECT, so the four
-# `*_min_size` settings sit together and read as the group they are.
+# THE STRUCTURE IS THREE LEVELS: an "Advanced settings" umbrella, one
+# heading per family under it, and one sub-heading per object under that.
+# `SettingsWidgets.build_sections` carries the tree; the flat
+# `(title, rows)` pairs it has always returned are still the outer half of
+# it, so a panel that cannot draw a tree still draws every control exactly
+# once. `CATEGORY_PARENTS` below is what says which family sits under the
+# umbrella; the per-object level is derived from the key prefix, so a family
+# never has to repeat the object list.
+#
+# Within each heading the keys are ORDERED BY OBJECT, so the four
+# `*_min_size` settings sit together and read as the group they are whether
+# or not the panel drawing them can nest.
 #
 # ORGANELLE FOLDS IN rather than keeping the separate scheme instruction 72
 # shipped, per that instruction's item 6: one structure, not two.
+#: The umbrella every advanced family hangs under.
+#:
+#: NOT "Advanced". That heading already exists and holds the RUN's advanced
+#: knobs -- resume, n_jobs, batch_size, keep_intermediate -- which are about
+#: how the job executes, not about what is done to an object. Two headings
+#: three letters apart would be two places to look for the same thing.
+ADVANCED_UMBRELLA = 'Advanced settings'
+
+#: The per-object image preprocessing heading.
+#:
+#: NOT "Image preprocessing", which mask and timelapse already draw for the
+#: WHOLE-IMAGE steps -- normalize, upscale, denoise, lower_percentile. The
+#: category-help table is keyed on the heading's exact text, so a second
+#: heading spelled the same way would silently serve the wrong blurb; that
+#: is the half of the "Computer Vision --" prefix precedent that broke every
+#: tooltip lookup for its groups. The parenthetical is what keeps the two
+#: keys apart, and it says the true difference: this one is applied per
+#: object channel.
+PER_OBJECT_PREPROCESSING = 'Image preprocessing (per object)'
+
+#: ``(heading, key suffixes, key prefixes)`` per advanced family.
+#:
+#: A family is matched on the SUFFIX after the object name (`cell_min_size`)
+#: and on the PREFIX before it (`remove_background_cell`), because spaCR
+#: spells the same relationship both ways round and a family that could only
+#: see one of them would split a decision in half.
 _ADVANCED_FAMILIES = (
+    (PER_OBJECT_PREPROCESSING, (
+        "background", "Signal_to_noise",
+        # What organelle can already do to its channel before anything is
+        # segmented, and cell / nucleus / pathogen cannot. Grouping does not
+        # hide the gap -- each object's sub-heading shows exactly the keys
+        # that object has -- it makes it visible, which is the first step to
+        # closing it.
+        "rolling_ball", "rolling_ball_radius", "clahe", "clahe_clip_limit",
+    ), (
+        "remove_background",
+    )),
     ("Object filtration", (
         "min_size", "max_size", "min_area", "max_area", "min_object_area",
         "area_multiplier", "min_distance", "perimeter_fraction",
         "remove_border", "remove_border_objects",
-    )),
+    ), ()),
     ("Intensity handling", (
         "intensity_merge", "intensity_split", "intensity_percentile",
         "intensity_threshold_method", "min_intensity_percentile",
         "max_intensity_percentile",
-    )),
+    ), ()),
 )
+
+#: Which heading each category nests under when the panel can draw a tree.
+#:
+#: DECLARED BESIDE THE CATEGORIES, NOT BY RENAMING THEM. Encoding the parent
+#: in the heading text -- "Advanced settings / Object filtration" -- is the
+#: prefix trick, and the prefix trick is what broke every tooltip lookup for
+#: the Computer Vision groups, because the help table is keyed on the exact
+#: heading text. A separate table leaves every existing name, blurb and
+#: dependency untouched.
+CATEGORY_PARENTS = {
+    heading: ADVANCED_UMBRELLA for heading, _suffixes, _prefixes
+    in _ADVANCED_FAMILIES
+}
 
 #: Categories the regroup leaves alone.
 #:
@@ -5140,16 +5240,40 @@ _ADVANCED_FAMILIES = (
 _ADVANCED_REGROUP_EXEMPT = ("Measurements",)
 
 #: Object order within each family heading, so the same decision for four
-#: objects reads as one block rather than four scattered rows.
-_ADVANCED_OBJECT_ORDER = (
+#: objects reads as one block rather than four scattered rows. It is also the
+#: order the per-object sub-headings are drawn in.
+ADVANCED_OBJECT_ORDER = (
     "cell", "nucleus", "pathogen", "cytoplasm", *ORGANELLE_ROLES)
+_ADVANCED_OBJECT_ORDER = ADVANCED_OBJECT_ORDER
 
 
-def _advanced_family_members(table, family_suffixes):
+def advanced_object_of(key):
+    """Which object a family member belongs to, or None.
+
+    Both spellings are understood -- `cell_min_size` and
+    `remove_background_cell` -- because the sub-heading a key is drawn under
+    has to be the object it acts on whichever way round spaCR happens to
+    name it.
+
+    :param key: a settings key.
+    :returns: the object name from :data:`ADVANCED_OBJECT_ORDER`, or None
+        when the key names no object.
+    """
+    text = str(key)
+    for obj in ADVANCED_OBJECT_ORDER:
+        if text.startswith(f"{obj}_") or text.endswith(f"_{obj}"):
+            return obj
+    return None
+
+
+def _advanced_family_members(table, family_suffixes, family_prefixes=()):
     """Keys belonging to one family, ordered by object then by suffix.
 
     Matched on the SUFFIX after the object prefix, not by substring: `area`
     would otherwise pull in `area_multiplier` twice and miss nothing useful.
+    A PREFIX form is matched too -- `remove_background_cell` puts the object
+    last -- so a family is not split in half by spaCR's own inconsistency
+    about which end the object name goes on.
     """
     # A key an exempt category owns is NOT a member of the family heading.
     # Without this it would end up in both, and a duplicate renders twice in
@@ -5158,10 +5282,11 @@ def _advanced_family_members(table, family_suffixes):
     spoken_for = {k for c in _ADVANCED_REGROUP_EXEMPT
                   for k in table.get(c, ())}
     found = []
-    for obj in _ADVANCED_OBJECT_ORDER:
-        for suffix in family_suffixes:
-            key = f"{obj}_{suffix}"
-            if key in spoken_for:
+    for obj in ADVANCED_OBJECT_ORDER:
+        candidates = [f"{obj}_{suffix}" for suffix in family_suffixes]
+        candidates += [f"{prefix}_{obj}" for prefix in family_prefixes]
+        for key in candidates:
+            if key in spoken_for or key in found:
                 continue
             if any(key in members for members in table.values()):
                 found.append(key)
@@ -5183,8 +5308,8 @@ def _regroup_advanced(table):
     # for categories the regroup has no business changing.
     out = dict(table)
     moved = set()
-    for _heading, suffixes in _ADVANCED_FAMILIES:
-        moved.update(_advanced_family_members(out, suffixes))
+    for _heading, suffixes, prefixes in _ADVANCED_FAMILIES:
+        moved.update(_advanced_family_members(out, suffixes, prefixes))
 
     for category, keys in list(out.items()):
         if category in _ADVANCED_REGROUP_EXEMPT:
@@ -5193,12 +5318,12 @@ def _regroup_advanced(table):
             continue            # untouched: keep the original list object
         out[category] = [k for k in keys if k not in moved]
 
-    for heading, suffixes in _ADVANCED_FAMILIES:
-        members = _advanced_family_members(table, suffixes)
+    family_headings = {heading for heading, _s, _p in _ADVANCED_FAMILIES}
+    for heading, suffixes, prefixes in _ADVANCED_FAMILIES:
+        members = _advanced_family_members(table, suffixes, prefixes)
         if members:
             out[heading] = members
-    return {k: v for k, v in out.items()
-            if v or k in dict(_ADVANCED_FAMILIES)}
+    return {k: v for k, v in out.items() if v or k in family_headings}
 
 
 for _role in ORGANELLE_ROLES[1:]:
@@ -6492,6 +6617,150 @@ def get_automated_motility_assay_default_settings(settings):
     settings.setdefault('infection_pca_tsne_perplexity', 30.0)
     
     return settings
+
+# ---------------------------------------------------------------------------
+# WHICH MEASUREMENTS MEAN SOMETHING FOR WHICH ORGANELLE
+# ---------------------------------------------------------------------------
+#
+# "How many, and how spread out" is the phenotype for a punctate or vesicular
+# organelle and is not a question at all for a reticular one. An ER meshwork
+# is ONE connected object filling the cell: its neighbour count is zero, its
+# nearest-neighbour distance is undefined, and a screen that regressed on
+# either would be regressing on whether the segmentation happened to break
+# the network in two that day.
+#
+# THE MEASUREMENTS ARE STILL COMPUTED. Nothing here switches a family off --
+# a user who wants the number gets the number, and a value that vanished
+# without being asked to is worse than one that comes with a caveat. What
+# this does is SAY SO, in the same voice the type preset already uses to say
+# what it set and what is weak about it.
+
+#: Measurement families whose meaning depends on there being MANY separable
+#: objects of the kind inside one cell.
+COUNT_DEPENDENT_MEASUREMENTS = ('spatial_measurements', 'object_distances')
+
+#: How many objects of each type a cell holds, which is what decides whether
+#: a count-dependent measurement means anything.
+#:
+#: ``'many'`` -- separable objects, the counting families are the phenotype.
+#: ``'one'``  -- one connected structure per cell, so a count is a
+#:               segmentation artefact rather than a measurement.
+#: ``'depends'`` -- the maintainer's own list mixes both, so the answer is
+#:               the structure, not the category.
+#: ``'unknown'`` -- 'custom' recommends nothing and is not told what it is.
+ORGANELLE_OBJECTS_PER_CELL = {
+    'custom': 'unknown',
+    'punctate': 'many',
+    'vesicular': 'many',
+    'crescent': 'many',
+    'spherical': 'depends',
+    'toroidal': 'depends',
+    'filamentous': 'one',
+    'tubular': 'one',
+    'reticular': 'one',
+    'cisternal': 'one',
+}
+
+#: Why, in the user's own vocabulary. Shown beside the caveat rather than
+#: left for the reader to work out, because "meaningless" without a reason
+#: reads as a bug in the tool.
+ORGANELLE_COUNT_REASONS = {
+    'filamentous': (
+        "microtubules and actin filaments are one connected cytoskeleton "
+        "per cell, so a neighbour count measures where the segmentation "
+        "broke the network rather than anything about the cell"),
+    'tubular': (
+        "smooth ER and a healthy mitochondrial network are continuous "
+        "through the cell, so counting separate objects counts breaks in "
+        "the tubule, not organelles"),
+    'reticular': (
+        "a reticulum is one connected mesh filling the cell: its neighbour "
+        "count is zero and its nearest-neighbour distance is undefined"),
+    'cisternal': (
+        "a Golgi stack or a nuclear envelope is one structure per cell, so "
+        "the object count is set by how the sheet happened to be cut"),
+    'spherical': (
+        "this category spans one-per-cell structures (nucleus, nucleolus) "
+        "and many-per-cell ones (condensates, swollen mitochondria), so "
+        "whether counting means anything depends on which you imaged"),
+    'toroidal': (
+        "midbodies are one per dividing cell while stressed mitochondria "
+        "and nuclear pores are many, so whether counting means anything "
+        "depends on which you imaged"),
+}
+
+
+def organelle_counting_is_meaningful(organelle_type):
+    """Whether count-dependent measurements mean anything for a type.
+
+    :param organelle_type: a key of
+        :data:`spacr.organelle_types.ORGANELLE_TYPES`.
+    :returns: True for a type that is many separable objects per cell,
+        False for one connected structure, and True for 'depends' and
+        'unknown' -- the measurement is still produced and the caveat is
+        what carries the doubt. Refusing to measure on a maybe would delete
+        a real number for half the structures in the category.
+    """
+    return ORGANELLE_OBJECTS_PER_CELL.get(
+        str(organelle_type or DEFAULT_ORGANELLE_TYPE), 'unknown') != 'one'
+
+
+def organelle_measurement_caveats(settings):
+    """What a measure run should say about its own organelle numbers.
+
+    One entry per enabled organelle slot whose type makes a count-dependent
+    family read differently from the way it reads for cells: ``(slot label,
+    setting name, reason)``.
+
+    A slot is ENABLED when it has a mask dimension to measure. A slot with
+    no type set says nothing, because a settings file written before the
+    type existed is not making a claim about what it imaged.
+
+    :param settings: a measure settings dict.
+    :returns: a list of ``(label, setting, reason)``, empty when every
+        enabled slot is a many-per-cell type or has no type at all.
+    """
+    out = []
+    for role in ORGANELLE_ROLES:
+        mask_dim = settings.get(f'{role}_mask_dim')
+        channel = settings.get(f'{role}_channel')
+        if mask_dim is None and channel is None:
+            continue
+        kind = settings.get(f'{role}_type')
+        if not kind:
+            continue
+        kind = str(kind)
+        verdict = ORGANELLE_OBJECTS_PER_CELL.get(kind, 'unknown')
+        if verdict in ('many', 'unknown'):
+            continue
+        reason = ORGANELLE_COUNT_REASONS.get(kind, '')
+        label = f'Organelle {organelle_index(role)}'
+        for setting in COUNT_DEPENDENT_MEASUREMENTS:
+            if not settings.get(setting):
+                continue
+            qualifier = 'does not mean' if verdict == 'one' else 'may not mean'
+            out.append((
+                label, setting,
+                f"{qualifier} for a {kind} organelle what it means for a "
+                f"cell: {reason}"))
+    return out
+
+
+def explain_organelle_measurements(settings):
+    """Print the caveats above, in the voice the type preset already uses.
+
+    Silent when there is nothing to say, so a run measuring punctate
+    organelles is not given a paragraph telling it everything is fine.
+
+    :param settings: a measure settings dict.
+    :returns: the caveats, so a caller can show them somewhere other than
+        the console.
+    """
+    caveats = organelle_measurement_caveats(settings)
+    for label, setting, reason in caveats:
+        print(f"[organelle] {label}: {setting} {reason}.")
+    return caveats
+
 
 def _set_organelle_defaults(settings):
     """Fill in default values for all organelle_* keys."""

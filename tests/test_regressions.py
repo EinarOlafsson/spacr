@@ -3,6 +3,18 @@ Regression tests guarding the refactors landed on the spacr-claude branch.
 
 Each test names the change it defends. If a future commit re-introduces
 the fixed problem, one of these tests should fail loudly.
+
+Eight tests here defended the Tkinter interface: that gui_elements did not
+`import pyautogui` at module load, that spacr.gui imported without a
+DISPLAY, and the palette, spacing, font, divider and button-hover shapes of
+set_dark_style and the spacr* widgets. That interface is gone -- no
+legacy_tk package, no gui.py/gui_core.py/gui_elements.py/gui_utils.py, no
+MainApp and no set_dark_style anywhere in the tree -- so all eight were
+guarding files that no longer exist. Qt widget behaviour is covered under
+tests/qt/. The two module-name tables below kept their live rows and lost
+only the ones naming deleted modules: a table asserting the shape of the
+tree is exactly what catches the NEXT accidental deletion, so it is
+narrowed rather than dropped.
 """
 from __future__ import annotations
 
@@ -79,14 +91,8 @@ def test_measure_exposes_settings_binding():
 @pytest.mark.parametrize(
     "mod_name,gone",
     [
-        ("app_annotate", "initiate_annotation_app_v1"),
         ("sim", "classifier_v2"),
         ("toxo", "custom_volcano_plot_v1"),
-        ("gui_core", "toggle_settings_v1"),
-        ("gui_utils", "attach_dependency_listeners_v1"),
-        ("gui_utils", "hide_all_settings_v1"),
-        ("gui_elements", "open_settings_window_v1"),
-        ("gui_elements", "load_images_v1"),
         ("submodules", "_plot_proportion_stacked_bars_v1"),
         ("submodules", "analyze_endodyogeny_v1"),
         ("plot", "plot_image_mask_overlay_old"),
@@ -99,13 +105,24 @@ def test_measure_exposes_settings_binding():
     ],
 )
 def test_dead_variants_are_gone(mod_name, gone):
+    """No module here may grow back the superseded name beside its keeper.
+
+    The table lost its app_annotate, gui_core, gui_utils and gui_elements
+    rows: those modules are gone with the Tkinter interface, so
+    `import spacr.gui_utils` no longer raises AttributeError-adjacent
+    trouble, it raises ImportError, and a row asserting that a deleted
+    module lacks an attribute tests nothing. The rows that remain name
+    live modules, which is what makes this table worth keeping -- it is
+    the check that catches a revert dragging a dead variant back in.
+
+    The import is unguarded now. The old `except ...DisplayConnection...:
+    pytest.skip` existed for the gui_* rows, which pulled in pyautogui and
+    opened the X display at import time; nothing left in this table touches
+    a display, so an import that fails here is a real breakage and must be
+    read as one.
+    """
     import importlib
-    try:
-        mod = importlib.import_module(f"spacr.{mod_name}")
-    except Exception as e:
-        if "DisplayConnection" in type(e).__name__ or "Xauthority" in str(e):
-            pytest.skip(f"spacr.{mod_name} needs a display: {e}")
-        raise
+    mod = importlib.import_module(f"spacr.{mod_name}")
     assert not hasattr(mod, gone), f"{mod_name}.{gone} should have been removed"
 
 
@@ -131,27 +148,28 @@ def test_no_duplicate_top_level_defs(mod_name, name):
 @pytest.mark.parametrize(
     "mod_name,name",
     [
-        ("app_annotate", "initiate_annotation_app"),
         ("sim", "classifier"),
         ("toxo", "custom_volcano_plot"),
-        ("gui_core", "toggle_settings"),
-        ("gui_utils", "attach_dependency_listeners"),
-        ("gui_utils", "hide_all_settings"),
         ("plot", "plot_image_mask_overlay"),
         ("plot", "plot_proportion_stacked_bars"),
     ],
 )
 def test_kept_sibling_survives(mod_name, name):
-    """The non-versioned sibling of every dropped _v1 must still be callable."""
+    """The non-versioned sibling of every dropped _v1 must still be callable.
+
+    Half this table was Tk: initiate_annotation_app, toggle_settings,
+    attach_dependency_listeners and hide_all_settings were the survivors of
+    a _v1/_v2 cull inside modules that have since been deleted outright with
+    the Tkinter interface, so there is no sibling left to survive. Those four
+    rows are gone; the four that remain name live modules, and this stays the
+    pair of test_dead_variants_are_gone -- deleting the loser of a shadowed
+    pair must not take the winner with it.
+
+    The import is unguarded now, for the same reason as its sibling test:
+    only the gui_* rows ever needed a display.
+    """
     import importlib
-    try:
-        mod = importlib.import_module(f"spacr.{mod_name}")
-    except Exception as e:
-        # gui_* modules pull in pyautogui at import time; skip if no
-        # xauth-authorized display is available.
-        if "DisplayConnection" in type(e).__name__ or "Xauthority" in str(e):
-            pytest.skip(f"spacr.{mod_name} needs a display: {e}")
-        raise
+    mod = importlib.import_module(f"spacr.{mod_name}")
     obj = getattr(mod, name, None)
     assert obj is not None, f"{mod_name}.{name} unexpectedly gone"
     assert callable(obj), f"{mod_name}.{name} is not callable"
@@ -275,122 +293,3 @@ def test_import_spacr_is_fast():
     assert proc.returncode == 0, f"import spacr failed: {proc.stderr.decode()[:400]}"
     assert elapsed < 4.0, f"import spacr took {elapsed:.2f}s (regressed from ~0.9s baseline)"
 
-
-# ---------------------------------------------------------------------------
-# perf(gui_elements): no display-dependent imports at module load time
-# ---------------------------------------------------------------------------
-
-def test_gui_elements_does_not_import_pyautogui():
-    """Regression: spacr.gui_elements used to `import pyautogui` at module
-    load; pyautogui transitively opens the X display via mouseinfo, which
-    crashed `spacr` in headless / xauth-broken environments even though
-    pyautogui wasn't actually used (its only reference was a commented-out
-    line). Guard that neither the source nor the install specs re-add it."""
-    src = (PKG_ROOT / "legacy_tk" / "gui_elements.py").read_text()
-    for line in src.splitlines():
-        stripped = line.strip()
-        if stripped.startswith("#"):
-            continue
-        assert "pyautogui" not in stripped, (
-            f"gui_elements.py re-introduced pyautogui: {line!r}"
-        )
-    setup_src = (PKG_ROOT.parent / "setup.py").read_text()
-    assert "pyautogui" not in setup_src, (
-        "setup.py re-declared pyautogui (unused dependency)"
-    )
-
-
-def test_import_spacr_gui_without_display():
-    """Both spacr.gui_elements and spacr.gui must import cleanly with no
-    DISPLAY/XAUTHORITY environment — required for headless installs
-    (Docker, CI, non-desktop cronjobs). Prior to the pyautogui removal
-    this crashed with Xlib.error.DisplayConnectionError."""
-    import subprocess, sys
-    env = {k: v for k, v in os.environ.items()
-           if k not in ("DISPLAY", "XAUTHORITY")}
-    env["PYTHONPATH"] = str(PKG_ROOT.parent)
-    proc = subprocess.run(
-        [sys.executable, "-c",
-         "import spacr.gui_elements as _ge; import spacr.gui as _gui; "
-         "assert hasattr(_ge, 'spacrCard') and _gui.MainApp is not None"],
-        env=env, capture_output=True, timeout=30,
-    )
-    assert proc.returncode == 0, (
-        f"headless import failed: {proc.stderr.decode()[:800]}"
-    )
-
-
-# ---------------------------------------------------------------------------
-# feat(gui): palette / spacing / font / divider on style_out
-# ---------------------------------------------------------------------------
-
-def test_set_dark_style_returns_full_palette(dark_style):
-    for key in (
-        "bg_color", "fg_color", "active_color", "inactive_color",
-        "border_color", "muted_color",
-        "success_color", "warning_color", "error_color",
-    ):
-        assert key in dark_style, f"style_out missing {key!r}"
-        v = dark_style[key]
-        assert isinstance(v, str) and v.startswith("#") and len(v) == 7, (
-            f"{key} should be a #RRGGBB string, got {v!r}"
-        )
-
-
-def test_pure_black_palette_defaults_landed(dark_style):
-    """The palette values that land when the caller passes named
-    defaults — pure black background per user preference (was briefly
-    soft-dark #0e1116, reverted 2026-07-21)."""
-    assert dark_style["bg_color"].lower() == "#000000"
-    assert dark_style["fg_color"].lower() == "#ffffff"
-    assert dark_style["active_color"].lower() == "#007bff"
-    assert dark_style["inactive_color"].lower() == "#2b2b2b"
-
-
-def test_spacing_scale_present(dark_style):
-    sp = dark_style["spacing"]
-    assert sp == {"xs": 4, "sm": 8, "md": 12, "lg": 16, "xl": 24}
-
-
-def test_font_size_hierarchy_present(dark_style):
-    fs = dark_style["font_sizes"]
-    for key in ("small", "body", "header", "title"):
-        assert key in fs
-    assert fs["small"] < fs["body"] < fs["header"] < fs["title"]
-
-
-def test_spacr_divider_constructs(tk_root):
-    try:
-        from spacr.gui_elements import spacrDivider
-    except Exception as e:
-        if "DisplayConnection" in type(e).__name__ or "Xauthority" in str(e):
-            pytest.skip(f"spacr.gui_elements needs a display: {e}")
-        raise
-    # All three shapes.
-    plain = spacrDivider(tk_root)
-    captioned = spacrDivider(tk_root, text="Section")
-    vertical = spacrDivider(tk_root, orient="vertical")
-    tk_root.update_idletasks()
-    assert plain.winfo_class() == "Frame"
-    assert captioned.text == "Section"
-    assert vertical.orient == "vertical"
-
-
-def test_spacr_button_has_hover_fade(tk_root):
-    """spacrButton must expose the fade machinery, not the old flash-swap."""
-    try:
-        from spacr.gui_elements import spacrButton
-    except Exception as e:
-        if "DisplayConnection" in type(e).__name__ or "Xauthority" in str(e):
-            pytest.skip(f"spacr.gui_elements needs a display: {e}")
-        raise
-    btn = spacrButton(tk_root, text="ok", show_text=True, size=50, animation=False)
-    assert hasattr(btn, "_fade_bg_to")
-    assert hasattr(btn, "_fade_after_id")
-    # Simulate a hover; the fill should differ from the original inactive color
-    # OR still equal target if a tick already completed; either proves the path ran.
-    btn.on_enter()
-    tk_root.update_idletasks()
-    tk_root.update()
-    fill = btn.canvas.itemcget(btn.button_bg, "fill")
-    assert fill.startswith("#") and len(fill) == 7

@@ -258,30 +258,46 @@ def test_the_visible_count_went_down_and_this_is_the_number():
     """53 settings under one heading became 3 visible by default.
 
     Instruction 72 took it to 6; instruction 73 then pulled the shared
-    families -- object filtration and intensity handling -- out to headings
-    of their own, because `organelle_min_size` and `cell_min_size` are one
-    decision applied to two objects rather than two unrelated knobs. What is
-    left under Organelle is the channel-shaped choices only.
+    families -- object filtration, intensity handling and the per-object
+    image preprocessing -- out to headings of their own, because
+    `organelle_min_size` and `cell_min_size` are one decision applied to two
+    objects rather than two unrelated knobs. What is left under Organelle is
+    the channel-shaped choices only.
+
+    The advanced count dropped by four per slot when the third family was
+    added: rolling-ball and CLAHE, with their two parameters, are what
+    organelle does to its CHANNEL before anything is segmented, which is the
+    same question the other objects' background floor answers.
     """
     from spacr.object_roles import ORGANELLE_ROLES
     assert len(categories["Organelle"]) == 3 * len(ORGANELLE_ROLES)
     # summarize_organelles_by is shared, while every detection knob is cloned
     # once per slot.
     assert len(categories["Organelle advanced"]) == \
-        35 + 34 * (len(ORGANELLE_ROLES) - 1)
-    # Still 53 + organelle_type, just spread across four headings now.
-    total = sum(len(categories[c]) for c in
-                ("Organelle", "Organelle advanced",
-                 "Object filtration", "Intensity handling"))
+        31 + 30 * (len(ORGANELLE_ROLES) - 1)
+    # Still 53 + organelle_type, just spread across five headings now.
+    total = sum(len(categories[c]) for c in ORGANELLE_HOME_HEADINGS)
     assert total >= 54
+
+
+#: Every heading an ``organelle_*`` setting may legitimately live under.
+#:
+#: The advanced families are here because that is the whole point of the
+#: instruction-73 regroup: an organelle key filed under "Object filtration"
+#: has not gone missing, it has been filed with the same decision taken for
+#: the other objects.
+ORGANELLE_HOME_HEADINGS = (
+    "Organelle", "Organelle advanced",
+    "Image preprocessing (per object)", "Object filtration",
+    "Intensity handling",
+)
 
 
 def test_everything_is_still_reachable():
     """MOVED, NOT HIDDEN -- a setting that leaves the panel while staying in
     the settings dict is how a run gets a value nobody can see."""
     offered = set()
-    for heading in ("Organelle", "Organelle advanced",
-                    "Object filtration", "Intensity handling"):
+    for heading in ORGANELLE_HOME_HEADINGS:
         offered |= set(categories.get(heading, ()))
     defaults = {k for k in _set_organelle_defaults({})
                 if k.startswith("organelle_")}

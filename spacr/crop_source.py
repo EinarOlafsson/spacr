@@ -1,22 +1,37 @@
 """Where a classifier's training images come from.
 
-Three sources, and the settings that apply differ completely between them:
+TWO NAMES FOR THE ONE CHOICE, and they are the same two every other panel in
+spaCR asks it with -- LOAD IMAGES and STREAM IMAGES. Training used to ask the
+same question in a private vocabulary (``pre_generated`` / ``on_demand``),
+which is one idea in two spellings: a user reading the annotation panel and
+the training panel could not tell they were being asked the same thing, and
+the two halves of the code could not tell either.
 
-``pre_generated``
+``png`` -- LOAD IMAGES, and the default
     Crops already written to disk by the measure step. Selected by
     ``path_string`` (a substring the path must contain) and ``file_type`` (the
     image extension). Nothing is cut here; the images exist.
-``on_demand``
+``merged`` -- STREAM IMAGES
     Crops cut from ``merged/*.npy`` as training runs. A merged array holds
     both intensity planes and mask planes, so this needs to be told which are
     which: ``extract_channels`` names the intensity planes and ``object_array``
     names the object whose mask defines each crop's extent. Optionally the
     objects come from a DATABASE instead, via ``coordinate_columns``.
-``generate``
-    Cut a full crop set to disk first, then train on it as
-    ``pre_generated`` would.
+``generate`` -- an ACTION, not a third source
+    Cut a full crop set to disk first, then train on it as LOAD IMAGES would.
+    It is the one value that is not an answer to "where do the pixels come
+    from", which is why it keeps its own name rather than being forced into a
+    two-way naming that does not fit it.
 
-**Why on-demand exists.** Pre-cutting every crop writes a copy of the dataset
+**The stored values did not change.** ``png`` and ``merged`` are what
+``spacr.crops.resolve_crop_source`` has always read, so a settings file
+written under either vocabulary means what it always meant:
+``pre_generated``, ``load_images`` and ``auto`` all arrive as LOAD IMAGES,
+``on_demand`` and ``stream_images`` as STREAM IMAGES. :data:`CROP_SOURCE_ALIASES`
+is that migration, in one place, and it is what stops a panel that has been
+renamed from handing this module a word it refuses.
+
+**Why streaming exists.** Pre-cutting every crop writes a copy of the dataset
 to disk before a single epoch runs, and every change of crop size or channel
 selection writes another. Cutting as training runs costs a slice per object
 and no disk at all.
@@ -37,8 +52,47 @@ import numpy as np
 
 LOG = logging.getLogger("spacr.crop_source")
 
-#: The three sources, in the order the settings panel offers them.
-CROP_SOURCES: Tuple[str, ...] = ("pre_generated", "on_demand", "generate")
+#: What a crop source can be, in the order the settings panel offers them.
+#: LOAD IMAGES first, because it is the default.
+CROP_SOURCES: Tuple[str, ...] = ("png", "merged", "generate")
+
+#: Every spelling a settings file has ever carried, and the source it names.
+#:
+#: ACCEPTED, NOT REFUSED. Three panels and two renames have written this one
+#: setting, and every value any of them wrote is still on somebody's disk:
+#: ``pre_generated``/``on_demand`` from the training panel, ``load_images``/
+#: ``stream_images`` from its rename, ``png``/``merged`` from the viewers, and
+#: ``auto`` from before the question was asked out loud. They resolve here, so
+#: this module accepts what the panels produce instead of raising on it --
+#: which is what it did when the training panel was renamed and left this
+#: reader behind: every computer-vision run refused at the door with
+#: "crop_source='load_images' is not one of ...".
+#:
+#: ``auto`` means LOAD IMAGES rather than "whichever folder exists". It stays
+#: readable because settings files hold it; it is not an answer a user is
+#: offered, because "what is available here" is not an answer to which mode
+#: they want.
+CROP_SOURCE_ALIASES: Dict[str, str] = {
+    "auto": "png",
+    "png": "png",
+    "load_images": "png",
+    "pre_generated": "png",
+    "merged": "merged",
+    "stream": "merged",
+    "stream_images": "merged",
+    "on_demand": "merged",
+    "generate": "generate",
+}
+
+#: The choice as a panel shows it: the value stored, and the words shown.
+#:
+#: The same words the annotation and montage panels use, because it is the
+#: same question. A panel that renders these renders LOAD IMAGES first.
+CROP_SOURCE_OPTIONS: Tuple[Tuple[str, str], ...] = (
+    ("png", "load images — crops already in data/"),
+    ("merged", "stream images — cut from merged/"),
+    ("generate", "generate crops — write a crop set, then load it"),
+)
 
 #: Image extensions a pre-generated crop may have. The setting is a FILTER on
 #: the extension, which is what it always should have been -- it and
@@ -54,9 +108,9 @@ CROP_SHAPES: Tuple[str, ...] = ("bounding_box", "object")
 #: Settings each source reads. Drives the greying -- a control the user can
 #: edit that changes nothing is worse than one that is not there.
 SOURCE_SETTINGS: Dict[str, Tuple[str, ...]] = {
-    "pre_generated": ("path_string", "file_type", "file_metadata", "tar_path"),
-    "on_demand": ("extract_channels", "object_array", "coordinate_columns",
-                  "crop_shape", "image_size"),
+    "png": ("path_string", "file_type", "file_metadata", "tar_path"),
+    "merged": ("extract_channels", "object_array", "coordinate_columns",
+               "crop_shape", "image_size"),
     "generate": ("extract_channels", "object_array", "crop_shape",
                  "image_size", "path_string", "file_type"),
 }
@@ -67,22 +121,26 @@ class CropSourceError(ValueError):
 
 
 def resolve_source(settings: Mapping[str, Any]) -> str:
-    """Which crop source a settings dict asks for.
+    """Which crop source a settings dict asks for, in the two names.
 
-    ``auto`` -- what the setting used to default to -- means pre-generated,
-    which is what it always did in practice.
+    Every spelling in :data:`CROP_SOURCE_ALIASES` resolves, so a settings file
+    from any panel spaCR has shipped answers this question. Unset means LOAD
+    IMAGES, which is the default everywhere the question is asked.
 
     :raises CropSourceError: an unrecognised source. Guessing would train on a
-        different set of images than the user asked for and report success.
+        different set of images than was asked for and report success.
     """
     declared = str(settings.get("crop_source") or "").strip().lower()
-    if not declared or declared == "auto":
-        return "pre_generated"
-    if declared not in CROP_SOURCES:
+    if not declared:
+        return "png"
+    resolved = CROP_SOURCE_ALIASES.get(declared)
+    if resolved is None:
         raise CropSourceError(
             f"crop_source={settings.get('crop_source')!r} is not one of "
-            f"{list(CROP_SOURCES)}")
-    return declared
+            f"{list(CROP_SOURCES)} (load images, stream images, or generate "
+            f"a crop set); accepted spellings are "
+            f"{sorted(name for name in CROP_SOURCE_ALIASES if name)}")
+    return resolved
 
 
 def inapplicable_settings(source: str) -> Tuple[str, ...]:
@@ -91,8 +149,12 @@ def inapplicable_settings(source: str) -> Tuple[str, ...]:
     Greyed, never removed (INVARIANTS 6): a key absent from the dict makes the
     pipeline fall back to its own default, which can differ from the value the
     module needs and says nothing when it does.
+
+    Any spelling :data:`CROP_SOURCE_ALIASES` knows is accepted, because what a
+    panel has in hand is the value stored in the settings file, not the name
+    this module resolved it to.
     """
-    key = str(source).strip().lower()
+    key = CROP_SOURCE_ALIASES.get(str(source).strip().lower(), "")
     if key not in SOURCE_SETTINGS:
         raise CropSourceError(
             f"{source!r} is not one of {list(CROP_SOURCES)}")
@@ -348,23 +410,40 @@ def crops_from_merged(array: np.ndarray, settings: Mapping[str, Any], *,
     return out
 
 
+def stream_planes(settings: Mapping[str, Any]) -> List[int]:
+    """Which planes of a merged array become image channels, by either name.
+
+    ``channel_arrays`` is the current spelling and ``extract_channels`` the
+    older one; both are a list of plane indices and both are still written to
+    settings files, so both are read here. The current spelling wins when a
+    file carries both, because that is the one the panel is editing.
+
+    :raises CropSourceError: neither is set, naming the one to set.
+    """
+    for name in ("channel_arrays", "extract_channels"):
+        if settings.get(name) is not None:
+            return _as_indices(settings.get(name), name)
+    raise CropSourceError(
+        "channel_arrays is not set, so nothing says which planes of the "
+        "merged array become the image's channels")
+
+
 def validate(settings: Mapping[str, Any]) -> str:
     """Check a settings dict can actually produce crops. Returns the source.
 
-    Run before training rather than during it: discovering that
-    ``extract_channels`` was never set after an hour of dataset building is a
-    worse failure than refusing at the start, and the message here names the
-    setting to fix.
+    Run before training rather than during it: discovering that the planes
+    were never named after an hour of dataset building is a worse failure than
+    refusing at the start, and the message here names the setting to fix.
 
     :raises CropSourceError: with what to change.
     """
     source = resolve_source(settings)
-    if source == "pre_generated":
+    if source == "png":
         if settings.get("file_type"):
             normalise_extension(settings.get("file_type"))
         return source
 
-    _as_indices(settings.get("extract_channels"), "extract_channels")
+    stream_planes(settings)
     shape = str(settings.get("crop_shape") or "bounding_box")
     if shape not in CROP_SHAPES:
         raise CropSourceError(
@@ -376,10 +455,12 @@ def validate(settings: Mapping[str, Any]) -> str:
             raise CropSourceError(
                 "objects taken from a database can only be cut as bounding "
                 "boxes: a coordinate has no outline to mask against")
-        if len(list(coordinates)) < 2:
-            raise CropSourceError(
-                "coordinate_columns needs a row and a column, e.g. "
-                "['centroid_y', 'centroid_x']")
+        # ONE COLUMN OR TWO, because there are two ways a database says where
+        # an object is and both are in use. One column NAMES THE OBJECT --
+        # `cell_id` -- and the mask plane supplies its extent; two give a
+        # centroid's row and column, and the box is cut around it. Demanding
+        # two refused spaCR's own derived value, which is the single
+        # identifier column `stream_dataset.coordinate_column` produces.
         if not settings.get("image_size"):
             raise CropSourceError(
                 "image_size is what decides how big a coordinate-centred crop "

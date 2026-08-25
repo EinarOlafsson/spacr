@@ -887,11 +887,19 @@ def test_the_exception_is_its_own_class():
 
 
 def test_the_settings_combo_offers_the_gate():
-    from spacr.gui_utils import convert_settings_dict_for_gui
+    """A gate the settings panel cannot select is a gate nobody can turn on.
 
-    _kind, options, _default = convert_settings_dict_for_gui(
+    Asked of :mod:`spacr.settings_spec`, which is where the widget spec has
+    always been built: the settings panel calls it directly, and the
+    ``gui_utils`` name this used to import merely forwarded to it.
+    """
+    from spacr.settings_spec import convert_settings_dict_for_gui
+
+    kind, options, default = convert_settings_dict_for_gui(
         {"seg_qc": "report"})["seg_qc"]
+    assert kind == "combo"
     assert "stop" in options
+    assert default == "report", "the shipped gate must not change"
 
 
 def test_the_tooltip_says_what_stop_does():

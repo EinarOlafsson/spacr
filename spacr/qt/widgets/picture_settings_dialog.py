@@ -11,10 +11,10 @@ from typing import Any, Dict, Optional
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (QCheckBox, QComboBox, QDialog,
                                QDialogButtonBox, QDoubleSpinBox, QFormLayout,
-                               QLabel, QLineEdit, QSpinBox, QVBoxLayout,
-                               QWidget)
+                               QLabel, QLineEdit, QSpinBox, QTabWidget,
+                               QVBoxLayout, QWidget)
 
-from ...picture_settings import ALL_KEYS, applies_to, why_not
+from ...picture_settings import ALL_KEYS, applies_to, categories, why_not
 
 __all__ = ["PictureSettingsDialog", "picture_defaults"]
 
@@ -53,6 +53,13 @@ def picture_defaults() -> Dict[str, Any]:
 #: ``_as_channel_list`` parses the
 #: comma-separated string either control produces. Only the widget differed.
 CHANNEL_KEYS = ("channels", "normalize_channels", "outline")
+
+#: Settings that are a PAIR of numbers rather than one value.
+#:
+#: A window is two numbers, so it is asked for as two numbers. As one text
+#: box it was a parsing problem handed to the user -- `[1, 99]` and `[1 99]`
+#: are one intent, and only one of them survived the trip to the renderer.
+PAIR_KEYS = ("percentiles",)
 
 
 def _editor(value: Any, parent: Optional[QWidget] = None,
@@ -111,6 +118,13 @@ def _editor(value: Any, parent: Optional[QWidget] = None,
 
 
 def _value_of(widget: QWidget) -> Any:
+    from .percentile_pair import PercentilePair
+
+    if isinstance(widget, PercentilePair):
+        # THE PAIR STAYS A PAIR. Read through `text()` like any other
+        # unfamiliar editor it would come back as the string "2, 98", and
+        # every settings file already on disk holds a two-element list.
+        return widget.value()
     if isinstance(widget, QComboBox):
         data = widget.currentData()
         return widget.currentText() if data is None else data
@@ -155,13 +169,16 @@ class PictureSettingsDialog(QDialog):
         self._mode = str(mode or "png")
         self._editors: Dict[str, QWidget] = {}
         self._labels: Dict[str, QLabel] = {}
+        #: The cap label's help WITHOUT the cost sentence, so re-stating the
+        #: cost replaces it instead of stacking another copy on the end.
+        self._cap_help: Optional[str] = None
 
         start = dict(picture_defaults())
         start.update({k: v for k, v in (values or {}).items() if k in ALL_KEYS})
 
+        self._tabs = QTabWidget(self)
+        self._tab_of: Dict[str, str] = {}
         layout = QVBoxLayout(self)
-        form = QFormLayout()
-        form.setLabelAlignment(Qt.AlignRight)
         from ...picture_settings import offered_values
 
         # THE R,G,B SYSTEM FOR THE TWO CHANNEL SETTINGS (188 B). A dropdown
@@ -169,36 +186,58 @@ class PictureSettingsDialog(QDialog):
         # you had to open a list to answer, and turning one channel off --
         # the thing a user does constantly here -- two clicks.
         from .channel_picker import ChannelPicker
+        from .percentile_pair import PercentilePair
 
-        for key in ALL_KEYS:
-            if key in CHANNEL_KEYS:
-                editor = ChannelPicker(
-                    start.get(key), self,
-                    # `channels` with nothing on is a blank picture;
-                    # `normalize_channels` with nothing on means "normalise
-                    # nothing" and `outline` with nothing on means "outline
-                    # nothing" -- both real answers, and `outline`'s default
-                    # is off.
-                    allow_none=(key != "channels"))
-            else:
-                editor = _editor(start.get(key), self,
-                                 choices=offered_values(key, source=source,
-                                                        frame=objects))
-            label = QLabel(key.replace("_", " "), self)
-            # THE TOOLTIP IS ON THE LABEL, not the field: a tooltip on the
-            # control fires while the user is editing it, which is the one
-            # moment they did not ask for it.
-            # EACH ANNOTATION METHOD EXPLAINS ITSELF, ON ITS OWN ENTRY
-            # (208 C). "The API should be verry specific and evplain exactly
-            # how cells are cjhoosen for annotation" -- and five methods
-            # cannot be explained in one tooltip that has to fit in 600
-            # characters. Per-entry help is the only place with room, and it
-            # is where the choice is actually made.
-            _attach_picking_help(editor, key)
-            self._editors[key] = editor
-            self._labels[key] = label
-            form.addRow(label, editor)
-        layout.addLayout(form)
+        # ONE TAB PER GROUP OF QUESTIONS. Twenty-eight controls in one column
+        # made the reader scroll past every question they were not asking to
+        # reach the one they were; the module screens group their settings
+        # the same way and `picture_settings.categories` is the one table
+        # both read.
+        for title, keys in categories():
+            page = QWidget(self._tabs)
+            form = QFormLayout(page)
+            form.setLabelAlignment(Qt.AlignRight)
+            for key in keys:
+                if key in CHANNEL_KEYS:
+                    editor = ChannelPicker(
+                        start.get(key), page,
+                        # `channels` with nothing on is a blank picture;
+                        # `normalize_channels` with nothing on means
+                        # "normalise nothing" and `outline` with nothing on
+                        # means "outline nothing" -- both real answers, and
+                        # `outline`'s default is off.
+                        allow_none=(key != "channels"))
+                elif key in PAIR_KEYS:
+                    editor = PercentilePair(start.get(key), page)
+                else:
+                    editor = _editor(start.get(key), page,
+                                     choices=offered_values(key, source=source,
+                                                            frame=objects))
+                label = QLabel(key.replace("_", " "), page)
+                # THE TOOLTIP IS ON THE LABEL, not the field: a tooltip on
+                # the control fires while the user is editing it, which is
+                # the one moment they did not ask for it.
+                # EACH ANNOTATION METHOD EXPLAINS ITSELF, ON ITS OWN ENTRY
+                # (208 C). "The API should be verry specific and evplain
+                # exactly how cells are cjhoosen for annotation" -- and five
+                # methods cannot be explained in one tooltip that has to fit
+                # in 600 characters. Per-entry help is the only place with
+                # room, and it is where the choice is actually made.
+                _attach_picking_help(editor, key)
+                self._editors[key] = editor
+                self._labels[key] = label
+                self._tab_of[key] = title
+                form.addRow(label, editor)
+            self._tabs.addTab(page, title)
+        layout.addWidget(self._tabs)
+
+        # THE COST FOLLOWS THE NUMBER. Written once at build time it would
+        # describe the cap the dialog opened on, which is the one value the
+        # user is not asking about while they change it.
+        cap = self._editors.get("cap")
+        if isinstance(cap, QSpinBox):
+            cap.valueChanged.connect(
+                lambda _v: self._say_what_the_cap_costs())
 
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel,
                                    parent=self)
@@ -260,9 +299,87 @@ class PictureSettingsDialog(QDialog):
             # tooltips with api guides".
             rich = str(label.property("apiTooltipHtml") or "")
             label.setToolTip(rich or str(tooltips.get(key, "") or ""))
+            if key == "cap":
+                self._cap_help = str(label.toolTip() or "")
+        self._say_which_tabs_this_mode_uses()
+        self._say_what_the_cap_costs()
+
+    def _say_what_the_cap_costs(self) -> None:
+        """Put the measured cost of the chosen cap beside the cap itself.
+
+        A CAP IS A DECISION ABOUT WHERE A LIMIT SITS, and the numbers that
+        decide it -- how many pages a reader has to walk, how much memory the
+        tab holds while they do, and how long the cut takes -- are on screen
+        nowhere else. Raising it without them is raising it blind.
+        """
+        from ...picture_settings import montage_cap_cost
+
+        label = self._labels.get("cap")
+        editor = self._editors.get("cap")
+        if label is None or editor is None:
+            return
+        cost = montage_cap_cost(_value_of(editor))
+        if not cost:
+            return
+        # THE HELP IS REMEMBERED, not read back off the label. Re-reading it
+        # appends the new sentence to the last one, so a reader who tried
+        # three caps got three of them.
+        base = self._cap_help
+        if base is None:
+            base = str(label.toolTip() or "")
+            self._cap_help = base
+        # PLAIN OR RICH, whichever the label ended up with: the API help is
+        # HTML, so the sentence is appended as a paragraph there and as a
+        # blank line on a plain tooltip.
+        joiner = "<p>{0}</p>" if base.lstrip().startswith("<") else "\n\n{0}"
+        label.setToolTip(base + joiner.format(cost) if base else cost)
+
+    def _say_which_tabs_this_mode_uses(self) -> None:
+        """Put the greyed count for each tab on the tab itself.
+
+        A GREYED CONTROL IS ONLY AN EXPLANATION IF IT IS FOUND. Behind a tab
+        the reason a control cannot be touched is a hover the reader has to
+        go looking for, so the tab says how many of its settings this mode
+        does not use -- and it stays selectable, because the reason lives on
+        the labels inside it.
+        """
+        for index in range(self._tabs.count()):
+            title = self._tabs.tabText(index)
+            keys = [k for k, tab in self._tab_of.items() if tab == title]
+            greyed = [k for k in keys if not applies_to(k, self._mode)]
+            if not greyed:
+                self._tabs.setTabToolTip(index, "")
+                continue
+            self._tabs.setTabToolTip(
+                index,
+                f"{len(greyed)} of {len(keys)} settings here are not used by "
+                f"the chosen image source. They stay on the tab, and each "
+                f"one's label says why.")
 
     def mode(self) -> str:
         return self._mode
+
+    # ------------------------------------------------------------------ tabs
+
+    def tab_titles(self) -> tuple:
+        """The tabs, in the order they are shown."""
+        return tuple(self._tabs.tabText(i) for i in range(self._tabs.count()))
+
+    def tab_of(self, key: str) -> str:
+        """Which tab ``key``'s control is on, or ``""`` if it has none."""
+        return self._tab_of.get(str(key or "").strip(), "")
+
+    def show_tab(self, title: str) -> bool:
+        """Bring the tab named ``title`` to the front. False if there is none.
+
+        A caller that wants one question answered can open the panel on it
+        rather than on whichever tab happened to be first.
+        """
+        for index in range(self._tabs.count()):
+            if self._tabs.tabText(index) == str(title):
+                self._tabs.setCurrentIndex(index)
+                return True
+        return False
 
     # ---------------------------------------------------------------- values
 

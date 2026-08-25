@@ -2,7 +2,8 @@
 ONE "ORGANELLE TYPE" CHOICE SHOULD DRIVE THE REST OF THE ORGANELLE SETTINGS
 ================================================================================
 
-Status:    not started, 2026-08-10.
+Status:    done. All six items, including the measure side, which
+           needed instruction 76's per-slot types and now has them.
 Requested: 2026-08-10 — "add to instructions to work do a sweep of organelle in measure and mask. the point of this settings class and object class is to generate measurements and capture organelle objects. this is the most diverse set of objects. Best would be if there were the options organelle type with the following categories: Vesicular (vacuoles, autophagosomes, transport vesicles, secretory vesicles, early endosomes, lysosomes), Filamentous (microtubules, F-actin filaments, intermediate filaments), Punctate (peroxisomes, lipid droplets, ribosomes, PML nuclear bodies, vaults), Tubular (smooth endoplasmic reticulum, healthy mitochondrial networks, sorting endosomes, trans-Golgi network), Cisternal (rough endoplasmic reticulum sheets, Golgi stacks, nuclear envelope), Reticular (endoplasmic reticulum meshwork, interconnected mitochondrial reticula), Spherical (nucleus, nucleolus, chloroplasts, swollen mitochondria, macromolecular condensates), Toroidal (condensing/stressed mitochondria, midbodies, nuclear pore complexes), Crescent (phagophores/early autophagosomes, specialized yeast nucleoli) and then set up settings and detection modals for each type with the others not visible or grayed out that do not apply to the chosen organelle. as it is now there are too many options for organelle and to many settings for organelle in mask, so if organelle type is Vesicular then organelle morphology will always be spots (for example make sure this is true dont just take my word for it) and not network. so essentially i want to bundle a bunch of current (and potentially new settings into the categories specified above to make it easier for the user. all settings should still be modifiable by the user but they should be in an organelle advanced settings category, and only the minimum relevant settings in the organelle category."
 
 --------------------------------------------------------------------------------
@@ -217,3 +218,65 @@ Reticular network filling the cell) is instruction 71 item 3, and it needs
 the per-instance types of instruction 76 to be worth wiring.
 
 STATUS: DONE except item 6, which is tracked under 71/76.
+
+--------------------------------------------------------------------------------
+ITEM 6: WHICH MEASUREMENTS MEAN SOMETHING FOR WHICH TYPE
+--------------------------------------------------------------------------------
+
+It was deferred because it needed per-instance types. Instruction 76 shipped
+four independent slots, each with its own type preset, so it is wireable and
+is wired.
+
+THE ANSWER, in `spacr.settings.ORGANELLE_OBJECTS_PER_CELL`. What decides it
+is not the measurement, it is how many objects of that kind a cell holds:
+
+    many      punctate, vesicular, crescent
+    one       filamentous, tubular, reticular, cisternal
+    depends   spherical, toroidal
+    unknown   custom
+
+`spatial_measurements` counts an object's neighbours and measures how far
+apart they are; the within-type half of `object_distances` measures the same
+thing pairwise. Both answer "how many, and how clustered", which is the
+phenotype for a punctate organelle and is not a question at all for a
+reticular one: an ER meshwork is ONE connected object filling the cell, so
+its neighbour count is zero, its nearest-neighbour distance is undefined,
+and a screen regressing on either would be regressing on whether the
+segmentation happened to break the network in two that day.
+
+TWO ROWS SPLIT, and they are named rather than forced -- the same finding as
+the type-to-morphology table, where two of nine rows split on size.
+"Spherical" holds the nucleus (one per cell) and macromolecular condensates
+(dozens); "Toroidal" holds midbodies (one per dividing cell) and nuclear
+pores (thousands). The structure decides, not the category, and the caveat
+says so.
+
+NOTHING IS SWITCHED OFF. A family the type makes doubtful is still measured
+and still written. A number that vanished without being asked to is worse
+than one that comes with a caveat, and this project already carries eleven
+phantom settings from values nobody could see. What the type buys is that
+the run SAYS SO, in the same voice the preset already uses to say what it
+set and what is weak about it.
+
+MEASURE NOW OFFERS THE TYPE. It could not answer the question without being
+told what it is measuring, and the mask module's copy never reaches a
+measure run -- the same gap that silenced `summarize_organelles_by` and with
+it every organelle table. Each slot's type defaults to 'custom', which makes
+no claim, so a settings file written before this still means exactly what it
+meant. It sits beside the mask dimensions in the Measure panel, because the
+two answer one question: which plane, and what is on it.
+
+STILL OPEN: `spacr/measure.py` writes the numbers without consulting the
+caveat. Calling `spacr.settings.organelle_measurement_caveats(settings)` at
+the point the organelle tables are written would let the run journal carry
+the same sentence the console does.
+
+--------------------------------------------------------------------------------
+ITEM 5 FOLDED INTO 73
+--------------------------------------------------------------------------------
+
+"Organelle" and "Organelle advanced" are still the split this instruction
+shipped, and the shared families are now one structure with the other object
+classes rather than a second parallel scheme: an organelle's size filters
+sit under "Advanced settings / Object filtration / Organelle 1", beside the
+same decision taken for cells and nuclei.

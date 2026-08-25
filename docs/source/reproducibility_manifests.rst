@@ -1,10 +1,10 @@
 Reproducibility manifests
 =========================
 
-Every pipeline launched from the Qt application, the classic GUI, or
-``spacr-run`` creates a run folder below ``~/.spacr/runs``. Recording happens
-inside the pipeline worker, so inspecting and hashing a large plate does not
-block the desktop event loop.
+Every pipeline launched from the spaCR application or ``spacr-run`` creates a
+run folder below ``~/.spacr/runs``. Recording happens inside the pipeline
+worker, so inspecting and hashing a large plate does not block the desktop
+event loop.
 
 Each folder contains:
 

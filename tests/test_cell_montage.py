@@ -911,7 +911,10 @@ def test_the_plan_hands_the_tab_rows_a_crop_source_can_take():
 
 def test_the_defaults_are_the_ones_the_caption_quotes():
     assert WINDOW_HALF_WIDTHS == 1.0
-    assert MAX_OBJECTS == 300
+    # 2,000, not 300: the cost of a larger cap was measured and the
+    # maintainer chose the number. 10,000 was asked for and refused on the
+    # measurement -- twelve open well tabs would hold 16.8 GB.
+    assert MAX_OBJECTS == 2000
     plan = select_montage(_objects(), _counts(), "GRA14", 0.2)
     assert plan.cap == MAX_OBJECTS
     assert plan.window.half_widths == WINDOW_HALF_WIDTHS
@@ -1032,7 +1035,7 @@ def test_every_setting_is_on_the_montage_and_a_changed_one_announces_itself():
     line = changed.settings_line()
     assert "NON-DEFAULT SETTINGS ON THIS MONTAGE" in line
     assert "window half-width 2.5 instead of the default 1" in line
-    assert "cap 5 objects instead of the default 300" in line
+    assert "cap 5 objects instead of the default 2,000" in line
     assert "not comparable to one made with the defaults" in line
     assert changed.settings_line() in changed.caption()
 

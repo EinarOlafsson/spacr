@@ -63,13 +63,26 @@ def slides(app):
 
 class TestTheOrderIsTheMaintainers:
 
-    def test_there_are_six(self):
-        assert len(SLIDES) == 6
+    def test_there_are_seven(self):
+        """SEVEN, not six: the terms of use are now a slide of their own.
+
+        They are not a preference -- every other question here has a working
+        default and can be answered by dismissing the screen -- so they could
+        not be folded onto an existing page without making that page
+        refusable in a way none of the others are.
+        """
+        assert len(SLIDES) == 7
 
     def test_they_are_in_the_order_asked_for(self):
+        """The terms sit second to last, between the questions and Done.
+
+        Last would put them after the screen has said it is finished; any
+        earlier would ask for the agreement before the reader has seen what
+        they are agreeing to set up.
+        """
         assert [title for title, _b, _k in SLIDES] == [
             "Language", "Theme", "How it runs", "The assistant",
-            "When something breaks", "Done"]
+            "When something breaks", "Terms of use", "Done"]
 
     def test_language_is_first(self):
         """It changes the screen the user is looking at."""
@@ -87,9 +100,25 @@ class TestTheOrderIsTheMaintainers:
         a summary; a list of what was chosen would be a form again."""
         assert SLIDES[-1][2] == ()
 
-    def test_every_slide_explains_itself(self):
-        for title, blurb, _keys in SLIDES:
+    def test_every_slide_that_asks_something_explains_itself(self):
+        """A question with no explanation is a question asked badly.
+
+        THE CLOSING SLIDE IS EXEMPT, and it is the one slide that asks
+        nothing: it says "Done" and, under it, "Welcome to spaCR". A
+        paragraph there would be explaining a question that is not being
+        asked. This rule used to cover it and failed against the shortened
+        wording, which made the check report the layout rather than the
+        prose.
+        """
+        for title, blurb, _keys in SLIDES[:-1]:
             assert len(blurb.strip()) > 40, title
+
+    def test_the_closing_slide_says_two_things_and_no_more(self):
+        """The word and the welcome, which is what that slide is for."""
+        title, blurb, keys = SLIDES[-1]
+
+        assert (title, keys) == ("Done", ())
+        assert blurb == "Welcome to spaCR"
 
 
 class TestOneQuestionPerSlide:
@@ -117,12 +146,23 @@ class TestOneQuestionPerSlide:
         assert slides.previous() == 0
 
     def test_the_position_is_shown(self, slides):
-        """Paging without a total is navigation without a map."""
-        assert "1 of 6" in slides._where.text()
+        """Paging without a total is navigation without a map.
+
+        Seven since the terms of use became a slide.
+        """
+        assert "1 of 7" in slides._where.text()
 
     def test_the_last_button_starts_spacr(self, slides):
+        """Walked to the end, the button offers to start rather than to page.
+
+        The terms slide will not be left unanswered, so the walk ticks the
+        acceptance on the way past -- which is the user's own route to the
+        last slide and the only one there is.
+        """
         _past_the_greeting(slides)
         for _ in range(len(SLIDES) - 2):
+            if SLIDES[slides.slide()][0] == "Terms of use":
+                slides._agree.setChecked(True)
             slides.next()
         assert "spaCR" in slides._next.text()
 

@@ -431,15 +431,12 @@ def register() -> bool:
     register during its import, and a registration that happens later is one
     that some importer's snapshot of ``APPS`` predates. The one place a
     registration is visible to everybody is ``app.py``'s own
-    ``_SELF_REGISTERING_APPS`` table, at the bottom of that file. Turning this
-    screen on is therefore **one row**::
+    ``_SELF_REGISTERING_APPS`` table, at the bottom of that file, which is
+    where this screen's row lives::
 
         ("spacr.qt.screens.pca", "register"),
 
-    and nothing else: the strings above travel with the registration. That row
-    is not added here because ``spacr/qt/app.py`` belongs to another change in
-    flight, and because a new ``APPS`` row currently reddens the per-app
-    inventory tests for reasons this screen cannot fix.
+    and nothing else: the strings above travel with the registration.
     """
     from ..app import APPS, SECTION_EXPLORE, STAGE_ALPHA, register_app
     if any(row[0] == APP_KEY for row in APPS):

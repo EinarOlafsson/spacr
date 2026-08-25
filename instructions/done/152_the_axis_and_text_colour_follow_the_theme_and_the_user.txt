@@ -2,7 +2,9 @@
 TWO COLOURS -- LINES AND FONT -- AND THEY FOLLOW THE THEME
 ================================================================================
 
-Status:    filed 2026-08-18.
+Status:    DONE. Both controls reach all three renderers -- the live
+           pyqtgraph plots, the matplotlib figures the GUI renders, and
+           the publication house style. Nothing open.
 Requested: 2026-08-18 -- two reports, one surface:
 
   "dosnt look like there is an option to change the exis color for the colcano
@@ -453,3 +455,68 @@ The items under "NOT DONE" are recorded scope decisions with their reasons,
 not outstanding work; anything among them that is later wanted is a new
 instruction rather than this one reopened.
 --------------------------------------------------------------------------------
+
+
+================================================================================
+THE LAST HANDOFF IS TAKEN: THE HOUSE STYLE DRAWS TWO COLOURS TOO
+================================================================================
+
+`spacr/figures/style.py` resolved the whole figure as ONE ink, so the control
+reached the live plot and the GUI's matplotlib renders and stopped at the
+publication figures -- the ones that go into the manuscript. That was the last
+thing section B asked for and did not have.
+
+WHAT SHIPPED, in spacr/figures/style.py only.
+
+  TWO RESOLVERS WHERE THERE WAS ONE, and the split is the same one the other
+  two renderers already make:
+
+      resolve_ink()        TEXT   -- title, axis labels, tick LABELS,
+                                     annotations, legend entries
+      resolve_line_ink()   LINES  -- the axis spines and the tick MARKS
+
+  `rc()` gained a `line=` argument beside `ink=` and names both
+  `xtick.color` (the mark) and `xtick.labelcolor` (the number). Matplotlib
+  defaults the second to "inherit", so unless both are named the two come
+  back equal whatever was asked for -- the same one-letter difference that
+  was the whole bug on the GUI's matplotlib side.
+
+  THE PREFERENCE IS READ AS A TOKEN, NOT AS A COLOUR, and that is the whole
+  reason an untouched install draws exactly what it drew before:
+
+      chosen_ink()        the text colour the user PICKED, or None
+      chosen_line_ink()   the line colour the user PICKED, or None
+
+  `get_figure_line_colour()` resolves "auto" to the theme's flat black or
+  white, which is the right answer for a GUI figure sitting on the theme and
+  the WRONG one here -- wiring it in directly would have replaced the
+  measured publication inks (INK_PRINT #231F20, INK_SCREEN #E8EDEE) with a
+  theme answer for every user who never chose anything. Reading the token
+  instead means the house ink stands until somebody picks a colour, which is
+  section A's rule applied one layer out.
+
+  THE DATA IS NOT REPAINTED. The line preference is the figure's CHROME, as
+  it is on both other renderers; `ROLES` still owns every mark that carries
+  meaning. A preference pushed over every series would flatten every
+  multi-series figure in the package the first time a theme was read.
+
+  ORDER AGAINST 118'S PANEL. The graph-style panel's general `foreground`
+  resolves to `xtick.color` among other things, so it would silently repaint
+  the tick marks the line control was just told to own. The two dedicated
+  colour controls therefore go on top of the panel's deltas, and ONLY for a
+  half the user actually named -- while both follow the theme nothing is
+  written and the panel's own foreground is the only colour anybody chose,
+  so it still arrives.
+
+MEASURED OFF THE ARTISTS after a draw, print target, one figure per row:
+
+    nothing chosen     spine #231f20  mark #231f20  label #231f20  data #2e7d4f
+    line = #0000ff     spine #0000ff  mark #0000ff  label #231f20  data #2e7d4f
+    + text = #ff0000   spine #0000ff  mark #0000ff  label #ff0000  data #2e7d4f
+    follow the theme   back to row one, exactly
+
+TESTS  tests/test_the_house_style_lines_and_text_are_two_colours.py, 11 of
+them; 8 fail without the change. The three that pass either way are the
+guards: an untouched store still draws the published ink, the data keeps its
+own colours, and 118's panel foreground still reaches a figure nobody
+recoloured.

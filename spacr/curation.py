@@ -450,6 +450,10 @@ class MaskCuration:
     undo takes back the whole stroke. Painting without opening a stroke is
     still legal — one dab is one stroke — because a click is a legitimate
     edit and should not need ceremony.
+
+    :meth:`save_mask` is how a session ends: it writes the corrected labels
+    and the ledger together. :meth:`save_log` writes only the ledger, and is
+    for a caller that has already written the pixels itself.
     """
 
     def __init__(self, layer, *, artifact: Any = "", history: int = 64,
@@ -676,6 +680,42 @@ class MaskCuration:
             change the artefact name recorded inside the ledger.
         """
         return self.log.write_beside(artifact or self.artifact)
+
+    def save_mask(self, artifact: Optional[Any] = None) -> str:
+        """Write the corrected labels to disk, with the ledger beside them.
+
+        The pixels and the record are written by one call, because either one
+        alone is a lie. A ledger written on its own asserts corrections to a
+        file whose pixels are untouched, and :func:`is_curated` then reports
+        that untouched file as hand-edited; labels written on their own are a
+        curated mask that is byte-indistinguishable from a segmented one,
+        which is the hole this module exists to close.
+
+        :param artifact: where the labels go; anything falsy — including the
+            default ``None`` — means :attr:`artifact`. The extension chooses
+            the format: ``.npy`` writes NumPy, anything else writes a
+            compressed uint16 TIFF, so the resolved path is what comes back
+            and need not be what went in.
+        :returns: the path the labels were written to. The ledger sits at that
+            path plus :data:`LOG_SUFFIX`, so the two can never name different
+            files.
+        :raises CurationError: when there is no path to write to.
+
+        A session that painted nothing writes the labels and no ledger, for
+        the same reason :meth:`save_log` records nothing: a sidecar beside
+        every mask ever opened answers no question.
+        """
+        target = artifact or self.artifact
+        if not target:
+            raise CurationError(
+                "this curation session has no artefact path, so there is "
+                "nowhere to write the mask; pass one to save_mask()")
+        from .mask_io import save_mask as write_mask
+
+        written = str(write_mask(target, np.asarray(self.layer.data)))
+        if len(self.log):
+            self.log.write_beside(written)
+        return written
 
 
 # ---------------------------------------------------------------------------

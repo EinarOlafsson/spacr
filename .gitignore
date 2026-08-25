@@ -208,3 +208,20 @@ build/
 
 # catboost writes a training log beside the working directory
 catboost_info/
+
+# The built documentation site. GitHub Pages deploys from the Actions
+# artifact, so a copy committed here serves nothing and goes stale: the one
+# that was tracked advertised an API two hundred releases old.
+docs/.buildinfo
+docs/.doctrees/
+docs/_build/
+docs/_modules/
+docs/_sources/
+docs/_static/
+docs/_images/
+docs/genindex.html
+docs/index.html
+docs/py-modindex.html
+docs/search.html
+docs/searchindex.js
+docs/objects.inv

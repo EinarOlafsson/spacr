@@ -791,7 +791,15 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Organelle Segmentation (advanced)", ("@Organelle advanced",)),
         # Instruction 73: the families that are one decision applied to
         # several objects, grouped by what they do rather than by which
-        # object they do it to.
+        # object they do it to. All three nest under "Advanced settings",
+        # which is derived from the group they reference rather than
+        # restated here -- see `_shared_category_parents`.
+        #
+        # "(per object)", NOT "Image Preprocessing": the heading above is the
+        # whole-image one, and the category-help table is keyed on the
+        # heading text, so two headings spelled alike would share one blurb.
+        ("Image Preprocessing (per object)",
+         ("@Image preprocessing (per object)",)),
         ("Object Filtration (all objects)", ("@Object filtration",)),
         ("Intensity Handling (all objects)", ("@Intensity handling",)),
         ("Quality Control", ("@Segmentation QC",)),
@@ -818,6 +826,15 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "channels", "cell_mask_dim", "nucleus_mask_dim",
             "pathogen_mask_dim", "organelle_mask_dim",
             *(f"{role}_mask_dim" for role in ORGANELLE_ROLES[1:]),
+            # WHAT KIND OF ORGANELLE each slot holds. Measure needs it for
+            # the same reason mask does, and for one more: it decides
+            # whether "how many, and how spread out" is the phenotype or a
+            # segmentation artefact, which is what a measure run says out
+            # loud about its own organelle numbers. Beside the mask
+            # dimension because the two answer one question -- which plane,
+            # and what is on it.
+            "organelle_type",
+            *(f"{role}_type" for role in ORGANELLE_ROLES[1:]),
             "cytoplasm",
             "timelapse", "timelapse_objects",
         )),
@@ -922,7 +939,15 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Organelle Segmentation (advanced)", ("@Organelle advanced",)),
         # Instruction 73: the families that are one decision applied to
         # several objects, grouped by what they do rather than by which
-        # object they do it to.
+        # object they do it to. All three nest under "Advanced settings",
+        # which is derived from the group they reference rather than
+        # restated here -- see `_shared_category_parents`.
+        #
+        # "(per object)", NOT "Image Preprocessing": the heading above is the
+        # whole-image one, and the category-help table is keyed on the
+        # heading text, so two headings spelled alike would share one blurb.
+        ("Image Preprocessing (per object)",
+         ("@Image preprocessing (per object)",)),
         ("Object Filtration (all objects)", ("@Object filtration",)),
         ("Intensity Handling (all objects)", ("@Intensity handling",)),
         ("Quality Control", ("@Segmentation QC",)),
@@ -1044,6 +1069,10 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "cell_area_outlier_mads", "nucleus_area_outlier_mads",
             "cell_intensity_outlier_mads", "nucleus_intensity_outlier_mads",
             "min_cell_count", "min_n", "fraction_threshold",
+            # DIRECTLY UNDER THE NUMBER IT REPLACES. It says "measure this
+            # from the control wells instead", so it is only readable
+            # beside the number it is an alternative to.
+            "calibrate_fraction_threshold",
             "normalise_fraction",
             "target_unique_count", "tolerance", "outlier_detection",
         )),
@@ -1307,6 +1336,12 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Barcode References", ("grna_csv", "row_csv", "column_csv")),
         ("Read Parsing", (
             "target_sequence", "regex", "offset_start", "expected_end",
+            # How far a read may be from a listed barcode and still be
+            # called as it -- a parsing tolerance, filed with the rest of
+            # the parse. Left out of this layout it fell into "Additional
+            # Settings", which is not a heading anyone chose; it is the
+            # absence of one.
+            "barcode_mismatches",
         )),
         ("Output & Storage", (
             "save_h5", "comp_type", "comp_level", "fill_na",
@@ -1574,6 +1609,181 @@ def get_categories() -> Dict[str, List[str]]:
     return categories
 
 
+# ---------------------------------------------------------------------------
+# THE SETTINGS TREE. Instruction 73.
+# ---------------------------------------------------------------------------
+#
+# The panel used to group by OBJECT and nothing else, so `cell_min_size` and
+# `nucleus_min_size` -- one decision applied to two objects -- read as two
+# unrelated knobs filed under two headings. The request is a second axis:
+# group the advanced settings by WHAT THEY DO, then by which object they do
+# it to, under one "advanced settings" umbrella.
+#
+# That needs three levels, and the panel had one. `build_sections` returned
+# List[Tuple[str, List[Tuple[str, QWidget]]]] -- a header and its rows, no
+# third element and no recursion -- so a sub-sub-section could not be
+# expressed at all. Widening that return type is a contract change for every
+# module in the tool, which is why the section below is a TUPLE SUBCLASS: it
+# still IS the pair it always was, so nothing that unpacks or `dict()`s the
+# result has to change, and the tree hangs off attributes beside it.
+
+
+class SettingsSection(tuple):
+    """One heading of a settings panel, and whatever nests under it.
+
+    IT IS STILL A ``(title, rows)`` PAIR, and that is the point. Every caller
+    that writes ``for title, rows in build_sections()`` or
+    ``dict(build_sections())`` keeps working untouched, and ``rows`` holds
+    every row in the whole subtree -- so a panel that cannot draw a tree
+    still draws each control exactly once, under the outermost heading it
+    belongs to, instead of losing the ones a sub-heading owns.
+
+    THE TREE IS THE ADDITION. :attr:`own_rows` are the rows of this heading
+    itself, :attr:`children` the headings below it, and :attr:`path` the
+    breadcrumb down to it -- ``("Advanced settings", "Object filtration",
+    "Cell")`` -- which is what tells a sub-heading titled "Cell" apart from
+    the top-level "Cell" segmentation category when help is looked up.
+    """
+
+    # No `__slots__`: a variable-length tuple subclass cannot have one, and
+    # the four attributes below are what carries the tree.
+
+    def __new__(cls, title, own_rows=(), children=()):
+        children = tuple(children)
+        own = list(own_rows)
+        rows = list(own)
+        for child in children:
+            rows.extend(child.rows)
+        section = super().__new__(cls, (str(title), rows))
+        section.title = str(title)
+        section.own_rows = own
+        section.children = children
+        section.path = (section.title,)
+        for child in children:
+            child._reparent(section.path)
+        return section
+
+    def _reparent(self, parent_path) -> None:
+        """Record this section's place under a parent that now exists.
+
+        A child is built before the parent that will hold it, so its path is
+        completed from above rather than passed down.
+        """
+        self.path = tuple(parent_path) + (self.title,)
+        for child in self.children:
+            child._reparent(self.path)
+
+    @property
+    def rows(self) -> List[Tuple[str, QWidget]]:
+        """Every row in this heading and in everything nested under it."""
+        return self[1]
+
+    def walk(self):
+        """This section and every section below it, outermost first."""
+        yield self
+        for child in self.children:
+            yield from child.walk()
+
+
+def _shared_category_parents() -> Dict[str, str]:
+    """Which heading each category nests under, including renamed ones.
+
+    `spacr.settings.CATEGORY_PARENTS` is keyed on the SHARED category name,
+    and a module layout may draw the same group under its own spelling --
+    mask calls "Object filtration" "Object Filtration (all objects)". A
+    layout entry built out of nothing but ``@Family`` references is that
+    family, so its place in the tree is DERIVED rather than restated. The
+    alternative is a second table listing every rename, and this project has
+    already shipped three defects from a module being registered in one such
+    table and not the other.
+    """
+    from spacr.settings import CATEGORY_PARENTS
+
+    parents = dict(CATEGORY_PARENTS)
+    for spec in _APP_CATEGORY_SPECS.values():
+        for title, tokens in spec:
+            groups = [t[1:] for t in tokens if str(t).startswith("@")]
+            if len(groups) != len(tokens) or not groups:
+                continue
+            inherited = {CATEGORY_PARENTS[g] for g in groups
+                         if g in CATEGORY_PARENTS}
+            if len(inherited) == 1 and len(groups) == 1:
+                parents[title] = inherited.pop()
+    return parents
+
+
+def _object_subheading(obj: str) -> str:
+    """The heading one object's rows are drawn under.
+
+    Organelle slots are numbered rather than spelled `organelleb`, which is
+    an internal name chosen so object keys can round-trip through `prcfo`
+    and was never meant to be read.
+    """
+    from spacr.object_roles import is_organelle, organelle_label
+
+    if is_organelle(obj):
+        return organelle_label(obj)
+    return str(obj).replace("_", " ").capitalize()
+
+
+def _split_rows_by_object(rows, keys):
+    """Split one family's rows into a sub-section per object.
+
+    :param rows: ``(label, widget)`` in the order the family lists them.
+    :param keys: the setting key behind each row, positionally aligned.
+    :returns: ``(own_rows, children)`` -- a row whose key names no object
+        stays with the family itself rather than being dropped, because a
+        control that reaches no sub-heading is a control the user cannot
+        reach.
+    """
+    from spacr.settings import ADVANCED_OBJECT_ORDER, advanced_object_of
+
+    grouped: Dict[str, List[Tuple[str, QWidget]]] = {}
+    own: List[Tuple[str, QWidget]] = []
+    for row, key in zip(rows, keys):
+        obj = advanced_object_of(key)
+        if obj is None:
+            own.append(row)
+        else:
+            grouped.setdefault(obj, []).append(row)
+    children = tuple(
+        SettingsSection(_object_subheading(obj), grouped[obj])
+        for obj in ADVANCED_OBJECT_ORDER if grouped.get(obj)
+    )
+    return own, children
+
+
+def _nest_sections(flat) -> List[SettingsSection]:
+    """Hang each flat section under the parent its category declares.
+
+    THE PARENT TAKES THE PLACE OF ITS FIRST CHILD, so the running order of a
+    panel is the one its layout wrote. Hoisting the umbrella to the top or
+    dropping it to the bottom would move a block of settings the layout
+    deliberately put between two others.
+
+    A parent whose children all vanished -- every key hidden, or none
+    offered by this module -- is not emitted, the same rule an empty
+    category has always followed.
+    """
+    parents = _shared_category_parents()
+    order: List[str] = []
+    umbrellas: Dict[str, List[SettingsSection]] = {}
+    out: List[object] = []
+    for section in flat:
+        parent = parents.get(section.title)
+        if parent is None:
+            out.append(section)
+            continue
+        if parent not in umbrellas:
+            umbrellas[parent] = []
+            order.append(parent)
+            out.append(parent)          # a placeholder, replaced below
+        umbrellas[parent].append(section)
+    return [SettingsSection(item, (), umbrellas[item])
+            if isinstance(item, str) else item
+            for item in out]
+
+
 #: Below this many settings a module cannot render as an undifferentiated
 #: list — six rows fit on one screen and read as one group whatever they are
 #: called. Modules at or under it are exempt from :func:`has_curated_layout`;
@@ -1808,7 +2018,12 @@ def categories_for_app(
 
             "Evaluation & Results": [
                 "cross_validation_enabled", "cross_validation_folds",
-                "cv_group_by", "nested_cv_inner_folds", "score_threshold",
+                # The plate held back from fitting, beside the folds it is
+                # the alternative to. Left out of this layout it fell into
+                # "Additional Settings", which is not a heading anyone chose;
+                # it is the absence of one.
+                "cv_group_by", "holdout_plate", "nested_cv_inner_folds",
+                "score_threshold",
                 "classifier_evaluation", "evaluation_calibration",
                 "evaluation_bins", "evaluation_fail_on_leakage",
                 "leakage_audit_train_test", "leakage_hash_content",
@@ -1980,18 +2195,22 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "figures are drawn. Worth a look on any dataset you have not run "
         "before.",
     "CELL":
-        "How the cell mask is found and cleaned up — model, expected "
-        "diameter, probability and flow thresholds, background floor. Open "
+        "How the cell mask is found — model, expected diameter, probability "
+        "and flow thresholds. What is done to the channel first, and which "
+        "of the masks it produces are kept, are under Advanced settings, "
+        "where the same choices for the other objects sit beside them. Open "
         "it when cells are missed, merged into their neighbours, or split "
         "in two.",
     "NUCLEUS":
-        "How the nucleus mask is found and cleaned up — model, expected "
-        "diameter, probability and flow thresholds, background floor. "
+        "How the nucleus mask is found — model, expected diameter, "
+        "probability and flow thresholds; the channel preprocessing and the "
+        "size filters are under Advanced settings. "
         "Nuclei are the easiest object to get right, so they are a good "
         "place to check the channel assignment.",
     "PATHOGEN":
-        "How the pathogen mask is found and cleaned up — model, expected "
-        "diameter, probability and flow thresholds, background floor. "
+        "How the pathogen mask is found — model, expected diameter, "
+        "probability and flow thresholds; the channel preprocessing and the "
+        "size filters are under Advanced settings. "
         "Tightly packed parasites fusing into one object are the usual "
         "reason to come here.",
     "ORGANELLE":
@@ -2001,6 +2220,25 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "parameters for you and says on the console what it picked — the "
         "rest are under Organelle advanced, still editable, if you want to "
         "change any of them.",
+    "ADVANCED SETTINGS":
+        "The umbrella over the settings that are one decision applied to "
+        "several objects — what is done to the pixels before segmentation, "
+        "which detected objects are kept, and how intensity decides "
+        "splitting and merging. Each group inside it is broken down per "
+        "object, so the same choice for cells and for nuclei sits side by "
+        "side instead of under two unrelated headings. Nothing here needs "
+        "touching on a first run.",
+    # PER OBJECT, and the parenthetical is load-bearing: "IMAGE
+    # PREPROCESSING" is already this table's key for the whole-image step
+    # mask and timelapse render, and a second heading spelled the same way
+    # would silently serve that blurb instead of this one.
+    "IMAGE PREPROCESSING (PER OBJECT)":
+        "What is done to each object's own channel before anything is "
+        "segmented — the background floor below which pixels are zeroed, "
+        "the signal-to-noise ratio that sets where the contrast stretch "
+        "tops out, and, for organelles, rolling-ball flattening and CLAHE. "
+        "The objects do not all offer the same steps, and each sub-heading "
+        "shows exactly the ones its object has.",
     # The workflow-ordered layouts render these under a longer title, and
     # the tooltip table is keyed on the heading's EXACT text -- which is the
     # trap the "Computer Vision — " prefix fell into and why instruction 73
@@ -3036,6 +3274,97 @@ def category_tooltip(
     if not text:
         text = f"Settings that control {str(title).lower().strip()}."
     return _translated_body(text, language, category=True)
+
+
+#: Help for the per-object SUB-HEADINGS inside an advanced family.
+#:
+#: KEYED ON THE OBJECT, NOT ON THE FAMILY, and written to read under any of
+#: them: the family heading above already says what the group decides, so the
+#: sub-heading only has to say which object it decides it for, and what is
+#: different about that object.
+#:
+#: A SEPARATE TABLE BECAUSE THE TITLES COLLIDE. A sub-heading titled "Cell"
+#: under "Object filtration" is not the top-level "Cell" segmentation
+#: category, and the shared table is keyed on the heading text alone -- so a
+#: title-only lookup hands a filtration sub-heading the blurb about Cellpose
+#: models and expected diameters. :func:`section_tooltip` tells them apart by
+#: the section's PATH, which is the only thing that differs.
+OBJECT_SUBHEADING_TOOLTIPS: Dict[str, str] = {
+    "CELL": (
+        "This group's decision as it applies to the cell mask -- the outer "
+        "boundary every other object is assigned to. Changing it moves the "
+        "denominator of every per-cell measurement, so it is the one to be "
+        "most careful with."),
+    "NUCLEUS": (
+        "This group's decision as it applies to the nucleus mask. Nuclei are "
+        "the roundest and best separated objects in a typical screen, so "
+        "values that are far from the ones the other objects need usually "
+        "mean the channel assignment is wrong rather than the filter."),
+    "PATHOGEN": (
+        "This group's decision as it applies to the pathogen mask. Parasites "
+        "sit inside a host cell and often touch each other, so this is where "
+        "a clump segmented as one object, or a vacuole counted as several, "
+        "is dealt with."),
+    "CYTOPLASM": (
+        "This group's decision as it applies to the cytoplasm, which is not "
+        "segmented at all -- it is the cell with the nucleus and the "
+        "pathogens subtracted. A filter here therefore acts on what is left "
+        "over, and follows whatever the other three were set to."),
+    "ORGANELLE 1": (
+        "This group's decision as it applies to the first organelle slot. "
+        "Organelles are the most varied objects spaCR handles, from "
+        "diffraction-limited dots to a network filling the whole cell, so "
+        "the useful values here depend on which kind was chosen."),
+    "ORGANELLE 2": (
+        "The same decision for the second organelle slot, which is an "
+        "independent object with its own channel and its own type. A screen "
+        "staining two organelles keeps their settings apart here rather than "
+        "sharing one set of values between them."),
+    "ORGANELLE 3": (
+        "The same decision for the third organelle slot. It starts from the "
+        "first slot's values, so a screen that only uses one organelle can "
+        "ignore this heading entirely without leaving anything unset."),
+    "ORGANELLE 4": (
+        "The same decision for the fourth organelle slot, the last one "
+        "spaCR offers. Like the others it is defaulted from the first slot, "
+        "and it is only worth opening when a fourth organelle channel is "
+        "actually being segmented."),
+}
+
+
+def section_tooltip(app_key: str, section, language: Optional[str] = None) -> str:
+    """Return the blurb for one heading of the settings TREE.
+
+    A nested heading is resolved by its :attr:`SettingsSection.path`, not by
+    its title: "Cell" under "Object filtration" and the top-level "Cell"
+    segmentation category are the same word for two different groups, and a
+    title-only lookup would give the first one the second one's help.
+
+    :param app_key: module the section is being rendered for.
+    :param section: a :class:`SettingsSection`, or any ``(title, rows)``
+        pair -- an un-nested pair resolves exactly as before.
+    :param language: optional language override; defaults to the UI language.
+    """
+    path = tuple(getattr(section, "path", ()) or ())
+    title = getattr(section, "title", None)
+    if title is None:
+        title = section[0] if isinstance(section, tuple) else str(section)
+    if len(path) > 1:
+        text = OBJECT_SUBHEADING_TOOLTIPS.get(str(title).upper().strip(), "")
+        if text:
+            return _translated_body(text, language, category=True)
+    return category_tooltip(app_key, title, language)
+
+
+def section_tooltip_is_curated(app_key: str, section) -> bool:
+    """True when a tree heading has written help rather than the fallback."""
+    path = tuple(getattr(section, "path", ()) or ())
+    title = getattr(section, "title", None)
+    if title is None:
+        title = section[0] if isinstance(section, tuple) else str(section)
+    if len(path) > 1 and str(title).upper().strip() in OBJECT_SUBHEADING_TOOLTIPS:
+        return True
+    return category_tooltip_is_curated(app_key, title)
 
 
 def category_tooltip_is_curated(app_key: str, title: str) -> bool:
@@ -6927,10 +7256,24 @@ class SettingsWidgets:
         except Exception:
             pass
 
-    def build_sections(self) -> List[Tuple[str, List[Tuple[str, QWidget]]]]:
-        """Group the settings by category and return one (title, rows)
-        tuple per non-empty category, plus a trailing 'Other' section
-        for anything not categorized."""
+    def build_sections(self) -> List["SettingsSection"]:
+        """Group the settings and return the panel's section TREE.
+
+        Each entry is a :class:`SettingsSection`, which still IS the
+        ``(title, rows)`` pair this returned before nesting existed -- a
+        caller that unpacks or ``dict()``s the result needs no change, and
+        ``rows`` holds every row in the subtree, so a panel that draws only
+        the outer level still draws every control exactly once.
+
+        Three levels are expressible: the "Advanced settings" umbrella, the
+        family headings that declare it as their parent
+        (``spacr.settings.CATEGORY_PARENTS``), and one sub-heading per object
+        inside each family, derived from the setting keys. A category that
+        declares no parent and splits into no objects is a single flat
+        section exactly as before.
+
+        Anything in no category at all lands in a trailing "Other".
+        """
         # `spacr.settings_spec`, NOT `spacr.gui_utils`. The function is the
         # same one (gui_utils re-exports it); the module it now lives in
         # imports nothing. Reaching it through gui_utils cost 770 ms of Tk
@@ -7034,25 +7377,37 @@ class SettingsWidgets:
         # Categories that don't apply to a given app (e.g. the classify app
         # trains a Torch model, not Cellpose — so it gets no Cellpose tab).
         hidden = _APP_HIDDEN_CATEGORIES.get(self.app_key, set())
-        sections: List[Tuple[str, List[Tuple[str, QWidget]]]] = []
+        split_by_object = set(_shared_category_parents())
+        sections: List[SettingsSection] = []
         for cat_name, keys in cats.items():
             if cat_name in hidden:
                 continue
             rows: List[Tuple[str, QWidget]] = []
+            # THE KEYS, ALONGSIDE THE ROWS. A row is `(label, widget)` and a
+            # label is a sentence for a human, so the object a row belongs to
+            # can only be read off the KEY -- the same confusion that put the
+            # plate map on nothing at all when a label was matched instead.
+            row_keys: List[str] = []
             for k in keys:
                 if k in self._widgets and k not in used_keys:
                     rows.append((self._label_for(k), self._widgets[k]))
+                    row_keys.append(k)
                     used_keys.add(k)
-            if rows:
-                sections.append((cat_name, rows))
+            if not rows:
+                continue
+            if cat_name in split_by_object:
+                own, children = _split_rows_by_object(rows, row_keys)
+                sections.append(SettingsSection(cat_name, own, children))
+            else:
+                sections.append(SettingsSection(cat_name, rows))
 
         # Trailing 'Other' for anything not in a category.
         remaining = [(self._label_for(k), self._widgets[k])
                      for k in self._widgets if k not in used_keys]
         if remaining:
-            sections.append(("Other", remaining))
+            sections.append(SettingsSection("Other", remaining))
 
-        return sections
+        return _nest_sections(sections)
 
     def tooltip_for(self, key: str) -> str:
         """Return the HTML-formatted tooltip for a given setting key."""
