@@ -2,8 +2,10 @@
 tests/qt/conftest.py IS LOST WHEN QT AND NON-QT FILES ARE INTERLEAVED
 ================================================================================
 
-Status:    FIXED. The reproduction below runs clean, and a recurrence
-           stops the run with a message about the ordering.
+Status:    FIXED. The reproduction below runs clean, a recurrence stops
+           the run with a message that names the cause it can show, and the
+           sys.modules eviction this was first blamed on is ruled out by
+           measurement rather than by argument.
 Requested: not requested; found while verifying the auto-annotate and
            surrogate work
 
@@ -127,19 +129,78 @@ interleaving for real and then runs it again with the fix switched off, so the
 hazard and the guard are both demonstrated rather than asserted.
 
 --------------------------------------------------------------------------------
+THE MESSAGE NAMES THE CAUSE IT CAN SHOW
+--------------------------------------------------------------------------------
+
+The guard first printed the ordering explanation whatever the evidence,
+because the ordering fault was the only cause anybody had seen. A loss with
+some other cause would then have sent its reader after the single thing
+already ruled out.
+
+It now asks the collected tree before it names anything. A directory the run
+holds two nodes for -- or one node that is not the node its conftest was
+parsed against, which is what a `-k` selection or the file shard can leave
+behind when the tests off the first node are dropped -- is reported as
+
+    Collected twice: tests/qt.
+
+followed by the ordering explanation. A directory collected ONCE is reported
+as
+
+    Collected once: tests/qt.
+
+followed by an explanation that the conftest was EVICTED rather than
+out-ordered: the ordering fault is ruled out for the reader, and module state
+-- a conftest cleared from sys.modules, reloaded, or unregistered -- is what
+they are pointed at instead. A caller with no evidence either way still gets
+the ordering wording it always had.
+
+Both branches are pinned by tests/test_conftest_guard_names_the_cause.py,
+which also runs the real interleaving to show the live fault still picks the
+ordering branch and shows the duplicate.
+
+--------------------------------------------------------------------------------
+THE EVICTION HYPOTHESIS, MEASURED
+--------------------------------------------------------------------------------
+
+The WHAT TO DO section asks for a sys.modules eviction to be ruled out first.
+It is, and by measurement. A probe over the run that LOSES the fixtures
+reports
+
+    QTCONFTEST modules=1 registered=1 same=True qt_nodes=2
+
+-- one module object for tests/qt/conftest.py, still registered as a plugin,
+and the same object sys.modules holds -- while tests/qt answers with TWO
+collection nodes and only the tests hanging off the first can see
+`qt_theme_applied`. With the canonicaliser back on, the same probe reports
+qt_nodes=1 and every test sees it.
+
+Neither suspect touches module state. tests/test_dead_settings.py reads
+sources with `ast.parse`; tests/test_crop_format.py calls
+`crops.clear_crop_format_cache()`, an application cache. Neither evicts a
+module, reloads one, or unregisters a plugin. The measurement is kept by
+tests/test_conftest_guard_names_the_cause.py, so the rule-out cannot rot back
+into a hypothesis.
+
+--------------------------------------------------------------------------------
 RE-VERIFIED ON THIS TREE
 --------------------------------------------------------------------------------
 
-The reproduction command runs clean: 149 passed, 0 errors, ~59 s. Every test
-in the third file runs instead of erroring in setup, which is this file's own
-success criterion.
+On pytest 9.1.1, a major version past the one the fix was written against.
 
-The two suspects the WHAT TO DO section asked to rule out first are ruled out
-and stay ruled out. `collect_ignore_glob` is computed once, at the single
-import of tests/qt/conftest.py, and a sys.modules eviction would have to
-re-import it to matter; the module is imported exactly once either way. What
-was lost was the fixtures' VISIBILITY from a second collection node, which is
-what the fix addresses.
+The reproduction command runs clean: 149 passed, 0 errors, ~54 s. Every test
+in the third file runs instead of erroring in setup, which is this file's own
+success criterion. The whole suite collects unchanged: 43036 tests, no guard.
+
+Thirty random interleavings of three to five real files, alternating Qt and
+non-Qt, all collect clean; the same shapes with the canonicaliser
+unregistered all stop with the guard, so the sweep is sensitive to the fault
+it reports the absence of. Also clean, each checked against the same
+mutation: `--keepduplicates`, `--import-mode=importlib`, absolute paths,
+pytest-randomly left on, and the run started from tests/ rather than the root.
+Two shapes cannot reach the hazard at all and are clean either way -- a bare
+file named twice, and a directory argument that overlaps a file argument,
+both of which pytest normalises away before collection.
 
 tests/test_conftest_fixture_visibility.py passes, including the half that
 switches the shard off and shows the hazard returning, so the guard is

@@ -954,18 +954,17 @@ def test_a_settings_catalog_that_throws_leaves_the_label_alone(qapp,
     assert label.text() == "Zzz Not In Any Catalog Zzz"
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "retranslate_widget_tree's own settings-label block catches TypeError "
-    "from setting_label; the refresh_api_tooltips pass at the end of the "
-    "same function catches only (ImportError, AttributeError, RuntimeError), "
-    "so a TypeError from the same catalog escapes a language switch and "
-    "leaves the window half translated."))
 def test_a_language_switch_never_raises_whatever_the_catalog_does(
         qapp, monkeypatch):
     """The pass documents itself as best-effort, so nothing may escape it.
 
     A language switch that raises leaves the window part English and part
     Swedish, with no way back except another switch.
+
+    Expected to fail while the closing `refresh_api_tooltips` pass caught
+    only (ImportError, AttributeError, RuntimeError) and a TypeError out of
+    the same catalog the settings-label block already guards against escaped
+    it. That guard covers the catalog's errors now, so the marker is gone.
     """
     import spacr.qt.i18n_catalogs as catalogs
 

@@ -6,8 +6,8 @@ tests/conftest.py replaces that with a message about the cause -- and there is
 more than one cause it could be:
 
 * the directory was collected TWICE and the tests were reached through the
-  second node, which is the collection-ordering fault this repository was bitten
-  by and which ``_OneNodePerDirectory`` prevents;
+  second node, which is the collection-ordering fault this repository was
+  bitten by and which ``_OneNodePerDirectory`` prevents;
 * the directory was collected ONCE and the conftest was evicted anyway -- taken
   out of ``sys.modules``, reloaded, or unregistered by something in the run.
 
@@ -53,7 +53,7 @@ def pytest_configure(config):
 '''
 
 _MODULE_PROBE = '''\
-"""Print what the run holds for tests/qt/conftest.py, before the guard fires."""
+"""Print what the run holds for tests/qt/conftest.py before the guard fires."""
 import sys
 
 import pytest
@@ -70,7 +70,9 @@ def pytest_collection_modifyitems(session, config, items):
     nodes = set()
     for item in items:
         for node in item.listchain():
-            if isinstance(node, pytest.Directory) and node.nodeid == "tests/qt":
+            if not isinstance(node, pytest.Directory):
+                continue
+            if node.nodeid == "tests/qt":
                 nodes.add(id(node))
     print("\\nQTCONFTEST modules=%d registered=%d same=%s qt_nodes=%d"
           % (len(modules), len(registered), same, len(nodes)))
@@ -86,6 +88,11 @@ def _collect_interleaved(tmp_path, extra_plugins=(),
     """
     pytest.importorskip("PySide6")
     pytest.importorskip("pytestqt")
+    for named in _INTERLEAVED:
+        assert (_REPO_ROOT / named).exists(), (
+            f"{named} is named here to build the interleaving and is gone; "
+            "put another Qt file, non-Qt file, Qt file in its place rather "
+            "than dropping the shape")
     plugin_dir = tmp_path / "plugins"
     plugin_dir.mkdir(exist_ok=True)
     argv = [sys.executable, "-m", "pytest", "--co", "-q",
@@ -211,7 +218,8 @@ def test_the_parse_nodes_are_read_off_the_running_session(request):
     directory node, and it is the very node this test hangs off -- which is
     the healthy state the guard exists to keep.
     """
-    parse_nodes = directory_conftest_parse_nodes(request.session._fixturemanager)
+    parse_nodes = directory_conftest_parse_nodes(
+        request.session._fixturemanager)
 
     assert "tests" in parse_nodes, sorted(parse_nodes)
     chain = {id(node) for node in request.node.listchain()}
@@ -290,7 +298,6 @@ def test_every_lost_fixture_is_still_listed_before_the_cause():
 # The interleaving, run for real
 # ---------------------------------------------------------------------------
 
-@pytest.mark.slow
 def test_the_real_interleaving_is_reported_as_a_directory_collected_twice(
         tmp_path):
     """The live fault picks the ordering branch, with the duplicate shown.
@@ -307,7 +314,6 @@ def test_the_real_interleaving_is_reported_as_a_directory_collected_twice(
     assert "EVICTED" not in output, output[-3000:]
 
 
-@pytest.mark.slow
 def test_the_lost_fixtures_are_not_a_conftest_that_went_missing(tmp_path):
     """The evidence for the branch above: one module, two directory nodes.
 
@@ -326,7 +332,6 @@ def test_the_lost_fixtures_are_not_a_conftest_that_went_missing(tmp_path):
                                      disable_canonicaliser=True)
     _, healthy = _collect_interleaved(tmp_path, probe)
 
-    assert "QTCONFTEST modules=1 registered=1 same=True qt_nodes=2" in broken, \
-        broken[-3000:]
-    assert "QTCONFTEST modules=1 registered=1 same=True qt_nodes=1" in healthy, \
-        healthy[-3000:]
+    one_module = "QTCONFTEST modules=1 registered=1 same=True"
+    assert f"{one_module} qt_nodes=2" in broken, broken[-3000:]
+    assert f"{one_module} qt_nodes=1" in healthy, healthy[-3000:]
