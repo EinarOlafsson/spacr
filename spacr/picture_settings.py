@@ -15,14 +15,22 @@ from __future__ import annotations
 
 from typing import Dict, Optional, Tuple
 
-from .crops import (DEFAULT_PNG_CHANNEL_MAPPING, LOAD_IMAGES,
+from .crops import (DEFAULT_PERCENTILES, DEFAULT_PNG_CHANNEL_MAPPING,
+                    LOAD_IMAGES,
                     LOAD_IMAGES_LABEL, STREAM_FROM_DB,
                     STREAM_FROM_DB_LABEL, STREAM_IMAGES,
-                    STREAM_IMAGES_LABEL, STREAMING_SOURCES)
+                    STREAM_IMAGES_LABEL, STREAMING_SOURCES,
+                    percentile_pair)
 
 #: Settings that shape the picture AFTER it has been obtained, so they mean
 #: the same thing whichever route produced it.
 BOTH_MODES: Tuple[str, ...] = (
+    # THE SHAPE OF THE CUT, and it left STREAM_ONLY because a crop already
+    # on disk still has a mask to cut against -- so an object-shaped crop
+    # is a real choice there too. The one route that cannot offer it is
+    # the database one, which has coordinates and no outline, and that is
+    # said in `applies_to` rather than by filing it under a mode.
+    "crop_shape",
     "img_size",
     "normalize_channels",
     "percentiles",
@@ -49,7 +57,6 @@ BOTH_MODES: Tuple[str, ...] = (
     # settings panel", and the three combos beside them read as stray labels
     # once the row was crowded. A toolbar is for what you change constantly;
     # these are set once for a screen.
-    "object_type",
     "crop_source",
     "half_widths",
     "baseline",
@@ -81,7 +88,7 @@ OWN_DEFAULTS: Dict[str, object] = {
     "crop_source": LOAD_IMAGES,
     # EMPTY MEANS THE OBJECT TYPE'S OWN PLANE. A number names a specific
     # plane of the merged array instead.
-    "mask_array": "",
+    "object_array": "",
     # THE SHIPPED MAPPING, so a panel nobody touches cuts what it always
     # cut. spaCR's own default is r=2, g=1, b=0 -- the inverted order the
     # PNG path has always used -- and stating it here is what makes it
@@ -132,19 +139,16 @@ PICKING_ONLY: Dict[str, Tuple[str, str]] = {
 
 #: Settings that only mean something when the crops are cut on demand.
 STREAM_ONLY: Dict[str, str] = {
+    # THE PLANE THE ARRAY ROUTE READS ITS LABELS FROM. There used to be two
+    # fields for this -- `object_array` and `mask_array` -- described
+    # differently and doing the same job, which left the panel asking the
+    # same question twice and the two able to disagree. One field, and it
+    # is this one.
+    #
+    # The database route has no use for it: it locates a row by the
+    # coordinate columns its object type names, and a crop already on disk
+    # was located when it was written.
     "object_array": (
-        "chooses the mask plane the intensity channels are cut by, and a "
-        "crop that was already written to disk has been cut already"),
-    "coordinate_columns": (
-        "names the object-table columns the crop is cut from, and a crop "
-        "that was already written to disk has been cut already"),
-    "crop_shape": (
-        "chooses between an object-shaped cut and a bounding box, and a crop "
-        "that was already written to disk has been cut already"),
-    # THE PLANE THE ARRAY ROUTE READS ITS LABELS FROM. The database route
-    # has no use for it -- it locates by a coordinate column -- and a crop
-    # already on disk was located when it was written.
-    "mask_array": (
         "names the labelled plane the object number is read from, and only "
         "the array route reads one"),
     # WHICH SOURCE CHANNEL FEEDS EACH COLOUR. Cutting from merged/*.npy
@@ -168,10 +172,113 @@ STREAM_ONLY: Dict[str, str] = {
         "disk was made from a choice taken when it was written"),
 }
 
+#: Why a setting is silent in a mode that is not simply "the other mode".
+#:
+#: `crop_shape` applies in two of the three modes, so neither LOAD_ONLY nor
+#: STREAM_ONLY can carry its reason, and a greyed control with no sentence
+#: is the thing INVARIANTS 6 exists to prevent.
+DERIVED_REASON: Dict[str, str] = {
+    "crop_shape": (
+        "chooses between an object-shaped cut and a bounding box, and the "
+        "database route locates by coordinates -- there is no outline in a "
+        "table to follow"),
+}
+
+#: Settings only the database route uses.
+#:
+#: It is the one route that has to be TOLD which object it is cutting: the
+#: disk route is given it by the folder it reads, and the array route by
+#: the labelled plane it reads the labels out of. Here the object type is
+#: what names the coordinate columns, through
+#: `spacr.stream_dataset.coordinate_column` -- which is also why the panel
+#: does not ask for the columns as well.
+DATABASE_ONLY: Dict[str, str] = {
+    "object_type": (
+        "names the object-table columns the database route reads its "
+        "coordinates from, and the other two routes are given the object "
+        "directly -- by the folder they read, or by the labelled plane"),
+}
+
 #: Every key this module has an opinion about, in the order a panel shows them.
 ALL_KEYS: Tuple[str, ...] = (
-    ("image_type",) + BOTH_MODES + tuple(STREAM_ONLY)
+    ("image_type",) + BOTH_MODES + tuple(DATABASE_ONLY) + tuple(STREAM_ONLY)
 )
+
+
+#: The tabs the picture-settings window is divided into, and which keys sit
+#: on each: ``(title, keys)``, in the order they are shown.
+#:
+#: ONE LONG FORM IS NOT A PANEL. Twenty-eight controls in a single column ask
+#: the reader to scroll past every question they are not asking to reach the
+#: one they are, and the module screens already answer that with categories
+#: (`spacr.qt.screens.settings_model._APP_CATEGORY_SPECS`) -- the same shape
+#: is used here so the two panels are read the same way.
+#:
+#: THE GROUPING IS BY THE QUESTION EACH SETTING ANSWERS, not by which mode
+#: uses it: a tab that appeared and vanished with the crop source would hide
+#: the very controls whose greyed reason explains the mode, and greyed-never-
+#: hidden is this panel's rule.
+CATEGORY_SPEC: Tuple[Tuple[str, Tuple[str, ...]], ...] = (
+    # WHERE THE PIXELS COME FROM, and how the object is found in them.
+    ("Source", ("crop_source", "image_type", "object_type", "object_array",
+                "crop_shape")),
+    # WHICH SOURCE PLANE IS DRAWN IN WHICH COLOUR, and which colours survive
+    # into the picture. Four controls that are one question.
+    ("Channels", ("channels", "red_channel", "green_channel",
+                  "blue_channel")),
+    # HOW THE OBTAINED CROP IS DRAWN: its size and its contrast.
+    ("Picture", ("img_size", "object_size", "normalize_channels",
+                 "percentiles")),
+    # The outline is six controls of its own and nothing else depends on
+    # them, which is exactly what a tab is for.
+    ("Outline", ("outline", "outline_threshold_factor", "outline_sigma",
+                 "edge_thickness", "edge_transparency", "edge_image")),
+    # WHICH OBJECTS ARE DRAWN AT ALL -- the montage's own question, and the
+    # only group here that changes what is in the picture rather than how it
+    # looks.
+    ("Which cells", ("cell_picking", "picking_threshold", "show_all_in_well",
+                     "score_column", "baseline", "half_widths", "cap")),
+)
+
+#: Where a key lands when :data:`CATEGORY_SPEC` has not been told about it.
+#:
+#: A SETTING ADDED LATER MUST NOT VANISH. A panel built strictly from the
+#: table would silently drop a key that reached `ALL_KEYS` without reaching
+#: here, and a control that is not on any tab is a control the user cannot
+#: reach -- the same failure as hiding one, arrived at by omission.
+UNGROUPED_TITLE = "Other"
+
+
+def categories() -> Tuple[Tuple[str, Tuple[str, ...]], ...]:
+    """``(title, keys)`` for each tab, covering every key in :data:`ALL_KEYS`.
+
+    Keys that :data:`CATEGORY_SPEC` names but :data:`ALL_KEYS` does not are
+    dropped -- a retired setting must not leave an empty row behind -- and
+    keys `ALL_KEYS` has that the spec does not are gathered onto a trailing
+    :data:`UNGROUPED_TITLE` tab, which exists only when it has something on
+    it.
+    """
+    known = set(ALL_KEYS)
+    placed = []
+    out = []
+    for title, keys in CATEGORY_SPEC:
+        kept = tuple(key for key in keys if key in known and key not in placed)
+        placed.extend(kept)
+        if kept:
+            out.append((title, kept))
+    left = tuple(key for key in ALL_KEYS if key not in placed)
+    if left:
+        out.append((UNGROUPED_TITLE, left))
+    return tuple(out)
+
+
+def category_of(key: str) -> str:
+    """The tab ``key`` is shown on, or ``""`` when it is not offered here."""
+    name = str(key or "").strip()
+    for title, keys in categories():
+        if name in keys:
+            return title
+    return ""
 
 
 def modes() -> Tuple[Tuple[str, str], ...]:
@@ -208,15 +315,22 @@ def applies_to(key: str, mode: str) -> bool:
     streaming = chosen in STREAMING_SOURCES
     if name in LOAD_ONLY:
         return not streaming
-    if name == "mask_array":
-        # ONLY THE ARRAY ROUTE READS A PLANE. The database route locates by
-        # a coordinate column, so a plane index there would be a setting
-        # that changes nothing.
+    if name == "object_array":
+        # ONLY THE ARRAY ROUTE READS A PLANE. The database route locates a
+        # row by the coordinate columns its object type names, so a plane
+        # index there would be a setting that changes nothing.
         return chosen == STREAM_IMAGES
+    if name in DATABASE_ONLY:
+        # ONLY THE DATABASE ROUTE ASKS WHICH OBJECT. The type is how that
+        # route finds its coordinates -- it names the columns -- so it is
+        # the question there and silent everywhere else.
+        return chosen == STREAM_FROM_DB
     if name == "crop_shape":
-        # AND ONLY THE ARRAY ROUTE CAN FOLLOW AN OUTLINE, so the shape is
-        # not a choice on the database route -- it is a box.
-        return chosen == STREAM_IMAGES
+        # THE DATABASE ROUTE HAS NOTHING TO FOLLOW. Coordinates give a
+        # rectangle; an outline needs the labelled plane the array route
+        # reads, or the mask a written crop was cut against. So the shape
+        # is a real choice in both of those and a box in the third.
+        return chosen != STREAM_FROM_DB
     if name in STREAM_ONLY:
         return streaming
     return True
@@ -233,7 +347,8 @@ def why_not(key: str, mode: str) -> str:
     name = str(key or "").strip()
     chosen = str(mode or LOAD_IMAGES).strip().lower()
     label = LOAD_IMAGES_LABEL if chosen != STREAM_IMAGES else STREAM_IMAGES_LABEL
-    reason = LOAD_ONLY.get(name) or STREAM_ONLY.get(name) or ""
+    reason = (LOAD_ONLY.get(name) or STREAM_ONLY.get(name)
+              or DATABASE_ONLY.get(name) or DERIVED_REASON.get(name) or "")
     return f"not used by '{label}': it {reason}" if reason else (
         f"not used by '{label}'")
 
@@ -251,17 +366,13 @@ def bounding_box_only(settings) -> bool:
     """
     try:
         chosen = str(settings.get("crop_source") or LOAD_IMAGES).lower()
-        columns = settings.get("coordinate_columns")
     except AttributeError:
         return False
-    # THE DATABASE ROUTE HAS NOTHING TO FOLLOW. A coordinate column gives a
+    # THE DATABASE ROUTE HAS NOTHING TO FOLLOW. Coordinates give a
     # rectangle; only the labelled plane the array route reads carries the
-    # object's own outline.
-    if chosen == STREAM_FROM_DB:
-        return True
-    if chosen != STREAM_IMAGES:
-        return False
-    return bool(columns)
+    # object's own outline. The other two routes both have one, so the box
+    # is a choice there rather than the only answer.
+    return chosen == STREAM_FROM_DB
 
 
 #: The annotator's name for a setting -> the crop layer's name for it.
@@ -412,13 +523,18 @@ def to_crop_settings(picture) -> Dict[str, object]:
             out["use_bounding_box"] = False
 
     if mode in STREAMING_SOURCES:
-        # WHICH OBJECT, AND HOW IT IS FOUND. The object type names the
-        # coordinate column through `stream_dataset.coordinate_column`, so
-        # the type is the only thing to ask for; a mask-array index says
-        # to read the label out of that plane instead.
-        object_type = str(items.get("object_type") or "").strip().lower()
-        if object_type:
-            out["object_array"] = object_type
+        # WHICH OBJECT, AND HOW IT IS FOUND -- and the two routes answer
+        # that with different things, which is why each is asked for in
+        # exactly one mode.
+        #
+        # The DATABASE route is located by object type: the type names the
+        # coordinate columns through `stream_dataset.coordinate_column`, so
+        # asking for the columns as well would be asking the user to repeat
+        # what they just said, and to be wrong about it.
+        if mode == STREAM_FROM_DB:
+            object_type = str(items.get("object_type") or "").strip().lower()
+            if object_type:
+                out["object_array"] = object_type
         # THE COLOURS THE USER MAPPED, which beat the letters: a mapping
         # says which plane is red, and the letters can only say whether
         # red is drawn at all. A field left blank means that colour is
@@ -443,13 +559,18 @@ def to_crop_settings(picture) -> Dict[str, object]:
         if mode == STREAM_FROM_DB:
             out["stream_method"] = "column"
         else:
+            # The ARRAY route is located by a labelled plane, and
+            # `object_array` names it. Blank means the object type's own
+            # plane, which is what a panel nobody touched should cut.
             out["stream_method"] = "array"
-            plane = str(items.get("mask_array", "")).strip()
+            plane = str(items.get("object_array", "")).strip()
             if plane not in ("", "None"):
                 try:
                     out["mask_array"] = int(plane)
                 except (TypeError, ValueError):
-                    pass
+                    # Not an index: the crop layer also accepts the object
+                    # type's own name for the plane.
+                    out["object_array"] = plane
         # AND THE BOX WINS WHERE IT IS THE ONLY CUT AVAILABLE, rather than
         # the panel promising an outline the route cannot follow.
         if bounding_box_only(items):
@@ -508,14 +629,8 @@ def _as_channel_list(value):
     return [_POSITION_TO_COLOUR.get(p, p) for p in parts] or None
 
 
-def _as_pair(value, default=(1.0, 99.0)):
-    parts = _as_channel_list(value)
-    if not parts or len(parts) < 2:
-        return default
-    try:
-        return (float(parts[0]), float(parts[1]))
-    except (TypeError, ValueError):
-        return default
+def _as_pair(value, default=DEFAULT_PERCENTILES):
+    return percentile_pair(value, default)
 
 
 def draw_crop(array, picture):
@@ -714,15 +829,21 @@ def offered_values(key: str, source=None, frame=None) -> Tuple[str, ...]:
     name = str(key or "").strip()
     if name == "object_array":
         return available_arrays(source)
-    if name == "coordinate_columns":
-        return available_coordinate_columns(frame)
+    # `coordinate_columns` is deliberately not offered: the database route
+    # derives its columns from the object type, and a second control for
+    # the same fact is one the user can set to disagree with the first.
+    # `available_coordinate_columns` stays -- it is what the derivation
+    # checks against.
     if name == "crop_shape":
         return ("object", "bbox")
     if name == "crop_source":
-        # (value, label): the stored value never changes, and the label is
-        # what the user named it (instruction 171).
-        return ((LOAD_IMAGES, f"{LOAD_IMAGES_LABEL} — crops already in data/"),
-                (STREAM_IMAGES, f"{STREAM_IMAGES_LABEL} — cut from merged/"))
+        # THROUGH `modes()`, NOT A SECOND LIST. This built its own pair and
+        # dropped the database route entirely, so the panel offered two of
+        # the three modes it implements and no amount of filling in the
+        # database settings could reach one. `modes()` is the table; a
+        # second copy of it is a mode that exists everywhere except where
+        # the user can choose it.
+        return modes()
     if name == "channels":
         # WHICH PLANES SURVIVE INTO THE PICTURE -- the annotator's own
         # `filter_channels_pil` question. Offered for the same reason as the
@@ -777,6 +898,87 @@ def offered_values(key: str, source=None, frame=None) -> Tuple[str, ...]:
                        "it is in, then decides this one"),
         )
     return ()
+
+
+# --------------------------------------------------------------------------- #
+#  What a cap actually costs
+# --------------------------------------------------------------------------- #
+
+#: How many crops fit on one page of a well tab, measured across the viewport
+#: sizes the Cells tab is really used at.
+#:
+#: The page is the container's, not a setting: the column count is the user's
+#: preference and the ROWS are whatever the viewport has room for. At six
+#: columns and 96 px thumbnails that is 24 crops in the narrowest panel the
+#: splitter allows (780x420), 36 in a comfortable one (780x700 and 1200x700
+#: both), and 60 on a full 1920x1080 screen.
+MEASURED_PAGE_SIZES: Tuple[int, int, int] = (24, 36, 60)
+
+#: Bytes one crop occupies while its tab is open.
+#:
+#: THE TAB HOLDS EVERY CROP, not one page of them: the page decides how many
+#: thumbnails are drawn, and the arrays behind them all stay so that turning
+#: a page does not re-cut. 224x224x3 uint8 is the crop size the merged route
+#: cuts by default.
+MEASURED_CROP_BYTES = 224 * 224 * 3
+
+#: Milliseconds to CUT one crop, by route: ``(best, worst)``.
+#:
+#: The merged route is priced by how many FIELDS a montage touches rather
+#: than by how many crops it cuts, which is why its two numbers are four-fold
+#: apart: 2.58 ms/crop over 6 fields against 11.43 ms/crop over 30. The
+#: exported-PNG route is ~10x cheaper and flat in both.
+MEASURED_MS_PER_CROP: Dict[str, Tuple[float, float]] = {
+    "png": (0.49, 0.64),
+    "merged": (2.58, 11.43),
+}
+
+
+def montage_cap_cost(cap) -> str:
+    """What a montage of ``cap`` objects costs, in one sentence.
+
+    :param cap: the most objects one montage may hold.
+    :returns: pages, memory and cutting time, or ``""`` for a cap that is not
+        a positive number.
+
+    A CAP IS A DECISION ABOUT WHERE A LIMIT SITS, and the three numbers that
+    decide it are not on screen anywhere else: how many pages the reader has
+    to walk, how much memory the tab holds while they do, and how long they
+    wait before the first one is drawn. Every figure here is measured -- see
+    :data:`MEASURED_PAGE_SIZES`, :data:`MEASURED_CROP_BYTES` and
+    :data:`MEASURED_MS_PER_CROP` -- so raising the cap says what it bought.
+    """
+    try:
+        count = int(cap)
+    except (TypeError, ValueError):
+        return ""
+    if count <= 0:
+        return ""
+    widest, typical, narrowest = (max(MEASURED_PAGE_SIZES),
+                                  MEASURED_PAGE_SIZES[1],
+                                  min(MEASURED_PAGE_SIZES))
+    fewest = -(-count // widest)
+    most = -(-count // narrowest)
+    memory = count * MEASURED_CROP_BYTES / float(1 << 20)
+    quick = count * MEASURED_MS_PER_CROP["png"][0] / 1000.0
+    slow = count * MEASURED_MS_PER_CROP["merged"][1] / 1000.0
+    pages = (f"{fewest} pages" if fewest == most
+             else f"{fewest}-{most} pages")
+    return (f"{count:,} objects is {pages} "
+            f"({typical} to a page on a typical panel), about "
+            f"{memory:,.0f} MB of crops held while the tab is open, and "
+            f"{_seconds(quick)}-{_seconds(slow)} s to cut -- the low end "
+            f"reading exported PNGs, the high end cutting from merged arrays "
+            f"across many fields.")
+
+
+def _seconds(value: float) -> str:
+    """A duration rounded to something a reader can act on.
+
+    Under ten seconds a whole number rounds a real wait down to zero, which
+    reads as free; over it the decimal is noise.
+    """
+    return f"{value:,.1f}" if value < 10 else f"{value:,.0f}"
 
 
 #: Removed picture settings and the migration note reported for each one.
