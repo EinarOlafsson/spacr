@@ -2,9 +2,12 @@
 THE POSITIVE CONTROL CALIBRATES THE gRNA FRACTIONS
 ================================================================================
 
-Status:    closed, sweep included and wired end to end. Read WHAT WAS SAID
-           BACK before changing any of it; the two defects that stopped the
-           opt-in switch reaching the sweep at all are the last section.
+Status:    closed, sweep included and wired end to end, and the question of
+           whether the sequencing path should read the switch is answered in
+           the last section: it should not, and it now says which question
+           its own number answers. Read WHAT WAS SAID BACK before changing
+           any of it; the two defects that stopped the opt-in switch reaching
+           the sweep at all are the section before that.
 Requested: 2026-08-21 -- "we could search for the positive controll in the
            wells, then assumin on average the positive controll does not
            co-habit wells with screen hits the gRNA fraction for the positive
@@ -437,3 +440,51 @@ about a number the calibration had measured, which tells the user something
 untrue about where their threshold came from -- the one thing that line
 exists to say. It now names the source, and says in the same sentence that
 the two answer different questions.
+
+--------------------------------------------------------------------------------
+SHOULD THE SEQUENCING PATH READ THE SWITCH TOO? NO -- AND HERE IS WHY
+--------------------------------------------------------------------------------
+
+The question left open was whether `sequencing.graph_sequencing_stats` should
+read `calibrate_fraction_threshold` as well, or whether
+`ml._perform_regression` is the only place it belongs. BOTH IS THE RIGHT
+ANSWER ABOUT REPORTING AND THE WRONG ANSWER ABOUT THE SWITCH, and the three
+reasons are checkable rather than a preference.
+
+ONE: THE INPUTS ARE NOT THERE. The calibration needs the imaging side -- a
+per-cell classifier score, the well each cell sits in, and the plate design
+naming the pure PC and NC blocks. None of that is in
+`graph_sequencing_stats`'s contract, which is the count tables and nothing
+else. Reading the switch there would either demand keys that function has
+never documented, or quietly fall back to the counts answer whenever they are
+absent: a switch that looks honoured while nothing happened, which is exactly
+the failure the section above this one was filed for.
+
+TWO: IT WOULD COLLAPSE THE COMPARISON THE RUN EXISTS TO SHOW. The calibration
+runs FIRST in `_perform_regression`. When it succeeds `fraction_threshold` is
+no longer None, so `graph_sequencing_stats` is never asked for a threshold at
+all -- it is asked to DRAW, through `_draw_the_threshold_sweep`, whose whole
+job is to print the calibrated number beside the sweep's own INDEPENDENT
+pick. A sweep that also read the switch would hand back the calibrated number
+and the run would print it twice, as though two methods had agreed. The
+second opinion, which is the only thing that line is for, would be gone.
+
+THREE: ONE READER, ONE WRITER. The switch is read exactly once, where the
+score table is already loaded and the sweep can actually run. There is a test
+that walks `spacr.ml` and asserts `_perform_regression` is the only function
+in it that mentions the setting.
+
+WHAT WAS MISSING, AND IS NOW THERE: the counts answer was handed back as a
+bare number. "Closest Fraction Threshold: 0.0168" says nothing about which of
+the two questions it answered -- and a screen that ticked the calibration box
+and was refused lands on precisely that number, with the refusal printed
+somewhere further up. `graph_sequencing_stats` now names
+`target_unique_count` as the source on the sweep line and again where the
+threshold is returned, and says in the same sentence that this is not the
+cut-off at which imaging and sequencing agree. The docstring carries the
+three reasons above so the next reader does not have to re-derive them.
+
+Tests: `tests/test_the_sequencing_sweep_answers_its_own_question.py`, 5
+passing -- the switch does not change the counts answer, the number is handed
+back with the question it answers, and `_perform_regression` is the only
+reader in `spacr.ml`.

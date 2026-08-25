@@ -85,6 +85,25 @@ def parse_cellpose4_output(output):
     if not isinstance(flows, (list, tuple)):
         raise ValueError(f"Unrecognized Cellpose flows type: {type(flows)}")
 
+    # A BARE 2-D EVAL RETURNS ONE IMAGE'S FLOWS, FLAT.
+    #
+    # Handed a single (H, W) array, ``CellposeModel.eval`` returns a 2-D
+    # ``masks`` and a ``flows`` list holding the three arrays for that ONE
+    # image -- an RGB rendering, the (2, H, W) vectors and the
+    # cell-probability map -- rather than a list with one entry per image.
+    # ``len(masks)`` is then the image HEIGHT, so both branches below go
+    # looking for H entries in a list of three and a field that segmented
+    # perfectly raises.
+    #
+    # The check goes FIRST because a 2-D mask is one image whatever the
+    # flows look like. Nothing else reaches it: a list of 2-D arrays fails
+    # the isinstance, and a batched (N, H, W) stack has ndim 3.
+    if isinstance(masks, np.ndarray) and masks.ndim == 2:
+        items = list(flows)
+        first, second, third, fourth = (
+            items[i] if i < len(items) else None for i in range(4))
+        return masks, [first], [second], [third], [fourth]
+
     # Determine number of images
     try:
         num_images = len(masks)

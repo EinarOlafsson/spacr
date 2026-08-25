@@ -502,15 +502,19 @@ APP_TITLES = {
     "classifier_evaluation": "Classifier Evaluation",
     "run_history":     "Run History",
     "distributed_jobs": "Distributed Jobs",
-    # FOLDED MODULES THAT STILL OPEN THIS SCREEN. Barcode QC and AnnData
-    # Export have no screen class of their own -- every knob each has is a
-    # registered settings key, so the generic form IS the module -- and
-    # both are now pages on a host rather than tiles. They used to reach
-    # this table through `register_app(..., title=...)`; with the row gone
-    # that push never happens, and the page would be headed "Barcode_Qc"
-    # with no sentence under it.
+    # FOLDED MODULES THAT STILL OPEN THIS SCREEN. Barcode QC, AnnData
+    # Export and Illumination Correction have no screen class of their own
+    # -- every knob each has is a registered settings key, so the generic
+    # form IS the module -- and all three are now pages on a host rather
+    # than tiles. They used to reach this table through
+    # `register_app(..., title=...)`; with the row gone that push never
+    # happens, and the page would be headed "Barcode_Qc" with no sentence
+    # under it.
     "barcode_qc":      "Barcode QC",
     "anndata_export":  "AnnData Export",
+    # Not "Illumination": the module corrects the field, and the heading
+    # over its form is what says so.
+    "illumination":    "Illumination Correction",
 }
 
 
@@ -551,9 +555,10 @@ APP_INTROS = {
     "recruitment":     "Quantify recruitment of a marker to a compartment across conditions.",
     "invasion":        "Score every parasite attached or invaded from a two-colour outside/inside stain, with the threshold derived per field and flagged when the two populations it assumes are not actually there.",
     "replication":     "Count the parasites in every vacuole and turn that into a replication rate: endodyogeny doubles a vacuole 1 -> 2 -> 4 -> 8, so the distribution of counts per vacuole is the readout, not the mean.",
-    # The two folded modules whose page is this screen — see APP_TITLES.
+    # The folded modules whose page is this screen — see APP_TITLES.
     "barcode_qc":      "Reads per well, starved wells, unmapped reads, barcode collisions, row/column position effects and library coverage for a finished mapping run \u2014 and then the number everyone used to read off a histogram once and copy forward: state how many gRNAs per well the design intends and the abundance threshold that delivers it is derived, swept either side of, and written out in words.",
     "anndata_export":  "Export the measurement tables as AnnData (.h5ad) - N objects x M features with per-object metadata, feature definitions, embeddings and provenance - so scanpy, scvi-tools and squidpy can read a spaCR run directly.",
+    "illumination":    "No microscope lights a field evenly, so the same cell measures brighter at the centre than at a corner \u2014 routinely 10\u201340% on a widefield screen, and it does not average out of a per-well aggregate. This estimates the illumination field from the plate's own merged fields (a per-pixel median across fields, then a smooth low-order surface), QCs it, and installs it as a preprocessing hook that every measure worker applies before a single feature is computed.",
 }
 
 try:
@@ -730,6 +735,13 @@ class _LateCaptionTranslator(QObject):
     settings strip that :mod:`spacr.qt.settings_search` inserts, are both
     that: built the first time a module is opened, which is after the pass.
 
+    A FOLDED MODULE IS THE THIRD, and the largest: its page is a whole
+    module screen built by a fold button rather than by the window, so
+    nothing routes it through the one call that runs the pass. Every
+    caption on it -- masthead, instruction and each of its several hundred
+    settings rows -- and the tab it arrived on opened in English inside a
+    translated window.
+
     Installed as an event filter on the hosts those land in.
     ``QEvent.ChildAdded`` is the moment of parenting, and the pass is
     deferred one turn of the event loop from there: a widget can be
@@ -746,8 +758,64 @@ class _LateCaptionTranslator(QObject):
         child = event.child()
         if not isinstance(child, QWidget):
             return False
-        QTimer.singleShot(0, partial(self._translate, child))
+        QTimer.singleShot(0, partial(self._on_arrival, child))
         return False
+
+    def _on_arrival(self, widget) -> None:
+        """Follow and translate a subtree, a turn after it was parented.
+
+        ``ChildAdded`` arrives from inside the child's own constructor, so
+        what it hands out is a bare ``QWidget`` wrapper of a widget whose
+        real class does not exist yet -- and that wrapper stays a
+        ``QWidget`` for the rest of the process, which is why the class is
+        asked of Qt with ``inherits`` rather than of Python with
+        ``isinstance``.
+        """
+        try:
+            if widget.inherits("QTabWidget"):
+                # A PAGE STRIP. Its own captions are its tabs, and the pass
+                # sets those through `QTabWidget` methods it reaches by
+                # `isinstance` -- which this wrapper will never satisfy. So
+                # the walk starts at what the strip was parented into,
+                # whose `findChildren` answers with the typed strip.
+                self._watch_pages_of(widget)
+                self._translate(widget.parent() or widget)
+                return
+            self._translate(self._pass_root(widget))
+        except RuntimeError:
+            # Gone again before the turn came round. Nothing to translate
+            # is not a failure.
+            pass
+
+    def _watch_pages_of(self, strip) -> None:
+        """Watch the widget ``strip`` parents its pages into.
+
+        A page is parented into the ``QStackedWidget`` INSIDE a tab widget
+        rather than into the tab widget itself, so a filter that saw the
+        strip arrive would never see a page land on it. The strip arrives
+        empty and every module that becomes a page on it comes later, so
+        without this only the first fold a user opens is translated.
+        """
+        for stack in strip.findChildren(QStackedWidget,
+                                        options=Qt.FindDirectChildrenOnly):
+            stack.removeEventFilter(self)
+            stack.installEventFilter(self)
+
+    @staticmethod
+    def _pass_root(widget):
+        """The subtree a pass for ``widget`` has to cover.
+
+        A page carries a caption that is not its own: the tab it arrived on
+        belongs to the strip above it, and translating the page alone
+        leaves that tab in English over a translated page. So the strip is
+        the root whenever the new widget is a page on one -- one walk that
+        reaches the page and the tabs together.
+        """
+        parent = widget.parent()
+        strip = parent.parent() if parent is not None else None
+        if isinstance(strip, QTabWidget) and strip.indexOf(widget) >= 0:
+            return strip
+        return widget
 
     @staticmethod
     def _translate(widget) -> None:
@@ -884,8 +952,9 @@ class AppScreen(QWidget):
         # declared preview is exactly that -- `spacr.qt.preview_registry`
         # installs it the first time the module is opened, which is after
         # the pass, so on a Swedish screen its whole panel and the toggle it
-        # puts on the settings strip stay English. Watching the two hosts
-        # they land in translates each new subtree as it arrives.
+        # puts on the settings strip stay English, and so does every page a
+        # fold button opens. Watching the hosts they land in translates each
+        # new subtree as it arrives.
         self._watch_for_late_captions()
 
         # Two runners, not one, and the split is deliberate. Both of these are
@@ -4095,8 +4164,15 @@ class AppScreen(QWidget):
         # it is installed on the screen's first show, one hook before the
         # preview, so by the time this pass runs the toggle is already
         # inside the pane it arrived in and is translated with it.
+        # The screen itself is the third host, and it is where a fold page
+        # strip arrives: `spacr.qt.screens.map_barcodes.host_pages` wraps
+        # this screen's body in a `QTabWidget` parented HERE, and folded
+        # modules become pages on it. The outer layout is finished long
+        # before this hook runs, so watching the screen costs nothing on a
+        # module that folds nothing.
         hosts = (getattr(self, "_runtime_wrap", None),
-                 getattr(self, "_body_splitter", None))
+                 getattr(self, "_body_splitter", None),
+                 self)
         watcher = _LateCaptionTranslator(self)
         self._late_caption_watcher = watcher
         for host in hosts:

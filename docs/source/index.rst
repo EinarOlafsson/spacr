@@ -27,11 +27,17 @@ screen outgrows one desktop.
 
 The GUI groups its applications into seven categories: *Core* for the
 segment-measure-classify pipeline, *Data* for import and inspection,
-*Segmentation models* for training, comparing and curating them,
+*Segmentation models* for building, comparing and correcting them,
 *Results & QC* for regression and its diagnostics, *Explore* for the
-interactive figures, *Assays* for the timelapse, motility and
-parasite-specific analyses, and *Design* for planning a screen before it
-runs.
+interactive figures, *Assays* for the parasite-specific readouts, and
+*Design* for planning a screen before it runs.
+
+Not every screen is a tile. Work that only makes sense inside another step
+opens from that step's masthead instead — **Timelapse** from Mask, the
+**Motility Assay** from Measure, **Classifier Evaluation** and **Explain CV
+Model** from Classify, **Annotator Agreement** from Annotate, the **Cellpose
+Workbench**, **Model Compare**, **Model Zoo** and **Curate** from Make Masks
+— so a screen with no tile below is one step further in rather than gone.
 
 .. grid:: 2
    :gutter: 3

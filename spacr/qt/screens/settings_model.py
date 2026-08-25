@@ -5642,6 +5642,63 @@ _PERMUTATION_NOTE = (
 )
 
 
+#: The head of the regression menu. 'auto' is NOT a family -- it is the
+#: readable spelling of the historical ``None``, which ``ml.regression`` turns
+#: into ``check_distribution(response)`` -- so it carries no group title and
+#: no assumption, and it must not be labelled as though it were one.
+_REGRESSION_AUTO_CHOICE = (
+    "auto",
+    "auto — chosen from the response by check_distribution",
+)
+
+
+def _regression_type_menu():
+    """Every entry of the ``regression_type`` dropdown, as (value, caption).
+
+    ONE TABLE FOR BOTH ROUTES. The families and their captions come from
+    :func:`spacr.regression_families.regression_family_choices`, which
+    :func:`spacr.settings_spec._regression_type_choices` also asks -- so the
+    Qt panel and the settings spec cannot disagree about what a family is
+    called or which of the three kinds it is in. This panel used to build its
+    own flat list out of the bare inventory, and the two routes did disagree:
+    one showed nineteen unlabelled names, the other showed them explained.
+
+    ONE LIST FOR THE MENU AND FOR THE CATALOG. ``_SETTINGS_MODEL_UI_SOURCES``
+    is built from this, so a caption that reaches the dropdown reaches the
+    translators with it and cannot be left behind as the only English row in
+    a Swedish panel.
+
+    Asked of ``spacr.regression_families`` rather than ``spacr.ml``: both
+    re-export the function, but ``spacr.ml`` imports ``spacr.plot`` and
+    therefore torch, which is 2.2 seconds and 900 MB on the GUI thread to
+    read a tuple of strings.
+
+    :returns: ``[('auto', caption), (family, caption), ...]`` -- 'auto'
+        first, then parametric, robust/semiparametric and rank-based, which
+        is the order a reader meets the three kinds in.
+    """
+    from spacr.regression_families import regression_family_choices
+
+    return [_REGRESSION_AUTO_CHOICE, *regression_family_choices()]
+
+
+#: Every caption the regression menu shows, for the catalog builder.
+#:
+#: A CAPTION SHIPS WITH ITS ROWS. These are assembled at runtime from
+#: :mod:`spacr.regression_families`, so the literal-string extractor in
+#: ``tools/build_i18n_catalogs.py`` cannot see them at the ``addItem`` call
+#: site the way it sees a quoted label. Declaring them here is how a
+#: dynamically composed caption still reaches the translators.
+#:
+#: SEPARATE FROM ``_SETTINGS_MODEL_UI_SOURCES`` ON PURPOSE. That set is
+#: pinned by ``tests/qt/test_external_i18n_catalogs.py`` to exactly the
+#: templates the model explainers render, so it is that surface's inventory
+#: and not this module's. Folding a menu caption into it would make the
+#: explainer check fail on a string no explainer has ever rendered.
+_REGRESSION_MENU_UI_SOURCES = frozenset(
+    caption for _value, caption in _regression_type_menu())
+
+
 _SETTINGS_MODEL_UI_SOURCES = frozenset({
     *_MODE_TITLES.values(),
     *RECOMMENDED_FOR_SCREENS.values(),
@@ -6271,6 +6328,44 @@ class _ListEdit(QLineEdit):
     def set_value(self, v: Any) -> None:
         """Render ``v`` into the field via ``repr``; ``None`` clears the field."""
         self.setText(repr(v) if v is not None else "")
+
+
+class _ValueCombo(QComboBox):
+    """A dropdown settable by the value it stores, not only by its caption.
+
+    Every entry is added as ``addItem(caption, userData=value)``, and for most
+    settings the two are the same string. They are not the same for a menu
+    that explains itself: ``regression_type`` stores ``'quantile'`` and shows
+    ``'quantile -- robust/semiparametric: ...'`` so the user can tell the
+    nineteen families apart.
+
+    Qt's ``setCurrentText`` matches the CAPTION and, on a non-editable combo,
+    silently does nothing when there is no match. So the ordinary way to say
+    "choose ols" -- ``combo.setCurrentText('ols')`` -- becomes a no-op the
+    moment a caption stops being its own value, and the control is left on
+    whatever it was showing while the caller believes it was set. Nothing
+    raises and nothing is logged; the run simply fits a different model.
+
+    Matching the caption FIRST keeps Qt's own behaviour exactly, and falling
+    back to the stored value adds the case that used to vanish.
+    """
+
+    def setCurrentText(self, text: Any) -> None:                # noqa: N802
+        """Select the entry whose caption -- or, failing that, whose stored
+        value -- is ``text``.
+
+        :param text: a caption or a stored value. Anything matching neither
+            leaves the selection alone on a non-editable combo, which is what
+            Qt does.
+        """
+        wanted = "" if text is None else str(text)
+        index = self.findText(wanted)
+        if index < 0:
+            index = self.findData(wanted)
+        if index >= 0:
+            self.setCurrentIndex(index)
+            return
+        super().setCurrentText(text)
 
 
 class _ScalarEdit(QLineEdit):
@@ -8018,17 +8113,29 @@ class SettingsWidgets:
             options = app_options[key]
         # Two inventories are owned by the modules that implement them, so the
         # dropdown cannot list a model spaCR cannot fit or omit a correction it
-        # can apply. Both imports are cheap: REGRESSION_TYPES is a tuple
-        # literal and multiple_testing imports only numpy at module scope.
+        # can apply. Both imports are cheap: regression_families reads only
+        # regression_spec, which imports nothing, and multiple_testing imports
+        # only numpy at module scope.
         if key == "regression_type":
-            from spacr.ml import REGRESSION_TYPES
-            kind = "combo"
+            # THE SAME TABLE THE OTHER ROUTE READS -- see
+            # _regression_type_menu, which settings_spec's
+            # _regression_type_choices shares the family half of. Building a
+            # second list here out of the bare inventory is what let this
+            # panel show nineteen unlabelled names while the other route
+            # showed them grouped and explained.
+            #
             # 'auto' is the readable spelling of the historical None, which
             # ml.regression turns into check_distribution(response). It is
             # normalised back to None in
             # settings.get_perform_regression_default_settings, so the fit
             # path is unchanged and old settings CSVs holding None still work.
-            options = ["auto", *REGRESSION_TYPES]
+            #
+            # A bare string and a (value, label) pair may share this list --
+            # the combo builder below takes either -- and every entry here is
+            # a pair, so the stored value is what a settings CSV gets while
+            # the caption says which kind of fit it is and what it assumes.
+            kind = "combo"
+            options = _regression_type_menu()
         elif key == "multiple_testing_method":
             from spacr.multiple_testing import method_choices
             kind = "combo"
@@ -8096,7 +8203,11 @@ class SettingsWidgets:
             w.setChecked(bool(default))
             return w
         if kind == "combo":
-            w = QComboBox()
+            # _ValueCombo, not QComboBox: some of these lists are
+            # (value, label) pairs, and on a plain combo `setCurrentText`
+            # takes the caption only -- so "choose ols" silently does nothing
+            # as soon as the caption stops being the value.
+            w = _ValueCombo()
             # Long inventories (notably UMAP's complete metric list) must not
             # become the minimum width of the whole settings sidebar. The
             # popup still shows every option; the closed control elides.

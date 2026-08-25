@@ -1157,6 +1157,43 @@ def graph_sequencing_stats(settings):
         ``target_unique_count``, ``filter_column``, ``control_wells``,
         ``log_x`` and ``log_y``.
     :returns: the fraction threshold closest to the target unique count.
+
+    ``calibrate_fraction_threshold`` IS DELIBERATELY NOT READ HERE, and the
+    reason is structural rather than a division of labour.
+
+    THE TWO ARE DIFFERENT QUESTIONS. ``target_unique_count`` asks how many
+    gRNAs a well should end up with and answers it from the counts; the
+    calibration asks which cut-off makes imaging and sequencing agree and
+    answers it from the control wells. Both numbers are worth having and the
+    run reports both -- so "both" is the right answer about REPORTING. It is
+    the wrong answer about the SWITCH, for three checkable reasons.
+
+    ONE: THE INPUTS ARE NOT HERE. The calibration needs the imaging side -- a
+    per-cell classifier score, the well each cell is in, and the plate design
+    naming the pure positive- and negative-control blocks. None of those is
+    in this function's contract, which is the count tables and nothing else.
+    Reading the switch here would either demand keys this function has never
+    documented, or quietly fall back to the counts answer whenever they are
+    absent -- a switch that appears honoured while nothing happened, which is
+    the failure the calibration wiring was already once filed for.
+
+    TWO: IT WOULD COLLAPSE THE COMPARISON THE RUN EXISTS TO SHOW. In
+    ``ml._perform_regression`` the calibration runs FIRST. When it succeeds
+    ``fraction_threshold`` is no longer ``None``, so this function is never
+    asked for a threshold at all -- it is asked to DRAW, through
+    ``ml._draw_the_threshold_sweep``, whose whole job is to print the
+    calibrated number beside this sweep's own independent pick. A sweep that
+    also read the switch would hand back the calibrated number, and the run
+    would print it twice as though two methods had agreed.
+
+    THREE: ONE READER, ONE WRITER. The switch is read exactly once, where the
+    score table is already loaded and the sweep can actually be run. A second
+    reader in a module that cannot run it could only disagree with the first.
+
+    What this function DOES owe the reader is the source of the number it
+    returns, which it now prints: a screen that asked for the calibration and
+    could not have it falls through to this threshold, and a bare number gives
+    no way to tell which of the two questions was answered.
     """
     from .utils import correct_metadata_column_names, correct_metadata
 
@@ -1225,7 +1262,15 @@ def graph_sequencing_stats(settings):
         closest_index = (results_df['unique_count'] - target_unique_count).abs().argmin()
         closest_threshold = results_df.iloc[closest_index]
 
-        print(f"Closest Fraction Threshold: {closest_threshold['fraction_threshold']}")
+        # THE NUMBER CARRIES THE TARGET IT WAS CHOSEN AGAINST. "Closest
+        # Fraction Threshold: 0.0168" on its own is a bare number a reader
+        # will attach to whichever threshold they were last thinking about,
+        # and a screen that asked for the control-well calibration and did
+        # not get it has two candidate sources for exactly this line. The
+        # caller says the rest; this says which target it hit.
+        print(f"Closest Fraction Threshold: "
+              f"{closest_threshold['fraction_threshold']} "
+              f"(nearest target_unique_count={target_unique_count})")
         print(f"Unique Count at Threshold: {closest_threshold['unique_count']}")
 
         fig, ax = _line_plot(df=results_df, x='fraction_threshold', y='unique_count', log_x=log_x, log_y=log_y)
@@ -1343,5 +1388,19 @@ def graph_sequencing_stats(settings):
                    .str.rsplit(schema.KEY_SEPARATOR, n=1).str[-1])
 
     plot_plates(df=df, variable='unique_counts', grouping='mean', min_max='allq', cmap='viridis',min_count=0, verbose=True, dst=dst)
-    
+
+    # WHICH QUESTION THIS ANSWERED, SAID WHERE THE ANSWER IS HANDED BACK.
+    #
+    # This function does not read `calibrate_fraction_threshold` and must not:
+    # see the docstring. What it owes a reader is the source of the number it
+    # returns, because a screen that ticked the calibration box and could not
+    # run it falls through to exactly this line, and a bare threshold gives
+    # them no way to tell the two apart.
+    print(f"fraction_threshold={closest_threshold} chosen from "
+          f"target_unique_count={settings['target_unique_count']}: the "
+          f"cut-off that leaves a well with about that many unique gRNAs, "
+          f"measured from the counts alone. This is not the cut-off at which "
+          f"imaging and sequencing agree -- that is a different question, put "
+          f"to the control wells by calibrate_fraction_threshold.")
+
     return closest_threshold

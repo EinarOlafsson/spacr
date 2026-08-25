@@ -275,11 +275,22 @@ class TestPureHelpers:
         assert format_params({"b": 2, "a": 1}) == "a=1, b=2"
 
     def test_searchable_matches_the_parameter_table(self):
+        """``searchable`` answers for exactly the apps the table describes.
+
+        The set is enumerated rather than counted: a module that grows a
+        search has to be named here, and a module that silently loses one
+        has to fail here. ``classify_merged`` is in it because the merged
+        classifier screen is the only door to the cross-validated search
+        since it took over from both classifiers.
+        """
         assert searchable("umap")
         assert searchable("classify")
+        assert searchable("classify_merged")
         assert searchable("ml_analyze")
         assert not searchable("mask")
-        assert set(APP_PARAMS) == {"umap", "classify", "ml_analyze", "activation"}
+        assert set(APP_PARAMS) == {
+            "umap", "classify", "classify_merged", "ml_analyze", "activation",
+        }
 
     def test_toggle_text_is_what_the_user_asked_for(self):
         assert TOGGLE_TEXT == "Hyperparameter search"

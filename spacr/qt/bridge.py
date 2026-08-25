@@ -1526,6 +1526,27 @@ def make_thread(
         read-only UI housekeeping that is not an analysis run.
     :returns: an unstarted ``(QThread, PipelineWorker)`` pair.
     """
+    # THE FIRST pyplot IMPORT HAPPENS ON THIS THREAD, NOT ON THE WORKER.
+    #
+    # `PipelineWorker.run` imports matplotlib.pyplot, so on the first job
+    # a module that large is imported from the worker while the GUI thread
+    # may be collecting garbage -- and that combination segfaults the
+    # process. A segfault is not one failed test: it takes the whole
+    # pytest shard, and every coverage measurement with it, which is how
+    # it was found.
+    #
+    # `make_thread` runs on the caller's thread, so importing here puts
+    # that first import where it is safe. Every job after the first is a
+    # dict lookup, and the worker's own `matplotlib.use("Agg", force=True)`
+    # still wins -- importing pyplot does not choose a backend.
+    if "matplotlib.pyplot" not in sys.modules:
+        try:
+            import matplotlib.pyplot  # noqa: F401
+        except Exception:              # noqa: BLE001
+            # A build with no matplotlib still starts jobs; the worker's
+            # own import is what would fail, and it already handles that.
+            LOG.debug("matplotlib.pyplot could not be pre-imported",
+                      exc_info=True)
     thread = QThread()
     _widen_worker_stack(thread)
     allocation = apply_worker_budget(settings)

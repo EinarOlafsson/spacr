@@ -50,7 +50,7 @@ is not None the repective settings visability are toggledd on."
     changing a channel back must bring the old answers back with it.
 
 --------------------------------------------------------------------------------
-3. TWO BUTTONS: 3D AND TIME
+3. TWO BUTTONS: 3D AND TIME -- DONE
 --------------------------------------------------------------------------------
 
 "to the left of the Live button which sitts to the left of the AI button,
@@ -63,6 +63,13 @@ should apply for Mask generation and measure."
   * they are STATES, so they stay lit while on -- the same shape the
     folded-module switches on Mask Generation already have;
   * on Mask Generation and on Measure, both.
+
+Both switches are on the masthead of Mask Generation and Measure, in that
+order, immediately left of Live, and each reveals its own settings. A
+switch is drawn only where the form actually renders a setting of that
+dimension, hiding keeps the value, and a settings file that announces a
+dimension lights its switch. Driven in
+tests/qt/test_3d_and_time_say_which_dimension_the_plate_has.py.
 
 --------------------------------------------------------------------------------
 4. EVERY FOLDED MODULE LEAVES THE REGISTRY
@@ -77,13 +84,37 @@ hand: any key that appears in a host's FOLDED_APPS and also in APPS is a
 row that should have gone.
 
 --------------------------------------------------------------------------------
-5. ACTIVATION FOLDS INTO CLASSIFY
+5. ACTIVATION FOLDS INTO CLASSIFY -- DONE, LESS THE ROW
 --------------------------------------------------------------------------------
 
 "also fold activation into classify."
 
 Same rules as every other fold: integrate it rather than opening a
 window, and lose no capability.
+
+Activation is the third button on Classify's masthead and arrives as a
+TAB beside the training form -- its own screen, so the attribution
+settings, the Run button that runs the attribution rather than the
+training, the hyperparameter sweep over its own parameters, its drop
+policy and its host connections all come with it, and Explain CV Model's
+"Open Activation Maps" lands on that tab instead of on a key the registry
+has never heard of. Driven in
+tests/qt/test_activation_folds_into_classify.py.
+
+A folded page is built by the fold button rather than by the window, so
+it never met the one language pass a screen gets and opened in English --
+masthead, instruction, every settings row and the tab it arrived on --
+inside a translated window. The screen watches the page strip now and
+translates each page as it arrives.
+
+WHAT IS STILL OWED IS §4 FOR THIS KEY. `activation` is a button on
+Classify AND still a row in `app.APPS`, and dropping that row needs the
+answers the row carried to have homes first:
+`map_barcodes.FOLD_FALLBACK["activation"]`, which is the only carrier of
+the tooltip and the beta hover colour once the registry answers for
+nothing. `app_screen.APP_TITLES` and `APP_INTROS` already hold the
+heading and the paragraph, `settings_model._APP_API_MODULE` already holds
+the API module, and the nine catalogs already hold "Activation Maps".
 
 --------------------------------------------------------------------------------
 6. THE FOLDED ICONS ARE NOT WASTED
