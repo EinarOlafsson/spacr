@@ -97,19 +97,27 @@ class TestTheTermsAreLongEnoughToBeTerms:
 
 
 class TestTheTermsSayWhatTheMaintainerAsked:
-    """The three data-use clauses, in the maintainer's own words."""
+    """The three data-use clauses survive the rewrite.
+
+    These assert SUBSTANCE, not the sentences the first draft happened to
+    use. That draft explained itself in an essayist's voice and was
+    rewritten into the licence-agreement form a reader already knows how
+    to read, so the phrasing moved; what may be done with what you send is
+    exactly what must not move, which is why this class exists.
+    """
 
     def test_the_developers_may_use_the_data_to_develop_spacr(
             self, terms_module):
         said = terms_module.terms_text().lower()
 
-        assert "use the data you send them to develop spacr" in said
+        assert "grant the licensor" in said
+        assert "develop the software further" in said
 
     def test_uploaded_images_and_models_may_become_community_resources(
             self, terms_module):
         said = terms_module.terms_text().lower()
 
-        assert "upload to a shared resource" in said
+        assert "shared resource" in said
         assert "community resources" in said
         assert "object detection" in said
 
@@ -117,8 +125,10 @@ class TestTheTermsSayWhatTheMaintainerAsked:
             self, terms_module):
         said = terms_module.terms_text().lower()
 
-        assert "logs and the metadata" in said
-        assert "make the software better" in said
+        assert "diagnostic data" in said
+        assert "improving the software" in said
+        # The grant has to be open-ended, not confined to fixing that bug.
+        assert "any other purpose connected with its development" in said
 
     def test_the_permission_names_the_report_control_it_covers(
             self, terms_module):
@@ -133,8 +143,26 @@ class TestTheTermsSayWhatTheMaintainerAsked:
         assume the tracker gets them."""
         said = terms_module.terms_text().lower()
 
-        assert "does not publish your log" in said
-        assert "names that path" in said
+        assert "diagnostic data is not published" in said
+        assert "records the path rather than the contents" in said
+
+    def test_they_read_as_an_agreement_rather_than_an_essay(self,
+                                                            terms_module):
+        """The form is the one Apple, Microsoft and Google all use.
+
+        A document that talks ABOUT terms leaves the reader unsure they
+        agreed to anything. This one opens by saying what accepting means,
+        defines what it is talking about, and sets the two sections that
+        are always set in capitals in capitals.
+        """
+        said = terms_module.terms_text()
+
+        assert "END USER LICENCE AGREEMENT" in said
+        assert "PLEASE READ THIS AGREEMENT CAREFULLY" in said
+        assert "1. DEFINITIONS" in said
+        assert "DISCLAIMER OF WARRANTIES" in said
+        assert "LIMITATION OF LIABILITY" in said
+        assert "PROVIDED \u201cAS IS\u201d" in said
 
 
 class TestRewrittenTermsAskAgain:
