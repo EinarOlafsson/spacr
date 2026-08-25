@@ -74,6 +74,13 @@ HOST_KEY = "regression"
 FOLDED_APPS: Tuple[str, ...] = ("volcano_explorer", "hit_list",
                                 "methods_export")
 
+# What each of those three said as a TILE -- the name, the sentence and the
+# maturity colour a button has to go on carrying once the row is dropped --
+# lives in `spacr.qt.screens.map_barcodes.FOLD_FALLBACK`, because
+# `map_barcodes.fold_description` is what `restate_fold_button` reads, and
+# that is the only table it looks in. A second copy stood here, beside these
+# three keys, and nothing consulted it.
+
 #: What the "Hits" tab is called, and the tab it is inserted after.
 HITS_TAB_TITLE = "Hits"
 HITS_TAB_AFTER = "Guide support"
@@ -91,38 +98,6 @@ PUBLICATION_FIGURE_LABEL = "Publication figure…"
 #: entry: everything above restyles the plot on screen, and this hands the
 #: same rows to a different renderer.
 PUBLICATION_FIGURE_SECTION = "Publication figure"
-
-#: What each folded module's TILE said: ``key → (name, description,
-#: stage)``.
-#:
-#: :class:`~spacr.qt.widgets.fold_strip.FoldStrip` reads all three out of
-#: the app registry, which is right while the module still has a row and
-#: answers nothing once the row is dropped -- the tooltip empties and the
-#: stage falls back to stable, so an alpha module's button would light
-#: blue where its tile lit green-cyan. This is what the tile said, kept so
-#: the button can go on saying it.
-#:
-#: The registry still wins whenever it has the row, and the pair is
-#: asserted to agree for every key that has one, so the two cannot drift
-#: apart while both exist.
-FOLD_FALLBACK: Dict[str, Tuple[str, str, str]] = {
-    "volcano_explorer": (
-        "Volcano Explorer",
-        "Open a regression result, click any point for its full record, "
-        "restyle the plot and export it as vector PDF or PNG",
-        "alpha"),
-    "hit_list": (
-        "Hit List",
-        "Ranked, annotated, filterable hits with effect size, FDR and gRNA "
-        "agreement",
-        "alpha"),
-    "methods_export": (
-        "Methods & Results",
-        "Draft the methods and results sections from the run, with every "
-        "number traced",
-        "alpha"),
-}
-
 
 # ---------------------------------------------------------------------------
 # One correction family per volcano

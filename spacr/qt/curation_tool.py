@@ -197,6 +197,8 @@ class BrushPanel(QWidget):
     painted = Signal(int)
     #: The ledger was written. Carries the path.
     logged = Signal(str)
+    #: The corrected labels were written back. Carries the path.
+    saved = Signal(str)
 
     def __init__(self, canvas: LayerCanvas, parent=None, *,
                  layer: Optional[LabelsLayer] = None, artifact: str = "",
@@ -284,6 +286,17 @@ class BrushPanel(QWidget):
             tooltip="Write the correction ledger beside the mask")
         self.save_button.clicked.connect(self.save_log)
         actions.addWidget(self.save_button)
+        # "Save log" writes the record and not the pixels, and a record on
+        # its own asserts corrections to a file nothing edited -- which is
+        # the state `spacr.curation.is_curated` then reports as hand-edited.
+        # This is the control that makes the claim true, and it sits beside
+        # the one that makes it so the two are never separated.
+        self.save_mask_button = FlatButton(
+            "Save mask", self,
+            tooltip="Write the corrected labels back to the mask file, with "
+                    "the correction ledger beside them")
+        self.save_mask_button.clicked.connect(self.save_mask)
+        actions.addWidget(self.save_mask_button)
         outer.addLayout(actions)
 
         self.badge = QLabel("", self)
@@ -368,6 +381,32 @@ class BrushPanel(QWidget):
             self.badge.setText(f"Could not write the ledger: {exc}")
             return None
         self.logged.emit(written)
+        self.refresh()
+        return written
+
+    def save_mask(self, path: Optional[str] = None) -> Optional[str]:
+        """Write the corrected labels back to the mask, ledger and all.
+
+        The pixels and the record go in one call
+        (:meth:`spacr.curation.MaskCuration.save_mask`), because either one
+        alone misreports the file: a ledger beside untouched pixels claims
+        corrections that were never applied, and labels with no ledger are a
+        hand-edited mask nobody can tell from a segmented one.
+
+        :param path: where to write; anything falsy means the artefact this
+            panel was opened on. ``clicked`` hands a slot the checked state,
+            so a bool arriving here reads as "no path", not as one.
+        :returns: the path written, or ``None`` when it could not be.
+        """
+        if not isinstance(path, str):
+            path = None
+        try:
+            written = self._session.save_mask(path or self._artifact or None)
+        except (OSError, CurationError) as exc:
+            LOG.info("could not write the curated mask", exc_info=True)
+            self.badge.setText(f"Could not write the mask: {exc}")
+            return None
+        self.saved.emit(written)
         self.refresh()
         return written
 

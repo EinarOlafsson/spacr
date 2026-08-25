@@ -38,20 +38,27 @@ APP_TRANSLATIONS = (
     "Vulkanutforskare", "Vulkan-Explorer", "Explorador de volcán",
     "火山图浏览器", "Explorador de vulcão", "वोल्केनो एक्सप्लोरर",
     "볼케이노 탐색기", "Eldfjallakönnuður", "Explorateur de volcan")
-#: Why there is no ``spacr-run volcano_explorer``. Reaches
-#: :data:`spacr.cli.INTERACTIVE_ONLY`, which is what the CLI prints instead of
-#: "unknown module". This screen is a reader with no analysis behind it, so
-#: the honest headless answer is the renderer it draws through -- the same one
-#: the pipeline uses, which is why the exported figure is identical.
+#: Why there is no ``spacr-run volcano_explorer``. This screen is a reader
+#: with no analysis behind it, so the honest headless answer is the renderer
+#: it draws through -- the same one the pipeline uses, which is why the
+#: exported figure is identical.
+#:
+#: WRITTEN OUT AGAIN in :data:`spacr.cli.INTERACTIVE_ONLY` rather than reached
+#: from there. It used to travel as the row's ``cli_note=``; the row is gone,
+#: and ``spacr.cli`` answers ``--list`` on clusters with no PySide6 at all, so
+#: it cannot import this module to read the sentence. A test asserts the two
+#: copies are the same string.
 APP_CLI_NOTE = (
-    "Volcano Explorer is an interactive reader for a finished regression -- "
-    "clicking a point is the feature, so there is nothing to batch. Headless, "
-    "call spacr.volcano_style.render_volcano(results, VolcanoStyle(...), "
+    "Volcano Explorer is an interactive reader for a finished regression — "
+    "clicking a point is the feature, so there is nothing to batch; run it "
+    "in the GUI (spacr-qt), where it is “Publication figure…” on the "
+    "Regression volcano and a button on that masthead. Headless, call "
+    "spacr.volcano_style.render_volcano(results, VolcanoStyle(...), "
     "save_path='volcano.pdf'); that is the renderer this screen draws "
     "through, so the figure is the same one, vector at publication size.")
 
 __all__ = ["APP_KEY", "APP_NAME", "APP_DESCRIPTION", "APP_INTRO",
-           "APP_CLI_NOTE", "find_results_table", "register"]
+           "APP_CLI_NOTE", "find_results_table"]
 
 #: Result CSVs a regression folder may hold, best first. ``results_grna.csv``
 #: leads because the volcano is a guide-level plot: ``results.csv`` is the
@@ -173,18 +180,15 @@ def _make_screen(app_key=None, host=None):
     return VolcanoScreen(host=host)
 
 
-def register() -> bool:
-    """Add the module through spaCR's single application-registration seam."""
-    from ..app import APPS, SECTION_RESULTS, STAGE_ALPHA, register_app
-    if any(row[0] == APP_KEY for row in APPS):
-        return False
-    register_app(
-        APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_RESULTS,
-        factory=_make_screen,
-        stage=STAGE_ALPHA, title=APP_NAME, intro=APP_INTRO,
-        cli_note=APP_CLI_NOTE,
-        translations=APP_TRANSLATIONS)
-    return True
-
-
-register()
+# NO REGISTRY ROW. The explorer is reached from the module it publishes: it is
+# "Publication figure…" on the Regression volcano's own right-click menu and a
+# button on that screen's masthead, both going through
+# :func:`spacr.qt.screens.regression.publication_opener`, which builds it from
+# the same :func:`_make_screen` factory the tile used and seeds it with the
+# FRAME on screen. That seeding is why the fold is a superset of the tile: a
+# live run, a bare CSV or a frame handed in cannot be found again from a
+# folder, so a standalone tile could only ever publish a re-read of the disk.
+#
+# The strings above are kept because they are this module's public description
+# -- the fold button's name and sentence are asserted against them, and the
+# i18n catalogs carry the translations.

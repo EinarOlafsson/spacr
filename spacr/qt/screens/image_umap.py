@@ -12,21 +12,26 @@ So Image Scatter and PCA fold onto Image UMAP's masthead. Each is the
 module's own icon with no text, its one-line description as the tooltip,
 lit on hover in the maturity colour its tile used -- see
 :class:`spacr.qt.widgets.fold_strip.FoldStrip`, which reads that colour
-from the same table the tiles read.
+through :func:`spacr.qt.screens.map_barcodes.fold_description`, the one
+seam that answers out of the registry while a module has a row and out of
+``map_barcodes.FOLD_FALLBACK`` afterwards. Neither of these two has a row
+any more: being folded is what dropping it means.
 
 NOTHING IS LOST IN THE MOVE, and something is gained. The button opens
 the module ITSELF -- Image Scatter's hover preview, its axis pickers and
 its linked selection; PCA's feature picker, scree plot, loadings biplot,
-Local Data Filter and CSV export -- in a window of its own, over the UMAP
-settings rather than instead of them. What is gained is the source: both
-open already pointed at the database the UMAP screen is set to read, so
-switching projection costs nothing, which is the whole point of the three
-being one module.
+Local Data Filter and CSV export -- as a PAGE beside the UMAP settings
+rather than instead of them, so closing it keeps the screen and everything
+it had loaded. What is gained is the source: both open already pointed at
+the database the UMAP screen is set to read, so switching projection costs
+nothing, which is the whole point of the three being one module.
 
-The shared half of a fold -- opening a module in a window, wiring the host
-signals a sidebar row used to wire, and hanging the strip off the
+The shared half of a fold -- turning the host's body into pages, wiring
+the host signals a sidebar row used to wire, and hanging the strip off the
 masthead -- lives in :mod:`spacr.qt.screens.map_barcodes` and is imported
-rather than repeated.
+rather than repeated. The strip reaches a running window from there too:
+``shortcuts._install_window_hooks`` starts that module's stack walker,
+which looks this screen's key up in ``FOLD_HOST_MODULES``.
 """
 
 from __future__ import annotations
@@ -52,6 +57,13 @@ HOST_KEY = "umap"
 #: block -- which is the order a user narrows a table in.
 FOLDED_APPS: Tuple[str, ...] = ("image_scatter", "pca")
 
+# What each of those two said as a TILE -- the name, the sentence and the
+# maturity colour a button has to go on carrying once the row is dropped --
+# lives in `spacr.qt.screens.map_barcodes.FOLD_FALLBACK`, because
+# `map_barcodes.fold_description` is what `install_fold_strip` restates
+# these buttons through, and that is the only table it reads. A second copy
+# stood here and nothing consulted it.
+
 #: Where a measurements database sits relative to a project folder, best
 #: first. Written out here rather than imported because the one existing
 #: resolver is private to :mod:`spacr.qt.dnd_handlers` and answers a
@@ -61,31 +73,6 @@ DATABASE_CANDIDATES: Tuple[Tuple[str, ...], ...] = (
     ("measurements", "measurements.db"),
     ("measurements.db",),
 )
-
-#: What each folded module's TILE said: ``key → (name, description,
-#: stage)``.
-#:
-#: :class:`~spacr.qt.widgets.fold_strip.FoldStrip` reads all three out of
-#: the app registry, which is right while the module still has a row and
-#: answers nothing once the row is dropped -- the tooltip empties and the
-#: stage falls back to stable, so an alpha module's button would light
-#: blue where its tile lit green-cyan. This is what the tile said, kept so
-#: the button can go on saying it.
-#:
-#: The registry still wins whenever it has the row, and the pair is
-#: asserted to agree for every key that has one, so the two cannot drift
-#: apart while both exist.
-FOLD_FALLBACK: Dict[str, Tuple[str, str, str]] = {
-    "image_scatter": (
-        "Image Scatter",
-        "Hover a point to see the cell; click it to open the crop",
-        "alpha"),
-    "pca": (
-        "PCA",
-        "Principal components of the measurement table, with a loadings "
-        "biplot",
-        "alpha"),
-}
 
 
 def source_path(screen) -> str:
@@ -141,20 +128,30 @@ def measurements_database(source: str) -> str:
 
 def _build_image_scatter(host_window: Optional[QWidget] = None,
                          screen: Optional[QWidget] = None) -> QWidget:
-    """Image Scatter's own screen, pointed at the host's database."""
-    from .image_scatter import ImageScatterScreen
+    """Image Scatter's own screen, pointed at the host's database.
 
-    view = ImageScatterScreen()
+    Built through the module's own :func:`make_image_scatter_screen`, which
+    is the one constructor the module offers -- it was the ``factory=`` of
+    the registry row, and it is still the only place the screen is made.
+    """
+    from .image_scatter import make_image_scatter_screen
+
+    view = make_image_scatter_screen()
     view.set_database(measurements_database(source_path(screen)))
     return view
 
 
 def _build_pca(host_window: Optional[QWidget] = None,
                screen: Optional[QWidget] = None) -> QWidget:
-    """PCA's own screen, pointed at the host's database."""
-    from .pca import PCAScreen
+    """PCA's own screen, pointed at the host's database.
 
-    view = PCAScreen()
+    Built through the module's own :func:`make_pca_screen`, which is the one
+    constructor the module offers -- it was the ``factory=`` of the registry
+    row, and it is still the only place the screen is made.
+    """
+    from .pca import make_pca_screen
+
+    view = make_pca_screen()
     database = measurements_database(source_path(screen))
     if database:
         view.load_path(database)

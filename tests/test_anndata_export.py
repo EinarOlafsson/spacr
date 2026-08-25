@@ -1211,44 +1211,29 @@ def test_the_registries_all_name_run_anndata_export():
     assert cli.resolve_module("h5ad").key == ax.APP_KEY
 
 
-def test_the_qt_app_row_registers_when_there_is_a_gui_to_register_with():
-    """No Qt app module in this process means no row, and no import of one.
+def test_the_export_is_reachable_without_a_registry_row_of_its_own():
+    """Folded onto Measure: no tile, and no import of Qt from here.
 
-    The teardown re-registers rather than leaving the registry short. It
-    used to end on ``unregister_app`` on the grounds that this test was
-    what had put the row there; ``spacr.qt.app`` now names
-    ``register_anndata_app`` in ``_SELF_REGISTERING_APPS``, so the row is
-    part of the shipped registry and deleting it here would fail the
-    whole-registry inventories in a different file entirely.
+    This used to assert that ``register_anndata_app`` put a row in the
+    registry when there was a GUI to put it in. The export is the
+    sentence after "measure this plate" rather than a destination, so it
+    is a button on the Measure masthead now and the registration -- with
+    its row, its stage and its translations -- was deleted rather than
+    left to draw a tile nobody wanted. What the module still owes the
+    page it opens is its settings, and those are registered here, at its
+    own import, with no Qt anywhere in the chain.
     """
-    if "spacr.qt.app" not in sys.modules:
-        assert ax.register_anndata_app() is False
-        assert "spacr.qt.app" not in sys.modules, (
-            "registering the app row must not import the Qt app module into "
-            "a headless export")
-        return
-    app = sys.modules["spacr.qt.app"]
-    ax.register_anndata_app(replace=True)
-    assert any(row[0] == ax.APP_KEY for row in app.APPS)
-    # `spacr.qt.maturity` reassessed every alpha module against the
-    # evidence in the repository and this one no longer qualifies; the
-    # reason is recorded beside the decision. Applied here because the
-    # promotions land in `register_self_registering_modules`, which every
-    # launch calls but a bare test process may not have. `apply` alone,
-    # not the whole registration pass: it touches only APP_STAGE, so it
-    # cannot re-register a module a test has deliberately removed.
-    from spacr.qt import maturity
-    maturity.apply()
-    assert app.APP_STAGE[ax.APP_KEY] == app.STAGE_BETA
-    # `replace=True` re-registered it in place, and row order is what the
-    # sidebar walks: a row filed at the end rather than beside its own
-    # section draws that section's heading a second time. So check the
-    # blocks are still contiguous, not just that the row came back.
-    row = next(r for r in app.APPS if r[0] == ax.APP_KEY)
-    assert row[3] == app.SECTION_EXPLORE
-    blocks = [s for i, s in enumerate(r[3] for r in app.APPS)]
-    runs = [s for i, s in enumerate(blocks) if i == 0 or blocks[i - 1] != s]
-    assert len(runs) == len(set(runs)), f"a section is split in two: {runs}"
+    from spacr.settings import has_registered_defaults
+
+    assert has_registered_defaults(ax.APP_KEY), (
+        "the folded page draws its form from the registered defaults")
+    assert not hasattr(ax, "register_anndata_app"), (
+        "the Qt row registration was deleted with the tile; a caller that "
+        "found it would put the tile back")
+    if "spacr.qt.app" in sys.modules:
+        app = sys.modules["spacr.qt.app"]
+        assert not [row for row in app.APPS if row[0] == ax.APP_KEY]
+        assert ax.APP_KEY not in app.APP_META
 
 
 # ---------------------------------------------------------------------------

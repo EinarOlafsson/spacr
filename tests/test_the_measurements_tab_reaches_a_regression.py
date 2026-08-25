@@ -130,7 +130,17 @@ def test_no_frame_offers_no_columns():
 
 def test_the_merged_frame_is_written_once_and_named(qtbot, two_plates,
                                                     tmp_path):
-    """It survives the tab, which is what "regress on any column" needs."""
+    """It survives the tab, which is what "regress on any column" needs.
+
+    The suffix is no longer asserted as `.csv`: the merge stages the frame,
+    and a stage writes Parquet where an engine is installed and CSV where none
+    is. What has to be true either way is that the artefact is named for the
+    merge, is on disk, and reads back as the frame that was merged -- so this
+    reads it through `tabular.read_table`, which dispatches on the suffix,
+    instead of assuming one.
+    """
+    from spacr import tabular
+
     panel = _tab(qtbot, two_plates, tmp_path)
 
     assert panel.databases.merged_frame_path() == ""
@@ -138,8 +148,112 @@ def test_the_merged_frame_is_written_once_and_named(qtbot, two_plates,
 
     written = panel.databases.merged_frame_path()
     assert written and os.path.isfile(written)
-    assert os.path.basename(written) == "merged_measurements.csv"
-    assert len(pd.read_csv(written)) == len(frame)
+    assert os.path.splitext(os.path.basename(written))[0] == \
+        "merged_measurements"
+    assert len(tabular.read_table(written)) == len(frame)
+
+
+def test_the_merged_frame_reaches_the_fit_without_being_parsed(
+        qtbot, two_plates, tmp_path):
+    """The artefact is written for the user; the fit gets the object.
+
+    The frame is already in this process when it is written, so parsing it
+    back is pure cost -- 2.75 GB of it on a four-plate screen. A queue that
+    left the fit to read the file would be paying that per fit.
+    """
+    from spacr import frame_handoff
+
+    panel = _tab(qtbot, two_plates, tmp_path)
+    frame = panel.databases.merge()
+    written = panel.databases.merged_frame_path()
+
+    assert frame_handoff.held(written) is frame
+
+    handed = []
+    panel.regression._fit = lambda settings: handed.append(
+        [frame_handoff.held(pair["score"]) is frame
+         for pair in settings["paired_data"]]) or {
+             "results": pd.DataFrame({"feature": ["a"]}),
+             "res_folder": str(tmp_path / "ols_1")}
+    panel.regression.set_selected_columns(["cell_area"])
+    panel.regression.start_regressions()
+
+    # Two plate rows, both pointed at the one merged frame -- which is the
+    # shape that made the old loader parse the same file once per row.
+    assert handed == [[True, True]]
+
+
+def test_a_second_queue_is_handed_the_frame_again(qtbot, two_plates,
+                                                  tmp_path):
+    """Finishing withdraws the offer, so starting must make it again.
+
+    Without that, only the first queue over a merge takes the object and
+    every queue after it parses the artefact back once per fit while the
+    panel is still holding the frame it wrote.
+    """
+    from spacr import frame_handoff
+
+    panel = _tab(qtbot, two_plates, tmp_path)
+    frame = panel.databases.merge()
+    written = panel.databases.merged_frame_path()
+
+    seen = []
+    panel.regression._fit = lambda settings: seen.append(
+        frame_handoff.held(written) is frame) or {
+            "results": pd.DataFrame({"feature": ["a"]}),
+            "res_folder": str(tmp_path / "ols_1")}
+
+    panel.regression.set_selected_columns(["cell_area"])
+    panel.regression.start_regressions()
+    assert frame_handoff.held(written) is None, (
+        "a finished queue must withdraw what it offered")
+
+    panel.regression.set_selected_columns(["cell_wobble"])
+    panel.regression.start_regressions()
+
+    assert seen == [True, True]
+    frame_handoff.release(written)
+
+
+def test_the_artefact_is_columnar_and_the_frame_is_offered(tmp_path):
+    """The producer half of the handoff, on its own.
+
+    `write_merged_frame` used to call `frame.to_csv` and offer nothing, which
+    made the Measurements queue the one producer the handoff never saw: it
+    wrote the slowest format there is and then let every fit parse it back.
+    """
+    from spacr import frame_handoff, tabular
+    from spacr.qt.widgets.measurement_scan_panel import write_merged_frame
+
+    frame = pd.DataFrame({"plateID": ["plate1", "plate2"],
+                          "rowID": ["r1", "r1"], "columnID": ["c1", "c1"],
+                          "cell_area": [10.0, 20.0]})
+    said = []
+
+    written = write_merged_frame(frame, tmp_path / "measurements",
+                                 report=said.append)
+    try:
+        assert os.path.splitext(written)[1] in (".parquet", ".csv")
+        assert frame_handoff.held(written) is frame
+        assert tabular.read_table(written)["cell_area"].tolist() == [10.0,
+                                                                     20.0]
+        assert "merged_measurements" in said[0]
+    finally:
+        frame_handoff.release(written)
+
+
+def test_nothing_to_write_writes_nothing_and_offers_nothing(tmp_path):
+    """An empty merge must not leave an offer standing under a path that has
+    no file, which a later reader would take as the frame."""
+    from spacr import frame_handoff
+    from spacr.qt.widgets.measurement_scan_panel import write_merged_frame
+
+    frame = pd.DataFrame({"cell_area": [1.0]})
+
+    assert write_merged_frame(None, tmp_path) == ""
+    assert write_merged_frame(pd.DataFrame(), tmp_path) == ""
+    assert write_merged_frame(frame, "") == ""
+    assert frame_handoff.held(tmp_path / "merged_measurements.parquet") is None
 
 
 def test_the_merge_says_where_it_wrote(qtbot, two_plates, tmp_path):
@@ -435,6 +549,36 @@ def test_every_fit_reads_the_one_file_the_merge_wrote(qtbot, two_plates,
     panel.regression.start_regressions()
 
     assert scores == [{written}, {written}]
+
+
+def test_a_frame_provider_that_fails_still_lets_the_queue_read_the_file(
+        qtbot, two_plates, tmp_path):
+    """The offer is an optimisation; losing it costs a parse, not the run.
+
+    The provider is the live merging panel, so it can raise -- and a queue
+    that refused to start because the in-memory shortcut was unavailable
+    would have turned a fast path into a requirement.
+    """
+    panel = _tab(qtbot, two_plates, tmp_path)
+    panel.databases.merge()
+    written = panel.databases.merged_frame_path()
+
+    def _explode():
+        raise RuntimeError("the merged frame was dropped")
+
+    panel.regression._frame_provider = _explode
+    assert panel.regression._offer_frame(written) is False
+    assert panel.regression._offer_frame("") is False
+
+    panel.regression._fit = lambda settings: {
+        "results": pd.DataFrame({"feature": ["a"]}),
+        "res_folder": str(tmp_path / "ols_1")}
+    panel.regression._columns = ("cell_area",)
+    panel.regression.columns_list.addItem("cell_area")
+    panel.regression.columns_list.item(0).setSelected(True)
+
+    assert panel.regression.start_regressions() is True
+    assert [f.ok for f in panel.regression.outcomes()] == [True]
 
 
 def test_the_queue_refuses_with_nothing_selected_and_says_so(

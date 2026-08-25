@@ -215,10 +215,10 @@ NOTHING IS RENAMED, and that is a test rather than an intention: the stored
 value leads its own label, so a user looking for 'quantile' still finds the
 word and every settings CSV asks for the fit it always asked for.
 
-WHAT REMAINS: the Qt panel builds its own list and does not go through
-`settings_spec`. In `spacr/qt/screens/settings_model.py`, the
-`if key == "regression_type":` branch of `SettingsWidgets._widget_for`
-(around line 7641) reads
+WHAT REMAINS, RE-CHECKED AGAINST THE CODE AND STILL TRUE: the Qt panel
+builds its own list and does not go through `settings_spec`. In
+`spacr/qt/screens/settings_model.py`, the `if key == "regression_type":`
+branch of `SettingsWidgets._widget_for` (line 8014 as the file stands) reads
 
     from spacr.ml import REGRESSION_TYPES
     kind = "combo"

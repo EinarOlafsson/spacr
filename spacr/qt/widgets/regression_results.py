@@ -37,7 +37,19 @@ DEFAULT_THRESHOLD_MULTIPLIER = 3.0
 
 #: Files a regression writes, best first. ``results.csv`` is the full
 #: coefficient table; the gene/grna splits are views of it.
-RESULT_FILENAMES = ("results.csv", "results_grna.csv", "results_gene.csv")
+#:
+#: ``guide_permutation_results_long.csv`` comes LAST, and the position is the
+#: point. A guide permutation stacks every ``minimum_wells_threshold`` and
+#: every ``outcome`` into that one table, so it holds several multiple-testing
+#: families at once and only the primary slice of it reaches ``results.csv``
+#: beside it. Naming it here is what makes a run folder that holds nothing
+#: else loadable at all -- before, "Load results…" searched such a folder and
+#: reported finding none of these names. Naming it last is what keeps the
+#: single-family ``results.csv`` the table that opens whenever both are there,
+#: because :func:`find_results_tables` loads the first match and lists the
+#: rest.
+RESULT_FILENAMES = ("results.csv", "results_grna.csv", "results_gene.csv",
+                    "guide_permutation_results_long.csv")
 
 #: How far below the selected folder to search for a results table. Current
 #: runs write ``results/<kind>[_n]/results.csv``; the additional depth keeps

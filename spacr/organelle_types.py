@@ -400,3 +400,218 @@ BASIC_SETTINGS: Tuple[str, ...] = (
 def is_basic(setting: str) -> bool:
     """True when ``setting`` belongs in the plain Organelle category."""
     return str(setting) in BASIC_SETTINGS
+
+
+# ---------------------------------------------------------------------------
+# THE SLOTS. How many organelles a run has, and what each one's keys are
+# called.
+# ---------------------------------------------------------------------------
+# An organelle SLOT is one segmented object with its own channel, its own
+# type preset and its own copy of every detection setting. How many exist is
+# a setting -- :data:`NUMBER_OF_ORGANELLES` -- and the keys of each slot are
+# GENERATED from it rather than written out, so two gives two slots and seven
+# gives seven.
+#
+# LOWERING THE NUMBER HIDES SLOTS, IT DOES NOT DELETE THEM, which is why
+# there are two answers to "which slots are there" below.
+# :func:`active_organelle_roles` is what a panel shows and
+# :func:`declared_organelle_roles` is what a settings dict must keep: a file
+# written at seven and opened at two shows two and carries seven, so the
+# values ride along untouched and putting the number back brings the old
+# answers with it. A count that erased what it could not currently show
+# would punish a user for trying a smaller number, which is the opposite of
+# a setting worth exploring. `spacr.settings` generates its type, tooltip
+# and category registries for every slot :data:`MAX_ORGANELLES` allows, for
+# the same reason: a hidden slot still has to be readable.
+
+#: The setting that decides how many organelle slots a run has.
+NUMBER_OF_ORGANELLES = "number_of_organelles"
+
+#: The most slots that can be named, and why there is a limit at all.
+#:
+#: A slot's role name IS the prefix of every key it owns, and the prefixes
+#: are LETTERED: slot 1 is the original ``organelle`` and slots 2 upward take
+#: a letter -- ``organelleb`` through ``organellez``. Digits cannot be used,
+#: because object types are embedded directly in underscore-separated object
+#: keys: ``organelle_2`` cannot round-trip through a ``prcfo`` key and
+#: ``organelle2`` is ambiguous with the object LABELLED 2. So the alphabet is
+#: what runs out, and twenty-six is where it does.
+MAX_ORGANELLES = 26
+
+#: How many slots a settings file that says nothing has.
+#:
+#: Four, which is the number spaCR had while the slots were fixed. A settings
+#: file written before the count was a setting therefore keeps every key it
+#: carried and means exactly what it meant.
+DEFAULT_NUMBER_OF_ORGANELLES = 4
+
+
+def organelle_role(number: int) -> str:
+    """The key prefix owned by slot ``number``, counting from one.
+
+    :param number: the slot as the user counts it -- 1 is Organelle 1.
+    :returns: ``'organelle'`` for slot 1 and ``'organelle<letter>'`` after
+        it, which is the prefix every one of that slot's settings carries.
+    :raises ValueError: outside ``1..MAX_ORGANELLES``, naming the bound.
+    """
+    index = int(number)
+    if not 1 <= index <= MAX_ORGANELLES:
+        raise ValueError(
+            f"organelle slot {number!r} is outside 1..{MAX_ORGANELLES}; "
+            "slots are lettered, so the alphabet is what runs out")
+    if index == 1:
+        return "organelle"
+    return f"organelle{chr(ord('a') + index - 1)}"
+
+
+def organelle_roles(count: int = MAX_ORGANELLES) -> Tuple[str, ...]:
+    """The prefixes of the first ``count`` slots, in slot order.
+
+    :param count: how many slots. Zero is legal and means a run with no
+        organelle at all -- most runs -- and returns an empty tuple.
+    :raises ValueError: for a count above :data:`MAX_ORGANELLES`. Silently
+        clamping would let a settings file ask for thirty slots and get
+        twenty-six without being told which of its keys stopped existing;
+        :func:`organelle_count` is where a value read from a file is
+        clamped, and it says so.
+    """
+    return tuple(organelle_role(index)
+                 for index in range(1, max(int(count), 0) + 1))
+
+
+#: Every slot spaCR can name. What the settings registries are generated for.
+ALL_ORGANELLE_ROLES: Tuple[str, ...] = organelle_roles(MAX_ORGANELLES)
+
+#: Longest first, because ``'organelle'`` is a prefix of every other role:
+#: shortest-first would read ``organelleb_channel`` as the primary slot.
+_ROLE_MATCH: Tuple[str, ...] = tuple(
+    sorted(ALL_ORGANELLE_ROLES, key=len, reverse=True))
+
+
+def organelle_number(role: str) -> int:
+    """The one-based slot number a role prefix stands for.
+
+    :param role: ``'organelle'``, ``'organelleb'``, ...
+    :raises ValueError: for anything that is not a slot prefix.
+    """
+    name = str(role)
+    if name == "organelle":
+        return 1
+    if (name.startswith("organelle") and len(name) == len("organelle") + 1
+            and "b" <= name[-1] <= "z"):
+        return ord(name[-1]) - ord("a") + 1
+    raise ValueError(
+        f"{role!r} is not an organelle slot; expected 'organelle' or "
+        "'organelle' followed by one of the letters b-z")
+
+
+def organelle_slot_label(role: str) -> str:
+    """What the user calls a slot: ``Organelle 1``, ``Organelle 2``, ..."""
+    return f"Organelle {organelle_number(role)}"
+
+
+def organelle_role_of(key: str) -> Optional[str]:
+    """Which slot a settings key belongs to, or None.
+
+    :param key: any settings key. ``'organelle_channel'`` belongs to slot 1
+        and ``'organelleb_channel'`` to slot 2; ``'summarize_organelles_by'``
+        and ``'number_of_organelles'`` belong to no slot, because they are
+        decisions about the organelles collectively rather than settings OF
+        one.
+    """
+    text = str(key)
+    for role in _ROLE_MATCH:
+        if text == role or text.startswith(f"{role}_"):
+            return role
+    return None
+
+
+def slot_setting(key: str, role: str) -> str:
+    """One slot's spelling of a primary ``organelle_*`` key.
+
+    :param key: a primary key, e.g. ``'organelle_diameter'``.
+    :param role: the prefix to translate it into. Any object's prefix is
+        accepted, not only a slot's: the same translation answers "what is
+        this decision called for the pathogen", and the settings tables use
+        it that way. What is checked is the KEY, because translating
+        something that is not a primary organelle setting produces a key no
+        reader has ever heard of.
+    :raises ValueError: if ``key`` is not a primary organelle setting.
+    """
+    text = str(key)
+    if not text.startswith("organelle_"):
+        raise ValueError(f"not a primary organelle setting: {key!r}")
+    return f"{role}_{text[len('organelle_'):]}"
+
+
+def primary_setting(key: str) -> str:
+    """The primary ``organelle_*`` spelling of one slot's key.
+
+    The inverse of :func:`slot_setting`. A key belonging to no slot is
+    returned unchanged, so a caller can run a whole settings dict through it.
+    """
+    text = str(key)
+    role = organelle_role_of(text)
+    if role is None or text == role:
+        return text
+    return f"organelle_{text[len(role) + 1:]}"
+
+
+def organelle_count(settings: Mapping[str, object]) -> int:
+    """How many slots ``settings`` asks for, clamped to what can exist.
+
+    :param settings: a run settings mapping. A missing, blank or
+        unparseable value means :data:`DEFAULT_NUMBER_OF_ORGANELLES` --
+        a settings file written before the count existed is not making a
+        claim about it, and refusing to open one over a typo in a number
+        would lose the whole file.
+    :returns: an integer in ``0..MAX_ORGANELLES``.
+    """
+    raw = settings.get(NUMBER_OF_ORGANELLES) if settings else None
+    if raw is None or (isinstance(raw, str) and not raw.strip()):
+        return DEFAULT_NUMBER_OF_ORGANELLES
+    try:
+        count = int(float(str(raw).strip()))
+    except (TypeError, ValueError):
+        return DEFAULT_NUMBER_OF_ORGANELLES
+    return max(0, min(count, MAX_ORGANELLES))
+
+
+def active_organelle_roles(
+        settings: Mapping[str, object]) -> Tuple[str, ...]:
+    """The slots ``settings`` currently has, in slot order.
+
+    What a panel shows. A slot outside this tuple is HIDDEN, not gone: its
+    keys are still typed, still in the settings dict and still written back
+    out, which is what makes lowering the number reversible.
+    """
+    return organelle_roles(organelle_count(settings))
+
+
+def declared_organelle_roles(
+        settings: Mapping[str, object]) -> Tuple[str, ...]:
+    """Every slot ``settings`` has to keep values for, in slot order.
+
+    The active slots, PLUS any further slot the mapping already carries a key
+    for. That union is the whole of "lowering it hides them and keeps their
+    values": a file written at seven and opened at two declares seven, so the
+    defaults machinery leaves slots three to seven exactly as it found them
+    instead of dropping them on the way back out.
+    """
+    active = active_organelle_roles(settings)
+    present = {organelle_role_of(key) for key in (settings or {})}
+    present.discard(None)
+    highest = max((organelle_number(role) for role in present), default=0)
+    return organelle_roles(max(len(active), highest))
+
+
+def organelle_slot_is_active(key: str,
+                             settings: Mapping[str, object]) -> bool:
+    """Whether ``key``'s slot is one of the ones this run has.
+
+    True for every key that belongs to no slot, so a caller can use it as a
+    filter over a whole settings dict without having to know which keys are
+    organelle settings.
+    """
+    role = organelle_role_of(key)
+    return role is None or role in active_organelle_roles(settings)

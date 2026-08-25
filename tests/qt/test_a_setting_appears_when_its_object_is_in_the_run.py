@@ -400,3 +400,42 @@ def test_the_morphology_table_names_only_settings_segmentation_reads():
             if isinstance(key, str) and key.startswith("organelle_")}
     assert read, "the classical key list moved out of the function body"
     assert _MORPHOLOGY_OWNED - read == {"unet_model_path", "unet_threshold"}
+
+
+# ---------------------------------------------------------------------------
+# The heading over the rows
+# ---------------------------------------------------------------------------
+
+def _headings(screen) -> dict:
+    """``title -> whether the heading still has anything under it``."""
+    from spacr.qt.screens.settings_model import section_shows_anything
+
+    return {section.title(): section_shows_anything(section)
+            for section in screen._settings_sections}
+
+
+def test_a_heading_with_every_row_hidden_reports_itself_empty(qtbot):
+    """A heading that opens onto nothing is a smaller wall, but a wall."""
+    screen, model = _screen(qtbot, "mask")
+
+    assert _headings(screen)["ORGANELLE 2"] is False
+    _set(model, "organelleb_channel", 4)
+    assert _headings(screen)["ORGANELLE 2"] is True
+
+
+def test_a_heading_that_holds_a_switch_is_never_empty(qtbot):
+    """The channel is on the form, so its heading has to be too."""
+    screen, model = _screen(qtbot, "mask")
+
+    assert model.collect()["organelle_channel"] is None
+    assert _headings(screen)["ORGANELLE SEGMENTATION"] is True
+
+
+def test_a_heading_with_no_setting_rows_is_not_judged_empty(qtbot):
+    """An umbrella or a prose panel was never carrying rows to lose."""
+    from spacr.qt.screens.settings_model import section_shows_anything
+    from spacr.qt.widgets.section import Section
+
+    bare = Section("Nothing here")
+    qtbot.addWidget(bare)
+    assert section_shows_anything(bare) is True

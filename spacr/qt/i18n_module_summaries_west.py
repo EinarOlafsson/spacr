@@ -8,6 +8,24 @@ module descriptions easier for fluent speakers to review.
 from __future__ import annotations
 
 
+#: TRAIN CELLPOSE IS NOT HERE EITHER, for the same event and the other half
+#: of the same reason. The merge did not delete its row, it REWROTE it: the
+#: tile went from "Train custom Cellpose models" to "Fine-tune a Cellpose
+#: model on your own labelled fields, then segment a folder of images with it
+#: or with a stock model", and the nine reviewed sentences still described the
+#: training half alone. ``module_summary`` had already stopped using them --
+#: the source hash has not matched since -- so removing them changes nothing
+#: a user sees and stops the table asserting a review that no longer applies.
+#: Translating the new sentence puts the row back.
+#:
+#: CELLPOSE MASKS IS NOT HERE. Its row went when Train Cellpose and Cellpose
+#: Masks became one Cellpose Workbench page, and the applying half is that
+#: page's Apply tab -- a tab carries its label, not a one-line summary. With
+#: no English sentence left for it anywhere, the reviewed translations were
+#: bound to a source that no longer exists, which is the exact condition
+#: `REVIEWED_SOURCE_HASHES` exists to detect: a fluent translation of
+#: something the app no longer says. Give the module a row or a fold button
+#: again and its sentence comes back with it, reviewed against that sentence.
 _BUILTIN_APP_KEYS = (
     "mask",
     "timelapse",
@@ -25,8 +43,6 @@ _BUILTIN_APP_KEYS = (
     "batch",
     "distributed_jobs",
     "db_browser",
-    "train_cellpose",
-    "cellpose_masks",
     "model_compare",
     "model_zoo",
     "plate_view",
@@ -65,8 +81,6 @@ MODULE_SUMMARIES_WEST: dict[str, dict[str, str]] = {
         "batch": "Köa valfria moduler, plattor och inställningar och kör dem över natten",
         "distributed_jobs": "Skicka och övervaka spaCR-körningar på SSH-arbetsstationer, Slurm eller moln-/HPC-system",
         "db_browser": "Bläddra i och exportera measurements.db utan sqlite3 CLI",
-        "train_cellpose": "Träna anpassade Cellpose-modeller",
-        "cellpose_masks": "Generera masker med Cellpose",
         "model_compare": "Kör två Cellpose-modeller på samma synfält: jämför masker sida vid sida samt skillnader i objektantal och ARI",
         "model_zoo": "Bläddra bland, verifiera, hämta och prestandatesta Cellpose- och klassificeringsmodeller på tre av dina synfält",
         "plate_view": "Visa valfritt mätvärde som en plattvärmekarta med detektering av kanteffekter",
@@ -99,8 +113,6 @@ MODULE_SUMMARIES_WEST: dict[str, dict[str, str]] = {
         "batch": "Beliebige Module, Platten und Einstellungen einreihen und über Nacht ausführen",
         "distributed_jobs": "spaCR-Läufe auf SSH-Arbeitsstationen, Slurm oder Cloud-/HPC-Systemen übermitteln und überwachen",
         "db_browser": "measurements.db ohne sqlite3 CLI durchsuchen und exportieren",
-        "train_cellpose": "Benutzerdefinierte Cellpose-Modelle trainieren",
-        "cellpose_masks": "Masken mit Cellpose erzeugen",
         "model_compare": "Zwei Cellpose-Modelle auf denselben Bildfeldern ausführen: Masken nebeneinander sowie Differenzen bei Objektzahl und ARI vergleichen",
         "model_zoo": "Cellpose- und Klassifikationsmodelle durchsuchen, verifizieren, herunterladen und auf drei eigenen Bildfeldern benchmarken",
         "plate_view": "Beliebige Messwerte als Platten-Heatmap mit Erkennung von Randeffekten anzeigen",
@@ -133,8 +145,6 @@ MODULE_SUMMARIES_WEST: dict[str, dict[str, str]] = {
         "batch": "Poner en cola cualquier combinación de módulos, placas y ajustes y ejecutarla durante la noche",
         "distributed_jobs": "Enviar y supervisar ejecuciones de spaCR en estaciones de trabajo SSH, Slurm o sistemas de nube/HPC",
         "db_browser": "Explorar y exportar measurements.db sin usar sqlite3 CLI",
-        "train_cellpose": "Entrenar modelos personalizados de Cellpose",
-        "cellpose_masks": "Generar máscaras con Cellpose",
         "model_compare": "Ejecutar dos modelos de Cellpose en los mismos campos: comparar las máscaras en paralelo y las diferencias de recuento de objetos y ARI",
         "model_zoo": "Explorar, verificar, descargar y evaluar modelos de Cellpose y de clasificación en tres de sus campos",
         "plate_view": "Mostrar cualquier medición como mapa de calor de la placa con detección de efectos de borde",
@@ -157,11 +167,11 @@ def validate_module_summaries_west() -> None:
     """Raise :class:`AssertionError` if this parallel catalog is incomplete."""
     expected_languages = {"sv", "de", "es"}
     assert set(MODULE_SUMMARIES_WEST) == expected_languages
-    assert len(_BUILTIN_APP_KEYS) == len(set(_BUILTIN_APP_KEYS)) == 32
+    assert len(_BUILTIN_APP_KEYS) == len(set(_BUILTIN_APP_KEYS)) == 30
 
     expected_keys = set(_BUILTIN_APP_KEYS)
     for language_code, summaries in MODULE_SUMMARIES_WEST.items():
-        assert len(summaries) == 32, language_code
+        assert len(summaries) == 30, language_code
         assert set(summaries) == expected_keys, language_code
         assert all(isinstance(text, str) and text.strip() for text in summaries.values())
         assert all("http://" not in text and "https://" not in text for text in summaries.values())

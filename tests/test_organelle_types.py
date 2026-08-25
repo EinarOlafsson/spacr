@@ -255,7 +255,7 @@ def test_every_maintainer_category_is_present():
 # ---------------------------------------------------------------------------
 
 def test_the_visible_count_went_down_and_this_is_the_number():
-    """53 settings under one heading became 3 visible by default.
+    """53 settings under one heading became 3 per slot, plus the count.
 
     Instruction 72 took it to 6; instruction 73 then pulled the shared
     families -- object filtration, intensity handling and the per-object
@@ -268,13 +268,26 @@ def test_the_visible_count_went_down_and_this_is_the_number():
     added: rolling-ball and CLAHE, with their two parameters, are what
     organelle does to its CHANNEL before anything is segmented, which is the
     same question the other objects' background floor answers.
+
+    The per-slot arithmetic is unchanged and the multiplier is what moved:
+    the headings are generated for every slot `number_of_organelles` CAN
+    name rather than for a fixed four, because a category is what makes a
+    key reachable -- a settings file written at seven slots is opened by a
+    session set to two, and its seventh slot has to be filed under a heading
+    then, not only once the number is raised again. How many slots a panel
+    SHOWS is the count, which leads the heading it decides the size of.
     """
-    from spacr.object_roles import ORGANELLE_ROLES
-    assert len(categories["Organelle"]) == 3 * len(ORGANELLE_ROLES)
+    from spacr.organelle_types import MAX_ORGANELLES, organelle_role_of
+
+    assert categories["Organelle"][0] == "number_of_organelles"
+    per_slot = [key for key in categories["Organelle"]
+                if organelle_role_of(key) == "organelle"]
+    assert len(per_slot) == 3
+    assert len(categories["Organelle"]) == 1 + 3 * MAX_ORGANELLES
     # summarize_organelles_by is shared, while every detection knob is cloned
     # once per slot.
     assert len(categories["Organelle advanced"]) == \
-        31 + 30 * (len(ORGANELLE_ROLES) - 1)
+        31 + 30 * (MAX_ORGANELLES - 1)
     # Still 53 + organelle_type, just spread across five headings now.
     total = sum(len(categories[c]) for c in ORGANELLE_HOME_HEADINGS)
     assert total >= 54

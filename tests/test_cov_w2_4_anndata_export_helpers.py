@@ -961,14 +961,21 @@ def test_the_settings_are_registered_once():
     assert register_anndata_settings() is False
 
 
-def test_the_app_is_registered_once():
-    from spacr.anndata_export import APP_KEY, register_anndata_app
+def test_the_module_registers_no_app_row_of_its_own():
+    """It is a button on Measure, so there is no row to register.
 
-    register_anndata_app()
-    from spacr.qt.app import APPS
+    This used to call ``register_anndata_app`` and assert exactly one row
+    came back. The export folded onto the Measure masthead and the
+    registration was deleted with the tile; asserting its absence is what
+    stops a well-meaning caller putting the tile back.
+    """
+    import spacr.anndata_export as ax
+    from spacr.qt.app import APP_META, APPS
+    from spacr.anndata_export import APP_KEY
 
-    assert [row[0] for row in APPS].count(APP_KEY) == 1
-    assert register_anndata_app() is False
+    assert not hasattr(ax, "register_anndata_app")
+    assert [row[0] for row in APPS].count(APP_KEY) == 0
+    assert APP_KEY not in APP_META
 
 
 # ---------------------------------------------------------------------------
@@ -1158,17 +1165,21 @@ def test_a_set_export_writes_nothing_when_no_object_table_is_present(tmp_path):
     assert os.path.isdir(tmp_path / "out")
 
 
-def test_re_registering_the_app_replaces_the_row_rather_than_doubling_it():
-    from spacr.anndata_export import APP_KEY, register_anndata_app
-    from spacr.qt.app import APPS
+def test_re_registering_the_settings_replaces_them_rather_than_doubling_them():
+    """The one registration this module still makes is idempotent.
 
-    saved = list(APPS)
-    try:
-        assert register_anndata_app(replace=True) is True
-        assert [row[0] for row in APPS].count(APP_KEY) == 1
-    finally:
-        # APPS is a process-global list a dozen other test modules read.
-        APPS[:] = saved
+    Its companion asserted the same of the Qt app row, which no longer
+    exists -- the export is a page on Measure. The settings registration
+    is what draws that page, and ``replace=True`` is how a module
+    re-registers without leaving two factories claiming one key.
+    """
+    from spacr.anndata_export import APP_KEY, register_anndata_settings
+    from spacr.settings import defaults_for, registered_default_apps
+
+    assert register_anndata_settings() is False
+    assert register_anndata_settings(replace=True) is True
+    assert list(registered_default_apps()).count(APP_KEY) == 1
+    assert "anndata_out" in defaults_for(APP_KEY, {})
 
 
 def test_a_png_list_whose_keys_cannot_be_built_attaches_nothing(tmp_path,

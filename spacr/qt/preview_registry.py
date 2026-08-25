@@ -17,6 +17,13 @@ card is inserted above the Run row through the same ``_runtime_wrap`` /
 alone — a module the shared screen has already served is skipped here rather
 than given a second card.
 
+A module that has been FOLDED into a host reaches the same machinery from
+the other end. Its own screen is not built any more, so ``install`` --
+which answers for the screen's own key -- can never attach its panel;
+:func:`attach_folded` lets the host ask for it by name and keeps it hidden
+behind whatever the host uses to reveal the rest of that module. Mask
+Generation's tracking switch is the case it was written for.
+
 **The sampling contract is inherited, not reimplemented.** The panels reached
 through this registry are the shipped ones, which group a plate into image
 sets from file names alone and open a bounded, reproducible random sample of
@@ -231,6 +238,52 @@ def install(screen: QWidget) -> Optional[_PreviewHost]:
     spec = PREVIEWS.get(app_key)
     if spec is None or spec.owned_by_screen:
         return None
+    host = _attach(screen, app_key, spec)
+    if host is not None:
+        screen._registry_preview = host
+    return host
+
+
+def attach_folded(screen: QWidget, app_key: str) -> Optional[_PreviewHost]:
+    """Attach ANOTHER module's declared preview to ``screen``.
+
+    A module folded into a host as settings categories brings its panel
+    with it. Mask Generation has the Cellpose live preview and no track
+    preview; Timelapse's whole preview is the tracking one, built by the
+    screen the fold means nobody opens any more. Without this the switch
+    would reveal the tracking settings and nothing that shows what they
+    do -- a capability the tile had and the button did not, which is the
+    one thing a fold must not cost.
+
+    ``owned_by_screen`` is deliberately ignored: it means "``AppScreen``
+    builds this one for its own key", and the point here is that the key
+    is somebody else's. The card and its toggle both start hidden; the
+    host reveals them when the fold is switched on.
+
+    :param screen: the HOST screen.
+    :param app_key: the folded module's key.
+    :returns: the host, or None when there is nothing to attach.
+    """
+    key = str(app_key)
+    attached = getattr(screen, "_folded_previews", None)
+    if attached is None:
+        attached = screen._folded_previews = {}
+    if key in attached:
+        return attached[key]
+    spec = PREVIEWS.get(key)
+    if spec is None:
+        return None
+    host = _attach(screen, key, spec)
+    if host is None:
+        return None
+    host.toggle.setVisible(False)
+    attached[key] = host
+    return host
+
+
+def _attach(screen: QWidget, app_key: str,
+            spec: PreviewSpec) -> Optional[_PreviewHost]:
+    """Build ``spec``'s card, insert it hidden, and give it a toggle."""
     build = _resolve(spec.builder)
     if build is None:
         return None
@@ -268,7 +321,6 @@ def install(screen: QWidget) -> Optional[_PreviewHost]:
         # preview is still reachable rather than permanently hidden.
         toggle.setParent(screen)
         _insert_above_actions(screen, toggle)
-    screen._registry_preview = host
     return host
 
 

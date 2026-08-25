@@ -67,6 +67,21 @@ FOLD_WINDOW_SIZE = (1180, 760)
 #: blue where its tile lit green-cyan. This is what the tile said, kept so
 #: the button can go on saying it.
 #:
+#: THE ONE TABLE :func:`fold_description` READS, so it holds every key any
+#: host folds and not only the ones folded into Map Barcodes. Image UMAP
+#: and Regression each kept their own copy beside their own ``FOLDED_APPS``,
+#: which read well and answered nothing: both hosts restate their buttons
+#: through :func:`restate_fold_button`, which looks here, so a fallback
+#: written anywhere else was a table with no reader and three buttons that
+#: would have gone mute the day their rows were dropped.
+#:
+#: THE STAGE IS THE ONE THE MODULE CARRIES IN A RUNNING WINDOW, which is
+#: not always the literal in ``app.APP_STAGE``: :func:`spacr.qt.maturity.
+#: apply` runs at launch and promotes assessed modules, so a tile that
+#: reads alpha under a bare ``import spacr.qt.app`` lights magenta in the
+#: window the user actually has open. Copying the literal here gave three
+#: of these buttons green-cyan for a beta module.
+#:
 #: The registry still wins whenever it has the row, and the pair is
 #: asserted to agree for every key that has one, so the two cannot drift
 #: apart while both exist.
@@ -75,12 +90,12 @@ FOLD_FALLBACK: Dict[str, Tuple[str, str, str]] = {
         "Barcode QC",
         "Did the mapping run work, and where does the abundance threshold "
         "go",
-        "alpha"),
+        "beta"),
     "classifier_evaluation": (
         "Classifier Evaluation",
         "Held-out predictions, nested CV, calibration, leakage and "
         "per-plate metrics",
-        "alpha"),
+        "beta"),
     "explain_cv": (
         "Explain CV Model",
         "Reproduce CV decisions from measured features, then inspect gain, "
@@ -90,11 +105,11 @@ FOLD_FALLBACK: Dict[str, Tuple[str, str, str]] = {
         "Annotator Agreement",
         "Cohen's/Fleiss' κ between annotation columns + a disagreement "
         "review",
-        "alpha"),
+        "stable"),
     "anndata_export": (
         "AnnData Export",
         "Write the measurements as .h5ad for scanpy and scvi-tools",
-        "alpha"),
+        "beta"),
     "timelapse": (
         "Timelapse",
         "Segment and track objects across the frames of a time series",
@@ -103,6 +118,32 @@ FOLD_FALLBACK: Dict[str, Tuple[str, str, str]] = {
         "Motility Assay",
         "Automated motility assay: track velocity + infection QC",
         "beta"),
+    # Image UMAP's two other projections of the same measurement table.
+    "image_scatter": (
+        "Image Scatter",
+        "Hover a point to see the cell; click it to open the crop",
+        "alpha"),
+    "pca": (
+        "PCA",
+        "Principal components of the measurement table, with a loadings "
+        "biplot",
+        "alpha"),
+    # Regression's three: the figure, the list and the write-up.
+    "volcano_explorer": (
+        "Volcano Explorer",
+        "Open a regression result, click any point for its full record, "
+        "restyle the plot and export it as vector PDF or PNG",
+        "alpha"),
+    "hit_list": (
+        "Hit List",
+        "Ranked, annotated, filterable hits with effect size, FDR and gRNA "
+        "agreement",
+        "alpha"),
+    "methods_export": (
+        "Methods & Results",
+        "Draft the methods and results sections from the run, with every "
+        "number traced",
+        "alpha"),
 }
 
 
@@ -146,11 +187,17 @@ def restate_fold_button(button, key: str) -> None:
     button.setToolTip(f"{name}\n{description}".strip())
     if name:
         button.setAccessibleName(name)
-    if stage and button.property("stage") != stage:
+    if not stage:
+        return
+    # Asked of the button rather than done here: a switch also carries a
+    # widget-local ":checked" fill computed from the stage it was built
+    # with, and setting the property alone left it lighting stable-blue
+    # when it was on while hovering in its own colour.
+    set_stage = getattr(button, "set_stage", None)
+    if callable(set_stage):
+        set_stage(stage)
+    elif button.property("stage") != stage:
         button.setProperty("stage", stage)
-        # A property the stylesheet selects on is only read at polish, so
-        # a button already on screen keeps the old colour until it is
-        # polished again.
         button.style().unpolish(button)
         button.style().polish(button)
 

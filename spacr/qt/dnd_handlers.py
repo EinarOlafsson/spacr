@@ -26,6 +26,9 @@ Handler map (also read by ``get_handler``):
 | analyze_plaques | folder with plaque images                             |
 | train_cellpose  | folder with image+mask pairs                          |
 | cellpose_masks  | folder with images                                    |
+| cellpose_all    | ditto — the "Mask the whole folder" key, kept so a    |
+|                 | folder dropped under it reads as images and not as a  |
+|                 | bare source path                                      |
 | other modules   | an existing source folder or supported data file      |
 +-----------------+-------------------------------------------------------+
 
@@ -2363,6 +2366,12 @@ _HANDLERS = {
     "analyze_plaques": MakeMasksDropHandler,      # plaque images
     "train_cellpose":  MakeMasksDropHandler,      # image + mask pairs
     "cellpose_masks":  MakeMasksDropHandler,
+    # The "Mask the whole folder" key. It shares the applying half's screen
+    # rather than owning one, so nothing asks for its handler today -- but a
+    # key that falls through to `SourceDropHandler` answers a dropped folder
+    # of images with "here is a source path", which is the wrong reading of
+    # the same gesture on the same folder.
+    "cellpose_all":    MakeMasksDropHandler,
     "db_browser":      DatabaseDropHandler,
     "foreign":         ForeignProjectDropHandler,
     "align":           AlignDropHandler,

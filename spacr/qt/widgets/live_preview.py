@@ -66,7 +66,7 @@ from .preview_contract import (
     LivePreviewContract, preview_cellpose_model, preview_failure_message,
 )
 from .toggle import Toggle
-from ..i18n import tr
+from ..i18n import set_translatable_items, tr
 from ..job_runner import JobRunner
 
 LOG = logging.getLogger("spacr.qt.live_preview")
@@ -166,6 +166,15 @@ COMPARTMENT_FIELDS = (
 
 # Threshold-method choices (see spacr.utils intensity-merge logic).
 INTENSITY_THRESHOLD_METHODS = ("mean", "percentile")
+
+# What the outline-colour dropdown offers, in the order it offers it.
+# ``auto`` is one colour per compartment and ``color (random)`` one colour
+# per object; the rest are the fixed colours in :data:`OUTLINE_COLOURS`.
+OUTLINE_CHOICES = ("auto", "color (random)", "green", "magenta",
+                   "yellow", "cyan", "white", "red")
+
+# What the right-hand canvas can show.
+VIEW_MODES = ("Overlay", "Masks", "Flows")
 
 
 # ---------------------------------------------------------------------------
@@ -1066,6 +1075,39 @@ def _model_menu():
     return menu or _FALLBACK_MODELS
 
 
+def _combo_value(combo: QComboBox) -> str:
+    """What a dropdown entry MEANS, rather than what its caption reads.
+
+    Every value-carrying dropdown in this panel is filled through
+    :func:`spacr.qt.i18n.set_translatable_items`, which keeps the English
+    value in the entry's data so the caption can follow the language. A
+    dropdown filled any other way still reads back as its caption, which is
+    what a list of file names or model names wants.
+    """
+    value = combo.currentData()
+    if isinstance(value, str) and value:
+        return value
+    return combo.currentText()
+
+
+class _AsWritten:
+    """A stand-in whose ``currentText()`` is one entry, untranslated.
+
+    :func:`spacr.qt.widgets.preview_controls.selected_channel` interprets a
+    channel dropdown by reading its current text, and the text on screen is
+    now translated. Handing it the entry as written keeps one definition of
+    what ``All channels`` and ``Ch 3`` mean instead of a second copy here.
+    """
+
+    __slots__ = ("_text",)
+
+    def __init__(self, text: str) -> None:
+        self._text = str(text)
+
+    def currentText(self) -> str:
+        return self._text
+
+
 class LivePreviewPanel(LivePreviewContract, QWidget):
     """Interactive segmentation preview — Mask app only.
 
@@ -1216,7 +1258,12 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             self._on_model_or_object_changed)
 
         self._object_box = QComboBox(self)
-        self._object_box.addItems(list(OBJECT_TYPES))
+        # The caption is read by a user and the entry is read by the code:
+        # every `{object}_…` setting key, the channel map handed to the
+        # worker and `_selected_object_types` are all spelled in English.
+        # Translating the caption in place used to rewrite the value with
+        # it, so a Swedish screen asked the worker to segment `cellen`.
+        set_translatable_items(self._object_box, OBJECT_TYPES)
         self._object_box.currentIndexChanged.connect(
             self._on_model_or_object_changed)
 
@@ -1259,14 +1306,13 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
 
         # Outline appearance
         self._outline_colour = QComboBox(self)
-        # These entries are looked up by text in _outline_rgb; the language
-        # pass must not rewrite them, or every choice would miss the mapping
-        # and silently fall back to the per-compartment default (green for
-        # cells) — an outline colour that can never be changed.
-        self._outline_colour.setProperty("i18nSkipItems", True)
-        for name in ("auto", "color (random)", "green", "magenta",
-                     "yellow", "cyan", "white", "red"):
-            self._outline_colour.addItem(name)
+        # The colour a user picks is read back out of the entry's DATA, so
+        # the caption is free to follow the language. Reading it back by
+        # text is what made these entries untranslatable before: every
+        # choice missed the colour mapping and silently fell back to the
+        # per-compartment default (green for cells) — an outline colour
+        # that could never be changed.
+        set_translatable_items(self._outline_colour, OUTLINE_CHOICES)
         # Random is the default. A fixed colour is a coin flip against the
         # image -- green outlines on a green channel are invisible exactly
         # when you most need to see whether the mask landed -- and `auto`
@@ -1274,7 +1320,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         # share an outline and read as one. Set before the signal is
         # connected so choosing it here does not fire a render on a panel
         # that has no image yet.
-        self._outline_colour.setCurrentText("color (random)")
+        self._outline_colour.setCurrentIndex(
+            self._outline_colour.findData("color (random)"))
         self._outline_colour.currentIndexChanged.connect(
             self._on_outline_colour_changed)
         self._outline_thickness = QSpinBox(self)
@@ -1382,6 +1429,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._channel_box.currentIndexChanged.connect(
             self._on_display_channel_changed)
         populate_channel_combo(self._channel_box, 0)
+        self._localise_channel_combo()
         self._pick_btn = FlatButton("Choose image…", self)
         self._pick_btn.clicked.connect(self._pick_file)
         # This button is why the field dropdown can be hidden below. It was
@@ -1445,9 +1493,9 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         # What the right-hand canvas shows: outline overlay, the raw label
         # mask, or the Cellpose flow field.
         self._view_mode = QComboBox(self)
-        # Read back by text in _refresh_canvases — never translate.
-        self._view_mode.setProperty("i18nSkipItems", True)
-        self._view_mode.addItems(["Overlay", "Masks", "Flows"])
+        # _refresh_canvases reads the entry's data, so the caption is
+        # translated and the mode it names is not.
+        set_translatable_items(self._view_mode, VIEW_MODES)
         self._view_mode.setToolTip(
             "Right canvas: outline overlay · label masks · Cellpose flows")
         self._view_mode.currentTextChanged.connect(
@@ -1711,7 +1759,14 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 channels = max(channels, len(self._sampler.channels or ()))
             except Exception:
                 pass
-        populate_channel_combo(self._channel_box, channels)
+        # Keyed on the entry rather than the caption: the caption is
+        # translated, so a Swedish screen re-selecting by text would find
+        # nothing and silently drop back to "All channels".
+        canonical = self._channel_box.currentData()
+        populate_channel_combo(
+            self._channel_box, channels,
+            keep=canonical if isinstance(canonical, str) else None)
+        self._localise_channel_combo()
         # Both of these describe the enumeration that just ran, so they belong
         # here rather than at the call sites: this is the one function every
         # load path goes through, which is why hanging them off a caller left
@@ -2037,8 +2092,39 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             self._loading_fov = False
 
     def display_channel(self) -> Optional[int]:
-        """Channel index the canvases show, or ``None`` for all channels."""
+        """Channel index the canvases show, or ``None`` for all channels.
+
+        The captions are translated — ``All channels`` reads ``Alla
+        kanaler`` on a Swedish screen — so what the shared reader is given
+        is the entry as written, kept in the item's data.
+        """
+        canonical = self._channel_box.currentData()
+        if isinstance(canonical, str) and canonical:
+            return selected_channel(_AsWritten(canonical))
         return selected_channel(self._channel_box)
+
+    def _localise_channel_combo(self) -> None:
+        """Translate the channel dropdown's captions, keeping its entries.
+
+        ``All channels`` is prose a user reads; ``Ch 3`` names a plane and
+        stays as written in every language. Both keep the English entry in
+        the item's data, which is what :meth:`display_channel` reads.
+        """
+        box = self._channel_box
+        sources = []
+        for index in range(box.count()):
+            written = box.itemData(index)
+            sources.append(written
+                           if isinstance(written, str) and written
+                           else box.itemText(index))
+        chosen = box.currentIndex()
+        blocked = box.blockSignals(True)
+        try:
+            set_translatable_items(box, sources)
+            if 0 <= chosen < box.count():
+                box.setCurrentIndex(chosen)
+        finally:
+            box.blockSignals(blocked)
 
     def _background_for_channel(self, channel: Optional[int]) -> Optional[float]:
         """The background threshold that applies to one displayed channel.
@@ -2253,7 +2339,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             "lo_pct": float(self._lo_pct.value()),
             "hi_pct": float(self._hi_pct.value()),
             "outline_thickness": self._outline_thickness.value(),
-            "outline_colour": self._outline_colour.currentText(),
+            "outline_colour": self._outline_choice(),
             "display_channel": self.display_channel(),
             "fov": self._fov_box.currentText(),
         }
@@ -2350,7 +2436,9 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 w = Toggle(parent=self)
             elif kind == "method":
                 w = QComboBox(self)
-                w.addItems(list(INTENSITY_THRESHOLD_METHODS))
+                # `_widget_value` propagates the entry's data, so the
+                # method arrives as `mean` however the caption reads.
+                set_translatable_items(w, INTENSITY_THRESHOLD_METHODS)
             else:
                 raise ValueError(kind)
             w.hide()
@@ -2441,7 +2529,9 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         if isinstance(w, Toggle):
             return bool(w.isChecked())
         if isinstance(w, QComboBox):
-            return w.currentText()
+            # The value, not the caption: a translated caption would land
+            # in the settings dict as the setting's value.
+            return _combo_value(w)
         return w.value()
 
     def _compartment_settings(self) -> dict:
@@ -2468,7 +2558,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         return out
 
     def _selected_object_types(self) -> Tuple[str, ...]:
-        current = self._object_box.currentText()
+        current = _combo_value(self._object_box)
         if current == "cell + nucleus":
             return ("cell", "nucleus")
         return (current,)
@@ -2517,7 +2607,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         or ``None`` for ``auto`` and ``color (random)``. ``auto`` is drawn
         from :meth:`_auto_outline_colour` and ``color (random)`` is handled
         per object label by :func:`overlay_masks`."""
-        return self.OUTLINE_COLOURS.get(self._outline_colour.currentText())
+        return self.OUTLINE_COLOURS.get(self._outline_choice())
 
     def _roll_auto_outline_colours(self) -> None:
         """Draw a fresh random colour per compartment for ``auto`` mode.
@@ -2544,6 +2634,19 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._auto_outline_colours = {
             comp: random_outline_colour() for comp in COMPARTMENTS}
 
+    def _outline_choice(self) -> str:
+        """The outline colour the user picked, in the words the code uses."""
+        return _combo_value(self._outline_colour)
+
+    def _view_mode_choice(self) -> str:
+        """Which canvas the right-hand view shows.
+
+        ``Overlay`` before the control exists: both callers can run from a
+        signal a partly-built panel already emits.
+        """
+        combo = getattr(self, "_view_mode", None)
+        return _combo_value(combo) if combo is not None else "Overlay"
+
     def _auto_outline_colour(self, obj_type: str) -> Tuple[int, int, int]:
         """The current random ``auto`` colour for one compartment."""
         colour = self._auto_outline_colours.get(obj_type)
@@ -2562,7 +2665,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
 
     def _on_outline_colour_changed(self, *_args) -> None:
         """Re-render, re-rolling the random colours when ``auto`` is chosen."""
-        if self._outline_colour.currentText() == "auto":
+        if self._outline_choice() == "auto":
             self._roll_auto_outline_colours()
         self._refresh_canvases()
 
@@ -2578,7 +2681,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             _to_uint8(shown, normalise=norm, lo_pct=lo, hi_pct=hi))
         self._src_view.set_pixmap(src_pix)
 
-        mode = self._view_mode.currentText() if hasattr(self, "_view_mode") else "Overlay"
+        mode = self._view_mode_choice()
         if mode == "Flows" and self._flows:
             self._mask_view.set_pixmap(numpy_to_qpixmap(
                 self._flows_rgb()))
@@ -2592,7 +2695,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 outline_thickness=self._outline_thickness.value(),
                 normalise=norm, lo_pct=lo, hi_pct=hi,
                 random_outline=(
-                    self._outline_colour.currentText() == "color (random)"
+                    self._outline_choice() == "color (random)"
                 ),
                 outline_colors=self._auto_outline_map(),
                 primaries=self.display_primaries())
@@ -2605,7 +2708,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         if self._stale(token):
             return
         self._flows = flows or {}
-        if hasattr(self, "_view_mode") and self._view_mode.currentText() == "Flows":
+        if self._view_mode_choice() == "Flows":
             self._refresh_canvases()
 
     def _label_rgb(self) -> np.ndarray:
@@ -2619,7 +2722,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         h, w = self._image.shape[:2]
         out = np.zeros((h, w, 3), dtype=np.uint8)
         chosen = self._outline_rgb()
-        random_mode = self._outline_colour.currentText() == "color (random)"
+        random_mode = self._outline_choice() == "color (random)"
         auto_colours = self._auto_outline_map()
         for obj, mask in self._masks.items():
             if mask is None or mask.shape[:2] != (h, w):
@@ -2818,7 +2921,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             "lo": float(self._lo_pct.value()),
             "hi": float(self._hi_pct.value()),
             "model": self._model_box.currentText(),
-            "object": self._object_box.currentText(),
+            "object": _combo_value(self._object_box),
             "summary": ", ".join(counts),
         }
         self._history.append(snap)
@@ -2853,7 +2956,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 outline_thickness=self._outline_thickness.value(),
                 normalise=norm, lo_pct=lo, hi_pct=hi,
                 random_outline=(
-                    self._outline_colour.currentText() == "color (random)"
+                    self._outline_choice() == "color (random)"
                 ),
                 outline_colors=self._auto_outline_map(),
                 primaries=self.display_primaries())

@@ -795,11 +795,18 @@ WORKFLOW_STEPS = (
 
 #: What the merged frame is called once it is written down.
 #:
-#: WRITTEN ONCE AND NAMED (154 F). "Regression on any column in the databases"
-#: means the merge is an ARTEFACT, not a preview: a queue of twelve fits that
+#: WRITTEN ONCE AND NAMED. "Regression on any column in the databases" means
+#: the merge is an ARTEFACT, not a preview: a queue of twelve fits that
 #: re-merged four databases twelve times would spend twelve times six seconds
 #: doing arithmetic it had already done, and -- worse -- twelve fits would not
 #: be guaranteed to have been fitted on the same numbers.
+#:
+#: ONLY THE STEM OF THIS NAME IS USED. :func:`write_merged_frame` stages the
+#: frame, and the stage picks the format: Parquet where an engine is
+#: installed, CSV where none is. The spelling is kept as written so a caller
+#: passing an explicit ``name`` reads the same way it always did, and
+#: :func:`spacr.tabular.read_table` dispatches on whichever suffix was
+#: actually produced.
 MERGED_FRAME_NAME = "merged_measurements.csv"
 
 #: Columns of a merged frame that are IDENTITY, not a response. Regressing on
@@ -853,25 +860,40 @@ def regressable_columns(frame) -> Tuple[str, ...]:
 
 
 def write_merged_frame(frame, folder: str,
-                       name: str = MERGED_FRAME_NAME) -> str:
-    """Write the merged frame down once, and say where it went.
+                       name: str = MERGED_FRAME_NAME, *, report=print) -> str:
+    """Stage the merged frame: offer it in memory, write the durable copy.
 
     :param frame: the merged frame.
     :param folder: where to put it. Created if it is not there.
+    :param name: what the artefact is called. Only its STEM is used -- the
+        suffix belongs to the writer, so the same call produces Parquet where
+        an engine is installed and CSV where none is, and a reader dispatches
+        on what it finds.
+    :param report: called with one line naming what was written and what it
+        cost; ``None`` to say nothing.
     :returns: the path written, or ``""`` when there was nothing to write.
 
-    The artefact half of 154 F. The fits below read THIS FILE, so every run
-    in the queue is fitted on the same numbers and the merge is paid for once
-    -- and a user can open it, which "the merged frame lives in the panel"
-    never allowed.
+    THE ARTEFACT IS STILL WRITTEN. A user can open it, and every fit of a
+    queue then reads the same numbers, which is what made it an artefact
+    rather than a preview in the first place.
+
+    WHAT CHANGES IS THAT NOTHING PARSES IT BACK. The frame is already in this
+    process when it is written, and the fits run in this process too, so
+    :func:`spacr.frame_handoff.stage` offers it under the path it wrote
+    BEFORE the write returns. A four-plate screen merges to about 2.75 GB:
+    the CSV write cost around 160 seconds before anything read it, and each
+    fit then parsed the whole file back out of the page cache -- minutes of
+    CPU with no disk I/O at all, which is what made a working run look hung.
+
+    The offer is a WEAK reference, so it cannot keep a multi-gigabyte frame
+    alive after the panel that merged it lets go, and a reader that was
+    offered nothing reads the file exactly as before.
     """
     if frame is None or not len(frame) or not folder:
         return ""
-    folder = os.path.abspath(os.path.expanduser(os.fspath(folder)))
-    os.makedirs(folder, exist_ok=True)
-    path = os.path.join(folder, str(name))
-    frame.to_csv(path, index=False)
-    return path
+    from ...frame_handoff import stage
+
+    return stage(frame, folder, os.path.splitext(str(name))[0], report=report)
 
 
 def column_run_settings(base: Optional[Dict[str, Any]], column: str,
@@ -2395,6 +2417,35 @@ class ColumnRegressionPanel(QWidget):
             else "Regress on the selected column")
         self.cancel_button.setEnabled(self._running)
 
+    def _offer_frame(self, score: str) -> bool:
+        """Hand the merged frame to the fits under the path they will read.
+
+        :param score: the artefact every fit of this queue is pointed at.
+        :returns: whether an offer was made.
+
+        The frame provider and the score provider are two views of ONE merge
+        -- the panel wires both to the merging panel, which sets the frame and
+        the path it wrote it to together -- so the object offered here is the
+        contents of that path.
+
+        Nothing here extends the frame's life: the offer is weak and the
+        merging panel remains its owner. A provider with no frame to give (a
+        run whose artefact was written in an earlier session, say) makes no
+        offer at all, and the fits read the file as they always did.
+        """
+        if not score or not callable(self._frame_provider):
+            return False
+        try:
+            frame = self._frame_provider()
+        except Exception:                     # noqa: BLE001 - offer, not raise
+            return False
+        if frame is None or not len(frame):
+            return False
+        from ...frame_handoff import hold
+
+        hold(score, frame)
+        return True
+
     def _score_path(self) -> str:
         """The merged frame's file, or ``""``."""
         if not callable(self._score_provider):
@@ -2446,6 +2497,12 @@ class ColumnRegressionPanel(QWidget):
         # only the response had changed.
         self._queue_settings = base
         self._queue_score = score
+        # THE FRAME IS OFFERED FOR EXACTLY AS LONG AS THE QUEUE THAT READS IT.
+        # The merge offers it when it stages it and `_finish_queue` withdraws
+        # that offer, so without this a second queue over the same merge would
+        # parse the artefact back once per fit -- gigabytes of it -- while the
+        # panel above was still holding the very frame it wrote.
+        self._offer_frame(score)
         self._outcomes = []
         self._stop.clear()
         self._running = True
@@ -2568,6 +2625,15 @@ class ColumnRegressionPanel(QWidget):
                 + " Compare them in the Runs tab.")
         self.progress.setVisible(True)
         self.queue_finished.emit(fitted, failed)
+        # THE PRODUCER SAYS IT HAS FINISHED. The offer is a weak reference, so
+        # this is not the difference between a leak and none -- the merging
+        # panel above still owns the frame either way. What it buys is a
+        # DETERMINISTIC fallback: after this, anything that reads the merged
+        # frame reads the file, rather than getting the object or the file
+        # depending on when a garbage collection happened to run.
+        from ...frame_handoff import release
+
+        release(self._queue_score)
 
     def _on_job_failed(self, message: str) -> None:
         self._running = False

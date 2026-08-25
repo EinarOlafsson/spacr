@@ -523,6 +523,11 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "l1_ratio", "quantile", "huber_t",
     "hinge_threshold", "hinge_n_boot",
     "lasso_n_boot", "lasso_selection_threshold",
+    # HOW MANY ORGANELLE SLOTS the run has. The slots stopped being a fixed
+    # four: their keys are generated from this number, so it is the one
+    # organelle setting that belongs to no slot and it leads the heading
+    # whose size it decides.
+    "number_of_organelles",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six
@@ -798,14 +803,25 @@ def test_no_organelle_key_is_in_both_headings():
 
 
 def test_the_basic_heading_is_short_enough_to_be_the_point():
-    """The deliverable is a NUMBER: 53 settings became 6 visible by default.
+    """The deliverable is a NUMBER: 53 settings became 3 per slot.
 
     A split that left thirty settings under the first heading would satisfy
     every other test here and none of the request.
+
+    Counted PER SLOT rather than against the whole heading, because the
+    heading is generated for every slot `number_of_organelles` can name and
+    a panel shows only the slots the count reaches. The number a user is
+    faced with is one slot's, which is what this measures; the count itself
+    is the heading's one shared row.
     """
-    from spacr.object_roles import ORGANELLE_ROLES
-    assert len(S.categories["Organelle"]) <= 3 * len(ORGANELLE_ROLES), \
-        S.categories["Organelle"]
+    from spacr.organelle_types import organelle_role_of
+
+    per_slot = [key for key in S.categories["Organelle"]
+                if organelle_role_of(key) == "organelle"]
+    assert len(per_slot) <= 3, per_slot
+    shared = [key for key in S.categories["Organelle"]
+              if organelle_role_of(key) is None]
+    assert shared == ["number_of_organelles"], shared
     assert S.categories["Organelle"], "the basic heading emptied entirely"
 
 
@@ -884,9 +900,14 @@ def test_the_organelle_trigger_reveals_both_organelle_categories():
     Splitting the category would otherwise leave "Organelle advanced"
     showing on a run that does no organelle segmentation at all -- the
     trigger has to reveal everything it gates.
+
+    The trigger spans every slot `number_of_organelles` can name, not a
+    fixed four: a channel set on any slot is what the two headings are
+    gated on, and a slot missing from the trigger would be a slot whose
+    channel revealed nothing.
     """
-    from spacr.object_roles import ORGANELLE_ROLES
-    trigger = tuple(key for role in ORGANELLE_ROLES
+    from spacr.organelle_types import ALL_ORGANELLE_ROLES
+    trigger = tuple(key for role in ALL_ORGANELLE_ROLES
                     for key in (f"{role}_channel", f"{role}_mask_dim"))
     assert S.category_integer_dependencies[trigger] == [
         "Organelle", "Organelle advanced"]

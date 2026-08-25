@@ -737,35 +737,52 @@ _BUILTIN_APPS = [
     # mask by hand. It carried Train Cellpose's description verbatim, which
     # is the app directly below it.
     ("make_masks",     "Make Masks",     "Correct a mask by hand: brush, flood fill, relabel, fill, remove small",  SECTION_MODELS),
-    # ONE CELLPOSE SCREEN. Train Cellpose and Cellpose Masks are the two
-    # halves of one loop -- fine-tune a model on a few labelled fields, run
-    # it over the rest of the folder, correct what it got wrong, train
-    # again -- and they sat two rows apart with nothing in either line
-    # saying which to open, two rows from "Mask", which does a different
-    # job under a name that reads like the second one.
+    # THE SEGMENTATION WORKBENCH HAS NO SATELLITE TILES. Training a model,
+    # comparing two of them, browsing the zoo and curating a mask by hand are
+    # all one loop -- segment, look, correct, train, segment again -- and they
+    # were four rows the user had to leave the loop to reach. They are buttons
+    # on the Make Masks masthead now (`make_masks.FOLD_ORDER`), each opening
+    # the module's own screen as a page beside the editor.
     #
-    # BOTH KEYS ARE STILL REAL: the tabs keep them apart, `spacr-run
-    # train_cellpose` and `spacr-run cellpose_masks` run the same entry
-    # points, and a settings file for either still loads. What went is the
-    # second front door, not the second module.
-    ("train_cellpose", "Cellpose Workbench",
-     "Fine-tune a Cellpose model on your own labelled fields, then segment "
-     "a folder of images with it or with a stock model",                    SECTION_MODELS),
-    ("model_compare",  "Model Compare",  "Two Cellpose models on the same fields: masks side by side, object-count and ARI deltas", SECTION_MODELS),
-    ("model_zoo",      "Model Zoo",      "Browse, verify, download and bench Cellpose + classifier models on three of your fields", SECTION_MODELS),
+    # THE KEYS ARE STILL REAL, which is the whole difficulty of dropping the
+    # rows: `spacr-run train_cellpose` runs, a settings file written for it
+    # still loads, a file dropped on the page still lands, and `spacr-run
+    # model_compare / model_zoo / curate` still say what to do instead --
+    # `cli.INTERACTIVE_ONLY` holds those three sentences in its own literal
+    # now that no row carries a `cli_note=`. What went is the tile.
     # -- Results & QC: look at what came out, decide whether to believe it,
     #    and hand it to someone else.
     ("plate_view",     "Plate Viewer",   "Any measurement as a plate heatmap + edge-effect detection",  SECTION_RESULTS),
-    ("agreement",      "Annotator Agreement", "Cohen's/Fleiss' κ between annotation columns + a disagreement review", SECTION_RESULTS),
+    # ANNOTATOR AGREEMENT HAS NO ROW. Scoring how well two annotation
+    # passes agree is the sentence after annotating them, so it is a
+    # button on the Annotate masthead that opens its own screen, whole
+    # (`spacr.qt.screens.annotate`). `cli.INTERACTIVE_ONLY` still names
+    # it, so `spacr-run agreement` still says where to find it.
     ("umap",           "Image UMAP",     "Generate UMAP embeddings with image glyphs",                  SECTION_RESULTS),
     ("activation",     "Activation",     "Generate activation maps",                                    SECTION_RESULTS),
     ("train_compare",  "Training Runs",  "Overlay several training runs' curves with their settings diffed side by side", SECTION_RESULTS),
-    ("classifier_evaluation", "Classifier Evaluation", "Held-out predictions, nested CV, calibration, leakage and per-plate metrics", SECTION_RESULTS),
+    # CLASSIFIER EVALUATION AND EXPLAIN CV MODEL ARE BUTTONS ON CLASSIFY.
+    # A classifier is trained on one screen and argued about on two
+    # others, so both fold onto the Classify masthead
+    # (`spacr.qt.screens.classify`) and open their own screen as a page
+    # beside the training settings. Neither has a row here any more; what
+    # each tile said is `map_barcodes.FOLD_FALLBACK`, and every table a
+    # row used to feed -- the drop handler, the API link, the header, the
+    # translated name -- names them directly instead.
     ("run_history",    "Run History",    "Search every job's settings, files, warnings, failures and performance", SECTION_RESULTS),
     ("report",         "Report",         "One-click shareable HTML/PDF: QC verdict, figures, stats, settings, versions", SECTION_RESULTS),
     # -- Toxoplasma assays: parasite-specific readouts.
-    ("timelapse",      "Timelapse",      "Segment and track objects across the frames of a time series", SECTION_ASSAYS),
-    ("motility",       "Motility Assay", "Automated motility assay: track velocity + infection QC",     SECTION_ASSAYS),
+    #
+    # TIMELAPSE AND MOTILITY HAVE NO ROW. Timelapse is the mask pipeline
+    # with tracking on, so it is a switch on the Mask Generation masthead
+    # that reveals its own settings categories (`spacr.qt.screens.mask`);
+    # the Motility Assay reads finished masks and writes a measurements
+    # table, so it is a button on the Measure masthead that opens its own
+    # screen (`spacr.qt.screens.measure`). Both still run from
+    # `spacr-run`, from a settings CSV and from a chained hand-off --
+    # `spacr.cli.MODULES`, `validate.APP_FUNCTIONS` and
+    # `bridge.resolve_pipeline_entry` all still know them. What went is
+    # the tile, not the module.
     ("analyze_plaques", "Plaque Assay",  "Analyze plaque assay data",                                   SECTION_ASSAYS),
     ("recruitment",    "Recruitment",    "Analyze recruitment data",                                    SECTION_ASSAYS),
     ("invasion",       "Invasion Assay", "Two-colour outside/inside stain: attached vs invaded parasites, invasion efficiency per well", SECTION_ASSAYS),
@@ -796,34 +813,27 @@ STAGES = (STAGE_ALPHA, STAGE_BETA, STAGE_STABLE)
 #: Signing an app off is deleting its line here. Nothing else moves: the
 #: app is already filed under what it does.
 APP_STAGE = {
-    # -- alpha: built and reachable, not yet trusted end to end (15)
+    # -- alpha: built and reachable, not yet trusted end to end (16)
     # The merged Classify module is new. "stable" is the ABSENCE of a line
     # here, so leaving it out would have claimed a maturity it has not
     # earned -- it dispatches to two pipelines that ARE trusted, but the
     # merged screen itself has not been run on real data yet.
     "classify_merged": STAGE_ALPHA,
     "align":           STAGE_ALPHA,
-    "model_zoo":       STAGE_ALPHA,
     "convert":         STAGE_ALPHA,
     "foreign":         STAGE_ALPHA,
     "external_masks":  STAGE_ALPHA,
-    "model_compare":   STAGE_ALPHA,
     "queue":           STAGE_ALPHA,
     "batch":           STAGE_ALPHA,
     "distributed_jobs": STAGE_ALPHA,
     "invasion":        STAGE_ALPHA,
     "db_browser":      STAGE_ALPHA,
     "plate_view":      STAGE_ALPHA,
-    "agreement":       STAGE_ALPHA,
     "train_compare":   STAGE_ALPHA,
-    "classifier_evaluation": STAGE_ALPHA,
     "run_history":     STAGE_ALPHA,
     "report":          STAGE_ALPHA,
-    # -- beta: further along, in regular use, still not signed off (9)
+    # -- beta: further along, in regular use, still not signed off (7)
     "make_masks":      STAGE_BETA,
-    "train_cellpose":  STAGE_BETA,
-    "timelapse":       STAGE_BETA,
-    "motility":        STAGE_BETA,
     "analyze_plaques": STAGE_BETA,
     "replication":     STAGE_BETA,
     "umap":            STAGE_BETA,
@@ -840,58 +850,43 @@ del _row
 
 
 # ---------------------------------------------------------------------------
-# Apps that live in their own module
+# Apps that lived in their own module
 # ---------------------------------------------------------------------------
-# The two pipeline modules below are registered here rather than by
-# themselves, because they are not Qt modules: `spacr.illumination` and
+# Nothing registers here any more, and the section is kept for the note.
+# Two pipeline modules were registered from this file rather than from
+# themselves, because neither is a Qt module: `spacr.illumination` and
 # `spacr.sequencing_qc` are imported into worker processes and into
-# `spacr-run`, and neither may grow an import of PySide6. Their strings
-# are theirs; the row is ours. Everything after `section=` is fanned out
-# by `register_app` — see APP_META.
-
-register_app(
-    "illumination", "Illumination",
-    "Estimate the flat-field from the plate itself and divide it out "
-    "before any intensity feature is measured",
-    SECTION_DATA,
-    stage=STAGE_ALPHA,
-    title="Illumination Correction",
-    intro=(
-        "No microscope lights a field evenly, so the same cell measures "
-        "brighter at the centre than at a corner — routinely 10–40% on a "
-        "widefield screen, and it does not average out of a per-well "
-        "aggregate. This estimates the illumination field from the plate's "
-        "own merged fields (a per-pixel median across fields, then a smooth "
-        "low-order surface), QCs it, and installs it as a preprocessing hook "
-        "that every measure worker applies before a single feature is "
-        "computed."),
-    api_module="illumination",
-    entry="spacr.illumination:prepare_illumination_correction",
-    defaults_module="spacr.illumination",
-    translations=("Belysning", "Beleuchtung", "Iluminación", "照明",
-                  "Iluminação", "प्रकाश", "조명", "Lýsing", "Éclairage"),
-)
-
-register_app(
-    "barcode_qc", "Barcode QC",
-    "Did the mapping run work, and where does the abundance threshold go",
-    SECTION_RESULTS,
-    stage=STAGE_ALPHA,
-    title="Barcode QC",
-    intro=(
-        "Reads per well, starved wells, unmapped reads, barcode collisions, "
-        "row/column position effects and library coverage for a finished "
-        "mapping run — and then the number everyone used to read off a "
-        "histogram once and copy forward: state how many gRNAs per well the "
-        "design intends and the abundance threshold that delivers it is "
-        "derived, swept either side of, and written out in words."),
-    api_module="sequencing_qc",
-    entry="spacr.sequencing_qc:barcode_qc",
-    defaults_module="spacr.sequencing_qc",
-    translations=("Streckkods-QC", "Barcode-QC", "CC de códigos de barras",
-                  "条形码质控", "CQ de código de barras", "बारकोड QC",
-                  "바코드 QC", "Strikamerkja-QC", "CQ des codes-barres"),
-)
+# `spacr-run`, and neither may grow an import of PySide6 to call
+# `register_app` at its own import. Both have since folded into the screen
+# that runs them, and a folded module has no row.
+#
+# ILLUMINATION IS A BUTTON ON MEASURE. Flat-field correction is a property
+# of the measure run it changes rather than a run of its own:
+# `measure_crop` calls `spacr.illumination.prepare_illumination_correction`
+# itself, and the nine `illumination_*` keys are a settings category on
+# Measure's own panel. The one thing that panel cannot express is
+# estimating and QCing the field WITHOUT measuring the plate -- an hour of
+# QC figures before a day of measuring -- so the module keeps its own
+# settings form and Run button and opens as a page beside the measure
+# settings (`spacr.qt.screens.measure`). `spacr-run illumination` never
+# went through this row and is untouched.
+#
+# BARCODE QC IS A BUTTON ON MAP BARCODES. A mapping run is judged by
+# reads per well, starved wells, unmapped reads, collisions, position
+# effects and the abundance threshold they imply, so the question "did
+# this run work" belongs on the screen that produced the run. It folds
+# onto the Map Barcodes masthead and opens as a page beside the mapping
+# settings; `spacr-run barcode_qc` and the automatic call from the end of
+# the sequencing pipeline never went through this row and are untouched.
+#
+# EVERYTHING `register_app` FANS OUT DIES WITH THE ROW, so each answer has
+# a home that outlives a tile: the entry point in
+# `spacr.qt.bridge.resolve_pipeline_entry`, the defaults module in
+# `settings_model._FOLDED_DEFAULTS_MODULES`, the API link in
+# `settings_model._APP_API_MODULE`, the screen title and intro in
+# `app_screen.APP_TITLES` and `APP_INTROS`, and the name, sentence and
+# maturity colour the fold button carries in
+# `spacr.qt.screens.map_barcodes.FOLD_FALLBACK`.
 
 
 #: Modules that own their registry row and call ``register_app``
@@ -922,29 +917,24 @@ _SELF_REGISTERING_APPS = (
     # what makes that tab appear — the section has been declared, noted
     # and empty since the sections were named.
     ("spacr.qt.screens.power", "register"),
-    # AnnData Export has no screen of its own: it registers settings, so
-    # the generic ``AppScreen`` draws its form, and an ``entry=`` so the
-    # Run button on that form runs the export. It is listed here rather
-    # than left to its own import-time call because that call is a no-op
-    # unless ``spacr.qt.app`` is ALREADY in ``sys.modules`` — deliberately,
-    # so a headless export never drags PySide6 in — which made whether the
-    # row existed depend on import order.
-    ("spacr.anndata_export", "register_anndata_app"),
     # Run Compare registers at its own import and is named in
     # ``spacr.qt.SELF_REGISTERING_MODULES`` too, which only runs at
     # ``run()``. That made the row appear at launch and not under
     # ``import spacr.qt.app``, i.e. exactly the sometimes-there row the
     # note above is about. Both calls are idempotent.
     ("spacr.qt.screens.run_compare", "register"),
-    # PCA and Tabulate: both finished, both tested, both defining register()
-    # that nothing called. They were held back when Explore was at the
-    # MAX_APPS_PER_SECTION ceiling of 13; it is at 8 now, so the reason has
-    # expired. Found by the README pass, which declined to advertise a screen
-    # with no tile -- which is the right instinct and also how a feature stays
-    # invisible for a fortnight.
-    ("spacr.qt.screens.pca", "register"),
+    # Tabulate: finished, tested, and defining a register() that nothing
+    # called. It was held back when Explore was at the MAX_APPS_PER_SECTION
+    # ceiling of 13; it is at 8 now, so the reason has expired. Found by the
+    # README pass, which declined to advertise a screen with no tile -- which
+    # is the right instinct and also how a feature stays invisible for a
+    # fortnight.
+    #
+    # PCA stood beside it here until it was folded onto Image UMAP: it is a
+    # button on that masthead now, opened already pointed at the same
+    # measurements database, so there is no row for this table to put in the
+    # registry.
     ("spacr.qt.screens.tabulate", "register"),
-    ("spacr.qt.screens.explain_cv", "register"),
     ("spacr.qt.screens.investigate_hit", "register"),
 )
 
@@ -1684,7 +1674,10 @@ class MainWindow(QMainWindow):
             pass
 
         if initial_app:
-            self._on_nav_selected(initial_app)
+            # Through `open_module`, not straight to the key: `spacr-qt
+            # timelapse` is in shell histories and scripts, and that key
+            # is a switch on Mask Generation now rather than a screen.
+            self.open_module(initial_app)
         else:
             # INSTRUCTION 142: come back to where the Force restart left off.
             # After an explicit `initial_app`, because a user who named a
@@ -2288,10 +2281,12 @@ class MainWindow(QMainWindow):
         "measure":   ("measure",    "generate_measure_demo"),
         "crop":      ("measure",    "generate_crop_demo"),
         "classify":  ("annotate",   "generate_classify_demo"),
-        # The timelapse demo writes a settings CSV with timelapse=True; the
-        # Mask module no longer has a widget for that key, so it has to land
-        # in the Timelapse module or the flag would be silently dropped.
-        "timelapse": ("timelapse",  "generate_timelapse_demo"),
+        # The timelapse demo writes a settings CSV with timelapse=True, and
+        # that key has no widget on the Mask form -- the masthead switch is
+        # its control. `AppScreen.apply_settings_dict` moves the switch from
+        # the dict it applies, so the demo lands on Mask with tracking
+        # already on and its categories already showing.
+        "timelapse": ("mask",       "generate_timelapse_demo"),
         "map_barcodes": ("map_barcodes", "generate_map_barcodes_demo"),
     }
 
@@ -2985,7 +2980,10 @@ class MainWindow(QMainWindow):
         if not key:
             return ""
         try:
-            self._on_nav_selected(key)
+            # The record was written by whatever screen was open, under
+            # whatever key it had then; a module folded since is reopened
+            # on the host that took it over.
+            key = self.open_module(key)
             screen = self._screens.get(key) if hasattr(self, "_screens") else None
             settings = state.get("settings")
             if screen is not None and isinstance(settings, dict) and settings:
@@ -2996,6 +2994,56 @@ class MainWindow(QMainWindow):
             LOG.exception("could not reopen %s after the restart", key)
             return ""
         return key
+
+    def open_module(self, app_key: str) -> str:
+        """Navigate to the screen that carries ``app_key``, folded or not.
+
+        A module folded into a host keeps its key everywhere a key is
+        saved: a run journal, the force-restart record, ``spacr-qt
+        <app>`` in somebody's shell history. That key no longer names a
+        screen, and navigating to it anyway BUILDS one -- an orphan page
+        with no sidebar row, no tile and no way back to it, which is the
+        second front door the fold exists to remove.
+
+        So the key is resolved to the host that took it over, and the
+        fold it names is switched on: asking for Timelapse is asking for
+        what the tracking switch reveals, not for mask generation with
+        the switch off.
+
+        :param app_key: the key that was asked for.
+        :returns: the app key actually opened.
+        """
+        from .chaining import screen_for_module
+
+        wanted = str(app_key)
+        target = screen_for_module(wanted)
+        self._on_nav_selected(target)
+        if target != wanted:
+            self._switch_a_fold_on(target, wanted)
+        return target
+
+    def _switch_a_fold_on(self, host_key: str, folded_key: str) -> None:
+        """Press ``host_key``'s switch for ``folded_key``, if it has one.
+
+        Driven through the button so the strip shows the state the form
+        has. A host that carries no switch for the key costs a lookup:
+        the fold may be a page rather than a category, and a page opens
+        when the user presses it rather than on arrival.
+        """
+        screen = self._screens.get(host_key)
+        if screen is None:
+            return
+        try:
+            from .screens.mask import fold_set
+
+            folds = fold_set(screen)
+            strip = getattr(folds, "strip", None) if folds else None
+            button = strip.button_for(folded_key) if strip else None
+            if button is not None:
+                button.setChecked(True)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not switch %s on in %s", folded_key, host_key,
+                      exc_info=True)
 
     def _on_drawer_navigated(self, _key: str) -> None:
         """A row in the drawer was clicked — it has done its job, close it.
@@ -3301,8 +3349,18 @@ class MainWindow(QMainWindow):
     def _on_train_requested(self, target_key: str, seed: dict) -> None:
         """Navigate to `target_key` (creating the screen if needed) and
         push `seed` values into its settings model. Called by the
-        annotate screen's Train CV / Train XG buttons."""
-        self._on_nav_selected(target_key)
+        annotate screen's Train CV / Train XG buttons, and by Run
+        History's "load this run's settings".
+
+        THE KEY A RECORD NAMES IS NOT ALWAYS A SCREEN. A module that was
+        merged or folded into a host keeps its key in every run journal
+        ever written, and navigating to it builds an orphan -- a page
+        with no sidebar row, no tile and no way back to it. The key is
+        resolved to the screen that carries it first, so a Timelapse run
+        saved before the fold reopens on Mask Generation with tracking
+        switched on, which is where its settings now live.
+        """
+        target_key = self.open_module(target_key)
         widget = self._screens.get(target_key)
         if widget is None:
             return
@@ -3332,6 +3390,13 @@ class MainWindow(QMainWindow):
                 LOG.warning(
                     "Could not seed %s.%s with %r",
                     target_key, key, value, exc_info=True)
+        # A folded module's pipeline GATE has no widget for the loop above
+        # to land in -- the masthead switch is its control -- so a seed
+        # that asks for tracking has to move the switch, exactly as an
+        # imported settings CSV does.
+        sync = getattr(widget, "_sync_folded_switches", None)
+        if callable(sync):
+            sync(dict(seed))
 
     @staticmethod
     def _apply_seed_value(w: QWidget, value) -> None:

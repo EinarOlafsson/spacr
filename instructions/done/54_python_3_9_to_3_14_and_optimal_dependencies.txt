@@ -484,15 +484,89 @@ partition on all six interpreters duplicated the same application contracts
 and lost runners to the 35-50 minute cost per cell.
 
 --------------------------------------------------------------------------------
+THE nvidia-ml-py FLOOR IS DECIDED: 11.450.51, AND IT IS A DRIVER NUMBER
+--------------------------------------------------------------------------------
+
+    setup.py                                nvidia-ml-py>=11.5,<14
+                                        ->  nvidia-ml-py>=11.450.51,<14
+    .github/constraints/minimum-py39.txt    unchanged; the pin already WAS
+                                            11.450.51 and now equals the floor
+
+THE DECISION IS NOT A TRADE, which is why it can be made without the
+ecosystem question being answered first. nvidia-ml-py names every release
+after the NVIDIA driver it binds, so its published sequence runs 10.418.84,
+11.450.51, 11.460.79, ..., 13.610.43 and the MIDDLE FIELD IS A DRIVER BRANCH.
+`11.450.51` therefore sorts ABOVE a plausible-looking `11.5`, and nothing is
+published between the two. Both spellings admit exactly the same 31 releases
+in the `<14` band -- checked against PyPI metadata, not inferred -- so
+declaring the exact release denies a user nothing at all.
+
+What it buys is that the floor can be PINNED. A bound no release equals is a
+bound the `Minimum dependencies` job cannot install, so it was the one lower
+bound in setup.py that nothing ran the suite against, and the only reason
+that was survivable is that pip resolves such a bound silently to the nearest
+real release above it. That is the same failure mode as the cellpose floor,
+in the one package whose numbering makes it look reasonable.
+
+WRITTEN DOWN SO IT IS NOT "FIXED" BACK. The floor reads like a typo -- 450
+where a minor version belongs -- and the obvious repair, to 11.5 or 11.45 or
+11.4.50.51, restores a bound that can never be equalled. setup.py says so at
+length beside the requirement, the constraints file says the pin is not an
+exception any more, and tests/test_dependency_floors_name_a_published_release
+.py holds it: the declared floor must be one of the recorded published
+releases, the minimum profile must pin exactly that floor, and a
+`network`-marked test asks PyPI the same question so the recorded list cannot
+quietly go stale.
+
+THE CONSTRAINTS AGREE, AND THE COMPAT MATRIX HAS NOTHING TO AGREE WITH.
+`.github/constraints/minimum-py39.txt` is the only constraints file in the
+repository; `compat-matrix.yml` installs no pins at all, which is what makes
+it a newest-resolution matrix. So the profile is the only thing that had to
+move, and it did not have to: it was already 11.450.51.
+
+AND THE CROSS-ECOSYSTEM DISAGREEMENT THIS FILE RECORDED IS NOT ONE. The
+premise was that conda-forge has no nvidia-ml-py, so the recipe had to
+declare `pynvml` and the two floors could not both be driver numbers. Both
+halves are wrong:
+
+    conda-forge nvidia-ml-py   noarch, 11.450.51 ... 13.610.43 -- the SAME
+                               driver-numbered releases as PyPI
+    conda-forge pynvml         8.0.1 ... 13.0.1 -- the gpuopenanalytics
+                               distribution, i.e. the deprecated
+                               compatibility wrapper, which from 12.0.0 is a
+                               shim that depends on `nvidia-ml-py >=12.0.0`
+
+So `pynvml >=11.5,<14` in the recipe is not a differently-numbered spelling
+of the same dependency. It is a DIFFERENT PACKAGE, and specifically the one
+setup.py deliberately stopped declaring because importing it makes both spaCR
+and torch.cuda print a FutureWarning at startup. Worse, `>=11.5,<14` lets
+conda resolve pynvml 11.5.0 or 11.5.3, which predate the shim and do not
+depend on nvidia-ml-py at all -- so a conda user gets the retired wrapper
+implementation rather than NVIDIA's maintained bindings.
+
+The repair is two lines and is NOT applied here, because neither file is in
+this session's territory:
+
+    conda-forge/recipe/recipe.yaml    - pynvml >=11.5,<14
+                                  ->  - nvidia-ml-py >=11.450.51,<14
+    tests/test_conda_forge_recipe.py  delete the `"nvidia-ml-py": "pynvml",`
+                                      row from CONDA_NAMES; conda-forge uses
+                                      the PyPI name, so no translation is
+                                      needed
+
+Until that lands, tests/test_conda_forge_recipe.py::
+test_no_conda_recipe_floor_is_below_the_one_setup_py_declares is RED, and it
+is red for the right reason: the recipe floor really is below the one
+setup.py declares.
+
+--------------------------------------------------------------------------------
 WHAT IS LEFT
 --------------------------------------------------------------------------------
 
-  1. The nvidia-ml-py / pynvml floor is the one bound whose two ecosystems
-     disagree, and settling it needs a decision rather than an edit: either
-     both move together (setup.py to `>=11.450.51`, conda-forge/recipe to
-     whatever pynvml release corresponds) or the pair is documented as
-     deliberately different. It is recorded in the constraints file and does
-     not block anything today.
+  1. The two-line conda-forge repair above -- recipe.yaml naming
+     `nvidia-ml-py` instead of `pynvml`, and the CONDA_NAMES row that maps
+     them going away. It is the last thing standing between the PyPI and
+     conda packages depending on the same NVML bindings.
 
   2. TWO CORE DEPENDENCIES ARE NOW DEAD, both of them Tk-only, and neither is
      imported anywhere under spacr/ any more:
@@ -503,8 +577,23 @@ WHAT IS LEFT
        screeninfo  was the Tk interface's monitor geometry. Nothing else
                    brings it in, so it is pure install weight.
 
-     Removing them touches setup.py, .github/constraints/minimum-py39.txt,
-     conda-forge/recipe/recipe.yaml, and the `sympy -> gui_elements.py` row
-     in tests/test_dependency_bounds.py, which reads a deleted file and is
-     failing on that already.
+     It is one coordinated edit, not two deletions, and that is why it has
+     not happened yet:
 
+       setup.py                  drop both requirements, and the census
+                                 comment near the top that still cites
+                                 `sympy  spacr/gui_elements.py:26` for a file
+                                 that no longer exists.
+       minimum-py39.txt          drop both pins. `sympy==1.12` is one of the
+                                 named coupling exceptions -- torch 2.1.0 and
+                                 torchvision 0.16.0 pull it up -- so that
+                                 paragraph loses its example and has to be
+                                 rewritten, and the pin CANNOT simply stay:
+                                 test_optimal_dependency_versions asserts
+                                 every pin is a declared dependency.
+       recipe.yaml               drop both, or
+                                 test_conda_recipe_covers_every_core_dependency
+                                 fails on set equality.
+
+     The `sympy -> gui_elements.py` row this file used to name in
+     tests/test_dependency_bounds.py is already gone; that test is green.

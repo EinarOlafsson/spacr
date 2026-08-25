@@ -5,25 +5,44 @@ import logging
 import sys
 import os, ast
 from copy import deepcopy
-from .organelle_types import (DEFAULT_TYPE as DEFAULT_ORGANELLE_TYPE,
-                              apply_preset)
-from .object_roles import ORGANELLE_ROLES, organelle_index
+from .organelle_types import (ALL_ORGANELLE_ROLES,
+                              DEFAULT_NUMBER_OF_ORGANELLES,
+                              DEFAULT_TYPE as DEFAULT_ORGANELLE_TYPE,
+                              NUMBER_OF_ORGANELLES, active_organelle_roles,
+                              apply_preset, declared_organelle_roles,
+                              organelle_number, organelle_slot_label,
+                              slot_setting)
 
 LOG = logging.getLogger(__name__)
+
+#: Every organelle slot that can be DECLARED, which is not the same as the
+#: number a given run HAS.
+#:
+#: The registries below -- types, tooltips, categories, widget kinds -- are
+#: generated for all of them, so no slot can reach a panel as a control with
+#: no type and no help, and a settings file written at seven slots still
+#: loads, validates and is written back out when it is opened at two. How
+#: many slots a run actually shows is `number_of_organelles`, read through
+#: :func:`spacr.organelle_types.active_organelle_roles`.
+ORGANELLE_SLOT_ROLES = ALL_ORGANELLE_ROLES
 
 
 def _organelle_slot_key(key, role):
     """Translate a primary ``organelle_*`` key to one slot's key."""
-    if not str(key).startswith('organelle_'):
-        raise ValueError(f"not an organelle setting: {key!r}")
-    return f"{role}_{str(key)[len('organelle_'):]}"
+    return slot_setting(key, role)
 
 
 def _clone_primary_organelle_values(settings):
-    """Default every secondary slot from the primary slot's current values."""
+    """Default every secondary slot from the primary slot's current values.
+
+    Generated for the slots this settings dict DECLARES -- the ones
+    `number_of_organelles` asks for plus any further slot the dict already
+    carries a key for -- so lowering the number hides slots without dropping
+    the answers they hold.
+    """
     primary = [(key, deepcopy(value)) for key, value in settings.items()
                if str(key).startswith('organelle_')]
-    for role in ORGANELLE_ROLES[1:]:
+    for role in declared_organelle_roles(settings)[1:]:
         for key, value in primary:
             settings.setdefault(_organelle_slot_key(key, role),
                                 deepcopy(value))
@@ -31,11 +50,18 @@ def _clone_primary_organelle_values(settings):
 
 
 def _clone_organelle_registry(mapping, *, tooltip=False):
-    """Generate secondary-slot entries from one primary settings registry."""
+    """Generate every declarable slot's entries from the primary registry.
+
+    Registries are generated for :data:`ORGANELLE_SLOT_ROLES` rather than for
+    the slots a run happens to have, because a registry is what makes a key
+    READABLE: a settings file written at seven slots is opened by a session
+    whose count is two, and its seventh slot has to be typed and tooltipped
+    then, not only once the number is raised again.
+    """
     primary = [(key, value) for key, value in mapping.items()
                if str(key).startswith('organelle_')]
-    for role in ORGANELLE_ROLES[1:]:
-        number = organelle_index(role)
+    for role in ORGANELLE_SLOT_ROLES[1:]:
+        number = organelle_number(role)
         for key, value in primary:
             cloned = value
             if tooltip and isinstance(value, str):
@@ -1146,7 +1172,12 @@ def get_measure_crop_settings(settings=None):
     # Defaults to 'custom', which makes no claim, so a settings file written
     # before this existed still means exactly what it meant.
     settings.setdefault('organelle_type', DEFAULT_ORGANELLE_TYPE)
-    for _role in ORGANELLE_ROLES[1:]:
+    # HOW MANY ORGANELLES THIS RUN HAS. Measure reads the same count the mask
+    # side does, because it is the same objects being measured: a run that
+    # segmented five organelles has five sets of masks to measure and a panel
+    # that offered two would leave three of them unreachable.
+    settings.setdefault(NUMBER_OF_ORGANELLES, DEFAULT_NUMBER_OF_ORGANELLES)
+    for _role in declared_organelle_roles(settings)[1:]:
         settings.setdefault(f'{_role}_mask_dim', None)
         settings.setdefault(f'{_role}_min_size', 0)
         settings.setdefault(f'{_role}_type', DEFAULT_ORGANELLE_TYPE)
@@ -3419,6 +3450,7 @@ expected_types = {
     'infection_pca_umap_n_neighbors':int,
     'infection_pca_umap_min_dist':float,
     'infection_pca_tsne_perplexity':float,
+    'number_of_organelles': int,
     'organelle_channel': (int, type(None)),
     'organelle_type': str,
     'organelle_morphology': str,
@@ -3606,7 +3638,7 @@ expected_types = {
 _clone_organelle_registry(expected_types)
 DYNAMIC_ORGANELLE_SETTINGS = frozenset(
     key for key in expected_types
-    if any(key.startswith(f'{role}_') for role in ORGANELLE_ROLES[1:]))
+    if any(key.startswith(f'{role}_') for role in ORGANELLE_SLOT_ROLES[1:]))
 
 #: Settings that are declared -- typed here, tooltipped, offered by a GUI
 #: category -- but that NOTHING in spaCR reads. Setting one is a silent no-op,
@@ -4378,6 +4410,16 @@ tooltips = {
     "infection_pca_min_silhouette": "(float) - Silhouette value below which the log prints a 'weak cluster structure' warning with tuning hints. It does not reject or re-run the clustering - the cluster-derived labels are applied regardless - so treat it purely as an alert level. Silhouette runs from -1 to 1. Default 0.05.",
     "infection_pca_min_gt_separation": "(float) - Alert level for the ground-truth separation score - the absolute difference, between the two clusters, in the fraction of intensity-extreme cells that are infected (0-1). Dropping below it only prints a warning; the cluster labels are still applied. Raise it to be told sooner that the embedding is not separating infection. Default 0.2.",
     "infection_pca_max_cells": "(int) - Ceiling on cells fed to the embedding; above it a random subsample of this size is drawn using a fixed seed of 0, independent of infection_pca_random_state. Lower it when UMAP or t-SNE is slow or memory-hungry, raise it to keep rare subpopulations. Applied after non-finite rows are dropped. Default 50000.",
+    'number_of_organelles': "(int) - How many organelle slots this run has, "
+        "from 0 to 26. Each slot is an independent object with its own "
+        "channel, its own type preset and its own copy of every detection "
+        "setting, named organelle_*, organelleb_*, organellec_* and so on; "
+        "raising the number generates another slot's settings and lowering "
+        "it HIDES the ones above the new number without deleting them. A "
+        "hidden slot keeps its values, is still written to the settings "
+        "file, and comes back exactly as it was when the number is raised "
+        "again, so a smaller number can be tried without losing work. "
+        "Default 4.",
     'organelle_channel': "(int) - Zero-indexed raw acquisition channel segmented into organelle masks by whichever organelle_method is chosen (otsu, adaptive, log, dog, ridge, hysteresis, cellpose, unet). Setting it to an integer adds an organelle mask plane to merged/ and unlocks the Organelle setting categories in the GUI; None skips organelle segmentation entirely. Default None.",
     'organelle_type': "(str) - Pick what kind of organelle this is and spaCR fills the detection settings for it, printing what it chose; anything you set yourself is never overwritten. 'punctate', 'vesicular', 'spherical', 'filamentous', 'tubular', 'reticular', 'cisternal', 'toroidal', 'crescent'. The name alone does not fix the detector: 'vesicular' and 'spherical' also read organelle_diameter, because a 200 nm vesicle is a dot and a 2 um vacuole is a ring. Default 'custom', which recommends nothing.",
     'organelle_morphology': "(str) - Shape family of the target organelle; picks the segmentation pipeline and restricts which organelle_method values are legal. 'spots' = punctate (vesicles, lipid droplets), 'network' = filamentous (mitochondria, ER tubules), 'irregular' = solid blobby (Golgi, lysosomes), 'ring' = hollow (endosomes, autophagosomes). Default 'spots'. An unsupported morphology/method pair raises before any image is loaded.",
@@ -4774,6 +4816,13 @@ def _partition_organelle_settings(members):
 
 organelle_basic_settings, organelle_advanced_settings = (
     _partition_organelle_settings(_organelle_all_settings))
+
+# HOW MANY ORGANELLES leads the category whose size it decides. It is not one
+# of the per-slot settings -- it belongs to no slot, and the generators below
+# skip it because it does not carry a slot's prefix -- so it is placed here
+# rather than in `organelle_types.BASIC_SETTINGS`, which says which of ONE
+# slot's settings a biologist meets first.
+organelle_basic_settings.insert(0, NUMBER_OF_ORGANELLES)
 
 
 categories = {
@@ -5256,7 +5305,7 @@ _ADVANCED_REGROUP_EXEMPT = ("Measurements",)
 #: objects reads as one block rather than four scattered rows. It is also the
 #: order the per-object sub-headings are drawn in.
 ADVANCED_OBJECT_ORDER = (
-    "cell", "nucleus", "pathogen", "cytoplasm", *ORGANELLE_ROLES)
+    "cell", "nucleus", "pathogen", "cytoplasm", *ORGANELLE_SLOT_ROLES)
 _ADVANCED_OBJECT_ORDER = ADVANCED_OBJECT_ORDER
 
 
@@ -5294,6 +5343,12 @@ def _advanced_family_members(table, family_suffixes, family_prefixes=()):
     # dropped from the second section in Qt.
     spoken_for = {k for c in _ADVANCED_REGROUP_EXEMPT
                   for k in table.get(c, ())}
+    # ONE SET, BUILT ONCE. "Is this key filed anywhere?" used to be asked as
+    # a scan of every category list per candidate, which is
+    # objects x suffixes x every key in the table -- and the object list is
+    # now as long as `number_of_organelles` may go, so that product grew by
+    # more than an order of magnitude and was paid at import.
+    filed = {key for members in table.values() for key in members}
     found = []
     for obj in ADVANCED_OBJECT_ORDER:
         candidates = [f"{obj}_{suffix}" for suffix in family_suffixes]
@@ -5301,7 +5356,7 @@ def _advanced_family_members(table, family_suffixes, family_prefixes=()):
         for key in candidates:
             if key in spoken_for or key in found:
                 continue
-            if any(key in members for members in table.values()):
+            if key in filed:
                 found.append(key)
     return found
 
@@ -5339,7 +5394,7 @@ def _regroup_advanced(table):
     return {k: v for k, v in out.items() if v or k in family_headings}
 
 
-for _role in ORGANELLE_ROLES[1:]:
+for _role in ORGANELLE_SLOT_ROLES[1:]:
     categories['Organelle'].extend(
         _organelle_slot_key(key, _role) for key in organelle_basic_settings
         if key.startswith('organelle_'))
@@ -5371,7 +5426,7 @@ category_integer_dependencies = {
     # Both organelle categories are gated on the channel, not just the
     # first: splitting the category would otherwise leave "Organelle
     # advanced" showing on a run that does no organelle segmentation at all.
-    tuple(key for role in ORGANELLE_ROLES
+    tuple(key for role in ORGANELLE_SLOT_ROLES
           for key in (f'{role}_channel', f'{role}_mask_dim')): [
               'Organelle', 'Organelle advanced'],
 }
@@ -6734,7 +6789,7 @@ def organelle_measurement_caveats(settings):
         enabled slot is a many-per-cell type or has no type at all.
     """
     out = []
-    for role in ORGANELLE_ROLES:
+    for role in active_organelle_roles(settings):
         mask_dim = settings.get(f'{role}_mask_dim')
         channel = settings.get(f'{role}_channel')
         if mask_dim is None and channel is None:
@@ -6747,7 +6802,7 @@ def organelle_measurement_caveats(settings):
         if verdict in ('many', 'unknown'):
             continue
         reason = ORGANELLE_COUNT_REASONS.get(kind, '')
-        label = f'Organelle {organelle_index(role)}'
+        label = organelle_slot_label(role)
         for setting in COUNT_DEPENDENT_MEASUREMENTS:
             if not settings.get(setting):
                 continue
@@ -6776,7 +6831,17 @@ def explain_organelle_measurements(settings):
 
 
 def _set_organelle_defaults(settings):
-    """Fill in default values for all organelle_* keys."""
+    """Fill in default values for the organelle_* keys of every slot.
+
+    HOW MANY SLOTS is `number_of_organelles`, and the keys of each are
+    generated from it rather than written out. Slots the count no longer
+    reaches keep whatever they hold: the loop below runs over
+    :func:`spacr.organelle_types.declared_organelle_roles`, which is the
+    active slots plus any further slot this dict already carries a key for,
+    and every write is a ``setdefault``. Lowering the number is therefore
+    reversible -- raising it again finds the old answers still there.
+    """
+    settings.setdefault(NUMBER_OF_ORGANELLES, DEFAULT_NUMBER_OF_ORGANELLES)
     defaults = {
         # General
         'organelle_channel': None,
@@ -6865,7 +6930,7 @@ def _set_organelle_defaults(settings):
     # Each secondary slot gets the same defaults and its own independent type
     # preset. Translate only at this boundary so the preset implementation has
     # one vocabulary and one set of tests.
-    for role in ORGANELLE_ROLES[1:]:
+    for role in declared_organelle_roles(settings)[1:]:
         view = {'verbose': settings.get('verbose', False)}
         prefix = f'{role}_'
         for key, value in settings.items():

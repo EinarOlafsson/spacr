@@ -29,14 +29,18 @@ NOTHING IS LOST IN THE MOVE.
   categories -- including the ones the module renders no control for --
   so the dict handed to the pipeline is the dict its own module would
   have handed it.
-* The Motility Assay runs inside the timelapse branch, so its switch
-  turns Timelapse's on with it: asking for the assay is asking for
-  tracking, and a form offering the assay's knobs beside no tracking
-  would be describing a run that cannot happen.
-* A settings file written by either module still loads: the tracking and
-  assay controls are on this form and take their values like any other,
-  and :func:`sync_folds` reads the gate -- which has no control -- back
-  onto the buttons.
+* A settings file written by the folded module still loads: its controls
+  are on this form and take their values like any other, and
+  :func:`sync_folds` reads the gate -- which has no control -- back onto
+  the switch, so a Timelapse file arrives with tracking on rather than
+  with every tracking knob filled in and tracking off.
+* THE TRACK PREVIEW COMES WITH IT. Mask Generation's own preview
+  segments one field with Cellpose and answers "did the mask come out
+  right"; Timelapse's answers "did the objects link up", which is the
+  only question its settings are about. The switch attaches that panel to
+  this screen and offers its toggle, so pressing the button reveals the
+  tracking settings AND the thing that shows what they do -- see
+  :func:`fold_previews`.
 
 THE MOTILITY ASSAY IS NOT HERE. It reads masks rather than making them,
 and what it produces is a measurements table, so it folds onto Measure.
@@ -51,6 +55,7 @@ from __future__ import annotations
 import logging
 from typing import Dict, Optional, Sequence, Tuple
 
+from PySide6.QtCore import QObject
 from PySide6.QtWidgets import QWidget
 
 from ..widgets.fold_strip import FoldStrip
@@ -98,8 +103,78 @@ def fold_set(screen: QWidget) -> Optional[CategoryFoldSet]:
     return folds if isinstance(folds, CategoryFoldSet) else None
 
 
+class _OfferedPreview(QObject):
+    """A folded module's preview panel, offered while its switch is on.
+
+    A ``QObject`` parented to the card, with a bound-method slot, rather
+    than a closure hung off the button: a closure capturing the preview
+    would keep it alive through the switch that is supposed to own it.
+
+    Off is stronger than merely hidden. Switching the fold off unchecks
+    the preview's toggle as well as hiding it, so the card cannot stay on
+    screen showing tracks for a run that is no longer tracking.
+    """
+
+    def __init__(self, host) -> None:
+        super().__init__(host.card)
+        self._host = host
+
+    def set_offered(self, on: bool) -> None:
+        """Show or hide the toggle, and close the card when hiding it."""
+        on = bool(on)
+        try:
+            if not on:
+                self._host.toggle.setChecked(False)
+                self._host.card.setVisible(False)
+            self._host.toggle.setVisible(on)
+        except RuntimeError:
+            # Qt deleted the card under us; nothing left to offer.
+            LOG.debug("the folded preview is gone", exc_info=True)
+
+
+def fold_previews(screen: QWidget) -> Dict[str, object]:
+    """The folded previews attached to ``screen``, keyed by folded app."""
+    return dict(getattr(screen, "_fold_previews", {}) or {})
+
+
+def _offer_fold_previews(screen: QWidget,
+                         folds: CategoryFoldSet,
+                         strip: FoldStrip) -> Dict[str, _OfferedPreview]:
+    """Attach each mounted fold's own preview panel, hidden behind its switch.
+
+    A module whose preview is its whole reason for a runtime panel loses
+    it the day its row is dropped, because nothing builds its screen any
+    more. Attaching it to the host is what keeps the capability, and
+    hiding it behind the switch is what stops Mask Generation growing a
+    track preview for a run with no time axis in it.
+
+    Guarded per fold: a preview that cannot be built costs that one
+    panel, never the strip.
+    """
+    from ..preview_registry import attach_folded
+
+    offered: Dict[str, _OfferedPreview] = {}
+    for key in folds.order:
+        button = strip.button_for(key)
+        if button is None:
+            continue
+        try:
+            host = attach_folded(screen, key)
+        except Exception:
+            LOG.debug("Could not attach %s's preview to %s", key, HOST_KEY,
+                      exc_info=True)
+            continue
+        if host is None:
+            continue
+        watcher = _OfferedPreview(host)
+        button.toggled.connect(watcher.set_offered)
+        watcher.set_offered(button.isChecked())
+        offered[key] = watcher
+    return offered
+
+
 def install_folds(screen: QWidget) -> Optional[FoldStrip]:
-    """Put Mask Generation's two switches on ``screen``'s masthead.
+    """Put Mask Generation's fold switches on ``screen``'s masthead.
 
     Idempotent, and defensive by design: a screen that opens without its
     switches is a smaller screen, while an exception raised here would be
@@ -108,7 +183,7 @@ def install_folds(screen: QWidget) -> Optional[FoldStrip]:
     :param screen: the host module's screen.
     :returns: the strip, or None when this screen cannot carry one -- it
         is not the host, it has no masthead, one is already installed, or
-        neither folded module had a category of its own to add.
+        no folded module had a category of its own to add.
     """
     if getattr(screen, "app_key", None) != HOST_KEY:
         return None
@@ -137,6 +212,10 @@ def install_folds(screen: QWidget) -> Optional[FoldStrip]:
     # The set outlives this call only because the screen holds it.
     screen._category_folds = folds
     screen._fold_strip = strip
+    # The panels the folded modules brought with them, offered by their
+    # own switches. After the strip is on the masthead: a preview that
+    # could not be built must not cost the switches.
+    screen._fold_previews = _offer_fold_previews(screen, folds, strip)
     return strip
 
 

@@ -33,7 +33,6 @@ REVIEWED_SOURCE_HASHES = {
     "analyze_plaques": "b9b1592b4d0c236b489e3a9b91ba81e0ac7f59ba06e774ba7fa85fbcc323fde4",
     "annotate": "6df605da96fb2ea381ed2c1b135bd8bba2259fabea58640d02aa6e893890c49c",
     "batch": "16f1fdd21fc4467e4ff8f5b2996096fbcf0e5c656263e374eeebe179e94c5cd3",
-    "cellpose_masks": "07d8ffd08b802c9921bc7f1224f805f311a86ca911a6ca97a3664bd6b31fed55",
     "classifier_evaluation": "3f2f24d0bf059a02cfcfba5ba72e3c514a538c901116b54f916d7d80ebc89d50",
     "classify_merged": "cf5fcf39a32d74e18ab968761616ed6899f933795cea7f6ebaf99605dc46a241",
     "convert": "692de961836cf4a2badc716d9bf06d4c61d01693facd1f25e10e752f836a03d7",
@@ -56,7 +55,6 @@ REVIEWED_SOURCE_HASHES = {
     "report": "6a0e5a55d54ef33898a37ff08c5f156a738006960aff04435bad2eca0d56ce27",
     "run_history": "924c55ff2b1ab5218e7fa604e319dface9e1c93c8290e7f66755f89ef7c33823",
     "timelapse": "e3816a2eabfc60e1ad2b404ec2fbf892d87d89a575524d713dcb635f0f089e49",
-    "train_cellpose": "9ca74cad76ea20c4a8f56ce41de722a8484f2ca1d506b1bd9b2fdbfb07e86c12",
     "train_compare": "21695b9522759bdede82fb4c5dc494df8ab6d4f5dba8f02f68b48d1b249c445f",
     "umap": "e3911e6d54899dc6155887fd60863a542673677b18369ca88fde9bd7bf2f9ed6",
 }
@@ -105,7 +103,7 @@ def validate_module_summaries() -> None:
     key_sets = {frozenset(items) for items in MODULE_SUMMARIES.values()}
     assert len(key_sets) == 1
     reviewed_keys = next(iter(key_sets))
-    assert len(reviewed_keys) == 32
+    assert len(reviewed_keys) == 30
     assert set(REVIEWED_SOURCE_HASHES) == set(reviewed_keys)
 
 

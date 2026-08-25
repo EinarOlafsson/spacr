@@ -44,6 +44,14 @@ on:
         required: false
         default: false
         type: boolean
+      per_test_timeout_seconds:
+        description: >-
+          Hard ceiling on a single test. 0 leaves tests unbounded; a non-zero
+          value installs pytest-timeout, which dumps every thread's stack and
+          kills the worker so the wedged test is named.
+        required: false
+        default: 0
+        type: number
 
 jobs:
   pytest:
@@ -106,6 +114,9 @@ jobs:
               "torch>=2.0" torchvision
           fi
           python -m pip install -e ".[${{ inputs.extras }}]"
+          if [ "${{ inputs.per_test_timeout_seconds }}" -gt 0 ]; then
+            python -m pip install "pytest-timeout>=2.3,<3"
+          fi
           python -m pip check
 
       - name: Show resolved scientific dependencies
@@ -142,13 +153,24 @@ jobs:
       # A SUITE THAT HANGS MUST SAY WHERE. A job killed by its own
       # timeout_minutes prints no summary at all -- no last test, no stack,
       # nothing to act on -- so a single wedged test reads exactly like a lost
-      # runner and costs the whole job budget to learn nothing. pytest's
-      # faulthandler timeout dumps every thread's traceback once a single test
-      # has run longer than the threshold and then lets it carry on, so a hang
-      # names itself in the log while a merely slow test stays green. The
-      # threshold is generous against the slowest legitimate test here and far
-      # below every job timeout, which is what makes the dump arrive before
-      # the runner is taken away.
+      # runner and costs the whole job budget to learn nothing.
+      #
+      # pytest's faulthandler timeout dumps every thread's traceback once a
+      # single test has run longer than the threshold and then lets it carry
+      # on. That is enough on a serial suite. It is NOT enough under -n: the
+      # dump is written by the WORKER, whose output the controller forwards
+      # only when the worker reports a result, so a worker that never reports
+      # never delivers its dump. A wedged shard therefore stays completely
+      # silent until the runner takes it away, which is the failure this
+      # comment used to claim was solved.
+      #
+      # per_test_timeout_seconds closes that. pytest-timeout's thread method
+      # does not depend on the wedged test returning to the interpreter: it
+      # dumps every thread from a watchdog and then ends the worker process,
+      # and xdist reports the crash together with the test id the worker was
+      # running. The ceiling sits above the faulthandler threshold so the
+      # in-process dump gets its chance first, and far below every job
+      # timeout so the shard still finishes and prints a summary.
       - name: Run ${{ inputs.suite_name }} tests
         env:
           SPACR_PYTEST_FILE_SHARD_INDEX: ${{ inputs.file_shard_index }}
@@ -159,8 +181,14 @@ jobs:
           if [ "${{ inputs.xdist_workers }}" -gt 0 ]; then
             xdist_args=(-n "${{ inputs.xdist_workers }}" --dist loadfile)
           fi
+          timeout_args=()
+          if [ "${{ inputs.per_test_timeout_seconds }}" -gt 0 ]; then
+            timeout_args=(--timeout "${{ inputs.per_test_timeout_seconds }}"
+                          --timeout-method thread)
+          fi
           python -m pytest tests/ \
             -o faulthandler_timeout=900 \
+            "${timeout_args[@]}" \
             -m '${{ inputs.marker_expression }}' \
             --ignore=tests/test_perf_guard.py \
             --ignore=tests/qt/test_gui_responsiveness.py \
@@ -179,6 +207,7 @@ jobs:
             SPACR_PYTEST_FILE_SHARD_INDEX=0 \
             SPACR_PYTEST_FILE_SHARD_COUNT=1 python -m pytest \
               -o faulthandler_timeout=900 \
+              "${timeout_args[@]}" \
               tests/test_perf_guard.py \
               tests/qt/test_gui_responsiveness.py \
               tests/qt/test_home_stage_and_dock.py \

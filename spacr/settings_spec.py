@@ -11,9 +11,12 @@ libraries.
 from __future__ import annotations
 
 import sys
-from .organelle_types import (DEFAULT_TYPE as _ORGANELLE_TYPE_DEFAULT,
+from .organelle_types import (ALL_ORGANELLE_ROLES as _ORGANELLE_SLOT_ROLES,
+                              DEFAULT_NUMBER_OF_ORGANELLES,
+                              DEFAULT_TYPE as _ORGANELLE_TYPE_DEFAULT,
+                              MAX_ORGANELLES,
                               TYPE_ORDER as _ORGANELLE_TYPE_ORDER)
-from .schema import ALL_ROLES, ORGANELLE_ROLES
+from .schema import ALL_ROLES
 
 __all__ = ["convert_settings_dict_for_gui"]
 
@@ -284,6 +287,14 @@ def convert_settings_dict_for_gui(settings):
         # door by prepare_formula rather than quietly fitted.
         'intercept': ('combo', ['fitted', 'zero', 'control', 'value'],
                       'fitted'),
+        # HOW MANY ORGANELLE SLOTS, as a closed list rather than a free
+        # number. The bound is real -- a slot's name is the prefix of its
+        # keys and the prefixes are lettered, so the alphabet runs out at
+        # twenty-six -- and a typed thirty would have to be clamped to a
+        # number the user did not ask for.
+        'number_of_organelles': ('combo',
+                                 list(range(MAX_ORGANELLES + 1)),
+                                 DEFAULT_NUMBER_OF_ORGANELLES),
         # The ONE visible organelle choice (instruction 72). A combo, not a
         # free-text field: the nine names are a closed set, and
         # `organelle_types.resolve_type` raises on anything else -- typing it
@@ -302,11 +313,14 @@ def convert_settings_dict_for_gui(settings):
     }
 
     # All slot-specific controls use the primary organelle widget contract.
-    # This is generated so a newly registered slot cannot fall back to a
-    # free-text entry for a value whose pipeline vocabulary is closed.
+    # Generated for every slot `number_of_organelles` can name, not for the
+    # slots this run has: a settings file written at seven slots is opened by
+    # a session set to two, and its seventh slot's method must still arrive
+    # as the closed dropdown it is rather than as a free-text field whose
+    # every value fails validation.
     primary_widget_keys = tuple(
         key for key in special_cases if key.startswith('organelle_'))
-    for role in ORGANELLE_ROLES[1:]:
+    for role in _ORGANELLE_SLOT_ROLES[1:]:
         for key in primary_widget_keys:
             slot_key = f"{role}_{key[len('organelle_'):]}"
             kind, options, default = special_cases[key]

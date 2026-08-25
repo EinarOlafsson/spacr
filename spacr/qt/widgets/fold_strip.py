@@ -79,6 +79,69 @@ FoldEntry = Union[Tuple[str, Callable[[], None]],
 CHECKED_ALPHA = 0.30
 
 
+#: The host screens that fold other modules into themselves, each of which
+#: keeps a ``FOLD_FALLBACK`` table of what the tiles it replaced said.
+#:
+#: A folded module has no registry row, so the registry cannot answer for it:
+#: ``app_stage`` reports "stable" for a key it has never heard of, which is
+#: right for a typo and wrong for a module somebody assessed as alpha and then
+#: folded. These tables are the record, and this is the list of where they
+#: live, so a question about a folded key can be asked once instead of at each
+#: host. A host with no table (or one that cannot be imported at all, as on a
+#: machine with no optional dependency) simply contributes nothing.
+FOLD_HOST_MODULES = (
+    "spacr.qt.screens.make_masks",
+    "spacr.qt.screens.map_barcodes",
+    "spacr.qt.screens.image_umap",
+    "spacr.qt.screens.regression",
+)
+
+
+def folded_modules() -> dict:
+    """Every folded key, as ``key -> (name, description, stage, host)``.
+
+    Walks :data:`FOLD_HOST_MODULES` and merges what each host kept. The first
+    host to describe a key wins, so a key two hosts both mention -- the same
+    module folded into two screens -- reads as the first host's, rather than
+    as whichever import happened last.
+
+    Imported lazily, one host at a time and each guarded: this module is
+    imported while a screen is being built, and the hosts import it back.
+
+    :returns: a fresh dict; callers may keep or mutate it.
+    """
+    import importlib
+
+    found: dict = {}
+    for module_name in FOLD_HOST_MODULES:
+        try:
+            table = getattr(importlib.import_module(module_name),
+                            "FOLD_FALLBACK", None)
+        except Exception:                               # noqa: BLE001
+            continue
+        if not isinstance(table, dict):
+            continue
+        for key, entry in table.items():
+            if key in found or not entry:
+                continue
+            name, description, stage = (tuple(entry) + ("", "", ""))[:3]
+            found[str(key)] = (name, description, stage or "stable",
+                               module_name)
+    return found
+
+
+def folded_fallback(key: str) -> Tuple[str, str, str]:
+    """``(name, description, stage)`` a folded key kept, or three blanks.
+
+    The answer for a module that is a button on some host's masthead rather
+    than a tile on Home. Blank when the key is not folded anywhere, so a
+    caller can tell "folded, and this is what it said" from "never heard of
+    it" -- which the registry cannot, because it answers both the same way.
+    """
+    entry = folded_modules().get(str(key))
+    return (entry[0], entry[1], entry[2]) if entry else ("", "", "")
+
+
 def _describe(key: str) -> Tuple[str, str, str]:
     """Return ``(name, description, stage)`` for a registry key.
 
@@ -137,6 +200,32 @@ class FoldButton(QPushButton):
         # description follows it as the sentence the tile carried.
         self.setToolTip(f"{name}\n{description}".strip())
         self.setAccessibleName(name)
+
+    def set_stage(self, stage: str) -> None:
+        """Re-state the maturity this button is drawn in.
+
+        The stage is read from the app registry when the button is built,
+        and the registry stops answering for a module the day its row is
+        dropped -- which is what folding one ends in. Restating it has to
+        move BOTH things the stage decides: the Qt property the shipped
+        hover rule selects on, and the widget-local ``:checked`` fill,
+        which is a stylesheet computed once from whatever the stage was
+        at construction. Moving only the property left a switch that
+        hovered in its own colour and lit stable-blue when it was on.
+
+        :param stage: ``"alpha"``, ``"beta"`` or ``"stable"``.
+        """
+        stage = str(stage or "")
+        if not stage or self.property("stage") == stage:
+            return
+        self.setProperty("stage", stage)
+        if self.isCheckable():
+            self._install_checked_fill(stage)
+        # A property the stylesheet selects on is only read at polish, so
+        # a button already on screen keeps the old colour until it is
+        # polished again.
+        self.style().unpolish(self)
+        self.style().polish(self)
 
     def _install_checked_fill(self, stage: str) -> None:
         """Give a switch-shaped fold button a lit "on" state.

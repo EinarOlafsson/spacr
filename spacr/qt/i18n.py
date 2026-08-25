@@ -428,6 +428,26 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Evaluación del clasificador", "分类器评估",
         "Avaliação do classificador", "वर्गीकारक मूल्यांकन",
         "분류기 평가", "Mat á flokkara", "Évaluation du classificateur"),
+    # THREE NAMES THAT ARRIVED THROUGH `register_app(translations=...)`.
+    # Folding a module into a host screen deletes its registry row, and
+    # with it the only call that put its name in these nine catalogs --
+    # so a Korean window would head the folded page in English. The names
+    # are the module's, not the tile's, and the page still wears them, so
+    # they are written down here where the other module names are.
+    # `add_translation` is a no-op for a source already catalogued, so a
+    # module that still registers is unaffected.
+    "Barcode QC": _row(
+        "Streckkods-QC", "Barcode-QC", "CC de códigos de barras",
+        "条形码质控", "CQ de código de barras", "बारकोड QC",
+        "바코드 QC", "Strikamerkja-QC", "CQ des codes-barres"),
+    "Explain CV Model": _row(
+        "Förklara CV-modell", "CV-Modell erklären", "Explicar modelo CV",
+        "解释 CV 模型", "Explicar modelo de VC", "CV मॉडल समझाएँ",
+        "CV 모델 설명", "Skýra CV-líkan", "Expliquer le modèle CV"),
+    "AnnData Export": _row(
+        "AnnData-export", "AnnData-Export", "Exportar a AnnData",
+        "导出 AnnData", "Exportar para AnnData", "AnnData निर्यात",
+        "AnnData 내보내기", "AnnData-útflutningur", "Export AnnData"),
     "Run History": _row(
         "Körningshistorik", "Ausführungsverlauf", "Historial de ejecuciones",
         "运行历史", "Histórico de execuções", "रन इतिहास",
@@ -2565,6 +2585,91 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "선택된 소스가 없습니다 — 소스 열기…를 클릭하세요",
         "Enginn uppruni valinn — smelltu á Opna uppruna…",
         "Aucune source sélectionnée — cliquez sur Ouvrir la source…"),
+
+    # ---- THE LIVE PREVIEW'S VALUE-CARRYING DROPDOWNS ------------------
+    # Every entry below is BOTH a caption the user reads and a value the
+    # panel matches on, so the value lives in the entry's item data and
+    # only the caption is translated -- see :func:`set_translatable_items`.
+    # An exact row is what makes the caption right. Left to the word-by-word
+    # fallback, "auto" came back as the vehicle ("자동차", "汽车", "कार"),
+    # "Overlay" as "Surprise" in French, and "All channels" as the
+    # half-English "All Kanaler".
+    #
+    # The outline-colour dropdown.
+    "auto": _row(
+        "automatisk", "automatisch", "automático", "自动", "automático",
+        "स्वचालित", "자동", "sjálfvirkt", "automatique"),
+    "color (random)": _row(
+        "färg (slumpmässig)", "Farbe (zufällig)", "color (aleatorio)",
+        "颜色（随机）", "cor (aleatória)", "रंग (यादृच्छिक)", "색상(무작위)",
+        "litur (slembinn)", "couleur (aléatoire)"),
+    "green": _row(
+        "grön", "Grün", "verde", "绿色", "verde", "हरा", "녹색", "grænn",
+        "vert"),
+    "magenta": _row(
+        "magenta", "Magenta", "magenta", "品红", "magenta", "मैजेंटा",
+        "자홍색", "magenta", "magenta"),
+    "yellow": _row(
+        "gul", "Gelb", "amarillo", "黄色", "amarelo", "पीला", "노란색",
+        "gulur", "jaune"),
+    "cyan": _row(
+        "cyan", "Cyan", "cian", "青色", "ciano", "सियान", "청록색",
+        "blágrænn", "cyan"),
+    "white": _row(
+        "vit", "Weiß", "blanco", "白色", "branco", "सफ़ेद", "흰색", "hvítur",
+        "blanc"),
+    "red": _row(
+        "röd", "Rot", "rojo", "红色", "vermelho", "लाल", "빨간색", "rauður",
+        "rouge"),
+    # What the right-hand canvas shows.
+    "View:": _row(
+        "Vy:", "Ansicht:", "Vista:", "视图：", "Vista:", "दृश्य:", "보기:",
+        "Sýn:", "Affichage :"),
+    "Overlay": _row(
+        "Överlägg", "Überlagerung", "Superposición", "叠加", "Sobreposição",
+        "ओवरले", "오버레이", "Yfirlag", "Superposition"),
+    "Masks": _row(
+        "Masker", "Masken", "Máscaras", "掩膜", "Máscaras", "मास्क", "마스크",
+        "Grímur", "Masques"),
+    "Flows": _row(
+        "Flöden", "Flüsse", "Flujos", "流场", "Fluxos", "प्रवाह", "흐름",
+        "Flæði", "Flux"),
+    # The channel view control. "Ch 3" names a plane and stays as written --
+    # a word touching a digit is part of an identifier, not prose.
+    "All channels": _row(
+        "Alla kanaler", "Alle Kanäle", "Todos los canales", "所有通道",
+        "Todos os canais", "सभी चैनल", "모든 채널", "Allar rásir",
+        "Tous les canaux"),
+    # THE SEGMENTATION COMPARTMENTS, whose English spelling is the key the
+    # worker and every `{object}_…` setting are written with. The bulk
+    # catalog had read them as everyday words -- "cell" as a spreadsheet
+    # celda, "nucleus" as an atomic nucleus (परमाणु), "organelle" as an
+    # organ, "pathogen" as pathology -- so these are the biological senses.
+    "cell": _row(
+        "cell", "Zelle", "célula", "细胞", "célula", "कोशिका", "세포",
+        "fruma", "cellule"),
+    "nucleus": _row(
+        "kärna", "Zellkern", "núcleo", "细胞核", "núcleo", "केंद्रक", "핵",
+        "kjarni", "noyau"),
+    "pathogen": _row(
+        "patogen", "Pathogen", "patógeno", "病原体", "patógeno", "रोगजनक",
+        "병원체", "sýkill", "pathogène"),
+    "organelle": _row(
+        "organell", "Organell", "orgánulo", "细胞器", "organela", "कोशिकांग",
+        "세포소기관", "frumulíffæri", "organite"),
+    "cell + nucleus": _row(
+        "cell + kärna", "Zelle + Zellkern", "célula + núcleo", "细胞 + 细胞核",
+        "célula + núcleo", "कोशिका + केंद्रक", "세포 + 핵", "fruma + kjarni",
+        "cellule + noyau"),
+    # How a compartment's intensity threshold is computed. Statistics, not
+    # prose: the fallback had offered "meaning" (意思, "Að segja") for the
+    # average and "a hundred percent" (百分之百) for the percentile.
+    "mean": _row(
+        "medelvärde", "Mittelwert", "media", "均值", "média", "माध्य", "평균",
+        "meðaltal", "moyenne"),
+    "percentile": _row(
+        "percentil", "Perzentil", "percentil", "百分位", "percentil",
+        "प्रतिशतक", "백분위수", "hundraðsmark", "centile"),
 }
 
 
@@ -2986,6 +3091,64 @@ def set_translatable_text(
     widget.setText(tr(source, language, **values))
 
 
+def set_translatable_items(
+    combo,
+    sources: Iterable[str],
+    values: Optional[Iterable[object]] = None,
+    language: Optional[str] = None,
+) -> None:
+    """Fill a dropdown with translated captions over untranslatable values.
+
+    A combo box whose entries a handler reads back with ``currentText()``
+    cannot be translated: the caption moves and every comparison misses.
+    That is why the live preview's dropdowns were marked untranslatable
+    outright, and why the ones that were not marked went wrong quietly --
+    the segmentation object box handed ``cellen`` to a worker that only
+    knows ``cell``, and the threshold method wrote ``medelvärde`` into a
+    settings key that only accepts ``mean``.
+
+    Each entry here carries what the code matches on in its item DATA, so
+    ``currentData()`` answers the same English value whatever the caption
+    reads. The English sources are recorded on the widget, so the ordinary
+    language pass re-renders the captions on every later change instead of
+    freezing the language the dropdown happened to be built in.
+
+    The selected entry is kept by its value, never by its caption, and
+    signals stay blocked while the entries are replaced.
+
+    :param combo: the dropdown to fill; its existing entries are replaced.
+    :param sources: the English captions, in order.
+    :param values: what each entry means to the code, in the same order;
+        defaults to ``sources`` itself.
+    :param language: language to render in; the current one by default.
+    :raises ValueError: if ``values`` is not one value per caption.
+    """
+    captions = [str(source) for source in sources]
+    data = list(captions) if values is None else list(values)
+    if len(data) != len(captions):
+        raise ValueError(
+            f"{len(captions)} captions but {len(data)} values")
+    code = normalize_language(language or current_language())
+    previous = combo.currentData()
+    blocked = combo.blockSignals(True)
+    try:
+        combo.clear()
+        for caption, value in zip(captions, data):
+            combo.addItem(tr(caption, code), value)
+        if previous is not None:
+            index = combo.findData(previous)
+            if index >= 0:
+                combo.setCurrentIndex(index)
+    finally:
+        combo.blockSignals(blocked)
+    combo._spacr_i18n_item_sources = list(captions)
+    # An explicit False, because the property may already be True from the
+    # widget's class -- FlatComboBox marks every entry untranslatable,
+    # which is right for the file names it usually lists and wrong for a
+    # caption that now keeps its value somewhere else.
+    combo.setProperty("i18nSkipItems", False)
+
+
 def _refresh_dynamic_text(widget, language: str) -> bool:
     """Retranslate a template set by :func:`set_translatable_text`."""
     try:
@@ -3350,6 +3513,7 @@ __all__ = [
     "language_choices",
     "normalize_language",
     "retranslate_widget_tree",
+    "set_translatable_items",
     "set_translatable_text",
     "tr",
 ]

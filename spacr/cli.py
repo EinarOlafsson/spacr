@@ -543,8 +543,10 @@ _MODULE_LIST: Tuple[Module, ...] = (
     ),
     # Hand-written, and it has to be: the seam that publishes an app's other
     # strings cannot derive `requires`, `writes` or `note`, which are the
-    # three things `--describe` exists to print. The app row itself comes
-    # from spacr.anndata_export.register_anndata_app.
+    # three things `--describe` exists to print. There is no app row to
+    # take them from either -- the export folded onto the Measure masthead
+    # and its registration went with the tile -- so this entry is the
+    # whole of what `spacr-run anndata_export` knows about itself.
     Module(
         key="anndata_export",
         summary="Export the measurement tables as AnnData (.h5ad) for scanpy and scvi-tools.",
@@ -681,6 +683,16 @@ INTERACTIVE_ONLY: Dict[str, str] = {
     "model_zoo": "Model Zoo is an interactive browser; headless, call "
                  "spacr.model_zoo.discover_local + format_zoo, and "
                  "benchmark(entry, source=...) to test one on three fields.",
+    # WRITTEN HERE, not absorbed. Curate is folded into Make Masks and has
+    # no registry row left to carry a `cli_note=`, so the sentence
+    # `_absorb_registered_gui_only` used to pull out of the row has to live
+    # in this table -- otherwise `spacr-run curate` stops explaining itself
+    # and starts guessing that the user meant `convert`.
+    "curate": "Curate is hand correction of a mask or a track table -- the "
+              "brush and the track surgery are the whole feature; run it in "
+              "the GUI (spacr-qt), where it is a button on Make Masks. "
+              "Headless, spacr.curation.MaskCuration and TrackCuration make "
+              "the same edits with the same ledger.",
     "report": "Report is a one-click document builder; headless, call "
               "spacr.report.build_report(src, out, fmt='html').",
     "train_compare": "Training Runs is an interactive curve/settings comparison; "
@@ -700,6 +712,31 @@ INTERACTIVE_ONLY: Dict[str, str] = {
                     "sizes, plan_prune(src) for exactly what is regenerable "
                     "and what is being kept, then prune(plan, "
                     "confirm=plan.token) once you have read the plan.",
+    # WRITTEN HERE, not absorbed. These three are folded -- Image Scatter and
+    # PCA onto Image UMAP, Volcano Explorer onto Regression -- and have no
+    # registry row left to carry a `cli_note=`, so the sentence
+    # `_absorb_registered_gui_only` used to pull out of the row has to live in
+    # this table. Without it `spacr-run pca` stops explaining itself and
+    # starts guessing the user meant something else.
+    "image_scatter": "Image Scatter is an interactive plot — the hover "
+                     "preview is the whole feature; run it in the GUI "
+                     "(spacr-qt), where it is a button on Image UMAP. "
+                     "Headless, read the same table with pandas.",
+    "pca": "PCA here is interactive multivariate exploration — ticking "
+           "features and brushing a cluster are the feature; run it in the "
+           "GUI (spacr-qt), where it is a button on Image UMAP. Headless, "
+           "spacr.qt.widgets.pca_model.pca() is the equivalent.",
+    "volcano_explorer": "Volcano Explorer is an interactive reader for a "
+                        "finished regression — clicking a point is the "
+                        "feature, so there is nothing to batch; run it in "
+                        "the GUI (spacr-qt), where it is “Publication "
+                        "figure…” on the Regression volcano and a button on "
+                        "that masthead. Headless, call "
+                        "spacr.volcano_style.render_volcano(results, "
+                        "VolcanoStyle(...), save_path='volcano.pdf'); that "
+                        "is the renderer this screen draws through, so the "
+                        "figure is the same one, vector at publication "
+                        "size.",
 }
 
 

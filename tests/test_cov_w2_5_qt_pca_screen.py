@@ -446,12 +446,15 @@ def test_a_link_that_refuses_to_disconnect_does_not_stop_the_close(qtbot,
     assert made.active_jobs() == 0
 
 
-def test_registering_twice_is_not_a_second_row():
-    """A module imported from two paths must not raise on the duplicate key."""
+def test_the_screen_puts_no_row_in_the_registry():
+    """PCA is a fold, so importing this module must add no tile.
+
+    This asserted the module's one row was registered and that a second
+    ``register()`` did not duplicate it. There is no row and no
+    ``register()`` now: PCA is a button on Image UMAP's masthead, and
+    the failure worth catching is the row coming back.
+    """
     from spacr.qt.app import APPS
 
-    before = [row for row in APPS if row[0] == pca_screen.APP_KEY]
-    assert len(before) == 1, "the screen's one row is already registered"
-
-    assert pca_screen.register() is False
-    assert [row for row in APPS if row[0] == pca_screen.APP_KEY] == before
+    assert not any(row[0] == pca_screen.APP_KEY for row in APPS)
+    assert not hasattr(pca_screen, "register")

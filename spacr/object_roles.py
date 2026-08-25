@@ -46,18 +46,24 @@ def is_organelle(role: str) -> bool:
 
 
 def organelle_index(role: str) -> int:
-    """Return the one-based user-facing index of an organelle slot."""
-    try:
-        return ORGANELLE_ROLES.index(str(role)) + 1
-    except ValueError as exc:
-        raise ValueError(
-            f"{role!r} is not an organelle role; expected one of "
-            f"{list(ORGANELLE_ROLES)}") from exc
+    """Return the one-based user-facing index of an organelle slot.
+
+    ANSWERED FROM THE LETTER, not from a list of the slots that happen to
+    segment today. The suffix IS the number -- organelle, organelleb,
+    organellec -- so a slot the schema has no mask plane for still has a
+    name, and a settings file carrying seven slots renders as
+    "Organelle 5" rather than as "Organellee".
+    """
+    from .organelle_types import organelle_number
+
+    return organelle_number(role)
 
 
 def organelle_label(role: str) -> str:
     """Human-readable label for a slot (``Organelle 1``, ``Organelle 2``)."""
-    return f"Organelle {organelle_index(role)}"
+    from .organelle_types import organelle_slot_label
+
+    return organelle_slot_label(role)
 
 
 #: Terms whose established capitalization must survive label generation.
@@ -109,13 +115,19 @@ def _split_id_suffix(key: str) -> str:
 
 def setting_label(key: str) -> str:
     """Humanise a setting key, giving organelle slots numbered labels."""
+    from .organelle_types import organelle_role_of
+
     key = str(key)
-    for role in sorted(ORGANELLE_ROLES, key=len, reverse=True):
-        if key == role or key.startswith(f'{role}_'):
-            suffix = key[len(role):].lstrip('_').replace('_', ' ')
-            return (organelle_label(role) if not suffix else
-                    f'{organelle_label(role)} — '
-                    f'{_recase(suffix.capitalize())}')
+    # RESOLVED FROM THE KEY, not by looping the four roles the schema
+    # segments. A settings file may carry any slot the vocabulary allows,
+    # and one that fell outside those four rendered as "Organellee
+    # channel" -- the raw suffix -- instead of "Organelle 5 — Channel".
+    role = organelle_role_of(key)
+    if role is not None:
+        suffix = key[len(role):].lstrip('_').replace('_', ' ')
+        return (organelle_label(role) if not suffix else
+                f'{organelle_label(role)} — '
+                f'{_recase(suffix.capitalize())}')
     if key in EXACT_LABELS:
         return EXACT_LABELS[key]
     spaced = _split_id_suffix(key).replace('_', ' ').strip()

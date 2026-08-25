@@ -22,8 +22,8 @@ The three ways a crop of this shape goes wrong each have a test by name: a
 radial window taken from the cell's box alone rather than its union with the
 object's, which leaves an object larger than its cell with no boundary in the
 window and every distance infinite; a ring window narrower than the dilation
-that fills it; and a percentile batched into one call, which on a float32
-image promotes the column to float64 and changes its last bits.
+that fills it; and a percentile batched into one call, which on numpy 2.4 and
+later promotes a float32 image's column to float64 and changes its last bits.
 """
 from __future__ import annotations
 
@@ -467,14 +467,22 @@ def test_a_radial_profile_window_covers_an_object_larger_than_its_cell():
 # ---------------------------------------------------------------------------
 
 def test_an_intensity_percentile_keeps_the_dtype_of_its_image():
-    """Batching the percentile calls must not promote a float32 column.
+    """Batching the percentile calls must not move a float32 column.
 
     ``np.percentile`` given a sequence of cut points computes a float32 input
-    in float64 and given one cut point computes it in float32, and the two
-    disagree in the last bits. Batching all six cut points into one call is
-    where the speedup comes from, so the column a float32 image produces is
-    asserted to be float32 and to hold exactly the values one call per cut
-    point gives -- a naive batching passes neither.
+    in float64; given one cut point, numpy 2.4 and later compute it in float32,
+    and the two forms disagree in the last bits. Batching all six cut points
+    into one call is where the speedup comes from, so the column a float32
+    image produces is asserted to hold exactly the values -- and to carry
+    exactly the dtype -- that one call per cut point gives. A naive batching
+    passes neither.
+
+    The reference dtype is READ OFF NUMPY rather than written as ``float32``.
+    numpy 1.26 computes both forms in float64, and that is not a fringe
+    configuration: it is what the minimum-dependency floor resolves and what
+    every job installing torchcam (``numpy<2.0.0``) is dragged back to. There
+    the image's dtype cannot be kept without rounding the value a measured
+    database already holds, and holding the value is the point.
     """
     mask, image = _object_field()
     narrow = image.astype(np.float32)
@@ -483,11 +491,49 @@ def test_an_intensity_percentile_keeps_the_dtype_of_its_image():
 
     for cut_point in (5, 10, 25, 75, 85, 95):
         column = frame[f"percentile_{cut_point}"].to_numpy()
-        assert column.dtype == np.float32, cut_point
         expected = np.array([np.percentile(narrow[mask == label], cut_point)
-                             for label in frame["label"]], dtype=np.float32)
+                             for label in frame["label"]])
+        assert column.dtype == expected.dtype, cut_point
         assert np.array_equal(column, expected), cut_point
-    assert frame["iqr_intensity"].to_numpy().dtype == np.float32
+
+    one_at_a_time = np.percentile(narrow[mask == frame["label"].iloc[0]], 75)
+    assert frame["iqr_intensity"].to_numpy().dtype == one_at_a_time.dtype
+
+
+def test_only_a_dtype_numpy_widens_anyway_gets_the_batched_call(monkeypatch):
+    """The batching decision itself, watched rather than inferred from a dtype.
+
+    Where numpy computes both forms in float64 the two agree bit for bit, so
+    the values alone cannot say which form ran and the test above loses its
+    bite on exactly the interpreters CI uses. Counting the calls says it on
+    every numpy: a narrow float gets one call per cut point, an integer and a
+    float64 get a single batched call.
+    """
+    calls = []
+    real_percentile = np.percentile
+
+    def recording(values, q, *args, **kwargs):
+        calls.append(np.ndim(q))
+        return real_percentile(values, q, *args, **kwargs)
+
+    monkeypatch.setattr(np, "percentile", recording)
+    cut_points = [5, 10, 25, 75, 85, 95]
+
+    M._percentiles_of(np.arange(100, dtype=np.float32), cut_points)
+    narrow_calls = list(calls)
+
+    calls.clear()
+    M._percentiles_of(np.arange(100, dtype=np.uint16), cut_points)
+    integer_calls = list(calls)
+
+    calls.clear()
+    M._percentiles_of(np.arange(100, dtype=np.float64), cut_points)
+    wide_calls = list(calls)
+
+    # ndim 0 is a scalar cut point, ndim 1 the whole sequence in one call.
+    assert narrow_calls == [0] * len(cut_points)
+    assert integer_calls == [1]
+    assert wide_calls == [1]
 
 
 def test_the_intensity_percentiles_are_the_ones_computed_one_at_a_time():
