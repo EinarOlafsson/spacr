@@ -301,9 +301,6 @@ def test_a_sweep_the_profiler_refuses_is_reported_and_clears_the_canvas(
     assert "is not a number" in widget._status.text()
 
 
-@pytest.mark.xfail(strict=True, reason="a refused redraw clears the canvas but "
-                                       "leaves screen.curve() reporting the "
-                                       "previous profile")
 def test_the_curve_accessor_reports_nothing_after_a_refused_sweep(qtbot,
                                                                   design,
                                                                   monkeypatch):

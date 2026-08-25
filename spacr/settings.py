@@ -4129,7 +4129,7 @@ tooltips = {
     "fill_in": '(bool) - Post-process each Cellpose mask with fill_holes_in_mask in the mask-finetune and plaque tools: the mask is re-labelled by connectivity over all non-zero pixels, then interior holes are filled component by component. Because re-labelling IGNORES the original label values, two touching objects become one -- so this repairs hollow objects at the risk of merging adjacent ones. Default False.',
     "flow_threshold": "(float) - Cellpose flow_threshold: the maximum allowed error between the predicted flow field and the flows recomputed from each candidate mask; masks above it are discarded. Raise it to keep more objects, including irregularly shaped ones; lower it to reject poorly formed masks and reduce false positives. Default 0.4.",
     "fps": "(int) - Playback rate of the per-channel movies written to <src>/movies from timelapse .npy stacks, and only when timelapse is True. Raise it to skim long acquisitions, lower it to inspect individual frames. Affects the movies only - never tracking, segmentation or measurements. Default 2.",
-    "calibrate_fraction_threshold": "(bool) - Measure fraction_threshold from the control wells instead of using the number above. The sweep recomputes each well's gRNA fractions at a range of candidate cut-offs, refits imaging on sequencing over the wells the plate design names as pure positive and pure negative control, and keeps the cut-off where the two agree best. It needs those control wells to be named in the plate design - naming them by their reported fraction would be circular, since that fraction is the quantity under test. Off, fraction_threshold is read as given. Changing this changes which gRNAs survive in every well, so it is off by default. Default False.",
+    "calibrate_fraction_threshold": "(bool) - Measure fraction_threshold from the control wells instead of using the number above, which changes which gRNAs survive in every well. The sweep recomputes each well's fractions at a range of cut-offs and keeps the one where imaging and sequencing agree best. Needs the plate design to NAME the pure control wells: picking them by their reported fraction would be circular, since that fraction is what is under test. Default False.",
     "fraction_threshold": "(float) - Minimum relative abundance, 0-1, that a gRNA must reach within a well's total read count to be kept. Raising it strips low-abundance and bleed-through gRNAs and lowers the mean gRNAs per well; set it too high and every row is removed and the run errors out. Leave None to auto-pick the cutoff giving target_unique_count gRNAs per well. Default None.",
     "normalise_fraction": "(bool) - Divide a gRNA's fraction by the sum of the fractions that remain in its well after fraction_threshold, before deciding how many cells it is given. On, a gRNA's share is measured against what survived the threshold; off, it is measured against every read the well produced, including those the threshold removed. The two differ whenever the threshold removes anything: normalising raises every surviving share, and by more the more was removed. Default True.",
     "from_scratch": "(bool) - Start from randomly initialised weights instead of fine-tuning the pretrained model. Almost always leave OFF: fine-tuning needs tens of images where from-scratch needs thousands. Default False.",
@@ -6864,3 +6864,24 @@ def _set_organelle_defaults(settings):
             base_value = view.get(key, value)
             settings.setdefault(slot_key, deepcopy(base_value))
     return settings
+
+
+# THE ILLUMINATION HELP ARRIVES WITH THE MODULE THAT OWNS IT.
+#
+# `expected_types` types the nine illumination_* keys and `categories` files
+# them under "Illumination Correction", both in the literals above -- so every
+# session's Measure panel offers those nine controls. Their tooltips, though,
+# are contributed by spacr.illumination through `register_defaults` at ITS
+# import, so a session that had no other reason to import that module drew
+# nine controls with no help beside them, and
+# `test_every_typed_setting_has_a_tooltip` passed or failed on which files
+# pytest was pointed at.
+#
+# Importing the module here rather than copying its help text in keeps one
+# owner for that prose: `_merge_declarations` refuses a second, different
+# definition of a tooltip, so a copy would have to be kept in step by hand and
+# would announce itself only as an ImportError.
+#
+# LAST IN THE FILE, after every name this module defines, because registering
+# calls back into it.
+from . import illumination as _illumination  # noqa: E402,F401

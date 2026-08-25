@@ -609,9 +609,6 @@ def test_closing_home_stops_its_ticker_even_when_the_registry_is_gone(page):
 # Two pieces of Home that cannot run at all
 # ---------------------------------------------------------------------------
 
-@pytest.mark.xfail(strict=True, reason="HomePage defines closeEvent twice; the "
-                                       "second definition shadows the one that "
-                                       "shuts the journal jobs down")
 def test_closing_home_shuts_down_its_journal_walk(qtbot, monkeypatch):
     """A journal walk must not outlive the page that asked for it.
 
@@ -630,9 +627,6 @@ def test_closing_home_shuts_down_its_journal_walk(qtbot, monkeypatch):
     assert stopped == [True]
 
 
-@pytest.mark.xfail(strict=True, reason="no widget is given the object name "
-                                       "'Hero', so the hero's labels are never "
-                                       "made transparent")
 def test_the_hero_labels_are_reachable_by_the_name_that_clears_them(page):
     """The masthead's type has to go transparent with the rest of the page.
 

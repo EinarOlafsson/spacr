@@ -185,15 +185,13 @@ def test_a_summary_still_renders_when_the_theme_cannot_be_read(qtbot,
                for block in blocks)
 
 
-@pytest.mark.xfail(strict=True, reason="panel_alpha has no 'card' role, so "
-                                       "_reading_surface always falls back to "
-                                       "transparent")
 def test_the_reading_surface_is_a_surface(qtbot):
     """Summary text sits on a surface, not straight on the moving backdrop.
 
-    ``_reading_surface`` is meant to composite the card colour at the pane
-    opacity; asking ``panel_alpha`` for a role the palette does not define
-    raises, and every summary body is painted fully transparent instead.
+    ``_reading_surface`` composites the ``surface_alt`` colour at the pane
+    opacity. The marker came off once the alpha was asked for under the role
+    the palette actually defines: asking for a role with no palette entry
+    raised, and every summary body was painted fully transparent instead.
     """
     widget = FoldingSummaryView()
     qtbot.addWidget(widget)

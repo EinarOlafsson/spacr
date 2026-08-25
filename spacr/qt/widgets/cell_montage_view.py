@@ -1805,7 +1805,17 @@ class CellMontageView(QWidget):
         self._score.setVisible(False)
 
         self._cap = QSpinBox()
-        self._cap.setRange(1, 5000)
+        # AS HIGH AS THE SETTINGS WINDOW CAN GO. This box is the value
+        # `request()` reads, and the window writes its choice back into it
+        # through `setValue`, which clamps silently -- so a lower ceiling
+        # here would quietly turn a cap the user chose into a different one
+        # with nothing on screen saying so.
+        #
+        # The floor stays at 1 rather than following the window down to 0: a
+        # cap of 0 reaches `select_montage` as "no cap given" and draws the
+        # default 2,000 under a caption that says 0, so it is the one value
+        # in the window's range this control must not pass on.
+        self._cap.setRange(1, 1_000_000)
         self._cap.setValue(int(MAX_OBJECTS))
         self._cap.setToolTip(
             "The largest montage to draw. The merged source is priced by "
@@ -2508,7 +2518,12 @@ class CellMontageView(QWidget):
         return written
 
     def _ask_before_writing(self, databases, score_files) -> bool:
-        """Ask whether to write the listed score files to the databases."""
+        """Ask whether to write the listed score files to the databases.
+
+        Consent is the Write button and nothing else: a window closed by its
+        title bar, or rejected programmatically, clicked no button at all and
+        counts as a refusal.
+        """
         from PySide6.QtWidgets import QMessageBox
 
         box = QMessageBox(self)
@@ -2529,11 +2544,11 @@ class CellMontageView(QWidget):
               "montage can already use the loaded files without this step; "
               "continue only if another workflow needs the scores stored in "
               "the databases.")
-        box.addButton("Write scores", QMessageBox.AcceptRole)
+        proceed = box.addButton("Write scores", QMessageBox.AcceptRole)
         cancel = box.addButton("Cancel", QMessageBox.RejectRole)
         box.setDefaultButton(cancel)
         box.exec()
-        return box.clickedButton() is not cancel
+        return box.clickedButton() is proceed
 
     def picked_groups(self) -> dict:
         """``{gene: the object index values this tab picked for it}``.

@@ -198,9 +198,15 @@ def gene_of_guide(guide: Any, prefix: Optional[str] = None) -> Optional[str]:
     first. That works for `PF3D7_0100100_1` and for a human library without
     either being named anywhere.
 
+    A PREFIX THAT WAS REMOVED IS NOT REMOVED TWICE. Once an organism has
+    been taken off the front -- the measured `prefix`, or one of
+    :data:`GUIDE_PREFIXES` -- the remainder is `<gene>_<guide>`, so the gene
+    is everything but the guide number. `TGGT1_ROP18_kinase_1` is
+    `ROP18_kinase`, not `kinase`.
+
     :param prefix: an organism prefix MEASURED from the library, as
         :func:`spacr.control_names.common_prefix` returns. Given, it is
-        removed first; the shape rule then applies to what is left. This is
+        removed first, and the remainder read as `<gene>_<guide>`. This is
         how a caller that has the whole library in hand beats a rule that
         only has one name.
     """
@@ -212,15 +218,28 @@ def gene_of_guide(guide: Any, prefix: Optional[str] = None) -> Optional[str]:
 
         return _design_gene_of(text)
     head = str(prefix or "").strip()
+    stripped = False
     if head and text.startswith(f"{head}_"):
         text = text[len(head) + 1:]
+        stripped = True
     else:
         for known in GUIDE_PREFIXES:
             if text.upper().startswith(known):
                 text = text[len(known):]
+                stripped = True
                 break
     parts = [p for p in text.split("_")]
-    if len(parts) >= 3:
+    if stripped:
+        # THE ORGANISM IS ALREADY GONE, so the shape rule must not take a
+        # second component off. What is left is `<gene>_<guide>`, and a gene
+        # id that carries an underscore of its own -- `ROP18_kinase` -- keeps
+        # all of it. Applying the three-component rule here as well dropped
+        # the gene's first component and split its guides across two "genes".
+        if len(parts) >= 2:
+            gene = "_".join(parts[:-1]).strip()
+        else:
+            gene = parts[0].strip()
+    elif len(parts) >= 3:
         # `<organism>_<gene>_<guide>`: the gene is the middle component, and
         # anything between it and the guide number belongs to it.
         gene = "_".join(parts[1:-1]).strip()

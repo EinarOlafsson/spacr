@@ -314,9 +314,11 @@ class FoldingSummaryView(QScrollArea):
     def _reading_surface(self) -> str:
         """Return an ``rgba(...)`` surface that keeps summary text legible.
 
-        The active card surface and pane opacity separate text from the
-        animated background without making the panel fully opaque. Fall back
-        to transparency when the theme cannot be resolved.
+        The active ``surface_alt`` colour and the pane opacity separate text
+        from the animated background without making the panel fully opaque --
+        the colour and the alpha are asked for under the same role, so the
+        alpha is the one solved for legibility over that colour. Fall back to
+        transparency when the theme cannot be resolved.
         """
         try:
             from ..preferences import get_pane_opacity, resolve_effective_theme
@@ -324,7 +326,7 @@ class FoldingSummaryView(QScrollArea):
 
             theme = resolve_effective_theme()
             colour = str(palette_for(theme).get("surface_alt", "#161719"))
-            alpha = panel_alpha(theme, "card", get_pane_opacity())
+            alpha = panel_alpha(theme, "surface_alt", get_pane_opacity())
             r, g, b = (int(colour[i:i + 2], 16) for i in (1, 3, 5))
             return f"rgba({r}, {g}, {b}, {max(0.0, min(1.0, float(alpha))):.3f})"
         except Exception:                                   # noqa: BLE001

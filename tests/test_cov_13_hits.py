@@ -179,9 +179,6 @@ def test_a_row_whose_numbers_cannot_be_read_fails_every_numeric_filter():
                                                                 "244480"]
 
 
-@pytest.mark.xfail(strict=True, reason="filter(min_effect=) takes abs() before "
-                                       "the numeric guard, so a non-numeric "
-                                       "effect raises instead of being excluded")
 def test_an_effect_that_is_not_a_number_is_excluded_like_every_other_criterion():
     """``min_effect`` must exclude an unreadable effect, not raise on it.
 

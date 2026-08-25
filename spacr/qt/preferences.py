@@ -1132,10 +1132,14 @@ def resolve_effective_theme() -> str:
         return theme
     # system — poll Qt's palette hint
     try:
+        from PySide6.QtGui import QPalette
         from PySide6.QtWidgets import QApplication
         app = QApplication.instance()
         if app is not None:
-            bg = app.palette().color(app.palette().Window)
+            # THE ENUM, NOT THE INSTANCE. `palette.Window` was removed in
+            # PySide6 6.x, and the bare except below would swallow the
+            # AttributeError and hand every desktop the dark theme.
+            bg = app.palette().color(QPalette.ColorRole.Window)
             # crude luminance test — < 128 → dark scheme
             lum = (0.299 * bg.red() + 0.587 * bg.green()
                    + 0.114 * bg.blue())
@@ -2812,7 +2816,8 @@ def explain_every_row(dialog) -> int:
     explained the same way, and a row added later without a tooltip is
     reported by the test rather than passing unnoticed.
     """
-    from PySide6.QtWidgets import QFormLayout, QLabel
+    from PySide6.QtWidgets import (QFormLayout, QLabel, QPushButton,
+                                   QToolButton)
 
     from .i18n import tr
 
@@ -2829,14 +2834,29 @@ def explain_every_row(dialog) -> int:
                 continue
             text = (label.text() or "").replace("&", "").strip()
             tip = PREFERENCE_TIPS.get(text, "")
+            # A BUTTON IS NOT A SETTING, and its tooltip is not a row's
+            # explanation -- it says what pressing it DOES, which is often
+            # the confirmation the press will ask for. Moving that onto the
+            # label and clearing the button leaves the user hovering the
+            # thing they are about to press and being told nothing.
+            #
+            # So a button row gets its label explained and KEEPS its own
+            # tooltip. Every other kind of field hands its explanation over,
+            # which is the rule: on the setting's text, never on its field.
+            is_action = isinstance(field, (QPushButton, QToolButton))
             if not tip:
-                # WHATEVER THE ROW ALREADY SAID, moved rather than
-                # duplicated: a tooltip on both reads as two answers.
+                # WHATEVER THE ROW ALREADY SAID. For a setting it is MOVED
+                # rather than duplicated -- a tooltip on both reads as two
+                # answers. For an action it is COPIED, because the two are
+                # not answering the same question: the label is being told
+                # what the row is about, and the button what pressing it
+                # will do.
                 tip = (field.toolTip() or "").strip()
             if not tip:
                 continue
             label.setToolTip(tr(tip))
-            field.setToolTip("")
+            if not is_action:
+                field.setToolTip("")
             explained += 1
     return explained
 

@@ -120,6 +120,25 @@ def test_a_library_from_another_organism_still_gives_up_its_gene():
     assert gene_of_guide("HGNC_RAB11_A_1") == "RAB11_A"
 
 
+def test_a_removed_organism_prefix_is_not_removed_a_second_time():
+    """A gene id carrying an underscore survives a stripped prefix.
+
+    Taking a known prefix off the front and THEN applying the
+    ``<organism>_<gene>_<guide>`` shape rule strips two components, so
+    ``TGGT1_ROP18_kinase_1`` resolved to ``kinase`` and that gene's guides
+    split across two "genes" with nothing on screen saying so. A measured
+    prefix has the same edge, and worse: handing the function the prefix a
+    caller measured from the library made the answer wrong where leaving it
+    out was right.
+    """
+    assert gene_of_guide("TGGT1_ROP18_kinase_1") == "ROP18_kinase"
+    assert gene_of_guide("HGNC_RAB11_A_1", prefix="HGNC") == "RAB11_A"
+
+    # The numeric Toxoplasma ids the shipped libraries use are unmoved.
+    assert gene_of_guide("TGGT1_225160_2", prefix="TGGT1") == "225160"
+    assert gene_of_guide("TGGT1_225160") == "225160"
+
+
 def test_a_gene_resolver_that_raises_loses_only_that_guide():
     """One guide whose name cannot be parsed does not stop the rest.
 

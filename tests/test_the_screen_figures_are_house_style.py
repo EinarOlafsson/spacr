@@ -361,20 +361,34 @@ def test_the_fast_path_still_returns_the_same_list_without_drawing():
 
 
 def test_the_volcano_saves_through_the_format_preference(tmp_path, monkeypatch):
-    """Rule 4: no figure writes its own extension."""
-    seen = {}
-    real = T.save_figure
+    """No figure writes its own extension: the preference picks it.
 
-    def spy(fig, path, **kwargs):
-        seen["path"] = path
-        return real(fig, path, **kwargs)
+    ASSERTED ON THE BEHAVIOUR, NOT ON THE SPELLING. This used to spy on
+    ``toxo.save_figure``, a module-level name the volcano stopped calling
+    when the save moved behind :func:`spacr.figures.scene.write_figure` --
+    so it failed on a refactor that keeps the guarantee, which is the kind
+    of test that gets deleted rather than read. The guarantee is that a
+    caller asking for ``v.pdf`` while the preference says PNG gets a PNG,
+    that it lands on disk, and that it is announced to the gallery.
+    """
+    import spacr.plot as plot_module
+    from spacr import figure_sink
 
-    monkeypatch.setattr(T, "save_figure", spy)
-    data, metadata = _screen(), _lopit()
-    T.custom_volcano_plot(data, metadata, figsize=6, threshold=0,
-                          save_path=str(tmp_path / "v.pdf"))
-    assert seen["path"] == str(tmp_path / "v.pdf")
-    assert (tmp_path / "v.pdf").exists()
+    monkeypatch.setattr(plot_module, "figure_output_preferences",
+                        lambda: ("png", 300))
+    announced = []
+    previous = figure_sink.set_sink(lambda fig, path: announced.append(path))
+    try:
+        data, metadata = _screen(), _lopit()
+        T.custom_volcano_plot(data, metadata, figsize=6, threshold=0,
+                              save_path=str(tmp_path / "v.pdf"))
+    finally:
+        figure_sink.set_sink(previous)
+
+    assert (tmp_path / "v.png").exists(), sorted(p.name for p in
+                                                 tmp_path.iterdir())
+    assert not (tmp_path / "v.pdf").exists(), "the caller's extension won"
+    assert announced == [str(tmp_path / "v.png")]
 
 
 # --------------------------------------------------------------------------- #

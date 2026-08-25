@@ -268,6 +268,12 @@ class PictureSettingsDialog(QDialog):
             pass
 
         self.set_mode(self._mode)
+        # HOVER HELP BELONGS TO THE SETTING'S NAME, never to the box
+        # you type in. Built here on the field, it is moved onto the
+        # label as the last step, so every panel in the application
+        # explains itself the same way.
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # ------------------------------------------------------------------ mode
 

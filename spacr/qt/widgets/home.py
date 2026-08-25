@@ -1491,6 +1491,10 @@ class HomePage(QWidget):
     def _build_hero(self) -> QWidget:
         P = self._P
         hero = QWidget()
+        # Named so `_clear_page_surfaces` can find it and clear the fill off
+        # the labels inside it; without the name that sweep reaches nothing
+        # and the masthead's type keeps the blanket window background.
+        hero.setObjectName("Hero")
         row = QHBoxLayout(hero)
         row.setContentsMargins(0, 0, 0, 0)
         row.setSpacing(SPACING["md"])
@@ -1934,11 +1938,6 @@ class HomePage(QWidget):
         """How many journal-reading threads are still winding down."""
         return self._journal_jobs.active_jobs()
 
-    def closeEvent(self, event):        # noqa: N802 - Qt override
-        """Do not let a journal walk outlive the page that asked for it."""
-        self._journal_jobs.shutdown()
-        super().closeEvent(event)
-
     # -- API kept from the page this replaces --------------------------
     def set_reserved_content(self, widget: QWidget) -> None:
         """Fill the featured/news surface with real content."""
@@ -1980,6 +1979,14 @@ class HomePage(QWidget):
         return super().eventFilter(obj, event)
 
     def closeEvent(self, event):                # noqa: N802
+        """Tear down everything the page started before it goes away.
+
+        The journal walk reads thousands of manifests on a worker thread; a
+        page closed mid-walk would leave that thread running against a widget
+        already being destroyed. The registry connection and the ticker go the
+        same way, so nothing left behind can call back into a dead page.
+        """
+        self._journal_jobs.shutdown()
         try:
             self._registry.changed.disconnect(self._on_runs_changed)
         except (RuntimeError, TypeError):

@@ -24,18 +24,18 @@ WHAT "DISTANCE" MEANS HERE, because three different numbers get called it:
 
     centre_to_centre     between the two centroids. Big for two large
                          objects that are touching.
-
-NO OBJECT-TYPE PREFIX ON THE COLUMNS. `measure` prefixes every measurement
-family with the object it belongs to, so a column called
-`distance_to_own_boundary` here reaches the database as
-`cell_distance_to_own_boundary`. Naming it `cell_...` here produced
-`cell_cell_...`, which is the shape of every doubled-prefix bug.
     centre_to_surface    from a's centroid to the nearest point on ANY b.
                          Asymmetric: a's centre to b's edge is not b's
                          centre to a's edge, so both are emitted.
     surface_to_surface   closest point to closest point. ZERO when they
                          touch, and it is the number a biologist means by
                          "how far apart are they".
+
+NO OBJECT-TYPE PREFIX ON THE COLUMNS. `measure` prefixes every measurement
+family with the object it belongs to, so a column called
+`distance_to_own_boundary` here reaches the database as
+`cell_distance_to_own_boundary`. Naming it `cell_...` here produced
+`cell_cell_...`, which is the shape of every doubled-prefix bug.
 
 NEVER NaN WHERE A NUMBER IS MEANINGFUL. An object with no partner of the
 other type is ``inf`` -- genuinely infinitely far, which is a fact -- and

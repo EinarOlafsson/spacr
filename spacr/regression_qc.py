@@ -3650,7 +3650,10 @@ def _score_precision_recall(stats):
     if average is None or prevalence is None:
         return PanelVerdict("unknown", "no average precision was computed")
     lift = average / prevalence if prevalence else None
-    level = _band(lift, 1.5, 1.1)
+    # A BIGGER LIFT IS THE BETTER OUTCOME, the same way a bigger AUC is, so
+    # the thresholds are read downwards: below 1.1x the model is no better
+    # than the base rate.
+    level = _band(lift, 1.5, 1.1, above_is_bad=False)
     return PanelVerdict(
         level,
         "precision beats the base rate" if level == "pass"

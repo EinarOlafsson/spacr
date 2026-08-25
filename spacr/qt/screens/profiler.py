@@ -535,7 +535,7 @@ class ProfilerScreen(QWidget):
             self._set_status("That model has no inputs to profile.",
                              problem=True)
             self._inputs.clear()
-            self._canvas.set_curve(None, "No inputs to profile.")
+            self._show_curve(None, "No inputs to profile.")
             return
         self._ranked = sensitivity(model, design)
         self._fill_inputs()
@@ -553,7 +553,7 @@ class ProfilerScreen(QWidget):
                   if not movable else
                   "nothing to sweep: every input is constant in this design, "
                   "so no value of it would change the prediction.")
-        self._canvas.set_curve(None, reason.capitalize())
+        self._show_curve(None, reason.capitalize())
         self._set_status(f"There is {reason}", problem=True)
 
     def _fill_inputs(self) -> None:
@@ -669,6 +669,16 @@ class ProfilerScreen(QWidget):
         """The profile currently drawn, or ``None``."""
         return self._curve
 
+    def _show_curve(self, curve: Optional[Profile], message: str = "") -> None:
+        """Draw a curve and remember it, in that one place.
+
+        ``curve()`` promises the profile *currently drawn*, so the canvas and
+        the remembered curve have to move together; clearing one without the
+        other leaves the accessor describing a plot nobody can see.
+        """
+        self._curve = curve
+        self._canvas.set_curve(curve, message)
+
     def ranked_inputs(self) -> List[Any]:
         """Every input, ranked by how far it moves the prediction."""
         return list(self._ranked)
@@ -696,16 +706,16 @@ class ProfilerScreen(QWidget):
         held = {name: value for name, value in self._held.items()
                 if name != variable}
         try:
-            self._curve = profile(
+            curve = profile(
                 self._model, self.design(), variable, at=held,
                 n=int(self._points.value()))
         except (KeyError, ValueError, TypeError) as exc:
             self.last_error = str(exc)
-            self._canvas.set_curve(None, str(exc))
+            self._show_curve(None, str(exc))
             self._set_status(f"Could not profile {variable}: {exc}",
                              problem=True)
             return
-        self._canvas.set_curve(self._curve)
+        self._show_curve(curve)
         assumed = self._design is None or self._design.empty
         message = (
             f"{variable}: {self._curve.values[0]:.4g} → "

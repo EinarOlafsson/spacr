@@ -127,33 +127,60 @@ def test_a_cancelled_merge_writes_nothing_and_says_the_old_one_is_intact(
     assert "untouched" in message
 
 
-@pytest.mark.xfail(strict=True, reason="plate_id_notes reads the normalised "
-                                       "`plates` instead of `stored_plates`, "
-                                       "so it is silent on every database")
-def test_a_doubled_plate_prefix_is_named_with_both_spellings(tmp_path):
-    """A stored plate id that is not canonical is reported, not corrected away.
+def test_a_doubled_plate_prefix_is_repaired_on_read_so_nothing_is_said(
+        tmp_path):
+    """A database stamped ``pplate1`` reads as ``plate1``, with no caveat.
 
-    ``pplate1`` in the file and ``plate1`` everywhere else is the mismatch
-    that makes a merge meet no score CSV, and the panel's whole job here is to
-    say it before the run dies several steps later with a ``KeyError``.
+    THIS TEST WAS PINNED AS xfail(strict=True) ASSERTING THE OPPOSITE -- that
+    ``plate_id_notes`` names both spellings -- on the grounds that it computes
+    the odd ids from the already-normalised ``plates`` and is therefore silent
+    on every database. The silence is real; the conclusion was wrong, and the
+    assertion is turned round here.
 
-    :class:`spacr.multi_database.SourceSummary` carries both spellings and an
-    ``odd_plates`` property that is exactly this comparison -- carried,
-    according to its own docstring, because a report built on the normalised
-    list "was silent on every database".
+    The doubling is collapsed as the database is READ, so the plan and the
+    merged frame both say ``plate1`` and the measurement side meets a score
+    CSV that ``correct_metadata`` has normalised. There is no mismatch left to
+    warn about, and a note naming ``pplate1`` would be the panel crying wolf
+    -- which is what
+    ``test_the_measurements_tab_is_a_workflow.py::test_the_doubled_prefix_cannot_reach_a_join_key``
+    asserts from the panel's side.
+
+    What ``plate_id_notes`` is left as -- a tripwire for an id that reaches
+    the plan unrepaired -- is pinned by the test below, so its silence here
+    cannot be confused with dead code.
     """
     from spacr.multi_database import describe_merge
 
     path = _database(tmp_path / "odd", "plate1", stored_plate="pplate1")
     plan = describe_merge([path], "cell")
-    assert plan.sources[0].odd_plates == ("pplate1",), \
-        "the plan itself knows the stored spelling is not canonical"
+
+    assert plan.sources[0].plates == ("plate1",), \
+        "the read repair collapses the doubling before the plan sees it"
+    assert plan.sources[0].stored_plates == ("pplate1",), \
+        "the stored spelling is still carried, it is simply not a warning"
+    assert msp.plate_id_notes(plan) == []
+
+
+def test_a_plate_id_that_reaches_the_plan_uncollapsed_is_named(tmp_path):
+    """The tripwire speaks when the read repair has NOT been applied.
+
+    ``plate_id_notes`` reads the ids the merge will key on. One that is still
+    not canonical at that point is one nothing repaired, and it will meet no
+    normalised score file -- silently, several steps later -- so the note has
+    to name it and say where the doubling is.
+    """
+    import types
+
+    source = types.SimpleNamespace(label="measurements",
+                                   plates=("pplate1",),
+                                   stored_plates=("pplate1",))
+    plan = types.SimpleNamespace(sources=(source,))
 
     notes = msp.plate_id_notes(plan)
 
     assert len(notes) == 1
     assert "pplate1" in notes[0]
-    assert "shown as" in notes[0]
+    assert "shown as plate1" in notes[0]
     assert msp.PLATE_KEY in notes[0]
 
 

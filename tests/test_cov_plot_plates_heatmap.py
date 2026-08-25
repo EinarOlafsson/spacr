@@ -141,29 +141,42 @@ def test_generate_plate_heatmap_four_part_prc_does_not_mutate_caller_prc():
 # generate_plate_heatmap — metadata back-fill from legacy column names
 # ---------------------------------------------------------------------------
 
-def test_generate_plate_heatmap_backfills_columnid_from_column():
-    """A legacy ``column`` column seeds ``columnID`` before prc parsing."""
+def test_generate_plate_heatmap_reads_the_column_from_prc_not_from_a_column_column():
+    """A legacy ``column`` column does not get a vote on where a well is drawn.
+
+    Renamed from the "backfills columnID" spelling it had while the function
+    carried a disagreeing derivation: it read ``column`` / ``column_name``
+    into ``columnID`` and then overwrote that from the prc tokens a few lines
+    later, so the derivation could never change an answer. What is worth
+    pinning is the property that survived: prc is the only authority on the
+    well, so a frame carrying a second spelling of the column is placed
+    exactly where the same frame without it is.
+    """
     from spacr.plot import generate_plate_heatmap
 
     df = _prc_df(["p1_r1_c1", "p1_r1_c1", "p1_r2_c2"], [1.0, 3.0, 7.0])
-    df["column"] = ["c1", "c1", "c2"]
-    assert "column_name" not in df.columns
+    df["column"] = ["c9", "c9", "c9"]
 
     plate_map, (vmin, vmax) = generate_plate_heatmap(df, "p1", "value", "mean", "all", 0)
-    # The seeded columnID is superseded by the prc tokens (prc is the truth).
     assert df["columnID"].tolist() == ["c1", "c1", "c2"]
+    assert plate_map.columns.tolist() == ["c1", "c2"]
     assert plate_map.loc["r1", "c1"] == 2.0
     assert plate_map.loc["r2", "c2"] == 7.0
     assert (vmin, vmax) == (0.0, 7.0)
 
 
-def test_generate_plate_heatmap_backfills_plateid_from_plate():
-    """A legacy ``plate`` column seeds ``plateID`` when ``plateID`` is absent."""
+def test_generate_plate_heatmap_takes_the_plate_from_prc_over_a_plate_column():
+    """``plateID`` comes from the identifier even when a ``plate`` column exists.
+
+    Renamed from "backfills plateID from plate" for the reason given above:
+    the seeding branch it named was overwritten before anything read it. The
+    plate filter has to agree with the identifier or a well lands on the
+    wrong plate's grid, and that is what is asserted here.
+    """
     from spacr.plot import generate_plate_heatmap
 
     df = _prc_df(["p1_r1_c1", "p1_r2_c2"], [4.0, 6.0])
-    df["plate"] = "p1"
-    assert "plateID" not in df.columns
+    df["plate"] = "some_other_plate"
 
     plate_map, _ = generate_plate_heatmap(df, "p1", "value", "mean", "all", 0)
     assert df["plateID"].tolist() == ["p1", "p1"]
@@ -171,22 +184,31 @@ def test_generate_plate_heatmap_backfills_plateid_from_plate():
     assert plate_map.loc["r2", "c2"] == 6.0
 
 
-def test_generate_plate_heatmap_backfills_plateid_from_plate_name():
-    """``plate_name`` is the second fallback for ``plateID``."""
+def test_generate_plate_heatmap_ignores_a_plate_name_column_entirely():
+    """``plate_name`` names nothing this function reads.
+
+    Renamed from "backfills plateID from plate_name": that fallback was
+    overwritten from the prc tokens in every case. A disagreeing
+    ``plate_name`` must not move the well, which is the assertion left.
+    """
     from spacr.plot import generate_plate_heatmap
 
     df = _prc_df(["p1_r1_c1", "p1_r2_c2"], [4.0, 6.0])
     df["plate_name"] = "ignored_by_prc_parsing"
-    assert "plateID" not in df.columns and "plate" not in df.columns
 
     plate_map, _ = generate_plate_heatmap(df, "p1", "value", "sum", "all", 0)
-    # prc parsing overwrites the seeded plateID, so the plate filter still works.
     assert df["plateID"].tolist() == ["p1", "p1"]
     assert plate_map.loc["r1", "c1"] == 4.0
 
 
-def test_generate_plate_heatmap_default_plateid_when_no_metadata_columns():
-    """With no plate metadata at all the seed is 'p1', then prc parsing wins."""
+def test_generate_plate_heatmap_names_the_plate_in_prc_with_no_metadata_columns():
+    """With no plate metadata at all the plate is still the one in the prc.
+
+    Renamed from "default plateID when no metadata columns": the ``'p1'``
+    default it named was overwritten from the prc token before it was read,
+    so a frame of ``pX_`` wells was never labelled ``p1``. That is what is
+    checked now.
+    """
     from spacr.plot import generate_plate_heatmap
 
     df = _prc_df(["pX_r1_c1", "pX_r2_c2"], [1.0, 5.0])

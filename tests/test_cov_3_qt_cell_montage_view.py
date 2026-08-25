@@ -325,6 +325,31 @@ def test_accepting_the_picture_settings_writes_them_back_to_the_controls(
     assert view._picking_override == ""
 
 
+def test_the_hidden_cap_box_holds_every_cap_the_window_can_offer(view, qtbot):
+    """The settings window writes the chosen cap back through ``setValue``,
+    which clamps to the box's range and says nothing, so a mirror with a
+    lower ceiling than the editor silently draws a different montage from the
+    one asked for. Only the floor may differ: a cap of 0 reaches
+    ``select_montage`` as "no cap given"."""
+    from spacr.qt.widgets.picture_settings_dialog import PictureSettingsDialog
+
+    dialog = PictureSettingsDialog(view.picture_settings())
+    qtbot.addWidget(dialog)
+    offered = dialog._editors["cap"]
+
+    assert view._cap.maximum() == offered.maximum()
+    assert view._cap.minimum() == 1
+
+    offered.setValue(20000)
+    view._write_back({"cap": offered.value()})
+
+    assert view._cap.value() == 20000
+    assert view._read_widgets()["cap"] == 20000
+    assert 20000 in view._load_signature(), (
+        "the cap the window chose has to reach the signature that decides "
+        "whether the crops in hand still answer the settings")
+
+
 def test_nothing_is_written_to_a_database_without_both_halves(view):
     """The merge needs a database and a score file. Saying which is missing
     is the difference between 'nothing to do' and 'it silently did nothing'."""
@@ -357,10 +382,6 @@ def test_the_write_confirmation_names_every_file_it_will_touch(view,
     assert seen["default"] == "Cancel"
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "_ask_before_writing returns `clickedButton() is not cancel`, and a "
-    "dialog closed by its title bar clicked no button at all, so None "
-    "is not cancel reads as consent and the scores are written"))
 def test_closing_the_write_confirmation_is_not_consent(view, monkeypatch):
     """Dismissing a window is not agreeing to it. The polarity used by the
     matching prompt in Preferences -- `clickedButton() is proceed` -- is the

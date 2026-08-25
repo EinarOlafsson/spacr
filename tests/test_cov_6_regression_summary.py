@@ -739,23 +739,17 @@ def test_an_unreadable_previous_summary_does_not_stop_the_write(tmp_path,
 # The fitted section is currently lost to a missing label
 # ---------------------------------------------------------------------------
 
-@pytest.mark.xfail(strict=True, reason="LABELS has no ('fitted', "
-                                       "'hyperparameters') entry, so "
-                                       "_fitted_section raises KeyError for "
-                                       "every parametric run that recorded a "
-                                       "family and the whole section is "
-                                       "backfilled with the exception")
 def test_a_parametric_run_reports_what_it_fitted_rather_than_a_key_error():
     """WHAT WAS FITTED must carry the run's family, not a traceback.
 
     ``_fitted_section`` adds a ``hyperparameters`` field for every run that
-    named a regression family, but ``LABELS`` carries no label for it. The
-    lookup raises, ``build_run_summary`` backfills the entire section with
-    "this section could not be built (KeyError: ...)", and every one of the
-    eleven fields in the most-read section of the summary -- the family, the
-    response, the formula, whether plate position was modelled -- is replaced
-    by that sentence. The permutation path is unaffected, so the defect is
-    invisible on exactly the mode that was added last.
+    named a regression family, and every field it adds has to carry a label.
+    A label the section builder asks for and ``LABELS`` does not hold takes
+    the WHOLE section down: ``build_run_summary`` backfills all of it with
+    "this section could not be built (KeyError: ...)", so the family, the
+    response, the formula and whether plate position was modelled are each
+    replaced by that sentence. Only the parametric path adds the field, so
+    the permutation mode would not show it.
     """
     summary = RS.build_run_summary(
         settings={"regression_type": "ols", "dependent_variable": "pred"})

@@ -154,15 +154,12 @@ def test_an_axis_key_that_is_not_a_column_is_refused_by_name():
         PS._levels_of(_frame(), "missing")
 
 
-@pytest.mark.xfail(strict=True, reason="pivot() lets a raw pandas KeyError "
-                                       "out for a missing row key")
 def test_a_missing_row_key_reaches_the_user_as_a_pivot_error():
-    """Every other bad spec is refused as a :class:`PivotError` carrying a
-    sentence the panel can show. A row key the frame does not have escapes as
-    a bare ``KeyError('missing')`` from pandas instead, because the label
-    frame is built before the axis levels are resolved -- so the one message
-    the user sees for the commonest mistake, a spec saved against another
-    table, is the one that does not explain itself."""
+    """Every bad spec is refused as a :class:`PivotError` carrying a sentence
+    the panel can show, the commonest mistake -- a spec saved against another
+    table -- included. The axis keys are checked before the label frame is
+    built, so a row key the frame does not have is named rather than escaping
+    as a bare ``KeyError`` from pandas."""
     with pytest.raises(PivotError, match="not a column of this table"):
         pivot(_frame(), PivotSpec(rows=("missing",), values=("value",)))
 

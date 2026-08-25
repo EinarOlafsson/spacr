@@ -887,6 +887,12 @@ class MakeMasksScreen(QWidget):
             install_dropzone(self, MakeMasksDropHandler(), self)
         except Exception:
             pass
+        # HOVER HELP BELONGS TO THE SETTING'S NAME, never to the box
+        # you type in. Built here on the field, it is moved onto the
+        # label as the last step, so every panel in the application
+        # explains itself the same way.
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # ------------------------------------------------------------------
     def _build_ui(self):
@@ -1534,7 +1540,13 @@ class MakeMasksScreen(QWidget):
             "Off: take the dark side instead, for brightfield or stain.")
         detect_row.addWidget(self._otsu_bright)
         self._combine_mode = QComboBox()
-        self._combine_mode.addItems(["replace", "merge"])
+        # THE MODE IS THE ITEM'S DATA, NOT ITS LABEL. `replace` and `merge`
+        # are shown to the user and a language switch rewrites the item text
+        # in place; reading the mode back off that text would hand
+        # `engine.combine_masks` a translated word it has never heard of, so
+        # the untranslated key travels with the item instead.
+        for _mode in ("replace", "merge"):
+            self._combine_mode.addItem(_mode, _mode)
         self._combine_mode.setToolTip(
             "replace: the detection becomes the mask and what was there is "
             "gone. merge: keep every existing object and add detected ones "
@@ -1751,7 +1763,7 @@ class MakeMasksScreen(QWidget):
         """Threshold the image and fold the result in per replace/merge."""
         if self._canvas.image is None or self._canvas.mask is None:
             return
-        mode = self._combine_mode.currentText()
+        mode = self._combine_mode.currentData()
         try:
             detected = engine.otsu_instances(
                 self._canvas.image,

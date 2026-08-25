@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os as _os
 import warnings as _warnings
 from importlib import import_module
 from typing import Final
@@ -50,7 +51,10 @@ _warnings.filterwarnings(
     module=r"cellpose(\.|$)",
 )
 
-_SUBMODULES: Final[tuple[str, ...]] = (
+# The submodules this package documents, in the order that groups them by
+# what they are for. This is the frozen-bundle floor, not the whole list --
+# see `_SUBMODULES` below, which adds whatever else is on disk.
+_DOCUMENTED_SUBMODULES: Final[tuple[str, ...]] = (
     "api",
     "core",
     "schema",
@@ -401,6 +405,34 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "stream_dataset",
     "well_scope",
 )
+
+
+def _submodules_on_disk() -> frozenset[str]:
+    """Every ``spacr/*.py`` sitting beside this file, by module name.
+
+    Returns nothing when the sources are not on a readable filesystem -- a
+    PyInstaller bundle keeps the modules inside its archive, where there is
+    no directory to scan -- which is why this widens the documented tuple
+    rather than replacing it.
+    """
+    try:
+        entries = _os.listdir(_os.path.dirname(_os.path.abspath(__file__)))
+    except OSError:
+        return frozenset()
+    return frozenset(
+        name[:-3] for name in entries
+        if name.endswith(".py") and name not in ("__init__.py", "__main__.py")
+    )
+
+
+#: What ``getattr(spacr, name)`` will import. The documented tuple is the
+#: floor; the directory is the authority. A hand-kept inventory of the files
+#: in its own directory had drifted four separate times, each landing a
+#: module that existed but could not be reached through the package, so the
+#: names are taken from the directory whenever there is one to read.
+_SUBMODULES: Final[tuple[str, ...]] = tuple(sorted(
+    set(_DOCUMENTED_SUBMODULES) | _submodules_on_disk()
+))
 
 __all__ = [
     "__version__",

@@ -283,8 +283,6 @@ def test_an_empty_covariate_list_leaves_the_question_unanswered():
     assert report.covariate_columns == []
 
 
-@pytest.mark.xfail(strict=True, reason="ComBat returns an all-NaN batch for "
-                                       "perfectly collinear features")
 def test_combat_never_silently_returns_a_batch_of_nan():
     """A finite feature table must come back finite, or be refused.
 
@@ -295,6 +293,10 @@ def test_combat_never_silently_returns_a_batch_of_nan():
     warning on the report. Every row of that plate silently disappears from
     the next UMAP or model fit. Shrinking all the way to the pooled estimate
     -- what an infinite prior means -- is the finite answer.
+
+    The report has to say so: full shrinkage is a different estimator from
+    the one the caller asked for, so the collapse is asserted as a warning
+    and not only as the absence of NaN.
     """
     collinear = pd.DataFrame({"f1": [1.0, 2.0, 3.0, 11.0, 12.0, 13.0],
                               "f2": [4.0, 5.0, 6.0, 14.0, 15.0, 16.0]})
@@ -303,3 +305,4 @@ def test_combat_never_silently_returns_a_batch_of_nan():
         collinear, _batch(), method="combat", covariate=covariate,
         min_samples=3)
     assert not corrected.isna().any().any(), report.warnings
+    assert any("carried no information" in w for w in report.warnings)

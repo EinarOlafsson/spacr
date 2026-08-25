@@ -7889,7 +7889,7 @@ class SettingsWidgets:
                              function_name)
             return reader(value)
         except Exception:                                    # noqa: BLE001
-            LOG.debug("could not canonicalise %s", key, exc_info=True)
+            LOGGER.debug("could not canonicalise %s", key, exc_info=True)
             return value
 
     def collect(self) -> Dict[str, Any]:

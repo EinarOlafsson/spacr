@@ -25,11 +25,29 @@ import spacr.settings as S
 
 @pytest.fixture
 def defaults_sandbox():
-    """Restore the registry and the four shared declaration tables."""
+    """Restore the registry and every shared declaration table.
+
+    THE LIST OBJECTS THEMSELVES go back, not equal copies of them.
+    ``categories`` shares its buckets with the module-level names the Qt
+    bridge reads BY IDENTITY -- ``S.categories["Timelapse"] is
+    S.timelapse_settings`` -- so restoring a copy leaves the map equal and
+    the identity broken, and the failure lands in whatever test runs next
+    instead of in this one.
+
+    ``category_keys`` and ``REGISTERED_CATEGORIES`` are restored for the
+    same reason: :func:`spacr.settings.register_defaults` appends a new
+    category name to both, and a category invented by a test used to
+    outlive it in each -- which is what made
+    ``test_settings_categories.py`` fail on a run that happened to be
+    ordered after this file.
+    """
     registry = dict(S._DEFAULTS_REGISTRY)
     types_ = dict(S.expected_types)
     tips = dict(S.tooltips)
-    cats = {name: list(keys) for name, keys in S.categories.items()}
+    cats = {name: (bucket, list(bucket))
+            for name, bucket in S.categories.items()}
+    key_order = list(S.category_keys)
+    registered = set(S.REGISTERED_CATEGORIES)
     descs = dict(S.descriptions)
     yield
     S._DEFAULTS_REGISTRY.clear()
@@ -39,7 +57,12 @@ def defaults_sandbox():
     S.tooltips.clear()
     S.tooltips.update(tips)
     S.categories.clear()
-    S.categories.update(cats)
+    for name, (bucket, contents) in cats.items():
+        bucket[:] = contents
+        S.categories[name] = bucket
+    S.category_keys[:] = key_order
+    S.REGISTERED_CATEGORIES.clear()
+    S.REGISTERED_CATEGORIES.update(registered)
     S.descriptions.clear()
     S.descriptions.update(descs)
 

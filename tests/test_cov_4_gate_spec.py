@@ -384,9 +384,6 @@ def test_a_box_open_on_one_axis_has_no_centre_on_that_axis():
     assert _box(y_high=None).centre() == (5.0, None)
 
 
-@pytest.mark.xfail(strict=True, reason="BoxGate.scaled passes the factor and "
-                                       "the anchor to _scale_bound in the "
-                                       "wrong order")
 def test_resizing_a_box_grows_it_about_its_own_centre():
     """Every other kind scales about the centre; a box has to agree, or the
     same drag moves a box somewhere a rectangle would not go."""
@@ -395,10 +392,6 @@ def test_resizing_a_box_grows_it_about_its_own_centre():
     assert (grown.y_low, grown.y_high) == (-10.0, 30.0)
 
 
-@pytest.mark.xfail(strict=True, reason="BoxGate defines no kind property, so "
-                                       "the base refusal raises "
-                                       "NotImplementedError while building "
-                                       "its own message")
 def test_setting_a_threshold_on_a_column_the_box_lacks_is_refused():
     """The box knows three columns; a fourth is not silently ignored, and the
     refusal has to be the GateError every other kind raises."""
@@ -406,7 +399,6 @@ def test_setting_a_threshold_on_a_column_the_box_lacks_is_refused():
         _box().with_threshold("perimeter", 1.0, 2.0)
 
 
-@pytest.mark.xfail(strict=True, reason="BoxGate defines no kind property")
 def test_a_box_names_its_own_kind():
     """Every other shape answers `kind`, and the set reads it to decide how a
     gate is drawn, saved and evaluated."""

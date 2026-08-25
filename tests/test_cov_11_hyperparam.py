@@ -298,17 +298,14 @@ def test_two_numeric_cells_sort_by_their_numbers_not_their_text():
     assert not (_NumericTableItem("0.9", 0.9) < _NumericTableItem("0.1", 0.1))
 
 
-@pytest.mark.xfail(strict=True,
-                   reason="_NumericTableItem.__lt__ falls back to "
-                          "super().__lt__, which PySide6 dispatches straight "
-                          "back into the Python override -- the comparison "
-                          "recurses until it is abandoned and answers False")
 def test_a_numeric_cell_sorts_against_a_plain_cell_by_its_text():
     """A number column holding "-" for a failed trial must still sort.
 
     Qt orders plain items by their display text, so a scored row and an
-    unscored one have a defined order; without the fallback working, the
-    table's sort silently reports "not less than" for every such pair.
+    unscored one have a defined order. The override compares that text
+    itself rather than delegating to ``super().__lt__``, which PySide6
+    dispatches straight back into the override and so answers False for
+    every such pair.
     """
     from PySide6.QtWidgets import QTableWidgetItem
 

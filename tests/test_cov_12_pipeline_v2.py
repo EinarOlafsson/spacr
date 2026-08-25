@@ -86,9 +86,16 @@ def test_a_bare_mask_array_from_cellpose_is_still_appended(tmp_path,
         def __init__(self, *args, **kwargs):
             self.pretrained_model = None
 
-        def eval(self, images, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
-            check_cellpose_eval_call(images, channel_axis)
-            shape = np.asarray(images[0]).shape[:2]
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None,
+                 normalize=True, rescale=None, diameter=None,
+                 flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False,
+                 anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+                 min_size=15, max_size_fraction=0.4, niter=None,
+                 augment=False, tile_overlap=0.1, bsize=None,
+                 compute_masks=True, progress=None):
+            check_cellpose_eval_call(x, channel_axis)
+            shape = np.asarray(x[0]).shape[:2]
             mask = np.zeros(shape, dtype=np.uint16)
             mask[1:4, 1:4] = 1
             return mask, None, None
@@ -118,10 +125,17 @@ def test_a_missing_channel_order_sidecar_does_not_fail_the_mask_stage(
         def __init__(self, *args, **kwargs):
             self.pretrained_model = None
 
-        def eval(self, images, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
-            check_cellpose_eval_call(images, channel_axis)
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None,
+                 normalize=True, rescale=None, diameter=None,
+                 flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False,
+                 anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+                 min_size=15, max_size_fraction=0.4, niter=None,
+                 augment=False, tile_overlap=0.1, bsize=None,
+                 compute_masks=True, progress=None):
+            check_cellpose_eval_call(x, channel_axis)
             return ([np.ones(np.asarray(image).shape[:2], dtype=np.uint16)
-                     for image in images], None, None)
+                     for image in x], None, None)
 
     monkeypatch.setattr('cellpose.models.CellposeModel', ConstantMaskModel)
     plate = make_plate(tmp_path)
@@ -208,26 +222,30 @@ class TestCheckpointProvenance:
                    record.getMessage() for record in caplog.records)
 
 
-@pytest.mark.xfail(strict=True, reason="the mask write-back assumes a 3-D "
-                                       "stack, so the single-plane branch "
-                                       "raises before the mask is appended")
 def test_a_single_plane_stack_gets_its_mask_appended(tmp_path, monkeypatch):
     """A stack saved as one plane must come back as plane plus mask.
 
-    ``stream_masks_from_stack`` has a branch for a stack that is not (H, W, C)
-    -- it squeezes it before handing it to Cellpose -- so a single-plane stack
-    is meant to be segmentable. The write-back then concatenates a (H, W, 1)
-    mask onto the (H, W) array it loaded, which numpy refuses, and the whole
-    batch is lost rather than one field.
+    The marker came off once every field was promoted to (H, W, C) at load.
+    Before that a single-plane stack was squeezed instead, which Cellpose
+    rejects for a ``channel_axis=-1`` call, and the write-back then asked
+    numpy to concatenate a (H, W, 1) mask onto a (H, W) array -- either way
+    the whole batch was lost rather than one field.
     """
     class ConstantMaskModel:
         def __init__(self, *args, **kwargs):
             self.pretrained_model = None
 
-        def eval(self, images, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
-            check_cellpose_eval_call(images, channel_axis)
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None,
+                 normalize=True, rescale=None, diameter=None,
+                 flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False,
+                 anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+                 min_size=15, max_size_fraction=0.4, niter=None,
+                 augment=False, tile_overlap=0.1, bsize=None,
+                 compute_masks=True, progress=None):
+            check_cellpose_eval_call(x, channel_axis)
             return ([np.ones(np.asarray(image).shape[:2], dtype=np.uint16)
-                     for image in images], None, None)
+                     for image in x], None, None)
 
     monkeypatch.setattr('cellpose.models.CellposeModel', ConstantMaskModel)
     merged = tmp_path / 'merged'

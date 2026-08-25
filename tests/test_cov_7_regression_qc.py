@@ -790,23 +790,23 @@ def test_a_separating_classifier_is_scored_off_its_auc():
     assert "0.910" in good.detail
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "the precision-recall lift is banded as if a HIGH lift were bad: "
-    "_band(lift, 1.5, 1.1) is called without above_is_bad=False, so a 10x "
-    "lift over prevalence scores 'fail' and a useless 1.0x scores 'pass'"))
 def test_precision_recall_is_scored_against_the_prevalence_not_against_half():
     """On an imbalanced response the baseline IS the prevalence.
 
     An average precision of 0.2 is excellent at 2% prevalence and worthless
     at 50%, so the lift over the prevalence is what is scored -- and a bigger
     lift has to be the better verdict, the same way a bigger AUC is.
+
+    The reading is asserted through ``PanelVerdict.score``, which is the
+    field the number the verdict was read off is carried in; the type has no
+    ``value``, so asking for one tested nothing but an AttributeError.
     """
     lifted = rq.score_panel("precision_recall",
                             {"average_precision": 0.2, "prevalence": 0.02})
     flat = rq.score_panel("precision_recall",
                           {"average_precision": 0.2, "prevalence": 0.2})
 
-    assert lifted.value == pytest.approx(10.0)
+    assert lifted.score == pytest.approx(10.0)
     assert lifted.level == "pass"
     assert flat.level == "fail"
 

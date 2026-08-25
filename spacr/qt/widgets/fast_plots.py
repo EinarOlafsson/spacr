@@ -4593,28 +4593,19 @@ class FastPlot(QWidget):
         reproducing it is what makes the saved file and the tab the same
         picture.
 
-        Parameters
-        ----------
-        labels : sequence of str
-            One feature name per row, in the order they should appear.
-        contributions : array-like, shape (n_samples, n_features)
-            Each sample's contribution for each feature.
-        feature_values : array-like or None, default=None
-            The same shape, holding the feature's own value per sample; it
-            becomes the point colour. Without it every point is one colour
-            and the direction of the effect is not shown.
-        rings : int, default=0
-            Unused; accepted so the three chart methods share a signature.
-        size : float, default=5.0
-            Point diameter.
-        colormap : str, default=""
-            Colour scale for ``feature_values``; :data:`BEESWARM_SCALE` when
-            empty.
-
-        Returns
-        -------
-        int
-            Number of points drawn.
+        :param labels: one feature name per row, in the order they should
+            appear.
+        :param contributions: each sample's contribution for each feature,
+            as ``(n_samples, n_features)``.
+        :param feature_values: the same shape, holding the feature's own
+            value per sample; it becomes the point colour. Without it every
+            point is one colour and the direction of the effect is not shown.
+        :param rings: unused; accepted so the three chart methods share a
+            signature.
+        :param size: point diameter.
+        :param colormap: colour scale for ``feature_values``;
+            :data:`BEESWARM_SCALE` when empty.
+        :returns: the number of points drawn.
         """
         names = [str(name) for name in labels]
         matrix = np.asarray(contributions, dtype=float)

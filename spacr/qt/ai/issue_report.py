@@ -238,7 +238,7 @@ def save_log_bundle(fingerprint: str,
     The public issue names this path instead of carrying the log itself.
     More lines are kept here than would ever have gone in an issue --
     once the log is not being pasted into a URL there is no length to
-    stay under, and the maintainer asking for it wants the run, not a
+    stay under, and whoever reads the report wants the whole run, not a
     keyhole.
 
     :param fingerprint: the traceback hash, so one report's log is easy

@@ -555,19 +555,13 @@ def test_the_pointer_leaving_the_combo_dismisses_the_panel(qtbot,
 
 # -- the settings container ----------------------------------------------------
 
-@pytest.mark.xfail(strict=True, raises=NameError,
-                   reason="the handler logs through an undefined name")
 def test_a_canonical_reader_that_fails_leaves_the_value_alone(monkeypatch):
     """A reader that raises returns the widget's own answer unchanged.
 
     Dropping the value would silently reset the setting on every collect, and
     letting the failure out takes ``collect()`` -- and therefore the whole
-    Start button -- down with it.
-
-    The handler that is supposed to contain the failure logs through a name
-    the module does not define, so it raises ``NameError`` instead of
-    returning the value. This test asserts the behaviour the handler is for;
-    it turns into a reported XPASS the moment the logger name is corrected.
+    Start button -- down with it. The handler contains the failure and notes
+    it through the module's own logger.
     """
     from spacr import utils
 

@@ -96,6 +96,12 @@ class PercentilePair(QWidget):
         self._high.setMinimum(self._low.value())
         self._low.valueChanged.connect(self._on_low)
         self._high.valueChanged.connect(self._on_high)
+        # HOVER HELP BELONGS TO THE SETTING'S NAME, never to the box
+        # you type in. Built here on the field, it is moved onto the
+        # label as the last step, so every panel in the application
+        # explains itself the same way.
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     def _field(self, start: float, name: str, why: str) -> QDoubleSpinBox:
         """One numeric field, ranged to what a percentile can be."""
