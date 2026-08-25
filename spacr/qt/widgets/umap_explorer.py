@@ -36,6 +36,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from .eliding import ElidingPushButton
 from ... import schema
 from ...selection import (OBJECT_KEY_COLUMNS, DataFilter, Selection,
                           match_keys, object_keys)
@@ -229,9 +230,21 @@ class _ScaledPreview(QLabel):
     yield width to the chart.
     """
 
-    #: Below this the crop is too small to read and the controls under it
-    #: start to elide, so it is where the sidebar stops giving width away.
-    MINIMUM_SIDE = 120
+    #: Below this the crop is too small to read, so it is where the sidebar
+    #: stops giving width away.
+    #:
+    #: 120 WAS TOO HIGH, and the reason given for it no longer holds. It
+    #: was set where the controls beneath the crop began to elide -- but
+    #: eliding is what those controls are FOR, and holding the sidebar open
+    #: to prevent it cost the thing the sidebar exists inside: measured,
+    #: the chart/sidebar divider moved on a 1400 px window and was frozen
+    #: at 1000 px and below, because the sidebar was already as narrow as
+    #: this constant allowed.
+    #:
+    #: 72 px is still a legible thumbnail -- the crop is scaled, not
+    #: cropped, so it stays whole -- and it lets the divider move at every
+    #: window size the application opens at.
+    MINIMUM_SIDE = 72
 
     #: What the label asks the layout for. Fixed on purpose -- see
     #: :meth:`sizeHint`.
@@ -423,11 +436,23 @@ class ImageUmapExplorer(LinkedView, QWidget):
         form.addRow("Manual label", self._value)
         side.addLayout(form)
 
-        self._apply_selected = QPushButton("Label lasso selection", self)
+        # THESE TWO SET THE SIDEBAR'S FLOOR, AND THROUGH IT THE DIVIDER'S.
+        #
+        # A plain QPushButton's size hint is its whole label, and its
+        # horizontal policy treats that as a hard minimum -- so "Propagate
+        # automatic clusters" pinned the sidebar at 198 px. Measured: the
+        # chart/sidebar divider moved on a 1400 px window and was STUCK at
+        # 1000 px and below, because the sidebar was already as narrow as
+        # its widest word allowed. It was never the image preview.
+        #
+        # An eliding button shortens its own label instead, so the sidebar
+        # gives way and the divider moves at every window size. The full
+        # text stays reachable: eliding sets the tooltip to it.
+        self._apply_selected = ElidingPushButton("Label lasso selection", self)
         self._apply_selected.setObjectName("PrimaryButton")
         self._apply_selected.clicked.connect(self._write_selected)
         side.addWidget(self._apply_selected)
-        self._apply_clusters = QPushButton(
+        self._apply_clusters = ElidingPushButton(
             "Propagate automatic clusters", self)
         self._apply_clusters.setToolTip(
             "Write the current DBSCAN/KMeans cluster number for every point.")

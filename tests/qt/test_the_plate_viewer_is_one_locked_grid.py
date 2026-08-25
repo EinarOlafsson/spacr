@@ -24,7 +24,7 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QPoint, Qt
 from PySide6.QtGui import QMouseEvent
 from PySide6.QtWidgets import QApplication, QScrollArea
 
@@ -86,6 +86,16 @@ def _move_over(source, target):
         source.mapFromGlobal(target.mapToGlobal(centre)),
         target.mapToGlobal(centre), Qt.NoButton, Qt.LeftButton,
         Qt.NoModifier))
+
+
+def _wobble(well, dx=1, dy=1):
+    """A move that stays INSIDE the pressed well -- the pixel or two of
+    pointer travel every real click carries, which the hand cannot leave
+    out."""
+    local = well.rect().center() + QPoint(dx, dy)
+    QApplication.sendEvent(well, QMouseEvent(
+        QMouseEvent.MouseMove, local, well.mapToGlobal(local),
+        Qt.NoButton, Qt.LeftButton, Qt.NoModifier))
 
 
 def _release(well):
@@ -314,6 +324,53 @@ class TestPressMoveReleaseSelectsTheBlock:
             self, picker):
         """The one line the whole gesture hung on."""
         assert picker._wells[(2, 2)]._picker() is picker
+
+    @pytest.mark.parametrize("width", [NARROW, WIDE])
+    def test_a_click_that_wobbles_inside_one_well_still_picks_it(
+            self, picker, width):
+        """No hand holds still. A move that never leaves the well pressed on
+        is not a drag: reading it as a one-well rectangle paints the well and
+        then lets the release through as a click, which toggles it back off,
+        so the well the user clicked ends up unchosen."""
+        _sized(picker, width)
+        well = picker._wells[(6, 6)]
+
+        _press(well)
+        _wobble(well)
+        _release(well)
+        QApplication.processEvents()
+
+        assert picker.selection() == {(6, 6)}
+        assert CHOSEN in well.styleSheet()
+
+    def test_a_wobbled_click_keeps_the_wells_already_chosen(self, picker):
+        """A drag replaces the selection, so mistaking a click for one wipes
+        the plate the user had built up a well at a time."""
+        picker.set_selection({(1, 1), (1, 2), (8, 12)})
+
+        well = picker._wells[(6, 6)]
+        _press(well)
+        _wobble(well, dx=-1, dy=2)
+        _release(well)
+        QApplication.processEvents()
+
+        assert picker.selection() == {(1, 1), (1, 2), (6, 6), (8, 12)}
+
+    def test_sweeping_out_and_back_to_the_anchor_keeps_it_chosen(self,
+                                                                 picker):
+        """Once the pointer has left the well it started on the gesture is a
+        drag and stays one. Coming back to the anchor draws the rectangle of
+        one well; handing that release to the click would toggle it off."""
+        start = picker._wells[(2, 2)]
+
+        _press(start)
+        _move_over(start, picker._wells[(4, 4)])
+        _move_over(start, start)
+        _release(start)
+        QApplication.processEvents()
+
+        assert picker.selection() == {(2, 2)}
+        assert CHOSEN in start.styleSheet()
 
 
 # --------------------------------------------------------------------------

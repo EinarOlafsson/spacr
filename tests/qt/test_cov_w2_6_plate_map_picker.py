@@ -202,6 +202,32 @@ def test_a_move_over_the_same_well_does_not_redraw(picker):
     assert picker.selection() == set() != before
 
 
+def test_a_move_that_never_leaves_the_anchor_is_not_a_drag(picker):
+    """A press carries pointer travel of its own. Until the pointer leaves
+    the well it landed on there is no rectangle to preview, and drawing one
+    would clear the rest of the selection and then have the release toggle
+    the anchor off again."""
+    picker.set_selection({(8, 11)})
+    picker.begin_drag(2, 2)
+
+    picker.drag_to(picker._wells[(2, 2)].mapToGlobal(QPoint(3, 3)))
+
+    assert picker.selection() == {(8, 11)}
+    assert picker.finish_drag() is False
+
+
+def test_returning_to_the_anchor_is_still_a_drag(picker):
+    """A gesture that has already left its well stays a drag, so the release
+    is swallowed rather than clicking the anchor back off."""
+    picker.begin_drag(2, 2)
+    picker.drag_to(picker._wells[(4, 4)].mapToGlobal(QPoint(2, 2)))
+
+    picker.drag_to(picker._wells[(2, 2)].mapToGlobal(QPoint(2, 2)))
+
+    assert picker.selection() == {(2, 2)}
+    assert picker.finish_drag() is True
+
+
 def test_a_move_outside_the_grid_leaves_the_preview_alone(picker):
     picker.begin_drag(2, 2)
     picker.drag_to(picker._wells[(2, 4)].mapToGlobal(QPoint(2, 2)))
