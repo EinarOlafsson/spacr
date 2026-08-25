@@ -783,37 +783,40 @@ def test_a_database_outside_a_measurements_folder_registers_beside_itself(
 
 
 # ---------------------------------------------------------------------------
-# the Qt sidebar row
+# the folded page on Measure
 # ---------------------------------------------------------------------------
 
 @pytest.mark.qt
-def test_the_registered_app_row_runs_the_headless_entry_point():
+def test_the_folded_page_runs_the_headless_entry_point():
     """The Run button and ``spacr-run anndata_export`` must be one function.
 
-    The row registers no ``factory``, so the generic settings screen IS the
-    export dialog and ``entry=`` is the whole of its behaviour. A typo there
-    resolves to None and the app is "Not runnable" forever, which no import
-    and no test of the module itself would notice.
+    The module has no screen of its own -- every knob it has is a typed,
+    tooltipped settings key, so the generic settings screen IS the export
+    dialog -- and no registry row either, now that it opens as a page on
+    the Measure masthead. The entry point that used to ride on that row
+    is what ``resolve_pipeline_entry`` answers with; a typo there
+    resolves to None and the page is "Not runnable" forever, which no
+    import and no test of the module itself would notice.
     """
     pytest.importorskip("PySide6")
     import spacr.qt.app as app
+    from spacr.qt.bridge import resolve_pipeline_entry
+    from spacr.qt.screens import map_barcodes, measure
+    from spacr.qt.screens.settings_model import _APP_API_MODULE
 
-    assert any(row[0] == ax.APP_KEY for row in app.APPS), (
-        "spacr.qt.app names register_anndata_app in _SELF_REGISTERING_APPS, "
-        "so importing it must have put the row there")
-    # Already registered: a second call is a no-op, not a duplicate row.
-    assert ax.register_anndata_app() is False
-    assert ax.register_anndata_app(replace=True) is True
-    assert sum(row[0] == ax.APP_KEY for row in app.APPS) == 1
+    assert not [row for row in app.APPS if row[0] == ax.APP_KEY], (
+        "the export is folded into Measure and must not draw a tile")
+    assert ax.APP_KEY in measure.FOLDED_APPS, "nothing opens the folded page"
 
-    assert app.registered_entry(ax.APP_KEY) is ax.run_anndata_export
-    meta = app.APP_META[ax.APP_KEY]
-    assert meta["defaults_module"] == "spacr.anndata_export", (
-        "without it the settings form has no keys to draw")
-    assert meta["api_module"] == "anndata_export"
-    row = next(row for row in app.APPS if row[0] == ax.APP_KEY)
-    assert row[3] == app.SECTION_EXPLORE
+    entry = resolve_pipeline_entry(ax.APP_KEY)
+    assert entry is not None
+    assert getattr(entry, "__wrapped__", entry).__name__ == "run_anndata_export"
+    assert _APP_API_MODULE[ax.APP_KEY] == "anndata_export"
 
-    from spacr.qt import i18n
-    assert len(ax.APP_TRANSLATIONS) == len(i18n.LANGUAGES) - 1, (
-        "one translation per non-English UI language, in LANGUAGES order")
+    from spacr.qt.i18n import CATALOGS, LANGUAGES
+    name = map_barcodes.FOLD_FALLBACK[ax.APP_KEY][0]
+    translated = [code for code in (lang.code for lang in LANGUAGES)
+                  if code != "en" and CATALOGS[code].get(name, "").strip()]
+    assert len(translated) == len(LANGUAGES) - 1, (
+        "one translation per non-English UI language, or the folded page "
+        "is headed in English")

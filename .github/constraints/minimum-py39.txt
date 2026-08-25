@@ -18,14 +18,15 @@
 #   umap-learn 0.5.11 requires scikit-learn 1.6 or newer;
 #   tensorboard 2.21.0 requires protobuf 6.31.1 or newer.
 #
-# nvidia-ml-py is the other kind. It numbers its releases after the NVIDIA
-# driver, so setup.py's `>=11.5` is a boundary and not a release: no
-# published version equals it and 11.450.51 is the first that satisfies it.
-# The conda-forge recipe declares the same dependency under its conda name,
-# `pynvml`, whose release numbers are NOT the driver numbers -- 11.5.0 is a
-# real conda package -- so raising the PyPI floor to 11.450.51 without
-# deciding what the conda floor should become would put the two ecosystems
-# on different versions.
+# nvidia-ml-py IS NOT AN EXCEPTION, and the pin is not a typo. It numbers
+# each release after the NVIDIA driver it binds -- 10.418.84, 11.450.51,
+# 11.460.79, ..., 13.610.43 -- so the middle field is a driver branch and
+# 11.450.51 sorts ABOVE a plausible-looking 11.5. A round lower bound such as
+# `>=11.5` therefore names no release this distribution will ever publish,
+# and a floor that cannot be equalled is a floor this profile cannot pin.
+# setup.py declares `>=11.450.51` for that reason and this pin equals it; the
+# two spellings admit the same published releases, so the choice is about
+# whether the bound names a version, not about which versions resolve.
 #
 # cellpose is pinned at setup.py's floor, 4.0.7, NOT at the first published
 # 4.x. This file used to pin 4.0.1 on the reasoning that it was the first 4.x

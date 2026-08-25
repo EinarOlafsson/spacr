@@ -29,8 +29,6 @@ MODULE_SUMMARIES_ASIA: Dict[str, Dict[str, str]] = {
         "batch": "将任意模块、板和设置加入队列，并在夜间自动运行",
         "distributed_jobs": "通过 SSH 工作站、Slurm 或云端/HPC 命令提交并监控 spaCR 运行",
         "db_browser": "无需 sqlite3 CLI 即可浏览和导出 measurements.db",
-        "train_cellpose": "训练自定义 Cellpose 模型",
-        "cellpose_masks": "生成 Cellpose 掩膜",
         "model_compare": "在相同视野上运行两个 Cellpose 模型：并排比较掩膜，以及对象计数与 ARI 的差异",
         "model_zoo": "浏览、验证并下载 Cellpose 和分类器模型，并在您的三个视野上进行基准测试",
         "plate_view": "将任意测量结果显示为板热图，并检测边缘效应",
@@ -63,8 +61,6 @@ MODULE_SUMMARIES_ASIA: Dict[str, Dict[str, str]] = {
         "batch": "किसी भी मॉड्यूल, प्लेट और सेटिंग को कतार में लगाकर रात भर चलाएँ",
         "distributed_jobs": "SSH वर्कस्टेशन, Slurm या cloud/HPC कमांड पर spaCR रन जमा करें और उनकी निगरानी करें",
         "db_browser": "sqlite3 CLI के बिना measurements.db ब्राउज़ और निर्यात करें",
-        "train_cellpose": "कस्टम Cellpose मॉडल प्रशिक्षित करें",
-        "cellpose_masks": "Cellpose मास्क बनाएँ",
         "model_compare": "एक ही फ़ील्ड पर दो Cellpose मॉडल चलाएँ: मास्क को साथ-साथ तथा ऑब्जेक्ट-संख्या और ARI के अंतर को देखें",
         "model_zoo": "Cellpose और classifier मॉडल ब्राउज़, सत्यापित और डाउनलोड करें तथा अपने तीन फ़ील्ड पर उनका बेंचमार्क करें",
         "plate_view": "किसी भी मापन को प्लेट हीटमैप के रूप में देखें और किनारी प्रभाव पहचानें",
@@ -97,8 +93,6 @@ MODULE_SUMMARIES_ASIA: Dict[str, Dict[str, str]] = {
         "batch": "원하는 모듈, 플레이트 및 설정을 대기열에 넣어 밤새 실행합니다",
         "distributed_jobs": "SSH 워크스테이션, Slurm 또는 cloud/HPC 명령으로 spaCR 실행을 제출하고 모니터링합니다",
         "db_browser": "sqlite3 CLI 없이 measurements.db를 탐색하고 내보냅니다",
-        "train_cellpose": "사용자 지정 Cellpose 모델을 학습합니다",
-        "cellpose_masks": "Cellpose 마스크를 생성합니다",
         "model_compare": "동일한 시야에서 두 Cellpose 모델을 실행하여 마스크를 나란히 보고 객체 수와 ARI 차이를 비교합니다",
         "model_zoo": "Cellpose 및 분류기 모델을 탐색, 검증 및 다운로드하고 사용자 시야 세 개에서 벤치마크합니다",
         "plate_view": "모든 측정값을 플레이트 히트맵으로 표시하고 가장자리 효과를 감지합니다",
@@ -123,7 +117,7 @@ _APP_KEY_SETS = {frozenset(summaries) for summaries in MODULE_SUMMARIES_ASIA.val
 assert set(MODULE_SUMMARIES_ASIA) == _EXPECTED_LANGUAGE_CODES
 assert len(_APP_KEY_SETS) == 1, "module-summary catalogs must contain identical app keys"
 assert all(
-    len(summaries) == 32 for summaries in MODULE_SUMMARIES_ASIA.values()
-), "each reviewed module-summary catalog must contain exactly 32 built-in apps"
+    len(summaries) == 30 for summaries in MODULE_SUMMARIES_ASIA.values()
+), "each reviewed module-summary catalog must contain exactly 30 built-in apps"
 
 del _APP_KEY_SETS, _EXPECTED_LANGUAGE_CODES

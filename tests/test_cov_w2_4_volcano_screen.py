@@ -278,9 +278,33 @@ def test_dropping_a_remote_url_is_accepted_but_loads_nothing(screen):
     del event, data
 
 
-def test_registering_twice_does_not_duplicate_the_app():
-    """``register()`` already ran at import, so a second call is a no-op."""
+def test_importing_the_module_puts_no_row_in_the_registry():
+    """The explorer is a fold, so importing it must add no tile.
+
+    This asserted the import-time ``register()`` had run and that a
+    second call was a no-op. Both the call and the function are gone:
+    the explorer is "Publication figure…" on the Regression volcano and
+    a button on that masthead, and the failure worth catching now is the
+    row coming back.
+    """
     from spacr.qt.app import APPS
-    before = [row[0] for row in APPS].count(volcano.APP_KEY)
-    assert volcano.register() is False
-    assert [row[0] for row in APPS].count(volcano.APP_KEY) == before == 1
+
+    assert not any(row[0] == volcano.APP_KEY for row in APPS)
+    assert not hasattr(volcano, "register")
+
+
+def test_the_gui_only_sentence_is_written_where_the_cli_reads_it():
+    """The sentence survived the row, in both of its copies.
+
+    It travelled into ``cli.INTERACTIVE_ONLY`` as the row's
+    ``cli_note=`` and ``unregister_app`` takes a pushed entry back out
+    with the row, so without a hand-written copy ``spacr-run
+    volcano_explorer`` would stop naming the renderer to call and start
+    guessing at a typo. ``spacr.cli`` answers ``--list`` where PySide6 is
+    not installed, so it cannot read the sentence from here; the two
+    copies are pinned equal instead.
+    """
+    from spacr import cli
+
+    assert cli.INTERACTIVE_ONLY[volcano.APP_KEY] == volcano.APP_CLI_NOTE
+    assert volcano.APP_KEY not in cli.MODULES

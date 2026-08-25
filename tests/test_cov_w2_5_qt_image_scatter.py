@@ -691,14 +691,20 @@ def test_a_filter_with_nothing_plotted_changes_nothing(qtbot):
     assert widget.status.text() == ""
 
 
-def test_the_factory_and_the_registration_are_idempotent(qtbot):
-    """A module imported from two paths must not raise on the duplicate key."""
+def test_the_factory_builds_the_screen_and_no_row_comes_with_it(qtbot):
+    """The factory outlived the registration it was written for.
+
+    It used to be the ``factory=`` of a registry row and this test
+    asserted the row was there. The row is gone -- Image Scatter is a
+    button on Image UMAP -- and the factory is still the one constructor
+    the module offers, which is what Image UMAP's builder calls, so what
+    is asserted is that it builds the screen and adds no tile.
+    """
     from spacr.qt.app import APPS
 
     made = isc.make_image_scatter_screen()
     qtbot.addWidget(made)
 
     assert isinstance(made, isc.ImageScatterScreen)
-    assert any(row[0] == isc.APP_KEY for row in APPS)
-    assert isc.register() is None
+    assert not any(row[0] == isc.APP_KEY for row in APPS)
     made.close()

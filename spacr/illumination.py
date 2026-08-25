@@ -110,6 +110,13 @@ or explicitly::
 Nothing in this module runs unless one of those calls is made, and
 :func:`disable_illumination_correction` returns the process to a state where
 ``measure_crop`` measures exactly what it measured before.
+
+In the GUI the same two routes exist and end here: the "Illumination
+Correction" category on the Measure panel, which is the switch thrown on the
+run whose numbers it changes, and the Illumination button on that screen's
+masthead, which opens this module's own settings form and Run button so the
+field can be estimated and QC'd without measuring the plate. Neither is a
+tile: the module folded into Measure and left the app registry with it.
 """
 
 from __future__ import annotations
@@ -1368,9 +1375,18 @@ def prepare_illumination_correction(settings: Mapping[str, Any], *,
                                     verbose: Optional[bool] = None):
     """Estimate, save, enable and QC the correction from a settings dict.
 
-    The one call a pipeline makes before ``measure_crop``. It does nothing at
-    all -- and returns None -- unless ``settings['illumination_correction']``
-    is True, which is the shipped default.
+    The one call a pipeline makes before ``measure_crop``, and the one the
+    Illumination button on the Measure masthead runs on its own -- the model
+    and its QC figures in minutes, before committing hours to the measure run
+    that will reuse them through ``illumination_model``.
+
+    It does nothing at all -- and returns None -- unless
+    ``settings['illumination_correction']`` is True, which is NOT the shipped
+    default: the correction is opt-in, so a run that never mentions it is
+    measured uncorrected. Being asked to run with the switch off is a
+    no-op worth hearing about rather than a silent one, because from a
+    settings form it looks exactly like a Run button that does nothing, so a
+    verbose call says which switch was not thrown.
 
     :param settings: a ``measure_crop`` settings dict. Reads
         ``illumination_correction``, ``illumination_model``,
@@ -1381,9 +1397,13 @@ def prepare_illumination_correction(settings: Mapping[str, Any], *,
     :param verbose: overrides ``settings['verbose']``.
     :returns: the :class:`IlluminationModel` that was enabled, or None.
     """
-    if not settings.get('illumination_correction', False):
-        return None
     talk = settings.get('verbose', True) if verbose is None else verbose
+    if not settings.get('illumination_correction', False):
+        if talk:
+            print("illumination correction is OFF (illumination_correction "
+                  "is False), so no field was estimated and every intensity "
+                  "feature keeps its position-dependent bias.")
+        return None
     src = settings.get('src')
     if not src:
         raise IlluminationError(
@@ -1521,10 +1541,15 @@ def register_illumination_settings(replace: bool = False) -> bool:
     an exact-equality test against a hand-kept list. A key contributed at
     *import* time is in that map only in a session that imported this module,
     so contributing categories would make that test's result depend on which
-    files pytest was pointed at. No shipped panel offers these keys yet
-    either; the commit that adds an Illumination screen is the one that
-    should file them under a heading, and can then declare the growth
-    honestly.
+    files pytest was pointed at.
+
+    The nine keys ARE filed under a heading -- "Illumination Correction" in
+    ``spacr.settings.categories`` -- and Measure's panel offers every one of
+    them, because ``measure_crop`` calls
+    :func:`prepare_illumination_correction` itself and these are the keys
+    that call reads. The heading is written in that map by hand for the
+    reason above: it has to exist for every process that groups the Measure
+    settings, not only for one that happened to import this module.
 
     :param replace: re-register over an existing registration.
     :returns: True if it registered, False if it was already registered.

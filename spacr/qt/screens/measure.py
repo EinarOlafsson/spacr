@@ -1,4 +1,17 @@
-"""Measure, and the export that turns its tables into an AnnData file.
+"""Measure, and the three modules that are the rest of the visit.
+
+ILLUMINATION CORRECTION IS PART OF A MEASURE RUN, not a run of its own.
+``measure_crop`` calls
+:func:`spacr.illumination.prepare_illumination_correction` itself before it
+computes a single feature, and the nine ``illumination_*`` keys are a
+settings category on Measure's own panel -- so the switch is thrown where
+the numbers it changes are produced. What that panel cannot express is
+estimating and QCing the field WITHOUT measuring the plate: the QC figure
+that says how much of the position bias the correction removed is minutes
+of work, and a measure run over the same plate is hours. The module
+therefore keeps its own settings form and Run button, folded onto this
+masthead, and the settings category and the button are two handles on one
+door -- both end in the same ``prepare_illumination_correction``.
 
 AnnData Export has no screen of its own and never wanted one: every knob
 it has is a typed, tooltipped settings key, so the generic module form IS
@@ -39,7 +52,16 @@ LOG = logging.getLogger(__name__)
 HOST_KEY = "measure"
 
 #: Registry keys of the modules folded into it, in the order the strip
-#: draws them.
+#: draws them -- which is the order a plate goes through them: the field
+#: is estimated and divided out before any intensity feature is measured,
+#: the AnnData file is written from the tables afterwards.
+#:
+#: ILLUMINATION KEEPS ITS OWN FORM as well as its settings category here,
+#: because the two ask different questions. The category is "correct these
+#: fields while measuring them"; the button is "estimate the field and show
+#: me the QC before I commit a day to the measure run". Both end in
+#: ``prepare_illumination_correction``, so there is one implementation and
+#: one set of keys behind the two doors.
 #:
 #: THE MOTILITY ASSAY IS A MEASUREMENT. It reads finished masks from
 #: ``merged/*.npy``, builds per-cell rows, writes them to
@@ -53,7 +75,19 @@ HOST_KEY = "measure"
 #: folder that has ALREADY been segmented, and Measure's own run has no
 #: gate that would fire it -- so there is no seam to reveal, and inventing
 #: a pipeline path would be a bigger change than the fold.
-FOLDED_APPS: Tuple[str, ...] = ("anndata_export", "motility")
+FOLDED_APPS: Tuple[str, ...] = ("illumination", "anndata_export", "motility")
+
+
+def _build_illumination(host_window: Optional[QWidget]) -> QWidget:
+    """Illumination Correction's own screen: estimate, QC and save a field.
+
+    The settings-driven module, unchanged, so the Run button here runs the
+    same ``prepare_illumination_correction`` a measure run calls -- and
+    running it alone is the capability Measure's own settings category has
+    no way to ask for: the model and its QC figures are written, and a later
+    measure run reuses them through ``illumination_model``.
+    """
+    return build_settings_screen("illumination", host_window)
 
 
 def _build_anndata_export(host_window: Optional[QWidget]) -> QWidget:
@@ -69,6 +103,7 @@ def _build_motility(host_window: Optional[QWidget]) -> QWidget:
 #: One builder per folded module — see
 #: :func:`spacr.qt.screens.map_barcodes.install_fold_strip`.
 BUILDERS: Dict[str, Callable[[Optional[QWidget]], QWidget]] = {
+    "illumination": _build_illumination,
     "anndata_export": _build_anndata_export,
     "motility": _build_motility,
 }

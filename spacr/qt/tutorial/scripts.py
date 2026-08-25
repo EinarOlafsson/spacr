@@ -511,32 +511,39 @@ def _build_classify_steps(window) -> List[Step]:
 
 
 # ---------------------------------------------------------------------------
-# Timelapse module tutorial — the standalone Timelapse module
+# Timelapse tutorial — the tracking switch on Mask Generation
 # ---------------------------------------------------------------------------
+# Timelapse has no destination of its own: it is the mask pipeline with
+# tracking turned on, so what is its own is a couple of settings CATEGORIES
+# and a switch on the Mask masthead that reveals them. The script therefore
+# lands on Mask, loads the timelapse demo -- whose settings file carries
+# `timelapse=True`, which moves the switch as it is applied -- and narrates
+# the switch and the categories it just revealed.
 
 def _build_timelapse_steps(window) -> List[Step]:
     tmp_root = _tutorial_scratch("timelapse")
     screen_ref: List[Any] = [None]
 
     def _capture():
-        screen_ref[0] = window._screens.get("timelapse")
+        screen_ref[0] = window._screens.get("mask")
 
     return [
         Step(
             "spaCR handles timelapse natively — every module "
             "understands the T dimension in the Yokogawa filename "
-            "convention.",
-            action=_nav_to(window, "timelapse"),
-            target=(_sidebar_button(window, "timelapse"), None),
-            highlight=_sidebar_button(window, "timelapse"),
+            "convention, so tracking is a switch on mask "
+            "generation rather than a module of its own.",
+            action=_nav_to(window, "mask"),
+            target=(_sidebar_button(window, "mask"), None),
+            highlight=_sidebar_button(window, "mask"),
             show_pointer=True,
             hold_ms=400,
         ),
         Step(
             "Loading the timelapse demo generates eight frames "
-            "per field. Every downstream module then handles "
-            "tracking, motion, and per-frame analysis "
-            "automatically.",
+            "per field. Its settings file asks for tracking, so "
+            "the Timelapse switch comes on with it and the "
+            "tracking categories appear on the form.",
             action=lambda: (_load_demo(window, "timelapse", tmp_root)(),
                              _capture()),
             target=_menu_target(window, "Demos"),
@@ -545,10 +552,19 @@ def _build_timelapse_steps(window) -> List[Step]:
             hold_ms=800,
         ),
         Step(
-            "The Timelapse tab in the settings panel holds the "
-            "tracking knobs — which objects to link, the linking "
-            "mode, and how far an object may travel between "
-            "frames.",
+            "That is the Timelapse switch, on the masthead. It "
+            "lights while tracking is part of the run; press it "
+            "again and the tracking categories fold away.",
+            target=(lambda: _fold_button(screen_ref[0], "timelapse"), None),
+            highlight=lambda: _fold_button(screen_ref[0], "timelapse"),
+            show_pointer=True,
+            hold_ms=600,
+        ),
+        Step(
+            "The tracking categories it revealed hold the linking "
+            "knobs — which objects to link, the linking mode, and "
+            "how far an object may travel between frames — beside "
+            "the settings mask generation always had.",
             target=(lambda: _settings_panel(screen_ref[0]), None),
             highlight=lambda: _settings_panel(screen_ref[0]),
             hold_ms=500,
@@ -597,6 +613,28 @@ def _console_panel(screen):
     if screen is None:
         return None
     return getattr(screen, "_console", None)
+
+
+def _fold_button(screen, key: str):
+    """The masthead switch a folded module hangs on ``screen``, or ``None``.
+
+    Asked of the strip rather than found by caption: a fold button IS the
+    module's icon and carries no text, so a text search cannot see it.
+    Resolved at capture time like every other deferred target, because the
+    strip is built with the screen and the screen is built by an earlier
+    step.
+    """
+    if screen is None:
+        return None
+    strip = getattr(screen, "_fold_strip", None)
+    if strip is None or not hasattr(strip, "button_for"):
+        LOG.warning("tutorial: %r carries no fold strip — the switch step "
+                      "will highlight nothing", key)
+        return None
+    button = strip.button_for(key)
+    if button is None:
+        LOG.warning("tutorial: no fold switch for %r on this screen", key)
+    return button
 
 
 def _tutorial_scratch(name: str) -> str:

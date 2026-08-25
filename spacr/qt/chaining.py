@@ -828,15 +828,40 @@ def _chained_app_screen(app_key: str, host=None):
 
 #: Retired module keys and the screen that took each one over.
 #:
-#: The port graph still declares `classify` and `ml_analyze` because the
-#: CLI still runs them, and a headless chain that stopped resolving them
-#: would break scripts. The GUI has ONE Classify, so the strip that offers
-#: what comes next must not offer the same screen three times under three
-#: names.
+#: The port graph still declares `classify`, `ml_analyze` and `timelapse`
+#: because the CLI still runs them, and a headless chain that stopped
+#: resolving them would break scripts. The GUI has ONE Classify and ONE mask
+#: screen, so the strip that offers what comes next must not offer the same
+#: screen three times under three names -- and must not drop an offer just
+#: because the key it is declared under no longer has a tile.
 _SUCCEEDED_BY = {
     "classify": "classify_merged",
     "ml_analyze": "classify_merged",
+    # Timelapse is the mask pipeline with tracking on, and the GUI folded it
+    # into Mask Generation as a settings category with a switch. The port
+    # graph still declares it because `spacr-run timelapse` still runs it, so
+    # a chain whose next step is timelapse must offer the screen that now
+    # carries it -- otherwise "what comes next" simply stops mentioning a
+    # step that is perfectly runnable.
+    "timelapse": "mask",
 }
+
+
+def screen_for_module(app_key: str) -> str:
+    """The screen a module's settings open on, now that some have no tile.
+
+    A key whose module was merged or folded into a host has no screen of
+    its own to open any more, and navigating to it anyway builds an
+    orphan: a page with no sidebar row, no tile and no way back to it.
+    This is the one table that says which screen took which key over, so
+    every caller that turns a saved run, a chained hand-off or a Train
+    button into a destination reads it rather than keeping a list.
+
+    :param app_key: the module key a record or a signal named.
+    :returns: the app key of the screen that carries it, which is
+        ``app_key`` itself for everything that still has one.
+    """
+    return _SUCCEEDED_BY.get(str(app_key), str(app_key))
 
 
 def _only_what_the_gui_offers(steps):

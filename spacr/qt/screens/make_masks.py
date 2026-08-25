@@ -7,7 +7,7 @@ remove small, Otsu detect), zoom and pan into a region for detailed
 edits, flood-fill by intensity with the magic wand, undo/redo, and save
 the edited mask back to ``<folder>/masks/<name>.tif`` as labelled uint16.
 
-Three things here are less obvious than the tool buttons:
+Four things here are less obvious than the tool buttons:
 
 **Every edit is recorded.** The screen keeps a
 :class:`spacr.curation.CurationLog` per field, seeded from any ledger
@@ -28,10 +28,15 @@ field the difference between 99.9 and 99.9999 is the difference between
 clipping four thousand pixels and clipping four, and a few hot pixels are
 often the entire reason a field looks black.
 
-Two tools from the standalone curation tool are still absent: the
-dividing line that splits one merged object into two, and the free-form
-polygon that fills an outline into one object. Neither has a control on
-this panel, so nothing here claims they exist.
+**Draw and divide are region tools, not strokes.** The brush is the wrong
+instrument for two of the commonest corrections. Tracing a cell's rim
+with it labels the rim and leaves the middle background, so ``draw``
+closes the traced path and fills what it encloses as ONE object with one
+id. And nothing that adds pixels can separate a merged pair, so
+``divide`` cuts across one, keeps the original id on the larger piece and
+gives the smaller one a fresh id, leaving every other object in the field
+untouched. The cut is wider than a pixel for a reason --
+:data:`spacr.qt.mask_engine.DIVIDE_CUT_WIDTH` says which.
 
 THE SEGMENTATION WORKBENCH
 --------------------------
@@ -90,6 +95,7 @@ from PySide6.QtWidgets import (
     QDoubleSpinBox,
     QFileDialog,
     QFormLayout,
+    QGroupBox,
     QHBoxLayout,
     QLabel,
     QMessageBox,
@@ -109,6 +115,7 @@ from ...curation import CurationLog
 from .. import iconset
 from .. import mask_engine as engine
 from .. import prefs
+from .. import wand_rescue
 from ..theme import SPACING, active_palette
 from ..widgets import Card, Divider, EmptyState
 from ..widgets.fold_strip import FoldStrip
@@ -176,16 +183,21 @@ FOLD_FALLBACK = {
         "Mask the whole folder",
         "Run the segmentation model over every image in the open folder",
         "beta"),
+    # STABLE, not alpha: `spacr.qt.maturity` promoted both at launch on the
+    # evidence in its own table, and it is the promoted stage the tile lit
+    # in. A fallback copied from `app.py`'s literal records the colour
+    # before that rewrite, which is a button lighting green-cyan where the
+    # tile it replaced lit blue.
     "model_compare": (
         "Model Compare",
         "Two Cellpose models on the same fields: masks side by side, "
         "object-count and ARI deltas",
-        "alpha"),
+        "stable"),
     "model_zoo": (
         "Model Zoo",
         "Browse, verify, download and bench Cellpose + classifier models on "
         "three of your fields",
-        "alpha"),
+        "stable"),
     "curate": (
         "Curate",
         "Paint a mask right, and fix tracks by hand — on the record",
@@ -243,7 +255,56 @@ MODE_ERASE = "erase"
 MODE_ERASE_OBJECT = "erase_object"
 MODE_WAND_ADD = "wand_add"
 MODE_WAND_ERASE = "wand_erase"
+#: Trace a free-form outline; it closes and fills as ONE object. The tool a
+#: brush is not: a brush stamps disks along the path, so tracing a rim with
+#: it labels the rim and leaves the middle background.
+MODE_DRAW = "draw"
+#: Drag a line across a merged object and it becomes two, with every other
+#: object's id untouched. The commonest correction a segmentation needs.
+MODE_DIVIDE = "divide"
 MODE_ZOOM = "zoom"
+
+#: The tools that fill the toolbar row, in the order they appear there:
+#: ``(mode, label, icon key)``. THE ROW IS BUILT FROM THIS TABLE and not
+#: from a list of literals at the layout site, so adding a tool to the row
+#: is adding a line here. A ``MODE_*`` constant that nobody gave a line to
+#: still reaches the row — :func:`tool_row_entries` names it after itself
+#: — so a tool cannot be invisible because its author did not know this
+#: table existed.
+TOOL_MODES: List[tuple] = [
+    (MODE_BRUSH,        "Brush",        "brush"),
+    (MODE_ERASE,        "Erase",        "erase"),
+    (MODE_ERASE_OBJECT, "Erase object", "erase_object"),
+    (MODE_WAND_ADD,     "Wand +",       "wand_add"),
+    (MODE_WAND_ERASE,   "Wand −",       "wand_erase"),
+    (MODE_ZOOM,         "Zoom",         "zoom"),
+]
+
+
+def tool_row_entries() -> List[tuple]:
+    """Every canvas tool the toolbar row should hold.
+
+    :data:`TOOL_MODES` first, in its own order, then any other ``MODE_*``
+    constant in this module the table does not mention — labelled from
+    its own value and drawn with whatever :func:`spacr.qt.iconset.icon`
+    has for that name, which is a fallback glyph when it has nothing.
+    Alphabetical among themselves, so the row is the same on every run.
+
+    ``MODE_NONE`` is excluded because it is not a tool: it is the canvas
+    with no tool held, which is what the row shows when nothing is
+    checked.
+    """
+    entries = list(TOOL_MODES)
+    seen = {mode for mode, _label, _icon in entries}
+    for name, value in sorted(globals().items()):
+        if not name.startswith("MODE_") or name == "MODE_NONE":
+            continue
+        if not isinstance(value, str) or value in seen:
+            continue
+        entries.append((value, value.replace("_", " ").capitalize(), value))
+        seen.add(value)
+    return entries
+
 
 # Held with the left button, these pan from ANY tool. Two of them because
 # window managers eat one or the other: Alt+drag moves the window on most
@@ -261,6 +322,11 @@ MIN_VIEWPORT = 8
 #: 99.9999 clips four pixels and 99.9 clips four thousand, and the hot ones
 #: are usually the entire reason the field looks black.
 PERCENTILE_DECIMALS = 6
+
+#: Starting width of the settings pane, in pixels, and the width it is
+#: put back at when the settings button turns it on again after a session
+#: that never dragged the splitter.
+SETTINGS_WIDTH = 380
 
 
 class _MaskLoadWorker(QThread):
@@ -292,7 +358,8 @@ class _MaskLoadWorker(QThread):
 class _MaskCanvas(QLabel):
     """QLabel that displays the composited image+mask (optionally zoomed
     into a sub-region) and captures mouse events for brush / erase /
-    magic-wand / erase-object / zoom-rectangle interactions.
+    magic-wand / erase-object / draw / divide / zoom-rectangle
+    interactions.
 
     All coordinate math is done against the *full* image; the "zoom
     view" is just a crop of the composited pixmap. Mask edits go
@@ -315,6 +382,21 @@ class _MaskCanvas(QLabel):
         self.wand_relative: bool = True
         self.wand_tol_pct: float = 5.0
         self.wand_max_pixels: int = 100_000
+        #: The wand's rescues — see :mod:`spacr.qt.wand_rescue` for what
+        #: each one catches. They start at the values that tool shipped,
+        #: which are tuned to be inert on a flood that did not run away.
+        self.wand_trim_runaway: bool = True
+        self.wand_runaway_ratio: float = 2.0
+        self.wand_runaway_warmup: int = 12
+        self.wand_runaway_min_base: int = 8
+        self.wand_runaway_confirm: int = 2
+        self.wand_intensity_border: bool = True
+        self.wand_intensity_steps: int = 8
+        self.wand_gradient_taper: bool = True
+        self.wand_gradient_sigma: float = 2.0
+        self.wand_gradient_margin: int = 8
+        self.wand_gradient_erode: int = 3
+        self.wand_salvage_over_cap: bool = True
         self.zoom_speed: float = 1.15
 
         #: What the stroke that just finished did — ``{"kind", "target",
@@ -332,6 +414,11 @@ class _MaskCanvas(QLabel):
         # Zoom-rectangle drag state (widget-local pixel coords)
         self._zoom_drag_start: Optional[QPoint] = None
         self._zoom_drag_end: Optional[QPoint] = None
+
+        # The draw outline / divide line in flight, in widget coords. Both
+        # gestures change nothing until the button comes up, so the path is
+        # collected here and converted to image pixels once, on release.
+        self._gesture_points: List[QPoint] = []
 
         self.setAlignment(Qt.AlignCenter)
         self.setStyleSheet(f"background: {active_palette()['bg']};")
@@ -537,6 +624,28 @@ class _MaskCanvas(QLabel):
             return engine.relative_tolerance(self.image, self.wand_tol_pct)
         return float(self.wand_tolerance)
 
+    def wand_rescue_settings(self) -> dict:
+        """The rescue settings, keyed as :mod:`spacr.qt.wand_rescue` wants.
+
+        One place builds this dict, so a control added to the panel reaches
+        the flood by being read here rather than by being threaded through
+        the click handler as well.
+        """
+        return {
+            "trim_runaway": bool(self.wand_trim_runaway),
+            "runaway_ratio": float(self.wand_runaway_ratio),
+            "runaway_warmup": int(self.wand_runaway_warmup),
+            "runaway_min_base": int(self.wand_runaway_min_base),
+            "runaway_confirm": int(self.wand_runaway_confirm),
+            "intensity_border": bool(self.wand_intensity_border),
+            "intensity_steps": int(self.wand_intensity_steps),
+            "gradient_taper": bool(self.wand_gradient_taper),
+            "gradient_sigma": float(self.wand_gradient_sigma),
+            "gradient_margin": int(self.wand_gradient_margin),
+            "gradient_erode": int(self.wand_gradient_erode),
+            "salvage_over_cap": bool(self.wand_salvage_over_cap),
+        }
+
     def _mask_radius_for_brush(self) -> int:
         """Scale the brush radius (in screen px) to full-image px, taking
         the current zoom into account."""
@@ -551,8 +660,16 @@ class _MaskCanvas(QLabel):
     # Painting (adds a zoom-rectangle overlay while dragging)
     # ------------------------------------------------------------------
     def paintEvent(self, event):
-        """Draw the base pixmap plus a dashed zoom-rectangle when dragging."""
+        """Draw the base pixmap plus whichever gesture is in flight.
+
+        A draw or divide only reaches the mask on release, so until then the
+        outline being traced and the cut being aimed exist nowhere but here:
+        without the preview the user is dragging an invisible line.
+        """
         super().paintEvent(event)
+        if self.mode in (MODE_DRAW, MODE_DIVIDE):
+            self._paint_gesture()
+            return
         if self.mode != MODE_ZOOM:
             return
         if self._zoom_drag_start is None or self._zoom_drag_end is None:
@@ -564,6 +681,36 @@ class _MaskCanvas(QLabel):
         painter.setPen(pen)
         rect = QRect(self._zoom_drag_start, self._zoom_drag_end).normalized()
         painter.drawRect(rect)
+
+    def _paint_gesture(self) -> None:
+        """Draw the outline being traced, or the cut being aimed.
+
+        The draw preview shows the segment that will close the loop as a
+        dashed line back to the first point, because that segment is part of
+        what gets filled and is the one part of the outline the user did not
+        trace.
+        """
+        if len(self._gesture_points) < 2:
+            return
+        painter = QPainter(self)
+        colour = QColor(active_palette()["accent"])
+        if self.mode == MODE_DIVIDE:
+            pen = QPen(colour)
+            pen.setWidth(2)
+            pen.setStyle(Qt.DashLine)
+            painter.setPen(pen)
+            painter.drawLine(self._gesture_points[0], self._gesture_points[-1])
+            return
+        pen = QPen(colour)
+        pen.setWidth(2)
+        painter.setPen(pen)
+        for start, end in zip(self._gesture_points, self._gesture_points[1:]):
+            painter.drawLine(start, end)
+        closing = QPen(colour)
+        closing.setWidth(1)
+        closing.setStyle(Qt.DashLine)
+        painter.setPen(closing)
+        painter.drawLine(self._gesture_points[-1], self._gesture_points[0])
 
     # ------------------------------------------------------------------
     # Mouse events
@@ -650,6 +797,17 @@ class _MaskCanvas(QLabel):
         pt = self._canvas_to_image(event.position().x(), event.position().y())
         if pt is None:
             return
+
+        if self.mode in (MODE_DRAW, MODE_DIVIDE):
+            # No stroke is opened here: neither tool touches the mask until
+            # the button comes up, and an outline that encloses nothing or a
+            # line that separates nothing must leave no undo step and no
+            # ledger entry behind it — the same rule the sweep-delete
+            # follows in :meth:`_sweep_delete_at`.
+            self._gesture_points = [event.position().toPoint()]
+            self.update()
+            return
+
         self._emit_stroke_start()
 
         if self.mode == MODE_ERASE_OBJECT:
@@ -662,15 +820,20 @@ class _MaskCanvas(QLabel):
         if self.mode in (MODE_WAND_ADD, MODE_WAND_ERASE):
             action = "add" if self.mode == MODE_WAND_ADD else "erase"
             tolerance = self.effective_wand_tolerance()
-            self.mask = engine.magic_wand(
+            self.mask, report = wand_rescue.magic_wand(
                 self.image, self.mask, pt[0], pt[1],
                 tolerance, self.wand_max_pixels, action=action,
+                **self.wand_rescue_settings(),
             )
             self.refresh()
+            # The report goes in the ledger with the click: which way the
+            # flood leaked, what tolerance the rescue settled on and whether
+            # the budget stopped it are the reasons the wand took what it
+            # took, and a mask nobody can explain is a mask nobody trusts.
             self._emit_stroke_end(
                 kind="wand", target=(255 if action == "add" else 0),
                 action=action, tolerance=round(float(tolerance), 3),
-                relative=bool(self.wand_relative),
+                relative=bool(self.wand_relative), **report,
             )
             return
 
@@ -703,6 +866,17 @@ class _MaskCanvas(QLabel):
         if self.mode == MODE_ZOOM and self._zoom_drag_start is not None \
                 and event.buttons() & Qt.LeftButton:
             self._zoom_drag_end = event.position().toPoint()
+            self.update()
+            return
+        if self.mode in (MODE_DRAW, MODE_DIVIDE) and self._gesture_points \
+                and event.buttons() & Qt.LeftButton:
+            now = event.position().toPoint()
+            if self.mode == MODE_DIVIDE:
+                # A divide is one straight cut, so the drag moves the far end
+                # of the line instead of adding a bend to it.
+                self._gesture_points = [self._gesture_points[0], now]
+            else:
+                self._gesture_points.append(now)
             self.update()
             return
         if self.mode in (MODE_BRUSH, MODE_ERASE) and event.buttons() & Qt.LeftButton:
@@ -756,6 +930,11 @@ class _MaskCanvas(QLabel):
                     self.zoom_changed.emit(True)
             self.refresh()
             return
+        if self.mode in (MODE_DRAW, MODE_DIVIDE) and self._gesture_points:
+            points, self._gesture_points = self._gesture_points, []
+            self._finish_region_gesture(points)
+            self.update()
+            return
         if self._last_pt is not None:
             self._last_pt = None
         self._emit_stroke_end(
@@ -763,6 +942,56 @@ class _MaskCanvas(QLabel):
             target=(0 if self.mode == MODE_ERASE else 255),
             radius=int(self.brush_radius),
         )
+
+    def _finish_region_gesture(self, points) -> None:
+        """Commit a finished draw / divide gesture, or drop it.
+
+        The mask is touched here and nowhere else for these two tools, and
+        only when the gesture did something: a traced outline that enclosed
+        nothing and a line that separated nothing both leave the mask, the
+        undo history and the ledger exactly as they were.
+
+        The path is converted to image pixels here rather than as it is
+        drawn, so that a gesture whose points fall outside the pixmap loses
+        those points instead of the whole edit.
+        """
+        if self.mask is None:
+            return
+        image_points = [p for p in
+                        (self._canvas_to_image(q.x(), q.y()) for q in points)
+                        if p is not None]
+        if not image_points:
+            return
+
+        if self.mode == MODE_DIVIDE:
+            if len(image_points) < 2:
+                return
+            divided, splits = engine.divide_object(
+                self.mask, image_points[0], image_points[-1])
+            if not splits:
+                return
+            self._emit_stroke_start()
+            self.mask = divided
+            self.refresh()
+            # The ledger names both ends of the split: which object was cut
+            # and which id the piece that came off it was given, so a later
+            # reader can follow one object through the division.
+            self._emit_stroke_end(
+                kind="divide",
+                target=[int(source) for source, _ in splits],
+                new_labels=[int(made) for _, made in splits],
+                n_objects=len(splits),
+            )
+            return
+
+        filled, new_label = engine.fill_polygon(self.mask, image_points)
+        if not new_label:
+            return
+        self._emit_stroke_start()
+        self.mask = filled
+        self.refresh()
+        self._emit_stroke_end(kind="draw", target=int(new_label),
+                               n_points=len(image_points))
 
     def resizeEvent(self, event):
         """Refit the composited pixmap to the new canvas size."""
@@ -773,6 +1002,279 @@ class _MaskCanvas(QLabel):
 # ---------------------------------------------------------------------------
 # Folded modules
 # ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Cellpose-SAM: the segmentation, and its two intermediate outputs
+# ---------------------------------------------------------------------------
+
+#: Cellpose's own default for the threshold on the cell-probability map.
+#: Lowering it keeps dimmer pixels, raising it keeps only confident ones.
+CELLPROB_THRESHOLD = 0.0
+
+#: Cellpose's own default for the flow-error threshold. A candidate mask
+#: whose flows disagree with the ones the network predicted by more than
+#: this is thrown away, so lowering it is stricter, not looser.
+FLOW_THRESHOLD = 0.4
+
+#: What the probability and flow panes say before Cellpose has run. They
+#: are empty for a reason and the reason is worth a sentence: a blank
+#: black pane reads as a broken view.
+FLOW_RESTING_TEXT = (
+    "Run Cellpose-SAM to see the cell-probability map\n"
+    "and the flow field for this field."
+)
+
+
+def stretch_to_uint8(array: np.ndarray,
+                     lower_pct: float = 1.0,
+                     upper_pct: float = 99.0) -> np.ndarray:
+    """Percentile-stretch any float array to 0-255 uint8.
+
+    The probability map runs roughly -12..+8 and the flow components
+    ±5; the intensity image is 16-bit counts. Shown raw beside each
+    other they are three different scales and none of them is readable.
+    Stretching each one by its own percentiles is what puts them on the
+    same footing as the contrast-stretched intensity image the canvas
+    already draws, which is the only way the panes can be compared with
+    it by eye.
+    """
+    values = np.asarray(array, dtype=np.float32)
+    if not values.size:
+        return np.zeros(values.shape, dtype=np.uint8)
+    lo = float(np.percentile(values, lower_pct))
+    hi = float(np.percentile(values, upper_pct))
+    span = max(hi - lo, 1e-6)
+    scaled = np.clip((values - lo) / span, 0.0, 1.0)
+    return (scaled * 255.0).astype(np.uint8)
+
+
+def cellprob_heatmap(cellprob: np.ndarray) -> np.ndarray:
+    """Cellpose's probability map as an RGB heatmap, ``(H, W, 3)`` uint8.
+
+    A greyscale probability map beside a greyscale image is two pictures
+    that look alike and mean different things. A colour ramp says at a
+    glance which pixels the network was confident about, which is the
+    whole reason to look at this map before moving a threshold.
+
+    Matplotlib's ``magma`` is used where it is importable, and a plain
+    black-to-white ramp stands in where it is not, so the pane is never
+    the thing that fails.
+    """
+    scaled = stretch_to_uint8(cellprob).astype(np.float32) / 255.0
+    try:
+        import matplotlib
+        cmap = matplotlib.colormaps["magma"]
+    except Exception:
+        return np.repeat((scaled * 255).astype(np.uint8)[..., None], 3, axis=2)
+    return (np.asarray(cmap(scaled))[..., :3] * 255).astype(np.uint8)
+
+
+def flow_rgb(flow: np.ndarray) -> Optional[np.ndarray]:
+    """Cellpose's flow field as ``(H, W, 3)`` uint8, or None if it is not one.
+
+    ``eval`` hands back the flow field twice over and the two entries are
+    not the same thing: ``flows[0]`` is already an RGB *picture* of the
+    field (hue = direction), while ``flows[1]`` is the raw ``(2, H, W)``
+    vector field. This takes the picture where it is given one and builds
+    an equivalent from the vectors otherwise, so the pane fills whichever
+    entry a caller passes.
+    """
+    if flow is None:
+        return None
+    array = np.asarray(flow)
+    # THE VECTOR SHAPE IS TESTED FIRST. A `(2, H, W)` field also satisfies
+    # "three dimensions with at least three along the last one" whenever
+    # the image is three pixels wide or more, so testing for a picture
+    # first slices the vectors as though they were one and produces a
+    # 2-pixel-tall smear.
+    if array.ndim == 3 and array.shape[0] == 2:
+        # (dY, dX) -> two colour channels plus their magnitude, each
+        # stretched on its own so a weak field is still visible.
+        dy, dx = stretch_to_uint8(array[0]), stretch_to_uint8(array[1])
+        mag = stretch_to_uint8(np.hypot(array[0], array[1]))
+        return np.ascontiguousarray(np.stack([dx, dy, mag], axis=-1))
+    if array.ndim == 3 and array.shape[2] >= 3:
+        return np.ascontiguousarray(array[..., :3].astype(np.uint8))
+    return None
+
+
+def cellpose_intermediates(flows) -> tuple:
+    """Pull ``(cellprob, flow_rgb)`` out of one image's ``flows`` entry.
+
+    Measured against cellpose 4.2.1.1: ``CellposeModel.eval`` returns
+    ``(masks, flows, styles)``, and for one 2-D image ``flows`` is a list
+    of three arrays that are three different things —
+    ``flows[0]`` an ``(H, W, 3)`` uint8 RGB rendering of the field,
+    ``flows[1]`` the ``(2, H, W)`` float32 vectors, and
+    ``flows[2]`` the ``(H, W)`` float32 cell-probability map. Indexing it
+    as though the members were interchangeable is how a flow pane ends up
+    showing the probability map.
+
+    :param flows: one image's flows list, as
+        :func:`spacr.spacr_cellpose.parse_cellpose4_output` hands it over
+        per image, or the raw list from a single-image ``eval``.
+    :returns: ``(cellprob, rgb)``, either of which may be None when this
+        Cellpose did not produce it.
+    """
+    if flows is None:
+        return None, None
+    members = list(flows) if isinstance(flows, (list, tuple)) else [flows]
+    cellprob = None
+    if len(members) > 2 and members[2] is not None:
+        cellprob = np.asarray(members[2], dtype=np.float32)
+    rgb = flow_rgb(members[0]) if members else None
+    if rgb is None and len(members) > 1:
+        rgb = flow_rgb(members[1])
+    return cellprob, rgb
+
+
+def load_cellpose_model(model_name: str):
+    """Load a Cellpose model through spaCR's own resolver.
+
+    :func:`spacr.utils._resolve_cellpose_pretrained` is what the pipeline
+    itself calls: it maps every pre-SAM name onto ``cpsam``, keeps a
+    fine-tuned checkpoint path as itself, and raises rather than quietly
+    substituting stock weights for a checkpoint that is not there. Going
+    around it with a second, simpler call would give this screen a
+    different answer from the run it is meant to be correcting.
+    """
+    import torch
+    from cellpose import models as cp_models
+
+    from ...utils import _resolve_cellpose_pretrained
+
+    pretrained = _resolve_cellpose_pretrained(model_name)
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    return cp_models.CellposeModel(gpu=torch.cuda.is_available(),
+                                    pretrained_model=pretrained,
+                                    device=device)
+
+
+def cellpose_detect(image: np.ndarray, model, *,
+                    diameter: int = 0,
+                    normalize: bool = True,
+                    flow_threshold: float = FLOW_THRESHOLD,
+                    cellprob_threshold: float = CELLPROB_THRESHOLD,
+                    min_size: int = 0) -> tuple:
+    """Segment one field with ``model``; return labels and both intermediates.
+
+    The image goes in as a **batch of one**, which is what
+    :func:`spacr.spacr_cellpose.parse_cellpose4_output` — the repository's
+    own reader of this return value — is written for. Handed a bare 2-D
+    array instead, ``eval`` returns a flat three-member flows list and
+    that function reads ``len(masks)`` as the number of images and finds
+    the image height, so the parse fails on an image that segmented
+    perfectly well.
+
+    ``diameter`` is passed as None when it is 0, which is Cellpose's
+    "work it out from the image"; it is the one pre-SAM sizing argument
+    Cellpose 4 still honours, since ``eval`` rescales by ``30/diameter``.
+
+    :param image: one 2-D field, as the canvas holds it.
+    :param model: a loaded ``CellposeModel`` (see
+        :func:`load_cellpose_model`), or anything with the same ``eval``.
+    :returns: ``(labels, cellprob, flow_rgb)`` — an int32 label image, and
+        the two maps as :func:`cellpose_intermediates` reads them.
+    """
+    import inspect
+
+    from ...spacr_cellpose import cellpose_channel_axis, parse_cellpose4_output
+
+    field = np.asarray(image)
+    kwargs = dict(
+        batch_size=1,
+        normalize=bool(normalize),
+        channel_axis=cellpose_channel_axis(field),
+        diameter=(int(diameter) or None),
+        flow_threshold=float(flow_threshold),
+        cellprob_threshold=float(cellprob_threshold),
+        min_size=int(min_size),
+    )
+    # Cellpose has removed eval arguments between minor versions (4.2 has
+    # no `invert`, 3.x had no `max_size_fraction`). Offering only what THIS
+    # install accepts keeps the screen working across the versions spaCR
+    # supports instead of raising TypeError on the one it was written on.
+    try:
+        params = inspect.signature(model.eval).parameters
+    except (TypeError, ValueError):
+        params = None
+    if params is not None and not any(
+            p.kind is inspect.Parameter.VAR_KEYWORD for p in params.values()):
+        # Only filter against a signature that LISTS what it takes. An
+        # eval declared `(self, x, **kw)` names nothing, and filtering
+        # against it drops every setting the user chose while the run
+        # still succeeds -- the thresholds on the panel would then do
+        # nothing at all, silently.
+        kwargs = {k: v for k, v in kwargs.items() if k in params}
+
+    output = model.eval([field], **kwargs)
+    masks, flows0, flows1, flows2, _flows3 = parse_cellpose4_output(output)
+    labels = np.asarray(masks[0], dtype=np.int32)
+    cellprob, rgb = cellpose_intermediates(
+        [flows0[0] if flows0 else None,
+         flows1[0] if flows1 else None,
+         flows2[0] if flows2 else None])
+    return labels, cellprob, rgb
+
+
+class _FlowPane(QLabel):
+    """Read-only pane for one Cellpose intermediate, scaled to fit its tab.
+
+    Ported from the standalone curation tool's ``FlowView``, which solved
+    the same problem: an intermediate is a picture to *look* at while
+    deciding where a threshold goes, and it has to stay legible when the
+    tab is resized. It keeps the full-resolution pixmap and rescales a
+    copy, so repeated resizing never compounds interpolation error the
+    way rescaling the displayed pixmap would.
+
+    It is deliberately not editable. The mask lives on the canvas next
+    door, and a second surface that could also be painted would mean two
+    places to look for the same object.
+    """
+
+    def __init__(self, parent: Optional[QWidget] = None):
+        super().__init__(parent)
+        self.setAlignment(Qt.AlignCenter)
+        self.setMinimumSize(400, 300)
+        self.setStyleSheet(f"background: {active_palette()['bg']};")
+        self.setWordWrap(True)
+        self._pixmap: Optional[QPixmap] = None
+        self.clear_view()
+
+    def show_rgb(self, rgb: np.ndarray) -> None:
+        """Display one ``(H, W, 3)`` uint8 array."""
+        data = np.ascontiguousarray(np.asarray(rgb, dtype=np.uint8))
+        height, width = data.shape[:2]
+        # The QImage borrows the buffer, so it is copied before `data`
+        # goes out of scope and the pixmap is left pointing at freed
+        # memory — which shows up as a garbled pane, not as a crash.
+        image = QImage(data.data, width, height, 3 * width,
+                       QImage.Format_RGB888).copy()
+        self._pixmap = QPixmap.fromImage(image)
+        self.setText("")
+        self._rescale()
+
+    def clear_view(self) -> None:
+        """Drop the picture and say why the pane is empty."""
+        self._pixmap = None
+        self.setPixmap(QPixmap())
+        self.setText(FLOW_RESTING_TEXT)
+
+    def has_image(self) -> bool:
+        """Whether a Cellpose run has filled this pane."""
+        return self._pixmap is not None
+
+    def _rescale(self) -> None:
+        if self._pixmap is None:
+            return
+        self.setPixmap(self._pixmap.scaled(
+            self.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
+
+    def resizeEvent(self, event):
+        """Refit the picture whenever the tab changes size."""
+        super().resizeEvent(event)
+        self._rescale()
+
 
 def fold_description(key: str) -> tuple:
     """``(name, description, stage)`` for a folded module.
@@ -951,6 +1453,14 @@ class MakeMasksScreen(QWidget):
         outer.addWidget(self._header)
         outer.addWidget(Divider())
 
+        # The one row of tools, across the top of the body. It is above the
+        # canvas and the settings both, so the settings toggle at its far
+        # end cannot hide the button that brings the settings back.
+        # `_tool_row` is the scroller the row rides in; the row itself is
+        # `_tool_row_layout`.
+        self._tool_row = self._build_tool_row()
+        outer.addWidget(self._tool_row)
+
         # Body — a stack: EmptyState until a folder is opened, then splitter
         self._body_stack = QStackedWidget()
 
@@ -974,18 +1484,26 @@ class MakeMasksScreen(QWidget):
         self._canvas.stroke_started.connect(self._on_stroke_started)
         self._canvas.stroke_finished.connect(self._on_stroke_finished)
         self._canvas.zoom_changed.connect(self._on_zoom_changed)
-        self._body_splitter.addWidget(self._canvas)
+        self._body_splitter.addWidget(self._build_view_tabs())
 
-        tools_scroll = QScrollArea()
-        tools_scroll.setWidgetResizable(True)
-        tools_scroll.setFrameShape(QScrollArea.NoFrame)
-        tools_scroll.setWidget(self._build_tools_panel())
-        self._body_splitter.addWidget(tools_scroll)
+        # THE SETTINGS, AS ONE GROUP. Everything the settings button
+        # toggles is inside this one scroll area, so hiding them is one
+        # call and the canvas — the splitter's other child — takes the
+        # width they give up.
+        self._settings_scroll = QScrollArea()
+        self._settings_scroll.setWidgetResizable(True)
+        self._settings_scroll.setFrameShape(QScrollArea.NoFrame)
+        self._settings_scroll.setWidget(self._build_tools_panel())
+        self._body_splitter.addWidget(self._settings_scroll)
         self._body_splitter.setStretchFactor(0, 3)
         self._body_splitter.setStretchFactor(1, 1)
-        self._body_splitter.setSizes([900, 380])
+        self._body_splitter.setSizes([900, SETTINGS_WIDTH])
         self._body_stack.addWidget(self._body_splitter)
         self._body_stack.setCurrentWidget(self._empty_state)
+        # The row belongs to the editor, not to the empty state: there is
+        # nothing to brush before a folder is open.
+        self._body_stack.currentChanged.connect(self._sync_tool_row_visibility)
+        self._sync_tool_row_visibility()
 
         outer.addWidget(self._body_stack, 1)
 
@@ -1348,68 +1866,174 @@ class MakeMasksScreen(QWidget):
         for panel in list(self._fold_dialogs.values()):
             panel.close()
 
-    def _build_tools_panel(self) -> QWidget:
-        wrap = QWidget()
-        col = QVBoxLayout(wrap)
-        col.setContentsMargins(0, 0, 0, 0)
-        col.setSpacing(SPACING["md"])
+    # ------------------------------------------------------------------
+    # The toolbar row and the settings toggle
+    # ------------------------------------------------------------------
+    def _build_tool_row(self) -> QWidget:
+        """The one row that holds every tool, along the top of the screen.
 
-        # Mode buttons — arranged as a 2×3 grid so buttons keep their labels
-        mode_card = Card(title="Tools")
-        from PySide6.QtWidgets import QGridLayout
-        grid = QGridLayout()
-        grid.setSpacing(SPACING["sm"])
+        THE WHOLE SET IS VISIBLE AT ONCE. The tools used to be a 2x3 grid
+        inside a card in the side panel, where finding a tool meant
+        reading a block; in one row they are read left to right and the
+        one you want is where you last saw it.
+
+        The row is built from :func:`tool_row_entries`, so a tool added to
+        :data:`TOOL_MODES` — or a ``MODE_*`` constant added with no table
+        entry at all — appears here without its author editing this
+        method. Actions that are not modes come in through
+        :meth:`add_toolbar_action` and land in the same row.
+
+        The row ends with the settings toggle, which is checkable because
+        it reports a state rather than firing an action: it stays lit for
+        as long as the settings are on screen.
+        """
+        bar = QWidget()
+        bar.setObjectName("MakeMasksToolRow")
+        row = QHBoxLayout(bar)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(SPACING["sm"])
+        #: The row itself, kept so a tool added after this screen was built
+        #: has somewhere to go.
+        self._tool_row_layout = row
+        #: Width the settings pane goes back to when it is shown again.
+        self._settings_width = SETTINGS_WIDTH
+
         self._mode_buttons: dict[str, QPushButton] = {}
-        modes = [
-            (MODE_BRUSH,        "Brush",        "brush"),
-            (MODE_ERASE,        "Erase",        "erase"),
-            (MODE_ERASE_OBJECT, "Erase object", "erase_object"),
-            (MODE_WAND_ADD,     "Wand +",       "wand_add"),
-            (MODE_WAND_ERASE,   "Wand −",       "wand_erase"),
-            (MODE_ZOOM,         "Zoom",         "zoom"),
-        ]
-        for i, (m, label, icon_key) in enumerate(modes):
+        for mode, label, icon_key in tool_row_entries():
             btn = QPushButton(label)
             btn.setIcon(iconset.icon(icon_key))
             btn.setCheckable(True)
             btn.setMinimumHeight(32)
             btn.setCursor(Qt.PointingHandCursor)
-            btn.clicked.connect(lambda _c=False, key=m: self._set_mode(key))
-            grid.addWidget(btn, i // 3, i % 3)
-            self._mode_buttons[m] = btn
+            btn.clicked.connect(lambda _c=False, key=mode: self._set_mode(key))
+            row.addWidget(btn)
+            self._mode_buttons[mode] = btn
         self._btn_brush = self._mode_buttons[MODE_BRUSH]
         self._btn_erase = self._mode_buttons[MODE_ERASE]
         self._btn_del_obj = self._mode_buttons[MODE_ERASE_OBJECT]
         self._btn_wand_add = self._mode_buttons[MODE_WAND_ADD]
         self._btn_wand_erase = self._mode_buttons[MODE_WAND_ERASE]
         self._btn_zoom = self._mode_buttons[MODE_ZOOM]
-        mode_wrap = QWidget(); mode_wrap.setLayout(grid)
-        mode_card.body_layout.addWidget(mode_wrap)
 
-        # Reset zoom / undo redo row
-        history_row = QHBoxLayout()
-        history_row.setSpacing(SPACING["sm"])
+        # Reset zoom, undo and redo ride in the same row: they are pressed
+        # between strokes, so hiding them with the settings would hide the
+        # two buttons a correction session leans on hardest.
+        row.addWidget(Divider(Qt.Vertical))
         self._btn_reset_zoom = QPushButton("Reset zoom")
         self._btn_reset_zoom.setIcon(iconset.icon("zoom_reset"))
         self._btn_reset_zoom.setCursor(Qt.PointingHandCursor)
         self._btn_reset_zoom.setEnabled(False)
         self._btn_reset_zoom.clicked.connect(self._on_reset_zoom)
-        history_row.addWidget(self._btn_reset_zoom)
+        row.addWidget(self._btn_reset_zoom)
         self._btn_undo = QPushButton("Undo")
         self._btn_undo.setIcon(iconset.icon("undo"))
         self._btn_undo.setCursor(Qt.PointingHandCursor)
         self._btn_undo.setEnabled(False)
         self._btn_undo.clicked.connect(self._on_undo)
-        history_row.addWidget(self._btn_undo)
+        row.addWidget(self._btn_undo)
         self._btn_redo = QPushButton("Redo")
         self._btn_redo.setIcon(iconset.icon("redo"))
         self._btn_redo.setCursor(Qt.PointingHandCursor)
         self._btn_redo.setEnabled(False)
         self._btn_redo.clicked.connect(self._on_redo)
-        history_row.addWidget(self._btn_redo)
-        hist_wrap = QWidget(); hist_wrap.setLayout(history_row)
-        mode_card.body_layout.addWidget(hist_wrap)
-        col.addWidget(mode_card)
+        row.addWidget(self._btn_redo)
+
+        row.addStretch(1)
+
+        self._btn_settings = QPushButton("Settings")
+        self._btn_settings.setIcon(iconset.icon("settings"))
+        self._btn_settings.setCheckable(True)
+        self._btn_settings.setMinimumHeight(32)
+        self._btn_settings.setCursor(Qt.PointingHandCursor)
+        self._btn_settings.setToolTip(
+            "Show or hide the settings — brush, wand, display, auto-filter "
+            "and object operations, as one group. The canvas takes the "
+            "width they give up.")
+        # Checked before it is connected: the settings start on screen and
+        # the toggle starts lit, and neither half announces a change that
+        # did not happen.
+        self._btn_settings.setChecked(True)
+        self._btn_settings.toggled.connect(self._on_toggle_settings)
+        row.addWidget(self._btn_settings)
+
+        # A ROW THAT CANNOT FORCE THE WINDOW WIDER THAN THE DISPLAY.
+        # Measured with every tool in it, the row asks for well over
+        # 1300px, and a layout minimum that large is not a wide toolbar —
+        # it is a window that refuses to be narrowed, so the canvas and
+        # the settings go off the right edge with it on a 1366px laptop.
+        # Inside a scroll area the row keeps its natural width and the
+        # viewport gives up first: a scrollbar on a narrow display, and
+        # on a wide one the whole set visible at once, which is the point.
+        scroller = QScrollArea()
+        scroller.setObjectName("MakeMasksToolScroll")
+        scroller.setWidgetResizable(True)
+        scroller.setFrameShape(QScrollArea.NoFrame)
+        scroller.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroller.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        scroller.setWidget(bar)
+        # The bar's own height plus room for the scrollbar that appears
+        # when it does not fit: reserved always, so the row does not grow
+        # a pixel taller the moment a tool is added and shove the canvas
+        # down with it.
+        scroller.setFixedHeight(
+            bar.sizeHint().height()
+            + scroller.horizontalScrollBar().sizeHint().height())
+        scroller.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        return scroller
+
+    def add_toolbar_action(self, button: QPushButton) -> QPushButton:
+        """Put a non-mode button in the toolbar row and return it.
+
+        Tools come from the mode table. An action that is not a mode —
+        running a segmentation over the open image, say — has no entry
+        there, and this is how it still lands in the one row instead of
+        starting a second one. It goes in beside the other actions, left
+        of the stretch, so the settings toggle stays at the far end.
+        """
+        row = self._tool_row_layout
+        row.insertWidget(max(row.indexOf(self._btn_settings) - 1, 0), button)
+        return button
+
+    def _sync_tool_row_visibility(self, *_args) -> None:
+        """Show the tool row only while the editor is the body.
+
+        There is nothing to brush, undo or configure until a folder is
+        open, and a row of dead buttons over the empty state reads as a
+        broken screen rather than an empty one.
+        """
+        self._tool_row.setVisible(
+            self._body_stack.currentWidget() is self._body_splitter)
+
+    def settings_shown(self) -> bool:
+        """Whether the settings group is on screen."""
+        return self._btn_settings.isChecked()
+
+    def _on_toggle_settings(self, shown: bool) -> None:
+        """Hide or show the settings as one group.
+
+        THE CANVAS KEEPS THE SPACE. Hiding a splitter child gives its
+        width to the sibling, so the image grows into the panel's place
+        rather than leaving a gap where the panel was. The width the
+        panel had is remembered while it is away, so a second press puts
+        it back where the user last dragged it instead of at the default.
+        """
+        splitter = self._body_splitter
+        if not shown:
+            sizes = splitter.sizes()
+            if len(sizes) > 1 and sizes[1] > 0:
+                self._settings_width = sizes[1]
+        self._settings_scroll.setVisible(shown)
+        if shown:
+            sizes = splitter.sizes()
+            total = sum(sizes) or (900 + SETTINGS_WIDTH)
+            side = max(min(self._settings_width, total - 1), 1)
+            splitter.setSizes([total - side, side])
+
+    def _build_tools_panel(self) -> QWidget:
+        wrap = QWidget()
+        col = QVBoxLayout(wrap)
+        col.setContentsMargins(0, 0, 0, 0)
+        col.setSpacing(SPACING["md"])
 
         # Brush size slider
         brush_card = Card(title="Brush")
@@ -1462,7 +2086,163 @@ class MakeMasksScreen(QWidget):
         self._wand_max.setValue(100_000)
         self._wand_max.valueChanged.connect(self._on_wand_max_changed)
         wand_form.addRow("Max pixels", self._wand_max)
+        self._wand_salvage = QCheckBox("Keep the nearest pixels at the cap")
+        self._wand_salvage.setChecked(True)
+        self._wand_salvage.setToolTip(
+            "On: a flood over the budget is trimmed back to the pixels "
+            "reachable nearest the click, which leaves a bounded object you "
+            "can edit. Off: an over-budget flood is refused outright and the "
+            "mask is untouched, so a tolerance that is far too high says so "
+            "instead of handing back a piece of the field."
+        )
+        self._wand_salvage.toggled.connect(self._on_wand_salvage_changed)
+        wand_form.addRow("", self._wand_salvage)
         wand_card.body_layout.addLayout(wand_form)
+
+        # The three rescues for a flood that escapes down a bright seam.
+        # Grouped and defaulted so the panel does not open as a wall of
+        # knobs: the group's own checkbox is the master switch, and the
+        # numbers under it only matter when the detector misjudges an image.
+        runaway = QGroupBox("Trim a runaway flood")
+        runaway.setCheckable(True)
+        runaway.setChecked(True)
+        runaway.setToolTip(
+            "A flood that reaches a bright seam — debris, a saturated "
+            "membrane, a well rim — walks out along it and takes the field. "
+            "This reads the flood's width outward from the click and cuts it "
+            "where it suddenly and persistently widens. It does nothing to a "
+            "flood that did not run away."
+        )
+        runaway.toggled.connect(self._on_wand_trim_runaway_changed)
+        runaway_form = QFormLayout(runaway)
+        self._wand_runaway_ratio = QDoubleSpinBox()
+        self._wand_runaway_ratio.setDecimals(2)
+        self._wand_runaway_ratio.setRange(1.2, 10.0)
+        self._wand_runaway_ratio.setSingleStep(0.1)
+        self._wand_runaway_ratio.setValue(2.0)
+        self._wand_runaway_ratio.setToolTip(
+            "How much wider than the object a scanline must be to count as a "
+            "leak. Lower it if leaks are getting through; raise it if a "
+            "genuinely lobed object is being cut."
+        )
+        self._wand_runaway_ratio.valueChanged.connect(
+            self._on_wand_runaway_ratio_changed)
+        runaway_form.addRow("Growth ratio", self._wand_runaway_ratio)
+        self._wand_runaway_warmup = QSpinBox()
+        self._wand_runaway_warmup.setRange(1, 500)
+        self._wand_runaway_warmup.setValue(12)
+        self._wand_runaway_warmup.setToolTip(
+            "Pixels nearest the click that are not judged. One pixel widening "
+            "to two is a ratio of 2 and means nothing, so the first rows out "
+            "of the seed are skipped."
+        )
+        self._wand_runaway_warmup.valueChanged.connect(
+            self._on_wand_runaway_warmup_changed)
+        runaway_form.addRow("Warm-up (px)", self._wand_runaway_warmup)
+        self._wand_runaway_min_base = QSpinBox()
+        self._wand_runaway_min_base.setRange(1, 1000)
+        self._wand_runaway_min_base.setValue(8)
+        self._wand_runaway_min_base.setToolTip(
+            "The width the object must reach before a leak can be called at "
+            "all. Raise it for large objects, lower it if the wand is used on "
+            "something only a few pixels across."
+        )
+        self._wand_runaway_min_base.valueChanged.connect(
+            self._on_wand_runaway_min_base_changed)
+        runaway_form.addRow("Min baseline (px)", self._wand_runaway_min_base)
+        self._wand_runaway_confirm = QSpinBox()
+        self._wand_runaway_confirm.setRange(1, 20)
+        self._wand_runaway_confirm.setValue(2)
+        self._wand_runaway_confirm.setToolTip(
+            "Consecutive widened scanlines required before cutting, so one "
+            "noisy row cannot take half the object off."
+        )
+        self._wand_runaway_confirm.valueChanged.connect(
+            self._on_wand_runaway_confirm_changed)
+        runaway_form.addRow("Confirmation (px)", self._wand_runaway_confirm)
+        wand_card.body_layout.addWidget(runaway)
+        self._wand_runaway_group = runaway
+
+        edge = QGroupBox("Shape the cut edge")
+        edge.setToolTip(
+            "A trimmed runaway ends in a straight line, which no cell has. "
+            "These two put the boundary back on the image: one re-floods at "
+            "a tolerance that does not escape, the other lets the edge settle "
+            "onto the nearest intensity gradient."
+        )
+        edge_form = QFormLayout(edge)
+        self._wand_intensity_border = QCheckBox("Re-flood below the escape")
+        self._wand_intensity_border.setChecked(True)
+        self._wand_intensity_border.setToolTip(
+            "When a leak is found, search for the highest tolerance whose "
+            "flood stays put and take that instead of the straight cut. The "
+            "boundary is then drawn by the image's own intensities. Only "
+            "helps when the seam is dimmer than the object; when it is "
+            "exactly as bright, no tolerance separates them and the cut "
+            "stands."
+        )
+        self._wand_intensity_border.toggled.connect(
+            self._on_wand_intensity_border_changed)
+        edge_form.addRow("", self._wand_intensity_border)
+        self._wand_intensity_steps = QSpinBox()
+        self._wand_intensity_steps.setRange(3, 14)
+        self._wand_intensity_steps.setValue(8)
+        self._wand_intensity_steps.setToolTip(
+            "Halvings used to find that tolerance. Each step is one more "
+            "flood, so this is precision against click latency; eight is "
+            "finer than one grey level on most images."
+        )
+        self._wand_intensity_steps.valueChanged.connect(
+            self._on_wand_intensity_steps_changed)
+        edge_form.addRow("Search steps", self._wand_intensity_steps)
+        self._wand_gradient_taper = QCheckBox("Taper onto the gradient")
+        self._wand_gradient_taper.setChecked(True)
+        self._wand_gradient_taper.setToolTip(
+            "Let the provisional edge move onto the nearest real intensity "
+            "change, inside the band below. This is what removes the last "
+            "straight lines and circular arcs left by a cut or a budget."
+        )
+        self._wand_gradient_taper.toggled.connect(
+            self._on_wand_gradient_taper_changed)
+        edge_form.addRow("", self._wand_gradient_taper)
+        self._wand_gradient_sigma = QDoubleSpinBox()
+        self._wand_gradient_sigma.setDecimals(1)
+        self._wand_gradient_sigma.setRange(0.0, 10.0)
+        self._wand_gradient_sigma.setSingleStep(0.5)
+        self._wand_gradient_sigma.setValue(2.0)
+        self._wand_gradient_sigma.setToolTip(
+            "Blur applied before looking for the edge. Raise it on speckled "
+            "fields so noise is not mistaken for a boundary; lower it for "
+            "small, sharply bounded objects."
+        )
+        self._wand_gradient_sigma.valueChanged.connect(
+            self._on_wand_gradient_sigma_changed)
+        edge_form.addRow("Smoothing (sigma)", self._wand_gradient_sigma)
+        self._wand_gradient_margin = QSpinBox()
+        self._wand_gradient_margin.setRange(1, 100)
+        self._wand_gradient_margin.setValue(8)
+        self._wand_gradient_margin.setToolTip(
+            "How far either side of the cut the edge is free to move. Wider "
+            "lets it find a boundary further away; too wide and it can reach "
+            "the seam the cut was made to escape."
+        )
+        self._wand_gradient_margin.valueChanged.connect(
+            self._on_wand_gradient_margin_changed)
+        edge_form.addRow("Transition band (px)", self._wand_gradient_margin)
+        self._wand_gradient_erode = QSpinBox()
+        self._wand_gradient_erode.setRange(0, 50)
+        self._wand_gradient_erode.setValue(3)
+        self._wand_gradient_erode.setToolTip(
+            "How far inside the kept region counts as certainly the object. "
+            "Everything between that inset and the discarded part is what the "
+            "taper is allowed to decide."
+        )
+        self._wand_gradient_erode.valueChanged.connect(
+            self._on_wand_gradient_erode_changed)
+        edge_form.addRow("Foreground inset (px)", self._wand_gradient_erode)
+        wand_card.body_layout.addWidget(edge)
+        self._wand_edge_group = edge
+
         col.addWidget(wand_card)
 
         # Display card — contrast percentiles and wheel-zoom speed.
@@ -1615,6 +2395,8 @@ class MakeMasksScreen(QWidget):
         obj_card.body_layout.addWidget(obj_ops_wrap)
         col.addWidget(obj_card)
 
+        col.addWidget(self._build_cellpose_card())
+
         col.addStretch(1)
         return wrap
 
@@ -1667,6 +2449,56 @@ class MakeMasksScreen(QWidget):
 
     def _on_wand_max_changed(self, v: int):
         self._canvas.wand_max_pixels = int(v)
+
+    # Rescue controls. Each writes one canvas attribute; the canvas builds
+    # the dict the flood reads in wand_rescue_settings(), so a control is
+    # wired by setting the attribute it names and nothing else.
+    def _on_wand_salvage_changed(self, on: bool):
+        self._canvas.wand_salvage_over_cap = bool(on)
+
+    def _on_wand_trim_runaway_changed(self, on: bool):
+        self._canvas.wand_trim_runaway = bool(on)
+
+    def _on_wand_runaway_ratio_changed(self, v: float):
+        self._canvas.wand_runaway_ratio = float(v)
+
+    def _on_wand_runaway_warmup_changed(self, v: int):
+        self._canvas.wand_runaway_warmup = int(v)
+
+    def _on_wand_runaway_min_base_changed(self, v: int):
+        self._canvas.wand_runaway_min_base = int(v)
+
+    def _on_wand_runaway_confirm_changed(self, v: int):
+        self._canvas.wand_runaway_confirm = int(v)
+
+    def _on_wand_intensity_border_changed(self, on: bool):
+        """Enable the re-flood, and its step count with it.
+
+        The step count is the precision of a search that is not running
+        when the re-flood is off, so leaving it live would offer a setting
+        that changes nothing.
+        """
+        self._canvas.wand_intensity_border = bool(on)
+        self._wand_intensity_steps.setEnabled(bool(on))
+
+    def _on_wand_intensity_steps_changed(self, v: int):
+        self._canvas.wand_intensity_steps = int(v)
+
+    def _on_wand_gradient_taper_changed(self, on: bool):
+        """Enable the taper, and the three numbers that shape it."""
+        self._canvas.wand_gradient_taper = bool(on)
+        for w in (self._wand_gradient_sigma, self._wand_gradient_margin,
+                  self._wand_gradient_erode):
+            w.setEnabled(bool(on))
+
+    def _on_wand_gradient_sigma_changed(self, v: float):
+        self._canvas.wand_gradient_sigma = float(v)
+
+    def _on_wand_gradient_margin_changed(self, v: int):
+        self._canvas.wand_gradient_margin = int(v)
+
+    def _on_wand_gradient_erode_changed(self, v: int):
+        self._canvas.wand_gradient_erode = int(v)
 
     def _on_zoom_speed_changed(self, v: float):
         self._canvas.zoom_speed = float(v)
@@ -1853,6 +2685,274 @@ class MakeMasksScreen(QWidget):
             f"Otsu ({side}) found {found} object(s) — {mode}d into the mask"
         )
 
+
+    # ------------------------------------------------------------------
+    # Cellpose-SAM on the open field, and its two intermediates
+    # ------------------------------------------------------------------
+    def _build_view_tabs(self) -> QTabWidget:
+        """The canvas and Cellpose's two intermediates, as tabs.
+
+        THE PANES ARE NOT DECORATION. The probability map and the flow
+        field are what say *why* a mask came out the way it did: seeing
+        which pixels the network was confident about, beside the objects
+        it drew from them, is the difference between moving a threshold
+        with a reason and moving it by guessing. They sit on tabs of the
+        same pane as the mask so they are at the same size and the same
+        zoom-to-fit as the image being judged.
+
+        Both tabs stay ENABLED before Cellpose has run, unlike the
+        standalone tool's, because a disabled tab cannot be opened to
+        read the one sentence that explains why it is empty.
+        """
+        tabs = QTabWidget()
+        tabs.setObjectName("MakeMasksViewTabs")
+        tabs.addTab(self._canvas, "Mask")
+        self._prob_pane = _FlowPane()
+        self._flow_pane = _FlowPane()
+        self._tab_prob = tabs.addTab(self._prob_pane, "Cell probability")
+        self._tab_flow = tabs.addTab(self._flow_pane, "Flows")
+        self._view_tabs = tabs
+        return tabs
+
+    def _reset_flow_panes(self) -> None:
+        """Empty both intermediates and put the view back on the mask.
+
+        They belong to ONE Cellpose run on ONE field. Carried over to the
+        next field they would be a picture of the wrong image, read as a
+        picture of this one — the worst shape this could take, because
+        nothing on screen would say so.
+        """
+        self._prob_pane.clear_view()
+        self._flow_pane.clear_view()
+        self._view_tabs.setCurrentIndex(0)
+
+    def _build_cellpose_card(self) -> Card:
+        """The Cellpose-SAM settings, and the detect button they drive.
+
+        The settings are ON THE PANEL rather than assumed. Both
+        thresholds start at Cellpose's own defaults —
+        :data:`CELLPROB_THRESHOLD` and :data:`FLOW_THRESHOLD` — so a run
+        made without touching anything is the run Cellpose would have
+        made, and a changed number is visibly a departure from it.
+
+        The button itself goes in the one tool row rather than in this
+        card: it is an action, and it has to stay reachable when the
+        settings are toggled away.
+        """
+        from ...settings import cellpose_model_choices
+
+        #: Loaded models, by the name that was asked for. Loading cpsam
+        #: costs seconds and hundreds of megabytes, and a segmentation
+        #: session runs it once per field.
+        self._cp_loaded: dict = {}
+
+        card = Card(
+            title="Cellpose-SAM",
+            subtitle="Segments the open field. Both thresholds start at "
+                     "Cellpose's own defaults.",
+        )
+        form = QFormLayout()
+
+        self._cp_model = QComboBox()
+        # THE NAME IS THE ITEM'S DATA, not its label, for the same reason
+        # the replace/merge combo carries its mode that way: a language
+        # switch rewrites item text in place, and Cellpose has never
+        # heard of a translated model name.
+        for name in cellpose_model_choices():
+            self._cp_model.addItem(name, name)
+        self._cp_model.setToolTip(
+            "Which weights segment this field. The list is read from the "
+            "Cellpose installed on this machine rather than hard-coded, so "
+            "a version that ships more models offers them here. A "
+            "fine-tuned checkpoint trained by Train Cellpose is applied by "
+            "running that module against the folder.")
+        form.addRow("Model", self._cp_model)
+
+        self._cp_cellprob = QDoubleSpinBox()
+        self._cp_cellprob.setDecimals(2)
+        self._cp_cellprob.setRange(-12.0, 12.0)
+        self._cp_cellprob.setSingleStep(0.1)
+        self._cp_cellprob.setValue(CELLPROB_THRESHOLD)
+        self._cp_cellprob.setToolTip(
+            "Where the cell-probability map is cut. Lower it to keep dimmer "
+            "objects the network was unsure about; raise it to keep only "
+            "confident ones. Open the Cell probability tab after a run and "
+            "the number has something to be judged against.")
+        form.addRow("Cell probability", self._cp_cellprob)
+
+        self._cp_flow = QDoubleSpinBox()
+        self._cp_flow.setDecimals(2)
+        self._cp_flow.setRange(0.0, 10.0)
+        self._cp_flow.setSingleStep(0.1)
+        self._cp_flow.setValue(FLOW_THRESHOLD)
+        self._cp_flow.setToolTip(
+            "How far a candidate object's flows may disagree with the ones "
+            "the network predicted before it is thrown away. LOWER IS "
+            "STRICTER, which is the opposite of the way it reads. 0 turns "
+            "the check off entirely.")
+        form.addRow("Flow threshold", self._cp_flow)
+
+        self._cp_diameter = QSpinBox()
+        self._cp_diameter.setRange(0, 10_000)
+        self._cp_diameter.setSingleStep(5)
+        self._cp_diameter.setValue(0)
+        self._cp_diameter.setToolTip(
+            "Expected object diameter in pixels; 0 lets Cellpose work it "
+            "out. It is the one pre-SAM sizing setting Cellpose 4 still "
+            "honours — it rescales the image by 30/diameter — so it is the "
+            "control to reach for when objects come out split or fused.")
+        form.addRow("Diameter (px)", self._cp_diameter)
+
+        card.body_layout.addLayout(form)
+
+        self._cp_normalize = QCheckBox("Normalize each field")
+        self._cp_normalize.setChecked(True)
+        self._cp_normalize.setToolTip(
+            "Percentile-normalize the field before segmenting it, which is "
+            "what Cellpose expects. Turn it off only for data already "
+            "normalized upstream, where doing it twice changes the result.")
+        card.body_layout.addWidget(self._cp_normalize)
+
+        self._btn_cellpose = QPushButton("Cellpose-SAM detect")
+        self._btn_cellpose.setIcon(iconset.icon("run"))
+        self._btn_cellpose.setCursor(Qt.PointingHandCursor)
+        self._btn_cellpose.setToolTip(
+            "Segment the open field with Cellpose-SAM and fold the result "
+            "in as the replace/merge setting says. Fills the Cell "
+            "probability and Flows tabs with what the run was thinking.")
+        self._btn_cellpose.clicked.connect(self._on_detect_cellpose)
+        self.add_toolbar_action(self._btn_cellpose)
+        return card
+
+    def _detect_min_area(self) -> int:
+        """Smallest object a detection may keep, in pixels.
+
+        The same box the Remove-small button reads, because they are the
+        same judgement: an object this size is debris either way, and
+        having Cellpose keep what the next button would delete would be
+        two answers to one question.
+        """
+        return int(self._min_area.value())
+
+    def _cellpose_model(self, model_name: str):
+        """Load ``model_name`` once and keep it for the rest of the session."""
+        if model_name not in self._cp_loaded:
+            self._cp_loaded[model_name] = load_cellpose_model(model_name)
+        return self._cp_loaded[model_name]
+
+    def _sync_model_choices(self) -> None:
+        """Add any model the live Cellpose reports that the combo has not.
+
+        The combo is built while the screen is, and importing Cellpose
+        costs about two and a half seconds because it pulls in torch — so
+        :func:`spacr.settings.cellpose_model_choices` answers from its
+        fallback list until something has actually imported it. The first
+        detect run is that something, and it is the first moment the live
+        list can be had for free.
+        """
+        from ...settings import cellpose_model_choices
+
+        for name in cellpose_model_choices():
+            if self._cp_model.findData(name) < 0:
+                self._cp_model.addItem(name, name)
+
+    def _show_intermediates(self, cellprob, flow) -> None:
+        """Put one run's probability map and flow field on their tabs."""
+        if cellprob is None:
+            self._prob_pane.clear_view()
+        else:
+            self._prob_pane.show_rgb(cellprob_heatmap(cellprob))
+        if flow is None:
+            self._flow_pane.clear_view()
+        else:
+            self._flow_pane.show_rgb(flow)
+
+    def run_cellpose(self) -> int:
+        """Segment the open field with Cellpose-SAM; return objects found.
+
+        The two panes are filled BEFORE the mask is touched, and they are
+        filled even when the run found nothing at all. A run that returns
+        an empty mask is exactly the run whose probability map you need to
+        see: it says whether the network found nothing, or found plenty
+        and the threshold threw it away.
+
+        The run blocks this screen while it is going. Cellpose on a GPU
+        answers in about a second on one field, and moving it to a thread
+        would mean a second worker on a screen that already drains one on
+        close; the button is disabled and the cursor says wait instead.
+        """
+        if self._canvas.image is None or self._canvas.mask is None:
+            self._status_label.setText(
+                "Open a folder before running Cellpose-SAM.")
+            return 0
+
+        model_name = self._cp_model.currentData() or "cpsam"
+        app = QApplication.instance()
+        self._btn_cellpose.setEnabled(False)
+        self._status_label.setText(f"Cellpose-SAM ({model_name}) running…")
+        if app is not None:
+            app.setOverrideCursor(Qt.WaitCursor)
+            # The button is disabled first, so painting the status line
+            # cannot let a second click start a second run on top of this
+            # one.
+            app.processEvents()
+        try:
+            labels, cellprob, flow = cellpose_detect(
+                self._canvas.image,
+                self._cellpose_model(model_name),
+                diameter=int(self._cp_diameter.value()),
+                normalize=bool(self._cp_normalize.isChecked()),
+                flow_threshold=float(self._cp_flow.value()),
+                cellprob_threshold=float(self._cp_cellprob.value()),
+                min_size=self._detect_min_area(),
+            )
+        except Exception as exc:
+            LOG.exception("Cellpose-SAM detect failed")
+            self._warn("Cellpose-SAM detect failed", str(exc))
+            return 0
+        finally:
+            if app is not None:
+                app.restoreOverrideCursor()
+            self._btn_cellpose.setEnabled(True)
+
+        self._show_intermediates(cellprob, flow)
+        self._sync_model_choices()
+
+        found = int(labels.max()) if labels.size else 0
+        if not found:
+            # Replacing with nothing would wipe a mask the user may have
+            # spent an hour on, over a threshold that was one notch out.
+            self._status_label.setText(
+                "Cellpose-SAM found no objects — the mask is unchanged. The "
+                "Cell probability tab shows what it had to work with.")
+            return 0
+
+        mode = self._combine_mode.currentData()
+        try:
+            out = engine.combine_masks(self._canvas.mask, labels, mode)
+        except Exception as exc:
+            self._warn("Cellpose-SAM detect failed", str(exc))
+            return 0
+        changed = self._pixels_changed(out)
+        self._canvas.mask = out
+        self._canvas.refresh()
+        self._record("detect", mode, changed, method="cellpose",
+                      model=model_name, n_objects=found,
+                      cellprob_threshold=float(self._cp_cellprob.value()),
+                      flow_threshold=float(self._cp_flow.value()),
+                      diameter=int(self._cp_diameter.value()),
+                      min_size=self._detect_min_area())
+        self._history.push(out)
+        self._refresh_history_buttons()
+        self._status_label.setText(
+            f"Cellpose-SAM ({model_name}) found {found} object(s) — "
+            f"{mode}d into the mask. See the Cell probability and Flows tabs."
+        )
+        return found
+
+    def _on_detect_cellpose(self):
+        """Toolbar handler for the Cellpose-SAM detect button."""
+        self.run_cellpose()
 
     # ------------------------------------------------------------------
     # User messaging (headless-safe — see :func:`is_headless`)
@@ -2044,6 +3144,10 @@ class MakeMasksScreen(QWidget):
         if token != self._load_token:
             return
         self._canvas.set_image_and_mask(image, mask)
+        # The probability and flow panes described the LAST field's
+        # Cellpose run; on this one they would be a picture of the
+        # wrong image with nothing on screen saying so.
+        self._reset_flow_panes()
         # Reset undo history for the new image and seed with the loaded mask
         self._history.clear()
         self._history.push(mask)
@@ -2187,8 +3291,11 @@ class MakeMasksScreen(QWidget):
     def _sync_button_states(self):
         has_files = bool(self._image_files)
         editable = has_files and not self._loading
+        # EVERY tool in the row, read off the row itself rather than
+        # listed here: a tool added to the mode table is disabled until a
+        # folder is open like the rest of them, without anyone having to
+        # remember this method exists.
         for b in (self._btn_prev, self._btn_next, self._btn_save,
-                   self._btn_brush, self._btn_erase, self._btn_del_obj,
-                   self._btn_wand_add, self._btn_wand_erase, self._btn_zoom,
-                   self._btn_filter, self._btn_otsu):
+                   self._btn_filter, self._btn_otsu,
+                   *self._mode_buttons.values()):
             b.setEnabled(editable)

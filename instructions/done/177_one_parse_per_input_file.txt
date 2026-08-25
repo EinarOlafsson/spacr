@@ -2,10 +2,10 @@
 ONE PARSE PER INPUT FILE, NOT ONE PER PAIR ROW
 ================================================================================
 
-Status:    closed on the reader, the intermediate and the silence, all
-           diagnosed on the live process. The one producer left is the
-           Measurements panel's write_merged_frame, with the exact edit
-           written out under WHAT REMAINS.
+Status:    closed. The reader, the intermediate, the silence AND the last
+           producer -- the Measurements panel -- all go through the handoff;
+           nothing writes a CSV that nothing reads back. Measured numbers
+           under WHAT IT COST AND WHAT IT COSTS NOW.
 Reported:  2026-08-19 -- "i merged the measurements and ran pathogen_area as a
            regression but it looks like it is not running while it does say
            that it is running ... do you see anything running?"
@@ -48,45 +48,68 @@ twentieth of the size:
     parquet   write  0.63 s   read 0.11 s   106.9 MB
     handoff   write     0 s   read    0 s   nothing written twice
 
-WHAT REMAINS, AND IT IS STILL THE SAME CALL SITE. The reader half is
-complete and audited: `ml.load_regression_input_pairs` parses each distinct
-path once, asks `frame_handoff.held(path)` first, prints what it was handed
-and what it had to read, and falls back to `tabular.read_table` -- which
-reads Parquet -- when nothing was offered. Nothing on that side is missing.
+THE LAST PRODUCER, AND IT IS NOW THROUGH THE MECHANISM. The reader half was
+already complete and audited: `ml.load_regression_input_pairs` parses each
+distinct path once, asks `frame_handoff.held(path)` first, prints what it was
+handed and what it had to read, and falls back to `tabular.read_table` --
+which reads Parquet -- when nothing was offered.
 
-`spacr/qt/widgets/measurement_scan_panel.py::write_merged_frame` (line 855)
-still does `frame.to_csv(path, index=False)` and offers nothing, so the
-Measurements queue is the one producer the mechanism never sees. The edit:
+`spacr/qt/widgets/measurement_scan_panel.py::write_merged_frame` did
+`frame.to_csv(path, index=False)` and offered nothing, which made the
+Measurements queue the one producer the mechanism never saw. IT STAGES NOW:
 
-    def write_merged_frame(frame, folder, name=MERGED_FRAME_NAME):
-        if frame is None or not len(frame) or not folder:
-            return ""
-        from ...frame_handoff import stage
-        return stage(frame, folder, os.path.splitext(str(name))[0])
+    return stage(frame, folder, os.path.splitext(str(name))[0],
+                 report=report)
 
 `stage` creates the folder, offers the frame under the path BEFORE the write
 returns, writes Parquet when an engine is installed and CSV when one is not,
-and reports what it wrote. `MERGED_FRAME_NAME` stays 'merged_measurements.csv'
-and the stem is taken off it, so the artefact becomes
+and reports what it wrote and what it cost. `MERGED_FRAME_NAME` is still
+'merged_measurements.csv' and only its STEM is used, so the artefact is
 `merged_measurements.parquet` where pyarrow is present -- which is what
-`merged_frame_path()` returns and what `column_run_settings` points every pair
-row at, and `tabular.read_table` dispatches on the suffix.
+`merged_frame_path()` returns, what `column_run_settings` points every pair
+row at, and what `tabular.read_table` dispatches on.
 
-AND THE RELEASE, so the fallback is deterministic rather than dependent on
-when the frame is collected: in `ColumnQueuePanel._finish_queue` (line 2555),
-after `self.queue_finished.emit(fitted, failed)`,
+AND THE OFFER LIVES EXACTLY AS LONG AS THE QUEUE THAT READS IT.
+`ColumnQueuePanel._finish_queue` releases `self._queue_score` after
+`queue_finished` is emitted -- the references are weak, so this is not the
+difference between a leak and none, but it makes the fallback to the file
+DETERMINISTIC rather than dependent on when the merging panel's frame is
+collected.
 
-    from ...frame_handoff import release
-    release(self._queue_score)
+The release alone would have left only the FIRST queue over a merge taking
+the object, so `start_regressions` offers the frame again before each queue,
+through `_offer_frame`. The frame provider and the score provider are two
+views of one merge -- the panel wires both to the merging panel, which sets
+the frame and the path it wrote together -- and a provider that cannot give
+a frame simply makes no offer, so the fits read the file as they always did.
 
-The references are weak, so this is a statement of intent rather than a leak
-fix -- but a producer that knows it has finished should say so.
+--------------------------------------------------------------------------------
+WHAT IT COST AND WHAT IT COSTS NOW
+--------------------------------------------------------------------------------
 
-AND NOW IT SAYS SO WHILE IT HAPPENS. Between the merge finishing and the fit
-starting the run printed nothing for minutes, which is why a working run
-looked dead. Each input file is announced with its size before it is parsed
-and its row count and elapsed time after; a frame handed over in memory says
-that instead; and every fit stage -- reading the input tables, reading the
-counts, fitting the model, the fit has returned -- names itself and its
-resident size as it is entered.
+Measured on a 200,000 x 83 frame, 159 MB resident, which is the same shape as
+the screen one at about a twentieth of the size:
+
+    to_csv + read back      write 13.33 s   read 1.89 s   316.7 MB
+    stage(parquet)          write  0.90 s   read 0.20 s   149.8 MB
+    handed over in memory                   read 2.8 us   nothing written twice
+
+Through the real loader, four pair rows pointed at one merged frame:
+
+    CSV on disk        3.14 s
+    Parquet on disk    0.30 s
+    handed over        0.16 s
+
+Scaled to the four-plate screen's 2.75 GB of CSV (x8.7): the write goes from
+about 116 s to about 8 s, and the parse in front of the first fit -- 16 s at
+this machine's disk speed, minutes on the screen where it was diagnosed out
+of the page cache -- goes to nothing at all, because nothing is parsed.
+
+Tests: `tests/test_the_merged_frame_is_handed_over.py` (11) for the
+mechanism, and in `tests/test_the_measurements_tab_reaches_a_regression.py`
+the producer half -- the artefact is columnar and the frame is offered, an
+empty merge offers nothing, the fit is handed the object rather than the
+path, a second queue is handed it again, and a frame provider that fails
+costs a parse rather than the run.
+
 Instruction 140 asks for exactly this and does not cover this path.

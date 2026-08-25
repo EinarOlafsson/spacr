@@ -1,24 +1,32 @@
-"""Classify, and the two screens that judge what it produced.
+"""Classify, and the three screens that read what it produced.
 
-A classifier is trained on one screen and then argued about on two
+A classifier is trained on one screen and then argued about on three
 others: Classifier Evaluation asks whether to believe it -- held-out
 predictions, nested CV, calibration, leakage checks and per-plate metrics
-off a saved evaluation bundle -- and Explain CV Model asks what it is
-keying on, reproducing the decisions from measured features and reporting
-gain, held-out permutation importance and SHAP. Neither is a separate
-destination; both are the second half of the visit that trained the
-model, so both fold onto Classify's masthead as buttons.
+off a saved evaluation bundle -- Explain CV Model asks what it is keying
+on, reproducing the decisions from measured features and reporting gain,
+held-out permutation importance and SHAP, and Activation asks the same
+question of the pixels, drawing the map of where in the crop the trained
+model looked. None is a separate destination; each is the second half of
+the visit that trained the model, so all three fold onto Classify's
+masthead as buttons.
 
 Each button is the folded module's own icon with no text, its one-line
 description as the tooltip, lit on hover in the maturity colour its tile
 used -- see :class:`spacr.qt.widgets.fold_strip.FoldStrip`.
 
-NOTHING IS LOST IN THE MOVE. The buttons open the two modules
+NOTHING IS LOST IN THE MOVE. The buttons open the three modules
 themselves, as PAGES beside the training settings, so the bundle browser,
-the leakage report, the backend choice, the SHAP panel and every
+the leakage report, the backend choice, the SHAP panel, the attribution
+form with its own Run button and hyperparameter sweep, and every
 navigation those screens offer arrive with them, and the training
 settings are one tab away rather than behind a window. A window is what a
 fold becomes only when its host has no body to make pages out of.
+
+WHY ACTIVATION IS A PAGE RATHER THAN CATEGORIES ON THIS FORM -- nineteen
+of its twenty-seven settings are its own, and they drive a different run
+-- is argued in :mod:`spacr.qt.screens.activation`, which also answers
+the one navigation Explain CV offers.
 
 The shared half of a fold -- opening the module, wiring the host signals
 and hanging the strip off the masthead -- lives in
@@ -34,6 +42,7 @@ from typing import Callable, Dict, Optional, Tuple
 from PySide6.QtWidgets import QWidget
 
 from ..widgets.fold_strip import FoldStrip
+from . import activation
 from .map_barcodes import install_fold_strip
 
 LOG = logging.getLogger(__name__)
@@ -44,18 +53,20 @@ LOG = logging.getLogger(__name__)
 HOST_KEY = "classify_merged"
 
 #: Registry keys of the modules folded into it, in the order the strip
-#: draws them: judge the model first, then ask what it is keying on.
-FOLDED_APPS: Tuple[str, ...] = ("classifier_evaluation", "explain_cv")
+#: draws them: judge the model first, then ask which measured features it
+#: is keying on, then where in the image it looked.
+FOLDED_APPS: Tuple[str, ...] = ("classifier_evaluation", "explain_cv",
+                                activation.APP_KEY)
 
 
 def _navigable(host_window: Optional[QWidget]) -> Optional[QWidget]:
     """``host_window`` if it can be navigated, else None.
 
-    The two folded screens send the user on -- Explain CV offers to open
-    Activation Maps, and both seed a training screen -- through the main
-    window's ``_on_train_requested``. Handing them anything else would
-    turn one of their buttons into an ``AttributeError`` at the moment it
-    was pressed.
+    The folded screens send the user on -- Explain CV offers to open
+    Activation Maps, and both it and the evaluation screen seed a
+    training screen -- through the main window's ``_on_train_requested``.
+    Handing them anything else would turn one of their buttons into an
+    ``AttributeError`` at the moment it was pressed.
     """
     if host_window is None:
         return None
@@ -70,10 +81,27 @@ def _build_classifier_evaluation(host_window: Optional[QWidget]) -> QWidget:
 
 
 def _build_explain_cv(host_window: Optional[QWidget]) -> QWidget:
-    """Explain CV Model's own screen, with navigation where it works."""
+    """Explain CV Model's own screen, with its navigation answered.
+
+    The host it is given is the activation module's ``ExplainNavigator``
+    rather than the window: "Open Activation Maps" now has a page on this
+    very screen to land on, and asking the window for it reached a key
+    nothing knows. Everything else the screen asks its host for is
+    forwarded to the window unchanged, and only when that window can
+    answer.
+    """
     from .model_explanation import make_model_explanation_screen
-    return make_model_explanation_screen(app_key="explain_cv",
-                                         host=_navigable(host_window))
+
+    navigator = activation.ExplainNavigator(_navigable(host_window))
+    screen = make_model_explanation_screen(app_key="explain_cv",
+                                           host=navigator)
+    navigator.attach(screen)
+    return screen
+
+
+def _build_activation(host_window: Optional[QWidget]) -> QWidget:
+    """Activation's own screen: the attribution form and its Run button."""
+    return activation.build(host_window)
 
 
 #: One builder per folded module — see
@@ -81,6 +109,7 @@ def _build_explain_cv(host_window: Optional[QWidget]) -> QWidget:
 BUILDERS: Dict[str, Callable[[Optional[QWidget]], QWidget]] = {
     "classifier_evaluation": _build_classifier_evaluation,
     "explain_cv": _build_explain_cv,
+    activation.APP_KEY: _build_activation,
 }
 
 

@@ -58,8 +58,9 @@ from .app_screen import ModuleHeader
 
 LOG = logging.getLogger("spacr.qt.screens.pca")
 
-__all__ = ["PCAScreen", "make_pca_screen", "register", "APP_KEY", "APP_NAME",
-           "APP_DESCRIPTION", "APP_INTRO", "APP_CLI_NOTE"]
+__all__ = ["PCAScreen", "make_pca_screen", "APP_KEY", "APP_NAME",
+           "APP_DESCRIPTION", "APP_INTRO", "APP_CLI_NOTE",
+           "APP_TRANSLATIONS"]
 
 #: The registry key. Chosen once and never renamed.
 APP_KEY = "pca"
@@ -394,7 +395,12 @@ class PCAScreen(QWidget):
 
 
 def make_pca_screen(app_key: Optional[str] = None) -> QWidget:
-    """Factory handed to :func:`spacr.qt.app.register_app`."""
+    """Build the screen. The one constructor every caller goes through.
+
+    ``app_key`` is accepted and ignored: it is the shape
+    :func:`spacr.qt.app.register_app` called a factory with, and callers
+    written against that shape still work.
+    """
     return PCAScreen()
 
 
@@ -408,49 +414,34 @@ APP_INTRO = (
     "by any column, and brush a cluster to highlight those cells in every "
     "other open view. Features are standardised by default — without it PC1 "
     "is whichever column is measured in the largest numbers.")
-#: What `spacr.cli.INTERACTIVE_ONLY` wants: why this app has no headless run.
-APP_CLI_NOTE = ("Interactive multivariate exploration; "
-                "spacr.qt.widgets.pca_model.pca() is the headless equivalent.")
+#: Why there is no ``spacr-run pca``.
+#:
+#: WRITTEN OUT AGAIN in :data:`spacr.cli.INTERACTIVE_ONLY` rather than reached
+#: from there. It used to travel as the row's ``cli_note=``; the row is gone,
+#: and ``spacr.cli`` answers ``--list`` on clusters with no PySide6 at all, so
+#: it cannot import this module to read the sentence. A test asserts the two
+#: copies are the same string.
+APP_CLI_NOTE = ("PCA here is interactive multivariate exploration — ticking "
+                "features and brushing a cluster are the feature; run it in "
+                "the GUI (spacr-qt), where it is a button on Image UMAP. "
+                "Headless, spacr.qt.widgets.pca_model.pca() is the "
+                "equivalent.")
+
+#: The display name in the nine languages the catalogs carry, in their order:
+#: the acronym where it is the scientific convention, the term where it is
+#: not. Kept beside the name they translate now that no registration hands
+#: them to :func:`spacr.qt.i18n.add_translation`.
+APP_TRANSLATIONS = ("PCA", "PCA", "PCA", "主成分分析", "PCA", "पीसीए",
+                    "주성분 분석", "PCA", "ACP")
 
 
-def register() -> bool:
-    """Put PCA in the app registry, through the public seam. Idempotent.
-
-    Everything after ``section`` is a table this key used to need a hand-edit
-    in — the screen header and blurb, the "no headless run" sentence, the API
-    doc link and the display name in nine languages.
-    :func:`spacr.qt.app.register_app` distributes them; this function only has
-    to know them.
-
-    :returns: ``True`` if this call is what registered it. Safe to call
-        twice — a module imported from two paths must not raise on the
-        duplicate key.
-
-    **Not called at import.** ``app.py`` imports ``spacr.qt.widgets`` before
-    ``register_app`` exists, so no module reachable from the top of it can
-    register during its import, and a registration that happens later is one
-    that some importer's snapshot of ``APPS`` predates. The one place a
-    registration is visible to everybody is ``app.py``'s own
-    ``_SELF_REGISTERING_APPS`` table, at the bottom of that file, which is
-    where this screen's row lives::
-
-        ("spacr.qt.screens.pca", "register"),
-
-    and nothing else: the strings above travel with the registration.
-    """
-    from ..app import APPS, SECTION_EXPLORE, STAGE_ALPHA, register_app
-    if any(row[0] == APP_KEY for row in APPS):
-        return False
-    register_app(
-        APP_KEY, APP_NAME, APP_DESCRIPTION,
-        # Explore, not Results & QC: this is asking the measurements a
-        # question, not reporting what a finished run produced.
-        SECTION_EXPLORE,
-        factory=make_pca_screen, stage=STAGE_ALPHA,
-        intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-        api_module="qt/screens/pca",
-        # The acronym where it is the scientific convention, the term where
-        # it is not. A tile has room for one word either way.
-        translations=("PCA", "PCA", "PCA", "主成分分析", "PCA", "पीसीए",
-                      "주성분 분석", "PCA", "ACP"))
-    return True
+# NO REGISTRY ROW. PCA is reached as a button on Image UMAP's masthead --
+# :data:`spacr.qt.screens.image_umap.FOLDED_APPS` -- which builds it through
+# :func:`make_pca_screen` and then loads the measurements database the UMAP
+# screen is already reading. The three are projections of one table, so the
+# source travelling with the press is what makes them one module rather than
+# three screens that read the same file.
+#
+# The strings above are kept because they are this module's public description
+# -- the fold button's name and sentence are asserted against them, and the
+# i18n catalogs carry the translations.

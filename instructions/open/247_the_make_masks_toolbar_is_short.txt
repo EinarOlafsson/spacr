@@ -119,3 +119,146 @@ HOW TO KNOW IT WORKED
 * every tool is in one row, asserted by reading the layout back;
 * the settings button hides and shows the settings as a group and the
   canvas keeps the space.
+
+--------------------------------------------------------------------------------
+4. THE SETTINGS COMPARISON, DECIDED
+--------------------------------------------------------------------------------
+
+Every setting the standalone tool declares in `DEFAULTS` (its line 143) and
+shows in its settings dialog (its lines 740-860), against this screen, with
+the decision and the reason. HAVE = this screen already had it. PORTED =
+brought over in this pass. NO = deliberately left out.
+
+AUTO-FILTER ON LOAD
+  min area                HAVE  `_filter_min_area` -> mask_engine.filter_objects.
+  max area                HAVE  `_filter_max_area`. spaCR is ahead here: the ids
+                                it drops go in the curation ledger, so an
+                                automatic filter is as traceable as a click.
+  min mean intensity      HAVE  `_filter_min_int`, measured on the raw image.
+  max mean intensity      HAVE  `_filter_max_int`.
+
+DISPLAY
+  contrast low percentile HAVE  `_norm_lo`.
+  contrast high percentile HAVE `_norm_hi`. The standalone accepts ten decimals
+                                and its own tooltip explains why that is
+                                theatre: on a 4-megapixel field one pixel is
+                                0.000025% of the distribution, so the
+                                resolution floor is the pixel count. Six
+                                decimals is already past it; there is nothing
+                                to port.
+  zoom speed              HAVE  `_zoom_speed`.
+  stretch on well only    NO    It excludes the saturated white plate around a
+                                round well from the percentile calculation. A
+                                microscopy field has no plate: the failure this
+                                answers cannot happen here. The general form of
+                                it -- a handful of saturated pixels pinning the
+                                top of the range -- is what the six-decimal
+                                high percentile already answers.
+  page level (>= is page) NO    The threshold for the setting above and nothing
+                                else.
+  mask opacity %          QUEUED  A real gap: this screen composites at a
+                                hardcoded alpha=0.5. It belongs on the Display
+                                card, which is not this pass's region.
+  draw instance outlines  QUEUED  Also a real gap, and the better half of the
+                                two: a solid fill hides the boundary the user
+                                is judging. Same region, same queue.
+
+MAGIC WAND -- seventeen against this screen's three
+  relative tolerance      HAVE  `_wand_relative`.
+  tolerance (% of range)  HAVE  `_wand_pct`.
+  absolute: auto tolerance NO   The standalone's pre-relative default,
+                                `max(4, 0.10*std*4)` -- which is 0.4*std
+                                written in two steps -- kept there so its own
+                                saved settings still behave. A third source of
+                                tolerance is a third thing to be wrong about
+                                which one is live, and the percentage
+                                supersedes it on every axis: it is
+                                scale-invariant, it is explainable, and it does
+                                not move when the background noise does. The
+                                absolute box stays for the one case it serves,
+                                somebody who knows the exact grey distance.
+  absolute: manual tol.   HAVE  `_wand_tol`.
+  max flood px            HAVE  `_wand_max`.
+  salvage flood at max    PORTED  "Keep the nearest pixels at the cap". This
+                                screen already salvaged, with no way to turn it
+                                off and no way to know it had happened: the old
+                                wand's BFS simply stopped at the budget and
+                                returned what it had reached. Ported so the
+                                refusal is available -- an object truncated at
+                                a budget is not the object, and a user tuning
+                                tolerance needs to see that the budget was what
+                                stopped it -- and so `capped` reaches the
+                                ledger.
+  trim directional runaway PORTED  The detector, and the master switch for the
+                                group. The failure is not plaque-specific: a
+                                nucleus welded to a bright fibre and a plaque
+                                welded to a well rim are the same flood
+                                escaping down the same kind of seam, and
+                                lowering the tolerance shrinks the object
+                                without closing the seam.
+  runaway growth ratio    PORTED  Steers the detector.
+  runaway warm-up         PORTED  Without it the detector fires on the object's
+                                own growth out of the click -- one pixel
+                                widening to two is a ratio of 2.0.
+  runaway min baseline    PORTED  Same failure, other end: nothing is judged
+                                until the object has a width worth comparing
+                                against.
+  runaway confirmation    PORTED  Without it one noisy scanline cuts the object
+                                in half. Measured, not assumed: the test suite
+                                has the scene where confirm=1 cuts and the
+                                default confirm=2 does not.
+  intensity border        PORTED  "Re-flood below the escape". Turns the
+                                straight half-plane cut into a boundary the
+                                image drew, by bisecting for the highest
+                                tolerance whose flood stays put. It only helps
+                                when the seam is dimmer than the object; when
+                                the two are equally bright no tolerance
+                                separates them, the search finds nothing and
+                                the cut stands. Both cases are pinned by tests.
+  intensity search steps  PORTED  Its precision. Each step is one more flood,
+                                so this is precision against click latency.
+  gradient-taper fallback PORTED  "Taper onto the gradient". A cut is a
+                                straight line and a budget is an arc; cells are
+                                neither. This is the step that puts the final
+                                edge on a real intensity change.
+  gradient smoothing      PORTED  Raise on speckled fields so noise is not read
+                                as a boundary.
+  gradient transition band PORTED How far the edge may travel. Too wide and it
+                                reaches back to the seam the cut escaped.
+  gradient foreground inset PORTED  What counts as unquestionably the object.
+
+TOOLS
+  brush radius            HAVE  The slider on the Brush card.
+  remove-small min area   HAVE  `_min_area`, shared with Otsu detect.
+
+WHAT THIS SCREEN HAS THAT THE STANDALONE DOES NOT
+  * the wand is split into add and erase, so it corrects a mask instead of
+    only building one;
+  * every wand click writes a curation-ledger entry, and it now carries the
+    rescue report -- which direction leaked, what tolerance the re-flood
+    settled on, whether the budget stopped it, how many pixels were flooded
+    and how many were kept. A mask nobody can explain is a mask nobody
+    trusts.
+
+WHERE THE CODE WENT
+  * `spacr/qt/wand_rescue.py` -- new, Qt-free, holds the flood and the three
+    rescues so the geometry is testable without a widget;
+  * `spacr/qt/screens/make_masks.py` -- the twelve controls on the Magic wand
+    card, the canvas attributes they write, and `wand_rescue_settings()`,
+    which is the single place the flood reads them from;
+  * `tests/qt/test_make_masks_wand_rescues.py` -- 41 tests.
+
+MEASURED, ON REAL ARRAYS
+  * the reference scene leaks: a plain flood takes 1,292 px where the object
+    is 317. With the rescues on it takes 392, all 317 of the object and no
+    part of the bright field;
+  * with a dimmer seam the re-flood settles at tolerance 3,984 of the 6,000
+    asked for and returns the object with nothing outside it;
+  * on a clean object the rescues are bit-for-bit inert -- the assertion the
+    defaults rest on;
+  * cost per click on a 2048x2048 field: 3 ms before, 31 ms for a clean
+    object, 0.8 s when a runaway is actually caught, 1.2 s in the worst case
+    (a flood covering the whole frame, salvaged back to the budget). The
+    uncapped first flood is what pays for the detector being able to see how
+    far the leak went; a flood truncated at the budget looks like a large
+    compact object, which is exactly what a leak is not.

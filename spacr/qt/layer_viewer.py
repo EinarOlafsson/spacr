@@ -972,10 +972,18 @@ APP_CLI_NOTE = (
 
 #: Screens that ride in on this module's registration, as
 #: ``(module, function)``. See :func:`register_companion_apps`.
+#: CURATE IS NOT HERE ANY MORE. It is a button on the Make Masks masthead --
+#: correcting a mask by hand belongs in the screen that writes masks, which is
+#: also the screen that gave Curate the "Save mask" it never had -- so it has
+#: no registry row to be registered into. `make_masks.FOLD_FALLBACK` keeps the
+#: name, the sentence and the maturity colour its tile carried, and
+#: `cli.INTERACTIVE_ONLY` keeps the sentence `spacr-run curate` prints.
 COMPANION_APPS = (
-    ("spacr.qt.screens.image_scatter", "register"),
+    # Image Scatter used to ride in here. It is folded onto Image UMAP now --
+    # a button on that masthead, opened already pointed at the same
+    # measurements database -- so it has no row to register and nothing to
+    # ride in on. `spacr.qt.screens.image_scatter` is imported by its host.
     ("spacr.qt.screens.lineage", "register"),
-    ("spacr.qt.screens.curate", "register"),
 )
 
 

@@ -84,6 +84,12 @@ def test_a_table_that_vanishes_between_the_listing_and_the_stat_is_skipped(
     The run is ordered by its newest table's modification time, so a table
     that has gone cannot contribute one. Skipping it keeps the other tables
     of the same run, which is what the user came to look at.
+
+    The expectation is derived from :data:`RESULT_FILENAMES` rather than
+    written out, because the tuple is what decides both which files the
+    fixture writes and the order they come back in -- a literal list here
+    said nothing about the walk and everything about how many names the
+    tuple happened to hold.
     """
     _run_folder(tmp_path, "run1", RESULT_FILENAMES)
     real_getmtime = os.path.getmtime
@@ -95,8 +101,8 @@ def test_a_table_that_vanishes_between_the_listing_and_the_stat_is_skipped(
 
     monkeypatch.setattr(os.path, "getmtime", vanishing)
     found = find_results_tables(str(tmp_path))
-    assert [os.path.basename(p) for p in found] == ["results.csv",
-                                                    "results_gene.csv"]
+    kept = [name for name in RESULT_FILENAMES if name != "results_grna.csv"]
+    assert [os.path.basename(p) for p in found] == kept
 
 
 def test_the_walk_stops_once_the_candidate_limit_is_reached(tmp_path):

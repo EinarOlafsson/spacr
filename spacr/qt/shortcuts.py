@@ -255,6 +255,17 @@ def _install_window_hooks(window: QMainWindow) -> None:
         _walkthrough_hooks(window)
     except Exception:
         LOG.debug("Could not install the walkthrough hooks", exc_info=True)
+    # THE FOLD STRIPS. A folded module is reached from its host's masthead,
+    # and the generic settings screens the hosts are built from know nothing
+    # about who folded into them -- the strip is hung on each of them from
+    # outside, as the stack reaches it. Without this call no host's strip
+    # ever reaches a running window, which for Mask Generation's tracking
+    # switch means the module folded into it has no way in at all.
+    try:
+        from .screens.map_barcodes import install_window_hooks as _fold_hooks
+        _fold_hooks(window)
+    except Exception:
+        LOG.debug("Could not install the fold-strip hooks", exc_info=True)
 
     # LAST. Everything above may have added menu-bar actions, and an action
     # with no explicit macOS menu role is one Qt assigns from its TEXT --

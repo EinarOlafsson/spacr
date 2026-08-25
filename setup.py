@@ -552,11 +552,21 @@ dependencies = [
     # torch.cuda imports to print a FutureWarning at startup. Function-local
     # imports remain guarded and fall back to torch when NVML is unavailable.
     # Pure Python, no wheel constraints; major 14 is not yet qualified.
-    # This distribution numbers its releases after the NVIDIA driver, so
-    # `11.5` is a boundary rather than a release: the first version that
-    # satisfies it is 11.450.51, which is what the minimum profile pins and
-    # what that file records as the reason for the gap.
-    'nvidia-ml-py>=11.5,<14',
+    #
+    # THE FLOOR LOOKS WRONG AND IS NOT. THIS IS A DRIVER NUMBER, NOT A SEMVER.
+    # nvidia-ml-py numbers each release after the NVIDIA driver it binds, so
+    # its published sequence reads 10.418.84, 11.450.51, 11.460.79, ...,
+    # 13.610.43. The middle field is a driver branch, so 11.450.51 is NEWER
+    # than a hypothetical 11.5 and the ordinary-looking `>=11.5` names no
+    # release at all -- 11.450.51 is simply the first thing that satisfies it.
+    # DO NOT "correct" 11.450.51 to 11.5, 11.45 or 11.4.50.51. Every one of
+    # those is a bound this distribution can never equal, and the two
+    # spellings resolve identically anyway -- nothing is published between
+    # 10.418.84 and 11.450.51, so a round boundary and the exact release admit
+    # the same set. The exact release is the one that can be PINNED, which is
+    # what makes this floor a promise the `Minimum dependencies` job keeps
+    # rather than the one bound here that nothing installs.
+    'nvidia-ml-py>=11.450.51,<14',
     # `gpustat` REMOVED: zero imports. GPU state is read through GPUtil,
     # nvidia-ml-py (imported as pynvml) and torch.cuda, all declared above.
     # KEPT despite zero imports: PyTables is what backs `pd.HDFStore` at

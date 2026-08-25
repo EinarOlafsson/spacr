@@ -189,6 +189,12 @@ jobs:
       file_shard_index: ${{ matrix.shard }}
       file_shard_count: 2
       run_serial_tail: ${{ matrix.shard == 0 }}
+      # A wedged Qt test used the whole 120 minutes and printed nothing: the
+      # shard reached 99%, then sat in silence until the runner killed it, so
+      # the log named neither the test nor a stack. Twenty minutes is far more
+      # than any test here needs and leaves the shard time to finish and
+      # report, which turns a lost job into one named failure.
+      per_test_timeout_seconds: 1200
 
   gpu:
     name: GPU

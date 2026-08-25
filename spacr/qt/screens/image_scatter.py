@@ -58,7 +58,7 @@ __all__ = [
     "ScatterCanvas",
     "ImageScatterScreen",
     "load_scatter_frame",
-    "register",
+    "make_image_scatter_screen",
     "APP_KEY",
     "LINK_SOURCE",
 ]
@@ -831,33 +831,40 @@ APP_INTRO = (
     "debris fragment or two cells segmented as one. Clicking a point opens "
     "its crop in the annotation grid and highlights it in every other open "
     "view.")
+#: Why there is no ``spacr-run image_scatter``.
+#:
+#: WRITTEN OUT AGAIN in :data:`spacr.cli.INTERACTIVE_ONLY` rather than reached
+#: from there. It used to travel as the row's ``cli_note=``; the row is gone,
+#: and ``spacr.cli`` answers ``--list`` on clusters with no PySide6 at all, so
+#: it cannot import this module to read the sentence. A test asserts the two
+#: copies are the same string.
 APP_CLI_NOTE = (
-    "Image Scatter is an interactive plot — the hover preview is the whole "
-    "feature; run it in the GUI (spacr-qt). Headless, read the same table "
-    "with pandas.")
+    "Image Scatter is an interactive plot — the hover "
+    "preview is the whole feature; run it in the GUI "
+    "(spacr-qt), where it is a button on Image UMAP. "
+    "Headless, read the same table with pandas.")
+
+#: The display name in the nine languages the catalogs carry, in their
+#: order. Kept beside the name they translate now that no registration
+#: hands them to :func:`spacr.qt.i18n.add_translation`.
+APP_TRANSLATIONS = ("Bildspridning", "Bild-Streudiagramm",
+                    "Dispersión de imágenes", "图像散点图",
+                    "Dispersão de imagens", "छवि स्कैटर", "이미지 산점도",
+                    "Myndadreifing", "Nuage de points d'images")
 
 
 def make_image_scatter_screen(**_kwargs) -> ImageScatterScreen:
-    """Build the screen. The ``factory=`` for :func:`spacr.qt.app.register_app`."""
+    """Build the screen. The one constructor every caller goes through."""
     return ImageScatterScreen()
 
 
-def register(*, section: Optional[str] = None, stage: Optional[str] = None,
-             key: str = APP_KEY):
-    """Put Image Scatter in the app registry. Idempotent.
-
-    :returns: the registry row, or ``None`` when the key was already there.
-    """
-    from ..app import APPS, SECTION_EXPLORE, STAGE_ALPHA, register_app
-    if any(row[0] == key for row in APPS):
-        return None
-    return register_app(
-        key, APP_NAME, APP_DESCRIPTION, section or SECTION_EXPLORE,
-        factory=make_image_scatter_screen,
-        stage=STAGE_ALPHA if stage is None else stage,
-        intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-        api_module="qt/screens/image_scatter",
-        translations=("Bildspridning", "Bild-Streudiagramm",
-                      "Dispersión de imágenes", "图像散点图",
-                      "Dispersão de imagens", "छवि स्कैटर", "이미지 산점도",
-                      "Myndadreifing", "Nuage de points d'images"))
+# NO REGISTRY ROW. The scatter is reached as a button on Image UMAP's
+# masthead -- :data:`spacr.qt.screens.image_umap.FOLDED_APPS` -- which builds
+# it through :func:`make_image_scatter_screen` and then points it at the
+# measurements database the UMAP screen is already reading. That seeding is
+# what makes the fold a superset of the tile: a standalone tile opened on an
+# empty path and made the user find the same file again.
+#
+# The strings above are kept because they are this module's public
+# description -- the fold button's name and sentence are asserted against
+# them, and the i18n catalogs carry the translations.

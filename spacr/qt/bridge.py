@@ -1336,6 +1336,17 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
         if app_key == "external_masks":
             from spacr.external_masks import prepare_external_masks
             return _ret(log_call(prepare_external_masks))
+        if app_key == "illumination":
+            # NAMED HERE BECAUSE THE ROW IS GONE. Its entry point used to
+            # arrive through the registry's APP_META, which unregistering
+            # pops -- so folding the module into Measure's settings took
+            # `spacr-run illumination` and the Run button with it. The
+            # correction is applied before any intensity feature is
+            # computed, which is why the settings belong on the measure
+            # run; estimating and inspecting the field on its own is a
+            # separate act and still has to work.
+            from spacr.illumination import prepare_illumination_correction
+            return _ret(log_call(prepare_illumination_correction))
         if app_key == "classify_merged":
             # One entry point over both families. It calls deep_spacr or
             # generate_ml_scores unchanged, so a run here and a run through
@@ -1394,6 +1405,25 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
         if app_key == "analyze_plaques":
             from spacr.submodules import analyze_plaques
             return _ret(log_call(analyze_plaques))
+        # THE FOLDED MODULES, whose row used to carry their entry point.
+        #
+        # Each of these three declared `entry=` on a `register_app` call.
+        # Folding the module into a host screen deletes that row, and the
+        # registered-entry seam below is the only other place the string
+        # lived -- so without these branches the Run button on a folded
+        # module's page resolves to None and does nothing, while
+        # `spacr-run barcode_qc` goes on working, which is the worst of
+        # both. The pipeline functions are unchanged and are the same ones
+        # the CLI runs; only where the Run button finds them moves.
+        if app_key == "barcode_qc":
+            from spacr.sequencing_qc import barcode_qc
+            return _ret(log_call(barcode_qc))
+        if app_key == "explain_cv":
+            from spacr.surrogate import run_explain_cv
+            return _ret(log_call(run_explain_cv))
+        if app_key == "anndata_export":
+            from spacr.anndata_export import run_anndata_export
+            return _ret(log_call(run_anndata_export))
         # Apps that registered their own entry point. The chain above is
         # the built-in table; this is the seam a module registered
         # through `spacr.qt.app.register_app(..., entry="mod:func")`

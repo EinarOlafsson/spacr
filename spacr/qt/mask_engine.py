@@ -314,6 +314,174 @@ def paint_line(mask: np.ndarray, x0: int, y0: int, x1: int, y1: int,
             y += sy
 
 
+# ---------------------------------------------------------------------------
+# Region tools — the free-form outline and the dividing line
+# ---------------------------------------------------------------------------
+
+#: Width, in image pixels, of the cut a divide draws through an object.
+#:
+#: Not cosmetic. Everything here calls two pixels that touch only at a
+#: corner one object (:data:`_EIGHT`), so a one-pixel-wide cut across a
+#: diagonal leaves the two halves corner-to-corner and they are still one
+#: blob — the split does not take. Measured on a disk over 60 orientations:
+#: a 1.0 px cut failed to separate in 58 of them, 1.5 px separated in all
+#: 1800 orientation/offset combinations tried, and anything wider only eats
+#: more of the object (1.5 px costs ~90 px of a 2800 px object, 2.0 px ~120).
+DIVIDE_CUT_WIDTH = 1.5
+
+
+def next_label(mask: np.ndarray) -> int:
+    """The id to give the next object drawn on ``mask``: one past its top.
+
+    Above the maximum rather than the lowest free id, because ids are what
+    the ledger, the measurements and the crops name objects by. Handing a
+    new object the id of one that was deleted makes two different cells
+    share a name across a session, and nothing downstream can tell them
+    apart afterwards.
+    """
+    return (int(mask.max()) if mask.size else 0) + 1
+
+
+def _fit_label_width(out: np.ndarray, like: np.ndarray) -> np.ndarray:
+    """Cast a working int64 mask back down, widening only when it must.
+
+    Same rule as :func:`combine_masks`: the width follows the values. Keeping
+    uint8 for a mask that has just been given label 256 would wrap it round
+    to 0 and the new object would vanish into the background.
+    """
+    top = int(out.max()) if out.size else 0
+    if top > np.iinfo(np.uint16).max:
+        raise ValueError(
+            f"mask needs label {top}, past what a uint16 mask can hold.")
+    if np.issubdtype(like.dtype, np.integer) and top <= np.iinfo(like.dtype).max:
+        return out.astype(like.dtype)
+    return out.astype(np.uint8 if top <= 255 else np.uint16)
+
+
+def fill_polygon(mask: np.ndarray, points, label_value: Optional[int] = None):
+    """Fill a traced outline as ONE object; return ``(mask, label)``.
+
+    This is the tool a brush is not. A brush stamps disks along the path, so
+    tracing a cell's rim with it labels the rim and leaves the middle
+    background; ``draw`` closes the path (last point back to the first) and
+    fills what it encloses, so one gesture produces one solid object with
+    one id. Anything already labelled inside the outline is overwritten,
+    which is the point: the outline asserts "all of this is one object".
+
+    :param points: the traced path as image-pixel ``(x, y)`` pairs. A path
+        that encloses less than one pixel -- two points, or a straight line
+        traced back over itself -- is returned unchanged with label 0. It is
+        a gesture that enclosed nothing, and the alternative is an object a
+        pixel wide that the user then has to find and delete.
+    :param label_value: the id to give it; by default :func:`next_label`.
+    """
+    from skimage.draw import polygon as _polygon
+
+    pts = np.asarray(list(points), dtype=float)
+    if pts.ndim != 2 or pts.shape[0] < 3:
+        return mask.copy(), 0
+    # Shoelace area of the closed path. skimage's polygon() hands back the
+    # traced pixels themselves for a degenerate outline, which would make a
+    # straight drag into a hairline "object".
+    x, y = pts[:, 0], pts[:, 1]
+    if abs(float(np.dot(x, np.roll(y, -1)) - np.dot(y, np.roll(x, -1)))) < 1.0:
+        return mask.copy(), 0
+    rows, cols = _polygon(pts[:, 1], pts[:, 0], shape=mask.shape[:2])
+    if not len(rows):
+        return mask.copy(), 0
+    value = int(next_label(mask) if label_value is None else label_value)
+    out = mask.astype(np.int64, copy=True)
+    out[rows, cols] = value
+    return _fit_label_width(out, mask), value
+
+
+def _segment_band(shape, p0, p1, width: float) -> np.ndarray:
+    """Boolean mask of the pixels within ``width``/2 of the segment p0-p1.
+
+    A distance band rather than a rasterised line: the sampled-line cut the
+    standalone curation tool uses (400 points between the ends) both leaves
+    gaps on a segment longer than 400 px and is one pixel wide wherever it
+    lands, and a one-pixel cut does not separate — see
+    :data:`DIVIDE_CUT_WIDTH`.
+    """
+    height, width_px = shape[:2]
+    x0, y0 = float(p0[0]), float(p0[1])
+    x1, y1 = float(p1[0]), float(p1[1])
+    half = max(0.5, float(width) / 2.0)
+    # Only the segment's bounding box can be within half a width of it, so
+    # the distance is computed there instead of over the whole field.
+    lo_x = max(0, int(np.floor(min(x0, x1) - half)))
+    hi_x = min(width_px, int(np.ceil(max(x0, x1) + half)) + 1)
+    lo_y = max(0, int(np.floor(min(y0, y1) - half)))
+    hi_y = min(height, int(np.ceil(max(y0, y1) + half)) + 1)
+    band = np.zeros((height, width_px), dtype=bool)
+    if hi_x <= lo_x or hi_y <= lo_y:
+        return band
+    yy, xx = np.mgrid[lo_y:hi_y, lo_x:hi_x].astype(np.float64)
+    dx, dy = x1 - x0, y1 - y0
+    length_sq = dx * dx + dy * dy
+    if length_sq <= 0:
+        t = np.zeros_like(xx)
+    else:
+        t = np.clip(((xx - x0) * dx + (yy - y0) * dy) / length_sq, 0.0, 1.0)
+    distance = np.hypot(xx - (x0 + t * dx), yy - (y0 + t * dy))
+    band[lo_y:hi_y, lo_x:hi_x] = distance <= half
+    return band
+
+
+def divide_object(mask: np.ndarray, p0, p1,
+                  width: float = DIVIDE_CUT_WIDTH):
+    """Cut every object the segment crosses in two; return ``(mask, splits)``.
+
+    ``splits`` is a list of ``(id_split, id_created)`` pairs, empty when the
+    line separated nothing.
+
+    Three decisions make the result usable:
+
+    * **Only the objects the line actually crosses are touched.** The cut is
+      clipped to them, so a line drawn past a neighbour leaves that
+      neighbour's every pixel where it was. (The standalone tool relabels
+      the whole field after cutting, which renumbers every other object in
+      it — the same re-keying :func:`canonical_labels` exists to avoid.)
+    * **The larger piece keeps the original id**, and the smaller pieces get
+      fresh ones above the mask's top label. That is the rule
+      :func:`canonical_labels` already applies when one id names two blobs,
+      so dividing and then saving does not renumber anything, and the id
+      stays on the piece that carries most of what it used to name.
+    * **A line that does not separate an object leaves it alone.** Stopping
+      halfway across would otherwise carve a groove into the object and
+      call it a division; treating it as a miss means the gesture can just
+      be redrawn.
+    """
+    band = _segment_band(mask.shape, p0, p1, width)
+    if not band.any():
+        return mask.copy(), []
+    crossed = [int(v) for v in np.unique(mask[band]) if int(v) > 0]
+    if not crossed:
+        return mask.copy(), []
+    out = mask.astype(np.int64, copy=True)
+    free_id = next_label(mask)
+    splits = []
+    for source in crossed:
+        body = out == source
+        remainder = body & ~band
+        pieces, count = label(remainder, structure=_EIGHT)
+        if count < 2:
+            continue                      # the line stopped short: not a cut
+        areas = np.bincount(pieces.ravel())
+        keeps = int(np.argmax(areas[1:])) + 1
+        out[body] = 0                     # drop the cut pixels with the rest
+        out[pieces == keeps] = source
+        for piece in range(1, count + 1):
+            if piece == keeps:
+                continue
+            out[pieces == piece] = free_id
+            splits.append((source, free_id))
+            free_id += 1
+    if not splits:
+        return mask.copy(), []
+    return _fit_label_width(out, mask), splits
+
 def fill_holes(mask: np.ndarray) -> np.ndarray:
     """Fill holes inside True regions; returns a relabeled mask."""
     binary = mask > 0

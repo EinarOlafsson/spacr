@@ -84,8 +84,10 @@ def buildable(kit):
     it, so one stale literal is a :class:`KeyError` rather than a gap. The
     tables are bound into ``variants`` by ``from common import ...``, so both
     module namespaces are rebound. This is the categorisation the builders
-    are meant to receive; that the shipped one differs is asserted by
-    :func:`test_no_categorisation_names_an_app_the_registry_dropped`.
+    are meant to receive, and
+    :func:`test_no_categorisation_names_an_app_the_registry_dropped` asserts
+    that the shipped one already is it, so the narrowing here is a guard
+    rather than a repair.
     """
     common, variants = kit.common, kit.variants
     known = set(common.all_keys())
@@ -186,10 +188,6 @@ def shipped_common(qapp):
             sys.modules["common"] = saved
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "common.py's categorisation tables still name 'cellpose_masks', which "
-    "left spacr.qt.app.APPS; every variant that reads a table dies on "
-    "name_of() for it"))
 def test_no_categorisation_names_an_app_the_registry_dropped(shipped_common):
     """Each categorisation covers the live registry exactly once.
 
@@ -197,6 +195,12 @@ def test_no_categorisation_names_an_app_the_registry_dropped(shipped_common):
     table that survives it is a table every builder can index. The contract
     is also spelled out here as assertions, so a drifted table is reported
     by name and by key rather than as one opaque raise from the helper.
+
+    This ran as a strict xfail while the tables named ``cellpose_masks``,
+    which had left the registry when it became the applying tab of the
+    Cellpose Workbench: ``name_of()`` raised for it and every variant that
+    read a table died. Folding a module into a host drops its row the same
+    way, so this is the assertion that catches the next name left behind.
     """
     live = set(shipped_common.all_keys())
     tables = _table_names(shipped_common)

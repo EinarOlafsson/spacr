@@ -19,7 +19,8 @@ import sys
 import textwrap
 from typing import Any, Callable, Dict, List, NamedTuple, Optional, Tuple
 
-from PySide6.QtCore import QEvent, QObject, QPoint, QRect, QSize, Qt, Signal
+from PySide6.QtCore import (QEvent, QObject, QPoint, QRect, QSize, Qt,
+                            QTimer, Signal)
 from PySide6.QtWidgets import (
     QBoxLayout,
     QCheckBox,
@@ -55,6 +56,11 @@ from ..widgets.file_list import FilePathListWidget, PairedFileTableWidget
 from ..widgets.row_exclusion import RowExclusionEditor
 from ..widgets.toggle import Toggle
 from ...object_roles import ORGANELLE_ROLES, setting_label
+# EVERY SLOT A FILE MAY CARRY, not the four the schema segments today. A
+# layout that lists all of them costs nothing -- build_sections drops any
+# key the module's settings dict does not hold -- and a layout that lists
+# four puts slot five in the "Additional Settings" bucket nobody chose.
+from ...organelle_types import ALL_ORGANELLE_ROLES
 # Pure data, and it imports nothing -- that is the whole point of the module
 # (see its docstring). The explainer box below reads it so that a backend
 # joining the no-p-value set changes what the box says about correction
@@ -100,14 +106,38 @@ def _registered_app_metadata(app_key: str) -> Dict[str, Any]:
     return (getattr(app, "APP_META", {}).get(app_key) or {}) if app else {}
 
 
+#: Folded modules' defaults modules — app key → the module that calls
+#: :func:`spacr.settings.register_defaults` for it.
+#:
+#: A module with a registry row names this through ``register_app(...,
+#: defaults_module=...)``, and that is still the seam a new module should
+#: use. A module that has been FOLDED into another one has no row left to
+#: name it from, and nothing in a fresh window imports it — so
+#: :func:`resolve_default_settings` would find no registered defaults and
+#: fall through to the bare ``{"src": "path"}`` placeholder, i.e. the
+#: folded page would open on an empty form with a Run button that has
+#: nothing to run.
+#:
+#: Consulted only when the registry has no answer, so a module that still
+#: has a row is served by its own registration exactly as before.
+_FOLDED_DEFAULTS_MODULES: Dict[str, str] = {
+    "barcode_qc": "spacr.sequencing_qc",
+    "explain_cv": "spacr.surrogate",
+    "anndata_export": "spacr.anndata_export",
+}
+
+
 def _import_registered_defaults_module(app_key: str) -> None:
     """Import the module that registers ``app_key``'s settings defaults.
 
-    Named by ``register_app(..., defaults_module=...)``. Failure is
-    logged and swallowed: an unimportable optional dependency should cost
-    that app its settings panel, not stop the window opening.
+    Named by ``register_app(..., defaults_module=...)`` while the app has
+    a row, and by :data:`_FOLDED_DEFAULTS_MODULES` once it has been folded
+    into another module and the row is gone. Failure is logged and
+    swallowed: an unimportable optional dependency should cost that app
+    its settings panel, not stop the window opening.
     """
-    module = _registered_app_metadata(app_key).get("defaults_module")
+    module = (_registered_app_metadata(app_key).get("defaults_module")
+              or _FOLDED_DEFAULTS_MODULES.get(app_key))
     if not module or module in sys.modules:
         return
     import importlib
@@ -403,6 +433,309 @@ _APP_HIDDEN_CATEGORIES: Dict[str, set] = {
     # module and its ~50 knobs would swamp the tracking settings.
     "timelapse": {"Motility (beta)", "Motility Advanced (beta)"},
 }
+
+# ---------------------------------------------------------------------------
+# A setting is visible when its object is in the run
+# ---------------------------------------------------------------------------
+#
+# WHY THIS IS A THIRD MECHANISM AND NOT ONE OF THE TWO ABOVE.
+#
+#   * ``spacr.settings.setting_dependencies`` GREYS a control and writes the
+#     reason beside it. That is right for a setting the run is about to
+#     decide for itself -- one row among a handful, where the note is the
+#     point. It is wrong here: an object a run does not segment takes forty
+#     rows with it, and forty greyed rows are not an explanation, they are
+#     the wall this exists to remove.
+#   * ``_APP_HIDDEN_KEYS`` builds no widget at all. It is decided once, per
+#     MODULE, before any value exists, and it is not reversible: with no
+#     widget the value falls back to ``_defaults``, so everything the user
+#     typed into a row is gone the moment the row is hidden. "Changing a
+#     channel back must bring the old answers back with it" is exactly the
+#     thing that mechanism cannot do.
+#
+# So the widget is built and kept in ``_widgets``, and its ROW is hidden.
+# HIDDEN, NOT DELETED: ``collect()`` walks ``_widgets``, so a hidden setting
+# is still read from its own widget, still carries what the user last typed
+# into it, and is still written to the settings file. A settings CSV cannot
+# lose a key because the panel was not showing it when Save was pressed.
+
+#: The keys that say whether an object is in the run at all.
+#:
+#: Both spellings, because which one a module offers depends on what the
+#: module does: a module that SEGMENTS asks for a channel to segment it in
+#: (``cell_channel``), and one that reads masks somebody else made asks which
+#: plane holds them (``cell_mask_dim`` -- Measure offers no ``cell_channel``
+#: at all, so a rule that knew only about channels would gate nothing there).
+#: ``spacr.settings.category_integer_dependencies`` already declares exactly
+#: this pair for cell, nucleus and pathogen; this is the same switch read per
+#: SETTING rather than per category, because an organelle slot is not a
+#: category -- four of them share two.
+OBJECT_SWITCH_SUFFIXES: Tuple[str, ...] = ("channel", "mask_dim")
+
+#: The objects that have a channel and are not organelle slots.
+#:
+#: ``cytoplasm`` is deliberately absent: it is DERIVED from the cell mask
+#: minus everything found inside it, so it has no channel, no diameter and no
+#: detection method, and there is nothing to switch it with. See
+#: ``spacr.object_roles``.
+CHANNELLED_OBJECTS: Tuple[str, ...] = ("cell", "nucleus", "pathogen")
+
+#: Which of a slot's detection settings each ``organelle_morphology`` reads.
+#:
+#: Read off ``spacr.object``, which is the authority: ``_segment_spots``,
+#: ``_segment_network``, ``_segment_irregular`` and ``_segment_ring``, plus
+#: the methods ``_validate_organelle_settings`` accepts for each morphology.
+#: An entry is the union over that morphology's LEGAL METHODS rather than
+#: over the one method currently chosen: the method is a separate choice, and
+#: a spots slot that will be switched to ``log`` tomorrow needs its sigmas on
+#: screen today.
+#:
+#: A suffix in NO entry is never hidden by a morphology, and that is most of
+#: them. ``adaptive_block_size`` is one -- ``'adaptive'`` is legal under all
+#: four morphologies, so a block size applies whatever the slot is -- and so
+#: is everything cellpose reads, for the same reason. ``morph_radius`` is in
+#: TWO entries, because it is irregular's closing radius and also the closing
+#: radius of network's otsu/adaptive path, which is why this is a membership
+#: table and not a partition.
+_MORPHOLOGY_SETTINGS: Dict[str, frozenset] = {
+    "spots": frozenset({
+        "tophat_radius", "watershed_spots",
+        "log_min_sigma", "log_max_sigma", "log_num_sigma", "log_threshold",
+        "dog_sigma_low", "dog_sigma_high",
+    }),
+    "network": frozenset({
+        "ridge_filter", "ridge_sigmas", "network_threshold",
+        "hysteresis_low", "hysteresis_high", "skeletonize",
+        "morph_radius", "unet_model_path", "unet_threshold",
+    }),
+    "irregular": frozenset({"morph_radius", "fill_holes"}),
+    "ring": frozenset({
+        "ring_sigma_inner", "ring_sigma_outer", "ring_min_prominence",
+        "ring_fill_method",
+        # Ring accepts 'log' and reads the LoG sigmas when it is chosen. It
+        # does NOT read the DoG pair: its 'dog' path band-passes with
+        # `ring_sigma_inner`/`_outer` instead. See `_segment_ring`.
+        "log_min_sigma", "log_max_sigma", "log_num_sigma", "log_threshold",
+    }),
+}
+
+#: Every suffix some morphology claims. A slot setting outside this set is
+#: shown whenever its slot is, whatever the slot is typed as.
+_MORPHOLOGY_OWNED: frozenset = frozenset().union(
+    *_MORPHOLOGY_SETTINGS.values())
+
+
+#: The signals a settings widget announces a change on, most specific first.
+#: ONE of them is connected, not all: a QComboBox emits both
+#: `currentIndexChanged` and `currentTextChanged` for a single choice, so
+#: connecting every signal a widget has would run the handler twice per edit.
+_VALUE_CHANGED_SIGNALS: Tuple[str, ...] = (
+    'value_changed', 'currentTextChanged', 'currentIndexChanged',
+    'textChanged', 'valueChanged', 'toggled', 'stateChanged',
+)
+
+
+def _connect_value_changed(widget, handler) -> bool:
+    """Connect ``handler`` to the first change signal ``widget`` has.
+
+    :returns: whether a signal was found. A widget with none of them cannot
+        announce an edit, and a rule that follows it will only be re-read
+        when something else on the panel moves.
+    """
+    for name in _VALUE_CHANGED_SIGNALS:
+        signal = getattr(widget, name, None)
+        if signal is not None:
+            signal.connect(handler)
+            return True
+    return False
+
+
+def _names_a_plane(value: Any) -> bool:
+    """True when a channel or mask-dim setting names a plane of the stack.
+
+    ``False`` is not a plane. A boolean reaches here only from a settings
+    file that put one in a channel, and ``int(False)`` would read it as plane
+    zero -- which would switch an object on because someone wrote "no".
+    """
+    if value is None or isinstance(value, bool):
+        return False
+    if isinstance(value, (int, float)):
+        return True
+    text = str(value).strip()
+    if not text or text.lower() == "none":
+        return False
+    try:
+        float(text)
+    except ValueError:
+        return False
+    return True
+
+
+def object_switch_keys(role: str) -> Tuple[str, ...]:
+    """The keys that decide whether ``role`` is in the run."""
+    return tuple(f"{role}_{suffix}" for suffix in OBJECT_SWITCH_SUFFIXES)
+
+
+def object_of_setting(key: str) -> Optional[str]:
+    """Which object a setting belongs to, or None for the great majority.
+
+    Organelle slots are resolved by :mod:`spacr.organelle_types`, which owns
+    the slot naming: the prefixes are lettered -- ``organelle``,
+    ``organelleb``, ... -- and ``organelle`` is a prefix of every other one,
+    so the match has to be longest-first and belongs where the names are
+    generated rather than being written out a second time here.
+
+    Both spellings of the other three are understood, ``cell_min_size`` and
+    ``remove_background_cell``, the way
+    ``spacr.settings.advanced_object_of`` understands them: spaCR is not
+    consistent about which end of a key the object name goes on, and a rule
+    that knew only one end would leave half a family on screen.
+    """
+    from ...organelle_types import organelle_role_of
+
+    text = str(key)
+    role = organelle_role_of(text)
+    if role is not None:
+        return role
+    for obj in CHANNELLED_OBJECTS:
+        if text.startswith(f"{obj}_") or text.endswith(f"_{obj}"):
+            return obj
+    return None
+
+
+def organelle_morphology_now(role: str,
+                             settings: Dict[str, Any]) -> Optional[str]:
+    """The morphology a slot is in, as far as the panel can tell.
+
+    THE TYPE DECIDES, and the type alone is not always enough: ``vesicular``
+    and ``spherical`` split on SIZE -- a 200 nm transport vesicle is a dot
+    and a 2 um vacuole is a ring, and both are Vesicular -- so the slot's
+    diameter is read through the same ``morphology_for`` the preset table
+    exposes. :mod:`spacr.organelle_types` explains at length why the mapping
+    is ``(type, size) -> morphology`` rather than ``type -> morphology``.
+
+    ``custom`` recommends nothing by design, so there the slot's own
+    ``<role>_morphology`` is the answer -- which is also what a settings file
+    written before the types existed carries.
+
+    :returns: one of the four morphologies, or None when neither the type nor
+        the morphology names one, which narrows nothing rather than guessing.
+    """
+    from ...organelle_types import resolve_type
+
+    try:
+        preset = resolve_type(settings.get(f"{role}_type"))
+    except ValueError:
+        preset = None
+    if preset is not None:
+        diameter = settings.get(f"{role}_diameter")
+        try:
+            diameter = None if diameter is None else float(diameter)
+        except (TypeError, ValueError):
+            diameter = None
+        morphology = preset.morphology_for(diameter)
+        if morphology in _MORPHOLOGY_SETTINGS:
+            return morphology
+    own = settings.get(f"{role}_morphology")
+    return own if own in _MORPHOLOGY_SETTINGS else None
+
+
+def keys_hidden_by_their_object(keys, settings: Dict[str, Any]) -> set:
+    """Which of ``keys`` must not be on the form, because they do not apply.
+
+    Three reasons, in the order they are decided:
+
+      * the slot is beyond ``number_of_organelles`` -- and that takes the
+        slot's channel with it, because a slot the run does not have is not a
+        slot with its channel left showing;
+      * the object's channel (or its mask plane) names no plane, so the run
+        does not have that object at all;
+      * the slot's type puts it in one morphology and the setting belongs to
+        a different one -- a punctate organelle has no ridge filter.
+
+    :param keys: every setting this panel has a control for. WHAT THE PANEL
+        HOLDS IS WHAT DECIDES WHAT MAY BE HIDDEN: a role is gated only when
+        its switch is on the panel too, and a slot is gated by the count only
+        when the count is. Hiding a row whose switch lives on another screen
+        would leave the user a control they cannot bring back --
+        ``_rules_for_this_panel`` refuses to grey one for the same reason.
+    :param settings: the panel's current values. Only the switches, the
+        count and the slots' type, diameter and morphology are read.
+    :returns: the keys whose rows are to be hidden.
+    """
+    from ...organelle_types import (NUMBER_OF_ORGANELLES,
+                                    active_organelle_roles)
+
+    on_panel = {str(key) for key in keys}
+    counted = NUMBER_OF_ORGANELLES in on_panel
+    active = active_organelle_roles(settings) if counted else ()
+    hidden = set()
+    for key in on_panel:
+        role = object_of_setting(key)
+        if role is None:
+            continue
+        is_slot = role not in CHANNELLED_OBJECTS
+        if counted and is_slot and role not in active:
+            hidden.add(key)
+            continue
+        switches = [k for k in object_switch_keys(role) if k in on_panel]
+        if not switches or key in switches:
+            continue
+        if not any(_names_a_plane(settings.get(k)) for k in switches):
+            hidden.add(key)
+            continue
+        if not is_slot:
+            continue
+        morphology = organelle_morphology_now(role, settings)
+        if morphology is None:
+            continue
+        suffix = key[len(role) + 1:]
+        if (suffix in _MORPHOLOGY_OWNED
+                and suffix not in _MORPHOLOGY_SETTINGS[morphology]):
+            hidden.add(key)
+    return hidden
+
+
+
+def section_shows_anything(section) -> bool:
+    """Whether a settings heading still has something under it.
+
+    A HEADING WITH EVERY ROW HIDDEN IS A SMALLER WALL, BUT IT IS STILL A
+    WALL. A default Mask panel leaves twenty-three of them -- "Organelle 3",
+    "Pathogen segmentation" -- and a heading that opens onto nothing tells
+    the user only that they have found the wrong screen.
+
+    Public because the SCREEN has to be the one to act on it: a section's
+    visibility is decided in exactly one place (``AppScreen.
+    refresh_maturity_visibility``), and two things calling ``setVisible`` on
+    the same card is how a card comes back the next time Preferences is
+    saved. This answers the question; it does not hide anything.
+
+    :param section: a :class:`spacr.qt.widgets.section.Section`.
+    :returns: True unless the heading owns setting rows or nested headings
+        and every one of them is hidden. A heading that owns neither -- a
+        prose panel, an explainer -- is never judged empty, because it was
+        never carrying rows to lose.
+    """
+    from ..widgets.section import Section
+
+    form = getattr(section, "_form", None)
+    if not isinstance(form, QFormLayout):
+        return True
+    own_rows = 0
+    for index in range(form.rowCount()):
+        item = form.itemAt(index, QFormLayout.FieldRole)
+        if item is None or item.widget() is None:
+            continue
+        own_rows += 1
+        if form.isRowVisible(index):
+            return True
+    children = [child for child in section.findChildren(Section)
+                if child is not section]
+    if any(section_shows_anything(child) for child in children):
+        return True
+    return not own_rows and not children
+
 
 #: The batch-correction alphabet, offered identically by every screen that
 #: shows the setting.
@@ -775,7 +1108,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Input & Metadata", (
             "src", "cell_channel", "nucleus_channel", "pathogen_channel",
             "organelle_channel",
-            *(f"{role}_channel" for role in ORGANELLE_ROLES[1:]),
+            *(f"{role}_channel" for role in ALL_ORGANELLE_ROLES[1:]),
             "channels", "magnification",
             "metadata_type", "custom_regex",
         )),
@@ -831,8 +1164,12 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Input & Experiment", ("src", "experiment")),
         ("Mask & Channel Mapping", (
             "channels", "cell_mask_dim", "nucleus_mask_dim",
-            "pathogen_mask_dim", "organelle_mask_dim",
-            *(f"{role}_mask_dim" for role in ORGANELLE_ROLES[1:]),
+            "pathogen_mask_dim",
+            # HOW MANY SLOTS THERE ARE, before the slots themselves. It
+            # belongs to no slot, so nothing hides it, and unclaimed it
+            # landed in the bucket the layouts exist to keep empty.
+            "number_of_organelles", "organelle_mask_dim",
+            *(f"{role}_mask_dim" for role in ALL_ORGANELLE_ROLES[1:]),
             # WHAT KIND OF ORGANELLE each slot holds. Measure needs it for
             # the same reason mask does, and for one more: it decides
             # whether "how many, and how spread out" is the phenotype or a
@@ -841,7 +1178,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             # dimension because the two answer one question -- which plane,
             # and what is on it.
             "organelle_type",
-            *(f"{role}_type" for role in ORGANELLE_ROLES[1:]),
+            *(f"{role}_type" for role in ALL_ORGANELLE_ROLES[1:]),
             "cytoplasm",
             "timelapse", "timelapse_objects",
         )),
@@ -891,7 +1228,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "cytoplasm_min_size",
             "nucleus_min_size", "nucleus_max_size",
             "pathogen_min_size", "pathogen_max_size", "organelle_min_size",
-            *(f"{role}_min_size" for role in ORGANELLE_ROLES[1:]),
+            *(f"{role}_min_size" for role in ALL_ORGANELLE_ROLES[1:]),
             "merge_edge_pathogen_cells",
         )),
         ("Crop Output", (
@@ -914,7 +1251,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Input & Metadata", (
             "src", "cell_channel", "nucleus_channel", "pathogen_channel",
             "organelle_channel",
-            *(f"{role}_channel" for role in ORGANELLE_ROLES[1:]),
+            *(f"{role}_channel" for role in ALL_ORGANELLE_ROLES[1:]),
             "channels", "magnification",
             "metadata_type", "custom_regex",
         )),
@@ -3406,7 +3743,28 @@ _APP_API_MODULE = {
     # with. Instruction 131; the answer is pure pandas in `cell_montage` and
     # the tab only loads what it names.
     "cell_montage": "cell_montage",
+    # THE FOLDED MODULES. These three reached this table through
+    # ``register_app(..., api_module=...)`` -- the push half of the seam
+    # absorbed below -- so folding them into a host screen and dropping
+    # the row would take the ⓘ link on every one of their settings with
+    # it, and the folded page's help would point at the generated API
+    # index instead of at the module that does the work.
+    "barcode_qc": "sequencing_qc",
+    "explain_cv": "surrogate",
+    "anndata_export": "anndata_export",
     "volcano_explorer": "volcano_style",
+    # Image Scatter and PCA reached this table the same way, from their own
+    # rows. Both are folded onto Image UMAP now, and `unregister_app` takes a
+    # pushed entry back out with the row it came from -- so without these two
+    # lines the help on either screen falls back to the generated API index
+    # instead of the page that documents it.
+    "image_scatter": "qt/screens/image_scatter",
+    "pca": "qt/screens/pca",
+    # Curate the same way, from its own row into Make Masks. Its page is the
+    # brush rather than a settings form, so nothing draws an ⓘ for it today;
+    # the line is here because the alternative is that the answer silently
+    # became the generated API index the first time anything asked.
+    "curate": "qt/screens/curate",
     "parameter_sweep": "parameter_sweep",
     "align": "align",
     "convert": "convert",
@@ -7368,6 +7726,12 @@ class SettingsWidgets:
         # no gated setting connects nothing. See its docstring.
         self._connect_setting_dependency_signals()
 
+        # THE OBJECTS THIS RUN HAS. A channel that gains a number reveals
+        # its object's settings and losing it hides them again, and the type
+        # a slot is given decides which of that slot's detection settings are
+        # on screen at all. Bound method, not a lambda: INVARIANTS 4.
+        self._connect_object_visibility_signals()
+
         self._refresh_contextual_widgets()
         self._refresh_umap_reducer_enablement()
         self._refresh_analysis_unit_lock()
@@ -7408,6 +7772,22 @@ class SettingsWidgets:
                      for k in self._widgets if k not in used_keys]
         if remaining:
             sections.append(SettingsSection("Other", remaining))
+
+        # ONCE THE SCREEN HAS LAID THE ROWS OUT. This hands the rows back and
+        # the screen builds each label and puts the pair into a QFormLayout
+        # afterwards -- so there is no ROW to hide yet, and hiding the field
+        # here and nothing else would leave its name behind on an empty row.
+        # Zero delay, so it lands on the next turn of the event loop, before
+        # the panel has been painted.
+        #
+        # BOUND TO THE PANEL'S OWN WIDGET, which is the three-argument form's
+        # whole point: the connection is dropped when that widget is
+        # destroyed, so a screen closed inside the same turn is not reached
+        # into afterwards. Nothing is scheduled at all without one -- a
+        # `SettingsWidgets` built with no parent is being used for its values
+        # and has no rows to lay out.
+        if self._parent is not None:
+            QTimer.singleShot(0, self._parent, self.refresh_object_visibility)
 
         return _nest_sections(sections)
 
@@ -8263,16 +8643,9 @@ class SettingsWidgets:
                    for source in rule.get('sources', ())}
         for key in sources:
             widget = self._widgets.get(key)
-            if widget is None:
-                continue
-            for signal_name in (
-                'value_changed', 'currentTextChanged', 'currentIndexChanged',
-                'textChanged', 'valueChanged', 'toggled', 'stateChanged',
-            ):
-                signal = getattr(widget, signal_name, None)
-                if signal is not None:
-                    signal.connect(self._on_dependency_source_changed)
-                    break
+            if widget is not None:
+                _connect_value_changed(widget,
+                                       self._on_dependency_source_changed)
 
     def _on_dependency_source_changed(self, *_args) -> None:
         self._refresh_setting_dependencies()
@@ -8402,6 +8775,12 @@ class SettingsWidgets:
                 'has_plate_id': has_plate}
 
     def _refresh_setting_dependencies(self) -> None:
+        # THE ROWS FIRST, THEN WHICH OF THE ONES LEFT ON SCREEN ARE GREYED.
+        # This is the hook `apply_settings_dict` calls when it has finished
+        # pouring a settings file in, and a file that sets `cell_channel` has
+        # to bring the cell settings back on screen with it. A reason written
+        # beside a control on a hidden row is a reason nobody can read.
+        self.refresh_object_visibility()
         dependencies = self._rules_for_this_panel()
         if not dependencies:
             return
@@ -8474,6 +8853,151 @@ class SettingsWidgets:
         setter = getattr(self, "set_value_for_key", None)
         if callable(setter):
             setter(key, value)
+
+    # ------------------------------------------------------------------
+    # A setting is visible when its object is in the run
+    # ------------------------------------------------------------------
+
+    def _object_visibility_keys(self) -> set:
+        """The few settings the visibility rule reads.
+
+        NOT ``_current_dependency_settings``, which walks and coerces EVERY
+        widget on the screen: this runs on each keystroke in a channel box,
+        and Mask has three hundred and fifty settings of which the rule reads
+        about thirty. The same reason ``_input_csv_paths`` reads three keys
+        rather than the panel.
+        """
+        from ...organelle_types import NUMBER_OF_ORGANELLES
+
+        wanted = {NUMBER_OF_ORGANELLES}
+        for key in self._widgets:
+            role = object_of_setting(key)
+            if role is None:
+                continue
+            wanted.update(object_switch_keys(role))
+            # The type narrows a slot, the diameter decides which way a
+            # size-split type narrows it, and the morphology is the answer
+            # for a slot left on 'custom'.
+            wanted.update(f"{role}_{name}"
+                          for name in ("type", "diameter", "morphology"))
+        return wanted
+
+    def _object_visibility_settings(self) -> Dict[str, Any]:
+        """Current values of the settings the visibility rule reads.
+
+        A key with no control on this panel is read from ``_defaults``, which
+        is where its value lives and where the run will read it from too.
+        """
+        current: Dict[str, Any] = {}
+        for key in self._object_visibility_keys():
+            widget = self._widgets.get(key)
+            if widget is None:
+                current[key] = self._defaults.get(key)
+                continue
+            try:
+                current[key] = self._coerce_to_expected_type(
+                    key, self._read_widget(widget))
+            except Exception:                                # noqa: BLE001
+                current[key] = self._defaults.get(key)
+        return current
+
+    def refresh_object_visibility(self) -> None:
+        """Show only the rows whose object this run actually has.
+
+        Idempotent, and it decides EVERY gated row every time rather than
+        toggling the ones that changed -- so a row put back on screen by
+        something else answering a different question (the settings search
+        releasing its filter shows every row it indexed) is hidden again on
+        the next call instead of drifting.
+
+        Public because the screen has to be able to ask for it: it is the
+        screen that lays the rows out, and the screen that hands row
+        visibility back after a filter.
+        """
+        # NOT WHILE A SETTINGS FILE IS BEING POURED IN. `apply_settings_dict`
+        # sets one widget at a time, so a channel may already hold its new
+        # value while the type beside it still holds the old one; hiding rows
+        # against that half-applied panel would show a slot narrowed to the
+        # wrong morphology and then narrow it again. The bulk apply calls
+        # `_refresh_setting_dependencies` when it is finished, which is where
+        # this runs instead.
+        if getattr(self, "_applying_settings", False):
+            return
+        try:
+            hidden = keys_hidden_by_their_object(
+                self._widgets, self._object_visibility_settings())
+            for key in list(self._widgets):
+                self._set_row_visible(key, key not in hidden)
+        except Exception:                                    # noqa: BLE001
+            LOGGER.debug("could not decide which objects are in the run",
+                         exc_info=True)
+
+    def _set_row_visible(self, key: str, visible: bool) -> None:
+        """Show or hide the whole ROW a setting sits on.
+
+        THE ROW, NOT THE FIELD. The screen builds the label and puts the pair
+        into a ``QFormLayout`` after ``build_sections`` has handed the rows
+        back, and it keeps the label side inside a wrapper it does not hand
+        back -- so hiding the field alone strands its name on an empty row.
+        ``QFormLayout.setRowVisible`` reaches both halves, and it is reached
+        through the same helper the settings search and the 3D/Time switches
+        hide rows with, so a row is hidden one way whatever the reason for
+        hiding it.
+
+        The widget the FORM knows is not always the field: a handful of
+        settings sit in a little holder with a button beside them, and it is
+        the holder that is in the row. The walk goes up until a form
+        recognises the node it is being handed.
+        """
+        widget = self._widgets.get(key)
+        if widget is None:
+            return
+        from ..settings_search import _set_row_visible as set_row
+
+        node = widget
+        # Three steps is the deepest the panel nests a field: field, the
+        # button holder, the section body that owns the form.
+        for _ in range(3):
+            parent = node.parentWidget()
+            if parent is None:
+                break
+            layout = parent.layout()
+            if isinstance(layout, QFormLayout):
+                row, _role = layout.getWidgetPosition(node)
+                if row >= 0:
+                    set_row(parent, node, visible)
+                    return
+            node = parent
+        # NOT UNTIL THE SCREEN HAS TAKEN THE WIDGET. `SettingsWidgets` is
+        # built with no parent by everything that wants the values rather
+        # than a form, and a parentless widget shown here would not be a row
+        # coming back -- it would be a window of its own, opened and painted
+        # on the next turn of the event loop, mid-construction and long after
+        # the panel that made it was finished with.
+        if widget.parentWidget() is None:
+            return
+        # There is a widget but no row yet: the screen builds the label and
+        # the form after `build_sections` hands the rows back. Hide the field
+        # so the panel is not a frame late; the scheduled pass takes the
+        # label once the row has one.
+        widget.setVisible(visible)
+        label = getattr(widget, "_spacr_setting_label", None)
+        if label is not None:
+            label.setVisible(visible)
+
+    def _connect_object_visibility_signals(self) -> None:
+        """Follow the switches, the count and the types as they are changed.
+
+        Bound method, not a lambda: see INVARIANTS 4 for what a closure
+        connected to a Qt signal costs.
+        """
+        for key in sorted(self._object_visibility_keys()):
+            widget = self._widgets.get(key)
+            if widget is not None:
+                _connect_value_changed(widget, self._on_object_switch_changed)
+
+    def _on_object_switch_changed(self, *_args) -> None:
+        self.refresh_object_visibility()
 
     def _read_widget(self, w: QWidget) -> Any:
         if isinstance(w, QCheckBox):

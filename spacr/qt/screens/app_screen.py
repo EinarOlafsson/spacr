@@ -116,6 +116,152 @@ register_widget_qss(SETTINGS_PANEL_NAME, _settings_panel_qss, replace=True)
 DEFAULT_INSTRUCTION = "Configure settings, then press Run."
 
 
+# ---------------------------------------------------------------------------
+# A SETTING APPEARS WHEN THE DATA HAS THE DIMENSION IT IS ABOUT
+# ---------------------------------------------------------------------------
+#
+# Two switches sit in the action row immediately left of Live: 3D and Time.
+# Neither runs anything. Each says which dimension the plate actually has,
+# and the settings that only mean something in that dimension appear with
+# it. A plate of single-plane fields has no z axis, so "how far apart are
+# two planes" is a question about nothing, and a form that asks it anyway is
+# a form the user has to learn to ignore.
+#
+# THEY ARE STATES, so they stay lit while on, exactly as the checkable fold
+# switches on Mask Generation do. They do NOT share those switches' second
+# half: a fold switch also sets its module's pipeline gate, because a folded
+# module has no control for that gate anywhere else. These two do nothing to
+# the run. `z_stack` and `t_stack` are ordinary controls INSIDE the
+# categories they reveal, and those controls are what say whether the run
+# uses the dimension -- so a switch that also set them would be the second
+# source of truth this project keeps finding and removing.
+#
+# HIDDEN, NOT DELETED. A hidden row keeps its widget and its value:
+# `SettingsWidgets.collect` walks `_widgets`, never the visible rows, so a
+# volumetric answer typed before the switch went off is still in the dict
+# handed to the run and still written to the settings CSV.
+
+#: ``(dimension, label, tooltip)``, in the order the switches are drawn.
+#:
+#: The labels are the words the request used, and they are drawn as
+#: :class:`spacr.qt.widgets.AiToggleLabel` -- the same lit-while-on toggle
+#: Live and AI in this row already are, and the only state toggle in the
+#: project that can carry a WORD. A fold button is the shape being matched,
+#: but it is an icon and nothing else: it derives its picture, its name and
+#: its maturity colour from a registry key, and "3D" is not a module, so it
+#: has neither an icon nor a row to read. Reusing it would have put two
+#: buttons labelled "3" and "T" on the masthead.
+DIMENSION_TOGGLES = (
+    ("z", "3D",
+     "Click to show the volumetric settings — the ones that mean nothing "
+     "until a field has a z axis: which axis it is, how the stack is "
+     "segmented or projected, and the voxel geometry that says how far "
+     "apart two planes really are. Hiding them keeps their values: they "
+     "still reach the run and the settings file."),
+    ("t", "Time",
+     "Click to show the timelapse settings — the ones that mean nothing "
+     "until a field has a time axis: the time axis itself, the frame "
+     "interval, and how objects are linked from one frame to the next. "
+     "Hiding them keeps their values: they still reach the run and the "
+     "settings file."),
+)
+
+#: Screens that carry the switches. Mask Generation and Measure are the two
+#: modules that read a plate off disk and decide what its axes are.
+DIMENSION_TOGGLE_APPS = frozenset({"mask", "measure"})
+
+#: The widest these two may force the action row -- and so the window -- to be.
+#:
+#: A QHBoxLayout cannot go below the sum of its children's minimum widths, and
+#: the action row's minimum is the module screen's minimum, which the body
+#: splitter then has to satisfy out of whatever the window is. So every pixel
+#: a toggle demands here is a pixel taken off the settings column at any
+#: window narrower than about 1500. Measured on Mask Generation at 1200x720:
+#: 3D asks for 69 px and Time for 92 px unaided, which took the row from 899
+#: to 1076 and the settings column from 260 px to 83 px -- a 624 px settings
+#: card in an 83 px viewport, with the labels hanging out of the right of it.
+#: That is the failure :data:`spacr.qt.widgets.ai_toggle_label
+#: .ELIDE_ABOVE_PX` exists for, arriving from two short labels rather than
+#: one long one, and a secondary control must not be able to starve the
+#: primary.
+#:
+#: 24 px is a click target, not a word: the label still ASKS for its full
+#: width through ``sizeHint``, so a row with room to spare draws "3D" and
+#: "Time" in full and only a squeezed one clips them. The row comes out at
+#: 963 and the settings column at 196 px, which is where the setting labels
+#: fit inside their card again.
+DIMENSION_TOGGLE_MIN_PX = 24
+
+#: ``dimension -> the settings that ANNOUNCE it in a loaded settings file``.
+#:
+#: These are the keys whose whole job is to say the data has the dimension:
+#: ``z_stack`` refuses to run unless the array has a real z axis, ``t_stack``
+#: unless each field is a (T, Z, Y, X) volume, and ``timelapse`` is what
+#: makes a mask run group its plate into time stacks. A CSV that sets one of
+#: them is a CSV about that dimension, so loading it lights the switch --
+#: without which importing a volumetric settings file would hide the very
+#: settings it had just filled in.
+DIMENSION_GATE_KEYS = {
+    "z": ("z_stack",),
+    "t": ("t_stack", "timelapse"),
+}
+
+#: Cache for :func:`dimension_settings`, filled on first use.
+_DIMENSION_SETTINGS: Optional[dict] = None
+
+
+def dimension_settings() -> dict:
+    """``dimension -> the setting keys that only mean something in it``.
+
+    READ OFF THE SETTINGS, NOT LISTED HERE. :data:`spacr.settings.categories`
+    already carries the answer, because the split was made deliberately when
+    the experimental axes were added:
+
+    * ``"3D Settings (Beta)"`` is every key that presumes a z axis --
+      ``z_stack``, the segmentation mode, the projection, the two voxel
+      sizes and the ``anisotropy`` they derive (all three of which answer
+      "how far apart are two planes"), and ``stitch_threshold``, which links
+      labels BETWEEN planes.
+    * ``"4D Settings (Beta)"`` is the time half of the same split, and the
+      source says so where the split is written: ``z_axis`` is filed under
+      3D "because 4D builds on the same z plan", which leaves the 4D list
+      holding "only time-axis and inter-frame tracking controls".
+    * the Timelapse and Motility modules' own key lists join the time set,
+      because every key in them is a per-frame or between-frame quantity --
+      the frame rate, which tracker links the frames, how far an object may
+      move between two of them, how long it may vanish for.
+
+    A key in neither set is dimension-free and stays visible whatever the
+    switches say.
+
+    :returns: a fresh dict of ``str -> frozenset``; callers may keep it.
+    """
+    global _DIMENSION_SETTINGS
+    if _DIMENSION_SETTINGS is None:
+        from ...settings import (categories, motility_advanced_settings,
+                                 motility_settings, timelapse_settings)
+        _DIMENSION_SETTINGS = {
+            "z": frozenset(categories.get("3D Settings (Beta)", ())),
+            "t": (frozenset(categories.get("4D Settings (Beta)", ()))
+                  | frozenset(timelapse_settings) | {"timelapse"}
+                  | frozenset(motility_settings)
+                  | frozenset(motility_advanced_settings)),
+        }
+    return dict(_DIMENSION_SETTINGS)
+
+
+def setting_dimension(key: str) -> str:
+    """The dimension ``key`` depends on -- ``"z"``, ``"t"`` or ``""``.
+
+    Blank for the great majority of settings, which mean the same thing
+    whatever axes the plate has.
+    """
+    for dimension, keys in dimension_settings().items():
+        if key in keys:
+            return dimension
+    return ""
+
+
 class ModuleHeader(QWidget):
     """The masthead every module page wears: name, description, instruction.
 
@@ -269,6 +415,39 @@ COLUMN_TABLES = {
 }
 
 
+def module_maturity(app_key: str) -> str:
+    """The stage ``app_key`` is drawn in, registry row or not.
+
+    ``app_stage`` answers ``stable`` for a key it has never heard of, which
+    is the right answer for a typo and the wrong one for a module that was
+    folded into a host and had its row deleted: its settings would go from
+    beta-tinted to unmarked on the day the row went, claiming a maturity
+    nobody signed off. So a key with no row is asked of the fold tables,
+    which record what its tile said.
+
+    :param app_key: the module's registry key.
+    :returns: ``"alpha"``, ``"beta"`` or ``"stable"``.
+    """
+    from ..app import APPS, app_stage
+
+    stage = app_stage(app_key)
+    if any(row and row[0] == app_key for row in APPS):
+        return stage
+    try:
+        # Every host's table, not one host's: the modules folded into the
+        # segmentation workbench keep what their tiles said in
+        # `make_masks.FOLD_FALLBACK`, and asking Map Barcodes about them
+        # answers "" -- which reads as stable and drops the beta mark off
+        # the Cellpose Workbench's settings sections.
+        from ..widgets.fold_strip import folded_fallback
+        folded = folded_fallback(app_key)[2]
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not read the fold tables for %r", app_key,
+                  exc_info=True)
+        folded = ""
+    return folded or stage
+
+
 def settings_section_maturity(app_key: str, title: str) -> str:
     """Return the least-mature stage applying to one settings section.
 
@@ -276,9 +455,7 @@ def settings_section_maturity(app_key: str, title: str) -> str:
     module can still contain an explicitly experimental ``(Beta)``/``(Alpha)``
     category, in which case that section receives the more cautious stage.
     """
-    from ..app import app_stage
-
-    module_stage = app_stage(app_key)
+    module_stage = module_maturity(app_key)
     normalized = str(title or "").strip().lower()
     section_stage = "stable"
     if normalized == "alpha" or "(alpha)" in normalized:
@@ -325,6 +502,15 @@ APP_TITLES = {
     "classifier_evaluation": "Classifier Evaluation",
     "run_history":     "Run History",
     "distributed_jobs": "Distributed Jobs",
+    # FOLDED MODULES THAT STILL OPEN THIS SCREEN. Barcode QC and AnnData
+    # Export have no screen class of their own -- every knob each has is a
+    # registered settings key, so the generic form IS the module -- and
+    # both are now pages on a host rather than tiles. They used to reach
+    # this table through `register_app(..., title=...)`; with the row gone
+    # that push never happens, and the page would be headed "Barcode_Qc"
+    # with no sentence under it.
+    "barcode_qc":      "Barcode QC",
+    "anndata_export":  "AnnData Export",
 }
 
 
@@ -365,6 +551,9 @@ APP_INTROS = {
     "recruitment":     "Quantify recruitment of a marker to a compartment across conditions.",
     "invasion":        "Score every parasite attached or invaded from a two-colour outside/inside stain, with the threshold derived per field and flagged when the two populations it assumes are not actually there.",
     "replication":     "Count the parasites in every vacuole and turn that into a replication rate: endodyogeny doubles a vacuole 1 -> 2 -> 4 -> 8, so the distribution of counts per vacuole is the readout, not the mean.",
+    # The two folded modules whose page is this screen — see APP_TITLES.
+    "barcode_qc":      "Reads per well, starved wells, unmapped reads, barcode collisions, row/column position effects and library coverage for a finished mapping run \u2014 and then the number everyone used to read off a histogram once and copy forward: state how many gRNAs per well the design intends and the abundance threshold that delivers it is derived, swept either side of, and written out in words.",
+    "anndata_export":  "Export the measurement tables as AnnData (.h5ad) - N objects x M features with per-object metadata, feature definitions, embeddings and provenance - so scanpy, scvi-tools and squidpy can read a spaCR run directly.",
 }
 
 try:
@@ -625,6 +814,16 @@ class AppScreen(QWidget):
         #: everything else in this block is: a screen that has not built its
         #: settings pane yet still answers "which sections carry a box".
         self._section_explainers = {}
+        #: ``dimension -> is it on``. Born BEFORE the settings panel, which
+        #: is what reads it: the panel's first `refresh_maturity_visibility`
+        #: runs while the action row that carries the switches does not
+        #: exist yet, so the state has to live on the screen rather than in
+        #: the widgets. Off to begin with, which is the point -- a plate is
+        #: flat and single-shot until its user says otherwise.
+        self._dimension_on = {name: False for name, _label, _tip
+                              in DIMENSION_TOGGLES}
+        #: ``dimension -> the toggle in the action row``, once there is one.
+        self._dimension_switches = {}
 
         # This module is imported lazily by `app.py`, long after the launch
         # stylesheet was generated, so the block registered above is not in
@@ -2213,15 +2412,30 @@ class AppScreen(QWidget):
         QApplication.processEvents()
 
     def refresh_maturity_visibility(self) -> None:
-        """Show/hide Alpha and Beta settings without discarding typed values."""
+        """Show/hide Alpha and Beta settings without discarding typed values.
+
+        ALSO THE ONE PLACE A SECTION'S VISIBILITY IS DECIDED. Maturity is not
+        the only reason a category is not on the form -- a category every one
+        of whose settings needs a z axis is not on a flat plate's form
+        either -- and two functions each calling ``setVisible`` on the same
+        card is how a card comes back the next time Preferences is saved.
+        So the dimension switches are answered here as well, and the settings
+        search hands visibility back to this method for the same reason.
+
+        The notice below still speaks only for maturity: a category the 3D
+        switch is holding back is not "hidden by Preferences", and saying so
+        would send the user to a dialog that cannot bring it back.
+        """
         from ..preferences import maturity_is_visible
 
         hidden_stages = set()
+        gated = self._dimension_hidden_sections()
         for section in getattr(self, "_settings_sections", []):
             visible = maturity_is_visible(section.maturity())
-            section.setVisible(visible)
+            section.setVisible(visible and id(section) not in gated)
             if not visible:
                 hidden_stages.add(section.maturity())
+        self._apply_dimension_visibility()
 
         notice = getattr(self, "_maturity_notice", None)
         if notice is None:
@@ -2241,6 +2455,251 @@ class AppScreen(QWidget):
             notice.show()
         else:
             notice.hide()
+
+    # ------------------------------------------------------------------
+    # 3D and Time
+    # ------------------------------------------------------------------
+    def _install_dimension_switches(self, row, toggle_cls) -> dict:
+        """Put the 3D and Time switches in the action row, left of Live.
+
+        A switch is built only where it has something to reveal: the screen
+        is one of :data:`DIMENSION_TOGGLE_APPS` and its form actually renders
+        at least one setting of that dimension. A toggle whose press changes
+        nothing on screen is worse than no toggle, and the check is asked of
+        the built form rather than of a list, so the day Measure stops
+        offering voxel geometry its 3D switch stops being drawn.
+
+        :param row: the action row's layout.
+        :param toggle_cls: :class:`spacr.qt.widgets.AiToggleLabel`, passed in
+            because the caller has already imported it.
+        :returns: ``dimension -> toggle`` for the switches that were built.
+        """
+        self._dimension_switches = {}
+        if str(self.app_key) not in DIMENSION_TOGGLE_APPS:
+            return self._dimension_switches
+        # `_dimension_rows` yields only rows that HAVE a dimension, so every
+        # answer here is one of the two and none is blank.
+        offered = {setting_dimension(key)
+                   for _section, key, _field in self._dimension_rows()}
+        for dimension, label, tooltip in DIMENSION_TOGGLES:
+            if dimension not in offered:
+                continue
+            switch = toggle_cls(text=label, tooltip=tooltip)
+            # See DIMENSION_TOGGLE_MIN_PX: unaided, these two take 177 px off
+            # the settings column at every window narrower than about 1500.
+            switch.setMinimumWidth(DIMENSION_TOGGLE_MIN_PX)
+            switch.setChecked(bool(self._dimension_on.get(dimension)))
+            switch.toggled.connect(partial(self._on_dimension_switch,
+                                           dimension))
+            row.addWidget(switch)
+            self._dimension_switches[dimension] = switch
+        if self._dimension_switches:
+            # THE FORM IS GATED ONLY ONCE THERE IS SOMETHING TO UNGATE IT.
+            # The settings panel is built before this row, and its first
+            # `refresh_maturity_visibility` therefore ran while no switch
+            # existed -- so nothing was hidden then, on purpose. This is
+            # the pass that hides it, now that a user can bring it back.
+            self.refresh_maturity_visibility()
+        return self._dimension_switches
+
+    def _dimension_is_gated(self, dimension: str) -> bool:
+        """Whether ``dimension``'s settings are being held back right now.
+
+        A dimension is held back only by a switch that EXISTS and is off.
+        Nothing is ever hidden on a screen with no switch to show it again:
+        the Timelapse module's own screen renders the same z and t settings
+        Mask does, and without this its acquisition categories would go
+        with nothing on the page able to bring them back.
+        """
+        return bool(self.dimension_switch(dimension) is not None
+                    and not self.dimension_is_on(dimension))
+
+    def dimension_switch(self, dimension: str):
+        """The 3D or Time toggle, or None on a screen that carries neither."""
+        return (getattr(self, "_dimension_switches", None) or {}).get(
+            str(dimension))
+
+    def dimension_is_on(self, dimension: str) -> bool:
+        """Whether this screen is showing ``dimension``'s settings now."""
+        return bool((getattr(self, "_dimension_on", None) or {}).get(
+            str(dimension)))
+
+    def set_dimension(self, dimension: str, on: bool) -> None:
+        """Switch a dimension's settings on or off.
+
+        Driven through the toggle where there is one, so the switch never
+        shows a state the form does not have; a screen built without the
+        action row still moves, which is what lets the settings panel be
+        gated before the row that gates it exists.
+        """
+        dimension = str(dimension)
+        if dimension not in (getattr(self, "_dimension_on", None) or {}):
+            return
+        switch = self.dimension_switch(dimension)
+        if switch is not None:
+            # Comes back through `_on_dimension_switch`, so a programmatic
+            # move takes the path a click takes.
+            switch.setChecked(bool(on))
+            return
+        self._on_dimension_switch(dimension, on)
+
+    def _on_dimension_switch(self, dimension: str, on: bool) -> None:
+        """Record the new state and re-decide what the form shows."""
+        self._dimension_on[str(dimension)] = bool(on)
+        self.refresh_maturity_visibility()
+
+    def _dimension_rows(self) -> list:
+        """``[(section, key, field), …]`` for each dimensional form row.
+
+        Built from the model's ``key -> widget`` map and the sections the
+        screen kept, the way the settings search builds its own index: the
+        screen has already decided which key went where, and a second
+        opinion here would be a second thing to keep in sync.
+
+        Only the rows that HAVE a dimension are returned -- the answer is a
+        few dozen rows out of several hundred, and every caller wants that
+        subset.
+        """
+        from PySide6.QtWidgets import QFormLayout
+
+        model = getattr(self, "_settings_model", None)
+        widgets = getattr(model, "_widgets", None) or {}
+        if not widgets or str(self.app_key) not in DIMENSION_TOGGLE_APPS:
+            # Every other screen keeps the form it always had. The walk is
+            # skipped rather than run and discarded: this is called from
+            # `refresh_maturity_visibility`, which every module runs while
+            # it is being built.
+            return []
+        by_widget = {id(widget): key for key, widget in widgets.items()}
+        found = []
+        for section in getattr(self, "_settings_sections", []) or []:
+            form = getattr(section, "_form", None)
+            if not isinstance(form, QFormLayout):
+                continue
+            for index in range(form.rowCount()):
+                item = form.itemAt(index, QFormLayout.FieldRole)
+                field = item.widget() if item is not None else None
+                key = by_widget.get(id(field)) if field is not None else None
+                if key and setting_dimension(key):
+                    found.append((section, key, field))
+        return found
+
+    def _dimension_hidden_sections(self) -> set:
+        """``id()`` of every category the switches are holding back.
+
+        A category is held back only when EVERY row it has is dimensional
+        and every one of those dimensions is off -- the Volumetric
+        Processing card, which is nothing but z settings. A category that
+        merely contains a few of them, as Measure's Mask & Channel Mapping
+        contains ``timelapse``, keeps its card and loses those rows; hiding
+        the whole card would take the channel mapping with it.
+        """
+        from PySide6.QtWidgets import QFormLayout
+
+        by_section: dict = {}
+        for section, key, _field in self._dimension_rows():
+            by_section.setdefault(id(section), [section, []])[1].append(key)
+        hidden = set()
+        for marker, (section, keys) in by_section.items():
+            form = getattr(section, "_form", None)
+            if not isinstance(form, QFormLayout):
+                continue
+            if form.rowCount() != len(keys):
+                continue
+            if all(self._dimension_is_gated(setting_dimension(key))
+                   for key in keys):
+                hidden.add(marker)
+        return hidden
+
+    def _apply_dimension_visibility(self) -> None:
+        """Show or hide each dimensional ROW to match the switches.
+
+        Rows rather than whole cards, because the dimensional settings are
+        not all in dimensional cards: Measure keeps ``timelapse`` and
+        ``timelapse_objects`` beside the channel mapping, where they belong
+        for every other purpose.
+
+        Hidden through ``QFormLayout.setRowVisible``, which is what reaches
+        the label as well as the field -- a section builds the label side
+        into a wrapper it does not hand back, so hiding the field alone
+        leaves the caption stranded on an empty row. The two helpers come
+        from the settings search, which hides rows for its own reason: one
+        implementation, so a row hidden by a filter and a row hidden by a
+        dimension are hidden the same way.
+
+        Never touches a row that has no dimension, so anything else that
+        decides a row's visibility keeps its own answers.
+        """
+        try:
+            from ..settings_search import _set_row_visible
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("no row-visibility helper; leaving the form alone",
+                      exc_info=True)
+            return
+        for section, key, field in self._dimension_rows():
+            _set_row_visible(
+                section, field,
+                not self._dimension_is_gated(setting_dimension(key)))
+
+    def setting_row_is_visible(self, key: str) -> bool:
+        """Whether ``key``'s row is currently on the form.
+
+        The read-back the switches are checked against: "visible" for a
+        setting is the state of its ROW, not of its widget, because the
+        widget of a hidden row is still there holding the value it had.
+        False for a key this screen does not render at all.
+
+        ASKED OF THE FORM, NOT OF THE SCREEN. ``isVisible`` is false for
+        everything on a page that has not been shown yet, which would make
+        this answer "hidden" for the entire settings panel of a module the
+        user has not opened. ``isHidden`` and ``QFormLayout.isRowVisible``
+        answer what was hidden ON PURPOSE, which is the question.
+        """
+        from PySide6.QtWidgets import QFormLayout
+
+        model = getattr(self, "_settings_model", None)
+        field = (getattr(model, "_widgets", None) or {}).get(str(key))
+        if field is None:
+            return False
+        for section in getattr(self, "_settings_sections", []) or []:
+            form = getattr(section, "_form", None)
+            if not isinstance(form, QFormLayout):
+                continue
+            for index in range(form.rowCount()):
+                item = form.itemAt(index, QFormLayout.FieldRole)
+                if item is not None and item.widget() is field:
+                    from ..settings_search import _row_is_visible
+                    return bool(not section.isHidden()
+                                and _row_is_visible(section, field))
+        return False
+
+    def _sync_dimension_switches(self, settings: dict) -> tuple:
+        """Move the 3D and Time switches to match settings just applied.
+
+        A settings file that turns ``z_stack`` on is a file about a
+        volumetric run, and applying it with the 3D switch off would fill in
+        every voxel size and then hide all of them -- the import would read
+        as having done nothing. See :data:`DIMENSION_GATE_KEYS` for why
+        these particular keys are the announcement.
+
+        A file that says nothing about a dimension leaves that switch where
+        the user put it: absence is not a request to hide anything.
+
+        :param settings: the dict that was just applied.
+        :returns: the dimensions the settings switched on.
+        """
+        turned_on = []
+        for dimension, gate_keys in DIMENSION_GATE_KEYS.items():
+            if dimension not in (getattr(self, "_dimension_on", None) or {}):
+                continue
+            named = [key for key in gate_keys if key in settings]
+            if not named:
+                continue
+            wanted = any(self._truthy(settings.get(key)) for key in named)
+            self.set_dimension(dimension, wanted)
+            if wanted:
+                turned_on.append(dimension)
+        return tuple(turned_on)
 
     def _attach_column_picker(self, key, widget) -> None:
         """Give a column-name field its "SQL" button; a no-op for anything else.
@@ -3380,6 +3839,13 @@ class AppScreen(QWidget):
         # preview card exists.
         from PySide6.QtWidgets import QMenu, QToolButton
         from ..widgets import AiToggleLabel
+
+        # 3D and Time — "to the left of the Live button which sitts to the
+        # left of the AI button". Built here, before the preview toggle, so
+        # the row reads 3D · Time · Live · … · AI whether or not this module
+        # has a preview to switch on.
+        self._install_dimension_switches(row, AiToggleLabel)
+
         preview_controls = {
             "mask": (
                 "_live_preview_card",
@@ -6344,26 +6810,44 @@ class AppScreen(QWidget):
         return bool(val)
 
     def _warn_about_moved_settings(self, loaded: dict) -> None:
-        """Tell the user, in the console, when an imported CSV enables a
-        setting this module no longer owns.
+        """Say, in the console, what an imported CSV did to the fold switches.
 
-        Timelapse and the automated motility assay left the Mask module for
-        modules of their own; an old mask CSV with ``timelapse=True`` would
-        otherwise be applied minus that flag with nothing to show for it.
+        Tracking is a set of settings CATEGORIES on this form rather than a
+        module of its own, and its pipeline gate has no control for a bulk
+        apply to land in — the switch on the masthead is the control.
+        :meth:`apply_settings_dict` moves it, and this reports what moved,
+        so a user who loaded a Timelapse settings file can see that tracking
+        became part of the run rather than being left to wonder.
+
+        A gate the file asks for that no switch answered is reported as
+        ignored, because that is what it is: nothing on this screen collects
+        it and it will not reach the run. That covers the automated motility
+        assay, which reads finished masks and writes a measurements table and
+        so is a module Measure opens, not a category here.
+
         Console text, never a modal — a QMessageBox here would hang headless
         runs.
         """
         if self.app_key != "mask":
             return
+        switched = set(getattr(self, "_folds_last_switched_on", ()))
         notes = []
         if self._truthy(loaded.get("timelapse", False)):
-            notes.append(
-                "timelapse=True was ignored — tracking now lives in the "
-                "Timelapse module (sidebar > Core > Timelapse).")
+            if "timelapse" in switched:
+                notes.append(
+                    "timelapse=True switched Timelapse on — its tracking "
+                    "categories are on the form and the run links objects "
+                    "across frames.")
+            else:
+                notes.append(
+                    "timelapse=True was ignored — this screen is carrying no "
+                    "Timelapse switch, so the tracking categories are not on "
+                    "the form and the flag will not reach the run.")
         if self._truthy(loaded.get("motility_analysis", False)):
             notes.append(
-                "motility_analysis=True was ignored — the assay now lives in "
-                "the Motility Assay module (sidebar > Core > Motility Assay).")
+                "motility_analysis=True was ignored — the assay runs on masks "
+                "that already exist, so it is a module of its own that Measure "
+                "opens (Measure masthead > Motility Assay).")
         for note in notes:
             self._console.append_notice(
                 "[settings] {note}\n", note=note)
@@ -6630,7 +7114,46 @@ class AppScreen(QWidget):
                 except Exception:                            # noqa: BLE001
                     LOG.debug("could not refresh dependencies after a bulk "
                               "apply", exc_info=True)
+        self._sync_folded_switches(settings)
+        # And the two switches that decide which DIMENSIONS the form is
+        # about, for the same reason: a file that asks for a volumetric run
+        # must not land on a form that is hiding the volumetric settings.
+        try:
+            self._sync_dimension_switches(settings)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not sync the dimension switches after a bulk "
+                      "apply", exc_info=True)
         return applied
+
+    def _sync_folded_switches(self, settings: dict) -> tuple:
+        """Move this screen's fold switches to match settings just applied.
+
+        A module folded in as settings CATEGORIES contributes its pipeline
+        GATE — ``timelapse`` on Mask Generation — and a gate has no widget
+        on the form, because the masthead switch is its one control. The
+        bulk apply above therefore fills in every tracking knob a Timelapse
+        settings file names and leaves tracking switched off, which is a run
+        the file did not ask for.
+
+        Safe on every screen: one with no category folds returns an empty
+        tuple, and a failure here costs the switch position rather than the
+        import.
+
+        :param settings: the dict that was just applied.
+        :returns: the folded keys the settings switched on.
+        """
+        try:
+            from .mask import sync_folds
+            switched = tuple(sync_folds(self, settings))
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not sync the fold switches after a bulk apply",
+                      exc_info=True)
+            switched = ()
+        # Remembered so `_warn_about_moved_settings` can report what moved
+        # instead of guessing, and so a screen with no switches can say the
+        # flag was ignored rather than claiming it landed.
+        self._folds_last_switched_on = switched
+        return switched
 
     def _apply_each_setting(self, settings: dict) -> int:
         """Push each key into its widget. Returns how many landed."""
