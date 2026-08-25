@@ -68,7 +68,7 @@ code -- the file was wrong about itself.
 | 137 | Drag images in, and the regex is worked out for you | 0% |
 | 126 | The theme must not lag while a run is going | 0% |
 | 114 | A parameter search that cannot take the machine down | 0% |
-| **60** | **Every module at 100% test coverage** | **UNBLOCKED -- measuring** |
+| **60** | **Every module at 100% test coverage** | **IN PROGRESS -- 42,851 tests** |
 
 ## 141 went DOWN in scope, and the file was wrong twice
 

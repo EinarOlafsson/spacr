@@ -51,37 +51,57 @@ def test_a_group_column_the_frame_does_not_have_is_one_series():
 
 # -- the widget --------------------------------------------------------------
 
-def test_a_plot_holding_no_data_refuses_to_be_redrawn(qapp):
+@pytest.fixture
+def a_plot(qtbot):
+    """Build a :class:`GroupedPlot` that dies with the test that asked for it.
+
+    Every plot below is a parentless top-level widget, and a top-level widget
+    that is never closed cannot be freed at all -- pyqtgraph gives each one a
+    context menu with ten submenus under it, all of them top-level too, and
+    the connections holding them run through Qt's C++ side where Python's
+    collector cannot follow. Built bare, the five tests here left 75 windows
+    standing for the rest of the process; built through this, they leave
+    none. ``qtbot`` closes and deletes what it is handed at teardown.
+    """
+    def build(*args, **kwargs):
+        widget = GroupedPlot(*args, **kwargs)
+        qtbot.addWidget(widget)
+        return widget
+
+    return build
+
+
+def test_a_plot_holding_no_data_refuses_to_be_redrawn(a_plot):
     """"Show as a box" needs rows; drawing nothing would look like a result."""
-    plot = GroupedPlot()
+    plot = a_plot()
     with pytest.raises(ValueError) as excinfo:
         plot.show_as("box")
     assert "no data" in str(excinfo.value)
 
 
-def test_a_plot_holding_no_data_offers_no_comparison(qapp):
+def test_a_plot_holding_no_data_offers_no_comparison(a_plot):
     """A statistical comparison of nothing is not a comparison."""
-    assert GroupedPlot().comparison_groups() is None
+    assert a_plot().comparison_groups() is None
 
 
-def test_a_plot_holding_no_data_has_no_table_to_export(qapp):
+def test_a_plot_holding_no_data_has_no_table_to_export(a_plot):
     """A plot drawn from bare arrays honestly has no source rows, and the
     column-mapping controls grey out on exactly that answer."""
-    assert GroupedPlot().frame() is None
+    assert a_plot().frame() is None
 
 
-def test_a_plot_holding_a_spec_exports_the_rows_it_drew(qapp):
+def test_a_plot_holding_a_spec_exports_the_rows_it_drew(a_plot):
     """The exported data.csv has to be the rows behind the picture."""
     frame = _frame()
-    plot = GroupedPlot(PlotSpec(frame=frame, value="area", group="well"))
+    plot = a_plot(PlotSpec(frame=frame, value="area", group="well"))
     assert plot.frame() is frame
 
 
-def test_a_line_joins_its_points_in_x_order(qapp):
+def test_a_line_joins_its_points_in_x_order(a_plot):
     """A line through unsorted points draws a scribble, not a series."""
     frame = pd.DataFrame({"dose": [3.0, 1.0, 2.0],
                           "response": [30.0, 10.0, 20.0]})
-    plot = GroupedPlot()
+    plot = a_plot()
     drawn = plot.show_spec(PlotSpec(frame=frame, value="response",
                                     group="dose", kind="line"))
     assert drawn == 1

@@ -458,9 +458,23 @@ def test_a_trial_id_that_cannot_be_matched_falls_back_to_the_row(screen,
                         lambda self, folder: True)
 
     class _Hostile(pd.DataFrame):
+        """A results frame whose ``trial_id`` column refuses to be read.
+
+        ``_constructor_from_mgr`` is overridden alongside ``_constructor``
+        because pandas rebuilds a subclass through it on every internal
+        operation. Overriding ``_constructor`` alone sends pandas down
+        ``_Hostile(mgr)``, which DeprecationWarns on the pandas floor
+        setup.py declares and errors in the job that installs it -- and the
+        hostile ``__getitem__`` this class exists for would go missing from
+        any frame pandas rebuilt the other way.
+        """
+
         @property
         def _constructor(self):
             return _Hostile
+
+        def _constructor_from_mgr(self, mgr, axes):
+            return _Hostile._from_mgr(mgr, axes=axes)
 
         def __getitem__(self, key):
             if isinstance(key, str) and key == "trial_id":
