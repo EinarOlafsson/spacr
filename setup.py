@@ -110,35 +110,59 @@ with open("README.rst", "r", encoding="utf-8") as fh:
 # `model_type=` string and live in the `boosting` extra — see the note there.
 #
 # ---------------------------------------------------------------------------
-# WHAT A VERSION BOUND IN THIS LIST MEANS. Settled 2026-08-11, because
-# "always use the optimal dependency versions" has two readings that imply
-# opposite CI jobs, and the list was being edited under both.
+# WHAT "THE OPTIMAL DEPENDENCY VERSIONS" MEANS.
 #
-# The lower bound is the OLDEST VERSION CI ACTUALLY INSTALLS AND TESTS. It is
-# not a guess at the oldest that might work, and raising it is cheap. This is
-# the rule the cellpose floor was settled by: `>=4.0` was resolving to 4.0.1
-# in CI, whose `CellposeModel` signature spaCR has never been developed
-# against, so the floor moved to 4.0.7 rather than the contract test being
-# loosened. A floor nobody installs is worse than one declared too high --
-# pip resolves it happily and the failure lands on a user.
-# `.github/constraints/minimum-py39.txt` is the file that makes the floor
-# real, and `tests/test_minimum_constraints_match_setup.py` keeps the two
-# from drifting apart again.
+# The phrase has two readings that imply opposite CI jobs -- the oldest set
+# that passes, or the newest set that passes -- and a list edited under both
+# readings at once drifts in both directions. spaCR means the NEWEST. Both
+# jobs exist because they answer different questions, and only one of them is
+# a recommendation.
 #
-# The upper bound is a MAJOR VERSION SPaCR HAS NOT SEEN. It exists so a
+#   WHAT A USER GETS is the newest. `pip install spacr` resolves the TOP of
+#   every range below, so the upper end of each range is the version spaCR
+#   recommends. The `Fast / Full suite control` job in
+#   .github/workflows/tests.yml installs with no constraints file at all and
+#   runs the suite against whatever pip picks that day, which is the only way
+#   the recommendation stays true as new releases land.
+#
+#   WHAT A USER IS PROMISED is the floor. A lower bound is for an environment
+#   pinned by something else -- a cluster module, a conda solve, another
+#   package's own cap. It is not advice, and it is worthless unless something
+#   installs it, so the `Minimum dependencies` job in the same workflow
+#   installs .github/constraints/minimum-py39.txt on CPython 3.9 and runs the
+#   same suite there.
+#
+# A lower bound is therefore THE OLDEST VERSION CI ACTUALLY INSTALLS AND
+# TESTS, never a guess at the oldest that might work. Raising one is cheap;
+# leaving one unverified is how "it installed and then crashed" reports are
+# made, because pip resolves a low floor happily and the failure lands on a
+# user. cellpose is the worked example: `>=4.0` resolved to 4.0.1 in CI,
+# whose `CellposeModel` signature spaCR has never been developed against, so
+# the floor moved to 4.0.7 rather than the contract test being loosened.
+#
+# Every constraint pin equals its declared floor exactly, unless the minimum
+# profile cannot install that combination -- coupled packages such as torch,
+# torchvision and sympy are the case that arises -- and then the constraints
+# file names the package and says why. A pin quietly sitting above its floor
+# leaves the floor the one bound in this file that nothing tests.
+#
+# An upper bound is a MAJOR VERSION spaCR HAS NOT SEEN. It exists so a
 # breaking release cannot arrive silently between a user's `pip install` and
-# their first run, and it is meant to be raised deliberately after testing --
-# not left to rot. Where a package has no upper bound here that is a
-# considered choice, not an oversight: tifffile, lxml, fastremap, tqdm and
-# protobuf have not broken us across a major.
+# their first run, and it is meant to be raised deliberately after testing.
+# A cap left to rot denies users exactly the newest version this policy is
+# about. Where a package has no upper bound that is a considered choice, not
+# an oversight: tifffile, lxml, fastremap, tqdm and protobuf have not broken
+# spaCR across a major.
 #
-# So a normal `pip install spacr` resolves to the NEWEST version in each
-# range, and that is what "optimal" means for a user. It deliberately does
-# NOT mean a lockfile. The reason is measured rather than assumed: on Python
-# 3.9 the newest resolvable IPython is 8.18.1 while on 3.11+ it is 9.16.1,
-# and matplotlib is 3.9.4 versus 3.11.1. Across the six interpreters spaCR
-# supports there is no single newest-that-works set, so any file claiming one
-# would be wrong on 3.9 the day it was written.
+# "Newest" deliberately does NOT mean a lockfile. Measured rather than
+# assumed: on Python 3.9 the newest resolvable IPython is 8.18.1 while on
+# 3.11+ it is 9.16.1, and matplotlib is 3.9.4 versus 3.11.1. Across the six
+# interpreters spaCR supports there is no single newest-that-works set, so
+# any file claiming one would be wrong on 3.9 the day it was written.
+#
+# tests/test_optimal_dependency_versions.py holds this shape: both ends
+# blocking, the floor end constrained, the newest end unconstrained, and no
+# unexplained pin above a floor.
 # ---------------------------------------------------------------------------
 dependencies = [
     # -----------------------------------------------------------------------
@@ -528,6 +552,10 @@ dependencies = [
     # torch.cuda imports to print a FutureWarning at startup. Function-local
     # imports remain guarded and fall back to torch when NVML is unavailable.
     # Pure Python, no wheel constraints; major 14 is not yet qualified.
+    # This distribution numbers its releases after the NVIDIA driver, so
+    # `11.5` is a boundary rather than a release: the first version that
+    # satisfies it is 11.450.51, which is what the minimum profile pins and
+    # what that file records as the reason for the gap.
     'nvidia-ml-py>=11.5,<14',
     # `gpustat` REMOVED: zero imports. GPU state is read through GPUtil,
     # nvidia-ml-py (imported as pynvml) and torch.cuda, all declared above.
@@ -723,7 +751,10 @@ setup(
             # CI isolates long suites by test file.  This is also the
             # accepted way to keep the Qt suite's process-global state from
             # accumulating over thousands of tests.
-            'pytest-xdist>=3.6,<4',
+            # Floor at the release the minimum-dependencies job installs,
+            # so the oldest xdist spaCR claims is one the Qt sharding has
+            # actually run under.
+            'pytest-xdist>=3.6.1,<4',
             'tomli>=2.0; python_version < "3.11"',
             # tests/test_key_parsing_properties.py states the plate / row /
             # column / field / object key contract as properties rather than
@@ -740,7 +771,9 @@ setup(
             # The canonical tabular-I/O contract includes Parquet and
             # Feather round trips. pandas deliberately leaves both engines
             # optional; pyarrow is the one the test profile supplies.
-            'pyarrow>=14,<26',
+            # Floored at the release the minimum-dependencies job installs
+            # rather than at the start of the 14 line, which nothing runs.
+            'pyarrow>=14.0.2,<26',
             # Quality-gate tooling. These are kept out of core dependencies:
             # users running microscopy pipelines do not need static-analysis
             # packages, while contributors get the same versions CI runs.

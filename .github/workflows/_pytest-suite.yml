@@ -139,16 +139,28 @@ jobs:
           print("NAS tests probe their declared paths with bounded checks.")
           PY
 
+      # A SUITE THAT HANGS MUST SAY WHERE. A job killed by its own
+      # timeout_minutes prints no summary at all -- no last test, no stack,
+      # nothing to act on -- so a single wedged test reads exactly like a lost
+      # runner and costs the whole job budget to learn nothing. pytest's
+      # faulthandler timeout dumps every thread's traceback once a single test
+      # has run longer than the threshold and then lets it carry on, so a hang
+      # names itself in the log while a merely slow test stays green. The
+      # threshold is generous against the slowest legitimate test here and far
+      # below every job timeout, which is what makes the dump arrive before
+      # the runner is taken away.
       - name: Run ${{ inputs.suite_name }} tests
         env:
           SPACR_PYTEST_FILE_SHARD_INDEX: ${{ inputs.file_shard_index }}
           SPACR_PYTEST_FILE_SHARD_COUNT: ${{ inputs.file_shard_count }}
+          PYTHONFAULTHANDLER: "1"
         run: |
           xdist_args=()
           if [ "${{ inputs.xdist_workers }}" -gt 0 ]; then
             xdist_args=(-n "${{ inputs.xdist_workers }}" --dist loadfile)
           fi
           python -m pytest tests/ \
+            -o faulthandler_timeout=900 \
             -m '${{ inputs.marker_expression }}' \
             --ignore=tests/test_perf_guard.py \
             --ignore=tests/qt/test_gui_responsiveness.py \
@@ -166,6 +178,7 @@ jobs:
             # file runs exactly once on the designated shard.
             SPACR_PYTEST_FILE_SHARD_INDEX=0 \
             SPACR_PYTEST_FILE_SHARD_COUNT=1 python -m pytest \
+              -o faulthandler_timeout=900 \
               tests/test_perf_guard.py \
               tests/qt/test_gui_responsiveness.py \
               tests/qt/test_home_stage_and_dock.py \
