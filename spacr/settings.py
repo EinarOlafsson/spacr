@@ -5034,7 +5034,15 @@ categories = {
         # chose which table it drew has nothing left to choose. Leaving the
         # name in a category made the panel offer a control with no
         # expected_types entry and no default.
-        "threshold_multiplier", "Toxoplasma", "annotation_source",
+        # `Toxoplasma` LEFT THE PANEL. `annotation_source` says everything
+        # it said and more -- an organism name, a taxon id or an accession
+        # instead of one hard-coded parasite -- and two controls for one
+        # fact is two controls that can disagree. The key is still READ:
+        # every settings file in existence carries it, and it is what
+        # `annotation_source` defaults from when a file predates the
+        # field. It is no longer OFFERED, which is the difference between
+        # migrating a setting and breaking one.
+        "threshold_multiplier", "annotation_source",
         # WHAT THE RUN MEANS BY SIGNIFICANT, which the plot could previously
         # contradict from its right-click menu (instruction 135), and the two
         # knobs of the RRA hit caller.

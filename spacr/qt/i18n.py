@@ -2439,6 +2439,122 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "측정 데이터베이스 불러오기",
         "Hlaða mælingagagnagrunnunum",
         "Charger les bases de données de mesures"),
+    # THE HEADINGS OF THE ADVANCED-SETTINGS TREE. Every one of them is a
+    # phrase the word-by-word fallback half-translates -- "Objekt Filtration
+    # (all Objekt)", "Bild Preprocessing (per Objekt)", "Avancerat
+    # settings" -- so each needs an exact row, the same way "Intensity
+    # Handling (all objects)" already has one in the external catalog. They
+    # are looked up in the case written here and uppercased on the way to
+    # the header, so a row spelled in capitals would never be found.
+    "Advanced settings": _row(
+        "Avancerade inställningar", "Erweiterte Einstellungen",
+        "Configuración avanzada", "高级设置", "Configurações avançadas",
+        "उन्नत सेटिंग्स", "고급 설정", "Ítarlegar stillingar",
+        "Paramètres avancés"),
+    "Image Preprocessing (per object)": _row(
+        "Bildförbehandling (per objekt)", "Bildvorverarbeitung (pro Objekt)",
+        "Preprocesamiento de imagen (por objeto)", "图像预处理（每个对象）",
+        "Pré-processamento de imagem (por objeto)",
+        "छवि पूर्व-प्रसंस्करण (प्रति ऑब्जेक्ट)", "이미지 전처리 (객체별)",
+        "Forvinnsla myndar (á hvern hlut)",
+        "Prétraitement de l’image (par objet)"),
+    "Object Filtration (all objects)": _row(
+        "Objektfiltrering (alla objekt)", "Objektfilterung (alle Objekte)",
+        "Filtrado de objetos (todos los objetos)", "对象筛选（所有对象）",
+        "Filtragem de objetos (todos os objetos)",
+        "ऑब्जेक्ट फ़िल्टरिंग (सभी ऑब्जेक्ट)", "객체 필터링 (모든 객체)",
+        "Hlutasíun (allir hlutir)", "Filtrage des objets (tous les objets)"),
+    "Organelle Segmentation (advanced)": _row(
+        "Organellsegmentering (avancerat)",
+        "Organellen-Segmentierung (erweitert)",
+        "Segmentación de orgánulos (avanzada)", "细胞器分割（高级）",
+        "Segmentação de organelas (avançada)",
+        "कोशिकांग विभाजन (उन्नत)", "소기관 분할 (고급)",
+        "Hlutun frumulíffæra (ítarlegt)",
+        "Segmentation des organites (avancée)"),
+    # The per-object sub-headings of that tree. Cell, Nucleus and Pathogen
+    # already resolve exactly; the four organelle slots did not, and a
+    # heading composed by the word-by-word fallback is one word away from
+    # reading half English the day a term row changes.
+    "Organelle 1": _row(
+        "Organell 1", "Organelle 1", "Orgánulo 1", "细胞器 1", "Organela 1", "कोशिकांग 1", "소기관 1", "Frumulíffæri 1", "Organite 1"),
+    "Organelle 2": _row(
+        "Organell 2", "Organelle 2", "Orgánulo 2", "细胞器 2", "Organela 2", "कोशिकांग 2", "소기관 2", "Frumulíffæri 2", "Organite 2"),
+    "Organelle 3": _row(
+        "Organell 3", "Organelle 3", "Orgánulo 3", "细胞器 3", "Organela 3", "कोशिकांग 3", "소기관 3", "Frumulíffæri 3", "Organite 3"),
+    "Organelle 4": _row(
+        "Organell 4", "Organelle 4", "Orgánulo 4", "细胞器 4", "Organela 4", "कोशिकांग 4", "소기관 4", "Frumulíffæri 4", "Organite 4"),
+    # Captions a HANDLER writes, and the templates it writes them from.
+    # A sentence composed first and translated afterwards matches nothing --
+    # the finished line carries a count, a module name or a stage name that
+    # no catalog can hold -- so the sentence is a row with a placeholder and
+    # the value is substituted after the lookup.
+    "Copied {count} lines": _row(
+        "Kopierade {count} rader", "{count} Zeilen kopiert",
+        "Se copiaron {count} líneas", "已复制 {count} 行",
+        "{count} linhas copiadas", "{count} पंक्तियाँ कॉपी की गईं",
+        "{count}줄을 복사했습니다", "Afritaði {count} línur",
+        "{count} lignes copiées"),
+    "Fetching {count} file(s)…": _row(
+        "Hämtar {count} fil(er)…", "{count} Datei(en) werden geladen…",
+        "Descargando {count} archivo(s)…", "正在获取 {count} 个文件…",
+        "Baixando {count} arquivo(s)…", "{count} फ़ाइल(ें) प्राप्त की जा रही हैं…",
+        "{count}개 파일을 가져오는 중…", "Sæki {count} skrá/skrár…",
+        "Téléchargement de {count} fichier(s)…"),
+    "Alpha and Beta": _row(
+        "Alfa och Beta", "Alpha und Beta", "Alfa y Beta", "内测和公测",
+        "Alfa e Beta", "अल्फा और बीटा", "알파 및 베타", "Alfa og Beta",
+        "Alpha et Bêta"),
+    "{stages} settings are hidden by Preferences. Enable them in "
+    "Preferences → Feature maturity.": _row(
+        "{stages}-inställningar döljs av Inställningar. Aktivera dem under "
+        "Inställningar → Funktionsmognad.",
+        "{stages}-Einstellungen werden von den Einstellungen ausgeblendet. "
+        "Aktivieren Sie sie unter Einstellungen → Funktionsreife.",
+        "Las preferencias ocultan los ajustes {stages}. Actívelos en "
+        "Preferencias → Madurez de las funciones.",
+        "{stages} 设置已被首选项隐藏。请在“首选项 → 功能成熟度”中启用。",
+        "As preferências ocultam as configurações {stages}. Ative-as em "
+        "Preferências → Maturidade dos recursos.",
+        "{stages} सेटिंग्स प्राथमिकताओं द्वारा छिपाई गई हैं। उन्हें "
+        "प्राथमिकताएँ → फ़ीचर परिपक्वता में सक्षम करें।",
+        "{stages} 설정이 환경설정에 의해 숨겨져 있습니다. "
+        "환경설정 → 기능 성숙도에서 사용하도록 설정하세요.",
+        "{stages}-stillingar eru faldar af Stillingum. Kveiktu á þeim í "
+        "Stillingar → Þroski eiginleika.",
+        "Les préférences masquent les réglages {stages}. Activez-les dans "
+        "Préférences → Maturité des fonctionnalités."),
+    "The '{app}' app is interactive-only in this Qt build. Use the classic "
+    "Tk GUI (`spacr`) for now.": _row(
+        "Modulen ”{app}” är enbart interaktiv i det här Qt-bygget. Använd "
+        "det klassiska Tk-gränssnittet (`spacr`) tills vidare.",
+        "Das Modul „{app}“ ist in diesem Qt-Build nur interaktiv. Verwenden "
+        "Sie vorerst die klassische Tk-Oberfläche (`spacr`).",
+        "El módulo «{app}» solo es interactivo en esta compilación de Qt. "
+        "Utilice por ahora la interfaz clásica de Tk (`spacr`).",
+        "在此 Qt 版本中，“{app}”模块仅支持交互操作。请暂时使用经典的 Tk 界面（`spacr`）。",
+        "O módulo “{app}” é apenas interativo nesta compilação Qt. Use por "
+        "enquanto a interface clássica Tk (`spacr`).",
+        "इस Qt बिल्ड में ‘{app}’ मॉड्यूल केवल इंटरैक्टिव है। फ़िलहाल क्लासिक "
+        "Tk इंटरफ़ेस (`spacr`) का उपयोग करें।",
+        "이 Qt 빌드에서 '{app}' 모듈은 대화형으로만 동작합니다. 당분간 기존 "
+        "Tk 인터페이스(`spacr`)를 사용하세요.",
+        "Einingin „{app}“ er aðeins gagnvirk í þessari Qt-útgáfu. Notaðu "
+        "klassíska Tk-viðmótið (`spacr`) í bili.",
+        "Le module « {app} » est uniquement interactif dans cette version "
+        "Qt. Utilisez pour l’instant l’interface Tk classique (`spacr`)."),
+    "All files": _row(
+        "Alla filer", "Alle Dateien", "Todos los archivos", "所有文件",
+        "Todos os arquivos", "सभी फ़ाइलें", "모든 파일", "Allar skrár",
+        "Tous les fichiers"),
+    # AN EXACT ROW IS WHAT BEATS THE WORD-BY-WORD FALLBACK. Without one,
+    # `_term_translation` finds "image" in the middle of this caption and
+    # leaves "Choose Bild…" on the live preview's button -- half English,
+    # half German, and the same shape in every other language.
+    "Choose image…": _row(
+        "Välj bild…", "Bild auswählen…", "Elegir imagen…", "选择图像…",
+        "Escolher imagem…", "छवि चुनें…", "이미지 선택…", "Velja mynd…",
+        "Choisir une image…"),
     "No source selected — click Open source…": _row(
         "Ingen källa vald — klicka på Öppna källa…",
         "Keine Quelle ausgewählt — klicken Sie auf Quelle öffnen…",
@@ -2734,9 +2850,28 @@ def _term_translation(source: str, language: str) -> Optional[str]:
     lookup = {key.casefold(): value for key, value in terms.items()}
     changed = False
 
+    def _inside_an_identifier(text: str, start: int, end: int) -> bool:
+        """Whether the word at ``start:end`` is part of a code name.
+
+        A word touching ``_`` or a digit is a piece of an identifier --
+        ``cell_area``, ``channel_1``, ``image_path`` -- and not a word of
+        prose. Translating it rewrites a column name, a settings key or an
+        SQL example into something that no longer names anything: the
+        database browser's own example predicate,
+        ``cell_area > 1000``, was shown to a Swedish user as
+        ``Cell_area > 1000``, and the search hint offered ``'Kanal_1'`` for
+        a column called ``channel_1``.
+        """
+        before = text[start - 1] if start else ""
+        after = text[end] if end < len(text) else ""
+        return any(char == "_" or char.isdigit()
+                   for char in (before, after) if char)
+
     def replace(match: re.Match[str]) -> str:
         nonlocal changed
         word = match.group(0)
+        if _inside_an_identifier(source, match.start(), match.end()):
+            return word
         translated = lookup.get(word.casefold())
         if translated is None:
             return word
@@ -2897,16 +3032,44 @@ def _refresh_module_help(obj, language: str) -> None:
         obj.setStatusTip(summary)
 
 
+def _follow_qt_own_catalogs(code: str) -> None:
+    """Load Qt's own catalog for ``code`` when it is not the one loaded.
+
+    ``&Copy``, ``Select All`` and ``Close Tab`` are Qt's strings rather than
+    spaCR's, and they come from ``qtbase_<lang>.qm`` rather than from any
+    catalog here. That file is loaded once at startup, so choosing a
+    different language while the application is running left every Qt menu,
+    file dialog and message box in the language the application STARTED in.
+    The language pass carries it now: one load per change, and none at all
+    when the language has not moved.
+    """
+    try:
+        from PySide6.QtWidgets import QApplication
+    except Exception:                                        # noqa: BLE001
+        return
+    app = QApplication.instance()
+    if app is None:
+        return
+    if getattr(app, "_spacr_qt_translator_code", None) == code:
+        return
+    install_qt_translations(app, code)
+
+
 def retranslate_widget_tree(root, language: Optional[str] = None) -> None:
     """Retranslate static text in ``root`` and all existing descendants.
 
     The function is intentionally best-effort and idempotent. It never edits
     line-edit contents, text editors, table cells, model data, filenames or
     console output.
+
+    Qt's OWN text follows too -- see :func:`_follow_qt_own_catalogs` -- so a
+    language chosen after launch reaches the right-click menu of every text
+    field, not only the captions spaCR wrote.
     """
     if root is None:
         return
     code = normalize_language(language or current_language())
+    _follow_qt_own_catalogs(code)
     try:
         from PySide6.QtGui import QAction
         from PySide6.QtWidgets import (
@@ -3119,6 +3282,10 @@ def install_qt_translations(app, language: Optional[str] = None) -> bool:
         except Exception:                                    # noqa: BLE001
             pass
         app._spacr_qt_translator = None
+    # WHICH LANGUAGE IS LOADED, recorded whether or not one could be. Qt
+    # ships no catalog for Hindi or Icelandic, and without this the
+    # language pass would try to load one again on every dialog it sees.
+    app._spacr_qt_translator_code = code
 
     catalog = QT_CATALOGS.get(code)
     if catalog is None:

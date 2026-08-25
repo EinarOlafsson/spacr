@@ -2,8 +2,9 @@
 ONE "ORGANELLE TYPE" CHOICE SHOULD DRIVE THE REST OF THE ORGANELLE SETTINGS
 ================================================================================
 
-Status:    done. All six items, including the measure side, which
-           needed instruction 76's per-slot types and now has them.
+Status:    done. All six items, including the measure side, which needed
+           instruction 76's per-slot types and now has them, and including
+           the run journal that item 6 left open.
 Requested: 2026-08-10 — "add to instructions to work do a sweep of organelle in measure and mask. the point of this settings class and object class is to generate measurements and capture organelle objects. this is the most diverse set of objects. Best would be if there were the options organelle type with the following categories: Vesicular (vacuoles, autophagosomes, transport vesicles, secretory vesicles, early endosomes, lysosomes), Filamentous (microtubules, F-actin filaments, intermediate filaments), Punctate (peroxisomes, lipid droplets, ribosomes, PML nuclear bodies, vaults), Tubular (smooth endoplasmic reticulum, healthy mitochondrial networks, sorting endosomes, trans-Golgi network), Cisternal (rough endoplasmic reticulum sheets, Golgi stacks, nuclear envelope), Reticular (endoplasmic reticulum meshwork, interconnected mitochondrial reticula), Spherical (nucleus, nucleolus, chloroplasts, swollen mitochondria, macromolecular condensates), Toroidal (condensing/stressed mitochondria, midbodies, nuclear pore complexes), Crescent (phagophores/early autophagosomes, specialized yeast nucleoli) and then set up settings and detection modals for each type with the others not visible or grayed out that do not apply to the chosen organelle. as it is now there are too many options for organelle and to many settings for organelle in mask, so if organelle type is Vesicular then organelle morphology will always be spots (for example make sure this is true dont just take my word for it) and not network. so essentially i want to bundle a bunch of current (and potentially new settings into the categories specified above to make it easier for the user. all settings should still be modifiable by the user but they should be in an organelle advanced settings category, and only the minimum relevant settings in the organelle category."
 
 --------------------------------------------------------------------------------
@@ -266,10 +267,27 @@ no claim, so a settings file written before this still means exactly what it
 meant. It sits beside the mask dimensions in the Measure panel, because the
 two answer one question: which plane, and what is on it.
 
-STILL OPEN: `spacr/measure.py` writes the numbers without consulting the
-caveat. Calling `spacr.settings.organelle_measurement_caveats(settings)` at
-the point the organelle tables are written would let the run journal carry
-the same sentence the console does.
+AND THE RUN JOURNAL CARRIES IT NOW, NOT ONLY THE CONSOLE.
+`explain_organelle_measurements` printed the sentence and stopped there, so a
+measurements.db opened a week later held the count-dependent columns with
+nothing beside them saying what they mean for a one-object-per-cell
+organelle -- and a batch is only ever read back, never watched.
+
+`measure._record_organelle_caveats(settings, run)` is called inside
+`measure_crop`, beside the `RunLedger` the tables about to be written are
+accounted on. It asks
+`spacr.settings.organelle_measurement_caveats(settings)` and puts each caveat
+on `run.log`, so it is stamped with the same run id as the database and comes
+back from `spacr.runctx.read_run_log(run_id)` beside it. Once per source
+folder, in the parent -- not per field in a worker, which would repeat one
+sentence a thousand times in processes whose records are not joined to the
+run.
+
+NOTHING IS SWITCHED OFF, which is this instruction's own rule: the doubtful
+family is still measured and still written, and it is still silent when there
+is nothing to say. What changed is that the sentence outlives the terminal.
+
+STATUS: DONE, item 6 included.
 
 --------------------------------------------------------------------------------
 ITEM 5 FOLDED INTO 73

@@ -144,3 +144,44 @@ it names the object's identifier column, which is what spaCR derives from
 `object_array`, and demanding a row and a column refused the value spaCR had
 written itself. Both training modes now validate from the panel's own
 defaults, which is a test.
+
+--------------------------------------------------------------------------------
+AND THE LAST PLACE THE OLD WORDS SURVIVED: THE TOOLTIP
+--------------------------------------------------------------------------------
+
+`crop_source.py` resolved the training vocabulary onto the two names and the
+tooltip in `spacr/settings.py` went on TEACHING it -- "Training uses
+'pre_generated' for existing crops, 'on_demand' to cut during training". That
+is the failure this file names in its own words: a mapping in one settings
+tooltip sets two vocabularies side by side, it does not migrate one onto the
+other. A user reading the annotation panel and the training panel still met
+two different sets of words for one question, in the one place they would go
+to find out what the setting means.
+
+IT NOW READS IN THE TWO NAMES AND NOTHING ELSE. LOAD IMAGES ('png') reads the
+crops already exported to `data/`; STREAM IMAGES ('merged') cuts them out of
+`merged/*.npy` as the run goes; either falls back to the other and says which
+route drew. 'generate' is named as an ACTION rather than a third source,
+exactly as rule D says. Training's own spelling is named as what it is --
+`image_source` writes 'load_images' / 'stream_images', and both resolve here
+-- so a reader meets one vocabulary and a pointer to where the aliases live.
+
+THE RETIRED SPELLINGS ARE RETIRED FROM THE WORDING, NOT FROM THE READERS.
+'pre_generated' and 'on_demand' are still in `crop_source.CROP_SOURCE_ALIASES`
+and `settings._IMAGE_SOURCES`, which is where a grep lands and where the
+migration is written down; every settings CSV in existence still loads.
+
+AND THE STALE COMMENT BESIDE IT IS GONE. A note above the entry said
+"crop_source.CROP_SOURCES is ('pre_generated', 'on_demand', 'generate')",
+which stopped being true when this instruction shipped -- CROP_SOURCES is
+('png', 'merged', 'generate'). A comment that documents the old vocabulary as
+the current one is a fourth spelling with a footnote. What it was actually
+recording -- that a DUPLICATE 'crop_source' key in the same dict was silently
+shadowed, so which tooltip showed depended on the order of the literal -- is
+kept, because that is a fact about the file that is still worth knowing.
+
+Tests: `tests/test_load_images_and_stream_images.py`. The test that required
+'pre_generated' IN the tooltip is replaced by its reverse, with the reason in
+its docstring, and the replacement is stricter: it also asserts both retired
+spellings are still ACCEPTED by both alias tables, so retiring the wording
+cannot quietly retire the reader.

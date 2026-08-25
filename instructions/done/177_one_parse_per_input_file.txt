@@ -2,9 +2,10 @@
 ONE PARSE PER INPUT FILE, NOT ONE PER PAIR ROW
 ================================================================================
 
-Status:    closed. Diagnosed on the live process; the parse, the
-           intermediate and the silence are all dealt with, except the
-           panel call site named under WHAT REMAINS.
+Status:    closed on the reader, the intermediate and the silence, all
+           diagnosed on the live process. The one producer left is the
+           Measurements panel's write_merged_frame, with the exact edit
+           written out under WHAT REMAINS.
 Reported:  2026-08-19 -- "i merged the measurements and ran pathogen_area as a
            regression but it looks like it is not running while it does say
            that it is running ... do you see anything running?"
@@ -47,10 +48,39 @@ twentieth of the size:
     parquet   write  0.63 s   read 0.11 s   106.9 MB
     handoff   write     0 s   read    0 s   nothing written twice
 
-WHAT REMAINS: the Measurements panel's `write_merged_frame` still writes CSV
-and does not offer the frame. It is a three-line call site -- stage the frame
-instead of writing it, and release it when the queue ends -- and until it is
-made the mechanism sits unused by that path.
+WHAT REMAINS, AND IT IS STILL THE SAME CALL SITE. The reader half is
+complete and audited: `ml.load_regression_input_pairs` parses each distinct
+path once, asks `frame_handoff.held(path)` first, prints what it was handed
+and what it had to read, and falls back to `tabular.read_table` -- which
+reads Parquet -- when nothing was offered. Nothing on that side is missing.
+
+`spacr/qt/widgets/measurement_scan_panel.py::write_merged_frame` (line 855)
+still does `frame.to_csv(path, index=False)` and offers nothing, so the
+Measurements queue is the one producer the mechanism never sees. The edit:
+
+    def write_merged_frame(frame, folder, name=MERGED_FRAME_NAME):
+        if frame is None or not len(frame) or not folder:
+            return ""
+        from ...frame_handoff import stage
+        return stage(frame, folder, os.path.splitext(str(name))[0])
+
+`stage` creates the folder, offers the frame under the path BEFORE the write
+returns, writes Parquet when an engine is installed and CSV when one is not,
+and reports what it wrote. `MERGED_FRAME_NAME` stays 'merged_measurements.csv'
+and the stem is taken off it, so the artefact becomes
+`merged_measurements.parquet` where pyarrow is present -- which is what
+`merged_frame_path()` returns and what `column_run_settings` points every pair
+row at, and `tabular.read_table` dispatches on the suffix.
+
+AND THE RELEASE, so the fallback is deterministic rather than dependent on
+when the frame is collected: in `ColumnQueuePanel._finish_queue` (line 2555),
+after `self.queue_finished.emit(fitted, failed)`,
+
+    from ...frame_handoff import release
+    release(self._queue_score)
+
+The references are weak, so this is a statement of intent rather than a leak
+fix -- but a producer that knows it has finished should say so.
 
 AND NOW IT SAYS SO WHILE IT HAPPENS. Between the merge finishing and the fit
 starting the run printed nothing for minutes, which is why a working run

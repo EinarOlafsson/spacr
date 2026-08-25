@@ -2,9 +2,11 @@
 THE GUI PASS: NAVIGATION, WINDOW CHROME, AND THE LANGUAGE
 ================================================================================
 
-Status:    OPEN on item 1 only, and now only on its call-site half: the
-           catalog half is carried. Items 2 to 7 are done; 7 needed a root
-           command the maintainer has since run.
+Status:    OPEN on item 1 only, and now only on what another owner has to
+           do: five value-carrying combo entries in
+           `spacr/qt/widgets/live_preview.py` and one catalog rebuild. The
+           call-site half in the shell is done. Items 2 to 7 are done; 7
+           needed a root command the maintainer has since run.
 Owner:     spacr/qt -- app registry, dock, window chrome, i18n.
 
 --------------------------------------------------------------------------------
@@ -33,15 +35,105 @@ exact row is what beats the word-by-word term fallback, which is what had
 been producing "Intensity Handling (all Objekt)" and "Platta Sources &
 Arbetsflode".
 
-WHAT IS LEFT. 23 captions that never reach tr() at all, 14 composed before
-lookup, and 5 re-set by a handler after the language pass; every one of
-them is a call-site change rather than a catalog row. Three more, filed
-here because they fit no other heading: Qt's OWN menu text (&Copy, Select
-All) needs qtbase_<lang>.qm loaded into a QTranslator; AIChatPanel is
-unreachable from the running application; and "Cellpose Workbench" is
-registered in `spacr.qt.app.APPS` without a row in `_ROWS`, which is the
-one place a registry phrase has to appear -- the catalogs translate it,
-but `tests/qt/test_i18n.py` walks `_ROWS` and fails on it.
+THE CALL-SITE HALF IS DONE. Counted by DRIVING THE APPLICATION rather than
+by grepping: the whole registry is opened in English and again in Swedish,
+every settings category expanded, every declared preview toggled on, the
+menus walked and Preferences shown, and a caption is called still-English
+when the two runs render it identically AND a catalog can translate it.
+
+    still-English captions   BEFORE   AFTER
+    distinct                     94       5
+    occurrences                 112      16
+
+THE ONE CAUSE BEHIND 89 OF THE 94 was not a missing `tr()` anywhere. A
+screen is translated ONCE, by `MainWindow` when it builds it, and
+`spacr.qt.preview_registry` installs a module's declared preview the first
+time that module is opened -- which is after the pass. The whole Plaque
+analysis preview and the toggle beside the search box therefore arrived in
+English and were never asked again. `AppScreen._watch_for_late_captions`
+watches the two hosts a late panel lands in (`_runtime_wrap` and
+`_body_splitter`) for `ChildAdded` and runs the pass over the new subtree,
+deferred one turn of the event loop because a widget can be parented before
+its own children exist.
+
+THE FIVE THAT REMAIN are one call-site change in a file this pass does not
+own. `auto`, `Overlay`, `Masks`, `Flows` and `All channels` are combo
+entries in `spacr/qt/widgets/live_preview.py` carrying
+`i18nSkipItems`, and the property is correct: `_outline_rgb` and
+`_refresh_canvases` read those entries back BY TEXT, so translating them
+would silently return the per-compartment default colour and the wrong
+canvas. Fixing them means putting the value in `itemData` and reading
+`currentData()`, then dropping the flag -- live_preview's change, not this
+one's.
+
+RE-SET BY A HANDLER, all fixed in `spacr/qt/screens/app_screen.py`. A
+caption a handler writes after the pass is English for the session, and
+worse: `retranslate_widget_tree` reads a caption it did not render as data
+and opts that widget out of every later pass. Pressing Copy console on a
+Swedish screen left the button reading "Copy console" for good. The same
+shape had turned both hint strips English on the first hover -- they write
+their fallback prompt back on every Leave -- and left the maturity notice,
+the example-screen button and four dialog titles in English.
+
+COMPOSED BEFORE LOOKUP, fixed by giving the catalog the sentence and
+substituting after: `Copied {count} lines`, `Fetching {count} file(s)…`,
+`{stages} settings are hidden by Preferences…` (whose stage names are
+looked up separately and joined), and the "interactive-only" dialog that
+names the module.
+
+THE _ROWS vs _TERM_ROWS TRAP, twice, and the second was the worse one:
+
+  * `Choose image…` had no exact row, so the word-by-word fallback found
+    "image" and rendered `Choose Bild…` -- half of two languages. An exact
+    row in `_ROWS` is what beats it, in all nine languages.
+
+  * the same fallback was rewriting CODE NAMES. A word touching `_` or a
+    digit is part of an identifier, not a word of prose, and translating it
+    gave the database browser's own example predicate as
+    `Cell_area > 1000`, the column hint as `'Kanal_1'`, and combo entries
+    reading `focal_Förlust`, `get_Modell`, `positive_Kontroll` and
+    `min_Cell_count`. `_term_translation` leaves a word inside an
+    identifier alone now. Measured on the running application: 48 mangled
+    captions came back to their real names, among them the plate-map
+    tooltips (`positive_Kontroll`), the loss dropdown (`focal_Förlust`),
+    the model-zoo API list (`get_Modell_weights`) and the well pattern
+    example (`Platta1, Platta2, …`).
+
+    The generated catalogs had done it too, to six bare identifiers --
+    `image_path` was stored as `image_path.` in four languages,
+    `png_list E-mail` in Portuguese, `RdBu_r( 빈 공간)` in Korean. 47 rows
+    corrected, and `i18n_catalogs.ui_text` now answers an identifier with
+    itself so a rebuild cannot reintroduce them.
+
+QT'S OWN MENU TEXT follows the language now. `install_qt_translations` and
+`QT_CATALOGS` already existed but were called once, from `run()`, so
+choosing a language after launch left `&Copy`, `Select All` and `Close Tab`
+in the language the application STARTED in. `retranslate_widget_tree` loads
+the matching `qtbase_<lang>.qm` when the code moves, and removes the
+previous translator rather than leaving it underneath -- verified for sv
+and de, and verified to fall back to English for `is`, which Qt does not
+ship, rather than keeping the last language that worked. On the running
+application the effect is visible on the regression figure tabs, whose
+close button went from "Close Tab" to "Stäng flik".
+
+STILL OPEN, and neither is a call site:
+
+  a. the five `i18nSkipItems` combo entries above, in live_preview.py;
+  b. THE CATALOG REBUILD. The nine external catalogs are stale against the
+     current source: 29 UI strings, six settings-category blurbs (the
+     Advanced-settings tree, whose headings the panel now draws) and one
+     setting, `calibrate_fraction_threshold`, have no row in any of them.
+     Three tests in `tests/qt/test_external_i18n_catalogs.py` fail on that
+     backlog and were already failing before this pass. It needs
+     `tools/build_i18n_catalogs.py`, which needs the translation models,
+     so it is not something a call-site pass can hand-write.
+
+CHECKED AND NOT DEFECTS: "Cellpose Workbench" is in `_ROWS` and every
+registry name and section name resolves, so `tests/qt/test_i18n.py` is
+green on that walk. AIChatPanel is still unreachable from the running
+application -- nothing navigates to it -- so its captions cannot be swept
+by driving the app; it is a registration question rather than a
+translation one.
 
 
 "when the user picks a language that is not english all of the text in and

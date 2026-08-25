@@ -2,7 +2,8 @@
 THE NONPARAMETRIC REGRESSIONS ARE OFFERED
 ================================================================================
 
-Status:    closed, except the two combo call sites named at the end.
+Status:    closed, except the Qt panel's own combo branch, named at
+           the end.
 Requested: 2026-08-21 -- "there are nonparametric versions of regression these
            should be included!"
 Owner:     Regression
@@ -203,10 +204,41 @@ order of the wells, is rank-based. AND A FAMILY WITH NO p-VALUE SAYS SO,
 taken from `NO_P_VALUE_TYPES` rather than a second list that could disagree
 with it.
 
-WHAT REMAINS: the two panels that build the combo still list the bare names.
-`settings_spec._regression_type_choices` and the Qt panel's
-`regression_type` branch each need one line -- return
-`regression_family_choices()` instead of the flat list -- and both front ends
-already render (value, label) pairs.
+`settings_spec._regression_type_choices` NOW RETURNS THE GROUPED PAIRS. It
+built its own flat alphabetical list out of `REGRESSION_TYPES`; it asks
+`regression_family_choices()` instead, so the panel that reads it shows
+"quantile -- robust/semiparametric: a quantile of the response rather than
+its mean, which assumes nothing about the shape of the errors" where it used
+to show "quantile".
 
-Tests: `tests/test_the_regression_menu_says_what_it_assumes.py`, 12 passing.
+NOTHING IS RENAMED, and that is a test rather than an intention: the stored
+value leads its own label, so a user looking for 'quantile' still finds the
+word and every settings CSV asks for the fit it always asked for.
+
+WHAT REMAINS: the Qt panel builds its own list and does not go through
+`settings_spec`. In `spacr/qt/screens/settings_model.py`, the
+`if key == "regression_type":` branch of `SettingsWidgets._widget_for`
+(around line 7641) reads
+
+    from spacr.ml import REGRESSION_TYPES
+    kind = "combo"
+    options = ["auto", *REGRESSION_TYPES]
+
+and needs
+
+    from spacr.ml import regression_family_choices
+    kind = "combo"
+    options = [("auto", "auto -- chosen from the response by "
+                        "check_distribution"),
+               *regression_family_choices()]
+
+The combo builder twenty lines below already renders a `(value, label)` pair
+by showing the label and storing the value, and it takes bare strings in the
+same list, so 'auto' keeps its own spelling. The comment above those lines
+explaining what 'auto' is stays exactly as it is.
+
+Tests: `tests/test_the_regression_menu_says_what_it_assumes.py`, 12 passing,
+and four in `tests/test_analysis_mode_is_a_dropdown.py` that read the choices
+off `convert_settings_dict_for_gui` -- every family states its kind and its
+assumption, nothing merely robust is labelled nonparametric, the groups do
+not interleave, and mixed still leads.

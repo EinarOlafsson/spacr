@@ -2,8 +2,8 @@
 AN "ADVANCED SETTINGS" CATEGORY, ORGANISED BY WHAT A SETTING DOES
 ================================================================================
 
-Status:    done. Three levels exist and are rendered from the model;
-           one open dependency is named at the end.
+Status:    done. Three levels exist, are rendered from the model AND are
+           drawn by the screen; one open dependency is named at the end.
 Requested: 2026-08-10 — "and actually when i think about it i would like to move several settings from the other object settings categories to a new 'advanced settings' category, move settings like remove background, intensity merge split, min distance, etc. but have all the similar settings here organized into sub and sub-sub sections with sub section headers like object filtration, image preprocessing with sub-sub sections for each object (cell, nuclei, pathogen, organelle)."
 
 --------------------------------------------------------------------------------
@@ -320,10 +320,58 @@ title-only lookup would hand it the blurb about Cellpose models. The three
 per-object segmentation blurbs no longer promise a background floor they no
 longer hold.
 
-STILL OPEN, and it is one thing: the SCREEN draws the outer level only.
-`spacr/qt/screens/app_screen.py` builds one `Section` widget per top-level
-entry, so today the umbrella renders as a single heading holding every
-advanced row -- correct and complete, but flat. Drawing the tree means
-recursing over `section.children`, building a nested `Section` for each and
-adding it with `Section.add_widget`, using `own_rows` for the direct rows and
-`section_tooltip(app_key, section)` for the help.
+--------------------------------------------------------------------------------
+THE SCREEN DRAWS THE TREE. CLOSED.
+--------------------------------------------------------------------------------
+
+`AppScreen._build_settings_section` walks the tree instead of the pair:
+`own_rows` for the rows a heading owns, one nested `Section` per entry of
+`children`, and `section_tooltip(app_key, section)` for the help, which
+resolves a sub-heading by PATH. Mask draws 39 headings where it drew 15 --
+15 top-level, the umbrella's 3 families, and 21 per-object sub-headings --
+and every setting key is still rendered exactly once.
+
+`Section.add_prose`, NOT `Section.add_widget`, for the nested heading. The
+second records what it is handed in `_row_widgets`, where every entry is
+taken to BE a labelled setting row by
+`tests/qt/test_all_module_smoke.py::_setting_row_contract`; a heading is
+neither a setting nor labelled, and registering one there fails that
+contract or forces a fake `settingKey` onto a non-setting.
+
+TWO THINGS THE NESTING BROKE, AND WHAT WAS DONE ABOUT THEM:
+
+* `_settings_sections` is recorded DEEPEST FIRST. The command palette and
+  the search strip find the section holding a widget by scanning that list
+  for the first `isAncestorOf` match, and the umbrella is an ancestor of
+  every advanced control -- so a parent-first list would expand the
+  umbrella and stop, leaving the setting inside a sub-heading still shut.
+  Post-order also leaves `_settings_sections[0]` the first top-level
+  category of every module in the tool, which several tests read.
+
+* A sub-heading opened from outside opens its ancestors. Expanding a
+  section that sits inside a collapsed one shows the user nothing;
+  collapsing it again deliberately leaves the umbrella open.
+
+The strip under the actions row is fed by TITLE, because a hovered header
+carries nothing else, so what each heading's path resolved to is recorded
+in `AppScreen._category_blurbs` and read back there. Without that a
+filtration sub-heading titled "Cell" got the blurb about Cellpose models --
+the exact collision `section_tooltip` was written to avoid.
+
+ONE THING DRAWING THE TREE EXPOSED, and it belongs to whoever rebuilds the
+catalogs rather than here: the six blurbs this instruction wrote -- the
+umbrella, the three families and the two preprocessing paragraphs -- have
+no row in any of the nine external catalogs under
+`spacr/qt/i18n_catalogs/`. They were written after the last rebuild, so the
+headings are drawn in the chosen language with their help in English.
+`tools/build_i18n_catalogs.py --sources-only` then a language pass is what
+closes it; the same rebuild is owed 29 other UI strings and one setting
+(`calibrate_fraction_threshold`), and three tests in
+`tests/qt/test_external_i18n_catalogs.py` fail on that backlog today.
+
+Tests: `tests/qt/test_the_settings_tree_is_drawn.py` (nine, five of which
+fail against the flat rendering). `test_every_rendered_category_reaches_
+the_strip` in `tests/qt/test_category_tooltips.py` was changed to resolve a
+nested heading by path rather than by its bare word, with the reason in its
+docstring; it still checks every top-level category against
+`category_tooltip`.

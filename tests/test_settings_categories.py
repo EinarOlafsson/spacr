@@ -746,11 +746,22 @@ def test_the_legacy_ghost_list_has_not_grown():
 
 @pytest.mark.parametrize("app_key", sorted(GUI_MODULE_DEFAULTS))
 def test_every_setting_a_module_offers_has_a_category(app_key):
-    """An uncategorised key is ungrouped: pinned to the top in Tk, dumped in
-    the trailing "Other" section in Qt. Every module's panel must be fully
-    grouped."""
+    """An uncategorised key is ungrouped, and lands in the trailing "Other"
+    section. Every module's panel must be fully grouped.
+
+    HIDDEN KEYS ARE NOT OFFERED. A key in `_APP_HIDDEN_KEYS` gets no
+    widget, so it cannot appear in "Other" and it needs no category -- and
+    requiring one forces a superseded setting to keep a place on the panel
+    it was removed from. `Toxoplasma` is the case: `annotation_source`
+    replaced it, the boolean is still read out of old settings files, and
+    it is drawn nowhere.
+    """
+    from spacr.qt.screens.settings_model import _APP_HIDDEN_KEYS
+
     categorised = set(_all_categorised_keys())
-    orphans = sorted(set(_defaults_for(app_key)) - categorised)
+    hidden = _APP_HIDDEN_KEYS.get(app_key, frozenset())
+    offered = set(_defaults_for(app_key)) - set(hidden)
+    orphans = sorted(offered - categorised)
     assert not orphans, (
         f"the {app_key!r} settings panel offers ungrouped settings: {orphans}"
     )
@@ -1311,9 +1322,15 @@ def test_the_regroup_does_not_change_which_keys_a_module_offers():
     settings dict -- the phantom-setting failure mode this project already
     has eleven of.
     """
+    from spacr.qt.screens.settings_model import _APP_HIDDEN_KEYS
+
     categorised = set(_all_categorised_keys())
     for app_key in GUI_MODULE_DEFAULTS:
-        offered = set(_defaults_for(app_key))
+        # A HIDDEN KEY IS NOT OFFERED, so losing its category loses nothing:
+        # it draws no widget either way, and it is still in the settings
+        # dict, which is what this test exists to protect.
+        hidden = _APP_HIDDEN_KEYS.get(app_key, frozenset())
+        offered = set(_defaults_for(app_key)) - set(hidden)
         lost = sorted(offered - categorised - ORGANELLE_KEYS_KEPT_IN_GENERAL)
         assert not lost, f"{app_key!r} offers uncategorised settings: {lost}"
 

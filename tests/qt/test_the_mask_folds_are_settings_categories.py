@@ -2,8 +2,9 @@
 
 Both are the mask pipeline with a flag on. ``preprocess_generate_masks_
 timelapse`` forces ``timelapse=True`` and then calls
-``preprocess_generate_masks`` unchanged; the motility assay is called from
-inside the segmentation loop when ``timelapse and motility_analysis`` are
+``preprocess_generate_masks`` unchanged. (The motility assay used to fold
+here too and does not any more: it reads finished masks and writes a
+measurements table, so it belongs to Measure. What remains here is
 both true. So neither is a second screen -- what is theirs is a handful of
 settings categories, and the button reveals them on the form the user is
 already looking at.
@@ -58,14 +59,14 @@ def _sections(screen, key):
 # The switches
 # ---------------------------------------------------------------------------
 
-def test_both_series_modules_are_switches_on_the_mask_masthead(host):
-    """Two checkable icon buttons, in the declared order, and no captions."""
+def test_the_series_module_is_a_switch_on_the_mask_masthead(host):
+    """One checkable icon button, and no caption beside it."""
     screen, strip = host
 
     assert list(strip.keys()) == list(mask_folds.FOLDED_APPS)
     named = [button for button in strip.findChildren(QPushButton)
              if button.objectName() == BUTTON_NAME]
-    assert len(named) == 2
+    assert len(named) == len(mask_folds.FOLDED_APPS)
     for button in named:
         assert button.isCheckable(), f"{button.app_key} is not a switch"
         assert not button.text(), f"{button.app_key} drew a caption"
@@ -107,7 +108,7 @@ def test_pressing_a_switch_opens_no_window(host):
     before = set(QApplication.topLevelWidgets())
 
     strip.button_for("timelapse").setChecked(True)
-    strip.button_for("motility").setChecked(True)
+    strip.button_for("timelapse").setChecked(True)
 
     assert set(QApplication.topLevelWidgets()) - before == set()
     assert not hasattr(screen, "_fold_openers")
@@ -130,8 +131,6 @@ def test_the_categories_are_hidden_until_the_switch_is_pressed(host):
 
     assert all(card.isVisibleTo(screen)
                for card in _sections(screen, "timelapse"))
-    assert not any(card.isVisibleTo(screen)
-                   for card in _sections(screen, "motility"))
 
 
 def test_the_tracking_categories_are_the_ones_mask_does_not_have(host):
@@ -206,34 +205,7 @@ def test_the_gate_is_on_only_while_the_switch_is(host):
     assert screen._settings_model.collect()["timelapse"] is False
 
 
-def test_the_assay_switch_brings_tracking_with_it(host):
-    """`motility_analysis` only fires inside the timelapse branch."""
-    screen, strip = host
-
-    strip.button_for("motility").setChecked(True)
-    settings = screen._settings_model.collect()
-
-    assert settings["motility_analysis"] is True
-    assert settings["timelapse"] is True
-    assert strip.button_for("timelapse").isChecked()
-    assert all(card.isVisibleTo(screen)
-               for card in _sections(screen, "timelapse"))
-
-
-def test_switching_tracking_off_switches_the_assay_off(host):
-    """Nothing may be left asking for a run that cannot happen."""
-    screen, strip = host
-    strip.button_for("motility").setChecked(True)
-
-    strip.button_for("timelapse").setChecked(False)
-    settings = screen._settings_model.collect()
-
-    assert not strip.button_for("motility").isChecked()
-    assert settings["motility_analysis"] is False
-    assert settings["timelapse"] is False
-
-
-@pytest.mark.parametrize("key", ["timelapse", "motility"])
+@pytest.mark.parametrize("key", ["timelapse"])
 def test_the_run_is_handed_everything_the_module_would_have_handed_it(
         host, key):
     """No capability is lost: every one of the module's settings arrives.
