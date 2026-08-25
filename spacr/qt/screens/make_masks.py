@@ -7,7 +7,7 @@ remove small, Otsu detect), zoom and pan into a region for detailed
 edits, flood-fill by intensity with the magic wand, undo/redo, and save
 the edited mask back to ``<folder>/masks/<name>.tif`` as labelled uint16.
 
-Four things here are less obvious than the tool buttons:
+Five things here are less obvious than the tool buttons:
 
 **Every edit is recorded.** The screen keeps a
 :class:`spacr.curation.CurationLog` per field, seeded from any ledger
@@ -37,6 +37,37 @@ id. And nothing that adds pixels can separate a merged pair, so
 gives the smaller one a fresh id, leaving every other object in the field
 untouched. The cut is wider than a pixel for a reason --
 :data:`spacr.qt.mask_engine.DIVIDE_CUT_WIDTH` says which.
+
+**Cellpose-SAM comes with its two intermediate outputs.**
+:meth:`MakeMasksScreen.run_cellpose` segments the field that is open,
+through the resolver the pipeline itself uses
+(:func:`spacr.utils._resolve_cellpose_pretrained`), and fills two tabs
+beside the mask: the cell-probability map and the flow field. They are
+not decoration. A mask is a threshold applied to that probability map,
+so seeing the map beside the objects drawn from it is the difference
+between moving :data:`CELLPROB_THRESHOLD` with a reason and moving it by
+guessing — and after a run that found nothing, the map is the only thing
+on screen that says whether the network saw nothing or the threshold
+threw away what it saw.
+
+ONE ROW OF TOOLS, AND A SETTINGS BUTTON
+---------------------------------------
+
+Every tool is in a single row across the top of the editor, so the whole
+set is read left to right instead of hunted for and each tool stays where
+it was last seen. The row is built from :func:`tool_row_entries`: a tool
+added to :data:`TOOL_MODES` — or a ``MODE_*`` constant added with no
+table entry at all — appears in it without anyone editing the layout, and
+:meth:`MakeMasksScreen.add_toolbar_action` puts a button that is not a
+mode into the same row rather than starting a second one.
+
+Everything else — brush radius, the wand, display percentiles, the
+auto-filter and the object operations — is the settings, and one
+checkable button shows or hides the lot. The canvas is what the screen is
+for; the settings are what you set on the way in and then stop looking
+at. Hiding them is a splitter child going away, so THE CANVAS TAKES THE
+WIDTH instead of a gap opening where the panel was, and the panel comes
+back at the width it had.
 
 THE SEGMENTATION WORKBENCH
 --------------------------
@@ -277,6 +308,13 @@ TOOL_MODES: List[tuple] = [
     (MODE_ERASE_OBJECT, "Erase object", "erase_object"),
     (MODE_WAND_ADD,     "Wand +",       "wand_add"),
     (MODE_WAND_ERASE,   "Wand −",       "wand_erase"),
+    # THE TWO REGION TOOLS SIT BESIDE THE WAND, not after Zoom. All three
+    # answer the same question -- which pixels are one object -- where
+    # brush and erase answer it a pixel at a time, and Zoom is not a tool
+    # for changing a mask at all. Reaching the row through the fallback
+    # put them last in alphabetical order; named here they are placed.
+    (MODE_DRAW,         "Draw",         "draw"),
+    (MODE_DIVIDE,       "Divide",       "divide"),
     (MODE_ZOOM,         "Zoom",         "zoom"),
 ]
 
@@ -446,6 +484,11 @@ class _MaskCanvas(QLabel):
         """
         self.image = image
         self.mask = mask
+        # A gesture belongs to the field it was started on. The arrow keys
+        # move to the next field from anywhere, including the middle of a
+        # traced outline, and the points collected on the old field name
+        # nothing on the new one.
+        self._gesture_points = []
         self.reset_zoom(silent=True)
         self.refresh()
 
@@ -957,11 +1000,14 @@ class _MaskCanvas(QLabel):
         """
         if self.mask is None:
             return
+        # Points that left the pixmap mid-drag are dropped rather than
+        # clamped to its edge, which would drag the outline onto the border
+        # of the image. A path that lost every point this way arrives as an
+        # empty list and is refused below by the same guards that refuse a
+        # click: two points do not make a cut, three do not make an outline.
         image_points = [p for p in
                         (self._canvas_to_image(q.x(), q.y()) for q in points)
                         if p is not None]
-        if not image_points:
-            return
 
         if self.mode == MODE_DIVIDE:
             if len(image_points) < 2:
@@ -2024,6 +2070,10 @@ class MakeMasksScreen(QWidget):
                 self._settings_width = sizes[1]
         self._settings_scroll.setVisible(shown)
         if shown:
+            # A splitter that has never been laid out reports zero for
+            # everything; splitting nothing gives the panel a negative
+            # width and Qt clamps it to a pane the user cannot see. Fall
+            # back to the widths it was born with.
             sizes = splitter.sizes()
             total = sum(sizes) or (900 + SETTINGS_WIDTH)
             side = max(min(self._settings_width, total - 1), 1)
@@ -2407,6 +2457,8 @@ class MakeMasksScreen(QWidget):
         QShortcut(QKeySequence("B"), self, lambda: self._set_mode(MODE_BRUSH))
         QShortcut(QKeySequence("E"), self, lambda: self._set_mode(MODE_ERASE))
         QShortcut(QKeySequence("W"), self, lambda: self._set_mode(MODE_WAND_ADD))
+        QShortcut(QKeySequence("D"), self, lambda: self._set_mode(MODE_DRAW))
+        QShortcut(QKeySequence("V"), self, lambda: self._set_mode(MODE_DIVIDE))
         QShortcut(QKeySequence("Z"), self, lambda: self._set_mode(MODE_ZOOM))
         QShortcut(QKeySequence("Escape"), self, self._on_reset_zoom)
         QShortcut(QKeySequence("Ctrl+Z"), self, self._on_undo)

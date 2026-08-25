@@ -584,22 +584,23 @@ def test_a_field_that_goes_away_mid_gesture_takes_the_gesture_with_it(canvas):
     assert canvas.mask is None
 
 
-def test_a_gesture_whose_points_left_the_pixmap_is_dropped(canvas, strokes):
-    """A canvas resized mid-drag leaves the traced points off the pixmap.
+def test_a_gesture_does_not_follow_the_user_to_the_next_field(canvas, strokes):
+    """An outline traced on one field must not land on the next one.
 
-    The path is converted to image pixels on release, so a widget that
-    shrank under it has nothing left to convert. Dropping the gesture is
-    the only honest answer — the points no longer name anywhere on the
-    image.
+    The arrow keys move to the next field from anywhere, including the
+    middle of a drag, and the field that arrives is a different image with
+    a different mask. Carrying the collected points across would fill an
+    outline nobody traced onto a mask nobody was looking at.
     """
-    before = canvas.mask.copy()
     canvas.mode = MODE_DRAW
     canvas.mousePressEvent(press(*canvas_xy(24, 44)))
     for point in OUTLINE[1:]:
         canvas.mouseMoveEvent(move(*canvas_xy(*point)))
-    canvas.resize(240, 200)
-    canvas.refresh()
 
+    next_field = np.zeros((IMG_N, IMG_N), dtype=np.uint16)
+    next_field[20:28, 20:28] = 4
+    canvas.set_image_and_mask(field_image(), next_field)
     canvas.mouseReleaseEvent(release(*canvas_xy(12, 56)))
-    assert np.array_equal(canvas.mask, before)
+
+    assert counts_by_label(canvas.mask) == {4: 64}
     assert strokes == {"started": 0, "finished": 0}

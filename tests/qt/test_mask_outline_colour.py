@@ -191,9 +191,24 @@ def test_overlay_masks_still_defaults_to_the_compartment_colours():
     assert tuple(forced[5, 5]) == (1, 2, 3)
 
 
-def test_the_outline_colour_combo_is_never_translated(qtbot):
-    """A language pass rewriting these entries would make every choice miss
-    the colour table and silently fall back to the compartment default."""
+def test_the_outline_colour_reaches_the_table_in_any_language(qtbot):
+    """The caption is translated and the colour behind it is not.
+
+    This replaces an assertion that both dropdowns carried ``i18nSkipItems``.
+    Marking them untranslatable was the only way to keep a choice working
+    while ``_outline_rgb`` and ``_refresh_canvases`` read the entries back by
+    text -- and it left five English words on every non-English screen. They
+    read the entry's data now, so the caption follows the language while the
+    lookup that turns it into pixels does not.
+    """
+    from spacr.qt.i18n import retranslate_widget_tree
+
     panel = _mask(qtbot)
-    assert panel._outline_colour.property("i18nSkipItems") is True
-    assert panel._view_mode.property("i18nSkipItems") is True
+    panel._outline_colour.setCurrentIndex(LP.OUTLINE_CHOICES.index("red"))
+    retranslate_widget_tree(panel, "sv")
+
+    assert panel._outline_colour.currentText() == "röd"
+    assert panel._outline_choice() == "red"
+    assert panel._outline_rgb() == LP.LivePreviewPanel.OUTLINE_COLOURS["red"]
+    assert panel._view_mode.currentText() != "Overlay"
+    assert panel._view_mode_choice() == "Overlay"

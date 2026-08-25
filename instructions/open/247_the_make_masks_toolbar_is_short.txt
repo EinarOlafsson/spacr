@@ -262,3 +262,100 @@ MEASURED, ON REAL ARRAYS
     uncapped first flood is what pays for the detector being able to see how
     far the leak went; a flood truncated at the budget looks like a large
     compact object, which is exactly what a leak is not.
+
+--------------------------------------------------------------------------------
+5. CELLPOSE-SAM, DECIDED
+--------------------------------------------------------------------------------
+
+The standalone's Cellpose controls, against this screen. HAVE / PORTED / NO
+as in section 4.
+
+CELLPOSE
+  Cellpose-SAM detect     PORTED  One button, in the one tool row rather than
+                                in a card, so it survives the settings toggle.
+                                `MakeMasksScreen.run_cellpose`.
+  model combo             PORTED  Filled from `settings.cellpose_model_choices`,
+                                which asks the INSTALLED Cellpose rather than a
+                                literal. The standalone globs a directory of
+                                training rounds and sorts production to the top;
+                                spaCR has no such directory layout, and its
+                                fine-tuned checkpoints are applied through Train
+                                Cellpose / the model zoo, so the combo lists
+                                stock weights and the name travels as item DATA.
+                                Cellpose costs ~2.5 s to import, so the combo is
+                                built from the fallback list and topped up after
+                                the first run, when the live list is free.
+  cellprob_threshold 0.0  PORTED  Cellpose's own default, on the panel.
+  flow_threshold 0.4      PORTED  Cellpose's own default, on the panel.
+  cp_diameter             PORTED  0 = let Cellpose work it out. The one pre-SAM
+                                sizing argument Cellpose 4 still honours.
+  cp_normalize            PORTED  Off only for data normalized upstream.
+  cp_max_size_fraction    NO      The standalone filters it out on 4.2 anyway;
+                                a fraction-of-frame ceiling duplicates the
+                                Auto-filter card's max area, which is in pixels
+                                and is already recorded in the ledger.
+  min_size                HAVE    `_min_area`, the same box Remove-small reads.
+                                One judgement, one control.
+  replace / merge         HAVE    `_combine_mode`, shared with Otsu detect.
+  cellprob_heatmap pane   PORTED  `cellprob_heatmap` -> magma, percentile-
+                                stretched, on a tab beside the mask.
+  flow RGB pane           PORTED  `flows[0]` where Cellpose renders one,
+                                rebuilt from the `(2, H, W)` vectors otherwise.
+  resting message         PORTED  And the tabs stay ENABLED, unlike the
+                                standalone's, because a disabled tab cannot be
+                                opened to read the sentence saying why it is
+                                empty.
+  editable cp/flow panes  NO      The standalone lets the wand and Otsu run on
+                                the probability map as if it were the image.
+                                Here the panes are read-only: the mask lives on
+                                the canvas next door, and a second paintable
+                                surface would mean two places to look for one
+                                object.
+
+WHAT eval ACTUALLY RETURNS, MEASURED ON cellpose 4.2.1.1
+  `CellposeModel.eval` -> `(masks, flows, styles)`. For ONE 2-D image `flows`
+  is a list of THREE arrays that are three different things:
+      flows[0]  (H, W, 3) uint8    an RGB rendering of the field
+      flows[1]  (2, H, W) float32  the raw dY/dX vectors
+      flows[2]  (H, W)   float32   the cell-probability map (approx -12..+8)
+  and `styles` is a (256,) float32 embedding. Handed a bare 2-D array, eval
+  returns that flat list -- which `spacr_cellpose.parse_cellpose4_output`
+  cannot read, because it takes `len(masks)` for the image count and finds the
+  image HEIGHT. The field therefore goes in as a batch of one, which is the
+  per-image layout that function is written for and the layout `object.py`
+  already uses.
+
+WHERE THE CODE WENT
+  * `spacr/qt/screens/make_masks.py` -- `cellpose_detect`, `load_cellpose_model`
+    (through `utils._resolve_cellpose_pretrained`, the pipeline's own resolver),
+    `cellpose_intermediates`, `cellprob_heatmap`, `flow_rgb`, `stretch_to_uint8`,
+    the `_FlowPane` panes and the Cellpose-SAM card;
+  * `tests/qt/test_the_make_masks_cellpose_detect.py` -- 17 tests, one of them
+    the real-weights run behind `SPACR_CELLPOSE_E2E=1`.
+
+MEASURED, ON REAL ARRAYS
+  * four discs of radius 18 (1,018 px each) on a 160x160 field came back as
+    four objects of 1,024-1,048 px, both panes filled, in 50 s on a CPU;
+  * a `(2, H, W)` vector field was being sliced as though it were an RGB
+    picture -- `shape[2] >= 3` is true of both -- and rendered as a 2-pixel
+    smear. The vector shape is now tested first;
+  * filtering the eval kwargs against the signature silently dropped EVERY
+    setting for an eval declared `(x, **kwargs)`: the run succeeded and the
+    thresholds on the panel did nothing. A signature that names nothing is
+    no longer filtered against.
+
+--------------------------------------------------------------------------------
+NOTED, NOT BUILT: recrop
+--------------------------------------------------------------------------------
+
+The standalone's seventh mode is `recrop`, and this screen has no answer
+to it. Two agents building different halves of this instruction each
+arrived at it independently and each left it alone, because it is not in
+what was asked for.
+
+It is worth a decision rather than a silent drop: recrop changes the
+FIELD a curator is looking at rather than the mask on it, which is a
+different job from the six tools beside it -- and on a plate whose fields
+were cut wrong it is the only tool that helps.
+
+Say whether it belongs here and it goes in the row with the others.

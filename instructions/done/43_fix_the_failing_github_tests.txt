@@ -2,18 +2,21 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 ================================================================================
 
-Status:    open, and much smaller than it was. Re-triaged from a fresh run
-           of all three workflows rather than from the log this file was
-           last written against.
-             compat-matrix  GREEN on every Linux and Windows cell.
-             tests          Network, GPU, NAS and Integration are green.
-                            Both Qt shards now RUN TO A SUMMARY -- the hang
-                            is gone and shard 0 fell from 65 to 34 minutes.
-                            Lint, Fast and Minimum dependencies are red, and
-                            every one of those failures is in product code
-                            or in test files this instruction does not own.
-             docs           red on two separate layers of localisation
-                            staleness, both enumerated below.
+Status:    open. Re-triaged from run 32886221114 / 32886220828 /
+           32886220809 -- a push, not a re-run -- and every failure below
+           was reproduced locally before anything was changed.
+             compat-matrix  GREEN, whole workflow.
+             tests          Lint, Network, GPU, NAS, Slow and Integration
+                            are green. Fast and Minimum dependencies each
+                            had exactly ONE failure and it was the same
+                            test; that is fixed. Both Qt shards are red:
+                            shard 0 on app-registry drift, shard 1 on a
+                            single wedged test, which is NOT the same hang
+                            as before and is diagnosed below.
+             docs           red, still on the two layers below. The second
+                            layer has grown from 66 stale symbols to 325
+                            and grows with every docstring edited, so it
+                            can only be settled from a finished tree.
            See WHERE THE RUNS STAND at the end of this file.
 Requested: 2026-08-08 - "fix the failing GitHub tests."
 
@@ -546,14 +549,140 @@ WHAT IS STILL RED, AND WHOSE IT IS
                That needs the manifest regenerated, not a record deleted.
 
 --------------------------------------------------------------------------------
+2026-08-25 - THE CI STACK IS NOT THE DEVELOPER STACK, AND ONE TEST SAID SO
+--------------------------------------------------------------------------------
+
+Fast and Minimum dependencies were down to ONE failure each, and it was the
+same test both times:
+
+    tests/test_an_object_is_measured_in_its_own_box.py
+        ::test_an_intensity_percentile_keeps_the_dtype_of_its_image
+
+FIXED, and the cause is worth more than the fix.
+
+`measure._percentiles_of` batches the six percentile cut points into one
+`np.percentile` call for integers and float64, and deliberately does NOT
+batch a narrow float, because numpy computes the sequence form of a float32
+input in float64 and the scalar form in float32; batching would move the
+value a measured database already holds. The test asserted the resulting
+column is `float32`.
+
+That premise is TRUE ON NUMPY 2.4 AND LATER AND FALSE ON NUMPY 1.26, which
+computes BOTH forms in float64. The product is right on both -- it always
+takes the scalar form for a narrow float, so the number never moves -- but
+the dtype is numpy's to choose, not spaCR's. The test now reads the
+reference dtype off numpy instead of writing `float32`, and a second test
+counts the calls, which is the batching decision itself and is the same on
+every numpy.
+
+WHY CI HAD numpy 1.26 AT ALL, and this is the part to keep:
+
+    Every job in tests.yml installs the `attribution` extra. Every torchcam
+    release declares `numpy<2.0.0`. So pip resolves numpy 1.26.4 in ALL of
+    them -- Fast, Slow, Qt, Network, NAS, GPU, Integration and min-deps --
+    while this machine develops on numpy 2.5.2.
+
+    NO JOB IN tests.yml EVER RUNS numpy 2. compat-matrix does (it asks for
+    `qt,dev,zernike` and never `attribution`), but that workflow is a
+    smoke subset with --noconftest, not the suite.
+
+    That is the whole shape of "passes locally, fails in CI" for anything
+    numerical, and it is the third time this file has recorded a version
+    difference as if it were a mystery. The instrument that settles one in
+    ten seconds is `np.__version__` in both places.
+
+    Closing the gap costs one job: the Fast suite again with
+    `extras: "qt,dev,zernike,btrack,czi"` -- no attribution, therefore
+    numpy 2.x. NOT added here, because adding an unmeasured job to a
+    workflow being driven to green is a decision for the maintainer.
+
+THE QT HANG IS NOT FIXED. IT MOVED, AND IT WAS INVISIBLE BY DESIGN.
+
+Shard 1 did not run to a summary. It reached 99% in about 40 minutes, then
+printed NOTHING for 74.8 minutes until the 120-minute job timeout killed
+it. The runner then reported five orphan python processes at cleanup.
+
+The last test to start and never report:
+
+    tests/test_the_sweep_says_whether_the_cap_is_real.py
+        ::test_the_sweep_panel_puts_it_on_screen
+
+It passes alone in five seconds.
+
+WHY NOTHING WAS PRINTED, which is the reusable workflow's own bug: the
+suite runs with `-o faulthandler_timeout=900`, and the comment above that
+step claimed a hang would therefore name itself. It cannot under `-n`. The
+dump is written by the WORKER, and xdist forwards a worker's output only
+when the worker reports a result, so a worker that never reports never
+delivers its dump. The one mechanism meant to make a hang loud is the one a
+hang disables.
+
+FIXED IN .github: a `per_test_timeout_seconds` input, 1200 on the Qt
+shards. pytest-timeout's thread method does not need the wedged test to
+come back to the interpreter -- a watchdog dumps every stack and ends the
+worker, and xdist reports the crash against the test id. Measured on a
+deliberately wedged test: the id is named, the surviving workers finish
+their own files, and the session prints a summary.
+
+    `--max-worker-restart=0` goes with it and is not optional. Without it
+    xdist replaces the ended worker and hands it the SAME test, which wedges
+    again: measured, a 3-second ceiling was paid NINE times. A deterministic
+    hang would then cost more than the silence it replaced.
+
+WHAT THE HANG PROBABLY IS, not yet proved and product-side:
+`spacr.parameter_sweep.containment_available` (spacr/parameter_sweep.py:673)
+runs `systemd-run --user --scope ... true` through
+`subprocess.run(capture_output=True, timeout=10)`. That timeout kills the
+direct child only and then blocks in `communicate()` until every inherited
+pipe is closed, with no second bound. A scope that outlives the killed
+`systemd-run` holds those pipes open, which matches both the silence and
+the orphan processes. It is the only unguarded external call the test
+makes. Fix shape: `Popen` with `kill()` then `wait(timeout=...)`, or read
+the pipes with a bounded second wait, so the ten seconds actually bound the
+call.
+
+A NEW HYGIENE VIOLATION IS ALREADY QUEUED TO TURN Fast RED AGAIN. Two
+CellposeModel doubles landed with `def eval(self, x, **kwargs)`:
+
+    tests/qt/test_the_make_masks_cellpose_detect.py:237  class Variadic
+    tests/qt/test_the_make_masks_cellpose_detect.py:370  class Boom
+
+The ratchet is empty with a ceiling of 0, so these are failures rather than
+entries, and the ratchet is NOT the thing to move: a double that accepts any
+axis cannot tell a working call from the one that crashed every real run.
+The rule states the fix -- `def eval(self, x,
+channel_axis=MISSING_CHANNEL_AXIS, **kwargs)`, handed to
+`check_cellpose_eval_call` in tests/conftest.py.
+
+DOCS IS RED FOR A REASON THAT CANNOT BE FIXED MID-RUN
+
+Layer 1 is unchanged and still exactly five records; a scan of all 1,391
+reviewed API records finds those five and nothing else. Layer 2 has grown
+from 66 stale symbols to 325, plus 270 public symbols the English manifest
+has never seen and 12 it still lists that no longer exist.
+
+That growth is the finding. A reviewed record pins the exact English text
+of a docstring, and this run is rewriting docstrings and tooltips
+wholesale, so the audit goes stale again with every commit -- which is why
+docs has been red on every push for days. It is settled LAST, from a
+finished tree, not now.
+
+--------------------------------------------------------------------------------
 WHERE THE RUNS STAND
 --------------------------------------------------------------------------------
 
-  compat-matrix   green on every Linux and Windows cell; macOS arm64 was
-                  still running when this was written.
-  tests           Network, GPU, NAS, Integration green. Both Qt shards run
-                  to a summary. Lint, Fast and Minimum dependencies red,
-                  for the reasons above.
+  compat-matrix   GREEN, whole workflow.
+  tests           Lint, Network, GPU, NAS, Slow, Integration green.
+                  Fast and Minimum dependencies: one failure each, same
+                  test, fixed above.
+                  Qt shard 0: 26 failures + 3 errors, almost all app
+                  registry drift (`cellpose_masks`, `train_cellpose`,
+                  `parameter_sweep`, `motility`, `timelapse`), plus the
+                  setup animation slide, the shortcut cheat sheet, the
+                  compare-panel note and the i18n inventories. Not this
+                  instruction's to settle.
+                  Qt shard 1: killed by its own timeout on one wedged test.
+                  Diagnosed above; the shard will now name it instead.
   docs            red, on the two layers above.
 
 HOW TO MEASURE THE RETAINED TREE, so the next reader does not rebuild it

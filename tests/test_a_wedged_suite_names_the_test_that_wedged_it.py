@@ -75,6 +75,10 @@ def test_the_ceiling_reaches_both_pytest_invocations():
     assert "--timeout-method thread" in text
     # Once for the sharded parallel pass, once for the serial measurement tail.
     assert text.count('"${timeout_args[@]}"') == 2
+    # Without this the cure costs more than the disease: xdist replaces the
+    # ended worker and gives it the same test, so a deterministic hang would
+    # be paid once per restart rather than once.
+    assert "--max-worker-restart=0" in text
     # pytest-timeout is not a project dependency; a suite with no ceiling must
     # not install it, so the install sits inside the guard rather than beside
     # it.

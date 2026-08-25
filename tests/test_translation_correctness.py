@@ -45,24 +45,52 @@ DELIBERATELY_UNTRANSLATED = {
     "API: {url}": {"de", "es", "hi", "is", "ko", "pt", "sv"},
     "Actions": {"fr"},
     "Activation": {"fr"},
+    # The three maturity labels a module's badge shows. Greek letters, and
+    # "stable" is the same word in French.
+    "Alpha": {"de", "fr"},
+    "Beta": {"de", "es", "is", "pt", "sv"},
+    "Stable": {"fr"},
+    # The category the timelapse and motility modules moved into. German
+    # scientific writing keeps the English "Assays".
+    "Assays": {"de"},
     "Backend": {"de"},
     "Console": {"fr", "pt"},
     "Data": {"sv"},
     "Demos": {"de"},
     "Design": {"sv"},
+    # Storage, in the resource row. "Disk" is the Swedish word too.
+    "Disk": {"sv"},
     "Documentation (web)": {"fr"},
+    # The figures container's own heading; French spells it the same way.
+    "Figures": {"fr"},
     "Live": {"de", "sv"},
     "Module": {"fr"},
     "Navigation": {"de", "fr"},
+    # The four organelle channels, numbered. "Organelle" is the German word.
+    "Organelle 1": {"de"},
+    "Organelle 2": {"de"},
+    "Organelle 3": {"de"},
+    "Organelle 4": {"de"},
     # The PCA screen keeps the standard scientific acronym in these locales;
     # Chinese, French, Hindi, and Korean use localized names.
     "PCA": {"de", "es", "is", "pt", "sv"},
     "Pause": {"de", "fr"},
     "Personal Access Token (ghp_… / github_pat_…)": {"hi"},
     "Regression": {"de", "sv"},
+    # The resource row again: "System" is the same word in both, and the
+    # uppercased heading follows it.
+    "SYSTEM": {"de", "sv"},
     "Status": {"de", "pt", "sv"},
+    "System": {"de", "sv"},
     "Toxoplasma": {"de", "es", "fr", "is", "pt", "sv"},
     "Tutorial (web)": {"es", "pt"},
+    # THE LIVE PREVIEW'S DROPDOWN CAPTIONS. Each has a reviewed row now, and
+    # in these languages the reviewed translation is the English word:
+    # "cell" is Swedish, and magenta and cyan are the printing-ink names
+    # they were borrowed from.
+    "cell": {"sv"},
+    "cyan": {"fr", "sv"},
+    "magenta": {"es", "fr", "is", "pt", "sv"},
     "optional": {"de"},
     "spaCR AI": {"ko", "sv"},
     "tuple": {"fr"},

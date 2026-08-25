@@ -931,42 +931,147 @@ def lost_directory_conftest_fixtures(fixture_manager, items, expectations):
     return lost
 
 
-def _conftest_fixtures_went_missing(lost):
-    """The message a lost conftest gets, instead of a missing-fixture error."""
+def directory_conftest_parse_nodes(fixture_manager):
+    """Map a directory nodeid to the node its conftest was parsed against.
+
+    A conftest is parsed the first time its directory is collected and every
+    fixture it defines is bound to THAT node object. Reading the node back is
+    how a report can tell "these tests were reached through a second node for
+    the directory" from "the fixtures went missing some other way" instead of
+    naming a cause it has not checked.
+
+    A pytest that keeps its registry somewhere else answers with nothing, for
+    the same reason ``directory_fixture_expectations`` does.
+    """
+    registry = getattr(fixture_manager, "_arg2fixturedefs", None)
+    if not registry:
+        return {}
+    parse_nodes = {}
+    for fixturedefs in registry.values():
+        for fixturedef in fixturedefs:
+            node = getattr(fixturedef, "node", None)
+            if isinstance(node, pytest.Directory):
+                parse_nodes.setdefault(node.nodeid, node)
+    return parse_nodes
+
+
+def directories_collected_twice(items, parse_nodes=None):
+    """Return the directory nodeids this run holds more than one node for.
+
+    Two distinct node objects carrying one nodeid in the collected tree is
+    the direct evidence. ``parse_nodes`` adds the other half: a directory
+    node that is not the one its conftest was parsed against was collected
+    twice even when the tests hanging off the first node are all gone -- a
+    ``-k`` selection or a shard can take them away exactly when the duplicate
+    did its damage.
+
+    ``None`` means there was nothing to look at: no collection node in the
+    whole list was a directory, so no duplicate was ruled either in or out.
+    An empty set is the opposite answer -- directories were examined and none
+    of them was collected twice.
+    """
+    seen = {}
+    twice = set()
+    for item in items:
+        for node in item.listchain():
+            if not isinstance(node, pytest.Directory):
+                continue
+            first = seen.setdefault(node.nodeid, node)
+            if first is not node:
+                twice.add(node.nodeid)
+            parsed = (parse_nodes or {}).get(node.nodeid)
+            if parsed is not None and parsed is not node:
+                twice.add(node.nodeid)
+    if not seen:
+        return None
+    return twice
+
+
+_ORDERING_CAUSE = (
+    "This is a COLLECTION ORDERING fault, not a missing fixture. A "
+    "directory whose conftest defines fixtures was collected twice and "
+    "the tests were reached through the second node, which the conftest "
+    "was never parsed against, so every fixture in it -- autouse ones "
+    "included -- silently disappeared. It is triggered by interleaving "
+    "files from different directories in one invocation, e.g. "
+    "'pytest tests/qt/test_a.py tests/test_b.py tests/qt/test_c.py'.\n"
+    "\n"
+    "tests/conftest.py keeps one collection node per directory to "
+    "prevent this; if you are reading this message, that guard no longer "
+    "covers the case at hand. Run the directories as separate "
+    "invocations until it does -- the alternative is a run whose summary "
+    "line reads as a pass.")
+
+_EVICTED_CAUSE = (
+    "The conftest was EVICTED, not out-ordered. Each directory listed above "
+    "was collected exactly ONCE in this run, so the collection-ordering "
+    "fault this guard was built for does not explain it and has already been "
+    "ruled out for you. The conftest was imported and its fixtures were "
+    "registered, and then they stopped being reachable: something took the "
+    "module out from under pytest -- cleared it from sys.modules, reloaded "
+    "it, or unregistered the plugin. Look at what the files in this run do "
+    "to module state, and run them one file at a time to find which.")
+
+
+def _conftest_fixtures_went_missing(lost, collected_twice=None):
+    """The message a lost conftest gets, instead of a missing-fixture error.
+
+    ``collected_twice`` is the set of directory nodeids the run holds more
+    than one collection node for, and it picks which CAUSE is named. A
+    duplicated directory is the ordering fault; a directory collected once is
+    not, and calling it one would send the reader after the single thing that
+    has already been ruled out. ``None`` means nobody looked, and the message
+    keeps the ordering wording it has always had.
+    """
     listed = "\n".join(
         f"    {argname!r} comes from the conftest in {directory}, and "
         f"{witness} cannot request it"
         for directory, argname, witness in lost[:10])
     more = f"\n    ... and {len(lost) - 10} more" if len(lost) > 10 else ""
-    return (
-        f"{len(lost)} conftest fixture(s) are not visible to the tests they "
-        f"belong to:\n{listed}{more}\n"
-        "\n"
-        "This is a COLLECTION ORDERING fault, not a missing fixture. A "
-        "directory whose conftest defines fixtures was collected twice and "
-        "the tests were reached through the second node, which the conftest "
-        "was never parsed against, so every fixture in it -- autouse ones "
-        "included -- silently disappeared. It is triggered by interleaving "
-        "files from different directories in one invocation, e.g. "
-        "'pytest tests/qt/test_a.py tests/test_b.py tests/qt/test_c.py'.\n"
-        "\n"
-        "tests/conftest.py keeps one collection node per directory to "
-        "prevent this; if you are reading this message, that guard no longer "
-        "covers the case at hand. Run the directories as separate "
-        "invocations until it does -- the alternative is a run whose summary "
-        "line reads as a pass.")
+    header = (f"{len(lost)} conftest fixture(s) are not visible to the tests "
+              f"they belong to:\n{listed}{more}\n")
+
+    directories = sorted({directory for directory, _, _ in lost})
+    if collected_twice is None:
+        out_ordered, evicted = directories, []
+    else:
+        out_ordered = [d for d in directories if d in collected_twice]
+        evicted = [d for d in directories if d not in collected_twice]
+
+    causes = []
+    if out_ordered and collected_twice is None:
+        causes.append(_ORDERING_CAUSE)
+    elif out_ordered:
+        causes.append(f"Collected twice: {', '.join(out_ordered)}.\n"
+                      f"{_ORDERING_CAUSE}")
+    if evicted:
+        causes.append(f"Collected once: {', '.join(evicted)}.\n"
+                      f"{_EVICTED_CAUSE}")
+    return "\n\n".join([header, *causes])
 
 
 def _check_directory_conftest_fixtures(session, items):
-    """Fail the run loudly when a conftest's fixtures went missing."""
+    """Fail the run loudly when a conftest's fixtures went missing.
+
+    The collected tree is asked whether the directory really was collected
+    twice, so the message names the cause it can show rather than the cause
+    this was first found by.
+
+    That question is only asked once something is already lost, so a healthy
+    run pays for the lookup of the fixtures and nothing else.
+    """
     fixture_manager = getattr(session, "_fixturemanager", None)
     if fixture_manager is None:
         return
     expectations = directory_fixture_expectations(fixture_manager)
     lost = lost_directory_conftest_fixtures(fixture_manager, items,
                                             expectations)
-    if lost:
-        raise pytest.UsageError(_conftest_fixtures_went_missing(lost))
+    if not lost:
+        return
+    collected_twice = directories_collected_twice(
+        items, directory_conftest_parse_nodes(fixture_manager))
+    raise pytest.UsageError(
+        _conftest_fixtures_went_missing(lost, collected_twice))
 
 
 def pytest_collection_modifyitems(session, config, items):

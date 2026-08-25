@@ -61,9 +61,11 @@ NVML_PUBLISHED = (
     "13.595.45", "13.610.43",
 )
 
-#: The bound a reader who mistakes the driver branch for a minor version
-#: writes instead. It admits the same releases and can never be pinned.
-NVML_ROUND_BOUNDARY = ">=11.5"
+#: The first release in the supported band, and the floor setup.py declares.
+NVML_FLOOR = "11.450.51"
+#: What a reader who mistakes the driver branch for a minor version writes
+#: instead: it admits the same releases and can never be pinned.
+NVML_ROUND_BOUNDARY = "11.5"
 
 
 def _declared(distribution: str) -> Requirement:
@@ -118,8 +120,9 @@ def test_the_nvml_floor_names_a_release_that_exists():
     assert str(floor) in NVML_PUBLISHED, (
         f"setup.py declares nvidia-ml-py>={floor}, which this distribution has "
         "never published. Its releases are named after the NVIDIA driver, so a "
-        "round bound such as 11.5 is a boundary and not a version; declare the "
-        f"first release that satisfies it instead ({NVML_PUBLISHED[10]})."
+        f"round bound such as {NVML_ROUND_BOUNDARY} is a boundary and not a "
+        f"version; declare the first release that satisfies it instead "
+        f"({NVML_FLOOR})."
     )
 
 
@@ -142,30 +145,38 @@ def test_naming_the_release_denies_a_user_nothing():
     ``11.450.51``.
     """
     declared = _declared("nvidia-ml-py")
-    round_bound = SpecifierSet(NVML_ROUND_BOUNDARY) & SpecifierSet(
+    cap = SpecifierSet(
         ",".join(
             str(clause)
             for clause in declared.specifier
             if clause.operator in {"<", "<="}
         )
     )
+    rounded = SpecifierSet(f">={NVML_ROUND_BOUNDARY}") & cap
     assert set(declared.specifier.filter(NVML_PUBLISHED)) == set(
-        round_bound.filter(NVML_PUBLISHED)
+        rounded.filter(NVML_PUBLISHED)
     )
-    assert NVML_ROUND_BOUNDARY.lstrip(">=") not in NVML_PUBLISHED
+    assert NVML_ROUND_BOUNDARY not in NVML_PUBLISHED
+    assert NVML_FLOOR in NVML_PUBLISHED
 
 
-def test_no_recorded_release_makes_the_driver_branch_look_like_a_minor():
-    """The recorded sequence has to keep showing why the floor reads oddly.
+def test_the_round_boundary_sorts_below_the_release_that_replaces_it():
+    """The one fact a reader has to accept before the floor stops looking wrong.
 
-    Should this list ever be rewritten into ordinary semver, the argument the
-    floor rests on would be gone while the floor stayed, and the next reader
-    would have every reason to "correct" it.
+    ``11.450.51`` is not a version below ``11.5``. The middle field is a
+    driver branch, so 450 is a larger number than 5 and the release sorts
+    ABOVE the boundary it satisfies. Everything else here follows from that,
+    and it is exactly the step someone "correcting" the floor gets wrong.
     """
-    branches = {Version(version).release[1] for version in NVML_PUBLISHED}
-    assert max(branches) > 100, (
-        "the recorded nvidia-ml-py sequence no longer shows driver-numbered "
-        "middle fields, which is the whole reason 11.450.51 is the floor"
+    assert Version(NVML_ROUND_BOUNDARY) < Version(NVML_FLOOR)
+    assert Version(NVML_FLOOR).release[1] > 100, (
+        "the floor no longer carries a driver-sized middle field, so the "
+        "reason it is spelled this way has gone"
+    )
+    below = [v for v in NVML_PUBLISHED if Version(v) < Version(NVML_ROUND_BOUNDARY)]
+    assert below[-1] == "10.418.84", (
+        "the release immediately below the boundary is what proves nothing "
+        f"sits between it and the floor; found {below[-1]}"
     )
 
 
