@@ -2819,6 +2819,8 @@ def explain_every_row(dialog) -> int:
     from PySide6.QtWidgets import (QFormLayout, QLabel, QPushButton,
                                    QToolButton)
 
+    from .widgets.hint_bar import explain_through_the_bar
+
     from .i18n import tr
 
     explained = 0
@@ -2845,17 +2847,27 @@ def explain_every_row(dialog) -> int:
             # which is the rule: on the setting's text, never on its field.
             is_action = isinstance(field, (QPushButton, QToolButton))
             if not tip:
-                # WHATEVER THE ROW ALREADY SAID. For a setting it is MOVED
-                # rather than duplicated -- a tooltip on both reads as two
-                # answers. For an action it is COPIED, because the two are
-                # not answering the same question: the label is being told
-                # what the row is about, and the button what pressing it
-                # will do.
+                # WHATEVER THE ROW ALREADY SAID, moved rather than
+                # duplicated: a tooltip on both reads as two answers.
                 tip = (field.toolTip() or "").strip()
             if not tip:
                 continue
             label.setToolTip(tr(tip))
-            if not is_action:
+            if is_action:
+                # A BUTTON SAYS WHAT PRESSING IT DOES, AND IT SAYS IT AT
+                # THE FOOT OF THE WINDOW. A tooltip appears over the button
+                # -- where the pointer already is, and where the user is
+                # about to click -- so the sentence covers the thing it
+                # describes. The bar is out of the way, holds a long
+                # sentence without hiding anything, and does not flicker as
+                # the pointer crosses a row of buttons. This is what the
+                # module tiles on Home already do.
+                #
+                # With no bar in the window the tooltip STAYS: a control
+                # that explains itself nowhere is worse than one that
+                # explains itself awkwardly.
+                explain_through_the_bar(field)
+            else:
                 field.setToolTip("")
             explained += 1
     return explained
@@ -4094,6 +4106,14 @@ class PreferencesDialog:
 
         buttons.accepted.connect(_save)
         buttons.rejected.connect(dlg.reject)
+        # A LINE AT THE FOOT, THE WAY THE HOME SCREEN DOES IT. Added before
+        # the rows are explained, because `explain_every_row` hands an
+        # action button's sentence to whatever bar its window has -- so the
+        # bar must exist by then or the button keeps a tooltip nobody
+        # asked for.
+        from .widgets.hint_bar import HintBar
+        hints = HintBar(parent=dlg)
+        dlg.layout().addWidget(hints)
         # EVERY ROW EXPLAINED, ON ITS LABEL. Done here, over the finished
         # dialog, so a row added anywhere above is covered without the
         # author having to remember the rule.
