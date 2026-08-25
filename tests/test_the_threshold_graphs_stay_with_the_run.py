@@ -347,7 +347,12 @@ def test_a_set_fraction_threshold_still_draws_the_sweep(tmp_path, capsys):
     # The explanation is gone, because the thing it explained is gone.
     assert "sweep graph is not drawn" not in source
     # Both branches draw, and both keep what they drew with the run.
-    assert "_draw_the_threshold_sweep(settings, res_folder)" in source
+    #
+    # Matched without the closing bracket: the helper gained a keyword saying
+    # whether the threshold in force was measured from the control wells or
+    # set by the user, so the call spans two lines. The claim is the same one
+    # -- the branch that has a threshold still draws the sweep.
+    assert "_draw_the_threshold_sweep(" in source
     assert source.count("_keep_figures_with_the_run") >= 2
 
 

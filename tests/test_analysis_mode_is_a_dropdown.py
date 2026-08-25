@@ -285,6 +285,7 @@ def test_the_generated_sentence_is_added_once():
 # ---------------------------------------------------------------------------
 
 def _regression_type_options():
+    """The combo's options: ``(stored value, label)`` pairs."""
     from spacr.settings_spec import convert_settings_dict_for_gui
 
     _kind, options, _default = convert_settings_dict_for_gui(
@@ -292,41 +293,90 @@ def _regression_type_options():
     return options
 
 
+def _regression_type_values():
+    return [value for value, _label in _regression_type_options()]
+
+
 def test_the_combo_offers_no_family_that_raises():
     """`gls` was on the hand-written list and is in
-    UNSUPPORTED_REGRESSION_TYPES, so the Tk panel could pick a type that
+    UNSUPPORTED_REGRESSION_TYPES, so the panel could pick a type that
     fails after the whole database had been read."""
     from spacr.regression_spec import UNSUPPORTED_REGRESSION_TYPES
 
-    offered = set(_regression_type_options())
+    offered = set(_regression_type_values())
     assert not offered & set(UNSUPPORTED_REGRESSION_TYPES)
     assert "gls" not in offered
 
 
 def test_the_combo_offers_every_family_that_fits():
     """Six were missing: huber, beta, quasi_binomial, elasticnet, hinge and
-    horseshoe -- a third of the inventory, unreachable from the Tk panel."""
+    horseshoe -- a third of the inventory, unreachable from the panel."""
     from spacr.regression_spec import (REGRESSION_TYPES,
                                        UNSUPPORTED_REGRESSION_TYPES)
 
     expected = set(REGRESSION_TYPES) - set(UNSUPPORTED_REGRESSION_TYPES)
-    assert set(_regression_type_options()) == expected
+    assert set(_regression_type_values()) == expected
     for family in ("huber", "beta", "quasi_binomial", "elasticnet", "hinge",
                    "horseshoe"):
-        assert family in _regression_type_options(), family
+        assert family in _regression_type_values(), family
 
 
-def test_mixed_is_first_and_the_default():
-    """It answers the most central question, so it leads the list."""
+def test_every_family_says_what_it_assumes_where_it_is_chosen():
+    """Asserts the LABEL half, which the bare list could not carry.
+
+    Nineteen unlabelled names hid the four families a user came looking for.
+    Each option is now a (stored value, label) pair whose label leads with
+    the stored value -- so 'quantile' is still findable by the word -- and
+    then names the kind of fit and what it assumes.
+    """
+    from spacr.regression_families import (GROUP_TITLES,
+                                           REGRESSION_FAMILY_ASSUMPTIONS,
+                                           family_group)
+
+    for value, label in _regression_type_options():
+        assert label.startswith(f"{value} \u2014 "), label
+        assert GROUP_TITLES[family_group(value)] in label
+        assert REGRESSION_FAMILY_ASSUMPTIONS[value] in label
+
+
+def test_nothing_merely_robust_is_offered_as_nonparametric():
+    """A linear model with a robust loss is parametric in the coefficients;
+    only `rra` reads nothing but the order of the wells."""
+    labels = dict(_regression_type_options())
+
+    for family in ("rlm", "huber", "quantile"):
+        assert "robust/semiparametric" in labels[family]
+        assert "nonparametric" not in labels[family].lower()
+    assert "rank-based" in labels["rra"]
+
+
+def test_mixed_is_first_and_the_groups_do_not_interleave():
+    """It answers the most central question, so it leads the list.
+
+    The tail was alphabetical when the options were bare names. They are now
+    grouped by what the family assumes, so the order asserted here is
+    parametric, then robust/semiparametric, then rank-based -- a family added
+    to the inventory still lands somewhere predictable, inside its own group.
+    """
+    from spacr.regression_families import family_group
     from spacr.settings_spec import convert_settings_dict_for_gui
 
     _kind, options, default = convert_settings_dict_for_gui(
         {"regression_type": "mixed"})["regression_type"]
-    assert options[0] == "mixed"
+    values = [value for value, _label in options]
+    assert values[0] == "mixed"
     assert default == "mixed"
-    # The rest alphabetically, so a family added to the inventory lands
-    # somewhere predictable rather than at the end.
-    assert options[1:] == sorted(options[1:])
+
+    order = ["parametric", "robust_semiparametric", "rank_based"]
+    groups = [family_group(value) for value in values]
+    assert groups == sorted(groups, key=order.index)
+
+    # Inside a group the tail is still alphabetical, so a family added to the
+    # inventory lands somewhere predictable rather than at the end.
+    parametric = [value for value in values
+                  if family_group(value) == "parametric"]
+    assert parametric[0] == "mixed"
+    assert parametric[1:] == sorted(parametric[1:])
 
 
 # ---------------------------------------------------------------------------

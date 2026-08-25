@@ -258,17 +258,47 @@ def test_hovering_a_category_header_fills_the_strip(qtbot):
     assert strip.text() == default
 
 
+def _is_nested(section) -> bool:
+    """True when ``section`` is a heading drawn inside another heading."""
+    from spacr.qt.widgets.section import Section
+
+    parent = section.parentWidget()
+    while parent is not None:
+        if isinstance(parent, Section):
+            return True
+        parent = parent.parentWidget()
+    return False
+
+
 def test_every_rendered_category_reaches_the_strip(qtbot):
-    """Not just the one we happened to pick: all thirteen of Mask's."""
+    """Not just the one we happened to pick: every heading Mask draws.
+
+    The panel renders the settings TREE now, so the list holds sub-headings
+    as well as top-level categories, and a sub-heading is described by its
+    PATH: "Cell" under "Object filtration" is not the "Cell" segmentation
+    category. Asking `category_tooltip`, which is keyed on the bare word,
+    for every heading would therefore demand that a filtration sub-heading
+    show the blurb about Cellpose models and expected diameters. Each
+    heading is checked against what its own path resolved to instead, and
+    the top-level categories are still checked against `category_tooltip`
+    so that guarantee is not quietly weakened.
+    """
     screen = _make_screen(qtbot, "mask")
     strip = _strip(screen)
+    nested_seen = 0
     for section in screen._settings_sections:
+        source = section.property("settingsCategorySource") or section.title()
         QApplication.sendEvent(section.header(), QEvent(QEvent.Type.Enter))
         QApplication.processEvents()
         assert section.title() in _strip_text(screen)
-        assert category_tooltip(screen.app_key, section.title()) in (
-            _strip_text(screen))
+        assert screen._category_blurbs[source] in _strip_text(screen)
+        if _is_nested(section):
+            nested_seen += 1
+        else:
+            assert category_tooltip(screen.app_key, source) in (
+                _strip_text(screen))
         QApplication.sendEvent(section.header(), QEvent(QEvent.Type.Leave))
+    assert nested_seen, "Mask draws no sub-headings; the tree is flat again"
 
 
 def test_expanding_a_category_pins_its_blurb(qtbot):

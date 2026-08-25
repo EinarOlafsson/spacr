@@ -491,9 +491,25 @@ def pytest_runtest_setup(item):
 # and a watchdog turns an endless shutdown into a stack dump for every thread
 # followed by a non-zero exit.
 #
-# It is armed at ``pytest_sessionfinish`` because that is the last hook that
-# is guaranteed to run -- ``pytest_unconfigure`` is on the far side of the
-# stall it exists to catch.
+# THE BUDGET STARTS THE INSTANT THE LAST TEST ENDS, from the innermost
+# ``pytest_runtestloop`` wrapper, and that timing is the point.
+# ``pytest_sessionfinish`` is one hook with many implementations and this
+# file's runs last of them, so arming there leaves the whole of teardown up to
+# that moment unguarded -- and teardown is where the expensive work is.
+# pytest-cov writes the run's coverage data from the tail of its OWN
+# ``pytest_runtestloop`` wrapper, before any ``sessionfinish`` runs at all, and
+# a distributed worker reports itself finished from the tail of xdist's
+# ``sessionfinish`` wrapper. A run that stalls anywhere in there has already
+# written its data and has not yet printed a summary, which is precisely the
+# shape this guard exists for, and a watchdog armed at the end of
+# ``sessionfinish`` is on the far side of it.
+#
+# Armed from the end of the test loop instead, the budget covers every
+# teardown after the last test: the rest of the loop's wrappers, every
+# ``sessionfinish``, ``pytest_unconfigure``, ``atexit`` and interpreter
+# finalisation. ``pytest_sessionfinish`` then RE-ARMS, so a shutdown that is
+# honestly slow is measured from the point the reporting plugins have finished
+# rather than from the last test.
 
 SHUTDOWN_WATCHDOG_ENV = "SPACR_PYTEST_SHUTDOWN_WATCHDOG_S"
 
@@ -501,6 +517,32 @@ SHUTDOWN_WATCHDOG_ENV = "SPACR_PYTEST_SHUTDOWN_WATCHDOG_S"
 #: every thread's stack is dumped and the process is killed. Generous, so an
 #: honestly slow teardown is never mistaken for a stall; ``0`` turns it off.
 SHUTDOWN_WATCHDOG_S = float(os.environ.get(SHUTDOWN_WATCHDOG_ENV, "300"))
+
+REPORT_WATCHDOG_ENV = "SPACR_PYTEST_REPORT_WATCHDOG_S"
+
+#: Seconds the phase between the last test and the summary line may take.
+#: Longer than the interpreter's own shutdown budget because that phase holds
+#: the one operation here that is legitimately slow -- combining and reporting
+#: a distributed run's coverage, which is minutes of real work on a project
+#: this size. Killing that would break the runs this guard exists to protect,
+#: so it is bounded rather than trusted. Turning the shutdown watchdog off
+#: turns this off with it, since the default is derived from it.
+REPORT_WATCHDOG_S = float(
+    os.environ.get(REPORT_WATCHDOG_ENV, SHUTDOWN_WATCHDOG_S * 4))
+
+
+def teardown_budget(config):
+    """How long this process may take between its last test and its summary.
+
+    A distributed WORKER gets the short budget, because none of the slow work
+    the long one exists for happens in one: a collocated worker saves its
+    coverage data and stops, and the combining and reporting are the
+    controller's job. A worker that goes quiet for the shutdown budget is
+    stuck, and it is the process most worth shooting quickly -- the whole run
+    waits on it, and until it says something there is nothing to read.
+    """
+    return (SHUTDOWN_WATCHDOG_S if hasattr(config, "workerinput")
+            else REPORT_WATCHDOG_S)
 
 
 def threads_that_outlive_the_session():
@@ -527,6 +569,101 @@ def _threads_that_outlive_the_session_report(threads):
         "report until they end. Whatever started one owes it a stop.")
 
 
+#: How many retained widgets are worth mentioning. A Qt run ALWAYS ends with a
+#: live QApplication -- pytest-qt's is session-scoped -- so saying so every
+#: time would train the reader to skip the one report that matters. A healthy
+#: run of this suite ends in the tens, and its measured worst accumulation was
+#: five figures, so the number below separates "normal" from "the tree is the
+#: reason this process is still working".
+RETAINED_WIDGETS_WORTH_SAYING = 5000
+
+
+def qt_things_that_outlive_the_session():
+    """Everything Qt owns that can keep a finished run from exiting.
+
+    ``threading.enumerate`` cannot see any of it, which is why a wedged run
+    used to be reported as "no non-daemon threads" and nothing else. A
+    ``QThread`` that has executed Python appears there as a DAEMON ``Dummy-N``
+    and is filtered out with the harmless ones; a ``QApplication`` is not a
+    thread at all. Both decide how a finished run ends anyway -- Qt waits on a
+    running QThread while the application is torn down, and teardown costs
+    what the retained tree is big -- so each is named with the number that
+    makes it actionable rather than left to be guessed at.
+
+    Read-only by construction. Nothing is stopped, closed or deleted: the one
+    fixture in this suite's history that reached across live widgets during
+    teardown crashed the run three different ways, and a diagnostic that can
+    do that is worse than no diagnostic. Every probe is guarded, so a run
+    without PySide6, or one whose Qt state is already half gone, reports what
+    it can and stays quiet about the rest.
+    """
+    said = []
+
+    app = None
+    try:
+        from PySide6.QtWidgets import QApplication
+        app = QApplication.instance()
+    except Exception:                                            # noqa: BLE001
+        app = None
+    if app is not None:
+        try:
+            widgets = len(app.allWidgets())
+            windows = len(app.topLevelWidgets())
+        except Exception:                                        # noqa: BLE001
+            widgets = windows = -1
+        if widgets >= RETAINED_WIDGETS_WORTH_SAYING:
+            said.append(
+                f"    a QApplication is still alive holding {widgets} "
+                f"widget(s) and {windows} top-level window(s); destroying "
+                f"that tree one object at a time is the last thing the "
+                f"process does")
+
+    try:
+        from spacr.qt import bridge
+        handles = bridge.registry().active()
+        parked = len(bridge._PARKED_THREADS)
+    except Exception:                                            # noqa: BLE001
+        handles, parked = [], 0
+    for handle in handles:
+        said.append(f"    a registered job is still running: "
+                    f"{getattr(handle, 'app_key', 'job')!r}")
+    if parked:
+        said.append(f"    {parked} QThread(s) are parked -- they outlived the "
+                    f"widget that owned them and were never seen to stop")
+
+    try:
+        from spacr.qt import job_runner
+        runners = [runner for runner in list(job_runner._LIVE_RUNNERS)
+                   if runner.is_busy()]
+    except Exception:                                            # noqa: BLE001
+        runners = []
+    if runners:
+        said.append(f"    {len(runners)} JobRunner(s) are still busy; each "
+                    f"owns a QThread that shutdown() was never called on")
+
+    try:
+        import multiprocessing
+        children = multiprocessing.active_children()
+    except Exception:                                            # noqa: BLE001
+        children = []
+    for child in children:
+        said.append(f"    a child process is still alive: {child.name!r} "
+                    f"(pid {child.pid}); Python joins it at exit")
+
+    return said
+
+
+def _qt_things_report(said):
+    """What to print about the Qt state that will delay the process's exit."""
+    listed = "\n".join(said)
+    return (
+        f"{len(said)} thing(s) other than a Python thread can hold this "
+        f"process open now the session is over:\n{listed}\n"
+        "None of it is joined by Python, so none of it is named by the thread "
+        "report above; each is still a reason a finished run burns a core "
+        "instead of printing a summary.")
+
+
 def arm_shutdown_watchdog(seconds):
     """Dump every thread's stack and kill the process if shutdown stalls.
 
@@ -544,13 +681,29 @@ def arm_shutdown_watchdog(seconds):
     return True
 
 
+@pytest.hookimpl(hookwrapper=True, trylast=True)
+def pytest_runtestloop(session):
+    """Start the shutdown budget the moment the last test is over.
+
+    Innermost of the loop's wrappers on purpose, so the code after the
+    ``yield`` runs before any other plugin's teardown does -- including the
+    coverage write, which is the last thing a wedged run is known to have
+    finished. Nothing is reported here: at this point the reporting plugins
+    have not run and the threads that matter may still be retiring normally.
+    Reporting is ``pytest_sessionfinish``'s job, and it re-arms the watchdog
+    when it is done.
+    """
+    yield
+    arm_shutdown_watchdog(teardown_budget(session.config))
+
+
 @pytest.hookimpl(trylast=True)
 def pytest_sessionfinish(session, exitstatus):
     """Name what would hold the run open, then bound how long it may.
 
     Last of its kind on purpose: the threads worth reporting are the ones
     still alive after every other plugin has had its teardown, and the
-    watchdog must cover whatever those plugins do after this.
+    watchdog re-armed here must cover whatever happens after this.
     """
     config = session.config
     # A distributed worker has a terminal reporter that prints nowhere the
@@ -570,6 +723,9 @@ def pytest_sessionfinish(session, exitstatus):
     lingering = threads_that_outlive_the_session()
     if lingering:
         _say(_threads_that_outlive_the_session_report(lingering))
+    held = qt_things_that_outlive_the_session()
+    if held:
+        _say(_qt_things_report(held))
     if not arm_shutdown_watchdog(SHUTDOWN_WATCHDOG_S) \
             and SHUTDOWN_WATCHDOG_S > 0:
         # Said out loud rather than swallowed: a watchdog nobody armed is

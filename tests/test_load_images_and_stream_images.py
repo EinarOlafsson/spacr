@@ -164,6 +164,32 @@ def test_the_tooltip_names_both_modes():
 
     text = tooltips["crop_source"]
     assert "LOAD IMAGES" in text and "STREAM IMAGES" in text
-    assert "pre_generated" in text, (
-        "the training vocabulary still exists and a reader meeting it needs "
-        "to be told it is the same setting")
+    assert "'png'" in text and "'merged'" in text
+
+
+def test_the_tooltip_does_not_teach_the_retired_training_vocabulary():
+    """This assertion is the reverse of the one it replaces.
+
+    The earlier test required 'pre_generated' in the tooltip, on the grounds
+    that a reader meeting the training vocabulary had to be told it was the
+    same setting. That is the failure this instruction names: a mapping in
+    one settings tooltip sets two vocabularies side by side, it does not
+    migrate one onto the other. Training writes 'load_images' /
+    'stream_images' through `image_source`, and the old spellings survive as
+    ALIASES with their migration written down where a grep lands --
+    `crop_source.CROP_SOURCE_ALIASES` and `settings._IMAGE_SOURCES` -- so the
+    tooltip describes the choice in the two words and nothing else.
+    """
+    from spacr.crop_source import CROP_SOURCE_ALIASES
+    from spacr.settings import _IMAGE_SOURCES, tooltips
+
+    text = tooltips["crop_source"]
+    for retired in ("pre_generated", "on_demand"):
+        assert retired not in text, retired
+        # Retired from the wording, NOT from the readers: every settings CSV
+        # in existence carries one of them.
+        assert retired in CROP_SOURCE_ALIASES
+        assert retired in _IMAGE_SOURCES
+
+    assert "load_images" in text and "stream_images" in text, (
+        "the two names training writes are what the tooltip migrates onto")

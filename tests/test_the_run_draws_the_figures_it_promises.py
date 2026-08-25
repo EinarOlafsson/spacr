@@ -30,9 +30,14 @@ class TestTheThresholdSweepIsAlwaysDrawn:
         from spacr import ml
 
         source = pathlib.Path(ml.__file__).read_text()
-        assert "_draw_the_threshold_sweep(settings, res_folder)" in source, (
+        # The call is matched WITHOUT its closing bracket: the helper gained
+        # a keyword saying whether the threshold in force was measured from
+        # the control wells or set by the user, so the call spans two lines.
+        # What this pins is unchanged -- the branch calls it at all.
+        assert "_draw_the_threshold_sweep(" in source, (
             "the run still only prints a sentence explaining why there is "
             "no graph when a threshold is set")
+        assert "settings, res_folder" in source
         # And the sentence that replaced the graph is gone.
         assert "sweep graph is not drawn" not in source
 

@@ -177,3 +177,77 @@ def test_the_type_is_on_the_measure_panel_and_not_in_a_leftover_bucket(qapp):
     assert "Additional Settings" not in titles and "Other" not in titles
     mapping = dict(sections)["Mask & Channel Mapping"]
     assert any("Type" in label for label, _widget in mapping)
+
+
+# ---------------------------------------------------------------------------
+# And the run journal carries it, not only the console
+# ---------------------------------------------------------------------------
+
+@pytest.fixture
+def scratch_run_logs(tmp_path, monkeypatch):
+    """Per-run JSONL logs in a scratch folder, with the root logger open."""
+    import logging
+
+    monkeypatch.setenv("SPACR_LOG_DIR", str(tmp_path / "logs"))
+    root = logging.getLogger()
+    before = root.level
+    root.setLevel(logging.DEBUG)
+    yield tmp_path / "logs"
+    root.setLevel(before)
+
+
+def test_the_run_journal_carries_the_caveat(scratch_run_logs):
+    """The console is not where a batch is read back from.
+
+    `explain_organelle_measurements` prints the sentence and stops there, so
+    a measurements.db opened a week later carried the count-dependent columns
+    with nothing beside them saying what they mean for a one-object-per-cell
+    organelle. The measure run puts the same sentence on its own journal,
+    stamped with the run id the database is stamped with, so
+    `read_run_log(run_id)` gives them back together.
+    """
+    from spacr.measure import _record_organelle_caveats
+    from spacr.runctx import read_run_log, run_context
+
+    settings = {"organelle_mask_dim": 7, "organelle_type": "reticular",
+                "spatial_measurements": True}
+
+    with run_context("measure", {}) as run:
+        recorded = _record_organelle_caveats(settings, run)
+        run_id = run.run_id
+
+    assert {setting for _label, setting, _why in recorded} == {
+        "spatial_measurements"}
+
+    journal = read_run_log(run_id, contains="[organelle]")
+    assert journal, "the caveat never reached the run journal"
+    said = " ".join(record["message"] for record in journal)
+    assert "Organelle 1" in said
+    assert "spatial_measurements" in said
+    assert "one connected mesh" in said
+
+
+def test_a_punctate_run_leaves_no_note_on_the_journal(scratch_run_logs):
+    """Silent when there is nothing to say: a run measuring what these
+    families were designed for is not given a paragraph."""
+    from spacr.measure import _record_organelle_caveats
+    from spacr.runctx import read_run_log, run_context
+
+    with run_context("measure", {}) as run:
+        assert _record_organelle_caveats(
+            {"organelle_mask_dim": 7, "organelle_type": "punctate",
+             "spatial_measurements": True}, run) == []
+        run_id = run.run_id
+
+    assert read_run_log(run_id, contains="[organelle]") == []
+
+
+def test_the_measure_run_records_them_where_the_tables_are_written():
+    """The call sits inside `measure_crop`, beside the ledger the tables are
+    accounted on -- not in a helper nothing reaches."""
+    import inspect
+
+    from spacr import measure
+
+    source = inspect.getsource(measure.measure_crop)
+    assert "_record_organelle_caveats(settings, run)" in source

@@ -208,12 +208,17 @@ def test_a_level_in_neither_vocabulary_falls_through_untouched():
 
 def test_the_model_dropdown_opens_on_the_model_that_will_be_fitted():
     """A combo default that disagrees with the settings default posts a
-    different model than the panel was built for."""
+    different model than the panel was built for.
+
+    The options are (stored value, label) pairs now that each family states
+    what it assumes, so membership is checked on the stored half -- which is
+    the half a settings file carries.
+    """
     from spacr.settings_spec import convert_settings_dict_for_gui as build
     kind, options, default = build({"regression_type": "ols"})["regression_type"]
     assert kind == "combo"
     assert default == _regression_defaults()["regression_type"] == "mixed"
-    assert "mixed" in options
+    assert "mixed" in [value for value, _label in options]
 
 
 # ---------------------------------------------------------------------------
