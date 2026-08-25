@@ -1,32 +1,53 @@
 # Lowest-supported direct dependency profile for CPython 3.9 on Linux.
 #
-# Most entries are the exact lower bound declared in setup.py. Three coupled
-# packages intentionally use the first installable set rather than mutually
-# impossible independent floors:
+# This file is what makes setup.py's lower bounds real. A floor nothing
+# installs is a promise nothing keeps, so the "Minimum dependencies" job in
+# .github/workflows/tests.yml installs exactly this profile and runs the same
+# suite the newest-resolution job runs. setup.py's dependency-policy block
+# states the rule; this file is the half that executes it.
+#
+# EVERY PIN HERE EQUALS THE FLOOR setup.py DECLARES, and the exceptions are
+# listed below by name. That is not tidiness: a pin sitting quietly above its
+# floor means the floor is the one bound in setup.py that nothing tests, and
+# the version a pinned user's resolver lands on is the version CI skipped.
+# tests/test_optimal_dependency_versions.py rejects an unexplained gap.
+#
+# Most exceptions are packages whose floors cannot be installed together, so
+# the profile takes the first mutually installable set instead:
 #   torch 2.1.0 + torchvision 0.16.0 require sympy 1.12;
-#   cellpose 4.0.7 is setup.py's declared floor, NOT the first 4.x
-#     release. This file used to pin 4.0.1 on the reasoning that it was
-#     the first published 4.x, which stopped being the point when the
-#     floor was raised: CellposeModel's signature differs between them
-#     (use_bfloat16 absent in 4.0.1, resample defaulting True rather
-#     than None), so the min-deps job was installing a version the
-#     package declares it does not support and failing ~23 tests that
-#     pass on every other job;
 #   umap-learn 0.5.11 requires scikit-learn 1.6 or newer;
 #   tensorboard 2.21.0 requires protobuf 6.31.1 or newer.
 #
-# statsmodels and shap used to be the same failure the cellpose note below
-# describes, in the other direction: the pin matched setup.py exactly and
-# SETUP.PY was the file that was wrong. 0.13.5 and 0.45.0 were floors nobody
-# had run, and this job is what ran them -- 16 failures no other job had,
-# all of them an API spaCR uses that the pinned release does not have.
-# setup.py now declares statsmodels>=0.14.0 and shap>=0.47.0 with the reason
-# written next to each, and tests/test_dependency_floors_have_the_api.py
-# keeps the two facts joined. Both versions publish cp39 wheels.
+# nvidia-ml-py is the other kind. It numbers its releases after the NVIDIA
+# driver, so setup.py's `>=11.5` is a boundary and not a release: no
+# published version equals it and 11.450.51 is the first that satisfies it.
+# The conda-forge recipe declares the same dependency under its conda name,
+# `pynvml`, whose release numbers are NOT the driver numbers -- 11.5.0 is a
+# real conda package -- so raising the PyPI floor to 11.450.51 without
+# deciding what the conda floor should become would put the two ecosystems
+# on different versions.
+#
+# cellpose is pinned at setup.py's floor, 4.0.7, NOT at the first published
+# 4.x. This file used to pin 4.0.1 on the reasoning that it was the first 4.x
+# release, which stopped being the point when the floor was raised:
+# CellposeModel's signature differs between them (use_bfloat16 absent in
+# 4.0.1, resample defaulting True rather than None), so the job was
+# installing a version the package declares it does not support and failing
+# ~23 tests that pass on every other job.
+#
+# statsmodels and shap were once the same failure in the other direction: the
+# pin matched setup.py exactly and SETUP.PY was the file that was wrong.
+# 0.13.5 and 0.45.0 were floors nobody had run, and this job is what ran them
+# -- 16 failures no other job had, all of them an API spaCR uses that the
+# pinned release does not have. setup.py now declares statsmodels>=0.14.0 and
+# shap>=0.47.0 with the reason written next to each, and
+# tests/test_dependency_floors_have_the_api.py keeps the two facts joined.
+# Both versions publish cp39 wheels.
 #
 # Dependencies with no declared lower bound (czifile and readlif) are left to
 # pip. This file constrains direct dependencies only; transitive packages are
-# resolved normally so their own compatibility metadata remains authoritative.
+# resolved normally so their own compatibility metadata remains
+# authoritative.
 
 numpy==1.26.4
 pandas==2.2.1
@@ -84,9 +105,9 @@ protobuf==6.31.1
 PySide6==6.6.0
 qtawesome==1.3.0
 pyqtgraph==0.13.3
-# `dev` only since 2026-08-17: the outside reference the Welch ANOVA
-# cross-check runs against. Pinned at the floor here so the minimum job
-# actually RUNS that check rather than skipping it.
+# A `dev` extra: the outside reference the Welch ANOVA cross-check runs
+# against. Pinned at the floor here so the minimum job actually RUNS that
+# check rather than skipping it.
 pingouin==0.5.5
 pytest==8.0.0
 pytest-qt==4.4.0

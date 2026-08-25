@@ -56,6 +56,13 @@ concurrency:
   cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
 
 jobs:
+  # THE NEWEST END of the dependency policy setup.py states: this job installs
+  # with no constraints file, so pip resolves the top of every declared range
+  # and the suite runs against what a fresh `pip install spacr` actually gets
+  # today. It is the job that keeps the recommendation true as releases land.
+  # Its opposite number is `minimum-dependencies` below, which installs the
+  # declared floors instead. Both are blocking, and
+  # tests/test_optimal_dependency_versions.py fails if either stops being so.
   fast:
     name: Fast / Full suite control (ubuntu-24.04, py3.12)
     runs-on: ubuntu-24.04
@@ -264,11 +271,13 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # Python 3.9 is the oldest supported interpreter. Its constraints file
-      # pins every lower-bounded direct dependency (and every extra installed
-      # here) to the oldest mutually installable release. The normal matrix
-      # above intentionally has no constraints and therefore exercises the
-      # newest compatible resolution on all six supported interpreters.
+      # THE FLOOR END. Python 3.9 is the oldest supported interpreter, and
+      # this constraints file pins every lower-bounded direct dependency (and
+      # every extra installed here) to the version setup.py declares as its
+      # floor. A lower bound nothing installs is a promise nothing keeps, so
+      # this is the job that turns setup.py's floors into a tested claim
+      # rather than a guess. Every other job here and in compat-matrix.yml
+      # deliberately carries no constraints and therefore resolves newest.
       - name: Set up Python 3.9
         uses: actions/setup-python@v7
         with:

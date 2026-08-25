@@ -420,6 +420,11 @@ def test_every_directly_imported_third_party_module_is_declared():
     scikit-learn, ``natsort`` via cellpose, ``patsy`` via statsmodels and
     ``sympy`` via torch. Every one of those was a dependency-of-a-dependency
     away from an ImportError at ``import spacr.utils``.
+
+    ``sympy`` left the table with the Tkinter interface: the only module
+    that imported it was ``gui_elements.py``, which no longer exists, and
+    the check read a file rather than guessing -- so it raised
+    FileNotFoundError instead of reporting a missing declaration.
     """
     declared = {_norm(re.split(r"[<>=!~ ,\[;]", d.strip())[0])
                 for d in _core_dependencies()}
@@ -429,10 +434,14 @@ def test_every_directly_imported_third_party_module_is_declared():
         "joblib": "utils.py",
         "natsort": "submodules.py",
         "patsy": "ml.py",
-        "sympy": "gui_elements.py",
     }
     missing = []
     for dist, where in sorted(must_be_declared.items()):
+        # A NAMED FILE THAT IS GONE IS A STALE ENTRY, not a failure of the
+        # thing being tested. Say which, rather than raising from open().
+        assert (REPO_ROOT / "spacr" / where).exists(), (
+            f"{where} is named here for {dist} and does not exist; the entry "
+            f"is stale")
         if re.search(rf"^\s*(import|from)\s+{dist}\b", _src(where), re.MULTILINE):
             if _norm(dist) not in declared:
                 missing.append((dist, where))
