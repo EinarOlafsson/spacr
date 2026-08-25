@@ -21,8 +21,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from _support import (dataset_root, preflight, read_settings, require, run,
-                      scratch, settings_file, stage)
+from _support import (check, dataset_root, preflight, read_settings, require,
+                      run, scratch, settings_file, stage)
 
 DEFAULT_ROOT = "/mnt/wd12tb/sequencing"
 
@@ -104,6 +104,7 @@ def main(argv):
 
     from spacr.sequencing import generate_barecode_mapping
 
+    mapped = {}
     for label, settings in (("recorded orientation", base),
                             ("forward references", flip_orientation(base))):
         work = scratch(f"map_barcodes_real_{label.split()[0]}")
@@ -126,9 +127,23 @@ def main(argv):
         share = 100.0 * reads / READS
         print(f"\n{label}: {reads} of {READS} reads mapped ({share:.0f}%), "
               f"{combinations} combinations")
-        if reads == 0:
-            print("  zero reads mapped and the run reported no error -- this "
-                  "is the silent zero count the orientation causes")
+        mapped[label] = reads
+
+    check(mapped["recorded orientation"] > 0,
+          f"the recorded orientation mapped 0 of {READS} reads. These are the "
+          f"reads and the references the shipped count table was built from, "
+          f"so zero here is the mapper and not the library -- and it is zero "
+          f"that no error was raised about.")
+    check(mapped["forward references"] < mapped["recorded orientation"],
+          f"flipping every _RC reference to its forward file changed the "
+          f"count from {mapped['recorded orientation']} to "
+          f"{mapped['forward references']}. Orientation is supposed to decide "
+          f"whether a read matches at all, so a flip that costs nothing means "
+          f"the references are not reaching the match.")
+    print(f"\nthe orientation decides the count: "
+          f"{mapped['recorded orientation']} reads with the recorded "
+          f"references against {mapped['forward references']} with the "
+          f"forward ones, on the same {READS} reads")
 
 
 if __name__ == "__main__":

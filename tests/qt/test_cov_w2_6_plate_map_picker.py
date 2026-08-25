@@ -89,6 +89,23 @@ def test_a_well_reaches_the_picker_when_its_holder_is_the_dialogs_child(
     assert wired_well._picker() is picker
 
 
+def test_a_well_with_no_picker_is_still_an_ordinary_button(qapp):
+    """A well outside a picker has nobody to run a drag for it, so press,
+    move and release fall straight through to the button: it toggles, and
+    nothing goes looking for a dialog that is not there."""
+    orphan = _Well(1, 1)
+    orphan.resize(22, 22)
+    try:
+        _press(orphan)
+        _move_to(orphan, orphan)
+        _release(orphan)
+
+        assert orphan.isChecked()
+        assert CHOSEN in orphan.styleSheet()
+    finally:
+        orphan.deleteLater()
+
+
 # --------------------------------------------------------------------------
 # the drag, through real mouse events on a well that can reach its picker
 # --------------------------------------------------------------------------

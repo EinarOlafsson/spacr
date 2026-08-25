@@ -20,7 +20,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from _support import dataset_root, preflight, require, run, scratch, stage
+from _support import (check, dataset_root, preflight, require, run, scratch,
+                      stage)
 
 DEFAULT_ROOT = "/mnt/firecuda2/Claude/toxoplasma_projects/tsg101_screen"
 
@@ -82,9 +83,14 @@ def main(argv):
 
     filled, total = merged_rows(work / "measurements" / "measurements.db")
     print(f"\nscores merged back into png_list: {filled} of {total} rows")
-    if total and not filled:
-        print("  nothing merged -- the plate identity on disk and the one the "
-              "run computed did not meet")
+    check(total > 0, "png_list is empty, so there was nothing to merge scores "
+                     "into and nothing this run can be judged against")
+    check(filled > 0,
+          f"none of the {total} png_list rows carries a score. The fit ran, "
+          f"the figures were written and the run reported success -- the "
+          f"plate identity on disk and the one the run computed did not meet, "
+          f"which is a join that silently matched nothing rather than an "
+          f"error anything raised.")
 
 
 if __name__ == "__main__":

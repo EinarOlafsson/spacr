@@ -11,6 +11,13 @@ ships one network, ``cpsam``, and estimates diameter differently. A different
 network gives a different segmentation. The counts are printed side by side so
 the size of that difference is visible rather than assumed.
 
+BUT ZERO IS NOT A DIFFERENT SEGMENTATION. A field whose mask planes are
+empty means segmentation found nothing at all, and it leaves behind exactly
+the same folders, the same ``.npy`` files and the same array shapes as a
+field that worked -- which is why "the masks exist" and "the array has two
+or three dimensions" both pass on it. One object is the floor, so the driver
+refuses a field that does not clear it and names the field.
+
 ``src`` MUST HOLD THE IMAGES DIRECTLY. Pointing it at a plate folder whose
 images are already in ``orig/`` finds zero fields; spaCR says so and names the
 sub-folders it found. That is why this driver stages the TIFs flat.
@@ -22,8 +29,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from _support import (cap_gpu, dataset_root, preflight, read_settings, require,
-                      run, scratch, settings_file, stage, undeclared)
+from _support import (cap_gpu, check, dataset_root, preflight, read_settings,
+                      require, run, scratch, settings_file, stage, undeclared)
 
 DEFAULT_ROOT = "/home/olafsson/datasets/plate1"
 
@@ -49,6 +56,16 @@ def count_objects(path, planes=(("cell", 4), ("nucleus", 5), ("pathogen", 6))):
             labels = np.unique(array[..., index])
             counts[name] = int((labels != 0).sum())
     return counts
+
+
+def empty_fields(counted):
+    """The fields where no mask plane holds a single object.
+
+    :param counted: ``{field: {object_type: objects}}``.
+    :returns: the field names whose every plane came out empty, sorted.
+    """
+    return sorted(name for name, counts in counted.items()
+                  if not any(counts.values()))
 
 
 def main(argv):
@@ -95,15 +112,28 @@ def main(argv):
     preprocess_generate_masks(settings)
 
     print("\nobjects per field, this run against the reference:")
+    counted = {}
     for produced in sorted((work / "merged").glob("*.npy")):
         reference = root / "merged" / produced.name
-        line = f"  {produced.stem}: {count_objects(produced)}"
+        counted[produced.stem] = count_objects(produced)
+        line = f"  {produced.stem}: {counted[produced.stem]}"
         if reference.is_file():
             line += f" vs reference {count_objects(reference)}"
         print(line)
-    print("\nA difference here is the segmentation model, not the pipeline: "
-          "the reference was made with Cellpose 3 and this run uses whatever "
-          "Cellpose is installed.")
+
+    check(counted, "the run wrote no merged arrays, so there is nothing "
+                   "segmented to count")
+    empty = empty_fields(counted)
+    check(not empty,
+          f"segmentation found no objects at all in {len(empty)} of "
+          f"{len(counted)} fields: {', '.join(empty)}. An empty mask plane "
+          f"writes the same files, of the same shape, as a plane full of "
+          f"cells, so nothing downstream notices.")
+
+    print("\nEvery field carries at least one object. A difference in the "
+          "counts is the segmentation model, not the pipeline: the reference "
+          "was made with Cellpose 3 and this run uses whatever Cellpose is "
+          "installed.")
 
 
 if __name__ == "__main__":

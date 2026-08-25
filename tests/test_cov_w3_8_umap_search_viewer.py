@@ -15,11 +15,11 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QEvent, QPoint, QPointF, Qt  # noqa: E402
+from PySide6.QtCore import QEvent, QPoint, QPointF, Qt, QTimer  # noqa: E402
 from PySide6.QtGui import (  # noqa: E402
-    QContextMenuEvent, QMouseEvent, QWheelEvent,
+    QContextMenuEvent, QImage, QKeyEvent, QMouseEvent, QWheelEvent,
 )
-from PySide6.QtWidgets import QDialogButtonBox, QMenu  # noqa: E402
+from PySide6.QtWidgets import QApplication, QDialogButtonBox  # noqa: E402
 
 from spacr.qt.widgets.umap_search_viewer import (  # noqa: E402
     BACKGROUND, CLUSTER_COLORS, NOISE, POINT, UmapAppearanceDialog,
@@ -36,17 +36,19 @@ def _embedding(dimensions: int = 3, rows: int = 40) -> np.ndarray:
     return rng.normal(size=(rows, dimensions))
 
 
+def _rendered(widget) -> np.ndarray:
+    """The widget's own painting, as an (H, W, 3) RGB array."""
+    image = widget.grab().toImage().convertToFormat(QImage.Format_RGB32)
+    raw = np.frombuffer(memoryview(image.constBits()), dtype=np.uint8)
+    rows = raw.reshape(image.height(), image.bytesPerLine() // 4, 4)
+    return rows[:, :image.width(), :3][:, :, ::-1]
+
+
 def _non_background_pixels(widget) -> int:
     """How many pixels the widget painted over its own black ground."""
-    image = widget.grab().toImage()
-    counted = 0
-    for y in range(image.height()):
-        for x in range(image.width()):
-            colour = image.pixelColor(x, y)
-            if (colour.red(), colour.green(), colour.blue()) != (
-                    BACKGROUND.red(), BACKGROUND.green(), BACKGROUND.blue()):
-                counted += 1
-    return counted
+    ground = np.array((BACKGROUND.red(), BACKGROUND.green(), BACKGROUND.blue()),
+                      dtype=np.uint8)
+    return int(np.any(_rendered(widget) != ground, axis=-1).sum())
 
 
 # --------------------------------------------------------------------------
@@ -194,34 +196,66 @@ def test_the_editor_reaches_the_view_and_lets_go_when_it_closes(qtbot):
     assert view._appearance_dialog is None
 
 
-def test_the_context_menu_offers_appearance_and_reset(qtbot, monkeypatch):
+def _drive_open_menu(index):
+    """Answer the next popup menu the way a user would: keyboard, not a mock.
+
+    ``QMenu.exec`` cannot be monkeypatched -- Shiboken types reject the
+    assignment and the real modal loop runs, wedging the run -- and closing
+    the popup from a timer makes ``exec`` return None whatever was clicked.
+    Highlighting the row and pressing Return is the path that actually sets
+    the action ``exec`` returns; Escape (``index`` None) dismisses it.
+    """
+    def answer():
+        popup = QApplication.activePopupWidget()
+        if popup is None:
+            QTimer.singleShot(5, answer)
+            return
+        if index is None:
+            key = QKeyEvent(QEvent.KeyPress, Qt.Key_Escape, Qt.NoModifier)
+        else:
+            popup.setActiveAction(popup.actions()[index])
+            key = QKeyEvent(QEvent.KeyPress, Qt.Key_Return, Qt.NoModifier)
+        QApplication.sendEvent(popup, key)
+
+    QTimer.singleShot(0, answer)
+
+
+def _context_menu_event():
+    return QContextMenuEvent(
+        QContextMenuEvent.Mouse, QPoint(5, 5), QPoint(105, 105))
+
+
+def test_reset_view_from_the_context_menu_puts_the_camera_back(qtbot):
     view = UmapEmbeddingView()
     qtbot.addWidget(view)
     view.set_embedding(_embedding(3))
     view._zoom = 4.0
-
-    chosen: list = [None]
-
-    def pick(self, _position):
-        return chosen[0](self.actions())
-
-    monkeypatch.setattr(QMenu, "exec", pick)
-    event = QContextMenuEvent(
-        QContextMenuEvent.Mouse, QPoint(5, 5), QPoint(105, 105))
-
-    chosen[0] = lambda actions: actions[1]
-    view.contextMenuEvent(event)
+    view._yaw = 1.9
+    _drive_open_menu(1)
+    view.contextMenuEvent(_context_menu_event())
     assert view._zoom == 1.0
+    assert view._yaw == pytest.approx(0.22)
     assert view._appearance_dialog is None
 
-    chosen[0] = lambda actions: actions[0]
-    view.contextMenuEvent(event)
+
+def test_appearance_from_the_context_menu_opens_the_editor(qtbot):
+    view = UmapEmbeddingView()
+    qtbot.addWidget(view)
+    view.set_embedding(_embedding(3))
+    _drive_open_menu(0)
+    view.contextMenuEvent(_context_menu_event())
     assert isinstance(view._appearance_dialog, UmapAppearanceDialog)
     qtbot.addWidget(view._appearance_dialog)
 
-    chosen[0] = lambda _actions: None
-    view._appearance_dialog = None
-    view.contextMenuEvent(event)
+
+def test_dismissing_the_context_menu_changes_nothing(qtbot):
+    view = UmapEmbeddingView()
+    qtbot.addWidget(view)
+    view.set_embedding(_embedding(3))
+    view._zoom = 4.0
+    _drive_open_menu(None)
+    view.contextMenuEvent(_context_menu_event())
+    assert view._zoom == 4.0
     assert view._appearance_dialog is None
 
 
@@ -401,33 +435,55 @@ def test_two_markers_do_not_paint_the_same_picture(qtbot):
     assert circles != squares
 
 
-def test_a_three_dimensional_map_says_it_can_be_spun(qtbot, monkeypatch):
-    drawn: list = []
-    from PySide6.QtGui import QPainter
+def _ink(widget, top, bottom) -> int:
+    """Painted pixels in a horizontal strip of the widget's own render."""
+    ground = np.array((BACKGROUND.red(), BACKGROUND.green(), BACKGROUND.blue()),
+                      dtype=np.uint8)
+    strip = _rendered(widget)[top:bottom]
+    return int(np.any(strip != ground, axis=-1).sum())
 
-    real = QPainter.drawText
 
-    def record(self, *args):
-        if args and isinstance(args[-1], str):
-            drawn.append(args[-1])
-        return real(self, *args)
+def test_the_backend_is_named_beside_the_caption(qtbot):
+    """The header strip gains ink when a backend is supplied; nothing else does.
 
-    monkeypatch.setattr(QPainter, "drawText", record)
+    Measured rather than intercepted: ``QPainter.drawText`` is a Shiboken
+    method and cannot be replaced, so the two renders are made identical in
+    every respect except the backend string and the pixels are counted.
+    """
     view = UmapEmbeddingView()
     qtbot.addWidget(view)
-    view.resize(300, 260)
-    view.set_embedding(_embedding(3), caption="map A", backend="cuml")
-    view.grab()
-    assert "map A  ·  cuml" in drawn
-    assert any("drag to spin" in text for text in drawn)
-    assert "Dimension 3" in drawn
+    view.resize(320, 280)
+    coords = _embedding(2)
+    view.set_embedding(coords, caption="map A")
+    plain_header = _ink(view, 6, 28)
+    plain_body = _ink(view, 40, 240)
+    view.set_embedding(coords, caption="map A", backend="cuml")
+    assert _ink(view, 6, 28) > plain_header
+    assert _ink(view, 40, 240) == plain_body
 
-    drawn.clear()
-    view.set_embedding(_embedding(2), caption="map B")
-    view.grab()
-    assert "map B" in drawn
-    assert not any("drag to spin" in text for text in drawn)
-    assert "Dimension 3" not in drawn
+
+def test_only_a_three_dimensional_map_offers_the_drag_hint(qtbot):
+    """The 3-D footer carries the extra 'drag to spin' clause, so it is wider.
+
+    Both renders use the same first two coordinates and a zoomed-out cloud
+    that stays clear of the footer strip, so the strip holds the hint alone.
+    """
+    flat = _embedding(2)
+    lifted = np.column_stack((flat, np.zeros(len(flat))))
+
+    def footer(coords):
+        view = UmapEmbeddingView()
+        qtbot.addWidget(view)
+        view.resize(600, 400)
+        view.set_embedding(coords)
+        view._zoom = 0.2
+        view._pitch = 0.0
+        return _ink(view, 370, 396)
+
+    two_d = footer(flat)
+    three_d = footer(lifted)
+    assert two_d > 0
+    assert three_d > two_d
 
 
 # --------------------------------------------------------------------------

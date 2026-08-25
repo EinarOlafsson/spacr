@@ -2,7 +2,9 @@
 THE VOLCANO'S RIGHT-CLICK MENU, AND FOUR FILTERS THAT CANNOT FIRE
 ================================================================================
 
-Status:    OPEN. Requested 2026-08-25.
+Status:    PART DONE. Sections 1 and 2 are closed; section 3 is closed in
+           the graph's own menu and still open in the save dialog and the
+           figure preferences -- see WHAT IS STILL OPEN at the foot.
 Owner:     spacr/qt/widgets/volcano_explorer.py and the shared graph
            right-click menu; spacr/settings.py for the four removals.
 
@@ -77,3 +79,71 @@ HOW TO KNOW IT WORKED
 * the set of settings the menu offers equals the set the side panel
   offers -- asserted as a set comparison, not by eye;
 * nothing anywhere says "aspect ratio" to a user.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE, AND HOW IT WAS MEASURED
+--------------------------------------------------------------------------------
+
+Section 2, in `spacr/qt/widgets/volcano_explorer.py`,
+`spacr/qt/widgets/fast_plots.py` and their tests:
+
+  * A CLOSED SET HELD IN A CONTAINER IS NOW TICKED RATHER THAN PICKED.
+    `style_field_kind` gained a `multi` kind, `_add_style_entry` builds it
+    as a submenu of tick boxes, and `_toggle_style_member` keeps the value
+    in the OFFERED order so one combination is one value however a reader
+    arrived at it. `VolcanoStyle.localizations` already existed and the
+    renderer already drew several compartments; what was missing was any
+    way to say so.
+  * The side panel grew the ten settings the style had and it did not:
+    x_lim, y_lim, background_color, control_column, color_vmin, color_vmax,
+    localizations, localization_column, and -- shown but not editable, the
+    same rule the menu follows -- split_y_lims and annotations. Measured:
+    `panel_settings() == menu_settings() == {every field of VolcanoStyle}`,
+    all 65 of them.
+  * `_style_choices` asked `_controls` for 'colour_by' and 'label_by' while
+    the controls and the style spell them 'color_by' and 'label_column', so
+    the menu offered free text where the panel offered a picker. It is now
+    read off the panel's own controls, which also gives the menu the
+    marker, colormap, line-style and font pickers it never had. The strict
+    xfail in tests/qt/test_cov_w2_6_volcano_explorer.py is cleared.
+  * An axis limit of +/-8 typed into the menu was read back off the axes,
+    off the side panel, and off the written SVG's tick labels; an axis
+    label typed into the menu was read back off the axes and out of the
+    file.
+  * Two defects found on the way and fixed: `effect_threshold` was a plain
+    spin box, so the first touch of ANY control wrote 0.0 over a threshold
+    nobody had set; and `export('svg')` returned an `.svg` path while
+    `save_figure` -- which keeps only PNG and PDF and corrects a file's
+    extension to what it wrote -- had written a PDF beside it, so the
+    caller was handed the name of a file that did not exist.
+
+Section 3, in `spacr/qt/widgets/fast_plots.py`: the graph's own menu says
+GRAPH SHAPE and offers square | horizontal rectangle | vertical rectangle
+| free, and the data-unit lock is separately named "Lock axis scales (1 y
+unit = n x units)". The stored names are unchanged.
+
+--------------------------------------------------------------------------------
+WHAT IS STILL OPEN
+--------------------------------------------------------------------------------
+
+Three places still say "aspect ratio" to a user, none of them in the graph
+menu:
+
+  * `spacr/qt/widgets/save_figure_dialog.py`, the `form.addRow("aspect
+    ratio", self.aspect)` row. It is the DATA lock -- its own tooltip says
+    "Lock one y unit to this many x units" -- so it takes the name the
+    graph menu already gives that control, "lock axis scales", not "graph
+    shape".
+  * `spacr/qt/preferences.py`, the help for "Aspect": "The width-to-height
+    ratio of each panel."
+  * `spacr/qt/widgets/measure_preview.py`, the "Lock aspect ratio" row on
+    the crop panel. A crop, not a graph -- rename or argue it is a
+    different quantity.
+
+And two tests still assert the words the graph menu used before the
+rename, so they are red against the shipped menu:
+`tests/test_a_square_is_the_canvas_not_the_data.py`, in
+`test_the_canvas_shape_and_the_axis_lock_are_two_controls` ("Shape" ->
+"Graph shape", and "wide"/"tall" -> "horizontal rectangle"/"vertical
+rectangle") and `test_the_menu_shows_which_shape_is_in_force` ("tall" ->
+"vertical rectangle").

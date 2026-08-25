@@ -667,7 +667,24 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # opens under the word that was pressed, and
     # `AnnotateScreen.retranslate_dynamic_content`, which recomposes the
     # captions this screen builds from parts. Nothing retired.
-    expected = 8266
+    # MOVED TO THE MEASURED TOTAL, and the drift is two separate events.
+    #
+    # +30/-1 since the fold work, all named: `CategoryFoldSet` and
+    # `CategoryFold` in `map_barcodes` with their six and four members --
+    # the mechanism by which a folded module becomes settings categories on
+    # its host rather than a window; four module-level names beside them;
+    # three on the new `qt.screens.mask`, which is where Timelapse folds;
+    # three on `SetupSlides` for the terms and the animation question; three
+    # on `VolcanoExplorer` and two in `volcano_style`; and one each way in
+    # `make_masks` as its fold strip changed shape.
+    #
+    # AND 105 THAT WERE ALREADY OWED, measured on the commit before this
+    # pass: the surface read 8161 against a ratchet of 8266. That gap is
+    # the Tkinter interface, whose deletion took eleven modules of public
+    # docstrings with it, and the ratchet was never moved to follow. It is
+    # moved to the MEASURED total rather than adjusted by an arithmetic
+    # nobody can check, so the count means what it says again.
+    expected = 8190
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -682,7 +699,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8385
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8309
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
