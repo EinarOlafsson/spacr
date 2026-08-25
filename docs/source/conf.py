@@ -117,6 +117,13 @@ autoapi_ignore            = [
     '*/qt/i18n_catalogs/*',
 ]
 autoapi_python_class_content = 'both'   # class docstring + __init__ docstring
+# Keep the generated .rst. Every docutils complaint is reported against
+# `api/spacr/<module>/index.rst:<line>`, and deleting those files turns the
+# build log into line numbers with no file behind them -- the generated
+# page is the only place the offending docstring appears as the parser saw
+# it. The tree is regenerated from scratch on every build the workflow
+# runs, which clears it first, so nothing stale survives.
+autoapi_keep_files           = True
 autoapi_member_order         = 'groupwise'   # attrs → methods, alphabetical inside
 
 # -- HTML output — furo ----------------------------------------------------

@@ -2,8 +2,12 @@
 spaCR MUST RUN ON PYTHON 3.9 THROUGH 3.14, ON THE RIGHT DEPENDENCY VERSIONS
 ================================================================================
 
-Status:    the cellpose floor is SETTLED (2026-08-08). The Python-range
-           half and the remaining floors are open.
+Status:    "optimal" is DEFINED and enforced -- spaCR means the newest in
+           each declared range, the floor is a promise rather than advice,
+           and both ends have a blocking CI job. The Python range is settled
+           and every claimed interpreter has a cell. Two items remain, both
+           in WHAT IS LEFT; compat-matrix is red for a reason that belongs
+           to instruction 43, not to this file.
 Requested: 2026-08-08 — "make sure spacr works on python 3.9-3.14 and that the optimal dependency versions are allways used."
 
 --------------------------------------------------------------------------------
@@ -406,3 +410,101 @@ The ceiling question is answered and spaCR runs on cellpose 4.0.7 AND 4.2.1.1
 from one suite, 53 tests passing on each. "Optimal" remains undefined and the
 full matrix still skips 3.10 -- both are recorded in the backlog rather than
 here, because neither is the dependency question this file was opened for.
+
+--------------------------------------------------------------------------------
+"OPTIMAL" IS DEFINED, AND BOTH READINGS KEEP THEIR JOB
+--------------------------------------------------------------------------------
+
+The two readings do imply opposite CI jobs, and both jobs stay -- because
+they answer different questions and only one of them is a recommendation.
+
+    WHAT A USER GETS is the NEWEST version in each declared range. `pip
+    install spacr` resolves the top of every range, so the upper end is what
+    spaCR is recommending. `Fast / Full suite control` installs with no
+    constraints file at all and runs the suite against whatever pip picks
+    that day.
+
+    WHAT A USER IS PROMISED is the floor. A lower bound is for an environment
+    pinned by something else -- a cluster module, a conda solve, another
+    package's cap. It is not advice. `Minimum dependencies` installs
+    .github/constraints/minimum-py39.txt on CPython 3.9 and runs the same
+    selection there, which is what makes a declared floor a tested claim.
+
+Written where the bounds are, not only here: setup.py carries the decision
+under the heading WHAT "THE OPTIMAL DEPENDENCY VERSIONS" MEANS, each of the
+two jobs says which end it is, and the constraints file states the rule it
+executes. tests/test_optimal_dependency_versions.py holds the shape -- both
+ends blocking, the floor end constrained, the newest end unconstrained, both
+running one selection, and no pin above a floor without a recorded reason.
+
+THREE FLOORS WERE NOT THE VERSION CI INSTALLS, which is the defect that rule
+exists to catch. A pin quietly above its floor leaves the floor the one bound
+in setup.py that nothing installs and nothing tests. Two are raised to the
+version the minimum job runs:
+
+    pyarrow        >=14      -> >=14.0.2
+    pytest-xdist   >=3.6     -> >=3.6.1
+
+The third is recorded rather than raised, and the reason is a real
+cross-ecosystem disagreement rather than caution. `nvidia-ml-py` numbers its
+PyPI releases after the NVIDIA driver, so `>=11.5` is a boundary and not a
+release -- 11.450.51 is the first that satisfies it. The conda-forge recipe
+declares the same dependency under its conda name `pynvml`, whose numbers
+are NOT driver numbers: 11.5.0 is a real conda package there. Raising the
+PyPI floor alone would put the two ecosystems on different versions, and
+tests/test_conda_forge_recipe.py would refuse it. The gap is named in the
+constraints file, which is what the rule allows.
+
+The four pins that ARE above their floors for the ordinary reason stay,
+because the floors cannot be installed together and the constraints file
+names each one: torch and torchvision pull sympy up, umap-learn pulls
+scikit-learn up, tensorboard pulls protobuf up.
+
+WHY NOT A LOCKFILE, restated because it is the tempting answer: on Python 3.9
+the newest resolvable IPython is 8.18.1 and on 3.11+ it is 9.16.1; matplotlib
+is 3.9.4 versus 3.11.1. There is no single newest-that-works set across six
+interpreters, so a file claiming one would be wrong on 3.9 the day it was
+written.
+
+--------------------------------------------------------------------------------
+WHAT THE FULL-SUITE COVERAGE ACTUALLY IS
+--------------------------------------------------------------------------------
+
+Earlier notes in this file claim the full suite runs on 3.9 through 3.14.
+It does not, and the current shape is deliberate rather than a gap:
+
+    full suite    3.12 (newest resolution) and 3.9 (declared floors).
+    every other   install, import, packaging metadata and the smoke subset --
+    interpreter   3.10, 3.11, 3.13, 3.14, Linux ARM64, Windows, macOS -- plus
+                  a wheels-only resolve on all six.
+
+The two full-suite cells are the two ENDS of the dependency policy above,
+which is the reason they are the two that run everything. Running the fast
+partition on all six interpreters duplicated the same application contracts
+and lost runners to the 35-50 minute cost per cell.
+
+--------------------------------------------------------------------------------
+WHAT IS LEFT
+--------------------------------------------------------------------------------
+
+  1. The nvidia-ml-py / pynvml floor is the one bound whose two ecosystems
+     disagree, and settling it needs a decision rather than an edit: either
+     both move together (setup.py to `>=11.450.51`, conda-forge/recipe to
+     whatever pynvml release corresponds) or the pair is documented as
+     deliberately different. It is recorded in the constraints file and does
+     not block anything today.
+
+  2. TWO CORE DEPENDENCIES ARE NOW DEAD, both of them Tk-only, and neither is
+     imported anywhere under spacr/ any more:
+
+       sympy       was `from sympy import root` in gui_elements.py. torch
+                   requires it regardless, so removing it costs a user
+                   nothing.
+       screeninfo  was the Tk interface's monitor geometry. Nothing else
+                   brings it in, so it is pure install weight.
+
+     Removing them touches setup.py, .github/constraints/minimum-py39.txt,
+     conda-forge/recipe/recipe.yaml, and the `sympy -> gui_elements.py` row
+     in tests/test_dependency_bounds.py, which reads a deleted file and is
+     failing on that already.
+

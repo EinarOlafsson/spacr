@@ -2,7 +2,9 @@
 MORE MEASUREMENTS: THE CHEAP ONES, THE OPT-IN ONES, AND LEARNED FEATURES
 ================================================================================
 
-Status:    not started. Under investigation 2026-08-10; findings go here.
+Status:    done. The four sub-questions are answered and shipped, and the
+           CPU speedups instruction 70 handed here are applied in
+           measure.py and proved bit-identical on real plate fields.
 Requested: 2026-08-10 — "In the measurements module I try to capture as many morphological and intensity measurements as possible, without using too much compute (e.g. not capturing granularity, texture CpU intensive measurements or just capturing light versions of them. My question is, are there measurements that I am missing that I could add? And are there high compute measurements that I could add that would be opt in, and if so what would they be? And could any measurements be captured on the GPU? And could I put each image through a cnn or transformer and capture feature layers, either in the database as measurements or some other object with this information that could be used for training?"
 
 --------------------------------------------------------------------------------
@@ -386,3 +388,54 @@ TWO THINGS DELIBERATELY LEFT, both recorded where they belong:
   block costs LESS than today's single rotation-dependent property at 256
   (1.108 ms vs 1.206). The correct statistic is affordable -- it just renames
   every existing homogeneity column, so it needs a migration decision.
+
+--------------------------------------------------------------------------------
+THE CPU SPEEDUPS INSTRUCTION 70 HANDED HERE ARE APPLIED. NOTHING MEASURED MOVED.
+--------------------------------------------------------------------------------
+
+The per-object work in the intensity block ran over the WHOLE FIELD once per
+object: a full-field label comparison, a full-field dilation, a full-field
+distance transform. Every one of those now runs inside the object's own
+bounding box, which selects the same pixels in the same order and so returns
+the same numbers.
+
+    _calculate_radial_distribution   the union of the cell's and the object's
+                                     boxes, grown by two
+    _outside_intensity               the object's box grown by the ring width
+    _periphery_intensity             the object's box
+    _calculate_correlation_object_level   the object's box
+    _extended_regionprops_table      one np.percentile call per object instead
+                                     of one per (object, cut point), and the
+                                     field's frac_high90 / frac_low10
+                                     references computed once per channel
+                                     instead of once per (channel, mask)
+    _estimate_blur's caller          the object's patch instead of a
+                                     whole-field boolean
+
+MEASURED, on real 1994-pixel-square fields from the tsg101 screen, comparing
+the whole measurements table against the same field measured by the previous
+code in the same process:
+
+    plate1_A01_10   103.9 s -> 20.9 s     85,626 values, all identical
+    plate1_C02_9    137.1 s -> 22.1 s     95,141 values, all identical
+
+Identical means identical: every column of all five object tables, value and
+dtype, NaN counted as a match. The ratio holds from 4.6x to 6.2x across fields
+and machine load; the absolute seconds above are from a lightly loaded run.
+
+ONE CLAIM IN INSTRUCTION 70 IS WRONG AND THE FIX IS IN THE CODE. Batching the
+percentile calls is NOT unconditionally bit-identical: numpy computes a
+float32 input in float64 when q is a sequence and in float32 when q is a
+scalar, and the two differ in the last bits, so a naive batch silently
+promotes every percentile column of a float32 channel. `_percentiles_of`
+batches only where numpy reaches float64 either way -- integers, booleans and
+float64 -- which is every merged stack spaCR writes, and falls back to one
+call per cut point otherwise. The guard is
+`test_an_intensity_percentile_keeps_the_dtype_of_its_image`.
+
+WHAT IS STILL OPEN HERE: nothing. The GLCM texture block and the four-angle
+rotation fix remain deliberately unshipped (they breach this instruction's own
+"the default run must not get slower" criterion, with numbers in the entry
+above), and the CNN embedding work remains dropped.
+
+    tests/test_an_object_is_measured_in_its_own_box.py

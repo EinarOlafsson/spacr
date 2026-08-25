@@ -2,8 +2,8 @@
 THE POSITIVE CONTROL CALIBRATES THE gRNA FRACTIONS
 ================================================================================
 
-Status:    filed 2026-08-21, DONE 2026-08-21. Discussion held 2026-08-21; see
-           WHAT WAS SAID BACK before building.
+Status:    closed. Read WHAT WAS SAID BACK before changing any of it; the
+           threshold sweep is the last section.
 Requested: 2026-08-21 -- "we could search for the positive controll in the
            wells, then assumin on average the positive controll does not
            co-habit wells with screen hits the gRNA fraction for the positive
@@ -331,3 +331,60 @@ follow, and the third is the one to be careful about:
 Column 3 is 58% PC by sequencing rather than the 50% a nominal mix would
 give, which is itself worth knowing: the design intent and the delivered
 composition differ by eight points.
+
+--------------------------------------------------------------------------------
+THE SWEEP: fraction_threshold BECOMES A MEASUREMENT OF THIS SCREEN
+--------------------------------------------------------------------------------
+
+This file's own sharpest form -- "sweep the threshold, do not replace it" --
+is `spacr/fraction_calibration.py`. For each candidate it recomputes the
+per-well fractions, refits imaging on sequencing over the control wells
+through `mixed_ratio_calibration`, and returns every candidate's fit with the
+one it chose and why. 0.02 stops being a constant in a library.
+
+WHAT "MOST CONSISTENT" MEANS, and it is not the residual. The choice is made
+on the median absolute DISAGREEMENT between the two measurements, well by
+well. Scatter around the FITTED line cannot see a systematic deflation at
+all: fractions that are uniformly three per cent low sit exactly on a line of
+slope 1.03, and that fit looks perfect. The mixture estimator absorbs
+penetrance -- a PC cell showing no phenotype is still in the pure-PC
+reference -- so what is left to explain a disagreement is the fraction
+itself. The slope, the intercept and the fitted residual are all reported at
+every candidate; the choice is made on how far apart the two answers are.
+
+TIES GO TO THE SMALLEST THRESHOLD. Once the spurious barcodes are gone a
+higher cut changes nothing except how much real data it destroys, and
+`guides_per_well` is reported at every candidate so what a cut costs is
+visible.
+
+IT REFUSES RATHER THAN REPORTING below `MINIMUM_CALIBRATION_WELLS` (8): a
+median over a handful of wells is decided by which wells happened to be
+usable, and the sweep exists to compare fits.
+
+THE CLASSIFIER CORRECTION IS A CONFUSION MATRIX OR NOTHING. `sensitivity` and
+`specificity` must both be given or neither; one alone is an accuracy wearing
+a confusion matrix's name and is refused, as is a pair summing to no more
+than one, which would invert the estimate. Given both, each well's imaging
+proportion is Rogan-Gladen corrected before the disagreement is taken, the
+slope is rescaled by the same denominator, and the variance inflation is
+reported beside it.
+
+THE PURE WELLS ARE NAMED FROM THE PLATE DESIGN, never from the reported
+fraction, for the reason this file already gives; and how many of the fitted
+wells also trained the classifier is COUNTED and reported, because a
+classifier scored on the wells it was fitted to agrees with itself.
+
+WHAT IT DOES NOT MEASURE, restated because the sweep does not escape it: a
+control column has two guides competing for its reads and a screen well has
+hundreds. The threshold this chooses is the one that makes the CONTROL
+columns consistent.
+
+WHAT REMAINS: nothing calls it yet. `graph_sequencing_stats` still picks the
+threshold from `target_unique_count` alone, which is a different question --
+how many guides per well do I want -- and the two can be reported side by
+side.
+
+Tests: `tests/test_the_threshold_is_measured_per_screen.py`, 15 passing. On a
+control plate with a planted contaminant the sweep recovers the threshold
+that removes it, and the run keeping every read is shown fitting a perfect
+line while both measurements disagree.

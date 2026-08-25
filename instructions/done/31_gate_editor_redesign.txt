@@ -2,9 +2,9 @@
 GATE EDITOR: A REDESIGN, NOT A CHANGE
 ================================================================================
 
-Status:    IN PROGRESS - DBSCAN + move model + panel merge landed.
-           GATE CREATION IS BROKEN (see 2026-08-07 below), which is
-           why none of the editing behaviour was visible.
+Status:    DONE. Every item of the request is built and covered, the last
+           of them being the right-click-on-the-axis gesture and the
+           per-axis cutoffs behind it.
 Requested: 2026-08-06, verbatim:
 
   "the user should be able to:
@@ -542,3 +542,62 @@ numbers above mean in each mode -- with a walk they are the starting point,
 not the answer, which is not obvious from a checkbox.
 
 16 tests; 541 pass across the gate suites, the xD picker and smoke.
+
+--------------------------------------------------------------------------------
+THE AXIS GESTURE, AND THE CUTOFFS BEHIND IT
+--------------------------------------------------------------------------------
+
+"right click on each axis to define the axis cutoffs, logarithmize the axis
+and other transforms" is the first line of the request and was the last thing
+open. The transforms existed -- as dropdowns in the settings window -- and the
+cutoffs did not exist at all.
+
+WHERE IT LIVES. `spacr/qt/widgets/gate_canvas.py`, and the screen calls it:
+
+    axis_at(point, bbox)      which axis a click landed on, from the axes'
+                              bounding box alone. Pure geometry, so the
+                              hit test is testable with no display and no
+                              figure. Below the rectangle is x, left of it
+                              is y, inside it is neither -- that is where
+                              the plot's own menu belongs -- and in the
+                              corner the further overshoot wins, so both
+                              axes stay reachable there.
+    AxisCutoffs               what is pinned, KEYED BY MEASUREMENT rather
+                              than by axis slot: swapping the axes carries
+                              each cutoff with its column instead of
+                              applying the intensity cutoff to area.
+    axis_menu_items(...)      the menu as data. An offscreen Qt cannot grab
+                              for a popup, so a test that builds a real menu
+                              hangs -- the same reason `graph_menu_items`
+                              returns data.
+    apply_cutoffs(axes, ...)  the limits, with the unpinned end of a
+                              one-sided cutoff taken from the data.
+
+A CUTOFF IS A VIEW AND NOT A FILTER, and that is the trap this phase was
+always going to have. A cutoff that dropped rows would silently re-decide
+every gate already drawn, and a population would then depend on how far the
+plot happened to be cut down. Same rule the scales already follow. There is a
+test that draws a gate, cuts the axis down to a fifth of it, and asserts the
+gate still holds every object it held.
+
+THE CUTOFFS RIDE THE CANVAS'S `rendered` SIGNAL, because a render is what
+undoes them: the limits are recomputed from the data every time, and a render
+happens on every gate edit. Applying them once would have been a gesture that
+lasted until the next click, which is the same shape as the wheel-zoom bug
+`_apply_scales` already records.
+
+THE MENU IS A SECOND ROUTE, NOT A SECOND COPY. Choosing a scale from it
+writes the same `x_scale` / `y_scale` the settings window writes, so the two
+cannot drift; and it retires the old `log_x` / `log_y` flag as it goes, or
+choosing "linear" would leave the retired flag to put the axis straight back
+on log. The menu also greys `log` and `logit` on a measurement that reaches
+zero, WITH the reason: the drawing code already skips them there, and a
+dropdown that accepts a choice which then does nothing is worse than one that
+says why it cannot.
+
+WHAT WOULD MAKE IT TIDIER: `GateSettingsDialog` can be told a mode chosen
+elsewhere (`set_mode`) but not a scale. Until it can, an open settings window
+is rebuilt when the axis menu changes a scale, so it cannot sit there showing
+a scale the plot is not using. A `set_scale(axis, scale)` shaped exactly like
+`set_mode` would replace the rebuild and keep the window's tab and scroll
+position.

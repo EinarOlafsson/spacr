@@ -99,7 +99,7 @@ OWN_DEFAULTS: Dict[str, object] = {
     "half_widths": 1.0,
     "baseline": "screen_median",
     "score_column": "pred",
-    "cap": 300,
+    "cap": 2000,
     "cell_picking": "rank",
     "picking_threshold": 0.55,
     # NAMED, not left to fall out of the dialog. Without an entry here the

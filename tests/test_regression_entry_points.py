@@ -244,7 +244,8 @@ def test_every_settings_key_perform_regression_indexes_has_a_default():
         "get_perform_regression_default_settings does not supply "
         f"{missing}, which perform_regression (or a helper it hands the dict "
         "to) reads with settings[...]. Every dispatcher builds the dict from "
-        "that function, so regression cannot be started from Tk, Qt or the CLI."
+        "that function, so regression cannot be started from the Qt panel "
+        "or the CLI."
     )
     # And the derivation really is a derivation: something must write it.
     assert read & _DERIVED_KEYS <= _keys_read_by_the_whole_call(ast.Store)
@@ -445,7 +446,7 @@ def test_quantile_regression_still_clears_agg_type():
 
 
 # ---------------------------------------------------------------------------
-# 2. all three dispatchers really do resolve the same dict
+# 2. both dispatchers really do resolve the same dict
 # ---------------------------------------------------------------------------
 
 def test_the_cli_module_resolves_the_defaults_builder():
@@ -486,13 +487,25 @@ def test_the_resolved_dict_passes_its_own_pre_flight():
 # 2b. check_settings coerces the two newly-typed shapes correctly
 # ---------------------------------------------------------------------------
 #
-# ``check_settings`` walks ``expected_types`` and parses each widget's raw
-# string. Declaring a type therefore has teeth: the generic
+# ``check_settings`` walks ``expected_types`` and parses a raw settings string
+# into the declared type. Declaring a type therefore has teeth: the generic
 # "try each type in the tuple" fallback at the bottom of that function reaches
 # ``bool('False')`` -- True -- for ``(bool, int)``, and ``list('[0, 5]')`` --
 # ['[', '0', ',', ' ', '5', ']'] -- for ``(list, None)``. Both now have their
 # own branch. The second one also repairs ``x_lim``, ``control_wells`` and
 # ``filter_min_max``, which carried the same declared type all along.
+#
+# WHERE THE RAW STRINGS COME FROM HAS MOVED. This function was written for a
+# widget map -- ``key -> (label, widget, var, frame)`` -- built by an interface
+# that no longer exists, and it is not what the shipping settings panel calls:
+# that panel coerces each field itself and the pre-flight in
+# :mod:`spacr.validate` reports whatever did not become the declared type
+# before a run starts (asserted by the pre-flight test above). What is being
+# fixed here is the ``expected_types`` DECLARATION and the parse it licenses,
+# which both readers share, so the cases below still guard the entry point --
+# a ``(list, None)`` setting that arrives as characters, or a ``(bool, int)``
+# one that arrives as True because it was spelled 'False', is the same broken
+# run whichever reader parsed it.
 
 class _Var:
     def __init__(self, value):

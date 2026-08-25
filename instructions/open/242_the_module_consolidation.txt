@@ -218,6 +218,14 @@ belongs as a "Hits" TAB inside the results panel, beside Coefficients and
 Guide support, with its filter bar and its three export buttons as that
 tab's toolbar.
 
+DECIDED: METHODS & RESULTS FOLDS ONTO REGRESSION, not onto Report.
+
+The instruction named Report as the host and the fold landed on Regression
+instead, because ReportScreen has no masthead to hang a button on. Asked
+which was wanted, the maintainer kept it on Regression: the run digest
+belongs beside the fit that produced it, which is where a reader is
+standing when they want it.
+
 METHODS & RESULTS. Builds a run digest -- package versions, timings, seed
 and error policy from manifest.json; per-module explicitly-set parameters
 parsed out of the emitted macro; the segmentation verdict and flag counts;

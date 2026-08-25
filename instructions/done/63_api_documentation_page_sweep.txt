@@ -2,8 +2,12 @@
 MAKE THE API PAGE LOOK PROFESSIONAL, CLEAN AND USEFUL
 ================================================================================
 
-Status:    in progress. 17 short underlines and 181 duplicate object
-           descriptions fixed, both VERIFIED by rebuild (2026-08-09).
+Status:    in progress. The short underlines and the duplicate object
+           descriptions are gone and stay gone -- a clean rebuild reports 0
+           of each. A deleted module no longer reaches the page or the
+           localization payload. Two rendering defects and one blocked
+           regeneration are open, all in files this sweep does not own; they
+           are named at the end.
 Requested: 2026-08-08 — "do a sweep of the API page and make sure everything looks as professions and clean and informative and usefull as you can make it"
 
 --------------------------------------------------------------------------------
@@ -712,3 +716,123 @@ WHAT IS DELIBERATELY NOT DONE
   intended behaviour rather than repairs -- should an out-of-range channel
   raise everywhere or zero-fill everywhere -- so they are listed, ranked
   silent-wrong-output first.
+
+--------------------------------------------------------------------------------
+A DELETED MODULE KEEPS ITS PAGE UNLESS THE BUILD STARTS FROM AN EMPTY TREE
+--------------------------------------------------------------------------------
+
+The whole Tkinter interface is gone from the source -- `gui`, `gui_core`,
+`gui_elements`, `gui_utils`, the seven `app_*` launchers, `download_models`,
+and the `legacy_tk` package that briefly held them. Every one of them was
+still on the API reference, in two different ways, and the two need
+different remedies.
+
+THE PAGES. Neither Sphinx nor autoapi removes output it no longer generates,
+so an incremental build republishes the page, the search-index entry and the
+module-index row of a module that no longer exists. The build directory on
+this machine carried a module page for every one of them. The remedy is the
+`rm -rf docs/_build docs/source/api` the docs workflow already runs before
+`sphinx-build`; a rebuild that starts from those two empty trees emits a
+module page per live module and none for the deleted ones -- and no
+search-index entry either, which is the other way a retired page keeps being
+found. That cleanup is now the subject of a test, because it looks like
+tidiness and is actually the only thing that retires a page.
+
+THE LOCALIZATION PAYLOAD, which is the half that does not fix itself. The
+API catalogs under `docs/source/_static/i18n/api` are checked in rather than
+generated at build time, so they kept 279 symbols per language -- 2,790
+entries across the ten -- describing the deleted modules. Those are what the
+page's language picker serves, so they were translated documentation for a
+product that does not have the feature. Removed, in every language, as a
+pure deletion: the catalogs round-trip byte-for-byte through the generator's
+own `json.dumps` settings, so nothing else in a 10 MB file moved.
+
+The rule that finds them is the module, not the symbol: a catalog key is
+dead when the top-level module it names has no `.py` under `spacr/`. Reading
+the package marker instead would have been wrong -- `spacr.resources` has
+documented modules and no `__init__.py`, and an `__init__`-based rule
+deletes all of them.
+
+--------------------------------------------------------------------------------
+THE BUILD LOG NOW POINTS AT FILES THAT EXIST
+--------------------------------------------------------------------------------
+
+Two sections above describe the same obstacle: a fault is reported against
+`api/spacr/<module>/index.rst:<line>`, autoapi deletes that file when it
+finishes, and the line number is left pointing at nothing -- which is what
+sent three separate attempts into reconstructing the list from bare docutils
+and getting thousands of false positives instead.
+
+`autoapi_keep_files = True` in conf.py ends that. The generated page stays on
+disk, so every reported line opens directly on the docstring as the parser
+saw it, which is the only form in which these faults are legible. Nothing
+stale accumulates: the build clears `docs/source/api` first.
+
+--------------------------------------------------------------------------------
+STALE PROSE THE CLEAN BUILD CANNOT SEE
+--------------------------------------------------------------------------------
+
+Three sentences in `docs/source` described a product that had changed:
+
+  * the landing page counted "65 apps", against 54 registered;
+  * it sent readers to the tutorial library via "the spaCR logo on the
+    classic Tk start screen", which no longer exists;
+  * `reproducibility_manifests.rst` still listed "the classic GUI" as one of
+    the three ways to launch a pipeline.
+
+The count is now stated as the grouping rather than a number. A number in
+prose goes stale silently every time a module is folded into its host, and
+the seven category names -- which the registry does confirm -- carry the
+same information without rotting. The two Tk references are gone.
+
+--------------------------------------------------------------------------------
+WHAT IS OPEN, AND WHY IT IS NOT CLOSED HERE
+--------------------------------------------------------------------------------
+
+A clean rebuild is 1 error and 1 warning, both regressions since the build
+was last at 0 and 0, and both in source files this sweep does not own:
+
+  ERROR  Unexpected indentation, `spacr/object_distances.py` module
+         docstring. A paragraph beginning "NO OBJECT-TYPE PREFIX ON THE
+         COLUMNS" was inserted between the `centre_to_centre` entry and the
+         `centre_to_surface` entry of the definition list explaining the
+         three distances. The indented entries after it now follow an
+         ordinary paragraph, so the whole block renders as body text rather
+         than a definition list. The repair is to move that paragraph below
+         `surface_to_surface` so the three entries stay contiguous; the
+         blank line above it has to go too, or the list is still broken in
+         the same place. Run through docutils that takes the docstring from
+         one error to none.
+
+  WARNING more than one target found for cross-reference 'shape',
+         `spacr/qt/widgets/fast_plots`. Not prose: a NumPy-style parameter
+         type, `contributions : array-like, shape (n_samples, n_features)`.
+         Napoleon turns that into a `:type:` field, and Sphinx resolves each
+         token of a type field as a Python object -- so `shape` matches the
+         nine classes that define one. The repair is to move the shape into
+         the description, where it is text rather than a type:
+
+             contributions : array-like
+                 Each sample's contribution for each feature, shaped
+                 ``(n_samples, n_features)``.
+
+         DO NOT GO LOOKING AT THE REPORTED LINE. Sphinx reports this class
+         against the document's title line, not the field -- 70 for a field
+         at 342 -- because the reference is resolved after the field's own
+         source position is gone. Reduced to a four-line project it does the
+         same thing, which is how the diagnosis was confirmed: two classes
+         with a `shape` attribute and one `:type: array-like, shape (...)`
+         reproduce the warning, and the description form does not.
+
+  BLOCKED `docs/source/_generated/workflow_grid.rst` cannot be regenerated:
+         `packaging/generate_readme_visuals.py` refuses, because `APP_ORDER`
+         still documents `cellpose_masks` and `parameter_sweep` and neither
+         is registered on Home any more. Dropping those two keys unblocks
+         the generator, the grid and the README tiles.
+
+Separately, `tools/build_documentation_i18n.py --audit` is red for a reason
+that needs the translation model rather than an edit: the English manifest
+is 148 symbols behind the source and 6 ahead of it, and one reviewed record
+for `spacr.qt.mask_engine` no longer matches its docstring. Pruning the
+deleted modules does not touch that; it is the ordinary cost of docstrings
+changing faster than they are translated.

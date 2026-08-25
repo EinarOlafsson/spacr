@@ -786,8 +786,9 @@ def test_check_settings_list_key_accepts_a_blank_as_none(blank):
 def test_the_plate_metadata_defaults_survive_the_validator(fn_name):
     """Each of these ships None for one or more *_plate_metadata key.
 
-    Running the module from the Tk panel without touching anything used to
-    report an error per key and return a dict missing all of them.
+    Opening the module's settings panel and pressing Run without touching
+    anything used to report an error per key and return a dict missing all
+    of them.
     """
     defaults = getattr(S, fn_name)({})
     metadata_keys = [k for k in defaults if k.endswith("_plate_metadata")]
@@ -1176,11 +1177,13 @@ def test_a_defaults_factory_returns_a_json_shaped_dict(fn_name):
 #
 # The panel builds its fields from a module's own defaults factory, so any key
 # that factory ships becomes a field. check_settings answers a field it cannot
-# type with a "not found in expected types" warning and drops it, and the Tk
-# importer then did `if len(errors) > 0: return` -- pressing Run did nothing at
-# all, with the reason only in the log queue. That is how Map Barcodes came to
-# be unstartable on eleven keys at once. An undeclared key is still a key the
-# validator cannot type, so the invariant is asserted whichever front end asks.
+# type with a "not found in expected types" warning and drops it, and the
+# importer that read it then did `if len(errors) > 0: return` -- pressing Run
+# did nothing at all, with the reason only in the log. That is how Map Barcodes
+# came to be unstartable on eleven keys at once. The front end that failed that
+# way has since been deleted, but an undeclared key is still a key the
+# validator cannot type, so the invariant is asserted of the factories
+# themselves and holds for whichever front end asks.
 
 #: The factory each module's settings panel is built from, by module id. The
 #: fields -- and therefore what check_settings is asked to type -- come from

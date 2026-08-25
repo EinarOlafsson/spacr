@@ -540,6 +540,30 @@ class ImageScatterScreen(LinkedView, QWidget):
             self._db.setText(path)
             self.open_source()
 
+    def database(self) -> str:
+        """The measurements database this screen is pointed at, or ""."""
+        return self._db.text().strip()
+
+    def set_database(self, path: str) -> bool:
+        """Point the screen at ``path`` and list its tables.
+
+        The supported way for a caller to seed the source. Image Scatter is
+        opened from Image UMAP as one of the views of the same objects, and a
+        view that made the user retype the database the screen beside it is
+        already reading would be a second module rather than a second view.
+
+        An empty path is ignored rather than clearing the box: "no path
+        known" must not throw away a path the user typed.
+
+        :returns: True when the path was taken and the table listing started.
+        """
+        path = str(path or "").strip()
+        if not path:
+            return False
+        self._db.setText(path)
+        self.open_source()
+        return True
+
     def open_source(self) -> None:
         """List the tables in the chosen database, off the GUI thread."""
         db_path = self._db.text().strip()

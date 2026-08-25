@@ -288,6 +288,12 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # `annotation_source` supersedes the `Toxoplasma` boolean: an organism
     # name, taxon id or accession instead of one hard-coded parasite.
     "annotation_source",
+    # MEASURE THE CUT-OFF INSTEAD OF NAMING IT. `fraction_threshold` is a
+    # number with no obvious right value; the control wells can answer it,
+    # and this is the switch that asks them to. Offered rather than
+    # defaulted, because turning it on changes which gRNAs survive in
+    # every well of the screen.
+    "calibrate_fraction_threshold",
     # WHAT THE INTERCEPT IS, and the number the fourth mode pins it at.
     # A fitted intercept is the response of a well with every predictor at
     # its reference level, which for a one-hot gene design is whichever
@@ -708,7 +714,7 @@ def test_no_category_name_is_declared_twice():
     # Two more sources of live categories that are not in the literal:
     # modules registering through `register_defaults`, and instruction 73's
     # regroup, which creates its family headings from the keys it moves.
-    derived = S.REGISTERED_CATEGORIES | {n for n, _ in S._ADVANCED_FAMILIES}
+    derived = S.REGISTERED_CATEGORIES | {n for n, *_rest in S._ADVANCED_FAMILIES}
     assert set(declared) == set(S.categories) - derived
 
 
@@ -800,7 +806,11 @@ def test_the_one_visible_choice_is_in_the_basic_heading():
 #: may legitimately live here instead of under an Organelle heading -- the
 #: whole point of that regroup is that `organelle_min_size` and
 #: `cell_min_size` are one decision, not two.
-ADVANCED_FAMILY_HEADINGS = ("Object filtration", "Intensity handling")
+#:
+#: Read off `CATEGORY_PARENTS` rather than listed again: that table is what
+#: says which headings are advanced families, and a third one was added the
+#: moment the per-object preprocessing group existed.
+ADVANCED_FAMILY_HEADINGS = tuple(S.CATEGORY_PARENTS)
 
 
 def _organelle_homes():
@@ -1033,6 +1043,10 @@ def test_every_qt_section_hint_names_a_real_category():
             c.upper().strip()
             for c in categories_for_app(app_key, S.categories)
         )
+    # The umbrella headings are synthesised by `build_sections` when it nests
+    # the advanced families, so they appear on no module's category map and
+    # would read as dead blurbs without this.
+    known.update(p.upper().strip() for p in S.CATEGORY_PARENTS.values())
     dead = sorted(set(hints) - known)
     assert not dead, (
         f"SECTION_HINTS entries that match no settings section: {dead}"
@@ -1103,6 +1117,11 @@ def _rendered_sections(app_key):
             "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
             "Organelle Segmentation (advanced)",
+            # The three advanced families, in the order the layout writes
+            # them. They nest under one "Advanced settings" umbrella in
+            # `build_sections`; this mirror is the FLAT category map, which
+            # is where they are declared.
+            "Image Preprocessing (per object)",
             "Object Filtration (all objects)",
             "Intensity Handling (all objects)",
             "Quality Control", "Volumetric Processing (Beta)",
@@ -1129,6 +1148,11 @@ def _rendered_sections(app_key):
             "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
             "Organelle Segmentation (advanced)",
+            # The three advanced families, in the order the layout writes
+            # them. They nest under one "Advanced settings" umbrella in
+            # `build_sections`; this mirror is the FLAT category map, which
+            # is where they are declared.
+            "Image Preprocessing (per object)",
             "Object Filtration (all objects)",
             "Intensity Handling (all objects)",
             "Quality Control", "Tracking Setup", "Tracking Backends",

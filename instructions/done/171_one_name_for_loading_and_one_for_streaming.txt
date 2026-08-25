@@ -2,7 +2,8 @@
 ONE NAME FOR LOADING AND ONE FOR STREAMING, EVERYWHERE
 ================================================================================
 
-Status:    filed 2026-08-19.
+Status:    closed. Every panel says the two words, and the training
+           vocabulary is migrated onto them.
 Requested: 2026-08-19 -- "add to instructions to unify the terminology stream
            images and load images. the default should always be loade images
            which loades from data folder. if that fails it should always try
@@ -99,3 +100,47 @@ RELATED
   output holding REAL crops -- with a new test keeping the original guard:
   with neither route available, an empty tar announced as a full one must
   still raise.
+
+--------------------------------------------------------------------------------
+AND D'S SECOND CLAUSE: THE TRAINING VOCABULARY IS MIGRATED, NOT SET BESIDE
+--------------------------------------------------------------------------------
+
+`crop_source.py` declared its own three names and nothing else did. A reader
+grepping for 'pre_generated' found a mapping in one settings tooltip, which
+sets two vocabularies side by side; it does not migrate one onto the other.
+
+IT NOW RESOLVES ONTO THE TWO NAMES. `CROP_SOURCES` is ('png', 'merged',
+'generate') and `CROP_SOURCE_ALIASES` is the migration itself: 'pre_generated'
+and 'load_images' and 'auto' all mean LOAD IMAGES, 'on_demand' and
+'stream_images' mean STREAM IMAGES, and 'generate' keeps its own name because
+it is an ACTION -- it WRITES a crop set -- exactly as D says. The stored
+values are unchanged, so every settings CSV in existence still means what it
+meant, and `CROP_SOURCE_OPTIONS` offers the panel the same two sentences the
+viewers use, LOAD IMAGES first.
+
+ONE TABLE, TWO READERS. `io.CROP_SOURCE_ALIASES` is built from it rather than
+hand-kept beside it, with the two entries that genuinely differ written down:
+'generate' is an action to training and a source to the viewers, and 'auto'
+stays 'auto' for `resolve_crop_source`, which is the thing that computes what
+is available.
+
+AND IT WAS NOT COSMETIC. The training panel had been renamed to write
+'load_images' / 'stream_images'; the reader still knew only the older three.
+Every computer-vision run refused at the door with
+
+    CropSourceError: crop_source='load_images' is not one of
+    ['pre_generated', 'on_demand', 'generate']
+
+naming three spellings no user had ever seen. Reproduced through
+`classify()` before the change and gone after it, and there is now a test
+that every value the settings normaliser can produce resolves here -- the
+claim that would have caught the rename, and the twin of the one `spacr.io`
+already had.
+
+TWO MORE REFUSALS ON THE STREAMING BRANCH, found the same way and fixed with
+it: the planes are read from `channel_arrays` as well as the older
+`extract_channels`, and a SINGLE `coordinate_columns` entry is accepted --
+it names the object's identifier column, which is what spaCR derives from
+`object_array`, and demanding a row and a column refused the value spaCR had
+written itself. Both training modes now validate from the panel's own
+defaults, which is a test.

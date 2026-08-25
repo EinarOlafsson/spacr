@@ -148,8 +148,10 @@ if _IMPORTED_PACKAGE_ROOT != _EXPECTED_PACKAGE_ROOT:
 # ---------------------------------------------------------------------------
 
 import atexit as _atexit
+import faulthandler as _faulthandler
 import hashlib as _hashlib
 import shutil as _shutil
+import threading as _threading
 
 #: Throwaway root that stands in for the user's config directory.
 # RESOLVED, and that is the whole fix for macOS and Windows.
@@ -233,13 +235,24 @@ def _stat_signature(path) -> tuple:
     return (True, info.st_size, info.st_mtime_ns)
 
 
+#: Plugin name for the collection-node canonicaliser defined further down.
+_ONE_NODE_PER_DIRECTORY = "spacr-one-node-per-directory"
+
+
 def pytest_configure(config):
-    """Sandbox QSettings before any test module is imported.
+    """Sandbox QSettings, and pin one collection node per directory.
 
     Collection imports test modules, and a module-level ``QSettings(...)``
     would otherwise hit the real store, so this runs in ``pytest_configure``
-    rather than in a fixture.
+    rather than in a fixture. The directory-node plugin is registered here
+    for the same reason -- it has to be in place before the first directory
+    is collected, and a conftest hook only reaches nodes at or below its own
+    directory, which is one level too late to keep ``tests`` itself stable.
     """
+    if not config.pluginmanager.has_plugin(_ONE_NODE_PER_DIRECTORY):
+        config.pluginmanager.register(_OneNodePerDirectory(),
+                                      _ONE_NODE_PER_DIRECTORY)
+
     global _QSETTINGS_ACTIVE
     if _qsettings_module() is None:
         return
@@ -458,8 +471,290 @@ def pytest_runtest_setup(item):
         pytest.skip(trouble)
 
 
-def pytest_collection_modifyitems(config, items):
-    """Apply structural CI markers and an optional file-level CI shard."""
+# ---------------------------------------------------------------------------
+# The run ends, even when shutting down does not
+# ---------------------------------------------------------------------------
+#
+# A pytest run can finish every test and still never report. Once the session
+# is over pytest's own ``--timeout`` is gone -- it is a per-test guard -- so a
+# process that will not exit stops the run somewhere after the last test and
+# before the summary line, with no test to blame and no output to read. Under
+# ``-n`` it is worse: the controller waits on workers that have already
+# written their results and are burning a core apiece, so the run costs hours
+# and produces nothing.
+#
+# Python joins every NON-DAEMON thread before it finalises, which is what
+# turns one forgotten thread into an unbounded wait, and Qt adds its own ways
+# to stall on the way out. Neither can be fixed by guessing, so what is
+# installed here is the thing that makes the next one findable: the threads
+# that will hold the interpreter open are named while the run can still print,
+# and a watchdog turns an endless shutdown into a stack dump for every thread
+# followed by a non-zero exit.
+#
+# It is armed at ``pytest_sessionfinish`` because that is the last hook that
+# is guaranteed to run -- ``pytest_unconfigure`` is on the far side of the
+# stall it exists to catch.
+
+SHUTDOWN_WATCHDOG_ENV = "SPACR_PYTEST_SHUTDOWN_WATCHDOG_S"
+
+#: Seconds the interpreter may take to shut down after the last test before
+#: every thread's stack is dumped and the process is killed. Generous, so an
+#: honestly slow teardown is never mistaken for a stall; ``0`` turns it off.
+SHUTDOWN_WATCHDOG_S = float(os.environ.get(SHUTDOWN_WATCHDOG_ENV, "300"))
+
+
+def threads_that_outlive_the_session():
+    """Every non-daemon thread that will hold the interpreter open at exit.
+
+    Daemon threads are deliberately not reported: they cannot delay
+    finalisation, and this suite ends with a handful of them on every run, so
+    listing them would bury the one thread that matters.
+    """
+    return [thread for thread in _threading.enumerate()
+            if thread is not _threading.main_thread()
+            and thread.is_alive() and not thread.daemon]
+
+
+def _threads_that_outlive_the_session_report(threads):
+    """What to print about threads that will delay the interpreter's exit."""
+    listed = "\n".join(
+        f"    {thread.name!r} -> {getattr(thread, '_target', None)!r}"
+        for thread in threads)
+    return (
+        f"{len(threads)} non-daemon thread(s) are still running now the "
+        f"session is over:\n{listed}\n"
+        "Python joins each of them before it finalises, so the run cannot "
+        "report until they end. Whatever started one owes it a stop.")
+
+
+def arm_shutdown_watchdog(seconds):
+    """Dump every thread's stack and kill the process if shutdown stalls.
+
+    Returns whether the watchdog was armed. ``sys.__stderr__`` rather than
+    ``sys.stderr`` because faulthandler writes through a file DESCRIPTOR and
+    the replacement a distributed run installs has none.
+    """
+    if seconds <= 0:
+        return False
+    stream = sys.__stderr__ or sys.stderr
+    try:
+        _faulthandler.dump_traceback_later(seconds, exit=True, file=stream)
+    except (AttributeError, ValueError, OSError):
+        return False
+    return True
+
+
+@pytest.hookimpl(trylast=True)
+def pytest_sessionfinish(session, exitstatus):
+    """Name what would hold the run open, then bound how long it may.
+
+    Last of its kind on purpose: the threads worth reporting are the ones
+    still alive after every other plugin has had its teardown, and the
+    watchdog must cover whatever those plugins do after this.
+    """
+    config = session.config
+    # A distributed worker has a terminal reporter that prints nowhere the
+    # user will see, and a wedged WORKER is the case this exists for, so its
+    # own stderr -- which the controller relays -- is the only channel that
+    # reaches anybody.
+    distributed = hasattr(config, "workerinput")
+    reporter = (None if distributed
+                else config.pluginmanager.get_plugin("terminalreporter"))
+
+    def _say(message):
+        if reporter is not None:
+            reporter.write_line(message, yellow=True)
+        else:
+            print(message, file=sys.stderr, flush=True)
+
+    lingering = threads_that_outlive_the_session()
+    if lingering:
+        _say(_threads_that_outlive_the_session_report(lingering))
+    if not arm_shutdown_watchdog(SHUTDOWN_WATCHDOG_S) \
+            and SHUTDOWN_WATCHDOG_S > 0:
+        # Said out loud rather than swallowed: a watchdog nobody armed is
+        # exactly as useful as no watchdog, and the run it was meant to bound
+        # would otherwise stop with no explanation at all.
+        _say(f"the shutdown watchdog could not be armed; set "
+             f"{SHUTDOWN_WATCHDOG_ENV}=0 to stop trying")
+
+
+# ---------------------------------------------------------------------------
+# One collection node per directory
+# ---------------------------------------------------------------------------
+#
+# A conftest's fixtures are scoped to the DIRECTORY the conftest sits in, and
+# pytest binds that scope to the Directory collection NODE OBJECT: a fixture
+# is visible to a test only when the very node the conftest was parsed
+# against is in that test's parent chain (``FixtureManager._matchfactories``
+# prefers ``fixturedef.node in node.iter_parents()`` over the nodeid string,
+# and ``_node_autousenames`` is keyed by node object too).
+#
+# ``Session.collect`` re-collects a directory WITHOUT de-duplicating it when a
+# bare FILE path is named on the command line ("for backward compat, files
+# given directly multiple times on the command line should not be
+# deduplicated"). Re-collecting a directory builds fresh child nodes, so a
+# second Directory node appears for a directory that was already collected --
+# and the conftest is not parsed a second time, because that parse is deferred
+# to the FIRST Directory collection and consumed there.
+#
+# The result is silent: every fixture defined in that directory's conftest,
+# autouse ones included, becomes invisible to the tests underneath it.
+#
+#     pytest tests/qt/test_a.py tests/test_b.py tests/qt/test_c.py
+#
+# collects tests/qt, then re-collects tests for the bare middle file, then
+# reaches test_c through the SECOND tests/qt node. Every test in test_c errors
+# with "fixture 'qt_theme_applied' not found" while the summary line still
+# says the first two files passed. It bites exactly the person running "the
+# files I touched", which is what WORKFLOW.md asks for.
+#
+# Making a directory answer with ONE node for the whole session removes the
+# hazard at its source: the conftest parse and the tests underneath it then
+# refer to the same object no matter how many times collection walks the
+# directory. Files are deliberately left alone, so naming a file twice still
+# runs it twice.
+
+_DIRECTORY_NODES_ATTR = "_spacr_directory_nodes"
+
+
+def canonical_directory_children(registry, children):
+    """Return ``children`` with every directory replaced by its first node.
+
+    ``registry`` maps a directory path to the node this session already uses
+    for it and is filled in as new directories are met. Non-directory children
+    are passed through untouched, so a file named twice on the command line
+    still collects twice.
+    """
+    canonical = []
+    replaced = False
+    for child in children:
+        if isinstance(child, pytest.Directory):
+            first = registry.setdefault(child.path, child)
+            if first is not child:
+                child = first
+                replaced = True
+        canonical.append(child)
+    return canonical if replaced else children
+
+
+class _OneNodePerDirectory:
+    """Keep a directory's collection node stable for the whole session."""
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_make_collect_report(self, collector):
+        report = yield
+        if isinstance(collector, pytest.Directory) and report.result:
+            session = collector.session
+            registry = getattr(session, _DIRECTORY_NODES_ATTR, None)
+            if registry is None:
+                registry = {}
+                setattr(session, _DIRECTORY_NODES_ATTR, registry)
+            registry.setdefault(collector.path, collector)
+            report.result = canonical_directory_children(
+                registry, report.result)
+        return report
+
+
+def directory_fixture_expectations(fixture_manager):
+    """Map a directory's nodeid to the fixture names its conftest defines.
+
+    Read back off the fixtures pytest actually registered rather than by
+    importing conftests, so a fixture added tomorrow is covered without this
+    being edited.
+
+    A pytest that no longer keeps its registry where this reads it answers
+    with nothing, so an upgrade cannot stop the suite collecting. It stops
+    being SILENT one line down: the test that pins what this finds in a live
+    session fails, which is the right place for "the check needs updating" to
+    show up.
+    """
+    registry = getattr(fixture_manager, "_arg2fixturedefs", None)
+    if not registry:
+        return {}
+    expectations = {}
+    for argname, fixturedefs in registry.items():
+        for fixturedef in fixturedefs:
+            node = getattr(fixturedef, "node", None)
+            if isinstance(node, pytest.Directory):
+                expectations.setdefault(node.nodeid, set()).add(argname)
+    return expectations
+
+
+def lost_directory_conftest_fixtures(fixture_manager, items, expectations):
+    """Return the conftest fixtures their own tests can no longer request.
+
+    One entry per ``(directory nodeid, fixture name, witness test)``. Empty is
+    the healthy answer: a fixture defined in ``tests/qt/conftest.py`` must be
+    resolvable from every test collected under ``tests/qt``.
+
+    Checked once per distinct chain of collection nodes rather than once per
+    test, because every test sharing a chain shares its fixture visibility.
+    """
+    if not expectations:
+        return []
+    lost = []
+    checked = set()
+    for item in items:
+        chain = item.listchain()
+        signature = tuple(id(node) for node in chain[:-1])
+        if signature in checked:
+            continue
+        checked.add(signature)
+        for node in chain:
+            for argname in sorted(expectations.get(node.nodeid, ())):
+                if not fixture_manager.getfixturedefs(argname, item):
+                    lost.append((node.nodeid, argname, item.nodeid))
+    return lost
+
+
+def _conftest_fixtures_went_missing(lost):
+    """The message a lost conftest gets, instead of a missing-fixture error."""
+    listed = "\n".join(
+        f"    {argname!r} comes from the conftest in {directory}, and "
+        f"{witness} cannot request it"
+        for directory, argname, witness in lost[:10])
+    more = f"\n    ... and {len(lost) - 10} more" if len(lost) > 10 else ""
+    return (
+        f"{len(lost)} conftest fixture(s) are not visible to the tests they "
+        f"belong to:\n{listed}{more}\n"
+        "\n"
+        "This is a COLLECTION ORDERING fault, not a missing fixture. A "
+        "directory whose conftest defines fixtures was collected twice and "
+        "the tests were reached through the second node, which the conftest "
+        "was never parsed against, so every fixture in it -- autouse ones "
+        "included -- silently disappeared. It is triggered by interleaving "
+        "files from different directories in one invocation, e.g. "
+        "'pytest tests/qt/test_a.py tests/test_b.py tests/qt/test_c.py'.\n"
+        "\n"
+        "tests/conftest.py keeps one collection node per directory to "
+        "prevent this; if you are reading this message, that guard no longer "
+        "covers the case at hand. Run the directories as separate "
+        "invocations until it does -- the alternative is a run whose summary "
+        "line reads as a pass.")
+
+
+def _check_directory_conftest_fixtures(session, items):
+    """Fail the run loudly when a conftest's fixtures went missing."""
+    fixture_manager = getattr(session, "_fixturemanager", None)
+    if fixture_manager is None:
+        return
+    expectations = directory_fixture_expectations(fixture_manager)
+    lost = lost_directory_conftest_fixtures(fixture_manager, items,
+                                            expectations)
+    if lost:
+        raise pytest.UsageError(_conftest_fixtures_went_missing(lost))
+
+
+def pytest_collection_modifyitems(session, config, items):
+    """Guard conftest visibility, then apply CI markers and the file shard.
+
+    The visibility check runs against the WHOLE collected list, before the
+    shard below throws most of it away, so a lost conftest is reported from
+    any shard rather than only from the one that happened to keep a witness.
+    """
+    _check_directory_conftest_fixtures(session, items)
+
     for item in items:
         for marker in _automatic_ci_markers(item.path):
             item.add_marker(getattr(pytest.mark, marker))

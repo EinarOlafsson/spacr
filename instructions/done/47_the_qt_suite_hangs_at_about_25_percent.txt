@@ -2,9 +2,10 @@
 THE FULL tests/qt RUN HANGS PART-WAY THROUGH
 ================================================================================
 
-Status:    NO LONGER CRASHING (2026-08-09). Two consecutive runs
-           reached 66% with zero crashes and zero failures, both stopped
-           by a 5.5h timeout on a machine that was not idle.
+Status:    DONE for what this file is about. The suite reaches its summary
+           unattended. What could still stop it -- an interpreter that will
+           not exit once the session is over -- is now bounded and names
+           the thread holding it open instead of spinning unwatched.
 Severity:  test-only, but it makes the qt suite unrunnable as a whole,
            which is how the order-dependent failures in 03 and 46 stay
            invisible.
@@ -942,3 +943,68 @@ Result:
 The suite reaches its summary unattended, throughput stays steady, and no
 strict xfails remain from the six feature-dictionary/ranking defects repaired
 while triaging the formerly hidden failures.
+
+--------------------------------------------------------------------------------
+THE TWO REMAINING ITEMS DO NOT REPRODUCE, AND THE ONE FAILURE MODE NOTHING
+COVERED IS NOW BOUNDED
+--------------------------------------------------------------------------------
+
+`tests/qt/test_ambient_none.py` was carried here as a hanging test under the
+CI serial tail, with its neighbours costing about 50 s each. Run exactly as CI
+runs that tail -- its five files with that one appended, the Qt marker
+expression, `--timeout=300 --timeout-method=thread`:
+
+    3 failed, 150 passed, 3 deselected in 165 s
+
+No timeout fired, and the file's own two slowest tests are 5.05 s and 4.36 s.
+Alone it is 10 tests in 8.6 s. The three failures are import-budget
+assertions in `test_perf_guard` and `test_gui_responsiveness` and have
+nothing to do with a hang. The 50 s figure is not reproducible on this tree
+either: the slowest test in the whole tail is 3.04 s.
+
+THE FAILURE MODE THAT IS REAL, and that every guard in this file misses: the
+run finishing its tests and then never reporting them. `--timeout` is a
+PER-TEST guard, so once the last test is done it is gone. Anything that stops
+the interpreter exiting then stops the run between the final test and the
+summary line, with no test to blame and no output to read -- and under `-n`
+the workers have already written their results and sit on a core apiece while
+the controller waits.
+
+Python joins every NON-DAEMON thread before it finalises, which is what turns
+one forgotten thread into an unbounded wait. So `tests/conftest.py` now, at
+`pytest_sessionfinish`:
+
+  * NAMES every non-daemon thread still alive, with its target, while the run
+    can still print. Daemon threads are left out deliberately -- they cannot
+    delay finalisation, and this suite ends with a handful every run, so
+    listing them would bury the one that matters.
+
+  * ARMS A WATCHDOG. If shutdown has not finished inside the budget (300 s by
+    default, `SPACR_PYTEST_SHUTDOWN_WATCHDOG_S=0` turns it off), every
+    thread's stack is dumped and the process exits non-zero. An endless
+    shutdown becomes a diagnosis.
+
+Armed at `pytest_sessionfinish` because that is the last hook guaranteed to
+run: `pytest_unconfigure` is on the far side of the stall it exists to catch.
+
+Demonstrated rather than asserted, in `tests/test_shutdown_watchdog.py`: a
+generated one-test run that leaks a parked non-daemon thread. Without the
+hook that run prints nothing at all and never returns -- killed at 25 s with
+no summary, which is exactly the reported shape. With it, the leaked thread
+is named in the run's own output and the process dies with every stack
+printed.
+
+WHAT IS NOT ANSWERED, and it needs a distributed run to answer: WHICH object
+holds a worker open. No `-n` run was available here, and the wedge does not
+appear serially -- a 40-file Qt chunk under `--cov`, the thread-heavy files
+(`test_ai_shutdown`, `test_qt_worker_teardown`, `test_force_quit`,
+`test_bridge`, `test_console_thread_safety`, `test_worker_stack_size`,
+`test_threading_cancellation_audit`, `test_cov_4_shutdown`) and the serial
+tail all exit cleanly, leaving nothing but daemon `Dummy-*` threads, which are
+QThreads that have run Python and cannot delay finalisation. spaCR itself
+starts no non-daemon thread: the three `threading.Thread` call sites in the
+package all pass `daemon=True`.
+
+So the next distributed run answers it for free -- the wedged worker now
+prints its stacks and its lingering threads instead of spinning silently, and
+that output is the name of the culprit.

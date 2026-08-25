@@ -152,6 +152,26 @@ def _make_stub_settings(dst: Path) -> Path:
     return settings
 
 
+def _download_folder(repo_id: str, subfolder: str, dest: Path) -> Path:
+    """Fetch one demo repo folder with the downloader the app itself uses.
+
+    The demo pull lives in :mod:`spacr.qt.hf_download`; its two building
+    blocks are driven directly so the fetch needs neither an event loop nor
+    the progress dialog, while still exercising the same listing and
+    streaming the menu item runs. An empty listing is an assertion failure,
+    not an empty folder handed on to the mask stage to fail inside.
+    """
+    from spacr.qt.hf_download import _download_one, _list_files
+
+    dest.mkdir(parents=True, exist_ok=True)
+    names = _list_files(repo_id, subfolder)
+    assert names, f"{repo_id}/{subfolder or '<root>'} listed no files"
+    for name in names:
+        print(f"downloading {name}", flush=True)
+        _download_one(repo_id, name, dest)
+    return dest
+
+
 @pytest.fixture(scope="module")
 def _prepared_workspace(tmp_path_factory):
     _require_network()
@@ -161,18 +181,10 @@ def _prepared_workspace(tmp_path_factory):
         dataset = _make_stub_dataset(root / "data")
         settings = _make_stub_settings(root / "data")
     else:
-        from spacr.gui_utils import download_dataset
-        # Use the CLI downloader (queue-based). We pipe status
-        # messages into a small local queue and print them so a -s
-        # invocation shows progress in real time.
-        import queue as _q
-        q = _q.Queue()
-        dataset = Path(download_dataset(
-            q, repo_id="einarolafsson/toxo_mito",
-            subfolder="plate1", local_dir=str(root)))
-        settings = Path(download_dataset(
-            q, repo_id="einarolafsson/spacr_settings",
-            subfolder="", local_dir=str(root / "settings_dir")))
+        dataset = _download_folder(
+            "einarolafsson/toxo_mito", "plate1", root / "plate1")
+        settings = _download_folder(
+            "einarolafsson/spacr_settings", "", root / "settings_dir")
     return dataset, settings
 
 

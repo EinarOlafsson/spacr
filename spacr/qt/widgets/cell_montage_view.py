@@ -138,10 +138,10 @@ BASELINE_CHOICES: Tuple[Tuple[str, str], ...] = (
 #: STATED RATHER THAN DISCOVERED. A tab holds one ``QPixmap`` per object and
 #: they are only ever closed by hand -- that is the point of them -- so
 #: without a bound a session comparing gene after gene fills memory and the
-#: user finds out by watching the application slow down. At the 300-object
-#: cap a well tab is at most 300 thumbnails of 96x96 RGBA, ~11 MB, so twelve
-#: tabs is ~130 MB in the worst case and a small fraction of that in the
-#: ordinary one. When the bound is reached NO TAB IS CLOSED FOR THE USER: the
+#: user finds out by watching the application slow down. At the 2,000-object
+#: cap a well tab is at most 2,000 thumbnails of 96x96 RGBA, ~74 MB, so
+#: twelve tabs is ~880 MB in the worst case and a small fraction of that in
+#: the ordinary one. When the bound is reached NO TAB IS CLOSED FOR THE USER: the
 #: new wells are refused, by name, with the sentence that says which x to
 #: click.
 MAX_WELL_TABS = 12

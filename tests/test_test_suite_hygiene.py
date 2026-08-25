@@ -414,13 +414,16 @@ MODULE_SCOPE = "<module>"
 #:   pytest.skip(...)`` says "torch is missing" and means "torch raised". They
 #:   became ``pytest.importorskip("torch")``, which catches ImportError only,
 #:   so a package that IS installed and detonates on import now fails.
-#: * **4 were at module scope** -- the ``try: import spacr.gui_elements /
-#:   except Exception: pytest.skip(..., allow_module_level=True)`` shape, the
+#: * **4 were at module scope** -- the ``try: import <a GUI module> / except
+#:   Exception: pytest.skip(..., allow_module_level=True)`` shape, the
 #:   highest-blast-radius form of this pattern, since one of them turns an
 #:   import-time product bug into a whole FILE reporting skipped. All four were
 #:   dead by the time they were read: ``tests/conftest.py`` stubs mouseinfo,
 #:   pyautogui and screeninfo before any test module loads, so the display-less
-#:   ImportError they were written for cannot happen. Deleted.
+#:   ImportError they were written for cannot happen. Deleted. (They guarded
+#:   the Tkinter interface, which has since been deleted outright; the shape
+#:   is what this rule is about, and it is spelled with a module that exists
+#:   below so the example can still be read against the tree.)
 #: * **1 was a real environmental guard** with the wrong exception type: a
 #:   ``subprocess.run(["git", ...])`` that skips where there is no checkout.
 #:   Narrowed to ``(OSError, subprocess.SubprocessError)``.
@@ -688,7 +691,7 @@ BROAD_SKIP_EVASIONS = {
     """, "_try_it"),
     "hoisted to module level, where it skips the whole file": ("""
         try:
-            import spacr.gui_elements as ge
+            import spacr.qt.app as app
         except Exception as e:
             pytest.skip(f"unavailable: {e}", allow_module_level=True)
     """, MODULE_SCOPE),

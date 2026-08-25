@@ -71,6 +71,7 @@ import ast
 import datetime
 import json
 import os
+import re
 import sqlite3
 import tempfile
 from dataclasses import dataclass, field as _dc_field, replace
@@ -316,6 +317,69 @@ def _rescale_intensity(image, in_range, out_range):
         image = (image - imin) / (imax - imin)
         return image * (omax - omin) + omin
     return np.clip(image, omin, omax)
+
+
+#: The percentile pair spaCR stretches a crop between when nothing else is
+#: asked for. The same pair `_normalize_to_dtype` defaults to and the same
+#: pair the annotator ships in `percentiles`, named once so the parser's
+#: fallback and every panel's starting value cannot drift apart.
+DEFAULT_PERCENTILES: Tuple[float, float] = (2.0, 98.0)
+
+#: What separates the two halves of a percentile pair, in every spelling one
+#: has ever arrived in. A pair is TWO NUMBERS, however it was written:
+#: `[2, 98]` from a settings CSV, `(2, 98)` from the annotator's own
+#: defaults, `2,98` typed into a box, `[1 99]` typed into the same box by
+#: somebody who used a space, and `2;98` from a locale that separates lists
+#: with semicolons.
+_PAIR_SEPARATORS = re.compile(r"[\s,;]+")
+
+
+def percentile_pair(value, default=DEFAULT_PERCENTILES) -> Tuple[float, float]:
+    """``(low, high)`` from whatever a percentile setting holds.
+
+    :param value: a pair of numbers, or any of the text spellings of one.
+    :param default: what to answer when there is no pair to read.
+    :returns: two floats, low first, each between 0 and 100.
+
+    TWO NUMBERS ARE NOT A CHANNEL LIST, and reading them as one is why the
+    shipped default never reached the picture. `_as_channel_list` maps the
+    POSITION strings '0', '1' and '2' onto the colours 'r', 'g' and 'b' --
+    correct for `normalize_channels`, and silently destructive here: the
+    annotator's own `[2, 98]` became `['b', '98']`, `float('b')` raised, and
+    the caller fell back to a pair the user never asked for. Every pair whose
+    low percentile was 0, 1 or 2 was quietly replaced.
+
+    A pair given high-first is put in order rather than refused: `98, 2`
+    describes one window and there is only one thing it can mean. Anything
+    that is not two numbers answers ``default``, because a picture is the
+    last thing this produces and the least important -- losing a montage to
+    a mistyped percentile is the worst trade available.
+    """
+    parts = None
+    if value is None or isinstance(value, bool):
+        parts = None
+    elif isinstance(value, str):
+        text = value.strip()
+        if text.startswith(("[", "(")) and text.endswith(("]", ")")):
+            text = text[1:-1]
+        parts = [p for p in _PAIR_SEPARATORS.split(text.strip()) if p]
+    else:
+        try:
+            parts = [p for p in value]
+        except TypeError:
+            parts = None
+    if not parts or len(parts) < 2:
+        return (float(default[0]), float(default[1]))
+    try:
+        low = float(str(parts[0]).strip().strip("'\""))
+        high = float(str(parts[1]).strip().strip("'\""))
+    except (TypeError, ValueError):
+        return (float(default[0]), float(default[1]))
+    low, high = min(low, high), max(low, high)
+    # A PERCENTILE OUTSIDE 0-100 IS NOT A PERCENTILE. numpy raises on one, so
+    # the alternative to clamping is a montage that dies inside the worker
+    # and reports "the montage load failed" without naming the setting.
+    return (max(0.0, min(100.0, low)), max(0.0, min(100.0, high)))
 
 
 def _normalize_to_dtype(array, p1=2, p2=98, percentile_list=None):
@@ -2563,7 +2627,10 @@ def crop_spec_from_settings(settings: Mapping[str, Any], merged_path: str = "",
         channels come from ``png_channel_mapping`` -- or the legacy
         ``png_dims`` -- via :func:`channels_from_settings`, so the spec is in
         colour order, not ``png_dims`` list order. A ``normalize`` that is a
-        sequence of any length but 2 is discarded as ``False``.
+        sequence of any length but 2 is discarded as ``False``, and one
+        written as TEXT -- ``"[2, 98]"``, ``"2,98"``, ``"[1 99]"`` -- is read
+        as the pair it spells rather than passed on as a truthy string that
+        no longer describes a window.
     :param merged_path: the ``merged/<fov>.npy`` to record on the spec. The
         default ``""`` builds a *template* spec, which is what
         :class:`MergedCropSource` wants: it fills the path (and label) in per
@@ -2621,6 +2688,15 @@ def crop_spec_from_settings(settings: Mapping[str, Any], merged_path: str = "",
         dilate = False
 
     normalize = settings.get("normalize", False)
+    if isinstance(normalize, str) and normalize.strip():
+        # A PAIR WRITTEN AS TEXT IS STILL A PAIR. `_coerce` recovers the
+        # spellings `ast.literal_eval` accepts, and leaves the ones it does
+        # not -- `[1 99]`, separated by a space rather than a comma -- as a
+        # string. Passed through, a non-empty string is TRUTHY but is not a
+        # sequence, so the cut fell to the full 0-100 stretch: the user
+        # configured a window, the crop ignored it, and nothing said so.
+        low, high = percentile_pair(normalize, (0.0, 100.0))
+        normalize = [low, high]
     if isinstance(normalize, (list, tuple)) and len(normalize) != 2:
         normalize = False
 

@@ -66,9 +66,22 @@ def save_mask(path: PathLike, mask: np.ndarray,
     :param fmt: force a format (``"tif"``, ``"tiff"``, or ``"npy"``).
         Defaults to :data:`DEFAULT_FORMAT` (env-overridable).
     :returns: the resolved on-disk path.
+    :raises ValueError: when an object id will not fit in uint16, or when
+        ``fmt`` names a format this module cannot write.
+
+    An id above 65535 is refused rather than cast. The cast wraps, and the
+    first value it wraps to is 0 — background — so object 65536 would come
+    back from disk fused with everything that was never segmented at all,
+    and nothing downstream could tell that from a mask with one fewer object.
     """
     fmt = (fmt or DEFAULT_FORMAT).lower().lstrip(".")
     p = Path(path)
+
+    top = int(np.max(mask)) if np.size(mask) else 0
+    if top > np.iinfo(np.uint16).max:
+        raise ValueError(
+            f"mask holds object id {top}, which does not fit in uint16; "
+            f"relabel it before saving to {p}")
 
     # If path already has a recognised suffix, that wins over `fmt`.
     if p.suffix.lower() in (".tif", ".tiff", ".npy"):

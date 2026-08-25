@@ -4,6 +4,12 @@ The module provides a fixed data palette, theme-aware foreground colors, and
 scoped Matplotlib style contexts. Data colors retain the same meaning across
 panels, while text and axes adapt to screen or print backgrounds. Styles are
 applied without mutating process-wide ``rcParams``.
+
+Text and lines are two colours, not one. Titles, axis labels, tick labels,
+annotations and legend entries are TEXT; axis spines and tick marks are
+LINES. Each follows the matching user preference when one has been chosen and
+the measured house ink otherwise, so an untouched settings store draws the
+published look unchanged.
 """
 
 from __future__ import annotations
@@ -68,9 +74,67 @@ TYPE_SCALE = {
 #: Line weights, likewise measured rather than chosen.
 WEIGHTS = {"spine": 0.65, "data": 1.2, "reference": 0.6}
 
+#: The rcParams that are TEXT: everything a reader reads. Tick LABELS are in
+#: here and tick MARKS are not.
+TEXT_KEYS = ("text.color", "axes.labelcolor",
+             "xtick.labelcolor", "ytick.labelcolor")
+#: The rcParams that are LINES: the axis spines and the tick marks. The
+#: figure's chrome, not its data — :func:`resolve_line_ink` says why the
+#: data's own series are left alone.
+LINE_KEYS = ("axes.edgecolor", "xtick.color", "ytick.color")
+
+
+def chosen_ink() -> Optional[str]:
+    """The TEXT colour the user picked, or ``None`` while it follows the theme.
+
+    Reads the stored TOKEN, never the resolved pair. A resolved pair has
+    already lost the one bit that matters here — whether the user chose the
+    colour or the theme produced it — so seeding the house style from
+    ``get_figure_colors()`` would replace the measured publication ink with
+    whatever the current theme happens to answer, for every user who has
+    never opened the dialog.
+
+    ``None`` when there is no settings store at all: a headless render or a
+    bare unit run, where the house style is the only answer there is.
+    """
+    try:
+        from ..qt.preferences import (figure_color_is_auto,
+                                      get_figure_color_tokens)
+
+        _ground, text = get_figure_color_tokens()
+    except Exception:                                          # noqa: BLE001
+        return None
+    if figure_color_is_auto(text):
+        return None
+    return str(text).strip() or None
+
+
+def chosen_line_ink() -> Optional[str]:
+    """The LINE colour the user picked, or ``None`` while it follows the text.
+
+    The user's second colour control: "line color which should change the
+    color of all lines including axis lines and ticks". Stored as a token
+    like the text half, and read as a token for the same reason —
+    :func:`chosen_ink` says which.
+    """
+    try:
+        from ..qt.preferences import (figure_color_is_auto,
+                                      get_figure_line_token)
+
+        token = get_figure_line_token()
+    except Exception:                                          # noqa: BLE001
+        return None
+    if figure_color_is_auto(token):
+        return None
+    return str(token).strip() or None
+
 
 def resolve_ink(target: str = "screen", ink: Optional[str] = None) -> str:
-    """The text and axis colour for where this figure is going.
+    """The TEXT colour for where this figure is going.
+
+    Titles, axis labels, tick LABELS, annotations and legend entries. The
+    axis spines and the tick MARKS are lines, and they have their own
+    resolver — see :func:`resolve_line_ink`.
 
     :param target: ``'screen'`` for the GUI, ``'print'`` for a file that will
         be looked at on paper or in a white-page viewer.
@@ -78,7 +142,35 @@ def resolve_ink(target: str = "screen", ink: Optional[str] = None) -> str:
     """
     if ink:
         return ink
-    return INK_PRINT if target == "print" else INK_SCREEN
+    return chosen_ink() or (INK_PRINT if target == "print" else INK_SCREEN)
+
+
+def resolve_line_ink(target: str = "screen", ink: Optional[str] = None,
+                     line: Optional[str] = None) -> str:
+    """The colour of the figure's LINE work, for where this figure is going.
+
+    The axis spines and the tick MARKS. THE TICK MARK IS A LINE AND THE TICK
+    LABEL IS TEXT — that split is the one place the two controls meet, and it
+    is the reason this resolver exists separately from :func:`resolve_ink`.
+
+    FALLING BACK TO THE TEXT IS THE POINT, not a shortcut. Before there were
+    two controls every figure drew its chrome in the ink its text used, so a
+    store nobody has touched renders exactly as it did and the split costs
+    nobody a changed figure until they choose one.
+
+    WHAT IT DOES NOT REACH: the data's own lines. A preference pushed over
+    every series would flatten every multi-series figure in the package the
+    moment a theme was read, so the house style keeps :data:`ROLES` for the
+    marks that carry meaning. The control that does repaint one figure's data
+    lines is the per-figure one in the GUI.
+
+    :param line: an explicit line colour, which always wins.
+    :param ink: the text colour this figure is being drawn with, used when
+        neither the caller nor the user has named a line colour.
+    """
+    if line:
+        return line
+    return chosen_line_ink() or resolve_ink(target, ink)
 
 
 #: The page a LABEL sits on, per target. Not the figure's ground -- that is
@@ -151,6 +243,7 @@ def user_overrides(kind: Optional[str] = None) -> dict:
 
 def rc(target: str = "screen", *, frame: str = "L",
        ink: Optional[str] = None,
+       line: Optional[str] = None,
        ground: Optional[str] = None,
        kind: Optional[str] = None) -> dict:
     """The rcParams for the house style, as a plain dict.
@@ -163,6 +256,10 @@ def rc(target: str = "screen", *, frame: str = "L",
         figures); ``'box'`` draws all four (Nature Microbiology). Pick one
         per figure and hold it — box reads better when panels are small and
         dense, L when they are sparse.
+    :param ink: the TEXT colour — titles, labels, tick labels, annotations.
+    :param line: the LINE colour — the axis spines and the tick marks. Falls
+        back to ``ink`` when nobody has said otherwise, which is what the
+        figures did before the two were separable.
     :param ground: the figure and axes background. Defaults to transparent,
         which lets the GUI theme
         show through.
@@ -170,7 +267,13 @@ def rc(target: str = "screen", *, frame: str = "L",
         for it can be applied on top. See :func:`user_overrides`.
     """
     box = frame == "box"
-    colour = resolve_ink(target, ink)
+    # Read each control ONCE. `picked_*` is None while that half follows the
+    # theme, and it is also the flag that decides whether the choice outranks
+    # the house-style panel's own colours further down.
+    picked_ink = ink or chosen_ink()
+    picked_line = line or chosen_line_ink()
+    colour = resolve_ink(target, picked_ink)
+    line_colour = resolve_line_ink(target, ink=picked_ink, line=picked_line)
     ground = TRANSPARENT if ground is None else ground
     params = {
         "figure.dpi": 120,
@@ -182,7 +285,7 @@ def rc(target: str = "screen", *, frame: str = "L",
         "axes.titlesize": TYPE_SCALE["label"],
         "axes.titleweight": "regular",
         "axes.titlelocation": "center",
-        "axes.edgecolor": colour,
+        "axes.edgecolor": line_colour,
         "axes.labelcolor": colour,
         "axes.linewidth": WEIGHTS["spine"],
         # NO GRIDLINES. EVER. The published figures have none, and a grid is
@@ -190,7 +293,11 @@ def rc(target: str = "screen", *, frame: str = "L",
         "axes.grid": False,
         "axes.spines.top": box,
         "axes.spines.right": box,
-        "xtick.color": colour, "ytick.color": colour,
+        # THE MARK IS A LINE, THE LABEL IS TEXT. `xtick.color` is the little
+        # dash beside the axis; `xtick.labelcolor` is the number printed next
+        # to it. Matplotlib's default for the second is "inherit", so both
+        # are named here or the two can never be told apart.
+        "xtick.color": line_colour, "ytick.color": line_colour,
         "xtick.labelcolor": colour, "ytick.labelcolor": colour,
         "text.color": colour,
         "xtick.major.size": 2.6, "ytick.major.size": 2.6,
@@ -213,6 +320,16 @@ def rc(target: str = "screen", *, frame: str = "L",
     # LAST, so the user wins. Everything above is the published look; this is
     # the handful of settings they went into Preferences and changed.
     params.update(user_overrides(kind))
+    # LATER STILL, and only for a colour the user actually named. The two
+    # figure-colour controls are the dedicated ones for these roles, so they
+    # outrank the graph-style panel's general `foreground` — which resolves
+    # to `xtick.color` and would otherwise repaint the tick marks the line
+    # control was just told to own. Nothing is written here while both halves
+    # follow the theme, so an untouched store keeps the house style exactly.
+    if picked_ink:
+        params.update(dict.fromkeys(TEXT_KEYS, colour))
+    if picked_ink or picked_line:
+        params.update(dict.fromkeys(LINE_KEYS, line_colour))
     return params
 
 
@@ -241,6 +358,13 @@ def figure_style(target: str = "screen", **kwargs):
 
 def theme_target() -> str:
     """``'screen'`` or ``'print'``, from the user's own figure preferences.
+
+    The GROUND decides this, and only the ground: it is the question "what is
+    this figure going to sit on", which is what picks between the two
+    measured house inks. The colours the user may have CHOSEN are a different
+    question and are read where they are used —
+    :func:`chosen_ink` for the text, :func:`chosen_line_ink` for the lines —
+    because a chosen colour outranks whichever house ink this returns.
 
     Falls back to ``'screen'`` when there is no settings store — a headless
     render or a bare unit test — because spaCR's themes are dark and ink that
@@ -354,8 +478,10 @@ def hide_unused(axes: Iterable) -> None:
 
 
 __all__ = [
-    "INK_PRINT", "INK_SCREEN", "TRANSPARENT", "Palette", "ROLES",
-    "TYPE_SCALE", "WEIGHTS", "annotate", "descriptor", "figure_style",
-    "hide_unused", "panel_letter", "rc", "reference_line", "resolve_ink",
-    "rotate_ticks", "text_legend", "theme_target", "user_overrides",
+    "INK_PRINT", "INK_SCREEN", "LINE_KEYS", "TEXT_KEYS", "TRANSPARENT",
+    "Palette", "ROLES", "TYPE_SCALE", "WEIGHTS", "annotate", "chosen_ink",
+    "chosen_line_ink", "descriptor", "figure_style", "hide_unused",
+    "panel_letter", "rc", "reference_line", "resolve_ink",
+    "resolve_line_ink", "rotate_ticks", "text_legend", "theme_target",
+    "user_overrides",
 ]

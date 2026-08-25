@@ -28,12 +28,22 @@ class TestTheOptionIsGone:
         after = source.split("'dataset_mode':")[1][:120]
         assert "measurement" not in after, after
 
-    def test_the_tk_gui_does_not_offer_it_either(self):
-        """Tk accommodates new code: it is updated to fit, not left broken."""
-        import spacr.gui_elements as tk
+    def test_the_settings_panel_does_not_offer_it_either(self):
+        """A value the spec still lists is a value a user can still pick.
 
-        source = open(tk.__file__).read()
-        assert "values=['annotation','metadata','measurement']" not in source
+        The companion above reads the spec's source; this one asks the
+        function the settings panel actually calls to build the combo, so a
+        retired value that came back through a code path rather than through
+        the literal would still be caught.
+        """
+        from spacr.settings_spec import convert_settings_dict_for_gui
+
+        kind, options, default = convert_settings_dict_for_gui(
+            {"dataset_mode": "metadata"})["dataset_mode"]
+        assert kind == "combo"
+        assert "measurement" not in options
+        assert set(options) == {"annotation", "metadata"}
+        assert default == "metadata"
 
     def test_the_rules_setting_is_gone(self):
         from spacr.settings import descriptions, tooltips

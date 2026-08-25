@@ -236,8 +236,14 @@ EXPECTED_SECTIONS = {
     "distributed_jobs": SECTION_DATA,
     "db_browser":      SECTION_DATA,
     "make_masks":      SECTION_MODELS,
+    # ONE ROW WHERE THERE WERE TWO. Train Cellpose and Cellpose Masks were
+    # the two halves of one loop -- fine-tune on a few labelled fields, run
+    # the model over the rest -- and they are now the tabs of a single
+    # "Cellpose Workbench" tile under `train_cellpose`. `cellpose_masks` is
+    # still a real app key (`spacr-run cellpose_masks` runs, a settings file
+    # for it still loads); what it no longer has is a tile of its own, and
+    # this ledger records tiles.
     "train_cellpose":  SECTION_MODELS,
-    "cellpose_masks":  SECTION_MODELS,
     "model_compare":   SECTION_MODELS,
     "model_zoo":       SECTION_MODELS,
     # Illumination correction is done TO the images on the way in, like
@@ -356,7 +362,10 @@ EXPECTED_STAGES = {
     # The Parameter Sweep's entry stood beside this one until it stopped
     # being a registry row; a stage is a property of a tile on Home.
     "volcano_explorer": "alpha",
-    "make_masks": "beta", "train_cellpose": "beta", "cellpose_masks": "beta",
+    # `cellpose_masks` stood beside `train_cellpose` here until the two
+    # became one Cellpose Workbench tile. A maturity is a property of a
+    # tile on Home, so the key that no longer has one drops out.
+    "make_masks": "beta", "train_cellpose": "beta",
     "timelapse": "beta", "motility": "beta", "analyze_plaques": "beta",
     "replication": "beta", "umap": "beta", "activation": "beta",
 }
@@ -374,7 +383,7 @@ def test_every_app_is_filed_under_the_section_it_belongs_to():
 def test_every_app_carries_the_maturity_it_was_given():
     """The other axis, one entry at a time.
 
-    Thirty-four alpha, nine beta, eight stable. The alpha column is the
+    Forty alpha, eight beta, six stable. The alpha column is the
     one that keeps growing and the beta and stable columns have not
     moved in a long time, which is the true shape of this project: an
     app arrives "built and reachable, not yet trusted end to end", and
@@ -408,7 +417,10 @@ def test_every_app_carries_the_maturity_it_was_given():
     # 41 -> 40 alpha: the Parameter Sweep gave up its registry row to become
     # the Regression screen's sweep card. Nothing was signed off; the count
     # falls because there is one fewer tile, not one more trusted app.
-    assert counts == {"alpha": 40, "beta": 9, "stable": 6}
+    # 9 -> 8 beta, for the same kind of reason: Cellpose Masks and Train
+    # Cellpose became the two tabs of one Cellpose Workbench tile. Both keys
+    # still run; only one of them is now a tile, and this counts tiles.
+    assert counts == {"alpha": 40, "beta": 8, "stable": 6}
 
 
 def test_no_section_is_used_that_was_never_declared():
@@ -960,7 +972,12 @@ def test_every_other_key_builds_a_generic_app_screen(win):
                  # coefficient table and the Parameter Sweep reads the trials
                  # of a search that already ran; both are screens built for
                  # their own job, not settings forms over a pipeline entry.
-                 "volcano_explorer", "parameter_sweep"}
+                 "volcano_explorer", "parameter_sweep",
+                 # `train_cellpose` was a settings form over an entry point
+                 # until it absorbed Cellpose Masks. The Workbench is a
+                 # screen of its own: fine-tuning on one tab, segmenting a
+                 # folder on the other, sharing one model between them.
+                 "train_cellpose"}
 
     built_generic, built_dedicated = set(), set()
     for key, *_r in APPS:
@@ -2293,11 +2310,34 @@ def test_launch_with_no_arguments_opens_on_home(launched, qtbot,
     win.close()
 
 
+#: What the background pre-warm is expected to import, written out rather
+#: than read back out of the code it guards.
+#:
+#: The pre-warm exists for one moment: the first time the user opens a
+#: module, the settings form for it is built, and building it reaches
+#: ``spacr.settings`` -- about a second of import that would otherwise land
+#: on the GUI thread exactly when the window is supposed to snap open.
+#: Importing it on a daemon thread while the user is still looking at Home
+#: is the whole feature, so what the list holds is the thing worth asserting.
+#:
+#: ``spacr.gui_utils`` was the other name here, and by far the heavier one:
+#: it pulled torch and cv2 in behind it. The Qt settings form no longer
+#: reaches it -- the one function it wanted is in ``spacr.settings_spec``,
+#: which imports nothing -- and the module itself went with the rest of the
+#: Tk interface. Asserting a deleted module is warmed cannot pass; asserting
+#: it is *absent* would pass for the wrong reason, since a name nothing can
+#: import can only ever be missing. So the list is asserted for what it
+#: holds. Adding a name here is a claim that a screen pays for that import
+#: on its first open; record it in this table in the same change.
+PREWARMED_MODULES = ("spacr.settings",)
+
+
 def _prewarmed_module_names():
     """The module names ``launch``'s background pre-warm imports.
 
-    Read from the source of ``launch`` rather than hard-coded, so a name
-    added to or removed from the list is covered without editing this file.
+    Read out of the source of ``launch`` so that the two tests below compare
+    the code against :data:`PREWARMED_MODULES` rather than against each
+    other.
     """
     import inspect
     import re
@@ -2307,6 +2347,19 @@ def _prewarmed_module_names():
     assert match, "launch no longer pre-warms a tuple of module names"
     return [name.strip().strip("\"'")
             for name in match.group(1).split(",") if name.strip()]
+
+
+def test_the_prewarm_list_holds_what_a_first_module_open_pays_for():
+    """The list is the feature; a silent change to it is a silent regression.
+
+    Dropping a name here costs the user a frozen window on the first module
+    open, and nothing anywhere says so -- the pre-warm swallows its failures
+    and a warm that never happened looks exactly like one that did.
+    """
+    assert _prewarmed_module_names() == list(PREWARMED_MODULES), (
+        "the pre-warm list moved. That is allowed -- update "
+        "PREWARMED_MODULES in the same change, so what a first module open "
+        "is expected to pay for stays written down")
 
 
 def test_the_prewarm_list_names_modules_that_exist():
@@ -2339,16 +2392,22 @@ def test_launch_prewarms_the_heavy_imports_off_thread(launched, qtbot,
     assert thread.daemon is True
     assert thread.started is True
 
-    thread.target()
-    # That the thread body really imports, and that every name on the list
-    # can be imported, are two claims; the second belongs to
-    # `test_the_prewarm_list_names_modules_that_exist`, so a stale name is
-    # reported once rather than by both tests.
-    import importlib.util
-    warmed = [name for name in _prewarmed_module_names()
-              if importlib.util.find_spec(name) is not None]
-    assert warmed, "no pre-warmed module could be imported at all"
-    for name in warmed:
+    # WHAT THE BODY ASKS FOR, not what happens to be in `sys.modules`
+    # afterwards. By the time this test runs the suite has imported most of
+    # spaCR, so membership alone would pass on a thread body that imports
+    # nothing at all.
+    requested: list = []
+    real_import = importlib.import_module
+
+    def _record(name):
+        requested.append(name)
+        return real_import(name)
+
+    with monkeypatch.context() as m:
+        m.setattr(importlib, "import_module", _record)
+        thread.target()
+    assert requested == list(PREWARMED_MODULES)
+    for name in PREWARMED_MODULES:
         assert name in sys.modules, f"{name} was not pre-warmed"
 
     # A prewarm import that fails must stay silent — it is an optimisation.

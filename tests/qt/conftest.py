@@ -25,6 +25,15 @@ collect_ignore_glob = (
     else []
 )
 
+# NOT the reason this file's fixtures can go missing, though it is the first
+# thing anybody suspects. Interleaving a non-Qt file between two Qt ones once
+# made every fixture below disappear -- "fixture 'qt_theme_applied' not found"
+# for a whole file, while the summary line still counted the first two as
+# passes -- and this glob, computed once at import, had nothing to do with it.
+# The cause was two collection nodes for one directory; the fix and the guard
+# that keeps it fixed live in tests/conftest.py, under "One collection node
+# per directory". This module is imported exactly once either way.
+
 
 @pytest.fixture(scope="session")
 def qt_theme_applied(qapp):

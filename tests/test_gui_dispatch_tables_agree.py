@@ -27,6 +27,8 @@ made the deleted tests more than symbolic, and it is what says which of the
 two `classify` factories the panel has to be built from.
 """
 
+import pytest
+
 
 def test_classify_really_does_lose_keys_under_the_old_factory():
     """The arithmetic that made the deleted pair more than symbolic."""
@@ -50,7 +52,13 @@ def test_the_classify_panel_is_built_from_the_larger_factory():
     built from, so it is the one that decides which keys an imported CSV can
     keep. Built from the smaller factory, the 37 keys counted above would be
     dropped from every CSV on import exactly as they were under Tk.
+
+    The panel is a Qt widget module, so this half of the pair needs
+    PySide6 to answer at all. A core-only install has no settings panel
+    to guard, and must skip here rather than report a missing GUI extra
+    as a settings key the panel drops.
     """
+    pytest.importorskip("PySide6")
     from spacr.qt.screens.settings_model import resolve_default_settings
     import spacr.settings as S
 

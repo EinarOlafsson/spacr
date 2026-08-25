@@ -59,7 +59,8 @@ def test_choosing_a_language_redraws_the_screen_in_it(slides, qapp):
     qapp.processEvents()
 
     assert "Sprache" in slides._title.text()
-    assert "1 von 6" == slides._where.text()
+    # Seven since the terms of use became a slide of their own.
+    assert "1 von 7" == slides._where.text()
     assert slides._next.text() == i18n.tr("Next ›", "de")
 
 

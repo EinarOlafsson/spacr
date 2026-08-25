@@ -190,10 +190,16 @@ WINDOW_HALF_WIDTHS = 1.0
 #: :func:`spacr.crops.resolve_crop_source` is right to prefer it when it
 #: exists.
 #:
-#: 300 is therefore ~3.4 s of cutting in the worst measured case and ~0.2 s in
-#: the common one. Whatever the cap trims is named in the caption rather than
-#: dropped quietly.
-MAX_OBJECTS = 300
+#: 2,000 is therefore ~23 s of cutting in the worst measured case and ~1.4 s
+#: in the common one. Whatever the cap trims is named in the caption rather
+#: than dropped quietly.
+#:
+#: WHY 2,000 AND NOT 10,000. 10,000 was asked for and the cost of it was
+#: measured before it was taken: twelve open well tabs would hold 16.8 GB of
+#: thumbnails, and at 24 to 60 objects a page the last page sits 167 to 417
+#: clicks away behind a pager that only steps. 2,000 is ~3.4 GB across twelve
+#: tabs and ~33 to ~83 pages -- most of the reach, none of the cliff.
+MAX_OBJECTS = 2000
 
 #: The per-object classification score a montage selects on, by default.
 #: Named because a screen with more than one classifier output has more than

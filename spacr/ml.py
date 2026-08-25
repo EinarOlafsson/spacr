@@ -45,6 +45,11 @@ from .regression_spec import (DEFAULT_REGRESSION_BACKEND,  # noqa: F401
                               UNSUPPORTED_REGRESSION_TYPES,
                               _MODEL_LEVEL_DEFAULTS,
                               _RUN_LEVEL_DEFAULTS)
+from .regression_families import (REGRESSION_FAMILY_ASSUMPTIONS,  # noqa: F401
+                                  REGRESSION_FAMILY_GROUPS,
+                                  family_group,
+                                  family_label,
+                                  regression_family_choices)
 from .mixed_gpu import MixedBackendUnavailable  # noqa: F401
 from .regression_backends import (backend_label,          # noqa: F401
                                   backend_status,
@@ -63,7 +68,7 @@ from sklearn.preprocessing import MinMaxScaler
 from scipy.spatial.distance import cosine, euclidean, mahalanobis, cityblock, minkowski, chebyshev, braycurtis
 from xgboost import XGBClassifier
 
-from . import schema, tabular
+from . import frame_handoff, schema, tabular
 from .openmp_guard import single_threaded_openmp, guarded_n_jobs  # see spacr/openmp_guard.py — duplicate libomp is fatal
 from .plot import save_figure  # every kept figure goes through the format/DPI preference
 
@@ -187,6 +192,142 @@ def _reject_impossible_probabilities(settings):
                    if -1.0 < number < 0.0 else
                    "Set it in the Significance section, or in "
                    "settings/regression.csv if this run came from a file."))
+
+def _concat_named_csvs(paths):
+    """Read every CSV in ``paths`` into one frame.
+
+    A screen's counts and scores are one file per plate, and this question
+    is asked of the screen rather than of a plate, so they are read together.
+
+    :param paths: one path, a list of them, or nothing.
+    :returns: the concatenated frame.
+    :raises ValueError: when there is nothing readable to concatenate.
+    """
+    import pandas as pd
+
+    if not paths:
+        raise ValueError("no table was given to read")
+    if isinstance(paths, (str, os.PathLike)):
+        paths = [paths]
+    frames = []
+    for one in paths:
+        try:
+            frames.append(pd.read_csv(one))
+        except Exception as exc:
+            raise ValueError(f"{one} could not be read: {exc}") from exc
+    if not frames:
+        raise ValueError("no table was given to read")
+    return pd.concat(frames, ignore_index=True)
+
+
+def _calibration_inputs(settings):
+    """Gather what the fraction-threshold sweep needs, from the run's own files.
+
+    THE IMAGING SIDE IS THE CLASSIFIER SCORE. `mixed_ratio_calibration` takes
+    an ``(n_cells, n_features)`` block and one well label per cell, and asks
+    what mixture of positive and negative control each well looks like. The
+    per-cell score column is exactly that measurement with one feature, so
+    the score table the run already loaded is the imaging side and no second
+    source is needed.
+
+    THE PURE WELLS ARE NAMED, NOT INFERRED. They come from the plate design
+    through `positive_control` and `negative_control`. Identifying them by
+    their reported fraction would be circular: that fraction is the quantity
+    under test, and a bias large enough to matter pushes a pure well the
+    wrong side of any cut-off.
+
+    :param settings: the regression settings.
+    :returns: keyword arguments for
+        :func:`spacr.fraction_calibration.sweep_fraction_threshold`.
+    :raises ValueError: when the screen cannot answer the question -- no
+        control wells named, or no score column to read. The caller turns
+        that into a printed reason and the threshold the settings gave.
+    """
+    import numpy as np
+
+    positive = str(settings.get('positive_control') or '').strip()
+    negative = str(settings.get('negative_control') or '').strip()
+    if not positive or not negative:
+        raise ValueError(
+            "the plate design names no positive and negative control, and a "
+            "control-well calibration has nothing to calibrate against")
+
+    counts = _concat_named_csvs(settings.get('count_data'))
+    scores = _concat_named_csvs(settings.get('score_data'))
+    well_column = str(settings.get('count_well_column') or 'prc')
+    score_column = str(settings.get('dependent_variable') or 'pred')
+    if score_column not in scores.columns:
+        raise ValueError(
+            f"the score table has no {score_column!r} column to read the "
+            f"imaging side from")
+    if well_column not in scores.columns:
+        raise ValueError(
+            f"the score table has no {well_column!r} column, so a cell "
+            f"cannot be placed in a well")
+
+    usable = scores[[well_column, score_column]].dropna()
+    features = np.asarray(usable[score_column], dtype=float).reshape(-1, 1)
+    wells = [str(w) for w in usable[well_column]]
+    pure_pc = sorted({w for w in wells if positive in w})
+    pure_nc = sorted({w for w in wells if negative in w})
+    if not pure_pc or not pure_nc:
+        raise ValueError(
+            f"no well matched {positive!r} and {negative!r}, so there is no "
+            f"pure control to anchor the fit")
+
+    return {
+        "counts": counts,
+        "features": features,
+        "wells": wells,
+        "positive_guide": positive,
+        "pure_pc_wells": pure_pc,
+        "pure_nc_wells": pure_nc,
+        "normalise": bool(settings.get('normalise_fraction', True)),
+        "well_column": well_column,
+        "guide_column": str(settings.get('count_grna_column') or 'grna'),
+        "count_column": str(settings.get('count_value_column') or 'count'),
+    }
+
+
+def _calibrated_fraction_threshold(settings):
+    """The cut-off the control wells imply, or ``None`` if they cannot say.
+
+    Returns ``None`` -- rather than raising -- for every reason the sweep
+    might not apply: the plate design names no pure control wells, there
+    are too few of them to fit anything, the counts are missing the columns
+    it reads, or the optional module is not importable. Each of those is an
+    ordinary answer to "can this screen calibrate itself", and none of them
+    is a reason to stop a run that already had a usable threshold.
+
+    :param settings: the regression settings, read for the control-well
+        names and the count table.
+    :returns: the measured threshold, or ``None``.
+    """
+    try:
+        from .fraction_calibration import sweep_fraction_threshold
+    except Exception:
+        print("fraction-threshold calibration is unavailable; "
+              "using the threshold as given")
+        return None
+    try:
+        result = sweep_fraction_threshold(**_calibration_inputs(settings))
+    except (KeyError, ValueError, TypeError) as exc:
+        # NAMED, NOT SWALLOWED. A user who ticked the box is owed the
+        # reason it did nothing, or they will believe it worked.
+        print(f"fraction-threshold calibration did not run: {exc}")
+        return None
+    chosen = result.get("threshold") if isinstance(result, dict) else None
+    if chosen is None:
+        print("fraction-threshold calibration found no cut-off it preferred; "
+              "using the threshold as given")
+        return None
+    try:
+        from .fraction_calibration import describe
+        print(describe(result))
+    except Exception:
+        print(f"fraction_threshold calibrated to {chosen}")
+    return float(chosen)
+
 
 def _graph_sequencing_stats(settings):
     """Resolve the sequencing threshold helper through one testable seam."""
@@ -5520,29 +5661,54 @@ def load_regression_input_pairs(pairs):
     seen_count_parts = set()
     audit = []
 
-    # ONE PARSE PER FILE, NOT ONE PER PAIR ROW.
+    # ONE PARSE PER FILE, NOT ONE PER PAIR ROW, AND NO PARSE AT ALL WHEN THE
+    # FRAME IS ALREADY IN THIS PROCESS.
     #
     # The Measurements tab points EVERY pair row's score at the single merged
     # frame, so a four-plate screen handed the same file four times and this
-    # parsed it four times. Measured on the maintainer's screen: that file is
-    # 2.75 GB, and the process sat at 82% CPU with zero disk I/O -- reading it
-    # back out of the page cache -- for minutes, having already written it.
-    # "it looks like it is not running while it does say that it is running."
+    # parsed it four times. That file is 2.75 GB on a four-plate screen: the
+    # process sat at 82% CPU with zero disk I/O -- reading it back out of the
+    # page cache -- for minutes, having already written it.
     #
-    # A COPY PER CALLER, because the caller mutates what it gets: plateID is
-    # assigned onto it and it is filtered down to one plate. Handing out the
-    # cached frame itself would let the first pair row's edits reach the
-    # second.
+    # The merge that produced it runs in this same process, so `frame_handoff`
+    # lets it offer the frame under the path it wrote; then there is no parse
+    # to pay for and no 2.75 GB round trip through the filesystem. A caller
+    # that offered nothing reads the file exactly as before.
+    #
+    # NO BLANKET COPY. Four copies of a 2.75 GB frame is eleven gigabytes of
+    # allocation for a mutation that happens on ONE branch below -- stamping
+    # `plateID` onto a file that names no plate. That branch copies; the
+    # filtering branches build new frames of their own and cannot reach the
+    # cached one.
     _parsed: dict = {}
 
     def read(path):
+        import time
+
         if not path:
             return None
-        key = os.path.abspath(os.fspath(path))
+        key = frame_handoff.key_for(path)
         if key not in _parsed:
-            _parsed[key] = correct_metadata(
-                tabular.read_table(os.fspath(path)))
-        return _parsed[key].copy()
+            offered = frame_handoff.held(path)
+            if offered is not None:
+                # SAY SO. Between the merge finishing and the fit starting the
+                # run used to print nothing at all for minutes, which is what
+                # made a working run look dead.
+                note = frame_handoff.describe(path)
+                print(f"Input {note}." if note else
+                      f"Input {os.path.basename(key)} handed over in memory.",
+                      flush=True)
+                _parsed[key] = correct_metadata(offered)
+            else:
+                size = os.path.getsize(key) if os.path.exists(key) else 0
+                print(f"Reading {os.path.basename(key)} "
+                      f"({size / 1e6:.1f} MB)...", flush=True)
+                started = time.time()
+                frame = correct_metadata(tabular.read_table(os.fspath(path)))
+                print(f"  {len(frame):,} rows in "
+                      f"{time.time() - started:.1f} s.", flush=True)
+                _parsed[key] = frame
+        return _parsed[key]
 
     def plates(frame):
         if frame is None or 'plateID' not in frame.columns:
@@ -5618,9 +5784,14 @@ def load_regression_input_pairs(pairs):
                 f"paired_data row {index + 1} cannot copy {sorted(resolved)} "
                 "onto a partner with no plateID: one file contains several "
                 "plates. Split that partner or give it an explicit plateID.")
+        # THE ONLY MUTATION, so the only place a copy is owed: `read` hands
+        # back the cached frame itself, and stamping a plate onto it would
+        # write the first pair row's plate into every later row's score.
         if score is not None and not score_plates:
+            score = score.copy()
             score['plateID'] = next(iter(resolved))
         if count is not None and not count_plates:
+            count = count.copy()
             count['plateID'] = next(iter(resolved))
         label = ', '.join(sorted(resolved))
         pair['plate'] = label
@@ -6851,21 +7022,35 @@ def _call_level_hits(coef_df, level, settings, regression_type,
 
 
 def _stage(settings, name):
-    """Record the current fit stage and its resource use without raising.
+    """Record the current fit stage, announce it, and never raise.
 
     Fall back to storing ``_regression_stage`` in the settings mapping when
     resource measurement is unavailable.
+
+    THE ANNOUNCEMENT IS THE POINT AS MUCH AS THE RECORD. Reading the counts
+    and fitting the model each take minutes on a four-plate screen, and a step
+    that prints nothing while it runs cannot be told apart from a step that
+    has hung -- which is how a working run comes to be reported as a dead one.
+    The recorded resident size goes on the same line, because the other thing
+    a long silent step invites is a guess about memory.
     """
+    reading = {}
     try:
         from .fit_resources import record_stage
 
-        return record_stage(settings, name)
+        reading = record_stage(settings, name)
     except Exception:                                            # noqa: BLE001
         try:
             settings["_regression_stage"] = str(name)
         except Exception:                                        # noqa: BLE001
             pass
-        return {}
+    try:
+        rss = reading.get("rss") if isinstance(reading, dict) else None
+        note = f" (resident {rss / 1e9:.1f} GB)" if rss else ""
+        print(f"Regression: {name}{note}.", flush=True)
+    except Exception:                                            # noqa: BLE001
+        pass
+    return reading
 
 
 def perform_regression(settings):
@@ -7030,6 +7215,7 @@ def _perform_regression(settings):
     from .toxo import custom_volcano_plot, plot_gene_phenotypes, plot_gene_heatmaps
 
     def _perform_regression_read_data(settings):
+            _stage(settings, "reading the input tables")
             pairs, _migrated = normalize_regression_input_pairs(settings)
             count_data_df, score_data_df, audit = \
                 load_regression_input_pairs(pairs)
@@ -7648,6 +7834,25 @@ def _perform_regression(settings):
         print(f"Dependent variable after process_scores: {len(dependent_df)}")
         display(dependent_df)
     
+    if settings.get('calibrate_fraction_threshold'):
+        # MEASURED FROM THE CONTROL WELLS, when the user asked for that.
+        #
+        # `target_unique_count` answers a different question -- how many
+        # gRNAs a well should end up with -- and answers it from the counts
+        # alone. This one asks which cut-off makes the imaging and the
+        # sequencing agree, which is the question a screen is actually
+        # asking, and it can only be asked where the plate design names
+        # pure control wells.
+        #
+        # A sweep that cannot run says so and falls through to whatever the
+        # settings already chose. It must not take the run down: the
+        # calibration is an improvement on a number that already has a
+        # value, not a prerequisite for having one.
+        measured = _calibrated_fraction_threshold(settings)
+        if measured is not None:
+            settings['fraction_threshold'] = measured
+            _AUTOMATIC_SETTINGS['fraction_threshold'] = measured
+
     if settings['fraction_threshold'] is None:
         # THE gRNA THRESHOLD GRAPH BELONGS TO THE RUN.
         #

@@ -6,7 +6,7 @@ import pandas as pd
 from collections import defaultdict
 from scipy.stats import pearsonr, skew, kurtosis, mode
 import multiprocessing as mp
-from scipy.ndimage import distance_transform_edt, generate_binary_structure, binary_dilation, binary_erosion, gaussian_filter, center_of_mass, convolve
+from scipy.ndimage import distance_transform_edt, generate_binary_structure, binary_dilation, binary_erosion, gaussian_filter, center_of_mass, convolve, find_objects
 from scipy.spatial import cKDTree
 from skimage.measure import regionprops, regionprops_table, shannon_entropy
 from skimage.exposure import rescale_intensity
@@ -1611,6 +1611,10 @@ def _intensity_measurements(
     
     for i in range(0, channel_arrays.shape[-1]):
         channel = channel_arrays[..., i]
+        # frac_high90 / frac_low10 are cut at the whole field's percentiles, so
+        # the pair belongs to the channel, not to the mask being measured.
+        # Computed once here instead of once per mask inside the call below.
+        channel_percentiles = _field_reference_percentiles(channel)
         for j, (label, df) in enumerate(zip(labels, dfs)):
 
             if np.max(label) == 0:
@@ -1618,7 +1622,9 @@ def _intensity_measurements(
                 df.append(empty_df)
                 continue
 
-            mask_intensity_df = _extended_regionprops_table(label, channel, intensity_props, spacing=spacing)
+            mask_intensity_df = _extended_regionprops_table(
+                label, channel, intensity_props, spacing=spacing,
+                field_percentiles=channel_percentiles)
 
             if homogeneity:
                 homogeneity_df = _calculate_homogeneity(label, channel, distances)
@@ -1640,8 +1646,21 @@ def _intensity_measurements(
             # writing the prefix here too produced
             # 'cell_channel_0_cell_channel_0_blur' in every database written
             # before this fix.
-            blur_col = [_estimate_blur(channel, mask=(label == region_label))
-                        for region_label in mask_intensity_df['label']]
+            # _estimate_blur cuts the object's bounding box grown by one
+            # pixel out of whatever it is handed, so hand it that patch rather
+            # than a whole-field boolean: the pixels it measures are the same
+            # ones, and the loop stops comparing the entire field once per
+            # object per channel.
+            label_shape = np.asarray(label).shape
+            label_boxes = _label_bounding_boxes(label)
+            label_field = _whole_field_window(label_shape)
+            blur_col = []
+            for region_label in mask_intensity_df['label']:
+                box = _box_for(label_boxes, region_label)
+                window = (label_field if box is None
+                          else _grow_window(box, 1, label_shape))
+                blur_col.append(_estimate_blur(
+                    channel[window], mask=(label[window] == region_label)))
             mask_intensity_df['blur'] = blur_col
 
             mask_intensity_df.columns = [f'{ls[j]}_channel_{i}_{col}' if col != 'label' else col for col in mask_intensity_df.columns]
@@ -1726,7 +1745,155 @@ def _create_dataframe(radial_distributions, object_type):
         df = df.reset_index().rename(columns={'index': 'label'})
         return df
 
-def _extended_regionprops_table(labels, image, intensity_props, spacing=None):
+def _whole_field_window(shape):
+    """The slice tuple covering every voxel of an array of ``shape``."""
+    return tuple(slice(0, int(dim)) for dim in shape)
+
+
+def _label_bounding_boxes(label_mask):
+    """Return ``{label: slice tuple}``, one bounding box per non-zero label.
+
+    Per-object work in this module is written as a whole-field comparison
+    (``label_mask == region``) inside a loop over objects, so reaching an
+    object a few tens of pixels across costs a pass over the entire field and
+    the loop costs O(objects x field). Restricting each iteration to the
+    object's own bounding box is exact rather than approximate: it selects the
+    same pixels in the same C order, so every reduction over them -- a mean, a
+    percentile, a pairwise correlation -- is unchanged to the last bit.
+
+    The mapping is an optimisation hint and never a filter. A label with no
+    box in it is simply measured over the whole field, which is what the
+    callers do, so no object is ever dropped by cropping.
+
+    :param label_mask: label mask, 2-D or 3-D.
+    :returns: mapping from label to slice tuple. Empty when the labels are not
+        whole numbers, or when the largest label exceeds the voxel count --
+        :func:`scipy.ndimage.find_objects` enumerates every label up to the
+        maximum, so a mask numbered that sparsely would cost more to box than
+        the crops save.
+    """
+    arr = np.asarray(label_mask)
+    if arr.size == 0:
+        return {}
+    if not np.issubdtype(arr.dtype, np.integer):
+        if not np.all(np.isfinite(arr)) or not np.all(arr == np.rint(arr)):
+            return {}
+        arr = arr.astype(np.int64)
+    if int(arr.max()) > arr.size:
+        return {}
+    return {index + 1: box
+            for index, box in enumerate(find_objects(arr))
+            if box is not None}
+
+
+def _box_for(boxes, label):
+    """The bounding box recorded for ``label``, or ``None`` when there is none.
+
+    An empty mapping is answered without touching ``label`` at all. That is not
+    a shortcut: :func:`_label_bounding_boxes` returns nothing precisely when the
+    labels are not whole numbers, and those are the labels that cannot be used
+    as a key -- ``1.5`` would truncate onto object 1's box, and a NaN label,
+    which a float mask can carry and which every caller currently reports as an
+    empty object, would raise.
+    """
+    if not boxes:
+        return None
+    return boxes.get(int(label))
+
+
+def _grow_window(window, pad, shape):
+    """Grow a slice tuple by ``pad`` voxels per axis, clipped to ``shape``.
+
+    :param window: slice tuple to grow.
+    :param pad: one margin for every axis, or a per-axis sequence.
+    :param shape: array shape the result is clipped to.
+    """
+    pads = pad if isinstance(pad, (tuple, list)) else (pad,) * len(shape)
+    return tuple(slice(max(0, sl.start - int(margin)),
+                       min(int(dim), sl.stop + int(margin)))
+                 for sl, margin, dim in zip(window, pads, shape))
+
+
+def _union_window(first, second):
+    """The smallest slice tuple containing both windows."""
+    return tuple(slice(min(a.start, b.start), max(a.stop, b.stop))
+                 for a, b in zip(first, second))
+
+
+def _ring_padding(distance, spacing, shape):
+    """Voxels of margin an object needs for a ``distance``-wide outside ring.
+
+    With a voxel spacing, a voxel ``n`` steps from the object along axis ``k``
+    is at least ``n * spacing[k]`` away, so nothing inside the ring lies
+    further than ``ring_width / spacing[k]`` steps out and a box grown by that
+    much contains the whole ring. Without one the ring is ``distance``
+    iterations of :func:`scipy.ndimage.binary_dilation`, whose reach is
+    ``distance`` voxels along each axis.
+
+    Two inputs bound nothing and get the whole field, so that the ring is
+    measured exactly as it would be with no cropping at all: a spacing with a
+    step that is zero or not finite, and a ``distance`` that is not positive --
+    ``binary_dilation`` reads ``iterations < 1`` as "repeat until the result
+    stops changing", which floods the array rather than growing a ring.
+    """
+    whole = tuple(int(dim) for dim in shape)
+    if not float(distance) > 0:
+        return whole
+    if spacing is None:
+        return (int(distance),) * len(shape)
+    steps = [float(step) for step in spacing]
+    if not all(np.isfinite(step) and step > 0 for step in steps):
+        return whole
+    ring_width = float(distance) * steps[-1]
+    return tuple(int(ceil(ring_width / step)) for step in steps)
+
+
+def _percentiles_of(values, cut_points):
+    """Return the percentiles of ``values`` at every point in ``cut_points``.
+
+    ``np.percentile`` accepts a sequence for ``q`` and answering several cut
+    points in one call is several times cheaper than one call each, because the
+    vector is partitioned once instead of once per point.
+
+    It is not always the same arithmetic, though. On a float32 input numpy's
+    sequence form computes the interpolation in float64 and its scalar form
+    computes it in float32, and the two disagree in the last bits -- so an
+    intensity column would quietly move the day it was batched. Batching is
+    therefore used only where numpy reaches float64 either way (integers,
+    booleans and float64 itself); a narrower float gets one call per point and
+    the value a database already holds.
+
+    :param values: 1-D array of pixel values.
+    :param cut_points: percentile positions in [0, 100].
+    :returns: array of percentiles, one per cut point, in the given order.
+    """
+    array = np.asarray(values)
+    batched_is_exact = (np.issubdtype(array.dtype, np.integer)
+                        or array.dtype == np.bool_
+                        or array.dtype == np.float64)
+    if batched_is_exact:
+        return np.percentile(array, cut_points)
+    return np.array([np.percentile(array, point) for point in cut_points])
+
+
+def _field_reference_percentiles(image):
+    """Return the field's ``(p90, p10)`` intensity references, NaN when empty.
+
+    ``frac_high90`` / ``frac_low10`` are thresholded on the whole field, so the
+    pair depends only on the channel and not on which mask is being measured.
+    :func:`_intensity_measurements` measures every mask against every channel,
+    so computing them inside :func:`_extended_regionprops_table` re-ravelled
+    and re-sorted the same channel once per mask.
+    """
+    field = np.asarray(image, dtype=float).ravel()
+    field = field[~np.isnan(field)]
+    if not field.size:
+        return np.nan, np.nan
+    return float(np.percentile(field, 90)), float(np.percentile(field, 10))
+
+
+def _extended_regionprops_table(labels, image, intensity_props, spacing=None,
+                                field_percentiles=None):
     """Return a regionprops table extended with distributional intensity features (mean/std/skew/kurtosis/mode/CV/Gini/entropy/percentiles).
 
     :param labels: label mask, 2-D or 3-D.
@@ -1734,6 +1901,11 @@ def _extended_regionprops_table(labels, image, intensity_props, spacing=None):
     :param intensity_props: regionprops property names.
     :param spacing: voxel spacing from :func:`resolve_measurement_spacing`;
         ``None`` in 2-D, which skimage treats as "not supplied".
+    :param field_percentiles: the ``(p90, p10)`` of ``image`` from
+        :func:`_field_reference_percentiles`, for a caller that measures
+        several masks against one channel and would otherwise recompute them
+        per mask. Computed here when omitted, so the values are identical
+        either way.
     """
 
     def _gini(array):
@@ -1759,14 +1931,9 @@ def _extended_regionprops_table(labels, image, intensity_props, spacing=None):
     # whole field's percentiles instead gives what the names promise: the
     # fraction of the object that is bright (or dim) relative to this field.
     # A dim object scores near 0 for frac_high90, a bright one near 1.
-    _field = np.asarray(image, dtype=float).ravel()
-    _field = _field[~np.isnan(_field)]
-    if _field.size:
-        field_p90 = float(np.percentile(_field, 90))
-        field_p10 = float(np.percentile(_field, 10))
-    else:
-        field_p90 = np.nan
-        field_p10 = np.nan
+    if field_percentiles is None:
+        field_percentiles = _field_reference_percentiles(image)
+    field_p90, field_p10 = field_percentiles
 
     regions = regionprops(labels, intensity_image=image, spacing=spacing)
     integrated_intensity = []
@@ -1830,7 +1997,8 @@ def _extended_regionprops_table(labels, image, intensity_props, spacing=None):
             mode_val = np.atleast_1d(np.asarray(mode(intens, nan_policy='omit').mode))
             mode_intensity.append(float(mode_val[0]) if mode_val.size else np.nan)
             range_intensity.append(np.ptp(intens))
-            iqr_intensity.append(np.percentile(intens, 75) - np.percentile(intens, 25))
+            upper_quartile, lower_quartile = _percentiles_of(intens, [75, 25])
+            iqr_intensity.append(upper_quartile - lower_quartile)
             cv_intensity.append(np.std(intens) / np.mean(intens) if np.mean(intens) != 0 else np.nan)
             gini_intensity.append(_gini(intens))
             frac_high90.append(np.mean(intens > field_p90) if np.isfinite(field_p90) else np.nan)
@@ -1851,12 +2019,19 @@ def _extended_regionprops_table(labels, image, intensity_props, spacing=None):
     df['frac_low10'] = frac_low10
     df['entropy_intensity'] = entropy_intensity
 
+    # One np.percentile call per region covering all six cut points, rather
+    # than one call per (region, cut point) that re-extracted and re-sorted the
+    # object's pixels each time. numpy takes a sequence for q and returns the
+    # same values.
+    #
+    # The vector is the RAW masked intensity, deliberately not the NaN-filtered
+    # `intens` the loop above uses: filtering here would change these numbers
+    # on any region carrying a NaN.
     percentiles = [5, 10, 25, 75, 85, 95]
-    for p in percentiles:
-        df[f'percentile_{p}'] = [
-            np.percentile(_masked_intensity(region), p)
-            for region in regions
-        ]
+    per_region = [_percentiles_of(_masked_intensity(region), percentiles)
+                  for region in regions]
+    for position, p in enumerate(percentiles):
+        df[f'percentile_{p}'] = [values[position] for values in per_region]
     return df
 
 def _calculate_homogeneity(label, channel, distances=None):
@@ -1908,16 +2083,23 @@ def _periphery_intensity(label_mask, image):
     """
     periphery_intensity_stats = []
     boundary = find_boundaries(label_mask)
+    # The boundary map is a single whole-field pass; the per-object work that
+    # follows is confined to each object's own bounding box (see
+    # _label_bounding_boxes) instead of comparing the whole field per object.
+    boxes = _label_bounding_boxes(label_mask)
+    whole = _whole_field_window(np.asarray(label_mask).shape)
+    cut_points = [5, 10, 25, 50, 75, 85, 95]
     for region in np.unique(label_mask)[1:]:  # skip the background label
-        region_boundary = boundary & (label_mask == region)
-        intensities = image[region_boundary]
+        box = _box_for(boxes, region)
+        window = whole if box is None else box
+        region_boundary = boundary[window] & (label_mask[window] == region)
+        intensities = image[window][region_boundary]
         if intensities.size == 0:
             periphery_intensity_stats.append((region, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan))
         else:
-            periphery_intensity_stats.append((region, np.mean(intensities), np.percentile(intensities,5), np.percentile(intensities,10),
-                                              np.percentile(intensities,25), np.percentile(intensities,50),
-                                              np.percentile(intensities,75), np.percentile(intensities,85), 
-                                              np.percentile(intensities,95)))
+            quantiles = _percentiles_of(intensities, cut_points)
+            periphery_intensity_stats.append(
+                (region, np.mean(intensities), *quantiles))
     return periphery_intensity_stats
 
 def _outside_intensity(label_mask, image, distance=5, spacing=None):
@@ -1944,22 +2126,33 @@ def _outside_intensity(label_mask, image, distance=5, spacing=None):
     outside_intensity_stats = []
     if spacing is not None:
         ring_width = float(distance) * float(spacing[-1])
+    # The ring is at most `distance` xy pixels wide, so it lives inside the
+    # object's bounding box grown by that much (_ring_padding). Dilating and
+    # distance-transforming that box instead of the whole field is exact: the
+    # object is the only source in the map either way, and the box holds every
+    # voxel the ring can reach.
+    shape = np.asarray(label_mask).shape
+    boxes = _label_bounding_boxes(label_mask)
+    whole = _whole_field_window(shape)
+    pad = _ring_padding(distance, spacing, shape)
+    cut_points = [5, 10, 25, 50, 75, 85, 95]
     for region in np.unique(label_mask)[1:]:  # skip the background label
-        region_mask = label_mask == region
+        box = _box_for(boxes, region)
+        window = whole if box is None else _grow_window(box, pad, shape)
+        region_mask = label_mask[window] == region
         if spacing is None:
             dilated_mask = binary_dilation(region_mask, iterations=distance)
         else:
             edt = distance_transform_edt(~region_mask, sampling=spacing)
             dilated_mask = edt <= ring_width
         outside_mask = dilated_mask & ~region_mask
-        intensities = image[outside_mask]
+        intensities = image[window][outside_mask]
         if intensities.size == 0:
             outside_intensity_stats.append((region, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan))
         else:
-            outside_intensity_stats.append((region, np.mean(intensities), np.percentile(intensities,5), np.percentile(intensities,10),
-                                              np.percentile(intensities,25), np.percentile(intensities,50),
-                                              np.percentile(intensities,75), np.percentile(intensities,85), 
-                                              np.percentile(intensities,95)))
+            quantiles = _percentiles_of(intensities, cut_points)
+            outside_intensity_stats.append(
+                (region, np.mean(intensities), *quantiles))
     return outside_intensity_stats
 
 def _calculate_radial_distribution(cell_mask, object_mask, channel_arrays, num_bins=6, spacing=None):
@@ -2031,25 +2224,52 @@ def _calculate_radial_distribution(cell_mask, object_mask, channel_arrays, num_b
 
     object_radial_distributions = {}
 
+    # Every pair is measured inside the union of the cell's and the object's
+    # bounding boxes, grown by two voxels, rather than over the whole field.
+    # The bins are read only inside the cell, and an outer boundary lies at
+    # most one voxel outside its object, so that window holds every pixel the
+    # result depends on and every distance in it is the distance the whole
+    # field would have given: the object is the only source in the transform,
+    # and all of it is inside the window.
+    #
+    # The window has to be the UNION and not the cell's box alone. Objects are
+    # selected by any overlap with the cell, so an object larger than its cell
+    # would otherwise contribute no boundary voxel to the crop and every
+    # distance in it would come back infinite.
+    shape = np.asarray(cell_mask).shape
+    whole = _whole_field_window(shape)
+    cell_boxes = _label_bounding_boxes(cell_mask)
+    object_boxes = _label_bounding_boxes(object_mask)
+
     # get unique cell labels
     cell_labels = np.unique(cell_mask)
     cell_labels = cell_labels[cell_labels != 0]
 
     for cell_label in cell_labels:
-        cell_region = cell_mask == cell_label
+        cell_box = _box_for(cell_boxes, cell_label)
+        cell_window = whole if cell_box is None else cell_box
+        cell_region_in_box = cell_mask[cell_window] == cell_label
 
-        object_labels = np.unique(object_mask[cell_region])
+        object_labels = np.unique(object_mask[cell_window][cell_region_in_box])
         object_labels = object_labels[object_labels != 0]
 
         for object_label in object_labels:
-            objecyt_region = object_mask == object_label
+            object_box = _box_for(object_boxes, object_label)
+            if object_box is None:
+                window = whole
+            else:
+                window = _grow_window(
+                    _union_window(cell_window, object_box), 2, shape)
+            cell_region = cell_mask[window] == cell_label
+            objecyt_region = object_mask[window] == object_label
             object_boundary = find_boundaries(objecyt_region, mode='outer')
             # NOT multiplied by cell_region: that zeroed the distance of every
             # pixel outside the cell and put the whole background in bin 0.
             # The cell is applied as a mask when binning instead.
             distance_map = distance_transform_edt(~object_boundary, sampling=spacing)
+            channels_in_window = channel_arrays[window]
             for channel_index in range(channel_arrays.shape[-1]):
-                radial_distribution = _calculate_average_intensity(distance_map, channel_arrays[..., channel_index], num_bins, cell_region)
+                radial_distribution = _calculate_average_intensity(distance_map, channels_in_window[..., channel_index], num_bins, cell_region)
                 object_radial_distributions[(cell_label, object_label, channel_index)] = radial_distribution
 
     return object_radial_distributions
@@ -2112,10 +2332,17 @@ def _calculate_correlation_object_level(channel_image1, channel_image2, mask, se
         corrected_manders = bool(settings.get('corrected_manders', False))
 
         corr_data = {}
+        # Each object's pixels are gathered from its own bounding box rather
+        # than by comparing the whole field once per object. The pixels and
+        # their order are the same, so every statistic below is unchanged.
+        boxes = _label_bounding_boxes(mask)
+        whole = _whole_field_window(np.asarray(mask).shape)
         for i in np.unique(mask)[1:]:
-            object_mask = (mask == i)
-            object_channel_image1 = channel_image1[object_mask]
-            object_channel_image2 = channel_image2[object_mask]
+            box = _box_for(boxes, i)
+            window = whole if box is None else box
+            object_mask = (mask[window] == i)
+            object_channel_image1 = channel_image1[window][object_mask]
+            object_channel_image2 = channel_image2[window][object_mask]
             total_intensity1 = np.sum(object_channel_image1)
             total_intensity2 = np.sum(object_channel_image2)
 

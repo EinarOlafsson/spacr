@@ -2,7 +2,7 @@
 THE UMAP SAYS WHETHER THE ANNOTATION WORKED
 ================================================================================
 
-Status:    filed 2026-08-21, DONE 2026-08-21.
+Status:    DONE. The verdict, and the picture it is read off.
 Requested: 2026-08-21 -- "generate a umap, perform a hyperparamiter search
            find stucture that separates the positive and negative controlls
            and see where the annotated cells land, do they cluster with PC or
@@ -126,7 +126,43 @@ user who never opens it.
 Tests: `tests/test_annotation_umap_qc.py`, 24 passing -- the engine's three
 guards, and the tab refusing the same things in the same order.
 
-WHAT IS NOT DONE, and is worth its own instruction rather than a note here:
-the tab shows its verdict as text. The embedding is computed and held but
-not drawn, because a scatter of cells coloured by purity belongs with the
-figure system rather than in a bespoke canvas.
+THE EMBEDDING IS DRAWN, AND IT GOES THROUGH THE FIGURE SYSTEM.
+
+The verdict used to be a paragraph of numbers with the embedding computed,
+held, and never shown. A paragraph is not where anyone looks first, and
+"where do the annotated cells land" is a question about a picture.
+
+`PurityScatter` is a `fast_plots.FastPlot` and the table beside it is
+`fast_plots.ResultsTable`, in a splitter the reader owns. That is the whole
+reason it is not a canvas of its own: a scatter here needs hovering a point
+to see its guide, the right-click restyle menu, the export and a sortable
+table -- all of which those two already carry, and a second canvas would be
+a second set of them, drifting from the first.
+
+COLOUR IS THE READING AND POSITION IS ONLY THE LAYOUT. Purity goes on the
+colour scale through `colour_by_column`, so a cell with no purity is drawn
+grey rather than dark -- painting a missing value at the bottom of viridis
+invents a measurement. The GROUP is the shape instead: triangles positive
+controls, diamonds negative, circles the annotated cells. A second colour
+scale would have fought the one carrying the number.
+
+THE PER-GUIDE TABLE CARRIES THE EFFECT BESIDE THE PURITY, because agreeing
+is the claim being made and two columns a reader can put side by side are
+what let the correlation be checked rather than believed. A guide with no
+effect gets an empty cell; zero is a coefficient somebody measured.
+
+EVERY REFUSAL CLEARS THE PLOT AND THE TABLE. That is the rule the text
+already followed and the drawing had to inherit: a scatter left on screen
+under a message saying this run means nothing is still a picture somebody
+will screenshot. Score-picked method, no cells, too few controls, a tuning
+error, an embedding whose controls did not separate on held-out cells --
+each one leaves nothing drawn and says why the panel is empty.
+
+`MINIMUM_SEPARATION` now decides, rather than being a documented constant
+nothing read. It is named so it can be argued with, and raising it refuses an
+embedding the engine was willing to call trustworthy.
+
+Tests: `tests/qt/test_annotation_umap_plot.py`, 18 -- the scatter driven
+directly so the drawing is covered without paying for a UMAP, the guide
+table, every refusal leaving nothing behind, and one whole run on a screen
+whose controls separate.

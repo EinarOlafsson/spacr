@@ -14,9 +14,13 @@ Owner:     spacr/qt -- setup slides, terms, preferences, the picture settings
 STILL OPEN
 --------------------------------------------------------------------------------
 
-1. THE MONTAGE CAP AT 10,000                          <-- MEASURED, NOT MOVED
+1. THE MONTAGE CAP -- MEASURED, THEN SET AT 2,000
 
-   "set the cap to 10000 images."
+   "set the cap to 10000 images." The cost of 10,000 was measured before it
+   was taken, and shown to the maintainer, who chose 2,000 instead: most of
+   the reach, none of the cliff. The number is now 2,000 in
+   `cell_montage.MAX_OBJECTS` and in the panel's own default, and
+   `montage_cap_cost()` says what any cap costs as it is typed.
 
    THE MEASUREMENT IS DONE and it is recorded in the code, in
    `picture_settings.MEASURED_PAGE_SIZES`, `MEASURED_CROP_BYTES` and

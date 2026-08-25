@@ -50,6 +50,7 @@ LOG = logging.getLogger(__name__)
 # they used to carry three hand-written copies of "ABCDEFGHIJKLMNOP" and
 # range(1, 25), which stop at P24.
 from . import convert as _cv
+from . import crop_source as _crop_source
 from .object_roles import CHILD_ROLES, ORGANELLE_ROLES, join_how
 # RE-EXPORTED, NOT DEFINED HERE ANY MORE. These need pandas and sqlite3 and
 # nothing else, and every caller that imported them from this module paid
@@ -4775,14 +4776,20 @@ def _crop_shape_overrides(settings):
 #: pair, so `crop_source='merged'` became `'stream_images'` and no value the
 #: panel could produce survived the lookup. Streaming was unreachable from
 #: the GUI; every run trained on pre-cut PNGs and said nothing.
+#: ONE TABLE, TWO READERS. The spellings themselves live in
+#: `spacr.crop_source`, which is where the training path resolves them, so a
+#: settings file cannot be accepted by one reader and refused by the other --
+#: which is exactly the failure both paragraphs above describe, twice. Two
+#: entries differ, and each because the question differs:
+#:
+#: * 'generate' names an ACTION to training (write a crop set, then load it)
+#:   and a SOURCE here (once written, the images are PNGs);
+#: * 'auto' means LOAD IMAGES to training, which has to pick a mode, and
+#:   stays 'auto' here, because `crops.resolve_crop_source` answers "what is
+#:   available in this project" and is the thing that computes it.
 CROP_SOURCE_ALIASES = {
-    'pre_generated': 'png',
+    **_crop_source.CROP_SOURCE_ALIASES,
     'generate': 'png',
-    'png': 'png',
-    'load_images': 'png',
-    'on_demand': 'merged',
-    'merged': 'merged',
-    'stream_images': 'merged',
     'auto': 'auto',
 }
 

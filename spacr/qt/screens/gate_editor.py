@@ -24,13 +24,14 @@ from __future__ import annotations
 import logging
 import os
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import pandas as pd
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
-    QComboBox, QFileDialog, QHBoxLayout, QLabel, QPushButton, QScrollArea,
-    QSizePolicy, QSplitter, QVBoxLayout, QWidget, QTabWidget,
+    QComboBox, QDialog, QDialogButtonBox, QFileDialog, QFormLayout,
+    QHBoxLayout, QLabel, QLineEdit, QPushButton, QScrollArea, QSizePolicy,
+    QSplitter, QVBoxLayout, QWidget, QTabWidget,
 )
 
 from ..job_runner import JobRunner
@@ -38,6 +39,10 @@ from ..theme import SPACING, page_tabs_qss, register_widget_qss
 from ..widgets.data_filter_panel import DataFilterPanel
 from ..widgets.gate_search_panel import GateSearchPanel
 from ..widgets.formula_editor import FormulaPanel
+from ..widgets.gate_canvas import (
+    AxisCutoffs, CutoffError, apply_cutoffs, axis_at, axis_menu_items,
+    parse_cutoff, AXIS_NAMES,
+)
 from ..widgets.gate_editor import GateEditorPanel
 from ..widgets.gate_spec import GateError, GateSet
 from ..widgets.gate_settings import GateEditorSettings, GateSettingsDialog
@@ -85,6 +90,50 @@ def _side_tabs_qss(palette: dict, opacity) -> str:
 register_widget_qss(SIDE_TABS_NAME, _side_tabs_qss, replace=True)
 
 
+class _AxisCutoffDialog(QDialog):
+    """Ask for the lowest and highest value one axis should show.
+
+    Two boxes rather than one range, and a BLANK box is a value: it means
+    "let the data decide this end". Cutting a long tail off the bottom while
+    leaving the top alone is the common case, and demanding both ends would
+    make the user invent a number for the end they did not care about.
+    """
+
+    def __init__(self, title: str, column: str, cutoff, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle(f"{title} cutoffs")
+        form = QFormLayout(self)
+        self._explain = QLabel(
+            f"How much of {column} to draw. Leave a box empty to let the "
+            f"data decide that end.\n"
+            f"Cutoffs change the VIEW only -- a gate keeps the objects it "
+            f"already holds.", self)
+        self._explain.setWordWrap(True)
+        form.addRow(self._explain)
+        self._low = QLineEdit("" if cutoff.low is None else f"{cutoff.low:g}",
+                              self)
+        self._low.setPlaceholderText("the smallest value drawn")
+        self._high = QLineEdit(
+            "" if cutoff.high is None else f"{cutoff.high:g}", self)
+        self._high.setPlaceholderText("the largest value drawn")
+        form.addRow("Lowest", self._low)
+        form.addRow("Highest", self._high)
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel,
+                                   parent=self)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        form.addRow(buttons)
+
+    def values(self) -> Tuple[Optional[float], Optional[float]]:
+        """``(low, high)`` as typed, with a blank box meaning ``None``.
+
+        :raises spacr.qt.widgets.gate_canvas.CutoffError: for text that is
+            neither blank nor a number.
+        """
+        return (parse_cutoff(self._low.text()),
+                parse_cutoff(self._high.text()))
+
+
 class GateEditorScreen(QWidget):
     """A table, two axis pickers, the gating surface, and save/load."""
 
@@ -110,6 +159,10 @@ class GateEditorScreen(QWidget):
         self._merge_decision = None
         self._settings = GateEditorSettings()
         self._settings_dialog: Optional[GateSettingsDialog] = None
+        #: Per-measurement display cutoffs, set by right-clicking an axis.
+        #: They narrow what is DRAWN and never which rows a gate holds, so a
+        #: population cannot come to depend on how far the plot was cut down.
+        self._cutoffs = AxisCutoffs()
         self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
         self._jobs.job_failed.connect(self._on_load_failed)
 
@@ -668,6 +721,12 @@ class GateEditorScreen(QWidget):
             return
         canvas.setContextMenuPolicy(Qt.CustomContextMenu)
         canvas.customContextMenuRequested.connect(self._show_graph_menu)
+        # Cutoffs are re-applied after EVERY render, because a render is what
+        # undoes them: the limits are computed from the data each time, and a
+        # render happens on every gate edit. Riding the canvas's own
+        # `rendered` signal is what makes a cutoff a state of the view rather
+        # than a gesture that survives until the next click.
+        canvas.rendered.connect(self._narrow_to_cutoffs)
 
     def graph_menu_items(self):
         """The plot menu as data: ``[(label, enabled, callback, why)]``.
@@ -702,12 +761,234 @@ class GateEditorScreen(QWidget):
         ]
         return items
 
-    def _show_graph_menu(self, point) -> None:
-        """Build and show the plot menu at ``point``."""
+    # -- the axis gesture --------------------------------------------------
+    def axis_column(self, axis: str) -> str:
+        """The measurement drawn on ``"x"`` or ``"y"``, or ``""``."""
+        box = {"x": self._x, "y": self._y}.get(str(axis))
+        return "" if box is None else box.currentText()
+
+    def axis_under(self, point) -> Optional[str]:
+        """Which axis a right-click at ``point`` landed on, or ``None``.
+
+        ``point`` is in the canvas widget's own coordinates, which is what
+        Qt hands a custom context menu. Getting from there to the figure
+        means two conversions and both are easy to get wrong: the matplotlib
+        canvas is a CHILD of the gate canvas rather than the same widget, and
+        matplotlib's display coordinates count upward from the BOTTOM while
+        Qt counts downward from the top.
+
+        Returns ``None`` for a click inside the plotting rectangle, which is
+        where the plot's own menu belongs.
+        """
+        canvas = getattr(self.gates, "canvas", None)
+        if canvas is None:
+            return None
+        try:
+            figure = canvas.figure()
+            axes = figure.get_axes()
+            widget = figure.canvas
+        except Exception:
+            return None
+        if not axes or widget is None:
+            return None
+        local = widget.mapFrom(canvas, point)
+        ratio = float(getattr(widget, "device_pixel_ratio", 0)
+                      or widget.devicePixelRatioF())
+        box = axes[0].bbox
+        return axis_at((local.x() * ratio,
+                        figure.bbox.height - local.y() * ratio),
+                       (box.x0, box.y0, box.x1, box.y1))
+
+    def axis_menu_items(self, axis: str):
+        """The axis menu as data, so its CONTENTS can be tested offscreen.
+
+        Separated from the QMenu for the same reason
+        :meth:`graph_menu_items` is: an offscreen Qt cannot grab for a popup,
+        so a test that builds a real menu hangs.
+        """
+        column = self.axis_column(axis)
+        return axis_menu_items(
+            axis, column,
+            scale=self._settings.scale_for(axis),
+            cutoff=self._cutoffs.get(column),
+            positive=self._axis_is_positive(column),
+            on_scale=lambda value: self.set_axis_scale(axis, value),
+            on_cutoffs=lambda: self.ask_axis_cutoffs(axis),
+            on_clear=lambda: self.clear_axis_cutoffs(axis))
+
+    def _axis_is_positive(self, column: str) -> bool:
+        """Whether every finite value of ``column`` stays above zero.
+
+        Asked of the canvas, which already answers it for the drawing code,
+        so the menu cannot grey a scale the plot would have applied or offer
+        one the plot would silently skip.
+        """
+        canvas = getattr(self.gates, "canvas", None)
+        asked = getattr(canvas, "_column_is_positive", None)
+        if not column or asked is None:
+            return True
+        try:
+            return bool(asked(column))
+        except Exception:
+            return True
+
+    def set_axis_scale(self, axis: str, scale: str) -> None:
+        """Lay ``axis`` out on ``scale``, from the menu or from the window.
+
+        The menu is a second ROUTE to the scale the settings window already
+        holds, never a second copy of it: this writes the same field, so the
+        two cannot come to disagree about how the plot is drawn.
+        """
+        field = f"{axis}_scale"
+        if not hasattr(self._settings, field):
+            return
+        # `log_x` / `log_y` are the retired spelling of the same choice, and
+        # `scale_for` prefers the scale only while the scale is linear. Left
+        # set, an old log flag would put the axis back on log the moment the
+        # menu chose linear.
+        self.apply_settings(self._settings.replaced(
+            **{field: scale, f"log_{axis}": False}))
+        self._show_settings_dialog_scale(axis, scale)
+
+    def _show_settings_dialog_scale(self, axis: str, scale: str) -> None:
+        """Keep an open settings window from showing a scale nothing uses.
+
+        The window and the axis menu are two editors of one value. When the
+        window has no way of being told, it is rebuilt from the settings that
+        are now in force rather than left displaying the old choice -- a
+        control that disagrees with the plot is worse than one that blinked.
+        """
+        dialog = self._settings_dialog
+        if dialog is None:
+            return
+        told = getattr(dialog, "set_scale", None)
+        if callable(told):
+            told(axis, scale)
+            return
+        visible = dialog.isVisible()
+        dialog.settings_changed.disconnect(self.apply_settings)
+        dialog.close()
+        dialog.deleteLater()
+        self._settings_dialog = None
+        if visible:
+            self.open_settings()
+
+    def ask_axis_cutoffs(self, axis: str) -> Optional[Tuple]:
+        """Ask for the lowest and highest value ``axis`` should show.
+
+        Returns the pair that was applied, or ``None`` when the request was
+        cancelled or could not be read.
+        """
+        column = self.axis_column(axis)
+        if not column:
+            return None
+        dialog = _AxisCutoffDialog(AXIS_NAMES.get(axis, axis), column,
+                                   self._cutoffs.get(column), self)
+        if not dialog.exec():
+            return None
+        try:
+            low, high = dialog.values()
+        except CutoffError as exc:
+            self.console.write(f"Cutoffs not applied: {exc}")
+            return None
+        try:
+            self.set_axis_cutoffs(axis, low, high)
+        except CutoffError as exc:
+            self.console.write(f"Cutoffs not applied: {exc}")
+            return None
+        return (low, high)
+
+    def set_axis_cutoffs(self, axis: str, low, high) -> None:
+        """Show only ``low`` to ``high`` of the measurement on ``axis``.
+
+        Either end may be ``None``, meaning the data decides it.
+
+        :raises spacr.qt.widgets.gate_canvas.CutoffError: when the low end is
+            not below the high one.
+        """
+        column = self.axis_column(axis)
+        if not column:
+            return
+        cutoff = self._cutoffs.set(column, low, high)
+        self.console.write(
+            f"{column} shows {cutoff.describe()}." if cutoff.is_set
+            else f"{column} follows the data again.")
+        self._redraw_for_cutoffs()
+
+    def clear_axis_cutoffs(self, axis: str) -> bool:
+        """Let ``axis`` follow the data again. Returns whether it was cut."""
+        column = self.axis_column(axis)
+        if not column or not self._cutoffs.clear(column):
+            return False
+        self.console.write(f"{column} follows the data again.")
+        self._redraw_for_cutoffs()
+        return True
+
+    def _redraw_for_cutoffs(self) -> None:
+        """Redraw so the new cutoffs take effect."""
+        canvas = getattr(self.gates, "canvas", None)
+        render = getattr(canvas, "render_now", None)
+        if callable(render):
+            render()
+
+    def _narrow_to_cutoffs(self, *_args) -> None:
+        """Apply the cutoffs to every panel the canvas has just drawn."""
+        canvas = getattr(self.gates, "canvas", None)
+        if canvas is None or not self._cutoffs:
+            return
+        columns = (self.axis_column("x"), self.axis_column("y"))
+        try:
+            panels = canvas.panel_axes().values()
+        except Exception:
+            return
+        narrowed = False
+        for ax in panels:
+            narrowed = bool(apply_cutoffs(ax, columns, self._cutoffs)) or narrowed
+        if narrowed:
+            try:
+                canvas.figure().canvas.draw_idle()
+            except Exception:
+                LOG.debug("cutoff repaint skipped", exc_info=True)
+
+    def _show_axis_menu(self, axis: str, point) -> None:
+        """Build and show the menu for one axis at ``point``."""
         from PySide6.QtWidgets import QMenu
 
         canvas = getattr(self.gates, "canvas", None)
         if canvas is None:
+            return
+        menu = QMenu(self)
+        for item in self.axis_menu_items(axis):
+            if item.label is None:
+                menu.addSeparator()
+                continue
+            action = menu.addAction(item.label)
+            action.setEnabled(bool(item.enabled))
+            if item.checked is not None:
+                action.setCheckable(True)
+                action.setChecked(bool(item.checked))
+            if item.why:
+                action.setToolTip(item.why)
+            if item.callback is not None and item.enabled:
+                action.triggered.connect(
+                    lambda _c=False, cb=item.callback: cb())
+        menu.exec(canvas.mapToGlobal(point))
+
+    def _show_graph_menu(self, point) -> None:
+        """Build and show the plot menu at ``point``.
+
+        A right-click on an AXIS asks a different question from one on the
+        plot -- how that measurement is laid out and how much of it to show
+        -- so it gets its own menu.
+        """
+        from PySide6.QtWidgets import QMenu
+
+        canvas = getattr(self.gates, "canvas", None)
+        if canvas is None:
+            return
+        axis = self.axis_under(point)
+        if axis is not None:
+            self._show_axis_menu(axis, point)
             return
         menu = QMenu(self)
         for label, enabled, callback, why in self.graph_menu_items():

@@ -7,14 +7,22 @@ Covers deeper paths in:
   * spacr.utils          (already had test_utils.py + test_utils_extended.py)
   * spacr.io             (already had test_io.py)
   * spacr.toxo           (already had test_toxo_and_cellpose.py)
-  * spacr.gui            (only smoke coverage previously — cover MainApp)
-  * spacr.gui_utils      (parse_list already tested — add downloader + fields)
-  * spacr.gui_elements   (widget construction already covered — add helpers)
-  * spacr.gui_core       (only importable — cover routing helpers)
   * spacr.sp_stats       (already had 12 tests — add posthoc paths)
-  * spacr.settings       (already had 43 tests — add lookup dicts)
+  * spacr.settings       (already had 43 tests — add the lookup dicts and
+                          parse_list's edge cases)
+  * spacr.settings_spec  (what the settings panel makes of a settings dict)
   * spacr.plot           (extend beyond colormap + heatmap already tested)
   * spacr.core           (only preprocess_generate_masks covered — add rest)
+
+The Tkinter half of this file is gone. Ten tests here reached spacr.gui,
+spacr.gui_utils, spacr.gui_elements and spacr.gui_core; that interface has
+been deleted and MainApp, set_element_size, spacrFont, initiate_abort and
+check_src_folders_files have no definition anywhere in the tree, so the
+tests naming them guarded nothing and came out with them. Three did not:
+parse_list and convert_settings_dict_for_gui are live code that those
+modules only re-exported, and they are now tested where they really live
+(spacr.settings and spacr.settings_spec). A test that wants a live widget
+builds a Qt one -- see tests/qt/.
 """
 from __future__ import annotations
 
@@ -137,100 +145,46 @@ def test_toxo_normalize_y_lims_none_all_zero():
 
 
 # ============================================================================
-# gui.py: MainApp construction (headless Tk)
+# reading a settings value that arrives as text: settings.parse_list,
+# settings_spec.convert_settings_dict_for_gui
 # ============================================================================
 
-#: What the two MainApp tests below found the moment their
-#: ``except Exception: pytest.skip("MainApp needs display")`` came off.
-#:
-#: ``spacrButton.load_icon`` (spacr/gui_elements.py:1751, and again at 1905)
-#: builds its icon with ``ImageTk.PhotoImage(image)`` and no ``master=``, so
-#: PIL registers the image against ``tkinter._default_root`` -- the FIRST Tk
-#: root created in the process. Put a spacrButton on any other root and
-#: ``canvas.create_image(image=...)`` raises
-#: ``_tkinter.TclError: image "pyimageN" doesn't exist``.
-#:
-#: That is not a test artefact. spaCR opens a second root in production:
-#: ``spacr/gui_utils.py:418`` builds ``tk.Tk()`` for the annotation app, and
-#: ``spacr/gui_utils.py:548`` builds another when the first has been
-#: destroyed. Every spacrButton on those windows hits this.
-#:
-#: Fixing it is one keyword -- ``ImageTk.PhotoImage(image, master=self.canvas)``
-#: -- but it is a product change, so it is pinned here instead. When it lands,
-#: strict=True makes these two tests fail until the marker is deleted.
-SECOND_TK_ROOT_ICON_BUG = (
-    "spacr/gui_elements.py:1751 spacrButton.load_icon builds ImageTk."
-    "PhotoImage without master=, so the icon binds to tkinter._default_root "
-    "and every spacrButton on a second Tk root (spacr/gui_utils.py:418, :548) "
-    "raises TclError: image \"pyimageN\" doesn't exist"
-)
+def test_settings_parse_list_negative_ints():
+    """A minus sign inside a list literal is part of the number.
+
+    Reached through spacr.gui_utils while the Tk interface existed. Nothing
+    about reading "[-1, -2, -3]" out of a settings cell is a widget concern,
+    so parse_list sits in spacr.settings beside check_settings, its only
+    caller, and every settings value that arrives as text is parsed there
+    without a GUI toolkit having to be importable.
+    """
+    from spacr import settings as S
+    assert S.parse_list("[-1, -2, -3]") == [-1, -2, -3]
 
 
-@pytest.mark.gui
-def test_gui_main_app_constructs(tk_root):
-    """MainApp is a tk.Tk subclass — verify its default construction
-    initializes the app dicts."""
-    from spacr.gui import MainApp
-    # Unguarded: the `gui` marker and the tk_root fixture already state (and
-    # enforce) "this needs a display", and conftest stubs screeninfo, so
-    # "MainApp needs display / monitor info" was an excuse covering every other
-    # way MainApp.__init__ can fail -- including the one it was covering.
-    app = MainApp()
-    try:
-        assert hasattr(app, "main_gui_apps")
-        assert isinstance(app.main_gui_apps, dict)
-        # Expected apps: Mask, Measure, Annotate, Make Masks, Classify
-        for expected in ("Mask", "Measure", "Annotate"):
-            assert expected in app.main_gui_apps
-        assert hasattr(app, "additional_gui_apps")
-        assert isinstance(app.additional_gui_apps, dict)
-    finally:
-        try:
-            app.destroy()
-        except Exception:
-            pass
+def test_settings_parse_list_nested_rejected():
+    """A list of lists is refused rather than passed on half-understood.
 
-
-@pytest.mark.gui
-def test_gui_main_app_carries_color_settings(tk_root):
-    from spacr.gui import MainApp
-    # Unguarded, for the same reason: the display precondition is the marker's
-    # and the fixture's job, not a blanket except's.
-    app = MainApp()
-    try:
-        assert hasattr(app, "color_settings")
-        assert isinstance(app.color_settings, dict)
-        for k in ("bg_color", "fg_color"):
-            assert k in app.color_settings
-    finally:
-        try:
-            app.destroy()
-        except Exception:
-            pass
-
-
-def test_gui_gui_app_is_callable():
-    from spacr.gui import gui_app
-    assert callable(gui_app)
-
-
-# ============================================================================
-# gui_utils.py extended: parse_list edge cases + download_dataset
-# ============================================================================
-
-def test_gui_utils_parse_list_negative_ints():
-    import spacr.gui_utils as GU
-    assert GU.parse_list("[-1, -2, -3]") == [-1, -2, -3]
-
-
-def test_gui_utils_parse_list_nested_rejected():
-    import spacr.gui_utils as GU
+    Same move as above: the subject is spacr.settings.parse_list, which the
+    deleted Tk helper module only re-exported. check_settings hands whatever
+    comes back straight to the pipeline, so a nested literal has to fail
+    here -- loudly, at settings-validation time -- not several stages later
+    as an unindexable element.
+    """
+    from spacr import settings as S
     with pytest.raises(ValueError):
-        GU.parse_list("[[1, 2], [3, 4]]")
+        S.parse_list("[[1, 2], [3, 4]]")
 
 
-def test_gui_utils_convert_settings_dict_gui_input_output_types():
-    import spacr.gui_utils as GU
+def test_convert_settings_dict_gui_input_output_types():
+    """Every key handed in comes back classified as exactly one widget kind.
+
+    Lives in spacr.settings_spec, which imports no GUI toolkit; gui_utils
+    only re-exported it. This is what the Qt settings model reads, so a key
+    that fell out of the mapping, or came back with some fourth kind, would
+    be a setting with no widget to set it in.
+    """
+    from spacr import settings_spec as GU
     out = GU.convert_settings_dict_for_gui({
         "src": "/tmp",
         "verbose": True,
@@ -243,64 +197,6 @@ def test_gui_utils_convert_settings_dict_gui_input_output_types():
         assert key in out
         kind, options, default = out[key]
         assert kind in ("entry", "check", "combo")
-
-
-# ============================================================================
-# gui_elements.py extended: pure helpers
-# ============================================================================
-
-def test_gui_elements_set_element_size_returns_dict(tk_root):
-    from spacr.gui_elements import set_element_size
-    # Unguarded: conftest stubs screeninfo.get_monitors when the real one
-    # cannot reach a display, so set_element_size always has monitor info to
-    # work from and any failure here belongs to spacr.gui_elements.
-    size_dict = set_element_size()
-    assert isinstance(size_dict, dict)
-    assert "settings_width" in size_dict
-
-
-def test_gui_elements_spacr_font_gives_font_objects(tk_root):
-    try:
-        from spacr.gui_elements import spacrFont
-    except Exception as e:
-        if "DisplayConnection" in type(e).__name__ or "Xauthority" in str(e):
-            pytest.skip(f"spacr.gui_elements needs a display: {e}")
-        raise
-    loader = spacrFont("OpenSans", "Regular", font_size=12)
-    f1 = loader.get_font(size=12)
-    f2 = loader.get_font(size=16)
-    assert f1 is not None
-    assert f2 is not None
-
-
-# ============================================================================
-# gui_core.py extended: pure/testable helpers
-# ============================================================================
-
-def test_gui_core_initiate_abort_is_callable():
-    try:
-        import spacr.gui_core as GC
-    except Exception as e:
-        if "DisplayConnection" in type(e).__name__ or "Xauthority" in str(e):
-            pytest.skip(f"spacr.gui_core needs a display: {e}")
-        raise
-    assert callable(GC.initiate_abort)
-
-
-def test_gui_core_check_src_folders_files_signature():
-    """check_src_folders_files reads settings + queues logging messages.
-    Verify at least the callable signature is intact."""
-    import inspect
-    try:
-        from spacr.gui_core import check_src_folders_files
-    except Exception as e:
-        if "DisplayConnection" in type(e).__name__ or "Xauthority" in str(e):
-            pytest.skip(f"spacr.gui_core needs a display: {e}")
-        raise
-    sig = inspect.signature(check_src_folders_files)
-    # First 3 params should be settings, settings_type, q.
-    params = list(sig.parameters)
-    assert params[0] == "settings"
 
 
 # ============================================================================

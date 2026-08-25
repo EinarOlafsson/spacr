@@ -32,7 +32,6 @@ to assert about it.
 from __future__ import annotations
 
 import inspect
-import queue
 
 import pytest
 

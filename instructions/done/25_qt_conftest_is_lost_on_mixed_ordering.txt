@@ -2,7 +2,8 @@
 tests/qt/conftest.py IS LOST WHEN QT AND NON-QT FILES ARE INTERLEAVED
 ================================================================================
 
-Status:    found, not fixed - 2026-08-06
+Status:    FIXED. The reproduction below runs clean, and a recurrence
+           stops the run with a message about the ordering.
 Requested: not requested; found while verifying the auto-annotate and
            surrogate work
 
@@ -66,14 +67,61 @@ WHAT TO DO
 HOW TO KNOW IT WORKED
 --------------------------------------------------------------------------------
 
-The reproduction command reports 150 passed, 0 errors.
+The reproduction command reports 0 errors: every test in the third file
+runs instead of erroring in setup. It now reports 149 passed, the file
+having lost a test since this was written.
 
 --------------------------------------------------------------------------------
-DELIBERATELY NOT DONE
+THE CAUSE: TWO COLLECTION NODES FOR ONE DIRECTORY
 --------------------------------------------------------------------------------
 
-Not diagnosed here. It was found while verifying other work, it is
-pre-existing, and chasing it would have meant leaving the auto-annotate and
-surrogate work unfinished. Recorded rather than absorbed, because the next
-person to run "the files I touched" will hit it and will otherwise spend the
-same time establishing that it is not their fault.
+Not `collect_ignore_glob`, and not a sys.modules eviction. `tests/qt/
+conftest.py` is imported exactly once and stays registered as a plugin for
+the whole session; what is lost is its fixtures' VISIBILITY.
+
+pytest scopes a conftest's fixtures to the directory the conftest sits in and
+binds that scope to the directory's collection NODE OBJECT: `_matchfactories`
+prefers `fixturedef.node in node.iter_parents()` over the nodeid string, and
+the autouse table `_node_autousenames` is keyed by node object as well. The
+conftest is parsed the first time that Directory is collected, and that parse
+is consumed there.
+
+`Session.collect` re-collects a directory WITHOUT de-duplicating it when a
+bare FILE path is named on the command line -- pytest keeps that deliberately,
+so a file named twice runs twice. Re-collecting a directory builds fresh child
+nodes. So:
+
+    tests/qt/test_annotate.py    collects tests, then tests/qt -> node A,
+                                 and the conftest is parsed against A
+    tests/test_crop_format.py    a bare file under tests, so tests is
+                                 re-collected -> a SECOND tests/qt node, B
+    tests/qt/test_demo_menu.py   reached through B, which no conftest was
+                                 ever parsed against
+
+Every fixture in tests/qt/conftest.py is invisible from B, autouse ones
+included, which is why the modal guard, the font-scale restore and the app
+registry restore all went missing along with `qt_theme_applied`.
+tests/conftest.py's own fixtures survive because the `tests` node itself keeps
+its identity -- only its children are rebuilt.
+
+--------------------------------------------------------------------------------
+THE FIX, AND THE GUARD OVER IT
+--------------------------------------------------------------------------------
+
+A directory answers with ONE collection node for the whole session.
+tests/conftest.py registers a plugin that replaces every Directory child with
+the node already in use for that path, so the conftest parse and the tests
+under it refer to the same object however many times collection walks the
+directory. FILES are deliberately left alone: naming one twice still runs it
+twice.
+
+And the failure is loud if it ever recurs. Before the shard is applied,
+collection checks that every fixture registered from a directory's conftest is
+resolvable from the tests under that directory. When one is not, the run stops
+with the directory, the fixture and the witness test named, and an explanation
+that the ARGUMENTS were the problem -- a missing-fixture error 29 times over
+taught nobody that.
+
+Pinned by tests/test_conftest_fixture_visibility.py, which runs the
+interleaving for real and then runs it again with the fix switched off, so the
+hazard and the guard are both demonstrated rather than asserted.

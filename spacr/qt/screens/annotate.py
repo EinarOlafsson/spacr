@@ -27,12 +27,20 @@ The cursor and the keyboard move the same current tile: entering a tile
 makes it current, and an arrow key moves it away. There is no second
 "hovered" highlight that could point somewhere else.
 
+Annotator Agreement is folded onto this screen's masthead rather than
+carrying a tile of its own: κ between annotation columns is a question
+about the labels this screen writes, asked by the person who wrote them
+while the crops are still in front of them. The button is that module's
+own icon, lit on hover in its maturity colour, and it opens the agreement
+screen itself in a window over this one — see :data:`FOLDED_APPS`.
+
 The Qt screen does not currently provide the UMAP window, Deep spaCR training
 launcher, or measurement-threshold filtering. A threshold can be entered in
 settings, but page queries do not apply it.
 """
 from __future__ import annotations
 
+import logging
 import os
 from copy import deepcopy
 from collections import deque
@@ -107,6 +115,38 @@ from .. import iconset, prefs
 from ..theme import SPACING, palette_for
 from ..widgets.column_picker import attach_column_picker
 from ..widgets import Divider, EmptyState
+from ..widgets.fold_strip import FoldStrip
+from .map_barcodes import FoldOpener, restate_fold_button
+
+LOG = logging.getLogger(__name__)
+
+#: Registry keys of the modules folded onto this screen's masthead, in
+#: the order the strip draws them. Annotator Agreement measures Cohen's
+#: and Fleiss' κ between the annotation columns this screen writes and
+#: walks the disagreements, so it is the same visit as annotating: the
+#: person who wants it is already here, looking at the crops it disagrees
+#: about.
+FOLDED_APPS = ("agreement",)
+
+
+def _build_agreement(host_window) -> QWidget:
+    """Annotator Agreement's own screen, unchanged.
+
+    It arrives as the screen the sidebar row used to open rather than as
+    a summary of it: the κ table, the pairwise matrix and the
+    disagreement review are all capabilities of that screen, and a fold
+    that reimplemented one of them would be a fold that lost the others.
+
+    :param host_window: the main window, unused -- this screen reaches
+        nothing outside itself.
+    """
+    from .agreement import AgreementScreen
+    return AgreementScreen()
+
+
+#: One builder per folded module, the same shape the settings-driven fold
+#: hosts use — see :func:`spacr.qt.screens.map_barcodes.install_fold_strip`.
+FOLD_BUILDERS = {"agreement": _build_agreement}
 
 
 # ---------------------------------------------------------------------------
@@ -1536,6 +1576,37 @@ class AnnotateScreen(QWidget):
             self._src_label.setProperty("i18nSkipText", True)
 
     # ------------------------------------------------------------------
+    def _install_folds(self, header, row) -> Optional[FoldStrip]:
+        """Put the folded modules' buttons on the masthead ``row``.
+
+        One button per entry in :data:`FOLDED_APPS`, drawn as that
+        module's own icon and lit on hover in its maturity colour. The
+        strip is added past the row's stretch, so it stays right-aligned
+        however wide the title column gets.
+
+        Guarded on its own: a screen that opens without its fold buttons
+        is a smaller screen, while an exception raised here would be no
+        annotation screen at all.
+
+        :returns: the strip, or None if it could not be built.
+        """
+        try:
+            openers = [FoldOpener(self, key, FOLD_BUILDERS[key])
+                       for key in FOLDED_APPS]
+            strip = FoldStrip([(o.key, o.open) for o in openers], header)
+            for opener in openers:
+                restate_fold_button(strip.button_for(opener.key), opener.key)
+            row.addWidget(strip)
+        except Exception:
+            LOG.debug("Could not install the annotate fold strip",
+                      exc_info=True)
+            return None
+        # The openers outlive this call only because the screen holds them.
+        self._fold_openers = openers
+        self._fold_strip = strip
+        return strip
+
+    # ------------------------------------------------------------------
     def _build_ui(self):
         # Resolved once here rather than imported at module scope, so the
         # grid canvas and the tile chrome agree with the theme the user is
@@ -1546,9 +1617,16 @@ class AnnotateScreen(QWidget):
                                   SPACING["lg"], SPACING["lg"])
         outer.setSpacing(SPACING["md"])
 
-        # Header
+        # Header. The title and the source line stack in a column on the
+        # left; anything folded into this screen sits right-aligned past
+        # the stretch, which is where every other masthead puts its
+        # trailing controls (see `ModuleHeader.add_trailing`).
         header = QWidget()
-        hbox = QVBoxLayout(header)
+        head_row = QHBoxLayout(header)
+        head_row.setContentsMargins(0, 0, 0, 0)
+        head_row.setSpacing(SPACING["lg"])
+        title_column = QWidget(header)
+        hbox = QVBoxLayout(title_column)
         hbox.setContentsMargins(0, 0, 0, 0)
         hbox.setSpacing(4)
         title = QLabel("Annotate")
@@ -1557,6 +1635,9 @@ class AnnotateScreen(QWidget):
         self._src_label = QLabel(tr("No source selected — click Open source…"))
         self._src_label.setObjectName("SubtitleSmall")
         hbox.addWidget(self._src_label)
+        head_row.addWidget(title_column)
+        head_row.addStretch(1)
+        self._install_folds(header, head_row)
         outer.addWidget(header)
         outer.addWidget(Divider())
 
