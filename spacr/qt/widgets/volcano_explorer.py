@@ -42,6 +42,8 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLineEdit,
+    QListWidget,
+    QListWidgetItem,
     QMessageBox,
     QPushButton,
     QScrollArea,
@@ -60,6 +62,7 @@ from ...volcano_style import (
     MARKER_SHAPES,
     SCALES,
     VolcanoStyle,
+    localizations_present,
     point_details,
     render_volcano,
 )
@@ -70,6 +73,156 @@ _NON_MAPPING_COLUMNS = frozenset({
     "standardized_marginal_effect", "adjusted_p_value", "permutation_p_value",
     "p_value", "q_value", "coefficient", "significant", "alpha",
 })
+
+
+class _OptionalNumbers(QWidget):
+    """One number, or a pair of them, that can also be "automatic".
+
+    An axis limit and the ends of a colour scale are ``None`` for "let the
+    data decide" and a number otherwise, and a spin box has no way to say
+    ``None``: a panel built from spin boxes alone can set a limit and never
+    take it back off. The tick is that third state.
+    """
+
+    changed = Signal()
+
+    def __init__(self, count: int, low: float, high: float, decimals: int,
+                 caption: str, parent=None):
+        super().__init__(parent)
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(4)
+        self._auto = QCheckBox("auto", self)
+        self._auto.setToolTip("Let the plot choose. Untick to type a value.")
+        self._auto.setChecked(True)
+        layout.addWidget(self._auto)
+        self._spins: list[QDoubleSpinBox] = []
+        for index in range(int(count)):
+            spin = QDoubleSpinBox(self)
+            spin.setRange(low, high)
+            spin.setDecimals(decimals)
+            spin.setToolTip(f"{caption} ({'from' if index == 0 else 'to'})"
+                            if count > 1 else caption)
+            layout.addWidget(spin)
+            self._spins.append(spin)
+        self._sync_enabled()
+        # Connected LAST, so building the widget is not a change to report.
+        self._auto.toggled.connect(self._auto_toggled)
+        for spin in self._spins:
+            spin.valueChanged.connect(lambda _value: self.changed.emit())
+
+    def _auto_toggled(self, _on: bool) -> None:
+        self._sync_enabled()
+        self.changed.emit()
+
+    def _sync_enabled(self) -> None:
+        for spin in self._spins:
+            spin.setEnabled(not self._auto.isChecked())
+
+    def value(self):
+        """``None`` when automatic, else the number or the pair."""
+        if self._auto.isChecked():
+            return None
+        numbers = tuple(float(spin.value()) for spin in self._spins)
+        return numbers[0] if len(numbers) == 1 else numbers
+
+    def setValue(self, value) -> None:  # noqa: N802 - matches QSpinBox
+        widgets = [self._auto, *self._spins]
+        blocked = [widget.blockSignals(True) for widget in widgets]
+        try:
+            numbers = []
+            if value is not None:
+                given = ([value] if len(self._spins) == 1 else list(value))
+                try:
+                    numbers = [float(item) for item in given]
+                except (TypeError, ValueError):
+                    numbers = []
+            if len(numbers) == len(self._spins):
+                self._auto.setChecked(False)
+                for spin, number in zip(self._spins, numbers):
+                    spin.setValue(number)
+            else:
+                # A value this control cannot express -- a pair where one
+                # number was wanted -- reads as automatic rather than as a
+                # number nobody typed.
+                self._auto.setChecked(True)
+        finally:
+            for widget, was in zip(widgets, blocked):
+                widget.blockSignals(was)
+        self._sync_enabled()
+
+
+class _MultiSelect(QListWidget):
+    """A closed list any number of whose entries can be ticked at once.
+
+    Several at once because "dense granules and rhoptries 1" is ONE question:
+    a combo box would make the reader choose which half of their comparison
+    to look at.
+    """
+
+    changed = Signal()
+
+    def __init__(self, caption: str, parent=None):
+        super().__init__(parent)
+        self.setToolTip(caption)
+        self.setSelectionMode(QListWidget.NoSelection)
+        self.setMaximumHeight(108)
+        self._filling = False
+        self.itemChanged.connect(self._item_changed)
+
+    def _item_changed(self, _item) -> None:
+        if not self._filling:
+            self.changed.emit()
+
+    def options(self) -> list:
+        return [self.item(row).data(Qt.UserRole) for row in range(self.count())]
+
+    def values(self) -> tuple:
+        """What is ticked, in the offered order."""
+        return tuple(self.item(row).data(Qt.UserRole)
+                     for row in range(self.count())
+                     if self.item(row).checkState() == Qt.Checked)
+
+    def setOptions(self, options) -> None:  # noqa: N802 - Qt naming
+        """Offer these, keeping whatever of them was already ticked."""
+        self.setValues(self.values(), options)
+
+    def setValues(self, values, options=None) -> None:  # noqa: N802
+        """Tick exactly ``values``.
+
+        A value that is not on the offered list is ADDED to it rather than
+        dropped: a style file naming a compartment this screen has none of
+        would otherwise lose it the moment the panel was refilled.
+        """
+        wanted = list(dict.fromkeys(values or ()))
+        offered = list(self.options() if options is None else options)
+        offered += [value for value in wanted if value not in offered]
+        self._filling = True
+        try:
+            self.clear()
+            for option in offered:
+                item = QListWidgetItem(str(option), self)
+                item.setData(Qt.UserRole, option)
+                item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
+                item.setCheckState(Qt.Checked if option in wanted
+                                   else Qt.Unchecked)
+        finally:
+            self._filling = False
+
+
+class _ReadOnlyValue(QLabel):
+    """A setting the panel shows and does not edit.
+
+    The two the volcano has -- the split axis's pair of pairs and the
+    per-point annotation map -- are set from the plot itself. Showing them
+    greyed is the same rule the right-click menu follows: a setting silently
+    absent from the panel is one the user has been told exists and cannot
+    find.
+    """
+
+    def show_value(self, value) -> None:
+        text = "none" if value in (None, (), {}, "") else str(value)
+        self.setText(text)
 
 
 class VolcanoExplorer(QWidget):

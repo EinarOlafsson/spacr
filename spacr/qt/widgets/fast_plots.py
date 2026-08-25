@@ -390,8 +390,8 @@ STYLE_FILE_FILTER = "spaCR figure style (*.json);;All files (*)"
 # What a style field can be edited WITH. A field whose kind is "unsupported"
 # still gets an entry, greyed and saying so: a setting silently absent from
 # the menu is one the user is told exists and cannot find.
-STYLE_FIELD_KINDS = ("flag", "colour", "choice", "number", "pair", "text",
-                     "unsupported")
+STYLE_FIELD_KINDS = ("flag", "colour", "choice", "multi", "number", "pair",
+                     "text", "unsupported")
 
 
 def style_field_kind(name: str, value, choices=None, declared: str = "") -> str:
@@ -414,7 +414,16 @@ def style_field_kind(name: str, value, choices=None, declared: str = "") -> str:
     str
         One of :data:`STYLE_FIELD_KINDS`.
     """
+    written = str(declared or "").replace(" ", "").lower()
     if choices:
+        # A CLOSED SET HELD IN A CONTAINER IS TICKED, NOT PICKED. "Dense
+        # granules and rhoptries 1" is one question rather than two, so a
+        # field whose value is a tuple of members of the offered list gets a
+        # submenu where any number of them can be on at once.
+        if (isinstance(value, (tuple, list))
+                or "tuple[str" in written or "list[str" in written
+                or "sequence[str" in written):
+            return "multi"
         return "choice"
     if isinstance(value, bool):
         return "flag"
@@ -428,7 +437,6 @@ def style_field_kind(name: str, value, choices=None, declared: str = "") -> str:
                 else "unsupported")
     if value is not None:
         return "unsupported"
-    written = str(declared or "").replace(" ", "").lower()
     if "tuple[tuple" in written or "dict" in written or "list[" in written:
         # A NESTED SHAPE HAS NO DIALOG. Offering the split axis's pair of
         # pairs as one pair of numbers would write a value the renderer
@@ -496,6 +504,12 @@ def style_field_label(name: str, value, kind: str) -> str:
         return pretty
     if kind == "unsupported":
         return pretty
+    if kind == "multi":
+        # WHAT IS TICKED, spelled out. A multi-select whose label said only
+        # its name would make "is anything selected?" a question the reader
+        # has to open the submenu to answer.
+        chosen = [str(item) for item in (value or ())]
+        return f"{pretty}: {', '.join(chosen)}" if chosen else f"{pretty}: none"
     if value is None:
         return f"{pretty}: automatic…"
     if kind == "pair":
@@ -829,21 +843,36 @@ def _add_style_entry(menu, style, name: str, on_change, choices):
         action.setEnabled(False)
         action.setToolTip("It is kept in the style and written to a saved "
                           "style file; it is changed from the plot itself.")
+        action.setObjectName(name)
         return action
-    if kind == "choice":
+    if kind in ("choice", "multi"):
         submenu = QMenu(label.rstrip("…"), menu)
         submenu.setToolTipsVisible(True)
         menu.addMenu(submenu)
+        chosen = tuple(value or ()) if kind == "multi" else ()
         for option in options:
-            entry = submenu.addAction(str(option))
+            # `None` is a real option -- it is how a colour-by column is taken
+            # back off -- and "None" is not what that reads as on a menu.
+            entry = submenu.addAction("automatic" if option is None
+                                      else str(option))
             entry.setCheckable(True)
-            entry.setChecked(option == value)
-            entry.triggered.connect(
-                lambda _checked=False, chosen=option:
-                _apply_style(style, name, chosen, on_change))
+            if kind == "multi":
+                entry.setChecked(option in chosen)
+                entry.toggled.connect(
+                    lambda on, picked=option:
+                    _toggle_style_member(style, name, picked, on, options,
+                                         on_change))
+            else:
+                entry.setChecked(option == value)
+                entry.triggered.connect(
+                    lambda _checked=False, picked=option:
+                    _apply_style(style, name, picked, on_change))
         # The GROUP's action is what a reader meets, so it carries the name.
-        return submenu.menuAction()
+        action = submenu.menuAction()
+        action.setObjectName(name)
+        return action
     action = menu.addAction(label)
+    action.setObjectName(name)
     if kind == "flag":
         action.setCheckable(True)
         action.setChecked(bool(value))
@@ -854,6 +883,50 @@ def _add_style_entry(menu, style, name: str, on_change, choices):
         lambda _checked=False: _ask_style_value(menu, style, name, value,
                                                 kind, on_change))
     return action
+
+
+def style_menu_fields(menu) -> set:
+    """The style FIELDS a built menu offers, by name.
+
+    What a reader meets is prose -- "Marker size: 26…" -- so the field's own
+    name travels on its action as the object name. That is what lets "the
+    right-click menu and the side panel offer the same settings" be asserted
+    as a comparison of two sets rather than by reading two lists of words and
+    hoping they mean the same thing.
+
+    :param menu: a ``QMenu`` that :func:`add_style_entries` has been called on.
+    """
+    found = set()
+    for action in menu.actions():
+        name = action.objectName()
+        if name:
+            found.add(name)
+        submenu = action.menu()
+        if submenu is not None:
+            found |= style_menu_fields(submenu)
+    return found
+
+
+def _toggle_style_member(style, name, option, on, options, on_change) -> None:
+    """Tick or untick one member of a multi-select field.
+
+    KEPT IN THE OFFERED ORDER rather than the order they were ticked, so one
+    combination is one value however a reader arrived at it -- which is what
+    makes a saved style redraw the figure it was saved from. A member the
+    menu does not offer (a compartment this screen has none of, loaded from a
+    style file) is not silently dropped; it sorts to the end and stays.
+    """
+    kept = list(getattr(style, name, ()) or ())
+    if on and option not in kept:
+        kept.append(option)
+    elif not on and option in kept:
+        kept.remove(option)
+    order = list(options)
+    rank = {value: index for index, value in enumerate(order)}
+    _apply_style(style, name,
+                 tuple(sorted(kept, key=lambda item: rank.get(item,
+                                                              len(order)))),
+                 on_change)
 
 
 def _apply_style(style, name: str, value, on_change) -> None:

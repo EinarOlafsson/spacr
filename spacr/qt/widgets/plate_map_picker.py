@@ -270,14 +270,28 @@ class PlateMapPicker(QDialog):
 
         SHOWN WHILE DRAGGING, because a selection you cannot see until you
         let go is one you have to undo to correct.
+
+        A MOVE INSIDE THE PRESSED WELL IS NOT A DRAG. Every real click
+        carries a pixel or two of pointer travel, and drawing a one-well
+        rectangle for it both clears the rest of the selection and leaves
+        the release to fall through as an ordinary click -- which toggles
+        the anchor straight back off, so a wobbled click lands nothing and
+        takes the previous selection with it.
+
+        AND ONCE IT IS A DRAG IT STAYS ONE. Sweeping away from the anchor
+        and back again ends on the anchor, and treating that as no drag
+        would hand the release to the click and toggle off the well the
+        rectangle had just chosen.
         """
         if self._anchor is None:
             return
         cell = self.well_at(position)
         if cell is None or cell == getattr(self, "_last_cell", None):
             return
+        if cell == self._anchor and not self._dragged:
+            return
         self._last_cell = cell
-        self._dragged = cell != self._anchor
+        self._dragged = True
         self.set_selection(self._before if self._adding else set())
         self.select_region(self._anchor, cell, choosing=True)
 

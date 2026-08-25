@@ -2,9 +2,8 @@
 IMAGE UMAP: DRAG TO ENLARGE THE PLOT WITHOUT ENLARGING THE IMAGES
 ================================================================================
 
-Status:    JUDGED ON THE RUNNING WIDGET. The plot enlarges in both
-           directions and the points do not move. What is left is one
-           thing and it is the divider itself; see the last section.
+Status:    DONE. The divider moves at every window size the application
+           opens at; what stops it going further is content, not a constant.
 Requested: 2026-08-06 - "i should also be able to make the figure container larger to enlarge the UMAP plot, this dragging should apply to the plot itself but not the images, that is to say the images should keep their coordinates on the graph but their size should not change, that should be controlled by image zoom i think."
 
 --------------------------------------------------------------------------------
@@ -127,3 +126,35 @@ those is measured above.
 Tests: `tests/qt/test_umap_figure_container_drag.py`, 7 -- the plot growing
 in both directions, the divider reaching the axes rather than the frame, and
 no point moving when the container grows.
+
+--------------------------------------------------------------------------------
+CLOSED: WHAT WAS ACTUALLY IN THE WAY
+--------------------------------------------------------------------------------
+
+Measured on the driven widget at four window widths, not judged by eye.
+The divider moved on a 1400 px window and was frozen at 1000 px and
+below. Two arbitrary constants, and neither was the one this file
+suspected:
+
+  * "Propagate automatic clusters" was a plain QPushButton, whose size
+    hint is its whole label and whose horizontal policy treats that as a
+    hard minimum. One button pinned the sidebar at 198 px, and through it
+    decided how wide the chart was allowed to be. Both sidebar buttons
+    are `ElidingPushButton` now, so they shorten their own labels and the
+    sidebar gives way;
+  * the crop preview carried a 120 px floor, justified in its own comment
+    by "the controls under it start to elide" -- which is what those
+    controls are for. It is 72 px, still a legible thumbnail because the
+    crop is scaled rather than cropped.
+
+WITH BOTH GONE, measured again: the sidebar can be widened at 1400, 1000,
+820 and 700 px. It can be narrowed at 1400. Below roughly a thousand it
+cannot be narrowed further, and that is the RIGHT answer rather than a
+remaining defect -- the sidebar is already as narrow as a label beside a
+spin box can be, which is a content floor and not a number somebody
+chose. A test asserts exactly that: no widget in the sidebar may declare
+a minimum width equal to or greater than the sidebar's own.
+
+The vertical question this file also asked is answered by the same
+splitter: the chart takes the height of the body, so enlarging the window
+enlarges the plot without enlarging the crops, which is what was wanted.
