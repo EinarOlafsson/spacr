@@ -2091,6 +2091,12 @@ class MakeMasksScreen(QWidget):
         self._brush_slider = QSlider(Qt.Horizontal)
         self._brush_slider.setRange(1, 100)
         self._brush_slider.setValue(10)
+        self._brush_slider.setToolTip(
+            "Radius of the brush and the eraser, in pixels on screen. It is "
+            "scaled into image pixels at the current zoom, so the disk under "
+            "the cursor stays the same size and zooming in paints a finer "
+            "stroke on the data."
+        )
         self._brush_slider.valueChanged.connect(self._on_brush_size_changed)
         self._brush_size_label = QLabel("10 px")
         self._brush_size_label.setObjectName("Muted")
@@ -2121,6 +2127,12 @@ class MakeMasksScreen(QWidget):
         self._wand_pct.setRange(0.001, 100.0)
         self._wand_pct.setSingleStep(0.5)
         self._wand_pct.setValue(5.0)
+        self._wand_pct.setToolTip(
+            "How far the flood may stray from the value under the click, as "
+            "a percentage of this image's own intensity range. Raise it to "
+            "take in more of a dim object; lower it when the flood spills "
+            "into the background."
+        )
         self._wand_pct.valueChanged.connect(self._on_wand_pct_changed)
         wand_form.addRow("Tolerance %", self._wand_pct)
         self._wand_tol = QDoubleSpinBox()
@@ -2128,12 +2140,23 @@ class MakeMasksScreen(QWidget):
         self._wand_tol.setSingleStep(50.0)
         self._wand_tol.setValue(1000.0)
         self._wand_tol.setEnabled(False)
+        self._wand_tol.setToolTip(
+            "The same distance in raw grey levels, read only while the "
+            "percentage above is switched off. A setting tuned on 8-bit data "
+            "selects almost nothing on a 16-bit image, which is why the "
+            "percentage is the default."
+        )
         self._wand_tol.valueChanged.connect(self._on_wand_tolerance_changed)
         wand_form.addRow("Tolerance (absolute)", self._wand_tol)
         self._wand_max = QSpinBox()
         self._wand_max.setRange(1, 10_000_000)
         self._wand_max.setSingleStep(1000)
         self._wand_max.setValue(100_000)
+        self._wand_max.setToolTip(
+            "The most pixels one wand click may flood, which is also what "
+            "bounds how long a click can take. What happens when a flood "
+            "reaches the cap is the switch below."
+        )
         self._wand_max.valueChanged.connect(self._on_wand_max_changed)
         wand_form.addRow("Max pixels", self._wand_max)
         self._wand_salvage = QCheckBox("Keep the nearest pixels at the cap")
@@ -2399,6 +2422,12 @@ class MakeMasksScreen(QWidget):
         self._min_area = QSpinBox()
         self._min_area.setRange(0, 1_000_000)
         self._min_area.setValue(100)
+        self._min_area.setToolTip(
+            "Smallest object worth keeping, in pixels. Removing small "
+            "objects drops everything under it, and neither Otsu nor "
+            "Cellpose-SAM will produce an object below it, so one judgement "
+            "about debris is made in one box."
+        )
         remove_row.addWidget(QLabel("Min area:"))
         remove_row.addWidget(self._min_area, 1)
         remove_btn = QPushButton("Remove")

@@ -1429,7 +1429,11 @@ def test_database_handler_opens_any_supported_shape(tmp_path):
     ("map_barcodes", MapBarcodesDropHandler),
     ("umap", MeasurementsDropHandler),
     ("ml_analyze", MeasurementsDropHandler),
-    ("regression", MeasurementsDropHandler),
+    # Regression is the one measurements screen that also hosts the parameter
+    # sweep card, so its drop target has to answer for the sweep's two CSV
+    # lists as well as for measurements.db. That is a distinct handler, and
+    # this table asserts the exact type -- a subclass is not the same answer.
+    ("regression", dh.RegressionDropHandler),
     ("recruitment", MeasurementsDropHandler),
     ("activation", MeasurementsDropHandler),
     ("invasion", MeasurementsDropHandler),

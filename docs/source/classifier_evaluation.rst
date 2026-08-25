@@ -2,10 +2,11 @@ Classifier evaluation workbench
 ===============================
 
 Classifier cross-validation now retains every out-of-fold probability instead
-of reducing a fold to one accuracy number. Open **Classifier Evaluation** in
-the **Results & QC** section and drop a model/results folder onto it. The scan
-runs in the background and finds every ``evaluation_manifest.json`` below that
-folder.
+of reducing a fold to one accuracy number. The workbench has no tile of its
+own: it opens from the **Classify** masthead, because judging a classifier is
+the sentence after training one. Press **Classifier Evaluation** there and
+drop a model/results folder onto the page. The scan runs in the background and
+finds every ``evaluation_manifest.json`` below that folder.
 
 The workbench shows:
 

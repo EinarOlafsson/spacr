@@ -16,6 +16,10 @@ The UI and exports therefore use ``EAF1-hit-like`` and
 Explain CV Model
 ----------------
 
+The module opens from the **Classify** masthead rather than from a tile of its
+own, next to **Classifier Evaluation**: both ask what a trained classifier
+actually did.
+
 Choose the exact ``measurements.db`` and an existing per-object CV prediction
 CSV. The module never reruns or silently substitutes the original classifier.
 It joins predictions one-to-one to measured objects and excludes identifiers,

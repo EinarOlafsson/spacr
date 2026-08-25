@@ -2,7 +2,14 @@
 MAKE MASKS: THE TOOLS THAT ARE MISSING, AND THE ROW THEY BELONG IN
 ================================================================================
 
-Status:    OPEN. Requested 2026-08-25.
+Status:    BUILT, with two defects outside this module still open.
+           Requested 2026-08-25.
+           Draw, divide, Cellpose-SAM with its probability and flow panes,
+           the one tool row and the settings toggle are in and tested.
+           Every control on the settings panel now has a default, a type,
+           help and a place -- see section 6. What is left is section 7:
+           two defects in files this instruction does not own, and the
+           recrop decision below.
 Owner:     spacr/qt/screens/make_masks.py, and spacr/spacr_cellpose.py /
            spacr/object.py for the Cellpose settings it has to offer.
 
@@ -343,6 +350,78 @@ MEASURED, ON REAL ARRAYS
     setting for an eval declared `(x, **kwargs)`: the run succeeded and the
     thresholds on the panel did nothing. A signature that names nothing is
     no longer filtered against.
+
+--------------------------------------------------------------------------------
+6. THE PANEL AUDIT: A DEFAULT, A TYPE, A TOOLTIP AND A PLACE
+--------------------------------------------------------------------------------
+
+A ported setting is only a spaCR setting once it has all four. The panel
+was read back off the built widget rather than off the source, and the
+gap was not where it was expected: every control PORTED in section 4
+already explained itself, and the three the wand ARRIVED with did not.
+
+  Tolerance %             was silent    now explains that it is a
+                                        percentage of this image's own
+                                        range, and which way to move it.
+  Tolerance (absolute)    was silent    now says it is read only while
+                                        the percentage is off, and why
+                                        the percentage is the default.
+  Max pixels              was silent    now says it bounds click latency
+                                        as well as the flood, and points
+                                        at the salvage switch below it.
+  Radius (brush)          was silent    now says the radius is in SCREEN
+                                        pixels and is scaled by the zoom.
+  Min area (objects)      was silent    now says it is the one judgement
+                                        Remove-small, Otsu and
+                                        Cellpose-SAM all read.
+
+READ BACK, NOT ASSERTED IN THE SOURCE. Help does not stay where it is
+written: `settings_model.retarget_field_tooltips` moves a field's tooltip
+onto the label that NAMES it as the last step of `__init__`, so a source
+search for `setToolTip` passes while every spin box on screen is silent.
+`tests/qt/test_make_masks_settings_explain_themselves.py` walks the built
+panel, asks the LAYOUT which label names each control, and fails with the
+name of any control that has help in neither place. It also pins one
+control to one setting: each of the twelve rescue controls is driven and
+the dict the flood reads is diffed, so a control that moves two settings
+or none is a failure with its own name in it.
+
+A CAPTION SHIPPED WITHOUT ITS ROWS IS HALF-ENGLISH. `i18n.tr` falls back
+to a word-by-word term match when it has no exact row, which turns a
+sentence of help into mangled prose. The panel had 32 help strings and 24
+of them -- everything this instruction wrote before this pass -- had no
+row in any language. All 29 (the 24 plus the 5 above) are now exact rows
+in all nine catalogs, with their source hashes, and the test above fails
+if a new one arrives without them.
+
+--------------------------------------------------------------------------------
+7. STILL OPEN: TWO DEFECTS, IN FILES THIS INSTRUCTION DOES NOT OWN
+--------------------------------------------------------------------------------
+
+a. `spacr/spacr_cellpose.py` -- `parse_cellpose4_output` cannot read the
+   return of a single BARE 2-D eval. Cellpose 4.2 returns `flows` as a
+   flat three-member list there, and the function takes `len(masks)` for
+   the image count -- which on a 2-D mask is the image HEIGHT -- so
+   neither the batched branch (len 4) nor the per-image branch (len == H)
+   matches and a field that segmented perfectly raises
+   `Unrecognized Cellpose flows format: type=<class 'list'>, len=3`.
+   Reproduced. The fix is a single-image branch BEFORE the `len(masks)`
+   count, because a 2-D mask is one image whatever the flows look like.
+   This screen does not hit it -- `run_cellpose` hands the field in as a
+   batch of one, which is the layout the function is written for -- so
+   the defect is left where it is rather than worked around here.
+
+b. A worker thread importing `matplotlib.pyplot` for the first time,
+   while the GUI thread is collecting garbage, SEGFAULTS the process.
+   `PipelineWorker.run` (spacr/qt/bridge.py) does that import, and any
+   screen that starts a background job can trigger it: the measured case
+   is this screen's `seed_folded` handing a folder to the folded Model
+   Compare, whose `set_source` starts a scan. A segfault takes the whole
+   pytest shard with it, so it is worth more than the one test it kills.
+   The fix is a pre-import on the CALLER's thread in `bridge.make_thread`,
+   guarded by `sys.modules` so it costs a dict lookup after the first
+   job. Measured: the file that reliably dumps core goes 32/32 green with
+   that pre-import and with nothing else changed.
 
 --------------------------------------------------------------------------------
 NOTED, NOT BUILT: recrop

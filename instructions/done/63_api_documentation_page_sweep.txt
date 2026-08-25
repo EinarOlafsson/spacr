@@ -2,16 +2,23 @@
 MAKE THE API PAGE LOOK PROFESSIONAL, CLEAN AND USEFUL
 ================================================================================
 
-Status:    THE BUILD IS AT 0 ERRORS AND 0 WARNINGS FROM AN EMPTY TREE. The
-           two rendering defects this file left open -- the broken definition
-           list in `spacr/object_distances.py` and the `shape` cross-
-           reference in `spacr/qt/widgets/fast_plots.py` -- are both repaired
-           in the source, verified by a rebuild that started from an empty
-           `docs/_build` and `docs/source/api`: 912 HTML pages, 448 module
-           pages, nothing reported. The short underlines and duplicate object
+Status:    THE BUILD IS AT 0 ERRORS AND 0 WARNINGS FROM AN EMPTY TREE, AND
+           THE REFERENCE NO LONGER ADVERTISES A MODULE THE HOME SCREEN HAS
+           STOPPED REGISTERING. The two rendering defects this file left
+           open -- the broken definition list in `spacr/object_distances.py`
+           and the `shape` cross-reference in
+           `spacr/qt/widgets/fast_plots.py` -- are repaired in the source and
+           stayed repaired: two rebuilds from an empty `docs/_build` and
+           `docs/source/api` report 912 HTML pages, 448 module pages and
+           nothing else. The short underlines and duplicate object
            descriptions are still gone, and a deleted module still reaches
-           neither the page nor the localization payload. Two things remain
-           and neither is a rendering fault; both are named at the end.
+           neither the page nor the localization payload. What is new is the
+           SEVENTEEN FOLDED APPLICATIONS: the workflow grid included by both
+           the landing page and the API index still drew a tile for each of
+           them, and three narrative pages either sent a reader to a section
+           that no longer holds a screen or never said where it opens. Both
+           are corrected below. Two things remain, neither is a rendering
+           fault, and both live outside `docs/`; they are named at the end.
 Requested: 2026-08-08 — "do a sweep of the API page and make sure everything looks as professions and clean and informative and usefull as you can make it"
 
 --------------------------------------------------------------------------------
@@ -830,38 +837,116 @@ The repair the rule asks for is the one this file wrote down:
         ``(n_samples, n_features)``.
 
 --------------------------------------------------------------------------------
+A FOLDED MODULE KEEPS ITS SCREEN AND LOSES ITS TILE, AND THE GRID HAD TO FOLLOW
+--------------------------------------------------------------------------------
+
+Seventeen applications were folded onto the masthead of the step they belong
+to, and their rows were dropped from the Home registry:
+
+    agreement, anndata_export, barcode_qc, cellpose_masks,
+    classifier_evaluation, curate, explain_cv, illumination, image_scatter,
+    model_compare, model_zoo, motility, parameter_sweep, pca, timelapse,
+    train_cellpose, volcano_explorer
+
+Each one still HAS its screen -- Annotator Agreement opens from the Annotate
+masthead, Timelapse from Mask, the Motility Assay from Measure, Classifier
+Evaluation and Explain CV Model from Classify, the Cellpose Workbench, Model
+Compare, Model Zoo and Curate from Make Masks -- so nothing was removed from
+the product. What went is the tile, and the documentation was still drawing
+all seventeen of them.
+
+THE GRID IS THE SHARED SURFACE. `docs/source/_generated/workflow_grid.rst` is
+included by BOTH `index.rst` and the autoapi index template, so one stale file
+put seventeen dead tiles on the landing page and on the API reference at once,
+each linking to an API page for a module the reader would then hunt for on a
+Home screen that no longer offers it. The grid now names 33 applications, one
+per registry row that is not part of the six-step pipeline.
+
+REGENERATED THROUGH THE GENERATOR, NOT BY HAND. `generate_readme_visuals.py`
+still refuses to run -- its `APP_ORDER` documents the seventeen dropped keys,
+and `_grouped_apps` raises rather than emit a grid it cannot reconcile with
+the registry. Filtering `APP_ORDER` down to the keys that still register, in
+memory, and calling the generator's own `_documentation_workflow()` produces
+exactly what it will emit once that constant is corrected. Writing the markup
+by hand would have been the tempting shortcut and would have drifted from the
+generator's line breaks, its column packing and its 19.9% widths the first
+time anyone reran it.
+
+THE ORPHANED ARTWORK WENT WITH IT. `docs/source/_static/workflow/apps/` held
+52 tile images for 33 applications. The generator only ever WRITES a tile for
+a registered key; it does not delete one whose key has gone, so a folded
+module's artwork stays and ships with the site forever. The nineteen orphans
+-- the seventeen above plus `classify` and `ml_analyze`, left over from the
+merge into Classify -- are deleted.
+
+THE PROSE HAD THE SAME FAULT, one page each:
+
+  * `classifier_evaluation.rst` said "Open **Classifier Evaluation** in the
+    **Results & QC** section", which is a section it is not in any more. It
+    now says the workbench opens from the Classify masthead, and why.
+  * `index.rst` described *Assays* as "the timelapse, motility and
+    parasite-specific analyses". Assays is the parasite-specific readouts
+    now; the other two fold into Mask and Measure. The category list is
+    corrected and followed by a sentence naming where a folded screen opens,
+    so a reader who cannot find Timelapse in the grid is told where it went
+    rather than left to conclude it was removed.
+  * `model_explanation.rst` described Explain CV Model without ever saying
+    where it is. It now says.
+
+WHAT WOULD KEEP THIS HONEST is a test asserting the grid names every
+registered application and no other -- the same shape as
+`test_api_reference_drops_deleted_modules.py`, which is what stops a DELETED
+module keeping its page. `test_readme_presentation.py` checks that every
+registered key HAS a tile and never that a tile has a key, which is why
+seventeen dead ones survived a green suite. That test lives outside `docs/`
+and is named in the open items below.
+
+--------------------------------------------------------------------------------
 WHAT IS OPEN, AND WHY IT IS NOT CLOSED HERE
 --------------------------------------------------------------------------------
 
 Neither remaining item is a rendering fault, and the page builds clean with
-both of them outstanding.
+both of them outstanding. Both are outside `docs/`.
 
-  BLOCKED `docs/source/_generated/workflow_grid.rst` still cannot be
-         regenerated, and the block is now much larger than the two keys this
-         file named. `packaging/generate_readme_visuals.py` refuses with
+  OUTSIDE `docs/` The documentation half of the seventeen folded
+         applications is done. The rest of that reconciliation is in files
+         this pass does not own, and three tests fail until it happens --
+         they failed before this pass too, for the same reason:
 
-             documented application order does not match the Home registry:
-             missing=['agreement', 'anndata_export', 'barcode_qc',
-             'cellpose_masks', 'classifier_evaluation', 'curate',
-             'explain_cv', 'illumination', 'image_scatter', 'model_compare',
-             'model_zoo', 'motility', 'parameter_sweep', 'pca', 'timelapse',
-             'train_cellpose', 'volcano_explorer']
-
-         Seventeen keys, not two. That is the module consolidation landing --
-         screens are being merged and retired as this is written -- so
-         reconciling APP_ORDER now would be stale before it was committed.
-         The grid should be regenerated once the Home registry settles, and
-         it is the generator's own refusal, not the docs build, that reports
-         it.
+           * `packaging/generate_readme_visuals.py`: delete the seventeen
+             keys from `APP_ORDER`. Re-running the generator then reproduces
+             the committed `workflow_grid.rst` byte for byte, which is the
+             check that the two agree.
+           * `README.rst` (and the localized READMEs the generator rewrites
+             with it) still draws all seventeen tiles in its own workflow
+             block. Only the generator writes that block.
+           * `tests/test_readme_presentation.py` asserts `len(registry) ==
+             56`; the registry holds 39. Update the count, and add the
+             missing direction while the file is open: every `|DocApp_...|`
+             in the grid must name a REGISTERED key. The existing assertion
+             only walks the registry into the grid, so a tile with no row
+             behind it passes.
+           * `spacr/resources/icons/workflow/apps/` keeps the same nineteen
+             orphaned tile images that were deleted from
+             `docs/source/_static/workflow/apps/`; the generator does not
+             remove artwork for a key that has gone.
 
   RED    `tools/build_documentation_i18n.py --audit`, which the docs workflow
-         runs BEFORE sphinx-build, exits 1:
+         runs BEFORE sphinx-build, exits 1, and it is now TWO keys rather
+         than the one recorded here:
 
              ValueError: stale reviewed runtime source
-             setting_tooltips/anndata_nan_policy
+             setting_tooltips/anndata_nan_policy   (ko, sv)
+             setting_tooltips/explain_cv           (es, fr, pt)
 
          A reviewed translation is keyed by its English source string, so an
          English string that changes orphans its review. This is the ordinary
          cost of docstrings and settings moving faster than the translations
          of them, it is not a documentation-rendering defect, and it needs
-         the translation model rather than an edit.
+         the translation model rather than an edit. It also fails 16 tests in
+         `tests/test_documentation_i18n.py`, every one of them from the same
+         two keys, and the reviewed files live under `docs/i18n/reviewed/`
+         rather than in `docs/source`. Both keys belong to modules folded
+         this month, which is the connection worth noticing: folding a screen
+         rewrites its settings' English, and every reviewed translation keyed
+         on the old English is orphaned the same day.

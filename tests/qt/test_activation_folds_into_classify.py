@@ -29,8 +29,9 @@ import pytest
 pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QObject
-from PySide6.QtWidgets import QWidget
+from PySide6.QtWidgets import QLabel, QWidget
 
+from spacr.qt.i18n import retranslate_widget_tree, tr
 from spacr.qt.screens import activation, classify, map_barcodes
 from spacr.qt.screens.app_screen import AppScreen
 
@@ -322,6 +323,91 @@ def test_the_navigator_seeds_the_page_it_opens(qtbot, qt_theme_applied):
     assert settings["target_layer"] == "layer4"
 
 
+def test_the_explain_page_builds_before_the_host_is_in_a_window(
+        qtbot, qt_theme_applied):
+    """A host not yet in a window still opens its pages.
+
+    ``FoldOpener`` hands the builder ``screen.window()``, which is the
+    bare screen -- or nothing at all -- until the main window has taken
+    it into its stack. The navigator is what absorbs that: it forwards
+    only to a window that can be navigated, and stands in for the rest.
+    """
+    from spacr.qt.screens.model_explanation import ModelExplanationScreen
+
+    page = classify.BUILDERS["explain_cv"](None)
+    qtbot.addWidget(page)
+
+    assert isinstance(page, ModelExplanationScreen)
+
+
+def test_a_seed_key_the_form_does_not_have_is_skipped(qtbot,
+                                                      qt_theme_applied):
+    """A stray key is dropped, and the keys that exist still land.
+
+    A navigation carries whatever the screen it came from was holding, and
+    the two forms are not the same form. Refusing the whole seed over one
+    unknown key would lose the settings the user could see.
+    """
+    host, _strip = _host(qtbot)
+    page = _page(qtbot, host)
+
+    activation.apply_seed(page, {"not_a_setting_on_this_form": 1,
+                                 "smoothgrad_samples": 12})
+
+    assert page._settings_model.collect()["smoothgrad_samples"] == 12
+
+
+def test_one_value_the_form_refuses_does_not_cost_the_others(
+        qtbot, qt_theme_applied, monkeypatch):
+    """A widget that rejects its seed is skipped, not fatal.
+
+    The seeding rule is applied per widget, so a value of the wrong shape
+    for one control would otherwise abandon every control after it -- and
+    which ones those are depends on dict order, which is not a thing a
+    user can see or fix.
+    """
+    from spacr.qt.app import MainWindow
+
+    host, _strip = _host(qtbot)
+    page = _page(qtbot, host)
+    real = MainWindow._apply_seed_value
+
+    def refuse_the_first(widget, value):
+        if value == "poison":
+            raise ValueError("this control cannot hold that")
+        return real(widget, value)
+
+    monkeypatch.setattr(MainWindow, "_apply_seed_value",
+                        staticmethod(refuse_the_first))
+    activation.apply_seed(page, {"target_layer": "poison",
+                                 "smoothgrad_samples": 9})
+
+    settings = page._settings_model.collect()
+    assert settings["target_layer"] != "poison"
+    assert settings["smoothgrad_samples"] == 9
+
+
+def test_no_seeding_rule_means_nothing_is_written(qtbot, qt_theme_applied,
+                                                  monkeypatch):
+    """Without the window's rule the form is left exactly as it was.
+
+    The rule is read from ``MainWindow`` so that a navigation seeds a
+    screen the way the sidebar does. Guessing at it here -- writing the
+    value straight onto the widget -- would be the second answer this
+    module exists to avoid, so it writes nothing at all instead.
+    """
+    from spacr.qt.app import MainWindow
+
+    host, _strip = _host(qtbot)
+    page = _page(qtbot, host)
+    before = page._settings_model.collect()["smoothgrad_samples"]
+    monkeypatch.delattr(MainWindow, "_apply_seed_value")
+
+    activation.apply_seed(page, {"smoothgrad_samples": before + 5})
+
+    assert page._settings_model.collect()["smoothgrad_samples"] == before
+
+
 def test_the_navigator_forwards_every_other_destination_to_the_window(qtbot):
     """It stands in for the window on one request and no others.
 
@@ -350,6 +436,113 @@ def test_the_navigator_names_the_module_the_registry_knows(qtbot):
     navigator._on_train_requested("activation_maps", {})
 
     assert window.opened == [(APP_KEY, {})]
+
+
+# ---------------------------------------------------------------------------
+# The language the page arrives in
+# ---------------------------------------------------------------------------
+#
+# `MainWindow` translates a module screen ONCE, when it builds it. A folded
+# page is built by the fold button instead, so nothing routes it through
+# that call and it opened in English inside a translated window -- masthead,
+# instruction, every settings row, and the tab it arrived on. The screen
+# watches what is parented into it and runs the pass over each new subtree;
+# these pin the result rather than the mechanism.
+
+def _swedish_host(qtbot, monkeypatch):
+    """A Classify screen built and translated exactly as MainWindow does."""
+    monkeypatch.setenv("SPACR_LANGUAGE", "sv")
+    screen, strip = _host(qtbot)
+    retranslate_widget_tree(screen)
+    return screen, strip
+
+
+def _title_of(screen) -> str:
+    """The masthead heading a module screen is showing."""
+    labels = [label.text() for label in screen._header.findChildren(QLabel)]
+    assert labels, "the masthead rendered no text at all"
+    return str(labels[0])
+
+
+def test_the_page_arrives_in_the_language_the_window_is_in(
+        qtbot, qt_theme_applied, monkeypatch):
+    """Opened from a Swedish window, the page is Swedish.
+
+    Asserted against what the catalog says rather than against a literal,
+    and against the English source too -- a page that had never been
+    translated passed a check that only looked for "not empty".
+    """
+    screen, _strip = _swedish_host(qtbot, monkeypatch)
+
+    page = _page(qtbot, screen)
+    qtbot.wait(20)                # the pass is deferred one turn
+
+    heading = tr("Activation Maps", "sv")
+    assert heading != "Activation Maps", "nothing to prove in this language"
+    assert _title_of(page) == heading
+
+
+def test_the_tab_the_page_arrives_on_speaks_the_same_language(
+        qtbot, qt_theme_applied, monkeypatch):
+    """Both captions on the strip, not only the page under them.
+
+    A tab caption belongs to the host's strip rather than to the page, so
+    a pass that walked the page alone left the module's name in English
+    directly above its translated form.
+    """
+    screen, _strip = _swedish_host(qtbot, monkeypatch)
+
+    page = _page(qtbot, screen)
+    qtbot.wait(20)
+
+    pages = screen._fold_pages
+    assert pages.tabText(0) == tr("Classify", "sv")
+    assert pages.tabText(pages.indexOf(page)) == tr("Activation Maps", "sv")
+
+
+def test_the_second_fold_opened_is_translated_as_well(
+        qtbot, qt_theme_applied, monkeypatch):
+    """Classify folds three modules, and the strip is built by the first.
+
+    The page strip arrives once, with the first button pressed; every page
+    after that lands on a strip that already exists. Watching only the
+    arrival of the strip would translate the first module a user opens and
+    leave the second and third in English.
+    """
+    screen, _strip = _swedish_host(qtbot, monkeypatch)
+
+    _page(qtbot, screen)
+    qtbot.wait(20)
+    openers = {opener.key: opener for opener in screen._fold_openers}
+    second = openers["classifier_evaluation"].open()
+    qtbot.addWidget(second)
+    qtbot.wait(20)
+
+    pages = screen._fold_pages
+    caption = tr("Classifier Evaluation", "sv")
+    assert caption != "Classifier Evaluation", "nothing to prove here"
+    assert pages.tabText(pages.indexOf(second)) == caption
+    assert any(label.text() == caption
+               for label in second.findChildren(QLabel)), (
+        "the second page opened with its masthead still in English")
+
+
+def test_a_page_closed_before_the_pass_runs_is_not_an_error(
+        qtbot, qt_theme_applied, monkeypatch):
+    """The pass is deferred a turn, and a turn is long enough to close a tab.
+
+    The widget is gone by the time the pass comes round, and asking a
+    deleted widget anything raises. Nothing to translate is not a failure,
+    and it must not surface as an exception inside a Qt slot -- where it
+    would be printed and swallowed rather than handled.
+    """
+    import shiboken6
+
+    screen, _strip = _swedish_host(qtbot, monkeypatch)
+    gone = QWidget()
+    shiboken6.delete(gone)
+
+    screen._late_caption_watcher._on_arrival(gone)
 
 
 def test_a_navigator_with_nothing_to_ask_answers_nothing(qtbot):

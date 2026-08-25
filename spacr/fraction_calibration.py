@@ -41,6 +41,19 @@ reads; a screen well has hundreds. The threshold chosen here is the one that
 makes the CONTROL wells internally consistent, and the number of guides per
 well is reported at every candidate so the difference is visible rather than
 assumed away.
+
+AND IT IS NOT THE ONLY THRESHOLD THE RUN COMPUTES.
+:func:`spacr.sequencing.graph_sequencing_stats` sweeps the same cut-off
+against ``target_unique_count`` -- how many gRNAs a well should end up with,
+answered from the counts alone. That is a different question from this one,
+so neither replaces the other and a run reports both.
+
+WHICH ONE IS IN FORCE IS DECIDED IN ONE PLACE: ``ml._perform_regression``
+reads ``calibrate_fraction_threshold`` where the score table is already
+loaded, because the imaging side is what this sweep needs and what the count
+sweep has never been given. A second reader in the counts module could only
+disagree with the first, and would hand the run this sweep's answer back as
+though the counts had independently confirmed it.
 """
 
 from __future__ import annotations

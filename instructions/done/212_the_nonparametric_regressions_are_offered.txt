@@ -2,8 +2,11 @@
 THE NONPARAMETRIC REGRESSIONS ARE OFFERED
 ================================================================================
 
-Status:    closed, except the Qt panel's own combo branch, named at
-           the end.
+Status:    closed in spaCR. The Qt panel now reads the same table, which was
+           the last open half; see THE LAST HALF at the end. One line remains
+           in `tools/`, named there -- the catalog builder has to collect
+           `_REGRESSION_MENU_UI_SOURCES` before a regeneration can give the
+           twenty new captions their rows.
 Requested: 2026-08-21 -- "there are nonparametric versions of regression these
            should be included!"
 Owner:     Regression
@@ -215,27 +218,70 @@ NOTHING IS RENAMED, and that is a test rather than an intention: the stored
 value leads its own label, so a user looking for 'quantile' still finds the
 word and every settings CSV asks for the fit it always asked for.
 
-WHAT REMAINS, RE-CHECKED AGAINST THE CODE AND STILL TRUE: the Qt panel
-builds its own list and does not go through `settings_spec`. In
-`spacr/qt/screens/settings_model.py`, the `if key == "regression_type":`
-branch of `SettingsWidgets._widget_for` (line 8014 as the file stands) reads
+--------------------------------------------------------------------------------
+THE LAST HALF: THE Qt PANEL READS THE TABLE TOO
+--------------------------------------------------------------------------------
 
-    from spacr.ml import REGRESSION_TYPES
-    kind = "combo"
-    options = ["auto", *REGRESSION_TYPES]
+The `if key == "regression_type":` branch of `SettingsWidgets._widget_for`
+built its own list -- `["auto", *REGRESSION_TYPES]` -- so the two routes over
+one inventory could disagree about what a family is called and which kind it
+is in, and they did: one showed nineteen unlabelled names, the other showed
+them grouped and explained. It now asks `regression_family_choices()`, the
+same function `settings_spec._regression_type_choices` asks, and 'auto' keeps
+its own spelling as a bare pair at the head.
 
-and needs
+ASKED OF `spacr.regression_families`, NOT `spacr.ml`. Both re-export the same
+function and either would have closed the item, but `spacr.ml` imports
+`spacr.plot` and therefore torch -- 2.2 seconds and 900 MB on the GUI thread
+to read a tuple of strings. The family table was split out of `spacr.ml` for
+exactly that reason, and `tests/test_a_settings_panel_does_not_import_torch.py`
+exists to stop the panel reaching back for it. So the branch is a lighter
+import than the one it replaced as well as a shared one.
 
-    from spacr.ml import regression_family_choices
-    kind = "combo"
-    options = [("auto", "auto -- chosen from the response by "
-                        "check_distribution"),
-               *regression_family_choices()]
+NOTHING IS RENAMED, and it is the widget that proves it rather than an
+intention: every entry is added with `userData=<stored value>`, `_read_widget`
+returns `itemData`, and `set_value_for_key` selects with `findData` before
+`findText`. A settings CSV saying `quantile` opens the panel on quantile and
+is written back as `quantile`.
 
-The combo builder twenty lines below already renders a `(value, label)` pair
-by showing the label and storing the value, and it takes bare strings in the
-same list, so 'auto' keeps its own spelling. The comment above those lines
-explaining what 'auto' is stays exactly as it is.
+AND A SILENT NO-OP CAME WITH IT, FOUND BY THE TESTS EITHER SIDE. Qt matches
+`setCurrentText` against the CAPTION and, on a non-editable combo, does
+nothing whatsoever when nothing matches -- no exception, no log. The moment a
+caption stopped being its own value, every caller saying "choose ols" by name
+became a no-op that left the control on whatever it was showing while the
+caller believed it was set. Five tests caught it; production code would not
+have. The builder now makes a `_ValueCombo`, which matches the caption first
+-- Qt's own behaviour, unchanged -- and falls back to the stored value.
+
+A CAPTION SHIPS WITH ITS ROWS, and these are composed at runtime, so the
+literal-string extractor in `tools/build_i18n_catalogs.py` cannot see them at
+the `addItem` call site the way it sees a quoted label.
+`_REGRESSION_MENU_UI_SOURCES` declares all twenty for it -- deliberately NOT
+folded into `_SETTINGS_MODEL_UI_SOURCES`, which
+`tests/qt/test_external_i18n_catalogs.py` pins to exactly the templates the
+model explainers render, so a menu caption in it fails a check on a string no
+explainer has ever rendered.
+
+MEASURED, NOT ASSUMED, about what happens until the catalogs are regenerated:
+`tr()` returns all twenty unchanged in every one of the nine languages today.
+`_term_translation` refuses a source over 80 characters or containing '/',
+and nineteen of the captions are 85 to 200 characters; the twentieth, 'auto',
+is 53 and contains no catalogued term. So none of them can come back as
+half-English -- they stay English until the rows exist.
+
+ONE LINE REMAINS AND IT IS IN A FILE THIS WORK DID NOT OWN.
+`tools/build_i18n_catalogs.py` collects `_SETTINGS_MODEL_UI_SOURCES` at line
+2832 and must collect `_REGRESSION_MENU_UI_SOURCES` beside it (adding the
+name to the `from spacr.qt.screens.settings_model import (...)` block above
+it), after which a catalog regeneration writes the twenty rows and their
+source hashes into all nine catalogs.
+
+Tests: `tests/test_the_qt_menu_reads_one_family_table.py`, 12 passing. The two
+routes are compared pair for pair rather than as two sets, because the failure
+this replaces was the same nineteen values carrying different labels; and one
+test asserts every caption the menu shows is declared as a UI source, so a
+family added to the inventory cannot reach the dropdown without reaching the
+translators.
 
 Tests: `tests/test_the_regression_menu_says_what_it_assumes.py`, 12 passing,
 and four in `tests/test_analysis_mode_is_a_dropdown.py` that read the choices
