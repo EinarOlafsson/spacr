@@ -294,12 +294,24 @@ def test_build_report_omits_log_section_when_tail_is_empty(monkeypatch):
     assert "Recent log lines" not in body
 
 
-def test_build_report_includes_log_section_when_tail_is_present(monkeypatch):
+def test_build_report_points_at_the_log_instead_of_carrying_it(monkeypatch,
+                                                               tmp_path):
+    """The log section names a file now; it used to hold the lines.
+
+    This test asserted that the last fifty log lines were pasted into the
+    body. That body is URL-encoded onto a public `issues/new`, so the
+    assertion was pinning a leak: a log line carries sample names, plate
+    barcodes and folder names, none of which the redaction pass can
+    recognise. The section still exists, and still tells the maintainer
+    the log is available -- it just does not publish it.
+    """
     from spacr.qt.ai import issue_report as ir
     monkeypatch.setattr(ir, "log_tail", lambda *a, **k: "line A\nline B\n")
+    monkeypatch.setattr(ir, "log_bundle_dir", lambda: tmp_path / "reports")
     body = ir.build_report("E: x", include_log_tail=True)["body"]
-    assert "<details><summary>Recent log lines</summary>" in body
-    assert "line A\nline B" in body
+    assert "<details><summary>Log</summary>" in body
+    assert "line A" not in body
+    assert "log-" in body
     assert body.count("</details>") == 1
 
 

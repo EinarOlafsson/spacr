@@ -30,6 +30,10 @@ from typing import Any, Dict, List, Optional
 REPO = "EinarOlafsson/spacr"
 ISSUE_LABEL = "auto-filed"
 LOG_TAIL_LINES = 50
+
+#: Lines kept in the log file saved beside a report. Larger than
+#: :data:`LOG_TAIL_LINES` because this one is not going into a URL.
+LOG_BUNDLE_LINES = 2000
 MAX_URL_LEN = 7500   # GitHub caps the pre-filled issue URL at ~8 KB
 
 
@@ -221,6 +225,43 @@ def log_tail(n_lines: int = LOG_TAIL_LINES,
     return sanitize_path("".join(lines[-n_lines:]))
 
 
+def log_bundle_dir() -> Path:
+    """Where a report's log copy is written."""
+    return Path.home() / ".spacr" / "reports"
+
+
+def save_log_bundle(fingerprint: str,
+                    log_path: Optional[Path] = None,
+                    n_lines: int = LOG_BUNDLE_LINES) -> Optional[Path]:
+    """Write the log tail to a file beside the report and return its path.
+
+    The public issue names this path instead of carrying the log itself.
+    More lines are kept here than would ever have gone in an issue --
+    once the log is not being pasted into a URL there is no length to
+    stay under, and the maintainer asking for it wants the run, not a
+    keyhole.
+
+    :param fingerprint: the traceback hash, so one report's log is easy
+        to match to the issue that names it.
+    :param log_path: override for the log file path.
+    :param n_lines: how many trailing lines to keep.
+    :returns: the path written, or ``None`` if there was nothing to write
+        or the write failed -- a report must still be filable on a
+        read-only home directory.
+    """
+    tail = log_tail(n_lines=n_lines, log_path=log_path)
+    if not tail.strip():
+        return None
+    try:
+        folder = log_bundle_dir()
+        folder.mkdir(parents=True, exist_ok=True)
+        target = folder / f"log-{fingerprint}.txt"
+        target.write_text(tail, encoding="utf-8")
+    except Exception:
+        return None
+    return target
+
+
 # ---------------------------------------------------------------------------
 # Report builder
 # ---------------------------------------------------------------------------
@@ -310,13 +351,32 @@ def build_report(
         body_parts.append("")
 
     if include_log_tail:
-        tail = log_tail()
-        if tail:
-            body_parts.append("<details><summary>Recent log lines</summary>")
+        # THE LOG DOES NOT GO IN THE ISSUE. An issue on the public tracker
+        # is world-readable and permanent, and a log line carries whatever
+        # the run happened to be about -- a gene name, a plate barcode, a
+        # collaborator's folder, the name of an unpublished screen. None of
+        # that is credential-shaped, so no redaction pass catches it, and
+        # the person filing the bug has no way to know it is there.
+        #
+        # So the log is written BESIDE the report instead: a file on the
+        # user's own disk, whose path the issue names. The maintainer can
+        # ask for it, and the user decides then, having read it.
+        saved = save_log_bundle(tb_hash)
+        if saved is not None:
+            body_parts.append("<details><summary>Log</summary>")
             body_parts.append("")
-            body_parts.append("```")
-            body_parts.append(tail.strip())
-            body_parts.append("```")
+            body_parts.append(
+                "The log is NOT attached: it can carry sample names, plate "
+                "barcodes and folder names, and this issue is public.")
+            body_parts.append("")
+            # Through the same sanitiser as everything else: the bundle
+            # lives under the user's home, and the home path carries their
+            # account name.
+            body_parts.append(f"It was saved on the reporter's machine at "
+                              f"`{sanitize_path(str(saved))}`.")
+            body_parts.append("")
+            body_parts.append(
+                "If you need it, ask -- and read it before sending it.")
             body_parts.append("</details>")
 
     # `fingerprint` is returned, not just embedded in the body, so the
