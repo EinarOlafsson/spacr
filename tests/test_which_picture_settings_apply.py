@@ -27,7 +27,13 @@ def test_load_images_is_offered_first():
 @pytest.mark.parametrize("mode", [LOAD_IMAGES, STREAM_IMAGES])
 def test_the_shared_settings_apply_to_both(key, mode):
     """They shape the picture AFTER it is obtained, so the route is
-    irrelevant."""
+    irrelevant.
+
+    `object_type` was in this list and is not shared: it is how the
+    DATABASE route finds its coordinate columns, and the other two routes
+    are handed the object directly -- by the folder they read, or by the
+    labelled plane they read the labels out of.
+    """
     assert applies_to(key, mode)
     assert why_not(key, mode) == ""
 
@@ -38,25 +44,48 @@ def test_the_disk_only_setting_is_greyed_when_streaming():
     assert "stream images" in why_not("image_type", STREAM_IMAGES)
 
 
-@pytest.mark.parametrize("key", ["object_array", "coordinate_columns",
-                                 "crop_shape"])
+@pytest.mark.parametrize("key", ["object_array"])
 def test_the_cut_settings_are_greyed_when_loading(key):
+    """`coordinate_columns` left because the panel no longer asks for it --
+    the object type names the columns -- and `crop_shape` left because a
+    crop on disk still has a mask to cut against, so its shape is a real
+    choice there.
+    """
     assert not applies_to(key, LOAD_IMAGES)
     assert applies_to(key, STREAM_IMAGES)
     assert "load images" in why_not(key, LOAD_IMAGES)
 
 
 def test_every_reason_says_WHY_not_merely_that_it_does_not_apply():
-    """A greyed control that says only 'not used' teaches nothing."""
-    for mode in (LOAD_IMAGES, STREAM_IMAGES):
+    """A greyed control that says only 'not used' teaches nothing.
+
+    All three modes now, not two: the database route greys more than
+    either of the others and its reasons are the ones a reader is most
+    likely to meet.
+    """
+    from spacr.crops import STREAM_FROM_DB
+
+    for mode in (LOAD_IMAGES, STREAM_IMAGES, STREAM_FROM_DB):
         for key in greyed_in(mode):
             reason = why_not(key, mode)
             assert ": it " in reason, f"{key} in {mode} gives no reason"
 
 
-def test_the_two_modes_grey_different_things():
-    assert greyed_in(LOAD_IMAGES) != greyed_in(STREAM_IMAGES)
-    assert not set(greyed_in(LOAD_IMAGES)) & set(greyed_in(STREAM_IMAGES))
+def test_the_three_modes_grey_different_things():
+    """Each route silences a different set, and no two are the same.
+
+    They used to be disjoint, which is no longer true and should not be:
+    `object_type` is greyed by BOTH routes that are handed their object
+    directly, and that overlap is the point -- it is the one question only
+    the database route asks.
+    """
+    from spacr.crops import STREAM_FROM_DB
+
+    sets = [set(greyed_in(m))
+            for m in (LOAD_IMAGES, STREAM_IMAGES, STREAM_FROM_DB)]
+    for i, a in enumerate(sets):
+        for b in sets[i + 1:]:
+            assert a != b
 
 
 def test_an_unknown_setting_is_left_alone():
@@ -67,18 +96,28 @@ def test_an_unknown_setting_is_left_alone():
 
 
 def test_a_coordinate_cut_declares_itself_a_bounding_box():
-    """"this could only do bounding box" -- said BEFORE the cut is made."""
-    assert bounding_box_only({"crop_source": STREAM_IMAGES,
-                              "coordinate_columns": ["x", "y"]})
-    assert not bounding_box_only({"crop_source": STREAM_IMAGES,
-                                  "coordinate_columns": []})
-    assert not bounding_box_only({"crop_source": LOAD_IMAGES,
-                                  "coordinate_columns": ["x", "y"]})
+    """"this could only do bounding box" -- said BEFORE the cut is made.
+
+    The mode is what decides it now. This asked whether coordinate columns
+    happened to be filled in, which made the answer depend on a control
+    the panel no longer offers -- and let the array route be forced into a
+    box by a leftover value.
+    """
+    from spacr.crops import STREAM_FROM_DB
+
+    assert bounding_box_only({"crop_source": STREAM_FROM_DB})
+    assert not bounding_box_only({"crop_source": STREAM_IMAGES})
+    assert not bounding_box_only({"crop_source": LOAD_IMAGES})
 
 
 def test_every_key_the_panel_shows_is_covered():
+    """No key is dead in every mode -- a control nothing can enable is one
+    the panel should not be showing at all."""
+    from spacr.crops import STREAM_FROM_DB
+
     for key in ALL_KEYS:
-        assert applies_to(key, LOAD_IMAGES) or applies_to(key, STREAM_IMAGES)
+        assert any(applies_to(key, m)
+                   for m in (LOAD_IMAGES, STREAM_IMAGES, STREAM_FROM_DB)), key
 
 
 # ------------------------------------------- the settings reach the picture
@@ -117,12 +156,16 @@ def test_colour_letters_become_a_mapping_and_indices_stay_indices():
 
 
 def test_a_setting_the_mode_does_not_use_is_not_translated():
+    """`crop_shape` stopped being the example here: a crop on disk has a
+    mask to cut against, so its shape does reach the cut. `object_array`
+    is the plane the array route reads, and there is no array to read on
+    the disk route."""
     from spacr.picture_settings import to_crop_settings
 
-    got = to_crop_settings({"crop_source": LOAD_IMAGES, "crop_shape": "bbox"})
+    got = to_crop_settings({"crop_source": LOAD_IMAGES, "object_array": "2"})
 
-    assert "use_bounding_box" not in got, (
-        "a crop already written to disk was cut when it was written")
+    assert "mask_array" not in got
+    assert "object_array" not in got
 
 
 def test_the_shape_reaches_the_cut_when_streaming():

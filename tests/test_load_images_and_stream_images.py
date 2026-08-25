@@ -38,9 +38,17 @@ def test_the_stored_values_did_not_change():
 
 
 def test_load_images_is_offered_first():
+    """Two names for the two things, and streaming now says which route.
+
+    "stream images" became "stream images (array)" when the database route
+    joined it: both stream from merged/*.npy and they differ in how the
+    object is found, so a label that named neither could not tell the user
+    which one they had picked.
+    """
     assert PICTURE_SOURCES[0] == (LOAD_IMAGES, LOAD_IMAGES_LABEL)
     assert picture_source_label("png") == "load images"
-    assert picture_source_label("merged") == "stream images"
+    assert picture_source_label("merged").startswith("stream images")
+    assert "array" in picture_source_label("merged")
 
 
 def test_each_mode_is_honoured_when_both_folders_are_there(tmp_path):
