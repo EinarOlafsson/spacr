@@ -1519,8 +1519,14 @@ class HomePage(QWidget):
                 f" border-radius: {RADIUS['lg']}px;"
                 f" }}")
         except Exception:                                # noqa: BLE001
-            LOG.debug("the masthead would not take its surface",
-                      exc_info=True)
+            # This module has no module-level logger, and the one other
+            # place that logs imports it where it is used. Same here: a
+            # masthead without its surface is a smaller masthead, and the
+            # reason belongs in the log rather than on the screen.
+            import logging
+
+            logging.getLogger(__name__).debug(
+                "the masthead would not take its surface", exc_info=True)
         row = QHBoxLayout(hero)
         # Padding, because the panel now has an edge: type flush against a
         # rounded corner reads as clipped.

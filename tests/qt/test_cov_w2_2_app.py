@@ -142,6 +142,11 @@ def test_a_completion_callback_that_raises_is_swallowed(qapp, qtbot,
     preloader.start()
     qtbot.waitUntil(lambda: bool(reached), timeout=10000)
 
+    # SWALLOWED, NOT SKIPPED. The callback ran and raised, and the
+    # preloader still finished: a guard that avoided calling it at all
+    # would also "not raise" and would lose the completion.
+    assert reached == [1]
+
 
 # ---------------------------------------------------------------------------
 # the registry
@@ -570,13 +575,18 @@ def test_a_build_with_no_bundled_fonts_loads_none(qapp, monkeypatch):
     """A trimmed install has no font folder, and that is not a failure."""
     from PySide6.QtGui import QFontDatabase
 
-    def refuse(*_args, **_kwargs):
-        raise AssertionError("a font was loaded from a folder that is absent")
+    loaded = []
 
     monkeypatch.setattr(os.path, "isdir", lambda _path: False)
     monkeypatch.setattr(QFontDatabase, "addApplicationFont",
-                        staticmethod(refuse))
-    app_mod._load_bundled_fonts()          # must not raise
+                        staticmethod(lambda path: loaded.append(path) or -1))
+
+    app_mod._load_bundled_fonts()
+
+    # NONE, and asserted rather than left to a raising stub: the point is
+    # that a missing folder is not searched, not merely that nothing blew
+    # up on the way past it.
+    assert loaded == []
 
 
 def test_the_crash_dump_goes_beside_the_ordinary_log(tmp_path, monkeypatch):

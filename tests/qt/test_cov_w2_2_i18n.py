@@ -109,14 +109,26 @@ def test_a_short_translation_row_fails_with_the_count_in_the_message(
 def test_with_no_app_module_there_is_nothing_to_absorb(monkeypatch):
     """A process that never imported the app registry simply finds nothing."""
     monkeypatch.delitem(sys.modules, "spacr.qt.app", raising=False)
-    i18n._absorb_registered_app_names()        # must not raise
+    before = len(i18n._ROWS)
+
+    i18n._absorb_registered_app_names()
+
+    # Nothing found means nothing added -- the guard is that it does not
+    # invent rows, not merely that it survives.
+    assert len(i18n._ROWS) == before
 
 
 def test_a_partially_built_app_module_is_not_read(monkeypatch):
     """`spacr.qt.app` is in `sys.modules` and half built while this runs."""
     half_built = types.ModuleType("spacr.qt.app")
     monkeypatch.setitem(sys.modules, "spacr.qt.app", half_built)
-    i18n._absorb_registered_app_names()        # must not raise
+    before = len(i18n._ROWS)
+
+    i18n._absorb_registered_app_names()
+
+    # A module with no APPS yet must contribute nothing, rather than a
+    # partial set that a later full import would have to correct.
+    assert len(i18n._ROWS) == before
 
 
 def test_a_registered_app_name_is_absorbed_from_the_registry(monkeypatch,
@@ -519,8 +531,18 @@ def test_a_widget_without_the_module_properties_is_left_alone(qapp):
 
 
 def test_translating_nothing_is_a_no_op(qapp):
-    """`None` is a legitimate root when a screen has not been built."""
-    retranslate_widget_tree(None, "sv")       # must not raise
+    """`None` is a legitimate root when a screen has not been built.
+
+    And the pass must still work afterwards: a walk that returned early
+    by breaking its own state would pass a "did not raise" test and fail
+    the next real screen.
+    """
+    retranslate_widget_tree(None, "sv")
+
+    label = QLabel("Language")
+    retranslate_widget_tree(label, "sv")
+    assert label.text() != "Language", (
+        "the walk stopped working after being handed None")
 
 
 # ---------------------------------------------------------------------------
@@ -639,7 +661,12 @@ def test_an_object_with_no_such_property_is_skipped(qapp):
     """Not every object in a tree has every string property."""
     label = QLabel("x")
     i18n._translate_qt_text(label, "noSuchGetter", "noSuchSetter",
-                            "_spacr_i18n_nothing", "sv")   # must not raise
+                            "_spacr_i18n_nothing", "sv")
+
+    # Skipped means untouched: a property it cannot read is one it must
+    # not write either, or the widget ends up with a value from nowhere.
+    assert label.text() == "x"
+    assert label.property("_spacr_i18n_nothing") is None
 
 
 def test_a_destroyed_widget_in_the_tree_is_stepped_over(qapp):
@@ -963,7 +990,14 @@ def test_a_widget_that_refuses_one_property_is_stepped_over(qapp):
             return super().property(name)
 
     widget = _Picky()
-    retranslate_widget_tree(widget, "sv")     # must not raise
+    sibling = QLabel("Language", widget)
+
+    retranslate_widget_tree(widget, "sv")
+
+    # STEPPED OVER, NOT STOPPED AT. The widget that refuses is skipped and
+    # the rest of the tree is still translated -- otherwise one widget
+    # mid-teardown leaves the whole window half English.
+    assert sibling.text() != "Language"
 
 
 def test_without_the_settings_model_the_pass_still_finishes(qapp,

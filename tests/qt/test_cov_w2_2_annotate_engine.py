@@ -744,7 +744,13 @@ def test_a_thread_that_cannot_be_joined_does_not_block_the_close(project,
                 return False
 
         worker._thread = _Refusing()
-        worker.stop()                          # must not raise
+
+        worker.stop()
+
+        # STOPPED, not merely survived. The worker has to report itself
+        # dead even though the join threw, or the screen closes believing
+        # a thread is still running that it can never wait for.
+        assert not worker.is_alive
     finally:
         worker._thread = real_thread
         worker.stop()
