@@ -695,8 +695,8 @@ class HitList:
                 return False
             if max_p is not None and not _at_most(hit.p_value, max_p):
                 return False
-            if min_effect is not None and not _at_least(abs(hit.effect),
-                                                        min_effect):
+            if min_effect is not None and not _at_least(hit.effect, min_effect,
+                                                        absolute=True):
                 return False
             if min_agreement is not None and not _at_least(hit.agreement,
                                                            min_agreement):
@@ -913,12 +913,21 @@ def _at_most(value: Any, limit: float) -> bool:
     return math.isfinite(number) and number <= float(limit)
 
 
-def _at_least(value: Any, limit: float) -> bool:
-    """True when ``value`` is a real number no smaller than ``limit``."""
+def _at_least(value: Any, limit: float, *, absolute: bool = False) -> bool:
+    """True when ``value`` is a real number no smaller than ``limit``.
+
+    ``absolute`` compares the magnitude instead, for a criterion such as
+    ``min_effect`` that is about how far a gene moved and not which way. The
+    absolute value is taken HERE, on the far side of the conversion, so a
+    field holding something that is not a number is excluded like every other
+    unreadable one rather than raising out of the filter.
+    """
     try:
         number = float(value)
     except (TypeError, ValueError):
         return False
+    if absolute:
+        number = abs(number)
     return math.isfinite(number) and number >= float(limit)
 
 

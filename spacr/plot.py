@@ -3093,21 +3093,12 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_co
         # frame. The plain 3-token path always has done, and is pinned.
         df = df.copy()
 
-    # Derive plateID,rowID,columnID from prc if not already present
-    if 'column_name' not in df.columns:
-        if 'column' in df.columns:
-            df['columnID'] = df['column']
-        elif 'column_name' in df.columns:
-            df['columnID'] = df['column_name']
-
-    if 'plateID' not in df.columns:
-        if 'plate' in df.columns:
-            df['plateID'] = df['plate']
-        elif 'plate_name' in df.columns:
-            df['plateID'] = df['plate_name']
-        else:
-            df['plateID'] = 'p1'
-
+    # THE WELL COMES FROM prc, AND ONLY FROM prc. A frame that also carries
+    # 'plate'/'plate_name' or 'column'/'column_name' columns is drawn from the
+    # identifier all the same, so two spellings of the same well can never
+    # place it in two different squares. Those columns held a copy that this
+    # function overwrites from `plate_token` and the axis labels below in
+    # every case, so reading them was a second answer nobody ever saw.
     row_index, row_label = _well_axis_labels(
         row_token, _plate_qc.parse_row_label, _schema.row_id)
     col_index, col_label = _well_axis_labels(
@@ -4614,6 +4605,19 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box
         return figure, results_df
 
 
+def _finite_p_value(value):
+    """``float(value)`` when it is a real p-value, else ``None``.
+
+    A results row can carry ``None`` (a test that was skipped) or ``nan`` (a
+    test that was refused), and both mean the comparison has no answer.
+    """
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    return number if np.isfinite(number) else None
+
+
 def _significance_marker(p_value):
     """Return the conventional plot annotation for a statistical p-value."""
     if p_value <= 0.001:
@@ -4658,12 +4662,20 @@ class spacrGraph:
         each group to ``compare_group``.
     :param compare_group: Reference group when ``all_to_all=False``.
     :param graph_name: Prefix for saved file names.
+    :param annotate_stats: Draw a bracket over each pairwise comparison with
+        its asterisks (or ``ns``) above it. Default ``False``: the tests are
+        run and written to the results table on every plot, but with
+        ``all_to_all=True`` an N-group plot has N(N-1)/2 comparisons and a
+        stack of that many brackets buries the data it is about. Ask for
+        them when the comparisons are few enough to read. Only drawn for a
+        single ``data_column``; see :meth:`_draw_comparison_lines`.
     """
 
     def __init__(self, df, grouping_column, data_column, graph_type='jitter_box', summary_func='mean',
                  order=None, colors=None, output_dir='./output', save=False, y_lim=None, log_y=False,
                  log_x=False, error_bar_type='std', remove_outliers=False, theme='pastel', representation='object',
-                 paired=False, all_to_all=True, compare_group=None, graph_name=None):
+                 paired=False, all_to_all=True, compare_group=None, graph_name=None,
+                 annotate_stats=False):
         """Store configuration, set the theme, and preprocess the DataFrame."""
 
         self.df = df
@@ -4690,6 +4702,7 @@ class spacrGraph:
         self.graph_name = graph_name
         self.log_x = log_x
         self.log_y = log_y
+        self.annotate_stats = bool(annotate_stats)
 
         self.results_df = pd.DataFrame()
         self.sns_palette = None
@@ -5259,7 +5272,15 @@ class spacrGraph:
                 x_positions = [np.mean(violin.get_paths()[0].vertices[:, 0]) for violin in ax.collections if hasattr(violin, 'get_paths')]
 
             elif self.graph_type in ['box', 'jitter_box']:
-                x_positions = list(set(line.get_xdata().mean() for line in ax.lines if line.get_linestyle() == '-'))                
+                # SORTED, not whatever a set iterates in. Every position here
+                # is consumed BY INDEX -- `_place_symbols` zips it against the
+                # symbol table -- and a set of floats has no order it promises,
+                # so the left-to-right order this happens to produce for small
+                # whole numbers is not one to rely on: a symbol under the wrong
+                # box is silent and reads as a real annotation.
+                x_positions = sorted({line.get_xdata().mean()
+                                      for line in ax.lines
+                                      if line.get_linestyle() == '-'})
 
             elif self.graph_type == 'jitter': 
                 x_positions = [np.mean(collection.get_offsets()[:, 0]) for collection in ax.collections if collection.get_offsets().size > 0]
@@ -5269,36 +5290,6 @@ class spacrGraph:
             
             return x_positions
         
-        def _draw_comparison_lines(ax, x_positions):
-            """Draw comparison lines and annotate significance based on results_df."""
-            if self.results_df.empty:
-                print("No comparisons available to annotate.")
-                return
-
-            y_max = max([bar.get_height() for bar in ax.patches])
-            ax.set_ylim(0, y_max * 1.3)
-
-            for idx, row in self.results_df.iterrows():
-                group1, group2 = row['Comparison'].split(' vs ')
-                p_value = row['p-value']
-
-                significance = _significance_marker(p_value)
-
-                # Find the x positions of the compared groups
-                x1 = x_positions[unique_groups.tolist().index(group1)]
-                x2 = x_positions[unique_groups.tolist().index(group2)]
-
-                # Stagger lines to avoid overlap
-                line_y = y_max + (0.1 * y_max) * (idx + 1)
-
-                # Draw the comparison line
-                # A statistics bracket is drawn in the ink, at the spine's
-                # weight: it is annotation, not a series.
-                ax.plot([x1, x1, x2, x2], [line_y - 0.02, line_y, line_y, line_y - 0.02], lw=WEIGHTS['spine'], c=resolve_ink(theme_target()))
-
-                # Add the significance marker
-                ax.text((x1 + x2) / 2, line_y, significance, ha='center', va='bottom', fontsize=TYPE_SCALE['annotation'])
-
         # Optional: Remove outliers for plotting
         # THE TRIM IS FOR THE PICTURE, NOT FOR THE TEST, and it used to be
         # for both. `remove_outliers_from_plot` drops 1.5*IQR points PER
@@ -5439,12 +5430,123 @@ class spacrGraph:
                 row_labels, table_data = _generate_tabels(unique_groups)
                 _place_symbols(row_labels, table_data, x_positions, ax)
             
-            #_draw_comparison_lines(ax, x_positions)    
-        
+            if self.annotate_stats:
+                self._draw_comparison_lines(ax)
+
             if self.save:
                 self._save_results()
 
             ax.margins(x=0.12)
+
+    def _comparison_pairs(self):
+        """The pairwise rows of ``results_df``, as ``(group_a, group_b, p)``.
+
+        ``results_df`` mixes three row shapes: a per-group normality row
+        (``'Normality test for X on Y'``), one omnibus/two-group row per data
+        column (``'A vs B (column)'``) and the post-hoc rows (``'A vs B'``).
+        Only the last two name two groups, and a bracket can only be drawn
+        between two groups -- reading a normality row as a comparison is how
+        the old annotation pass died on its first row.
+
+        A trailing ``(column)`` is stripped only when it names one of this
+        plot's data columns, so a group genuinely called ``'x (y)'`` keeps
+        its name.
+
+        :returns: list of ``(group_a, group_b, p_value)``, in table order.
+        """
+        pairs = []
+        if self.results_df.empty or 'Comparison' not in self.results_df:
+            return pairs
+        suffixes = tuple(f' ({column})' for column in self.data_column)
+        for _index, row in self.results_df.iterrows():
+            label = str(row.get('Comparison', ''))
+            parts = label.split(' vs ')
+            if len(parts) != 2:
+                continue
+            first, second = parts[0].strip(), parts[1].strip()
+            for suffix in suffixes:
+                if second.endswith(suffix):
+                    second = second[:-len(suffix)].strip()
+                    break
+            pairs.append((first, second, row.get('p-value')))
+        return pairs
+
+    @staticmethod
+    def _tick_positions(ax):
+        """``{drawn group label: x}``, read off the axis's own ticks.
+
+        THE AXIS IS ASKED, NOT THE FRAME. The groups are drawn in the order
+        of the ordered Categorical `preprocess_data` builds, which is not the
+        order ``DataFrame.unique()`` returns them in -- indexing a list of x
+        positions by a group's position in ``unique()`` put brackets over the
+        wrong pair whenever the two orders disagreed, which is silent and
+        looks exactly like a real result.
+        """
+        labels = [text.get_text() for text in ax.get_xticklabels()]
+        return {label: float(x)
+                for label, x in zip(labels, list(ax.get_xticks())) if label}
+
+    def _draw_comparison_lines(self, ax):
+        """Bracket each pairwise comparison and mark it with its asterisks.
+
+        Drawn only for a single data column: with several columns the x axis
+        is one position per (column, group) pair and the symbol table below it
+        already says which is which, so a bracket has no unambiguous pair of
+        ends to sit on.
+
+        A comparison naming a group that is not on this axis is skipped rather
+        than guessed at. The stack sits above the data, and the top of the
+        view is raised to make room for it UNLESS the caller pinned ``y_lim``,
+        which is an instruction about the window and wins.
+
+        :param ax: the axes the plot was drawn on.
+        :returns: how many brackets were drawn.
+        """
+        pairs = self._comparison_pairs()
+        if not pairs:
+            print("No comparisons available to annotate.")
+            return 0
+        if len(self.data_column) != 1 or self.graph_type in ('line', 'line_std'):
+            return 0
+
+        positions = self._tick_positions(ax)
+        # A COMPARISON THAT COULD NOT BE MADE IS NOT A COMPARISON THAT CAME
+        # OUT NEGATIVE. `perform_statistical_tests` records a refused pair as
+        # `Test Name='not testable'` with a NaN p, and `_significance_marker`
+        # answers 'ns' for it -- so drawing it would put "no difference" on the
+        # figure where the truth is "no test", which is a stronger claim than
+        # the run made.
+        drawable = [(a, b, p) for a, b, p in pairs
+                    if a in positions and b in positions
+                    and _finite_p_value(p) is not None]
+        if not drawable:
+            print("No comparisons available to annotate.")
+            return 0
+
+        bottom, top = ax.get_ylim()
+        data_top = ax.dataLim.y1
+        if not np.isfinite(data_top):
+            data_top = top
+        base = min(float(data_top), float(top))
+        step = 0.08 * (float(top) - float(bottom) or 1.0)
+        ink = resolve_ink(theme_target())
+
+        for index, (first, second, p_value) in enumerate(drawable):
+            x1, x2 = positions[first], positions[second]
+            line_y = base + step * (index + 1)
+            tick = step * 0.15
+            # A statistics bracket is drawn in the ink, at the spine's
+            # weight: it is annotation, not a series.
+            ax.plot([x1, x1, x2, x2],
+                    [line_y - tick, line_y, line_y, line_y - tick],
+                    lw=WEIGHTS['spine'], c=ink)
+            ax.text((x1 + x2) / 2, line_y, _significance_marker(p_value),
+                    ha='center', va='bottom',
+                    fontsize=TYPE_SCALE['annotation'])
+
+        if self.y_lim is None:
+            ax.set_ylim(bottom, base + step * (len(drawable) + 1))
+        return len(drawable)
 
     def _standerdize_figure_format(self, ax, num_groups, graph_type):
         """

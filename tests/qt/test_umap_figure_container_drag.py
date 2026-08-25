@@ -56,9 +56,10 @@ def explorer(qt_theme_applied, qtbot, payload):
     widget = ImageUmapExplorer()
     qtbot.addWidget(widget)
     # WIDE ENOUGH THAT THE DIVIDER CAN MOVE. The sidebar carries a width
-    # floor of its own (the image preview), and while the splitter is narrow
-    # enough to hold it at that floor the handle has nowhere to travel -- so
-    # a narrower fixture would be testing the floor rather than the drag.
+    # floor of its own -- the widest of its buttons -- and while the splitter
+    # is narrow enough to hold it at that floor the handle has nowhere to
+    # travel towards the sidebar, so a narrower fixture would be testing the
+    # floor rather than the drag.
     widget.resize(1400, 420)
     widget.show()
     widget.set_payload(payload)
@@ -135,8 +136,81 @@ class TestTheDividerIsARealHandle:
         assert not explorer._body_splitter.childrenCollapsible()
 
     def test_the_handle_says_it_can_be_dragged(self, explorer):
-        """The cursor over it is the only thing that says so before the
-        first drag."""
+        """The cursor over it, and the hover text, are what say so before the
+        first drag. The cursor alone only helps a reader who is already on
+        the handle, which on a hairline is the hard part."""
         handle = explorer._body_splitter.handle(1)
         assert handle is not None
         assert handle.cursor().shape() == Qt.SplitHCursor
+        assert "Drag" in handle.toolTip()
+
+    def test_the_handle_can_be_hit_without_becoming_a_bar(self, explorer):
+        """A hairline is the house style for every divider in the app; a
+        hairline GRAB AREA is a divider the reader has to hunt for. The
+        handle keeps the painted line and widens the target around it."""
+        from spacr.qt.theme import SPACING, active_palette
+
+        handle = explorer._body_splitter.handle(1)
+        assert handle.width() >= SPACING["sm"]
+
+        strip = handle.grab().toImage()
+        row = strip.height() // 2
+        line = active_palette()["border_soft"].lower()
+        painted = [x for x in range(strip.width())
+                   if strip.pixelColor(x, row).name().lower() == line]
+        assert len(painted) <= 2, (
+            "the handle paints a slab; the widened grab area is supposed to "
+            "stay transparent around a one-pixel line")
+
+
+class TestThePreviewShowsTheWholeCrop:
+
+    def test_a_crop_wider_than_the_sidebar_is_scaled_not_clipped(
+            self, explorer, qt_theme_applied, tmp_path):
+        """A ``QLabel`` clips a pixmap wider than itself and says nothing.
+
+        The preview exists to be looked at, and a crop with its edges cut off
+        looks exactly like a crop that ends there -- so the clipping is
+        invisible in the one place it matters. The object under study is
+        often the thing at the edge.
+        """
+        big = tmp_path / "big.png"
+        Image.new("RGB", (600, 600), (10, 200, 10)).save(big)
+        explorer.set_payload({
+            "embedding": np.array([[0.0, 0.0], [1.0, 1.0]]),
+            "labels": np.array([0, 1]),
+            "records": [{"image": big, "display_name": big.name}] * 2,
+        })
+        qt_theme_applied.processEvents()
+
+        explorer.show_point(0)
+        qt_theme_applied.processEvents()
+
+        preview = explorer._preview
+        assert preview.source_pixmap().width() > preview.width(), (
+            "the fixture is too wide for this to be testing anything")
+        assert preview.pixmap().width() <= preview.width()
+        assert preview.pixmap().height() <= preview.height()
+        assert preview.pixmap().width() > 0
+
+    def test_the_preview_does_not_shrink_itself_over_repeated_resizes(
+            self, explorer, qt_theme_applied, tmp_path):
+        """A label whose preferred size is the pixmap it is showing walks
+        down to nothing: the layout offers the hint, the label rescales to
+        it, and the next hint is smaller again."""
+        big = tmp_path / "big.png"
+        Image.new("RGB", (400, 400), (200, 30, 30)).save(big)
+        explorer.set_payload({
+            "embedding": np.array([[0.0, 0.0], [1.0, 1.0]]),
+            "labels": np.array([0, 1]),
+            "records": [{"image": big, "display_name": big.name}] * 2,
+        })
+        explorer.show_point(0)
+        qt_theme_applied.processEvents()
+        settled = explorer._preview.width()
+
+        for _ in range(5):
+            explorer.resize(explorer.width(), explorer.height())
+            qt_theme_applied.processEvents()
+
+        assert explorer._preview.width() == settled

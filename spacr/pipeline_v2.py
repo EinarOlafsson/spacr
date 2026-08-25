@@ -478,6 +478,27 @@ def _read_plane(path: str) -> np.ndarray:
 # Pass 2 — stream Cellpose masks back into the same stacks
 # ---------------------------------------------------------------------------
 
+
+def _as_hwc(arr: np.ndarray) -> np.ndarray:
+    """A loaded field as (H, W, C), whatever singleton axes it was saved with.
+
+    A stack written as a bare plane is (H, W) on disk, and both ends of the
+    mask pass need a channel axis: Cellpose is called with
+    ``channel_axis=-1`` and refuses a 2-D image outright, and the write-back
+    concatenates the mask onto this same array, which numpy refuses when the
+    two disagree on rank. Promoting once, at load, keeps one shape convention
+    for the whole pass instead of a squeeze that puts the mismatch off until
+    the batch is already segmented.
+    """
+    arr = np.asarray(arr)
+    if arr.ndim == 3:
+        return arr
+    squeezed = arr.squeeze()
+    if squeezed.ndim == 2:
+        return squeezed[..., np.newaxis]
+    return squeezed
+
+
 @timed
 def stream_masks_from_stack(
     stacks: List[StackFile],
@@ -559,7 +580,7 @@ def stream_masks_from_stack(
             f"v2.batch[{batch_start}:{batch_start + len(batch)}] "
             f"load", logger="spacr.pipeline_v2",
         ):
-            loaded = [np.load(s.path) for s in batch]
+            loaded = [_as_hwc(np.load(s.path)) for s in batch]
 
         # Optionally persist the batch as NPZ for debugging.
         # Deleted after run unless keep_npz=True.
@@ -574,16 +595,12 @@ def stream_masks_from_stack(
         # V1/V2 reproducibility on CPSAM.
         selected_images: List[np.ndarray] = []
         for arr in loaded:
-            if arr.ndim == 3:
-                indices = [
-                    int(channel) % arr.shape[-1]
-                    for channel in channels_for_cellpose
-                ]
-                indices = list(dict.fromkeys(indices)) or [0]
-                raw_img = arr[..., indices]
-            else:
-                raw_img = arr.squeeze()
-            selected_images.append(raw_img)
+            indices = [
+                int(channel) % arr.shape[-1]
+                for channel in channels_for_cellpose
+            ]
+            indices = list(dict.fromkeys(indices)) or [0]
+            selected_images.append(arr[..., indices])
 
         # V1 segments the percentile-normalised float batch under masks/*.npz,
         # not the raw uint16 planes later retained in merged/.  V2 deliberately

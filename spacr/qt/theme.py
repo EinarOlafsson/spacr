@@ -1039,29 +1039,19 @@ def splash_dim_alpha(ink: str, bg: str, *, target: float = 3.0,
 
 def _composite(fg: str, bg: str, alpha: int) -> str:
     """``fg`` painted at ``alpha`` over ``bg``, as the painter blends it."""
-    fr, fg_, fb = _channels(fg)
-    br, bg_, bb = _channels(bg)
+    fr, fg_, fb = _channels(fg, _UNREADABLE)
+    br, bg_, bb = _channels(bg, _UNREADABLE)
     a = max(0, min(255, int(alpha))) / 255.0
     return "#%02x%02x%02x" % tuple(
         int(round(f * a + b * (1 - a)))
         for f, b in ((fr, br), (fg_, bg_), (fb, bb)))
 
 
-def _channels(hex_colour: str):
-    text = str(hex_colour).lstrip("#")
-    if len(text) == 3:
-        text = "".join(c * 2 for c in text)
-    try:
-        return tuple(int(text[i:i + 2], 16) for i in (0, 2, 4))
-    except (ValueError, IndexError):
-        return (255, 255, 255)
-
-
 def _relative_luminance(hex_colour: str) -> float:
     def channel(value: int) -> float:
         v = value / 255.0
         return v / 12.92 if v <= 0.03928 else ((v + 0.055) / 1.055) ** 2.4
-    r, g, b = (channel(c) for c in _channels(hex_colour))
+    r, g, b = (channel(c) for c in _channels(hex_colour, _UNREADABLE))
     return 0.2126 * r + 0.7152 * g + 0.0722 * b
 
 
@@ -1252,13 +1242,33 @@ def __getattr__(name: str):
 # Colour maths — WCAG contrast
 # ---------------------------------------------------------------------------
 
-def _channels(color: str) -> Tuple[int, int, int]:
-    text = color.strip().lstrip("#")
+#: What an unreadable colour becomes for a caller that cannot afford to
+#: raise. White is the safe answer for paint: it keeps type and scrims
+#: visible instead of blanking them.
+_UNREADABLE = (255, 255, 255)
+
+
+def _channels(color: str,
+              fallback: Optional[Tuple[int, int, int]] = None
+              ) -> Tuple[int, int, int]:
+    """Split ``#rgb`` or ``#rrggbb`` into its three 0-255 channels.
+
+    Parsing is strict by default, so a palette entry that is not a colour is
+    reported where someone can fix it. Callers that run inside a paint pass
+    ``fallback`` instead: a swatch that comes out the wrong colour is
+    cosmetic, an exception raised out of a repaint is not.
+    """
+    text = str(color).strip().lstrip("#")
     if len(text) == 3:
         text = "".join(ch * 2 for ch in text)
-    if len(text) != 6:
-        raise ValueError(f"not a #rrggbb colour: {color!r}")
-    return (int(text[0:2], 16), int(text[2:4], 16), int(text[4:6], 16))
+    try:
+        if len(text) != 6:
+            raise ValueError
+        return (int(text[0:2], 16), int(text[2:4], 16), int(text[4:6], 16))
+    except ValueError:
+        if fallback is not None:
+            return fallback
+        raise ValueError(f"not a #rrggbb colour: {color!r}") from None
 
 
 def _linear(value: int) -> float:

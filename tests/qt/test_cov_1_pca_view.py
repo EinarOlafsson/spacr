@@ -319,9 +319,6 @@ def test_a_scree_click_before_a_fit_leaves_the_panel_alone(panel):
     assert panel.result is None
 
 
-@pytest.mark.xfail(strict=True,
-                   reason="PCAPanel defines closeEvent twice; the second "
-                          "shadows the one that shuts the fit down")
 def test_closing_the_panel_abandons_the_fit_in_flight(panel, monkeypatch):
     """A closed panel must not leave a decomposition running behind it.
 

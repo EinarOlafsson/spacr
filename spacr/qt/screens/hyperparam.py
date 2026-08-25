@@ -684,7 +684,16 @@ class _NumericTableItem(QTableWidgetItem):
     def __lt__(self, other) -> bool:
         if isinstance(other, _NumericTableItem):
             return self._number < other._number
-        return super().__lt__(other)
+        peer = getattr(other, "text", None)
+        if callable(peer):
+            # Not ``super().__lt__``: PySide6 dispatches
+            # ``QTableWidgetItem::operator<`` straight back into this
+            # override, so the call recurses until it is abandoned and the
+            # comparison silently answers False -- a scored row and a "-"
+            # row would then never order against each other. Qt sorts plain
+            # items by their display text, which is what is compared here.
+            return self.text() < str(peer())
+        return NotImplemented
 
 
 class _FixedChoiceCombo(QComboBox):

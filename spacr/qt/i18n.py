@@ -384,6 +384,13 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Träna Cellpose", "Cellpose trainieren", "Entrenar Cellpose",
         "训练 Cellpose", "Treinar Cellpose", "Cellpose प्रशिक्षित करें",
         "Cellpose 학습", "Þjálfa Cellpose", "Entraîner Cellpose"),
+    # The name `train_cellpose` registers under. "Train Cellpose" above is
+    # what the module used to be called and still appears in older prose,
+    # so both rows stand.
+    "Cellpose Workbench": _row(
+        "Cellpose-verkstad", "Cellpose-Werkbank", "Banco de trabajo Cellpose",
+        "Cellpose 工作台", "Bancada Cellpose", "Cellpose वर्कबेंच",
+        "Cellpose 워크벤치", "Cellpose-vinnuborð", "Atelier Cellpose"),
     "Cellpose Masks": _row(
         "Cellpose-masker", "Cellpose-Masken", "Máscaras Cellpose",
         "Cellpose 掩膜", "Máscaras Cellpose", "Cellpose मास्क",
@@ -1628,6 +1635,23 @@ _ROWS: Dict[str, tuple[str, ...]] = {
     "Live preview": _row("Direktförhandsvisning", "Live-Vorschau", "Vista previa en vivo", "实时预览", "Pré-visualização ao vivo", "लाइव पूर्वावलोकन", "실시간 미리보기", "Bein forskoðun", "Aperçu en direct"),
     "Clear figures": _row("Rensa figurer", "Abbildungen leeren", "Borrar figuras", "清除图表", "Limpar figuras", "आकृतियाँ हटाएँ", "그림 지우기", "Hreinsa myndir", "Effacer les figures"),
     "Normalise": _row("Normalisera", "Normalisieren", "Normalizar", "归一化", "Normalizar", "सामान्यीकृत करें", "정규화", "Staðla", "Normaliser"),
+    # FOUR PLOT WORDS THAT ARE ORDINARY ENGLISH WORDS TOO, and the bulk
+    # catalog picked the ordinary sense of each: "Legend" as the myth, "Grid"
+    # as a network (and, in Icelandic, as a person's name), "Opacity" as
+    # ruthlessness, "Colour" as something else entirely. A row here is read
+    # before the bulk catalog, so this is where the chart sense is pinned.
+    "Colour": _row(
+        "Färg", "Farbe", "Color", "颜色", "Cor", "रंग", "색상", "Litur",
+        "Couleur"),
+    "Opacity": _row(
+        "Opacitet", "Deckkraft", "Opacidad", "不透明度", "Opacidade",
+        "अपारदर्शिता", "불투명도", "Ógegnsæi", "Opacité"),
+    "Legend": _row(
+        "Teckenförklaring", "Legende", "Leyenda", "图例", "Legenda",
+        "लेजेंड", "범례", "Skýringar", "Légende"),
+    "Grid": _row(
+        "Rutnät", "Gitter", "Cuadrícula", "网格", "Grade", "ग्रिड", "격자",
+        "Hnitanet", "Grille"),
     "Hover any setting for details, or select ⓘ for documentation.": _row(
         "Håll pekaren över en inställning för detaljer, eller välj ⓘ för dokumentation.",
         "Zeigen Sie auf eine Einstellung für Details, oder wählen Sie ⓘ für die Dokumentation.",

@@ -44,7 +44,10 @@ def test_type_hint_from_expected_types():
     from spacr.qt.screens.settings_model import _type_hint
     assert _type_hint("cell_min_area") == "integer"
     assert _type_hint("plot") == "boolean"
-    assert _type_hint("compression") == "string"
+    # `compression` was the string example and was deleted as an inert
+    # setting -- one nothing read -- so the hint correctly came back empty
+    # and this asserted a type for a setting that no longer exists.
+    assert _type_hint("dst") == "string"
     # union / optional types render readably
     h = _type_hint("cell_background")
     assert "integer" in h or "float" in h
@@ -62,9 +65,14 @@ def test_format_tooltip_shows_name_type_and_strips_old_prefix():
 
 
 def test_undescribed_setting_still_typed():
+    """A setting with no prose still says what kind of value it takes.
+
+    The example was `compression`, deleted as an inert setting, so the
+    type came back empty and the test proved nothing about the fallback.
+    """
     from spacr.qt.screens.settings_model import format_tooltip
-    tip = format_tooltip("", "mask", "compression")
-    assert "<b>Compression</b>" in tip and "(string)" in tip
+    tip = format_tooltip("", "mask", "dst")
+    assert "<b>Dst</b>" in tip and "(string)" in tip
 
 
 def test_plain_tooltip_typed():

@@ -202,16 +202,12 @@ def light_application_palette(qapp):
         qapp.setPalette(original)
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "resolve_effective_theme reads QPalette.Window off the palette INSTANCE, "
-    "which raises AttributeError on PySide6 6.11; the luminance test is "
-    "never reached and 'Follow system' always resolves to dark"))
 def test_following_the_system_theme_on_a_light_desktop_resolves_to_light(
         light_application_palette):
     """'Follow system' is the setting a user picks so spaCR matches their
     desktop. Resolving it to dark on a light desktop is the one outcome
-    that makes the setting useless, and it fails silently because the
-    palette poll is wrapped in a bare except."""
+    that makes the setting useless, and the palette poll behind it sits in
+    a bare except, so nothing else would report it."""
     prefs.set_theme("system")
 
     assert prefs.resolve_effective_theme() == "light"

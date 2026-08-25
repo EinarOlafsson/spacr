@@ -104,19 +104,30 @@ def test_ink_that_reads_easily_stays_dim():
     assert 110 <= alpha < 255
 
 
-@pytest.mark.xfail(strict=True,
-                   reason="theme._channels is defined twice; the second "
-                          "definition shadows the first, so the malformed-"
-                          "colour fallback that first one implements is "
-                          "unreachable and the helper raises instead")
 def test_a_malformed_colour_does_not_raise_out_of_a_composite():
     """Compositing is paint-time work, so a bad colour must degrade.
 
     The module's own fallback answers white for an unreadable colour, which
     keeps a splash phase visible; raising turns one bad palette entry into a
     traceback on every repaint.
+
+    The expected value is the blend that fallback produces: white at
+    ``128/255`` over black is ``0x80`` per channel, not ``0x7f`` -- the
+    literal this assertion was pinned with rounded the alpha to a half.
     """
-    assert theme._composite("not-a-colour", "#000000", 128) == "#7f7f7f"
+    assert theme._composite("not-a-colour", "#000000", 128) == "#808080"
+
+
+def test_a_malformed_colour_still_raises_where_it_can_be_fixed():
+    """Strictness is the default; the fallback is opt-in, per caller.
+
+    A palette entry that is not a colour must be reported when it is being
+    validated rather than painted, which is what keeps the paint-time
+    fallback from hiding a broken theme.
+    """
+    with pytest.raises(ValueError, match="not a #rrggbb colour"):
+        theme._channels("not-a-colour")
+    assert theme._channels("not-a-colour", (1, 2, 3)) == (1, 2, 3)
 
 
 # ---------------------------------------------------------------------------

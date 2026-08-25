@@ -103,9 +103,9 @@ SECTIONS: Tuple[Tuple[str, str], ...] = (
 #: inferences against it, which is the point of the item.
 CONTRACT: Dict[str, Tuple[str, ...]] = {
     "fitted": (
-        "regression_type", "inference", "analysis_mode", "backend", "level",
-        "dependent_variable", "analysis_unit", "agg_type", "transform",
-        "formula", "plate_position",
+        "regression_type", "hyperparameters", "inference", "analysis_mode",
+        "backend", "level", "dependent_variable", "analysis_unit", "agg_type",
+        "transform", "formula", "plate_position",
     ),
     "design": (
         "n_wells", "n_guides", "n_genes", "n_cells", "n_rows_fitted",
@@ -135,6 +135,7 @@ CONTRACT: Dict[str, Tuple[str, ...]] = {
 #: The human label for each field, keyed by ``(section, name)``.
 LABELS: Dict[Tuple[str, str], str] = {
     ("fitted", "regression_type"): "regression type",
+    ("fitted", "hyperparameters"): "hyperparameters",
     ("fitted", "inference"): "inference",
     ("fitted", "analysis_mode"): "analysis mode",
     ("fitted", "backend"): "backend",
@@ -677,8 +678,16 @@ def _fitted_section(run: "_Run") -> List[SummaryField]:
     # shared family table also drives the disabled-setting rules and tooltip
     # text, keeping the summary aligned with the interface and preventing an
     # ignored value (such as alpha for OLS) from being presented as fitted.
-    if kind and not run.nonparametric:
+    if run.nonparametric:
+        add("hyperparameters",
+            value="none — the permutation path fits no model, so there is no "
+                  "hyperparameter to read")
+    elif kind:
         add("hyperparameters", **_hyperparameter_report(kind, settings, run))
+    else:
+        add("hyperparameters",
+            reason="this run recorded no regression_type, so the "
+                   "hyperparameters its family reads cannot be listed")
 
     inference = str(_setting(settings, "inference", "") or "").strip().lower()
     mode = str(_setting(settings, "analysis_mode", "") or "").strip().lower()

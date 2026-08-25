@@ -22,7 +22,13 @@ from .figures.style import (ROLES, TYPE_SCALE, Palette, reference_line,
                             theme_target)
 from .figures.style import rc as style_rc
 from . import tabular  # one reader: spacr.tabular is the funnel
-from .plot import save_figure  # every kept figure goes through the format/DPI preference
+# The module-scope routing contract: every figure this module keeps reaches
+# the format and DPI preferences through `spacr.plot.save_figure`. NOTHING
+# HERE CALLS IT DIRECTLY -- a save goes through `_write_the_figure` ->
+# `figures.scene.write_figure`, which draws the scene the screen would show
+# and falls back to this helper -- so spying on THIS name sees no call while
+# the file is written exactly as asked.
+from .plot import save_figure  # noqa: F401
 
 #: The page width the published type scale was measured at: 180 mm, the double
 #: column of Cell and Nature Microbiology, which is what
@@ -154,8 +160,10 @@ def custom_volcano_plot(
         ``p_value <= 0.05`` and
         ``abs(coefficient) >= abs(threshold)``.
     save_path : path-like, optional
-        Destination passed to :func:`spacr.plot.save_figure`. The written
-        extension follows the configured figure format.
+        Destination passed to :func:`spacr.figures.scene.write_figure`, which
+        draws the scene the screen would show and falls back to
+        :func:`spacr.plot.save_figure`. The written extension follows the
+        configured figure format either way.
     x_lim : sequence of float, optional
         Two x-axis limits. The default is ``[-0.5, 0.5]``.
     y_lims : sequence, optional
@@ -815,6 +823,7 @@ def plot_gene_heatmaps(data, gene_list, columns, x_column='Gene ID', normalize=F
     :param x_column: Column holding gene identifiers for row matching.
     :param normalize: When True, min-max scale each gene's row to [0, 1].
     :param save_path: Optional destination for the figure. Saving goes through
+        :func:`spacr.figures.scene.write_figure` and, on its fallback,
         :func:`spacr.plot.save_figure`, so the format and the file extension
         follow the figure preference rather than always being PDF.
     :returns: None. Displays the Matplotlib figure.

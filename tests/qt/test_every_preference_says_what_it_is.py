@@ -53,11 +53,24 @@ def test_every_row_is_explained(rows):
     assert not unexplained, f"rows with no tooltip: {unexplained}"
 
 
-def test_no_tooltip_is_left_on_a_field(rows):
+def test_no_tooltip_is_left_on_a_setting_field(rows):
     """A tooltip on both reads as two answers, and one on the control
-    alone is the thing this was asked to change."""
+    alone is the thing this was asked to change.
+
+    ACTION BUTTONS ARE EXEMPT, and the exemption is the distinction rather
+    than a concession. A row whose field is a button -- Clear RAM, Clear
+    GPU memory, Check disk -- is not a setting with a value: its tooltip
+    says what pressing it DOES, which for these is the confirmation the
+    press will ask for. Moving that onto the label and clearing the button
+    leaves the user hovering the thing they are about to press and being
+    told nothing, and it breaks the resource-cleanup contract that the
+    button's tooltip IS `confirmation_text(action)`.
+    """
+    from PySide6.QtWidgets import QPushButton, QToolButton
+
     on_the_field = [label.text() for label, field in rows
-                    if (field.toolTip() or "").strip()]
+                    if (field.toolTip() or "").strip()
+                    and not isinstance(field, (QPushButton, QToolButton))]
 
     assert not on_the_field, f"tooltip still on the field for: {on_the_field}"
 

@@ -95,17 +95,37 @@ def test_the_preferences_round_trip():
 
 
 def test_both_controls_exist_in_the_preferences_dialog(qtbot):
-    """A setting the user cannot reach is not a setting."""
-    from PySide6.QtWidgets import QCheckBox, QSpinBox
+    """A setting the user cannot reach is not a setting.
+
+    The controls are found through their LABEL's tooltip now. Preferences
+    puts a row's explanation on the setting's text and not on its field,
+    so searching the fields for the sentence finds nothing -- the sentence
+    is one widget to the left.
+    """
+    from PySide6.QtWidgets import QCheckBox, QFormLayout, QLabel, QSpinBox
 
     from spacr.qt.preferences import PreferencesDialog
 
     dialog = PreferencesDialog()
     qtbot.addWidget(dialog)
-    spins = [w for w in dialog.findChildren(QSpinBox)
-             if "restylable" in (w.toolTip() or "")]
-    checks = [w for w in dialog.findChildren(QCheckBox)
-              if "load its PDF page" in (w.toolTip() or "")]
+
+    def fields_explained_by(phrase, kind):
+        found = []
+        for form in dialog.findChildren(QFormLayout):
+            for row in range(form.rowCount()):
+                label_item = form.itemAt(row, QFormLayout.LabelRole)
+                field_item = form.itemAt(row, QFormLayout.FieldRole)
+                if label_item is None or field_item is None:
+                    continue
+                label, field = label_item.widget(), field_item.widget()
+                if not isinstance(label, QLabel) or not isinstance(field, kind):
+                    continue
+                if phrase in (label.toolTip() or ""):
+                    found.append(field)
+        return found
+
+    spins = fields_explained_by("restylable", QSpinBox)
+    checks = fields_explained_by("load its PDF page", QCheckBox)
     assert len(spins) == 1 and len(checks) == 1
     assert spins[0].minimum() >= 1
 

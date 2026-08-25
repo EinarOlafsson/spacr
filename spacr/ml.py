@@ -1311,8 +1311,8 @@ def check_and_clean_data(df, dependent_variable):
     the identifier columns to categorical and reports (without dropping)
     collinear columns via VIF. The returned frame keeps only
     ``fraction``, the dependent variable, ``gene``, ``grna``, ``prc``,
-    ``plateID``, ``rowID``, ``columnID`` and ``cell_count`` when present,
-    plus a computed ``gene_fraction`` column: the sum of the gene's gRNA
+    ``plateID``, ``rowID``, ``columnID``, and ``cell_count`` and ``screenID``
+    when present, plus a computed ``gene_fraction`` column: the sum of the gene's gRNA
     fractions within each well, which the regression formula regresses on.
 
     :param df: Merged DataFrame of counts and scores.
@@ -1408,6 +1408,18 @@ def check_and_clean_data(df, dependent_variable):
     # documented GLM-binomial var_weights=cell_count path dead code.
     if 'cell_count' in df.columns:
         df_cleaned['cell_count'] = df['cell_count']
+
+    # 'screenID' is a DESIGN COLUMN when the frame holds more than one screen:
+    # regression() asks screen_is_blockable() of the CLEANED frame and patsy
+    # then builds the '+ screenID' term from that same frame. Stripping it here
+    # made both impossible at once -- the answer was always False, so two
+    # screens were pooled with nothing printed and no term in the model, which
+    # charges the difference between the experiments to whichever guides are
+    # over-represented in one of them.
+    from .schema import SCREEN_KEY
+
+    if SCREEN_KEY in df.columns:
+        df_cleaned[SCREEN_KEY] = df[SCREEN_KEY]
 
     # 'gene_fraction' is the share of the well's library that belongs to the
     # gene: the sum of its gRNAs' fractions IN THAT WELL, counted once each.

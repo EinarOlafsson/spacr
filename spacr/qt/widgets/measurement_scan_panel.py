@@ -564,9 +564,14 @@ def merge_across_databases(paths: Sequence[str], tables: Sequence[str], *,
 # mismatch from the other direction.
 #
 # The house rule is to correct the format going forward and migrate the old
-# content rather than preserve the bug: the plate is DISPLAYED as it is
-# called, and the stored id is named beside it so the user can see the
-# difference is real and not a rendering choice.
+# content rather than preserve the bug, and that is where this ended up:
+# `tabular.read_database` collapses the doubling ON READ, so the plan and the
+# merged frame both name the plate `plate1` and the measurement side meets a
+# score CSV `correct_metadata` has normalised. Naming the stored spelling
+# beside it was what the panel could do while the doubling still reached the
+# frame; it now describes a mismatch that no longer happens, so the panel says
+# nothing and `plate_id_notes` is left as the tripwire for an id that reaches
+# the plan UNREPAIRED.
 
 
 def displayed_plates(plates: Sequence[str]) -> Tuple[str, ...]:
@@ -575,13 +580,23 @@ def displayed_plates(plates: Sequence[str]) -> Tuple[str, ...]:
 
 
 def plate_id_notes(plan) -> List[str]:
-    """One line per database whose stored plate id is not the canonical one.
+    """One line per database whose plate id reaches the plan uncollapsed.
+
+    Read AFTER the repair, deliberately: the doubled ``pp`` prefix is
+    collapsed as the database is read, so a plan built from a database stamped
+    ``pplate1`` says ``plate1`` and so does the merged frame. There is then
+    nothing to warn about, and warning anyway would describe a mismatch with
+    the score CSVs that cannot happen.
+
+    What is left is the tripwire. An id that is still not canonical here is
+    one the read repair did not reach, and that one WILL fail to meet a score
+    file -- silently, several steps later -- so it is named on the spot.
 
     Silent when there is nothing to say, which is the normal case.
     """
     lines: List[str] = []
     for source in getattr(plan, "sources", ()) or ():
-        odd = [plate for plate in source.plates
+        odd = [plate for plate in getattr(source, "plates", ()) or ()
                if canonical_plate_id(plate) != str(plate)]
         if not odd:
             continue

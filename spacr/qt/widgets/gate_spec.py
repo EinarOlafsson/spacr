@@ -1102,6 +1102,10 @@ class BoxGate(Gate):
                 object.__setattr__(self, high, a)
 
     @property
+    def kind(self) -> str:
+        return BOX
+
+    @property
     def columns(self) -> Tuple[str, ...]:
         return (self.x_column, self.y_column, self.z_column)
 
@@ -1169,10 +1173,10 @@ class BoxGate(Gate):
         _check_factor(factor)
         cx, cy = about if about is not None else self.centre()
         return replace(self,
-                       x_low=_scale_bound(self.x_low, factor, cx),
-                       x_high=_scale_bound(self.x_high, factor, cx),
-                       y_low=_scale_bound(self.y_low, factor, cy),
-                       y_high=_scale_bound(self.y_high, factor, cy))
+                       x_low=_scale_bound(self.x_low, cx, factor),
+                       x_high=_scale_bound(self.x_high, cx, factor),
+                       y_low=_scale_bound(self.y_low, cy, factor),
+                       y_high=_scale_bound(self.y_high, cy, factor))
 
     def thresholds(self) -> Dict[str, Tuple[Optional[float], Optional[float]]]:
         """All three sides, whether or not they are currently set."""

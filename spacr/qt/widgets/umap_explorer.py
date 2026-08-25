@@ -28,7 +28,7 @@ import pandas as pd
 from PIL import Image
 from PIL.ImageQt import ImageQt
 
-from PySide6.QtCore import Qt, QThread, QTimer, Signal, Slot
+from PySide6.QtCore import QSize, Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
     QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox, QFormLayout,
@@ -215,6 +215,69 @@ class UmapDisplaySettings(QDialog):
         return {k: v for k, v in self.values().items() if k in live}
 
 
+class _ScaledPreview(QLabel):
+    """The clicked point's crop, shown WHOLE at whatever width it is given.
+
+    A plain ``QLabel`` clips a pixmap wider than itself and says nothing about
+    it, so a crop opened to be inspected loses its edges -- and an object
+    whose interesting part is off-centre can be missing from its own preview.
+    It also cannot be made narrower than the picture, which pins the sidebar
+    at a floor the chart/sidebar divider then has no room to move against.
+
+    Scaling on every resize costs one smooth transform per drag frame and
+    keeps both properties: the whole crop is visible, and the sidebar can
+    yield width to the chart.
+    """
+
+    #: Below this the crop is too small to read and the controls under it
+    #: start to elide, so it is where the sidebar stops giving width away.
+    MINIMUM_SIDE = 120
+
+    #: What the label asks the layout for. Fixed on purpose -- see
+    #: :meth:`sizeHint`.
+    PREFERRED_SIDE = 240
+
+    def __init__(self, text: str = "", parent: Optional[QWidget] = None):
+        super().__init__(text, parent)
+        self._source = QPixmap()
+        self.setMinimumSize(self.MINIMUM_SIDE, self.MINIMUM_SIDE)
+
+    def sizeHint(self):                                # noqa: N802 - Qt name
+        """A constant, NOT the pixmap's size.
+
+        ``QLabel`` reports the pixmap it is showing as its preferred size.
+        With a pixmap rescaled to whatever the label was given, that is a
+        loop: the layout offers the hint, the label rescales to it, and the
+        next hint is smaller again -- so the preview walks itself down to
+        nothing over a few resizes.
+        """
+        return QSize(self.PREFERRED_SIDE, self.PREFERRED_SIDE)
+
+    def minimumSizeHint(self):                         # noqa: N802 - Qt name
+        """The floor, for the same reason :meth:`sizeHint` is a constant."""
+        return QSize(self.MINIMUM_SIDE, self.MINIMUM_SIDE)
+
+    def setPixmap(self, pixmap: QPixmap) -> None:      # noqa: N802 - Qt name
+        """Remember the full-size crop and show it scaled to fit."""
+        self._source = QPixmap(pixmap)
+        self._rescale()
+
+    def source_pixmap(self) -> QPixmap:
+        """The crop as handed over, before it was scaled to the label."""
+        return self._source
+
+    def _rescale(self) -> None:
+        if self._source.isNull() or not self.width() or not self.height():
+            super().setPixmap(self._source)
+            return
+        super().setPixmap(self._source.scaled(
+            self.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
+
+    def resizeEvent(self, event):                      # noqa: N802 - Qt name
+        super().resizeEvent(event)
+        self._rescale()
+
+
 class ImageUmapExplorer(LinkedView, QWidget):
     """Zoomable embedding: click a point, lasso a group, write labels.
 
@@ -310,9 +373,19 @@ class ImageUmapExplorer(LinkedView, QWidget):
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(6)
 
+        from ..theme import SPACING, active_palette
+
         self._body_splitter = QSplitter(Qt.Horizontal, self)
+        self._body_splitter.setObjectName("UmapBodySplit")
         self._body_splitter.setChildrenCollapsible(False)
-        from ..theme import active_palette
+        # A HAIRLINE THAT CAN STILL BE HIT. Trading width between the chart
+        # and the sidebar is this widget's main gesture -- a projection of a
+        # few thousand crops is unreadable at panel size -- and the theme
+        # paints every splitter handle 1px, which is 1px of paint and about
+        # 5px of grab. The handle keeps the 1px line the rest of the app
+        # uses and gets a real grab area around it, the same trade the
+        # console panel's divider makes.
+        self._body_splitter.setHandleWidth(SPACING["sm"])
         surface = active_palette()["surface"]
         self._figure = Figure(figsize=(8, 6), facecolor=surface)
         self._canvas = _OwnedTimerFigureCanvas(self._figure)
@@ -327,9 +400,9 @@ class ImageUmapExplorer(LinkedView, QWidget):
         self._body_splitter.addWidget(chart_wrap)
 
         side = QVBoxLayout()
-        self._preview = QLabel("Click a point to preview its image.", self)
+        self._preview = _ScaledPreview("Click a point to preview its image.",
+                                       self)
         self._preview.setAlignment(Qt.AlignCenter)
-        self._preview.setMinimumSize(220, 220)
         self._preview.setStyleSheet("border: 1px solid palette(mid);")
         side.addWidget(self._preview)
         self._point_label = QLabel("", self)
@@ -380,6 +453,32 @@ class ImageUmapExplorer(LinkedView, QWidget):
         side_wrap.setLayout(side)
         side_wrap.setStyleSheet(f"background: {surface};")
         self._body_splitter.addWidget(side_wrap)
+        # The line inside the grab area, so a wider handle does not become a
+        # wider bar -- and an accent line on hover, so the divider answers
+        # before it is dragged.
+        try:
+            border = active_palette()["border_soft"]
+            accent = active_palette()["accent"]
+        except Exception:                                    # noqa: BLE001
+            border, accent = "#3A3A3A", "#4A9EFF"
+        self._body_splitter.setStyleSheet(f"""
+QSplitter#UmapBodySplit::handle:horizontal {{
+    background: transparent;
+    border-left: 1px solid {border};
+}}
+QSplitter#UmapBodySplit::handle:horizontal:hover {{
+    background: transparent;
+    border-left: 1px solid {accent};
+}}
+""")
+        # THE ONLY THING THAT SAYS THE DIVIDER IS THERE before it is found.
+        # A 1px line with no hover text is indistinguishable from the edge
+        # of the chart.
+        handle = self._body_splitter.handle(1)
+        if handle is not None:
+            handle.setToolTip(
+                "Drag to trade width between the chart and the sidebar. The "
+                "plot redraws at the new size; the points do not move.")
         root.addWidget(self._body_splitter, 1)
 
         self._axes = self._figure.add_subplot(111)

@@ -492,11 +492,21 @@ class PivotResult:
 # The computation
 # ---------------------------------------------------------------------------
 
-def _levels_of(frame: pd.DataFrame, key: str) -> Tuple[str, ...]:
+def _require_axis_column(frame: pd.DataFrame, key: str) -> None:
+    """Refuse an axis key the frame does not carry, by name.
+
+    A spec saved against another table is the commonest way a pivot goes
+    wrong, so it has to arrive as a :class:`PivotError` the panel can show
+    rather than as a bare ``KeyError`` out of pandas.
+    """
     if key not in frame.columns:
         raise PivotError(
             f"{key!r} is not a column of this table; it has "
             f"{len(frame.columns)} columns and none of them is that one")
+
+
+def _levels_of(frame: pd.DataFrame, key: str) -> Tuple[str, ...]:
+    _require_axis_column(frame, key)
     labels = _level_series(frame, key)
     return tuple(sorted({str(v) for v in labels.unique()}, key=_sort_key))
 
@@ -558,6 +568,10 @@ def pivot(frame: pd.DataFrame, spec: Optional[PivotSpec] = None) -> PivotResult:
 
     keys = tuple(spec.rows) + tuple(spec.cols)
     n_rows_keys = len(spec.rows)
+    for key in keys:
+        # Before the label frame is built, not after: reading a missing key
+        # out of the frame is what turns a stale spec into a bare KeyError.
+        _require_axis_column(frame, key)
     if keys:
         labels = pd.DataFrame(
             {f"__k{i}": _level_series(frame, key).astype(str).to_numpy()

@@ -133,20 +133,16 @@ def test_an_intercept_pinned_at_zero_is_still_announced(tmp_path, capsys):
     assert np.array_equal(frame['predictions'].to_numpy(dtype=float), before)
 
 
-@pytest.mark.xfail(strict=True, reason="check_and_clean_data drops screenID "
-                                       "before screen_is_blockable is "
-                                       "consulted, so regression() never "
-                                       "blocks on the screen")
 def test_a_multi_screen_frame_is_blocked_on_and_the_screens_are_named(
         tmp_path, capsys):
     """More than one screen becomes a design term, and the run lists them.
 
     A single-screen frame must not be blocked on -- the term would be a
     constant column and the design rank deficient -- so which happened has to
-    be on the record. A two-screen frame reaches ``regression`` with a
-    ``screenID`` column and ``screen_is_blockable`` answers True for it, but by
-    the time the decision is taken the cleaning step has dropped the column, so
-    the two screens are pooled with nothing said.
+    be on the record. The decision is taken from the CLEANED frame and patsy
+    builds the term from that same frame, so ``screenID`` has to survive
+    cleaning; a frame that loses it pools two screens with nothing said and
+    charges the difference between the experiments to the guides.
     """
     frame = wells_frame(seed=7, screens=['screenA', 'screenB'])
     assert ml.screen_is_blockable(frame) is True

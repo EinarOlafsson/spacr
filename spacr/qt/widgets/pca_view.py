@@ -797,11 +797,6 @@ class PCAPanel(QWidget):
         """True while a decomposition has not delivered its result."""
         return self._jobs.is_busy()
 
-    def closeEvent(self, event):  # noqa: N802 - Qt name
-        """Abandon an in-flight fit rather than let it outlive the panel."""
-        self._jobs.shutdown()
-        super().closeEvent(event)
-
     def _show_failure(self, message: str) -> None:
         self._result = None
         self._scores = None
@@ -886,6 +881,13 @@ class PCAPanel(QWidget):
         self._apply_view()
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
+        """Abandon an in-flight fit rather than let it outlive the panel.
+
+        The worker holds the table and delivers into widgets that are being
+        destroyed, so the runner is shut down before the canvas it would have
+        drawn into is closed.
+        """
+        self._jobs.shutdown()
         self.canvas.close()
         super().closeEvent(event)
 
