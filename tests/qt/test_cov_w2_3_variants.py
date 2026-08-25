@@ -278,6 +278,13 @@ def test_every_variant_builds_from_the_shipped_categorisations(gen,
     this pass, and a strict xfail turns that into a failure that says so.
     """
     ctx = gen.common.Ctx(gen.app, "dark")
+    built = 0
     for entry in gen.variants.VARIANTS:
         page = entry["build"](ctx)
+        # A builder that returned an empty shell would raise nothing and
+        # render a blank sheet, so each page is asked for its words.
+        assert " \n".join(_texts(page)).strip(), \
+            f"variant {entry['slug']} drew no text at all"
         page.deleteLater()
+        built += 1
+    assert built == len(gen.variants.VARIANTS)

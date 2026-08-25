@@ -96,10 +96,18 @@ def test_a_heading_answers_the_keyboard_and_ignores_other_keys(qtbot):
 
 
 def test_a_heading_with_no_panel_above_it_copies_nothing(qtbot):
-    """The walk to the panel is bounded; an orphan bar must not raise."""
+    """The walk to the panel is bounded; an orphan bar copies nothing.
+
+    Nothing is the outcome that matters: a bar that cannot find its panel
+    and clears the clipboard anyway has thrown away whatever the user was
+    carrying, and raises nothing while doing it.
+    """
+    QApplication.clipboard().setText("untouched")
+
     bar = cp._TopicBar("spaCR output")
     qtbot.addWidget(bar)
     bar._copy_section()                     # no panel anywhere above it
+    assert QApplication.clipboard().text() == "untouched"
 
     deep = QWidget()
     qtbot.addWidget(deep)
@@ -108,6 +116,7 @@ def test_a_heading_with_no_panel_above_it_copies_nothing(qtbot):
         node = QWidget(node)
     orphan = cp._TopicBar("spaCR output", node)
     orphan._copy_section()                  # panel is further than the walk
+    assert QApplication.clipboard().text() == "untouched"
 
 
 def test_a_heading_with_no_section_under_it_copies_nothing(panel, qtbot):
@@ -123,13 +132,25 @@ def test_a_heading_with_no_section_under_it_copies_nothing(panel, qtbot):
 
 
 def test_a_clipboard_that_refuses_the_text_is_not_a_crash(panel, monkeypatch):
+    """A copy that did not happen may not say it did.
+
+    The badge only flashes "copied" after the clipboard took the text, so
+    the flash is what separates a refused copy from a successful one --
+    both of which raise nothing.
+    """
     panel.begin_topic("a topic")
     panel.append_stdout("a line of output\n")
     bar = next(w for w in panel.findChildren(cp._TopicBar))
+    assert panel.section_text(bar).strip()        # there was text to copy
+
+    flashed = []
+    monkeypatch.setattr(type(bar._copy_btn), "flash_copied",
+                        lambda self: flashed.append(True))
     monkeypatch.setattr(QApplication, "clipboard",
                         staticmethod(lambda: (_ for _ in ()).throw(
                             RuntimeError("no clipboard on this platform"))))
-    bar._copy_section()                     # logged nowhere, raised nowhere
+    bar._copy_section()
+    assert flashed == []
 
 
 # ---------------------------------------------------------------------------
@@ -208,11 +229,25 @@ def test_the_right_button_does_not_start_a_drag(qtbot):
 # A chat bubble
 # ---------------------------------------------------------------------------
 
-def test_a_bubble_with_no_width_yet_does_not_measure_itself(qtbot):
+def test_a_bubble_with_no_width_yet_does_not_measure_itself(qtbot,
+                                                            monkeypatch):
+    """Wrapping to a width of nothing gives a nonsense height, so the
+    measurement is not taken at all -- and the count of measurements is the
+    only thing that tells "skipped" apart from "measured and discarded"."""
     bubble = cp._Bubble("user", "a question")
     qtbot.addWidget(bubble)
+
+    widths = []
+    monkeypatch.setattr(type(bubble._label), "heightForWidth",
+                        lambda self, w: widths.append(w) or 40)
+
     bubble.resize(0, 0)
-    bubble._recalc()                        # nothing to wrap to; no crash
+    bubble._recalc()
+    assert widths == []
+
+    bubble.resize(300, 40)
+    bubble._recalc()
+    assert widths and all(w == max(120, 300 - bubble._H_PAD) for w in widths)
 
 
 def test_a_bubble_is_as_tall_as_its_text_needs_at_that_width(qtbot):

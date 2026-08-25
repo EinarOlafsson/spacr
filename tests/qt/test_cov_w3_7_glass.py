@@ -361,6 +361,8 @@ def test_the_backdrop_refits_the_card_when_the_dialog_resizes(dialog, qtbot):
     qtbot.waitExposed(dialog)
     dialog.resize(400, 300)
     qtbot.waitUntil(lambda: card.geometry() == dialog.rect(), timeout=2000)
+    assert card.geometry() == dialog.rect()
+    assert card.width() > 0 and card.height() > 0
     dialog.hide()
 
 

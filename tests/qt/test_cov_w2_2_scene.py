@@ -816,13 +816,23 @@ def test_a_scene_with_no_ground_paints_none(qt_ready, closed_figures,
 
 def test_laying_out_a_widget_that_refuses_is_not_fatal(qt_ready,
                                                        closed_figures):
-    """Asking for the layout is best-effort; the export still happens."""
+    """Asking for the layout is best-effort; the export still happens.
+
+    Best-effort has to mean the effort was made: the central item is asked
+    for once, and once only. Recording the access is what separates a
+    layout pass that tried and was refused from a guard that decided not to
+    lay anything out -- both of which "do not raise".
+    """
+    asked = []
+
     class _Refusing:
         @property
         def ci(self):
+            asked.append("ci")
             raise RuntimeError("this widget has gone")
 
-    sc._lay_out(_Refusing())                  # must not raise
+    sc._lay_out(_Refusing())
+    assert asked == ["ci"]
 
 
 def test_a_scene_can_be_written_as_a_vector_file(qt_ready, tmp_path,

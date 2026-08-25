@@ -511,8 +511,18 @@ def test_toggling_before_a_digest_arrives_does_nothing(banner):
 # -- copy -------------------------------------------------------------------
 
 def test_copying_before_a_digest_arrives_does_nothing(banner):
+    """Nothing means the clipboard is left alone.
+
+    A copy button that runs before there is a report and writes an empty
+    string has thrown away whatever the user was carrying -- silently, and
+    without raising.
+    """
+    from PySide6.QtWidgets import QApplication
+
+    QApplication.clipboard().setText("something the user copied earlier")
     widget = banner()
-    widget._on_copy_clicked()            # must not raise
+    widget._on_copy_clicked()
+    assert QApplication.clipboard().text() == "something the user copied earlier"
 
 
 def test_a_report_that_cannot_be_formatted_is_logged_not_raised(banner,

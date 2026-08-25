@@ -979,6 +979,10 @@ def test_a_language_switch_never_raises_whatever_the_catalog_does(
     label.setProperty("settingsAppKey", "mask")
 
     retranslate_widget_tree(label, "sv")
+    # A catalog that cannot be read is one this label cannot be translated
+    # from, so it keeps the text it was given -- the outcome the RuntimeError
+    # case above already gets, and the one a fixed guard has to reach.
+    assert label.text() == "Zzz Not In Any Catalog Zzz"
 
 
 def test_a_widget_that_refuses_one_property_is_stepped_over(qapp):

@@ -363,21 +363,44 @@ def test_unreadable_normalize_percentiles_still_turn_normalisation_on(panel):
 
 
 def test_propagation_without_a_callback_is_a_no_op(panel):
-    """Nothing is wired up yet, so there is nowhere to send the settings."""
+    """Nothing is wired up, so there is nowhere to send the settings.
+
+    Clearing the callback has to really clear it: a stale callback that
+    keeps being called after the screen it belonged to is gone raises
+    nothing here either, and everything later.
+    """
+    seen = []
+    panel.set_propagate_callback(seen.append)
+    panel.propagate_settings()
+    assert len(seen) == 1
+
     panel.set_propagate_callback(None)
-    panel.propagate_settings()  # must not raise
+    panel.propagate_settings()
+    assert len(seen) == 1
 
 
 def test_a_propagation_callback_that_raises_does_not_take_the_panel_down(panel):
-    """The settings screen's problem is not the preview's to die of."""
+    """The settings screen's problem is not the preview's to die of.
+
+    The callback is really reached, with the settings the panel would have
+    sent -- and it keeps being reached afterwards, because a panel that
+    quietly unwired a callback that once threw would stop propagating for
+    the rest of the session without ever saying so.
+    """
+    sent = []
+
     def boom(settings):
+        sent.append(settings)
         raise RuntimeError("the settings screen is gone")
 
     panel.set_propagate_callback(boom)
     panel.propagate_settings()
+    assert sent == [panel.settings_for_propagation()]
 
+    before = len(sent)
     panel._propagate_btn.setChecked(True)
     panel._maybe_propagate()
+    assert len(sent) > before
 
 
 def test_turning_propagation_on_sends_the_current_settings_at_once(panel):

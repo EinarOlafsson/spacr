@@ -342,7 +342,25 @@ def test_the_activation_map_button_asks_the_host_for_that_screen(qtbot):
 
 
 def test_the_activation_map_button_is_inert_without_a_host(explain):
-    explain.open_activation_maps()          # must not raise
+    """No host is no screen to navigate to, so the button does nothing.
+
+    The absent host has to be the whole reason: the same panel, given one,
+    asks it immediately -- so this is a guard on the host and not a route
+    that has been quietly disabled.
+    """
+    assert explain.host is None
+    explain.open_activation_maps()
+
+    class Host:
+        def __init__(self):
+            self.asked = []
+
+        def _on_train_requested(self, key, settings):
+            self.asked.append((key, settings))
+
+    explain.host = Host()
+    explain.open_activation_maps()
+    assert explain.host.asked == [("activation_maps", {})]
 
 
 def test_closing_the_panel_shuts_the_job_runner_down(explain):
@@ -637,8 +655,29 @@ def test_an_undo_says_how_many_values_it_put_back(investigate, monkeypatch):
     assert investigate.umap_button.isEnabled() is False
 
 
-def test_the_umap_button_is_inert_without_a_host(investigate):
-    investigate.open_umap()          # must not raise
+def test_the_umap_button_is_inert_without_a_host(investigate, tmp_path):
+    """Without a host there is nowhere to open the UMAP, so nothing opens.
+
+    And nothing is read off the form either: the panel is left exactly as
+    the user left it, and the same call with a host attached goes through.
+    """
+    assert investigate.host is None
+    investigate.database.setText(str(tmp_path / "measurements.db"))
+    investigate.open_umap()
+    assert investigate.database.text() == str(tmp_path / "measurements.db")
+
+    class Host:
+        def __init__(self):
+            self.asked = []
+
+        def _on_train_requested(self, key, settings):
+            self.asked.append((key, settings))
+
+    investigate.host = Host()
+    investigate.open_umap()
+    assert investigate.host.asked == [
+        ("umap", {"src": str(tmp_path),
+                  "color_by": investigate.annotation.text()})]
 
 
 def test_the_umap_button_asks_the_host_for_the_databases_folder(qtbot,

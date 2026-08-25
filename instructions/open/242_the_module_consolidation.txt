@@ -2,6 +2,11 @@
 THE MODULE CONSOLIDATION: SEVENTEEN TILES BECOME BUTTONS
 ================================================================================
 
+Priority:  HIGHEST. Asked for 2026-08-25: "the instructions list item
+           that folds modules into other modules. i want to have the
+           highest possible priority." Nothing else on the list comes
+           before it.
+
 Status:    OPEN. Every fold named below has landed, and none of them opens
            a window any more: a folded module is a PAGE beside its host's
            own, except Timelapse and Motility, which are settings
@@ -18,7 +23,24 @@ of screens that should stop being their own registry row and become a
 button, a tab or a mode inside the screen a user already has open when
 they want them.
 
-THE COUNT: the registry holds 63 apps. Every fold below takes it to 46.
+THE COUNT: the registry holds 54 apps, down from 63. Fourteen rows are
+still registered for modules that have already been folded, and dropping
+exactly those fourteen is 46 -- the number this instruction has always
+named. They are:
+
+    train_cellpose  model_compare  model_zoo    curate
+    timelapse       motility       barcode_qc   classifier_evaluation
+    explain_cv      agreement      anndata_export
+    volcano_explorer   image_scatter   pca
+
+A KEY IS LOAD-BEARING, which is why this is the part left rather than the
+part done first. `bridge.resolve_pipeline_entry`, `cli.INTERACTIVE_ONLY`,
+`validate.APP_FUNCTIONS`, `batch`, the drop handlers,
+`settings_model.resolve_default_settings` and saved user state all key off
+these names. Dropping a row must leave every one of those answering the
+same way it does now for anything that still runs -- a headless CLI call,
+a saved run, a settings CSV, a dropped file -- while the tile stops being
+on Home. Deleting the row is the last step, not the first.
 
 --------------------------------------------------------------------------------
 HOW A FOLDED MODULE APPEARS
