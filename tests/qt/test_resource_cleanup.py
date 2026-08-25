@@ -363,14 +363,49 @@ def test_the_disk_confirmation_promises_it_writes_nothing():
 ])
 def test_preferences_offers_each_button(action, object_name, qtbot,
                                         qt_theme_applied):
+    """The button exists, and says what it will do at the foot of the window.
+
+    The confirmation text used to be the button's own tooltip. A tooltip
+    appears over the button -- where the pointer already is and where the
+    user is about to click -- so it covered the thing it described. It now
+    goes to the hint bar, the way a module tile's description does on the
+    Home screen: hovering writes it into a line across the bottom.
+    """
     from PySide6.QtWidgets import QPushButton
     from spacr.qt.preferences import PreferencesDialog
+    from spacr.qt.widgets.hint_bar import HintBar
 
     dlg = PreferencesDialog()
     qtbot.addWidget(dlg)
     button = dlg.findChild(QPushButton, object_name)
     assert button is not None, f"no button for {action}"
-    assert button.toolTip() == rc.confirmation_text(action)
+    bar = dlg.findChild(HintBar)
+    assert bar is not None, "the dialog has nowhere to say what a button does"
+    assert bar.explains(button) == rc.confirmation_text(action)
+    # And nothing is said twice: the popup that used to carry it is gone.
+    assert button.toolTip() == ""
+
+
+@pytest.mark.parametrize("action,object_name", [("ram", "ClearRamButton")])
+def test_hovering_a_button_writes_its_sentence_at_the_foot(action, object_name,
+                                                           qtbot,
+                                                           qt_theme_applied):
+    """Registering is not enough -- the hover has to reach the bar."""
+    from PySide6.QtCore import QEvent
+    from PySide6.QtWidgets import QApplication, QPushButton
+    from spacr.qt.preferences import PreferencesDialog
+    from spacr.qt.widgets.hint_bar import HintBar
+
+    dlg = PreferencesDialog()
+    qtbot.addWidget(dlg)
+    button = dlg.findChild(QPushButton, object_name)
+    bar = dlg.findChild(HintBar)
+    resting = bar.text()
+
+    QApplication.sendEvent(button, QEvent(QEvent.Enter))
+    assert bar.text() == rc.confirmation_text(action)
+    QApplication.sendEvent(button, QEvent(QEvent.Leave))
+    assert bar.text() == resting, "the bar must go back to resting"
 
 
 @pytest.mark.parametrize("action", rc.ACTIONS)

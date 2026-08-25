@@ -1,5 +1,26 @@
 ================================================================================
-THE SETUP SCREEN, THE SETTINGS PANEL, AND THE FIGURE EXPORT
+THE SETUP SCREEN, A BUTTON EXPLAINS ITSELF AT THE FOOT OF THE WINDOW
+
+"for button tooltips there should allways be a spece at the bottom of the
+window that gets populated with the tooltip for the button not on the
+button itself. like it works for the modules on the main screen."
+
+  * `spacr/qt/widgets/hint_bar.py` is the Home screen's mechanism made
+    reusable: a `HintBar` at the foot, `explain(widget, text)` to register
+    a control, and an event filter that writes the sentence while the
+    pointer is on it and restores the resting line when it leaves;
+  * the button carries NO tooltip. The sentence would otherwise appear
+    over the button -- where the pointer already is, and where the user is
+    about to click -- covering the thing it describes;
+  * the sentence goes onto the widget's accessible description, so
+    removing the tooltip costs no assistive text;
+  * a control with nothing to say is not watched, or crossing it would
+    blank the sentence belonging to the control beside it;
+  * a window with NO bar keeps the tooltip: explaining itself awkwardly
+    beats explaining itself nowhere;
+  * Preferences has one, and its five cleanup buttons report to it.
+
+THE SETTINGS PANEL, AND THE FIGURE EXPORT
 ================================================================================
 
 Status:    OPEN on three. The montage cap's number; the terms of use, which
