@@ -28,6 +28,8 @@ from pathlib import Path
 
 import imageio.v2 as imageio
 import numpy as np
+
+from tests.conftest import MISSING_CHANNEL_AXIS
 import pytest
 
 from spacr.qt.screens import make_masks as mm
@@ -68,9 +70,14 @@ class _FakeCellpose:
         self.kwargs = None
         self.batch = None
 
-    def eval(self, x, batch_size=1, normalize=True, channel_axis=None,
-             diameter=None, flow_threshold=0.4, cellprob_threshold=0.0,
-             min_size=0):
+    def eval(self, x, batch_size=8, resample=True, channels=None,
+             channel_axis=MISSING_CHANNEL_AXIS, z_axis=None,
+             normalize=True, invert=False, rescale=None, diameter=None,
+             flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False,
+             anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+             min_size=15, max_size_fraction=0.4, niter=None,
+             augment=False, tile_overlap=0.1, bsize=256,
+             compute_masks=True, progress=None):
         self.batch = x
         self.kwargs = dict(batch_size=batch_size, normalize=normalize,
                            channel_axis=channel_axis, diameter=diameter,
@@ -234,7 +241,14 @@ def test_a_variadic_eval_keeps_its_settings():
     seen = {}
 
     class Variadic:
-        def eval(self, x, **kwargs):
+        # channel_axis IS NAMED, and **kwargs is still there, because the
+        # defect under test is about a signature CONTAINING a VAR_KEYWORD
+        # parameter -- one names nothing, so the caller's filter matched
+        # nothing and discarded every threshold. Naming channel_axis keeps
+        # that shape and stops this double accepting an argument the real
+        # CellposeModel would refuse.
+        def eval(self, x, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+            seen["channel_axis"] = channel_axis
             seen.update(kwargs)
             field = np.asarray(x[0])
             return ([np.zeros(field.shape, dtype=np.uint16)],
@@ -367,8 +381,19 @@ def test_a_run_that_finds_nothing_leaves_the_mask_alone(screen):
 def test_a_failed_run_is_reported_and_the_button_comes_back(screen):
     """A Cellpose that raises leaves an editable screen, not a dead one."""
     class Boom:
-        def eval(self, x, **kwargs):
-            raise RuntimeError("CUDA out of memory")
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None,
+                 normalize=True, invert=False, rescale=None, diameter=None,
+                 flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False,
+                 anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+                 min_size=15, max_size_fraction=0.4, niter=None,
+                 augment=False, tile_overlap=0.1, bsize=256,
+                 compute_masks=True, progress=None):
+            # The axis is named in the failure, so this double cannot pass
+            # while quietly ignoring an argument the real CellposeModel
+            # binds.
+            raise RuntimeError(
+                f"CUDA out of memory (channel_axis={channel_axis!r})")
 
     screen._cp_loaded["cpsam"] = Boom()
     before = screen._canvas.mask.copy()

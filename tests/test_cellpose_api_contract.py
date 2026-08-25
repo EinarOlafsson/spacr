@@ -234,10 +234,20 @@ PARTIAL_SIGNATURE_RATCHET = {
     ("test_coverage_fill_pipeline_v2.py", "_CaptureModel"): 1,
     ("test_coverage_fill_pipeline_v2.py", "_ListModel"): 1,
     ("test_zstack.py", "_M"): 1,
+    # THE ONE DOUBLE THAT MUST KEEP **kwargs, because the defect it pins is
+    # about a signature CONTAINING a VAR_KEYWORD parameter. The caller
+    # filters its arguments against inspect.signature so a Cellpose that
+    # dropped one cannot raise TypeError -- and a VAR_KEYWORD names
+    # nothing, so the filter matched nothing and silently discarded every
+    # threshold while the run succeeded. Converting this double to the
+    # full signature would delete the shape under test. It names
+    # channel_axis explicitly, so it cannot accept an axis cellpose would
+    # refuse.
+    ("qt/test_the_make_masks_cellpose_detect.py", "Variadic"): 1,
 }
 
 #: Total partial ``eval`` methods above, not keys.
-PARTIAL_SIGNATURE_CEILING = 10
+PARTIAL_SIGNATURE_CEILING = 11
 
 
 def _eval_doubles():

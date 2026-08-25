@@ -3400,10 +3400,16 @@ def retranslate_widget_tree(root, language: Optional[str] = None) -> None:
 
     # Settings tooltips are structured HTML (name, type, scientific prose and
     # API link), so rebuild them semantically after the generic Qt pass.
+    #
+    # The same catalog errors as the settings-label block above, which is
+    # what this guard was missing: a malformed record raised TypeError out
+    # of `setting_label` there and was caught, and raised it out of the same
+    # catalog here and was not -- so a language switch stopped part way and
+    # left the window half English with no way back except another switch.
     try:
         from .screens.settings_model import refresh_api_tooltips
         refresh_api_tooltips(root, code)
-    except (ImportError, AttributeError, RuntimeError):
+    except (ImportError, AttributeError, RuntimeError, TypeError, ValueError):
         pass
 
 

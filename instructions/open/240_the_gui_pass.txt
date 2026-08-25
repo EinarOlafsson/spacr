@@ -2,11 +2,14 @@
 THE GUI PASS: NAVIGATION, WINDOW CHROME, AND THE LANGUAGE
 ================================================================================
 
-Status:    OPEN on item 1 only, and now only on what another owner has to
-           do: five value-carrying combo entries in
-           `spacr/qt/widgets/live_preview.py` and one catalog rebuild. The
-           call-site half in the shell is done. Items 2 to 7 are done; 7
-           needed a root command the maintainer has since run.
+Status:    OPEN on item 1 only, and only on THE CATALOG REBUILD, which needs
+           the translation models rather than a call site. Everything the
+           application itself can do is done: the shell, the five
+           value-carrying combo entries in
+           `spacr/qt/widgets/live_preview.py`, two more dropdowns in the
+           same file that were translating their VALUES, and Qt's own menu
+           text. Items 2 to 7 are done; 7 needed a root command the
+           maintainer has since run.
 Owner:     spacr/qt -- app registry, dock, window chrome, i18n.
 
 --------------------------------------------------------------------------------
@@ -56,15 +59,47 @@ watches the two hosts a late panel lands in (`_runtime_wrap` and
 deferred one turn of the event loop because a widget can be parented before
 its own children exist.
 
-THE FIVE THAT REMAIN are one call-site change in a file this pass does not
-own. `auto`, `Overlay`, `Masks`, `Flows` and `All channels` are combo
-entries in `spacr/qt/widgets/live_preview.py` carrying
-`i18nSkipItems`, and the property is correct: `_outline_rgb` and
-`_refresh_canvases` read those entries back BY TEXT, so translating them
-would silently return the per-compartment default colour and the wrong
-canvas. Fixing them means putting the value in `itemData` and reading
-`currentData()`, then dropping the flag -- live_preview's change, not this
-one's.
+THE FIVE THAT REMAINED are done, and they were the tip of a bigger one.
+`auto`, `Overlay`, `Masks`, `Flows` and `All channels` are combo entries in
+`spacr/qt/widgets/live_preview.py` that carried `i18nSkipItems` because
+`_outline_rgb` and `_refresh_canvases` read them back BY TEXT. Each is a
+caption a user reads, not a value in a settings file, so the value moved
+into the entry's `itemData`, the readers moved to `currentData()`, and the
+flag came off. `spacr.qt.i18n.set_translatable_items` is the seam: it fills
+a dropdown with translated captions over untranslatable values and records
+the English sources on the widget, so the ordinary language pass re-renders
+the captions on every later change.
+
+TWO MORE DROPDOWNS IN THE SAME FILE were not flagged and were doing exactly
+what the flag existed to prevent, silently. Measured by driving the panel in
+Swedish:
+
+  * the segmentation object box rendered `cellen`, `Kärna`, `patogen` --
+    and `_selected_object_types` returned `('cellen',)`, which is the key
+    every `{object}_…` setting is spelled with and the key the worker looks
+    its channel up by. A Swedish user's preview asked for a compartment
+    spaCR does not have;
+  * the intensity-threshold method rendered `medelvärde`, and
+    `_compartment_settings` wrote that into
+    `cell_intensity_threshold_method`, a setting that accepts `mean` or
+    `percentile`.
+
+Both carry their value in `itemData` now, and `_widget_value` reads it.
+
+THE CAPTIONS THEMSELVES needed exact rows, because the word-by-word
+fallback had read `auto` as the vehicle (`자동차`, `汽车`, `कार`), `Overlay`
+as `Surprise` in French, `All channels` as the half-English `All Kanaler`,
+`cell` as a spreadsheet `celda`, `nucleus` as an atomic `परमाणु`, and
+`mean` as `意思`. Twenty rows in `_ROWS`, in all nine languages: the eight
+outline colours, the three view modes, `All channels`, `View:`, the five
+compartment names and the two threshold methods. `Ch 3` is left alone in
+every language -- a word touching a digit is part of an identifier.
+
+COUNTED BY DRIVING THE PANEL, English and again Swedish: twelve English
+captions in those dropdowns before, none after; the object dropdown and the
+threshold method now hand the same English values back in all nine
+languages; and a language change re-renders the captions in both directions
+while the user's choice survives it by value.
 
 RE-SET BY A HANDLER, all fixed in `spacr/qt/screens/app_screen.py`. A
 caption a handler writes after the pass is English for the session, and
@@ -116,10 +151,16 @@ ship, rather than keeping the last language that worked. On the running
 application the effect is visible on the regression figure tabs, whose
 close button went from "Close Tab" to "Stäng flik".
 
-STILL OPEN, and neither is a call site:
+DRIVEN AGAIN AND HELD BY A TEST. Qt ships seven of the nine: sv, de, es,
+zh_CN, pt (as pt_BR), ko and fr all load and translate `&Copy`; hi and is
+have no `qtbase` catalog and come out English, which is the honest answer,
+with no missing-file error and nothing left underneath answering for them.
+`tests/qt/test_the_live_preview_dropdowns_follow_the_language.py` covers
+both, hi included.
 
-  a. the five `i18nSkipItems` combo entries above, in live_preview.py;
-  b. THE CATALOG REBUILD. The nine external catalogs are stale against the
+STILL OPEN, and it is not a call site:
+
+  a. THE CATALOG REBUILD. The nine external catalogs are stale against the
      current source: 29 UI strings, six settings-category blurbs (the
      Advanced-settings tree, whose headings the panel now draws) and one
      setting, `calibrate_fraction_threshold`, have no row in any of them.

@@ -7,7 +7,7 @@ Status:    THE BUILD IS AT 0 ERRORS AND 0 WARNINGS FROM AN EMPTY TREE. The
            list in `spacr/object_distances.py` and the `shape` cross-
            reference in `spacr/qt/widgets/fast_plots.py` -- are both repaired
            in the source, verified by a rebuild that started from an empty
-           `docs/_build` and `docs/source/api`: 910 HTML pages, 447 module
+           `docs/_build` and `docs/source/api`: 912 HTML pages, 448 module
            pages, nothing reported. The short underlines and duplicate object
            descriptions are still gone, and a deleted module still reaches
            neither the page nor the localization payload. Two things remain
@@ -796,7 +796,7 @@ THE BUILD IS BACK AT 0 AND 0, AND THE WARNING CLASS NOW HAS A GUARD
     sphinx-build -E -b html --keep-going, from an empty docs/_build and an
     empty docs/source/api:
 
-        910 HTML pages, 447 generated module pages
+        912 HTML pages, 448 generated module pages
         0 errors, 0 warnings
         tests/test_tooltip_api_links_resolve.py green against that build
 
