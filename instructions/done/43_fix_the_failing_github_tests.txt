@@ -2,11 +2,19 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 ================================================================================
 
-Status:    open - all three workflows are red on the newest push.
-           compat-matrix fails in every one of its eight suite cells on a
-           single assertion; tests fails on Lint, on both non-Qt suite jobs
-           and on both Qt shards; docs fails on a stale reviewed API
-           translation. See WHERE THE RUNS STAND at the end of this file.
+Status:    open, and much smaller than it was. Re-triaged from a fresh run
+           of all three workflows rather than from the log this file was
+           last written against.
+             compat-matrix  GREEN on every Linux and Windows cell.
+             tests          Network, GPU, NAS and Integration are green.
+                            Both Qt shards now RUN TO A SUMMARY -- the hang
+                            is gone and shard 0 fell from 65 to 34 minutes.
+                            Lint, Fast and Minimum dependencies are red, and
+                            every one of those failures is in product code
+                            or in test files this instruction does not own.
+             docs           red on two separate layers of localisation
+                            staleness, both enumerated below.
+           See WHERE THE RUNS STAND at the end of this file.
 Requested: 2026-08-08 - "fix the failing GitHub tests."
 
 --------------------------------------------------------------------------------
@@ -378,96 +386,179 @@ machine. The one remaining, test_cov_io_tail, passes on 3.10, 3.12 and 3.14
 with the newest stack; the residual hypothesis is test ORDER and is recorded.
 
 --------------------------------------------------------------------------------
+2026-08-25 - RE-TRIAGED FROM A FRESH RUN, AND THE QT HANG IS DIAGNOSED
+--------------------------------------------------------------------------------
+
+Read off runs 32877097426 / 32877097614 / 32877097390 -- a push, not a
+re-run -- and every failure below was reproduced locally before anything
+was changed.
+
+WHAT WENT GREEN ON ITS OWN, and why the old triage above is worth nothing
+
+  Six of the seven non-Qt jobs were failing on ONE thing: two test modules
+  imported names their product code did not have yet
+  (`spacr.qt.screens.mask`, `setup_slides.ANIMATION_LABEL`). Tests were
+  committed a commit ahead of the code they test, so a collection error
+  took down Fast, Slow, Network, NAS, GPU, Integration and min-deps at
+  once. Both landed in the next two commits and all six cleared.
+
+  compat-matrix's eight-cell failure went the same way: `_SUBMODULES` is
+  now DERIVED FROM THE DIRECTORY rather than hand-listed, which is the
+  ending this file asked for after the fourth recurrence, and
+  `EXPECTED_LAZY` dropped the eleven retired Tk modules. Every Linux and
+  Windows cell is green.
+
+  THE LESSON, and it is the same one this file keeps re-learning from the
+  other side: a triage is only worth the commit it was taken on. Most of
+  what the last section listed as work was already fixed by the time it
+  was read.
+
+THE QT SHARD DOES NOT HANG ANY MORE, and the diagnosis was right
+
+  Both shards now run to a summary. Shard 0 fell from 65 minutes to 34.
+  What the suite reported at teardown -- a QApplication holding tens of
+  thousands of widgets -- was the cause, and it is now measured rather
+  than inferred.
+
+  THE FIRST INSTRUMENT WAS WRONG, which is worth recording because it
+  pointed at 200 innocent files. Counting live widgets at session end
+  measures mostly widgets that are already DEAD: `deleteLater` posts an
+  event, and a headless file may never spin the loop that delivers it.
+  Measured that way 205 files "leaked" 9,300 windows between them. Deliver
+  the deletions and collect first, and 199 of those 205 leak NOTHING. The
+  number to measure is the residue after a flush, never the raw count.
+
+  WHAT ACTUALLY RETAINS A TREE: a top-level widget that is never CLOSED
+  cannot be freed at all. Built, dropped and collected any number of
+  times, one `AppScreen` leaves 298 windows and 1,256 widgets standing;
+  closed first, one collect-then-deliver round takes it to nought. The
+  cycle runs through connections Qt owns on the C++ side, where Python's
+  collector cannot follow, so `closeEvent` -- which stops the heartbeat
+  timer -- is the only thing that breaks it.
+
+  THE BIG ONE WAS NOT A TEST FILE AT ALL. `tests/qt/conftest.py` delivers
+  pending deletions and bounds the retained tree at every test boundary,
+  and it works -- but a conftest reaches its own directory, and the `qt`
+  marker is far wider than `tests/qt`. Over a hundred modules directly
+  under `tests/` carry `@pytest.mark.qt`, build real widgets, and ran with
+  none of that housekeeping. Thirty of them in one process, 330 tests:
+
+                    peak windows   peak widgets   left at the end   wall
+      before             5,945         39,713          3,161        98.5s
+      after                797          5,709            158        95.0s
+
+  The same fixture now lives in `tests/conftest.py`, ordered behind the
+  QSettings sandbox because destroying a widget can write a preference,
+  and free for non-Qt tests -- it reads one entry in `sys.modules` and
+  never imports PySide6. It is not slower; it is slightly faster, because
+  the tree it prevents is the tree every later restyle had to walk.
+
+  AND TWO FIXTURES THAT NEVER DISPOSED OF WHAT THEY BUILT, found by the
+  corrected instrument and fixed by handing the widget to `qtbot`:
+
+      test_colour_by_takes_more_than_one_column   1,760 windows -> 0
+      test_cov_4_grouped_plot                        75 windows -> 0
+      test_every_figure_is_a_pyqtgraph_that_retypes  295 windows -> 75
+
+  Across 466 of the 478 files in `tests/qt`, run one per process, the
+  residue that survives a full flush totalled 6,788 windows and 60,679
+  widgets before the three fixes above. What is left is concentrated
+  rather than spread:
+
+      1,020  test_the_volcano_takes_more_than_one_guide
+        812  test_the_bottom_panels_collapse
+        326  test_cov_qt_app
+        302  test_home_layout
+        298  test_force_restart_comes_back_where_you_were
+        298  test_settings_column_never_black
+        298  test_settings_column_panel
+        298  test_preview_registry
+        298  test_page_is_never_black
+        234  test_the_setup_is_a_sequence_of_slides
+        147  test_every_live_tile_opens
+
+  Note the signature that repeats exactly: 298 windows made of 220 QMenu,
+  48 QFrame and 22 pyqtgraph ViewBoxMenu, which is ONE `AppScreen`. Every
+  file showing it already registers what it builds with `qtbot`, so the
+  screen that survives is one the product builds and holds -- most likely
+  through `MainWindow` -- not one a test forgot. That is the next thread
+  to pull and it is product-side, not a test fix.
+
+WHAT IS STILL RED, AND WHOSE IT IS
+
+  Lint    ruff F821 undefined name `LOG` at spacr/qt/widgets/home.py:1522,
+          inside an `except Exception` handler, so the logging call meant
+          to explain a failed surface lookup raises NameError instead.
+          home.py has no module logger and no module-level `import
+          logging`. The FOURTH recurrence of this exact shape. Product
+          code; not fixed here.
+
+  Fast    Four tests in tests/test_test_suite_hygiene.py, all of them
+  min-deps  pointing at one newly landed coverage batch: twelve
+          assertion-free tests across test_cov_w2_2_*, a cellpose mock in
+          test_cov_w2_2_annotate_engine.py that swallows `channel_axis`,
+          and `_Hostile` in test_cov_w2_1_parameter_sweep_screen.py
+          overriding `_constructor` without `_constructor_from_mgr`.
+
+  Qt      29 failures, and EVERY ONE OF THEM REPRODUCES ON ITS OWN FILE.
+          That is worth saying plainly, because this file spent two earlier
+          sessions hunting order-dependence: there is none left here. Each
+          of the sixteen files was run alone and failed alone.
+
+          18 of the 29 are one cause: the
+          app registry now holds 39 apps keyed `mask`, and no longer has
+          `cellpose_masks`, `cellpose_all`, `train_cellpose`,
+          `parameter_sweep` or `motility`. The consumers were not moved
+          with it, including a PRODUCT one --
+          spacr/resources/home/versions/_generators/common.py raises
+          KeyError('cellpose_masks') from `name_of`, which is what takes
+          three of test_home_variants' tests down as errors rather than
+          failures. The i18n inventory tests fail on the same kind of
+          drift one layer down (KeyError 'calibrate_fraction_threshold').
+          Registry consolidation is not this instruction's to settle.
+
+          TWO SEGFAULTS, neither of them a test failure and neither
+          currently owned:
+            tests/qt/test_the_compare_panel_offers_three_contrasts.py
+              dumps core when run on its OWN file.
+            the first 60 files of tests/qt, run in one process, dump core
+              at 92% -- inside a test body (`pytest_pyfunc_call`), not in
+              teardown, so it is not the retained tree.
+
+  docs    TWO layers, and fixing only the first will not turn it green --
+          the audit stops at the first and the second is behind it.
+            1. Five reviewed API records whose English source has since
+               been rewritten. Delete these records:
+                 de/2026-08-14-current-final-033-065.json
+                     spacr.qt.mask_engine#1
+                 is/2026-08-14-tail-125-149.json   spacr.crop_source#2
+                 is/2026-08-14-tail-200-224.json
+                     spacr.crops.crop_spec_from_settings#2
+                 pt/2026-08-12-tail-000-019.json   spacr.crop_source#3
+                 zh_CN/2026-08-14-tail-000-019.json spacr.crop_source#3
+               All five quote text that no longer exists -- the
+               mask_engine one still refers to the deleted Tk
+               `gui_elements.ModifyMaskApp` -- so they are obsolete rather
+               than repairable.
+            2. With those gone the audit reaches 66 symbols whose English
+               manifest entry is stale ("stale source hash", "canonical
+               text differs"), plus "API source manifest keys are stale".
+               That needs the manifest regenerated, not a record deleted.
+
+--------------------------------------------------------------------------------
 WHERE THE RUNS STAND
 --------------------------------------------------------------------------------
 
-Read off the newest complete run of each workflow, not inferred. The
-per-failure detail below supersedes the CLOSED note above it.
+  compat-matrix   green on every Linux and Windows cell; macOS arm64 was
+                  still running when this was written.
+  tests           Network, GPU, NAS, Integration green. Both Qt shards run
+                  to a summary. Lint, Fast and Minimum dependencies red,
+                  for the reasons above.
+  docs            red, on the two layers above.
 
-compat-matrix -- ONE ASSERTION, EIGHT CELLS
+HOW TO MEASURE THE RETAINED TREE, so the next reader does not rebuild it
 
-  Every suite cell (3.9 floor, 3.10, 3.12 control, 3.13, 3.14, Linux ARM64,
-  Windows, macOS) fails on the same deciding step and the same three
-  assertions in tests/test_smoke.py. The wheels-only cells and the packaging
-  metadata cell are green. So this workflow is one fix from green, and the
-  fix is in two files:
-
-    spacr/__init__.py    _SUBMODULES is missing frame_handoff,
-                         object_distances and uniprot, which exist as files.
-    tests/test_smoke.py  EXPECTED_LAZY still names the eleven Tk modules the
-                         interface retirement deleted -- gui, gui_core,
-                         gui_elements, gui_utils, app_annotate, app_classify,
-                         app_make_masks, app_mask, app_measure, app_sequencing,
-                         app_umap. Attribute access on each is now an
-                         AttributeError, which is what the other two smoke
-                         failures are.
-
-  Verified: with those three names added and the eleven deleted ones dropped,
-  every surviving name imports, returns a module and emits no SyntaxWarning.
-
-  THIS IS THE FOURTH RECURRENCE of the _SUBMODULES half -- object_roles,
-  organelle_types, and now two more. A hand-maintained list of the files in
-  its own directory drifts every time a module lands, and each drift takes
-  the entire compatibility grid down. Deriving _SUBMODULES from the directory
-  and keeping the tuple only for names that must NOT be lazy would end it.
-
-tests -- FIVE RED JOBS
-
-  Lint / types / complexity    One fatal error, and the whole quality gate
-                               stops at it: ruff F821 undefined name `LOG` at
-                               spacr/qt/screens/settings_model.py, in an
-                               `except Exception` handler, so the logging call
-                               meant to explain a failed canonicalisation
-                               raises NameError instead. A repository-wide run
-                               of the same rule set finds this one and nothing
-                               else. mypy and xenon never run, so their state
-                               behind it is unknown.
-
-  Fast / Full suite control    Both stop at the same batch, on the same four
-  Minimum dependencies         tests: three in
-                               tests/test_analysis_mode_is_a_dropdown.py
-                               asserting a `Toxoplasma` key the regression
-                               sections no longer contain, and one in
-                               tests/test_agreement_excludes_the_model.py
-                               importing the deleted spacr.gui_elements.
-                               All four reproduce locally.
-
-  Qt shard 0 of 2              Hangs and is killed at the 2h job limit with no
-                               summary at all. Owned separately.
-
-  Qt shard 1 of 2              Reached 99% of its tests in 58 minutes and then
-                               lost its runner ("received a shutdown signal"),
-                               which is not the shard-0 hang and not a test
-                               failure.
-
-docs -- ONE STALE TRANSLATION
-
-  tools/build_documentation_i18n.py refuses a reviewed API source whose
-  docstring has since changed:
-  docs/i18n/reviewed/api/de/... for spacr.qt.mask_engine#1.
-
-WHAT THE RUN CANNOT TELL YOU, AND WHY THE COUNT IS NOT FOUR
-
-  tools/run_pytest_batches.py returns the moment a batch fails, so a tests
-  run reports the failures of ONE batch and never reaches the rest. The four
-  above are alphabetically early; they are not the total. Two more are
-  already known from running the later files directly:
-
-    tests/test_dependency_bounds.py::
-      test_every_directly_imported_third_party_module_is_declared
-        reads spacr/gui_elements.py, which no longer exists.
-    tests/test_user_facing_docstrings.py (two tests)
-        spacr/qt/ai/issue_report.py has task history in a docstring.
-
-  Until the runner finishes every batch and returns the first failing status
-  at the end, "re-triage from a fresh run" cannot be done from the run.
-
-WHAT IS FIXED HERE
-
-  A hung suite now says where it is hung. The reusable suite workflow passes
-  pytest's faulthandler timeout, so a test that overruns dumps every thread's
-  traceback and then carries on -- a hang names itself in the log instead of
-  arriving as a job killed with no output, which is exactly the shape
-  instruction 43 asked never to leave standing. Slow tests stay green;
-  the threshold is far below every caller's job timeout.
-
+  Run one file per process with a plugin that, at `pytest_sessionfinish`,
+  delivers `QEvent.DeferredDelete` and collects three times BEFORE
+  counting `QApplication.topLevelWidgets()`. The count before that flush
+  is not a leak and will send you after the wrong files.
