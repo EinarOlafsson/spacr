@@ -18,7 +18,8 @@ from typing import Any, Dict, List, Optional, Tuple
 from PySide6.QtCore import (QEasingCurve, QEvent, QPointF,
                             QPropertyAnimation, Qt, QTimer)
 from PySide6.QtGui import QFont
-from PySide6.QtWidgets import (QComboBox, QDialog, QGraphicsOpacityEffect,
+from PySide6.QtWidgets import (QComboBox, QDialog, QFormLayout,
+                               QGraphicsOpacityEffect,
                                QHBoxLayout, QLabel, QPushButton,
                                QStackedWidget, QVBoxLayout, QWidget)
 
@@ -28,6 +29,14 @@ LOG = logging.getLogger("spacr.qt.setup_slides")
 #:
 #: The order moves from interface choices, through execution preferences, to
 #: assistant and data-sharing choices.
+#: Space between a question and the control that answers it.
+#:
+#: A NUMBER, NOT WHATEVER IS LEFT OVER. The rows used to put a
+#: stretch between the two, which set them 771 px apart on a
+#: 980 px card -- the caption on one edge and its control on the
+#: other, with the whole width of the slide in between.
+FORM_GAP_PX = 24
+
 SLIDES: Tuple[Tuple[str, str, Tuple[str, ...]], ...] = (
     ("Language",
      "Every label, tooltip and message spaCR shows you. You can change it "
@@ -314,6 +323,35 @@ def _let_go_of(process) -> None:
         LOG.debug("gh process could not be detached", exc_info=True)
 
 
+def _held_at_the_top(label: QLabel) -> QWidget:
+    """``label`` in a cell that may be taller than it is.
+
+    A form centres a label in its row. Where the field is a stack rather
+    than a single control, centred means level with the seam between its
+    parts; this pins the label to the top so it reads against the first of
+    them.
+    """
+    holder = QWidget()
+    column = QVBoxLayout(holder)
+    column.setContentsMargins(0, 0, 0, 0)
+    column.setSpacing(0)
+    # AS TALL AS THE ROW IT NAMES. The label then centres its own text in
+    # that height -- which is a QLabel's default -- and the caption lands
+    # level with the middle of the marks rather than at the top of a tile
+    # eighty pixels tall.
+    try:
+        from .provider_marks import ProviderMark
+
+        label.setMinimumHeight(ProviderMark("codex", "", False).sizeHint()
+                               .height())
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("the provider mark would not report a height",
+                  exc_info=True)
+    column.addWidget(label)
+    column.addStretch(1)
+    return holder
+
+
 class SetupSlides(QDialog):
     """The setup screen: one question per slide, over a moving backdrop."""
 
@@ -504,13 +542,38 @@ class SetupSlides(QDialog):
                 self._pages.addWidget(self._closing_page(title, blurb))
                 continue
             page = QWidget()
-            form = QVBoxLayout(page)
+            # ONE FORM PER PAGE, NOT ONE LAYOUT PER ROW.
+            #
+            # Every row used to be its own QHBoxLayout with a stretch
+            # between the label and the control, which does two bad things
+            # at once. It pushes the pair to opposite edges -- measured at
+            # 771 px apart on the language slide, so the eye has to travel
+            # the width of the card to find out what it is answering -- and
+            # because each row is an independent layout, nothing lines up
+            # with the row above it: every label starts in a different
+            # place and so does every control.
+            #
+            # A QFormLayout is two columns for the whole page. Labels align
+            # with labels, controls with controls, and the gap between them
+            # is a number rather than whatever is left over.
+            form = QFormLayout(page)
             # A MARGIN ON THE RIGHT. The controls are right-aligned, so with
             # none they finish exactly on the card's content edge and their
             # drop-down arrow is drawn flush against it -- which reads as a
             # clipped control rather than as a control that fits.
             form.setContentsMargins(0, 8, 8, 0)
-            form.setSpacing(14)
+            form.setVerticalSpacing(14)
+            form.setHorizontalSpacing(FORM_GAP_PX)
+            # LABELS SIT AGAINST THEIR CONTROL, vertically centred on it.
+            # The AI provider row is a strip of logo marks and is taller
+            # than a combo box; top-aligned, its caption floated above the
+            # marks while every other caption sat beside its control.
+            form.setLabelAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            form.setFormAlignment(Qt.AlignLeft | Qt.AlignTop)
+            # The control column takes what it needs and no more, so a
+            # combo does not stretch to the card edge while a slider does
+            # not.
+            form.setFieldGrowthPolicy(QFormLayout.FieldsStayAtSizeHint)
             signs_in = "issue_prompt" in keys
             for key in keys:
                 if key not in asked:
@@ -519,7 +582,7 @@ class SetupSlides(QDialog):
                     # and an empty labelled row would read as a broken
                     # control rather than as a question that does not apply.
                     continue
-                form.addLayout(self._row(asked[key], answers.get(key)))
+                form.addRow(*self._row(asked[key], answers.get(key)))
                 if key == "theme":
                     # IMMEDIATELY UNDER THE THEME, which is where it was
                     # asked for and where it belongs: the backdrop is part
@@ -527,9 +590,9 @@ class SetupSlides(QDialog):
                     # the look decides on both in one place.
                     animation = self._animation_row()
                     if animation is not None:
-                        form.addLayout(animation)
+                        form.addRow(*animation)
             if signs_in:
-                form.addWidget(self._github_row())
+                form.addRow(self._github_row())
             self._pages.addWidget(page)
 
     def _go_frameless(self) -> bool:
@@ -1102,16 +1165,29 @@ class SetupSlides(QDialog):
             target.setFocus()
         return self._index
 
-    def _row(self, question, value) -> QHBoxLayout:
+    def _row(self, question, value) -> Tuple[QLabel, QWidget]:
+        """The caption and the control, for one row of the page's form.
+
+        Returned as a pair rather than as a finished layout so that every
+        row on a page shares ONE form: two columns, one gap, and captions
+        that line up with the captions above and below them.
+        """
         key, caption, _get, _set, choices = question
-        row = QHBoxLayout()
         label = QLabel(str(caption))
-        row.addWidget(label)
-        row.addStretch(1)
         editor = self._editor(key, choices, value)
         self._editors[key] = editor
-        row.addWidget(editor)
-        return row
+        if key == "ai_provider":
+            # A CAPTION LINES UP WITH THE CONTROL, NOT WITH THE MIDDLE OF A
+            # COLUMN. Every other field here is one line tall, so centring
+            # the caption on it is right. The provider field is not: it is a
+            # row of logo marks with a status note underneath, and centred
+            # on the pair the caption landed in the gap between them --
+            # level with nothing, and 42 px below the marks it names.
+            #
+            # Held at the top of its cell, it sits beside the marks, which
+            # is the row it is the caption for.
+            return _held_at_the_top(label), editor
+        return label, editor
 
     def _editor(self, key: str, choices, value) -> QWidget:
         """A logo strip, a combo, or a slider. NEVER A CHECKBOX.
@@ -1152,7 +1228,7 @@ class SetupSlides(QDialog):
         slider.setChecked(bool(value))
         return slider
 
-    def _animation_row(self) -> Optional[QHBoxLayout]:
+    def _animation_row(self) -> Optional[Tuple[QLabel, QWidget]]:
         """The backdrop question, asked under the theme it belongs with.
 
         EVERY CHOICE THE APPLICATION HAS, ``None`` included -- the list is
@@ -1209,11 +1285,7 @@ class SetupSlides(QDialog):
         box.currentIndexChanged.connect(self._apply_animation)
         self._animation = box
 
-        row = QHBoxLayout()
-        row.addWidget(QLabel(_say(ANIMATION_LABEL)))
-        row.addStretch(1)
-        row.addWidget(box)
-        return row
+        return QLabel(_say(ANIMATION_LABEL)), box
 
     def animation_choice(self) -> str:
         """Which backdrop the slide is showing, or ``""`` with no row."""
