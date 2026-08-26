@@ -2,7 +2,7 @@
 WHAT IS LEFT -- INDEX
 ================================================================================
 
-Regenerated 2026-08-24 by `tools/build_instruction_index.py`, from the files
+Regenerated 2026-08-25 by `tools/build_instruction_index.py`, from the files
 themselves. Do not hand-edit: it went nine days stale last time, and an index
 that disagrees with the folder is worse than none, because it is believed.
 
@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-230 done / 5 open (97%).
+231 done / 8 open (96%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -36,8 +36,17 @@ OPEN
   242  THE MODULE CONSOLIDATION: SEVENTEEN TILES BECOME BUTTONS
        242_the_module_consolidation.txt
 
-  243  THE SETUP SCREEN, THE SETTINGS PANEL, AND THE FIGURE EXPORT
+  243  THE SETUP SCREEN, A BUTTON EXPLAINS ITSELF AT THE FOOT OF THE WINDOW
        243_the_setup_screen_and_the_settings_panel.txt
+
+  245  THE VOLCANO'S RIGHT-CLICK MENU, AND FOUR FILTERS THAT CANNOT FIRE
+       245_the_volcano_menu_and_four_dead_filters.txt
+
+  246  SETTINGS APPEAR WHEN THEY APPLY, AND THE OBJECTS ARE NOT A FIXED FOUR
+       246_settings_appear_when_they_apply.txt
+
+  247  MAKE MASKS: THE TOOLS THAT ARE MISSING, AND THE ROW THEY BELONG IN
+       247_the_make_masks_toolbar_is_short.txt
 
 --------------------------------------------------------------------------------
 DONE
@@ -273,3 +282,4 @@ DONE
   236  CLASSIFY AND REGRESSION, AUDITED EXHAUSTIVELY AGAINST A REAL SCREEN
   238  THE SETUP WINDOW, THE STARTUP NOISE, AND THE PROVIDER LOGINS
   241  EVERY DISTANCE WORTH MEASURING, WITHIN AND BETWEEN OBJECTS
+  244  THE PLATE VIEWER: ONE LOCKED GRID, SQUARE WELLS, AND DRAG TO SELECT

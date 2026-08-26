@@ -759,7 +759,6 @@ _BUILTIN_APPS = [
     # (`spacr.qt.screens.annotate`). `cli.INTERACTIVE_ONLY` still names
     # it, so `spacr-run agreement` still says where to find it.
     ("umap",           "Image UMAP",     "Generate UMAP embeddings with image glyphs",                  SECTION_RESULTS),
-    ("activation",     "Activation",     "Generate activation maps",                                    SECTION_RESULTS),
     ("train_compare",  "Training Runs",  "Overlay several training runs' curves with their settings diffed side by side", SECTION_RESULTS),
     # CLASSIFIER EVALUATION AND EXPLAIN CV MODEL ARE BUTTONS ON CLASSIFY.
     # A classifier is trained on one screen and argued about on two
@@ -837,7 +836,6 @@ APP_STAGE = {
     "analyze_plaques": STAGE_BETA,
     "replication":     STAGE_BETA,
     "umap":            STAGE_BETA,
-    "activation":      STAGE_BETA,
 }
 
 # The built-ins go through the same door as everything else. Registering
