@@ -59,6 +59,21 @@ FOLDED_APPS: Tuple[str, ...] = ("classifier_evaluation", "explain_cv",
                                 activation.APP_KEY)
 
 
+#: What the tiles these folds replaced said, kept so the buttons on this
+#: masthead survive the loss of their registry rows.
+#:
+#: The registry answers a key it no longer holds exactly as it answers a
+#: typo -- no name, no sentence, and "stable" for the maturity -- so
+#: without this an Activation button would carry no tooltip at all and
+#: light up in the colour of finished code for a module assessed as beta.
+FOLD_FALLBACK = {
+    activation.APP_KEY: (
+        "Activation",
+        "Generate activation maps",
+        "beta"),
+}
+
+
 def _navigable(host_window: Optional[QWidget]) -> Optional[QWidget]:
     """``host_window`` if it can be navigated, else None.
 

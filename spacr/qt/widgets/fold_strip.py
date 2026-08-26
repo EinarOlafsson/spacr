@@ -94,6 +94,10 @@ FOLD_HOST_MODULES = (
     "spacr.qt.screens.map_barcodes",
     "spacr.qt.screens.image_umap",
     "spacr.qt.screens.regression",
+    "spacr.qt.screens.measure",
+    "spacr.qt.screens.mask",
+    "spacr.qt.screens.classify",
+    "spacr.qt.screens.annotate",
 )
 
 
@@ -143,25 +147,41 @@ def folded_fallback(key: str) -> Tuple[str, str, str]:
 
 
 def _describe(key: str) -> Tuple[str, str, str]:
-    """Return ``(name, description, stage)`` for a registry key.
+    """Return ``(name, description, stage)`` for one folded module's key.
+
+    THE REGISTRY ANSWERS FIRST, AND STOPS ANSWERING the day the key's row
+    is dropped -- which is how folding a module ends. From then on the
+    only record is the host's own ``FOLD_FALLBACK``, and it has to be
+    consulted for all three fields rather than just the name:
+    :func:`spacr.qt.app.app_stage` reports "stable" for a key it has never
+    heard of, so a module somebody assessed as alpha goes on lighting up
+    in the colour of finished code. The name matters as much -- without
+    the fallback it comes back as the key title-cased, which turns Explain
+    CV Model into "Explain Cv" and AnnData Export into "Anndata Export".
 
     Imported lazily and defensively: this widget is constructed while a
     screen is being built, and :mod:`spacr.qt.app` imports screens. A
     module-level import would close that circle.
     """
+    default_name = key.replace("_", " ").title()
     try:
         from .. import app as app_module
     except Exception:                                   # pragma: no cover
-        return key.replace("_", " ").title(), "", "stable"
-    name, description = key.replace("_", " ").title(), ""
-    for row in getattr(app_module, "APPS", ()):
+        app_module = None
+    name, description, registered = default_name, "", False
+    for row in (getattr(app_module, "APPS", ()) if app_module else ()):
         if row and row[0] == key:
             name = row[1] or name
             description = row[2] or ""
+            registered = True
             break
-    stage_of = getattr(app_module, "app_stage", None)
-    stage = stage_of(key) if callable(stage_of) else "stable"
-    return name, description, stage
+    if registered:
+        stage_of = getattr(app_module, "app_stage", None)
+        stage = stage_of(key) if callable(stage_of) else "stable"
+        return name, description, stage
+    kept_name, kept_description, kept_stage = folded_fallback(key)
+    return (kept_name or name, kept_description or description,
+            kept_stage or "stable")
 
 
 class FoldButton(QPushButton):

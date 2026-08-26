@@ -78,6 +78,33 @@ HOST_KEY = "measure"
 FOLDED_APPS: Tuple[str, ...] = ("illumination", "anndata_export", "motility")
 
 
+#: What the tiles these three folds replaced said, kept so the buttons on
+#: this masthead survive the loss of their registry rows.
+#:
+#: A folded module has no row, and the registry answers a key it does not
+#: hold the same way it answers a typo: no name, no sentence, and "stable"
+#: for the maturity. Illumination and AnnData Export were both assessed as
+#: beta, so without this the two buttons would promise finished code and
+#: read as "Illumination" and "Anndata Export" -- the key title-cased,
+#: which is not how either module spells itself.
+FOLD_FALLBACK = {
+    "illumination": (
+        "Illumination",
+        "Estimate the flat-field from the plate itself and divide it out "
+        "before any intensity feature is measured",
+        "beta"),
+    "anndata_export": (
+        "AnnData Export",
+        "Write the measured objects out as an AnnData object for "
+        "single-cell analysis downstream",
+        "beta"),
+    "motility": (
+        "Motility Assay",
+        "Automated motility assay: track velocity + infection QC",
+        "beta"),
+}
+
+
 def _build_illumination(host_window: Optional[QWidget]) -> QWidget:
     """Illumination Correction's own screen: estimate, QC and save a field.
 
