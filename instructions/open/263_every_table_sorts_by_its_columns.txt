@@ -1,0 +1,103 @@
+================================================================================
+EVERY TABLE SORTS BY ITS COLUMNS, THE SAME WAY
+================================================================================
+
+Status:    OPEN. Requested 2026-08-26.
+Owner:     a shared table behaviour, and the 30 table views that lack it.
+
+--------------------------------------------------------------------------------
+WHAT WAS ASKED
+--------------------------------------------------------------------------------
+
+"in spacr whenever a container shows a table like the Coefficients and hit
+tabs in regression module, the user should be able to sort on each column by
+clicking it once for descending next click for ascending."
+
+--------------------------------------------------------------------------------
+THE STATE, MEASURED
+--------------------------------------------------------------------------------
+
+    38  files build a table or tree view
+     8  call setSortingEnabled(True)
+     3  mentions of DescendingOrder in the whole application
+
+So thirty tables cannot be sorted at all, and the eight that can sort
+ASCENDING first, because that is Qt's default and nothing overrides it.
+
+THE TWO THE MAINTAINER NAMED ARE AMONG THE THIRTY.
+`spacr/qt/widgets/regression_results.py` has no `setSortingEnabled`
+anywhere -- while its own module docstring opens with "Inspect coefficient
+tables ... The results panel combines a clickable volcano plot, sortable
+coefficient tables". The file has been describing a feature it does not
+have.
+
+--------------------------------------------------------------------------------
+DESCENDING FIRST, AND WHY THAT IS RIGHT HERE
+--------------------------------------------------------------------------------
+
+Qt's default first click is ascending. For these tables that is backwards:
+a coefficient table and a hit list are read from the top, and what a user
+wants at the top is the LARGEST effect, the smallest q, the strongest
+result. Ascending first shows them the least interesting rows and makes
+every column a two-click operation.
+
+  * first click on a column -- descending;
+  * second click -- ascending;
+  * a third click may return to the table's own order, or continue to
+    alternate. Choose one and make every table do the same.
+
+--------------------------------------------------------------------------------
+ONE DEFINITION, NOT THIRTY
+--------------------------------------------------------------------------------
+
+The close-mark work in this list has just finished proving the point:
+thirteen places had grown their own close glyph and four had their own
+colour rules, and unifying them found one that could never have matched
+because its own stylesheet beat the application's.
+
+The same will happen here. A table behaviour written at each site drifts,
+and thirty sites is thirty chances. Put it in ONE place -- a helper that
+takes a view and gives it the whole contract -- and have every table ask
+for it.
+
+--------------------------------------------------------------------------------
+FOUR THINGS THAT WILL BREAK IF NOT DESIGNED FOR
+--------------------------------------------------------------------------------
+
+1. NUMBERS MUST SORT AS NUMBERS. A column of strings sorts lexically, and
+   lexically "10" comes before "9". A coefficient table sorted that way is
+   worse than one that does not sort, because it looks sorted. Every
+   numeric column sorts on its VALUE, and a q-value in scientific notation
+   is a number, not a word.
+
+2. MISSING VALUES NEED A PLACE. NaN and blank are not the smallest number;
+   deciding they sort last in both directions is defensible, deciding by
+   accident is not.
+
+3. SORTING MUST NOT BREAK THE LINKAGE. These panels link a table to a
+   plot: clicking a coefficient highlights the same feature in the volcano
+   and the reverse. That linkage is by ROW in some places, and a sort
+   changes what row a feature is in. Anything keyed on row index has to
+   move to being keyed on the feature.
+
+4. A BIG TABLE MUST NOT FREEZE THE WINDOW. Some of these hold a row per
+   guide -- tens of thousands. Sorting that on the GUI thread stops the
+   application on a click. Either the model sorts without materialising
+   everything, or the sort goes off the thread and the header says it is
+   working.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * every table view in the application sorts on every column, found by
+    SWEEPING for the view classes rather than by a list written by hand;
+  * the first click on any column gives descending, the second ascending,
+    measured on the drawn table rather than on a model call;
+  * a numeric column with values 2, 9, 10 sorts 10, 9, 2 -- not 9, 2, 10;
+  * blanks and NaN land in the same place whichever direction is chosen;
+  * selecting a row, sorting, and reading the selection back gives the
+    SAME FEATURE, not the same row number, and the linked plot agrees;
+  * a table of 50,000 rows sorts without the window becoming unresponsive;
+  * the regression module's Coefficients and Hits tabs sort -- they are
+    the two the request named.
