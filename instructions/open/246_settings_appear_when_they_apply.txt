@@ -2,29 +2,33 @@
 SETTINGS APPEAR WHEN THEY APPLY, AND THE OBJECTS ARE NOT A FIXED FOUR
 ================================================================================
 
-Status:    REOPENED. Closed once on evidence that did not test the user's
-           route, and the maintainer found both halves still broken.
-           MEASURED on the Mask panel, 350 rows:
+Status:    REOPENED ON ITEM 1 ONLY. Item 2 was re-measured and DOES work.
 
-           1. THE COUNT IS INERT. `number_of_organelles` exists, defaults to
-              4, and changing it changes nothing: set to 7 the panel still
-              renders organelle, organelleb, organellec, organelled; set to
-              2, the same four. The slots are hard-coded, not generated.
+           1. THE COUNT IS INERT -- STILL BROKEN. `number_of_organelles`
+              exists and defaults to 4, and changing it changes nothing:
+              set to 7 the panel still renders organelle, organelleb,
+              organellec, organelled; set to 2, the same four. The slots
+              are hard-coded, not generated from the count. The vocabulary
+              this was closed on -- `organelle_role`, `MAX_ORGANELLES`,
+              `active_organelle_roles` -- all exists and is correct; NOTHING
+              BUILDS THE PANEL FROM IT. Confirming the vocabulary was
+              mistaken for confirming the feature.
 
-           2. THE HIDE RULE NEVER RUNS AT BUILD TIME. It fires from
-              `apply_settings_dict` and from nowhere else, so ON FIRST OPEN
-              -- where every channel defaults to None -- the panel shows 20
-              cell rows, 20 nucleus, 21 pathogen and 54 per organelle slot,
-              every one of them for an object that is not in the run. Apply
-              a settings dict afterwards and the rule works correctly, which
-              is exactly why this passed: the check drove the mechanism
-              instead of opening the panel.
+           2. A SETTING APPEARS WHEN ITS OBJECT IS IN THE RUN -- WORKS.
+              Measured on a built Mask panel with the event loop running,
+              which is the part an earlier check got wrong: the refresh is
+              deferred through `QTimer.singleShot`, so a probe that never
+              spins the loop sees every row still shown and reports the rule
+              dead. It is not. On first open every channel is None and each
+              object shows ONE row -- its own channel, the switch back.
+              Typing a channel reveals that object's 20 rows; clearing it
+              hides them again. Round trip clean, for cell, nucleus,
+              pathogen and every organelle slot.
 
-           WHAT THAT MEANS FOR THE CHECKS BELOW: a criterion that can be
-           satisfied by calling `apply_settings_dict` is not a criterion
-           about what a user sees. Every one of these is to be driven by
-           BUILDING THE SCREEN and reading the widgets, in the state a user
-           first meets.
+           THE LESSON FOR THE CHECKS BELOW: drive the CONTROL and spin the
+           event loop. A criterion checked by calling `apply_settings_dict`
+           tests a path the user never takes, and one checked without the
+           event loop reports working code as broken.
 Priority:  HIGH -- item 3 below is part of the consolidation (242), which
            the maintainer has put first.
 Owner:     spacr/settings.py and spacr/qt/screens/settings_model.py for
