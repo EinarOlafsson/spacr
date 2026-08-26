@@ -1,0 +1,91 @@
+================================================================================
+REGRESSION OFFERS ITS OWN src, AND CREATES ONE LEVEL IF IT HAS TO
+================================================================================
+
+Status:    OPEN. Requested 2026-08-26. Supersedes item 1 of instruction
+           271, which reported the symptom.
+Owner:     spacr/settings.py for the setting, spacr/ml.py:6598 for the
+           resolution, and the settings validator for the false error.
+
+--------------------------------------------------------------------------------
+WHAT IS ALREADY RIGHT
+--------------------------------------------------------------------------------
+
+The ENGINE already honours a caller's choice and falls back sensibly
+(`spacr/ml.py`, around line 6608):
+
+    requested = settings.get('src')
+    if isinstance(requested, str) and requested.strip():
+        src = os.path.abspath(os.path.expanduser(requested.strip()))
+    else:
+        src = os.path.dirname(settings['count_data'][0])
+
+and the comment above it records why: writing unconditionally beside the
+count data made two runs of the same family write to one path, so comparing
+two conditions silently left only the last on disk.
+
+--------------------------------------------------------------------------------
+WHAT IS MISSING
+--------------------------------------------------------------------------------
+
+1. THE PANEL DOES NOT OFFER `src`. Measured on a built regression screen:
+   `src` is not in the settings, has no widget, and there is no path-like
+   control of any kind. So the override the engine supports cannot be
+   reached from the application at all.
+
+2. AND THE VALIDATOR ERRORS ABOUT IT ANYWAY:
+
+       [settings] ERROR [src]: src is missing from the settings.
+       [settings]     Set src to the folder holding the images (or, for
+                      measure, the merged folder).
+
+   on a run that then completed normally. It is demanding a setting this
+   module does not offer, and telling the user to set it to a folder of
+   IMAGES -- which is not what regression reads. Adding the setting fixes
+   half of this; the validator must also stop treating an absent `src` as
+   an error where the module derives its own.
+
+--------------------------------------------------------------------------------
+WHAT TO BUILD
+--------------------------------------------------------------------------------
+
+  * A `src` SETTING ON THE REGRESSION PANEL, a folder chooser like the
+    other path controls, EMPTY by default;
+  * EMPTY MEANS AUTOMATIC: the folder holding the count data, which is what
+    the engine already does and what every existing run expects;
+  * A VALUE SUPERSEDES THE AUTOMATIC ONE. That is the point of it.
+
+THE CREATION RULE, exactly as asked:
+
+    "if scr dosn exist then make the last folder if the folder holding that
+     folder dosnt exist fall back to auto src"
+
+  * the path exists            -> use it;
+  * the path does not exist but ITS PARENT DOES -> create that one folder
+    and use it;
+  * the parent does not exist  -> DO NOT build a tree. Fall back to the
+    automatic source, and SAY SO -- silently writing somewhere other than
+    where the user asked is the failure this rule exists to avoid.
+
+ONE LEVEL, NOT `makedirs`. A typo in a long path would otherwise create a
+plausible-looking directory tree in the wrong place, and the run would
+succeed into it. Refusing to build more than the leaf is what keeps a typo
+a typo.
+
+SAY WHICH HAPPENED, in the run log and in the settings summary: used as
+given, created, or fell back and why. A user who asked for a folder and got
+a different one has to be told at the time.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * the regression panel offers `src`, empty by default, and an empty one
+    runs exactly where it does today -- beside the count data;
+  * a path that exists is used, and the results land there;
+  * a path whose parent exists is CREATED, one level only, and used;
+  * a path whose parent does not exist is NOT created, the run falls back
+    to the automatic source, and both the log and the summary say so;
+  * `../` and `~` resolve before any of those decisions;
+  * no run prints an error about a missing `src` for a module that derives
+    its own, and a module that genuinely requires one still does.
