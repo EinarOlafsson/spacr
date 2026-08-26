@@ -151,3 +151,77 @@ def test_inference_is_one_of_the_sources():
     from spacr.settings import get_setting_dependencies
 
     assert "inference" in get_setting_dependencies()["level"]["sources"]
+
+
+# --- what each side actually reads -------------------------------------------
+#
+# A setting offered on a run that never reads it is the bug this module is
+# about, wearing a different face: the maintainer set regression_type='mixed'
+# with inference='nonparametric' and got guides, because the permutation path
+# fits no model and never looked at it.
+
+
+def _enabled(key, inference, regression_type="mixed"):
+    from spacr.settings import get_setting_dependencies
+
+    rule = get_setting_dependencies()[key]
+    return rule["predicate"]({"inference": inference,
+                              "regression_type": regression_type,
+                              "analysis_unit": "well"}, None)
+
+
+@pytest.mark.parametrize("key", [
+    "regression_type", "regression_backend", "model_plate_position",
+    "random_row_column_effects", "intercept",
+])
+def test_a_model_setting_is_dead_on_a_permutation_run(key):
+    assert _enabled(key, "nonparametric") is False
+
+
+@pytest.mark.parametrize("key", [
+    "grna_statistic", "guide_permutations", "guide_min_wells",
+    "guide_permutation_seed", "guide_permutation_block",
+])
+def test_a_permutation_setting_is_dead_on_a_fitted_run(key):
+    assert _enabled(key, "parametric") is False
+
+
+def test_the_permutation_section_greys_as_one():
+    """grna_statistic had no rule, so a parametric run greyed its eight
+    neighbours and left it live -- one control in a dead section."""
+    section = ("grna_statistic", "guide_min_wells", "guide_primary_min_wells",
+               "guide_permutations", "guide_permutation_seed",
+               "guide_permutation_block", "guide_nuisance_columns",
+               "guide_presence_threshold", "guide_permutation_batch_size")
+    states = {key: _enabled(key, "parametric") for key in section}
+    assert set(states.values()) == {False}, f"live on a fitted run: {states}"
+    live = {key: _enabled(key, "nonparametric") for key in section}
+    assert set(live.values()) == {True}, f"dead on a permutation run: {live}"
+
+
+def test_auto_greys_neither_side():
+    """Its real resolution counts guides and wells, which the panel cannot
+    see -- so greying a control the run may well read is the worse error."""
+    for key in ("regression_type", "guide_permutations"):
+        assert _enabled(key, "auto") is True
+
+
+def test_no_rule_crashes_when_nothing_is_loaded():
+    """A greying question must never be the thing that raises.
+
+    Two predicates read `context['plate_count']` off a context that is None
+    before any input is loaded, so merely asking whether to grey a control
+    raised AttributeError.
+    """
+    from spacr.settings import get_setting_dependencies
+
+    settings = {"inference": "parametric", "regression_type": "ols",
+                "analysis_unit": "well"}
+    broke = []
+    for key, rule in get_setting_dependencies().items():
+        try:
+            rule["predicate"](settings, None)
+            rule["reason"](settings, None)
+        except Exception as error:                           # noqa: BLE001
+            broke.append((key, type(error).__name__))
+    assert not broke, f"rules that crash on a None context: {broke}"

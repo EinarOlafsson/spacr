@@ -5572,6 +5572,12 @@ def get_setting_dependencies():
         )
 
     guide_keys = (
+        # `grna_statistic` sits FIRST in the Permutation Test category and is
+        # read only by that path -- it says WHAT is measured, and nothing
+        # measures it on a fitted run. It was the one control in that section
+        # with no rule, so a parametric run greyed its eight neighbours and
+        # left it live.
+        'grna_statistic',
         'guide_min_wells', 'guide_primary_min_wells', 'guide_permutations',
         'guide_permutation_seed', 'guide_permutation_block',
         'guide_nuisance_columns', 'guide_presence_threshold',
@@ -5645,7 +5651,10 @@ def get_setting_dependencies():
     # live there: its real resolution counts guides and wells, which this
     # cannot see, so greying a setting the run may well read is the worse
     # error of the two.
+    # `intercept` and `intercept_value` say where a fitted line is anchored.
+    # A permutation test fits no line, so there is nothing to anchor.
     for key in ('regression_type', 'regression_backend', 'cov_type',
+                'intercept', 'intercept_value',
                 'model_plate_position', 'random_row_column_effects'):
         setting_dependencies[key] = _combined(
             setting_dependencies.get(key),
@@ -5924,9 +5933,13 @@ def get_setting_dependencies():
         # TRUE MEANS APPLICABLE, matching every rule above -- the estimator
         # rules return True when the setting IS read. So: enabled when the
         # plate count is unknown, or when there is more than one plate.
+        # `context or {}` because a caller with no loaded inputs passes None,
+        # and every other predicate here tolerates that. Raising instead made
+        # this one rule the only way to crash a panel that is merely asking
+        # whether to grey a control.
         lambda settings, context: (
-            context.get('plate_count') is None
-            or context.get('plate_count') != 1),
+            (context or {}).get('plate_count') is None
+            or (context or {}).get('plate_count') != 1),
         lambda settings, context: (
             "guide_permutation_block names the column permutations are "
             "blocked within, and residuals are never shuffled between its "
@@ -5958,9 +5971,12 @@ def get_setting_dependencies():
         setting_dependencies[_key] = _combined(
             setting_dependencies.get(_key),
             ('paired_data', 'score_data', 'count_data'),
+            # See the note on `guide_permutation_block` above: a caller with
+            # no loaded inputs passes None, and a greying question must not
+            # be the thing that raises.
             lambda settings, context: (
-                context.get('plate_count') is None
-                or context.get('plate_count') != 1),
+                (context or {}).get('plate_count') is None
+                or (context or {}).get('plate_count') != 1),
             lambda settings, context, key=_key: (
                 f"{key} configures correction BETWEEN batches, and the loaded "
                 f"inputs hold one plate. There is nothing between batches to "
