@@ -193,8 +193,8 @@ from PySide6.QtGui import (QBrush, QColor, QImage, QLinearGradient, QPainter,
                            QTransform)
 from PySide6.QtWidgets import QSizePolicy, QWidget
 
-from ..theme import (page_colour, palette_for, relative_luminance,
-                     spaceout_enabled)
+from ..theme import (advance_spaceout_drift, page_colour, palette_for,
+                     relative_luminance, spaceout_enabled)
 
 __all__ = [
     "AMBIENT_THEMES", "ANIMATION_CHOICES", "NO_ANIMATION",
@@ -621,13 +621,52 @@ BUFFER_EDGE_CEILING = 2048
 #: a five-megapixel shading pass. Shading is per buffer pixel, so this is the
 #: number that actually bounds the frame.
 #:
-#: 1920x1080, because that is where the highest setting on the highest-detail
-#: theme lands on the display this was measured on — full-resolution aurora,
-#: 4.76 ms — and it is the user's choice to ask for it. It is a ceiling on
-#: what a *bigger screen* can silently cost, not a veto on the top of the
-#: slider: on a 4K panel the same setting shades 1920x1080 and upscales two-
-#: fold rather than shading 8.3 megapixels.
+#: 1920x1080 is the FALLBACK, and it is a guess at a monitor rather than a
+#: measurement of one. What an engine actually uses is
+#: :attr:`AmbientEngine.max_pixels`, which :class:`AmbientWidget` sets from
+#: the screen the window is really on — see :func:`screen_pixels`. This is
+#: what an engine built with no widget behind it gets: the tests, the theme
+#: preview, and anything constructed before there is a window to ask.
 BUFFER_MAX_PIXELS = 1920 * 1080
+
+
+def screen_pixels(widget: Optional[QWidget] = None) -> int:
+    """Pixels of the screen ``widget`` is on, for the buffer ceiling.
+
+    THE CEILING IS THE SCREEN. Shading finer than the display can show is
+    work thrown away, and shading coarser than it can use is the coarseness
+    the fractal backdrop was reported for — so the number that bounds the
+    buffer should be the panel's, not a constant written when 1080p was the
+    common case. A 4K display asks for four times the pixels and is entitled
+    to them; the per-engine guard is what decides whether this machine can
+    also afford them.
+
+    MULTI-MONITOR HAS NO SINGLE ANSWER, so this takes the screen the widget
+    is actually on rather than the primary one, and the widget re-asks when
+    it is shown and when the window moves — see
+    :meth:`AmbientWidget._follow_screen`. ``None``, no application, or a
+    widget not on a screen yet all fall back to :data:`BUFFER_MAX_PIXELS`,
+    which is what makes this safe to call from anywhere.
+
+    DEVICE PIXELS, not logical ones: the buffer is upscaled onto real
+    pixels, and on a 2x display a logical figure would ask for a quarter of
+    the detail the panel can show.
+    """
+    try:
+        screen = widget.screen() if widget is not None else None
+        if screen is None:
+            from PySide6.QtGui import QGuiApplication
+            screen = QGuiApplication.primaryScreen()
+        if screen is None:
+            return BUFFER_MAX_PIXELS
+        size = screen.size()
+        ratio = float(screen.devicePixelRatio() or 1.0)
+        pixels = int(size.width() * ratio) * int(size.height() * ratio)
+    except Exception:
+        return BUFFER_MAX_PIXELS
+    # A screen smaller than the fallback is still a real ceiling; a
+    # nonsensical one (a headless plugin reporting nothing) is not.
+    return pixels if pixels >= BUFFER_MIN_EDGE ** 2 else BUFFER_MAX_PIXELS
 
 
 # ---------------------------------------------------------------------------
@@ -943,6 +982,9 @@ class AmbientEngine:
         self.seed = seed
         self.time = 0.0
         self.frames = 0
+        #: Most pixels this engine's buffer may hold. The screen's, once a
+        #: widget has told it; :data:`BUFFER_MAX_PIXELS` until then.
+        self.max_pixels = BUFFER_MAX_PIXELS
         # Before ``_configure``: a subclass may size something from them.
         self.blur = _clamp(blur, *BLUR_RANGE)
         self.speed = _clamp(speed, *SPEED_RANGE)
@@ -1097,6 +1139,19 @@ class AmbientEngine:
         """
         return 1.0 / max(1.0, self.effective_density())
 
+    def set_max_pixels(self, pixels: int) -> None:
+        """Tell the engine how many pixels the display actually has.
+
+        Drops whatever the resolution setting sized, because this is the
+        other half of that answer: the buffer is the smaller of what the
+        resolution asks for and what the screen can use.
+        """
+        pixels = max(BUFFER_MIN_EDGE ** 2, int(pixels))
+        if pixels == self.max_pixels:
+            return
+        self.max_pixels = pixels
+        self._reresolve()
+
     def set_speed(self, value: float) -> None:
         """Multiply every motion in the theme. Clamped to :data:`SPEED_RANGE`.
 
@@ -1202,15 +1257,17 @@ class _BufferedEngine(AmbientEngine):
         canvas. Always a whole number: a fractional one puts the upscale
         lattice on a beat with itself instead of on the pixel grid.
 
-        The second loop is :data:`BUFFER_MAX_PIXELS`, which is the ceiling
-        that actually bounds the cost — the edge alone is a ratio, and a
-        ratio does not know how big the display is.
+        The second loop is :attr:`AmbientEngine.max_pixels` — the screen's
+        own pixel count once a widget has supplied it, and
+        :data:`BUFFER_MAX_PIXELS` until then. That is the ceiling that
+        actually bounds the cost: the edge alone is a ratio, and a ratio
+        does not know how big the display is.
         """
         width, height = max(1, int(width)), max(1, int(height))
         scale = max(1, int(math.ceil(max(width, height)
                                      / self.resolution_edge())))
         while scale < 64 and \
-                (width // scale) * (height // scale) > BUFFER_MAX_PIXELS:
+                (width // scale) * (height // scale) > self.max_pixels:
             scale += 1
         return scale
 
@@ -3093,21 +3150,24 @@ class CellsEngine(_BufferedEngine):
 # The spaceout backdrop. Not one of :data:`AMBIENT_THEMES` and not reachable
 # from Preferences — see :data:`SPACEOUT_THEME`.
 
-#: Longest buffer edge the fractal shades into at resolution 1.0.
+#: Longest buffer edge the fractal shades into at resolution 1.0, before
+#: the guard.
 #:
-#: Below the diffuse themes' :data:`BUFFER_MAX_EDGE`, and that is the whole
-#: cost decision: an escape-time field is shaded *per pixel* in NumPy, so
-#: this number and the iteration count are the two halves of a frame, and
-#: neither of them is Qt's C++ raster engine doing the work.
+#: ABOVE the diffuse themes' :data:`BUFFER_MAX_EDGE`, and it is the one
+#: theme in the module that has to be. A blob is a gradient and has no
+#: detail to lose to a small buffer; a fractal carries structure at every
+#: scale, so the buffer's edge is visible in it as coarseness — which is the
+#: whole of "the pattern needs to be higher resolution".
 #:
-#: 208 puts a 1920-wide canvas on a 192x108 buffer — 20 736 pixels — and a
-#: 1280-wide one on 182x102. Measured interleaved, best of nine, at both
-#: sizes: 1.04-1.12 ms against the aurora's 1.32-1.84, where 256 measured
-#: 1.51-1.68 and lost the comparison at 1280x720. The picture does not
-#: notice; the field is smooth by construction (see
-#: :data:`FRACTAL_SOFT_LIMIT`) so there is no fine structure for a smaller
-#: buffer to lose, and the two renders are hard to tell apart side by side.
-FRACTAL_BUFFER_EDGE = 208
+#: 448 puts a 1920-wide canvas on a 384x216 buffer, four times the pixels
+#: the edge below it shaded, and a 3840-wide one on 426x240. THE NUMBER IS
+#: AN ASK, NOT A PROMISE: an escape-time field is shaded per pixel in NumPy,
+#: so four times the pixels is four times the frame, and what is actually
+#: allocated is this trimmed by :meth:`FractalEngine.afford` until the pass
+#: fits :data:`FRACTAL_FRAME_SHARE`. On a machine that cannot pay for 448 it
+#: settles lower on its own, which is what the request asks the guard to do
+#: rather than stuttering.
+FRACTAL_BUFFER_EDGE = 448
 
 #: How many times the map is iterated per pixel.
 #:
@@ -3119,8 +3179,8 @@ FRACTAL_BUFFER_EDGE = 208
 #: therefore bounds this engine without a line of its own.
 #:
 #: Twenty is where the Julia boundary stops gaining structure at this buffer
-#: size: the filaments a 40th iteration resolves are thinner than the eight
-#: screen pixels each buffer pixel is stretched over.
+#: size: the filaments a 40th iteration resolves are thinner than the ten
+#: screen pixels each buffer pixel is stretched over on a 1080p canvas.
 FRACTAL_ITERATIONS = 20
 
 #: ``|z|^2`` past which the orbit is considered gone. 4.0 is |z| > 2, the
@@ -3231,43 +3291,387 @@ FRACTAL_LIGHT_TINT = 0.40
 FRACTAL_LEVELS = 256
 FRACTAL_INTERIOR_LEVEL = 255
 
+# -- the fractal is alive: states, a beat, buds and a vortex -----------------
+# Everything below is what separates a living pattern from a screensaver, and
+# the distinction is a real one: a loop that always does the same thing at the
+# same rate is learnable in about a minute, and once it is learned it stops
+# being looked at. So the engine has STATES it moves between — deep and flat,
+# busy and quiet, fast and slow, crowded and empty — on its own, gradually,
+# and in an order that does not repeat.
+#
+# ALL OF IT IS A PURE FUNCTION OF (SEED, TIME). Not an aesthetic preference:
+# `shade` runs on `_FrameProducer`, a test renders the same clock twice and
+# compares byte for byte, and `set_time` carries the clock across a theme
+# change. A state machine that stepped itself per frame would break all three.
+# The wander below is therefore hashed noise indexed by a cell number rather
+# than a random walk, and the beat's phase is an integral in closed form
+# rather than an accumulator.
+
+#: The wander's octaves, as ``(seconds per cell, weight)``.
+#:
+#: WHY THIS IS NOT A LOOP, in the strong sense rather than the "very long
+#: period" sense. Each octave is a value hashed from ``(seed, channel, cell
+#: number)`` and smoothed across the cell boundary, and the cell number
+#: counts up forever — so the sequence is not a cycle at all and there is no
+#: period to find, however long a watcher looks. Three octaves an octave and
+#: a half apart give the shape a state should have: a slow tide, a swell on
+#: it, and a little chop on that.
+FRACTAL_STATE_OCTAVES: Tuple[Tuple[float, float], ...] = (
+    (73.0, 1.00), (29.0, 0.52), (11.0, 0.24))
+
+#: The four states, as channel numbers into the wander.
+#:
+#: They are separate channels rather than one number because they have to be
+#: able to disagree: deep and quiet, flat and busy, and every other corner.
+#: One shared state would make the picture pass through the same handful of
+#: looks, which is the fault this whole block exists to avoid.
+FRACTAL_STATE_DEPTH = 0
+FRACTAL_STATE_BUSY = 1
+FRACTAL_STATE_PACE = 2
+FRACTAL_STATE_CROWD = 3
+
+#: The vortex, from flat to deep, as the ``depth`` state runs 0 to 1.
+#:
+#: TWO TERMS, and it takes both to read as a tunnel rather than as a spiral
+#: drawn on a wall:
+#:
+#: * :data:`FRACTAL_SWIRL` twists the *sampling*, in radians per e-fold of
+#:   radius. It is a conformal map — the picture is turned by an amount that
+#:   grows as the centre is approached — so the fractal's own detail is not
+#:   distorted, it is wound into a spiral that converges at the middle. At
+#:   0.0 it is exactly the plain rotation the engine had before, which is
+#:   what makes "sometimes not" free.
+#: * :data:`FRACTAL_TUNNEL` puts the colour bands on the *log* of the
+#:   radius, in full traversals of the palette per e-fold. Bands spaced
+#:   geometrically are what perspective does to evenly spaced rings, and
+#:   scrolling them (:data:`FRACTAL_TUNNEL_RATE`) is what makes them travel
+#:   down it. This is the term that supplies the depth; the swirl supplies
+#:   the turning.
+FRACTAL_SWIRL = (0.0, 1.25)
+FRACTAL_TUNNEL = (0.0, 2.6)
+
+#: Where the view is, and how wide, at the two ends of the depth state.
+#:
+#: THE DEEP STATE IS A DIFFERENT VIEW, and it has to be. A spiral twist
+#: alone does not make a tunnel out of this picture, because at
+#: :data:`FRACTAL_SPAN` the middle of the screen is the filled INTERIOR of
+#: the set — a flat silhouette with no structure in it, and a vortex needs
+#: something to converge into. So as the depth rises the view slides onto
+#: the set's REPELLING FIXED POINT and closes in on it.
+#:
+#: That point is not a taste: ``beta = (1 + sqrt(1 - 4c)) / 2`` is on the
+#: Julia set for every ``c``, and the set is asymptotically SELF-SIMILAR
+#: around it — the map is locally ``z -> lambda(z - beta) + beta`` with
+#: ``lambda = 2*beta``, so the structure repeats at a fixed ratio of scale
+#: with a fixed turn between the copies. That is a logarithmic spiral of
+#: fractals, drawn by the mathematics rather than by the shader, and
+#: closing in on it is looking down it.
+#:
+#: THE VIEW IS ALWAYS ON THAT POINT and only the SPAN moves. Sliding the
+#: centre with the depth was tried first and is worse: at half depth the
+#: middle of the screen sits between the origin and ``beta``, which is
+#: inside the filled set, so the closer the view got the more of the screen
+#: was one flat silhouette. Anchored on the boundary the middle of the
+#: picture always has structure in it, and the depth is free to be purely
+#: how far INTO that structure the view is.
+#:
+#: At depth zero the span is the whole set and the swirl is nothing, which
+#: is the "and sometimes not" half of the request.
+FRACTAL_SPAN_DEEP = 0.16
+#: How far along the way to that point the view is centred, so that the
+#: middle of the screen is ON the boundary rather than a little inside it.
+#: One, because the point itself is the boundary — the fraction is here to
+#: be turned down if a future palette makes the exact point read badly.
+FRACTAL_ORIGIN_DEEP = 1.0
+
+#: The window of the raw wander that the depth state actually spends, and
+#: what is outside it.
+#:
+#: A sum of smoothed noise is a bell: left alone it spends nearly all its
+#: time in the middle of its range, so the picture would always be half
+#: deep and would never be either thing. Stretching the middle two thirds
+#: over the whole range and clamping the tails gives what "STATES it moves
+#: between" means — real time spent flat, real time spent deep, and a
+#: gradual transition between them rather than a permanent average.
+FRACTAL_DEPTH_WINDOW = (0.30, 0.68)
+
+#: E-folds of radius the tunnel's rings travel per second, before the pace
+#: state. Slow: the rings should be noticed to have moved, not watched
+#: moving.
+FRACTAL_TUNNEL_RATE = 0.045
+
+#: How fast the vortex turns, in turns per second, from the flattest state to
+#: the deepest. Added to the view's own :data:`FRACTAL_SPIN_PERIOD`, which
+#: goes on being the slow drift underneath.
+FRACTAL_TURN = (0.004, 0.055)
+
+#: How far the pace state may push a phase, in turns.
+#:
+#: THE PACE IS A PHASE OFFSET, NOT A RATE. A rate that wanders has to be
+#: integrated to get a phase, and hashed noise has no closed-form integral —
+#: so an engine that did it that way would have to accumulate, which is the
+#: one thing this module cannot do (see the block above). A wandering offset
+#: added to the phase gives the same thing at the eye: the apparent speed is
+#: the base rate plus the offset's own slope, so the motion runs ahead,
+#: falls back, stalls and briefly reverses, and never jumps.
+FRACTAL_PACE_SWING = 0.35
+
+#: The beat: base rate in beats per second, and the wander on that rate as
+#: ``(share, period in seconds, phase in turns)``.
+#:
+#: Thirty-seven a minute at rest. The wander is applied to the RATE and the
+#: phase is its integral in closed form — ``∫ R(1 + Σ a cos(2πt/P)) dt`` —
+#: which is what lets the beat speed up and slow down while its phase stays
+#: continuous through every change of speed. A heart does not skip when it
+#: quickens, and neither does this.
+FRACTAL_BEAT_RATE = 0.62
+FRACTAL_BEAT_WANDER: Tuple[Tuple[float, float, float], ...] = (
+    (0.34, 41.0, 0.31), (0.19, 17.3, 0.77))
+
+#: The beat's shape, as ``(position in the cycle, width, height)``.
+#:
+#: TWO THUMPS, not a sine. A sine spends as long rising as falling and reads
+#: as breathing; a beat is a short strike, a shorter second one, and then
+#: nothing until the next. The second thump at a little over half the first
+#: is the systole/diastole shape, and it is the thing that makes a pulse
+#: recognisable as a pulse.
+FRACTAL_BEAT_THUMP: Tuple[Tuple[float, float, float], ...] = (
+    (0.00, 0.052, 1.00), (0.20, 0.080, 0.55))
+
+#: What the beat moves: the zoom, as a share of the span, and the light, as a
+#: share of the peak alpha it is allowed to take AWAY.
+#:
+#: The alpha only ever dips. The peak is where every readability measurement
+#: of this backdrop was taken (see :data:`FRACTAL_ALPHA_DARK`), so a beat
+#: that brightened past it would be quietly raising the ceiling those were
+#: made against; a beat that darkens from it cannot.
+FRACTAL_BEAT_ZOOM = 0.055
+FRACTAL_BEAT_DIP = 0.22
+
+#: How much the busy state moves the iteration count, as a multiplier range.
+#: Below one is a smoother, softer field; above it, finer filaments. It rides
+#: on top of the density control rather than replacing it.
+FRACTAL_BUSY = (0.55, 1.45)
+
+#: Extra iterations at full depth, as a share of the count.
+#:
+#: NOT DECORATION. The escape count is what resolves the boundary, and how
+#: fine the boundary is depends on how far in the view is: at
+#: :data:`FRACTAL_SPAN` twenty iterations resolve everything there is to
+#: see, and at :data:`FRACTAL_SPAN_DEEP` they leave the spiral as a flat
+#: wash because the orbits that separate its arms have not been given long
+#: enough to separate. So the count follows the depth. It costs what it
+#: costs and the guard is what pays for it.
+FRACTAL_DEPTH_ITERS = 0.85
+
+#: How many buds the engine can have in the air at once, and the seconds one
+#: slot takes to come round.
+#:
+#: SLOTS RATHER THAN A LIST, because the bud population has to be a pure
+#: function of the clock: slot ``k`` is on its own cycle, and which cycle it
+#: is in — and therefore which bud, with which numbers — follows from the
+#: time alone. The cycles are all different and mutually incommensurate, so
+#: the population wanders between one form and six without ever repeating a
+#: pattern of arrivals.
+FRACTAL_BUD_SLOTS = 5
+FRACTAL_BUD_CYCLE = (19.0, 47.0)
+
+#: The share of its cycle a bud is alive for, and the chance a slot takes the
+#: cycle at all.
+#:
+#: THE SKIP IS THE POINT. "Sometimes there is more happening than the thing
+#: in the middle. Not always." A slot that always produced a bud would give a
+#: population that breathed between four and six; one that may sit a cycle
+#: out gives screens with one form on them, which is a state the picture is
+#: supposed to pass through.
+FRACTAL_BUD_LIFE = (0.30, 0.72)
+FRACTAL_BUD_TAKES = 0.62
+
+#: A bud's size and how far it travels, both as a share of the parent's rim.
+#: It leaves at the rim and drifts outward for the rest of its life.
+FRACTAL_BUD_RADIUS = (0.28, 0.62)
+FRACTAL_BUD_TRAVEL = (0.35, 1.30)
+
+#: Where the parent's rim is, as a share of half the buffer's short edge.
+#: This is the circle a bud is born ON, which is what makes it read as having
+#: separated from the form in the middle rather than faded in beside it.
+FRACTAL_BUD_RIM = 0.62
+
+#: How soft a bud's edge is, as a share of its radius.
+#:
+#: A BUBBLE, not a cut-out. The bud is the parent's own field re-sampled
+#: through the bud's scale and vortex, and the two samplings are blended
+#: across this band — so the rim refracts rather than clipping, which is what
+#: the eye reads as a bubble sitting in front of the picture.
+FRACTAL_BUD_FEATHER = 0.30
+
+#: How much bigger a bud's scale is than its parent's, as a multiplier range
+#: rolled per bud. Under one is a magnifier: fewer units of the plane across
+#: the bud, so it holds a close-up of the same set.
+FRACTAL_BUD_ZOOM = (0.35, 1.6)
+
+
+# -- the guard --------------------------------------------------------------
+# `WORK_BUDGET` bounds what the USER can ask for, in multiples of what the
+# theme costs at its own defaults. It cannot answer the other question — what
+# this machine can afford — because it knows nothing about the machine. This
+# does: it measures the shading pass and trims the engine until it fits.
+
+#: What one shading pass may cost, as a share of the frame interval at
+#: :data:`DEFAULT_FPS`.
+#:
+#: 9 % is 3.75 ms of a 41.7 ms frame. Chosen against what the backdrop is:
+#: it runs on :class:`_FrameProducer` rather than the GUI thread, so the cost
+#: is a share of one core and never a stutter — but it is Python holding the
+#: interpreter lock in bursts, and a job running in the same process feels
+#: that. The aurora, the most expensive theme on the Animation menu, measures
+#: 1.3-2.6 ms; this engine is allowed rather more because a fractal carries
+#: detail at every scale and is the one thing in the module that shows the
+#: buffer's edge.
+FRACTAL_FRAME_SHARE = 0.09
+
+#: How far the guard may trim the buffer, as a share of its pixels.
+#:
+#: 0.15 of the pixels is 0.39 of the edge — 175 px on the 448 asked for,
+#: which is where this engine was before the resolution was raised and is
+#: therefore a floor with a measurement behind it rather than a guess. Below
+#: that the answer is not a smaller buffer, it is a slower machine that
+#: should turn the Animation preference down.
+FRACTAL_AFFORD_FLOOR = 0.15
+
+#: How fast the guard gives ground and how slowly it takes it back, as a
+#: share of the gap closed per second of animation.
+#:
+#: ASYMMETRIC ON PURPOSE. An overrun is evidence about the machine and is
+#: acted on quickly; an underrun may just be a quiet moment, and climbing
+#: back at the same speed would make the buffer size oscillate — which is
+#: visible, because the whole picture resamples when it changes.
+FRACTAL_AFFORD_EASE = (6.0, 0.12)
+
+
+def _hash01(salt: int, channel: int, index: int) -> float:
+    """A repeatable 0..1 value for ``(salt, channel, index)``.
+
+    Integer avalanche rather than :mod:`random`, because it is called with a
+    cell number that counts up forever and has to answer for any of them
+    without keeping a sequence — which is exactly what makes the state
+    machine above a pure function of the clock.
+    """
+    value = (salt * 0x9E3779B1) ^ (channel * 0x85EBCA77) ^ (index * 0xC2B2AE3D)
+    value &= 0xFFFFFFFF
+    value ^= value >> 15
+    value = (value * 0x2C1B3C6D) & 0xFFFFFFFF
+    value ^= value >> 12
+    value = (value * 0x297A2D39) & 0xFFFFFFFF
+    value ^= value >> 15
+    return value / 4294967296.0
+
+
+def _lerp(span: Tuple[float, float], amount: float) -> float:
+    """``span[0]`` at 0, ``span[1]`` at 1, clamped."""
+    amount = _clamp(float(amount), 0.0, 1.0)
+    return span[0] + (span[1] - span[0]) * amount
+
+
+class Form(NamedTuple):
+    """One thing on screen — the main form, or a bud that left it.
+
+    A bud is the same kind of thing as its parent: the same field, the same
+    Julia constant, at its own centre, scale, rotation and vortex. What is
+    per-form is the *sampling*, which is why the pair below is enough to
+    describe either of them.
+
+    :param cx: centre in buffer pixels.
+    :param cy: centre in buffer pixels.
+    :param scale: buffer pixels per unit of the complex plane.
+    :param angle: rotation of the sampling, in radians.
+    :param c_re: the Julia constant. The same for every form in a frame —
+        a bud carries its parent's, which is what makes its pixels the
+        parent's pixels.
+    :param c_im: the other half of it.
+    :param iterations: how many times the map is applied this frame.
+    :param origin_re: the point of the complex plane the middle of the form
+        looks at. The origin when the form is flat, and the set's repelling
+        fixed point when it is deep — see :data:`FRACTAL_ORIGIN_DEEP`.
+    :param origin_im: the other half of it.
+    :param swirl: radians of twist per e-fold of radius — the vortex.
+    :param tunnel: traversals of the palette per e-fold of radius.
+    :param scroll: where the tunnel's rings have travelled to, in e-folds.
+    :param radius: the form's rim, in buffer pixels. For the main form this
+        is where a bud is born; for a bud it is the edge of the bubble.
+    :param age: 0 at birth, 1 at the end of a bud's life. 0.0 for the main
+        form, which has no life to be through.
+    :param bud: False for the form in the middle, True for one that left it.
+    """
+
+    cx: float
+    cy: float
+    scale: float
+    angle: float
+    c_re: float
+    c_im: float
+    iterations: int
+    origin_re: float
+    origin_im: float
+    swirl: float
+    tunnel: float
+    scroll: float
+    radius: float
+    age: float
+    bud: bool
+
 
 class FractalEngine(_BufferedEngine):
-    """A Julia set that morphs, turns, and cycles colour.
+    """A living Julia set: it morphs, it turns, it beats, and it buds.
 
     ``z <- z^2 + c`` iterated per pixel, coloured by how long the orbit
-    survives. Three motions run at once and on unrelated periods, so the
-    picture never repeats inside a session:
+    survives. What is drawn is not one flat picture of that but a small
+    population of FORMS, each of which is the same field sampled through its
+    own vortex:
 
-    * ``c`` travels around the boundary of the Mandelbrot set's main
-      cardioid (:data:`FRACTAL_C_PERIOD`), held a little way inside it
-      (:data:`FRACTAL_INSET`), which morphs the shape of the set itself;
-    * the view turns and breathes (:data:`FRACTAL_SPIN_PERIOD`,
-      :data:`FRACTAL_BREATH`);
-    * the rainbow bands scroll outward along the escape range
-      (:data:`FRACTAL_CYCLE_PERIOD`).
+    * the **main form**, in the middle, the size of the canvas;
+    * its **buds** — bubbles that leave its rim, drift outward, turn on
+      their own axis and go. How many there are is a state the engine passes
+      through rather than a constant, and one of the states is none
+      (:data:`FRACTAL_BUD_SLOTS`).
 
-    **It answers to the same performance guard as every other theme.** The
-    field is shaded into the small reusable buffer :class:`_BufferedEngine`
-    owns, at :data:`FRACTAL_BUFFER_EDGE`; the resolution control sizes that
-    buffer and the density control sets the iteration count, so
-    :attr:`AmbientEngine.work` — resolution squared times density — is the
-    true cost model here rather than an approximation of one, and
-    :data:`WORK_BUDGET` trims the pair without this class knowing about it.
-    :meth:`shade` runs on :class:`_FrameProducer` like every other buffered
-    theme, so the GUI thread's share of a frame is one ``drawImage``.
+    **The vortex.** Each form's sampling is twisted by an amount that grows
+    with the log of the radius (:data:`FRACTAL_SWIRL`) and its colour bands
+    are spaced on that same log and scroll along it
+    (:data:`FRACTAL_TUNNEL`). Between them those are what perspective does to
+    a turning tunnel, so looking at a form is looking *into* it. Both run
+    from zero, and at zero this is exactly the flat rotation the engine had
+    before — which is what "sometimes deep 3D vortex and sometimes not" asks
+    for.
 
-    :meth:`alpha_scale` is deliberately **not** applied. It compensates for
-    N overlapping shapes adding up to N times the light, and this engine
-    draws one field with no overlap at all: more iterations resolve finer
-    bands, they do not stack more light on the same pixel. Dimming the
-    picture as the density rose would be a brightness control wearing the
-    wrong name — the exact fault that method exists to prevent.
+    **It beats.** :meth:`beat` is two thumps rather than a sine, on a rate
+    that itself wanders (:data:`FRACTAL_BEAT_WANDER`), and it moves the zoom
+    and the light.
 
-    :meth:`geometry` yields exactly one tuple, ``(cx, cy, scale, angle,
-    c_re, c_im, iterations)``: the centre of the view in pixels, the scale
-    in pixels per unit of the complex plane, the rotation in radians, the
-    Julia constant, and how many iterations this frame is worth.
+    **It does not repeat.** Four states — depth, business, pace and crowd —
+    wander independently on hashed noise that is indexed by a cell number
+    rather than drawn from a sequence (:data:`FRACTAL_STATE_OCTAVES`). There
+    is no period to learn because there is no cycle: the picture at ten
+    minutes is not the picture at any earlier moment.
+
+    **Everything here is a pure function of (seed, time).** :meth:`shade`
+    runs on :class:`_FrameProducer`, the tests render one clock twice and
+    compare byte for byte, and :meth:`set_time` carries the clock across a
+    theme change. The one piece of state that is not is :meth:`afford`, and
+    it is advanced from :meth:`advance` rather than from the paint so that
+    two paints of the same clock still agree.
+
+    **The guard decides.** The buffer is asked for at
+    :data:`FRACTAL_BUFFER_EDGE`, which is larger than the diffuse themes'
+    :data:`BUFFER_MAX_EDGE` because a fractal carries detail at every scale
+    and is the one theme that shows the buffer's edge. What it actually gets
+    is that trimmed by :meth:`afford`, which measures the shading pass and
+    gives ground until it fits :data:`FRACTAL_FRAME_SHARE` — fewer buds and
+    a smaller buffer on a machine that cannot afford the full thing, rather
+    than a stutter.
+
+    :meth:`geometry` yields one :class:`Form` per thing on screen, the main
+    form first.
     """
 
     name = "fractal"
@@ -3280,31 +3684,159 @@ class FractalEngine(_BufferedEngine):
             else _mix(color, QColor(255, 255, 255), FRACTAL_LIGHT_TINT)
 
     def _configure(self, rng: random.Random) -> None:
-        # Four independent phases and a direction, so two backdrops built
-        # with different seeds are not in lockstep — the same reason every
-        # other engine rolls its periods rather than sharing one clock.
+        # Independent phases and a direction, so two backdrops built with
+        # different seeds are not in lockstep — the same reason every other
+        # engine rolls its periods rather than sharing one clock.
         self._phase_c = rng.random()
         self._phase_inset = rng.random()
         self._phase_spin = rng.random()
         self._phase_breath = rng.random()
         self._phase_cycle = rng.random()
+        self._phase_beat = rng.random()
         self._spin = 1.0 if rng.random() < 0.5 else -1.0
-        #: Pixel-offset grids, keyed by the buffer size they were built for.
+        #: What the wander and the bud schedule are hashed from. An int
+        #: rather than the seed itself because the seed may be None.
+        self._salt = rng.getrandbits(30) or 1
+        #: Polar grids, keyed by the buffer size they were built for.
         #: Rebuilt on a resize and never per frame.
-        self._plane: Optional[Tuple[object, object]] = None
+        self._plane: Optional[Tuple[object, object, object]] = None
         self._plane_size: Tuple[int, int] = (0, 0)
         #: The 0..1 ramp the colour table is built over. Constant, so it
         #: is built once and reused.
         self._ring = None
+        #: What share of the asked-for buffer this machine can afford, and
+        #: the shading costs measured since the last :meth:`advance`.
+        self._afford = 1.0
+        self._spent: List[float] = []
 
+    # -- the state machine ---------------------------------------------
+    def wander(self, channel: int, at: Optional[float] = None) -> float:
+        """The ``channel`` state, 0..1, at the current clock.
+
+        Value noise: a hashed value per cell, smoothed across the boundary,
+        summed over :data:`FRACTAL_STATE_OCTAVES`. Continuous, so a state
+        change is always a transition and never a cut, and aperiodic,
+        because the cell number counts up forever.
+        """
+        moment = self.time if at is None else float(at)
+        total = 0.0
+        weights = 0.0
+        for octave, (cell, weight) in enumerate(FRACTAL_STATE_OCTAVES):
+            position = moment / cell + _hash01(self._salt, channel * 8 + octave,
+                                               -1)
+            index = math.floor(position)
+            fraction = position - index
+            low = _hash01(self._salt, channel * 8 + octave, int(index))
+            high = _hash01(self._salt, channel * 8 + octave, int(index) + 1)
+            ease = fraction * fraction * (3.0 - 2.0 * fraction)
+            total += weight * (low + (high - low) * ease)
+            weights += weight
+        return total / weights
+
+    def swing(self, channel: int) -> float:
+        """:meth:`wander`, mapped to -1..1."""
+        return 2.0 * self.wander(channel) - 1.0
+
+    def depth(self) -> float:
+        """How deep the vortex is right now, 0 (flat) to 1.
+
+        The raw wander stretched over :data:`FRACTAL_DEPTH_WINDOW` and
+        smoothed, so the engine spends real time at both ends instead of
+        hovering at the average of a bell — see the note there.
+        """
+        low, high = FRACTAL_DEPTH_WINDOW
+        raw = _clamp((self.wander(FRACTAL_STATE_DEPTH) - low)
+                     / max(1e-6, high - low), 0.0, 1.0)
+        return raw * raw * (3.0 - 2.0 * raw)
+
+    def beat_phase(self) -> float:
+        """The beat's phase in cycles, as a continuous function of the clock.
+
+        ``∫ rate dt`` in closed form, with ``rate`` the base rate modulated
+        by :data:`FRACTAL_BEAT_WANDER`. Integrated rather than sampled so
+        that the phase stays continuous while the rate changes — a beat that
+        jumps when it quickens is not a beat.
+        """
+        moment = self.time
+        phase = moment * FRACTAL_BEAT_RATE
+        for share, period, offset in FRACTAL_BEAT_WANDER:
+            phase += FRACTAL_BEAT_RATE * share * period / (2.0 * math.pi) * (
+                math.sin(2.0 * math.pi * (moment / period + offset))
+                - math.sin(2.0 * math.pi * offset))
+        return phase + self._phase_beat
+
+    def beat(self) -> float:
+        """How far into a beat the form is, 0 between them and 1 at a thump.
+
+        Two Gaussian strikes per cycle — see :data:`FRACTAL_BEAT_THUMP`.
+        """
+        position = self.beat_phase() % 1.0
+        value = 0.0
+        for at, width, height in FRACTAL_BEAT_THUMP:
+            gap = ((position - at + 0.5) % 1.0) - 0.5
+            value += height * math.exp(-(gap / width) ** 2)
+        return _clamp(value, 0.0, 1.0)
+
+    # -- the guard -----------------------------------------------------
+    def frame_budget(self) -> float:
+        """What one shading pass may cost, in milliseconds."""
+        return FRACTAL_FRAME_SHARE * 1000.0 / DEFAULT_FPS
+
+    def afford(self) -> float:
+        """What share of the asked-for buffer this machine can pay for.
+
+        1.0 until a shading pass runs long. Moved by :meth:`advance` and
+        never by the paint, so two paints of the same clock agree — see the
+        class docstring.
+        """
+        return self._afford
+
+    def advance(self, dt: float) -> None:
+        """Step the clock, and let the guard act on what the last frames
+        cost.
+
+        The measurement is taken in :meth:`_paint_field` and *spent* here.
+        Splitting it that way is what keeps the engine a pure function of
+        the clock between advances, which is what the byte-for-byte frame
+        tests rest on.
+        """
+        super().advance(dt)
+        spent, self._spent = self._spent, []
+        if not spent or dt <= 0:
+            return
+        # The worst of the batch, not the mean: the guard is answering
+        # "can this machine keep up", and one long pass a second is a
+        # dropped frame however cheap the others were.
+        over = max(spent) / max(0.001, self.frame_budget())
+        ease = FRACTAL_AFFORD_EASE[0] if over > 1.0 else FRACTAL_AFFORD_EASE[1]
+        step = _clamp(float(dt) * ease, 0.0, 1.0)
+        want = _clamp(self._afford / over, FRACTAL_AFFORD_FLOOR, 1.0)
+        self._afford = _clamp(self._afford + (want - self._afford) * step,
+                              FRACTAL_AFFORD_FLOOR, 1.0)
+
+    def resolution_edge(self) -> int:
+        """Longest buffer edge, after the resolution control and the guard.
+
+        :meth:`afford` is a share of the buffer's PIXELS, so it enters the
+        edge as a square root: half the work is seven tenths of the edge.
+        """
+        return _clamp_int(round(self.base_edge * self.resolution
+                                * math.sqrt(self._afford)),
+                          BUFFER_MIN_EDGE, BUFFER_EDGE_CEILING)
+
+    # -- what is drawn -------------------------------------------------
     def iterations(self) -> int:
         """How many times the map is iterated this frame.
 
         The density control, through :meth:`AmbientEngine.element_count`, so
         it is trimmed by :data:`WORK_BUDGET` alongside the resolution and
-        never drops below one.
+        never drops below one — with the ``business`` state riding on top of
+        it, which is what makes the field alternately smooth and filamentary
+        without the user having touched anything.
         """
-        return self.element_count(FRACTAL_ITERATIONS,
+        busy = _lerp(FRACTAL_BUSY, self.wander(FRACTAL_STATE_BUSY))
+        busy *= 1.0 + FRACTAL_DEPTH_ITERS * self.depth()
+        return self.element_count(max(1, int(round(FRACTAL_ITERATIONS * busy))),
                                   _pool_size(FRACTAL_ITERATIONS))
 
     def constant(self) -> Tuple[float, float]:
@@ -3312,9 +3844,13 @@ class FractalEngine(_BufferedEngine):
 
         On the main cardioid ``c = e^(i0)/2 - e^(2i0)/4``, pulled toward the
         origin by :data:`FRACTAL_INSET` so the set stays connected — see the
-        note there.
+        note there. The ``pace`` state adds a wandering offset to the angle,
+        so the walk runs ahead, falls back and stalls instead of ticking
+        round at one rate; see :data:`FRACTAL_PACE_SWING`.
         """
-        theta = 2.0 * math.pi * (self.time / FRACTAL_C_PERIOD + self._phase_c)
+        travel = (self.time / FRACTAL_C_PERIOD + self._phase_c
+                  + FRACTAL_PACE_SWING * self.swing(FRACTAL_STATE_PACE))
+        theta = 2.0 * math.pi * travel
         swing = 0.5 * (1.0 - math.cos(
             2.0 * math.pi * (self.time / FRACTAL_INSET_PERIOD
                              + self._phase_inset)))
@@ -3323,24 +3859,162 @@ class FractalEngine(_BufferedEngine):
         return (inside * (0.5 * math.cos(theta) - 0.25 * math.cos(2 * theta)),
                 inside * (0.5 * math.sin(theta) - 0.25 * math.sin(2 * theta)))
 
-    def geometry(self, width: int, height: int) -> Tuple[tuple, ...]:
-        """The view and the constant this frame is drawn from.
+    def fixed_point(self) -> Tuple[float, float]:
+        """The repelling fixed point of this frame's Julia set.
 
-        One tuple: ``(cx, cy, scale, angle, c_re, c_im, iterations)``. See
-        the class docstring for the units.
+        ``beta = (1 + sqrt(1 - 4c)) / 2``, the root with ``|2 beta| > 1``.
+        It is ON the set for every ``c``, and the set repeats around it at a
+        fixed ratio of scale — which is what the deep view looks into. The
+        complex square root is written out rather than imported so this
+        module keeps its short import list.
         """
+        c_re, c_im = self.constant()
+        real, imaginary = 1.0 - 4.0 * c_re, -4.0 * c_im
+        modulus = math.hypot(real, imaginary)
+        root_re = math.sqrt(max(0.0, (modulus + real) / 2.0))
+        root_im = math.copysign(math.sqrt(max(0.0, (modulus - real) / 2.0)),
+                                imaginary or 1.0)
+        return ((1.0 + root_re) / 2.0, root_im / 2.0)
+
+    def view(self, height: int) -> Tuple[float, float, float]:
+        """``(origin_re, origin_im, scale)`` for the main form this frame.
+
+        The depth state slides the view from the whole set at the origin to
+        a close-in look at the fixed point, and the beat squeezes whichever
+        of those it is on — see :data:`FRACTAL_SPAN_DEEP`.
+        """
+        deep = self.depth()
         breath = 1.0 + FRACTAL_BREATH * math.sin(
             2.0 * math.pi * (self.time / FRACTAL_BREATH_PERIOD
                              + self._phase_breath))
+        # The beat is a squeeze on the whole form, so it pulses rather than
+        # drifting evenly.
+        breath *= 1.0 - FRACTAL_BEAT_ZOOM * self.beat()
         # The size control is a *zoom*: bigger elements means fewer units of
         # the plane across the canvas, so it divides the span.
-        span = FRACTAL_SPAN * breath / max(0.01, self.size)
-        scale = max(1.0, height / 2.0) / span
-        angle = self._spin * 2.0 * math.pi * (
-            self.time / FRACTAL_SPIN_PERIOD + self._phase_spin)
+        span = (_lerp((FRACTAL_SPAN, FRACTAL_SPAN_DEEP), deep) * breath
+                / max(0.01, self.size))
+        beta_re, beta_im = self.fixed_point()
+        return (beta_re * FRACTAL_ORIGIN_DEEP, beta_im * FRACTAL_ORIGIN_DEEP,
+                max(1.0, height / 2.0) / span)
+
+    def bud_slots(self) -> int:
+        """How many bud slots are eligible right now.
+
+        The ``crowd`` state, trimmed by the guard: a machine that cannot
+        afford the full buffer cannot afford five extra samplings either, so
+        the population is the first thing to go. Never negative and never
+        more than :data:`FRACTAL_BUD_SLOTS`.
+        """
+        room = int(round(FRACTAL_BUD_SLOTS * self._afford))
+        crowd = self.wander(FRACTAL_STATE_CROWD)
+        return _clamp_int(int(round(FRACTAL_BUD_SLOTS * crowd)), 0, room)
+
+    def buds(self, width: int, height: int) -> Tuple[Form, ...]:
+        """Every bud in the air, as :class:`Form` values.
+
+        Each slot is on its own cycle and its numbers are hashed from
+        ``(slot, cycle number)``, so what is on screen follows from the
+        clock alone and no two cycles are alike. A slot may sit a cycle out
+        (:data:`FRACTAL_BUD_TAKES`), which is what puts screens with nothing
+        but the middle form into the sequence.
+        """
+        if width <= 0 or height <= 0:
+            return ()
+        eligible = self.bud_slots()
+        if eligible <= 0:
+            return ()
+        rim = FRACTAL_BUD_RIM * min(width, height) / 2.0
+        centre = (width / 2.0, height / 2.0)
+        turn = self.turn()
         c_re, c_im = self.constant()
-        return ((width / 2.0, height / 2.0, scale, angle, c_re, c_im,
-                 self.iterations()),)
+        iterations = self.iterations()
+        deep = self.depth()
+        # A BUD IS A BUBBLE OF THE SAME VORTEX. It carries its parent's
+        # constant and looks at the same fixed point, so what is inside it
+        # is the parent's own field at the bud's scale rather than a second
+        # picture that happens to be nearby.
+        beta_re, beta_im = self.fixed_point()
+        out: List[Form] = []
+        for slot in range(eligible):
+            cycle = _lerp(FRACTAL_BUD_CYCLE, _hash01(self._salt, 100 + slot, 0))
+            position = self.time / cycle + _hash01(self._salt, 100 + slot, 1)
+            number = int(math.floor(position))
+            through = position - number
+            if _hash01(self._salt, 200 + slot, number) > FRACTAL_BUD_TAKES:
+                continue
+            life = _lerp(FRACTAL_BUD_LIFE,
+                         _hash01(self._salt, 300 + slot, number))
+            if through >= life:
+                continue
+            age = through / life
+            # It LEAVES the rim: at birth the centre is on the parent's own
+            # rim and it drifts outward from there, so the bud is seen to
+            # separate rather than to appear somewhere else.
+            heading = 2.0 * math.pi * _hash01(self._salt, 400 + slot, number)
+            travel = _lerp(FRACTAL_BUD_TRAVEL,
+                           _hash01(self._salt, 500 + slot, number))
+            away = rim + rim * travel * age * age * (3.0 - 2.0 * age)
+            # And it swells and goes: nothing at the moment of budding,
+            # widest in the middle of its life, nothing again at the end.
+            bulge = math.sin(math.pi * age) ** 0.65
+            radius = (rim * _lerp(FRACTAL_BUD_RADIUS,
+                                  _hash01(self._salt, 600 + slot, number))
+                      * bulge)
+            if radius < 2.0:
+                continue
+            zoom = _lerp(FRACTAL_BUD_ZOOM,
+                         _hash01(self._salt, 700 + slot, number))
+            spin = 1.0 if _hash01(self._salt, 800 + slot, number) < 0.5 else -1.0
+            out.append(Form(
+                cx=centre[0] + away * math.cos(heading),
+                cy=centre[1] + away * math.sin(heading),
+                scale=max(1.0, radius / (FRACTAL_SPAN_DEEP * zoom)),
+                angle=heading + spin * 2.0 * math.pi * turn
+                * (1.0 + 2.0 * _hash01(self._salt, 900 + slot, number)),
+                c_re=c_re, c_im=c_im, iterations=iterations,
+                origin_re=beta_re * FRACTAL_ORIGIN_DEEP,
+                origin_im=beta_im * FRACTAL_ORIGIN_DEEP,
+                swirl=spin * _lerp(FRACTAL_SWIRL, max(deep, 0.5)),
+                tunnel=_lerp(FRACTAL_TUNNEL, max(deep, 0.5)),
+                scroll=-spin * FRACTAL_TUNNEL_RATE * turn * 8.0,
+                radius=radius, age=age, bud=True))
+        return tuple(out)
+
+    def turn(self) -> float:
+        """Where the vortex has turned to, in turns.
+
+        The view's own slow drift plus the vortex's own rate, which the
+        depth state sets: a flat form barely turns, a deep one is visibly
+        winding. Both are phases rather than rates, and the pace state adds
+        its wandering offset to the pair — see :data:`FRACTAL_PACE_SWING`.
+        """
+        rate = _lerp(FRACTAL_TURN, self.depth())
+        return (self.time / FRACTAL_SPIN_PERIOD + self._phase_spin
+                + self.time * rate
+                + FRACTAL_PACE_SWING * self.swing(FRACTAL_STATE_PACE))
+
+    def geometry(self, width: int, height: int) -> Tuple[Form, ...]:
+        """Every form this frame is drawn from, the main one first.
+
+        One :class:`Form` per thing on screen. The count CHANGES over a run
+        — that is what budding is — so a caller that wants the form in the
+        middle takes ``geometry(w, h)[0]`` rather than unpacking one.
+        """
+        deep = self.depth()
+        origin_re, origin_im, scale = self.view(height)
+        turn = self.turn()
+        c_re, c_im = self.constant()
+        main = Form(cx=width / 2.0, cy=height / 2.0, scale=scale,
+                    angle=self._spin * 2.0 * math.pi * turn,
+                    c_re=c_re, c_im=c_im, iterations=self.iterations(),
+                    origin_re=origin_re, origin_im=origin_im,
+                    swirl=self._spin * _lerp(FRACTAL_SWIRL, deep),
+                    tunnel=_lerp(FRACTAL_TUNNEL, deep),
+                    scroll=-self._spin * FRACTAL_TUNNEL_RATE * self.time,
+                    radius=FRACTAL_BUD_RIM * min(width, height) / 2.0,
+                    age=0.0, bud=False)
+        return (main,) + self.buds(width, height)
 
     def _resize(self) -> None:
         """Nothing is cached by the size setting — the span is recomputed
@@ -3353,18 +4027,105 @@ class FractalEngine(_BufferedEngine):
         self._plane_size = (0, 0)
 
     def _grid(self, width: int, height: int):
-        """Pixel offsets from the centre of the buffer, as two float32
-        arrays. Built on the first frame and on a resize, never per frame."""
+        """The polar grids the sampling is built from, as three float32
+        arrays: radius in buffer pixels, its natural log, and the angle.
+
+        POLAR RATHER THAN CARTESIAN, and cached, because the vortex is a
+        function of the radius and the angle and of nothing else: with these
+        in hand a frame's whole mapping is two multiply-adds and one
+        ``cos``/``sin`` pair. Built on the first frame and on a resize,
+        never per frame.
+        """
         np = _numpy()
         if self._plane is None or self._plane_size != (width, height):
             rows, cols = np.mgrid[0:height, 0:width]
+            dx = (cols + 0.5 - width / 2.0).astype(np.float32)
+            dy = (rows + 0.5 - height / 2.0).astype(np.float32)
+            radius = np.hypot(dx, dy).astype(np.float32)
             self._plane = (
-                np.ascontiguousarray(cols + 0.5 - width / 2.0,
+                np.ascontiguousarray(radius),
+                np.ascontiguousarray(np.log(radius + np.float32(1.0)),
                                      dtype=np.float32),
-                np.ascontiguousarray(rows + 0.5 - height / 2.0,
-                                     dtype=np.float32))
+                np.ascontiguousarray(np.arctan2(dy, dx), dtype=np.float32))
             self._plane_size = (width, height)
         return self._plane
+
+    def _sample(self, form: "Form", radius, log_radius, angle):
+        """``(zr, zi, bands)`` for one form, over whatever grids it is given.
+
+        THE VORTEX IS HERE, and it is two lines of it. ``angle + swirl *
+        log(radius)`` is a conformal log-spiral map: the picture is turned by
+        an amount that grows without bound as the centre is approached, so
+        the fractal's own structure winds into a spiral that never stops
+        converging — a tunnel, and one that turns as ``angle`` advances.
+        ``bands`` puts the colour on the same log, so the rings are spaced
+        the way perspective spaces evenly spaced rings and travel down the
+        tunnel as ``scroll`` moves.
+
+        At ``swirl`` and ``tunnel`` zero this is exactly the plain rotation
+        the engine had before, which is what makes "sometimes not" cost
+        nothing.
+        """
+        np = _numpy()
+        theta = angle + np.float32(form.angle)
+        if form.swirl:
+            theta = theta + log_radius * np.float32(form.swirl)
+        rho = radius * np.float32(1.0 / form.scale)
+        bands = None
+        if form.tunnel:
+            bands = ((log_radius + np.float32(form.scroll))
+                     * np.float32(form.tunnel * FRACTAL_INTERIOR_LEVEL))
+        return (rho * np.cos(theta) + np.float32(form.origin_re),
+                rho * np.sin(theta) + np.float32(form.origin_im),
+                bands)
+
+    def _impress(self, form: "Form", zr, zi, bands, width: int, height: int):
+        """Blend one bud's sampling into the main form's, and return
+        ``bands`` — which the bud may have had to create.
+
+        THE RIM IS A BLEND, NOT A CLIP. The bud is the same field sampled
+        through its own scale and vortex, and the two samplings are crossed
+        over :data:`FRACTAL_BUD_FEATHER` of its radius, so the edge refracts
+        the way the edge of a bubble does. A hard swap gives a sticker.
+
+        Only the bud's own window is touched, so a bud costs its own area
+        and not the buffer's.
+        """
+        np = _numpy()
+        reach = form.radius * (1.0 + FRACTAL_BUD_FEATHER)
+        left = max(0, int(math.floor(form.cx - reach)))
+        right = min(width, int(math.ceil(form.cx + reach)) + 1)
+        top = max(0, int(math.floor(form.cy - reach)))
+        bottom = min(height, int(math.ceil(form.cy + reach)) + 1)
+        if right - left < 2 or bottom - top < 2:
+            return bands
+        cols = (np.arange(left, right, dtype=np.float32)
+                + np.float32(0.5 - form.cx))[None, :]
+        rows = (np.arange(top, bottom, dtype=np.float32)
+                + np.float32(0.5 - form.cy))[:, None]
+        radius = np.hypot(cols, rows).astype(np.float32)
+        share = np.clip((reach - radius)
+                        / np.float32(max(1e-3, reach - form.radius)),
+                        0.0, 1.0)
+        share = (share * share * (np.float32(3.0)
+                                  - np.float32(2.0) * share)).astype(np.float32)
+        if not share.any():
+            return bands
+        keep = np.float32(1.0) - share
+        log_radius = np.log(radius + np.float32(1.0)).astype(np.float32)
+        angle = np.arctan2(rows, cols).astype(np.float32)
+        bud_zr, bud_zi, bud_bands = self._sample(form, radius, log_radius,
+                                                 angle)
+        window = (slice(top, bottom), slice(left, right))
+        zr[window] = zr[window] * keep + bud_zr * share
+        zi[window] = zi[window] * keep + bud_zi * share
+        if bud_bands is not None:
+            if bands is None:
+                bands = np.zeros_like(zr)
+            bands[window] = bands[window] * keep + bud_bands * share
+        elif bands is not None:
+            bands[window] = bands[window] * keep
+        return bands
 
     def _colour_table(self):
         """The colour-index -> pixel table for this frame.
@@ -3379,6 +4140,12 @@ class FractalEngine(_BufferedEngine):
         Entries 0..254 are the palette ring, rotated by the scroll phase;
         entry :data:`FRACTAL_INTERIOR_LEVEL` is the inside of the set, at
         :data:`FRACTAL_CORE` of the peak.
+
+        THE BEAT IS APPLIED HERE, and only downward: it takes away up to
+        :data:`FRACTAL_BEAT_DIP` of the peak between thumps and gives it
+        back at one. The peak itself is where the readability of this
+        backdrop was measured, so a beat that brightened past it would be
+        raising the ceiling those measurements were made against.
         """
         np = _numpy()
         if self._ring is None:
@@ -3386,6 +4153,7 @@ class FractalEngine(_BufferedEngine):
                           / float(FRACTAL_INTERIOR_LEVEL))
         ring = self._ring
         peak = FRACTAL_ALPHA_DARK if self.dark else FRACTAL_ALPHA_LIGHT
+        peak *= 1.0 - FRACTAL_BEAT_DIP * (1.0 - self.beat())
 
         colours = np.array([[c.red(), c.green(), c.blue()]
                             for c in self.paint_colors], dtype=np.float32)
@@ -3417,21 +4185,20 @@ class FractalEngine(_BufferedEngine):
     def _paint_field(self, painter: QPainter, width: int,
                      height: int) -> None:
         np = _numpy()
-        (_cx, _cy, scale, angle, c_re, c_im, iterations), = \
-            self.geometry(width, height)
-        x, y = self._grid(width, height)
-        cos_a = np.float32(math.cos(angle) / scale)
-        sin_a = np.float32(math.sin(angle) / scale)
-        zr = x * cos_a
-        zr -= y * sin_a
-        zi = x * sin_a
-        zi += y * cos_a
+        started = time.perf_counter()
+        forms = self.geometry(width, height)
+        main = forms[0]
+        iterations = main.iterations
+        radius, log_radius, angle = self._grid(width, height)
+        zr, zi, bands = self._sample(main, radius, log_radius, angle)
+        for form in forms[1:]:
+            bands = self._impress(form, zr, zi, bands, width, height)
 
         survived = np.zeros((height, width), dtype=np.float32)
         magnitude = np.empty_like(zr)
         cross = np.empty_like(zr)
         share = np.empty_like(zr)
-        c_re32, c_im32 = np.float32(c_re), np.float32(c_im)
+        c_re32, c_im32 = np.float32(main.c_re), np.float32(main.c_im)
         soft_top = np.float32(FRACTAL_SOFT_LIMIT)
         soft_scale = np.float32(1.0 / (FRACTAL_SOFT_LIMIT - FRACTAL_BAILOUT))
         reach = np.float32(FRACTAL_REACH)
@@ -3439,8 +4206,7 @@ class FractalEngine(_BufferedEngine):
             zr2 = zr * zr
             zi2 = zi * zi
             np.add(zr2, zi2, out=magnitude)
-            # A FRACTION of an iteration, not a yes/no — see
-            # FRACTAL_SOFT_LIMIT.
+            # A FRACTION of an iteration, not a yes/no — see FRACTAL_SOFT_LIMIT.
             np.subtract(soft_top, magnitude, out=share)
             share *= soft_scale
             np.clip(share, 0.0, 1.0, out=share)
@@ -3467,6 +4233,11 @@ class FractalEngine(_BufferedEngine):
         interior = survived >= np.float32(iterations - 0.5)
         survived *= np.float32(FRACTAL_INTERIOR_LEVEL
                                / FRACTAL_ITERS_PER_CYCLE)
+        if bands is not None:
+            # The tunnel: rings spaced on the log of the radius, travelling
+            # down it. Added in index units, so it moves the colour without
+            # touching what the field is.
+            survived += bands
         np.mod(survived, np.float32(FRACTAL_INTERIOR_LEVEL), out=survived)
         survived[interior] = np.float32(FRACTAL_INTERIOR_LEVEL)
         frame = self._colour_table()[survived.astype(np.uint8)]
@@ -3476,6 +4247,11 @@ class FractalEngine(_BufferedEngine):
         painter.drawImage(0, 0, QImage(frame.data, width, height,
                                        int(frame.strides[0]),
                                        QImage.Format_RGB32))
+        # What it cost, for `advance` to act on. Measured rather than
+        # modelled: the guard is answering a question about the machine.
+        self._spent.append((time.perf_counter() - started) * 1000.0)
+        if len(self._spent) > 16:
+            del self._spent[:-16]
 
 
 _ENGINES = {
@@ -4301,7 +5077,29 @@ class AmbientWidget(QWidget):
                 self._watched.removeEventFilter(self)
             window.installEventFilter(self)
             self._watched = window
+        self._follow_screen()
         self._sync_run_state()
+
+    def _follow_screen(self) -> None:
+        """Tell the engine how many pixels the display it is on really has.
+
+        Called when the widget is shown and whenever the window it is in
+        moves to another screen. That second case is the one a constant
+        cannot answer: a laptop docked to a 4K panel is two different
+        ceilings for the same running widget, and the buffer has to follow
+        the window rather than the machine.
+
+        Silent on failure. This is a *ceiling*, and a backdrop that cannot
+        work out which screen it is on should go on painting at the
+        fallback rather than not painting at all.
+        """
+        pixels = screen_pixels(self)
+        if pixels == self._engine.max_pixels:
+            return
+        try:
+            self._mutate_engine(lambda: self._engine.set_max_pixels(pixels))
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not follow the screen", exc_info=True)
 
     def hideEvent(self, event):
         """The whole performance story: a screen the user is not looking at
@@ -4318,6 +5116,12 @@ class AmbientWidget(QWidget):
         elif obj is self._watched and etype in (
                 QEvent.WindowStateChange, QEvent.Hide, QEvent.Show):
             self._sync_run_state()
+        elif obj is self._watched and etype in (QEvent.Move,
+                                                QEvent.ScreenChangeInternal):
+            # The window was dragged, possibly onto another display — see
+            # `_follow_screen`. A move that stays on one screen finds the
+            # ceiling unchanged and returns without touching the engine.
+            self._follow_screen()
         return super().eventFilter(obj, event)
 
     def follow_parent(self) -> None:
@@ -4347,7 +5151,18 @@ class AmbientWidget(QWidget):
         clock even though two threads are involved.
         """
         dt = self._clock.restart() / 1000.0
-        self._pending_dt += min(MAX_DT, dt) if dt > 0 else 1.0 / self._fps
+        step = min(MAX_DT, dt) if dt > 0 else 1.0 / self._fps
+        self._pending_dt += step
+        # THE PALETTE'S DRIFT RIDES THIS TICK. It is process state in
+        # `theme` and something has to move it; a wall clock read inside
+        # `palette_for` would make the palette a different value on two
+        # calls in the same frame, and `palette_for` is on the path of
+        # every stylesheet build and every widget that paints. A backdrop
+        # already painting frames is the honest driver — and a user who
+        # turned the animation off asked for zero frames and gets a still
+        # palette to go with them, which is the same bargain the rest of
+        # this widget makes. Costs a comparison on an ordinary start.
+        advance_spaceout_drift(step)
         if self._engine_lock.acquire(blocking=False):
             try:
                 self._engine.advance(self._pending_dt)

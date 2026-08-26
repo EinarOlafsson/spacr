@@ -9,8 +9,12 @@ same preferences, the same first-run screen. Every screen reachable from
 What changes is the *dressing*:
 
 * the palette goes rainbow — :func:`spacr.qt.theme.enable_spaceout` re-hues
-  whichever theme is resolved, keeping every role's relative luminance, so
-  the contrast rules go on passing and the theme contract is untouched;
+  whichever theme is resolved rather than adding a fifth theme, so the
+  light/dark contract every screen reads is untouched. Each surface keeps
+  its own WCAG relative luminance and moves only in hue, which is what makes
+  every rule in ``CONTRAST_RULES`` measure exactly what it measured before;
+  the roles that carry text are solved inside a band those same rules
+  define, so they gain a hue without dropping under it;
 * the ambient backdrop draws moving fractals instead of drifting blobs —
   :class:`spacr.qt.widgets.ambient.FractalEngine`, chosen by
   :func:`spacr.qt.widgets.ambient.dressed` at the moment a backdrop is built.

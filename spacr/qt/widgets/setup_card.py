@@ -15,6 +15,33 @@ from PySide6.QtWidgets import QWidget
 #: Corner order: top-left, top-right, bottom-right, bottom-left.
 CORNERS = ("topLeft", "topRight", "bottomRight", "bottomLeft")
 
+#: Seconds for the accent's colour to go once round the wheel under the
+#: ``spaceout`` dressing.
+#:
+#: THIS IS THE MARK THAT FOLLOWS THE MOUSE. The lit run of rim is aimed by
+#: `SetupCard._aim_at_the_cursor`, which reads the GLOBAL cursor position
+#: rather than waiting for events -- which is why it goes on tracking a
+#: pointer that has left the window, and why it is the "little blue window
+#: thing that follows the mouse". Nothing else in the application paints a
+#: mark that chases the pointer; `availability_panel` and `hover_tooltip`
+#: read the cursor too, but to decide whether the pointer is inside a
+#: region, not to draw anything at it.
+#:
+#: Six seconds is fast enough to be seen oscillating while the pointer is
+#: still and slow enough not to strobe. It is deliberately much faster than
+#: the palette's own drift, which takes nine minutes: the rim is a small
+#: moving highlight and is the one place a quick colour cycle reads as alive
+#: rather than as flicker.
+SPACEOUT_RIM_PERIOD = 6.0
+
+#: How much of the spectrum the run carries along its own length, in turns.
+#:
+#: A third, so the lit run is a piece of a rainbow rather than one colour
+#: sliding through the whole of it -- the head and the tail are visibly
+#: different colours at every moment, which is what makes the oscillation
+#: read as a spectrum travelling rather than as the theme changing.
+SPACEOUT_RIM_SPREAD = 0.34
+
 #: The surface the arc preference is measured against, in pixels.
 #:
 #: The first-run window's own size. It is the card the look was tuned on,
@@ -322,14 +349,30 @@ class SetupCard(QWidget):
         except Exception:                                    # noqa: BLE001
             return 2.4
 
+    def spaceout(self) -> bool:
+        """Whether this process is wearing the ``spaceout`` dressing.
+
+        Asked of :mod:`spacr.qt.theme` rather than stored, because the mode
+        is process state set once before the application starts and is never
+        a preference -- a card that cached it at construction would be a
+        second place the answer lived.
+        """
+        try:
+            from ..theme import spaceout_enabled
+
+            return bool(spaceout_enabled())
+        except Exception:                                    # noqa: BLE001
+            return False
+
     def animates(self) -> bool:
         """Whether the rim changes when nothing else does.
 
         A pulse and a moving spectrum have to repaint on a still card; a
         plain glow must NOT, or an arrived rim costs sixty composites a
-        second over a live backdrop for no visible change.
+        second over a live backdrop for no visible change. Under the
+        ``spaceout`` dressing every mode oscillates, so every mode paints.
         """
-        return self.mode() in ("rainbow", "beat")
+        return self.mode() in ("rainbow", "beat") or self.spaceout()
 
     def alignment(self) -> str:
         """``'centre'`` or ``'head'`` -- where the run sits on the pointer."""
@@ -549,7 +592,25 @@ class SetupCard(QWidget):
         `glow` and `beat` are the theme's accent the whole way; `rainbow`
         walks the hue along the run and turns it over time, so the light
         carries a spectrum that moves rather than a band that sits still.
+
+        UNDER ``spaceout`` EVERY MODE OSCILLATES, whichever one is set. The
+        mark that follows the pointer is the one thing on a card that is
+        already moving, and leaving it a fixed blue under a theme whose
+        whole point is a moving spectrum is what the request is about. Its
+        hue is the palette's own drift plus a much faster cycle of its own
+        (:data:`SPACEOUT_RIM_PERIOD`), so it belongs to the same spectrum
+        the rest of the window is travelling through instead of being a
+        second unrelated rainbow.
+
+        Under an ordinary start with the shipped mode this returns the
+        theme's accent and returns it unchanged, frame after frame.
         """
+        if self.spaceout():
+            spectral = QColor()
+            spectral.setHsvF(self.spaceout_hue(along),
+                             min(1.0, accent.saturationF() + 0.35),
+                             max(accent.valueF(), 0.90))
+            return spectral
         if self.mode() != "rainbow":
             return QColor(accent)
         turn = self._phase / max(0.1, self.period())
@@ -560,6 +621,26 @@ class SetupCard(QWidget):
         spectral.setHsvF(hue, min(1.0, accent.saturationF() + 0.25),
                          max(accent.valueF(), 0.85))
         return spectral
+
+    def spaceout_hue(self, along: float) -> float:
+        """Where on the wheel the run is at ``along``, 0..1.
+
+        Three terms, and each one is doing a different job: the position
+        along the run spreads a piece of spectrum over its length
+        (:data:`SPACEOUT_RIM_SPREAD`), the card's own frame clock turns that
+        piece (:data:`SPACEOUT_RIM_PERIOD`) -- which is the oscillation --
+        and the palette's drift carries the whole thing round with the rest
+        of the application.
+        """
+        drift = 0.0
+        try:
+            from ..theme import spaceout_drift
+
+            drift = float(spaceout_drift()) / 360.0
+        except Exception:                                    # noqa: BLE001
+            drift = 0.0
+        return ((float(along) * SPACEOUT_RIM_SPREAD
+                 + self._phase / SPACEOUT_RIM_PERIOD + drift) % 1.0)
 
     def beat(self) -> float:
         """A multiplier on the run's brightness, 0..1.
