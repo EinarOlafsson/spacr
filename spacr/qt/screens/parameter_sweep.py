@@ -666,10 +666,71 @@ def build_parameter_sweep_card(host):
     """
     from ..widgets.card import Card
     card = Card(title="Parameter sweep")
-    panel = _make_screen(host=host)
-    card.body_layout.addWidget(panel)
     card.setMinimumHeight(320)
-    return panel, card
+    # BUILT WHEN IT IS FIRST SHOWN, not when the Regression screen is built.
+    #
+    # The panel is a whole second screen: it carries its own results panel,
+    # and that panel builds ELEVEN pyqtgraph plots. Measured on the Regression
+    # screen, those eleven were 0.32 s of a 0.88 s construction -- a third of
+    # the cost of opening the module, paid by every user, for a card that
+    # starts collapsed behind a toggle and that most runs never open.
+    #
+    # Nothing is switched off: the card, the toggle and the panel are all
+    # exactly as they were, and the first time the card is opened the panel is
+    # there. This is the optimisation the laptop item asks for rather than the
+    # feature removal it calls the fallback.
+    holder = _lazy_sweep_panel(host)
+    card.body_layout.addWidget(holder)
+    return holder, card
+
+
+def _lazy_sweep_panel(host):
+    """A stand-in that builds the real sweep panel the first time it is needed.
+
+    The class is defined HERE rather than at module scope because this module
+    keeps PySide6 out of its import path on purpose -- see `_make_screen`.
+
+    It forwards ``score_data`` and ``count_data`` because the drop handler
+    finds the sweep by looking for that pair (see
+    :func:`spacr.qt.dnd_handlers._sweep_panel`); asking for either builds the
+    real panel, so a drop onto a card nobody has opened behaves exactly as it
+    did when the panel was built up front.
+    """
+    from PySide6.QtWidgets import QVBoxLayout, QWidget
+
+    class LazySweepPanel(QWidget):
+
+        def __init__(self):
+            super().__init__()
+            self._panel = None
+            layout = QVBoxLayout(self)
+            layout.setContentsMargins(0, 0, 0, 0)
+            self._layout = layout
+
+        def panel(self):
+            """The real panel, built on the first ask."""
+            if self._panel is None:
+                self._panel = _make_screen(host=host)
+                self._layout.addWidget(self._panel)
+            return self._panel
+
+        def built(self) -> bool:
+            """Whether the real panel exists yet. For tests and diagnostics."""
+            return self._panel is not None
+
+        def showEvent(self, event):                      # noqa: N802
+            self.panel()
+            super().showEvent(event)
+
+        def __getattr__(self, name):
+            # Only reached for names this object does not carry, so the two
+            # methods above and everything QWidget defines answer without
+            # building anything.
+            if name.startswith("_") or name in ("panel", "built"):
+                raise AttributeError(name)
+            return getattr(self.panel(), name)
+
+    return LazySweepPanel()
 
 
 def sweepable(app_key: str) -> bool:
