@@ -25,7 +25,10 @@ LOCALIZED = sorted((ROOT / "docs" / "i18n" / "readme").glob("README.*.rst"))
 
 
 def _registry():
+    import spacr.qt
     from spacr.qt.app import APPS, SECTIONS
+
+    spacr.qt.register_self_registering_modules()
     return list(APPS), list(SECTIONS)
 
 
@@ -70,6 +73,13 @@ def folded():
 
 
 class TestTheReadmeGrid:
+    def test_the_registry_count_is_deliberately_pinned(self, registry):
+        apps, sections = registry
+        assert len(apps) == 44
+        assert sections == [
+            "Core", "Data", "Results & QC", "Explore", "Assays", "Design"
+        ]
+
     def test_no_folded_module_is_offered_as_a_separate_tool(self, folded):
         drawn = tiles(README.read_text(encoding="utf-8"))
         offered = sorted(drawn & folded)
@@ -139,6 +149,32 @@ class TestTheLocalizedReadmes:
         assert used <= defined, (
             f"{path.name} uses substitutions it never defines -- the image "
             f"would not render: {sorted(used - defined)}")
+
+    @pytest.mark.parametrize("path", LOCALIZED, ids=lambda p: p.name)
+    def test_workflow_accessibility_text_stays_localized(self, path):
+        text = path.read_text(encoding="utf-8")
+        assert ":alt: Open the " not in text
+
+    @pytest.mark.parametrize("path", LOCALIZED, ids=lambda p: p.name)
+    def test_installer_and_dataset_definitions_survive_regeneration(self, path):
+        text = path.read_text(encoding="utf-8")
+        installer = text.partition(
+            ".. spacr-installer-links-begin"
+        )[2].partition(".. spacr-installer-links-end")[0]
+        for name in (
+            "InstallerWindows", "InstallerMacOS", "InstallerLinux",
+            "InstallerLegacy",
+        ):
+            definition = f".. |{name}| image::"
+            assert text.count(definition) == 1
+            assert definition in installer
+        for name in (
+            "DataBioStudies", "DataHuggingFace", "DataNCBI",
+            "DataSpaCRPower", "DataBioRxiv",
+        ):
+            definition = f".. |{name}| image::"
+            assert text.count(definition) == 1
+            assert definition not in installer
 
 
 class TestTheProseMatchesTheScreens:

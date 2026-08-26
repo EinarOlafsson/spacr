@@ -122,17 +122,21 @@ Workflow at a glance
 
 |App_batch|\ |App_distributed_jobs|\ |App_db_browser|\ |App_make_masks|\ |App_data_manager|
 
+|App_project_browser|
+
 **Results & QC**
 
 |App_plate_view|\ |App_umap|\ |App_train_compare|\ |App_run_history|\ |App_report|
 
-|App_run_compare|\ |App_investigate_hit|
+|App_run_compare|\ |App_investigate_hit|\ |App_control_chart|
 
 **Explore**
 
 |App_pipeline_graph|\ |App_profiler|\ |App_qc_dashboard|\ |App_lineage|\ |App_layer_viewer|
 
-|App_graph_builder|\ |App_tabulate|
+|App_graph_builder|\ |App_tabulate|\ |App_feature_dict|\ |App_trellis|\ |App_gate_editor|
+
+|App_feature_explorer|\ |App_outliers|
 
 **Assays**
 
@@ -140,7 +144,7 @@ Workflow at a glance
 
 **Design**
 
-|App_experiment_design|\ |App_power|
+|App_experiment_design|\ |App_power|\ |App_dose_response|
 
 .. |App_align| image:: spacr/resources/icons/workflow/apps/align.png
    :width: 19.9%
@@ -192,6 +196,11 @@ Workflow at a glance
    :alt: Open the Data Manager API
    :target: https://einarolafsson.github.io/spacr/api/spacr/data_manager/index.html
    :align: middle
+.. |App_project_browser| image:: spacr/resources/icons/workflow/apps/project_browser.png
+   :width: 19.9%
+   :alt: Open the Project Browser API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/project_browser/index.html
+   :align: middle
 .. |App_plate_view| image:: spacr/resources/icons/workflow/apps/plate_view.png
    :width: 19.9%
    :alt: Open the Plate Viewer API
@@ -226,6 +235,11 @@ Workflow at a glance
    :width: 19.9%
    :alt: Open the Investigate Hit API
    :target: https://einarolafsson.github.io/spacr/api/spacr/hit_investigation/index.html
+   :align: middle
+.. |App_control_chart| image:: spacr/resources/icons/workflow/apps/control_chart.png
+   :width: 19.9%
+   :alt: Open the Control Charts API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/control_chart/index.html
    :align: middle
 .. |App_pipeline_graph| image:: spacr/resources/icons/workflow/apps/pipeline_graph.png
    :width: 19.9%
@@ -262,6 +276,31 @@ Workflow at a glance
    :alt: Open the Tabulate API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/tabulate/index.html
    :align: middle
+.. |App_feature_dict| image:: spacr/resources/icons/workflow/apps/feature_dict.png
+   :width: 19.9%
+   :alt: Open the Feature Dictionary API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/feature_dict/index.html
+   :align: middle
+.. |App_trellis| image:: spacr/resources/icons/workflow/apps/trellis.png
+   :width: 19.9%
+   :alt: Open the Small Multiples API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/trellis/index.html
+   :align: middle
+.. |App_gate_editor| image:: spacr/resources/icons/workflow/apps/gate_editor.png
+   :width: 19.9%
+   :alt: Open the Gate Editor API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/gate_editor/index.html
+   :align: middle
+.. |App_feature_explorer| image:: spacr/resources/icons/workflow/apps/feature_explorer.png
+   :width: 19.9%
+   :alt: Open the Feature Explorer API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/feature_explorer/index.html
+   :align: middle
+.. |App_outliers| image:: spacr/resources/icons/workflow/apps/outliers.png
+   :width: 19.9%
+   :alt: Open the Outliers API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/outliers/index.html
+   :align: middle
 .. |App_analyze_plaques| image:: spacr/resources/icons/workflow/apps/analyze_plaques.png
    :width: 19.9%
    :alt: Open the Plaque Assay API
@@ -291,6 +330,11 @@ Workflow at a glance
    :width: 19.9%
    :alt: Open the Power / Design API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/power/index.html
+   :align: middle
+.. |App_dose_response| image:: spacr/resources/icons/workflow/apps/dose_response.png
+   :width: 19.9%
+   :alt: Open the Dose–Response API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/dose_response/index.html
    :align: middle
 
 .. spacr-workflow-end
@@ -534,7 +578,6 @@ Reference datasets
    :width: 72
    :alt: Open the bioRxiv preprint
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
-
 
 If spaCR is slow on your machine
 --------------------------------
