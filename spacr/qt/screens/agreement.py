@@ -74,6 +74,7 @@ from PySide6.QtWidgets import (
 
 from ... import agreement as agree
 from ..bridge import make_thread
+from ..hidpi import scaled_for
 from ..theme import SPACING, active_palette
 from ..widgets import Divider
 from .db_browser import resolve_db_path
@@ -721,8 +722,8 @@ class AgreementScreen(QWidget):
             self._crop_label.setText(f"Could not read image:\n{path}")
             return False
         self._crop_label.setText("")
-        self._crop_label.setPixmap(pixmap.scaled(
-            PREVIEW_PX, PREVIEW_PX, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        self._crop_label.setPixmap(
+            scaled_for(pixmap, self._crop_label, PREVIEW_PX, PREVIEW_PX))
         return True
 
     def _resolve_crop(self, png_path: Any) -> Optional[str]:

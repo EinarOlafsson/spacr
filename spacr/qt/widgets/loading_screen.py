@@ -29,6 +29,7 @@ from PySide6.QtCore import Qt, QRectF
 from PySide6.QtGui import QColor, QPainter, QPixmap, QFont
 from PySide6.QtWidgets import QWidget
 
+from ..hidpi import logical_size, scaled_for
 from ..preferences import scaled_px
 from ..iconset import RESOURCE_DIR
 
@@ -227,10 +228,13 @@ class LoadingScreen(QWidget):
             y = self.height() / 2.0
 
             if self._logo is not None:
-                scaled = self._logo.scaled(
-                    side, side, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                # Scaled inside the paint, so it asks the ratio again on
+                # every frame and a splash dragged between screens is right
+                # on the next repaint with nothing to subscribe to.
+                scaled = scaled_for(self._logo, self, side)
+                drawn = logical_size(scaled)
                 painter.drawPixmap(
-                    int(x), int(y - scaled.height() / 2.0), scaled)
+                    int(x), int(y - drawn.height() / 2.0), scaled)
 
             # The sentence, one phase at a time.
             lit = self.lit_phases()

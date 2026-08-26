@@ -42,6 +42,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..bridge import make_thread, resolve_pipeline_entry
+from ..hidpi import device_ratio, scaled_for
 from ..i18n import tr
 from ..job_runner import JobRunner
 from ..theme import (SPACING, ensure_widget_qss_applied, register_widget_qss)
@@ -8023,23 +8024,37 @@ def _nvidia_smi_available() -> bool:
     return False
 
 
-def QtGui_QListWidgetItem_helper(fig, idx: int):
-    """Build a :class:`QListWidgetItem` with a low-DPI thumbnail render
-    of ``fig`` — used in the figures panel's history strip."""
+#: The history strip's thumbnail, in LOGICAL pixels.
+STRIP_THUMB_PX = (140, 90)
+
+#: Matplotlib dots per inch for a strip thumbnail on an ordinary display.
+#: Multiplied by the device pixel ratio, because a render is only as sharp
+#: as the raster it came from -- scaling a 32-dpi picture up to a dense
+#: panel enlarges the blur rather than removing it.
+STRIP_THUMB_DPI = 32
+
+
+def QtGui_QListWidgetItem_helper(fig, idx: int, target=None):
+    """Build a :class:`QListWidgetItem` with a thumbnail render of ``fig``.
+
+    Used in the figures panel's history strip. ``target`` is the widget the
+    strip is on; the render is sized for that screen's pixel density, and
+    falls back to the primary screen when no widget is given.
+    """
     from io import BytesIO
     from PySide6.QtWidgets import QListWidgetItem
     item = QListWidgetItem()
     item.setText(f"#{idx + 1}")
     item.setTextAlignment(Qt.AlignCenter)
     try:
+        ratio = device_ratio(target)
         buf = BytesIO()
-        fig.savefig(buf, format="png", dpi=32, bbox_inches="tight",
-                     facecolor=fig.get_facecolor())
+        fig.savefig(buf, format="png", dpi=STRIP_THUMB_DPI * ratio,
+                    bbox_inches="tight", facecolor=fig.get_facecolor())
         pix = QPixmap()
         pix.loadFromData(buf.getvalue(), "PNG")
         if not pix.isNull():
-            item.setIcon(QIcon(pix.scaled(
-                140, 90, Qt.KeepAspectRatio, Qt.SmoothTransformation)))
+            item.setIcon(QIcon(scaled_for(pix, target, STRIP_THUMB_PX)))
     except Exception:
         pass
     return item

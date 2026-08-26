@@ -38,6 +38,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ..hidpi import scaled_for
 from ..preferences import get_figure_format, get_figure_png_dpi
 from ..theme import active_palette, css_color, make_transparent
 
@@ -412,9 +413,9 @@ class SearchFigureGrid(QWidget):
         label.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
         label.setToolTip(cell.caption or cell.source_path)
         if cell.pixmap is not None and not cell.pixmap.isNull():
-            label.setPixmap(cell.pixmap.scaled(
-                QSize(cell_w, int(cell_w / DEFAULT_CELL_ASPECT)),
-                Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            label.setPixmap(scaled_for(
+                cell.pixmap, label,
+                QSize(cell_w, int(cell_w / DEFAULT_CELL_ASPECT))))
         else:
             # A figure that failed to render is a missing result, not a
             # missing widget: the cell stays so the grid keeps its shape and

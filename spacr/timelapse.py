@@ -2414,10 +2414,10 @@ def _make_intensity_motility_panel(
                 intens_inf = cell_level.loc[mask_inf, intensity_col].to_numpy()
                 intens_uninf = cell_level.loc[~mask_inf, intensity_col].to_numpy()
 
-                if intens_inf.size == 0 and intens_uninf.size == 0:
-                    ax.set_visible(False)
-                    return
-
+                # No "both sides empty" skip: `mask_inf` and `~mask_inf`
+                # partition `cell_level`, which the `cell_level.empty` guard
+                # above has already established is non-empty, so the two
+                # arrays cannot both have size 0.
                 all_vals = np.concatenate(
                     [arr for arr in (intens_inf, intens_uninf) if arr.size]
                 )
@@ -2601,9 +2601,10 @@ def _make_intensity_motility_panel(
         Helper to plot infected vs uninfected distributions for the given column,
         using violin plots (with mean markers) instead of barplots.
         """
-        if value_col not in df_vals.columns:
-            ax.set_visible(False)
-            return
+        # No "column missing" skip: all three call sites below name a column
+        # they have just found in the frame they pass -- the per-channel one
+        # comes from `available_channels`, the p75 one from `has_p75_path`, and
+        # `rel_intensity` is computed on the frame one line before the call.
 
         # Collapse to one value per cell-track
         cell_level = (
@@ -2641,9 +2642,9 @@ def _make_intensity_motility_panel(
             colors.append(UNINFECTED_COLOUR)
             labels_xtick.append("Uninf")
 
-        if not data:
-            ax.set_visible(False)
-            return
+        # No "nothing to draw" skip: `mask_inf` and `~mask_inf` partition
+        # `cell_level`, non-empty by the guard above, so at least one of
+        # `vals_inf` / `vals_uninf` has a size and `data` always gets a member.
 
         # Violin plots
         vp = ax.violinplot(
@@ -2753,10 +2754,11 @@ def _make_intensity_motility_panel(
 
         with figure_style(theme_target()):
             fig, axes = plt.subplots(1, n_cols, figsize=(4 * n_cols, 4))
-        if n_cols == 1:
-            axes = np.array([axes])
-        else:
-            axes = np.array(axes).ravel()
+        # `plt.subplots` returns a bare Axes only for a 1x1 grid, and n_cols
+        # cannot be 1: `available_channels` is non-empty by the guard above and
+        # the sum adds a fixed 3 on top of it, so the smallest panel is four
+        # columns wide and `axes` is always an array.
+        axes = np.array(axes).ravel()
 
         axis_idx = 0
 
@@ -2807,10 +2809,10 @@ def _make_intensity_motility_panel(
 
         # ----- all-tracks FOV plot (absolute coordinates) -----
         def _plot_all_tracks(ax):
-            if not well_tracks:
-                ax.set_visible(False)
-                return
-
+            # `well_tracks` is non-empty: the per-well guard above skips the
+            # whole well -- and never reaches this figure -- when it is not.
+            # A track too short to draw is a different case, and the
+            # `xs_all` check below still handles it.
             xs_all = []
             ys_all = []
             n_inf_tr = 0
@@ -4893,15 +4895,19 @@ def _infection_qc_pca_clustering(
     X = cell_for_X[feature_cols].to_numpy(dtype=float)
     y_orig = cell_level[infection_col].astype(bool).to_numpy()
 
-    # Remove rows with all NaNs
+    # Remove rows with all NaNs.
+    #
+    # Three skips stood here -- "no rows with finite features", "an all
+    # non-finite column is imputed as 0.0", and "fewer than 10 cells after
+    # filtering" -- and no input could reach any of them. `tmp.replace` above
+    # turned every infinity into NaN before the groupby, so in this table
+    # notna and isfinite are the same test; the degenerate-feature filter kept
+    # only columns with at least ten notna values, hence at least ten finite
+    # ones; and a row holding one of those has a positive finite count, so
+    # `mask_rows` keeps it. Every surviving column therefore still has ten
+    # finite values and the matrix still has ten rows.
     finite_counts = np.isfinite(X).sum(axis=1)
     mask_rows = finite_counts > 0
-    if not mask_rows.any():
-        print(
-            "[infection_intensity_qc:PCA] No rows with finite features; "
-            "skipping embedding QC."
-        )
-        return all_df, infection_col
 
     X = X[mask_rows]
     cell_level = cell_level.loc[mask_rows].reset_index(drop=True)
@@ -4911,19 +4917,9 @@ def _infection_qc_pca_clustering(
     for j in range(X.shape[1]):
         col = X[:, j]
         m = np.isfinite(col)
-        if not m.any():
-            X[:, j] = 0.0
-        else:
-            med = np.nanmedian(col[m])
-            col[~m] = med
-            X[:, j] = col
-
-    if X.shape[0] < 10:
-        print(
-            "[infection_intensity_qc:PCA] Fewer than 10 cells after filtering; "
-            "skipping embedding QC."
-        )
-        return all_df, infection_col
+        med = np.nanmedian(col[m])
+        col[~m] = med
+        X[:, j] = col
 
     # Optional subsampling for speed
     max_cells = int(settings.get("infection_pca_max_cells", 50000))
@@ -4950,15 +4946,11 @@ def _infection_qc_pca_clustering(
         )
         return all_df, infection_col
 
+    # `inf_vals.size` is `np.sum(y_int)` and `uninf_vals.size` is
+    # `np.sum(~y_int)`, both of which the guard above has already refused
+    # below 10, so no second per-class size check is possible here.
     inf_vals = intens[y_int]
     uninf_vals = intens[~y_int]
-
-    if inf_vals.size < 10 or uninf_vals.size < 10:
-        print(
-            "[infection_intensity_qc:PCA] Too few intensity values per class; "
-            "skipping embedding QC."
-        )
-        return all_df, infection_col
 
     thr_uninf = float(np.nanpercentile(uninf_vals, 25.0))
     thr_inf = float(np.nanpercentile(inf_vals, 75.0))
@@ -6381,9 +6373,11 @@ def _select_infection_feature_columns(all_df, pathogen_chan):
         return []
 
     key_cols = ["plateID", "wellID", "fieldID", "cellID"]
-    agg_cols = [c for c in feature_cols if c in all_df.columns]
-    if not agg_cols:
-        return []
+    # `numeric_cols` is a selection *from* `all_df.columns`, so every feature
+    # that survives the exclusions above is still a column of `all_df`: a
+    # membership filter here could not drop one, and could not empty a list
+    # the guard above has just refused when empty.
+    agg_cols = list(feature_cols)
 
     # Build per-cell table to filter out useless columns
     cell_level = (
@@ -6752,14 +6746,9 @@ def _infection_qc_histogram(
         settings["infection_intensity_qc_panel_path"] = None
         return all_df, infection_col
 
-    if intensity_col not in all_df.columns:
-        print(
-            f"[infection_intensity_qc] Column {intensity_col!r} not found; "
-            f"skipping intensity-based relabelling."
-        )
-        settings["infection_intensity_qc_panel_type"] = "histogram"
-        settings["infection_intensity_qc_panel_path"] = None
-        return all_df, infection_col
+    # No second "column not found" skip: the loop above only assigns
+    # `intensity_col` from a candidate it has just found in `all_df.columns`,
+    # and the guard above has already returned for the one other outcome.
 
     # --- IMPORTANT: drop any existing adjusted_infected when reusing DB ---
     # This prevents merge from creating adjusted_infected_x / adjusted_infected_y
@@ -7152,18 +7141,13 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
         validate="one_to_one",
     )
 
-    if orig_infection_col not in cell_level.columns:
-        for cand in (f"{orig_infection_col}_y", f"{orig_infection_col}_x"):
-            if cand in cell_level.columns:
-                cell_level[orig_infection_col] = cell_level[cand]
-                break
-
-    if orig_infection_col not in cell_level.columns:
-        raise KeyError(
-            f"[_infection_qc_xgboost] Infection column {orig_infection_col!r} "
-            "missing from per-cell table after aggregation/merge."
-        )
-
+    # A recovery block stood here -- a hunt through `<col>_y` and `<col>_x`
+    # followed by a KeyError -- and no input could reach it. `agg_cols`
+    # excludes `orig_infection_col`, so the left side of the merge cannot
+    # carry it and the suffix cannot fire; `infection_any` is
+    # `groupby(key_cols)[orig_infection_col].max()`, so the right side always
+    # does; and `suffixes=("", "_y")` can never mint an `_x` at all. It was
+    # removed rather than excluded from coverage.
     cell_level[orig_infection_col] = (
         cell_level[orig_infection_col]
         .fillna(0)
@@ -7223,11 +7207,13 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
     pattern_obj = re.compile(rf"^{re.escape(obj_prefix)}")
     pattern_ch = re.compile(r"ch(\d+)\b")
 
+    # `numeric_cols` cannot contain `orig_infection_col`, 'frame' or 'timeID':
+    # `agg_cols` above already excludes all three from the per-cell table, and
+    # `schema.model_feature_columns` would drop them anyway -- 'timeID' is
+    # provenance, 'frame' is not a declared measurement, and the infection call
+    # is cast to bool one block up, which that selector omits. So no skip for
+    # them is reachable here.
     for c in numeric_cols:
-        if c == orig_infection_col:
-            continue
-        if c in {"frame", "timeID"}:
-            continue
         if "centroid" in c.lower():
             continue
         if not pattern_obj.match(c):
@@ -7313,21 +7299,13 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
     high_thr_inf = np.nanpercentile(inf_int, 75.0)
     low_thr_uninf = np.nanpercentile(uninf_int, 25.0)
 
+    # Neither quartile subset can come out empty: `inf_int` and `uninf_int` are
+    # the finite values of the same columns and the guard above has refused
+    # both when empty, so a percentile of them lies between their own min and
+    # max. The row holding the maximum therefore satisfies `>= high_thr_inf`
+    # and the row holding the minimum satisfies `<= low_thr_uninf`.
     hi_inf = infected_cells[infected_cells[intensity_col] >= high_thr_inf].copy()
     lo_uninf = uninfected_cells[uninfected_cells[intensity_col] <= low_thr_uninf].copy()
-
-    if hi_inf.empty or lo_uninf.empty:
-        print(
-            "[_infection_qc_xgboost] Could not define confident high/low quartiles; "
-            "using histogram QC."
-        )
-        return _infection_qc_histogram(
-            all_df=all_df,
-            settings=settings,
-            infection_col=infection_col,
-            pathogen_chan=pathogen_chan,
-            motility_dir=motility_dir,
-        )
 
     print(
         "[_infection_qc_xgboost] Extreme-intensity candidates: "
@@ -7387,10 +7365,9 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
             pos_sel = pos_idx
             neg_sel = neg_idx
 
-        if pos_sel.size == 0 or neg_sel.size == 0:
-            wells_single_class.append((plate_id, well_id))
-            continue
-
+        # No second single-class skip: `n_pos` and `n_neg` are both non-zero by
+        # the guard above, so `pos_idx`/`neg_idx` are non-empty and
+        # `rng.choice` is asked for `min(n_pos, n_neg) >= 1` of them.
         train_idx_list.extend(pos_sel.tolist())
         y_train_list.extend([1] * pos_sel.size)
         train_idx_list.extend(neg_sel.tolist())
@@ -7457,36 +7434,23 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
                 if keep[j] and abs(corr[i, j]) >= corr_thr:
                     keep[j] = False
 
-        if not keep.any():
+        # `keep[0]` is never cleared -- the inner loop only writes `keep[j]`
+        # for `j > i >= 0` -- so the filter always keeps at least the first
+        # feature and there is no "everything was correlated away" case.
+        removed = [f for f, k in zip(feature_cols, keep) if not k]
+        if removed:
             print(
-                "[_infection_qc_xgboost] All features flagged as highly correlated; "
-                "keeping original feature set."
+                "[_infection_qc_xgboost] Removing highly correlated features "
+                f"(>|{corr_thr:.2f}|): " + ", ".join(removed)
             )
-        else:
-            removed = [f for f, k in zip(feature_cols, keep) if not k]
-            if removed:
-                print(
-                    "[_infection_qc_xgboost] Removing highly correlated features "
-                    f"(>|{corr_thr:.2f}|): " + ", ".join(removed)
-                )
-            feature_cols = [f for f, k in zip(feature_cols, keep) if k]
-            X_all = X_all[:, keep]
-            X_train = X_train[:, keep]
+        feature_cols = [f for f, k in zip(feature_cols, keep) if k]
+        X_all = X_all[:, keep]
+        X_train = X_train[:, keep]
 
     used_feature_cols = feature_cols
 
-    if X_train.shape[1] == 0:
-        print(
-            "[_infection_qc_xgboost] No usable feature columns after correlation "
-            "filtering; using histogram QC."
-        )
-        return _infection_qc_histogram(
-            all_df=all_df,
-            settings=settings,
-            infection_col=infection_col,
-            pathogen_chan=pathogen_chan,
-            motility_dir=motility_dir,
-        )
+    # The feature matrix always has a column here: `feature_cols` is non-empty
+    # by the guard above, and the correlation filter keeps `keep[0]`.
 
     print(
         f"[_infection_qc_xgboost] Using {len(used_feature_cols)} "

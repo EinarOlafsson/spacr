@@ -397,13 +397,17 @@ def test_the_hold_out_shares_no_well_with_the_selection(panel):
 
 
 def test_a_refusal_from_the_strategy_reaches_the_report(panel):
-    """Control anchors with no control wells named, through the widget."""
-    panel.set_strategy("control_anchors")
-    panel._positive_wells.setText("")
-    panel._negative_wells.setText("")
+    """A refusal only the run can raise lands in the report, not a traceback.
+
+    The well named here is not on this plate, which nothing short of
+    resolving the group ids can know -- so it is the refusal that gets past
+    the panel's own pre-flight and has to arrive through the worker.
+    """
+    panel.set_strategy("top_score_random")
+    panel._wells.setText("r9_c9")
     assert panel.run() is True
     assert panel.result() is None
-    assert "positive and a negative control well" in panel.report_text()
+    assert "appear in the object table" in panel.report_text()
     assert "did not run" in panel._status.text()
     assert not panel._save_button.isEnabled()
 

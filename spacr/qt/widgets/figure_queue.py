@@ -29,6 +29,7 @@ from PySide6.QtWidgets import (
     QPushButton, QStackedWidget, QVBoxLayout, QWidget,
 )
 
+from ..hidpi import scaled_for
 from ..i18n import tr
 from ..job_runner import JobRunner
 from ..theme import active_palette
@@ -441,6 +442,12 @@ RAM_CAP = 100
 FIGURE_RESIZE_DEBOUNCE_MS = 220
 
 
+#: The strip thumbnail, in LOGICAL pixels. One definition: the list's icon
+#: size and the render handed to it have to agree, and when they drifted the
+#: strip either upscaled a small picture or threw away a large one.
+THUMB_SIZE = QSize(140, 90)
+
+
 class _ClearFiguresLabel(QLabel):
     """Provide a low-chrome destructive control for clearing figures.
 
@@ -589,7 +596,7 @@ class FigureQueue(QWidget):
         self._list = QListWidget()
         self._list.setObjectName("FiguresList")
         self._list.setFixedWidth(160)
-        self._list.setIconSize(QSize(140, 90))
+        self._list.setIconSize(THUMB_SIZE)
         # Thumbnails are right-clickable too: the figure a user wants to
         # restyle is often not the one currently shown.
         self._list.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -844,8 +851,7 @@ class FigureQueue(QWidget):
         self._view.set_pixmap(shown)
         item = self._list.item(self._current)
         if item is not None and not shown.isNull():
-            item.setIcon(QIcon(shown.scaled(
-                140, 90, Qt.KeepAspectRatio, Qt.SmoothTransformation)))
+            item.setIcon(self._thumb_icon(shown))
         return True
 
     def refresh_figure(self, index: int, preview: bool = False) -> bool:
@@ -874,8 +880,7 @@ class FigureQueue(QWidget):
         self._pdf_state.pop(index, None)
         item = self._list.item(index)
         if item is not None and not pixmap.isNull():
-            item.setIcon(QIcon(pixmap.scaled(
-                140, 90, Qt.KeepAspectRatio, Qt.SmoothTransformation)))
+            item.setIcon(self._thumb_icon(pixmap))
         return True
 
     def _open_figure_settings(self) -> None:
@@ -1007,8 +1012,7 @@ class FigureQueue(QWidget):
         item = QListWidgetItem(f"#{idx + 1}")
         item.setTextAlignment(Qt.AlignCenter)
         if pixmap is not None and not pixmap.isNull():
-            item.setIcon(QIcon(pixmap.scaled(
-                140, 90, Qt.KeepAspectRatio, Qt.SmoothTransformation)))
+            item.setIcon(self._thumb_icon(pixmap))
         self._list.addItem(item)
 
         self._list.setCurrentRow(idx)   # jump to the newest
@@ -1051,8 +1055,7 @@ class FigureQueue(QWidget):
             pixmap = self._display_pixmap(idx, pixmap)
             item = self._list.item(idx)
             if item is not None:
-                item.setIcon(QIcon(pixmap.scaled(
-                    140, 90, Qt.KeepAspectRatio, Qt.SmoothTransformation)))
+                item.setIcon(self._thumb_icon(pixmap))
             if self._current == idx:
                 self._view.set_pixmap(pixmap)
         except Exception as exc:
@@ -1452,8 +1455,7 @@ class FigureQueue(QWidget):
         self._cache_pixmap(idx, pixmap)
         item = self._list.item(idx)
         if item is not None:
-            item.setIcon(QIcon(pixmap.scaled(
-                140, 90, Qt.KeepAspectRatio, Qt.SmoothTransformation)))
+            item.setIcon(self._thumb_icon(pixmap))
         self._view.set_pixmap(pixmap)
 
     def _render_figure(self, fig, png_path: Path) -> Optional[QPixmap]:
@@ -1622,6 +1624,16 @@ class FigureQueue(QWidget):
         self._teardown_canvas()
         self._stack.setCurrentIndex(0)
 
+    def _thumb_icon(self, pixmap) -> QIcon:
+        """``pixmap`` as a strip thumbnail for the screen the list is on.
+
+        Rendered at the list's own icon size in real device pixels, so a
+        HiDPI panel shows the figure rather than a doubled-up 140 px render
+        of it. All six places that put a picture in the strip come here, so
+        the strip cannot drift from :data:`THUMB_SIZE`.
+        """
+        return QIcon(scaled_for(pixmap, self._list, THUMB_SIZE))
+
     def _preview_target_px(self) -> float:
         """Longest edge, in real device pixels, of the area showing the figure.
 
@@ -1752,8 +1764,7 @@ class FigureQueue(QWidget):
         self._view.set_pixmap(pixmap)
         item = self._list.item(idx)
         if item is not None:
-            item.setIcon(QIcon(pixmap.scaled(
-                140, 90, Qt.KeepAspectRatio, Qt.SmoothTransformation)))
+            item.setIcon(self._thumb_icon(pixmap))
 
     def _render_preview(self, fig, png_path: Path) -> Optional[QPixmap]:
         """A fast raster for live restyling: no vector page, capped size.
