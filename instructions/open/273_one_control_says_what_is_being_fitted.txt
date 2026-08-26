@@ -1,0 +1,151 @@
+================================================================================
+ONE CONTROL SAYS WHAT IS BEING FITTED, AND THE PERMUTATION TESTS GENES TOO
+================================================================================
+
+Status:    OPEN. Requested 2026-08-26. The maintainer has raised this
+           repeatedly -- "a problem i keep coming back to".
+Priority:  HIGH. It is the question the whole module exists to answer.
+Owner:     spacr/settings.py, spacr/ml.py, spacr/guide_permutation.py.
+
+--------------------------------------------------------------------------------
+WHAT WAS ASKED
+--------------------------------------------------------------------------------
+
+"in the regression/permutation options shouldn't i be able to choose
+
+    gRNA coefficients
+    Gene coefficients
+    Gene coefficients with gRNAs as random effects
+
+ultimately i care about gene effects and want to model gene effects taking
+grna variability into account."
+
+and, separately: "i want the ability to do a non-parametric test on the
+grnas and the genes."
+
+--------------------------------------------------------------------------------
+ALL THREE ALREADY EXIST. NONE OF THEM IS FINDABLE.
+--------------------------------------------------------------------------------
+
+The third one -- the one the maintainer says he actually wants -- is fully
+implemented and has been for some time. `spacr/ml.py`:
+
+    _mixed_model_groups:  "The gene is the outer cluster and the guide is
+    nested inside it. The model fits
+
+        y ~ gene_fraction:gene + (1 | gene/grna) + rowID + columnID
+
+    where (1 | gene/grna) is represented as groups=gene plus a guide
+    variance component inside each gene."
+
+    fit_mixed_model:  "vc_formula={'grna': '0 + C(grna)'} supplies the
+    guide-within-gene variance component."
+
+So the analysis is there. What is missing is any way to ASK for it by name.
+
+THE THREE ANALYSES ARE AN EMERGENT COMBINATION OF THREE SETTINGS:
+
+    gRNA coefficients          inference=parametric, level=grna
+    Gene coefficients          inference=parametric, level=gene
+    Gene + gRNA random effects inference=parametric, regression_type=mixed,
+                               level=gene
+
+A user has to know that `inference`, `regression_type` and `level` interact,
+and in which direction. Nothing on the panel says so.
+
+AND ONE OF THEM SILENTLY CANCELS ANOTHER. With `inference='nonparametric'`
+the `regression_type` is not read at all. The maintainer ran
+
+    inference=nonparametric, regression_type=mixed, level=both
+
+-- which is a request for exactly the third analysis -- and got guide-level
+permutation results, because the permutation path ignores the model. The run
+says so, in one line, after the fact:
+
+    "inference='nonparametric': this is a permutation test, so it fits no
+     model and regression_type='mixed' is not read."
+
+A setting that quietly overrides another is worse than one that refuses.
+
+--------------------------------------------------------------------------------
+1. ONE CONTROL, NAMED FOR WHAT IT PRODUCES
+--------------------------------------------------------------------------------
+
+Replace the emergent combination with a single choice whose options are the
+maintainer's own words. Something of this shape -- the names matter more
+than the mechanism:
+
+    gRNA effects                       one estimate per guide
+    Gene effects                       one estimate per gene, guides pooled
+    Gene effects, gRNA variability     one estimate per gene, with the
+                                       guide-to-guide spread modelled
+
+and, crossed with it, HOW the P value is reached:
+
+    fitted model      every term at once, needs more wells than terms
+    permutation       each term on its own, no such limit
+
+THE UNDERLYING SETTINGS STAY. `level`, `regression_type` and `inference` go
+on existing and go on being written to the settings file, because macros,
+saved runs and the API all use them. What changes is that the PANEL offers
+the question a user actually has, and derives the three from it.
+
+A COMBINATION THAT CANNOT BE HONOURED MUST REFUSE, not override. If a chosen
+pair has no implementation, say so at the point of choosing rather than
+running something else and mentioning it in the log.
+
+--------------------------------------------------------------------------------
+2. THE PERMUTATION TESTS GENES AS WELL AS GUIDES, AND SAYS WHICH
+--------------------------------------------------------------------------------
+
+It already tests both. The run prints:
+
+    "Gene pass: 380 genes tested as sets in the primary >=1-well family,
+     corrected as their OWN BH family beside the 789 guides."
+
+So a gene-level nonparametric result EXISTS and is written. What is missing:
+
+  * it is not a CHOICE -- it happens, whatever the user asked for, and
+    `level` is not consulted on this path;
+  * the results panel opens on guides, so the gene rows are there and
+    unseen unless the reader knows to switch;
+  * "tested as sets" is not explained anywhere a user will look. It is a
+    different test from the guide one and deserves its own sentence.
+
+WHAT IS OWED: `level` decides what the permutation reports, exactly as it
+does for the fitted model -- guides, genes, or both -- and the gene test says
+what it does in the same terms the guide test does.
+
+THE THIRD ANALYSIS HAS NO PERMUTATION EQUIVALENT, and that is honest rather
+than a gap to paper over: a variance component is a thing a model estimates.
+If "Gene effects, gRNA variability" is chosen with permutation, say that the
+combination does not exist and which of the two to change -- do not silently
+give guides.
+
+--------------------------------------------------------------------------------
+3. THE COST IS SAID BEFORE IT IS PAID
+--------------------------------------------------------------------------------
+
+The mixed fit is expensive and the module already knows the numbers: "823
+guides over 610 wells is tens of minutes to hours. Single-threaded REML: one
+core at 100% is a healthy fit, not a hang."
+
+That warning currently prints on runs that will not fit a model at all --
+see instruction 271. Attached to the control that CHOOSES the fit, on a run
+that will actually do it, it is exactly the right thing to say.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * the panel offers the three analyses by name, and choosing one produces
+    that analysis -- asserted by running each and reading what came back;
+  * choosing "Gene effects, gRNA variability" fits
+    `y ~ gene_fraction:gene + (1 | gene/grna)` and the results carry a guide
+    variance component;
+  * a nonparametric run reports genes when genes are asked for, guides when
+    guides are, and both when both;
+  * no setting silently overrides another: an impossible combination is
+    refused where it is chosen, naming which half to change;
+  * the settings file still carries `level`, `regression_type` and
+    `inference`, and a file written before this change still runs.
