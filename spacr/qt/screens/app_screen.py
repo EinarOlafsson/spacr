@@ -45,7 +45,7 @@ from ..bridge import make_thread, resolve_pipeline_entry
 from ..i18n import tr
 from ..job_runner import JobRunner
 from ..theme import (SPACING, ensure_widget_qss_applied, register_widget_qss)
-from ..widgets import Card, Divider, InfoLink, Section, UsageBar
+from ..widgets import ApiHelpLabel, Card, Divider, Section, UsageBar
 from .settings_model import (
     CATEGORY_TOOLTIPS,
     SettingsWidgets,
@@ -286,10 +286,15 @@ class ModuleHeader(QWidget):
     :param title: the module name, shown large.
     :param description: one line to the right of the name. Never wrapped —
       it may shrink below its ideal width rather than force the window
-      wider — and repeated as a tooltip so a truncated one is readable.
+      wider — and repeated in its own hover help so a truncated one is
+      readable.
     :param instruction: one line under the name. Omitted if empty.
-    :param app_key: registry key. Given one, the description gets the
-      module's API documentation link beside it.
+    :param app_key: registry key. Given one, the module's API documentation
+      link is the last line of the description's hover help. NOTHING IS
+      DRAWN BESIDE THE DESCRIPTION: a dot used to be, and a masthead reads
+      as one sentence rather than a sentence and a mark. The link is not
+      lost with it -- see :class:`spacr.qt.widgets.ApiHelpLabel`, which
+      carries the same help every setting's label carries.
     """
 
     def __init__(self, title: str, description: str = "",
@@ -317,13 +322,17 @@ class ModuleHeader(QWidget):
         title_col.addWidget(self.instruction_label)
         row.addLayout(title_col)
 
-        self.description_label: Optional[QLabel] = None
-        self.info_link = None
+        self.description_label: Optional[ApiHelpLabel] = None
+        #: The description, when it carries an API link; ``None`` otherwise.
+        #: A screen that serves two modules from one masthead repoints it --
+        #: see :meth:`ApiHelpLabel.set_api_app_key`.
+        self.api_help: Optional[ApiHelpLabel] = None
         if description:
-            intro_row = QHBoxLayout()
-            intro_row.setContentsMargins(0, 0, 0, 0)
-            intro_row.setSpacing(SPACING["sm"])
-            blurb = QLabel(str(description))
+            # Straight onto the header row: the blurb used to share a nested
+            # row with the dot, and a container for one widget is a container
+            # for nothing.
+            blurb = ApiHelpLabel(str(description), str(app_key or ""),
+                                 parent=self)
             blurb.setObjectName("Muted")
             # One line, flush left. The label may shrink below its ideal
             # width so a long blurb never forces the window wider.
@@ -331,18 +340,10 @@ class ModuleHeader(QWidget):
             blurb.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
             blurb.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
             blurb.setMinimumWidth(0)
-            blurb.setToolTip(str(description))
-            intro_row.addWidget(blurb)
+            row.addWidget(blurb)
             self.description_label = blurb
             if app_key:
-                from .settings_model import api_docs_url
-                info = InfoLink(api_docs_url(app_key),
-                                tooltip=str(description), parent=self)
-                info.setObjectName("ModuleInfoLink")
-                info.setProperty("moduleApiAppKey", app_key)
-                intro_row.addWidget(info)
-                self.info_link = info
-            row.addLayout(intro_row)
+                self.api_help = blurb
 
         row.addStretch(1)
         self._row = row
