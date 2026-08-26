@@ -47,9 +47,26 @@ repository and in its history until it is removed from the index, and
 `git rm --cached` so it stops being published, and an ignore rule so it
 never returns. Keep the files on disk -- they are how the work is driven.
 
-Decide, and say which, whether the history is also to be rewritten to remove
-them: it is the difference between "not in the current tree" and "never
-visible". The rewrite goes with item 1's, in the same pass, at the end.
+DECIDED: KEEP THEM OUT OF `main`, KEEP THEM IN `nightly`.
+
+The maintainer's answer: "for the skill instructions folders do B. keep out
+of main but in nightly."
+
+So they stay tracked -- version control is the point of keeping them -- and
+the branch a visitor lands on does not carry them. What that does and does
+not buy, said plainly rather than left to be discovered:
+
+  * a visitor to github.com/EinarOlafsson/spacr sees `main`, which will not
+    have these folders;
+  * `nightly` is also pushed and also public, so the folders remain
+    reachable by switching branch;
+  * they remain in the history that is already published. Only a rewrite
+    changes that, and the decision here is not to.
+
+THE PROMOTION HAS TO DO IT EVERY TIME, which is why it is a tool rather
+than a step to remember: copying `nightly` onto `main` carries every
+tracked path with it, so the removal has to happen on `main` after each
+promotion, not once.
 
 --------------------------------------------------------------------------------
 3. THE README AND THE API PAGES SAY WHAT THE PROGRAM NOW IS

@@ -25,10 +25,27 @@ its host, or -- where the host would become unreadable -- into a private
 module clearly belonging to that host rather than a peer sitting beside
 every real screen.
 
-WHAT MUST NOT CHANGE: `spacr/napari_bridge.py` is the LIBRARY half and is
-imported by `spacr/__init__.py`, `spacr/qt/dnd_handlers.py` and
-`spacr/qt/mask_engine.py`. It is not a screen and it stays. Only the screen
-module folds.
+CONFIRMED FOR NAPARI, 2026-08-26: "napari bridge is in make maksks and can
+be removed as a modual." It already has no registry row and is a button on
+Make Masks' masthead (`make_masks.FOLD_ORDER`), so what is left is the
+source sitting beside every real screen.
+
+THERE ARE TWO FILES WITH THAT NAME AND ONLY ONE GOES.
+
+  * `spacr/qt/screens/napari_bridge.py` -- 373 lines, the SCREEN. Reached
+    from `make_masks.py:1682`, listed in `spacr/qt/__init__.py:413`, and
+    driven by two test files. THIS is the module being removed: it folds
+    into its host.
+  * `spacr/napari_bridge.py` -- 677 lines, the LIBRARY. It STAYS. It is
+    public API (`spacr/__init__.py:212`), the CLI documents
+    `spacr.napari_bridge.correct_mask` by name (`cli.py:759`), and
+    `qt/dnd_handlers.py:2418` routes a dropped label mask through it.
+    Deleting it would take a documented entry point and a drop handler
+    with it.
+
+The same two-file shape may hold for other folds -- a screen module and a
+library module under one name -- so sweep by asking which file the HOST
+imports, not by name.
 
 --------------------------------------------------------------------------------
 2. MAKE MASKS IS A DATA TOOL
