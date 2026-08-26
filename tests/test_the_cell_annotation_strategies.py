@@ -248,7 +248,7 @@ def test_the_leakage_control_does_not_cry_wolf_when_the_signal_is_real():
 def test_the_applied_predictions_come_from_the_fit_without_the_score():
     frame = _plate(seed=3)
     result = ra.run("top_score_random", _request(frame))
-    assert "WITHOUT the score's own inputs" in result.summary()
+    assert "fit excluding the score inputs" in result.summary()
     fitted = set(result.selection.index)
     assert not (set(result.predictions.index) & fitted)
     assert len(result.predictions) == len(frame) - len(fitted)
@@ -266,7 +266,7 @@ def test_the_leakage_mode_can_be_asked_for_one_fit_only(plate, prepared):
     kept = ra.run("top_score_random", _request(plate, leakage="keep"),
                   prepared=prepared)
     assert kept.leakage.without_score_inputs is None
-    assert "may be little more than a copy of the score" in kept.summary()
+    assert "may therefore reproduce the original score" in kept.summary()
 
 
 def test_an_unknown_leakage_mode_is_refused(plate):
@@ -423,7 +423,7 @@ def test_the_contrast_set_of_pu_learning_is_unlabelled_not_negative(plate,
     roles = set(result.selection["annotation_role"])
     assert roles == {"positive", "unlabelled"}
     assert 0.0 < result.counts["labelling_rate"] <= 1.0
-    assert "UNLABELLED, not negative" in result.summary()
+    assert "unlabelled rather than negative" in result.summary()
     # the rescaling moves the line, and the run says by how much
     assert result.counts["called_positive_rescaled"] >= \
         result.counts["called_positive_as_negative"]
@@ -498,7 +498,8 @@ def test_the_random_draw_reports_what_the_clever_strategies_are_buying(
     result = ra.run("random_holdout", _request(plate), prepared=prepared)
     assert result.counts["positive_share"] < prepared.positive_share(
         prepared.chosen)
-    assert "the only measurement that can say so" in result.summary()
+    assert "quantifies enrichment produced by targeted selection" in \
+        result.summary()
 
 
 # --------------------------------------------------------------------------
@@ -670,7 +671,7 @@ def test_a_table_whose_every_column_is_a_score_input_says_so(plate):
                    "pred", "cell_area", "cell_channel_1_mean_intensity"]]
     prepared = ra.prepare(_request(frame, leakage="drop"))
     assert prepared.honest_features == ()
-    assert "EVERY feature column is one of the score's own inputs" in \
+    assert "Every feature column is identified as a score input" in \
         " ".join(prepared.notes)
     result = ra.run("top_score_random", _request(frame, leakage="drop"),
                     prepared=prepared)

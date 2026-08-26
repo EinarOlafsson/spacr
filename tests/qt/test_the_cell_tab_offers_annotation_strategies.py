@@ -289,13 +289,13 @@ def test_choosing_one_says_what_it_is_for_and_what_it_costs(panel):
         entry = ra.strategy(key)
         assert entry.purpose in about, key
         assert entry.cost in about, key
-        assert "Costs:" in about, key
+        assert "Limitations:" in about, key
 
 
 def test_the_named_method_points_at_the_control_for_its_own_trap(panel):
     panel.set_strategy("top_score_random")
     about = panel.about_text()
-    assert "relearning the score" in about
+    assert "score reconstruction" in about
     assert "The score's own inputs" in about
     assert "WITHOUT them" in about
     # and that control is on the panel, defaulting to reporting both
@@ -313,7 +313,7 @@ def test_an_unimplemented_strategy_is_labelled_and_cannot_be_run(
                                      threaded=False)
     assert widget.set_strategy("parked")
     assert "not yet implemented" in widget._menu.currentText()
-    assert "NOT YET IMPLEMENTED" in widget.about_text()
+    assert "not yet implemented" in widget.about_text().casefold()
     assert not widget._run_button.isEnabled()
     assert "would select nothing" in widget._run_button.toolTip()
     assert widget.run() is False
@@ -365,8 +365,8 @@ def test_the_named_method_runs_end_to_end_and_reports_both_fits(panel):
     result = panel.result()
     assert result is not None
     report = panel.report_text()
-    assert "WITH the score's own inputs" in report
-    assert "WITHOUT them" in report
+    assert "Including score inputs" in report
+    assert "Excluding score inputs" in report
     assert "survives" in report
     assert "held out" in report
     assert set(result.selection["annotation_role"]) == {"positive", "contrast"}
@@ -582,8 +582,8 @@ def test_the_named_method_runs_through_the_tab_on_a_real_screen(loaded_view):
     result = panel.result()
     assert result is not None, panel.report_text()
     report = panel.report_text()
-    assert "WITH the score's own inputs" in report
-    assert "WITHOUT them" in report
+    assert "Including score inputs" in report
+    assert "Excluding score inputs" in report
     assert "held out" in report
     assert not (set(result.selection["annotation_group"])
                 & set(result.holdout["annotation_group"]))
