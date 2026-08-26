@@ -68,6 +68,21 @@ def _opened(qtbot, opener):
     return window
 
 
+def _opener_for(screen, key):
+    """The opener for one fold, found by key rather than by position.
+
+    A host's openers are in the order it folds its modules, and that order
+    changes whenever a module is folded in -- so indexing into the list ties
+    a test to a fact about a neighbouring module.
+    """
+    for opener in getattr(screen, "_fold_openers", ()) or ():
+        if getattr(opener, "key", None) == key:
+            return opener
+    raise AssertionError(
+        f"{key}: no fold opener, only "
+        f"{[getattr(o, 'key', None) for o in screen._fold_openers]}")
+
+
 # ---------------------------------------------------------------------------
 # The strip itself
 # ---------------------------------------------------------------------------
@@ -184,7 +199,7 @@ def test_measure_opens_the_anndata_export_form(qtbot, qt_theme_applied):
     only "export" with no keys would drop every choice it has.
     """
     screen, _strip = _host_screen(qtbot, measure, "measure")
-    window = _opened(qtbot, screen._fold_openers[0])
+    window = _opened(qtbot, _opener_for(screen, "anndata_export"))
 
     assert isinstance(window, AppScreen)
     assert window.app_key == "anndata_export"
@@ -247,7 +262,7 @@ def test_the_button_press_itself_opens_the_module(qtbot, qt_theme_applied):
 
     button.click()
 
-    window = screen._fold_openers[0].window
+    window = _opener_for(screen, "anndata_export").window
     assert window is not None, "clicking the button opened nothing"
     qtbot.addWidget(window)
     assert window.app_key == "anndata_export"
@@ -283,7 +298,7 @@ def test_a_closed_and_deleted_window_is_rebuilt(qtbot, qt_theme_applied):
     import shiboken6
 
     screen, _strip = _host_screen(qtbot, measure, "measure")
-    opener = screen._fold_openers[0]
+    opener = _opener_for(screen, "anndata_export")
     # Deliberately NOT registered with qtbot: this widget is destroyed
     # mid-test, and a teardown that tried to close it again would report
     # the deletion as a failure of whatever ran next.
@@ -303,7 +318,7 @@ def test_a_module_that_cannot_be_built_costs_the_window_not_the_host(
         qtbot, qt_theme_applied):
     """A folded module that raises leaves the host screen usable."""
     screen, strip = _host_screen(qtbot, measure, "measure")
-    opener = screen._fold_openers[0]
+    opener = _opener_for(screen, "anndata_export")
 
     def boom(_host_window):
         raise RuntimeError("no exporter today")
@@ -731,11 +746,23 @@ def test_a_folded_button_lights_in_the_stage_the_tile_lit_in(qtbot):
 
 
 def test_every_folded_module_has_a_fallback(qtbot):
-    """A folded key with no fallback loses its name the day its row goes."""
+    """A folded key with no fallback loses its name the day its row goes.
+
+    ASKED OF THE RESOLVER, NOT OF ONE HOST'S DICT. A fold's record lives on
+    the host that folded it -- Activation's on Classify, Illumination's on
+    Measure -- so a check against a single table calls a correctly-recorded
+    fold missing. What has to be true is that the answer REACHES a button,
+    which is the resolver's job, and it is asked here the way a button asks.
+    """
+    from spacr.qt.widgets.fold_strip import folded_fallback
+
     folded = (list(map_barcodes.FOLDED_APPS) + list(classify.FOLDED_APPS)
               + list(measure.FOLDED_APPS) + list(ANNOTATE_FOLDS))
     for key in folded:
-        assert key in map_barcodes.FOLD_FALLBACK, key
+        name, description, stage = folded_fallback(key)
+        assert name, f"{key}: no folded record, so the button has no name"
+        assert description, f"{key}: no sentence for the button's tooltip"
+        assert stage, f"{key}: no stage, so the button lights stable-blue"
 
 
 def test_a_button_keeps_its_colour_when_the_registry_row_is_dropped(
