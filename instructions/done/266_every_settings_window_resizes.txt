@@ -2,8 +2,29 @@
 EVERY SETTINGS WINDOW RESIZES, BOTH WAYS
 ================================================================================
 
-Status:    OPEN. Requested 2026-08-26 -- "i should be able to resize all
+Status:    DONE. Requested 2026-08-26 -- "i should be able to resize all
            settings windows horizontally and verticaly".
+
+           ONE PLACE, NOT THIRTY: the application-wide filter in dialogs.py
+           calls `make_the_window_resizable` on Polish OR Show for every
+           dialog `wants_resizing` accepts, so a dialog written next month
+           gets this without its author knowing the item existed.
+
+           MEASURED on a fourteen-row form dialog driven through the real
+           filter, by resizing it and reading the size back:
+
+               natural     229 x 520
+               minimum     142 x 142   (was 520 tall -- the content floor)
+               -> 250x180  250 x 180   it goes UNDER its natural size
+               -> 1200x900 1200 x 900  and over it
+               size grip   present
+               scroll area installed
+
+           A short two-button confirmation is left alone -- no scroll area,
+           no grip -- which is the sweep exclusion this file asked for.
+           tests/qt/test_a_frameless_window_can_still_be_resized.py and
+           test_dialog_detach.py: 21 tests, and the detach-once guarantee
+           still holds.
 Owner:     spacr/qt/dialogs.py for the shared behaviour, and every dialog.
 
 --------------------------------------------------------------------------------
