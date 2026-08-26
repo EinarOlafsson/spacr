@@ -2993,13 +2993,11 @@ class RegressionResultsPanel(QWidget):
         return None
 
     def _offer_levels(self) -> None:
-        """Put the level choice on the panel AND on the volcano, in step.
+        """Synchronize coefficient-level choices across all result views.
 
-        Three controls, one state. The panel's own combo is the one on screen
-        whatever tab is open; the volcano's is beside the dots; the
-        coefficient table's right-click menu is where instruction 128 L asked
-        for it. All three are rebuilt from :attr:`_level` here, so none of
-        them can be showing a level the panel is not drawing.
+        The panel selector, volcano control, and coefficient-table menu are
+        rebuilt from :attr:`_level`, ensuring that each control displays the
+        coefficient level currently rendered by the panel.
 
         The level summary uses the plot's persistent option-note slot so point
         selections cannot replace the explanation of hidden coefficients.

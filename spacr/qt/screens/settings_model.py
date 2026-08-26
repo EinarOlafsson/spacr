@@ -9456,23 +9456,12 @@ class SettingsWidgets:
                 emptied.pop(ident, None)
 
     def _guard_hidden_rows(self, hidden) -> None:
-        """Watch every row the rule hid, so it stays hidden.
+        """Keep settings for inactive object roles hidden after UI updates.
 
-        THE RULE IS ENFORCED, NOT APPLIED ONCE. It used to be applied once
-        per change and left alone, on the assumption that whatever else moved
-        a row would be followed by another pass -- and nothing followed the
-        settings search. Switching a module to "All settings" shows every row
-        the strip indexed, which put the cell, nucleus, pathogen and
-        organelle settings back on the Mask panel with every channel still
-        None; the disclosure level is remembered per module, so from then on
-        the panel opened that way every time. That is what a maintainer sees
-        and a freshly built panel in a test does not.
-
-        Rather than teach each of them about this rule, the rows the rule hid
-        watch themselves: ``ShowToParent`` is delivered whenever a widget is
-        made visible -- including inside a collapsed section, where no
-        ``Show`` ever arrives -- so any route that puts one back, a filter, a
-        recipe or a fold, is answered by the next pass.
+        Search filters, recipes, and section expansion can make a previously
+        hidden row visible. Each affected row therefore watches
+        ``ShowToParent`` events and schedules another visibility pass whenever
+        an external update reveals it, including within collapsed sections.
         """
         guard = getattr(self, "_object_row_guard", None)
         if guard is None or self._parent is None:
