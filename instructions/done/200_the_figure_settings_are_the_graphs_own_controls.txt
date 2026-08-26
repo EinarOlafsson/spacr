@@ -278,3 +278,42 @@ table exists to prevent, arriving by the front door.
 `bar_jitter` FOR GROUPS, because 139 B argues for showing the summary AND
 the observations: a bar alone hides the spread it was computed from, and a
 reader cannot tell three points from three hundred.
+
+--------------------------------------------------------------------------------
+RE-AUDITED 2026-08-26: THREE OF C, D AND E REACHED NO FIGURE
+--------------------------------------------------------------------------------
+
+The last criterion of this file -- "no tab in the dialog contains a control
+that does nothing" -- did not hold for the settings C, D and E added. They
+were reachable in the dialog and stored in the style, and NOTHING READ THEM.
+
+`spacr.figures.style.user_overrides` is the only path a preference has to a
+drawn figure and it builds its overrides by DIFFING two `figure_style.rc_params`
+dicts, so a setting `rc_params` does not emit cannot reach a figure at all --
+the note above `axes.prop_cycle` in that function says exactly this, and was
+written when the palette was found to have the same fault. Measured:
+`chrome_colour`, `marker_style`, `page_shape` and `mark_colouring` each
+produced an EMPTY rcParam diff.
+
+THREE OF THE FOUR NOW EMIT:
+
+  chrome_colour   the spines and the tick marks (`axes.edgecolor`,
+                  `xtick.color`, `ytick.color`), and the grid where the user
+                  has not chosen a grid colour of their own -- a DEFAULT IS
+                  NOT AN OVERRIDE, or the one control could never win over a
+                  `grid_colour` that ships non-empty.
+  marker_style    `lines.marker`.
+  page_shape      `figure.figsize`, through `page_size` and `PAGE_WIDTH_IN`.
+                  `custom` emits none: it means the caller's own inches.
+
+ONLY WHEN THEY DIFFER FROM THE DEFAULT, for `marker_style` and `page_shape`.
+`figure_style.apply` pushes this dict into the GLOBAL rcParams, so emitting
+the default marker would put a circle on every line ever drawn -- a decision
+no user made.
+
+STILL INERT: `mark_colouring` (group / uniform / random). It is not an
+rcParam -- it is a rule about which colour each mark takes -- so it needs the
+grouped renderers to read it, not another line in `rc_params`.
+
+Tests: `tests/test_the_frame_the_mark_and_the_page_reach_a_figure.py`, 11
+passing; 7 of them fail without the emission.

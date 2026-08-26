@@ -134,6 +134,14 @@ FEATURE_FAMILIES: dict[str, str] = {
         "Image/shape moments: rotation-invariant shape descriptors and "
         "intensity-weighted centroids."
     ),
+    "spatial": (
+        "Where an object sits relative to the OTHER objects of its own kind "
+        "in the same field — how many are near it, how far the nearest ones "
+        "are, how much of its border another object shares. No intensity "
+        "enters these and they say nothing about the object's own shape; "
+        "they are the per-object handle on local density, which is the "
+        "dominant confounder in an image screen."
+    ),
     "meta": (
         "Identifiers and bookkeeping — plate/well/field, object labels, file "
         "paths, settings. Not a measurement; never feed these to a model as "
@@ -955,6 +963,114 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "spacr.measure._calculate_correlation_object_level (manders_thresholds)",
         "Same caveats as M1_correlation_<t>; the two differ only in which "
         "channel's intensity is summed over the shared overlap mask.",
+    ),
+    # ---------------- corrected Manders (measure.py, corrected_manders)
+    "manders_m1": PropertyInfo(
+        "correlation",
+        "Manders' M1: the fraction of the FIRST channel's above-background "
+        "intensity inside the object that lies in pixels where the SECOND "
+        "channel is above its own background.",
+        _FRACTION,
+        "spacr.measure._calculate_correlation_object_level (corrected_manders)",
+        "This is the statistic M1_correlation_<t> was named after and is not. "
+        "Each channel's background is estimated inside each object as "
+        "median + 3 * 1.4826 * MAD and subtracted before the fraction is "
+        "taken, so the two channels are thresholded independently rather than "
+        "sharing one overlap mask. Written beside the deprecated "
+        "M1_correlation_<t> columns rather than replacing them, so a plate "
+        "measured before this existed still agrees with itself. 0.0, never "
+        "NaN, when the channel has no above-background intensity in the "
+        "object -- a NaN would delete the column from every model matrix.",
+    ),
+    "manders_m2": PropertyInfo(
+        "correlation",
+        "Manders' M2: the fraction of the SECOND channel's above-background "
+        "intensity inside the object that lies in pixels where the FIRST "
+        "channel is above its own background.",
+        _FRACTION,
+        "spacr.measure._calculate_correlation_object_level (corrected_manders)",
+        "The mirror of manders_m1 and subject to the same caveats; the two "
+        "differ only in which channel's intensity is summed.",
+    ),
+    "manders_overlap_coefficient": PropertyInfo(
+        "correlation",
+        "Manders' overlap coefficient over the object's pixels: "
+        "sum(a*b) / sqrt(sum(a^2) * sum(b^2)) on the two background-"
+        "subtracted, non-negative channel vectors. One symmetric number for "
+        "the pair, unlike M1 and M2.",
+        _DIMLESS + ", in [0, 1]",
+        "spacr.measure._calculate_correlation_object_level (corrected_manders)",
+        "Nothing in spaCR computed this before corrected_manders, although "
+        "the colocalisation tooltips have long named it. Backgrounds are the "
+        "per-object median + 3 * 1.4826 * MAD of each channel. 0.0, never "
+        "NaN, when either channel has no above-background intensity.",
+    ),
+    # ---------------- spatial context (measure.py, spatial_measurements)
+    "neighbors_within_<r>": PropertyInfo(
+        "spatial",
+        "How many OTHER objects of the same kind have their centroid within "
+        "{r} of this object's centroid. The object itself is not counted.",
+        "count (objects)",
+        "scipy.spatial.cKDTree.query_ball_point in "
+        "spacr.measure._spatial_measurements (spatial_neighbor_radius)",
+        "The radius is in the units of the row's measurement_units stamp, "
+        "because the tree is built on spacing-scaled centroids: pixels in a "
+        "2-D run, micrometres in a 3-D run that knew its voxel size. The "
+        "radius is baked into the NAME, so two plates measured at different "
+        "spatial_neighbor_radius values produce different columns and will "
+        "not concatenate. Counted over the whole FIELD, so an object near the "
+        "field edge has fewer neighbours than the biology gave it.",
+    ),
+    "nearest_neighbor_distance": PropertyInfo(
+        "spatial",
+        "Centroid-to-centroid distance from this object to the closest other "
+        "object of the same kind in the field.",
+        _PX,
+        "scipy.spatial.cKDTree.query in "
+        "spacr.measure._spatial_measurements",
+        "-1.0 is a SENTINEL, not a distance: it means the field held no such "
+        "neighbour at all (a one-object field). NaN is not written because "
+        "one NaN anywhere deletes the column from every model matrix, so the "
+        "sentinel has to be excluded before averaging this column.",
+    ),
+    "second_neighbor_distance": PropertyInfo(
+        "spatial",
+        "Centroid-to-centroid distance from this object to the SECOND "
+        "closest other object of the same kind in the field.",
+        _PX,
+        "scipy.spatial.cKDTree.query in "
+        "spacr.measure._spatial_measurements",
+        "-1.0 is the same sentinel nearest_neighbor_distance uses, and a "
+        "two-object field writes it here while the nearest distance is real. "
+        "Exclude it before averaging.",
+    ),
+    "percent_touching": PropertyInfo(
+        "spatial",
+        "Percentage of this object's own boundary pixels that lie against "
+        "another object of the same kind, after each label is grown by one "
+        "pixel so that objects separated by a segmentation gap still count "
+        "as touching.",
+        "percent (0-100)",
+        "skimage.segmentation.expand_labels + find_boundaries in "
+        "spacr.measure._spatial_adjacency",
+        "Has zero variance in a confluent monolayer -- 100.0 for every "
+        "object -- so utils.remove_low_variance_columns drops it from model "
+        "matrices for exactly the plates where it is most trivially true. "
+        "That is correct behaviour and shows up as a missing column.",
+    ),
+    "touching_neighbors": PropertyInfo(
+        "spatial",
+        "Number of DISTINCT other objects of the same kind that share a "
+        "border with this one, counted after the same one-pixel growth.",
+        "count (objects)",
+        "skimage.segmentation.expand_labels + find_boundaries in "
+        "spacr.measure._spatial_adjacency",
+        "Named without the word 'count': schema.model_feature_columns strips "
+        "any column whose name contains 'count', so a neighbour_count column "
+        "would be computed, stored, and then never reach a model. The "
+        "identities of the adjacent objects are deliberately not stored -- "
+        "the object namespace refuses a non-numeric column, and any name "
+        "carrying 'label' is folded into the merge key.",
     ),
     # ---------------- periphery / outside rings (measure.py:561-603)
     "periphery_mean": PropertyInfo(
@@ -1872,6 +1988,10 @@ _RING_OBJECTS = ("nucleus", "pathogen", *ORGANELLE_ROLES)
 _ZERNIKE_OBJECTS = ("cell", "nucleus", "pathogen", *ORGANELLE_ROLES)
 #: `_measure_intensity_distance`'s frame is appended to `cell_dfs` alone.
 _CELL_ONLY = ("cell",)
+#: The spatial block is merged onto the cell, nucleus, pathogen and organelle
+#: props frames (measure.py `_with_spatial`) and never onto cytoplasm, which
+#: is one object per cell by construction.
+_SPATIAL_OBJECTS = ("cell", "nucleus", "pathogen", *ORGANELLE_ROLES)
 #: `_summarize_organelles_per_parent` is called once per parent, and the
 #: result lands in its own ``<parent>_organelle_summary`` table.
 _SUMMARY_PARENTS = ("cell", "nucleus", "pathogen", "cytoplasm")
@@ -1995,6 +2115,23 @@ _set_scope(
     _scope(_ALL_OBJECTS, CHANNEL_PAIR,
            when="calculate_correlation=True and at least two channels; one "
                 "column per unordered channel pair (i < j)."))
+_set_scope(
+    ("manders_m1", "manders_m2", "manders_overlap_coefficient"),
+    _scope(_ALL_OBJECTS, CHANNEL_PAIR,
+           when="corrected_manders=True (default False) AND "
+                "calculate_correlation=True with at least two channels; one "
+                "column per unordered channel pair (i < j)."))
+_set_scope(
+    ("neighbors_within_<r>", "nearest_neighbor_distance",
+     "second_neighbor_distance", "percent_touching", "touching_neighbors"),
+    _scope(_SPATIAL_OBJECTS, CHANNEL_NONE,
+           when="spatial_measurements=True (default False). Never written "
+                "for cytoplasm, which is cell-minus-its-contents and so is "
+                "one object per cell by construction -- its neighbours are "
+                "the cell's, restated. An organelle slot is written only "
+                "when its type resolves to a morphology of separable "
+                "objects: a connected network has no neighbours to count "
+                "(spacr.measure._spatial_organelle_eligible)."))
 _set_scope(
     ("distance_to_nucleus", "distance_to_pathogen"),
     _scope(_CELL_ONLY, CHANNEL_SINGLE,
@@ -2284,6 +2421,10 @@ _PARAMETERIZED: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"^outside_(?P<p>\d+)_percentile$"), "outside_<p>_percentile"),
     (re.compile(r"^M1_correlation_(?P<t>\d+)$"), "M1_correlation_<t>"),
     (re.compile(r"^M2_correlation_(?P<t>\d+)$"), "M2_correlation_<t>"),
+    # The neighbourhood radius is part of the name, the same way the
+    # percentile is in percentile_<p>: two plates measured at different radii
+    # carry different columns rather than the same column meaning two things.
+    (re.compile(r"^neighbors_within_(?P<r>\d+)$"), "neighbors_within_<r>"),
 )
 
 

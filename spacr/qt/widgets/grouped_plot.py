@@ -71,6 +71,14 @@ class PlotSpec:
     #: named. Naming it is the other half of the same rule: the ink goes on
     #: the claim, and this is the thing the claim is measured against.
     background: str = ""
+    #: What a bar's whisker MEANS, from
+    #: :data:`spacr.figures.spread.SPREAD_CHOICES`.
+    #:
+    #: SD describes the observations, SEM the confidence in their mean, and
+    #: at n=3000 they differ by a factor of fifty-five -- so a reader who
+    #: assumes the wrong one reads a real effect as noise or noise as a real
+    #: effect. The choice is the user's and the caption names it.
+    spread: str = "sem"
 
     def shape(self) -> str:
         """The data shape, for deciding which kinds fit."""
@@ -173,7 +181,8 @@ class GroupedPlot(FastPlot):
             colour = spec.colours.get(label) or self._ink_for(
                 label, position, subject, background)
             self.add_group_mark(float(position), groups[label], mark,
-                                colour=colour, seed=position)
+                                colour=colour, seed=position,
+                                spread=str(getattr(spec, "spread", "sem")))
         # THE n IS ON THE AXIS, not only in the caption. A three-point
         # group and a three-hundred-point group are the same bar, and the
         # label is the only place a reader meets the difference before they
@@ -241,11 +250,30 @@ class GroupedPlot(FastPlot):
         if spec.title:
             self.plot.setTitle(spec.title)
 
-    @staticmethod
-    def _caption(groups) -> str:
-        """Return a caption that reports the sample count for every group."""
-        return "; ".join(f"{label} n={len(values):,}"
-                         for label, values in groups.items())
+    def _caption(self, groups) -> str:
+        """The sample count for every group, and what the whisker means.
+
+        AN ERROR BAR WITH AN UNNAMED SPREAD IS NOT READABLE. A reader cannot
+        tell a SEM from an SD without being told, and the two differ by
+        sqrt(n) -- so wherever a whisker is drawn the sentence under the plot
+        says which quantity it is.
+        """
+        counts = "; ".join(f"{label} n={len(values):,}"
+                           for label, values in groups.items())
+        spec = self.spec
+        # THE MARK THAT WAS DRAWN, not the kind that was asked for: an
+        # unrecognised kind falls back to the bar, and a caption that read
+        # the kind would leave that bar's whisker unnamed.
+        mark = MARKS.get(str(getattr(spec, "kind", "") or ""), "jitter_bar")
+        if mark not in ("bar", "jitter_bar"):
+            return counts
+        from ...figures.spread import SPREAD_NONE, spread_label
+
+        spread = str(getattr(spec, "spread", "") or SPREAD_NONE)
+        if spread == SPREAD_NONE:
+            return counts
+        said = spread_label(spread)
+        return f"{counts} — {said}" if counts else said
 
     # -------------------------------------------------- what the menu asks
 

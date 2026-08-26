@@ -5044,7 +5044,7 @@ class FastPlot(QWidget):
     def add_group_mark(self, position: float, values, kind: str = "points", *,
                        colour=None, rows=None, width: float = 0.6,
                        size: float = 7.0, seed: int = 0,
-                       centre: str = "mean") -> int:
+                       centre: str = "mean", spread: str = "sem") -> int:
         """Draw one group's observations or summary at ``position``.
 
         Parameters
@@ -5068,6 +5068,13 @@ class FastPlot(QWidget):
             Random seed for reproducible horizontal jitter.
         centre : {"mean", "median"}, default="mean"
             Summary used by point, jitter, and line marks.
+        spread : {"sd", "sem", "var", "none"}, default="sem"
+            What the bar's whisker MEANS, from
+            :data:`spacr.figures.spread.SPREAD_CHOICES`. The three are not
+            interchangeable -- SD describes the observations, SEM the
+            confidence in their mean, and at n=3000 they differ by a factor
+            of fifty-five -- so a caller that draws one has to say which, and
+            ``none`` draws no whisker at all.
 
         Returns
         -------
@@ -5114,7 +5121,8 @@ class FastPlot(QWidget):
             self.add_group_mark(position, values,
                                 "box" if kind == "jitter_box" else "bar",
                                 colour=colour, rows=None, width=width,
-                                size=size, seed=seed, centre=centre)
+                                size=size, seed=seed, centre=centre,
+                                spread=spread)
             return self.add_group_mark(position, values, "jitter",
                                        colour=colour, rows=rows, width=width,
                                        size=size, seed=seed, centre=centre)
@@ -5144,14 +5152,23 @@ class FastPlot(QWidget):
             self.plot.addItem(pg.BarGraphItem(
                 x=[position], height=[mean], width=width, brush=fill,
                 pen=pg.mkPen(ink)))
-            # THE SPREAD, ON THE BAR. A bar already hides every observation;
-            # one with no interval at all hides that there was any spread to
-            # hide, which is the version of this chart that gets published and
-            # then argued about.
-            if len(v) > 1:
-                err = float(np.std(v, ddof=1)) / np.sqrt(len(v))
-                self.plot.plot([position, position], [mean - err, mean + err],
-                               pen=pg.mkPen(QColor(self._foreground), width=2))
+            # THE SPREAD, ON THE BAR, AND THE USER SAYS WHICH ONE. A bar
+            # already hides every observation; one with no interval at all
+            # hides that there was any spread to hide, which is the version
+            # of this chart that gets published and then argued about.
+            #
+            # THROUGH `spacr.figures.spread`, which is the one vocabulary --
+            # a second definition of SEM here would let two screens draw
+            # whiskers sqrt(n) apart and label them identically.
+            from ...figures.spread import SPREAD_NONE, spread_of
+
+            if len(v) > 1 and str(spread or SPREAD_NONE) != SPREAD_NONE:
+                err = spread_of(v, str(spread))
+                if np.isfinite(err):
+                    self.plot.plot([position, position],
+                                   [mean - err, mean + err],
+                                   pen=pg.mkPen(QColor(self._foreground),
+                                                width=2))
             return int(len(v))
 
         if kind == "box":

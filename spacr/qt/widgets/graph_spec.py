@@ -342,7 +342,10 @@ class GraphSpec:
         return {channel: getattr(self, channel) for channel in CHANNELS}
 
     def column_for(self, channel: str) -> Optional[str]:
-        """The column on ``channel``. :raises SpecError: on an unknown channel."""
+        """The column on ``channel``.
+
+        :raises SpecError: on an unknown channel.
+        """
         if channel not in CHANNELS:
             raise SpecError(
                 f"unknown channel {channel!r}; the drop zones are "

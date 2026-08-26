@@ -193,3 +193,61 @@ def test_the_tooltip_does_not_teach_the_retired_training_vocabulary():
 
     assert "load_images" in text and "stream_images" in text, (
         "the two names training writes are what the tooltip migrates onto")
+
+
+# --------------------------------- the annotation app's PANEL, not its table
+
+
+def test_the_annotate_settings_window_offers_the_two_modes(qtbot):
+    """A table nothing reads is not a control.
+
+    `_APP_COMBO_OPTIONS['annotate']['crop_source']` holds both modes, but the
+    generic settings model builds no widget for the annotate app at all --
+    it is an interactive screen whose settings live in its own dialog. So the
+    words had to reach THAT dialog for "how do i choose to stream images from
+    database or dataset" to be answerable in the panel.
+    """
+    pytest.importorskip("PySide6")
+    from spacr.qt.annotate_engine import AnnotateSettings
+    from spacr.qt.screens.annotate import _SettingsDialog
+
+    dialog = _SettingsDialog(AnnotateSettings())
+    qtbot.addWidget(dialog)
+    combo = dialog._crop_source
+
+    offered = [combo.itemData(i) for i in range(combo.count())]
+    labels = " ".join(combo.itemText(i) for i in range(combo.count())).lower()
+    assert offered == [LOAD_IMAGES, STREAM_IMAGES]
+    assert "load images" in labels and "stream images" in labels
+    assert "auto" not in offered
+
+
+def test_the_annotate_settings_window_opens_on_load_images(qtbot):
+    """LOAD IMAGES is the default, and a stored 'auto' still selects it."""
+    pytest.importorskip("PySide6")
+    from spacr.qt.annotate_engine import AnnotateSettings
+    from spacr.qt.screens.annotate import _SettingsDialog
+
+    for stored in (None, "", "auto", "png", "pre_generated"):
+        settings = AnnotateSettings()
+        if stored is not None:
+            settings.crop_source = stored
+        dialog = _SettingsDialog(settings)
+        qtbot.addWidget(dialog)
+        assert dialog._crop_source.currentData() == LOAD_IMAGES, stored
+
+
+def test_the_annotate_window_writes_the_mode_back(qtbot):
+    """Stored values stay 'png' and 'merged'."""
+    pytest.importorskip("PySide6")
+    from spacr.qt.annotate_engine import AnnotateSettings
+    from spacr.qt.screens.annotate import _SettingsDialog
+
+    settings = AnnotateSettings()
+    dialog = _SettingsDialog(settings)
+    qtbot.addWidget(dialog)
+    combo = dialog._crop_source
+    combo.setCurrentIndex(
+        [combo.itemData(i) for i in range(combo.count())].index(STREAM_IMAGES))
+
+    assert dialog.collect().crop_source == STREAM_IMAGES

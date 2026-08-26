@@ -105,7 +105,8 @@ HOW TO KNOW IT WORKED
 
 * The slider is invisible against its container until you use it.
 * `normalize_channels='r,g,b'` visibly changes the picture, and so does '0,1,2'.
-* Measure's categories are tabs.
+* Measure's categories are tabs. (SUPERSEDED 2026-08-23 -- see C below:
+  they are a column again, deliberately.)
 * Hovering recolours one ring rather than adding a second, and the picked
   cells keep their blue in show-all.
 * A comparison of one gene against the rest, at all three levels, with each
@@ -137,9 +138,16 @@ B. r,g,b works everywhere it is offered. `_as_channel_list` maps 0/1/2 onto
    is a channel list -- which is why "none of this works": typing nothing did
    nothing, and typing the index form did nothing either.
 
-C. Measure's eight categories are tabs. The sections are unchanged and
+C. Measure's eight categories became tabs. The sections are unchanged and
    `_settings_sections` still holds every one, so applicability greying and
    tooltip retargeting work as before; only where they are mounted changed.
+
+   SUPERSEDED 2026-08-23, and the mechanism kept. The tab bar at Measure's
+   width reads as cut off, which is worse than the wall of headers it was
+   meant to fix, so Measure's categories are a column again like every other
+   screen's. `AppScreen.SETTINGS_AS_TABS` is the switch and it is now an
+   EMPTY frozenset: the mounting code stays intact, so the next screen that
+   grows a wall of categories is filed there without rebuilding any of it.
 
 D. The montage tile draws ONE ring that hover recolours, where the annotate
    grid adds a second. Deliberate: the annotator must show class and cursor

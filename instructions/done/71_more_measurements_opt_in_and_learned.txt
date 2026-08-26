@@ -439,3 +439,64 @@ rotation fix remain deliberately unshipped (they breach this instruction's own
 above), and the CNN embedding work remains dropped.
 
     tests/test_an_object_is_measured_in_its_own_box.py
+
+--------------------------------------------------------------------------------
+2026-08-26 -- RE-AUDIT: TWO OF THIS FILE'S OWN CRITERIA DID NOT HOLD
+--------------------------------------------------------------------------------
+
+Checked by describing the columns and by importing the settings module rather
+than by reading the entries above.
+
+(1) THE NEW COLUMNS WERE NOT IN THE DICTIONARY. The criterion is "the new
+cheap features are in the table with stated defaults and units", and the
+fourth of this file's own four silent killers is "without a KNOWN_PROPERTIES
++ FEATURE_SCOPE entry in feature_dict it reports as family `unknown` with a
+null description". Measured:
+
+    cell_percent_touching                                  unknown  None  None
+    cell_neighbors_within_50                               unknown  None  None
+    cell_nearest_neighbor_distance                         unknown  None  None
+    cell_second_neighbor_distance                          unknown  None  None
+    cell_touching_neighbors                                unknown  None  None
+    cell_channel_0_channel_1_manders_m1                    unknown  None  None
+    cell_channel_0_channel_1_manders_m2                    unknown  None  None
+    cell_channel_0_channel_1_manders_overlap_coefficient   unknown  None  None
+
+The measure.py comment beside the emitter states this consequence and the
+entries were still never written, which is the failure mode worth naming: the
+warning was recorded in the same change that earned it.
+
+FIXED. `spacr/feature_dict.py` gains a `spatial` FAMILY -- the taxonomy had no
+spatial one, which the investigation above noted -- eight KNOWN_PROPERTIES
+entries, the `neighbors_within_(?P<r>\d+)` pattern (the radius is in the name,
+the precedent being percentile_<p>), and two FEATURE_SCOPE rows carrying the
+switch each family is behind. The sentinel is documented where a reader meets
+it: -1.0 in the two distance columns means "no such neighbour in the field"
+and must be excluded before averaging.
+
+(2) `spatial_neighbor_radius` WAS READ BUT DECLARED NOWHERE. measure.py:1209
+reads it through `settings.get('spatial_neighbor_radius', 50)`; it was in no
+defaults factory, not in `expected_types`, had no tooltip and no category. So
+the GUI never drew it and `check_settings` refused it from a CSV or `--set` --
+the exact phantom-setting shape instruction 77 exists to remove, in the
+opposite direction, and it contradicts this file's own claim that "every new
+setting states its default in its tooltip". It matters more than a normal knob
+because the value is baked into the COLUMN NAME: two plates measured at
+different radii do not concatenate.
+
+FIXED: declared in `get_measure_crop_settings` (default 50), typed `int`,
+tooltipped with its units and its default, filed in the shared "Measurements"
+category and in the Measure panel's "Measurement Features" group beside the
+switch it belongs to.
+
+GUARD: `tests/test_the_new_measurements_are_in_the_dictionary.py` (10 cases),
+confirmed failing 10/10 before the fix. `tests/test_feature_dict_search.py::
+test_the_correlation_features_are_the_only_channel_pair_ones` enumerated the
+channel-pair features and was widened to the corrected-Manders trio, with the
+family assertion added so it still tests what its name claims.
+
+RE-RUN: feature-dict suites (317), settings/categories/dead-settings (141),
+measure spatial and organelle-type suites (42), settings quality (427), the Qt
+settings suites (107). The new tooltip has no row in the external i18n
+catalogs; those are owned elsewhere and were not touched, so it is one more
+line of that rebuild's backlog.

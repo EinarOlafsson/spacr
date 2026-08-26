@@ -52,7 +52,10 @@ RELATED
 --------------------------------------------------------------------------------
 
 The tab is at index 1, beside Summary and ahead of the wells, and appears
-only once a montage exists. A re-run RE-POINTS it, so the measurement, the
+only once a montage exists. RENAMED by 186 B: the tab reads "Compare", not
+"Graph", because the control that opens it says "Compare a measurement" and
+one thing under two names reads as two things. Everything this file says
+about the Graph tab is about that tab. A re-run RE-POINTS it, so the measurement, the
 level, the operator and the plot type survive.
 
 `combine()` gives the four operators and NAMES the column for the expression

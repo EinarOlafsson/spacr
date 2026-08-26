@@ -191,6 +191,51 @@ def test_opening_a_run_leaves_the_user_where_they_were(screen, screen_folder):
     assert screen._results_tabs.currentWidget() is runs
 
 
+def test_opening_a_SECOND_run_leaves_the_user_where_they_were(
+        screen, screen_folder):
+    """The case above cannot see, and the one a user actually hits.
+
+    `test_opening_a_run_leaves_the_user_where_they_were` opens the run the
+    fixture had ALREADY loaded, so `_show_trial` takes the "a load is already
+    running" exit and never reaches the end of the method. Opening a
+    DIFFERENT run runs it through, and two `_raise_the_results_tab()` calls
+    survived 190 there -- one on the already-on-screen fast path and one the
+    moment the read was started. Either one carries the user off the Runs tab
+    the instant they open a run, which is the exact thing the report asked to
+    stop.
+    """
+    runs = _runs_table(screen, screen_folder)
+    assert _pick(runs, "ols_11")
+    _opened(screen, 30)
+    screen._results_tabs.setCurrentWidget(runs)
+
+    assert _pick(runs, "ols_12")
+    _opened(screen, 70)
+
+    assert screen._results_tabs.currentWidget() is runs, (
+        "opening a run moved the user to the Results tab")
+
+
+def test_reopening_the_run_already_on_screen_leaves_the_user_where_they_were(
+        screen, screen_folder):
+    """The fast path: the folder is already in the panel, so nothing is read
+    and `_on_trial_loaded` never fires. It still must not move the tab, and
+    it still has to say the run is there."""
+    from PySide6.QtWidgets import QApplication
+
+    runs = _runs_table(screen, screen_folder)
+    assert _pick(runs, "ols_11")
+    _opened(screen, 30)
+    screen._results_tabs.setCurrentWidget(runs)
+
+    assert _pick(runs, "ols_11")
+    for _ in range(50):
+        QApplication.processEvents()
+
+    assert screen._results_tabs.currentWidget() is runs, (
+        "re-opening the run already on screen moved the user to Results")
+
+
 def test_picking_a_run_puts_that_runs_table_in_the_results_panel(
         screen, screen_folder):
     """"results should be shown for the chosen run" -- ols_11 wrote 30

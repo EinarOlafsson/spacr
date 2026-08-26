@@ -70,3 +70,35 @@ whisker.
 
 Tests: `tests/test_the_bar_says_what_its_whisker_means.py`, 26 passing,
 including that SD and SEM differ by sqrt(n) on the real path.
+
+--------------------------------------------------------------------------------
+RE-AUDITED 2026-08-26: THE CONTROL WAS IN THE WRONG RENDERER
+--------------------------------------------------------------------------------
+
+`spacr/figures/spread.py` and the Matplotlib `GraphCanvas` were right and
+were not where the report was. THE CELL TABLE GRAPHS ARE pyqtgraph: the
+Compare panel builds a `GroupedPlot`, which draws through
+`FastPlot.add_group_mark`, and that had a THIRD definition of the whisker --
+
+    err = float(np.std(v, ddof=1)) / np.sqrt(len(v))
+
+-- a hard-coded SEM, with no control anywhere in the GUI to change it and
+nothing on the figure saying which quantity it was. `SPREAD_CHOICES` existed
+and no widget read it, so "choosing Bar offers SD, variance and SEM" was
+true of no screen.
+
+NOW:
+
+  * `add_group_mark(..., spread=...)` computes the whisker through
+    `figures.spread.spread_of`, so there is ONE definition of SEM again;
+    `none` draws no whisker and a non-finite spread draws none either.
+  * `PlotSpec.spread` carries the choice, defaulting to the SEM the panel
+    always drew -- so a caller that says nothing gets the picture it had.
+  * `GroupedPlot`'s caption NAMES the quantity, because an error bar with an
+    unnamed spread is not readable.
+  * The Compare panel offers the choice beside the plot type, and the box is
+    HIDDEN rather than disabled for a type with no whisker: a box draws its
+    own quartiles and a jitter draws every point.
+
+Tests: `tests/qt/test_the_cell_table_bar_carries_the_chosen_error.py`, 16
+passing; 5 fail without the whisker change.

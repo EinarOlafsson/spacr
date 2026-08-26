@@ -2,8 +2,12 @@
 THE GLM FAMILY MUST BE CHOSEN ON THE RESPONSE THE MODEL ACTUALLY FITS
 ================================================================================
 
-Status:    filed 2026-08-20, not started. NEEDS A DECISION FROM THE MAINTAINER
-           before the fix lands -- see WHAT IS UNCERTAIN.
+Status:    DONE. A, B and C landed 2026-08-20; the decision the header used
+           to be waiting for was made the same day -- "for 182 i want both
+           options to be available" -- and shipped as the
+           `glm_transform_conflict` setting, default 'untransformed'. See
+           DECIDED: BOTH, below. The two headers further down that still say
+           the choice is owed are superseded by it.
 Found:     2026-08-19, in the console of a live glm run on the TSG101 screen.
 Owner:     regression module
 
@@ -83,7 +87,8 @@ HOW TO KNOW IT WORKED
   that is not negative.
 
 --------------------------------------------------------------------------------
-2026-08-20 -- A, B AND C DONE. THE CHOICE IS STILL THE MAINTAINER'S.
+2026-08-20 -- A, B AND C DONE. (The choice was outstanding when this was
+              written; DECIDED: BOTH, below, is the answer to it.)
 --------------------------------------------------------------------------------
 
 A. The family sentence names the COLUMN and the TRANSFORM in every branch,
@@ -117,7 +122,7 @@ C. `double_transform_warning` fires at the point the family is chosen -- before
 14 tests in tests/test_the_family_says_which_scale_it_looked_at.py.
 
 --------------------------------------------------------------------------------
-STILL OWED -- ONE QUESTION FOR THE MAINTAINER
+ONE QUESTION FOR THE MAINTAINER -- ANSWERED, see DECIDED: BOTH below
 --------------------------------------------------------------------------------
 
 Which should a glm run do when the response has been log-transformed?

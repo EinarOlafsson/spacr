@@ -2112,8 +2112,12 @@ class AppScreen(QWidget):
     def _with_a_plate_map(self, widget, key):
         """``widget``, with a plate-map button beside it when it takes wells.
 
-        Returns the original widget untouched for every other setting, so
-        this is a no-op on all but five fields.
+        The button goes on `well_spec.WELL_ONLY_SETTINGS` -- the settings
+        whose COMPLETE value is a well specification -- because pressing Done
+        replaces the field. Every other setting gets the original widget
+        untouched, including the mixed-vocabulary ones that may hold a well
+        or a gene or a treatment name: replacing one of those would discard
+        whatever else the user had typed.
         """
         from ...well_spec import WELL_ONLY_SETTINGS
 
@@ -6119,7 +6123,13 @@ class AppScreen(QWidget):
         # cost one load rather than two.
         if folder and self._same_run_folder(panel.run_folder(), folder):
             self._figures_card.show()
-            self._raise_the_results_tab()
+            # AND THE TAB STILL DOES NOT MOVE (190). Re-opening the run that
+            # is already on screen is the one path that never reaches
+            # `_on_trial_loaded`, so it says so here instead: the results
+            # being ready is worth announcing, being carried to them is not.
+            self._console.append_stdout(
+                f"{trial} is already loaded — open the Results tab to "
+                "see it.\n")
             return
         # A FOLDER THAT IS NAMED BUT GONE IS THE SAME ANSWER AS NO FOLDER.
         # The record keeps whatever path the trial wrote to, and that path
@@ -6157,7 +6167,10 @@ class AppScreen(QWidget):
             # two answers arrive out of order.
             return
         self._figures_card.show()
-        self._raise_the_results_tab()
+        # NOT `_raise_the_results_tab` (190). The read has only just been
+        # STARTED here, and raising the tab would move the user off whatever
+        # they were reading to watch an empty panel fill in. `_on_trial_loaded`
+        # says the run opened once it actually has.
 
     def _on_trial_loaded(self, ok: bool) -> None:
         """The asynchronous half of :meth:`_show_trial`.

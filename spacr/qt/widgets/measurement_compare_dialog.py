@@ -16,6 +16,7 @@ from PySide6.QtWidgets import (QComboBox, QDialog, QDialogButtonBox,
 
 from .toggle import Toggle
 
+from ...figures.spread import SPREAD_CHOICES, SPREAD_NONE, SPREAD_SEM
 from ...gene_measurement_compare import (CONTRASTS, LEVELS, OPERATORS, PLOTS,
                                          build, control_wells,
                                          join_measurements,
@@ -185,7 +186,36 @@ class MeasurementComparePanel(QWidget):
         for value, label in PLOTS:
             self.kind.addItem(label, value)
         self.kind.currentIndexChanged.connect(self.refresh)
+        self.kind.currentIndexChanged.connect(self._offer_the_spread)
         row.addWidget(self.kind)
+
+        # WHAT THE WHISKER MEANS, WHEN THERE IS ONE. "for the cell table
+        # graphs if bar is chosen the user should be able to choose SD, Var,
+        # or SEM error bars."
+        #
+        # THEY ARE NOT INTERCHANGEABLE: SD describes the cells, SEM the
+        # confidence in their mean, and at n=3000 they differ by a factor of
+        # fifty-five -- a reader who assumes the wrong one reads a real
+        # effect as noise or noise as a real effect. So the caption under the
+        # plot names the one that was drawn, not only this box.
+        #
+        # ABSENT, NOT INERT, for a graph type that has no error bar (106): a
+        # box already draws its quartiles and a jitter draws every point, and
+        # a control that cannot change either is a promise that was kept
+        # once.
+        self.spread = QComboBox()
+        for value, label in SPREAD_CHOICES:
+            self.spread.addItem(label, value)
+        self.spread.setCurrentIndex(max(0, self.spread.findData(SPREAD_SEM)))
+        self.spread.setToolTip(
+            "What the bar's whisker MEANS. SD describes the spread of the "
+            "observations themselves; SEM describes how well their mean is "
+            "pinned down and is SD over the square root of n -- at n=3000 "
+            "the two differ fifty-five-fold; the variance is SD squared, so "
+            "its whisker is in squared units. The caption under the plot "
+            "names whichever was drawn.")
+        self.spread.currentIndexChanged.connect(self._draw_and_report)
+        row.addWidget(self.spread)
 
         # B2, asked for 2026-08-20: "it should be possible to show only one
         # class". A FILTER ON THE DRAW, not on the build -- the statistics
@@ -222,6 +252,8 @@ class MeasurementComparePanel(QWidget):
             "the whole comparison — a test needs both sides.")
         self.only.currentIndexChanged.connect(self._draw_and_report)
         row.addWidget(self.only)
+
+        self._offer_the_spread()
 
         self.save_button = QPushButton("Save…")
         self.save_button.setToolTip(
@@ -744,6 +776,20 @@ class MeasurementComparePanel(QWidget):
         return [str(g) for g in
                 self._comparison.frame["group"].astype(str).unique()]
 
+    def _has_an_error_bar(self) -> bool:
+        """Does the chosen graph type draw a whisker at all?
+
+        Only the bar summarises to a single height, so only the bar has
+        anything for a spread to describe. A box draws its own quartiles and
+        a jitter draws every observation.
+        """
+        return _SPEC_KINDS.get(str(self.kind.currentData() or ""), "") in (
+            "bar", "bar_jitter")
+
+    def _offer_the_spread(self, *_args) -> None:
+        """Show the whisker control only where there is a whisker."""
+        self.spread.setVisible(self._has_an_error_bar())
+
     def _offer_classes(self) -> None:
         """Refill the "show" box, keeping the choice when it still exists."""
         names = self._classes()
@@ -833,6 +879,8 @@ class MeasurementComparePanel(QWidget):
                 str(self.kind.currentData() or ""), "bar_jitter")
             spec = PlotSpec(
                 frame=frame, value="value", group="group", kind=kind,
+                spread=(str(self.spread.currentData() or SPREAD_SEM)
+                        if self._has_an_error_bar() else SPREAD_NONE),
                 title=str(self.measurement.currentText() or ""),
                 y_label=str(self.measurement.currentText() or "value"),
                 unit=str(self.level.currentData() or "observation"),

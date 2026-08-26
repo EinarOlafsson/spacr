@@ -1210,6 +1210,10 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             # not a heading anyone chose, it is the absence of one. They
             # extend calculate_correlation, so they sit beside it.
             "corrected_manders", "spatial_measurements",
+            # The radius the neighbourhood is counted in, immediately after
+            # the switch that turns it on: it is baked into the column name,
+            # so a screen has to pick one value and keep it.
+            "spatial_neighbor_radius",
             "manders_thresholds", "homogeneity", "homogeneity_distances",
             "radial_dist", "distance_gaussian_sigma",
             # The spatial-distance block: how far every object is from

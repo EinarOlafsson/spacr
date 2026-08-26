@@ -365,3 +365,67 @@ def test_a_screen_that_offers_nothing_still_lets_it_be_typed(qtbot):
     qtbot.addWidget(dialog)
 
     assert not isinstance(dialog._editors["object_array"], QComboBox)
+
+
+# ---------------------------- the greying follows the mode the WINDOW is on
+
+
+def _dialog(qtbot, mode=LOAD_IMAGES):
+    pytest.importorskip("PySide6")
+    from spacr.qt.widgets.picture_settings_dialog import PictureSettingsDialog
+
+    dialog = PictureSettingsDialog({"crop_source": mode}, mode=mode)
+    qtbot.addWidget(dialog)
+    return dialog
+
+
+def _greyed(dialog):
+    return {key for key, editor in dialog._editors.items()
+            if not editor.isEnabled()}
+
+
+def _expected(mode):
+    return {k for k in greyed_in(mode)} & set(ALL_KEYS)
+
+
+def test_changing_the_mode_inside_the_window_regreys_it(qtbot):
+    """`crop_source` is one of the annotator's own controls, so it is IN this
+    window -- and a mode chosen here has to grey the same things a mode
+    chosen on the toolbar does. Read once at construction, the window told a
+    user that a control their chosen mode does use is unavailable."""
+    dialog = _dialog(qtbot)
+    combo = dialog._editors["crop_source"]
+    values = [combo.itemData(i) for i in range(combo.count())]
+    assert _greyed(dialog) == _expected(LOAD_IMAGES)
+
+    combo.setCurrentIndex(values.index(STREAM_IMAGES))
+    assert _greyed(dialog) == _expected(STREAM_IMAGES)
+    assert dialog.mode() == STREAM_IMAGES
+
+    combo.setCurrentIndex(values.index(LOAD_IMAGES))
+    assert _greyed(dialog) == _expected(LOAD_IMAGES)
+
+
+def test_nothing_is_hidden_by_switching_the_mode(qtbot):
+    """FOLDED, NOT REMOVED -- a control that vanishes cannot say why."""
+    dialog = _dialog(qtbot)
+    combo = dialog._editors["crop_source"]
+    values = [combo.itemData(i) for i in range(combo.count())]
+
+    for value in values:
+        combo.setCurrentIndex(values.index(value))
+        hidden = [k for k, e in dialog._editors.items() if e.isHidden()]
+        assert hidden == [], f"{value} hid {hidden}"
+
+
+def test_a_value_set_under_one_mode_survives_the_other(qtbot):
+    """A greyed setting is KEPT, not dropped."""
+    dialog = _dialog(qtbot, STREAM_IMAGES)
+    dialog._editors["object_array"].setText("cell")
+    combo = dialog._editors["crop_source"]
+    values = [combo.itemData(i) for i in range(combo.count())]
+
+    combo.setCurrentIndex(values.index(LOAD_IMAGES))
+    combo.setCurrentIndex(values.index(STREAM_IMAGES))
+
+    assert dialog.values()["object_array"] == "cell"

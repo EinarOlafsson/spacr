@@ -270,9 +270,17 @@ the figure's ground, which is transparent by design (118) -- the box.
 THE REMAINING 27 ARE NAMED, NOT COUNTED. Object labels and a scale bar drawn
 ON a microscopy image are white because the image is dark, which has nothing
 to do with the theme; the montage contact sheet is a black page on purpose;
-two are Tk widget styles and not figures at all. A bare number would be
+two were Tk widget styles and not figures at all. A bare number would be
 satisfied by deleting a figure and would not say which colours were the
 deliberate ones.
+
+TWO OF THE NAMED EXCEPTIONS ARE GONE WITH THE FRONT END THAT HELD THEM. The
+Tk entries -- `gui_core.py`'s console text tag and `gui_elements.py`'s widget
+stylesheet -- were dropped from `ALLOWED` when the Tk front end was deleted,
+because `test_every_exception_still_exists` correctly failed on an allowance
+naming a file that is no longer in the tree. The remaining count is 19 against
+a ceiling of 19, and the ceiling is derived from the list rather than typed,
+so it followed.
 
 17 tests in tests/test_no_figure_is_invisible_at_either_theme.py.
 

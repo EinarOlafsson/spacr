@@ -187,6 +187,12 @@ PAGE_SHAPES: dict = {
     "wide": 16.0 / 9.0,
 }
 
+#: Figure width in inches that a named page shape is measured against when no
+#: caller supplies its own. It is Matplotlib's own default width, so the
+#: default shape resolves to the size a figure already had and only a CHANGED
+#: shape moves it.
+PAGE_WIDTH_IN: float = 6.4
+
 
 def page_size(shape: str, width: float) -> tuple:
     """Calculate figure dimensions for a named page shape.
@@ -329,6 +335,43 @@ def rc_params(style: Mapping[str, Any]) -> dict:
     }
     if style.get("tight_layout"):
         params["figure.autolayout"] = True
+
+    # THE FRAME IS ONE INK. The spines, the tick marks and the grid are the
+    # same furniture, so `chrome_colour` colours all three at once and a
+    # per-element value overrides it where the user set one. An empty
+    # `chrome_colour` leaves each element exactly where it was, so a style
+    # that never mentions the frame renders as before.
+    spine_ink = chrome_of(style, "spine")
+    if spine_ink:
+        params["axes.edgecolor"] = spine_ink
+    tick_ink = chrome_of(style, "tick")
+    if tick_ink:
+        params["xtick.color"] = tick_ink
+        params["ytick.color"] = tick_ink
+    # The grid carries its own colour by default, and a default is not an
+    # override: the one control wins over it, and only a grid colour the user
+    # actually chose wins back.
+    frame_ink = str(style.get("chrome_colour", "") or "").strip()
+    grid_ink = str(style.get("grid_colour", "") or "").strip()
+    if frame_ink and grid_ink in ("", GENERAL_DEFAULTS["grid_colour"]):
+        params["grid.color"] = frame_ink
+
+    # THE MARK. `marker_style` is the shape drawn at each point of a line or
+    # a series; scatter marks pass their own and are unaffected. Emitted only
+    # when it is not the default shape, because these params are pushed into
+    # the global rcParams: naming the default would put a marker on every
+    # line ever drawn, which is a decision no user made.
+    marker = str(style.get("marker_style", "") or "").strip()
+    if marker and marker != GENERAL_DEFAULTS["marker_style"]:
+        params["lines.marker"] = marker
+
+    # THE SHAPE OF THE PAGE. One number in, two out: naming the ratio keeps
+    # the two axes consistent when the size changes. `custom` has no ratio --
+    # it means the caller's own inches -- so it emits no size at all, and
+    # neither does the default shape, for the reason above.
+    shape = str(style.get("page_shape", "") or "").strip()
+    if shape in PAGE_SHAPES and shape != GENERAL_DEFAULTS["page_shape"]:
+        params["figure.figsize"] = list(page_size(shape, PAGE_WIDTH_IN))
     # THE PALETTE IS AN rcParam TOO, and it has to be one here rather than
     # only inside `apply`. `spacr.figures.style.rc` -- the only supported way
     # a figure gets this style -- builds its overrides by DIFFING two

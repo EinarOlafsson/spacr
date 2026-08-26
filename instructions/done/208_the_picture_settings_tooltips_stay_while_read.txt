@@ -147,3 +147,21 @@ says so, `rank` computes no probability and says so, `multivariate` falls
 back loudly, `sudoku` names the circularity it avoids.
 
 Tests: `tests/test_each_annotation_method_explains_itself.py`, 34 passing.
+
+--------------------------------------------------------------------------------
+RE-AUDITED 2026-08-26: THE JOURNEY IS NOW DRIVEN, NOT ONLY THE PREDICATE
+--------------------------------------------------------------------------------
+
+The behaviour held. The second criterion -- "a test drives enter and leave
+across the gap between title and box" -- did not: the tests asserted
+`_pointer_is_on_me()` with the cursor placed, which is the geometry question
+and not the gesture. The hide is started by the TITLE's Leave and taken by a
+timer, so a wrong order -- hide first, ask afterwards -- passes every
+geometry assertion and still takes the tooltip away while it is being read.
+
+`TestTheJourneyFromTheTitleToTheBox` sends Enter to a real settings title,
+sends Leave, moves the cursor onto the popup and lets the timer's decision
+run. Both cases force `underMouse()` to the WRONG answer -- False with the
+pointer on the popup, True with it away -- because that source was measured
+wrong in both directions and is the reason the fault reproduced on one
+desktop and not the other.

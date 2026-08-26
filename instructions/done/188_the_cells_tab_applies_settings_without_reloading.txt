@@ -57,3 +57,50 @@ HOW TO KNOW IT WORKED
 * Changing a CUT setting still reloads, because it must.
 * The channel control is the annotation app's, in both places, and one
   vocabulary still reaches the run (176).
+
+--------------------------------------------------------------------------------
+2026-08-26 -- THE CLOSING SECTION THE HEADER PROMISED, WRITTEN FROM THE CODE.
+--------------------------------------------------------------------------------
+
+The header has said "DONE 2026-08-20. See the closing section" since the day
+it shipped, and there was no closing section to see. Both halves are in the
+tree; this records what they actually are, because one of them is not what
+the criteria above describe.
+
+A. MEASURED, ON THE SYNTHETIC SCREEN, THROUGH `_on_settings_changed`:
+
+    normalize_channels r,g,b -> r,b     15 ms     0 reads off disk
+    outline            -> r             32 ms     0 reads
+    img_size           100 -> 120       61 ms     1 read
+
+  `_load_signature` carries only the keys that decide WHICH PIXELS are read
+  -- crop_source, image_type, img_size, channels, crop_shape, object_array,
+  coordinate_columns, and the picker settings that change which objects are
+  in the frame at all. `normalize_channels`, `outline`, `edge_thickness` and
+  the percentiles are deliberately absent, so a change to any of them takes
+  `_redraw_from_cache` and never reaches a worker.
+
+B. THE CONTROL IS NOT THE ANNOTATION APP'S, AND THAT WAS DECIDED, NOT
+   MISSED. The criterion above says "the channel control is the annotation
+   app's, in both places". `annotate.py` still holds `channels` in a
+   `QLineEdit` -- and a text box accepts `rgb`, `R,G,B`, `red` and a
+   trailing comma, which is the spread of spellings instruction 176 exists
+   to stop reaching the run. Lifting that control would have carried the
+   ambiguity with it.
+
+  What shipped instead is `spacr/qt/widgets/channel_picker.py`:
+  `ChannelPicker`, three tinted toggles reading and writing the SAME stored
+  value -- canonical `r,g,b` text, `parse` dropping any spelling it does not
+  recognise rather than guessing. `picture_settings_dialog` uses it for all
+  of `CHANNEL_KEYS` -- `channels`, `normalize_channels` and `outline` --
+  which is the "both places" the report asked for and one more.
+
+  So B's request ("bring back the r,g,b system") is met and B's criterion as
+  written ("the same control, lifted") is not, on purpose. The r,g,b system
+  is what the maintainer asked for; the QLineEdit was the part of it the
+  annotation app happens to use, and 176 is the reason not to copy it.
+
+  A follow-up worth its own item, not done here: the annotation app could
+  now take `ChannelPicker` in the other direction, which would make the two
+  screens the same control after all -- and would tighten what `annotate`
+  accepts, so it needs its own migration for settings already on disk.

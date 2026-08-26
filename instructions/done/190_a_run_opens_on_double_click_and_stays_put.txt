@@ -67,3 +67,40 @@ turned instruction 106 into a failure: `restore` is deliberately greyed with
 a reason for a run that saved no workspace.
 
 54 pass across the four runs-tab suites.
+
+--------------------------------------------------------------------------------
+2026-08-26 -- RE-AUDIT: "NOTHING RAISES THE RESULTS TAB" WAS TRUE OF ONE CALL
+              OUT OF THREE.
+--------------------------------------------------------------------------------
+
+The closing section above says the tab no longer moves. It moved.
+
+`_show_trial` held THREE `_raise_the_results_tab()` calls and the 190 change
+removed one -- the one at the end of `_on_trial_loaded`, after a successful
+read. Two survived:
+
+  * the ALREADY-ON-SCREEN fast path, taken when the double-clicked run is the
+    one the panel already holds; and
+  * the line immediately after `panel.start_load(folder)` succeeds, which is
+    every double-click that actually starts a read.
+
+WHY THE TEST DID NOT SEE IT. `test_opening_a_run_leaves_the_user_where_they_
+were` opens `ols_11` -- which the fixture's own `record_run` has already
+loaded through `_rebuild`. `_show_trial` then finds a load already running,
+returns early, and never reaches either surviving call. The one run the test
+picks is the one run that takes neither branch.
+
+Measured: standing on Runs and opening the OTHER run moved the user to
+Results, and so did re-opening the run already on screen.
+
+Both calls are gone. The fast path now says "<run> is already loaded — open
+the Results tab to see it", since it is the one path that never reaches
+`_on_trial_loaded` and so was the one that would have gone silent.
+
+The two calls OUTSIDE `_show_trial` are left alone and are not this
+instruction's business: raising Results when the user clicks a pinned tile,
+and when they explicitly open a run beside the loaded one, are answers to a
+request to see results rather than a tab moving on its own.
+
+Two tests added to `tests/test_results_follows_the_selected_run.py`, one per
+surviving call; both fail against the old code.

@@ -171,12 +171,16 @@ MEASURED ON THE MAINTAINER'S SCREEN
 50 tests in tests/test_a_control_is_a_gene_or_a_guide.py; 196 pass across the
 control, cut, two-fit and montage suites.
 
-STILL OWED
+STILL OWED -- CONFIRMED, NOT ASSUMED
   * The audit named FOUR candidate call sites and two turned out to be the
     same question; `clean_controls` and `_resolve_controls` are about
     per-well control LOCATIONS (c1, c2), a different vocabulary, and were
-    left alone deliberately. Worth confirming that is right rather than
-    assumed.
+    left alone deliberately. CHECKED: `ml._resolve_controls` takes a
+    `location_column` and a matcher and answers "which values of that column
+    are the controls", and `ml.clean_controls(df, values, column)` is a
+    generic row dropper over any column. Neither reads a guide or a gene
+    name, so neither is a second opinion about what a control is NAMED, and
+    routing them through the resolver would be wrong rather than tidy.
 
 --------------------------------------------------------------------------------
 2026-08-20 (later) -- DONE. AND `spacr.control_names` IS NOW THE ONE READER.

@@ -995,3 +995,57 @@ registered key, not only every registered key having a tile.
 NOT DONE HERE. `packaging/`, `README.rst` and the localized READMEs it
 rewrites, and the committed tile PNGs are outside this pass's territory, and
 regenerating them rewrites binary assets in several files at once.
+
+--------------------------------------------------------------------------------
+2026-08-26 -- RE-AUDIT AGAINST A FRESH BUILD. THREE CLAUSES HOLD; "NO UNRENDERED
+              MARKUP" DOES NOT.
+--------------------------------------------------------------------------------
+
+    python -m sphinx -E -b html --keep-going docs/source <tmp>
+
+BUILD SUCCEEDED with ZERO warnings and zero errors, 912 HTML pages, 448 module
+pages. So "no broken cross-references" holds -- a dead `:class:` or a missing
+toctree entry is exactly what Sphinx warns about, and there are none.
+
+    module pages opening with a sentence     448 of 448
+    module pages with no leading prose         0
+    tooltip links checked against the build  952  (35 distinct URLs)
+    of those, targets that do not exist        0
+    off-site targets                           0
+
+That last pair is `test_every_link_resolves_to_a_page_that_exists` run for
+real: the check that normally SKIPS because `docs/_build/html` is untracked.
+Against a build made minutes earlier, every tooltip link lands on a page.
+
+UNRENDERED MARKUP IS STILL ON THE PUBLISHED PAGES. Scanning the rendered text
+OUTSIDE `<pre>` and `<code>` -- so a code sample showing backticks does not
+count -- 105 leaks survive on 30 module pages. reST forbids nesting inline
+markup, and a docstring that nests it renders the markers themselves:
+
+    spacr/qt/screens/db_browser.py
+        **Never ``SELECT *`` the whole table.**
+    renders as
+        Never ``SELECT *`` the whole table.
+
+Three distinct faults, counted over every docstring under `spacr/` with an
+AST walk (detector kept at
+/tmp/claude-1000/-home-olafsson-repo/e43181be-14e4-4c1c-8021-08df9319b067/scratchpad/audit/scan_rst.py):
+
+    nested-in-bold      44   ``literal`` or :role:`x` inside a **strong** span
+    bad-literal-edge    26   a literal glued to a character reST will not open
+                             or close on: ``plate1``..``plate4``,
+                             ``lru_cache``s, ``PlotDataItem``s, ``dict()``s
+    stray-field          3   a field marker part-way through a line
+
+FIXED HERE: the three stray fields, because they lose DOCUMENTATION rather
+than only formatting. `DoseResponseResult` documented neither `top` nor
+`covariance_ok` -- both markers sat inside the previous parameter's
+description and rendered as text -- and `GraphSpec.column_for` did the same
+with its `:raises SpecError:`. tests/test_docstring_field_lists_are_parsed.py
+holds all three shapes and was confirmed red before the edit.
+
+NOT FIXED HERE: the other 70. It is one mechanical prose sweep across roughly
+forty files -- unnesting the markup, or dropping the emphasis around it -- and
+forty files of concurrent territory is a coordinator's call, not an auditor's.
+The detector above is the whole specification of the job, and it belongs in
+tests/ once the count is zero.

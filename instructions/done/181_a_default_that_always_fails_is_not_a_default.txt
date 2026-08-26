@@ -86,9 +86,27 @@ A. `alpha` is now a QDoubleSpinBox whose minimum READS "auto"
    exactly where somebody hunting for one is already heading.
 
 B. THE POSTED DEFAULT COUNTS AS ABSENT. On a penalised family, an alpha that
-   is the INTEGER 1 resolves to 'auto' and says so out loud. 1 is not a
-   penalty anybody chooses for a design of fractions; it is the value the
-   panel had lying around. A float 1.0 is a choice and is kept.
+   is 1 resolves to 'auto' and says so out loud. 1 is not a penalty anybody
+   chooses for a design of fractions; it is the value the panel had lying
+   around.
+
+   ANY 1, WHATEVER ITS TYPE -- WIDENED BY 236 C7. As first shipped this spared
+   a FLOAT 1.0, on the reading that an integer is the posted default and a
+   float is a deliberate answer. That was true of the Tk panel and is not true
+   of the Qt one: the field is a double spin box and the settings CSV it
+   writes says `alpha,1.0`, so the rescue never fired for anyone running the
+   current GUI. Driven on the tsg101 screen's own saved settings, lasso and
+   elasticnet both refused the run -- "shrank all 298 coefficients to exactly
+   zero at alpha=1.0" -- from a settings file in which nobody had touched
+   alpha. Nothing is lost: a literal penalty of exactly 1 on a fraction-scale
+   design is what the guard downstream refuses anyway, and any other number is
+   honoured.
+
+   SO THE SECOND CHECKLIST LINE READS DIFFERENTLY NOW. "alpha=1 set explicitly
+   still refuses, with the message naming the scale" is true of
+   `regression_model`, which is where that refusal lives and where it is
+   unchanged; it is no longer reachable THROUGH the defaults factory, because
+   an alpha of 1 arriving on a penalised family is rewritten to 'auto' first.
 
 C. The refusals are untouched. Both wordings stay, including the separate
    null-screen sentence for the 'auto' case, which must not tell a user to

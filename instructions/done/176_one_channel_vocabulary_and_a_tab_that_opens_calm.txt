@@ -49,6 +49,9 @@ C. r, g, b -- NOT 0, 1, 2 -- IN THE REGRESSION CELL FEATURE.
 HOW TO KNOW IT WORKED
 
 * Opening Measurements shows the attach table and three folded headings.
+  SUPERSEDED 2026-08-20 by "measurment sections should all start closed":
+  opening Measurements now shows FOUR folded headings and no open section.
+  See A below for why the answer changed.
 * Every control in the Cells tab's settings window has hover help, and the
   text matches what the annotation app says about the same key.
 * The Cells tab's channel control reads r,g,b like the annotator's, and a
@@ -66,9 +69,21 @@ RELATED
 2026-08-19 -- DONE. A, B AND C.
 --------------------------------------------------------------------------------
 
-A. `MeasurementScanPanel.OPENS_EXPANDED` is "Attached databases" and the other
-   three start folded. FIRST-RUN ONLY: `restore_section_layout` runs after and
-   wins, so a saved arrangement still comes back (169 C).
+A. `MeasurementScanPanel.OPENS_EXPANDED` decides which section is open on
+   first use, and the other three start folded. FIRST-RUN ONLY:
+   `restore_section_layout` runs after and wins, so a saved arrangement still
+   comes back (169 C).
+
+   SUPERSEDED 2026-08-20: `OPENS_EXPANDED` IS NOW `""` -- NONE OF THEM OPENS.
+   Asked for directly -- "measurment sections should all start closed" -- and
+   the reason the answer changed is that a fold now really hands its height
+   over (186 C) and an opened section fills the space (187 C). Opening one on
+   the user's behalf was worth it when a fold left a gap where the panel had
+   been; it is not worth it now. The tab shows its four headings and the user
+   says which one they are here for. The first-run-only rule is unchanged, so
+   a saved arrangement still wins.
+   `tests/test_one_channel_vocabulary_and_a_calm_tab.py::test_every_section_starts_closed`
+   is the assertion, and it replaced the one that named "Attached databases".
 
 B. Seventeen of the twenty-five picture-settings keys had no hover help at
    all. They are in `spacr.settings.tooltips` -- the table the settings window

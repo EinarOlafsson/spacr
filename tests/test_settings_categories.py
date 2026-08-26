@@ -281,6 +281,12 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # cost real time -- per-channel intensity maxima, and the offset
     # between an object's centroid and its intensity centre.
     "object_distances", "object_distance_maxima", "object_distance_intensity",
+    # The neighbourhood radius the spatial block counts in. It was read from
+    # `settings.get` and declared nowhere, so the size of the neighbourhood
+    # was reachable only by editing measure.py -- and the radius is baked
+    # into the column name (`neighbors_within_50`), which makes it the one
+    # spatial parameter a screen has to agree on.
+    "spatial_neighbor_radius",
     # The upper bound each object filter was missing. `cell_min_size` had
     # no partner, so a segmentation that merged two cells into one blob
     # could only be filtered by hand afterwards.

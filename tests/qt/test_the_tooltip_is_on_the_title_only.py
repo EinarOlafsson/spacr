@@ -168,3 +168,93 @@ class TestAFieldWithNoTitleIsSilentRatherThanNoisy:
         assert _is_self_labelling(QCheckBox("named"))
         assert not _is_self_labelling(QCheckBox(""))
         assert not _is_self_labelling(QWidget())
+
+
+class TestTheJourneyFromTheTitleToTheBox:
+    """The gesture the rule is about, driven as events rather than as a
+    predicate: ENTER the title, LEAVE it towards the popup, and the popup has
+    to still be there when the pointer arrives on it.
+
+    `_pointer_is_on_me` answering correctly is not the same claim. The hide
+    is on a timer started by the title's Leave, and a wrong order -- hide
+    first, ask afterwards -- passes every geometry assertion and still takes
+    the tooltip away while it is being read.
+    """
+
+    def _titled(self, qtbot):
+        from PySide6.QtCore import QEvent
+        from PySide6.QtWidgets import QApplication, QWidget
+
+        from spacr.qt.screens.app_screen import AppScreen
+        from spacr.qt.widgets.hover_tooltip import HoverTooltip
+
+        screen = AppScreen("regression")
+        qtbot.addWidget(screen)
+        titles = [w for w in screen.findChildren(QWidget)
+                  if w.property("apiTooltipDisplayRole") == "tooltip"]
+        assert titles, "the panel has titled settings"
+        tip = HoverTooltip.instance()
+        tip.hide()
+        # THE POPUP IS A PROCESS-WIDE SINGLETON and its hide is on a timer, so
+        # a hide another test armed is still pending here -- it would fire
+        # during the events below and take away the popup this one just
+        # opened, with the pointer wherever that test left it.
+        tip.cancel_hide()
+        QApplication.sendEvent(titles[0], QEvent(QEvent.Enter))
+        QApplication.processEvents()
+        return titles[0], tip
+
+    def test_leaving_the_title_towards_the_box_keeps_it(self, qtbot):
+        from PySide6.QtCore import QEvent
+        from PySide6.QtGui import QCursor
+        from PySide6.QtWidgets import QApplication
+
+        title, tip = self._titled(qtbot)
+        assert tip.isVisible(), "the title shows it"
+
+        # LEAVE the title, the way the pointer does on its way to the popup.
+        QApplication.sendEvent(title, QEvent(QEvent.Leave))
+        QCursor.setPos(tip.geometry().center())
+        QApplication.processEvents()
+        # WITH THE PLATFORM DENYING IT. `underMouse()` is what a tooltip
+        # window may never be told, and it is the answer the maintainer's
+        # desktop gave while this one said otherwise -- so the journey is
+        # driven with that source forced to the wrong answer.
+        tip.underMouse = lambda: False
+        try:
+            # The timer's own decision, taken now rather than waited for.
+            tip._maybe_hide()
+            QApplication.processEvents()
+            assert tip.isVisible(), "it vanished while it was being read"
+        finally:
+            del tip.underMouse
+            tip.hide()
+
+    def test_and_leaving_both_lets_it_go(self, qtbot):
+        from PySide6.QtCore import QEvent, QPoint
+        from PySide6.QtGui import QCursor
+        from PySide6.QtWidgets import QApplication
+
+        title, tip = self._titled(qtbot)
+        box = tip.geometry()
+        screen = QApplication.primaryScreen().geometry()
+        away = QPoint(min(box.right() + 40, screen.right() - 1),
+                      min(box.bottom() + 40, screen.bottom() - 1))
+        if box.contains(away):
+            import pytest
+            pytest.skip("no point outside the popup fits on this screen")
+
+        QApplication.sendEvent(title, QEvent(QEvent.Leave))
+        QCursor.setPos(away)
+        QApplication.processEvents()
+        # And the same source forced the OTHER way: it reports True with the
+        # pointer outside just as readily, so a popup that consulted it would
+        # stay up over a screen the pointer has left.
+        tip.underMouse = lambda: True
+        try:
+            tip._maybe_hide()
+            QApplication.processEvents()
+            assert not tip.isVisible()
+        finally:
+            del tip.underMouse
+            tip.hide()
