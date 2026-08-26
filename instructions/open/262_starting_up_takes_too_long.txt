@@ -2,8 +2,33 @@
 STARTING UP TAKES TOO LONG
 ================================================================================
 
-Status:    OPEN. Requested 2026-08-26 -- "it takes a really long time now to
-           start moduals and to start the spacr application."
+Status:    OPEN, and RE-AIMED 2026-08-26 after measuring the real entry
+           point. The first version of this item aimed at the per-row cost
+           of building a settings panel. THAT WAS THE WRONG TARGET: the
+           per-row numbers are dominated by one-time initialisation charged
+           to whichever screen is built first, and they invert when the
+           build order changes. Measured on two machines, the same screen
+           reads 16.6 ms/row built first and 2.2 ms/row built last.
+
+           WHAT IS ACTUALLY EXPENSIVE, cold, on this workstation:
+
+             spacr.qt.run to the event loop        3.56 s   <-- the splash
+               of which, rebuilt by hand           2.04 s
+               UNACCOUNTED FOR                     1.52 s   <-- never looked at
+             register_self_registering_modules     1.15 s   1,281 modules
+               scipy 486, pandas 296, spacr 153, numpy 109
+             build MainWindow                      0.79 s
+             build the mask screen                 3.22 s   350 rows
+             widgets alive after one screen       23,301
+             the setup card's cursor rim          24.9 ms/frame  (budget 16)
+
+           AND THE LAPTOP IS NOT THE PROBLEM. An M4 MacBook measures FASTER
+           than this 32-core workstation at almost everything -- the
+           arithmetic, every backdrop, and the cursor rim at 6.8 ms against
+           24.9. It reports the same shape of costs, roughly twice over. So
+           optimising here optimises there: the maintainer's instruction is
+           "optimizing them on this machine should optimize on other
+           machines as well", and the measurements agree.
 Owner:     spacr/qt/screens/app_screen.py and settings_model.py.
 
 --------------------------------------------------------------------------------
