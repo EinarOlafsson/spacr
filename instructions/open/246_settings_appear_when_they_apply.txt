@@ -2,15 +2,29 @@
 SETTINGS APPEAR WHEN THEY APPLY, AND THE OBJECTS ARE NOT A FIXED FOUR
 ================================================================================
 
-Status:    DONE. The organelle slots are generated from a count rather
-           than fixed at four, and a file written at seven loads at two
-           with the hidden five intact. A setting appears when its object
-           is in the run -- the channel is the switch, and the type
-           chosen for a slot narrows which of that slot's settings show
-           -- and hiding keeps the value. The 3D and Time switches sit
-           left of Live on both hosts. No key is both a fold button and a
-           tile. A folded module's icon sits beside the category it
-           reveals.
+Status:    REOPENED. Closed once on evidence that did not test the user's
+           route, and the maintainer found both halves still broken.
+           MEASURED on the Mask panel, 350 rows:
+
+           1. THE COUNT IS INERT. `number_of_organelles` exists, defaults to
+              4, and changing it changes nothing: set to 7 the panel still
+              renders organelle, organelleb, organellec, organelled; set to
+              2, the same four. The slots are hard-coded, not generated.
+
+           2. THE HIDE RULE NEVER RUNS AT BUILD TIME. It fires from
+              `apply_settings_dict` and from nowhere else, so ON FIRST OPEN
+              -- where every channel defaults to None -- the panel shows 20
+              cell rows, 20 nucleus, 21 pathogen and 54 per organelle slot,
+              every one of them for an object that is not in the run. Apply
+              a settings dict afterwards and the rule works correctly, which
+              is exactly why this passed: the check drove the mechanism
+              instead of opening the panel.
+
+           WHAT THAT MEANS FOR THE CHECKS BELOW: a criterion that can be
+           satisfied by calling `apply_settings_dict` is not a criterion
+           about what a user sees. Every one of these is to be driven by
+           BUILDING THE SCREEN and reading the widgets, in the state a user
+           first meets.
 Priority:  HIGH -- item 3 below is part of the consolidation (242), which
            the maintainer has put first.
 Owner:     spacr/settings.py and spacr/qt/screens/settings_model.py for
