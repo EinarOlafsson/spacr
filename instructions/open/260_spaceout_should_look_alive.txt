@@ -42,6 +42,34 @@ blobs need; a fractal carries detail at every scale and is the one thing
 that shows the buffer's edge. Whatever number is chosen, the existing
 PERFORMANCE GUARD still decides -- see below.
 
+THE BUFFER'S CEILING IS THE SCREEN. `BUFFER_MAX_PIXELS` is written as
+`1920 * 1080` -- a guess at a monitor rather than a measurement of one. It
+should be THE ACTUAL SCREEN'S resolution, read from Qt, so the backdrop is
+never rendered coarser than the display can show and never finer than it
+can use.
+
+Two things that follows from, both of which have to be handled rather than
+discovered later: a 4K display asks for four times the pixels of the guess,
+and a multi-monitor setup has no single answer -- take the screen the window
+is actually on, and cope with it moving to another one.
+
+AND IF THAT IS TOO MUCH FOR SOME MACHINES, SAY SO IN PREFERENCES. The
+maintainer: "if this is computationally intense in this mode there should be
+a special preferences page for the themes settings for users that have worse
+hardware than i."
+
+The knobs already exist and are already stored -- `get_ambient_resolution`,
+`get_ambient_blur`, `get_ambient_speed`, `get_ambient_density` in
+`spacr/qt/preferences.py`, each a multiplier on what the theme does. What is
+missing is a PAGE that offers them, so a slower machine can turn the
+backdrop down instead of enduring it.
+
+THIS DOES NOT REOPEN THE SPACEOUT RULE. What must never appear in
+Preferences is the MODE -- no entry that puts an ordinary `spacr` start into
+the fractal theme. Quality knobs for the backdrop are a different thing and
+belong there: they apply to the blobs as much as to the fractals, and a user
+who cannot afford the animation needs them whichever one is drawing.
+
 --------------------------------------------------------------------------------
 2. BUDDING, AND MORE THAN ONE THING ON SCREEN
 --------------------------------------------------------------------------------
