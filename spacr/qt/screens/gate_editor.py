@@ -1290,10 +1290,20 @@ class GateEditorScreen(QWidget):
         user thinks about format.
 
         Rendering goes through `render_figure_to_png`, the same helper the
-        figure queue uses, rather than `savefig` -- it restyles the figure
-        for print first. A plot exported with the dark theme's colours is
-        white text on black, which is unusable on paper, and that restyle
-        is the whole reason not to call matplotlib directly.
+        figure queue uses, rather than `savefig`: it applies the figure
+        colour, line and text-size preferences, caps the display raster,
+        and in PDF mode writes a genuine vector page beside the PNG with
+        its fonts embedded as TrueType. Calling matplotlib directly would
+        give none of that.
+
+        WHAT IT DOES NOT DO IS RESTYLE FOR PRINT. The colours it applies
+        are the ones the preferences resolve to, and the "auto" halves
+        follow the app theme -- so under a dark theme the text is white on
+        a transparent page, which disappears on paper. That is deliberate
+        where it is decided (`_export_vector_pdf` explains why the export
+        and the on-screen refinement have to agree), and the way to get a
+        print-ready file is to set the figure background and text colours
+        explicitly rather than leaving them on "follow the theme".
 
         :param path: destination. Empty opens a file dialog.
         :returns: the path written, or "" when cancelled or nothing is

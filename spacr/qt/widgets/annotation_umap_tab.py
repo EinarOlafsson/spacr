@@ -242,6 +242,28 @@ class AnnotationUmapTab(QWidget):
 
         return self._score(method)
 
+    def _control_groups(self, control_rows):
+        """Return one well identity per control row, or ``None``.
+
+        :param control_rows: positions in the frame that carry a control
+            label.
+        :returns: ``(groups, level)``. ``groups`` is ``None`` when the frame
+            carries no verifiable well identity, and ``level`` is then
+            ``'cell'`` -- the leakiest rung of the shared ladder, chosen
+            because it is the only one the data supports, never because the
+            grouping was forgotten.
+        """
+        if self._frame is None:
+            return None, "cell"
+        try:
+            from ...classifier_evaluation import split_group_values
+            _, values = split_group_values(group_by="well",
+                                           frame=self._frame.iloc[control_rows],
+                                           table="control cells")
+        except Exception:
+            return None, "cell"
+        return values, "well"
+
     def _score(self, method: str) -> dict:
         import numpy as np
 
@@ -261,9 +283,16 @@ class AnnotationUmapTab(QWidget):
 
         recipes = [{"n_neighbors": n, "min_dist": d}
                    for n in (10, 15, 30) for d in (0.05, 0.1, 0.3)]
+        # HOLD THE WELLS APART WHERE THE FRAME NAMES THEM. Sibling control
+        # cells on both sides of the split would separate because they came
+        # from the same well, and the held-out silhouette would report that
+        # as biology. A frame that cannot name a well is split per object,
+        # which the result records rather than hiding.
+        groups, level = self._control_groups(control_rows)
         chosen = fit_on_controls(
             features.iloc[control_rows].to_numpy(dtype=float),
-            [marks[i] for i in control_rows], recipes=recipes)
+            [marks[i] for i in control_rows], recipes=recipes,
+            groups=groups, group_by=level)
         if "error" in chosen:
             self.refuse(f"The embedding could not be tuned: {chosen['error']}",
                         f"The embedding could not be tuned: {chosen['error']}")

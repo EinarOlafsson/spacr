@@ -7173,6 +7173,7 @@ class AppScreen(QWidget):
         does not have — the same dict can safely be applied across
         several apps. Returns the count of keys actually applied."""
         settings = _translate_legacy_setting_keys(settings)
+        settings = self._migrate_control_wells(settings)
         applied = 0
         # ONE WIDGET AT A TIME MEANS A HALF-APPLIED PANEL in between, and a
         # rule that reads other settings must not act on it. See
@@ -7230,6 +7231,45 @@ class AppScreen(QWidget):
         # flag was ignored rather than claiming it landed.
         self._folds_last_switched_on = switched
         return switched
+
+    def _migrate_control_wells(self, settings: dict) -> dict:
+        """Turn a retired control-well trio into the Classes rows it means.
+
+        ``location_column``, ``positive_control`` and ``negative_control``
+        were how Classify (ML) said "these two wells are my classes". The
+        merged Classify module says it once, in the Classes editor, so it
+        renders no widget for any of the three -- and a settings file written
+        by the old module therefore lost all three on load, leaving the
+        Classes editor empty and the run using the module's OWN default wells
+        instead of the ones the file named. Silently, and reporting success.
+
+        The run path already performs exactly this translation
+        (:func:`spacr.classify_classes.normalize_settings`); doing it here is
+        what lets the user SEE the wells the file asked for before starting.
+
+        :param settings: settings about to be applied, not modified.
+        :returns: the same dict, or a copy carrying an equivalent ``classes``.
+        """
+        trio = ("location_column", "positive_control", "negative_control")
+        if not any(key in settings for key in trio):
+            return settings
+        model = getattr(self, "_settings_model", None)
+        widgets = getattr(model, "_widgets", {}) if model is not None else {}
+        if any(key in widgets for key in trio) or "classes" not in widgets:
+            return settings          # a screen that holds the trio itself
+        if settings.get("classes"):
+            return settings          # the file already says it the new way
+        try:
+            from ...classify_classes import normalize_settings
+            classes = normalize_settings(dict(settings)).get("classes")
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not migrate the control wells", exc_info=True)
+            return settings
+        if not classes:
+            return settings
+        settings = dict(settings)
+        settings["classes"] = classes
+        return settings
 
     def _apply_each_setting(self, settings: dict) -> int:
         """Push each key into its widget. Returns how many landed."""

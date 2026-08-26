@@ -1308,6 +1308,11 @@ class FastPlot(QWidget):
 
         self._labels: Sequence[str] = ()
         self._legend_colours: dict = {}
+        # The other two layered channels' keys, set by `set_results` and
+        # read by the legend. Declared here so a plot that has never drawn
+        # still answers what its legend would say: nothing.
+        self._shape_legend = None
+        self._opacity_legend = None
         self._items: list = []
 
         # THE KEY JOIN. Row-to-point highlighting is joined on the identifier
@@ -1408,6 +1413,8 @@ class FastPlot(QWidget):
         self._note = ""
         self._labels = ()
         self._legend_colours = {}
+        self._shape_legend = None
+        self._opacity_legend = None
         self._items = []
         self._keys = ()
         self._key_rows = {}
@@ -3589,22 +3596,42 @@ class FastPlot(QWidget):
         return out, shapes
 
     @staticmethod
-    def _categorical_opacity(brush_list, values, count):
+    def _levels_of(values):
+        """The level names of a categorical column, in the drawn order."""
+        import pandas as _pd
+
+        return list(_pd.Categorical(_pd.Series(values).astype(str))
+                    .categories)
+
+    @staticmethod
+    def _opacity_alphas(count: int):
+        """The alpha each of ``count`` levels is drawn at, faintest first.
+
+        One source of truth for the ramp, because the legend has to name the
+        same fades the points were drawn with; two ramps that drift are a key
+        that describes a different picture.
+        """
+        floor, top = 70, 255
+        if count <= 0:
+            return []
+        step = 0 if count < 2 else (top - floor) / (count - 1)
+        return [int(round(floor + step * i)) for i in range(count)]
+
+    @classmethod
+    def _categorical_opacity(cls, brush_list, values, count):
         """Fade each point by its level in ``values``. THE THIRD CHANNEL.
 
         The levels are spread over a floor and full opacity rather than
         [0, 1]: a fully transparent point is an absent point, and a channel
         that can delete a datapoint is not an encoding.
         """
+        names = cls._levels_of(values)
+        if not names:
+            return brush_list
         import pandas as _pd
 
         categorical = _pd.Categorical(_pd.Series(values).astype(str))
-        names = list(categorical.categories)
-        if not names:
-            return brush_list
-        floor, top = 70, 255
-        step = 0 if len(names) < 2 else (top - floor) / (len(names) - 1)
-        alphas = [int(round(floor + step * i)) for i in range(len(names))]
+        alphas = cls._opacity_alphas(len(names))
         base = list(brush_list) if brush_list is not None else \
             [pg.mkBrush(colour_for(0))] * count
         out = []
@@ -4062,16 +4089,49 @@ class FastPlot(QWidget):
                                  None if new_height <= 0 else new_height)
 
 
+    #: Colour the shape and opacity keys are drawn in, so neither borrows a
+    #: hue that means something else on the same plot.
+    NEUTRAL_KEY = "#9E9E9E"
+
+    def _legend_entries(self) -> list:
+        """``[(label, ScatterPlotItem kwargs)]`` for every channel in force.
+
+        THE LEGEND NAMES ITS CHANNEL, not only its level. Layering puts up to
+        three columns on one point -- hue, then shape, then opacity -- and a
+        key saying "fail" without saying which column that came from leaves
+        the reader guessing which encoding they are reading.
+        """
+        out: list = []
+        for name, colour in (getattr(self, "_legend_colours", None)
+                             or {}).items():
+            out.append((str(name), {"brush": pg.mkBrush(colour)}))
+        shape = getattr(self, "_shape_legend", None)
+        if shape:
+            column, shapes = shape
+            for name, symbol in shapes.items():
+                out.append((f"{column} (shape): {name}",
+                            {"brush": pg.mkBrush(self.NEUTRAL_KEY),
+                             "symbol": symbol}))
+        fade = getattr(self, "_opacity_legend", None)
+        if fade:
+            column, levels = fade
+            alphas = self._opacity_alphas(len(levels))
+            for name, alpha in zip(levels, alphas):
+                colour = QColor(self.NEUTRAL_KEY)
+                colour.setAlpha(int(alpha))
+                out.append((f"{column} (opacity): {name}",
+                            {"brush": pg.mkBrush(colour)}))
+        return out
+
     def _build_legend(self) -> None:
         """Add the legend. Only ever called when it is actually wanted."""
-        colours = getattr(self, "_legend_colours", None)
-        if not colours:
+        entries = self._legend_entries()
+        if not entries:
             return
         self.plot.addLegend(offset=(-10, 10), labelTextSize="8pt")
-        for name, colour in colours.items():
-            marker = pg.ScatterPlotItem(
-                [], [], brush=pg.mkBrush(colour), pen=None, size=8)
-            self.plot.plotItem.legend.addItem(marker, name)
+        for label, style in entries:
+            marker = pg.ScatterPlotItem([], [], pen=None, size=8, **style)
+            self.plot.plotItem.legend.addItem(marker, label)
 
     def _toggle_legend(self, on: bool) -> None:
         if on:
@@ -6432,14 +6492,17 @@ class VolcanoPlot(FastPlot):
         if layered and symbol_column and symbol_column in frame:
             symbol_list, shapes = self._categorical_symbols(
                 frame[symbol_column])
-            legend = dict(legend or {})
             self._shape_legend = (symbol_column, shapes)
         else:
             self._shape_legend = None
         if layered and opacity_column and opacity_column in frame:
             brush_list = self._categorical_opacity(
                 brush_list, frame[opacity_column], len(neglog))
-            self._opacity_legend = opacity_column
+            # THE COLUMN AND ITS LEVELS, because a fade nobody can name is
+            # not an encoding. The legend draws them at the alphas the
+            # points got, from the same ramp.
+            self._opacity_legend = (opacity_column,
+                                    self._levels_of(frame[opacity_column]))
         else:
             self._opacity_legend = None
         self.add_scatter(effects, neglog, brush_list=brush_list,
@@ -6467,9 +6530,13 @@ class VolcanoPlot(FastPlot):
         # identifies the compartments; the legend only names them, and naming
         # them is worth 40 ms when asked for and not before.
         self._legend_colours = legend
-        if legend:
+        # THE OTHER TWO CHANNELS COUNT TOO. A volcano whose shape carries a
+        # column and whose legend can only be switched on when a COLOUR
+        # column is chosen is a picture with an unreachable key.
+        entries = len(self._legend_entries())
+        if entries:
             self._legend_box.setEnabled(True)
-            self._legend_box.setText(f"legend ({len(legend)})")
+            self._legend_box.setText(f"legend ({entries})")
             if self._legend_box.isChecked():
                 self._build_legend()
         else:

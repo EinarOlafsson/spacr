@@ -371,6 +371,19 @@ def _ensure_pages_qss() -> None:
         LOG.debug("Could not register the fold page QSS", exc_info=True)
 
 
+# Registered at import as well, so a session that builds its stylesheet
+# before any fold page exists already carries the rule. The import-time
+# registration is what ``theme.WIDGET_QSS_MODULES`` loads; the call above
+# is what covers a page made after the sheet was composed. Both, because
+# either alone leaves one of the two orders unstyled.
+try:
+    from ..theme import register_widget_qss as _register_widget_qss
+
+    _register_widget_qss(PAGES_NAME, _pages_qss, replace=True)
+except Exception:
+    LOG.debug("Could not register the fold page QSS at import", exc_info=True)
+
+
 def _page_body(screen: QWidget) -> Optional[QWidget]:
     """The widget that IS the host's page -- everything below its masthead.
 

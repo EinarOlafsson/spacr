@@ -21,8 +21,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from spacr.merge_tables import (MUST_AGREE, ColumnConflict, MergeError,
-                                reconcile_duplicates)
+from spacr.merge_tables import (MUST_AGREE, SAME_LABEL_SPACE, ColumnConflict,
+                                MergeError, reconcile_duplicates)
 
 SUFFIX = "_cytoplasm"
 
@@ -144,10 +144,45 @@ def test_a_measurement_that_happens_to_match_still_collapses():
 
 def test_must_agree_holds_the_identity_and_not_the_measurements():
     for identity in ("plateID", "rowID", "columnID", "fieldID", "prcf",
-                     "prcfo", "object_label", "cell_id"):
+                     "prcfo", "cell_id"):
         assert identity in MUST_AGREE
     for measurement in ("area", "solidity", "perimeter", "mean_intensity"):
         assert measurement not in MUST_AGREE
+
+
+def test_object_label_agrees_per_label_space_not_flatly():
+    """`object_label` is an identity, but only between tables that share one.
+
+    It was in MUST_AGREE and should not have been: a cell's object_label is
+    its label in the CELL mask and a pathogen's is its label in the PATHOGEN
+    mask. Joining cell to pathogen warned about nearly every row of a healthy
+    screen -- 60,095 of 60,816 objects -- which teaches the reader to ignore
+    the warning and takes the real conflicts with it. Cytoplasm is the
+    exception: it carries the CELL's label, so a mismatch there is real.
+    """
+    assert "object_label" not in MUST_AGREE
+    assert SAME_LABEL_SPACE["object_label"] == ("cell", "cytoplasm")
+
+
+def test_a_disagreeing_object_label_is_reported_between_cell_and_cytoplasm(
+        capsys):
+    frame = merged(object_label=[1, 2, 3], object_label_cytoplasm=[1, 9, 3])
+    out = reconcile_duplicates(frame, SUFFIX, left_name="cell",
+                               right_name="cytoplasm")
+    printed = capsys.readouterr().out
+    assert "object_label" in printed and "disagree" in printed
+    assert "object_label_cytoplasm" in out.columns
+
+
+def test_a_disagreeing_object_label_is_silent_between_cell_and_pathogen(
+        capsys):
+    """The normal case for two different masks. A warning here is noise."""
+    frame = pd.DataFrame({"prcfo": ["a", "b", "c"],
+                          "object_label": [1, 2, 3],
+                          "object_label_pathogen": [7, 8, 9]})
+    reconcile_duplicates(frame, "_pathogen", left_name="cell",
+                         right_name="pathogen")
+    assert "disagree" not in capsys.readouterr().out
 
 
 # ---------------------------------------------------------------------------

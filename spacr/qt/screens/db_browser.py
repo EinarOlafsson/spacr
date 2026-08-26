@@ -1256,6 +1256,11 @@ class DbBrowserScreen(LinkedView, QWidget):
         #: The sort happens in SQL over the WHOLE table, so it is correct
         #: however little of the table the view has loaded.
         self._sort: Optional[Tuple[str, bool]] = None
+        #: A column a seed asked to show that no chunk has arrived for yet.
+        #: The first chunk is what defines the column set, so a seed handled
+        #: before it lands has nothing to scroll to; it is consumed once the
+        #: columns exist. Synchronous loads never set it.
+        self._seed_column: Optional[str] = None
         self._loaded: int = 0
         self._last_key: Optional[tuple] = None
         self._exhausted: bool = False
@@ -1814,11 +1819,27 @@ class DbBrowserScreen(LinkedView, QWidget):
             # Scroll the column into view rather than sorting by it: arriving
             # on a re-sorted table would hide which rows were just annotated,
             # which is the thing the user came here to look at.
-            try:
-                section = self.visible_columns().index(str(column))
-            except (ValueError, AttributeError):
-                return
-            self._view.scrollTo(self._model.index(0, section))
+            if not self._scroll_column_into_view(column):
+                # No columns yet means the first chunk is still in flight,
+                # which is the normal case for a threaded browser: the seed
+                # is handled the moment the table is selected and the rows
+                # arrive later. Remember it and scroll when they do, or the
+                # scroll silently never happens.
+                if not self.visible_columns():
+                    self._seed_column = str(column)
+
+    def _scroll_column_into_view(self, column) -> bool:
+        """Bring ``column`` into view. False when this table has no such column.
+
+        :param column: column name to reveal.
+        :returns: whether the column was found and scrolled to.
+        """
+        try:
+            section = self.visible_columns().index(str(column))
+        except (ValueError, AttributeError):
+            return False
+        self._view.scrollTo(self._model.index(0, section))
+        return True
 
     def _clear_sort(self) -> None:
         """Forget the sort. Called when the TABLE changes, not on refresh.
@@ -1932,6 +1953,9 @@ class DbBrowserScreen(LinkedView, QWidget):
         if first:
             self._update_column_count()
             self._autosize_columns()
+            if self._seed_column is not None:
+                pending, self._seed_column = self._seed_column, None
+                self._scroll_column_into_view(pending)
         self._update_rows_label()
         self._update_sort_state()
         self._report_table_status()

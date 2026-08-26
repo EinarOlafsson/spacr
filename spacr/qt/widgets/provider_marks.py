@@ -444,7 +444,7 @@ class ProviderMark(QWidget):
             # muted ink -- legible, at alpha 190 rather than the 110 that
             # made it a ghost -- and HOVER gives the brand background, so
             # the colour still tells you which provider you are pointing at.
-            ink = QColor(palette.get("muted", palette["fg"]))
+            ink = QColor(palette.get("fg_muted", palette["fg"]))
             ink.setAlpha(190)
             halo = QColor(BRAND.get(self.code, palette["accent"]))
             halo.setAlpha(30 if self._hovered else 0)

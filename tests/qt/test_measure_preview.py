@@ -63,7 +63,7 @@ def test_propagation_maps_measure_keys(qtbot, tmp_path):
     from spacr.qt.widgets.measure_preview import MeasurePreviewPanel
     p = MeasurePreviewPanel(threaded=False)
     qtbot.addWidget(p)
-    p._channels.setText("0,2,4")
+    p._channels.set_value({"r": 0, "g": 2, "b": 4})
     p._crop_size.setValue(200)
     s = p.settings_for_propagation()
     # This used to read `s["png_dims"] == [0, 2, 4]`, and it was green while

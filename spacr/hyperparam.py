@@ -2939,8 +2939,19 @@ def load_activation_data(settings: Mapping[str, Any],
     steps = [transforms.ToTensor(),
              transforms.CenterCrop(size=(image_size, image_size))]
     if settings.get("normalize_input", True):
-        steps.append(transforms.Normalize(mean=(0.5, 0.5, 0.5),
-                                          std=(0.5, 0.5, 0.5)))
+        # WHICH statistics is `input_statistics`, the same setting the
+        # training and inference loaders read. A hard-coded 0.5/0.5 here
+        # attributes a model under statistics it was not trained with: the
+        # saliency is computed on inputs shifted away from the ones the
+        # weights learned, so the peak it reports need not be the peak the
+        # model would produce in a real run.
+        from .normalization import normalization_stats
+        stats = normalization_stats(
+            settings.get("input_statistics", "symmetric"),
+            mean=settings.get("input_mean"), std=settings.get("input_std"),
+            channels=len(channels))
+        if stats is not None:
+            steps.append(transforms.Normalize(mean=stats[0], std=stats[1]))
     steps.append(SelectChannels(channels))
     ds = TarImageDataset(str(dataset), transform=transforms.Compose(steps))
     images, names = [], []

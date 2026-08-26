@@ -342,7 +342,7 @@ def test_choosing_the_field_of_view_already_loaded_does_not_reload_it(
 
 def test_naming_fewer_than_three_png_channels_blanks_the_rest(panel):
     """An unnamed plane is removed, not left holding its default."""
-    panel._png_dims.setText("2")
+    panel._png_dims.set_value({"r": 2, "g": None, "b": None})
     assert panel._png_channel_mapping() == {"r": 2, "g": None, "b": None}
 
 
@@ -462,7 +462,7 @@ def test_running_the_preview_with_nothing_loaded_says_so(panel):
 def test_png_channels_that_are_not_in_the_array_are_reported(panel, tmp_path):
     """Asking for plane 40 of an eight-plane array is a sentence, not a crash."""
     panel.load_array(_merged(tmp_path))
-    panel._png_dims.setText("40,41,42")
+    panel._png_dims.set_value({"r": 30, "g": 29, "b": 28})
     panel.refresh()
     assert panel._status.text() == "PNG channels do not exist in this array."
 

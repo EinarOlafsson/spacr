@@ -152,9 +152,54 @@ def test_values_propagate_through_the_registered_callback(explorer,
     monkeypatch.setattr(module, "UmapDisplaySettings", _Dialog)
     explorer.open_display_settings()
 
-    assert sent["point_size"] == 44
+    # Propagated under the SETTINGS key, not the explorer's artist key: the
+    # settings panel is bound to `dot_size`, and a value sent as
+    # `point_size` is dropped without a word.
+    assert sent["dot_size"] == 44
+    assert "point_size" not in sent
     assert sent["figuresize"] == 11.0, (
         "the non-live half must propagate too, or it can never take effect")
+
+
+def test_every_propagated_key_is_one_the_settings_panel_is_bound_to(explorer,
+                                                                    monkeypatch):
+    """Every key the window sends must exist in the Image UMAP settings panel.
+
+    `SettingsWidgets.set_value_for_key` returns False for a key it does not
+    know and changes nothing, so a mismatched name propagates silently to
+    nothing: the user changes the dot size, the window says it was saved,
+    and the next run draws the old value.
+    """
+    from spacr.qt.screens.settings_model import SettingsWidgets
+    from spacr.qt.widgets import umap_explorer as module
+
+    panel = SettingsWidgets("umap")
+    panel.build_sections()
+
+    sent = {}
+    explorer.set_propagate_callback(sent.update)
+
+    everything = {key: 1 for key, *_rest in module.UmapDisplaySettings.FIELDS}
+
+    class _Dialog:
+        def __init__(self, *a, **k):
+            pass
+
+        def exec(self):
+            return True
+
+        def values(self):
+            return dict(everything)
+
+        def live_values(self):
+            return {}
+
+    monkeypatch.setattr(module, "UmapDisplaySettings", _Dialog)
+    explorer.open_display_settings()
+
+    unknown = [key for key in sent if not panel.set_value_for_key(key, 1)]
+    assert unknown == [], (
+        f"the settings panel has no control for {unknown}")
 
 
 def test_a_missing_callback_is_not_an_error(explorer, monkeypatch):

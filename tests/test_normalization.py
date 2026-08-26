@@ -298,3 +298,59 @@ def test_it_accepts_the_tuple_a_dataloader_yields():
 def test_describe_never_raises_even_when_the_numbers_are_missing(mode):
     """A log line that raises takes the run with it."""
     assert describe_normalization(mode)
+
+
+# ---------------------------------------------------------------------------
+# every loader asks the setting, not a literal
+# ---------------------------------------------------------------------------
+
+def test_no_loader_hard_codes_the_symmetric_statistics():
+    """`input_statistics` has to reach every place `normalize_input` gates.
+
+    A hard-coded 0.5/0.5 is not a wrong number -- it is what `symmetric`
+    gives -- but it is a number nobody chose, and a run configured for
+    `imagenet` that meets such a site normalises differently from the run
+    that trained the weights. The activation search was one: it honoured
+    `normalize_input` and ignored WHICH statistics, so a model finetuned
+    under ImageNet statistics was attributed under spaCR's.
+
+    Scoped to functions that read `normalize_input`, because a helper whose
+    documented job IS ImageNet preprocessing (utils.preprocess_image) is
+    declaring a constant rather than ignoring a setting.
+    """
+    import ast
+    import pathlib
+
+    package = pathlib.Path(__file__).resolve().parents[1] / "spacr"
+    offenders = []
+    for path in package.rglob("*.py"):
+        if path.name == "normalization.py":
+            continue                    # where the constants are DEFINED
+        try:
+            tree = ast.parse(path.read_text(encoding="utf-8"))
+        except SyntaxError:             # pragma: no cover - not our files
+            continue
+        for func in ast.walk(tree):
+            if not isinstance(func, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            names = {node.id for node in ast.walk(func)
+                     if isinstance(node, ast.Name)}
+            names |= {node.value for node in ast.walk(func)
+                      if isinstance(node, ast.Constant)
+                      and isinstance(node.value, str)}
+            if "normalize_input" not in names:
+                continue
+            for node in ast.walk(func):
+                if not isinstance(node, ast.Call):
+                    continue
+                name = getattr(node.func, "attr", None) or getattr(
+                    node.func, "id", None)
+                if name != "Normalize":
+                    continue
+                if any(kw.arg in ("mean", "std")
+                       and isinstance(kw.value, (ast.Tuple, ast.List))
+                       for kw in node.keywords):
+                    offenders.append(f"{path.name}:{node.lineno}")
+    assert offenders == [], (
+        "these call transforms.Normalize with a literal instead of "
+        f"normalization_stats(input_statistics): {offenders}")

@@ -42,6 +42,25 @@ def volcano(app):
     return plot
 
 
+@pytest.fixture
+def dragged(volcano, app):
+    """The same plot, on screen with a known view range.
+
+    A drag is mapped through the view transform, so the plot has to have a
+    geometry and a range for the corners to mean anything -- an unshown
+    ViewBox maps every data point onto the same pixel.
+    """
+    volcano.resize(400, 300)
+    volcano.show()
+    volcano.plot.getViewBox().setRange(xRange=(-3.0, 4.0), yRange=(0.0, 5.0),
+                                       padding=0)
+    app.processEvents()
+    try:
+        yield volcano
+    finally:
+        volcano.hide()
+
+
 def _click(plot, row, *, modifier=Qt.NoModifier):
     """A click on the point at frame position ``row``, through the gesture.
 
@@ -59,6 +78,76 @@ def _click(plot, row, *, modifier=Qt.NoModifier):
     QApplication.setKeyboardModifiers(modifier) \
         if hasattr(QApplication, "setKeyboardModifiers") else None
     plot._on_points_clicked(None, [_Point(row)])
+
+
+class _DragEvent:
+    """The drag event pyqtgraph hands a ViewBox, with only what the band
+    reads.
+
+    A stub rather than a synthesized Qt event because pyqtgraph builds its
+    own ``MouseDragEvent`` out of three Qt events and a state machine; what
+    matters here is that the handler on the ViewBox is the one being called,
+    which is what a real drag calls.
+    """
+
+    def __init__(self, down, now, *, finish, modifier=None, button=None):
+        from PySide6.QtCore import Qt
+
+        self._down = down
+        self._now = now
+        self._finish = finish
+        self._modifier = Qt.ControlModifier if modifier is None else modifier
+        self._button = Qt.LeftButton if button is None else button
+        self.accepted = False
+
+    def modifiers(self):
+        return self._modifier
+
+    def button(self):
+        return self._button
+
+    def buttons(self):
+        return self._button
+
+    def buttonDownPos(self, *_args):
+        return self._down
+
+    def pos(self):
+        return self._now
+
+    def lastPos(self):
+        # Read only by pyqtgraph's own pan, which is where an UNMODIFIED
+        # drag goes. Present so that a band which stops taking the gesture
+        # fails on the assertion rather than on a missing attribute.
+        return self._down
+
+    def isFinish(self):
+        return self._finish
+
+    def isStart(self):
+        return not self._finish
+
+    def accept(self):
+        self.accepted = True
+
+    def ignore(self):                                # pragma: no cover
+        self.accepted = False
+
+
+def _drag(plot, x0, y0, x1, y1, **kwargs):
+    """Drag a band across the plot, through the ViewBox's own handler.
+
+    The corners are given in DATA coordinates and mapped through the real
+    view transform, so the test exercises the mapping the handler does
+    rather than assuming it.
+    """
+    from PySide6.QtCore import QPointF
+
+    box = plot.plot.getViewBox()
+    down = box.mapFromView(QPointF(x0, y0))
+    up = box.mapFromView(QPointF(x1, y1))
+    box.mouseDragEvent(_DragEvent(down, up, finish=False, **kwargs))
+    box.mouseDragEvent(_DragEvent(down, up, finish=True, **kwargs))
 
 
 class TestModifierClickAddsAndRemoves:
@@ -121,6 +210,48 @@ class TestTheBand:
         box = volcano.plot.getViewBox()
         assert getattr(box, "_spacr_band", False), (
             "the band was never installed, so no drag can select")
+
+    def test_the_gesture_itself_selects(self, dragged, app):
+        """THE GESTURE, not `select_in_rect`.
+
+        Instruction 206 asks for a test that drives the mouse rather than
+        the selection model, and asserting the handler is merely installed
+        would pass against a wrapper that hands every drag straight back.
+        This one goes through `ViewBox.mouseDragEvent` -- the callable a
+        real drag invokes -- and through the real view transform, so a band
+        that stopped being wired, stopped reading the modifier, or mapped
+        its corners wrongly fails here.
+        """
+        _drag(dragged, 0.5, 0.0, 2.5, 5.0)
+
+        assert dragged.selected_keys() == ["g3", "g4"]
+
+    def test_the_drag_commits_only_when_it_finishes(self, dragged, app):
+        """Mid-drag the band is drawn and nothing is selected yet: a
+        selection that changed on every mouse-move would fire the consumers
+        once per pixel."""
+        from PySide6.QtCore import QPointF
+
+        box = dragged.plot.getViewBox()
+        down = box.mapFromView(QPointF(0.5, 0.0))
+        up = box.mapFromView(QPointF(2.5, 5.0))
+        box.mouseDragEvent(_DragEvent(down, up, finish=False))
+
+        assert dragged.selected_keys() == []
+
+    def test_an_unmodified_drag_is_not_a_selection(self, dragged, app):
+        """Pan must survive. The wrapper takes the event only while the
+        modifier is down, so a plain drag never reaches the selection."""
+        from PySide6.QtCore import Qt
+
+        seen = []
+        dragged.select_in_rect = lambda *a, **k: seen.append(a)
+        try:
+            _drag(dragged, 0.5, 0.0, 2.5, 5.0, modifier=Qt.NoModifier)
+        except Exception:      # pragma: no cover - pyqtgraph's own pan path
+            pass
+
+        assert seen == [], "a plain drag selected instead of panning"
 
     def test_an_empty_band_selects_nothing(self, volcano):
         volcano.select_in_rect(10.0, 10.0, 11.0, 11.0)

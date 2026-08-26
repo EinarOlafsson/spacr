@@ -17,6 +17,7 @@ import pandas as pd
 import pytest
 
 from spacr.fraction_calibration import (DEFAULT_THRESHOLD_CANDIDATES,
+                                        compare_normalisations,
                                         describe, reported_control_share,
                                         sweep_fraction_threshold,
                                         well_fractions)
@@ -262,3 +263,64 @@ def test_the_grid_can_return_keeping_everything():
         candidates=(0.0, 0.02, 0.05))
 
     assert result["chosen"] == 0.0
+
+
+# ---------------------------------------------------------------------------
+# Raw against normalised, and the comparison is a RATIO
+# ---------------------------------------------------------------------------
+
+def _compare(**kwargs):
+    counts, features, wells, pure_pc, pure_nc = _screen()
+    return compare_normalisations(
+        counts, features, wells, positive_guide=PC,
+        pure_pc_wells=pure_pc, pure_nc_wells=pure_nc, **kwargs)
+
+
+class TestBothFractionDefinitionsAreFitted:
+    """A slope is penetrance times fraction bias and one control cannot
+    separate them -- but penetrance is a property of the guide and does not
+    change when the fraction definition does, so it cancels in the RATIO of
+    the two slopes. That is why the comparison is a ratio and never two
+    absolute calibrations.
+    """
+
+    def test_both_slopes_come_back(self):
+        out = _compare(threshold=0.02)
+
+        assert out["raw"]["slope"] > 0
+        assert out["normalised"]["slope"] > 0
+        assert out["raw"]["wells"] == out["normalised"]["wells"] == 18
+
+    def test_the_comparison_is_a_ratio(self):
+        out = _compare(threshold=0.02)
+
+        assert out["ratio"] == pytest.approx(
+            out["raw"]["slope"] / out["normalised"]["slope"])
+        # The junk is out of the numerator either way and out of the
+        # denominator only when the survivors are rescaled, so raw
+        # under-reports the control by exactly the junk's share.
+        assert out["ratio"] > 1.0
+        assert "ratio" in out["reading"]
+
+    def test_it_names_which_definition_the_two_measurements_agree_under(self):
+        out = _compare(threshold=0.02)
+
+        assert out["more_consistent"] == "normalised"
+        assert (out["normalised"]["median_absolute_disagreement"]
+                < out["raw"]["median_absolute_disagreement"])
+
+    def test_with_nothing_removed_the_two_definitions_coincide(self):
+        """Normalising over every read there was IS the raw fraction, so the
+        ratio is one -- the check that the two fits differ only in the
+        definition and not in which wells they used."""
+        out = _compare(threshold=0.0)
+
+        assert out["ratio"] == pytest.approx(1.0, abs=1e-9)
+
+    def test_the_caller_cannot_choose_the_definition(self):
+        """Fitting only one of them is what makes a slope look like an
+        absolute calibration."""
+        with pytest.raises(ValueError, match="SAME wells"):
+            _compare(normalise=True)
+        with pytest.raises(ValueError, match="SAME wells"):
+            _compare(candidates=(0.02,))

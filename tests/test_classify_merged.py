@@ -199,8 +199,16 @@ def test_the_merged_module_is_registered_everywhere_it_has_to_be():
     from spacr.qt.screens import app_screen
 
     keys = {row[0] for row in APPS}
-    assert {"classify_merged", "classify", "ml_analyze"} <= keys, (
-        "the merged module must be registered AND both originals kept")
+    assert "classify_merged" in keys, "the merged module must be registered"
+    # ONE Classify screen. The two originals were kept beside the merged one
+    # while a saved settings CSV still needed a screen of its own; they are
+    # gone from the registry now, because three entries for one job is three
+    # places to look and two of them are the same run with half the choices.
+    # The ENTRY POINTS are untouched -- `classify.classify` dispatches to
+    # `deep_spacr` and `generate_ml_scores` by `classifier_family` -- and
+    # that is asserted by the dispatch tests above, not by a registry row.
+    assert not ({"classify", "ml_analyze"} & keys), (
+        "an old Classify key is back in the registry; there is one screen")
 
     row = next(r for r in APPS if r[0] == "classify_merged")
     assert row[1] == "Classify"
@@ -214,6 +222,56 @@ def test_the_merged_module_is_registered_everywhere_it_has_to_be():
     assert not others, f"icon collides with {others}"
     assert app_screen.APP_TITLES.get("classify_merged") == "Classify"
     assert app_screen.APP_INTROS.get("classify_merged")
+
+
+def test_an_old_ml_settings_file_keeps_the_wells_it_named(qtbot):
+    """The control-well trio has no widget on the merged screen, so loading
+    an old Classify (ML) settings file used to drop all three.
+
+    ``location_column``/``positive_control``/``negative_control`` said which
+    wells the two classes are. The merged module says it once, in the Classes
+    editor -- and with nothing translating the old keys on the way in, the
+    editor stayed EMPTY and the run fell back to the module's own default
+    wells (columnID c1/c2) instead of the ones the file named. Silently, and
+    reporting success: exactly the INVARIANTS 6 trap, with the wrong labels.
+    """
+    from spacr.io import _class_column
+    from spacr.qt.screens.app_screen import AppScreen
+    from spacr.settings import (set_default_analyze_screen,
+                                set_generate_training_dataset_defaults)
+
+    old = set_default_analyze_screen(settings={})
+    old.update({"src": "/data/exp", "dataset_mode": "metadata",
+                "location_column": "rowID",
+                "positive_control": "r5", "negative_control": "r6"})
+
+    screen = AppScreen("classify_merged")
+    qtbot.addWidget(screen)
+    screen.apply_settings_dict(dict(old))
+
+    loaded = screen._settings_model.collect()
+    assert loaded["classes"] == {
+        "negative control": {"column": "rowID", "value": "r6"},
+        "positive control": {"column": "rowID", "value": "r5"},
+    }, loaded["classes"]
+
+    # ...and the run that settings dict describes selects the same wells the
+    # old module selected, rather than the defaults.
+    run = set_generate_training_dataset_defaults(dict(loaded))
+    assert _class_column(run) == "rowID"
+    assert sorted(v for pair in run["class_metadata"] for v in pair) == \
+        ["r5", "r6"]
+
+
+def test_a_saved_run_under_an_old_classify_key_still_finds_a_screen():
+    """Dropping the two tiles must not orphan a settings CSV saved under
+    either old key: navigating to a key with no tile builds a page with no
+    sidebar row and no way back to it."""
+    from spacr.qt import chaining
+
+    assert chaining.screen_for_module("classify") == "classify_merged"
+    assert chaining.screen_for_module("ml_analyze") == "classify_merged"
+    assert chaining.screen_for_module("classify_merged") == "classify_merged"
 
 
 def test_the_merged_defaults_are_the_union_of_both():
