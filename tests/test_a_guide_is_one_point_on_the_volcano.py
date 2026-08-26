@@ -42,9 +42,11 @@ def test_the_panel_gets_one_row_per_guide():
     from spacr.ml import _run_guide_permutation_analysis
 
     source = inspect.getsource(_run_guide_permutation_analysis)
-    assert "'results': primary_table," in source, (
+    assert "'results': combined," in source, (
         "the results key is the stacked multi-family frame again, so every "
         "guide is drawn once per minimum-wells family")
+    assert "'primary': primary_table," in source, (
+        "the guide rows alone must stay reachable under their own key")
 
 
 def test_the_families_are_still_reachable():
@@ -63,8 +65,11 @@ def test_the_dict_and_the_file_agree():
     from spacr.ml import _run_guide_permutation_analysis
 
     source = inspect.getsource(_run_guide_permutation_analysis)
-    saved = source.index("primary_table.to_csv(compatibility['results']")
-    returned = source.index("'results': primary_table,")
+    # Both are `combined` now: the file gained the gene rows when the gene
+    # pass ran, and the dict had to gain them too or the two would disagree
+    # in the other direction -- which is the same bug wearing a new face.
+    saved = source.index("combined.to_csv(compatibility['results']")
+    returned = source.index("'results': combined,")
     assert saved > 0 and returned > 0
 
 

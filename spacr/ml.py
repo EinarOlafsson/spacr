@@ -6586,7 +6586,12 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
         # finally agree. Every family stays reachable: `families` carries the
         # full frame and each one is still written to its own
         # `guide_permutation_min_<n>_wells.csv`.
-        'results': primary_table,
+        #
+        # `combined`, NOT `primary_table`: the file gained the gene rows, and
+        # a caller reading the dict must not get a different table from a
+        # caller reading the file of the same name. `primary` below is the
+        # guide rows alone for anyone who wants exactly those.
+        'results': combined,
         'families': results,
         # The gene pass, corrected within itself. None when it was declined
         # with guide_permutation_gene_level=False or could not be made.

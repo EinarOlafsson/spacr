@@ -160,7 +160,20 @@ def find_results_tables(path, *, max_depth: int = MAX_SEARCH_DEPTH,
     except TypeError:
         return []
     if os.path.isfile(root):
-        return [root] if root.lower().endswith(".csv") else []
+        if not root.lower().endswith(".csv"):
+            return []
+        # AND THE REST OF THE RUN. A permutation run writes its guides to
+        # results.csv and its genes to results_gene.csv beside it; handed the
+        # one file, returning it alone hides the level the reader asked for.
+        # The siblings follow RESULT_FILENAMES order with the chosen file
+        # first, so it stays the primary table `read_run_tables` merges into.
+        home = os.path.dirname(root)
+        rest = []
+        for name in RESULT_FILENAMES:
+            beside = os.path.join(home, name)
+            if beside != root and os.path.isfile(beside):
+                rest.append(beside)
+        return [root] + rest
     if not os.path.isdir(root):
         return []
     runs = []
@@ -256,6 +269,52 @@ def read_run_tables(tables):
         have.add(wants)
         merged.append(sibling)
     return frame, found, merged
+
+
+#: Columns the coefficient table keeps even when every visible row leaves
+#: them blank, because a reader looks for them by name and an absent column
+#: reads as a missing measurement rather than an empty one.
+TABLE_KEEP_COLUMNS = ("feature", "level", "coefficient", "p_value",
+                      "q_value", "adjusted_p_value", "significant")
+
+
+def for_table(frame):
+    """``frame`` without the columns that are blank for every row shown.
+
+    A permutation run's table is the UNION of two schemas: a guide row has
+    ``guide`` and ``wells_with_guide``, a gene row has ``gene``,
+    ``wells_with_gene`` and ``guides_in_gene``. Showing the union means that
+    whichever level is chosen, a third of the columns are empty -- and the
+    gene the reader is looking for is named thirteen columns to the right of
+    a blank ``guide`` cell, which is what makes a gene view read as broken
+    even once the rows are there.
+
+    Dropping a column that no visible row fills is safe because it carries no
+    value for this selection: "how many wells hold this guide" has no answer
+    for a gene. The identity and significance columns in
+    :data:`TABLE_KEEP_COLUMNS` stay regardless.
+
+    :param frame: the rows about to be shown.
+    :returns: the same rows, narrowed. The input is not modified.
+    """
+    columns = list(getattr(frame, "columns", ()))
+    if not columns or len(frame) == 0:
+        return frame
+    keep = []
+    for name in columns:
+        if name in TABLE_KEEP_COLUMNS:
+            keep.append(name)
+            continue
+        column = frame[name]
+        try:
+            filled = column.notna()
+            if filled.any() and column.astype(str).str.strip().ne("").any():
+                keep.append(name)
+        except Exception:                                    # noqa: BLE001
+            keep.append(name)
+    if len(keep) == len(columns):
+        return frame
+    return frame[keep]
 
 
 def find_results_table(path) -> Optional[str]:
@@ -2642,7 +2701,7 @@ class RegressionResultsPanel(QWidget):
                 for name in ("q_value", "adjusted_p_value", "p_value")):
             significance = column
         self.table.set_frame(
-            shown, key_column=self._key_column(shown),
+            for_table(shown), key_column=self._key_column(shown),
             significance_column=significance)
         self._show_significance(shown, kind, column, self._path or "")
         self._draw_effects(shown, kind)
