@@ -1715,17 +1715,30 @@ class SetupSlides(QDialog):
             self._goodbye = None
 
     def _place_the_greeting(self) -> None:
-        """Put the greeting and the GPU note in their bands."""
-        card = getattr(self, "card", None)
-        if card is None or not self._greeting:
-            return
-        height = self._greeting.sizeHint().height()
-        self._greeting.setGeometry(
-            0, int(card.height() * GREETING_BAND), card.width(), height)
-        self._greeting.raise_()
+        """Put the greeting in its band, and the GPU note in its own.
 
+        TWO INDEPENDENT PLACEMENTS. The greeting arrives only when the
+        language is confirmed, so it does not exist while the first slide
+        is being read -- and placing the note behind a check for the
+        greeting left it at the geometry a QLabel is born with, the top
+        left corner of the card, where it read as stray text above the
+        language list until the first Next took it away.
+        """
+        card = getattr(self, "card", None)
+        if card is None:
+            return
+        if self._greeting:
+            height = self._greeting.sizeHint().height()
+            self._greeting.setGeometry(
+                0, int(card.height() * GREETING_BAND), card.width(), height)
+            self._greeting.raise_()
+        self._place_the_gpu_note()
+
+    def _place_the_gpu_note(self) -> None:
+        """Put the GPU note in its band, whatever the greeting is doing."""
+        card = getattr(self, "card", None)
         note = getattr(self, "_gpu_note", None)
-        if note is None or not note.isVisible():
+        if card is None or note is None or note.isHidden():
             return
         # ACROSS THE CARD, INSIDE ITS MARGINS. The greeting is one word and
         # can be centred in the full width; this is two lines of prose and
@@ -1845,6 +1858,10 @@ class SetupSlides(QDialog):
         note = getattr(self, "_gpu_note", None)
         if note is not None:
             note.setVisible(index == 0)
+            # PLACED THE MOMENT IT IS SHOWN. Nothing else lays this label
+            # out, so a note made visible and left unplaced sits in the
+            # corner it was born in.
+            self._place_the_gpu_note()
         if index != 0:
             self._fade_the_greeting_away()
         self._where.setText(
