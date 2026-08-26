@@ -1,0 +1,71 @@
+================================================================================
+THE SECOND PLATE VIEWER IS LOCKED BY LUCK, AND DUPLICATES THE FIRST
+================================================================================
+
+Status:    OPEN. Found while fixing the plate map picker's wells.
+Owner:     spacr/qt/screens/experiment_design.py, and whatever it should
+           import from spacr/qt/widgets/plate_map_picker.py.
+
+--------------------------------------------------------------------------------
+WHAT HAPPENED TO THE FIRST ONE
+--------------------------------------------------------------------------------
+
+Every well on the plate map picker measured 22 wide by 40 tall instead of
+square, and the reason is a trap worth writing down because it catches any
+widget that sets a fixed size.
+
+`spacr/qt/theme.py` carries `QPushButton { min-height: 22px; padding: 8px
+12px }`. `QStyleSheetStyle` does not merely draw that rule -- it polishes it
+into a REAL `setMinimumHeight` on the widget: 22 plus twice the 8px padding
+plus twice the 1px rim is 40. That call OVERWRITES the minimum that
+`setFixedSize(22, 22)` wrote. The maximum it wrote survives, so the well is
+left holding `min = (22, 40)` against `max = (22, 22)`, and Qt resolves a
+minimum taller than its maximum in favour of the minimum.
+
+The cure is for the cell to state its square in its OWN style sheet, which
+outranks the application's, in CONTENT-box numbers -- Qt adds border,
+padding and margin back on, so asking for 22 with a 1px rim polishes to 24.
+
+THE TEST DID NOT CATCH IT because it measured the plate against a bare
+QApplication, and it is the THEME that takes the square away. A geometry
+guard that runs without the application stylesheet is measuring an
+application nobody runs.
+
+--------------------------------------------------------------------------------
+WHY THE SECOND ONE IS NOT BROKEN, WHICH IS NOT THE SAME AS BEING SAFE
+--------------------------------------------------------------------------------
+
+`spacr/qt/screens/experiment_design.py` is a second plate viewer with its
+own `WELL_SIDE = 22` and the same `setFixedSize` pattern. It is not broken
+today, and the reason is luck rather than design: its `_Well` is a `QLabel`,
+and every `QLabel` rule in the generated stylesheet is object-name scoped
+(`QLabel#CardTitle`, `QLabel#HintBar`), so there is no blanket `QLabel`
+geometry rule for `QStyleSheetStyle` to polish in.
+
+The day anyone adds `QLabel { min-height: ... }`, or a padding to
+`#spacrPlateMap QLabel`, that plate unlocks exactly the way this one did --
+silently, with no test to say so.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+  * give the second viewer's cells the same self-stated square, so it is
+    locked by construction rather than by the absence of a rule;
+  * it duplicates `_Well`, `WELL_SIDE` and the whole drag selection rather
+    than importing them. One plate widget, imported twice, is the answer --
+    the two have already drifted once;
+  * every geometry guard on either plate runs THEMED. A guard that does not
+    apply the application stylesheet cannot see this class of defect at all.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * with a hostile blanket rule installed -- `QLabel { min-height: 60px;
+    padding: 9px }` -- every cell and both header strips on BOTH plates
+    still measure `WELL_SIDE` square;
+  * the two viewers import one `_Well` and one `WELL_SIDE` rather than
+    declaring their own;
+  * a press with no movement selects exactly one well, and a one-pixel
+    wobble keeps the wells already chosen.
