@@ -6530,7 +6530,32 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
         'results_gene': os.path.join(destination, 'results_gene.csv'),
         'significant': os.path.join(destination, 'results_significant.csv'),
     }
-    primary_table.to_csv(compatibility['results'], index=False)
+    # `results.csv` CARRIES EVERY LEVEL THE RUN PRODUCED, which is the
+    # convention the fitted path already follows: a level='both' regression
+    # writes its guide and gene rows into one table and the results panel
+    # filters them apart by the `level` column.
+    #
+    # This branch used to write the guide table alone, so a permutation run
+    # that HAD tested genes -- and written them to results_gene.csv -- showed
+    # a reader nothing when they asked for genes. The rows existed, in a file
+    # the panel never opens, because it loads results.csv and stops.
+    #
+    # The two tables do not share a schema (a gene has `wells_with_gene` and
+    # `guides_in_gene`; a guide has `wells_with_guide`), so the union carries
+    # blanks where a column belongs to the other level. That is correct: the
+    # question "how many wells hold this guide" has no answer for a gene.
+    levelled = primary_table.copy()
+    if 'level' not in levelled.columns:
+        levelled['level'] = 'grna'
+    if gene_primary is not None and len(gene_primary):
+        gene_rows = gene_primary.copy()
+        if 'level' not in gene_rows.columns:
+            gene_rows['level'] = 'gene'
+        combined = pd.concat([levelled, gene_rows], ignore_index=True,
+                             sort=False)
+    else:
+        combined = levelled
+    combined.to_csv(compatibility['results'], index=False)
     primary_table.to_csv(compatibility['results_grna'], index=False)
     # Written every run, empty when the pass could not be made, because a file
     # that is absent is indistinguishable from a run that crashed.
