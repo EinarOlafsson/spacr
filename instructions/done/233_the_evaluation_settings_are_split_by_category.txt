@@ -90,3 +90,34 @@ two the table says they are -- so the split and the families cannot drift
 apart.
 
 NO SETTING IS LOST AND NONE IS IN TWO PLACES, both asserted.
+
+
+--------------------------------------------------------------------------------
+RE-AUDIT 2026-08-26 -- THE SPLIT IS IN THE TABLE THE PANEL DOES NOT READ
+--------------------------------------------------------------------------------
+
+THE AUDIT WAS RIGHT AND IT LANDED IN THE WRONG TABLE. `settings.categories`
+does carry Model Evaluation, Evaluation Reports and Leakage Audit, and
+`tests/test_the_evaluation_settings_are_split.py` asserts the split against
+`classify.FAMILY_SETTINGS` exactly as this item asks. But the classify panel
+does not render `settings.categories`: `settings_model.categories_for_app`
+overrides it for `classify` and `classify_merged` with its own literal, and
+that literal still holds ONE heading called "Evaluation & Results".
+
+Measured through `categories_for_app`:
+
+    classify         24 keys under "Evaluation & Results"
+    classify_merged  28 keys under "Evaluation & Results"
+
+So "no section of the classify panel is a long undifferentiated list" is
+false on the panel, and the test that proves the split proves it about a
+table the panel overrides -- the same "a hand-written list that can drift"
+failure this item names, one layer up.
+
+NOT HALF-FIXED HERE. Re-splitting the panel literal is a layout decision:
+the three headings account for thirteen of the twenty-four keys, and the
+remaining eleven (plot, tensorboard, intermedeate_save, pin_memory,
+random_seed, n_jobs, verbose, strict_errors, max_failure_rate, and the two
+family exclusives) have no heading on this panel to go to, so any split
+invents at least one more. "The number of NEW headings is small" is a
+judgement this re-audit is not the place to make.

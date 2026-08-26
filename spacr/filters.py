@@ -72,6 +72,11 @@ IDENTITY_COLUMNS: Tuple[str, ...] = tuple(IDENTITY_ALIASES)
 #: The object key. Integer in every object table.
 OBJECT_COLUMN = "object_label"
 
+#: Which KIND of object a row is, in ``relationships``/``filters``. Not part
+#: of the measurement tables -- each of those is one kind already -- so it is
+#: named separately from :data:`IDENTITY_COLUMNS`.
+TYPE_COLUMN = "object_type"
+
 #: Timepoint spellings. Carried into ``filters`` when the database has one,
 #: because on a timelapse the same object label recurs every frame and a join
 #: without it is many-to-many -- the bug already documented in
@@ -761,7 +766,8 @@ def column_name_for(gate_name: str) -> str:
 
 
 def export_gate(db_path: str, frame: pd.DataFrame, inside: np.ndarray,
-                gate_name: str, *, rebuild: bool = False) -> Tuple[str, int]:
+                gate_name: str, *, rebuild: bool = False,
+                object_type: Optional[str] = None) -> Tuple[str, int]:
     """Write one gate to ``filters`` as a 1/0 column.
 
     :param frame: the objects the gate was evaluated on. Must carry the FULL
@@ -771,6 +777,15 @@ def export_gate(db_path: str, frame: pd.DataFrame, inside: np.ndarray,
     :param inside: boolean mask over ``frame``, True for objects in the gate.
     :param gate_name: names the column.
     :param rebuild: rebuild the identity table first, discarding gate columns.
+    :param object_type: which kind of object ``frame`` holds -- the name of
+        the measurement table it was read from. GIVE IT WHENEVER YOU KNOW
+        IT. ``filters`` holds cells, nuclei and pathogens side by side, and
+        ``object_label`` is unique within a field only for ONE kind: a merge
+        that leaves the type out writes a gate drawn on nucleus 2 onto cell
+        2 as well, which is the same wrong answer
+        :func:`require_full_identity` exists to prevent, one axis over.
+        ``None`` keeps the type-blind merge for a caller that genuinely
+        cannot say, and for a database with no ``object_type`` column.
     :returns: ``(column name, objects marked)``.
     :raises FilterError: the frame is missing any part of the object identity,
         or the mask does not match it.
@@ -799,6 +814,9 @@ def export_gate(db_path: str, frame: pd.DataFrame, inside: np.ndarray,
             f"object key, so the gate cannot be merged onto it")
 
     marked = frame.loc[inside, shared].drop_duplicates().copy()
+    if object_type and TYPE_COLUMN in filters.columns:
+        marked[TYPE_COLUMN] = str(object_type)
+        shared = shared + [TYPE_COLUMN]
     marked[column] = 1
 
     if column in filters.columns:
@@ -927,7 +945,8 @@ def annotate_from_gates(frame: pd.DataFrame, gates, names: Sequence[str], *,
 
 
 def export_annotation(db_path: str, frame: pd.DataFrame, labels: pd.Series,
-                      column: str) -> Tuple[str, int]:
+                      column: str, *,
+                      object_type: Optional[str] = None) -> Tuple[str, int]:
     """Write a gate-derived annotation to ``filters`` as one column.
 
     Through the same path a single gate takes, so an annotation and a filter
@@ -950,6 +969,9 @@ def export_annotation(db_path: str, frame: pd.DataFrame, labels: pd.Series,
         :func:`column_name_for`; an existing column of that name is dropped
         and replaced. Objects outside ``frame`` are left NULL rather than
         filled, since a multiclass annotation has no zero.
+    :param object_type: which kind of object ``frame`` holds, for the same
+        reason :func:`export_gate` takes it: without it an annotation of
+        nucleus 2 also lands on cell 2.
     :returns: ``(column name, objects labelled)``.
     :raises FilterError: ``frame`` is missing any part of the object identity,
         or shares no object key with the ``filters`` table.
@@ -968,6 +990,9 @@ def export_annotation(db_path: str, frame: pd.DataFrame, labels: pd.Series,
     marked = frame[shared].copy()
     marked[name] = labels.to_numpy()
     marked = marked.drop_duplicates(subset=shared)
+    if object_type and TYPE_COLUMN in filters.columns:
+        marked[TYPE_COLUMN] = str(object_type)
+        shared = shared + [TYPE_COLUMN]
 
     if name in filters.columns:
         filters = filters.drop(columns=[name])

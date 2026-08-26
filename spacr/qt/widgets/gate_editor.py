@@ -35,7 +35,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import logging
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -2433,15 +2433,49 @@ class GateTree(QWidget):
         finally:
             self._rebuilding = False
 
+    #: What the count column reads for a gate this table cannot answer.
+    UNAVAILABLE = "n/a"
+
+    def _gate_stats(self):
+        """``(stats by gate name, reason by gate name)`` for this frame.
+
+        :meth:`GateSet.stats` is all-or-nothing: it walks every gate and the
+        first one whose columns are absent raises, taking the counts of every
+        OTHER gate with it. Dropping the nucleus table from the working set
+        must cost the nucleus gates their numbers and nothing else, so the
+        fallback here evaluates gate by gate and keeps the reason for each
+        one it could not.
+        """
+        try:
+            return {s.name: s for s in self._gates.stats(self._frame)}, {}
+        except GateError as exc:
+            LOG.info("some gates do not apply to this table: %s", exc)
+
+        from .gate_spec import GateStats
+
+        stats: Dict[str, Any] = {}
+        why: Dict[str, str] = {}
+        total = int(len(self._frame))
+        counts: Dict[str, int] = {}
+        for gate in self._gates.order():
+            try:
+                n_in = int(self._gates.mask(self._frame, gate.name).sum())
+            except Exception as gate_exc:
+                why[gate.name] = str(gate_exc)
+                continue
+            counts[gate.name] = n_in
+            n_parent = (counts.get(gate.parent, total) if gate.parent
+                        else total)
+            stats[gate.name] = GateStats(
+                name=gate.name, depth=self._gates.depth(gate.name),
+                n_total=total, n_parent=n_parent, n_in=n_in)
+        return stats, why
+
     def _rebuild(self, current: str) -> None:
         self.tree.clear()
         if self._frame is None:
             return
-        try:
-            stats = {s.name: s for s in self._gates.stats(self._frame)}
-        except GateError as exc:
-            LOG.info("gates do not apply to this table: %s", exc)
-            stats = {}
+        stats, unavailable = self._gate_stats()
         items: Dict[str, QTreeWidgetItem] = {}
         for gate in self._gates.order():
             stat = stats.get(gate.name)
@@ -2450,6 +2484,11 @@ class GateTree(QWidget):
                 labels = [gate.name, f"{stat.n_in:,}",
                           f"{100.0 * stat.of_parent:.1f}%",
                           f"{100.0 * stat.of_total:.1f}%"]
+            elif gate.name in unavailable:
+                # Says so rather than vanishing: the gate keeps its row and
+                # its colour, and the count column carries the fact that this
+                # working set cannot answer it.
+                labels = [gate.name, self.UNAVAILABLE, "", ""]
             item = QTreeWidgetItem(labels)
             item.setData(0, Qt.UserRole, gate.name)
             item.setCheckState(0, Qt.Unchecked if gate.name in self._disabled
@@ -2460,7 +2499,13 @@ class GateTree(QWidget):
                 # makes colour-coding useful: a colour on the plot that is not
                 # also in the list is a colour with nothing to look it up in.
                 item.setForeground(0, QBrush(QColor(colour)))
-            item.setToolTip(0, gate.describe())
+            reason = unavailable.get(gate.name)
+            if reason:
+                item.setToolTip(0, f"{gate.describe()}\n\nNot applicable to "
+                                   f"the tables in the working set: {reason}")
+                item.setToolTip(1, reason)
+            else:
+                item.setToolTip(0, gate.describe())
             parent_item = items.get(gate.parent) if gate.parent else None
             if parent_item is None:
                 self.tree.addTopLevelItem(item)

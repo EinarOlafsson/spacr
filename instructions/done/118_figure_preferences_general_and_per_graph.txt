@@ -376,3 +376,47 @@ nothing. They assert what a drawn figure gets -- rc_params(resolve(...))
 -- which is the path a figure actually takes. The reset test was seeded
 with white first, because a reset from the default to the default proves
 nothing.
+
+--------------------------------------------------------------------------------
+2026-08-26 -- RE-AUDIT: THE PALETTE WAS THE ONE SETTING THAT NEVER ARRIVED
+--------------------------------------------------------------------------------
+
+The second acceptance line held when driven: a volcano-specific `marker_size`
+of 44 leaves `plate_heatmap` on its own 28, and `resolve` layers general
+defaults, general preferences, graph defaults and graph overrides in that
+order.
+
+THE FIRST ONE DID NOT. "Changing the palette in Preferences changes the next
+run's figures without any per-figure work" was false, and had been since the
+house style became the draw path. Driven on a sandboxed store:
+
+    set_figure_style({"palette": "viridis"})
+    with figure_style("screen"):
+        plt.rcParams["axes.prop_cycle"]   -> Matplotlib's own tab10
+
+WHY, and it is a seam rather than a typo. Every other general setting travels
+because it is an entry in `figure_style.rc_params`, which is what
+`figures.style.user_overrides` DIFFS to find what the user moved. The palette
+was never an entry there: the only code that applied it was
+`figure_style._apply_palette`, reached from `figure_style.apply`, reached from
+`preferences.apply_figure_style` -- and `apply_figure_style` has no caller in
+the package. Its docstring calls itself "the one call a plotting function
+needs" and no plotting function makes it. So the palette row in the dialog
+stored a value, the panel showed it back, and nothing drew with it.
+
+FIXED where the seam is. `palette_colours(name)` is the palette lookup on its
+own -- seaborn's names when it is installed, spaCR's `PALETTE` otherwise --
+and `rc_params` now emits `axes.prop_cycle` from it. `_apply_palette` reads
+the same function, so there is one answer to "what colours is this palette"
+rather than two.
+
+AN UNTOUCHED INSTALL IS UNAFFECTED, which is the property that made this safe:
+the stores hold DELTAS, and `user_overrides` returns only keys where the
+resolved style differs from the untouched one, so a user who never picked a
+palette gets no `axes.prop_cycle` override and Matplotlib's cycle stands.
+
+3 tests in tests/test_the_palette_preference_reaches_a_figure.py, including
+the per-graph case (a volcano palette overrides the general one for volcanoes
+and for nothing else) and the untouched-install case. Confirmed failing
+before the fix and passing after. 148 pass across the figure-style,
+preferences and saved-figure suites.

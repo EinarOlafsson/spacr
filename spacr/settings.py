@@ -4304,7 +4304,7 @@ tooltips = {
     "verbose": "(bool) - Print extra run detail instead of the minimal log: the resolved settings table, the channel and model choices per object type, per-table row counts, and how many objects survive each filter. It only adds console output, so turn it on when object counts come out unexpected and you need to see which stage removed them. The default differs per pipeline -- True for mask, UMAP, screen analysis, barcode mapping and Cellpose training; False for measure, the plotting helpers and regression.",
     "weight_decay": "(float) - L2 penalty applied to the weights on every optimizer step (AdamW applies it decoupled from the gradient). Raise it, toward 1e-3 to 1e-2, when validation loss climbs while training loss keeps falling; lower it toward 0 when the model cannot fit the training set at all. Every supported optimizer honours it. Default 0.00001.",
     "width_height": "(list of int) - [width, height] in pixels that every crop is resized to before it reaches the model, so a batch is uniform. Must match what the model was trained on. Default [224, 224].",
-    "file_type": "(str) - Substring that selects which object crops go into the dataset - only png_list rows whose PNG path contains it are used, e.g. 'cell_png', 'nucleus_png', 'pathogen_png', 'cytoplasm_png' or 'organelle_png'. In the GUI this one field writes both file_type and png_type, and only png_type is read downstream, so the two always hold the same value. Default 'cell_png'.",
+    "file_type": "(str) - Image FORMAT the pre-generated crops are in, as a file extension: 'png', 'tif', 'tiff', 'jpg', 'jpeg', 'bmp' or 'npy'. It is a format filter and nothing else - WHICH OBJECT a crop is of is path_string's job, so the pair can express 'every nucleus crop, whatever format' and 'every TIFF, whatever object', which one combined setting never could. A legacy value of the form '<object>_png' is still accepted and read as its extension, so an old settings file keeps working. Blank accepts any format. Default 'cell_png', which is read as 'png'.",
     "model_path": "(str) - Path to a trained spaCR classifier saved as a whole PyTorch object (loaded with torch.load(weights_only=False), not a state_dict). Used when applying a model to a dataset tar and when generating activation maps. deep_spacr overwrites it with the freshly trained model whenever train is True, so set it only to score with an existing model. Default ''.",
     "dataset": "(str) - Path to the .tar archive of single-object PNG crops produced by generate_dataset, which the activation-map step opens with TarImageDataset. The plate folder is inferred two levels above it and CAM outputs are written next to it under <tar_name>/<cam_type>/. Must be a full path, not just a file name. Default ''.",
     "score_threshold": "(float) - Probability cutoff (0-1) applied to the model's positive-class score when deriving the binary cv_predictions column: pred >= threshold becomes 1. The raw probability is always saved alongside it, so this only changes the hard call, not the score. Lower it to catch more positives at the cost of false positives; raise it for precision. Default 0.5.",
@@ -4662,7 +4662,7 @@ tooltips = {
     'pathogen_loc': "(list of lists) - Well locations of each pathogen condition, one inner list per name in pathogens, read by annotate_filter_vision when labelling vision-model score CSVs. Every entry must be a row or column ID string such as 'c1' or 'r3'; ranges are not expanded and unmatched entries leave those wells NaN. Set it alongside pathogens, or leave both None. Default None.",
     'pathogens': "(list) - Names of the pathogen conditions scored by annotate_filter_vision, e.g. ['wt','mutant']. Element i is written into the pathogen column for every well in pathogen_loc[i] and folded into the combined condition label. Must match pathogen_loc element for element; if pathogen_loc is None, only the first name is applied to every row. Default None.",
     'path_string': "(str) - A substring that must appear in a crop's path for it to join the dataset, e.g. 'cell_png' or 'nucleus_png'. It was called png_type, which named a type it never was: this is a path filter and nothing more. The old name still works. Default 'cell_png'.",
-    'crop_source': "(str) - Select where image crops come from. Viewers use 'png' (LOAD IMAGES) for exported crops in data/ or 'merged' (STREAM IMAGES) to cut from merged/*.npy using the measurements database; spaCR reports any fallback. Training uses 'pre_generated' for existing crops, 'on_demand' to cut during training, or 'generate' to write a crop set first. Controls that do not apply to the selected source are disabled. Default 'png' in viewers and 'pre_generated' in training.",
+    'crop_source': "(str) - Select where a viewer's image crops come from. 'png' is LOAD IMAGES: the crops already exported under data/. 'merged' is STREAM IMAGES: cut from merged/*.npy using the measurements database. An unavailable source falls back to the other one and says so. Training names the same two choices through image_source, as 'load_images' and 'stream_images'; older spellings in a saved settings file still load. Controls that do not apply to the selected source are disabled. Default 'png' in viewers.",
     'object_array': "(str) - On-demand crops: which object the crops are cut around - 'cell', 'nucleus', 'pathogen', 'cytoplasm' or 'organelle'. Its mask plane in merged/*.npy is what defines each object's extent. Default 'cell'.",
     'coordinate_columns': "(list) - On-demand crops from a DATABASE instead of masks: the columns holding each object's position, e.g. ['centroid_x', 'centroid_y']. Only bounding-box crops are possible this way, because a coordinate has no outline. None uses the merged masks, which is the default and the better source. Default None.",
     'crop_shape': "(str) - 'bounding_box' cuts the smallest rectangle containing the object; 'object' masks everything outside it away. Database-sourced crops can only be bounding boxes. Default 'bounding_box'.",
@@ -5896,6 +5896,68 @@ def get_setting_dependencies():
                 f"inputs hold one plate. There is nothing between batches to "
                 f"remove: batch_correction='none' gives an identical result. "
                 f"The value is kept and saved."),
+        )
+
+    # WHERE THE PIXELS COME FROM, and what each route actually reads.
+    # `image_source` chooses between reading exported crops and cutting them
+    # from merged planes, and `stream_method` chooses how the streamer finds
+    # its objects. The settings the chosen route does not read must not sit
+    # on screen asking to be filled in: a control that changes nothing is
+    # indistinguishable from one that does, and the user finds out at run
+    # time or not at all.
+    #
+    # FROM `stream_dataset.METHOD_SETTINGS`, never a second list here. That
+    # table is what the STREAMER reads; a copy in the settings module would
+    # drift from it, and the symptom would be a live control the run ignores
+    # -- which is the exact failure this gate exists to prevent. The module
+    # imports numpy and pandas and nothing heavier, so this stays off the
+    # plotting stack the panel build is tested for.
+    from .stream_dataset import METHOD_SETTINGS as _METHOD_SETTINGS
+
+    def _streaming(settings) -> bool:
+        return _canonical_image_source(
+            settings.get('image_source', settings.get('crop_source'))
+        ) == 'stream_images'
+
+    setting_dependencies['load_path_regex'] = _combined(
+        setting_dependencies.get('load_path_regex'),
+        ('image_source',),
+        lambda settings, context: not _streaming(settings),
+        lambda settings, context: (
+            "load_path_regex selects crops that were already exported, and "
+            "image_source is 'stream_images', which cuts them from the "
+            "merged arrays instead. The value is kept and saved."),
+    )
+
+    _stream_only = tuple(dict.fromkeys(
+        ['stream_method',
+         *(key for keys in _METHOD_SETTINGS.values() for key in keys)]))
+    for _key in _stream_only:
+        setting_dependencies[_key] = _combined(
+            setting_dependencies.get(_key),
+            ('image_source',),
+            lambda settings, context: _streaming(settings),
+            lambda settings, context, key=_key: (
+                f"{key} is read only while streaming, and image_source is "
+                f"'load_images', which reads crops that already exist. The "
+                f"value is kept and saved."),
+        )
+
+    # AND WITHIN STREAMING, ONLY THE CHOSEN METHOD'S OWN SETTINGS. An
+    # unrecognised method greys nothing: a control disabled because a
+    # settings file named a method spaCR never had is a control nobody can
+    # re-enable from the panel.
+    for _key in _stream_only[1:]:
+        setting_dependencies[_key] = _combined(
+            setting_dependencies.get(_key),
+            ('stream_method',),
+            lambda settings, context, key=_key: key in _METHOD_SETTINGS.get(
+                str(settings.get('stream_method') or '').strip().lower(),
+                _stream_only[1:]),
+            lambda settings, context, key=_key: (
+                f"{key} is not read when stream_method is "
+                f"{settings.get('stream_method')!r}. The value is kept and "
+                f"saved."),
         )
 
     return setting_dependencies

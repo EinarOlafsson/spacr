@@ -196,3 +196,40 @@ real and is the part a human still has to sample.
 
 tests/test_translation_correctness.py (6) and
 tests/test_docstring_correctness.py (2).
+
+--------------------------------------------------------------------------------
+RE-AUDIT (2026-08-26) -- HOLDS, WITH ONE RENAMED ENVIRONMENT VARIABLE
+--------------------------------------------------------------------------------
+
+Re-run, not re-read:
+
+  * tests/test_translation_correctness.py (7) and
+    tests/test_docstring_correctness.py (2) pass. Placeholder parity,
+    protected terms and key parity are driven off `spacr.qt.i18n.CATALOGS`,
+    which is discovered rather than listed -- 9 runtime catalogs of 439
+    entries each today, up from the 253 recorded above, and the checks
+    widened with them without an edit. The installer catalogs are globbed
+    from `packaging/i18n/` (10 files).
+  * Both run in CI: .github/workflows/tests.yml runs `tests/` whole.
+  * tests/test_tooltip_length_and_shape.py passes; no tooltip is an archive.
+  * tests/test_tooltip_api_links_resolve.py runs for real in
+    .github/workflows/docs.yml, immediately after the sphinx build, and skips
+    everywhere else. It is no longer coverage that proves nothing.
+
+CORRECTION. The RESULT above names the gate variable `SPACR_DOCS_ROOT`. There
+is no such variable anywhere in the tree; the test and the docs job both use
+`SPACR_DOCS_BUILT=1`. The instruction file was the only place the old name
+survived.
+
+ALSO RENAMED SINCE. Three of the five docstrings the ratchet admitted have
+been renamed by the sweep-vs-search consolidation: `SearchSpace` is
+`SweepSpace`, `run_search` is gone, and `summarise_search` is
+`summarise_sweep`. `build_trials` still exists. The names above are the names
+they had on 2026-08-15 and are left as the record of what was reviewed.
+
+THE DOCSTRING RATCHET IS HELD ON PURPOSE and is not a defect of this item.
+`test_public_docstrings_matches_reviewed_visible_coverage` reads 8190 against
+a measured 8256 today; the review that would move it is owned elsewhere. The
+"moved because docstrings were reviewed, not because a constant was edited"
+discipline is intact -- the comment block above the constant still enumerates
+its admissions by module.

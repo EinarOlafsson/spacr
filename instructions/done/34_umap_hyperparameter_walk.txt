@@ -149,3 +149,40 @@ HOW TO KNOW IT WORKED, for the parts closed here: a Walk over three
 parameters runs, explores all three, and the setting is called Walk in both
 modules. Verified -- a 3-axis Walk ran end to end, 24 trials over 2 rounds,
 with `spread` genuinely varied.
+
+--------------------------------------------------------------------------------
+2026-08-26 - AUDIT: THE THREE-PARAMETER WALK COULD NOT RUN FROM THE PANEL
+--------------------------------------------------------------------------------
+
+Re-audited against "Run a Walk over three parameters". It did not run.
+
+CAUSE. `HyperparamPanel.run_search` takes its space from
+`current_adaptive_space()` while the Walk is on, and that method built the
+starting centre from three fields only -- n_neighbors, min_dist, metric. The
+axes chosen in the Axes dialog were passed separately as
+`request.walk_parameters`, so a Walk over n_neighbors x min_dist x spread
+reached `umap_walk_axes` with a centre that had no `spread` in it and the
+engine refused the whole run:
+
+    ValueError: A Walk needs one starting value per searched parameter;
+                missing ['spread'].
+
+`current_space()` HAD the code for this -- its `walking` branch adds one
+starting value per chosen axis -- but that branch is unreachable during a
+Walk, because `run_search` calls the other method. The panel tests all
+called `current_space()` directly, so they proved something about a method
+the run never uses.
+
+FIXED. `current_adaptive_space()` now folds every chosen axis into the
+centre, from the axis's own start or from `walk_start_for`, refusing a
+multi-valued start by name. Two tests in
+`tests/qt/test_walk_axes_dialog.py::TestTheChosenAxesReachTheRun` cover the
+run's own method and the engine's acceptance of what it builds; both fail
+without the fix.
+
+ALSO RENAMED, part 1 finished. The toggle said "Walk" but everything around
+it still said "adaptive 2x2": the running-status line ("adaptive 2x2 search
+over at most 100 rounds"), the n-trials and resume tooltips, the maximum-
+rounds tooltip and the increments error. The status line was not merely old
+naming -- it announced a 2x2 for a search over however many axes the user
+chose. It now names the Walk and the parameters it is walking.

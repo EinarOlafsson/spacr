@@ -208,6 +208,16 @@ The other current core modules move:
 ("Toxoplasma" was the first name given for the Assays category and then
 changed to Assays in the same message. Assays is the name.)
 
+(AUDIT 2026-08-26: the move landed and was then SUPERSEDED by the fold
+work in 242 and 246, which is a later decision rather than a regression.
+None of the three is a tile in any category now: Timelapse is a button on
+Mask, Motility a button on Measure and Curate a button on Make Masks, and
+`tests/qt/test_the_folded_rows_left_the_registry.py` holds the rule that
+a folded key is not also a tile. Driven today, Core is exactly the six
+this section asks for, in this order -- mask, measure, annotate,
+classify, map_barcodes, regression -- and Assays holds the four assay
+modules: Plaque, Recruitment, Invasion and Replication.)
+
 THE API REFERENCE AND THE README FOLLOW. "for all modules that move to
 different categories make sure the API reference reflects this as well as
 the readme and anything else where they are referenced. same for those that

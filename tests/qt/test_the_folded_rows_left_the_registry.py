@@ -265,3 +265,43 @@ def test_the_headless_paths_never_went_through_the_row():
     assert cli.resolve_module("illumination") is not None
     assert APP_FUNCTIONS["illumination"] == (
         "spacr.illumination.prepare_illumination_correction")
+
+
+def test_spacr_run_answers_for_every_folded_key():
+    """A folded key is still a name a user types, so it must be a name the
+    CLI knows.
+
+    Folding drops the registry row, and the row is what
+    ``_absorb_registered_gui_only`` reads to explain a GUI-only module. A
+    key that neither resolves to a module nor appears in
+    :data:`spacr.cli.INTERACTIVE_ONLY` answers ``unknown module`` and then
+    suggests a near spelling -- telling somebody who typed the right name
+    that they typed the wrong one.
+    """
+    from spacr import cli
+
+    folded = sorted(set().union(*_folded_by_host().values()))
+    assert folded, "no folds found; the sweep would pass vacuously"
+    silent = [key for key in folded
+              if cli.resolve_module(key) is None
+              and key not in cli.INTERACTIVE_ONLY]
+    assert not silent, (
+        "`spacr-run <key>` says 'unknown module' for these folded keys, so "
+        "the fold took away the only name they answered to: "
+        + ", ".join(silent))
+
+
+def test_the_interactive_only_sentence_names_a_real_headless_route():
+    """The sentence sends the reader to Python; the attribute must be there."""
+    import importlib
+
+    from spacr import cli
+
+    for key, dotted in (("hit_list", "spacr.hits:build_hit_list"),
+                        ("methods_export",
+                         "spacr.methods_export:build_digest"),
+                        ("napari_bridge", "spacr.napari_bridge:correct_mask")):
+        assert key in cli.INTERACTIVE_ONLY
+        module_name, attribute = dotted.split(":")
+        module = importlib.import_module(module_name)
+        assert hasattr(module, attribute), dotted

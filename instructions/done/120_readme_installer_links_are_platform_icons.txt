@@ -299,3 +299,51 @@ The row was inspected at its actual 64 px README width on both light and dark
 backgrounds. All 43 focused icon/archive tests pass; they now assert the exact
 colour, 80% geometry, aligned output canvases, empty caption strips on the
 three platform buttons, the external legacy caption, and reproducible output.
+
+--------------------------------------------------------------------------------
+RE-AUDIT (2026-08-26) -- THE ROW IS RIGHT; THREE DETAILS ABOVE ARE NOT
+--------------------------------------------------------------------------------
+
+EVERY ACCEPTANCE LINE HOLDS, checked rather than assumed.
+
+  * Three platform icons stand where the download links were, with the legacy
+    tile fourth. `test_no_platform_is_left_as_a_bare_text_link` holds it.
+  * Both GitHub themes. Measured on the committed pixels: the tile is #15181F
+    and the mark is #FFFFFF, so on GitHub's light page the TILE carries the
+    icon (17.8:1 against white) and on the dark page the MARK does (18.9:1
+    against #0d1117). Neither ground can swallow both.
+  * Nothing is hotlinked. The four `image::` paths are repository-relative
+    (`spacr/resources/icons/platforms/*.png`), so they resolve against
+    whatever branch is being viewed.
+  * Every link resolves. Fetched, not assumed -- the Linux .run, the macOS
+    .pkg and the Windows .exe for v1.5.0.4 each return 200, and the legacy
+    tile's relative `docs/source/installers.rst` renders on `nightly`. `main`
+    carries no icon row at all, so nothing there is broken.
+  * One row of equal choices: four 512x512 buttons on a common 512x600
+    canvas, each white mark fitted to 404-410 px -- 80% of the button, within
+    a pixel or two of each other.
+
+CORRECTIONS TO THE RESULT SECTIONS ABOVE, which have drifted from the assets:
+
+  * THE TILE IS #15181F, not #2B2F3A. The last two RESULT sections name
+    #2B2F3A; the committed PNGs and
+    `test_tiles_are_slate_squares_with_only_small_corner_rounding` both say
+    #15181F. The 32 px corner radius is unchanged.
+  * THERE IS NO "Legacy" CAPTION. The RESULT describes `Legacy` drawn below
+    the legacy button in the 88 px strip under the square. That strip is
+    fully transparent on all four tiles today, and
+    `test_legacy_uses_the_spacr_mark_without_a_caption` asserts it stays that
+    way -- the caption is the README's own sentence ("The spaCR icon opens
+    the complete installer archive") instead of ink in the image.
+  * THE ARTWORK IS NOT SERVED FROM A BRANCH URL. The 2026-08-19 RESULT
+    records switching the image URLs from `main` to `nightly` to fix three
+    404s; they are repository-relative paths now, which is why the delivery
+    problem cannot come back when the branch changes.
+
+52 pass across tests/test_readme_installer_icons.py and
+tests/test_installer_archive_page.py.
+
+NOT THIS ITEM. Three tests in tests/test_readme_presentation.py fail on the
+README's WORKFLOW buttons -- 56 buttons against a home-screen registry of 36
+-- which is the module-consolidation gap the app-registry ratchets are held
+for, not the installer row.

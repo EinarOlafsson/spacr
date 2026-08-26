@@ -511,6 +511,38 @@ def test_a_filter_still_lands_on_the_relationship_backed_table(tmp_path):
     assert written[column].sum() == marked
 
 
+def test_a_gate_on_nuclei_does_not_also_mark_the_cell_of_that_LABEL(tmp_path):
+    """`object_label` is unique in a field for ONE KIND of object.
+
+    `filters` holds cells, nuclei and pathogens side by side, so a merge on
+    the identity alone joins nucleus 2's gate onto CELL 2 -- which is a
+    different object that may not even own that nucleus. Here nucleus 2
+    belongs to cell 1, so a cell 2 marked 1 is provably wrong rather than
+    coincidentally right.
+
+    The relationship is the route from a nucleus gate to a cell:
+    `parent_label`, which the filters table already carries.
+    """
+    path = _make_db(tmp_path, {"cell": _object_frame(n=3),
+                               "nucleus": _child([1, 1, 3])})
+    nuclei = pd.read_sql_query("SELECT * FROM nucleus", sqlite3.connect(path))
+    inside = (nuclei["area"] >= 10.0).to_numpy()
+
+    column, marked = export_gate(path, nuclei, inside, "bright_nucleus",
+                                 object_type="nucleus")
+    written = pd.read_sql_query(f"SELECT * FROM {FILTERS_TABLE}",
+                                sqlite3.connect(path))
+
+    assert marked == int(inside.sum())
+    cells = written[written["object_type"] == "cell"]
+    assert cells[column].sum() == 0, (
+        "a gate drawn on nuclei marked cells that share a label")
+    gated = written[(written["object_type"] == "nucleus")
+                    & (written[column] == 1)]
+    assert sorted(gated["parent_label"].dropna()) == [1, 3], (
+        "the cells a nucleus gate reaches are its parents, not its namesakes")
+
+
 def test_every_single_object_database_builds_relationships(tmp_path):
     for only in ("cell", "nucleus", "pathogen", "organelle"):
         path = _make_db(tmp_path, {only: _object_frame(n=2)},

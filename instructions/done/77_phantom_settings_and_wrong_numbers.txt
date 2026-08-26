@@ -1433,3 +1433,39 @@ correction fails 13 of them.
 VERIFIED BY RUNNING:  tests/qt/test_the_panel_keeps_module_defaults.py (116
 passed), tests/test_wrong_numbers_77.py and
 tests/test_spacrops_settings_are_honoured.py (20 passed).
+
+--------------------------------------------------------------------------------
+2026-08-26 -- RE-AUDIT: FINDING 23'S SITE WENT WITH THE Tk FRONT END
+--------------------------------------------------------------------------------
+
+The 2026-08-25 symbol audit above caught four names that no longer exist. It
+missed a fifth, and it is a whole FILE rather than a symbol:
+
+  `spacr/gui_core.py`   (finding 23)  deleted with the Tk front end. The
+      finding was "Tk 'Import settings' rebuilds the Classify panel from
+      `set_default_train_test_model` while `setup_settings_panel` built it
+      from `deep_spacr_defaults`, so every key only the second declares loses
+      its widget on import". The closing table lists 23 under "fixed
+      elsewhere, unrecorded ... confirmed by reading the cited site", and the
+      cited site is gone.
+
+CHECKED AGAINST Qt RATHER THAN ASSUMED, because a deleted file is not by
+itself an answer -- the defect could have been ported. It was not:
+
+  * `AppScreen._on_import_settings` parses the CSV and calls
+    `apply_settings_dict` on the panel that is already built. There is no
+    rebuild and no second defaults factory on the import path, which is the
+    whole mechanism of the finding.
+  * The Qt Classify panel is built from `deep_spacr_defaults`
+    (`qt/screens/settings_model.py:253`), which is the same factory
+    `deep_spacr.py:3775` applies at run time. Panel and run agree by
+    construction.
+  * The two factories still disagree exactly as the finding described --
+    `deep_spacr_defaults` gives `loss_type='auto'` and declares
+    `apply_model_to_dataset` and `model_path`; `set_default_train_test_model`
+    gives `loss_type='focal_loss'` and declares neither -- but nothing under
+    `spacr/qt/` calls the second one, so the disagreement is no longer
+    reachable from a panel.
+
+So finding 23 is CORRECTLY CLOSED, for a reason the file did not record: the
+surface it lived on was deleted, and the surviving surface never had it.

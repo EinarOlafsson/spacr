@@ -64,6 +64,35 @@ writing if wrong:
   * `multivariate`   -- NO, same reasoning.
   * `attributed`     -- UNKNOWN, stated as unknown. Settle it and say which.
 
+SETTLED AGAINST THE CODE. The guesses above are kept as the record of what
+was asked; two of the four were wrong, and this is the answer
+`spacr/cell_montage.py` gives. The picker is `cell_picking`, and it has five
+values, not four -- `sudoku` was not in the list above.
+
+  * `rank` (the `top_by_score` above, and the DEFAULT)
+        YES. It takes the N cells the fraction supports and every other cell
+        in the well is `Non_annotated`. The guess was right.
+  * `attributed`
+        YES -- the one stated as unknown. `attribute_well` calls a cell for a
+        guide only when the posterior clears `picking_threshold` (0.55), so a
+        cell whose evidence clears nothing is called for nothing.
+  * `assigned`
+        NO, and the guess was right for the reason given. `assign_well`
+        hands EVERY cell in the well exactly one guide, so its count is
+        exact by construction rather than by rounding, and no cell is left
+        over. (A cell assigned to a DIFFERENT guide is still not this
+        guide's, so it is drawn as `Non_annotated` on this montage -- that
+        is the view saying "not this one", not the method abstaining.)
+  * `multivariate`
+        YES, and the guess was WRONG. It reads the same threshold as
+        `attributed` regardless of the prior, and falls back to `attributed`
+        outright when there is no sweep grid or one guide in the well -- so
+        it abstains exactly where `attributed` does.
+  * `sudoku`
+        YES, explicitly: `spacr.sudoku.ABSTAIN` IS the string
+        `Non_annotated`, which is why the two annotation routes put the same
+        word in the same place.
+
 Where a method genuinely cannot produce an unannotated object, the
 `Non_annotated` group must be ABSENT rather than empty -- an empty group in a
 legend is a question the reader has to answer.
@@ -345,8 +374,8 @@ ALL THREE PARTS, DONE
 
 Tests: `tests/test_the_shown_cells_are_all_named.py`, 10 passing.
 
-STILL WORTH DOING, and not part of this instruction: the capacity of each
-method to produce unannotated cells was settled in section C above --
-`rank` yes, `attributed` yes, `assigned` no, `multivariate` yes -- and the
-maintainer's guess about `multivariate` was wrong, because it thresholds at
-0.55 like `attributed` regardless of the prior.
+The capacity of each method to produce unannotated cells is settled in
+section C above, WHERE THE GUESS IT CORRECTS IS -- `rank` yes, `attributed`
+yes, `assigned` no, `multivariate` yes, `sudoku` yes -- and the maintainer's
+guess about `multivariate` was wrong, because it thresholds at 0.55 like
+`attributed` regardless of the prior.

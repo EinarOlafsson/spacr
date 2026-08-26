@@ -147,7 +147,15 @@ def test_gates_that_do_not_fit_this_table_are_still_listed_without_counts(
     The counts cannot be computed -- the measurement is not there -- but
     dropping the rows would leave the user with an empty panel and no way to
     see, rename or delete the gates they just loaded.
+
+    The count column now SAYS the row cannot be answered rather than being
+    left blank: a blank cell reads as "zero objects" or as a slow redraw, and
+    instruction 41 asks that a gate whose table left the working set say so.
+    The property this test was written for is unchanged -- no NUMBER is
+    printed for a count that does not exist.
     """
+    from spacr.qt.widgets.gate_editor import GateTree
+
     gates = GateSet()
     gates.add(_pair(name="ghost", x="not_measured"))
     tree.set_gates(gates, grid)
@@ -155,8 +163,10 @@ def test_gates_that_do_not_fit_this_table_are_still_listed_without_counts(
     assert tree.tree.topLevelItemCount() == 1
     item = tree.tree.topLevelItem(0)
     assert item.text(0) == "ghost"
-    assert (item.text(1), item.text(2), item.text(3)) == ("", "", ""), \
+    assert (item.text(1), item.text(2), item.text(3)) == (
+        GateTree.UNAVAILABLE, "", ""), \
         "an uncomputable count was printed as a number"
+    assert "not_measured" in item.toolTip(0)
 
 
 def test_the_gates_own_colour_is_shown_on_its_name(tree, grid):

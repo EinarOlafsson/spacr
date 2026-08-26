@@ -22,7 +22,7 @@ track counts in audits can become stale.
 
 ### 1. Freeze scope and ownership
 
-1. Read `instructions/open/48_optimize_the_tutorials.txt`, especially its latest
+1. Read `instructions/done/48_optimize_the_tutorials.txt`, especially its latest
    authoritative English narration contract and ownership note.
 2. Locate the publishing workspace named there. Treat its `production/`,
    `catalog/`, and `tools/` as source; never hand-edit the derived

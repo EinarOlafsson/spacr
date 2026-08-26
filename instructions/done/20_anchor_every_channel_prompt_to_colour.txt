@@ -107,3 +107,37 @@ png_dims translates the way it always looked on screen, that an explicit
 mapping beats a stale list, that a mis-keyed colour raises instead of
 silently dropping a stain, that the channel SETS are still lists, and that
 channels_from_settings is the single translation point.
+
+--------------------------------------------------------------------------------
+2026-08-26 -- RE-AUDIT: THE SURVEY MISSED ONE, AND IT WAS A GUI CONTROL
+--------------------------------------------------------------------------------
+
+The settings survey above is still correct -- re-checked against
+`expected_types`, and no channel setting has changed kind. But the criterion
+is "no setting ANYWHERE IN THE GUI asks for a colour by list position", and
+the survey was of settings, not of controls.
+
+FOUND: the Measure crop preview
+(`spacr/qt/widgets/measure_preview.py`) asked for exactly that. A free-text
+QLineEdit, labelled "RGB channel order", into which the user typed "2,1,0" --
+position deciding colour, the pattern this instruction exists to remove, in
+the one dialog opened specifically to answer "which stain lands in which
+colour". Its own comment even records a measured preview/run mismatch caused
+by that ordering.
+
+FIXED by using the editor instruction 10 already built:
+`ChannelMappingWidget` (three named R/G/B fields), the same control the
+Measure settings page renders, so the dialog and the page cannot disagree
+about what "channel 2" means. A colour left empty stays empty -- the widget
+shows "—" -- which is the behaviour the old text field had to special-case.
+The row caption is unchanged, so no catalog entry moves.
+
+Regression test: tests/qt/test_crop_preview_colours.py ::
+test_the_control_asks_for_colours_by_name_not_by_list_position. Confirmed red
+before the change (the control still had `setText`), green after. Four
+existing tests that drove the field as text now drive it as a mapping.
+
+The round-trip half of the criterion was measured end to end through the
+real measure crop path: a stack with ch0=60000, ch1=20000, ch2=5000 gives
+file R,G,B = [19, 78, 234] under the default and under a legacy
+png_dims=[0,1,2], and [234, 78, 19] with an explicit r=0.

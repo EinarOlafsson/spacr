@@ -111,6 +111,47 @@ Every setting in every module has a tooltip of one or two sentences that
 names the type, the default and the unit; every API link in every tooltip
 resolves to a real page, asserted by a test rather than checked by hand.
 
+CORRECTED 2026-08-26, against the tests that actually run. Two clauses above
+never described what was built, and one is only half-asserted:
+
+  "one or two sentences"   NOT the bar that was adopted. The sweep chose a
+                           CEILING instead -- 600 characters, enforced by
+                           tests/test_tooltip_length_and_shape.py, with an
+                           80-character floor because below that a tooltip
+                           only restates its own key. Measured over the 2143
+                           entries in `spacr.settings.tooltips`: median 344
+                           characters, longest 599, median four sentences,
+                           and 64 at two sentences or fewer. Three or four
+                           sentences is the shipped shape, deliberately.
+  "the type"               ENFORCED. Every tooltip opens with a `(type) - `
+                           prefix (test_every_tooltip_declares_its_type,
+                           test_every_typed_setting_has_a_tooltip).
+  "the default"            ENFORCED. MAX_WITHOUT_DEFAULT is 0 in
+                           tests/test_tooltip_length_and_shape.py.
+  "the unit"               NOT ENFORCED anywhere. Units are written where
+                           they apply -- cell_diameter "in pixels",
+                           nucleus_min_size "in pixels^2" -- but nothing
+                           asserts it, so a new setting can ship without one.
+  "every API link
+   resolves to a real
+   page, asserted by
+   a test"                 HALF. Always-on:
+                           test_every_link_is_on_the_documentation_site and
+                           test_every_internal_tooltip_page_is_a_canonical_
+                           public_module. The page-existence check,
+                           test_every_link_resolves_to_a_page_that_exists,
+                           SKIPS unless SPACR_DOCS_BUILT=1 and a fresh Sphinx
+                           build is on disk -- docs/_build/html is untracked,
+                           so it proves nothing about the published site on
+                           a random checkout, and this tree holds two files
+                           under docs/_build/html/api.
+
+Run 2026-08-26: tests/test_settings_tooltip_quality.py,
+test_tooltip_api_links_resolve.py, test_tooltip_length_and_shape.py,
+test_no_tooltip_names_a_retired_setting.py and
+test_tooltips_are_on_the_setting_not_the_field.py -- 36 passed, 1 skipped
+(the docs-build one).
+
 --------------------------------------------------------------------------------
 DELIBERATELY NOT DONE
 --------------------------------------------------------------------------------

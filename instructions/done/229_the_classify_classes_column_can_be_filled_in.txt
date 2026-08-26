@@ -87,9 +87,18 @@ HOW TO KNOW IT WORKED
 * Dataset mode offers no measurement option; metadata type by and
   measurement rules are gone from the panel AND from `settings.py`.
 * The panel reads "Sample size limit".
-* The legacy Tk GUI still opens (the Tk-accommodates-new-code rule), and
-  settings CSVs written before this item still load -- the removed keys are
+* Settings CSVs written before this item still load -- the removed keys are
   migrated or ignored with a stated reason, not left to raise.
+
+  THE TK CLAUSE IS RETIRED, NOT MET OR UNMET. This criterion also asked that
+  the legacy Tk GUI still open, under the Tk-accommodates-new-code rule. The
+  Tk front end has since been DELETED: `spacr.gui` no longer imports and no
+  module in the package references tkinter, so there is nothing left for the
+  rule to accommodate. The deletion answers the clause rather than failing
+  it. The migration half is what still has to hold, and re-checked
+  2026-08-26 it does: `training_basis.RETIRED_BASES` maps
+  `dataset_mode='measurement'` onto `annotation`, and `io._class_column`
+  still honours a legacy `metadata_type_by`.
 
 --------------------------------------------------------------------------------
 DONE 2026-08-21

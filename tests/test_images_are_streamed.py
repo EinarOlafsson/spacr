@@ -402,3 +402,87 @@ class TestTheStreamingPass:
         merged, dst = screen
         report = stream_dataset({"merged_folder": merged}, dst)
         assert report["fields"] == 2, report["trouble"]
+
+
+# --------------------------------------------- A: the panel greys what it must
+
+class TestTheStreamingSettingsAreInertUntilStreamingIsChosen:
+    """"the streaming settings are inert until stream images is chosen", and
+    "choosing a stream method shows only that method's settings".
+
+    Asserted through `settings.get_setting_dependencies`, which is what the
+    panel evaluates to decide whether a control is live -- not against a
+    list of widget names, which would pass while the panel greyed nothing.
+    """
+
+    @staticmethod
+    def _applicable(key, settings):
+        from spacr.settings import get_setting_dependencies
+
+        rule = get_setting_dependencies().get(key)
+        assert rule is not None, f"{key} has no applicability rule at all"
+        return bool(rule['predicate'](settings, {}))
+
+    def test_loading_images_greys_every_streaming_setting(self):
+        loading = {"image_source": "load_images"}
+        for key in ("stream_method", "object_array", "mask_array",
+                    "channel_arrays", "bounding_box"):
+            assert not self._applicable(key, loading), key
+
+    def test_the_old_spelling_greys_them_too(self):
+        """Every settings CSV in existence names a retired source."""
+        for key in ("stream_method", "object_array"):
+            assert not self._applicable(key, {"image_source": "pre_generated"})
+
+    def test_streaming_wakes_the_method(self):
+        assert self._applicable("stream_method",
+                                {"image_source": "stream_images"})
+
+    def test_loading_keeps_the_path_pattern_live(self):
+        assert self._applicable("load_path_regex",
+                                {"image_source": "load_images"})
+
+    def test_streaming_greys_the_path_pattern(self):
+        assert not self._applicable("load_path_regex",
+                                    {"image_source": "stream_images"})
+
+    @pytest.mark.parametrize("method", sorted(METHOD_SETTINGS))
+    def test_a_method_leaves_only_its_own_settings_live(self, method):
+        chosen = {"image_source": "stream_images", "stream_method": method}
+        every = {k for keys in METHOD_SETTINGS.values() for k in keys}
+        for key in sorted(every):
+            wanted = key in METHOD_SETTINGS[method]
+            assert self._applicable(key, chosen) is wanted, (method, key)
+
+    def test_the_gate_reads_method_settings_rather_than_a_copy(self,
+                                                              monkeypatch):
+        """A list in the settings module would drift from the streamer's."""
+        import spacr.settings as settings_module
+        import spacr.stream_dataset as stream
+
+        monkeypatch.setattr(
+            stream, "METHOD_SETTINGS",
+            {"column": ("mask_array",), "array": ("object_array",)})
+        monkeypatch.setattr(settings_module, "setting_dependencies", {})
+        rules = settings_module.get_setting_dependencies()
+        chosen = {"image_source": "stream_images", "stream_method": "column"}
+        assert rules["mask_array"]["predicate"](chosen, {})
+        assert not rules["object_array"]["predicate"](chosen, {})
+
+    def test_an_unknown_method_greys_nothing(self):
+        """A control nobody can re-enable from the panel is worse than a live
+        one: a settings file naming a method spaCR never had must not
+        disable every streaming control it also names."""
+        odd = {"image_source": "stream_images", "stream_method": "sideways"}
+        for key in ("object_array", "mask_array", "channel_arrays",
+                    "bounding_box"):
+            assert self._applicable(key, odd), key
+
+    def test_the_reason_names_the_setting_that_greyed_it(self):
+        from spacr.settings import get_setting_dependencies
+
+        rules = get_setting_dependencies()
+        loading = {"image_source": "load_images"}
+        assert "image_source" in rules["object_array"]["reason"](loading, {})
+        chosen = {"image_source": "stream_images", "stream_method": "column"}
+        assert "stream_method" in rules["mask_array"]["reason"](chosen, {})

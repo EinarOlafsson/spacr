@@ -166,6 +166,17 @@ FOLDED = {
                         "button on that masthead; both open the explorer "
                         "seeded with the frame on screen "
                         "(spacr.qt.screens.regression)",
+    "hit_list": "a tab on the Regression results and a button on that "
+                "masthead; the ranked, annotated, filterable hits are read "
+                "off the run already on screen "
+                "(spacr.qt.screens.regression)",
+    "methods_export": "a button on the Regression masthead that opens the "
+                      "methods-and-results draft for the run on screen, with "
+                      "every number traced back to the digest "
+                      "(spacr.qt.screens.regression)",
+    "napari_bridge": "a button on the Make Masks masthead that hands the "
+                     "field on screen to napari and reads the corrected "
+                     "labels back (spacr.qt.screens.make_masks)",
 }
 
 

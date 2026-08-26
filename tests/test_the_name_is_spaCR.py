@@ -51,8 +51,11 @@ WRONG = re.compile(r"\bSpaCR\b|\bSpacr\b|\bSPACR\b(?!_)")
 
 #: Published release assets are named as they were named. README's download
 #: links point at files that exist on GitHub under v1.5.0.4, and renaming
-#: them in the text makes the front page 404. Instruction 82 rebuilds them
-#: under the corrected name; until then the URL keeps the published spelling.
+#: them in the text makes the front page 404. The URL keeps the published
+#: spelling until a release actually builds artifacts under the corrected
+#: name -- the packaging scripts already emit `spaCR-<version>-...`, so the
+#: next tag closes this on its own. Do not "fix" these lines ahead of that
+#: release; the front page 404s the moment they stop matching GitHub.
 ALLOWED_LINES = (
     "releases/download/",
 )

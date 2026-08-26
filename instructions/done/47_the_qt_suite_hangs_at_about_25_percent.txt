@@ -1203,3 +1203,27 @@ was not re-run for this audit -- the machine was carrying a coverage run,
 and a whole-suite run is hours. The last recorded full run that reached its
 summary line is the `-n 8` one above. Treat "the blocker is gone" and "the
 run finishes" as two separate claims; only the first was measured here.
+
+--------------------------------------------------------------------------------
+2026-08-26 - RE-AUDIT: THE NAMED SEGFAULT FILE NO LONGER SEGFAULTS
+--------------------------------------------------------------------------------
+
+The header above says a serial `pytest tests/qt` is stopped at about 15% by
+segfaults in tests/qt/test_cellpose_workbench.py, "reproducible alone". Run
+alone today:
+
+    QT_QPA_PLATFORM=offscreen pytest tests/qt/test_cellpose_workbench.py
+      -q -p no:randomly --timeout=250     ->  21 passed in 7.29s
+
+No crash, no faulthandler dump. So the standalone half of that claim is
+stale; whatever fixed it is not recorded here.
+
+WHAT IS STILL NOT CHECKED, and it is this file's actual criterion: a full
+serial `pytest tests/qt` reaching its summary line. It was not run -- 512
+files, and CI needs 67 minutes for half of them WITH xdist. What CI shows
+instead is that both sharded runs reach a summary: shard 0 ended
+"27 failed, 7826 passed ... in 4026.68s" and shard 1 "15 failed, 5093 passed
+... in 1839.04s". Shard 1 printed one `Fatal Python error: Segmentation
+fault` on the way and still summarised, because an xdist worker that dies is
+replaced. That is the hang being gone; it is not the same statement as a
+serial run finishing, and nobody should read it as one.

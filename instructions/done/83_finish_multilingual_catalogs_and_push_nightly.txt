@@ -300,3 +300,30 @@ DELIBERATELY NOT DONE
 Do not bypass translation-model safety checks, use the noncommercial NLLB
 model, loosen zero thresholds, or stamp fresh hashes onto old text. Do not make
 the 1.5.0.5 tag here; instruction 82 owns the final green-CI release sequence.
+
+--------------------------------------------------------------------------------
+2026-08-26 - RE-AUDIT: THE COVERAGE IS STILL COMPLETE; THE FROZEN COUNTS MOVED
+--------------------------------------------------------------------------------
+
+`python tools/audit_i18n_coverage.py` (read-only, no --write) exits zero and
+reports every one of the nine target locales complete:
+
+    runtime entries      4416/4416     installer strings   57/57
+    fresh API docstrings 8106/8106
+
+`tests/test_runtime_i18n_syntax.py`, `tests/test_translation_correctness.py`
+and `tests/test_api_i18n_frontend.py` pass together (18 tests).
+
+READ THE 2026-08-15 ADDENDUM'S NUMBERS AS A DATED FREEZE, NOT AS TODAY'S. It
+records 6,655 API symbols and 3,678 runtime entries per locale; the source
+corpus has grown since, and the audit above is the current measurement. What
+the addendum asserts is the RATIO -- every locale complete against the current
+English source -- and that still holds. A count in this file going out of date
+is the corpus growing, not the catalogs falling behind.
+
+ONE FAILURE, HELD DELIBERATELY AND NOT A DEFECT OF THIS ITEM.
+`tests/test_api_i18n_extractor.py::test_public_docstrings_matches_reviewed
+_visible_coverage` fails at 8258 against its reviewed ratchet of 8190. That
+ratchet is the mechanism working: a public docstring addition is supposed to
+stop the build until the target catalogs are regenerated. It belongs to
+whoever next runs the API translation pass.

@@ -93,3 +93,26 @@ classes deliberately spared and each separately asserted. The README download
 URLs still carry the published `SpaCR-1.5.0.4-*` asset names because those
 files exist under that name on GitHub; they change when a release next builds
 artifacts under the corrected name.
+
+--------------------------------------------------------------------------------
+2026-08-26 - RE-AUDIT: THE CRITERION HOLDS; THE FORWARD POINTER TO 82 IS DEAD
+--------------------------------------------------------------------------------
+
+CHECKED, not assumed. `tests/test_the_name_is_spaCR.py` passes (5 tests): no
+prose file in the tree mis-cases the name outside the identifier and
+published-asset exemptions, the package/console-script/import spellings are
+still lower case, and the Debian package name is still lower case. The
+packaging scripts emit the canonical spelling wherever the platform allows it --
+`packaging/online/build_macos_online.sh` writes `spaCR-$VERSION-macOS-
+Universal-Online.pkg`, `build_linux_online.sh` writes `spaCR-$VERSION-Linux-
+x86_64-Online.run`, and `build_windows_online.ps1` writes `spaCR-$Version-
+Windows-Online-Setup.exe`.
+
+WHAT WAS STALE. The note above and the same sentence in the test's own comment
+both said instruction 82 would rebuild the assets under the corrected name and
+update README's three download URLs then. 82's version bump was CANCELLED by
+the maintainer on 2026-08-13 -- there is no 1.5.0.5 and no tag -- so nothing is
+waiting on 82. The three URLs keep the published `SpaCR-1.5.0.4-*` filenames
+until SOME release next builds artifacts, which the packaging scripts above
+will already name correctly. Both the test comment and this file now say that
+instead of naming an instruction that will not run.

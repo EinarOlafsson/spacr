@@ -329,6 +329,17 @@ def rc_params(style: Mapping[str, Any]) -> dict:
     }
     if style.get("tight_layout"):
         params["figure.autolayout"] = True
+    # THE PALETTE IS AN rcParam TOO, and it has to be one here rather than
+    # only inside `apply`. `spacr.figures.style.rc` -- the only supported way
+    # a figure gets this style -- builds its overrides by DIFFING two
+    # `rc_params` dicts, so a setting this function does not emit cannot
+    # reach a drawn figure at all: a user who picked a palette in Preferences
+    # got the Matplotlib default cycle back.
+    colours = palette_colours(style.get("palette"))
+    if colours:
+        from cycler import cycler
+
+        params["axes.prop_cycle"] = cycler(color=colours)
     return params
 
 
@@ -369,18 +380,34 @@ def apply(kind: Optional[str] = None,
     return style
 
 
+def palette_colours(name: Optional[str]) -> list:
+    """Return the colour cycle for a palette name, as hex strings.
+
+    seaborn's palettes when it is installed, spaCR's own otherwise. An empty
+    list means the name resolved to nothing and the caller should leave the
+    colour cycle alone rather than blanking it.
+
+    :param name: a palette name from ``STYLE_CHOICES["palette"]``, or ``None``.
+    """
+    if not name:
+        return []
+    try:
+        import seaborn as sns
+        return list(sns.color_palette(str(name)).as_hex())
+    except Exception:
+        try:
+            from .qt.widgets.fast_plots import PALETTE
+            return list(PALETTE)
+        except Exception:
+            return []
+
+
 def _apply_palette(name: str) -> None:
     """Set the colour cycle. seaborn's names when it is installed, else ours."""
     import matplotlib as mpl
     from cycler import cycler
 
-    colours = None
-    try:
-        import seaborn as sns
-        colours = sns.color_palette(name).as_hex()
-    except Exception:
-        from .qt.widgets.fast_plots import PALETTE
-        colours = list(PALETTE)
+    colours = palette_colours(name)
     if colours:
         mpl.rcParams["axes.prop_cycle"] = cycler(color=colours)
 

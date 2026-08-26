@@ -33,7 +33,11 @@ Status:    DONE. Requested 2026-08-22, verified 2026-08-23.
               session, so every torch item was driven on CPU. Nothing was
               killed to make room.
            C: 7, 8, 9, 10 and 11 DONE.
-           D: 12 in progress, 13 DONE.
+           D: 12 and 13 DONE. D12 read "in progress" against the confusable
+              pair below; that pair no longer exists. `minimum_cell_count`
+              is gone from the package -- no module names it -- and the one
+              surviving `min_cell_count` carries a tooltip that states both
+              filters and both defaults, which is what D12 asked for.
 Requested: "exhaustively test the classify and regression modules ... This
            should be a completely exhaustive check that tests everything in
            these modals and finds all bugs ... if something is missing from
@@ -209,7 +213,12 @@ WHAT IS LEFT
   not a different code path -- except for AMP, which is CUDA-only and has
   not been exercised.
 
-* D12's confusable pair, above.
+* D12's confusable pair is CLOSED. `minimum_cell_count` was removed rather
+  than renamed and `min_cell_count` absorbed it, so the two names that could
+  be mistaken for each other are one name whose tooltip states both filters.
+  The migration worry that argued for leaving it alone -- "renaming either
+  breaks every settings CSV that names it" -- was answered by keeping the
+  name the older files carry.
 
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED

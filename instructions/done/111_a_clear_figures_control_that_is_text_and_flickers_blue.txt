@@ -120,3 +120,21 @@ QMouseEvents. Every acceptance line above holds:
     console_panel imports too -- one implementation, not two that can drift.
 
 CLOSED.
+
+--------------------------------------------------------------------------------
+RE-AUDIT (2026-08-26) -- STILL TRUE, WITH ONE COLOUR CORRECTION
+--------------------------------------------------------------------------------
+
+Re-driven on a real `FigureQueue`: one QLabel reads "Clear figures", it is
+`_ClearFiguresLabel` and not a QPushButton, its cursor is PointingHandCursor,
+and tests/test_clear_figures_control.py's seven tests pass. `console_panel`
+still imports `Flash` from `spacr/qt/widgets/flash.py`, so the 650 ms is one
+implementation, not two.
+
+The RESTING colour above is out of date. The RESULT and VERIFIED sections say
+`fg_dim` / #6b6f76; the code now rests on the palette's `error` role and
+flashes to `accent` -- #f85149 -> #4A9EFF -> #f85149 on dark, #b81d1a ->
+#0a63c4 -> #b81d1a on light. The change is deliberate (a destructive action
+reads as destructive at rest) and does not touch any acceptance line: the
+FLASH is still the accent, still legible in both themes, since both accents
+are read from the palette rather than typed in.

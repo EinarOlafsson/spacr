@@ -157,3 +157,27 @@ say so five times over; recommending a fix for an assumption that was never
 made is how the section loses the reader.
 
 Instruction 226's advisor wants the same deposit, and can read it.
+
+
+--------------------------------------------------------------------------------
+RE-AUDIT 2026-08-26
+--------------------------------------------------------------------------------
+
+FOUR OF THE FIVE HELD ON INSPECTION; THE FIFTH ASKED FOR A TEST AND THERE WAS
+NONE. "The recommended settings exist and are spelled the way the run reads
+them -- checked by a test, not by eye" was true of the code and unchecked by
+anything: all six names `run_recommendations` can hand back are real keys,
+but nothing would have said so the day one of them was mistyped.
+
+`tests/test_cov_2_run_recommendations.py` now reads the names off the rules
+themselves, by walking `Recommendation(...)` calls in the module's own
+source, and asserts each against `settings.expected_types`. Read off the
+source rather than listed, so a rule added later is checked the day it lands.
+A second test drives the suppression path, because a rule that NAMES one key
+and READS another would repeat its advice forever and look like a threshold
+bug.
+
+The palette criterion was driven rather than read: a summary built under the
+dark theme highlights at #f85149 and under the light theme at #b81d1a, which
+is `active_palette()["error"]` in each -- the colour follows the theme
+because the screen is rebuilt on a theme change.

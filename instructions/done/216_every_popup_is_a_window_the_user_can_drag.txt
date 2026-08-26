@@ -54,4 +54,18 @@ HOW TO KNOW IT WORKED
 * Installing twice leaves one filter.
 * The filter is kept alive -- one that is garbage collected stops filtering,
   silently.
-* Tests: `tests/qt/test_every_dialog_is_a_movable_window.py`, 9 passing.
+* Tests: `tests/qt/test_every_dialog_is_a_movable_window.py`, 10 passing.
+
+--------------------------------------------------------------------------------
+2026-08-26 - AUDIT: THE COUNT WAS 9 AND IS 10
+--------------------------------------------------------------------------------
+
+Re-run against this file's own criteria, all four of which hold and were
+checked by running the file rather than by reading it: a dialog polished
+after install comes back `Qt.Window`, and it is still visible and still
+keeps its parent; a second `detach_all_dialogs` leaves one filter; and the
+filter is held by a strong reference rather than collected.
+
+The file said 9 passing and the file now holds 10 tests, all of them green.
+A test was added after the count line was written and the line was not moved
+with it; the number above is corrected to the measured 10.

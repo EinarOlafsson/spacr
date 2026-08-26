@@ -737,6 +737,32 @@ INTERACTIVE_ONLY: Dict[str, str] = {
                         "is the renderer this screen draws through, so the "
                         "figure is the same one, vector at publication "
                         "size.",
+    # THE OTHER THREE FOLDED ROWS. A folded module keeps its key everywhere
+    # a key is written, and `spacr-run <key>` is one of those places: a key
+    # the registry no longer holds and this table does not name answers
+    # "unknown module" and then guesses at a near spelling, which tells a
+    # user who typed the right name that they typed the wrong one.
+    "hit_list": "Hit List is an interactive ranked table — filtering, "
+                "annotating and clicking through to the cells is the "
+                "feature; run it in the GUI (spacr-qt), where it is a tab "
+                "on the Regression results and a button on that masthead. "
+                "Headless, spacr.hits.build_hit_list(...) builds the same "
+                "ranking, and 'spacr-run investigate_hit' takes one hit "
+                "back to its wells.",
+    "methods_export": "Methods & Results drafts your write-up from a "
+                      "finished run and asks you to read it; run it in the "
+                      "GUI (spacr-qt), where it is a button on Regression. "
+                      "Headless, spacr.methods_export.build_digest(...) "
+                      "collects the run and render_methods/render_results "
+                      "turn it into the two sections, with verify_numbers "
+                      "checking every figure back against the digest.",
+    "napari_bridge": "Open in napari hands a mask to napari for you to "
+                     "correct by hand and reads it back; the correcting is "
+                     "the feature, so there is nothing to batch. Run it in "
+                     "the GUI (spacr-qt), where it is a button on Make "
+                     "Masks. Headless, "
+                     "spacr.napari_bridge.correct_mask(mask_path, "
+                     "image_path) is the same round trip from Python.",
 }
 
 

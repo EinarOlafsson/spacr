@@ -405,3 +405,34 @@ why the failure sat unclaimed.
 `showing_the_figure_grid()`, `showing_the_live_graph()` and
 `showing_the_results()` answer the question those tests are asking, on the
 screen rather than in every caller. All 30 tests in that file pass.
+
+--------------------------------------------------------------------------------
+RE-AUDIT (2026-08-26) -- ALL FIVE HOLD; ONE ACCEPTANCE LINE NEEDS ITS FOOTNOTE
+--------------------------------------------------------------------------------
+
+Driven through `gene_tile` and re-run, not read:
+
+    gene_tile("fraction:grna[239740_3]")   title "GRA14"      kind guide
+    gene_tile("fraction:grna[000000_22]")  title "non-targeting control"
+    gene_tile("fraction:grna[ENSG00000141510_1]")  kind unresolved, and it
+        says WHY -- "not in the gRNA reference, so its protospacer could not
+        be checked for other genes carrying it"
+
+`test_no_click_touches_the_network` still refuses `socket.socket` and
+`socket.create_connection` while a tile with a ToxoDB reference is built. 97
+pass across test_a_clicked_gene_carries_its_annotation.py,
+test_clicking_a_gene_says_what_it_is.py, test_cov_12_gene_tile.py and
+test_cov_13_gene_tile_panel.py, with no skips.
+
+THE FOOTNOTE THE ACCEPTANCE LINE NEEDS. It asks for the ambiguity test to be
+built "on the real ambiguous rows in the shipped `barcodes_grna.csv`". The
+shipped reference has NO shared protospacers any more -- commit cd5a8920
+("data: drop ambiguous shared guides, instruction 100 D2") removed the eight
+rows, and 1,377 rows carry 1,377 distinct sequences today. The fixture is
+still real rather than synthetic: it quotes those eight rows verbatim from
+`git show cd5a8920^:spacr/resources/data/barcodes_grna.csv`, which is what
+the RESULT above already records. Read together with
+`test_a_guide_dropped_from_the_shipped_reference_does_not_look_clean`, which
+holds the CURRENT file's answer -- 411710_2 is "not in the gRNA reference",
+a third answer and not a silently clean one -- the pair covers both the
+ambiguity logic and the reference as it ships.

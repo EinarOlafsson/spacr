@@ -264,3 +264,47 @@ available separately any more. APP_INTROS is one of the extracted i18n
 metadata tables (`app.py::_META_TARGETS`), so correcting the English string
 needs the translation catalogs rebuilt in the same change; left for whoever
 owns those.
+
+--------------------------------------------------------------------------------
+2026-08-26 -- RE-AUDIT: "BOTH OLD CSVs PRODUCE THE SAME RUN" WAS FALSE
+--------------------------------------------------------------------------------
+
+The first acceptance criterion was checked by loading each old factory's
+settings into the merged screen and reading back what the run would do, not
+by reading the code. The CV file round-trips completely (86 of 86 keys). The
+ML file did not.
+
+THE DEFECT. `set_default_classify` drops `location_column`,
+`positive_control` and `negative_control` on purpose -- the Classes editor
+says the same thing better -- and the docstring promises "an old settings CSV
+that sets them still trains on the same wells, because
+classify_classes.normalize_settings turns them into class rules before
+anything reads them". That promise is kept on the CLI path and broken on the
+GUI path: the merged screen renders no widget for any of the three, so
+`apply_settings_dict` dropped all three on the way IN and the Classes editor
+stayed empty. Nothing downstream ever saw them.
+
+MEASURED, on an old Classify (ML) settings dict naming location_column
+'rowID' with controls r5/r6:
+
+    before   classes {} -> class_metadata [['c1'],['c2']], column 'columnID'
+    after    classes {positive control: rowID=r5, negative control: rowID=r6}
+             -> class_metadata [['r5'],['r6']], column 'rowID'
+
+So the run trained on columnID c1/c2 -- the module's own defaults, not the
+file's wells -- silently, and reporting success. Exactly the INVARIANTS 6
+trap this file's own step 2 warns about.
+
+FIXED: `AppScreen._migrate_control_wells` performs the same translation the
+run path performs, at LOAD time, and only on a screen that renders `classes`
+and none of the three retired keys. A file that already names `classes` is
+left alone.
+
+Regression test: tests/test_classify_merged.py ::
+test_an_old_ml_settings_file_keeps_the_wells_it_named. Confirmed red before
+the change, green after.
+
+The other two criteria hold: switching dataset_mode greys 26 controls per
+basis and leaves all 115 keys in the dict, and classify_merged is registered
+with a Home band ("Core"), a non-colliding icon and reachable from a cold
+MainWindow.

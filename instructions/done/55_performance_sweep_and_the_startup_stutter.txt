@@ -76,6 +76,14 @@ start, and the startup stutter is gone when a human launches it. Both:
 the number is what makes it a regression test, and the human is what makes
 it the actual bug.
 
+SUPERSEDED, in the ~50ms half only -- see 2026-08-10 "THE PRELOADER TRADE IS
+SETTLED" below and the 2026-08-26 audit entry at the end. The maintainer
+rejected the premise the number rests on: the pipeline preload STAYS on the
+GUI thread (a worker races Qt's own GPU init and segfaults) and is covered by
+a full-window loading screen, so a cold start still blocks the loop for over
+a second by design. The surviving criterion is the second half -- no stutter
+in front of a human -- plus "nothing measured and unattributed".
+
 --------------------------------------------------------------------------------
 DELIBERATELY NOT DONE
 --------------------------------------------------------------------------------
@@ -451,3 +459,36 @@ Every stall this instruction set out to find is named and attributed, which
 was the actual requirement -- "nothing measured and unattributed". The one
 piece that remained was handed to 74 by the maintainer's own better answer:
 the work is not too slow, it is badly timed.
+
+--------------------------------------------------------------------------------
+2026-08-26 - RE-AUDIT: THE ~50ms NUMBER IS NOT MET, AND IS NOT MEANT TO BE
+--------------------------------------------------------------------------------
+
+Measured rather than read. A tick monitor -- QTimer at 5 ms, lateness recorded
+against the previous tick -- installed around `spacr.qt.run(["--no-setup"])`
+in a fresh interpreter, offscreen platform, with a sampling thread taking the
+main thread's stack whenever the loop had been stuck over 250 ms:
+
+    before exec()             3307 ms   (interpreter start to event loop)
+    worst tick                1760 ms
+    ticks over 50 ms          62, 1760, 150, 1013, 113
+
+Every stall over 250 ms sampled inside an IMPORT on the main thread -- torch
+`_dynamo`, `torch.distributed.tensor._ops`, triton, scipy `_docscrape` --
+i.e. `_PipelinePreloader` doing exactly what its docstring says it does:
+
+    spacr/qt/app.py:91   "Import pipeline modules incrementally on the GUI
+                          thread ... Keeping C-extension imports on the GUI
+                          thread avoids concurrent Qt, CUDA and OpenGL
+                          initialization"
+    spacr/qt/app.py:1650 "The imports stay on the MAIN thread. A worker races
+                          Qt's own GPU init and segfaults ... Blocking the
+                          loop is acceptable precisely because nothing
+                          interactive is on screen while it happens."
+
+So the code and this file's own 2026-08-10 entry agree with each other and
+disagree with the HOW TO KNOW paragraph as written. The paragraph is what was
+corrected, not the code: the ~50ms tick ceiling was traded away deliberately
+for the loading screen in instruction 74. Offscreen cannot see compositing or
+font-loading stalls, and cannot answer the human half at all -- that half
+stands as the closure condition it always was.
