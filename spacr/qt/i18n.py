@@ -3409,6 +3409,18 @@ def retranslate_widget_tree(root, language: Optional[str] = None) -> None:
     # of `setting_label` there and was caught, and raised it out of the same
     # catalog here and was not -- so a language switch stopped part way and
     # left the window half English with no way back except another switch.
+    #
+    # NOT IMPORTED UNLESS IT ALREADY IS. `refresh_api_tooltips` rebuilds the
+    # tooltips that `settings_model` itself attached, so a tree can only hold
+    # one if that module has already been imported -- and if it has not, there
+    # is provably nothing here to refresh.
+    #
+    # Importing it anyway cost 0.3 s of a 1.4 s launch: the module reaches
+    # external_mask_inputs, which reaches external_masks, which reaches
+    # convert, which imports pandas. All of it paid at startup, to retranslate
+    # a Home page that has no settings on it.
+    if "spacr.qt.screens.settings_model" not in sys.modules:
+        return
     try:
         from .screens.settings_model import refresh_api_tooltips
         refresh_api_tooltips(root, code)
