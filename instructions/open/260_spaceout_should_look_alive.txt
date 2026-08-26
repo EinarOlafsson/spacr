@@ -2,9 +2,19 @@
 SPACEOUT SHOULD LOOK ALIVE
 ================================================================================
 
-Status:    OPEN. Requested 2026-08-26, after seeing the first version --
-           "your space out theme is looking good, here are some things i
-           want to change".
+Status:    REDIRECTED 2026-08-26. The budding-and-beating build was not
+           what was wanted -- "i liked the older version of the fractals
+           better" -- so what is below stands only where it does not
+           contradict the new direction in SECTION 0.
+
+           WHICH VERSION IS WHICH, so nothing is guessed:
+             * `418f69ef` -- the first spaceout fractal. The maintainer saw
+               this and said it looked good.
+             * `40a5bbab` -- that plus 912 lines of beat, buds and vortex.
+               This is the one liked less.
+           The earlier engine is the baseline to work from. Do not start
+           from the newer one and try to calm it down.
+
 Owner:     spacr/qt/widgets/ambient.py (the FractalEngine),
            spacr/qt/theme.py (the rainbow palette), and whatever draws the
            accent that follows the cursor.
@@ -27,6 +37,51 @@ trippy, its color pellet should gradually shift and change randomly as well.
 the color of the text is pretty good but could be more rainbow like, and the
 little blue window thing that follows the mouse should also osilate in color
 under this special theme. again only accessable via spaceout."
+
+--------------------------------------------------------------------------------
+0. FLYING THROUGH FRACTAL SPACE            <-- THIS REPLACES THE BUDDING
+--------------------------------------------------------------------------------
+
+"i want it to look like the user is continuously mooving through fractal
+space", with a video as the reference.
+
+THE VIDEO WAS NOT WATCHED. Whoever builds this should say so too rather
+than pretend otherwise. What is written here is the shape the words
+describe, and the maintainer is the one who says whether it is right --
+so BUILD A SHORT RECORDING AND SHOW IT rather than describing what was
+done. The gap between "continuous movement through fractal space" and any
+particular rendering of it is exactly the kind of thing that costs a
+round trip.
+
+WHAT THE WORDS DESCRIBE, as a starting point:
+
+  * CONTINUOUS FORWARD TRAVEL. The camera never arrives and never stops.
+    Structure appears small ahead, grows as it is approached, and passes
+    the viewer. That is the whole effect: it is a JOURNEY, not an object
+    being watched;
+  * IT NEVER VISIBLY REPEATS. A fractal is self-similar at every scale,
+    which is what makes endless travel possible -- each scale reveals the
+    next. If a watcher can see the loop point, the illusion is gone;
+  * THE STRUCTURE IS THE THING, not a shape sitting in the middle of the
+    screen. What was drawn before was a form with a backdrop; this is the
+    inside of something the viewer is passing through;
+  * a slow drift or roll of the camera is usual and helps, so long as
+    the forward motion stays the dominant sense.
+
+WHAT THIS RETIRES from the previous pass:
+
+  * THE BUDS GO. Bubbles budding off a central form is a thing being
+    watched, which is the opposite of travelling through;
+  * THE BEAT GOES, or becomes very much quieter. A pulse says "this is an
+    organism in front of you"; steady motion says "you are moving";
+  * THE VORTEX STAYS IN SPIRIT and changes in kind: it was a 3-D effect
+    INSIDE a form on the screen, and what is wanted is the viewer being
+    inside it.
+
+WHAT IS KEPT from everything below: the higher resolution, the buffer
+matching the screen, the drifting palette, the more-rainbow text, the
+oscillating cursor accent, the preferences page, and every rule about the
+contrast check and the performance guard. Those were not the complaint.
 
 --------------------------------------------------------------------------------
 1. HIGHER RESOLUTION
