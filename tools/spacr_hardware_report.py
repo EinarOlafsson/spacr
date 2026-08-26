@@ -300,6 +300,78 @@ print("SPLASH_JSON" + json.dumps({
 """
 
 
+#: Times the REAL entry point -- what typing `spacr` runs -- by letting it
+#: do everything up to the event loop and then returning from exec()
+#: instead of blocking. Anything `launch()` does that a hand-built
+#: MainWindow does not is inside this number and outside the one above.
+_LAUNCH_PROBE = r"""
+import json, sys, time
+import PySide6.QtWidgets as W
+
+marks = {}
+_real_exec = W.QApplication.exec
+
+def _stop(self, *a, **k):
+    marks["exec_reached"] = time.perf_counter()
+    return 0
+
+W.QApplication.exec = _stop
+W.QApplication.exec_ = _stop
+
+t0 = time.perf_counter()
+import spacr.qt
+code = spacr.qt.run([])
+done = time.perf_counter()
+reached = marks.get("exec_reached", done)
+print("LAUNCH_JSON" + json.dumps({
+    "to_event_loop": reached - t0,
+    "total": done - t0,
+    "exit": code,
+    "modules": len(sys.modules),
+}))
+"""
+
+
+def the_real_launch(say: Report) -> None:
+    """What typing `spacr` costs, end to end, in a cold interpreter.
+
+    THE SECTION BELOW REBUILDS THE STARTUP BY HAND and can only measure the
+    steps it knows about. This one runs the ACTUAL entry point and stops it
+    at the event loop, so anything `launch()` does that a hand-built window
+    does not -- first-run checks, the loading screen, a version or update
+    lookup, reading saved state -- is inside this number and outside that
+    one. Where the two disagree, the difference is the thing worth finding.
+    """
+    with _section(say, "TYPING `spacr` -- the real entry point, cold"):
+        import json
+        import subprocess
+        try:
+            done = subprocess.run(
+                [sys.executable, "-c", _LAUNCH_PROBE],
+                capture_output=True, text=True, timeout=900,
+                env={**os.environ})
+        except Exception as exc:                             # noqa: BLE001
+            say.failed("real launch probe", exc)
+            return
+        line = next((l for l in done.stdout.splitlines()
+                     if l.startswith("LAUNCH_JSON")), "")
+        if not line:
+            say("  the launch probe produced no reading")
+            for tail in (done.stderr or "").splitlines()[-6:]:
+                say(f"    {tail}")
+            return
+        data = json.loads(line[len("LAUNCH_JSON"):])
+        say.timed("spacr.qt.run to the event loop", data["to_event_loop"],
+                  "<-- THIS IS THE SPLASH SCREEN")
+        say.timed("run() returned", data["total"])
+        say.item("modules loaded by then", f"{data['modules']:,}")
+        say.item("exit code", data["exit"])
+        say("")
+        say("  If this is much larger than the COLD LAUNCH TOTAL below, the")
+        say("  difference is work launch() does that rebuilding the window")
+        say("  by hand does not -- that is where to look next.")
+
+
 def the_splash(say: Report) -> None:
     """The phase between typing spacr and the window appearing.
 
@@ -645,6 +717,7 @@ def main(argv=None) -> int:
     display(say)
     preferences_in_effect(say)
     theming(say)
+    the_real_launch(say)
     the_splash(say)
     startup(say)
     screens(say, quick)
