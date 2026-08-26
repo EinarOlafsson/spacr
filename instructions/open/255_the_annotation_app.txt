@@ -1,0 +1,149 @@
+================================================================================
+THE ANNOTATION APP: TWO CRASHES FIRST, THEN SIX THINGS ABOUT THE VIEW
+================================================================================
+
+Status:    OPEN. Requested 2026-08-26. TWO OF THESE ARE CRASHES and come
+           before everything else on this list.
+Owner:     spacr/qt/screens/annotate.py and what it opens.
+
+--------------------------------------------------------------------------------
+1. PICKING CELLPOSE SEGFAULTS THE APPLICATION            <-- CRASH
+--------------------------------------------------------------------------------
+
+"in annotation app, picking cellpose crashes the application and i get:
+
+    Qt warning: QObject::killTimer: Timers cannot be stopped from another thread
+    Qt warning: QObject::~QObject: Timers cannot be stopped from another thread
+    (x3)
+    Segmentation fault (core dumped)"
+
+THE WARNING NAMES THE FAULT. A QObject that owns a timer is being destroyed
+on a thread that is not the one it lives on. Qt cannot stop the timer from
+there, says so three times, and then the object graph is torn down under a
+thread still using it.
+
+This is the third fault of this family in this application, and the
+previous two are worth reading before starting:
+
+  * a worker thread importing `matplotlib.pyplot` for the first time while
+    the GUI thread collected garbage -- fixed by pre-importing on the
+    caller's thread in `bridge.make_thread`;
+  * an AI provider's reader thread blocked on a subprocess, still alive
+    when the session collected its QThread wrapper -- fixed by making the
+    live streams findable and ending them.
+
+Both had the same shape: AN OBJECT CROSSING A THREAD IT DOES NOT BELONG TO.
+Find which object owns the timer, which thread creates it and which
+destroys it. `spacr/qt/bridge.py` documents the ownership rules this
+codebase already settled on -- a QThread created on the GUI thread, a
+worker moved to it, and the wrapper kept alive by a parent.
+
+REPRODUCE IT FIRST, in a subprocess so the crash is observed rather than
+inferred: a segfault takes the whole test process, so the test that proves
+this fixed has to run the scenario in a child and assert the exit status.
+
+--------------------------------------------------------------------------------
+2. THE COVERAGE BUTTON CRASHES                            <-- CRASH
+--------------------------------------------------------------------------------
+
+"pressing the coverage button in annotate crashes spacr"
+
+Same discipline: reproduce, get the actual fault (not a guess), fix the
+cause, and prove it in a child process.
+
+--------------------------------------------------------------------------------
+3. CMY LOOKS EXACTLY LIKE RGB
+--------------------------------------------------------------------------------
+
+"in annotation app the CMY visualization mode looks identical to RGB"
+
+Either the mode never reaches the draw, or it reaches it and maps the
+channels the same way. Measure the PIXELS of one crop drawn both ways and
+compare -- do not read the code and conclude. If they are identical, the
+mode is decorative and the setting is a lie.
+
+CMY is not RGB with different words: cyan, magenta and yellow are the
+SUBTRACTIVE primaries, so a channel at full strength REMOVES its
+complement rather than adding itself. A correct CMY view of a three-channel
+field looks obviously different from the RGB one on the same field.
+
+--------------------------------------------------------------------------------
+4. THE GREY BOX BEHIND THE IMAGES HAS SQUARE CORNERS
+--------------------------------------------------------------------------------
+
+"the gray box behind the annotation images should have rounded edges"
+
+`spacr.qt.theme` already carries the corner radii the rest of the
+application uses (RADIUS). Use the one that matches the neighbouring
+panels rather than inventing a number.
+
+--------------------------------------------------------------------------------
+5. SHIFT-CLICK ONE IMAGE TO SEE IT PROPERLY
+--------------------------------------------------------------------------------
+
+"the user should have the amility to click to zoom one image so they can
+see it better, like if they hold down shift and left click the clicked
+picture expands to fitt the container the images are in in fron of the
+other images then if the user clicks outside the picture it folds back into
+its orig size"
+
+  * SHIFT + left click expands that crop to fill the grid's container,
+    drawn IN FRONT of the others rather than reflowing the grid;
+  * a click outside it folds it back to its place;
+  * plain left click must go on doing what it does now -- this is an extra
+    gesture, not a replacement, and annotating is the primary action.
+
+--------------------------------------------------------------------------------
+6. THE SIZE FILTER IS ONE NUMBER FOR EVERY COLOUR
+--------------------------------------------------------------------------------
+
+"for the object max size setting in the annotation app. there should be a
+blue object red object and an green object max size filter. and a minimum
+whould be nice to and a min and max intensity whould be great to add. but
+this whould be too many settings so a blue area min/max, blue intensity
+min/max, etc. with two fields each would be perfect."
+
+SO: per channel colour -- red, green, blue -- two rows, each holding two
+fields:
+
+    red area       [min] [max]
+    red intensity  [min] [max]
+    green area     [min] [max]
+    green intensity[min] [max]
+    blue area      [min] [max]
+    blue intensity [min] [max]
+
+Six rows, twelve fields, instead of twelve separate settings. An empty
+field means NO BOUND on that side -- which is also how a user turns a
+filter off, so it must round-trip empty rather than filling in a default.
+
+The existing single max-size setting is the thing being replaced. Migrate
+a saved value onto whichever new field it corresponds to rather than
+dropping it.
+
+--------------------------------------------------------------------------------
+7. THE CONSOLE BUTTON HAS A BLACK BOX
+--------------------------------------------------------------------------------
+
+"in the annotation app the console button should not have a black box but
+just be white text if clicked turns blue"
+
+White text on the masthead, no plate behind it, and it lights blue while
+the console is open. It is a state, so it stays lit -- the same shape the
+folded-module switches already have.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * choosing Cellpose in the annotator runs to completion, and a child
+    process doing it exits 0 rather than on a signal;
+  * the coverage button likewise;
+  * a crop drawn in CMY differs from the same crop in RGB, measured in
+    pixels, and the difference is the subtractive mapping rather than noise;
+  * the image backdrop's corner radius is the one the theme declares;
+  * shift-clicking a crop fills the container in front of the grid, a
+    click outside restores it, and plain clicking still annotates;
+  * six two-field rows filter on area and intensity per colour, an empty
+    field means unbounded, and an empty field survives a save and reload;
+  * the console button is white text with no box, blue while open.

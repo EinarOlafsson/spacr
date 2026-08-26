@@ -1,0 +1,65 @@
+================================================================================
+SPACEOUT: THE SAME APPLICATION, WEARING SOMETHING ELSE
+================================================================================
+
+Status:    OPEN. Requested 2026-08-26.
+Owner:     the console entry points in setup.py, spacr/qt/theme.py and the
+           loading screen's animation.
+
+--------------------------------------------------------------------------------
+WHAT WAS ASKED
+--------------------------------------------------------------------------------
+
+"typ should also trigger spacr but with a special theme that instead of
+blobs shows mooving fractals so it looks trippy and the general color
+pallet should be rainbow like. so the application looks trippy. these
+options should not be menue items for theme. this should only be triggered
+by starting spacr with spaceout."
+
+  * a NEW CONSOLE SCRIPT, `spaceout`, beside `spacr` and `spacr-qt`;
+  * it starts the same application -- not a fork, not a copy. Every screen,
+    every setting, every module behaves identically. Only the dressing
+    changes;
+  * the ambient blobs are replaced by MOVING FRACTALS;
+  * the palette goes rainbow;
+  * IT IS NOT A THEME MENU ENTRY. Nothing in Preferences offers it, and a
+    normal `spacr` start can never land in it. The entry point is the only
+    way in.
+
+--------------------------------------------------------------------------------
+WHAT THAT MEANS FOR THE CODE
+--------------------------------------------------------------------------------
+
+The theme system already carries named palettes and the ambient animation
+already has a shape to fill; this is another of each, chosen at startup
+rather than from the settings store. So:
+
+  * the choice is made ONCE, at launch, and lives where the theme resolver
+    can see it without every call site learning about it;
+  * `spacr.qt.preferences` must not be asked to store it -- a preference
+    that survives a restart would leak the mode into an ordinary `spacr`
+    start, which is the one thing the request rules out;
+  * the theme's contract does not change: `resolve_effective_theme` and the
+    light/dark handling go on working, because every screen reads them.
+
+READABILITY IS NOT OPTIONAL. A rainbow palette still has to render text
+against its background at a contrast a person can read, and spaCR already
+has the check for it -- the same one the colourblind work used. A trippy
+theme that cannot be read is a broken theme.
+
+THE FRACTALS COST FRAMES. The ambient animation already has a performance
+guard; whatever draws the fractals answers to it. A launcher that makes the
+application stutter is worse than no launcher.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * `spaceout` starts the application; every module reachable from `spacr`
+    is reachable from it and behaves the same;
+  * the ambient layer draws fractals that MOVE, and the palette is rainbow;
+  * nothing in Preferences offers the mode, and no stored preference can
+    put an ordinary `spacr` start into it;
+  * text meets the contrast check in the rainbow palette, on every surface
+    the check already covers;
+  * the animation stays inside the existing performance guard.

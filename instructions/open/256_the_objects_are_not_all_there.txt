@@ -1,0 +1,121 @@
+================================================================================
+AN OBJECT THAT IS NOT IN THE RUN: A MASK DIM THAT CANNOT BE EMPTIED, AND AN
+ORGANELLE COUNT THAT STILL CHANGES NOTHING
+================================================================================
+
+Status:    OPEN. Requested 2026-08-26. Extends 246, which is reopened on
+           the same organelle half.
+Owner:     spacr/settings.py and spacr/qt/screens/settings_model.py.
+
+--------------------------------------------------------------------------------
+1. A MASK DIM ALWAYS HOLDS A NUMBER, AND SOMETIMES THERE IS NO SUCH OBJECT
+--------------------------------------------------------------------------------
+
+"in the measure modual there is always an integer in the cell mask dim,
+nucleus mask dim and the pathogen mask dim, however all of these objects
+will not allways be present so i should be able to delete the integer from
+the setting so that there is nothing there."
+
+MEASURED, and the maintainer is right:
+
+    cell_mask_dim      4
+    nucleus_mask_dim   5
+    pathogen_mask_dim  6
+    organelle_mask_dim None      <- the organelles already do this correctly
+
+So the three original objects ship a number that cannot be cleared, while
+the organelle slots ship None. A screen with no nucleus has no nucleus mask
+dimension, and being forced to name one is being forced to lie.
+
+  * the field must accept EMPTY and store None, the way the organelle mask
+    dims already do;
+  * whatever reads it must treat None as "this object is not in the run"
+    rather than falling back to a default index -- find every reader and
+    say what each does with None;
+  * a settings file that omits the key entirely must load, not raise.
+
+WORTH CHECKING WHILE THERE: the same question applies to any other setting
+that names a dimension or a channel per object. If a channel can be None,
+its dimension should be too, and the two should agree -- a channel of None
+with a dimension of 4 is a contradiction the panel currently permits.
+
+--------------------------------------------------------------------------------
+2. THE ORGANELLE COUNT STILL CHANGES NOTHING
+--------------------------------------------------------------------------------
+
+"the number of organells is implemented in the measure modual but the
+settings for organelle 1, 2, 3, 4 are still the same so something is broken
+and the mask modual dosnt have the number of organells at all."
+
+MEASURED. `number_of_organelles` is present AND VISIBLE on BOTH panels --
+mask and measure -- so it is not missing from mask, but it is hard enough
+to find that the maintainer did not find it, which is its own defect. Where
+it sits and what category it is under should be somewhere a user looking
+for it will look.
+
+AND IT IS INERT ON BOTH. Set to 7 the panel renders organelle, organelleb,
+organellec, organelled. Set to 2, the same four. The slots are hard-coded.
+
+THE VOCABULARY IS NOT THE FEATURE. `spacr/organelle_types.py` has
+`organelle_role`, `MAX_ORGANELLES`, `NUMBER_OF_ORGANELLES`,
+`active_organelle_roles` and `declared_organelle_roles`, and all of it is
+correct. NOTHING BUILDS THE PANEL FROM IT. Confirming the vocabulary was
+mistaken for confirming the feature once already; do not repeat that.
+
+What is owed, in the maintainer's original words: "a NUMBER OF ORGANELLES
+setting, and the organelle settings are generated from it -- two gives
+organelle 1 and organelle 2, seven gives seven."
+
+  * raising the number ADDS slots, lowering it HIDES them;
+  * a settings file written at seven loads at two with the five hidden
+    slots' values intact, and raising the number back brings them back;
+  * KNOWN HAZARD, do not trip it: `schema.ORGANELLE_ROLES` cannot be
+    widened naively -- roughly 180 MB per field at 26 roles, because of the
+    allocation loops at `measure.py:3148` and `core.py:435`. Solve the
+    panel without widening that, or fix the allocation first and say so.
+
+--------------------------------------------------------------------------------
+3. THE MASK PANEL SHOWING OBJECT SETTINGS WITH EVERY CHANNEL NONE
+--------------------------------------------------------------------------------
+
+"it was in the mask modual that i saw the object settings eaven when object
+channels were all none"
+
+NOT REPRODUCED HERE, and that disagreement is itself the finding. Driven on
+a built Mask panel with the event loop running, a fresh open shows exactly
+one row per object -- its own channel -- and typing a channel reveals that
+object's twenty rows while clearing it hides them again.
+
+So something differs between that measurement and the maintainer's session.
+Candidates, in the order worth checking:
+
+  * A SAVED SETTINGS FILE. The panel restores the last run's settings, and
+    a stored channel makes its object applicable. Check what the rule does
+    when the stored value is 0 -- a channel of zero is a real channel, and
+    `if not channel` would treat it as absent, while `if channel is None`
+    would not. The opposite error, treating a stored "" or "None" string as
+    a number, would show every row;
+  * THE REFRESH IS DEFERRED through `QTimer.singleShot`, so anything that
+    builds the panel and paints before that fires shows every row for one
+    frame. On a slow first paint that frame is visible;
+  * A DIFFERENT ENTRY POINT. The panel reached through a fold, a recipe or
+    a settings import may not run the same refresh.
+
+Do not close this on "cannot reproduce". Find which of those it is, or find
+the fourth thing.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * every mask dim can be cleared to empty and stores None, and a settings
+    file omitting the key loads;
+  * a run with a None mask dim treats that object as absent rather than
+    reaching for a default index;
+  * setting the organelle count to 7 renders seven slots and to 2 renders
+    two, DRIVEN THROUGH THE CONTROL with the event loop running;
+  * a file written at seven loads at two with all seven values kept;
+  * the mask panel's object settings are hidden on first open with every
+    channel None, INCLUDING when the panel restores a saved settings file
+    that names no channels;
+  * a stored channel of 0 counts as present.
