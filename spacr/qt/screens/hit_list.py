@@ -64,21 +64,30 @@ from ..theme import (SPACING, block_surface, mark_surface,
                      register_widget_qss)
 from .app_screen import ModuleHeader
 
-__all__ = ["APP_KEY", "HitListScreen", "make_hit_list_screen", "register"]
+__all__ = ["APP_KEY", "HitListScreen", "connect_investigation",
+           "make_hit_list_screen"]
 
-#: The app key this screen is registered under. Load-bearing: saved user
-#: state, the command palette and the sidebar all key off it.
+#: The key this module answers to. Load-bearing even with no registry row:
+#: the fold button on Regression's masthead, the drop handler in
+#: :mod:`spacr.qt.dnd_handlers` and the job runner's own bookkeeping all key
+#: off it.
 APP_KEY = "hit_list"
 
-#: Sidebar / tile name.
+#: The module's display name — the first line of the fold button's tooltip
+#: and the title of the window it opens in.
 APP_NAME = "Hit List"
 
-#: One-line summary; the tooltip and status tip.
+#: One-line summary. The second line of the fold button's tooltip, kept in
+#: step with the copy in :data:`spacr.qt.screens.map_barcodes.FOLD_FALLBACK`
+#: that the button actually reads.
 APP_DESCRIPTION = (
     "Ranked, annotated, filterable hits with effect size, FDR and gRNA "
     "agreement")
 
-#: The paragraph under this app's header, handed to the seam as ``intro``.
+#: What the module does, in a paragraph. This screen draws its own
+#: :class:`~spacr.qt.screens.app_screen.ModuleHeader`, so nothing reads this
+#: to build a page; it is the module's own description, and the text a
+#: caller that needs to explain the Hits tab can quote.
 APP_INTRO = (
     "The deliverable at the end of a screen: one row per gene, ranked, with "
     "the effect size and its 95% interval, a Benjamini-Hochberg q-value over "
@@ -88,9 +97,13 @@ APP_INTRO = (
     "looking at as CSV, Markdown or a self-contained HTML page you can send "
     "to a collaborator.")
 
-#: Why there is no ``spacr-run hit_list``; reaches
-#: ``spacr.cli.INTERACTIVE_ONLY``, which prints it instead of "unknown
-#: module".
+#: Why there is no ``spacr-run hit_list``.
+#:
+#: WRITTEN OUT AGAIN in :data:`spacr.cli.INTERACTIVE_ONLY` rather than
+#: reached from there. It used to travel as the registry row's ``cli_note=``;
+#: with no row left, and with ``spacr.cli`` answering ``--list`` on clusters
+#: that have no PySide6 at all, the sentence cannot be imported from here. A
+#: test asserts the two copies are the same string.
 APP_CLI_NOTE = (
     "Hit List is the interactive view of a regression's ranked hits; "
     "headless, call spacr.hits.build_hit_list(results_folder, "
@@ -100,6 +113,10 @@ APP_CLI_NOTE = (
 #: "Hit List" in the nine non-English UI languages, in
 #: :data:`spacr.qt.i18n.LANGUAGES` order after English — sv, de, es, zh_CN,
 #: pt, hi, ko, is, fr.
+#:
+#: Kept beside the name they translate now that no registration hands them
+#: to :func:`spacr.qt.i18n.add_translation`; the shipped catalogs carry the
+#: same nine strings, and a test compares them.
 APP_TRANSLATIONS = (
     "Träfflista",
     "Trefferliste",
@@ -632,35 +649,60 @@ def _number(value: Any) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Registration
+# Construction
 # ---------------------------------------------------------------------------
 
-def make_hit_list_screen(app_key: Optional[str] = None, host=None) -> QWidget:
-    """Factory the registry calls to build this screen."""
-    screen = HitListScreen()
-    if host is not None and hasattr(host, "_on_investigate_hit_requested"):
-        screen.investigate_requested.connect(host._on_investigate_hit_requested)
-    return screen
+def connect_investigation(screen, host) -> bool:
+    """Point ``screen``'s "Investigate selected…" at its workbench.
 
+    ``host`` is whatever holds ``_on_investigate_hit_requested`` -- the main
+    window. A hit list built without it emits the selected result into
+    nothing, so the button reads as broken rather than as unwired, and EVERY
+    construction site has to go through here: this screen is now a tab on the
+    regression results panel and a window off that masthead, neither of which
+    is built by a registry factory that could have done the wiring once.
 
-def register() -> bool:
-    """Add Hit List to the app registry. Idempotent.
+    Idempotent. Connecting the same bound method twice would open two
+    workbenches on one press.
 
-    :returns: True when this call added the row, False when it was already
-        there — which is what a second import, or a plugin that pulls the
-        module in again, must not treat as an error.
+    :param screen: a :class:`HitListScreen`, or None.
+    :param host: the window carrying the handler, or None.
+    :returns: True when this call made the connection.
     """
-    from ..app import APPS, SECTION_RESULTS, STAGE_ALPHA, register_app
-
-    if any(row[0] == APP_KEY for row in APPS):
+    handler = getattr(host, "_on_investigate_hit_requested", None)
+    if screen is None or not callable(handler):
         return False
-    register_app(
-        APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_RESULTS,
-        factory=make_hit_list_screen, stage=STAGE_ALPHA,
-        title="Hit List", intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-        api_module="qt/screens/hit_list",
-        translations=APP_TRANSLATIONS)
+    if getattr(screen, "_investigation_connected", False):
+        return False
+    screen.investigate_requested.connect(handler)
+    screen._investigation_connected = True
     return True
 
 
-register()
+def make_hit_list_screen(app_key: Optional[str] = None, host=None) -> QWidget:
+    """Build the screen bare and wire its one outgoing signal.
+
+    The constructor for a caller with no run to point it at; Regression
+    builds its own, seeded, and calls :func:`connect_investigation` itself.
+    """
+    screen = HitListScreen()
+    connect_investigation(screen, host)
+    return screen
+
+
+# NO REGISTRY ROW. The hit list is not a tile: it arrives as the **Hits
+# tab** on Regression's results panel, loaded with the run whose
+# coefficients are on screen, and as a button on that masthead which raises
+# the tab -- :data:`spacr.qt.screens.regression.FOLDED_APPS` and
+# :class:`spacr.qt.screens.regression.HitsOpener`. A tile would have been a
+# second front door onto the same table, opening it empty and asking the
+# user to find the results folder the host already knows.
+#
+# Everything the row used to fan out has a home that outlives it: the
+# button's name, sentence and alpha maturity colour in
+# :data:`spacr.qt.screens.map_barcodes.FOLD_FALLBACK`, the API link in
+# ``settings_model._APP_API_MODULE``, the headless answer in
+# :data:`spacr.cli.INTERACTIVE_ONLY`, and the nine translated names in the
+# shipped i18n catalogs. The strings above stay because they are this
+# module's own description, and because those homes are asserted against
+# them.

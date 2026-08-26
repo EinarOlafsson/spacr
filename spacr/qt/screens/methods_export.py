@@ -58,21 +58,28 @@ from ..job_runner import JobRunner
 from ..theme import SPACING, block_surface, register_widget_qss
 from .app_screen import ModuleHeader
 
-__all__ = ["APP_KEY", "MethodsExportScreen", "make_methods_export_screen",
-           "register"]
+__all__ = ["APP_KEY", "MethodsExportScreen", "make_methods_export_screen"]
 
-#: The app key this screen is registered under.
+#: The key this module answers to. Load-bearing even with no registry row:
+#: the fold button on Regression's masthead, the drop handler in
+#: :mod:`spacr.qt.dnd_handlers` and the job runner's own bookkeeping all key
+#: off it.
 APP_KEY = "methods_export"
 
-#: Sidebar / tile name.
+#: The module's display name — the first line of the fold button's tooltip
+#: and the title of the window it opens in.
 APP_NAME = "Methods & Results"
 
-#: One-line summary; the tooltip and status tip.
+#: One-line summary. The second line of the fold button's tooltip, kept in
+#: step with the copy in :data:`spacr.qt.screens.map_barcodes.FOLD_FALLBACK`
+#: that the button actually reads.
 APP_DESCRIPTION = (
     "Draft the methods and results sections from the run, with every number "
     "traced")
 
-#: The paragraph under this app's header, handed to the seam as ``intro``.
+#: What the module does, in a paragraph. This screen draws its own
+#: :class:`~spacr.qt.screens.app_screen.ModuleHeader`, so nothing reads this
+#: to build a page; it is the module's own description.
 APP_INTRO = (
     "Assemble everything the run knows — versions, parameters, counts, QC "
     "verdicts, held-out metrics, statistics — into one run digest, then draft "
@@ -82,8 +89,13 @@ APP_INTRO = (
     "with an invented figure, or one that drops a caveat the run recorded, is "
     "refused and spaCR's own version is shown instead.")
 
-#: Why there is no ``spacr-run methods_export``; reaches
-#: ``cli.INTERACTIVE_ONLY``.
+#: Why there is no ``spacr-run methods_export``.
+#:
+#: WRITTEN OUT AGAIN in :data:`spacr.cli.INTERACTIVE_ONLY` rather than
+#: reached from there. It used to travel as the registry row's ``cli_note=``;
+#: with no row left, and with ``spacr.cli`` answering ``--list`` on clusters
+#: that have no PySide6 at all, the sentence cannot be imported from here. A
+#: test asserts the two copies are the same string.
 APP_CLI_NOTE = (
     "Methods & Results is the interactive drafting panel; headless, call "
     "spacr.methods_export.build_digest(...) and then render_methods(digest) "
@@ -92,6 +104,10 @@ APP_CLI_NOTE = (
 #: "Methods & Results" in the nine non-English UI languages, in
 #: :data:`spacr.qt.i18n.LANGUAGES` order after English — sv, de, es, zh_CN,
 #: pt, hi, ko, is, fr.
+#:
+#: Kept beside the name they translate now that no registration hands them
+#: to :func:`spacr.qt.i18n.add_translation`; the shipped catalogs carry the
+#: same nine strings, and a test compares them.
 APP_TRANSLATIONS = (
     "Metod och resultat",
     "Methoden und Ergebnisse",
@@ -522,27 +538,33 @@ def _reader() -> QPlainTextEdit:
 
 
 # ---------------------------------------------------------------------------
-# Registration
+# Construction
 # ---------------------------------------------------------------------------
 
 def make_methods_export_screen(app_key: Optional[str] = None) -> QWidget:
-    """Factory the registry calls to build this screen."""
+    """Build the screen with nothing filled in.
+
+    The constructor for a caller that has no run to point it at. Regression
+    seeds one instead — see
+    :func:`spacr.qt.screens.regression.build_methods_export`, which fills in
+    the project and the results folder that screen is already reading.
+    """
     return MethodsExportScreen()
 
 
-def register() -> bool:
-    """Add Methods & Results to the app registry. Idempotent."""
-    from ..app import APPS, SECTION_RESULTS, STAGE_ALPHA, register_app
-
-    if any(row[0] == APP_KEY for row in APPS):
-        return False
-    register_app(
-        APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_RESULTS,
-        factory=make_methods_export_screen, stage=STAGE_ALPHA,
-        title="Methods & Results", intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-        api_module="qt/screens/methods_export",
-        translations=APP_TRANSLATIONS)
-    return True
-
-
-register()
+# NO REGISTRY ROW. Methods & Results is not a tile: it is a button on
+# Regression's masthead that opens the module seeded with the project and the
+# results folder that screen is already pointed at --
+# :data:`spacr.qt.screens.regression.FOLDED_APPS` and
+# :data:`spacr.qt.screens.regression.BUILDERS`. That seeding is what makes the
+# fold a superset of the tile, which opened on two empty path boxes and asked
+# the user to type what the host already knew.
+#
+# Everything the row used to fan out has a home that outlives it: the
+# button's name, sentence and alpha maturity colour in
+# :data:`spacr.qt.screens.map_barcodes.FOLD_FALLBACK`, the API link in
+# ``settings_model._APP_API_MODULE``, the headless answer in
+# :data:`spacr.cli.INTERACTIVE_ONLY`, and the nine translated names in the
+# shipped i18n catalogs. The strings above stay because they are this
+# module's own description, and because those homes are asserted against
+# them.

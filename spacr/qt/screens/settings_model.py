@@ -60,7 +60,8 @@ from ...object_roles import ORGANELLE_ROLES, setting_label
 # layout that lists all of them costs nothing -- build_sections drops any
 # key the module's settings dict does not hold -- and a layout that lists
 # four puts slot five in the "Additional Settings" bucket nobody chose.
-from ...organelle_types import ALL_ORGANELLE_ROLES
+from ...organelle_types import (ALL_ORGANELLE_ROLES, organelle_number,
+                                organelle_slot_label)
 # Pure data, and it imports nothing -- that is the whole point of the module
 # (see its docstring). The explainer box below reads it so that a backend
 # joining the no-p-value set changes what the box says about correction
@@ -2057,10 +2058,19 @@ def _object_subheading(obj: str) -> str:
     Organelle slots are numbered rather than spelled `organelleb`, which is
     an internal name chosen so object keys can round-trip through `prcfo`
     and was never meant to be read.
-    """
-    from spacr.object_roles import is_organelle, organelle_label
 
-    if is_organelle(obj):
+    THE SLOT IS RECOGNISED BY ITS NAME, not by the schema's list of the slots
+    that carry a mask plane today. That list stops at four, so a run with
+    seven organelles grouped its fifth slot's rows correctly and then drew
+    them under "Organellee" -- the internal spelling, leaked by the one
+    function whose job is to keep it out of sight. Asking
+    :mod:`spacr.organelle_types`, which owns the naming, covers every slot
+    the alphabet allows.
+    """
+    from spacr.object_roles import organelle_label
+    from ...organelle_types import organelle_role_of
+
+    if organelle_role_of(obj) == str(obj):
         return organelle_label(obj)
     return str(obj).replace("_", " ").capitalize()
 
@@ -2585,8 +2595,9 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
     "OBJECT FILTRATION (ALL OBJECTS)":
         "Which detected objects are kept, for every object class in one "
         "place. `cell_min_size` and `nucleus_min_size` do the same thing to "
-        "different objects, so they are one decision applied four times "
-        "rather than four unrelated knobs — the settings are ordered by "
+        "different objects, so they are one decision applied once per "
+        "object rather than a row of unrelated knobs — the settings are "
+        "ordered by "
         "object, so each group reads together. Raise the minimum size to "
         "drop debris, set a maximum to drop merged clumps, and use the "
         "border filters when objects cut off by the image edge would bias "
@@ -2601,8 +2612,9 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
     "OBJECT FILTRATION":
         "Which detected objects are kept, for every object class in one "
         "place. `cell_min_size` and `nucleus_min_size` do the same thing to "
-        "different objects, so they are one decision applied four times "
-        "rather than four unrelated knobs — the settings are ordered by "
+        "different objects, so they are one decision applied once per "
+        "object rather than a row of unrelated knobs — the settings are "
+        "ordered by "
         "object, so each group reads together. Raise the minimum size to "
         "drop debris, set a maximum to drop merged clumps, and use the "
         "border filters when objects cut off by the image edge would bias "
@@ -3649,26 +3661,47 @@ OBJECT_SUBHEADING_TOOLTIPS: Dict[str, str] = {
         "segmented at all -- it is the cell with the nucleus and the "
         "pathogens subtracted. A filter here therefore acts on what is left "
         "over, and follows whatever the other three were set to."),
-    "ORGANELLE 1": (
-        "This group's decision as it applies to the first organelle slot. "
-        "Organelles are the most varied objects spaCR handles, from "
-        "diffraction-limited dots to a network filling the whole cell, so "
-        "the useful values here depend on which kind was chosen."),
-    "ORGANELLE 2": (
-        "The same decision for the second organelle slot, which is an "
-        "independent object with its own channel and its own type. A screen "
-        "staining two organelles keeps their settings apart here rather than "
-        "sharing one set of values between them."),
-    "ORGANELLE 3": (
-        "The same decision for the third organelle slot. It starts from the "
-        "first slot's values, so a screen that only uses one organelle can "
-        "ignore this heading entirely without leaving anything unset."),
-    "ORGANELLE 4": (
-        "The same decision for the fourth organelle slot, the last one "
-        "spaCR offers. Like the others it is defaulted from the first slot, "
-        "and it is only worth opening when a fourth organelle channel is "
-        "actually being segmented."),
 }
+
+
+def _organelle_subheading_tooltip(number: int) -> str:
+    """Help for one organelle slot's sub-heading, written from its number.
+
+    GENERATED, BECAUSE THE SLOTS ARE. Four of these were written out by hand,
+    which was the whole complaint: the fifth slot a run may declare had no
+    help at all and fell back to "Settings that control organelle 5", and the
+    fourth one's text told the user it was "the last one spaCR offers" --
+    true while the slots were fixed at four and a lie the moment the count
+    became a setting.
+    """
+    if number == 1:
+        return ("This group's decision as it applies to the first organelle "
+                "slot. Organelles are the most varied objects spaCR handles, "
+                "from diffraction-limited dots to a network filling the whole "
+                "cell, so the useful values here depend on which kind was "
+                "chosen.")
+    if number == 2:
+        return ("The same decision for the second organelle slot, which is "
+                "an independent object with its own channel and its own "
+                "type. A screen staining two organelles keeps their settings "
+                "apart here rather than sharing one set of values between "
+                "them.")
+    return (f"The same decision for organelle slot {number}, an independent "
+            "object with its own channel and its own type. It is defaulted "
+            "from the first slot, so a screen using fewer organelles can "
+            "ignore this heading without leaving anything unset, and it is "
+            "only worth opening when this slot's channel is actually being "
+            "segmented.")
+
+
+#: Every slot gets one, for the reason the registries are generated for every
+#: slot too: lowering `number_of_organelles` HIDES a slot rather than deleting
+#: it, so a heading that can come back has to have help waiting when it does.
+OBJECT_SUBHEADING_TOOLTIPS.update({
+    organelle_slot_label(role).upper(): _organelle_subheading_tooltip(
+        organelle_number(role))
+    for role in ALL_ORGANELLE_ROLES
+})
 
 
 def section_tooltip(app_key: str, section, language: Optional[str] = None) -> str:
@@ -3752,6 +3785,10 @@ _APP_API_MODULE = {
     "barcode_qc": "sequencing_qc",
     "explain_cv": "surrogate",
     "anndata_export": "anndata_export",
+    # Illumination reached this table from its own row too, and folded into
+    # Measure. Its module is the one that estimates the flat field, so the
+    # settings on the folded page point there rather than at the index.
+    "illumination": "illumination",
     "volcano_explorer": "volcano_style",
     # Image Scatter and PCA reached this table the same way, from their own
     # rows. Both are folded onto Image UMAP now, and `unregister_app` takes a
