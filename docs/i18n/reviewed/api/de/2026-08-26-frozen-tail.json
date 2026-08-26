@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "de",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.setup_slides.SetupSlides.showEvent#1",
+      "source_sha256": "2dc2fcb6af9cb35c786982d6d49b01af7b7827fc5eca6b317a7df1733d9f2ea0",
+      "source": "Whether the end of the terms document is visible depends on its rendered viewport. The zero-delay callback runs on the next event-loop turn, after Qt has completed layout for the show event.",
+      "context": "Whether the end of the terms document is visible depends on its rendered viewport. The zero-delay callback executes on the next event-loop turn, after Qt has completed layout for the show event.",
+      "translation": "Ob das Ende des Nutzungsbedingungsdokuments sichtbar ist, hängt von seinem gerenderten Anzeigebereich ab. Der Rückruf ohne Verzögerung wird im nächsten Durchlauf der Ereignisschleife ausgeführt, nachdem Qt das Layout für das Anzeigeereignis abgeschlossen hat."
+    }
+  ]
+}

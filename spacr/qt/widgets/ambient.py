@@ -4004,11 +4004,10 @@ def install_ambient(host: QWidget, layout=None, *,
     :param palette: one of :func:`palettes_for` for that theme.
     :param backdrop: wallpaper to composite over; see
         :meth:`AmbientWidget.set_backdrop`.
-    :param corner_radius: clip the backdrop to rounded corners of this
-        radius. Zero -- the default, and right for a full screen -- leaves
-        it square. A frameless dialog holding one rounded card needs the
-        backdrop rounded to the SAME radius, or the square corners read as a
-        second window behind the card.
+    :param corner_radius: Radius in pixels used to clip the backdrop. The
+        default of zero leaves square corners. For a frameless dialog
+        containing a rounded card, use the card's radius so the backdrop does
+        not extend beyond its corners.
     :param kwargs: forwarded to :class:`AmbientWidget` (``background``,
         ``fps``, ``seed``, ``blur``, ``speed``, ``size``, ``resolution``,
         ``density``, ``direction``). Everything from ``blur`` on defaults to

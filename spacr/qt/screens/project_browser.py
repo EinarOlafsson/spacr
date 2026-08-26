@@ -433,24 +433,21 @@ def make_project_browser_screen(app_key: Optional[str] = None) -> QWidget:
 
 
 APP_NAME = "Project Browser"
-APP_DESCRIPTION = "Every project on disk: stage, size, last run and what is stale"
+APP_DESCRIPTION = "Inspect project stage, disk usage, most recent run and stale outputs"
 APP_INTRO = (
-    "Point it at the folder your experiments live in and it lists every "
-    "spaCR project under it: how far each one got, what it costs on disk, "
-    "when it last produced anything, and which of its results no longer "
-    "match the data underneath them. A project spaCR has never recorded — a "
-    "plate folder copied from a colleague this morning — is listed too, with "
-    "everything the filesystem can answer; what it will not do is call it "
-    "current, because with no run record there is nothing to compare it "
-    "against. Nothing here is computed twice: the stage is which declared "
-    "outputs exist, the size is the Data Manager's own walk, the staleness "
-    "is the artifact registry's verdict, and the next step is the offer that "
-    "module's own screen makes.")
+    "Select a directory containing experiment folders. The browser lists "
+    "each spaCR project beneath it with its pipeline stage, disk use, most "
+    "recent output, stale artifacts, and recommended next action. Unregistered "
+    "plate folders are included using available filesystem metadata but are "
+    "not marked current because they have no run record for comparison. Stage "
+    "is derived from declared outputs, size from the Data Manager scan, "
+    "staleness from the artifact registry, and the next action from the module "
+    "that owns that stage.")
 APP_CLI_NOTE = (
-    "Project Browser is a table you read and sort. Run it in the GUI "
-    "(spacr-qt). Headless, spacr.projects.browse([root]) returns the same "
-    "summaries and spacr.projects.format_projects prints the same table, so "
-    "a nightly job can mail you which projects went stale.")
+    "Use Project Browser in the GUI (spacr-qt) for interactive sorting. In a "
+    "headless workflow, spacr.projects.browse([root]) returns the same project "
+    "summaries and spacr.projects.format_projects formats the corresponding "
+    "table for scheduled reports.")
 #: The display name in the nine non-English UI languages, in
 #: `spacr.qt.i18n.LANGUAGES` order (sv, de, es, zh_CN, pt, hi, ko, is, fr).
 APP_NAME_TRANSLATIONS = (

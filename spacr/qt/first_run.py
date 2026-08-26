@@ -108,12 +108,18 @@ def _section_names_sentence() -> str:
     except Exception:
         names = []
     if not names:
-        return "Every pipeline lives here, grouped by what it does."
+        return (
+            "Primary modules are grouped here by purpose; related workflows "
+            "are reached from their host module."
+        )
     if len(names) == 1:
         listed = names[0]
     else:
         listed = ", ".join(names[:-1]) + " and " + names[-1]
-    return f"Every pipeline lives here, grouped into {listed}."
+    return (
+        f"Primary modules are grouped here into {listed}; related workflows "
+        "are reached from their host module."
+    )
 
 
 DEFAULT_TOUR: List[TourStep] = [
@@ -126,23 +132,24 @@ DEFAULT_TOUR: List[TourStep] = [
     TourStep(
         title="Sidebar — apps by category",
         body=_section_names_sentence()
-             + " Click any name to open it. Ctrl+1..9 jumps between the "
-               "core pipeline apps.",
+             + " Click any name to open it. Ctrl+1 through Ctrl+9 opens "
+               "the first nine "
+               "apps in sidebar order.",
         highlight=lambda w: getattr(w, "_sidebar", None),
     ),
     TourStep(
         title="Demos menu",
-        body="Load a synthetic demo dataset for any module in one "
-             "click — no data of your own required. Perfect for "
-             "trying spaCR out.",
+        body="Load a synthetic demo dataset for a selected core workflow "
+             "in one click — no data of your own required. Use it to try "
+             "spaCR before loading an experiment.",
         highlight=lambda w: find_menu(w, "Demos"),
     ),
     TourStep(
         title="Drag & drop",
-        body="Drop a folder of microscopy images onto Mask (or "
-             "Measure, Annotate, etc.) to point that module at it. "
-             "spaCR auto-detects the filename regex and shows a "
-             "sanity-check in the Console.",
+        body="Drop a folder of acquisition images onto Mask to set its "
+             "input; Mask detects the filename regex and displays a metadata "
+             "validation summary in the Console. Measure, Annotate and other modules "
+             "accept the files or folders described by their input controls.",
         highlight=None,
     ),
     TourStep(

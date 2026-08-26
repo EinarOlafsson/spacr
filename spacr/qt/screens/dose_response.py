@@ -620,24 +620,23 @@ def make_dose_response_screen(app_key: Optional[str] = None) -> QWidget:
 
 
 APP_NAME = "Dose–Response"
-APP_DESCRIPTION = "4PL curves and EC50s, with an interval that can say no"
+APP_DESCRIPTION = ("Fit four-parameter logistic curves and estimate EC50 "
+                   "values with profile-likelihood intervals")
 APP_INTRO = (
-    "Point it at a concentration column and a response column and it fits a "
-    "four-parameter logistic per gene or compound, in log10(EC50) so the "
-    "interval is multiplicative and never reaches below zero. The interval "
-    "is a profile likelihood by default, because the usual asymptotic one is "
-    "finite even for a series that never reached a plateau: when the "
-    "midpoint is outside the doses you tested, this reports "
-    "'EC50 > 30 µM' and no point estimate rather than a confident wrong "
-    "number. Bell-shaped series — cytotoxicity at the top dose — are refused "
-    "with the concentrations where they turn. R² is shown with the warning "
-    "that it means almost nothing on a sigmoid, next to the lack-of-fit test "
-    "against pure error that does.")
+    "Select concentration and response columns to fit a four-parameter "
+    "logistic curve for each gene or compound. EC50 is parameterized on the "
+    "log10 scale, and profile-likelihood intervals are used by default. When "
+    "the midpoint lies outside the tested concentration range, the result is "
+    "reported as a one-sided bound, such as 'EC50 > 30 µM', without a point "
+    "estimate. Bell-shaped series, including responses consistent with "
+    "high-dose cytotoxicity, are rejected with their turning concentrations. "
+    "The report includes R² with its limitations for sigmoid models and a "
+    "lack-of-fit test against pure error.")
 APP_CLI_NOTE = (
-    "Dose–Response is interactive: choosing the columns and reading the "
-    "refusals is the feature. Run it in the GUI (spacr-qt). Headless, "
+    "Use Dose–Response in the GUI (spacr-qt) to select columns and inspect fit "
+    "diagnostics. In a headless workflow, "
     "spacr.qt.widgets.dose_response.fit_frame() computes the same curves, "
-    "intervals, bounds and lack-of-fit tests with no Qt involved.")
+    "intervals, bounds, and lack-of-fit tests without Qt.")
 #: The display name in the nine non-English UI languages, in
 #: `spacr.qt.i18n.LANGUAGES` order (sv, de, es, zh_CN, pt, hi, ko, is, fr).
 APP_NAME_TRANSLATIONS = (

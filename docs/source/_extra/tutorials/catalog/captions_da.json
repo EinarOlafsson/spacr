@@ -7,25 +7,25 @@
       "id": "01_pypi_github",
       "scenes": [
         {
-          "narration": "Inden du installerer spaCR, skal du kende de tre officielle distributionsruter: PyPI for den udgivne Python-pakke, GitHub for kildekode- og skrivebordsinstaller og conda-forge, når den reviderede pakke er offentliggjort."
+          "narration": "Før du installerer spaCR, skal du vælge den officielle kilde. PyPI indeholder den udgivne Python-pakke, GitHub indeholder kildekoden og installationsprogrammerne til skrivebordet, og conda-forge bliver en mulighed, når pakken er udgivet."
         },
         {
-          "narration": "På siden spaCR på PyPI vises den aktuelle stabile version og kommandoen pip install spacr. Udsendingsfiler omfatter et Python-hjul og et kildearkiv."
+          "narration": "På PyPI viser udgivelsesoverskriften den aktuelle stabile version og kommandoen pip install spacr."
         },
         {
-          "narration": "PyPI linker også til dokumentationen, kilderepositoriet og issue tracker. Tjek de nødvendige Python-versioner og udgivelsesdato, før du ændrer et eksisterende miljø."
+          "narration": "Under Project links finder du dokumentationen, hjemmesiden, fejlrapporteringen og kildekodedepotet."
         },
         {
-          "narration": "På GitHub er main den udgivne kildekodelinje, mens nightly indeholder nyere ændringer, der stadig testes. Brug kun nightly, når du specifikt har brug for en endnu ikke udgivet ændring."
+          "narration": "På GitHub bruger du grenvælgeren til at vælge kodelinje. main er udgivelsesgrenen; nightly indeholder nyere ændringer, der stadig testes."
         },
         {
-          "narration": "GitHub Releases giver Windows, macOS og Linux installerere, release notater, Python pakke filer og SHA-256 checksummer."
+          "narration": "Udvid Assets under en GitHub-udgivelse for at hente installationsprogrammet til Windows, macOS eller Linux, Python-pakkefilerne eller listen over kontrolsummer."
         },
         {
-          "narration": "Receptet til conda-forge er udarbejdet i arkivet, men der er endnu ingen spaCR-pakke offentliggjort på conda-forge-kanalen. For nu skal du oprette et Conda-miljø og installere spaCR fra PyPI inde i det."
+          "narration": "Conda-forge udgiver endnu ikke spaCR. Opret i øjeblikket et Conda-miljø, og installér spaCR fra PyPI; brug først conda-forge-kanalen, når pakken er udgivet."
         },
         {
-          "narration": "Brug PyPI eller pip til et Python-miljø, GitHub Releases til en indfødt installator og nightly-grenen kun til udvikling. Følgende instruktioner viser hver installationsvej uden at starte applikationen."
+          "narration": "Brug PyPI eller pip til et Python-miljø, GitHub Releases til et installationsprogram til skrivebordet og nightly, når du specifikt har brug for ændringer, der endnu ikke er udgivet. Vælg derefter installationsvejledningen til din installationsmetode."
         }
       ]
     },
@@ -33,25 +33,25 @@
       "id": "02_conda_install",
       "scenes": [
         {
-          "narration": "Et Conda-miljø holder spaCR og dets videnskabelige afhængigheder adskilt fra ikke-relaterede projekter. Python tre point tolv tilbyder i øjeblikket den bredeste valgfrie pakke kompatibilitet."
+          "narration": "Brug et Conda-miljø til at isolere spaCR og dets videnskabelige afhængigheder. Python 3.12 anvendes i eksemplet, fordi denne version i øjeblikket understøtter det bredeste udvalg af valgfrie pakker."
         },
         {
-          "narration": "Åbn en Conda-aktiveret terminal og oprett et miljø kaldet spacr med Python tre point tolv og pip."
+          "narration": "Åbn en terminal med Conda, og opret et miljø med navnet spacr, Python 3.12 og pip."
         },
         {
-          "narration": "Aktiver miljøet. Bevis, at Python tilhører spacr-miljøet, før du installerer noget."
+          "narration": "Aktivér miljøet. Kontrollér, at Python tilhører spacr-miljøet, før du installerer noget."
         },
         {
-          "narration": "Opgradere pip gennem den aktive Python-tolker. Ved brug af python -m pip forhindres en anden pip- udførbar i at modtage pakken."
+          "narration": "Opgradér pip via den aktive Python-fortolker. Kommandoen python -m pip sikrer, at pakken ikke installeres af en anden pip-eksekverbar fil."
         },
         {
-          "narration": "For desktop-applikationen skal du installere spacr med qt extra. Brug den almindelige spacr-pakke til en hovedløs arbejdsstation eller server."
+          "narration": "Installér spacr med qt-tilvalget til skrivebordsprogrammet. Brug den almindelige spacr-pakke på en arbejdsstation eller server uden grafisk brugerflade."
         },
         {
-          "narration": "Kør spaCR-doctor før den første start. Diagnoseværktøjet kontrollerer den aktive installation, Qt, PyTorch, valgfrie komponenter og hardwareunderstøttelse og foreslår en løsning for hver kontrol, der mislykkes."
+          "narration": "Kør spacr-doctor før første start. Programmet rapporterer den aktive installation, Qt, PyTorch, valgfrie komponenter og hardwareunderstøttelse og foreslår en løsning for hver kontrol, der ikke består."
         },
         {
-          "narration": "conda-forge-pakken er endnu ikke udgivet, så kør ikke kommandoen conda install -c conda-forge spacr i dag. Når pakken bliver tilgængelig, linkes der til den officielle opskrift og kanal fra spaCR-repositoriet."
+          "narration": "Når spacr-doctor består alle kontroller, skal miljøet være aktiveret, hver gang du kører spaCR."
         }
       ]
     },
@@ -59,25 +59,25 @@
       "id": "03_pip_install",
       "scenes": [
         {
-          "narration": "Pip-ruten fungerer på Windows, macOS og Linux. Brug altid et isoleret virtuelt miljø i stedet for at ændre operativsystemets Python-installation."
+          "narration": "Installation med pip fungerer på Windows, macOS og Linux. Brug altid et isoleret virtuelt miljø i stedet for at ændre operativsystemets Python-installation."
         },
         {
-          "narration": "På macOS eller Linux, oprette miljøet med Python tre point tolv, så aktivere det fra sin bin katalog."
+          "narration": "På macOS eller Linux skal du oprette miljøet med Python 3.12 og derefter aktivere det fra mappen bin."
         },
         {
-          "narration": "På Windows kan du bruge Python-launcheret til at oprette miljøet og aktivere det fra Skripts-mappen."
+          "narration": "På Windows skal du bruge Python-startprogrammet til at oprette miljøet og aktivere det fra mappen Scripts."
         },
         {
-          "narration": "Opgradere pip i det aktive miljø. Beføjelsen python -m pip holder installationen bundet til den Python, du lige aktiverede."
+          "narration": "Opgradér pip i det aktive miljø. Kommandoen python -m pip knytter installationen til den Python-version, du netop har aktiveret."
         },
         {
-          "narration": "Installer den almindelige spacr-pakke til hovedløs brug eller spacr med qt extra til skrivebordets grænseflader."
+          "narration": "Installér den almindelige spacr-pakke til brug uden grafisk brugerflade eller spacr med qt-tilvalget til skrivebordsgrænsefladen."
         },
         {
-          "narration": "Kontrollér den importerede version og kør spacr-doctor. Afhjælp eventuelle mislykkede kontroller, inden du åbner eksperimentelle data."
+          "narration": "Kontrollér den importerede version, og kør spacr-doctor. Afhjælp alle kontroller, der ikke består, før du åbner forsøgsdata."
         },
         {
-          "narration": "Miljøet er nu klar. Hold den aktiveret, når du bruger spaCR, og brug python -m pip install --upgrade spacr, når du bevidst opdaterer den."
+          "narration": "Miljøet er nu klar. Sørg for, at det er aktiveret, når du bruger spaCR, og brug python -m pip install --upgrade spacr, når du bevidst vil opdatere programmet."
         }
       ]
     },
@@ -85,28 +85,28 @@
       "id": "04_platform_installers",
       "scenes": [
         {
-          "narration": "De lette indfødte installerere opretter en privat Python tre point tolv køretid, derefter downloade Qt, PyTorch, spaCR, og dets videnskabelige afhængigheder."
+          "narration": "De lette, platformspecifikke installationsprogrammer opretter et privat Python 3.12-miljø og henter derefter Qt, PyTorch, spaCR og de videnskabelige afhængigheder."
         },
         {
-          "narration": "Download installerere kun fra den seneste spaCR GitHub Release. Mæg filen til dit operativsystem og brug den offentliggjorte SHA-256-fil, når du skal verificere downloadet."
+          "narration": "Hent kun installationsprogrammer fra den seneste spaCR-udgivelse på GitHub. Vælg filen til dit operativsystem, og brug den offentliggjorte SHA-256-fil, hvis du skal kontrollere overførslen."
         },
         {
-          "narration": "På Windows 10 eller 11 åbner du online-opstillingen. Den bærbare CPU-installation er standard; NVIDIA acceleration er en valgfri installationskomponent."
+          "narration": "På Windows 10 eller 11 skal du åbne onlineinstallationsfilen. Den portable CPU-installation er standard; NVIDIA-acceleration kan vælges som en installationskomponent."
         },
         {
-          "narration": "På macOS 11 eller nyere åbner du den universelle pakke for Intel og Apple silicon. Hvis Gatekeeper blokerer den ikke-notariserede pakke, så brug Privacy and Security, Open Anyway, og så kør den igen."
+          "narration": "På macOS 11 eller nyere skal du åbne universalpakken til Intel- og Apple Silicon-computere. Hvis Gatekeeper blokerer den ikke-notariserede pakke, skal du vælge Privacy & Security, derefter Open Anyway og køre pakken igen."
         },
         {
-          "narration": "På 64 bit Linux, gør den downloadede .run-fil udførbar, og start den derefter fra en terminal. Standardinstallationen bruger CPU-kompatibel PyTorch."
+          "narration": "På 64-bit Linux skal du gøre den hentede .run-fil eksekverbar og derefter starte den fra en terminal. Standardinstallationen bruger en CPU-kompatibel version af PyTorch."
         },
         {
-          "narration": "For understøttet NVIDIA hardware på Linux, gå forbi --torch-backend auto. Dette udvælger acceleration, når det er tilgængeligt, uden at CUDA-biblioteker bliver den stille standard."
+          "narration": "På Linux med understøttet NVIDIA-hardware skal du angive --torch-backend auto. Det vælger acceleration, når den er tilgængelig, uden at gøre CUDA-biblioteker til en skjult standard."
         },
         {
-          "narration": "Hver installatør validerer udskiftningen, før man skifter versioner. En afbrudt opdatering efterlader det foregående miljø intakt, og install.log forbliver i det private spaCR installationsdirektorium."
+          "narration": "Hvert installationsprogram validerer den nye version, før det skifter til den. En afbrudt opdatering efterlader det tidligere miljø intakt, og install.log bevares i spaCRs private installationsmappe."
         },
         {
-          "narration": "Efter installationen skal du bruge operativsystemens launcher. Ingen separat Python- eller Conda- konfiguration er nødvendig."
+          "narration": "Start spaCR fra operativsystemets programstarter efter installationen. Der kræves ingen separat opsætning af Python eller Conda."
         }
       ]
     },
@@ -114,19 +114,19 @@
       "id": "05_home",
       "scenes": [
         {
-          "narration": "Hjemgrupper spaCR moduler efter arbejdsproces, så du kan gå fra billedbehandling gennem analyse og kvalitetskontrol."
+          "narration": "Home grupperer spaCRs moduler efter arbejdsgang, så du kan gå fra billedbehandling til analyse og kvalitetskontrol."
         },
         {
-          "narration": "Brug venstre sidebar til at skifte sektioner. Vælg Hjem, når du vil vende tilbage til det fulde modulbibliotek."
+          "narration": "Brug venstre sidepanel til at skifte mellem sektioner. Vælg Home, når du vil vende tilbage til hele moduloversigten."
         },
         {
-          "narration": "Browse kategorifilerne og arbejdsflow-rækkerne for at finde et modul. Hver tegl åbner en arbejdsproces, og farven angiver, om modulen er alfa, beta eller stabil."
+          "narration": "Gennemse kategorifanerne og arbejdsgangsrækkerne for at finde et modul. Hver flise åbner én arbejdsgang, og farven angiver, om modulet er alpha, beta eller stable."
         },
         {
-          "narration": "Den højre panel viser den aktuelle system brug, udgivelse nyheder, og modul-stat legenden. Kontroller systembruget, før du begynder dyrt arbejde."
+          "narration": "Panelet til højre viser den aktuelle systembelastning, udgivelsesnyheder og en forklaring af modulernes status. Kontrollér systembelastningen, før du starter ressourcekrævende arbejde."
         },
         {
-          "narration": "Vælg en modulplade for at åbne indstillingskærmen. Modulens navn og beskrivelse øverst bekræfter hvilken arbejdsproces der er aktiv."
+          "narration": "Vælg en modulflise for at åbne indstillingerne. Modulnavnet og beskrivelsen øverst bekræfter, hvilken arbejdsgang der er aktiv."
         }
       ]
     },
@@ -1806,6 +1806,86 @@
         },
         {
           "narration": "Når arbejdsprocessen er færdig, kan kurvparametre, usikkerhed, diagnostik og kildedata eksporteres sammen."
+        }
+      ]
+    },
+    {
+      "id": "70_explain_cv",
+      "scenes": [
+        {
+          "narration": "Denne vejledning gennemgår Explain CV Model. Genskab computervisionsforudsigelser ud fra målte egenskaber, og vurder, om de resulterende forklaringer er troværdige og fri for datalækage."
+        },
+        {
+          "narration": "Vælg filen med forudsigelser pr. objekt, den tilhørende målingsdatabase, den forudsagte klasse eller score samt grupperingen efter mikropladebrønd eller plade, som skal bevares intakt."
+        },
+        {
+          "narration": "I hovedkonfigurationsområdet skal du vælge backend til surrogatmodellen, reserverede valideringsgrupper, udelukkede egenskaber, antal permutationsgentagelser og det afgrænsede SHAP-budget."
+        },
+        {
+          "narration": "Kontrollér udelukkelserne mod datalækage og det grupperede datasplit. Tilpas derefter surrogatmodellen, og sammenlign dens overensstemmelse på valideringsdata med majoritetsbaselinen, før du fortolker egenskabernes betydning."
+        },
+        {
+          "narration": "Når arbejdsgangen er fuldført, registreres overensstemmelse, permutationsbetydning på valideringssættet, SHAP-oversigter, udelukkede kolonner, gruppering, backend og proveniens; lav overensstemmelse rapporteres i stedet for at blive skjult."
+        }
+      ]
+    },
+    {
+      "id": "71_investigate_hit",
+      "scenes": [
+        {
+          "narration": "Denne vejledning gennemgår Investigate Hit. Før et udvalgt regressionsfund tilbage til kandidatceller og kvantitativ evidens fra mikropladebrønde uden at overskrive gennemgåede annoteringer."
+        },
+        {
+          "narration": "Vælg regressionskørslen, det udvalgte fund på gen- eller guide-niveau, fænotyperetningen, tærsklen for falske fund, guideunderstøttelsen og den tilhørende målingsdatabase."
+        },
+        {
+          "narration": "Gennemgå i hovedkonfigurationsområdet objekttabellen, scorekolonnen, grupperingen efter mikropladebrønd, evidenstærsklerne, kovariaterne og den valgfrie krydsvaliderede hierarkiske blandingsmodel."
+        },
+        {
+          "narration": "Forhåndsvis de scorerangerede kandidatceller og oversigterne for mikropladebrønde. Kør kun den krydsvaliderede model, når det valgte fund og evidenskravene er korrekte."
+        },
+        {
+          "narration": "Når arbejdsgangen er fuldført, gemmer spaCR rangerede kandidatceller, sammenligninger mellem uafhængige brønde, valgfrie sandsynligheder for at hver celle matcher den valgte fænotype, usikkerhed og et versionsstyret kald, som aldrig erstatter manuelle annoteringer."
+        }
+      ]
+    },
+    {
+      "id": "72_volcano_explorer",
+      "scenes": [
+        {
+          "narration": "Denne vejledning gennemgår Volcano Explorer. Åbn en fuldført regression, undersøg hvert punkt, tilpas diagrammets udseende, og eksportér en vektorfigur i publikationsformat uden at køre analysen igen."
+        },
+        {
+          "narration": "Vælg en mappe med en fuldført regression eller en resultat-CSV, og bekræft udfaldet, tabellen på guide-niveau, støttefamilien, effektkolonnen og kolonnen med justerede P-værdier."
+        },
+        {
+          "narration": "Gennemgå i hovedkonfigurationsområdet signifikans- og effekttærskler, aksetransformationer, etiketter, farver, figurer, annoteringer, aksebrud, skrifttyper og outputdimensioner."
+        },
+        {
+          "narration": "Klik på repræsentative punkter for at inspicere deres fulde rækker, flet eventuelle annoteringer, og kontrollér, at ændringer i udseendet bevarer de underliggende værdier og tærskler."
+        },
+        {
+          "narration": "Når arbejdsgangen er fuldført, gengives PDF- og PNG-eksporterne igen ud fra de registrerede data og det registrerede udseende i den ønskede størrelse, mens de oprindelige regressionsresultater forbliver uændrede."
+        }
+      ]
+    },
+    {
+      "id": "73_parameter_sweep",
+      "scenes": [
+        {
+          "narration": "Denne vejledning gennemgår Parameter Sweep. Kør en afgrænset afprøvning af regressionsindstillinger, og sammenlign, hvilke konklusioner der består på tværs af forsvarlige analysevalg."
+        },
+        {
+          "narration": "Par CSV-filerne med score pr. objekt og guide-antal for hver plade, vælg responskolonnen, og angiv en separat outputmappe."
+        },
+        {
+          "narration": "Vælg i hovedkonfigurationsområdet, hvilke akser der skal varieres, fasthold alle andre værdier, vælg gitter- eller tilfældig stikprøvetagning, begræns antallet af forsøg, registrér startværdien, og acceptér den hukommelsesbegrænsede grænse for parallelle arbejdere."
+        },
+        {
+          "narration": "Brug først Estimate til at gennemgå det gyldige søgerums størrelse og omkostning. Start derefter en lille, afgrænset afprøvning, og overvåg vellykkede, afviste og mislykkede forsøg."
+        },
+        {
+          "narration": "Når arbejdsgangen er fuldført, registrerer den genoptagelige resultattabel hvert forsøgs indstillinger, status, antal fund, rangering af positiv kontrol, varighed, outputmappe og fejlårsag."
         }
       ]
     }

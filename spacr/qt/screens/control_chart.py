@@ -783,26 +783,22 @@ def make_control_chart_screen(app_key: Optional[str] = None) -> QWidget:
 
 
 APP_NAME = "Control Charts"
-APP_DESCRIPTION = "Track a control plate by plate and see drift before it ruins a screen"
+APP_DESCRIPTION = "Monitor control measurements across plates to detect drift"
 APP_INTRO = (
-    "A campaign's controls are supposed to be the same thing every time, and "
-    "when they stop being the same, hit calling and normalisation are already "
-    "wrong. Pick the plate column, the run order and the control, and the "
-    "chart puts limits round it: an individuals / moving-range chart when a "
-    "plate has one control well, X-bar/S when it has several, and a robust "
-    "variant when one bad plate would drag the classical limits out. Sigma "
-    "comes from short-term variation, never from the spread of the whole "
-    "series — that one is inflated by exactly the drift you are looking for. "
-    "Limits are estimated from a stated baseline and applied forward, and "
-    "every Nelson rule that fires is marked on the plate and named in words, "
-    "along with how many false alarms the rule set you chose is worth over a "
-    "campaign this long.")
+    "Monitor selected controls across plates for process drift. Choose the "
+    "plate identifier, run order, and control group. The screen uses an "
+    "individuals/moving-range chart for one control well per plate, an X-bar/S "
+    "chart for multiple control wells, or a robust variant when extreme plates "
+    "would distort classical limits. Sigma is estimated from short-term "
+    "variation. Control limits are fitted on a declared baseline and applied "
+    "to subsequent plates. Nelson-rule violations are marked and described, "
+    "with the expected false-alarm count for the selected rules and campaign "
+    "length.")
 APP_CLI_NOTE = (
-    "Control Charts is a picture you read: the zones, the marked plates and "
-    "the rule list are the feature. Run it in the GUI (spacr-qt). Headless, "
-    "spacr.qt.widgets.control_chart.control_chart(frame, spec) returns the "
-    "same limits, the same violations and the same report text with no Qt "
-    "involved, so a QC gate in a script can refuse a campaign on it.")
+    "Use Control Charts in the GUI (spacr-qt) to inspect zones, marked plates, "
+    "and rule violations. In a headless workflow, "
+    "spacr.qt.widgets.control_chart.control_chart(frame, spec) returns the same "
+    "limits, violations, and report text for use in scripted QC gates.")
 #: The display name in the nine non-English UI languages, in
 #: `spacr.qt.i18n.LANGUAGES` order (sv, de, es, zh_CN, pt, hi, ko, is, fr).
 APP_NAME_TRANSLATIONS = (

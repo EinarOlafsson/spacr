@@ -1,83 +1,38 @@
-"""Which of the four hundred features actually separates the classes.
+"""Rank per-object measurements by class-separation performance.
 
-spaCR measures hundreds of features per object. Plotting them one at a time
-until something looks different is not analysis, it is a lottery with a
-publication bias, so **the ranking is the feature** and the plotting is the
-easy half.
+The default statistic is the area under the receiver-operating-characteristic
+curve (AUC), computed from the Mann–Whitney U statistic. Results are reported
+as the unit-free separation ``|2·AUC − 1|`` in ``[0, 1]`` together with the
+direction of the class difference. AUC is rank based and therefore invariant
+under monotonic transformations; it does not require normality, equal variance
+or symmetry. These properties allow measurements with different units and
+distributions to be compared in one ranking.
 
-The statistic, and why it is this one
--------------------------------------
+AUC represents the probability that a randomly selected object from one class
+has a higher value than a randomly selected object from the other class. It
+detects stochastic ordering but can miss distribution-shape differences. For
+example, classes with the same centre but different spread can have an AUC of
+0.5 despite differing distributions. The Kolmogorov–Smirnov (KS) statistic is
+therefore computed for every feature. A high KS statistic combined with AUC
+near 0.5 sets :attr:`FeatureScore.is_shape_not_shift`.
 
-The default is **AUC** — the area under the ROC curve of that one feature,
-computed from the Mann–Whitney U statistic via ranks and reported as a
-*separation* ``|2·AUC − 1|`` in ``[0, 1]``, plus the direction (which class
-sits higher).
+Alternative ranking statistics are available through :data:`STATISTICS`:
 
-Three reasons, all of them about this table specifically:
+* :data:`COHEN_D` measures a standardized mean difference but is sensitive to
+  skew, extreme observations and unequal group spread.
+* :data:`KS` measures the largest difference between empirical cumulative
+  distributions and detects spread changes, but does not provide direction.
+* :data:`MUTUAL_INFO` detects non-monotonic associations but depends on binning
+  and is biased upward for small samples.
 
-1. **It is rank-based**, so it is invariant under any monotone transform of the
-   feature. Half a spaCR measurement table is log-normal-ish — areas,
-   integrated intensities, ratios spanning three orders of magnitude — and
-   whether ``cell_area`` or ``log(cell_area)`` was measured must not change
-   which feature comes top. It does change Cohen's d.
-2. **It assumes nothing about the distributions**: not normality, not equal
-   variance, not even symmetry. The alternatives assume at least one of those,
-   and a segmented-object feature satisfies none of them.
-3. **It is bounded and unit-free**, so four hundred features measured in px²,
-   in counts and in dimensionless ratios are comparable on one axis. That is
-   what ranking *requires*, and it is exactly why an effect size in the
-   feature's own units cannot do the job.
+:attr:`ExplorerSpec.n_permutations` enables a family-wise permutation
+calibration. Class labels are permuted, the complete ranking is recomputed and
+the maximum score from each permutation is retained. The 95th percentile of
+these maxima is returned as :attr:`ExplorerResult.null_threshold`. Calibration
+uses a seeded subsample of at most :data:`NULL_MAX_ROWS` rows and is disabled
+by default because computation scales with the number of permutations.
 
-And it means something a biologist can check: AUC is the probability that a
-randomly chosen object of one class scores above a randomly chosen object of
-the other. 0.5 is a coin flip; 0.9 is a feature you could nearly gate on.
-
-**Its failure mode, stated rather than discovered later.** AUC only sees
-*stochastic ordering*. A feature where one class is bimodal around the other's
-median — same centre, wider spread — scores exactly 0.5 while being obviously
-informative. That is not hypothetical in this data: a knockdown that makes some
-cells bigger and some smaller is a variance effect, and AUC is blind to it.
-
-So the **KS statistic is computed for every feature, always, whatever the
-ranking statistic is**, and a feature with a high KS and an AUC near 0.5 is
-flagged :attr:`FeatureScore.is_shape_not_shift`. KS is the largest gap between
-the two empirical CDFs, which a variance difference moves and a rank test does
-not. The blind spot is not fixed — it is *reported*, on every row it applies to.
-
-The other three, and their failure modes
------------------------------------------
-
-Offered because different questions want different answers, each with the
-sentence a user needs before choosing it (:data:`STATISTIC_FAILURE_MODES`):
-
-* :data:`COHEN_D` — a standardised mean difference. Fails on skew: one object
-  three orders of magnitude out moves it, and it assumes the two groups have
-  comparable spread, which is precisely the case AUC is blind to.
-* :data:`KS` — the largest CDF gap. Sees any difference in distribution
-  including variance, but says nothing about *direction*, and is dominated by
-  wherever the two curves happen to cross.
-* :data:`MUTUAL_INFO` — binned mutual information, normalised by the class
-  entropy. Sees non-monotone relationships that AUC cannot, but depends on the
-  binning and is **biased upward at small n**: it never reports zero for a
-  finite sample, so a table with fifty objects per class produces a tidy
-  ranking of pure noise.
-
-The multiple-comparisons problem, out loud
--------------------------------------------
-
-Ranking four hundred features by separation and reading the top one is four
-hundred comparisons with one reported. :attr:`ExplorerSpec.n_permutations`
-turns on a **label-shuffling null**: the class labels are permuted, the whole
-ranking is recomputed, and the *best* score in each shuffle is kept. The 95th
-percentile of that is :attr:`ExplorerResult.null_threshold` — the separation
-the best of your features reaches by chance alone. A feature below it is not
-news, however confidently it is drawn.
-
-It is off by default because it costs a pass per shuffle, and it is computed on
-a seeded subsample of at most :data:`NULL_MAX_ROWS` rows, which
-:attr:`ExplorerResult.notice` says.
-
-No Qt in here — pure numpy and pandas, like :mod:`spacr.qt.widgets.pca_model`.
+The implementation uses NumPy and pandas and does not require Qt.
 """
 from __future__ import annotations
 
@@ -501,8 +456,8 @@ class FeatureScore:
         if np.isfinite(self.ks):
             parts.append(f"KS {self.ks:.3f}")
         if self.is_shape_not_shift:
-            parts.append("SHAPE, NOT SHIFT — the classes differ in spread, "
-                         "not in level; a rank statistic cannot see it")
+            parts.append("distributional shape differs without a location "
+                         "shift; a rank statistic does not detect this pattern")
         if self.is_low_n:
             parts.append(f"n={self.smallest_class} in the smaller class")
         return " · ".join(parts)

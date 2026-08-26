@@ -170,8 +170,6 @@ class TestItIsInTheHelpMenu:
         return widget
 
     def _help_actions(self, window):
-        for menu in window.menuBar().findChildren(type(window.menuBar())):
-            pass
         bar = window.menuBar()
         for action in bar.actions():
             if action.text().replace("&", "") == "Help":

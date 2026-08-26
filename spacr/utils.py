@@ -4565,20 +4565,12 @@ def choose_model(model_type: str,
     :param num_classes: output class count; ``1`` yields a single-logit BCE head.
     :param verbose: print the model structure when ``True``.
 
-    :returns: the instantiated ``nn.Module``.
+    :returns: The instantiated ``nn.Module``.
     :raises ValueError: ``model_type`` names no backbone, or the built model
         does not produce logits of the requested shape.
 
-    IT RAISES RATHER THAN RETURNING ``None``. It used
-    to print "Invalid model_type" and hand back None; the caller printed
-    "Model X not found" and returned ``(None, None)``, and the run then
-    failed further downstream on something else -- a typo in one setting
-    reported as a fault in another. The docstring recorded the behaviour
-    faithfully, which made it a bug with a docstring rather than a fix.
-
-    A near miss is named. "resnet_18" and "efficientnet-b0" are the two
-    spellings this actually receives, and neither is findable in a list of
-    twenty names beginning with "AlexNet".
+    Unsupported names raise immediately and include close TorchVision matches
+    when available, so configuration errors are reported before training.
     """
     import difflib
 

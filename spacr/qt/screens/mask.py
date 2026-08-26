@@ -1,53 +1,17 @@
-"""Mask Generation, and what it does over a time series.
+"""Timelapse segmentation and tracking controls integrated with Mask.
 
-Timelapse is not a separate destination. It is the mask pipeline with a
-flag turned on: ``preprocess_generate_masks_timelapse`` forces
-``timelapse=True`` and then calls
-:func:`spacr.core.preprocess_generate_masks` unchanged. Every setting it
-has that Mask Generation does not is a handful of categories; everything
-else -- the folder, the channels, the segmentation models, the filters,
-the outputs -- it already shares with this host.
+The Timelapse switch enables ``timelapse=True`` for the standard mask
+pipeline and displays the additional time-series and tracking settings on the
+Mask form. Settings files created for the Timelapse module remain compatible;
+:func:`sync_folds` restores the switch state from the pipeline gate.
 
-So it opens nothing. It is a switch on the Mask masthead: the module's own
-icon, its one-line description as the tooltip, lit in the maturity colour
-its tile used, and CHECKABLE, because being part of the run is a state
-rather than an action. Pressing it reveals that module's settings
-categories on the form already on screen and turns its gate on; pressing
-it again hides them and turns the gate off.
+The integrated tracking preview evaluates object linkage across frames,
+whereas the standard Mask preview evaluates segmentation of an individual
+field. Motility analysis remains under Measure because it quantifies existing
+masks and writes measurements rather than generating masks.
 
-WHY THIS HOST AND NOT MAKE MASKS. Make Masks is hand-curation of masks
-that already exist -- one field, a brush, and a ledger. Tracking a series
-and measuring how fast things move are things mask GENERATION does over a
-series, and the overlap is with this module's settings, not with that
-one's tools.
-
-NOTHING IS LOST IN THE MOVE.
-
-* Timelapse's own entry point differs from Mask's only by forcing
-  ``timelapse`` on and canonicalising the tracking defaults. The switch
-  forces the same flag, and the tracking defaults arrive with the
-  categories -- including the ones the module renders no control for --
-  so the dict handed to the pipeline is the dict its own module would
-  have handed it.
-* A settings file written by the folded module still loads: its controls
-  are on this form and take their values like any other, and
-  :func:`sync_folds` reads the gate -- which has no control -- back onto
-  the switch, so a Timelapse file arrives with tracking on rather than
-  with every tracking knob filled in and tracking off.
-* THE TRACK PREVIEW COMES WITH IT. Mask Generation's own preview
-  segments one field with Cellpose and answers "did the mask come out
-  right"; Timelapse's answers "did the objects link up", which is the
-  only question its settings are about. The switch attaches that panel to
-  this screen and offers its toggle, so pressing the button reveals the
-  tracking settings AND the thing that shows what they do -- see
-  :func:`fold_previews`.
-
-THE MOTILITY ASSAY IS NOT HERE. It reads masks rather than making them,
-and what it produces is a measurements table, so it folds onto Measure.
-
-The mechanics -- mounting a module's categories on a host, keeping the
-gates consistent with the switches, and the strip itself -- are shared
-with the other hosts and live in :mod:`spacr.qt.screens.map_barcodes`.
+Category mounting and fold-state synchronization are shared with the other
+host screens through :mod:`spacr.qt.screens.map_barcodes`.
 """
 
 from __future__ import annotations

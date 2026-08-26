@@ -39,8 +39,7 @@
 
 .. image:: ../../../spacr/resources/icons/logo_spacr_readme.png
    :alt: spaCR
-   :align: center
-   :width: 360
+   :width: 920
 
 spaCR
 =====
@@ -57,9 +56,9 @@ spaCR
 
 **CRISPR स्क्रीनिंग का स्थानिक फीनोटाइप विश्लेषण।**
 
-spaCR उच्च-सामग्री माइक्रोस्कोपी छवियों में एकल कोशिकाओं का विभाजन और मापन करता है, प्रत्येक कोशिका को मिले gRNA से जोड़ता है और बताता है कि किन जीनों ने फीनोटाइप बदला। इनपुट के रूप में प्लेट छवियाँ और FASTQ रीड आती हैं; आउटपुट में प्रति-वस्तु मापन, प्रशिक्षित वर्गीकारक, प्रति-गाइड और प्रति-जीन प्रभाव आकार तथा प्राथमिकता के अनुसार परिणामों की सूची मिलती है।
+spaCR उच्च-सामग्री माइक्रोस्कोपी छवियों में एकल कोशिकाओं का विभाजन और मापन करता है, प्रति-वस्तु फीनोटाइप को अनुक्रमण से प्राप्त गाइड प्रचुरता के साथ एकीकृत करता है और अनुमान लगाता है कि कौन-से जीन फीनोटाइपिक परिवर्तनों से जुड़े हैं। प्लेट छवियों और FASTQ रीड से शुरू करके, यह प्रति-वस्तु मापन, प्रशिक्षित वर्गीकारक, प्रति-गाइड और प्रति-जीन प्रभाव अनुमान तथा प्राथमिकता के अनुसार क्रमित हिट सूची बनाता है।
 
-छवि-आधारित पूल्ड CRISPR स्क्रीनिंग के लिए यह पूरा कार्यप्रवाह है। यदि आपके पास उच्च-सामग्री माइक्रोस्कोपी है लेकिन कोई स्क्रीनिंग नहीं है, तो विभाजन, मापन, एनोटेशन और वर्गीकरण वाले भाग स्वतंत्र रूप से चलाए जा सकते हैं।
+छवि-आधारित पूल्ड CRISPR स्क्रीनिंग के लिए spaCR छवि विभाजन से हिट प्राथमिकता तक का कार्यप्रवाह प्रदान करता है। अनुक्रमण-आधारित स्क्रीनिंग के बिना उच्च-सामग्री माइक्रोस्कोपी अध्ययनों में विभाजन, मापन, एनोटेशन और वर्गीकरण मॉड्यूल स्वतंत्र रूप से उपयोग किए जा सकते हैं।
 
 छवियाँ, मास्क, इमेज क्रॉप, मापन, एनोटेशन, पूर्वानुमान, बारकोड और वेल पहचानकर्ता एक ही SQLite प्रोजेक्ट में रहते हैं, इसलिए किसी परिणाम के मान को उसके स्रोत ऑब्जेक्ट तक वापस खोजा जा सकता है।
 
@@ -107,43 +106,37 @@ spaCR को डेस्कटॉप एप्लिकेशन के रू�
    :width: 2.5%
    :align: middle
 
-**Data**
+**डेटा**
 
 |App_align|\ |App_convert|\ |App_foreign|\ |App_external_masks|\ |App_queue|
 
-|App_batch|\ |App_distributed_jobs|\ |App_db_browser|\ |App_illumination|\ |App_data_manager|
+|App_batch|\ |App_distributed_jobs|\ |App_db_browser|\ |App_data_manager|\ |App_project_browser|
 
-**Segmentation models**
+**सेगमेंटेशन मॉडल**
 
-|App_make_masks|\ |App_train_cellpose|\ |App_cellpose_masks|\ |App_model_compare|\ |App_model_zoo|
+|App_make_masks|\ |App_napari_bridge| के बारे में टिप्पणियाँ
 
-|App_curate|
+**परिणाम और QC**
 
-**Results & QC**
+|App_plate_view|\ |App_umap|\ |App_train_compare|\ |App_run_history|\ |App_report|
 
-|App_plate_view|\ |App_agreement|\ |App_umap|\ |App_activation|\ |App_train_compare|
+|App_hit_list|\ |App_methods_export|\ |App_run_compare|\ |App_investigate_hit|\ |App_control_chart|
 
-|App_classifier_evaluation|\ |App_run_history|\ |App_report|\ |App_barcode_qc|\ |App_hit_list|
+**अनुसंधान**
 
-|App_methods_export|\ |App_volcano_explorer|\ |App_parameter_sweep|\ |App_run_compare|\ |App_explain_cv|
+|App_pipeline_graph|\ |App_profiler|\ |App_qc_dashboard|\ |App_lineage|\ |App_layer_viewer|
 
-|App_investigate_hit|
+|App_graph_builder|\ |App_tabulate|\ |App_feature_dict|\ |App_trellis|\ |App_gate_editor|
 
-**Explore**
+|App_feature_explorer|\ |App_outliers| के बारे में टिप्पणियाँ
 
-|App_pipeline_graph|\ |App_profiler|\ |App_qc_dashboard|\ |App_image_scatter|\ |App_lineage|
+**अनुमान**
 
-|App_layer_viewer|\ |App_graph_builder|\ |App_anndata_export|\ |App_pca|\ |App_tabulate|
+|App_analyze_plaques|\ |App_recruitment|\ |App_invasion|\ |App_replication|
 
-**Assays**
+**डिजाइन**
 
-|App_timelapse|\ |App_motility|\ |App_analyze_plaques|\ |App_recruitment|\ |App_invasion|
-
-|App_replication|
-
-**Design**
-
-|App_experiment_design|\ |App_power|
+|App_experiment_design|\ |App_power| \ |App_dose_response| के बारे में
 
 .. |App_align| image:: ../../../spacr/resources/icons/workflow/apps/align.png
    :width: 19.9%
@@ -185,75 +178,40 @@ spaCR को डेस्कटॉप एप्लिकेशन के रू�
    :alt: Database Browser API खोलें
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/db_browser/index.html
    :align: middle
-.. |App_illumination| image:: ../../../spacr/resources/icons/workflow/apps/illumination.png
-   :width: 19.9%
-   :alt: Illumination API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/illumination/index.html
-   :align: middle
 .. |App_data_manager| image:: ../../../spacr/resources/icons/workflow/apps/data_manager.png
    :width: 19.9%
    :alt: Data Manager API खोलें
    :target: https://einarolafsson.github.io/spacr/api/spacr/data_manager/index.html
+   :align: middle
+.. |App_project_browser| image:: ../../../spacr/resources/icons/workflow/apps/project_browser.png
+   :width: 19.9%
+   :alt: Project Browser API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/project_browser/index.html
    :align: middle
 .. |App_make_masks| image:: ../../../spacr/resources/icons/workflow/apps/make_masks.png
    :width: 19.9%
    :alt: Make Masks API खोलें
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html
    :align: middle
-.. |App_train_cellpose| image:: ../../../spacr/resources/icons/workflow/apps/train_cellpose.png
+.. |App_napari_bridge| image:: ../../../spacr/resources/icons/workflow/apps/napari_bridge.png
    :width: 19.9%
-   :alt: Train Cellpose API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
-   :align: middle
-.. |App_cellpose_masks| image:: ../../../spacr/resources/icons/workflow/apps/cellpose_masks.png
-   :width: 19.9%
-   :alt: Cellpose Masks API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/spacr_cellpose/index.html
-   :align: middle
-.. |App_model_compare| image:: ../../../spacr/resources/icons/workflow/apps/model_compare.png
-   :width: 19.9%
-   :alt: Model Compare API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/model_compare/index.html
-   :align: middle
-.. |App_model_zoo| image:: ../../../spacr/resources/icons/workflow/apps/model_zoo.png
-   :width: 19.9%
-   :alt: Model Zoo API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/model_zoo/index.html
-   :align: middle
-.. |App_curate| image:: ../../../spacr/resources/icons/workflow/apps/curate.png
-   :width: 19.9%
-   :alt: Curate API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/curate/index.html
+   :alt: Napari Bridge API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/napari_bridge/index.html
    :align: middle
 .. |App_plate_view| image:: ../../../spacr/resources/icons/workflow/apps/plate_view.png
    :width: 19.9%
    :alt: Plate Viewer API खोलें
    :target: https://einarolafsson.github.io/spacr/api/spacr/plate_qc/index.html
    :align: middle
-.. |App_agreement| image:: ../../../spacr/resources/icons/workflow/apps/agreement.png
-   :width: 19.9%
-   :alt: Annotator Agreement API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/agreement/index.html
-   :align: middle
 .. |App_umap| image:: ../../../spacr/resources/icons/workflow/apps/umap.png
    :width: 19.9%
    :alt: Image UMAP API खोलें
    :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
    :align: middle
-.. |App_activation| image:: ../../../spacr/resources/icons/workflow/apps/activation.png
-   :width: 19.9%
-   :alt: Activation API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
-   :align: middle
 .. |App_train_compare| image:: ../../../spacr/resources/icons/workflow/apps/train_compare.png
    :width: 19.9%
    :alt: Training Runs API खोलें
    :target: https://einarolafsson.github.io/spacr/api/spacr/train_compare/index.html
-   :align: middle
-.. |App_classifier_evaluation| image:: ../../../spacr/resources/icons/workflow/apps/classifier_evaluation.png
-   :width: 19.9%
-   :alt: Classifier Evaluation API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/classifier_evaluation/index.html
    :align: middle
 .. |App_run_history| image:: ../../../spacr/resources/icons/workflow/apps/run_history.png
    :width: 19.9%
@@ -265,11 +223,6 @@ spaCR को डेस्कटॉप एप्लिकेशन के रू�
    :alt: Report API खोलें
    :target: https://einarolafsson.github.io/spacr/api/spacr/report/index.html
    :align: middle
-.. |App_barcode_qc| image:: ../../../spacr/resources/icons/workflow/apps/barcode_qc.png
-   :width: 19.9%
-   :alt: Barcode QC API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/sequencing_qc/index.html
-   :align: middle
 .. |App_hit_list| image:: ../../../spacr/resources/icons/workflow/apps/hit_list.png
    :width: 19.9%
    :alt: Hit List API खोलें
@@ -280,30 +233,20 @@ spaCR को डेस्कटॉप एप्लिकेशन के रू�
    :alt: Methods & Results API खोलें
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/methods_export/index.html
    :align: middle
-.. |App_volcano_explorer| image:: ../../../spacr/resources/icons/workflow/apps/volcano_explorer.png
-   :width: 19.9%
-   :alt: Volcano Explorer API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/volcano_style/index.html
-   :align: middle
-.. |App_parameter_sweep| image:: ../../../spacr/resources/icons/workflow/apps/parameter_sweep.png
-   :width: 19.9%
-   :alt: Parameter Sweep API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/parameter_sweep/index.html
-   :align: middle
 .. |App_run_compare| image:: ../../../spacr/resources/icons/workflow/apps/run_compare.png
    :width: 19.9%
    :alt: Run Compare API खोलें
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/run_compare/index.html
    :align: middle
-.. |App_explain_cv| image:: ../../../spacr/resources/icons/workflow/apps/explain_cv.png
-   :width: 19.9%
-   :alt: Explain CV Model API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/surrogate/index.html
-   :align: middle
 .. |App_investigate_hit| image:: ../../../spacr/resources/icons/workflow/apps/investigate_hit.png
    :width: 19.9%
    :alt: Investigate Hit API खोलें
    :target: https://einarolafsson.github.io/spacr/api/spacr/hit_investigation/index.html
+   :align: middle
+.. |App_control_chart| image:: ../../../spacr/resources/icons/workflow/apps/control_chart.png
+   :width: 19.9%
+   :alt: Control Charts API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/control_chart/index.html
    :align: middle
 .. |App_pipeline_graph| image:: ../../../spacr/resources/icons/workflow/apps/pipeline_graph.png
    :width: 19.9%
@@ -320,11 +263,6 @@ spaCR को डेस्कटॉप एप्लिकेशन के रू�
    :alt: QC Dashboard API खोलें
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/qc_dashboard/index.html
    :align: middle
-.. |App_image_scatter| image:: ../../../spacr/resources/icons/workflow/apps/image_scatter.png
-   :width: 19.9%
-   :alt: Image Scatter API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/image_scatter/index.html
-   :align: middle
 .. |App_lineage| image:: ../../../spacr/resources/icons/workflow/apps/lineage.png
    :width: 19.9%
    :alt: Lineage API खोलें
@@ -340,30 +278,35 @@ spaCR को डेस्कटॉप एप्लिकेशन के रू�
    :alt: Graph Builder API खोलें
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html
    :align: middle
-.. |App_anndata_export| image:: ../../../spacr/resources/icons/workflow/apps/anndata_export.png
-   :width: 19.9%
-   :alt: AnnData Export API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/anndata_export/index.html
-   :align: middle
-.. |App_pca| image:: ../../../spacr/resources/icons/workflow/apps/pca.png
-   :width: 19.9%
-   :alt: PCA API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/pca/index.html
-   :align: middle
 .. |App_tabulate| image:: ../../../spacr/resources/icons/workflow/apps/tabulate.png
    :width: 19.9%
    :alt: Tabulate API खोलें
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/tabulate/index.html
    :align: middle
-.. |App_timelapse| image:: ../../../spacr/resources/icons/workflow/apps/timelapse.png
+.. |App_feature_dict| image:: ../../../spacr/resources/icons/workflow/apps/feature_dict.png
    :width: 19.9%
-   :alt: Timelapse API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
+   :alt: Feature Dictionary API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/feature_dict/index.html
    :align: middle
-.. |App_motility| image:: ../../../spacr/resources/icons/workflow/apps/motility.png
+.. |App_trellis| image:: ../../../spacr/resources/icons/workflow/apps/trellis.png
    :width: 19.9%
-   :alt: Motility Assay API खोलें
-   :target: https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html
+   :alt: Small Multiples API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/trellis/index.html
+   :align: middle
+.. |App_gate_editor| image:: ../../../spacr/resources/icons/workflow/apps/gate_editor.png
+   :width: 19.9%
+   :alt: Gate Editor API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/gate_editor/index.html
+   :align: middle
+.. |App_feature_explorer| image:: ../../../spacr/resources/icons/workflow/apps/feature_explorer.png
+   :width: 19.9%
+   :alt: Feature Explorer API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/feature_explorer/index.html
+   :align: middle
+.. |App_outliers| image:: ../../../spacr/resources/icons/workflow/apps/outliers.png
+   :width: 19.9%
+   :alt: Outliers API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/outliers/index.html
    :align: middle
 .. |App_analyze_plaques| image:: ../../../spacr/resources/icons/workflow/apps/analyze_plaques.png
    :width: 19.9%
@@ -395,14 +338,11 @@ spaCR को डेस्कटॉप एप्लिकेशन के रू�
    :alt: Power / Design API खोलें
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/power/index.html
    :align: middle
-.. |InstallerWindows| image:: ../../../spacr/resources/icons/platforms/windows.png
-   :width: 64
-   :alt: Windows 10/11 के लिए spaCR 1.5.0.4 डाउनलोड करें
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
-.. |InstallerMacOS| image:: ../../../spacr/resources/icons/platforms/macos.png
-   :width: 64
-   :alt: macOS 11+ (Intel और Apple Silicon) के लिए spaCR 1.5.0.4 डाउनलोड करें
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
+.. |App_dose_response| image:: ../../../spacr/resources/icons/workflow/apps/dose_response.png
+   :width: 19.9%
+   :alt: Dose–Response API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/dose_response/index.html
+   :align: middle
 
 .. spacr-workflow-end
 
@@ -421,6 +361,14 @@ spaCR इंस्टॉल करें
 
 |InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerLegacy|
 
+.. |InstallerWindows| image:: ../../../spacr/resources/icons/platforms/windows.png
+   :width: 64
+   :alt: Windows 10/11 के लिए spaCR 1.5.0.4 डाउनलोड करें
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
+.. |InstallerMacOS| image:: ../../../spacr/resources/icons/platforms/macos.png
+   :width: 64
+   :alt: macOS 11+ (Intel और Apple Silicon) के लिए spaCR 1.5.0.4 डाउनलोड करें
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
 .. |InstallerLinux| image:: ../../../spacr/resources/icons/platforms/linux.png
    :width: 64
    :alt: 64-बिट Linux के लिए spaCR 1.5.0.4 डाउनलोड करें
@@ -429,14 +377,6 @@ spaCR इंस्टॉल करें
    :width: 64
    :alt: spaCR के पुराने इंस्टॉलर
    :target: ../../source/installers.rst
-.. |DataBioStudies| image:: ../../../spacr/resources/icons/databanks/biostudies_button.png
-   :width: 72
-   :alt: BioStudies माइक्रोस्कोपी डेटासेट खोलें
-   :target: https://doi.org/10.6019/S-BIAD2135
-.. |DataHuggingFace| image:: ../../../spacr/resources/icons/databanks/huggingface_button.png
-   :width: 72
-   :alt: Hugging Face परीक्षण डेटासेट खोलें
-   :target: https://huggingface.co/datasets/einarolafsson/toxo_mito
 
 .. spacr-installer-links-end
 
@@ -497,7 +437,7 @@ spaCR Python **3.9 से 3.14** तक समर्थित है, लेक�
 आप क्या कर सकते हैं
 -------------------
 
-अधिकांश स्क्रीनिंग छह मॉड्यूल का पालन करते हैं:
+प्रारंभिक कार्यप्रवाह में छह मॉड्यूल शामिल हैं:
 
 - **Mask** Cellpose से कोशिकाओं, नाभिकों, रोगजनकों और कोशिकांगों का विभाजन करता है।
 - **Measure** आकृति-विज्ञान, तीव्रता, टेक्सचर, स्थानिक और सह-स्थानीकरण विशेषताओं के साथ ऑब्जेक्ट क्रॉप को SQLite में लिखता है।
@@ -534,6 +474,14 @@ spaCR Python **3.9 से 3.14** तक समर्थित है, लेक�
 
 |DataBioStudies| |DataHuggingFace| |DataNCBI| |DataSpaCRPower| |DataBioRxiv| के बारे में
 
+.. |DataBioStudies| image:: ../../../spacr/resources/icons/databanks/biostudies_button.png
+   :width: 72
+   :alt: BioStudies माइक्रोस्कोपी डेटासेट खोलें
+   :target: https://doi.org/10.6019/S-BIAD2135
+.. |DataHuggingFace| image:: ../../../spacr/resources/icons/databanks/huggingface_button.png
+   :width: 72
+   :alt: Hugging Face परीक्षण डेटासेट खोलें
+   :target: https://huggingface.co/datasets/einarolafsson/toxo_mito
 .. |DataNCBI| image:: ../../../spacr/resources/icons/databanks/ncbi_button.png
    :width: 72
    :alt: NCBI अनुक्रमण डेटासेट खोलें

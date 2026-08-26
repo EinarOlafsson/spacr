@@ -2211,9 +2211,8 @@ def delete_empty_subdirectories(folder_path):
 def select_fields(names, fields):
     """Keep only the ``names`` whose field is in ``fields``.
 
-    A mask run is otherwise all-or-nothing over a plate, so fixing one bad
-    field means redoing every field beside it -- hours of segmentation to
-    replace one image.
+    This filter allows mask generation to be rerun for selected fields without
+    processing every field on the plate.
 
     :param names: stack file names, as written by
         `_rename_and_organize_image_files`.

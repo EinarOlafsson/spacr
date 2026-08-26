@@ -54,19 +54,28 @@
   "scrollbars": []
  },
  "13|dark": {
-  "clipped": [],
+  "clipped": [
+   "'Edit segmentation masks with brush, floo' needs 469x15, has 469x13",
+   "'Correct a mask in napari and bring the c' needs 469x15, has 469x13"
+  ],
   "elided": [],
   "overflow": [],
   "scrollbars": []
  },
  "13|light": {
-  "clipped": [],
+  "clipped": [
+   "'Edit segmentation masks with brush, floo' needs 469x15, has 469x13",
+   "'Correct a mask in napari and bring the c' needs 469x15, has 469x13"
+  ],
   "elided": [],
   "overflow": [],
   "scrollbars": []
  },
  "13|space": {
-  "clipped": [],
+  "clipped": [
+   "'Edit segmentation masks with brush, floo' needs 469x15, has 469x13",
+   "'Correct a mask in napari and bring the c' needs 469x15, has 469x13"
+  ],
   "elided": [],
   "overflow": [],
   "scrollbars": []
@@ -128,19 +137,25 @@
  "17|dark": {
   "clipped": [],
   "elided": [],
-  "overflow": [],
+  "overflow": [
+   "layout needs 955 px of height, canvas is 900"
+  ],
   "scrollbars": []
  },
  "17|light": {
   "clipped": [],
   "elided": [],
-  "overflow": [],
+  "overflow": [
+   "layout needs 955 px of height, canvas is 900"
+  ],
   "scrollbars": []
  },
  "17|space": {
   "clipped": [],
   "elided": [],
-  "overflow": [],
+  "overflow": [
+   "layout needs 955 px of height, canvas is 900"
+  ],
   "scrollbars": []
  },
  "18|dark": {
@@ -180,29 +195,89 @@
   "scrollbars": []
  },
  "1|dark": {
-  "clipped": [],
+  "clipped": [
+   "'\u25cf' needs 14x22, has 12x40",
+   "'\u25cf' needs 14x22, has 12x40",
+   "'\u25cb' needs 14x22, has 12x40",
+   "'\u25cf' needs 14x22, has 12x40",
+   "'41%' needs 36x25, has 36x23",
+   "'14.9 / 24 GB' needs 102x25, has 102x22",
+   "'68%' needs 36x25, has 36x22",
+   "'Runs' needs 48x22, has 48x16",
+   "'148' needs 31x25, has 31x16",
+   "'Mask' needs 48x22, has 48x15",
+   "'52' needs 21x25, has 21x15",
+   "'Meas.' needs 48x22, has 48x16",
+   "'47' needs 21x25, has 21x16",
+   "'Models' needs 55x22, has 55x15",
+   "'12' needs 21x25, has 21x15",
+   "'Alpha' needs 48x25, has 398x23",
+   "'Beta' needs 39x25, has 398x22",
+   "'Stable' needs 52x25, has 398x22"
+  ],
   "elided": [],
-  "overflow": [],
+  "overflow": [
+   "layout needs 1038 px of height, canvas is 900"
+  ],
   "scrollbars": [
-   "Vertical in QWidget",
    "Vertical in QWidget"
   ]
  },
  "1|light": {
-  "clipped": [],
+  "clipped": [
+   "'\u25cf' needs 14x22, has 12x40",
+   "'\u25cf' needs 14x22, has 12x40",
+   "'\u25cb' needs 14x22, has 12x40",
+   "'\u25cf' needs 14x22, has 12x40",
+   "'41%' needs 36x25, has 36x23",
+   "'14.9 / 24 GB' needs 102x25, has 102x22",
+   "'68%' needs 36x25, has 36x22",
+   "'Runs' needs 48x22, has 48x16",
+   "'148' needs 31x25, has 31x16",
+   "'Mask' needs 48x22, has 48x15",
+   "'52' needs 21x25, has 21x15",
+   "'Meas.' needs 48x22, has 48x16",
+   "'47' needs 21x25, has 21x16",
+   "'Models' needs 55x22, has 55x15",
+   "'12' needs 21x25, has 21x15",
+   "'Alpha' needs 48x25, has 398x23",
+   "'Beta' needs 39x25, has 398x22",
+   "'Stable' needs 52x25, has 398x22"
+  ],
   "elided": [],
-  "overflow": [],
+  "overflow": [
+   "layout needs 1038 px of height, canvas is 900"
+  ],
   "scrollbars": [
-   "Vertical in QWidget",
    "Vertical in QWidget"
   ]
  },
  "1|space": {
-  "clipped": [],
+  "clipped": [
+   "'\u25cf' needs 14x22, has 12x40",
+   "'\u25cf' needs 14x22, has 12x40",
+   "'\u25cb' needs 14x22, has 12x40",
+   "'\u25cf' needs 14x22, has 12x40",
+   "'41%' needs 36x25, has 36x23",
+   "'14.9 / 24 GB' needs 102x25, has 102x22",
+   "'68%' needs 36x25, has 36x22",
+   "'Runs' needs 48x22, has 48x16",
+   "'148' needs 31x25, has 31x16",
+   "'Mask' needs 48x22, has 48x15",
+   "'52' needs 21x25, has 21x15",
+   "'Meas.' needs 48x22, has 48x16",
+   "'47' needs 21x25, has 21x16",
+   "'Models' needs 55x22, has 55x15",
+   "'12' needs 21x25, has 21x15",
+   "'Alpha' needs 48x25, has 398x23",
+   "'Beta' needs 39x25, has 398x22",
+   "'Stable' needs 52x25, has 398x22"
+  ],
   "elided": [],
-  "overflow": [],
+  "overflow": [
+   "layout needs 1038 px of height, canvas is 900"
+  ],
   "scrollbars": [
-   "Vertical in QWidget",
    "Vertical in QWidget"
   ]
  },
@@ -300,25 +375,19 @@
   "clipped": [],
   "elided": [],
   "overflow": [],
-  "scrollbars": [
-   "Vertical in QWidget"
-  ]
+  "scrollbars": []
  },
  "25|light": {
   "clipped": [],
   "elided": [],
   "overflow": [],
-  "scrollbars": [
-   "Vertical in QWidget"
-  ]
+  "scrollbars": []
  },
  "25|space": {
   "clipped": [],
   "elided": [],
   "overflow": [],
-  "scrollbars": [
-   "Vertical in QWidget"
-  ]
+  "scrollbars": []
  },
  "26|dark": {
   "clipped": [],
@@ -358,20 +427,41 @@
  },
  "28|dark": {
   "clipped": [],
-  "elided": [],
-  "overflow": [],
+  "elided": [
+   "Database Browser",
+   "Methods & Results",
+   "Feature Dictionary",
+   "Experiment Design"
+  ],
+  "overflow": [
+   "layout needs 924 px of height, canvas is 900"
+  ],
   "scrollbars": []
  },
  "28|light": {
   "clipped": [],
-  "elided": [],
-  "overflow": [],
+  "elided": [
+   "Database Browser",
+   "Methods & Results",
+   "Feature Dictionary",
+   "Experiment Design"
+  ],
+  "overflow": [
+   "layout needs 924 px of height, canvas is 900"
+  ],
   "scrollbars": []
  },
  "28|space": {
   "clipped": [],
-  "elided": [],
-  "overflow": [],
+  "elided": [
+   "Database Browser",
+   "Methods & Results",
+   "Feature Dictionary",
+   "Experiment Design"
+  ],
+  "overflow": [
+   "layout needs 924 px of height, canvas is 900"
+  ],
   "scrollbars": []
  },
  "29|dark": {
@@ -394,25 +484,105 @@
  },
  "2|dark": {
   "clipped": [],
-  "elided": [],
-  "overflow": [],
+  "elided": [
+   "Power / Design",
+   "Experiment Design",
+   "Format Converter",
+   "Import Project",
+   "External Masks",
+   "Distributed Jobs",
+   "Data Manager",
+   "Project Browser",
+   "Invasion Assay",
+   "Replication Assay",
+   "Feature Dictionary",
+   "Map Barcodes",
+   "Prediction Profiler",
+   "Investigate Hit",
+   "Small Multiples",
+   "Feature Explorer",
+   "Dose\u2013Response",
+   "Database Browser",
+   "Pipeline Graph",
+   "Methods & Results",
+   "QC Dashboard",
+   "Control Charts"
+  ],
+  "overflow": [
+   "layout needs 905 px of height, canvas is 900"
+  ],
   "scrollbars": []
  },
  "2|light": {
   "clipped": [],
-  "elided": [],
-  "overflow": [],
+  "elided": [
+   "Power / Design",
+   "Experiment Design",
+   "Format Converter",
+   "Import Project",
+   "External Masks",
+   "Distributed Jobs",
+   "Data Manager",
+   "Project Browser",
+   "Invasion Assay",
+   "Replication Assay",
+   "Feature Dictionary",
+   "Map Barcodes",
+   "Prediction Profiler",
+   "Investigate Hit",
+   "Small Multiples",
+   "Feature Explorer",
+   "Dose\u2013Response",
+   "Database Browser",
+   "Pipeline Graph",
+   "Methods & Results",
+   "QC Dashboard",
+   "Control Charts"
+  ],
+  "overflow": [
+   "layout needs 905 px of height, canvas is 900"
+  ],
   "scrollbars": []
  },
  "2|space": {
   "clipped": [],
-  "elided": [],
-  "overflow": [],
+  "elided": [
+   "Power / Design",
+   "Experiment Design",
+   "Format Converter",
+   "Import Project",
+   "External Masks",
+   "Distributed Jobs",
+   "Data Manager",
+   "Project Browser",
+   "Invasion Assay",
+   "Replication Assay",
+   "Feature Dictionary",
+   "Map Barcodes",
+   "Prediction Profiler",
+   "Investigate Hit",
+   "Small Multiples",
+   "Feature Explorer",
+   "Dose\u2013Response",
+   "Database Browser",
+   "Pipeline Graph",
+   "Methods & Results",
+   "QC Dashboard",
+   "Control Charts"
+  ],
+  "overflow": [
+   "layout needs 905 px of height, canvas is 900"
+  ],
   "scrollbars": []
  },
  "30|dark": {
   "clipped": [],
-  "elided": [],
+  "elided": [
+   "Experiment Design",
+   "Feature Dictionary",
+   "Database Browser",
+   "Methods & Results"
+  ],
   "overflow": [],
   "scrollbars": [
    "Vertical in QWidget"
@@ -420,7 +590,12 @@
  },
  "30|light": {
   "clipped": [],
-  "elided": [],
+  "elided": [
+   "Experiment Design",
+   "Feature Dictionary",
+   "Database Browser",
+   "Methods & Results"
+  ],
   "overflow": [],
   "scrollbars": [
    "Vertical in QWidget"
@@ -428,7 +603,12 @@
  },
  "30|space": {
   "clipped": [],
-  "elided": [],
+  "elided": [
+   "Experiment Design",
+   "Feature Dictionary",
+   "Database Browser",
+   "Methods & Results"
+  ],
   "overflow": [],
   "scrollbars": [
    "Vertical in QWidget"
@@ -436,19 +616,37 @@
  },
  "3|dark": {
   "clipped": [],
-  "elided": [],
+  "elided": [
+   "Experiment Design",
+   "Database Browser",
+   "Prediction Profiler",
+   "Methods & Results",
+   "Feature Dictionary"
+  ],
   "overflow": [],
   "scrollbars": []
  },
  "3|light": {
   "clipped": [],
-  "elided": [],
+  "elided": [
+   "Experiment Design",
+   "Database Browser",
+   "Prediction Profiler",
+   "Methods & Results",
+   "Feature Dictionary"
+  ],
   "overflow": [],
   "scrollbars": []
  },
  "3|space": {
   "clipped": [],
-  "elided": [],
+  "elided": [
+   "Experiment Design",
+   "Database Browser",
+   "Prediction Profiler",
+   "Methods & Results",
+   "Feature Dictionary"
+  ],
   "overflow": [],
   "scrollbars": []
  },
@@ -472,19 +670,40 @@
  },
  "5|dark": {
   "clipped": [],
-  "elided": [],
+  "elided": [
+   "Database Browser",
+   "Experiment Design",
+   "Feature Dictionary",
+   "Format Converter",
+   "Methods & Results",
+   "Prediction Profiler"
+  ],
   "overflow": [],
   "scrollbars": []
  },
  "5|light": {
   "clipped": [],
-  "elided": [],
+  "elided": [
+   "Database Browser",
+   "Experiment Design",
+   "Feature Dictionary",
+   "Format Converter",
+   "Methods & Results",
+   "Prediction Profiler"
+  ],
   "overflow": [],
   "scrollbars": []
  },
  "5|space": {
   "clipped": [],
-  "elided": [],
+  "elided": [
+   "Database Browser",
+   "Experiment Design",
+   "Feature Dictionary",
+   "Format Converter",
+   "Methods & Results",
+   "Prediction Profiler"
+  ],
   "overflow": [],
   "scrollbars": []
  },

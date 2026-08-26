@@ -521,12 +521,12 @@ APP_INTROS = {
     "motility":        "Rebuild per-frame tracks, score velocity and straightness per object, and split them by infection state.",
     "measure":         "Extract per-object intensity + morphology features from masks and write them to the measurements database.",
     "annotate":        "Review single-object image crops on a grid and label them; annotations save back to the database.",
-    "classify_merged": "Train a classifier on single objects. Pick the training basis - metadata, annotation or measurement - and the classifier family: Torch on object crops, or gradient boosting on measured features. Classify (CV) and Classify (ML) remain available separately.",
+    "classify_merged": "Train classifiers from image crops or measured features in one interface. Define classes from plate metadata or annotations, then choose a PyTorch image model or a gradient-boosted feature model.",
     "classify":        "Train and test Torch computer-vision models (CNNs / transformers) to classify single-object images.",
     "ml_analyze":      "Train a classical ML classifier (XGBoost, random forest, …) on per-object features and score every well.",
     "map_barcodes":    "Map sequencing reads to gRNA barcodes and link them to screen wells.",
     "regression":      "Regress screen phenotypes against guide/gene effects across plates.",
-    "make_masks":      "Fine-tune a Cellpose model interactively on your own images.",
+    "make_masks":      "Inspect and edit segmentation masks with brush, flood-fill, relabel, fill and object-removal tools; train, apply, compare and select segmentation models from the integrated workbench.",
     "train_cellpose":  "Train a custom Cellpose model from a labelled dataset.",
     "cellpose_masks":  "Run a Cellpose model over images to generate masks.",
     "activation":      "Generate activation / attention maps to see what a trained model focuses on.",
@@ -543,16 +543,16 @@ APP_INTROS = {
     "convert":         "Turn ND2, CZI, LIF or OME-TIFF acquisitions into Yokogawa-named TIFFs spaCR can read, after showing you exactly which source file becomes which target — and write a map file so the original metadata can be joined back onto the measurements afterwards.",
     "batch":           "Stack any combination of modules, plates and settings into a queue and run it unattended — each job is validated when you add it, runs in its own process, and reports what failed, what was skipped because an upstream job failed, and what finished only partly.",
     "model_zoo":       "Every Cellpose and classifier checkpoint this machine can reach, with what it was trained on, whether its bytes check out against a published checksum, and what it does to three of your fields.",
-    "train_compare":   "Overlay the loss and accuracy curves of several training runs on one axis and see, beside them, exactly which settings differed — with environment drift bucketed away from the knobs you actually turned.",
+    "train_compare":   "Compare loss and accuracy curves from multiple training runs on shared axes. The adjacent settings comparison separates model and training changes from differences in the software environment.",
     "classifier_evaluation": "Inspect held-out predictions from grouped or nested cross-validation, calibration, confusion matrices, per-plate performance and explicit train/test leakage checks.",
     "run_history":     "Search every recorded job and inspect its exact settings, hashed inputs and outputs, warnings, failure traceback, software versions, seeds and performance.",
     "distributed_jobs": "Submit resolved spaCR settings to SSH workstations, Slurm clusters or cloud/HPC command profiles and monitor them locally.",
     "analyze_plaques": "Detect and quantify plaques in plaque-assay images.",
     "recruitment":     "Quantify recruitment of a marker to a compartment across conditions.",
-    "invasion":        "Score every parasite attached or invaded from a two-colour outside/inside stain, with the threshold derived per field and flagged when the two populations it assumes are not actually there.",
+    "invasion":        "Classify attached and invaded parasites from two-colour differential staining. Estimate the intensity threshold per field and flag fields that lack two distinguishable populations.",
     "replication":     "Count the parasites in every vacuole and turn that into a replication rate: endodyogeny doubles a vacuole 1 -> 2 -> 4 -> 8, so the distribution of counts per vacuole is the readout, not the mean.",
     # The two folded modules whose page is this screen — see APP_TITLES.
-    "barcode_qc":      "Reads per well, starved wells, unmapped reads, barcode collisions, row/column position effects and library coverage for a finished mapping run \u2014 and then the number everyone used to read off a histogram once and copy forward: state how many gRNAs per well the design intends and the abundance threshold that delivers it is derived, swept either side of, and written out in words.",
+    "barcode_qc":      "Evaluate a completed barcode-mapping run using read depth per well, low-depth wells, unmapped reads, barcode collisions, positional effects and library coverage. Given the intended number of gRNAs per well, estimate and report the abundance threshold and its sensitivity.",
     "anndata_export":  "Export the measurement tables as AnnData (.h5ad) - N objects x M features with per-object metadata, feature definitions, embeddings and provenance - so scanpy, scvi-tools and squidpy can read a spaCR run directly.",
 }
 
@@ -3849,17 +3849,20 @@ class AppScreen(QWidget):
         preview_controls = {
             "mask": (
                 "_live_preview_card",
-                "Click to toggle Live Preview. When ON (blue), the "
-                "interactive Cellpose preview appears above the console."),
+                "Show or hide the interactive Cellpose segmentation "
+                "preview above the console."),
             "timelapse": (
                 "_timelapse_preview_card",
-                "Click to toggle Track Preview for the timelapse."),
+                "Show or hide a preview of linked object tracks across "
+                "the selected time-series frames."),
             "motility": (
                 "_motility_preview_card",
-                "Click to toggle Track Preview for the motility analysis."),
+                "Show or hide the track preview used to inspect velocity, "
+                "straightness and infection-state assignments."),
             "measure": (
                 "_measure_preview_card",
-                "Click to toggle Measurement Preview."),
+                "Show or hide a preview of selected measurement overlays "
+                "before processing the full dataset."),
         }
         preview_control = preview_controls.get(self.app_key)
         if preview_control is not None:
@@ -3885,11 +3888,10 @@ class AppScreen(QWidget):
             self._gpu_switch = AiToggleLabel(
                 text="GPU",
                 tooltip=(
-                    "Use the GPU for both the main dimensionality-reduction "
-                    "run and Hyperparameter search. When ON (blue), spaCR "
-                    "requires a working RAPIDS cuML backend. CPU and GPU "
-                    "reducers can produce a DIFFERENT MAP, so compare rows "
-                    "only within one backend."),
+                    "Use the RAPIDS cuML backend for both the main "
+                    "dimensionality-reduction run and hyperparameter search. "
+                    "CPU and GPU reducers may produce different embeddings, "
+                    "so compare search results only within the same backend."),
             )
             self._gpu_switch.toggled.connect(self._on_umap_gpu_switch)
             row.addWidget(self._gpu_switch)
@@ -3929,10 +3931,9 @@ class AppScreen(QWidget):
             self._interactive_switch = AiToggleLabel(
                 text="Interactive",
                 tooltip=(
-                    "Toggle the interactive image UMAP. When ON (blue), "
-                    "click a point to preview its image, draw around a "
-                    "cluster, and write manual or automatic labels to the "
-                    "database."
+                    "Enable the interactive Image UMAP view. Select a point "
+                    "to preview its image, draw a region around a cluster, "
+                    "and write manual or model-assisted labels to the database."
                 ),
             )
             self._interactive_switch.toggled.connect(

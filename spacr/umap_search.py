@@ -1,21 +1,14 @@
-"""The Image UMAP search: a table of recipes, each of which redraws its map.
+"""Represent Image UMAP searches as reproducible embedding recipes.
 
 Each search row stores the parameters and score needed to redraw its two- or
 three-dimensional embedding and continue with clustering.
 
-THE ROW IS THE RECIPE, and that is the whole design. starplast's
-``EmbeddingSpec`` is one frozen record that round-trips, so a stored row can
-rebuild EXACTLY the map it scored -- not a map with the same settings, the
-same map. Anything else and clicking row 7 draws something that is not what
-row 7's score describes, which nobody would notice.
+Each stored recipe includes its selected columns, random state and backend so
+the associated score remains bound to the embedding that produced it. cuML
+and umap-learn can produce different embeddings from the same data and
+hyperparameters; recording the backend therefore preserves provenance.
 
-WHICH BACKEND DREW IT IS PART OF THE RECIPE. cuML's UMAP is not umap-learn's:
-it is a DIFFERENT MAP of the same data, not the same map faster. A table whose
-rows came from both backends is comparing two libraries rather than the
-settings the search varied, so ``backend`` is a field and not a footnote.
-
-WHAT IS NOT HERE: Qt. This is the model the panel drives, so the search, the
-table and the recipe are testable without a display.
+The module is independent of Qt and can be tested without a display.
 """
 from __future__ import annotations
 
@@ -88,10 +81,9 @@ class UmapRecipe:
 class SearchRow:
     """One trial: its recipe, its scores, and the embedding it produced.
 
-    ``embedding`` is held so clicking the row is instant and, more to the
-    point, so it is the SAME array that was scored. Recomputing on click
-    would give a map that merely matches the recipe -- and with cuML, or any
-    non-deterministic backend, would not even give that.
+    ``embedding`` retains the exact array used to calculate ``scores``.
+    Recomputing an embedding when a row is selected could produce different
+    coordinates with a non-deterministic backend.
     """
 
     recipe: UmapRecipe
@@ -147,9 +139,7 @@ class SearchTable:
     def best(self) -> Optional[SearchRow]:
         """The highest-scoring row, or None when nothing scored.
 
-        A row whose score is NaN is not "worst", it is UNSCORED, and letting
-        it compare as a number would make the best row depend on how NaN
-        happens to sort.
+        Rows with a NaN score are excluded from the comparison.
         """
         scored = [r for r in self._rows if not np.isnan(r.score)]
         return max(scored, key=lambda r: r.score) if scored else None
@@ -306,9 +296,8 @@ def walk_recipes(base: UmapRecipe, *, steps: int = 12,
                  components: Sequence[int] = ()) -> List[UmapRecipe]:
     """The recipes a walk would try, worked out before any of them runs.
 
-    Returned as a list rather than yielded one at a time so the panel can say
-    how many trials there will be BEFORE the first one starts -- a progress
-    bar whose denominator arrives at the end is not a progress bar.
+    The returned list lets the panel report the total trial count before the
+    first trial starts.
 
     :param steps: how many to return when no explicit grid is given. The
         default grid walks ``n_neighbors``, which is the parameter that

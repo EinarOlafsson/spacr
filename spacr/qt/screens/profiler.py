@@ -84,24 +84,23 @@ APP_NAME = "Prediction Profiler"
 
 #: One-line summary; the tooltip and status tip.
 APP_DESCRIPTION = (
-    "Move one input of a fitted model and watch the prediction move")
+    "Vary one input to a fitted model and plot the resulting predictions")
 
 #: The paragraph under this app's header, handed to the seam as ``intro``.
 APP_INTRO = (
-    "Interrogate a fitted regression: sweep one input across its range, hold "
-    "every other input wherever you choose, and see what the model predicts. "
-    "The inputs are ranked by how far each one actually moves the prediction, "
-    "so a design with thousands of gRNA terms still tells you which one to "
-    "look at first. Nothing is re-fitted — the coefficients a run already "
-    "wrote are the model — and the axis always says which scale it is on, "
-    "because a probability, a rate and a hinge margin are not the same curve.")
+    "Evaluate a fitted regression by sweeping one input across its observed "
+    "range while holding all other inputs at selected values. Inputs are "
+    "ranked by the resulting prediction range, making influential terms easier "
+    "to identify in large designs. The calculation uses the stored model "
+    "coefficients without refitting and labels the prediction axis as a "
+    "probability, rate, margin, or other applicable response scale.")
 
 #: Why there is no ``spacr-run profiler``; reaches ``cli.INTERACTIVE_ONLY``.
 APP_CLI_NOTE = (
-    "The Prediction Profiler is an interactive sweep of one model input; "
-    "headless, call spacr.profiler.profile(model, design, variable) for the "
-    "same curve and spacr.profiler.sensitivity(model, design) for the same "
-    "ranking.")
+    "Use Prediction Profiler for an interactive input sweep. In a headless "
+    "workflow, call spacr.profiler.profile(model, design, variable) for the "
+    "same prediction curve and spacr.profiler.sensitivity(model, design) for "
+    "the same variable ranking.")
 
 #: "Prediction Profiler" in the nine non-English UI languages, in
 #: :data:`spacr.qt.i18n.LANGUAGES` order after English — sv, de, es, zh_CN,

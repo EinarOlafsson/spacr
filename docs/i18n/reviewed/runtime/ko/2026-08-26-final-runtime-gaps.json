@@ -1,0 +1,104 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "cmap",
+      "source_sha256": "4583c1e0e5f6fc26ef5f54ad33ab8d38ac06631b93eb2820f8244023ef56a06a",
+      "source": "Matplotlib colormap applied to single-channel image previews and plate heatmaps. Perceptually uniform maps ('viridis', 'inferno', 'magma') preserve the relative visibility of intensity differences; 'gray' resembles the raw single-channel microscope image. Any registered matplotlib name is accepted, with an '_r' suffix to reverse it. Default 'inferno' for image plots and 'viridis' for plate heatmaps.",
+      "translation": "단일 채널 이미지 미리보기와 플레이트 히트맵에 적용하는 Matplotlib 컬러맵입니다. 지각적으로 균일한 맵('viridis', 'inferno', 'magma')은 강도 차이의 상대적 가시성을 유지하며, 'gray' 는 원시 단일 채널 현미경 이미지와 유사합니다. 등록된 모든 matplotlib 이름을 사용할 수 있고, 뒤에 '_r' 을 붙이면 방향이 반전됩니다. 이미지 플롯의 기본값은 'inferno', 플레이트 히트맵의 기본값은 'viridis' 입니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "coordinate_columns",
+      "source_sha256": "28f622e4aacb156006f9f5817333e6578e80204f4303daa995038999eabcd1e0",
+      "source": "Columns containing each object's position when generating crops on demand from a database instead of masks, for example ['centroid_x', 'centroid_y']. This method supports only bounding-box crops because coordinates do not define object boundaries. None uses the merged masks and is the default. Default None.",
+      "translation": "마스크 대신 데이터베이스에서 필요할 때 image crop 을 생성하는 경우 각 객체의 위치가 들어 있는 열입니다. 예: ['centroid_x', 'centroid_y']. 좌표는 객체 경계를 정의하지 않으므로 이 방법은 경계 상자 crop 만 지원합니다. None 은 병합된 마스크를 사용하며 기본 설정입니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "custom_model",
+      "source_sha256": "c7dac75d0952971d5bd01b9717200d27bc9368bcc084bb30d64353c013e6d98a",
+      "source": "Path to a saved Cellpose model, loaded as pretrained_model by the mask-finetune tool. When set, model_type is passed as None and diameter as diam_mean (which Cellpose 4.x ignores with a warning). model_name remains active and selects the channel pair sent to model.eval; an incompatible value therefore segments the wrong channels. Default None.",
+      "translation": "mask-finetune 도구가 pretrained_model 로 불러오는 저장된 Cellpose 모델의 경로입니다. 설정하면 model_type 은 None 으로, diameter 는 diam_mean 으로 전달되며 Cellpose 4.x 는 경고와 함께 해당 값을 무시합니다. model_name 은 계속 적용되어 model.eval 에 전달할 채널 쌍을 선택하므로 호환되지 않는 값은 잘못된 채널을 분할합니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "custom_regex",
+      "source_sha256": "a3338919c19304d187ac0b5e957e7e7e3c3aea95b97418c768cd371fe9034f49",
+      "source": "Python regex with named groups that extracts metadata from raw image filenames. It must supply wellID, fieldID and chanID; plateID is optional (falling back to the source folder name), and timeID or sliceID may be absent. With metadata_type='custom', a filename that does not match or lacks a required group is skipped with a warning, which can reduce the dataset. With 'auto', the regex is tried first for Yokogawa renaming and requires only wellID; automatic detection is used if it fails. Default None.",
+      "translation": "원시 이미지 파일 이름에서 메타데이터를 추출하는 명명된 그룹이 포함된 Python regex 입니다. wellID, fieldID, chanID 를 제공해야 하며 plateID 는 선택 사항으로, 없으면 원본 폴더 이름을 사용합니다. timeID 또는 sliceID 는 없어도 됩니다. metadata_type='custom' 일 때 일치하지 않거나 필수 그룹이 없는 파일 이름은 경고와 함께 건너뛰므로 데이터셋이 줄어들 수 있습니다. 'auto' 에서는 Yokogawa 이름 변경을 위해 regex 를 먼저 적용하고 wellID 만 요구하며, 실패하면 자동 감지를 사용합니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "fraction_threshold",
+      "source_sha256": "6a8155bb70a4c7d98ed9704d873f181c92d8dabf0613cdcdc08826d8f16bd294",
+      "source": "Minimum relative abundance, 0-1, that a gRNA must reach within a well's total read count to be retained. Increasing it removes low-abundance and bleed-through gRNAs and reduces the mean number of gRNAs per well; if set too high, every row is removed and the run raises an error. Use None to select automatically the cutoff that yields target_unique_count gRNAs per well. Default None.",
+      "translation": "gRNA 가 유지되기 위해 웰의 전체 read count 에서 도달해야 하는 최소 상대 존재비이며 범위는 0-1입니다. 값을 크게 설정하면 존재비가 낮거나 bleed-through 에서 유래한 gRNAs 가 제거되고 웰당 평균 gRNAs 수가 감소합니다. 값이 지나치게 크면 모든 행이 제거되고 실행에서 오류가 발생합니다. 웰당 target_unique_count 개의 gRNAs 를 생성하는 cutoff 를 자동으로 선택하려면 None 을 사용하십시오. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intercept_value",
+      "source_sha256": "9e3a527d5f64fd5bd1abc3ef96528b16e741aa8e8880ff8d155f79e69bc56c20",
+      "source": "The number the intercept is pinned to when intercept is 'value'. The response is shifted by it and the term suppressed, so the fit is exactly y = intercept_value + terms. Read for no other intercept setting, and the panel greys it out for them. Default 0.0.",
+      "translation": "intercept 가 'value' 일 때 절편을 고정하는 수입니다. 반응값을 이 값만큼 이동하고 절편 항을 제외하므로 적합식은 정확히 y = intercept_value + terms 입니다. 다른 intercept 설정에서는 읽히지 않으며 패널에서도 비활성화됩니다. 기본값 0.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "keep_npz",
+      "source_sha256": "fa9d2f6bfe151597020eeb7012458398b4d95ed020ecff83a8906d214814d9ab",
+      "source": "Streaming pipeline only (pipeline_style='v2'): write each in-memory NPZ batch under merged/_scratch/ instead of discarding it, so intermediate data from a failed run can be inspected. This increases disk usage; enable it only for diagnosis. Default False.",
+      "translation": "스트리밍 파이프라인 전용 설정(pipeline_style='v2')입니다. 메모리의 각 NPZ batch 를 폐기하지 않고 merged/_scratch/ 아래에 기록하여 실패한 실행의 중간 데이터를 검사할 수 있게 합니다. 디스크 사용량이 증가하므로 진단할 때만 활성화하십시오. 기본값 False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelle_resample",
+      "source_sha256": "ec813fb832b699796dc26f04a4412a2b1d46ba6b1012d518775fe84b8310d0f1",
+      "source": "Deprecated. Passed to Cellpose as resample: when True the flows are recomputed at full resolution instead of on the downsampled grid, giving smoother and slightly more accurate outlines for a little extra time. Still forwarded to model.eval on the organelle path. Default True; retain the default unless reduced runtime is required.",
+      "translation": "사용 중단 예정입니다. Cellpose 에 resample 로 전달됩니다. True 이면 축소된 격자 대신 전체 해상도에서 flow 를 다시 계산하여 실행 시간이 약간 늘어나는 대신 더 매끄럽고 조금 더 정확한 윤곽선을 생성합니다. 소기관 경로에서는 여전히 model.eval 로 전달됩니다. 기본값 True 이며 실행 시간 단축이 필요한 경우가 아니면 기본값을 유지하십시오."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelleb_resample",
+      "source_sha256": "5a9abc39e00bd6f6a3e2166930abe5d7c14ddbbc6272998dbbe3e5288522bc4f",
+      "source": "Deprecated. Passed to Cellpose as resample: when True the flows are recomputed at full resolution instead of on the downsampled grid, giving smoother and slightly more accurate outlines for a little extra time. Still forwarded to model.eval on the organelle 2 path. Default True; retain the default unless reduced runtime is required.",
+      "translation": "사용 중단 예정입니다. Cellpose 에 resample 로 전달됩니다. True 이면 축소된 격자 대신 전체 해상도에서 flow 를 다시 계산하여 실행 시간이 약간 늘어나는 대신 더 매끄럽고 조금 더 정확한 윤곽선을 생성합니다. 소기관 2 경로에서는 여전히 model.eval 로 전달됩니다. 기본값 True 이며 실행 시간 단축이 필요한 경우가 아니면 기본값을 유지하십시오."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organellec_resample",
+      "source_sha256": "791ebce361fe81c5972a84cc2e5e18f03a0255bd6c7348ea2220cb0305b32ed7",
+      "source": "Deprecated. Passed to Cellpose as resample: when True the flows are recomputed at full resolution instead of on the downsampled grid, giving smoother and slightly more accurate outlines for a little extra time. Still forwarded to model.eval on the organelle 3 path. Default True; retain the default unless reduced runtime is required.",
+      "translation": "사용 중단 예정입니다. Cellpose 에 resample 로 전달됩니다. True 이면 축소된 격자 대신 전체 해상도에서 flow 를 다시 계산하여 실행 시간이 약간 늘어나는 대신 더 매끄럽고 조금 더 정확한 윤곽선을 생성합니다. 소기관 3 경로에서는 여전히 model.eval 로 전달됩니다. 기본값 True 이며 실행 시간 단축이 필요한 경우가 아니면 기본값을 유지하십시오."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelled_resample",
+      "source_sha256": "ce8726183fe34d4b60a02574a2b767832c7eaa1d2090d17a218cf7f73b76a9e9",
+      "source": "Deprecated. Passed to Cellpose as resample: when True the flows are recomputed at full resolution instead of on the downsampled grid, giving smoother and slightly more accurate outlines for a little extra time. Still forwarded to model.eval on the organelle 4 path. Default True; retain the default unless reduced runtime is required.",
+      "translation": "사용 중단 예정입니다. Cellpose 에 resample 로 전달됩니다. True 이면 축소된 격자 대신 전체 해상도에서 flow 를 다시 계산하여 실행 시간이 약간 늘어나는 대신 더 매끄럽고 조금 더 정확한 윤곽선을 생성합니다. 소기관 4 경로에서는 여전히 model.eval 로 전달됩니다. 기본값 True 이며 실행 시간 단축이 필요한 경우가 아니면 기본값을 유지하십시오."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "outline_color",
+      "source_sha256": "00ba83dbff3bb32979bc172922d2f3396d0df220a9e4b3d8f96bea2b85665c3b",
+      "source": "Three-letter code choosing the RGB colours for cell, nucleus and pathogen outlines, in that order: 'rgb', 'bgr', 'gbr' or 'rbg'. The default 'gbr' draws cells green, nuclei blue and pathogens red. An unrecognised string falls back to 'rbg' without warning, so a typo changes your figure colours rather than raising. Change it when an outline clashes with a channel. Default 'gbr'.",
+      "translation": "세포, 핵, 병원체 윤곽선의 RGB 색상을 이 순서로 선택하는 세 글자 코드이며 'rgb', 'bgr', 'gbr' 또는 'rbg' 를 사용합니다. 기본값 'gbr' 은 세포를 초록색, 핵을 파란색, 병원체를 빨간색으로 표시합니다. 인식되지 않는 문자열은 경고 없이 'rbg' 로 대체되므로 오타가 있으면 오류 대신 그림의 색상이 바뀝니다. 윤곽선이 채널 색상과 겹칠 때 변경하십시오. 기본값 'gbr'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "red_channel",
+      "source_sha256": "4e525dd1ffe27a90782be0c10fb087ab016217bd5c47bb1c53e96b16ca523fab",
+      "source": "Streamed crops only: which plane of the merged array is drawn in the picture's red channel. Any plane may be named, not only the first three, so planes 1, 2 and 4 of a five-plane array is a mapping rather than a slice. A crop already written to disk was coloured when it was written, so this is greyed out when crops are loaded. Default 2, spaCR's shipped mapping.",
+      "translation": "스트리밍된 image crop 에만 적용되며 병합 배열의 어느 평면을 이미지의 빨간색 채널에 표시할지 지정합니다. 처음 세 평면에 한정되지 않고 모든 평면을 지정할 수 있으므로, 5개 평면 배열의 1, 2, 4번 평면 선택은 slice 가 아니라 매핑입니다. 디스크에 이미 기록된 crop 은 기록 시점에 색상이 지정되므로 crop 을 불러올 때는 이 설정이 비활성화됩니다. 기본값 2이며 spaCR 에 포함된 매핑입니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tables",
+      "source_sha256": "44096ea3a7b8d7e090e0212cca3a4d967d9e997c3bf214063dc3b195bc410828",
+      "source": "Measurement tables read from each plate's database and merged into one analysis frame. Only 'cell', 'nucleus', 'pathogen', 'cytoplasm', and 'png_list' are merged. Any other table, including 'organelle', is loaded but omitted from the merged result without a warning. Default ['cell', 'nucleus', 'pathogen', 'cytoplasm'].",
+      "translation": "각 플레이트의 데이터베이스에서 읽어 하나의 분석 프레임으로 병합하는 측정 테이블입니다. 'cell', 'nucleus', 'pathogen', 'cytoplasm', 'png_list' 만 병합됩니다. 'organelle' 을 포함한 다른 테이블은 불러오지만 경고 없이 병합 결과에서 제외됩니다. 기본값 ['cell', 'nucleus', 'pathogen', 'cytoplasm']."
+    }
+  ]
+}

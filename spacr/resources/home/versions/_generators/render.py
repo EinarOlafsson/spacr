@@ -29,7 +29,6 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import common  # noqa: E402
 
-
 # ---------------------------------------------------------------------------
 # Layout audit — a variant with clipped text is a bug, not a variant
 # ---------------------------------------------------------------------------
@@ -44,6 +43,7 @@ def audit(page) -> Dict[str, list]:
       squeezed something to make it fit.
     """
     from PySide6.QtWidgets import QLabel, QScrollBar
+
     from spacr.qt.widgets.eliding import ElidingLabel, ElidingPushButton
 
     out: Dict[str, list] = {"elided": [], "clipped": [], "scrollbars": [],
@@ -271,7 +271,8 @@ widgets they are assembled from live in `_generators/parts.py`.
 ## Findings that apply to every variant
 
 1. **The sidebar still does not fit at 1440x900 — but it scrolls now.**
-   Its {n_apps} app rows plus five headings ask for roughly {sidebar_h} px
+   Its {n_apps} app rows plus {n_sections} headings ask for roughly
+   {sidebar_h} px
    against the {sidebar_avail} a laptop gives. The `QScrollArea` described
    at the bottom of this file **has since landed** in `spacr/qt/app.py`,
    so the rows scroll and nothing is unreachable; the vertical scrollbar
@@ -290,7 +291,7 @@ widgets they are assembled from live in `_generators/parts.py`.
    get seven; 03, 07, 08, 23 and 28 keep the shipped size and use five or
    fewer. Both are legitimate, but it is a real constraint on any
    tile-grid answer — and it tightens every time a longer app name is
-   registered, which "Classifier Evaluation" duly did.
+   registered.
 
 ---
 
@@ -322,7 +323,7 @@ belonged to another effort at the time. That effort has since made the
 change: `Sidebar` now puts its rows in a `QScrollArea` with the title
 pinned above it. The measurement is re-taken on every render, and it
 still says the same thing about *why* the scroll area has to be there —
-the {n_apps} app rows plus five headings ask for ~{sidebar_h} px against
+the {n_apps} app rows plus {n_sections} headings ask for ~{sidebar_h} px against
 the ~{sidebar_avail} a 1440x900 laptop gives, so without it the last
 three apps ({last_three}) could not be reached at all.
 
@@ -359,6 +360,7 @@ def _fill_outro(sidebar_h: int, sidebar_avail: int) -> str:
     last_three = ", ".join(common.name_of(k) for k in common.all_keys()[-3:])
     return (_OUTRO
             .replace("{n_apps}", str(common.n_apps()))
+            .replace("{n_sections}", str(common.n_sections()))
             .replace("{sidebar_h}", str(sidebar_h))
             .replace("{sidebar_avail}", str(sidebar_avail))
             .replace("{last_three}", last_three))
@@ -449,6 +451,7 @@ def write_markdown(specs: Sequence[dict], themes: Sequence[str],
     lines = [_INTRO.format(space_note=space_note, sidebar_h=sidebar_h,
                            sidebar_avail=sidebar_avail,
                            n_apps=common.n_apps(),
+                           n_sections=common.n_sections(),
                            scroll_finding=_scroll_finding(specs, reports))]
     for spec in specs:
         folder = os.path.basename(variant_dir(spec))

@@ -385,7 +385,7 @@ def register_settings(replace: bool = False) -> bool:
         "results_folder": "(str) - Exact regression output folder that produced the selected hit. Its CSV and JSON bytes are hashed so later edits create different provenance. Default '' requires selection.",
         "target_gene": "(str) - Gene identifier carried from the selected Hit List row. It labels the attribution run and output folder without being inferred again. Default '' requires selection.",
         "target_guides": "(list) - Exact guides supporting the selected gene in the source result. Each remains separate evidence so discordance cannot be averaged away. Default [].",
-        "hit_phenotype": "(str) - Human-readable phenotype copied from the source regression. It records what direction and score the selected effect actually described. Default ''.",
+        "hit_phenotype": "(str) - Human-readable phenotype copied from the source regression, including the direction and score represented by the selected effect. Default ''.",
         "hit_effect": "(float) - Effect estimate copied from the exact source result for provenance and display. It does not get re-estimated from candidate cells. Default 0.0.",
         "hit_fdr": "(float) - Adjusted P value copied from the selected regression hit. It records source evidence and never becomes a cell-level confidence value. Default 1.0.",
         "hit_guide_agreement": "(float) - Agreement among guides supporting the selected hit, copied from the regression result rather than recomputed from candidate cells. Default NaN records unavailable evidence.",

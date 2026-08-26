@@ -1312,21 +1312,20 @@ def make_power_screen(app_key: Optional[str] = None) -> QWidget:
 
 
 APP_NAME = "Power / Design"
-APP_DESCRIPTION = ("How many cells per well and how many wells to detect an "
-                   "effect of a given size")
+APP_DESCRIPTION = ("Estimate the cells per well and replicate wells required "
+                   "to detect a specified effect size")
 APP_INTRO = (
-    "Before a pooled screen runs, the only honest way to know whether it can "
-    "find its hits is to simulate screens you know the truth for and fit the "
-    "model you would really use. Describe the library, the plates, the "
-    "classifier and the effect you expect; this sweeps cells-per-well and "
-    "wells, and reports the fraction of simulated screens in which the model "
-    "recovered the planted hits. The departures from the R package it is "
-    "ported from — including that the R version overstates power — are shown "
-    "next to the number, not in a footnote.")
+    "Estimate screen power by simulating data under a specified library, plate "
+    "layout, classifier, and effect size, then fitting the intended analysis "
+    "model. The analysis sweeps cells per well and replicate wells and reports "
+    "the fraction of simulations in which planted hits are recovered. "
+    "Methodological differences from the source R package, including its "
+    "upward power bias, are reported with the estimate.")
 #: What `spacr.cli.INTERACTIVE_ONLY` wants: why this app has no headless run.
-APP_CLI_NOTE = ("Interactive design exploration; "
-                "spacr.power_model.scan_parameters() is the headless "
-                "equivalent and takes the same parameters.")
+APP_CLI_NOTE = (
+    "Use Power / Design for interactive parameter exploration. In a headless "
+    "workflow, spacr.power_model.scan_parameters() accepts the same parameters "
+    "and returns the corresponding power estimates.")
 #: :data:`APP_NAME` in the nine non-English UI languages, in
 #: :data:`spacr.qt.i18n.LANGUAGES` order after English — sv, de, es, zh_CN,
 #: pt, hi, ko, is, fr. Handed to ``register_app(translations=…)``, which is

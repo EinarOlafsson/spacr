@@ -624,8 +624,8 @@ class ChainingBar(QFrame):
                          f"{chained.producer} at {chained.artifact.path}")
         self._source.setText("Inputs: " + " · ".join(parts))
         self._source.setToolTip(
-            "Resolved from the artifact registry — where the run that "
-            "produced these actually wrote, not a guessed folder name.")
+            "Resolved from the artifact registry using the output path "
+            "recorded by the producing run rather than an inferred folder.")
         self._source.show()
 
     def _draw_pins(self, moved: Sequence[HeldPin]) -> None:
@@ -848,18 +848,15 @@ _SUCCEEDED_BY = {
 
 
 def screen_for_module(app_key: str) -> str:
-    """The screen a module's settings open on, now that some have no tile.
+    """Resolve a module key to the GUI screen that currently hosts it.
 
-    A key whose module was merged or folded into a host has no screen of
-    its own to open any more, and navigating to it anyway builds an
-    orphan: a page with no sidebar row, no tile and no way back to it.
-    This is the one table that says which screen took which key over, so
-    every caller that turns a saved run, a chained hand-off or a Train
-    button into a destination reads it rather than keeping a list.
+    Modules consolidated into another screen retain their pipeline keys for
+    command-line, saved-run, and chaining compatibility. Their keys are
+    resolved through :data:`_SUCCEEDED_BY`; keys without a successor mapping
+    are returned unchanged.
 
-    :param app_key: the module key a record or a signal named.
-    :returns: the app key of the screen that carries it, which is
-        ``app_key`` itself for everything that still has one.
+    :param app_key: Pipeline module key supplied by a record or signal.
+    :returns: GUI screen key that presents the module.
     """
     return _SUCCEEDED_BY.get(str(app_key), str(app_key))
 

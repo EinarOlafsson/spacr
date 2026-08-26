@@ -24,8 +24,9 @@ The generator supports three API shapes:
 ``signature``
     The function takes ordinary keyword arguments -- ``custom_volcano_plot``
     has nine, ``ml_analysis`` twenty-eight. Names and defaults come from
-    :func:`inspect.signature` and the tooltip is the function's own
-    ``Parameters`` section or ``:param`` field.
+    :func:`inspect.signature`. Descriptions come from the function's own
+    ``Parameters`` section or ``:param`` field, with the registered tooltip
+    table as a fallback when the docstring omits a parameter.
 
 ``source``
     The function takes a settings dict and NOTHING DECLARES ITS KEYS: it
@@ -63,6 +64,7 @@ if sys.path[0] != repo_text:
 # Module-owned keys absent from this snapshot still fall back to the complete
 # post-registration table in ``tooltip_for`` below.
 from spacr.settings import tooltips as _CORE_TOOLTIP_TABLE  # noqa: E402
+
 CORE_TOOLTIPS = dict(_CORE_TOOLTIP_TABLE)
 
 #: Legacy source marker retained so existing notebooks can be migrated.
@@ -330,12 +332,28 @@ NOTEBOOK_OVERVIEWS = {
     ),
     "30_volcano_plot.ipynb": (
         "Generate a volcano plot",
-        "Display effect estimates against statistical significance and "
-        "annotate selected findings.",
+        "Display effect estimates against negative log10-transformed "
+        "p-values and annotate selected findings.",
         "Use as a compact summary of a completed differential or regression "
         "analysis.",
-        "A publication-scale volcano plot in the requested output format.",
+        "A volcano plot saved with the configured dimensions and file format.",
     ),
+}
+
+# Current desktop routes for API notebooks whose workflows were consolidated
+# into a host module.  These are navigation aids only: the notebooks continue
+# to call the stable public Python functions documented below.
+NOTEBOOK_DESKTOP_ROUTES = {
+    "01b_generate_timelapse_masks.ipynb": "Mask → Timelapse",
+    "03_classify_computer_vision.ipynb": "Classify → Computer Vision",
+    "04_classify_machine_learning.ipynb": "Classify → Machine Learning",
+    "08_train_cellpose.ipynb": "Make Masks → Cellpose Workbench → Train",
+    "09_apply_cellpose.ipynb": "Make Masks → Cellpose Workbench → Apply",
+    "14_motility_assay.ipynb": (
+        "Mask → Timelapse, followed by Measure → Motility Assay"
+    ),
+    "24_interpret_vision_model.ipynb": "Classify → Explain CV Model",
+    "30_volcano_plot.ipynb": "Regression → Volcano Explorer",
 }
 
 
@@ -524,13 +542,22 @@ def surface(func, dotted: str = "") -> Tuple[str, Dict[str, Any]]:
     return "signature", keys_from_signature(func)
 
 
-def notebook_surface(func, dotted: str) -> Tuple[str, Dict[str, Any]]:
+def notebook_surface(
+    func,
+    dotted: str,
+    *,
+    notebook_name: str = "",
+) -> Tuple[str, Dict[str, Any]]:
     """Return the editable settings exposed by the corresponding module.
 
     The mask implementation retains timelapse and motility defaults for old
     settings files, but those controls now belong to dedicated modules. The
     notebooks mirror the current module boundaries rather than exposing
-    compatibility-only keys.
+    compatibility-only keys.  The motility notebook deliberately uses the
+    timelapse preprocessing function as its first stage, but presents only
+    the shared mask settings there; its second stage owns the motility
+    controls.  ``notebook_name`` distinguishes that workflow from the
+    dedicated Timelapse notebook without changing either public API.
     """
     shape, keys = surface(func, dotted)
     module = _module_from_registry(dotted)
@@ -539,24 +566,37 @@ def notebook_surface(func, dotted: str) -> Tuple[str, Dict[str, Any]]:
         return shape, keys
 
     from spacr.settings import (
+        categories,
         motility_advanced_settings,
         motility_settings,
         timelapse_settings,
     )
 
+    timelapse_keys = (
+        set(timelapse_settings)
+        | set(categories["4D Settings (Beta)"])
+        | {"timelapse"}
+    )
     motility_keys = (set(motility_settings)
                      | set(motility_advanced_settings)
                      | {"motility_analysis"})
-    if app_key == "mask":
-        hidden = motility_keys | set(timelapse_settings) | {"timelapse"}
+
+    profile = {
+        "01_generate_masks.ipynb": "general",
+        "01b_generate_timelapse_masks.ipynb": "timelapse",
+        "14_motility_assay.ipynb": "motility",
+    }.get(notebook_name, app_key)
+
+    if profile == "general" or (profile == "motility" and app_key == "timelapse"):
+        hidden = motility_keys | timelapse_keys
         keys = {key: value for key, value in keys.items()
                 if key not in hidden}
-    elif app_key == "timelapse":
+    elif profile == "timelapse":
         keys = {key: value for key, value in keys.items()
-                if key not in motility_keys and key != "timelapse"}
-    else:
+                if key not in motility_keys}
+    elif profile == "motility":
         keys = {key: value for key, value in keys.items()
-                if key != "motility_analysis"}
+                if key not in timelapse_keys and key != "motility_analysis"}
     return shape, keys
 
 
@@ -648,8 +688,8 @@ def _load_registrations() -> None:
 
 def tooltip_for(key: str, shape: str, docs: Dict[str, str]) -> str:
     """One sentence describing ``key``, from whichever source declares it."""
-    if shape == "signature":
-        return docs.get(key, "")
+    if shape == "signature" and docs.get(key):
+        return docs[key]
     if key in CORE_TOOLTIPS:
         return str(CORE_TOOLTIPS[key] or docs.get(key, ""))
     _load_registrations()
@@ -741,7 +781,7 @@ def _is_organelle_key(key: str) -> bool:
     """Return True for settings that configure an organelle mask role."""
     from spacr.object_roles import ORGANELLE_ROLES
 
-    return (key == "summarize_organelles_by"
+    return (key in {"number_of_organelles", "summarize_organelles_by"}
             or any(key.startswith(f"{role}_")
                    for role in ORGANELLE_ROLES))
 
@@ -773,8 +813,23 @@ def _category_groups(keys: Dict[str, Any], *, organelle: bool
     return groups
 
 
+_REQUIRED_SETTINGS = {
+    "spacr.deep_spacr.generate_activation_map": {"dataset"},
+    "spacr.sequencing.graph_sequencing_stats": {"count_data"},
+    "spacr.submodules.analyze_percent_positive": {"value_col"},
+}
+
+_CONDITIONAL_SETTINGS = {
+    "spacr.deep_spacr.generate_activation_map": {"target_layer"},
+}
+
+
 def _setting_status(dotted: str, shape: str, key: str) -> str:
     """Return ``required``, ``conditional`` or ``optional`` for ``key``."""
+    if key in _REQUIRED_SETTINGS.get(dotted, set()):
+        return "required"
+    if key in _CONDITIONAL_SETTINGS.get(dotted, set()):
+        return "conditional"
     if shape == "signature":
         func = resolve(dotted)
         try:
@@ -881,7 +936,7 @@ def render_cell(
     same dictionary, keeping the eventual function call unchanged.
     """
     lines: List[str] = []
-    for index, (dotted, shape, keys, docs) in enumerate(entries):
+    for index, (dotted, shape, keys, _docs) in enumerate(entries):
         groups = _category_groups(keys, organelle=organelle)
         if organelle and not groups:
             continue
@@ -937,7 +992,7 @@ def _render_overview(path: Path) -> Optional[str]:
     if overview is None:
         return None
     title, purpose, use, outputs = overview
-    return "\n".join([
+    lines = [
         f"# {title}",
         "",
         f"**Purpose.** {purpose}",
@@ -945,6 +1000,11 @@ def _render_overview(path: Path) -> Optional[str]:
         f"**Recommended use.** {use}",
         "",
         f"**Primary outputs.** {outputs}",
+    ]
+    desktop_route = NOTEBOOK_DESKTOP_ROUTES.get(path.name)
+    if desktop_route:
+        lines.extend(["", f"**Desktop route.** {desktop_route}"])
+    lines.extend([
         "",
         "---",
         "",
@@ -953,6 +1013,7 @@ def _render_overview(path: Path) -> Optional[str]:
         "> spaCR writes outputs within, or immediately adjacent to, the "
         "configured source directory unless an explicit output path is set.",
     ])
+    return "\n".join(lines)
 
 
 def _render_function_section(entries) -> str:
@@ -1026,7 +1087,7 @@ def _refresh_notebook_prose(path: Path, notebook: dict, entries) -> None:
                 "",
                 "- [Graphical workflow tutorials]"
                 "(https://einarolafsson.github.io/spacr/tutorials/)",
-                "- [Python API reference]"
+                "- [Python API quickstart]"
                 "(https://einarolafsson.github.io/spacr/python_api.html)",
             ]))
 
@@ -1048,7 +1109,9 @@ def rebuild(path: Path) -> Optional[str]:
         func = resolve(dotted)
         if func is None:
             continue
-        shape, keys = notebook_surface(func, dotted)
+        shape, keys = notebook_surface(
+            func, dotted, notebook_name=path.name
+        )
         if keys:
             entries.append((dotted, shape, keys, param_docs(func)))
     if not entries:

@@ -807,17 +807,18 @@ def install_glass_everywhere(application=None) -> bool:
 
 
 def uninstall_glass_everywhere(application=None) -> bool:
-    """Take the filter back off. True when there was one to remove.
+    """Remove the application-wide glass event filter.
 
-    THE APPLICATION OUTLIVES ONE SCREEN'S WORTH OF INTENT. A filter that
-    can only be installed changes every dialog for the rest of the
-    process, which is right for a running spaCR and wrong for anything
-    that wants to look at a dialog as its author wrote it -- a test being
-    the obvious case, since one file installing this would otherwise
-    decide the look of every dialog examined after it.
+    When :func:`install_glass_everywhere` has registered a filter, remove it
+    from ``application`` or, when omitted, from ``QApplication.instance()``.
+    The module's installation state is cleared even if no application instance
+    exists or Qt raises while removing the filter. Styling already applied to
+    dialogs is not reverted.
 
-    Dialogs already treated keep their card: this removes the filter, not
-    the effect.
+    :param application: Qt application from which to remove the filter. If
+        ``None``, use the current ``QApplication`` instance.
+    :returns: ``True`` if an installed filter was registered when the call
+        began; ``False`` if no filter was installed.
     """
     global _INSTALLED
 

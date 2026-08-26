@@ -81,6 +81,28 @@ def test_shared_tooltips_do_not_depend_on_optional_module_imports():
     assert tool.tooltip_for("dst", "factory", {}) == expected
 
 
+def test_signature_parameters_fall_back_to_the_registered_tooltip_table():
+    """An incomplete docstring must not produce an undocumented setting."""
+    tool = _tool()
+    expected = tool.CORE_TOOLTIPS["holdout_plate"]
+    assert expected
+    assert tool.tooltip_for("holdout_plate", "signature", {}) == expected
+
+
+@pytest.mark.parametrize(("dotted", "key", "expected"), [
+    ("spacr.deep_spacr.generate_activation_map", "dataset", "required"),
+    ("spacr.deep_spacr.generate_activation_map", "target_layer", "conditional"),
+    ("spacr.sequencing.graph_sequencing_stats", "count_data", "required"),
+    ("spacr.submodules.analyze_percent_positive", "value_col", "required"),
+])
+def test_callable_specific_setting_requirements_are_explicit(
+        dotted, key, expected):
+    tool = _tool()
+    func = tool.resolve(dotted)
+    shape, _keys = tool.surface(func, dotted)
+    assert tool._setting_status(dotted, shape, key) == expected
+
+
 def test_signature_docs_accept_scientific_python_parameter_sections():
     """Notebook comments follow the API writer's numpydoc convention."""
     tool = _tool()
@@ -177,6 +199,7 @@ def test_every_key_carries_a_description(path):
     if not sources:
         pytest.skip("no generated cell")
     help_text = _generated_help(path)
+    assert "No description is available in this version." not in help_text
     keys = []
     for source in sources:
         tree = ast.parse(source)
@@ -287,6 +310,82 @@ def test_mask_workflows_are_separate_and_scientifically_described():
         motility_cells[0])
 
 
+def test_mask_notebook_setting_profiles_are_explicit_and_disjoint():
+    """Static, timelapse, and motility notebooks expose only their controls."""
+    from spacr.settings import (
+        categories,
+        motility_advanced_settings,
+        motility_settings,
+        timelapse_settings,
+    )
+
+    tool = _tool()
+    timelapse_only = (
+        set(timelapse_settings)
+        | set(categories["4D Settings (Beta)"])
+        | {"timelapse"}
+    )
+    motility_only = (
+        set(motility_settings)
+        | set(motility_advanced_settings)
+        | {"motility_analysis"}
+    )
+
+    def exposed(dotted, notebook_name):
+        _shape, keys = tool.notebook_surface(
+            tool.resolve(dotted), dotted, notebook_name=notebook_name
+        )
+        return set(keys)
+
+    static = exposed(
+        "spacr.core.preprocess_generate_masks",
+        "01_generate_masks.ipynb",
+    )
+    timelapse = exposed(
+        "spacr.core.preprocess_generate_masks_timelapse",
+        "01b_generate_timelapse_masks.ipynb",
+    )
+    motility_preprocessing = exposed(
+        "spacr.core.preprocess_generate_masks_timelapse",
+        "14_motility_assay.ipynb",
+    )
+    motility_analysis = exposed(
+        "spacr.timelapse.automated_motility_assay",
+        "14_motility_assay.ipynb",
+    )
+
+    assert not static & (timelapse_only | motility_only)
+    assert motility_preprocessing == static
+    assert timelapse_only <= timelapse
+    assert not timelapse & motility_only
+    assert not motility_preprocessing & (timelapse_only | motility_only)
+    assert not motility_analysis & timelapse_only
+    assert (set(motility_settings) - {"motility_analysis"}) <= motility_analysis
+
+    def committed_keys(name):
+        keys = set()
+        for source in _generated_settings_cells(NOTEBOOKS / name):
+            tree = ast.parse(source)
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Dict):
+                    keys.update(
+                        key.value
+                        for key in node.keys
+                        if isinstance(key, ast.Constant)
+                        and isinstance(key.value, str)
+                    )
+        return keys
+
+    static_committed = committed_keys("01_generate_masks.ipynb")
+    timelapse_committed = committed_keys("01b_generate_timelapse_masks.ipynb")
+    motility_committed = committed_keys("14_motility_assay.ipynb")
+    assert not static_committed & (timelapse_only | motility_only)
+    assert timelapse_only <= timelapse_committed
+    assert not timelapse_committed & motility_only
+    assert not motility_committed & timelapse_only
+    assert (set(motility_settings) - {"motility_analysis"}) <= motility_committed
+
+
 @pytest.mark.parametrize("name", [
     "01_generate_masks.ipynb",
     "01b_generate_timelapse_masks.ipynb",
@@ -303,7 +402,9 @@ def test_organelle_settings_have_a_separate_cell(name):
     general_source = "".join(general["source"])
     organelle_source = "".join(organelle["source"])
     assert "'organelle_channel'" not in general_source
+    assert "'number_of_organelles'" not in general_source
     assert "'organelle_channel'" in organelle_source
+    assert "'number_of_organelles'" in organelle_source
     assert ".update({" in organelle_source
 
 
@@ -316,6 +417,32 @@ def test_notebook_overviews_use_scientific_section_labels(path):
     assert "**Primary outputs.**" in overview
     assert "**What it does.**" not in overview
     assert "**What you get.**" not in overview
+
+
+def test_generated_references_exclude_known_colloquial_phrases():
+    """Keep source tooltips from restoring conversational scientific prose."""
+    banned = (
+        "one object's opinion",
+        "chattier",
+        "faster and blinder",
+        "lucky split was flattering",
+        "slam probabilities",
+    )
+    failures = []
+    for path in ALL:
+        help_text = _generated_help(path).casefold()
+        for phrase in banned:
+            if phrase.casefold() in help_text:
+                failures.append(f"{path.name}: {phrase!r}")
+    assert not failures, failures
+
+
+def test_consolidated_notebooks_name_the_current_desktop_route():
+    tool = _tool()
+    for name, route in tool.NOTEBOOK_DESKTOP_ROUTES.items():
+        notebook = json.loads((NOTEBOOKS / name).read_text())
+        overview = "".join(notebook["cells"][0]["source"])
+        assert f"**Desktop route.** {route}" in overview
 
 
 @pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)

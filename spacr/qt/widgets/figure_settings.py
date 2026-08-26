@@ -1498,25 +1498,19 @@ def _pairs_from_axes(axes):
 
 
 def derive_replot_recipe(figure):
-    """Reconstruct a replot recipe from a figure that never carried one.
+    """Derive a grouped-plot recipe from an existing matplotlib figure.
 
-    "I want this for all graphs in the core modules, really for all
-    matplotlib graphs in the software." Only `create_grouped_plot` attaches
-    ``_spacr_replot``, so the Graph type menu appeared on the handful of
-    figures it draws and on nothing else -- every QC panel, every diagnostic,
-    every plot any other module makes was skipped.
+    This fallback supports figures without a ``_spacr_replot`` payload by
+    reading plotted values from bars, scatter collections, and data lines on a
+    single axes. Artist-derived data are exact for bar heights and point
+    coordinates but are necessarily lossy for summary artists such as box or
+    violin plots, which do not retain their source observations. Figures
+    created by :func:`spacr.plot.create_grouped_plot` use their attached source
+    frame instead of this fallback.
 
-    The data is read back OUT OF THE ARTISTS. That is exact for what these
-    figures draw: a bar knows its height, a scatter point its position. It is
-    lossy for a box or a violin, which draw a summary rather than the
-    observations -- so a figure whose only content is a box plot yields the
-    five numbers it drew and not the distribution behind them, and the menu
-    is still better than no menu. A figure drawn by `create_grouped_plot`
-    never reaches here; it has the real frame.
-
-    :param figure: a matplotlib Figure.
-    :returns: a recipe dict for :func:`spacr.plot.create_grouped_plot`, or
-        None when nothing plottable could be read.
+    :param figure: Matplotlib ``Figure`` containing exactly one axes.
+    :returns: Recipe dictionary for :func:`spacr.plot.create_grouped_plot`, or
+        ``None`` when sufficient plottable values cannot be recovered.
     """
     try:
         import pandas

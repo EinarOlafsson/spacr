@@ -39,8 +39,7 @@
 
 .. image:: ../../../spacr/resources/icons/logo_spacr_readme.png
    :alt: spaCR
-   :align: center
-   :width: 360
+   :width: 920
 
 spaCR
 =====
@@ -57,9 +56,9 @@ spaCR
 
 **CRISPR 筛选的空间表型分析。**
 
-spaCR 对高内涵显微镜图像中的单细胞进行分割和测量，将每个细胞与其获得的 gRNA 关联，并报告哪些基因改变了表型。输入为孔板图像和 FASTQ 读段；输出包括逐对象测量、训练后的分类器、逐向导 RNA 和逐基因效应量，以及按优先级排序的候选结果列表。
+spaCR 对高内涵显微镜图像中的单细胞进行分割和测量，将逐对象表型与测序得到的向导 RNA 丰度整合，并估计哪些基因与表型变化相关。以孔板图像和 FASTQ 读段为输入，它生成逐对象测量值、训练后的分类器、逐向导 RNA 和逐基因效应估计值，以及按优先级排序的命中结果列表。
 
-对于基于图像的混合 CRISPR 筛选，这涵盖了完整工作流程。如果只有高内涵显微镜数据而没有筛选实验，也可以单独运行分割、测量、标注和分类部分。
+对于基于图像的混合 CRISPR 筛选，spaCR 提供从图像分割到命中结果优先级排序的工作流程。对于不包含测序筛选的高内涵显微镜研究，分割、测量、标注和分类模块可独立使用。
 
 图像、掩膜、图像裁剪、测量值、标注、预测、条形码和孔位标识符都存储在同一个 SQLite 项目中，因此结果中的数值可以追溯到其来源对象。
 
@@ -107,43 +106,37 @@ spaCR 可作为桌面应用程序运行，也可在工作站、服务器或集�
    :width: 2.5%
    :align: middle
 
-**Data**
+**数据**
 
 |App_align|\ |App_convert|\ |App_foreign|\ |App_external_masks|\ |App_queue|
 
-|App_batch|\ |App_distributed_jobs|\ |App_db_browser|\ |App_illumination|\ |App_data_manager|
+|App_batch|\ |App_distributed_jobs|\ |App_db_browser|\ |App_data_manager|\ |App_project_browser|
 
-**Segmentation models**
+**分区模型**
 
-|App_make_masks|\ |App_train_cellpose|\ |App_cellpose_masks|\ |App_model_compare|\ |App_model_zoo|
+|App_make_masks|\ |App_napari_bridge|
 
-|App_curate|
+**结果 & QC**
 
-**Results & QC**
+|App_plate_view|\ |App_umap|\ |App_train_compare|\ |App_run_history|\ |App_report|
 
-|App_plate_view|\ |App_agreement|\ |App_umap|\ |App_activation|\ |App_train_compare|
+|App_hit_list|\ |App_methods_export|\ |App_run_compare|\ |App_investigate_hit|\ |App_control_chart|
 
-|App_classifier_evaluation|\ |App_run_history|\ |App_report|\ |App_barcode_qc|\ |App_hit_list|
+**探索**
 
-|App_methods_export|\ |App_volcano_explorer|\ |App_parameter_sweep|\ |App_run_compare|\ |App_explain_cv|
+|App_pipeline_graph|\ |App_profiler|\ |App_qc_dashboard|\ |App_lineage|\ |App_layer_viewer|
 
-|App_investigate_hit|
+|App_graph_builder|\ |App_tabulate|\ |App_feature_dict|\ |App_trellis|\ |App_gate_editor|
 
-**Explore**
+|App_feature_explorer|\ |App_outliers|
 
-|App_pipeline_graph|\ |App_profiler|\ |App_qc_dashboard|\ |App_image_scatter|\ |App_lineage|
+**评分**
 
-|App_layer_viewer|\ |App_graph_builder|\ |App_anndata_export|\ |App_pca|\ |App_tabulate|
+|App_analyze_plaques|\ |App_recruitment|\ |App_invasion|\ |App_replication|
 
-**Assays**
+**设计**
 
-|App_timelapse|\ |App_motility|\ |App_analyze_plaques|\ |App_recruitment|\ |App_invasion|
-
-|App_replication|
-
-**Design**
-
-|App_experiment_design|\ |App_power|
+|App_experiment_design|\ |App_power|\ |App_dose_response|
 
 .. |App_align| image:: ../../../spacr/resources/icons/workflow/apps/align.png
    :width: 19.9%
@@ -185,75 +178,40 @@ spaCR 可作为桌面应用程序运行，也可在工作站、服务器或集�
    :alt: 打开 Database Browser API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/db_browser/index.html
    :align: middle
-.. |App_illumination| image:: ../../../spacr/resources/icons/workflow/apps/illumination.png
-   :width: 19.9%
-   :alt: 打开 Illumination API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/illumination/index.html
-   :align: middle
 .. |App_data_manager| image:: ../../../spacr/resources/icons/workflow/apps/data_manager.png
    :width: 19.9%
    :alt: 打开 Data Manager API
    :target: https://einarolafsson.github.io/spacr/api/spacr/data_manager/index.html
+   :align: middle
+.. |App_project_browser| image:: ../../../spacr/resources/icons/workflow/apps/project_browser.png
+   :width: 19.9%
+   :alt: 打开 Project Browser API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/project_browser/index.html
    :align: middle
 .. |App_make_masks| image:: ../../../spacr/resources/icons/workflow/apps/make_masks.png
    :width: 19.9%
    :alt: 打开 Make Masks API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html
    :align: middle
-.. |App_train_cellpose| image:: ../../../spacr/resources/icons/workflow/apps/train_cellpose.png
+.. |App_napari_bridge| image:: ../../../spacr/resources/icons/workflow/apps/napari_bridge.png
    :width: 19.9%
-   :alt: 打开 Train Cellpose API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
-   :align: middle
-.. |App_cellpose_masks| image:: ../../../spacr/resources/icons/workflow/apps/cellpose_masks.png
-   :width: 19.9%
-   :alt: 打开 Cellpose Masks API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/spacr_cellpose/index.html
-   :align: middle
-.. |App_model_compare| image:: ../../../spacr/resources/icons/workflow/apps/model_compare.png
-   :width: 19.9%
-   :alt: 打开 Model Compare API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/model_compare/index.html
-   :align: middle
-.. |App_model_zoo| image:: ../../../spacr/resources/icons/workflow/apps/model_zoo.png
-   :width: 19.9%
-   :alt: 打开 Model Zoo API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/model_zoo/index.html
-   :align: middle
-.. |App_curate| image:: ../../../spacr/resources/icons/workflow/apps/curate.png
-   :width: 19.9%
-   :alt: 打开 Curate API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/curate/index.html
+   :alt: 打开 Napari Bridge API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/napari_bridge/index.html
    :align: middle
 .. |App_plate_view| image:: ../../../spacr/resources/icons/workflow/apps/plate_view.png
    :width: 19.9%
    :alt: 打开 Plate Viewer API
    :target: https://einarolafsson.github.io/spacr/api/spacr/plate_qc/index.html
    :align: middle
-.. |App_agreement| image:: ../../../spacr/resources/icons/workflow/apps/agreement.png
-   :width: 19.9%
-   :alt: 打开 Annotator Agreement API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/agreement/index.html
-   :align: middle
 .. |App_umap| image:: ../../../spacr/resources/icons/workflow/apps/umap.png
    :width: 19.9%
    :alt: 打开 Image UMAP API
    :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
    :align: middle
-.. |App_activation| image:: ../../../spacr/resources/icons/workflow/apps/activation.png
-   :width: 19.9%
-   :alt: 打开 Activation API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
-   :align: middle
 .. |App_train_compare| image:: ../../../spacr/resources/icons/workflow/apps/train_compare.png
    :width: 19.9%
    :alt: 打开 Training Runs API
    :target: https://einarolafsson.github.io/spacr/api/spacr/train_compare/index.html
-   :align: middle
-.. |App_classifier_evaluation| image:: ../../../spacr/resources/icons/workflow/apps/classifier_evaluation.png
-   :width: 19.9%
-   :alt: 打开 Classifier Evaluation API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/classifier_evaluation/index.html
    :align: middle
 .. |App_run_history| image:: ../../../spacr/resources/icons/workflow/apps/run_history.png
    :width: 19.9%
@@ -265,11 +223,6 @@ spaCR 可作为桌面应用程序运行，也可在工作站、服务器或集�
    :alt: 打开 Report API
    :target: https://einarolafsson.github.io/spacr/api/spacr/report/index.html
    :align: middle
-.. |App_barcode_qc| image:: ../../../spacr/resources/icons/workflow/apps/barcode_qc.png
-   :width: 19.9%
-   :alt: 打开 Barcode QC API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/sequencing_qc/index.html
-   :align: middle
 .. |App_hit_list| image:: ../../../spacr/resources/icons/workflow/apps/hit_list.png
    :width: 19.9%
    :alt: 打开 Hit List API
@@ -280,30 +233,20 @@ spaCR 可作为桌面应用程序运行，也可在工作站、服务器或集�
    :alt: 打开 Methods & Results API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/methods_export/index.html
    :align: middle
-.. |App_volcano_explorer| image:: ../../../spacr/resources/icons/workflow/apps/volcano_explorer.png
-   :width: 19.9%
-   :alt: 打开 Volcano Explorer API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/volcano_style/index.html
-   :align: middle
-.. |App_parameter_sweep| image:: ../../../spacr/resources/icons/workflow/apps/parameter_sweep.png
-   :width: 19.9%
-   :alt: 打开 Parameter Sweep API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/parameter_sweep/index.html
-   :align: middle
 .. |App_run_compare| image:: ../../../spacr/resources/icons/workflow/apps/run_compare.png
    :width: 19.9%
    :alt: 打开 Run Compare API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/run_compare/index.html
    :align: middle
-.. |App_explain_cv| image:: ../../../spacr/resources/icons/workflow/apps/explain_cv.png
-   :width: 19.9%
-   :alt: 打开 Explain CV Model API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/surrogate/index.html
-   :align: middle
 .. |App_investigate_hit| image:: ../../../spacr/resources/icons/workflow/apps/investigate_hit.png
    :width: 19.9%
    :alt: 打开 Investigate Hit API
    :target: https://einarolafsson.github.io/spacr/api/spacr/hit_investigation/index.html
+   :align: middle
+.. |App_control_chart| image:: ../../../spacr/resources/icons/workflow/apps/control_chart.png
+   :width: 19.9%
+   :alt: 打开 Control Charts API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/control_chart/index.html
    :align: middle
 .. |App_pipeline_graph| image:: ../../../spacr/resources/icons/workflow/apps/pipeline_graph.png
    :width: 19.9%
@@ -320,11 +263,6 @@ spaCR 可作为桌面应用程序运行，也可在工作站、服务器或集�
    :alt: 打开 QC Dashboard API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/qc_dashboard/index.html
    :align: middle
-.. |App_image_scatter| image:: ../../../spacr/resources/icons/workflow/apps/image_scatter.png
-   :width: 19.9%
-   :alt: 打开 Image Scatter API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/image_scatter/index.html
-   :align: middle
 .. |App_lineage| image:: ../../../spacr/resources/icons/workflow/apps/lineage.png
    :width: 19.9%
    :alt: 打开 Lineage API
@@ -340,30 +278,35 @@ spaCR 可作为桌面应用程序运行，也可在工作站、服务器或集�
    :alt: 打开 Graph Builder API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html
    :align: middle
-.. |App_anndata_export| image:: ../../../spacr/resources/icons/workflow/apps/anndata_export.png
-   :width: 19.9%
-   :alt: 打开 AnnData Export API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/anndata_export/index.html
-   :align: middle
-.. |App_pca| image:: ../../../spacr/resources/icons/workflow/apps/pca.png
-   :width: 19.9%
-   :alt: 打开 PCA API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/pca/index.html
-   :align: middle
 .. |App_tabulate| image:: ../../../spacr/resources/icons/workflow/apps/tabulate.png
    :width: 19.9%
    :alt: 打开 Tabulate API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/tabulate/index.html
    :align: middle
-.. |App_timelapse| image:: ../../../spacr/resources/icons/workflow/apps/timelapse.png
+.. |App_feature_dict| image:: ../../../spacr/resources/icons/workflow/apps/feature_dict.png
    :width: 19.9%
-   :alt: 打开 Timelapse API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
+   :alt: 打开 Feature Dictionary API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/feature_dict/index.html
    :align: middle
-.. |App_motility| image:: ../../../spacr/resources/icons/workflow/apps/motility.png
+.. |App_trellis| image:: ../../../spacr/resources/icons/workflow/apps/trellis.png
    :width: 19.9%
-   :alt: 打开 Motility Assay API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html
+   :alt: 打开 Small Multiples API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/trellis/index.html
+   :align: middle
+.. |App_gate_editor| image:: ../../../spacr/resources/icons/workflow/apps/gate_editor.png
+   :width: 19.9%
+   :alt: 打开 Gate Editor API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/gate_editor/index.html
+   :align: middle
+.. |App_feature_explorer| image:: ../../../spacr/resources/icons/workflow/apps/feature_explorer.png
+   :width: 19.9%
+   :alt: 打开 Feature Explorer API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/feature_explorer/index.html
+   :align: middle
+.. |App_outliers| image:: ../../../spacr/resources/icons/workflow/apps/outliers.png
+   :width: 19.9%
+   :alt: 打开 Outliers API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/outliers/index.html
    :align: middle
 .. |App_analyze_plaques| image:: ../../../spacr/resources/icons/workflow/apps/analyze_plaques.png
    :width: 19.9%
@@ -395,14 +338,11 @@ spaCR 可作为桌面应用程序运行，也可在工作站、服务器或集�
    :alt: 打开 Power / Design API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/power/index.html
    :align: middle
-.. |InstallerWindows| image:: ../../../spacr/resources/icons/platforms/windows.png
-   :width: 64
-   :alt: 下载适用于 Windows 10/11 的 spaCR 1.5.0.4
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
-.. |InstallerMacOS| image:: ../../../spacr/resources/icons/platforms/macos.png
-   :width: 64
-   :alt: 下载适用于 macOS 11+（Intel 和 Apple Silicon）的 spaCR 1.5.0.4
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
+.. |App_dose_response| image:: ../../../spacr/resources/icons/workflow/apps/dose_response.png
+   :width: 19.9%
+   :alt: 打开 Dose–Response API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/dose_response/index.html
+   :align: middle
 
 .. spacr-workflow-end
 
@@ -421,6 +361,14 @@ spaCR 可作为桌面应用程序运行，也可在工作站、服务器或集�
 
 |InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerLegacy|
 
+.. |InstallerWindows| image:: ../../../spacr/resources/icons/platforms/windows.png
+   :width: 64
+   :alt: 下载适用于 Windows 10/11 的 spaCR 1.5.0.4
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
+.. |InstallerMacOS| image:: ../../../spacr/resources/icons/platforms/macos.png
+   :width: 64
+   :alt: 下载适用于 macOS 11+（Intel 和 Apple Silicon）的 spaCR 1.5.0.4
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
 .. |InstallerLinux| image:: ../../../spacr/resources/icons/platforms/linux.png
    :width: 64
    :alt: 下载适用于 64 位 Linux 的 spaCR 1.5.0.4
@@ -429,14 +377,6 @@ spaCR 可作为桌面应用程序运行，也可在工作站、服务器或集�
    :width: 64
    :alt: 旧版 spaCR 安装程序
    :target: ../../source/installers.rst
-.. |DataBioStudies| image:: ../../../spacr/resources/icons/databanks/biostudies_button.png
-   :width: 72
-   :alt: 打开 BioStudies 显微镜数据集
-   :target: https://doi.org/10.6019/S-BIAD2135
-.. |DataHuggingFace| image:: ../../../spacr/resources/icons/databanks/huggingface_button.png
-   :width: 72
-   :alt: 打开 Hugging Face 测试数据集
-   :target: https://huggingface.co/datasets/einarolafsson/toxo_mito
 
 .. spacr-installer-links-end
 
@@ -451,7 +391,7 @@ spaCR 可作为桌面应用程序运行，也可在工作站、服务器或集�
 
 在 macOS 中,打开 ``.pkg``. 目前的 beta 没有通知; 如果 Gatekeeper 阻止它,请选择 **系统设置 → 隐私和安全 → 打开 无论如何**。
 
-请参见 `安装导游 <../../source/installer_guide.rst>`_ 更新、拆除、离线和解决问题的指示。
+请参见 `安装导游 <../../source/installer_guide.rst>`_ 更新、删除、离线和解决问题的指示。
 
 Python 安装
 ~~~~~~~~~~~~~~~~~~~
@@ -497,7 +437,7 @@ spaCR 支持 Python **3.9 至 3.14**，但不支持 torchvision 排除的 Python
 您可以做什么
 ---------------
 
-大多数筛选遵循六个模块:
+主要工作流由六个模块组成:
 
 - **Mask** 使用 Cellpose 分割细胞、细胞核、病原体和细胞器。
 - **Measure** 将形态、强度、纹理、空间和共定位特征以及对象图像裁剪写入 SQLite。
@@ -534,6 +474,14 @@ spaCR 支持 Python **3.9 至 3.14**，但不支持 torchvision 排除的 Python
 
 |DataBioStudies| |DataHuggingFace| |DataNCBI| |DataSpaCRPower| |DataBioRxiv|
 
+.. |DataBioStudies| image:: ../../../spacr/resources/icons/databanks/biostudies_button.png
+   :width: 72
+   :alt: 打开 BioStudies 显微镜数据集
+   :target: https://doi.org/10.6019/S-BIAD2135
+.. |DataHuggingFace| image:: ../../../spacr/resources/icons/databanks/huggingface_button.png
+   :width: 72
+   :alt: 打开 Hugging Face 测试数据集
+   :target: https://huggingface.co/datasets/einarolafsson/toxo_mito
 .. |DataNCBI| image:: ../../../spacr/resources/icons/databanks/ncbi_button.png
    :width: 72
    :alt: 打开 NCBI 测序数据集

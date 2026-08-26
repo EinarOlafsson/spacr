@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "language": "es",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "classes",
+      "source_sha256": "a4c339cac867e72eb0c819222e2f8ee338aa18531a083cb6c5ac5c85c9cf5329",
+      "source": "Class definitions in the form class name -> {column, value}; for example, 'pc' might be {'column': 'columnID', 'value': 'c3'}. In the Classes editor, select a column and assign names to its distinct values; definitions may span several columns. One row may instead define a random complement containing objects not assigned by any other class, sampled to match the largest class. This setting defines which objects belong to each class; class_folder_names defines the training subfolders. A pre-split settings file contains a plain list and is converted when read. Default {}.",
+      "translation": "Definiciones de clase con el formato nombre de clase -> {column, value}; por ejemplo, 'pc' podría ser {'column': 'columnID', 'value': 'c3'}. En el editor Clases, seleccione una columna y asigne nombres a sus distintos valores; las definiciones pueden abarcar varias columnas. Una fila puede definir en su lugar un complemento aleatorio que contenga los objetos no asignados a ninguna otra clase, muestreado para igualar la clase más grande. Este ajuste define qué objetos pertenecen a cada clase; class_folder_names define las subcarpetas de entrenamiento. Un archivo de ajustes previamente dividido contiene una lista simple y se convierte al leerlo. Valor predeterminado: {}."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "fraction_threshold",
+      "source_sha256": "6a8155bb70a4c7d98ed9704d873f181c92d8dabf0613cdcdc08826d8f16bd294",
+      "source": "Minimum relative abundance, 0-1, that a gRNA must reach within a well's total read count to be retained. Increasing it removes low-abundance and bleed-through gRNAs and reduces the mean number of gRNAs per well; if set too high, every row is removed and the run raises an error. Use None to select automatically the cutoff that yields target_unique_count gRNAs per well. Default None.",
+      "translation": "Abundancia relativa mínima, entre 0 y 1, que debe alcanzar un gRNA dentro del recuento total de lecturas de un pocillo para conservarse. Un valor mayor elimina gRNAs de baja abundancia y derivados de contaminación cruzada, y reduce el número medio de gRNAs por pocillo; si se establece demasiado alto, se eliminan todas las filas y la ejecución genera un error. Use None para seleccionar automáticamente el umbral que produce target_unique_count gRNAs por pocillo. Valor predeterminado: None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "seg_qc",
+      "source_sha256": "f60cc27eabd842673c2ad1b60e0e374b28de57c77889cc32b371f9cc1c2e0e93",
+      "source": "Segmentation quality control performed when masks are written, before measurement. 'off' skips scoring; 'report' scores every field, writes qc/segmentation_qc_<object>.csv, and displays detected quality issues; 'flag' also writes per-field JSON for downstream processing; 'stop' raises when the plate verdict is 'fail', after writing the scorecard. No mode deletes or omits a field, and 'stop' does not raise for a 'warn' verdict. Default 'report'.",
+      "translation": "Control de calidad de la segmentación realizado al escribir las máscaras, antes de la medición. 'off' omite la puntuación; 'report' puntúa cada campo, escribe qc/segmentation_qc_<object>.csv y muestra los problemas de calidad detectados; 'flag' también escribe un archivo JSON por campo para el procesamiento posterior; 'stop' genera un error cuando el veredicto de la placa es 'fail', después de escribir el informe. Ningún modo elimina u omite un campo, y 'stop' no genera un error para un veredicto 'warn'. Valor predeterminado: 'report'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelle_morphology",
+      "source_sha256": "d478357f7cc9517ec8b85fa3e7a75fd967af1f6233bc8bb9a5547999d8f02370",
+      "source": "Shape family of the target organelle; selects the segmentation pipeline and restricts valid organelle_method values. 'spots' denotes punctate structures such as vesicles and lipid droplets; 'network' denotes filamentous structures such as mitochondria and endoplasmic-reticulum tubules; 'irregular' denotes solid, irregular structures such as Golgi and lysosomes; and 'ring' denotes hollow structures such as endosomes and autophagosomes. An unsupported morphology-method pair raises before image loading. Default 'spots'.",
+      "translation": "Familia de formas del orgánulo objetivo; selecciona el flujo de segmentación y restringe los valores válidos de organelle_method. 'spots' denota estructuras puntiformes, como vesículas y gotas lipídicas; 'network' denota estructuras filamentosas, como mitocondrias y túbulos del retículo endoplasmático; 'irregular' denota estructuras sólidas irregulares, como el aparato de Golgi y los lisosomas; y 'ring' denota estructuras huecas, como endosomas y autofagosomas. Una combinación de morfología y método no compatible genera un error antes de cargar las imágenes. Valor predeterminado: 'spots'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelleb_morphology",
+      "source_sha256": "af54ac24514b77aaff8a440cccd92f9881cf812d689946a1b2dc4d2704367b35",
+      "source": "Shape family of the target organelle; selects the segmentation pipeline and restricts valid organelleb_method values. 'spots' denotes punctate structures such as vesicles and lipid droplets; 'network' denotes filamentous structures such as mitochondria and endoplasmic-reticulum tubules; 'irregular' denotes solid, irregular structures such as Golgi and lysosomes; and 'ring' denotes hollow structures such as endosomes and autophagosomes. An unsupported morphology-method pair raises before image loading. Default 'spots'.",
+      "translation": "Familia de formas del orgánulo objetivo; selecciona el flujo de segmentación y restringe los valores válidos de organelleb_method. 'spots' denota estructuras puntiformes, como vesículas y gotas lipídicas; 'network' denota estructuras filamentosas, como mitocondrias y túbulos del retículo endoplasmático; 'irregular' denota estructuras sólidas irregulares, como el aparato de Golgi y los lisosomas; y 'ring' denota estructuras huecas, como endosomas y autofagosomas. Una combinación de morfología y método no compatible genera un error antes de cargar las imágenes. Valor predeterminado: 'spots'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organellec_morphology",
+      "source_sha256": "7565cf3851b7dfa129f041ec3dd63e879c30e04498d9972215dd989781530b53",
+      "source": "Shape family of the target organelle; selects the segmentation pipeline and restricts valid organellec_method values. 'spots' denotes punctate structures such as vesicles and lipid droplets; 'network' denotes filamentous structures such as mitochondria and endoplasmic-reticulum tubules; 'irregular' denotes solid, irregular structures such as Golgi and lysosomes; and 'ring' denotes hollow structures such as endosomes and autophagosomes. An unsupported morphology-method pair raises before image loading. Default 'spots'.",
+      "translation": "Familia de formas del orgánulo objetivo; selecciona el flujo de segmentación y restringe los valores válidos de organellec_method. 'spots' denota estructuras puntiformes, como vesículas y gotas lipídicas; 'network' denota estructuras filamentosas, como mitocondrias y túbulos del retículo endoplasmático; 'irregular' denota estructuras sólidas irregulares, como el aparato de Golgi y los lisosomas; y 'ring' denota estructuras huecas, como endosomas y autofagosomas. Una combinación de morfología y método no compatible genera un error antes de cargar las imágenes. Valor predeterminado: 'spots'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelled_morphology",
+      "source_sha256": "d80216c1efa21f7834cb21b867140ef7c75a2e5154d623d29e18237e4797f61a",
+      "source": "Shape family of the target organelle; selects the segmentation pipeline and restricts valid organelled_method values. 'spots' denotes punctate structures such as vesicles and lipid droplets; 'network' denotes filamentous structures such as mitochondria and endoplasmic-reticulum tubules; 'irregular' denotes solid, irregular structures such as Golgi and lysosomes; and 'ring' denotes hollow structures such as endosomes and autophagosomes. An unsupported morphology-method pair raises before image loading. Default 'spots'.",
+      "translation": "Familia de formas del orgánulo objetivo; selecciona el flujo de segmentación y restringe los valores válidos de organelled_method. 'spots' denota estructuras puntiformes, como vesículas y gotas lipídicas; 'network' denota estructuras filamentosas, como mitocondrias y túbulos del retículo endoplasmático; 'irregular' denota estructuras sólidas irregulares, como el aparato de Golgi y los lisosomas; y 'ring' denota estructuras huecas, como endosomas y autofagosomas. Una combinación de morfología y método no compatible genera un error antes de cargar las imágenes. Valor predeterminado: 'spots'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "control_wells",
+      "source_sha256": "d185be08b45fbcb0930bd9fa42b3574a77a7bd64d0f8d563918f8cbcb7b4833f",
+      "source": "Wells whose parasites carry no pre-permeabilisation stain, providing the empirical negative distribution used to set the threshold. Specify a column ('c12'), row ('r1'), well ('r1_c12'), or complete plate key. These staining-control wells are excluded from efficiency calculations because they are not experimental conditions. None uses the automatic per-field method. Screen regression uses this key for a separate purpose, where it must be a list matching filter_value. Default None.",
+      "translation": "Pocillos cuyos parásitos no tienen tinción previa a la permeabilización, que proporcionan la distribución negativa empírica utilizada para establecer el umbral. Especifique una columna ('c12'), fila ('r1'), pocillo ('r1_c12') o clave de placa completa. Estos pocillos de control de tinción se excluyen de los cálculos de eficiencia porque no son condiciones experimentales. None utiliza el método automático por campo. La regresión de cribado utiliza esta clave con otro propósito, para el cual debe ser una lista que corresponda a filter_value. Valor predeterminado: None."
+    }
+  ]
+}

@@ -439,13 +439,12 @@ def _colour_values(frame: pd.DataFrame, style: VolcanoStyle):
 def point_localizations(results: pd.DataFrame, style: VolcanoStyle):
     """Each row's LOPIT compartment as an array of names, ``''`` where unknown.
 
-    THE EXPLORER'S TABLE IS NOT THE REGRESSION'S.
-    :func:`spacr.localisation.of` reads a design term with the gene in square
-    brackets -- ``fraction:grna[233460_1]`` -- while the frame a user opens in
-    the explorer carries bare identifiers, ``TGGT1_233460`` or ``233460_1``.
-    Both are resolved here, and the bundled table's bare gene NUMBER is tried
-    as well, so compartment colouring works on the table the explorer actually
-    holds rather than only on the one the regression emits.
+    :func:`spacr.localisation.of` resolves genes encoded in bracketed
+    regression terms such as ``fraction:grna[233460_1]``. Explorer tables may
+    instead contain bare accessions or guide identifiers such as
+    ``TGGT1_233460`` or ``233460_1``. This function accepts both forms and
+    queries the bundled localization table first with the normalized accession
+    and then, when applicable, with its terminal gene number.
 
     :returns: a numpy array of compartment names, or ``None`` when no column
         of ``results`` can name a gene and when no table is bundled -- a

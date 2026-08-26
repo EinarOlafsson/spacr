@@ -87,6 +87,8 @@ from __future__ import annotations
 
 from typing import Any, Optional
 
+from ..i18n import tr
+
 __all__ = [
     "PREVIEW_RUN_TEXT",
     "PREVIEW_CANCEL_TEXT",
@@ -135,7 +137,7 @@ def preview_failure_message(error: Any) -> str:
     :param error: the exception, or the error string a worker emitted.
     :returns: the sentence for the panel's status line.
     """
-    return f"Preview failed: {error}"
+    return tr("Preview failed: {error}", error=error)
 
 
 def preview_cellpose_model(model_name: Any, gpu: Optional[bool] = None):
@@ -158,6 +160,7 @@ def preview_cellpose_model(model_name: Any, gpu: Optional[bool] = None):
     :returns: a ``cellpose.models.CellposeModel``.
     """
     from cellpose import models as cp_models
+
     from spacr.utils import _resolve_cellpose_pretrained
 
     if gpu is None:
@@ -261,7 +264,9 @@ class LivePreviewContract:
         mode = self.display_primaries()
         if mode == "rgb":
             return ""
-        return PRIMARY_NOTES.get(mode, f"Channels drawn in {mode} primaries.")
+        if mode in PRIMARY_NOTES:
+            return tr(PRIMARY_NOTES[mode])
+        return tr("Channels drawn in {mode} primaries.", mode=mode)
 
     def set_preview_status(self, text: Any) -> None:
         """Put one sentence on the panel's status line.
@@ -274,7 +279,7 @@ class LivePreviewContract:
         label = getattr(self, "_status", None)
         if label is None:
             return
-        sentence = str(text)
+        sentence = tr(str(text))
         note = self.display_primaries_note()
         if note and note not in sentence:
             sentence = f"{sentence}  ·  {note}" if sentence else note

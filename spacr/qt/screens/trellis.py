@@ -244,7 +244,7 @@ def make_trellis_screen(app_key: Optional[str] = None) -> QWidget:
 
 
 APP_NAME = "Small Multiples"
-APP_DESCRIPTION = "One chart per group, in a grid, on axes that really are shared"
+APP_DESCRIPTION = "Create one chart per group in a grid with shared axes"
 APP_INTRO = (
     "Drop a column on X or Y to say what each panel shows, then a grouping "
     "column on Facet ↓ or Facet → to repeat it once per level. Axes are "

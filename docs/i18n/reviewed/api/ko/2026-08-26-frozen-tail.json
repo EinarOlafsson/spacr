@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "label": "spacr.cell_montage#4",
+      "source_sha256": "f70d5769c44086a0fff9f8933f3f6af7b3fec5978a8495a5a28dd9410c0bb2be",
+      "source": "Images are obtained through :class:`spacr.crops.PngCropSource` for exported PNG crops or :class:`spacr.crops.MergedCropSource` for crops extracted from ``merged/<fov>.npy``. :func:`resolve_montage_crop_source` reports when neither source is available. Per-well guide fractions are read from ``regression_data.csv``; the aggregate files ``grna_well.csv`` and ``well_grna.csv`` do not contain the required well-by-guide fractions.",
+      "context": "Images are obtained through :class:`spacr.crops.PngCropSource` for exported PNG extracted image regions or :class:`spacr.crops.MergedCropSource` for extracted image regions extracted from ``merged/<fov>.npy``. :func:`resolve_montage_crop_source` reports when neither source is available. Per-well guide fractions are read from ``regression_data.csv``; the aggregate files ``grna_well.csv`` and ``well_grna.csv`` do not contain the required well-by-guide fractions.",
+      "translation": "내보낸 PNG 크롭의 이미지는 :class:`spacr.crops.PngCropSource`를 통해 가져오고, :class:`spacr.crops.MergedCropSource`는 ``merged/<fov>.npy``에서 추출한 크롭의 이미지를 제공합니다. 두 소스를 모두 사용할 수 없으면 :func:`resolve_montage_crop_source`가 이를 보고합니다. 웰별 가이드 분율은 ``regression_data.csv``에서 읽습니다. 집계 파일 ``grna_well.csv``와 ``well_grna.csv``에는 필요한 웰별 가이드 분율이 없습니다."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.run_cellpose#0",
+      "source_sha256": "c4e971cb2b0ac583c516450ca67cafc74ea834e52089d0fcfad78376b845eb84",
+      "source": "Segment the open field with Cellpose-SAM; return objects found.",
+      "context": "Segment the open microscope field of view with Cellpose-SAM; return objects found.",
+      "translation": "열려 있는 현미경 시야를 Cellpose-SAM 으로 분할하고 발견된 객체를 반환합니다."
+    }
+  ]
+}

@@ -1,37 +1,14 @@
-"""Image UMAP, and the two other projections of the same objects.
+"""Image Scatter and PCA views integrated with Image UMAP.
 
-Three screens took a measurement table and drew one point per object.
-Image UMAP embeds the crops themselves and draws the embedding with the
-images as glyphs; Image Scatter plots any two measured columns with the
-crop under the cursor beside the plot; PCA decomposes the whole feature
-block and says which measurements built the axes. Same table, same
-objects, same click -- three projections, and no reason for a user to
-leave the screen to change which one they are looking at.
+Image UMAP, Image Scatter and PCA provide complementary projections of the
+same objects. Image Scatter plots two measured variables with crop previews
+and linked selection. PCA provides feature selection, a scree plot, a
+loadings biplot, local filtering and CSV export.
 
-So Image Scatter and PCA fold onto Image UMAP's masthead. Each is the
-module's own icon with no text, its one-line description as the tooltip,
-lit on hover in the maturity colour its tile used -- see
-:class:`spacr.qt.widgets.fold_strip.FoldStrip`, which reads that colour
-through :func:`spacr.qt.screens.map_barcodes.fold_description`, the one
-seam that answers out of the registry while a module has a row and out of
-``map_barcodes.FOLD_FALLBACK`` afterwards. Neither of these two has a row
-any more: being folded is what dropping it means.
-
-NOTHING IS LOST IN THE MOVE, and something is gained. The button opens
-the module ITSELF -- Image Scatter's hover preview, its axis pickers and
-its linked selection; PCA's feature picker, scree plot, loadings biplot,
-Local Data Filter and CSV export -- as a PAGE beside the UMAP settings
-rather than instead of them, so closing it keeps the screen and everything
-it had loaded. What is gained is the source: both open already pointed at
-the database the UMAP screen is set to read, so switching projection costs
-nothing, which is the whole point of the three being one module.
-
-The shared half of a fold -- turning the host's body into pages, wiring
-the host signals a sidebar row used to wire, and hanging the strip off the
-masthead -- lives in :mod:`spacr.qt.screens.map_barcodes` and is imported
-rather than repeated. The strip reaches a running window from there too:
-``shortcuts._install_window_hooks`` starts that module's stack walker,
-which looks this screen's key up in ``FOLD_HOST_MODULES``.
+Both views open as complete pages beside the UMAP settings and inherit the
+measurements database selected by the Image UMAP screen. Shared page, signal
+and masthead integration is implemented by
+:mod:`spacr.qt.screens.map_barcodes`.
 """
 
 from __future__ import annotations

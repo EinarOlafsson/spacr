@@ -61,9 +61,11 @@ const DEFAULT_CAPTION_SETTINGS = Object.freeze({
 const $ = selector => document.querySelector(selector);
 const elements = {
   curriculum: $("#curriculum"), search: $("#lesson-search"),
+  content: $("#lesson-content"),
   seriesLabel: $("#series-label"), position: $("#lesson-position"),
   status: $("#status-pill"), title: $("#lesson-title"),
-  description: $("#lesson-description"), duration: $("#duration-badge"),
+  route: $("#lesson-route"), description: $("#lesson-description"),
+  duration: $("#duration-badge"),
   objectives: $("#objective-list"), prerequisite: $("#prerequisite-copy"),
   player: $("#ready-player"), planned: $("#planned-card"),
   video: $("#tutorial-video"), audio: $("#narration-audio"),
@@ -553,6 +555,14 @@ function baseLesson(id) {
   return LESSONS.find(item => item.id === id);
 }
 
+function routedLesson(lesson) {
+  const appKey = lesson?.host_app_key || lesson?.app_key || null;
+  const host = lesson?.host_app_key
+    ? LESSONS.find(item => item.app_key === lesson.host_app_key && !item.host_app_key)
+    : null;
+  return { appKey, host };
+}
+
 function seriesBlocks() {
   return localizedCatalog.series.map(series => ({
     ...series,
@@ -756,7 +766,9 @@ function renderCurriculum(query = "") {
   seriesBlocks().forEach(series => {
     const filtered = series.lessons.filter(base => {
       const lesson = localizedLesson(base.id);
-      return !normalized || `${lesson.title} ${lesson.description} ${series.title}`
+      const host = routedLesson(base).host;
+      const hostTitle = host ? localizedLesson(host.id).title : "";
+      return !normalized || `${lesson.title} ${lesson.description} ${hostTitle} ${series.title}`
         .toLowerCase().includes(normalized);
     });
     if (!filtered.length) return;
@@ -821,11 +833,34 @@ async function selectLesson(id, options = {}) {
 function updateLessonHeader() {
   const lesson = localizedLesson(activeLesson.id);
   const series = localizedCatalog.series.find(item => item.number === activeLesson.series);
+  const route = routedLesson(activeLesson);
   elements.seriesLabel.textContent = `Series ${activeLesson.series}`;
   elements.position.textContent = `Lesson ${activeLesson.number} of ${LESSONS.length}`;
   elements.status.textContent = "Ready";
   elements.status.className = "status-pill ready";
   elements.title.textContent = lesson.title;
+  elements.content.dataset.appKey = route.appKey || "";
+  elements.route.replaceChildren();
+  if (route.host) {
+    const host = localizedLesson(route.host.id);
+    const hostName = document.createElement("span");
+    const arrow = document.createElement("span");
+    const workflowName = document.createElement("span");
+    hostName.className = "lesson-route-host";
+    hostName.textContent = host.title;
+    arrow.className = "lesson-route-arrow";
+    arrow.setAttribute("aria-hidden", "true");
+    arrow.textContent = "→";
+    workflowName.className = "lesson-route-workflow";
+    workflowName.textContent = lesson.title;
+    elements.route.append(hostName, arrow, workflowName);
+    elements.route.setAttribute(
+      "aria-label", `${host.title}: ${lesson.title}`);
+    elements.route.hidden = false;
+  } else {
+    elements.route.removeAttribute("aria-label");
+    elements.route.hidden = true;
+  }
   elements.description.textContent = lesson.description;
   document.title = `${lesson.title} · spaCR Learning Path`;
 }

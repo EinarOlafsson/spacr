@@ -147,26 +147,20 @@ def resolve_ink(target: str = "screen", ink: Optional[str] = None) -> str:
 
 def resolve_line_ink(target: str = "screen", ink: Optional[str] = None,
                      line: Optional[str] = None) -> str:
-    """The colour of the figure's LINE work, for where this figure is going.
+    """Resolve the colour used for axis spines and tick marks.
 
-    The axis spines and the tick MARKS. THE TICK MARK IS A LINE AND THE TICK
-    LABEL IS TEXT — that split is the one place the two controls meet, and it
-    is the reason this resolver exists separately from :func:`resolve_ink`.
+    Textual elements, including tick labels, use :func:`resolve_ink`; the
+    separate resolvers allow line and text colours to be configured
+    independently. If no line colour is configured, the resolved text colour
+    preserves the earlier single-ink behavior. Data-series colours remain
+    governed by :data:`ROLES` and per-figure styling.
 
-    FALLING BACK TO THE TEXT IS THE POINT, not a shortcut. Before there were
-    two controls every figure drew its chrome in the ink its text used, so a
-    store nobody has touched renders exactly as it did and the split costs
-    nobody a changed figure until they choose one.
-
-    WHAT IT DOES NOT REACH: the data's own lines. A preference pushed over
-    every series would flatten every multi-series figure in the package the
-    moment a theme was read, so the house style keeps :data:`ROLES` for the
-    marks that carry meaning. The control that does repaint one figure's data
-    lines is the per-figure one in the GUI.
-
-    :param line: an explicit line colour, which always wins.
-    :param ink: the text colour this figure is being drawn with, used when
-        neither the caller nor the user has named a line colour.
+    :param target: Output target passed to :func:`resolve_ink` when a fallback
+        is required.
+    :param ink: Explicit text colour used as the fallback for line work.
+    :param line: Explicit line colour, which takes precedence over all other
+        values.
+    :returns: Resolved line colour.
     """
     if line:
         return line

@@ -39,7 +39,7 @@ class _WellChoice(QDialog):
         self._boxes = []
         outer = QVBoxLayout(self)
         outer.addWidget(QLabel(
-            "A well left out is dropped from BOTH sides: it is not moved "
+            "An excluded well is removed from both groups; it is not moved "
             "into the comparison group."))
         for well in offered:
             # `Toggle`, not a bare check box: it subclasses one, so nothing
@@ -199,14 +199,12 @@ class MeasurementComparePanel(QWidget):
         for value, caption in SCOPES:
             self.scope.addItem(caption, value)
         self.scope.setToolTip(
-            "WHICH OBJECTS are plotted. 'gRNAs' draws only the objects "
-            "annotated with the guides chosen on the volcano. 'gRNAs + "
-            "other datapoints in selected wells' adds their WELL-MATES, "
-            "drawn distinguishably — that is the comparison that matters, "
-            "because a guide's cells against every cell in the screen "
-            "compares two different experiments, while a guide's cells "
-            "against their own well-mates compares two populations that "
-            "shared a plate, a day, a stain and an imaging session.")
+            "Objects included in the plot. 'gRNAs' displays only objects "
+            "annotated with the guides selected on the volcano. 'gRNAs + "
+            "other datapoints in selected wells' also displays the remaining "
+            "objects from those wells with a distinct encoding. Comparing "
+            "objects within the same wells controls for their shared plate, "
+            "acquisition, staining, and imaging conditions.")
         self.scope.currentIndexChanged.connect(self._on_scope)
         row.addWidget(self.scope)
 
@@ -220,7 +218,7 @@ class MeasurementComparePanel(QWidget):
         self.save_button = QPushButton("Save…")
         self.save_button.setToolTip(
             "Write the figure, the plotted data, the statistics, the "
-            "settings and the cell images into ONE folder.")
+            "settings, and the cell images into one folder.")
         self.save_button.clicked.connect(self.save_everything)
         row.addWidget(self.save_button)
         layout.addLayout(row)
@@ -247,8 +245,8 @@ class MeasurementComparePanel(QWidget):
         self.controls.setPlaceholderText("control gene or guide, comma "
                                           "separated")
         self.controls.setToolTip(
-            "The control wells to compare against. A gene name takes every "
-            "one of its guides; a guide name takes just that guide.")
+            "Control wells used for the comparison. A gene name selects all "
+            "associated guides; a guide name selects only that guide.")
         self.controls.editingFinished.connect(self.refresh)
         self.controls.setEnabled(False)
         second_row.addWidget(self.controls, 1)
@@ -264,7 +262,7 @@ class MeasurementComparePanel(QWidget):
         self.wells_button = QPushButton("wells…")
         self.wells_button.setToolTip(
             "Choose which of the annotation's wells to include. A well left "
-            "out is dropped from BOTH sides of the comparison.")
+            "out is removed from both sides of the comparison.")
         self.wells_button.clicked.connect(self.choose_wells)
         second_row.addWidget(self.wells_button)
         layout.addLayout(second_row)

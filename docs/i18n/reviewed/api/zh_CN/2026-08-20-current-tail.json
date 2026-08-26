@@ -3,13 +3,6 @@
   "language": "zh_CN",
   "records": [
     {
-      "label": "spacr.cell_montage.fractions_from_counts#8",
-      "source_sha256": "56e28400f9786cfb16b80be944d31fcc88270dd712270470379caecf8cda4aec",
-      "source": "THE WELL TOTAL IS A ONE-ROW-PER-WELL FRAME BY CONSTRUCTION, and the merge says so with ``validate='many_to_one'``. `ml.process_reads` carries the same guard and the same comment: a duplicated well total would duplicate every guide row of that well, and the fractions would still sum to 1 per copy -- so the corruption would be invisible in every downstream check.",
-      "context": "THE WELL TOTAL IS A ONE-ROW-PER-WELL FRAME BY CONSTRUCTION, and the merge says so with ``validate='many_to_one'``. `ml.process_reads` carries the same guard and the same comment: a duplicated well total would duplicate every guide row of that well, and the fractions would still sum to 1 per copy -- so the corruption would be invisible in every downstream check.",
-      "translation": "根据构造，孔总数是每孔一行的框架，并且合并用 ``validate='many_to_one'`` 表示。 `ml.process_reads` 具有相同的保护和相同的注释：重复的孔总计将复制该孔的每个引导行，并且每个副本的分数之和仍为 1 - 因此在每个下游检查中损坏将是不可见的。"
-    },
-    {
       "label": "spacr.figures.summary#1",
       "source_sha256": "b7a7a2b49a5c9407f90a3895b6ab097464e86602212992f9a0e3f78078bdd90d",
       "source": "PROSE, NOT A TABLE DUMP. A table of a thousand coefficients is already on screen and already in a CSV; what is missing is the paragraph a person would write after looking at it. So this says how many hypotheses were tested, how many survived and under which rule, which genes they were, whether the assay worked, and -- because the calibration on real screens is routinely off in one direction or the other -- whether the test was conservative or anti-conservative.",
@@ -57,13 +50,6 @@
       "source": "Where the screen takes its inputs ONE ROW PER PLATE -- today only Regression, through the ``paired_data`` table -- the database is attached to a plate row instead of setting ``src``. That is not an app-key special case: it follows the shape of the screen, so any panel that grows a per-plate input table gets it without a registry edit.",
       "context": "Where the screening experiment takes its inputs ONE ROW PER Laboratory microplate -- today only Regression, through the ``paired_data`` table -- the database is attached to a laboratory microplate row instead of setting ``src``. That is not an app-structured-data name special case: it follows the shape of the screening experiment, so any panel that grows a per-laboratory microplate input table gets it without a registry edit.",
       "translation": "如果筛选实验将其输入设为每实验室微孔板一行（目前仅通过 ``paired_data`` 表进行回归），则数据库将附加到实验室微孔板行而不是设置 ``src``。这不是应用程序结构化数据名称的特殊情况：它遵循筛选实验的形状，因此任何生成每个实验室微孔板输入表的面板都无需进行注册表编辑即可获得它。"
-    },
-    {
-      "label": "spacr.qt.widgets.fast_plots.FastPlot.offer_levels#0",
-      "source_sha256": "19780ebc08e46878592bc719cb9683c39af8eebe5255fe3daa9cd806c27faffe",
-      "source": "Offer \"show only genes / only guides / both\", ON the plot.",
-      "context": "Offer \"show only genes / only guides / both\", ON the plot.",
-      "translation": "提供“仅显示基因/仅显示指导/两者”，在图上。"
     }
   ]
 }

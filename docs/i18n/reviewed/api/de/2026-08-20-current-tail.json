@@ -2,13 +2,6 @@
   "language": "de",
   "records": [
     {
-      "context": "A COMPONENT-WISE PREFIX TEST, not a substring one. ``base_path not in path`` -- what :func:`spacr.utils.correct_paths` used to ask -- answers yes for ``/mnt/newdisk`` against ``/old/mnt/newdisk-backup/x.png`` and no for a path that differs only in spelling, and neither answer is what the question means.",
-      "label": "spacr.crops.path_is_under#1",
-      "source": "A COMPONENT-WISE PREFIX TEST, not a substring one. ``base_path not in path`` -- what :func:`spacr.utils.correct_paths` used to ask -- answers yes for ``/mnt/newdisk`` against ``/old/mnt/newdisk-backup/x.png`` and no for a path that differs only in spelling, and neither answer is what the question means.",
-      "source_sha256": "1bb889a165027239c443c3afaf5caad0d101b0f2edbbdc7a7eb7d563822dfa99",
-      "translation": "EIN KOMPONENTENWEITER PRÄFIXTEST, kein Teilzeichenfolgentest. ``base_path not in path`` – was :func:`spacr.utils.correct_paths` früher gefragt hat – antwortet mit „Ja“ für „``/mnt/newdisk``“ gegen „``/old/mnt/newdisk-backup/x.png``“ und „Nein“ für einen Pfad, der sich nur in der Schreibweise unterscheidet, und keine der Antworten entspricht der Bedeutung der Frage."
-    },
-    {
       "context": "Only the regression module for now: the sweep axes, the legality filters and the row-to-regression round trip are all specific to it.",
       "label": "spacr.qt.screens.parameter_sweep.sweepable#1",
       "source": "Only the regression module for now: the sweep axes, the legality filters and the row-to-regression round trip are all specific to it.",

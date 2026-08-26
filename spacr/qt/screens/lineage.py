@@ -454,7 +454,7 @@ class LineageScreen(LinkedView, QWidget):
 # ---------------------------------------------------------------------------
 
 APP_NAME = "Lineage"
-APP_DESCRIPTION = "What is inside what: cell → nucleus → pathogen"
+APP_DESCRIPTION = "Visualize cell, nucleus and pathogen containment relationships"
 APP_INTRO = (
     "Every cell with the nuclei and pathogens it contains, read off the "
     "cell_id links Measure has always written. Selecting a node highlights "

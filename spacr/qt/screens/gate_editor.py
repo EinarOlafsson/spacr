@@ -232,9 +232,9 @@ class GateEditorScreen(QWidget):
 
         self._annotate = QPushButton("Annotate…", self)
         self._annotate.setToolTip(
-            "Turn the SHOWN gates into one annotation column. Binary marks "
-            "objects inside every one of them; multi-class gives each "
-            "combination that actually occurs its own class.")
+            "Write the displayed gates to one annotation column. Binary mode "
+            "marks objects inside all gates; multi-class mode assigns a "
+            "separate class to each observed gate combination.")
         self._annotate.clicked.connect(self.annotate_from_gates)
         head.addWidget(self._annotate)
 
@@ -1771,7 +1771,7 @@ def make_gate_editor_screen(app_key: Optional[str] = None) -> QWidget:
 
 
 APP_NAME = "Gate Editor"
-APP_DESCRIPTION = "Draw a threshold or a region on a plot; it becomes a filter"
+APP_DESCRIPTION = "Define threshold- or region-based filters on measurement plots"
 APP_INTRO = (
     "The flow-cytometry gesture on measurement tables. Drag a threshold across "
     "a histogram or click a polygon round a cloud on a two-parameter scatter, "

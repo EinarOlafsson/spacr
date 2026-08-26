@@ -11,7 +11,6 @@ from __future__ import annotations
 import logging
 
 import pytest
-
 from PySide6.QtCore import QEvent, QSize
 from PySide6.QtGui import QAction, QKeySequence, QShortcut
 from PySide6.QtWidgets import QLabel, QMainWindow, QWidget
@@ -57,10 +56,6 @@ def test_the_map_is_the_window_wide_keys_plus_the_per_screen_ones():
     assert all(spec.scope != sc.EVERYWHERE for spec in sc.SCREEN_SHORTCUTS)
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "Ctrl+End is declared in SHORTCUTS and so is claimed by installed(), but "
-    "install() never binds it -- the console panel does, on itself. It "
-    "belongs in BOUND_ELSEWHERE beside Ctrl+B, or install() has to bind it."))
 def test_install_binds_every_key_it_is_responsible_for(window):
     """`installed()` is the promise that `install()` wires these; a key it
     lists and nobody binds on the window is a cheat-sheet entry that does
@@ -80,7 +75,9 @@ def test_install_binds_every_key_that_is_not_bound_elsewhere(window):
         if spec.scope != sc.EVERYWHERE:
             continue
         assert sc.native(spec.keys) in bound, spec.keys
-    assert sc.native("Ctrl+B") not in bound      # the sidebar owns this one
+    # Window actions own these two rather than ``install()``.
+    assert sc.native("Ctrl+B") not in bound
+    assert sc.native("F11") not in bound
 
 
 # --------------------------------------------------------------------------

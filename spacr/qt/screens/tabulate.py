@@ -335,19 +335,20 @@ def make_tabulate_screen(app_key: Optional[str] = None) -> QWidget:
 
 
 APP_NAME = "Tabulate"
-APP_DESCRIPTION = ("Pivot the measurement table — rows, columns, "
-                   "aggregations, and the n behind each one")
+APP_DESCRIPTION = ("Pivot measurement tables by rows, columns and aggregation "
+                   "functions while reporting each sample count")
 APP_INTRO = (
-    "Drag columns onto Rows and Columns to group by them, a measurement onto "
-    "Values to summarise it, and tick the statistics you want. plateID / "
-    "rowID / columnID down the rows is a plate summary. Every cell prints its "
-    "n, because a mean over four objects and a mean over four thousand look "
-    "the same otherwise, and a combination with no objects is blank rather "
-    "than zero. Export the table, or hand it to the Graph Builder below.")
+    "Assign grouping fields to Rows and Columns, assign a measurement to "
+    "Values, and select the required summary statistics. Using plateID, rowID, "
+    "and columnID as row fields produces a plate summary. Each output cell "
+    "reports its sample count; groups without observations remain blank rather "
+    "than being represented as zero. Export the table or send it to Graph "
+    "Builder.")
 #: What `spacr.cli.INTERACTIVE_ONLY` wants: why this app has no headless run.
-APP_CLI_NOTE = ("Interactive pivot table; "
-                "spacr.qt.widgets.pivot_spec.pivot() is the headless "
-                "equivalent.")
+APP_CLI_NOTE = (
+    "Use Tabulate for interactive pivot-table design. In a headless workflow, "
+    "call spacr.qt.widgets.pivot_spec.pivot() with the equivalent pivot "
+    "specification.")
 
 
 def register() -> bool:

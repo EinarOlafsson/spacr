@@ -643,19 +643,16 @@ APP_NAME = "Outliers"
 APP_DESCRIPTION = ("Robust per-object and per-well outlier detection — MAD, "
                    "Tukey and MCD Mahalanobis")
 APP_INTRO = (
-    "Finds the objects that are wrong and, separately, the wells that are "
-    "wrong — which is usually the one that matters, and which per-object "
-    "flags are nearly blind to: a well shifted as a whole flags almost none "
-    "of its individual cells. Nothing is estimated from a mean or an SD, "
-    "because the outliers would move both. Pick features, pick a rule — a "
-    "modified z against the median, Tukey's fence, or a robust multivariate "
-    "distance whose threshold is a stated false-positive rate — and the flags "
-    "arrive as added columns. No row is ever dropped.")
+    "Detect object-level and well-level outliers separately; whole-well shifts "
+    "may not produce strong per-object flags. Select features and a robust "
+    "rule: a median-based modified z-score, Tukey fence, or MCD Mahalanobis "
+    "distance with a stated false-positive threshold. Results are appended as "
+    "flag and score columns without removing rows.")
 APP_CLI_NOTE = (
-    "Outliers is an interactive QC surface: the feature list, the method and "
-    "the threshold are the feature; run it in the GUI (spacr-qt). Headless, "
-    "spacr.qt.widgets.outlier_model.detect_outliers() computes exactly the "
-    "same object flags, well scores and report with no Qt involved.")
+    "Use Outliers in the GUI (spacr-qt) to select features, method, and "
+    "threshold. In a headless workflow, "
+    "spacr.qt.widgets.outlier_model.detect_outliers() returns the same object "
+    "flags, well scores, and report without Qt.")
 #: The display name in the nine non-English UI languages, in
 #: `spacr.qt.i18n.LANGUAGES` order (sv, de, es, zh_CN, pt, hi, ko, is, fr).
 APP_NAME_TRANSLATIONS = (

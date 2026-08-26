@@ -45,22 +45,21 @@ APP_KEY = "qc_dashboard"
 
 APP_NAME = "QC Dashboard"
 APP_DESCRIPTION = (
-    "Segmentation, units, leakage, plate effects and annotator agreement in "
-    "one place, with the verdict they add up to."
+    "Summarize segmentation, units, leakage, plate effects and annotator "
+    "agreement quality-control results"
 )
 APP_INTRO = (
-    "Every verdict here was written by the run that produced it -- this "
-    "screen reads them, it does not score anything, so opening it costs a "
-    "directory listing rather than minutes of mask loading. A card whose "
-    "inputs are newer than it is says OUT OF DATE rather than pretending to "
-    "describe them. A card that says 'missing' means the check has not been "
-    "run, which is not the same as clean."
+    "Review quality-control verdicts written by completed pipeline runs. The "
+    "dashboard reads stored results without loading masks or recomputing "
+    "scores. A card is marked out of date when its inputs are newer than the "
+    "stored verdict. A missing card indicates that the corresponding check has "
+    "not been run; it does not indicate a passing result."
 )
 APP_CLI_NOTE = (
-    "The QC Dashboard is a GUI screen: it aggregates verdicts other runs "
-    "wrote so they can be read together. Headless, call "
-    "spacr.qt.widgets.qc_summary.read_dashboard(src) and "
-    "format_dashboard() instead -- that is the same code this screen runs."
+    "Use QC Dashboard in the GUI to review stored verdicts together. In a "
+    "headless workflow, call "
+    "spacr.qt.widgets.qc_summary.read_dashboard(src) and format_dashboard() "
+    "to load and format the same results."
 )
 #: sv, de, es, zh_CN, pt, hi, ko, is, fr
 APP_TRANSLATIONS: Tuple[str, ...] = (

@@ -1,37 +1,18 @@
-"""Classify, and the three screens that read what it produced.
+"""Model-evaluation and interpretation views integrated with Classify.
 
-A classifier is trained on one screen and then argued about on three
-others: Classifier Evaluation asks whether to believe it -- held-out
-predictions, nested CV, calibration, leakage checks and per-plate metrics
-off a saved evaluation bundle -- Explain CV Model asks what it is keying
-on, reproducing the decisions from measured features and reporting gain,
-held-out permutation importance and SHAP, and Activation asks the same
-question of the pixels, drawing the map of where in the crop the trained
-model looked. None is a separate destination; each is the second half of
-the visit that trained the model, so all three fold onto Classify's
-masthead as buttons.
+The Classify masthead provides direct access to three related modules:
 
-Each button is the folded module's own icon with no text, its one-line
-description as the tooltip, lit on hover in the maturity colour its tile
-used -- see :class:`spacr.qt.widgets.fold_strip.FoldStrip`.
+* Classifier Evaluation reports held-out predictions, nested
+  cross-validation, calibration, leakage checks and per-plate metrics from
+  a saved evaluation bundle.
+* Explain CV Model reports feature gain, held-out permutation importance and
+  SHAP values for classifiers trained on measured features.
+* Activation maps image regions associated with predictions from an image
+  classifier.
 
-NOTHING IS LOST IN THE MOVE. The buttons open the three modules
-themselves, as PAGES beside the training settings, so the bundle browser,
-the leakage report, the backend choice, the SHAP panel, the attribution
-form with its own Run button and hyperparameter sweep, and every
-navigation those screens offer arrive with them, and the training
-settings are one tab away rather than behind a window. A window is what a
-fold becomes only when its host has no body to make pages out of.
-
-WHY ACTIVATION IS A PAGE RATHER THAN CATEGORIES ON THIS FORM -- nineteen
-of its twenty-seven settings are its own, and they drive a different run
--- is argued in :mod:`spacr.qt.screens.activation`, which also answers
-the one navigation Explain CV offers.
-
-The shared half of a fold -- opening the module, wiring the host signals
-and hanging the strip off the masthead -- lives in
-:mod:`spacr.qt.screens.map_barcodes` and is imported rather than
-repeated.
+Each module opens as a complete page beside the Classify settings. The shared
+page and signal integration is implemented by
+:mod:`spacr.qt.screens.map_barcodes`.
 """
 
 from __future__ import annotations

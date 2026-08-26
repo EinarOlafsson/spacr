@@ -956,11 +956,15 @@ def make_layer_viewer_screen(**_kwargs) -> LayerViewer:
 #: the app in is one call rather than five strings invented in five files.
 #: :func:`spacr.qt.app.register_app` fans them out.
 APP_NAME = "Layer Viewer"
-APP_DESCRIPTION = "Images, masks, points and ROIs as separate layers in one world"
+APP_DESCRIPTION = (
+    "View images, masks, points and ROIs as independently controlled, "
+    "spatially registered layers"
+)
 APP_INTRO = (
-    "One world, many layers: an image channel, the label mask over it, the "
-    "points and the shapes, each with its own colormap, opacity, blending "
-    "and visibility, reordered by dragging. Picking an object here selects "
+    "Display image channels, label masks, points and shapes in one registered "
+    "coordinate system. Each layer has independent colormap, opacity, "
+    "blending and visibility controls and can be reordered by dragging. "
+    "Selecting an object here selects "
     "the same object in every other open view, and vice versa.")
 #: What ``spacr.cli.INTERACTIVE_ONLY`` wants: why this app has no headless
 #: run, and what to do instead.

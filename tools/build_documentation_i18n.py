@@ -59,6 +59,10 @@ from build_i18n_catalogs import (
     _translate_batches,
     _translation_chunks,
 )
+from readme_i18n import (
+    WORKFLOW_MODULE_ALT_TEMPLATES,
+    localize_workflow_markup,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -2971,15 +2975,18 @@ API_TRANSLATION_CONTEXT.update({
 # the scientific meaning from a short sentence.
 _SUMMARY_SOURCE = (
     "spaCR segments and measures single cells in high-content microscopy "
-    "images, links each cell to the gRNA it received, and reports which genes "
-    "changed the phenotype. Plate images and FASTQ reads go in; per-object "
-    "measurements, trained classifiers, per-guide and per-gene effect sizes, "
-    "and a ranked hit list come out."
+    "images, integrates per-object phenotypes with sequencing-derived guide "
+    "abundance, and estimates which genes are associated with phenotypic "
+    "changes. Starting from plate images and FASTQ reads, it produces "
+    "per-object measurements, trained classifiers, per-guide and per-gene "
+    "effect estimates, and a ranked hit list."
 )
 _SCOPE_SOURCE = (
-    "If you run image-based pooled CRISPR screens, that is the whole path. If "
-    "you have high-content microscopy and no screen, the segmentation, "
-    "measurement, annotation and classification half runs on its own."
+    "For image-based pooled CRISPR screens, spaCR provides the workflow from "
+    "image segmentation through hit prioritization. For high-content "
+    "microscopy studies without sequencing-based screens, the segmentation, "
+    "measurement, annotation and classification modules can be used "
+    "independently."
 )
 _TAGLINE_SOURCE = "**Spatial phenotype analysis of CRISPR screens.**"
 _ATTRIBUTION_SOURCE = "translation model attribution"
@@ -2995,26 +3002,26 @@ _EXECUTION_SOURCE = (
 )
 REVIEWED_README_BLOCKS = {
     _SUMMARY_SOURCE: {
-        "sv": "spaCR segmenterar och mäter enskilda celler i mikroskopibilder med högt innehåll, kopplar varje cell till den gRNA den fick och rapporterar vilka gener som förändrade fenotypen. Plattbilder och FASTQ-läsningar matas in; ut kommer mätningar per objekt, tränade klassificerare, effektstorlekar per guide och gen samt en rangordnad träfflista.",
-        "de": "spaCR segmentiert und vermisst einzelne Zellen in High-Content-Mikroskopiebildern, verknüpft jede Zelle mit der erhaltenen gRNA und berichtet, welche Gene den Phänotyp verändert haben. Plattenbilder und FASTQ-Reads dienen als Eingabe; ausgegeben werden Messungen pro Objekt, trainierte Klassifikatoren, Effektgrößen pro Guide und Gen sowie eine Rangliste der Treffer.",
-        "es": "spaCR segmenta y mide células individuales en imágenes de microscopía de alto contenido, vincula cada célula con el gRNA que recibió e indica qué genes modificaron el fenotipo. Las imágenes de placas y las lecturas FASTQ son la entrada; las mediciones por objeto, los clasificadores entrenados, los tamaños del efecto por guía y por gen y una lista ordenada de resultados son la salida.",
-        "zh_CN": "spaCR 对高内涵显微镜图像中的单细胞进行分割和测量，将每个细胞与其获得的 gRNA 关联，并报告哪些基因改变了表型。输入为孔板图像和 FASTQ 读段；输出包括逐对象测量、训练后的分类器、逐向导 RNA 和逐基因效应量，以及按优先级排序的候选结果列表。",
-        "pt": "O spaCR segmenta e mede células individuais em imagens de microscopia de alto conteúdo, associa cada célula ao gRNA que ela recebeu e informa quais genes alteraram o fenótipo. As entradas são imagens de placas e leituras FASTQ; as saídas incluem medições por objeto, classificadores treinados, tamanhos de efeito por guia e por gene e uma lista classificada de resultados.",
-        "hi": "spaCR उच्च-सामग्री माइक्रोस्कोपी छवियों में एकल कोशिकाओं का विभाजन और मापन करता है, प्रत्येक कोशिका को मिले gRNA से जोड़ता है और बताता है कि किन जीनों ने फीनोटाइप बदला। इनपुट के रूप में प्लेट छवियाँ और FASTQ रीड आती हैं; आउटपुट में प्रति-वस्तु मापन, प्रशिक्षित वर्गीकारक, प्रति-गाइड और प्रति-जीन प्रभाव आकार तथा प्राथमिकता के अनुसार परिणामों की सूची मिलती है।",
-        "ko": "spaCR는 고함량 현미경 영상에서 단일 세포를 분할하고 측정하며, 각 세포를 전달받은 gRNA와 연결하고 어떤 유전자가 표현형을 바꾸었는지 보고합니다. 플레이트 영상과 FASTQ 리드를 입력하면 객체별 측정값, 학습된 분류기, 가이드별·유전자별 효과 크기와 우선순위가 지정된 후보 목록이 출력됩니다.",
-        "is": "spaCR aðgreinir og mælir stakar frumur í afkastamiklum smásjármyndum, tengir hverja frumu við gRNA-ið sem hún fékk og greinir frá því hvaða gen breyttu svipgerðinni. Plötumyndir og FASTQ-raðir eru inntak; mælingar fyrir hvert viðfang, þjálfaðir flokkarar, áhrifastærðir fyrir hverja leiðarsameind og hvert gen og forgangsraðaður niðurstöðulisti eru úttak.",
-        "fr": "spaCR segmente et mesure les cellules individuelles dans des images de microscopie à haut contenu, associe chaque cellule au gRNA qu’elle a reçu et indique quels gènes ont modifié le phénotype. Les images de plaques et les lectures FASTQ constituent les entrées ; les mesures par objet, les classificateurs entraînés, les tailles d’effet par guide et par gène et une liste de résultats classés constituent les sorties.",
+        "sv": "spaCR segmenterar och mäter enskilda celler i mikroskopibilder med högt innehåll, integrerar fenotyper per objekt med sekvenseringshärledd guideförekomst och uppskattar vilka gener som är associerade med fenotypiska förändringar. Med plattbilder och FASTQ-läsningar som utgångspunkt producerar programmet mätningar per objekt, tränade klassificerare, effektskattningar per guide och gen samt en rangordnad träfflista.",
+        "de": "spaCR segmentiert und vermisst einzelne Zellen in High-Content-Mikroskopiebildern, integriert Phänotypen einzelner Objekte mit sequenzierungsbasierten Guide-Häufigkeiten und schätzt, welche Gene mit phänotypischen Veränderungen assoziiert sind. Ausgehend von Plattenbildern und FASTQ-Reads erzeugt es Messungen pro Objekt, trainierte Klassifikatoren, Effektschätzungen pro Guide und Gen sowie eine Rangliste der Treffer.",
+        "es": "spaCR segmenta y mide células individuales en imágenes de microscopía de alto contenido, integra los fenotipos por objeto con la abundancia de guías derivada de la secuenciación y estima qué genes están asociados con cambios fenotípicos. A partir de imágenes de placas y lecturas FASTQ, produce mediciones por objeto, clasificadores entrenados, estimaciones del efecto por guía y por gen y una lista ordenada de resultados.",
+        "zh_CN": "spaCR 对高内涵显微镜图像中的单细胞进行分割和测量，将逐对象表型与测序得到的向导 RNA 丰度整合，并估计哪些基因与表型变化相关。以孔板图像和 FASTQ 读段为输入，它生成逐对象测量值、训练后的分类器、逐向导 RNA 和逐基因效应估计值，以及按优先级排序的命中结果列表。",
+        "pt": "O spaCR segmenta e mede células individuais em imagens de microscopia de alto conteúdo, integra fenótipos por objeto à abundância de guias derivada do sequenciamento e estima quais genes estão associados a alterações fenotípicas. A partir de imagens de placas e leituras FASTQ, ele produz medições por objeto, classificadores treinados, estimativas de efeito por guia e por gene e uma lista de resultados classificada.",
+        "hi": "spaCR उच्च-सामग्री माइक्रोस्कोपी छवियों में एकल कोशिकाओं का विभाजन और मापन करता है, प्रति-वस्तु फीनोटाइप को अनुक्रमण से प्राप्त गाइड प्रचुरता के साथ एकीकृत करता है और अनुमान लगाता है कि कौन-से जीन फीनोटाइपिक परिवर्तनों से जुड़े हैं। प्लेट छवियों और FASTQ रीड से शुरू करके, यह प्रति-वस्तु मापन, प्रशिक्षित वर्गीकारक, प्रति-गाइड और प्रति-जीन प्रभाव अनुमान तथा प्राथमिकता के अनुसार क्रमित हिट सूची बनाता है।",
+        "ko": "spaCR는 고함량 현미경 영상에서 단일 세포를 분할하고 측정하며, 객체별 표현형을 시퀀싱에서 산출한 가이드 풍부도와 통합하고, 어떤 유전자가 표현형 변화와 연관되는지 추정합니다. 플레이트 영상과 FASTQ 리드에서 시작하여 객체별 측정값, 학습된 분류기, 가이드별·유전자별 효과 추정치, 우선순위가 지정된 히트 목록을 생성합니다.",
+        "is": "spaCR aðgreinir og mælir stakar frumur í afkastamiklum smásjármyndum, samþættir svipgerðir einstakra viðfanga við magn leiðarsameinda sem fæst úr raðgreiningu og metur hvaða gen tengjast svipgerðarbreytingum. Út frá plötumyndum og FASTQ-röðum býr það til mælingar fyrir hvert viðfang, þjálfaða flokkara, áhrifamat fyrir hverja leiðarsameind og hvert gen og forgangsraðaðan lista yfir niðurstöður.",
+        "fr": "spaCR segmente et mesure les cellules individuelles dans des images de microscopie à haut contenu, intègre les phénotypes par objet à l’abondance des guides dérivée du séquençage et estime quels gènes sont associés aux changements phénotypiques. À partir d’images de plaques et de lectures FASTQ, il produit des mesures par objet, des classificateurs entraînés, des estimations d’effet par guide et par gène, ainsi qu’une liste de résultats classée.",
     },
     _SCOPE_SOURCE: {
-        "sv": "För bildbaserade poolade CRISPR-screeningar täcker detta hela arbetsflödet. Om du har mikroskopi med högt innehåll men ingen screening kan delarna för segmentering, mätning, annotering och klassificering köras fristående.",
-        "de": "Für bildbasierte gepoolte CRISPR-Screens deckt dies den gesamten Arbeitsablauf ab. Bei High-Content-Mikroskopie ohne Screen können Segmentierung, Messung, Annotation und Klassifizierung eigenständig ausgeführt werden.",
-        "es": "Para los cribados CRISPR agrupados y basados en imágenes, este es el flujo de trabajo completo. Si dispone de microscopía de alto contenido sin cribado, las etapas de segmentación, medición, anotación y clasificación pueden ejecutarse por separado.",
-        "zh_CN": "对于基于图像的混合 CRISPR 筛选，这涵盖了完整工作流程。如果只有高内涵显微镜数据而没有筛选实验，也可以单独运行分割、测量、标注和分类部分。",
-        "pt": "Para triagens CRISPR agrupadas e baseadas em imagens, esse é o fluxo de trabalho completo. Se você tiver microscopia de alto conteúdo sem uma triagem, as etapas de segmentação, medição, anotação e classificação poderão ser executadas de forma independente.",
-        "hi": "छवि-आधारित पूल्ड CRISPR स्क्रीनिंग के लिए यह पूरा कार्यप्रवाह है। यदि आपके पास उच्च-सामग्री माइक्रोस्कोपी है लेकिन कोई स्क्रीनिंग नहीं है, तो विभाजन, मापन, एनोटेशन और वर्गीकरण वाले भाग स्वतंत्र रूप से चलाए जा सकते हैं।",
-        "ko": "영상 기반 풀드 CRISPR 스크리닝에서는 이것이 전체 작업 흐름입니다. 고함량 현미경 데이터만 있고 스크리닝 실험은 없는 경우에도 분할, 측정, 주석 및 분류 단계를 독립적으로 실행할 수 있습니다.",
-        "is": "Fyrir myndgreindar samsettar CRISPR-skimanir nær þetta yfir allt verkflæðið. Ef þú ert með afkastamiklar smásjármyndir en enga skimun er hægt að keyra aðgreiningu, mælingar, merkingar og flokkun sjálfstætt.",
-        "fr": "Pour les criblages CRISPR groupés fondés sur l’imagerie, ce flux couvre l’ensemble du parcours. Avec des images de microscopie à haut contenu mais sans criblage, les étapes de segmentation, de mesure, d’annotation et de classification peuvent être exécutées indépendamment.",
+        "sv": "För bildbaserade poolade CRISPR-screeningar tillhandahåller spaCR arbetsflödet från bildsegmentering till prioritering av träffar. För studier med mikroskopi med högt innehåll utan sekvenseringsbaserade screeningar kan modulerna för segmentering, mätning, annotering och klassificering användas oberoende av varandra.",
+        "de": "Für bildbasierte gepoolte CRISPR-Screens stellt spaCR den Arbeitsablauf von der Bildsegmentierung bis zur Priorisierung von Treffern bereit. Bei High-Content-Mikroskopiestudien ohne sequenzierungsbasierte Screens können die Module für Segmentierung, Messung, Annotation und Klassifizierung unabhängig voneinander verwendet werden.",
+        "es": "Para los cribados CRISPR agrupados y basados en imágenes, spaCR proporciona el flujo de trabajo desde la segmentación de imágenes hasta la priorización de resultados. Para estudios de microscopía de alto contenido sin cribados basados en secuenciación, los módulos de segmentación, medición, anotación y clasificación pueden utilizarse de forma independiente.",
+        "zh_CN": "对于基于图像的混合 CRISPR 筛选，spaCR 提供从图像分割到命中结果优先级排序的工作流程。对于不包含测序筛选的高内涵显微镜研究，分割、测量、标注和分类模块可独立使用。",
+        "pt": "Para triagens CRISPR agrupadas e baseadas em imagens, o spaCR fornece o fluxo de trabalho desde a segmentação de imagens até a priorização de resultados. Em estudos de microscopia de alto conteúdo sem triagens baseadas em sequenciamento, os módulos de segmentação, medição, anotação e classificação podem ser usados de forma independente.",
+        "hi": "छवि-आधारित पूल्ड CRISPR स्क्रीनिंग के लिए spaCR छवि विभाजन से हिट प्राथमिकता तक का कार्यप्रवाह प्रदान करता है। अनुक्रमण-आधारित स्क्रीनिंग के बिना उच्च-सामग्री माइक्रोस्कोपी अध्ययनों में विभाजन, मापन, एनोटेशन और वर्गीकरण मॉड्यूल स्वतंत्र रूप से उपयोग किए जा सकते हैं।",
+        "ko": "영상 기반 풀드 CRISPR 스크리닝에서 spaCR는 영상 분할부터 히트 우선순위 지정까지의 작업 흐름을 제공합니다. 시퀀싱 기반 스크리닝이 없는 고함량 현미경 연구에서는 분할, 측정, 주석, 분류 모듈을 독립적으로 사용할 수 있습니다.",
+        "is": "Fyrir myndgreindar samsettar CRISPR-skimanir býður spaCR upp á verkflæði frá myndaðgreiningu til forgangsröðunar niðurstaðna. Í afkastamiklum smásjárrannsóknum án raðgreiningarmiðaðra skimunar er hægt að nota einingarnar fyrir aðgreiningu, mælingar, merkingar og flokkun sjálfstætt.",
+        "fr": "Pour les criblages CRISPR groupés fondés sur l’imagerie, spaCR fournit le flux de travail depuis la segmentation des images jusqu’à la hiérarchisation des résultats. Pour les études de microscopie à haut contenu sans criblage fondé sur le séquençage, les modules de segmentation, de mesure, d’annotation et de classification peuvent être utilisés indépendamment.",
     },
     _TAGLINE_SOURCE: {
         "sv": "**Rumslig fenotypanalys av CRISPR-screeningar.**",
@@ -3693,34 +3700,12 @@ REVIEWED_README_BADGE_ALT_TEXT = {
 # Workflow tiles keep their canonical module names so visual navigation, GUI
 # names and API paths agree.  The surrounding action is accessibility text,
 # however, and must be in the reader's selected language.
-REVIEWED_README_MODULE_ALT_TEMPLATES = {
-    "de": "API für {module} öffnen",
-    "es": "Abrir la API de {module}",
-    "fr": "Ouvrir l’API de {module}",
-    "hi": "{module} API खोलें",
-    "is": "Opna API-skjölin fyrir {module}",
-    "ko": "{module} API 열기",
-    "pt": "Abrir a API de {module}",
-    "sv": "Öppna API-dokumentationen för {module}",
-    "zh_CN": "打开 {module} API",
-}
+REVIEWED_README_MODULE_ALT_TEMPLATES = WORKFLOW_MODULE_ALT_TEMPLATES
 
 
 def _localize_workflow_alt_text(text: str, language: str) -> str:
-    """Localize the action in each linked workflow tile's alt text."""
-    template = REVIEWED_README_MODULE_ALT_TEMPLATES[language]
-
-    def replace(match: re.Match[str]) -> str:
-        return (
-            f"{match.group('indent')}:alt: "
-            f"{template.format(module=match.group('module'))}"
-        )
-
-    return re.sub(
-        r"(?m)^(?P<indent>\s*):alt: Open the (?P<module>.+) API$",
-        replace,
-        str(text),
-    )
+    """Localize generated workflow headings and linked-tile actions."""
+    return localize_workflow_markup(text, language)
 
 REVIEWED_README_LANGUAGE_OVERRIDES = {
     "es": {
@@ -5346,6 +5331,43 @@ def _translate_documents(
     return result
 
 
+def _localize_readme_link_labels(
+    text: str,
+    language: str,
+    links: list[tuple[str, str, str]],
+    translations: Mapping[str, str],
+) -> str:
+    """Localize independent link labels without mutating reviewed prose.
+
+    Reviewed README blocks include their intended visible link labels. Hide
+    those exact targets while applying the independent label translations so
+    product and service names such as ``GitHub Issues`` and
+    ``PolyForm Noncommercial License 1.0.0`` remain byte-for-byte reviewed.
+    """
+    protected: dict[str, str] = {}
+    targets = {
+        localized[language]
+        for localized in REVIEWED_README_BLOCKS.values()
+        if localized.get(language)
+    }
+    for index, target in enumerate(sorted(targets, key=len, reverse=True)):
+        if target not in text:
+            continue
+        token = f"\ue100SPACR_REVIEWED_README_{index}\ue101"
+        if token in text:
+            raise ValueError(f"reviewed README sentinel collision: {token}")
+        text = text.replace(target, token)
+        protected[token] = target
+    for key, label, target in links:
+        text = text.replace(
+            f"`{label} <{target}>`_",
+            f"`{translations[key]} <{target}>`_",
+        )
+    for token, target in protected.items():
+        text = text.replace(token, target)
+    return text
+
+
 def _translate_api_documents(
     documents: Mapping[str, str], language: str, model_root: Path, args,
 ) -> dict[str, str]:
@@ -5564,14 +5586,90 @@ def _reviewed_api_block_valid(
     return pattern is None or bool(pattern.search(str(value)))
 
 
+def _api_contextual_repair_required(
+    source: str,
+    value: str,
+    language: str,
+    reviewed_value: str = "",
+) -> bool:
+    """Return whether an unreviewed API block needs lexical repair.
+
+    The shared contextualizer is intentionally broad because it repairs model
+    false friends across runtime captions and API prose. Exact source-bound
+    API review is stronger evidence and may retain a term that a broad rule
+    would otherwise rewrite. Only the exact reviewed target receives this
+    exemption.
+    """
+    if reviewed_value and value == reviewed_value:
+        return False
+    return _contextualize(value, language, source) != value
+
+
+def _historical_api_block_translations(
+    english_record: Mapping[str, object],
+    translated_record: Mapping[str, object],
+    language: str,
+) -> dict[str, str]:
+    """Return exact old source blocks whose target provenance still verifies.
+
+    This is deliberately stricter than positional catalog reuse.  A changed
+    docstring may retain one or more complete paragraphs, but those paragraphs
+    are reusable only when the old English manifest and translated catalog
+    independently describe the same canonical source, block layout and model
+    context.  Duplicate old paragraphs are admitted only when every occurrence
+    has the same valid target.
+    """
+    old_source = str(english_record.get("text", ""))
+    old_target = str(translated_record.get("text", ""))
+    if not old_source.strip() or not old_target.strip():
+        return {}
+    old_source_hash = _source_hash(old_source)
+    old_block_hashes = _source_block_hashes(old_source)
+    old_context_hashes = _translation_source_block_hashes(old_source)
+    if not (
+        english_record.get("source_sha256") == old_source_hash
+        and english_record.get("source_blocks_sha256") == old_block_hashes
+        and translated_record.get("source_sha256") == old_source_hash
+        and translated_record.get("source_blocks_sha256") == old_block_hashes
+        and translated_record.get("translation_source_blocks_sha256")
+            == old_context_hashes
+    ):
+        return {}
+
+    source_blocks, _source_layout = translatable_blocks(old_source)
+    target_blocks, _target_layout = translatable_blocks(old_target)
+    if len(source_blocks) != len(target_blocks):
+        return {}
+
+    candidates: dict[str, str] = {}
+    conflicts: set[str] = set()
+    for source_block, target_block in zip(source_blocks, target_blocks):
+        if not _api_block_requires_translation(source_block):
+            continue
+        contextual_source = _api_translation_source(source_block)
+        candidate = _contextualize(target_block, language, source_block)
+        if not (
+            _api_block_valid(source_block, candidate, language)
+            and _api_block_valid(contextual_source, candidate, language)
+        ):
+            continue
+        previous = candidates.setdefault(source_block, candidate)
+        if previous != candidate:
+            conflicts.add(source_block)
+    for source_block in conflicts:
+        candidates.pop(source_block, None)
+    return candidates
+
+
 def repair_api_translations(
     docs: Mapping[str, str], language: str, model_root: Path, args,
 ) -> dict[str, str]:
     """Repair stale/untranslated API blocks while retaining valid blocks.
 
-    Reuse is positional only when the translated document has exactly the
-    canonical block count. A layout mismatch causes that symbol's prose to be
-    regenerated from its English blocks; executable/type/code-only blocks are
+    Current documents are reused positionally.  For changed documents, an
+    unchanged paragraph may also be reused by exact source text, but only when
+    the old English and target manifests still prove the same source, block
+    layout and translation context. Executable/type/code-only blocks are
     always copied from the canonical source.
     """
     try:
@@ -5581,6 +5679,13 @@ def repair_api_translations(
         current_symbols = payload.get("symbols", {})
     except (FileNotFoundError, json.JSONDecodeError, AttributeError):
         current_symbols = {}
+    try:
+        english_payload = json.loads(
+            (API_DIR / "en.json").read_text(encoding="utf-8")
+        )
+        old_english_symbols = english_payload.get("symbols", {})
+    except (FileNotFoundError, json.JSONDecodeError, AttributeError):
+        old_english_symbols = {}
     reviewed_blocks = reviewed_api_block_translations(docs, language)
 
     plans: dict[
@@ -5589,12 +5694,17 @@ def repair_api_translations(
     ] = {}
     pending_sources: set[str] = set()
     reused_blocks = 0
+    historical_reused_blocks = 0
     relaid_symbols = 0
 
     for key, source in docs.items():
         source_blocks, source_layout = translatable_blocks(source)
-        record = current_symbols.get(
-            API_DOC_ALIASES.get(key, key), {}
+        canonical_key = API_DOC_ALIASES.get(key, key)
+        record = current_symbols.get(canonical_key, {})
+        historical = _historical_api_block_translations(
+            old_english_symbols.get(canonical_key, {}),
+            record,
+            language,
         )
         current_text = str(record.get("text", ""))
         current_ok = record.get("source_sha256") == _source_hash(source)
@@ -5631,7 +5741,7 @@ def repair_api_translations(
             candidate = (
                 current_blocks[index]
                 if positional and context_is_current
-                else ""
+                else historical.get(source_block, "")
             )
             candidate = _contextualize(candidate, language, source_block)
             if (
@@ -5642,6 +5752,8 @@ def repair_api_translations(
             ):
                 selected.append(candidate)
                 reused_blocks += 1
+                if not (positional and context_is_current):
+                    historical_reused_blocks += 1
             else:
                 selected.append(None)
                 pending_indexes.append(index)
@@ -5791,6 +5903,7 @@ def repair_api_translations(
 
     print(
         f"{language}: API blocks reused={reused_blocks} "
+        f"historical_reused={historical_reused_blocks} "
         f"generated={len(pending_sources)} unresolved={unresolved} "
         f"review_recovered={recovered_review} "
         f"cache_recovered={recovered_cache} "
@@ -6007,7 +6120,12 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
                         contextualized = _contextualize(
                             translated_block, language, source_block
                         )
-                        if contextualized != translated_block:
+                        if _api_contextual_repair_required(
+                            source_block,
+                            translated_block,
+                            language,
+                            reviewed_blocks.get(source_block, ""),
+                        ):
                             contextual_errors.append(label)
                         semantic_failures = _semantic_false_friends(
                             source_block, translated_block, language,
@@ -6218,18 +6336,26 @@ def main() -> int:
     if args.audit:
         return audit(docs, args.languages)
 
-    if not args.rebuild_readme:
-        _write_json(API_DIR / "en.json", _english_manifest(docs))
-        print(f"wrote English API manifest: symbols={len(docs)}")
     if args.sources_only:
+        if not args.rebuild_readme:
+            _write_json(API_DIR / "en.json", _english_manifest(docs))
+            print(f"wrote English API manifest: symbols={len(docs)}")
         return 0
     if args.repair_api_blocks:
+        # Keep the previous English manifest available until every locale has
+        # repaired its exact unchanged blocks from the same historical source.
         for language in args.languages:
             translated = repair_api_translations(
                 docs, language, args.model_root, args
             )
             write_language(docs, language, translated)
+        _write_json(API_DIR / "en.json", _english_manifest(docs))
+        print(f"wrote English API manifest: symbols={len(docs)}")
         return audit(docs, args.languages)
+
+    if not args.rebuild_readme:
+        _write_json(API_DIR / "en.json", _english_manifest(docs))
+        print(f"wrote English API manifest: symbols={len(docs)}")
 
     readme = README_SOURCE.read_text(encoding="utf-8")
     readme_links: list[tuple[str, str, str]] = []
@@ -6280,11 +6406,12 @@ def main() -> int:
             localized_readme = localized_readme.replace(
                 "Languages:", f"{LANGUAGE_PICKER_LABELS[language]}:", 1
             )
-            for key, label, target in readme_links:
-                localized_readme = localized_readme.replace(
-                    f"`{label} <{target}>`_",
-                    f"`{readme_translation[key]} <{target}>`_",
-                )
+            localized_readme = _localize_readme_link_labels(
+                localized_readme,
+                language,
+                readme_links,
+                readme_translation,
+            )
             localized_readme = localized_readme.replace(
                 "docs/i18n/readme/README.", "README."
             ).replace(
@@ -6333,11 +6460,11 @@ def main() -> int:
                     localized_readme = localized_readme.replace(
                         f"   :alt: {source_alt}", f"   :alt: {target_alt}", 1
                     )
-                # All 58 workflow tiles keep their canonical application
+                # All 47 workflow tiles keep their canonical application
                 # names so they match the API. The four installer/archive
                 # buttons use reviewed localized descriptions. The first
                 # legacy tuple entry described the retired catalog image.
-                canonical_alt = all_canonical_alt[71:75]
+                canonical_alt = all_canonical_alt[60:64]
                 localized_alt = [
                     value.format(version=version_match.group(1))
                     for value in REVIEWED_README_ALT_TEXT[language][1:]
@@ -6349,7 +6476,7 @@ def main() -> int:
                         f"   :alt: {source_alt}", f"   :alt: {target_alt}", 1
                     )
                 for source_alt, target_alt in zip(
-                    all_canonical_alt[75:80],
+                    all_canonical_alt[64:69],
                     REVIEWED_README_RESOURCE_ALT_TEXT[language],
                 ):
                     localized_readme = localized_readme.replace(

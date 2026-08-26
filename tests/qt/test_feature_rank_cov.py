@@ -277,7 +277,7 @@ def test_each_statistic_ranks_by_itself_and_they_disagree(bimodal):
     assert by_auc.ks == pytest.approx(0.5)
     assert by_auc.mutual_info == pytest.approx(1.0)
     assert by_auc.is_shape_not_shift
-    assert "SHAPE, NOT SHIFT" in by_auc.describe()
+    assert "shape differs without a location shift" in by_auc.describe()
     assert rank_features(bimodal, spec(label="cls")).score_for(
         "monotone").score == pytest.approx(2 * 28 / 36 - 1)
     # Ranking by KS scores the same feature 0.5 rather than 0.

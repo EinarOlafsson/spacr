@@ -14,15 +14,17 @@ Run::
 from __future__ import annotations
 
 import os
+import re
 import sys
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
-
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+
+from tools.readme_i18n import localize_workflow_markup  # noqa: E402
 
 ICON_DIR = ROOT / "spacr" / "resources" / "icons"
 DATABANK_DIR = ICON_DIR / "databanks"
@@ -127,34 +129,29 @@ SECTION_ORDER = (
 # registry still supplies each current label, section, and API destination;
 # _grouped_apps rejects missing, additional, or refiled applications.
 APP_ORDER = {
-    # Core is the pipeline in the order you run it. Timelapse and Motility
-    # moved to Assays, Curate to Segmentation models, and the two classifier
-    # screens became the one merged Classify.
+    # Core is the pipeline in the order it is normally run. Tools folded into
+    # a host module are represented by that host rather than retained as
+    # obsolete Home tiles.
     "Core": (),
     "Data": (
         "align", "convert", "foreign", "external_masks", "queue", "batch",
-        "distributed_jobs", "db_browser", "illumination", "data_manager",
+        "distributed_jobs", "db_browser", "data_manager", "project_browser",
     ),
-    "Segmentation models": (
-        "make_masks", "train_cellpose", "cellpose_masks", "model_compare",
-        "model_zoo", "curate",
-    ),
+    "Segmentation models": ("make_masks", "napari_bridge"),
     "Results & QC": (
-        "plate_view", "agreement", "umap", "activation", "train_compare",
-        "classifier_evaluation", "run_history", "report", "barcode_qc",
-        "hit_list", "methods_export", "volcano_explorer", "parameter_sweep",
-        "run_compare", "explain_cv", "investigate_hit",
+        "plate_view", "umap", "train_compare", "run_history",
+        "report", "hit_list", "methods_export", "run_compare",
+        "investigate_hit", "control_chart",
     ),
     "Explore": (
-        "pipeline_graph", "profiler", "qc_dashboard", "image_scatter",
-        "lineage", "layer_viewer", "graph_builder", "anndata_export", "pca",
-        "tabulate",
+        "pipeline_graph", "profiler", "qc_dashboard", "lineage",
+        "layer_viewer", "graph_builder", "tabulate", "feature_dict",
+        "trellis", "gate_editor", "feature_explorer", "outliers",
     ),
     "Assays": (
-        "timelapse", "motility", "analyze_plaques", "recruitment",
-        "invasion", "replication",
+        "analyze_plaques", "recruitment", "invasion", "replication",
     ),
-    "Design": ("experiment_design", "power"),
+    "Design": ("experiment_design", "power", "dose_response"),
 }
 
 
@@ -380,8 +377,13 @@ def _inline_image_row(names: list[str]) -> str:
 
 
 def _registry() -> list[tuple[str, str, str, str]]:
+    from spacr.qt import register_self_registering_modules
     from spacr.qt.app import APPS
 
+    # ``spacr.qt.run`` performs this registration immediately before launch.
+    # Documentation must describe the tiles users actually see after launch,
+    # not the smaller import-time snapshot of the registry.
+    register_self_registering_modules()
     return list(APPS)
 
 
@@ -559,6 +561,15 @@ def _replace_workflow_block(path: Path, markup: str) -> None:
     path.write_text(text[:start] + replacement + text[end:], encoding="utf-8")
 
 
+def _workflow_markup_for_readme(path: Path, icon_prefix: str) -> str:
+    """Return canonical or reviewed localized markup for one README."""
+    markup = _readme_workflow(icon_prefix)
+    match = re.fullmatch(r"README\.(?P<language>[^.]+)\.rst", path.name)
+    if match:
+        return localize_workflow_markup(markup, match.group("language"))
+    return markup
+
+
 def main() -> int:
     missing = [str(path) for path in RESOURCE_SOURCES.values() if not path.is_file()]
     if missing:
@@ -587,6 +598,16 @@ def main() -> int:
     doc_app_dir = DOC_WORKFLOW_DIR / "apps"
     doc_app_dir.mkdir(parents=True, exist_ok=True)
     pipeline_keys = {item[0] for item in MAIN_PIPELINE}
+    current_app_keys = {
+        key
+        for key, _label, _description, _section in _registry()
+        if key not in pipeline_keys
+    }
+    for directory in (APP_WORKFLOW_DIR, doc_app_dir):
+        for stale in directory.glob("*.png"):
+            if stale.stem not in current_app_keys:
+                stale.unlink()
+                print(f"removed {stale.relative_to(ROOT)}")
     for key, label, _description, _section in _registry():
         if key in pipeline_keys:
             continue
@@ -601,7 +622,9 @@ def main() -> int:
             if readme.parent.name == "readme"
             else "spacr/resources/icons"
         )
-        _replace_workflow_block(readme, _readme_workflow(prefix))
+        _replace_workflow_block(
+            readme, _workflow_markup_for_readme(readme, prefix)
+        )
         print(readme.relative_to(ROOT))
     DOC_WORKFLOW.parent.mkdir(parents=True, exist_ok=True)
     DOC_WORKFLOW.write_text(_documentation_workflow(), encoding="utf-8")

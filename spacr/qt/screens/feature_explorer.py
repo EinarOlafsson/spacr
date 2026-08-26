@@ -271,7 +271,7 @@ class FeatureExplorerScreen(QWidget):
             self._source.setText("Nothing ranked yet.")
             return None
         frame.to_csv(path, index=False)
-        self._source.setText(f"ranking written to {os.path.basename(path)}")
+        self._source.setText(f"Ranking written to {os.path.basename(path)}")
         return path
 
     @property
@@ -290,21 +290,21 @@ def make_feature_explorer_screen(app_key: Optional[str] = None) -> QWidget:
 
 
 APP_NAME = "Feature Explorer"
-APP_DESCRIPTION = "Every feature ranked by how well it separates the classes"
+APP_DESCRIPTION = "Rank measured features by class-separation performance"
 APP_INTRO = (
-    "spaCR measures hundreds of features per object, so the ranking is the "
-    "feature and the plotting is the easy half. Pick the column that says "
-    "which class each object is in and every continuous column is scored and "
-    "sorted by separation — AUC by default, because it is rank-based, "
-    "unit-free and assumes nothing about the distributions. What the chosen "
-    "statistic cannot see is printed next to it, a feature whose classes "
-    "differ in spread rather than level is flagged, and the shuffle test says "
-    "what the best of your features reaches by chance.")
+    "Rank continuous per-object features by their separation between classes. "
+    "Select the column containing class annotations; each continuous feature "
+    "is then scored and sorted. The default area under the ROC curve (AUC) is "
+    "rank based, independent of measurement units and does not assume a "
+    "parametric distribution. The results identify limitations of the "
+    "selected statistic, flag features whose classes differ in distribution "
+    "shape rather than location, and compare the strongest observed score "
+    "with a permutation-derived null distribution.")
 APP_CLI_NOTE = (
-    "The Feature Explorer is a ranked table you scroll; run it in the GUI "
-    "(spacr-qt). Headless, "
+    "The GUI displays the feature ranking as an interactive table (spacr-qt). "
+    "For headless analysis, "
     "spacr.qt.widgets.feature_rank.rank_features(frame, spec) returns the same "
-    "ranking with every statistic per feature and no Qt involved.")
+    "ranking and all statistics for each feature without Qt.")
 #: The display name in the nine non-English UI languages, in
 #: `spacr.qt.i18n.LANGUAGES` order (sv, de, es, zh_CN, pt, hi, ko, is, fr).
 APP_NAME_TRANSLATIONS = (

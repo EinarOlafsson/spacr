@@ -22,7 +22,6 @@ in a screenshot months later.
 from __future__ import annotations
 
 import pytest
-
 from PySide6.QtGui import QFontMetrics
 from PySide6.QtWidgets import QLabel, QPushButton
 
@@ -38,7 +37,6 @@ from spacr.qt.app import (
     section_members,
 )
 from spacr.qt.widgets.home import AppTile, HomePage
-
 
 # ---------------------------------------------------------------------------
 # helpers
@@ -185,30 +183,11 @@ def test_every_app_is_on_exactly_one_subject_tab_and_one_home_band():
         "an app is missing from Home, or drawn on it twice")
 
     staged = [k for k in keys if app_stage(k) != "stable"]
-    # Forty-seven, and it moved for two reasons at once, which is why it is
-    # worth writing down. Apps kept arriving alpha — Pipeline Graph, Hit
-    # List, Prediction Profiler and Methods & Results, then Control Charts,
-    # Dose Response, Trellis, Gate Editor, Feature Explorer, Outliers,
-    # Project Browser and the rest of the self-registering set. And the count
-    # is now taken over the REGISTERED registry rather than the module-level
-    # one, which is the list the user actually sees: the same expression read
-    # 45 of 53 before registration and 42 of 62 after it, so the old number
-    # was answering a question nobody asks. The count is the user's list — how
-    # many of the apps in front of them carry a "not signed off" colour — and
-    # it drops by one every time an app is signed off.
-    #
-    # Forty-three since 2026-08-06 (2d4da7df): the merged Classify module
-    # registered itself STAGE_ALPHA on purpose, because "stable" is the
-    # absence of a line in APP_STAGE and the merged screen has not been run
-    # on real data. It is the only one that has ever moved this number UP
-    # by arriving rather than by the registry being read differently.
-    # Explain CV Model and Investigate Hit joined as alpha applications: both
-    # are reachable and tested, but neither has yet earned the absence from
-    # APP_STAGE that means stable. That deliberately takes 43 to 45.
-    # PCA and Tabulate likewise remain alpha until they have been exercised
-    # on real project data. They deliberately take 45 to 47.
-    assert len(staged) == 47, (
-        f"{len(staged)} apps staged, not 47 — if that is intended, say so "
+    # This count is over the fully registered list shown after launch. It is
+    # intentionally ratcheted: signing an app off removes its alpha/beta
+    # entry, while adding an unvalidated app increases the count explicitly.
+    assert len(staged) == 32, (
+        f"{len(staged)} apps staged, not 32 — if that is intended, say so "
         "here; the count is the user\'s list")
 
 
@@ -230,14 +209,12 @@ def test_every_app_is_in_a_declared_section():
 
 
 def test_the_core_pipeline_comes_first_and_is_unbroken():
-    """Ctrl+1..9 map to APPS[0..8], so Core has to lead the table.
+    """Require the six core pipeline applications to lead the registry.
 
-    Core is nine apps and they are APPS[0..8], so the nine Ctrl slots
-    are exactly the Core pipeline again — #16i staged Timelapse and
-    Motility Assay out of it and #16j put them back. The assertion is
-    written to survive either: Core first, and contiguous. A Core app at
-    APPS[20] would be unreachable by keyboard number and would also draw
-    a second "Core" heading in the sidebar.
+    Keyboard number shortcuts follow registry order, and the sidebar draws
+    sections in the same order. A core application placed later would split
+    the Core section and make its shortcut position inconsistent with the
+    displayed workflow.
     """
     core = [a for a in APPS if a[3] == SECTION_CORE]
     assert core, "Core lost all its apps"
@@ -269,6 +246,7 @@ def test_every_app_has_a_title_and_an_intro():
 def test_every_app_resolves_to_a_screen(qtbot, qt_theme_applied):
     """An app in the registry that cannot be opened is a dead tile."""
     from PySide6.QtWidgets import QWidget
+
     from spacr.qt.app import MainWindow
 
     win = MainWindow()
@@ -447,7 +425,9 @@ def test_the_widest_name_fits_the_tile_the_grid_gives_it(home):
             continue        # a tile on a tab that is not the current one
         assert floor <= tile.width() <= cap, (
             f"{name} is {tile.width()} px wide, outside {floor}..{cap}")
-    for name in ("Mask", "Annotator Agreement", "Format Converter"):
+    # Check every visible title rather than naming former tiles. This keeps
+    # the contract aligned with the launched registry as modules are folded.
+    for name in visible:
         label = tiles[name].name_label
         needed = QFontMetrics(label.font()).horizontalAdvance(name)
         assert needed <= label.available_text_width(), (

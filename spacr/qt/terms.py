@@ -1,18 +1,10 @@
-"""The terms spaCR asks a profile to accept, and the record that it did.
+"""Terms-of-use acceptance and version records for a spaCR profile.
 
-spaCR is distributed under the PolyForm Noncommercial License 1.0.0, whose
-first clause is that the licence exists only once the terms are agreed to.
-That makes acceptance a condition of use rather than a courtesy, which is
-why it is asked on the way in and why the answer is kept.
-
-WHAT IS KEPT IS THE VERSION, NOT A BARE YES. An acceptance of terms that
-have since been rewritten is an acceptance of a different document, so
-:data:`TERMS_VERSION` is stored beside the other setup answers and a newer
-version asks again instead of inheriting the old answer.
-
-The record lives in the same store the setup screen writes its answers to,
-under the same ``onboarding/`` prefix, so "what did this profile agree to,
-and when" is one lookup and not an inference.
+spaCR presents its terms during setup and records the accepted
+:data:`TERMS_VERSION` with a UTC timestamp. A profile must accept a revised
+version explicitly; acceptance of an earlier version is not carried forward.
+The record is stored with the other setup values under the ``onboarding/``
+prefix.
 """
 from __future__ import annotations
 
@@ -228,8 +220,7 @@ AGREE_LABEL = "I have read and agree to these terms"
 #: the slide opens, not only after a press, because the reader meets the
 #: greyed switch before they meet the button.
 SCROLL_HINT = (
-    "Scroll to the end of the terms. The acceptance below stays greyed "
-    "until you have reached the bottom.")
+    "Scroll to the end of the terms to enable the acceptance checkbox.")
 
 #: What the screen says when the user asks to move on without agreeing.
 #:
@@ -237,9 +228,9 @@ SCROLL_HINT = (
 #: reader neither what is missing nor where to look for it, so the button
 #: stays live and answers the press with the reason.
 WHY_NOT_YET = (
-    "spaCR is licensed on the condition that you accept its terms, so setup "
-    "cannot finish until the box above is ticked. Closing this window leaves "
-    "them unaccepted and asks again next time.")
+    "Accept the terms of use to complete setup. If you close this window "
+    "without accepting, spaCR will present the terms again at the next "
+    "startup.")
 
 #: Where the accepted version is remembered, and when it was accepted.
 _KEY_VERSION = "onboarding/terms_agreed_version"
@@ -253,7 +244,7 @@ def _settings():
 
 
 def terms_text() -> str:
-    """The terms as one block of text, one point per paragraph."""
+    """Return the terms with a blank line between clauses."""
     return "\n\n".join(TERMS)
 
 
@@ -277,7 +268,7 @@ def agreed_at() -> str:
 
 
 def agreement_record() -> Dict[str, str]:
-    """What was accepted and when, as one mapping.
+    """Return the recorded and current agreement metadata.
 
     :returns: ``{'version', 'accepted_at', 'current_version', 'license'}``.
         ``version`` is empty for a profile that has never accepted, which is
@@ -293,7 +284,7 @@ def agreement_record() -> Dict[str, str]:
 
 
 def record_agreement(version: str = "") -> str:
-    """Record that these terms were accepted. Returns the version stored.
+    """Record acceptance of a terms version and return the stored version.
 
     :param version: the terms version accepted. Defaults to
         :data:`TERMS_VERSION`, which is what the screen shows.
@@ -316,15 +307,13 @@ def record_agreement(version: str = "") -> str:
 
 
 def needs_agreement(version: str = "") -> bool:
-    """Whether this profile still has to accept the terms.
+    """Return whether the profile must accept the requested terms version.
 
     :param version: the version to check against. Defaults to
         :data:`TERMS_VERSION`.
 
-    True when nothing was ever recorded AND when what was recorded is a
-    different version from the one now shipped -- rewritten terms are a new
-    document, and inheriting the old answer would accept them on the user's
-    behalf.
+    Returns ``True`` when no acceptance is recorded or when the recorded
+    version differs from the requested version.
     """
     return agreed_version() != str(version or TERMS_VERSION)
 
@@ -341,38 +330,36 @@ def needs_agreement(version: str = "") -> bool:
 #: written in, with its name and its URL beside them.
 TRANSLATIONS: Tuple[Tuple[str, Tuple[str, ...]], ...] = (
     ("Terms of use", (
-        "Användarvillkor", "Nutzungsbedingungen", "Términos de uso",
+        "Användningsvillkor", "Nutzungsbedingungen", "Condiciones de uso",
         "使用条款", "Termos de uso", "उपयोग की शर्तें", "이용 약관",
-        "Notkunarskilmálar", "Conditions d'utilisation")),
-    ("spaCR is licensed on the condition that you accept these terms. Read "
-     "to the end -- the acceptance below stays greyed until you do -- and "
-     "the whole licence is one click away.", (
-        "spaCR licensieras på villkor att du godkänner dessa villkor. Läs "
-        "till slutet -- godkännandet nedan är gråtonat tills du har gjort "
-        "det -- och hela licensen är ett klick bort.",
-        "spaCR wird unter der Bedingung lizenziert, dass Sie diese "
-        "Bedingungen akzeptieren. Lesen Sie bis zum Ende -- die Zustimmung "
-        "unten bleibt bis dahin ausgegraut -- und die vollständige Lizenz "
-        "ist einen Klick entfernt.",
-        "spaCR se licencia con la condición de que aceptes estos términos. "
-        "Léelos hasta el final -- la aceptación de abajo permanece atenuada "
-        "hasta entonces -- y la licencia completa está a un clic.",
-        "spaCR 的授权以您接受这些条款为条件。请读到最后——在此之前下方的接受控件保持"
-        "灰显——完整许可证只需点击一次即可查看。",
-        "O spaCR é licenciado sob a condição de que você aceite estes "
-        "termos. Leia até o fim -- a aceitação abaixo fica esmaecida até lá "
-        "-- e a licença completa está a um clique.",
-        "spaCR का लाइसेंस इस शर्त पर है कि आप इन शर्तों को स्वीकार करें। इन्हें अंत तक "
-        "पढ़ें -- तब तक नीचे दी गई स्वीकृति धूसर रहती है -- और पूरा लाइसेंस एक क्लिक दूर है।",
-        "spaCR는 이 약관에 동의하는 것을 조건으로 사용이 허가됩니다. 끝까지 읽어 "
-        "주세요. 그때까지 아래 동의 항목은 흐리게 남아 있으며, 전체 라이선스는 "
-        "클릭 한 번으로 볼 수 있습니다.",
-        "spaCR er veitt með því skilyrði að þú samþykkir þessa skilmála. "
-        "Lestu til enda -- samþykkið hér að neðan er grátt þar til þá -- og "
-        "allt leyfið er einum smelli í burtu.",
-        "spaCR est concédé sous licence à condition que vous acceptiez ces "
-        "conditions. Lisez-les jusqu'au bout -- l'acceptation ci-dessous "
-        "reste grisée jusque-là -- et la licence complète est à un clic.")),
+        "Notkunarskilmálar", "Conditions d’utilisation")),
+    ("Review the terms of use and scroll to the end to enable acceptance. "
+     "Use the license link to read the full PolyForm Noncommercial License "
+     "1.0.0.", (
+        "Läs igenom användningsvillkoren och rulla till slutet för att "
+        "aktivera godkännandet. Använd licenslänken för att läsa hela "
+        "PolyForm Noncommercial License 1.0.0.",
+        "Lesen Sie die Nutzungsbedingungen und scrollen Sie bis zum Ende, "
+        "um die Zustimmung zu aktivieren. Über den Lizenzlink können Sie die "
+        "vollständige PolyForm Noncommercial License 1.0.0 lesen.",
+        "Revise las condiciones de uso y desplácese hasta el final para "
+        "habilitar la aceptación. Utilice el enlace de la licencia para leer "
+        "la PolyForm Noncommercial License 1.0.0 completa.",
+        "请查看使用条款并滚动到末尾以启用接受选项。使用许可证链接可阅读完整的 "
+        "PolyForm Noncommercial License 1.0.0。",
+        "Revise os termos de uso e role até o final para habilitar a "
+        "aceitação. Use o link da licença para ler a PolyForm Noncommercial "
+        "License 1.0.0 completa.",
+        "उपयोग की शर्तों की समीक्षा करें और स्वीकृति सक्षम करने के लिए अंत तक स्क्रॉल करें। "
+        "पूर्ण PolyForm Noncommercial License 1.0.0 पढ़ने के लिए लाइसेंस लिंक का उपयोग करें।",
+        "이용 약관을 검토하고 끝까지 스크롤하여 동의 항목을 활성화하십시오. "
+        "라이선스 링크에서 전체 PolyForm Noncommercial License 1.0.0을 확인할 수 있습니다.",
+        "Farðu yfir notkunarskilmálana og skrunaðu til enda til að "
+        "virkja samþykki. Notaðu leyfistengilinn til að lesa PolyForm "
+        "Noncommercial License 1.0.0 í heild.",
+        "Consultez les conditions d’utilisation et faites défiler jusqu’à la "
+        "fin pour activer l’acceptation. Utilisez le lien de licence pour lire "
+        "l’intégralité de la PolyForm Noncommercial License 1.0.0.")),
     (AGREE_LABEL, (
         "Jag har läst och godkänner dessa villkor",
         "Ich habe diese Bedingungen gelesen und stimme ihnen zu",
@@ -382,72 +369,53 @@ TRANSLATIONS: Tuple[Tuple[str, Tuple[str, ...]], ...] = (
         "मैंने इन शर्तों को पढ़ लिया है और मैं इन्हें स्वीकार करता हूँ",
         "이 약관을 읽었으며 이에 동의합니다",
         "Ég hef lesið og samþykki þessa skilmála",
-        "J'ai lu et j'accepte ces conditions")),
+        "J’ai lu et j’accepte ces conditions")),
     (SCROLL_HINT, (
-        "Bläddra till slutet av villkoren. Godkännandet nedan förblir "
-        "gråtonat tills du har nått botten.",
-        "Scrollen Sie bis zum Ende der Bedingungen. Die Zustimmung unten "
-        "bleibt ausgegraut, bis Sie unten angekommen sind.",
-        "Desplázate hasta el final de los términos. La aceptación de abajo "
-        "permanece atenuada hasta que llegues al final.",
-        "请滚动到条款末尾。在您到达底部之前，下方的接受控件保持灰显。",
-        "Role até o fim dos termos. A aceitação abaixo fica esmaecida até "
-        "você chegar ao final.",
-        "शर्तों के अंत तक स्क्रॉल करें। जब तक आप नीचे तक नहीं पहुँचते, नीचे दी गई स्वीकृति "
-        "धूसर रहती है।",
-        "약관 끝까지 스크롤하세요. 맨 아래에 도달할 때까지 아래 동의 항목은 흐리게 "
-        "표시됩니다.",
-        "Skrunaðu að enda skilmálanna. Samþykkið hér að neðan helst grátt "
-        "þar til þú kemst neðst.",
-        "Faites défiler jusqu'à la fin des conditions. L'acceptation "
-        "ci-dessous reste grisée tant que vous n'avez pas atteint le bas.")),
+        "Rulla till slutet av villkoren för att aktivera kryssrutan för "
+        "godkännande.",
+        "Scrollen Sie bis zum Ende der Nutzungsbedingungen, um das "
+        "Kontrollkästchen zur Zustimmung zu aktivieren.",
+        "Desplácese hasta el final de las condiciones para habilitar la "
+        "casilla de aceptación.",
+        "滚动到条款末尾以启用接受复选框。",
+        "Role até o final dos termos para habilitar a caixa de seleção de "
+        "aceitação.",
+        "स्वीकृति चेकबॉक्स सक्षम करने के लिए शर्तों के अंत तक स्क्रॉल करें।",
+        "약관 끝까지 스크롤하여 동의 확인란을 활성화하십시오.",
+        "Skrunaðu til enda skilmálanna til að virkja samþykkisreitinn.",
+        "Faites défiler jusqu’à la fin des conditions pour activer la case "
+        "d’acceptation.")),
     (WHY_NOT_YET, (
-        "spaCR licensieras på villkor att du godkänner villkoren, så "
-        "installationen kan inte slutföras förrän rutan ovan är ikryssad. "
-        "Om du stänger fönstret förblir de ogodkända och du får frågan igen "
-        "nästa gång.",
-        "spaCR wird unter der Bedingung lizenziert, dass Sie die Bedingungen "
-        "akzeptieren; die Einrichtung kann daher erst abgeschlossen werden, "
-        "wenn das Kästchen oben angekreuzt ist. Wenn Sie dieses Fenster "
-        "schließen, bleiben sie unakzeptiert und werden beim nächsten Mal "
-        "erneut abgefragt.",
-        "spaCR se licencia con la condición de que aceptes sus términos, así "
-        "que la configuración no puede terminar hasta que marques la casilla "
-        "de arriba. Si cierras esta ventana quedarán sin aceptar y se "
-        "preguntará de nuevo la próxima vez.",
-        "spaCR 的授权以您接受其条款为条件，因此在勾选上面的复选框之前无法完成设置。"
-        "关闭此窗口将使条款未被接受，下次仍会再次询问。",
-        "O spaCR é licenciado sob a condição de que você aceite os seus "
-        "termos, portanto a configuração não pode terminar até que a caixa "
-        "acima seja marcada. Fechar esta janela deixa-os sem aceitação e "
-        "pergunta de novo na próxima vez.",
-        "spaCR का लाइसेंस इस शर्त पर है कि आप इसकी शर्तें स्वीकार करें, इसलिए ऊपर का "
-        "बॉक्स चुने बिना सेटअप पूरा नहीं हो सकता। इस विंडो को बंद करने पर शर्तें अस्वीकृत "
-        "रहती हैं और अगली बार फिर पूछा जाएगा।",
-        "spaCR는 약관에 동의하는 것을 조건으로 사용이 허가되므로 위 상자를 선택하기 "
-        "전에는 설정을 마칠 수 없습니다. 이 창을 닫으면 약관은 동의되지 않은 상태로 "
-        "남으며 다음에 다시 묻습니다.",
-        "spaCR er veitt með því skilyrði að þú samþykkir skilmálana, svo "
-        "uppsetningin getur ekki lokið fyrr en hakað er í reitinn að ofan. "
-        "Ef þú lokar þessum glugga verða þeir ósamþykktir og spurt verður "
-        "aftur næst.",
-        "spaCR est concédé sous licence à condition que vous acceptiez ses "
-        "conditions ; la configuration ne peut donc pas se terminer tant que "
-        "la case ci-dessus n'est pas cochée. Fermer cette fenêtre les laisse "
-        "non acceptées et la question sera reposée la prochaine fois.")),
+        "Godkänn användningsvillkoren för att slutföra konfigurationen. Om "
+        "du stänger fönstret utan att godkänna dem visar spaCR villkoren igen "
+        "vid nästa start.",
+        "Akzeptieren Sie die Nutzungsbedingungen, um die Einrichtung "
+        "abzuschließen. Wenn Sie dieses Fenster ohne Zustimmung schließen, "
+        "zeigt spaCR die Bedingungen beim nächsten Start erneut an.",
+        "Acepte las condiciones de uso para completar la configuración. Si "
+        "cierra esta ventana sin aceptarlas, spaCR volverá a mostrar las "
+        "condiciones en el próximo inicio.",
+        "接受使用条款以完成设置。如果未接受就关闭此窗口，spaCR 将在下次启动时再次显示这些条款。",
+        "Aceite os termos de uso para concluir a configuração. Se fechar "
+        "esta janela sem aceitá-los, o spaCR apresentará os termos novamente "
+        "na próxima inicialização.",
+        "सेटअप पूरा करने के लिए उपयोग की शर्तें स्वीकार करें। यदि आप बिना स्वीकार किए यह विंडो "
+        "बंद करते हैं, तो spaCR अगली बार शुरू होने पर शर्तें फिर दिखाएगा।",
+        "설정을 완료하려면 이용 약관에 동의하십시오. 동의하지 않고 이 창을 닫으면 spaCR가 "
+        "다음 시작 시 약관을 다시 표시합니다.",
+        "Samþykktu notkunarskilmálana til að ljúka uppsetningu. Ef þú "
+        "lokar þessum glugga án þess að samþykkja birtir spaCR skilmálana "
+        "aftur við næstu ræsingu.",
+        "Acceptez les conditions d’utilisation pour terminer la configuration. "
+        "Si vous fermez cette fenêtre sans les accepter, spaCR les présentera "
+        "de nouveau au prochain démarrage.")),
 )
 
 
 def register_translations() -> int:
-    """Put this screen's captions in the translation catalogs.
+    """Register this screen's localized captions.
 
-    :returns: how many rows were added; 0 when they are already there, which
-        is what a second call answers rather than an error.
-
-    THROUGH THE REGISTRATION SEAM, not by hand-editing nine catalogs. A
-    caption that lives with the module it is shown by cannot fall out of step
-    with it, and :func:`spacr.qt.i18n.add_translation` is the same door the
-    app registry uses.
+    :returns: number of rows added; repeated registration returns ``0``.
     """
     try:
         from .i18n import add_translation
