@@ -2034,12 +2034,22 @@ _KEY_ISSUE_PROMPT = "ai/issue_prompt"
 _KEY_AI_DEFAULT_ON = "ai/on_by_default"
 
 
+#: On. The assistant is what makes the settings answerable without reading
+#: the API, so a first run that has to find and tick it is a first run
+#: without the help it was built for. Turning it off is one click and is
+#: remembered.
+DEFAULT_AI_ON_AT_LAUNCH = True
+
+
 def get_ai_on_by_default() -> bool:
     """Is the assistant on when spaCR opens?
 
-    :returns: False unless the user has said otherwise.
+    :returns: :data:`DEFAULT_AI_ON_AT_LAUNCH` unless the user has said
+        otherwise. An explicit choice is always written, so an opt-out
+        survives a change to the default rather than being overwritten
+        by it.
     """
-    raw = _settings().value(_KEY_AI_DEFAULT_ON, False)
+    raw = _settings().value(_KEY_AI_DEFAULT_ON, DEFAULT_AI_ON_AT_LAUNCH)
     if isinstance(raw, bool):
         return raw
     return str(raw).strip().lower() in ("1", "true", "yes", "on")
@@ -2188,12 +2198,15 @@ def effective_pane_alpha() -> float:
 #: values rather than as a wall of boxes, and it is the shipped look;
 #: the preference exists because an effect that touches every input in
 #: the app has to be refusable.
-#: Off. Hashing every file under every path-valued setting is proportional
-#: to the DATA and not to the run: on a plate of raw images it is minutes of
-#: reading before the first mask is made, and it happens whether or not
-#: anybody will ever compare the digests. The manifest is written either
-#: way and SAYS which it was, so the record is never ambiguous.
-DEFAULT_HASH_INPUTS = False
+#: On, and it is not free. Hashing every file under every path-valued
+#: setting is proportional to the DATA and not to the run: on a plate of raw
+#: images it is minutes of reading before the first mask is made, and it
+#: happens whether or not anybody ever compares the digests. It ships on
+#: anyway, because a result that cannot be traced back to its inputs is
+#: worth less than the minutes, and the cost is refusable in one click.
+#: The manifest is written either way and SAYS which it was, so the record
+#: is never ambiguous.
+DEFAULT_HASH_INPUTS = True
 _KEY_HASH_INPUTS = "prefs/hash_inputs"
 
 
@@ -2398,13 +2411,23 @@ def set_verbose_logging(on: bool) -> None:
     _settings().setValue(_KEY_VERBOSE_LOG, bool(on))
 
 
+#: On, and only safe to be. A report no longer carries log lines in its
+#: body: the bundle is written to a local path and the body NAMES that
+#: path, so a public issue can never carry a user's logs. The preference
+#: governs whether that bundle is prepared at all, every report still
+#: stops at an editable preview, and nothing is sent without its own Send.
+DEFAULT_SHARE_DIAGNOSTIC_LOGS = True
+
+
 def get_share_diagnostic_logs() -> bool:
     """Whether report previews may include a redacted recent-log excerpt.
 
     This never authorises background submission. Every report still stops at
     the editable preview and needs its own Send click.
     """
-    return _as_bool(_settings().value(_KEY_SHARE_DIAGNOSTICS, False), False)
+    return _as_bool(_settings().value(_KEY_SHARE_DIAGNOSTICS,
+                                      DEFAULT_SHARE_DIAGNOSTIC_LOGS),
+                    DEFAULT_SHARE_DIAGNOSTIC_LOGS)
 
 
 def set_share_diagnostic_logs(on: bool) -> None:
@@ -2782,10 +2805,17 @@ PREFERENCE_TIPS = {
     "Label top n": "How many of the strongest points are labelled by name.",
     "Legend": "Draw a legend, and where.",
     "Per row": "How many panels are placed across a row of a grid figure.",
-    "Graph shape": "The proportions of each panel: square, a horizontal "
-                   "rectangle, or a vertical one. A ratio is a number and "
-                   "this is a choice, so it says which shape it draws "
-                   "rather than asking for one to be computed.",
+    # KEYED BY THE LABEL THE ROW SHOWS, which for the `aspect` setting comes
+    # from `style_setting_label`. The setting itself offers 'equal' or
+    # 'auto', so it is the axis-scale lock -- one y unit drawn the same
+    # length as one x unit -- and not the shape of the figure. The shape is
+    # 'Page shape' below, and the explanation says so rather than describing
+    # shapes this control cannot take.
+    "Graph shape": "Whether one y unit is drawn the same length as one x "
+                   "unit ('equal', which is what keeps a plate's wells "
+                   "square), or the panel is filled instead ('auto'). This "
+                   "locks the axis scales, which is a statement about the "
+                   "data; the proportions of the figure are 'Page shape'.",
     "Page shape": "The proportions of the saved page.",
     "Dpi": "Pixels per inch in the saved file. 300 is the usual minimum for print.",
     "Format": "The file type a figure is saved as.",

@@ -14,10 +14,15 @@ exactly right for a Q-Q, whose 45-degree diagonal means nothing unless the
 axes share a scale, and it is not what "save the graph as a square" asks for
 -- nor what its old name, "Aspect ratio", suggested to anybody.
 
-Both exist now and are named apart:
+Both exist now and are named apart, and the names a user reads are shapes
+rather than ratios -- a ratio is a number, and only one of these two is one:
 
-    Shape: square / wide / tall / free        the CANVAS, what gets exported
-    Lock axis scales (1 y unit = n x units)   the DATA, unchanged, renamed
+    Graph shape: square / horizontal rectangle / vertical rectangle / free
+        the CANVAS, what gets exported. The stored names behind those labels
+        are "square" / "wide" / "tall" / "free", which is what
+        `set_canvas_shape` takes and what a saved preference holds.
+    Lock axis scales (1 y unit = n x units)
+        the DATA, unchanged, renamed.
 
 THE FILE IS MEASURED HERE, not the screen. A square on screen that is written
 out at the widget's accidental proportions has not done the job, so each of
@@ -104,10 +109,15 @@ def test_the_canvas_shape_and_the_axis_lock_are_two_controls(volcano):
                in menu_entries(volcano.build_style_menu())]
     groups = menu_groups(volcano.build_style_menu())
 
-    assert "Shape" in groups, groups
-    for shape in ("square", "wide", "tall", "free"):
+    assert "Graph shape" in groups, groups
+    for shape in ("square", "horizontal rectangle", "vertical rectangle",
+                  "free"):
         assert shape in entries, entries
     assert any("Lock axis scales" in text for text in entries), entries
+    # AND NOT UNDER THE OLD WORD. "Aspect ratio" named both quantities at
+    # once, which is what made them one control in a reader's head.
+    assert not [text for text in entries + groups
+                if "aspect ratio" in text.lower()], entries + groups
 
 
 def test_the_shape_does_not_touch_the_data_lock(volcano):
@@ -140,7 +150,9 @@ def test_the_menu_shows_which_shape_is_in_force(volcano):
     ticked = {action.text() for action
               in menu_entries(volcano.build_style_menu())
               if action.isCheckable() and action.isChecked()}
-    assert "tall" in ticked, ticked
+    # The tick is on the LABEL a reader sees, not on the name the shape is
+    # stored under.
+    assert "vertical rectangle" in ticked, ticked
     assert "square" not in ticked, ticked
 
 
