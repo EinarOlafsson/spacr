@@ -5990,9 +5990,29 @@ class VolcanoPlot(FastPlot):
     #: a 49 ms redraw, which is why the legend is opt-in at all.
     Q_LEGEND_STOPS = 5
 
+    #: What the horizontal axis is called on each path. A fitted run puts a
+    #: regression coefficient there; the permutation path puts a PARTIAL
+    #: CORRELATION -- `standardized_marginal_effect`, copied into
+    #: `coefficient` so the rest of the screen can read it by one name. The
+    #: two are different quantities: one is on the response's scale and
+    #: unbounded, the other is bounded in [-1, 1]. Calling both "coefficient"
+    #: is what makes a reader ask whether these are actually coefficients.
+    EFFECT_LABELS = {
+        "fitted": "coefficient",
+        "permutation": "standardized marginal effect (partial correlation)",
+    }
+
     def __init__(self, parent=None):
-        super().__init__(title="Volcano", x_label="coefficient",
+        super().__init__(title="Volcano",
+                         x_label=self.EFFECT_LABELS["fitted"],
                          y_label="-log10(p)", parent=parent)
+        # NO SI PREFIX ON AN EFFECT SIZE. pyqtgraph factors a common power of
+        # ten out of the tick labels and states it once in the axis title, so
+        # a partial correlation running -0.06 to 0.50 was drawn as an axis
+        # reading -100 to 400 titled "coefficient (x0.001)". That is correct
+        # and unreadable: the number a reader wants to quote is 0.50, and
+        # they should not have to multiply it back themselves.
+        self.plot.getAxis("bottom").enableAutoSIPrefix(False)
         #: Which of :data:`P_AXES` the height is. Raw by default.
         self._p_axis = "raw"
         #: Whether that was a person's choice rather than a default. A host
@@ -6008,6 +6028,7 @@ class VolcanoPlot(FastPlot):
         self._results_call: Optional[tuple] = None
         #: Per family: ``(critical raw p or None, called, tested)``.
         self._families: dict = {}
+
         #: The recomputed values, aligned with the plotted frame.
         self._q_values = None
         self._lfdr_values = None
@@ -6033,6 +6054,19 @@ class VolcanoPlot(FastPlot):
         self._correction_writer = self._write_corrected_table
 
     # -------------------------------------------------------- what is drawn
+
+    def name_the_effect(self, path: str) -> str:
+        """Title the horizontal axis for the analysis that produced it.
+
+        :param path: ``'fitted'`` or ``'permutation'``; anything else is
+            treated as fitted, because a run whose path cannot be read is
+            far more likely to be an ordinary fit than a permutation.
+        :returns: the label applied.
+        """
+        label = self.EFFECT_LABELS.get(str(path).strip().lower(),
+                                       self.EFFECT_LABELS["fitted"])
+        self.plot.setLabel("bottom", label)
+        return label
 
     def p_axis(self) -> str:
         """Which of :data:`P_AXES` the y axis measures."""

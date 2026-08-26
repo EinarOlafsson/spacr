@@ -300,6 +300,22 @@ def for_table(frame):
     columns = list(getattr(frame, "columns", ()))
     if not columns or len(frame) == 0:
         return frame
+    # THE SAME NUMBER UNDER TWO NAMES IS WORSE THAN EITHER NAME ALONE. The
+    # permutation path copies `standardized_marginal_effect` into
+    # `coefficient` so the rest of the screen can read one name, and a reader
+    # then sees two identical columns and asks which is the real one -- and
+    # whether a quantity bounded in [-1, 1] is a coefficient at all. It is
+    # not: it is a partial correlation. The accurate name is the one kept.
+    if ("coefficient" in columns
+            and "standardized_marginal_effect" in columns):
+        try:
+            same = frame["coefficient"].equals(
+                frame["standardized_marginal_effect"])
+        except Exception:                                    # noqa: BLE001
+            same = False
+        if same:
+            columns = [c for c in columns if c != "coefficient"]
+            frame = frame[columns]
     keep = []
     for name in columns:
         if name in TABLE_KEEP_COLUMNS:
@@ -2714,6 +2730,31 @@ class RegressionResultsPanel(QWidget):
         self._draw_guide_support(frame)
         self._say_which_family()
 
+    def _analysis_path(self) -> str:
+        """``'permutation'`` when this run permuted, else ``'fitted'``.
+
+        Read off the TABLE, not the settings: a folder opened from disk may
+        carry no settings at all, and the columns a permutation writes are
+        proof it ran.
+        """
+        columns = list(getattr(self._frame, "columns", ()))
+        if any(name in columns for name in PERMUTATION_COLUMNS):
+            return "permutation"
+        # THE TABLE DECIDES, and only a table with no columns at all defers to
+        # the settings. A saved settings file carries the MODULE's default
+        # inference, not what the run did -- an OLS folder beside this one
+        # says inference='nonparametric' and was fitted, so reading the
+        # settings first labelled an unbounded OLS coefficient a partial
+        # correlation. The permutation writes its columns every time.
+        if columns:
+            return "fitted"
+        settings = self._run_settings if isinstance(self._run_settings,
+                                                    dict) else {}
+        mode = str(settings.get("analysis_mode") or "").strip().lower()
+        if mode == "guide_permutation":
+            return "permutation"
+        return "fitted"
+
     @staticmethod
     def _gene_terms(frame) -> dict:
         """``{gene id: the gene-level term that names it}``.
@@ -3056,10 +3097,12 @@ class RegressionResultsPanel(QWidget):
         fitted = str(settings.get("level") or "").strip().lower()
         if level == "gene":
             if any(name in columns for name in PERMUTATION_COLUMNS):
-                return ("it was fitted by permutation, which resamples one "
-                        "guide's well labels at a time, so every test in it "
-                        "is a guide's. A gene-level permutation is a "
-                        "different test and this run did not do it.")
+                return ("this permutation run reported guides only. The gene "
+                        "pass tests each gene as a SET -- its regressor the "
+                        "sum of its guides' fractions, permuted with the same "
+                        "scheme and corrected as its own family -- and it "
+                        "runs when level is 'gene' or 'both'. Re-run at one "
+                        "of those to get gene rows.")
             if fitted == "grna":
                 return ("it was fitted at level='grna', which fits the guide "
                         "terms only. Re-fit at level='both' or 'gene' to get "
@@ -3575,6 +3618,15 @@ class RegressionResultsPanel(QWidget):
     def _redraw_volcano(self) -> None:
         if self._frame is None:
             return
+        # WHAT THE HORIZONTAL AXIS IS. The permutation path copies its
+        # partial correlation into `coefficient` so the rest of the screen
+        # can read one name, which leaves the axis calling a bounded
+        # correlation a coefficient. Named per redraw rather than at load,
+        # because a panel can be handed a different run without being rebuilt.
+        try:
+            self.volcano.name_the_effect(self._analysis_path())
+        except AttributeError:                               # noqa: BLE001
+            pass
         kind, column = self._ranking
         # A volcano's y-axis IS -log10(p). Where there is no p-value the axis
         # has nothing to be, so the plot is left empty on purpose and says
