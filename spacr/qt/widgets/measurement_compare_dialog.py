@@ -96,6 +96,12 @@ class MeasurementComparePanel(QWidget):
         Per-well counts used to resolve control wells.
     """
 
+    #: What the join control says when no join is running, and while one is.
+    #: One button carries both, because a join that has started is a job to
+    #: stop rather than a job to start again.
+    JOIN_LABEL = "Join the measurement tables"
+    CANCEL_LABEL = "Cancel the join"
+
     def __init__(self, objects, groups: Dict[str, Any],
                  parent: Optional[QWidget] = None,
                  settings: Optional[Dict[str, Any]] = None,
@@ -280,12 +286,12 @@ class MeasurementComparePanel(QWidget):
         self.join_note.setObjectName("Muted")
         self.join_note.setWordWrap(True)
         self._join_row.addWidget(self.join_note, 1)
-        self.join_button = QPushButton("Join the measurement tables")
+        self.join_button = QPushButton(self.JOIN_LABEL)
         self.join_button.setToolTip(
             "Read the cell, nucleus, pathogen and cytoplasm tables out of "
             "the attached databases and attach them to these cells, so every "
             "measurement in the screen can be compared.")
-        self.join_button.clicked.connect(self.join_the_tables)
+        self.join_button.clicked.connect(self._on_join_button)
         self._join_row.addWidget(self.join_button)
         layout.addLayout(self._join_row)
 
@@ -499,8 +505,11 @@ class MeasurementComparePanel(QWidget):
         png_list = bool(self.join_png_list.isChecked())
         objects, databases = self._objects, self._databases
         self._joining = True
-        self.join_button.setEnabled(False)
-        self.join_button.setText("Joining…")
+        # THE BUTTON BECOMES THE CANCEL. A join of a four-plate screen is
+        # minutes of reading, and a run that can only be waited out is the
+        # freeze this moved off the GUI thread to avoid, one step removed.
+        self.join_button.setEnabled(True)
+        self.join_button.setText(self.CANCEL_LABEL)
 
         def work():
             """Off the GUI thread. Returns, never raises: a failed join is
@@ -517,15 +526,56 @@ class MeasurementComparePanel(QWidget):
         started = self._jobs.submit(work, self._finish_join)
         if not started:                      # pragma: no cover - JobRunner
             self._joining = False            # always returns True today
-            self.join_button.setEnabled(True)
-            self.join_button.setText("Join the measurement tables")
+            self._reset_the_join_button()
         return ""
+
+    def _on_join_button(self, *_args) -> str:
+        """Start the join, or cancel the one already running."""
+        if self._joining:
+            self.cancel_the_join()
+            return ""
+        return self.join_the_tables()
+
+    def cancel_the_join(self) -> bool:
+        """Abandon a running join and put the button back.
+
+        The worker is asked to stop and its result is dropped on arrival;
+        it is not joined, because waiting for it on the GUI thread is the
+        freeze the worker exists to avoid.
+
+        :returns: True when a join was in flight to cancel.
+        """
+        if not self._joining:
+            return False
+        self._jobs.cancel()
+        self._joining = False
+        self._reset_the_join_button()
+        self.join_note.setText("Join cancelled.")
+        return True
+
+    def _reset_the_join_button(self) -> None:
+        """Back to the label and the enabled state of an idle join."""
+        self.join_button.setEnabled(True)
+        self.join_button.setText(self.JOIN_LABEL)
+
+    def closeEvent(self, event):                # noqa: N802 - Qt naming
+        """Stop a running join before the widget carrying it goes away.
+
+        Qt aborts the process when a running QThread is destroyed, so the
+        panel cannot simply be closed out from under a join of a real
+        screen.
+        """
+        try:
+            self._jobs.shutdown()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("the join runner would not shut down", exc_info=True)
+        self._joining = False
+        super().closeEvent(event)
 
     def _finish_join(self, outcome: Dict[str, Any]) -> str:
         """Put the joined frame into the panel. Always on the GUI thread."""
         self._joining = False
-        self.join_button.setEnabled(True)
-        self.join_button.setText("Join the measurement tables")
+        self._reset_the_join_button()
         if not isinstance(outcome, dict) or "error" in (outcome or {}):
             why = (outcome or {}).get("error", "the join returned nothing")
             self.join_note.setText(f"Could not join: {why}")
@@ -934,3 +984,6 @@ class MeasurementCompareDialog(QDialog):
 
     def join_the_tables(self, *args):
         return self.panel.join_the_tables(*args)
+
+    def cancel_the_join(self, *args):
+        return self.panel.cancel_the_join(*args)

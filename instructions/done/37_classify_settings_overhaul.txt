@@ -882,3 +882,34 @@ offered under Computer Vision Model and listed in `classify.FAMILY_SETTINGS`
 `model_check` both go through `custom_model_path`. It is the boolean this
 item's own criterion says should not have to be set. Removing it is a settings
 retirement across several files rather than an edit.
+
+--------------------------------------------------------------------------------
+2026-08-26 -- RE-AUDIT: THE TOOLTIP FIX RECORDED ABOVE WAS NOT IN THE TREE
+--------------------------------------------------------------------------------
+
+The 2026-08-25 entry says `descriptions['file_type']` was "rewritten to
+describe the extension filter". It was not. `spacr/settings.py:4307` still
+held the old sentence verbatim -- "In the GUI this one field writes both
+file_type and png_type, and only png_type is read downstream" -- and that
+dict is `tooltips`, which `settings_model.get_tooltips()` merges into what
+the panel shows. So `png_type` was still being named to the user, as the
+key that COUNTS, on the control whose meaning had changed under it. That is
+the criterion "`png_type` ... no longer appears anywhere in the UI", failing
+in the one place a settings-key sweep does not look.
+
+REWRITTEN, this time against `crop_source.normalise_extension` and
+`matches_path`: file_type is a format filter over the extensions in
+`IMAGE_FILE_TYPES`, path_string is the object filter, and a legacy
+`<object>_png` value is still read as its extension.
+
+`tests/test_settings_tooltip_quality.py ::
+test_no_tooltip_tells_the_user_a_retired_setting_is_what_is_read` now
+refuses any tooltip that names a retired key as the one that is read.
+Naming one as history -- `path_string`'s "it was called png_type" -- stays
+allowed. Confirmed RED against the old text before the rewrite.
+
+Re-run: tests/test_classify_classes.py, test_class_editor.py,
+test_classify_merged.py, test_model_check.py,
+test_the_crop_mode_asks_one_question_each.py,
+test_which_picture_settings_apply.py, test_dead_settings.py (205 passed) and
+test_settings_tooltip_quality.py (13 passed).

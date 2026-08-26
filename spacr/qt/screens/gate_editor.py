@@ -1400,7 +1400,8 @@ class GateEditorScreen(QWidget):
         for gate in gates.gates:
             try:
                 frame, mask = gate_mask_over_table(path, table, gates, gate.name)
-                column, marked = export_gate(path, frame, mask, gate.name)
+                column, marked = export_gate(
+                    path, frame, mask, gate.name, object_type=table)
                 written.append((column, marked))
             except (FilterError, Exception) as exc:
                 LOG.info("could not export gate %r", gate.name, exc_info=True)
@@ -1460,16 +1461,19 @@ class GateEditorScreen(QWidget):
             return
 
         self._jobs.submit(
-            lambda p=path, f=frame, l=labels, c=column.strip():
-                self._write_annotation(p, f, l, c),
+            lambda p=path, f=frame, l=labels, c=column.strip(),
+                   t=(self._table or ""):
+                self._write_annotation(p, f, l, c, t),
             lambda payload: self._source.setText(
                 f"wrote {payload[0]} — {summary}"))
 
     @staticmethod
-    def _write_annotation(path: str, frame, labels, column: str):
+    def _write_annotation(path: str, frame, labels, column: str,
+                          table: str = ""):
         from ...filters import export_annotation
 
-        return export_annotation(path, frame, labels, column)
+        return export_annotation(path, frame, labels, column,
+                                 object_type=table or None)
 
     def _on_exported(self, payload) -> None:
         written, failed = payload

@@ -161,3 +161,26 @@ Not from the docstring. methods_by_family() was called for the registry, and
 every method was run against a small conv net to find which actually execute
 in the shipped env - which is how the torchcam gap was found. Backend
 versions were read from the installed packages, not from requirements.
+
+--------------------------------------------------------------------------------
+2026-08-26 -- RE-AUDIT: FINDING 1 HAS BEEN OVERTAKEN, THE REST STILL HOLDS
+--------------------------------------------------------------------------------
+
+Re-measured in the `spacr` env rather than re-read.
+
+FINDING 1 IS NO LONGER TRUE, and is kept above as the record of why the
+packaging work was asked for. torchcam 0.4.1 IS installed now, and every CAM
+method runs against a small conv net:
+
+    gradcam, gradcam_pp, scorecam, layercam, xgradcam, eigencam   all OK
+    saliency, integrated_gradients, deeplift, occlusion           all OK
+
+So the screen's documented default works out of the box, and step 1 of
+RECOMMENDED ORDER ("ship torchcam, or make eigencam the default") is done by
+the first of the two routes. Nothing else in the order has been built.
+
+THE REST WAS RE-CHECKED AND STANDS. `methods_by_family()` still reports the
+same 14 methods in the same 4 families, name for name. The SHAP family
+(FINDING 3) is still absent from the registry, with captum 0.9.0 and shap
+0.52.0 both installed -- so it is still the cheapest real win. FINDING 2's
+premise holds: Classify still defaults to model_type='maxvit_t'.

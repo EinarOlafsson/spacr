@@ -6,9 +6,13 @@ window that gets populated with the tooltip for the button not on the
 button itself. like it works for the modules on the main screen."
 
   * `spacr/qt/widgets/hint_bar.py` is the Home screen's mechanism made
-    reusable: a `HintBar` at the foot, `explain(widget, text)` to register
-    a control, and an event filter that writes the sentence while the
-    pointer is on it and restores the resting line when it leaves;
+    reusable: a `HintBar` at the foot, `explain_through_the_bar(widget,
+    text)` to register a control (it finds the bar with `hint_bar_of` and
+    returns False when the window has none), and an event filter that
+    writes the sentence while the pointer is on it and restores the
+    resting line when it leaves;
+    (AUDIT 2026-08-26: this paragraph named the registrar `explain`; the
+    function has always been exported as `explain_through_the_bar`.)
   * the button carries NO tooltip. The sentence would otherwise appear
     over the button -- where the pointer already is, and where the user is
     about to click -- covering the thing it describes;
@@ -34,8 +38,17 @@ Owner:     spacr/qt -- setup slides, terms, preferences, the picture settings
            dialog, the figure save dialog; spacr/ml.py for the intercept.
 
 --------------------------------------------------------------------------------
-STILL OPEN
+CLOSED -- WAS "STILL OPEN"
 --------------------------------------------------------------------------------
+
+(AUDIT 2026-08-26: this section was headed STILL OPEN and its own body
+says the number was measured, shown, decided and set. Re-measured against
+the code: `cell_montage.MAX_OBJECTS` and `picture_settings.OWN_DEFAULTS
+['cap']` are both 2,000, `MEASURED_PAGE_SIZES`, `MEASURED_CROP_BYTES` and
+`MEASURED_MS_PER_CROP` all carry their numbers, and `montage_cap_cost()`
+renders the sentence. The Cells-tab spin box no longer stops at 5,000 --
+it is `setRange(1, 1_000_000)` -- so the clamp the last paragraph warned
+about cannot happen either. Nothing here is owed; the heading was.)
 
 1. THE MONTAGE CAP -- MEASURED, THEN SET AT 2,000
 
@@ -79,12 +92,14 @@ STILL OPEN
        clicks away; at 10,000 it is 417. A cap that large wants a page to
        jump to, or the last page is unreachable in practice.
 
-   WHAT IS LEFT IS THE NUMBER ITSELF. It lives in `cell_montage.MAX_OBJECTS`
-   and in the Cells-tab toolbar's own spin box, whose range stops at 5,000 --
-   so a settings window offering 10,000 would be silently clamped to 5,000 on
-   the way to the montage, which is worse than a cap that has not moved.
-   Those two, and `picture_settings.OWN_DEFAULTS['cap']`, have to move
-   together or not at all.
+   THE THREE PLACES THE NUMBER LIVES MOVE TOGETHER. It is
+   `cell_montage.MAX_OBJECTS`, `picture_settings.OWN_DEFAULTS['cap']` and
+   the Cells-tab toolbar's own spin box; the panel imports the constant
+   rather than repeating it, and the spin box's range is 1 to 1,000,000,
+   so a typed cap is never silently clamped on the way to the montage.
+   (AUDIT 2026-08-26: this paragraph read "WHAT IS LEFT IS THE NUMBER
+   ITSELF" and described a spin box that stopped at 5,000. Both were true
+   of the 10,000 proposal that was not taken.)
 
 --------------------------------------------------------------------------------
 DONE, FOR THE RECORD
@@ -293,8 +308,12 @@ THE CELLS TAB AND THE FIGURES
     field means that colour is not drawn;
   * crops fill their row instead of stopping at a hard-coded 96 px;
   * the save dialog's preview is drawn on the page the FILE gets, and the
-    dialog offers aspect ratio, line width, an absolute text size and both
-    axis titles, all defaulting to "as drawn".
+    dialog offers "lock axis scales", a graph shape, line width, an
+    absolute text size and both axis titles, all defaulting to "as drawn".
+    (AUDIT 2026-08-26: this line said "aspect ratio", which 245 removed
+    from every surface a user reads. The row is `lock axis scales` -- one
+    y unit to n x units, a statement about the DATA -- and the shape of
+    the page is the separate `graph shape` control beside it.)
 
 THE REGRESSION
   * the intercept is a choice in four states: fitted, zero (through the

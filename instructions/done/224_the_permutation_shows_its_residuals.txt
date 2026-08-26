@@ -113,3 +113,27 @@ should come back explaining nothing, and if it does not, the removal did not
 work.
 
 Tests: `tests/test_the_permutation_shows_its_residuals.py`, 15 passing.
+
+
+--------------------------------------------------------------------------------
+RE-AUDIT 2026-08-26 -- TWO CRITERIA DO NOT HOLD
+--------------------------------------------------------------------------------
+
+THE MEASUREMENT LANDED; THE QC FOLDER AND THE PANEL DID NOT.
+`permutation_qc.py` is real and its fifteen tests pass, and
+`_report_exchangeability` does run at the end of the permutation branch --
+but it PRINTS. It takes `destination` and never uses it, and nothing draws a
+figure.
+
+  * "A permutation run writes a QC folder like a parametric one" -- no
+    folder is written. `spacr/ml.py:_report_exchangeability` accepts
+    `destination` and the parameter is unreferenced in the body.
+  * "It carries a residual-by-position panel, per block" -- there is no
+    panel. `regression_qc` has no residual-by-position renderer, and the
+    permutation path draws nothing.
+
+The per-block NUMBERS exist, which is why this reads as done from the
+console: the verdict names `guide_nuisance_columns`, and position is
+measured even where it was already removed. What is missing is the writing
+and the drawing, which is a feature rather than a repair -- left for whoever
+owns the QC renderers rather than half-built here.

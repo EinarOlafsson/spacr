@@ -51,3 +51,33 @@ HOW TO KNOW IT WORKED
 With the preference off, a run's manifest appears promptly and records that
 hashing was skipped. With it on, the hashes are present and identical to
 what is written today. Timed on the same plate both ways.
+
+--------------------------------------------------------------------------------
+2026-08-26 - RE-AUDIT: THE DEFAULT MOVED, BY A LATER REQUEST
+--------------------------------------------------------------------------------
+
+The acceptance criteria hold, driven rather than read:
+tests/test_hash_inputs_opt_in.py passes (6), a run opened with no
+`hash_inputs` setting writes `input_hashing: skipped` and
+`performance.input_files: 0`, one opened with `hash_inputs: True` writes
+`input_hashing: on` and counts the files, and `--hash-inputs` /
+`--no-hash-inputs` are both on the CLI.
+
+WHAT THIS FILE NOW SAYS WRONGLY: the status line above reads "off by
+default". The PIPELINE default is still off -- `run_journal` reads
+`settings.get("hash_inputs", False)`, so a headless or cluster run hashes
+nothing unless asked -- but the GUI PREFERENCE ships ON:
+`preferences.DEFAULT_HASH_INPUTS = True`. That was changed deliberately by
+instruction 248 ("make sure all booleans are on by default:
+reproducability hash / AI assistant on at launch / include recent logs in a
+report -- should all be on"), and the reason is recorded beside the
+constant: a result that cannot be traced back to its inputs is worth less
+than the minutes, and the cost is refusable in one click.
+
+So the feature is opt-in in the sense this file was filed for -- there is a
+switch, the manifest states which way it went, and the CLI carries it -- and
+the shipped GUI default is the opposite of what the status line claims.
+
+NOT RE-MEASURED: "timed on the same plate both ways". That needs a real
+plate; the ~0.55 s/GB warm figure in the status line stands on the earlier
+measurement recorded in the test module's docstring.

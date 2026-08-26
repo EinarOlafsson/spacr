@@ -2678,11 +2678,12 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "value of which column each class is. Open it first — everything "
         "downstream is a model of whatever this says.",
     "COMPUTER VISION DATA SOURCE":
-        "Where the training images come from and how they are cut. "
-        "Pre-generated crops are filtered by path and file type; on-demand "
-        "crops are cut from merged as training runs, which needs the "
-        "intensity channels and the object to cut around. The settings that "
-        "do not apply to the chosen source are greyed rather than hidden.",
+        "Where the training images come from and how they are cut. Loading "
+        "reads crops that were already exported, selected by one path "
+        "pattern; streaming cuts them from the merged arrays as training "
+        "runs, which needs the channel arrays and either an object table or "
+        "a mask array to cut around. The settings that do not apply to the "
+        "chosen source and stream method are greyed rather than hidden.",
     "COMPUTER VISION MODEL":
         "Which architecture, and how its input is scaled. A custom model path "
         "that loads supersedes the model type. Normalisation matters more "

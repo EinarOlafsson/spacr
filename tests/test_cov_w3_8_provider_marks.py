@@ -268,18 +268,14 @@ def test_an_unavailable_mark_gains_a_brand_halo_only_on_hover(qtbot):
     assert halo.name() == QColor(BRAND["gpt"]).name()
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "_colours reads palette['muted'], a key no spaCR palette defines -- every "
-    "other module spells it 'fg_muted' -- so the fallback hands back full "
-    "strength 'fg' and an unavailable provider is drawn in the same ink as a "
-    "ready one"))
 def test_an_unavailable_mark_is_drawn_in_the_themes_muted_ink(qtbot):
     """The state the mark is meant to show is 'can I use this one'.
 
     Signed out, GitHub must not be the colour it is signed in: its ready ink
-    IS the palette foreground, so falling back to the foreground for the
-    unavailable state leaves a ten-step alpha difference as the entire
-    answer.
+    IS the palette foreground, so a muted state that fell back to the
+    foreground would leave a ten-step alpha difference as the entire answer.
+    The palette spells its secondary ink ``fg_muted``; ``muted`` is not a key
+    any spaCR palette defines, and reading it took that fallback every time.
     """
     from spacr.qt.theme import active_palette
 

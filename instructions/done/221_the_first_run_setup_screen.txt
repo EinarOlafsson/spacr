@@ -210,3 +210,52 @@ mouse, and blurring a live widget would repaint the whole backdrop on every
 move. With no parent, or when the grab raises, `_backdrop` returns None and
 the dialog is a plain dialog with the same controls and the same answers.
 A test monkeypatches `grab` to raise and asserts exactly that.
+
+--------------------------------------------------------------------------------
+2026-08-26 - AUDIT: THE TEST FILE SEGFAULTED BEFORE IT REACHED THE CORNER
+--------------------------------------------------------------------------------
+
+Re-audited against this file's own criteria by running them rather than by
+reading them, and the first thing found was that
+`tests/qt/test_the_first_run_setup_screen.py` COULD NOT FINISH.
+
+It died with a segmentation fault at the setup of
+`test_the_card_still_reports_a_corner` -- inside the session fixture that
+walks the widget tree, not inside any test -- so the last three classes never
+ran and pytest reported no failure, only a dead interpreter. Reproducible in
+declaration order and under the random one, and reducible to three tests:
+build a parentless dialog, build a parented one, build a parentless one
+again.
+
+THE CAUSE IS OWNERSHIP, NOT THE DIALOG. `test_a_failed_grab_does_not_stop_it`
+made a bare `QWidget()` parent and let the garbage collector have it. The
+parent's C++ widget is destroyed with the dialog still held in a Python
+cycle, and freeing that wrapper afterwards deletes an object that is already
+gone -- which crashes the NEXT test's setup rather than this one. `qtbot`
+now owns both, and the file runs 19 green, three times over, in random order.
+
+THE REST OF THE CRITERIA HOLD. Every question has an editor and a working
+default; dismissing marks it answered and does not ask again; the decoration
+is not load-bearing (no parent, or a `grab` that raises, leaves a plain
+dialog with the same controls); and the accent is checked by MOVING THE
+POINTER -- `nearest_corner` at the four corners and `_follow` plus the easing
+frames -- not by reading the paint code.
+
+TWO THINGS THE CRITERIA ABOVE SAY THAT THE CODE DOES NOT, both already
+explained further up this file rather than newly discovered:
+
+  * "All eleven settings" is NINE, measured: `questions()` returns language,
+    theme, colour_blind, spacr_mode, hash_inputs, issue_prompt, ai_default,
+    share_logs, ai_provider. Module visibility and GitHub login have no
+    preference to write, which is the reason NINE QUESTIONS, NOT ELEVEN
+    gives above.
+  * "Help -> Startup" is Help -> "Set spaCR up again...", wired to
+    `_show_setup`.
+
+AND THE SCREEN THE APP OPENS IS `setup_slides.SetupSlides`, not the
+`setup_dialog.SetupDialog` this file's last section describes. `qt/app.py`
+imports `setup_slides` in both places -- the first-run gate and the Help
+action -- and `setup_dialog` is now imported by nothing outside `tests/`.
+Whether that module is kept as a second door or removed is a decision for
+whoever owns the slides, not something an audit should settle; it is recorded
+here so the next reader does not assume the dialog is what a user meets.

@@ -2,7 +2,9 @@
 xD IS DIMENSIONALITY REDUCTION, WITH ITS OWN COLUMN PICKER AND TABS
 ================================================================================
 
-Status:    not started
+Status:    done 2026-08-13. The header read "not started" until
+           2026-08-26, three sessions after the work landed; the
+           entries below were always the record.
 Requested: 2026-08-08 — "for the gate editor. the xD option should have 2D and 3D modes so the 2D and 3D butons should be mutually exclusive but not the xD buton. the xd for the dimentional reduction for xD there should be options for that. so add UMAP, tSNE, etc. the user should be able to pick the columns that are dimentionally reduced, they should be able to do this through choosing individual columns for dimentional reduction and they should be able to chhose categories based on name lik cell, cor channel_1 or intensity measurements (have channel i thing), or morphology measurements, etc. also the features section should be one of several tabs one tab should be hyperparamiter test if UMAP is chosen or tSNE for example."
 
 --------------------------------------------------------------------------------
@@ -272,3 +274,37 @@ suites, merge_tables and smoke.
 
 THIS UNBLOCKS INSTRUCTION 31's last item: the filter/search tabs now have a
 hyperparameter side to put in the second tab.
+
+--------------------------------------------------------------------------------
+2026-08-26 - RE-AUDIT: EVERY CRITERION DRIVEN, AND THE HEADER WAS THE ONLY WRONG
+             THING IN THE FILE
+--------------------------------------------------------------------------------
+
+Checked against this file's own HOW TO KNOW IT WORKED rather than against
+its notes.
+
+  THREE COMPONENTS, PLOTTED.  `merge_tables.reduce_dimensions` was driven on
+                              a 200-row frame of six channel-1 intensity
+                              columns: pca -> PC1..PC3, umap -> UMAP1..UMAP3,
+                              tsne -> tSNE1..tSNE3, all (200, 3).
+                              `spacr/qt/screens/gate_editor.py:1152` is the
+                              caller, so the components reach the canvas as
+                              ordinary columns and gate like any other axis.
+
+  COLUMNS LISTED BACK.        `_refresh_selection_note` states the count and
+                              the picker tabs are per group kind, with typed
+                              columns ADDING to the ticked groups.
+
+  PERPLEXITY RATHER THAN      `_METHOD_CONTROLS` maps umap -> n_neighbors +
+  n_neighbors.                min_dist, tsne -> perplexity, and
+                              `_grey_irrelevant_methods` enables only the
+                              chosen method's controls. Greyed rather than
+                              removed, which is INVARIANTS 6 and what the
+                              rest of the file argues for.
+
+  2D/3D EXCLUSIVE, xD NOT.    `gate_editor.py:2861` keeps the xD button
+                              outside the exclusive group deliberately, and
+                              `_mode` is 2D or 3D with `xd_projection` beside
+                              it.
+
+tests/qt/test_xd_column_picker.py and the five gate suites: 138 passed.

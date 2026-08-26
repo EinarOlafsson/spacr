@@ -1292,16 +1292,23 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         sb.setValue(sb.maximum())
 
     def _on_console_scrolled(self, value: int) -> None:
-        """Resume following when the user returns to the bottom.
+        """Follow the tail while the view is at the bottom, and only then.
 
         The convention every log viewer uses: scrolling up means "let me
         read", scrolling back down means "keep going". A few pixels of
         tolerance because a scrollbar dragged to the end does not always land
         exactly on maximum().
+
+        BOTH DIRECTIONS, because only one of them was ever wired. Raising a
+        section cleared the follow, so a reader who got to the middle of the
+        log by clicking a heading stayed there; a reader who got to the same
+        place by dragging the scrollbar was thrown back to the bottom by the
+        next line written, which is the thing that makes a live log
+        unreadable. Where the viewport is answers that question, and it
+        answers it the same way whichever gesture put it there.
         """
         scrollbar = self._scroll.verticalScrollBar()
-        if value >= scrollbar.maximum() - 4:
-            self._follow_output = True
+        self._follow_output = value >= scrollbar.maximum() - 4
 
     def jump_to_the_end(self) -> None:
         """Show the newest line, and follow the tail again.

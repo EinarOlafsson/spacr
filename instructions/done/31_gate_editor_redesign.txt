@@ -601,3 +601,39 @@ is rebuilt when the axis menu changes a scale, so it cannot sit there showing
 a scale the plot is not using. A `set_scale(axis, scale)` shaped exactly like
 `set_mode` would replace the rebuild and keep the window's tab and scroll
 position.
+
+--------------------------------------------------------------------------------
+2026-08-26 - RE-AUDIT: THREE OF THE FOUR CRITERIA HOLD, THE FOURTH NAMES A
+             VIEW THE USER REPLACED
+--------------------------------------------------------------------------------
+
+Checked against HOW TO KNOW IT WORKED, driven rather than read.
+
+PHASE 1 holds. `RectGate.translated` moves the population with the shape and
+keeps its size (tests/test_gate_editing.py, 44 tests), and a gate round-trips
+through `to_dict` / `gate_from_dict` with its bounds intact; named strategies
+save and reload by name out of `<project>/gates/` (tests/test_gate_library.py,
+18).
+
+PHASE 2 holds, and was measured on the running screen rather than inferred: a
+RectGate on area/intensity selected 60 of 300 rows, the x axis was put on log
+through `axis_menu_items("x")`, the panel came back with `get_xscale() ==
+"log"`, and the gate selected the SAME 60 objects -- element for element, not
+merely the same count. Gate bounds are in data units and a scale is a view, so
+this is structural rather than lucky.
+
+PHASE 3 holds: `cluster_gates` on a two-blob synthetic returns exactly two
+PolygonGates, each selecting its own blob and neither selecting a row of the
+other (tests/test_gate_clustering.py).
+
+PHASE 5 CANNOT BE CHECKED AS WRITTEN, and it is not a defect. The criterion is
+"gate on one panel of the matrix and the others show the selection" -- a
+scatter-plot MATRIX, which phase 5 recommended. There is none, and there is
+not meant to be: on 2026-08-07 the user specified the more-than-two-axes
+feature differently, as three exclusive modes (2D / 3D / xD with a reduction
+over a column list), and that is what was built -- `GateEditorSettings.gate_mode`,
+the 3-D projection in gate_editor.py, the xD picker, covered by
+tests/test_gate_modes_and_merge_ui.py (36). The matrix was a RECOMMENDATION in
+this file's own phase list, superseded by the request that followed it, so the
+phase-5 sentence in HOW TO KNOW describes an alternative that was considered
+and dropped rather than work that was skipped.

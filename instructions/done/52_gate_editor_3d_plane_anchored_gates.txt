@@ -2,7 +2,9 @@
 3D GATES DRAWN ON A CHOSEN PLANE, COMPOSED WITH EACH OTHER, WITH THRESHOLDS
 ================================================================================
 
-Status:    not started
+Status:    done 2026-08-13. The header read "not started" until
+           2026-08-26, after every point of the request had shipped;
+           the entries below are the record.
 Requested: 2026-08-08 — "for the gate editor . in 3d mode when setting the gate , the mechanism should be that the user clicks one plane then that plane gets a blue hue aura to it and this is the side that the gate is anchored to. in 3D mode the user should be able to pull a circle (wuich becomes a cylinder gate), a square/ rectangle, or draw a pollygon on this chosen 2d plane, which gets translated to 3 dims when the gate is generated. if the user draws another gate on the same 3d graph they should be able to set the new gate as being its own gate, subtracting or add from/to the other gates in view and that are chosen in the gates panel. the user should also be able to set thresholds for each individual gate for the measurements they are defined by."
 
 --------------------------------------------------------------------------------
@@ -557,3 +559,29 @@ is the plane inverted, the dropdown reaches polygon placement, and footprint
 plus depth produces one named finite gate. The complete gate-focused run is
 439 passed, 1 version-specific matplotlib skip, with deprecations promoted to
 errors on the new projection path.
+
+--------------------------------------------------------------------------------
+2026-08-26 - RE-AUDIT: THE THREE COUNTING CRITERIA WERE MEASURED, NOT READ
+--------------------------------------------------------------------------------
+
+This file's acceptance test is arithmetic, so it was run as arithmetic on a
+500-row random frame rather than inspected in the source.
+
+  CYLINDER == THE PANDAS      CylinderGate(u=x, v=y, axis=z, radii 1.0) kept
+  PREDICATE.                  198 rows; `(x**2 + y**2) <= 1` kept the same
+                              198, and the two masks are equal element by
+                              element, not merely equal in count.
+
+  SUBTRACT DROPS EXACTLY      cylinder 198, intersection with the box 61,
+  THE INTERSECTION.           composite 137. 198 - 61 == 137.
+
+  REOPENING GIVES THE SAME    `gate_from_dict(cyl.to_dict())` and
+  ROWS.                       `GateSet.from_json(set.to_json())` both
+                              reproduce the mask exactly.
+
+  THE BLUE AURA.              `GateCanvas._draw_anchor_aura` paints a
+                              translucent filled quad on the plane
+                              `anchor_plane()` names.
+                              tests/qt/test_anchor_plane.py and
+                              test_cov_gate_editor_volume_drag.py: 79 passed,
+                              1 skipped (a matplotlib quad-storage detail).

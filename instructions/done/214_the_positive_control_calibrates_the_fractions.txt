@@ -488,3 +488,52 @@ Tests: `tests/test_the_sequencing_sweep_answers_its_own_question.py`, 5
 passing -- the switch does not change the counts answer, the number is handed
 back with the question it answers, and `_perform_regression` is the only
 reader in `spacr.ml`.
+
+--------------------------------------------------------------------------------
+2026-08-26 - AUDIT: THE RAW-AGAINST-NORMALISED RATIO WAS NEVER FITTED
+--------------------------------------------------------------------------------
+
+Re-audited against this file's own HOW TO KNOW IT WORKED. Five of the six
+criteria held and were checked rather than assumed: the sweep reports slope,
+spread and well count and refuses below `MINIMUM_CALIBRATION_WELLS` (8); the
+Rogan-Gladen correction refuses a sensitivity without a specificity, naming
+it "an accuracy wearing a confusion matrix's name"; the fit is Theil-Sen with
+the one-sided contamination argument written at `_theil_sen` and in the
+module docstring; and `training_wells_in_fit` counts the fitted wells that
+also trained the classifier and `describe` prints it.
+
+THE SECOND CRITERION DID NOT HOLD. `sweep_fraction_threshold` took
+`normalise` as a single boolean and `ml._calibration_inputs` passed whatever
+`normalise_fraction` said, so exactly ONE definition was ever fitted and no
+ratio existed anywhere. A lone slope is penetrance times fraction bias, which
+is the one reading this file says must never be presented as an absolute
+calibration.
+
+`fraction_calibration.compare_normalisations` fits the same control wells at
+the same threshold under both definitions and returns both slopes, their
+RATIO, and which definition leaves the two measurements closer together. It
+refuses `normalise=` and `candidates=` from the caller, because choosing one
+definition is how a slope comes to look absolute.
+
+Tests: five in `tests/test_the_threshold_is_measured_per_screen.py` -- both
+slopes come back over the same 18 wells, the ratio is the quotient and
+exceeds one while the junk sits in the raw denominator, `more_consistent`
+names 'normalised', a threshold of 0.0 gives a ratio of exactly one because
+the two definitions then coincide, and naming the definition is refused.
+
+IT IS A FUNCTION AND NOT YET A LINE IN THE RUN. `ml._calibrated_fraction_
+threshold` still sweeps once, under whichever definition `normalise_fraction`
+names, and prints `describe(result)`. Whether the run should also print the
+ratio -- and which of the two definitions it should then fit the threshold
+under -- is a decision about run output, not something an audit should
+settle; the measurement now exists to be printed.
+
+AND THE SIXTH CRITERION IS SUPERSEDED BY THIS FILE'S OWN LATER SECTION, not
+unmet. It asks that the method "recovers their PRODUCT and says that is what
+it recovered". WHAT WAS SAID BACK -- AND THE CONFOUND IS SOLVED replaces that
+with something stronger: the mixed-ratio design absorbs penetrance into the
+pure-PC reference, so `mixed_ratio_calibration` recovers the BIAS ALONE, and
+`test_the_slope_recovers_the_bias_whatever_the_penetrance` plants a bias of
+0.55 at penetrances of 1.0, 0.6 and 0.3 to show the penetrance does not move
+the slope. The product criterion describes the single-control method this
+file opened with and was overtaken before it shipped.

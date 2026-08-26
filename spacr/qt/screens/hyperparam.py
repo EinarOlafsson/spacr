@@ -888,7 +888,7 @@ class HyperparamPanel(QWidget):
         self._n_trials.setRange(1, 10_000)
         self._n_trials.setValue(12)
         self._n_trials.setToolTip(
-            "How many configurations random mode draws. Adaptive mode uses "
+            "How many configurations random mode draws. A Walk uses "
             "the separate maximum-rounds field below. API: n_trials.")
         run_grid.addWidget(self._n_trials, 1, 1)
 
@@ -922,7 +922,7 @@ class HyperparamPanel(QWidget):
         self._resume.setToolTip(
             "Continue the compatible search checkpoint stored in the current "
             "project. Completed trials and embeddings are loaded; an "
-            "interrupted adaptive round evaluates only its missing corners. "
+            "interrupted Walk round evaluates only its missing candidates. "
             "Input data and material search settings must match. API: "
             "spacr.hyperparam.umap_search(resume=True).")
         run_grid.addWidget(self._resume, 2, 0, 1, 3)
@@ -1066,9 +1066,10 @@ class HyperparamPanel(QWidget):
             ),
             (
                 "maximum rounds", "_adaptive_rounds", "100",
-                "Maximum complete 2×2 rounds. Blank uses 100. Search stops "
+                "Maximum complete Walk rounds — a round is one step in every "
+                "searched direction. Blank uses 100. The search stops "
                 "earlier when a round does not improve the score. "
-                "API: n_trials in adaptive mode.",
+                "API: n_trials with adaptive=True.",
             ),
             (
                 "minimum improvement", "_adaptive_improvement", "0",
@@ -1419,7 +1420,14 @@ class HyperparamPanel(QWidget):
                 self._set_control_text(edit, str(value))
 
     def current_adaptive_space(self) -> SearchSpace:
-        """Return one UMAP starting centre, using settings defaults if blank."""
+        """Return one Walk starting centre, using settings defaults if blank.
+
+        A Walk is a path from ONE point, so every parameter here carries a
+        single value. The three base fields give the centre; on top of them
+        every axis chosen in the Axes dialog contributes its own starting
+        value, because a searched parameter the centre does not carry has
+        nothing to walk away from and the engine refuses the whole run.
+        """
         params: Dict[str, List[Any]] = {}
         defaults = {"n_neighbors": 1000, "min_dist": 0.1,
                     "metric": "euclidean"}
@@ -1434,10 +1442,25 @@ class HyperparamPanel(QWidget):
                 if len(values) != 1:
                     fallback = self._settings.get(key, defaults[key])
                     raise ValueError(
-                        "Adaptive 2×2 optimization needs one starting value "
+                        "A Walk needs one starting value "
                         f"for {key}; leave it blank to use {fallback!r}.")
                 value = values[0]
             params[key] = [value]
+        for name, spec in (getattr(self, "_walk_axes", None) or {}).items():
+            text = str(spec.get("start", "")).strip()
+            if not text:
+                text = self.walk_start_for(name)
+            if not text:
+                raise ValueError(
+                    f"The Walk searches {name} but has no value to start "
+                    "from. Give it one in the Axes dialog.")
+            values = parse_values(
+                text, _WALK_AXIS_KIND.get(name, "float"), name)
+            if len(values) != 1:
+                raise ValueError(
+                    f"A Walk starts from a single value for {name}, not "
+                    f"{len(values)}. Set one in the Axes dialog.")
+            params[name] = values
         return SearchSpace(params)
 
     def adaptive_parameters(self) -> Tuple[int, int, float, float]:
@@ -1463,7 +1486,7 @@ class HyperparamPanel(QWidget):
             self._adaptive_improvement, 0.0, float, "minimum improvement")
         if n_step < 1 or d_step <= 0 or rounds < 1 or improvement < 0:
             raise ValueError(
-                "Adaptive increments and maximum rounds must be positive; "
+                "Walk increments and maximum rounds must be positive; "
                 "minimum improvement must be zero or greater.")
         return rounds, n_step, d_step, improvement
 
@@ -1771,10 +1794,20 @@ class HyperparamPanel(QWidget):
                 self._figure_grid.set_parameters([])
             self._figure_grid.setVisible(True)
             self._preview.setVisible(False)
-        search_label = (
-            f"adaptive 2×2 search over at most {request.n_trials} rounds"
-            if request.adaptive
-            else f"{request.mode} search over {space.size()}")
+        if request.adaptive:
+            # Named for what it does now: a Walk over however many axes the
+            # user chose, not the two the first version could search.
+            # No axes chosen is the engine's own default pair, not every
+            # name in the space -- `metric` sits in the starting centre
+            # without being walked.
+            walked = list(request.walk_parameters
+                          or ("n_neighbors", "min_dist"))
+            search_label = (
+                f"Walk over {len(walked)} parameter"
+                f"{'' if len(walked) == 1 else 's'} "
+                f"({', '.join(walked)}), at most {request.n_trials} rounds")
+        else:
+            search_label = f"{request.mode} search over {space.size()}"
         self._status.setText(
             f"Running {search_label}, ranked by "
             f"{request.criterion}…")

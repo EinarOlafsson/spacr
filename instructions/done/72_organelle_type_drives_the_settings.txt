@@ -298,3 +298,24 @@ shipped, and the shared families are now one structure with the other object
 classes rather than a second parallel scheme: an organelle's size filters
 sit under "Advanced settings / Object filtration / Organelle 1", beside the
 same decision taken for cells and nuclei.
+
+--------------------------------------------------------------------------------
+THE RECORDED COUNT, RE-MEASURED AFTER ITEM 5 MOVED INTO 73
+--------------------------------------------------------------------------------
+
+"53 -> 6" above is the number as this instruction shipped it. Folding item 5
+into instruction 73 moved three of those six out of the Organelle heading and
+into the shared families, so the count measured from `spacr.settings.categories`
+today is lower again, PER ORGANELLE SLOT:
+
+    Organelle            organelle_type, organelle_diameter,
+                         organelle_mask_within_cells        3
+    General              organelle_channel                  1
+    Object filtration    organelle_min_size, organelle_max_size,
+                         organelle_remove_border            3
+    Organelle advanced   the rest                          ~30
+
+plus the single `number_of_organelles` that decides how many slots exist at
+all. Nothing was removed and nothing was hidden: every one of those keys is
+still in a panel and still editable, which the category tests assert by
+requiring that no `organelle_*` key falls out of every heading.

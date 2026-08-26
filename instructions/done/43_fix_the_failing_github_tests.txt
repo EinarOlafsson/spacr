@@ -917,3 +917,55 @@ HOW TO MEASURE THE RETAINED TREE, so the next reader does not rebuild it
   delivers `QEvent.DeferredDelete` and collects three times BEFORE
   counting `QApplication.topLevelWidgets()`. The count before that flush
   is not a leak and will send you after the wrong files.
+
+--------------------------------------------------------------------------------
+2026-08-26 - RE-AUDIT: STILL RED ON THE LATEST PUSH, AND TWO OF THE REDS ARE
+             HELD ON PURPOSE
+--------------------------------------------------------------------------------
+
+`gh run list` on nightly, latest push (commit of run 32907403895):
+
+    tests           FAILURE      1h11m27s
+    compat-matrix   SUCCESS      27m10s
+    docs            FAILURE      2m23s
+
+So this file's own criterion -- green for both workflows on a run triggered
+by a push -- does not hold. What is red, and which of it is a defect:
+
+  Fast, Minimum dependencies   tests/test_api_i18n_extractor.py ::
+                               test_public_docstrings_matches_reviewed_visible
+                               _coverage -- "the public API surface is 8246,
+                               reviewed at 8190 (+56)". This is the ratchet
+                               being HELD deliberately while the catalog
+                               session works; not a defect, and not for this
+                               file to move.
+
+  docs                         Audit localization catalogs, before Sphinx:
+                               "stale reviewed runtime source
+                               setting_tooltips/anndata_nan_policy:
+                               docs/i18n/reviewed/runtime/sv/2026-08-14-exact
+                               -final.json". Same session's territory.
+
+  Qt shard 0 / shard 1         27 + 15 real failures, both shards reaching a
+                               summary. By file, most-hit first:
+
+                                 9  test_the_plate_viewer_is_one_locked_grid
+                                 7  test_the_straightforward_folds
+                                 4  test_registration_seams
+                                 3  test_the_setup_asks_about_the_animation
+                                 3  test_home_layout          (held: 47 apps
+                                                               against ~33)
+                                 3  test_external_i18n_catalogs
+                                 2  test_settings_search
+                                 2  test_help_menu_tutorial_link
+                                 1 each: test_the_results_header_wraps...,
+                                 test_the_compare_panel_offers_three_contrasts,
+                                 test_shortcut_overlay,
+                                 test_setting_tooltip_footer,
+                                 test_hyperparam_screen, test_dnd_handlers_full,
+                                 test_cellpose_workbench, test_app_maturity,
+                                 test_all_module_smoke.
+
+WORTH SEPARATING: test_all_module_smoke.py fails in CI and passes here --
+39 passed, serial, -p no:randomly. That one is ordering or environment, not
+the module screens, and chasing it inside the file will not find it.

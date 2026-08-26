@@ -81,3 +81,43 @@ and a channel that can delete a datapoint is not an encoding.
 THE CONTROL IS VISIBLE AGAIN. It was hidden because it duplicated the
 volcano's own "Colour by a column…"; it now does something that menu cannot,
 and a feature nobody can reach is not a feature.
+
+--------------------------------------------------------------------------------
+2026-08-26 - AUDIT: THE LEGEND KNEW AND NEVER SAID
+--------------------------------------------------------------------------------
+
+Re-audited against this file's own criteria. Four of the five held, driven
+through the panel rather than read: three ordered combos each mapping to hue,
+shape and opacity in that fixed order; one column unchanged; the fourth box
+absent and the three refusals in place; and clearing the first combo returning
+the plot to uncoloured.
+
+THE SECOND CRITERION DID NOT HOLD. `FastPlot.set_results` computed
+`_shape_legend` -- the column and its level-to-symbol map, exactly what this
+file promises "hands back what each level ACTUALLY got" -- and
+`_opacity_legend`, and NOTHING ANYWHERE READ EITHER. `_build_legend` drew
+`_legend_colours` alone, so the key named the hue's levels and said nothing
+about the shape or the fade. The half-written intent was still in the code: a
+`legend = dict(legend or {})` copy made for entries that were never added.
+
+WORSE THAN A MISSING LINE: the legend CHECKBOX was enabled off the colour
+map's length, so a volcano whose shape carried a column and whose hue carried
+none had a key that could not be switched on at all.
+
+`_legend_entries()` now returns every channel's entries in one list -- hue
+first, then `"<column> (shape): <level>"` drawn with the level's real symbol,
+then `"<column> (opacity): <level>"` drawn at the alpha the points got --
+and `_build_legend` and the checkbox both read it. THE CHANNEL IS IN THE
+LABEL because three encodings sit on one point: a key saying "fail" without
+saying which column that is leaves the reader guessing which encoding they
+are reading.
+
+ONE RAMP, NOT TWO. `_opacity_alphas` was factored out of
+`_categorical_opacity` so the legend fades at the alphas the points were
+drawn with; a second ramp that drifted would be a key describing a different
+picture. The floor stays 70, so no legend swatch and no point is invisible.
+
+Tests: seven added to `tests/qt/test_colour_by_takes_more_than_one_column.py`
+(22 in the file). Five of them fail against the previous code -- confirmed by
+blanking the two new legend sources and re-running -- including the one that
+switches the legend on and looks for the shape entry on the plot itself.

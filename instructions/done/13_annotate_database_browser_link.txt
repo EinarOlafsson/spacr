@@ -52,3 +52,28 @@ VERIFIED
 test_view_in_database_asks_for_png_list_and_flushes_first asserts the flush
 happens BEFORE the signal, and that the seed carries db_path, table
 'png_list' and the active annotation column.
+
+--------------------------------------------------------------------------------
+2026-08-26 -- RE-AUDIT: THE CRITERION HOLDS, THE COLUMN SCROLL DID NOT
+--------------------------------------------------------------------------------
+
+Driven rather than read: `MainWindow._on_train_requested("db_browser", seed)`
+with a real png_list database. The browser opens on png_list and the
+annotation column is present once the first chunk lands -- which is the
+criterion above, and it holds.
+
+WHAT DID NOT: "scrolls the annotation column into view", claimed under WHAT
+WAS DONE, never happened in the app that ships. `apply_seed` runs the moment
+the table is selected; the first chunk -- which is what DEFINES the column
+set -- arrives afterwards on a worker thread, so `visible_columns()` was []
+and the lookup returned early every time. It worked only in the tests, which
+build the screen with `threaded=False` and therefore load inline.
+
+FIXED: `DbBrowserScreen._seed_column` holds the name until `_apply_chunk`
+paints the first chunk, and `_scroll_column_into_view` is the one place that
+resolves it. A column this table lacks is still ignored, as before.
+
+Regression test: tests/test_cov_8_db_browser.py ::
+test_a_seed_column_is_reached_even_when_the_rows_arrive_later -- built on a
+THREADED browser, since a synchronous one cannot see the defect. Confirmed
+red before the change (nothing scrolled at all), green after.

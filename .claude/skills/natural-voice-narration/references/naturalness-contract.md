@@ -3,7 +3,7 @@
 This reference records the current, measured English narration behavior. It is
 not a general prescription for every synthesizer. Before changing thresholds,
 inspect the live values and tests in the tutorial publishing workspace named by
-`instructions/open/48_optimize_the_tutorials.txt`.
+`instructions/done/48_optimize_the_tutorials.txt`.
 
 ## Source map
 

@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import os
 import sqlite3
+import threading
 import time
 
 import pandas as pd
@@ -173,3 +174,90 @@ def test_the_join_returns_at_once_and_fills_the_panel(qapp):
     finally:
         panel.deleteLater()
         qapp.processEvents()
+
+
+# ---------------------------------------------------------------------------
+# a join that has started can be stopped
+# ---------------------------------------------------------------------------
+
+def _slow_join_panel(monkeypatch, tmp_path, release):
+    """A panel whose join blocks on ``release``, so it can be caught in flight."""
+    from spacr.qt.widgets import measurement_compare_dialog as module
+
+    def slow(*_a, **_k):
+        release.wait(20)
+        return pd.DataFrame(), ""
+
+    monkeypatch.setattr(module, "join_measurements", slow)
+    objects = pd.DataFrame({
+        "plateID": ["plate1"], "rowID": ["r1"], "columnID": ["c1"],
+        "fieldID": ["f1"], "cell_id": ["o1"], "png_path": ["a.png"],
+    })
+    database = tmp_path / "measurements.db"
+    sqlite3.connect(database).close()
+    return module.MeasurementComparePanel(objects, {}, databases=[database])
+
+
+def _let_the_worker_go(panel, release, qapp):
+    """Release the blocked worker and let its thread retire."""
+    release.set()
+    deadline = time.time() + 20
+    while panel._jobs.active_jobs() and time.time() < deadline:
+        qapp.processEvents()
+        time.sleep(0.01)
+    panel.deleteLater()
+    qapp.processEvents()
+
+
+def test_a_running_join_can_be_cancelled(qapp, monkeypatch, tmp_path):
+    """A four-plate join is minutes of work, and minutes is long enough to
+    change your mind about."""
+    from spacr.qt.widgets.measurement_compare_dialog import (
+        MeasurementComparePanel)
+
+    release = threading.Event()
+    panel = _slow_join_panel(monkeypatch, tmp_path, release)
+    try:
+        panel.join_the_tables()
+        assert panel._joining
+        # The one control says what pressing it does NOW.
+        assert panel.join_button.text() == MeasurementComparePanel.CANCEL_LABEL
+        assert panel.join_button.isEnabled()
+
+        assert panel.cancel_the_join() is True
+        assert not panel._joining
+        assert panel.join_button.text() == MeasurementComparePanel.JOIN_LABEL
+        assert panel.join_button.isEnabled()
+    finally:
+        _let_the_worker_go(panel, release, qapp)
+
+
+def test_pressing_the_button_twice_starts_then_cancels(qapp, monkeypatch,
+                                                       tmp_path):
+    """The button is the cancel; there is no second control to find."""
+    release = threading.Event()
+    panel = _slow_join_panel(monkeypatch, tmp_path, release)
+    try:
+        panel.join_button.click()
+        assert panel._joining
+        panel.join_button.click()
+        assert not panel._joining
+    finally:
+        _let_the_worker_go(panel, release, qapp)
+
+
+def test_closing_the_panel_stops_a_running_join(qapp, monkeypatch, tmp_path):
+    """Qt aborts the process when a live QThread is destroyed, so the panel
+    may not be closed out from under one."""
+    release = threading.Event()
+    panel = _slow_join_panel(monkeypatch, tmp_path, release)
+    try:
+        panel.join_the_tables()
+        assert panel._joining
+        # The worker unblocks while the close is draining it, so the thread
+        # retires inside the shutdown budget instead of being parked.
+        threading.Timer(0.2, release.set).start()
+        panel.close()
+        assert not panel._joining
+    finally:
+        _let_the_worker_go(panel, release, qapp)

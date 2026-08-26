@@ -92,7 +92,7 @@ hand: any key that appears in a host's FOLDED_APPS and also in APPS is a
 row that should have gone.
 
 --------------------------------------------------------------------------------
-5. ACTIVATION FOLDS INTO CLASSIFY -- DONE, LESS THE ROW
+5. ACTIVATION FOLDS INTO CLASSIFY -- DONE, ROW INCLUDED
 --------------------------------------------------------------------------------
 
 "also fold activation into classify."
@@ -115,14 +115,18 @@ masthead, instruction, every settings row and the tab it arrived on --
 inside a translated window. The screen watches the page strip now and
 translates each page as it arrives.
 
-WHAT IS STILL OWED IS §4 FOR THIS KEY. `activation` is a button on
-Classify AND still a row in `app.APPS`, and dropping that row needs the
-answers the row carried to have homes first:
-`map_barcodes.FOLD_FALLBACK["activation"]`, which is the only carrier of
-the tooltip and the beta hover colour once the registry answers for
-nothing. `app_screen.APP_TITLES` and `APP_INTROS` already hold the
-heading and the paragraph, `settings_model._APP_API_MODULE` already holds
-the API module, and the nine catalogs already hold "Activation Maps".
+§4 IS SETTLED FOR THIS KEY TOO. `activation` is a button on Classify and
+is no longer a row in `app.APPS`, and every answer the row carried has a
+home: `fold_description("activation")` returns ("Activation", "Generate
+activation maps", "beta"), so the tooltip and the beta hover colour
+survive the drop; `app_screen.APP_TITLES` and `APP_INTROS` hold the
+heading and the paragraph, `settings_model._APP_API_MODULE` holds the API
+module, and the nine catalogs hold "Activation Maps".
+(AUDIT 2026-08-26: this paragraph read "WHAT IS STILL OWED", written
+while the row was still there. Driven: `"activation" in {r[0] for r in
+APPS}` is False and
+`tests/qt/test_the_folded_rows_left_the_registry.py::
+test_no_key_is_both_a_fold_button_and_a_tile` is green.)
 
 --------------------------------------------------------------------------------
 6. THE FOLDED ICONS ARE NOT WASTED

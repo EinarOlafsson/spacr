@@ -209,3 +209,40 @@ describes, and nothing else would say so.
 
 The splits become the folders, and each crop lands under the name
 `measure_crop` would have given it.
+
+
+--------------------------------------------------------------------------------
+RE-AUDIT 2026-08-26 -- THE GATE WAS THE HALF THAT WAS NEVER BUILT
+--------------------------------------------------------------------------------
+
+THE VOCABULARY LANDED AND THE GREYING DID NOT. `METHOD_SETTINGS` is the
+single source this item asked for, and nothing in the GUI read it:
+`settings.get_setting_dependencies()` returned None for `stream_method`,
+`object_array`, `mask_array`, `channel_arrays`, `bounding_box` and
+`load_path_regex` alike, so every streaming control was live under
+`image_source='load_images'` and both methods' controls were live at once.
+Two of this item's own criteria are exactly that -- "the streaming settings
+are inert until 'stream images' is chosen" and "choosing a stream method
+shows only that method's settings" -- and both were false on the panel.
+
+The rules are in `get_setting_dependencies`, built FROM
+`stream_dataset.METHOD_SETTINGS` rather than from a list beside them, for
+the reason this item already gives: a copy in the settings module would
+drift from what the streamer reads, and the symptom would be a live control
+the run ignores. The module imports numpy and pandas and nothing heavier, so
+the panel build still does not reach the plotting stack.
+
+AN UNKNOWN METHOD GREYS NOTHING. A settings file naming a method spaCR
+never had must not disable every control it also names, because nothing on
+the panel could then re-enable them.
+
+AND THE TOOLTIP WAS STILL TEACHING THE RETIRED WORDS. `crop_source` told
+the reader that "training uses 'pre_generated' ... 'on_demand' ...", which
+has not been true since A and B above: training names the two choices
+through `image_source`. It describes the viewer choice it still governs and
+points at `image_source` for training. The same correction to the COMPUTER
+VISION DATA SOURCE category help, which described pre-generated and
+on-demand crops.
+
+Ten new tests in `tests/test_images_are_streamed.py`; all ten fail without
+the rules.

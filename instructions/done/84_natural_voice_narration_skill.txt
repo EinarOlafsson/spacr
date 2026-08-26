@@ -78,3 +78,39 @@ That test exposed two ambiguities, now fixed: agents must not invent an absent
 phoneme form without engine/dialect evidence, and the eight-second dead-air
 threshold is explicitly only a gross-corruption gate, never an allowance for
 shorter unnatural pauses.
+
+--------------------------------------------------------------------------------
+2026-08-26 - RE-AUDIT: STEP 1 OF THE WORKFLOW POINTED AT A FILE THAT HAD MOVED
+--------------------------------------------------------------------------------
+
+The criterion is that a fresh agent can work from the skill ALONE. It could
+not: `SKILL.md` step 1 and the source map's opening sentence both said
+
+    instructions/open/48_optimize_the_tutorials.txt
+
+and 48 has since moved to `instructions/done/`. Nothing executes a skill, so a
+dangling path in one fails silently at the first line of the workflow, with the
+whole naturalness contract hanging off that one file. Both references now name
+the path that exists.
+
+WHAT WAS NOT A DEFECT, checked and recorded so it is not "fixed" later.
+Fourteen of the fifteen paths the skill names do not exist in this repository,
+and thirteen of those are correct as written: `tools/`, `catalog/`,
+`production/`, `web/` and the narration `tests/` are relative to the TUTORIAL
+PUBLISHING WORKSPACE, which SKILL.md step 2 tells the agent to locate and the
+source map labels "Relative to that publishing workspace". They were never in
+this repository -- `git log --all` has no commit that touched
+`tools/render_all_voices.py` or `tools/narration_audio.py` -- and moving them
+here is not what this instruction asked for.
+
+`tests/test_narration_skill_paths.py` pins the difference: every
+repository-relative path the skill names must resolve, the workspace-relative
+ones must keep saying which workspace they are relative to, and the instruction
+file the workflow opens with must be the one on disk. It fails on three tests
+against the old text.
+
+STILL UNVERIFIED FROM THIS CHECKOUT: "the skill validator exits zero". The
+skill-creator validator is not in this repository, so the metadata was checked
+by reading it -- the YAML front matter carries `name` matching the directory
+and a trigger `description`, and `agents/openai.yaml` carries a display name,
+short description and default prompt.

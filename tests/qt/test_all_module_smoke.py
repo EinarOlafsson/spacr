@@ -23,7 +23,7 @@ import pytest
 pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QObject, QPoint
-from PySide6.QtGui import QColor
+from PySide6.QtGui import QColor, QShortcut
 from PySide6.QtWidgets import QLabel, QPushButton, QWidget
 
 from spacr.qt.app import APPS, MainWindow
@@ -270,3 +270,43 @@ def test_training_runs_does_not_override_qwidget_metric():
     from spacr.qt.screens.train_compare import TrainCompareScreen
 
     assert "metric" not in TrainCompareScreen.__dict__
+
+
+@pytest.mark.parametrize("app_key", list(_module_params()))
+def test_every_module_console_can_be_jumped_to_the_end(
+        qtbot, qt_theme_applied, app_key):
+    """Walked, not named: whatever console a module builds carries the gesture.
+
+    The way to the bottom of a long log belongs where the console is built
+    rather than on each screen, so the assertion has to be made over the
+    registry rather than over a list of the screens somebody remembered.
+    A module with no console asserts nothing; a module with one is asked for
+    the shortcut, the visible control, and the follow-the-tail rule.
+    """
+    from PySide6.QtGui import QKeySequence
+
+    from spacr.qt.widgets.console_panel import ConsolePanel
+
+    host = _FactoryHost()
+    screen = MainWindow._build_screen(host, app_key)
+    qtbot.addWidget(screen)
+    consoles = screen.findChildren(ConsolePanel)
+    if isinstance(screen, ConsolePanel):
+        consoles.append(screen)
+    for console in consoles:
+        shortcuts = [
+            s for s in console.findChildren(QShortcut)
+            if s.key() == QKeySequence("Ctrl+End")
+        ]
+        assert shortcuts, f"{app_key}: no Ctrl+End on its console"
+        assert callable(getattr(console, "jump_to_the_end", None)), app_key
+        bar = console._scroll.verticalScrollBar()
+        bar.setRange(0, 2000)
+        bar.setValue(bar.maximum())
+        bar.setValue(0)
+        console.append_stdout("a line written while the user reads\n")
+        qt_theme_applied.processEvents()
+        assert bar.value() == 0, (
+            f"{app_key}: appending yanked the viewport away from the reader")
+        console.jump_to_the_end()
+        assert console.at_the_end(), f"{app_key}: the jump did not reach the end"

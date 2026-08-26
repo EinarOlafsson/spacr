@@ -70,8 +70,9 @@ HOW TO KNOW IT WORKED
 --------------------------------------------------------------------------------
 
 The reproduction command reports 0 errors: every test in the third file
-runs instead of erroring in setup. It now reports 149 passed, the file
-having lost a test since this was written.
+runs instead of erroring in setup. The passed COUNT follows whatever those
+three files hold and is not the criterion: it was 121 passed + 29 errors
+when this was filed, 149 at the fix, and 150 on 2026-08-26.
 
 --------------------------------------------------------------------------------
 THE CAUSE: TWO COLLECTION NODES FOR ONE DIRECTORY
@@ -190,7 +191,8 @@ On pytest 9.1.1, a major version past the one the fix was written against.
 
 The reproduction command runs clean: 149 passed, 0 errors, ~54 s. Every test
 in the third file runs instead of erroring in setup, which is this file's own
-success criterion. The whole suite collects unchanged: 43036 tests, no guard.
+success criterion. (Re-run 2026-08-26: 150 passed, 0 errors, 52 s -- a test
+was added to one of the three files.) The whole suite collects unchanged: 43036 tests, no guard.
 
 Thirty random interleavings of three to five real files, alternating Qt and
 non-Qt, all collect clean; the same shapes with the canonicaliser

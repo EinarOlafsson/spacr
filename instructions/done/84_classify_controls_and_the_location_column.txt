@@ -2,7 +2,8 @@
 ANNOTATION MODE OVERWRITES location_column, AND THE USER CANNOT GET OUT
 ================================================================================
 
-Status:    code fixed 2026-08-12; the three issues are not yet closed.
+Status:    DONE, 2026-08-12. The fix is in `ml.py` and #91, #92 and #93 are
+           all closed as completed -- see the 2026-08-12 section at the end.
            RENUMBERED from 83 to 84: a concurrent codex session created its
            own 83 for the multilingual catalogs at almost the same moment.
            Two files with one number is how one of them gets lost.
@@ -21,8 +22,10 @@ Issues:    #91 [ml_analyze]      ValueError: no rows matched negative_control
 WHAT THE STATE IS
 --------------------------------------------------------------------------------
 
-The defect has been reproduced and fixed locally, but the three linked issues
-remain open until the verified fix is pushed and available to the reporter.
+The defect was reproduced and fixed, the fix is pushed, and #91, #92 and #93
+are closed together with the sequence explained. The rest of this file records
+what the defect was and why the fix is shaped the way it is; the sections below
+the fold are the fix itself.
 
 --------------------------------------------------------------------------------
 WHAT ACTUALLY HAPPENS, VERIFIED IN THE CODE

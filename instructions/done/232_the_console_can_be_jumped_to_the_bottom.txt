@@ -72,3 +72,35 @@ ONE NOTE ON THE TEST: the headless console lays out no entries, so its
 scrollbar maximum is 0 and every position IS the end. The tests set the
 range directly -- the behaviour is what matters, not how the content got
 tall.
+
+
+--------------------------------------------------------------------------------
+RE-AUDIT 2026-08-26 -- THE OTHER DIRECTION WAS NOT ACTUALLY WIRED
+--------------------------------------------------------------------------------
+
+"HALF OF IT ALREADY EXISTED" WAS THE HALF THAT WAS NOT CHECKED. The claim
+above -- "the view follows the tail, scrolling up stops it" -- was true of
+exactly one gesture. `_on_console_scrolled` only ever SET `_follow_output`
+to True; the only thing that ever cleared it was raising a section. So a
+reader who reached the middle of a log by DRAGGING THE SCROLLBAR was thrown
+back to the bottom by the next line written, which is the behaviour this
+item exists to prevent.
+
+Driven, not reasoned about: with the bar at 0 of 2000, one `append_stdout`
+moved the viewport to 2000.
+
+`_on_console_scrolled` now assigns the follow from where the viewport is,
+in both directions, using the same few-pixel tolerance `at_the_end` uses.
+Where the viewport is answers the question the same way whichever gesture
+put it there.
+
+AND THE TWO CRITERIA THAT ASKED FOR TESTS NOW HAVE THEM. "A test drives the
+scrollbar and the append, not the internal flag" -- three in
+`tests/qt/test_the_console_jumps_to_the_end.py` set the bar and write a line
+and assert on the resulting position. "It is true of every module's console,
+asserted by walking them rather than by naming them" --
+`test_every_module_console_can_be_jumped_to_the_end` in
+`tests/qt/test_all_module_smoke.py` walks `spacr.qt.app.APPS` through the
+real screen factory and asks every console it finds for the shortcut, the
+jump and the follow rule. Thirteen of the registered modules failed it
+before the fix.

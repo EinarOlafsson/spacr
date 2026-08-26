@@ -221,3 +221,28 @@ def test_representative_keys_are_substantive(key):
         pytest.skip(f"{key} is not a declared setting")
     body = _body(tips[key])
     assert len(body.split()) >= 15, f"{key} tooltip is still thin: {body}"
+
+
+def test_no_tooltip_tells_the_user_a_retired_setting_is_what_is_read():
+    """A tooltip that names a setting spaCR no longer has is worse than none.
+
+    `file_type` was split from `png_type`: it is a file FORMAT, and which
+    object a crop is of moved to `path_string`. Its tooltip kept saying "in
+    the GUI this one field writes both file_type and png_type, and only
+    png_type is read downstream" -- an instruction about a setting that had
+    been removed, shown on the control whose meaning had changed under it,
+    so the retired name went on appearing in the UI in the one place a
+    settings-key sweep does not look.
+
+    Naming a retired key as HISTORY ("it was called png_type") is fine and
+    `path_string` does exactly that. Naming it as the key that is READ is
+    not.
+    """
+    retired_as_live = re.compile(
+        r"(only|both)\s+png_type\b|writes?\s+both\s+file_type",
+        re.IGNORECASE)
+    offenders = [key for key, text in tooltips.items()
+                 if isinstance(text, str) and retired_as_live.search(text)]
+    assert not offenders, (
+        "these tooltips tell the user a retired setting is the one that "
+        f"counts: {sorted(offenders)}")

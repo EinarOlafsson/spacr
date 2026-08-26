@@ -128,3 +128,40 @@ class TestDialog:
         dialog._rows["spread"][2].setValue(5)
         panel.set_walk_axes(dialog.selection())
         assert panel.walk_axes()["spread"]["resolution"] == 5
+
+
+class TestTheChosenAxesReachTheRun:
+    """The starting centre the RUN builds, not the one `current_space` builds.
+
+    `run_search` takes its space from `current_adaptive_space` while a Walk
+    is on, so a test that calls `current_space` proves nothing about a real
+    run. A three-axis Walk started from the panel used to hand the engine a
+    centre holding only n_neighbors, min_dist and metric, and the engine
+    refused the whole run with "missing ['spread']".
+    """
+
+    def test_a_chosen_axis_is_in_the_centre_the_run_starts_from(self, panel):
+        panel._adaptive.setChecked(True)
+        panel.set_walk_axes({
+            "n_neighbors": {"start": "15", "resolution": 2},
+            "min_dist": {"start": "0.1", "resolution": 2},
+            "spread": {"start": "1.0", "resolution": 2},
+        })
+        space = panel.current_adaptive_space()
+        assert space.params["spread"] == (1.0,), dict(space.params)
+
+    def test_the_engine_accepts_the_centre_the_panel_built(self, panel):
+        """The two halves have to agree, and only this asserts that."""
+        from spacr.hyperparam import umap_walk_axes
+
+        panel._adaptive.setChecked(True)
+        panel.set_walk_axes({
+            "n_neighbors": {"start": "15", "resolution": 2},
+            "min_dist": {"start": "0.1", "resolution": 2},
+            "spread": {"start": "1.0", "resolution": 2},
+        })
+        centre = panel.current_adaptive_space().grid()[0]
+        axes = umap_walk_axes(
+            centre, parameters=list(panel.walk_axes()))
+        assert sorted(a.name for a in axes) == [
+            "min_dist", "n_neighbors", "spread"]

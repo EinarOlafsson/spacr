@@ -137,3 +137,44 @@ class TestTheOtherDirection:
         console._follow_output = False
         console._on_console_scrolled(bar.maximum())
         assert console._follow_output
+
+
+class TestAppendingRespectsWhereTheUserIsReading:
+    """The scrollbar and the append, not the internal flag.
+
+    The follow used to be cleared by ONE gesture only -- raising a section.
+    A reader who reached the middle of the log by dragging the scrollbar
+    instead was thrown back to the bottom by the very next line written,
+    which is the behaviour that makes a live log unreadable. These drive the
+    bar to a position and then write a line, and assert on where the
+    viewport ended up.
+    """
+
+    def test_appending_while_scrolled_up_does_not_move_the_view(
+            self, console, app):
+        bar = _make_scrollable(console)
+        bar.setValue(bar.maximum())     # following, as a fresh console does
+        bar.setValue(0)                 # and now the user drags up to read
+        console.append_stdout("a line arrives while you are reading\n")
+        app.processEvents()
+        assert bar.value() == 0
+
+    def test_appending_while_at_the_bottom_does_move_the_view(
+            self, console, app):
+        bar = _make_scrollable(console)
+        bar.setValue(0)
+        bar.setValue(bar.maximum())     # the user came back to the end
+        assert console.at_the_end()
+        console.append_stdout("the newest line\n")
+        app.processEvents()
+        assert console.at_the_end()
+
+    def test_the_jump_brings_the_follow_back(self, console, app):
+        bar = _make_scrollable(console)
+        bar.setValue(bar.maximum())
+        bar.setValue(0)
+        console.jump_to_the_end()
+        bar.setRange(0, 2000)           # more output, more scrollback
+        console.append_stdout("and the next line after the jump\n")
+        app.processEvents()
+        assert console.at_the_end()

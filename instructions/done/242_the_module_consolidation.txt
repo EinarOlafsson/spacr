@@ -24,7 +24,18 @@ of screens that should stop being their own registry row and become a
 button, a tab or a mode inside the screen a user already has open when
 they want them.
 
-THE COUNT: the registry held 63 apps and holds 40.
+THE COUNT: the registry held 63 apps and holds 36.
+
+(AUDIT 2026-08-26, counted by importing `spacr.qt.screens` and reading
+`spacr.qt.app.APPS`: 36 live rows, and 20 folded keys across eight hosts
+-- classify, make_masks, measure, map_barcodes, mask, image_umap,
+annotate and regression. This file was written at 40 and the "HOW TO KNOW
+IT WORKED" line below still says 46, which was the arithmetic of the
+original seventeen. Four more folds have landed since -- activation,
+napari_bridge, hit_list and methods_export among them -- so the number
+moves with every fold and is not the acceptance test. The acceptance test
+is the sweep: no key is both a fold button and a tile, and every folded
+key still answers everywhere its row did.)
 
 THE 46 IN THE ORIGINAL WAS 63 MINUS THE SEVENTEEN LISTED HERE, and nine
 more rows went in the fold work beyond those seventeen -- so 40 is what
@@ -398,9 +409,18 @@ unit is the plate rather than the object.
 HOW TO KNOW IT WORKED
 --------------------------------------------------------------------------------
 
-* The registry holds 46 apps and every folded key still runs from
+* The registry holds 36 apps -- 46 when this was written, and the count
+  moves with every later fold -- and every folded key still runs from
   `spacr-run`, from chaining, and from a settings file written before the
-  fold.
+  fold. A folded key that cannot run headless must at least ANSWER for
+  itself: `spacr-run <key>` says why and where the module went, rather
+  than "unknown module" and a guess at a near spelling. Swept by
+  `tests/qt/test_the_folded_rows_left_the_registry.py::
+  test_spacr_run_answers_for_every_folded_key`.
+  (AUDIT 2026-08-26: three folded keys -- hit_list, methods_export and
+  napari_bridge -- answered "unknown module 'hit_list'" and then guessed.
+  They have `cli.INTERACTIVE_ONLY` entries now, each naming the Python
+  route that does the same work.)
 * Each button carries the folded module's icon and its description, and
   lights in the stage colour its tile used. A button that is a switch
   stays lit while its module is part of the run.
