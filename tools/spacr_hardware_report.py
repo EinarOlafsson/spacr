@@ -1,28 +1,22 @@
 #!/usr/bin/env python3
-"""Measure everything spaCR costs on THIS machine, and say where the time goes.
+"""Measure spaCR startup and interface performance on the current machine.
 
-Run it on a machine where spaCR feels slow and send the report back:
+Run this command on a machine where spaCR is slow:
 
     python tools/spacr_hardware_report.py
 
-It prints the report and saves a copy under ``~/.spacr/reports``; the path is
-on the last line. ``--out PATH`` puts it somewhere else. ``--quick`` skips
-the sections marked SLOW.
+The command prints the report and saves a copy under ``~/.spacr/reports``;
+the final line gives the path. ``--out PATH`` selects another destination,
+and ``--quick`` skips the longer benchmarks.
 
-IT ONLY READS. It opens no project, loads no data, and the report is the one
-file it writes.
+The report does not open a project or read project data. Because it follows
+the normal GUI startup path, spaCR may update its usual local logs and caches
+in addition to writing the report.
 
-WHY IT IS THIS LONG. A first version timed the imports and the screen builds
-and reported a laptop as FASTER than the workstation it was being compared
-with -- while the same laptop took minutes to open a module. Everything it
-measured was fine, so the answer was in what it did not measure. This one
-walks the real startup path, asks the display what it is, times a real
-paint, and prices the animation loops, because that is where the first one
-was blind.
-
-EVERY SECTION IS GUARDED. A section that cannot run says so and the report
-continues: a machine that cannot build a screen is exactly the machine whose
-report is worth having.
+The measurements cover the real startup path, display scaling, an actual
+paint, and animation loops. Each section handles errors independently so that
+the remaining measurements are still reported when one component is
+unavailable.
 """
 from __future__ import annotations
 
@@ -315,10 +309,10 @@ def _stop(self, *a, **k):
     marks.setdefault("who", type(self).__name__)
     return 0
 
-# EVERY nested loop, not just the application's. launch() opens the
-# first-run setup screen with QDialog.exec BEFORE QApplication.exec, and a
-# modal dialog in a probe with nobody to click it waits for ever -- which
-# is exactly what a 900-second timeout looks like.
+# Stop nested event loops as well as the application's main loop. A profile
+# that requires setup reaches SetupSlides.exec() before QApplication.exec();
+# without this replacement, the non-interactive probe would wait for input
+# until its 900-second timeout expired.
 W.QApplication.exec = _stop
 W.QApplication.exec_ = _stop
 W.QDialog.exec = _stop
@@ -346,16 +340,15 @@ print("LAUNCH_JSON" + json.dumps({
 
 
 def the_real_launch(say: Report) -> None:
-    """What typing `spacr` costs, end to end, in a cold interpreter.
+    """Measure the ``spacr`` entry point in a fresh interpreter.
 
-    THE SECTION BELOW REBUILDS THE STARTUP BY HAND and can only measure the
-    steps it knows about. This one runs the ACTUAL entry point and stops it
-    at the event loop, so anything `launch()` does that a hand-built window
-    does not -- first-run checks, the loading screen, a version or update
-    lookup, reading saved state -- is inside this number and outside that
-    one. Where the two disagree, the difference is the thing worth finding.
+    Unlike :func:`the_splash`, this measurement includes the work performed
+    by :func:`spacr.qt.app.launch`, such as setup checks, loading saved state,
+    and constructing the main window. The probe replaces Qt event loops so
+    that it can return without requiring interaction, and records which loop
+    the normal launch would reach first.
     """
-    with _section(say, "TYPING `spacr` -- the real entry point, cold"):
+    with _section(say, "the `spacr` entry point in a cold process"):
         import json
         import subprocess
         try:
@@ -374,20 +367,24 @@ def the_real_launch(say: Report) -> None:
                 say(f"    {tail}")
             return
         data = json.loads(line[len("LAUNCH_JSON"):])
-        say.timed("spacr.qt.run to the event loop", data["to_event_loop"],
-                  "<-- THIS IS THE SPLASH SCREEN")
+        say.timed("run() to first event loop", data["to_event_loop"])
         say.timed("run() returned", data["total"])
         say.item("modules loaded by then", f"{data['modules']:,}")
         say.item("exit code", data["exit"])
-        say.item("first event loop reached", data.get("first_loop", "?"))
-        if str(data.get("first_loop", "")).endswith(("Slides", "Dialog")):
-            say("  ^^ A DIALOG opened before the application's own loop.")
-            say("     That is the first-run setup screen; it blocks the")
-            say("     launch until somebody answers it. Try: spacr --no-setup")
+        first_loop = str(data.get("first_loop", "?"))
+        say.item("first event loop reached", first_loop)
+        if first_loop == "SetupSlides":
+            say("  The setup screen opened before the main application loop.")
+            say("  A normal interactive launch waits here until setup is "
+                "complete.")
+            say("  For an unattended launch, use `spacr --no-setup`.")
+        elif first_loop not in {"QApplication", "(none reached)", "?"}:
+            say(f"  The {first_loop} event loop opened before the main "
+                "application loop.")
+            say("  Normal startup may wait for this event loop to finish.")
         say("")
-        say("  If this is much larger than the COLD LAUNCH TOTAL below, the")
-        say("  difference is work launch() does that rebuilding the window")
-        say("  by hand does not -- that is where to look next.")
+        say("  If the return time is materially longer than the cold-launch")
+        say("  total below, launch() is performing additional startup work.")
 
 
 def the_splash(say: Report) -> None:
@@ -756,9 +753,9 @@ def main(argv=None) -> int:
         with open(path, "w", encoding="utf-8") as handle:
             handle.write("\n".join(say.lines) + "\n")
         say(f"Saved to {path}")
-        say("Send that file back, or paste the text above.")
+        say("Attach that file to your GitHub issue, or paste the text above.")
     except Exception as exc:                                 # noqa: BLE001
-        say(f"(could not save a copy: {exc}) -- paste the text above instead")
+        say(f"Could not save a copy: {exc}. Copy the report text above instead.")
     return 0
 
 
