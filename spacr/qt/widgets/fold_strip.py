@@ -84,16 +84,13 @@ FoldEntry = Union[Tuple[str, Callable[[], None]],
 CHECKED_ALPHA = 0.30
 
 
-#: The host screens that fold other modules into themselves, each of which
-#: keeps a ``FOLD_FALLBACK`` table of what the tiles it replaced said.
+#: The host screens that fold other modules into themselves.
 #:
-#: A folded module has no registry row, so the registry cannot answer for it:
-#: ``app_stage`` reports "stable" for a key it has never heard of, which is
-#: right for a typo and wrong for a module somebody assessed as alpha and then
-#: folded. These tables are the record, and this is the list of where they
-#: live, so a question about a folded key can be asked once instead of at each
-#: host. A host with no table (or one that cannot be imported at all, as on a
-#: machine with no optional dependency) simply contributes nothing.
+#: Membership comes from each host's ``FOLDED_APPS`` (or Make Masks'
+#: ``FOLD_ORDER``), while the name, description, and maturity come from the
+#: available ``FOLD_FALLBACK`` tables. Keeping those questions separate is
+#: important: Map Barcodes carries shared fallback copy for several other
+#: hosts, but it does not draw their buttons.
 FOLD_HOST_MODULES = (
     "spacr.qt.screens.make_masks",
     "spacr.qt.screens.map_barcodes",
@@ -109,10 +106,16 @@ FOLD_HOST_MODULES = (
 def folded_modules() -> dict:
     """Every folded key, as ``key -> (name, description, stage, host)``.
 
-    Walks :data:`FOLD_HOST_MODULES` and merges what each host kept. The first
-    host to describe a key wins, so a key two hosts both mention -- the same
-    module folded into two screens -- reads as the first host's, rather than
-    as whichever import happened last.
+    The host is determined by the button list it actually draws, not by the
+    location of fallback text. The latter may be shared: Map Barcodes keeps
+    descriptions for folds owned by Image UMAP, Regression, Mask, and other
+    screens. Treating that shared catalog as membership sends documentation
+    and tutorial links to the wrong screen.
+
+    A host's own fallback record is preferred. If it does not keep one, the
+    other host tables are searched in declaration order. The first host to
+    list a duplicated key still wins, making an accidental double fold
+    deterministic until its invariant test reports the duplication.
 
     Imported lazily, one host at a time and each guarded: this module is
     imported while a screen is being built, and the hosts import it back.
@@ -121,21 +124,38 @@ def folded_modules() -> dict:
     """
     import importlib
 
-    found: dict = {}
+    hosts = []
     for module_name in FOLD_HOST_MODULES:
         try:
-            table = getattr(importlib.import_module(module_name),
-                            "FOLD_FALLBACK", None)
+            module = importlib.import_module(module_name)
         except Exception:                               # noqa: BLE001
             continue
-        if not isinstance(table, dict):
+        members = getattr(module, "FOLDED_APPS", None)
+        if members is None:
+            members = getattr(module, "FOLD_ORDER", ())
+        try:
+            members = tuple(str(key) for key in (members or ()))
+        except TypeError:
             continue
-        for key, entry in table.items():
+        table = getattr(module, "FOLD_FALLBACK", None)
+        if not isinstance(table, dict):
+            table = {}
+        hosts.append((module_name, members, table))
+
+    fallback_tables = [table for _name, _members, table in hosts if table]
+    found: dict = {}
+    for module_name, members, own_table in hosts:
+        for key in members:
+            entry = own_table.get(key)
+            if not entry:
+                entry = next(
+                    (table[key] for table in fallback_tables if table.get(key)),
+                    None,
+                )
             if key in found or not entry:
                 continue
             name, description, stage = (tuple(entry) + ("", "", ""))[:3]
-            found[str(key)] = (name, description, stage or "stable",
-                               module_name)
+            found[key] = (name, description, stage or "stable", module_name)
     return found
 
 
