@@ -1,10 +1,18 @@
 #!/usr/bin/env python3
 """Measure what spaCR costs on THIS machine, and print it.
 
-Run this on the machine that feels slow and send the output back. It is
-read-only: it builds screens, times them, and writes nothing.
+Run this on the machine that feels slow and send the result back.
 
     python tools/spacr_hardware_report.py
+
+It prints the report AND saves a copy next to it, so a long report can be
+attached instead of copied out of a terminal. The saved path is printed on
+the last line.
+
+    python tools/spacr_hardware_report.py --out somewhere/else.txt
+
+IT READS THE MACHINE AND NOTHING ELSE. It opens no project, touches no
+data, and the only file it writes is its own report.
 
 WHY A SCRIPT AND NOT A GUESS. The same code is fast on one machine and
 unusable on another, and the difference is never where it is assumed to be.
@@ -25,7 +33,49 @@ def _t():
     return time.perf_counter()
 
 
-def main() -> int:
+class _Tee:
+    """Write to the terminal and collect the same text for the file.
+
+    Holds its OWN reference to the builtin. The module swaps its global
+    ``print`` for one of these while the report runs, so a tee that reached
+    for ``print`` by name would call itself.
+    """
+
+    _write = staticmethod(__builtins__["print"]
+                          if isinstance(__builtins__, dict)
+                          else __builtins__.print)
+
+    def __init__(self):
+        self.lines: list = []
+
+    def __call__(self, text: str = "") -> None:
+        _Tee._write(text)
+        self.lines.append(str(text))
+
+
+def _report_path(argv) -> "os.PathLike | str":
+    """Where the copy goes: --out if given, else beside the user's home."""
+    if "--out" in argv:
+        return argv[argv.index("--out") + 1]
+    import datetime
+    stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    folder = os.path.join(os.path.expanduser("~"), ".spacr", "reports")
+    os.makedirs(folder, exist_ok=True)
+    return os.path.join(folder, f"hardware-{stamp}.txt")
+
+
+def main(argv=None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    say = _Tee()
+    global print  # noqa: PLW0603 - the body below prints through the tee
+    _real_print, print = print, say
+    try:
+        return _run(argv, say)
+    finally:
+        print = _real_print
+
+
+def _run(argv, say) -> int:
     print("=" * 68)
     print("spaCR hardware report")
     print("=" * 68)
@@ -139,7 +189,15 @@ def main() -> int:
         print(f"  backdrop check failed: {exc}")
 
     print()
-    print("Send this whole output back. Nothing was written.")
+    try:
+        path = _report_path(argv)
+        with open(path, "w", encoding="utf-8") as handle:
+            handle.write("\n".join(say.lines) + "\n")
+        print(f"Saved to {path}")
+        print("Send that file back, or paste the text above.")
+    except Exception as exc:                                  # noqa: BLE001
+        print(f"(could not save a copy: {exc})")
+        print("Paste the text above instead.")
     return 0
 
 
