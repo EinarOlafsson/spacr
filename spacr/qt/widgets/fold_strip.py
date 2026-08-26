@@ -48,14 +48,19 @@ from PySide6.QtWidgets import QHBoxLayout, QPushButton, QWidget
 from .. import iconset
 
 #: Edge of the square icon button, in logical pixels before font scaling.
-BUTTON_PX = 34
+BUTTON_PX = 51
 
 #: Edge of the icon inside it. Smaller than the button so the hover fill
 #: reads as a plate behind the mark rather than as a border touching it.
-ICON_PX = 20
+ICON_PX = 30
 
 #: Space between two folded buttons.
-GAP_PX = 6
+#:
+#: IT GREW WITH THEM. The complaint that sent the buttons up by half was
+#: that they read as CROWDED, and buttons that grow while the gap stays
+#: put are more crowded, not less -- the same gap between larger marks is
+#: a smaller share of the strip.
+GAP_PX = 9
 
 #: The objectName every fold button carries, so one QSS rule in
 #: :mod:`spacr.qt.theme` can style all of them at once.
