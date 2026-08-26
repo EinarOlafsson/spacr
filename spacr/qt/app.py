@@ -3680,16 +3680,12 @@ _DIALOG_FILTERS = (
 
 
 def install_the_dialog_filters(app) -> tuple[str, ...]:
-    """Put every filter in :data:`_DIALOG_FILTERS` on ``app``.
+    """Install the registered dialog event filters on a Qt application.
 
-    Called once the main window is on screen, which is still before the
-    event loop and so before any dialog can be opened.
+    Installers are idempotent and isolated: a failure in one filter does not
+    prevent the remaining filters from being installed.
 
-    Each installer is idempotent, so calling this twice leaves one filter of
-    each kind. One that raises costs its own behaviour and nothing else: a
-    launch is not worth losing to a filter.
-
-    :returns: the names of the filters that are in place afterwards.
+    :returns: Names of the filters installed successfully.
     """
     import importlib
 

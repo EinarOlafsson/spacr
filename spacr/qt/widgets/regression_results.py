@@ -1835,12 +1835,9 @@ class RegressionResultsPanel(QWidget):
             pass                       # the widget went away under a close
 
     def cancel_load(self) -> bool:
-        """Abandon a run being read, keeping what is already on screen.
+        """Cancel an active result load while preserving the current view.
 
-        The worker's result is dropped rather than applied, so the panel is
-        left exactly as it was: a cancelled load never half-applies a view.
-
-        :returns: whether there was a load to cancel.
+        :returns: Whether a load was active.
         """
         if not self._loading:
             return False
@@ -2888,18 +2885,11 @@ class RegressionResultsPanel(QWidget):
                 f"too — switch with Level.")
 
     def missing_level_note(self) -> str:
-        """Why the chosen level has no rows, or ``""`` when it has some.
+        """Explain why the selected model level contains no result rows.
 
-        AN EMPTY TABLE BESIDE AN EMPTY PLOT IS NOT AN ANSWER. Two ordinary
-        runs produce one, and neither is a fault: a guide permutation
-        resamples the well labels of one guide at a time, so it reports guides
-        and there is no gene-level test in it to show; and a run fitted at
-        ``level='grna'`` never fitted the gene terms in the first place. A
-        reader who chose "Gene" and got a blank tab has no way to tell either
-        of those from a panel that has broken.
-
-        The sentence also says where the rows that DO exist are, because the
-        useful next action is to put the level back.
+        Guide permutations and guide-only fits legitimately omit gene-level
+        rows. The returned note identifies the available level; an empty
+        string indicates that rows are present.
         """
         if not self._level or self._frame is None:
             return ""

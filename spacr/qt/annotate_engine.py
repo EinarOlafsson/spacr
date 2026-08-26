@@ -254,18 +254,11 @@ def filter_channels_pil(
 
 
 class OutlineCancelled(Exception):
-    """Raised when outline work is abandoned because its caller asked it to.
+    """Raised when a requested cancellation stops outline generation.
 
-    A Cellpose outline is a native model construction followed by a native
-    forward pass, and neither can be stopped once it has started. The only
-    places a page of crops can be abandoned are therefore *between* those
-    calls, so each of them is preceded by a ``should_stop()`` question and
-    this exception is the answer that unwinds the whole page at once.
-
-    It matters because the thread doing the work is owned by a screen the
-    user can close. Outline work that cannot be abandoned keeps a QThread
-    running past the widget that started it, and Qt aborts the process when
-    that thread's wrapper is finally destroyed.
+    Cellpose model construction and inference cannot be interrupted safely.
+    Cancellation is therefore checked between native calls, and this
+    exception unwinds the current page of crops.
     """
 
 
@@ -458,17 +451,12 @@ FILTER_MEASURES: Tuple[str, ...] = ("area", "intensity")
 
 
 def filter_key(channel: str, measure: str) -> str:
-    """The settings key one filter row is stored under, e.g. ``'r_area'``."""
+    """Return the settings key for a channel and measurement pair."""
     return f"{str(channel).strip().lower()}_{str(measure).strip().lower()}"
 
 
 def filter_bound(value) -> Optional[float]:
-    """One side of one row, as a number or ``None`` for no bound.
-
-    Everything that is not a number reads as no bound: the fields are free
-    text in a dialog, and a half-typed ``"1e"`` must not become a filter that
-    silently hides every object in the plane.
-    """
+    """Parse a filter bound, returning ``None`` for empty or invalid input."""
     if value is None:
         return None
     if isinstance(value, str) and not value.strip():
@@ -483,7 +471,7 @@ def filter_bound(value) -> Optional[float]:
 
 
 def empty_object_filters() -> Dict[str, Tuple[Optional[float], Optional[float]]]:
-    """The twelve bounds with nothing set: every filter off."""
+    """Return all object-filter bounds in their disabled state."""
     return {filter_key(channel, measure): (None, None)
             for channel in FILTER_CHANNELS
             for measure in FILTER_MEASURES}
@@ -493,22 +481,17 @@ def normalize_object_filters(
     object_filters: Optional[Mapping] = None,
     object_size=None,
 ) -> Dict[str, Tuple[Optional[float], Optional[float]]]:
-    """The twelve bounds, with a legacy ``object_size`` migrated onto them.
+    """Normalise object-filter bounds and migrate legacy size limits.
 
-    ``object_size`` was ONE window applied to every outlined plane, so the
-    faithful migration is onto all three ``*_area`` rows rather than onto a
-    single colour -- a project that hid debris below 200 px went on hiding it
-    in red, green and blue. Its ``0`` meant "no bound", and arrives here as
-    the empty field that now means the same thing.
-
-    An explicit row in ``object_filters`` wins over the migrated value, so a
-    user who has since written the new fields is not overruled by the old
-    setting still sitting in their file.
+    Legacy ``object_size`` limits are applied to the area filter for each
+    colour channel, with non-positive legacy limits treated as disabled.
+    Explicit ``object_filters`` values take precedence; invalid or empty
+    explicit bounds are disabled, while zero remains a valid explicit bound.
 
     :param object_filters: ``{'r_area': (min, max), ...}``; partial maps are
-        fine and unknown keys are ignored.
-    :param object_size: the legacy ``(min, max)`` pair, in pixels.
-    :returns: a fresh dict holding every key, each a ``(min, max)`` pair of
+        accepted and unknown keys are ignored.
+    :param object_size: Legacy ``(min, max)`` area limits in pixels.
+    :returns: A new dictionary containing every supported key and a pair of
         floats or ``None``.
     """
     bounds = empty_object_filters()

@@ -569,13 +569,9 @@ class MeasurementComparePanel(QWidget):
         return self.join_the_tables()
 
     def cancel_the_join(self) -> bool:
-        """Abandon a running join and put the button back.
+        """Request cancellation of the active join without blocking the GUI.
 
-        The worker is asked to stop and its result is dropped on arrival;
-        it is not joined, because waiting for it on the GUI thread is the
-        freeze the worker exists to avoid.
-
-        :returns: True when a join was in flight to cancel.
+        :returns: ``True`` if a join was active.
         """
         if not self._joining:
             return False
@@ -591,12 +587,7 @@ class MeasurementComparePanel(QWidget):
         self.join_button.setText(self.JOIN_LABEL)
 
     def closeEvent(self, event):                # noqa: N802 - Qt naming
-        """Stop a running join before the widget carrying it goes away.
-
-        Qt aborts the process when a running QThread is destroyed, so the
-        panel cannot simply be closed out from under a join of a real
-        screen.
-        """
+        """Request cancellation of active work before closing the panel."""
         try:
             self._jobs.shutdown()
         except Exception:                                    # noqa: BLE001

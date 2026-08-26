@@ -550,12 +550,7 @@ def _score(value: Optional[float]) -> str:
 # ---------------------------------------------------------------------------
 
 def make_run_compare_screen() -> "RunCompareScreen":
-    """Factory named by this screen's row in :mod:`spacr.qt.app_catalog`.
-
-    A named function rather than the lambda that used to be registered
-    inline: the catalog holds the factory's NAME and imports it on first
-    use, which a lambda has none of.
-    """
+    """Construct the Run Compare screen for lazy registry loading."""
     return RunCompareScreen()
 
 

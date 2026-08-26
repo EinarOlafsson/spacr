@@ -1,21 +1,9 @@
-"""The Cells tab's annotation strategies: the menu, the run, and the report.
+"""Annotation-strategy controls and reports for the Cells montage.
 
-The panel is a tab beside the montage's Summary, not a window, because the
-cells it chooses from are the ones already on screen: the object rows the
-montage loaded, the guide wells the coefficient picked, and the score
-column the montage windowed on.
-
-WHAT THE PANEL IS RESPONSIBLE FOR, and :mod:`spacr.regression_annotation`
-is not: naming every strategy with what it is for and what it costs before
-it is chosen; greying the settings a strategy does not read, with the
-reason on the control; and putting the run on a worker thread, because
-fitting a boosted tree over a screen is seconds to minutes and the GUI
-thread may not spend them.
-
-WHAT THE MODULE IS RESPONSIBLE FOR, and the panel never second-guesses:
-which cells are chosen, how the hold-out is drawn, and what the fit is
-allowed to claim. The panel shows :meth:`AnnotationResult.summary` as the
-module wrote it, so a number on screen is the number the module measured.
+The panel selects from the object rows, guide wells, and score column shown in
+the montage. Strategy execution runs in a worker thread, while selection,
+hold-out construction, model fitting, and reporting are implemented by
+:mod:`spacr.regression_annotation`.
 """
 from __future__ import annotations
 
@@ -33,8 +21,8 @@ from PySide6.QtWidgets import (QComboBox, QDoubleSpinBox, QFileDialog,
 LOG = logging.getLogger(__name__)
 
 #: What the panel says before anything has been run.
-NOTHING_RUN = ("Pick a strategy and press “Run the strategy”. Nothing is "
-               "chosen, fitted or written until you do.")
+NOTHING_RUN = ("Select a strategy and choose “Run the strategy”. No cells "
+               "are selected and no results are written before the run.")
 
 #: Which settings each strategy reads. Everything else is greyed with the
 #: reason on the control, rather than hidden -- a setting that vanishes
@@ -54,11 +42,11 @@ STRATEGY_SETTINGS: Dict[str, Tuple[str, ...]] = {
 
 #: The leakage modes, as a chooser says them.
 LEAKAGE_CHOICES: Tuple[Tuple[str, str], ...] = (
-    ("report", "report both — fit with the score's own inputs and without "
-               "them, and say how much of the fit survives"),
-    ("drop", "drop them — fit only on columns the score is not a function of"),
-    ("keep", "keep them — the naive fit, which can succeed by relearning the "
+    ("report", "report both — compare fits with and without the score's "
+               "input features"),
+    ("drop", "exclude them — fit only features not used to calculate the "
              "score"),
+    ("keep", "include them — the fit may reproduce the original score"),
 )
 
 #: The estimators, as a chooser says them.
@@ -71,14 +59,10 @@ MODEL_CHOICES: Tuple[Tuple[str, str], ...] = (
 
 
 def wells_of_plans(plans: Sequence[Any]) -> Tuple[str, ...]:
-    """The wells a montage's plans named, in the order they were picked.
+    """Return unique guide wells referenced by montage plans.
 
-    These are the chosen guide wells: the wells the count data reported the
-    coefficient present in, which is exactly the population the named
-    strategy takes its positives from.
-
-    :param plans: the montage plans on screen.
-    :returns: the well names, first seen first.
+    :param plans: Montage plans in display order.
+    :returns: Well identifiers in first-occurrence order.
     """
     seen: Dict[str, None] = {}
     for plan in plans or ():
@@ -90,17 +74,17 @@ def wells_of_plans(plans: Sequence[Any]) -> Tuple[str, ...]:
 
 
 class AnnotationStrategyPanel(QWidget):
-    """Choose a strategy, run it off the GUI thread, and read what it did.
+    """Configure and run cell-annotation strategies from a montage.
 
-    :param objects_provider: returns the object rows to choose from, or
-        None when the montage has not loaded any.
-    :param wells_provider: returns the chosen guide wells.
-    :param score_provider: returns the per-object score column.
-    :param folder_provider: returns where a saved result should go.
-    :param parent: the tab widget the panel sits in.
-    :param threaded: False runs the strategy inline, which is what a test
-        wants and what a user must never have.
-    :ivar finished: emitted with the strategy key when a run lands.
+    :param objects_provider: Callable returning candidate object rows, or
+        ``None`` before montage data are available.
+    :param wells_provider: Callable returning selected guide wells.
+    :param score_provider: Callable returning the per-object score column.
+    :param folder_provider: Callable returning the default output directory.
+    :param parent: Parent widget.
+    :param threaded: Run computation in a worker thread. Inline execution is
+        intended for deterministic testing only.
+    :ivar finished: Emitted with the strategy key after a successful run.
     """
 
     #: Emitted with the strategy key once a run has produced a result.
@@ -145,9 +129,9 @@ class AnnotationStrategyPanel(QWidget):
                 else f"{entry.title} (not yet implemented)"
             self._menu.addItem(title, entry.key)
         self._menu.setToolTip(
-            "Which cells get annotated is the experiment, so the choice is a "
-            "named one rather than a default. Each entry says what it is for "
-            "and what it costs below.")
+            "Select how cells are prioritised for annotation. The description "
+            "below states the intended use, assumptions, and computational "
+            "cost of each strategy.")
         row = QHBoxLayout()
         row.addWidget(QLabel("Strategy"))
         row.addWidget(self._menu, 1)
@@ -166,18 +150,16 @@ class AnnotationStrategyPanel(QWidget):
         self._budget.setRange(2, 1_000_000)
         self._budget.setValue(100)
         self._budget.setToolTip(
-            "How many cells the positive set holds, how many the matched "
-            "contrast draw holds, and how long a queue is. It is an "
-            "annotation budget: the number of cells somebody will look at.")
+            "Set the target number of cells per class. This controls the "
+            "positive set, matched comparison set, and annotation queue.")
         form.addRow("Cells per class", self._budget)
 
         self._wells = QLineEdit()
         self._wells.setPlaceholderText("filled from the coefficient on screen")
         self._wells.setToolTip(
-            "The guide wells the positives are taken from, comma separated. "
-            "Filled in from the wells the montage's own plans named, which "
-            "are the wells the count data reported this coefficient in. "
-            "Empty means the whole screen is eligible.")
+            "Enter comma-separated guide wells from which positive candidates "
+            "are selected. The montage supplies its current wells by default. "
+            "Leave empty to allow all displayed wells.")
         form.addRow("Guide wells", self._wells)
 
         self._split = QComboBox()
@@ -185,14 +167,14 @@ class AnnotationStrategyPanel(QWidget):
                 ("well", "well — cells of one well never straddle the split"),
                 ("field", "field — one field's cells stay together"),
                 ("plate", "plate — train on some plates, score on others"),
-                ("cell", "cell — NO grouping; sibling cells of one well land "
-                         "on both sides and the score comes out optimistic")):
+                ("cell", "cell — no grouping; cells from one well may occur "
+                         "in both training and evaluation sets, producing an "
+                         "optimistic estimate")):
             self._split.addItem(text, level)
         self._split.setToolTip(
-            "What a split may not cross. Cells of one well are not "
-            "independent, so a split that puts some of a well's cells in "
-            "train and others in test reports a score the model will not "
-            "reach on a new plate.")
+            "Choose the experimental unit kept intact across training and "
+            "evaluation sets. Well-, field-, or plate-level grouping reduces "
+            "information leakage between related cells.")
         form.addRow("Independence level", self._split)
 
         self._holdout = QDoubleSpinBox()
@@ -201,21 +183,18 @@ class AnnotationStrategyPanel(QWidget):
         self._holdout.setDecimals(2)
         self._holdout.setValue(0.25)
         self._holdout.setToolTip(
-            "The share of WELLS drawn at random and held aside BEFORE any "
-            "strategy chooses anything. No strategy may select from them, "
-            "and every number any strategy reports is measured there — "
-            "because a strategy scored on the cells it chose is optimistic "
-            "by construction.")
+            "Set the fraction of wells reserved before candidate selection. "
+            "Reserved wells are excluded from strategy selection and used "
+            "for evaluation.")
         form.addRow("Random hold-out", self._holdout)
 
         self._leakage = QComboBox()
         for value, text in LEAKAGE_CHOICES:
             self._leakage.addItem(text, value)
         self._leakage.setToolTip(
-            "The score already encodes the phenotype, so a model trained on "
-            "high-score against random can succeed by relearning the score "
-            "and learning no morphology at all. Reporting both fits is what "
-            "answers that: read the one without the score's own inputs.")
+            "Control whether features used to calculate the source score are "
+            "included in the model. Comparing both fits indicates how much "
+            "performance remains without those potentially circular inputs.")
         form.addRow("The score's own inputs", self._leakage)
 
         self._model = QComboBox()
@@ -227,17 +206,16 @@ class AnnotationStrategyPanel(QWidget):
         self._label_column.setPlaceholderText(
             "leave empty to cut the score instead")
         self._label_column.setToolTip(
-            "A column of annotations somebody wrote. With one, the hold-out "
-            "is scored against those annotations and the score's trap does "
-            "not reach it; without one, the reference label is a cut on the "
-            "score itself and every report says so.")
+            "Select a column containing reference annotations. If omitted, "
+            "reference labels are derived by thresholding the score and the "
+            "report identifies this limitation.")
         form.addRow("Annotation column", self._label_column)
 
         self._seed = QSpinBox()
         self._seed.setRange(0, 1_000_000)
         self._seed.setToolTip(
-            "One seed for the hold-out, the random draws and the model. The "
-            "same seed chooses the same cells.")
+            "Set the random seed used for hold-out selection, sampling, and "
+            "model fitting. Reusing the seed reproduces the same selection.")
         form.addRow("Seed", self._seed)
         controls_layout.addWidget(settings)
 
@@ -253,26 +231,26 @@ class AnnotationStrategyPanel(QWidget):
         for name in ("margin", "least_confidence", "entropy"):
             self._measure.addItem(name, name)
         self._measure.setToolTip(
-            "How 'least sure' is measured. On two classes margin and "
-            "least-confidence give the same order; entropy uses the whole "
-            "distribution and differs only from three classes up.")
+            "Choose how predictive uncertainty is ranked. Margin and least "
+            "confidence are equivalent for binary predictions; entropy uses "
+            "the full class-probability distribution.")
         self._add_row(strategy_form, "measure", "Uncertainty measure",
                       self._measure)
 
         self._clusters = QSpinBox()
         self._clusters.setRange(0, 100_000)
         self._clusters.setToolTip(
-            "How many clusters to spread the budget over. 0 means one per "
-            "cell in the budget, which is what makes each queued cell a "
-            "representative rather than a sample.")
+            "Set the number of feature-space clusters across which the "
+            "annotation budget is distributed. Zero uses one cluster per "
+            "queued cell.")
         self._add_row(strategy_form, "n_clusters", "Clusters", self._clusters)
 
         self._bins = QSpinBox()
         self._bins.setRange(2, 100)
         self._bins.setValue(10)
         self._bins.setToolTip(
-            "How many equal-count strata the score range is cut into. The "
-            "budget is divided evenly between them.")
+            "Divide the score distribution into this many equal-count strata "
+            "and allocate the annotation budget evenly across them.")
         self._add_row(strategy_form, "n_bins", "Score strata", self._bins)
 
         self._confidence = QDoubleSpinBox()
@@ -281,8 +259,9 @@ class AnnotationStrategyPanel(QWidget):
         self._confidence.setDecimals(3)
         self._confidence.setValue(0.900)
         self._confidence.setToolTip(
-            "How sure a self-training round has to be before it accepts its "
-            "own prediction as a label. Lower is faster and drifts sooner.")
+            "Set the minimum predicted probability required to accept a "
+            "pseudo-label during self-training. Lower values admit labels "
+            "faster but increase the risk of error propagation.")
         self._add_row(strategy_form, "confidence", "Confidence",
                       self._confidence)
 
@@ -290,16 +269,16 @@ class AnnotationStrategyPanel(QWidget):
         self._rounds.setRange(1, 50)
         self._rounds.setValue(5)
         self._rounds.setToolTip(
-            "The most self-training rounds to run. It stops earlier when the "
-            "audit set stops improving, which is the point of having one.")
+            "Set the maximum number of self-training rounds. Training stops "
+            "earlier when evaluation performance no longer improves.")
         self._add_row(strategy_form, "rounds", "Rounds", self._rounds)
 
         self._neighbours = QSpinBox()
         self._neighbours.setRange(1, 100)
         self._neighbours.setValue(5)
         self._neighbours.setToolTip(
-            "How many neighbours of each seed are considered. The distance "
-            "cut decides how many of them actually take the label.")
+            "Set the number of nearest neighbours evaluated for each seed. "
+            "Only neighbours within the distance threshold inherit a label.")
         self._add_row(strategy_form, "neighbours", "Neighbours per seed",
                       self._neighbours)
 
@@ -309,19 +288,17 @@ class AnnotationStrategyPanel(QWidget):
         self._distance.setDecimals(2)
         self._distance.setValue(0.10)
         self._distance.setToolTip(
-            "The propagation radius, as a quantile of the neighbour "
-            "distances this screen produced. The radius it resolves to is "
-            "printed in the report — too generous a cut manufactures "
-            "agreement.")
+            "Set the propagation radius as a quantile of observed nearest-"
+            "neighbour distances. The resolved distance is included in the "
+            "report.")
         self._add_row(strategy_form, "distance_quantile", "Distance cut",
                       self._distance)
 
         self._positive_wells = QLineEdit()
         self._positive_wells.setPlaceholderText("e.g. r1_c1, r1_c2")
         self._positive_wells.setToolTip(
-            "Wells whose cells are known positives. Their labels carry the "
-            "experiment's own definition of the phenotype rather than an "
-            "annotator's eye.")
+            "Enter comma-separated wells containing experimentally defined "
+            "positive controls.")
         self._add_row(strategy_form, "positive_control_wells",
                       "Positive control wells", self._positive_wells)
 
@@ -358,8 +335,8 @@ class AnnotationStrategyPanel(QWidget):
         self._report = QPlainTextEdit()
         self._report.setReadOnly(True)
         self._report.setPlaceholderText(
-            "The strategy's own account of what it chose, what it fitted and "
-            "what it is allowed to claim.")
+            "The report will describe selected cells, model fitting, "
+            "evaluation data, and interpretation limits.")
         self._report.setMinimumHeight(120)
         layout.addWidget(self._report, 2)
 
@@ -421,11 +398,11 @@ class AnnotationStrategyPanel(QWidget):
         self._row_help[key] = widget.toolTip()
 
     def strategy_key(self) -> str:
-        """The strategy the menu is showing."""
+        """Return the key of the currently selected strategy."""
         return str(self._menu.currentData() or "")
 
     def set_strategy(self, key: str) -> bool:
-        """Show ``key`` on the menu. False when it is not on it."""
+        """Select a strategy by key and report whether it was available."""
         index = self._menu.findData(str(key))
         if index < 0:
             return False
@@ -433,7 +410,7 @@ class AnnotationStrategyPanel(QWidget):
         return True
 
     def about_text(self) -> str:
-        """What the chosen strategy is for, and what it costs."""
+        """Return the current strategy description."""
         return self._about.text()
 
     def _on_strategy_changed(self, *_args) -> None:
@@ -448,10 +425,10 @@ class AnnotationStrategyPanel(QWidget):
         text = entry.describe()
         if entry.key == strategies.TOP_SCORE_RANDOM.key:
             text += (
-                "\n\nTHE CONTROL FOR THAT IS THE “The score's own inputs” "
-                "setting above: leave it on “report both” and read the fit "
-                "WITHOUT them. The share of the fit that survives their "
-                "removal is printed with the result.")
+                "\n\nUse “The score's own inputs” to evaluate circularity. "
+                "Select “report both” and compare the fit marked “WITHOUT "
+                "them”, which excludes those inputs; retained performance "
+                "is reported.")
         self._about.setText(text)
         from ..screens.settings_model import DISABLED_REASON_TOOLTIP
 
@@ -468,8 +445,8 @@ class AnnotationStrategyPanel(QWidget):
                 widget.setProperty(DISABLED_REASON_TOOLTIP, False)
                 continue
             reason = (f"{entry.title} does not read this setting. It is "
-                      "greyed rather than hidden so it is still where you "
-                      "left it when you come back to a strategy that does.")
+                      "disabled for this strategy; its current value is "
+                      "preserved for strategies that use it.")
             # ON THE FIELD AS WELL AS THE NAME, and marked so the hover-help
             # pass does not move a disabled control's reason off it.
             widget.setProperty(DISABLED_REASON_TOOLTIP, True)
@@ -480,7 +457,7 @@ class AnnotationStrategyPanel(QWidget):
     # ------------------------------------------------------------- the run
 
     def refresh(self) -> None:
-        """Take the wells and the score from whatever is on screen now."""
+        """Refresh guide wells and control state from the current montage."""
         if not self._wells.text().strip():
             wells = self._wells_provider() if self._wells_provider else ()
             if wells:
@@ -488,14 +465,14 @@ class AnnotationStrategyPanel(QWidget):
         self._refresh_controls()
 
     def reason(self) -> str:
-        """Why the run button cannot act, or ``''``."""
+        """Return the reason execution is unavailable, or ``''``."""
         if self._running:
             return "A strategy is already running."
         frame = self._objects()
         if frame is None or not len(frame):
-            return ("There are no cells to choose from yet — press “Show the "
-                    "cells” first. A strategy annotates the objects the "
-                    "montage loaded, and none are loaded.")
+            return ("There are no cells to choose from. Select “Show the "
+                    "cells” to load objects into the montage before running "
+                    "a strategy.")
         from ... import regression_annotation as strategies
 
         try:
@@ -503,8 +480,8 @@ class AnnotationStrategyPanel(QWidget):
         except strategies.AnnotationStrategyError as refusal:
             return str(refusal)
         if not entry.implemented:
-            return (f"{entry.title} is on the menu and is not implemented "
-                    "yet, so it would select nothing.")
+            return (f"{entry.title} is not implemented in this release and "
+                    "would select nothing.")
         return ""
 
     def _refresh_controls(self) -> None:
@@ -512,14 +489,14 @@ class AnnotationStrategyPanel(QWidget):
         reason = self.reason()
         self._run_button.setEnabled(not reason)
         self._run_button.setToolTip(reason or (
-            "Choose the cells, fit on them, apply the fit to the rest of the "
-            "screen and report against the random hold-out."))
+            "Select training cells, fit the model, predict the remaining "
+            "displayed cells, and evaluate against the random hold-out."))
         savable = self._result is not None
         self._save_button.setEnabled(savable)
         self._save_button.setToolTip(
-            "Write the chosen cells, the hold-out, the predictions for every "
-            "other cell and the report, as four files." if savable else
-            "There is nothing to save yet — run a strategy first.")
+            "Write selected cells, hold-out cells, predictions, and the run "
+            "report as separate files." if savable else
+            "Run a strategy before saving results.")
         # A TAB THAT CANNOT BE FILLED SAYS WHY. The panel is present from the
         # moment the Cells tab is built, so before a montage has loaded the
         # reason is the only thing on it worth reading -- and it must not
@@ -543,7 +520,7 @@ class AnnotationStrategyPanel(QWidget):
                      if part.strip())
 
     def request(self):
-        """The :class:`AnnotationRequest` the controls describe, or None."""
+        """Build an annotation request, or return ``None`` without cells."""
         frame = self._objects()
         if frame is None or not len(frame):
             return None
@@ -577,12 +554,9 @@ class AnnotationStrategyPanel(QWidget):
             distance_quantile=float(self._distance.value()))
 
     def run(self) -> bool:
-        """Run the chosen strategy off the GUI thread. False when it cannot.
+        """Run the selected strategy in the configured job runner.
 
-        The strategy itself runs in the worker and returns either a result
-        or the refusal it raised; nothing that touches a widget happens
-        there. :meth:`_on_done` is a bound method of this GUI-thread
-        object, which is how the answer gets back on the right thread.
+        :returns: ``True`` if execution was submitted; otherwise ``False``.
         """
         reason = self.reason()
         if reason:
@@ -597,8 +571,8 @@ class AnnotationStrategyPanel(QWidget):
         self._result = None
         self._refresh_controls()
         self._status.setText(
-            f"Running {key}… the hold-out wells are drawn first, and nothing "
-            "is chosen from them.")
+            f"Running {key}… hold-out wells are reserved before candidate "
+            "selection and remain excluded from training.")
 
         def work():
             from ... import regression_annotation as strategies
@@ -627,8 +601,8 @@ class AnnotationStrategyPanel(QWidget):
         chosen = sum(n for role, n in roles.items() if role != "holdout")
         self._status.setText(
             f"{outcome.title}: {chosen:,} cell(s) chosen, "
-            f"{roles.get('holdout', 0):,} held aside. Every number below is "
-            "measured on the hold-out.")
+            f"{roles.get('holdout', 0):,} held aside. Reported performance is "
+            "measured on the hold-out set.")
         self._refresh_controls()
         self.finished.emit(self.strategy_key())
 
@@ -641,18 +615,20 @@ class AnnotationStrategyPanel(QWidget):
     # ------------------------------------------------------------ the files
 
     def result(self):
-        """The last :class:`AnnotationResult`, or None."""
+        """Return the latest annotation result, or ``None``."""
         return self._result
 
     def report_text(self) -> str:
-        """What the report pane is showing."""
+        """Return the text displayed in the report pane."""
         return self._report.toPlainText()
 
     def save(self, folder: Optional[str] = None) -> Dict[str, str]:
-        """Write the selection, hold-out, predictions and report.
+        """Write selected cells, hold-out data, predictions, and the report.
 
-        :param folder: where to write. Asked for when omitted.
-        :returns: ``{what: path}``, empty when nothing was written.
+        :param folder: Output directory. If omitted, a directory chooser is
+            displayed.
+        :returns: Mapping from output type to path, or an empty mapping if no
+            files were written.
         """
         if self._result is None:
             self._status.setText("There is nothing to save yet.")
@@ -676,13 +652,13 @@ class AnnotationStrategyPanel(QWidget):
             self._status.setText(f"Could not write into {target}: {error}")
             return {}
         self._status.setText(
-            f"Wrote {len(written)} file(s) into {folder_name}: the cells "
-            "chosen, the hold-out they are measured against, the prediction "
-            "for every other cell, and the report.")
+            f"Wrote {len(written)} file(s) to {folder_name}: selected cells, "
+            "hold-out cells, predictions for remaining cells, and the run "
+            "report.")
         return written
 
     def shutdown(self) -> None:
-        """Stop the worker before the widget goes away."""
+        """Stop the strategy worker before destroying the widget."""
         try:
             self._jobs.shutdown()
         except Exception:
@@ -690,6 +666,6 @@ class AnnotationStrategyPanel(QWidget):
                       exc_info=True)
 
     def closeEvent(self, event):             # noqa: N802 - Qt's spelling
-        """Close the runner with the panel."""
+        """Stop active work when the panel closes."""
         self.shutdown()
         super().closeEvent(event)

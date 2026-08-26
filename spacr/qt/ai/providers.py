@@ -135,12 +135,9 @@ _LIVE_STREAMS: List[subprocess.Popen] = []
 
 
 def terminate_all_streams() -> int:
-    """End every provider subprocess still being read. Returns how many.
+    """Terminate active provider subprocesses and release their readers.
 
-    For shutdown, and for anywhere that must know no reader thread is
-    still blocked -- a test session about to collect garbage, an
-    application about to quit. Ending the child is what lets the blocked
-    read return, which is what lets the thread finish.
+    :returns: Number of subprocesses for which termination was requested.
     """
     ended = 0
     for proc in list(_LIVE_STREAMS):

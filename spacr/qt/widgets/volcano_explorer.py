@@ -1027,20 +1027,19 @@ class VolcanoExplorer(QWidget):
             return _PROBLEM_INK
 
     def problems(self) -> dict:
-        """``{setting: why it could not be used}`` as of the last redraw."""
+        """Return validation problems recorded during the latest redraw."""
         return dict(self._problems)
 
     def label_for(self, setting: str) -> QLabel | None:
-        """The name shown beside ``setting``, which is what turns red."""
+        """Return the label associated with a style setting."""
         return self._labels.get(setting)
 
     def section_for(self, setting: str):
-        """The folding section holding ``setting``, or None for the few
-        controls that are never folded away."""
+        """Return the collapsible section containing a style setting."""
         return self._sections.get(setting)
 
     def sections(self) -> list:
-        """Every folding section of the settings panel, in panel order."""
+        """Return unique settings sections in panel order."""
         seen: list = []
         for section in self._sections.values():
             if section not in seen:

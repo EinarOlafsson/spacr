@@ -43,20 +43,12 @@ SOURCE_ICON_NAME = "SectionSourceIcon"
 
 
 def module_mark(key: str):
-    """The icon a user already associates with module ``key``, or None.
+    """Return the specific icon for a folded module, if available.
 
-    The same :func:`spacr.qt.iconset.app_icon` call a fold button makes,
-    so a module's categories and its switch are marked with one picture.
+    Generic fallback artwork is not returned because it does not identify the
+    source module.
 
-    NONE RATHER THAN A PUZZLE PIECE. ``app_icon`` answers every key,
-    including one it has never heard of, by falling back to a generic
-    glyph -- which is the right answer for a toolbar button that must
-    show something and the wrong one here: a mark beside a heading is a
-    claim that these settings came from a module the user can recognise,
-    and a generic square claims a module nobody can name. So a key with
-    no artwork and no glyph of its own gets no mark at all.
-
-    :param key: the folded module's registry key.
+    :param key: Folded module registry key.
     """
     from .. import iconset
 
@@ -233,31 +225,14 @@ class Section(QFrame):
         return self._header
 
     def set_source_app(self, key: str, name: str = "") -> bool:
-        """Mark this category as folded module ``key``'s, with its icon.
+        """Associate this category with a folded module and display its icon.
 
-        A module that was folded into another one keeps its settings and
-        loses its tile, so the picture the user learned it by has nowhere
-        left to go. It goes here: on the heading of the category those
-        settings became, at the trailing end of the header row, where it
-        says which module a group of settings came from without spending
-        a word on it.
+        The icon is drawn separately from the header button so the collapse
+        chevron and pointer target remain unchanged.
 
-        THE HEADER KEEPS ITS CHEVRON. A ``QToolButton`` draws its arrow
-        INSTEAD of its icon -- the arrow always wins -- so putting the
-        mark in the button's own icon slot would have traded the fold
-        chevron for it. The mark is a child label instead, laid out
-        against the trailing edge, and transparent to the mouse so that
-        hovering it still hovers the heading: the screen filters events
-        on :meth:`header` to decide which category the pointer is over,
-        and a mark-sized hole in that target would report the wrong
-        one.
-
-        :param key: the folded module's registry key.
-        :param name: what that module calls itself, for screen readers.
-            Falls back to the key.
-        :returns: True when a mark was drawn. A key with no artwork of
-            its own leaves the heading exactly as it was -- see
-            :func:`module_mark`.
+        :param key: Folded module registry key.
+        :param name: Accessible module name; defaults to ``key``.
+        :returns: ``True`` if a module-specific icon was displayed.
         """
         key = str(key or "")
         self._source_app = key
@@ -283,17 +258,11 @@ class Section(QFrame):
         return True
 
     def source_app(self) -> str:
-        """The folded module whose settings this category is, or ``""``."""
+        """Return the folded module associated with this category."""
         return self._source_app
 
     def source_mark(self) -> Optional[QWidget]:
-        """The label drawing the module's icon, or None while none is.
-
-        A category re-attributed to a module with no picture keeps the
-        label and stops showing it -- Qt destroys a widget on its own
-        schedule, and a mark hidden is a mark gone as far as anything
-        reading this is concerned.
-        """
+        """Return the visible source-icon label, or ``None``."""
         mark = self._source_mark
         if mark is None or not mark.isVisibleTo(self._header):
             return None

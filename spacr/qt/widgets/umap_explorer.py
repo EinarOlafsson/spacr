@@ -137,13 +137,7 @@ SETTINGS_KEY_FOR_DISPLAY = {
 
 
 def as_settings_keys(values: Dict) -> Dict:
-    """Rename display keys to the keys the settings panel is bound to.
-
-    A key the panel does not know is dropped silently by
-    ``SettingsWidgets.set_value_for_key``, so an unmapped ``point_size``
-    propagates to nothing at all -- the value is accepted, reported as
-    saved, and gone at the next run.
-    """
+    """Map Image UMAP display keys to their persisted setting names."""
     return {SETTINGS_KEY_FOR_DISPLAY.get(key, key): value
             for key, value in (values or {}).items()}
 

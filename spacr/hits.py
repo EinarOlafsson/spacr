@@ -200,31 +200,27 @@ def family_labels(features: Iterable[Any]) -> np.ndarray:
 
 
 def coefficient_levels(frame: Optional[pd.DataFrame]) -> pd.Series:
-    """Which fit each row of a coefficient table came from.
+    """Identify the model level associated with each coefficient row.
 
     Parameters
     ----------
     frame : pandas.DataFrame or None
-        A coefficient table. ``None`` and a table with neither a ``level``
-        column nor a ``feature`` column yield an empty or all-``''`` result
-        rather than an exception.
+        Coefficient table. ``None`` returns an empty series. If neither
+        ``level`` nor ``feature`` is present, every row is assigned ``''``.
 
     Returns
     -------
     pandas.Series
-        ``'grna'``, ``'gene'`` or ``''`` per row, indexed like ``frame``.
-        ``''`` means the row belongs to neither family: a nuisance term, or a
-        term this function cannot place.
+        ``'grna'``, ``'gene'``, or ``''`` for each row, indexed like
+        ``frame``. An empty value denotes a nuisance term or a term whose
+        level cannot be inferred.
 
     Notes
     -----
-    The run's own ``level`` column is preferred, and reading the term name is
-    the fallback for tables written before that column existed. The two are
-    not interchangeable. A run at ``level='both'`` fits TWICE, and each fit
-    reports an ``Intercept``: two rows, two different numbers from two
-    different models, with identical term names. Only the column can tell
-    them apart, so a table that carries it is believed, and a value the column
-    does not recognise falls back to the term rather than being dropped.
+    The explicit ``level`` column is preferred. Feature-name inference
+    supports tables written before that column was introduced. This
+    distinction matters for ``level='both'`` fits because both models contain
+    an ``Intercept`` whose name alone does not identify its model.
 
     Examples
     --------

@@ -1583,43 +1583,12 @@ _IMAGE_FILTER = "Images (*.tif *.tiff *.npy *.png *.jpg);;All files (*)"
 
 
 class NapariBridgeScreen(QWidget):
-    """Pick a field, open it in napari, take the corrected mask back.
+    """Exchange an image and label mask with an interactive napari viewer.
 
-    A thin surface over :mod:`spacr.napari_bridge`, which owns every
-    decision that matters: what is handed over, what is refused on the way
-    back, how the corrected mask is written, and how the correction is
-    recorded. This class collects two paths and presses three buttons.
-
-    IT LIVES HERE BECAUSE THIS IS THE ONLY SCREEN THAT OPENS IT. The bridge
-    is a button on this masthead (:data:`FOLD_ORDER`) and has no tile of its
-    own, so a module of its own beside every real screen was a front door
-    onto nothing. :mod:`spacr.napari_bridge` — the engine, the public API and
-    the headless ``correct_mask`` entry point — is a different file and is
-    untouched by that.
-
-    Three things about it are deliberate rather than incidental.
-
-    **It never imports napari at module scope, and neither does anything it
-    imports.** ``spacr.qt`` walks its own package in the perf guard and every
-    settings panel in spaCR is built from modules in it; a second Qt stack
-    arriving because someone opened an unrelated screen would be paid for by
-    every user, installed or not. The import lives inside the button handler,
-    behind :func:`spacr.napari_bridge.require_napari`, and a missing install
-    produces the ``pip install "spacr[napari]"`` paragraph in the status pane
-    rather than a traceback.
-
-    **It does not run napari's event loop.** spaCR is already a running
-    ``QApplication``; starting a second loop nests them. So the viewer is
-    opened and left open, and the user presses *Take the mask back* when they
-    are done — which is also the friendlier interaction, because it lets them
-    look, edit, take it back, and keep going.
-    :func:`spacr.napari_bridge.run_event_loop` is for scripts, and its
-    docstring says so.
-
-    **A correction made here is recorded exactly as one made in Curate.**
-    Same append-only ledger, same sidecar, same answer from
-    :func:`spacr.curation.is_curated`. The bridge is for people who prefer
-    napari's brush; it is not a way to edit data off the record.
+    napari is imported only when the viewer is opened, and spaCR's existing
+    Qt event loop remains active. Corrected labels are validated and recorded
+    in the same curation ledger used by the Curate screen. The corresponding
+    headless operations are available from :mod:`spacr.napari_bridge`.
     """
 
     #: A field was opened in napari. Carries the mask path.
@@ -1642,11 +1611,9 @@ class NapariBridgeScreen(QWidget):
         title.setObjectName("DisplayHeading")
         outer.addWidget(title)
         intro = QLabel(
-            "Send a field's image and mask to napari, correct the mask with "
-            "the tools you already know, and bring it back. The corrected "
-            "mask is written the way spaCR writes masks, and the correction "
-            "is recorded in the same ledger the Curate screen writes — so a "
-            "curated dataset still says so.", self)
+            "Open an image and label mask in napari for manual correction. "
+            "When you import the corrected labels, spaCR validates the mask "
+            "and records the change in the curation ledger.", self)
         intro.setObjectName("Muted")
         intro.setWordWrap(True)
         outer.addWidget(intro)
@@ -1725,28 +1692,23 @@ class NapariBridgeScreen(QWidget):
             self._image_edit.setText(path)
 
     def set_paths(self, mask: str = "", image: str = "") -> None:
-        """Fill the form. The seam a host or a test drives the screen through."""
+        """Set the mask and optional source-image paths."""
         if mask:
             self._mask_edit.setText(str(mask))
         if image:
             self._image_edit.setText(str(image))
 
     def mask_path(self) -> str:
-        """The mask path in the form."""
+        """Return the mask path entered in the form."""
         return self._mask_edit.text().strip()
 
     def image_path(self) -> str:
-        """The image path in the form, or ``""``."""
+        """Return the optional source-image path entered in the form."""
         return self._image_edit.text().strip()
 
     # -- saying things ------------------------------------------------------
     def say(self, text: str, *, append: bool = False) -> str:
-        """Put ``text`` in the status pane. Returns what the pane now holds.
-
-        A pane rather than a one-line label, because the two things this
-        screen most often has to say are a multi-line install instruction and
-        a multi-line refusal, and both are written to be read.
-        """
+        """Display a status message and return the complete displayed text."""
         text = str(text)
         if append and self.status.toPlainText():
             self.status.setPlainText(
@@ -1756,7 +1718,7 @@ class NapariBridgeScreen(QWidget):
         return self.status.toPlainText()
 
     def describe_mask(self, path: str = "") -> str:
-        """Say what is in a mask file, and whether it has been edited before."""
+        """Describe a mask file and its recorded curation state."""
         path = path or self.mask_path()
         if not path or not os.path.isfile(path):
             return self.say("Choose a mask file first.")
@@ -1769,11 +1731,11 @@ class NapariBridgeScreen(QWidget):
 
     # -- the bridge ---------------------------------------------------------
     def open_in_napari(self) -> Any:
-        """Hand the field to napari. Returns the viewer, or None.
+        """Open the selected image and mask in napari.
 
-        The napari import happens here and nowhere earlier — see the class
-        docstring. A missing install is answered with the install
-        instruction, not a traceback.
+        :returns: The napari viewer, or ``None`` if validation or startup
+            fails. Missing optional dependencies are reported in the status
+            pane.
         """
         path = self.mask_path()
         if not path or not os.path.isfile(path):
@@ -1804,17 +1766,17 @@ class NapariBridgeScreen(QWidget):
         self._handoff = handoff
         self.take_button.setEnabled(True)
         self.close_button.setEnabled(True)
-        self.say(f"{handoff.describe()}\n\nOpen in napari. Correct the mask "
-                 f"there, then come back and press Take the mask back. "
-                 f"spaCR is still running — nothing is written until you do.")
+        self.say(f"{handoff.describe()}\n\nThe field is open in napari. "
+                 f"After correcting the labels, return to spaCR and select "
+                 f"Take the mask back; nothing is written until you do.")
         self.opened.emit(handoff.mask_path)
         return viewer
 
     def take_mask_back(self):
-        """Read the corrected labels back, write them, record the correction.
+        """Import corrected labels and record the mask correction.
 
-        Returns the :class:`spacr.napari_bridge.CorrectionResult`, or None
-        when there was nothing to take.
+        :returns: :class:`spacr.napari_bridge.CorrectionResult`, or ``None``
+            if no active handoff exists or validation fails.
         """
         if self._viewer is None or self._handoff is None:
             self.say("Open a field in napari first.")
@@ -1852,7 +1814,7 @@ class NapariBridgeScreen(QWidget):
         return dataclasses.replace(self._handoff, mask=result.mask)
 
     def close_viewer(self) -> None:
-        """Close the napari window, if one is open."""
+        """Close the active napari viewer, if present."""
         viewer = self._viewer
         self._viewer = None
         self._handoff = None
@@ -1865,7 +1827,7 @@ class NapariBridgeScreen(QWidget):
                 LOG.debug("napari viewer would not close", exc_info=True)
 
     def viewer(self) -> Any:
-        """The open napari viewer, or None. For a host and for tests."""
+        """Return the active napari viewer, or ``None``."""
         return self._viewer
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
@@ -3751,19 +3713,14 @@ class MakeMasksScreen(QWidget):
         self.recrop(x0, y0, x1, y1)
 
     def recrop(self, x0: int, y0: int, x1: int, y1: int) -> Optional[str]:
-        """Cut one box out into a field of its own; return what it is called.
+        """Extract one selected region into a separate training field.
 
-        The scriptable half of the Recrop tool, and where every refusal is
-        decided: the canvas hands over whatever was dragged and this says
-        yes or no to it, so a box that will not be cut always leaves a
-        sentence behind saying which rule stopped it. Returns ``None`` for
-        every refusal.
+        Accepted crops are written immediately, inserted after the source
+        field in the queue, and marked on the canvas. Rejected selections are
+        reported in the status label without modifying the queue.
 
-        On acceptance the child is on disk before this returns and is
-        already in the queue at the position after the field it came from,
-        so the next press of Next opens it. The box is added to the canvas
-        as well: a recrop leaves the field on screen unchanged, and without
-        the mark a box that was written looks exactly like one that was not.
+        :returns: Filename of the recropped field, or ``None`` if the
+            selection was rejected or could not be written.
         """
         if not self._image_files or self._canvas.mask is None \
                 or self._canvas.image is None:
@@ -3813,26 +3770,13 @@ class MakeMasksScreen(QWidget):
         return written.name
 
     def finish_recrop(self) -> bool:
-        """Retire the field the current boxes were cut out of.
+        """Archive a recropped source field and advance to its first child.
 
-        Called when the user leaves a field they recropped. The original
-        holds several objects, which is what made it worth cutting up, so it
-        is not training data and must not sit in the queue next to its own
-        pieces — but it is not deleted either, because a box drawn wrong is
-        only recoverable while the field it was drawn on still exists.
+        The source image, mask, and ledger move to
+        ``recropped_originals/`` and remain recoverable through the recrop
+        manifest.
 
-        WHAT "RETIRED" CAN MEAN HERE. This screen's queue is a folder, not a
-        table: it walks :func:`mask_engine.list_images`. spaCR's crop
-        database (``png_list``) is keyed on each crop's absolute path and has
-        no lifecycle column, so there is nothing in it to set to "recropped"
-        and no row a folder-reading screen has any claim to rewrite. The
-        nearest thing that is recoverable is
-        :func:`mask_engine.retire_recropped_original`: the image, its mask
-        and its ledger move into ``recropped_originals/``, out of the
-        enumeration and onto a manifest that says what moved and where from.
-
-        :returns: True when a field was retired, in which case the queue has
-            already moved to the first of its children.
+        :returns: ``True`` if a field was archived.
         """
         if not self._recrop_children or not self._image_files:
             return False

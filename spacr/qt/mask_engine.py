@@ -886,11 +886,10 @@ RECROP_KIND = "recrop"
 
 
 class RecropRefused(ValueError):
-    """A recrop box that will not be cut, and the reason it will not.
+    """Raised when a proposed recrop does not satisfy recropping rules.
 
-    :ivar reason: a stable one-word code — ``"no_field"``, ``"too_small"``
-        or ``"redraw"`` — so a caller can tell the three apart without
-        matching on the sentence shown to the user.
+    :ivar reason: Stable reason code: ``"no_field"``, ``"too_small"``, or
+        ``"redraw"``.
     """
 
     def __init__(self, reason: str, message: str):
@@ -910,11 +909,7 @@ def _ordered_box(shape, p0, p1) -> Tuple[int, int, int, int]:
 def box_overlap(a, b) -> float:
     """Intersection over union of two ``(x0, y0, x1, y1)`` boxes.
 
-    Zero when they do not meet, one when they are the same box. IoU rather
-    than "fraction of the smaller one" on purpose: a small box drawn wholly
-    inside a large one is a legitimate second object — a cell inside a well
-    already cut — while a box that is nearly the same size AND nearly in the
-    same place is the same object drawn twice, and only IoU separates those.
+    :returns: A value from 0 for disjoint boxes to 1 for identical boxes.
     """
     ax0, ay0, ax1, ay1 = (int(v) for v in a[:4])
     bx0, by0, bx1, by1 = (int(v) for v in b[:4])
@@ -925,17 +920,17 @@ def box_overlap(a, b) -> float:
 
 
 def recrop_box(shape, p0, p1, existing=()) -> Tuple[int, int, int, int]:
-    """The box two dragged corners name, or raise :class:`RecropRefused`.
+    """Validate and clip a rectangular recrop selection.
 
-    :param shape: the field's ``(height, width)``; the box is clipped to it,
-        so a drag that ran off the edge cuts what is there instead of
-        indexing past it.
-    :param existing: boxes already cut out of this field, each at least
-        ``(x0, y0, x1, y1)``. A new box overlapping one of them by more than
-        :data:`RECROP_MAX_OVERLAP` is refused as a re-draw.
-    :raises RecropRefused: ``too_small`` for a side under
-        :data:`RECROP_MIN_SIDE` — which is also what a drag entirely off the
-        image clips down to — and ``redraw`` for the overlap.
+    :param shape: Image shape as ``(height, width)``. Coordinates outside the
+        image are clipped to this extent.
+    :param p0: First selection corner as ``(x, y)``.
+    :param p1: Opposite selection corner as ``(x, y)``.
+    :param existing: Previously accepted boxes. A selection whose intersection
+        over union exceeds :data:`RECROP_MAX_OVERLAP` is rejected.
+    :returns: Validated ``(x0, y0, x1, y1)`` coordinates.
+    :raises RecropRefused: If a side is shorter than
+        :data:`RECROP_MIN_SIDE` or the selection duplicates an existing box.
     """
     x0, y0, x1, y1 = _ordered_box(shape, p0, p1)
     if (x1 - x0) < RECROP_MIN_SIDE or (y1 - y0) < RECROP_MIN_SIDE:
@@ -955,19 +950,15 @@ def recrop_box(shape, p0, p1, existing=()) -> Tuple[int, int, int, int]:
 
 def cut_recrop(image: np.ndarray, mask: np.ndarray,
                box) -> Tuple[np.ndarray, np.ndarray]:
-    """The sub-image and sub-mask a recrop box carries away.
+    """Extract an image region and its complete labelled objects.
 
-    Two things happen to the labels on the way out, and both are about what
-    is allowed to become ground truth:
+    Objects touching the crop boundary are removed because their masks are
+    incomplete. Remaining labels are renumbered consecutively from one.
 
-    * **Every object touching the box edge is dropped.** An object the box
-      cut in half is no longer that object — it is a shape whose boundary
-      was decided by where the user let go of the mouse — and training on it
-      teaches the network that cells have straight sides.
-    * **What is left is relabelled from one.** The new field is a field, not
-      a view of another one, so its ids start at 1 and are contiguous.
-      Keeping the parent's ids would leave a crop whose only object is
-      number 47.
+    :param image: Source microscopy image.
+    :param mask: Label image aligned with ``image``.
+    :param box: Crop coordinates as ``(x0, y0, x1, y1)``.
+    :returns: Cropped image and relabelled mask.
     """
     x0, y0, x1, y1 = (int(v) for v in box[:4])
     sub_image = np.ascontiguousarray(np.asarray(image)[y0:y1, x0:x1])
@@ -996,12 +987,10 @@ def _recrop_base(filename: str) -> str:
 
 
 def recrop_child_name(folder: str, filename: str, ext: str = ".tif") -> str:
-    """The next free ``<field>__rNN`` filename in ``folder``.
+    """Return the next unused ``<field>__rNN`` filename.
 
-    A number is free only when nothing in the folder, in its ``masks/``
-    subfolder or in the archive of retired originals already uses it, so a
-    second editing session cannot hand a new crop the name of one an earlier
-    session made and overwrite it.
+    Names are checked against the image queue, mask directory, and recrop
+    archive to prevent overwriting output from an earlier editing session.
     """
     base = _recrop_base(filename)
     archive = os.path.join(folder, RECROP_ARCHIVE_DIRNAME)
@@ -1018,13 +1007,13 @@ def recrop_child_name(folder: str, filename: str, ext: str = ".tif") -> str:
 
 
 class Recrop(NamedTuple):
-    """What one recrop wrote.
+    """Result of writing a recropped image and mask.
 
-    :ivar name: the child's filename, which is also its place in the queue.
-    :ivar n_objects: how many WHOLE objects it carries — the count after the
-        ones the box cut through were dropped, which is the number worth
-        telling the user because it is the one that can be zero on a box
-        that looked full.
+    :ivar name: Filename assigned to the recropped field.
+    :ivar image_path: Path of the written image.
+    :ivar mask_path: Path of the written label mask.
+    :ivar n_objects: Number of complete labelled objects retained.
+    :ivar box: Source coordinates as ``(x0, y0, x1, y1)``.
     """
 
     name: str
@@ -1036,27 +1025,19 @@ class Recrop(NamedTuple):
 
 def write_recrop(folder: str, filename: str, image: np.ndarray,
                  mask: np.ndarray, box) -> "Recrop":
-    """Write one recrop as a field of its own; return what it is called.
+    """Write a recropped field, mask, and curation record.
 
-    The child lands where :func:`list_images` and
-    :func:`load_image_and_mask` will find it without being told anything:
-    the image beside its siblings as a uint16 TIFF and the labels at
-    ``<folder>/masks/<stem>.tif``. It is written as uint16 because that is
-    the array the mask was drawn against — writing the child back through
-    the display's 8-bit rendering would leave a field whose pixels no longer
-    match the labels that came with it.
+    The image is stored as an unscaled uint16 TIFF beside the source images,
+    and the relabelled mask is stored in ``<folder>/masks``. The curation
+    record distinguishes deliberately removed boundary objects from missed
+    segmentation objects.
 
-    A ledger is written beside the child's mask too, so
-    :func:`spacr.curation.is_curated` answers True for it. That is not
-    bookkeeping: which objects this mask does NOT contain was a human
-    decision — every object the box cut through was dropped — and a mask
-    that lost objects without a record of it cannot be told from one the
-    segmentation never found.
-
-    :param image: the full field, as the canvas holds it.
-    :param mask: the full field's labels.
-    :param box: ``(x0, y0, x1, y1)`` from :func:`recrop_box`.
-    :returns: a :class:`Recrop`.
+    :param folder: Image-queue directory.
+    :param filename: Source image filename.
+    :param image: Source microscopy image.
+    :param mask: Label image aligned with ``image``.
+    :param box: Coordinates returned by :func:`recrop_box`.
+    :returns: Filename and retained-object count for the new field.
     """
     x0, y0, x1, y1 = (int(v) for v in box[:4])
     sub_image, sub_mask = cut_recrop(image, mask, (x0, y0, x1, y1))
@@ -1078,27 +1059,24 @@ def write_recrop(folder: str, filename: str, image: np.ndarray,
 
 
 def recrop_archive_dir(folder: str) -> str:
-    """Where this folder's retired originals go."""
+    """Return the archive directory for recropped source fields."""
     return os.path.join(folder, RECROP_ARCHIVE_DIRNAME)
 
 
 def retire_recropped_original(folder: str, filename: str, *,
                               children=(), boxes=()) -> dict:
-    """Move a recropped field out of the queue, keeping every byte of it.
+    """Archive a source field after recropped children have been created.
 
-    Called once the user leaves a field they cut children out of. The
-    multi-object original is not training data and must not sit in the queue
-    beside its own pieces — but it is not deleted either, because a box
-    drawn wrong is only recoverable while the field it was drawn on still
-    exists. Image, mask and ledger move into
-    ``<folder>/recropped_originals/``, which :func:`list_images` does not
-    look inside, and the move is appended to :data:`RECROP_MANIFEST` there.
+    The source image, mask, and curation ledger are moved to
+    ``<folder>/recropped_originals`` and recorded in :data:`RECROP_MANIFEST`.
+    This removes the multi-object source from the training queue without
+    deleting it.
 
-    :param children: the filenames cut out of it.
-    :param boxes: the boxes they were cut from, in the same order.
-    :returns: the manifest record, whose ``moved`` lists the paths as
-        ``(from, to)`` pairs — which is what putting the original back is
-        done from.
+    :param folder: Image-queue directory.
+    :param filename: Source image filename.
+    :param children: Filenames created from the source field.
+    :param boxes: Crop boxes corresponding to ``children``.
+    :returns: Manifest record, including the original and archived paths.
     """
     archive = recrop_archive_dir(folder)
     mask_path = mask_save_path(folder, filename)
@@ -1154,7 +1132,7 @@ def _append_recrop_manifest(archive: str, record: dict) -> str:
 
 
 def read_recrop_manifest(folder: str) -> List[dict]:
-    """Every retirement recorded for ``folder``, oldest first, or ``[]``."""
+    """Return recrop-archive records in chronological order."""
     path = os.path.join(recrop_archive_dir(folder), RECROP_MANIFEST)
     try:
         with open(path, "r", encoding="utf-8") as handle:
@@ -1165,13 +1143,14 @@ def read_recrop_manifest(folder: str) -> List[dict]:
 
 
 def restore_recropped_original(folder: str, original: str) -> List[str]:
-    """Put a retired original back in the queue; return what moved back.
+    """Restore an archived source field to the image queue.
 
-    The other half of :func:`retire_recropped_original`, and the reason that
-    one moves rather than deletes. Reads the manifest for the record naming
-    ``original`` and reverses every move in it that is still there to
-    reverse. The children are left alone: a recrop being wrong does not make
-    the crops already cut out of it wrong, and deciding that is the user's.
+    Existing archived files listed for ``original`` are moved back to their
+    source locations. Recropped child fields are not modified.
+
+    :param folder: Image-queue directory.
+    :param original: Original source filename recorded in the manifest.
+    :returns: Paths restored to the queue.
     """
     restored: List[str] = []
     name = os.path.basename(str(original))

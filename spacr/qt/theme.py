@@ -1315,22 +1315,16 @@ def _hue_shift(colour: str, hue: float, saturation: float = 1.0) -> str:
 
 def spaceout_palette(palette: dict, drift: float = 0.0,
                      theme: Optional[str] = None) -> dict:
-    """``palette`` re-hued onto the spectrum, luminance for luminance.
+    """Re-hue a theme palette while preserving accessible luminance.
 
-    A role :data:`SPACEOUT_HUES` does not name is passed through unchanged
-    rather than guessed at: an un-dressed role is merely off-theme, where a
-    guessed one could be unreadable.
-    ``tests/qt/test_spaceout_palette_stays_readable.py`` asserts the table
-    covers every role every shipped palette carries, so "unchanged" is a
-    safety net and not the normal path.
+    Roles absent from :data:`SPACEOUT_HUES` are returned unchanged. Named ink
+    roles are constrained to contrast-safe luminance bands for ``theme``.
 
-    :param drift: degrees added to every hue in :data:`SPACEOUT_HUES`. The
-        whole table turns together, which is what leaves every contrast
-        ratio exactly where it was — see the drift block below.
-    :param theme: which theme is being dressed, when the ink roles are to be
-        solved for chroma rather than carried over at their own luminance.
-        ``None`` — the default, and what a solver in mid-flight passes —
-        leaves every role on the plain hue shift.
+    :param palette: Mapping from theme roles to colour values.
+    :param drift: Hue rotation in degrees applied to all mapped roles.
+    :param theme: Theme used to resolve contrast-safe ink bands, or ``None``
+        for a direct hue shift.
+    :returns: A new role-to-colour mapping.
     """
     bands = _INK_BANDS.get(theme, {}) if theme else {}
     damping = _PAGE_DAMPING.get(theme, {}).get(float(drift), 1.0) \
@@ -1550,11 +1544,11 @@ def _drift_grid() -> Tuple[float, ...]:
 
 
 def spaceout_drift(at: Optional[float] = None) -> float:
-    """Where the spectrum has turned to, in degrees. Continuous.
+    """Return the continuous spaceout hue rotation in degrees.
 
-    A pure function of elapsed animation seconds, so a caller that wants a
-    particular point on the drift asks for it rather than waiting for it.
-    Zero when the dressing is off — nothing turns on an ordinary start.
+    :param at: Elapsed animation time in seconds. ``None`` uses the current
+        drift clock.
+    :returns: Hue rotation in ``[0, 360)``, or zero when spaceout is disabled.
     """
     if not _SPACEOUT:
         return 0.0
@@ -1566,11 +1560,7 @@ def spaceout_drift(at: Optional[float] = None) -> float:
 
 
 def spaceout_drift_step(at: Optional[float] = None) -> float:
-    """:func:`spaceout_drift`, snapped to the grid the palette is solved on.
-
-    See :data:`SPACEOUT_DRIFT_STEPS` for why the palette is quantised when
-    the drift itself is not.
-    """
+    """Return :func:`spaceout_drift` quantised to its solved palette grid."""
     if not _SPACEOUT:
         return 0.0
     step = 360.0 / SPACEOUT_DRIFT_STEPS
@@ -1578,16 +1568,15 @@ def spaceout_drift_step(at: Optional[float] = None) -> float:
 
 
 def spaceout_drift_seconds() -> float:
-    """How far the drift clock has been advanced, in animation seconds."""
+    """Return the elapsed spaceout animation time in seconds."""
     return _DRIFT_SECONDS
 
 
 def advance_spaceout_drift(dt: float) -> float:
-    """Step the drift clock by ``dt`` seconds and return the new drift.
+    """Advance the spaceout clock and return the resulting hue rotation.
 
-    Called by the widgets that are already painting frames. Ignores a
-    negative step and does nothing at all when the dressing is off, so an
-    ordinary start pays a comparison and nothing else.
+    Non-positive intervals and calls made while spaceout is disabled do not
+    modify the clock.
     """
     global _DRIFT_SECONDS
     if _SPACEOUT and dt > 0:
@@ -1596,12 +1585,7 @@ def advance_spaceout_drift(dt: float) -> float:
 
 
 def set_spaceout_drift_seconds(seconds: float) -> None:
-    """Put the drift clock at ``seconds``.
-
-    The twin of :meth:`spacr.qt.widgets.ambient.AmbientEngine.set_time`, and
-    it exists for the same reason: a drift that can only be waited for is a
-    drift that can only be asserted about.
-    """
+    """Set the spaceout animation clock, clamped to zero or greater."""
     global _DRIFT_SECONDS
     _DRIFT_SECONDS = max(0.0, float(seconds))
 
@@ -1844,7 +1828,7 @@ _SOLVED_SCRIMS: Dict[bool, Dict[str, Dict[str, float]]] = {}
 
 
 def spaceout_enabled() -> bool:
-    """Whether the ``spaceout`` entry point started this process."""
+    """Return whether spaceout rendering is enabled for this process."""
     return _SPACEOUT
 
 
@@ -1898,11 +1882,9 @@ def _apply_dressing() -> None:
 
 
 def enable_spaceout() -> None:
-    """Put this process into the spaceout dressing. Idempotent.
+    """Enable process-local spaceout rendering.
 
-    Called by :mod:`spacr.qt.spaceout` before the application starts, and by
-    nothing else. Writes nothing to disk and touches no preference, so the
-    next ordinary ``spacr`` start knows nothing about it.
+    This operation is idempotent and does not modify saved preferences.
     """
     global _SPACEOUT, _DRIFT_SECONDS
     if _SPACEOUT:
@@ -1913,12 +1895,7 @@ def enable_spaceout() -> None:
 
 
 def disable_spaceout() -> None:
-    """Take the dressing off again. Idempotent.
-
-    The launcher never calls this — the choice is made once, at launch. It
-    exists because the mode is process state, and process state that cannot
-    be put back is process state a test suite has to run in a subprocess.
-    """
+    """Disable process-local spaceout rendering and reset its clock."""
     global _SPACEOUT, _DRIFT_SECONDS
     if not _SPACEOUT:
         return
@@ -4804,23 +4781,15 @@ CLOSE_MARK_PROPERTY = "spacrCloseMark"
 
 
 def close_mark_colours(theme: str = "dark") -> Dict[str, str]:
-    """Return the close mark's inks for ``theme``.
-
-    ``rest`` is the theme's OWN ink -- white on the dark themes, near-black
-    on the light one. Writing ``#FFFFFF`` here would give the light theme a
-    white X on a white ground. ``hover`` is the theme's error red, which is
-    the whole signal the mark carries: this closes something.
-    """
+    """Return normal, hover, and disabled close-mark colours for a theme."""
     P = palette_for(theme)
     return {"rest": P["fg"], "hover": P["error"], "disabled": P["fg_dim"]}
 
 
 def close_mark_font_px(body_px: Optional[int] = None) -> int:
-    """The pixel size the close mark is drawn at.
+    """Return the close-mark font size in pixels.
 
-    :param body_px: the sheet's already-scaled body size. ``None`` reads the
-        user's Zoom preference through :func:`font_px`, which is what a
-        widget building itself outside :func:`stylesheet` wants.
+    :param body_px: Resolved body-text size. ``None`` uses :func:`font_px`.
     """
     base = font_px("body") if body_px is None else int(body_px)
     return max(12, int(round(base * CLOSE_MARK_SCALE)))
@@ -4828,12 +4797,7 @@ def close_mark_font_px(body_px: Optional[int] = None) -> int:
 
 def close_mark_rules(theme: str = "dark",
                      body_px: Optional[int] = None) -> str:
-    """Return the QSS every close mark in the application is drawn by.
-
-    :func:`stylesheet` appends this AFTER the registered widget blocks, so a
-    site that grows a rule for its own close button loses the tie rather
-    than quietly winning it.
-    """
+    """Return the shared Qt style-sheet rules for close marks."""
     ink = close_mark_colours(theme)
     size = close_mark_font_px(body_px)
     prop = CLOSE_MARK_PROPERTY
@@ -4872,13 +4836,7 @@ def close_mark_rules(theme: str = "dark",
 
 
 def repolish(widget) -> None:
-    """Re-run the style on ``widget`` so a just-set property reaches the QSS.
-
-    Qt evaluates property selectors when a widget is polished. A property
-    set after that -- which is every case here, since the widget exists
-    before it is made a close mark -- needs the style run again or the rule
-    never matches.
-    """
+    """Reapply Qt styling after a widget property changes."""
     style = widget.style()
     if style is not None:
         style.unpolish(widget)
@@ -4887,16 +4845,10 @@ def repolish(widget) -> None:
 
 
 def close_mark_side(widget=None, body_px: Optional[int] = None) -> int:
-    """Return the side of the square one close mark occupies, in px.
+    """Return the required side length for a close-mark hit target.
 
-    Measured from the glyph at its own size rather than assumed, so a Zoom
-    setting that makes the X wider makes its target wider with it.
-
-    A widget already carrying the mark has been polished by
-    :func:`close_mark_rules`, so its own font IS the drawn size; the larger
-    of that and the Zoom preference wins, and the square therefore holds
-    whichever glyph is actually painted even while a sheet built for one
-    scale sits on a widget built for another.
+    The result accounts for the rendered glyph, current interface scale, and
+    :data:`CLOSE_MARK_HIT_PX` minimum.
     """
     from PySide6.QtGui import QFont, QFontMetrics
 
@@ -4914,24 +4866,13 @@ def close_mark_side(widget=None, body_px: Optional[int] = None) -> int:
 
 def apply_close_mark(button, *, tooltip: Optional[str] = None,
                      body_px: Optional[int] = None):
-    """Draw ``button`` as the application's close mark and return it.
+    """Apply the shared close-mark glyph, styling, and hit-target size.
 
-    Sets the glyph, the property the shared rules key on, and a hit target
-    that only ever GROWS. A CLOSE MARK IS A HIT TARGET AS WELL AS A GLYPH,
-    so the box is the largest of three things on each axis:
-
-    * :data:`CLOSE_MARK_HIT_PX`, the floor -- Qt's own tab close button is
-      16 px, and a bigger glyph must not arrive with a smaller target;
-    * the glyph's own square at this Zoom, so the X is never clipped;
-    * what the control itself asks for, so replacing a mark never gives a
-      user less to hit than the mark it replaced.
-
-    The width is then held at or below the height, because the glyph is
-    square and a close mark as wide as a word would push the label beside
-    it out of its row.
-
-    :param tooltip: replaces the button's tooltip when given. Left alone
-        otherwise, because a site usually says what its own X closes.
+    :param button: Qt button to configure.
+    :param tooltip: Replacement tooltip. ``None`` preserves the existing
+        tooltip.
+    :param body_px: Optional resolved body-text size.
+    :returns: The configured button.
     """
     button.setText(CLOSE_MARK)
     button.setProperty(CLOSE_MARK_PROPERTY, True)
@@ -4957,12 +4898,7 @@ def apply_close_mark(button, *, tooltip: Optional[str] = None,
 
 
 def size_close_mark(button, body_px: Optional[int] = None) -> None:
-    """Fix ``button`` to the box its close mark needs right now.
-
-    Split out of :func:`apply_close_mark` because the answer changes: the
-    Zoom preference re-applies the sheet under a mark that already exists,
-    and a box fixed to yesterday's font would clip today's glyph.
-    """
+    """Resize a close-mark button for its current font and interface scale."""
     side = close_mark_side(button, body_px)
     hint = button.sizeHint()
     height = max(side, button.minimumHeight(), hint.height())
@@ -4997,7 +4933,7 @@ class _CloseMarkResizer(QObject):
 
 def close_mark_button(parent=None, *, tooltip: Optional[str] = None,
                       body_px: Optional[int] = None):
-    """Build a standalone close mark as a flat ``QToolButton``."""
+    """Create a standalone close mark as a flat ``QToolButton``."""
     from PySide6.QtWidgets import QToolButton
 
     return apply_close_mark(QToolButton(parent), tooltip=tooltip,
@@ -5005,7 +4941,7 @@ def close_mark_button(parent=None, *, tooltip: Optional[str] = None,
 
 
 def is_close_mark(widget) -> bool:
-    """Return whether ``widget`` is drawn by the shared close-mark rules."""
+    """Return whether a widget uses the shared close-mark styling."""
     return bool(widget is not None and widget.property(CLOSE_MARK_PROPERTY))
 
 
@@ -5051,16 +4987,12 @@ def _request_tab_close(bar, mark, side) -> None:
 
 
 def mark_tab_bar(bar, tooltip: Optional[str] = None) -> int:
-    """Replace one tab bar's close buttons with the shared mark.
+    """Replace existing tab close buttons with the shared close mark.
 
-    A tab whose button was taken away (``setTabButton(i, side, None)``)
-    stays without one: there is nothing to replace, and adding a mark would
-    put an X on a tab that is deliberately permanent. A button that was
-    HIDDEN comes back hidden, which is how the folded-page strip keeps its
-    host page unclosable without destroying a button the bar still points
-    at.
+    Tabs without a close button remain unchanged, and hidden buttons remain
+    hidden.
 
-    :returns: how many marks were installed on this call.
+    :returns: Number of close marks installed.
     """
     from PySide6.QtWidgets import QTabBar, QToolButton
 
@@ -5094,20 +5026,13 @@ def mark_tab_bar(bar, tooltip: Optional[str] = None) -> int:
 
 
 def install_close_marks(root, *, tooltip: Optional[str] = None) -> int:
-    """Give every closable tab under ``root`` the application's close mark.
+    """Install shared close marks on closable tabs below ``root``.
 
-    ``root`` may be a ``QTabWidget``, a ``QTabBar``, or a container holding
-    them. Naming a strip means THAT strip: a page inside it can hold tab
-    strips of its own, belonging to a screen that has not asked for
-    anything, and a recursive sweep from the strip would reach into them.
-    Only a container root is searched.
+    ``root`` may be a tab widget, tab bar, or containing widget. Event
+    filters also style close buttons added later. Repeated calls are
+    idempotent.
 
-    It stays installed. Qt builds a fresh close button for every tab added
-    later, so each bar keeps a watcher that re-runs the sweep on the next
-    turn of the event loop. Calling this again is free -- a tab already
-    carrying the mark is skipped.
-
-    :returns: how many marks were installed on this call.
+    :returns: Number of close marks installed during this call.
     """
     from PySide6.QtWidgets import QTabBar, QTabWidget
 

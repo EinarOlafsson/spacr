@@ -217,6 +217,14 @@ def test_the_module_is_declared_in_the_self_registering_list():
     assert "spacr.qt.widgets.feature_dictionary" in SELF_REGISTERING_MODULES
 
 
+def test_feature_dictionary_help_links_to_its_api_module():
+    """The self-registering Help application must not fall back to the index."""
+    from spacr.qt.screens.settings_model import _APP_API_MODULE, api_docs_url
+
+    assert _APP_API_MODULE[fd.APP_KEY] == "feature_dict"
+    assert "/spacr/feature_dict/" in api_docs_url(fd.APP_KEY)
+
+
 # ---------------------------------------------------------------------------
 # hook 2: the Help menu
 # ---------------------------------------------------------------------------
