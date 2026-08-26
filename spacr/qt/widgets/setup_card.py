@@ -349,6 +349,28 @@ class SetupCard(QWidget):
         except Exception:                                    # noqa: BLE001
             return 2.4
 
+    #: The two theme functions the dressing needs, resolved once.
+    #:
+    #: THE ANSWERS ARE NOT CACHED, only the LOOKUP. `ink_at` runs once per
+    #: segment of the run and a long rim is three hundred of them a frame,
+    #: so importing inside the loop is three hundred module lookups sixty
+    #: times a second for a value that never moves. What must not be cached
+    #: is what the functions RETURN: the dressing is process state and the
+    #: drift changes every frame.
+    _DRESSING = None
+
+    @classmethod
+    def _dressing(cls):
+        """``(spaceout_enabled, spaceout_drift)``, or ``None``."""
+        if SetupCard._DRESSING is None:
+            try:
+                from ..theme import spaceout_drift, spaceout_enabled
+
+                SetupCard._DRESSING = (spaceout_enabled, spaceout_drift)
+            except Exception:                                # noqa: BLE001
+                return None
+        return SetupCard._DRESSING
+
     def spaceout(self) -> bool:
         """Whether this process is wearing the ``spaceout`` dressing.
 
@@ -357,12 +379,8 @@ class SetupCard(QWidget):
         a preference -- a card that cached it at construction would be a
         second place the answer lived.
         """
-        try:
-            from ..theme import spaceout_enabled
-
-            return bool(spaceout_enabled())
-        except Exception:                                    # noqa: BLE001
-            return False
+        dressing = self._dressing()
+        return bool(dressing[0]()) if dressing else False
 
     def animates(self) -> bool:
         """Whether the rim changes when nothing else does.
@@ -632,13 +650,8 @@ class SetupCard(QWidget):
         and the palette's drift carries the whole thing round with the rest
         of the application.
         """
-        drift = 0.0
-        try:
-            from ..theme import spaceout_drift
-
-            drift = float(spaceout_drift()) / 360.0
-        except Exception:                                    # noqa: BLE001
-            drift = 0.0
+        dressing = self._dressing()
+        drift = float(dressing[1]()) / 360.0 if dressing else 0.0
         return ((float(along) * SPACEOUT_RIM_SPREAD
                  + self._phase / SPACEOUT_RIM_PERIOD + drift) % 1.0)
 

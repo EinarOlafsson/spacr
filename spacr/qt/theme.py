@@ -1333,6 +1333,8 @@ def spaceout_palette(palette: dict, drift: float = 0.0,
         leaves every role on the plain hue shift.
     """
     bands = _INK_BANDS.get(theme, {}) if theme else {}
+    damping = _PAGE_DAMPING.get(theme, {}).get(float(drift), 1.0) \
+        if theme else 1.0
     out = {}
     for role, colour in palette.items():
         seat = SPACEOUT_HUES.get(role)
@@ -1341,9 +1343,13 @@ def spaceout_palette(palette: dict, drift: float = 0.0,
             continue
         hue = (seat + float(drift)) % 360.0
         band = bands.get(role)
-        out[role] = (_hue_ink(hue, band[0], band[1], colour) if band
-                     else _hue_shift(colour, hue,
-                                     SPACEOUT_SATURATION.get(role, 1.0)))
+        if band:
+            out[role] = _hue_ink(hue, band[0], band[1], colour)
+            continue
+        saturation = SPACEOUT_SATURATION.get(role, 1.0)
+        if role in SPACEOUT_DAMPED_ROLES:
+            saturation *= damping
+        out[role] = _hue_shift(colour, hue, saturation)
     return out
 
 
@@ -1444,9 +1450,58 @@ SPACEOUT_INK_ROLES: Tuple[str, ...] = ("fg", "fg_muted", "fg_dim")
 
 #: Multiplier on every WCAG minimum when solving an ink band, so a solved
 #: ink is not sitting exactly on the line — the same reason
-#: :data:`SCRIM_HEADROOM` exists, and larger than it because the scrims are
-#: re-solved AFTER the ink and must not be able to push it under.
-SPACEOUT_INK_HEADROOM = 1.12
+#: :data:`SCRIM_HEADROOM` exists, and much larger than it, for two reasons
+#: that both come from what is UNDER the text.
+#:
+#: The scrims are re-solved AFTER the ink and must not be able to push it
+#: under, which is the small half. The large half is that
+#: :data:`CONTRAST_RULES` judges ink against a surface role, and some panels
+#: in the application are painted translucent by the WIDGET rather than by
+#: the theme — ``SetupCard`` lays its body down at alpha 216 so the backdrop
+#: shows through it, and under ``spaceout`` that backdrop is a bright
+#: fractal. Measured on the rendered first-run card over a real frame: at
+#: 1.12 the heading came out at 4.56:1 against a 4.5:1 rule, which is inside
+#: the rule and outside any comfort. At 1.30 the same measurement is 5.6:1
+#: and ``fg`` is still a saturated blue rather than the white it was.
+SPACEOUT_INK_HEADROOM = 1.30
+
+#: The saturations tried when the drift breaks the page separation, in
+#: order. The first one that clears the rule wins, so a drift offset that
+#: never had a problem keeps the full colour.
+#:
+#: WHY THIS EXISTS, and it is the same reason the scrims are re-solved. The
+#: contrast rules survive a re-hue by construction, because a ratio is a
+#: function of relative luminance alone — but `page_separation_report` asks
+#: whether you can SEE the panel, and half of its rows composite the panel
+#: over the page at :data:`PAGE_FADED_OPACITY`. That composite happens
+#: channel by channel in sRGB, and two colours of equal luminance and
+#: different hue do not composite to equal luminance. Measured over the
+#: sixty offsets the palette can take: the light theme's faded
+#: ``surface_alt`` drops to 1.069:1 against a 1.08:1 rule at four of them.
+#:
+#: So at those offsets — and only at those — the page and the panels are
+#: mixed back toward white until the panel separates again. It costs
+#: saturation on four sixtieths of the drift and it buys a page you can
+#: still see the panels on, which is the trade the request names outright.
+SPACEOUT_DAMPING_STEPS: Tuple[float, ...] = (1.0, 0.75, 0.55, 0.40, 0.28,
+                                             0.20, 0.12)
+
+#: Extra saturation damping for the page and its panels, as
+#: ``{theme: {drift offset: multiplier}}``. An offset that is not in the
+#: table needs no damping, which is nearly all of them.
+_PAGE_DAMPING: Dict[str, Dict[float, float]] = {}
+
+#: Solved damping, keyed by whether the dressing is on — the twin of
+#: :data:`_SOLVED_SCRIMS`.
+_SOLVED_DAMPING: Dict[bool, Dict[str, Dict[float, float]]] = {}
+
+#: The roles the damping reaches: the page itself and the panels that have
+#: to stay visible on it.
+#:
+#: Written out rather than built from :data:`PAGE_PANEL_ROLES`, which is
+#: declared further down the module; ``test_spaceout_looks_alive.py`` asserts
+#: the two agree so the pair cannot drift apart.
+SPACEOUT_DAMPED_ROLES: Tuple[str, ...] = ("page", "surface", "surface_alt")
 
 #: Elapsed animation seconds the drift is at. Advanced by the widgets that
 #: are already painting frames; never read off a wall clock.
@@ -1647,6 +1702,36 @@ def _ink_band(theme: str, role: str) -> Optional[Tuple[float, float]]:
     return (low, high) if high - low > 1e-6 else None
 
 
+def _solve_page_damping() -> Dict[str, Dict[float, float]]:
+    """How much colour each theme has to give up, at each drift offset, for
+    its panels to stay visible on its page.
+
+    Solved by *trying* rather than by arithmetic, because the rule it is
+    solving against — :func:`page_separation_failures` — is two
+    measurements, one of them in CIE L*, and reading them backwards to a
+    saturation would be a second implementation of the thing it has to
+    agree with. Seven candidates over sixty offsets is 130 ms once.
+
+    The candidate under test is written straight into :data:`_PAGE_DAMPING`
+    so :func:`page_separation_failures` sees it through the palette, which
+    is what makes this the published rule judging the published colours
+    rather than a copy of either.
+    """
+    _PAGE_DAMPING.clear()
+    for name in THEMES:
+        rows: Dict[float, float] = {}
+        _PAGE_DAMPING[name] = rows
+        for drift in _drift_grid():
+            for damping in SPACEOUT_DAMPING_STEPS:
+                rows[drift] = damping
+                with _dressed_at(drift):
+                    if not page_separation_failures(name):
+                        break
+            if rows[drift] >= 1.0:
+                del rows[drift]
+    return {name: dict(rows) for name, rows in _PAGE_DAMPING.items()}
+
+
 def _solve_ink_bands() -> Dict[str, Dict[str, Tuple[float, float]]]:
     """Every ink band of every theme. Solved once per dressing."""
     out: Dict[str, Dict[str, Tuple[float, float]]] = {}
@@ -1787,11 +1872,15 @@ def _apply_dressing() -> None:
     """
     solved = _SOLVED_SCRIMS.get(_SPACEOUT)
     bands = _SOLVED_INK.get(_SPACEOUT)
-    if solved is None or bands is None:
+    damping = _SOLVED_DAMPING.get(_SPACEOUT)
+    if solved is None or bands is None or damping is None:
         if not _SPACEOUT:
-            solved, bands = _solve_scrims(), {}
+            solved, bands, damping = _solve_scrims(), {}, {}
         else:
             _INK_BANDS.clear()
+            # The damping first: it moves the panel colours, and the scrims
+            # are solved from those.
+            damping = _solve_page_damping()
             SCRIM_ALPHA.clear()
             SCRIM_ALPHA.update(_solve_scrims_over_drift())
             bands = _solve_ink_bands()
@@ -1799,10 +1888,13 @@ def _apply_dressing() -> None:
             solved = _solve_scrims_over_drift()
         _SOLVED_SCRIMS[_SPACEOUT] = solved
         _SOLVED_INK[_SPACEOUT] = bands
+        _SOLVED_DAMPING[_SPACEOUT] = damping
     SCRIM_ALPHA.clear()
     SCRIM_ALPHA.update(solved)
     _INK_BANDS.clear()
     _INK_BANDS.update(bands)
+    _PAGE_DAMPING.clear()
+    _PAGE_DAMPING.update({name: dict(rows) for name, rows in damping.items()})
 
 
 def enable_spaceout() -> None:

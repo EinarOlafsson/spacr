@@ -3464,6 +3464,18 @@ FRACTAL_BUSY = (0.55, 1.45)
 #: costs and the guard is what pays for it.
 FRACTAL_DEPTH_ITERS = 0.85
 
+#: The iteration pool, which is what the density control paints a prefix of.
+#:
+#: :func:`_pool_size` sizes a pool for the top of :data:`DENSITY_RANGE` and
+#: nothing else, which was right when the count was a constant. It is not
+#: now: the busy state and the depth both multiply it before the density
+#: does, and a pool that ignored them would clamp — a user at density 3.0
+#: would get the same count as one at 2.0 whenever the picture happened to
+#: be deep, which is a control that silently stops working.
+FRACTAL_ITERATION_POOL = _pool_size(
+    int(math.ceil(FRACTAL_ITERATIONS * FRACTAL_BUSY[1]
+                  * (1.0 + FRACTAL_DEPTH_ITERS))))
+
 #: How many buds the engine can have in the air at once, and the seconds one
 #: slot takes to come round.
 #:
@@ -3722,12 +3734,12 @@ class FractalEngine(_BufferedEngine):
         total = 0.0
         weights = 0.0
         for octave, (cell, weight) in enumerate(FRACTAL_STATE_OCTAVES):
-            position = moment / cell + _hash01(self._salt, channel * 8 + octave,
-                                               -1)
+            seat = channel * 8 + octave
+            position = moment / cell + _hash01(self._salt, seat, -1)
             index = math.floor(position)
             fraction = position - index
-            low = _hash01(self._salt, channel * 8 + octave, int(index))
-            high = _hash01(self._salt, channel * 8 + octave, int(index) + 1)
+            low = _hash01(self._salt, seat, int(index))
+            high = _hash01(self._salt, seat, int(index) + 1)
             ease = fraction * fraction * (3.0 - 2.0 * fraction)
             total += weight * (low + (high - low) * ease)
             weights += weight
@@ -3836,8 +3848,8 @@ class FractalEngine(_BufferedEngine):
         """
         busy = _lerp(FRACTAL_BUSY, self.wander(FRACTAL_STATE_BUSY))
         busy *= 1.0 + FRACTAL_DEPTH_ITERS * self.depth()
-        return self.element_count(max(1, int(round(FRACTAL_ITERATIONS * busy))),
-                                  _pool_size(FRACTAL_ITERATIONS))
+        want = max(1, int(round(FRACTAL_ITERATIONS * busy)))
+        return self.element_count(want, FRACTAL_ITERATION_POOL)
 
     def constant(self) -> Tuple[float, float]:
         """Where the Julia constant ``c`` is right now.
@@ -3937,7 +3949,8 @@ class FractalEngine(_BufferedEngine):
         beta_re, beta_im = self.fixed_point()
         out: List[Form] = []
         for slot in range(eligible):
-            cycle = _lerp(FRACTAL_BUD_CYCLE, _hash01(self._salt, 100 + slot, 0))
+            cycle = _lerp(FRACTAL_BUD_CYCLE,
+                          _hash01(self._salt, 100 + slot, 0))
             position = self.time / cycle + _hash01(self._salt, 100 + slot, 1)
             number = int(math.floor(position))
             through = position - number
@@ -3965,7 +3978,8 @@ class FractalEngine(_BufferedEngine):
                 continue
             zoom = _lerp(FRACTAL_BUD_ZOOM,
                          _hash01(self._salt, 700 + slot, number))
-            spin = 1.0 if _hash01(self._salt, 800 + slot, number) < 0.5 else -1.0
+            spin = (1.0 if _hash01(self._salt, 800 + slot, number) < 0.5
+                    else -1.0)
             out.append(Form(
                 cx=centre[0] + away * math.cos(heading),
                 cy=centre[1] + away * math.sin(heading),
@@ -4107,8 +4121,9 @@ class FractalEngine(_BufferedEngine):
         share = np.clip((reach - radius)
                         / np.float32(max(1e-3, reach - form.radius)),
                         0.0, 1.0)
-        share = (share * share * (np.float32(3.0)
-                                  - np.float32(2.0) * share)).astype(np.float32)
+        share = share * share * (np.float32(3.0)
+                                 - np.float32(2.0) * share)
+        share = share.astype(np.float32)
         if not share.any():
             return bands
         keep = np.float32(1.0) - share
@@ -4206,7 +4221,8 @@ class FractalEngine(_BufferedEngine):
             zr2 = zr * zr
             zi2 = zi * zi
             np.add(zr2, zi2, out=magnitude)
-            # A FRACTION of an iteration, not a yes/no — see FRACTAL_SOFT_LIMIT.
+            # A FRACTION of an iteration, not a yes/no — see
+            # FRACTAL_SOFT_LIMIT.
             np.subtract(soft_top, magnitude, out=share)
             share *= soft_scale
             np.clip(share, 0.0, 1.0, out=share)
