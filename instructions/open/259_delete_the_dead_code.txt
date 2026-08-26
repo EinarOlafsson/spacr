@@ -1,0 +1,78 @@
+================================================================================
+DELETE THE DEAD CODE
+================================================================================
+
+Status:    OPEN. Requested 2026-08-26 -- "delete all dead code."
+Owner:     wherever it is.
+
+--------------------------------------------------------------------------------
+WHY THIS BLOCKS 100%
+--------------------------------------------------------------------------------
+
+A line that cannot execute cannot be covered. Chasing it with a test is
+worse than useless: the only test that reaches an unreachable line is one
+that fakes the state the guard above it forbids, which asserts a situation
+the program cannot be in. That test then stands in the suite pretending to
+protect something.
+
+So the module cannot reach 100% while the line stands, and the honest move
+is to delete it. The repository already has precedent -- `timelapse.py`
+around 4805 records exactly such a removal with the reason kept in a
+comment.
+
+--------------------------------------------------------------------------------
+WHAT IS ALREADY FOUND
+--------------------------------------------------------------------------------
+
+42 statements in `spacr/timelapse.py`, each unreachable because of a guard
+above it, enumerated with the reason for each -- for instance:
+
+  * `2418-2419`, `2645-2646` -- `mask_inf` and `~mask_inf` PARTITION a set
+    already known non-empty, so "both sides empty" cannot happen;
+  * `4900`-`4926` -- line 4793 replaces infinities with NaN, so notna and
+    isfinite are the same test, and "an all-non-finite column" is impossible;
+  * `7228` -- the column is cast to bool one line above, and
+    `schema.model_feature_columns` drops bool columns;
+  * `7461`-`7483` -- `keep[0]` is never cleared, so `keep.any()` is always
+    true.
+
+That list is a starting point, not the scope. Sweep the package.
+
+--------------------------------------------------------------------------------
+THE RULE FOR DELETING SOMETHING
+--------------------------------------------------------------------------------
+
+DEAD MEANS PROVEN UNREACHABLE, NOT MERELY UNCOVERED. Those are different
+findings and only one of them is deleted:
+
+  * a line no test happens to reach is a MISSING TEST. Write the test.
+  * a line NO INPUT CAN REACH, because something above it makes its
+    condition impossible, is dead. Delete it.
+
+Uncovered is the symptom of both, which is exactly why this needs a proof
+per block rather than a coverage report. For each deletion, say WHICH line
+above it makes it unreachable and WHY -- an argument another person can
+check, not "coverage says zero".
+
+WHEN IN DOUBT, KEEP IT AND SAY SO. A defensive branch that a real failure
+could reach is not dead: it is untested, and the answer is to make the
+failure happen. Deleting one of those removes a guard that was doing its
+job, and it will be missed on the day it would have fired.
+
+TWO THINGS THAT LOOK DEAD AND ARE NOT:
+  * code reached only on another platform -- the macOS OpenMP clamp is
+    unreachable on this machine and load-bearing on that one;
+  * code reached only when an optional dependency is absent. The import
+    guard for a package that happens to be installed here still runs for a
+    user who does not have it.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * every deletion names the line above it that makes it unreachable;
+  * the suite is green afterwards, and no test was changed to make it so;
+  * nothing platform-specific and nothing behind an optional-import guard
+    was removed;
+  * the files that were kept from 100% by dead code now reach it, or the
+    remaining gap is a missing test rather than an unreachable line.
