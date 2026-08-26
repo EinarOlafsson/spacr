@@ -1,0 +1,83 @@
+================================================================================
+EVERY PICTURE IS DRAWN FOR THE SCREEN IT IS ON
+================================================================================
+
+Status:    OPEN. Requested 2026-08-26 -- "the spacr logo looks super low res
+           on the mac".
+Owner:     spacr/qt/widgets/home.py and the 24 scaling sites the sweep finds.
+
+--------------------------------------------------------------------------------
+IT IS NOT THE ARTWORK, IT IS THE SCALING
+--------------------------------------------------------------------------------
+
+`logo_spacr.png` is 3334 x 3334. There is nothing low-resolution about it.
+
+`home.py:1545`:
+
+    label.setPixmap(logo.scaled(logo_px, logo_px,
+                                Qt.KeepAspectRatio,
+                                Qt.SmoothTransformation))
+
+`logo_px` is a LOGICAL size. On a display with a device pixel ratio of 2 --
+every retina Mac, and plenty of Windows and Linux machines -- Qt then
+stretches that logical bitmap across twice as many real pixels in each
+direction. A 200 px render is blown up to 400 px. From a 3334 px source.
+
+THE SWEEP, measured:
+
+    24  calls to .scaled() under spacr/qt/
+     2  places anywhere read devicePixelRatio -- and BOTH are the ambient
+        buffer, neither is a pixmap
+
+So this is not one blurry logo. Every scaled picture in the application is
+drawn at a fraction of the resolution the panel can show, on every HiDPI
+display. It has simply been most obvious on the biggest one.
+
+--------------------------------------------------------------------------------
+THE FIX, AND WHY IT IS TWO LINES RATHER THAN ONE
+--------------------------------------------------------------------------------
+
+Render at DEVICE pixels, then tell the pixmap what ratio it was rendered
+at, so Qt lays it out at the logical size:
+
+    ratio = widget.devicePixelRatioF()
+    picture = source.scaled(round(px * ratio), round(px * ratio),
+                            Qt.KeepAspectRatio, Qt.SmoothTransformation)
+    picture.setDevicePixelRatio(ratio)
+
+MISSING THE SECOND LINE IS WORSE THAN MISSING BOTH: the picture comes out
+correct in pixels and twice the intended SIZE, because Qt has no way to
+know those pixels are dense ones.
+
+ONE HELPER, NOT TWENTY-FOUR. This is the same lesson as the close mark and
+the dialogs: a rule applied by hand at each site holds until the next site
+is written. A helper that takes a source, a widget and a logical size --
+and every call site asking it -- is what makes the next picture right
+without its author knowing this item existed.
+
+--------------------------------------------------------------------------------
+WHAT ELSE TO CHECK WHILE THERE
+--------------------------------------------------------------------------------
+
+  * THE RATIO IS PER SCREEN, and a window can be dragged between a retina
+    laptop and an ordinary external monitor. A picture rendered once at 2x
+    and moved to a 1x screen is merely wasteful; the reverse is blurry.
+    Qt sends a change when it happens -- decide whether re-rendering is
+    worth it, and say which you chose;
+  * ICONS. `iconset` renders vector glyphs, which are resolution-free, but
+    the BUNDLED PNGs go through the same scaling path as the logo;
+  * anything drawn into a QImage or QPixmap by hand -- the ambient buffer
+    already handles this correctly and is the model to copy.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * with a simulated device pixel ratio of 2, the logo pixmap's own
+    dimensions are twice its logical size and its devicePixelRatio is 2 --
+    asserted on the pixmap, not on the file;
+  * the label it sits in is still the logical size, so nothing moved;
+  * every .scaled() site under spacr/qt/ either goes through the helper or
+    is named in the report with a reason it does not need to;
+  * at a ratio of 1 nothing changes -- the same pixel dimensions as today,
+    so no display regresses.
