@@ -713,3 +713,54 @@ def test_a_folded_page_with_a_long_name_keeps_its_mark_when_squeezed(
     assert mark.size() == roomy, "the mark shrank when the window did"
     assert bar.tabRect(index).contains(mark.geometry()), (
         f"mark {mark.geometry()} left tab {bar.tabRect(index)}")
+
+
+def test_the_settings_caption_does_not_name_a_dot(qtbot):
+    """The information dots were removed; the caption still pointed at one.
+
+    "Hover any setting for details, or select (i) for documentation" was
+    shown under the settings panel and was wrong in ten languages once the
+    dot stopped being drawn. The API link did not go anywhere -- it is in
+    the hover tooltip, which is what the sentence says now.
+    """
+    from spacr.qt.screens.app_screen import AppScreen
+
+    screen = AppScreen("regression")
+    qtbot.addWidget(screen)
+    for name in dir(screen):
+        if "hint" not in name.lower():
+            continue
+        attribute = getattr(screen, name, None)
+        if not callable(attribute):
+            continue
+        try:
+            text = attribute()
+        except Exception:                                    # noqa: BLE001
+            continue
+        if isinstance(text, str):
+            assert "ⓘ" not in text, f"{name}() still names the dot"
+
+
+def test_no_widget_on_a_screen_draws_the_dot(qtbot):
+    """The acceptance point as written: not that the flag is gone, but that
+    nothing DRAWS one."""
+    from PySide6.QtWidgets import QWidget
+
+    from spacr.qt.screens.app_screen import AppScreen
+
+    for key in ("regression", "measure"):
+        screen = AppScreen(key)
+        qtbot.addWidget(screen)
+        carrying = []
+        for widget in screen.findChildren(QWidget):
+            for getter in ("text", "toolTip"):
+                function = getattr(widget, getter, None)
+                if not callable(function):
+                    continue
+                try:
+                    value = function()
+                except Exception:                            # noqa: BLE001
+                    continue
+                if isinstance(value, str) and "ⓘ" in value:
+                    carrying.append((type(widget).__name__, getter))
+        assert not carrying, f"{key} still draws the dot: {carrying[:3]}"

@@ -57,6 +57,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ..hidpi import follow_device_ratio, scaled_for
 from ..theme import (
     SPACING, TILE_H, TILE_ICON_PX, TILE_MAX_W, TILE_W, font_px, palette_for,
 )
@@ -1119,6 +1120,11 @@ class HomePage(QWidget):
     #: same lesson; see its backdrop-state block.
     _ambient = None
 
+    #: The masthead's logo label, or ``None`` on a build where the bundled
+    #: artwork could not be read. Declared here so anything asking for the
+    #: mark gets an answer rather than an ``AttributeError``.
+    _hero_mark = None
+
     #: The tile, at 100 % font scale. One size for every tab, and read
     #: from :mod:`spacr.qt.theme` rather than written here, because the
     #: stylesheet needs the same numbers — see
@@ -1542,11 +1548,25 @@ class HomePage(QWidget):
         logo = _find_logo_pixmap()
         if logo is not None:
             label = QLabel()
-            label.setPixmap(logo.scaled(logo_px, logo_px,
-                                        Qt.KeepAspectRatio,
-                                        Qt.SmoothTransformation))
+            label.setObjectName("HeroMark")
             label.setFixedSize(logo_px, logo_px)
             label.setStyleSheet("background: transparent;")
+
+            def _draw_mark(label=label, source=logo, side=logo_px):
+                """Redraw the mark at the ratio of the screen it is on.
+
+                Always from the 3334 px master. Re-scaling whatever is
+                already on the label would compound one resample for every
+                screen the window has been dragged across.
+                """
+                label.setPixmap(scaled_for(source, label, side))
+
+            _draw_mark()
+            # The masthead is the one picture in the application that is up
+            # for the whole session and never rebuilt, so it is the one that
+            # would stay soft after a move onto a denser display.
+            follow_device_ratio(label, _draw_mark)
+            self._hero_mark = label
             row.addWidget(label)
 
         title = QLabel("spaCR")

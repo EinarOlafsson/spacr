@@ -10,15 +10,22 @@ from __future__ import annotations
 
 import ast
 import logging
-from typing import Any, Dict, List, Mapping, Optional, Sequence
+from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Sequence
 
-import pandas as pd
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QCheckBox, QComboBox, QFrame, QHBoxLayout, QHeaderView, QLabel,
     QLineEdit, QPushButton, QScrollArea, QTreeWidget, QTreeWidgetItem,
     QVBoxLayout, QWidget,
 )
+
+if TYPE_CHECKING:                    # pragma: no cover - typing only
+    # PANDAS IS NOT NEEDED TO RUN THIS FILE. Both mentions are annotations,
+    # and `from __future__ import annotations` above makes those strings --
+    # but the plain import still ran, and it cost 0.365 s of a 1.5 s main
+    # window, because the Home page reaches this module through the settings
+    # model. Nothing here calls pandas; nothing here should import it.
+    import pandas as pd
 
 from ...classify_classes import (
     METADATA_COLUMNS, ClassDefinitionError, ClassRule, candidate_columns,

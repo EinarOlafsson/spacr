@@ -671,6 +671,14 @@ class ExperimentDesignScreen(QWidget):
                 label.lock_square()
 
     def _draw_plate(self, design: PlateDesign, table) -> None:
+        # WHAT THE USER CHOSE OUTLIVES THE REDRAW. Every well on this plate
+        # is destroyed and rebuilt on every `refresh`, and `refresh` runs on
+        # ONE KEYSTROKE in the plate name, on a nudge of the seed spinner and
+        # on every edit of the condition table -- so a selection read off the
+        # widgets alone was wiped by typing, not by anything the user did to
+        # the selection. Carried across as coordinates, which is the one form
+        # of it that survives the widgets being thrown away.
+        chosen = self.selected_wells()
         while self._plate_grid.count():
             item = self._plate_grid.takeAt(0)
             widget = item.widget()
@@ -678,6 +686,11 @@ class ExperimentDesignScreen(QWidget):
                 widget.setParent(None)
         self._well_labels = []
         rows, columns = plate_shape(design.plate_format)
+        # A SMALLER PLATE DROPS WHAT IS NO LONGER ON IT rather than keeping a
+        # coordinate that names nothing: 384 down to 96 has to forget H13,
+        # or a later switch back would resurrect a well the user cannot see.
+        chosen = {(row, column) for row, column in chosen
+                  if 1 <= row <= rows and 1 <= column <= columns}
         assigned = {}
         if table is not None and len(table):
             for record in table.to_dict("records"):
@@ -732,8 +745,17 @@ class ExperimentDesignScreen(QWidget):
                     "spacrWellEdge",
                     "true" if (record is not None and record["is_edge"])
                     else "false")
-                # The role and the edge mark are what decide the rim, so the
-                # square is settled once they are on the widget.
+                # SET BEFORE THE SQUARE IS LOCKED, not restored afterwards:
+                # the selection is drawn as a rim, a rim is part of the
+                # widget's size, and stating it here settles the well at its
+                # final size in one pass rather than resizing a plate's worth
+                # of wells the moment the selection is put back on them.
+                label.setProperty(
+                    "spacrWellChosen",
+                    "true" if (row, column) in chosen else "false")
+                # The role, the edge mark and the selection are what decide
+                # the rim, so the square is settled once they are on the
+                # widget.
                 label.lock_square()
                 self._plate_grid.addWidget(label, row, column)
                 self._well_labels.append(label)

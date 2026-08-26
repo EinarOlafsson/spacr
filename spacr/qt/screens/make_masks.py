@@ -177,6 +177,7 @@ from .. import iconset
 from .. import mask_engine as engine
 from .. import prefs
 from .. import wand_rescue
+from ..hidpi import follow_device_ratio, logical_size, scaled_for
 from ..theme import SPACING, active_palette, mark_surface
 from ..widgets import Card, Divider, EmptyState
 from ..widgets.fold_strip import FoldStrip
@@ -493,6 +494,10 @@ class _MaskCanvas(QLabel):
         self.wand_gradient_erode: int = 3
         self.wand_salvage_over_cap: bool = True
         self.zoom_speed: float = 1.15
+        # The field is composited once and stays up between edits, and a
+        # window dragged to another screen fires no resize -- so the
+        # recomposite has to be asked for.
+        follow_device_ratio(self, self.refresh)
 
         #: What the stroke that just finished did — ``{"kind", "target",
         #: "detail"}`` — for the screen to put in the curation ledger. Set
@@ -604,9 +609,12 @@ class _MaskCanvas(QLabel):
         pixmap = QPixmap.fromImage(qimg)
         avail_w = max(200, self.width())
         avail_h = max(200, self.height())
-        pixmap = pixmap.scaled(avail_w, avail_h,
-                                Qt.KeepAspectRatio,
-                                Qt.SmoothTransformation)
+        # Composited at the panel's real pixel density. Everything below
+        # that maps a mouse position onto this picture therefore asks
+        # `logical_size`, not `pixmap.width()`: the two differ by the device
+        # pixel ratio, and a drawn outline that is out by that factor lands
+        # on the wrong object.
+        pixmap = scaled_for(pixmap, self, avail_w, avail_h)
         self.setPixmap(pixmap)
 
     # ------------------------------------------------------------------
@@ -618,7 +626,8 @@ class _MaskCanvas(QLabel):
         p = self.pixmap()
         if self.mask is None or p is None or p.isNull():
             return None
-        pw, ph = p.width(), p.height()
+        shown = logical_size(p)
+        pw, ph = shown.width(), shown.height()
         w, h = self.width(), self.height()
         ox = (w - pw) // 2
         oy = (h - ph) // 2
@@ -647,7 +656,8 @@ class _MaskCanvas(QLabel):
         p = self.pixmap()
         if self.mask is None or p is None or p.isNull():
             return None
-        pw, ph = p.width(), p.height()
+        shown = logical_size(p)
+        pw, ph = shown.width(), shown.height()
         ox = (self.width() - pw) // 2
         oy = (self.height() - ph) // 2
         x0, y0, x1, y1 = self._viewport_bounds()
@@ -664,11 +674,12 @@ class _MaskCanvas(QLabel):
         image for the pixel under the cursor to stay under the cursor.
         """
         p = self.pixmap()
-        if self.mask is None or p is None or p.isNull() or not p.width():
+        shown = logical_size(p)
+        if self.mask is None or not shown.width():
             return (0, 0)
         x0, y0, x1, y1 = self._viewport_bounds()
-        return (int(round(-dx_px * (x1 - x0) / p.width())),
-                int(round(-dy_px * (y1 - y0) / p.height())))
+        return (int(round(-dx_px * (x1 - x0) / shown.width())),
+                int(round(-dy_px * (y1 - y0) / shown.height())))
 
     def pan_by(self, dx: int, dy: int) -> bool:
         """Slide the zoom viewport by (dx, dy) image px; True if it moved.
@@ -784,11 +795,12 @@ class _MaskCanvas(QLabel):
         """Scale the brush radius (in screen px) to full-image px, taking
         the current zoom into account."""
         p = self.pixmap()
-        if self.mask is None or p is None or p.isNull():
+        shown = logical_size(p)
+        if self.mask is None or not shown.width():
             return self.brush_radius
         x0, _, x1, _ = self._viewport_bounds()
         sub_w = max(1, x1 - x0)
-        return max(1, int(self.brush_radius * sub_w / p.width()))
+        return max(1, int(self.brush_radius * sub_w / shown.width()))
 
     # ------------------------------------------------------------------
     # Painting (adds a zoom-rectangle overlay while dragging)
@@ -1443,6 +1455,10 @@ class _FlowPane(QLabel):
         self.setStyleSheet(f"background: {active_palette()['bg']};")
         self.setWordWrap(True)
         self._pixmap: Optional[QPixmap] = None
+        # The flow picture is composited once per run and then left up, so
+        # a move onto a denser screen has to redraw it or it stays soft for
+        # the rest of the session.
+        follow_device_ratio(self, self._rescale)
         self.clear_view()
 
     def show_rgb(self, rgb: np.ndarray) -> None:
@@ -1471,8 +1487,7 @@ class _FlowPane(QLabel):
     def _rescale(self) -> None:
         if self._pixmap is None:
             return
-        self.setPixmap(self._pixmap.scaled(
-            self.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        self.setPixmap(scaled_for(self._pixmap, self, self.size()))
 
     def resizeEvent(self, event):
         """Refit the picture whenever the tab changes size."""

@@ -1903,7 +1903,7 @@ def _resolve_regression_analysis_choices(settings):
         raise ValueError(
             f"inference={settings.get('inference')!r} is not one of "
             f"{sorted(set(INFERENCE_MODES))}. 'parametric' fits the "
-            f"simultaneous model, 'nonparametric' runs the plate-blocked "
+            f"simultaneous model, 'nonparametric' runs the "
             f"permutation test, and 'auto' picks whichever the design can "
             f"support.")
     settings['inference'] = inference
@@ -2086,7 +2086,7 @@ def get_perform_regression_default_settings(settings):
     # defaulted into new files, which now write the explicit paired form.
     settings.setdefault('paired_data', [])
     # ``regression`` preserves the historical simultaneous model.  The
-    # alternative is a plate-blocked marginal guide test with empirical
+    # alternative is a within-plate marginal guide test with empirical
     # P-values and an explicit multiple-testing family; it consumes the same
     # score/count inputs and therefore belongs at this entry point rather than
     # in a disconnected manuscript-only script.
@@ -2117,7 +2117,7 @@ def get_perform_regression_default_settings(settings):
     # design it cannot support: perform_regression prints an unmissable
     # warning naming the counts when the parametric path is asked to fit more
     # parameters than it has wells. See ml.resolve_auto_inference.
-    # The plate-blocked permutation test is the conservative default for
+    # The permutation test is the conservative default for
     # well-level analysis. It assumes neither normal residuals nor equal
     # variance, although it is slower and its P-value resolution is bounded
     # by 1/(permutations + 1).
@@ -4177,11 +4177,11 @@ tooltips = {
     "dependent_variable": "(str) - Name of the column in score_data that is modelled as the response, e.g. 'pred'/'predictions' from the ML scoring step or a measured feature such as 'pathogen_nucleus_shortest_distance'. It is aggregated per well by agg_type and then optionally transformed. The run aborts if the column is absent from the score CSV. Default 'pred'.",
     "score_column": "(str) - Which column of the prediction CSV holds the CNN score that Explain CV and the hit-investigation montages read. The regression module no longer has this setting: it fits dependent_variable and simulates the minimum cell count on that same column, so one measurement cannot be named two ways there. Default 'cv_predictions'.",
     "analysis_mode": "(str) - 'regression' fits the selected simultaneous model. 'guide_permutation' tests each guide as a plate-adjusted marginal association using blocked Freedman--Lane permutations and then corrects the requested support family. Normally set for you by 'inference'; set it directly only to override that choice. Default 'regression'.",
-    "inference": "(str) - How effects are tested; the readable front end for analysis_mode. Default 'nonparametric': each guide is a plate-blocked Freedman-Lane permutation with an empirical P, valid however many guides there are, but no P can be below 1/(guide_permutations + 1). 'parametric' fits every guide at once in the chosen regression_type, so it needs more wells than guides or no coefficient is identifiable. 'auto' counts guides and wells and takes the simultaneous fit only when the design supports it.",
+    "inference": "(str) - How effects are tested; the readable front end for analysis_mode. Default 'nonparametric': each guide is a Freedman-Lane permutation that reshuffles wells only between wells of the same plate, with an empirical P, valid however many guides there are, but no P can be below 1/(guide_permutations + 1). 'parametric' fits every guide at once in the chosen regression_type, so it needs more wells than guides or no coefficient is identifiable. 'auto' counts guides and wells and takes the simultaneous fit only when the design supports it.",
     "analysis_unit": "(str) - What one row of the model is. 'well' collapses each well's objects into a single value with agg_type first, so the well is the independent unit and the number of cells behind it only affects precision. 'cell' regresses the individual objects instead, which keeps power but treats cells from one well as independent when they are not, so standard errors are optimistic unless the model accounts for the clustering (regression_type='mixed'). This is the explicit spelling of agg_type=None, which used to change the unit of analysis silently. Default 'well'.",
     "guide_min_wells": "(int or list) - Minimum numbers of independent wells containing a guide. A list such as [1, 2, 3, 4] writes one sensitivity-analysis table and volcano plot per threshold; P values are computed once and the multiple-testing correction is repeated within each eligible family. Default [1, 2, 3, 4].",
     "guide_primary_min_wells": "(int or None) - Which guide_min_wells family supplies results_significant.csv and the returned 'significant' table. Default None chooses the smallest requested threshold.",
-    "guide_permutations": "(int) - Number of plate-blocked Freedman--Lane residual permutations used for empirical two-sided guide P values. The P value IS (exceedances + 1) / (permutations + 1), where an exceedance is a permuted statistic at least as extreme as the observed one -- so the smallest it can be is 1 / (permutations + 1), reached only when nothing exceeded: 1,000 permutations resolve to about 1e-3, 10,000 to 1e-4, and the default 200,000 to 5e-6. Raise this when the volcano shows a flat row of guides at the P-value floor; runtime increases linearly. Default 200000.",
+    "guide_permutations": "(int) - Number of Freedman--Lane residual permutations used for empirical two-sided guide P values. The P value IS (exceedances + 1) / (permutations + 1), where an exceedance is a permuted statistic at least as extreme as the observed one -- so the smallest it can be is 1 / (permutations + 1), reached only when nothing exceeded: 1,000 permutations resolve to about 1e-3, 10,000 to 1e-4, and the default 200,000 to 5e-6. Raise this when the volcano shows a flat row of guides at the P-value floor; runtime increases linearly. Default 200000.",
     "guide_permutation_seed": "(int) - Random seed for reproducible residual permutations. Keep it fixed to reproduce exact empirical P values; change it to check Monte Carlo sensitivity. Default 0.",
     "grna_statistic": "(str) - What the permutation test measures between a gRNA's well fractions and the well phenotype. 'pearson' is a partial correlation, which is linear and is moved by an extreme well in proportion to how extreme it is. 'rank' is the same quantity computed on the ranked phenotype, so it responds to order rather than magnitude and no single well can move it far. Both cost one matrix product, so the choice does not change how long the test takes. Default 'pearson'.",
     "guide_permutation_block": "(str) - Column defining exchangeability blocks for permutations, normally plateID. Residuals are never shuffled between its levels. Default 'plateID'.",
@@ -4598,7 +4598,7 @@ tooltips = {
     # so the hover has to be right in both panels or it is wrong in one.
     # Renaming either side was not available: a new tooltip key has to
     # exist in all nine i18n catalogs, which are generated elsewhere.
-    'level': "(str) - Select the regression fit level or the proportion-summary unit. Regression: 'both' runs separate gRNA and gene fits, writes results_grna.csv and results_gene.csv, and corrects each fit independently with multiple_testing_method. This avoids a collinear combined design because a gene fraction is the sum of its guide fractions. 'grna' or 'gene' runs one fit. Disabled for mixed models, which nest guides within genes. Proportion plots: 'object' pools objects, 'well' averages by well, and 'plate' averages by plate. Default 'both' for regression and 'object' for proportions.",
+    'level': "(str) - Which level the run reports, on BOTH the fitted and the permutation side. 'both' answers the gRNA and the gene question separately, writes results_grna.csv and results_gene.csv, puts every row in results.csv marked by a 'level' column, and corrects each family independently with multiple_testing_method -- a gene fraction is the sum of its guides' fractions, so one combined design would be collinear and one shared correction would count the same wells twice. 'grna' or 'gene' reports one of them. Under inference='nonparametric' the guide pass runs whatever you pick, because a gene's regressor IS the sum of its guides', so 'gene' means the primary table reports genes rather than that guides were skipped. Disabled only for fitted mixed models, which nest guides within genes and answer both at once. Proportion plots use the same key for a different question: 'object' pools objects, 'well' averages by well, 'plate' averages by plate. Default 'both' for regression and 'object' for proportions.",
     'max_parasite_area': '(float or None) - Largest object area in pixels kept as a parasite. Anything bigger is several parasites merged by the mask, whose rim statistic mixes them and whose single classification then stands for all of them. None keeps everything. Default None.',
     'min_control_objects': "(int) - Objects a plate's control wells must contribute before their quantile is trusted as a threshold. Below it the plate falls back to the automatic per-field method and says so, rather than taking a 99th percentile from a handful of points. Default 10.",
     'min_objects_for_bimodality': '(int) - Objects required before the bimodality coefficient is computed at all; below it the coefficient is left NaN and the field or well is flagged. The statistic exceeds its cutoff on genuinely unimodal data about 45% of the time at ten objects and 15% at twenty, so computing it there would silence the check exactly where the classification is least trustworthy. Default 30, where that false-pass rate is 5%.',
@@ -5562,6 +5562,12 @@ def get_setting_dependencies():
         )
 
     guide_keys = (
+        # `grna_statistic` sits FIRST in the Permutation Test category and is
+        # read only by that path -- it says WHAT is measured, and nothing
+        # measures it on a fitted run. It was the one control in that section
+        # with no rule, so a parametric run greyed its eight neighbours and
+        # left it live.
+        'grna_statistic',
         'guide_min_wells', 'guide_primary_min_wells', 'guide_permutations',
         'guide_permutation_seed', 'guide_permutation_block',
         'guide_nuisance_columns', 'guide_presence_threshold',
@@ -5635,7 +5641,10 @@ def get_setting_dependencies():
     # live there: its real resolution counts guides and wells, which this
     # cannot see, so greying a setting the run may well read is the worse
     # error of the two.
+    # `intercept` and `intercept_value` say where a fitted line is anchored.
+    # A permutation test fits no line, so there is nothing to anchor.
     for key in ('regression_type', 'regression_backend', 'cov_type',
+                'intercept', 'intercept_value',
                 'model_plate_position', 'random_row_column_effects'):
         setting_dependencies[key] = _combined(
             setting_dependencies.get(key),
@@ -5644,7 +5653,7 @@ def get_setting_dependencies():
             lambda settings, context, setting=key: (
                 f"{setting} is not read under nonparametric inference: the "
                 f"guide-permutation path tests each guide on its own with "
-                f"plate-blocked permutations and fits no model, so no "
+                f"permutations and fits no model, so no "
                 f"regression family is chosen. The value is kept and saved."),
         )
 
@@ -5763,7 +5772,18 @@ def get_setting_dependencies():
     # endodyogeny panels use the same key for 'object'/'well'/'plate' and
     # carry no regression_type, so the predicate reads '' != 'mixed' -> True
     # -> applicable, and their control is never greyed by this.
+    def _is_nonparametric(settings):
+        return str(settings.get('inference') or '').lower() == 'nonparametric'
+
     def _level_is_read(settings, _context):
+        # THE PERMUTATION TEST READS IT. It fits no model, so regression_type
+        # says nothing about it and neither does random_row_column_effects --
+        # both are parametric answers to a parametric question. Greying the
+        # control here left the nonparametric side with no way to ask for
+        # genes at all, because the key that gated its gene pass has no
+        # control of its own.
+        if _is_nonparametric(settings):
+            return True
         if settings.get('random_row_column_effects', False):
             return False
         return str(settings.get('regression_type') or '').lower() != 'mixed'
@@ -5785,7 +5805,7 @@ def get_setting_dependencies():
             "fit one level at a time. The value is kept and saved.")
 
     setting_dependencies['level'] = rule(
-        ('regression_type', 'random_row_column_effects'),
+        ('regression_type', 'random_row_column_effects', 'inference'),
         _level_is_read, _level_reason)
 
     # Cell-level analysis keeps one row per object, whereas the permutation
@@ -5903,9 +5923,13 @@ def get_setting_dependencies():
         # TRUE MEANS APPLICABLE, matching every rule above -- the estimator
         # rules return True when the setting IS read. So: enabled when the
         # plate count is unknown, or when there is more than one plate.
+        # `context or {}` because a caller with no loaded inputs passes None,
+        # and every other predicate here tolerates that. Raising instead made
+        # this one rule the only way to crash a panel that is merely asking
+        # whether to grey a control.
         lambda settings, context: (
-            context.get('plate_count') is None
-            or context.get('plate_count') != 1),
+            (context or {}).get('plate_count') is None
+            or (context or {}).get('plate_count') != 1),
         lambda settings, context: (
             "guide_permutation_block names the column permutations are "
             "blocked within, and residuals are never shuffled between its "
@@ -5937,9 +5961,12 @@ def get_setting_dependencies():
         setting_dependencies[_key] = _combined(
             setting_dependencies.get(_key),
             ('paired_data', 'score_data', 'count_data'),
+            # See the note on `guide_permutation_block` above: a caller with
+            # no loaded inputs passes None, and a greying question must not
+            # be the thing that raises.
             lambda settings, context: (
-                context.get('plate_count') is None
-                or context.get('plate_count') != 1),
+                (context or {}).get('plate_count') is None
+                or (context or {}).get('plate_count') != 1),
             lambda settings, context, key=_key: (
                 f"{key} configures correction BETWEEN batches, and the loaded "
                 f"inputs hold one plate. There is nothing between batches to "

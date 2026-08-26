@@ -45,6 +45,7 @@ from ...crops import (LOAD_IMAGES, LOAD_IMAGES_LABEL, STREAM_IMAGES,
 from ...cell_montage import (                                   # noqa: E402
     DEFAULT_SCORE_COLUMN, MAX_OBJECTS, WINDOW_HALF_WIDTHS,
 )
+from ..hidpi import scaled_for                               # noqa: E402
 from ..theme import close_mark_button, install_close_marks   # noqa: E402
 
 LOG = logging.getLogger(__name__)
@@ -1525,12 +1526,17 @@ def _thumbnail(crop, row, parent=None, size: int = 0,
         label.setFixedSize(px, px)
         return label
     highlight = candidate_colour() if _is_candidate(row) else ""
-    return _Thumb(_pixmap(crop, px), tooltip, parent, size=px,
+    return _Thumb(_pixmap(crop, px, parent), tooltip, parent, size=px,
                   highlight=highlight)
 
 
-def _pixmap(crop, size: int = 0) -> QPixmap:
-    """A crop as a thumbnail-sized ``QPixmap``."""
+def _pixmap(crop, size: int = 0, target=None) -> QPixmap:
+    """A crop as a thumbnail-sized ``QPixmap``.
+
+    ``size`` is the LOGICAL side the tile occupies; ``target`` is the widget
+    it will be drawn on, so the crop is rasterised at that screen's pixel
+    density rather than at a fraction of it.
+    """
     array = np.ascontiguousarray(np.asarray(crop, dtype=np.uint8))
     if array.ndim == 2:
         array = np.repeat(array[:, :, None], 3, axis=2)
@@ -1541,8 +1547,7 @@ def _pixmap(crop, size: int = 0) -> QPixmap:
     # without it the pixmap points at freed memory the moment the array
     # goes out of scope.
     px = int(size or THUMBNAIL_PX)
-    return QPixmap.fromImage(image.copy()).scaled(
-        px, px, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+    return scaled_for(QPixmap.fromImage(image.copy()), target, px)
 
 
 #: What the Annotate tab says on hover.

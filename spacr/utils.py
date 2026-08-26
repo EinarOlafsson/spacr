@@ -6204,8 +6204,16 @@ def _remove_outside_objects(stack, cell_dim, nucleus_dim, pathogen_dim):
         cell_mask = stack[:, :, cell_dim]
     else:
         return stack
-    nucleus_mask = stack[:, :, nucleus_dim]
+    # A DIM OF None IS np.newaxis, NOT A MISSING CHANNEL. `stack[:, :, None]`
+    # does not raise: it returns the WHOLE STACK with an axis inserted, so
+    # `nucleus_mask` became every channel at once and zeroing a nucleus label
+    # zeroed every object that happened to share the number. Measured on an
+    # 8x8 stack: a cell labelled 5, nowhere near the pathogen, was erased in
+    # full when nucleus_dim was None.
+    if pathogen_dim is None:
+        return stack                       # nothing to remove
     pathogen_mask = stack[:, :, pathogen_dim]
+    nucleus_mask = None if nucleus_dim is None else stack[:, :, nucleus_dim]
     pathogen_labels = np.unique(pathogen_mask)[1:]
     for pathogen_label in pathogen_labels:
         pathogen_region = pathogen_mask == pathogen_label
@@ -6216,22 +6224,29 @@ def _remove_outside_objects(stack, cell_dim, nucleus_dim, pathogen_dim):
             # `nucleus_mask == pathogen_label` reused a pathogen label id as a
             # nucleus label id — independent label spaces — so it deleted an
             # arbitrary unrelated nucleus that merely shared the number.
-            nuclei_in_pathogen = np.unique(nucleus_mask[pathogen_region])
-            nuclei_in_pathogen = nuclei_in_pathogen[nuclei_in_pathogen != 0]
             pathogen_mask[pathogen_region] = 0
-            for nucleus_label in nuclei_in_pathogen:
-                nucleus_mask[nucleus_mask == nucleus_label] = 0
+            if nucleus_mask is not None:
+                nuclei_in_pathogen = np.unique(nucleus_mask[pathogen_region])
+                nuclei_in_pathogen = nuclei_in_pathogen[
+                    nuclei_in_pathogen != 0]
+                for nucleus_label in nuclei_in_pathogen:
+                    nucleus_mask[nucleus_mask == nucleus_label] = 0
     stack[:, :, cell_dim] = cell_mask
-    stack[:, :, nucleus_dim] = nucleus_mask
+    if nucleus_dim is not None:
+        stack[:, :, nucleus_dim] = nucleus_mask
     stack[:, :, pathogen_dim] = pathogen_mask
     return stack
 
 def _remove_multiobject_cells(stack, mask_dim, cell_dim, nucleus_dim, pathogen_dim, object_dim):
     """Zero out cells containing more than one object in ``object_dim``."""
+    # See `_remove_outside_objects`: a dim of None is np.newaxis and silently
+    # widens the view to the whole stack instead of raising.
+    if mask_dim is None or object_dim is None:
+        return stack
     cell_mask = stack[:, :, mask_dim]
-    nucleus_mask = stack[:, :, nucleus_dim]
-    pathogen_mask = stack[:, :, pathogen_dim]
     object_mask = stack[:, :, object_dim]
+    nucleus_mask = None if nucleus_dim is None else stack[:, :, nucleus_dim]
+    pathogen_mask = None if pathogen_dim is None else stack[:, :, pathogen_dim]
 
     for cell_label in np.unique(cell_mask)[1:]:
         cell_region = cell_mask == cell_label
@@ -6243,19 +6258,24 @@ def _remove_multiobject_cells(stack, mask_dim, cell_dim, nucleus_dim, pathogen_d
         labels_in_cell = labels_in_cell[labels_in_cell != 0]
         if len(labels_in_cell) > 1:
             cell_mask[cell_region] = 0
-            nucleus_mask[cell_region] = 0
+            if nucleus_mask is not None:
+                nucleus_mask[cell_region] = 0
             # Resolve the pathogens through the cell FOOTPRINT. labels_in_cell
             # are object_dim label ids, and nucleus/pathogen masks are labeled
             # independently from 1 — reusing them as pathogen ids deletes
             # unrelated pathogens whenever object_dim is not the pathogen dim.
-            pathogens_in_cell = np.unique(pathogen_mask[cell_region])
-            pathogens_in_cell = pathogens_in_cell[pathogens_in_cell != 0]
-            for pathogen_label in pathogens_in_cell:
-                pathogen_mask[pathogen_mask == pathogen_label] = 0
+            if pathogen_mask is not None:
+                pathogens_in_cell = np.unique(pathogen_mask[cell_region])
+                pathogens_in_cell = pathogens_in_cell[pathogens_in_cell != 0]
+                for pathogen_label in pathogens_in_cell:
+                    pathogen_mask[pathogen_mask == pathogen_label] = 0
 
-    stack[:, :, cell_dim] = cell_mask
-    stack[:, :, nucleus_dim] = nucleus_mask
-    stack[:, :, pathogen_dim] = pathogen_mask
+    if cell_dim is not None:
+        stack[:, :, cell_dim] = cell_mask
+    if nucleus_dim is not None:
+        stack[:, :, nucleus_dim] = nucleus_mask
+    if pathogen_dim is not None:
+        stack[:, :, pathogen_dim] = pathogen_mask
     return stack
     
 def merge_touching_objects(mask, threshold=0.25):

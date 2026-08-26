@@ -86,6 +86,7 @@ from ..widgets.toggle import Toggle
 
 from ... import model_compare as mc
 from ..bridge import make_thread
+from ..hidpi import logical_size, scaled_for
 from ..theme import (RADIUS, SPACING, active_palette,
                      block_surface, ensure_widget_qss_applied,
                      register_widget_qss)
@@ -880,18 +881,23 @@ class ModelCompareScreen(QWidget):
         qimage = QImage(composed.tobytes(), width, height, 3 * width,
                         QImage.Format_RGB888).copy()
         canvas.setText("")
-        canvas.setPixmap(QPixmap.fromImage(qimage).scaled(
-            max(PREVIEW_PX, canvas.width()), max(PREVIEW_PX, canvas.height()),
-            Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        canvas.setPixmap(scaled_for(
+            QPixmap.fromImage(qimage), canvas,
+            max(PREVIEW_PX, canvas.width()),
+            max(PREVIEW_PX, canvas.height())))
         return True
 
     def preview_sizes(self):
-        """``(a, b)`` pixmap sizes — ``(0, 0)`` for a panel with no image."""
+        """``(a, b)`` preview sizes on screen — ``(0, 0)`` for an empty panel.
+
+        The size the picture OCCUPIES, not the pixel count it was drawn
+        with: on a HiDPI screen the panel is rendered at twice the density
+        and the two answers differ by that factor.
+        """
         out = []
         for canvas in (self._preview_a, self._preview_b):
-            pixmap = canvas.pixmap()
-            out.append((0, 0) if pixmap is None or pixmap.isNull()
-                       else (pixmap.width(), pixmap.height()))
+            shown = logical_size(canvas.pixmap())
+            out.append((shown.width(), shown.height()))
         return tuple(out)
 
     def preview_captions(self):

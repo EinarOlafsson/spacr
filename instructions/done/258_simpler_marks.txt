@@ -2,7 +2,30 @@
 SIMPLER MARKS: NO INFORMATION DOTS, AND ONE CLOSE ICON EVERYWHERE
 ================================================================================
 
-Status:    OPEN. Requested 2026-08-26 -- "i like simplisity!"
+Status:    DONE. Requested 2026-08-26 -- "i like simplisity!"
+
+           1. The dots are gone: `api_dots` was removed from
+           `install_api_tooltips` entirely rather than defaulted to False,
+           and a sweep of three built screens finds no widget whose text or
+           tooltip carries the glyph. Every setting still offers its API
+           link on hover.
+
+           The caption that NAMED the dot is corrected. It was still shown
+           under the settings panel and was wrong in ten languages once the
+           dot stopped being drawn.
+
+           REPORTED, NOT EDITED, per this file: the nine translation
+           catalogs still carry the old sentence as a row. The English
+           source now reads "Hover any setting for details and a link to its
+           documentation." and the catalogs need that row re-translated.
+           `spacr/qt/i18n.py:1678` still holds the old key.
+
+           2. One close mark: `theme.install_close_marks` is the single
+           definition, and BOTH closable-tab sites already call it --
+           `cell_montage_view.py:1952` and `map_barcodes.py:462,504`, which
+           are the two the maintainer named. A sweep for a close glyph
+           written anywhere outside `theme.py` finds nothing, so no site
+           styles its own. tests/qt/test_one_close_mark.py, 33 tests.
 Owner:     spacr/qt/screens/settings_model.py for the dots,
            spacr/qt/theme.py and every tab or chip that closes.
 

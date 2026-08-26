@@ -160,7 +160,20 @@ def find_results_tables(path, *, max_depth: int = MAX_SEARCH_DEPTH,
     except TypeError:
         return []
     if os.path.isfile(root):
-        return [root] if root.lower().endswith(".csv") else []
+        if not root.lower().endswith(".csv"):
+            return []
+        # AND THE REST OF THE RUN. A permutation run writes its guides to
+        # results.csv and its genes to results_gene.csv beside it; handed the
+        # one file, returning it alone hides the level the reader asked for.
+        # The siblings follow RESULT_FILENAMES order with the chosen file
+        # first, so it stays the primary table `read_run_tables` merges into.
+        home = os.path.dirname(root)
+        rest = []
+        for name in RESULT_FILENAMES:
+            beside = os.path.join(home, name)
+            if beside != root and os.path.isfile(beside):
+                rest.append(beside)
+        return [root] + rest
     if not os.path.isdir(root):
         return []
     runs = []
@@ -191,6 +204,133 @@ def find_results_tables(path, *, max_depth: int = MAX_SEARCH_DEPTH,
             break
     runs.sort()
     return [candidate for _, _, group in runs for candidate in group]
+
+
+def read_run_tables(tables):
+    """Read a run's primary table, and any LEVEL it left in a sibling file.
+
+    ``results.csv`` is meant to hold every level a run produced -- a fitted
+    run at ``level='both'`` writes its guide and gene rows into one table and
+    the panel filters them apart by the ``level`` column.
+
+    THE PERMUTATION PATH DID NOT ALWAYS DO THAT. It tested genes, corrected
+    them as their own family, wrote them to ``results_gene.csv``, and left
+    ``results.csv`` holding guides alone -- so a reader who asked for genes
+    was shown nothing while the rows sat in a file nothing opened. The writer
+    is fixed, and this reads the older runs too, because a folder on disk
+    does not update itself.
+
+    A sibling is merged only when it brings a level the primary table does
+    NOT already carry, so a run that already holds both is untouched and
+    nothing is ever counted twice.
+
+    :param tables: candidate paths, primary first, as
+        :func:`find_results_tables` returns them.
+    :returns: ``(frame, found, merged)`` -- the table, the path it came from,
+        and the sibling paths folded into it.
+    """
+    import pandas as pd
+
+    found = tables[0]
+    frame = pd.read_csv(found)
+    merged = []
+    have = set()
+    if "level" in frame.columns:
+        have = {str(v).strip().lower() for v in frame["level"].dropna().unique()}
+    else:
+        from spacr.hits import coefficient_levels
+
+        try:
+            have = {str(v) for v in pd.Series(coefficient_levels(frame)).unique()}
+        except Exception:                                    # noqa: BLE001
+            have = set()
+    home = os.path.dirname(found)
+    for sibling in tables[1:]:
+        if os.path.dirname(sibling) != home:
+            continue          # a different run, not a second half of this one
+        name = os.path.basename(sibling)
+        wants = ("gene" if "gene" in name else
+                 "grna" if "grna" in name else "")
+        if not wants or wants in have:
+            continue
+        try:
+            extra = pd.read_csv(sibling)
+        except Exception:                                    # noqa: BLE001
+            continue
+        if extra.empty:
+            continue
+        if "level" not in extra.columns:
+            extra = extra.copy()
+            extra["level"] = wants
+        if "level" not in frame.columns:
+            frame = frame.copy()
+            frame["level"] = sorted(have)[0] if len(have) == 1 else None
+        frame = pd.concat([frame, extra], ignore_index=True, sort=False)
+        have.add(wants)
+        merged.append(sibling)
+    return frame, found, merged
+
+
+#: Columns the coefficient table keeps even when every visible row leaves
+#: them blank, because a reader looks for them by name and an absent column
+#: reads as a missing measurement rather than an empty one.
+TABLE_KEEP_COLUMNS = ("feature", "level", "coefficient", "p_value",
+                      "q_value", "adjusted_p_value", "significant")
+
+
+def for_table(frame):
+    """``frame`` without the columns that are blank for every row shown.
+
+    A permutation run's table is the UNION of two schemas: a guide row has
+    ``guide`` and ``wells_with_guide``, a gene row has ``gene``,
+    ``wells_with_gene`` and ``guides_in_gene``. Showing the union means that
+    whichever level is chosen, a third of the columns are empty -- and the
+    gene the reader is looking for is named thirteen columns to the right of
+    a blank ``guide`` cell, which is what makes a gene view read as broken
+    even once the rows are there.
+
+    Dropping a column that no visible row fills is safe because it carries no
+    value for this selection: "how many wells hold this guide" has no answer
+    for a gene. The identity and significance columns in
+    :data:`TABLE_KEEP_COLUMNS` stay regardless.
+
+    :param frame: the rows about to be shown.
+    :returns: the same rows, narrowed. The input is not modified.
+    """
+    columns = list(getattr(frame, "columns", ()))
+    if not columns or len(frame) == 0:
+        return frame
+    # THE SAME NUMBER UNDER TWO NAMES IS WORSE THAN EITHER NAME ALONE. The
+    # permutation path copies `standardized_marginal_effect` into
+    # `coefficient` so the rest of the screen can read one name, and a reader
+    # then sees two identical columns and asks which is the real one -- and
+    # whether a quantity bounded in [-1, 1] is a coefficient at all. It is
+    # not: it is a partial correlation. The accurate name is the one kept.
+    if ("coefficient" in columns
+            and "standardized_marginal_effect" in columns):
+        try:
+            same = frame["coefficient"].equals(
+                frame["standardized_marginal_effect"])
+        except Exception:                                    # noqa: BLE001
+            same = False
+        if same:
+            columns = [c for c in columns if c != "coefficient"]
+            frame = frame[columns]
+    keep = []
+    for name in columns:
+        if name in TABLE_KEEP_COLUMNS:
+            keep.append(name)
+            continue
+        column = frame[name]
+        try:
+            filled = column.notna()
+            if filled.any() and column.astype(str).str.strip().ne("").any():
+                keep.append(name)
+        except Exception:                                    # noqa: BLE001
+            keep.append(name)
+    if len(keep) == len(columns):
+        return frame
+    return frame[keep]
 
 
 def find_results_table(path) -> Optional[str]:
@@ -278,9 +418,10 @@ UNIDENTIFIABLE_WARNING = (
     "With no residual degrees of freedom, and possible rank deficiency, "
     "individual coefficients, standard errors and P values cannot be "
     "interpreted reliably.\n"
-    "Set inference='nonparametric' to test each guide as a plate-blocked "
-    "marginal association without fitting every guide coefficient at once, "
-    "or use inference='auto' to let spaCR choose.\n")
+    "Set inference='nonparametric' to test each guide as a marginal "
+    "association, reshuffling wells only between wells of the same plate, "
+    "without fitting every guide coefficient at once; or use "
+    "inference='auto' to let spaCR choose.\n")
 
 
 #: Prefixed to a summary that was READ rather than rendered. A reader pasting
@@ -1898,13 +2039,12 @@ class RegressionResultsPanel(QWidget):
                 f"Searched {searched} and found none of "
                 f"{', '.join(RESULT_FILENAMES)} in it or in any folder up to "
                 f"{MAX_SEARCH_DEPTH} deep.")}
-        found = tables[0]
         try:
-            frame = pd.read_csv(found)
+            frame, found, merged = read_run_tables(tables)
         except Exception as error:  # noqa: BLE001 - report, do not raise
-            return {"error": f"Could not read {found}: {error}"}
+            return {"error": f"Could not read {tables[0]}: {error}"}
         return {"frame": frame, "found": found, "searched": searched,
-                "tables": tables}
+                "tables": tables, "merged": merged}
 
     def _finish_load(self, outcome) -> bool:
         """THE GUI HALF: everything that touches a widget."""
@@ -1961,11 +2101,10 @@ class RegressionResultsPanel(QWidget):
                 f"{MAX_SEARCH_DEPTH} deep.")
             return False
 
-        found = tables[0]
         try:
-            frame = pd.read_csv(found)
+            frame, found, merged = read_run_tables(tables)
         except Exception as error:  # noqa: BLE001 - report, do not raise
-            self.say(f"Could not read {found}: {error}")
+            self.say(f"Could not read {tables[0]}: {error}")
             return False
         return self._apply_loaded_run(frame, found, searched, tables)
 
@@ -2576,7 +2715,7 @@ class RegressionResultsPanel(QWidget):
                 for name in ("q_value", "adjusted_p_value", "p_value")):
             significance = column
         self.table.set_frame(
-            shown, key_column=self._key_column(shown),
+            for_table(shown), key_column=self._key_column(shown),
             significance_column=significance)
         self._show_significance(shown, kind, column, self._path or "")
         self._draw_effects(shown, kind)
@@ -2587,6 +2726,31 @@ class RegressionResultsPanel(QWidget):
         # touching how any of them was computed.
         self._draw_guide_support(frame)
         self._say_which_family()
+
+    def _analysis_path(self) -> str:
+        """``'permutation'`` when this run permuted, else ``'fitted'``.
+
+        Read off the TABLE, not the settings: a folder opened from disk may
+        carry no settings at all, and the columns a permutation writes are
+        proof it ran.
+        """
+        columns = list(getattr(self._frame, "columns", ()))
+        if any(name in columns for name in PERMUTATION_COLUMNS):
+            return "permutation"
+        # THE TABLE DECIDES, and only a table with no columns at all defers to
+        # the settings. A saved settings file carries the MODULE's default
+        # inference, not what the run did -- an OLS folder beside this one
+        # says inference='nonparametric' and was fitted, so reading the
+        # settings first labelled an unbounded OLS coefficient a partial
+        # correlation. The permutation writes its columns every time.
+        if columns:
+            return "fitted"
+        settings = self._run_settings if isinstance(self._run_settings,
+                                                    dict) else {}
+        mode = str(settings.get("analysis_mode") or "").strip().lower()
+        if mode == "guide_permutation":
+            return "permutation"
+        return "fitted"
 
     @staticmethod
     def _gene_terms(frame) -> dict:
@@ -2923,10 +3087,12 @@ class RegressionResultsPanel(QWidget):
         fitted = str(settings.get("level") or "").strip().lower()
         if level == "gene":
             if any(name in columns for name in PERMUTATION_COLUMNS):
-                return ("it was fitted by permutation, which resamples one "
-                        "guide's well labels at a time, so every test in it "
-                        "is a guide's. A gene-level permutation is a "
-                        "different test and this run did not do it.")
+                return ("this permutation run reported guides only. The gene "
+                        "pass tests each gene as a SET -- its regressor the "
+                        "sum of its guides' fractions, permuted with the same "
+                        "scheme and corrected as its own family -- and it "
+                        "runs when level is 'gene' or 'both'. Re-run at one "
+                        "of those to get gene rows.")
             if fitted == "grna":
                 return ("it was fitted at level='grna', which fits the guide "
                         "terms only. Re-fit at level='both' or 'gene' to get "
@@ -3442,6 +3608,15 @@ class RegressionResultsPanel(QWidget):
     def _redraw_volcano(self) -> None:
         if self._frame is None:
             return
+        # WHAT THE HORIZONTAL AXIS IS. The permutation path copies its
+        # partial correlation into `coefficient` so the rest of the screen
+        # can read one name, which leaves the axis calling a bounded
+        # correlation a coefficient. Named per redraw rather than at load,
+        # because a panel can be handed a different run without being rebuilt.
+        try:
+            self.volcano.name_the_effect(self._analysis_path())
+        except AttributeError:                               # noqa: BLE001
+            pass
         kind, column = self._ranking
         # A volcano's y-axis IS -log10(p). Where there is no p-value the axis
         # has nothing to be, so the plot is left empty on purpose and says
