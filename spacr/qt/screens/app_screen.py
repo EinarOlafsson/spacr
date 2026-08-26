@@ -3583,8 +3583,13 @@ class AppScreen(QWidget):
         rendered: the strip was Swedish until the first hover and English
         from then on.
         """
-        return tr(
-            "Hover any setting for details, or select \u24d8 for documentation.")
+        # NO LONGER NAMES THE DOT. The information dots were removed
+        # (instruction 258, "i like simplisity!"), so half of this sentence
+        # pointed at a control that is not drawn any more -- in ten
+        # languages. The API link did not go anywhere: it is in the hover
+        # tooltip, which is what the sentence now says.
+        return tr("Hover any setting for details and a link to its "
+                  "documentation.")
 
     def _build_runtime_panel(self) -> QWidget:
         wrap = QWidget()

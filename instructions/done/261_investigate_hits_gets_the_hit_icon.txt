@@ -2,7 +2,12 @@
 INVESTIGATE HITS WEARS THE HIT ICON
 ================================================================================
 
-Status:    OPEN. Requested 2026-08-26.
+Status:    DONE. `SHARED_ICON_ASSETS` maps `investigate_hit` to
+           `hit_list.png` and `hit_list` still resolves to it under its own
+           name, so the fold button is unchanged -- two keys, one asset, on
+           purpose. Both are non-null in light and dark at 512x512, driven
+           through `app_icon` rather than read off the table.
+           tests/qt/test_investigate_hits_wears_the_hit_mark.py, 43 tests.
 Owner:     spacr/qt/iconset.py.
 
 "the investigate hits module should get the old hit icon"
