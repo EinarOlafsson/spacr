@@ -87,14 +87,19 @@ def test_refresh_regenerates_semantic_help_without_mutating_source():
     app.processEvents()
 
 
-def test_installed_api_dot_refreshes_accessibility_and_uses_setting_url():
+def test_the_setting_link_follows_the_language_without_a_dot_to_hold_it():
+    """The dot is gone; the link it opened is in the label's hover text.
+
+    That is the whole reason the dot was safe to drop, so the link has to
+    keep following the language pass on its own -- localised URL included.
+    """
     from PySide6.QtWidgets import QFormLayout, QLabel, QSpinBox, QWidget
     from spacr.qt.screens.settings_model import (
         api_docs_url,
         install_api_tooltips,
         refresh_api_tooltips,
     )
-    from spacr.qt.widgets.info_link import InfoLink
+    from spacr.qt.widgets.dot_link import DotLink
 
     app = _application()
     root = QWidget()
@@ -104,21 +109,15 @@ def test_installed_api_dot_refreshes_accessibility_and_uses_setting_url():
     form.addRow(label, field)
     install_api_tooltips(root, "umap", {field: "n_trials"})
 
-    dots = root.findChildren(InfoLink)
-    assert len(dots) == 1
-    dot = dots[0]
-    assert dot.url() == api_docs_url("umap", "n_trials")
+    assert root.findChildren(DotLink) == []
+    assert api_docs_url("umap", "n_trials") in label.toolTip()
 
     refresh_api_tooltips(root, "sv")
-    assert dot.toolTip().startswith("Öppna API-referens")
-    assert dot.url().endswith("?lang=sv")
-    assert dot.accessibleName() == dot.toolTip()
+    assert api_docs_url("umap", "n_trials", "sv") in label.toolTip()
     assert field.toolTip() == ""
 
     refresh_api_tooltips(root, "ko")
-    assert "API 참조 열기" in dot.toolTip()
-    assert dot.url().endswith("?lang=ko")
-    assert dot.accessibleName() == dot.toolTip()
+    assert api_docs_url("umap", "n_trials", "ko") in label.toolTip()
     assert label.property("apiTooltipDescriptionSource") == ""
     assert "이 설정을 제어합니다." in label.toolTip()
     root.close()

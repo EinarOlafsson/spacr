@@ -45,6 +45,7 @@ from ...crops import (LOAD_IMAGES, LOAD_IMAGES_LABEL, STREAM_IMAGES,
 from ...cell_montage import (                                   # noqa: E402
     DEFAULT_SCORE_COLUMN, MAX_OBJECTS, WINDOW_HALF_WIDTHS,
 )
+from ..theme import close_mark_button, install_close_marks   # noqa: E402
 
 LOG = logging.getLogger(__name__)
 
@@ -1544,6 +1545,18 @@ def _pixmap(crop, size: int = 0) -> QPixmap:
         px, px, Qt.KeepAspectRatio, Qt.SmoothTransformation)
 
 
+#: What the Annotate tab says on hover.
+ANNOTATE_TAB_TOOLTIP = (
+    "Ten ways of choosing WHICH of these cells get annotated, each saying "
+    "what it is for and what it costs — the top-scoring cells against a "
+    "matched random draw, uncertainty and diversity sampling, control wells "
+    "as anchors, positive-unlabelled learning, self-training, two-view "
+    "disagreement, score strata, neighbour propagation, and the plain random "
+    "draw every one of them is measured against. Wells are never split "
+    "across train and test, and the fit is reported with the score's own "
+    "inputs removed as well as kept.")
+
+
 class CellMontageView(QWidget):
     """The cells behind the selected coefficient, beside the run's figures.
 
@@ -1607,6 +1620,11 @@ class CellMontageView(QWidget):
         self._frame_provider = frame_provider
         self._results_provider = results_provider
         self._database_provider = database_provider
+        #: Whether this view's work goes to a worker thread. Remembered so a
+        #: panel built later runs the way the view was asked to run -- an
+        #: unthreaded view that grew a threaded tab would put a QThread into
+        #: a test that was constructed to have none.
+        self._threaded = bool(threaded)
 
         # EVERY PIECE OF STATE A CONTROL READS IS BORN HERE, before a single
         # signal is connected. A widget whose controls are live before its
@@ -1737,6 +1755,17 @@ class CellMontageView(QWidget):
             "settings.")
         self._compare_button.clicked.connect(self.compare_a_measurement)
         controls.addWidget(self._compare_button)
+
+        # HOW THE CELLS GET ANNOTATED is a tab rather than a fourth button on
+        # this row. The three buttons already here put this widget's minimum
+        # width at 553 px against a splitter that floors at 520, and a fourth
+        # took it to 713 -- a minimum wider than the panel it sits in forces
+        # the whole regression screen wider, which is the failure the
+        # stringency row was taken off this toolbar to fix.
+        self._annotation_panel = None
+        self._annotation_page = None
+        self._annotation_placeholder = None
+        self._annotation_tab = None
 
         self._per_guide = QComboBox()
         self._per_guide.addItem("guides summed", False)
@@ -1879,6 +1908,26 @@ class CellMontageView(QWidget):
         self._tabs.addTab(summary, "Summary")
         self._summary_tab = summary
 
+        # THE ANNOTATE TAB IS ALWAYS THERE AND ITS CONTENT IS NOT. The tab
+        # is named from the start, so the strategies are a place a user can
+        # find rather than a button that has to be discovered; the panel
+        # inside it -- forty controls and a fitting runner -- is built the
+        # first time somebody opens it. A montage that is never annotated
+        # therefore costs a label and a layout.
+        self._annotation_page = QWidget()
+        page_layout = QVBoxLayout(self._annotation_page)
+        page_layout.setContentsMargins(8, 8, 8, 8)
+        waiting = QLabel(ANNOTATE_TAB_TOOLTIP)
+        waiting.setWordWrap(True)
+        waiting.setMinimumWidth(160)
+        waiting.setAlignment(Qt.AlignTop)
+        page_layout.addWidget(waiting)
+        self._annotation_placeholder = waiting
+        self._annotation_tab = self._tabs.insertTab(
+            1, self._annotation_page, "Annotate")
+        self._tabs.setTabToolTip(1, ANNOTATE_TAB_TOOLTIP)
+        self._tabs.currentChanged.connect(self._on_tab_changed)
+
         # THE GRAPH TAB (179 A), beside Summary and empty until a montage has
         # been generated: before that there are no groups to graph, and a tab
         # offering to would be a control that cannot work. It is created here
@@ -1890,7 +1939,12 @@ class CellMontageView(QWidget):
         # side the style names; removing BOTH is the only way that does not
         # depend on the style.
         for side in (QTabBar.LeftSide, QTabBar.RightSide):
-            self._tabs.tabBar().setTabButton(0, side, None)
+            for fixed in (0, self._tabs.indexOf(self._annotation_page)):
+                self._tabs.tabBar().setTabButton(fixed, side, None)
+        # THE APPLICATION'S CLOSE MARK, NOT THIS WIDGET'S. Asked for once;
+        # the strip keeps it as tabs are opened and closed. See
+        # `theme.install_close_marks`.
+        install_close_marks(self._tabs)
         self._tabs.setTabToolTip(
             0, "The whole montage in words: the wells, the window, the "
                "arithmetic and every setting that decided which cells these "
@@ -2367,6 +2421,11 @@ class CellMontageView(QWidget):
         self._set_status(self._summary())
         self._refresh_controls()
         self._ensure_graph_tab()
+        # THE WELLS MOVED WITH THE COEFFICIENT. A strategy panel still
+        # showing the previous gene's wells would take its positives from
+        # wells the montage on screen has nothing to do with.
+        if self._annotation_panel is not None:
+            self._annotation_panel.refresh()
         self.montage_ready.emit(result.n_objects)
         # AND THE NEXT ONE, if `build_every_selected` queued any. Chained
         # here rather than started together, so the tabs arrive in the order
@@ -3007,6 +3066,110 @@ class CellMontageView(QWidget):
             self._graph_panel.set_data(rows, groups,
                                        settings=self.picture_settings())
 
+    def annotate_the_cells(self, *_args):
+        """Bring the Annotate tab forward, pointed at what is on screen.
+
+        A tab rather than a window: the strategies choose from the rows on
+        screen, in the wells the coefficient named, and a window would put
+        the choice somewhere the montage that produced it is not.
+
+        :returns: the strategy panel, built on this call if it was not
+            already.
+        """
+        # BUILT BEFORE THE TAB IS RAISED, so the hundred widgets go into a
+        # page Qt is not in the middle of showing.
+        panel = self._ensure_annotation_panel()
+        index = self._tabs.indexOf(self._annotation_page)
+        if index >= 0:
+            self._tabs.setCurrentIndex(index)
+        if panel is not None:
+            panel.refresh()
+        return panel
+
+    def _on_tab_changed(self, index: int) -> None:
+        """Fill the Annotate tab the first time somebody opens it.
+
+        The build is POSTED rather than done here. This runs inside Qt's own
+        tab change; filling the page being shown while that is still
+        unwinding is reentrancy the builder is kept out of on purpose.
+        """
+        if self._tabs.widget(index) is not self._annotation_page:
+            return
+        if self._annotation_panel is not None:
+            self._annotation_panel.refresh()
+            return
+        QTimer.singleShot(0, self._fill_the_annotation_tab)
+
+    def _fill_the_annotation_tab(self) -> None:
+        """Build the strategy panel and point it at what is on screen."""
+        panel = self._ensure_annotation_panel()
+        if panel is not None:
+            panel.refresh()
+
+    def _ensure_annotation_panel(self):
+        """The strategy panel, built into the Annotate tab on first use.
+
+        Built on opening rather than at construction because the panel is
+        forty controls and a fitting runner, and a montage nobody annotates
+        should not pay for them. The TAB is there either way, so the
+        strategies are a named place rather than a hidden one.
+        """
+        if self._annotation_panel is not None:
+            return self._annotation_panel
+        from .annotation_strategy_panel import AnnotationStrategyPanel
+
+        try:
+            panel = AnnotationStrategyPanel(
+                objects_provider=self.rows_to_compare,
+                wells_provider=self._chosen_wells,
+                score_provider=lambda: (self._score.text().strip()
+                                        or DEFAULT_SCORE_COLUMN),
+                folder_provider=self._annotation_folder,
+                parent=self._annotation_page,
+                threaded=self._threaded)
+        except Exception:
+            LOG.exception("Could not build the annotation strategies")
+            return None
+        layout = self._annotation_page.layout()
+        if self._annotation_placeholder is not None:
+            # HIDDEN, NOT DELETED. Destroying a widget out of the layout of
+            # the page on screen is a teardown worth not asking Qt for, and a
+            # hidden label costs one widget.
+            self._annotation_placeholder.setVisible(False)
+            self._annotation_placeholder = None
+        layout.addWidget(panel, 1)
+        # THE OUTCOME REACHES THE STATUS LINE, so a user who ran a strategy
+        # and went back to the pictures is told it landed rather than having
+        # to go and look.
+        panel.finished.connect(self._on_annotation_finished)
+        self._annotation_panel = panel
+        return panel
+
+    def _on_annotation_finished(self, key: str) -> None:
+        """Say in the status line that a strategy has produced a result."""
+        panel = self._annotation_panel
+        result = panel.result() if panel is not None else None
+        if result is None:
+            return
+        chosen = sum(n for role, n in result.role_counts().items()
+                     if role != "holdout")
+        self._set_status(
+            f"Annotate: {result.title} chose {chosen:,} cell(s). The numbers "
+            "it is allowed to claim are on the Annotate tab.")
+
+    def _chosen_wells(self) -> Tuple[str, ...]:
+        """The guide wells the montage on screen picked its cells from."""
+        from .annotation_strategy_panel import wells_of_plans
+
+        return wells_of_plans(self.plans())
+
+    def _annotation_folder(self) -> str:
+        """Where a saved annotation selection should go by default."""
+        path = self._results_path()
+        if not path:
+            return ""
+        return os.path.dirname(path) if os.path.isfile(path) else path
+
     def _hide_close_button(self, index: int) -> None:
         """A tab the user cannot close needs no x on either side."""
         from PySide6.QtWidgets import QTabBar
@@ -3048,6 +3211,11 @@ class CellMontageView(QWidget):
         # written; this one was simply missed, and the same rule applies:
         # a control that cannot act says so before it is pressed rather
         # than after.
+        # THE ANNOTATE TAB GREYS ITS OWN RUN BUTTON, with the reason, so it
+        # follows the montage the same way the Compare tab does.
+        if self._annotation_panel is not None:
+            self._annotation_panel.refresh()
+
         comparable = bool(self._plans) and bool(self.picked_groups())
         self._compare_button.setEnabled(comparable)
         self._compare_button.setToolTip(
@@ -3148,8 +3316,6 @@ class CellMontageView(QWidget):
         The close handler captures the widget rather than its mutable tab
         index, so closing an earlier tab cannot redirect a later button.
         """
-        from PySide6.QtWidgets import QToolButton
-
         # A LABEL NO OTHER OPEN TAB ALREADY HAS. The rule above makes a
         # collision unlikely rather than impossible, and two identical tabs
         # is precisely the failure this label exists to prevent.
@@ -3163,14 +3329,13 @@ class CellMontageView(QWidget):
         self._tabs.setTabToolTip(index, tooltip)
         bar = self._tabs.tabBar()
         bar.setTabButton(index, QTabBar.RightSide, None)
-        close = QToolButton(bar)
-        close.setText("\u00d7")
-        close.setAutoRaise(True)
-        close.setCursor(Qt.PointingHandCursor)
-        close.setToolTip(
-            f"Close “{tab.label}”. This tab closes from here and nowhere "
-            "else — it survives another coefficient, a re-sort and a re-run, "
-            "because comparing two genes' cells side by side is the point.")
+        close = close_mark_button(
+            bar,
+            tooltip=(
+                f"Close “{tab.label}”. This tab closes from here and "
+                "nowhere else — it survives another coefficient, a re-sort "
+                "and a re-run, because comparing two genes' cells side by "
+                "side is the point."))
         close.clicked.connect(lambda *_a, w=tab: self._close_widget(w))
         bar.setTabButton(index, QTabBar.LeftSide, close)
         return tab
@@ -3336,6 +3501,8 @@ class CellMontageView(QWidget):
         is the freeze it exists to remove.
         """
         self._pending = None
+        if self._annotation_panel is not None:
+            self._annotation_panel.shutdown()
         self._jobs.shutdown()
 
     def closeEvent(self, event):         # noqa: N802 - Qt's spelling

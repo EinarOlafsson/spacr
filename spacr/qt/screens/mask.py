@@ -53,6 +53,16 @@ NOTHING IS LOST IN THE MOVE.
 THE MOTILITY ASSAY IS NOT HERE. It reads masks rather than making them,
 and what it produces is a measurements table, so it folds onto Measure.
 
+AND SOMETHING TO PRESS RUN ON. The same walk that hangs the switches on
+this screen also puts *Load the example images* at the top of the section
+holding ``src`` -- see :func:`install_example_data_button`. Regression's
+button fetches the four-plate example screen and fills its two table
+slots; a mask run needs a folder of IMAGES, which that download has none
+of, so this one draws a small plate instead
+(:func:`spacr.qt.synthetic.generate_mask_demo`) and fills the folder and
+the settings that describe what is in it. Like Regression's, it says
+where everything went rather than filling fields silently.
+
 The mechanics -- mounting a module's categories on a host, keeping the
 gates consistent with the switches, and the strip itself -- are shared
 with the other hosts and live in :mod:`spacr.qt.screens.map_barcodes`.
@@ -61,6 +71,7 @@ with the other hosts and live in :mod:`spacr.qt.screens.map_barcodes`.
 from __future__ import annotations
 
 import logging
+import os
 from typing import Dict, Optional, Sequence, Tuple
 
 from PySide6.QtCore import QObject
@@ -235,8 +246,167 @@ def mark_fold_sources(screen: QWidget) -> Dict[str, Tuple[str, ...]]:
     return marked
 
 
+# ---------------------------------------------------------------------------
+# The example plate
+# ---------------------------------------------------------------------------
+
+#: The folder the example plate is written into, under the same cache the
+#: example screen already uses, so one directory holds everything spaCR
+#: fetched or made for a user who wanted something to press Run on.
+EXAMPLE_PLATE_DIRNAME = "mask_example_plate"
+
+#: The button, and what it says it does.
+EXAMPLE_BUTTON_TEXT = "Load the example images…"
+EXAMPLE_BUTTON_TOOLTIP = (
+    "Write a small example plate of microscopy images into the spaCR cache "
+    "and fill this form with the folder and the channels it holds. Drawn on "
+    "this machine, so it needs no network and takes no noticeable time.")
+
+
+def example_plate_folder() -> str:
+    """Where the example plate is written and read back from.
+
+    Under :func:`spacr.example_data.cache_folder` -- the directory the
+    example screen already caches into -- rather than beside the project on
+    disk, because an example is not part of anybody's data.
+    """
+    from ...example_data import cache_folder
+
+    return os.path.join(cache_folder(), EXAMPLE_PLATE_DIRNAME)
+
+
+def load_the_example_images(screen: QWidget,
+                            folder: str = "") -> Dict[str, object]:
+    """Put an example plate on disk and fill this form from it.
+
+    WHAT A MASK RUN NEEDS IS A FOLDER OF IMAGES, which is the one thing the
+    downloadable example screen has none of: its manifest is four plates of
+    count and score tables, and those are what Regression's button places.
+    So the plate is DRAWN rather than downloaded --
+    :func:`spacr.qt.synthetic.generate_mask_demo`, whose fields are laid out
+    the way every mask default expects and whose filenames match the
+    cellvoyager regex the pipeline parses. It is reproducible, so two people
+    comparing "it fails here" are looking at the same pixels.
+
+    IT SAYS WHERE EVERYTHING WENT. A file field that fills itself is
+    indistinguishable from a button that did nothing, and this one also
+    filled the settings that describe what is in the images -- the channel
+    each object is on, the diameters, the acquisition format -- without
+    which the folder alone would not run. So the console gets the folder,
+    the count, every key that was filled, and every key this form has no
+    control for.
+
+    :param screen: the Mask Generation screen.
+    :param folder: where to write the plate. Defaults to
+        :func:`example_plate_folder`.
+    :returns: what was put where -- ``folder``, ``images``, ``written``,
+        ``applied``, ``filled`` and ``unplaced`` -- so a caller can check it
+        without a GUI. Empty when the plate could not be written.
+    """
+    from ..synthetic import demo_settings, generate_mask_demo
+
+    dst = str(folder or example_plate_folder())
+    try:
+        before = set(os.listdir(dst)) if os.path.isdir(dst) else set()
+    except OSError:
+        before = set()
+    try:
+        layout = generate_mask_demo(dst)
+    except Exception as error:                                  # noqa: BLE001
+        LOG.debug("Could not write the example plate", exc_info=True)
+        _say(screen, f"The example plate could not be written to {dst}: "
+                     f"{error}\n")
+        return {}
+
+    images = [str(path) for path in layout.image_files]
+    written = [path for path in images
+               if os.path.basename(path) not in before]
+    settings = demo_settings("mask", str(layout.src))
+    applied = int(screen.apply_settings_dict(settings) or 0)
+
+    widgets = getattr(getattr(screen, "_settings_model", None), "_widgets", {})
+    filled = sorted(key for key in settings if key in widgets)
+    unplaced = sorted(key for key in settings if key not in widgets)
+    notes = layout.notes or {}
+    channels = ", ".join(str(c) for c in notes.get("channels", ()))
+    said = (f"Example plate ready: {len(images)} image(s) in {dst} "
+            f"({len(written)} written now, {len(images) - len(written)} "
+            f"already there) — {notes.get('n_fields', 0)} field(s), "
+            f"channels {channels}.\n"
+            f"src is now {dst}, and {applied} setting(s) on this form were "
+            f"filled from the plate: {', '.join(filled)}.\n")
+    if unplaced:
+        said += (f"{len(unplaced)} of the plate's settings have no control on "
+                 f"this form and were not filled: {', '.join(unplaced)}.\n")
+    _say(screen, said)
+    return {"folder": dst, "images": images, "written": written,
+            "applied": applied, "filled": filled, "unplaced": unplaced}
+
+
+def _say(screen: QWidget, text: str) -> None:
+    """Put ``text`` in the screen's console, if it has one."""
+    console = getattr(screen, "_console", None)
+    if console is None or not hasattr(console, "append_stdout"):
+        return
+    try:
+        console.append_stdout(text)
+    except Exception:                                           # noqa: BLE001
+        LOG.debug("Could not write to the console", exc_info=True)
+
+
+def install_example_data_button(screen: QWidget):
+    """Put the example-plate button at the top of the section holding ``src``.
+
+    THE SECTION IS FOUND THROUGH THE SLOT IT FILLS rather than named by its
+    heading: the button belongs above the field it writes into, and a
+    heading typed here would go on pointing at a category that had been
+    renamed or split.
+
+    ``add_prose``, not ``add_widget``: ``_row_widgets`` is taken to hold
+    LABELLED SETTING ROWS by the module smoke test, and a button is neither
+    a setting nor labelled.
+
+    Idempotent, and never fatal -- a screen that opens without the button is
+    a screen; an exception raised while one is being built is not.
+
+    :param screen: the host module's screen.
+    :returns: the button, or None when this screen cannot carry one.
+    """
+    from PySide6.QtWidgets import QPushButton
+
+    if getattr(screen, "app_key", None) != HOST_KEY:
+        return None
+    existing = getattr(screen, "_example_images_button", None)
+    if existing is not None:
+        return existing
+    widget = getattr(getattr(screen, "_settings_model", None),
+                     "_widgets", {}).get("src")
+    if widget is None:
+        return None
+    section = None
+    for candidate in getattr(screen, "_settings_sections", ()) or ():
+        if hasattr(candidate, "add_prose") and candidate.isAncestorOf(widget):
+            section = candidate
+            break
+    if section is None:
+        return None
+    # The English source, the way every other caption in the tool is
+    # written: the language pass walks the widget tree and renders it from
+    # the catalog, and a caption translated here would be rendered twice.
+    button = QPushButton(EXAMPLE_BUTTON_TEXT)
+    button.setToolTip(EXAMPLE_BUTTON_TOOLTIP)
+    button.clicked.connect(lambda: load_the_example_images(screen))
+    section.add_prose(button, at_top=True)
+    screen._example_images_button = button
+    return button
+
+
 def install_folds(screen: QWidget) -> Optional[FoldStrip]:
     """Put Mask Generation's fold switches on ``screen``'s masthead.
+
+    And the example-plate button on its form: this is the one walk that
+    reaches this screen from outside, so everything hung on Mask Generation
+    is hung here. See :func:`install_example_data_button`.
 
     Idempotent, and defensive by design: a screen that opens without its
     switches is a smaller screen, while an exception raised here would be
@@ -249,6 +419,14 @@ def install_folds(screen: QWidget) -> Optional[FoldStrip]:
     """
     if getattr(screen, "app_key", None) != HOST_KEY:
         return None
+    # BEFORE the folds, and outside their guard: the example plate is what a
+    # user with no data of their own presses first, and a fold that cannot be
+    # mounted must not take it away.
+    try:
+        install_example_data_button(screen)
+    except Exception:
+        LOG.debug("Could not install the example-plate button on %s", HOST_KEY,
+                  exc_info=True)
     existing = getattr(screen, "_fold_strip", None)
     if isinstance(existing, FoldStrip):
         return existing

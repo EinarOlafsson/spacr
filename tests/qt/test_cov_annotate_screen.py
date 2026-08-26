@@ -1039,7 +1039,9 @@ def test_the_coverage_report_opens_in_a_window_that_keeps_its_columns(
     monkeypatch.setattr(al, "format_coverage_summary",
                         lambda cov: "plate  n\np1     40")
     shown = {}
-    monkeypatch.setattr(annotate_mod._TextReportDialog, "exec",
+    # SHOWN, not exec-ed: `exec` runs a nested event loop that outlives the
+    # window it belongs to, so the report is opened as a plain window now.
+    monkeypatch.setattr(annotate_mod._TextReportDialog, "show",
                         lambda self: shown.update(body=self._view.toPlainText()))
     screen._on_coverage()
     assert shown["body"].startswith("plate  n")
@@ -1072,7 +1074,7 @@ def test_the_learning_curve_opens_in_a_window_that_keeps_its_columns(
     monkeypatch.setattr(al, "format_learning_curve",
                         lambda curve, verdict: "round  acc\n1      0.7")
     shown = {}
-    monkeypatch.setattr(annotate_mod._TextReportDialog, "exec",
+    monkeypatch.setattr(annotate_mod._TextReportDialog, "show",
                         lambda self: shown.update(body=self._view.toPlainText()))
     screen._on_learning_curve()
     assert "round  acc" in shown["body"]

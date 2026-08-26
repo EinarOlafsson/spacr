@@ -3204,12 +3204,7 @@ class LiveSettingsDialog(QDialog):
         for compartment, fields in p._compartment_widgets.items():
             for suffix, widget in fields.items():
                 widget_keys[widget] = f"{compartment}_{suffix}"
-        # No link dots here. This dialog has a setting on nearly every row --
-        # 68 dots were being drawn, one after each label and one after the
-        # combined controls -- so they stopped reading as "click for the API
-        # page" and started reading as texture down the form. The hover help
-        # is unaffected; it is still on every label.
-        install_api_tooltips(self, "mask", widget_keys, api_dots=False)
+        install_api_tooltips(self, "mask", widget_keys)
 
     def refresh_visibility(self):
         """Grey out settings that don't apply to the current selection.

@@ -303,8 +303,17 @@ def sweep_fraction_threshold(counts: pd.DataFrame,
                 row["variance_inflation"] = correction["variance_inflation"]
         rows.append(row)
 
-    usable = [row for row in rows
-              if "error" not in row and row["wells"] >= int(minimum_wells)]
+    # A CANDIDATE IS CHOSEN ON ITS DISAGREEMENT, so one whose disagreement
+    # could not be measured cannot be chosen -- and must not reach the
+    # comparison below either. NaN loses every ``<=`` it appears in, so a
+    # sweep whose fits reported no per-well pairs left ``min()`` an empty
+    # iterable and raised ValueError out of a function whose whole contract
+    # is to answer "no" in words.
+    wide_enough = [row for row in rows
+                   if "error" not in row
+                   and row["wells"] >= int(minimum_wells)]
+    usable = [row for row in wide_enough
+              if np.isfinite(row["median_absolute_disagreement"])]
     result: Dict[str, Any] = {
         "candidates": rows,
         "normalised": bool(normalise),
@@ -315,12 +324,19 @@ def sweep_fraction_threshold(counts: pd.DataFrame,
         "corrected": bool(correction),
     }
     if not usable:
-        best = max((row["wells"] for row in rows), default=0)
         result["chosen"] = None
-        result["reason"] = (
-            f"no candidate threshold fitted at least {int(minimum_wells)} "
-            f"control wells (the best managed {best}), so there is nothing "
-            f"to choose between")
+        if wide_enough:
+            result["reason"] = (
+                f"{len(wide_enough)} candidate threshold(s) fitted enough "
+                f"wells, but none of them produced a measurable disagreement "
+                f"between imaging and sequencing, so there is nothing to "
+                f"choose between")
+        else:
+            best = max((row["wells"] for row in rows), default=0)
+            result["reason"] = (
+                f"no candidate threshold fitted at least "
+                f"{int(minimum_wells)} control wells (the best managed "
+                f"{best}), so there is nothing to choose between")
         return result
 
     # THE SMALLEST THRESHOLD THAT MAKES THE TWO MEASUREMENTS AGREE. Once the
@@ -403,7 +419,12 @@ def compare_normalisations(counts: pd.DataFrame,
     out["ratio"] = float(raw_slope) / float(scaled_slope)
     disagreements = {name: fits[name].get("median_absolute_disagreement")
                      for name in ("raw", "normalised")}
-    if all(value is not None for value in disagreements.values()):
+    # FINITE, not merely present. A fit that reported no per-well pairs
+    # carries a NaN disagreement, and NaN loses every comparison ``min`` makes
+    # -- naming whichever definition happened to be first, as though the two
+    # had been measured and one had won.
+    if all(value is not None and np.isfinite(value)
+           for value in disagreements.values()):
         out["more_consistent"] = min(disagreements,
                                      key=lambda k: disagreements[k])
     else:

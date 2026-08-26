@@ -129,7 +129,8 @@ def test_providers_dialog_has_settings_tab(qtbot, qt_theme_applied):
         if label is not None:
             assert widget.toolTip() == ""
             assert "href=" in label.toolTip()
-            assert getattr(label, "_spacr_api_dot", None) is not None
         else:
             assert "href=" in widget.toolTip()
-            assert getattr(widget, "_spacr_api_dot", None) is not None
+        # NO DOT, EITHER WAY. The link is in the hover text, which is where
+        # it was always being read from.
+        assert getattr(label or widget, "_spacr_api_dot", None) is None

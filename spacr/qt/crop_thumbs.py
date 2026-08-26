@@ -243,8 +243,9 @@ def crop_paths_for_keys(db_path: str, keys) -> Dict[str, str]:
     out: Dict[str, str] = {}
 
     def resolve(batch) -> None:
-        if not batch:
-            return
+        # Never called with an empty batch: the caller has already refused
+        # an empty key list and a bisection of two or more keys cannot
+        # produce an empty half.
         rows = crops_for_object_keys(db_path, batch)
         if len(rows) == len(batch):
             for key, (path, _annotation) in zip(batch, rows):

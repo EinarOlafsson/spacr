@@ -423,7 +423,7 @@ class RoiSet:
             fields = {str(name): tuple(RegionOfInterest.from_dict(entry)
                                        for entry in entries)
                       for name, entries in dict(data.get('fields') or {}).items()}
-        except (TypeError, AttributeError) as exc:
+        except (TypeError, AttributeError, ValueError) as exc:
             raise RoiError(
                 f"the 'fields' entry must map a field name to a list of ROIs, "
                 f"got {data.get('fields')!r}") from exc

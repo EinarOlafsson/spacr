@@ -1,5 +1,10 @@
 """Browsing for a field, and the three ways the bridge can fail mid-handover.
 
+The bridge is folded into Make Masks -- :class:`spacr.qt.screens.make_masks
+.NapariBridgeScreen` -- because that masthead is the only place it opens
+from. The engine it drives, :mod:`spacr.napari_bridge`, is a separate module
+and is what the assertions below reach through.
+
 The status pane is the only channel this screen has, so every failure it can
 reach has to arrive there as words: an unreadable mask, a napari that opened
 and then threw, a write-back that was refused. A traceback in the terminal is
@@ -19,8 +24,7 @@ pytest.importorskip("PySide6")
 from PySide6.QtWidgets import QFileDialog  # noqa: E402
 
 from spacr.mask_io import save_mask  # noqa: E402
-from spacr.qt.screens import napari_bridge as screen_module  # noqa: E402
-from spacr.qt.screens.napari_bridge import NapariBridgeScreen  # noqa: E402
+from spacr.qt.screens.make_masks import NapariBridgeScreen  # noqa: E402
 
 pytestmark = pytest.mark.qt
 
@@ -212,7 +216,7 @@ def test_a_napari_that_throws_on_open_is_reported_and_leaves_the_buttons_off(
 
     monkeypatch.setattr(engine, "open_in_napari", explode)
 
-    with caplog.at_level("ERROR", logger="spacr.qt.screens.napari_bridge"):
+    with caplog.at_level("ERROR", logger="spacr.qt.make_masks"):
         assert screen.open_in_napari() is None
 
     said = screen.status.toPlainText()

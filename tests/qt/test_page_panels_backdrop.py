@@ -510,7 +510,7 @@ def _project_browser(qtbot):
 
 
 def _napari_bridge(qtbot):
-    from spacr.qt.screens.napari_bridge import NapariBridgeScreen
+    from spacr.qt.screens.make_masks import NapariBridgeScreen
     window, screen = _show(qtbot, NapariBridgeScreen)
     return window, screen, {"status log": screen.status}
 

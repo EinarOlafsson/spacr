@@ -2255,7 +2255,7 @@ class _FigureSettingsDialog(QDialog):
             self._bg_btn: "figure_background",
             self._fg_btn: "figure_text_color",
             self._size: "figure_text_size",
-        }, api_dots=False)
+        })
         # Set after the sweep above, which owns the other three tooltips.
         # This one is not a documented setting — it is the way out of one.
         self._auto_btn.setToolTip(
@@ -2275,7 +2275,7 @@ class _FigureSettingsDialog(QDialog):
             # over the whole dialog would re-decorate the three figure
             # controls under the "umap" app key, and their documentation
             # lives under "figure".
-            install_api_tooltips(self._umap_settings, "umap", api_dots=False)
+            install_api_tooltips(self._umap_settings, "umap")
 
     # -- the Image UMAP half -----------------------------------------------
 

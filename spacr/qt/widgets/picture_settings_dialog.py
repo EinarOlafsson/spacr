@@ -266,17 +266,12 @@ class PictureSettingsDialog(QDialog):
         # `settingKey`, no rendered `apiTooltipHtml`, so no link to the API
         # page and none of the typed metadata every other reader keys on.
         #
-        # `api_dots=False` for the reason the Annotate settings dialog turns
-        # them off: twenty-five settings is twenty-five teal dots, which
-        # reads as a column of dots rather than a column of settings, and the
-        # link is in the hover text either way.
         try:
             from ..screens.settings_model import install_api_tooltips
 
             install_api_tooltips(
                 self, "annotate",
-                {editor: key for key, editor in self._editors.items()},
-                api_dots=False)
+                {editor: key for key, editor in self._editors.items()})
         except Exception:                                    # noqa: BLE001
             # A dialog that cannot decorate its help is still a dialog that
             # sets the picture. The plain descriptions installed below remain.

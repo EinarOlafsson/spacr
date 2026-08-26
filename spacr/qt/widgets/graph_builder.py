@@ -60,8 +60,9 @@ from PySide6.QtWidgets import (
 
 from ...selection import Selection, object_keys
 from ..linked_selection import LinkedView
-from ..theme import (RADIUS, SPACING, active_palette, font_px,
-                     make_transparent, paint_panel, register_widget_qss)
+from ..theme import (RADIUS, SPACING, active_palette, apply_close_mark,
+                     font_px, make_transparent, paint_panel,
+                     register_widget_qss)
 from .graph_spec import (
     BAR, BAR_JITTER, BINNED, BOX, CHANNELS, COLOUR, EMPTY, FACET_COL,
     FACET_ROW, HEATMAP, HISTOGRAM, JITTER, LINE, MISSING_LEVEL, PLOT_KINDS,
@@ -314,15 +315,12 @@ class DropZone(QFrame):
         self._value.setWordWrap(False)
         row.addWidget(self._value, 1)
 
-        self._clear = QPushButton("×", self)
+        self._clear = QPushButton(self)
         self._clear.setObjectName("GraphDropZoneClear")
-        # A CAP THAT CANNOT CUT (193). The number keeps this
-        # control compact; `sizeHint` is the floor, so a larger
-        # font or a glyph a theme renders wider grows the button
-        # rather than clipping it.
-        self._clear.setMinimumWidth(max(20, self._clear.sizeHint().width()))
-        self._clear.setMaximumWidth(max(20, self._clear.sizeHint().width()))
-        self._clear.setToolTip(f"Take the column off {CHANNEL_LABELS[channel]}")
+        # THE APPLICATION'S CLOSE MARK -- see `theme.apply_close_mark`.
+        apply_close_mark(
+            self._clear,
+            tooltip=f"Take the column off {CHANNEL_LABELS[channel]}")
         self._clear.setVisible(False)
         self._clear.clicked.connect(lambda: self.set_column(None))
         row.addWidget(self._clear)
@@ -1705,11 +1703,6 @@ QLabel#GraphDropZoneValue {{
 QFrame#GraphDropZone[filled="false"] QLabel#GraphDropZoneValue {{
     color: {palette["fg_muted"]};
     font-style: italic;
-}}
-QPushButton#GraphDropZoneClear {{
-    border: none;
-    background: transparent;
-    color: {palette["fg_muted"]};
 }}
 QLabel#GraphNotice, QLabel#GraphColumnCount {{
     color: {palette["fg_muted"]};

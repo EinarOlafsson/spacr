@@ -91,35 +91,33 @@ def test_many_passes_stay_at_one(qtbot):
     assert _tooltips_on_hover(qtbot, label) == baseline
 
 
-def test_the_api_dot_still_appears_exactly_once(qtbot):
-    """The dots were already guarded; prove the fix did not disturb them."""
-    from spacr.qt.widgets.info_link import InfoLink
+def test_no_api_dot_is_drawn_however_often_the_pass_runs(qtbot):
+    """The dots are gone; re-decorating cannot bring one back."""
+    from spacr.qt.widgets.dot_link import DotLink
 
     owner, label, field = _panel(qtbot)
-    install_api_tooltips(owner, "mask")
-    first = len(owner.findChildren(InfoLink))
-    install_api_tooltips(owner, "mask")
-    assert len(owner.findChildren(InfoLink)) == first
-    assert first >= 1, "the panel should have gained an API dot at all"
+    for _ in range(5):
+        install_api_tooltips(owner, "mask")
+
+    assert owner.findChildren(DotLink) == []
+    assert "href=" in str(label.property("apiTooltipHtml")), (
+        "the API link went with the dot instead of staying in the hover text")
 
 
-def test_a_decorated_label_carries_exactly_one_dot(qtbot):
-    """`cell_diameter` has a packaged animation and still gets ONE dot.
+def test_a_decorated_label_carries_no_dot_of_any_colour(qtbot):
+    """`cell_diameter` has a packaged animation and used to carry two dots.
 
-    It used to get two: the teal API dot and a purple one that opened the
+    A teal one linking the API page and a purple one that opened the
     animation in a popup of its own. The hover tooltip shows the animation
-    inline now, so the purple one went — and this counts every dot on the
-    decorated label rather than instances of a type, which is the only form
-    that can still fail if a second dot of some other class comes back.
+    inline and carries the link, so both went -- and this counts every dot
+    on the decorated label rather than instances of one type, which is the
+    only form that can still fail if a dot of some other class comes back.
     """
     from spacr.qt.widgets.dot_link import DotLink
 
     owner, label, field = _panel(qtbot)
     install_api_tooltips(owner, "mask")
-    host = label.parentWidget()
-    assert host.objectName() == "SettingLabelWithInfo", (
+
+    assert label.property("settingHelpLabel"), (
         "the label was never decorated, so counting its dots proves nothing")
-    dots = host.findChildren(DotLink)
-    assert len(dots) == 1, (
-        f"{[d.objectName() for d in dots]} — a setting label carries one dot")
-    assert dots[0].objectName() == "SettingInfoLink"
+    assert owner.findChildren(DotLink) == []

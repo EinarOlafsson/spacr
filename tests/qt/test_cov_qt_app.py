@@ -238,7 +238,16 @@ EXPECTED_SECTIONS = {
     "batch":           SECTION_DATA,
     "distributed_jobs": SECTION_DATA,
     "db_browser":      SECTION_DATA,
-    "make_masks":      SECTION_MODELS,
+    # MOVED to Data. Make Masks does not train, choose or run a
+    # segmentation model: it is hand correction of masks that already
+    # exist, which is what the other tools under Data do. It was the last
+    # occupant of Segmentation models, so that section now has no apps and
+    # stops being drawn -- sections are derived, so it returns the day
+    # something registers there again.
+    "make_masks":      SECTION_DATA,
+    # Activation, the Hit List and Methods & Results are NOT here any more.
+    # Each folded onto a host and lost its registry row, and a section is a
+    # property of a tile -- a key with no tile has no section to record.
     # NO ROWS WHERE THERE WERE THREE. Train Cellpose and Cellpose Masks were
     # first merged into one "Cellpose Workbench" tile under `train_cellpose`,
     # and that tile then folded into Make Masks along with Model Compare and
@@ -252,7 +261,6 @@ EXPECTED_SECTIONS = {
     "data_manager":    SECTION_DATA,
     "plate_view":      SECTION_RESULTS,
     "umap":            SECTION_RESULTS,
-    "activation":      SECTION_RESULTS,
     "train_compare":   SECTION_RESULTS,
     "run_history":     SECTION_RESULTS,
     "report":          SECTION_RESULTS,
@@ -263,8 +271,6 @@ EXPECTED_SECTIONS = {
     # neither asks the data anything new: the Hit List is the ranked table
     # a screen produced, and Methods & Results is that run written up. Both
     # read a finished run rather than interrogating it.
-    "hit_list":        SECTION_RESULTS,
-    "methods_export":  SECTION_RESULTS,
     # Explanations read completed model/regression outputs. Explain CV has a
     # dedicated fidelity-first workbench; Investigate Hit is settings-driven
     # because its reproducible file inputs are also its headless API.
@@ -336,7 +342,6 @@ EXPECTED_STAGES = {
     "data_manager": "alpha",
     "power": "alpha", "run_compare": "alpha",
     "lineage": "alpha",
-    "hit_list": "alpha", "methods_export": "alpha",
     "pipeline_graph": "alpha", "profiler": "alpha",
     "experiment_design": "alpha", "qc_dashboard": "alpha",
     # Tabulate joined APPS when app.py's _SELF_REGISTERING_APPS started
@@ -357,13 +362,17 @@ EXPECTED_STAGES = {
     # property of a tile on Home, so a key that no longer has one drops out;
     # `make_masks.FOLD_FALLBACK` says what its button lights in, and
     # `test_the_fold_fallback_agrees_with_the_registry` asserts it there.
+    # Activation, the Hit List and Methods & Results are not here: each
+    # folded onto a host and lost its registry row, and a maturity is a
+    # property of a tile. What their buttons light up in now comes from
+    # the host's own fold record, checked in the fold tests.
     "make_masks": "beta",
     # A stage is a property of a tile on Home, so a key folded out of the
     # registry drops out of this ledger with its row. What the button
     # lights in afterwards is recorded in the host's fold fallback, and
     # `test_the_switch_lights_in_the_stage_the_tile_LIT` holds it there.
     "analyze_plaques": "beta",
-    "replication": "beta", "umap": "beta", "activation": "beta",
+    "replication": "beta", "umap": "beta",
 }
 
 
@@ -428,7 +437,13 @@ def test_every_app_carries_the_maturity_it_was_given():
     # signed off and nothing regressed: this counts TILES, and every one
     # of those modules is now a button or a settings category on the
     # screen it was folded into.
-    assert counts == {"alpha": 28, "beta": 5, "stable": 6}
+    # 28 -> 26 alpha and 5 -> 4 beta: the last three folds gave up their
+    # rows. Activation became a tab on Classify, and the Hit List and
+    # Methods & Results became pages on Regression. All three still run and
+    # all three keep the colour they were assessed in -- a folded module's
+    # maturity lives in its host's fold record now, because the registry
+    # answers for a key it no longer holds exactly as it answers a typo.
+    assert counts == {"alpha": 26, "beta": 4, "stable": 6}
 
 
 def test_no_section_is_used_that_was_never_declared():

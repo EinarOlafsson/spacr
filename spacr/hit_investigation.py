@@ -76,8 +76,13 @@ def _read_cells(db_path: str, predictions_file: str,
     if png["_crop"].duplicated().any() or predictions["_crop"].duplicated().any():
         raise HitAttributionError(
             "crop basenames are not unique; export prcfo with predictions")
-    scores = predictions.merge(png, on="_crop", how="inner",
-                               validate="one_to_one")
+    # Only the crop key and the score are taken across. A prediction file is
+    # free to spell its crop-path column "png_path" -- an export out of spaCR
+    # naturally does -- and merging the whole frame then collided with
+    # png_list's own png_path, suffixed both to _x/_y, and left the join below
+    # asking for a column that no longer existed.
+    scores = png.merge(predictions[["_crop", score_column]], on="_crop",
+                       how="inner", validate="one_to_one")
     return cells.merge(
         scores[["prcfo", "png_path", score_column]], on="prcfo", how="inner",
         validate="one_to_one")

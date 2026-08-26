@@ -135,11 +135,21 @@ def test_each_family_splits_into_a_sub_section_per_object(mask_tree):
     `cell_min_size` and `nucleus_min_size` are one decision applied to two
     objects; the object sub-heading is what makes that readable rather than
     a run of forty rows whose prefixes the reader has to notice.
+
+    ONE PER SLOT THAT CAN BE NAMED, not one per slot the module ships:
+    `number_of_organelles` reveals a slot by showing rows the panel has
+    already built, and a heading it could not build is a heading the count
+    could never reveal. Which of them is ON SCREEN is decided afterwards --
+    see `SettingsWidgets._hide_the_headings_of_slots_the_run_lacks`.
     """
+    from spacr.organelle_types import organelle_roles, organelle_slot_label
+    from spacr.qt.screens.settings_model import PANEL_ORGANELLE_SLOTS
+
     filtration = _named(mask_tree, "Object Filtration (all objects)")
     assert [child.title for child in filtration.children] == [
         "Cell", "Nucleus", "Pathogen",
-        "Organelle 1", "Organelle 2", "Organelle 3", "Organelle 4",
+        *(organelle_slot_label(role)
+          for role in organelle_roles(PANEL_ORGANELLE_SLOTS)),
     ]
     assert filtration.own_rows == []
     for child in filtration.children:

@@ -511,17 +511,53 @@ def bundled_icon_paths() -> Tuple[str, ...]:
     return tuple(os.path.join(RESOURCE_DIR, n) for n in names)
 
 
+#: Keys that deliberately draw ANOTHER key's bundled artwork, as
+#: ``key -> filename``.
+#:
+#: NOT a synonym for :data:`spacr.qt.app._ICON_OVERRIDES`. That table is
+#: read by ``app._icon_for_app``, which is the Home tile and the sidebar;
+#: a fold button and a folded module's settings heading both call
+#: :func:`app_icon` bare, so a sharing recorded only in ``app`` gives one
+#: key two different pictures depending on where it is drawn. Sharing that
+#: is about the SUBJECT rather than about one screen belongs here, where
+#: every caller sees it.
+#:
+#: ``investigate_hit`` is the case this exists for. ``hit_list.png`` was
+#: drawn for the Hit List tile, and the Hit List has since folded onto
+#: Regression -- so the mark now names *a hit* rather than a tile that no
+#: longer exists, and the module that takes one hit apart is what a user
+#: reaches for it expecting. The Hit List keeps it as well: ``hit_list``
+#: still resolves to the same file under its own name, so its fold button
+#: on Regression is unchanged. Two keys, one asset, ON PURPOSE -- they are
+#: the same subject, and the alias is what says so instead of leaving it
+#: to look like a filename collision.
+#:
+#: Consulted AFTER ``<key>.png``, so installing artwork named for the key
+#: retires its alias with no code change here.
+SHARED_ICON_ASSETS = {
+    "investigate_hit": "hit_list.png",
+}
+
+
 def bundled_icon_path(key: str, override: Optional[str] = None
                       ) -> Optional[str]:
     """Resolve an app key to its bundled PNG, or ``None``.
 
-    :param override: explicit filename to try first. The key → filename
-        table lives in :mod:`spacr.qt.app` next to the app registry it
-        describes; this module only knows how to *render* what it's
-        pointed at.
+    Tried in order: the caller's ``override``, ``<key>.png``, the same
+    with underscores as spaces, and finally whatever
+    :data:`SHARED_ICON_ASSETS` says this key borrows.
+
+    :param override: explicit filename to try first. The per-screen key →
+        filename table lives in :mod:`spacr.qt.app` next to the app
+        registry it describes; this module only knows how to *render*
+        what it's pointed at, plus the handful of keys in
+        :data:`SHARED_ICON_ASSETS` that share one picture everywhere.
     """
     candidates = [override] if override else []
     candidates += [f"{key}.png", f"{key.replace('_', ' ')}.png"]
+    alias = SHARED_ICON_ASSETS.get(key)
+    if alias:
+        candidates.append(alias)
     for candidate in candidates:
         path = os.path.join(RESOURCE_DIR, candidate)
         if os.path.isfile(path):
@@ -598,6 +634,16 @@ _NAME_TO_GLYPH = {
     "wand":            "fa5s.magic",
     "wand_add":        "fa5s.plus-circle",
     "wand_erase":      "fa5s.minus-circle",
+    # The three Make Masks canvas tools that had no glyph. Each fell
+    # through to the shared puzzle piece, so Draw, Divide and Recrop sat
+    # in one toolbar row wearing one picture -- three different edits a
+    # user cannot tell apart, which is worse than a row with a gap in it.
+    # A closed outline traced point by point, scissors through an object,
+    # and a crop frame: what each tool does to the field, not what family
+    # it belongs to.
+    "draw":            "fa5s.draw-polygon",
+    "divide":          "fa5s.cut",
+    "recrop":          "fa5s.crop-alt",
     "zoom":            "fa5s.search-plus",
     "zoom_reset":      "fa5s.compress-arrows-alt",
     "undo":            "fa5s.undo",

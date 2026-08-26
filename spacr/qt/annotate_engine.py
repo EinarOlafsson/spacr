@@ -253,6 +253,40 @@ def filter_channels_pil(
     return Image.merge("RGB", (r, g, b))
 
 
+class OutlineCancelled(Exception):
+    """Raised when outline work is abandoned because its caller asked it to.
+
+    A Cellpose outline is a native model construction followed by a native
+    forward pass, and neither can be stopped once it has started. The only
+    places a page of crops can be abandoned are therefore *between* those
+    calls, so each of them is preceded by a ``should_stop()`` question and
+    this exception is the answer that unwinds the whole page at once.
+
+    It matters because the thread doing the work is owned by a screen the
+    user can close. Outline work that cannot be abandoned keeps a QThread
+    running past the widget that started it, and Qt aborts the process when
+    that thread's wrapper is finally destroyed.
+    """
+
+
+def _check_stop(should_stop) -> None:
+    """Raise :class:`OutlineCancelled` when the caller has asked to stop.
+
+    A ``should_stop`` that raises is treated as "stop": the usual reason is
+    ``RuntimeError: Internal C++ object already deleted`` from a QThread whose
+    wrapper has gone, and a caller that no longer exists is not waiting for
+    this crop.
+    """
+    if should_stop is None:
+        return
+    try:
+        stop = bool(should_stop())
+    except Exception:                                        # noqa: BLE001
+        stop = True
+    if stop:
+        raise OutlineCancelled()
+
+
 _cellpose_outline_model = None
 # Cellpose/PyTorch model construction and inference enter native code and are
 # not safe to run concurrently through one cached model.  Annotate page loads
@@ -263,10 +297,18 @@ _cellpose_outline_model = None
 _cellpose_outline_lock = threading.RLock()
 
 
-def _get_cellpose_outline_model():
-    """Lazily build + cache a small Cellpose (SAM) model for outline masks."""
+def _get_cellpose_outline_model(should_stop=None):
+    """Lazily build + cache a small Cellpose (SAM) model for outline masks.
+
+    :param should_stop: asked once before the model is built and once after
+        the lock is taken. Building it imports cellpose and torch and reads a
+        1.2 GB checkpoint, so a caller that has already given up must not pay
+        for it.
+    """
     global _cellpose_outline_model
+    _check_stop(should_stop)
     with _cellpose_outline_lock:
+        _check_stop(should_stop)
         if _cellpose_outline_model is None:
             from cellpose import models as cp_models
             try:
@@ -279,10 +321,18 @@ def _get_cellpose_outline_model():
         return _cellpose_outline_model
 
 
-def _cellpose_foreground(channel_2d) -> "np.ndarray":
-    """Return a boolean foreground mask for one channel using Cellpose."""
+def _cellpose_foreground(channel_2d, should_stop=None) -> "np.ndarray":
+    """Return a boolean foreground mask for one channel using Cellpose.
+
+    :param should_stop: asked immediately before ``model.eval``. The wait for
+        the lock is itself unbounded — another crop may be inside a forward
+        pass — so the question is asked again on the far side of it rather
+        than only on the way in.
+    """
+    _check_stop(should_stop)
     with _cellpose_outline_lock:
-        model = _get_cellpose_outline_model()
+        model = _get_cellpose_outline_model(should_stop=should_stop)
+        _check_stop(should_stop)
         res = model.eval(
             channel_2d.astype(np.float32),
             diameter=None,
@@ -380,6 +430,150 @@ def forget_outline_masks() -> None:
     _EDGE_CACHE = None
 
 
+# ---------------------------------------------------------------------------
+# Which objects are drawn at all
+#
+# ONE NUMBER FOR EVERY COLOUR was the whole complaint. A crop's red, green and
+# blue planes hold different things -- a nucleus, a cell, a parasite -- and a
+# size window that suits one of them is nonsense for the other two. So the
+# filter is written per plane, and each plane gets a window on its SIZE and a
+# window on its BRIGHTNESS.
+#
+# EMPTY IS A VALUE, and it is the value that means "no bound on this side".
+# It is how a user turns half a filter off, so it survives a round trip
+# instead of being helpfully replaced with a zero -- and zero is not the same
+# answer, because a zero minimum on intensity is a real (if weak) claim about
+# what may be drawn.
+# ---------------------------------------------------------------------------
+
+#: The colour planes a filter can be written against, in the order the
+#: settings form draws them.
+FILTER_CHANNELS: Tuple[str, ...] = ("r", "g", "b")
+
+#: What each plane's two rows bound. ``area`` is the object's size in pixels;
+#: ``intensity`` is its MEAN value in that same plane, 0-255 after decode --
+#: mean rather than peak, so a single hot pixel cannot carry a dim object past
+#: a brightness floor.
+FILTER_MEASURES: Tuple[str, ...] = ("area", "intensity")
+
+
+def filter_key(channel: str, measure: str) -> str:
+    """The settings key one filter row is stored under, e.g. ``'r_area'``."""
+    return f"{str(channel).strip().lower()}_{str(measure).strip().lower()}"
+
+
+def filter_bound(value) -> Optional[float]:
+    """One side of one row, as a number or ``None`` for no bound.
+
+    Everything that is not a number reads as no bound: the fields are free
+    text in a dialog, and a half-typed ``"1e"`` must not become a filter that
+    silently hides every object in the plane.
+    """
+    if value is None:
+        return None
+    if isinstance(value, str) and not value.strip():
+        return None
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    if number != number:                       # NaN compares false with all
+        return None
+    return number
+
+
+def empty_object_filters() -> Dict[str, Tuple[Optional[float], Optional[float]]]:
+    """The twelve bounds with nothing set: every filter off."""
+    return {filter_key(channel, measure): (None, None)
+            for channel in FILTER_CHANNELS
+            for measure in FILTER_MEASURES}
+
+
+def normalize_object_filters(
+    object_filters: Optional[Mapping] = None,
+    object_size=None,
+) -> Dict[str, Tuple[Optional[float], Optional[float]]]:
+    """The twelve bounds, with a legacy ``object_size`` migrated onto them.
+
+    ``object_size`` was ONE window applied to every outlined plane, so the
+    faithful migration is onto all three ``*_area`` rows rather than onto a
+    single colour -- a project that hid debris below 200 px went on hiding it
+    in red, green and blue. Its ``0`` meant "no bound", and arrives here as
+    the empty field that now means the same thing.
+
+    An explicit row in ``object_filters`` wins over the migrated value, so a
+    user who has since written the new fields is not overruled by the old
+    setting still sitting in their file.
+
+    :param object_filters: ``{'r_area': (min, max), ...}``; partial maps are
+        fine and unknown keys are ignored.
+    :param object_size: the legacy ``(min, max)`` pair, in pixels.
+    :returns: a fresh dict holding every key, each a ``(min, max)`` pair of
+        floats or ``None``.
+    """
+    bounds = empty_object_filters()
+    try:
+        legacy_lo, legacy_hi = object_size
+    except (TypeError, ValueError):
+        legacy_lo = legacy_hi = None
+    legacy_lo = filter_bound(legacy_lo)
+    legacy_hi = filter_bound(legacy_hi)
+    if legacy_lo is not None and legacy_lo <= 0:
+        legacy_lo = None
+    if legacy_hi is not None and legacy_hi <= 0:
+        legacy_hi = None
+    if legacy_lo is not None or legacy_hi is not None:
+        for channel in FILTER_CHANNELS:
+            bounds[filter_key(channel, "area")] = (legacy_lo, legacy_hi)
+    for key, pair in dict(object_filters or {}).items():
+        key = str(key).strip().lower()
+        if key not in bounds:
+            continue
+        try:
+            low, high = pair
+        except (TypeError, ValueError):
+            continue
+        bounds[key] = (filter_bound(low), filter_bound(high))
+    return bounds
+
+
+def _keep_objects(mask, plane, area, intensity):
+    """Drop the connected components outside ``area`` and ``intensity``.
+
+    :param mask: boolean foreground.
+    :param plane: the same channel's values, for the brightness window.
+    :param area: ``(min, max)`` in pixels; either side may be ``None``.
+    :param intensity: ``(min, max)`` mean value; either side may be ``None``.
+    :returns: the mask with the objects outside either window removed.
+    """
+    from scipy.ndimage import label
+
+    area_lo, area_hi = area
+    intensity_lo, intensity_hi = intensity
+    if all(bound is None for bound in
+           (area_lo, area_hi, intensity_lo, intensity_hi)):
+        return mask
+    labelled, count = label(mask)
+    if count <= 0:
+        return mask
+    flat = labelled.ravel()
+    sizes = np.bincount(flat, minlength=count + 1).astype(np.float64)
+    totals = np.bincount(flat, weights=plane.astype(np.float64).ravel(),
+                         minlength=count + 1)
+    means = totals / np.maximum(sizes, 1.0)
+    keep = np.ones(sizes.shape, dtype=bool)
+    keep[0] = False                     # label 0 is the background
+    if area_lo is not None:
+        keep &= sizes >= area_lo
+    if area_hi is not None:
+        keep &= sizes <= area_hi
+    if intensity_lo is not None:
+        keep &= means >= intensity_lo
+    if intensity_hi is not None:
+        keep &= means <= intensity_hi
+    return keep[labelled]
+
+
 def outline_image(
     base_img: Image.Image,
     full_img: Image.Image,
@@ -391,6 +585,8 @@ def outline_image(
     outline_threshold_factor: float = 1.0,
     object_size: Tuple[int, int] = (0, 0),
     outline_method: str = 'otsu',
+    object_filters: Optional[Mapping] = None,
+    should_stop=None,
 ) -> Image.Image:
     """Overlay per-channel object outlines on `base_img`.
 
@@ -400,10 +596,24 @@ def outline_image(
     optionally dilate it, then alpha-blend it over the channel in
     `base_img` with `edge_transparency/100` opacity. Peak-normalized so
     thin edges stay visible.
+
+    WHICH objects get an outline is decided per plane by ``object_filters``
+    -- an area window and a mean-intensity window for each of red, green and
+    blue. ``object_size`` is the one-window-for-every-plane setting those
+    replaced and is still honoured: it is migrated onto the three area rows
+    by :func:`normalize_object_filters`, so a caller that passes only it gets
+    exactly what it always got.
+
+    :param should_stop: optional callable asked before each channel's Cellpose
+        model construction and forward pass. When it answers True the work is
+        abandoned by raising :class:`OutlineCancelled` rather than finishing a
+        page nobody is waiting for; ``'otsu'`` outlines are fast enough that
+        they are never interrupted mid-channel.
     """
     if not outline_channels or edge_transparency <= 0:
         return base_img
-    from scipy.ndimage import binary_closing, binary_fill_holes, gaussian_filter, label
+    from scipy.ndimage import (binary_closing, binary_fill_holes,
+                               gaussian_filter)
     from skimage.filters import threshold_otsu
     from skimage.morphology import dilation, disk
     from skimage.segmentation import find_boundaries
@@ -421,10 +631,7 @@ def outline_image(
             base_arr[:, :, channel_map[ch]] = 0
     opacity = max(0.0, min(1.0, float(edge_transparency) / 100.0))
     factor = float(outline_threshold_factor)
-    try:
-        min_px, max_px = object_size
-    except Exception:
-        min_px, max_px = (0, 0)
+    bounds = normalize_object_filters(object_filters, object_size)
     for ch in outline_channels:
         idx = channel_map[ch]
         if edge_image:
@@ -432,24 +639,25 @@ def outline_image(
         if outline_method == 'cellpose':
             # Small Cellpose model gives cleaner object outlines than Otsu.
             try:
-                fg_mask = _cellpose_foreground(full_arr[:, :, idx])
+                fg_mask = _cellpose_foreground(full_arr[:, :, idx],
+                                               should_stop=should_stop)
+            except OutlineCancelled:
+                # NOT a cellpose failure, so NOT a reason to fall back to
+                # Otsu: the caller has gone and the rest of this page must
+                # not be computed. Re-raised ahead of the generic handler
+                # below, which would otherwise swallow it and go on working
+                # for a screen that is being torn down.
+                raise
             except Exception:
                 # Fall back to Otsu if cellpose isn't available / fails.
                 outline_method = 'otsu'
         if outline_method != 'cellpose':
             fg_mask = _foreground_mask(full_arr[:, :, idx],
                                        float(edge_sigma), factor)
-        if (min_px and min_px > 0) or (max_px and max_px > 0):
-            lbl, n = label(fg_mask)
-            if n > 0:
-                counts = np.bincount(lbl.ravel())
-                lo = int(min_px) if int(min_px) > 0 else 0
-                hi = int(max_px) if int(max_px) > 0 else int(counts.max())
-                keep = np.zeros_like(counts, dtype=bool)
-                for i in range(1, len(counts)):
-                    if lo <= counts[i] <= hi:
-                        keep[i] = True
-                fg_mask = keep[lbl]
+        fg_mask = _keep_objects(
+            fg_mask, full_arr[:, :, idx],
+            bounds[filter_key(ch, "area")],
+            bounds[filter_key(ch, "intensity")])
         # THE EDGE IS CACHED TOO, for the same reason as the mask: it is a
         # function of the mask and the thickness alone, and neither moves
         # when a user changes normalisation, percentiles or transparency.
@@ -533,7 +741,22 @@ class AnnotateSettings:
     edge_thickness: float = 1.0
     edge_transparency: float = 100.0
     edge_image: bool = False
+    #: THE OLD ONE-WINDOW-FOR-EVERY-PLANE size filter, kept so a settings
+    #: file written against it still means what it meant. It is migrated onto
+    #: the three area rows of `object_filters` when the outline is drawn; the
+    #: screen writes the new fields.
     object_size: Tuple[int, int] = (0, 0)
+    #: ``{'r_area': (min, max), 'r_intensity': (min, max), 'g_area': ...}``:
+    #: six rows of two fields, one pair per plane per measure. ``None`` on a
+    #: side means NO BOUND there, which is how half a filter is turned off --
+    #: see `normalize_object_filters`.
+    #:
+    #: EMPTY BY DEFAULT, and that is not the same as twelve empty bounds. A
+    #: key that is absent has never been written, so a legacy `object_size`
+    #: is still migrated onto it; a key that is present and ``(None, None)``
+    #: is a user who cleared that row, and the old value does not come back.
+    object_filters: Dict[str, Tuple[Optional[float], Optional[float]]] = field(
+        default_factory=dict)
     grid_rows: int = 5
     grid_cols: int = 5
     # Active-learning queue (spacr.active_learning). Off by default: it needs

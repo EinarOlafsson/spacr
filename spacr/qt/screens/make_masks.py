@@ -7,7 +7,7 @@ remove small, Otsu detect), zoom and pan into a region for detailed
 edits, flood-fill by intensity with the magic wand, undo/redo, and save
 the edited mask back to ``<folder>/masks/<name>.tif`` as labelled uint16.
 
-Five things here are less obvious than the tool buttons:
+Six things here are less obvious than the tool buttons:
 
 **Every edit is recorded.** The screen keeps a
 :class:`spacr.curation.CurationLog` per field, seeded from any ledger
@@ -37,6 +37,25 @@ id. And nothing that adds pixels can separate a merged pair, so
 gives the smaller one a fresh id, leaving every other object in the field
 untouched. The cut is wider than a pixel for a reason --
 :data:`spacr.qt.mask_engine.DIVIDE_CUT_WIDTH` says which.
+
+**Recrop replaces the field instead of editing it.** Every other tool
+answers "which pixels are this object"; ``recrop`` answers "this picture
+is not one field". A staged crop holding several cells is not one
+training example, and curating it as though it were teaches a network
+that two objects are one picture — so a box round each object writes that
+region of BOTH the image and the mask as a field of its own, queued
+straight after this one, and the multi-object original is RETIRED rather
+than curated. Retired, not deleted: :func:`spacr.qt.mask_engine.retire_recropped_original`
+moves it into ``recropped_originals/`` with its mask and its ledger and
+records the move, because a box drawn wrong is only recoverable while the
+field it was drawn on still exists. Two refusals and two rules keep what
+lands on disk usable as ground truth — a box under
+:data:`spacr.qt.mask_engine.RECROP_MIN_SIDE` px, and a box that repeats
+one already cut, are both refused with a sentence; every object the box
+cuts through is dropped, because an object whose boundary is where the
+mouse was released is not that object; and the labels that survive are
+renumbered from one, so the new field is a field and not a view of
+another one.
 
 **Cellpose-SAM comes with its two intermediate outputs.**
 :meth:`MakeMasksScreen.run_cellpose` segments the field that is open,
@@ -99,13 +118,22 @@ Two of those buttons carry something the folded module did not have:
 A folded module is opened as the widget it always was, on a page beside
 the editor (:class:`FoldedModulePanel`), so nothing it could do is lost on
 the way in and nothing floats over the screen it came from.
+
+AND A FOLDED MODULE KEEPS NO MODULE OF ITS OWN. A screen only this masthead
+opens, sitting under ``spacr/qt/screens/`` beside every screen that does have
+a tile, is a front door onto nothing: the row is gone, so nothing imports it
+but this file. :class:`NapariBridgeScreen` therefore lives here, in the one
+screen that builds it. What it is a surface over --
+:mod:`spacr.napari_bridge`, the engine behind ``spacr.napari_bridge
+.correct_mask`` and behind the label-mask drop handler -- is a different file
+and is untouched: the fold takes the screen in, not the library.
 """
 from __future__ import annotations
 
 import logging
 import os
 from functools import partial
-from typing import List, Optional
+from typing import Any, List, Optional
 
 import numpy as np
 from PySide6.QtCore import QPoint, QRect, QThread, Qt, Signal
@@ -129,7 +157,9 @@ from PySide6.QtWidgets import (
     QGroupBox,
     QHBoxLayout,
     QLabel,
+    QLineEdit,
     QMessageBox,
+    QPlainTextEdit,
     QPushButton,
     QScrollArea,
     QSizePolicy,
@@ -147,7 +177,7 @@ from .. import iconset
 from .. import mask_engine as engine
 from .. import prefs
 from .. import wand_rescue
-from ..theme import SPACING, active_palette
+from ..theme import SPACING, active_palette, mark_surface
 from ..widgets import Card, Divider, EmptyState
 from ..widgets.fold_strip import FoldStrip
 from .app_screen import ModuleHeader
@@ -233,6 +263,9 @@ FOLD_FALLBACK = {
         "Curate",
         "Paint a mask right, and fix tracks by hand — on the record",
         "alpha"),
+    # THE ONLY SOURCE, not a fallback: the bridge registered its own row
+    # until the screen folded in here, so nothing puts one in the registry
+    # any more and this is what the button reads.
     "napari_bridge": (
         "Napari Bridge",
         "Correct a mask in napari and bring the corrected labels back",
@@ -294,6 +327,13 @@ MODE_DRAW = "draw"
 #: object's id untouched. The commonest correction a segmentation needs.
 MODE_DIVIDE = "divide"
 MODE_ZOOM = "zoom"
+#: Drag a box round one object and that region of BOTH the image and the
+#: mask becomes a field of its own, queued straight after this one. The only
+#: tool here that changes WHICH field is on screen rather than what is
+#: painted on it — see :func:`spacr.qt.mask_engine.write_recrop` for what it
+#: writes and :func:`spacr.qt.mask_engine.retire_recropped_original` for
+#: what happens to the field it was cut out of.
+MODE_RECROP = "recrop"
 
 #: The tools that fill the toolbar row, in the order they appear there:
 #: ``(mode, label, icon key)``. THE ROW IS BUILT FROM THIS TABLE and not
@@ -316,6 +356,11 @@ TOOL_MODES: List[tuple] = [
     (MODE_DRAW,         "Draw",         "draw"),
     (MODE_DIVIDE,       "Divide",       "divide"),
     (MODE_ZOOM,         "Zoom",         "zoom"),
+    # RECROP IS LAST, past the tools that change a mask, because it is not
+    # one of them: every button left of it edits the field in view, and this
+    # one replaces the field in view with the several fields it should have
+    # been. Beside Divide it would read as another way to split an object.
+    (MODE_RECROP,       "Recrop",       "recrop"),
 ]
 
 
@@ -396,17 +441,29 @@ class _MaskLoadWorker(QThread):
 class _MaskCanvas(QLabel):
     """QLabel that displays the composited image+mask (optionally zoomed
     into a sub-region) and captures mouse events for brush / erase /
-    magic-wand / erase-object / draw / divide / zoom-rectangle
+    magic-wand / erase-object / draw / divide / zoom-rectangle / recrop
     interactions.
 
     All coordinate math is done against the *full* image; the "zoom
     view" is just a crop of the composited pixmap. Mask edits go
     directly into `self.mask` (with the correct zoom offset applied).
+
+    Recrop is the one gesture here that changes nothing the canvas owns:
+    it is a rectangle dragged the way a zoom rectangle is, handed on
+    through :attr:`recrop_requested` in full-image pixels for the screen
+    to accept or refuse. What comes back is a mark in :attr:`recrop_boxes`
+    saying that region has been cut out, which is the only thing on screen
+    that distinguishes a box that was written from one that was not.
     """
 
     stroke_started = Signal()      # emitted just before self.mask is mutated
     stroke_finished = Signal()     # emitted after a stroke completes
     zoom_changed = Signal(bool)    # emitted with True when zoom entered / False on reset
+    #: A recrop box was dragged, in FULL-image pixels: (x0, y0, x1, y1).
+    #: The canvas neither writes it nor judges it — the box may be too
+    #: small, or a re-draw of one already cut — because what it becomes is
+    #: two files and a queue position, and none of that is a canvas's job.
+    recrop_requested = Signal(int, int, int, int)
 
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
@@ -449,9 +506,19 @@ class _MaskCanvas(QLabel):
         self._zoom_x1: Optional[int] = None
         self._zoom_y1: Optional[int] = None
 
-        # Zoom-rectangle drag state (widget-local pixel coords)
+        # Zoom-rectangle drag state (widget-local pixel coords). The recrop
+        # box is dragged the same way and reuses them, so the two rectangle
+        # tools cannot get out of step with each other; which one is being
+        # aimed is `self.mode`.
         self._zoom_drag_start: Optional[QPoint] = None
         self._zoom_drag_end: Optional[QPoint] = None
+
+        #: Boxes already cut out of THIS field, as
+        #: ``(x0, y0, x1, y1, name)`` in image pixels. Drawn on the canvas
+        #: and kept there: without them a box that was written and a box
+        #: that was refused look identical the moment the mouse comes up,
+        #: which is how one object reached disk as three crops.
+        self.recrop_boxes: List[tuple] = []
 
         # The draw outline / divide line in flight, in widget coords. Both
         # gestures change nothing until the button comes up, so the path is
@@ -489,6 +556,9 @@ class _MaskCanvas(QLabel):
         # traced outline, and the points collected on the old field name
         # nothing on the new one.
         self._gesture_points = []
+        # The boxes belong to the field they were cut out of; on the next
+        # field they would be rectangles drawn over unrelated pixels.
+        self.recrop_boxes = []
         self.reset_zoom(silent=True)
         self.refresh()
 
@@ -564,6 +634,27 @@ class _MaskCanvas(QLabel):
         img_x = max(0, min(self.mask.shape[1] - 1, img_x))
         img_y = max(0, min(self.mask.shape[0] - 1, img_y))
         return img_x, img_y
+
+    def _image_to_canvas(self, img_x: float, img_y: float) -> Optional[QPoint]:
+        """Where an image pixel lands on the widget, or ``None``.
+
+        The inverse of :meth:`_canvas_to_image`, and the reason a recrop box
+        stays on the object it was drawn round while the view is zoomed and
+        panned: the boxes are kept in image pixels and mapped here on every
+        repaint, rather than being remembered as the widget coordinates the
+        mouse happened to be at.
+        """
+        p = self.pixmap()
+        if self.mask is None or p is None or p.isNull():
+            return None
+        pw, ph = p.width(), p.height()
+        ox = (self.width() - pw) // 2
+        oy = (self.height() - ph) // 2
+        x0, y0, x1, y1 = self._viewport_bounds()
+        sub_w = max(1, x1 - x0)
+        sub_h = max(1, y1 - y0)
+        return QPoint(int(round(ox + (float(img_x) - x0) * pw / sub_w)),
+                      int(round(oy + (float(img_y) - y0) * ph / sub_h)))
 
     def _image_delta(self, dx_px: float, dy_px: float) -> tuple:
         """Widget-pixel drag -> the image-pixel shift the viewport must take.
@@ -710,10 +801,15 @@ class _MaskCanvas(QLabel):
         without the preview the user is dragging an invisible line.
         """
         super().paintEvent(event)
+        # The boxes already cut are drawn under everything else and in
+        # every mode: they are the record of what this field has already
+        # given up, and they have to be visible while the next box is being
+        # aimed as well as after the tool has been put down.
+        self._paint_recrop_boxes()
         if self.mode in (MODE_DRAW, MODE_DIVIDE):
             self._paint_gesture()
             return
-        if self.mode != MODE_ZOOM:
+        if self.mode not in (MODE_ZOOM, MODE_RECROP):
             return
         if self._zoom_drag_start is None or self._zoom_drag_end is None:
             return
@@ -724,6 +820,45 @@ class _MaskCanvas(QLabel):
         painter.setPen(pen)
         rect = QRect(self._zoom_drag_start, self._zoom_drag_end).normalized()
         painter.drawRect(rect)
+
+    def _paint_recrop_boxes(self) -> None:
+        """Mark every region already cut out of this field, with its name.
+
+        A recrop writes two files somewhere else and leaves the field on
+        screen untouched, so without this the canvas looks exactly the same
+        whether the box was written or refused. That is not a cosmetic
+        difference: the standalone this came from put one object on disk
+        three times as three near-identical crops, because the user could
+        only tell a box had worked by drawing it again.
+        """
+        # The pixmap is checked here rather than per box, because it is what
+        # every box is mapped through: a paint that arrives before refresh()
+        # has composited anything (a resize on a screen that has not loaded
+        # a field yet) has nothing to place a rectangle against, and boxes
+        # placed at the widget origin instead would each be a blue square
+        # over an object they name nothing about.
+        rendered = self.pixmap()
+        if not self.recrop_boxes or self.mask is None \
+                or rendered is None or rendered.isNull():
+            return
+        painter = QPainter(self)
+        accent = QColor(active_palette()["accent"])
+        fill = QColor(accent)
+        fill.setAlpha(55)
+        for box in self.recrop_boxes:
+            x0, y0, x1, y1 = (int(v) for v in box[:4])
+            rect = QRect(self._image_to_canvas(x0, y0),
+                          self._image_to_canvas(x1, y1)).normalized()
+            painter.fillRect(rect, fill)
+            pen = QPen(accent)
+            pen.setWidth(2)
+            painter.setPen(pen)
+            painter.drawRect(rect)
+            name = str(box[4]) if len(box) > 4 else ""
+            if name:
+                painter.setPen(QPen(QColor(active_palette()["fg"])))
+                painter.drawText(rect.adjusted(6, 4, 0, 0),
+                                 Qt.AlignLeft | Qt.AlignTop, name)
 
     def _paint_gesture(self) -> None:
         """Draw the outline being traced, or the cut being aimed.
@@ -831,7 +966,7 @@ class _MaskCanvas(QLabel):
         if self.mode == MODE_NONE:
             return super().mousePressEvent(event)
 
-        if self.mode == MODE_ZOOM:
+        if self.mode in (MODE_ZOOM, MODE_RECROP):
             self._zoom_drag_start = event.position().toPoint()
             self._zoom_drag_end = event.position().toPoint()
             self.update()
@@ -906,7 +1041,8 @@ class _MaskCanvas(QLabel):
             if (dx or dy) and self.pan_by(dx, dy):
                 self._pan_from = now
             return
-        if self.mode == MODE_ZOOM and self._zoom_drag_start is not None \
+        if self.mode in (MODE_ZOOM, MODE_RECROP) \
+                and self._zoom_drag_start is not None \
                 and event.buttons() & Qt.LeftButton:
             self._zoom_drag_end = event.position().toPoint()
             self.update()
@@ -955,7 +1091,8 @@ class _MaskCanvas(QLabel):
             self._pan_from = None
             self.unsetCursor()
             return
-        if self.mode == MODE_ZOOM and self._zoom_drag_start is not None \
+        if self.mode in (MODE_ZOOM, MODE_RECROP) \
+                and self._zoom_drag_start is not None \
                 and self._zoom_drag_end is not None:
             # Convert both endpoints to image coords and commit
             p0 = self._canvas_to_image(self._zoom_drag_start.x(),
@@ -964,6 +1101,17 @@ class _MaskCanvas(QLabel):
                                         self._zoom_drag_end.y())
             self._zoom_drag_start = None
             self._zoom_drag_end = None
+            if self.mode == MODE_RECROP:
+                # Handed on rather than acted on, and handed on even when it
+                # is obviously too small: the screen owns the refusal, so the
+                # user gets the same sentence for every box that will not be
+                # cut instead of silence for some of them.
+                if p0 is not None and p1 is not None:
+                    self.recrop_requested.emit(int(p0[0]), int(p0[1]),
+                                                int(p1[0]) + 1,
+                                                int(p1[1]) + 1)
+                self.update()
+                return
             if p0 is not None and p1 is not None:
                 x0, x1 = sorted((p0[0], p1[0]))
                 y0, y1 = sorted((p0[1], p1[1]))
@@ -1061,6 +1209,16 @@ CELLPROB_THRESHOLD = 0.0
 #: whose flows disagree with the ones the network predicted by more than
 #: this is thrown away, so lowering it is stricter, not looser.
 FLOW_THRESHOLD = 0.4
+
+#: What the Recrop button says about itself. The only tool in the row
+#: whose result is not a change to the picture under the cursor, so it is
+#: the one that cannot be understood by pressing it and looking.
+RECROP_TOOLTIP = (
+    "Drag a box round one object and that region of the image and the mask "
+    "becomes a field of its own, queued straight after this one. Objects "
+    "the box cuts through are dropped. The field you cut them from is "
+    "moved into recropped_originals/ when you move on, not deleted."
+)
 
 #: What the probability and flow panes say before Cellpose has run. They
 #: are empty for a reason and the reason is worth a sentence: a blank
@@ -1415,6 +1573,307 @@ class FoldedModulePanel(QWidget):
 
 
 # ---------------------------------------------------------------------------
+# The napari bridge, folded in
+# ---------------------------------------------------------------------------
+
+#: The file dialogs the bridge opens. A mask is a label image and an image is
+#: whatever the microscope wrote, so the two filters are not the same one.
+_MASK_FILTER = "Masks (*.tif *.tiff *.npy *.png);;All files (*)"
+_IMAGE_FILTER = "Images (*.tif *.tiff *.npy *.png *.jpg);;All files (*)"
+
+
+class NapariBridgeScreen(QWidget):
+    """Pick a field, open it in napari, take the corrected mask back.
+
+    A thin surface over :mod:`spacr.napari_bridge`, which owns every
+    decision that matters: what is handed over, what is refused on the way
+    back, how the corrected mask is written, and how the correction is
+    recorded. This class collects two paths and presses three buttons.
+
+    IT LIVES HERE BECAUSE THIS IS THE ONLY SCREEN THAT OPENS IT. The bridge
+    is a button on this masthead (:data:`FOLD_ORDER`) and has no tile of its
+    own, so a module of its own beside every real screen was a front door
+    onto nothing. :mod:`spacr.napari_bridge` — the engine, the public API and
+    the headless ``correct_mask`` entry point — is a different file and is
+    untouched by that.
+
+    Three things about it are deliberate rather than incidental.
+
+    **It never imports napari at module scope, and neither does anything it
+    imports.** ``spacr.qt`` walks its own package in the perf guard and every
+    settings panel in spaCR is built from modules in it; a second Qt stack
+    arriving because someone opened an unrelated screen would be paid for by
+    every user, installed or not. The import lives inside the button handler,
+    behind :func:`spacr.napari_bridge.require_napari`, and a missing install
+    produces the ``pip install "spacr[napari]"`` paragraph in the status pane
+    rather than a traceback.
+
+    **It does not run napari's event loop.** spaCR is already a running
+    ``QApplication``; starting a second loop nests them. So the viewer is
+    opened and left open, and the user presses *Take the mask back* when they
+    are done — which is also the friendlier interaction, because it lets them
+    look, edit, take it back, and keep going.
+    :func:`spacr.napari_bridge.run_event_loop` is for scripts, and its
+    docstring says so.
+
+    **A correction made here is recorded exactly as one made in Curate.**
+    Same append-only ledger, same sidecar, same answer from
+    :func:`spacr.curation.is_curated`. The bridge is for people who prefer
+    napari's brush; it is not a way to edit data off the record.
+    """
+
+    #: A field was opened in napari. Carries the mask path.
+    opened = Signal(str)
+    #: A correction came back and was written. Carries the mask path.
+    corrected = Signal(str)
+
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
+        self.setObjectName("NapariBridge")
+        self._viewer: Any = None
+        self._handoff: Any = None
+
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
+                                 SPACING["lg"], SPACING["lg"])
+        outer.setSpacing(SPACING["sm"])
+
+        title = QLabel("Napari Bridge", self)
+        title.setObjectName("DisplayHeading")
+        outer.addWidget(title)
+        intro = QLabel(
+            "Send a field's image and mask to napari, correct the mask with "
+            "the tools you already know, and bring it back. The corrected "
+            "mask is written the way spaCR writes masks, and the correction "
+            "is recorded in the same ledger the Curate screen writes — so a "
+            "curated dataset still says so.", self)
+        intro.setObjectName("Muted")
+        intro.setWordWrap(True)
+        outer.addWidget(intro)
+
+        self._mask_edit = QLineEdit(self)
+        self._mask_edit.setPlaceholderText("Label mask (.tif, .npy)")
+        outer.addLayout(self._path_row("Mask", self._mask_edit,
+                                       self._choose_mask))
+        self._image_edit = QLineEdit(self)
+        self._image_edit.setPlaceholderText(
+            "Image to show underneath (optional)")
+        outer.addLayout(self._path_row("Image", self._image_edit,
+                                       self._choose_image))
+
+        buttons = QHBoxLayout()
+        buttons.setSpacing(SPACING["sm"])
+        self.open_button = QPushButton("Open in napari", self)
+        self.open_button.setToolTip(
+            "Open the field in a napari window. spaCR stays running.")
+        self.open_button.clicked.connect(self.open_in_napari)
+        buttons.addWidget(self.open_button)
+        self.take_button = QPushButton("Take the mask back", self)
+        self.take_button.setToolTip(
+            "Read the corrected labels out of napari, write them back and "
+            "record the correction")
+        self.take_button.setEnabled(False)
+        self.take_button.clicked.connect(self.take_mask_back)
+        buttons.addWidget(self.take_button)
+        self.close_button = QPushButton("Close viewer", self)
+        self.close_button.setEnabled(False)
+        self.close_button.clicked.connect(self.close_viewer)
+        buttons.addWidget(self.close_button)
+        buttons.addStretch(1)
+        outer.addLayout(buttons)
+
+        self.status = QPlainTextEdit(self)
+        self.status.setObjectName("NapariBridgeStatus")
+        self.status.setReadOnly(True)
+        self.status.setPlaceholderText(
+            "Choose a mask and press Open in napari.")
+        # The log IS this screen's body — nothing is behind it — so it
+        # keeps a surface where the sweep would leave it see-through.
+        mark_surface(self.status)
+        outer.addWidget(self.status, 1)
+        # Drop anywhere on this screen: the path is resolved through spaCR's
+        # project layout, so the plate folder finds what this screen reads.
+        from ..dnd import install_for
+        install_for(self, "napari_bridge")
+
+    # -- the form -----------------------------------------------------------
+    def _path_row(self, label: str, edit: QLineEdit, chooser) -> QHBoxLayout:
+        row = QHBoxLayout()
+        row.setSpacing(SPACING["sm"])
+        caption = QLabel(label, self)
+        caption.setMinimumWidth(56)
+        row.addWidget(caption)
+        row.addWidget(edit, 1)
+        browse = QPushButton("Browse…", self)
+        browse.clicked.connect(chooser)
+        row.addWidget(browse)
+        return row
+
+    def _choose_mask(self) -> None:
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Open a label mask", self._mask_edit.text().strip(),
+            _MASK_FILTER)
+        if path:
+            self._mask_edit.setText(path)
+            self.describe_mask(path)
+
+    def _choose_image(self) -> None:
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Open the image underneath",
+            self._image_edit.text().strip(), _IMAGE_FILTER)
+        if path:
+            self._image_edit.setText(path)
+
+    def set_paths(self, mask: str = "", image: str = "") -> None:
+        """Fill the form. The seam a host or a test drives the screen through."""
+        if mask:
+            self._mask_edit.setText(str(mask))
+        if image:
+            self._image_edit.setText(str(image))
+
+    def mask_path(self) -> str:
+        """The mask path in the form."""
+        return self._mask_edit.text().strip()
+
+    def image_path(self) -> str:
+        """The image path in the form, or ``""``."""
+        return self._image_edit.text().strip()
+
+    # -- saying things ------------------------------------------------------
+    def say(self, text: str, *, append: bool = False) -> str:
+        """Put ``text`` in the status pane. Returns what the pane now holds.
+
+        A pane rather than a one-line label, because the two things this
+        screen most often has to say are a multi-line install instruction and
+        a multi-line refusal, and both are written to be read.
+        """
+        text = str(text)
+        if append and self.status.toPlainText():
+            self.status.setPlainText(
+                f"{self.status.toPlainText()}\n\n{text}")
+        else:
+            self.status.setPlainText(text)
+        return self.status.toPlainText()
+
+    def describe_mask(self, path: str = "") -> str:
+        """Say what is in a mask file, and whether it has been edited before."""
+        path = path or self.mask_path()
+        if not path or not os.path.isfile(path):
+            return self.say("Choose a mask file first.")
+        try:
+            from ...napari_bridge import load_handoff
+            handoff = load_handoff(path, self.image_path())
+        except Exception as exc:
+            return self.say(f"Could not read {os.path.basename(path)}: {exc}")
+        return self.say(handoff.describe())
+
+    # -- the bridge ---------------------------------------------------------
+    def open_in_napari(self) -> Any:
+        """Hand the field to napari. Returns the viewer, or None.
+
+        The napari import happens here and nowhere earlier — see the class
+        docstring. A missing install is answered with the install
+        instruction, not a traceback.
+        """
+        path = self.mask_path()
+        if not path or not os.path.isfile(path):
+            self.say("Choose a mask file first.")
+            return None
+        try:
+            from ...napari_bridge import (NapariExtraMissing, load_handoff,
+                                          open_in_napari)
+        except ImportError as exc:            # pragma: no cover - broken tree
+            self.say(f"Could not load the napari bridge: {exc}")
+            return None
+        try:
+            handoff = load_handoff(path, self.image_path())
+        except Exception as exc:
+            self.say(f"Could not read {os.path.basename(path)}: {exc}")
+            return None
+        try:
+            viewer = open_in_napari(handoff)
+        except NapariExtraMissing as exc:
+            # The one refusal that is an instruction rather than an error.
+            self.say(str(exc))
+            return None
+        except Exception as exc:
+            LOG.exception("could not open napari")
+            self.say(f"napari could not open this field: {exc}")
+            return None
+        self._viewer = viewer
+        self._handoff = handoff
+        self.take_button.setEnabled(True)
+        self.close_button.setEnabled(True)
+        self.say(f"{handoff.describe()}\n\nOpen in napari. Correct the mask "
+                 f"there, then come back and press Take the mask back. "
+                 f"spaCR is still running — nothing is written until you do.")
+        self.opened.emit(handoff.mask_path)
+        return viewer
+
+    def take_mask_back(self):
+        """Read the corrected labels back, write them, record the correction.
+
+        Returns the :class:`spacr.napari_bridge.CorrectionResult`, or None
+        when there was nothing to take.
+        """
+        if self._viewer is None or self._handoff is None:
+            self.say("Open a field in napari first.")
+            return None
+        from ...napari_bridge import labels_from_viewer, write_back
+
+        try:
+            corrected = labels_from_viewer(self._viewer,
+                                           name=self._handoff.name)
+        except Exception as exc:
+            # Every refusal `to_spacr_mask` raises is written to be read by
+            # the person who has to act on it, so it is shown verbatim rather
+            # than replaced with a house apology.
+            self.say(str(exc))
+            return None
+        try:
+            result = write_back(self._handoff.mask_path, corrected,
+                                original=self._handoff.mask)
+        except Exception as exc:
+            self.say(str(exc))
+            return None
+        self.say(result.describe(), append=False)
+        if result.written:
+            # The handoff now holds what is on disk, so pressing the button
+            # twice reports "unchanged" rather than recording the same edit
+            # a second time.
+            self._handoff = self._reloaded(result)
+            self.corrected.emit(result.mask_path)
+        return result
+
+    def _reloaded(self, result) -> Any:
+        """The handoff, with the mask that was just written."""
+        import dataclasses
+
+        return dataclasses.replace(self._handoff, mask=result.mask)
+
+    def close_viewer(self) -> None:
+        """Close the napari window, if one is open."""
+        viewer = self._viewer
+        self._viewer = None
+        self._handoff = None
+        self.take_button.setEnabled(False)
+        self.close_button.setEnabled(False)
+        if viewer is not None:
+            try:
+                viewer.close()
+            except Exception:
+                LOG.debug("napari viewer would not close", exc_info=True)
+
+    def viewer(self) -> Any:
+        """The open napari viewer, or None. For a host and for tests."""
+        return self._viewer
+
+    def closeEvent(self, event):  # noqa: N802 - Qt name
+        self.close_viewer()
+        super().closeEvent(event)
+
+
+# ---------------------------------------------------------------------------
 # MakeMasksScreen
 # ---------------------------------------------------------------------------
 
@@ -1436,6 +1895,11 @@ class MakeMasksScreen(QWidget):
         #: the first one's record instead of replacing it.
         self._log: Optional[CurationLog] = None
         self._load_token = 0
+        #: Fields cut out of the one on screen this visit, in the order
+        #: they were cut. Non-empty means the field on screen is a parent:
+        #: it is retired the moment the user leaves it — see
+        #: :meth:`finish_recrop`.
+        self._recrop_children: List[str] = []
         self._load_worker: Optional[_MaskLoadWorker] = None
         self._pending_load = None
         self._loading = False
@@ -1530,6 +1994,7 @@ class MakeMasksScreen(QWidget):
         self._canvas.stroke_started.connect(self._on_stroke_started)
         self._canvas.stroke_finished.connect(self._on_stroke_finished)
         self._canvas.zoom_changed.connect(self._on_zoom_changed)
+        self._canvas.recrop_requested.connect(self._on_recrop_requested)
         self._body_splitter.addWidget(self._build_view_tabs())
 
         # THE SETTINGS, AS ONE GROUP. Everything the settings button
@@ -1679,7 +2144,6 @@ class MakeMasksScreen(QWidget):
             from .curate import CurateScreen
             return CurateScreen()
         if key == "napari_bridge":
-            from .napari_bridge import NapariBridgeScreen
             return NapariBridgeScreen()
         # A module with no screen of its own gets the generic settings
         # page — the same page its tile opened. Every key this screen
@@ -1960,6 +2424,10 @@ class MakeMasksScreen(QWidget):
         self._btn_wand_add = self._mode_buttons[MODE_WAND_ADD]
         self._btn_wand_erase = self._mode_buttons[MODE_WAND_ERASE]
         self._btn_zoom = self._mode_buttons[MODE_ZOOM]
+        self._btn_recrop = self._mode_buttons[MODE_RECROP]
+        # The one tool in the row whose result is not on the canvas, so it
+        # is the one that has to say what it does before it is pressed.
+        self._btn_recrop.setToolTip(RECROP_TOOLTIP)
 
         # Reset zoom, undo and redo ride in the same row: they are pressed
         # between strokes, so hiding them with the settings would hide the
@@ -2489,6 +2957,9 @@ class MakeMasksScreen(QWidget):
         QShortcut(QKeySequence("D"), self, lambda: self._set_mode(MODE_DRAW))
         QShortcut(QKeySequence("V"), self, lambda: self._set_mode(MODE_DIVIDE))
         QShortcut(QKeySequence("Z"), self, lambda: self._set_mode(MODE_ZOOM))
+        # R for recrop. Free: B/E/W/D/V/Z are the other six tools and
+        # Ctrl+S / Ctrl+Z / Ctrl+Y / Escape / the arrows are the rest.
+        QShortcut(QKeySequence("R"), self, lambda: self._set_mode(MODE_RECROP))
         QShortcut(QKeySequence("Escape"), self, self._on_reset_zoom)
         QShortcut(QKeySequence("Ctrl+Z"), self, self._on_undo)
         QShortcut(QKeySequence("Ctrl+Y"), self, self._on_redo)
@@ -3225,6 +3696,10 @@ class MakeMasksScreen(QWidget):
         if token != self._load_token:
             return
         self._canvas.set_image_and_mask(image, mask)
+        # In lockstep with the canvas clearing its own boxes: the cuts
+        # belong to the field they were made on, and carrying them onto the
+        # next one would retire the wrong file.
+        self._recrop_children = []
         # The probability and flow panes described the LAST field's
         # Cellpose run; on this one they would be a picture of the
         # wrong image with nothing on screen saying so.
@@ -3268,13 +3743,158 @@ class MakeMasksScreen(QWidget):
             log.source = engine.CURATION_SOURCE
         return log
 
+    # ------------------------------------------------------------------
+    # Recrop — one field becoming the several fields it should have been
+    # ------------------------------------------------------------------
+    def _on_recrop_requested(self, x0: int, y0: int, x1: int, y1: int) -> None:
+        """Handle a box dragged with the Recrop tool."""
+        self.recrop(x0, y0, x1, y1)
+
+    def recrop(self, x0: int, y0: int, x1: int, y1: int) -> Optional[str]:
+        """Cut one box out into a field of its own; return what it is called.
+
+        The scriptable half of the Recrop tool, and where every refusal is
+        decided: the canvas hands over whatever was dragged and this says
+        yes or no to it, so a box that will not be cut always leaves a
+        sentence behind saying which rule stopped it. Returns ``None`` for
+        every refusal.
+
+        On acceptance the child is on disk before this returns and is
+        already in the queue at the position after the field it came from,
+        so the next press of Next opens it. The box is added to the canvas
+        as well: a recrop leaves the field on screen unchanged, and without
+        the mark a box that was written looks exactly like one that was not.
+        """
+        if not self._image_files or self._canvas.mask is None \
+                or self._canvas.image is None:
+            self._status_label.setText("Recrop: no field open to cut.")
+            return None
+        filename = self._image_files[self._current_index]
+        try:
+            box = engine.recrop_box(self._canvas.mask.shape, (x0, y0), (x1, y1),
+                                     existing=self._canvas.recrop_boxes)
+        except engine.RecropRefused as refusal:
+            self._status_label.setText(f"Recrop: {refusal}")
+            return None
+        try:
+            written = engine.write_recrop(
+                self._folder, filename, self._canvas.image,
+                self._canvas.mask, box)
+        except Exception as exc:
+            self._warn("Recrop failed", str(exc))
+            return None
+
+        name = os.path.splitext(written.name)[0]
+        self._canvas.recrop_boxes.append((*box, name))
+        self._canvas.update()
+        # Straight after the field it came from, and after any sibling
+        # already cut out of it, so the children come out in the order they
+        # were drawn rather than in reverse.
+        self._image_files.insert(
+            self._current_index + len(self._recrop_children) + 1, written.name)
+        self._recrop_children.append(written.name)
+        # On the PARENT's ledger, because this is something that was done to
+        # the parent: an area of it left. The child's own ledger says the
+        # other half of it — see :func:`mask_engine.write_recrop`.
+        area = (box[2] - box[0]) * (box[3] - box[1])
+        self._record(engine.RECROP_KIND, written.name, area,
+                      box=[int(v) for v in box],
+                      n_objects=int(written.n_objects))
+        # The object COUNT is the half of this the user cannot see: a box
+        # drawn a little too tight round two touching cells cuts both of
+        # them and writes a field with nothing in it, and the box on screen
+        # looks the same either way.
+        self._status_label.setText(
+            f"Recrop {name}: {box[2] - box[0]}x{box[3] - box[1]} px, "
+            f"{written.n_objects} whole object(s), queued next "
+            f"({len(self._recrop_children)} so far). "
+            f"{filename} is retired when you move on."
+        )
+        return written.name
+
+    def finish_recrop(self) -> bool:
+        """Retire the field the current boxes were cut out of.
+
+        Called when the user leaves a field they recropped. The original
+        holds several objects, which is what made it worth cutting up, so it
+        is not training data and must not sit in the queue next to its own
+        pieces — but it is not deleted either, because a box drawn wrong is
+        only recoverable while the field it was drawn on still exists.
+
+        WHAT "RETIRED" CAN MEAN HERE. This screen's queue is a folder, not a
+        table: it walks :func:`mask_engine.list_images`. spaCR's crop
+        database (``png_list``) is keyed on each crop's absolute path and has
+        no lifecycle column, so there is nothing in it to set to "recropped"
+        and no row a folder-reading screen has any claim to rewrite. The
+        nearest thing that is recoverable is
+        :func:`mask_engine.retire_recropped_original`: the image, its mask
+        and its ledger move into ``recropped_originals/``, out of the
+        enumeration and onto a manifest that says what moved and where from.
+
+        :returns: True when a field was retired, in which case the queue has
+            already moved to the first of its children.
+        """
+        if not self._recrop_children or not self._image_files:
+            return False
+        filename = self._image_files[self._current_index]
+        children = list(self._recrop_children)
+        boxes = [tuple(int(v) for v in box[:4])
+                 for box in self._canvas.recrop_boxes]
+        # The parent's mask and ledger are written before it is moved, so
+        # the record of the boxes travels into the archive with the file
+        # they were cut out of rather than being lost with the session.
+        if self._canvas.mask is not None:
+            try:
+                engine.save_mask(self._folder, filename, self._canvas.mask,
+                                  log=self._log)
+            except Exception as exc:
+                # The archive is the recovery, so a mask that will not write
+                # must not also stop the original being put somewhere safe.
+                LOG.warning("Could not save %s before retiring it: %s",
+                            filename, exc)
+        try:
+            engine.retire_recropped_original(
+                self._folder, filename, children=children, boxes=boxes)
+        except Exception as exc:
+            self._warn("Recrop failed", str(exc))
+            return False
+        self._image_files.pop(self._current_index)
+        self._recrop_children = []
+        self._canvas.recrop_boxes = []
+        if not self._image_files:
+            self._current_index = 0
+            self._canvas.image = None
+            self._canvas.mask = None
+            self._canvas.clear()
+            self._status_label.setText(
+                f"{filename} retired to {engine.RECROP_ARCHIVE_DIRNAME}/ — "
+                f"{len(children)} crop(s) written, queue empty.")
+            self._sync_button_states()
+            return True
+        self._current_index = min(self._current_index,
+                                   len(self._image_files) - 1)
+        self._load_current()
+        self._status_label.setText(
+            f"{filename} retired to {engine.RECROP_ARCHIVE_DIRNAME}/ — "
+            f"{len(children)} crop(s) next.")
+        self._sync_button_states()
+        return True
+
     def _on_prev(self):
+        # Leaving the field retires it if it was cut up, whichever way the
+        # user leaves: the parent must not be reachable again as though it
+        # were still a field to curate.
+        self.finish_recrop()
         if not self._image_files or self._current_index <= 0:
             return
         self._current_index -= 1
         self._load_current()
 
     def _on_next(self):
+        # A retirement has already moved the queue onto the first child, so
+        # Next has done what Next does and must not step past it.
+        if self.finish_recrop():
+            return
         if not self._image_files or self._current_index >= len(self._image_files) - 1:
             return
         self._current_index += 1

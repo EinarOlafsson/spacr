@@ -6,10 +6,10 @@ merge explicit and provides a direct removal control.
 """
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QWidget
+from PySide6.QtCore import Signal
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QWidget
 
-from ..theme import SPACING, active_palette, register_widget_qss
+from ..theme import close_mark_button, register_widget_qss
 
 #: The key this module's stylesheet is registered under.
 QSS_NAME = "TableChip"
@@ -36,16 +36,6 @@ def _chip_qss(palette, opacity=None) -> str:
         background: transparent;
         padding: 1px 2px 1px 8px;
     }}
-    QPushButton#TableChipClose {{
-        color: {ink};
-        background: transparent;
-        border: none;
-        padding: 0px 6px 2px 4px;
-        font-weight: 600;
-    }}
-    QPushButton#TableChipClose:hover {{
-        color: {palette['warning']};
-    }}
     """
 
 
@@ -70,10 +60,12 @@ class TableChip(QWidget):
         label.setObjectName("TableChipName")
         row.addWidget(label)
 
-        self._close = QPushButton("×", self)
+        # THE APPLICATION'S CLOSE MARK, not a chip-shaped one. Its glyph,
+        # its size and its two colours come from the theme; this chip only
+        # says what pressing it removes. See `theme.close_mark_button`.
+        self._close = close_mark_button(
+            self, tooltip=f"Remove {name} from the working set")
         self._close.setObjectName("TableChipClose")
-        self._close.setCursor(Qt.PointingHandCursor)
-        self._close.setToolTip(f"Remove {name} from the working set")
         self._close.clicked.connect(lambda: self.removed.emit(self._name))
         # The last table has no x: a gate editor with no table is a screen
         # with nothing on it, and the user's next move would be to load the
@@ -81,9 +73,14 @@ class TableChip(QWidget):
         self._close.setVisible(removable)
         row.addWidget(self._close)
 
+        # THE MARK IS MEASURED, NOT GUESSED. The chip has to hold the name
+        # AND whatever box the close mark takes at the user's Zoom, or a
+        # larger mark would crop the name it belongs to.
         metrics = self.fontMetrics()
-        self.setMinimumHeight(metrics.height() + 6)
-        self.setMinimumWidth(metrics.horizontalAdvance(name) + 34)
+        self.setMinimumHeight(
+            max(metrics.height() + 6, self._close.height() + 4))
+        self.setMinimumWidth(
+            metrics.horizontalAdvance(name) + 12 + self._close.width())
 
     @property
     def name(self) -> str:

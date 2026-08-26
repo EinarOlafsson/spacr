@@ -35,6 +35,12 @@ as a re-skin of the same one:
     slightly brighter membrane where the edge is seen nearly edge-on, and a
     distinctly brighter nucleus set off centre.
 
+There is a seventh engine, ``fractal``, and it is not one of the six: it is
+not in :data:`AMBIENT_THEMES`, no menu lists it, no preference can hold it,
+and the only way to see it is to start the application with the ``spaceout``
+command instead of ``spacr``. See :data:`SPACEOUT_THEME` and
+:class:`FractalEngine`.
+
 The ``random`` direction of ``drift`` produces Brownian-style motion without
 duplicating the starfield as a separate theme. Themes dominated by many
 antialiased lines or per-pixel noise are omitted because their raster cost is
@@ -187,13 +193,15 @@ from PySide6.QtGui import (QBrush, QColor, QImage, QLinearGradient, QPainter,
                            QTransform)
 from PySide6.QtWidgets import QSizePolicy, QWidget
 
-from ..theme import page_colour, palette_for, relative_luminance
+from ..theme import (page_colour, palette_for, relative_luminance,
+                     spaceout_enabled)
 
 __all__ = [
     "AMBIENT_THEMES", "ANIMATION_CHOICES", "NO_ANIMATION",
     "animation_label", "animation_note", "is_animation_choice",
     "total_frames_painted",
     "DEFAULT_THEME", "DEFAULT_PALETTE", "PALETTE_SETS",
+    "SPACEOUT_THEME", "SPACEOUT_PALETTE", "dressed",
     "AmbientWidget", "install_ambient", "theme_label", "theme_note",
     "palettes_for", "palette_label", "palette_note", "palette_colors",
     "default_palette_for", "is_valid_theme", "is_valid_palette",
@@ -219,6 +227,20 @@ __all__ = [
 #: meaning "a thing that can be drawn".
 AMBIENT_THEMES: Tuple[str, ...] = ("blobs", "aurora", "ripple", "drift",
                                    "bokeh", "cells")
+
+#: The animation the ``spaceout`` entry point paints, and the palette it
+#: paints it in.
+#:
+#: **Deliberately absent from :data:`AMBIENT_THEMES`**, which is the whole
+#: mechanism by which this cannot be chosen: that tuple is what the
+#: Preferences dropdown is built from, what :func:`is_valid_theme` accepts,
+#: and what ``preferences.get_ambient_theme`` validates a stored value
+#: against — so the name appears in no menu, cannot be persisted, and cannot
+#: come back out of a settings file. It is paintable
+#: (:data:`_PAINTABLE_THEMES`) and reachable only through
+#: :func:`spacr.qt.theme.enable_spaceout`, which only the entry point calls.
+SPACEOUT_THEME = "fractal"
+SPACEOUT_PALETTE = "rainbow"
 
 #: The animation choice that draws nothing and runs no timer.
 #:
@@ -249,6 +271,10 @@ _THEME_LABELS = {
     "drift": "Starfield",
     "bokeh": "Bokeh",
     "cells": "Cells",
+    # Never shown: nothing builds a menu row from a name that is not in
+    # `AMBIENT_THEMES`. Present so that a log line, a traceback or a test
+    # naming this engine reads like the other six.
+    SPACEOUT_THEME: "Fractals",
 }
 
 _THEME_NOTES = {
@@ -262,6 +288,9 @@ _THEME_NOTES = {
               "looks off the focal plane: bright rims, flat centres."),
     "cells": ("Cells drifting through the field — soft bodies with a "
               "brighter nucleus, turning slowly as they go."),
+    SPACEOUT_THEME: ("A Julia set that morphs, turns and cycles colour — "
+                     "the backdrop the spaceout launcher dresses the "
+                     "application in."),
 }
 
 
@@ -324,6 +353,18 @@ PALETTE_SETS: Dict[str, PaletteSpec] = {
         "appears high up), ionised nitrogen at 427.8 nm (the blue-violet "
         "lower fringe), and the pale yellow-green where the green and the "
         "red overlap."),
+    # The spaceout palette. Seven stops right around the wheel and back to
+    # where they started, because the fractal reads it as a RING: the escape
+    # bands cycle through it repeatedly across one frame, so the last colour
+    # sits next to the first and a set that did not close would show a seam
+    # at every band boundary. Offered by no theme a menu lists — see
+    # `_THEME_PALETTES`.
+    "rainbow": PaletteSpec(
+        "Rainbow",
+        ("#FF0040", "#FF7A00", "#FFE000", "#00E05A", "#00C8FF", "#4030FF",
+         "#C02BFF"),
+        "The spectrum, closed into a ring: red through orange, yellow, "
+        "green, cyan and blue to violet, and back round to red."),
     # Also not invented: the three filter cubes on essentially every
     # fluorescence scope, at the wavelength the eyepiece sees.
     "fluor": PaletteSpec(
@@ -364,7 +405,21 @@ _THEME_PALETTES: Dict[str, Tuple[str, ...]] = {
               "fluor"),
     "bokeh": ("spacr", "ember", "ocean", "pastel", "mono", "okabe", "fluor"),
     "cells": ("spacr", "ember", "ocean", "pastel", "mono", "okabe", "fluor"),
+    # One palette, and it is offered by nothing else: `palettes_for` is what
+    # the Preferences palette picker is filled from, and it is only ever
+    # asked about a theme from `AMBIENT_THEMES`.
+    SPACEOUT_THEME: (SPACEOUT_PALETTE,),
 }
+
+#: Every theme that has an engine behind it — the six a menu offers, plus
+#: the one the ``spaceout`` entry point dresses the application in.
+#:
+#: The split from :data:`AMBIENT_THEMES` is the point. This is what
+#: ``make_engine`` and the validators mean by "a thing that can be drawn";
+#: that one is what a menu, a stored preference and :func:`is_valid_theme`
+#: mean by "a thing that can be chosen". Keeping them apart is what lets the
+#: fractal be painted without ever being offered.
+_PAINTABLE_THEMES: Tuple[str, ...] = AMBIENT_THEMES + (SPACEOUT_THEME,)
 
 
 def is_valid_theme(name) -> bool:
@@ -382,10 +437,17 @@ def is_valid_palette(theme, palette) -> bool:
 
 
 def _require_theme(name: str) -> str:
-    if name not in AMBIENT_THEMES:
+    """Validate a name that is about to be *painted*.
+
+    Against :data:`_PAINTABLE_THEMES`, not :data:`AMBIENT_THEMES`: the
+    spaceout fractal has an engine and must pass here, while
+    :func:`is_valid_theme` — which is what a stored preference is checked
+    with — goes on rejecting it.
+    """
+    if name not in _PAINTABLE_THEMES:
         raise ValueError(
             f"unknown ambient theme {name!r}; expected one of "
-            f"{', '.join(AMBIENT_THEMES)}")
+            f"{', '.join(_PAINTABLE_THEMES)}")
     return name
 
 
@@ -500,6 +562,27 @@ def coerce_palette(theme: str, palette: str) -> str:
             f"{', '.join(sorted(PALETTE_SETS))}")
     return palette if is_valid_palette(theme, palette) \
         else default_palette_for(theme)
+
+
+def dressed(theme: str, palette: str) -> Tuple[str, str]:
+    """The animation that is actually painted, given how spaCR was started.
+
+    ``(theme, palette)`` unchanged for an ordinary launch, and always
+    ``(SPACEOUT_THEME, SPACEOUT_PALETTE)`` under the ``spaceout`` entry
+    point — see :func:`spacr.qt.theme.spaceout_enabled`.
+
+    It sits here, on the two functions that *build* a backdrop, rather than
+    at the call sites. There are four of those (a module screen, Home, the
+    theme preview and the setup dialog), none of them has any business
+    knowing the mode exists, and one of them —
+    :func:`spacr.qt.preferences.apply_ambient_preferences` — reaches every
+    live backdrop in the application every time Preferences is saved. Put
+    the override anywhere else and saving a settings page would quietly
+    undress the app.
+    """
+    if spaceout_enabled():
+        return SPACEOUT_THEME, SPACEOUT_PALETTE
+    return theme, palette
 
 
 # ---------------------------------------------------------------------------
@@ -805,6 +888,26 @@ def _theme_background() -> QColor:
         # itself fail on an import the way a second `from ..theme import`
         # could — and a backdrop must never raise on its way to a screen.
         return QColor(page_colour("dark"))
+
+
+#: NumPy, once it has been imported. See :func:`_numpy`.
+_NUMPY = None
+
+
+def _numpy():
+    """NumPy, imported on first use rather than at module import.
+
+    :class:`FractalEngine` is the only thing in here that needs it, and it is
+    only ever built by the ``spaceout`` entry point. This module is imported
+    on the way to *every* module screen, so an ordinary ``spacr`` start would
+    otherwise pay for an import it never uses — measured at 0.26 s to import
+    this module today, with NumPy not among what it pulls in.
+    """
+    global _NUMPY
+    if _NUMPY is None:
+        import numpy
+        _NUMPY = numpy
+    return _NUMPY
 
 
 # ---------------------------------------------------------------------------
@@ -2986,6 +3089,395 @@ class CellsEngine(_BufferedEngine):
         painter.setRenderHint(QPainter.Antialiasing, False)
 
 
+# -- fractal ----------------------------------------------------------------
+# The spaceout backdrop. Not one of :data:`AMBIENT_THEMES` and not reachable
+# from Preferences — see :data:`SPACEOUT_THEME`.
+
+#: Longest buffer edge the fractal shades into at resolution 1.0.
+#:
+#: Below the diffuse themes' :data:`BUFFER_MAX_EDGE`, and that is the whole
+#: cost decision: an escape-time field is shaded *per pixel* in NumPy, so
+#: this number and the iteration count are the two halves of a frame, and
+#: neither of them is Qt's C++ raster engine doing the work.
+#:
+#: 208 puts a 1920-wide canvas on a 192x108 buffer — 20 736 pixels — and a
+#: 1280-wide one on 182x102. Measured interleaved, best of nine, at both
+#: sizes: 1.04-1.12 ms against the aurora's 1.32-1.84, where 256 measured
+#: 1.51-1.68 and lost the comparison at 1280x720. The picture does not
+#: notice; the field is smooth by construction (see
+#: :data:`FRACTAL_SOFT_LIMIT`) so there is no fine structure for a smaller
+#: buffer to lose, and the two renders are hard to tell apart side by side.
+FRACTAL_BUFFER_EDGE = 208
+
+#: How many times the map is iterated per pixel.
+#:
+#: This is the fractal's *element count*, and it is what the density control
+#: scales — which is the honest reading of that control here, because the
+#: cost of a frame really is (buffer pixels) x (iterations). That is exactly
+#: the shape :attr:`AmbientEngine.work` already assumes: resolution enters
+#: squared, the element count enters linearly, and :data:`WORK_BUDGET`
+#: therefore bounds this engine without a line of its own.
+#:
+#: Twenty is where the Julia boundary stops gaining structure at this buffer
+#: size: the filaments a 40th iteration resolves are thinner than the eight
+#: screen pixels each buffer pixel is stretched over.
+FRACTAL_ITERATIONS = 20
+
+#: ``|z|^2`` past which the orbit is considered gone. 4.0 is |z| > 2, the
+#: standard escape radius for ``z^2 + c``.
+FRACTAL_BAILOUT = 4.0
+
+#: Half the height of the view, in units of the complex plane, at size 1.0.
+#: The interesting part of every Julia set in this family fits inside |z| < 2.
+FRACTAL_SPAN = 1.6
+
+#: Seconds for the Julia constant to travel once around the cardioid, and
+#: how far inside it the constant is held, oscillating on its own period.
+#:
+#: The path is the boundary of the Mandelbrot set's main cardioid, pulled a
+#: little way in toward the origin. That is not decoration: *on* the boundary
+#: the Julia set is a dendrite with no interior, and outside it the set falls
+#: apart into dust. Just inside, it is connected and filled for every angle,
+#: so the animation morphs continuously through the whole family instead of
+#: passing through stretches where there is nothing on screen.
+FRACTAL_C_PERIOD = 96.0
+FRACTAL_INSET = (0.035, 0.16)
+FRACTAL_INSET_PERIOD = 41.0
+
+#: Seconds per turn of the view, and the slow zoom: a swing of this fraction
+#: of the span, on this period. Both are long, for the reason the blob drift
+#: is long — a backdrop must never look like it is *moving*, only like it has
+#: moved when you look back at it.
+FRACTAL_SPIN_PERIOD = 240.0
+FRACTAL_BREATH = 0.16
+FRACTAL_BREATH_PERIOD = 57.0
+
+#: How many iterations of escape one full traversal of the palette is worth,
+#: and how many seconds one full scroll of those bands takes.
+#:
+#: The colour index is CYCLIC — ``survived`` modulo the ring rather than
+#: ``survived`` divided by the iteration count — and that is what makes the
+#: picture read as a rainbow instead of as one purple wash. The escape count
+#: is violently skewed: at this view most of the canvas is gone inside two
+#: iterations and the whole 0..20 range lives in a thin collar around the
+#: set, so a palette stretched linearly over it spends 90 % of the screen on
+#: one colour. Wrapped instead, every band of the collar is a different
+#: colour AND the wide outer field gets its own sweep, which is what the
+#: fractional first iteration below is for.
+FRACTAL_ITERS_PER_CYCLE = 3.0
+FRACTAL_CYCLE_PERIOD = 14.0
+
+#: ``|z|^2`` at which an iteration stops contributing anything.
+#:
+#: Each iteration is worth a FRACTION of a count rather than a yes/no: one
+#: while the orbit is inside :data:`FRACTAL_BAILOUT`, ramping to zero as it
+#: passes this. That makes the escape field a continuous function of the
+#: pixel, and continuity is not a nicety here — the buffer is upscaled
+#: tenfold on a 1080p canvas, so an integer count puts a hard step every
+#: ten screen pixels and the backdrop reads as a contour map with visibly
+#: stepped edges. It also gives the far field, which at this view is most of
+#: the canvas and escapes before the map has been applied at all, a real
+#: gradient instead of one flat value.
+FRACTAL_SOFT_LIMIT = 16.0
+
+#: How far ``z`` is allowed to run before it is clamped, in each component.
+#: Big enough to be far outside any escape test and small enough that its
+#: square, and the sum of two of them, stay inside float32 by twenty orders
+#: of magnitude.
+FRACTAL_REACH = 1.0e9
+
+#: What is left of the light inside the set. It is a solid region and would
+#: otherwise be the loudest single shape on the screen; at a fifth of the
+#: peak it reads as the silhouette it is.
+FRACTAL_CORE = 0.20
+
+#: Peak alpha of the field. Light needs more than dark for the reason every
+#: other theme here does: the colour has been mixed toward white before it is
+#: multiplied.
+#:
+#: Lower than the other themes' peaks look on the dark page, and it has to
+#: be: those draw discrete shapes over a mostly-empty page, and this covers
+#: every pixel of it. What reaches the eye is the whole canvas at this
+#: alpha, not a few blobs at it.
+FRACTAL_ALPHA_DARK = 0.30
+FRACTAL_ALPHA_LIGHT = 0.40
+
+#: How far a palette colour is mixed toward white before it is MULTIPLIED
+#: onto a light page — this theme's own figure, well below the shared
+#: :data:`LIGHT_TINT`.
+#:
+#: That constant is 0.55 because undiluted saturated hues multiply to
+#: something muddy when shapes OVERLAP, and every other theme here is made
+#: of overlapping shapes. This one is a single field with no overlap at all,
+#: so most of that dilution buys nothing and costs the colour: measured on a
+#: real frame over the dressed light page, 0.55 left every hue within
+#: thirteen levels of neutral and the rainbow rendered as four neighbouring
+#: pinks.
+#:
+#: This pair is where the sweep of (tint, alpha) lands with colour AND
+#: headroom. The bar was the shipped default: text over the worst
+#: text-line-sized region of a `blobs` frame on the same page clears its
+#: WCAG minimum by a factor of 0.654, and this clears it by 0.689 while
+#: carrying seven of the twelve hue families instead of four.
+FRACTAL_LIGHT_TINT = 0.40
+
+#: Entries in the colour table a frame is looked up through, and the last
+#: one, which is reserved.
+#:
+#: 256 so the table is indexed by a ``uint8`` and the whole per-pixel
+#: colouring pass is one cast and one gather. Entries 0..254 are the colour
+#: ring; 255 is the *interior* of the set, which is why the ring is 255 long
+#: and not 256 — the wrapped index can never land on it by accident.
+FRACTAL_LEVELS = 256
+FRACTAL_INTERIOR_LEVEL = 255
+
+
+class FractalEngine(_BufferedEngine):
+    """A Julia set that morphs, turns, and cycles colour.
+
+    ``z <- z^2 + c`` iterated per pixel, coloured by how long the orbit
+    survives. Three motions run at once and on unrelated periods, so the
+    picture never repeats inside a session:
+
+    * ``c`` travels around the boundary of the Mandelbrot set's main
+      cardioid (:data:`FRACTAL_C_PERIOD`), held a little way inside it
+      (:data:`FRACTAL_INSET`), which morphs the shape of the set itself;
+    * the view turns and breathes (:data:`FRACTAL_SPIN_PERIOD`,
+      :data:`FRACTAL_BREATH`);
+    * the rainbow bands scroll outward along the escape range
+      (:data:`FRACTAL_CYCLE_PERIOD`).
+
+    **It answers to the same performance guard as every other theme.** The
+    field is shaded into the small reusable buffer :class:`_BufferedEngine`
+    owns, at :data:`FRACTAL_BUFFER_EDGE`; the resolution control sizes that
+    buffer and the density control sets the iteration count, so
+    :attr:`AmbientEngine.work` — resolution squared times density — is the
+    true cost model here rather than an approximation of one, and
+    :data:`WORK_BUDGET` trims the pair without this class knowing about it.
+    :meth:`shade` runs on :class:`_FrameProducer` like every other buffered
+    theme, so the GUI thread's share of a frame is one ``drawImage``.
+
+    :meth:`alpha_scale` is deliberately **not** applied. It compensates for
+    N overlapping shapes adding up to N times the light, and this engine
+    draws one field with no overlap at all: more iterations resolve finer
+    bands, they do not stack more light on the same pixel. Dimming the
+    picture as the density rose would be a brightness control wearing the
+    wrong name — the exact fault that method exists to prevent.
+
+    :meth:`geometry` yields exactly one tuple, ``(cx, cy, scale, angle,
+    c_re, c_im, iterations)``: the centre of the view in pixels, the scale
+    in pixels per unit of the complex plane, the rotation in radians, the
+    Julia constant, and how many iterations this frame is worth.
+    """
+
+    name = "fractal"
+    base_edge = FRACTAL_BUFFER_EDGE
+
+    def _tint(self, color: QColor) -> QColor:
+        """The colour as painted. Overridden for the light page only — see
+        :data:`FRACTAL_LIGHT_TINT`."""
+        return QColor(color) if self.dark \
+            else _mix(color, QColor(255, 255, 255), FRACTAL_LIGHT_TINT)
+
+    def _configure(self, rng: random.Random) -> None:
+        # Four independent phases and a direction, so two backdrops built
+        # with different seeds are not in lockstep — the same reason every
+        # other engine rolls its periods rather than sharing one clock.
+        self._phase_c = rng.random()
+        self._phase_inset = rng.random()
+        self._phase_spin = rng.random()
+        self._phase_breath = rng.random()
+        self._phase_cycle = rng.random()
+        self._spin = 1.0 if rng.random() < 0.5 else -1.0
+        #: Pixel-offset grids, keyed by the buffer size they were built for.
+        #: Rebuilt on a resize and never per frame.
+        self._plane: Optional[Tuple[object, object]] = None
+        self._plane_size: Tuple[int, int] = (0, 0)
+        #: The 0..1 ramp the colour table is built over. Constant, so it
+        #: is built once and reused.
+        self._ring = None
+
+    def iterations(self) -> int:
+        """How many times the map is iterated this frame.
+
+        The density control, through :meth:`AmbientEngine.element_count`, so
+        it is trimmed by :data:`WORK_BUDGET` alongside the resolution and
+        never drops below one.
+        """
+        return self.element_count(FRACTAL_ITERATIONS,
+                                  _pool_size(FRACTAL_ITERATIONS))
+
+    def constant(self) -> Tuple[float, float]:
+        """Where the Julia constant ``c`` is right now.
+
+        On the main cardioid ``c = e^(i0)/2 - e^(2i0)/4``, pulled toward the
+        origin by :data:`FRACTAL_INSET` so the set stays connected — see the
+        note there.
+        """
+        theta = 2.0 * math.pi * (self.time / FRACTAL_C_PERIOD + self._phase_c)
+        swing = 0.5 * (1.0 - math.cos(
+            2.0 * math.pi * (self.time / FRACTAL_INSET_PERIOD
+                             + self._phase_inset)))
+        inside = 1.0 - (FRACTAL_INSET[0]
+                        + swing * (FRACTAL_INSET[1] - FRACTAL_INSET[0]))
+        return (inside * (0.5 * math.cos(theta) - 0.25 * math.cos(2 * theta)),
+                inside * (0.5 * math.sin(theta) - 0.25 * math.sin(2 * theta)))
+
+    def geometry(self, width: int, height: int) -> Tuple[tuple, ...]:
+        """The view and the constant this frame is drawn from.
+
+        One tuple: ``(cx, cy, scale, angle, c_re, c_im, iterations)``. See
+        the class docstring for the units.
+        """
+        breath = 1.0 + FRACTAL_BREATH * math.sin(
+            2.0 * math.pi * (self.time / FRACTAL_BREATH_PERIOD
+                             + self._phase_breath))
+        # The size control is a *zoom*: bigger elements means fewer units of
+        # the plane across the canvas, so it divides the span.
+        span = FRACTAL_SPAN * breath / max(0.01, self.size)
+        scale = max(1.0, height / 2.0) / span
+        angle = self._spin * 2.0 * math.pi * (
+            self.time / FRACTAL_SPIN_PERIOD + self._phase_spin)
+        c_re, c_im = self.constant()
+        return ((width / 2.0, height / 2.0, scale, angle, c_re, c_im,
+                 self.iterations()),)
+
+    def _resize(self) -> None:
+        """Nothing is cached by the size setting — the span is recomputed
+        every frame — but the grid is cached by the *buffer* size, and that
+        is what this hook's siblings drop."""
+
+    def _reresolve(self) -> None:
+        super()._reresolve()
+        self._plane = None
+        self._plane_size = (0, 0)
+
+    def _grid(self, width: int, height: int):
+        """Pixel offsets from the centre of the buffer, as two float32
+        arrays. Built on the first frame and on a resize, never per frame."""
+        np = _numpy()
+        if self._plane is None or self._plane_size != (width, height):
+            rows, cols = np.mgrid[0:height, 0:width]
+            self._plane = (
+                np.ascontiguousarray(cols + 0.5 - width / 2.0,
+                                     dtype=np.float32),
+                np.ascontiguousarray(rows + 0.5 - height / 2.0,
+                                     dtype=np.float32))
+            self._plane_size = (width, height)
+        return self._plane
+
+    def _colour_table(self):
+        """The colour-index -> pixel table for this frame.
+
+        Everything that varies per pixel is decided here, over 256 entries,
+        so the per-pixel pass is one cast and one gather. Entries are packed
+        ``0xffRRGGBB`` — what ``Format_RGB32`` holds — and are already
+        composed against :attr:`identity`, so blitting the result under
+        :attr:`mode` gives exactly what painting that colour at that alpha
+        onto the page would have given, additive or multiply alike.
+
+        Entries 0..254 are the palette ring, rotated by the scroll phase;
+        entry :data:`FRACTAL_INTERIOR_LEVEL` is the inside of the set, at
+        :data:`FRACTAL_CORE` of the peak.
+        """
+        np = _numpy()
+        if self._ring is None:
+            self._ring = (np.arange(FRACTAL_INTERIOR_LEVEL, dtype=np.float32)
+                          / float(FRACTAL_INTERIOR_LEVEL))
+        ring = self._ring
+        peak = FRACTAL_ALPHA_DARK if self.dark else FRACTAL_ALPHA_LIGHT
+
+        colours = np.array([[c.red(), c.green(), c.blue()]
+                            for c in self.paint_colors], dtype=np.float32)
+        count = colours.shape[0]
+        phase = self.time / FRACTAL_CYCLE_PERIOD + self._phase_cycle
+        position = ((ring + phase) % 1.0) * count
+        low = position.astype(np.int32) % count
+        high = (low + 1) % count
+        blend = (position - np.floor(position))[:, None]
+        wheel = colours[low] * (1.0 - blend) + colours[high] * blend
+
+        identity = np.float32(0.0 if self.dark else 255.0)
+        table = np.empty(FRACTAL_LEVELS, dtype=np.uint32)
+        table[:FRACTAL_INTERIOR_LEVEL] = self._pack(
+            identity + np.float32(peak) * (wheel - identity))
+        table[FRACTAL_INTERIOR_LEVEL] = self._pack(
+            identity + np.float32(peak * FRACTAL_CORE)
+            * (wheel[:1] - identity))[0]
+        return table
+
+    @staticmethod
+    def _pack(rgb):
+        """``(n, 3)`` of 0..255 floats -> ``(n,)`` of ``0xffRRGGBB``."""
+        np = _numpy()
+        levels = np.clip(rgb, 0.0, 255.0).astype(np.uint32)
+        return (np.uint32(0xFF000000) | (levels[:, 0] << 16)
+                | (levels[:, 1] << 8) | levels[:, 2])
+
+    def _paint_field(self, painter: QPainter, width: int,
+                     height: int) -> None:
+        np = _numpy()
+        (_cx, _cy, scale, angle, c_re, c_im, iterations), = \
+            self.geometry(width, height)
+        x, y = self._grid(width, height)
+        cos_a = np.float32(math.cos(angle) / scale)
+        sin_a = np.float32(math.sin(angle) / scale)
+        zr = x * cos_a
+        zr -= y * sin_a
+        zi = x * sin_a
+        zi += y * cos_a
+
+        survived = np.zeros((height, width), dtype=np.float32)
+        magnitude = np.empty_like(zr)
+        cross = np.empty_like(zr)
+        share = np.empty_like(zr)
+        c_re32, c_im32 = np.float32(c_re), np.float32(c_im)
+        soft_top = np.float32(FRACTAL_SOFT_LIMIT)
+        soft_scale = np.float32(1.0 / (FRACTAL_SOFT_LIMIT - FRACTAL_BAILOUT))
+        reach = np.float32(FRACTAL_REACH)
+        for _ in range(iterations):
+            zr2 = zr * zr
+            zi2 = zi * zi
+            np.add(zr2, zi2, out=magnitude)
+            # A FRACTION of an iteration, not a yes/no — see
+            # FRACTAL_SOFT_LIMIT.
+            np.subtract(soft_top, magnitude, out=share)
+            share *= soft_scale
+            np.clip(share, 0.0, 1.0, out=share)
+            survived += share
+            np.multiply(zr, zi, out=cross)
+            cross *= np.float32(2.0)
+            cross += c_im32
+            np.subtract(zr2, zi2, out=zr)
+            zr += c_re32
+            zi = cross
+            # An escaped orbit doubles its exponent every iteration and would
+            # reach infinity in six, and then NaN on the first `zr2 - zi2`
+            # that subtracts one infinity from another — which would poison
+            # the clip above and take the pixel with it. Bounding z is two
+            # passes a frame and is the price of a smooth field; the
+            # alternative, counting escapes as integers, is free and is what
+            # the visible banding of a fractal is made of.
+            np.clip(zr, -reach, reach, out=zr)
+            np.clip(zi, -reach, reach, out=zi)
+
+        # Inside the set: never escaped, so every iteration counted. Taken
+        # before the wrap, because after it the interior is just another
+        # point on the ring.
+        interior = survived >= np.float32(iterations - 0.5)
+        survived *= np.float32(FRACTAL_INTERIOR_LEVEL
+                               / FRACTAL_ITERS_PER_CYCLE)
+        np.mod(survived, np.float32(FRACTAL_INTERIOR_LEVEL), out=survived)
+        survived[interior] = np.float32(FRACTAL_INTERIOR_LEVEL)
+        frame = self._colour_table()[survived.astype(np.uint8)]
+        # The QImage borrows `frame`'s memory rather than copying it, so the
+        # array has to outlive the blit — it does, by being a local here, and
+        # `drawImage` is synchronous.
+        painter.drawImage(0, 0, QImage(frame.data, width, height,
+                                       int(frame.strides[0]),
+                                       QImage.Format_RGB32))
+
+
 _ENGINES = {
     "blobs": BlobsEngine,
     "aurora": AuroraEngine,
@@ -2993,6 +3485,7 @@ _ENGINES = {
     "drift": DriftEngine,
     "bokeh": BokehEngine,
     "cells": CellsEngine,
+    SPACEOUT_THEME: FractalEngine,
 }
 
 
@@ -3346,6 +3839,8 @@ class AmbientWidget(QWidget):
         box = self._producer_box
         self.destroyed.connect(lambda *_: _retire_producer(box))
 
+        # What is asked for, then what is actually worn — see `dressed`.
+        theme, palette = dressed(theme, palette)
         self._theme = _require_theme(theme)
         self._palette = coerce_palette(self._theme, palette)
         self._seed = seed
@@ -3437,12 +3932,19 @@ class AmbientWidget(QWidget):
         menu cannot leave anything ticking behind them. If the current
         palette is not one this theme offers, it downgrades to the theme's
         default (see :func:`palettes_for` for why the lists differ).
+
+        Under the ``spaceout`` dressing every request lands on the fractal,
+        whoever asked and for whatever — including
+        :func:`spacr.qt.preferences.apply_ambient_preferences`, which calls
+        this with the *stored* animation on every settings save. See
+        :func:`dressed`.
         """
+        name, palette = dressed(name, self._palette)
         name = _require_theme(name)
-        if name == self._theme:
+        if name == self._theme and palette == self._palette:
             return
         self._theme = name
-        self._palette = coerce_palette(name, self._palette)
+        self._palette = coerce_palette(name, palette)
         self._rebuild_engine()
 
     def set_palette(self, name: str) -> None:
@@ -3450,8 +3952,11 @@ class AmbientWidget(QWidget):
 
         Raises :class:`ValueError` if the current theme does not offer
         ``name`` — an explicit request for a palette is not something to
-        silently substitute.
+        silently substitute. The one exception is the ``spaceout`` dressing,
+        where the request is replaced rather than refused, for the reason
+        given in :func:`dressed`.
         """
+        name = dressed(self._theme, name)[1]
         name = _require_palette(self._theme, name)
         if name == self._palette:
             return

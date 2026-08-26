@@ -405,12 +405,6 @@ SELF_REGISTERING_MODULES = (
     # artifacts, data_manager and chaining. A project the registry has never
     # seen is listed too; that is the case it exists for.
     "spacr.qt.screens.project_browser",
-    # A field's image and mask out to napari, the corrected labels back,
-    # written the way spaCR writes masks and recorded in the same curation
-    # ledger the brush uses. napari is an optional extra and is imported
-    # inside the button handler, so this row costs nothing to anyone who has
-    # not installed it.
-    "spacr.qt.screens.napari_bridge",
     # Not an app: it connects the pre-run cleanup to the run registry and
     # performs whatever launch cleanup the chosen spaCR mode asks for. In
     # Balanced — the default — both of those are a preference read and a

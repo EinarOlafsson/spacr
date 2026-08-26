@@ -42,6 +42,8 @@ from typing import Callable, Dict, Optional, Sequence, Tuple
 from PySide6.QtCore import QObject, Qt, QTimer
 from PySide6.QtWidgets import QLabel, QTabBar, QTabWidget, QWidget
 
+from ..i18n import tr
+from ..theme import install_close_marks
 from ..widgets.fold_strip import FoldStrip
 
 LOG = logging.getLogger(__name__)
@@ -453,6 +455,11 @@ def host_pages(screen: QWidget, title: str = "") -> Optional[QTabWidget]:
         button = bar.tabButton(0, side)
         if button is not None:
             button.hide()
+    # THE APPLICATION'S CLOSE MARK, NOT THIS STRIP'S. The host page's
+    # button stays hidden -- `install_close_marks` carries that across --
+    # so folding still costs the host nothing. See
+    # `theme.install_close_marks`.
+    install_close_marks(pages, tooltip=tr("Close"))
     pages.tabCloseRequested.connect(
         partial(_close_fold_page, pages))
     layout.insertWidget(index, pages, stretch)
@@ -491,6 +498,10 @@ def show_as_page(screen: QWidget, host: Optional[QWidget],
     index = pages.indexOf(screen)
     if index < 0:
         index = pages.addTab(screen, title)
+        # Qt builds its own small close button for a new tab. Ask for the
+        # application's mark here rather than waiting for the strip's
+        # watcher, so the page never appears carrying the wrong one.
+        install_close_marks(pages, tooltip=tr("Close"))
     # THE MODULE'S OWN MARK ON ITS TAB. A folded module gave up its tile,
     # and the icon is the thing a user already associates with it -- so a
     # page carrying only a title asks them to re-learn a name for

@@ -50,8 +50,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..theme import (RADIUS, SPACING, active_palette, font_px, mark_surface,
-                     register_widget_qss)
+from ..theme import (RADIUS, SPACING, active_palette, apply_close_mark,
+                     font_px, mark_surface, register_widget_qss)
 from .graph_builder import COLUMN_MIME, ColumnWell
 from .pivot_spec import (
     AGGREGATION_LABELS, AGGREGATIONS, COUNT_ONLY, LOW_N, MEAN, N, SD,
@@ -126,15 +126,10 @@ class DropWell(QWidget):
         title = QLabel(AXIS_LABELS[axis], self)
         title.setObjectName("PivotWellName")
         head.addWidget(title, 1)
-        clear = QPushButton("×", self)
+        clear = QPushButton(self)
         clear.setObjectName("PivotWellClear")
-        # A CAP THAT CANNOT CUT (193). The number keeps this
-        # control compact; `sizeHint` is the floor, so a larger
-        # font or a glyph a theme renders wider grows the button
-        # rather than clipping it.
-        clear.setMinimumWidth(max(20, clear.sizeHint().width()))
-        clear.setMaximumWidth(max(20, clear.sizeHint().width()))
-        clear.setToolTip(f"Empty the {AXIS_LABELS[axis]} well")
+        # THE APPLICATION'S CLOSE MARK -- see `theme.apply_close_mark`.
+        apply_close_mark(clear, tooltip=f"Empty the {AXIS_LABELS[axis]} well")
         clear.clicked.connect(self.clear)
         head.addWidget(clear)
         outer.addLayout(head)
@@ -647,11 +642,6 @@ QWidget#PivotShelf {{
 QLabel#PivotWellName {{
     color: {palette["fg_muted"]};
     font-weight: 600;
-}}
-QPushButton#PivotWellClear {{
-    border: none;
-    background: transparent;
-    color: {palette["fg_muted"]};
 }}
 QListWidget#PivotWellList {{
     background: transparent;

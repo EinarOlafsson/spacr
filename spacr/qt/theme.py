@@ -19,14 +19,23 @@ so the backdrop remains visible without sacrificing text contrast.
 :func:`image_contrast_failures` validates roles painted directly over image
 content. :func:`solve_scrim_alpha` balances those contrast constraints against
 :data:`MIN_PICTURE_CONTRAST`, and :func:`scrim_report` exposes the result.
+
+:func:`enable_spaceout` dresses the process in the rainbow palette the
+``spaceout`` entry point launches into. It re-hues whichever theme is
+resolved rather than adding a fifth one, so :data:`THEMES` and the light/dark
+handling are untouched; it is process state and is never persisted.
 """
 from __future__ import annotations
 
 import logging
+import math
 import warnings
+from contextlib import contextmanager
+from functools import lru_cache
 from types import MappingProxyType
 from typing import Dict, List, Optional, Tuple
 
+from PySide6.QtCore import QEvent, QObject, Qt, QTimer
 from PySide6.QtGui import QColor, QPalette
 from PySide6.QtWidgets import QApplication
 
@@ -1061,6 +1070,771 @@ def _contrast(a: str, b: str) -> float:
     return (hi + 0.05) / (lo + 0.05)
 
 
+# ---------------------------------------------------------------------------
+# spaceout — the same application, wearing something else
+# ---------------------------------------------------------------------------
+# `spaceout` is a console entry point beside `spacr` and `spacr-qt`
+# (:mod:`spacr.qt.spaceout`). It starts the same application — the same
+# screens, the same modules, the same settings — and changes only the
+# dressing: the palette goes rainbow, and the ambient backdrop draws moving
+# fractals instead of drifting blobs.
+#
+# THE CHOICE IS MADE ONCE, AT LAUNCH, AND IS STORED NOWHERE. It lives here
+# as process state because this module is the funnel every colour in the
+# application already passes through: `palette_for` is what `stylesheet`,
+# `apply_qpalette`, `active_palette`, `page_colour`, every contrast check and
+# every widget that paints its own pixels end up calling, so nothing else has
+# to learn that the mode exists. Handing it to `spacr.qt.preferences` would
+# make it survive a restart and leak the dressing into an ordinary `spacr`
+# start, which is the one thing the request rules out — so it is written
+# nowhere, no Preferences control offers it, and the entry point is the only
+# way in.
+#
+# THE THEME CONTRACT DOES NOT CHANGE. `resolve_effective_theme` still answers
+# one of `THEMES`, `THEMES` is still those four, and the light/dark handling
+# every screen reads goes on working. spaceout re-hues whichever theme was
+# resolved; it does not become a fifth one, and a light start stays light.
+#
+# READABILITY IS THE CONSTRUCTION HERE, not a table of colours somebody
+# eyeballed afterwards. Every role moves in HUE ONLY and keeps its own WCAG
+# relative luminance, and three checks fall out of that identity:
+#
+#   * `contrast_ratio` is a function of relative luminance and of nothing
+#     else, so every rule in `CONTRAST_RULES` measures what it measured on
+#     the theme being re-hued;
+#   * `lightness` (CIE L*) is a function of relative luminance too, so
+#     `page_separation_report` — can you see the panel — is preserved with
+#     it;
+#   * `max_background_luma` is a minimum over luminances, so the exposure
+#     the imagery is solved down to does not move either.
+#
+# The identity is exact in the reals and within 8-bit rounding on screen;
+# `_hue_shift` picks the closest representable colour on the hue line rather
+# than the first one that fits, which keeps the drift to a few thousandths of
+# a luminance level.
+#
+# The one place it does not carry on its own is a TRANSLUCENT surface. An
+# image theme composites its panels over the wallpaper channel by channel in
+# sRGB, and two colours of equal luminance but different hue do not
+# composite to equal luminance. That is why `SCRIM_ALPHA` is re-solved when
+# the mode is enabled — `_solve_scrims` was written as a solve rather than a
+# table for exactly this case, and it says so.
+
+#: Where each palette role lands on the spectrum, in degrees of hue.
+#:
+#: The surfaces sweep it — violet window, magenta page, blue and cyan and
+#: green panels — because those are the large areas, and they are what makes
+#: the application read as rainbow rather than as a blue application with
+#: coloured buttons.
+#:
+#: The STATUS roles deliberately do not sweep. `error` stays at the red end,
+#: `warning` in the ambers and `success` in the greens, because their whole
+#: job is to be recognised before they are read; a dressing that makes a
+#: failure look like a success is a broken theme, not a trippy one. They are
+#: re-hued — five degrees, fifty, a hundred and thirty — so they belong to
+#: the same spectrum as everything else, but they stay in their own
+#: neighbourhood of it.
+#:
+#: `info` tracks `accent` and `chip_value` tracks `success`, the way they
+#: already do in every shipped palette.
+SPACEOUT_HUES: Dict[str, float] = {
+    # Surfaces, sweeping violet -> magenta -> blue -> cyan -> green.
+    "bg":          285.0,
+    "page":        300.0,
+    "surface":     250.0,
+    "surface_alt": 205.0,
+    "surface_hi":  165.0,
+    "border":      320.0,
+    "border_soft": 265.0,
+    # Text. `fg` is the extreme of its theme's range — white on the dark
+    # themes, near-black on the light one — and a hue cannot move a colour
+    # that is already at the top or the bottom of the luminance scale, so
+    # this entry mostly documents where the light theme's ink goes.
+    "fg":          210.0,
+    "fg_muted":     45.0,
+    "fg_dim":       25.0,
+    # Interactive.
+    "accent":      190.0,
+    "accent_hi":   175.0,
+    "accent_lo":   215.0,
+    "accent_soft": 275.0,
+    "info":        190.0,
+    # Status — see the note above.
+    "success":     130.0,
+    "warning":      50.0,
+    "error":         5.0,
+    "chip_class":  165.0,
+    "chip_value":  115.0,
+    # The theme-invariant button roles. They are re-hued by the same table
+    # for every theme, so they stay invariant across themes inside the
+    # dressing exactly as they are outside it.
+    "button_accent":     305.0,
+    "button_accent_hi":  320.0,
+    "button_accent_lo":  290.0,
+    "button_accent_ink": 340.0,
+}
+
+#: How far toward its hue a role is taken. Everything not listed goes all
+#: the way.
+#:
+#: The two that are held back are the two the ANIMATION IS PAINTED ONTO, and
+#: the number is measured rather than judged. On a dark page the ambient
+#: backdrop composites ADDITIVELY, so what reaches the eye is the page's own
+#: channels plus the animation's. At full saturation the dressed page is
+#: ``#480048`` — 72 of red and 72 of blue and none of green — and the
+#: fractal's green at its peak alpha adds 67. The green never wins, and the
+#: measured result was a rainbow palette rendering as four neighbouring
+#: hues: blue through magenta to red, and nothing else, whatever the
+#: animation was drawing underneath.
+#:
+#: Damped to a third, the same luminance is spread across all three channels
+#: instead of piled into two, and every colour the animation draws clears
+#: it. The page is still unmistakably not the ordinary grey — it is a plum —
+#: and the rainbow it was hiding is now visible. See
+#: ``tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py``, which
+#: counts the hue families in a real painted frame.
+SPACEOUT_SATURATION: Dict[str, float] = {
+    "bg":   0.35,
+    "page": 0.35,
+}
+
+
+def _hue_rgb(hue: float, saturation: float = 1.0) -> Tuple[float, float,
+                                                           float]:
+    """sRGB for ``hue`` in degrees at ``saturation``, as 0..1 per channel.
+
+    The HSV ``V=1`` plane, written out rather than imported so this module
+    keeps its short import list. ``saturation`` 1.0 is the pure hue; 0.0 is
+    white, and every value between mixes the two, which is what
+    :data:`SPACEOUT_SATURATION` asks for.
+    """
+    position = (float(hue) % 360.0) / 60.0
+    ramp = 1.0 - abs(position % 2.0 - 1.0)
+    pure = ((1.0, ramp, 0.0), (ramp, 1.0, 0.0), (0.0, 1.0, ramp),
+            (0.0, ramp, 1.0), (ramp, 0.0, 1.0), (1.0, 0.0, ramp))[
+                int(position) % 6]
+    weight = max(0.0, min(1.0, float(saturation)))
+    return tuple(1.0 - weight * (1.0 - channel) for channel in pure)
+
+
+#: The sRGB transfer function, tabulated for all 256 levels.
+#:
+#: :func:`_hue_shift` scores 512 candidate colours per ``(colour, hue)``
+#: pair, and doing that through :func:`_relative_luminance` would mean
+#: formatting each one to hex and parsing it straight back — a hundredfold
+#: on the only part of this that is not free.
+_LINEAR_CHANNEL: Tuple[float, ...] = tuple(
+    (level / 255.0) / 12.92 if level / 255.0 <= 0.03928
+    else ((level / 255.0 + 0.055) / 1.055) ** 2.4
+    for level in range(256))
+
+
+def _rgb_luminance(rgb: Tuple[int, int, int]) -> float:
+    """WCAG relative luminance of an 8-bit ``(r, g, b)`` triple."""
+    return (0.2126 * _LINEAR_CHANNEL[rgb[0]]
+            + 0.7152 * _LINEAR_CHANNEL[rgb[1]]
+            + 0.0722 * _LINEAR_CHANNEL[rgb[2]])
+
+
+#: Levels either side of the crossing :func:`_hue_shift` measures.
+#:
+#: The two ramps are monotone but only weakly: 8-bit rounding leaves short
+#: plateaus where two neighbouring levels land on the same luminance, and a
+#: linear scan keeping the first strict improvement returns the LOWEST index
+#: on such a plateau. Eight is far wider than any plateau either ramp can
+#: produce — a fully saturated hue moves at least one channel on every
+#: level — so the window contains the whole tie and the lowest index in it
+#: still wins.
+_HUE_WINDOW = 8
+
+
+@lru_cache(maxsize=None)
+def _hue_shift(colour: str, hue: float, saturation: float = 1.0) -> str:
+    """``colour`` moved to ``hue``, at the relative luminance it already had.
+
+    Two ramps are searched, and both are needed because a saturated hue can
+    only reach part of the luminance scale — fully saturated blue tops out
+    at 0.0722, and the light theme's ``surface`` is 1.0:
+
+    * **value**, at full saturation: the hue's own colour, darkened. This is
+      the arm that answers for the surfaces and for most of the ink, and it
+      is the one that makes the result *look* like a rainbow.
+    * **saturation**, at full value: the hue mixed toward white, for the
+      roles that need more light than the hue itself carries. This is what
+      keeps a white ``fg`` white instead of substituting a violet nobody
+      could read a settings form in.
+
+    The closest of all 512 candidates wins, so the 8-bit rounding error is
+    minimised rather than merely bounded. Cached because ``palette_for`` is
+    on the path of every stylesheet build and every widget that paints.
+
+    THE 512 ARE NOT ALL VISITED. Both ramps are monotone in luminance —
+    every channel of the value ramp rises with the level and every channel
+    of the saturation ramp falls with the step — so the closest entry is
+    found by crossing rather than by scanning, and only a window either side
+    of the crossing is measured. That is 20-odd candidates instead of 512
+    and it is not an approximation: ``test_spaceout_looks_alive.py`` asserts
+    the answer is identical to the full scan for every colour, hue and
+    saturation the dressing can produce. It matters because the drift asks
+    for the whole palette at :data:`SPACEOUT_DRIFT_STEPS` offsets rather
+    than once, and the full scan spent a second of the launcher's startup
+    doing it.
+    """
+    target = _relative_luminance(colour)
+    base = _hue_rgb(hue, saturation)
+
+    def value(level: int) -> Tuple[int, int, int]:
+        return (int(round(base[0] * level)),
+                int(round(base[1] * level)),
+                int(round(base[2] * level)))
+
+    def tint(step: int) -> Tuple[int, int, int]:
+        weight = step / 255.0
+        return (int(round(255.0 * (1.0 - weight + weight * base[0]))),
+                int(round(255.0 * (1.0 - weight + weight * base[1]))),
+                int(round(255.0 * (1.0 - weight + weight * base[2]))))
+
+    best, error = value(0), abs(_rgb_luminance(value(0)) - target)
+    for ramp, rising in ((value, True), (tint, False)):
+        low, high = 0, 255
+        while low < high:
+            mid = (low + high) // 2
+            here = _rgb_luminance(ramp(mid))
+            if (here < target) if rising else (here > target):
+                low = mid + 1
+            else:
+                high = mid
+        for index in range(max(0, low - _HUE_WINDOW),
+                           min(256, low + _HUE_WINDOW + 1)):
+            candidate = ramp(index)
+            miss = abs(_rgb_luminance(candidate) - target)
+            if miss < error:
+                best, error = candidate, miss
+    return "#%02x%02x%02x" % best
+
+
+def spaceout_palette(palette: dict, drift: float = 0.0,
+                     theme: Optional[str] = None) -> dict:
+    """``palette`` re-hued onto the spectrum, luminance for luminance.
+
+    A role :data:`SPACEOUT_HUES` does not name is passed through unchanged
+    rather than guessed at: an un-dressed role is merely off-theme, where a
+    guessed one could be unreadable.
+    ``tests/qt/test_spaceout_palette_stays_readable.py`` asserts the table
+    covers every role every shipped palette carries, so "unchanged" is a
+    safety net and not the normal path.
+
+    :param drift: degrees added to every hue in :data:`SPACEOUT_HUES`. The
+        whole table turns together, which is what leaves every contrast
+        ratio exactly where it was — see the drift block below.
+    :param theme: which theme is being dressed, when the ink roles are to be
+        solved for chroma rather than carried over at their own luminance.
+        ``None`` — the default, and what a solver in mid-flight passes —
+        leaves every role on the plain hue shift.
+    """
+    bands = _INK_BANDS.get(theme, {}) if theme else {}
+    out = {}
+    for role, colour in palette.items():
+        seat = SPACEOUT_HUES.get(role)
+        if seat is None:
+            out[role] = colour
+            continue
+        hue = (seat + float(drift)) % 360.0
+        band = bands.get(role)
+        out[role] = (_hue_ink(hue, band[0], band[1], colour) if band
+                     else _hue_shift(colour, hue,
+                                     SPACEOUT_SATURATION.get(role, 1.0)))
+    return out
+
+
+# ---------------------------------------------------------------------------
+# The drift — the spectrum turns, and the readability turns with it
+# ---------------------------------------------------------------------------
+# The dressing above is a *table*: every role lands on one hue and stays
+# there. This turns the whole table, slowly and without a loop a watcher can
+# learn, so the application is not one rainbow but a rainbow that moves.
+#
+# WHY THIS COSTS NOTHING IN READABILITY, and why that is a property of the
+# construction rather than a claim: `_hue_shift` moves a role in hue and
+# leaves its WCAG relative luminance where it was, and `contrast_ratio` is a
+# function of relative luminance and of NOTHING ELSE. Adding a constant to
+# every hue therefore leaves every ratio in `CONTRAST_RULES` exactly where it
+# was — at every point on the drift, not only at the one it started from.
+#
+# TWO THINGS DO NOT CARRY ON THEIR OWN, and both are solved rather than
+# hoped for:
+#
+#   * a TRANSLUCENT surface. An image theme composites its panels over the
+#     wallpaper channel by channel in sRGB, and two colours of equal
+#     luminance and different hue do not composite to equal luminance. The
+#     alphas were already re-solved when the dressing went on; they are now
+#     solved for the WORST POINT ON THE DRIFT instead of for one palette.
+#     Measured: keeping the alphas solved at the starting hue, the wallpaper
+#     stops reading through the panels at 74 of the 360 one-degree offsets,
+#     down to 1.37:1 against a 1.50:1 rule.
+#   * the INK, which is the other half of the request — see
+#     :data:`SPACEOUT_INK_ROLES`.
+#
+# THE CLOCK IS DRIVEN, NOT READ. `advance_spaceout_drift` is called by the
+# things that are already painting frames — the ambient backdrop's tick and
+# the setup card's — rather than by `palette_for` reading a wall clock. Two
+# reasons, and the second is the load-bearing one: a backdrop the user
+# turned off should not be quietly replaced by a palette animating instead,
+# and `palette_for` is on the path of every stylesheet build and every
+# widget that paints, so a wall clock inside it would make the palette a
+# different value on two calls in the same frame.
+
+#: Seconds for the spectrum to travel once round, before the wander.
+#:
+#: Nine minutes. A backdrop must never look like it is *moving*, only like
+#: it has moved when you look back at it — the same figure the blob drift
+#: and the fractal's own spin are set by.
+SPACEOUT_DRIFT_TURN = 540.0
+
+#: The wander, as ``(share of a turn, period in seconds, phase in turns)``.
+#:
+#: WHAT MAKES IT NOT A LOOP. On its own the term above is a metronome: the
+#: hue advances by the same amount every second and a watcher learns the
+#: cycle. These three add a wander whose periods are mutually incommensurate
+#: with each other and with the turn, so the *sequence* of hues — fast here,
+#: backing up there, dwelling somewhere else — does not repeat on any period
+#: short enough to be learned. They are amplitudes on the ANGLE, so the
+#: drift can slow, stall and briefly reverse without ever jumping.
+SPACEOUT_DRIFT_WANDER: Tuple[Tuple[float, float, float], ...] = (
+    (0.070, 149.0, 0.137),
+    (0.041, 76.3, 0.611),
+    (0.023, 31.7, 0.283),
+)
+
+#: How many hue offsets the *palette* is allowed to take.
+#:
+#: The drift itself is continuous — :func:`spaceout_drift` — and the things
+#: that repaint every frame use it that way. The palette is quantised onto
+#: this grid instead, for one reason: every offset on it has to be SOLVED,
+#: because the scrim alphas and the ink bands below are worst cases over the
+#: offsets the palette can actually reach. A continuous palette would be a
+#: continuum of solves.
+#:
+#: Sixty is six degrees a step and one step every nine seconds. Six degrees
+#: moves a saturated surface by two or three 8-bit levels, which is under
+#: the step the eye resolves on a large flat area, and the QSS chrome only
+#: re-reads the palette when the stylesheet is rebuilt anyway.
+SPACEOUT_DRIFT_STEPS = 60
+
+#: The roles whose colour is solved for CHROMA rather than carried over.
+#:
+#: "the color of the text is pretty good but could be more rainbow like."
+#: The reason it was not is the identity the rest of the dressing rests on:
+#: hue moves, luminance does not — and a role already at the top of the
+#: luminance scale cannot carry a hue at all. Dark's `fg` is ``#ffffff``, so
+#: re-hueing it returns ``#ffffff``, and the body text of the application is
+#: the one thing in it that was not in the rainbow.
+#:
+#: So for these three the luminance is allowed to MOVE, inside a band solved
+#: from :data:`CONTRAST_RULES` — see :func:`_ink_band` — and the most
+#: chromatic colour on the hue line inside that band is taken. On dark that
+#: turns ``#ffffff`` into a fully saturated ``#00d5ff`` at the hue the table
+#: gives `fg`, and it still clears 4.5:1 on every surface with
+#: :data:`SPACEOUT_INK_HEADROOM` to spare.
+#:
+#: THE CHECK IS WHAT DECIDES HOW FAR IT GOES. Where the band is narrow the
+#: answer is a pale tint, and that is the right answer: a trippy theme that
+#: cannot be read is a broken theme.
+SPACEOUT_INK_ROLES: Tuple[str, ...] = ("fg", "fg_muted", "fg_dim")
+
+#: Multiplier on every WCAG minimum when solving an ink band, so a solved
+#: ink is not sitting exactly on the line — the same reason
+#: :data:`SCRIM_HEADROOM` exists, and larger than it because the scrims are
+#: re-solved AFTER the ink and must not be able to push it under.
+SPACEOUT_INK_HEADROOM = 1.12
+
+#: Elapsed animation seconds the drift is at. Advanced by the widgets that
+#: are already painting frames; never read off a wall clock.
+_DRIFT_SECONDS = 0.0
+
+#: Solved ink bands for the current dressing, ``{theme: {role: (lo, hi)}}``.
+#: Empty when the dressing is off, which is what makes every ink role fall
+#: back to the plain hue shift.
+_INK_BANDS: Dict[str, Dict[str, Tuple[float, float]]] = {}
+
+#: Solved ink bands, keyed by whether the dressing is on — the twin of
+#: :data:`_SOLVED_SCRIMS`, and cached for the same reason.
+_SOLVED_INK: Dict[bool, Dict[str, Dict[str, Tuple[float, float]]]] = {}
+
+#: While a solve is running: the hue offset to dress at, and whether the ink
+#: treatment is applied. `palette_for` consults both, which is what lets the
+#: solvers call the ordinary public helpers — `effective_surface`,
+#: `scrim_under`, `max_background_luma` — instead of restating them, and
+#: what stops the ink solve recursing into the palette it is solving.
+_SOLVE_DRIFT: Optional[float] = None
+_SOLVE_INK = True
+
+
+@contextmanager
+def _dressed_at(drift: float, ink: bool = True):
+    """Resolve palettes at hue offset ``drift`` for the duration.
+
+    ``ink`` False leaves the ink roles on the plain hue shift, which is what
+    :func:`_ink_band` needs: it is solving the band the ink will be chosen
+    from, and it reads the surfaces through :func:`effective_surface`, which
+    goes back through :func:`palette_for`.
+    """
+    global _SOLVE_DRIFT, _SOLVE_INK
+    was = (_SOLVE_DRIFT, _SOLVE_INK)
+    _SOLVE_DRIFT, _SOLVE_INK = float(drift), bool(ink)
+    try:
+        yield
+    finally:
+        _SOLVE_DRIFT, _SOLVE_INK = was
+
+
+def _drift_grid() -> Tuple[float, ...]:
+    """The hue offsets the palette can take, in degrees."""
+    return tuple(index * 360.0 / SPACEOUT_DRIFT_STEPS
+                 for index in range(SPACEOUT_DRIFT_STEPS))
+
+
+def spaceout_drift(at: Optional[float] = None) -> float:
+    """Where the spectrum has turned to, in degrees. Continuous.
+
+    A pure function of elapsed animation seconds, so a caller that wants a
+    particular point on the drift asks for it rather than waiting for it.
+    Zero when the dressing is off — nothing turns on an ordinary start.
+    """
+    if not _SPACEOUT:
+        return 0.0
+    elapsed = _DRIFT_SECONDS if at is None else float(at)
+    turns = elapsed / SPACEOUT_DRIFT_TURN
+    for share, period, phase in SPACEOUT_DRIFT_WANDER:
+        turns += share * math.sin(2.0 * math.pi * (elapsed / period + phase))
+    return (turns * 360.0) % 360.0
+
+
+def spaceout_drift_step(at: Optional[float] = None) -> float:
+    """:func:`spaceout_drift`, snapped to the grid the palette is solved on.
+
+    See :data:`SPACEOUT_DRIFT_STEPS` for why the palette is quantised when
+    the drift itself is not.
+    """
+    if not _SPACEOUT:
+        return 0.0
+    step = 360.0 / SPACEOUT_DRIFT_STEPS
+    return (round(spaceout_drift(at) / step) % SPACEOUT_DRIFT_STEPS) * step
+
+
+def spaceout_drift_seconds() -> float:
+    """How far the drift clock has been advanced, in animation seconds."""
+    return _DRIFT_SECONDS
+
+
+def advance_spaceout_drift(dt: float) -> float:
+    """Step the drift clock by ``dt`` seconds and return the new drift.
+
+    Called by the widgets that are already painting frames. Ignores a
+    negative step and does nothing at all when the dressing is off, so an
+    ordinary start pays a comparison and nothing else.
+    """
+    global _DRIFT_SECONDS
+    if _SPACEOUT and dt > 0:
+        _DRIFT_SECONDS += float(dt)
+    return spaceout_drift()
+
+
+def set_spaceout_drift_seconds(seconds: float) -> None:
+    """Put the drift clock at ``seconds``.
+
+    The twin of :meth:`spacr.qt.widgets.ambient.AmbientEngine.set_time`, and
+    it exists for the same reason: a drift that can only be waited for is a
+    drift that can only be asserted about.
+    """
+    global _DRIFT_SECONDS
+    _DRIFT_SECONDS = max(0.0, float(seconds))
+
+
+@lru_cache(maxsize=None)
+def _hue_ink(hue: float, low: float, high: float, fallback: str) -> str:
+    """The most chromatic colour on ``hue`` whose luminance is in the band.
+
+    The same 512 candidates :func:`_hue_shift` scores — the value ramp at
+    full saturation and the saturation ramp at full value — judged on a
+    different question. :func:`_hue_shift` asks which one is closest to a
+    luminance it must keep; this asks which one is the most COLOURED of
+    those the readability band allows, because for the ink the luminance is
+    the constraint and the colour is the point.
+
+    Falls back to the plain hue shift when the band admits nothing, which is
+    what a role whose rules leave it no room gets: unchanged and readable.
+    """
+    base = _hue_rgb(hue)
+    best: Optional[Tuple[int, int, int]] = None
+    chroma = -1
+    for level in range(256):
+        candidate = (int(round(base[0] * level)),
+                     int(round(base[1] * level)),
+                     int(round(base[2] * level)))
+        if low <= _rgb_luminance(candidate) <= high:
+            spread = max(candidate) - min(candidate)
+            if spread > chroma:
+                best, chroma = candidate, spread
+    for step in range(256):
+        weight = step / 255.0
+        candidate = (
+            int(round(255.0 * (1.0 - weight + weight * base[0]))),
+            int(round(255.0 * (1.0 - weight + weight * base[1]))),
+            int(round(255.0 * (1.0 - weight + weight * base[2]))))
+        if low <= _rgb_luminance(candidate) <= high:
+            spread = max(candidate) - min(candidate)
+            if spread > chroma:
+                best, chroma = candidate, spread
+    if best is None:
+        return _hue_shift(fallback, hue)
+    return "#%02x%02x%02x" % best
+
+
+def _ink_band(theme: str, role: str) -> Optional[Tuple[float, float]]:
+    """The luminances ``role`` may take in ``theme`` and still be read.
+
+    Closed form per rule rather than a search. For an ink of luminance
+    ``L`` on a surface of luminance ``Ls``, WCAG asks
+    ``(hi + 0.05) / (lo + 0.05) >= r``; an ink that is the LIGHTER of the
+    pair is therefore bounded below by ``(Ls + 0.05) * r - 0.05`` and a
+    darker one bounded above by ``(Ls + 0.05) / r - 0.05``. The band is the
+    tightest of those over every rule in :data:`CONTRAST_RULES` that names
+    the role, at every offset the drift can reach — the surfaces keep their
+    luminance under the dressing, but an image theme's surfaces are
+    composited over the wallpaper and those do move with hue.
+
+    One more bound, and it is what keeps the rest of the module honest:
+    :func:`max_background_luma` is a minimum over ink luminances, and the
+    imagery pipeline exposure-solves every wallpaper down to it. Letting the
+    ink darken would silently darken every photograph in the application, so
+    each role that feeds that minimum is held at or above the luminance it
+    needs to leave the ceiling where it was.
+
+    ``None`` when the role sits between its surfaces, or when the bounds
+    cross — both of which mean there is no room to spend and the plain hue
+    shift is the right answer.
+    """
+    rules = tuple((surface, required)
+                  for fg, surface, required in CONTRAST_RULES if fg == role)
+    if not rules:
+        return None
+    plain = dict(_PALETTES.get(theme, DARK_PALETTE))
+    plain.update(CONSTANT_ROLES)
+    ink = relative_luminance(plain[role])
+    low, high = 0.0, 1.0
+    for drift in _drift_grid():
+        with _dressed_at(drift, ink=False):
+            surfaces = [relative_luminance(effective_surface(theme, surface))
+                        for surface, _ in rules]
+        if ink >= max(surfaces):
+            for (_surface, required), luma in zip(rules, surfaces):
+                low = max(low, (luma + 0.05) * required
+                          * SPACEOUT_INK_HEADROOM - 0.05)
+        elif ink <= min(surfaces):
+            for (_surface, required), luma in zip(rules, surfaces):
+                high = min(high, (luma + 0.05) / (required
+                                                  * SPACEOUT_INK_HEADROOM)
+                           - 0.05)
+        else:
+            return None
+    with _dressed_at(0.0, ink=False):
+        keep = max_background_luma(theme)
+    for named, required in BARE_IMAGE_RULES:
+        if named == role:
+            low = max(low, (keep + 0.05) * required - 0.05)
+    low, high = max(0.0, low), min(1.0, high)
+    return (low, high) if high - low > 1e-6 else None
+
+
+def _solve_ink_bands() -> Dict[str, Dict[str, Tuple[float, float]]]:
+    """Every ink band of every theme. Solved once per dressing."""
+    out: Dict[str, Dict[str, Tuple[float, float]]] = {}
+    for name in THEMES:
+        rows = {}
+        for role in SPACEOUT_INK_ROLES:
+            band = _ink_band(name, role)
+            if band is not None:
+                rows[role] = band
+        out[name] = rows
+    return out
+
+
+def _scrim_bounds(palette: dict, role: str, colour_role: str,
+                  under: Tuple[int, int, int]) -> Tuple[float, float]:
+    """:func:`legible_scrim_floor` and :func:`present_scrim_ceiling`, in one
+    pass over 8-bit channels rather than over hex strings.
+
+    Exactly the two published solvers and it has to stay exactly them —
+    ``tests/qt/test_spaceout_looks_alive.py`` asserts the answers match for
+    every role of every image theme. What it is not is their cost: those
+    format a colour to hex and parse it straight back once per step of a
+    thousand-step sweep, and the drift asks for the pair at every offset in
+    :func:`_drift_grid` rather than once.
+
+    The ceiling is found coarse-to-fine. :func:`picture_contrast` falls as
+    the panel thickens, so the first coarse step that still shows the
+    picture puts the answer inside the block above it, and the block is then
+    walked from the top. Not a bisection: the fall is monotone in the reals
+    but 8-bit rounding makes it wobble by two or three thousandths, and a
+    bisection lands on the wrong side of the wobble.
+    """
+    base = _channels(palette[colour_role])
+    inks = tuple((_rgb_luminance(_channels(palette[fg])),
+                  required * SCRIM_HEADROOM)
+                 for fg, required in _scrim_rules(colour_role))
+
+    def over(alpha: float, beneath: Tuple[int, int, int]) -> float:
+        rest = 1.0 - alpha
+        return _rgb_luminance((
+            int(round(alpha * base[0] + rest * beneath[0])),
+            int(round(alpha * base[1] + rest * beneath[1])),
+            int(round(alpha * base[2] + rest * beneath[2]))))
+
+    floor = 1.0
+    for step in range(0, 1001):
+        panel = over(step / 1000.0, under)
+        if all((max(luma, panel) + 0.05) / (min(luma, panel) + 0.05) >= need
+               for luma, need in inks):
+            floor = step / 1000.0
+            break
+
+    def shows(step: int) -> bool:
+        alpha = step / 1000.0
+        lit, dark = over(alpha, under), over(alpha, (0, 0, 0))
+        return ((max(lit, dark) + 0.05) / (min(lit, dark) + 0.05)
+                >= MIN_PICTURE_CONTRAST)
+
+    coarse = 1000
+    while coarse > 0 and not shows(coarse):
+        coarse -= 25
+    ceiling = 0.0
+    for step in range(min(1000, coarse + 25), max(-1, coarse - 1), -1):
+        if shows(step):
+            ceiling = step / 1000.0
+            break
+    return floor, ceiling
+
+
+def _solve_scrims_over_drift() -> Dict[str, Dict[str, float]]:
+    """Scrim alphas that hold at every offset the drift can reach.
+
+    The bounds :func:`solve_scrim_alpha` weighs are the same two, taken as a
+    worst case instead of at one palette: the HIGHEST legibility floor and
+    the LOWEST see-through ceiling over :func:`_drift_grid`. The answer is
+    still the ceiling clamped up to the floor, so where the drift makes the
+    two cross, legibility takes it — which is the same way round this module
+    has always resolved that pair.
+    """
+    out: Dict[str, Dict[str, float]] = {}
+    for name in IMAGE_THEMES:
+        floors: Dict[str, float] = {}
+        ceilings: Dict[str, float] = {}
+        for drift in _drift_grid():
+            with _dressed_at(drift):
+                palette = palette_for(name)
+                under = _channels(scrim_under(name))
+            for role, colour_role in SCRIM_ROLES.items():
+                floor, ceiling = _scrim_bounds(palette, role, colour_role,
+                                               under)
+                floors[role] = max(floors.get(role, 0.0), floor)
+                ceilings[role] = min(ceilings.get(role, 1.0), ceiling)
+        solved = {role: max(ceilings[role], floors[role])
+                  for role in SCRIM_ROLES}
+        # Popups are separate top-level windows. Translucency there shows
+        # the desktop, not the wallpaper.
+        solved["elevated"] = 1.00
+        out[name] = solved
+    return out
+
+
+#: Whether this process is wearing the spaceout dressing. Process state,
+#: never a stored preference — see the block above.
+_SPACEOUT = False
+
+#: Solved scrim alphas, keyed by whether the dressing is on. Populated at
+#: import for ``False`` and on the first :func:`enable_spaceout` for
+#: ``True``, so flipping the mode costs one solve and never more.
+_SOLVED_SCRIMS: Dict[bool, Dict[str, Dict[str, float]]] = {}
+
+
+def spaceout_enabled() -> bool:
+    """Whether the ``spaceout`` entry point started this process."""
+    return _SPACEOUT
+
+
+def _apply_dressing() -> None:
+    """Point :data:`SCRIM_ALPHA` and :data:`_INK_BANDS` at the current
+    dressing's solved values.
+
+    The image themes paint translucent panels, so their alphas are a
+    function of the palette — re-hueing one moves the colour a panel is
+    composited from and therefore what it takes for text to stay readable
+    over the wallpaper. Under the dressing the palette also *drifts*, so the
+    answer is a worst case over the offsets it can reach rather than a
+    single solve.
+
+    TWO PASSES, and the order is forced. The ink band is read off the
+    surfaces, and an image theme's surfaces are its scrims composited over
+    the wallpaper — so the scrims have to exist before the ink can be
+    solved. The ink then changes what those panels have to carry, so the
+    scrims are solved again against it. :data:`SPACEOUT_INK_HEADROOM` is
+    what stops the second pass from invalidating the first: the ink is
+    solved with 12 % in hand, and the scrims only ever thicken.
+
+    Solved once per dressing and cached, so taking it off and putting it
+    back costs one dict copy.
+    """
+    solved = _SOLVED_SCRIMS.get(_SPACEOUT)
+    bands = _SOLVED_INK.get(_SPACEOUT)
+    if solved is None or bands is None:
+        if not _SPACEOUT:
+            solved, bands = _solve_scrims(), {}
+        else:
+            _INK_BANDS.clear()
+            SCRIM_ALPHA.clear()
+            SCRIM_ALPHA.update(_solve_scrims_over_drift())
+            bands = _solve_ink_bands()
+            _INK_BANDS.update(bands)
+            solved = _solve_scrims_over_drift()
+        _SOLVED_SCRIMS[_SPACEOUT] = solved
+        _SOLVED_INK[_SPACEOUT] = bands
+    SCRIM_ALPHA.clear()
+    SCRIM_ALPHA.update(solved)
+    _INK_BANDS.clear()
+    _INK_BANDS.update(bands)
+
+
+def enable_spaceout() -> None:
+    """Put this process into the spaceout dressing. Idempotent.
+
+    Called by :mod:`spacr.qt.spaceout` before the application starts, and by
+    nothing else. Writes nothing to disk and touches no preference, so the
+    next ordinary ``spacr`` start knows nothing about it.
+    """
+    global _SPACEOUT, _DRIFT_SECONDS
+    if _SPACEOUT:
+        return
+    _SPACEOUT = True
+    _DRIFT_SECONDS = 0.0
+    _apply_dressing()
+
+
+def disable_spaceout() -> None:
+    """Take the dressing off again. Idempotent.
+
+    The launcher never calls this — the choice is made once, at launch. It
+    exists because the mode is process state, and process state that cannot
+    be put back is process state a test suite has to run in a subprocess.
+    """
+    global _SPACEOUT, _DRIFT_SECONDS
+    if not _SPACEOUT:
+        return
+    _SPACEOUT = False
+    _DRIFT_SECONDS = 0.0
+    _apply_dressing()
+
+
 def palette_for(theme: str = "dark") -> dict:
     """Return the palette dict for ``theme``.
 
@@ -1070,10 +1844,25 @@ def palette_for(theme: str = "dark") -> dict:
     theme-invariant key from :data:`CONSTANT_ROLES` so callers can hit
     e.g. ``palette_for(t)["button_accent"]`` and know the value is the
     same across themes.
+
+    Under the ``spaceout`` dressing (:func:`spaceout_enabled`) the result is
+    re-hued onto the spectrum on the way out, at whatever offset the drift
+    has reached. The keys and the count are unchanged, and so is every
+    surface role's relative luminance, so callers, contrast rules and the
+    light/dark distinction all go on working. The three ink roles are the
+    exception and are solved rather than carried — see
+    :data:`SPACEOUT_INK_ROLES`.
     """
     base = _PALETTES.get(theme, DARK_PALETTE)
     out = dict(base)
     out.update(CONSTANT_ROLES)
+    if _SPACEOUT:
+        # Same keys, same surface luminances, different hues — see the
+        # spaceout block above. Applied before the splash roles so those are
+        # derived from the colours the window will actually be painted with.
+        drift = (spaceout_drift_step() if _SOLVE_DRIFT is None
+                 else _SOLVE_DRIFT)
+        out = spaceout_palette(out, drift, theme if _SOLVE_INK else None)
     out.update(_splash_roles(out))
     return out
 
@@ -1632,7 +2421,8 @@ CONSTANT_ROLES = {
 # `scrim_alpha` stays a dict lookup on the hot path (the QSS asks for it
 # once per role per theme change) and so a palette edit that makes a
 # theme unsolvable fails loudly here rather than three screens later.
-SCRIM_ALPHA.update(_solve_scrims())
+_SOLVED_SCRIMS[False] = _solve_scrims()
+SCRIM_ALPHA.update(_SOLVED_SCRIMS[False])
 
 
 # ---------------------------------------------------------------------------
@@ -2702,6 +3492,11 @@ QToolButton#SectionHeader[maturity="{stage}"]:checked {{
     # a stylesheet is being generated for a theme that is not yet live).
     WIDGET_QSS = registered_widget_qss(
         dict(P, theme=theme, font_scale=font_scale), surface_opacity)
+    # LAST, after the contributed blocks. The close mark is the one glyph
+    # the whole application shares, so a widget block that grows a rule for
+    # its own X loses the tie instead of quietly winning it. See
+    # `close_mark_rules`.
+    CLOSE_MARK_RULES = close_mark_rules(theme, F["body"])
     return f"""
 /* -----------------------------------------------------------------
  *  Base
@@ -2740,11 +3535,12 @@ QToolButton#SectionHeader[maturity="{stage}"]:checked {{
 QLabel {{
     background: transparent;
 }}
-/* Settings labels are wrapped with a layout-only QWidget so the teal API dot
- * can sit immediately beside the text. A bare QWidget inherits the window
- * canvas colour; without this rule that wrapper paints a black rectangle on
- * the section's dark-gray surface even though the QLabel itself is transparent.
- * Both wrappers are structural and must show their actual container through. */
+/* Settings labels are wrapped with a layout-only QWidget that right-aligns
+ * the text against its field. A bare QWidget inherits the window canvas
+ * colour; without this rule that wrapper paints a black rectangle on the
+ * section's dark-gray surface even though the QLabel itself is transparent.
+ * These wrappers are structural and must show their actual container
+ * through. */
 QWidget#SettingLabelWithInfo,
 QWidget#SettingControlWithInfo,
 QWidget#SettingLinkStack {{
@@ -3873,8 +4669,372 @@ QStatusBar {{
     font-size: {F["small"]}px;
     padding: 0px {S["sm"]}px;
 }}
-{GLASS_LAYER}{WIDGET_QSS}
+{GLASS_LAYER}{WIDGET_QSS}{CLOSE_MARK_RULES}
 """
+
+
+# ---------------------------------------------------------------------------
+# Shared marks — one glyph per gesture, drawn the same way everywhere
+# ---------------------------------------------------------------------------
+# A close mark restyled at each site drifts at the next one. The montage's
+# well tabs drew their own `×` at the tab bar's font, the gate-editor chip
+# drew one in the chip's ink, the folded pages got whatever small pixmap the
+# platform style felt like, and the value chips coloured theirs `fg_muted`.
+# There is ONE mark now: the glyph, its size, its hit target and its two
+# colours live here, and every site asks for it instead of describing it
+# again.
+
+#: The close mark. U+2715 MULTIPLICATION X is a full-height stroked X.
+#: `×` (U+00D7 MULTIPLICATION SIGN) is a *maths operator* drawn at x-height,
+#: which is why the marks it replaces read as small however large the font
+#: was set.
+CLOSE_MARK = "✕"
+
+#: How much larger than body text the mark is drawn. "A large X" was the
+#: ask, and body text is what the tab title beside it uses -- so the mark
+#: reads as larger than the title it sits next to, and as a great deal
+#: larger than the 16 px pixmap Qt draws on a closable tab.
+CLOSE_MARK_SCALE = 1.15
+
+#: Breathing room around the glyph inside its square, in px. Also what
+#: keeps the mark from touching the tab title on its left.
+CLOSE_MARK_PAD_PX = 8
+
+#: The smallest square the mark stays clickable inside. Qt's own tab close
+#: button is 16 px, so this is also the floor that keeps a *larger glyph*
+#: from arriving with a *smaller target*.
+CLOSE_MARK_HIT_PX = 22
+
+#: Dynamic property that puts a widget under the shared close-mark rules.
+#: Set it through :func:`apply_close_mark`; :func:`close_mark_rules` keys on
+#: it, and a sweep for close marks keys on it too.
+CLOSE_MARK_PROPERTY = "spacrCloseMark"
+
+
+def close_mark_colours(theme: str = "dark") -> Dict[str, str]:
+    """Return the close mark's inks for ``theme``.
+
+    ``rest`` is the theme's OWN ink -- white on the dark themes, near-black
+    on the light one. Writing ``#FFFFFF`` here would give the light theme a
+    white X on a white ground. ``hover`` is the theme's error red, which is
+    the whole signal the mark carries: this closes something.
+    """
+    P = palette_for(theme)
+    return {"rest": P["fg"], "hover": P["error"], "disabled": P["fg_dim"]}
+
+
+def close_mark_font_px(body_px: Optional[int] = None) -> int:
+    """The pixel size the close mark is drawn at.
+
+    :param body_px: the sheet's already-scaled body size. ``None`` reads the
+        user's Zoom preference through :func:`font_px`, which is what a
+        widget building itself outside :func:`stylesheet` wants.
+    """
+    base = font_px("body") if body_px is None else int(body_px)
+    return max(12, int(round(base * CLOSE_MARK_SCALE)))
+
+
+def close_mark_rules(theme: str = "dark",
+                     body_px: Optional[int] = None) -> str:
+    """Return the QSS every close mark in the application is drawn by.
+
+    :func:`stylesheet` appends this AFTER the registered widget blocks, so a
+    site that grows a rule for its own close button loses the tie rather
+    than quietly winning it.
+    """
+    ink = close_mark_colours(theme)
+    size = close_mark_font_px(body_px)
+    prop = CLOSE_MARK_PROPERTY
+    return f"""
+/* -----------------------------------------------------------------
+ *  The one close mark
+ * -----------------------------------------------------------------
+ *  Theme ink at rest, red under the pointer, everywhere in the app.
+ *  Keyed on a property rather than an object name so a new closable
+ *  thing joins by asking for the mark, not by editing this sheet.
+ */
+*[{prop}="true"] {{
+    color: {ink["rest"]};
+    background: transparent;
+    border: none;
+    padding: 0px;
+    font-size: {size}px;
+    font-weight: 400;
+}}
+*[{prop}="true"]:hover {{
+    color: {ink["hover"]};
+    background: transparent;
+    border: none;
+}}
+*[{prop}="true"]:pressed {{
+    color: {ink["hover"]};
+    background: transparent;
+    border: none;
+}}
+*[{prop}="true"]:disabled {{
+    color: {ink["disabled"]};
+    background: transparent;
+    border: none;
+}}
+"""
+
+
+def repolish(widget) -> None:
+    """Re-run the style on ``widget`` so a just-set property reaches the QSS.
+
+    Qt evaluates property selectors when a widget is polished. A property
+    set after that -- which is every case here, since the widget exists
+    before it is made a close mark -- needs the style run again or the rule
+    never matches.
+    """
+    style = widget.style()
+    if style is not None:
+        style.unpolish(widget)
+        style.polish(widget)
+    widget.update()
+
+
+def close_mark_side(widget=None, body_px: Optional[int] = None) -> int:
+    """Return the side of the square one close mark occupies, in px.
+
+    Measured from the glyph at its own size rather than assumed, so a Zoom
+    setting that makes the X wider makes its target wider with it.
+
+    A widget already carrying the mark has been polished by
+    :func:`close_mark_rules`, so its own font IS the drawn size; the larger
+    of that and the Zoom preference wins, and the square therefore holds
+    whichever glyph is actually painted even while a sheet built for one
+    scale sits on a widget built for another.
+    """
+    from PySide6.QtGui import QFont, QFontMetrics
+
+    font = QFont(widget.font()) if widget is not None else QFont()
+    font.setPixelSize(max(font.pixelSize(), close_mark_font_px(body_px)))
+    metrics = QFontMetrics(font)
+    # The glyph's own box, not the font's line box. A line box carries
+    # ascent, descent and leading for text that is not there, and sizing the
+    # square from it made a mark half again as tall as the tab holding it.
+    ink = metrics.tightBoundingRect(CLOSE_MARK)
+    return max(CLOSE_MARK_HIT_PX,
+               ink.width() + CLOSE_MARK_PAD_PX,
+               ink.height() + CLOSE_MARK_PAD_PX)
+
+
+def apply_close_mark(button, *, tooltip: Optional[str] = None,
+                     body_px: Optional[int] = None):
+    """Draw ``button`` as the application's close mark and return it.
+
+    Sets the glyph, the property the shared rules key on, and a hit target
+    that only ever GROWS. A CLOSE MARK IS A HIT TARGET AS WELL AS A GLYPH,
+    so the box is the largest of three things on each axis:
+
+    * :data:`CLOSE_MARK_HIT_PX`, the floor -- Qt's own tab close button is
+      16 px, and a bigger glyph must not arrive with a smaller target;
+    * the glyph's own square at this Zoom, so the X is never clipped;
+    * what the control itself asks for, so replacing a mark never gives a
+      user less to hit than the mark it replaced.
+
+    The width is then held at or below the height, because the glyph is
+    square and a close mark as wide as a word would push the label beside
+    it out of its row.
+
+    :param tooltip: replaces the button's tooltip when given. Left alone
+        otherwise, because a site usually says what its own X closes.
+    """
+    button.setText(CLOSE_MARK)
+    button.setProperty(CLOSE_MARK_PROPERTY, True)
+    # Polished BEFORE it is measured: the style resolves the sheet's
+    # font-size onto the widget, so both the glyph below and the control's
+    # own size hint describe what will actually be painted.
+    repolish(button)
+    size_close_mark(button, body_px)
+    if getattr(button, "_spacr_close_mark_resizer", None) is None:
+        resizer = _CloseMarkResizer(button, body_px)
+        button._spacr_close_mark_resizer = resizer
+        button.installEventFilter(resizer)
+    button.setCursor(Qt.PointingHandCursor)
+    set_auto_raise = getattr(button, "setAutoRaise", None)
+    if callable(set_auto_raise):
+        set_auto_raise(True)
+    set_flat = getattr(button, "setFlat", None)
+    if callable(set_flat):
+        set_flat(True)
+    if tooltip is not None:
+        button.setToolTip(tooltip)
+    return button
+
+
+def size_close_mark(button, body_px: Optional[int] = None) -> None:
+    """Fix ``button`` to the box its close mark needs right now.
+
+    Split out of :func:`apply_close_mark` because the answer changes: the
+    Zoom preference re-applies the sheet under a mark that already exists,
+    and a box fixed to yesterday's font would clip today's glyph.
+    """
+    side = close_mark_side(button, body_px)
+    hint = button.sizeHint()
+    height = max(side, button.minimumHeight(), hint.height())
+    width = max(side, button.minimumWidth(), min(hint.width(), height))
+    if button.size() != (width, height):
+        button.setFixedSize(width, height)
+
+
+class _CloseMarkResizer(QObject):
+    """Re-measure a close mark when the style hands it a new font.
+
+    The box is FIXED so a close mark cannot balloon into the row beside it,
+    which means a live Zoom change -- the sheet is rebuilt, the glyph grows,
+    the box does not -- would clip the X. Qt sends ``FontChange`` when the
+    sheet's font-size reaches the widget; that is the moment to re-measure.
+    """
+
+    def __init__(self, button, body_px: Optional[int] = None):
+        super().__init__(button)
+        self._body_px = body_px
+
+    def eventFilter(self, obj, event):
+        """Re-fix the box whenever the style or the font under it moves."""
+        if event.type() in (QEvent.FontChange, QEvent.StyleChange):
+            try:
+                size_close_mark(obj, self._body_px)
+            except RuntimeError:
+                # The button went away under the event. Nothing to size.
+                pass
+        return False
+
+
+def close_mark_button(parent=None, *, tooltip: Optional[str] = None,
+                      body_px: Optional[int] = None):
+    """Build a standalone close mark as a flat ``QToolButton``."""
+    from PySide6.QtWidgets import QToolButton
+
+    return apply_close_mark(QToolButton(parent), tooltip=tooltip,
+                            body_px=body_px)
+
+
+def is_close_mark(widget) -> bool:
+    """Return whether ``widget`` is drawn by the shared close-mark rules."""
+    return bool(widget is not None and widget.property(CLOSE_MARK_PROPERTY))
+
+
+class _CloseMarkWatcher(QObject):
+    """Re-mark a tab bar whenever Qt hands it a new close button."""
+
+    def __init__(self, bar, tooltip: Optional[str] = None):
+        super().__init__(bar)
+        self._bar = bar
+        self._tooltip = tooltip
+        self._pending = False
+
+    def eventFilter(self, obj, event):
+        """Schedule a re-mark for the child Qt has just added."""
+        if (obj is self._bar and event.type() == QEvent.ChildAdded
+                and not self._pending):
+            self._pending = True
+            QTimer.singleShot(0, self._sweep)
+        return False
+
+    def _sweep(self) -> None:
+        """Mark whatever arrived, once the bar has finished wiring it up."""
+        self._pending = False
+        try:
+            mark_tab_bar(self._bar, self._tooltip)
+        except RuntimeError:
+            # The bar went away between the event and this turn of the
+            # loop. Nothing left to mark.
+            pass
+
+
+def _request_tab_close(bar, mark, side) -> None:
+    """Ask ``bar`` to close whichever tab ``mark`` is sitting on right now.
+
+    The mark is looked up rather than remembered: closing an earlier tab
+    renumbers every later one, and a remembered index would then close the
+    wrong page.
+    """
+    for index in range(bar.count()):
+        if bar.tabButton(index, side) is mark:
+            bar.tabCloseRequested.emit(index)
+            return
+
+
+def mark_tab_bar(bar, tooltip: Optional[str] = None) -> int:
+    """Replace one tab bar's close buttons with the shared mark.
+
+    A tab whose button was taken away (``setTabButton(i, side, None)``)
+    stays without one: there is nothing to replace, and adding a mark would
+    put an X on a tab that is deliberately permanent. A button that was
+    HIDDEN comes back hidden, which is how the folded-page strip keeps its
+    host page unclosable without destroying a button the bar still points
+    at.
+
+    :returns: how many marks were installed on this call.
+    """
+    from PySide6.QtWidgets import QTabBar, QToolButton
+
+    if getattr(bar, "_spacr_marking_tabs", False):
+        return 0
+    bar._spacr_marking_tabs = True
+    replaced = 0
+    try:
+        for index in range(bar.count()):
+            for side in (QTabBar.RightSide, QTabBar.LeftSide):
+                existing = bar.tabButton(index, side)
+                if existing is None or is_close_mark(existing):
+                    continue
+                mark = QToolButton(bar)
+                text = tooltip if tooltip is not None else existing.toolTip()
+                apply_close_mark(mark, tooltip=text or None)
+                mark.clicked.connect(
+                    lambda *_a, b=bar, m=mark, s=side:
+                    _request_tab_close(b, m, s))
+                hidden = existing.isHidden()
+                bar.setTabButton(index, side, mark)
+                # AFTER, not before. `setTabButton` shows whatever it is
+                # given, so a mark hidden on the way in comes back visible
+                # and puts an X on the page that must not close.
+                if hidden:
+                    mark.hide()
+                replaced += 1
+    finally:
+        bar._spacr_marking_tabs = False
+    return replaced
+
+
+def install_close_marks(root, *, tooltip: Optional[str] = None) -> int:
+    """Give every closable tab under ``root`` the application's close mark.
+
+    ``root`` may be a ``QTabWidget``, a ``QTabBar``, or a container holding
+    them. Naming a strip means THAT strip: a page inside it can hold tab
+    strips of its own, belonging to a screen that has not asked for
+    anything, and a recursive sweep from the strip would reach into them.
+    Only a container root is searched.
+
+    It stays installed. Qt builds a fresh close button for every tab added
+    later, so each bar keeps a watcher that re-runs the sweep on the next
+    turn of the event loop. Calling this again is free -- a tab already
+    carrying the mark is skipped.
+
+    :returns: how many marks were installed on this call.
+    """
+    from PySide6.QtWidgets import QTabBar, QTabWidget
+
+    if isinstance(root, QTabWidget):
+        bars = [root.tabBar()]
+    elif isinstance(root, QTabBar):
+        bars = [root]
+    else:
+        bars = [widget.tabBar() for widget in root.findChildren(QTabWidget)]
+        bars.extend(root.findChildren(QTabBar))
+
+    installed = 0
+    for bar in {id(bar): bar for bar in bars}.values():
+        if getattr(bar, "_spacr_close_mark_watcher", None) is None:
+            watcher = _CloseMarkWatcher(bar, tooltip)
+            bar._spacr_close_mark_watcher = watcher
+            bar.installEventFilter(watcher)
+        installed += mark_tab_bar(bar, tooltip)
+    return installed
 
 
 # ---------------------------------------------------------------------------

@@ -48,7 +48,7 @@ from PySide6.QtWidgets import (
 
 from ..linked_selection import linked_selection
 from ...selection import CategoryFilter, DataFilter, RangeFilter
-from ..theme import SPACING
+from ..theme import SPACING, apply_close_mark
 from .toggle import Toggle
 
 __all__ = ["DataFilterPanel", "MAX_CATEGORY_VALUES", "classify_columns"]
@@ -170,15 +170,12 @@ class _ClauseRow(QFrame):
         label = QLabel(column)
         label.setObjectName("FilterClauseTitle")
         head.addWidget(label, 1)
-        drop = QPushButton("×")
+        drop = QPushButton()
         drop.setObjectName("FilterClauseRemove")
-        # A CAP THAT CANNOT CUT (193). The number keeps this
-        # control compact; `sizeHint` is the floor, so a larger
-        # font or a glyph a theme renders wider grows the button
-        # rather than clipping it.
-        drop.setMinimumWidth(max(22, drop.sizeHint().width()))
-        drop.setMaximumWidth(max(22, drop.sizeHint().width()))
-        drop.setToolTip(f"Stop filtering on {column}")
+        # THE APPLICATION'S CLOSE MARK. The glyph, its square and its two
+        # colours come from the theme, which is also what keeps the target
+        # from shrinking when the mark grows. See `theme.apply_close_mark`.
+        apply_close_mark(drop, tooltip=f"Stop filtering on {column}")
         drop.clicked.connect(lambda: self.removed.emit(self.column))
         head.addWidget(drop)
         self._outer.addLayout(head)

@@ -27,6 +27,12 @@ The cursor and the keyboard move the same current tile: entering a tile
 makes it current, and an arrow key moves it away. There is no second
 "hovered" highlight that could point somewhere else.
 
+Shift + left click blows one crop up to fill the grid's container, drawn in
+front of the tiles rather than reflowing them (:class:`_ZoomOverlay`); a
+click beside it, or ``Escape``, folds it back. It is an EXTRA gesture --
+plain left click goes on labelling, because that is what this screen is
+for, and the class keys still land while a crop is open.
+
 Annotator Agreement is folded onto this screen's masthead rather than
 carrying a tile of its own: κ between annotation columns is a question
 about the labels this screen writes, asked by the person who wrote them
@@ -42,6 +48,7 @@ settings, but page queries do not apply it.
 """
 from __future__ import annotations
 
+import inspect
 import logging
 import os
 from copy import deepcopy
@@ -54,6 +61,7 @@ from PIL.ImageQt import ImageQt
 from PySide6.QtCore import (
     Qt,
     QEvent,
+    QLocale,
     QRect,
     QRectF,
     QSize,
@@ -62,8 +70,9 @@ from PySide6.QtCore import (
     Signal,
     Slot,
 )
-from PySide6.QtGui import (QColor, QFont, QImage, QKeySequence, QPainter,
-                           QPainterPath, QPen, QPixmap, QShortcut)
+from PySide6.QtGui import (QColor, QDoubleValidator, QFont, QImage,
+                           QKeySequence, QPainter, QPainterPath, QPen,
+                           QPixmap, QShortcut)
 from PySide6.QtWidgets import (
     QComboBox,
     QDialog,
@@ -96,7 +105,10 @@ from ..bridge import drain_thread
 from ..job_runner import JobRunner
 
 from ..annotate_engine import (
+    FILTER_CHANNELS,
+    FILTER_MEASURES,
     AnnotateSettings,
+    OutlineCancelled,
     SaveWorker,
     class_counts,
     clear_column,
@@ -104,17 +116,20 @@ from ..annotate_engine import (
     ensure_annotation_column,
     fetch_filtered_paths,
     fetch_page,
+    filter_bound,
     filter_channels_pil,
+    filter_key,
     find_last_annotated_offset,
     label_to_hex,
     load_crop_image,
+    normalize_object_filters,
     normalize_pil,
     outline_image,
 )
 from ..linked_selection import (register_object_opener,
                                 unregister_object_opener)
 from .. import iconset, prefs
-from ..theme import SPACING, palette_for
+from ..theme import SPACING, palette_for, register_widget_qss
 from ..widgets.column_picker import attach_column_picker
 from ..widgets import Divider, EmptyState
 from ..widgets.fold_strip import FoldStrip
@@ -149,6 +164,86 @@ def _build_agreement(host_window) -> QWidget:
 #: One builder per folded module, the same shape the settings-driven fold
 #: hosts use — see :func:`spacr.qt.screens.map_barcodes.install_fold_strip`.
 FOLD_BUILDERS = {"agreement": _build_agreement}
+
+
+# ---------------------------------------------------------------------------
+# Screen chrome that must follow the theme
+#
+# Both blocks below were widget-local ``setStyleSheet`` calls with raw hex in
+# them, which is the one thing a per-widget sheet cannot do well: it beats the
+# application sheet whatever the selector says, so it never picked up a theme
+# change and never carried the user's page opacity. Registered blocks are
+# re-composed from the live palette on every stylesheet build instead.
+# ---------------------------------------------------------------------------
+
+#: ``objectName`` of the canvas the crops are laid out on, and the name its
+#: QSS block is registered under.
+GRID_OBJECT_NAME = "AnnotateGrid"
+
+#: ``objectName`` of the scroll viewport the canvas sits in.
+#:
+#: IT NEEDS A NAME BECAUSE A WIDGET-LOCAL SHEET IS INHERITED. A rule set on
+#: the viewport with ``setStyleSheet("background: transparent")`` applies to
+#: the viewport *and every descendant*, and a widget-local rule outranks the
+#: application sheet — so the unselectored version of it silently blanked the
+#: canvas inside it. Named, the rule can say "this widget" and mean it.
+GRID_VIEWPORT_NAME = "AnnotateGridViewport"
+
+#: ``objectName`` of the Console + AI switch on the bottom row.
+CONSOLE_SWITCH_NAME = "AnnotateConsoleSwitch"
+
+
+def _grid_backdrop_qss(palette, opacity=None) -> str:
+    """The panel the thumbnails sit on: a page surface with round corners.
+
+    The corner is :data:`spacr.qt.theme.RADIUS`'s ``md``, which is what the
+    panels either side of it use — the settings cards, the tab panes and the
+    chart frames all round at the same number, and a square-cornered slab in
+    the middle of them reads as unfinished rather than as deliberate.
+    """
+    from ..theme import RADIUS, block_surface
+    return f"""
+QWidget#{GRID_OBJECT_NAME} {{
+    background: {block_surface("surface_alt", palette.get("theme"), opacity)};
+    border-radius: {RADIUS["md"]}px;
+}}
+QWidget#{GRID_VIEWPORT_NAME} {{
+    background: transparent;
+}}
+"""
+
+
+def _console_switch_qss(palette, opacity=None) -> str:
+    """The Console switch: text on the page, lit while the pane is open.
+
+    No plate. A ``QToolButton`` with no rule of its own is drawn by the
+    widget style from the palette's Button role, which is a dark slab behind
+    the caption — the "black box". Written as text alone, in the theme's own
+    foreground colour (white on the dark themes), and it takes the accent
+    while the console is open.
+
+    The lit state is a STATE and not a hover: it holds while nobody is
+    touching the button, the same way a checkable fold button holds its
+    stage fill (:mod:`spacr.qt.widgets.fold_strip`).
+    """
+    return f"""
+QToolButton#{CONSOLE_SWITCH_NAME} {{
+    background: transparent;
+    border: none;
+    padding: 3px 6px;
+    color: {palette["fg"]};
+}}
+QToolButton#{CONSOLE_SWITCH_NAME}:hover {{
+    color: {palette.get("accent_hi", palette["accent"])};
+}}
+QToolButton#{CONSOLE_SWITCH_NAME}:checked {{
+    color: {palette["accent"]};
+}}
+"""
+
+
+register_widget_qss(GRID_OBJECT_NAME, _grid_backdrop_qss, replace=True)
+register_widget_qss(CONSOLE_SWITCH_NAME, _console_switch_qss, replace=True)
 
 
 # ---------------------------------------------------------------------------
@@ -350,14 +445,49 @@ class _PageLoadWorker(QThread):
         self._gen = gen
         self._paths = paths
         self._load_fn = load_fn
+        # Whether this loader can be told to give up. The page loader can;
+        # a simpler per-row callable need not, and asking it once here keeps
+        # that decision out of the per-crop loop.
+        try:
+            self._load_fn_stops = "should_stop" in inspect.signature(
+                load_fn).parameters
+        except (TypeError, ValueError):
+            self._load_fn_stops = False
+
+    def _stop_requested(self) -> bool:
+        """Whether this page has been abandoned.
+
+        Handed DOWN into the outline code as ``should_stop`` rather than only
+        being consulted by the loop here. One crop's Cellpose outline is a
+        model construction plus one forward pass per channel, all of it native
+        and none of it interruptible, so a per-crop check answers minutes too
+        late: ``closeEvent`` gave up waiting and parked a QThread that was
+        still running, and destroying that wrapper aborts the process.
+
+        A destroyed C++ half reads as "stop" instead of raising, because a
+        worker whose wrapper has gone has certainly been abandoned.
+        """
+        try:
+            return bool(self.isInterruptionRequested())
+        except RuntimeError:
+            return True
 
     def run(self):
         try:
             loaded = []
             for row in self._paths:
-                if self.isInterruptionRequested():
+                if self._stop_requested():
                     return
-                loaded.append(self._load_fn(row))
+                if self._load_fn_stops:
+                    loaded.append(
+                        self._load_fn(row, should_stop=self._stop_requested))
+                else:
+                    loaded.append(self._load_fn(row))
+        except OutlineCancelled:
+            # The page was abandoned mid-crop. Return WITHOUT emitting: the
+            # partial list describes a page the screen has already moved off,
+            # and the point of unwinding early was to let the thread end.
+            return
         except Exception:
             loaded = []
         # THE EMIT IS INSIDE THE GUARD, AND THAT IS THE WHOLE POINT.
@@ -457,10 +587,21 @@ class _TextReportDialog(QDialog):
     The coverage table and the learning curve are wide, aligned text that a
     ``QMessageBox`` reflows into unreadable soup, and both are things a user
     wants to paste into a lab notebook.
+
+    SHOWN, NEVER ``exec``-ED. ``QDialog.exec`` runs a NESTED event loop, and
+    ``QCoreApplication.quit`` unwinds only the outermost one: closing the main
+    window while a report was open left the process alive with no window and
+    the GUI thread parked inside the report call for good. The same nested
+    loop also lets this dialog's own parent be destroyed while its ``exec``
+    is still on the stack, which is a delete of the object running the loop.
+    :meth:`AnnotateScreen._show_report` opens it as a plain window instead.
     """
 
     def __init__(self, title: str, body: str, parent: Optional[QWidget] = None):
         super().__init__(parent)
+        # A window in its own right, not a sheet stuck to the screen: it is
+        # read alongside the grid, moved, and kept open while annotating.
+        self.setWindowFlag(Qt.Window, True)
         self.setWindowTitle(title)
         self.resize(920, 620)
         layout = QVBoxLayout(self)
@@ -478,6 +619,15 @@ class _TextReportDialog(QDialog):
         buttons.accepted.connect(self.accept)
         layout.addWidget(buttons)
         self._view = view
+
+    def set_body(self, body: str) -> None:
+        """Replace the report text, keeping the window where the user put it.
+
+        Pressing Coverage twice is asking for a fresher answer, not for a
+        second window: the reports are one per subject, so the open one is
+        rewritten rather than stacked behind a new one.
+        """
+        self._view.setPlainText(body)
 
 
 class _Thumbnail(QLabel):
@@ -500,6 +650,10 @@ class _Thumbnail(QLabel):
 
     left_clicked = Signal(int)
     right_clicked = Signal(int)
+    #: Shift + left click. An EXTRA gesture: plain left click still labels,
+    #: because annotating is the primary action and a crop the user wanted to
+    #: look at closely is the exception rather than the rule.
+    shift_clicked = Signal(int)
     # (slot, entered). Emitted on Enter/Leave only — never per mouse-move —
     # so tracking the cursor across the grid costs two repaints per tile
     # boundary crossed and nothing at all in between.
@@ -622,9 +776,16 @@ class _Thumbnail(QLabel):
 
     # -- mouse ---------------------------------------------------------
     def mousePressEvent(self, event):
-        """Route left/right mouse buttons to typed signals; ignore others."""
+        """Route the mouse to typed signals; ignore buttons with no meaning.
+
+        Shift is read before the plain left click rather than after, so the
+        zoom gesture cannot also drop a label on the crop it opens.
+        """
         if event.button() == Qt.LeftButton:
-            self.left_clicked.emit(self.slot)
+            if event.modifiers() & Qt.ShiftModifier:
+                self.shift_clicked.emit(self.slot)
+            else:
+                self.left_clicked.emit(self.slot)
         elif event.button() == Qt.RightButton:
             self.right_clicked.emit(self.slot)
         else:
@@ -642,6 +803,108 @@ class _Thumbnail(QLabel):
 
 
 # ---------------------------------------------------------------------------
+# The one crop the annotator wanted to look at properly
+# ---------------------------------------------------------------------------
+
+
+class _ZoomOverlay(QWidget):
+    """One crop blown up to fill the grid's container, in front of the grid.
+
+    IN FRONT, not instead of. The overlay is a child of the scroll
+    viewport and is raised above the canvas the tiles are laid out on, so
+    nothing reflows: the grid keeps its geometry, the page keeps its
+    scroll position, and folding the crop back is a repaint rather than a
+    rebuild.
+
+    Clicks are split by where they land. Inside the picture they are
+    swallowed — the annotator is looking at it, and a stray click there
+    must not label the crop underneath or dismiss the thing they opened.
+    Outside it the overlay folds back, which is the whole way out of the
+    gesture along with ``Escape``.
+    """
+
+    #: A click landed off the picture: the caller should fold it back.
+    dismissed = Signal()
+
+    def __init__(self, parent: Optional[QWidget] = None):
+        super().__init__(parent)
+        self._pixmap: Optional[QPixmap] = None
+        self.slot: int = -1
+        self.setCursor(Qt.PointingHandCursor)
+        self.hide()
+
+    def show_pixmap(self, pixmap: QPixmap, slot: int) -> None:
+        """Take over the container with ``pixmap``, drawn for ``slot``."""
+        self._pixmap = pixmap
+        self.slot = int(slot)
+        self.show()
+        self.raise_()
+        self.update()
+
+    def picture_rect(self) -> QRectF:
+        """Where the crop is actually drawn, in this widget's coordinates.
+
+        The whole container minus a margin, at the crop's own aspect ratio.
+        The margin is what a "click outside" has to land in, so it is real
+        space rather than nothing: an overlay drawn edge to edge would leave
+        a user holding a picture with no way out but the keyboard.
+        """
+        pm = self._pixmap
+        if pm is None or pm.isNull():
+            return QRectF()
+        margin = float(SPACING["md"])
+        box_w = max(1.0, self.width() - 2 * margin)
+        box_h = max(1.0, self.height() - 2 * margin)
+        scale = min(box_w / pm.width(), box_h / pm.height())
+        w = pm.width() * scale
+        h = pm.height() * scale
+        return QRectF(margin + (box_w - w) / 2.0,
+                      margin + (box_h - h) / 2.0, w, h)
+
+    def paintEvent(self, event):        # noqa: N802  (Qt naming)
+        """Dim the grid, then draw the crop over it with round corners."""
+        pm = self._pixmap
+        if pm is None or pm.isNull():
+            return
+        painter = QPainter(self)
+        try:
+            painter.setRenderHint(QPainter.Antialiasing, True)
+            painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+            # A scrim, not a blank: the grid stays legible behind the crop
+            # so it is obvious that nothing was navigated away from.
+            painter.fillRect(self.rect(), QColor(0, 0, 0, 170))
+            box = self.picture_rect()
+            if box.isEmpty():
+                return
+            clip = QPainterPath()
+            clip.addRoundedRect(box, TILE_RADIUS, TILE_RADIUS)
+            painter.setClipPath(clip)
+            painter.drawPixmap(box, pm, QRectF(pm.rect()))
+            painter.setClipping(False)
+            pen = QPen(QColor(current_ring_color()))
+            pen.setWidth(BORDER_WIDTH)
+            painter.setPen(pen)
+            painter.setBrush(Qt.NoBrush)
+            painter.drawRoundedRect(box, TILE_RADIUS, TILE_RADIUS)
+        finally:
+            painter.end()
+
+    def mousePressEvent(self, event):   # noqa: N802  (Qt naming)
+        """Swallow clicks on the picture; fold back on the ones beside it."""
+        if not self.picture_rect().contains(event.position()):
+            self.dismissed.emit()
+        event.accept()
+
+    def keyPressEvent(self, event):     # noqa: N802  (Qt naming)
+        """Escape folds the crop back; everything else goes to the grid."""
+        if event.key() == Qt.Key_Escape:
+            self.dismissed.emit()
+            event.accept()
+            return
+        event.ignore()
+
+
+# ---------------------------------------------------------------------------
 # Settings dialog
 # ---------------------------------------------------------------------------
 
@@ -654,6 +917,44 @@ def _csv_to_list(text: str) -> Optional[List[str]]:
 def _list_to_csv(vals: Optional[List[str]]) -> str:
     """Format a list as a comma-separated string; empty/None becomes ``""``."""
     return ", ".join(str(v) for v in vals) if vals else ""
+
+
+def _filter_text(value) -> str:
+    """One filter bound as a user would type it; ``None`` becomes empty.
+
+    ``%g`` rather than ``str``: the bounds are floats internally and a field
+    that read back ``200.0`` after the user typed ``200`` looks like the
+    dialog corrected them.
+    """
+    if value is None:
+        return ""
+    try:
+        return f"{float(value):g}"
+    except (TypeError, ValueError):
+        return ""
+
+
+#: What each of the six filter rows is called on the settings form. The
+#: colour leads, because that is what the annotator is choosing between --
+#: the plane holding the nuclei, not the second row of the third group.
+FILTER_ROW_LABELS = {
+    ("r", "area"): "Red area",
+    ("r", "intensity"): "Red intensity",
+    ("g", "area"): "Green area",
+    ("g", "intensity"): "Green intensity",
+    ("b", "area"): "Blue area",
+    ("b", "intensity"): "Blue intensity",
+}
+
+#: The sentence every one of the twelve fields carries. EMPTY IS THE POINT:
+#: it is the only way to say "no bound on this side", and a user who cannot
+#: find the off switch fills a zero in instead, which is a different filter.
+FILTER_FIELD_TIP = (
+    "The window an object must fall inside to be outlined in this colour. "
+    "Area is the object's size in pixels; intensity is its mean brightness "
+    "in that colour, 0\u2013255.\n\nLEAVE A FIELD EMPTY for no bound on "
+    "that side. An empty field is how half a filter is turned off, and it "
+    "is not the same as a zero.")
 
 
 def _cover_rect(pm: QPixmap, box: QRectF) -> QRectF:
@@ -703,13 +1004,21 @@ def _reanchor_png_path(path: str, db_path: str) -> str:
     return path
 
 
-def _load_thumb_image_worker(row, src, settings):
+def _load_thumb_image_worker(row, src, settings, should_stop=None):
     """Load one thumbnail from an immutable page-request snapshot.
 
     This function deliberately receives no :class:`AnnotateScreen`.  Calling a
     bound QWidget method from a worker kept the screen wrapper alive after its
     C++ object had been destroyed and let background threads read settings
     while the GUI thread replaced them.
+
+    :param should_stop: passed through to :func:`outline_image`, which asks it
+        before every Cellpose call. A Cellpose outline is native work that
+        cannot be stopped once it has started, and a page of them went on
+        running for minutes after the screen had asked its worker to stop --
+        long enough that the close gave up waiting and parked a QThread that
+        was still running. Handing the interruption flag down here is what
+        lets a page be abandoned between calls instead.
     """
     if isinstance(row, dict):
         annotation = row.get("annotation")
@@ -754,8 +1063,15 @@ def _load_thumb_image_worker(row, src, settings):
                 edge_image=s.edge_image,
                 outline_threshold_factor=s.outline_threshold_factor,
                 object_size=s.object_size,
+                object_filters=getattr(s, "object_filters", None),
                 outline_method=getattr(s, "outline_method", "otsu"),
+                should_stop=should_stop,
             )
+        except OutlineCancelled:
+            # Re-raised ahead of the blanket handler below. Swallowing it
+            # here would turn "the screen has gone, stop" back into "draw
+            # this crop without an outline" and carry on with the page.
+            raise
         except Exception:
             pass
     return img.resize(s.image_size), annotation
@@ -1040,15 +1356,48 @@ class _SettingsDialog(QDialog):
         self._edge_image.setChecked(bool(settings.edge_image))
         form.addRow("", self._edge_image)
 
-        self._obj_min = QSpinBox(); self._obj_min.setRange(0, 10_000_000)
-        self._obj_min.setValue(int(settings.object_size[0]))
-        self._obj_max = QSpinBox(); self._obj_max.setRange(0, 10_000_000)
-        self._obj_max.setValue(int(settings.object_size[1]))
-        obj_row = QHBoxLayout(); obj_row.setContentsMargins(0, 0, 0, 0)
-        obj_row.addWidget(self._obj_min); obj_row.addWidget(QLabel("–"))
-        obj_row.addWidget(self._obj_max)
-        obj_wrap = QWidget(); obj_wrap.setLayout(obj_row)
-        form.addRow("Object size (px area)", obj_wrap)
+        # ── Which objects get an outline: six rows of two fields ─────────
+        #
+        # One number for every colour was the complaint. Red, green and blue
+        # hold different objects, so each plane gets its own size window and
+        # its own brightness window -- six rows of two fields rather than
+        # twelve separate settings, which is the same information without a
+        # form nobody can read.
+        #
+        # A LEGACY `object_size` IS SHOWN IN THESE FIELDS, migrated onto the
+        # three area rows by the engine, so the value a project was already
+        # filtering on is in front of the user rather than silently still in
+        # force somewhere they cannot see.
+        self._object_filter_fields: Dict[
+            Tuple[str, str], Tuple[QLineEdit, QLineEdit]] = {}
+        current_filters = normalize_object_filters(
+            getattr(settings, "object_filters", None),
+            getattr(settings, "object_size", None))
+        for channel in FILTER_CHANNELS:
+            for measure in FILTER_MEASURES:
+                low, high = current_filters[filter_key(channel, measure)]
+                filter_row = QHBoxLayout()
+                filter_row.setContentsMargins(0, 0, 0, 0)
+                pair: List[QLineEdit] = []
+                for value, hint in ((low, "min"), (high, "max")):
+                    edit = QLineEdit(_filter_text(value))
+                    edit.setPlaceholderText(hint)
+                    # A number or nothing. `filter_bound` treats anything
+                    # else as no bound, and a filter that switched itself
+                    # off because of a half-typed number would be silent.
+                    validator = QDoubleValidator(edit)
+                    validator.setNotation(QDoubleValidator.StandardNotation)
+                    validator.setBottom(0.0)
+                    validator.setLocale(QLocale.c())
+                    edit.setValidator(validator)
+                    edit.setToolTip(FILTER_FIELD_TIP)
+                    filter_row.addWidget(edit)
+                    pair.append(edit)
+                filter_wrap = QWidget(); filter_wrap.setLayout(filter_row)
+                form.addRow(FILTER_ROW_LABELS[(channel, measure)],
+                            filter_wrap)
+                self._object_filter_fields[(channel, measure)] = (
+                    pair[0], pair[1])
 
         # ── Threshold filter (measurement > / < threshold on merged tables)
         self._measurement = QLineEdit(
@@ -1149,8 +1498,11 @@ class _SettingsDialog(QDialog):
             self._edge_thick: "edge_thickness",
             self._edge_transp: "edge_transparency",
             self._edge_image: "edge_image",
-            self._obj_min: "object_min_size",
-            self._obj_max: "object_max_size",
+            # The twelve filter fields are deliberately NOT here. This map
+            # installs the API tooltip for a pipeline SETTING, and no
+            # pipeline function takes a per-colour window; pointing one of
+            # them at `object_max_size` would replace the sentence written
+            # above with a description of a different, single-number knob.
             self._measurement: "measurement",
             self._threshold: "threshold",
             self._threshold_dir: "threshold_direction",
@@ -1158,7 +1510,7 @@ class _SettingsDialog(QDialog):
             self._queue_measure: "queue_measure",
             self._queue_diversity: "queue_diversity",
             self._queue_limit: "queue_limit",
-        }, api_dots=False)
+        })
 
     def _picker_db_path(self) -> str:
         """Where the SQL picker looks — the src folder as it reads right now.
@@ -1223,6 +1575,13 @@ class _SettingsDialog(QDialog):
         s.channels = _csv_to_list(self._channels.text())
         s.stored_channel_order = str(
             self._stored_channel_order.currentData() or "rgb")
+        # BOTH VIEW CONTROLS ARE READ BACK HERE. Neither used to be, so the
+        # two combos above were decorative: a crop drawn after choosing CMY
+        # measured pixel-for-pixel identical to the RGB one, because the
+        # settings object the loader reads still said "rgb".
+        s.display_order = str(self._display_order.currentData() or "rgb")
+        s.display_primaries = str(
+            self._display_primaries.currentData() or "rgb")
         s.normalize_channels = _csv_to_list(self._norm_channels.text())
         s.percentiles = (float(self._pct_lo.value()), float(self._pct_hi.value()))
         s.outline = _csv_to_list(self._outline.text())
@@ -1232,7 +1591,16 @@ class _SettingsDialog(QDialog):
         s.edge_thickness = float(self._edge_thick.value())
         s.edge_transparency = float(self._edge_transp.value())
         s.edge_image = bool(self._edge_image.isChecked())
-        s.object_size = (int(self._obj_min.value()), int(self._obj_max.value()))
+        s.object_filters = {
+            filter_key(channel, measure): (filter_bound(low.text()),
+                                           filter_bound(high.text()))
+            for (channel, measure), (low, high)
+            in self._object_filter_fields.items()}
+        # The single window the twelve fields replaced. Zeroed once they have
+        # been written, or the migration would run again next time and put an
+        # old bound back into a row the user has just emptied -- which is
+        # exactly the case "empty means no bound" exists for.
+        s.object_size = (0, 0)
         # Threshold filter
         meas_txt = self._measurement.text().strip()
         s.measurement = _csv_to_list(meas_txt)
@@ -1500,6 +1868,11 @@ class AnnotateScreen(QWidget):
 
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
+        # This module is imported lazily, which normally means minutes after
+        # the only stylesheet that would have carried its blocks was built.
+        # A no-op when they are already in it.
+        from ..theme import ensure_widget_qss_applied
+        ensure_widget_qss_applied(GRID_OBJECT_NAME, CONSOLE_SWITCH_NAME)
         self._settings = AnnotateSettings()
         self._offset = 0
         self._total = 0
@@ -1870,23 +2243,29 @@ class AnnotateScreen(QWidget):
         self._grid_scroll = QScrollArea()
         self._grid_scroll.setWidgetResizable(True)
         self._grid_scroll.setFrameShape(QScrollArea.NoFrame)
-        # Dark-gray canvas (not black) behind the rounded thumbnails.
-        self._grid_scroll.viewport().setStyleSheet(
-            f"background: {PALETTE['surface_alt']};")
+        # THE VIEWPORT PAINTS NOTHING. The backdrop is the holder inside it,
+        # and the holder's corners are round — a viewport filled with the same
+        # grey would sit in those corners as four square nubs and the rounding
+        # would not read at all.
+        self._grid_scroll.viewport().setAutoFillBackground(False)
+        self._grid_scroll.viewport().setObjectName(GRID_VIEWPORT_NAME)
         self._grid_holder = QWidget()
-        self._grid_holder.setObjectName("AnnotateGrid")
-        # The space BETWEEN the images. Same raw-hex problem as the legend:
-        # this is the surface the thumbnails sit on, so it takes the page
-        # opacity — the images themselves are pixmaps and are untouched by it.
-        from ..theme import pane_surface
-        self._grid_holder.setStyleSheet(
-            f"QWidget#AnnotateGrid {{ background: "
-            f"{pane_surface('surface_alt')}; }}")
+        self._grid_holder.setObjectName(GRID_OBJECT_NAME)
+        # The space BETWEEN the images, and the panel behind them: a page
+        # surface with the theme's own corner radius, styled by the registered
+        # block rather than by a widget-local sheet so it follows both the
+        # theme and the page-opacity preference. The images themselves are
+        # pixmaps and are untouched by either.
         self._grid_layout = QGridLayout(self._grid_holder)
         self._grid_layout.setSpacing(SPACING["sm"])
         self._grid_layout.setContentsMargins(SPACING["sm"], SPACING["sm"],
                                               SPACING["sm"], SPACING["sm"])
         self._grid_scroll.setWidget(self._grid_holder)
+        # Shift + left click blows one crop up to fill this container. Built
+        # here rather than on demand so it is already a child of the viewport
+        # and already above the canvas the tiles are laid out on.
+        self._zoom_overlay = _ZoomOverlay(self._grid_scroll.viewport())
+        self._zoom_overlay.dismissed.connect(self._fold_zoom_back)
         # Without these the scroll area swallows the arrow keys and scrolls
         # instead of moving grid focus.
         self._grid_scroll.installEventFilter(self)
@@ -1931,6 +2310,9 @@ class AnnotateScreen(QWidget):
         bottom_row.addWidget(self._status_label, 1)
 
         self._console_switch = QToolButton(self)
+        # Named so the registered block above can reach it: white text on the
+        # page with no plate behind it, accent-blue while the pane is open.
+        self._console_switch.setObjectName(CONSOLE_SWITCH_NAME)
         # The caption ends in a state arrow, so the generic text pass would
         # translate the composed string and drop it. This screen re-renders
         # the caption itself from `retranslate_dynamic_content`.
@@ -2166,6 +2548,10 @@ class AnnotateScreen(QWidget):
 
     def _rebuild_grid(self):
         """Regenerate empty thumbnail widgets sized for current settings."""
+        # A zoomed crop belongs to the grid that is about to be thrown away,
+        # and its pixmap would go on being shown over a page of different
+        # crops. Fold it back first.
+        self._fold_zoom_back()
         # Recompute page-fit before we create widgets
         self._compute_grid_dims()
         for w in self._thumbs:
@@ -2192,6 +2578,7 @@ class AnnotateScreen(QWidget):
             thumb.setFixedSize(w + pad, h + pad)
             thumb.left_clicked.connect(self._on_thumb_left)
             thumb.right_clicked.connect(self._on_thumb_right)
+            thumb.shift_clicked.connect(self._on_thumb_shift)
             thumb.hover_changed.connect(self._on_thumb_hover)
             self._grid_layout.addWidget(thumb, i // cols, i % cols)
             self._thumbs.append(thumb)
@@ -2420,6 +2807,64 @@ class AnnotateScreen(QWidget):
         self._al_label.setText(" · ".join(parts))
         self._al_label.setVisible(bool(self._settings.db_path))
 
+    def _show_report(self, title: str, body: str):
+        """Put a text report on screen WITHOUT entering a nested event loop.
+
+        ``QDialog.exec`` is the obvious way to show one of these and it wedges
+        the application. ``exec`` runs a nested event loop;
+        ``QCoreApplication.quit`` — which is what closing the last window
+        does — unwinds only the outermost loop. Close the main window while a
+        report is up and the window disappears, the process stays alive, and
+        the GUI thread sits inside this call for ever with nothing left to
+        click. Reproduced in a child process: the main thread's only frame is
+        ``_on_coverage``, and it never returns.
+
+        The nested loop is dangerous a second way. The report is parented to
+        this screen so that it dies with it, and a nested loop is exactly the
+        window in which the screen CAN die — leaving Qt to delete the object
+        whose ``exec`` is still on the stack.
+
+        So the report is opened as a window that owns its own end:
+        ``WA_DeleteOnClose`` retires it when the user closes it, the Qt parent
+        retires it when this screen goes, and no event loop of ours is ever on
+        the stack. Reports are more useful this way too — a coverage table can
+        stay open while the annotating continues underneath it.
+
+        :param title: window title, and the key one report is remembered
+            under so a second press rewrites it instead of stacking a copy.
+        :param body: the pre-formatted, column-aligned text.
+        :returns: the window, so a caller can assert on what it shows.
+        """
+        open_reports = getattr(self, "_reports", None)
+        if open_reports is None:
+            open_reports = {}
+            self._reports = open_reports
+        # Drop the husks first. `WA_DeleteOnClose` means a report the user
+        # closed has already lost its C++ half, and asking such a wrapper
+        # anything raises RuntimeError. A `destroyed` connection would clear
+        # them sooner, at the price of a closure holding this screen inside
+        # an object this screen owns; a sweep here costs nothing and keeps
+        # the reference graph a tree.
+        for key, report in list(open_reports.items()):
+            try:
+                report.isVisible()
+            except RuntimeError:
+                open_reports.pop(key, None)
+        existing = open_reports.get(title)
+        if existing is not None:
+            existing.set_body(body)
+            existing.show()
+            existing.raise_()
+            existing.activateWindow()
+            return existing
+        dialog = _TextReportDialog(title, body, self)
+        dialog.setAttribute(Qt.WA_DeleteOnClose, True)
+        open_reports[title] = dialog
+        dialog.show()
+        dialog.raise_()
+        dialog.activateWindow()
+        return dialog
+
     def _on_coverage(self):
         """Show where the annotations actually came from."""
         if not self._settings.db_path:
@@ -2437,7 +2882,7 @@ class AnnotateScreen(QWidget):
             QMessageBox.warning(self, "Coverage unavailable",
                                 f"{type(exc).__name__}: {exc}")
             return
-        _TextReportDialog("Annotation coverage", body, self).exec()
+        self._show_report("Annotation coverage", body)
 
     def _on_learning_curve(self):
         """Show held-out accuracy per round and the stopping verdict."""
@@ -2456,7 +2901,7 @@ class AnnotateScreen(QWidget):
             QMessageBox.warning(self, "Learning curve unavailable",
                                 f"{type(exc).__name__}: {exc}")
             return
-        _TextReportDialog("Active-learning rounds", body, self).exec()
+        self._show_report("Active-learning rounds", body)
 
     def _on_retrain(self):
         """Fit a round on the labels so far, then re-rank without leaving."""
@@ -2857,6 +3302,55 @@ class AnnotateScreen(QWidget):
     def _on_thumb_right(self, slot: int):
         self._toggle_annotation(slot, 2)
 
+    def _on_thumb_shift(self, slot: int):
+        """Blow ``slot``'s crop up to fill the grid's container.
+
+        Does nothing for a cell with no crop in it: there is nothing to
+        look at, and an empty black overlay a user then has to dismiss is
+        worse than the gesture appearing not to have fired.
+        """
+        overlay = getattr(self, "_zoom_overlay", None)
+        if overlay is None:
+            return
+        if not (0 <= slot < len(self._thumb_pixmaps)):
+            return
+        pixmap = self._thumb_pixmaps[slot]
+        if pixmap is None or pixmap.isNull():
+            return
+        self._fit_zoom_overlay()
+        overlay.show_pixmap(pixmap, slot)
+        overlay.setFocus(Qt.OtherFocusReason)
+
+    def _fold_zoom_back(self) -> None:
+        """Put the zoomed crop back in its place in the grid."""
+        overlay = getattr(self, "_zoom_overlay", None)
+        if overlay is None:
+            return
+        overlay.hide()
+        overlay.slot = -1
+        # The grid, not the overlay, is where the next keystroke belongs.
+        self.setFocus(Qt.OtherFocusReason)
+
+    def _zoom_is_open(self) -> bool:
+        """True while one crop is blown up over the grid."""
+        overlay = getattr(self, "_zoom_overlay", None)
+        try:
+            return overlay is not None and overlay.isVisible()
+        except RuntimeError:
+            return False
+
+    def _fit_zoom_overlay(self) -> None:
+        """Keep the overlay exactly the size of the container it fills."""
+        overlay = getattr(self, "_zoom_overlay", None)
+        scroll = getattr(self, "_grid_scroll", None)
+        if overlay is None or scroll is None:
+            return
+        try:
+            overlay.setGeometry(scroll.viewport().rect())
+        except RuntimeError:
+            # The viewport went away with the screen; nothing to fit.
+            return
+
     # ------------------------------------------------------------------
     # Page loading + rendering
     # ------------------------------------------------------------------
@@ -2946,6 +3440,8 @@ class AnnotateScreen(QWidget):
                 page,
                 self._settings.image_type,
             )
+        # A crop blown up over the grid belongs to the page being replaced.
+        self._fold_zoom_back()
         # Clear all thumbs
         for i in range(len(self._thumbs)):
             self._set_slot_image(i, None)
@@ -3479,11 +3975,24 @@ class AnnotateScreen(QWidget):
             etype = event.type()
         except Exception:
             return False       # not something we can reason about
+        # A zoomed crop owns Escape, and it owns it before the grid's own
+        # key handling can read the same press as "clear the selection".
+        if etype == QEvent.KeyPress and event.key() == Qt.Key_Escape \
+                and self._zoom_is_open():
+            self._fold_zoom_back()
+            return True
         if etype == QEvent.KeyPress and self.handle_key(event.key(),
                                                          event.text()):
             return True
         if etype == QEvent.Leave:
             self._set_hover_slot(None)
+        # The overlay fills the container, so it has to follow it. A resize
+        # that left it at its old size would put the picture off-centre and
+        # move the margin a click has to land in to fold it back.
+        if etype == QEvent.Resize and self._zoom_is_open():
+            scroll = getattr(self, "_grid_scroll", None)
+            if scroll is not None and obj is scroll.viewport():
+                self._fit_zoom_overlay()
         grid_holder = getattr(self, "_grid_holder", None)
         if obj is grid_holder and grid_holder is not None and self._band_event(
             etype, event
@@ -3639,6 +4148,18 @@ class AnnotateScreen(QWidget):
         """Drain every native/Python worker before Qt destroys this screen."""
         self._closing = True
         self._detach_event_filters()
+        # Close the report windows FIRST. They are children of this screen, so
+        # Qt would take them down with it anyway -- but only after the drains
+        # below, which run an event loop, and a report left standing over a
+        # screen that is being emptied is a window onto a half-torn-down
+        # parent.
+        for report in list(getattr(self, "_reports", {}).values()):
+            try:
+                report.close()
+            except RuntimeError:
+                pass
+        if getattr(self, "_reports", None) is not None:
+            self._reports.clear()
         # Withdraw the routing registration first, so a request arriving
         # during teardown cannot reach a half-destroyed screen. The bound
         # method is passed on purpose: with two Annotate screens opened in a
