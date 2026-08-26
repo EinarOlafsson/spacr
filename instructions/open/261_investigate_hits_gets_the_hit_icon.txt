@@ -1,0 +1,31 @@
+================================================================================
+INVESTIGATE HITS WEARS THE HIT ICON
+================================================================================
+
+Status:    OPEN. Requested 2026-08-26.
+Owner:     spacr/qt/iconset.py.
+
+"the investigate hits module should get the old hit icon"
+
+`spacr/resources/icons/hit_list.png` is the bundled mark the Hit List tile
+wore. The Hit List has since folded onto Regression, so what a user now
+associates that mark with is the hits themselves rather than a tile that no
+longer exists -- which is exactly why it fits the module that investigates
+one.
+
+`investigate_hit` currently resolves to a glyph rather than that PNG.
+
+WHAT TO CHECK WHILE THERE: the Hit List's own fold button still needs a
+mark. If both keys are pointed at one asset that is fine -- they are the
+same subject -- but it should be deliberate rather than a collision, and
+the fold button must not end up with no icon.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * the Investigate Hits tile draws the bundled hit mark, not the fallback
+    puzzle piece and not a generic glyph;
+  * the Hit List fold button on Regression still draws a mark;
+  * both resolve in light and dark, since the bundled PNGs are recoloured
+    per theme.
