@@ -536,6 +536,29 @@ Reference datasets
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
 
 
+If spaCR is slow on your machine
+--------------------------------
+
+Run the hardware report and send it with your issue::
+
+    python tools/spacr_hardware_report.py
+
+It prints a report and saves a copy under ``~/.spacr/reports``; the path is
+on the last line. ``--quick`` skips the longer benchmarks, and
+``--out PATH`` writes it somewhere else.
+
+It only reads: it opens no project, loads none of your data, and the report
+is the one file it writes. What it measures is where the time actually
+goes — the imports, the numeric libraries underneath them, your display's
+device pixel ratio, the preferences in effect, building the main window,
+building each module screen, the animated backdrop and the startup card's
+animation — so a slow machine can be answered with a number instead of a
+guess.
+
+Two things it asks that are invisible otherwise and each explain a
+many-fold slowdown on their own: whether Python is running under emulation
+(an x86_64 build on Apple Silicon), and which BLAS NumPy found.
+
 Contributing and support
 ------------------------
 
@@ -543,7 +566,8 @@ Bug reports and focused feature requests are welcome through
 `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_.
 When reporting a failure, include the spaCR version, operating system, Python
 version, module settings and the relevant log excerpt. ``spacr-doctor``
-collects most of that for you.
+collects most of that for you, and the hardware report above covers anything
+about speed.
 
 Licensing
 ~~~~~~~~~

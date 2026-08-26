@@ -1,203 +1,457 @@
 #!/usr/bin/env python3
-"""Measure what spaCR costs on THIS machine, and print it.
+"""Measure everything spaCR costs on THIS machine, and say where the time goes.
 
-Run this on the machine that feels slow and send the result back.
+Run it on a machine where spaCR feels slow and send the report back:
 
     python tools/spacr_hardware_report.py
 
-It prints the report AND saves a copy next to it, so a long report can be
-attached instead of copied out of a terminal. The saved path is printed on
-the last line.
+It prints the report and saves a copy under ``~/.spacr/reports``; the path is
+on the last line. ``--out PATH`` puts it somewhere else. ``--quick`` skips
+the sections marked SLOW.
 
-    python tools/spacr_hardware_report.py --out somewhere/else.txt
+IT ONLY READS. It opens no project, loads no data, and the report is the one
+file it writes.
 
-IT READS THE MACHINE AND NOTHING ELSE. It opens no project, touches no
-data, and the only file it writes is its own report.
+WHY IT IS THIS LONG. A first version timed the imports and the screen builds
+and reported a laptop as FASTER than the workstation it was being compared
+with -- while the same laptop took minutes to open a module. Everything it
+measured was fine, so the answer was in what it did not measure. This one
+walks the real startup path, asks the display what it is, times a real
+paint, and prices the animation loops, because that is where the first one
+was blind.
 
-WHY A SCRIPT AND NOT A GUESS. The same code is fast on one machine and
-unusable on another, and the difference is never where it is assumed to be.
-This times each stage separately -- the imports, the Qt application, each
-screen -- so the answer is a number rather than a theory.
+EVERY SECTION IS GUARDED. A section that cannot run says so and the report
+continues: a machine that cannot build a screen is exactly the machine whose
+report is worth having.
 """
 from __future__ import annotations
 
+import contextlib
+import io
 import os
 import platform
 import sys
 import time
+import traceback
 
-os.environ.setdefault("QT_QPA_PLATFORM", "")
-
-
-def _t():
-    return time.perf_counter()
+#: Sections that take real time, skipped by --quick.
+SLOW = "SLOW"
 
 
-class _Tee:
-    """Write to the terminal and collect the same text for the file.
+class Report:
+    """Collects the report while printing it."""
 
-    Holds its OWN reference to the builtin. The module swaps its global
-    ``print`` for one of these while the report runs, so a tee that reached
-    for ``print`` by name would call itself.
-    """
+    _out = staticmethod(print)
 
-    _write = staticmethod(__builtins__["print"]
-                          if isinstance(__builtins__, dict)
-                          else __builtins__.print)
-
-    def __init__(self):
+    def __init__(self) -> None:
         self.lines: list = []
 
     def __call__(self, text: str = "") -> None:
-        _Tee._write(text)
+        Report._out(text)
         self.lines.append(str(text))
 
+    def rule(self, title: str) -> None:
+        self("")
+        self(f"-- {title} " + "-" * max(0, 66 - len(title)))
 
-def _report_path(argv) -> "os.PathLike | str":
-    """Where the copy goes: --out if given, else beside the user's home."""
-    if "--out" in argv:
-        return argv[argv.index("--out") + 1]
-    import datetime
-    stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    folder = os.path.join(os.path.expanduser("~"), ".spacr", "reports")
-    os.makedirs(folder, exist_ok=True)
-    return os.path.join(folder, f"hardware-{stamp}.txt")
+    def item(self, name: str, value) -> None:
+        self(f"  {name:<32} {value}")
+
+    def timed(self, name: str, seconds: float, note: str = "") -> None:
+        self(f"  {name:<32} {seconds:8.3f} s  {note}")
+
+    def failed(self, name: str, exc: BaseException) -> None:
+        self(f"  {name:<32} FAILED  {type(exc).__name__}: {exc}")
+
+
+def _clock():
+    return time.perf_counter()
+
+
+@contextlib.contextmanager
+def _section(say: Report, title: str):
+    say.rule(title)
+    try:
+        yield
+    except BaseException as exc:                             # noqa: BLE001
+        say(f"  section failed: {type(exc).__name__}: {exc}")
+        for line in traceback.format_exc().splitlines()[-4:]:
+            say(f"    {line}")
+
+
+# ---------------------------------------------------------------- machine
+
+def machine(say: Report) -> None:
+    with _section(say, "the machine"):
+        say.item("python", sys.version.split()[0])
+        say.item("executable", sys.executable)
+        say.item("platform", platform.platform())
+        say.item("machine", platform.machine())
+        say.item("processor", platform.processor() or "(not reported)")
+        try:
+            import multiprocessing
+            say.item("cpu count", multiprocessing.cpu_count())
+        except Exception:
+            pass
+        try:
+            import psutil
+            mem = psutil.virtual_memory()
+            say.item("memory total", f"{mem.total / 2**30:.1f} GiB")
+            say.item("memory available", f"{mem.available / 2**30:.1f} GiB")
+            freq = psutil.cpu_freq()
+            if freq:
+                say.item("cpu freq", f"{freq.current:.0f} MHz")
+            say.item("cpu load now", f"{psutil.cpu_percent(interval=0.5):.0f} %")
+        except Exception as exc:                             # noqa: BLE001
+            say.item("psutil", f"unavailable ({type(exc).__name__})")
+
+        # EMULATION IS INVISIBLE UNLESS ASKED, and it is the single biggest
+        # multiplier there is: an x86_64 Python on Apple Silicon is emulated.
+        if platform.system() == "Darwin":
+            for name, args in (
+                ("translated (Rosetta)", ["sysctl", "-n", "sysctl.proc_translated"]),
+                ("cpu brand", ["sysctl", "-n", "machdep.cpu.brand_string"]),
+                ("performance cores", ["sysctl", "-n", "hw.perflevel0.logicalcpu"]),
+                ("efficiency cores", ["sysctl", "-n", "hw.perflevel1.logicalcpu"]),
+                ("thermal pressure", ["pmset", "-g", "therm"]),
+            ):
+                try:
+                    import subprocess
+                    out = subprocess.run(args, capture_output=True, text=True,
+                                         timeout=8).stdout.strip()
+                    if name.startswith("translated"):
+                        out += " (RUNNING UNDER ROSETTA)" if out == "1" else " (native)"
+                    say.item(name, out.replace("\n", " ")[:90] or "(empty)")
+                except Exception as exc:                     # noqa: BLE001
+                    say.item(name, f"could not ask ({type(exc).__name__})")
+
+
+# ---------------------------------------------------------------- imports
+
+def imports(say: Report) -> None:
+    with _section(say, "imports"):
+        total = 0.0
+        for name in ("numpy", "pandas", "scipy", "PySide6.QtCore",
+                     "PySide6.QtGui", "PySide6.QtWidgets", "matplotlib",
+                     "pyqtgraph", "torch", "sklearn", "statsmodels",
+                     "cellpose", "umap", "numba", "skimage", "spacr"):
+            start = _clock()
+            try:
+                __import__(name)
+                took = _clock() - start
+                total += took
+                say.timed(name, took)
+            except Exception as exc:                         # noqa: BLE001
+                say.item(name, f"not importable ({type(exc).__name__})")
+        say.timed("TOTAL", total)
+
+
+def numerics(say: Report, quick: bool) -> None:
+    with _section(say, "the numeric stack"):
+        import numpy as np
+        buf = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(buf):
+                np.__config__.show()
+            text = buf.getvalue().lower()
+            found = [n for n in ("accelerate", "openblas", "mkl", "blis")
+                     if n in text]
+            say.item("numpy BLAS", ", ".join(found) or "(not reported)")
+        except Exception:
+            say.item("numpy BLAS", "(could not ask)")
+        say.item("numpy threads", os.environ.get("OMP_NUM_THREADS", "(unset)"))
+
+        for label, size in (("matmul 1200", 1200), ("matmul 2400", 2400)):
+            if quick and size > 1200:
+                continue
+            try:
+                a = np.random.rand(size, size)
+                start = _clock(); a @ a
+                say.timed(label, _clock() - start)
+            except Exception as exc:                         # noqa: BLE001
+                say.failed(label, exc)
+        try:
+            import pandas as pd
+            frame = pd.DataFrame(np.random.rand(200_000, 8))
+            start = _clock(); frame.groupby(frame[0] > 0.5).mean()
+            say.timed("pandas groupby 200k", _clock() - start)
+        except Exception as exc:                             # noqa: BLE001
+            say.failed("pandas groupby", exc)
+        try:
+            import torch
+            say.item("torch version", torch.__version__)
+            say.item("torch cuda", torch.cuda.is_available())
+            say.item("torch mps",
+                     getattr(torch.backends, "mps", None) is not None
+                     and torch.backends.mps.is_available())
+            t = torch.rand(1500, 1500)
+            start = _clock(); t @ t
+            say.timed("torch matmul 1500 cpu", _clock() - start)
+        except Exception as exc:                             # noqa: BLE001
+            say.failed("torch", exc)
+
+
+# ------------------------------------------------------------------ qt
+
+def _app():
+    from PySide6.QtWidgets import QApplication
+    return QApplication.instance() or QApplication([])
+
+
+def display(say: Report) -> None:
+    with _section(say, "the display -- WHERE HIDPI SHOWS UP"):
+        from PySide6.QtCore import qVersion
+        say.item("Qt version", qVersion())
+        app = _app()
+        say.item("platform plugin", app.platformName())
+        for index, screen in enumerate(app.screens()):
+            geo = screen.geometry()
+            say.item(f"screen {index} name", screen.name())
+            say.item(f"screen {index} logical size", f"{geo.width()} x {geo.height()}")
+            ratio = screen.devicePixelRatio()
+            say.item(f"screen {index} devicePixelRatio", ratio)
+            say.item(f"screen {index} DEVICE pixels",
+                     f"{int(geo.width() * ratio)} x {int(geo.height() * ratio)}"
+                     f"  ({int(geo.width() * geo.height() * ratio * ratio):,} px)")
+            say.item(f"screen {index} refresh", f"{screen.refreshRate():.0f} Hz")
+            say.item(f"screen {index} logical DPI", f"{screen.logicalDotsPerInch():.0f}")
+
+
+def preferences_in_effect(say: Report) -> None:
+    with _section(say, "the preferences actually in effect"):
+        _app()
+        import spacr.qt.preferences as prefs
+        for label, getter in (
+            ("zoom / font scale", "get_font_scale"),
+            ("theme", "get_theme"),
+            ("ambient enabled", "get_ambient_enabled"),
+            ("ambient animation", "get_ambient_animation"),
+            ("ambient theme", "get_ambient_theme"),
+            ("ambient resolution", "get_ambient_resolution"),
+            ("ambient density", "get_ambient_density"),
+            ("ambient speed", "get_ambient_speed"),
+            ("ambient blur", "get_ambient_blur"),
+            ("spacr mode", "get_spacr_mode"),
+            ("colourblind mode", "get_colourblind_mode"),
+        ):
+            fn = getattr(prefs, label and getter, None)
+            if fn is None:
+                continue
+            try:
+                say.item(label, fn())
+            except Exception as exc:                         # noqa: BLE001
+                say.item(label, f"could not read ({type(exc).__name__})")
+        say.item("DEFAULT_FONT_SCALE", getattr(prefs, "DEFAULT_FONT_SCALE", "?"))
+
+
+def theming(say: Report) -> None:
+    with _section(say, "theme and stylesheet"):
+        _app()
+        from spacr.qt import theme
+        start = _clock(); sheet = theme.stylesheet()
+        say.timed("build stylesheet", _clock() - start,
+                  f"{len(sheet):,} characters")
+        start = _clock()
+        for _ in range(20):
+            theme.stylesheet()
+        say.timed("20 more (cached?)", _clock() - start)
+
+
+# ------------------------------------------------------- the application
+
+def startup(say: Report) -> None:
+    """The real path: the window a launch actually builds."""
+    with _section(say, "THE REAL STARTUP PATH"):
+        app = _app()
+        from spacr.qt.app import MainWindow
+        start = _clock()
+        window = MainWindow()
+        built = _clock() - start
+        say.timed("MainWindow()", built)
+        start = _clock(); app.processEvents()
+        say.timed("first processEvents", _clock() - start)
+        start = _clock(); window.show(); app.processEvents()
+        say.timed("show + events", _clock() - start)
+        try:
+            widgets = len(app.allWidgets())
+            say.item("widgets alive", f"{widgets:,}")
+        except Exception:
+            pass
+        start = _clock()
+        for _ in range(10):
+            app.processEvents()
+        say.timed("10 idle event loops", _clock() - start)
+        try:
+            start = _clock(); window.grab()
+            say.timed("grab one full paint", _clock() - start)
+        except Exception as exc:                             # noqa: BLE001
+            say.failed("grab", exc)
+        window.close()
+
+
+def screens(say: Report, quick: bool) -> None:
+    with _section(say, "building each module screen" + ("" if quick else f" [{SLOW}]")):
+        app = _app()
+        from spacr.qt.screens.app_screen import AppScreen
+        keys = ("measure", "mask", "regression", "classify_merged")
+        if not quick:
+            keys += ("annotate", "map_barcodes", "umap", "external_masks")
+        for key in keys:
+            start = _clock()
+            try:
+                screen = AppScreen(key)
+                app.processEvents()
+                took = _clock() - start
+                rows = len(screen._settings_model.collect())
+                per = (took / rows * 1000) if rows else 0.0
+                say.timed(f"build {key}", took,
+                          f"{rows} rows, {per:.1f} ms/row")
+                start = _clock(); screen.grab()
+                say.timed(f"  paint {key}", _clock() - start)
+            except Exception as exc:                         # noqa: BLE001
+                say.failed(f"build {key}", exc)
+
+
+def backdrop(say: Report) -> None:
+    with _section(say, "the animated backdrop"):
+        _app()
+        from spacr.qt import theme
+        from spacr.qt.widgets import ambient
+        page = theme.page_colour("dark")
+        names = list(getattr(ambient, "AMBIENT_THEMES", ()) or ())
+        extra = getattr(ambient, "SPACEOUT_THEME", None)
+        if extra and extra not in names:
+            names.append(extra)
+        say.item("buffer max edge", getattr(ambient, "BUFFER_MAX_EDGE", "?"))
+        say.item("buffer max pixels", f"{getattr(ambient, 'BUFFER_MAX_PIXELS', 0):,}")
+        try:
+            say.item("screen_pixels() sees", f"{ambient.screen_pixels():,}")
+        except Exception:
+            pass
+        from PySide6.QtGui import QImage, QPainter
+
+        def _draw(engine, canvas) -> None:
+            """Paint one frame, however this engine spells it.
+
+            The cost is in the SHADE, not in advancing the state, so a
+            timing that never paints reports every engine as free. Engines
+            differ in signature, so each shape is tried in turn rather than
+            one difference being reported as a failure.
+            """
+            width, height = canvas.width(), canvas.height()
+            shade = getattr(engine, "_shade", None)
+            if callable(shade):
+                try:
+                    shade(width, height)
+                    return
+                except TypeError:
+                    pass
+            painter = QPainter(canvas)
+            try:
+                for attempt in (
+                    lambda: engine.blit(painter, None, width, height),
+                    lambda: engine.blit(painter, width, height),
+                    lambda: engine.blit(painter, canvas.rect()),
+                ):
+                    try:
+                        attempt()
+                        return
+                    except TypeError:
+                        continue
+            finally:
+                painter.end()
+
+        def _palette_for(theme_name: str) -> str:
+            """A palette this theme accepts -- each offers a different set."""
+            chooser = getattr(ambient, "default_palette_for", None)
+            if callable(chooser):
+                try:
+                    return chooser(theme_name)
+                except Exception:                            # noqa: BLE001
+                    pass
+            return getattr(ambient, "DEFAULT_PALETTE", "spacr")
+
+        for name in names:
+            try:
+                engine = ambient.make_engine(
+                    name, _palette_for(name), page, seed=1)
+                # advance() only moves the state; the cost is in the SHADE,
+                # so a timing that never paints reports every engine free.
+                canvas = QImage(960, 540, QImage.Format_ARGB32_Premultiplied)
+                for _ in range(3):
+                    engine.advance(1 / 24)
+                    _draw(engine, canvas)
+                start = _clock()
+                for _ in range(20):
+                    engine.advance(1 / 24)
+                    _draw(engine, canvas)
+                ms = (_clock() - start) / 20 * 1000
+                budget = 1000.0 / max(1, getattr(ambient, "DEFAULT_FPS", 24))
+                flag = "  <-- OVER FRAME BUDGET" if ms > budget else ""
+                say.item(f"{name}", f"{ms:7.2f} ms/frame (budget {budget:.1f}){flag}")
+            except Exception as exc:                         # noqa: BLE001
+                say.failed(name, exc)
+
+
+def cursor_rim(say: Report) -> None:
+    """The lit rim on the setup card, reported as laggy."""
+    with _section(say, "the setup card's cursor rim"):
+        app = _app()
+        from spacr.qt.widgets.setup_card import SetupCard
+        card = SetupCard()
+        card.resize(900, 600)
+        card.show()
+        app.processEvents()
+        start = _clock()
+        for _ in range(30):
+            if hasattr(card, "_aim_at_the_cursor"):
+                card._aim_at_the_cursor()
+            card.repaint()
+            app.processEvents()
+        ms = (_clock() - start) / 30 * 1000
+        say.item("aim + repaint", f"{ms:7.2f} ms/frame"
+                 + ("  <-- OVER 16 ms, this is the lag" if ms > 16 else ""))
+        card.close()
 
 
 def main(argv=None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
-    say = _Tee()
-    global print  # noqa: PLW0603 - the body below prints through the tee
-    _real_print, print = print, say
+    quick = "--quick" in argv
+    say = Report()
+
+    say("=" * 70)
+    say("spaCR hardware report")
+    say("=" * 70)
+    say(f"generated {time.strftime('%Y-%m-%d %H:%M:%S')}"
+        + ("  (--quick)" if quick else ""))
+
+    machine(say)
+    imports(say)
+    numerics(say, quick)
+    display(say)
+    preferences_in_effect(say)
+    theming(say)
+    startup(say)
+    screens(say, quick)
+    backdrop(say)
+    cursor_rim(say)
+
+    say("")
+    say("=" * 70)
     try:
-        return _run(argv, say)
-    finally:
-        print = _real_print
-
-
-def _run(argv, say) -> int:
-    print("=" * 68)
-    print("spaCR hardware report")
-    print("=" * 68)
-    print(f"python      {sys.version.split()[0]}")
-    print(f"platform    {platform.platform()}")
-    print(f"machine     {platform.machine()}")
-    print(f"processor   {platform.processor() or '(not reported)'}")
-    try:
-        import multiprocessing
-        print(f"cpu count   {multiprocessing.cpu_count()}")
-    except Exception:
-        pass
-    try:
-        import psutil
-        print(f"memory      {psutil.virtual_memory().total / 2**30:.1f} GiB")
-    except Exception:
-        pass
-
-    # Rosetta / emulation is the single most likely cause of a Mac being
-    # many times slower than it should be, and it is invisible unless asked.
-    if platform.system() == "Darwin":
-        try:
-            import subprocess
-            out = subprocess.run(
-                ["sysctl", "-n", "sysctl.proc_translated"],
-                capture_output=True, text=True, timeout=5).stdout.strip()
-            print(f"translated  {out} "
-                  f"({'RUNNING UNDER ROSETTA' if out == '1' else 'native'})")
-        except Exception:
-            print("translated  (could not ask)")
-
-    print()
-    print("-- imports " + "-" * 56)
-    for name in ("numpy", "pandas", "PySide6.QtWidgets", "torch",
-                 "sklearn", "statsmodels", "scipy", "matplotlib"):
-        t0 = _t()
-        try:
-            __import__(name)
-            print(f"  {name:24} {_t() - t0:7.2f} s")
-        except Exception as exc:                              # noqa: BLE001
-            print(f"  {name:24} not installed ({type(exc).__name__})")
-
-    # The numeric library underneath everything. A build without an
-    # accelerated BLAS is the other classic reason for a slow machine.
-    try:
-        import numpy as np
-        cfg = getattr(np, "__config__", None)
-        blas = ""
-        if cfg is not None and hasattr(cfg, "show"):
-            import contextlib, io
-            buf = io.StringIO()
-            with contextlib.redirect_stdout(buf):
-                cfg.show()
-            text = buf.getvalue().lower()
-            for candidate in ("accelerate", "openblas", "mkl", "blis"):
-                if candidate in text:
-                    blas = candidate
-                    break
-        print(f"  numpy BLAS               {blas or '(not reported)'}")
-        t0 = _t()
-        a = np.random.rand(1200, 1200)
-        a @ a
-        print(f"  1200x1200 matmul         {_t() - t0:7.2f} s")
-    except Exception as exc:                                  # noqa: BLE001
-        print(f"  numpy benchmark failed: {exc}")
-
-    print()
-    print("-- the application " + "-" * 48)
-    t0 = _t()
-    from PySide6.QtWidgets import QApplication
-    app = QApplication.instance() or QApplication([])
-    print(f"  QApplication             {_t() - t0:7.2f} s")
-
-    t0 = _t()
-    from spacr.qt.screens.app_screen import AppScreen
-    print(f"  import AppScreen         {_t() - t0:7.2f} s")
-
-    for key in ("regression", "mask", "measure", "classify_merged"):
-        t0 = _t()
-        try:
-            screen = AppScreen(key)
-            app.processEvents()
-            rows = len(screen._settings_model.collect())
-            took = _t() - t0
-            per = (took / rows * 1000) if rows else 0.0
-            print(f"  build {key:18} {took:7.2f} s  "
-                  f"({rows} rows, {per:.1f} ms/row)")
-        except Exception as exc:                              # noqa: BLE001
-            print(f"  build {key:18} FAILED ({type(exc).__name__}: {exc})")
-
-    print()
-    print("-- the backdrop " + "-" * 51)
-    try:
-        from spacr.qt.widgets import ambient
-        from spacr.qt import theme
-        page = theme.page_colour("dark")
-        for name in (getattr(ambient, "SPACEOUT_THEME", None), "blobs", "aurora"):
-            if not name:
-                continue
-            try:
-                engine = ambient.make_engine(
-                    name, getattr(ambient, "SPACEOUT_PALETTE", None) or "",
-                    page, seed=1)
-                t0 = _t()
-                for _ in range(20):
-                    engine.advance(1 / 24)
-                print(f"  {str(name):24} {(_t() - t0) / 20 * 1000:7.2f} ms/frame")
-            except Exception as exc:                          # noqa: BLE001
-                print(f"  {str(name):24} failed ({type(exc).__name__})")
-    except Exception as exc:                                  # noqa: BLE001
-        print(f"  backdrop check failed: {exc}")
-
-    print()
-    try:
-        path = _report_path(argv)
+        if "--out" in argv:
+            path = argv[argv.index("--out") + 1]
+        else:
+            folder = os.path.join(os.path.expanduser("~"), ".spacr", "reports")
+            os.makedirs(folder, exist_ok=True)
+            path = os.path.join(
+                folder, f"hardware-{time.strftime('%Y%m%d-%H%M%S')}.txt")
         with open(path, "w", encoding="utf-8") as handle:
             handle.write("\n".join(say.lines) + "\n")
-        print(f"Saved to {path}")
-        print("Send that file back, or paste the text above.")
-    except Exception as exc:                                  # noqa: BLE001
-        print(f"(could not save a copy: {exc})")
-        print("Paste the text above instead.")
+        say(f"Saved to {path}")
+        say("Send that file back, or paste the text above.")
+    except Exception as exc:                                 # noqa: BLE001
+        say(f"(could not save a copy: {exc}) -- paste the text above instead")
     return 0
 
 
