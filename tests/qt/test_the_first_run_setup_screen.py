@@ -149,16 +149,24 @@ class TestDecorationIsNotLoadBearing:
         assert dialog._backdrop_view is None
         assert dialog._editors
 
-    def test_a_failed_grab_does_not_stop_it(self, app, monkeypatch):
+    def test_a_failed_grab_does_not_stop_it(self, app, qtbot, monkeypatch):
         from spacr.qt.widgets.setup_dialog import SetupDialog
 
         parent = QWidget()
+        # OWNED BY qtbot, WHICH IS NOT TIDINESS. Left to the garbage
+        # collector the parent's C++ widget is destroyed with the dialog
+        # still wrapped in a Python cycle, and the wrapper is freed after
+        # the object it points at -- which segfaults the next test's
+        # setup rather than this one, in the session fixture that walks
+        # the widget tree.
+        qtbot.addWidget(parent)
 
         def boom():
             raise RuntimeError("no compositor")
 
         monkeypatch.setattr(parent, "grab", boom)
         built = SetupDialog(parent)
+        qtbot.addWidget(built)
         assert built._backdrop_view is None
         assert built.answers()
 

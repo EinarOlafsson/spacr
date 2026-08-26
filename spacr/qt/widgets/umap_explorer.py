@@ -123,6 +123,31 @@ class _AnnotationWorker(QThread):
             self.finished_result.emit(0, len(self._records), str(exc))
 
 
+#: The explorer names a display setting after the artist it sets; the run
+#: names it after the settings file it is written to. ``generate_image_umap``
+#: maps settings -> display when it builds the payload, and this maps back,
+#: so a value tuned in the display window lands on the key the settings panel
+#: and the settings CSV actually use. Keys not listed here are already the
+#: same on both sides.
+SETTINGS_KEY_FOR_DISPLAY = {
+    "point_size": "dot_size",
+    "canvas_width": "umap_canvas_width",
+    "sidebar_width": "umap_sidebar_width",
+}
+
+
+def as_settings_keys(values: Dict) -> Dict:
+    """Rename display keys to the keys the settings panel is bound to.
+
+    A key the panel does not know is dropped silently by
+    ``SettingsWidgets.set_value_for_key``, so an unmapped ``point_size``
+    propagates to nothing at all -- the value is accepted, reported as
+    saved, and gone at the next run.
+    """
+    return {SETTINGS_KEY_FOR_DISPLAY.get(key, key): value
+            for key, value in (values or {}).items()}
+
+
 class UmapDisplaySettings(QDialog):
     """One window holding every Image UMAP display setting.
 
@@ -563,7 +588,7 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
         callback = getattr(self, "_propagate_cb", None)
         if callable(callback):
             try:
-                callback(dialog.values())
+                callback(as_settings_keys(dialog.values()))
             except Exception:
                 LOG.debug("could not propagate the display settings",
                           exc_info=True)

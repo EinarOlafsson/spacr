@@ -66,6 +66,7 @@ import pandas as pd
 __all__ = [
     "DEFAULT_THRESHOLD_CANDIDATES",
     "MINIMUM_CALIBRATION_WELLS",
+    "compare_normalisations",
     "describe",
     "reported_control_share",
     "sweep_fraction_threshold",
@@ -338,6 +339,83 @@ def sweep_fraction_threshold(counts: pd.DataFrame,
         f"{picked['guides_per_well']:.1f} guides per well")
     result["fit"] = picked
     return result
+
+
+def compare_normalisations(counts: pd.DataFrame,
+                           features: np.ndarray,
+                           wells: Sequence[str], *,
+                           threshold: float = 0.02,
+                           **kwargs: Any) -> Dict[str, Any]:
+    """Fit the same control wells against raw and normalised fractions.
+
+    :param counts: the control wells' read counts, one row per gRNA per well.
+    :param features: ``(n_cells, n_features)`` over those same wells.
+    :param wells: one well label per cell.
+    :param threshold: the single cut-off both fits are computed under, so the
+        two differ only in the fraction definition.
+    :param kwargs: passed to :func:`sweep_fraction_threshold`; ``normalise``
+        and ``candidates`` are set here and are refused from the caller.
+    :returns: both fits, their slope ratio, and a reading of it.
+
+    NEITHER SLOPE IS INTERPRETABLE ON ITS OWN. Each is penetrance times
+    fraction bias, and one positive control cannot separate the two.
+    Penetrance is a property of the guide and does not change when the
+    fraction definition does, so it cancels in the RATIO of the two slopes --
+    which is why the comparison is reported as a ratio and never as two
+    absolute calibrations.
+
+    A ratio of one means the two definitions calibrate identically over these
+    wells, which happens when the threshold removed nothing. Away from one,
+    ``more_consistent`` names the definition whose two measurements agree more
+    closely, by the same median absolute disagreement the sweep chooses on.
+    """
+    if "normalise" in kwargs or "candidates" in kwargs:
+        raise ValueError(
+            "compare_normalisations sets normalise and candidates itself: "
+            "the point is the SAME wells at the SAME threshold under both "
+            "fraction definitions")
+    fits: Dict[str, Any] = {}
+    for name, normalise in (("raw", False), ("normalised", True)):
+        result = sweep_fraction_threshold(
+            counts, features, wells, candidates=(float(threshold),),
+            normalise=normalise, **kwargs)
+        rows = result.get("candidates") or [{}]
+        fits[name] = dict(rows[0])
+        if result.get("chosen") is None and "error" not in fits[name]:
+            fits[name]["refused"] = str(result.get("reason", ""))
+
+    out: Dict[str, Any] = {"threshold": float(threshold),
+                           "raw": fits["raw"],
+                           "normalised": fits["normalised"]}
+    raw_slope = fits["raw"].get("slope")
+    scaled_slope = fits["normalised"].get("slope")
+    if raw_slope is None or scaled_slope is None or not scaled_slope:
+        out["ratio"] = None
+        out["more_consistent"] = None
+        out["reading"] = (
+            "one of the two fits produced no slope, so there is no ratio: "
+            + str(fits["raw"].get("error")
+                  or fits["normalised"].get("error")
+                  or fits["raw"].get("refused")
+                  or fits["normalised"].get("refused") or "no reason given"))
+        return out
+
+    out["ratio"] = float(raw_slope) / float(scaled_slope)
+    disagreements = {name: fits[name].get("median_absolute_disagreement")
+                     for name in ("raw", "normalised")}
+    if all(value is not None for value in disagreements.values()):
+        out["more_consistent"] = min(disagreements,
+                                     key=lambda k: disagreements[k])
+    else:
+        out["more_consistent"] = None
+    out["reading"] = (
+        f"raw slope {float(raw_slope):.3f}, normalised slope "
+        f"{float(scaled_slope):.3f}, ratio {out['ratio']:.3f} -- penetrance "
+        f"cancels in the ratio and in neither slope alone"
+        + (f"; {out['more_consistent']} fractions leave imaging and "
+           f"sequencing closer together"
+           if out["more_consistent"] else ""))
+    return out
 
 
 def describe(result: Mapping[str, Any]) -> str:

@@ -997,6 +997,46 @@ def test_clear_page_only_touches_this_page(loaded_screen, monkeypatch):
     assert [v for _, v in screen._page_paths].count(2) == 1
 
 
+def test_clear_page_leaves_the_other_page_untouched(loaded_screen, monkeypatch,
+                                                    qtbot):
+    """Clear page is bounded to the visible page all the way to the database.
+
+    `test_clear_page_only_touches_this_page` watches one page's own slots go
+    blank, which a Clear that reached the whole table would also do. The
+    bound only means something once a second page exists and survives.
+    """
+    screen = loaded_screen
+
+    def _idle():
+        worker = screen._worker
+        return worker is None or not worker.busy
+
+    monkeypatch.setattr(screen, "_ask_class", lambda count, what: 5)
+    page_one = [path for path, _ in screen._page_paths]
+    screen._on_annotate_page()
+    screen._flush_pending()
+    qtbot.waitUntil(_idle, timeout=20000)
+
+    screen._on_next()
+    qtbot.waitUntil(
+        lambda: len(screen._page_paths) == 4
+        and [path for path, _ in screen._page_paths] != page_one,
+        timeout=20000)
+    assert screen._offset > 0
+
+    monkeypatch.setattr(screen, "_ask_class", lambda count, what: 6)
+    screen._on_annotate_page()
+    screen._on_clear_page()
+    screen._flush_pending()
+    qtbot.waitUntil(_idle, timeout=20000)
+
+    screen._on_prev()
+    qtbot.waitUntil(
+        lambda: [path for path, _ in screen._page_paths] == page_one,
+        timeout=20000)
+    assert [value for _, value in screen._page_paths] == [5, 5, 5, 5]
+
+
 def test_a_band_over_the_whole_grid_selects_every_occupied_slot(loaded_screen):
     """Intersection, not containment.
 

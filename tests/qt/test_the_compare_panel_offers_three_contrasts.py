@@ -251,7 +251,12 @@ class TestThePanelSaysWhyTheMeasurementListIsShort:
                                         databases=["/nowhere/x.db"])
         qtbot.addWidget(panel)
 
+        # The join runs off the GUI thread, so the note arrives when the job
+        # finishes rather than when the handler returns. Waiting for the job
+        # is what tests the path a user takes; asserting straight after the
+        # call would only test that the click does not block.
         panel.join_the_tables()
+        qtbot.waitUntil(lambda: not panel._joining, timeout=30000)
 
         assert "no measurement table could be read" in panel.join_note.text()
         assert panel.join_button.isEnabled(), "the button locked itself out"

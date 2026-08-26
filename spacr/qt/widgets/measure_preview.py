@@ -51,6 +51,7 @@ from .preview_controls import (
 from .preview_contract import (
     PREVIEW_CANCEL_TEXT, PREVIEW_RUN_TEXT, LivePreviewContract,
 )
+from .channel_mapping import ChannelMappingWidget
 from .toggle import Toggle
 from ..job_runner import JobRunner
 from ...crops import DEFAULT_MASK_DIMS
@@ -413,9 +414,13 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         # BLUE -- measured on a three-channel array as preview (13, 128, 255)
         # against run (200, 100, 10). A crop preview exists to answer "which
         # stain lands where", and it answered with red and blue swapped.
-        self._png_dims = QLineEdit(
-            ",".join(str(c) for c in
-                     _mapping_to_rgb_list(_default_png_mapping())), self)
+        # NAMED COLOUR SLOTS, not a comma list whose POSITION decides which
+        # colour a channel lands in. A positional list carries an unstated
+        # convention, and an unstated convention gets read backwards -- which
+        # is exactly how the 405 plane spent eleven days rendering red. The
+        # same editor the Measure settings page uses, so the two cannot
+        # disagree about what "channel 2" means.
+        self._png_dims = ChannelMappingWidget(_default_png_mapping(), self)
         self._use_bbox = Toggle(parent=self)
         self._buffer = self._spin(0, 200, 10, parent=self)
         self._normalise = Toggle(parent=self)
@@ -885,16 +890,9 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
 
     def _png_channel_mapping(self) -> Dict[str, Optional[int]]:
         """The RGB control, as the ``{r, g, b}`` mapping the run reads."""
-        dims = _parse_channels(self._png_dims.text())
-        mapping = dict(_default_png_mapping())
-        for colour, channel in zip(("r", "g", "b"), dims):
-            mapping[colour] = int(channel)
-        # Fewer than three entries means the user named fewer planes, not
-        # that the unnamed ones keep the default: leaving them would put a
-        # channel on screen that the entry above deliberately removed.
-        for colour in ("r", "g", "b")[len(dims):]:
-            mapping[colour] = None
-        return mapping
+        # A colour left empty stays empty. The editor says so with "—", and
+        # the run must not put a plane back into a slot the user cleared.
+        return dict(self._png_dims.get_value())
 
     def apply_settings(self, settings: dict) -> None:
         """Seed the panel from the main Measure settings dict.
@@ -982,9 +980,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         # Through the run's own resolver, so a legacy `png_dims` settings
         # file seeds the panel with the colours that file will produce.
         if "png_channel_mapping" in settings or "png_dims" in settings:
-            self._png_dims.setText(",".join(
-                str(c) for c in
-                _mapping_to_rgb_list(_resolve_png_mapping(settings))))
+            self._png_dims.set_value(_resolve_png_mapping(settings))
 
     def set_propagate_callback(self, callback) -> None:
         self._propagate_cb = callback
@@ -1089,7 +1085,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         if self._data is None:
             self.set_preview_status(self.PREVIEW_SOURCE_HINT)
             return
-        channels = _parse_channels(self._png_dims.text())
+        channels = _mapping_to_rgb_list(self._png_channel_mapping())
         channels = [c for c in channels if 0 <= c < self._data.shape[2]]
         # The channel dropdown is a *view* control: it does not change the
         # png_dims that a real run would write, only what this grid shows.

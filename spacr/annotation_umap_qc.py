@@ -58,7 +58,9 @@ def fit_on_controls(features: np.ndarray,
                     recipes: Sequence[Mapping[str, object]],
                     seed: int = 0,
                     holdout: float = 0.5,
-                    neighbours: int = 15) -> Dict[str, object]:
+                    neighbours: int = 15,
+                    groups: Optional[Sequence[object]] = None,
+                    group_by: str = "well") -> Dict[str, object]:
     """Select an embedding recipe using held-out control separation.
 
     Parameters
@@ -75,15 +77,25 @@ def fit_on_controls(features: np.ndarray,
         Fraction of controls reserved for evaluation.
     neighbours : int, default=15
         Neighbour count passed to the embedding score.
+    groups : sequence, optional
+        One group identity per control cell, usually the well. Control cells
+        from one well share illumination, seeding and fixation, so a split
+        that puts siblings on both sides reports a held-out silhouette the
+        embedding did not earn. When groups are given no group appears on
+        both sides; when they are omitted the split is per object and the
+        result says so in ``split_level``.
+    group_by : str, default='well'
+        The level ``groups`` names, one of the shared split ladder.
 
     Returns
     -------
     dict
         Winning recipe, tuned and held-out silhouette scores, overfit gap,
-        trustworthiness flag, and all attempted trials. Error dictionaries
-        are returned when the controls cannot be split or scored.
+        trustworthiness flag, the split level used, and all attempted
+        trials. Error dictionaries are returned when the controls cannot be
+        split or scored.
     """
-    from sklearn.model_selection import train_test_split
+    from .classifier_evaluation import grouped_split
 
     values = np.asarray(features, dtype=float)
     marks = np.asarray([str(l) for l in labels])
@@ -92,9 +104,20 @@ def fit_on_controls(features: np.ndarray,
     if len(set(marks.tolist())) < 2:
         return {"error": "the controls carry only one label"}
 
-    fit_index, test_index = train_test_split(
-        np.arange(values.shape[0]), test_size=float(holdout),
-        random_state=int(seed), stratify=marks)
+    # ONE SPLITTER FOR THE WHOLE PACKAGE. The grouped splitter refuses a
+    # design it cannot hold apart rather than falling back to a random one,
+    # which is the difference between an honest error and an optimistic
+    # score.
+    level = str(group_by) if groups is not None else "cell"
+    identities = (np.asarray(list(groups), dtype=object) if groups is not None
+                  else np.arange(values.shape[0], dtype=object))
+    if identities.size != marks.size:
+        return {"error": "one group is needed per control cell"}
+    try:
+        fit_index, test_index, report = grouped_split(
+            identities, marks, float(holdout), int(seed), group_by=level)
+    except ValueError as exc:
+        return {"error": str(exc), "split_level": level}
 
     from .hyperparam import _default_umap_embed, _umap_scores
 
@@ -125,7 +148,7 @@ def fit_on_controls(features: np.ndarray,
         float(t.get("holdout_silhouette", float("nan"))))]
     if not usable:
         return {"error": "no recipe produced a scorable embedding",
-                "trials": trials}
+                "split_level": report.group_by, "trials": trials}
     best = max(usable, key=lambda t: float(t["holdout_silhouette"]))
     gap = float(best["tuned_silhouette"]) - float(best["holdout_silhouette"])
     return {
@@ -135,6 +158,8 @@ def fit_on_controls(features: np.ndarray,
         "overfit_gap": gap,
         "trustworthy": bool(float(best["holdout_silhouette"]) > 0.0
                             and gap < 0.25),
+        "split_level": report.group_by,
+        "split_rule": report.rule,
         "trials": trials,
     }
 

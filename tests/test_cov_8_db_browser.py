@@ -126,6 +126,31 @@ def test_a_seed_naming_a_column_this_table_lacks_is_ignored(
     assert "cell_area" not in screen.visible_columns()
 
 
+def test_a_seed_column_is_reached_even_when_the_rows_arrive_later(
+        qtbot, measurements_db):
+    """The threaded browser is the one that ships, and it has no columns yet
+    when the seed is handled.
+
+    ``apply_seed`` runs the moment the table is selected; the first chunk --
+    which is what defines the column set -- lands on a worker thread
+    afterwards. Asking ``visible_columns()`` at seed time therefore returns
+    an empty list, so the column the seed named was never scrolled to in the
+    real app, only in tests built with ``threaded=False``.
+    """
+    widget = DbBrowserScreen()
+    qtbot.addWidget(widget)
+    reached = []
+    widget._view.scrollTo = lambda index, *a, **k: reached.append(index.column())
+
+    widget.apply_seed({"db_path": measurements_db, "table": "cell",
+                       "column": "cell_area"})
+    assert widget.visible_columns() == []        # nothing to scroll to yet
+
+    qtbot.waitUntil(lambda: bool(widget.visible_columns()), timeout=10000)
+    assert reached == [widget.visible_columns().index("cell_area")]
+    assert widget._seed_column is None
+
+
 # ---------------------------------------------------------------------------
 # sorting
 # ---------------------------------------------------------------------------

@@ -10,7 +10,12 @@ The folder must hold, for each plate N:
 
     plateN_dv.csv                            per-cell classification scores
     plateN/measurements/measurements.db      the measurements
-    claude/plate_N_unique_combinations.csv   the per-well gRNA read counts
+    plate_N_unique_combinations.csv          the per-well gRNA read counts
+
+The count tables are looked for beside the dependent-variable CSVs first and
+then in the sub-folders a screen has kept them in, because where a screen
+holds them is the screen's business and a single hard-coded folder turns a
+re-layout into thirteen silent skips rather than one loud failure.
 
 Set but not a directory is a FAILURE, not a skip -- the same rule
 `test_e2e_real_dataset` keeps, and for the same reason: a typo that skipped
@@ -60,6 +65,28 @@ def _root() -> Path:
 def root() -> Path:
     return _root()
 
+#: Where a screen may keep its per-well gRNA count tables, most-likely first.
+#: One hard-coded folder is how this file came to skip thirteen of its
+#: fifteen checks while still exiting green.
+COUNT_FOLDERS = (".", "claude", "test")
+
+
+def _count_table(root, plate: int):
+    """The count table for one plate, wherever this screen keeps it.
+
+    :param root: the screen folder.
+    :param plate: plate number.
+    :returns: the path, or ``None`` when no folder holds it.
+    """
+    name = f"plate_{plate}_unique_combinations.csv"
+    for folder in COUNT_FOLDERS:
+        path = (root / name) if folder == "." else (root / folder / name)
+        if path.exists():
+            return path
+    return None
+
+
+
 
 @pytest.fixture(scope="module")
 def counts(root):
@@ -68,9 +95,10 @@ def counts(root):
 
     frames = []
     for n in PLATES:
-        path = root / "claude" / f"plate_{n}_unique_combinations.csv"
-        if not path.exists():
-            pytest.skip(f"no count table at {path}")
+        path = _count_table(root, n)
+        if path is None:
+            pytest.skip(f"no plate_{n}_unique_combinations.csv under {root} "
+                        f"in any of {COUNT_FOLDERS}")
         frame = process_reads(path, 0.02, f"plate{n}")
         frame["plate"] = n
         frames.append(frame)
@@ -84,9 +112,10 @@ def raw_counts(root):
 
     frames = []
     for n in PLATES:
-        path = root / "claude" / f"plate_{n}_unique_combinations.csv"
-        if not path.exists():
-            pytest.skip(f"no count table at {path}")
+        path = _count_table(root, n)
+        if path is None:
+            pytest.skip(f"no plate_{n}_unique_combinations.csv under {root} "
+                        f"in any of {COUNT_FOLDERS}")
         frames.append(process_reads(path, None, f"plate{n}"))
     return pd.concat(frames, ignore_index=True)
 

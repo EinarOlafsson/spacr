@@ -2255,6 +2255,10 @@ WIDGET_QSS_MODULES: Tuple[str, ...] = (
     "spacr.qt.screens.gate_editor",
     "spacr.qt.screens.hit_list",
     "spacr.qt.screens.image_scatter",
+    # The fold page strip every module screen grows when a fold is opened.
+    # A page can be opened long after launch, so the module re-applies the
+    # sheet then as well -- but the block belongs in the first sheet too.
+    "spacr.qt.screens.map_barcodes",
     "spacr.qt.screens.methods_export",
     "spacr.qt.screens.model_compare",
     "spacr.qt.screens.model_zoo",

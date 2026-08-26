@@ -163,3 +163,52 @@ def test_a_fresh_stylesheet_carries_every_registered_block(qapp, theme_name):
     empty = [name for name, fn in theme._WIDGET_QSS.items()
              if not str(fn(palette, 1.0) or "").strip()]
     assert not empty, f"registered but rendering to nothing: {sorted(empty)}"
+
+
+def _modules_registering_only_inside_a_function() -> set[str]:
+    """Modules that call ``register_widget_qss`` but never at module level.
+
+    Their block reaches the registry only when something calls the
+    function -- which, for a screen built on demand, is after the launch
+    stylesheet was composed.
+    """
+    found = set()
+    at_import = _modules_registering_at_import()
+    for path in sorted(QT_ROOT.rglob("*.py")):
+        source = path.read_text(encoding="utf-8")
+        if "register_widget_qss(" not in source:
+            continue
+        rel = path.relative_to(QT_ROOT).with_suffix("")
+        module = "spacr.qt." + rel.as_posix().replace("/", ".")
+        if module == "spacr.qt.theme" or module in at_import:
+            continue
+        found.add(module)
+    return found
+
+
+def test_a_deferred_registrar_is_still_reached_before_the_first_sheet():
+    """Registering from inside a function is not enough on its own.
+
+    ``spacr.qt.screens.map_barcodes`` owns the fold page strip that every
+    module screen grows, and registered its block only from the helper the
+    first page calls. A session whose stylesheet was composed before any
+    fold page existed therefore had no rule for the strip, and the tabs
+    fell through to the blanket window fill. The module must either
+    register at import, be in ``WIDGET_QSS_MODULES``, or have its
+    ``register()`` called by ``register_self_registering_modules``.
+    """
+    import re
+
+    from spacr.qt.theme import WIDGET_QSS_MODULES
+
+    init_src = (QT_ROOT / "__init__.py").read_text(encoding="utf-8")
+    self_registering = set(re.findall(r'"(spacr\.qt\.[a-z_.]+)"', init_src))
+    reached = set(WIDGET_QSS_MODULES) | self_registering
+
+    stranded = sorted(_modules_registering_only_inside_a_function() - reached)
+    assert not stranded, (
+        "these register a widget QSS block only from inside a function and "
+        "are neither listed in theme.WIDGET_QSS_MODULES nor self-registering, "
+        "so their rule is absent from the stylesheet built at launch: "
+        f"{stranded}"
+    )

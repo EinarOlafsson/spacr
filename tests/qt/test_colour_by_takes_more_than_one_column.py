@@ -164,3 +164,80 @@ class TestTheEncoders:
         alphas = [b.color().alpha() for b in out]
         assert min(alphas) > 0
         assert max(alphas) == 255
+
+
+class TestTheLegendSaysWhichChannelCarriesWhich:
+    """"The legend says which channel carries which column."
+
+    The three encodings sit on one point, so a key naming only the LEVEL --
+    "fail", "p2" -- leaves the reader to guess whether they are reading the
+    colour, the shape or the fade.
+    """
+
+    def _drawn(self, panel):
+        return panel.volcano._legend_entries()
+
+    def test_the_shape_column_is_named_in_the_key(self, panel):
+        _pick(panel._colour_by_2, "qc")
+        labels = [label for label, _ in self._drawn(panel)]
+
+        assert any(label.startswith("qc (shape): ") for label in labels)
+        assert "qc (shape): fail" in labels
+        assert "qc (shape): pass" in labels
+
+    def test_the_shape_in_the_key_is_the_shape_on_the_point(self, panel):
+        """A key drawn with a different symbol describes another picture."""
+        from spacr.qt.widgets.fast_plots import FastPlot
+
+        _pick(panel._colour_by_2, "qc")
+        _, shapes = FastPlot._categorical_symbols(pd.Series(["fail", "pass"]))
+        drawn = {label: style for label, style in self._drawn(panel)}
+
+        assert drawn["qc (shape): fail"]["symbol"] == shapes["fail"]
+
+    def test_the_opacity_column_is_named_too(self, panel):
+        _pick(panel._colour_by_2, "qc")
+        _pick(panel._colour_by_3, "plate")
+        labels = [label for label, _ in self._drawn(panel)]
+
+        assert "plate (opacity): p1" in labels
+        assert "plate (opacity): p2" in labels
+
+    def test_the_fade_in_the_key_is_the_fade_on_the_point(self, panel):
+        """And never zero, for the same reason the encoder never fades to
+        nothing."""
+        _pick(panel._colour_by_2, "qc")
+        _pick(panel._colour_by_3, "plate")
+        drawn = {label: style for label, style in self._drawn(panel)}
+        alphas = [drawn[f"plate (opacity): {level}"]["brush"].color().alpha()
+                  for level in ("p1", "p2")]
+
+        assert min(alphas) > 0
+        assert max(alphas) == 255
+        assert alphas[0] != alphas[1]
+
+    def test_one_column_leaves_the_key_exactly_as_it_was(self, panel):
+        """The common case must not change: hue only, and no channel
+        suffixes on it."""
+        labels = [label for label, _ in self._drawn(panel)]
+
+        assert labels
+        assert not any("(shape)" in label or "(opacity)" in label
+                       for label in labels)
+
+    def test_the_legend_can_be_switched_on_for_the_extra_channels(self, panel):
+        """A key that cannot be reached is not a key. The checkbox counts
+        every channel, not only the hue."""
+        _pick(panel._colour_by_2, "qc")
+
+        assert panel.volcano._legend_box.isEnabled()
+        assert str(len(self._drawn(panel))) in panel.volcano._legend_box.text()
+
+    def test_switching_it_on_puts_every_entry_on_the_plot(self, panel):
+        _pick(panel._colour_by_2, "qc")
+        panel.volcano._legend_box.setChecked(True)
+        legend = panel.volcano.plot.plotItem.legend
+
+        assert legend is not None
+        drawn = {str(label.text) for _, label in legend.items}
+        assert "qc (shape): fail" in drawn

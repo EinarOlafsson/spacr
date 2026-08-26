@@ -484,6 +484,13 @@ def test_app_screen_ai_toggle_drives_console_panel(qtbot, qt_theme_applied,
     screen = AppScreen("mask")
     qtbot.addWidget(screen)
     console = screen._console
+
+    # The switch's opening position is a PREFERENCE
+    # (`preferences.get_ai_on_by_default`, which ships on), so it is set
+    # here rather than assumed. What is under test is that the switch drives
+    # the panel, and pinning the launch default in this test made a
+    # deliberate change to that preference read as a failure of the wiring.
+    screen._ai_switch.setChecked(False)
     assert console._ai_active is False
     screen._ai_switch.setChecked(True)
     assert console._ai_active is True

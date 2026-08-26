@@ -21,7 +21,6 @@ CONDA_NAMES = {
     "opencv-python-headless": "opencv",
     "matplotlib": "matplotlib-base",
     "matplotlib-venn": "matplotlib-venn",
-    "nvidia-ml-py": "pynvml",
     "tables": "pytables",
     "huggingface-hub": "huggingface_hub",
 }
