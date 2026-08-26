@@ -736,7 +736,10 @@ _BUILTIN_APPS = [
     # brush, the flood fill and the object operations, i.e. correcting a
     # mask by hand. It carried Train Cellpose's description verbatim, which
     # is the app directly below it.
-    ("make_masks",     "Make Masks",     "Correct a mask by hand: brush, flood fill, relabel, fill, remove small",  SECTION_MODELS),
+    # DATA, NOT MODELS. Make Masks does not train, choose or run a
+    # segmentation model: it is hand curation of masks that already exist,
+    # which is the same kind of work as the other tools filed under Data.
+    ("make_masks",     "Make Masks",     "Correct a mask by hand: brush, flood fill, relabel, fill, remove small",  SECTION_DATA),
     # THE SEGMENTATION WORKBENCH HAS NO SATELLITE TILES. Training a model,
     # comparing two of them, browsing the zoo and curating a mask by hand are
     # all one loop -- segment, look, correct, train, segment again -- and they
