@@ -1,0 +1,98 @@
+================================================================================
+THREE THINGS THE REGRESSION LOG SAID, TWO OF THEM WRONG
+================================================================================
+
+Status:    OPEN. Found in a real run's console output, 2026-08-26.
+Owner:     spacr/settings.py's validator, spacr/ml.py's run banner, and the
+           fraction-threshold reporting.
+
+--------------------------------------------------------------------------------
+1. AN ERROR THAT IS NOT ONE                              <-- BUG
+--------------------------------------------------------------------------------
+
+Printed on a run that succeeded:
+
+    [settings] ERROR [src]: src is missing from the settings.
+    [settings]     Set src to the folder holding the images (or, for
+                   measure, the merged folder).
+
+`src` was not missing. The settings table printed a few lines later shows
+
+    src    /home/carruthers/.cache/spacr/example_data
+
+The run then completed normally. So the validator is reading `src` before
+something else sets it, or reading a different dictionary from the one the
+run uses.
+
+AN ERROR THAT IS ROUTINELY WRONG IS WORSE THAN NO ERROR. It teaches a user
+to scroll past the word ERROR, which is the one word that has to keep
+meaning something. Find which dictionary it checked and when, and either
+check the right one or check it at the right time.
+
+--------------------------------------------------------------------------------
+2. A WARNING ABOUT A FIT THAT IS NOT HAPPENING           <-- BUG
+--------------------------------------------------------------------------------
+
+The same run opened with:
+
+    Model: mixed, level both, backend statsmodels (CPU).
+    MEASURED: ... 823 guides over 610 wells is tens of minutes to hours.
+    Single-threaded REML: one core at 100% is a healthy fit, not a hang.
+    For an answer now, use ols at level='both'.
+
+and then, later:
+
+    inference='nonparametric': this is a permutation test, so it fits no
+    model and regression_type='mixed' is not read.
+
+Both are true. The first is alarming, actionable-looking, and about work
+that is not going to happen -- the run finished in 44.7 seconds. A user who
+believes the banner either waits for hours that never come or changes a
+setting that was never read.
+
+THE BANNER MUST KNOW WHAT THE RUN IS. Under `inference='nonparametric'`
+there is no model fit, so the model line and its cost warning have nothing
+to describe. Say what the permutation will do instead -- how many guides,
+how many permutations, and that the p floor is 1/(permutations+1).
+
+--------------------------------------------------------------------------------
+3. NINETY-NINE PER CENT OF THE OBSERVATIONS WERE DROPPED
+--------------------------------------------------------------------------------
+
+    Removed 580214 of 586038 observations below fraction threshold 0.02
+    (1.0% retained). Fraction range in input: [3.818e-06, 0.7803],
+    median 2.618e-05.
+    Paired 620 wells. 724 sequencing well(s) and 0 imaging well(s) have no
+    partner and take no part in the regression.
+
+NOT NECESSARILY WRONG -- a fraction threshold is meant to cut, the median
+fraction is 2.6e-05 against a threshold of 0.02, and the run's own sweep
+picked 0.0168 which is the same order. But 1% retained and more than half
+the wells unpaired is the kind of number that decides a result, and it goes
+past in one line among many.
+
+THIS IS A REPORTING QUESTION, NOT A DEFAULT TO CHANGE. What is owed:
+
+  * the retention and the pairing belong in the run's SUMMARY, where a
+    reader looks for what the run was based on, not only in the log;
+  * a retention that low deserves to be flagged rather than stated -- the
+    same way the effect-size cut already announces what it removed;
+  * the sweep already computes its own suggestion. Where the two differ,
+    saying so at the point of use costs nothing and is already done well
+    for this setting elsewhere in the same run.
+
+ASK BEFORE CHANGING THE NUMBER. The maintainer set 0.02 deliberately and
+the run says so ("Your value is the one in force"). This item is about the
+run being legible, not about overriding it.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * a run with `src` set prints no error about `src`, and a run with it
+    genuinely missing still does;
+  * a nonparametric run's banner describes the permutation -- guides,
+    permutations, the p floor -- and never warns about the cost of a model
+    fit that will not happen;
+  * the observations retained and the wells paired appear in the run
+    summary, and an unusually low retention is flagged as such.
