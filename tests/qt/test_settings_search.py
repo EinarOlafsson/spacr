@@ -146,6 +146,35 @@ def test_a_search_that_matches_nothing_says_what_to_do(mask_screen):
     assert "clear" in text
 
 
+
+def _applicable(bar):
+    """Every indexed key the run's own shape does not rule out.
+
+    The bar hides a row for two independent reasons: the disclosure LEVEL
+    the user chose, and whether the row means anything for this run at all.
+    A plate with no z axis has no use for the voxel sizes, so those rows are
+    not offered -- and that is not the level filter doing it. Naming the
+    second filter separately is what lets a test about the first one avoid
+    asserting the second by accident.
+
+    The dimension split is read from the settings themselves through
+    :func:`spacr.qt.screens.app_screen.dimension_settings`, rather than
+    listed here, so a key added to a 3-D or timelapse category is covered
+    without this helper being touched.
+    """
+    from spacr.qt.screens.app_screen import dimension_settings
+
+    screen = bar.parent()
+    while screen is not None and not hasattr(screen, "dimension_is_on"):
+        screen = screen.parent()
+    ruled_out = set()
+    if screen is not None:
+        for dimension, keys in dimension_settings().items():
+            if not screen.dimension_is_on(dimension):
+                ruled_out |= set(keys)
+    return set(bar.indexed_keys()) - ruled_out
+
+
 # ---------------------------------------------------------------------------
 # 2. Differs from default
 # ---------------------------------------------------------------------------
@@ -166,7 +195,7 @@ def test_modified_reports_exactly_what_changed(mask_screen):
     assert "modified only" in bar.count_text()
 
     bar.set_modified_only(False)
-    assert len(bar.visible_keys()) == len(bar.indexed_keys())
+    assert set(bar.visible_keys()) == _applicable(bar)
 
 
 def test_modified_uses_the_same_equality_as_the_diff_dialog(qtbot):
@@ -200,10 +229,53 @@ def test_essentials_is_where_a_first_visit_starts(mask_screen):
     assert "All settings" in bar.count_text()
 
 
-def test_all_settings_restores_every_row(mask_screen):
+def test_all_settings_hides_nothing_by_level(mask_screen):
+    """At the top level the disclosure filter stops hiding anything.
+
+    IT IS A LEVEL, NOT AN OVERRIDE. A row can also be hidden because the
+    object it belongs to is not in the run -- a plate with no z axis does
+    not show the volumetric settings -- and picking "All settings" is a
+    statement about COMPLEXITY, not a request to be shown settings for
+    objects the run does not have. So the target is every APPLICABLE row,
+    which is what a user actually sees offered.
+    """
     bar = install(mask_screen)
     bar.set_level(ALL)
-    assert len(bar.visible_keys()) == len(bar.indexed_keys())
+    assert set(bar.visible_keys()) == _applicable(bar)
+
+
+def test_no_setting_is_hidden_in_every_state(mask_screen):
+    """Nothing is indexed that a user can never reach.
+
+    The failure this guards is a master switch hidden by the rule it
+    would itself satisfy: if `z_stack` were only shown once the plate was
+    already 3-D, the volumetric settings could not be turned on from the
+    panel at all. Announcing each dimension and giving every object a
+    channel has to reach every row the bar has indexed.
+    """
+    from spacr.organelle_types import organelle_role
+
+    bar = install(mask_screen)
+    bar.set_level(ALL)
+    indexed = set(bar.indexed_keys())
+
+    announced = {"cell_channel": 0, "nucleus_channel": 1,
+                 "pathogen_channel": 2, "z_stack": True, "t_stack": True,
+                 "number_of_organelles": 4}
+    for slot in range(1, 5):
+        announced[f"{organelle_role(slot)}_channel"] = 2 + slot
+    mask_screen.apply_settings_dict(announced)
+    bar.set_level(ALL)
+    reached = set(bar.visible_keys())
+
+    unreachable = indexed - reached
+    # What is left is gated on an organelle's TYPE -- a punctate organelle
+    # does not show the ridge or ring controls -- so each remaining row is
+    # reached by choosing that type, and none is orphaned.
+    typed = {k for k in unreachable if k.startswith("organelle")}
+    assert unreachable == typed, (
+        "these rows are indexed but no run state shows them: "
+        + ", ".join(sorted(unreachable - typed)))
 
 
 def test_the_choice_is_remembered_per_module(mask_screen, qtbot):
