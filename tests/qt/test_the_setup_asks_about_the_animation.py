@@ -25,7 +25,7 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtWidgets import QComboBox, QLabel                    # noqa: E402
+from PySide6.QtWidgets import QComboBox, QFormLayout, QLabel                    # noqa: E402
 
 from spacr.qt.widgets.setup_slides import (ANIMATION_LABEL,        # noqa: E402
                                            SLIDES, SetupSlides)
@@ -68,10 +68,24 @@ def slides(qtbot):
 
 
 def _row_captions(made):
-    """The label at the head of every row on the theme slide, in order."""
+    """The label at the head of every row on the theme slide, in order.
+
+    The page is a QFormLayout, so a row is a label WIDGET paired with its
+    editor rather than a nested layout holding both. Reading it the older
+    way -- asking each item for its .layout() -- finds nothing at all and
+    reports an empty slide, which looks like the questions were dropped
+    rather than like the page was rearranged.
+    """
     page = made._pages.widget(THEME_INDEX)
     form = page.layout()
     captions = []
+    if isinstance(form, QFormLayout):
+        for index in range(form.rowCount()):
+            item = form.itemAt(index, QFormLayout.LabelRole)
+            label = item.widget() if item is not None else None
+            if isinstance(label, QLabel):
+                captions.append(label.text())
+        return captions
     for index in range(form.count()):
         row = form.itemAt(index).layout()
         if row is None:
