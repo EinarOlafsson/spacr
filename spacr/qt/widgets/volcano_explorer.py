@@ -524,24 +524,12 @@ class VolcanoExplorer(QWidget):
     # -------------------------------------------------------------- controls
 
     def _build_controls(self) -> QWidget:
-        """The side panel: four folded sections and the handful of controls
-        that are never folded away.
+        """Build the volcano controls in four initially collapsed sections.
 
-        SIXTY-SEVEN SETTINGS ON ONE PAGE IS NOT A PANEL, IT IS A WALL. They
-        are grouped the way a reader works -- what is plotted, how it is
-        tested, how it looks, what is labelled -- into the same
-        :class:`~spacr.qt.widgets.section.Section` every settings screen in
-        spaCR folds, so this reads as the application rather than as a second
-        idea about panels. Every section starts CLOSED.
-
-        WHAT STAYS VISIBLE, and why those four. The significance level, the
-        rule the effect-size cut comes from and that rule's multiplier are
-        the three the maintainer actually changes -- they are what the long
-        note on :attr:`VolcanoStyle.threshold_method` is about, and moving
-        between ``mad`` and ``control`` on a screen means touching all three
-        in one sitting. The fourth is the colour-by column, because
-        recolouring by a covariate is the move this widget was written for.
-        Nothing else earned a permanent seat.
+        The significance level, threshold method, threshold multiplier, and
+        colour-by field remain visible because they define the primary
+        statistical filtering and visual encoding choices. Plot, test,
+        appearance, and label options are grouped in collapsible sections.
         """
         from .section import Section
 
