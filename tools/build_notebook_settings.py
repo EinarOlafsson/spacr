@@ -43,6 +43,8 @@ import json
 import re
 import sys
 import textwrap
+from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -63,6 +65,7 @@ if sys.path[0] != repo_text:
 # Module-owned keys absent from this snapshot still fall back to the complete
 # post-registration table in ``tooltip_for`` below.
 from spacr.settings import tooltips as _CORE_TOOLTIP_TABLE  # noqa: E402
+
 CORE_TOOLTIPS = dict(_CORE_TOOLTIP_TABLE)
 
 #: Legacy source marker retained so existing notebooks can be migrated.
@@ -75,14 +78,36 @@ SECTION_TITLE = "## 3. Settings and API reference"
 HELP_CELL_KIND = "settings-help"
 SETTINGS_CELL_KIND = "settings"
 ORGANELLE_CELL_KIND = "settings-organelle"
+FUNCTION_HELP_CELL_KIND = "function-help"
+IMPORT_CELL_KIND = "function-import"
+RUN_CELL_KIND = "function-run"
 
 #: Root of the published sphinx-autoapi tree.
 API_BASE = "https://einarolafsson.github.io/spacr/api"
 
+
+@dataclass(frozen=True)
+class NotebookSpec:
+    """One maintained notebook and the live desktop/API surface it teaches.
+
+    ``callables`` and ``app_keys`` are positionally aligned.  ``app_keys``
+    selects the current settings layout for each callable, while
+    ``desktop_route`` names the module a user can open from the current Home
+    screen.  Folded tools therefore retain their own settings key but point to
+    their present host (for example, Explain CV uses ``explain_cv`` settings
+    inside the ``classify_merged`` route).
+    """
+
+    filename: str
+    callables: Tuple[str, ...]
+    overview: Tuple[str, str, str, str]
+    app_keys: Tuple[str, ...]
+    desktop_route: str
+
 # Purpose, recommended use, and primary outputs for each maintained notebook.
 # Keeping this prose beside the generator prevents structural regeneration
 # from restoring informal or scientifically imprecise hand-written text.
-NOTEBOOK_OVERVIEWS = {
+_NOTEBOOK_OVERVIEWS = {
     "01_generate_masks.ipynb": (
         "Generate masks",
         "Generate per-object masks for cells, nuclei, pathogens, and "
@@ -330,12 +355,131 @@ NOTEBOOK_OVERVIEWS = {
     ),
     "30_volcano_plot.ipynb": (
         "Generate a volcano plot",
-        "Display effect estimates against statistical significance and "
-        "annotate selected findings.",
+        "Display effect estimates against negative log10-transformed "
+        "p-values and annotate selected findings.",
         "Use as a compact summary of a completed differential or regression "
         "analysis.",
-        "A publication-scale volcano plot in the requested output format.",
+        "A volcano plot saved with the configured dimensions and file format.",
     ),
+}
+
+
+# Callable(s), settings-layout app key(s), and the route visible on the
+# current desktop Home screen.  This is intentionally explicit: a notebook
+# must not keep teaching a removed wrapper merely because stale cell metadata
+# still names it.  The four migrations in this table replace wrappers that
+# no longer represent their desktop modules: ML scoring, Cellpose mask
+# application, Explain CV, and Barcode QC.
+_NOTEBOOK_BINDINGS = {
+    "01_generate_masks.ipynb": (
+        ("spacr.core.preprocess_generate_masks",), ("mask",), "mask"),
+    "01b_generate_timelapse_masks.ipynb": (
+        ("spacr.core.preprocess_generate_masks_timelapse",),
+        ("timelapse",), "mask"),
+    "02_measure_and_crop.ipynb": (
+        ("spacr.measure.measure_crop",), ("measure",), "measure"),
+    "03_classify_computer_vision.ipynb": (
+        ("spacr.deep_spacr.deep_spacr",),
+        ("classify_merged",), "classify_merged"),
+    "04_classify_machine_learning.ipynb": (
+        ("spacr.ml.generate_ml_scores",),
+        ("ml_analyze",), "classify_merged"),
+    "05_map_barcodes.ipynb": (
+        ("spacr.sequencing.generate_barecode_mapping",),
+        ("map_barcodes",), "map_barcodes"),
+    "06_regression.ipynb": (
+        ("spacr.ml.perform_regression",), ("regression",), "regression"),
+    "07_image_umap.ipynb": (
+        ("spacr.core.generate_image_umap",), ("umap",), "umap"),
+    "08_train_cellpose.ipynb": (
+        ("spacr.submodules.train_cellpose",),
+        ("train_cellpose",), "make_masks"),
+    "09_apply_cellpose.ipynb": (
+        ("spacr.spacr_cellpose.identify_masks_finetune",),
+        ("cellpose_masks",), "make_masks"),
+    "10_test_cellpose.ipynb": (
+        ("spacr.submodules.test_cellpose_model",),
+        ("model_compare",), "make_masks"),
+    "11_activation_maps.ipynb": (
+        ("spacr.deep_spacr.generate_activation_map",),
+        ("activation",), "classify_merged"),
+    "12_recruitment.ipynb": (
+        ("spacr.submodules.analyze_recruitment",),
+        ("recruitment",), "recruitment"),
+    "13_plaque_assay.ipynb": (
+        ("spacr.submodules.analyze_plaques",),
+        ("analyze_plaques",), "analyze_plaques"),
+    "14_motility_assay.ipynb": (
+        ("spacr.core.preprocess_generate_masks_timelapse",
+         "spacr.timelapse.automated_motility_assay"),
+        ("timelapse", "motility"), "measure"),
+    "15_replication.ipynb": (
+        ("spacr.submodules.analyze_replication",),
+        ("replication",), "replication"),
+    "16_invasion.ipynb": (
+        ("spacr.submodules.analyze_invasion",), ("invasion",), "invasion"),
+    "17_endodyogeny.ipynb": (
+        ("spacr.submodules.analyze_endodyogeny",),
+        ("endodyogeny",), "replication"),
+    "18_percent_positive.ipynb": (
+        ("spacr.submodules.analyze_percent_positive",),
+        ("tabulate",), "tabulate"),
+    "19_count_phenotypes.ipynb": (
+        ("spacr.submodules.count_phenotypes",),
+        ("tabulate",), "tabulate"),
+    "20_activation_analysis.ipynb": (
+        ("spacr.deep_spacr.analyze_activation_maps",),
+        ("activation",), "classify_merged"),
+    "21_model_knowledge_transfer.ipynb": (
+        ("spacr.deep_spacr.model_knowledge_transfer",),
+        ("classify_merged",), "classify_merged"),
+    "22_model_fusion.ipynb": (
+        ("spacr.deep_spacr.model_fusion",),
+        ("classify_merged",), "classify_merged"),
+    "23_compare_reads_to_scores.ipynb": (
+        ("spacr.submodules.compare_reads_to_scores",),
+        ("regression",), "regression"),
+    "24_interpret_vision_model.ipynb": (
+        ("spacr.surrogate.run_explain_cv",),
+        ("explain_cv",), "classify_merged"),
+    "25_score_heatmap.ipynb": (
+        ("spacr.submodules.generate_score_heatmap",),
+        ("plate_view",), "plate_view"),
+    "26_sequencing_stats.ipynb": (
+        ("spacr.sequencing_qc.barcode_qc",),
+        ("barcode_qc",), "map_barcodes"),
+    "27_post_regression_analysis.ipynb": (
+        ("spacr.submodules.post_regression_analysis",),
+        ("regression",), "regression"),
+    "28_go_term_enrichment.ipynb": (
+        ("spacr.toxo.go_term_enrichment_by_column",),
+        ("regression",), "regression"),
+    "29_gene_phenotype_plots.ipynb": (
+        ("spacr.toxo.plot_gene_phenotypes",),
+        ("regression",), "regression"),
+    "30_volcano_plot.ipynb": (
+        ("spacr.toxo.custom_volcano_plot",),
+        ("regression",), "regression"),
+}
+
+if set(_NOTEBOOK_BINDINGS) != set(_NOTEBOOK_OVERVIEWS):
+    raise RuntimeError("notebook bindings and reviewed overviews disagree")
+
+NOTEBOOK_SPECS = {
+    filename: NotebookSpec(
+        filename=filename,
+        callables=binding[0],
+        overview=_NOTEBOOK_OVERVIEWS[filename],
+        app_keys=binding[1],
+        desktop_route=binding[2],
+    )
+    for filename, binding in _NOTEBOOK_BINDINGS.items()
+}
+
+_CALLABLE_APP_KEYS = {
+    dotted: app_key
+    for spec in NOTEBOOK_SPECS.values()
+    for dotted, app_key in zip(spec.callables, spec.app_keys)
 }
 
 
@@ -343,32 +487,30 @@ NOTEBOOK_OVERVIEWS = {
 # Which function a notebook drives
 # ---------------------------------------------------------------------------
 
-def declared_functions(notebook: dict) -> List[str]:
-    """Return the callables named in the notebook's function section.
+def notebook_spec(source: Any) -> Optional[NotebookSpec]:
+    """Return the manifest entry for a path, filename, or generated notebook.
 
-    Most notebooks call one public entry point. The motility notebook is an
-    intentional two-stage workflow: it first generates and tracks masks, then
-    computes motility measurements from the resulting arrays. Only paths in
-    the dedicated function cell are considered; links in later guidance do
-    not create unused settings dictionaries.
+    Cell metadata is deliberately ignored.  Generated notebooks record only
+    their manifest filename at notebook level, so changing an old
+    ``spacr.functions`` cell cannot change which function is imported or run.
     """
-    for cell in notebook.get("cells", []):
-        if cell.get("cell_type") != "markdown":
-            continue
-        text = "".join(cell.get("source", []))
-        if (("function" in text and "this notebook runs" in text)
-                or text.startswith("## 2. API entry point")):
-            explicit = cell.get("metadata", {}).get("spacr", {}).get(
-                "functions")
-            if isinstance(explicit, list) and all(
-                    isinstance(item, str) for item in explicit):
-                return list(dict.fromkeys(explicit))
-            matches = re.findall(r"`(spacr\.[A-Za-z_0-9.]+)`", text)
-            # Legacy function cells occasionally mention a related API in the
-            # summary. Only the first path is the entry point unless explicit
-            # metadata declares a multi-stage workflow.
-            return matches[:1]
-    return []
+    if isinstance(source, Path):
+        name = source.name
+    elif isinstance(source, str):
+        name = Path(source).name
+    elif isinstance(source, dict):
+        metadata = source.get("metadata", {}).get("spacr", {})
+        name = metadata.get("notebook_spec", "") \
+            if isinstance(metadata, dict) else ""
+    else:
+        name = ""
+    return NOTEBOOK_SPECS.get(str(name))
+
+
+def declared_functions(source: Any) -> List[str]:
+    """Return the callables pinned by :data:`NOTEBOOK_SPECS`."""
+    spec = notebook_spec(source)
+    return list(spec.callables) if spec is not None else []
 
 
 def resolve(dotted: str):
@@ -524,7 +666,12 @@ def surface(func, dotted: str = "") -> Tuple[str, Dict[str, Any]]:
     return "signature", keys_from_signature(func)
 
 
-def notebook_surface(func, dotted: str) -> Tuple[str, Dict[str, Any]]:
+def notebook_surface(
+    func,
+    dotted: str,
+    *,
+    notebook_name: str = "",
+) -> Tuple[str, Dict[str, Any]]:
     """Return the editable settings exposed by the corresponding module.
 
     The mask implementation retains timelapse and motility defaults for old
@@ -532,32 +679,72 @@ def notebook_surface(func, dotted: str) -> Tuple[str, Dict[str, Any]]:
     notebooks mirror the current module boundaries rather than exposing
     compatibility-only keys.
     """
+    return _notebook_surface(
+        func, dotted, notebook_name=notebook_name)
+
+
+def _notebook_surface(
+    func,
+    dotted: str,
+    *,
+    notebook_name: str = "",
+) -> Tuple[str, Dict[str, Any]]:
+    """Implementation supporting notebook-specific workflow profiles."""
     shape, keys = surface(func, dotted)
+    # The regression defaults intentionally prefer the new ``paired_data``
+    # editor and therefore no longer inject the two legacy lists.  The public
+    # callable and CLI still accept and explicitly require ``score_data`` and
+    # ``count_data`` for a direct notebook run, so those editable inputs must
+    # remain present here.  An empty list is an honest, parseable placeholder.
+    for key, value in _REQUIRED_SURFACE_DEFAULTS.get(dotted, {}).items():
+        keys.setdefault(key, value)
     module = _module_from_registry(dotted)
     app_key = getattr(module, "key", "")
     if app_key not in {"mask", "timelapse", "motility"}:
         return shape, keys
 
     from spacr.settings import (
+        categories,
         motility_advanced_settings,
         motility_settings,
         timelapse_settings,
     )
 
+    timelapse_keys = (
+        set(timelapse_settings)
+        | set(categories["4D Settings (Beta)"])
+        | {"timelapse"}
+    )
     motility_keys = (set(motility_settings)
                      | set(motility_advanced_settings)
                      | {"motility_analysis"})
-    if app_key == "mask":
-        hidden = motility_keys | set(timelapse_settings) | {"timelapse"}
+
+    profile = {
+        "01_generate_masks.ipynb": "general",
+        "01b_generate_timelapse_masks.ipynb": "timelapse",
+        "14_motility_assay.ipynb": "motility",
+    }.get(notebook_name, app_key)
+
+    if (profile == "general"
+            or (profile == "motility" and app_key == "timelapse")):
+        hidden = motility_keys | timelapse_keys
         keys = {key: value for key, value in keys.items()
                 if key not in hidden}
-    elif app_key == "timelapse":
+    elif profile == "timelapse":
         keys = {key: value for key, value in keys.items()
-                if key not in motility_keys and key != "timelapse"}
-    else:
+                if key not in motility_keys}
+    elif profile == "motility":
         keys = {key: value for key, value in keys.items()
-                if key != "motility_analysis"}
+                if key not in timelapse_keys and key != "motility_analysis"}
     return shape, keys
+
+
+_REQUIRED_SURFACE_DEFAULTS = {
+    "spacr.ml.perform_regression": {
+        "score_data": [],
+        "count_data": [],
+    },
+}
 
 
 # ---------------------------------------------------------------------------
@@ -648,8 +835,8 @@ def _load_registrations() -> None:
 
 def tooltip_for(key: str, shape: str, docs: Dict[str, str]) -> str:
     """One sentence describing ``key``, from whichever source declares it."""
-    if shape == "signature":
-        return docs.get(key, "")
+    if shape == "signature" and docs.get(key):
+        return docs[key]
     if key in CORE_TOOLTIPS:
         return str(CORE_TOOLTIPS[key] or docs.get(key, ""))
     _load_registrations()
@@ -741,15 +928,54 @@ def _is_organelle_key(key: str) -> bool:
     """Return True for settings that configure an organelle mask role."""
     from spacr.object_roles import ORGANELLE_ROLES
 
-    return (key == "summarize_organelles_by"
+    return (key in {"number_of_organelles", "summarize_organelles_by"}
             or any(key.startswith(f"{role}_")
                    for role in ORGANELLE_ROLES))
 
 
-def _category_groups(keys: Dict[str, Any], *, organelle: bool
+def app_key_for(dotted: str) -> str:
+    """Return the current settings-layout key pinned for ``dotted``."""
+    return _CALLABLE_APP_KEYS.get(dotted, "")
+
+
+@lru_cache(maxsize=None)
+def _categories_for_notebook_app(app_key: str) -> Dict[str, List[str]]:
+    """Return the desktop's current categories without requiring Qt.
+
+    PySide6 is an optional desktop dependency.  When it is installed, the
+    generator uses the exact app-specific relocation function that renders
+    the settings panel.  Headless/minimal installations fall back to the
+    shared scientific category table, so notebook generation never acquires
+    a hard Qt dependency.
+    """
+    from spacr.settings import categories
+
+    fallback = {title: list(members)
+                for title, members in categories.items()}
+    if not app_key:
+        return fallback
+    try:
+        from spacr.qt.screens.settings_model import categories_for_app
+    except (ImportError, OSError):
+        return fallback
+    try:
+        return {
+            title: list(members)
+            for title, members in categories_for_app(
+                app_key, fallback).items()
+        }
+    except Exception:
+        # A settings reference remains generatable when an optional desktop
+        # widget/backend cannot import.  The shared categories are still the
+        # canonical non-Qt layout.
+        return fallback
+
+
+def _category_groups(keys: Dict[str, Any], *, organelle: bool,
+                     dotted: str = ""
                      ) -> List[Tuple[str, List[str]]]:
     """Group one settings surface using spaCR's reviewed category registry."""
-    from spacr.settings import categories
+    categories = _categories_for_notebook_app(app_key_for(dotted))
 
     wanted = {
         key for key in keys
@@ -770,11 +996,95 @@ def _category_groups(keys: Dict[str, Any], *, organelle: bool
         groups.append((title, selected))
     if wanted:
         groups.append(("Additional settings", sorted(wanted)))
+    # Regression's desktop panel now prefers the one-row ``paired_data``
+    # editor and therefore treats its accepted legacy lists as hidden.  A
+    # notebook cannot render that custom table widget, so keep the two direct
+    # API inputs beside ``paired_data`` rather than under a catch-all heading.
+    if (not organelle and dotted == "spacr.ml.perform_regression"):
+        direct_inputs = [key for key in ("score_data", "count_data")
+                         if key in keys]
+        if direct_inputs:
+            for _title, members in groups:
+                members[:] = [key for key in members
+                              if key not in direct_inputs]
+            for index, (title, members) in enumerate(groups):
+                if title == "Input Tables":
+                    groups[index] = (title, [*direct_inputs, *members])
+                    break
+            groups = [(title, members) for title, members in groups if members]
     return groups
 
 
-def _setting_status(dotted: str, shape: str, key: str) -> str:
+_STATUS_OVERRIDES = {
+    "spacr.core.preprocess_generate_masks": {
+        "cell_channel": "conditional",
+        "nucleus_channel": "conditional",
+        "pathogen_channel": "conditional",
+        "organelle_channel": "conditional",
+    },
+    "spacr.core.preprocess_generate_masks_timelapse": {
+        "cell_channel": "conditional",
+        "nucleus_channel": "conditional",
+        "pathogen_channel": "conditional",
+        "organelle_channel": "conditional",
+    },
+    "spacr.ml.generate_ml_scores": {
+        "positive_control": "conditional",
+        "negative_control": "conditional",
+        "annotation_column": "conditional",
+    },
+    "spacr.deep_spacr.generate_activation_map": {
+        "dataset": "required",
+        "model_path": "required",
+        "target_layer": "optional",
+    },
+    "spacr.ml.perform_regression": {
+        "score_data": "required",
+        "count_data": "required",
+        "dependent_variable": "required",
+    },
+    "spacr.sequencing.generate_barecode_mapping": {
+        "grna_csv": "required",
+        "row_csv": "required",
+        "column_csv": "required",
+        "regex": "required",
+    },
+    "spacr.surrogate.run_explain_cv": {
+        "db_path": "required",
+        "predictions_file": "required",
+    },
+    "spacr.sequencing_qc.barcode_qc": {
+        "count_data": "required",
+        "target_grnas_per_well": "required",
+    },
+}
+
+
+def _requirement_statuses(dotted: str, keys: Dict[str, Any]) -> Dict[str, str]:
+    """Derive structured statuses from the matching CLI ``Module`` row."""
+    module = _module_from_registry(dotted)
+    if module is None:
+        return {}
+    statuses: Dict[str, str] = {}
+    for requirement in module.requires:
+        text = str(requirement)
+        lower = text.lower()
+        conditional = any(marker in lower for marker in (
+            "at least one", " or ", " when ", " if ", " and/or "))
+        for key in keys:
+            if re.search(rf"(?<![A-Za-z0-9_]){re.escape(key)}"
+                         rf"(?![A-Za-z0-9_])", text):
+                statuses[key] = "conditional" if conditional else "required"
+    statuses.update(_STATUS_OVERRIDES.get(dotted, {}))
+    return statuses
+
+
+def _setting_status(dotted: str, shape: str, key: str,
+                    keys: Optional[Dict[str, Any]] = None) -> str:
     """Return ``required``, ``conditional`` or ``optional`` for ``key``."""
+    declared = _requirement_statuses(dotted, keys or {})
+    if key in declared:
+        return declared[key]
     if shape == "signature":
         func = resolve(dotted)
         try:
@@ -784,16 +1094,6 @@ def _setting_status(dotted: str, shape: str, key: str) -> str:
         else:
             if param.default is param.empty:
                 return "required"
-    if key == "src":
-        return "required"
-    if (dotted in {
-            "spacr.core.preprocess_generate_masks",
-            "spacr.core.preprocess_generate_masks_timelapse",
-        } and key in {
-            "cell_channel", "nucleus_channel", "pathogen_channel",
-            "organelle_channel",
-        }):
-        return "conditional"
     return "optional"
 
 
@@ -846,16 +1146,16 @@ def render_help(entries: List[Tuple[str, str, Dict[str, Any], Dict[str, str]]]
             ])
         for organelle in (False, True):
             for category, members in _category_groups(
-                    keys, organelle=organelle):
+                    keys, organelle=organelle, dotted=dotted):
                 lines.extend(["", f"#### {category}", ""])
                 for key in members:
                     description = _markdown_text(
                         tooltip_for(key, shape, docs))
                     if not description:
-                        description = (
-                            "No description is available in this version.")
+                        raise ValueError(
+                            f"{dotted}.{key} has no API or tooltip description")
                     status = _status_label(
-                        _setting_status(dotted, shape, key))
+                        _setting_status(dotted, shape, key, keys))
                     lines.append(
                         f"- **`{key}`** *({status.lower()})* — {description}")
     lines.extend([
@@ -881,8 +1181,9 @@ def render_cell(
     same dictionary, keeping the eventual function call unchanged.
     """
     lines: List[str] = []
-    for index, (dotted, shape, keys, docs) in enumerate(entries):
-        groups = _category_groups(keys, organelle=organelle)
+    for index, (dotted, shape, keys, _docs) in enumerate(entries):
+        groups = _category_groups(
+            keys, organelle=organelle, dotted=dotted)
         if organelle and not groups:
             continue
         name = setting_name(dotted, entries)
@@ -894,7 +1195,7 @@ def render_cell(
             for status in ("required", "conditional", "optional"):
                 selected = [
                     key for key in members
-                    if _setting_status(dotted, shape, key) == status
+                    if _setting_status(dotted, shape, key, keys) == status
                 ]
                 if not selected:
                     continue
@@ -931,12 +1232,9 @@ def _as_source(text: str) -> List[str]:
     return [line + "\n" for line in lines[:-1]] + [lines[-1]]
 
 
-def _render_overview(path: Path) -> Optional[str]:
-    """Return the reviewed scientific overview for ``path``."""
-    overview = NOTEBOOK_OVERVIEWS.get(path.name)
-    if overview is None:
-        return None
-    title, purpose, use, outputs = overview
+def _render_overview(spec: NotebookSpec) -> str:
+    """Return the reviewed scientific overview for ``spec``."""
+    title, purpose, use, outputs = spec.overview
     return "\n".join([
         f"# {title}",
         "",
@@ -984,11 +1282,33 @@ def _render_function_section(entries) -> str:
     return "\n".join(lines)
 
 
-def _refresh_notebook_prose(path: Path, notebook: dict, entries) -> None:
+def _render_import_cell(entries) -> str:
+    """Return exact imports for the manifest-owned entry points."""
+    return "\n".join(
+        f"from {dotted.rpartition('.')[0]} import {dotted.rpartition('.')[2]}"
+        for dotted, *_rest in entries
+    )
+
+
+def _render_run_cell(entries) -> str:
+    """Return exact calls consuming each generated settings dictionary."""
+    lines = []
+    for dotted, shape, _keys, _docs in entries:
+        name = dotted.rsplit(".", 1)[1]
+        settings_name = setting_name(dotted, entries)
+        if shape == "signature":
+            lines.append(f"{name}(**{settings_name})")
+        else:
+            lines.append(f"{name}({settings_name})")
+    return "\n".join(lines)
+
+
+def _refresh_notebook_prose(spec: NotebookSpec, notebook: dict,
+                            entries) -> None:
     """Replace informal notebook framing with reviewed scientific prose."""
     cells = notebook.get("cells", [])
-    overview = _render_overview(path)
-    if overview is not None and cells:
+    overview = _render_overview(spec)
+    if cells:
         cells[0]["source"] = _as_source(overview)
 
     for cell in cells:
@@ -1008,11 +1328,15 @@ def _refresh_notebook_prose(path: Path, notebook: dict, entries) -> None:
         elif (("function" in source and "this notebook runs" in source)
               or source.startswith("## 2. API entry point")):
             cell["source"] = _as_source(_render_function_section(entries))
-            cell.setdefault("metadata", {}).setdefault("spacr", {})[
-                "functions"] = [dotted for dotted, *_rest in entries]
+            _mark_generated(cell, FUNCTION_HELP_CELL_KIND)
+            metadata = cell.setdefault("metadata", {}).setdefault(
+                "spacr", {})
+            metadata["functions"] = list(spec.callables)
+            metadata["app_keys"] = list(spec.app_keys)
+            metadata["desktop_route"] = spec.desktop_route
         elif source.startswith("## Where the output went") or source.startswith(
                 "## Outputs and next steps"):
-            outputs = NOTEBOOK_OVERVIEWS.get(path.name, ("", "", "", ""))[3]
+            outputs = spec.overview[3]
             cell["source"] = _as_source("\n".join([
                 "## Outputs and next steps",
                 "",
@@ -1037,24 +1361,42 @@ def _refresh_notebook_prose(path: Path, notebook: dict, entries) -> None:
 
 def rebuild(path: Path) -> Optional[str]:
     """Return the notebook's new JSON text, or None when it needs no cell."""
+    # Import the optional Qt category model before pipeline registration can
+    # load OpenCV's bundled Qt libraries into this process.  Some Linux wheels
+    # expose incompatible private Qt symbols after that point.  The category
+    # helper itself remains optional and has a non-Qt fallback; priming here
+    # merely lets a healthy desktop installation share its exact layout.
+    for app_key in sorted(set(_CALLABLE_APP_KEYS.values())):
+        _categories_for_notebook_app(app_key)
     # Factories are extended by module-level registrations.  Load every
     # registered pipeline before asking any factory for its keys; otherwise
     # the first notebook in a process sees a smaller surface than later ones
     # and pytest's prior imports change the generated result.
     _load_registrations()
+    spec = NOTEBOOK_SPECS.get(path.name)
+    if spec is None:
+        return None
     notebook = json.loads(path.read_text())
+    notebook_metadata = notebook.setdefault("metadata", {}).setdefault(
+        "spacr", {})
+    notebook_metadata.update({
+        "notebook_spec": spec.filename,
+        "desktop_route": spec.desktop_route,
+    })
     entries = []
-    for dotted in declared_functions(notebook):
+    for dotted in spec.callables:
         func = resolve(dotted)
         if func is None:
-            continue
-        shape, keys = notebook_surface(func, dotted)
-        if keys:
-            entries.append((dotted, shape, keys, param_docs(func)))
+            raise ImportError(f"manifest callable does not resolve: {dotted}")
+        shape, keys = notebook_surface(
+            func, dotted, notebook_name=spec.filename)
+        if not keys:
+            raise ValueError(f"manifest callable declares no settings: {dotted}")
+        entries.append((dotted, shape, keys, param_docs(func)))
     if not entries:
         return None
 
-    _refresh_notebook_prose(path, notebook, entries)
+    _refresh_notebook_prose(spec, notebook, entries)
 
     help_source = _as_source(render_help(entries))
     rendered_settings = [
@@ -1062,7 +1404,7 @@ def rebuild(path: Path) -> Optional[str]:
         for kind, source in render_settings_cells(entries)
     ]
     cells = notebook["cells"]
-    retarget_call(cells, entries)
+    import_cell = _ensure_import_cell(cells, entries)
 
     help_cell = next((cell for cell in cells
                       if _cell_kind(cell) == HELP_CELL_KIND), None)
@@ -1123,7 +1465,10 @@ def rebuild(path: Path) -> Optional[str]:
     ordered_settings = [settings_cells[kind]
                         for kind, _source in rendered_settings]
     _place_generated_cells(cells, help_cell, ordered_settings)
-    _place_run_cell(cells, ordered_settings[-1], entries)
+    run_cell = _ensure_run_cell(cells, ordered_settings[-1], entries)
+    _place_run_cell(cells, ordered_settings[-1], run_cell)
+    _place_import_cell(cells, import_cell)
+    _clear_code_outputs(cells)
     return json.dumps(notebook, indent=1, ensure_ascii=False) + "\n"
 
 
@@ -1162,6 +1507,68 @@ def retarget_call(cells: List[dict], entries) -> None:
             cell["outputs"] = []
             cell["execution_count"] = None
             return
+
+
+def _function_help_cell(cells: List[dict]) -> Optional[dict]:
+    """Return the manifest-owned API section."""
+    return next((cell for cell in cells
+                 if _cell_kind(cell) == FUNCTION_HELP_CELL_KIND), None)
+
+
+def _ensure_import_cell(cells: List[dict], entries) -> dict:
+    """Create or replace the exact manifest-owned import cell."""
+    function_help = _function_help_cell(cells)
+    if function_help is None:
+        raise ValueError("notebook has no API entry-point section")
+    import_cell = next((cell for cell in cells
+                        if _cell_kind(cell) == IMPORT_CELL_KIND), None)
+    if import_cell is None:
+        start = cells.index(function_help) + 1
+        import_cell = next((cell for cell in cells[start:]
+                            if cell.get("cell_type") == "code"), None)
+    if import_cell is None:
+        import_cell = _code_cell([], IMPORT_CELL_KIND)
+    import_cell["source"] = _as_source(_render_import_cell(entries))
+    import_cell["outputs"] = []
+    import_cell["execution_count"] = None
+    _mark_generated(import_cell, IMPORT_CELL_KIND)
+    return import_cell
+
+
+def _place_import_cell(cells: List[dict], import_cell: dict) -> None:
+    """Place callable imports immediately after the API section."""
+    function_help = _function_help_cell(cells)
+    if function_help is None:
+        raise ValueError("notebook has no API entry-point section")
+    if import_cell in cells:
+        cells.remove(import_cell)
+    cells.insert(cells.index(function_help) + 1, import_cell)
+
+
+def _ensure_run_cell(cells: List[dict], settings_cell: dict, entries) -> dict:
+    """Create or replace the exact call cell after generated settings."""
+    run_cell = next((cell for cell in cells
+                     if _cell_kind(cell) == RUN_CELL_KIND), None)
+    if run_cell is None:
+        start = cells.index(settings_cell) + 1
+        if start < len(cells) and cells[start].get("cell_type") == "code":
+            run_cell = cells[start]
+    if run_cell is None:
+        run_cell = _code_cell([], RUN_CELL_KIND)
+    run_cell["source"] = _as_source(_render_run_cell(entries))
+    run_cell["outputs"] = []
+    run_cell["execution_count"] = None
+    _mark_generated(run_cell, RUN_CELL_KIND)
+    return run_cell
+
+
+def _clear_code_outputs(cells: List[dict]) -> None:
+    """Make every shipped notebook reproducible and safe to review."""
+    for cell in cells:
+        if cell.get("cell_type") != "code":
+            continue
+        cell["outputs"] = []
+        cell["execution_count"] = None
 
 
 def _cell_kind(cell: dict) -> str:
@@ -1222,21 +1629,9 @@ def _place_generated_cells(cells: List[dict], help_cell: dict,
         cells.insert(at + offset, settings_cell)
 
 
-def _place_run_cell(cells: List[dict], settings_cell: dict, entries) -> None:
+def _place_run_cell(cells: List[dict], settings_cell: dict,
+                    run_cell: dict) -> None:
     """Place the function call immediately after the settings dictionary."""
-    names = {dotted.rsplit(".", 1)[1] for dotted, *_rest in entries}
-    run_cell = None
-    for cell in cells:
-        if cell is settings_cell or cell.get("cell_type") != "code":
-            continue
-        source = "".join(cell.get("source", []))
-        if any(re.search(rf"\b{re.escape(name)}\s*\(", source)
-               for name in names):
-            run_cell = cell
-            break
-    if run_cell is None:
-        return
-
     # The old standalone Run heading separated settings from the call. Its
     # useful logging guidance now lives at the end of the reference cell.
     for cell in list(cells):
@@ -1246,7 +1641,8 @@ def _place_run_cell(cells: List[dict], settings_cell: dict, entries) -> None:
         if source.startswith("## 4. Run it"):
             cells.remove(cell)
 
-    cells.remove(run_cell)
+    if run_cell in cells:
+        cells.remove(run_cell)
     at = next(i for i, cell in enumerate(cells) if cell is settings_cell)
     cells.insert(at + 1, run_cell)
 
@@ -1280,6 +1676,20 @@ def main(argv=None) -> int:
     args = parser.parse_args(argv)
 
     root = Path(args.notebooks)
+    present = {path.name for path in root.glob("*.ipynb")}
+    expected = set(NOTEBOOK_SPECS)
+    if present != expected:
+        missing = sorted(expected - present)
+        unexpected = sorted(present - expected)
+        if missing:
+            print("missing maintained notebooks:")
+            for name in missing:
+                print(f"  {name}")
+        if unexpected:
+            print("unmanifested notebooks:")
+            for name in unexpected:
+                print(f"  {name}")
+        return 1
     stale, written, skipped = [], [], []
     for path in sorted(root.glob("*.ipynb")):
         try:
