@@ -1,0 +1,106 @@
+================================================================================
+STARTING UP TAKES TOO LONG
+================================================================================
+
+Status:    OPEN. Requested 2026-08-26 -- "it takes a really long time now to
+           start moduals and to start the spacr application."
+Owner:     spacr/qt/screens/app_screen.py and settings_model.py.
+
+--------------------------------------------------------------------------------
+MEASURED FIRST, SO NOBODY OPTIMISES THE WRONG THING
+--------------------------------------------------------------------------------
+
+    import spacr                 0.07 s
+    import spacr.qt              0.06 s
+    QApplication()               0.09 s
+    import AppScreen             0.81 s
+    BUILD THE MASK SCREEN        2.73 s      <-- this is the complaint
+    build the Measure screen     0.35 s
+
+THE IMPORTS ARE NOT THE PROBLEM. Importing the package is already lazy and
+costs 70 ms. What costs seconds is BUILDING A MODULE'S SCREEN, and it scales
+with the number of settings: Mask renders 350 rows in 2.73 s, Measure
+renders 76 in 0.35 s -- about 8 ms a row either way.
+
+So the target is the per-row cost, and every module gets faster at once.
+
+--------------------------------------------------------------------------------
+WHERE THE 2.73 SECONDS GO
+--------------------------------------------------------------------------------
+
+Profiled on the Mask screen, 2.56 million calls:
+
+    AppScreen.__init__                    3.16 s cumulative
+      _build_settings_panel               1.83 s
+        _build_settings_section           0.91 s   (105 calls)
+        build_sections                    0.76 s
+      _sync_page_palette                  0.84 s   (4 calls)
+      _install_ambient                    0.60 s
+
+    attach_api_tooltip                    0.35 s   (1,538 calls)
+    format_tooltip / plain_tooltip_for    0.30 s   (1,538 calls each)
+    _widget_for                           0.29 s   (1,538 calls)
+    _language_code                        0.31 s   (15,488 CALLS)
+    AppScreen.eventFilter                 0.30 s   (16,115 calls)
+
+FOUR THINGS STAND OUT, in the order they are worth attacking:
+
+  1. `_language_code` IS CALLED 15,488 TIMES to build 350 settings -- more
+     than forty times per setting. It answers the same question every time.
+     Whatever it costs, it should cost once.
+
+  2. THE TOOLTIP CHAIN runs 1,538 times through four functions, each ~0.3 s.
+     A tooltip is not needed until something is hovered; building the STRING
+     for every row at construction pays for 1,538 sentences a user will read
+     perhaps three of. Consider resolving on demand.
+     NOTE: `attach_api_tooltip`'s 0.35 s may partly disappear anyway --
+     instruction 258 removes the API dots -- so measure again after that
+     lands rather than optimising it twice.
+
+  3. `_sync_page_palette` COSTS 0.84 s IN FOUR CALLS. Two tenths of a second
+     each. Find out what it does four times and whether the later ones
+     change anything.
+
+  4. THE EVENT FILTER RUNS 16,115 TIMES DURING CONSTRUCTION. Nothing is
+     being hovered or clicked yet; those are the events of the panel
+     assembling itself. A filter installed before the widgets exist sees
+     every one of them arrive.
+
+--------------------------------------------------------------------------------
+THE OTHER HALF: A SCREEN NOBODY HAS OPENED YET
+--------------------------------------------------------------------------------
+
+Even at zero cost per row, 350 rows is a lot of widgets to build before a
+user has looked at one. Worth investigating, in preference to shaving the
+per-row cost further:
+
+  * BUILD A SECTION WHEN IT IS FIRST OPENED. The panel already groups
+    settings into collapsible categories and they already start closed --
+    a category nobody expanded has no reason to have widgets;
+  * KEEP THE FIRST PAINT SEPARATE from the rest. A window that appears in
+    300 ms and fills in reads as fast; one that appears after three seconds
+    reads as broken, even for the same total work.
+
+DO NOT TRADE CORRECTNESS FOR SPEED. Two rules this codebase already learned
+the hard way apply directly:
+  * the settings panel's applicability refresh is DEFERRED through
+    `QTimer.singleShot`. Anything that changes when widgets are built has
+    to keep that refresh landing before the user sees the panel, or a
+    module opens showing settings for objects that are not in the run;
+  * `_widgets` is how several checks find a row. A row built lazily still
+    has to be findable, or the checks silently stop checking.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * building the Mask screen is measurably faster than 2.73 s, measured the
+    same way, and the number is recorded here;
+  * the per-row cost falls, so every module benefits rather than one;
+  * `_language_code` is called on the order of once per language, not
+    forty times per setting;
+  * the applicability refresh still lands before the panel is interactive:
+    a freshly opened Mask panel with every channel None still shows one row
+    per object;
+  * every existing settings test passes unchanged -- if a test had to move,
+    say which and why.
