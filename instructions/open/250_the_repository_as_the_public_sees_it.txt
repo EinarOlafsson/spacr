@@ -1,0 +1,85 @@
+================================================================================
+THE REPOSITORY AS THE PUBLIC SEES IT
+================================================================================
+
+Status:    OPEN. Requested 2026-08-25.
+Owner:     .gitignore, .gitattributes, the git history, README.rst and the
+           generated API pages.
+
+--------------------------------------------------------------------------------
+1. CLAUDE AND github-actions[bot] ARE NOT CONTRIBUTORS
+--------------------------------------------------------------------------------
+
+"make sure claude and github-actions[bot] are not listed as contributers.
+remove them from whatever you need to remove them from."
+
+GitHub builds its contributor list from COMMIT AUTHOR AND CO-AUTHOR
+identities, so an entry there is removed by removing the identity from the
+commits, not by editing a page. Every place an identity can enter:
+
+  * the author and committer of a commit;
+  * a `Co-Authored-By:` trailer in a commit message, which GitHub counts as
+    a contributor exactly like an author;
+  * `.github/` workflow commits pushed by `github-actions[bot]` -- a bot
+    that commits to the default branch is listed like anyone else;
+  * `.mailmap`, which can map an identity but does not delete it;
+  * `CITATION.cff`, `AUTHORS`, `CONTRIBUTORS`, package metadata authors.
+
+The maintainer is the sole author of this work. See the standing rule: no
+AI attribution and no `Co-Authored-By` trailer on any commit.
+
+THE HISTORY REWRITE GOES LAST, after every other instruction is closed,
+because it invalidates every outstanding branch and working tree.
+
+--------------------------------------------------------------------------------
+2. THE WORKING FOLDERS ARE NOT PUBLISHED
+--------------------------------------------------------------------------------
+
+"make sure that folders like instructions, skill and other claude and codex
+related things are not visable on github."
+
+Tracked today and therefore public: `instructions/`, `skill/`, `proposals/`,
+`.claude/`. These are working notes, not the product.
+
+IGNORING A FOLDER DOES NOT UNPUBLISH IT. A path already tracked stays in the
+repository and in its history until it is removed from the index, and
+`.gitignore` has no effect on a tracked path at all. So each needs BOTH: a
+`git rm --cached` so it stops being published, and an ignore rule so it
+never returns. Keep the files on disk -- they are how the work is driven.
+
+Decide, and say which, whether the history is also to be rewritten to remove
+them: it is the difference between "not in the current tree" and "never
+visible". The rewrite goes with item 1's, in the same pass, at the end.
+
+--------------------------------------------------------------------------------
+3. THE README AND THE API PAGES SAY WHAT THE PROGRAM NOW IS
+--------------------------------------------------------------------------------
+
+"make sure the API and Readme reflect the new changes we have made"
+
+The build has moved a long way and neither has kept up. At least:
+
+  * the module list -- twenty modules folded into hosts. They are still
+    shipped, still runnable, still translated, and they are reached from a
+    host's masthead rather than from a tile. A README that lists them as
+    separate tools describes a build that no longer exists;
+  * Make Masks gained draw, divide and Cellpose-SAM with its probability
+    and flow panes, and gains recrop;
+  * the objects are an arbitrary number of organelles, not a fixed four;
+  * the settings panel shows a setting when it applies, and the 3D and Time
+    switches say which dimensions a plate has;
+  * the API pages are generated -- confirm the generator picks up a folded
+    module, which is exactly the class of thing that went silently missing
+    from the localization inventory when the folds landed.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * `git log --format='%an|%ae|%(trailers:key=Co-Authored-By)' | grep -i
+    -E 'claude|anthropic|github-actions|bot'` returns nothing;
+  * `git ls-files | grep -E '^(instructions|skill|proposals|\.claude)/'`
+    returns nothing, and the folders are still on disk;
+  * the README names no module as a separate tool that is now a fold, and
+    names the tools Make Masks actually has;
+  * the generated API index has a page for a folded module.

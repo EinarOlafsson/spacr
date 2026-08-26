@@ -377,3 +377,34 @@ the_strip` in `tests/qt/test_category_tooltips.py` was changed to resolve a
 nested heading by path rather than by its bare word, with the reason in its
 docstring; it still checks every top-level category against
 `category_tooltip`.
+
+--------------------------------------------------------------------------------
+2026-08-25 -- RE-AUDIT: THE NUMBERS RE-MEASURED, AND WHY ORGANELLE MOVED
+--------------------------------------------------------------------------------
+
+Measured again on the Mask module's own defaults, so the recorded pair above
+is not read as today's tree:
+
+    heading      before   after (08-12)   today
+    Cell            21          8            5
+    Nucleus         20          7            4
+    Pathogen        21          8            5
+    Organelle        6          3           13
+
+    Object filtration                61
+    Intensity handling               42
+    Image preprocessing (per object) 25
+
+Cell, Nucleus and Pathogen fell further when "Image preprocessing (per
+object)" was added after 08-12 and took `*_background` and
+`*_Signal_to_noise` with it. ORGANELLE ROSE, and it is not the regroup
+coming undone: the four organelle slots each contribute `*_diameter`,
+`*_mask_within_cells` and their type keys, so the heading grew with the
+capability rather than with the grouping.
+
+Guards re-run rather than trusted: tests/test_settings_categories.py (81
+passed), which holds `test_every_setting_a_module_offers_has_a_category` and
+`test_no_previously_categorised_key_is_lost` -- the "the regroup did not
+change which keys a module offers" assertion this file's criteria asked for;
+and tests/qt/test_category_tooltips.py (252 passed), which is the guard that
+every heading, the three new ones included, carries a written blurb.

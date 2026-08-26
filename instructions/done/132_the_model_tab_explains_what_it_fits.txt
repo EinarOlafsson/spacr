@@ -2,7 +2,9 @@
 THE MODEL AND INFERENCE TAB EXPLAINS WHAT IT FITS, AND MIXED IS THE DEFAULT
 ================================================================================
 
-Status:    filed 2026-08-17, TOP PRIORITY (maintainer's words).
+Status:    CLOSED 2026-08-20 (see the last section). This line still
+           read "filed 2026-08-17, TOP PRIORITY" on 2026-08-25,
+           contradicting the section below it that closes the item.
 Requested: 2026-08-17 --
 
   "it is important for the user to know all of this. so in the model and
@@ -189,9 +191,22 @@ Driven through the real screen and the real module, against this file's own
     a fix of its own today: the note was being written to the editor's
     tooltip, and the editor is deliberately silent on hover, so EVERY greyed
     control in spaCR was disabled without saying why. See the 106 commit.
-  * `level` IS IN "Model & Inference", in `settings.py`'s category table and
-    in the Qt layout, beside the four controls it depends on -- the addendum's
-    ask. The proportion plots' own `level` is untouched.
+  * `level` IS IN "Model & Inference" IN THE QT LAYOUT, beside the four
+    controls it depends on -- the addendum's ask, and the thing the addendum's
+    own "HOW TO KNOW IT WORKED" measures. `settings_model.py:1442` names it
+    there, with the reason in the comment.
+
+    CORRECTED 2026-08-25: this bullet used to say "in `settings.py`'s category
+    table AND in the Qt layout". It is NOT in settings.py's table --
+    `spacr.settings.categories` still lists `level` under "Plate Layout &
+    Controls", and "Regression: Model" holds the other nine keys without it.
+    That is the addendum's own escape hatch taken and not written down: `level`
+    is ONE KEY SHARED BY TWO MODULE FAMILIES, and the global table has no way
+    to place it per module, so moving it there would have regrouped the
+    proportion plots' `level` (the 'object'/'well'/'plate' unit) by accident --
+    exactly what the addendum said not to do. The Qt layout overrides the
+    table for regression, so what the user opens is right; only the sentence
+    was wrong.
   * THE TEXT BOX states the formula for the current selection and changes with
     it, in rich text with the palette's own colours (144), reflowing to the
     box (138), and at 913 characters for ols/both (143 B).

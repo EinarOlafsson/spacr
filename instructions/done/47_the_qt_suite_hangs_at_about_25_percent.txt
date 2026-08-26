@@ -1177,3 +1177,29 @@ and that window is now inside the budget and dumps its stacks. So the next
 distributed run answers the question for free: the wedged process prints every
 thread's stack and names whatever Qt state it is still holding, instead of
 spinning unwatched.
+
+--------------------------------------------------------------------------------
+RE-AUDIT -- THE SEGFAULT NAMED IN THE STATUS HEADER NO LONGER REPRODUCES
+--------------------------------------------------------------------------------
+
+The header says a full SERIAL run is stopped at about 15% by SIGSEGV in
+`tests/qt/test_cellpose_workbench.py`, "five tests, reproducible alone and
+outside pytest", and that the file has to be ignored for a whole-suite run.
+
+Re-run alone, offscreen, single process:
+
+    pytest tests/qt/test_cellpose_workbench.py -q -p no:randomly
+    21 passed, exit 0
+
+and the minimal no-pytest reproduction -- give
+`get_train_cellpose_default_settings` a `src` key, construct and delete
+`CellposeWorkbenchScreen` -- also exits 0. The ownership shape the entry
+blames (`addTab` transferring ownership while `self._screens` still holds
+the screens) is unchanged in train_cellpose.py, so the crash was
+environment- or state-dependent rather than the deterministic one recorded.
+
+WHAT IS STILL NOT CHECKED: the criterion itself. A full `pytest tests/qt`
+was not re-run for this audit -- the machine was carrying a coverage run,
+and a whole-suite run is hours. The last recorded full run that reached its
+summary line is the `-n 8` one above. Treat "the blocker is gone" and "the
+run finishes" as two separate claims; only the first was measured here.

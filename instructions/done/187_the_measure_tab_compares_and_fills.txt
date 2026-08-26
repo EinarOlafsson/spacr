@@ -192,3 +192,21 @@ was None every time -- so those choosers silently fell back to their generic
 lists. The load now carries its object rows and count data back on
 `MontageLoad` and fills the inventory, which is also what gives the two wider
 contrasts the cells the montage never drew.
+
+--------------------------------------------------------------------------------
+RE-AUDIT -- ONE TEST STILL DESCRIBED A SYNCHRONOUS JOIN
+--------------------------------------------------------------------------------
+
+`MeasurementComparePanel.join_the_tables` submits to a `JobRunner` and returns
+immediately, which is what keeps the click from blocking on hundreds of
+columns. `test_an_unreadable_database_reaches_the_note` asserted the failure
+note straight after the call and so read the panel before the job had run --
+red on a behaviour that is correct.
+
+Driven through the real panel, the note does arrive: "no measurement table
+could be read: /nowhere/x.db", with the button re-enabled. The test now waits
+for `_joining` to fall, the way
+`tests/qt/test_the_compare_tab_can_reach_the_measurements.py` already did,
+so what it checks is the path a user takes rather than the moment the handler
+returns.
+

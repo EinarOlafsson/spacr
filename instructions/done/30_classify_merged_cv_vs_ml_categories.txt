@@ -58,3 +58,21 @@ HOW TO KNOW IT WORKED
 Open the merged module: the headings say Computer Vision and Machine
 Learning, the family switch is the first thing in the panel, and the two
 original modules are unchanged.
+
+--------------------------------------------------------------------------------
+2026-08-25 - RE-AUDIT: THE THIRD CRITERION IS SUPERSEDED
+--------------------------------------------------------------------------------
+
+The first two criteria still hold, driven rather than read:
+`categories_for_app("classify_merged", spacr.settings.categories)` returns, in
+order, `Classifier` (holding `classifier_family` and nothing else), the two
+shared groups, `Computer Vision - Images & Cropping`, `... Model &
+Regularization`, `... Training & Loss`, `Machine Learning - Model & Features`,
+`... Plate & Batch Correction`, then the shared `Evaluation & Results`.
+
+The THIRD criterion -- "the two original modules are unchanged" -- can no
+longer be checked and must not be read as a defect. Classify (CV) and Classify
+(ML) were REMOVED entirely; `spacr/qt/app.py` offers one Classify row
+(`classify_merged`) and `spacr/__main__.py` maps the old `classify` key onto
+it. The step-3 rule ("only the MERGED module changes") was correct when it was
+written and was overtaken by that removal, not violated by this item.

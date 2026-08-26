@@ -2,7 +2,12 @@
 A MEASUREMENTS DATABASE PER PLATE, DROPPED INTO THE INPUT TABLE
 ================================================================================
 
-Status:    filed 2026-08-17, not started.
+Status:    CLOSED 2026-08-17. The header read "filed 2026-08-17, not
+           started" long after the CLOSED section below was written; it
+           is corrected here rather than removed, because a status line
+           that disagrees with its own file is the thing that makes a
+           finished item look unfinished and an unfinished one look
+           safe to skip.
 Requested: 2026-08-17 --
 
            "in the input tabels in the regression module i should be able to

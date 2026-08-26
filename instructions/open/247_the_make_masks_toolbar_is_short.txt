@@ -2,16 +2,10 @@
 MAKE MASKS: THE TOOLS THAT ARE MISSING, AND THE ROW THEY BELONG IN
 ================================================================================
 
-Status:    OPEN on one DECISION, not on any code. Draw, divide,
-           Cellpose-SAM with its probability and flow panes, the one tool
-           row and the settings toggle are in and tested, and every
-           control on the settings panel has a default, a type, help and a
-           place. Section 7's two defects are both fixed: the bare 2-D
-           branch in `parse_cellpose4_output`, and the pre-import in
-           `bridge.make_thread` that stops a worker's first
-           `matplotlib.pyplot` import from segfaulting the process.
-           What is left is the recrop question at the foot, which is the
-           maintainer's to answer rather than work to do.
+Status:    OPEN on recrop, which the maintainer has now asked for. Draw,
+           divide, Cellpose-SAM with its probability and flow panes, the one
+           tool row and the settings toggle are in and tested, and section
+           7's two defects are both fixed.
 Owner:     spacr/qt/screens/make_masks.py, and spacr/spacr_cellpose.py /
            spacr/object.py for the Cellpose settings it has to offer.
 
@@ -426,17 +420,37 @@ b. A worker thread importing `matplotlib.pyplot` for the first time,
    that pre-import and with nothing else changed.
 
 --------------------------------------------------------------------------------
-NOTED, NOT BUILT: recrop
+DECIDED: recrop IS IN
 --------------------------------------------------------------------------------
 
-The standalone's seventh mode is `recrop`, and this screen has no answer
-to it. Two agents building different halves of this instruction each
-arrived at it independently and each left it alone, because it is not in
-what was asked for.
+The maintainer's answer: "yes include recrop".
 
-It is worth a decision rather than a silent drop: recrop changes the
-FIELD a curator is looking at rather than the mask on it, which is a
-different job from the six tools beside it -- and on a plate whose fields
-were cut wrong it is the only tool that helps.
+The standalone's seventh mode, from
+`/mnt/firecuda2/Claude/toxoplasma_projects/plaque_assay_model/tools/curate_masks_qt.py`
+(`MODES`, its line 135; `do_recrop`). What it does there, and what this
+screen has to answer:
 
-Say whether it belongs here and it goes in the row with the others.
+Some staged crops hold SEVERAL wells -- the detector boxed a strip, or a
+hand-drawn box caught the neighbours -- and training wants one well per
+crop. Rather than curating a multi-well image or skipping it, the curator
+boxes each well. Every box becomes a new crop carrying that region of BOTH
+the image and the draft mask, queued straight after the current one; the
+original is marked recropped and MOVED ASIDE rather than deleted, because a
+recrop drawn wrong has to be recoverable.
+
+FOUR THINGS IT LEARNED THE HARD WAY, all worth keeping:
+
+  * a box under 32 px on a side is refused;
+  * a box overlapping an already-cut well by more than half is refused as a
+    RE-DRAW rather than saved as a second well. Its own comment records
+    three near-identical crops of one well reaching disk before there was
+    any feedback;
+  * every label touching the box edge is dropped, so a half object never
+    becomes ground truth;
+  * the sub-mask is relabelled from one, so the new crop is self-consistent.
+
+IT IS NOT THE SAME JOB AS THE SIX BESIDE IT. The other tools edit the mask
+on the field in view; this one changes WHICH FIELD is in view, writes new
+crops and retires the original. spaCR reads crops from a database rather
+than a folder of `_seg.npy` files, so the queue and the moved-aside original
+are answered in spaCR's own terms rather than copied.

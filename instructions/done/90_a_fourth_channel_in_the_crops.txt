@@ -199,7 +199,9 @@ dropped:
     is false and should not be repeated;
   * PIL treats a 4-channel TIFF as RGBA and silently reinterprets a 5-channel
     one's dimensions, so no image container is a free path past three planes;
-  * `convert('RGB')` silently drops a fourth plane, in five places in spaCR.
+  * `convert('RGB')` silently drops a fourth plane. It was five call sites
+    when this was written and is 21 across spacr/ as of 2026-08-25 -- the
+    fact is the mechanism, not the count.
 
 --------------------------------------------------------------------------------
 2026-08-25 - AUDIT NOTE: THE THREE NAMES BELOW ARE NOT spaCR SYMBOLS

@@ -126,8 +126,16 @@ HOW TO KNOW IT WORKED
 --------------------------------------------------------------------------------
 
 Open Preferences, choose Svenska, and the running window re-labels without
-a restart. Reopen the app and it is still Swedish. On a fresh profile with
-a Swedish system locale, it starts Swedish without being asked.
+a restart. Reopen the app and it is still Swedish.
+
+CORRECTED. This section used to end "On a fresh profile with a Swedish system
+locale, it starts Swedish without being asked." That contradicted step 3 of
+WHAT TO DO in this same file, which rules following the system locale OUT of
+this request in those words, and spaCR does not do it: `get_language()` falls
+back to DEFAULT_LANGUAGE, not to the platform locale, and nothing in the Qt
+layer reads QLocale. The sentence is kept here as a record rather than
+deleted, because a criterion nobody ever intended to meet is worth being able
+to recognise the next time it is read as a gap.
 
 --------------------------------------------------------------------------------
 DELIBERATELY NOT DONE

@@ -258,3 +258,38 @@ instruction 76.
 
 STILL OPEN in this instruction: only (5)'s multi-organelle half, tracked
 under 76.
+
+--------------------------------------------------------------------------------
+RE-AUDIT -- THE CRITERION HOLDS; ONE SENTENCE ABOVE AND ONE TEST WERE STALE
+--------------------------------------------------------------------------------
+
+THE SYNTHETIC PLATE THIS FILE ASKS FOR WAS BUILT AND RUN. Three cells with
+2, 3 and 1 pathogens, areas 5j and intensities 100+j, through
+`merge_tables(db, ["cell", "pathogen"])`:
+
+    cell 1   pathogen_area 15.0 (sum)   mean_intensity 101.5 (mean)   count 2
+    cell 2   pathogen_area 30.0 (sum)   mean_intensity 102.0 (mean)   count 3
+    cell 3   pathogen_area  5.0 (sum)   mean_intensity 101.0 (mean)   count 1
+
+three rows for three cells, and `cell_area` / `cell_mean_intensity` each
+present once at their original values -- not multiplied by the child count.
+Every clause of the criterion, measured rather than asserted.
+
+WHAT WAS STALE. The paragraph above says `MUST_AGREE` holds "object_label".
+It does not, deliberately and correctly: `object_label` moved to
+`SAME_LABEL_SPACE`, because a cell's label is its label in the CELL mask and
+a pathogen's is its label in the PATHOGEN mask, and requiring those to agree
+warned about 60,095 of 60,816 objects on a healthy screen. Cytoplasm is the
+exception -- it carries the cell's label -- and that is what
+`SAME_LABEL_SPACE["object_label"] == ("cell", "cytoplasm")` says.
+
+`tests/test_merge_duplicate_columns.py::test_must_agree_holds_the_identity
+_and_not_the_measurements` still pinned the OLD arrangement and FAILED on a
+clean tree. The test was updated to the arrangement the code argues for, and
+two tests were added rather than one assertion deleted: a disagreeing
+`object_label` between cell and cytoplasm is reported, and the same
+disagreement between cell and pathogen is silent.
+
+READ `MUST_AGREE` IN THE PARAGRAPH ABOVE AS: the plate/row/column/field
+identity, prc/prcf/prcfo, cell_id and the timepoint -- plus `object_label`
+BETWEEN TABLES THAT SHARE A LABEL SPACE.

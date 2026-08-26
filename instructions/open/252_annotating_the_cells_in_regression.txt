@@ -1,0 +1,107 @@
+================================================================================
+THE CELL TAB OFFERS THE BEST WAYS TO ANNOTATE, NOT ONLY THE OBVIOUS ONE
+================================================================================
+
+Status:    OPEN. Requested 2026-08-25.
+Owner:     the Regression module's cell tab, and whatever fits the chosen
+           cells afterwards.
+
+--------------------------------------------------------------------------------
+WHAT WAS ASKED
+--------------------------------------------------------------------------------
+
+"in regress make sure that the cell tabs setting for annotating include all
+the best techneques to annotate these cells, if you can thing of any other
+methods (e.g. for top scoring cells annotate top scoring cells in chosen
+gRNA wells and a random number (same number as top scorring class) then
+build XGBoost on those vs rest and apply to rest of cels in screen and gRNA
+wells, this is just an example)"
+
+So: the tab should offer a MENU of annotation strategies, the named one
+among them, and each should say what it is for.
+
+--------------------------------------------------------------------------------
+THE ONE THAT WAS NAMED
+--------------------------------------------------------------------------------
+
+TOP-SCORING VERSUS A MATCHED RANDOM DRAW. In the chosen gRNA wells, take the
+top-scoring cells as the positive set; draw the same number of cells at
+random as the contrast set; fit XGBoost on the two; apply it to every
+remaining cell in the screen and in those wells.
+
+THE TRAP IN IT, which the control below exists for: the score already
+encodes the phenotype, so a model trained on high-score against random can
+succeed by relearning the score and nothing else. The honest version holds
+out the score's own inputs, or reports how much of the fit survives when
+they are removed. Offer it, and say so where it is offered.
+
+--------------------------------------------------------------------------------
+THE OTHERS WORTH OFFERING
+--------------------------------------------------------------------------------
+
+  1. UNCERTAINTY SAMPLING. Annotate the cells a current model is least sure
+     of -- nearest the decision boundary. Each label buys the most there,
+     and it is the cheapest way to spend a fixed annotation budget.
+
+  2. DIVERSITY SAMPLING. Cluster the measured features (or the embedding)
+     and annotate a representative of each cluster. Uncertainty sampling
+     alone chases one boundary and never sees a rare phenotype; this is
+     what stops a whole morphology going unlabelled.
+
+  3. CONTROL WELLS AS ANCHORS. Where the plate has known positive and
+     negative control wells, seed the labels from them -- no manual
+     annotation at all, and the labels carry the experiment's own
+     definition of the phenotype rather than an annotator's.
+
+  4. POSITIVE-UNLABELLED LEARNING, done properly. The named method is PU
+     learning with the unlabelled set treated as negative, which biases the
+     fit. A PU estimator that treats the contrast set as UNLABELLED rather
+     than negative is the same idea without the bias.
+
+  5. SELF-TRAINING. Fit, take the predictions above a confidence threshold
+     as labels, refit, repeat. Cheap, and it drifts: hold a fixed audit set
+     out of every round and stop when it stops improving.
+
+  6. DISAGREEMENT BETWEEN TWO VIEWS. Fit two models on different feature
+     families -- intensity against shape, say -- and annotate where they
+     disagree. Those cells are where a single model is confidently wrong.
+
+  7. STRATIFY ACROSS THE SCORE RANGE. Annotate a fixed number per score
+     decile rather than only the top. A model shown only extremes has never
+     seen the middle, which is most of the screen.
+
+  8. NEIGHBOUR PROPAGATION. Label a cell and carry the label to its nearest
+     neighbours in feature space, with a distance cut. Multiplies an
+     annotator's effort; needs the cut shown, because too generous a one
+     manufactures agreement.
+
+  9. AN UNBIASED RANDOM SAMPLE, ALWAYS. Whatever else is chosen, a plain
+     random draw held aside is the only thing that can measure what the
+     clever strategy did to the class balance.
+
+--------------------------------------------------------------------------------
+TWO RULES THAT APPLY TO ALL OF THEM
+--------------------------------------------------------------------------------
+
+GROUP BY WELL. Cells from one well are not independent. A split that puts
+some cells of a well in train and others in test reports a score that the
+same model will not reach on a new plate. This is already the subject of
+its own instruction and must hold here too.
+
+THE STRATEGY THAT CHOSE THE LABELS CANNOT ALSO SCORE THEM. Every method
+above selects cells non-randomly, so an accuracy measured on the cells it
+chose is optimistic by construction. Each one reports against the random
+hold-out in 9, not against its own selection.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * the cell tab offers the strategies as a named choice, each with a
+    sentence saying what it is for and what it costs;
+  * the named top-scoring method runs end to end and reports how much of
+    the fit survives without the score's own inputs;
+  * every method's reported score is measured on the random hold-out, and
+    a split never puts one well's cells on both sides;
+  * choosing a strategy with no labelled data available says so rather than
+    fitting on nothing.

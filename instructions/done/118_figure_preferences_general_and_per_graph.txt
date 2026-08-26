@@ -52,7 +52,7 @@ Stored so a run picks them up without the user touching anything, and every
 one of them reachable from the same place.
 
 --------------------------------------------------------------------------------
-HOW TO KNOW IT IS DONE
+HOW TO KNOW IT WORKED
 --------------------------------------------------------------------------------
 
 Changing the palette in Preferences changes the next run's figures without any

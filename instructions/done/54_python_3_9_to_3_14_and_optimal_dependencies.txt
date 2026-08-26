@@ -603,3 +603,38 @@ WHAT IS LEFT
 
      The `sympy -> gui_elements.py` row this file used to name in
      tests/test_dependency_bounds.py is already gone; that test is green.
+
+--------------------------------------------------------------------------------
+2026-08-25 - RE-AUDIT: WHAT IS LEFT #1 IS DONE. #2 IS NOT.
+--------------------------------------------------------------------------------
+
+THE STATED CRITERION HOLDS. compat-matrix run 32907403724 on `nightly` is
+green, and every claimed interpreter has its own green cell: the six
+"installs, from wheels only" jobs for 3.9 / 3.10 / 3.11 / 3.12 / 3.13 / 3.14,
+plus "Linux x86-64 / py3.9 (floor)" and "Linux x86-64 / py3.12 (control)".
+
+BUT THE RED TEST THIS FILE NAMED WAS STILL RED, eleven days later, which is
+why an item in done/ still has to be run rather than read:
+
+    tests/test_conda_forge_recipe.py::
+        test_no_conda_recipe_floor_is_below_the_one_setup_py_declares
+    AssertionError: pynvml: recipe >=11.5, setup.py requires >=11.450.51
+
+Applied exactly the two-line repair this file specified:
+
+    conda-forge/recipe/recipe.yaml    `- pynvml >=11.5,<14`
+                                  ->  `- nvidia-ml-py >=11.450.51,<14`
+    tests/test_conda_forge_recipe.py  the `"nvidia-ml-py": "pynvml",` row is
+                                      gone from CONDA_NAMES
+
+Checked against conda-forge rather than assumed: `nvidia-ml-py` is a real
+conda-forge package, and its EARLIEST release there is 11.450.51 -- the exact
+floor setup.py declares -- so the constraint names a set that resolves.
+tests/test_conda_forge_recipe.py is 7 passed.
+
+#2 IS STILL OPEN and is deliberately not done here: it is one coordinated edit
+across setup.py, minimum-py39.txt and recipe.yaml, and it rewrites the
+coupling-exceptions paragraph whose only worked example is `sympy==1.12`.
+Re-confirmed that both really are dead -- no `import sympy` and no
+`import screeninfo` anywhere under spacr/ -- and that setup.py:104 and :618
+still cite `spacr/gui_elements.py:26`, a file that no longer exists.
