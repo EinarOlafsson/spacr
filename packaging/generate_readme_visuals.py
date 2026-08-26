@@ -14,11 +14,11 @@ Run::
 from __future__ import annotations
 
 import os
+import re
 import sys
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
-
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -37,6 +37,42 @@ README_PATHS = (
 )
 WORKFLOW_BEGIN = ".. spacr-workflow-begin"
 WORKFLOW_END = ".. spacr-workflow-end"
+INSTALLER_BEGIN = ".. spacr-installer-links-begin"
+INSTALLER_END = ".. spacr-installer-links-end"
+INSTALLER_SUBSTITUTIONS = (
+    "InstallerWindows", "InstallerMacOS", "InstallerLinux", "InstallerLegacy",
+)
+DATA_SUBSTITUTIONS = (
+    "DataBioStudies", "DataHuggingFace", "DataNCBI", "DataSpaCRPower",
+    "DataBioRxiv",
+)
+INSTALLER_ROW = (
+    "|InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerLegacy|"
+)
+DATA_ROW = (
+    "|DataBioStudies| |DataHuggingFace| |DataNCBI| |DataSpaCRPower| "
+    "|DataBioRxiv|"
+)
+_IMAGE_SUBSTITUTION_RE = re.compile(
+    r"(?m)^\.\. \|(?P<name>[^|\n]+)\| image::[^\n]*"
+    r"(?:\n   [^\n]*)*(?:\n)?"
+)
+
+# Module names stay canonical so the tile, GUI and API title agree. Only the
+# accessibility action is localized. Keep this table aligned with
+# tools/build_documentation_i18n.py, which applies the same reviewed wording
+# when it rebuilds an entire translated README.
+LOCALIZED_ALT_TEMPLATES = {
+    "de": "API für {module} öffnen",
+    "es": "Abrir la API de {module}",
+    "fr": "Ouvrir l’API de {module}",
+    "hi": "{module} API खोलें",
+    "is": "Opna API-skjölin fyrir {module}",
+    "ko": "{module} API 열기",
+    "pt": "Abrir a API de {module}",
+    "sv": "Öppna API-dokumentationen för {module}",
+    "zh_CN": "打开 {module} API",
+}
 
 RESOURCE_SLATE = (43, 47, 58, 255)  # #2B2F3A
 WORKFLOW_TILE = (13, 14, 16, 255)  # GUI dark-theme surface, #0D0E10
@@ -112,7 +148,6 @@ MAIN_PIPELINE = (
 SECTION_ORDER = (
     "Core",
     "Data",
-    "Segmentation models",
     "Results & QC",
     "Explore",
     "Assays",
@@ -127,34 +162,27 @@ SECTION_ORDER = (
 # registry still supplies each current label, section, and API destination;
 # _grouped_apps rejects missing, additional, or refiled applications.
 APP_ORDER = {
-    # Core is the pipeline in the order you run it. Timelapse and Motility
-    # moved to Assays, Curate to Segmentation models, and the two classifier
-    # screens became the one merged Classify.
+    # Core is MAIN_PIPELINE. Folded tools are reached from their host's
+    # masthead, so they do not get a second Home tile here.
     "Core": (),
     "Data": (
         "align", "convert", "foreign", "external_masks", "queue", "batch",
-        "distributed_jobs", "db_browser", "illumination", "data_manager",
-    ),
-    "Segmentation models": (
-        "make_masks", "train_cellpose", "cellpose_masks", "model_compare",
-        "model_zoo", "curate",
+        "distributed_jobs", "db_browser", "make_masks", "data_manager",
+        "project_browser",
     ),
     "Results & QC": (
-        "plate_view", "agreement", "umap", "activation", "train_compare",
-        "classifier_evaluation", "run_history", "report", "barcode_qc",
-        "hit_list", "methods_export", "volcano_explorer", "parameter_sweep",
-        "run_compare", "explain_cv", "investigate_hit",
+        "plate_view", "umap", "train_compare", "run_history", "report",
+        "run_compare", "investigate_hit", "control_chart",
     ),
     "Explore": (
-        "pipeline_graph", "profiler", "qc_dashboard", "image_scatter",
-        "lineage", "layer_viewer", "graph_builder", "anndata_export", "pca",
-        "tabulate",
+        "pipeline_graph", "profiler", "qc_dashboard", "lineage",
+        "layer_viewer", "graph_builder", "tabulate", "feature_dict",
+        "trellis", "gate_editor", "feature_explorer", "outliers",
     ),
     "Assays": (
-        "timelapse", "motility", "analyze_plaques", "recruitment",
-        "invasion", "replication",
+        "analyze_plaques", "recruitment", "invasion", "replication",
     ),
-    "Design": ("experiment_design", "power"),
+    "Design": ("experiment_design", "power", "dose_response"),
 }
 
 
@@ -380,8 +408,13 @@ def _inline_image_row(names: list[str]) -> str:
 
 
 def _registry() -> list[tuple[str, str, str, str]]:
+    import spacr.qt
     from spacr.qt.app import APPS
 
+    # This is the same registration pass run() performs before constructing
+    # MainWindow. Reading APPS without it documents only the eager startup
+    # rows and silently omits the lightweight self-registering screens.
+    spacr.qt.register_self_registering_modules()
     return list(APPS)
 
 
@@ -412,6 +445,19 @@ def _grouped_apps() -> dict[str, list[tuple[str, str]]]:
             f"missing={missing}, additional={additional}"
         )
 
+    expected_order = tuple(
+        key for section in SECTION_ORDER for key in APP_ORDER[section]
+    )
+    actual_order = tuple(
+        key for key, _label, _desc, _section in apps
+        if key not in pipeline_keys
+    )
+    if actual_order != expected_order:
+        raise ValueError(
+            "documented application order does not match the Home registry: "
+            f"expected={expected_order}, actual={actual_order}"
+        )
+
     grouped = {}
     for section in SECTION_ORDER:
         keys = APP_ORDER[section]
@@ -434,7 +480,11 @@ def _app_column(key: str) -> int:
     raise KeyError(f"unknown non-pipeline application: {key}")
 
 
-def _readme_workflow(icon_prefix: str) -> str:
+def _readme_workflow(
+    icon_prefix: str,
+    *,
+    alt_template: str = "Open the {module} API",
+) -> str:
     grouped = _grouped_apps()
     urls = _api_urls()
     pipeline_names = {key: f"Workflow_{key}" for key, _label in MAIN_PIPELINE}
@@ -448,7 +498,7 @@ def _readme_workflow(icon_prefix: str) -> str:
         lines.extend([
             f".. |{pipeline_names[key]}| image:: {icon_prefix}/workflow/{key}.png",
             f"   :width: {PIPELINE_DISPLAY_WIDTH}",
-            f"   :alt: Open the {label} API",
+            f"   :alt: {alt_template.format(module=label)}",
             f"   :target: {urls[key]}",
             "   :align: middle",
         ])
@@ -476,7 +526,7 @@ def _readme_workflow(icon_prefix: str) -> str:
             definitions.extend([
                 f".. |App_{key}| image:: {icon_prefix}/workflow/apps/{key}.png",
                 f"   :width: {APP_DISPLAY_WIDTH}",
-                f"   :alt: Open the {label} API",
+                f"   :alt: {alt_template.format(module=label)}",
                 f"   :target: {urls[key]}",
                 "   :align: middle",
             ])
@@ -559,6 +609,86 @@ def _replace_workflow_block(path: Path, markup: str) -> None:
     path.write_text(text[:start] + replacement + text[end:], encoding="utf-8")
 
 
+def _normalize_linked_resource_blocks(path: Path) -> None:
+    """Keep installer and dataset definitions outside the workflow block.
+
+    Translation preserves the substitutions but may move a definition across
+    a generated marker. A later workflow or release regeneration would then
+    delete it. Gather each definition by identity and put it back inside the
+    block that owns it before replacing either generated surface.
+    """
+    text = path.read_text(encoding="utf-8")
+    wanted = set(INSTALLER_SUBSTITUTIONS + DATA_SUBSTITUTIONS)
+    definitions: dict[str, str] = {}
+    for match in _IMAGE_SUBSTITUTION_RE.finditer(text):
+        name = match.group("name")
+        if name not in wanted:
+            continue
+        if name in definitions:
+            raise ValueError(f"{path} defines |{name}| more than once")
+        definitions[name] = match.group(0).rstrip()
+    missing = sorted(wanted - set(definitions))
+    if missing:
+        raise ValueError(f"{path} is missing linked image definitions: {missing}")
+
+    text = _IMAGE_SUBSTITUTION_RE.sub(
+        lambda match: "" if match.group("name") in wanted else match.group(0),
+        text,
+    )
+    start = text.find(INSTALLER_BEGIN)
+    end = text.find(INSTALLER_END, start + len(INSTALLER_BEGIN))
+    if start < 0 or end <= start:
+        raise ValueError(f"{path} is missing its installer-link markers")
+    end += len(INSTALLER_END)
+    installer_definitions = "\n".join(
+        definitions[name] for name in INSTALLER_SUBSTITUTIONS
+    )
+    installer = (
+        f"{INSTALLER_BEGIN}\n\n{INSTALLER_ROW}\n\n"
+        f"{installer_definitions}\n\n{INSTALLER_END}"
+    )
+    text = text[:start] + installer + text[end:]
+
+    rows = list(re.finditer(
+        r"(?m)^\|DataBioStudies\|[^\n]*$\n*", text,
+    ))
+    if len(rows) != 1:
+        raise ValueError(f"{path} must use the linked dataset row exactly once")
+    data_definitions = "\n".join(
+        definitions[name] for name in DATA_SUBSTITUTIONS
+    )
+    row = rows[0]
+    text = (
+        text[:row.start()] + DATA_ROW + "\n\n" + data_definitions
+        + "\n\n" + text[row.end():]
+    )
+    path.write_text(text, encoding="utf-8")
+
+
+def _workflow_alt_template(path: Path) -> str:
+    """Return the reviewed workflow accessibility template for ``path``."""
+    if path == ROOT / "README.rst":
+        return "Open the {module} API"
+    language = path.name.removeprefix("README.").removesuffix(".rst")
+    try:
+        return LOCALIZED_ALT_TEMPLATES[language]
+    except KeyError as exc:
+        raise ValueError(
+            f"{path} has no reviewed workflow alt-text template"
+        ) from exc
+
+
+def _remove_stale_app_assets(current_keys: set[str]) -> list[Path]:
+    """Delete generated app tiles whose registry row no longer exists."""
+    removed = []
+    for directory in (APP_WORKFLOW_DIR, DOC_WORKFLOW_DIR / "apps"):
+        for path in directory.glob("*.png"):
+            if path.stem not in current_keys:
+                path.unlink()
+                removed.append(path)
+    return removed
+
+
 def main() -> int:
     missing = [str(path) for path in RESOURCE_SOURCES.values() if not path.is_file()]
     if missing:
@@ -587,21 +717,30 @@ def main() -> int:
     doc_app_dir = DOC_WORKFLOW_DIR / "apps"
     doc_app_dir.mkdir(parents=True, exist_ok=True)
     pipeline_keys = {item[0] for item in MAIN_PIPELINE}
-    for key, label, _description, _section in _registry():
-        if key in pipeline_keys:
-            continue
+    app_rows = [
+        row for row in _registry() if row[0] not in pipeline_keys
+    ]
+    for key, label, _description, _section in app_rows:
         image = render_app_tile(key, label)
         target = APP_WORKFLOW_DIR / f"{key}.png"
         image.save(target, "PNG", optimize=True)
         image.save(doc_app_dir / f"{key}.png", "PNG", optimize=True)
         print(target.relative_to(ROOT))
+    for stale in _remove_stale_app_assets({row[0] for row in app_rows}):
+        print(f"removed {stale.relative_to(ROOT)}")
     for readme in README_PATHS:
+        _normalize_linked_resource_blocks(readme)
         prefix = (
             "../../../spacr/resources/icons"
             if readme.parent.name == "readme"
             else "spacr/resources/icons"
         )
-        _replace_workflow_block(readme, _readme_workflow(prefix))
+        _replace_workflow_block(
+            readme,
+            _readme_workflow(
+                prefix, alt_template=_workflow_alt_template(readme)
+            ),
+        )
         print(readme.relative_to(ROOT))
     DOC_WORKFLOW.parent.mkdir(parents=True, exist_ok=True)
     DOC_WORKFLOW.write_text(_documentation_workflow(), encoding="utf-8")

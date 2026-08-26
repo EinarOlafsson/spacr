@@ -73,32 +73,6 @@ Flujo de trabajo de un vistazo
 
 |Workflow_mask|\ |Workflow_arrow|\ |Workflow_measure|\ |Workflow_arrow|\ |Workflow_annotate|\ |Workflow_arrow|\ |Workflow_classify_merged|\ |Workflow_arrow|\ |Workflow_map_barcodes|\ |Workflow_arrow|\ |Workflow_regression|
 
-**Data**
-
-|App_align|\ |App_convert|\ |App_foreign|\ |App_external_masks|\ |App_queue|
-
-|App_batch|\ |App_distributed_jobs|\ |App_db_browser|\ |App_make_masks|\ |App_data_manager|
-
-**Results & QC**
-
-|App_plate_view|\ |App_umap|\ |App_train_compare|\ |App_run_history|\ |App_report|
-
-|App_run_compare|\ |App_investigate_hit|
-
-**Explore**
-
-|App_pipeline_graph|\ |App_profiler|\ |App_qc_dashboard|\ |App_lineage|\ |App_layer_viewer|
-
-|App_graph_builder|\ |App_tabulate|
-
-**Assays**
-
-|App_analyze_plaques|\ |App_recruitment|\ |App_invasion|\ |App_replication|
-
-**Design**
-
-|App_experiment_design|\ |App_power|
-
 .. |Workflow_mask| image:: ../../../spacr/resources/icons/workflow/mask.png
    :width: 14.5%
    :alt: Abrir la API de Mask
@@ -132,6 +106,37 @@ Flujo de trabajo de un vistazo
 .. |Workflow_arrow| image:: ../../../spacr/resources/icons/workflow/arrow.png
    :width: 2.5%
    :align: middle
+
+**Data**
+
+|App_align|\ |App_convert|\ |App_foreign|\ |App_external_masks|\ |App_queue|
+
+|App_batch|\ |App_distributed_jobs|\ |App_db_browser|\ |App_make_masks|\ |App_data_manager|
+
+|App_project_browser|
+
+**Results & QC**
+
+|App_plate_view|\ |App_umap|\ |App_train_compare|\ |App_run_history|\ |App_report|
+
+|App_run_compare|\ |App_investigate_hit|\ |App_control_chart|
+
+**Explore**
+
+|App_pipeline_graph|\ |App_profiler|\ |App_qc_dashboard|\ |App_lineage|\ |App_layer_viewer|
+
+|App_graph_builder|\ |App_tabulate|\ |App_feature_dict|\ |App_trellis|\ |App_gate_editor|
+
+|App_feature_explorer|\ |App_outliers|
+
+**Assays**
+
+|App_analyze_plaques|\ |App_recruitment|\ |App_invasion|\ |App_replication|
+
+**Design**
+
+|App_experiment_design|\ |App_power|\ |App_dose_response|
+
 .. |App_align| image:: ../../../spacr/resources/icons/workflow/apps/align.png
    :width: 19.9%
    :alt: Abrir la API de Align & Stitch
@@ -182,6 +187,11 @@ Flujo de trabajo de un vistazo
    :alt: Abrir la API de Data Manager
    :target: https://einarolafsson.github.io/spacr/api/spacr/data_manager/index.html
    :align: middle
+.. |App_project_browser| image:: ../../../spacr/resources/icons/workflow/apps/project_browser.png
+   :width: 19.9%
+   :alt: Abrir la API de Project Browser
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/project_browser/index.html
+   :align: middle
 .. |App_plate_view| image:: ../../../spacr/resources/icons/workflow/apps/plate_view.png
    :width: 19.9%
    :alt: Abrir la API de Plate Viewer
@@ -216,6 +226,11 @@ Flujo de trabajo de un vistazo
    :width: 19.9%
    :alt: Abrir la API de Investigate Hit
    :target: https://einarolafsson.github.io/spacr/api/spacr/hit_investigation/index.html
+   :align: middle
+.. |App_control_chart| image:: ../../../spacr/resources/icons/workflow/apps/control_chart.png
+   :width: 19.9%
+   :alt: Abrir la API de Control Charts
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/control_chart/index.html
    :align: middle
 .. |App_pipeline_graph| image:: ../../../spacr/resources/icons/workflow/apps/pipeline_graph.png
    :width: 19.9%
@@ -252,6 +267,31 @@ Flujo de trabajo de un vistazo
    :alt: Abrir la API de Tabulate
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/tabulate/index.html
    :align: middle
+.. |App_feature_dict| image:: ../../../spacr/resources/icons/workflow/apps/feature_dict.png
+   :width: 19.9%
+   :alt: Abrir la API de Feature Dictionary
+   :target: https://einarolafsson.github.io/spacr/api/spacr/feature_dict/index.html
+   :align: middle
+.. |App_trellis| image:: ../../../spacr/resources/icons/workflow/apps/trellis.png
+   :width: 19.9%
+   :alt: Abrir la API de Small Multiples
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/trellis/index.html
+   :align: middle
+.. |App_gate_editor| image:: ../../../spacr/resources/icons/workflow/apps/gate_editor.png
+   :width: 19.9%
+   :alt: Abrir la API de Gate Editor
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/gate_editor/index.html
+   :align: middle
+.. |App_feature_explorer| image:: ../../../spacr/resources/icons/workflow/apps/feature_explorer.png
+   :width: 19.9%
+   :alt: Abrir la API de Feature Explorer
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/feature_explorer/index.html
+   :align: middle
+.. |App_outliers| image:: ../../../spacr/resources/icons/workflow/apps/outliers.png
+   :width: 19.9%
+   :alt: Abrir la API de Outliers
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/outliers/index.html
+   :align: middle
 .. |App_analyze_plaques| image:: ../../../spacr/resources/icons/workflow/apps/analyze_plaques.png
    :width: 19.9%
    :alt: Abrir la API de Plaque Assay
@@ -282,14 +322,11 @@ Flujo de trabajo de un vistazo
    :alt: Abrir la API de Power / Design
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/power/index.html
    :align: middle
-.. |InstallerWindows| image:: ../../../spacr/resources/icons/platforms/windows.png
-   :width: 64
-   :alt: Windows 10/11: descargar spaCR 1.5.0.4
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
-.. |InstallerMacOS| image:: ../../../spacr/resources/icons/platforms/macos.png
-   :width: 64
-   :alt: macOS 11+ (Intel y Apple silicon): descargar spaCR 1.5.0.4
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
+.. |App_dose_response| image:: ../../../spacr/resources/icons/workflow/apps/dose_response.png
+   :width: 19.9%
+   :alt: Abrir la API de Dose–Response
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/dose_response/index.html
+   :align: middle
 
 .. spacr-workflow-end
 
@@ -306,8 +343,16 @@ Los instaladores de escritorio incluyen un entorno privado Python, por lo que co
 
 .. spacr-installer-links-begin
 
-|InstallerLinux| |InstallerMacOS| =|InstallerWindows| +|InstallerLegacy|
+|InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerLegacy|
 
+.. |InstallerWindows| image:: ../../../spacr/resources/icons/platforms/windows.png
+   :width: 64
+   :alt: Windows 10/11: descargar spaCR 1.5.0.4
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
+.. |InstallerMacOS| image:: ../../../spacr/resources/icons/platforms/macos.png
+   :width: 64
+   :alt: macOS 11+ (Intel y Apple silicon): descargar spaCR 1.5.0.4
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
 .. |InstallerLinux| image:: ../../../spacr/resources/icons/platforms/linux.png
    :width: 64
    :alt: Linux de 64 bits: descargar spaCR 1.5.0.4
@@ -316,14 +361,6 @@ Los instaladores de escritorio incluyen un entorno privado Python, por lo que co
    :width: 64
    :alt: Instaladores anteriores de spaCR
    :target: ../../source/installers.rst
-.. |DataBioStudies| image:: ../../../spacr/resources/icons/databanks/biostudies_button.png
-   :width: 72
-   :alt: Abrir el conjunto de microscopía en BioStudies
-   :target: https://doi.org/10.6019/S-BIAD2135
-.. |DataHuggingFace| image:: ../../../spacr/resources/icons/databanks/huggingface_button.png
-   :width: 72
-   :alt: Abrir el conjunto de prueba en Hugging Face
-   :target: https://huggingface.co/datasets/einarolafsson/toxo_mito
 
 .. spacr-installer-links-end
 
@@ -421,6 +458,14 @@ Conjuntos de datos de referencia
 
 |DataBioStudies| |DataHuggingFace| |DataNCBI| |DataSpaCRPower| |DataBioRxiv|
 
+.. |DataBioStudies| image:: ../../../spacr/resources/icons/databanks/biostudies_button.png
+   :width: 72
+   :alt: Abrir el conjunto de microscopía en BioStudies
+   :target: https://doi.org/10.6019/S-BIAD2135
+.. |DataHuggingFace| image:: ../../../spacr/resources/icons/databanks/huggingface_button.png
+   :width: 72
+   :alt: Abrir el conjunto de prueba en Hugging Face
+   :target: https://huggingface.co/datasets/einarolafsson/toxo_mito
 .. |DataNCBI| image:: ../../../spacr/resources/icons/databanks/ncbi_button.png
    :width: 72
    :alt: Abrir el conjunto de secuenciación en NCBI
@@ -433,7 +478,6 @@ Conjuntos de datos de referencia
    :width: 72
    :alt: Abrir la prepublicación de bioRxiv
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
-
 
 Contribuciones y soporte
 ------------------------

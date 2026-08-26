@@ -13,19 +13,23 @@ Data
 
 |DocApp_batch|\ |DocApp_distributed_jobs|\ |DocApp_db_browser|\ |DocApp_make_masks|\ |DocApp_data_manager|
 
+|DocApp_project_browser|
+
 Results & QC
 ^^^^^^^^^^^^
 
 |DocApp_plate_view|\ |DocApp_umap|\ |DocApp_train_compare|\ |DocApp_run_history|\ |DocApp_report|
 
-|DocApp_run_compare|\ |DocApp_investigate_hit|
+|DocApp_run_compare|\ |DocApp_investigate_hit|\ |DocApp_control_chart|
 
 Explore
 ^^^^^^^
 
 |DocApp_pipeline_graph|\ |DocApp_profiler|\ |DocApp_qc_dashboard|\ |DocApp_lineage|\ |DocApp_layer_viewer|
 
-|DocApp_graph_builder|\ |DocApp_tabulate|
+|DocApp_graph_builder|\ |DocApp_tabulate|\ |DocApp_feature_dict|\ |DocApp_trellis|\ |DocApp_gate_editor|
+
+|DocApp_feature_explorer|\ |DocApp_outliers|
 
 Assays
 ^^^^^^
@@ -35,7 +39,7 @@ Assays
 Design
 ^^^^^^
 
-|DocApp_experiment_design|\ |DocApp_power|
+|DocApp_experiment_design|\ |DocApp_power|\ |DocApp_dose_response|
 
 .. |DocWorkflow_mask| image:: /_static/workflow/mask.png
    :width: 14.5%
@@ -70,6 +74,7 @@ Design
 .. |DocWorkflow_arrow| image:: /_static/workflow/arrow.png
    :width: 2.5%
    :align: middle
+
 .. |DocApp_align| image:: /_static/workflow/apps/align.png
    :width: 19.9%
    :alt: Open the Align & Stitch API
@@ -120,6 +125,11 @@ Design
    :alt: Open the Data Manager API
    :target: https://einarolafsson.github.io/spacr/api/spacr/data_manager/index.html
    :align: middle
+.. |DocApp_project_browser| image:: /_static/workflow/apps/project_browser.png
+   :width: 19.9%
+   :alt: Open the Project Browser API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/project_browser/index.html
+   :align: middle
 .. |DocApp_plate_view| image:: /_static/workflow/apps/plate_view.png
    :width: 19.9%
    :alt: Open the Plate Viewer API
@@ -154,6 +164,11 @@ Design
    :width: 19.9%
    :alt: Open the Investigate Hit API
    :target: https://einarolafsson.github.io/spacr/api/spacr/hit_investigation/index.html
+   :align: middle
+.. |DocApp_control_chart| image:: /_static/workflow/apps/control_chart.png
+   :width: 19.9%
+   :alt: Open the Control Charts API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/control_chart/index.html
    :align: middle
 .. |DocApp_pipeline_graph| image:: /_static/workflow/apps/pipeline_graph.png
    :width: 19.9%
@@ -190,6 +205,31 @@ Design
    :alt: Open the Tabulate API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/tabulate/index.html
    :align: middle
+.. |DocApp_feature_dict| image:: /_static/workflow/apps/feature_dict.png
+   :width: 19.9%
+   :alt: Open the Feature Dictionary API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/feature_dict/index.html
+   :align: middle
+.. |DocApp_trellis| image:: /_static/workflow/apps/trellis.png
+   :width: 19.9%
+   :alt: Open the Small Multiples API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/trellis/index.html
+   :align: middle
+.. |DocApp_gate_editor| image:: /_static/workflow/apps/gate_editor.png
+   :width: 19.9%
+   :alt: Open the Gate Editor API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/gate_editor/index.html
+   :align: middle
+.. |DocApp_feature_explorer| image:: /_static/workflow/apps/feature_explorer.png
+   :width: 19.9%
+   :alt: Open the Feature Explorer API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/feature_explorer/index.html
+   :align: middle
+.. |DocApp_outliers| image:: /_static/workflow/apps/outliers.png
+   :width: 19.9%
+   :alt: Open the Outliers API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/outliers/index.html
+   :align: middle
 .. |DocApp_analyze_plaques| image:: /_static/workflow/apps/analyze_plaques.png
    :width: 19.9%
    :alt: Open the Plaque Assay API
@@ -219,4 +259,9 @@ Design
    :width: 19.9%
    :alt: Open the Power / Design API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/power/index.html
+   :align: middle
+.. |DocApp_dose_response| image:: /_static/workflow/apps/dose_response.png
+   :width: 19.9%
+   :alt: Open the Dose–Response API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/dose_response/index.html
    :align: middle

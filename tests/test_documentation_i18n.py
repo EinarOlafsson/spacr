@@ -2907,21 +2907,27 @@ def test_localized_readme_images_have_reviewed_accessible_text():
     )
 
     canonical = (ROOT / "README.rst").read_text(encoding="utf-8")
-    canonical_alt = re.findall(r"(?m)^   :alt: (.+)$", canonical)
+    canonical_workflow = canonical.partition(
+        ".. spacr-workflow-begin"
+    )[2].partition(".. spacr-workflow-end")[0]
+    canonical_alt = re.findall(r"(?m)^   :alt: (.+)$", canonical_workflow)
     module_names = [
-        re.fullmatch(r"Open the (.+) API", alt).group(1)
-        for alt in canonical_alt[13:69]
+        match.group(1)
+        for alt in canonical_alt
+        if (match := re.fullmatch(r"Open the (.+) API", alt)) is not None
     ]
+    assert len(module_names) == 44
     readme_root = ROOT / "docs" / "i18n" / "readme"
     for language in ("de", "es", "fr", "hi", "is", "ko", "pt", "sv", "zh_CN"):
         text = (readme_root / f"README.{language}.rst").read_text(
             encoding="utf-8"
         )
         alt_text = re.findall(r"(?m)^   :alt: (.+)$", text)
-        # Thirteen badges, 56 linked applications, four installer/archive
-        # icons and five resource icons. It was 58 applications until
-        # Classify CV and Classify ML became the one merged Classify.
-        assert len(alt_text) == 78
+        workflow = text.partition(
+            ".. spacr-workflow-begin"
+        )[2].partition(".. spacr-workflow-end")[0]
+        workflow_alt = re.findall(r"(?m)^   :alt: (.+)$", workflow)
+        assert len(workflow_alt) == 44
         assert all(
             module in alt
             for module, alt in zip(
@@ -2929,10 +2935,10 @@ def test_localized_readme_images_have_reviewed_accessible_text():
                     "Mask", "Measure", "Annotate", "Classify",
                     "Map Barcodes", "Regression",
                 ),
-                alt_text[13:19],
+                workflow_alt[:6],
             )
         )
-        assert alt_text[13:69] == [
+        assert workflow_alt == [
             REVIEWED_README_MODULE_ALT_TEMPLATES[language].format(
                 module=module,
             )
@@ -2943,7 +2949,11 @@ def test_localized_readme_images_have_reviewed_accessible_text():
 
         # The download icons carry the only text a screen reader gets for
         # them, so it has to be this language's own, not English left behind.
-        installers = alt_text[69:73]
+        installer_block = text.partition(
+            ".. spacr-installer-links-begin"
+        )[2].partition(".. spacr-installer-links-end")[0]
+        installers = re.findall(r"(?m)^   :alt: (.+)$", installer_block)
+        assert len(installers) == 4
         for platform, alt in zip(("Windows", "macOS", "Linux"), installers[:3]):
             assert platform in alt, (
                 f"{language}: {alt!r} is not the {platform} download icon")
@@ -2951,7 +2961,7 @@ def test_localized_readme_images_have_reviewed_accessible_text():
         assert not any(alt.startswith("Download spaCR") for alt in installers), (
             f"{language} kept the canonical English download alt text")
 
-        resources = alt_text[73:78]
+        resources = alt_text[-5:]
         assert all(any(name in alt for name in (
             "BioStudies", "Hugging Face", "NCBI", "spaCRPower", "bioRxiv"
         )) for alt in resources)

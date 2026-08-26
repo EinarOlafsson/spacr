@@ -10,7 +10,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 README = ROOT / "README.rst"
 DOCS_CONF = ROOT / "docs" / "source" / "conf.py"
@@ -43,10 +42,17 @@ def test_readme_keeps_the_feature_catalog_curated_and_points_to_detail():
     assert "What you can do\n---------------" in text
     assert "Most screens follow six modules" in text
     assert "docs/source/features.rst" in text
-    # Image substitutions carry accessibility text but are not visible prose.
+    # Image substitutions carry accessibility text and targets but are not
+    # visible prose. Remove their directive blocks as well as the generated
+    # workflow before enforcing the README's editorial ceiling.
     before_workflow, _, rest = text.partition(".. spacr-workflow-begin")
     _, _, after_workflow = rest.partition(".. spacr-workflow-end")
-    assert len((before_workflow + after_workflow).split()) < 1800
+    visible_prose = re.sub(
+        r"(?m)^\.\. \|[^|\n]+\| image::[^\n]*(?:\n   [^\n]*)*",
+        "",
+        before_workflow + after_workflow,
+    )
+    assert len(visible_prose.split()) < 1800
     for heading in (
         "Core screen workflow",
         "Planning, quality control and exploration",
@@ -78,9 +84,16 @@ def test_every_workflow_button_tracks_the_home_screen_registry_and_api():
     urls = generator._api_urls()
     pipeline = dict(generator.MAIN_PIPELINE)
 
-    # 56 since Classify CV and Classify ML became the one merged Classify.
-    assert len(registry) == 56
+    # Pinned deliberately: a new Home app needs a generated tile and an API
+    # destination before this count advances.
+    assert len(registry) == 44
     assert set(urls) == {key for key, _label, _description, _section in registry}
+    assert "Segmentation models" not in generator.SECTION_ORDER
+    assert tuple(
+        key
+        for section in generator.SECTION_ORDER
+        for key in generator.APP_ORDER[section]
+    ) == tuple(key for key, *_rest in registry if key not in pipeline)
     for key, label, _description, _section in registry:
         if key in pipeline:
             relative = f"spacr/resources/icons/workflow/{key}.png"
@@ -98,6 +111,16 @@ def test_every_workflow_button_tracks_the_home_screen_registry_and_api():
         )
         assert docs_relative in docs
         assert urls[key] in docs
+
+    expected_assets = set(urls) - set(pipeline)
+    assert {path.stem for path in APP_WORKFLOW_DIR.glob("*.png")} == (
+        expected_assets
+    )
+    assert {
+        path.stem
+        for path in (ROOT / "docs" / "source" / "_static" / "workflow" /
+                      "apps").glob("*.png")
+    } == expected_assets
 
     assert "flow_chart_v3" not in text
     assert "The spaCR workflow" not in text
