@@ -1,0 +1,52 @@
+================================================================================
+A STRAY SENTENCE ON THE SETUP CARD, AND THREE TOGGLES THAT START OFF
+================================================================================
+
+Status:    OPEN. Requested 2026-08-25.
+Owner:     spacr/qt/widgets/setup_slides.py for the stray text;
+           spacr/qt/preferences.py for the three defaults.
+
+--------------------------------------------------------------------------------
+1. THE STRAY SENTENCE ABOVE THE LANGUAGE LIST -- DONE
+--------------------------------------------------------------------------------
+
+"in the setup spacr window when it popps up there is text in the top left
+above Languages 'Segmentation and objct' that is stray text and needs to be
+removed, it goes away when i click next"
+
+It was the GPU note, drawn where a QLabel is born rather than where it
+belongs. The note is shown on the first slide, and the only pass that laid
+it out gave up on a note that was not visible YET -- while running before
+the slide made it visible. So the label was shown having never been placed,
+and sat in the top left corner until the first Next hid it.
+
+The placement is now two independent passes: the greeting's, which arrives
+only when the language is confirmed, and the note's, which runs whenever the
+note is shown. Driven in tests/qt/test_the_setup_card_has_no_stray_text.py.
+
+--------------------------------------------------------------------------------
+2. THREE TOGGLES SHOULD START ON
+--------------------------------------------------------------------------------
+
+"make sire all booleans are on by default: reproducability hash / AI
+assistant on at launch / include recent logs in a report -- should all be on"
+
+    Reproducibility hash            prefs.DEFAULT_HASH_INPUTS
+    AI assistant on at launch       prefs.get_ai_on_by_default
+    Include recent logs in a report prefs.get_share_diagnostic_logs
+
+All three read False today, in the getter's fallback as well as in any
+DEFAULT_ constant, and the setup card renders them unticked.
+
+BOTH HALVES MOVE OR NEITHER DOES. The settings store keeps DELTAS from the
+default, so a getter whose fallback flips from False to True changes the
+answer for every user who never touched the control -- which is the point --
+but a stored False must still read as False. Check that an explicit opt-out
+survives the change rather than being overwritten by the new default.
+
+WHY THE LOG TOGGLE IS SAFE TO DEFAULT ON, and was not before: a report no
+longer carries log lines in its body. The bundle is written to a local path
+and the body names that path, so a public GitHub issue never carries a
+user's logs. That was the maintainer's condition -- "the github issue can be
+public but the users loggs can never be publicly facing" -- and it is met
+before this default moves, not after.
