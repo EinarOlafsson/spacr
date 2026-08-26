@@ -55,8 +55,9 @@ if TYPE_CHECKING:
 #
 # The Feature Dictionary panel imports this module for those strings, and
 # that panel registers its app and its stylesheet block at launch -- so a
-# module-level pandas here was 487 modules and a third of a second spent
-# before the window drew, on behalf of a user who may never open it.
+# module-level pandas here was several hundred modules and a good fraction
+# of a second spent before the window drew, on behalf of a user who may
+# never open it.
 
 from .measurement_schema import MEASUREMENT_STAMP_COLUMNS
 from .object_roles import ORGANELLE_ROLES

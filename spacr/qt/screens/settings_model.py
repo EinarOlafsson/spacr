@@ -9221,6 +9221,10 @@ class SettingsWidgets:
     def keys_whose_object_the_run_lacks(self) -> set:
         """Return setting keys excluded by the current object configuration.
 
+        The screen calls this before constructing captions and tooltips so
+        settings for unavailable object types remain unbuilt. It uses the
+        same visibility rule as :meth:`refresh_object_visibility`.
+
         :returns: Hidden setting keys, or an empty set if visibility cannot
             be determined.
         """

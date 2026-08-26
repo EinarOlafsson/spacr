@@ -74,10 +74,27 @@ def _what_is_installed(app) -> dict:
 
 @pytest.fixture
 def clean_filters(qapp):
-    """A QApplication with none of the three filters on it."""
+    """A QApplication with none of the three filters on it.
+
+    PUT BACK WHATEVER WAS THERE. The application is shared for the whole
+    session and the suite runs in a random order, so a file that leaves the
+    filters off decides how every dialog examined after it behaves -- which
+    is the reason `uninstall_glass_everywhere` exists, applied to all three.
+    """
+    import importlib
+
+    from spacr.qt.app import _DIALOG_FILTERS
+
+    was_there = _what_is_installed(qapp)
     _forget_the_filters(qapp)
-    yield qapp
-    _forget_the_filters(qapp)
+    try:
+        yield qapp
+    finally:
+        _forget_the_filters(qapp)
+        for module_name, function_name in _DIALOG_FILTERS:
+            if was_there.get(function_name):
+                getattr(importlib.import_module(module_name),
+                        function_name)(qapp)
 
 
 def test_the_installer_puts_all_three_on(clean_filters):
@@ -320,6 +337,26 @@ W.QApplication.exec_ = _stop
 
 import spacr.qt
 import spacr.qt.app as app_module
+import spacr.qt.preferences as preferences
+
+# HOW MANY TIMES THE THEME IS RESOLVED AND SET ON THE APPLICATION. Once,
+# unless the setup screen actually asked something -- and `pretend the setup
+# screen opened` is the argument that makes it do so.
+_real_apply = preferences.apply_preferences_to_app
+seen["preferences applied"] = 0
+
+
+def _counted(app):
+    seen["preferences applied"] += 1
+    return _real_apply(app)
+
+
+preferences.apply_preferences_to_app = _counted
+
+if "pretend the setup screen opened" in sys.argv:
+    import spacr.qt.widgets.setup_slides as slides
+
+    slides.open_setup_if_needed = lambda parent=None: object()
 
 _real_init = app_module.MainWindow.__init__
 
@@ -335,12 +372,12 @@ print("PROBE_JSON" + json.dumps(seen))
 '''
 
 
-def _cold_launch():
+def _cold_launch(*arguments):
     environment = dict(os.environ)
     environment["QT_QPA_PLATFORM"] = "offscreen"
     environment["CUDA_VISIBLE_DEVICES"] = ""
     environment.pop("MPLBACKEND", None)
-    done = subprocess.run([sys.executable, "-c", _PROBE],
+    done = subprocess.run([sys.executable, "-c", _PROBE, *arguments],
                           capture_output=True, text=True, timeout=600,
                           env=environment)
     line = next((l for l in done.stdout.splitlines()
@@ -393,3 +430,23 @@ def test_the_launch_still_reaches_the_event_loop(cold_launch):
     """The other three assertions would all pass on a launch that crashed
     before it got anywhere."""
     assert cold_launch["exit"] == 0
+
+
+@pytest.mark.qt
+def test_the_theme_is_resolved_once_when_nobody_was_asked_anything(
+        cold_launch):
+    """The second `apply_preferences_to_app` exists to take the answers the
+    setup screen collected. On every launch after the first there are none,
+    and the whole theme was being resolved and set on the application
+    twice."""
+    assert cold_launch["preferences applied"] == 1
+
+
+@pytest.mark.qt
+def test_the_answers_are_still_applied_when_the_screen_did_open():
+    """And the launch that DOES ask still builds its window from what it
+    was told -- otherwise the saving above would be a bug."""
+    asked = _cold_launch("pretend the setup screen opened")
+
+    assert asked["preferences applied"] == 2
+    assert asked["exit"] == 0

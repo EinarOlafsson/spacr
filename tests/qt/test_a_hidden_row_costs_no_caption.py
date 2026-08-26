@@ -1,9 +1,10 @@
-"""The Mask panel captioning 1,538 rows to show 77 of them.
+"""The Mask panel captioning every row it has to show a fraction of them.
 
 The panel builds a control for every organelle slot that CAN be named,
 because a control that was never built cannot be revealed however the count
-is driven. On Mask that is 1,538 controls, and the object rule hides 1,461 of
-them before the panel is painted -- the run has four objects, not twenty-six.
+is driven. The object rule then hides the great majority of them before the
+panel is painted -- a run segments a handful of objects, not every slot that
+has a name.
 
 Each of those hidden rows was still given a caption and the host widget that
 right-aligns it against the field: two widgets and two style repolishes for a
@@ -226,3 +227,52 @@ def test_a_revealed_row_carries_the_help_its_caption_holds(qtbot):
     assert caption.property("settingsAppKey") == "mask"
     assert caption.property("apiTooltipHtml")
     assert screen._hint_map.get(caption)
+
+
+# ---------------------------------------------------------------------------
+# A caption that arrives after the panel does
+# ---------------------------------------------------------------------------
+
+def test_a_late_caption_is_not_left_in_english(qtbot, monkeypatch):
+    """The language pass runs once, when the panel is built.
+
+    A caption written after it would sit in English inside a translated
+    window -- and worse, the pass reads a caption it did not render as that
+    widget's English source and opts it out of every later pass.
+    """
+    from PySide6.QtWidgets import QLabel
+
+    from spacr.qt.i18n import retranslate_widget_tree, tr
+
+    monkeypatch.setenv("SPACR_LANGUAGE", "sv")
+    screen, model = _screen(qtbot)
+    retranslate_widget_tree(screen)
+
+    combo = model._widgets["number_of_organelles"]
+    combo.setCurrentIndex(combo.findData(7))
+    qtbot.wait(1)
+
+    host = _form_rows(screen)[id(model._widgets["organellee_channel"])][3]
+    caption = host if isinstance(host, QLabel) else host.findChild(QLabel)
+    assert caption is not None
+    english = model._label_for("organellee_channel")
+    if tr(english, "sv") != english:
+        assert caption.text() == tr(english, "sv"), caption.text()
+
+
+def test_walking_the_caption_index_hands_over_every_caption(qtbot):
+    """``_hint_map`` is what the panel's captions are checked through."""
+    screen, model = _screen(qtbot)
+    named = {label.property("settingKey") for label in screen._hint_map}
+    assert set(model._widgets) <= named
+    assert len(screen._hint_map) == len(model._widgets)
+
+
+def test_looking_a_hint_up_builds_nothing(qtbot):
+    """A pointer crossing the panel asks this several times a second."""
+    screen, model = _screen(qtbot)
+    waiting = dict(screen._rows_awaiting_layout)
+    assert waiting
+    assert screen._hint_map.get(screen) is None
+    assert screen._hint_map.get(model._widgets["src"]) is None
+    assert dict(screen._rows_awaiting_layout) == waiting

@@ -833,14 +833,62 @@ class _LateCaptionTranslator(QObject):
             LOG.exception("could not translate a late settings panel")
 
 
+class _CaptionsBuiltWhenTheyAreAskedFor(dict):
+    """``AppScreen._hint_map``, with the captions still waiting still to come.
+
+    A caption is what carries a setting's key, its help and its hover
+    behaviour, and this is the panel's index of them. A row the object rule
+    has already hidden does not have one yet, so WALKING this index has to
+    hand over the rest first -- the check that every setting's caption names
+    its setting reads exactly this, and an index holding a fraction of the
+    panel would pass it while checking almost nothing.
+
+    LOOKING ONE UP DOES NOT BUILD ANYTHING, which is the whole reason the two
+    are separated: a lookup is what a pointer moving across the panel does,
+    several times a second, and the answer for a widget that is not a caption
+    is "no hint" whatever else exists.
+    """
+
+    def __init__(self, caption_the_rest):
+        """:param caption_the_rest: called once, to caption the waiting rows."""
+        super().__init__()
+        self._caption_the_rest = caption_the_rest
+
+    def _complete(self) -> None:
+        """Caption the rows that are still waiting. Idempotent."""
+        build, self._caption_the_rest = self._caption_the_rest, None
+        if build is not None:
+            build()
+
+    def __iter__(self):
+        self._complete()
+        return super().__iter__()
+
+    def __len__(self) -> int:
+        self._complete()
+        return super().__len__()
+
+    def keys(self):
+        self._complete()
+        return super().keys()
+
+    def items(self):
+        self._complete()
+        return super().items()
+
+    def values(self):
+        self._complete()
+        return super().values()
+
+
 class _RowsBuiltWhenTheyAreAskedFor(list):
     """A heading's rows, with the ones the run has no object for still to come.
 
-    `AppScreen._build_settings_section` leaves a row unbuilt when the object
-    rule has already decided it must not be on screen -- on Mask that is 1,461
-    rows of 1,538. The rows that ARE built go in here as usual, so the list is
-    a real list holding real rows; what it adds is that ASKING for its contents
-    builds the rest first.
+    `AppScreen._build_settings_section` leaves a row's caption unbuilt when
+    the object rule has already decided the row must not be on screen, which
+    on Mask is most of the panel. The rows that ARE captioned go in here as
+    usual, so the list is a real list holding real rows; what it adds is that
+    ASKING for its contents builds the rest first.
 
     That is the whole reason it exists. Several checks find a settings row by
     walking ``Section._row_widgets`` -- the module smoke test reads every entry
@@ -924,7 +972,10 @@ class AppScreen(QWidget):
         super().__init__(parent)
         self.app_key = app_key
         self._last_error_text: str = ""
-        self._hint_map: dict = {}       # widget → plain-text hint
+        # widget → plain-text hint. Walking it hands over every caption,
+        # including the ones the object rule left waiting; see the class.
+        self._hint_map: dict = _CaptionsBuiltWhenTheyAreAskedFor(
+            self._caption_every_waiting_row)
         self._html_tip_map: dict = {}   # widget → HTML tooltip (sticky popup)
         # The Model & Inference explainer (instruction 132). Only the
         # regression panel builds one; every other screen leaves it None.
@@ -1700,6 +1751,9 @@ class AppScreen(QWidget):
         # changes its mind. Reset per panel: a screen may build a second one.
         self._rows_awaiting_layout = {}
         self._run_has_no_object_for = None
+        #: Headings that gained a caption since the last pass, so the language
+        #: pass reaches them and nothing else.
+        self._captioned_late = set()
         # THE MODEL ASKS THE PANEL FOR A ROW IT IS ABOUT TO SHOW. The rule
         # decides visibility; only the panel can build a row, and a rule that
         # showed a field with no row would put a bare control in no layout at
@@ -1902,11 +1956,12 @@ class AppScreen(QWidget):
         #
         # The panel builds a control for every organelle slot that CAN be
         # named, because a control that was never built cannot be revealed --
-        # on Mask that is 1,538 controls, of which the run has an object for
-        # 77. The other 1,461 are hidden before the panel is ever painted.
-        # Each of them was still given a caption and the host that
-        # right-aligns it, two widgets and two style repolishes apiece, for a
-        # caption nobody can read.
+        # so on Mask the great majority of its controls belong to objects the
+        # run does not have, and are hidden before the panel is ever painted.
+        # Each was still given a caption and the host that right-aligns it:
+        # two widgets and two style repolishes apiece, for a caption nobody
+        # can read, on a panel where a style recalculation walks every widget
+        # alive.
         #
         # THE ROW IS STILL ON THE FORM, spanning, holding its field. That is
         # what everything that walks the form goes on finding: the row can be
@@ -1926,7 +1981,7 @@ class AppScreen(QWidget):
         # which slot headings belong to objects the run does not have, and it
         # used to get it by walking every heading's form and asking each
         # heading whether anything nests inside it -- a `findChildren` per
-        # heading, on the panel with a hundred and five of them.
+        # heading, on a panel that has a heading per object slot.
         try:
             self._settings_model.remember_section_rows(
                 section,
@@ -1938,8 +1993,8 @@ class AppScreen(QWidget):
             # ANYTHING THAT READS THE ROWS BACK GETS ALL OF THEM. Several
             # checks walk `Section._row_widgets` -- the module smoke test
             # reads every entry as a labelled setting row -- and a list that
-            # quietly held 77 of 1,538 would let them pass while checking
-            # almost nothing.
+            # quietly held a fraction of the panel's rows would let them pass
+            # while checking almost nothing.
             section._row_widgets = _RowsBuiltWhenTheyAreAskedFor(
                 partial(self._lay_out_every_waiting_row, section))
         for key, label, widget in declared:
@@ -2051,7 +2106,7 @@ class AppScreen(QWidget):
         self._the_rows_moved(judge_them=False)
 
     def _lay_out_every_waiting_row(self, section) -> None:
-        """Caption all of ``section``'s rows, whatever the run has an object for.
+        """Caption every one of ``section``'s rows, run or no run.
 
         What :class:`_RowsBuiltWhenTheyAreAskedFor` calls when something reads
         the heading's rows back, so that everything walking that list is
@@ -2066,6 +2121,21 @@ class AppScreen(QWidget):
         if not mine:
             return
         for key in mine:
+            self._lay_out_one_waiting_row(key)
+        self._the_rows_moved(judge_them=True)
+
+    def _caption_every_waiting_row(self) -> None:
+        """Give every row still waiting its caption, on every heading.
+
+        What the checks that walk the panel's captions ask for, and the
+        coarsest of the three ways a waiting row is built. The object rule is
+        re-run afterwards, so this cannot put a setting for an absent object
+        on screen -- it only makes sure there is nothing left to find.
+        """
+        waiting = getattr(self, "_rows_awaiting_layout", None)
+        if not waiting:
+            return
+        for key in list(waiting):
             self._lay_out_one_waiting_row(key)
         self._the_rows_moved(judge_them=True)
 
@@ -2094,6 +2164,10 @@ class AppScreen(QWidget):
         form = getattr(section, "_form", None)
         if not isinstance(form, QFormLayout):
             return
+        late = getattr(self, "_captioned_late", None)
+        if late is None:
+            late = self._captioned_late = set()
+        late.add(section)
         try:
             at, _role = form.getWidgetPosition(row[2])
             if at >= 0:
@@ -2160,6 +2234,25 @@ class AppScreen(QWidget):
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not re-apply the dimension switches",
                       exc_info=True)
+        # THE CAPTION ARRIVES IN THE LANGUAGE THE PANEL WAS WRITTEN IN, which
+        # is English: every other caption on the form was translated by the
+        # pass that runs once the panel is built, and one that did not exist
+        # then would sit in English inside a translated window. The pass is
+        # idempotent, so re-running it over the headings that changed costs
+        # the rest of the panel nothing.
+        late = getattr(self, "_captioned_late", None) or set()
+        self._captioned_late = set()
+        if late:
+            try:
+                from ..i18n import retranslate_widget_tree
+
+                for section in late:
+                    retranslate_widget_tree(section)
+            except RuntimeError:
+                pass
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not translate a caption that arrived late",
+                          exc_info=True)
         bar = getattr(self, "_settings_search", None)
         if bar is None:
             return
@@ -2184,7 +2277,8 @@ class AppScreen(QWidget):
         run has it. See :meth:`_lay_out_the_rows_that_are_back`.
 
         :param section: the heading the row belongs to.
-        :param label: the caption, already in the UI language.
+        :param label: the caption as the module wrote it. The language pass
+            translates it afterwards, here as everywhere else.
         :param widget: the field ``SettingsWidgets`` built for the key.
         """
         # THE KEY, NOT THE LABEL. `build_sections` hands out
