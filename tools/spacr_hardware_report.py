@@ -259,6 +259,95 @@ def theming(say: Report) -> None:
 
 # ------------------------------------------------------- the application
 
+#: Measured in a CHILD process, because by the time the report reaches this
+#: point its own earlier sections have imported most of what the splash
+#: would. A cold number needs a cold interpreter.
+_SPLASH_PROBE = r"""
+import json, sys, time
+t0 = time.perf_counter()
+from PySide6.QtWidgets import QApplication
+app = QApplication([])
+qt_ready = time.perf_counter() - t0
+before = set(sys.modules)
+t1 = time.perf_counter()
+import spacr.qt as qt
+import_qt = time.perf_counter() - t1
+t2 = time.perf_counter()
+qt.register_self_registering_modules()
+registering = time.perf_counter() - t2
+new = set(sys.modules) - before
+roots = {}
+for name in new:
+    root = name.split(".")[0]
+    roots[root] = roots.get(root, 0) + 1
+t3 = time.perf_counter()
+from spacr.qt.app import MainWindow
+import_window = time.perf_counter() - t3
+t4 = time.perf_counter()
+window = MainWindow()
+build_window = time.perf_counter() - t4
+t5 = time.perf_counter()
+app.processEvents()
+first_events = time.perf_counter() - t5
+print("SPLASH_JSON" + json.dumps({
+    "qt_ready": qt_ready, "import_qt": import_qt,
+    "registering": registering, "modules": len(new),
+    "roots": sorted(roots.items(), key=lambda kv: -kv[1])[:10],
+    "import_window": import_window, "build_window": build_window,
+    "first_events": first_events,
+    "total": time.perf_counter() - t0,
+}))
+"""
+
+
+def the_splash(say: Report) -> None:
+    """The phase between typing spacr and the window appearing.
+
+    THIS IS THE ONE THE EARLIER REPORTS MISSED. They imported MainWindow
+    directly, which skips `register_self_registering_modules` -- the step
+    that imports every module owning an app so it can register itself. That
+    is what the splash screen covers, and on a machine short of memory it is
+    a thousand imports walked from a cold page cache.
+
+    Run in a CHILD interpreter so nothing this report already imported can
+    make the number look better than a real launch.
+    """
+    with _section(say, "THE SPLASH -- typing spacr until the window appears"):
+        import json
+        import subprocess
+        try:
+            done = subprocess.run(
+                [sys.executable, "-c", _SPLASH_PROBE],
+                capture_output=True, text=True, timeout=900,
+                env={**os.environ, "QT_QPA_PLATFORM":
+                     os.environ.get("QT_QPA_PLATFORM", "")})
+        except Exception as exc:                             # noqa: BLE001
+            say.failed("cold launch probe", exc)
+            return
+        line = next((l for l in done.stdout.splitlines()
+                     if l.startswith("SPLASH_JSON")), "")
+        if not line:
+            say("  the cold probe produced no reading")
+            for tail in (done.stderr or "").splitlines()[-4:]:
+                say(f"    {tail}")
+            return
+        data = json.loads(line[len("SPLASH_JSON"):])
+        say.timed("QApplication in a cold process", data["qt_ready"])
+        say.timed("import spacr.qt", data["import_qt"])
+        say.timed("REGISTER EVERY MODULE", data["registering"],
+                  f"{data['modules']:,} modules imported")
+        if data["modules"]:
+            say.item("per module",
+                     f"{data['registering'] / data['modules'] * 1000:.2f} ms")
+        say.item("largest packages",
+                 ", ".join(f"{n}({c})" for n, c in data["roots"]))
+        say.timed("import MainWindow", data["import_window"])
+        say.timed("build MainWindow", data["build_window"])
+        say.timed("first processEvents", data["first_events"])
+        say.timed("COLD LAUNCH TOTAL", data["total"],
+                  "<-- this is the splash screen")
+
+
 def startup(say: Report) -> None:
     """The real path: the window a launch actually builds."""
     with _section(say, "THE REAL STARTUP PATH"):
@@ -556,6 +645,7 @@ def main(argv=None) -> int:
     display(say)
     preferences_in_effect(say)
     theming(say)
+    the_splash(say)
     startup(say)
     screens(say, quick)
     backdrop(say)
