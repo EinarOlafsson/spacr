@@ -6,6 +6,15 @@ view, model summary, and annotation for the selected gene. Selecting a
 coefficient in any linked plot or table highlights the same feature in the
 other views.
 
+Which coefficients every tab draws -- gRNA, Gene or Both -- is the reader's
+choice, made on the panel beside what it changes. A run fitted at
+``level='both'`` fits twice and writes both families into one table, so the
+gene half needs no re-fit to be seen. The two fits are separate
+multiple-testing families and are corrected as such, and each row says which
+fit it came from, so a gene and its guides are distinct rows in the table, on
+the plot and in the exported copy. A level this run has no rows at says why it
+has none rather than drawing an empty tab.
+
 Gene and gRNA filters are applied to coefficient-level views, including their
 calibration diagnostics. Well-level residual and influence diagnostics remain
 unfiltered because wells do not belong to either coefficient family. Plot
@@ -79,6 +88,15 @@ P_VALUE_COLUMNS = (
 #: is what orders their coefficients.
 SELECTION_COLUMNS = ("selection_frequency", "selection_freq",
                      "proportion_selected")
+
+#: Columns only a guide permutation writes. A permutation resamples the well
+#: labels of ONE guide at a time, so its table is per guide by construction
+#: and holds no gene-level test at all -- which is a fact about the inference
+#: rather than a fault in the run, and is the reason "Gene" can be an honest
+#: empty on a run that finished perfectly. See
+#: :meth:`RegressionResultsPanel.missing_level_note`.
+PERMUTATION_COLUMNS = ("permutation_p_value", "permutation_exceedances",
+                       "permutations")
 
 #: Test statistics. Present without a p-value they are worth naming in the
 #: status line, because "z value" is the thing a user will point at and ask
@@ -554,6 +572,41 @@ class RegressionResultsPanel(QWidget):
         self._run_label = QLabel(self.NO_RUN_NAMED)
         self._run_label.setObjectName("resultsRunName")
         controls.addWidget(self._run_label)
+        # WHICH HALF OF THE RUN IS ON SCREEN, ON THE PANEL ITSELF.
+        #
+        # "in the regression module i still only get gRNA level coefficients
+        # i cant plot the gene level coefficients ...or see the gene level
+        # coefficients." Both halves were there and both were reachable --
+        # from the VOLCANO's own header and from the coefficient table's
+        # right-click menu. Neither is on screen while the reader is on the
+        # p-value tab, the Q-Q or the effect ranks, and the volcano's control
+        # is not in this panel at all when the host places the plot itself
+        # (`external_volcano`). A filter that decides what SEVEN tabs draw
+        # belongs on the panel that holds them.
+        #
+        # THE SAME `set_level`, so the three entry points cannot end up with
+        # three opinions about which rows are being shown -- the rule the
+        # table's menu was added under, applied once more.
+        self._level_label = QLabel("level")
+        self._level_label.setToolTip(
+            "Which family of coefficients every tab draws.\n\n"
+            "A run fitted at level='both' fits TWICE — once per guide and "
+            "once per gene — and writes both into one table. They are two "
+            "multiple-testing families, so the q-values, the Q-Q's inflation "
+            "figure and the significance line are computed within each "
+            "family and not across the pair.\n\n"
+            "Both shows them together. A gene and its guides are then "
+            "separate rows with separate labels: gene_fraction:gene[225160] "
+            "beside fraction:grna[225160_1], and a level column in the "
+            "table that says which is which.")
+        controls.addWidget(self._level_label)
+        self._level_box = QComboBox()
+        self._level_box.setMinimumWidth(120)
+        self._level_box.setToolTip(self._level_label.toolTip())
+        # `activated`, not `currentIndexChanged`: refilling the box on every
+        # redraw must not look like a choice. See `_offer_levels`.
+        self._level_box.activated.connect(self._level_chosen)
+        controls.addWidget(self._level_box)
         # THE CONTROL BELONGS ON THE FIGURE IT CHANGES. Asked for 2026-08-19:
         # "the color by in results can be removed as its alos in the right
         # click for the volcano graph the only place it is used i think" --
@@ -615,6 +668,18 @@ class RegressionResultsPanel(QWidget):
         controls.addWidget(self._colour_by_3)
         layout.addLayout(header)
         layout.addWidget(controls_row)
+
+        # WHY A LEVEL IS EMPTY, WHERE THE EMPTY THING IS. Above the tabs, so
+        # it is beside whichever tab the reader is looking at rather than
+        # only on the one that happens to carry a status line -- and hidden
+        # whenever there is nothing to say, because a banner that is always
+        # there is a banner nobody reads. Filled by :meth:`_offer_levels`.
+        self._missing_level = QLabel("")
+        self._missing_level.setObjectName("Muted")
+        self._missing_level.setWordWrap(True)
+        self._missing_level.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self._missing_level.setVisible(False)
+        layout.addWidget(self._missing_level)
 
         self.tabs = QTabWidget()
         layout.addWidget(self.tabs, 1)
@@ -944,25 +1009,26 @@ class RegressionResultsPanel(QWidget):
         self._load_jobs.job_failed.connect(self._on_load_job_failed)
         #: None, "gene" or "grna" -- which rows EVERY tab draws. One piece of
         #: state, read by every draw path: see :meth:`refresh_views`.
-        # "grna", NOT None. The coefficient table holds BOTH levels, so
-        # None drew a gene once per guide PLUS once for itself: on the real
-        # screen `225160` is four rows -- grna[225160_1], [_2], [_3] and
-        # gene[225160] -- all labelled 225160. Reported as "GRA14 and 225160
-        # occur in the top right side of the graph 4 times each which is
-        # obviously wrong". It is.
         #
-        # It looks fine on the RAW axis because the four have different p
-        # values and spread vertically; on the ADJUSTED axis Benjamini-
-        # Hochberg ties pull them to one height and they stack into a single
-        # spot. The adjusted axis did not create it, it made it visible --
-        # which is why it was reported as an adjusted-p bug, and why I looked
-        # in the wrong place three times.
+        # A DEFAULT, NOT A PIN, and there is exactly one statement of it:
+        # :meth:`_default_level`, which every table goes through. This line
+        # used to be a second, unconditional `= "grna"`, and that is what made
+        # the gene half of a `level='both'` run unreachable to a reader who
+        # never right-clicked the plot.
         #
-        # Guides rather than genes: the guide is the unit the screen
-        # measures, and a permutation run reports guides ONLY -- so this is
-        # the level on which the two inference modes agree. Instruction 128 R
-        # is the real repair: fit the two levels SEPARATELY.
-        self._level = "grna"
+        # GUIDES ARE STILL WHERE A TABLE OPENS. The guide is the unit the
+        # screen measures, and a permutation run reports guides only, so it is
+        # the level the two inference modes agree on. What has changed is that
+        # the other two are on the panel beside it.
+        #
+        # The duplication the pin was fixing -- `225160` drawn four times,
+        # once per guide plus once for itself, every one of them labelled
+        # `225160` -- is fixed at its source now: the rows are keyed and
+        # labelled by the design-matrix TERM, so the four read
+        # `gene_fraction:gene[225160]`, `fraction:grna[225160_1]`, `[_2]` and
+        # `[_3]`, and a `level` column says which fit each came from. Checked
+        # on the real screen before this default was relaxed, not assumed.
+        self._level = self._default_level()
         #: Fitted model behind the table when the current process produced it.
         self._model = None
         #: What went wrong drawing the diagnostics, verbatim, or "". Kept so
@@ -1028,6 +1094,11 @@ class RegressionResultsPanel(QWidget):
         # this table come from a run in this session or off the disk" -- a
         # question the Summary tab used to answer with a guess.
         self._from_live_run = True
+        # THE SETTINGS ARE EVIDENCE ABOUT AN EMPTY LEVEL, so the sentence
+        # that reads them is rebuilt now rather than at the next click:
+        # `level='grna'` is the plainest possible answer to "why is Gene
+        # empty", and it arrives after the table it describes.
+        self._offer_levels()
         # The reason for an absent summary has just changed, so the sentence
         # on the tab has to. Only when there is no model to render: a summary
         # already on screen is the run's own and is not rewritten.
@@ -1962,6 +2033,50 @@ class RegressionResultsPanel(QWidget):
                 f"with nothing to say -- the coefficients themselves are in "
                 f"the table.")
 
+    @staticmethod
+    def _name_the_levels(frame):
+        """``frame`` with a ``level`` column beside ``feature``, if needed.
+
+        WHATEVER TELLS A GENE FROM ITS GUIDES HAS TO BE IN THE TABLE, because
+        the table is what leaves the panel. The report that pinned the level
+        in the first place was made against a picture and a report, not
+        against the panel's internal state -- so a distinction the panel knows
+        and the exported rows do not is a distinction that has not been made.
+
+        Current runs write the column themselves and are left alone. Older
+        tables carry the same fact in the term name, and this materialises it:
+        ``gene_fraction:gene[225160]`` becomes level ``gene`` and
+        ``fraction:grna[225160_1]`` level ``grna``, in a column the
+        coefficient table shows, "Copy" copies, and the volcano offers on its
+        colour-by menu so the two families can be told apart at a glance.
+
+        Only when the table actually holds BOTH families. A guide-only run
+        needs no column to distinguish rows that are all the same kind, and a
+        constant column is clutter on every tab that shows it.
+        """
+        try:
+            from ...hits import coefficient_levels
+        except Exception:              # pragma: no cover - hits unavailable
+            return frame
+        columns = list(getattr(frame, "columns", ()))
+        if "level" in columns or "feature" not in columns:
+            return frame
+        levels = coefficient_levels(frame)
+        if not (levels == "gene").any() or not (levels == "grna").any():
+            return frame
+        frame = frame.copy()
+        # A NAME FOR THE ROWS IN NEITHER FAMILY. The intercept and the plate
+        # row/column terms are covariates, not hypotheses, so they belong to
+        # no level -- and a blank in a column offered as a colouring is a
+        # legend entry with no name on it. `coefficient_levels` does not
+        # recognise the word, so reading the column back still places those
+        # rows by their term, which is where the blank came from.
+        levels = levels.replace("", "nuisance")
+        # BESIDE THE IDENTIFIER IT QUALIFIES, not appended after thirty
+        # annotation columns where a reader scanning the row never reaches it.
+        frame.insert(columns.index("feature") + 1, "level", levels)
+        return frame
+
     def set_frame(self, frame, source: str = "") -> bool:
         """Show an already-loaded coefficient table."""
         import pandas as pd
@@ -1980,6 +2095,8 @@ class RegressionResultsPanel(QWidget):
         # The run already says this in the console; the panel the user is
         # looking at did not.
         self._say_if_no_p_values(frame)
+        # THE LEVEL IS WRITTEN INTO THE TABLE, so it survives the panel.
+        frame = self._name_the_levels(frame)
         # THE OUTGOING RUN KEEPS WHAT THE USER BUILT ON IT. Saved BEFORE
         # anything is replaced, because every line below this one resets a
         # piece of it -- and saved against the OLD path, which is the key the
@@ -2667,11 +2784,22 @@ class RegressionResultsPanel(QWidget):
     #: which the user needs to know rather than to be shielded from.
     ALWAYS_OFFERED = ("condition",)
 
-    #: Which rows EVERY tab shows. `None` is both, which is what a screen
-    #: IS, so it is the default -- a panel that opened already filtered would
-    #: be reporting a subset as the result.
-    LEVELS = ((None, "genes and guides"), ("gene", "genes only"),
-              ("grna", "guides only"))
+    #: Which rows EVERY tab shows, in the order every control offers them.
+    #:
+    #: gRNA FIRST, because it is what a new table opens on -- see
+    #: :meth:`_default_level` -- and a control whose first entry is not its
+    #: current value reads as a control that has been changed. "Both" LAST,
+    #: because it is the one that puts two multiple-testing families on one
+    #: axis and is therefore the one to choose deliberately.
+    LEVELS = (("grna", "guides only"), ("gene", "genes only"),
+              (None, "genes and guides"))
+
+    #: The level, as a control names it: the words the reader asks for. The
+    #: sentences in :data:`LEVEL_NAMES` say what each one DOES and are what
+    #: the status line and the menus use; a combo box beside four other
+    #: controls has room for a name and not for a sentence, and the two are
+    #: the same three values either way.
+    LEVEL_SHORT = {None: "Both", "gene": "Gene", "grna": "gRNA"}
 
     #: The level, as it is said in a sentence.
     LEVEL_NAMES = {None: "genes and guides", "gene": "genes only",
@@ -2736,7 +2864,16 @@ class RegressionResultsPanel(QWidget):
 
         Empty when there is nothing to say: one level in the table, or no
         filter on. A note that fires every time is a note nobody reads.
+
+        A LEVEL WITH NO ROWS IS A DIFFERENT SENTENCE, and this one gives way
+        to it. "genes only: 0 of 789 coefficients. The guide fit is in this
+        run too" is true and is not an answer -- the reader is looking at an
+        empty tab and needs to know that this run HAS no gene fit and why.
+        See :meth:`missing_level_note`.
         """
+        missing = self.missing_level_note()
+        if missing:
+            return missing
         counts = self.level_counts()
         total = counts.get(None, 0)
         if not self._level or not total:
@@ -2750,6 +2887,73 @@ class RegressionResultsPanel(QWidget):
                 f"{'gene' if other == 'gene' else 'guide'} fit is in this run "
                 f"too — switch with Level.")
 
+    def missing_level_note(self) -> str:
+        """Why the chosen level has no rows, or ``""`` when it has some.
+
+        AN EMPTY TABLE BESIDE AN EMPTY PLOT IS NOT AN ANSWER. Two ordinary
+        runs produce one, and neither is a fault: a guide permutation
+        resamples the well labels of one guide at a time, so it reports guides
+        and there is no gene-level test in it to show; and a run fitted at
+        ``level='grna'`` never fitted the gene terms in the first place. A
+        reader who chose "Gene" and got a blank tab has no way to tell either
+        of those from a panel that has broken.
+
+        The sentence also says where the rows that DO exist are, because the
+        useful next action is to put the level back.
+        """
+        if not self._level or self._frame is None:
+            return ""
+        counts = self.level_counts()
+        if counts.get(self._level, 0):
+            return ""
+        wanted = "gene" if self._level == "gene" else "guide"
+        other_key = "grna" if self._level == "gene" else "gene"
+        other = "guide" if other_key == "grna" else "gene"
+        note = (f"No {wanted}-level coefficients in this run: "
+                f"{self._why_no_rows_at(self._level)}")
+        if counts.get(other_key, 0):
+            note += (f" Its {counts[other_key]} {other}-level coefficients "
+                     f"are still here — set Level to "
+                     f"{self.LEVEL_SHORT[other_key]} to read them.")
+        return note
+
+    def _why_no_rows_at(self, level) -> str:
+        """The reason this table holds no rows at ``level``, as a clause.
+
+        Read off the TABLE first and the settings second. A run folder does
+        not always keep its settings beside the results -- neither of the two
+        real runs this was measured on did -- so a reason that depended on
+        them would be absent exactly when the panel is opened from disk,
+        which is the case that needs it.
+        """
+        frame = self._frame
+        columns = list(getattr(frame, "columns", ()))
+        settings = self._run_settings if isinstance(self._run_settings,
+                                                    dict) else {}
+        fitted = str(settings.get("level") or "").strip().lower()
+        if level == "gene":
+            if any(name in columns for name in PERMUTATION_COLUMNS):
+                return ("it was fitted by permutation, which resamples one "
+                        "guide's well labels at a time, so every test in it "
+                        "is a guide's. A gene-level permutation is a "
+                        "different test and this run did not do it.")
+            if fitted == "grna":
+                return ("it was fitted at level='grna', which fits the guide "
+                        "terms only. Re-fit at level='both' or 'gene' to get "
+                        "gene coefficients.")
+            if "level" in columns:
+                return ("every row it wrote comes from the guide fit — the "
+                        "table records the fit each coefficient came from, "
+                        "and none of them says gene.")
+            return ("no term in the coefficient table names a gene. Re-fit "
+                    "at level='both' or 'gene' to get gene coefficients.")
+        if fitted == "gene":
+            return ("it was fitted at level='gene', which fits the gene "
+                    "terms only. Re-fit at level='both' or 'grna' to get "
+                    "per-guide coefficients.")
+        return ("no term in the coefficient table names a guide — which is "
+                "what the separate gene fit writes.")
+
     def level_counts(self) -> dict:
         """``{None: n, "gene": n, "grna": n}`` for the table on screen.
 
@@ -2758,17 +2962,19 @@ class RegressionResultsPanel(QWidget):
         knowing what they gave up.
         """
         frame = self._frame
-        if frame is None or "feature" not in getattr(frame, "columns", ()):
+        levels = self._levels_of(frame)
+        if frame is None or levels is None:
             return {None: 0, "gene": 0, "grna": 0}
-        from ...hits import guide_of
-
-        guides = frame["feature"].map(lambda f: guide_of(str(f)) is not None)
+        # NOT A COMPLEMENT. `gene` used to be "every row that is not a guide",
+        # which counts the intercept and the plate row/column terms as genes
+        # -- and on a run fitted at both levels it counts the GUIDE fit's
+        # intercept as one. The two families are counted separately, so a row
+        # in neither is in neither count and the menu can be read as an
+        # inventory: 790 + 381 = 1171 on the real screen, where the complement
+        # gave 789 + 382.
         return {None: int(len(frame)),
-                "grna": int(guides.sum()),
-                # A row that is not a guide and IS in the tested family is a
-                # gene term. Counted as the complement rather than by a second
-                # parse, so the two cannot disagree about a row.
-                "gene": int((~guides).sum())}
+                "grna": int((levels == "grna").sum()),
+                "gene": int((levels == "gene").sum())}
 
     def _default_level(self):
         """The level to open a new table at.
@@ -2779,41 +2985,54 @@ class RegressionResultsPanel(QWidget):
         which is exactly what the separate gene fit writes. Whole fit when it
         has neither, so an unrecognised table is shown rather than hidden.
         """
-        frame = self._frame
-        if frame is None or "feature" not in getattr(frame, "columns", ()):
-            return None
-        from ...hits import guide_of, tested_family
-
-        features = frame["feature"].map(str)
-        if features.map(lambda f: guide_of(f) is not None).any():
+        counts = self.level_counts()
+        if counts.get("grna", 0):
             return "grna"
-        # `tested_family`, NOT `level_counts()["gene"]` and NOT `gene_of`.
-        #
-        # `level_counts()["gene"]` is the COMPLEMENT of the guides, so it
-        # counts `Intercept` and every row/column term as a gene -- the right
-        # number for the menu label, because "genes only" is what the mask
-        # actually selects, and the wrong test here.
-        #
-        # `gene_of` does not draw the line either: it parses the bracketed
-        # token, so `rowID[T.r03]` comes back as the "gene" r03. The one
-        # statement of which coefficients are hypotheses lives in `hits`, and
-        # asking it is what stops this becoming a second copy that drifts.
-        if tested_family(features).any():
+        if counts.get("gene", 0):
             return "gene"
         return None
 
     def _offer_levels(self) -> None:
-        """Add gene, guide, and combined level choices to the volcano plot.
+        """Put the level choice on the panel AND on the volcano, in step.
+
+        Three controls, one state. The panel's own combo is the one on screen
+        whatever tab is open; the volcano's is beside the dots; the
+        coefficient table's right-click menu is where instruction 128 L asked
+        for it. All three are rebuilt from :attr:`_level` here, so none of
+        them can be showing a level the panel is not drawing.
 
         The level summary uses the plot's persistent option-note slot so point
         selections cannot replace the explanation of hidden coefficients.
         """
         counts = self.level_counts()
+        note = self.both_levels_note()
         self.volcano.offer_levels(
             [(f"{label} ({counts.get(key, 0)})",
               (lambda k=key: self.set_level(k)), key == self._level)
              for key, label in self.LEVELS],
-            note=self.both_levels_note())
+            note=note)
+        # REFILLED WITHOUT FIRING. `activated` is a person's choice only, so
+        # this cannot re-enter `set_level` -- blocked as well, because a
+        # future `currentIndexChanged` here would, and silently.
+        blocked = self._level_box.blockSignals(True)
+        self._level_box.clear()
+        for key, label in self.LEVELS:
+            self._level_box.addItem(
+                f"{self.LEVEL_SHORT.get(key, label)} ({counts.get(key, 0)})",
+                key)
+            index = self._level_box.count() - 1
+            self._level_box.setItemData(index, label, Qt.ToolTipRole)
+        chosen = self._level_box.findData(self._level)
+        self._level_box.setCurrentIndex(max(chosen, 0))
+        self._level_box.blockSignals(blocked)
+        missing = self.missing_level_note()
+        self._missing_level.setText(missing)
+        self._missing_level.setVisible(bool(missing))
+
+    def _level_chosen(self, index: int) -> None:
+        """The reader picked a level off the panel's own control."""
+        if 0 <= int(index) < self._level_box.count():
+            self.set_level(self._level_box.itemData(int(index)))
 
     def build_level_menu(self):
         """Build the coefficient-level menu with row counts.
@@ -2888,6 +3107,12 @@ class RegressionResultsPanel(QWidget):
         if not self._level:
             return (f"Every tab covers the whole fit: all {total} "
                     f"coefficients, one multiple-testing family.")
+        # A LEVEL WITH NO ROWS IS NOT A NARROWER FAMILY, IT IS NO FAMILY.
+        # Saying "the inflation figure is this family's" about zero tests
+        # describes a diagnostic that is not on screen and cannot be.
+        missing = self.missing_level_note()
+        if missing:
+            return missing
         family = "genes" if self._level == "gene" else "guides"
         return (f"{family} only — {counts.get(self._level, 0)} of {total} "
                 f"coefficients. The p-value histogram and the Q-Q are "
@@ -2916,9 +3141,16 @@ class RegressionResultsPanel(QWidget):
         self._mark_the_level_on_the_plots()
         counts = self.level_counts()
         shown = counts.get(level, counts.get(None, 0))
-        self.say(f"{shown} of {counts.get(None, 0)} coefficients — "
-                 f"{self.LEVEL_NAMES.get(level, 'genes and guides')}, on "
-                 f"every tab. {self.family_note()}",
+        # THE REASON LEADS WHEN THERE IS NOTHING TO DRAW. "0 of 789
+        # coefficients — genes only" is arithmetic; it does not tell the
+        # reader that this run has no gene fit, which is what they are
+        # looking at an empty tab wondering about.
+        missing = self.missing_level_note()
+        headline = missing or (
+            f"{shown} of {counts.get(None, 0)} coefficients — "
+            f"{self.LEVEL_NAMES.get(level, 'genes and guides')}, on "
+            f"every tab. {self.family_note()}")
+        self.say(headline,
                  detail=f"{self.family_note()}\n\n"
                         f"{self.DIAGNOSTICS_ARE_WHOLE_FIT}\n\n"
                         f"{self.GUIDE_SUPPORT_NEEDS_BOTH}")
@@ -2979,15 +3211,35 @@ class RegressionResultsPanel(QWidget):
         for plot in self.diagnostic_plots():
             plot.set_status_note(note)
 
+    @staticmethod
+    def _levels_of(frame):
+        """Which fit each row came from, asked of :mod:`spacr.hits`.
+
+        ONE STATEMENT OF THE SPLIT, asked rather than re-derived. The mask,
+        the counts and the opening level were three separate parses of
+        ``feature``, and the complement they used files the GUIDE fit's
+        ``Intercept`` under "gene": a run at ``level='both'`` fits twice and
+        both fits report an intercept, so on the real screen "genes only" drew
+        382 rows where the run recorded 381. The table's own ``level`` column
+        is what tells the two apart.
+        """
+        try:
+            from ...hits import coefficient_levels
+        except Exception:              # pragma: no cover - hits unavailable
+            return None
+        return coefficient_levels(frame)
+
     def _level_mask(self, frame):
         """Rows of ``frame`` at the chosen level, or None for all of them."""
-        if not self._level or "feature" not in getattr(frame, "columns", ()):
+        if not self._level or frame is None:
             return None
-        from ...hits import guide_of
-
-        is_guide = frame["feature"].map(
-            lambda f: guide_of(str(f)) is not None)
-        return is_guide if self._level == "grna" else ~is_guide
+        columns = getattr(frame, "columns", ())
+        if "feature" not in columns and "level" not in columns:
+            return None
+        levels = self._levels_of(frame)
+        if levels is None:
+            return None
+        return levels == self._level
 
     def _offer_p_values(self) -> None:
         """Offer raw and adjusted p-values when correction was performed.
@@ -3241,7 +3493,7 @@ class RegressionResultsPanel(QWidget):
         if mask is not None:
             frame = frame.loc[mask]
 
-        self.volcano.set_results(
+        drawn = self.volcano.set_results(
             frame,
             effect=effect_column,
             p_column=p_column,
@@ -3265,6 +3517,15 @@ class RegressionResultsPanel(QWidget):
             # except the one that draws it.
             effect_threshold=self._current_threshold(),
         )
+        if not drawn:
+            # AN EMPTY DRAW HAS TO EMPTY THE IDENTIFIERS TOO. `set_results`
+            # returns early on a frame with no rows, and the early return is
+            # the one path through the plot that does not re-key it -- so
+            # after choosing a level this run has none of, the plot showed
+            # nothing and still answered `highlight_key` for the 789 guides it
+            # drew a moment ago. A selection that rings a point on an empty
+            # plot is the linkage reporting a hit it does not have.
+            self.volcano.set_keys(())
         if kind != "p-value":
             self.volcano.set_status(
                 "No p-value in this table, so there is no -log10(p) to plot. "

@@ -520,7 +520,13 @@ def test_the_filter_works_before_any_table_has_arrived(qtbot):
 
 def test_an_empty_family_is_an_answer_not_a_blank_panel(qtbot):
     """A guide-only results table filtered to "genes only" has no rows. Every
-    tab has to say so rather than showing an empty picture with no caption."""
+    tab has to say so rather than showing an empty picture with no caption.
+
+    THE SENTENCE NAMES THE RUN, NOT THE ARITHMETIC. It used to read "0 of 600
+    coefficients -- genes only", which is true and is not an answer: a reader
+    staring at an empty tab needs to know that this run HAS no gene fit and
+    why, and where the rows it does have went. Instruction 264.
+    """
     from spacr.qt.widgets.regression_results import RegressionResultsPanel
 
     widget = RegressionResultsPanel()
@@ -532,8 +538,9 @@ def test_an_empty_family_is_an_answer_not_a_blank_panel(qtbot):
     widget.set_level("gene")
 
     assert widget.table.table.rowCount() == 0
-    assert f"0 of {GUIDES} coefficients" in widget.status_text(), (
-        widget.status_text())
+    said = widget.status_text()
+    assert "No gene-level coefficients in this run" in said, said
+    assert f"{GUIDES} guide-level coefficients are still here" in said, said
     assert "No p-values" in widget.p_values._status.text()
     said = widget.agreement._status.text()
     assert "was fitted a gene-level term" in said, said

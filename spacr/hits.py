@@ -45,6 +45,7 @@ __all__ = [
     "RESULT_FILES",
     "benjamini_hochberg",
     "build_hit_list",
+    "coefficient_levels",
     "family_labels",
     "gene_of",
     "grna_agreement",
@@ -69,6 +70,11 @@ RESULT_FILES: Dict[str, str] = {
 #: Mirrors :data:`spacr.ml.NO_P_VALUE_TYPES`; kept as a literal so importing
 #: this module does not drag torch in, and asserted equal in the test suite.
 NO_P_VALUE_TYPES: Tuple[str, ...] = ("lasso", "elasticnet", "group_lasso")
+
+#: The coefficient families a run can fit, in the order a reader is offered
+#: them: the guide is the unit the screen measures, the gene is what the
+#: guides are evidence about. ``level='both'`` fits one of each.
+COEFFICIENT_LEVELS: Tuple[str, ...] = ("grna", "gene")
 
 #: The FDR a hit list defaults to calling a hit at.
 DEFAULT_ALPHA = 0.05
@@ -191,6 +197,61 @@ def family_labels(features: Iterable[Any]) -> np.ndarray:
                      np.where(explicit_guide, True, suffix_guide))
     return np.where(tested, np.where(guide, "grna", "gene"),
                     "").astype(object)
+
+
+def coefficient_levels(frame: Optional[pd.DataFrame]) -> pd.Series:
+    """Which fit each row of a coefficient table came from.
+
+    Parameters
+    ----------
+    frame : pandas.DataFrame or None
+        A coefficient table. ``None`` and a table with neither a ``level``
+        column nor a ``feature`` column yield an empty or all-``''`` result
+        rather than an exception.
+
+    Returns
+    -------
+    pandas.Series
+        ``'grna'``, ``'gene'`` or ``''`` per row, indexed like ``frame``.
+        ``''`` means the row belongs to neither family: a nuisance term, or a
+        term this function cannot place.
+
+    Notes
+    -----
+    The run's own ``level`` column is preferred, and reading the term name is
+    the fallback for tables written before that column existed. The two are
+    not interchangeable. A run at ``level='both'`` fits TWICE, and each fit
+    reports an ``Intercept``: two rows, two different numbers from two
+    different models, with identical term names. Only the column can tell
+    them apart, so a table that carries it is believed, and a value the column
+    does not recognise falls back to the term rather than being dropped.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> coefficient_levels(pd.DataFrame(
+    ...     {"feature": ["Intercept", "fraction:grna[233460_1]"],
+    ...      "level": ["grna", "grna"]})).tolist()
+    ['grna', 'grna']
+    >>> coefficient_levels(pd.DataFrame(
+    ...     {"feature": ["Intercept", "gene_fraction:gene[233460]"]})).tolist()
+    ['', 'gene']
+    """
+    if frame is None:
+        return pd.Series([], dtype=object)
+    columns = getattr(frame, "columns", ())
+    if "feature" in columns:
+        levels = pd.Series(family_labels(frame["feature"]), index=frame.index,
+                           dtype=object)
+    else:
+        levels = pd.Series([""] * len(frame), index=frame.index, dtype=object)
+    if "level" in columns:
+        recorded = frame["level"].astype(object).map(
+            lambda value: str(value).strip().lower()
+            if value is not None and value == value else "")
+        known = recorded.isin(COEFFICIENT_LEVELS)
+        levels = levels.where(~known, recorded)
+    return levels
 
 
 def gene_of(feature: Any) -> Optional[str]:
@@ -1088,8 +1149,12 @@ def build_hit_list(source: Union[str, os.PathLike, Mapping[str, pd.DataFrame]],
 def _gene_level(frames: Mapping[str, pd.DataFrame]) -> Optional[pd.DataFrame]:
     """The gene-level coefficient table, however this run spelled it.
 
-    ``results_gene.csv`` when it exists; otherwise the gene terms filtered out
-    of ``results.csv``, which is what a run that predates the split wrote.
+    ``results_gene.csv`` when it exists; otherwise the gene rows of
+    ``results.csv``, which is what a run that predates the split wrote.
+
+    Which rows those are is :func:`coefficient_levels`' answer rather than a
+    second pattern match, so the hit list and the results panel cannot come
+    to disagree about what a gene row is.
     """
     gene = frames.get("gene")
     if gene is not None and not gene.empty and "feature" in gene.columns:
@@ -1099,9 +1164,7 @@ def _gene_level(frames: Mapping[str, pd.DataFrame]) -> Optional[pd.DataFrame]:
         return None
     if "feature" not in everything.columns:
         return None
-    mask = everything["feature"].astype(str).str.contains(r"gene\[",
-                                                          regex=True)
-    return everything[mask]
+    return everything[coefficient_levels(everything) == "gene"]
 
 
 def _finite(value: Any) -> bool:
