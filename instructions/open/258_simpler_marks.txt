@@ -1,0 +1,82 @@
+================================================================================
+SIMPLER MARKS: NO INFORMATION DOTS, AND ONE CLOSE ICON EVERYWHERE
+================================================================================
+
+Status:    OPEN. Requested 2026-08-26 -- "i like simplisity!"
+Owner:     spacr/qt/screens/settings_model.py for the dots,
+           spacr/qt/theme.py and every tab or chip that closes.
+
+--------------------------------------------------------------------------------
+1. THE BLUE DOTS WITH AN i GO
+--------------------------------------------------------------------------------
+
+"in the help menue remove the blue dots with an i."
+
+They are the API link dots: `install_api_tooltips(..., api_dots=True)` in
+`settings_model.py`, drawn beside a setting's label and opening that
+setting's API page.
+
+REMOVING THEM COSTS NOTHING, and the function's own docstring says why:
+"Hover help is installed either way -- this only controls the visible dot
+... the API link is in the hover tooltip either way." Three places already
+pass `api_dots=False` for exactly this reason, each recording the same
+complaint in a comment: the Mask live preview turns them off because 68 of
+them read as a column of dots rather than a column of settings, and the
+Annotate settings dialog because twenty-six settings meant twenty-six dots.
+
+So the default flips. What that means:
+
+  * `api_dots` defaults to False, or the parameter goes entirely and the
+    dots are simply not drawn -- prefer removing the parameter if nothing
+    then passes it, because a flag with one value is a flag nobody reads;
+  * the hover tooltip keeps the API link, unchanged. This is the whole
+    reason the dots are safe to drop;
+  * ONE CAPTION NAMES THE DOT: "Hover any setting for details, or select ⓘ
+    for documentation." (`spacr/qt/i18n.py`, with nine translations). With
+    no dot to select, that sentence is wrong in ten languages. Its
+    replacement needs nine new rows, which belongs with the translation
+    work rather than here -- REPORT it, do not edit the catalogs.
+
+--------------------------------------------------------------------------------
+2. ONE CLOSE ICON, EVERYWHERE
+--------------------------------------------------------------------------------
+
+"whenever you have a symbol for closing, e.g. a tab after opening
+annotation aggreement the close symbol should just be a large X that turns
+red when hovered and is other wise white (in dark mode). this goes for all
+close icons throghout the spacr application"
+
+  * a LARGE X -- larger than the small glyph Qt gives a closable tab by
+    default;
+  * WHITE at rest in dark mode, and the light theme's equivalent ink in
+    light mode. Read it from the theme rather than writing #FFFFFF, or the
+    light theme gets a white X on a white ground;
+  * RED on hover;
+  * EVERY close mark in the application, not only the tabs. Known sites to
+    start from: `setTabsClosable(True)` in
+    `spacr/qt/widgets/cell_montage_view.py` and
+    `spacr/qt/screens/map_barcodes.py` (the folded pages -- which is where
+    the maintainer saw it, closing Annotator Agreement), and the "x" on
+    `spacr/qt/widgets/table_chip.py`. SWEEP for the rest rather than
+    trusting that list.
+
+ONE DEFINITION, NOT ONE PER SITE. A close mark restyled in three places
+drifts in the fourth. Put the mark and its two colours in the theme where
+the other shared marks live, and have each site ask for it.
+
+A CLOSE MARK IS A HIT TARGET AS WELL AS A GLYPH. Making the X larger must
+not shrink what a user has to hit, and must not push the tab text out of
+its own tab -- check a tab whose title is long, at a narrow window.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * no ⓘ dot is drawn anywhere in the application, and every setting that
+    carried one still offers its API link on hover;
+  * every close mark in the application resolves to one definition -- a
+    sweep for closable tabs and close buttons finds no site styling its own;
+  * the mark is the theme's ink at rest and red on hover, in BOTH themes,
+    measured on the drawn widget rather than read from a stylesheet string;
+  * a tab with a long title at a narrow window still shows its close mark,
+    and the mark's hit area did not shrink.
