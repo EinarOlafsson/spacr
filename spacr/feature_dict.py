@@ -43,7 +43,10 @@ import re
 import sqlite3
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Iterable
+from typing import TYPE_CHECKING, Any, Iterable
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 # PANDAS IS NOT IMPORTED HERE. Everything above the export section is
 # strings and parsing: what a measured column is called, what it means and
