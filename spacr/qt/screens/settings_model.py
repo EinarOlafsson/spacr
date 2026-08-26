@@ -865,7 +865,20 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
         # spacr.multiple_testing appears here without a second edit.
         "regression_type": ["ols"],
         "multiple_testing_method": ["fdr_bh"],
-        "inference": ["auto", "parametric", "nonparametric"],
+        # (value, label) pairs for the same reason `analysis_mode` has them
+        # below: this is the choice that decides whether the family box or
+        # the permutation section is the one that does anything, and 'auto'
+        # / 'parametric' / 'nonparametric' name a statistical stance rather
+        # than the consequence a reader is choosing between.
+        "inference": [
+            ("auto",
+             "auto — take the simultaneous fit only if the design supports it"),
+            ("parametric",
+             "parametric — fit every term at once; needs more wells than terms"),
+            ("nonparametric",
+             "nonparametric — test each term on its own by permutation; "
+             "valid at any width"),
+        ],
         # Instruction 134, asked for on 2026-08-17: "analasys mode should be
         # a dropdown". Two valid values and it was a FREE-TEXT box, so a typo
         # in it survived until the run had read the whole database.
@@ -2904,19 +2917,35 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "whether one row is a well or a single cell, and how the values are "
         "collapsed and transformed before the model sees them.",
     "MODEL & INFERENCE":
-        "How the effect is estimated AND what counts as a hit. 'Inference' "
-        "is the top-level choice, 'Regression type' selects the family, and "
-        "'Level' says whether the guide model, the gene model or both are "
-        "fitted. Below them: the multiple-testing correction applied across "
-        "the tested family, the level it targets, and the control-based "
+        "Two questions, asked in order. WHAT IS ESTIMATED is 'Level': "
+        "'gRNA' gives one estimate per guide, 'gene' one estimate per gene "
+        "with its guides pooled, 'both' gives each separately, corrected as "
+        "its own family. HOW THE P VALUE IS REACHED is 'Inference': "
+        "'parametric' fits every term at once and needs more wells than "
+        "terms; 'nonparametric' tests each term on its own by permutation "
+        "and has no such limit; 'auto' counts them and picks. The two are "
+        "independent — every level is available under either.\n"
+        "A THIRD ANALYSIS exists on the fitted side only: 'Regression type' "
+        "= 'mixed' estimates gene effects while modelling the guide-to-guide "
+        "spread inside each gene, which is why it answers both levels at "
+        "once and greys 'Level'. There is no permutation equivalent — a "
+        "variance component is something a model estimates — so under "
+        "nonparametric inference the family is not read at all and says so.\n"
+        "Below them: the multiple-testing correction applied across the "
+        "tested family, the level it targets, and the control-based "
         "effect-size threshold. With hundreds of guides an uncorrected P "
         "value is not evidence, so this is the section to get right.",
     "REGRESSION: MODEL":
-        "How the effect is estimated. 'Inference' is the top-level choice: a "
-        "parametric model fits every guide simultaneously, a nonparametric "
-        "one tests each guide by permuting wells within each plate, and 'auto' picks "
-        "whichever the design can actually support — a simultaneous fit needs "
-        "more wells than guides. 'Regression type' then selects the family.",
+        "Two independent questions. 'Level' says WHAT is estimated — one "
+        "effect per guide, one per gene, or both — and applies to the fitted "
+        "model and the permutation test alike. 'Inference' says HOW: "
+        "'parametric' fits every guide simultaneously and so needs more "
+        "wells than guides; 'nonparametric' tests each on its own by "
+        "permuting wells within each plate, which stays valid at any width; "
+        "'auto' picks whichever the design can support. 'Regression type' "
+        "selects the family, and is read only when a model is actually "
+        "fitted — its one special value, 'mixed', nests guides inside genes "
+        "and answers both levels at once.",
     "REGRESSION: MODEL TUNING":
         "Per-family knobs. Each applies to only some regression types, and a "
         "family refuses a setting it cannot read rather than ignoring it, so "
@@ -2924,9 +2953,15 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "chosen family documents the one you are changing.",
     "REGRESSION: PERMUTATION TEST":
         "Read only when inference resolves to the nonparametric test. These "
-        "control the permutation itself: how many, what is held fixed "
-        "(normally the plate), the random seed, and how many wells a guide "
-        "must appear in before it is testable.",
+        "control the permutation itself: what is measured, how many "
+        "reshuffles, what is held fixed (normally the plate), the random "
+        "seed, and how many wells a guide must appear in before it is "
+        "testable. They apply to the gene pass as well as the guide pass: a "
+        "gene is tested as a SET, its regressor the sum of its guides' "
+        "fractions, permuted with the same scheme and the same seed and "
+        "corrected as its own family — never by combining its guides' P "
+        "values, which would assume an independence guides scored in the "
+        "same wells do not have.",
     "REGRESSION: SIGNIFICANCE":
         "What counts as a hit: the multiple-testing correction applied across "
         "the tested family, the level it targets, and the control-based "
