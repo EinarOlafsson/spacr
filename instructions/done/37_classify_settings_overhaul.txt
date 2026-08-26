@@ -847,3 +847,38 @@ longer rewrites the setting.
 `class_folder_names` is present as the list that used to be `classes`
 (`spacr/classify_classes.py:31`); the Tk-only `listy` set that once had to be
 patched alongside it is gone with Tk.
+
+--------------------------------------------------------------------------------
+2026-08-25 -- RE-AUDIT: ONE TOOLTIP STILL SPOKE THE OLD VOCABULARY
+--------------------------------------------------------------------------------
+
+Audited against the code a second time. Every criterion above holds in the
+code -- `set_default_classify` carries none of `png_type`, `size`, `png_list`,
+`location_column`, `positive_control` or `negative_control`; `file_type` is an
+extension filter (`crop_source.normalise_extension`, which still reads a
+legacy `<object>_png` as its extension); `model_check.resolve_model_source`
+lets a custom path that EXISTS win with no boolean set and says out loud that
+`model_type` is not used; `crop_source.SOURCE_SETTINGS` drives the greying.
+
+ONE THING WAS NOT TRUE, and it was the half of the UI a user actually reads.
+`descriptions['file_type']` still described the setting as a path substring
+"and in the GUI this one field writes both file_type and png_type, and only
+png_type is read downstream" -- a sentence about a setting that no longer
+exists, shown as the tooltip on a control whose meaning had changed under it.
+So `png_type` DID still appear in the UI, in the one place the acceptance
+criteria did not think to look. Rewritten to describe the extension filter,
+the split from `path_string`, and the legacy value it still accepts.
+
+Re-run: tests/test_classify_classes.py, tests/test_class_editor.py,
+tests/test_the_classes_column_can_be_filled_in.py, tests/test_classify_merged.py
+(120 passed), tests/test_model_check.py, tests/test_which_picture_settings_apply.py,
+tests/test_the_crop_mode_asks_one_question_each.py (94 passed),
+tests/test_settings_tooltip_quality.py (12 passed), tests/test_dead_settings.py
+(7 passed).
+
+STILL WORTH A DECISION, not fixed here: the boolean `custom_model` is still
+offered under Computer Vision Model and listed in `classify.FAMILY_SETTINGS`
+['cv'], and nothing in the CV training path reads it -- `deep_spacr` and
+`model_check` both go through `custom_model_path`. It is the boolean this
+item's own criterion says should not have to be set. Removing it is a settings
+retirement across several files rather than an edit.

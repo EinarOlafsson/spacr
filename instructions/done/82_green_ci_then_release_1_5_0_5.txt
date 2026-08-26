@@ -315,3 +315,26 @@ committing post-rewrite run IDs would violate the explicit rule that nothing is
 committed after rewritten history. The exact final CI run IDs and conclusions
 are therefore reported outside the repository after both the pre-rewrite and
 rewritten histories complete.
+
+--------------------------------------------------------------------------------
+2026-08-25 - RE-AUDIT: THE CRITERIA CANNOT BE CHECKED FROM THE REPOSITORY
+--------------------------------------------------------------------------------
+
+Recorded so the next sweep does not read this as either closed or defective.
+
+WHAT IS CHECKABLE, AND IS CONSISTENT WITH THE CANCELLATION. `setup.py`
+declares 1.5.0.4, `spacr.version.__version__` reports 1.5.0.4, the newest
+versioned GitHub release is v1.5.0.4, and there is NO v1.5.0.5 tag
+(`git/refs/tags/v1.5.0.5` -> 404). So the "reports 1.5.0.5 consistently"
+criterion is not merely unmet, it is the state the maintainer asked for.
+
+WHAT CANNOT BE CHECKED. The other half -- "one uncancelled GitHub Actions run
+in which every required job and release gate passes" -- names run IDs this
+file deliberately keeps OUTSIDE the repository, and the "rewritten final
+branch" it refers to is not a ref in the current history. There is nothing
+in-tree to verify it against, so it is UNVERIFIABLE rather than passed.
+
+NOT THIS ITEM'S SCOPE, but true today and worth someone's attention: `nightly`
+is currently red. Run 32907403895 (`tests`) and 32907403685 (`docs`) both
+failed on the head commit. This item's gate was one closeout tree, not the
+ongoing branch, so that failure is not a regression of it.

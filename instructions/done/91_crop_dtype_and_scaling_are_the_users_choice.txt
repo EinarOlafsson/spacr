@@ -158,3 +158,38 @@ a model on statistics nobody chose, and must not stop the run either.
 
 22 tests; 718 pass across normalization, smoke, settings, validate, the
 tooltip suites, dead settings and crops.
+
+--------------------------------------------------------------------------------
+RE-AUDIT -- A FOURTH 0.5/0.5 SITE HAD APPEARED, AND IT IGNORED THE SETTING
+--------------------------------------------------------------------------------
+
+This file says `input_statistics` is "applied in the THREE places the
+0.5/0.5 literal appeared". There were four.
+
+    spacr/hyperparam.py   the activation-search data loader
+
+built its transform as `if settings.get("normalize_input", True):
+transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))` -- it read
+the on/off and not the WHICH. A model finetuned under `input_statistics=
+'imagenet'` was therefore attributed under spaCR's symmetric statistics: the
+saliency is computed on inputs shifted away from the ones the weights
+learned, so the peak reported need not be the peak the model would produce.
+
+FIXED: that site now calls `normalization_stats` with the run's
+`input_statistics`, `input_mean`, `input_std` and channel count, exactly as
+the three training/inference loaders do.
+
+PINNED STRUCTURALLY rather than per site, because per-site fixing is what
+let a fourth one appear: `tests/test_normalization.py::
+test_no_loader_hard_codes_the_symmetric_statistics` parses the package and
+fails on any `transforms.Normalize` with a literal mean/std inside a
+function that reads `normalize_input`. Scoped that way on purpose --
+`utils.preprocess_image` is documented as ImageNet preprocessing and is
+declaring a constant, not ignoring a setting. Confirmed the test fails with
+the fix reverted and passes with it in place.
+
+THE REST OF THE CRITERION HOLDS as written: `crop_dtype` and
+`input_statistics` are both registered with a type and a tooltip, the
+tooltip says outright that the dtype does NOT change training precision,
+and the defaults reproduce the previous behaviour (117 tests green across
+test_normalization, test_crop_dtype_boundaries and test_cov_11_normalization).

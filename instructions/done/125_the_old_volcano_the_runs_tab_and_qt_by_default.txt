@@ -3,7 +3,19 @@ THE OLD VOLCANO, A CLEAR GRAPH SETTING, EVERY RUN IN THE RUNS TAB, AND QT BY
 DEFAULT
 ================================================================================
 
-Status:    filed 2026-08-17, not started.
+Status:    DONE. Filed 2026-08-17; audited against the code on 2026-08-18
+           and again on 2026-08-20, and all four parts (A-D) were already
+           shipped. Re-audited 2026-08-25: still true -- the three legacy
+           volcano call sites are gated on one resolved boolean, the
+           clear-figures control rests on the palette's error role, every
+           run reaches the Runs tab, the figure sections fold and stay
+           folded, and PySide6/qtawesome/pyqtgraph are core requirements
+           with the headless import invariant still tested. The line
+           numbers quoted in the 2026-08-18 section have since moved
+           (ml.py 8617/8658/8739/4933); the symbols they name have not.
+           The 'not started' line this replaces was the tenth file that
+           week to be wrong about itself, which is the whole reason the
+           audit sections below record how they checked.
 Requested: 2026-08-17, after the regression module was reported working --
 
            "by default i still see my old volcano plot, i thought we said its

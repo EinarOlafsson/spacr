@@ -2,7 +2,9 @@
 IMAGE UMAP: FIGURE SETTINGS SHOULD CARRY THE UMAP DISPLAY SETTINGS
 ================================================================================
 
-Status:    ready to build - ambiguity settled 2026-08-06
+Status:    done - the one display window ships in spacr/qt/widgets/umap_explorer.py
+           (live half + deferred half) and the non-live figure's equivalent in
+           umap_figure_settings.py
 Requested: 2026-08-06 - "in Image UMAP, in figure settings, i should also see all the relevant Image UMAP display settings and be able to propagate them to UMAP display. these settings should also live apply to the current image UMAP figure."
 
 --------------------------------------------------------------------------------
@@ -109,3 +111,34 @@ or mark the deferred ones. Do not mix them silently in one list.
 Everything else in this file stands, including the live-apply trap: restyle
 the artists in place, never re-embed, or the points move and the user loses
 the arrangement they were reading.
+
+--------------------------------------------------------------------------------
+RE-AUDIT -- PROPAGATE WAS WRITING KEYS THE SETTINGS PANEL DOES NOT HAVE
+--------------------------------------------------------------------------------
+
+The live half worked and the points did not move. PROPAGATE DID NOT, for
+three of the nine fields, including the one this file names in its own
+acceptance criterion.
+
+The explorer names a display setting after the artist it sets;
+`generate_image_umap` maps the settings keys onto those names when it builds
+the payload (`dot_size -> point_size`, `umap_canvas_width -> canvas_width`,
+`umap_sidebar_width -> sidebar_width`). Nothing mapped BACK. The propagate
+callback is `SettingsWidgets.set_value_for_key`, which returns False and
+changes nothing for a key it does not know -- so "Display updated." was
+printed, the value was never written, and the next run drew the old dot
+size.
+
+Measured on a built panel: `set_value_for_key("dot_size", …)` True,
+`set_value_for_key("point_size", …)` False; same for both widths.
+
+FIXED: `SETTINGS_KEY_FOR_DISPLAY` / `as_settings_keys` in umap_explorer.py,
+applied to `dialog.values()` before the callback -- the inverse of the map
+core.py already applies in the other direction.
+
+The old test asserted `sent["point_size"] == 44`, which is exactly the bug
+written down as an expectation; it now asserts the settings key. Added
+test_every_propagated_key_is_one_the_settings_panel_is_bound_to, which
+builds the real Image UMAP settings panel and rejects any key it has no
+control for -- so a tenth field cannot be added under an artist name and
+propagate to nothing.

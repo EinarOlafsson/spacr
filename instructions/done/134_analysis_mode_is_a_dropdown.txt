@@ -82,3 +82,21 @@ demonstrated on it -- but the writer was wrong for any labelled combo, and it
 is fixed for all of them rather than for this one.
 
 7 tests in tests/qt/test_analysis_mode_is_a_dropdown_that_reads.py.
+
+--------------------------------------------------------------------------------
+2026-08-25 -- RE-AUDIT: STILL TRUE, AND ONE CRITERION HAS BEEN SUPERSEDED
+--------------------------------------------------------------------------------
+
+Driven again: `settings_spec.special_cases['analysis_mode']` still declares the
+same two (value, label) pairs with `regression` as the default, the Qt panel
+greys it with the reason whenever `inference` is choosing it, and
+`AppScreen._apply_value` still matches on `findData` before falling back to the
+text, so a settings CSV naming either KEY still loads. 8 tests in
+tests/qt/test_analysis_mode_is_a_dropdown_that_reads.py pass.
+
+THE FIRST CRITERION NAMED TWO FRONT ENDS. The Tk front end has since been
+deleted (`spacr` is now an alias entry point for `spacr.qt:run`), so "the same
+two entries in both" is now satisfied by there being one panel rather than by
+two agreeing. The shared declaration in `settings_spec` is kept anyway: it is
+the reason a second surface cannot drift, and the settings writer's `findData`
+fix that this instruction found applies to every labelled combo.

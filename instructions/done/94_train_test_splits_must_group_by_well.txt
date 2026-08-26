@@ -204,3 +204,29 @@ fractions and mismatched lengths. The routed ML, active-learning, CV, crop,
 augmentation, surrogate and GUI suites pass (588 focused integration tests;
 117 active-learning/surrogate tests; 433 settings tests; and the three
 end-to-end classical-ML tests).
+
+--------------------------------------------------------------------------------
+2026-08-25 - RE-AUDIT: THE INVARIANT HAD DRIFTED, AND NOW A TEST HOLDS IT
+--------------------------------------------------------------------------------
+
+This file's claim "there is no remaining direct `train_test_split` call outside
+the shared implementation" was true when it was written and false when it was
+re-read. `annotation_umap_qc.fit_on_controls` -- the UMAP control check, added
+after this instruction closed -- split its control cells with a plain
+stratified `train_test_split`, so sibling cells from one control well sat on
+both sides and the held-out silhouette it reports, and the overfit gap the
+panel refuses on, were both optimistic by an unknown amount.
+
+Fixed the way the file says the five original sites were: it routes through
+`classifier_evaluation.grouped_split`, takes `groups=` and `group_by=`, records
+`split_level` and `split_rule` in its result, and refuses an ungroupable design
+rather than randomising it. The Qt tab derives the well identity through
+`split_group_values` and falls back to `cell` only when the frame cannot name a
+well -- recorded in the result rather than assumed.
+
+THE RATCHET IS THE POINT. A blanket claim about the package needs a test or it
+decays at the next feature: `tests/test_every_split_goes_through_the_shared_splitter.py`
+fails on any module under `spacr/` that calls `train_test_split` directly, plus
+four tests that a control well never appears on both sides, that an ungrouped
+call says so, that one well per class is refused, and that a missing group is
+refused. Confirmed failing against the previous code.

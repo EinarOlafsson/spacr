@@ -88,3 +88,40 @@ measurements, predictions and saved scientific results remain canonical data
 and are not translated. A new public docstring may temporarily use English
 fallback until a technically sound translation is available; its source hash
 makes that state explicit and prevents stale prose from being displayed.
+
+--------------------------------------------------------------------------------
+2026-08-25 -- RE-AUDIT: STILL FULLY COVERED; THE COUNTS ABOVE ARE A 2026-08-11
+                SNAPSHOT AND HAVE GROWN
+--------------------------------------------------------------------------------
+
+RE-RUN `python tools/audit_i18n_coverage.py`. Every language is still at full
+coverage; the totals are simply larger, because the surface grew:
+
+                            recorded above    measured now
+    runtime entries          3,011             4,416   (4,416/4,416 in all 9)
+    installer strings           57                57   (57/57 in all 9)
+    API docstrings           6,101             8,106   (8,106/8,106 fresh)
+
+Non-English runtime VALUES sit between 4,384 and 4,403 of 4,416 per language;
+the remainder are scientific identifiers and product names that are correctly
+left unchanged, which is what the report's own note means by "an unchanged
+count can legitimately include ... identifiers and product names".
+
+    node --check docs/source/_static/api_i18n.js    OK
+    git diff --check                                clean
+    i18n pytest (5 files, 148 tests)                147 passed, 1 failed
+
+THE ONE FAILURE IS THE HELD RATCHET, NOT A COVERAGE GAP.
+`test_api_i18n_extractor.py::test_public_docstrings_matches_reviewed_visible_
+coverage` pins the public API surface at 8,190 and measures 8,254. That
+ratchet is held on purpose -- it fires when public docstrings are ADDED, to
+force the catalogs to be regenerated in the same change -- and moving it is
+the catalog owner's call, not this file's.
+
+NOT RE-RUN HERE: the full Sphinx HTML build. It is minutes of CPU and the
+machine is running a coverage job; nothing in the JavaScript, the catalogs or
+the audit changed since it last passed.
+
+So the numbers in WHAT THE STATE IS and in HOW TO KNOW IT WORKED are a dated
+snapshot rather than a live target. Read them as "full coverage on that date";
+the audit tool is the live check.

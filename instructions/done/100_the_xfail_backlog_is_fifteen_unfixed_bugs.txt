@@ -400,3 +400,45 @@ exists. B1 and B2 no longer reach it, so nothing is contaminated by it today,
 but the branch itself was not removed.
 
 CLOSED. Fifteen of fifteen, zero xfails, every one with a test.
+
+--------------------------------------------------------------------------------
+2026-08-25 - RE-AUDIT: THE BACKLOG IS BACK. NINE, NOT ZERO.
+--------------------------------------------------------------------------------
+
+Run under this file's own marker selection over the ten files that still carry
+`@pytest.mark.xfail(strict=True)`:
+
+    -m "not integration and not slow and not heavy and not qt and not gpu
+        and not network and not nas and not gui" -p no:randomly
+
+    531 passed, 57 deselected, 9 xfailed
+
+NOT ONE of the nine reasons names a maintainer decision that has been asked
+and not yet answered, which is the only exemption this file grants. Every one
+names a concrete unfixed defect with a file and a line:
+
+  parameter_sweep.py   run_sweep's per-trial CSV write is not inside the
+                       try/except OSError that guards the progress write
+  hyperparam.py        builds SVC(probability=True); ml.py fits
+                       CalibratedClassifierCV(SVC(...)), so the search tunes a
+                       different estimator than the run
+  qt/…/sweep runs      delete_runs_from_disk builds `keep` from the DECORATED
+                       failure strings, so no plain folder path ever matches
+  validate.py:167/239  a plugin alias is registered with '-' folded to '_' and
+                       _normalize_app only strips and lowercases
+  hit_attribution      candidate_rank / candidate_percentile are ranks OF
+                       score_column, so include_original_score=False still
+                       leaks the model output
+  remote_execution     the timeout message names the requested timeout, not
+                       the one that was waited
+  model_check.py:174   imports KNOWN_MODELS from spacr.model_zoo, which never
+                       exported it, so the ImportError branch always wins
+  model_check.py:87    class_names raises ClassDefinitionError out of
+                       check_model, documented at line 141 never to raise
+  setting_animations   _animation_frames is defined twice (300 and 415); the
+                       second shadows the first and drops its guarded imports
+
+These are nine production bugs in nine modules, not one repair, so they are
+reported rather than half-fixed here. The rule this file states still stands:
+a defect decided against is closed by DELETING the test and recording the
+decision, not by leaving an xfail for the next sweep to recount.

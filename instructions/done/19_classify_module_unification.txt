@@ -228,3 +228,39 @@ test_classify_merged.py, test_training_basis.py, test_dead_settings.py,
 test_settings.py and the four Qt files. `spacr/training_basis.py` and
 `spacr/classify.py` still carry the symbols the DONE sections claim, minus
 the retired basis.
+
+--------------------------------------------------------------------------------
+2026-08-25 -- RE-AUDIT: THE "BOTH ORIGINALS KEPT" CLAIM IS SUPERSEDED
+--------------------------------------------------------------------------------
+
+`test_the_merged_module_is_registered_everywhere_it_has_to_be` FAILED at
+re-audit. It asserted `{"classify_merged", "classify", "ml_analyze"} <= APPS
+keys` -- "the merged module must be registered AND both originals kept" -- and
+neither original is registered any more.
+
+That is not a regression. Commit ecebcd86 (2026-08-23, at the maintainer's
+instruction) removed Classify (CV) and Classify (ML) from the app registry:
+three entries for one job is three places to look, and two of them are the
+same run with half the choices. app.py records the reason in place.
+
+WHAT WAS ACTUALLY PROMISED IS STILL TRUE, and is what the test now checks:
+
+  * `classify_merged` is registered, with a Home section, a non-colliding
+    icon, a title and an intro -- unchanged.
+  * NEITHER old key is back in the registry (the new assertion; re-adding one
+    fails it).
+  * BOTH old keys still RESOLVE: `chaining.screen_for_module("classify")` and
+    `("ml_analyze")` both return `classify_merged`, so a settings CSV saved
+    under either opens the merged screen instead of building an orphan page.
+    Asserted by `test_a_saved_run_under_an_old_classify_key_still_finds_a_
+    screen`, confirmed to fail with the alias rows removed.
+  * The headless entry points are untouched: `bridge` still dispatches
+    `ml_analyze` to `ml.generate_ml_scores`, and `classify.classify` picks by
+    `classifier_family`.
+
+STILL WRONG, NOT FIXED HERE: `app_screen.APP_INTROS["classify_merged"]` ends
+"Classify (CV) and Classify (ML) remain available separately." They are not
+available separately any more. APP_INTROS is one of the extracted i18n
+metadata tables (`app.py::_META_TARGETS`), so correcting the English string
+needs the translation catalogs rebuilt in the same change; left for whoever
+owns those.

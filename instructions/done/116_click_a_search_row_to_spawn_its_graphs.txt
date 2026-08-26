@@ -2,7 +2,13 @@
 CLICK A SEARCH ROW TO SPAWN THAT RUN'S GRAPHS
 ================================================================================
 
-Status:    partly done
+Status:    COMPLETE, 2026-08-20. This line read "partly done" until
+           2026-08-25, contradicting the section below it headed
+           "116 IS COMPLETE". The "WHAT IS LEFT OF THIS FILE" list
+           further down is likewise superseded by that section: both
+           entries -- FastPlot.pinned_limits() and painting the still
+           in the Runs tab -- were closed there and are kept only as
+           the record of the order the work landed in.
 Requested: 2026-08-16 — "the search should function simmilarly to the image
            umap hyperparamiter search wher the user can click a row in the
            table and spawn the umap, in this case the user should be able to
@@ -338,3 +344,22 @@ still and not the panel, and the still SAYS it is a still, because a picture
 of a plot that ignores clicks has to explain why it does.
 
 11 tests in tests/qt/test_the_runs_tab_shows_a_still_of_a_run.py.
+
+--------------------------------------------------------------------------------
+2026-08-25 - RE-AUDIT: THE FOUR CRITERIA, CHECKED
+--------------------------------------------------------------------------------
+
+Driven and imported rather than read:
+
+  * `AppScreen.MAX_LIVE_RUNS` is 2 and `LIVE_RUNS_NOTE` still carries 129's
+    numbers into the refusal ("about 75 ms a frame against 5 ms for a still,
+    on a 17 ms budget"), so the frame budget is stated where a user meets it.
+  * `AppScreen.open_run_beside`, `close_run_beside`, `run_photograph` and
+    `_raise_the_results_tab` all resolve.
+  * `FastPlot.pinned_limits` is defined in `spacr/qt/widgets/fast_plots.py`,
+    and `regression_results.py:2151` reaches it by name instead of the old
+    `getattr(volcano, "_pinned")` this file named as its one private coupling.
+  * 56 tests pass across tests/test_a_run_keeps_its_own_plot.py,
+    tests/test_two_runs_on_screen_at_once.py,
+    tests/test_delete_a_run_from_the_runs_tab.py and
+    tests/qt/test_the_runs_tab_shows_a_still_of_a_run.py.

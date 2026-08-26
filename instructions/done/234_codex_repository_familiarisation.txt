@@ -66,3 +66,28 @@ defect was repaired as part of this read-only familiarisation pass; those
 require a separate change request. The pre-existing settings_model.py change
 and a concurrently appearing test change were not touched. No full test suite
 was run because no application code changed.
+
+--------------------------------------------------------------------------------
+RE-AUDIT -- THE STRUCTURAL CHECKS HOLD, TWO COUNTS HAVE MOVED
+--------------------------------------------------------------------------------
+
+Every command in HOW TO KNOW IT WORKED was re-run. What still reproduces
+exactly:
+
+  * `python skill/refresh.py` -- FACTS.md regenerated, the same five
+    structural checks pass, and the one pre-existing failure is the task
+    ledger, still reproduced.
+  * `import spacr` resolves to this checkout and reports 1.5.0.4.
+  * `python -m spacr.qt --version` reports 1.5.0.4 without launching Qt.
+
+What has drifted, because the tree moved and not because anything broke:
+
+  * `python -m spacr.cli --list` now enumerates 29 headless workflows, not
+    30, beside 19 GUI-only surfaces.
+  * `import spacr` exposes 194 module-valued public attributes (202 public
+    names in `dir`), not the 201 recorded above.
+
+The gh queries are not re-checkable as evidence: open issues, open pull
+requests and in-flight CI are a reading of one moment, and the numbers above
+were true of theirs.
+

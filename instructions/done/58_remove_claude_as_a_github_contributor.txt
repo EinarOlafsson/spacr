@@ -219,3 +219,46 @@ This record is deliberately committed immediately before the external mirror
 backup and rewrite. The instruction forbids any commit afterward, so rewritten
 SHAs, backup location, pushed ref counts and post-rewrite CI run IDs belong in
 the operator's final report rather than in a self-contradictory later commit.
+
+--------------------------------------------------------------------------------
+2026-08-25 -- RE-AUDIT: THE REWRITE HELD. THE ACCEPTANCE GREP DID NOT.
+--------------------------------------------------------------------------------
+
+MEASURED AGAINST `origin/main`, which is the default branch and the only ref
+GitHub computes contributors from:
+
+    Co-Authored-By trailers                    0
+    commits authored by github-actions[bot]    0
+    Lophorinus                                82   preserved, as required
+    jak18015                                  18   preserved, as required
+
+Counted with `%(trailers:key=Co-Authored-By,valueonly)` over every commit --
+git's own trailer parser -- not with a text search. `origin/nightly` is the
+same. So the rewrite ran, was pushed, and did not touch the two human
+co-authors.
+
+THE GREP IN "HOW TO KNOW IT WORKED" IS WRONG, and returns 1 on a clean
+repository. `git log --grep='Co-Authored-By: Claude' -i` matches anywhere in
+the message, and the closeout commit 65ed5332 is titled
+
+    "Claude shows as a GitHub contributor: 38 Co-Authored-By trailers, ..."
+
+so the commit that RECORDS the fix is the one the check reports. GitHub reads
+the trailer, not the prose, so that hit credits nobody. THE CHECK THAT
+ACTUALLY MEASURES IT, and returns 0:
+
+    git log origin/main \
+        --format='%(trailers:key=Co-Authored-By,valueonly)' \
+      | grep -c . || true
+
+    git log origin/main --format='%an %cn' | grep -c 'github-actions\[bot\]'
+
+STILL DIRTY, LOCALLY ONLY: this checkout's local `main` is still at the
+PRE-rewrite tip (a843db1c) and carries all 38 trailers, as do roughly forty
+stale local `ci-*` / `codex-*` topic branches. None of that reaches GitHub --
+`origin/main` is clean -- but pushing local `main` would republish the 38.
+Reset it to `origin/main` before anyone uses it.
+
+NOT CHECKED HERE: the contributors page itself. That is a GitHub-side
+recompute, this file already says it can lag and can need a support request,
+and a stale entry there is not a failed rewrite.

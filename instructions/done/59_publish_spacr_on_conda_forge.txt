@@ -118,3 +118,19 @@ There are no requested changes and no reviewer comments awaiting action. The
 PR is open and ready for the conda-forge volunteer review/merge step. This is
 the precise in-control deliverable defined above; the feedstock and public
 ``conda install`` command cannot exist until that external merge occurs.
+
+--------------------------------------------------------------------------------
+RE-AUDITED 2026-08-25 — THE HOW-TO-KNOW CHECK STILL CANNOT BE RUN
+--------------------------------------------------------------------------------
+
+Re-read from GitHub, not from this file:
+
+    conda-forge/staged-recipes#34352   state OPEN, mergedAt null
+    conda-forge/spacr-feedstock        404 — does not exist
+
+So `conda create -n spacr-test -c conda-forge spacr` still fails, and will
+until a conda-forge volunteer merges the staged recipe. That check is
+therefore NOT a verdict on this repository: read it as gated on the merge,
+and read COMPLETION EVIDENCE above as the deliverable that was in control.
+Nothing here regressed — the PR is unchanged and still carries no requested
+changes. Re-run the two lookups above before treating this as open work.

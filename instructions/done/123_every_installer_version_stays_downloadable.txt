@@ -2,7 +2,11 @@
 EVERY INSTALLER VERSION STAYS DOWNLOADABLE, ON ONE PAGE
 ================================================================================
 
-Status:    filed 2026-08-16, not started.
+Status:    SHIPPED, then SUPERSEDED by instruction 120 on 2026-08-19,
+           which now owns this surface. This line read "filed
+           2026-08-16, not started" until 2026-08-25, contradicting
+           both the built page below it and the SUPERSEDED section at
+           the end of the file.
 Requested: 2026-08-16 - "when a new installer is released i dont want the old
            one to be deleted instead there should be a page that has a table
            linking to all the old ones (that will live in a github spacr
@@ -191,3 +195,28 @@ Instruction 120 was reopened for the follow-up request and now owns this
 surface. In particular, the earlier deliberate choice not to retain copies in
 ``spacr/application`` no longer applies: the maintainer explicitly requested
 that each versioned lightweight installer remain in that folder.
+
+--------------------------------------------------------------------------------
+2026-08-25 - RE-AUDIT: ALL FOUR CRITERIA ARE ENFORCED BY A TEST THAT PASSES
+--------------------------------------------------------------------------------
+
+`docs/source/installers.rst` is the page. tests/test_installer_archive_page.py
+is 16 passed, and its cases map onto this file's own criteria one for one:
+
+    newest first, version + three platform columns
+        test_the_committed_page_is_newest_first
+        test_a_platform_missing_from_one_release_gets_an_empty_cell
+    the 120 icons in the headers
+        test_the_column_headers_are_the_readme_icons_and_not_a_second_copy
+    every link returns 200, against the LIVE releases
+        test_every_link_on_the_page_is_live
+    a new release adds a row with nobody editing the page, proved on a
+    fabricated release list
+        test_a_new_release_adds_a_row_without_anyone_editing_the_page
+        test_the_just_built_release_is_added_before_github_publishes_it
+    the archived installer installs its own version
+        test_an_archived_installer_installs_its_own_version
+
+The retention decision this file recorded as "NOT DONE, DELIBERATELY" was
+reversed by 120 and is now enforced here as
+test_every_archived_installer_is_retained_in_the_application_folder.

@@ -91,3 +91,60 @@ producing a blank file that looks like a result.
 `GraphCanvas.figure()` is new -- a public accessor, so the screen does not
 reach into `_figure`. 6 tests; 72 pass across the gates, console and export
 suites.
+
+--------------------------------------------------------------------------------
+2026-08-25 -- RE-AUDIT: TWO OF THREE CRITERIA HOLD; THE PRINT-COLOUR ONE DOES NOT
+--------------------------------------------------------------------------------
+
+MEASURED, driving the real screen with a 60-point scatter.
+
+  PDF TEXT IS TEXT.       The written page carries /Font objects and
+                          `pypdf` extracts the axis prose straight out of
+                          it. `_export_vector_pdf` forces `pdf.fonttype=42`
+                          for the save, so the glyphs are embedded TrueType
+                          rather than Type 3 outlines. HOLDS.
+
+  PNG RESOLUTION.         `get_figure_png_dpi()` is 300 and the written
+                          PNG carries 300 dpi, 1947x1215 px. HOLDS.
+
+  PRINT-APPROPRIATE       DOES NOT HOLD at the default preference.
+  COLOURS REGARDLESS
+  OF THE APP THEME.       With the theme set to dark, `get_figure_colors()`
+                          returns ('none', '#ffffff'): the exported PNG's
+                          corner pixel is (255,255,255,0) -- fully
+                          transparent -- and the title and axis labels are
+                          #ffffff. Composited onto white by a PDF reader, a
+                          printer or a browser, the text is invisible.
+
+WHY, AND WHY IT IS NOT A SIMPLE BUG. Two later decisions moved underneath
+this file:
+
+  * `preferences.auto_figure_colors` resolves "auto" to a TRANSPARENT
+    background rather than the theme's window colour -- the fix for the
+    opaque black slab behind every plot, and what lets the page-opacity
+    preference reach a figure.
+  * `figure_queue._export_vector_pdf` states in its own docstring that the
+    background deliberately STAYS the app theme's, because
+    `FigureQueue._request_pdf_refinement` rasterises that same PDF and
+    swaps it in as the on-screen pixmap; a white page would make every
+    figure flash from dark to light. It also notes that `facecolor="white"`
+    alone would be worse, not better, because the artists are already
+    painted for the dark theme.
+
+So the export follows the theme ON PURPOSE, and this file's acceptance
+criterion was written before that was true. The escape hatch exists: setting
+the figure background and text colours EXPLICITLY (rather than leaving them
+on "follow the theme") gives a print-ready file, and re-renders both.
+
+CORRECTED HERE: `GateEditorScreen.save_graph`'s docstring claimed
+`render_figure_to_png` "restyles the figure for print first" and that a dark
+export would be "white text on black, which is unusable on paper". The
+second sentence is the symptom the code now produces, not one it prevents.
+The docstring now says what the helper actually applies and where the
+print-colour decision is made.
+
+NEEDS A DECISION, NOT A PATCH: whether saving a graph to a file the user
+opens outside spaCR should take a print restyle that the on-screen
+refinement path does not. That spans `render_figure_to_png`,
+`_export_vector_pdf` and the figure-queue pixmap swap, so it is not a
+one-line change and is left for the coordinator.

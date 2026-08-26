@@ -84,6 +84,34 @@ the frame and the path it wrote together -- and a provider that cannot give
 a frame simply makes no offer, so the fits read the file as they always did.
 
 --------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Written down after the fact, because this file closed without the section the
+ledger asks every task for. These are the promises the body above makes, in
+the form they can be checked in:
+
+  * Four pair rows pointing at ONE merged file cost ONE parse, not four --
+    `ml.load_regression_input_pairs` asks `frame_handoff.held(path)` before it
+    reads, keys its cache on the distinct path, and hands each row a COPY, so
+    one row stamping `plateID` cannot reach the next.
+  * A reader that was offered nothing reads the file exactly as before, so a
+    headless run with no producer in the process is unchanged.
+  * The offer is a WEAK reference: dropping the producer's frame must not be
+    prevented by the offer, and the reader must fall back rather than raise.
+  * `frame_handoff.stage` writes Parquet where an engine is installed and CSV
+    where one is not, and offers the frame BEFORE the write returns.
+  * The Measurements panel's `write_merged_frame` goes through `stage`, so the
+    artefact it leaves is columnar and `merged_frame_path()` names the file
+    that was actually written.
+  * A SECOND queue over the same merge is handed the frame again rather than
+    parsing, and a frame provider that fails costs a parse rather than the run.
+
+Tests: `tests/test_the_merged_frame_is_handed_over.py`,
+`tests/test_the_measurements_tab_reaches_a_regression.py`,
+`tests/test_one_parse_per_file.py`.
+
+--------------------------------------------------------------------------------
 WHAT IT COST AND WHAT IT COSTS NOW
 --------------------------------------------------------------------------------
 

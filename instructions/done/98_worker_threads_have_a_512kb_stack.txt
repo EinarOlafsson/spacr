@@ -117,3 +117,30 @@ DELIBERATELY NOT DONE
   rather than measured to be barely enough; the cost of being generous is
   address space, and the cost of being tight is this crash again on a wider
   feature matrix.
+
+--------------------------------------------------------------------------------
+2026-08-25 -- RE-AUDIT: THE PYTEST RUN THAT COULD NOT BE DONE HAS NOW BEEN DONE
+--------------------------------------------------------------------------------
+
+The VERIFIED section above says the acceptance command was "NOT RUN AS PYTEST
+-- no interpreter on this machine has pytest". That is no longer true. It was
+run, exactly as written:
+
+    QT_QPA_PLATFORM=offscreen python -m pytest tests/qt/test_worker_stack_size.py \
+        -q -p no:randomly
+
+    10 passed
+
+which is the expected count, and `test_make_thread_widens_before_start` --
+the load-bearing one, because Qt ignores `setStackSize` on a running thread --
+is among them.
+
+MEASURED DIRECTLY as well, driving the real `bridge.make_thread`:
+
+    bare QThread().stackSize()        0        (Qt's default: the OS's)
+    make_thread(...).stackSize()      67108864 = 64 MB
+    bridge.WORKER_STACK_BYTES         64 MB
+
+So the stand-in the VERIFIED section relied on is no longer the only evidence.
+The before/after (SIGBUS, then exit 0) stays a historical measurement; the
+64 MB widening it depended on is asserted every run.

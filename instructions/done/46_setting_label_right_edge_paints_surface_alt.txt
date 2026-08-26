@@ -194,3 +194,32 @@ viewport that holds it on every module -- 624px of card in a 238px
 viewport on mask, which scrolls horizontally. That is pre-existing, is not
 what this test was catching, and is a settings-layout question rather than
 a painting one. It is worth its own file if anyone minds it.
+
+--------------------------------------------------------------------------------
+2026-08-25 - RE-AUDIT: THE COUNT IS STALE; THE FIXES AND THE SAMPLE POINTS ARE NOT
+--------------------------------------------------------------------------------
+
+`pytest tests/qt/test_all_module_smoke.py -q -p no:randomly` now reports
+
+    39 passed
+
+not 57. The drop is the module register shrinking, not coverage being lost:
+`spacr.qt.app.APPS` holds 36 keys and the file parametrises one case over each
+plus three unparametrised tests. THREE OF THE FOUR MODULES THIS ITEM WAS ABOUT
+NO LONGER EXIST -- `classify` and `ml_analyze` were folded into
+`classify_merged`, and `activation` is no longer a registered app -- so
+`classify_merged` is the only one of the four the smoke file can still cover.
+
+WHAT WAS RE-CHECKED RATHER THAN ASSUMED, because a criterion whose subjects
+have been deleted is exactly the kind that closes on nothing:
+
+  * The sample points were NOT moved. `_setting_row_contract` still grabs the
+    screen and reads the four corners of `label.parentWidget()` against
+    `DARK_PALETTE["surface"]`. The only addition since is pinning
+    `surface_opacity=1.0` for the measurement, which removes the translucent
+    backdrop from the reading instead of relaxing it.
+  * Both fixes are still in place: `AiToggleLabel.minimumSizeHint` caps and
+    elides, and the greying passes append their note to the help instead of
+    replacing it.
+  * tests/qt/test_toggle_label_width.py and tests/qt/test_greyed_setting_help.py
+    are 19 passed.

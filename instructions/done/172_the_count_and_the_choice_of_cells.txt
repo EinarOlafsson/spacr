@@ -140,3 +140,22 @@ more cells than the well holds concludes the count is wrong. Without naming
 the fix -- the per-cell attribution of 173 -- the note reads as a shrug.
 
 6 tests in tests/test_the_montage_caption_says_the_guides_share_cells.py.
+
+--------------------------------------------------------------------------------
+RE-AUDIT -- THE FIFTEEN CHECKS HAD BECOME TWO
+--------------------------------------------------------------------------------
+
+The validation above reports "15 checks, all passing". Re-run against the same
+screen it names, it reported 2 passed and 13 SKIPPED, and exited green while
+doing so: `tests/test_the_screen_validates_the_attribution.py` looked for the
+count tables at `<screen>/claude/plate_N_unique_combinations.csv` and that
+folder no longer holds them -- they sit at the screen root. A missing count
+table skips, so the whole normalisation half of this instruction stopped being
+checked without anything going red.
+
+The fixture now asks `_count_table(root, n)` for the table and tries the screen
+root, `claude/` and `test/` in that order, skipping only when no folder holds
+it and naming all three when it does. Re-run on the maintainer's four plates:
+15 passed. The behaviour this instruction is about was never wrong; the
+evidence for it had quietly stopped being collected.
+

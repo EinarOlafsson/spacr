@@ -1,0 +1,89 @@
+================================================================================
+FOUR THINGS ABOUT THE MODULES
+================================================================================
+
+Status:    OPEN. Requested 2026-08-25.
+Owner:     spacr/qt/app.py for the section, spacr/qt/widgets/fold_strip.py
+           for the buttons, spacr/qt/screens/ for the folded modules'
+           source, spacr/qt/screens/mask.py for the example data.
+
+--------------------------------------------------------------------------------
+1. A FOLDED MODULE KEEPS NO MODULE OF ITS OWN
+--------------------------------------------------------------------------------
+
+"make sure all folded in moduals dont have their own moduals (napari bridge
+is in make masks for example)."
+
+The fold work took the registry ROW away and left the SOURCE where it was.
+`spacr/qt/screens/napari_bridge.py` is 373 lines that only Make Masks
+reaches; the same shape applies to every screen module whose key is in some
+host's `FOLDED_APPS` and in no registry row.
+
+Sweep it rather than list it by hand: any module under
+`spacr/qt/screens/` whose key is folded is a candidate. Fold the code into
+its host, or -- where the host would become unreadable -- into a private
+module clearly belonging to that host rather than a peer sitting beside
+every real screen.
+
+WHAT MUST NOT CHANGE: `spacr/napari_bridge.py` is the LIBRARY half and is
+imported by `spacr/__init__.py`, `spacr/qt/dnd_handlers.py` and
+`spacr/qt/mask_engine.py`. It is not a screen and it stays. Only the screen
+module folds.
+
+--------------------------------------------------------------------------------
+2. MAKE MASKS IS A DATA TOOL
+--------------------------------------------------------------------------------
+
+"move make masks to data"
+
+`make_masks` is registered under `SECTION_MODELS` ("Segmentation models").
+It belongs under `Data`: it is hand curation of masks that already exist,
+not a model. The sections are Core, Data, Segmentation models, Results & QC,
+Explore, Assays, Design.
+
+Moving a row between sections moves the tile on Home and its place in the
+Home bands, so check both rather than only the registry.
+
+--------------------------------------------------------------------------------
+3. THE FOLD BUTTONS ARE HALF AGAIN AS BIG
+--------------------------------------------------------------------------------
+
+"the new icon buttons are verry close in the moduals make them 50% larger."
+
+`spacr/qt/widgets/fold_strip.py`: `BUTTON_PX = 34`, `ICON_PX = 20`. Both go
+up by half -- 51 and 30 -- and the gap between them has to grow with them,
+because the complaint is that they read as CROWDED, and buttons that grow
+while the gap stays put are more crowded, not less.
+
+Check the masthead still lays out at a narrow window: a strip of larger
+buttons is the thing most likely to push a masthead into a scroll.
+
+--------------------------------------------------------------------------------
+4. MASK GENERATION LOADS THE EXAMPLE DATA
+--------------------------------------------------------------------------------
+
+"add load example data in the same way as it is added in regression to mask
+generation"
+
+Regression has `AppScreen._install_example_data_button`, which puts a "Load
+the example screen…" button at the top of a section and fills the two file
+slots from `spacr.example_data`, saying where everything went rather than
+filling fields silently.
+
+Mask Generation wants the same shape, filling what a MASK run needs -- a
+source folder of images rather than count and score tables. Whatever the
+example set offers for segmentation is what the button should place, and if
+the manifest has no images for it, that gap IS the first half of this item.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * no module under `spacr/qt/screens/` is named by a host's `FOLDED_APPS`
+    while having no registry row -- swept, not listed;
+  * `spacr/napari_bridge.py` still imports and its three callers still work;
+  * Make Masks appears under Data on Home, and in one band only;
+  * a fold button measures 51 px with a 30 px icon, the gap grew with them,
+    and a narrow window still lays the masthead out without scrolling;
+  * pressing the button on Mask Generation fills the source slot and says
+    what it filled, and the same button is still on Regression.

@@ -2,7 +2,10 @@
 EVERY REGRESSION DIAGNOSTIC, SAVED AND SCORED -- NOT ONLY IN THE SEARCH
 ================================================================================
 
-Status:    not started
+Status:    COMPLETE, 2026-08-20. The header said "not started" until
+           2026-08-25 while five RESULT sections below it -- the last of
+           them headed "115 IS COMPLETE" -- described the shipped work.
+           Read the body, not this line, for what was done.
 Requested: 2026-08-16 — "the metricks that are saved for the run should be
            comprehensive in these rows, if there is a positive controll value
            that should be used, also r2 and so on i want the module to test
