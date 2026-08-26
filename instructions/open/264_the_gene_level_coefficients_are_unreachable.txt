@@ -1,0 +1,96 @@
+================================================================================
+THE GENE-LEVEL COEFFICIENTS ARE FITTED AND CANNOT BE SEEN
+================================================================================
+
+Status:    OPEN. Requested 2026-08-26 -- "in the regression module i still
+           only get gRNA level coefficients i cant plot the gene level
+           coefficients ...or see the gene level coefficients."
+Owner:     spacr/qt/widgets/regression_results.py.
+
+--------------------------------------------------------------------------------
+IT IS NOT MISSING, IT IS FILTERED OUT
+--------------------------------------------------------------------------------
+
+The fit produces both. `spacr/ml.py` offers `level` with
+`LEVEL_CHOICES = ('both', 'grna', 'gene')`, the regression panel SHOWS that
+setting, and it DEFAULTS TO 'both' -- so a normal run fits gene terms and
+writes them.
+
+The results panel then throws them away. `regression_results.py:965`:
+
+    self._level = "grna"
+
+One piece of state, read by every draw path, hard-coded. Every tab -- the
+coefficient table, the hit list, the volcano -- draws guide rows only. The
+gene rows are in the table the whole time.
+
+--------------------------------------------------------------------------------
+WHY IT WAS PINNED, WHICH MATTERS FOR THE FIX
+--------------------------------------------------------------------------------
+
+The code says so itself, and the reason is a real defect that must not come
+back. With no filter, a gene appeared once per guide PLUS once for itself:
+on the real screen `225160` was FOUR rows -- `grna[225160_1]`, `[_2]`,
+`[_3]` and `gene[225160]` -- every one of them labelled `225160`.
+
+The maintainer reported exactly that: "GRA14 and 225160 occur in the top
+right side of the graph 4 times each which is obviously wrong."
+
+It looked fine on the raw axis, where the four have different p values and
+spread vertically. On the adjusted axis Benjamini-Hochberg ties pull them to
+one height and they stack into a single spot -- which is why it was reported
+as an adjusted-p bug and looked for in the wrong place three times.
+
+SO PINNING THE LEVEL WAS A FIX FOR THAT, and it worked. What it also did was
+remove every way of reaching the gene level. That is the trade being undone
+here, and undoing it naively brings the four-rows-one-label bug straight
+back.
+
+--------------------------------------------------------------------------------
+WHAT TO BUILD
+--------------------------------------------------------------------------------
+
+THE LEVEL BECOMES A CHOICE THE READER MAKES, on the results panel, next to
+what it changes -- not a run setting they have to know to set beforehand,
+because the run already fitted both.
+
+    gRNA     guide rows only. What is drawn today.
+    Gene     gene rows only. What is missing.
+    Both     both, and THE TWO MUST BE TELLABLE APART.
+
+'Both' is where the old bug lives. A gene row and its guide rows carry the
+same identifier, so the label is what has to change: a gene row and
+`225160_1` must not both read `225160`. Whatever is chosen -- a suffix, a
+column, a shape on the plot -- it has to survive into the volcano, the hit
+list and the exported table, because the report is where it was noticed.
+
+FOUR THINGS THE FIX HAS TO ANSWER:
+
+  1. A PERMUTATION RUN REPORTS GUIDES ONLY. The comment says this is why
+     guides were chosen: it is the level the two inference modes agree on.
+     So with a permutation run loaded, the Gene choice has no rows -- it
+     must SAY so rather than showing an empty table.
+  2. A RUN FITTED AT level='grna' has no gene rows either. Same rule: say
+     why, do not draw nothing.
+  3. THE ADJUSTED AXIS TIES ARE STILL REAL. Benjamini-Hochberg will still
+     pull tied q-values to one height. With both levels shown, points will
+     still coincide -- they must be distinguishable when they do, by label
+     or by mark, or the original report recurs in a new form.
+  4. THE SELECTION LINKAGE crosses the tabs: clicking a point highlights
+     the same feature elsewhere. A gene and its guide are different
+     features; selecting one must not highlight the other.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * on a run fitted at 'both', the panel offers gene, gRNA and both, and
+    each draws the rows it names -- asserted on the drawn table, not on a
+    model call;
+  * choosing Gene shows gene coefficients in the table, the hit list AND
+    the volcano -- all three, since the request names plotting and seeing;
+  * at 'both', a gene and its three guides are FOUR DISTINGUISHABLE rows,
+    and no two of them carry the same label;
+  * on a permutation run, Gene says there are no gene-level rows and why;
+  * selecting a gene highlights the gene, not its guides;
+  * the exported table carries whatever distinguishes them.
