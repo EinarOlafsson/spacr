@@ -3639,7 +3639,7 @@ class FastPlot(QWidget):
             brush = base[index]
             colour = QColor(brush.color()) if hasattr(brush, "color") \
                 else QColor(colour_for(0))
-            colour.setAlpha(alphas[code] if code >= 0 else top)
+            colour.setAlpha(alphas[code] if code >= 0 else 255)
             out.append(pg.mkBrush(colour))
         # A frame shorter than the drawn points leaves the rest untouched
         # rather than dropping them: a missing level is not a reason for a
