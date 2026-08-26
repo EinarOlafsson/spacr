@@ -1,0 +1,155 @@
+================================================================================
+SPACR MUST RUN WELL ON A LAPTOP -- OPTIMISE FIRST, DISABLE SECOND
+================================================================================
+
+Status:    OPEN. Requested 2026-08-26. THE MAINTAINER CALLS THIS "one of the
+           most important items on the instructions list."
+Priority:  HIGHEST of the open items.
+Owner:     the whole application; spacr/qt/screens/app_screen.py and
+           settings_model.py first, on the evidence below.
+
+--------------------------------------------------------------------------------
+WHAT WAS REPORTED
+--------------------------------------------------------------------------------
+
+"while spacr works really well on my workstations. it is extremely slow on a
+new macbook with apple silicone. that needs to change. the application should
+run smoothly on all computers!"
+
+  * the CPU sat at 100% FOR SEVERAL MINUTES just starting the regression
+    module;
+  * the startup window's blue periphery line following the mouse was "super
+    laggy";
+  * on that Mac the minimise / maximise / close controls are not visible in
+    the top corner, so they need to be reachable from the Help menu too.
+
+AND THE PRINCIPLE, which decides the whole shape of the work:
+
+"just turning things of is one strategy, but my best case scenario is being
+able to keep as many features as possible just optimizing them so they also
+run on worse hardware."
+
+SO: OPTIMISE FIRST. A feature switched off on a laptop is a laptop user
+getting less of spaCR, and that is the fallback, not the plan.
+
+--------------------------------------------------------------------------------
+WHAT IS ALREADY MEASURED, ON A 32-CORE WORKSTATION
+--------------------------------------------------------------------------------
+
+    build measure            0.32 s   76 rows    4.2 ms/row
+    build mask               2.59 s  350 rows    7.4 ms/row
+    build regression         1.52 s   82 rows   18.5 ms/row
+    build classify_merged    3.10 s  115 rows   27.0 ms/row
+
+READ THAT AGAIN: the per-row cost is not constant. It runs from 4 ms to 27
+ms, so something scales that is NOT the number of settings, and that
+something is what turns into minutes on a slower machine. Finding it is the
+first job -- a fix aimed at the per-row cost alone would leave the worst
+screen the worst.
+
+The profile of the mask build, already taken:
+
+    _build_settings_panel      1.83 s
+      _build_settings_section  0.91 s  (105 calls)
+      build_sections           0.76 s
+    _sync_page_palette         0.84 s  (4 calls)
+    _install_ambient           0.60 s
+    _language_code             0.31 s  (15,488 CALLS for 350 settings)
+    eventFilter                0.30 s  (16,115 calls during construction)
+
+--------------------------------------------------------------------------------
+FIRST: MEASURE ON THE MACHINE THAT IS SLOW
+--------------------------------------------------------------------------------
+
+None of the numbers above come from Apple Silicon, and the difference
+between a workstation and that laptop is exactly what is not yet known.
+Guessing at it would waste the maintainer's time.
+
+`tools/spacr_hardware_report.py` exists for this. It is read-only, writes
+nothing, and times each stage separately: the imports, the numeric library
+underneath them, the Qt application, each screen, and the backdrop.
+
+IT ASKS THE TWO QUESTIONS THAT USUALLY ANSWER A SLOW MAC:
+  * `sysctl.proc_translated` -- is this running under ROSETTA? An x86_64
+    Python on Apple Silicon is emulated, and that alone explains a
+    many-fold slowdown;
+  * which BLAS numpy found. A build without an accelerated one turns every
+    matrix operation into a slow loop.
+
+--------------------------------------------------------------------------------
+THEN: OPTIMISE, IN THIS ORDER
+--------------------------------------------------------------------------------
+
+1. THE THING THAT SCALES WORSE THAN THE ROWS. 27 ms a row against 4 ms is
+   not a constant factor; find what classify and regression do that measure
+   does not.
+2. WORK DONE FOR ROWS NOBODY HAS LOOKED AT. Sections already start closed;
+   a closed section's widgets do not have to exist yet.
+3. THE SAME QUESTION ASKED 15,488 TIMES. `_language_code` answers the same
+   thing for every setting, forty times over.
+4. TOOLTIPS BUILT FOR EVERY ROW AT CONSTRUCTION -- 1,538 sentences a user
+   will read perhaps three of.
+5. THE FIRST PAINT, SEPARATELY. A window that appears in 300 ms and fills
+   in reads as fast; one that appears after three seconds reads as broken,
+   for the same total work.
+
+--------------------------------------------------------------------------------
+THE CURSOR LINE ON THE STARTUP CARD
+--------------------------------------------------------------------------------
+
+It is `SetupCard`'s lit run of rim, driven by `_aim_at_the_cursor`, which
+READS the global cursor position on a timer rather than receiving events --
+deliberately, so it follows the mouse outside the window. On a slow machine
+that is a repaint per tick of a gradient along a rounded path.
+
+It is also the first thing a new user sees, so it being laggy is the first
+impression spaCR makes. Fix it properly -- cache the path, repaint only the
+rim, drop the tick rate when frames are being missed -- before considering
+turning it off.
+
+--------------------------------------------------------------------------------
+THEN, AND ONLY THEN: A PERFORMANCE MODE
+--------------------------------------------------------------------------------
+
+"there should also be a laptop setting in performance that turns as much as
+possible off so the user gets a smooth as possible experience."
+
+  * a LAPTOP mode in the performance preferences that stands down the
+    expensive extras -- the backdrop, the animations, live previews;
+  * CHOSEN AUTOMATICALLY ON FIRST RUN by measuring the machine, and
+    overridable. A check at startup that costs a second is a second every
+    launch: measure once, record the verdict, re-measure only when the
+    hardware changes;
+  * SAY WHAT IT DID. A user whose animations are off should be able to find
+    out why and turn them back on.
+
+--------------------------------------------------------------------------------
+THE WINDOW CONTROLS ON MACOS
+--------------------------------------------------------------------------------
+
+"on mac i don't see the minus square and x in the top corner, so they need
+to also be in the help menu."
+
+A separate defect from the speed, and simpler: minimise, maximise/restore
+and close belong in a menu as well as on the frame, so a window whose
+decorations are missing or hidden is still usable. Find out WHY they are
+absent on that Mac as well -- a frameless or detached window that lost its
+buttons is a bug, not just a menu that is missing.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * the report from the Mac is in hand, and the gap between it and the
+    workstation is explained rather than assumed;
+  * the worst screen's per-row cost is within a small factor of the best
+    one's -- the thing that scales unevenly is found and fixed;
+  * building any module screen is measurably faster than the numbers above,
+    on the same machine, measured the same way;
+  * the startup card's cursor line holds its frame rate on a slow machine
+    WITHOUT being switched off;
+  * a laptop mode exists, is chosen automatically on a machine that needs
+    it, is overridable, and says what it turned off;
+  * minimise, maximise and close are reachable from the menu on every
+    platform;
+  * nothing above changed what a run computes.
