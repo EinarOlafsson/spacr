@@ -392,6 +392,30 @@ def _the_widget_tree_does_not_outgrow_the_session(_isolated_qsettings_store):
 
 
 @pytest.fixture(autouse=True)
+def _no_provider_stream_outlives_a_test():
+    """End any AI provider subprocess a test leaves being read.
+
+    The reader thread BLOCKS on the child's stdout, so it does not notice a
+    flag; only ending the child lets that read return. A thread still
+    blocked when the session's collection pass runs takes the whole process
+    with it -- Qt aborts as soon as the running QThread's wrapper is
+    collected, and an abort kills every remaining test in the run, not one.
+
+    Each file passed on its own, which is exactly why this belongs here: the
+    leak and the collection that turns it fatal were in different files.
+    """
+    yield
+    try:
+        from spacr.qt.ai.providers import terminate_all_streams
+    except Exception:                                            # noqa: BLE001
+        return
+    try:
+        terminate_all_streams()
+    except Exception:                                            # noqa: BLE001
+        pass
+
+
+@pytest.fixture(autouse=True)
 def _isolated_qsettings_store(request):
     """Give every test its own QSettings directory, and prove it stayed there.
 

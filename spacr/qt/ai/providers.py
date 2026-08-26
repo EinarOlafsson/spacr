@@ -117,6 +117,51 @@ _NOISE_LINE_PREFIXES = (
 )
 
 
+#: Every provider subprocess currently being read, newest last.
+#:
+#: A stream is read by a worker thread that BLOCKS on the child's stdout,
+#: and the only reliable way to unblock it is to end the child --
+#: :meth:`ChatProvider.cancel_stream` says so and is right. But that
+#: method reaches one provider's own process, and the thing that goes
+#: wrong is nobody holding the provider any more: the owner is gone, the
+#: thread is still blocked on a read, and Qt aborts the process the
+#: moment that thread's QThread wrapper is collected.
+#:
+#: So the live processes are also findable from here, without a provider
+#: in hand. Entries are removed as each stream ends; a crash that skips
+#: the removal leaves a dead Popen, which
+#: :func:`terminate_all_streams` steps over.
+_LIVE_STREAMS: List[subprocess.Popen] = []
+
+
+def terminate_all_streams() -> int:
+    """End every provider subprocess still being read. Returns how many.
+
+    For shutdown, and for anywhere that must know no reader thread is
+    still blocked -- a test session about to collect garbage, an
+    application about to quit. Ending the child is what lets the blocked
+    read return, which is what lets the thread finish.
+    """
+    ended = 0
+    for proc in list(_LIVE_STREAMS):
+        try:
+            if proc.poll() is None:
+                proc.terminate()
+                try:
+                    proc.wait(timeout=1)
+                except Exception:                       # noqa: BLE001
+                    proc.kill()
+                ended += 1
+        except Exception:                               # noqa: BLE001
+            pass
+        finally:
+            try:
+                _LIVE_STREAMS.remove(proc)
+            except ValueError:
+                pass
+    return ended
+
+
 def _stream_process(argv: List[str], stdin_text: Optional[str] = None,
                      env_extra: Optional[Dict[str, str]] = None,
                      provider: Optional["ChatProvider"] = None,
@@ -152,6 +197,7 @@ def _stream_process(argv: List[str], stdin_text: Optional[str] = None,
 
     if provider is not None:
         provider._current_proc = proc
+    _LIVE_STREAMS.append(proc)
 
     try:
         if stdin_text is not None and proc.stdin is not None:
@@ -185,6 +231,10 @@ def _stream_process(argv: List[str], stdin_text: Optional[str] = None,
                 pass
         if provider is not None:
             provider._current_proc = None
+        try:
+            _LIVE_STREAMS.remove(proc)
+        except ValueError:
+            pass
 
 
 def _format_conversation(messages: List[Dict], system: str = "") -> str:
