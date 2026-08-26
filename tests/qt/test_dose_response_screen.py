@@ -351,9 +351,21 @@ def test_importing_the_module_does_not_touch_the_registry():
         "add the row to spacr.qt.SELF_REGISTERING_MODULES")
 
     before = list(APPS)
-    sys.modules.pop("spacr.qt.screens.dose_response", None)
-    importlib.import_module("spacr.qt.screens.dose_response")
-    assert list(APPS) == before
+    original = sys.modules.pop("spacr.qt.screens.dose_response", None)
+    try:
+        importlib.import_module("spacr.qt.screens.dose_response")
+        assert list(APPS) == before
+    finally:
+        # PUT THE MODULE BACK. Dropping it and importing again is how this
+        # forces a fresh execution, and leaving the fresh copy in place
+        # leaves a second `make_dose_response_screen`, a second
+        # `DoseResponseScreen` and a second of everything else this module
+        # defines. This file imports those at its top and later compares
+        # them with what the registry holds BY IDENTITY, so the leak turned
+        # a passing assertion into a name that no longer means what the
+        # registry means.
+        if original is not None:
+            sys.modules["spacr.qt.screens.dose_response"] = original
 
 
 def test_registering_the_screen_reaches_every_reader_of_the_registry(
@@ -376,7 +388,17 @@ def test_registering_the_screen_reaches_every_reader_of_the_registry(
     # for n. Explore is for a question asked of a finished table; a dilution
     # series is the most planned experiment there is.
     assert row[3] == app_mod.SECTION_DESIGN
-    assert app_mod.APP_FACTORIES[APP_KEY] is make_dose_response_screen
+    from spacr.qt.app_catalog import LazyScreenFactory
+
+    # Through the accessor, not the raw table: this screen's row is
+    # declared in `spacr.qt.app_catalog`, so what sits in APP_FACTORIES
+    # until somebody asks is a stand-in that has not imported this module.
+    # `registered_factory` is what resolves it -- and what every caller
+    # that builds a screen goes through.
+    assert isinstance(app_mod.APP_FACTORIES[APP_KEY],
+                      LazyScreenFactory) or \
+        app_mod.APP_FACTORIES[APP_KEY] is make_dose_response_screen
+    assert app_mod.registered_factory(APP_KEY) is make_dose_response_screen
     assert app_mod.APP_STAGE[APP_KEY] == app_mod.STAGE_ALPHA
     assert APP_TITLES[APP_KEY] == APP_NAME
     assert APP_INTROS[APP_KEY] == screen_module.APP_INTRO

@@ -60,10 +60,11 @@ from PySide6.QtWidgets import (
 from ... import confusion as cx
 # `spacr.classifier_evaluation` is NOT imported here, and the two functions it
 # owns are imported inside the worker bodies that call them instead. It reads
-# `sklearn.metrics` at its top, which reads `scipy.sparse`, which is 625
-# modules and the better part of a second -- and this screen module is one of
-# `theme.WIDGET_QSS_MODULES`, so every launch imported it to collect a
-# stylesheet block, whether or not anybody ever opened Classifier Evaluation.
+# `sklearn.metrics` at its top, which reads `scipy.sparse`, which is the whole
+# of both libraries and the better part of a second -- and this screen module
+# is one of `theme.WIDGET_QSS_MODULES`, so every launch imported it to collect
+# a stylesheet block, whether or not anybody ever opened Classifier
+# Evaluation.
 # Both call sites are already inside a background worker, so the import is
 # paid off the GUI thread by the user who asked for the scan.
 from ..bridge import make_thread

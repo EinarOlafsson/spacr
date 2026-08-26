@@ -344,7 +344,17 @@ def test_register_is_idempotent_and_fans_the_strings_out():
         assert meta["intro"] and meta["cli_note"]
         assert meta["api_module"] == "qt/screens/project_browser"
         assert len(meta["translations"]) == 9
-        assert app_mod.APP_FACTORIES[APP_KEY] is make_project_browser_screen
+        from spacr.qt.app_catalog import LazyScreenFactory
+
+        # Through the accessor, not the raw table: this screen's row is
+        # declared in `spacr.qt.app_catalog`, so what sits in APP_FACTORIES
+        # until somebody asks is a stand-in that has not imported this module.
+        # `registered_factory` is what resolves it -- and what every caller
+        # that builds a screen goes through.
+        assert isinstance(app_mod.APP_FACTORIES[APP_KEY],
+                          LazyScreenFactory) or \
+            app_mod.APP_FACTORIES[APP_KEY] is make_project_browser_screen
+        assert app_mod.registered_factory(APP_KEY) is make_project_browser_screen
     finally:
         if not already:
             app_mod.unregister_app(APP_KEY)

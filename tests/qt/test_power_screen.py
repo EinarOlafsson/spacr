@@ -594,7 +594,16 @@ def test_register_puts_the_app_in_the_design_section_and_is_idempotent(
     row = next(row for row in app_mod.APPS if row[0] == APP_KEY)
     assert row[3] == app_mod.SECTION_DESIGN
     assert app_mod.SECTION_DESIGN in app_mod.SECTIONS
-    assert app_mod.APP_FACTORIES[APP_KEY] is make_power_screen
+    # Through the accessor, not the raw table: this screen's row is declared
+    # in `spacr.qt.app_catalog`, so what sits in APP_FACTORIES until somebody
+    # asks is a stand-in that has not imported this module.
+    # `registered_factory` is what resolves it -- and what every caller that
+    # builds a screen goes through.
+    from spacr.qt.app_catalog import LazyScreenFactory
+
+    assert isinstance(app_mod.APP_FACTORIES[APP_KEY], LazyScreenFactory) or \
+        app_mod.APP_FACTORIES[APP_KEY] is make_power_screen
+    assert app_mod.registered_factory(APP_KEY) is make_power_screen
     # `spacr.qt.maturity` reassessed every alpha module against the
     # evidence in the repository and this one no longer qualifies; the
     # reason is recorded beside the decision. Applied here because the
