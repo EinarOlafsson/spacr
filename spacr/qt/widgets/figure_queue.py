@@ -107,6 +107,15 @@ def set_figure_text_size_override(fig, size: int) -> None:
 #: dialog is accepted. matplotlib is NOT thread-safe, so the two together are a
 #: potential C-layer segfault rather than a recoverable Python exception.
 #:
+#: IT IS NOT ONLY THE RESTYLE ON THIS SIDE. The settings dialog also DRAWS the
+#: figure while a control moves -- `_render_preview` rasterises it and
+#: `_render_preview_async` pickles it to hand a copy to a worker -- and both
+#: run on the GUI thread over the very Figure a worker may be rendering: a
+#: figure marked `_spacr_live_update` is re-rendered by the run for as long as
+#: the fit lasts, and `_rerender_for_size` hands the current figure to a worker
+#: on every resize. A draw racing a draw is the same crash as a draw racing a
+#: recolour, so those two take the lock as well.
+#:
 #: RE-ENTRANT, because the render path styles before it renders; a plain Lock
 #: would deadlock the first time one call did both.
 FIGURE_LOCK = threading.RLock()
@@ -1661,8 +1670,16 @@ class FigureQueue(QWidget):
             self._preview_pending = True
             return True
 
+        # UNDER `FIGURE_LOCK` (instruction 166). The copy is taken on the GUI
+        # thread, and the figure it walks may be one a WORKER is rendering at
+        # that moment: `bridge._capture_show` re-renders any figure marked
+        # `_spacr_live_update` -- the training monitor -- for as long as the
+        # fit runs, and `_rerender_for_size` hands the current figure to a
+        # worker on every resize. Pickling a Figure mid-draw is the same
+        # C-layer race as restyling one, and matplotlib is not thread-safe.
         try:
-            blob = pickle.dumps(fig)
+            with FIGURE_LOCK:
+                blob = pickle.dumps(fig)
         except Exception as error:  # noqa: BLE001 - artists may not pickle
             LOG.debug("figure will not copy, rendering inline: %s", error)
             return False
@@ -1761,8 +1778,13 @@ class FigureQueue(QWidget):
             #
             # BYPASSES `plot.save_figure` DELIBERATELY (108 point 6): this
             # writes to a BytesIO for a drag preview and never to a file.
-            fig.savefig(buffer, format="png", dpi=dpi,
-                        facecolor=fig.get_facecolor())
+            # UNDER `FIGURE_LOCK` (instruction 166), for the same reason the
+            # restyle is: this is a GUI-thread draw of a figure a worker may
+            # be rendering. The lock is re-entrant and this holds it only for
+            # the draw.
+            with FIGURE_LOCK:
+                fig.savefig(buffer, format="png", dpi=dpi,
+                            facecolor=fig.get_facecolor())
             pixmap = QPixmap()
             if pixmap.loadFromData(buffer.getvalue(), "PNG"):
                 return pixmap

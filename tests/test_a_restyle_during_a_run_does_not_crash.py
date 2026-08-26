@@ -12,6 +12,7 @@ no Python exception and nothing logged.
 """
 
 import threading
+import types
 
 import spacr
 
@@ -91,5 +92,125 @@ def test_a_restyle_still_takes_effect(tmp_path):
         _style_figure_colors(fig, "#123456", "#abcdef")
         assert fig.get_facecolor()[:3] == pytest.approx(
             (0x12 / 255, 0x34 / 255, 0x56 / 255), abs=0.01)
+    finally:
+        plt.close(fig)
+
+
+def _hold_the_lock():
+    """Hold FIGURE_LOCK on another thread, the way a worker render does.
+
+    :returns: (release, released_at_start) — call ``release`` to let go.
+    """
+    holding = threading.Event()
+    let_go = threading.Event()
+
+    def hold():
+        with FIGURE_LOCK:
+            holding.set()
+            let_go.wait(10)
+
+    thread = threading.Thread(target=hold)
+    thread.start()
+    assert holding.wait(10), "the holder never took the lock"
+
+    def release():
+        let_go.set()
+        thread.join(10)
+        assert not thread.is_alive()
+
+    return release
+
+
+class _FigureThatRecordsItsDraws:
+    """The parts of a Figure the preview render touches, and nothing else.
+
+    ``savefig`` raises so the render bails out before it reaches ``QPixmap``:
+    what is under test is WHEN the draw is allowed to start, and building a
+    pixmap would drag a QApplication into a test that does not need one.
+    """
+
+    def __init__(self):
+        self.drawn = threading.Event()
+
+    def get_size_inches(self):
+        return (6.0, 4.0)
+
+    def get_facecolor(self):
+        return "#ffffff"
+
+    def savefig(self, *args, **kwargs):
+        self.drawn.set()
+        raise RuntimeError("far enough: the draw was allowed to begin")
+
+
+def test_the_preview_draw_holds_the_lock_too():
+    """The style dialog DRAWS while a control moves, not only recolours.
+
+    `_render_preview` rasterises the figure and `_render_preview_async`
+    pickles it, both on the GUI thread and both over the same Figure a run's
+    worker may be rendering — `bridge._capture_show` re-renders any figure
+    marked `_spacr_live_update` for as long as the fit lasts. A draw racing a
+    draw is the same C-layer race as a draw racing a recolour.
+    """
+    import inspect
+
+    from spacr.qt.widgets.figure_queue import FigureQueue
+
+    for fn in (FigureQueue._render_preview, FigureQueue._render_preview_async):
+        assert "with FIGURE_LOCK" in inspect.getsource(fn), fn.__name__
+
+
+def test_a_preview_render_waits_for_a_worker_render(tmp_path):
+    """Honoured at run time, not merely written in the source."""
+    from spacr.qt.widgets.figure_queue import FigureQueue
+
+    fig = _FigureThatRecordsItsDraws()
+    render = FigureQueue._render_preview.__get__(
+        types.SimpleNamespace(PREVIEW_MAX_PX=FigureQueue.PREVIEW_MAX_PX),
+        FigureQueue)
+
+    release = _hold_the_lock()
+    caller = threading.Thread(target=render, args=(fig, tmp_path / "p.png"))
+    caller.start()
+    try:
+        assert not fig.drawn.wait(0.4), (
+            "the preview drew while another thread held the figure")
+    finally:
+        release()
+    caller.join(10)
+    assert fig.drawn.is_set(), "the preview never drew after the lock was free"
+
+
+def test_copying_a_figure_for_the_preview_worker_waits_too(tmp_path):
+    """`pickle.dumps` walks the whole Figure, so it is a draw-shaped read."""
+    from spacr.qt.widgets.figure_queue import FigureQueue
+
+    submitted = threading.Event()
+    queue = types.SimpleNamespace(
+        PREVIEW_MAX_PX=FigureQueue.PREVIEW_MAX_PX,
+        _preview_busy=False,
+        _preview_pending=False,
+        _preview_seq=0,
+        _current=0,
+        _preview_target_px=lambda: 800.0,
+        _on_preview_rendered=lambda payload: None,
+        _jobs=types.SimpleNamespace(
+            submit=lambda work, done: submitted.set()),
+    )
+    start = FigureQueue._render_preview_async.__get__(queue, FigureQueue)
+
+    fig = plt.figure()
+    fig.add_subplot(111).plot([0, 1], [0, 1])
+    try:
+        release = _hold_the_lock()
+        caller = threading.Thread(target=start, args=(fig,))
+        caller.start()
+        try:
+            assert not submitted.wait(0.4), (
+                "the figure was copied while another thread held it")
+        finally:
+            release()
+        caller.join(10)
+        assert submitted.is_set(), "the copy never happened once the lock was free"
     finally:
         plt.close(fig)

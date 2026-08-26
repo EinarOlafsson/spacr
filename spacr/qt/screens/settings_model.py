@@ -1119,7 +1119,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
         ("Image Preprocessing", (
             "normalize", "lower_percentile", "randomize", "batch_fields",
-            "upscale", "upscale_factor", "consolidate",
+            "consolidate",
             "denoise",
         )),
         ("Cell Segmentation", ("@Cell",)),
@@ -1153,7 +1153,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Output & Storage", (
             "save", "delete_intermediate", "keep_intermediate",
             "keep_original_images", "save_original_images", "keep_npz",
-            "compression", "filter", "merge_pathogens",
+            "filter", "merge_pathogens",
         )),
         ("Runtime & Reliability", (
             "strict_errors", "max_failure_rate", "on_error",
@@ -1271,7 +1271,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
         ("Image Preprocessing", (
             "normalize", "lower_percentile", "randomize", "batch_fields",
-            "upscale", "upscale_factor", "consolidate",
+            "consolidate",
             "denoise",
         )),
         ("Cell Segmentation", ("@Cell",)),
@@ -1316,7 +1316,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Output & Storage", (
             "save", "delete_intermediate", "keep_intermediate",
             "keep_original_images", "save_original_images", "keep_npz",
-            "compression", "filter", "merge_pathogens",
+            "filter", "merge_pathogens",
         )),
         ("Runtime & Reliability", (
             "preprocess", "masks", "test_mode", "test_images", "resume",
