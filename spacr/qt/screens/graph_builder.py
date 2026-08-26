@@ -41,6 +41,7 @@ from ..theme import SPACING
 from ..widgets.data_filter_panel import DataFilterPanel
 from ..widgets.graph_builder import GraphBuilderPanel
 from .app_screen import ModuleHeader
+from ..app_catalog import declared_app, register_declared
 
 LOG = logging.getLogger("spacr.qt.screens.graph_builder")
 
@@ -305,30 +306,17 @@ def make_graph_builder_screen(app_key: Optional[str] = None) -> QWidget:
     return GraphBuilderScreen()
 
 
-#: Display name, one-line description, and the header copy the shipped
-#: `AppScreen` tables want. Written here, next to the screen, so that wiring
-#: the app in is copying four strings from one file rather than inventing
-#: them in four.
-APP_NAME = "Graph Builder"
-APP_DESCRIPTION = "Drag columns onto x / y / colour / size / facet and get a chart"
-APP_INTRO = (
-    "Drop a column on X or Y and the chart appears; the plot type follows "
-    "the column types. Facet down and across for small multiples on shared "
-    "axes, and brush a region to highlight the same objects in every other "
-    "open view.")
-#: What `spacr.cli.INTERACTIVE_ONLY` wants: why this app has no headless run,
-#: and what to reach for instead. Printed by `spacr-run graph_builder`, so it
-#: is the only thing between a user and "I must have typed the name wrong".
-APP_CLI_NOTE = (
-    "Graph Builder is interactive chart building — the drop zones and the "
-    "brush are the whole feature; run it in the GUI (spacr-qt). Headless, "
-    "call spacr.plot from Python and pick the columns yourself.")
-#: The display name in the nine non-English UI languages, in
-#: `spacr.qt.i18n.LANGUAGES` order (sv, de, es, zh_CN, pt, hi, ko, is, fr).
-APP_NAME_TRANSLATIONS = (
-    "Diagrambyggare", "Diagramm-Baukasten", "Constructor de gráficos",
-    "图表构建器", "Construtor de gráficos", "ग्राफ़ बिल्डर", "그래프 빌더",
-    "Grafasmiður", "Générateur de graphiques")
+# The row this screen puts in the registry is declared in
+# `spacr.qt.app_catalog`, which is what lets the app be registered without
+# importing this module -- the launch reads the table, not the screen. These
+# read the same row back rather than restating it, so the name, the blurb and
+# the nine translations have one spelling and no second copy to drift from.
+_ROW = declared_app(APP_KEY)
+APP_NAME = _ROW.name
+APP_DESCRIPTION = _ROW.desc
+APP_INTRO = _ROW.intro
+APP_CLI_NOTE = _ROW.cli_note
+APP_NAME_TRANSLATIONS = _ROW.translations
 
 
 def register() -> bool:
@@ -350,24 +338,17 @@ def register() -> bool:
     point is still what keeps the app inventory the same on every import
     path, and the ledgers that check it honest.
 
-    Everything after ``SECTION_EXPLORE`` below is a table this key used to
-    need a hand-edit in: the screen header and blurb
-    (``app_screen.APP_TITLES`` / ``APP_INTROS``), the "no headless run"
-    sentence (``cli.INTERACTIVE_ONLY``), the API doc link
-    (``settings_model._APP_API_MODULE``) and the nine translations of the
-    display name (``i18n._ROWS``). :func:`spacr.qt.app.register_app`
-    distributes them.
+    The row itself -- the key, the name, the blurb, the section, the "no
+    headless run" sentence, the API doc link and the nine translations of the
+    display name -- is declared in :mod:`spacr.qt.app_catalog`.
+    :func:`spacr.qt.app.register_app` distributes those into the four tables
+    each used to need a hand-edit in, and this function's whole job is to name
+    which row. That is what lets the app be registered without importing this
+    module at all: the launch reads the table, and the screen is imported when
+    somebody opens it.
 
     :returns: ``True`` if this call is what registered it. Safe to call
         again: a module imported twice, or a test that re-imports it, must
         not raise on the duplicate key.
     """
-    from ..app import APPS, SECTION_EXPLORE, STAGE_ALPHA, register_app
-    if any(row[0] == APP_KEY for row in APPS):
-        return False
-    register_app(APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_EXPLORE,
-                 factory=make_graph_builder_screen, stage=STAGE_ALPHA,
-                 intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-                 api_module="qt/screens/graph_builder",
-                 translations=APP_NAME_TRANSLATIONS)
-    return True
+    return register_declared(__name__) is not None

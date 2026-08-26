@@ -355,14 +355,24 @@ def run(argv: list[str] | None = None) -> int:
 #: a row written into ``app.py``. Each exposes a zero-argument, idempotent
 #: ``register()``.
 #:
-#: They are imported by :func:`register_self_registering_modules`, which
-#: :func:`run` calls between ``from .app import launch`` and the call to it —
-#: and that position is the whole point. ``app.py`` is fully executed by then,
-#: so ``register_app`` exists to be imported; and ``MainWindow.__init__`` has
+#: :func:`register_self_registering_modules` walks this list, and :func:`run`
+#: calls it between ``from .app import launch`` and the call to it — and that
+#: position is the whole point. ``app.py`` is fully executed by then, so
+#: ``register_app`` exists to be imported; and ``MainWindow.__init__`` has
 #: not run yet, so the menu bar, the sidebar and Home have not yet read the
-#: registry. A module imported any earlier — from ``widgets/__init__.py``,
+#: registry. A module registering any earlier — from ``widgets/__init__.py``,
 #: say, which ``app.py`` itself imports on its 39th line — finds
 #: ``spacr.qt.app`` half-initialised and can register nothing.
+#:
+#: MOST OF THESE ARE NOT IMPORTED AT LAUNCH ANY MORE, and the list is still
+#: the place a module asks to be registered. A module that declares its row
+#: in :data:`spacr.qt.app_catalog.DECLARED_APPS` is registered FROM THAT ROW:
+#: the registry gets the key, the name, the sentence, the section and the
+#: stage, and the module — with pandas, scipy and sklearn behind it — is
+#: imported the first time somebody opens the app. What is still imported
+#: here is the handful below that do real work at registration and cannot be
+#: reduced to a row: they wrap other screens' factories, install hooks, or
+#: reassess what is already in the registry.
 SELF_REGISTERING_MODULES = (
     "spacr.qt.widgets.feature_dictionary",
     # Not an app of its own: it registers a screen FACTORY for every module
@@ -421,7 +431,15 @@ SELF_REGISTERING_MODULES = (
 
 
 def register_self_registering_modules() -> tuple[str, ...]:
-    """Import each of :data:`SELF_REGISTERING_MODULES` and let it register.
+    """Register every app in :data:`SELF_REGISTERING_MODULES`.
+
+    A row whose registration is pure metadata is taken from
+    :data:`spacr.qt.app_catalog.DECLARED_APPS` and its module is NOT imported:
+    the registry learns the key, the name, the sentence, the section and the
+    stage from the table, and the screen's own code — with pandas, scipy and
+    sklearn behind it — waits until somebody opens the app. Only a module that
+    does real work at registration is imported here, which is the handful that
+    wrap other screens' factories or reassess what is already registered.
 
     Idempotent — every ``register()`` is written to be safe to call twice, so
     a second launch in one process (the test suite does this) does not raise
@@ -430,15 +448,22 @@ def register_self_registering_modules() -> tuple[str, ...]:
     One module's failure costs that module's app and nothing else: an
     optional panel must never stop the GUI from starting.
 
-    :returns: the module names that registered without raising.
+    :returns: the module names that registered without raising, declared and
+        imported alike. A declared row that was already in the registry counts
+        as registered — the caller asked for the app to exist, and it does.
     """
     import importlib
     import logging
 
+    from .app_catalog import declared_for, register_declared
+
     registered: list[str] = []
     for name in SELF_REGISTERING_MODULES:
         try:
-            importlib.import_module(name).register()
+            if declared_for(name) is not None:
+                register_declared(name)
+            else:
+                importlib.import_module(name).register()
         except Exception:
             logging.getLogger("spacr.qt").exception(
                 "Could not register the app owned by %s", name)

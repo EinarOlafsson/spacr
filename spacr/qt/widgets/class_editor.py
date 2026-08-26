@@ -26,6 +26,7 @@ from ...classify_classes import (
 )
 from ..i18n import set_translatable_text
 from ..theme import SPACING, apply_close_mark, register_widget_qss
+from .sortable_table import install_sorting, tree_item
 
 LOG = logging.getLogger("spacr.qt.class_editor")
 
@@ -203,6 +204,7 @@ class ClassEditorWidget(QWidget):
         # because every existing test and integration reads `self.table`.
         # Removing it would be a second change riding on this one.
         self.table = QTreeWidget(self)
+        install_sorting(self.table)
         self.table.setVisible(False)
         self.table.setObjectName("ClassTable")
         self.table.setColumnCount(3)
@@ -464,7 +466,7 @@ class ClassEditorWidget(QWidget):
             else:
                 labels = [rule.name, "" if rule.value is None else str(rule.value),
                           rule.column]
-            item = QTreeWidgetItem(labels)
+            item = tree_item(labels)
             # Only the NAME is editable. The value and its column are facts
             # about the table, and letting them be typed over would produce a
             # class that selects nothing with no sign of why.

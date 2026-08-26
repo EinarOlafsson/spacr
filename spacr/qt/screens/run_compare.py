@@ -60,38 +60,21 @@ __all__ = ["RunCompareScreen", "APP_KEY", "register"]
 #: state, the command palette and ``spacr-qt run_compare`` all key off it.
 APP_KEY = "run_compare"
 
-#: The paragraph under this app's header, handed to the seam as ``intro``.
-APP_INTRO = (
-    "Two runs of the same project, side by side. What you changed (the "
-    "settings diff, grouped the way the settings panel groups them, showing "
-    "only what moved), what came out (objects, wells and fields per plate) "
-    "and which hits moved — appeared, vanished, or just changed rank. Runs "
-    "that are not comparable are not diffed: the banner says why, and you "
-    "can override it.")
+from ..app_catalog import declared_app, register_declared
 
-#: Why there is no ``spacr-run run_compare``; reaches
-#: ``spacr.cli.INTERACTIVE_ONLY``, which prints it instead of "unknown
-#: module".
-APP_CLI_NOTE = (
-    "Run Compare is an interactive side-by-side of two runs; headless, call "
-    "spacr.run_compare.runs_in(project) to list them and "
-    "spacr.run_compare.compare_runs(a, b) for the same three tables.")
+# The row this screen puts in the registry is declared in
+# `spacr.qt.app_catalog`, which is what lets the app be registered without
+# importing this module -- the launch reads the table, not the screen. These
+# read the same row back rather than restating it, so the name, the blurb and
+# the nine translations have one spelling and no second copy to drift from.
+_ROW = declared_app(APP_KEY)
+APP_INTRO = _ROW.intro
+APP_CLI_NOTE = _ROW.cli_note
+APP_TRANSLATIONS = _ROW.translations
 
-#: "Run Compare" in the nine non-English UI languages, in
-#: :data:`spacr.qt.i18n.LANGUAGES` order after English — sv, de, es, zh_CN,
-#: pt, hi, ko, is, fr. "Run" is a pipeline run, not the verb.
-APP_TRANSLATIONS = (
-    "Jämför körningar",
-    "Läufe vergleichen",
-    "Comparar ejecuciones",
-    "运行对比",
-    "Comparar execuções",
-    "रन तुलना",
-    "실행 비교",
-    "Bera saman keyrslur",
-    "Comparer les exécutions",
-)
+
 from ..widgets.toggle import Toggle
+from ..widgets.sortable_table import install_sorting, tree_item
 
 #: Column layouts, so the tests and the drawing code cannot disagree.
 _SETTINGS_COLUMNS = ("Setting", "A", "B", "Change")
@@ -447,6 +430,7 @@ class RunCompareScreen(QWidget):
 def _tree(columns: Tuple[str, ...]) -> QTreeWidget:
     """A grouped, read-only table carrying the shipped table styling."""
     tree = QTreeWidget()
+    install_sorting(tree)
     tree.setColumnCount(len(columns))
     tree.setHeaderLabels(list(columns))
     tree.setAlternatingRowColors(True)
@@ -465,17 +449,17 @@ def _fill_settings(tree: QTreeWidget, comparison: RunComparison) -> None:
     if diff is None:
         return
     if diff.identical and not diff.include_same:
-        tree.addTopLevelItem(QTreeWidgetItem(["No setting changed.", "", "", ""]))
+        tree.addTopLevelItem(tree_item(["No setting changed.", "", "", ""]))
         return
     for block in diff.categories:
-        header = QTreeWidgetItem([
+        header = tree_item([
             block.category,
             "", "",
             f"{len(block)} changed, {block.n_same} unchanged",
         ])
         tree.addTopLevelItem(header)
         for row in block.rows + block.same:
-            header.addChild(QTreeWidgetItem([
+            header.addChild(tree_item([
                 row.key, _render(row.a_val), _render(row.b_val), row.kind,
             ]))
         header.setExpanded(bool(block.rows))
@@ -488,8 +472,8 @@ def _fill_counts(tree: QTreeWidget, comparison: RunComparison) -> None:
     if diff is None:
         return
     if not diff.available:
-        tree.addTopLevelItem(QTreeWidgetItem([diff.note or "No counts.",
-                                              "", "", "", ""]))
+        tree.addTopLevelItem(tree_item([diff.note or "No counts.",
+                                        "", "", "", ""]))
         return
     groups: List[Tuple[str, Tuple[Any, ...]]] = [("Overall", diff.overall())]
     groups += [(f"Plate {plate}", diff.for_plate(plate))
@@ -498,13 +482,13 @@ def _fill_counts(tree: QTreeWidget, comparison: RunComparison) -> None:
         if not rows:
             continue
         moved = sum(1 for row in rows if row.changed)
-        header = QTreeWidgetItem([label, "", "", "",
-                                  f"{moved} of {len(rows)} moved"])
+        header = tree_item([label, "", "", "",
+                            f"{moved} of {len(rows)} moved"])
         tree.addTopLevelItem(header)
         for row in rows:
             pct = "—" if row.pct is None else f"{row.pct:+.1f}%"
             delta = "—" if row.delta is None else f"{row.delta:+,}"
-            header.addChild(QTreeWidgetItem([
+            header.addChild(tree_item([
                 row.metric, _number(row.a), _number(row.b), delta, pct,
             ]))
         header.setExpanded(True)
@@ -517,8 +501,8 @@ def _fill_hits(tree: QTreeWidget, comparison: RunComparison) -> None:
     if diff is None:
         return
     if not diff.available:
-        tree.addTopLevelItem(QTreeWidgetItem([diff.note or "No hit list.",
-                                              "", "", "", "", ""]))
+        tree.addTopLevelItem(tree_item([diff.note or "No hit list.",
+                                        "", "", "", "", ""]))
         return
     groups = (
         ("Appeared", diff.appeared),
@@ -529,14 +513,14 @@ def _fill_hits(tree: QTreeWidget, comparison: RunComparison) -> None:
     for label, changes in groups:
         if not changes:
             continue
-        header = QTreeWidgetItem([label, "", "", str(len(changes)), "", ""])
+        header = tree_item([label, "", "", str(len(changes)), "", ""])
         tree.addTopLevelItem(header)
         for change in changes:
             move = ("—" if change.rank_delta is None
                     else f"{-change.rank_delta:+d}")
             # No status column: the group heading already says what
             # happened, and repeating it in every row is noise.
-            header.addChild(QTreeWidgetItem([
+            header.addChild(tree_item([
                 change.key,
                 _number(change.a_rank), _number(change.b_rank), move,
                 _score(change.a_score), _score(change.b_score),
@@ -565,6 +549,16 @@ def _score(value: Optional[float]) -> str:
 # Registration
 # ---------------------------------------------------------------------------
 
+def make_run_compare_screen() -> "RunCompareScreen":
+    """Factory named by this screen's row in :mod:`spacr.qt.app_catalog`.
+
+    A named function rather than the lambda that used to be registered
+    inline: the catalog holds the factory's NAME and imports it on first
+    use, which a lambda has none of.
+    """
+    return RunCompareScreen()
+
+
 def register() -> bool:
     """Add Run Compare to the app registry. Idempotent.
 
@@ -591,22 +585,7 @@ def register() -> bool:
 
     :returns: True when this call is what registered it.
     """
-    from ..app import APPS, SECTION_RESULTS, STAGE_ALPHA, register_app
-    if any(row[0] == APP_KEY for row in APPS):
-        return False
-    register_app(
-        APP_KEY, "Run Compare",
-        "Put two runs side by side: settings, counts and hit-list diffs",
-        SECTION_RESULTS,
-        factory=lambda: RunCompareScreen(),
-        stage=STAGE_ALPHA,
-        title="Run Compare",
-        intro=APP_INTRO,
-        cli_note=APP_CLI_NOTE,
-        api_module="qt/screens/run_compare",
-        translations=APP_TRANSLATIONS,
-    )
-    return True
+    return register_declared(__name__) is not None
 
 
 register()

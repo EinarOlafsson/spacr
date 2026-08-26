@@ -121,6 +121,7 @@ PALETTE = (
 #: at 76 ms with matplotlib still absent from sys.modules -- so this costs a
 #: GUI module nothing.
 from ...figures.style import ROLES as _ROLES
+from .sortable_table import install_sorting, table_item
 
 HIGHLIGHT = _ROLES["highlight"]
 MUTED = _ROLES["data"]
@@ -1717,6 +1718,12 @@ class FastPlot(QWidget):
         #: is None until asked for, meaning "follow the plot's own aspect".
         self._export_width_mm: float = EXPORT_WIDTH_MM
         self._export_height_mm: Optional[float] = None
+        #: Dots per inch a RASTER export is written at, or None to keep the
+        #: scene's own pixel count. The page is measured in millimetres, so
+        #: this is the number that decides how many pixels a PNG has:
+        #: ``page width in inches x dpi``. Vector output ignores it, which is
+        #: why a PDF or an SVG never asks.
+        self._export_dpi: Optional[int] = None
         #: The size floors this widget was given by whoever placed it, kept
         #: so :meth:`clear_screen_size` puts them back rather than releasing
         #: the widget to nothing. `RegressionResultsPanel` sets
@@ -3149,6 +3156,42 @@ class FastPlot(QWidget):
         super().resizeEvent(event)
         if self._canvas_shape != "free":
             self._apply_canvas_shape()
+
+    @contextmanager
+    def _held_at_the_page_shape(self):
+        """Give the SCENE the canvas shape's proportions for one render.
+
+        WHY THE PAGE ALONE IS NOT ENOUGH. Both raster and vector export map
+        the scene onto the page with ``Qt::KeepAspectRatio``, so asking for a
+        square page while the scene is still 900x433 does not make a square
+        FIGURE -- it makes a square file with the plot pressed into the top
+        half of it. Measured on the volcano before this existed: a 900x900
+        PNG whose ink stopped at row 428.
+
+        So the plot item is resized to the shape first and the exporters
+        follow it, which is the same thing the on-screen shape does through
+        :meth:`_apply_canvas_shape`. The geometry is put back in ``finally``,
+        including when the render raises.
+
+        A free canvas yields without touching anything.
+        """
+        from PySide6.QtCore import QRectF
+
+        ratio = self.canvas_ratio()
+        item = getattr(self.plot, "plotItem", None)
+        if ratio is None or item is None:
+            yield False
+            return
+        before = QRectF(item.geometry())
+        width = float(before.width())
+        if not np.isfinite(width) or width <= 0:
+            yield False
+            return
+        item.setGeometry(QRectF(before.x(), before.y(), width, width * ratio))
+        try:
+            yield True
+        finally:
+            item.setGeometry(before)
 
     def export_size(self) -> tuple:
         """``(width mm, height mm)`` of a saved page.
@@ -5363,7 +5406,11 @@ class FastPlot(QWidget):
         # the file differ on purpose and the difference is the point.
         restore = self._wear_the_print_look(item)
         try:
-            self._write_export(item, path, width_mm, height_mm, exporters)
+            # THE SCENE TAKES THE SHAPE FIRST. `export_size` above has
+            # already put the shape on the PAGE; without this the page and
+            # the scene disagree and Qt letterboxes the difference.
+            with self._held_at_the_page_shape():
+                self._write_export(item, path, width_mm, height_mm, exporters)
         finally:
             for undo in restore:
                 undo()
@@ -5388,7 +5435,7 @@ class FastPlot(QWidget):
                 exporter.parameters()["background"] = self._export_ground()
             except (KeyError, TypeError):   # pragma: no cover - older pyqtgraph
                 pass
-            self._shape_the_image(exporter)
+            self._shape_the_image(exporter, width_mm, height_mm)
             exporter.export(path)
 
     @contextmanager
@@ -5398,22 +5445,42 @@ class FastPlot(QWidget):
                               line_width: Optional[float] = None,
                               aspect: Optional[float] = None,
                               x_title: Optional[str] = None,
-                              y_title: Optional[str] = None):
+                              y_title: Optional[str] = None,
+                              text_colour: str = "",
+                              line_colour: str = "",
+                              canvas_shape: str = "",
+                              dpi: Optional[int] = None):
         """Apply export styling for one synchronous render, then restore it.
 
         Pyqtgraph scenes cannot be copied safely, so the live scene is styled
         only while an offscreen exporter or painter renders it. The original
-        colors, grid, text size, line width, aspect and axis titles are
-        restored in ``finally``, including when the export raises.
+        colors, grid, text size, line width, aspect, axis titles, canvas
+        shape and export resolution are restored in ``finally``, including
+        when the export raises.
 
         EVERY KNOB THE SAVE DIALOG OFFERS COMES THROUGH HERE, so the preview
         and the file are styled by one path. A second styling path is how a
         preview comes to show something the file does not.
+
+        ``ink`` colours text AND lines together, which is what a paper/slide
+        preset means. ``text_colour`` and ``line_colour`` are the halves,
+        applied after it so a caller that names one of them wins over the
+        preset for that half.
+
+        ``canvas_shape`` names one of :data:`CANVAS_SHAPES` and reaches the
+        page through :meth:`export_size` and the scene through
+        :meth:`_held_at_the_page_shape`. An unknown name is ignored rather
+        than raised: this is a render, and a render that refuses to draw is
+        the failure the caller is trying to avoid.
         """
         before_bg, before_fg = self._background, self._foreground
         before_grid = self._grid_on
         before_font = self._font_size
         before_labels = dict(getattr(self, "_base_labels", {}) or {})
+        before_text_colour = self._font_colour
+        before_line_colour = self._line_colour
+        before_shape = self._canvas_shape
+        before_dpi = self._export_dpi
         before_width = None
         if line_width is not None:
             lines = self.line_items()
@@ -5431,9 +5498,21 @@ class FastPlot(QWidget):
         # said "transparent", which is not a colour and must not become one.
         before_ground = getattr(self, "_chosen_ground", "")
         try:
+            if canvas_shape and canvas_shape in dict(CANVAS_SHAPES):
+                # THE STATE, NOT `set_canvas_shape`. That one re-lays the
+                # widget out on screen, and this styling is for the file:
+                # the scene is given the proportion by
+                # `_held_at_the_page_shape` around the render itself.
+                self._canvas_shape = str(canvas_shape)
+            if dpi:
+                self._export_dpi = int(dpi)
             if ink or background:
                 self.restyle(background=background or before_bg,
                              foreground=ink or before_fg)
+            if text_colour:
+                self.set_font_colour(text_colour)
+            if line_colour:
+                self.set_line_colour(line_colour)
             self._chosen_ground = str(background or "")
             if grid is not None:
                 self.set_grid(grid)
@@ -5451,6 +5530,12 @@ class FastPlot(QWidget):
             yield self
         finally:
             self._chosen_ground = before_ground
+            self._export_dpi = before_dpi
+            self._canvas_shape = before_shape
+            if line_colour:
+                self.set_line_colour(before_line_colour)
+            if text_colour:
+                self.set_font_colour(before_text_colour)
             for edge, title in (("bottom", x_title), ("left", y_title)):
                 if title is not None:
                     self.plot.setLabel(edge, before_labels.get(edge, ""))
@@ -5657,23 +5742,56 @@ class FastPlot(QWidget):
         dialog = SaveFigureDialog(self, parent=self)
         return dialog.exec()
 
-    def _shape_the_image(self, exporter) -> None:
-        """Apply the canvas aspect ratio to a raster exporter.
+    def raster_pixels(self, source_width: float, source_height: float,
+                      width_mm: Optional[float] = None,
+                      height_mm: Optional[float] = None) -> tuple:
+        """``(width, height)`` in PIXELS for a raster export of this plot.
 
-        Export width is preserved and height is adjusted. The linked width
-        and height handlers are blocked while both parameters are updated.
+        THE RESOLUTION DECIDES THE COUNT AND THE SHAPE DECIDES THE
+        PROPORTION. A page is measured in millimetres, so the pixels across
+        are ``page width in inches x dpi`` -- 180 mm at 300 dpi is 2126, and
+        the same figure at 600 dpi is 4252. That is what a journal asking for
+        300 dpi is asking about, so the resolution wins: the canvas shape
+        then says how tall the result is, and never how wide.
+
+        With no resolution set the scene's own pixel size is kept, which is
+        what every export did before a resolution could be chosen.
         """
+        source_width = max(1.0, float(source_width))
+        source_height = max(1.0, float(source_height))
+        dpi = self._export_dpi
+        if dpi:
+            width = max(1, int(round(float(width_mm or self._export_width_mm)
+                                     / 25.4 * float(dpi))))
+        else:
+            width = max(1, int(round(source_width)))
         ratio = self.canvas_ratio()
-        if ratio is None:
-            return
+        if ratio is not None:
+            height = max(1, int(round(width * float(ratio))))
+        elif height_mm and width_mm:
+            height = max(1, int(round(width * float(height_mm)
+                                      / float(width_mm))))
+        else:
+            height = max(1, int(round(width * source_height / source_width)))
+        return width, height
+
+    def _shape_the_image(self, exporter, width_mm: Optional[float] = None,
+                         height_mm: Optional[float] = None) -> None:
+        """Size a raster exporter's output in pixels.
+
+        The width and height parameters of pyqtgraph's ImageExporter are
+        linked, so each is written with the other's handler blocked and both
+        end up as :meth:`raster_pixels` asked for.
+        """
         try:
+            source = exporter.getSourceRect()
+            width, height = self.raster_pixels(source.width(), source.height(),
+                                               width_mm, height_mm)
             parameters = exporter.parameters()
-            width = int(exporter.getSourceRect().width())
             parameters.param("width").setValue(
                 width, blockSignal=exporter.widthChanged)
             parameters.param("height").setValue(
-                max(1, int(round(width * ratio))),
-                blockSignal=exporter.heightChanged)
+                height, blockSignal=exporter.heightChanged)
         except Exception:       # pragma: no cover - a different exporter API
             pass
 
@@ -5710,35 +5828,58 @@ class FastPlot(QWidget):
         fitted nothing yet should have no tile at all rather than a misleading
         one.
         """
-        from PySide6.QtGui import QPixmap
-
         if not self.plots_available or not len(self.plot.listDataItems()):
             return None
         self._sync_auto_range()
         from pyqtgraph import exporters
 
         try:
-            exporter = exporters.ImageExporter(self.plot.plotItem)
-            exporter.parameters()["width"] = int(width)
-            try:
-                # TRANSPARENT BY DEFAULT, like the tile behind it. The
-                # exporter otherwise uses pyqtgraph's configured background,
-                # and a tile painted onto an opaque slab is the "the graphs
-                # still have a black background" report all over again.
-                #
-                # A CALLER MAY ASK FOR THE PAGE, and the save dialog does:
-                # its preview is meant to be the file, and a file written
-                # onto white while its preview showed transparent is a
-                # preview of something else.
-                exporter.parameters()["background"] = (
-                    QColor(0, 0, 0, 0) if ground is None else ground)
-            except (KeyError, TypeError):   # pragma: no cover - old pyqtgraph
-                pass
-            image = exporter.export(toBytes=True)
+            with self._held_at_the_page_shape():
+                return self._render_snapshot(exporters, width, ground)
         except Exception:
             # A picture is never worth taking the screen down for. The caller
             # pins nothing, which is the same thing that happens before a run.
             return None
+
+    def _render_snapshot(self, exporters, width: int, ground):
+        """Render the scene to a ``QPixmap`` ``width`` pixels across.
+
+        Split out of :meth:`snapshot` so the canvas shape can be held around
+        the render without the ``try`` that swallows a failed one also
+        swallowing a failure to restore the geometry.
+        """
+        from PySide6.QtGui import QPixmap
+
+        exporter = exporters.ImageExporter(self.plot.plotItem)
+        exporter.parameters()["width"] = int(width)
+        ratio = self.canvas_ratio()
+        if ratio is not None:
+            # THE SHAPE, IN THE PIXELS TOO. The scene is already held at the
+            # proportion, but the exporter's linked height is recomputed from
+            # the source rect it saw when the width was written -- so a
+            # preview could come back one pixel out of square, which is the
+            # difference between "the shape worked" and "nearly".
+            try:
+                exporter.parameters().param("height").setValue(
+                    max(1, int(round(int(width) * float(ratio)))),
+                    blockSignal=exporter.heightChanged)
+            except Exception:           # pragma: no cover - other exporter
+                pass
+        try:
+            # TRANSPARENT BY DEFAULT, like the tile behind it. The
+            # exporter otherwise uses pyqtgraph's configured background,
+            # and a tile painted onto an opaque slab is the "the graphs
+            # still have a black background" report all over again.
+            #
+            # A CALLER MAY ASK FOR THE PAGE, and the save dialog does:
+            # its preview is meant to be the file, and a file written
+            # onto white while its preview showed transparent is a
+            # preview of something else.
+            exporter.parameters()["background"] = (
+                QColor(0, 0, 0, 0) if ground is None else ground)
+        except (KeyError, TypeError):   # pragma: no cover - old pyqtgraph
+            pass
+        image = exporter.export(toBytes=True)
         if image is None or image.isNull():
             return None
         pixmap = QPixmap.fromImage(image)
@@ -8294,7 +8435,9 @@ class ResultsTable(QWidget):
         layout.addLayout(top)
 
         self.table = QTableWidget(0, 0)
-        self.table.setSortingEnabled(True)
+        # The application's one sorting contract: descending on the first
+        # click, ascending on the second, the frame's own order on the third.
+        install_sorting(self.table)
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         # EXTENDED, NOT SINGLE (instruction 206). A band over the volcano
         # selects several guides, and a table that can only hold one of them
@@ -8356,7 +8499,7 @@ class ResultsTable(QWidget):
         for row in range(len(frame)):
             for column, name in enumerate(columns):
                 value = frame.iloc[row][name]
-                item = _NumericItem(value)
+                item = table_item(value)
                 # The frame row, so a click still maps home after sorting.
                 item.setData(Qt.UserRole, row)
                 self.table.setItem(row, column, item)
@@ -8602,58 +8745,4 @@ class ResultsTable(QWidget):
         return text
 
 
-try:  # pragma: no cover - trivial subclass
-    from PySide6.QtWidgets import QTableWidgetItem
 
-    def _is_missing(value) -> bool:
-        """True for None, NaN, pandas' NA and NaT.
-
-        `pandas.isna` rather than `value != value`, which was the first
-        attempt and got pd.NA exactly wrong: `pd.NA != pd.NA` evaluates to
-        pd.NA, not to True, and `bool(pd.NA)` RAISES -- so the except branch
-        swallowed it and reported the one sentinel this was written for as
-        present.
-
-        Importing pandas here costs nothing: every value this sees came out
-        of a DataFrame handed to `set_frame`, so pandas is already imported
-        by definition of having anything to render.
-        """
-        if value is None:
-            return True
-        try:
-            import pandas as _pd
-
-            return bool(_pd.isna(value))
-        except (ImportError, TypeError, ValueError):
-            # isna on an array-like returns an array; a cell holding one is
-            # not missing.
-            return False
-
-    class _NumericItem(QTableWidgetItem):
-        """Sorts numerically when it holds a number, textually otherwise.
-
-        A plain QTableWidgetItem sorts "10" before "9", which on a q-value
-        column puts the answer in the wrong place.
-        """
-
-        def __init__(self, value):
-            # EVERY FLAVOUR OF MISSING SHOWS AS EMPTY. `str(pd.NA)` is the
-            # literal "<NA>" and `str(float('nan'))` is "nan", so a column
-            # that is absent for some rows -- a session run has no trial_id,
-            # a running one has no result count -- printed those words into
-            # the table as though they were data. An empty cell is what a
-            # missing value looks like everywhere else in this application.
-            super().__init__("" if _is_missing(value) else str(value))
-            try:
-                self._number = float(value)
-            except (TypeError, ValueError):
-                self._number = None
-
-        def __lt__(self, other):
-            mine = getattr(self, "_number", None)
-            theirs = getattr(other, "_number", None)
-            if mine is not None and theirs is not None:
-                return mine < theirs
-            return self.text() < other.text()
-except Exception:  # pragma: no cover
-    _NumericItem = None

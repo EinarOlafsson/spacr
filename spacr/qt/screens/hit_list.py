@@ -129,6 +129,7 @@ APP_TRANSLATIONS = (
     "Liste des résultats",
 )
 from ..widgets.toggle import Toggle
+from ..widgets.sortable_table import install_sorting, tree_item
 
 #: The table's columns, so the drawing code and the tests cannot disagree.
 COLUMNS = ("#", "Gene", "Name", "Effect", "95% CI", "p", "q", "Guides",
@@ -366,7 +367,9 @@ class HitListScreen(QWidget):
         self._table.setHeaderLabels(list(COLUMNS))
         self._table.setRootIsDecorated(False)
         self._table.setAlternatingRowColors(True)
-        self._table.setSortingEnabled(False)
+        # The list arrives ranked, and a third click on a header brings that
+        # ranking back -- so sorting costs the default order nothing.
+        install_sorting(self._table)
         header = self._table.header()
         header.setStretchLastSection(True)
         header.setSectionResizeMode(2, QHeaderView.Stretch)
@@ -494,7 +497,7 @@ class HitListScreen(QWidget):
                         else f"{hit.ci_low:.3g} … {hit.ci_high:.3g}")
             agreement = ("—" if math.isnan(hit.agreement)
                          else f"{hit.agreement:.0%}")
-            item = QTreeWidgetItem([
+            item = tree_item([
                 str(hit.rank), hit.gene, hit.name, _number(hit.effect),
                 interval, _number(hit.p_value), _number(hit.q_value),
                 f"{hit.n_agree}/{hit.n_guides}", agreement,

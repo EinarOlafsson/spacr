@@ -24,6 +24,7 @@ from PySide6.QtWidgets import (QAbstractItemView, QCheckBox, QComboBox,
                                QDoubleSpinBox, QFileDialog, QHBoxLayout,
                                QLabel, QLineEdit, QPushButton, QTableWidget,
                                QTableWidgetItem, QVBoxLayout, QWidget)
+from .sortable_table import install_sorting, table_item
 
 LOG = logging.getLogger("spacr.qt.sweep_panel")
 
@@ -248,6 +249,7 @@ class SweepPanel(QWidget):
         layout.addWidget(self.status)
 
         self.table = QTableWidget(0, 8)
+        install_sorting(self.table)
         self.table.setHorizontalHeaderLabels(
             ["level", "gene / guide", "measurement", "effect", "q",
              "circularity", "wells", "effective"])
@@ -363,7 +365,7 @@ class SweepPanel(QWidget):
                       str(int(entry["n_wells"])),
                       f"{entry['effective_wells']:.0f}"]
             for column, text in enumerate(values):
-                self.table.setItem(row, column, QTableWidgetItem(text))
+                self.table.setItem(row, column, table_item(text))
         self.table.setSortingEnabled(True)
         if len(keep) > len(shown):
             self.status.setText(

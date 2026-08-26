@@ -955,13 +955,13 @@ def test_a_header_click_sorts_the_whole_table_not_the_loaded_rows(screen,
         "fixture must not fit in one chunk or this proves nothing")
 
     section = screen.visible_columns().index("cell_area")
-    screen._on_header_clicked(section)
+    screen._on_header_clicked(section)          # -> descending, as everywhere
 
     label = screen.visible_columns().index("object_label")
-    assert [r[label] for r in screen.preview_rows()][:3] == [1, 2, 3]
-
-    screen._on_header_clicked(section)          # -> descending
     assert [r[label] for r in screen.preview_rows()][:3] == [250, 249, 248]
+
+    screen._on_header_clicked(section)          # -> ascending
+    assert [r[label] for r in screen.preview_rows()][:3] == [1, 2, 3]
 
     screen._on_header_clicked(section)          # -> unsorted
     assert screen._sort is None

@@ -30,6 +30,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from .sortable_table import install_sorting, table_item
 
 
 def _pair_tokens(path: str) -> set[str]:
@@ -247,6 +248,7 @@ class PairedFileTableWidget(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         self.table = QTableWidget(0, 5, self)
+        install_sorting(self.table)
         self.table.setHorizontalHeaderLabels(
             ["Plate / proposal", "Score CSV", "Count CSV",
              "Measurements DB", "Plate rule"])
@@ -525,7 +527,7 @@ class PairedFileTableWidget(QWidget):
 
     @staticmethod
     def _database_item(value: str) -> QTableWidgetItem:
-        item = QTableWidgetItem(str(value))
+        item = table_item(str(value))
         if value and not os.path.exists(str(value)):
             # Marked, not discarded: the path may be right and the disk
             # merely not mounted yet, and a silently emptied cell is worse
@@ -647,7 +649,7 @@ class PairedFileTableWidget(QWidget):
             if column == self.SIDE_COLUMNS["database"]:
                 item = self._database_item(value)
             else:
-                item = QTableWidgetItem(str(value))
+                item = table_item(str(value))
             if column == self.RULE_COLUMN:
                 item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             self.table.setItem(index, column, item)

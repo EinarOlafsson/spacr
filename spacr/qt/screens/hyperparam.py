@@ -58,6 +58,7 @@ from ..theme import active_palette, css_color, make_transparent
 # only inside its own functions, so naming it here costs
 # nothing at import time.
 from ...figures.style import figure_style, theme_target
+from ..widgets.sortable_table import install_sorting, table_item
 
 LOG = logging.getLogger("spacr.qt.hyperparam")
 
@@ -674,26 +675,15 @@ def _parse_walk_start(name: str, text: Any) -> Any:
     return values[0]
 
 
-class _NumericTableItem(QTableWidgetItem):
-    """Keep formatted display text while sorting by its numeric value."""
+def _NumericTableItem(text: str, number: float) -> QTableWidgetItem:
+    """A trial cell: the formatted text, sorted on the number behind it.
 
-    def __init__(self, text: str, number: float):
-        super().__init__(str(text))
-        self._number = float(number)
-
-    def __lt__(self, other) -> bool:
-        if isinstance(other, _NumericTableItem):
-            return self._number < other._number
-        peer = getattr(other, "text", None)
-        if callable(peer):
-            # Not ``super().__lt__``: PySide6 dispatches
-            # ``QTableWidgetItem::operator<`` straight back into this
-            # override, so the call recurses until it is abandoned and the
-            # comparison silently answers False -- a scored row and a "-"
-            # row would then never order against each other. Qt sorts plain
-            # items by their display text, which is what is compared here.
-            return self.text() < str(peer())
-        return NotImplemented
+    The comparison itself lives in
+    :mod:`spacr.qt.widgets.sortable_table`, with every other table's. This
+    kept its own copy of it until the two disagreed about where a failed
+    trial's "-" belongs.
+    """
+    return table_item(text, key=number)
 
 
 class _FixedChoiceCombo(QComboBox):
@@ -1170,6 +1160,7 @@ class HyperparamPanel(QWidget):
         split.setChildrenCollapsible(False)
 
         self._table = QTableWidget(0, len(self.COLUMNS))
+        install_sorting(self._table)
         self._table.setHorizontalHeaderLabels(list(self.COLUMNS))
         self._retitle_score_column()
         if self.app_key in self.NO_FOLD_APPS:
@@ -2069,7 +2060,7 @@ class HyperparamPanel(QWidget):
                 self.COLUMNS.index("min dist"),
                 self.COLUMNS.index("clusters"),
             }
-            item = QTableWidgetItem(text)
+            item = table_item(text)
             if col in numeric_columns:
                 try:
                     item = _NumericTableItem(text, float(text))

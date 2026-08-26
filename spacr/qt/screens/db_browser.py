@@ -1431,6 +1431,10 @@ class DbBrowserScreen(LinkedView, QWidget):
         self._model.set_fetch_hook(self.fetch_more)
         self._model.set_commit_hook(self.edit_cell)
         self._view = QTableView(right)
+        # Named so the sorting sweep can tell this one view apart: it is the
+        # only table in the application that must NOT take Qt's model sort,
+        # because it sorts in SQL over rows it has not loaded.
+        self._view.setObjectName("DbBrowserPreview")
         self._view.setModel(self._model)
         # Read-only in the UI as well as on the connection, until edit
         # mode says otherwise.
@@ -2034,11 +2038,18 @@ class DbBrowserScreen(LinkedView, QWidget):
             "clear.")
 
     def _on_header_clicked(self, section: int) -> None:
-        """Cycle the clicked column: ascending, descending, unsorted.
+        """Cycle the clicked column: descending, ascending, unsorted.
 
-        A third state matters here. Sorting forces OFFSET paging, which gets
-        slower the further the user scrolls, so there has to be a way back to
-        the table's natural keyset-paged order without reloading the screen.
+        The same cycle every other table in the application follows -- see
+        :mod:`spacr.qt.widgets.sortable_table`. Descending first because a
+        measurement table is read from the top and the top is where the
+        largest value belongs; ascending second; and a third click back to
+        the table's own order.
+
+        That third state matters more here than anywhere else: sorting forces
+        OFFSET paging, which gets slower the further the user scrolls, so
+        there has to be a way back to the keyset-paged order without
+        reloading the screen.
         """
         columns = self._model.visible_columns()
         if not (0 <= section < len(columns)):
@@ -2046,9 +2057,9 @@ class DbBrowserScreen(LinkedView, QWidget):
         column = columns[section]
 
         if self._sort is None or self._sort[0] != column:
-            self._sort = (column, False)
-        elif not self._sort[1]:
             self._sort = (column, True)
+        elif self._sort[1]:
+            self._sort = (column, False)
         else:
             self._sort = None
 

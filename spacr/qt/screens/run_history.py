@@ -37,6 +37,7 @@ from ..iconset import icon
 from ..theme import (SPACING, active_palette, page_tabs_qss,
                      register_widget_qss)
 from ..widgets import Divider
+from ..widgets.sortable_table import install_sorting, table_item
 
 LOG = logging.getLogger(__name__)
 
@@ -64,7 +65,7 @@ _COLUMNS = (
 
 def _readonly_item(text: Any) -> QTableWidgetItem:
     """Return a non-editable table item."""
-    item = QTableWidgetItem("" if text is None else str(text))
+    item = table_item("" if text is None else str(text))
     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
     return item
 
@@ -203,6 +204,7 @@ class RunHistoryScreen(QWidget):
 
         splitter = QSplitter(Qt.Vertical, self)
         self._table = QTableWidget(0, len(_COLUMNS), splitter)
+        install_sorting(self._table)
         self._table.setHorizontalHeaderLabels(_COLUMNS)
         self._table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)

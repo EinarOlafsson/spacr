@@ -33,6 +33,7 @@ from .app_screen import ModuleHeader
 from ..widgets.qc_summary import (
     Dashboard, format_dashboard, read_dashboard,
 )
+from ..app_catalog import declared_app, register_declared
 
 __all__ = [
     "APP_KEY", "APP_NAME", "APP_DESCRIPTION", "APP_INTRO", "APP_CLI_NOTE",
@@ -43,25 +44,16 @@ __all__ = [
 #: Stable app id. Chosen once; saved user state and the registry key off it.
 APP_KEY = "qc_dashboard"
 
-APP_NAME = "QC Dashboard"
-APP_DESCRIPTION = (
-    "Segmentation, units, leakage, plate effects and annotator agreement in "
-    "one place, with the verdict they add up to."
-)
-APP_INTRO = (
-    "Every verdict here was written by the run that produced it -- this "
-    "screen reads them, it does not score anything, so opening it costs a "
-    "directory listing rather than minutes of mask loading. A card whose "
-    "inputs are newer than it is says OUT OF DATE rather than pretending to "
-    "describe them. A card that says 'missing' means the check has not been "
-    "run, which is not the same as clean."
-)
-APP_CLI_NOTE = (
-    "The QC Dashboard is a GUI screen: it aggregates verdicts other runs "
-    "wrote so they can be read together. Headless, call "
-    "spacr.qt.widgets.qc_summary.read_dashboard(src) and "
-    "format_dashboard() instead -- that is the same code this screen runs."
-)
+# The row this screen puts in the registry is declared in
+# `spacr.qt.app_catalog`, which is what lets the app be registered without
+# importing this module -- the launch reads the table, not the screen. These
+# read the same row back rather than restating it, so the name, the blurb and
+# the nine translations have one spelling and no second copy to drift from.
+_ROW = declared_app(APP_KEY)
+APP_NAME = _ROW.name
+APP_DESCRIPTION = _ROW.desc
+APP_INTRO = _ROW.intro
+APP_CLI_NOTE = _ROW.cli_note
 #: sv, de, es, zh_CN, pt, hi, ko, is, fr
 APP_TRANSLATIONS: Tuple[str, ...] = (
     "QC-panel", "QC-Übersicht", "Panel de control de QC", "质控面板",
@@ -447,17 +439,7 @@ def make_qc_dashboard_screen(app_key: Optional[str] = None) -> QWidget:
 
 def register() -> bool:
     """Add the QC Dashboard to the app registry. Idempotent."""
-    from ..app import APPS, SECTION_EXPLORE, STAGE_ALPHA, register_app
-
-    if any(row[0] == APP_KEY for row in APPS):
-        return False
-    register_app(
-        APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_EXPLORE,
-        factory=make_qc_dashboard_screen, stage=STAGE_ALPHA,
-        title=APP_NAME, intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-        api_module="qt/screens/qc_dashboard",
-        translations=APP_TRANSLATIONS)
-    return True
+    return register_declared(__name__) is not None
 
 
 register()

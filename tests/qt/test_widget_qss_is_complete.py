@@ -196,13 +196,24 @@ def test_a_deferred_registrar_is_still_reached_before_the_first_sheet():
     fell through to the blanket window fill. The module must either
     register at import, be in ``WIDGET_QSS_MODULES``, or have its
     ``register()`` called by ``register_self_registering_modules``.
+
+    A NAME IN ``SELF_REGISTERING_MODULES`` IS NOT ENOUGH ANY MORE, and that
+    is the trap this half exists to close. A module that declares its row in
+    ``app_catalog`` is registered FROM THE ROW and is never imported at
+    launch, so its ``register()`` is not called and a block registered only
+    from inside it never reaches the first sheet — while the module's name
+    still sits in ``__init__.py`` looking like an assurance. Declared
+    modules are therefore subtracted from the assurance rather than counted
+    towards it, and the answer for one of those is ``WIDGET_QSS_MODULES``.
     """
     import re
 
+    from spacr.qt.app_catalog import DECLARED_APPS
     from spacr.qt.theme import WIDGET_QSS_MODULES
 
     init_src = (QT_ROOT / "__init__.py").read_text(encoding="utf-8")
     self_registering = set(re.findall(r'"(spacr\.qt\.[a-z_.]+)"', init_src))
+    self_registering -= {row.module for row in DECLARED_APPS}
     reached = set(WIDGET_QSS_MODULES) | self_registering
 
     stranded = sorted(_modules_registering_only_inside_a_function() - reached)

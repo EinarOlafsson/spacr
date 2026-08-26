@@ -77,6 +77,7 @@ from ..bridge import make_thread
 from ..theme import SPACING, active_palette
 from ..widgets import Divider
 from .db_browser import resolve_db_path
+from ..widgets.sortable_table import install_sorting, table_item
 
 __all__ = ["AgreementScreen", "DEFAULT_REVIEW_LIMIT", "format_kappa"]
 
@@ -116,7 +117,7 @@ def _format_pct(value: Any) -> str:
 
 def _cell(text: str) -> QTableWidgetItem:
     """A read-only table cell."""
-    item = QTableWidgetItem(text)
+    item = table_item(text)
     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
     return item
 
@@ -242,6 +243,7 @@ class AgreementScreen(QWidget):
 
         right_layout.addWidget(QLabel("Pairwise agreement"))
         self._kappa_table = QTableWidget(0, len(_KAPPA_HEADERS), right)
+        install_sorting(self._kappa_table)
         self._kappa_table.setHorizontalHeaderLabels(list(_KAPPA_HEADERS))
         self._prepare_table(self._kappa_table)
         self._kappa_table.currentCellChanged.connect(
@@ -260,6 +262,7 @@ class AgreementScreen(QWidget):
         right_layout.addLayout(conf_row)
 
         self._confusion_table = QTableWidget(0, 0, right)
+        install_sorting(self._confusion_table)
         self._prepare_table(self._confusion_table)
         right_layout.addWidget(self._confusion_table, 1)
 
@@ -295,6 +298,7 @@ class AgreementScreen(QWidget):
 
         review_split = QSplitter(Qt.Horizontal, self)
         self._review_table = QTableWidget(0, 0, review_split)
+        install_sorting(self._review_table)
         self._prepare_table(self._review_table)
         self._review_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self._review_table.setSelectionMode(QAbstractItemView.SingleSelection)

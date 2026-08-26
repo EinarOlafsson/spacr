@@ -40,6 +40,8 @@ from ..widgets.trellis_view import TrellisPanelWidget
 from ..widgets.trellis_spec import TrellisSpec
 from .graph_builder import read_table, table_names
 from .app_screen import ModuleHeader
+from ..app_catalog import declared_app, register_declared
+from ..app_catalog import declared_app, register_declared
 
 LOG = logging.getLogger("spacr.qt.screens.trellis")
 
@@ -243,25 +245,23 @@ def make_trellis_screen(app_key: Optional[str] = None) -> QWidget:
     return TrellisScreen()
 
 
-APP_NAME = "Small Multiples"
-APP_DESCRIPTION = "One chart per group, in a grid, on axes that really are shared"
-APP_INTRO = (
-    "Drop a column on X or Y to say what each panel shows, then a grouping "
-    "column on Facet ↓ or Facet → to repeat it once per level. Axes are "
-    "shared by default, so a shift between panels is a shift in the data; "
-    "free, per-row and per-column scales are available and the grid says so "
-    "when they are on. Every panel prints its n.")
-APP_CLI_NOTE = (
-    "Small Multiples is interactive: the drop zones, the scale options and "
-    "the brush are the feature. Run it in the GUI (spacr-qt). Headless, "
-    "spacr.qt.widgets.trellis_spec.trellis() computes the same grid — panels, "
-    "scales and per-panel n — with no Qt involved.")
-#: The display name in the nine non-English UI languages, in
-#: `spacr.qt.i18n.LANGUAGES` order (sv, de, es, zh_CN, pt, hi, ko, is, fr).
-APP_NAME_TRANSLATIONS = (
-    "Smådiagram", "Kleine Vielfache", "Múltiplos pequeños",
-    "小型多组图", "Pequenos múltiplos", "स्मॉल मल्टीपल्स", "스몰 멀티플",
-    "Smámyndaröð", "Petits multiples")
+# The row this screen puts in the registry is declared in
+# `spacr.qt.app_catalog`, which is what lets the app be registered without
+# importing this module -- the launch reads the table, not the screen. These
+# read the same row back rather than restating it, so the name, the blurb and
+# the nine translations have one spelling and no second copy to drift from.
+_ROW = declared_app(APP_KEY)
+# The row this screen puts in the registry is declared in
+# `spacr.qt.app_catalog`, which is what lets the app be registered without
+# importing this module -- the launch reads the table, not the screen. These
+# read the same row back rather than restating it, so the name, the blurb and
+# the nine translations have one spelling and no second copy to drift from.
+_ROW = declared_app(APP_KEY)
+APP_NAME = _ROW.name
+APP_DESCRIPTION = _ROW.desc
+APP_INTRO = _ROW.intro
+APP_CLI_NOTE = _ROW.cli_note
+APP_NAME_TRANSLATIONS = _ROW.translations
 
 
 def register() -> bool:
@@ -272,19 +272,15 @@ def register() -> bool:
     before ``MainWindow.__init__`` reads the registry — the position the
     docstring there explains.
 
-    Everything after ``SECTION_EXPLORE`` is a table this key would otherwise
-    need a hand-edit in: the screen header and blurb, the "no headless run"
-    sentence, the API doc link and the nine translations of the display name.
-    :func:`spacr.qt.app.register_app` distributes them from this one call.
+    The row itself -- the key, the name, the blurb, the section, the "no
+    headless run" sentence, the API doc link and the nine translations of the
+    display name -- is declared in :mod:`spacr.qt.app_catalog`.
+    :func:`spacr.qt.app.register_app` distributes those into the four tables
+    each used to need a hand-edit in, and this function's whole job is to name
+    which row. That is what lets the app be registered without importing this
+    module at all: the launch reads the table, and the screen is imported when
+    somebody opens it.
 
     :returns: ``True`` if this call is what registered it.
     """
-    from ..app import APPS, SECTION_EXPLORE, STAGE_ALPHA, register_app
-    if any(row[0] == APP_KEY for row in APPS):
-        return False
-    register_app(APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_EXPLORE,
-                 factory=make_trellis_screen, stage=STAGE_ALPHA,
-                 intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-                 api_module="qt/screens/trellis",
-                 translations=APP_NAME_TRANSLATIONS)
-    return True
+    return register_declared(__name__) is not None

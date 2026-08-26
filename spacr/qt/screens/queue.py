@@ -36,6 +36,7 @@ from spacr.cancellation import (
 from ..plate_queue import (
     PlateQueue, QueueItem, Status, import_plates_from_csv,
 )
+from ..widgets.sortable_table import install_sorting, table_item
 
 LOG = logging.getLogger("spacr.qt.queue_screen")
 
@@ -199,6 +200,7 @@ class QueueScreen(QWidget):
 
         # Table
         self._table = QTableWidget(self)
+        install_sorting(self._table)
         self._table.setColumnCount(len(_COLUMNS))
         self._table.setHorizontalHeaderLabels(_COLUMNS)
         self._table.horizontalHeader().setStretchLastSection(True)
@@ -328,14 +330,14 @@ class QueueScreen(QWidget):
         items = self._queue.items()
         self._table.setRowCount(len(items))
         for row, item in enumerate(items):
-            self._table.setItem(row, 0, QTableWidgetItem(item.id))
-            self._table.setItem(row, 1, QTableWidgetItem(item.app_key))
-            self._table.setItem(row, 2, QTableWidgetItem(item.label))
-            status_item = QTableWidgetItem(item.status.value)
+            self._table.setItem(row, 0, table_item(item.id))
+            self._table.setItem(row, 1, table_item(item.app_key))
+            self._table.setItem(row, 2, table_item(item.label))
+            status_item = table_item(item.status.value)
             self._set_status_color(status_item, item.status)
             self._table.setItem(row, 3, status_item)
             elapsed = item.elapsed_s
-            self._table.setItem(row, 4, QTableWidgetItem(
+            self._table.setItem(row, 4, table_item(
                 "" if elapsed is None else f"{elapsed:.1f} s"))
             btn = QPushButton("Remove", self)
             btn.setEnabled(item.status != Status.RUNNING)
@@ -352,7 +354,7 @@ class QueueScreen(QWidget):
                 continue
             e = item.elapsed_s
             if e is not None:
-                self._table.setItem(row, 4, QTableWidgetItem(f"{e:.1f} s"))
+                self._table.setItem(row, 4, table_item(f"{e:.1f} s"))
 
     def _on_remove(self, item_id: str):
         item = self._queue.find(item_id)

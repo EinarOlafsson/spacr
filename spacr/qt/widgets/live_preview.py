@@ -1440,6 +1440,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         # answer is not a redundant dropdown but this dialog: it opens any
         # file, grouped or not, and pins its set into the table.
         self._set_table = QTableWidget(0, 0, self)
+        install_sorting(self._set_table)
         self._set_table.setObjectName("PreviewSetTable")
         self._set_table.setSelectionBehavior(QTableWidget.SelectItems)
         self._set_table.setSelectionMode(QTableWidget.SingleSelection)
@@ -1854,7 +1855,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                     # with 21 planes and one with 1 looked identical before,
                     # and only one of them is affected by the MIP switch.
                     text = name if planes <= 1 else f"{name}  ({planes}z)"
-                    item = QTableWidgetItem(text)
+                    item = table_item(text)
                     item.setToolTip(str(image_set.path(chan)))
                     item.setData(Qt.UserRole, str(image_set.path(chan)))
                     table.setItem(row, col, item)
@@ -3014,6 +3015,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
 from PySide6.QtWidgets import (
     QDialog, QDialogButtonBox, QFormLayout, QGroupBox, QScrollArea,
 )
+from .sortable_table import install_sorting, table_item
 
 
 class LiveSettingsDialog(QDialog):

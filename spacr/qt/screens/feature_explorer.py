@@ -41,6 +41,7 @@ from ..widgets.feature_rank import ExplorerSpec
 from ..widgets.formula_editor import FormulaPanel
 from .graph_builder import read_table, table_names
 from .app_screen import ModuleHeader
+from ..app_catalog import declared_app, register_declared
 
 LOG = logging.getLogger("spacr.qt.screens.feature_explorer")
 
@@ -289,45 +290,31 @@ def make_feature_explorer_screen(app_key: Optional[str] = None) -> QWidget:
     return FeatureExplorerScreen()
 
 
-APP_NAME = "Feature Explorer"
-APP_DESCRIPTION = "Every feature ranked by how well it separates the classes"
-APP_INTRO = (
-    "spaCR measures hundreds of features per object, so the ranking is the "
-    "feature and the plotting is the easy half. Pick the column that says "
-    "which class each object is in and every continuous column is scored and "
-    "sorted by separation — AUC by default, because it is rank-based, "
-    "unit-free and assumes nothing about the distributions. What the chosen "
-    "statistic cannot see is printed next to it, a feature whose classes "
-    "differ in spread rather than level is flagged, and the shuffle test says "
-    "what the best of your features reaches by chance.")
-APP_CLI_NOTE = (
-    "The Feature Explorer is a ranked table you scroll; run it in the GUI "
-    "(spacr-qt). Headless, "
-    "spacr.qt.widgets.feature_rank.rank_features(frame, spec) returns the same "
-    "ranking with every statistic per feature and no Qt involved.")
-#: The display name in the nine non-English UI languages, in
-#: `spacr.qt.i18n.LANGUAGES` order (sv, de, es, zh_CN, pt, hi, ko, is, fr).
-APP_NAME_TRANSLATIONS = (
-    "Egenskapsutforskaren", "Merkmals-Explorer", "Explorador de características",
-    "特征浏览器", "Explorador de características", "फ़ीचर एक्सप्लोरर",
-    "특징 탐색기", "Eiginleikakönnuður", "Explorateur de caractéristiques")
+# The row this screen puts in the registry is declared in
+# `spacr.qt.app_catalog`, which is what lets the app be registered without
+# importing this module -- the launch reads the table, not the screen. These
+# read the same row back rather than restating it, so the name, the blurb and
+# the nine translations have one spelling and no second copy to drift from.
+_ROW = declared_app(APP_KEY)
+APP_NAME = _ROW.name
+APP_DESCRIPTION = _ROW.desc
+APP_INTRO = _ROW.intro
+APP_CLI_NOTE = _ROW.cli_note
+APP_NAME_TRANSLATIONS = _ROW.translations
 
 
 def register() -> bool:
     """Put the Feature Explorer in the app registry. Idempotent.
 
-    Called from :data:`spacr.qt.SELF_REGISTERING_MODULES`. Everything after
-    ``SECTION_EXPLORE`` is a table this key would otherwise need a hand-edit
-    in; :func:`spacr.qt.app.register_app` distributes them from this one call.
+    The row itself -- the key, the name, the blurb, the section, the "no
+    headless run" sentence, the API doc link and the nine translations of the
+    display name -- is declared in :mod:`spacr.qt.app_catalog`.
+    :func:`spacr.qt.app.register_app` distributes those into the four tables
+    each used to need a hand-edit in, and this function's whole job is to name
+    which row. That is what lets the app be registered without importing this
+    module at all: the launch reads the table, and the screen is imported when
+    somebody opens it.
 
     :returns: ``True`` if this call is what registered it.
     """
-    from ..app import APPS, SECTION_EXPLORE, STAGE_ALPHA, register_app
-    if any(row[0] == APP_KEY for row in APPS):
-        return False
-    register_app(APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_EXPLORE,
-                 factory=make_feature_explorer_screen, stage=STAGE_ALPHA,
-                 intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-                 api_module="qt/screens/feature_explorer",
-                 translations=APP_NAME_TRANSLATIONS)
-    return True
+    return register_declared(__name__) is not None

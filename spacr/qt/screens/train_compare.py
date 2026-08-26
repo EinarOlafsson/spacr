@@ -81,6 +81,7 @@ from ..bridge import make_thread
 from ..theme import (SPACING, active_palette, make_transparent,
                      paint_panel, palette_for)
 from ..widgets import Divider
+from ..widgets.sortable_table import install_sorting, table_item
 
 LOG = logging.getLogger(__name__)
 
@@ -115,7 +116,7 @@ _DIFF_BUCKETS = ("changed", "env", "drift")
 
 def _cell(text: str) -> QTableWidgetItem:
     """A read-only table cell."""
-    item = QTableWidgetItem(text)
+    item = table_item(text)
     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
     return item
 
@@ -349,6 +350,7 @@ class TrainCompareScreen(QWidget):
         self._diff_summary.setTextInteractionFlags(Qt.TextSelectableByMouse)
         diff_layout.addWidget(self._diff_summary)
         self._diff_table = QTableWidget(0, 0, diff_panel)
+        install_sorting(self._diff_table)
         self._diff_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self._diff_table.setAlternatingRowColors(True)
         self._diff_table.verticalHeader().setVisible(False)

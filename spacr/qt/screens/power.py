@@ -103,6 +103,8 @@ from ..widgets.power_design import (
     wells_grid,
 )
 from .app_screen import ModuleHeader
+from ..widgets.sortable_table import install_sorting, table_item
+from ..app_catalog import declared_app, register_declared
 
 __all__ = [
     "APP_KEY",
@@ -829,6 +831,7 @@ class PowerScreen(QWidget):
         layout.addWidget(self._wells_view, 1)
 
         self._table = QTableWidget(0, len(_TABLE_HEADERS))
+        install_sorting(self._table)
         self._table.setHorizontalHeaderLabels(list(_TABLE_HEADERS))
         self._table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self._table.setSelectionMode(QAbstractItemView.NoSelection)
@@ -1145,7 +1148,7 @@ class PowerScreen(QWidget):
                 str(int(row["n_failed"])),
             ]
             for column, text in enumerate(values):
-                item = QTableWidgetItem(text)
+                item = table_item(text)
                 item.setFlags(item.flags() & ~Qt.ItemIsEditable)
                 self._table.setItem(index, column, item)
 
@@ -1311,39 +1314,17 @@ def make_power_screen(app_key: Optional[str] = None) -> QWidget:
     return PowerScreen()
 
 
-APP_NAME = "Power / Design"
-APP_DESCRIPTION = ("How many cells per well and how many wells to detect an "
-                   "effect of a given size")
-APP_INTRO = (
-    "Before a pooled screen runs, the only honest way to know whether it can "
-    "find its hits is to simulate screens you know the truth for and fit the "
-    "model you would really use. Describe the library, the plates, the "
-    "classifier and the effect you expect; this sweeps cells-per-well and "
-    "wells, and reports the fraction of simulated screens in which the model "
-    "recovered the planted hits. The departures from the R package it is "
-    "ported from — including that the R version overstates power — are shown "
-    "next to the number, not in a footnote.")
-#: What `spacr.cli.INTERACTIVE_ONLY` wants: why this app has no headless run.
-APP_CLI_NOTE = ("Interactive design exploration; "
-                "spacr.power_model.scan_parameters() is the headless "
-                "equivalent and takes the same parameters.")
-#: :data:`APP_NAME` in the nine non-English UI languages, in
-#: :data:`spacr.qt.i18n.LANGUAGES` order after English — sv, de, es, zh_CN,
-#: pt, hi, ko, is, fr. Handed to ``register_app(translations=…)``, which is
-#: what puts them in every catalog; a missing one is a blank sidebar row in
-#: that language rather than an English one. "Power" is the statistical
-#: term throughout, not electrical power.
-APP_TRANSLATIONS = (
-    "Statistisk styrka / design",
-    "Teststärke / Design",
-    "Potencia / diseño",
-    "检验效能 / 设计",
-    "Potência / delineamento",
-    "सांख्यिकीय शक्ति / डिज़ाइन",
-    "검정력 / 설계",
-    "Tölfræðilegt afl / hönnun",
-    "Puissance / plan",
-)
+# The row this screen puts in the registry is declared in
+# `spacr.qt.app_catalog`, which is what lets the app be registered without
+# importing this module -- the launch reads the table, not the screen. These
+# read the same row back rather than restating it, so the name, the blurb and
+# the nine translations have one spelling and no second copy to drift from.
+_ROW = declared_app(APP_KEY)
+APP_NAME = _ROW.name
+APP_DESCRIPTION = _ROW.desc
+APP_INTRO = _ROW.intro
+APP_CLI_NOTE = _ROW.cli_note
+APP_TRANSLATIONS = _ROW.translations
 
 
 #: The settings this app has, as ``{key: (default, type, tooltip)}``.
@@ -1501,17 +1482,4 @@ def register() -> bool:
     a worse interface to :func:`spacr.power_model.scan_parameters` than
     calling it, which is exactly what the note tells the user to do.
     """
-    from ..app import APPS, SECTION_DESIGN, STAGE_ALPHA, register_app
-    if any(row[0] == APP_KEY for row in APPS):
-        return False
-    # Settings first: if the shared tables reject a key, nothing has landed
-    # in APPS yet and the app is absent rather than half-present.
-    register_settings()
-    register_app(
-        APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_DESIGN,
-        factory=make_power_screen, stage=STAGE_ALPHA,
-        title="Power / Design", intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-        api_module="qt/screens/power",
-        defaults_module="spacr.qt.screens.power",
-        translations=APP_TRANSLATIONS)
-    return True
+    return register_declared(__name__) is not None

@@ -72,6 +72,8 @@ from ..job_runner import JobRunner
 from ..theme import (SPACING, active_palette, block_surface,
                      mark_surface, register_widget_qss)
 from .app_screen import ModuleHeader
+from ..widgets.sortable_table import install_sorting, tree_item
+from ..app_catalog import declared_app, register_declared
 
 __all__ = ["APP_KEY", "CurveCanvas", "ProfilerScreen", "curve_points",
            "make_profiler_screen", "register"]
@@ -79,44 +81,21 @@ __all__ = ["APP_KEY", "CurveCanvas", "ProfilerScreen", "curve_points",
 #: The app key this screen is registered under.
 APP_KEY = "profiler"
 
-#: Sidebar / tile name.
-APP_NAME = "Prediction Profiler"
+# The row this screen puts in the registry is declared in
+# `spacr.qt.app_catalog`, which is what lets the app be registered without
+# importing this module -- the launch reads the table, not the screen. These
+# read the same row back rather than restating it, so the name, the blurb and
+# the nine translations have one spelling and no second copy to drift from.
+_ROW = declared_app(APP_KEY)
+APP_NAME = _ROW.name
+APP_DESCRIPTION = _ROW.desc
+APP_INTRO = _ROW.intro
+APP_CLI_NOTE = _ROW.cli_note
+APP_TRANSLATIONS = _ROW.translations
 
-#: One-line summary; the tooltip and status tip.
-APP_DESCRIPTION = (
-    "Move one input of a fitted model and watch the prediction move")
 
-#: The paragraph under this app's header, handed to the seam as ``intro``.
-APP_INTRO = (
-    "Interrogate a fitted regression: sweep one input across its range, hold "
-    "every other input wherever you choose, and see what the model predicts. "
-    "The inputs are ranked by how far each one actually moves the prediction, "
-    "so a design with thousands of gRNA terms still tells you which one to "
-    "look at first. Nothing is re-fitted — the coefficients a run already "
-    "wrote are the model — and the axis always says which scale it is on, "
-    "because a probability, a rate and a hinge margin are not the same curve.")
 
-#: Why there is no ``spacr-run profiler``; reaches ``cli.INTERACTIVE_ONLY``.
-APP_CLI_NOTE = (
-    "The Prediction Profiler is an interactive sweep of one model input; "
-    "headless, call spacr.profiler.profile(model, design, variable) for the "
-    "same curve and spacr.profiler.sensitivity(model, design) for the same "
-    "ranking.")
 
-#: "Prediction Profiler" in the nine non-English UI languages, in
-#: :data:`spacr.qt.i18n.LANGUAGES` order after English — sv, de, es, zh_CN,
-#: pt, hi, ko, is, fr.
-APP_TRANSLATIONS = (
-    "Prediktionsprofilerare",
-    "Vorhersage-Profiler",
-    "Perfilador de predicciones",
-    "预测剖析器",
-    "Analisador de previsões",
-    "पूर्वानुमान प्रोफ़ाइलर",
-    "예측 프로파일러",
-    "Spágreinir",
-    "Profileur de prédiction",
-)
 
 #: The range each input is swept over when no design matrix is available.
 #: A spaCR design column is a per-well gRNA fraction, which lives in [0, 1].
@@ -397,6 +376,7 @@ class ProfilerScreen(QWidget):
         splitter = QSplitter(Qt.Horizontal)
 
         self._inputs = QTreeWidget()
+        install_sorting(self._inputs)
         self._inputs.setHeaderLabels(["Input", "Coef.", "Moves by"])
         self._inputs.setRootIsDecorated(False)
         self._inputs.setMinimumWidth(260)
@@ -562,7 +542,7 @@ class ProfilerScreen(QWidget):
         for record in self._ranked:
             coefficient = ("—" if math.isnan(record.coefficient)
                            else f"{record.coefficient:.4g}")
-            item = QTreeWidgetItem([record.variable, coefficient,
+            item = tree_item([record.variable, coefficient,
                                     f"{record.span:.4g}"])
             item.setData(0, Qt.UserRole, record.variable)
             item.setToolTip(
@@ -785,17 +765,7 @@ def make_profiler_screen(app_key: Optional[str] = None) -> QWidget:
 
 def register() -> bool:
     """Add Prediction Profiler to the app registry. Idempotent."""
-    from ..app import APPS, SECTION_EXPLORE, STAGE_ALPHA, register_app
-
-    if any(row[0] == APP_KEY for row in APPS):
-        return False
-    register_app(
-        APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_EXPLORE,
-        factory=make_profiler_screen, stage=STAGE_ALPHA,
-        title="Prediction Profiler", intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-        api_module="qt/screens/profiler",
-        translations=APP_TRANSLATIONS)
-    return True
+    return register_declared(__name__) is not None
 
 
 register()

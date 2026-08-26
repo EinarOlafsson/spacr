@@ -299,6 +299,13 @@ class TestWidgetConstruction:
         assert len(scr._hint_map) == len(scr._settings_model._widgets)
 
     def test_header_shows_title_and_intro_blurb(self, qtbot):
+        """The masthead is a name, a sentence and an instruction.
+
+        No dot beside the blurb: the module's API link is the last line of
+        the blurb's own hover help, which is where every setting's link
+        already is.
+        """
+        from spacr.qt.screens.settings_model import api_docs_url
         from spacr.qt.widgets.info_link import InfoLink
 
         scr = _make_screen(qtbot, "mask")
@@ -308,9 +315,14 @@ class TestWidgetConstruction:
         assert "Configure settings, then press Run." in texts
         module_links = [
             link for link in scr.findChildren(InfoLink)
-            if link.objectName() == "ModuleInfoLink"
+            if link.objectName() in ("ModuleInfoLink", "InfoLink")
         ]
-        assert len(module_links) == 1
+        assert not module_links, (
+            f"{len(module_links)} information dot(s) on the masthead")
+        help_label = scr._header.api_help
+        assert help_label is not None
+        assert APP_INTROS["mask"] in help_label.help_html()
+        assert help_label.url() == api_docs_url("mask")
         assert not any("Docs" in text for text in texts)
 
     def test_unknown_app_key_titles_itself_and_has_no_blurb(self, qtbot):

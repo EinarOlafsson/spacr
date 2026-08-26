@@ -36,6 +36,12 @@ from PySide6.QtWidgets import (
 
 from .i18n import tr
 from . import iconset
+# The declared registry rows and the stand-in that defers a screen's import
+# until it is built. Cheap on purpose: `app_catalog` imports nothing beyond
+# `importlib` and `inspect`, and reads `register_app` back out of this module
+# from inside a function, so naming it here is not a cycle.
+from .app_catalog import (LazyScreenFactory, declared_for as _declared_for,
+                          register_declared as _register_declared)
 # Nothing in this module uses a colour, a spacing or the palette API any
 # more — the Home page, the sidebar QSS and `apply_preferences_to_app`
 # each own their own. The import stayed behind after they moved out, and
@@ -656,8 +662,35 @@ def unregister_app(key: str) -> bool:
 
 
 def registered_factory(key: str):
-    """The factory registered for ``key``, or ``None``."""
-    return APP_FACTORIES.get(key)
+    """The factory registered for ``key``, or ``None``.
+
+    A declared app is registered with a
+    :class:`~spacr.qt.app_catalog.LazyScreenFactory` standing in for the real
+    callable, and this is where the stand-in ends: asking for the factory
+    imports the screen and returns the module's own function.
+
+    That is deliberate, and it is what makes laziness invisible to everything
+    downstream. :func:`_call_screen_factory` decides whether to pass
+    ``app_key`` and ``host`` by reading the factory's signature, and a
+    stand-in's signature is its own, not the real one's; a test that asserts
+    the registered factory ``is`` the module's function would likewise be
+    comparing against the wrapper. Resolving here means neither ever sees one.
+
+    The resolved callable replaces the stand-in in :data:`APP_FACTORIES`, so
+    the import happens once even if the screen is opened and closed all
+    afternoon. A stand-in whose module fails to import is left in place and
+    ``None`` is returned: the app falls back to the generic settings screen
+    rather than taking the window down.
+    """
+    factory = APP_FACTORIES.get(key)
+    if isinstance(factory, LazyScreenFactory):
+        try:
+            factory = factory.resolve()
+        except Exception:
+            LOG.exception("Could not import the screen registered for %s", key)
+            return None
+        APP_FACTORIES[key] = factory
+    return factory
 
 
 def _call_screen_factory(factory, key: str, host=None):
@@ -909,6 +942,21 @@ del _row
 #: screen that has no row of its own; every registration function named
 #: here is idempotent, so being called from both costs nothing.
 _SELF_REGISTERING_APPS = (
+    # THE SIX THAT USED TO ARRIVE BY ACCIDENT. Each of these registers at its
+    # own import, and each was reached only because some other screen in this
+    # table happened to import it -- Data Manager because Run Compare reads
+    # projects, Lineage because the Layer Viewer registers its companions. So
+    # the row existed exactly when the import chain that produced it did, and
+    # the moment a screen stopped being imported at launch its tile vanished
+    # with it. Named here, they are registered because somebody asked for
+    # them; the order is the order they used to arrive in, so the tiles keep
+    # the positions users know.
+    ("spacr.qt.screens.data_manager", "register"),
+    ("spacr.qt.screens.pipeline_graph", "register"),
+    ("spacr.qt.screens.profiler", "register"),
+    ("spacr.qt.screens.qc_dashboard", "register"),
+    ("spacr.qt.screens.lineage", "register"),
+    ("spacr.qt.screens.experiment_design", "register"),
     ("spacr.qt.layer_viewer", "register_layer_viewer_app"),
     ("spacr.qt.screens.graph_builder", "register"),
     # The three that arrived just after the seam landed and sat finished,
@@ -943,7 +991,16 @@ import importlib as _importlib
 
 for _module_name, _func_name in _SELF_REGISTERING_APPS:
     try:
-        getattr(_importlib.import_module(_module_name), _func_name)()
+        # THE ROW WITHOUT THE SCREEN. Every module named above declares its
+        # row in `app_catalog`, so the registry can be filled in from strings
+        # and the screen's own code — pandas, scipy, sklearn behind it — is
+        # left unimported until somebody opens the app. `register_declared`
+        # returns None for a module that declares nothing, and that module is
+        # imported the old way.
+        if _declared_for(_module_name) is not None:
+            _register_declared(_module_name)
+        else:
+            getattr(_importlib.import_module(_module_name), _func_name)()
     except Exception:
         # One screen's import-time bug costs that screen and nothing
         # else. The same posture this file already takes towards
@@ -1881,9 +1938,17 @@ class MainWindow(QMainWindow):
         except Exception:                                    # noqa: BLE001
             LOG.debug("the window could not be made resizable", exc_info=True)
 
-        action = QAction("Full screen", self)
-        action.setShortcut(QKeySequence("F11"))
-        action.triggered.connect(self.toggle_fullscreen)
+        # THE ACTION THE WINDOW SUBMENU ALREADY HOLDS. A second QAction with
+        # the same F11 shortcut is an ambiguous overload, which Qt resolves
+        # by firing neither -- so the same object is registered on the
+        # window as well, which widens its context instead of competing
+        # with it.
+        action = getattr(self, "_act_fullscreen", None)
+        if action is None:
+            action = QAction("Full screen", self)
+            action.setShortcut(QKeySequence("F11"))
+            action.triggered.connect(self.toggle_fullscreen)
+            self._act_fullscreen = action
         self.addAction(action)
 
     @staticmethod
@@ -2190,6 +2255,9 @@ class MainWindow(QMainWindow):
         act_log.triggered.connect(self._open_log_folder)
         help_menu.addAction(act_log)
 
+        help_menu.addSeparator()
+        help_menu.addMenu(self._build_window_menu(mb))
+
         # Every menu action gets an EXPLICIT macOS role, and everything that
         # is not genuinely Preferences/Quit/About gets NoRole. Left to Qt,
         # the role is guessed from the action's TEXT, and an action whose
@@ -2205,6 +2273,109 @@ class MainWindow(QMainWindow):
         self._act_quit = act_quit
         self._act_about = act_about
         self.pin_all_menu_roles()
+
+    def _build_window_menu(self, bar):
+        """Build Help ▸ Window: the route that does not move, and the frame
+        controls for a frame that is not always there.
+
+        TWO REPORTS, ONE MENU.
+
+        On macOS an action carrying ``PreferencesRole`` or ``QuitRole`` is
+        MOVED by the platform out of whatever menu it was added to and into
+        the application menu. That is correct, and spaCR keeps it -- but it
+        means spaCR's own dropdown cannot hold Preferences or Quit on that
+        platform, and a user who looked there and found nothing needs a
+        second route. These copies carry ``NoRole``, which is what stops
+        macOS relocating them as well and repeating the problem one level
+        down; :meth:`pin_all_menu_roles` is what puts it there, and the copy
+        being a separate ``QAction`` from the real one is what lets it.
+
+        The window controls answer the other half. This window is frameless
+        and draws its own minimise, full-screen and close marks into the
+        menu bar's corner, and a corner widget is not guaranteed to be
+        visible: on macOS it can end up laid out where nothing shows it, and
+        a window whose only close control is that mark then has no close
+        control at all. A menu entry does not depend on a corner widget
+        landing where the platform expects one.
+
+        PARENTED TO THE MENU BAR, like Demos, because ``first_run.find_menu``
+        reaches menus through ``menuBar().findChildren(QMenu)`` and a menu
+        parented elsewhere is invisible to it.
+
+        :param bar: the menu bar to parent the submenu to.
+        :returns: the ``Window`` submenu, not yet added to anything.
+        """
+        menu = QMenu("Window", bar)
+        self._window_menu = menu
+
+        act_min = QAction("Minimise", self)
+        act_min.setStatusTip(
+            "Send spaCR to the dock or taskbar. Also the first mark in the "
+            "menu bar's top-right corner.")
+        act_min.triggered.connect(self.showMinimized)
+        menu.addAction(act_min)
+
+        act_max = QAction("Maximise", self)
+        act_max.setStatusTip(
+            "Fill the screen, or restore the previous size if the window is "
+            "already maximised.")
+        act_max.triggered.connect(self._toggle_maximised)
+        menu.addAction(act_max)
+
+        # THE SAME ACTION THE WINDOW ITSELF CARRIES, not a second one with
+        # the same shortcut. Two distinct QActions bound to F11 on one
+        # window is an ambiguous overload and Qt then fires NEITHER, so a
+        # menu copy would have cost the key it advertises.
+        act_full = QAction("Full screen", self)
+        act_full.setShortcut(QKeySequence("F11"))
+        act_full.setStatusTip(
+            "True fullscreen. This window has no title bar; drag the menu "
+            "bar to move it.")
+        act_full.triggered.connect(self.toggle_fullscreen)
+        self._act_fullscreen = act_full
+        menu.addAction(act_full)
+
+        act_close = QAction("Close window", self)
+        act_close.setStatusTip("Close the main window. spaCR quits with it.")
+        act_close.triggered.connect(self.close)
+        menu.addAction(act_close)
+
+        menu.addSeparator()
+
+        # THE TEXT IS COPIED VERBATIM from the two actions in the spaCR
+        # menu. `spacr.qt.i18n` keys its catalog on the English string, so a
+        # copy worded differently would be a copy that stays English in the
+        # other nine languages.
+        act_prefs_here = QAction("Preferences…", self)
+        act_prefs_here.setStatusTip(
+            "The same Preferences the spaCR menu offers. macOS moves that "
+            "one into the application menu; this one stays here.")
+        act_prefs_here.triggered.connect(self._open_preferences)
+        menu.addAction(act_prefs_here)
+        self._act_preferences_here = act_prefs_here
+
+        act_quit_here = QAction("Quit", self)
+        act_quit_here.setStatusTip(
+            "The same Quit the spaCR menu offers. macOS moves that one into "
+            "the application menu; this one stays here.")
+        act_quit_here.triggered.connect(self.close)
+        menu.addAction(act_quit_here)
+        self._act_quit_here = act_quit_here
+
+        return menu
+
+    def _toggle_maximised(self, *_args) -> bool:
+        """Maximise the window, or restore it. Returns whether it is now full.
+
+        One entry rather than two, because a Maximise that is greyed out and
+        a Restore that is greyed out are two dead menu items where the frame
+        button they replace is a single control.
+        """
+        if self.isMaximized():
+            self.showNormal()
+        else:
+            self.showMaximized()
+        return self.isMaximized()
 
     def pin_all_menu_roles(self) -> None:
         """Give every menu-bar action an explicit macOS role. Idempotent.
@@ -3482,6 +3653,57 @@ def _install_crash_dump():
         LOG.debug("could not install the crash dump", exc_info=True)
         return ""
 
+#: The application-wide event filters that exist for DIALOGS, and nothing
+#: else -- the card and the rim, the detach-from-the-main-window, and the
+#: translation of a dialog built and executed in one expression.
+#:
+#: Each is a Python callable Qt runs for EVERY event delivered to EVERY
+#: object in the application, and the main window's construction delivers
+#: tens of thousands of them. Installed before the window was built, they
+#: were a large and measurable share of the wait between typing `spacr` and
+#: seeing a window, spent asking of every QLabel, every layout item and
+#: every menu action whether it is a QDialog. None of them can have anything
+#: to do until a dialog exists, and no dialog exists until the event loop is
+#: running.
+#:
+#: The first-run setup screen is the one dialog that opens before the loop,
+#: and it needs none of the three: it builds its own card, so
+#: `glass.wants_glass` leaves it alone; it goes frameless and top-level in
+#: its own constructor; and it translates itself with `tr` and its own
+#: `retranslate` pass. Each of those three is held to it by
+#: `tests/qt/test_the_window_comes_before_the_dialog_filters.py`.
+_DIALOG_FILTERS = (
+    ("spacr.qt.dialogs", "detach_all_dialogs"),
+    ("spacr.qt.widgets.glass", "install_glass_everywhere"),
+    ("spacr.qt.i18n", "install_dialog_translation"),
+)
+
+
+def install_the_dialog_filters(app) -> tuple[str, ...]:
+    """Put every filter in :data:`_DIALOG_FILTERS` on ``app``.
+
+    Called once the main window is on screen, which is still before the
+    event loop and so before any dialog can be opened.
+
+    Each installer is idempotent, so calling this twice leaves one filter of
+    each kind. One that raises costs its own behaviour and nothing else: a
+    launch is not worth losing to a filter.
+
+    :returns: the names of the filters that are in place afterwards.
+    """
+    import importlib
+
+    installed: list[str] = []
+    for module_name, function_name in _DIALOG_FILTERS:
+        try:
+            getattr(importlib.import_module(module_name), function_name)(app)
+        except Exception:                                # noqa: BLE001
+            LOG.debug("could not install %s", function_name, exc_info=True)
+        else:
+            installed.append(function_name)
+    return tuple(installed)
+
+
 def launch(argv: Optional[list[str]] = None) -> int:
     """Bootstrap QApplication and show the main window."""
     if argv is None:
@@ -3535,10 +3757,26 @@ def launch(argv: Optional[list[str]] = None) -> int:
     # NOTHING IS LOST. The two places that genuinely want a Qt canvas
     # (`figure_queue`, `umap_explorer`) import FigureCanvasQTAgg and build it
     # themselves on the GUI thread, which works under any global backend.
+    #
+    # SAID IN THE ENVIRONMENT WHEN MATPLOTLIB IS NOT LOADED YET, which on a
+    # normal launch it is not: nothing imported up to this line has needed
+    # it. `matplotlib.use` can only speak to a matplotlib that exists, so
+    # calling it here used to import the whole package -- tens of
+    # milliseconds of a launch that has not yet drawn anything -- purely to
+    # set a string that MPLBACKEND sets for free, and that matplotlib reads
+    # for itself whenever it does load. Assigned rather than `setdefault`:
+    # the reason this exists is that a Qt canvas built off the GUI thread
+    # kills the process, so the choice is not the caller's to override.
+    #
+    # And when matplotlib IS already imported the environment is too late --
+    # the backend was read at its import -- so that case still forces it.
     try:
-        import matplotlib
+        if "matplotlib" in sys.modules:
+            import matplotlib
 
-        matplotlib.use("Agg", force=True)
+            matplotlib.use("Agg", force=True)
+        else:
+            os.environ["MPLBACKEND"] = "Agg"
     except Exception:                                    # noqa: BLE001
         pass
 
@@ -3560,6 +3798,27 @@ def launch(argv: Optional[list[str]] = None) -> int:
     # wants the native one can still set QT_QPA_PLATFORMTHEME.
     QApplication.setAttribute(Qt.AA_DontUseNativeDialogs, True)
 
+    # THE APPLICATION IS NAMED BEFORE IT EXISTS.
+    #
+    # On macOS the application menu -- the one beside the Apple logo, and the
+    # one Qt moves Preferences, Quit and About INTO -- is built while the
+    # Cocoa plugin comes up inside the QApplication constructor, from the
+    # application name and from the running bundle's CFBundleName. Naming the
+    # application on the line after that constructor is a name the menu never
+    # read: it stays "python", "spacr-qt" or "PySideApp" depending on how the
+    # launch happened, and the maintainer's report -- "preferences and quit
+    # are for some reason not in the spacr dropdown" -- is that menu being
+    # somewhere they had no reason to look.
+    #
+    # `applicationDisplayName` is set too. It was never set at all, and it is
+    # the name Qt shows to people rather than the one it keys settings on.
+    #
+    # Returns what actually took effect rather than what was asked for, so
+    # the launch log records the answer instead of the intention.
+    from .menus import name_the_application
+
+    _app_name, _app_display_name = name_the_application()
+
     app = QApplication(sys.argv[:1])
     # NAME THE CALLER OF AN OFF-THREAD TIMER START, because Qt will not. Its
     # own warning has no file, no function and no thread in it, and the event
@@ -3570,23 +3829,20 @@ def launch(argv: Optional[list[str]] = None) -> int:
         _install_thread_guard()
     except Exception:
         pass
-    # EVERY DIALOG IS A WINDOW THE USER CAN DRAG (216). Asked for
-    # 2026-08-21: "the settings for your data settings window should be
-    # movable without moving the main window. this should be tru of all
-    # settings windows or any popup window from spacr."
-    #
-    # Installed once here rather than called from each dialog.
-    # `detach_from_window_manager` already existed and six files called it
-    # while more than twenty others opened dialogs without it, which is not
-    # a state "all settings windows" can be reached from by adding a
-    # twenty-first call.
-    try:
-        from .dialogs import detach_all_dialogs
-        detach_all_dialogs(app)
-    except Exception:
-        pass
+    # RESTATED ON THE INSTANCE, and it is only a restatement. These two
+    # lines used to be the ONLY place the application was named, which was
+    # after the constructor and therefore after macOS had already built its
+    # application menu from whatever `argv[0]` happened to be.
+    # `name_the_application` above is the one that fixes that; these keep an
+    # application constructed by some other route named too.
     app.setApplicationName("spaCR")
     app.setOrganizationName("Olafsson Lab")
+    # Logged as MEASURED rather than as intended: a name that silently failed
+    # to take looks exactly like one that worked until somebody opens the
+    # menu on a Mac, and this line is what a bug report can be read against.
+    LOG.info("application named %r (display %r); Qt reports %r / %r",
+             _app_name, _app_display_name, app.applicationName(),
+             app.applicationDisplayName())
     # Linux shells resolve dock/switcher identity through the desktop-file
     # id (Wayland does not use setWindowIcon for that surface).
     app.setDesktopFileName("io.github.olafssonlab.spacr")
@@ -3614,17 +3870,13 @@ def launch(argv: Optional[list[str]] = None) -> int:
     # dark defaults on the first launch when nothing is stored yet.
     from .preferences import apply_preferences_to_app
     apply_preferences_to_app(app)
-    from .i18n import install_dialog_translation, install_qt_translations
-    install_dialog_translation(app)
-    # AND QT'S OWN WORDS. Copy, Paste, Select All, a file dialog's whole
-    # chrome and every message box's buttons come from Qt's catalogs, not
-    # from spaCR's, so they stay English until this is loaded.
+    # QT'S OWN WORDS. Copy, Paste, Select All, a file dialog's whole chrome
+    # and every message box's buttons come from Qt's catalogs, not from
+    # spaCR's, so they stay English until this is loaded. This one is not a
+    # dialog filter and stays here: it is read while the main window's own
+    # menus and buttons are built.
+    from .i18n import install_qt_translations
     install_qt_translations(app)
-    # EVERY POPUP GETS THE CARD AND THE RIM, from one install rather than
-    # from thirty-nine edits that the fortieth dialog would miss. See
-    # spacr.qt.widgets.glass.
-    from .widgets.glass import install_glass_everywhere
-    install_glass_everywhere(app)
 
     # Real Python logging → rotating file + Qt signal so ConsolePanel
     # can render records inline. Set it up before the launch breadcrumb and
@@ -3680,11 +3932,18 @@ def launch(argv: Optional[list[str]] = None) -> int:
             # with it while the new presentation is still settling.
             from .widgets.setup_slides import open_setup_if_needed
 
-            open_setup_if_needed(None)
+            asked = open_setup_if_needed(None)
             # An answer may have changed the language, the theme or the font
             # scale, and the main window has not been built yet -- so it is
             # built from the new values rather than restyled into them.
-            apply_preferences_to_app(app)
+            #
+            # ONLY WHEN THERE WERE ANSWERS. `open_setup_if_needed` returns
+            # None when the screen was not shown -- this profile has already
+            # answered, or nobody is there to -- which is every launch after
+            # the first, and re-applying preferences nothing changed is the
+            # whole theme resolved and set on the application twice.
+            if asked is not None:
+                apply_preferences_to_app(app)
         except Exception:
             # A setup screen is not worth a launch. Every question it asks
             # has a working default, so a user who never sees it is exactly
@@ -3700,6 +3959,14 @@ def launch(argv: Optional[list[str]] = None) -> int:
     # and the 1200x720 minimum this window declares is a sane opening size
     # on a real display.
     win.show()
+
+    # AND ONLY NOW THE DIALOG FILTERS. See :data:`_DIALOG_FILTERS`: they are
+    # application-wide event filters that concern dialogs alone, so every
+    # event the main window's construction delivers used to run three Python
+    # callables that could not act on it. Installed here they are in place
+    # before the event loop -- which is before any dialog can be opened --
+    # and the window they cannot help build arrives 0.4 s sooner.
+    install_the_dialog_filters(app)
 
     # Pre-warm the heavy imports that a module screen needs (spacr.gui_utils
     # pulls torch + cv2 ≈ 3-4 s; spacr.settings ≈ 1 s) in a BACKGROUND thread
