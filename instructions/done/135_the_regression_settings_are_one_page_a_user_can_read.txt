@@ -222,8 +222,14 @@ HOW TO KNOW IT WORKED
   Tables, Controls & Filters, Plate & Batch Correction, Response, Model &
   Inference, Estimator Tuning, Permutation Test.
 * "Additional Settings" is EMPTY for the regression module.
-* Model & Inference opens with the formula box; `level` is directly under
+* Model & Inference opens with the formula box; `level` follows
   `regression_type`; the alpha and raw/adjusted choice are in it.
+  SUPERSEDED IN PART, and the wording above is the corrected one: this line
+  read "`level` is directly under `regression_type`" until instruction 141 A
+  asked for "regression backend should be in Model and inference right after
+  regression type". The section now reads regression_type ->
+  regression_backend -> level -- what is fitted, who fits it, at which
+  levels -- so `level` is one row lower than 135 put it, on purpose.
 * Every Estimator Tuning control is greyed out with its reason unless its
   family is chosen, and its tooltip names that family.
 * The batch-correction question has a MEASURED answer written down.
@@ -263,3 +269,24 @@ measures the rule that was already there rather than the one added here, so
 each key is tested under the method that actually reads it.
 
 34 tests in tests/test_batch_correction_is_greyed_on_one_plate.py.
+
+--------------------------------------------------------------------------------
+2026-08-26 -- AUDIT: SECTION C HAD RETIRED FIVE OF ITS SIX KEYS
+--------------------------------------------------------------------------------
+
+`get_perform_regression_default_settings` popped `log_x`, `log_y`, `x_lim`,
+`y_lims` and `guide_permutation_plot` on the way in, naming any value that
+disagreed with the hard-coded one. `split_axis_lims` -- the sixth key of the
+same retirement, and the one the section's own comment describes as "read by
+nothing at all" -- was never popped, so an old settings CSV carrying it kept
+an undeclared key in the dict that every downstream reader then had to
+ignore.
+
+It is popped now, and SILENTLY: the other five each decided something a run
+drew, so a disagreeing value changed a figure and is worth naming; nothing
+ever read this one, so there is no behaviour to report a change in.
+
+`tests/test_the_regression_settings_fit_on_one_page.py::
+test_a_value_that_already_agreed_is_dropped_in_silence[split_axis_lims-]`
+was already written for this and was failing.
+

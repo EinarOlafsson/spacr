@@ -1521,8 +1521,19 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
                     parts.append(text)
         return "\n".join(parts).strip() + "\n"
 
-    def section_text(self, bar: "_TopicBar") -> str:
-        """Return a topic bar and its content up to the next topic bar."""
+    def _section_span(self, bar: "_TopicBar"):
+        """Entry indices ``(start, stop)`` spanning ``bar`` and its content.
+
+        ``stop`` is exclusive and may be ``None``, meaning "to the end".
+        ONE definition of where a section ends, so copying, raising and
+        collapsing cannot disagree about it.
+
+        The span runs to the next header that actually has something under
+        it. ``append_stdout`` inserts its own "spaCR output" bar, so a module
+        banner is followed immediately by another banner: stopping at the
+        first boundary copies a title and nothing else, and folds a section
+        that hides nothing.
+        """
         start = None
         last = self._entries.count() - 1
         boundaries = []
@@ -1535,37 +1546,37 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
             if start is not None and isinstance(widget, _TopicBar):
                 boundaries.append(index)
         if start is None:
-            return ""
-        # Run to the next header that actually has something under it.
-        # append_stdout inserts its own "spaCR output" bar, so a module
-        # banner is followed immediately by another banner: stopping at the
-        # first boundary copied a title and nothing else, which is not what
-        # anyone means by "copy this section".
+            return None, None
         for boundary in boundaries:
             text = self.as_text(start, boundary)
             if len(text.strip().splitlines()) > 1:
-                return text
-        return self.as_text(start)
+                return start, boundary
+        return start, None
+
+    def section_text(self, bar: "_TopicBar") -> str:
+        """Return a topic bar and its content up to the next topic bar."""
+        start, stop = self._section_span(bar)
+        if start is None:
+            return ""
+        return self.as_text(start, stop)
 
     def section_body(self, bar: "_TopicBar"):
         """The widgets under ``bar``, up to the next topic bar.
 
         The same span :meth:`section_text` copies, as widgets rather than as
         text, so raising, collapsing and copying a section cannot disagree
-        about where it ends.
+        about where it ends. A nested heading inside the span is part of the
+        body: folding a module banner folds the "spaCR output" banner under
+        it too, because that banner is the section's own content.
         """
+        start, stop = self._section_span(bar)
+        if start is None:
+            return []
+        end = self._entries.count() - 1 if stop is None else stop
         body = []
-        started = False
-        for index in range(self._entries.count() - 1):
+        for index in range(start + 1, end):
             item = self._entries.itemAt(index)
             widget = item.widget() if item is not None else None
-            if widget is bar:
-                started = True
-                continue
-            if not started:
-                continue
-            if isinstance(widget, _TopicBar):
-                break
             if widget is not None:
                 body.append(widget)
         return body
@@ -1583,8 +1594,15 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         convention every log viewer uses.
         """
         bar.set_expanded(True)
+        # A nested heading the user folded stays folded: expanding the
+        # section above it is not a request to unfold what is inside it.
+        folded = False
         for widget in self.section_body(bar):
-            widget.setVisible(True)
+            if isinstance(widget, _TopicBar):
+                folded = not widget.is_expanded()
+                widget.setVisible(True)
+                continue
+            widget.setVisible(not folded)
         self._follow_output = False
         # After layout, not during: the geometry this scroll needs does not
         # exist until the widgets just shown have been laid out.

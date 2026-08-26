@@ -2584,6 +2584,13 @@ def get_perform_regression_default_settings(settings):
             print(f"{_retired}={_was!r} was dropped: it is hard-coded to "
                   f"{_forced!r} now. The regression plots scale to the data "
                   f"and are changed on the plot itself.")
+    # `split_axis_lims` retires with the five above but LEAVES IN SILENCE.
+    # The other five each decided something a run drew, so a value that
+    # disagreed with the hard-coded one changed a figure and is worth naming.
+    # Nothing ever read this one, so there is no behaviour to report a change
+    # in -- and an old settings CSV that carries it would otherwise keep an
+    # undeclared key in the dict every downstream reader then has to ignore.
+    settings.pop('split_axis_lims', None)
     # `toxo` BECAME `Toxoplasma` on 2026-08-17 (instruction 133): "change
     # the toxo settings to Toxoplasma". An old settings CSV carries the old
     # spelling, and dropping it would turn the annotation off without saying

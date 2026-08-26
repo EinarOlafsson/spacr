@@ -111,3 +111,58 @@ def test_both_load_paths_end_in_one_place(tmp_path):
         src = inspect.getsource(getattr(RegressionResultsPanel, name))
         assert "_apply_loaded_run" in src, (
             f"{name} does not go through the shared ending")
+
+
+def test_a_cancelled_load_leaves_the_panel_usable(qtbot, tmp_path):
+    """Cancelling must not wedge the loader.
+
+    `JobRunner.cancel` drops the in-flight result, so `_finish_load` never
+    runs -- and the busy flag it clears was the only thing standing between
+    the panel and refusing every load after the first.
+    """
+    from spacr.qt.widgets.regression_results import RegressionResultsPanel
+
+    panel = RegressionResultsPanel()
+    qtbot.addWidget(panel)
+    folder = _a_run(tmp_path)
+    assert panel.start_load(folder)
+    assert panel.cancel_load() is True
+    assert panel.is_loading() is False
+    assert panel.cancel_load() is False, "nothing was in flight to cancel"
+    qtbot.wait(50)
+    assert panel.start_load(folder), "the panel refused a load after a cancel"
+    qtbot.waitUntil(lambda: not panel.is_loading(), timeout=5000)
+
+
+def test_a_cancelled_load_leaves_the_run_that_was_on_screen(qtbot, tmp_path):
+    """The point of cancelling: the previous run is still the loaded run."""
+    from spacr.qt.widgets.regression_results import RegressionResultsPanel
+
+    first = _a_run(tmp_path)
+    panel = RegressionResultsPanel()
+    qtbot.addWidget(panel)
+    assert panel.load(first)
+    was = panel.run_folder()
+    second = tmp_path / "other"
+    second.mkdir()
+    import pandas as pd
+    pd.DataFrame({"feature": ["z"], "coefficient": [1.0],
+                  "p_value": [0.5]}).to_csv(second / "results.csv", index=False)
+    assert panel.start_load(str(second))
+    assert panel.cancel_load() is True
+    qtbot.wait(100)
+    assert panel.run_folder() == was
+
+
+def test_the_load_button_is_the_cancel_while_a_load_runs(qtbot, tmp_path):
+    """The way out has to be reachable, not merely callable."""
+    from spacr.qt.widgets.regression_results import RegressionResultsPanel
+
+    panel = RegressionResultsPanel()
+    qtbot.addWidget(panel)
+    assert "Load" in panel._load_button.text()
+    assert panel.start_load(_a_run(tmp_path))
+    assert "Cancel" in panel._load_button.text()
+    panel._load_button.click()
+    assert panel.is_loading() is False
+    assert "Load" in panel._load_button.text()

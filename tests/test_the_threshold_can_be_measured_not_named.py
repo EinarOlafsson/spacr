@@ -235,3 +235,13 @@ def test_several_plates_are_read_as_one_screen(tmp_path):
 def test_nothing_to_read_is_an_error_with_a_reason():
     with pytest.raises(ValueError, match="no table"):
         ml._concat_named_csvs([])
+
+
+def test_the_screen_csvs_arrive_with_canonical_key_names(tmp_path):
+    """The counts and scores go through the one reader, so the keys are canonical."""
+    one = tmp_path / "plate.csv"
+    pd.DataFrame({"Plate": ["p1"], "column_name": ["1"], "count": [5]}
+                 ).to_csv(one, index=False)
+    got = ml._concat_named_csvs([one])
+    assert "plateID" in got.columns and "columnID" in got.columns
+    assert "column_name" not in got.columns

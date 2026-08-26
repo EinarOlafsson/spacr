@@ -198,12 +198,17 @@ def _concat_named_csvs(paths):
 
     A screen's counts and scores are one file per plate, and this question
     is asked of the screen rather than of a plate, so they are read together.
+    Each file goes through :func:`spacr.tabular.read_table`, so a header
+    spelled ``column_name`` or ``Well`` reaches the fit under the canonical
+    key names.
 
     :param paths: one path, a list of them, or nothing.
     :returns: the concatenated frame.
     :raises ValueError: when there is nothing readable to concatenate.
     """
     import pandas as pd
+
+    from .tabular import read_table
 
     if not paths:
         raise ValueError("no table was given to read")
@@ -212,7 +217,7 @@ def _concat_named_csvs(paths):
     frames = []
     for one in paths:
         try:
-            frames.append(pd.read_csv(one))
+            frames.append(read_table(one))
         except Exception as exc:
             raise ValueError(f"{one} could not be read: {exc}") from exc
     if not frames:

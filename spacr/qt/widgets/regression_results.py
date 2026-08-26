@@ -1696,8 +1696,16 @@ class RegressionResultsPanel(QWidget):
 
         Companion to :meth:`load`: the panel is otherwise only ever filled by
         a run finishing, which is no use to a user who has results and no run.
+
+        While a load is already in flight the same button is the CANCEL, so
+        the one control that starts a read is also the one that abandons it;
+        a read with no way out is the freeze this loader was moved off the
+        GUI thread to remove.
         """
         from PySide6.QtWidgets import QFileDialog
+
+        if self._loading:
+            return self.cancel_load()
 
         start = ""
         if self._path:
@@ -1728,6 +1736,55 @@ class RegressionResultsPanel(QWidget):
         """Whether a run is being read right now."""
         return bool(self._loading)
 
+    def _set_loading(self, loading: bool) -> None:
+        """Record whether a read is in flight, and offer the way out of it.
+
+        The one button that starts a read becomes the cancel while the read
+        is running, so a slow folder can always be abandoned.
+
+        :param loading: whether a run is being read right now.
+        """
+        self._loading = bool(loading)
+        button = getattr(self, "_load_button", None)
+        if button is None:
+            return
+        try:
+            if self._loading:
+                button.setText("Cancel load")
+                button.setToolTip(
+                    "Stop reading this run. The run already on screen stays "
+                    "on screen.")
+            else:
+                button.setText("Load results\u2026")
+                button.setToolTip(
+                    "Choose a regression results folder, or a parent of one. "
+                    "The most recently written results table under it is "
+                    "loaded.")
+        except RuntimeError:                                     # noqa: BLE001
+            pass                       # the widget went away under a close
+
+    def cancel_load(self) -> bool:
+        """Abandon a run being read, keeping what is already on screen.
+
+        The worker's result is dropped rather than applied, so the panel is
+        left exactly as it was: a cancelled load never half-applies a view.
+
+        :returns: whether there was a load to cancel.
+        """
+        if not self._loading:
+            return False
+        try:
+            self._load_jobs.cancel()
+        except Exception:                                        # noqa: BLE001
+            LOG.debug("could not cancel the results loader", exc_info=True)
+        self._set_loading(False)
+        self.say("Loading was cancelled; the run already on screen is "
+                 "unchanged.")
+        # THE SAME ENDING AS EVERY OTHER, because a caller waiting on
+        # `load_finished` must not be left waiting by a cancel either.
+        self.load_finished.emit(False)
+        return True
+
     def start_load(self, path) -> bool:
         """Start loading a regression run outside the GUI thread.
 
@@ -1744,13 +1801,13 @@ class RegressionResultsPanel(QWidget):
             self.say("Nothing was handed to the results panel, so there is "
                      "no folder to search. Use “Load results…”.")
             return False
-        self._loading = True
+        self._set_loading(True)
         self.say(f"Reading the run in {os.path.basename(str(path)) or path}…")
         started = self._load_jobs.submit(
             lambda: self._read_run(path),
             self._finish_load)
         if not started:                      # pragma: no cover - JobRunner
-            self._loading = False            # always returns True today
+            self._set_loading(False)         # always returns True today
         return bool(started)
 
     @staticmethod
@@ -1783,7 +1840,7 @@ class RegressionResultsPanel(QWidget):
 
     def _finish_load(self, outcome) -> bool:
         """THE GUI HALF: everything that touches a widget."""
-        self._loading = False
+        self._set_loading(False)
         ok = False
         if not isinstance(outcome, dict):
             self.say("The run loader came back with nothing, which is a bug "
@@ -1800,7 +1857,7 @@ class RegressionResultsPanel(QWidget):
         return ok
 
     def _on_load_job_failed(self, message: str) -> None:
-        self._loading = False
+        self._set_loading(False)
         self.say(f"The run could not be read: {message}")
         self.load_finished.emit(False)
 

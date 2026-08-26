@@ -62,3 +62,36 @@ rather than to the call: it is spent by `the_load_succeeded` or
 `the_load_failed`, whichever the load reports, and a refusal arriving after a
 success is ignored. The rule that a stale listener must not drag the mark
 backwards is kept by NAMING what the undo answers instead of by timing it.
+
+--------------------------------------------------------------------------------
+2026-08-26 -- RE-AUDIT: "IT CAN BE CANCELLED" WAS NEVER TRUE, AND CANCELLING
+             WEDGED THE PANEL. Fixed.
+--------------------------------------------------------------------------------
+
+The move off the GUI thread landed; the cancel half of it did not. Measured by
+driving `RegressionResultsPanel`: after `start_load` followed by
+`_load_jobs.cancel()`, `is_loading()` stayed True FOREVER and every subsequent
+`start_load` returned False. `JobRunner.cancel` drops the in-flight result by
+generation, so `_finish_load` -- the only thing that cleared the busy flag --
+never ran, and `job_failed` is not emitted for a cancel either. There was also
+no control anywhere that offered the cancel to a user.
+
+FIXED: `RegressionResultsPanel.cancel_load()` cancels the runner, clears the
+busy flag, says the run on screen is unchanged, and emits `load_finished(False)`
+so a caller waiting on the load is not left waiting by a cancel any more than by
+a failure. `_set_loading` is now the one place the flag is written, and it makes
+the "Load results…" button read "Cancel load" while a read is in flight, so the
+way out is reachable and not merely callable. Nothing the panel shows is touched
+by a cancel, which is what "cancelling leaves the run that was on screen" means.
+
+tests/test_loading_a_run_is_off_the_gui_thread.py grows from seven tests to ten:
+the cancel leaves the panel usable, the cancel leaves the previous run's folder
+as the loaded run, and the button is the cancel while a load runs. All three
+fail against the pre-fix code -- the first two on the wedged busy flag, all
+three on `cancel_load` not existing.
+
+STILL NOT DONE, and recorded rather than implied: the load says "Reading the run
+in <folder>…" and nothing further. The staged narration this file asked for
+("reading results.csv", "building the diagnostics", counted against a total) is
+not there. One sentence is enough that the window is not silent; it is not what
+was specified.
