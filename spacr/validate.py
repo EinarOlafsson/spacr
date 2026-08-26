@@ -866,6 +866,89 @@ _APP_EXTRA_KEYS: Dict[str, frozenset] = {
 }
 
 
+#: Settings that spaCR used to offer, and what replaced each.
+#:
+#: A RETIRED KEY IS THE ONE CASE FUZZY MATCHING CANNOT REACH. The check
+#: below only speaks up when a live setting is within a close match of the
+#: name it was handed, and that is deliberate: newer pipelines carry keys
+#: this module has never heard of, so warning about every one of them would
+#: be constant noise. But when a setting is deleted, its nearest neighbours
+#: usually go with it -- `upscale` and `upscale_factor` were removed in the
+#: same breath -- so nothing is left within matching distance and an old
+#: settings file naming one gets no warning at all. The value is ignored,
+#: the default is used, and the run differs from the file that describes it
+#: without a word.
+#:
+#: That is the worst place for silence, because a retired name is exactly
+#: what an OLD settings file contains, and its author has every reason to
+#: believe it still applies.
+#:
+#: An empty string means the setting was removed outright rather than
+#: renamed. Only renames that were verified against the live settings are
+#: recorded as such; a guess here would send a user to a name that is also
+#: not read.
+RETIRED_SETTINGS: Dict[str, str] = {
+    "minimum_cell_count": "min_cell_count",
+    "redunction_method": "reduction_method",
+    "barcode_coordinates": "",
+    "barcode_mapping": "",
+    "compartments": "",
+    "compression": "",
+    "complevel": "",
+    "correlate": "",
+    "downstream": "",
+    "upstream": "",
+    "split_axis_lims": "",
+    "upscale": "",
+    "upscale_factor": "",
+    "all_to_mip": "",
+    "custom_measurement": "",
+    "gene_weights_csv": "",
+    "metadata_types": "",
+    "pick_slice": "",
+    "skip_mode": "",
+    "signal_direction": "",
+    "measurement_rules": "",
+    "cells_per_page": "",
+    "extract_channels": "",
+    "infection_xgb_proba": "",
+    "highlight": "",
+    "guide_permutation_plot": "",
+}
+#: NOT HERE: a setting withdrawn from ONE panel while `spacr.settings` still
+#: declares it. `log_x`, `log_y`, `x_lim`, `y_lims` and `png_type` left the
+#: regression panel and are read elsewhere, so naming one here would warn a
+#: user off a setting that works.
+
+
+def _check_retired_keys(settings: Dict[str, Any]) -> List[Problem]:
+    """Say so when a settings file names a setting spaCR has withdrawn.
+
+    Separate from the typo check because the two have opposite shapes: a
+    typo is caught by resembling something real, and a retired name is
+    missed for the same reason -- whatever it resembled was withdrawn with
+    it.
+    """
+    problems: List[Problem] = []
+    for key in settings:
+        if not isinstance(key, str) or key not in RETIRED_SETTINGS:
+            continue
+        replacement = RETIRED_SETTINGS[key]
+        if replacement:
+            problems.append(Problem(
+                WARNING, key,
+                f"'{key}' was renamed to '{replacement}'.",
+                f"Rename '{key}' to '{replacement}' — as it stands the "
+                f"value is ignored and the default is used."))
+        else:
+            problems.append(Problem(
+                WARNING, key,
+                f"'{key}' is no longer a spaCR setting.",
+                f"Remove '{key}' — spaCR does not read it, so the value "
+                f"has no effect on the run."))
+    return problems
+
+
 def _check_unknown_keys(settings: Dict[str, Any], app: str = "") -> List[Problem]:
     """Flag keys that look like a typo of a real setting.
 
@@ -877,6 +960,9 @@ def _check_unknown_keys(settings: Dict[str, Any], app: str = "") -> List[Problem
     problems: List[Problem] = []
     for key in settings:
         if not isinstance(key, str) or key in known:
+            continue
+        if key in RETIRED_SETTINGS:
+            # Answered by name, and better, in _check_retired_keys.
             continue
         close = difflib.get_close_matches(key, sorted(known), n=1, cutoff=0.85)
         if close:
@@ -1338,6 +1424,7 @@ def validate_settings(settings: Dict[str, Any], app_key: str) -> List[Problem]:
     problems.extend(_check_channels(settings, app, inventories))
     problems.extend(_check_types(settings, app))
     problems.extend(_check_unknown_keys(settings, app))
+    problems.extend(_check_retired_keys(settings))
     problems.extend(_check_numeric_sanity(settings))
     problems.extend(_check_required_paths(settings, app))
     problems.extend(_check_app_specific(settings, app))

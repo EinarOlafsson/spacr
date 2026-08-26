@@ -69,6 +69,14 @@ HOW TO KNOW IT WORKED
 * The EAF1 result reproduces: its three low-circularity survivors are the
   pathogen channel co-localisation measures, at q ~ 1e-2.
 
+  EAF1 IS `TGGT1_225160`. The reference screen's count tables name genes by
+  TGGT1 id and nothing in the tree mapped the symbol to one, so this
+  criterion could not be checked at all -- an audit reported it unverifiable
+  rather than guessing, and the id is written down here so the next run of
+  it is a measurement instead of a search. Do not confuse it with `239740`,
+  which `settings.py` sets as the default positive control and is a
+  different gene.
+
 --------------------------------------------------------------------------------
 2026-08-19 -- A, B, C AND D SHIPPED. What remains is where the button LIVES.
 --------------------------------------------------------------------------------
