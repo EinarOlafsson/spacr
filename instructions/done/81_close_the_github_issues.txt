@@ -378,6 +378,16 @@ single-frame test exercises.
 
 REVERTED IN FULL. `to_sql` is back and the 8 intermittent-write tests pass.
 
+NAMES, FOR ANYONE GREPPING (added 2026-08-25). `_sql_values` is not in the
+tree and should not be: it belonged to THIS attempt, which was backed out.
+The paragraph above is history and is left as it was written. The direct
+INSERT itself came back the next day in the form described in the section
+below -- `_insert_frame` is live at `spacr/utils.py:2977` and `_append_frame`
+calls it -- and the value conversion `_sql_values` was going to do is done by
+`_sqlite_value` (`spacr/utils.py:2960`, covered by
+tests/test_cov_7_utils.py), with `_sqlite_identifier` quoting the table and
+columns.
+
 --------------------------------------------------------------------------------
 2026-08-14 - #15 FIXED ACROSS LOCAL AND SHARED FILESYSTEMS, THEN CLOSED
 --------------------------------------------------------------------------------

@@ -385,6 +385,16 @@ not, with the reason, per 106.
     on this scene. Pre-existing, in the library, and it means the SVG option
     is currently broken while PDF and PNG work.
 
+    SVG IS NO LONGER BROKEN (checked 2026-08-25). `correctCoordinates` is
+    pyqtgraph's, not spaCR's -- module-level in
+    `pyqtgraph/exporters/SVGExporter.py`, present in the installed 0.14.0 --
+    so nothing in this tree was ever going to fix it. It is not called any
+    more: `FastPlot._export_svg` (`spacr/qt/widgets/fast_plots.py`) renders
+    the item straight into a `QSvgGenerator`, which keeps paths and text as
+    vector elements and sidesteps the exporter's path normalisation on every
+    installation. The SVG option works alongside PDF and PNG; the eight
+    export tests in tests/test_the_restyle_menu_is_complete.py pass.
+
 --------------------------------------------------------------------------------
 P. TWO THINGS REPORTED AS REGRESSIONS, NOT YET DIAGNOSED
 --------------------------------------------------------------------------------

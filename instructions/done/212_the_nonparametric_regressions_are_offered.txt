@@ -147,7 +147,9 @@ HOW TO KNOW IT WORKED
 WHAT WAS DONE, AND WHAT WAS DELIBERATELY NOT
 --------------------------------------------------------------------------------
 
-`guide_statistic` -- `'pearson'` (the historical default) or `'rank'`.
+`grna_statistic` -- `'pearson'` (the historical default) or `'rank'`.
+It reaches `guide_permutation.guide_freedman_lane_test` as its
+`statistic=` argument.
 
 THE INFERENCE WAS ALWAYS DISTRIBUTION-FREE; THE STATISTIC WAS NOT, and that
 is the gap this closes. The permutation builds its own null, so the p-value
@@ -288,3 +290,21 @@ and four in `tests/test_analysis_mode_is_a_dropdown.py` that read the choices
 off `convert_settings_dict_for_gui` -- every family states its kind and its
 assumption, nothing merely robust is labelled nonparametric, the groups do
 not interleave, and mixed still leads.
+
+--------------------------------------------------------------------------------
+2026-08-25 - AUDIT: THE SETTING IS `grna_statistic`, AND THE tools/ LINE IS OPEN
+--------------------------------------------------------------------------------
+
+This file named the statistic guide_statistic, which nothing defines. The
+shipped key is
+`grna_statistic` -- `spacr/settings.py` types it, defaults it to 'pearson' and
+tooltips it, `settings_spec` offers it as a combo of pearson/rank, and
+`spacr/ml.py` passes it to `guide_permutation.guide_freedman_lane_test` as
+`statistic=`. The name above is corrected; nothing in the code changed.
+
+THE ONE LINE IN `tools/` IS STILL OPEN, confirmed rather than assumed:
+`_REGRESSION_MENU_UI_SOURCES` is defined in
+`spacr/qt/screens/settings_model.py` and appears nowhere in
+`tools/build_i18n_catalogs.py`, so a regeneration still writes no rows for
+the twenty menu captions. That file is held by the session rebuilding the
+catalogs.

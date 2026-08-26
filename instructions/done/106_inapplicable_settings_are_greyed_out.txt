@@ -47,8 +47,21 @@ What already exists, and must be reused rather than duplicated:
     widgets when a source setting changes. It currently refreshes the row
     exclusion editor and training-basis enablement. This is the seam.
   * `setEnabled` is already used for training-basis controls in the same file,
-    and `_set_row_enabled` already greys the LABEL with its control, so the
-    visual convention exists.
+    so the visual convention exists. NAME CORRECTED 2026-08-25: this line
+    used to cite `_set_row_enabled`, which does not exist and, on the
+    evidence of the rest of this file, never did. Greying a row is TWO
+    collaborating pieces, not one helper:
+      - `_apply_greyed_note` / `_clear_greyed_note`
+        (`spacr/qt/screens/settings_model.py`) disable the LABEL alongside
+        the control and put the reason on it, reaching the label through
+        `control._spacr_setting_label`;
+      - `AppScreen._build_settings_section`
+        (`spacr/qt/screens/app_screen.py`) BINDS that attribute and mirrors
+        the state with `lbl_widget.setEnabled(field.isEnabled())` -- which
+        is what covers the greying pass that runs before any label exists.
+    Both halves are load-bearing: blanking the mirror line fails
+    `test_a_greyed_setting_says_why_where_it_shows.py::
+    test_the_label_is_greyed_with_its_field_so_the_row_reads_as_one`.
 
 There is no mechanism at all for the data-dependent half: nothing knows how
 many plates the loaded input has, so nothing can grey `plateID` out.
@@ -125,7 +138,8 @@ WHAT TO DO
    (`spacr/qt/screens/settings_model.py`): evaluate every rule inside
    `_refresh_contextual_widgets`, and connect the CHANGE signal of each
    setting that appears in any predicate so editing it re-evaluates the rest.
-   Grey the label with the control -- `_set_row_enabled` already does this.
+   Grey the label with the control -- `_apply_greyed_note` already does this,
+   via `control._spacr_setting_label`; see the corrected note above.
 
 4. Data-dependent rules need a fact the panel does not have. Add a small
    context object -- plate count, available score columns, whether the inputs
@@ -477,3 +491,44 @@ MEASURED AGAINST "HOW TO KNOW IT WORKED"
 Point 5 (disable, never hide) and the three DELIBERATELY NOT DONE items are
 unchanged: the control keeps its value, keeps its place in the panel, and
 nothing auto-resets.
+
+================================================================================
+2026-08-25 -- RE-VERIFIED BY DRIVING THE PANELS, NOT BY READING THEM.
+================================================================================
+
+Triggered by an instruction/code audit that flagged `_set_row_enabled` as a
+name this file uses and the tree does not have. The name is corrected above;
+the MECHANISM was re-measured rather than assumed, because a stale symbol in
+the prose is exactly the shape of a feature that quietly stopped working.
+
+Driven through `AppScreen`, which is the real user path -- `SettingsWidgets`
+on its own never binds a label, so a check that stops there cannot see the
+half this file is about.
+
+    AppScreen("regression"), regression_type='ols'
+      25 gated controls greyed
+      greyed controls with no label bound          0
+      greyed controls whose label was still live   0
+      greyed controls with no reason on the label  0
+      l1_ratio label help ends:
+        "...l1_ratio is not read when regression_type is 'ols'. Choose a
+         family whose documented settings include it. The value is kept
+         and saved."
+      switching to 'elasticnet' re-enables both the control and its label
+
+    Point 6, the non-regression panels, batch_correction='none':
+      umap             0 of 7 batch_* still live, every label greyed
+      classify_merged  0 of 7
+      ml_analyze       0 of 7
+
+The label mirror in `app_screen.py` was mutation-tested: replacing
+`lbl_widget.setEnabled(field.isEnabled())` with a no-op turns one greying
+test red and leaves 63 green, so the line is pinned and the suite notices if
+it goes. Restored.
+
+Suite: tests/qt/test_a_greyed_setting_says_why_where_it_shows.py,
+test_greyed_setting_help.py, test_greying_is_not_regression_only.py -- 28
+passed; with test_the_greyed_row_explains_itself.py, 64 passed.
+
+No behaviour changed. This section records that the closure above still
+holds.

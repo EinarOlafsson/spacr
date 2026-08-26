@@ -227,6 +227,13 @@ P8. TEN INERT SETTINGS, kept only so old settings CSVs load. A DECISION,
     nothing reads it. That exemption had no floor and ten keys sit behind
     it. tests/test_the_inert_settings_list_only_shrinks.py now names them
     and refuses an eleventh.
+    [2026-08-25] THAT FILE IS GONE, AND SO IS THE EXEMPTION IT COUNTED. The
+    ten were deleted (see the P8-DONE line in section I), so a ratchet over
+    keys behind a documented-inert waiver had nothing left to count and went
+    with them in 89d06477. Its replacement is
+    tests/test_the_inert_settings_stay_deleted.py, which names all eleven
+    (the ten plus `complevel`) and asserts they stay OUT rather than counting
+    them while they are in.
 
       barcode_coordinates, barcode_mapping, upstream, downstream
           Map barcodes. Superseded by target_sequence + offset_start for
@@ -306,6 +313,8 @@ TESTS ADDED
     it is tested. Seven were untested and are now driven for the property
     that makes them worth offering, not merely for not raising.
   * the documented-inert settings list is closed and can only shrink.
+    [2026-08-25: superseded -- the list is empty and the names are refused;
+    see the note in section D.]
   * both barcode writers are tested over five chunks; one chunk cannot
     fail either way, which is why the old tests passed.
 
@@ -1195,9 +1204,74 @@ THE SIX DEFECTS section K found, none of them in files this item owns:
   * spacr/qt/screens/settings_model.py -- `_APP_CATEGORY_SPECS` still names
     `upscale` and `upscale_factor` for mask and timelapse; neither is
     declared or read any more.
+    [FIXED 2026-08-25, and there was a THIRD the report did not list:
+    `compression`, in the same two layouts under "Output & Storage". All
+    three are out of both layouts, and
+    tests/test_the_inert_settings_stay_deleted.py asserts no category layout
+    names a deleted setting -- the check that found the third.]
 
 MAP BARCODES ON THE REAL READS cannot be re-run here: /mnt/wd12tb is not
 mounted. The driver is written, refuses cleanly, and carries the orientation
 reproduction; it needs the disk.
 
 THE PROPOSALS IN SECTION D still awaiting a decision are P1 and P2.
+
+
+--------------------------------------------------------------------------------
+2026-08-25 -- SYMBOL AUDIT OF THIS FILE
+--------------------------------------------------------------------------------
+
+Two names in this file were flagged as absent from the tree. One was a false
+alarm; one was a real hole.
+
+`WrongAnswer` EXISTS and section N is accurate. It is
+`spacr_drivers/_support.py:48`, with `check(condition, message)` beside it at
+:57 and `run` mapping it to exit status 1 at :309; `drive_the_annotation_app`
+and `drive_regression_on_tsg101` raise it by name. It reads as missing only
+to a scan that looks at `spacr/` and `tests/` -- the drivers are neither.
+Nothing to fix.
+
+`tests/test_the_inert_settings_list_only_shrinks.py` was NOT lost. It was
+deleted in the same commit that deleted the settings it counted (89d06477),
+which was right: the file existed to put a floor under an exemption, and the
+exemption emptied.
+
+WHAT WAS LEFT UNGUARDED, which is the part worth having found. Measured, not
+assumed: all eleven deleted names still register as LIVE TOKENS in
+`tests/test_dead_settings.py`'s scan -- `upstream`, `downstream`,
+`compression`, `correlate`, `compartments`, `upscale` and the rest occur in
+`spacr/` for unrelated reasons. So the absolute rule ("a setting spaCR
+declares is a setting spaCR reads") would NOT have refused any of them coming
+back. `test_settings_categories.KEYS_RETIRED` does not either: it is a waiver
+saying these keys may be absent from the category map, not a guard saying
+they must be.
+
+WRITTEN: tests/test_the_inert_settings_stay_deleted.py, 30 cases.
+
+  * each of the eleven is absent from expected_types, tooltips, descriptions
+    and every `categories` list -- a name check, which a token collision
+    cannot fool;
+  * no `set_*`/`get_*`/`default_*`/`deep_*` factory produces one;
+  * no registered module resolves one into its settings;
+  * no Qt category layout names one -- the case that found `compression`
+    surviving in Mask's and Timelapse's "Output & Storage" heading;
+  * the documented-inert exemption stays shut: no declared setting's own
+    description admits nothing reads it, and the pattern is proved to match
+    a real admission so it cannot pass by matching nothing;
+  * `complevel` stays gone while `comp_level`/`comp_type` stay live and are
+    still produced by `set_default_generate_barecode_mapping`.
+
+Proved to catch a revert: re-adding `upscale_factor` and `complevel` to
+`expected_types` fails three cases, each naming the key.
+
+ALSO OBSERVED, NOT FIXED -- the cost this file records for deleting a
+setting is optimistic. It says an old CSV naming one "fails with the generic
+'names a setting that does not exist -- did you mean ...?'". It does not:
+`validate._check_unknown_keys` only reports a key with a close match at
+cutoff 0.85, and `upscale_factor` has none, so it is accepted in silence and
+the value ignored. Measured:
+`_check_unknown_keys({'src': ..., 'upscale_factor': 2}, 'mask')` returns an
+empty problem list. That cutoff is deliberate and
+documented in the function ("spaCR's newer pipelines legitimately carry keys
+that are not in expected_types"), so widening it is a user-facing decision
+rather than a fix, and it is recorded here for one.
