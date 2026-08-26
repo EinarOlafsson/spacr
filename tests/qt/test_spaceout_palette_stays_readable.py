@@ -132,6 +132,12 @@ def test_every_surface_keeps_the_luminance_it_had(name):
     of carried, and ``test_spaceout_looks_alive.py`` asserts both halves of
     that: they moved, and they still clear every rule at every point on the
     drift.
+
+    The splash roles go with them because they are DERIVED from ``fg``
+    rather than dressed — :func:`spacr.qt.theme._splash_roles` takes the
+    window's own ink — and their legibility is solved separately by
+    :func:`spacr.qt.theme.splash_dim_alpha` rather than inherited from a
+    luminance that did not move.
     """
     was = theme.spaceout_enabled()
     theme.disable_spaceout()
@@ -143,7 +149,9 @@ def test_every_surface_keeps_the_luminance_it_had(name):
         drift = {
             role: abs(theme.relative_luminance(rainbow[role])
                       - theme.relative_luminance(plain[role]))
-            for role in plain if role not in theme.SPACEOUT_INK_ROLES
+            for role in plain
+            if role not in theme.SPACEOUT_INK_ROLES
+            and role not in theme._splash_roles(plain)
         }
     finally:
         if not was:
@@ -163,13 +171,28 @@ def test_the_hue_table_covers_every_role_the_palette_carries(name):
     assert missing == [], f"{name} has roles with no spaceout hue: {missing}"
 
 
+#: The widest arc of the colour wheel the dressed roles may leave empty.
+#:
+#: Measured as the largest gap between neighbouring hues rather than as a
+#: count of buckets, and that is not a stylistic preference: the dressing
+#: TURNS (:func:`spacr.qt.theme.spaceout_drift`), so any measure that puts
+#: hues into fixed bins changes its answer as the whole table rotates
+#: through a bin boundary — which it did, from eight families to seven, for
+#: a palette that had not lost a colour. The largest gap is invariant under
+#: rotation, so it measures the spread and only the spread.
+#:
+#: 120 degrees is a third of the wheel. The worst offset the drift can reach
+#: measures 80.
+MAX_HUE_GAP = 120.0
+
+
 def test_it_really_is_a_rainbow(dressed):
     """The other half of the ask, and it needs asserting as much as the
     readability does: a palette that passed every contrast rule by not
     changing anything would pass every test above."""
     surfaces = ("bg", "page", "surface", "surface_alt", "surface_hi",
                 "accent", "success", "warning", "error")
-    hues = set()
+    hues = []
     for name in theme.THEMES:
         palette = theme.palette_for(name)
         for role in surfaces:
@@ -178,9 +201,14 @@ def test_it_really_is_a_rainbow(dressed):
                 # A role at the very top or bottom of the luminance scale
                 # cannot carry a hue at all — white is white.
                 continue
-            hues.add(round(_hue_of(red, green, blue) / 30.0))
-    assert len(hues) >= 8, \
-        f"only {len(hues)} distinct hue families across the palettes: {hues}"
+            hues.append(_hue_of(red, green, blue))
+    hues.sort()
+    assert len(hues) >= 8, f"only {len(hues)} roles carry a hue at all"
+    gap = max([b - a for a, b in zip(hues, hues[1:])]
+              + [360.0 - hues[-1] + hues[0]])
+    assert gap <= MAX_HUE_GAP, (
+        f"the dressed roles leave {gap:.0f} degrees of the colour wheel "
+        f"empty; hues are {[round(h) for h in hues]}")
 
 
 def _hue_of(red: int, green: int, blue: int) -> float:

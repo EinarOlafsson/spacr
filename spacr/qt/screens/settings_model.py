@@ -17,6 +17,7 @@ import logging
 import os
 import sys
 import textwrap
+import weakref
 from typing import Any, Callable, Dict, List, NamedTuple, Optional, Tuple
 
 from PySide6.QtCore import (QEvent, QObject, QPoint, QRect, QSize, Qt,
@@ -6348,19 +6349,27 @@ class _HiddenRowWatcher(QObject):
     even when the widget's ancestors are hidden, which is the case that
     matters here because a settings section is usually collapsed.
 
-    Holds the model directly. The filter is installed ON the row widgets, so
-    Qt drops it with them; the model owns this and outlives every row it
-    watches.
+    A WEAK REFERENCE TO THE MODEL, AND A QT PARENT. The model owns this and
+    this is installed on the model's own widgets, so a strong reference back
+    would make a cycle with a QObject in it -- and a QObject destroyed by
+    Python's cyclic collector, while it is still an event filter on several
+    hundred live widgets, is the shape of crash that is impossible to read
+    afterwards. Parented to the panel instead, so Qt decides when it dies and
+    unhooks it from everything it watches on the way out.
     """
 
-    def __init__(self, model: "SettingsWidgets") -> None:
-        super().__init__()
-        self._model = model
+    def __init__(self, model: "SettingsWidgets",
+                 parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
+        self._model = weakref.ref(model)
 
     def eventFilter(self, obj, event) -> bool:            # noqa: N802
         if event.type() == QEvent.ShowToParent:
+            model = self._model()
+            if model is None:
+                return False
             try:
-                self._model._shown_against_the_rule(obj)
+                model._shown_against_the_rule(obj)
             except Exception:                                # noqa: BLE001
                 LOGGER.debug("could not re-assert object visibility",
                              exc_info=True)
@@ -7717,7 +7726,7 @@ class SettingsWidgets:
         #: ``id(section) -> section`` for the slot headings this hid, so it
         #: can put back exactly what it took and nothing else.
         self._headings_of_absent_slots: Dict[int, Any] = {}
-        self._object_row_guard = _HiddenRowWatcher(self)
+        self._object_row_guard = _HiddenRowWatcher(self, parent)
         self._object_rule_pass_queued = False
         self._tooltips = get_tooltips()
         self._data_context: Dict[str, Any] = {'plate_count': None}
