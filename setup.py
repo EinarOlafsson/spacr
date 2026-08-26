@@ -715,6 +715,13 @@ setup(
             'spacr=spacr.qt:run',
             'spacr-qt=spacr.qt:run',
             'spacr-nightly=spacr.qt:run',
+            # The same application, wearing something else: rainbow palette,
+            # moving fractals behind every screen. Every module, screen and
+            # setting is the one `spacr` opens -- only the dressing differs.
+            # It is an ENTRY POINT and not a theme menu entry on purpose:
+            # nothing in Preferences offers it and nothing persists it, so an
+            # ordinary `spacr` start can never land in it.
+            'spaceout=spacr.qt.spaceout:main',
             # Same GUI with the first-run setup screen never offered.
             # For a launch with nobody in front of it: the screen is
             # modal and opens before the main window, so an

@@ -16,6 +16,16 @@ cells, nuclei, pathogens and organelles with Cellpose. It supports 2-D,
 volumetric and time-series data, estimates object diameter, and can exchange
 mask corrections with the layer viewer or napari.
 
+The objects are not a fixed set of four. A project has a cell, a nucleus and a
+pathogen, a cytoplasm derived from them, and as many organelle slots as
+``number_of_organelles`` asks for -- from none up to twenty-six. Each slot is
+independent, with its own channel, diameter, detection method and morphology.
+
+A slot is given a morphology preset -- punctate, vesicular, spherical,
+filamentous, tubular, reticular, cisternal, toroidal, crescent, or custom --
+and the preset chooses the detection strategy, one of spots, network,
+irregular or ring.
+
 Measure
 ~~~~~~~
 
@@ -71,6 +81,89 @@ Every run can record its identifier, seed, resolved settings and outputs.
 Interrupted workflows can resume from checkpoints, and the run history can
 compare settings and artefacts. Measurements export to AnnData; optional
 integrations read or write OME-Zarr, connect to OMERO and send masks to napari.
+
+How a module is reached
+-----------------------
+
+The home screen groups modules into six categories -- Core, Data,
+Results & QC, Explore, Assays and Design -- and most modules have a tile in
+one of them. Make Masks is filed under **Data**.
+
+A tile is not the only way in. Twenty modules answer a question about the run
+their host produces rather than starting a run of their own, so they open from
+a button on that host's masthead, as a page beside its settings and already
+pointed at the same project. They are shipped, translated and documented like
+any other module, and the ones that are pipelines still run headlessly under
+``spacr-run``.
+
+============= ==========================================================
+Host          Opens from its masthead
+============= ==========================================================
+Mask          Timelapse
+Measure       Illumination Correction, AnnData Export, Motility Assay
+Annotate      Annotator Agreement
+Classify      Classifier Evaluation, Explain CV Model, Activation Maps
+Map Barcodes  Barcode QC
+Regression    Volcano Explorer, Hit List, Methods & Results
+Image UMAP    Image Scatter, PCA
+Make Masks    Cellpose Workbench, Mask the whole folder, Model Compare,
+              Model Zoo, Curate, Napari Bridge
+============= ==========================================================
+
+Parameter Sweep is reached a third way: it is a panel on the Regression
+screen, opened by the **Parameter sweep** switch on its settings form.
+
+Make Masks
+----------
+
+Make Masks corrects masks by hand and carries the Cellpose loop on its
+masthead. Its canvas has nine tools: Brush, Erase, Erase object, Wand +,
+Wand −, Draw, Divide, Zoom and Recrop.
+
+Draw traces a free-form outline that closes and fills as a single object --
+the tool a brush is not, because a brush stamps disks along the path, so
+tracing a rim with it labels the rim and leaves the middle background. Divide
+drags a line across a merged object and makes it two, leaving every other
+object's label untouched; it is the commonest correction a segmentation needs.
+
+Recrop is the only tool that changes which field is on screen rather than
+what is painted on it. A staged crop holding several cells is not one training
+example, and curating it as one teaches a network that two objects are one
+picture -- so a box round an object writes that region of both the image and
+the mask as a field of its own, queued straight after the current one, and the
+multi-object original is retired into ``recropped_originals/`` rather than
+curated. A box smaller than the minimum side, or one repeating a cut already
+made, is refused; objects the box cuts through are dropped, because an object
+whose boundary is where the mouse was released is not that object; and the
+labels that survive are renumbered from one.
+
+Running Cellpose-SAM from this screen shows its two intermediate outputs
+beside the mask: the cell-probability map and the flow field. A mask is a
+threshold applied to that probability map, and a candidate object is discarded
+when its flows disagree with the ones the network predicted by more than the
+flow-error threshold. When a mask is wrong, those two panes are where the
+reason is visible.
+
+Settings that apply
+-------------------
+
+The settings panel carries a control when it applies to the run being set up
+and leaves it off the form when it does not:
+
+- a slot past ``number_of_organelles`` takes its whole block of settings with
+  it, its channel included -- a slot the run does not have is not a slot with
+  its channel left showing;
+- an object whose channel names no plane is not in the run at all, so its
+  settings are not on the form;
+- a setting belonging to one morphology is dropped for a slot of another: a
+  punctate organelle has no ridge filter.
+
+The 3D and Time switches declare which dimensions the plate has. ``z_stack``
+declares a z axis and enables the volumetric settings -- segmentation mode,
+anisotropy and voxel size -- and stops with an error rather than guessing
+which axis is z. ``timelapse`` declares a time axis and reveals tracking; a
+single-timepoint plate ignores it. The 4D settings apply only when the data is
+both a z-stack and a time series, and appear only then.
 
 Maturity labels
 ---------------

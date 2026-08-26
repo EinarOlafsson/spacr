@@ -73,6 +73,32 @@ Arbetsflödet i korthet
 
 |Workflow_mask|\ |Workflow_arrow|\ |Workflow_measure|\ |Workflow_arrow|\ |Workflow_annotate|\ |Workflow_arrow|\ |Workflow_classify_merged|\ |Workflow_arrow|\ |Workflow_map_barcodes|\ |Workflow_arrow|\ |Workflow_regression|
 
+**Data**
+
+|App_align|\ |App_convert|\ |App_foreign|\ |App_external_masks|\ |App_queue|
+
+|App_batch|\ |App_distributed_jobs|\ |App_db_browser|\ |App_make_masks|\ |App_data_manager|
+
+**Results & QC**
+
+|App_plate_view|\ |App_umap|\ |App_train_compare|\ |App_run_history|\ |App_report|
+
+|App_run_compare|\ |App_investigate_hit|
+
+**Explore**
+
+|App_pipeline_graph|\ |App_profiler|\ |App_qc_dashboard|\ |App_lineage|\ |App_layer_viewer|
+
+|App_graph_builder|\ |App_tabulate|
+
+**Assays**
+
+|App_analyze_plaques|\ |App_recruitment|\ |App_invasion|\ |App_replication|
+
+**Design**
+
+|App_experiment_design|\ |App_power|
+
 .. |Workflow_mask| image:: ../../../spacr/resources/icons/workflow/mask.png
    :width: 14.5%
    :alt: Öppna API-dokumentationen för Mask
@@ -106,45 +132,6 @@ Arbetsflödet i korthet
 .. |Workflow_arrow| image:: ../../../spacr/resources/icons/workflow/arrow.png
    :width: 2.5%
    :align: middle
-
-**Data**
-
-|App_align|\ |App_convert|\ |App_foreign|\ |App_external_masks|\ |App_queue|
-
-|App_batch|\ |App_distributed_jobs|\ |App_db_browser|\ |App_illumination|\ |App_data_manager|
-
-**Segmentation models**
-
-|App_make_masks|\ |App_train_cellpose|\ |App_cellpose_masks|\ |App_model_compare|\ |App_model_zoo|
-
-|App_curate|
-
-**Results & QC**
-
-|App_plate_view|\ |App_agreement|\ |App_umap|\ |App_activation|\ |App_train_compare|
-
-|App_classifier_evaluation|\ |App_run_history|\ |App_report|\ |App_barcode_qc|\ |App_hit_list|
-
-|App_methods_export|\ |App_volcano_explorer|\ |App_parameter_sweep|\ |App_run_compare|\ |App_explain_cv|
-
-|App_investigate_hit|
-
-**Explore**
-
-|App_pipeline_graph|\ |App_profiler|\ |App_qc_dashboard|\ |App_image_scatter|\ |App_lineage|
-
-|App_layer_viewer|\ |App_graph_builder|\ |App_anndata_export|\ |App_pca|\ |App_tabulate|
-
-**Assays**
-
-|App_timelapse|\ |App_motility|\ |App_analyze_plaques|\ |App_recruitment|\ |App_invasion|
-
-|App_replication|
-
-**Design**
-
-|App_experiment_design|\ |App_power|
-
 .. |App_align| image:: ../../../spacr/resources/icons/workflow/apps/align.png
    :width: 19.9%
    :alt: Öppna API-dokumentationen för Align & Stitch
@@ -185,75 +172,30 @@ Arbetsflödet i korthet
    :alt: Öppna API-dokumentationen för Database Browser
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/db_browser/index.html
    :align: middle
-.. |App_illumination| image:: ../../../spacr/resources/icons/workflow/apps/illumination.png
+.. |App_make_masks| image:: ../../../spacr/resources/icons/workflow/apps/make_masks.png
    :width: 19.9%
-   :alt: Öppna API-dokumentationen för Illumination
-   :target: https://einarolafsson.github.io/spacr/api/spacr/illumination/index.html
+   :alt: Öppna API-dokumentationen för Make Masks
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html
    :align: middle
 .. |App_data_manager| image:: ../../../spacr/resources/icons/workflow/apps/data_manager.png
    :width: 19.9%
    :alt: Öppna API-dokumentationen för Data Manager
    :target: https://einarolafsson.github.io/spacr/api/spacr/data_manager/index.html
    :align: middle
-.. |App_make_masks| image:: ../../../spacr/resources/icons/workflow/apps/make_masks.png
-   :width: 19.9%
-   :alt: Öppna API-dokumentationen för Make Masks
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html
-   :align: middle
-.. |App_train_cellpose| image:: ../../../spacr/resources/icons/workflow/apps/train_cellpose.png
-   :width: 19.9%
-   :alt: Öppna API-dokumentationen för Train Cellpose
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
-   :align: middle
-.. |App_cellpose_masks| image:: ../../../spacr/resources/icons/workflow/apps/cellpose_masks.png
-   :width: 19.9%
-   :alt: Öppna API-dokumentationen för Cellpose Masks
-   :target: https://einarolafsson.github.io/spacr/api/spacr/spacr_cellpose/index.html
-   :align: middle
-.. |App_model_compare| image:: ../../../spacr/resources/icons/workflow/apps/model_compare.png
-   :width: 19.9%
-   :alt: Öppna API-dokumentationen för Model Compare
-   :target: https://einarolafsson.github.io/spacr/api/spacr/model_compare/index.html
-   :align: middle
-.. |App_model_zoo| image:: ../../../spacr/resources/icons/workflow/apps/model_zoo.png
-   :width: 19.9%
-   :alt: Öppna API-dokumentationen för Model Zoo
-   :target: https://einarolafsson.github.io/spacr/api/spacr/model_zoo/index.html
-   :align: middle
-.. |App_curate| image:: ../../../spacr/resources/icons/workflow/apps/curate.png
-   :width: 19.9%
-   :alt: Öppna API-dokumentationen för Curate
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/curate/index.html
-   :align: middle
 .. |App_plate_view| image:: ../../../spacr/resources/icons/workflow/apps/plate_view.png
    :width: 19.9%
    :alt: Öppna API-dokumentationen för Plate Viewer
    :target: https://einarolafsson.github.io/spacr/api/spacr/plate_qc/index.html
-   :align: middle
-.. |App_agreement| image:: ../../../spacr/resources/icons/workflow/apps/agreement.png
-   :width: 19.9%
-   :alt: Öppna API-dokumentationen för Annotator Agreement
-   :target: https://einarolafsson.github.io/spacr/api/spacr/agreement/index.html
    :align: middle
 .. |App_umap| image:: ../../../spacr/resources/icons/workflow/apps/umap.png
    :width: 19.9%
    :alt: Öppna API-dokumentationen för Image UMAP
    :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
    :align: middle
-.. |App_activation| image:: ../../../spacr/resources/icons/workflow/apps/activation.png
-   :width: 19.9%
-   :alt: Öppna API-dokumentationen för Activation
-   :target: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
-   :align: middle
 .. |App_train_compare| image:: ../../../spacr/resources/icons/workflow/apps/train_compare.png
    :width: 19.9%
    :alt: Öppna API-dokumentationen för Training Runs
    :target: https://einarolafsson.github.io/spacr/api/spacr/train_compare/index.html
-   :align: middle
-.. |App_classifier_evaluation| image:: ../../../spacr/resources/icons/workflow/apps/classifier_evaluation.png
-   :width: 19.9%
-   :alt: Öppna API-dokumentationen för Classifier Evaluation
-   :target: https://einarolafsson.github.io/spacr/api/spacr/classifier_evaluation/index.html
    :align: middle
 .. |App_run_history| image:: ../../../spacr/resources/icons/workflow/apps/run_history.png
    :width: 19.9%
@@ -265,40 +207,10 @@ Arbetsflödet i korthet
    :alt: Öppna API-dokumentationen för Report
    :target: https://einarolafsson.github.io/spacr/api/spacr/report/index.html
    :align: middle
-.. |App_barcode_qc| image:: ../../../spacr/resources/icons/workflow/apps/barcode_qc.png
-   :width: 19.9%
-   :alt: Öppna API-dokumentationen för Barcode QC
-   :target: https://einarolafsson.github.io/spacr/api/spacr/sequencing_qc/index.html
-   :align: middle
-.. |App_hit_list| image:: ../../../spacr/resources/icons/workflow/apps/hit_list.png
-   :width: 19.9%
-   :alt: Öppna API-dokumentationen för Hit List
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/hit_list/index.html
-   :align: middle
-.. |App_methods_export| image:: ../../../spacr/resources/icons/workflow/apps/methods_export.png
-   :width: 19.9%
-   :alt: Öppna API-dokumentationen för Methods & Results
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/methods_export/index.html
-   :align: middle
-.. |App_volcano_explorer| image:: ../../../spacr/resources/icons/workflow/apps/volcano_explorer.png
-   :width: 19.9%
-   :alt: Öppna API-dokumentationen för Volcano Explorer
-   :target: https://einarolafsson.github.io/spacr/api/spacr/volcano_style/index.html
-   :align: middle
-.. |App_parameter_sweep| image:: ../../../spacr/resources/icons/workflow/apps/parameter_sweep.png
-   :width: 19.9%
-   :alt: Öppna API-dokumentationen för Parameter Sweep
-   :target: https://einarolafsson.github.io/spacr/api/spacr/parameter_sweep/index.html
-   :align: middle
 .. |App_run_compare| image:: ../../../spacr/resources/icons/workflow/apps/run_compare.png
    :width: 19.9%
    :alt: Öppna API-dokumentationen för Run Compare
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/run_compare/index.html
-   :align: middle
-.. |App_explain_cv| image:: ../../../spacr/resources/icons/workflow/apps/explain_cv.png
-   :width: 19.9%
-   :alt: Öppna API-dokumentationen för Explain CV Model
-   :target: https://einarolafsson.github.io/spacr/api/spacr/surrogate/index.html
    :align: middle
 .. |App_investigate_hit| image:: ../../../spacr/resources/icons/workflow/apps/investigate_hit.png
    :width: 19.9%
@@ -320,11 +232,6 @@ Arbetsflödet i korthet
    :alt: Öppna API-dokumentationen för QC Dashboard
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/qc_dashboard/index.html
    :align: middle
-.. |App_image_scatter| image:: ../../../spacr/resources/icons/workflow/apps/image_scatter.png
-   :width: 19.9%
-   :alt: Öppna API-dokumentationen för Image Scatter
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/image_scatter/index.html
-   :align: middle
 .. |App_lineage| image:: ../../../spacr/resources/icons/workflow/apps/lineage.png
    :width: 19.9%
    :alt: Öppna API-dokumentationen för Lineage
@@ -340,30 +247,10 @@ Arbetsflödet i korthet
    :alt: Öppna API-dokumentationen för Graph Builder
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html
    :align: middle
-.. |App_anndata_export| image:: ../../../spacr/resources/icons/workflow/apps/anndata_export.png
-   :width: 19.9%
-   :alt: Öppna API-dokumentationen för AnnData Export
-   :target: https://einarolafsson.github.io/spacr/api/spacr/anndata_export/index.html
-   :align: middle
-.. |App_pca| image:: ../../../spacr/resources/icons/workflow/apps/pca.png
-   :width: 19.9%
-   :alt: Öppna API-dokumentationen för PCA
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/pca/index.html
-   :align: middle
 .. |App_tabulate| image:: ../../../spacr/resources/icons/workflow/apps/tabulate.png
    :width: 19.9%
    :alt: Öppna API-dokumentationen för Tabulate
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/tabulate/index.html
-   :align: middle
-.. |App_timelapse| image:: ../../../spacr/resources/icons/workflow/apps/timelapse.png
-   :width: 19.9%
-   :alt: Öppna API-dokumentationen för Timelapse
-   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
-   :align: middle
-.. |App_motility| image:: ../../../spacr/resources/icons/workflow/apps/motility.png
-   :width: 19.9%
-   :alt: Öppna API-dokumentationen för Motility Assay
-   :target: https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html
    :align: middle
 .. |App_analyze_plaques| image:: ../../../spacr/resources/icons/workflow/apps/analyze_plaques.png
    :width: 19.9%
@@ -491,7 +378,7 @@ Kommandoradskommandon
        --settings settings.csv                # validate before running
    spacr-repro RUN_DIR                        # replay a recorded run
 
-Ställ in ``SPACR_LOG_LEVEL=DEBUG`` vid felsökning. Roterande loggar skrivs till ``~/.spacr/logs/spacr.log``. Det klassiska gränssnittet Tk är fortfarande tillgängligt som ``spacr-legacy`` men är inte längre utvecklat.
+Ställ in ``SPACR_LOG_LEVEL=DEBUG`` vid felsökning. Roterande loggar skrivs till ``~/.spacr/logs/spacr.log``.
 
 
 Det här kan du göra

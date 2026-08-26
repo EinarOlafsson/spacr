@@ -11,19 +11,14 @@ Data
 
 |DocApp_align|\ |DocApp_convert|\ |DocApp_foreign|\ |DocApp_external_masks|\ |DocApp_queue|
 
-|DocApp_batch|\ |DocApp_distributed_jobs|\ |DocApp_db_browser|\ |DocApp_data_manager|
-
-Segmentation models
-^^^^^^^^^^^^^^^^^^^
-
-|DocApp_make_masks|
+|DocApp_batch|\ |DocApp_distributed_jobs|\ |DocApp_db_browser|\ |DocApp_make_masks|\ |DocApp_data_manager|
 
 Results & QC
 ^^^^^^^^^^^^
 
-|DocApp_plate_view|\ |DocApp_umap|\ |DocApp_activation|\ |DocApp_train_compare|\ |DocApp_run_history|
+|DocApp_plate_view|\ |DocApp_umap|\ |DocApp_train_compare|\ |DocApp_run_history|\ |DocApp_report|
 
-|DocApp_report|\ |DocApp_hit_list|\ |DocApp_methods_export|\ |DocApp_run_compare|\ |DocApp_investigate_hit|
+|DocApp_run_compare|\ |DocApp_investigate_hit|
 
 Explore
 ^^^^^^^
@@ -75,7 +70,6 @@ Design
 .. |DocWorkflow_arrow| image:: /_static/workflow/arrow.png
    :width: 2.5%
    :align: middle
-
 .. |DocApp_align| image:: /_static/workflow/apps/align.png
    :width: 19.9%
    :alt: Open the Align & Stitch API
@@ -116,15 +110,15 @@ Design
    :alt: Open the Database Browser API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/db_browser/index.html
    :align: middle
-.. |DocApp_data_manager| image:: /_static/workflow/apps/data_manager.png
-   :width: 19.9%
-   :alt: Open the Data Manager API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/data_manager/index.html
-   :align: middle
 .. |DocApp_make_masks| image:: /_static/workflow/apps/make_masks.png
    :width: 19.9%
    :alt: Open the Make Masks API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html
+   :align: middle
+.. |DocApp_data_manager| image:: /_static/workflow/apps/data_manager.png
+   :width: 19.9%
+   :alt: Open the Data Manager API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/data_manager/index.html
    :align: middle
 .. |DocApp_plate_view| image:: /_static/workflow/apps/plate_view.png
    :width: 19.9%
@@ -135,11 +129,6 @@ Design
    :width: 19.9%
    :alt: Open the Image UMAP API
    :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
-   :align: middle
-.. |DocApp_activation| image:: /_static/workflow/apps/activation.png
-   :width: 19.9%
-   :alt: Open the Activation API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
    :align: middle
 .. |DocApp_train_compare| image:: /_static/workflow/apps/train_compare.png
    :width: 19.9%
@@ -155,16 +144,6 @@ Design
    :width: 19.9%
    :alt: Open the Report API
    :target: https://einarolafsson.github.io/spacr/api/spacr/report/index.html
-   :align: middle
-.. |DocApp_hit_list| image:: /_static/workflow/apps/hit_list.png
-   :width: 19.9%
-   :alt: Open the Hit List API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/hit_list/index.html
-   :align: middle
-.. |DocApp_methods_export| image:: /_static/workflow/apps/methods_export.png
-   :width: 19.9%
-   :alt: Open the Methods & Results API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/methods_export/index.html
    :align: middle
 .. |DocApp_run_compare| image:: /_static/workflow/apps/run_compare.png
    :width: 19.9%

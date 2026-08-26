@@ -120,35 +120,23 @@ Workflow at a glance
 
 |App_align|\ |App_convert|\ |App_foreign|\ |App_external_masks|\ |App_queue|
 
-|App_batch|\ |App_distributed_jobs|\ |App_db_browser|\ |App_illumination|\ |App_data_manager|
-
-**Segmentation models**
-
-|App_make_masks|\ |App_train_cellpose|\ |App_cellpose_masks|\ |App_model_compare|\ |App_model_zoo|
-
-|App_curate|
+|App_batch|\ |App_distributed_jobs|\ |App_db_browser|\ |App_make_masks|\ |App_data_manager|
 
 **Results & QC**
 
-|App_plate_view|\ |App_agreement|\ |App_umap|\ |App_activation|\ |App_train_compare|
+|App_plate_view|\ |App_umap|\ |App_train_compare|\ |App_run_history|\ |App_report|
 
-|App_classifier_evaluation|\ |App_run_history|\ |App_report|\ |App_barcode_qc|\ |App_hit_list|
-
-|App_methods_export|\ |App_volcano_explorer|\ |App_parameter_sweep|\ |App_run_compare|\ |App_explain_cv|
-
-|App_investigate_hit|
+|App_run_compare|\ |App_investigate_hit|
 
 **Explore**
 
-|App_pipeline_graph|\ |App_profiler|\ |App_qc_dashboard|\ |App_image_scatter|\ |App_lineage|
+|App_pipeline_graph|\ |App_profiler|\ |App_qc_dashboard|\ |App_lineage|\ |App_layer_viewer|
 
-|App_layer_viewer|\ |App_graph_builder|\ |App_anndata_export|\ |App_pca|\ |App_tabulate|
+|App_graph_builder|\ |App_tabulate|
 
 **Assays**
 
-|App_timelapse|\ |App_motility|\ |App_analyze_plaques|\ |App_recruitment|\ |App_invasion|
-
-|App_replication|
+|App_analyze_plaques|\ |App_recruitment|\ |App_invasion|\ |App_replication|
 
 **Design**
 
@@ -194,75 +182,30 @@ Workflow at a glance
    :alt: Open the Database Browser API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/db_browser/index.html
    :align: middle
-.. |App_illumination| image:: spacr/resources/icons/workflow/apps/illumination.png
+.. |App_make_masks| image:: spacr/resources/icons/workflow/apps/make_masks.png
    :width: 19.9%
-   :alt: Open the Illumination API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/illumination/index.html
+   :alt: Open the Make Masks API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html
    :align: middle
 .. |App_data_manager| image:: spacr/resources/icons/workflow/apps/data_manager.png
    :width: 19.9%
    :alt: Open the Data Manager API
    :target: https://einarolafsson.github.io/spacr/api/spacr/data_manager/index.html
    :align: middle
-.. |App_make_masks| image:: spacr/resources/icons/workflow/apps/make_masks.png
-   :width: 19.9%
-   :alt: Open the Make Masks API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html
-   :align: middle
-.. |App_train_cellpose| image:: spacr/resources/icons/workflow/apps/train_cellpose.png
-   :width: 19.9%
-   :alt: Open the Train Cellpose API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
-   :align: middle
-.. |App_cellpose_masks| image:: spacr/resources/icons/workflow/apps/cellpose_masks.png
-   :width: 19.9%
-   :alt: Open the Cellpose Masks API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/spacr_cellpose/index.html
-   :align: middle
-.. |App_model_compare| image:: spacr/resources/icons/workflow/apps/model_compare.png
-   :width: 19.9%
-   :alt: Open the Model Compare API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/model_compare/index.html
-   :align: middle
-.. |App_model_zoo| image:: spacr/resources/icons/workflow/apps/model_zoo.png
-   :width: 19.9%
-   :alt: Open the Model Zoo API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/model_zoo/index.html
-   :align: middle
-.. |App_curate| image:: spacr/resources/icons/workflow/apps/curate.png
-   :width: 19.9%
-   :alt: Open the Curate API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/curate/index.html
-   :align: middle
 .. |App_plate_view| image:: spacr/resources/icons/workflow/apps/plate_view.png
    :width: 19.9%
    :alt: Open the Plate Viewer API
    :target: https://einarolafsson.github.io/spacr/api/spacr/plate_qc/index.html
-   :align: middle
-.. |App_agreement| image:: spacr/resources/icons/workflow/apps/agreement.png
-   :width: 19.9%
-   :alt: Open the Annotator Agreement API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/agreement/index.html
    :align: middle
 .. |App_umap| image:: spacr/resources/icons/workflow/apps/umap.png
    :width: 19.9%
    :alt: Open the Image UMAP API
    :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
    :align: middle
-.. |App_activation| image:: spacr/resources/icons/workflow/apps/activation.png
-   :width: 19.9%
-   :alt: Open the Activation API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
-   :align: middle
 .. |App_train_compare| image:: spacr/resources/icons/workflow/apps/train_compare.png
    :width: 19.9%
    :alt: Open the Training Runs API
    :target: https://einarolafsson.github.io/spacr/api/spacr/train_compare/index.html
-   :align: middle
-.. |App_classifier_evaluation| image:: spacr/resources/icons/workflow/apps/classifier_evaluation.png
-   :width: 19.9%
-   :alt: Open the Classifier Evaluation API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/classifier_evaluation/index.html
    :align: middle
 .. |App_run_history| image:: spacr/resources/icons/workflow/apps/run_history.png
    :width: 19.9%
@@ -274,40 +217,10 @@ Workflow at a glance
    :alt: Open the Report API
    :target: https://einarolafsson.github.io/spacr/api/spacr/report/index.html
    :align: middle
-.. |App_barcode_qc| image:: spacr/resources/icons/workflow/apps/barcode_qc.png
-   :width: 19.9%
-   :alt: Open the Barcode QC API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/sequencing_qc/index.html
-   :align: middle
-.. |App_hit_list| image:: spacr/resources/icons/workflow/apps/hit_list.png
-   :width: 19.9%
-   :alt: Open the Hit List API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/hit_list/index.html
-   :align: middle
-.. |App_methods_export| image:: spacr/resources/icons/workflow/apps/methods_export.png
-   :width: 19.9%
-   :alt: Open the Methods & Results API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/methods_export/index.html
-   :align: middle
-.. |App_volcano_explorer| image:: spacr/resources/icons/workflow/apps/volcano_explorer.png
-   :width: 19.9%
-   :alt: Open the Volcano Explorer API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/volcano_style/index.html
-   :align: middle
-.. |App_parameter_sweep| image:: spacr/resources/icons/workflow/apps/parameter_sweep.png
-   :width: 19.9%
-   :alt: Open the Parameter Sweep API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/parameter_sweep/index.html
-   :align: middle
 .. |App_run_compare| image:: spacr/resources/icons/workflow/apps/run_compare.png
    :width: 19.9%
    :alt: Open the Run Compare API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/run_compare/index.html
-   :align: middle
-.. |App_explain_cv| image:: spacr/resources/icons/workflow/apps/explain_cv.png
-   :width: 19.9%
-   :alt: Open the Explain CV Model API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/surrogate/index.html
    :align: middle
 .. |App_investigate_hit| image:: spacr/resources/icons/workflow/apps/investigate_hit.png
    :width: 19.9%
@@ -329,11 +242,6 @@ Workflow at a glance
    :alt: Open the QC Dashboard API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/qc_dashboard/index.html
    :align: middle
-.. |App_image_scatter| image:: spacr/resources/icons/workflow/apps/image_scatter.png
-   :width: 19.9%
-   :alt: Open the Image Scatter API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/image_scatter/index.html
-   :align: middle
 .. |App_lineage| image:: spacr/resources/icons/workflow/apps/lineage.png
    :width: 19.9%
    :alt: Open the Lineage API
@@ -349,30 +257,10 @@ Workflow at a glance
    :alt: Open the Graph Builder API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html
    :align: middle
-.. |App_anndata_export| image:: spacr/resources/icons/workflow/apps/anndata_export.png
-   :width: 19.9%
-   :alt: Open the AnnData Export API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/anndata_export/index.html
-   :align: middle
-.. |App_pca| image:: spacr/resources/icons/workflow/apps/pca.png
-   :width: 19.9%
-   :alt: Open the PCA API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/pca/index.html
-   :align: middle
 .. |App_tabulate| image:: spacr/resources/icons/workflow/apps/tabulate.png
    :width: 19.9%
    :alt: Open the Tabulate API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/tabulate/index.html
-   :align: middle
-.. |App_timelapse| image:: spacr/resources/icons/workflow/apps/timelapse.png
-   :width: 19.9%
-   :alt: Open the Timelapse API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
-   :align: middle
-.. |App_motility| image:: spacr/resources/icons/workflow/apps/motility.png
-   :width: 19.9%
-   :alt: Open the Motility Assay API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html
    :align: middle
 .. |App_analyze_plaques| image:: spacr/resources/icons/workflow/apps/analyze_plaques.png
    :width: 19.9%
@@ -506,14 +394,17 @@ Command-line entry points
    spacr-repro RUN_DIR                        # replay a recorded run
 
 Set ``SPACR_LOG_LEVEL=DEBUG`` when troubleshooting. Rotating logs are written
-to ``~/.spacr/logs/spacr.log``. The classic Tk interface remains available as
-``spacr-legacy`` but is no longer developed.
+to ``~/.spacr/logs/spacr.log``.
+
+``spacr-run --list`` prints the modules that run headlessly. Interactive
+screens -- the annotator, the curation and comparison tools, the explorers --
+have no headless form and are not on that list.
 
 
 What you can do
 ---------------
 
-Most screens follow six modules:
+Most screens follow six modules, in the order you run them:
 
 - **Mask** segments cells, nuclei, pathogens and organelles with Cellpose.
 - **Measure** writes morphology, intensity, texture, spatial and
@@ -530,6 +421,56 @@ Most screens follow six modules:
 The same project can also design plates, estimate power, correct batch effects,
 inspect segmentation quality, explore linked plots and crops, export AnnData,
 resume interrupted work and record the settings behind each result.
+
+Modules that open from a masthead
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A module does not need a tile to be a module. Twenty of them answer a question
+about the run their host produces, so they open from a button on that host's
+masthead, as a page beside its settings and already pointed at the same
+project. Mask, Measure, Annotate, Classify, Map Barcodes, Regression, Image
+UMAP and Make Masks each host some. They are shipped, translated and
+documented like any other module, and the ones that are pipelines still run
+headlessly; the `feature guide <docs/source/features.rst>`_ says which module
+is on which masthead.
+
+Make Masks
+~~~~~~~~~~
+
+Make Masks is filed under **Data**. It corrects masks by hand and carries the
+Cellpose loop on its masthead. The canvas has nine tools: **Brush**,
+**Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**,
+**Zoom** and **Recrop**. Draw traces a free-form outline that closes and fills
+as one object; Divide drags a line across a merged object and makes it two,
+leaving every other object's label untouched.
+
+Recrop is the one tool that changes which field is on screen rather than what
+is painted on it. A staged crop holding several cells is not one training
+example, so a box round one object writes that region of both the image and
+the mask as a field of its own, queued straight after the current one, and the
+multi-object original is retired rather than curated.
+
+Running Cellpose-SAM here shows its two intermediate outputs beside the mask:
+the **cell-probability map** and the **flow field**. A mask is a threshold on
+that probability map, and objects are dropped when their flows disagree with
+the predicted ones, so when a mask is wrong those two panes are where the
+reason is visible.
+
+Objects and settings
+~~~~~~~~~~~~~~~~~~~~
+
+The objects are not a fixed four. A project has a cell, a nucleus and a
+pathogen, a cytoplasm derived from them, and as many organelle slots as you
+ask for -- from none up to twenty-six -- each with its own channel, diameter,
+morphology preset and detection method.
+
+The settings panel shows a setting when it applies: a slot past the organelle
+count takes its whole block of settings with it, an object whose channel names
+no plane is not in the run, and a setting belonging to one morphology is
+dropped for a slot of another. The **3D** and **Time** switches say which
+dimensions the plate has -- ``z_stack`` declares a z axis and reveals the
+volumetric settings, ``timelapse`` declares a time axis and reveals tracking,
+and the 4D settings appear only when both are on.
 
 Choose the next page by what you want to do:
 
