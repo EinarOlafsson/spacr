@@ -3,8 +3,13 @@ SEVEN MORE NONPARAMETRIC FITS, AND WHAT THE SCREEN DOES WITH A FIT THAT HAS
 NO COEFFICIENT
 ================================================================================
 
-Status:    OPEN. Requested 2026-08-26, as a table of seven methods with
-           their Python implementations and their limitations.
+Status:    OPEN, and the three-way split below is AGREED. The maintainer,
+           shown the A/B/C categories and the reason for them: "your A,B,C
+           implementations seem reasonalble for what the tests are." So the
+           question this item exists to answer is settled -- build to the
+           categories rather than reopening them.
+           Requested 2026-08-26, as a table of seven methods with their
+           Python implementations and their limitations.
 Owner:     spacr/ml.py for the fits, spacr/settings.py for the menu, and
            the Regression results panel for whatever they draw.
 Follows:   212, which asked for nonparametric regression and shipped
