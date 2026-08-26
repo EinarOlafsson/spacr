@@ -11,7 +11,9 @@ import ast
 import importlib.util
 import json
 import os
+import re
 import sys
+from collections import Counter
 from pathlib import Path
 
 import pytest
@@ -21,12 +23,19 @@ NOTEBOOKS = REPO / "Notebooks"
 TOOL = REPO / "tools" / "build_notebook_settings.py"
 
 
+_TOOL_MODULE = None
+
+
 def _tool():
+    global _TOOL_MODULE
+    if _TOOL_MODULE is not None:
+        return _TOOL_MODULE
     spec = importlib.util.spec_from_file_location("_nb_settings", TOOL)
     module = importlib.util.module_from_spec(spec)
     sys.modules["_nb_settings"] = module
     spec.loader.exec_module(module)
-    return module
+    _TOOL_MODULE = module
+    return _TOOL_MODULE
 
 
 pytestmark = pytest.mark.skipif(
@@ -34,6 +43,80 @@ pytestmark = pytest.mark.skipif(
     reason="run from a source checkout")
 
 ALL = sorted(NOTEBOOKS.glob("*.ipynb")) if NOTEBOOKS.is_dir() else []
+
+
+def test_manifest_is_the_exact_maintained_notebook_inventory():
+    tool = _tool()
+    names = {path.name for path in ALL}
+
+    assert len(tool.NOTEBOOK_SPECS) == 31
+    assert set(tool.NOTEBOOK_SPECS) == names
+    assert all(name == spec.filename
+               for name, spec in tool.NOTEBOOK_SPECS.items())
+    assert all(len(spec.callables) == len(spec.app_keys) >= 1
+               for spec in tool.NOTEBOOK_SPECS.values())
+
+
+def test_manifest_pins_the_four_consolidated_public_entry_points():
+    tool = _tool()
+    expected = {
+        "04_classify_machine_learning.ipynb": "spacr.ml.generate_ml_scores",
+        "09_apply_cellpose.ipynb": (
+            "spacr.spacr_cellpose.identify_masks_finetune"),
+        "24_interpret_vision_model.ipynb": "spacr.surrogate.run_explain_cv",
+        "26_sequencing_stats.ipynb": "spacr.sequencing_qc.barcode_qc",
+    }
+    for name, dotted in expected.items():
+        assert tool.NOTEBOOK_SPECS[name].callables == (dotted,)
+
+
+def test_manifest_callables_resolve_and_desktop_routes_are_current():
+    """Every lesson resolves and every route exists in the live Home registry."""
+    import subprocess
+
+    tool = _tool()
+    unresolved = [
+        dotted
+        for spec in tool.NOTEBOOK_SPECS.values()
+        for dotted in spec.callables
+        if tool.resolve(dotted) is None
+    ]
+    assert not unresolved
+
+    script = """
+import json
+from spacr.qt.app import APP_META
+from spacr.qt import register_self_registering_modules
+register_self_registering_modules()
+print(json.dumps(sorted(APP_META)))
+"""
+    env = {key: value for key, value in os.environ.items()
+           if not key.startswith("SPACR_")}
+    env.update({
+        "PYTHONPATH": str(REPO),
+        "QT_QPA_PLATFORM": "offscreen",
+    })
+    result = subprocess.run(
+        [sys.executable, "-c", script], cwd=str(REPO), env=env,
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    registered = set(json.loads(result.stdout.splitlines()[-1]))
+    assert {spec.desktop_route for spec in tool.NOTEBOOK_SPECS.values()} <= (
+        registered)
+
+
+def test_stale_cell_metadata_cannot_change_the_manifest_callable():
+    tool = _tool()
+    notebook = json.loads(
+        (NOTEBOOKS / "04_classify_machine_learning.ipynb").read_text())
+    function_cell = next(
+        cell for cell in notebook["cells"]
+        if cell.get("metadata", {}).get("spacr", {}).get("generated")
+        == "function-help")
+    function_cell["metadata"]["spacr"]["functions"] = [
+        "spacr.ml.removed_wrapper"]
+    assert tool.declared_functions(notebook) == [
+        "spacr.ml.generate_ml_scores"]
 
 
 # ---------------------------------------------------------------------------
@@ -112,8 +195,7 @@ def test_every_notebook_has_a_settings_surface():
     tool = _tool()
     without = []
     for path in ALL:
-        notebook = json.loads(path.read_text())
-        declared = tool.declared_functions(notebook)
+        declared = tool.declared_functions(path)
         if not declared:
             without.append(f"{path.name}: names no function")
             continue
@@ -160,6 +242,17 @@ def _generated_help(path):
     return ""
 
 
+def _generated_source(path, kind):
+    notebook = json.loads(path.read_text())
+    matches = [
+        "".join(cell["source"])
+        for cell in notebook["cells"]
+        if cell.get("metadata", {}).get("spacr", {}).get("generated") == kind
+    ]
+    assert len(matches) == 1, f"{path.name}: expected one {kind} cell"
+    return matches[0]
+
+
 @pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
 def test_the_generated_cell_is_valid_python(path):
     sources = _generated_settings_cells(path)
@@ -168,6 +261,94 @@ def test_the_generated_cell_is_valid_python(path):
     for source in sources:
         tree = ast.parse(source)
         assert tree.body, "the generated cell has no statements"
+
+
+@pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
+def test_manifest_owns_exact_imports_and_run_calls(path):
+    tool = _tool()
+    spec = tool.NOTEBOOK_SPECS[path.name]
+    import_source = _generated_source(path, "function-import")
+    run_source = _generated_source(path, "function-run")
+
+    expected_imports = "\n".join(
+        f"from {dotted.rpartition('.')[0]} import {dotted.rpartition('.')[2]}"
+        for dotted in spec.callables)
+    assert import_source == expected_imports
+
+    expected_calls = []
+    for dotted in spec.callables:
+        shape = tool.surface(tool.resolve(dotted), dotted)[0]
+        variable = ("settings" if len(spec.callables) == 1
+                    else f"{dotted.rsplit('.', 1)[1]}_settings")
+        spread = "**" if shape == "signature" else ""
+        expected_calls.append(
+            f"{dotted.rsplit('.', 1)[1]}({spread}{variable})")
+    assert run_source == "\n".join(expected_calls)
+    ast.parse(import_source)
+    ast.parse(run_source)
+
+
+@pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
+def test_all_outputs_and_execution_counts_are_cleared(path):
+    notebook = json.loads(path.read_text())
+    for cell in notebook["cells"]:
+        if cell["cell_type"] == "code":
+            assert cell.get("outputs") == []
+            assert cell.get("execution_count") is None
+
+
+def _settings_keys_by_variable(path):
+    found = {}
+    for source in _generated_settings_cells(path):
+        for statement in ast.parse(source).body:
+            if isinstance(statement, ast.Assign) and isinstance(
+                    statement.value, ast.Dict):
+                variable = statement.targets[0].id
+                value = statement.value
+            elif (isinstance(statement, ast.Expr)
+                  and isinstance(statement.value, ast.Call)
+                  and isinstance(statement.value.func, ast.Attribute)
+                  and isinstance(statement.value.func.value, ast.Name)
+                  and statement.value.func.attr == "update"
+                  and statement.value.args
+                  and isinstance(statement.value.args[0], ast.Dict)):
+                variable = statement.value.func.value.id
+                value = statement.value.args[0]
+            else:
+                continue
+            found.setdefault(variable, []).extend(
+                key.value for key in value.keys
+                if isinstance(key, ast.Constant)
+                and isinstance(key.value, str))
+    return found
+
+
+@pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
+def test_each_setting_is_declared_once_per_function(path):
+    by_variable = _settings_keys_by_variable(path)
+    assert by_variable
+    for variable, keys in by_variable.items():
+        duplicates = sorted(key for key, count in Counter(keys).items()
+                            if count > 1)
+        assert not duplicates, f"{path.name}:{variable}: {duplicates}"
+
+
+@pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
+def test_organelle_separation_is_derived_from_the_actual_keys(path):
+    tool = _tool()
+    notebook = json.loads(path.read_text())
+    cells = {
+        cell.get("metadata", {}).get("spacr", {}).get("generated"):
+            "".join(cell["source"])
+        for cell in notebook["cells"]
+    }
+    primary = cells["settings"]
+    organelle = cells.get("settings-organelle", "")
+    primary_names = set(re.findall(r"^\s*'([^']+)':", primary, re.M))
+    organelle_names = set(re.findall(r"^\s*'([^']+)':", organelle, re.M))
+    assert not {key for key in primary_names if tool._is_organelle_key(key)}
+    assert all(tool._is_organelle_key(key) for key in organelle_names)
+    assert bool(organelle_names) == ("settings-organelle" in cells)
 
 
 @pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
@@ -219,6 +400,8 @@ def test_explanations_settings_and_call_are_consecutive_cells(path):
     assert settings_cells
     assert cells[cursor]["cell_type"] == "code", (
         f"{path.name}: function call does not follow its settings")
+    assert cells[cursor].get("metadata", {}).get("spacr", {}).get(
+        "generated") == "function-run"
 
     for settings_cell in settings_cells:
         source = "".join(settings_cell["source"])
@@ -239,9 +422,8 @@ def test_explanations_settings_and_call_are_consecutive_cells(path):
 @pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
 def test_each_reference_links_to_the_callable_api(path):
     tool = _tool()
-    notebook = json.loads(path.read_text())
     help_text = _generated_help(path)
-    for dotted in tool.declared_functions(notebook):
+    for dotted in tool.declared_functions(path):
         assert f"[`{dotted}`]({tool.api_url(dotted)})" in help_text
 
 
@@ -253,6 +435,115 @@ def test_every_documented_setting_states_its_requirement_status(path):
             assert any(f"*({status})*" in line for status in (
                 "required", "conditionally required", "optional")), (
                     f"{path.name}: missing requirement status: {line}")
+
+
+def _documented_status(path, key):
+    match = re.search(
+        rf"^- \*\*`{re.escape(key)}`\*\* \*\(([^)]+)\)\*",
+        _generated_help(path), re.M)
+    assert match, f"{path.name}: {key} has no documented status"
+    return match.group(1)
+
+
+def test_cli_requirements_drive_the_structured_notebook_statuses():
+    expected = {
+        "04_classify_machine_learning.ipynb": {
+            "src": "required",
+            "positive_control": "conditionally required",
+            "negative_control": "conditionally required",
+            "annotation_column": "conditionally required",
+        },
+        "05_map_barcodes.ipynb": {
+            "src": "required",
+            "grna_csv": "required",
+            "row_csv": "required",
+            "column_csv": "required",
+            "regex": "required",
+        },
+        "06_regression.ipynb": {
+            "score_data": "required",
+            "count_data": "required",
+            "dependent_variable": "required",
+        },
+        "09_apply_cellpose.ipynb": {
+            "src": "required",
+            "model_name": "conditionally required",
+            "custom_model": "conditionally required",
+        },
+        "11_activation_maps.ipynb": {
+            "dataset": "required",
+            "model_path": "required",
+            "target_layer": "optional",
+        },
+        "24_interpret_vision_model.ipynb": {
+            "db_path": "required",
+            "predictions_file": "required",
+        },
+        "26_sequencing_stats.ipynb": {
+            "count_data": "required",
+            "target_grnas_per_well": "required",
+        },
+    }
+    for name, statuses in expected.items():
+        path = NOTEBOOKS / name
+        assert {key: _documented_status(path, key) for key in statuses} == (
+            statuses)
+
+
+def _setting_categories(path):
+    categories = {}
+    current = ""
+    status_headings = {
+        "Required settings", "Conditionally required settings",
+        "Optional settings",
+    }
+    for source in _generated_settings_cells(path):
+        for line in source.splitlines():
+            comment = re.match(r"^    # (.+)$", line)
+            if comment and comment.group(1) not in status_headings:
+                current = comment.group(1)
+                continue
+            setting = re.match(r"^    '([^']+)':", line)
+            if setting:
+                categories[setting.group(1)] = current
+    return categories
+
+
+def test_key_inputs_use_the_current_curated_desktop_headings():
+    expected = {
+        "04_classify_machine_learning.ipynb": {
+            "positive_control": "Labels & Classes",
+            "n_estimators": "Classifier & Validation",
+        },
+        "05_map_barcodes.ipynb": {
+            "grna_csv": "Barcode References",
+            "regex": "Read Parsing",
+        },
+        "06_regression.ipynb": {
+            "score_data": "Input Tables",
+            "count_data": "Input Tables",
+            "dependent_variable": "Response",
+        },
+        "09_apply_cellpose.ipynb": {
+            "model_name": "Model",
+            "CP_prob": "Detection Thresholds",
+        },
+        "11_activation_maps.ipynb": {
+            "model_path": "Model & Data",
+            "target_layer": "Attribution Method",
+        },
+        "24_interpret_vision_model.ipynb": {
+            "db_path": "Source & provenance",
+            "surrogate_model": "Surrogate & validation",
+        },
+        "26_sequencing_stats.ipynb": {
+            "count_data": "Reference & Count Tables",
+            "target_grnas_per_well": "Well Expectations",
+        },
+    }
+    for name, headings in expected.items():
+        categories = _setting_categories(NOTEBOOKS / name)
+        assert {key: categories.get(key) for key in headings} == headings
 
 
 def test_mask_workflows_are_separate_and_scientifically_described():
@@ -271,8 +562,7 @@ def test_mask_workflows_are_separate_and_scientifically_described():
     tool = _tool()
     for name, functions in expected.items():
         path = NOTEBOOKS / name
-        notebook = json.loads(path.read_text())
-        assert tool.declared_functions(notebook) == functions
+        assert tool.declared_functions(path) == functions
 
     mask = json.loads((NOTEBOOKS / "01_generate_masks.ipynb").read_text())
     overview = "".join(mask["cells"][0]["source"])
@@ -285,6 +575,37 @@ def test_mask_workflows_are_separate_and_scientifically_described():
         NOTEBOOKS / "14_motility_assay.ipynb")
     assert "'src': preprocess_generate_masks_timelapse_settings['src']" in (
         motility_cells[0])
+
+    from spacr.settings import (
+        categories,
+        motility_advanced_settings,
+        motility_settings,
+        timelapse_settings,
+    )
+    timelapse_keys = (set(timelapse_settings)
+                      | set(categories["4D Settings (Beta)"])
+                      | {"timelapse"})
+    motility_keys = (set(motility_settings)
+                     | set(motility_advanced_settings)
+                     | {"motility_analysis"})
+
+    mask_keys = set(_settings_keys_by_variable(
+        NOTEBOOKS / "01_generate_masks.ipynb")["settings"])
+    timelapse_profile = set(_settings_keys_by_variable(
+        NOTEBOOKS / "01b_generate_timelapse_masks.ipynb")["settings"])
+    motility_profile = _settings_keys_by_variable(
+        NOTEBOOKS / "14_motility_assay.ipynb")
+    preprocessing = set(
+        motility_profile["preprocess_generate_masks_timelapse_settings"])
+    assay = set(motility_profile["automated_motility_assay_settings"])
+
+    assert not mask_keys & (timelapse_keys | motility_keys)
+    assert timelapse_profile & timelapse_keys
+    assert not timelapse_profile & motility_keys
+    assert not preprocessing & (timelapse_keys | motility_keys)
+    assert {"src", "cell_channel"} <= preprocessing
+    assert assay & motility_keys
+    assert not assay & timelapse_keys
 
 
 @pytest.mark.parametrize("name", [
@@ -304,6 +625,8 @@ def test_organelle_settings_have_a_separate_cell(name):
     organelle_source = "".join(organelle["source"])
     assert "'organelle_channel'" not in general_source
     assert "'organelle_channel'" in organelle_source
+    assert "'number_of_organelles'" not in general_source
+    assert "'number_of_organelles'" in organelle_source
     assert ".update({" in organelle_source
 
 
@@ -316,6 +639,37 @@ def test_notebook_overviews_use_scientific_section_labels(path):
     assert "**Primary outputs.**" in overview
     assert "**What it does.**" not in overview
     assert "**What you get.**" not in overview
+
+
+@pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
+def test_user_facing_notebook_text_has_no_placeholder_or_informal_scaffolding(
+        path):
+    notebook = json.loads(path.read_text())
+    markdown = "\n".join(
+        "".join(cell["source"])
+        for cell in notebook["cells"]
+        if cell["cell_type"] == "markdown")
+    banned = (
+        "No description is available",
+        "Turn raw",
+        "What it does.",
+        "What you get.",
+        "## 3. Call it",
+        "## 4. Run it",
+        "game-changing",
+        "seamlessly",
+        "delve into",
+    )
+    assert not [phrase for phrase in banned
+                if phrase.casefold() in markdown.casefold()]
+
+
+def test_volcano_overview_names_the_scientific_axes_and_actual_output():
+    notebook = json.loads(
+        (NOTEBOOKS / "30_volcano_plot.ipynb").read_text())
+    overview = "".join(notebook["cells"][0]["source"])
+    assert "negative log10-transformed p-values" in overview
+    assert "configured dimensions and file format" in overview
 
 
 @pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
@@ -349,6 +703,21 @@ def test_tooltips_are_read_now_and_never_pasted():
     source = TOOL.read_text()
     assert "from spacr.settings import tooltips" in source or \
            "spacr.settings import tooltips" in source
+
+
+def test_signature_parameters_fall_back_to_live_tooltips():
+    tool = _tool()
+    assert tool.tooltip_for("cmap", "signature", {}) == (
+        tool.CORE_TOOLTIPS["cmap"])
+
+
+def test_missing_setting_descriptions_fail_generation_instead_of_shipping_a_placeholder():
+    tool = _tool()
+    with pytest.raises(ValueError, match="has no API or tooltip description"):
+        tool.render_help([
+            ("spacr.unknown.function", "signature",
+             {"definitely_undocumented_key": None}, {}),
+        ])
 
 
 def test_the_registry_is_reused_rather_than_a_third_mapping():
