@@ -810,7 +810,7 @@ def fit_hit_attribution(
 def quantify_hit_enrichment(wells: pd.DataFrame, *, random_seed: int = 0,
                             n_bootstrap: int = 1000,
                             n_permutations: int = 1000) -> Dict[str, Any]:
-    """Per-well enrichment, well bootstrap CI, and plate-blocked null."""
+    """Per-well enrichment, well bootstrap CI, and a within-plate null."""
     _require_columns(wells, ["target_guide_fraction", "hit_like_prevalence"],
                      "well summary")
     positive = wells["target_guide_fraction"].to_numpy(float) > 0

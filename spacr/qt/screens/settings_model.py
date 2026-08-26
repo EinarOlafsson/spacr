@@ -64,6 +64,7 @@ from ...object_roles import ORGANELLE_ROLES, setting_label
 # four puts slot five in the "Additional Settings" bucket nobody chose.
 from ...organelle_types import (ALL_ORGANELLE_ROLES,
                                 MAX_ORGANELLES as _MAX_ORGANELLES,
+                                NUMBER_OF_ORGANELLES,
                                 organelle_number, organelle_slot_label)
 # Pure data, and it imports nothing -- that is the whole point of the module
 # (see its docstring). The explainer box below reads it so that a backend
@@ -879,24 +880,14 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
             ("regression",
              "regression — fit every guide at once in the chosen model"),
             ("guide_permutation",
-             "guide permutation — test each guide on its own, plate-blocked"),
+             "guide permutation — test each guide on its own, wells "
+             "reshuffled within each plate"),
         ],
         "analysis_unit": ["well", "cell"],
         # Exactly the branches process_scores implements; anything else
         # reaches the pipeline and is silently ignored rather than applied.
         "agg_type": ["mean", "median", "quantile", None],
         "transform": [None, "log", "sqrt", "square", "beta"],
-        # A link-like transform plus a non-identity family link would transform
-        # the response twice. The first two choices select one scale; the
-        # legacy choice exists only to reproduce an earlier run.
-        "glm_transform_conflict": [
-            ("untransformed",
-             "fit the response as measured — let the family's link transform it"),
-            ("transformed",
-             "keep my transform — fit Gaussian with an identity link"),
-            ("warn",
-             "legacy behavior — reproduce an earlier fit and show a warning"),
-        ],
         "cov_type": [None, "HC0", "HC1", "HC2", "HC3"],
         "threshold_method": ["std", "var"],
         # WHICH P THE SIGNIFICANCE LINE IS DRAWN ON. Two values and no third
@@ -1159,6 +1150,19 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
     "mask": (
         ("Input & Metadata", (
             "src", "cell_channel", "nucleus_channel", "pathogen_channel",
+            # HOW MANY ORGANELLE SLOTS, immediately before the switches of
+            # the slots it governs -- the relationship Measure states beside
+            # its mask dimensions, said here beside the channels.
+            #
+            # AND IN THE FIRST GROUP, WHICH IS WHAT MAKES IT REACHABLE. The
+            # settings strip opens on Essentials, and essentials are the
+            # module's first group plus `_APP_ESSENTIAL_EXTRAS`. The count
+            # leads the shared "Organelle" category as well
+            # (`settings.organelle_basic_settings`), and filed only there it
+            # was in neither list: a panel drawing twenty-six organelle
+            # channel boxes offered no way to say how many there were until
+            # the user found the All settings switch.
+            NUMBER_OF_ORGANELLES,
             "organelle_channel",
             *(f"{role}_channel" for role in ALL_ORGANELLE_ROLES[1:]),
             "channels", "magnification",
@@ -1306,6 +1310,19 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
     "timelapse": (
         ("Input & Metadata", (
             "src", "cell_channel", "nucleus_channel", "pathogen_channel",
+            # HOW MANY ORGANELLE SLOTS, immediately before the switches of
+            # the slots it governs -- the relationship Measure states beside
+            # its mask dimensions, said here beside the channels.
+            #
+            # AND IN THE FIRST GROUP, WHICH IS WHAT MAKES IT REACHABLE. The
+            # settings strip opens on Essentials, and essentials are the
+            # module's first group plus `_APP_ESSENTIAL_EXTRAS`. The count
+            # leads the shared "Organelle" category as well
+            # (`settings.organelle_basic_settings`), and filed only there it
+            # was in neither list: a panel drawing twenty-six organelle
+            # channel boxes offered no way to say how many there were until
+            # the user found the All settings switch.
+            NUMBER_OF_ORGANELLES,
             "organelle_channel",
             *(f"{role}_channel" for role in ALL_ORGANELLE_ROLES[1:]),
             "channels", "magnification",
@@ -1488,9 +1505,6 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             # way to disagree with it.
             "dependent_variable", "invert_dependent_variable",
             "analysis_unit", "agg_type", "transform",
-            # This decides the response scale when `transform` is itself a
-            # link, so it belongs immediately beside `transform`.
-            "glm_transform_conflict",
         )),
         # `inference` leads because it decides whether "Estimator Tuning" or
         # "Permutation Test" below is the section that does anything.
@@ -2900,7 +2914,7 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
     "REGRESSION: MODEL":
         "How the effect is estimated. 'Inference' is the top-level choice: a "
         "parametric model fits every guide simultaneously, a nonparametric "
-        "one tests each guide by plate-blocked permutation, and 'auto' picks "
+        "one tests each guide by permuting wells within each plate, and 'auto' picks "
         "whichever the design can actually support — a simultaneous fit needs "
         "more wells than guides. 'Regression type' then selects the family.",
     "REGRESSION: MODEL TUNING":

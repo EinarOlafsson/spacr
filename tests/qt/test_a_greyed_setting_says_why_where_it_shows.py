@@ -23,12 +23,23 @@ pytest.importorskip("PySide6")
 pytestmark = pytest.mark.qt
 
 
-def _regression(qtbot):
+def _regression(qtbot, inference="parametric"):
+    """The regression screen, on the FITTED side by default.
+
+    `level` is greyed by regression_type='mixed' only when a model is
+    actually fitted. The permutation test fits none, so it reads `level`
+    whatever the family says -- and the module's default inference is
+    'nonparametric', which is why these tests name the side they mean
+    instead of relying on where the panel happens to open.
+    """
     from spacr.qt.screens.app_screen import AppScreen
 
     screen = AppScreen("regression")
     qtbot.addWidget(screen)
-    return screen, screen._settings_model
+    model = screen._settings_model
+    if inference:
+        _choose(model._widgets["inference"], inference)
+    return screen, model
 
 
 def _help(label) -> str:
@@ -43,7 +54,7 @@ def _choose(combo, wanted: str) -> None:
     raise AssertionError(f"{wanted} is not on offer")
 
 
-def test_level_is_greyed_under_mixed_and_the_reason_is_on_screen(qtbot):
+def test_level_is_greyed_under_a_fitted_mixed_model(qtbot):
     _screen, model = _regression(qtbot)
     level = model._widgets["level"]
 
@@ -76,7 +87,7 @@ def test_the_settings_own_help_survives_the_note_coming_and_going(qtbot):
     # some time -- so the test failed on the FIRST assertion and never
     # reached the restore it exists to check. The machinery was fine; the
     # expectation had rotted, which is the failure mode this file is about.
-    own = "Select the regression fit level"
+    own = "Which level the run reports"
 
     assert own in _help(label)               # greyed, note appended
     _choose(kind, "ols")
@@ -105,3 +116,20 @@ def test_the_label_is_greyed_with_its_field_so_the_row_reads_as_one(qtbot):
     assert label.isEnabled() is False
     _choose(kind, "ols")
     assert label.isEnabled() is True
+
+
+def test_the_permutation_test_reads_level_whatever_the_family_says(qtbot):
+    """The other half of the same rule, and the reason it was changed.
+
+    regression_type is not read at all when no model is fitted, so greying
+    `level` under 'mixed' left the nonparametric side with no way to ask for
+    genes -- the key that gated its gene pass has no control anywhere.
+    """
+    _screen, model = _regression(qtbot, inference="nonparametric")
+    level, kind = model._widgets["level"], model._widgets["regression_type"]
+
+    for family in ("mixed", "ols"):
+        _choose(kind, family)
+        assert level.isEnabled() is True, (
+            f"level greyed under a permutation run with regression_type="
+            f"{family!r}, which that run never reads")
