@@ -120,26 +120,19 @@ def autocasting(on, device):
 
 
 def pick_device(room_mb: int = GPU_ROOM_MB, what: str = "this run"):
-    """(device, note). CUDA when there is room on it, otherwise CPU.
+    """Select CUDA when sufficient memory is available, otherwise select CPU.
 
-    THE CARD IS SHARED, and spaCR is not the only thing on it. Every entry
-    point here read `torch.device("cuda" if torch.cuda.is_available() else
-    "cpu")`, which asks whether a GPU EXISTS rather than whether it can be
-    used -- so a run started while somebody else held 21 GiB of 24 died on
-    `torch.OutOfMemoryError: Tried to allocate 20.00 MiB`, out of
-    `optim/adam.py`, after the dataset had been built and the model built.
+    Availability alone does not ensure that a shared GPU has enough free
+    memory for a new workload. When CUDA reports less than ``room_mb`` free,
+    this function selects CPU and returns a user-facing note describing the
+    available and required memory. If CUDA memory information is unavailable,
+    CUDA is retained and allocation errors are allowed to surface from the
+    workload.
 
-    A slow run that finishes beats a fast one that does not, so this falls
-    back to the CPU. It is ANNOUNCED, never quiet: the difference between
-    ten minutes and ten hours is not something to discover afterwards, and
-    the note names the process holding the memory so the user can decide
-    whether to wait instead.
-
-    :param room_mb: how much free memory counts as usable.
-    :param what: named in the note, so a log with several stages says which
-        one fell back.
-    :returns: ``(torch.device, note)`` -- the note is '' when nothing needs
-        saying.
+    :param room_mb: Minimum free GPU memory, in MiB, required to select CUDA.
+    :param what: Workload name included in the CPU-fallback note.
+    :returns: ``(torch.device, note)``. ``note`` is empty unless low free GPU
+        memory causes a CPU fallback.
     """
     if not torch.cuda.is_available():
         return torch.device("cpu"), ""
@@ -3238,41 +3231,42 @@ def analyze_activation_maps(model, images, methods=None, *, masks=None,
                             target=None, target_layer=None, model_type=None,
                             n_steps=12, baseline='blur', sanity_check=True,
                             sanity_threshold=0.5, verbose=True):
-    """Attribute images several ways and report whether any of it is trustworthy.
+    """Compute and evaluate attribution maps for one or more images.
 
-    Grad-CAM and a saliency map always render. Nothing about the picture says
-    whether it describes what the model uses, so this runs the four checks that
-    do (see :mod:`spacr.attribution` for why each is limited):
+    By default, the analysis evaluates ``gradcam``, ``saliency``,
+    ``integrated_gradients``, and ``occlusion``. For each successful
+    attribution it computes deletion and insertion AUC; when an object mask is
+    supplied it also evaluates the pointing game. Rank correlation summarizes
+    agreement between non-flat methods for the first image.
 
-    * **deletion / insertion AUC** — remove, or add, the pixels each map ranks
-      highest and track the class probability. A flat deletion curve means the
-      map ranked pixels the model does not use.
-    * **pointing game** — does the map's peak land inside the object mask?
-      Scored only when ``masks`` is given; spaCR's ``merged/*.npy`` carries the
-      label planes.
-    * **model-randomisation sanity check** (Adebayo et al. 2018) — randomise the
-      weights layer by layer and attribute again. A method whose map survives
-      that is an edge detector, and this is the one check that catches it.
-    * **agreement** — rank correlation between the methods. Disagreement is
-      strong evidence that no single map should be quoted alone.
+    When ``sanity_check`` is enabled, the first image is re-attributed while
+    model parameters are randomized layer by layer. A map that remains too
+    similar after randomization has insufficient sensitivity to the learned
+    parameters and should not be interpreted as a model-specific explanation.
 
-    :param model: the trained classifier.
-    :param images: one image tensor, or a sequence of them, ``(C, H, W)``.
-    :param methods: method names from
-        :data:`spacr.attribution.ATTRIBUTION_METHODS`; defaults to one
-        representative of each family.
-    :param masks: optional per-image boolean object masks for the pointing game.
-    :param target: class index to explain; defaults to each image's prediction.
-    :param target_layer: CAM target layer, or None for the last convolution.
-    :param model_type: architecture name, used to make errors readable.
-    :param n_steps: steps in the deletion / insertion curves.
-    :param baseline: what removed pixels become — ``'blur'``, ``'zero'``,
-        ``'mean'`` or ``'uniform'``.
-    :param sanity_check: run the randomisation check (on the first image).
-    :param sanity_threshold: rank correlation below which a method passes.
-    :param verbose: print the per-method verdicts.
-    :returns: dict with ``table`` (a DataFrame, one row per method × image),
-        ``attributions``, ``agreement``, ``sanity`` and ``notes``.
+    :param model: Trained classifier.
+    :param images: Image tensor or iterable of tensors with shape ``(C, H, W)``.
+    :param methods: Attribution methods from
+        :data:`spacr.attribution.ATTRIBUTION_METHODS`. ``None`` uses
+        ``gradcam``, ``saliency``, ``integrated_gradients``, and ``occlusion``.
+    :param masks: Optional per-image boolean object masks used by the pointing
+        game.
+    :param target: Class index to explain. ``None`` uses each image's predicted
+        class.
+    :param target_layer: CAM target layer. ``None`` selects the final
+        convolutional layer.
+    :param model_type: Optional architecture name used in diagnostic messages.
+    :param n_steps: Number of perturbation steps for deletion and insertion
+        curves.
+    :param baseline: Replacement used for removed pixels: ``"blur"``,
+        ``"zero"``, ``"mean"``, or ``"uniform"``.
+    :param sanity_check: Whether to run parameter-randomization analysis on the
+        first image.
+    :param sanity_threshold: Maximum rank correlation at which a randomized map
+        is considered sufficiently different.
+    :param verbose: Whether to print per-method validation results.
+    :returns: Mapping with ``table``, ``attributions``, ``agreement``,
+        ``sanity``, and ``notes``.
     """
     import pandas as pd
 

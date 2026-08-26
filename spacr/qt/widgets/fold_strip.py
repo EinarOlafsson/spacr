@@ -29,13 +29,12 @@ when the button is a switch rather than a press. The key is the registry
 key the module had as a tile, which is what supplies the icon, the name
 and the stage; the callback is what the button does when pressed.
 
-A CHECKABLE FOLD IS A MODULE THAT LIVES ON THE HOST. Where a folded
-module is nothing but a few settings categories its host does not show --
-Timelapse and Motility on Mask Generation are the case -- the button does
-not open anything: it reveals those categories and turns the pipeline
-gate they belong to on. That is a state, not an action, so the button
-holds it: it stays lit while the module is part of the run, and the
-callback is handed the new state rather than called bare.
+A checkable fold controls a workflow implemented by settings on its host.
+Timelapse settings are mounted on Mask Generation because tracking extends
+the segmentation run; its button reveals those categories and enables the
+corresponding pipeline stage. Motility Assay instead opens from Measure and
+analyzes existing masks. A checkable button remains active while its workflow
+is enabled, and its callback receives the new state.
 """
 
 from __future__ import annotations

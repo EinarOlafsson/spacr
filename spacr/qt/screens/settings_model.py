@@ -605,21 +605,22 @@ def object_of_setting(key: str) -> Optional[str]:
 
 def organelle_morphology_now(role: str,
                              settings: Dict[str, Any]) -> Optional[str]:
-    """The morphology a slot is in, as far as the panel can tell.
+    """Resolve the morphology currently applicable to an organelle slot.
 
-    THE TYPE DECIDES, and the type alone is not always enough: ``vesicular``
-    and ``spherical`` split on SIZE -- a 200 nm transport vesicle is a dot
-    and a 2 um vacuole is a ring, and both are Vesicular -- so the slot's
-    diameter is read through the same ``morphology_for`` the preset table
-    exposes. :mod:`spacr.organelle_types` explains at length why the mapping
-    is ``(type, size) -> morphology`` rather than ``type -> morphology``.
+    The ``<role>_type`` value is resolved with
+    :func:`spacr.organelle_types.resolve_type`. For a recognized preset,
+    ``<role>_diameter`` is converted to a numeric value and passed to
+    :meth:`spacr.organelle_types.OrganelleType.morphology_for`. A missing or
+    non-numeric diameter is passed as ``None``; size-dependent presets then
+    select their smaller-object morphology. If the type is ``custom`` or
+    invalid, or if the preset does not produce a supported morphology, the
+    explicit ``<role>_morphology`` value is used instead.
 
-    ``custom`` recommends nothing by design, so there the slot's own
-    ``<role>_morphology`` is the answer -- which is also what a settings file
-    written before the types existed carries.
-
-    :returns: one of the four morphologies, or None when neither the type nor
-        the morphology names one, which narrows nothing rather than guessing.
+    :param role: Prefix for the organelle-slot settings, such as ``organelle``
+        or ``organelleb``.
+    :param settings: Current values keyed by setting name.
+    :returns: ``"spots"``, ``"network"``, ``"irregular"``, ``"ring"``, or
+        ``None`` when neither resolution path supplies a supported morphology.
     """
     from ...organelle_types import resolve_type
 
@@ -698,24 +699,16 @@ def keys_hidden_by_their_object(keys, settings: Dict[str, Any]) -> set:
 
 
 def section_shows_anything(section) -> bool:
-    """Whether a settings heading still has something under it.
+    """Report whether a settings section contains visible content.
 
-    A HEADING WITH EVERY ROW HIDDEN IS A SMALLER WALL, BUT IT IS STILL A
-    WALL. A default Mask panel leaves twenty-three of them -- "Organelle 3",
-    "Pathogen segmentation" -- and a heading that opens onto nothing tells
-    the user only that they have found the wrong screen.
+    A section whose setting rows and nested sections are all hidden should not
+    leave an empty heading in the panel. This predicate reports whether
+    content remains after row-level visibility rules have been applied; it
+    does not change widget visibility itself.
 
-    Public because the SCREEN has to be the one to act on it: a section's
-    visibility is decided in exactly one place (``AppScreen.
-    refresh_maturity_visibility``), and two things calling ``setVisible`` on
-    the same card is how a card comes back the next time Preferences is
-    saved. This answers the question; it does not hide anything.
-
-    :param section: a :class:`spacr.qt.widgets.section.Section`.
-    :returns: True unless the heading owns setting rows or nested headings
-        and every one of them is hidden. A heading that owns neither -- a
-        prose panel, an explainer -- is never judged empty, because it was
-        never carrying rows to lose.
+    :param section: A :class:`spacr.qt.widgets.section.Section`.
+    :returns: ``False`` only when a section owns rows or nested sections and
+        all of them are hidden. Sections without setting rows remain visible.
     """
     from ..widgets.section import Section
 
@@ -1968,20 +1961,17 @@ def get_categories() -> Dict[str, List[str]]:
 
 
 class SettingsSection(tuple):
-    """One heading of a settings panel, and whatever nests under it.
+    """Represent one settings-panel heading and its nested content.
 
-    IT IS STILL A ``(title, rows)`` PAIR, and that is the point. Every caller
-    that writes ``for title, rows in build_sections()`` or
-    ``dict(build_sections())`` keeps working untouched, and ``rows`` holds
-    every row in the whole subtree -- so a panel that cannot draw a tree
-    still draws each control exactly once, under the outermost heading it
-    belongs to, instead of losing the ones a sub-heading owns.
+    The class remains a ``(title, rows)`` tuple for compatibility with callers
+    that unpack section pairs or pass them to ``dict``. ``rows`` contains all
+    controls in the subtree, allowing clients without nested-section support
+    to render every control exactly once.
 
-    THE TREE IS THE ADDITION. :attr:`own_rows` are the rows of this heading
-    itself, :attr:`children` the headings below it, and :attr:`path` the
-    breadcrumb down to it -- ``("Advanced settings", "Object filtration",
-    "Cell")`` -- which is what tells a sub-heading titled "Cell" apart from
-    the top-level "Cell" segmentation category when help is looked up.
+    The hierarchy is exposed through :attr:`own_rows`, :attr:`children`, and
+    :attr:`path`. The path contains section titles from the root to the current
+    node, for example ``("Advanced settings", "Object filtration", "Cell")``,
+    so sections with identical titles remain distinguishable.
     """
 
     # No `__slots__`: a variable-length tuple subclass cannot have one, and
@@ -2765,10 +2755,10 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
     "CANVAS & OUTPUT":
         "Canvas dimensions, background and figure-saving controls.",
     "ACTIVATION MAPS":
-        "Attribution settings for a trained image model — which method, "
-        "which layer is hooked, how the map is overlaid, and the "
-        "normalisation applied at inference. Open it when you want to know "
-        "what the classifier is actually looking at.",
+        "Attribution settings for a trained image model: method, target "
+        "layer, overlay rendering and inference normalization. These settings "
+        "determine which image regions are reported as contributing to a "
+        "classification.",
     "PLOT":
         "What is drawn from the results and how it looks — figure size, "
         "colour map, which control is shown alongside, and how many panels "
@@ -2832,8 +2822,8 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
     "REGRESSION: MODEL":
         "How the effect is estimated. 'Inference' is the top-level choice: a "
         "parametric model fits every guide simultaneously, a nonparametric "
-        "one tests each guide by plate-blocked permutation, and 'auto' picks "
-        "whichever the design can actually support — a simultaneous fit needs "
+        "one tests each guide by plate-blocked permutation, and 'auto' selects "
+        "the method supported by the design — a simultaneous fit needs "
         "more wells than guides. 'Regression type' then selects the family.",
     "REGRESSION: MODEL TUNING":
         "Per-family knobs. Each applies to only some regression types, and a "
@@ -2856,12 +2846,11 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "and outlier removal. Each one silently shrinks the dataset, so "
         "check the diagnostics after changing any of them.",
     "REGRESSION: DIAGNOSTICS":
-        "Not what was significant, but whether the fit deserves to be "
-        "believed: variance homogeneity, residuals, the design that actually "
-        "reached the model, influence and calibration. Written per fit as "
-        "figures, a combined PDF and a text report. On by default because a "
-        "single analysis should have them; a parameter sweep turns them off "
-        "on its own, since a hundred trials is two thousand files.",
+        "Assess fit validity using variance homogeneity, residuals, the model "
+        "design matrix, influence and calibration. Outputs are written per "
+        "fit as figures, a combined PDF and a text report. Diagnostics are "
+        "enabled for individual analyses and disabled during parameter sweeps "
+        "to avoid generating large numbers of intermediate files.",
     "INVASION ASSAY":
         "The two-colour invasion readout: which channels carry the outside "
         "and total stains, how the outside signal is measured, how its "
@@ -2889,10 +2878,9 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "segments correctly until the channel assignment and the naming "
         "convention here are right.",
     "WORKFLOW & TEST RUN":
-        "Which stages actually execute, whether this is a small test pass "
-        "over a few fields, and whether an interrupted run picks up where "
-        "it stopped. Start every new dataset here with a test run before "
-        "committing to the full plate.",
+        "Select the stages to execute, enable a small test run over a subset "
+        "of fields, and configure resumption after interruption. Validate a "
+        "new dataset with a test run before processing the complete plate.",
     "IMAGE PREPROCESSING":
         "What happens to the pixels before any mask is made — intensity "
         "normalisation, projection, upscaling, denoising, and how fields "
@@ -3016,8 +3004,8 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
     "INFECTION CLASSIFICATION":
         "How a tracked cell is called infected, uninfected or ambiguous — "
         "which strategy is used, which table it reads, and where the "
-        "probability cutoffs sit. The strategy chosen here decides which of "
-        "the groups below actually apply.",
+        "probability cutoffs are placed. The selected strategy determines "
+        "which settings groups below are applicable.",
     "XGBOOST INFECTION MODEL":
         "Training and tree parameters for the supervised infection "
         "classifier, plus the probability threshold and margin that turn "
@@ -3077,8 +3065,8 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "the reported accuracy looks too good to be true.",
     "FEATURE SELECTION & IMPORTANCE":
         "Whether features are pruned before the final fit, and how repeated "
-        "permutation importance is computed afterwards. This is the part "
-        "that answers which measurements the decision is actually based on.",
+        "permutation importance is computed afterwards. These settings "
+        "identify the measurements contributing to model decisions.",
     "OUTPUT & DATABASE":
         "Whether model scores are written back into the measurements "
         "database so later modules can read them. Leave it off for "
@@ -3174,10 +3162,9 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
     # identically is the point: someone who learned them once should not have
     # to relearn them in the next module.
     "INPUT & CHANNELS":
-        "Where the images come from and which planes of each one the module "
-        "actually looks at, plus whether they are normalised or inverted "
-        "first. A run that finds nothing at all is usually a channel index "
-        "pointing at an empty plane.",
+        "Image source, planes read by the module, and normalization or "
+        "inversion applied before analysis. An empty result can indicate a "
+        "channel index assigned to an empty plane.",
     "MODEL":
         "Which weights do the segmenting — a packaged model, or a checkpoint "
         "of your own — and the object size they should expect. Nothing is "
@@ -3361,8 +3348,8 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "lever on detection power.",
     "PLATE LAYOUT":
         "How the library is spread over physical plates — wells per plate, "
-        "plate count, replicates, and cells sampled per well. This is where "
-        "a design becomes a number of plates somebody has to actually run.",
+        "plate count, replicates and cells sampled per well. These values "
+        "determine the physical plate and acquisition requirements.",
     "EFFECT & PREVALENCE":
         "What the screen is looking for and how rare it is: the effect size "
         "worth detecting, the fraction of genes expected to show it, the "
@@ -3517,8 +3504,8 @@ CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
             "The expensive ones are off by default.",
         "ADVANCED":
             "Resume, failure tolerance, dry runs, worker count and "
-            "verbosity for the import. Turn strict errors on the first time "
-            "you import someone else's data.",
+            "verbosity for the import. Enable strict errors when validating a "
+            "new external data source.",
     },
     "timelapse": {
         "RUNTIME & RELIABILITY":
@@ -4464,10 +4451,10 @@ _MODE_NOTES = {
         "are effects on a per-cell rate."
     ),
     "poisson": (
-        "Poisson GLM with a log link and offset(log(cell_count)), for "
-        "per-well counts. The offset is what makes the coefficients effects "
-        "on the per-cell RATE rather than on the well's headcount -- without "
-        "it, a well simply holding more cells reads as a hit."
+        "Poisson GLM with a log link and offset(log(cell_count)) for per-well "
+        "counts. The offset makes coefficients represent effects on the "
+        "per-cell rate rather than total cell count, preventing differences "
+        "in cell count from being interpreted as phenotype effects."
     ),
     "quasi_binomial": (
         "Binomial GLM whose dispersion is estimated from the Pearson "
@@ -7617,13 +7604,13 @@ class SettingsWidgets:
             pass
 
     def build_sections(self) -> List["SettingsSection"]:
-        """Group the settings and return the panel's section TREE.
+        """Group settings into the panel's section hierarchy.
 
-        Each entry is a :class:`SettingsSection`, which still IS the
-        ``(title, rows)`` pair this returned before nesting existed -- a
-        caller that unpacks or ``dict()``s the result needs no change, and
-        ``rows`` holds every row in the subtree, so a panel that draws only
-        the outer level still draws every control exactly once.
+        Each result is a :class:`SettingsSection`, a tuple subclass compatible
+        with ``(title, rows)`` unpacking and ``dict()`` conversion. Its
+        ``rows`` member contains all controls in the section's subtree,
+        allowing clients without nested-section support to render every
+        control exactly once.
 
         Three levels are expressible: the "Advanced settings" umbrella, the
         family headings that declare it as their parent

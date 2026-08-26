@@ -9,13 +9,6 @@
       "translation": "L'onglet a besoin des deux réponses sous la même forme : la conception indique qu'un onglet qui ne peut pas être rempli doit indiquer pourquoi plutôt que d'être absent, donc \"there is no source\" est une valeur ici et non une exception."
     },
     {
-      "context": "what is needed and absent, each as a sentence naming the thing rather than the failure it would cause later.",
-      "label": "spacr.cell_montage.RouteRequirements#7",
-      "source": "what is needed and absent, each as a sentence naming the thing rather than the failure it would cause later.",
-      "source_sha256": "5f4a8d060c86df6aceea046b19c5efb539b14159d2f1386577c2ee72fe37a960",
-      "translation": "ce qui est nécessaire et absent, chacun comme une phrase nommant la chose plutôt que l'échec qu'elle provoquerait plus tard."
-    },
-    {
       "context": "a key-value mapping in the order given. A path that does not exist or cannot be parsed is ABSENT from the result rather than mapped to an empty list -- see rule 2. Use :func:`missing` to ask which those were.",
       "label": "spacr.columns.headers#2",
       "source": "a dict in the order given. A path that does not exist or cannot be parsed is ABSENT from the result rather than mapped to an empty list -- see rule 2. Use :func:`missing` to ask which those were.",

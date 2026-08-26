@@ -1,88 +1,32 @@
-"""Select cells to show for a regression coefficient.
+"""Select microscopy objects associated with a regression coefficient.
 
-Given a coefficient (a gene or a guide), the
-per-object rows out of the imported measurement databases, and the per-well
-guide fractions the regression was fitted on, this module decides **which
-objects to draw and says exactly how it decided**. It draws nothing: the
-pixels come from :mod:`spacr.crops`, and the tab that shows them is wired
-separately.
+The input consists of a guide- or gene-level coefficient, per-object
+measurements and per-well guide fractions. Because pooled screens do not
+identify which individual cell contains a guide, the result represents cells
+whose measured phenotype is consistent with the fitted effect; it does not
+assign a genotype to individual cells. :class:`MontagePlan` includes
+:data:`INFERENCE_NOTICE` in every generated caption to preserve this
+distinction.
 
-THE TRAP, AND WHY IT DECIDES THE OUTPUT SHAPE
----------------------------------------------
-**This is a pooled screen.** Which individual cell carries which guide is not
-known and cannot be looked up -- that is the whole reason the analysis is a
-regression on well-level fractions instead of a per-cell comparison. The
-sequencing says a well is 15% GRA14; it does not say WHICH 15%.
+Selection proceeds in three stages:
 
-So a montage cannot show "the cells with GRA14 knocked out". It can show the
-cells most consistent with the effect, and that distinction has to survive
-onto the figure. Every :class:`MontagePlan` therefore carries
-:data:`INFERENCE_NOTICE` in its :meth:`~MontagePlan.caption`, and there is no
-way to get a plan without it -- a montage captioned "GRA14" that a reader
-takes for genotyped cells is the worst thing this feature can produce.
+1. :func:`wells_for_coefficient` identifies wells with a non-zero fraction of
+   the guide or gene. Gene-level selection sums guide fractions by default;
+   :func:`select_montage_per_guide` evaluates guides separately.
+2. :func:`score_window` defines ``target = baseline + effect`` and retains
+   objects within ``half_widths`` robust scales of the target, ordered by
+   ``|score - target|``. The baseline and scale are calculated across the
+   supplied object population rather than separately for each gene.
+3. :func:`objects_to_show` selects
+   ``round(n_objects_in_well * guide_fraction_in_well)`` objects from each
+   well. Zero-contribution wells remain in the plan for reporting.
 
-THE SELECTION, AND THE THREE NUMBERS IT TURNS ON
-------------------------------------------------
-1. **The wells.** Those whose count data reports the guide/gene present, with
-   a non-zero fraction (:func:`wells_for_coefficient`). A gene with several
-   guides sums their fractions by default; :func:`select_montage_per_guide`
-   is the other question, asked separately, because they are different
-   questions.
-
-2. **The score window.** ``target = baseline + effect``; keep objects whose
-   classification score lies within ``half_widths`` robust scales of that
-   target, and among them take the closest (:func:`score_window`).
-
-   *"Closest" means smallest ``|score - target|``.* The baseline and the
-   scale are computed **once, over every object supplied**, not per gene:
-   a window recomputed per gene is a window that can be tuned until the
-   pictures look right, and nothing in the output would show that it had
-   been. :data:`WINDOW_HALF_WIDTHS` is the one width, and a caller that
-   overrides it has the override written into the caption.
-
-3. **How many.** ``round(n_objects_in_well * guide_fraction_in_well)``, per
-   well (:func:`objects_to_show`). That is the *expected* number of objects
-   in that well carrying the guide, and it is the right count precisely
-   because it is the only number the pooled design supports. A well of 200
-   cells at 15% contributes 30. A well that rounds to zero is reported as a
-   zero-contribution well rather than silently vanishing.
-
-WHERE THE PIXELS COME FROM -- ALREADY BUILT, NOT REBUILT HERE
---------------------------------------------------------------
-:func:`spacr.crops.resolve_crop_source` picks between
-:class:`~spacr.crops.PngCropSource` (the exported PNGs, via ``png_list``) and
-:class:`~spacr.crops.MergedCropSource` (cut on demand out of
-``merged/<fov>.npy``) **and says which it picked**.
-:func:`resolve_montage_crop_source` is a thin wrapper that turns the "no
-source at all" case into an answer the tab can display instead of an
-exception, because a tab that cannot be filled has to say why.
-
-WHICH CSV ACTUALLY CARRIES THE WELL FRACTIONS
-----------------------------------------------
-``grna_well.csv`` and ``well_grna.csv`` do **not**, despite being the obvious
-candidates. Measured against ``spacr.ml.grna_metricks`` and the contract test
-``test_qc_block_writes_the_three_well_level_tables`` in
-``tests/test_cov_ml_perform_regression.py``:
-
-    ``grna_well.csv``   ``grna, plateID, grna_well_count, gene_well_count``
-                        -- how MANY wells a guide was seen in, never which.
-    ``well_grna.csv``   ``prc, gene_count`` (+ the split ``prc`` parts)
-                        -- how many distinct genes per well, and it does not
-                        name a guide at all.
-    ``regression_data.csv``
-                        ``prc, grna, gene, fraction, pred, cell_count,
-                        plateID, rowID, columnID`` -- the well, the guide,
-                        the fraction and the cell count, which is exactly and
-                        only what steps 1 and 3 need.
-
-:func:`read_well_guide_fractions` reads the third and refuses the first two by
-name, saying what each holds, so the mistake is made once.
-
-Dependencies
-------------
-numpy, pandas and the standard library. :mod:`spacr.crops` and
-:mod:`spacr.io` are imported lazily inside the functions that need them, so a
-caller that only wants the selection never pays for torch.
+Images are obtained through :class:`spacr.crops.PngCropSource` for exported
+PNG crops or :class:`spacr.crops.MergedCropSource` for crops extracted from
+``merged/<fov>.npy``. :func:`resolve_montage_crop_source` reports when neither
+source is available. Per-well guide fractions are read from
+``regression_data.csv``; the aggregate files ``grna_well.csv`` and
+``well_grna.csv`` do not contain the required well-by-guide fractions.
 """
 
 from __future__ import annotations
@@ -449,11 +393,9 @@ def _well_guide_fractions(counts, label, keys, guide_column, fraction_column):
     Every guide in the well, not only the one being drawn: a posterior is a
     comparison and there is nothing to compare a lone guide against.
 
-    THE EXCLUSION IS NOT DONE HERE. `select_montage` drops excluded guides
-    from the count table before anything reads it, so this function sees a
-    table they have already left -- one exclusion point rather than one per
-    caller, which is what keeps `well_totals` and these fractions agreeing
-    about what the well contains.
+    :func:`select_montage` removes excluded guides before this function is
+    called, ensuring that these fractions and the well totals use the same
+    guide population.
     """
     try:
         frame = counts.copy()
@@ -470,12 +412,8 @@ def _well_guide_fractions(counts, label, keys, guide_column, fraction_column):
 def normalised_share(well_fractions, fraction: float) -> Tuple[float, float]:
     """``(share, factor)`` -- the guide's fraction of what is left in the well.
 
-    THE FACTOR IS NOT A NO-OP, and that is why this exists. In a representative
-    screen, the raw count tables give every well a fraction sum
-    of exactly 1.000000, but `fraction_threshold` defaults to 0.02 and the
-    filtered table's sums fall to a median of 0.5526 with a minimum of
-    0.1515. The filtered table is the ordinary case, so the un-normalised
-    share understates the count by roughly half.
+    Renormalization accounts for guides removed by ``fraction_threshold``;
+    after filtering, the remaining fractions may sum to less than one.
 
     :param well_fractions: every guide's fraction in this well.
     :param fraction: the chosen guide's fraction.
@@ -503,10 +441,8 @@ def normalised_share(well_fractions, fraction: float) -> Tuple[float, float]:
 def objects_to_show(n_objects: int, fraction: float) -> int:
     """Return ``round(n_objects * fraction)`` -- the montage's count rule.
 
-    This is the EXPECTED number of objects in the well carrying the guide,
-    and it is the right count precisely because it is the only number a
-    pooled design supports: the sequencing gives a fraction, so the design
-    gives a count and never an identity.
+    This is the expected count implied by the guide fraction. A pooled design
+    supports an expected count but not the identity of guide-bearing objects.
 
     :param n_objects: how many objects the well actually has to draw from.
         Negative counts are refused; zero is legal and yields zero.
@@ -964,18 +900,13 @@ class WellSelection:
 
 @dataclass(frozen=True)
 class MontagePlan:
-    """The objects to show behind one coefficient, and the whole reason why.
-
-    The plan is the module's product. It carries the selected rows *and*
-    every number the caption needs, so nothing downstream has to re-derive
-    (or re-invent) the selection in order to describe it.
+    """Store selected objects and values required to document selection.
 
     :param coefficient: the point that was clicked.
     :param window: the score window that was applied.
     :param wells: one :class:`WellSelection` per well the count data reported
-        the coefficient present in -- **including the wells that contributed
-        nothing**, which is the whole reason they are a list of records and
-        not a filtered frame.
+        the coefficient present in, including wells that contributed no
+        selected objects.
     :param objects: the selected object rows, in well order then by distance
         to the target, with ``montage_distance``, ``montage_well`` and
         ``montage_rank`` added.
@@ -1052,14 +983,10 @@ class MontagePlan:
     WELL_LINES = 40
 
     def settings_line(self) -> str:
-        """Every setting that decided WHICH CELLS this is, defaults included.
+        """Return the selection settings, including their default values.
 
-        The design: each of these changes which cells a reader is
-        looking at, so each is written onto the montage and a non-default
-        value says that it is one. THE SETTINGS ARE PER SCREEN, NEVER PER
-        GENE -- a width chosen per gene is a width that can be tuned until
-        the pictures look right, and nothing in the output would show that it
-        had been. This sentence is what makes that visible either way.
+        These settings apply to the complete screen rather than individual
+        genes. Non-default values are reported explicitly in the montage.
 
         :returns: one or two lines -- what was in force, and (only when
             something was) what was changed from the default.
@@ -1096,7 +1023,7 @@ class MontagePlan:
                 "guides kept apart instead of the default summed")
         if changed:
             lines.append(
-                "NON-DEFAULT SETTINGS ON THIS MONTAGE: " + "; ".join(changed)
+                "Non-default montage settings: " + "; ".join(changed)
                 + ". Each of these changes which cells are shown, so this "
                   "montage is not comparable to one made with the defaults.")
         return "\n".join(lines)
@@ -1115,7 +1042,7 @@ class MontagePlan:
         if window.baseline_source == "screen_median":
             lines.append(
                 f"  baseline = median per-object {self.score_column} over "
-                f"EVERY object supplied ({window.n_scored:,} objects, the "
+                f"all objects supplied ({window.n_scored:,} objects, the "
                 f"whole screen and not this coefficient's wells) = "
                 f"{window.baseline:.6g}")
         else:
@@ -1195,12 +1122,9 @@ class MontagePlan:
     def caption(self) -> str:
         """Return the caption the montage must carry.
 
-        States the wells, the score window, EVERY SETTING THAT DECIDED WHICH
-        CELLS THESE ARE (:meth:`settings_line`), THE WHOLE ARITHMETIC A
-        READER CAN CHECK THE SUM FROM (:meth:`arithmetic`), which crop source
-        drew the pixels, every well that contributed nothing, and -- last, so
-        it is the sentence a reader leaves with -- that guide membership is
-        inferred rather than observed.
+        The caption includes the wells, score window, selection settings,
+        count calculation, crop source, zero-contribution wells and the notice
+        that guide membership is inferred rather than observed.
         """
         lines: List[str] = []
         lines.append(f"Cells behind {self.coefficient.describe()}")
@@ -2064,24 +1988,15 @@ def read_well_guide_fractions(path: str) -> pd.DataFrame:
 
 
 def fractions_from_counts(paths: Sequence[str]) -> pd.DataFrame:
-    """Per-well guide fractions, built from the COUNT CSVs directly.
-
-    WHY THIS EXISTS. :func:`read_well_guide_fractions` reads
-    ``regression_data.csv`` out of a run folder, and the montage refused to
-    draw anything without one -- so a user who had loaded their scores and
-    their counts, run a regression, and was looking at its coefficients was
-    told "the loaded coefficient table was not read from a run folder". The
-    sentence was true and the requirement was not: nothing in the fraction
-    frame comes from the run.
+    """Build per-well guide fractions directly from count CSV files.
 
     A guide's fraction in a well is its share of that well's reads:
 
         fraction = count / (sum of count over the well)
 
-    which is the same arithmetic :func:`spacr.ml.process_reads` does at
-    ``ml.py`` before the fit -- so this is the SAME NUMBER, computed from the
-    same input, not an approximation of it. ``regression_data.csv`` is that
-    join persisted, not the source of it.
+    This is the same calculation applied by :func:`spacr.ml.process_reads`
+    before fitting. ``regression_data.csv`` persists the resulting join but is
+    not required as the source of the fractions.
 
     :param paths: the count CSVs from the regression input table -- the
         ``count`` column of the rows the database provider already returns, so
@@ -2090,11 +2005,8 @@ def fractions_from_counts(paths: Sequence[str]) -> pd.DataFrame:
         ``fraction``, and ``gene`` when the counts carry it.
     :raises MontageError: no readable counts, or a file short of a column.
 
-    THE WELL TOTAL IS A ONE-ROW-PER-WELL FRAME BY CONSTRUCTION, and the merge
-    says so with ``validate='many_to_one'``. `ml.process_reads` carries the
-    same guard and the same comment: a duplicated well total would duplicate
-    every guide row of that well, and the fractions would still sum to 1 per
-    copy -- so the corruption would be invisible in every downstream check.
+    Well totals contain one row per well and are merged with
+    ``validate='many_to_one'`` to prevent duplicated guide rows.
     """
     frames: List[pd.DataFrame] = []
     problems: List[str] = []
@@ -2249,12 +2161,12 @@ def load_montage_objects(db_path: str, *, object_type: str = "cell",
     :param object_type: which crop mode's rows to read.
     :param score_column: the per-object classification score column.
     :param table: the table holding the crops; ``'png_list'``.
-    :param src: the folder the screen lives in NOW. Defaults to the plate
+    :param src: the screen's current folder. Defaults to the plate
         folder the database sits in. Crop paths are recorded absolute at crop
         time, so a screen that has moved computer -- or a NAS mounted
         somewhere else -- carries 60,000 paths that no longer exist while
         every file is present; see :mod:`spacr.portable_paths`. Only paths
-        that resolve to a file that EXISTS are rewritten.
+        that resolve to an existing file are rewritten.
     :param scores: where the per-object classification scores are, when the
         database has none: a frame, a path, or several paths -- the score CSVs
         the run was fitted on. Used ONLY when `png_list` carries no score
@@ -2396,39 +2308,25 @@ _BBOX_COLUMNS: Tuple[Tuple[str, str], ...] = tuple(
 
 @dataclass(frozen=True)
 class RouteRequirements:
-    """What one route to pixels needs, and what it can therefore offer.
+    """Describe the inputs and crop shapes available through one pixel route.
 
-    THE TWO ROUTES NEED DIFFERENT THINGS and they are
-    checked UP FRONT, because the alternative is a montage that fails halfway
-    through cutting, or -- worse -- one that quietly cuts a different picture
-    from the one the user chose:
+    Requirements are validated before extraction. ``'merged-mask'`` requires
+    image channels, a mask array and either a bounding box or object id;
+    object identifiers permit object-shaped crops. ``'merged-bbox'`` requires
+    tabular coordinates and image channels and supports bounding-box crops
+    only. ``'png'`` uses the shape created when ``measure_crop`` exported the
+    image.
 
-    ROUTE 1, ``'merged-mask'`` -- live crop out of ``merged/<fov>.npy``.
-    Needs THE IMAGE CHANNELS, THE MASK ARRAY and A BOUNDING BOX OR AN OBJECT
-    ID. With an object id the crop follows the object's own outline, which is
-    the better picture and the one worth defaulting to.
-
-    ROUTE 2, ``'merged-bbox'`` -- coordinates from a table, then cut from the
-    merged arrays. Needs THE TABLE AND THE CHANNELS, and offers BOUNDING-BOX
-    CROPS ONLY: there is no mask in this route, so an object-shaped crop
-    cannot be produced and MUST NOT be offered as a choice that silently does
-    something else.
-
-    ``'png'`` is the third answer and is not one of the two: the exported
-    crops were cut when the run wrote them, so their shape is whatever
-    ``measure_crop`` used and nothing here can change it.
-
-    :param route: ``'png'`` / ``'merged-mask'`` / ``'merged-bbox'`` /
+    :param route: ``'png'``, ``'merged-mask'``, ``'merged-bbox'``, or
         ``'none'``.
-    :param shapes: the crop shapes this route can actually produce, out of
-        :data:`CROP_SHAPES`. Empty for the PNG route, which produces what it
-        already produced.
-    :param missing: what is needed and absent, each as a sentence naming the
-        thing rather than the failure it would cause later.
-    :param assumed: what was not stated and has been defaulted -- a channel
-        list nobody recorded, say. Not a refusal: the montage draws, and the
-        caption says which planes it drew from.
-    :param detail: how the route was identified, for the status line.
+    :param shapes: Crop shapes from :data:`CROP_SHAPES` that the route can
+        produce. This is empty for ``'png'`` because exported PNGs retain the
+        shape used when they were created.
+    :param missing: Required inputs that are absent, expressed as user-facing
+        descriptions.
+    :param assumed: Missing values replaced by defaults and reported in the
+        status caption rather than treated as errors.
+    :param detail: Explanation of how the route was identified.
     """
 
     route: str
@@ -2449,9 +2347,9 @@ class RouteRequirements:
     def why_not(self, shape: str) -> str:
         """Why ``shape`` is unavailable, or ``''`` when it is available.
 
-        The sentence a disabled control carries. An object-shaped crop that
-        cannot be cut is greyed out WITH THIS, never left clickable and
-        quietly served a bounding box.
+        The returned sentence is attached to a disabled control. An
+        unavailable object-shaped crop is not substituted with a bounding
+        box.
         """
         if self.offers(shape):
             return ""
@@ -2490,7 +2388,7 @@ def montage_route_requirements(source, objects=None, *,
                                channels: Optional[Sequence[int]] = None,
                                channels_declared: Optional[bool] = None
                                ) -> RouteRequirements:
-    """Check what the chosen route needs BEFORE anything is cut.
+    """Validate the selected route before extracting any crops.
 
     :param source: the :class:`spacr.crops.CropSource` (or the
         :class:`CropSourceChoice` holding one) that will draw the montage.

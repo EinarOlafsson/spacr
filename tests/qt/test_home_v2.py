@@ -17,23 +17,27 @@ Three separate contracts live here, in this order:
 """
 from __future__ import annotations
 
-
-
 import hashlib
 import json
 import os
 import threading
 
 import pytest
-
 from PySide6.QtCore import QEvent, Qt
 from PySide6.QtGui import QEnterEvent
 from PySide6.QtWidgets import QLabel, QPushButton
 
 from spacr.qt import bridge, iconset
-from spacr.qt.app import (APPS, SECTIONS, _FORCE_GLYPH, _ICON_OVERRIDES,
-                          make_home_page, section_members)
-from spacr.qt.widgets.home import AppTile, HomePage, PAUSE_UNAVAILABLE
+from spacr.qt.app import (
+    _FORCE_GLYPH,
+    _ICON_OVERRIDES,
+    APPS,
+    SECTIONS,
+    make_home_page,
+    section_members,
+)
+from spacr.qt.widgets.home import PAUSE_UNAVAILABLE, AppTile, HomePage
+
 
 @pytest.fixture(autouse=True)
 def _pinned_zoom():
@@ -84,7 +88,6 @@ CHOSEN = {
     "activation":   "activation_01.png",
     "annotate":     "annotate_01.png",
     "cellpose_all": "cellpose_all_01.png",
-    "classify":     "classify_05.png",
     "convert":      "convert_04.png",
     "default":      "default_01.png",
     "download":     "download_05.png",
@@ -278,6 +281,7 @@ def apps_without_artwork():
     what a "no two apps by ACCIDENT" test is for.
     """
     import os
+
     from spacr.qt import iconset
     from spacr.qt.app import _ICON_OVERRIDES
 
@@ -382,6 +386,7 @@ def test_each_new_icon_is_a_flat_mask_painted_in_the_theme_ink(
     """Every chosen icon is monochrome-on-transparent, so re-inking must
     paint it flat rather than inventing shading from exporter noise."""
     import numpy as np
+
     from spacr.qt import theme as theme_mod
 
     path = os.path.join(iconset.RESOURCE_DIR, f"{name}.png")
@@ -422,6 +427,7 @@ def _shaded_mask(bright: bool):
 def test_shaded_monochrome_artwork_is_mapped_onto_the_ink_band(
         bright, theme_name, qapp):
     import numpy as np
+
     from spacr.qt import theme as theme_mod
 
     rgba = _shaded_mask(bright)
@@ -572,6 +578,7 @@ def test_the_replication_assay_is_a_first_class_module():
 def test_the_replication_screen_opens(qtbot, qt_theme_applied,
                                       _empty_journal):
     from PySide6.QtWidgets import QWidget
+
     from spacr.qt.app import MainWindow
     win = MainWindow()
     qtbot.addWidget(win)
@@ -839,7 +846,7 @@ BETA_MODULES = {
     # until that whole workbench became a button on the Make Masks masthead.
     # Both rows went and both names stayed; this list counts tiles, so they
     # come out too.
-    "analyze_plaques", "replication", "umap", "activation",
+    "analyze_plaques", "replication", "umap",
 }
 
 
@@ -893,12 +900,9 @@ def test_no_category_tab_needs_a_scrollbar_on_a_laptop(window, qapp):
     """1440x900 is the size this layout is dimensioned for.
 
     **The Home tab is exempt, and that is a decision, not an oversight.**
-    Thirty tiles at the size the user asked for — icon over name, packed
-    tight — is eight rows plus five headings, about 1200 px of content.
-    No arrangement of thirty large tiles fits 670 px of pane; the only
-    way to make Home not scroll is to make its tiles small again, which
-    is the thing #16j exists to undo. Every *category* tab still fits,
-    and that is what this checks."""
+    It contains every current tile across every current section and may
+    therefore scroll. Each individual category tab has only its own rows and
+    must still fit; that is what this checks."""
     window.resize(1440, 900)
     window.show()
     qapp.processEvents()
@@ -951,7 +955,7 @@ def test_every_tab_uses_the_same_large_tile(home):
             # the name. A third would be the description coming back.
             labels = tile.findChildren(QLabel)
             assert len(labels) == 2, (
-                f"{tile.text_label} draws {[l.text() for l in labels]}")
+                f"{tile.text_label} draws {[label.text() for label in labels]}")
             assert sum(1 for lbl in labels if lbl.pixmap()) == 1
             assert tile.name_label.full_text() == tile.text_label
 

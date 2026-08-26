@@ -39,8 +39,7 @@
 
 .. image:: ../../../spacr/resources/icons/logo_spacr_readme.png
    :alt: spaCR
-   :align: center
-   :width: 360
+   :width: 920
 
 spaCR
 =====
@@ -57,9 +56,9 @@ spaCR
 
 **CRISPR 스크리닝의 공간 표현형 분석.**
 
-spaCR는 고함량 현미경 영상에서 단일 세포를 분할하고 측정하며, 각 세포를 전달받은 gRNA와 연결하고 어떤 유전자가 표현형을 바꾸었는지 보고합니다. 플레이트 영상과 FASTQ 리드를 입력하면 객체별 측정값, 학습된 분류기, 가이드별·유전자별 효과 크기와 우선순위가 지정된 후보 목록이 출력됩니다.
+spaCR는 고함량 현미경 영상에서 단일 세포를 분할하고 측정하며, 객체별 표현형을 시퀀싱에서 산출한 가이드 풍부도와 통합하고, 어떤 유전자가 표현형 변화와 연관되는지 추정합니다. 플레이트 영상과 FASTQ 리드에서 시작하여 객체별 측정값, 학습된 분류기, 가이드별·유전자별 효과 추정치, 우선순위가 지정된 히트 목록을 생성합니다.
 
-영상 기반 풀드 CRISPR 스크리닝에서는 이것이 전체 작업 흐름입니다. 고함량 현미경 데이터만 있고 스크리닝 실험은 없는 경우에도 분할, 측정, 주석 및 분류 단계를 독립적으로 실행할 수 있습니다.
+영상 기반 풀드 CRISPR 스크리닝에서 spaCR는 영상 분할부터 히트 우선순위 지정까지의 작업 흐름을 제공합니다. 시퀀싱 기반 스크리닝이 없는 고함량 현미경 연구에서는 분할, 측정, 주석, 분류 모듈을 독립적으로 사용할 수 있습니다.
 
 영상, 마스크, 이미지 크롭, 측정값, 주석, 예측, 바코드 및 웰 식별자는 하나의 SQLite 프로젝트에 저장되므로 결과의 값을 그 출처 객체까지 추적할 수 있습니다.
 
@@ -107,43 +106,37 @@ spaCR를 데스크톱 애플리케이션으로 실행하거나 워크스테이�
    :width: 2.5%
    :align: middle
 
-**Data**
+**데이터**
 
 |App_align|\ |App_convert|\ |App_foreign|\ |App_external_masks|\ |App_queue|
 
-|App_batch|\ |App_distributed_jobs|\ |App_db_browser|\ |App_illumination|\ |App_data_manager|
+|App_batch|\ |App_distributed_jobs|\ |App_db_browser|\ |App_data_manager|\ |App_project_browser|
 
-**Segmentation models**
+**분열 모델**
 
-|App_make_masks|\ |App_train_cellpose|\ |App_cellpose_masks|\ |App_model_compare|\ |App_model_zoo|
+|App_make_masks|\ |App_napari_bridge|에 해당되는 글 1건
 
-|App_curate|
+**결과 및 QC**
 
-**Results & QC**
+|App_plate_view|\ |App_umap|\ |App_train_compare|\ |App_run_history|\ |App_report|
 
-|App_plate_view|\ |App_agreement|\ |App_umap|\ |App_activation|\ |App_train_compare|
+|App_hit_list|\ |App_methods_export|\ |App_run_compare|\ |App_investigate_hit|\ |App_control_chart|
 
-|App_classifier_evaluation|\ |App_run_history|\ |App_report|\ |App_barcode_qc|\ |App_hit_list|
+**탐색**
 
-|App_methods_export|\ |App_volcano_explorer|\ |App_parameter_sweep|\ |App_run_compare|\ |App_explain_cv|
+|App_pipeline_graph|\ |App_profiler|\ |App_qc_dashboard|\ |App_lineage|\ |App_layer_viewer|
 
-|App_investigate_hit|
+|App_graph_builder|\ |App_tabulate|\ |App_feature_dict|\ |App_trellis|\ |App_gate_editor|
 
-**Explore**
+|App_feature_explorer|\ |App_outliers|에 해당되는 글 1건
 
-|App_pipeline_graph|\ |App_profiler|\ |App_qc_dashboard|\ |App_image_scatter|\ |App_lineage|
+**평가**
 
-|App_layer_viewer|\ |App_graph_builder|\ |App_anndata_export|\ |App_pca|\ |App_tabulate|
+|App_analyze_plaques|\ |App_recruitment|\ |App_invasion|\ |App_replication|
 
-**Assays**
+**디자인**
 
-|App_timelapse|\ |App_motility|\ |App_analyze_plaques|\ |App_recruitment|\ |App_invasion|
-
-|App_replication|
-
-**Design**
-
-|App_experiment_design|\ |App_power|
+|App_experiment_design|\ |App_power| |App_dose_response|에 해당되는 글 1건
 
 .. |App_align| image:: ../../../spacr/resources/icons/workflow/apps/align.png
    :width: 19.9%
@@ -185,75 +178,40 @@ spaCR를 데스크톱 애플리케이션으로 실행하거나 워크스테이�
    :alt: Database Browser API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/db_browser/index.html
    :align: middle
-.. |App_illumination| image:: ../../../spacr/resources/icons/workflow/apps/illumination.png
-   :width: 19.9%
-   :alt: Illumination API 열기
-   :target: https://einarolafsson.github.io/spacr/api/spacr/illumination/index.html
-   :align: middle
 .. |App_data_manager| image:: ../../../spacr/resources/icons/workflow/apps/data_manager.png
    :width: 19.9%
    :alt: Data Manager API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/data_manager/index.html
+   :align: middle
+.. |App_project_browser| image:: ../../../spacr/resources/icons/workflow/apps/project_browser.png
+   :width: 19.9%
+   :alt: Project Browser API 열기
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/project_browser/index.html
    :align: middle
 .. |App_make_masks| image:: ../../../spacr/resources/icons/workflow/apps/make_masks.png
    :width: 19.9%
    :alt: Make Masks API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html
    :align: middle
-.. |App_train_cellpose| image:: ../../../spacr/resources/icons/workflow/apps/train_cellpose.png
+.. |App_napari_bridge| image:: ../../../spacr/resources/icons/workflow/apps/napari_bridge.png
    :width: 19.9%
-   :alt: Train Cellpose API 열기
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
-   :align: middle
-.. |App_cellpose_masks| image:: ../../../spacr/resources/icons/workflow/apps/cellpose_masks.png
-   :width: 19.9%
-   :alt: Cellpose Masks API 열기
-   :target: https://einarolafsson.github.io/spacr/api/spacr/spacr_cellpose/index.html
-   :align: middle
-.. |App_model_compare| image:: ../../../spacr/resources/icons/workflow/apps/model_compare.png
-   :width: 19.9%
-   :alt: Model Compare API 열기
-   :target: https://einarolafsson.github.io/spacr/api/spacr/model_compare/index.html
-   :align: middle
-.. |App_model_zoo| image:: ../../../spacr/resources/icons/workflow/apps/model_zoo.png
-   :width: 19.9%
-   :alt: Model Zoo API 열기
-   :target: https://einarolafsson.github.io/spacr/api/spacr/model_zoo/index.html
-   :align: middle
-.. |App_curate| image:: ../../../spacr/resources/icons/workflow/apps/curate.png
-   :width: 19.9%
-   :alt: Curate API 열기
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/curate/index.html
+   :alt: Napari Bridge API 열기
+   :target: https://einarolafsson.github.io/spacr/api/spacr/napari_bridge/index.html
    :align: middle
 .. |App_plate_view| image:: ../../../spacr/resources/icons/workflow/apps/plate_view.png
    :width: 19.9%
    :alt: Plate Viewer API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/plate_qc/index.html
    :align: middle
-.. |App_agreement| image:: ../../../spacr/resources/icons/workflow/apps/agreement.png
-   :width: 19.9%
-   :alt: Annotator Agreement API 열기
-   :target: https://einarolafsson.github.io/spacr/api/spacr/agreement/index.html
-   :align: middle
 .. |App_umap| image:: ../../../spacr/resources/icons/workflow/apps/umap.png
    :width: 19.9%
    :alt: Image UMAP API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
    :align: middle
-.. |App_activation| image:: ../../../spacr/resources/icons/workflow/apps/activation.png
-   :width: 19.9%
-   :alt: Activation API 열기
-   :target: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
-   :align: middle
 .. |App_train_compare| image:: ../../../spacr/resources/icons/workflow/apps/train_compare.png
    :width: 19.9%
    :alt: Training Runs API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/train_compare/index.html
-   :align: middle
-.. |App_classifier_evaluation| image:: ../../../spacr/resources/icons/workflow/apps/classifier_evaluation.png
-   :width: 19.9%
-   :alt: Classifier Evaluation API 열기
-   :target: https://einarolafsson.github.io/spacr/api/spacr/classifier_evaluation/index.html
    :align: middle
 .. |App_run_history| image:: ../../../spacr/resources/icons/workflow/apps/run_history.png
    :width: 19.9%
@@ -265,11 +223,6 @@ spaCR를 데스크톱 애플리케이션으로 실행하거나 워크스테이�
    :alt: Report API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/report/index.html
    :align: middle
-.. |App_barcode_qc| image:: ../../../spacr/resources/icons/workflow/apps/barcode_qc.png
-   :width: 19.9%
-   :alt: Barcode QC API 열기
-   :target: https://einarolafsson.github.io/spacr/api/spacr/sequencing_qc/index.html
-   :align: middle
 .. |App_hit_list| image:: ../../../spacr/resources/icons/workflow/apps/hit_list.png
    :width: 19.9%
    :alt: Hit List API 열기
@@ -280,30 +233,20 @@ spaCR를 데스크톱 애플리케이션으로 실행하거나 워크스테이�
    :alt: Methods & Results API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/methods_export/index.html
    :align: middle
-.. |App_volcano_explorer| image:: ../../../spacr/resources/icons/workflow/apps/volcano_explorer.png
-   :width: 19.9%
-   :alt: Volcano Explorer API 열기
-   :target: https://einarolafsson.github.io/spacr/api/spacr/volcano_style/index.html
-   :align: middle
-.. |App_parameter_sweep| image:: ../../../spacr/resources/icons/workflow/apps/parameter_sweep.png
-   :width: 19.9%
-   :alt: Parameter Sweep API 열기
-   :target: https://einarolafsson.github.io/spacr/api/spacr/parameter_sweep/index.html
-   :align: middle
 .. |App_run_compare| image:: ../../../spacr/resources/icons/workflow/apps/run_compare.png
    :width: 19.9%
    :alt: Run Compare API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/run_compare/index.html
    :align: middle
-.. |App_explain_cv| image:: ../../../spacr/resources/icons/workflow/apps/explain_cv.png
-   :width: 19.9%
-   :alt: Explain CV Model API 열기
-   :target: https://einarolafsson.github.io/spacr/api/spacr/surrogate/index.html
-   :align: middle
 .. |App_investigate_hit| image:: ../../../spacr/resources/icons/workflow/apps/investigate_hit.png
    :width: 19.9%
    :alt: Investigate Hit API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/hit_investigation/index.html
+   :align: middle
+.. |App_control_chart| image:: ../../../spacr/resources/icons/workflow/apps/control_chart.png
+   :width: 19.9%
+   :alt: Control Charts API 열기
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/control_chart/index.html
    :align: middle
 .. |App_pipeline_graph| image:: ../../../spacr/resources/icons/workflow/apps/pipeline_graph.png
    :width: 19.9%
@@ -320,11 +263,6 @@ spaCR를 데스크톱 애플리케이션으로 실행하거나 워크스테이�
    :alt: QC Dashboard API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/qc_dashboard/index.html
    :align: middle
-.. |App_image_scatter| image:: ../../../spacr/resources/icons/workflow/apps/image_scatter.png
-   :width: 19.9%
-   :alt: Image Scatter API 열기
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/image_scatter/index.html
-   :align: middle
 .. |App_lineage| image:: ../../../spacr/resources/icons/workflow/apps/lineage.png
    :width: 19.9%
    :alt: Lineage API 열기
@@ -340,30 +278,35 @@ spaCR를 데스크톱 애플리케이션으로 실행하거나 워크스테이�
    :alt: Graph Builder API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html
    :align: middle
-.. |App_anndata_export| image:: ../../../spacr/resources/icons/workflow/apps/anndata_export.png
-   :width: 19.9%
-   :alt: AnnData Export API 열기
-   :target: https://einarolafsson.github.io/spacr/api/spacr/anndata_export/index.html
-   :align: middle
-.. |App_pca| image:: ../../../spacr/resources/icons/workflow/apps/pca.png
-   :width: 19.9%
-   :alt: PCA API 열기
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/pca/index.html
-   :align: middle
 .. |App_tabulate| image:: ../../../spacr/resources/icons/workflow/apps/tabulate.png
    :width: 19.9%
    :alt: Tabulate API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/tabulate/index.html
    :align: middle
-.. |App_timelapse| image:: ../../../spacr/resources/icons/workflow/apps/timelapse.png
+.. |App_feature_dict| image:: ../../../spacr/resources/icons/workflow/apps/feature_dict.png
    :width: 19.9%
-   :alt: Timelapse API 열기
-   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
+   :alt: Feature Dictionary API 열기
+   :target: https://einarolafsson.github.io/spacr/api/spacr/feature_dict/index.html
    :align: middle
-.. |App_motility| image:: ../../../spacr/resources/icons/workflow/apps/motility.png
+.. |App_trellis| image:: ../../../spacr/resources/icons/workflow/apps/trellis.png
    :width: 19.9%
-   :alt: Motility Assay API 열기
-   :target: https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html
+   :alt: Small Multiples API 열기
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/trellis/index.html
+   :align: middle
+.. |App_gate_editor| image:: ../../../spacr/resources/icons/workflow/apps/gate_editor.png
+   :width: 19.9%
+   :alt: Gate Editor API 열기
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/gate_editor/index.html
+   :align: middle
+.. |App_feature_explorer| image:: ../../../spacr/resources/icons/workflow/apps/feature_explorer.png
+   :width: 19.9%
+   :alt: Feature Explorer API 열기
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/feature_explorer/index.html
+   :align: middle
+.. |App_outliers| image:: ../../../spacr/resources/icons/workflow/apps/outliers.png
+   :width: 19.9%
+   :alt: Outliers API 열기
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/outliers/index.html
    :align: middle
 .. |App_analyze_plaques| image:: ../../../spacr/resources/icons/workflow/apps/analyze_plaques.png
    :width: 19.9%
@@ -395,14 +338,11 @@ spaCR를 데스크톱 애플리케이션으로 실행하거나 워크스테이�
    :alt: Power / Design API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/power/index.html
    :align: middle
-.. |InstallerWindows| image:: ../../../spacr/resources/icons/platforms/windows.png
-   :width: 64
-   :alt: Windows 10/11용 spaCR 1.5.0.4 다운로드
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
-.. |InstallerMacOS| image:: ../../../spacr/resources/icons/platforms/macos.png
-   :width: 64
-   :alt: macOS 11+ (Intel 및 Apple Silicon)용 spaCR 1.5.0.4 다운로드
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
+.. |App_dose_response| image:: ../../../spacr/resources/icons/workflow/apps/dose_response.png
+   :width: 19.9%
+   :alt: Dose–Response API 열기
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/dose_response/index.html
+   :align: middle
 
 .. spacr-workflow-end
 
@@ -413,7 +353,7 @@ spaCR 설치
 -------------
 
 데스크톱 애플리케이션
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 데스크톱 설치에는 개인 Python 환경이 포함되어 있으므로 콘다와 기존 Python 설치가 필요하지 않습니다.
 
@@ -421,6 +361,14 @@ spaCR 설치
 
 |InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerLegacy|
 
+.. |InstallerWindows| image:: ../../../spacr/resources/icons/platforms/windows.png
+   :width: 64
+   :alt: Windows 10/11용 spaCR 1.5.0.4 다운로드
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
+.. |InstallerMacOS| image:: ../../../spacr/resources/icons/platforms/macos.png
+   :width: 64
+   :alt: macOS 11+ (Intel 및 Apple Silicon)용 spaCR 1.5.0.4 다운로드
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
 .. |InstallerLinux| image:: ../../../spacr/resources/icons/platforms/linux.png
    :width: 64
    :alt: 64비트 Linux용 spaCR 1.5.0.4 다운로드
@@ -429,14 +377,6 @@ spaCR 설치
    :width: 64
    :alt: 이전 spaCR 설치 프로그램
    :target: ../../source/installers.rst
-.. |DataBioStudies| image:: ../../../spacr/resources/icons/databanks/biostudies_button.png
-   :width: 72
-   :alt: BioStudies 현미경 데이터세트 열기
-   :target: https://doi.org/10.6019/S-BIAD2135
-.. |DataHuggingFace| image:: ../../../spacr/resources/icons/databanks/huggingface_button.png
-   :width: 72
-   :alt: Hugging Face 테스트 데이터세트 열기
-   :target: https://huggingface.co/datasets/einarolafsson/toxo_mito
 
 .. spacr-installer-links-end
 
@@ -449,9 +389,9 @@ Linux에서는 다운로드한 파일에 실행 권한을 부여한 후 실행�
    chmod +x SpaCR-*-Linux-x86_64-Online.run
    ./SpaCR-*-Linux-x86_64-Online.run
 
-macOS에서는 ``.pkg`` 파일을 여세요. 현재 베타는 공증되지 않았습니다. Gatekeeper가 차단하면 다음 항목을 선택하세요: **시스템 설정 → 개인정보 보호 및 보안 → 그래도 열기**.
+macOS에서는 ``.pkg``를 여세요. 현재 베타는 공증되지 않았습니다. Gatekeeper가 차단하면 **시스템 설정 → 개인정보 보호 및 보안 → 그래도 열기**를 선택하세요.
 
-업데이트, 제거, 오프라인 및 문제 해결 지침은 `설치 가이드 <../../source/installer_guide.rst>`_ 문서를 참조하십시오.
+업데이트, 제거, 오프라인 및 문제 해결 지침을 위한 `설치 가이드 <../../source/installer_guide.rst>`_를 참조하십시오.
 
 Python 설치
 ~~~~~~~~~~~~~~~~~~~
@@ -475,7 +415,7 @@ spaCR는 Python **3.9~3.14**를 지원하지만 torchvision이 제외하는 Pyth
    python -m pip install spacr
    spacr-run --list
 
-선택적 통합 기능은 별도 extras로 설치합니다: ``spacr[zarr]``, ``spacr[omero]``, ``spacr[napari]``, ``spacr[czi,nd2,lif]``. 전체 extras 및 Python 버전 호환성 표는 `설치 가이드 <../../source/installer_guide.rst>`_ 문서를 참조하십시오.
+옵션 통합은 예를 들어 ``spacr[zarr]`` , ``spacr[omero]``, ``spacr[napari]`` 및 ``spacr[czi,nd2,lif]``에서 별도로 설치됩니다. `설치 가이드 <../../source/installer_guide.rst>`_ 전체 엑스트라와 Python 버전의 호환성 테이블을 참조하십시오.
 
 명령줄 진입점
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -491,13 +431,13 @@ spaCR는 Python **3.9~3.14**를 지원하지만 torchvision이 제외하는 Pyth
        --settings settings.csv                # validate before running
    spacr-repro RUN_DIR                        # replay a recorded run
 
-문제를 해결할 때 환경 변수 ``SPACR_LOG_LEVEL=DEBUG`` 값을 설정합니다. 순환 로그 파일의 경로는 ``~/.spacr/logs/spacr.log`` 입니다. 클래식 Tk 인터페이스는 ``spacr-legacy`` 명령으로 사용할 수 있지만 더 이상 개발되지 않습니다.
+문제 해결할 때 ``SPACR_LOG_LEVEL=DEBUG``를 설정합니다. 회전 기록은 ``~/.spacr/logs/spacr.log``로 작성됩니다. 클래식 Tk 인터페이스는 ``spacr-legacy``로 사용할 수 있지만 더 이상 개발되지 않습니다.
 
 
 할 수 있는 일
 ---------------
 
-대부분의 스크린은 6 개의 모듈을 따릅니다 :
+기본 작업 흐름은 6 개의 모듈로 구성됩니다 :
 
 - **Mask** Cellpose로 세포, 핵, 병원체 및 세포소기관을 분할합니다.
 - **Measure** 형태, 강도, 텍스처, 공간 및 공위치 특성과 객체 크롭을 SQLite에 저장합니다.
@@ -527,15 +467,21 @@ spaCR는 Python **3.9~3.14**를 지원하지만 torchvision이 제외하는 Pyth
 시각적 설명이 있는 설정은 도구 설명에 **Animation** 컨트롤을 제공합니다. 다음 리소스를 살펴보세요: `설정 애니메이션 갤러리 <https://einarolafsson.github.io/spacr/setting_animations.html>`_ 및 `설정 애니메이션 레지스트리 <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.
 
 데이터
---------
+----
 
 참조 데이터세트
 ~~~~~~~~~~~~~~~~~~
 
-참조 데이터는 다음 아이콘에서 열 수 있습니다:
+|DataBioStudies| |DataHuggingFace| |DataNCBI| |DataSpaCRPower| |DataBioRxiv|의 경우
 
-|DataBioStudies| |DataHuggingFace| |DataNCBI| |DataSpaCRPower| |DataBioRxiv|
-
+.. |DataBioStudies| image:: ../../../spacr/resources/icons/databanks/biostudies_button.png
+   :width: 72
+   :alt: BioStudies 현미경 데이터세트 열기
+   :target: https://doi.org/10.6019/S-BIAD2135
+.. |DataHuggingFace| image:: ../../../spacr/resources/icons/databanks/huggingface_button.png
+   :width: 72
+   :alt: Hugging Face 테스트 데이터세트 열기
+   :target: https://huggingface.co/datasets/einarolafsson/toxo_mito
 .. |DataNCBI| image:: ../../../spacr/resources/icons/databanks/ncbi_button.png
    :width: 72
    :alt: NCBI 시퀀싱 데이터세트 열기
@@ -570,7 +516,7 @@ spaCR 인용
 
 spaCR가 연구에 기여했다면 다음을 인용해 주세요:
 
-Olafsson EB, *et al.* 풀드 이미지 기반 CRISPR 스크린은 EAF1을 *T. gondii* 기생충의 ESCRT 기능 탈취 조절 인자로 규명합니다.
+Olafsson EB, *et al.* 풀드 이미지 기반 CRISPR 스크린은 EAF1을 *T. gondii*의 ESCRT 기능 탈취 조절 인자로 규명합니다.
 
 `BioRxiv 프리프린트 <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ · `소프트웨어 아카이브 <https://doi.org/10.5281/zenodo.21343317>`_
 

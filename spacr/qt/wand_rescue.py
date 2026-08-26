@@ -11,19 +11,19 @@ an answer: it shrinks the object as well.
 Three independent rescues are offered here, in the order they run. Each
 catches the runaway at a different point, and each can be turned off:
 
-1. **Directional runaway trim** -- :func:`trim_directional_runaway`.
-   Reads the flood's width scanline by scanline outward from the click. A
-   leak is a *sustained sudden expansion*; everything past it is cut. This
-   is the detector: the two rescues below only run once it has fired.
-2. **Intensity border** -- the binary search in :func:`wand_region`.
-   A straight half-plane cut is safe but looks nothing like a cell. Once
-   the detector says this tolerance escapes, search for the highest
-   tolerance that does not, and take that flood instead. The boundary is
-   then drawn by the image's own intensities.
-3. **Gradient taper** -- :func:`taper_region_to_intensity`. Whatever edge
-   the previous steps produced, let a watershed on the smoothed intensity
-   gradient move it onto the nearest real edge, inside a band of a chosen
-   width. This is what removes the last straight lines.
+1. **Directional runaway detection and trimming** —
+   :func:`trim_directional_runaway` measures flood width along scanlines
+   extending from the seed. A sustained abrupt expansion marks a leak, and
+   pixels beyond that position are removed. Detection at this stage enables
+   the following two refinements.
+2. **Intensity-constrained reflooding** — :func:`wand_region` performs a
+   binary search for the highest tested tolerance that does not trigger
+   runaway detection. The resulting connected region replaces the
+   straight-line directional cut.
+3. **Gradient-based boundary refinement** —
+   :func:`taper_region_to_intensity` applies a watershed to a smoothed
+   intensity gradient within a configurable band, moving the provisional
+   boundary toward a nearby image edge.
 
 Separately, :func:`cap_region_from_seed` bounds a flood that is simply too
 big, keeping the pixels *geodesically* nearest the click so the result is

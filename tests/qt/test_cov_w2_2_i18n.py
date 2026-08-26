@@ -75,11 +75,14 @@ def test_registering_an_app_name_reaches_every_catalog(catalog_restored):
         assert tr("W2_2 Probe", code) == value
 
 
-def test_registering_the_same_name_twice_is_a_no_op(catalog_restored):
-    """Two modules naming one app is not a conflict worth raising over."""
+def test_registering_the_same_row_twice_is_a_no_op_but_conflicts_fail(
+        catalog_restored):
+    """Identical registration is harmless; ambiguous translations are not."""
     values = [f"Prov {code}" for code in _CODES]
     assert add_translation("W2_2 Probe", values) is True
-    assert add_translation("W2_2 Probe", ["other"] * len(_CODES)) is False
+    assert add_translation("W2_2 Probe", values) is False
+    with pytest.raises(ValueError, match="conflicts"):
+        add_translation("W2_2 Probe", ["other"] * len(_CODES))
     assert CATALOGS[_CODES[0]]["W2_2 Probe"] == values[0]
 
 

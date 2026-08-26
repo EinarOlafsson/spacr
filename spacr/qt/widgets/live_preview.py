@@ -1396,7 +1396,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         from .ai_toggle_label import AiToggleLabel
         self._mip_toggle = AiToggleLabel(
             self, text="MIP",
-            tooltip="Load a folder to find out whether it has z-stacks.")
+            tooltip="Load an image folder to determine whether z-stacks are available.")
         self._mip_toggle.setEnabled(False)
         self._mip_toggle.toggled.connect(self._on_mip_toggled)
         # How many images may be on screen at once. Separate from the set
@@ -2128,13 +2128,14 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             box.blockSignals(blocked)
 
     def retranslate_dynamic_content(self, language: str) -> None:
-        """Record the language this panel is showing.
+        """Record the language used for subsequently generated panel content.
 
-        The channel dropdown is refilled every time a folder is enumerated,
-        which is long after the language pass that translated it, and it has
-        to be rebuilt in the language ON SCREEN rather than the one the
-        preference happens to hold — a language chosen in Preferences
-        reaches the widget tree before it is persisted.
+        Channel choices are rebuilt when a source folder is enumerated, which
+        may occur after the standard translation pass. Storing the language
+        applied to the widget tree ensures that regenerated choices use the
+        current display language even before the preference is persisted.
+
+        :param language: Language code currently applied to the panel.
         """
         self._i18n_language = str(language)
 

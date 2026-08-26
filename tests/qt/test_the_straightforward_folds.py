@@ -37,10 +37,9 @@ from PySide6.QtWidgets import QPushButton, QStackedWidget, QWidget
 
 from spacr.qt.app import app_stage
 from spacr.qt.screens import classify, map_barcodes, measure
-from spacr.qt.screens.app_screen import AppScreen
 from spacr.qt.screens.annotate import FOLDED_APPS as ANNOTATE_FOLDS
+from spacr.qt.screens.app_screen import AppScreen
 from spacr.qt.widgets.fold_strip import FoldStrip
-
 
 #: (module, host key) for the three hosts whose screen is the generic
 #: settings form. Annotate builds its own masthead and is tested apart.
@@ -66,6 +65,12 @@ def _opened(qtbot, opener):
     assert window is not None, f"{opener.key}: the button opened nothing"
     qtbot.addWidget(window)
     return window
+
+
+def _opener(screen, key):
+    """Return the fold opener registered for ``key``."""
+    return next(opener for opener in screen._fold_openers
+                if opener.key == key)
 
 
 # ---------------------------------------------------------------------------
@@ -184,7 +189,7 @@ def test_measure_opens_the_anndata_export_form(qtbot, qt_theme_applied):
     only "export" with no keys would drop every choice it has.
     """
     screen, _strip = _host_screen(qtbot, measure, "measure")
-    window = _opened(qtbot, screen._fold_openers[0])
+    window = _opened(qtbot, _opener(screen, "anndata_export"))
 
     assert isinstance(window, AppScreen)
     assert window.app_key == "anndata_export"
@@ -201,8 +206,7 @@ def test_classify_opens_both_judgements_with_their_own_panels(
     Each is named by a capability Classify itself has none of: the
     evaluation bundle browser, and the explanation screen's CV panel.
     """
-    from spacr.qt.screens.classifier_evaluation import (
-        ClassifierEvaluationScreen)
+    from spacr.qt.screens.classifier_evaluation import ClassifierEvaluationScreen
     from spacr.qt.screens.model_explanation import ModelExplanationScreen
 
     screen, _strip = _host_screen(qtbot, classify, "classify_merged")
@@ -247,7 +251,7 @@ def test_the_button_press_itself_opens_the_module(qtbot, qt_theme_applied):
 
     button.click()
 
-    window = screen._fold_openers[0].window
+    window = _opener(screen, "anndata_export").window
     assert window is not None, "clicking the button opened nothing"
     qtbot.addWidget(window)
     assert window.app_key == "anndata_export"
@@ -283,7 +287,7 @@ def test_a_closed_and_deleted_window_is_rebuilt(qtbot, qt_theme_applied):
     import shiboken6
 
     screen, _strip = _host_screen(qtbot, measure, "measure")
-    opener = screen._fold_openers[0]
+    opener = _opener(screen, "anndata_export")
     # Deliberately NOT registered with qtbot: this widget is destroyed
     # mid-test, and a teardown that tried to close it again would report
     # the deletion as a failure of whatever ran next.
@@ -666,7 +670,6 @@ def _stage_at_launch(key: str) -> str:
     the live table under whatever runs next.
     """
     from spacr.qt import maturity
-
     from spacr.qt.app import APPS
 
     promoted = maturity.PROMOTIONS.get(key)

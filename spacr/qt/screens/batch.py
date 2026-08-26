@@ -178,12 +178,13 @@ class BatchScreen(QWidget):
         outer.addWidget(title)
 
         subtitle = QLabel(
-            "Stack any modules, in any order, with any settings, and run them "
-            "overnight: Mask → Measure → Classify, then the same again with "
-            "different settings. Every job is checked when you add it, the "
-            "queue file survives a reboot, and a job whose input failed is "
-            "skipped instead of run on a half-written result. One job at a "
-            "time — they share one GPU.")
+            "Configure modules in any order with independent settings and "
+            "execute them sequentially without supervision, for example "
+            "Mask → Measure → Classify followed by another configuration. "
+            "Each job is validated when added, the queue persists across a "
+            "restart, and jobs whose inputs failed are skipped to prevent use "
+            "of incomplete results. Jobs execute sequentially to preserve "
+            "dependency order and prevent resource contention.")
         subtitle.setObjectName("Muted")
         subtitle.setWordWrap(True)
         outer.addWidget(subtitle)

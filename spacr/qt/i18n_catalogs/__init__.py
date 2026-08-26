@@ -100,7 +100,53 @@ def setting_label(
     if canonical.get(lookup) != str(source):
         lookup = str(key)
     if canonical.get(lookup) != str(source):
-        return None
+        # Slots above the four default organelles reuse the primary slot's
+        # reviewed translation.  Materialising all 26 otherwise copies the
+        # same 53 labels and tooltips 22 extra times into every language
+        # catalog.  Accept the alias only when both its key and its exact
+        # generated English label match; edited prose must still fall back to
+        # English instead of displaying a stale translation.
+        default_limit = 4
+        try:
+            from spacr.organelle_types import (
+                DEFAULT_NUMBER_OF_ORGANELLES,
+                organelle_number,
+                organelle_role_of,
+                primary_setting,
+            )
+
+            role = organelle_role_of(str(key))
+            number = organelle_number(role) if role else 0
+            default_limit = DEFAULT_NUMBER_OF_ORGANELLES
+            primary = primary_setting(str(key))
+            primary_source = canonical.get(primary)
+            expected = (
+                str(primary_source).replace(
+                    "Organelle 1", f"Organelle {number}", 1
+                )
+                if primary_source is not None else None
+            )
+        except (ImportError, TypeError, ValueError):
+            role = None
+            number = 0
+            primary = ""
+            primary_source = None
+            expected = None
+        if not (
+            role
+            and number > default_limit
+            and expected == str(source)
+        ):
+            return None
+        module = _module(language)
+        if module is None:
+            return None
+        localized = _localized_value(
+            module, "SETTING_LABELS", primary, str(primary_source)
+        )
+        if localized is None:
+            return None
+        return re.sub(r"(?<!\d)1(?!\d)", str(number), localized, count=1)
     module = _module(language)
     if module is None:
         return None
@@ -117,7 +163,46 @@ def setting_tooltip(
     """Return a scientific tooltip only while the canonical prose matches."""
     canonical = getattr(_english(), "SETTING_TOOLTIPS", {})
     if canonical.get(str(key)) != str(source):
-        return None
+        default_limit = 4
+        try:
+            from spacr.organelle_types import (
+                DEFAULT_NUMBER_OF_ORGANELLES,
+                organelle_number,
+                organelle_role_of,
+                primary_setting,
+            )
+
+            role = organelle_role_of(str(key))
+            number = organelle_number(role) if role else 0
+            default_limit = DEFAULT_NUMBER_OF_ORGANELLES
+            primary = primary_setting(str(key))
+            primary_source = canonical.get(primary)
+            expected = str(primary_source)
+            expected = expected.replace("organelle_", f"{role}_")
+            expected = expected.replace(
+                "organelle ", f"organelle {number} "
+            )
+        except (ImportError, TypeError, ValueError):
+            role = None
+            number = 0
+            primary = ""
+            primary_source = None
+            expected = None
+        if not (
+            role
+            and number > default_limit
+            and expected == str(source)
+        ):
+            return None
+        module = _module(language)
+        if module is None:
+            return None
+        localized = _localized_value(
+            module, "SETTING_TOOLTIPS", primary, str(primary_source)
+        )
+        if localized is None:
+            return None
+        return localized.replace("organelle_", f"{role}_")
     module = _module(language)
     if module is None:
         return None

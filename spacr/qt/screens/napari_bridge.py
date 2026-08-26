@@ -317,24 +317,23 @@ def make_napari_bridge_screen(app_key: Optional[str] = None) -> QWidget:
 
 
 APP_NAME = "Napari Bridge"
-APP_DESCRIPTION = "Correct a mask in napari and bring the corrected labels back"
+APP_DESCRIPTION = (
+    "Correct a segmentation mask in napari and import the revised labels "
+    "into spaCR."
+)
 APP_INTRO = (
-    "Hand a field's image and its label mask to napari, fix the mask with "
-    "the brush, the fill and the keybindings you already have in your "
-    "fingers, and bring it back. Label values survive exactly — object 41 "
-    "comes back as object 41, on the same pixels — and the corrected mask is "
-    "written as the uint16 label image the rest of spaCR reads, in the "
-    "orientation it was handed over in. The correction is appended to the "
-    "same curation ledger the Curate screen writes, so a hand-edited mask "
-    "can still be told from a segmented one months later. spaCR's own brush "
-    "is not going anywhere; this is for people who would rather not learn a "
-    "second one. Needs `pip install \"spacr[napari]\"`.")
+    "Open a field image and its label mask in napari for brush, fill, and "
+    "keyboard-based correction. Imported labels retain their numeric object "
+    "identifiers, pixel locations, and original orientation, and are written "
+    "as uint16 label images. Each import appends the correction to the same "
+    "curation ledger used by the Curate screen, preserving the distinction "
+    "between manually edited and pipeline-generated masks. Install the "
+    "optional dependency with `pip install \"spacr[napari]\"`.")
 APP_CLI_NOTE = (
-    "The Napari Bridge is two windows talking to each other, so run it in "
-    "the GUI (spacr-qt). Headless, spacr.napari_bridge.correct_mask(mask, "
-    "image) does the whole round trip from a script or a notebook — it opens "
-    "napari, waits for you to close it, writes the corrected mask back and "
-    "records the correction.")
+    "Napari Bridge requires an interactive napari window and is available in "
+    "the GUI (spacr-qt). From a script or notebook, "
+    "spacr.napari_bridge.correct_mask(mask, image) opens napari, waits for the "
+    "window to close, writes the corrected mask, and records the correction.")
 #: The display name in the nine non-English UI languages, in
 #: `spacr.qt.i18n.LANGUAGES` order (sv, de, es, zh_CN, pt, hi, ko, is, fr).
 APP_NAME_TRANSLATIONS = (

@@ -1,0 +1,202 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "cv_csv",
+      "source_sha256": "3334f965201a72a078a74fd500041e702c5842a7224d1580236ca2380a8a687b",
+      "source": "Cv CSV",
+      "translation": "교차 검증 CSV"
+    },
+    {
+      "table": "setting_labels",
+      "key": "hit_fdr",
+      "source_sha256": "0eccafd10c99622b87d1fc11619d66ac012cf675bdb8e5c507bd0434bdd23bb0",
+      "source": "Hit fdr",
+      "translation": "히트 FDR"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_log_intensity",
+      "source_sha256": "e34ff1fdeb89c3f54b530914b7f79d0f55d583ff0e0427740a35b89c9966fecd",
+      "source": "Infection pca log intensity",
+      "translation": "감염 pca 로그 강도"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_max_cells",
+      "source_sha256": "82d3b4f998ea1cd71996b373fcc665c96a55abf72e4b05b9bbe96050c6d237b1",
+      "source": "Infection pca max cells",
+      "translation": "감염 pca 최대 세포 수"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_method",
+      "source_sha256": "51116e668566912a8a11c183f14823af8c3acb112c090740cc4c95cb01895323",
+      "source": "Infection pca method",
+      "translation": "감염 pca 방법"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_min_gt_separation",
+      "source_sha256": "4db8736b92f127cd6af6a8cb1caf9386da6101e8f369b04bce49f692af419552",
+      "source": "Infection pca min gt separation",
+      "translation": "감염 pca 최소 실측값 분리도"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_random_state",
+      "source_sha256": "dec6bc0626a88ee6459ff5ddf1069e4b4f3e21451895b79c382bfe9be8c917b1",
+      "source": "Infection pca random state",
+      "translation": "감염 pca 난수 시드"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "infection_pca_log_intensity",
+      "source_sha256": "3aa1083de1d366233d4bd4ab8bef8493d738da7f643bc7c41f98e503511ffd9f",
+      "source": "Apply log1p to non-negative features whose names contain 'intensity', 'p75', 'p95', or 'max' before standardization and embedding. This compresses the upper tail and reduces the influence of a small number of high-intensity cells. Consider enabling for pathogen stains with a wide dynamic range. Default False.",
+      "translation": "표준화 및 임베딩 전에 이름에 'intensity', 'p75', 'p95' 또는 'max' 가 포함된 음수가 아닌 특성에 log1p를 적용합니다. 이는 상위 꼬리를 압축하고 소수의 고강도 세포가 미치는 영향을 줄입니다. 동적 범위가 넓은 병원체 염색에는 활성화를 고려하십시오. 기본값 False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelle_morphology",
+      "source_sha256": "d478357f7cc9517ec8b85fa3e7a75fd967af1f6233bc8bb9a5547999d8f02370",
+      "source": "Shape family of the target organelle; selects the segmentation pipeline and restricts valid organelle_method values. 'spots' denotes punctate structures such as vesicles and lipid droplets; 'network' denotes filamentous structures such as mitochondria and endoplasmic-reticulum tubules; 'irregular' denotes solid, irregular structures such as Golgi and lysosomes; and 'ring' denotes hollow structures such as endosomes and autophagosomes. An unsupported morphology-method pair raises before image loading. Default 'spots'.",
+      "translation": "대상 소기관의 형태 유형입니다. 분할 파이프라인을 선택하고 유효한 organelle_method 값을 제한합니다. 'spots' 는 소포 및 지질 방울과 같은 점상 구조를, 'network' 는 미토콘드리아 및 소포체 세관과 같은 필라멘트 구조를, 'irregular' 는 골지체 및 리소좀과 같은 고형 불규칙 구조를, 'ring' 은 엔도좀 및 오토파고좀과 같은 속이 빈 구조를 나타냅니다. 지원되지 않는 형태-방법 조합은 이미지를 불러오기 전에 오류를 발생시킵니다. 기본값 'spots'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelleb_morphology",
+      "source_sha256": "af54ac24514b77aaff8a440cccd92f9881cf812d689946a1b2dc4d2704367b35",
+      "source": "Shape family of the target organelle; selects the segmentation pipeline and restricts valid organelleb_method values. 'spots' denotes punctate structures such as vesicles and lipid droplets; 'network' denotes filamentous structures such as mitochondria and endoplasmic-reticulum tubules; 'irregular' denotes solid, irregular structures such as Golgi and lysosomes; and 'ring' denotes hollow structures such as endosomes and autophagosomes. An unsupported morphology-method pair raises before image loading. Default 'spots'.",
+      "translation": "대상 소기관의 형태 유형입니다. 분할 파이프라인을 선택하고 유효한 organelleb_method 값을 제한합니다. 'spots' 는 소포 및 지질 방울과 같은 점상 구조를, 'network' 는 미토콘드리아 및 소포체 세관과 같은 필라멘트 구조를, 'irregular' 는 골지체 및 리소좀과 같은 고형 불규칙 구조를, 'ring' 은 엔도좀 및 오토파고좀과 같은 속이 빈 구조를 나타냅니다. 지원되지 않는 형태-방법 조합은 이미지를 불러오기 전에 오류를 발생시킵니다. 기본값 'spots'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organellec_morphology",
+      "source_sha256": "7565cf3851b7dfa129f041ec3dd63e879c30e04498d9972215dd989781530b53",
+      "source": "Shape family of the target organelle; selects the segmentation pipeline and restricts valid organellec_method values. 'spots' denotes punctate structures such as vesicles and lipid droplets; 'network' denotes filamentous structures such as mitochondria and endoplasmic-reticulum tubules; 'irregular' denotes solid, irregular structures such as Golgi and lysosomes; and 'ring' denotes hollow structures such as endosomes and autophagosomes. An unsupported morphology-method pair raises before image loading. Default 'spots'.",
+      "translation": "대상 소기관의 형태 유형입니다. 분할 파이프라인을 선택하고 유효한 organellec_method 값을 제한합니다. 'spots' 는 소포 및 지질 방울과 같은 점상 구조를, 'network' 는 미토콘드리아 및 소포체 세관과 같은 필라멘트 구조를, 'irregular' 는 골지체 및 리소좀과 같은 고형 불규칙 구조를, 'ring' 은 엔도좀 및 오토파고좀과 같은 속이 빈 구조를 나타냅니다. 지원되지 않는 형태-방법 조합은 이미지를 불러오기 전에 오류를 발생시킵니다. 기본값 'spots'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelled_morphology",
+      "source_sha256": "d80216c1efa21f7834cb21b867140ef7c75a2e5154d623d29e18237e4797f61a",
+      "source": "Shape family of the target organelle; selects the segmentation pipeline and restricts valid organelled_method values. 'spots' denotes punctate structures such as vesicles and lipid droplets; 'network' denotes filamentous structures such as mitochondria and endoplasmic-reticulum tubules; 'irregular' denotes solid, irregular structures such as Golgi and lysosomes; and 'ring' denotes hollow structures such as endosomes and autophagosomes. An unsupported morphology-method pair raises before image loading. Default 'spots'.",
+      "translation": "대상 소기관의 형태 유형입니다. 분할 파이프라인을 선택하고 유효한 organelled_method 값을 제한합니다. 'spots' 는 소포 및 지질 방울과 같은 점상 구조를, 'network' 는 미토콘드리아 및 소포체 세관과 같은 필라멘트 구조를, 'irregular' 는 골지체 및 리소좀과 같은 고형 불규칙 구조를, 'ring' 은 엔도좀 및 오토파고좀과 같은 속이 빈 구조를 나타냅니다. 지원되지 않는 형태-방법 조합은 이미지를 불러오기 전에 오류를 발생시킵니다. 기본값 'spots'."
+    },
+    {
+      "table": "categories",
+      "key": "Image source, planes read by the module, and normalization or inversion applied before analysis. An empty result can indicate a channel index assigned to an empty plane.",
+      "source_sha256": "9e2c74616703be4a5c2cba812e3670cc8324e99e7cb0e1f077d52d535df4bb19",
+      "source": "Image source, planes read by the module, and normalization or inversion applied before analysis. An empty result can indicate a channel index assigned to an empty plane.",
+      "translation": "분석 전에 적용되는 이미지 소스, 모듈이 읽는 평면, 정규화 또는 반전입니다. 결과가 비어 있으면 빈 평면에 채널 인덱스가 할당되었음을 의미할 수 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "(float, px) Expected object diameter. Cellpose-SAM uses it: the image is rescaled by 30/diameter before segmentation, so raising it finds bigger objects and lowering it finds smaller ones. 30 is the no-op (30/30 = 1) and 0 means 'unset', which is the same thing.",
+      "source_sha256": "0fc61427171945cfa8a403b21f41d6fb79f14856644307c2462a675bcc337022",
+      "source": "(float, px) Expected object diameter. Cellpose-SAM uses it: the image is rescaled by 30/diameter before segmentation, so raising it finds bigger objects and lowering it finds smaller ones. 30 is the no-op (30/30 = 1) and 0 means 'unset', which is the same thing.",
+      "translation": "(float, px) 예상 객체 직경입니다. Cellpose-SAM 은 이 값을 사용합니다. 분할 전에 이미지를 30/diameter 비율로 조정하므로 값을 높이면 더 큰 객체를, 낮추면 더 작은 객체를 검출합니다. 30은 크기를 변경하지 않으며(30/30 = 1), 0은 'unset' 을 의미하여 동일하게 동작합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Displayed channel. 'All channels' shows the image as stored; picking one shows that plane alone. This is a view control — the segmentation channels live in Live settings.",
+      "source_sha256": "f40fe7b371d4ce347fbe8103ce5daa614833777ea008436dd23e598fc021f8ee",
+      "source": "Displayed channel. 'All channels' shows the image as stored; picking one shows that plane alone. This is a view control — the segmentation channels live in Live settings.",
+      "translation": "표시할 채널입니다. 'All channels' 는 저장된 이미지를 그대로 표시하며, 하나를 선택하면 해당 평면만 표시합니다. 이는 보기 제어 설정이며 분할 채널은 Live settings에 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Elastic net combines L1 and L2 through l1_ratio (1 is lasso; 0 is ridge), with alpha='auto' chosen by 5-fold cross-validation. It reports bootstrap selection frequency across lasso_n_boot resamples, not p-values, and applies lasso_selection_threshold.",
+      "source_sha256": "ebcc120245f6c74fc5e42bdbe283e4b1e9716b55b7a943e0aeb4e3a5c91d42c6",
+      "source": "Elastic net combines L1 and L2 through l1_ratio (1 is lasso; 0 is ridge), with alpha='auto' chosen by 5-fold cross-validation. It reports bootstrap selection frequency across lasso_n_boot resamples, not p-values, and applies lasso_selection_threshold.",
+      "translation": "Elastic net은 l1_ratio 를 통해 L1과 L2를 결합합니다(1은 lasso, 0은 ridge). alpha='auto' 는 5-fold 교차 검증으로 선택됩니다. p-values가 아니라 lasso_n_boot 재표본화에서 얻은 bootstrap 선택 빈도를 보고하며 lasso_selection_threshold 를 적용합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Group-penalised least squares treats A GENE'S GUIDES AS ONE BLOCK, retaining or zeroing the whole block. group_lasso_lambda sets the penalty relative to group_lasso.max_lambda; hits use bootstrap selection frequency over lasso_n_boot resamples and lasso_selection_threshold.",
+      "source_sha256": "a66a8cbc90131f63a02f988c7979ed698d5ba0b5d5ff9a20d69f31ccaabb5adf",
+      "source": "Group-penalised least squares treats A GENE'S GUIDES AS ONE BLOCK, retaining or zeroing the whole block. group_lasso_lambda sets the penalty relative to group_lasso.max_lambda; hits use bootstrap selection frequency over lasso_n_boot resamples and lasso_selection_threshold.",
+      "translation": "그룹 페널티 최소제곱법은 A GENE'S GUIDES AS ONE BLOCK 으로 처리하여 전체 블록을 유지하거나 0으로 설정합니다. group_lasso_lambda 는 group_lasso.max_lambda 에 대한 상대적 페널티를 설정하며, 히트 판정에는 lasso_n_boot 재표본화의 bootstrap 선택 빈도와 lasso_selection_threshold 를 사용합니다."
+    },
+    {
+      "table": "ui",
+      "key": "How many arrows — the features best represented in this plane.",
+      "source_sha256": "dd31631cba9ad89738be11205b7a37f2b24d1c29af323fdf9f42aef246ece8eb",
+      "source": "How many arrows — the features best represented in this plane.",
+      "translation": "이 평면에서 가장 잘 표현되는 특성을 나타낼 화살표 수입니다."
+    },
+    {
+      "table": "ui",
+      "key": "Image channel indices written to crop R, G and B planes.",
+      "source_sha256": "43148c1b4d65b1b4e00fd24b90f527a4f7b52708f536ff9f5c4b138f691fb70f",
+      "source": "Image channel indices written to crop R, G and B planes.",
+      "translation": "crop의 R, G 및 B 평면에 기록할 이미지 채널 인덱스입니다."
+    },
+    {
+      "table": "ui",
+      "key": "Kernel containment is active for each trial: memory {memory}, swap disabled, and CPU quota {cpu}. If a trial exceeds a limit, only that trial is stopped and recorded as 'killed'; the sweep continues.",
+      "source_sha256": "9d90848792ee106cadd251806cbfd27da8f470e1db6336a18292f58d37b953bb",
+      "source": "Kernel containment is active for each trial: memory {memory}, swap disabled, and CPU quota {cpu}. If a trial exceeds a limit, only that trial is stopped and recorded as 'killed'; the sweep continues.",
+      "translation": "각 trial에 커널 제한이 적용됩니다. 메모리는 {memory}, swap은 비활성화되고 CPU 할당량은 {cpu}입니다. trial이 제한을 초과하면 해당 trial만 중지되어 'killed' 로 기록되고 sweep은 계속됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "No objects found in the tracked mask plane.",
+      "source_sha256": "0d8c3b7596272d45b1fcd34a6e7d394d4a0993a2c1c718a63a26fdd43d3e6c3d",
+      "source": "No objects found in the tracked mask plane.",
+      "translation": "추적된 마스크 평면에서 객체를 찾지 못했습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Pause is not available for this module.\n\nPausing means holding the pipeline at a point where nothing is half-written — between fields, not mid-write. spaCR's pipelines do not yet offer such a checkpoint, so a Pause button here could only freeze the thread wherever it happened to be, which can truncate a mask file or leave a field measured into some tables and not others.\n\nUse Stop, or queue plates so the run can be halted between them.",
+      "source_sha256": "06fa5212e6133349c2aeb6bf0342e040180c6b687470dbf6c4cf3087785f0f31",
+      "source": "Pause is not available for this module.\n\nPausing means holding the pipeline at a point where nothing is half-written — between fields, not mid-write. spaCR's pipelines do not yet offer such a checkpoint, so a Pause button here could only freeze the thread wherever it happened to be, which can truncate a mask file or leave a field measured into some tables and not others.\n\nUse Stop, or queue plates so the run can be halted between them.",
+      "translation": "이 모듈에서는 Pause를 사용할 수 없습니다.\n\n일시 정지는 필드 처리 중이나 기록 도중이 아니라 필드 사이처럼 일부만 기록된 데이터가 없는 지점에서 파이프라인을 보류해야 합니다. spaCR 파이프라인은 아직 이러한 checkpoint를 제공하지 않으므로 여기서 Pause 버튼을 사용하면 임의의 지점에서 thread가 정지하여 마스크 파일이 잘리거나 일부 테이블에만 필드가 측정될 수 있습니다.\n\nStop을 사용하거나 플레이트를 대기열에 추가하여 플레이트 사이에서 실행을 중지하십시오."
+    },
+    {
+      "table": "ui",
+      "key": "Planes displayed in the montage. Enter the color letters used by Annotate — r, g, b, or a combination such as 'r,g,b', 'rg', or 'b' — and each letter is resolved to the corresponding source channel. Source-channel indices such as '0,1,2' are also accepted.\n\nLeft empty, the run's own png_dims are read back out of measurements.db, so the crops match the PNGs that run wrote.",
+      "source_sha256": "8bef9790944c9c2ed7a93f9fec0ce5ac6a38f1b4de4e8499d732e6e4361f64d6",
+      "source": "Planes displayed in the montage. Enter the color letters used by Annotate — r, g, b, or a combination such as 'r,g,b', 'rg', or 'b' — and each letter is resolved to the corresponding source channel. Source-channel indices such as '0,1,2' are also accepted.\n\nLeft empty, the run's own png_dims are read back out of measurements.db, so the crops match the PNGs that run wrote.",
+      "translation": "montage에 표시할 평면입니다. Annotate에서 사용하는 색상 문자 r, g, b 또는 'r,g,b', 'rg', 'b' 와 같은 조합을 입력하면 각 문자가 해당 소스 채널에 연결됩니다. '0,1,2' 와 같은 소스 채널 인덱스도 사용할 수 있습니다.\n\n비워 두면 실행의 png_dims 를 measurements.db 에서 읽으므로 crop이 해당 실행에서 기록한 PNG 와 일치합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Run the power analysis",
+      "source_sha256": "3820ae700fa1fbf6e35a9c2e55db8fed1221a2e48bdd0d67364b9ec1364eb5c0",
+      "source": "Run the power analysis",
+      "translation": "검정력 분석을 실행합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Spread the queue across wells rather than serving the most uncertain crops in ranked order. Pure uncertainty collapses onto one or two wells, so you end up labelling the same ambiguity a hundred times. 'none' turns that protection off.",
+      "source_sha256": "34c56b048b56eb2d3781f9f80f3bb546f4e3faeef074ccf93fcf468b2288b83c",
+      "source": "Spread the queue across wells rather than serving the most uncertain crops in ranked order. Pure uncertainty collapses onto one or two wells, so you end up labelling the same ambiguity a hundred times. 'none' turns that protection off.",
+      "translation": "가장 불확실한 crop을 순위대로 제공하는 대신 대기열을 여러 웰에 분산합니다. 불확실성만 사용하면 한두 개 웰에 집중되어 동일한 모호성을 반복해서 레이블링할 수 있습니다. 'none' 은 이 보호 기능을 비활성화합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Stop the queue at the first failure",
+      "source_sha256": "0df9376fbc8156d452acf38338b32e84276d13df4b4a39e4c06f9cd2dcf63d41",
+      "source": "Stop the queue at the first failure",
+      "translation": "첫 번째 실패가 발생하면 대기열을 중지합니다."
+    },
+    {
+      "table": "ui",
+      "key": "This run saved no workspace — it was run with 'Saved runs carry: Nothing', or before spaCR recorded one. Preferences ▸ Performance ▸ Saved runs carry.",
+      "source_sha256": "a51dc627fa198511c47bd0fef31399262aef4c10214ded284a553cce38f59252",
+      "source": "This run saved no workspace — it was run with 'Saved runs carry: Nothing', or before spaCR recorded one. Preferences ▸ Performance ▸ Saved runs carry.",
+      "translation": "이 실행은 'Saved runs carry: Nothing' 으로 실행되었거나 spaCR 이 workspace를 기록하기 전에 수행되어 저장된 workspace가 없습니다. Preferences ▸ Performance ▸ Saved runs carry."
+    },
+    {
+      "table": "ui",
+      "key": "What a drag on the chosen plane draws. Every one of these is extended along the plane's own axis when the gate is made, so the drawing gesture stays flat and the gate is solid.",
+      "source_sha256": "61f06f3dbe5b3fb0309860b74fb55cdf953c4f5e0a04041e8f3b98eed21e9047",
+      "source": "What a drag on the chosen plane draws. Every one of these is extended along the plane's own axis when the gate is made, so the drawing gesture stays flat and the gate is solid.",
+      "translation": "선택한 평면에서 드래그할 때 그릴 도형입니다. gate를 생성할 때 각 도형은 해당 평면의 축을 따라 확장되므로 그리기 동작은 평면에 유지되고 gate는 입체가 됩니다."
+    }
+  ]
+}

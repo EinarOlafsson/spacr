@@ -4,15 +4,15 @@ from __future__ import annotations
 APP_KEY = "investigate_hit"
 APP_NAME = "Investigate Hit"
 APP_DESCRIPTION = (
-    "Return one exact regression hit to cross-fitted candidate cells and "
+    "Link a regression hit to cross-fitted candidate cells and "
     "well-level quantitative evidence")
 APP_INTRO = (
-    "Carry the exact regression run, gene, phenotype direction, FDR and guide "
-    "support back to measured cells. The first output is an honest score-based "
-    "review ranking. An optional hierarchical mixture then assigns cross-fitted "
-    "hit-like probabilities without forcing sequencing fraction to equal cell "
-    "prevalence. Comparisons use wells as the independent unit; stored calls "
-    "are versioned and never overwrite hand annotations.")
+    "Map a selected regression run, gene, phenotype direction, FDR, and guide "
+    "support back to measured cells. The initial output is a score-based review "
+    "ranking. An optional hierarchical mixture model assigns cross-fitted "
+    "hit-like probabilities without equating sequencing fraction with cell "
+    "prevalence. Comparisons treat wells as independent units. Stored calls are "
+    "versioned and do not overwrite manual annotations.")
 APP_TRANSLATIONS = (
     "Undersök träff", "Treffer untersuchen", "Investigar acierto",
     "调查命中", "Investigar acerto", "हिट की जाँच करें",

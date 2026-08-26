@@ -5,23 +5,23 @@
     {
       "table": "setting_tooltips",
       "key": "batch_covariate_column",
-      "source_sha256": "6994b1d086e0de5f1cc67bf87cf38e46e53e9710309f1e4b701c12c0a0db1ed3",
-      "source": "Metadata column(s) naming the biology combat must PROTECT, e.g. 'condition' or 'condition,timepoint'. combat estimates the batch effect from the residuals after these terms, so anything NOT listed is treated as noise and removed along with the plate effect. Leave your treatment out of this list and combat will quietly delete the effect you are measuring. See spacr.batch_correction.correct_batch_effects. Default None.",
-      "translation": "Metadatakolumn(er) som anger den biologi som combat måste SKYDDA, t.ex. 'condition' eller 'condition,timepoint'. combat skattar batcheffekten från residualerna efter dessa termer, så allt som INTE anges behandlas som brus och tas bort tillsammans med platteffekten. Om behandlingen utelämnas från listan raderar combat obemärkt den effekt som mäts. Se spacr.batch_correction.correct_batch_effects. Standard None."
+      "source_sha256": "ef1da37a6df496997f04e8e080d89f814318b92e686117d56d8a1556051340c4",
+      "source": "Metadata column(s) naming the biological effects ComBat must preserve, for example 'condition' or 'condition,timepoint'. ComBat estimates the batch effect from residuals after fitting these terms, so unlisted effects may be removed with the plate effect. Include every treatment effect that must remain in the corrected data. See spacr.batch_correction.correct_batch_effects. Default None.",
+      "translation": "Metadatakolumn(er) som anger de biologiska effekter som ComBat måste bevara, till exempel 'condition' eller 'condition,timepoint'. ComBat skattar batcheffekten från residualerna efter att dessa termer har anpassats, så effekter som inte anges kan tas bort tillsammans med platteffekten. Inkludera varje behandlingseffekt som ska finnas kvar i de korrigerade data. Se spacr.batch_correction.correct_batch_effects. Standard None."
     },
     {
       "table": "setting_tooltips",
       "key": "cell_loc",
-      "source_sha256": "aa64245af763c7d4a4284918e1b93c4befb73cb4a4a4c58abe6e1c2093813d56",
-      "source": "One list of well identifiers per entry in cells, giving where each host cell line sits on the plate, e.g. [['c1','c2'],['c3']]. Identifiers must start with 'r' for a row or 'c' for a column; anything else is ignored and those wells stay unannotated. Pass None to label every row with the first entry of cells. No default is set: no set_default_* function in settings.py touches this key, and its only reader, annotate_filter_vision, indexes settings['cell_loc'] directly, so it must be present in the dict (explicitly None if you do not want location mapping) or the call raises KeyError.",
-      "translation": "En lista med brunnsidentifierare för varje post i cells, som anger var varje värdcellinje finns på plattan, t.ex. [['c1','c2'],['c3']]. Identifierare måste börja med 'r' för en rad eller 'c' för en kolumn; allt annat ignoreras och dessa brunnar förblir utan annotering. Ange None för att märka varje rad med den första posten i cells. Inget standardvärde är satt: ingen set_default_*-funktion i settings.py ändrar nyckeln, och dess enda läsare, annotate_filter_vision, indexerar settings['cell_loc'] direkt. Nyckeln måste därför finnas i ordlistan (uttryckligen None om ingen platsmappning önskas), annars utlöses KeyError."
+      "source_sha256": "769a0540082bbfe051b2d93347b5604bb643a007e56f7d9d94b35db290a5021e",
+      "source": "One list of well identifiers per entry in cells, specifying the plate locations of each host cell line, for example [['c1','c2'],['c3']]. Identifiers must start with 'r' for a row or 'c' for a column; other values are ignored and the corresponding wells remain unannotated. None labels every row with the first entry of cells. No default is set: annotate_filter_vision accesses settings['cell_loc'] directly, so the key must be present in the dictionary and explicitly set to None when location mapping is not required.",
+      "translation": "En lista med brunnsidentifierare för varje post i cells anger varje värdcellinjes position på plattan, till exempel [['c1','c2'],['c3']]. Identifierare måste börja med 'r' för en rad eller 'c' för en kolumn; andra värden ignoreras och motsvarande brunnar förblir oannoterade. None märker varje rad med den första posten i cells. Inget standardvärde är angivet: annotate_filter_vision läser settings['cell_loc'] direkt, så nyckeln måste finnas i ordlistan och uttryckligen anges som None när platsmappning inte behövs."
     },
     {
       "table": "setting_tooltips",
       "key": "cell_plate_metadata",
-      "source_sha256": "8bec5dd197cc83031e4d363d2482cce0706b417445b35d304dc94564a72bf85e",
-      "source": "Wells occupied by each entry of cell_types, one inner list per cell type in the same order, e.g. [['c2','c3'],['c4']]. Every identifier must start with 'c' (column) or 'r' (row); anything else is SILENTLY skipped and those wells get no host_cells label. An unlabelled well is not lost -- 'condition' joins whichever labels do exist -- so a typo here quietly changes what is being compared rather than raising. Default None.",
-      "translation": "Brunnar som upptas av varje post i cell_types, med en inre lista per celltyp i samma ordning, t.ex. [['c2','c3'],['c4']]. Varje identifierare måste börja med 'c' (kolumn) eller 'r' (rad); allt annat hoppas över UTAN VARNING och dessa brunnar får ingen host_cells-etikett. En omärkt brunn försvinner inte – 'condition' sammanfogar de etiketter som finns – så ett skrivfel här ändrar obemärkt vad som jämförs i stället för att utlösa ett fel. Standard None."
+      "source_sha256": "4c1957931be806def29f66cd9cf0e06ffac900653fc1c30eb0ec72da3c854c21",
+      "source": "Wells occupied by each entry of cell_types, with one inner list per cell type in the same order, for example [['c2','c3'],['c4']]. Each identifier must start with 'c' (column) or 'r' (row); invalid identifiers are skipped without an exception and those wells receive no host_cells label. Because 'condition' combines the labels that are present, a typographical error changes the comparison without raising an error. Default None.",
+      "translation": "Brunnar som upptas av varje post i cell_types, med en inre lista per celltyp i samma ordning, till exempel [['c2','c3'],['c4']]. Varje identifierare måste börja med 'c' (kolumn) eller 'r' (rad); ogiltiga identifierare hoppas över utan undantag och dessa brunnar får ingen host_cells-etikett. Eftersom 'condition' kombinerar befintliga etiketter ändrar ett skrivfel jämförelsen utan att utlösa ett fel. Standard None."
     },
     {
       "table": "setting_tooltips",
@@ -40,9 +40,9 @@
     {
       "table": "setting_tooltips",
       "key": "coordinate_columns",
-      "source_sha256": "13b85f30b87409dec3d0330766e04a60cd8a3e63294d010de63033ef076c88bc",
-      "source": "On-demand crops from a DATABASE instead of masks: the columns holding each object's position, e.g. ['centroid_x', 'centroid_y']. Only bounding-box crops are possible this way, because a coordinate has no outline. None uses the merged masks, which is the default and the better source. Default None.",
-      "translation": "Beskärningar på begäran från en DATABAS i stället för masker: kolumnerna som innehåller varje objekts position, t.ex. ['centroid_x', 'centroid_y']. Endast beskärning med begränsningsruta är möjlig på detta sätt eftersom en koordinat saknar kontur. None använder de sammanfogade maskerna, vilket är standard och den bättre källan. Standard None."
+      "source_sha256": "28f622e4aacb156006f9f5817333e6578e80204f4303daa995038999eabcd1e0",
+      "source": "Columns containing each object's position when generating crops on demand from a database instead of masks, for example ['centroid_x', 'centroid_y']. This method supports only bounding-box crops because coordinates do not define object boundaries. None uses the merged masks and is the default. Default None.",
+      "translation": "Kolumner som innehåller varje objekts position när bildutsnitt genereras på begäran från en databas i stället för masker, till exempel ['centroid_x', 'centroid_y']. Metoden stöder endast bildutsnitt med begränsningsruta eftersom koordinater inte definierar objektgränser. None använder de sammanfogade maskerna och är standard. Standard None."
     },
     {
       "table": "setting_tooltips",
@@ -54,9 +54,9 @@
     {
       "table": "setting_tooltips",
       "key": "file_metadata",
-      "source_sha256": "87c4fe3ec91dd7704ae18b1b42f9bff60cc6e67cefc1c0a050e989ebaac0c719",
-      "source": "Substring filter applied to png_path when pulling crops from the database: only paths containing it are included, and a list matches any one of its entries (OR, not AND). Use it to restrict a dataset to one plate, well or object type, e.g. 'plate1_' or 'cell_png'. None takes every crop. Default None.",
-      "translation": "Delsträngsfilter som tillämpas på png_path när beskärningar hämtas från databasen: endast sökvägar som innehåller värdet tas med, och en lista matchar valfri post (ELLER, inte OCH). Använd filtret för att begränsa en datamängd till en platta, brunn eller objekttyp, t.ex. 'plate1_' eller 'cell_png'. None tar med alla beskärningar. Standard None."
+      "source_sha256": "2b83c44d8152c5fd52cf26572f61d09f11a643b076b7655c3ecbaf67e3a5f7a3",
+      "source": "Substring filter applied to png_path when retrieving crops from the database. Only paths containing the supplied string are included; a list matches any entry rather than requiring all entries. Use this setting to restrict a dataset to one plate, well, or object type, for example 'plate1_' or 'cell_png'. None includes every crop. Default None.",
+      "translation": "Delsträngsfilter som tillämpas på png_path när bildutsnitt hämtas från databasen. Endast sökvägar som innehåller den angivna strängen tas med; en lista matchar valfri post och kräver inte samtliga. Använd inställningen för att begränsa en datamängd till en platta, brunn eller objekttyp, till exempel 'plate1_' eller 'cell_png'. None tar med alla bildutsnitt. Standard None."
     },
     {
       "table": "setting_tooltips",
@@ -96,9 +96,9 @@
     {
       "table": "setting_tooltips",
       "key": "path_string",
-      "source_sha256": "c9547344a25fe41d4862e6463d4ba595db29e489fab82ca76153a8aff407383c",
-      "source": "A substring that must appear in a crop's path for it to join the dataset, e.g. 'cell_png' or 'nucleus_png'. It was called png_type, which named a type it never was: this is a path filter and nothing more. The old name still works. Default 'cell_png'.",
-      "translation": "En delsträng som måste förekomma i en beskärnings sökväg för att den ska ingå i datamängden, t.ex. 'cell_png' eller 'nucleus_png'. Den kallades png_type, vilket antydde en typ som den aldrig var: detta är bara ett sökvägsfilter. Det gamla namnet fungerar fortfarande. Standard 'cell_png'."
+      "source_sha256": "ab9508713fe61c4b57be76f8430878c6f738e991f30572ee773a129ea74767d2",
+      "source": "Substring that must occur in a crop path for that crop to enter the dataset, for example 'cell_png' or 'nucleus_png'. The legacy name png_type remains accepted, although the setting performs only path filtering. Default 'cell_png'.",
+      "translation": "Delsträng som måste förekomma i sökvägen till ett bildutsnitt för att bildutsnittet ska ingå i datamängden, till exempel 'cell_png' eller 'nucleus_png'. Det äldre namnet png_type godtas fortfarande, även om inställningen endast filtrerar sökvägar. Standardvärde 'cell_png'."
     },
     {
       "table": "setting_tooltips",

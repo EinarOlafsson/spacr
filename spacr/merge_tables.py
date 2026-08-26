@@ -888,26 +888,23 @@ def group_variance_share(frame: pd.DataFrame,
                          groups: Dict[str, Sequence[str]], *,
                          scale: bool = True,
                          min_coverage: float = 0.5) -> pd.DataFrame:
-    """How much of the projected variance each group of columns carries.
+    """Calculate each column group's share of variance in the input matrix.
 
-    Answers "I ticked morphology and intensity -- which one is the picture
-    about?". A group contributing 2% is a group the user believes is in the
-    projection and effectively is not.
+    The matrix is prepared with the same missing-value and scaling procedure
+    used by :func:`reduce_dimensions`. The result therefore characterizes the
+    inputs supplied to PCA, UMAP, t-SNE, and other reducers without requiring
+    method-specific loadings.
 
-    Describes the INPUT matrix, prepared exactly as
-    :func:`reduce_dimensions` prepares it, so it is valid for every method
-    rather than only for PCA -- UMAP and t-SNE have no loadings to inspect,
-    but they see this same matrix.
-
+    :param frame: Measurement frame containing the candidate feature columns.
     :param groups: ``{group_name: columns}``. A column named by two groups is
-        counted in both, because it genuinely informs both -- shares
-        therefore need not sum to 1, and the frame says so in ``attrs``.
-    :param scale: standardise first, matching ``reduce_dimensions``. With it
-        off, a measurement whose numbers are larger dominates the share for
-        that reason alone -- which is the same trap the reducer's own
-        ``scale`` exists for.
-    :returns: a frame indexed by group with a ``share`` column and a
-        ``columns`` count, largest share first.
+        counted in both; shares may therefore sum to more than one, and this
+        condition is recorded in ``result.attrs['overlapping']``.
+    :param scale: Whether to standardize features before calculating variance,
+        matching the corresponding reducer option.
+    :param min_coverage: Minimum non-missing fraction required for a feature to
+        enter the prepared matrix.
+    :returns: DataFrame indexed by group with ``share`` and ``columns`` fields,
+        sorted by decreasing share.
     """
     prepared, used = _prepared_matrix(frame, [c for cols in groups.values()
                                               for c in cols],

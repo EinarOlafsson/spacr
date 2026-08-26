@@ -1,4 +1,4 @@
-"""Browse, verify, fetch and bench the models spaCR can segment or classify with.
+"""Browse, verify, fetch and benchmark spaCR segmentation and classification models.
 
 Why this exists
 ---------------

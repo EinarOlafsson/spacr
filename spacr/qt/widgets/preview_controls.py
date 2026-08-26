@@ -112,14 +112,13 @@ DEFAULT_MAX_SETS = 20
 #: Hover help for the "how many image sets" box that sits immediately left of
 #: every preview's sets dropdown. Shared, so all four panels say it once.
 MAX_SETS_TOOLTIP = (
-    "Maximum image sets the preview loads.\n\n"
-    "A large experiment is never listed whole — its file names are grouped "
-    "into image sets (one field of view, all its channels) and this many are "
-    "drawn at random from across the plate. Nothing outside the sample is "
-    "opened.\n\n"
-    "The draw is reproducible: the same folder at the same maximum always "
-    "gives the same sets. Changing this number draws a new sample; simply "
-    "re-rendering never does.")
+    "Maximum number of image sets loaded by the preview.\n\n"
+    "For large experiments, filenames are grouped into image sets comprising "
+    "one field of view and all of its channels. The specified number of sets "
+    "is sampled across the plate; files outside the sample are not opened.\n\n"
+    "Sampling is deterministic: the same folder and maximum produce the same "
+    "sets. Changing the maximum selects a new sample, whereas re-rendering "
+    "with the same settings preserves the selection.")
 
 #: Acquisition-naming dialect handed to :func:`spacr.utils._get_regex`.
 #: ``cellvoyager`` is the Yokogawa layout this project converts everything

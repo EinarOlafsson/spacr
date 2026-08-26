@@ -58,13 +58,6 @@
       "translation": "给定包含多图像数据通道图像的源文件夹 ``src``，该工作流会：(1) 可选地合并嵌套文件夹中的输入；(2) 将文件重命名为下游使用的 Yokogawa 布局；(3) 逐图像数据通道预处理数组；(4) 通过 Cellpose（SAM 变体）为细胞 / 细胞核 / 病原体 / 细胞器图像数据通道生成掩模；(5) 可选地依据细胞核和病原体叠加结果校正细胞掩模；以及 (6) 写出叠加图，并在输出旁保存 ``gen_mask_settings.csv``。"
     },
     {
-      "context": "**Why on-demand exists.** Pre-cutting every extracted image region writes a copy of the dataset to disk before a single epoch runs, and every change of extracted image region size or channel selection writes another. Cutting as training processing sessions costs a slice per object and no disk at all.",
-      "label": "spacr.crop_source#3",
-      "source": "**Why on-demand exists.** Pre-cutting every crop writes a copy of the dataset to disk before a single epoch runs, and every change of crop size or channel selection writes another. Cutting as training runs costs a slice per object and no disk at all.",
-      "source_sha256": "4066a318ce7468b501ce0f3a8e13974ec939277d1c37ff4056fac14801ec49b6",
-      "translation": "**为何采用按需裁剪。** 预先切出每个提取图像区域，会在一次训练轮次尚未开始前就把数据集复制到磁盘；每次更改提取区域大小或通道选择还会再写一份。训练处理会话期间即时裁剪，每个对象只需一次切片操作，而且完全不占用额外磁盘空间。"
-    },
-    {
       "context": "Two independent tests, which is the whole point of splitting them: WHICH OBJECT the extracted image region is of (a substring of its path, e.g. ``cell_png``) and WHAT FORMAT it is in (its extension). One setting could never express \"every nucleus extracted image region, whatever format\" or \"every TIFF, whatever object\".",
       "label": "spacr.crop_source.matches_path#1",
       "source": "Two independent tests, which is the whole point of splitting them: WHICH OBJECT the crop is of (a substring of its path, e.g. ``cell_png``) and WHAT FORMAT it is in (its extension). One setting could never express \"every nucleus crop, whatever format\" or \"every TIFF, whatever object\".",

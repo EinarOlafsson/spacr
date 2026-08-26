@@ -6,6 +6,7 @@ QApplication bootstrap + MainWindow.
 """
 from __future__ import annotations
 
+import importlib as _importlib
 import inspect
 import logging
 import os
@@ -14,15 +15,15 @@ import threading
 import traceback
 from typing import List, Optional, Tuple
 
-from PySide6.QtCore import QEvent, Qt, QSize, QThread, Signal
+from PySide6.QtCore import QEvent, QSize, Qt, QThread, Signal
 from PySide6.QtGui import QAction, QColor, QIcon, QKeySequence, QPalette
 from PySide6.QtWidgets import (
     QApplication,
     QFrame,
-    QMenu,
     QHBoxLayout,
     QLabel,
     QMainWindow,
+    QMenu,
     QMessageBox,
     QScrollArea,
     QStackedWidget,
@@ -33,9 +34,9 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-
-from .i18n import tr
 from . import iconset
+from .i18n import tr
+
 # Nothing in this module uses a colour, a spacing or the palette API any
 # more — the Home page, the sidebar QSS and `apply_preferences_to_app`
 # each own their own. The import stayed behind after they moved out, and
@@ -250,18 +251,20 @@ SECTION_ORDER = (SECTION_CORE, SECTION_DATA, SECTION_MODELS,
 #: :data:`SECTION_NOTES` is the live subset, kept in step with
 #: :data:`SECTIONS` by :func:`_refresh_sections`.
 _SECTION_NOTE_LIBRARY = {
-    SECTION_CORE: "Images in, single-object measurements out, hits called.",
-    SECTION_DATA: ("Images and tables into a spaCR project, many plates run "
-                   "unattended, the numbers back out."),
-    SECTION_MODELS: ("Build, train, pick and check the Cellpose models the "
-                     "Mask step runs."),
-    SECTION_RESULTS: ("Read what came out, decide whether to believe it, "
-                      "hand it to someone else."),
-    SECTION_EXPLORE: ("Ask the measurements a question you did not plan "
-                      "for: build a plot, pivot a table, draw a gate."),
-    SECTION_ASSAYS: "Readouts that measure a biological assay rather than a pipeline stage.",
-    SECTION_DESIGN: ("Plan the experiment before it runs: power, sample "
-                     "size, plate layout, controls and replicates."),
+    SECTION_CORE: ("Core sequence from microscopy images through "
+                   "segmentation, measurements, annotations, classification, "
+                   "barcode mapping and regression."),
+    SECTION_DATA: ("Import images and tables into spaCR projects and execute "
+                   "reproducible multi-plate workflows."),
+    SECTION_MODELS: ("Develop, evaluate and manage segmentation and "
+                     "classification models."),
+    SECTION_RESULTS: ("Review outputs and quality-control results, then "
+                      "prepare results for reporting or export."),
+    SECTION_EXPLORE: ("Explore measurements using visualization, tabulation, "
+                      "gating and feature-analysis tools."),
+    SECTION_ASSAYS: "Quantitative readouts for biological assays.",
+    SECTION_DESIGN: ("Plan statistical power, sample size, plate layouts, "
+                     "controls and replicates."),
 }
 
 _PLUGIN_SECTION_MAP = {
@@ -698,15 +701,16 @@ _BUILTIN_APPS = [
     # display name or moving an app between sections is free.
     #
     # -- Core pipeline: images in, single-object measurements out, hits
-    #    called. Ctrl+1..9 map to these nine, in this order.
+    #    called. Ctrl+1..6 map to these six before Ctrl+7..9 continue into
+    #    the next apps in sidebar order.
     # CORE IS THE PIPELINE, IN THE ORDER YOU RUN IT: mask, measure,
     # annotate, classify, map barcodes, regression. Nothing else belongs in
     # it -- Timelapse and the Motility assay are assays and are filed as
     # such, and a section that lists everything is a section that sorts
     # nothing.
-    ("mask",           "Mask",           "Generate cellpose masks for cells, nuclei and pathogens",   SECTION_CORE),
-    ("measure",        "Measure",        "Measure single-object intensity + morphology features",       SECTION_CORE),
-    ("annotate",       "Annotate",       "Annotate single-object images on a grid; save to database",  SECTION_CORE),
+    ("mask",           "Mask",           "Generate segmentation masks for cells, nuclei, pathogens and organelles from microscopy images using Cellpose and supported alternatives", SECTION_CORE),
+    ("measure",        "Measure",        "Quantify per-object intensity and morphology features",       SECTION_CORE),
+    ("annotate",       "Annotate",       "Assign annotations to single-object images and store them in the project database",  SECTION_CORE),
     # ONE CLASSIFY SCREEN. "Classify (CV)" and "Classify (ML)" were the two
     # originals kept beside the merged one so a saved settings CSV would
     # keep working -- but three entries for one job is three places to look
@@ -717,26 +721,26 @@ _BUILTIN_APPS = [
     # are what `classify.classify` dispatches to, so a notebook importing
     # either still works and a settings CSV for either still runs -- through
     # the one screen, which reads `classifier_family`.
-    ("classify_merged", "Classify",      "Train a classifier on single objects - Torch on crops, or gradient boosting on measured features", SECTION_CORE),
+    ("classify_merged", "Classify",      "Train classifiers on image crops with PyTorch or on measured features with gradient boosting", SECTION_CORE),
     ("map_barcodes",   "Map Barcodes",   "Map sequencing barcodes to screen data",                      SECTION_CORE),
     ("regression",     "Regression",     "Regression analysis of screen scores",                        SECTION_CORE),
     # -- Data & batch runs: get images and tables into a spaCR project,
     #    run many plates unattended, get the numbers back out.
-    ("align",          "Align & Stitch", "Register tiles into one stitched canvas, written incrementally so a 20000x20000 mosaic never has to fit in RAM", SECTION_DATA),
-    ("convert",        "Format Converter", "ND2/CZI/LIF/OME-TIFF into Yokogawa TIFFs: preview the mapping, then a map file back to the originals", SECTION_DATA),
-    ("foreign",        "Import Project", "Someone else's images, masks and measurement table into a spaCR project, with their columns mapped onto spaCR's", SECTION_DATA),
-    ("external_masks", "External Masks", "Turn images and externally generated label masks into a measured spaCR project ready for annotation", SECTION_DATA),
-    ("queue",          "Plate Queue",    "Chain multiple plates through the same pipeline",             SECTION_DATA),
-    ("batch",          "Batch Runner",   "Queue any modules, plates and settings and run them overnight", SECTION_DATA),
+    ("align",          "Align & Stitch", "Register and stitch image tiles into an incrementally written mosaic with bounded memory use", SECTION_DATA),
+    ("convert",        "Format Converter", "Convert ND2, CZI, LIF and OME-TIFF images to Yokogawa TIFF layout and record source mappings", SECTION_DATA),
+    ("foreign",        "Import Project", "Import external images, masks and a measurement table as a spaCR project, mapping source columns to spaCR fields", SECTION_DATA),
+    ("external_masks", "External Masks", "Import images and externally generated label masks as a measured spaCR project ready for annotation", SECTION_DATA),
+    ("queue",          "Plate Queue",    "Execute the same processing pipeline across multiple plates", SECTION_DATA),
+    ("batch",          "Batch Runner",   "Queue modules, plates and settings for unattended sequential execution", SECTION_DATA),
     ("distributed_jobs", "Distributed Jobs", "Submit and monitor spaCR runs on SSH workstations, Slurm or cloud/HPC commands", SECTION_DATA),
-    ("db_browser",     "Database Browser", "Browse and export measurements.db without the sqlite3 CLI", SECTION_DATA),
+    ("db_browser",     "Database Browser", "Browse, filter and export tables from measurements.db", SECTION_DATA),
     # -- Segmentation models: build, train, pick and check the Cellpose
     #    models the Mask step runs.
     # Not a training screen despite where it sits: MakeMasksScreen is the
     # brush, the flood fill and the object operations, i.e. correcting a
     # mask by hand. It carried Train Cellpose's description verbatim, which
     # is the app directly below it.
-    ("make_masks",     "Make Masks",     "Correct a mask by hand: brush, flood fill, relabel, fill, remove small",  SECTION_MODELS),
+    ("make_masks",     "Make Masks",     "Edit segmentation masks with brush, flood-fill, relabel, fill and small-object removal tools",  SECTION_MODELS),
     # THE SEGMENTATION WORKBENCH HAS NO SATELLITE TILES. Training a model,
     # comparing two of them, browsing the zoo and curating a mask by hand are
     # all one loop -- segment, look, correct, train, segment again -- and they
@@ -752,16 +756,16 @@ _BUILTIN_APPS = [
     # now that no row carries a `cli_note=`. What went is the tile.
     # -- Results & QC: look at what came out, decide whether to believe it,
     #    and hand it to someone else.
-    ("plate_view",     "Plate Viewer",   "Any measurement as a plate heatmap + edge-effect detection",  SECTION_RESULTS),
+    ("plate_view",     "Plate Viewer",   "Visualize measurements as plate heatmaps and detect edge effects",  SECTION_RESULTS),
     # ANNOTATOR AGREEMENT HAS NO ROW. Scoring how well two annotation
     # passes agree is the sentence after annotating them, so it is a
     # button on the Annotate masthead that opens its own screen, whole
     # (`spacr.qt.screens.annotate`). `cli.INTERACTIVE_ONLY` still names
     # it, so `spacr-run agreement` still says where to find it.
-    ("umap",           "Image UMAP",     "Generate UMAP embeddings with image glyphs",                  SECTION_RESULTS),
-    ("activation",     "Activation",     "Generate activation maps",                                    SECTION_RESULTS),
-    ("train_compare",  "Training Runs",  "Overlay several training runs' curves with their settings diffed side by side", SECTION_RESULTS),
-    # CLASSIFIER EVALUATION AND EXPLAIN CV MODEL ARE BUTTONS ON CLASSIFY.
+    ("umap",           "Image UMAP",     "Visualize UMAP embeddings with image glyphs",                  SECTION_RESULTS),
+    ("train_compare",  "Training Runs",  "Compare training curves and settings across multiple runs", SECTION_RESULTS),
+    # CLASSIFIER EVALUATION, EXPLAIN CV MODEL AND ACTIVATION ARE BUTTONS ON
+    # CLASSIFY.
     # A classifier is trained on one screen and argued about on two
     # others, so both fold onto the Classify masthead
     # (`spacr.qt.screens.classify`) and open their own screen as a page
@@ -769,8 +773,8 @@ _BUILTIN_APPS = [
     # each tile said is `map_barcodes.FOLD_FALLBACK`, and every table a
     # row used to feed -- the drop handler, the API link, the header, the
     # translated name -- names them directly instead.
-    ("run_history",    "Run History",    "Search every job's settings, files, warnings, failures and performance", SECTION_RESULTS),
-    ("report",         "Report",         "One-click shareable HTML/PDF: QC verdict, figures, stats, settings, versions", SECTION_RESULTS),
+    ("run_history",    "Run History",    "Search run settings, outputs, warnings, failures and performance metrics", SECTION_RESULTS),
+    ("report",         "Report",         "Generate shareable HTML or PDF reports containing QC results, figures, statistics, settings and software versions", SECTION_RESULTS),
     # -- Toxoplasma assays: parasite-specific readouts.
     #
     # TIMELAPSE AND MOTILITY HAVE NO ROW. Timelapse is the mask pipeline
@@ -783,10 +787,10 @@ _BUILTIN_APPS = [
     # `spacr.cli.MODULES`, `validate.APP_FUNCTIONS` and
     # `bridge.resolve_pipeline_entry` all still know them. What went is
     # the tile, not the module.
-    ("analyze_plaques", "Plaque Assay",  "Analyze plaque assay data",                                   SECTION_ASSAYS),
-    ("recruitment",    "Recruitment",    "Analyze recruitment data",                                    SECTION_ASSAYS),
-    ("invasion",       "Invasion Assay", "Two-colour outside/inside stain: attached vs invaded parasites, invasion efficiency per well", SECTION_ASSAYS),
-    ("replication",    "Replication Assay", "Endodyogeny: parasites per vacuole, scored into replication rate per condition", SECTION_ASSAYS),
+    ("analyze_plaques", "Plaque Assay",  "Quantify plaque assay measurements",                          SECTION_ASSAYS),
+    ("recruitment",    "Recruitment",    "Quantify molecular recruitment measurements",                 SECTION_ASSAYS),
+    ("invasion",       "Invasion Assay", "Quantify attached and invaded parasites using two-colour differential staining and calculate invasion efficiency per well", SECTION_ASSAYS),
+    ("replication",    "Replication Assay", "Quantify parasites per vacuole and calculate replication rates by condition", SECTION_ASSAYS),
 ]
 
 
@@ -832,12 +836,11 @@ APP_STAGE = {
     "train_compare":   STAGE_ALPHA,
     "run_history":     STAGE_ALPHA,
     "report":          STAGE_ALPHA,
-    # -- beta: further along, in regular use, still not signed off (7)
+    # -- beta: further along, in regular use, still not signed off
     "make_masks":      STAGE_BETA,
     "analyze_plaques": STAGE_BETA,
     "replication":     STAGE_BETA,
     "umap":            STAGE_BETA,
-    "activation":      STAGE_BETA,
 }
 
 # The built-ins go through the same door as everything else. Registering
@@ -938,8 +941,6 @@ _SELF_REGISTERING_APPS = (
     ("spacr.qt.screens.investigate_hit", "register"),
 )
 
-import importlib as _importlib
-
 for _module_name, _func_name in _SELF_REGISTERING_APPS:
     try:
         getattr(_importlib.import_module(_module_name), _func_name)()
@@ -954,7 +955,8 @@ del _module_name, _func_name
 # Plugin apps use the same registry rows and maturity annotations as built-ins.
 # Contributions can add a key but never replace one.
 try:
-    from spacr.plugins import plugin_apps as _plugin_apps, record_diagnostic
+    from spacr.plugins import plugin_apps as _plugin_apps
+    from spacr.plugins import record_diagnostic
     for _plugin_app in _plugin_apps():
         # Recomputed per plugin, not snapshotted before the loop: the old
         # snapshot held built-in keys only, so two plugins claiming the
@@ -1706,6 +1708,7 @@ class MainWindow(QMainWindow):
         # window has time to render before the overlay attaches.
         try:
             from PySide6.QtCore import QTimer
+
             from .first_run import maybe_show_tour
             from .install_consent import maybe_show_installer_consent
             # Installer privacy choices precede the product tour. The native
@@ -2300,8 +2303,9 @@ class MainWindow(QMainWindow):
     def _on_load_demo(self, demo_key: str) -> None:
         """Generate a synthetic demo dataset, save its settings, then
         navigate to the matching app and pre-populate it."""
-        from PySide6.QtWidgets import QFileDialog
         from pathlib import Path
+
+        from PySide6.QtWidgets import QFileDialog
 
         target_app, gen_name = self.DEMO_TARGETS[demo_key]
 
@@ -2343,8 +2347,9 @@ class MainWindow(QMainWindow):
           4. On success, kick off Mask -> Measure -> Annotate. Users
              see the run inside each app's normal console.
         """
-        from PySide6.QtWidgets import QFileDialog, QMessageBox
         from pathlib import Path
+
+        from PySide6.QtWidgets import QFileDialog, QMessageBox
 
         answer = QMessageBox.question(
             self, "End-to-end demo",
@@ -2392,8 +2397,9 @@ class MainWindow(QMainWindow):
         just opens the annotation UI at the dataset root so the user
         can start labelling.
         """
-        from PySide6.QtWidgets import QMessageBox
         from pathlib import Path
+
+        from PySide6.QtWidgets import QMessageBox
 
         dataset_path  = Path(dataset_path)
         settings_path = Path(settings_path)
@@ -2608,8 +2614,9 @@ class MainWindow(QMainWindow):
 
     def _open_log_folder(self):
         """Open the ~/.spacr/logs folder in the OS file browser."""
-        from .verbose_logger import log_dir
         import webbrowser
+
+        from .verbose_logger import log_dir
         try:
             webbrowser.open(f"file://{log_dir()}")
         except Exception as e:
@@ -3181,9 +3188,13 @@ class MainWindow(QMainWindow):
         if not uses_ambient_background(key):
             return
         try:
-            from .preferences import (get_ambient_enabled, get_ambient_palette,
-                                      get_ambient_theme, resolve_effective_theme,
-                                      theme_background_path)
+            from .preferences import (
+                get_ambient_enabled,
+                get_ambient_palette,
+                get_ambient_theme,
+                resolve_effective_theme,
+                theme_background_path,
+            )
             if not get_ambient_enabled():
                 return
             from .widgets.ambient import install_ambient
@@ -3401,7 +3412,11 @@ class MainWindow(QMainWindow):
     @staticmethod
     def _apply_seed_value(w: QWidget, value) -> None:
         from PySide6.QtWidgets import (
-            QCheckBox, QComboBox, QDoubleSpinBox, QLineEdit, QSpinBox,
+            QCheckBox,
+            QComboBox,
+            QDoubleSpinBox,
+            QLineEdit,
+            QSpinBox,
         )
         setter = getattr(w, "set_value", None)
         if callable(setter):
@@ -3634,6 +3649,7 @@ def launch(argv: Optional[list[str]] = None) -> int:
     # Every launch drops a timeline marker into the diagnostic log.
     import logging as _lg
     import sys as _sys
+
     from .verbose_logger import current_log_file
     _lg.getLogger("spacr").info(
         "spaCR launched (python=%s.%s.%s, log=%s)",

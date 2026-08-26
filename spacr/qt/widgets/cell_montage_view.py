@@ -387,9 +387,8 @@ class MontageRequest:
         says in its own caption which one it answers.
     :param half_widths: the score window's half-width in robust scales -- the
         direct stringency control. ``0`` means the module's own default.
-        ONE NUMBER FOR THE WHOLE SCREEN AND EVERY COEFFICIENT: a width chosen
-        per gene is a width that can be tuned until the pictures look right,
-        and nothing in the output would show that it had been.
+        One value is applied to every coefficient in the screen to prevent
+        gene-specific adjustment after the output has been inspected.
     :param baseline: the baseline to centre the window on, or ``None`` for
         the screen median.
     :param baseline_label: what to call that baseline in the caption.
@@ -1592,7 +1591,7 @@ class CellMontageView(QWidget):
     #: folder. It distinguishes a visible table from the missing per-run files
     #: required to build the montage.
     RESULTS_WITHOUT_A_FOLDER = (
-        "The LOADED coefficient table was not read from a run folder, so "
+        "The loaded coefficient table was not read from a run folder, so "
         "there is nowhere to find the regression_data.csv this montage needs. "
         "Open the run in the Runs tab with “Load run…” to point at its "
         "folder.")
@@ -1677,11 +1676,11 @@ class CellMontageView(QWidget):
         self._channels.setPlaceholderText("as the run saved them")
         self._channels.setVisible(False)
         self._channels.setToolTip(
-            "Which planes become the picture. Type the COLOUR LETTERS the "
-            "annotation application uses — r, g, b, or any combination such "
-            "as 'r,g,b', 'rg' or just 'b' — and each is resolved to the "
-            "source channel this screen put in that colour. Source channel "
-            "NUMBERS also work ('0,1,2') for anyone who knows them.\n\n"
+            "Planes displayed in the montage. Enter the color letters used "
+            "by Annotate — r, g, b, or a combination such as 'r,g,b', 'rg', "
+            "or 'b' — and each letter is resolved to the corresponding "
+            "source channel. Source-channel indices such as '0,1,2' are "
+            "also accepted.\n\n"
             "Left empty, the run's own png_dims are read back out of "
             "measurements.db, so the crops match the PNGs that run wrote.")
         self._channels.textChanged.connect(self._on_settings_changed)
@@ -1690,11 +1689,10 @@ class CellMontageView(QWidget):
         for value, label in SHAPE_CHOICES:
             self._shape.addItem(label, value)
         self._shape.setToolTip(
-            "Object-shaped crops follow the object's own mask and are the "
-            "better picture. A route that has only a coordinate table has no "
-            "mask to follow and can cut bounding boxes only — when that is "
-            "the case the entry is disabled with its reason rather than "
-            "quietly giving you a box.")
+            "Object-shaped crops follow the object's mask boundary and "
+            "preserve its morphology. A source containing coordinates but "
+            "no masks supports bounding-box crops only; object-shaped mode "
+            "is disabled with an explanation for such sources.")
         self._shape.currentIndexChanged.connect(self._on_settings_changed)
         self._shape.setVisible(False)
 
@@ -1742,10 +1740,10 @@ class CellMontageView(QWidget):
         self._per_guide.addItem("guides summed", False)
         self._per_guide.addItem("one guide at a time", True)
         self._per_guide.setToolTip(
-            "A gene's guides summed asks 'which cells are consistent with "
-            "losing this gene'. One at a time asks 'do the guides pick out "
-            "the same cells', which is how a real effect is told from one "
-            "guide's off-target. They are different questions.")
+            "Summed-guide mode selects cells associated with the gene-level "
+            "perturbation. Per-guide mode evaluates whether the individual "
+            "guides select concordant cells; discordance can indicate a "
+            "guide-specific or off-target effect.")
         self._per_guide.currentIndexChanged.connect(self._on_settings_changed)
         controls.addWidget(self._per_guide)
 
@@ -1774,10 +1772,9 @@ class CellMontageView(QWidget):
         self._half_widths.setSuffix(" scales")
         self._half_widths.setToolTip(
             "Score-window half-width in robust scales (1.4826 × MAD). Larger "
-            "values admit more cells and make 'closest' less selective. ONE "
-            "NUMBER FOR THE WHOLE SCREEN AND EVERY COEFFICIENT — this is "
-            "deliberately not a per-gene control, so widening it to rescue "
-            "one gene widens it for all of them.")
+            "values admit more cells and make 'closest' less selective. One "
+            "value is applied to every coefficient in the screen, preventing "
+            "gene-specific adjustment after inspecting the output.")
         self._half_widths.valueChanged.connect(self._on_settings_changed)
         self._half_widths.setVisible(False)
 
@@ -1785,11 +1782,11 @@ class CellMontageView(QWidget):
         for value, label in BASELINE_CHOICES:
             self._baseline.addItem(label, value)
         self._baseline.setToolTip(
-            "What the implied score is measured from. The screen median is "
-            "the objects' own answer; the fitted intercept is the model's, "
-            "and under the well-level fit it is the score of a well carrying "
-            "none of the guide. Whichever is in force is named in the "
-            "caption.")
+            "Reference used to compute the implied score. The screen median "
+            "is estimated from all measured objects. The fitted intercept is "
+            "the model reference and, for a well-level fit, represents a well "
+            "with zero guide fraction. The selected reference is reported in "
+            "the caption.")
         self._baseline.currentIndexChanged.connect(self._on_settings_changed)
 
         self._baseline.setVisible(False)
@@ -1800,7 +1797,7 @@ class CellMontageView(QWidget):
         self._score.setToolTip(
             "The per-object classification score the window is applied to. "
             "A screen with more than one classifier output has more than one "
-            "candidate, and the caption says which produced the picture.")
+            "candidate; the caption identifies the score used for selection.")
         self._score.textChanged.connect(self._on_settings_changed)
         self._score.setVisible(False)
 
@@ -1818,10 +1815,11 @@ class CellMontageView(QWidget):
         self._cap.setRange(1, 1_000_000)
         self._cap.setValue(int(MAX_OBJECTS))
         self._cap.setToolTip(
-            "The largest montage to draw. The merged source is priced by "
-            "FIELDS TOUCHED, not crops cut: 300 crops cost 11.43 ms each "
-            "over 30 fields against 2.58 ms over 6, so a montage spanning "
-            "many wells is the expensive one however few it takes from each.")
+            "Maximum number of objects in one montage. For merged image "
+            "sources, input/output cost depends primarily on the number of "
+            "source fields accessed rather than the number of crops. A "
+            "montage spanning many wells can therefore be expensive even "
+            "when it contains few crops from each well.")
         self._cap.valueChanged.connect(self._on_settings_changed)
         self._cap.setVisible(False)
         # THE ROW IS GONE FROM THE TOOLBAR. Its four controls live in the
@@ -2882,11 +2880,11 @@ class CellMontageView(QWidget):
             self._shape.setToolTip(result.shape_reason)
         else:
             self._shape.setToolTip(
-                "Object-shaped crops follow the object's own mask and are "
-                "the better picture. A route that has only a coordinate "
-                "table has no mask to follow and can cut bounding boxes "
-                "only — when that is the case the entry is disabled with its "
-                "reason rather than quietly giving you a box.")
+                "Object-shaped crops follow the object's mask boundary and "
+                "preserve its morphology. A source containing coordinates "
+                "but no masks supports bounding-box crops only; "
+                "object-shaped mode is disabled with an explanation for "
+                "such sources.")
         for index in range(self._shape.count()):
             item = model.item(index) if hasattr(model, "item") else None
             if item is None:

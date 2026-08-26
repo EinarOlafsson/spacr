@@ -1,6 +1,6 @@
-"""Tutorial rendering engine — narration, cursor overlay, capture, mux.
+"""Tutorial rendering engine for narration, cursor overlays and video capture.
 
-The pipeline is intentionally linear and easy to reason about:
+The pipeline executes the following stages:
 
   1. Synthesize each Step's narration through Piper → WAV, know duration
   2. Spin up the MainWindow (on real DISPLAY or under Xvfb) at 1920x1080
@@ -13,8 +13,8 @@ The pipeline is intentionally linear and easy to reason about:
   5. `ffmpeg -framerate 30 -i frames/%06d.png -i audio.wav ... out.mp4`
   6. Emit matching .srt sidecar
 
-The engine has no Qt-specific business logic — that lives in per-app
-`scripts.py` functions that return a list of Steps.
+Qt-specific application behavior is defined by per-application functions in
+``scripts.py`` that return lists of :class:`Step` objects.
 """
 from __future__ import annotations
 

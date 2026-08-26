@@ -6,9 +6,9 @@
     {
       "table": "setting_tooltips",
       "key": "controls",
-      "source_sha256": "43ba71845fdaebb41887c315b8d858b97af68bca7ee3932fd847da07f56ae23c",
-      "source": "gRNA identifiers treated as non-targeting controls. Their coefficients define the effect-size cutoff drawn on the volcano plot: abs(median(control coefficients)) + threshold_multiplier × spread, where threshold_method selects the spread estimator. A wider control distribution raises the cutoff. None disables the effect-size cutoff. Default ['000000'] -- the non-cutting control GENE, which spaCR resolves to every one of its guides in the library you loaded, rather than a hand-typed list that goes stale. A guide id works too, with or without the organism prefix.",
-      "translation": "作为非靶向对照处理的 gRNA 标识符。其系数定义火山图上绘制的效应量阈值：abs(median(control coefficients)) + threshold_multiplier × spread，其中 threshold_method 选择离散度估计方法。对照系数分布越宽，阈值越高。None 会禁用效应量阈值。默认值为 ['000000']——这是非切割对照 GENE；spaCR 会根据已加载的文库将它解析为该基因的所有向导，而不是使用容易过时的手工列表。也可以提供单个向导 ID；带或不带物种前缀的两种写法都可用。"
+      "source_sha256": "9f6dca8c4b40a495839db56e6e8bd7e66d5635e5fa453cbea456bb94fd53fa12",
+      "source": "gRNA identifiers treated as non-targeting controls. Their coefficients define the effect-size cutoff drawn on the volcano plot: abs(median(control coefficients)) + threshold_multiplier × spread, where threshold_method selects the spread estimator. A wider control distribution raises the cutoff. None disables the effect-size cutoff. Default ['000000'] identifies the non-cutting control gene, which spaCR resolves to every associated guide in the loaded library and avoids a manually maintained list that can become inconsistent with library revisions. A guide identifier also works, with or without the organism prefix.",
+      "translation": "作为非靶向对照处理的 gRNA 标识符。其系数定义火山图上绘制的效应量阈值：abs(median(control coefficients)) + threshold_multiplier × spread，其中 threshold_method 选择离散度估计方法。对照系数分布越宽，阈值越高。None 会禁用效应量阈值。默认值 ['000000'] 标识非切割对照基因；spaCR 会根据已加载的文库将其解析为所有相关向导，从而避免手工维护的列表与文库修订不一致。也可以提供单个向导标识符，带或不带物种前缀均可。"
     },
     {
       "table": "setting_tooltips",

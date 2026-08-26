@@ -848,8 +848,8 @@ def register() -> bool:
     accepted = inspect.signature(register_app).parameters
     register_app(
         APP_KEY, "Data Manager",
-        "See what a project costs in disk, and reclaim it without touching "
-        "the originals",
+        "Inspect project disk usage and remove selected generated data "
+        "without modifying source files",
         SECTION_DATA, factory=make_data_manager_screen, stage=STAGE_ALPHA,
         **{k: v for k, v in extras.items() if k in accepted})
     return True

@@ -656,6 +656,33 @@ kbd {
   letter-spacing: -.045em;
 }
 
+.lesson-route {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 11px;
+  padding: 5px 9px;
+  border: 1px solid var(--line-bright);
+  border-radius: 6px;
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .025em;
+}
+
+.lesson-route[hidden] {
+  display: none;
+}
+
+.lesson-route-arrow {
+  color: var(--dim);
+}
+
+.lesson-route-workflow {
+  color: var(--text);
+}
+
 .lesson-heading > p {
   max-width: 760px;
   margin: 13px 0 0;

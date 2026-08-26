@@ -580,19 +580,16 @@ def displayed_plates(plates: Sequence[str]) -> Tuple[str, ...]:
 
 
 def plate_id_notes(plan) -> List[str]:
-    """One line per database whose plate id reaches the plan uncollapsed.
+    """Describe noncanonical plate identifiers that remain in a merge plan.
 
-    Read AFTER the repair, deliberately: the doubled ``pp`` prefix is
-    collapsed as the database is read, so a plan built from a database stamped
-    ``pplate1`` says ``plate1`` and so does the merged frame. There is then
-    nothing to warn about, and warning anyway would describe a mismatch with
-    the score CSVs that cannot happen.
+    Plate identifiers are normally canonicalized while each database is read.
+    A value that still differs from :func:`canonical_plate_id` at this stage
+    was not repaired during import and may fail to match score or count CSVs,
+    whose identifiers are normalized by :func:`spacr.utils.correct_metadata`.
 
-    What is left is the tripwire. An id that is still not canonical here is
-    one the read repair did not reach, and that one WILL fail to meet a score
-    file -- silently, several steps later -- so it is named on the spot.
-
-    Silent when there is nothing to say, which is the normal case.
+    :param plan: Merge plan containing database sources and their plate IDs.
+    :returns: One warning per affected database, or an empty list when all
+        identifiers are canonical.
     """
     lines: List[str] = []
     for source in getattr(plan, "sources", ()) or ():
@@ -600,17 +597,14 @@ def plate_id_notes(plan) -> List[str]:
                if canonical_plate_id(plate) != str(plate)]
         if not odd:
             continue
+        stored = ", ".join(str(plate) for plate in odd)
+        canonical = ", ".join(displayed_plates(odd))
         lines.append(
-            f"  {source.label}: stored as "
-            + ", ".join(str(plate) for plate in odd)
-            + " and shown as " + ", ".join(displayed_plates(odd))
-            + f". The doubled prefix is in the {PLATE_KEY} column of the "
-              f"database itself. Every join inside this merge reads the same "
-              f"stored value on both sides and is unaffected — but "
-              f"spacr.utils.correct_metadata already normalises it on the "
-              f"score and count CSVs, so these rows will not meet a score "
-              f"file that names the plate "
-            + ", ".join(displayed_plates(odd)) + ".")
+            f"  {source.label}: the {PLATE_KEY} column stores {stored}; the "
+            f"canonical identifier is {canonical}. Joins within this database "
+            f"are unaffected because both sides use the stored value, but "
+            f"score and count CSVs normalize plate identifiers and therefore "
+            f"will not match these rows.")
     return lines
 
 
@@ -742,16 +736,16 @@ def merge_report(frame) -> str:
 
 
 def step_header(number: int, title: str, parent=None):
-    """The bold "3. MERGE THE DATABASES" line that names one step.
+    """Create a numbered heading for one database-merge workflow step.
 
-    :returns: a ``QLabel``, object-named ``WorkflowStep`` so the stylesheet
-        can reach every one of them at once.
+    The title is translated before it is uppercased and prefixed with the step
+    number. The returned label uses the ``WorkflowStep`` object name for
+    shared stylesheet selection.
 
-    THE TAB READS AS ITS OWN WORKFLOW (154 F). It held the same controls in
-    the same order before this and nothing said what the order WAS, so a user
-    who had merged had no idea what came next -- "i dont understand how this
-    is all set up" is a complaint about a page with no headings on it, not
-    about the arithmetic underneath.
+    :param number: One-based workflow step number.
+    :param title: Source title to translate and display.
+    :param parent: Optional Qt parent.
+    :returns: Bold, word-wrapped ``QLabel`` for the step.
     """
     from ..i18n import tr
 
@@ -1520,13 +1514,13 @@ class DatabaseMergePanel(QWidget):
     # -------------------------------------------------- the state of a step
 
     def step_states(self) -> Dict[int, str]:
-        """Where each of the first three steps stands, in words.
+        """Return status text for the first three database-merge steps.
 
-        THE STATE OF EACH STEP IS VISIBLE (154 F). Headings alone would say
-        what the order is and not where the user is in it, and "i clicked
-        merge and the application freezes with no indication that something
-        is working" is the same complaint one step further down: a workflow
-        that never says what it has done is one the user has to infer.
+        Step 1 reports attached databases, step 2 reports selected object
+        tables and the anchor, and step 3 reports merge progress, output shape,
+        and destination state.
+
+        :returns: Mapping from step number to user-facing status text.
         """
         attached = len(self.paths())
         rows = len(self._databases)

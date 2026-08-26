@@ -62,20 +62,19 @@ APP_KEY = "run_compare"
 
 #: The paragraph under this app's header, handed to the seam as ``intro``.
 APP_INTRO = (
-    "Two runs of the same project, side by side. What you changed (the "
-    "settings diff, grouped the way the settings panel groups them, showing "
-    "only what moved), what came out (objects, wells and fields per plate) "
-    "and which hits moved — appeared, vanished, or just changed rank. Runs "
-    "that are not comparable are not diffed: the banner says why, and you "
-    "can override it.")
+    "Compare two runs from the same project. The view reports changed settings "
+    "using the settings-panel groups, output counts for objects, wells, and "
+    "fields per plate, and hits that appeared, disappeared, or changed rank. "
+    "Runs that fail compatibility checks are not compared unless the user "
+    "explicitly overrides the reported reason.")
 
 #: Why there is no ``spacr-run run_compare``; reaches
 #: ``spacr.cli.INTERACTIVE_ONLY``, which prints it instead of "unknown
 #: module".
 APP_CLI_NOTE = (
-    "Run Compare is an interactive side-by-side of two runs; headless, call "
-    "spacr.run_compare.runs_in(project) to list them and "
-    "spacr.run_compare.compare_runs(a, b) for the same three tables.")
+    "Use Run Compare for an interactive comparison. In a headless workflow, "
+    "call spacr.run_compare.runs_in(project) to list available runs and "
+    "spacr.run_compare.compare_runs(a, b) to generate the same three tables.")
 
 #: "Run Compare" in the nine non-English UI languages, in
 #: :data:`spacr.qt.i18n.LANGUAGES` order after English — sv, de, es, zh_CN,
@@ -596,7 +595,8 @@ def register() -> bool:
         return False
     register_app(
         APP_KEY, "Run Compare",
-        "Put two runs side by side: settings, counts and hit-list diffs",
+        "Compare settings, observation counts and hit-list changes between "
+        "two runs",
         SECTION_RESULTS,
         factory=lambda: RunCompareScreen(),
         stage=STAGE_ALPHA,

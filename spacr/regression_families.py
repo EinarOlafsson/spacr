@@ -1,35 +1,23 @@
-"""What each regression family assumes, and which of three kinds it is.
+"""Describe and group the statistical assumptions of regression families.
 
-Nineteen families in one flat alphabetical list is a menu that hides its own
-contents. The quantile fit, the two robust losses and the rank aggregation
-were all present and none of them could be found, so the screen looked as
-though it offered least squares and nothing else.
-
-THE THREE KINDS, and the distinction between them is the one a reviewer
-checks:
+The available families are organized into three methodological groups:
 
 ``parametric``
     the response is given a distribution and the p-values come from that
     distribution's theory. Least squares, the GLM links, the penalised fits
     and the mixed model.
 ``robust_semiparametric``
-    still a linear model, still parametric IN THE COEFFICIENTS, but the loss
-    is chosen so that a handful of extreme wells cannot set a coefficient on
-    their own. ``rlm``, ``huber`` and ``quantile`` are these -- and calling
-    them nonparametric, as the request that produced this table did, is wrong
-    in a way that matters: only the ERROR term is left unspecified, and for
-    ``quantile`` alone.
+    linear models whose coefficients remain parametric but whose loss reduces
+    sensitivity to extreme wells. ``rlm``, ``huber`` and ``quantile`` belong
+    to this group; quantile regression leaves the error distribution
+    unspecified.
 ``rank_based``
-    the fit reads only the ORDER of the wells, so no distribution is assumed
-    anywhere. ``rra`` is the one genuinely nonparametric family here.
+    fits based on well order rather than response magnitudes. ``rra`` is the
+    nonparametric family in the current inventory.
 
-DISTRIBUTION-FREE INFERENCE IS A SEPARATE AXIS and is not in this table. Any
-family that produces a coefficient can be paired with a permutation null,
-which is what makes the p-value assumption-free; the kind recorded here is
-about how the EFFECT is estimated, not how it is tested.
-
-NOTHING IS RENAMED. These are the stored values, so a settings file written
-before the grouping existed asks for exactly the fit it always asked for.
+Distribution-free inference is independent of these effect-estimation groups.
+Any coefficient-producing family can be paired with a permutation null. The
+stored regression-type values are retained for settings-file compatibility.
 """
 
 from __future__ import annotations

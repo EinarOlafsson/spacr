@@ -1540,25 +1540,17 @@ class FastPlot(QWidget):
         self._thresholds = (list(options or ()), multiplier, on_multiplier)
 
     def offer_levels(self, options, *, note: str = "") -> None:
-        """Offer "show only genes / only guides / both", ON the plot.
+        """Configure result-level choices on the plot and context menu.
 
-        :param options: ``[(label, callback, checked)]``.
-        :param note: one sentence naming what is shown and what is not, for
-            the host to supply -- only the host knows the run. Shown beside
-            the control and in the status line, and it survives a redraw.
+        Level selection changes which rows are displayed rather than their
+        styling, so it receives a separate menu section and an on-plot control.
+        The control remains visible when a run contains both gene- and
+        guide-level fits, making the active subset explicit.
 
-        ITS OWN SECTION ON THE MENU, above the baselines, because it changes
-        WHICH ROWS are on the plot rather than how they are drawn or where
-        zero is. A user who cannot tell "I am looking at a subset" from "I
-        restyled it" will read a filtered plot as the whole screen.
-
-        AND A CONTROL ON THE PLOT, which is what the design is about.
-        A run with ``level='both'`` fits twice, and the panel opens on the
-        guide fit so a gene is not drawn once per guide -- both correct, and
-        neither said out loud. The report was "it only runs once", and from
-        the user's side that was the honest reading: half the run was
-        invisible behind a right-click nobody had performed. A filter that
-        hides half a run may not be three clicks deep.
+        :param options: Sequence of ``(label, callback, checked)`` entries.
+        :param note: Host-supplied description of the displayed and excluded
+            levels. It is shown beside the control and in the status line and
+            is retained across redraws.
         """
         self._levels = list(options or ())
         self._level_note = str(note or "")
@@ -4628,17 +4620,17 @@ class FastPlot(QWidget):
         Parameters
         ----------
         x, y : array-like
-            The series. Points are drawn in the order given.
+            Ordered point coordinates. Entries for which either coordinate is
+            non-finite are omitted.
         colour : color-like or None, default=None
-            Line colour; the first categorical colour by default.
+            Line colour. ``None`` uses the first categorical colour.
         width : float, default=2.0
             Line width in pixels.
         low, high : array-like or None, default=None
-            The band's edges, one per point. Both are needed; either alone
-            is ignored, because half a band is a second line pretending to
-            be one.
+            Lower and upper band boundaries aligned with ``x`` and ``y``. The
+            band is drawn only when both arrays are provided.
         name : str, default=""
-            Legend entry, when the plot has a legend.
+            Legend label. An empty string adds no label.
 
         Returns
         -------

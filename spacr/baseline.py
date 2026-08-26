@@ -1,31 +1,20 @@
-"""Define and describe the reference used for reported effect sizes.
+"""Define the reference used to report regression effect sizes.
 
-Changing the formula intercept does not change guide or gene coefficients.
-For the model
+For a model of the form
 
     y ~ fraction:grna + gene_fraction:gene + rowID + columnID
 
-and patsy gives EVERY guide and EVERY gene a coefficient -- none is dropped as
-a reference, because they appear only in interaction with a continuous term,
-so full coding applies. The only levels dropped are the first row and the
-first column. Re-fitting a planted effect with the row reference moved from
-r01 to r03 shifts the intercept by 0.806 and changes not one guide or gene
-coefficient. A control for it would be a control a user could set, watch the
-volcano not move, and reasonably conclude was broken.
+Patsy assigns coefficients to every guide and gene because both occur only in
+interactions with a continuous fraction. The first plate row and column define
+the intercept reference, but changing those categorical references shifts the
+intercept without changing guide or gene coefficients.
 
-an effect size with an unstated reference is not interpretable. The guide
-coefficients are slopes on
-the guide's own fraction, referenced to zero -- "no dose-response". A reader
-of a screen figure assumes they are looking at differences from the
-non-targeting controls, and today nothing on the figure says otherwise.
-
-This module states the baseline and can move it to the controls, to a named
-gene, or to an explicit value.
-
-THE MEDIAN, NOT THE MEAN. One control guide with a real phenotype drags a
-mean baseline and shifts every effect in the screen -- and this screen has
-one: `000000_22`, a non-targeting control, is the strongest effect in the
-whole run at +4.37.
+Guide coefficients are slopes with respect to guide fraction and therefore
+use zero guide fraction (no dose-response) as their fitted reference. This
+module records that reference explicitly and can re-express effects relative
+to non-targeting controls, a named gene or guide, or a supplied numeric value.
+Control-based baselines use the median coefficient to limit sensitivity to a
+control guide with a genuine phenotype.
 """
 
 from __future__ import annotations
@@ -61,7 +50,7 @@ CONTROL_LABELS = ("nc", "negative", "non-targeting", "nontargeting",
 
 @dataclass
 class Baseline:
-    """A chosen baseline and the sentence that states it."""
+    """Store a selected baseline and its reporting sentence."""
 
     kind: str
     #: What to subtract from every effect. 0.0 for :data:`ZERO`.
@@ -75,18 +64,15 @@ class Baseline:
 
     @property
     def moves(self) -> bool:
-        """True when applying this baseline actually changes the numbers."""
+        """Return whether applying the baseline changes effect values."""
         return bool(self.shift)
 
 
 def _control_rows(frame, labels: Sequence[str] = CONTROL_LABELS):
-    """The rows that are non-targeting controls, or None if unknowable.
+    """Return non-targeting-control rows, or ``None`` if no type column exists.
 
-    NONE IS NOT AN EMPTY SELECTION. A table with no `condition` column and a
-    table whose condition column contains no controls are different failures
-    -- the first cannot answer the question, the second answers it with
-    "there are none" -- and a caller that treated both as "no controls found"
-    would offer a control-based baseline on a table that has no idea.
+    ``None`` distinguishes an unidentifiable control population from an empty
+    population in a table that does provide control annotations.
     """
     for column in ("condition", "control", "guide_type"):
         if column in getattr(frame, "columns", ()):
@@ -97,12 +83,10 @@ def _control_rows(frame, labels: Sequence[str] = CONTROL_LABELS):
 
 
 def describe_intercept(frame=None) -> str:
-    """What the intercept of this fit is, in one sentence.
+    """Return a one-sentence description of the fitted intercept.
 
-    Part of stating the baseline: the number every coefficient is added to is
-    the response at zero guide fraction, in whichever row and column patsy
-    dropped -- an arbitrary corner of the plate, not a condition anybody
-    chose.
+    The intercept is the response at zero guide fraction in the categorical
+    plate row and column selected by Patsy as references.
     """
     return ("The intercept is the response at zero guide fraction in the "
             "first row and column of the plate, which patsy drops as the "
@@ -113,7 +97,7 @@ def describe_intercept(frame=None) -> str:
 def resolve(frame, kind: str = ZERO, *, column: str = "coefficient",
             name: Optional[str] = None, value=None,
             key_column: str = "feature") -> Baseline:
-    """The baseline to measure effects from.
+    """Resolve the baseline used to report effects.
 
     :param frame: the coefficient table.
     :param kind: :data:`ZERO`, :data:`CONTROLS`, :data:`NAMED` or
@@ -121,10 +105,8 @@ def resolve(frame, kind: str = ZERO, *, column: str = "coefficient",
     :param column: the effect column.
     :param name: for :data:`NAMED`, the gene or guide to normalise to.
     :param value: for :data:`VALUE`, the number to measure from.
-    :returns: a :class:`Baseline`, ALWAYS -- a request that cannot be honoured
-        comes back as the zero baseline carrying the reason, because a figure
-        with no baseline sentence at all is the state this module exists to
-        end.
+    :returns: a :class:`Baseline`. An unavailable requested baseline returns
+        the zero baseline with an explanatory ``reason``.
 
     :raises ValueError: never. See above.
     """
@@ -210,12 +192,10 @@ def resolve(frame, kind: str = ZERO, *, column: str = "coefficient",
 def apply(frame, baseline: Baseline, *, column: str = "coefficient"):
     """``frame`` with every effect re-expressed against ``baseline``.
 
-    A COPY. The caller is a figure; the table it was handed is the run's own
-    results, and shifting it in place would move the numbers under the
-    coefficient table, the export and every other panel -- each of which
-    would then disagree with its own caption about which baseline it used.
+    The function returns a copy because the input may also supply coefficient
+    tables, exports and other panels that must retain their original values.
 
-    The standard errors and p-values are NOT touched, and that is correct: a
+    Standard errors and p-values are unchanged: a
     location shift of every coefficient by one constant changes what each
     effect is measured from, not how precisely it was estimated. The
     p-values still test the coefficient against zero, which is why the

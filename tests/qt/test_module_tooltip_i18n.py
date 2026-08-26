@@ -1,13 +1,13 @@
 """Coverage for reviewed module-summary localization."""
 
 import hashlib
+from importlib import import_module
 
 from spacr.qt.i18n_module_summaries import (
     MODULE_SUMMARIES,
     REVIEWED_SOURCE_HASHES,
     module_summary,
 )
-
 
 NON_ENGLISH = {"sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"}
 
@@ -78,8 +78,18 @@ def test_reviewed_summary_hashes_match_current_builtin_sources():
     )
 
 
+def test_external_catalogs_use_the_reviewed_module_summaries():
+    """Generated catalogs may not override reviewed scientific summaries."""
+    sources = _english_summaries()
+    for language, reviewed in MODULE_SUMMARIES.items():
+        catalog = import_module(f"spacr.qt.i18n_catalogs.{language}")
+        for key, target in reviewed.items():
+            assert key in sources
+            assert catalog.MODULE_SUMMARIES[key] == target
+
+
 def test_module_summary_uses_reviewed_translation_and_safe_fallback():
-    english = "Generate UMAP embeddings with image glyphs"
+    english = "Visualize UMAP embeddings with image glyphs"
     assert module_summary("umap", english, "de") != english
     assert "UMAP" in module_summary("umap", english, "zh_CN")
     assert module_summary("future_plugin", "Plugin summary", "fr") == "Plugin summary"
@@ -115,6 +125,7 @@ def test_sidebar_module_help_retranslates_semantically(
     qtbot, qt_theme_applied,
 ):
     from PySide6.QtWidgets import QPushButton
+
     from spacr.qt.app import APPS, Sidebar
     from spacr.qt.i18n import retranslate_widget_tree
 

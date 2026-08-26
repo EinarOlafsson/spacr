@@ -1,29 +1,17 @@
-"""Render a pyqtgraph figure from a pipeline that has no window.
+"""Render pyqtgraph figures without an interactive window.
 
-The screen already draws every regression plot in pyqtgraph. The figures a
-RUN writes to disk were drawn a second time in matplotlib, from a second code
-path -- so one screen produced two pictures of one number, and the two can
-disagree. This module is the half that removes the duplicate: it renders the
-SAME scene the tab shows, offscreen, at print resolution.
+Regression plots are rendered with pyqtgraph in the graphical interface. This
+module renders the same plot specification through the same renderer in an
+offscreen widget, allowing interactive and pipeline-generated figures to
+share one implementation.
 
-Three things it has to get right, and they are the reasons it exists rather
-than being three lines at each call site.
-
-**A run without a display still writes its figures.** ``spacr-run`` and a
-notebook have no window server, and pyqtgraph needs a ``QApplication``.
-:func:`spacr.figures.scene.pyqtgraph_ready` starts one on Qt's ``offscreen``
-platform when there is no display, and when a scene cannot be built here --
-no platform, or a worker thread the widget would outlive -- this SAYS SO and
-returns None rather than writing nothing and reporting success.
-
-**The format follows the preference.** ``spacr.plot.figure_output_preferences``
-decides PDF or PNG and at what resolution, exactly as it does for every
-matplotlib save, and the file NAME follows the format -- a PNG written to a
-``.pdf`` name is a file no viewer opens.
-
-**Saved and visible are the same event.** Every render is announced through
-:func:`spacr.figure_sink.publish_file`, so a figure that reaches the run
-folder reaches the gallery with it.
+:func:`spacr.figures.scene.pyqtgraph_ready` supplies a ``QApplication`` on
+Qt's ``offscreen`` platform when no display is available. If Qt cannot create
+a scene safely, rendering returns an explanatory refusal instead of reporting
+a nonexistent output. Output format and resolution follow
+:func:`spacr.plot.figure_output_preferences`, and completed files are
+published through :func:`spacr.figure_sink.publish_file` for inclusion in the
+run gallery.
 """
 from __future__ import annotations
 

@@ -14,6 +14,8 @@ from __future__ import annotations
 
 from typing import List, Optional, Sequence, Tuple
 
+import common
+from common import MOCK, Ctx, blurb_of, name_of
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QFont, QFontMetrics, QTextLayout
 from PySide6.QtWidgets import (
@@ -31,10 +33,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-
-import common
-from common import MOCK, Ctx, blurb_of, name_of
-
 
 # ---------------------------------------------------------------------------
 # Text that never clips
@@ -554,8 +552,8 @@ def htile_height(icon_px: int) -> int:
     return max(72, icon_px + 28)
 
 
-#: Narrowest an ``HTile`` may be drawn before "Classifier Evaluation"
-#: elides, measured by bisection (see the module notes in VARIANTS.md).
+#: Narrowest an ``HTile`` may be drawn before the longest registry names
+#: elide, measured by bisection (see the module notes in VARIANTS.md).
 #: ``{name font px: {icon px: min width}}``; the shipped tile uses the
 #: 17 px subtitle size and therefore needs 255-263 px. Compact sizes include
 #: four pixels of tolerance for supported Open Sans rasterizers.
@@ -866,7 +864,7 @@ def recent_runs_list(ctx: Ctx, *, count: int = 4, width: int = 320) -> QWidget:
     col.addWidget(text_label(ctx, "Recent runs", size=11, weight=600,
                              color=ctx.P["fg_muted"], tracking="2px",
                              upper=True))
-    for key, plate, when, ok, elapsed in MOCK["recent"][:count]:
+    for key, plate, when, ok, _elapsed in MOCK["recent"][:count]:
         row_w, row = transparent(horizontal=True, spacing=8)
         row.addWidget(text_label(ctx, "●" if ok else "○", size=12,
                                  color=ctx.P["success"] if ok
@@ -917,7 +915,7 @@ def system_panel(ctx: Ctx, *, width: int = 300, title: str = "System"
     col.addWidget(text_label(ctx, title, size=11, weight=600,
                              color=ctx.P["fg_muted"], tracking="2px",
                              upper=True))
-    for label, pct, note in MOCK["system"]:
+    for label, pct, _note in MOCK["system"]:
         bar = UsageBar(label)
         bar.set_value(pct)
         col.addWidget(bar)
@@ -1111,9 +1109,8 @@ def real_sidebar(ctx: Ctx) -> QWidget:
     """The app's actual ``Sidebar`` widget, unmodified.
 
     Used by the baseline variant so the render shows exactly what a
-    1440x900 laptop gets today — including the fact that one row per
-    registered app plus five section headings does not fit in 900 px,
-    so the bottom of the list is simply not reachable.
+    1440x900 laptop gets today. The complete registry is taller than the
+    viewport, so the shipped scroll area keeps every section reachable.
     """
     from spacr.qt.app import Sidebar
     return Sidebar()

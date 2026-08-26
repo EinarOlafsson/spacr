@@ -2,13 +2,6 @@
   "language": "is",
   "records": [
     {
-      "context": "The joined fields include gene names, predicted signal peptides and transmembrane domains, published phenotype scores, stage-specific expression, and hyperLOPIT localisation. Previously, ``toxo=True`` reached only the volcano colours and two heatmaps, while the CSV a reader actually opens came out as bare gene numbers and coefficients. Somebody then joined the annotation by hand in Excel, which is where the wrong-structured-data name mistakes live.",
-      "label": "spacr.annotation#1",
-      "source": "The joined fields include gene names, predicted signal peptides and transmembrane domains, published phenotype scores, stage-specific expression, and hyperLOPIT localisation. Previously, ``toxo=True`` reached only the volcano colours and two heatmaps, while the CSV a reader actually opens came out as bare gene numbers and coefficients. Somebody then joined the annotation by hand in Excel, which is where the wrong-key mistakes live.",
-      "source_sha256": "9e7e4670101983e835c3e5a30f7c04b991b680e501296850018cd0b816285ec2",
-      "translation": "Sameiginleg svið innihalda genaheiti, spáð merkjapeptíð og yfirhimnusvæði, birt svipgerðaskor, stigssértæk tjáning og hyperLOPIT staðsetning. Áður fyrr náði ``toxo=True`` aðeins litum eldfjallsins og tveimur hitakortum, en CSV sem lesandi opnar í raun og veru kom út sem ber genanúmer og -stuðlar. Einhver tók síðan þátt í skýringunni handvirkt í Excel, þar sem rangt skipulagt gagnaheitavillur búa."
-    },
-    {
       "context": "Run Mask from a typed configuration or an existing settings mapping.",
       "label": "spacr.api.run_mask#0",
       "source": "Run Mask from a typed configuration or an existing settings mapping.",
@@ -16,32 +9,11 @@
       "translation": "Keyra Mask frá vélinni stillingu eða núverandi stillingavörpun."
     },
     {
-      "context": "WHERE THE PIXELS COME FROM -- ALREADY BUILT, NOT REBUILT HERE",
-      "label": "spacr.cell_montage#10",
-      "source": "WHERE THE PIXELS COME FROM -- ALREADY BUILT, NOT REBUILT HERE",
-      "source_sha256": "f217e56e6918d0f610f56121a97a7743063f92225f1971f15f64741b1802fb01",
-      "translation": "WHERE PIXELNIR KOMA FRÁ -- NÚNA BYGGÐIR, EKKI ENDURBYGGÐIR HÉR"
-    },
-    {
-      "context": "The design: each of these changes which cells a reader is looking at, so each is written onto the montage and a non-default value says that it is one. THE SETTINGS ARE PER SCREEN, NEVER PER GENE -- a width chosen per gene is a width that can be tuned until the pictures look right, and nothing in the output would show that it had been. This sentence is what makes that visible either way.",
-      "label": "spacr.cell_montage.MontagePlan.settings_line#1",
-      "source": "The design: each of these changes which cells a reader is looking at, so each is written onto the montage and a non-default value says that it is one. THE SETTINGS ARE PER SCREEN, NEVER PER GENE -- a width chosen per gene is a width that can be tuned until the pictures look right, and nothing in the output would show that it had been. This sentence is what makes that visible either way.",
-      "source_sha256": "9ab4d547b2583233a297188fe6f0c778c03b0620850644857db02019ce664fcb",
-      "translation": "Hönnunin: hver þessara fruma breytir því hvaða frumur lesandi horfir á, þannig að hver þeirra er skrifuð á samsetninguna og ekki sjálfgefið gildi segir að það sé ein. STILLINGARNIR ERU Á SKJÁ, ALDREI Á GEN -- breidd valin fyrir hvert gen er breidd sem hægt er að stilla þar til myndirnar líta rétt út og ekkert í úttakinu myndi sýna að svo hefði verið. Þessi setning er það sem gerir það sýnilegt hvort sem er."
-    },
-    {
       "context": "``cell_count`` as the count data recorded it, or ``None``. Kept beside ``n_objects`` rather than instead of it, because when they disagree the montage has to say so.",
       "label": "spacr.cell_montage.WellSelection#4",
       "source": "``cell_count`` as the count data recorded it, or ``None``. Kept beside ``n_objects`` rather than instead of it, because when they disagree the montage has to say so.",
       "source_sha256": "1638c954b7c5e76b14c016c2cae897ad09645427b39e52c5598cd1b481d6041c",
       "translation": "``cell_count`` eins og talningargögnin skráðu þau, eða ``None``. Geymdur við hliðina á ``n_objects`` frekar en í staðinn fyrir það, því þegar þeir eru ósammála verður uppsetningin að segja það."
-    },
-    {
-      "context": "THE WELL TOTAL IS A ONE-ROW-PER-WELL FRAME BY CONSTRUCTION, and the merge says so with ``validate='many_to_one'``. `ml.process_reads` carries the same guard and the same comment: a duplicated well total would duplicate every guide row of that well, and the fractions would still sum to 1 per copy -- so the corruption would be invisible in every downstream check.",
-      "label": "spacr.cell_montage.fractions_from_counts#8",
-      "source": "THE WELL TOTAL IS A ONE-ROW-PER-WELL FRAME BY CONSTRUCTION, and the merge says so with ``validate='many_to_one'``. `ml.process_reads` carries the same guard and the same comment: a duplicated well total would duplicate every guide row of that well, and the fractions would still sum to 1 per copy -- so the corruption would be invisible in every downstream check.",
-      "source_sha256": "56e28400f9786cfb16b80be944d31fcc88270dd712270470379caecf8cda4aec",
-      "translation": "SAMTALIÐ BRUNNAR ER EIN RÍÐ Í HÚNUR RAMMI VIÐ BYGGINGU og sameiningin segir það með ``validate='many_to_one'``. `ml.process_reads` ber sömu vörnina og sömu athugasemdina: tvöföld borholuupphæð myndi afrita hverja leiðaralínu í þeim brunni, og brotin myndu samt verða 1 á hvert eintak -- þannig að spillingin væri ósýnileg í hverri niðurstreymisskoðun."
     },
     {
       "context": "Reads ``png_list`` -- which is where :func:`spacr.predictions.merge_cv_predictions` writes the per-object classification score -- and hands it to :func:`spacr.io.crop_rows_from_png_list`, which is the join that recovers ``path_name`` and the integer ``object_label`` a merged extracted image region is cut by. So the frame that comes back serves **both** extracted image region sources: ``png_path`` for :class:`~spacr.crops.PngCropSource`, ``path_name`` plus ``object_label`` for :class:`~spacr.crops.MergedCropSource`.",
@@ -63,13 +35,6 @@
       "source": "a dict in the order given. A path that does not exist or cannot be parsed is ABSENT from the result rather than mapped to an empty list -- see rule 2. Use :func:`missing` to ask which those were.",
       "source_sha256": "33aa3b37dc8945d16cb30f8c08e0b09ff36e39854650ecb74a9b866551bf12e2",
       "translation": "lykilgilda kortlagning í þeirri röð sem gefin er upp. Slóð sem er ekki til eða ekki er hægt að flokka er FJARVAR í niðurstöðunni frekar en varpað á tóman lista -- sjá reglu 2. Notaðu :func:`missing` til að spyrja hverjir þetta voru."
-    },
-    {
-      "context": "THE ANCHOR IS FOUND FROM THE RIGHT, and that is the whole correctness of this function. Splitting on the FIRST ``/data/`` turned ``/old/data/exp1/data/plate1/a.png`` into ``<root>/data/exp1`` -- a path that has silently lost ``plate1/a.png`` and now names a directory. An experiment whose old root itself contained a ``data`` folder is not exotic, and the corruption did not raise: it produced a plausible path that failed much later as a missing file. The anchor nearest the FILE is the one that separates the root from the part that must be preserved.",
-      "label": "spacr.crops.reanchor_path#1",
-      "source": "THE ANCHOR IS FOUND FROM THE RIGHT, and that is the whole correctness of this function. Splitting on the FIRST ``/data/`` turned ``/old/data/exp1/data/plate1/a.png`` into ``<root>/data/exp1`` -- a path that has silently lost ``plate1/a.png`` and now names a directory. An experiment whose old root itself contained a ``data`` folder is not exotic, and the corruption did not raise: it produced a plausible path that failed much later as a missing file. The anchor nearest the FILE is the one that separates the root from the part that must be preserved.",
-      "source_sha256": "a70f3da8c30ebd595370f30c691df36e6c0896fbc01054972b7b7f8eb08b3c16",
-      "translation": "ANKERIÐ FINNAÐ FRÁ HÆGRI, og það er allt réttmæti þessarar aðgerða. Skipting á FYRSTU ``/data/`` breytti ``/old/data/exp1/data/plate1/a.png`` í ``<root>/data/exp1`` -- slóð sem hefur týnt ``plate1/a.png`` hljóðlaust og nefnir nú möppu. Tilraun þar sem gamla rótin sjálf innihélt ``data`` möppu er ekki framandi og spillingin vakti ekki: hún framleiddi trúverðuga slóð sem mistókst miklu seinna sem skrá sem vantaði. Akkerið sem er næst FILE er það sem aðskilur rótina frá þeim hluta sem þarf að varðveita."
     },
     {
       "context": "A SINK THAT RAISES DOES NOT LOSE THE FILE, for the same reason as in :func:`publish`: the file is already on disk and the announcement is best-effort, so a GUI that has gone away must not take the processing session's output with it.",
@@ -429,13 +394,6 @@
       "translation": "Gagnvirki tvíburinn af :func:`spacr.figures.panels.effect_rank` og spjaldið sem svarar því sem eldfjall getur ekki skipulagt: HVERSU STÓRT og hversu öruggt. Eldfjall er raðað eftir marktækni, þannig að áhrif upp á 0,02 mæld á sex hundruð míkróplötusýnastöður eru meiri en 2,0 mæld á fjórum; röðun eftir áhrifunum sjálfum snýr þeim á hinn veginn og bilið sem dregið er í gegnum hvern punkt er það sem segir hverju þeirra tveggja á að trúa."
     },
     {
-      "context": "ITS OWN SECTION ON THE MENU, above the baselines, because it changes WHICH ROWS are on the plot rather than how they are drawn or where zero is. A user who cannot tell \"I am looking at a subset\" from \"I restyled it\" will read a filtered plot as the whole screen.",
-      "label": "spacr.qt.widgets.fast_plots.FastPlot.offer_levels#3",
-      "source": "ITS OWN SECTION ON THE MENU, above the baselines, because it changes WHICH ROWS are on the plot rather than how they are drawn or where zero is. A user who cannot tell \"I am looking at a subset\" from \"I restyled it\" will read a filtered plot as the whole screen.",
-      "source_sha256": "facf6feb52be4097e445dac0717d052b5949b468f238f937faae564da8f29b1b",
-      "translation": "SÍN EIGIN KAFLI Í VALLINUM, fyrir ofan grunnlínur, því það breytist HVAÐA línurnar eru á lóðinni frekar en hvernig þær eru teiknaðar eða hvar núll er. Notandi sem getur ekki sagt „Ég er að horfa á hlutmengi“ frá \"I restyled it\" mun lesa síaðan söguþráð sem allan skjáinn."
-    },
-    {
       "context": "THE DATA IS TRANSFORMED, NOT ONLY THE AXIS. ``PlotItem.setLogMode`` relabels the axis and then walks its items asking each to re-transform itself -- and ``ScatterPlotItem`` HAS NO ``setLogMode``, while every point on every plot in this module is one. The axis therefore claimed a log scale and the dots did not move: a reader took p-values off a ruler that did not describe the marks beside it, with nothing on application view to say so. That is a wrong figure, not an inert control.",
       "label": "spacr.qt.widgets.fast_plots.FastPlot.set_log_axes#1",
       "source": "THE DATA IS TRANSFORMED, NOT ONLY THE AXIS. ``PlotItem.setLogMode`` relabels the axis and then walks its items asking each to re-transform itself -- and ``ScatterPlotItem`` HAS NO ``setLogMode``, while every point on every plot in this module is one. The axis therefore claimed a log scale and the dots did not move: a reader took p-values off a ruler that did not describe the marks beside it, with nothing on screen to say so. That is a wrong figure, not an inert control.",
@@ -595,13 +553,6 @@
       "source": "list of ColumnFit One result for every attempted column. A failed fit does not prevent later columns from running.",
       "source_sha256": "04b6a91f576d29fe138d337eb9f43a86f0f5e0d112cccd381a14059565ba9fd7",
       "translation": "listi yfir ColumnFit Ein niðurstaða fyrir hvern dálk sem reynt er á. Misheppnuð passa kemur ekki í veg fyrir að síðari dálkar verði keyrðir."
-    },
-    {
-      "context": "THE TAB READS AS ITS OWN WORKFLOW (154 F). It held the same controls in the same order before this and nothing said what the order WAS, so a user who had merged had no idea what came next -- \"i dont understand how this is all set up\" is a complaint about a page with no headings on it, not about the arithmetic underneath.",
-      "label": "spacr.qt.widgets.measurement_scan_panel.step_header#2",
-      "source": "THE TAB READS AS ITS OWN WORKFLOW (154 F). It held the same controls in the same order before this and nothing said what the order WAS, so a user who had merged had no idea what came next -- \"i dont understand how this is all set up\" is a complaint about a page with no headings on it, not about the arithmetic underneath.",
-      "source_sha256": "dfe1838ff97e28938c419cd9d534634f59947023f60fbecedcdcd43f8d1a97b9",
-      "translation": "FLIPINN LESIST SEM EIGIN VERKFLÆÐI (154 F). Það hélt sömu stjórntækjum í sömu röð fyrir þetta og ekkert sagði hver röðin VAR, þannig að notandi sem hafði sameinast hafði ekki hugmynd um hvað kom næst -- \"ég skil ekki hvernig þetta er allt sett upp\" er kvörtun um síðu án fyrirsagna, ekki um reikninginn að neðan."
     },
     {
       "context": "The results panel combines a clickable volcano plot, sortable coefficient table, p-value histogram, Q-Q calibration view, assay controls, guide-support view, model summary, and annotation for the selected gene. Selecting a coefficient in any linked plot or table highlights the same feature in the other views.",
@@ -770,13 +721,6 @@
       "source": "A collapsed duplicate is **not** listed twice: a picker that offered both ``well`` and ``wellID`` would let a user choose a column the run will not find.",
       "source_sha256": "67dc632e0f9d718c806a22f8b86900873359c7e358d4b02c9f6bd381f7d4c849",
       "translation": "Samfellt tvírit er **ekki** skráð tvisvar: valinn sem bauð bæði ``well`` og ``wellID`` myndi leyfa notanda að velja dálk sem keyrslan finnur ekki."
-    },
-    {
-      "context": "2. WHERE THE IMPORTED PACKAGE ACTUALLY LIVES. If ``spacr.__file__`` is not under a ``site-packages`` directory, the code being run is a working tree whatever the metadata says. This is the check that answers the real question -- \"would ``pip install --upgrade`` replace the source I am editing?\" -- and it needs no packaging metadata at all.",
-      "label": "spacr.updater.editable_install_location#4",
-      "source": "2. WHERE THE IMPORTED PACKAGE ACTUALLY LIVES. If ``spacr.__file__`` is not under a ``site-packages`` directory, the code being run is a working tree whatever the metadata says. This is the check that answers the real question -- \"would ``pip install --upgrade`` replace the source I am editing?\" -- and it needs no packaging metadata at all.",
-      "source_sha256": "ace62b62db61f76798a934085ac189d6c88a71703614e8b912d6a404c19ed077",
-      "translation": "2. WHERE INNFLUTTI PAKKIÐ LIFAR Í raun. Ef ``spacr.__file__`` er ekki undir ``site-packages`` möppu er kóðinn sem keyrður er vinnutré hvað sem lýsigögnin segja. Þetta er ávísunin sem svarar raunverulegu spurningunni -- \"myndi ``pip install --upgrade`` koma í stað heimildarinnar sem ég er að breyta?\" - og það þarf alls engin umbúðalýsigögn."
     }
   ],
   "schema": 1

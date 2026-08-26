@@ -310,7 +310,7 @@ def make_graph_builder_screen(app_key: Optional[str] = None) -> QWidget:
 #: the app in is copying four strings from one file rather than inventing
 #: them in four.
 APP_NAME = "Graph Builder"
-APP_DESCRIPTION = "Drag columns onto x / y / colour / size / facet and get a chart"
+APP_DESCRIPTION = "Construct charts by assigning table columns to visual encodings and facets"
 APP_INTRO = (
     "Drop a column on X or Y and the chart appears; the plot type follows "
     "the column types. Facet down and across for small multiples on shared "

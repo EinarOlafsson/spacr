@@ -1,39 +1,16 @@
-"""Measure, and the three modules that are the rest of the visit.
+"""Illumination, AnnData and motility workflows integrated with Measure.
 
-ILLUMINATION CORRECTION IS PART OF A MEASURE RUN, not a run of its own.
-``measure_crop`` calls
-:func:`spacr.illumination.prepare_illumination_correction` itself before it
-computes a single feature, and the nine ``illumination_*`` keys are a
-settings category on Measure's own panel -- so the switch is thrown where
-the numbers it changes are produced. What that panel cannot express is
-estimating and QCing the field WITHOUT measuring the plate: the QC figure
-that says how much of the position bias the correction removed is minutes
-of work, and a measure run over the same plate is hours. The module
-therefore keeps its own settings form and Run button, folded onto this
-masthead, and the settings category and the button are two handles on one
-door -- both end in the same ``prepare_illumination_correction``.
+Measure applies illumination correction through
+:func:`spacr.illumination.prepare_illumination_correction`. The integrated
+Illumination page can estimate and assess a correction field independently
+before a full measurement run. AnnData Export provides a typed settings form
+for writing measurement tables as ``.h5ad`` files. Motility Assay quantifies
+objects in existing time-series masks and writes per-object and per-track
+measurements.
 
-AnnData Export has no screen of its own and never wanted one: every knob
-it has is a typed, tooltipped settings key, so the generic module form IS
-its export dialog. What it does want is to be reachable from the screen
-that wrote the tables it exports -- an export is the sentence after
-"measure this plate", not a separate destination -- so it folds onto
-Measure's masthead as a button.
-
-The button is the AnnData Export icon with no text, its one-line
-description as the tooltip, lit on hover in the maturity colour its tile
-used -- see :class:`spacr.qt.widgets.fold_strip.FoldStrip`.
-
-NOTHING IS LOST IN THE MOVE. The button opens the export module itself,
-settings form and Run button and console, as a PAGE beside the measure
-settings rather than in a window over them -- a window is the last resort
-for a fold. The headless path is untouched, because the button runs the
-same entry point ``spacr-run anndata_export`` runs.
-
-The shared half of a fold -- opening the module, wiring the host signals
-and hanging the strip off the masthead -- lives in
-:mod:`spacr.qt.screens.map_barcodes` and is imported rather than
-repeated.
+Each workflow opens as a complete page beside the Measure settings and retains
+its headless entry point. Shared page and signal integration is implemented by
+:mod:`spacr.qt.screens.map_barcodes`.
 """
 
 from __future__ import annotations

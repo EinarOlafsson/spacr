@@ -9,13 +9,6 @@
       "translation": "**Engin eigin forritaskjánýting, og engin er óskað eftir.** Forritið skráir engin ``factory``, svo það fær almennu, stillingamiðuðu ``AppScreen`` -- og hver hnappur sem þessi eining hefur er þegar týpufestur, með verkfærishjálp (tooltipped) nafn á uppbyggðu gögnum í :func:`register_anndata_settings`, svo sú almennu form er Útflutningsglugginn. ``defaults_module`` er það sem gerir það sýnilegt: það segir ``settings_model`` að flytja inn þessa einingu áður en spurt er hvort nafnið á uppbyggðu gögnunum hafi sjálfgefna stillingu. Vinnslufundarhnappurinn keyrir :func:`run_anndata_export`, sem er líka það sem ``spacr-run anndata_export`` keyrir -- útflutningur er lotuskref sem þú vilt á klasa eftir Mælingu, ekki gagnvirkt verkfæri."
     },
     {
-      "context": "Auto-chaining fills only blank values. Once a user enters a path, that path belongs to the user and survives reopening, restarting, and later upstream runs. This *separate record* stores that choice. The settings collection cannot distinguish \"the user chose this\" from \"we put it there\".",
-      "label": "spacr.chaining.PinStore#1",
-      "source": "Auto-chaining is only welcome while it is filling in a blank.  The moment a user types a path of their own, that path is theirs: it survives a reopen, a restart, and every subsequent upstream run.  This is the record that makes that true, and it is deliberately *not* the settings dict — a settings dict cannot distinguish \"the user chose this\" from \"we put it there\".",
-      "source_sha256": "faff240eca0d1a5848c97f015075102cd3468c2c6262c7acc6f5061296b692d0",
-      "translation": "Sjálfvirk tenging fyllir aðeins tóma reiti. Þegar notandi slær inn slóð, tilheyrir sú slóð notandanum og helst við að opna aftur, endurræsa og seinni keyrslur uppstreymis. Þessi *aðskilda skrá* geymir þá ákvörðun. Stillingasafnið getur ekki greint á milli „notandinn valdi þetta“ og „við settum það þarna“."
-    },
-    {
       "context": "Token-wise, not substring: ``start_time`` matches, ``update_freq`` does not. ``src`` deliberately does **not** match — a run on a different dataset is a real difference and belongs in ``changed``, even though it is a path.",
       "label": "spacr.train_compare.is_env_key#1",
       "source": "Token-wise, not substring: ``start_time`` matches, ``update_freq`` does not. ``src`` deliberately does **not** match — a run on a different dataset is a real difference and belongs in ``changed``, even though it is a path.",

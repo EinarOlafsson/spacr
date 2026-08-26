@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "classify",
+      "source_sha256": "d6f4f0c6329cd8b7307606bd8b38335d9db32b8e639ab3b9a8a6d5ed63551af4",
+      "source": "Train, validate or apply a PyTorch image classifier to measured object crops. Keep training, validation and test groups independent at the selected experimental unit.",
+      "translation": "मापे गए object crops पर PyTorch image classifier को प्रशिक्षित, सत्यापित या लागू करें। चुनी गई experimental unit के स्तर पर training, validation और test groups को परस्पर स्वतंत्र रखें।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "fraction_threshold",
+      "source_sha256": "6a8155bb70a4c7d98ed9704d873f181c92d8dabf0613cdcdc08826d8f16bd294",
+      "source": "Minimum relative abundance, 0-1, that a gRNA must reach within a well's total read count to be retained. Increasing it removes low-abundance and bleed-through gRNAs and reduces the mean number of gRNAs per well; if set too high, every row is removed and the run raises an error. Use None to select automatically the cutoff that yields target_unique_count gRNAs per well. Default None.",
+      "translation": "किसी gRNA को बनाए रखने के लिए वेल की कुल read count में आवश्यक न्यूनतम सापेक्ष प्रचुरता, 0-1। मान अधिक करने से कम प्रचुरता वाले और bleed-through gRNAs हटते हैं तथा प्रति वेल gRNAs की औसत संख्या घटती है; बहुत अधिक मान हर पंक्ति को हटा देता है और रन त्रुटि उत्पन्न करता है। प्रति वेल target_unique_count gRNAs देने वाली cutoff अपने आप चुनने के लिए None का उपयोग करें। डिफ़ॉल्ट None।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nr_imgs",
+      "source_sha256": "da2f590ba414d7743db666cde547a598b4a5e1a7f34879d073b40c610fd4b22c",
+      "source": "Number of object crops in each representative-image grid. The sampler selects this many per condition, or all available crops when fewer exist. Increase it for a more representative but larger and slower figure; decrease it for a faster preliminary view. Must be a positive integer; plotting helpers default to 16.",
+      "translation": "प्रत्येक representative-image grid में object crops की संख्या। sampler प्रत्येक condition से इतनी संख्या चुनता है, अथवा उपलब्ध crops कम होने पर उन सभी को चुनता है। अधिक प्रतिनिधि लेकिन बड़े और धीमे figure के लिए मान बढ़ाएँ; तेज प्रारंभिक दृश्य के लिए इसे घटाएँ। मान धनात्मक पूर्णांक होना चाहिए; plotting helpers का डिफ़ॉल्ट 16 है।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "size",
+      "source_sha256": "277630e40645a3990103f6dfac24fd393098a18df737c6a2124899a4eeef51e3",
+      "source": "Edge length in pixels of each square crop written into the generated training dataset. It must match the classifier input at training time, and increasing it later cannot recover detail discarded during cropping. Select a size that preserves the smallest relevant object. Default 224.",
+      "translation": "बनाए गए training dataset में लिखे जाने वाले प्रत्येक वर्गाकार crop की भुजा की लंबाई, pixels में। प्रशिक्षण के समय यह classifier input से मेल खानी चाहिए; बाद में इसे बढ़ाने से cropping के दौरान हटाया गया विवरण पुनः प्राप्त नहीं होता। ऐसा size चुनें जो सबसे छोटे प्रासंगिक object को सुरक्षित रखे। डिफ़ॉल्ट 224।"
+    }
+  ]
+}

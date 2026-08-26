@@ -82,8 +82,13 @@ LOG = logging.getLogger("spacr.qt.feature_dictionary")
 #: App registry key. Load-bearing once shipped — saved user state keys off it.
 APP_KEY = "feature_dict"
 APP_NAME = "Feature Dictionary"
-APP_DESC = ("What does cell_channel_1_percentile_75 mean? Search every "
-            "measured feature by name or by idea")
+APP_DESC = "Search definitions of measured features by name or concept"
+APP_NAME_TRANSLATIONS = (
+    "Egenskapsordlista", "Merkmalswörterbuch",
+    "Diccionario de características", "特征词典",
+    "Dicionário de características", "विशेषता शब्दकोश", "특성 사전",
+    "Eiginleikaorðabók", "Dictionnaire des caractéristiques",
+)
 
 #: ``objectName`` of the panel, and the name its QSS block registers under.
 OBJECT_NAME = "FeatureDictionary"
@@ -269,8 +274,8 @@ class FeatureDictionaryPanel(QWidget):
         outer.setSpacing(8)
 
         blurb = QLabel(
-            "Every number spaCR measures, and what it means. Search a column "
-            "name you are looking at, or just say what you are after.")
+            "Definitions for measurements produced by spaCR. Search by "
+            "column name or by the biological or quantitative concept.")
         blurb.setObjectName("FeatureDictionaryBlurb")
         blurb.setWordWrap(True)
         outer.addWidget(blurb)
@@ -568,8 +573,16 @@ def register() -> bool:
     try:
         from ..app import APPS, SECTION_EXPLORE, STAGE_ALPHA, register_app
         if not any(row[0] == APP_KEY for row in APPS):
-            register_app(APP_KEY, APP_NAME, APP_DESC, SECTION_EXPLORE,
-                         factory=make_screen, stage=STAGE_ALPHA)
+            register_app(
+                APP_KEY,
+                APP_NAME,
+                APP_DESC,
+                SECTION_EXPLORE,
+                factory=make_screen,
+                stage=STAGE_ALPHA,
+                translations=APP_NAME_TRANSLATIONS,
+                api_module="feature_dict",
+            )
     except Exception:
         # A registry that cannot take one more app is not a reason for the
         # GUI to refuse to start; the Help menu route still works.

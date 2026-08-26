@@ -22,8 +22,7 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from spacr.qt.tutorial.scripts import AVAILABLE_TUTORIALS   # noqa: E402
-
+from spacr.qt.tutorial.scripts import AVAILABLE_TUTORIALS  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # fixtures + helpers
@@ -117,6 +116,35 @@ def test_build_steps_rejects_unknown_keys_and_names_the_valid_ones():
         assert name in msg
 
 
+def test_tutorial_narration_tracks_the_consolidated_interface(main_window,
+                                                               home_in_tmp):
+    """Pin the module names and routes most likely to drift after a fold."""
+    from spacr.qt.tutorial.scripts import build_steps
+
+    home = " ".join(step.narration for step in build_steps("home", main_window))
+    assert all(section in home for section in (
+        "Core", "Data", "Segmentation models", "Results and quality control",
+        "Explore", "Assays", "Design",
+    ))
+    assert "Core, Analysis, Cellpose, and Sequencing" not in home
+    assert "Help menu contains Demos" in home
+
+    mask = " ".join(step.narration for step in build_steps("mask", main_window))
+    assert all(object_type in mask for object_type in (
+        "cells", "nuclei", "pathogens", "organelles",
+    ))
+    assert "classical or custom-model methods" in mask
+    assert "cyto for cells" not in mask
+
+    classify = " ".join(
+        step.narration for step in build_steps("classify", main_window))
+    assert "consolidated Classify module" in classify
+
+    timelapse = " ".join(
+        step.narration for step in build_steps("timelapse", main_window))
+    assert "Motility workflow from Measure" in timelapse
+
+
 @pytest.mark.parametrize("app_key", AVAILABLE_TUTORIALS)
 def test_every_script_is_well_formed(app_key, main_window, home_in_tmp):
     """Narration is real prose, holds are sane, and no step declares a
@@ -167,6 +195,7 @@ def test_every_script_target_resolves_to_a_live_widget(app_key, main_window,
     real, sized widget inside the window — and that the engine never had
     to log a "did not resolve" warning to get there."""
     from PySide6.QtWidgets import QWidget
+
     from spacr.qt.tutorial.scripts import build_steps
 
     probe = _Probe(main_window, tmp_path)
@@ -254,6 +283,7 @@ def test_deferred_targets_are_dead_before_their_step_and_live_after(
     script has been driven, they resolve to real widgets.
     """
     from PySide6.QtWidgets import QWidget
+
     from spacr.qt.tutorial.scripts import build_steps
 
     probe = _Probe(main_window, tmp_path)
@@ -283,7 +313,7 @@ def test_run_step_targets_run_not_run_preview(main_window, home_in_tmp,
     """Regression: _find_button matched on prefix only, and the Mask
     screen's child order puts "Run preview" ahead of "Run" — so the step
     narrating the actual run highlighted the preview button."""
-    from spacr.qt.tutorial.scripts import build_steps, _find_button
+    from spacr.qt.tutorial.scripts import _find_button, build_steps
 
     probe = _Probe(main_window, tmp_path)
     steps = build_steps("mask", main_window)
@@ -299,7 +329,7 @@ def test_run_step_targets_run_not_run_preview(main_window, home_in_tmp,
     assert _find_button(screen, "Run").text().strip() == "Run"
     assert _find_button(screen, "Run preview").text().strip() == "Run preview"
 
-    run_steps = [s for s in steps if "When you hit Run" in s.narration]
+    run_steps = [s for s in steps if s.narration.startswith("Selecting Run")]
     assert len(run_steps) == 1, "the mask script should have one Run step"
     for s in run_steps:
         assert s.highlight is not None
@@ -381,7 +411,7 @@ def test_demos_menu_step_points_at_the_demos_menu(main_window, home_in_tmp,
     """Regression: the Demos step used the literal point (170, 15), which
     is past the end of the menu bar's items — the cursor landed on blank
     chrome. It now comes from the menu's own action geometry."""
-    from spacr.qt.tutorial.scripts import build_steps, _menu_target
+    from spacr.qt.tutorial.scripts import _menu_target, build_steps
 
     probe = _Probe(main_window, tmp_path)
     steps = build_steps("home", main_window)
@@ -392,13 +422,13 @@ def test_demos_menu_step_points_at_the_demos_menu(main_window, home_in_tmp,
     _widget, offset = menu_steps[0].target
     assert offset is not None
 
-    # DEMOS IS UNDER HELP now (2026-08-23), so it has no geometry of its own
-    # on the bar. The step points at the top-level menu you click to reach
-    # it, which is where a user's hand goes.
+    # Demos is under Help, so it has no geometry of its own on the bar. The
+    # step points at the final top-level menu (Help in the active language),
+    # which is where the user clicks. Do not compare its rendered label with
+    # English: earlier localization tests may retranslate this same window.
     mb = main_window.menuBar()
-    demos = next(a for a in mb.actions()
-                   if a.text().replace("&", "") == "Help")
-    rect = mb.actionGeometry(demos)
+    help_action = mb.actions()[-1]
+    rect = mb.actionGeometry(help_action)
     assert rect.contains(*offset), (
         f"menu target {offset} is outside the Demos item {rect}")
 
@@ -501,6 +531,7 @@ def test_load_demo_uses_the_windows_own_demo_targets(main_window,
 
 def test_sidebar_button_resolves_by_nav_key(main_window):
     from PySide6.QtWidgets import QPushButton
+
     from spacr.qt.tutorial.scripts import _sidebar_button
     # Every key here has to be a sidebar row: `timelapse` was one until it
     # folded into mask generation, and the helper's job is resolving rows
@@ -514,6 +545,7 @@ def test_sidebar_button_resolves_by_nav_key(main_window):
 def test_sidebar_button_falls_back_to_the_label_then_warns(main_window,
                                                              caplog):
     from PySide6.QtWidgets import QPushButton
+
     from spacr.qt.tutorial.scripts import _sidebar_button
     # Labels are indented ("  Mask"); the helper strips before comparing.
     btn = _sidebar_button(main_window, "Mask")
@@ -537,6 +569,7 @@ def test_open_demos_menu_returns_the_menu_and_never_pops_it_up(main_window,
     actually popping it up — a live popup would grab input for the rest
     of the render."""
     from PySide6.QtWidgets import QMenu
+
     from spacr.qt.tutorial.scripts import _open_demos_menu
     menu = _open_demos_menu(main_window)
     # The QMenu itself, reached as a C++ child of the menu bar — which is
@@ -563,6 +596,7 @@ def test_open_demos_menu_returns_the_menu_and_never_pops_it_up(main_window,
 def test_find_button_prefers_exact_then_prefix_then_none(qtbot,
                                                            qt_theme_applied):
     from PySide6.QtWidgets import QPushButton, QWidget
+
     from spacr.qt.tutorial.scripts import _find_button
 
     host = QWidget()
@@ -588,6 +622,7 @@ def test_settings_panel_is_the_left_column_not_the_console_scroll(
     step narrating "the settings panel on the left" pointed the cursor at
     the console on the right."""
     from PySide6.QtWidgets import QScrollArea
+
     from spacr.qt.tutorial.scripts import _console_panel, _settings_panel
 
     main_window._on_nav_selected(app_key)
@@ -615,6 +650,7 @@ def test_settings_panel_is_the_left_column_not_the_console_scroll(
 
 def test_panel_lookups_degrade_to_none(main_window, qt_theme_applied):
     from PySide6.QtWidgets import QWidget
+
     from spacr.qt.tutorial.scripts import _console_panel, _settings_panel
 
     assert _settings_panel(None) is None
@@ -647,6 +683,7 @@ def test_engine_drives_a_whole_script_and_completes(main_window,
     """The full narrate → capture → mux → SRT pipeline over the real
     'mask' script and a real MainWindow, at a tiny frame size."""
     import subprocess
+
     from spacr.qt.tutorial import engine
     from spacr.qt.tutorial.scripts import build_steps
     from tests.qt.test_tutorial_director import FakeNarrator
@@ -689,6 +726,7 @@ def test_render_tutorial_boots_a_window_and_returns_paths(tmp_path,
     MainWindow, run the named script through it and hand back the output
     paths."""
     import subprocess
+
     from spacr.qt.tutorial import engine
     from tests.qt.test_tutorial_director import FakeNarrator
 

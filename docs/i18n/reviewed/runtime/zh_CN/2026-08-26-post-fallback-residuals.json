@@ -1,0 +1,776 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "channel_arrays",
+      "source_sha256": "7a2ac76dde22d28692522ded853d1e62e2e06ef51e16ed83c929fb11397a301b",
+      "source": "Channel arrays",
+      "translation": "通道数组"
+    },
+    {
+      "table": "setting_labels",
+      "key": "guide_permutation_batch_size",
+      "source_sha256": "0e7f5471261be0e284ad7c071fe497667b66c22ff919108bf0bc1e764ebef36b",
+      "source": "Guide permutation batch size",
+      "translation": "向导置换批大小"
+    },
+    {
+      "table": "setting_labels",
+      "key": "guide_permutation_seed",
+      "source_sha256": "13666d3c3d9ed1fd7d71d5a6ca040e48ef036c98d72c16b138c13f51c9ec4781",
+      "source": "Guide permutation seed",
+      "translation": "向导置换随机种子"
+    },
+    {
+      "table": "setting_labels",
+      "key": "guide_primary_min_wells",
+      "source_sha256": "b48c841e1630e7be45b4ee34a893aa09a875b98b3ea2c9dc737165429d1804b9",
+      "source": "Guide primary min wells",
+      "translation": "向导主效应最少孔数"
+    },
+    {
+      "table": "setting_labels",
+      "key": "hit_n_guides",
+      "source_sha256": "e25557d065c0a158c94f765617ea93b2486ce32f71b685ab5f7fd73b758a08ac",
+      "source": "Hit n guides",
+      "translation": "命中所需向导数"
+    },
+    {
+      "table": "setting_labels",
+      "key": "max_bins",
+      "source_sha256": "47d49b76d695c59498dc866cbd79fe42888a4bc08c956ba6c09453ecd6ef88df",
+      "source": "Max bins",
+      "translation": "最大分箱数"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pca_svd_solver",
+      "source_sha256": "b218f9d9ed8a6827b5ae23ca6c0b9dcb8a02d7c7e85777cf06c12815a48b2bb8",
+      "source": "Pca svd solver",
+      "translation": "Pca svd 求解器"
+    },
+    {
+      "table": "setting_labels",
+      "key": "png_channel_mapping",
+      "source_sha256": "004a3e3dda62e71c0627ec125f37c40002367a96b0e113ceab36ae4e51e56420",
+      "source": "PNG channel mapping",
+      "translation": "PNG 通道映射"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_n_replicates",
+      "source_sha256": "7a9800f229fee3bb8482071956de14196cd1dae3140c0e3fa531204ffd8d4d5f",
+      "source": "Power n replicates",
+      "translation": "功效分析重复数"
+    },
+    {
+      "table": "setting_labels",
+      "key": "surrogate_min_fidelity_improvement",
+      "source_sha256": "dd3c93da71ab6fbcd86e795aab7573706a801ec6aeec2696bdaf3de023ef0fc7",
+      "source": "Surrogate min fidelity improvement",
+      "translation": "代理模型最小保真度改进量"
+    },
+    {
+      "table": "setting_labels",
+      "key": "tsne_max_iter",
+      "source_sha256": "f18c18bc38584647186a71e233ba8d0f6336e750dd810494b86c43e8da892bd3",
+      "source": "Tsne max iter",
+      "translation": "Tsne 最大迭代次数"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "Toxoplasma",
+      "source_sha256": "d840fb1b55ff4c0cf0636de6063915af94ebbd96b93994e2ca4bc43ae7a3229e",
+      "source": "Join the bundled Toxoplasma annotation to every exported table and color the volcano plot by it. The annotation includes gene name and product, signal peptide and transmembrane-domain predictions from the project's DeepTMHMM analysis, hyperLOPIT/TAGM compartment, published CRISPR fitness scores, and tachyzoite, tissue-cyst, and EES1-5 expression. Tables are joined by gene number so TGGT1 and TGME49 identifiers match. Writes supplementary_topology.csv beside the results. Disable this setting for non-Toxoplasma screens. The deprecated alias 'toxo' remains accepted. Default True.",
+      "translation": "将内置的 Toxoplasma 注释关联到每个导出表，并据此为火山图着色。该注释包括基因名称和产物、信号肽及项目 DeepTMHMM 分析得到的跨膜结构域预测、hyperLOPIT/TAGM 区室、已发表的 CRISPR 适合度评分，以及速殖子、组织囊和 EES1-5 表达数据。各表按基因编号关联，因此 TGGT1 与 TGME49 标识符可以匹配。在结果旁写入 supplementary_topology.csv。对于非 Toxoplasma 筛选，请禁用此设置。已弃用的别名 'toxo' 仍可使用。默认值为 True。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "alpha",
+      "source_sha256": "7b8ca0fd26338073720314a7e8a27a1f81ef5f02bb1d4815fa97c7bf42c57d58",
+      "source": "Regularisation strength for penalised models only: the L1 penalty for 'lasso', the L2 penalty for 'ridge', the combined penalty for 'elasticnet', and the inverse margin for 'hinge'. Larger values shrink more coefficients toward zero. Set it to 'auto' or None to select the value by five-fold cross-validation; the default 1 may over-regularise fraction-scale designs. Other model families reject a non-default alpha rather than ignoring it. Default 1. Read by regression_type 'elasticnet', 'hinge', 'lasso', 'ridge'.",
+      "translation": "仅用于惩罚模型的正则化强度：'lasso' 的 L1 惩罚、'ridge' 的 L2 惩罚、'elasticnet' 的组合惩罚，以及 'hinge' 的逆间隔。较大的值会使更多系数向零收缩。将其设为 'auto' 或 None 可通过五折交叉验证选择数值；默认值 1 可能会使分数尺度设计过度正则化。其他模型族会拒绝非默认 alpha，而不是忽略它。默认值为 1。由 regression_type 'elasticnet'、'hinge'、'lasso'、'ridge' 读取。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "background_correction",
+      "source_sha256": "efd22e3a7c3cdf281fc33c4cbca33f52c9e6b0c9274c0fadeb9edcca17e20db2",
+      "source": "Per-object local background subtracted from the outside-stain statistic before thresholding. 'auto' uses the median of the five-pixel ring outside the parasite mask, removing a per-field offset without a flat-field image; 'none' performs no subtraction. A brightly stained attached parasite may produce an antibody halo that extends into the reference ring, in which case subtraction can reduce the signal required for classification. Default 'none'.",
+      "translation": "阈值处理前，从外部染色统计量中减去每个对象的局部背景。'auto' 使用寄生虫掩膜外五像素环带的中位数，可在没有平场图像的情况下去除每个视野的偏移；'none' 不执行减法。染色很强的附着寄生虫可能产生延伸到参考环带的抗体光晕，此时背景扣除可能降低分类所需的信号。默认值为 'none'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "baseline",
+      "source_sha256": "3e5854bdab77ca6e3c9d7afba830c7f91b9d5a5760dec9ae93cc7f54ae5bbfc5",
+      "source": "Reference used to compute a coefficient's implied score: 'screen_median' (all wells), 'control_median' (non-targeting controls), or 'zero'. Use the control baseline when a global screen shift makes the screen median unsuitable as the reference. Default 'screen_median'.",
+      "translation": "用于计算系数隐含评分的参考值：'screen_median'（所有孔）、'control_median'（非靶向对照）或 'zero'。当整个筛选发生偏移、筛选中位数不适合作为参考时，请使用对照基线。默认值为 'screen_median'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "bimodality_cutoff",
+      "source_sha256": "cf5d8ce60dacbd51f69c1de6a3f34e2a18099b3b7ff943cb5f0eb8203c6bc7c0",
+      "source": "Minimum bimodality coefficient required for an unflagged field- or well-level efficiency estimate. Values below the threshold are retained but flagged because the intensity distribution provides insufficient evidence for two populations. Increasing the threshold requires stronger bimodality. Default 0.5555555555555556.",
+      "translation": "未标记的视野级或孔级效率估计所需的最小双峰系数。低于阈值的值会保留但被标记，因为强度分布不足以支持存在两个群体。提高阈值会要求更强的双峰性。默认值为 0.5555555555555556。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_Signal_to_noise",
+      "source_sha256": "6c2533e8781fbf30aad96e48b98271856fb1a7aa0f30778e65a95d7df308f268",
+      "source": "Multiplied by cell_background to define the minimum intensity for the normalisation ceiling. spaCR evaluates the 98th through 99.5th percentiles of the cell channel and uses the first value at or above that product as the upper anchor. Increase it to raise the ceiling and reduce normalised intensity; decrease it to increase the visibility of faint cells. Default 10.",
+      "translation": "将其与 cell_background 相乘，以确定归一化上限所需的最小强度。spaCR 评估细胞通道的第 98 至 99.5 百分位数，并采用第一个达到或超过该乘积的值作为上锚点。增大此值会提高上限并降低归一化强度；减小此值会增强暗弱细胞的可见性。默认值为 10。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_intensity_range",
+      "source_sha256": "170745060c811ea007e24df2ade4c69d7c213f8a4625eba08e8b28bca900da92",
+      "source": "Legacy [min, max] bounds used during recruitment analysis when cell_chann_dim is set. Despite the setting name, the current _object_filter call uses index 0 from [nucleus, pathogen, cell] and therefore filters the nucleus-channel mean intensity. Review the filtered object counts when using this setting. Default None.",
+      "translation": "在设置 cell_chann_dim 时，招募分析使用的旧版 [min, max] 边界。尽管设置名称如此，当前 _object_filter 调用使用 [nucleus, pathogen, cell] 中索引 0 的值，因此实际筛选的是细胞核通道平均强度。使用此设置时，请检查筛选后的对象数。默认值为 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "channel_dims",
+      "source_sha256": "622e42aa22dd0b0498017006b8a06ba5b8c32ccbe189c44d8b3b079872a69bbd",
+      "source": "Recruitment analysis only: image-channel indices in the merged arrays. They determine the channels used for overlays and recruitment measurements, but _calculate_recruitment writes fixed column names without channel identifiers. Runs with different values can therefore produce identically named columns containing measurements from different channels. Default [0, 1, 2, 3].",
+      "translation": "仅用于招募分析：合并数组中的图像通道索引。这些索引决定叠加图和招募测量使用的通道，但 _calculate_recruitment 写入不含通道标识符的固定列名。因此，使用不同值的运行可能生成名称相同但包含不同通道测量值的列。默认值为 [0, 1, 2, 3]。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "class_folder_names",
+      "source_sha256": "87e1fecfc9c201ba193d606e8be7be04efde3c7be62d33212ee48adfbe91ab1d",
+      "source": "Ordered training folder names. Each must exactly match a subfolder under src/train and src/test; its position becomes the integer label, and the list length sets the classifier-head width. Training raises FileNotFoundError with missing and available folders when a name is absent. Generate Training Dataset replaces this list with the folders it wrote. This setting identifies crop locations; 'classes' defines their semantic labels. Default ['nc','pc'].",
+      "translation": "有序的训练文件夹名称。每个名称都必须与 src/train 和 src/test 下的一个子文件夹完全匹配；其位置会成为整数标签，列表长度决定分类器输出头的宽度。名称不存在时，训练会引发 FileNotFoundError，并列出缺失和可用的文件夹。“生成训练数据集”会将此列表替换为其写入的文件夹。此设置标识图像裁剪的位置；'classes' 定义其语义标签。默认值为 ['nc','pc']。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "classes",
+      "source_sha256": "a4c339cac867e72eb0c819222e2f8ee338aa18531a083cb6c5ac5c85c9cf5329",
+      "source": "Class definitions in the form class name -> {column, value}; for example, 'pc' might be {'column': 'columnID', 'value': 'c3'}. In the Classes editor, select a column and assign names to its distinct values; definitions may span several columns. One row may instead define a random complement containing objects not assigned by any other class, sampled to match the largest class. This setting defines which objects belong to each class; class_folder_names defines the training subfolders. A pre-split settings file contains a plain list and is converted when read. Default {}.",
+      "translation": "类别定义的形式为类别名称 -> {column, value}；例如，'pc' 可以是 {'column': 'columnID', 'value': 'c3'}。在“类别”编辑器中，选择一列并为其不同取值分配名称；定义可以跨多列。也可以用一行定义随机补集，其中包含未分配给任何其他类别的对象，并抽样至与最大类别相同的大小。此设置定义每个类别包含哪些对象；class_folder_names 定义训练子文件夹。预先拆分的设置文件包含普通列表，读取时会进行转换。默认值为 {}。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cmap",
+      "source_sha256": "4583c1e0e5f6fc26ef5f54ad33ab8d38ac06631b93eb2820f8244023ef56a06a",
+      "source": "Matplotlib colormap applied to single-channel image previews and plate heatmaps. Perceptually uniform maps ('viridis', 'inferno', 'magma') preserve the relative visibility of intensity differences; 'gray' resembles the raw single-channel microscope image. Any registered matplotlib name is accepted, with an '_r' suffix to reverse it. Default 'inferno' for image plots and 'viridis' for plate heatmaps.",
+      "translation": "应用于单通道图像预览和微孔板热图的 Matplotlib 色图。感知均匀色图（'viridis'、'inferno'、'magma'）可保持强度差异的相对可见性；'gray' 类似原始单通道显微镜图像。接受任何已注册的 matplotlib 名称，可添加 '_r' 后缀使其反转。图像绘图默认使用 'inferno'，微孔板热图默认使用 'viridis'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "control_wells",
+      "source_sha256": "d185be08b45fbcb0930bd9fa42b3574a77a7bd64d0f8d563918f8cbcb7b4833f",
+      "source": "Wells whose parasites carry no pre-permeabilisation stain, providing the empirical negative distribution used to set the threshold. Specify a column ('c12'), row ('r1'), well ('r1_c12'), or complete plate key. These staining-control wells are excluded from efficiency calculations because they are not experimental conditions. None uses the automatic per-field method. Screen regression uses this key for a separate purpose, where it must be a list matching filter_value. Default None.",
+      "translation": "寄生虫未携带预通透染色的孔，用于提供设置阈值所需的经验阴性分布。可指定列（'c12'）、行（'r1'）、孔（'r1_c12'）或完整的微孔板键。这些染色对照孔不是实验条件，因此不参与效率计算。None 使用自动的逐视野方法。筛选回归会将此键用于另一个目的，此时它必须是与 filter_value 匹配的列表。默认值为 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "custom_model",
+      "source_sha256": "c7dac75d0952971d5bd01b9717200d27bc9368bcc084bb30d64353c013e6d98a",
+      "source": "Path to a saved Cellpose model, loaded as pretrained_model by the mask-finetune tool. When set, model_type is passed as None and diameter as diam_mean (which Cellpose 4.x ignores with a warning). model_name remains active and selects the channel pair sent to model.eval; an incompatible value therefore segments the wrong channels. Default None.",
+      "translation": "已保存 Cellpose 模型的路径，由 mask-finetune 工具以 pretrained_model 加载。设置后，model_type 以 None 传入，diameter 以 diam_mean 传入（Cellpose 4.x 会忽略它并发出警告）。model_name 仍然有效，并选择发送给 model.eval 的通道对；因此不兼容的值会分割错误的通道。默认值为 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "delete_intermediate",
+      "source_sha256": "0200f93cc9d4b8945b87b96a7b741c2cedbadcfe5362e532f66c7395a632ff5e",
+      "source": "Legacy force-cleanup switch. True overrides keep_intermediate and keep_original_images, removing stack/, masks/, the numeric per-channel folders, and the orig/ raw backup after merged/ is built. Cleanup is already the default; enable this setting only when cleanup must override those retention settings. Deletion is skipped unless every field of view reached merged/. Default False.",
+      "translation": "旧版强制清理开关。True 会覆盖 keep_intermediate 和 keep_original_images，在构建 merged/ 后删除 stack/、masks/、按数字命名的各通道文件夹以及 orig/ 原始数据备份。清理本来就是默认行为；仅当清理必须覆盖这些保留设置时才启用此项。除非每个视野都已生成到 merged/，否则跳过删除。默认值为 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "dry_run",
+      "source_sha256": "519266e158b45bc8a62c48c9becbbdc55443c6d6b0034fb3a47d5ac8a119ffaf",
+      "source": "Validate settings against the selected data, report the planned operations, and stop before computation. Checks that src contains the expected files, channel and mask-plane indices are valid, and required models, barcode CSV files, or measurements.db files are present. Each problem is reported with a suggested correction, followed by a summary of the planned segmentation, measurement, and output locations. No output is written and no model is loaded. Default False.",
+      "translation": "根据所选数据验证设置，报告计划执行的操作，并在计算前停止。检查 src 是否包含预期文件、通道和掩膜平面索引是否有效，以及必需的模型、条形码 CSV 文件或 measurements.db 文件是否存在。每个问题都会连同建议的修正方法一起报告，随后汇总计划的分割、测量和输出位置。不写入任何输出，也不加载模型。默认值为 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "infection_intensity_mode",
+      "source_sha256": "a8db8c7560e2173450133c8f7ec87162cd9399c89641285a4eddead905c84d0f",
+      "source": "Action applied when the quality-control classification disagrees with the mask-based label. 'relabel' replaces the label and retains the cell; 'remove' excludes cells with discordant mask and intensity evidence. Unknown values fall back to 'relabel'. Default 'relabel'.",
+      "translation": "质量控制分类与基于掩膜的标签不一致时采取的操作。'relabel' 会替换标签并保留细胞；'remove' 会排除掩膜证据与强度证据不一致的细胞。未知值会回退到 'relabel'。默认值为 'relabel'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "input_statistics",
+      "source_sha256": "6bbde57d553ec53d7f5b3fbc65a651522999e1066cedc60134fd9abbdb6f57d0",
+      "source": "Mean and standard deviation used by the loader when normalize_input is enabled. 'symmetric' uses spaCR's historical 0.5/0.5 convention (Inception and TF-Slim), mapping [0,1] to [-1,1]. 'imagenet' and 'clip' use the distinct statistics associated with those pretrained backbones. 'dataset' estimates per-channel statistics from the current data and may be appropriate for fluorescence images whose intensity distribution differs from photographs. 'custom' uses input_mean and input_std. Default 'symmetric'.",
+      "translation": "启用 normalize_input 时，加载器使用的均值和标准差。'symmetric' 使用 spaCR 以往的 0.5/0.5 约定（Inception 和 TF-Slim），将 [0,1] 映射到 [-1,1]。'imagenet' 和 'clip' 使用各自预训练骨干网络对应的统计量。'dataset' 从当前数据估计每个通道的统计量，可能适合强度分布不同于照片的荧光图像。'custom' 使用 input_mean 和 input_std。默认值为 'symmetric'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_statistic",
+      "source_sha256": "4295940532e312187bc90b2457c5abfdf0a4ea068fc82e9eb4a539e9a08b398e",
+      "source": "Per-object statistic of the pre-permeabilisation channel used for thresholding. Because the stain is localized to the parasite surface, the object mean divides rim signal by the full area and can classify a larger parasite as dimmer than a smaller parasite with equivalent surface staining. A percentile of rim-pixel intensity reduces this size-dependent bias. Default 'mean'.",
+      "translation": "用于阈值处理的预通透通道逐对象统计量。由于染色位于寄生虫表面，对象平均值会用完整面积稀释边缘信号，因此表面染色相当时，较大的寄生虫可能被判为比较小的寄生虫更暗。使用边缘像素强度的百分位数可减小这种与大小相关的偏差。默认值为 'mean'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "loss_type",
+      "source_sha256": "2ee3782136a831ca618e0b234a8d95426f3b41bbba5c91b05f05efaeb2b2cfe1",
+      "source": "Loss used to train the classifier. For a head with two or more classes: 'focal_loss' (down-weights easy examples), 'cross_entropy', 'label_smoothing' (epsilon 0.1), 'ce_weighted' (inverse-frequency class weights), 'logit_adjust_ce' and 'asl'. 'binary_cross_entropy_with_logits' is valid only for a single-logit head and raises otherwise. Use a weighted or focal loss for imbalanced classes. Default 'focal_loss'.",
+      "translation": "用于训练分类器的损失。对于包含两个或更多类别的输出头：'focal_loss'（降低简单样本的权重）、'cross_entropy'、'label_smoothing'（epsilon 0.1）、'ce_weighted'（按类别频率倒数加权）、'logit_adjust_ce' 和 'asl'。'binary_cross_entropy_with_logits' 仅适用于单 logit 输出头，否则会引发错误。类别不平衡时请使用加权损失或焦点损失。默认值为 'focal_loss'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "masks",
+      "source_sha256": "cb48ad2949b4e4fa81a3740493c8571763e4d1aeacdf4fbf3ca5a3a661e1144b",
+      "source": "Run Cellpose segmentation for every configured object channel (cell, nucleus, pathogen, organelle) and write label stacks to masks/<object>_mask_stack. False performs preprocessing only, producing normalized arrays without label masks; downstream measurement therefore requires a subsequent segmentation step. Default True.",
+      "translation": "对每个已配置的对象通道（细胞、细胞核、病原体、细胞器）运行 Cellpose 分割，并将标签堆栈写入 masks/<object>_mask_stack。False 仅执行预处理，生成不含标签掩膜的归一化数组；因此后续测量需要再执行分割步骤。默认值为 True。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "max_bins",
+      "source_sha256": "ef02792160d80d6e99c0d9a3c3fce82e109bd87eab3a6a6033a4648e6a95f287",
+      "source": "Maximum number of area bins in the endodyogeny histogram. None derives the bin count from the data range and min_area_bin; an integer truncates the range so that the largest objects are pooled into the final bin. Set an integer when plates with different size ranges must share one axis. Default None.",
+      "translation": "内出芽生殖直方图的最大面积分箱数。None 根据数据范围和 min_area_bin 推导分箱数；整数会截断范围，使最大的对象归入最后一个分箱。当大小范围不同的微孔板必须共用一个坐标轴时，请设置整数。默认值为 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "metadata_type",
+      "source_sha256": "2a899e331af995e1a79eaed7cf624ae8934cb36d6422e5634769a93dd6bb7e3d",
+      "source": "Filename convention used to parse raw images. 'cellvoyager' (default) and 'cq1' use built-in regular expressions, 'custom' uses custom_regex, and 'auto' first renames the folder to Yokogawa naming (using custom_regex when supplied, otherwise automatic detection) before parsing. An incorrect convention can misassign plate, well, field, or channel identifiers and place images in incorrect channel folders.",
+      "translation": "用于解析原始图像的文件名约定。'cellvoyager'（默认）和 'cq1' 使用内置正则表达式，'custom' 使用 custom_regex，'auto' 则在解析前先将文件夹重命名为 Yokogawa 命名格式（若提供 custom_regex 则使用它，否则自动检测）。错误的约定可能误分配微孔板、孔、视野或通道标识符，并将图像放入错误的通道文件夹。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "normalize",
+      "source_sha256": "b0bee7fe0352e579bb61ce3f47b8f8b1de7fd8324888bc63686279c1825ad669",
+      "source": "Percentile-normalize each image channel from the 2nd to 98th percentile, clipped to 0-1, before display or model input. In the activation-map tool this rescales the image beneath the CAM or saliency heatmap. Enable it when raw channels are too dim under the overlay. It affects display and input scaling, not stored pixels. Default True.",
+      "translation": "在显示或输入模型前，对每个图像通道按第 2 至 98 百分位数进行归一化，并裁剪到 0-1。在激活图工具中，此操作会重新缩放 CAM 或显著性热图下方的图像。当叠加图下的原始通道过暗时请启用。它影响显示和输入缩放，不改变存储的像素。默认值为 True。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "normalize_channels",
+      "source_sha256": "da78abb1441acb5bd8a8712caf9a91d016506a63dddaa2f719fa6ff57c8fd8ed",
+      "source": "Percentile-stretch each channel before drawing, so a dim stain is visible beside a bright one. Uses 'percentiles'. This changes only the displayed image; the stored crop and all measurements remain unchanged. Default None (off).",
+      "translation": "绘制前对每个通道进行百分位拉伸，使暗弱染色能与明亮染色同时可见。使用 'percentiles'。此操作只改变显示的图像；存储的图像裁剪和所有测量值均不变。默认值为 None（关闭）。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nuclei_limit",
+      "source_sha256": "f7d55f4b0325db301b65bedab6f3c6f38239911314ca7bf4d9c6a8c39ed62514",
+      "source": "Cap on nuclei per cell, applied when the per-object tables are merged. None disables the filter, True keeps only single-nucleus cells, and an integer N keeps cells with N or fewer. Cells over the cap are dropped from the merged table entirely. Do not pass False: it is interpreted as 0 and removes every cell, leaving an empty analysis rather than raising an error. Default None.",
+      "translation": "合并逐对象表时应用的每个细胞的细胞核数量上限。None 禁用筛选，True 仅保留单核细胞，整数 N 保留细胞核数不超过 N 的细胞。超过上限的细胞会从合并表中完全删除。不要传入 False：它会被解释为 0 并删除所有细胞，产生空分析而不引发错误。默认值为 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nucleus_Signal_to_noise",
+      "source_sha256": "8d9c1902a53445766b57be8917c59cf5eed2a1151e6970c1162a9675f231ed7f",
+      "source": "Multiplied by nucleus_background to define the intensity a bright pixel must reach before normalisation stops increasing the upper clip point. spaCR evaluates the 98th through 99.5th percentiles of the non-zero nucleus channel and uses the first that reaches the threshold, with the 99.5th percentile as the fallback. A higher value raises the clip point, reduces contrast stretching and protects bright nuclei from saturation; a lower value increases contrast for dim nuclei but saturates bright nuclei sooner. Default 10.",
+      "translation": "将其与 nucleus_background 相乘，以确定归一化停止提高上裁剪点之前，明亮像素必须达到的强度。spaCR 评估非零细胞核通道的第 98 至 99.5 百分位数，并采用第一个达到阈值的值；若均未达到，则使用第 99.5 百分位数。较大的值会提高裁剪点、减弱对比度拉伸并防止明亮细胞核饱和；较小的值会增强暗弱细胞核的对比度，但使明亮细胞核更早饱和。默认值为 10。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "object_distance_intensity",
+      "source_sha256": "d0315430f2d8010e3681d35c181849b52286815b085c5e2f3bdd0fe9dd555140",
+      "source": "Include the families that need the intensity images: the local maxima above and the scalar displacement between each channel's intensity-weighted centre of mass and the geometric centroid. False measures geometry only. Ignored when object_distances is off. Default True.",
+      "translation": "包括需要强度图像的度量族：上述局部极大值，以及每个通道的强度加权质心与几何质心之间的标量位移。False 仅测量几何特征。object_distances 关闭时忽略。默认值为 True。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelle_morphology",
+      "source_sha256": "d478357f7cc9517ec8b85fa3e7a75fd967af1f6233bc8bb9a5547999d8f02370",
+      "source": "Shape family of the target organelle; selects the segmentation pipeline and restricts valid organelle_method values. 'spots' denotes punctate structures such as vesicles and lipid droplets; 'network' denotes filamentous structures such as mitochondria and endoplasmic-reticulum tubules; 'irregular' denotes solid, irregular structures such as Golgi and lysosomes; and 'ring' denotes hollow structures such as endosomes and autophagosomes. An unsupported morphology-method pair raises before image loading. Default 'spots'.",
+      "translation": "目标细胞器的形态类别；它会选择分割流程并限制有效的 organelle_method 值。'spots' 表示囊泡和脂滴等点状结构；'network' 表示线粒体和内质网小管等丝状结构；'irregular' 表示高尔基体和溶酶体等实心不规则结构；'ring' 表示内体和自噬体等中空结构。不受支持的形态与方法组合会在加载图像前引发错误。默认值为 'spots'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelle_network_threshold",
+      "source_sha256": "39622a9de924156c5701e2f2f22da978ad5d05d811047ea11b2f7e289d0a651d",
+      "source": "How the ridge-filter response is binarised: 'otsu' takes one global cut-off from the response histogram, 'adaptive' uses a local threshold (organelle_adaptive_block_size / _offset) and keeps faint filaments in dim regions at the cost of extra background. Only read by organelle_method='ridge'; anything unrecognised falls back to otsu without warning. Default 'otsu'.",
+      "translation": "脊线滤波响应的二值化方式：'otsu' 根据响应直方图采用一个全局阈值，'adaptive' 使用局部阈值（organelle_adaptive_block_size / _offset），可在暗区保留微弱丝状结构，但会引入更多背景。仅当 organelle_method='ridge' 时读取；任何无法识别的值都会无警告地回退到 otsu。默认值为 'otsu'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelle_type",
+      "source_sha256": "9aaa385e5611799fe2ba15986f9125c2751d0852b13719a9dee50620736fb599",
+      "source": "Organelle morphology used to populate recommended detection settings; explicitly configured values are not overwritten. Options are 'punctate', 'vesicular', 'spherical', 'filamentous', 'tubular', 'reticular', 'cisternal', 'toroidal' and 'crescent'. Morphology alone does not determine the detector: 'vesicular' and 'spherical' also use organelle_diameter because a 200 nm vesicle appears punctate whereas a 2 µm vacuole appears annular. Default 'custom', which applies no recommendations.",
+      "translation": "用于填充推荐检测设置的细胞器形态；不会覆盖显式配置的值。选项为 'punctate'、'vesicular'、'spherical'、'filamentous'、'tubular'、'reticular'、'cisternal'、'toroidal' 和 'crescent'。形态本身不能决定检测器：'vesicular' 和 'spherical' 还会使用 organelle_diameter，因为 200 nm 囊泡呈点状，而 2 µm 液泡呈环状。默认值为 'custom'，即不应用推荐设置。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelleb_morphology",
+      "source_sha256": "af54ac24514b77aaff8a440cccd92f9881cf812d689946a1b2dc4d2704367b35",
+      "source": "Shape family of the target organelle; selects the segmentation pipeline and restricts valid organelleb_method values. 'spots' denotes punctate structures such as vesicles and lipid droplets; 'network' denotes filamentous structures such as mitochondria and endoplasmic-reticulum tubules; 'irregular' denotes solid, irregular structures such as Golgi and lysosomes; and 'ring' denotes hollow structures such as endosomes and autophagosomes. An unsupported morphology-method pair raises before image loading. Default 'spots'.",
+      "translation": "目标细胞器的形态类别；它会选择分割流程并限制有效的 organelleb_method 值。'spots' 表示囊泡和脂滴等点状结构；'network' 表示线粒体和内质网小管等丝状结构；'irregular' 表示高尔基体和溶酶体等实心不规则结构；'ring' 表示内体和自噬体等中空结构。不受支持的形态与方法组合会在加载图像前引发错误。默认值为 'spots'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelleb_network_threshold",
+      "source_sha256": "66ad06d75c2b4d4412c97869a3b02bd8f400501a19066669404f02def20e80c1",
+      "source": "How the ridge-filter response is binarised: 'otsu' takes one global cut-off from the response histogram, 'adaptive' uses a local threshold (organelleb_adaptive_block_size / _offset) and keeps faint filaments in dim regions at the cost of extra background. Only read by organelleb_method='ridge'; anything unrecognised falls back to otsu without warning. Default 'otsu'.",
+      "translation": "脊线滤波响应的二值化方式：'otsu' 根据响应直方图采用一个全局阈值，'adaptive' 使用局部阈值（organelleb_adaptive_block_size / _offset），可在暗区保留微弱丝状结构，但会引入更多背景。仅当 organelleb_method='ridge' 时读取；任何无法识别的值都会无警告地回退到 otsu。默认值为 'otsu'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelleb_type",
+      "source_sha256": "3213ba31f80093b351b81e14e7d5d222c968a4649973205f6294631f8ae698d5",
+      "source": "Organelle morphology used to populate recommended detection settings; explicitly configured values are not overwritten. Options are 'punctate', 'vesicular', 'spherical', 'filamentous', 'tubular', 'reticular', 'cisternal', 'toroidal' and 'crescent'. Morphology alone does not determine the detector: 'vesicular' and 'spherical' also use organelleb_diameter because a 200 nm vesicle appears punctate whereas a 2 µm vacuole appears annular. Default 'custom', which applies no recommendations.",
+      "translation": "用于填充推荐检测设置的细胞器形态；不会覆盖显式配置的值。选项为 'punctate'、'vesicular'、'spherical'、'filamentous'、'tubular'、'reticular'、'cisternal'、'toroidal' 和 'crescent'。形态本身不能决定检测器：'vesicular' 和 'spherical' 还会使用 organelleb_diameter，因为 200 nm 囊泡呈点状，而 2 µm 液泡呈环状。默认值为 'custom'，即不应用推荐设置。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organellec_morphology",
+      "source_sha256": "7565cf3851b7dfa129f041ec3dd63e879c30e04498d9972215dd989781530b53",
+      "source": "Shape family of the target organelle; selects the segmentation pipeline and restricts valid organellec_method values. 'spots' denotes punctate structures such as vesicles and lipid droplets; 'network' denotes filamentous structures such as mitochondria and endoplasmic-reticulum tubules; 'irregular' denotes solid, irregular structures such as Golgi and lysosomes; and 'ring' denotes hollow structures such as endosomes and autophagosomes. An unsupported morphology-method pair raises before image loading. Default 'spots'.",
+      "translation": "目标细胞器的形态类别；它会选择分割流程并限制有效的 organellec_method 值。'spots' 表示囊泡和脂滴等点状结构；'network' 表示线粒体和内质网小管等丝状结构；'irregular' 表示高尔基体和溶酶体等实心不规则结构；'ring' 表示内体和自噬体等中空结构。不受支持的形态与方法组合会在加载图像前引发错误。默认值为 'spots'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organellec_network_threshold",
+      "source_sha256": "e2c29c0b568ce5cbbbb5f904e64fdc5b8d0ff1a29539afcb2b78cbffb5d3cc91",
+      "source": "How the ridge-filter response is binarised: 'otsu' takes one global cut-off from the response histogram, 'adaptive' uses a local threshold (organellec_adaptive_block_size / _offset) and keeps faint filaments in dim regions at the cost of extra background. Only read by organellec_method='ridge'; anything unrecognised falls back to otsu without warning. Default 'otsu'.",
+      "translation": "脊线滤波响应的二值化方式：'otsu' 根据响应直方图采用一个全局阈值，'adaptive' 使用局部阈值（organellec_adaptive_block_size / _offset），可在暗区保留微弱丝状结构，但会引入更多背景。仅当 organellec_method='ridge' 时读取；任何无法识别的值都会无警告地回退到 otsu。默认值为 'otsu'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organellec_type",
+      "source_sha256": "20bac301ccde21b4f9e1003a3187faacdabbdd7fd6f154a848878c3627048439",
+      "source": "Organelle morphology used to populate recommended detection settings; explicitly configured values are not overwritten. Options are 'punctate', 'vesicular', 'spherical', 'filamentous', 'tubular', 'reticular', 'cisternal', 'toroidal' and 'crescent'. Morphology alone does not determine the detector: 'vesicular' and 'spherical' also use organellec_diameter because a 200 nm vesicle appears punctate whereas a 2 µm vacuole appears annular. Default 'custom', which applies no recommendations.",
+      "translation": "用于填充推荐检测设置的细胞器形态；不会覆盖显式配置的值。选项为 'punctate'、'vesicular'、'spherical'、'filamentous'、'tubular'、'reticular'、'cisternal'、'toroidal' 和 'crescent'。形态本身不能决定检测器：'vesicular' 和 'spherical' 还会使用 organellec_diameter，因为 200 nm 囊泡呈点状，而 2 µm 液泡呈环状。默认值为 'custom'，即不应用推荐设置。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelled_morphology",
+      "source_sha256": "d80216c1efa21f7834cb21b867140ef7c75a2e5154d623d29e18237e4797f61a",
+      "source": "Shape family of the target organelle; selects the segmentation pipeline and restricts valid organelled_method values. 'spots' denotes punctate structures such as vesicles and lipid droplets; 'network' denotes filamentous structures such as mitochondria and endoplasmic-reticulum tubules; 'irregular' denotes solid, irregular structures such as Golgi and lysosomes; and 'ring' denotes hollow structures such as endosomes and autophagosomes. An unsupported morphology-method pair raises before image loading. Default 'spots'.",
+      "translation": "目标细胞器的形态类别；它会选择分割流程并限制有效的 organelled_method 值。'spots' 表示囊泡和脂滴等点状结构；'network' 表示线粒体和内质网小管等丝状结构；'irregular' 表示高尔基体和溶酶体等实心不规则结构；'ring' 表示内体和自噬体等中空结构。不受支持的形态与方法组合会在加载图像前引发错误。默认值为 'spots'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelled_network_threshold",
+      "source_sha256": "648a210390c0c2c037516f735f230484d9ea1544741deb8af6bae65b34e94b22",
+      "source": "How the ridge-filter response is binarised: 'otsu' takes one global cut-off from the response histogram, 'adaptive' uses a local threshold (organelled_adaptive_block_size / _offset) and keeps faint filaments in dim regions at the cost of extra background. Only read by organelled_method='ridge'; anything unrecognised falls back to otsu without warning. Default 'otsu'.",
+      "translation": "脊线滤波响应的二值化方式：'otsu' 根据响应直方图采用一个全局阈值，'adaptive' 使用局部阈值（organelled_adaptive_block_size / _offset），可在暗区保留微弱丝状结构，但会引入更多背景。仅当 organelled_method='ridge' 时读取；任何无法识别的值都会无警告地回退到 otsu。默认值为 'otsu'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelled_type",
+      "source_sha256": "a92bbeb3e9d4e28db0c8248f4fe72357b950cd352694c1a16d9cb7021cd1345d",
+      "source": "Organelle morphology used to populate recommended detection settings; explicitly configured values are not overwritten. Options are 'punctate', 'vesicular', 'spherical', 'filamentous', 'tubular', 'reticular', 'cisternal', 'toroidal' and 'crescent'. Morphology alone does not determine the detector: 'vesicular' and 'spherical' also use organelled_diameter because a 200 nm vesicle appears punctate whereas a 2 µm vacuole appears annular. Default 'custom', which applies no recommendations.",
+      "translation": "用于填充推荐检测设置的细胞器形态；不会覆盖显式配置的值。选项为 'punctate'、'vesicular'、'spherical'、'filamentous'、'tubular'、'reticular'、'cisternal'、'toroidal' 和 'crescent'。形态本身不能决定检测器：'vesicular' 和 'spherical' 还会使用 organelled_diameter，因为 200 nm 囊泡呈点状，而 2 µm 液泡呈环状。默认值为 'custom'，即不应用推荐设置。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "outside_channel",
+      "source_sha256": "ec0bf046df81b296c66758c279efe4423e3445f3f92c69850d57b9f620b7a755",
+      "source": "Zero-indexed channel of the pre-permeabilisation antibody, which labels parasites remaining outside the host cell. Classification thresholds this channel, so an incorrect index changes the assay readout to the signal measured in another channel without raising an error. This is an image-channel index, not measure.py's <object>_channel_<n>_outside_* columns, which quantify the ring outside an object's mask. Default 1.",
+      "translation": "预通透抗体所在的零起始通道，该抗体标记仍位于宿主细胞外的寄生虫。分类会对此通道进行阈值处理，因此错误的索引会把分析读数改为另一通道测得的信号，而不会引发错误。这是图像通道索引，不是 measure.py 的 <object>_channel_<n>_outside_* 列；后者量化对象掩膜外环带的信号。默认值为 1。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_Signal_to_noise",
+      "source_sha256": "cf7414b86a7c8da4a186425439c9e023f8c0fc106116f62eac4edecd781d070a",
+      "source": "Expected foreground-to-background ratio of the pathogen channel. Multiplied by pathogen_background, it defines the minimum intensity for the normalisation ceiling. spaCR evaluates percentiles 98 through 99.5 and uses the first that reaches the threshold, with the 99.5th percentile as the fallback. Increase it for a higher ceiling with less clipping; decrease it for greater contrast. Default 10.",
+      "translation": "病原体通道的预期前景背景比。将其与 pathogen_background 相乘可定义归一化上限所需的最小强度。spaCR 评估第 98 至 99.5 百分位数，并采用第一个达到阈值的值；若均未达到，则使用第 99.5 百分位数。增大此值会提高上限并减少裁剪；减小此值会增强对比度。默认值为 10。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "preprocess",
+      "source_sha256": "0a82c4e87120f3f9d2eb9af349e8df95cc7c5e9972f6c26366853165c521b2a2",
+      "source": "Run image preparation before segmentation: group raw files into per-field channel stacks, optionally subtract background, and percentile-normalize each channel into floating-point arrays. Keep True for unprocessed input; set False only when the normalized arrays already exist, because segmentation requires those arrays. Default True.",
+      "translation": "分割前运行图像准备：将原始文件按视野分组为通道堆栈，可选地扣除背景，并将每个通道按百分位数归一化为浮点数组。对于未处理的输入请保持 True；仅当归一化数组已存在时才设为 False，因为分割需要这些数组。默认值为 True。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "seg_qc_min_objects",
+      "source_sha256": "1a3315400df4b5ee9688d8274bd816194f1a9b6027084d8546f2cc04bcb1e194",
+      "source": "Fields with fewer objects than this are classified as near-empty, and robust per-field size statistics are suppressed because the median absolute deviation is unstable for very small samples. Increase the value for confluent cell plates expected to contain hundreds of objects per field; reduce it to 3-5 for low-multiplicity pathogen assays in which few objects per field are expected. Default 10.",
+      "translation": "对象数少于此值的视野会被归类为近乎空白，并且不会计算稳健的逐视野大小统计量，因为样本极小时中位数绝对偏差不稳定。对于预计每个视野包含数百个对象的汇合细胞微孔板，请增大此值；对于预计每个视野仅有少量对象的低感染复数病原体分析，可将其减小到 3-5。默认值为 10。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "seg_qc_outlier_mad",
+      "source_sha256": "8f68fbfa8d35e6ec8835ae03c4143643a25a564d61edcec7611bae24da58dc45",
+      "source": "Number of robust standard deviations, each defined as 1.4826 times the median absolute deviation, that an object's diameter may differ from the field median before it is classified as a size outlier. Median and MAD limit the influence of debris. The default of five accommodates heavier-tailed biological size distributions; a threshold of three can flag valid objects. Default 5.",
+      "translation": "对象直径偏离视野中位数达到多少个稳健标准差时会被归类为大小离群值；每个稳健标准差定义为中位数绝对偏差的 1.4826 倍。中位数和 MAD 可限制碎屑的影响。默认值 5 可容纳尾部较重的生物学大小分布；阈值为三时可能标记有效对象。默认值为 5。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "seg_qc_split_ratio",
+      "source_sha256": "6be067fb62932491d84e7e729d3f57b3a48034e41d09273d7b44ebc0b54a0b27",
+      "source": "Minimum ratio of distance-transform maxima to mask objects required to flag fusion in a field already classified as confluent. A value of 2 requires at least two resolved maxima per mask object on average. Increasing the value reduces sensitivity to fused masks. Default 2.",
+      "translation": "在已归类为汇合的视野中，将融合标记出来所需的距离变换极大值数与掩膜对象数的最小比值。数值 2 要求平均每个掩膜对象至少有两个已分辨的极大值。增大此值会降低对融合掩膜的敏感度。默认值为 2。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "seg_qc_tiny_fraction",
+      "source_sha256": "df83784ba5e84df47dad167c4c83cc0e519c5932cc086db12cc4726be8ca98cc",
+      "source": "Fraction of a field's objects that may be smaller than seg_qc_min_diameter before the field is classified as over-segmented. Dividing one cell into multiple fragments increases this fraction, whereas a valid field containing limited debris should remain below the default threshold. Default 0.3.",
+      "translation": "在视野对象中，小于 seg_qc_min_diameter 的对象所允许占的最大比例；超过该比例时，视野会被归类为过度分割。将一个细胞分成多个碎片会提高此比例，而仅含少量碎屑的有效视野应低于默认阈值。默认值为 0.3。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "t_axis_order",
+      "source_sha256": "8b558a8bb15c625c8b4351f677db7c53a6636caafea5d603ec12c7d187e81562",
+      "source": "Which of the two leading axes is time and which is z: 'TZYX' for a stack per timepoint, 'ZTYX' for a time series per plane. Real microscopes write both and the array shape cannot distinguish them, so spaCR raises an error until the axis order is specified. An incorrect value does not raise an exception; it links objects at corresponding lateral positions in adjacent z planes and interprets those displacements as temporal motion, producing invalid velocity estimates. Verify the setting against the acquisition axis order. Default None.",
+      "translation": "两个前导轴中哪个是时间、哪个是 z：'TZYX' 表示每个时间点一个堆栈，'ZTYX' 表示每个平面一个时间序列。实际显微镜会写出这两种格式，单凭数组形状无法区分，因此 spaCR 会在指定轴顺序前引发错误。错误的值不会引发异常；它会关联相邻 z 平面中横向位置对应的对象，并将这些位移解释为时间运动，导致速度估计无效。请根据采集轴顺序核对此设置。默认值为 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "verbose",
+      "source_sha256": "d15e9bc7556913b860ad859dbb13edf286023c2cec8994763d8ae9cbd06ecc2b",
+      "source": "Print the resolved settings table, channel and model choices per object type, row counts per table, and object counts after each filter. It only adds console output; enable it to identify which stage produced an unexpected object count. The default is True for mask, UMAP, screen analysis, barcode mapping and Cellpose training, and False for measure, plotting helpers and regression.",
+      "translation": "输出解析后的设置表、每种对象类型的通道和模型选择、每个表的行数，以及每次筛选后的对象数。此项只增加控制台输出；可启用它来确定哪个阶段产生了异常的对象数。对于 mask、UMAP、筛选分析、条形码映射和 Cellpose 训练，默认值为 True；对于 measure、绘图辅助函数和回归，默认值为 False。"
+    },
+    {
+      "table": "categories",
+      "key": "Automatic pass/fail checks on the finished masks — object counts, size and split ratios, border and foreground fractions, and how much of a plate may fail before the run is called off. Tighten them once you know what a good field looks like; loosen them when an unusual but legitimate plate keeps being rejected.",
+      "source_sha256": "e7ecfd417dadc60b279fa5cb5d0582e3522598d7c1f06a7b3e93c8051e7c5bd5",
+      "source": "Automatic pass/fail checks on the finished masks — object counts, size and split ratios, border and foreground fractions, and how much of a plate may fail before the run is called off. Tighten them once you know what a good field looks like; loosen them when an unusual but legitimate plate keeps being rejected.",
+      "translation": "对完成的掩膜自动执行通过/失败检查，包括对象数、大小与分割比、边界与前景比例，以及微孔板中允许失败的最大比例，超过后将中止运行。了解良好视野的特征后可收紧这些标准；当特殊但有效的微孔板持续被拒绝时可放宽标准。"
+    },
+    {
+      "table": "categories",
+      "key": "How the effect is estimated AND what counts as a hit. 'Inference' is the top-level choice, 'Regression type' selects the family, and 'Level' says whether the guide model, the gene model or both are fitted. Below them: the multiple-testing correction applied across the tested family, the level it targets, and the control-based effect-size threshold. With hundreds of guides an uncorrected P value is not evidence, so this is the section to get right.",
+      "source_sha256": "565a7ead4a094ceebe059ebc2acbb16a95a8bb5b9f2a1e3f3b2f12ccefb8a95b",
+      "source": "How the effect is estimated AND what counts as a hit. 'Inference' is the top-level choice, 'Regression type' selects the family, and 'Level' says whether the guide model, the gene model or both are fitted. Below them: the multiple-testing correction applied across the tested family, the level it targets, and the control-based effect-size threshold. With hundreds of guides an uncorrected P value is not evidence, so this is the section to get right.",
+      "translation": "效应的估计方式以及命中的判定标准。'Inference' 是顶层选择，'Regression type' 选择模型族，'Level' 指定拟合向导模型、基因模型还是两者都拟合。其下方设置应用于受检模型族的多重检验校正、校正目标层级，以及基于对照的效应量阈值。存在数百个向导时，未经校正的 P 值不能作为证据，因此必须正确配置本节。"
+    },
+    {
+      "table": "categories",
+      "key": "How the effect is estimated. 'Inference' is the top-level choice: a parametric model fits every guide simultaneously, a nonparametric one tests each guide by plate-blocked permutation, and 'auto' selects the method supported by the design — a simultaneous fit needs more wells than guides. 'Regression type' then selects the family.",
+      "source_sha256": "f817d59c29ceb75c08f17aa1caf392774d299944a2a80e501901bf66714986ca",
+      "source": "How the effect is estimated. 'Inference' is the top-level choice: a parametric model fits every guide simultaneously, a nonparametric one tests each guide by plate-blocked permutation, and 'auto' selects the method supported by the design — a simultaneous fit needs more wells than guides. 'Regression type' then selects the family.",
+      "translation": "效应的估计方式。'Inference' 是顶层选择：参数模型同时拟合所有向导，非参数模型通过按微孔板区组的置换逐一检验向导，'auto' 则选择实验设计所支持的方法——同时拟合所需的孔数必须多于向导数。随后由 'Regression type' 选择模型族。"
+    },
+    {
+      "table": "categories",
+      "key": "How the nucleus mask is found — model, expected diameter, probability and flow thresholds; the channel preprocessing and the size filters are under Advanced settings. Nuclei are the easiest object to get right, so they are a good place to check the channel assignment.",
+      "source_sha256": "bacc4a4b44563f4108b6a1b6fbcfb7307845ed184267e0ae2b243fa4879cfcee",
+      "source": "How the nucleus mask is found — model, expected diameter, probability and flow thresholds; the channel preprocessing and the size filters are under Advanced settings. Nuclei are the easiest object to get right, so they are a good place to check the channel assignment.",
+      "translation": "细胞核掩膜的确定方式，包括模型、预期直径、概率阈值和流场阈值；通道预处理与大小筛选位于“高级设置”中。细胞核通常最容易正确分割，因此适合首先用来检查通道分配。"
+    },
+    {
+      "table": "categories",
+      "key": "How the pathogen mask is found — model, expected diameter, probability and flow thresholds; the channel preprocessing and the size filters are under Advanced settings. Tightly packed parasites fusing into one object are the usual reason to come here.",
+      "source_sha256": "8184ba82e3e4d2a1781d39e3158e44b4d34aa93fd2113e23c7a596eccf47c260",
+      "source": "How the pathogen mask is found — model, expected diameter, probability and flow thresholds; the channel preprocessing and the size filters are under Advanced settings. Tightly packed parasites fusing into one object are the usual reason to come here.",
+      "translation": "病原体掩膜的确定方式，包括模型、预期直径、概率阈值和流场阈值；通道预处理与大小筛选位于“高级设置”中。密集排列的寄生虫融合成一个对象，通常是需要调整此处设置的原因。"
+    },
+    {
+      "table": "categories",
+      "key": "Image source, planes read by the module, and normalization or inversion applied before analysis. An empty result can indicate a channel index assigned to an empty plane.",
+      "source_sha256": "9e2c74616703be4a5c2cba812e3670cc8324e99e7cb0e1f077d52d535df4bb19",
+      "source": "Image source, planes read by the module, and normalization or inversion applied before analysis. An empty result can indicate a channel index assigned to an empty plane.",
+      "translation": "图像来源、模块读取的平面，以及分析前应用的归一化或反相。空结果可能表示某个通道索引分配到了空平面。"
+    },
+    {
+      "table": "categories",
+      "key": "The image folder, which channel holds which object, and how spaCR reads plate, well and field out of the file names. Nothing segments correctly until the channel assignment and the naming convention here are right.",
+      "source_sha256": "4ba873a4922d50336174bbb8dd4adba17664048078451b831c72643c926c737e",
+      "source": "The image folder, which channel holds which object, and how spaCR reads plate, well and field out of the file names. Nothing segments correctly until the channel assignment and the naming convention here are right.",
+      "translation": "图像文件夹、各对象所在的通道，以及 spaCR 如何从文件名读取微孔板、孔和视野。在此处正确设置通道分配和命名约定之前，分割无法正确进行。"
+    },
+    {
+      "table": "categories",
+      "key": "Whether the microscope's uneven lighting is estimated from these fields and divided out before any intensity is measured, and how that estimate is made and checked. Turn it on when the same cell measures differently depending on where in the field it sat; leaving it off keeps that bias in every intensity feature.",
+      "source_sha256": "5e1c1f26ee6a9a835a44376befecbe26888397f40f486a8d303e4e8ae716beed",
+      "source": "Whether the microscope's uneven lighting is estimated from these fields and divided out before any intensity is measured, and how that estimate is made and checked. Turn it on when the same cell measures differently depending on where in the field it sat; leaving it off keeps that bias in every intensity feature.",
+      "translation": "是否根据这些视野估计显微镜照明不均，并在测量任何强度前将其除去，以及如何生成和检查该估计。当同一个细胞因位于视野中的不同位置而得到不同测量值时，请启用此项；保持关闭会使这种偏差保留在每个强度特征中。"
+    },
+    {
+      "table": "ui",
+      "key": "(int) Image channel index segmented for the tracked object.",
+      "source_sha256": "f50bdfe263ba31938aba2d87a05898fc102c40bce6de7c115fc0934d44761eeb",
+      "source": "(int) Image channel index segmented for the tracked object.",
+      "translation": "(int) 为被跟踪对象执行分割的图像通道索引。"
+    },
+    {
+      "table": "ui",
+      "key": "(int) Image channel index used for cell segmentation.",
+      "source_sha256": "1770384fc04e04effee1a850c55f9239d67bc17628e1b3c62451ce9d10aa69f9",
+      "source": "(int) Image channel index used for cell segmentation.",
+      "translation": "(int) 用于细胞分割的图像通道索引。"
+    },
+    {
+      "table": "ui",
+      "key": "(int) Image channel index used for nucleus segmentation.",
+      "source_sha256": "b5f0bf021ce5e548130913ccec7023da29c758fd3816b511f987882198e19020",
+      "source": "(int) Image channel index used for nucleus segmentation.",
+      "translation": "(int) 用于细胞核分割的图像通道索引。"
+    },
+    {
+      "table": "ui",
+      "key": "(int) Image channel index used for organelle segmentation.",
+      "source_sha256": "5a237f87952c72c99c25db9574db047b79c8351f9c2ba59b55150f7562291c30",
+      "source": "(int) Image channel index used for organelle segmentation.",
+      "translation": "(int) 用于细胞器分割的图像通道索引。"
+    },
+    {
+      "table": "ui",
+      "key": "(int) Image channel index used for pathogen segmentation.",
+      "source_sha256": "748dad1e5abdc7ba9dfa82bd13e8945570b8c33076adadc48777cbbff615d733",
+      "source": "(int) Image channel index used for pathogen segmentation.",
+      "translation": "(int) 用于病原体分割的图像通道索引。"
+    },
+    {
+      "table": "ui",
+      "key": "(int) Plane index of the tracked object's mask.",
+      "source_sha256": "de0f0b82e333dd2be4d35c04cfa31b4b9249d4f59f39ab86f4f1a42d1463fbdd",
+      "source": "(int) Plane index of the tracked object's mask.",
+      "translation": "(int) 被跟踪对象掩膜的平面索引。"
+    },
+    {
+      "table": "ui",
+      "key": "(str) Which plate to draw.",
+      "source_sha256": "b7774b4c97a7196aa7cfc0ff2c3f1c140ebe6f0b5b71e9fb192600e44dafea85",
+      "source": "(str) Which plate to draw.",
+      "translation": "(str) 要绘制的微孔板。"
+    },
+    {
+      "table": "ui",
+      "key": "<b>Filename metadata regex</b><br><span style='color:gray;'>Named groups map onto spaCR's downstream fields — most importantly <code>plateID</code>, <code>wellID</code>, <code>fieldID</code>, and <code>chanID</code>.</span>",
+      "source_sha256": "9ac32501684f10dfa573e4f289acac0ab33ef581919c0d54222d561dbf9820c3",
+      "source": "<b>Filename metadata regex</b><br><span style='color:gray;'>Named groups map onto spaCR's downstream fields — most importantly <code>plateID</code>, <code>wellID</code>, <code>fieldID</code>, and <code>chanID</code>.</span>",
+      "translation": "<b>文件名元数据正则表达式</b><br><span style='color:gray;'>命名组映射到 spaCR 的下游字段——最重要的是 <code>plateID</code>、<code>wellID</code>、<code>fieldID</code> 和 <code>chanID</code>。</span>"
+    },
+    {
+      "table": "ui",
+      "key": "A flood that reaches a bright seam — debris, a saturated membrane, a well rim — walks out along it and takes the field. This reads the flood's width outward from the click and cuts it where it suddenly and persistently widens. It does nothing to a flood that did not run away.",
+      "source_sha256": "334969f591a3206ac1de8c0965ab3a95f999677e9979a045265af0dbea60916f",
+      "source": "A flood that reaches a bright seam — debris, a saturated membrane, a well rim — walks out along it and takes the field. This reads the flood's width outward from the click and cuts it where it suddenly and persistently widens. It does nothing to a flood that did not run away.",
+      "translation": "区域扩展若到达明亮接缝——碎屑、饱和膜或孔壁——便会沿其扩散并覆盖整个视野。本设置从点击位置向外测量扩展区域的宽度，并在宽度突然且持续增大处截断。对于未失控的区域扩展不作处理。"
+    },
+    {
+      "table": "ui",
+      "key": "Blur applied before looking for the edge. Raise it on speckled fields so noise is not mistaken for a boundary; lower it for small, sharply bounded objects.",
+      "source_sha256": "a4f6e2b19e11030bd07f1f0694528bf77b818eedb1522da7d198ae0a94e88219",
+      "source": "Blur applied before looking for the edge. Raise it on speckled fields so noise is not mistaken for a boundary; lower it for small, sharply bounded objects.",
+      "translation": "边缘检测前应用的模糊。对于斑点噪声较多的视野，增大此值可避免将噪声误判为边界；对于边界清晰的小对象则减小此值。"
+    },
+    {
+      "table": "ui",
+      "key": "Channel shown and segmented. Bound to the segmentation channel, so the frame you look at is the frame Cellpose sees.",
+      "source_sha256": "1ba82bf0b7ff121a4b10ee076a5a7e7db2017b18fcf21e6017cc133ee7e7d34c",
+      "source": "Channel shown and segmented. Bound to the segmentation channel, so the frame you look at is the frame Cellpose sees.",
+      "translation": "显示并分割的通道。它与分割通道绑定，因此您看到的帧就是 Cellpose 处理的帧。"
+    },
+    {
+      "table": "ui",
+      "key": "Choose where to write the stitched stack",
+      "source_sha256": "b921afa2c259e78a959a764bf7159b8f347b1f67190558b04b77250e1b6fbd29",
+      "source": "Choose where to write the stitched stack",
+      "translation": "选择拼接堆栈的写入位置"
+    },
+    {
+      "table": "ui",
+      "key": "Colour used for the figure frame, axis ticks and spines.",
+      "source_sha256": "9c0c7c7c4f37f283488be808c115ee125e405f0c64ac298d168bd37a416c97ab",
+      "source": "Colour used for the figure frame, axis ticks and spines.",
+      "translation": "用于图框、坐标轴刻度和轴脊的颜色。"
+    },
+    {
+      "table": "ui",
+      "key": "Control wells used for the comparison. A gene name selects all associated guides; a guide name selects only that guide.",
+      "source_sha256": "0606f2da22fa564e58a3f8f6a1fe32aaa37692ba6ba99173b1e7183cd1d1c685",
+      "source": "Control wells used for the comparison. A gene name selects all associated guides; a guide name selects only that guide.",
+      "translation": "用于比较的对照孔。基因名称会选择所有关联的向导；向导名称仅选择该向导。"
+    },
+    {
+      "table": "ui",
+      "key": "Display image channels, label masks, points and shapes in one registered coordinate system. Each layer has independent colormap, opacity, blending and visibility controls and can be reordered by dragging. Selecting an object here selects the same object in every other open view, and vice versa.",
+      "source_sha256": "28a04b93180dd1d2f5b0419601f8f6961bda2fedce2d5648cfe1ce04ee5dfd98",
+      "source": "Display image channels, label masks, points and shapes in one registered coordinate system. Each layer has independent colormap, opacity, blending and visibility controls and can be reordered by dragging. Selecting an object here selects the same object in every other open view, and vice versa.",
+      "translation": "在同一个已配准坐标系中显示图像通道、标签掩膜、点和形状。每个图层都有独立的色图、不透明度、混合方式和可见性控件，并可通过拖动重新排序。在此处选择对象会在其他所有打开的视图中选择同一对象，反之亦然。"
+    },
+    {
+      "table": "ui",
+      "key": "Displayed channel. 'All channels' renders the crops from the PNG channels in Crop settings; picking one shows that channel alone.",
+      "source_sha256": "7b9757f4e78fb37147e46f23dadc9f2a906b8bcd2e92d65c979ddbaead8c2563",
+      "source": "Displayed channel. 'All channels' renders the crops from the PNG channels in Crop settings; picking one shows that channel alone.",
+      "translation": "显示的通道。'All channels' 根据裁剪设置中的 PNG 通道渲染图像裁剪；选择一个通道时仅显示该通道。"
+    },
+    {
+      "table": "ui",
+      "key": "Displayed channel. 'All channels' shows the image as stored; picking one shows that plane alone. This is a view control — the segmentation channels live in Live settings.",
+      "source_sha256": "f40fe7b371d4ce347fbe8103ce5daa614833777ea008436dd23e598fc021f8ee",
+      "source": "Displayed channel. 'All channels' shows the image as stored; picking one shows that plane alone. This is a view control — the segmentation channels live in Live settings.",
+      "translation": "显示的通道。'All channels' 按图像存储时的形式显示；选择一个通道时仅显示该平面。这是显示控件——分割通道在实时设置中配置。"
+    },
+    {
+      "table": "ui",
+      "key": "How far one wheel notch zooms. Higher jumps across a large field faster; lower gives the fine steps that trimming an object boundary needs. Shift or Alt + drag pans, from any tool.",
+      "source_sha256": "011eeb1cfb0968c4988785fc5ebb6e2b46d6a3fbe1fdea0b6db25ef60749231a",
+      "source": "How far one wheel notch zooms. Higher jumps across a large field faster; lower gives the fine steps that trimming an object boundary needs. Shift or Alt + drag pans, from any tool.",
+      "translation": "滚轮每一格的缩放幅度。较大的值可更快跨越大视野；较小的值提供修整对象边界所需的精细步进。使用任何工具时，都可按住 Shift 或 Alt 并拖动来平移。"
+    },
+    {
+      "table": "ui",
+      "key": "How many arrows — the features best represented in this plane.",
+      "source_sha256": "dd31631cba9ad89738be11205b7a37f2b24d1c29af323fdf9f42aef246ece8eb",
+      "source": "How many arrows — the features best represented in this plane.",
+      "translation": "箭头数量——在此平面中最具代表性的特征。"
+    },
+    {
+      "table": "ui",
+      "key": "Image channel indices written to crop R, G and B planes.",
+      "source_sha256": "43148c1b4d65b1b4e00fd24b90f527a4f7b52708f536ff9f5c4b138f691fb70f",
+      "source": "Image channel indices written to crop R, G and B planes.",
+      "translation": "写入裁剪图像 R、G 和 B 平面的图像通道索引。"
+    },
+    {
+      "table": "ui",
+      "key": "Image channels measured from the merged array.",
+      "source_sha256": "01f0503dac38876a6e31a52437cb98b39bd681c140c20e04cc8760bed55754ca",
+      "source": "Image channels measured from the merged array.",
+      "translation": "从合并数组中测量的图像通道。"
+    },
+    {
+      "table": "ui",
+      "key": "Max rows",
+      "source_sha256": "4b1482e52676f9431ee7c969a0e01bae421b3518d7952bc3d6d2c10bacff189f",
+      "source": "Max rows",
+      "translation": "最大行数"
+    },
+    {
+      "table": "ui",
+      "key": "Maximum images shown at once.\n\nShift-click cells to show several together; shift-clicking a row header takes every channel of that field, a column header every field of that channel. Whatever the selection, this many are drawn.",
+      "source_sha256": "4eae8da0491a3ed5700c125ae20463011fe0b724d8a60d0f0e37cae5edeb92f6",
+      "source": "Maximum images shown at once.\n\nShift-click cells to show several together; shift-clicking a row header takes every channel of that field, a column header every field of that channel. Whatever the selection, this many are drawn.",
+      "translation": "一次显示的最大图像数。\n\n按住 Shift 单击图像格可同时显示多个图像；按住 Shift 单击行标题会选择该视野的所有通道，按住 Shift 单击列标题会选择该通道的所有视野。无论如何选择，都会绘制这么多个图像。"
+    },
+    {
+      "table": "ui",
+      "key": "Maximum number of image sets loaded by the preview.\n\nFor large experiments, filenames are grouped into image sets comprising one field of view and all of its channels. The specified number of sets is sampled across the plate; files outside the sample are not opened.\n\nSampling is deterministic: the same folder and maximum produce the same sets. Changing the maximum selects a new sample, whereas re-rendering with the same settings preserves the selection.",
+      "source_sha256": "7a2e66ccea67104e4604c9bef94e8c141603be11411210d0b2550deb17989e13",
+      "source": "Maximum number of image sets loaded by the preview.\n\nFor large experiments, filenames are grouped into image sets comprising one field of view and all of its channels. The specified number of sets is sampled across the plate; files outside the sample are not opened.\n\nSampling is deterministic: the same folder and maximum produce the same sets. Changing the maximum selects a new sample, whereas re-rendering with the same settings preserves the selection.",
+      "translation": "预览加载的最大图像集数量。\n\n对于大型实验，文件名会按图像集分组；每个图像集包含一个视野及其所有通道。程序会从整个微孔板中抽取指定数量的图像集；样本外的文件不会打开。\n\n抽样是确定性的：相同的文件夹和最大值会生成相同的图像集。改变最大值会选择新的样本，而使用相同设置重新渲染会保留原选择。"
+    },
+    {
+      "table": "ui",
+      "key": "No objects found in the tracked mask plane.",
+      "source_sha256": "0d8c3b7596272d45b1fcd34a6e7d394d4a0993a2c1c718a63a26fdd43d3e6c3d",
+      "source": "No objects found in the tracked mask plane.",
+      "translation": "被跟踪的掩膜平面中未找到对象。"
+    },
+    {
+      "table": "ui",
+      "key": "Non-cutting guides define the screen's empirical null and are distinct from negative-control gene knockouts. A gene name selects all associated guides; a guide name selects only that guide. Specifying these controls estimates effects relative to the empirical null rather than zero.",
+      "source_sha256": "efa2b15cf4453675cac073a1c9534553f650cbfcfacd0bc4d6603333841d2622",
+      "source": "Non-cutting guides define the screen's empirical null and are distinct from negative-control gene knockouts. A gene name selects all associated guides; a guide name selects only that guide. Specifying these controls estimates effects relative to the empirical null rather than zero.",
+      "translation": "非切割向导定义筛选的经验零分布，与阴性对照基因敲除不同。基因名称会选择所有关联的向导；向导名称仅选择该向导。指定这些对照后，将相对于经验零分布而不是数值零来估计效应。"
+    },
+    {
+      "table": "ui",
+      "key": "One coefficient per guide, the unit the screen measures.",
+      "source_sha256": "fe601e4bf93461a9dd02766b66862a7ba121aae9253ddfc8a01bddde48195f7a",
+      "source": "One coefficient per guide, the unit the screen measures.",
+      "translation": "每个向导对应一个系数，即筛选测量的单位。"
+    },
+    {
+      "table": "ui",
+      "key": "Order stored in the PNG file. RGB keeps standard PNG channels unchanged. Auto uses spaCR's sidecar/database format marker. Legacy BGR repairs crops written by older cv2-based releases. After decoding, Annotate always uses RGB arrays.",
+      "source_sha256": "af5208eb0d8dde4b10825c8fa52648387e3e2d6074716c2a15d1e78c496cf778",
+      "source": "Order stored in the PNG file. RGB keeps standard PNG channels unchanged. Auto uses spaCR's sidecar/database format marker. Legacy BGR repairs crops written by older cv2-based releases. After decoding, Annotate always uses RGB arrays.",
+      "translation": "PNG 文件中存储的顺序。RGB 保持标准 PNG 通道不变。Auto 使用 spaCR 的辅助文件/数据库格式标记。Legacy BGR 修复旧版基于 cv2 的版本所写入的图像裁剪。解码后，Annotate 始终使用 RGB 数组。"
+    },
+    {
+      "table": "ui",
+      "key": "Out-of-focus points of light, the way a fluorescence field looks off the focal plane: bright rims, flat centres.",
+      "source_sha256": "c8ee1185eb02ba18c8aa8d2d0cd98227aeec5a849b8d5097292765b05b3a911a",
+      "source": "Out-of-focus points of light, the way a fluorescence field looks off the focal plane: bright rims, flat centres.",
+      "translation": "焦外光点，即荧光视野偏离焦平面时的外观：边缘明亮、中心平坦。"
+    },
+    {
+      "table": "ui",
+      "key": "PNG channels do not exist in this array.",
+      "source_sha256": "a0f9d659521f3cd264cd5bc87de596636fbffd09bdc36a8001fe24e44725a6ac",
+      "source": "PNG channels do not exist in this array.",
+      "translation": "此数组中不存在 PNG 通道。"
+    },
+    {
+      "table": "ui",
+      "key": "Plan statistical power, sample size, plate layouts, controls and replicates.",
+      "source_sha256": "c89462bb8e5ef7ee0a69544b4960c1665e19a00bfbe1046df6eaca12457241d8",
+      "source": "Plan statistical power, sample size, plate layouts, controls and replicates.",
+      "translation": "规划统计功效、样本量、微孔板布局、对照和重复。"
+    },
+    {
+      "table": "ui",
+      "key": "Planes displayed in the montage. Enter the color letters used by Annotate — r, g, b, or a combination such as 'r,g,b', 'rg', or 'b' — and each letter is resolved to the corresponding source channel. Source-channel indices such as '0,1,2' are also accepted.\n\nLeft empty, the run's own png_dims are read back out of measurements.db, so the crops match the PNGs that run wrote.",
+      "source_sha256": "8bef9790944c9c2ed7a93f9fec0ce5ac6a38f1b4de4e8499d732e6e4361f64d6",
+      "source": "Planes displayed in the montage. Enter the color letters used by Annotate — r, g, b, or a combination such as 'r,g,b', 'rg', or 'b' — and each letter is resolved to the corresponding source channel. Source-channel indices such as '0,1,2' are also accepted.\n\nLeft empty, the run's own png_dims are read back out of measurements.db, so the crops match the PNGs that run wrote.",
+      "translation": "蒙太奇中显示的平面。输入 Annotate 使用的颜色字母——r、g、b，或 'r,g,b'、'rg'、'b' 等组合——每个字母都会解析为对应的源通道。也接受 '0,1,2' 等源通道索引。\n\n留空时，会从 measurements.db 读回该次运行自身的 png_dims，使图像裁剪与该次运行写入的 PNG 一致。"
+    },
+    {
+      "table": "ui",
+      "key": "Regress screen phenotypes against guide/gene effects across plates.",
+      "source_sha256": "ab65807b57c5b32eeb4e6b4b6dde94da2fed9d5c04fb26d32d35edd138a6eb06",
+      "source": "Regress screen phenotypes against guide/gene effects across plates.",
+      "translation": "对跨微孔板的筛选表型与向导/基因效应进行回归。"
+    },
+    {
+      "table": "ui",
+      "key": "Show busy spinner after",
+      "source_sha256": "0c3cb3060bfe9138cb67f917c694c3a916107c45a824b7217c5e85ee6b6a5a5c",
+      "source": "Show busy spinner after",
+      "translation": "经过以下时间后显示忙碌指示器"
+    },
+    {
+      "table": "ui",
+      "key": "Trim a runaway flood",
+      "source_sha256": "04e9c57935d9231445a5be0dc661bd51475e21d229ee16023ddd01f9a85239a1",
+      "source": "Trim a runaway flood",
+      "translation": "截断失控的区域扩展"
+    },
+    {
+      "table": "ui",
+      "key": "What colours the channels are drawn in. A VIEW setting: it changes nothing on disk and nothing measured.\n\nCMY is the publication style most multichannel micrographs use now. The three colourblind modes are separate because which PAIR of colours collapses depends on the deficiency — red-green for a deuteranope or protanope, blue-yellow for a tritanope — so one setting cannot serve all three. CMY is NOT one of them: measured against a red-green deficiency it separates the channels less well than plain RGB.",
+      "source_sha256": "92d0d5d133a049ea7b14c13a194c08b1b42b8c61fcffa8596a15df0e39e37f1e",
+      "source": "What colours the channels are drawn in. A VIEW setting: it changes nothing on disk and nothing measured.\n\nCMY is the publication style most multichannel micrographs use now. The three colourblind modes are separate because which PAIR of colours collapses depends on the deficiency — red-green for a deuteranope or protanope, blue-yellow for a tritanope — so one setting cannot serve all three. CMY is NOT one of them: measured against a red-green deficiency it separates the channels less well than plain RGB.",
+      "translation": "通道采用的绘制颜色。这是一项显示设置：不会改变磁盘中的任何内容，也不会改变任何测量结果。\n\nCMY 是目前大多数多通道显微图使用的发表配色。三种色觉缺陷模式分别设置，是因为发生混淆的颜色对取决于缺陷类型——绿色盲或红色盲为红-绿，蓝黄色盲为蓝-黄——因此一种设置无法同时适用于三者。CMY 不是其中任何一种：针对红绿色觉缺陷进行评估时，它对通道的区分度低于普通 RGB。"
+    },
+    {
+      "table": "ui",
+      "key": "aggregates guide ranks by gene without fitting every guide jointly",
+      "source_sha256": "b013c5dc02e0e05656b57586f6f63401b96411f510411a6824c906d54c98ac18",
+      "source": "aggregates guide ranks by gene without fitting every guide jointly",
+      "translation": "按基因汇总向导排名，而不联合拟合每个向导"
+    },
+    {
+      "table": "ui",
+      "key": "control gene or guide, comma separated",
+      "source_sha256": "a988c180a6d7482ceed89698064d07d9e798ae56ec8cfe47e37655d666308925",
+      "source": "control gene or guide, comma separated",
+      "translation": "对照基因或向导，以逗号分隔"
+    },
+    {
+      "table": "ui",
+      "key": "gene or guide, comma separated",
+      "source_sha256": "503e2f052a7ad99c801fedecf8e96c78d19243bc080a2820654508068363d059",
+      "source": "gene or guide, comma separated",
+      "translation": "基因或向导，以逗号分隔"
+    },
+    {
+      "table": "ui",
+      "key": "genes or guides",
+      "source_sha256": "cfb5b39454c3fecd52c43a908f6b08c00f522d448bb38efb050538a052b946e0",
+      "source": "genes or guides",
+      "translation": "基因或向导"
+    },
+    {
+      "table": "ui",
+      "key": "guides grouped by gene",
+      "source_sha256": "dfcd380e69c5624f93077685a245c1d2bfa87abd53e7467c407ab25445750446",
+      "source": "guides grouped by gene",
+      "translation": "按基因分组的向导"
+    },
+    {
+      "table": "ui",
+      "key": "k (robust SDs)",
+      "source_sha256": "440295d2b8cd37babfafaab9311e95099fa01805f6fac5d5595aba975e9369a4",
+      "source": "k (robust SDs)",
+      "translation": "k（稳健标准差）"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR's own three colours — the blue, magenta and green-cyan that mark a module stable, beta or alpha.",
+      "source_sha256": "fb468200a0fec1da723f9047c4a658d81cb8090a7eb2185bf5e6cd2427db48bf",
+      "source": "spaCR's own three colours — the blue, magenta and green-cyan that mark a module stable, beta or alpha.",
+      "translation": "spaCR 自有的三种颜色——蓝色、洋红色和绿青色，分别标示模块处于 stable、beta 或 alpha 状态。"
+    }
+  ]
+}

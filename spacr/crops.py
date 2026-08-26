@@ -74,7 +74,8 @@ import os
 import re
 import sqlite3
 import tempfile
-from dataclasses import dataclass, field as _dc_field, replace
+from dataclasses import dataclass, replace
+from dataclasses import field as _dc_field
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple, Union
 
 import numpy as np
@@ -335,25 +336,16 @@ _PAIR_SEPARATORS = re.compile(r"[\s,;]+")
 
 
 def percentile_pair(value, default=DEFAULT_PERCENTILES) -> Tuple[float, float]:
-    """``(low, high)`` from whatever a percentile setting holds.
+    """Parse a percentile range and return ``(low, high)``.
 
-    :param value: a pair of numbers, or any of the text spellings of one.
-    :param default: what to answer when there is no pair to read.
-    :returns: two floats, low first, each between 0 and 100.
+    :param value: two numbers or a string representation separated by spaces,
+        commas or semicolons.
+    :param default: range returned when two numeric values cannot be parsed.
+    :returns: two floats in ascending order, clipped to ``[0, 100]``.
 
-    TWO NUMBERS ARE NOT A CHANNEL LIST, and reading them as one is why the
-    shipped default never reached the picture. `_as_channel_list` maps the
-    POSITION strings '0', '1' and '2' onto the colours 'r', 'g' and 'b' --
-    correct for `normalize_channels`, and silently destructive here: the
-    annotator's own `[2, 98]` became `['b', '98']`, `float('b')` raised, and
-    the caller fell back to a pair the user never asked for. Every pair whose
-    low percentile was 0, 1 or 2 was quietly replaced.
-
-    A pair given high-first is put in order rather than refused: `98, 2`
-    describes one window and there is only one thing it can mean. Anything
-    that is not two numbers answers ``default``, because a picture is the
-    last thing this produces and the least important -- losing a montage to
-    a mistyped percentile is the worst trade available.
+    This parser treats the values as percentiles rather than channel indices;
+    numeric values such as ``0``, ``1`` and ``2`` therefore retain their
+    literal meaning.
     """
     parts = None
     if value is None or isinstance(value, bool):
@@ -1387,7 +1379,7 @@ def _coerce_format(value: Any) -> Optional[int]:
 # ---------------------------------------------------------------------------
 
 def narrow_to_uint8(arr: np.ndarray) -> np.ndarray:
-    """Narrow ``arr`` to ``uint8`` -- the one and only narrowing rule.
+    """Convert ``arr`` to ``uint8`` using the crop-writer convention.
 
     ``uint16`` (and anything wider) is narrowed by **taking the high byte**,
     which is a plain linear rescale of a crop that ``normalize_to_dtype``
@@ -1395,7 +1387,7 @@ def narrow_to_uint8(arr: np.ndarray) -> np.ndarray:
     when a caller hands in something the crop path never produces, are clipped
     -- there is no dtype range to rescale from.
 
-    Deliberately *not* PIL's behaviour: PIL takes the high byte of a 16-bit
+    This differs from PIL's format-dependent behaviour: PIL takes the high byte of a 16-bit
     RGB PNG but clips a 16-bit single-channel one at 255, so the same pixel
     value survives or saturates depending on how many channels its neighbours
     have. One behaviour, applied here, replaces both.
@@ -1568,7 +1560,7 @@ def resolve_png_channel_mapping(settings) -> Dict[str, Optional[int]]:
         except (TypeError, ValueError):
             raise CropError(
                 f"png_channel_mapping['{key}'] must be a source channel index "
-                f"or blank; got {val!r}")
+                f"or blank; got {val!r}") from None
     if all(v is None for v in out.values()):
         raise CropError(
             "png_channel_mapping leaves every colour empty, so every crop "
@@ -1605,10 +1597,8 @@ def build_png_channels(data: np.ndarray, mapping: Dict[str, Optional[int]],
                        dtype=None) -> np.ndarray:
     """Assemble the crop planes in **file order** -- red, green, blue.
 
-    The array this returns is in the order the PNG's slots are in, so a reader
-    that opens the file and a caller that keeps the array in memory are
-    looking at the same thing. That is the whole point of the mapping: there
-    is one order, it is stated, and it survives to disk.
+    The returned array uses the same channel order as the PNG file, so in-memory
+    and decoded representations have the same colour semantics.
 
     Greyscale is preserved: when all three colours name the same source
     channel the result is a single plane, so cv2 writes a one-channel PNG
@@ -1774,26 +1764,19 @@ def write_crop_folder_marker(folder: str, fmt: int = CROP_FORMAT_CURRENT,
 
 
 def stamp_crop_folder(folder: str, fmt: int = CROP_FORMAT_CURRENT) -> Optional[str]:
-    """Make sure ``folder`` carries the format marker. Cheap enough to call per crop.
+    """Ensure that ``folder`` contains a crop-format marker.
 
-    Called by the crop writer immediately *before* the first PNG lands, so a
-    run killed part-way through leaves a marked folder holding fewer crops --
-    never an unmarked folder of format-2 crops, which is the one state that
-    would be silently misread as legacy.
+    The crop writer calls this before writing the first PNG. An interrupted
+    run therefore leaves a marked, possibly incomplete folder rather than an
+    unmarked folder that could be interpreted as the legacy format.
 
-    One listing per folder per process: after that the folder is remembered.
-    A marker that cannot be written is a loud warning rather than an
-    exception, because failing the whole measure run over a 300-byte sidecar
-    helps nobody -- but it is never silent, because the consequence is that
-    the crops read back reversed.
+    Each folder is checked once per process. Failure to write the marker emits
+    a warning instead of aborting the measurement run, because the image data
+    remain valid but their stored channel convention becomes ambiguous.
 
-    Writing new crops into a folder that already holds *old* ones is the one
-    case a single folder-level marker cannot describe, so it is called out
-    rather than papered over: the run's own crops are marked, and the message
-    says which files were there first and what to do about them. (Migrating
-    them here instead would mean several measure workers converting the same
-    folder at once, which is exactly the race
-    :func:`migrate_crop_folder`'s single-process design rules out.)
+    If a folder already contains crops in another format, the function reports
+    the conflict but does not migrate files. Migration remains a separate,
+    single-process operation in :func:`migrate_crop_folder`.
 
     :param folder: the crop folder.
     :param fmt: format to record; defaults to :data:`CROP_FORMAT_CURRENT`.
@@ -2620,17 +2603,16 @@ def crop_spec_from_settings(settings: Mapping[str, Any], merged_path: str = "",
     ``use_bounding_box``, ``dialate_pngs``, ``dialate_png_ratios``, ``crop_mode``
     and the ``*_mask_dim`` keys -- i.e. everything that shaped the PNG folder.
 
-    :param settings: the ``measure_crop`` settings. The per-``crop_mode``
-        lists (``png_size``, ``dialate_pngs``, ``dialate_png_ratios``) are
-        indexed by where the chosen object type sits in ``crop_mode``, and
-        fall back to entry 0 when it is not listed there. The crop's
-        channels come from ``png_channel_mapping`` -- or the legacy
-        ``png_dims`` -- via :func:`channels_from_settings`, so the spec is in
-        colour order, not ``png_dims`` list order. A ``normalize`` that is a
-        sequence of any length but 2 is discarded as ``False``, and one
-        written as TEXT -- ``"[2, 98]"``, ``"2,98"``, ``"[1 99]"`` -- is read
-        as the pair it spells rather than passed on as a truthy string that
-        no longer describes a window.
+    :param settings: The ``measure_crop`` settings. A scalar ``png_size``
+        defines a square crop. Object-specific values in nested ``png_size``,
+        ``dialate_pngs``, and ``dialate_png_ratios`` are selected by the
+        object's position in ``crop_mode`` and fall back to the first entry
+        when that object is absent. Channels are resolved from
+        ``png_channel_mapping``, or legacy ``png_dims``, through
+        :func:`channels_from_settings` and stored in colour order. Text forms
+        such as ``"[2, 98]"``, ``"2,98"``, and ``"[1 99]"`` are parsed as
+        percentile windows; a non-text sequence with a length other than two
+        disables normalization.
     :param merged_path: the ``merged/<fov>.npy`` to record on the spec. The
         default ``""`` builds a *template* spec, which is what
         :class:`MergedCropSource` wants: it fills the path (and label) in per
@@ -2809,11 +2791,8 @@ def path_components(path: Any) -> Tuple[str, ...]:
 def path_is_under(path: Any, root: Any) -> bool:
     """True when ``path`` already sits under ``root``.
 
-    A COMPONENT-WISE PREFIX TEST, not a substring one. ``base_path not in
-    path`` -- what :func:`spacr.utils.correct_paths` used to ask -- answers
-    yes for ``/mnt/newdisk`` against ``/old/mnt/newdisk-backup/x.png`` and no
-    for a path that differs only in spelling, and neither answer is what the
-    question means.
+    Comparison is component-wise rather than substring-based, preventing
+    similarly named sibling directories from being treated as descendants.
 
     :param path: the recorded path.
     :param root: the destination root.
@@ -2828,16 +2807,10 @@ def path_is_under(path: Any, root: Any) -> bool:
 
 def reanchor_path(path: Any, root: Any,
                   anchors: Sequence[str] = PATH_ANCHORS) -> Tuple[str, str]:
-    """Re-anchor one recorded path under ``root``, and say what happened.
+    """Re-anchor one recorded path under ``root`` and report the outcome.
 
-    THE ANCHOR IS FOUND FROM THE RIGHT, and that is the whole correctness of
-    this function. Splitting on the FIRST ``/data/`` turned
-    ``/old/data/exp1/data/plate1/a.png`` into ``<root>/data/exp1`` -- a path
-    that has silently lost ``plate1/a.png`` and now names a directory. An
-    experiment whose old root itself contained a ``data`` folder is not
-    exotic, and the corruption did not raise: it produced a plausible path
-    that failed much later as a missing file. The anchor nearest the FILE is
-    the one that separates the root from the part that must be preserved.
+    The rightmost recognized anchor is used so nested directories with the
+    same name retain the path components nearest the file.
 
     :param path: the recorded path, in any OS's spelling.
     :param root: the experiment root on this machine.
@@ -2845,10 +2818,8 @@ def reanchor_path(path: Any, root: Any,
         ``('data', 'merged')``. The rightmost occurrence of ANY of them wins.
     :returns: ``(path, outcome)`` where outcome is
         :data:`ALREADY_ANCHORED`, :data:`REANCHORED` or :data:`NO_ANCHOR`.
-        The path comes back unchanged for the first and the last, so a caller
-        that ignores the outcome behaves exactly as before -- but a caller
-        that reads it can COUNT what it could not place instead of letting it
-        fail later somewhere with less context.
+        The path is unchanged for :data:`ALREADY_ANCHORED` and
+        :data:`NO_ANCHOR`.
     """
     text = path if isinstance(path, str) else normalise_separators(path)
     if not text or not root:
@@ -2868,12 +2839,7 @@ def reanchor_path(path: Any, root: Any,
 
 @dataclass(frozen=True)
 class ReanchorReport:
-    """What one re-anchoring pass did, INCLUDING what it could not do.
-
-    The last field is the reason this is a record and not a bare frame. A
-    path with no recognisable anchor used to be returned unchanged and failed
-    later as a missing file somewhere with less context, which is exactly how
-    the nested-``data/`` corruption stayed invisible for as long as it did.
+    """Summary of one path re-anchoring pass.
 
     :param root: the root everything was re-anchored under.
     :param n_paths: how many non-null paths were looked at.
@@ -2894,11 +2860,10 @@ class ReanchorReport:
         return len(self.failures)
 
     def describe(self) -> str:
-        """The sentence to log or put in a caption, or ``''`` when all placed.
+        """Return a log summary, or ``''`` when all paths were placed.
 
-        Names ONE of the failures, the way the measurement merge names its
-        dropped columns: a count alone says something is wrong and a named
-        example says what.
+        Failure summaries include one example path to make the unresolved
+        route identifiable.
         """
         if not self.failures:
             return ""
@@ -2924,12 +2889,9 @@ def reanchor_frame(df, root: str, columns: Sequence[str] = PATH_COLUMNS,
                    anchors: Sequence[str] = PATH_ANCHORS):
     """Re-anchor every path-bearing column of ``df`` under one experiment root.
 
-    GENERALISED FROM THE COLUMN TO THE ROOT. :func:`spacr.utils.correct_paths`
-    re-anchors ``png_path`` and nothing else, so a folder moved between
-    machines showed its exported crops and failed on ``path_name`` /
-    ``merged_path`` -- the columns the on-demand crop source reads. One root
-    has both ``data/`` and ``merged/`` under it, so one pass can place every
-    column against whichever anchor its own path contains.
+    Each configured column is matched to its own rightmost anchor, allowing a
+    relocated project to resolve both exported crops and merged arrays in one
+    pass.
 
     :param df: a measurement frame. Not copied -- the named columns are
         written in place, which is what the callers already expect.
@@ -2981,15 +2943,11 @@ def reanchor_frame(df, root: str, columns: Sequence[str] = PATH_COLUMNS,
 
 
 def object_label(value: Any) -> int:
-    """The integer label, whichever of spaCR's two spellings arrived.
+    """Return the integer object label from a measurement or crop-table value.
 
-    `cell` stores `object_label` as an integer. `png_list` stores the SAME
-    object as `cell_id`, in the prcfo spelling: `o2`, not `2`. The label
-    reader accepts either column, so a row from `png_list` reached
-    `int('o2')` and the run stopped with "invalid literal for int() with
-    base 10: 'o2'" -- naming neither the column nor the annotator, which is
-    where those rows come from. Streaming crops for the annotator failed on
-    every database spaCR writes.
+    Measurement tables store ``object_label`` as an integer. ``png_list``
+    stores the equivalent ``cell_id`` in ``o<n>`` form. Both representations
+    are accepted.
 
     :raises CropError: for anything that is not a label at all, naming the
         value rather than leaving a bare ValueError from int().
@@ -3242,12 +3200,8 @@ class MergedCropSource(CropSource):
     def resolve_path(self, row: Any) -> str:
         """Return the merged ``.npy`` path for ``row``.
 
-        The rowID -> well-letter step goes through :mod:`spacr.schema`, which
-        is imported lazily *inside* this method on purpose: this module's
-        contract is that importing it costs nothing (``tests/test_crops.py``
-        loads it standalone, outside the package, and asserts the sys.modules
-        delta is empty), and a module-scope relative import would break that
-        probe. Nothing above this point needs schema.
+        The row-to-well conversion uses :mod:`spacr.schema`, imported lazily
+        to keep this module's import path dependency-light.
 
         :param row: a measurement row. ``merged_path`` or ``path_name`` is
             used directly, and -- when that path does not exist here --
@@ -3649,23 +3603,16 @@ def display_order_indices(order: str) -> Tuple[int, int, int]:
 
 
 def apply_display_order(image, order: str = DISPLAY_ORDER_IDENTITY):
-    """Permute an RGB image's channels for DISPLAY only.
+    """Apply a display-only permutation to an RGB image.
 
-    THIS IS NOT THE CROP FORMAT, and keeping the two apart is the whole point
-    of having a separate function. ``read_crop_png`` answers "how was this
-    file written" -- a fact about the bytes, resolved from a sidecar marker or
-    the database, and getting it wrong means showing the wrong stain.
-    ``apply_display_order`` answers "how do I want to look at it" -- a
-    preference, with no claim about the file at all.
-
-    That distinction is why a project authored before the crop-format fix can
-    get its original picture back WITHOUT marking the folder as a format it is
-    not. Marking it would work, and would then lie to every later reader.
+    Crop-format decoding and display preference are separate operations.
+    :func:`read_crop_png` resolves how channel bytes were stored;
+    ``apply_display_order`` changes only their presentation and does not alter
+    or infer the on-disk format.
 
     :param image: ``(H, W, 3)`` array, already in the corrected format.
     :param order: one of :data:`DISPLAY_ORDERS`. The default is the identity
-        and returns the array unchanged, so this costs nothing for the
-        overwhelming majority who never set it.
+        and returns the original array unchanged.
     :returns: the permuted array, or ``image`` itself for the identity.
     :raises CropError: an order that is not a permutation of rgb.
     """

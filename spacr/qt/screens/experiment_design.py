@@ -45,22 +45,21 @@ APP_KEY = "experiment_design"
 
 APP_NAME = "Experiment Design"
 APP_DESCRIPTION = (
-    "Lay out conditions, controls and replicates on a plate, check the "
-    "layout, and export it for the pipeline to read later."
+    "Assign conditions, controls and replicates to plate wells, validate the "
+    "layout and export pipeline-compatible metadata."
 )
 APP_INTRO = (
-    "Everything on this screen is a decision that cannot be undone after "
-    "acquisition. Where the controls sit, whether a condition is confounded "
-    "with a row, whether the plate edge is used at all -- no analysis "
-    "repairs any of them, and all of them are free to change today. Export "
-    "writes a plate_map.csv keyed the way spaCR keys measurements, so the "
-    "layout is typed once instead of twice."
+    "Design condition, control, and replicate placement before acquisition. "
+    "The screen identifies positional confounding, control placement, and edge "
+    "well use while the layout can still be revised. Export writes "
+    "plate_map.csv using the same plate, row, and column identifiers as spaCR "
+    "measurements, allowing the saved design to be reused by the pipeline."
 )
 APP_CLI_NOTE = (
-    "Experiment Design is a GUI screen: it exists to draw a plate and warn "
-    "about its layout before acquisition. For a headless design, build a "
-    "spacr.qt.widgets.plate_layout.PlateDesign and call write_design() "
-    "instead -- that is the same code this screen runs."
+    "Use Experiment Design in the GUI to arrange a plate and review layout "
+    "warnings. In a headless workflow, construct a "
+    "spacr.qt.widgets.plate_layout.PlateDesign and call write_design() to "
+    "produce the same design output."
 )
 #: sv, de, es, zh_CN, pt, hi, ko, is, fr
 APP_TRANSLATIONS: Tuple[str, ...] = (

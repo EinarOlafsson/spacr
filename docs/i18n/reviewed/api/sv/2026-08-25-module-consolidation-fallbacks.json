@@ -1,0 +1,27 @@
+{
+  "language": "sv",
+  "records": [
+    {
+      "context": "Zero the object under (x, y) *in place*; return the id removed, or 0.",
+      "label": "spacr.qt.mask_engine.erase_object_in_place#0",
+      "source": "Zero the object under (x, y) *in place*; return the id removed, or 0.",
+      "source_sha256": "fefc71b13da51a35ef5889c7609db6e71f085ec566f17200badc6ea92dd99028",
+      "translation": "Nollställ objektet under (x, y) *på plats*; returnera det borttagna id-numret eller 0."
+    },
+    {
+      "context": ":func:`load_image_and_mask` will accept a mask under the image's own extension, but everything :func:`save_mask` writes lands on ``<folder>/masks/<stem>.tif``. The ledger is keyed on the file that was actually written, so both have to agree on one name; ask here rather than rebuilding it at each call site.",
+      "label": "spacr.qt.mask_engine.mask_save_path#1",
+      "source": ":func:`load_image_and_mask` will accept a mask under the image's own extension, but everything :func:`save_mask` writes lands on ``<folder>/masks/<stem>.tif``. The ledger is keyed on the file that was actually written, so both have to agree on one name; ask here rather than rebuilding it at each call site.",
+      "source_sha256": "1e9547f82f80f18f4cd5d7057de0ef60546c63611478382c72aad891f0cf90b1",
+      "translation": ":func:`load_image_and_mask` accepterar en mask med bildens eget filnamnstillägg, men allt som :func:`save_mask` skriver hamnar i ``<folder>/masks/<stem>.tif``. Körjournalen nycklas med filen som faktiskt skrevs, så båda måste använda samma namn; fråga här i stället för att bygga om sökvägen vid varje anropsställe."
+    },
+    {
+      "context": "``\"4D Settings (Beta)\"`` is the time half of the same split, and the source says so where the split is written: ``z_axis`` is filed under 3D \"because 4D builds on the same z plan\", which leaves the 4D list holding \"only time-axis and inter-frame tracking controls\".",
+      "label": "spacr.qt.screens.app_screen.dimension_settings#3",
+      "source": "``\"4D Settings (Beta)\"`` is the time half of the same split, and the source says so where the split is written: ``z_axis`` is filed under 3D \"because 4D builds on the same z plan\", which leaves the 4D list holding \"only time-axis and inter-frame tracking controls\".",
+      "source_sha256": "863e31e7997b4b0b785c148372e216f78197575a83b29795b941feef30733a33",
+      "translation": "``\"4D Settings (Beta)\"`` är tidsdelen av samma uppdelning, och källkoden anger det där uppdelningen definieras: ``z_axis`` placeras under 3D \"eftersom 4D bygger på samma z-plan\", vilket innebär att 4D-listan innehåller \"endast tidsaxel- och spårningsinställningar mellan bildrutor\"."
+    }
+  ],
+  "schema": 1
+}

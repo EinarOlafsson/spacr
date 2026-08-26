@@ -11,6 +11,7 @@ the whole app is usable without a mouse:
     Ctrl+,        Open Preferences
     Ctrl+/        Open the AI Console
     Ctrl+End      Jump to the newest console line
+    F11           Toggle full screen
     Esc           Close any open dialog / popup
 
 :func:`install` is called once from ``MainWindow.__init__``. Every
@@ -26,7 +27,12 @@ from typing import Callable, List
 from PySide6.QtCore import QEvent, Qt
 from PySide6.QtGui import QColor, QKeySequence, QPainter, QShortcut
 from PySide6.QtWidgets import (
-    QDialog, QGridLayout, QLabel, QMainWindow, QVBoxLayout, QWidget,
+    QDialog,
+    QGridLayout,
+    QLabel,
+    QMainWindow,
+    QVBoxLayout,
+    QWidget,
 )
 
 LOG = logging.getLogger("spacr.qt.shortcuts")
@@ -70,11 +76,8 @@ SHORTCUTS: List[ShortcutSpec] = [
     ShortcutSpec("Ctrl+K",       "Open command palette",   "Navigation"),
     ShortcutSpec("Ctrl+,",       "Open preferences",       "Navigation"),
     ShortcutSpec("Ctrl+B",       "Show the full app list", "Navigation"),
+    ShortcutSpec("F11",          "Toggle full screen",     "Navigation"),
     ShortcutSpec("Ctrl+/",       "Toggle AI Console",      "Actions"),
-    # A long run writes thousands of lines and the one that matters is the
-    # last; getting to it must not be a scroll through everything above it.
-    ShortcutSpec("Ctrl+End",     "Jump to the newest console line",
-                 "Actions",      scope="the console"),
     ShortcutSpec("Ctrl+F",       "Search this module's settings", "Actions"),
     ShortcutSpec("Ctrl+Shift+R", "Settings recipes",       "Actions"),
     ShortcutSpec("F1",           "Show this cheat sheet",  "Help"),
@@ -115,6 +118,10 @@ SCREEN_SHORTCUTS: List[ShortcutSpec] = [
                  "the Make Masks screen"),
     ShortcutSpec("W",            "Magic wand — add",       "Make Masks",
                  "the Make Masks screen"),
+    ShortcutSpec("D",            "Draw an object",         "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("V",            "Divide an object",       "Make Masks",
+                 "the Make Masks screen"),
     ShortcutSpec("Z",            "Zoom",                   "Make Masks",
                  "the Make Masks screen"),
     ShortcutSpec("Esc",          "Reset the zoom",         "Make Masks",
@@ -130,11 +137,10 @@ SCREEN_SHORTCUTS: List[ShortcutSpec] = [
 ]
 
 
-#: Window-wide keys that something OTHER than `install()` binds. `Ctrl+B`
-#: opens the full app list and is set on the menu action -- which is a real
-#: binding and reaches the same place -- so it belongs on the map and does
-#: not belong in `install()`'s count.
-BOUND_ELSEWHERE = frozenset({"Ctrl+B"})
+#: Window-wide keys that something OTHER than `install()` binds. ``Ctrl+B``
+#: opens the full app list and ``F11`` toggles full screen; both are attached
+#: to window actions. They belong on the map and not in ``install()``'s count.
+BOUND_ELSEWHERE = frozenset({"Ctrl+B", "F11"})
 
 
 def installed() -> List[ShortcutSpec]:
@@ -173,7 +179,10 @@ def discover(window) -> List[ShortcutSpec]:
     """
     from PySide6.QtGui import QAction
 
-    known = {native(spec.keys) for spec in SHORTCUTS}
+    # Include declared per-screen bindings as well as window-wide ones. A
+    # screen that already exists under the window must not make its declared
+    # shortcut appear a second time as a dynamically discovered key.
+    known = {native(spec.keys) for spec in mapped()}
     out: List[ShortcutSpec] = []
     seen = set()
     try:
@@ -349,7 +358,8 @@ def _toggle_ai(window: QMainWindow) -> None:
         current = None
         for s in window.findChildren(AppScreen):
             if s.isVisible():
-                current = s; break
+                current = s
+                break
         if current is not None and hasattr(current, "_ai_switch"):
             current._ai_switch.setChecked(
                 not current._ai_switch.isChecked()

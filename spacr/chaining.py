@@ -197,14 +197,13 @@ def state_path() -> str:
 
 
 class PinStore:
-    """The paths a user edited by hand, remembered across restarts.
+    """Persist explicitly selected setting paths across application sessions.
 
-    Auto-chaining is only welcome while it is filling in a blank.  The moment
-    a user types a path of their own, that path is theirs: it survives a
-    reopen, a restart, and every subsequent upstream run.  This is the record
-    that makes that true, and it is deliberately *not* the settings dict —
-    a settings dict cannot distinguish "the user chose this" from "we put it
-    there".
+    A pin distinguishes a manually selected value from one populated by
+    automatic chaining. Pinned values survive screen reopening, application
+    restart, and subsequent upstream runs until they are cleared. Pins are
+    stored separately from settings because a settings dictionary does not
+    retain the origin of a value.
 
     Read lazily and written through a temporary file plus :func:`os.replace`,
     so a crash mid-write cannot leave a half-written JSON file that would lose
@@ -270,12 +269,10 @@ class PinStore:
     # -- the pins ---------------------------------------------------------
 
     def pin(self, module: str, setting: str, value: Any) -> None:
-        """Record that the user chose ``value`` for ``module``'s ``setting``.
+        """Store an explicitly selected value for a module setting.
 
-        An empty value **removes** the pin rather than storing a blank one:
-        clearing the field is how a user asks for the automatic default back,
-        and a stored empty string would instead mean "the user chose nothing"
-        and suppress chaining forever.
+        An empty path removes the existing pin and re-enables automatic
+        chaining for that setting. Empty values are not persisted.
 
         :param module: module key.
         :param setting: settings key, e.g. ``"src"``.

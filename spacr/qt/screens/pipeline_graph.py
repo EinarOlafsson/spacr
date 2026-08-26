@@ -88,7 +88,8 @@ APP_NAME = "Pipeline Graph"
 
 #: One-line summary; the tooltip and status tip.
 APP_DESCRIPTION = (
-    "The DAG of what produced what, with everything stale or missing marked")
+    "Visualize data provenance as a directed acyclic graph with stale and "
+    "missing outputs marked")
 
 #: The paragraph under this app's header, handed to the seam as ``intro``.
 APP_INTRO = (

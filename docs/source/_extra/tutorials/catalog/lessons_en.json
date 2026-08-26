@@ -44,13 +44,13 @@
           "narration": "Before installing spaCR, choose the official source. PyPI provides the released Python package, GitHub provides source code and desktop installers, and conda-forge will become an option once its package is published.",
           "visual": "sources",
           "hold_after": 0.7,
-          "speech_text": "Before installing spacer, choose the official source. pie-P-I provides the released Python package, [GitHub](/ɡˈɪthˌʌb/) provides source code and desktop installers, and [conda-forge](/kˈɑndə fˌɔɹʤ/) will become an option once its package is published."
+          "speech_text": "Before installing spacer, choose the official source. pypie provides the released Python package, [GitHub](/ɡˈɪthˌʌb/) provides source code and desktop installers, and [conda-forge](/kˈɑndə fˌɔɹʤ/) will become an option once its package is published."
         },
         {
           "narration": "On PyPI, the release header shows the current stable version and the pip install spacr command.",
           "visual": "pypi_release",
           "hold_after": 0.7,
-          "speech_text": "On pie-P-I, the release header shows the current stable version and the pip install spacer command."
+          "speech_text": "On pypie, the release header shows the current stable version and the pip install spacer command."
         },
         {
           "narration": "The Project links section opens the documentation, homepage, issue tracker, and source repository.",
@@ -74,13 +74,13 @@
           "narration": "Conda-forge does not publish spaCR yet. Today, create a Conda environment and install spaCR from PyPI; use the conda-forge channel only after the package is published.",
           "visual": "conda_status",
           "hold_after": 0.7,
-          "speech_text": "[Conda-forge](/kˈɑndə fˌɔɹʤ/) does not publish spacer yet. Today, create a [Conda](/kˈɑndə/) environment and install spacer from pie-P-I; use the [conda-forge](/kˈɑndə fˌɔɹʤ/) channel only after the package is published."
+          "speech_text": "[Conda-forge](/kˈɑndə fˌɔɹʤ/) does not publish spacer yet. Today, create a [Conda](/kˈɑndə/) environment and install spacer from pypie; use the [conda-forge](/kˈɑndə fˌɔɹʤ/) channel only after the package is published."
         },
         {
           "narration": "Use PyPI or pip for a Python environment, GitHub Releases for a desktop installer, and nightly only when you need unreleased work. Next, choose the installation tutorial for your route.",
           "visual": "decision",
           "hold_after": 0.7,
-          "speech_text": "Use pie-P-I or pip for a Python environment, [GitHub](/ɡˈɪthˌʌb/) Releases for a desktop installer, and nightly only when you need unreleased work. Next, choose the installation tutorial for your route."
+          "speech_text": "Use pypie or pip for a Python environment, [GitHub](/ɡˈɪthˌʌb/) Releases for a desktop installer, and nightly only when you need unreleased work. Next, choose the installation tutorial for your route."
         }
       ]
     },
@@ -459,11 +459,11 @@
           "speech_text": "Switch to Flows to inspect the direction field used by [Cellpose](/sˈɛlpˌOz/). Irregular flow patterns can help explain masks that split or merge incorrectly."
         },
         {
-          "narration": "Masks isolates the final labels against a black background. Use it to check object coverage and separation without the source image underneath.",
+          "narration": "The Masks view displays the final labels against a black background. Use it to assess object coverage and separation without the source image.",
           "visual": "29_cell_objects",
           "hold_after": 0.7,
           "focus_key": "action_and_canvases",
-          "speech_text": "Masks isolates the final labels against a black background. Use it to check object coverage and separation without the source image underneath."
+          "speech_text": "The Masks view displays the final labels against a black background. Use it to assess object coverage and separation without the source image."
         },
         {
           "narration": "Object filters update the cached preview immediately. Raise minimum area only enough to remove obvious fragments; the correct cutoff depends on image scale.",
@@ -671,6 +671,7 @@
       "title": "Classify, computer vision",
       "series": 1,
       "app_key": "classify",
+      "host_app_key": "classify_merged",
       "section": "Core",
       "description": "Train and evaluate an image classifier from annotated object crops, with grouped validation and optional hyperparameter search.",
       "objectives": [
@@ -773,6 +774,7 @@
       "title": "Classify, machine learning",
       "series": 1,
       "app_key": "ml_analyze",
+      "host_app_key": "classify_merged",
       "section": "Core",
       "description": "Train and evaluate a feature-based classifier from measured objects, with plate-aware correction and optional hyperparameter search.",
       "objectives": [
@@ -1220,11 +1222,12 @@
       "title": "Activation maps",
       "series": 1,
       "app_key": "activation",
+      "host_app_key": "classify_merged",
       "section": "Results and quality control",
       "description": "Inspect which image regions influence a trained vision classifier and test whether those explanations are credible.",
       "objectives": [
         "Match the attribution run to the trained model and inputs.",
-        "Choose an attribution method with appropriate sanity checks.",
+        "Choose an attribution method with appropriate validation controls.",
         "Interpret maps across representative successes and failures."
       ],
       "prerequisite": "Train and validate a vision classifier and retain its exact crop, channel, architecture, and preprocessing metadata.",
@@ -1308,6 +1311,7 @@
       "title": "Timelapse",
       "series": 2,
       "app_key": "timelapse",
+      "host_app_key": "mask",
       "section": "Core",
       "description": "Segment time-resolved images, link selected objects into tracks, and validate the resulting movies and trajectories.",
       "objectives": [
@@ -1410,6 +1414,7 @@
       "title": "Motility assay",
       "series": 2,
       "app_key": "motility",
+      "host_app_key": "measure",
       "section": "Core",
       "description": "Measure calibrated motion from tracked images and compare trajectories by infection or experimental group.",
       "objectives": [
@@ -1498,6 +1503,7 @@
       "title": "Train Cellpose",
       "series": 2,
       "app_key": "train_cellpose",
+      "host_app_key": "make_masks",
       "section": "Segmentation models",
       "description": "Fine-tune a Cellpose or CPSAM-compatible model from reviewed image and instance-mask pairs.",
       "objectives": [
@@ -1579,6 +1585,7 @@
       "title": "Cellpose Masks",
       "series": 2,
       "app_key": "cellpose_masks",
+      "host_app_key": "make_masks",
       "section": "Segmentation models",
       "description": "Apply a packaged or custom Cellpose model, inspect masks and flows, and save one instance-label mask per field.",
       "objectives": [
@@ -1660,6 +1667,7 @@
       "title": "Model Compare",
       "series": 2,
       "app_key": "model_compare",
+      "host_app_key": "make_masks",
       "section": "Segmentation models",
       "description": "Run two Cellpose configurations on the same representative fields and compare their masks without assuming either is ground truth.",
       "objectives": [
@@ -1734,6 +1742,7 @@
       "title": "Model Zoo",
       "series": 2,
       "app_key": "model_zoo",
+      "host_app_key": "make_masks",
       "section": "Segmentation models",
       "description": "Browse, verify, download, and benchmark reusable segmentation and classifier models.",
       "objectives": [
@@ -1808,6 +1817,7 @@
       "title": "Annotator Agreement",
       "series": 3,
       "app_key": "agreement",
+      "host_app_key": "annotate",
       "section": "Results and quality control",
       "description": "Measure agreement between annotation columns and inspect the objects responsible for disagreement.",
       "objectives": [
@@ -2387,7 +2397,7 @@
       "series": 4,
       "app_key": "external_masks",
       "section": "Data and batch runs",
-      "description": "Turn third-party images and label masks into a measured, traceable spaCR project.",
+      "description": "Import third-party images and label masks as a measured, traceable spaCR project.",
       "objectives": [
         "Map external inputs correctly.",
         "Validate the import in Preview.",
@@ -2988,6 +2998,7 @@
       "title": "Classifier Evaluation",
       "series": 5,
       "app_key": "classifier_evaluation",
+      "host_app_key": "classify_merged",
       "section": "Results and quality control",
       "description": "Audit held-out predictions, nested cross-validation, calibration, leakage, and per-plate performance.",
       "objectives": [
@@ -3132,6 +3143,7 @@
       "title": "Curate",
       "series": 5,
       "app_key": "curate",
+      "host_app_key": "make_masks",
       "section": "Core",
       "description": "Correct segmentation masks and tracks by hand while preserving an auditable record of every edit.",
       "objectives": [
@@ -3180,6 +3192,7 @@
       "title": "Illumination",
       "series": 5,
       "app_key": "illumination",
+      "host_app_key": "measure",
       "section": "Data",
       "description": "Estimate and validate flat-field correction before intensity features are measured.",
       "objectives": [
@@ -3372,6 +3385,7 @@
       "title": "Barcode QC",
       "series": 5,
       "app_key": "barcode_qc",
+      "host_app_key": "map_barcodes",
       "section": "Results and quality control",
       "description": "Check mapping depth, coverage, collisions, positional effects, and an evidence-based abundance threshold.",
       "objectives": [
@@ -3756,6 +3770,7 @@
       "title": "Image Scatter",
       "series": 5,
       "app_key": "image_scatter",
+      "host_app_key": "umap",
       "section": "Explore",
       "description": "Plot measurements and inspect the image behind any point.",
       "objectives": [
@@ -3948,6 +3963,7 @@
       "title": "AnnData Export",
       "series": 5,
       "app_key": "anndata_export",
+      "host_app_key": "measure",
       "section": "Explore",
       "description": "Write spaCR measurements as an AnnData file for scanpy or scvi-tools.",
       "objectives": [
@@ -3996,6 +4012,7 @@
       "title": "PCA",
       "series": 5,
       "app_key": "pca",
+      "host_app_key": "umap",
       "section": "Explore",
       "description": "Summarize correlated measurements with principal components and inspect the features driving them.",
       "objectives": [
@@ -4495,6 +4512,7 @@
       "title": "Explain CV Model",
       "series": 5,
       "app_key": "explain_cv",
+      "host_app_key": "classify_merged",
       "section": "Results and quality control",
       "description": "Reproduce computer-vision predictions from measured features and audit whether the resulting explanations are faithful and leakage-free.",
       "objectives": [
@@ -4591,6 +4609,7 @@
       "title": "Volcano Explorer",
       "series": 5,
       "app_key": "volcano_explorer",
+      "host_app_key": "regression",
       "section": "Results and quality control",
       "description": "Open a completed regression, interrogate every point, restyle the plot, and export a publication-sized vector figure without rerunning the analysis.",
       "objectives": [
@@ -4639,6 +4658,7 @@
       "title": "Parameter Sweep",
       "series": 5,
       "app_key": "parameter_sweep",
+      "host_app_key": "regression",
       "section": "Results and quality control",
       "description": "Run a bounded regression settings sweep and compare which conclusions survive defensible analysis choices.",
       "objectives": [
