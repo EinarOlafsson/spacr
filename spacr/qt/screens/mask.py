@@ -15,6 +15,14 @@ rather than an action. Pressing it reveals that module's settings
 categories on the form already on screen and turns its gate on; pressing
 it again hides them and turns the gate off.
 
+AND THE ICON GOES DOWN WITH THE SETTINGS. One switch reveals several
+categories, and a category that arrived from somewhere else otherwise
+says nothing about where. Every heading that is Timelapse's -- the cards
+the fold mounts and the time-axis category this host had already drawn
+itself -- carries the module's own icon at its trailing end, so the mark
+on the masthead and the marks on the form are one picture learned once.
+See :func:`mark_fold_sources` and :data:`FOLD_CATEGORIES`.
+
 WHY THIS HOST AND NOT MAKE MASKS. Make Masks is hand-curation of masks
 that already exist -- one field, a brush, and a ledger. Tracking a series
 and measuring how fast things move are things mask GENERATION does over a
@@ -58,7 +66,9 @@ from typing import Dict, Optional, Sequence, Tuple
 from PySide6.QtCore import QObject
 from PySide6.QtWidgets import QWidget
 
-from ..widgets.fold_strip import FoldStrip
+from ..widgets.fold_strip import (
+    FoldStrip, mark_folded_categories, mark_folded_sections,
+)
 from .map_barcodes import CategoryFoldSet
 
 LOG = logging.getLogger(__name__)
@@ -95,6 +105,19 @@ FOLD_GATES: Dict[str, Tuple[str, ...]] = {
 #: fold on today; the table stays because the mechanism reads it and a
 #: second gated fold would otherwise arrive with no place to say so.
 FOLD_IMPLIES: Dict[str, Tuple[str, ...]] = {}
+
+#: ``key -> the categories on THIS screen's OWN form that are its settings``.
+#:
+#: The fold mounts the categories Mask Generation does not already offer,
+#: and those are marked from the fold itself. This table is for the other
+#: half: the time-axis settings Mask Generation has always drawn itself,
+#: which are Timelapse's subject however early they were written. Marking
+#: them says the same thing the mounted cards say -- these belong to the
+#: module the switch on the masthead turns on -- rather than leaving one
+#: half of a module's settings attributed and the other half anonymous.
+FOLD_CATEGORIES: Dict[str, Tuple[str, ...]] = {
+    "timelapse": ("Time Axes & Tracking (Beta)",),
+}
 
 
 def fold_set(screen: QWidget) -> Optional[CategoryFoldSet]:
@@ -173,6 +196,45 @@ def _offer_fold_previews(screen: QWidget,
     return offered
 
 
+def mark_fold_sources(screen: QWidget) -> Dict[str, Tuple[str, ...]]:
+    """Put each folded module's icon beside the headings that are its own.
+
+    A module folded in as settings categories has no button on Home and
+    no button of its own here, so the picture a user learned it by is the
+    one thing about it that has nowhere to live. It lives on the headings:
+    the cards the fold mounted, and the categories on this host's own form
+    that were always that module's subject -- see :data:`FOLD_CATEGORIES`.
+
+    Idempotent and never fatal: a heading with no mark is a heading, while
+    an exception raised while a screen is being built is no screen.
+
+    :param screen: the host module's screen.
+    :returns: ``key -> the category titles marked``, for the folds that
+        marked at least one.
+    """
+    marked: Dict[str, Tuple[str, ...]] = {}
+    folds = fold_set(screen)
+    for key, fold in (folds.folds.items() if folds is not None else ()):
+        try:
+            titles = mark_folded_sections(key, getattr(fold, "sections", ()))
+        except Exception:
+            LOG.debug("Could not mark %s's mounted categories", key,
+                      exc_info=True)
+            continue
+        if titles:
+            marked[key] = titles
+    try:
+        own = mark_folded_categories(
+            getattr(screen, "_settings_sections", ()) or (), FOLD_CATEGORIES)
+    except Exception:
+        LOG.debug("Could not mark %s's own folded categories", HOST_KEY,
+                  exc_info=True)
+        own = {}
+    for key, titles in own.items():
+        marked[key] = marked.get(key, ()) + titles
+    return marked
+
+
 def install_folds(screen: QWidget) -> Optional[FoldStrip]:
     """Put Mask Generation's fold switches on ``screen``'s masthead.
 
@@ -216,6 +278,10 @@ def install_folds(screen: QWidget) -> Optional[FoldStrip]:
     # own switches. After the strip is on the masthead: a preview that
     # could not be built must not cost the switches.
     screen._fold_previews = _offer_fold_previews(screen, folds, strip)
+    # And the folded modules' icons, on the headings of the settings they
+    # became. After the strip, for the same reason the previews are: a
+    # mark that cannot be drawn must not cost the switches.
+    mark_fold_sources(screen)
     return strip
 
 

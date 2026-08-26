@@ -327,3 +327,85 @@ class FoldStrip(QWidget):
             if button.app_key == key:
                 return button
         return None
+
+
+# ---------------------------------------------------------------------------
+# The other half of the icon: the settings the module left behind
+# ---------------------------------------------------------------------------
+#
+# A fold that becomes a BUTTON keeps its picture -- the button is the
+# picture. A fold that becomes SETTINGS CATEGORIES has no button and so
+# nowhere obvious to put it, and a group of settings that arrived from
+# somewhere else says nothing about where. The mark goes on the heading:
+# the same icon, beside the category name, on the host's own form.
+
+
+def mark_folded_sections(key: str, sections: Iterable[QWidget]
+                         ) -> Tuple[str, ...]:
+    """Put module ``key``'s icon on each of these category headings.
+
+    :param key: the folded module's registry key.
+    :param sections: the ``Section`` widgets holding its settings.
+    :returns: the titles that were actually marked. A section that is not
+        a ``Section``, or a key with no artwork of its own, is skipped --
+        the heading is left as it was rather than given a mark that
+        names nothing.
+    """
+    name = _describe(key)[0]
+    marked = []
+    for section in sections:
+        setter = getattr(section, "set_source_app", None)
+        if not callable(setter):
+            continue
+        try:
+            if setter(key, name):
+                marked.append(_category_title(section))
+        except Exception:                               # noqa: BLE001
+            continue
+    return tuple(marked)
+
+
+def mark_folded_categories(sections: Iterable[QWidget],
+                           categories: dict) -> dict:
+    """Mark the host's OWN categories that are a folded module's settings.
+
+    The other shape of the same thing: where a fold's settings were not
+    mounted as extra cards but were already part of the host's form --
+    Measure has written the illumination keys as one of its own
+    categories for as long as it has corrected fields -- the heading to
+    mark is one the host built, and it is found by name.
+
+    :param sections: the host's settings sections.
+    :param categories: ``key -> the category titles that are its own``.
+        Matched case-insensitively, because a heading is drawn uppercased
+        and written mixed-case.
+    :returns: ``key -> the titles marked``, holding only the keys that
+        marked at least one heading.
+    """
+    by_title = {}
+    for section in sections:
+        by_title.setdefault(_category_title(section).strip().upper(),
+                            []).append(section)
+    marked = {}
+    for key, titles in (categories or {}).items():
+        found = []
+        for title in titles:
+            for section in by_title.get(str(title).strip().upper(), ()):
+                found.extend(mark_folded_sections(key, (section,)))
+        if found:
+            marked[key] = tuple(found)
+    return marked
+
+
+def _category_title(section) -> str:
+    """What a settings category is called, as it was written down.
+
+    ``settingsCategorySource`` is the mixed-case name every settings
+    section carries; ``title()`` answers with the uppercased heading, so
+    it is the fallback rather than the first question.
+    """
+    source = section.property("settingsCategorySource")
+    if source:
+        return str(source)
+    title = getattr(section, "title", None)
+    return str(title() if callable(title) else (title or ""))
