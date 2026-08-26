@@ -236,10 +236,10 @@ D2_MOVING_RANGE = 1.128
 #:
 #: From the standard library rather than from ``scipy.special.ndtri``, which
 #: is where it used to come from. The two agree to the last bit — the test
-#: beside this asserts it — and importing ``scipy.special`` for one number
-#: read at import time cost 112 modules on every launch, because the screen
-#: that draws these charts is one of ``theme.WIDGET_QSS_MODULES`` and is
-#: imported for its stylesheet block whether or not anybody opens it.
+#: beside this asserts it — and reading one number at import time was pulling
+#: the whole of ``scipy`` into every launch, because the screen that draws
+#: these charts is one of ``theme.WIDGET_QSS_MODULES`` and is imported for its
+#: stylesheet block whether or not anybody opens it.
 _NORMAL_QUARTILE = _NormalDist().inv_cdf(0.75)
 
 #: ``sqrt(2)·Φ⁻¹(0.75)`` = 0.95387 — the median of the moving range of a

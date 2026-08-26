@@ -453,7 +453,17 @@ def test_registering_the_screen_reaches_every_reader_of_the_registry(
     assert row[0] == "control_chart"
     assert row[1] == screen_module.APP_NAME
     assert row[3] == app_mod.SECTION_RESULTS
-    assert app_mod.APP_FACTORIES[APP_KEY] is make_control_chart_screen
+    from spacr.qt.app_catalog import LazyScreenFactory
+
+    # Through the accessor, not the raw table: this screen's row is
+    # declared in `spacr.qt.app_catalog`, so what sits in APP_FACTORIES
+    # until somebody asks is a stand-in that has not imported this module.
+    # `registered_factory` is what resolves it -- and what every caller
+    # that builds a screen goes through.
+    assert isinstance(app_mod.APP_FACTORIES[APP_KEY],
+                      LazyScreenFactory) or \
+        app_mod.APP_FACTORIES[APP_KEY] is make_control_chart_screen
+    assert app_mod.registered_factory(APP_KEY) is make_control_chart_screen
     assert app_mod.APP_STAGE[APP_KEY] == app_mod.STAGE_ALPHA
 
     from spacr import cli
