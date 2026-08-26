@@ -15,7 +15,7 @@ from pathlib import Path
 
 import pytest
 
-from spacr.qt.app import APPS, DOCS_URL, TUTORIALS_URL, MainWindow
+from spacr.qt.app import DOCS_URL, TUTORIALS_URL, MainWindow
 
 
 DOCS_SOURCE = Path(__file__).resolve().parents[2] / "docs" / "source"
@@ -111,56 +111,83 @@ def test_the_tutorial_action_no_longer_calls_itself_unfinished(win):
         assert "under construction" not in (act.statusTip() or "").lower()
 
 
-def test_the_landing_page_app_count_matches_the_shipped_app_list():
-    """``index.rst`` claimed "five pipeline apps"; the GUI ships far more.
+def _index_rst() -> str:
+    return (DOCS_SOURCE / "index.rst").read_text(encoding="utf-8")
 
-    Counted AFTER ``register_self_registering_modules()``, which is what
-    ``spacr.qt.run`` does before ``MainWindow`` reads the registry — so this
-    is the number of apps a launched GUI actually offers, not the number that
-    happen to be in the module-level table. Nine apps register that way.
 
-    Counting the module-level table instead made this test order-dependent:
-    ``len(APPS)`` answered 53 in a fresh process and 62 in any run where
-    something had already triggered the registration pass, so the same
-    sentence in ``index.rst`` was right or wrong depending on collection
-    order. Registering here is idempotent, and the registry is put back
-    afterwards so no later test inherits it.
+def _paragraph(index: str, marker: str) -> str:
+    """The one paragraph of ``index.rst`` containing ``marker``.
+
+    Both landing-page checks are about a single sentence, and reading the
+    whole file instead would make them fire on any unrelated italics or
+    bold anywhere on the page.
     """
-    import sys
+    for para in index.split("\n\n"):
+        if marker in para:
+            return para
+    return ""
 
-    import spacr.qt
-    from spacr.qt import app as app_mod
 
-    apps = list(app_mod.APPS)
-    factories = dict(app_mod.APP_FACTORIES)
-    stages = dict(app_mod.APP_STAGE)
-    meta = dict(app_mod.APP_META)
-    side = []
-    for module_name, attribute, _field in app_mod._META_TARGETS:
-        module = sys.modules.get(module_name)
-        table = getattr(module, attribute, None) if module else None
-        if isinstance(table, dict):
-            side.append((table, dict(table)))
-    try:
-        spacr.qt.register_self_registering_modules()
-        shipped = len(app_mod.APPS)
-    finally:
-        app_mod.APPS[:] = apps
-        app_mod.APP_FACTORIES.clear()
-        app_mod.APP_FACTORIES.update(factories)
-        app_mod.APP_STAGE.clear()
-        app_mod.APP_STAGE.update(stages)
-        app_mod.APP_META.clear()
-        app_mod.APP_META.update(meta)
-        for table, saved in side:
-            table.clear()
-            table.update(saved)
-        app_mod._refresh_sections()
+def test_the_landing_page_states_no_app_count_that_a_fold_falsifies():
+    """``index.rst`` used to print a headcount. It could not stay true.
 
-    index = (DOCS_SOURCE / "index.rst").read_text(encoding="utf-8")
-    match = re.search(r"The GUI ships (\d+) apps", index)
-    assert match, "index.rst no longer states how many apps ship"
-    assert int(match.group(1)) == shipped
+    The sentence went "five pipeline apps", then 67 apps, then 65, and
+    every one of those edits was this test failing first. What makes the
+    figure unfixable rather than merely tedious is that what it counted
+    -- ``len(APPS)`` after ``register_self_registering_modules()``, the
+    tiles -- stopped meaning what the sentence said. A FOLDED module
+    gives up its tile and keeps everything else: it is shipped,
+    reachable, runnable, translated and documented, it just opens from
+    its host's masthead. Every fold therefore drops the printed figure
+    without anything leaving the build, so the page understates the GUI
+    by however many modules have folded.
+
+    It is unstable as well as wrong. Counting the module-level table
+    answered 53 in a fresh process and 62 once anything had triggered the
+    registration pass, so the same sentence was right or wrong depending
+    on test collection order.
+
+    The page states the shape of the inventory instead -- the categories,
+    named one by one, and the fact that a module can live on a host
+    masthead -- and no total. This test guards that decision from both
+    sides: it fails if a count comes back, and it fails if the claim that
+    replaced it stops being true.
+    """
+    index = _index_rst()
+
+    stale = re.search(r"\b(?:ships|offers|has)\s+(?:\d+|"
+                      r"five|six|seven|eight|nine|ten|dozens of)\s+apps",
+                      index, re.I)
+    assert not stale, (
+        f"index.rst is printing an app count again ({stale.group(0)!r}). "
+        f"A tile count is falsified by the next fold and already "
+        f"undercounts what ships: folded modules have no tile and are "
+        f"shipped. State the categories, not a total.")
+
+    # ...and the claim that replaced it has to be a live one, not a
+    # sentence that would survive folding being ripped out tomorrow.
+    from spacr.qt.widgets.fold_strip import folded_modules
+
+    folded = folded_modules()
+    assert folded, (
+        "no module is folded any more, so index.rst is explaining a "
+        "masthead-button route that no longer exists")
+    assert "masthead" in index, (
+        "index.rst no longer tells the reader that a module with no tile "
+        "opens from its host's masthead, which is the only thing standing "
+        "in for the count that was removed")
+
+    # Names wrap across lines in reST source, so the newline inside a
+    # ``**...**`` span is whitespace, not part of the name.
+    named = {" ".join(match.split())
+             for match in re.findall(r"\*\*([^*]+)\*\*",
+                                     _paragraph(index, "masthead"))}
+    assert named, "the fold paragraph names no module at all"
+    live = {entry[0] for entry in folded.values()}
+    assert named <= live, (
+        f"index.rst says {sorted(named - live)} open from a host "
+        f"masthead, and no host folds them; a module that was unfolded "
+        f"or renamed is being advertised at the wrong address")
 
 
 #: How ``index.rst`` is allowed to spell the number of categories. The
@@ -176,16 +203,39 @@ def test_the_landing_page_category_count_matches_the_shipped_sections():
     Asserted against ``SECTIONS`` rather than a literal because sections
     are derived — one appears the day its first app registers — so a
     number typed here would be a claim nothing could check.
+
+    Unlike the app count, this one is worth printing: a section appears
+    only when a whole new kind of work does, which is rare, and the word
+    is checked against the live list here, so it cannot go quietly wrong.
+    What is NOT asserted is the wording around it. The sentence has been
+    rephrased once already ("grouped into seven categories" became "groups
+    its applications into seven categories") and the old regex reported a
+    correct page as a page that had dropped the claim.
     """
     from spacr.qt.app import SECTIONS
 
-    index = (DOCS_SOURCE / "index.rst").read_text(encoding="utf-8")
+    index = _index_rst()
     word = _CATEGORY_WORDS[len(SECTIONS)]
-    assert re.search(rf"grouped into {word} categories", index), (
+    assert re.search(rf"\b{word} categories\b", index), (
         f"index.rst does not say the GUI has {word} ({len(SECTIONS)}) "
         f"categories, which is what spacr.qt.app.SECTIONS holds: "
         f"{list(SECTIONS)}")
+    for other in set(_CATEGORY_WORDS.values()) - {word}:
+        assert not re.search(rf"\b{other} categories\b", index), (
+            f"index.rst also claims {other!r} categories somewhere, so "
+            f"one of the two sentences is wrong")
+    listed = _paragraph(index, "categories")
     for section in SECTIONS:
-        assert f"*{section}*" in index, (
+        assert f"*{section}*" in listed, (
             f"index.rst names the categories one by one and never names "
             f"{section!r}")
+    # ...and the list has to be exactly the live one. A section that is
+    # retired has to come off the page too, or the landing page goes on
+    # advertising a tab the GUI no longer draws -- which the check above
+    # cannot see, because every remaining name is still right.
+    named = {" ".join(match.split())
+             for match in re.findall(r"(?<![*\w])\*([^*\n]+?)\*(?!\*)",
+                                     listed)}
+    assert named == set(SECTIONS), (
+        f"the category list on index.rst names {sorted(named)}; "
+        f"spacr.qt.app.SECTIONS holds {list(SECTIONS)}")

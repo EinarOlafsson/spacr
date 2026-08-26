@@ -32,12 +32,14 @@ segment-measure-classify pipeline, *Data* for import and inspection,
 interactive figures, *Assays* for the parasite-specific readouts, and
 *Design* for planning a screen before it runs.
 
-Not every screen is a tile. Work that only makes sense inside another step
-opens from that step's masthead instead — **Timelapse** from Mask, the
+Not every screen is a tile, which is why no count of them is printed here.
+Work that only makes sense inside another step opens from that step's
+masthead instead — **Timelapse** from Mask, **Illumination** and the
 **Motility Assay** from Measure, **Classifier Evaluation** and **Explain CV
-Model** from Classify, **Annotator Agreement** from Annotate, the **Cellpose
-Workbench**, **Model Compare**, **Model Zoo** and **Curate** from Make Masks
-— so a screen with no tile below is one step further in rather than gone.
+Model** from Classify, **Annotator Agreement** from Annotate, and the
+**Cellpose Workbench**, **Model Compare**, **Model Zoo** and **Curate** from
+Make Masks, among them — so a screen with no tile below is one step further
+in rather than gone. Home lists whatever the running build offers.
 
 .. grid:: 2
    :gutter: 3
