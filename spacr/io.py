@@ -2409,49 +2409,48 @@ def preprocess_img_data(settings):
             # away from the cause. _rename_and_organize_image_files is the
             # only thing that can create it here, so it runs whenever stack/
             # is still absent.
-            if True:
-                img_format = ['.tif', '.tiff', '.png', '.jpg', '.jpeg', '.bmp', '.nd2', '.czi', '.lif']
-                # Builds the stack/ arrays directly from an in-memory channel dict
-                # (no per-channel sub-folders) and returns the channel count.
-                nr_channel_folders = _rename_and_organize_image_files(
-                    src, regex, settings['batch_size'], settings['metadata_type'], img_format,
-                    timelapse=settings['timelapse'],
-                    save_original_images=settings.get('save_original_images', True))
+            img_format = ['.tif', '.tiff', '.png', '.jpg', '.jpeg', '.bmp', '.nd2', '.czi', '.lif']
+            # Builds the stack/ arrays directly from an in-memory channel dict
+            # (no per-channel sub-folders) and returns the channel count.
+            nr_channel_folders = _rename_and_organize_image_files(
+                src, regex, settings['batch_size'], settings['metadata_type'], img_format,
+                timelapse=settings['timelapse'],
+                save_original_images=settings.get('save_original_images', True))
 
-                #Make sure no batches will be of only one image
-                # This counted len(stack_path) — the number of CHARACTERS in the
-                # path string, which always ends in 'stack' — so the check fired
-                # (or stayed silent) purely because of how long src happened to
-                # be. Count the .npy stacks that concatenate_and_normalize will
-                # actually batch over instead.
-                all_imgs = len([f for f in os.listdir(stack_path) if f.endswith('.npy')]) if os.path.isdir(stack_path) else 0
-                batch_size = int(settings.get('batch_size') or 0)
-                full_batches = all_imgs // batch_size if batch_size else 0
-                last_batch_size = all_imgs % batch_size if batch_size else 0
+            #Make sure no batches will be of only one image
+            # This counted len(stack_path) — the number of CHARACTERS in the
+            # path string, which always ends in 'stack' — so the check fired
+            # (or stayed silent) purely because of how long src happened to
+            # be. Count the .npy stacks that concatenate_and_normalize will
+            # actually batch over instead.
+            all_imgs = len([f for f in os.listdir(stack_path) if f.endswith('.npy')]) if os.path.isdir(stack_path) else 0
+            batch_size = int(settings.get('batch_size') or 0)
+            full_batches = all_imgs // batch_size if batch_size else 0
+            last_batch_size = all_imgs % batch_size if batch_size else 0
 
-                # Report, don't raise: the stack is already written by this
-                # point so aborting cannot fix the batching, it only skipped the
-                # channel-count fix-up, the movies, the plot and the MIP below —
-                # silently corrupting the output of an otherwise fine run.
-                if last_batch_size == 1:
-                    if full_batches == 0:
-                        print(f"Warning: Only one batch of size 1 detected (all images: {all_imgs}). Adjust the batch size.")
-                    else:
-                        print(f"all images: {all_imgs},  full batch: {full_batches}, last batch: {last_batch_size}")
-                        print("Warning: Last batch of size 1 detected. Adjust the batch size.")
+            # Report, don't raise: the stack is already written by this
+            # point so aborting cannot fix the batching, it only skipped the
+            # channel-count fix-up, the movies, the plot and the MIP below —
+            # silently corrupting the output of an otherwise fine run.
+            if last_batch_size == 1:
+                if full_batches == 0:
+                    print(f"Warning: Only one batch of size 1 detected (all images: {all_imgs}). Adjust the batch size.")
+                else:
+                    print(f"all images: {all_imgs},  full batch: {full_batches}, last batch: {last_batch_size}")
+                    print("Warning: Last batch of size 1 detected. Adjust the batch size.")
 
-                if len(settings['channels']) != nr_channel_folders:
-                    print(f"Number of channels does not match number of channel folders. channels: {settings['channels']} channel folders: {nr_channel_folders}")
-                    new_channels = list(range(nr_channel_folders))
-                    print(f"Changing channels from {settings['channels']} to {new_channels}")
-                    settings['channels'] = new_channels
+            if len(settings['channels']) != nr_channel_folders:
+                print(f"Number of channels does not match number of channel folders. channels: {settings['channels']} channel folders: {nr_channel_folders}")
+                new_channels = list(range(nr_channel_folders))
+                print(f"Changing channels from {settings['channels']} to {new_channels}")
+                settings['channels'] = new_channels
 
-                if settings['timelapse']:
-                    _create_movies_from_npy_per_channel(stack_path, fps=settings['fps'])
+            if settings['timelapse']:
+                _create_movies_from_npy_per_channel(stack_path, fps=settings['fps'])
 
-                if settings['plot']:
-                    print(f"plotting {settings['nr']} images from {src}/stack")
-                    plot_arrays(stack_path, settings['figuresize'], settings['cmap'], nr=settings['nr'], normalize=settings['normalize'])
+            if settings['plot']:
+                print(f"plotting {settings['nr']} images from {src}/stack")
+                plot_arrays(stack_path, settings['figuresize'], settings['cmap'], nr=settings['nr'], normalize=settings['normalize'])
 
 
         except Exception as e:

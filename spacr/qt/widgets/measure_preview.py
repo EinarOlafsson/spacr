@@ -53,6 +53,7 @@ from .preview_contract import (
 )
 from .channel_mapping import ChannelMappingWidget
 from .toggle import Toggle
+from ..hidpi import logical_size, scaled_for
 from ..job_runner import JobRunner
 from ...crops import DEFAULT_MASK_DIMS
 from ...object_roles import ALL_ROLES, ORGANELLE_ROLES, organelle_label
@@ -202,14 +203,26 @@ def compute_crops(data: np.ndarray, crop_kwargs: Dict[str, Any],
 
 
 def _rounded_pixmap(pm: QPixmap, radius: int = 8) -> QPixmap:
+    """``pm`` with its corners rounded, at the density it was drawn at.
+
+    The canvas takes the source's device pixel ratio, so the rounding is
+    done in the same LOGICAL coordinates the picture is laid out in. Left at
+    1.0 it would paint a dense thumbnail at half size into the corner of a
+    box twice as large, which is a quarter-size crop on any HiDPI screen.
+    ``radius`` is 8 logical px on every display, which is the point of
+    rounding a corner rather than counting pixels into it.
+    """
     if pm.isNull():
         return pm
     out = QPixmap(pm.size())
+    out.setDevicePixelRatio(pm.devicePixelRatio())
     out.fill(Qt.transparent)
     painter = QPainter(out)
     painter.setRenderHint(QPainter.Antialiasing, True)
+    shown = logical_size(pm)
     path = QPainterPath()
-    path.addRoundedRect(QRectF(0, 0, pm.width(), pm.height()), radius, radius)
+    path.addRoundedRect(QRectF(0, 0, shown.width(), shown.height()),
+                        radius, radius)
     painter.setClipPath(path)
     painter.drawPixmap(0, 0, pm)
     painter.end()
@@ -1228,12 +1241,8 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         height, width = array.shape[:2]
         image = QImage(
             array.data, width, height, 3 * width, QImage.Format_RGB888)
-        pixmap = QPixmap.fromImage(image.copy()).scaled(
-            self._thumb_px,
-            self._thumb_px,
-            Qt.KeepAspectRatio,
-            Qt.SmoothTransformation,
-        )
+        pixmap = scaled_for(QPixmap.fromImage(image.copy()), self,
+                            self._thumb_px)
         return _rounded_pixmap(pixmap, radius=8)
 
     def _on_thumb_clicked(self, index: int) -> None:

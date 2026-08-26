@@ -41,6 +41,7 @@ from ... import schema
 from ...selection import (OBJECT_KEY_COLUMNS, DataFilter, Selection,
                           match_keys, object_keys)
 from ...umap_annotations import write_umap_annotations
+from ..hidpi import follow_device_ratio, scaled_for
 from ..linked_selection import LinkedView
 
 LOG = logging.getLogger("spacr.qt.umap_explorer")
@@ -279,6 +280,10 @@ class _ScaledPreview(QLabel):
         super().__init__(text, parent)
         self._source = QPixmap()
         self.setMinimumSize(self.MINIMUM_SIDE, self.MINIMUM_SIDE)
+        # Dragging the window onto a denser screen changes how many real
+        # pixels this label has without changing its size, so no resize
+        # arrives and the crop would stay at the old density.
+        follow_device_ratio(self, self._rescale)
 
     def sizeHint(self):                                # noqa: N802 - Qt name
         """A constant, NOT the pixmap's size.
@@ -308,8 +313,7 @@ class _ScaledPreview(QLabel):
         if self._source.isNull() or not self.width() or not self.height():
             super().setPixmap(self._source)
             return
-        super().setPixmap(self._source.scaled(
-            self.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        super().setPixmap(scaled_for(self._source, self, self.size()))
 
     def resizeEvent(self, event):                      # noqa: N802 - Qt name
         super().resizeEvent(event)

@@ -23,6 +23,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout, QWidget,
 )
 
+from ..hidpi import follow_device_ratio, logical_size, scaled_for
+
 #: Below this, a cell is too small to read anything in.
 MIN_CELL_PX = 220
 #: Above this, one figure eats the panel and the grid stops being a grid.
@@ -264,6 +266,9 @@ class _FigureCell(QFrame):
         self.letter = letter
         self.live_key = live_key
         self._pixmap = pixmap
+        #: The last width :meth:`fit_to` was given, so the cell can be drawn
+        #: again at a new pixel density without the grid re-measuring.
+        self._fit_width = 0
         self.setFrameShape(QFrame.StyledPanel)
         self.setCursor(Qt.PointingHandCursor)
         # "all gigures should be editable by right clicking" -- a tile is a
@@ -302,6 +307,9 @@ class _FigureCell(QFrame):
         # NOT setScaledContents: that is exactly the stretch this replaces.
         # The pixmap is scaled with KeepAspectRatio when the cell is sized.
         self._image.setMinimumHeight(80)
+        # A grid dragged onto a denser screen keeps its cell widths, so no
+        # relayout arrives to refit the figures -- this is what does.
+        follow_device_ratio(self._image, self._refit)
         layout.addWidget(self._image, 1)
 
         if title:
@@ -317,14 +325,23 @@ class _FigureCell(QFrame):
         return self._pixmap.width() / self._pixmap.height()
 
     def fit_to(self, width: int) -> None:
-        """Scale the figure into ``width``, keeping its own proportions."""
+        """Scale the figure into ``width`` LOGICAL px, keeping its shape."""
         if self._pixmap.isNull() or width <= 0:
             return
-        scaled = self._pixmap.scaled(
-            QSize(width, int(width / max(self.aspect(), 0.05))),
-            Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        self._fit_width = int(width)
+        scaled = scaled_for(
+            self._pixmap, self._image,
+            QSize(width, int(width / max(self.aspect(), 0.05))))
         self._image.setPixmap(scaled)
-        self._image.setFixedHeight(scaled.height())
+        # The height the cell reserves is what the picture OCCUPIES, not how
+        # many pixels it was drawn with -- those differ by the ratio, and a
+        # cell sized in device pixels is twice as tall as its picture.
+        self._image.setFixedHeight(logical_size(scaled).height())
+
+    def _refit(self) -> None:
+        """Draw the figure again at the width it was last fitted to."""
+        if self._fit_width > 0:
+            self.fit_to(self._fit_width)
 
     def _request_menu(self, point) -> None:
         self.menu_requested.emit(self.index, self.mapToGlobal(point))

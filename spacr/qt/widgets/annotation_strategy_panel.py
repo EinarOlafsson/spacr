@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import logging
 import os
+from functools import partial
 from typing import Any, Callable, Dict, Optional, Sequence, Tuple
 
 from PySide6.QtCore import Qt, Signal
@@ -391,6 +392,21 @@ class AnnotationStrategyPanel(QWidget):
         self._jobs.job_failed.connect(self._on_job_failed)
 
         self._menu.currentIndexChanged.connect(self._on_strategy_changed)
+        # A FIELD THAT IS THE REASON HAS TO CLEAR THE REASON. Naming the
+        # control wells is what makes the anchor strategy runnable, and a
+        # button that stayed grey until something else happened would read
+        # as a button that does not work.
+        #
+        # ON THE EMPTINESS, NOT ON EVERY KEYSTROKE: re-checking asks the
+        # montage for its object rows, and a montage over a plate is not a
+        # thing to concatenate once per character typed.
+        self._filled: Dict[str, bool] = {}
+        for name, edit in (("positive", self._positive_wells),
+                           ("negative", self._negative_wells),
+                           ("label", self._label_column)):
+            self._filled[name] = bool(edit.text().strip())
+            edit.textChanged.connect(partial(self._on_field_filled, name,
+                                             edit))
 
         # HOVER HELP BELONGS ON A SETTING'S NAME, not on the field the user
         # is about to type into. Run BEFORE the first greying, because the
@@ -411,6 +427,19 @@ class AnnotationStrategyPanel(QWidget):
         from ... import regression_annotation
 
         return regression_annotation.STRATEGIES
+
+    def _on_field_filled(self, name: str, edit: QLineEdit, *_args) -> None:
+        """Re-check the run button when a field stops or starts being empty.
+
+        The pre-flight reads whether the control wells and the annotation
+        column are named at all, so its answer can only change when one of
+        them goes from empty to filled or back.
+        """
+        filled = bool(edit.text().strip())
+        if self._filled.get(name) is filled:
+            return
+        self._filled[name] = filled
+        self._refresh_controls()
 
     def _add_row(self, form: QFormLayout, key: str, title: str,
                  widget: QWidget) -> None:
@@ -488,7 +517,18 @@ class AnnotationStrategyPanel(QWidget):
         self._refresh_controls()
 
     def reason(self) -> str:
-        """Why the run button cannot act, or ``''``."""
+        """Why the run button cannot act, or ``''``.
+
+        ASKED OF THE ROWS ON SCREEN, NOT OF THE MENU ALONE. A strategy the
+        loaded cells cannot support -- no score and no annotations to label
+        them with, no measurements for a model to fit on, no control wells
+        named for the strategy that takes its labels from them -- would
+        otherwise leave the button lit and refuse a run later, which is a
+        refusal the user paid a fit for. :func:`~spacr.regression_annotation
+        .missing_requirement` is the cheap half of what the run checks, so
+        the reason arrives on the control at the moment the strategy is
+        chosen.
+        """
         if self._running:
             return "A strategy is already running."
         frame = self._objects()
@@ -505,7 +545,21 @@ class AnnotationStrategyPanel(QWidget):
         if not entry.implemented:
             return (f"{entry.title} is on the menu and is not implemented "
                     "yet, so it would select nothing.")
-        return ""
+        try:
+            return strategies.missing_requirement(
+                entry, frame, self._score_column(),
+                label_column=self._label_column.text().strip(),
+                positive_control_wells=self._named_wells(
+                    self._positive_wells),
+                negative_control_wells=self._named_wells(
+                    self._negative_wells))
+        except Exception:
+            # A PRE-FLIGHT THAT FAILS IS NOT A REASON NOT TO RUN. The run
+            # itself checks everything this does and says so properly; a
+            # button greyed because the cheap check raised would take a
+            # working strategy away over a column dtype.
+            LOG.debug("could not pre-flight the strategy", exc_info=True)
+            return ""
 
     def _refresh_controls(self) -> None:
         """A control that cannot act is greyed AND says why."""
@@ -526,6 +580,16 @@ class AnnotationStrategyPanel(QWidget):
         # overwrite the report of a run that has already happened.
         if reason and self._result is None and not self._running:
             self._status.setText(reason)
+
+    def _score_column(self) -> str:
+        """The per-object score column the montage is windowing on."""
+        if self._score_provider is None:
+            return "pred"
+        try:
+            return str(self._score_provider() or "pred")
+        except Exception:
+            LOG.debug("could not read the score column", exc_info=True)
+            return "pred"
 
     def _objects(self):
         """The object rows to choose from, or None."""
@@ -549,15 +613,9 @@ class AnnotationStrategyPanel(QWidget):
             return None
         from ... import regression_annotation as strategies
 
-        score = "pred"
-        if self._score_provider is not None:
-            try:
-                score = str(self._score_provider() or "pred")
-            except Exception:
-                LOG.debug("could not read the score column", exc_info=True)
         return strategies.AnnotationRequest(
             frame=frame,
-            score_column=score,
+            score_column=self._score_column(),
             group_by=str(self._split.currentData() or "well"),
             wells=self._named_wells(self._wells),
             label_column=self._label_column.text().strip(),
