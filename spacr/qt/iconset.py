@@ -534,8 +534,15 @@ def bundled_icon_paths() -> Tuple[str, ...]:
 #:
 #: Consulted AFTER ``<key>.png``, so installing artwork named for the key
 #: retires its alias with no code change here.
+#: ``classify_merged`` is the same shape. ``classify.png`` was drawn for
+#: Classify (CV), and the two Classify tiles have since become one merged
+#: screen -- so the mark names *classification* rather than one of the two
+#: routes into it, and the merged screen is the only thing left that a user
+#: reaches for it expecting. Neither ``classify`` nor ``classify_ml`` is a
+#: registered key any more, so nothing else is claiming the file.
 SHARED_ICON_ASSETS = {
     "investigate_hit": "hit_list.png",
+    "classify_merged": "classify.png",
 }
 
 
