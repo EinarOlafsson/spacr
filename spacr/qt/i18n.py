@@ -428,7 +428,7 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Evaluación del clasificador", "分类器评估",
         "Avaliação do classificador", "वर्गीकारक मूल्यांकन",
         "분류기 평가", "Mat á flokkara", "Évaluation du classificateur"),
-    # THREE NAMES THAT ARRIVED THROUGH `register_app(translations=...)`.
+    # NAMES THAT ARRIVED THROUGH `register_app(translations=...)`.
     # Folding a module into a host screen deletes its registry row, and
     # with it the only call that put its name in these nine catalogs --
     # so a Korean window would head the folded page in English. The names
@@ -440,6 +440,9 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Streckkods-QC", "Barcode-QC", "CC de códigos de barras",
         "条形码质控", "CQ de código de barras", "बारकोड QC",
         "바코드 QC", "Strikamerkja-QC", "CQ des codes-barres"),
+    "Illumination": _row(
+        "Belysning", "Beleuchtung", "Iluminación", "照明",
+        "Iluminação", "प्रकाश", "조명", "Lýsing", "Éclairage"),
     "Explain CV Model": _row(
         "Förklara CV-modell", "CV-Modell erklären", "Explicar modelo CV",
         "解释 CV 模型", "Explicar modelo de VC", "CV मॉडल समझाएँ",

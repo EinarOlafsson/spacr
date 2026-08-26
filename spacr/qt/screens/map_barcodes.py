@@ -165,7 +165,20 @@ def fold_description(key: str) -> Tuple[str, str, str]:
                 break
     except Exception:
         LOG.debug("Could not read the app registry", exc_info=True)
-    fallback = FOLD_FALLBACK.get(key, ("", "", ""))
+    fallback = FOLD_FALLBACK.get(key)
+    if fallback is None:
+        # NOT EVERY FOLD LANDS HERE. This table holds what the modules
+        # folded into THIS screen said; a module folded into Measure or
+        # Classify keeps its record on that host instead. The shared
+        # resolver walks them all, so a button asks one question rather
+        # than each host having to know about every other host's folds.
+        try:
+            from ..widgets.fold_strip import folded_fallback
+            fallback = folded_fallback(key)
+        except Exception:                               # noqa: BLE001
+            LOG.debug("Could not read the shared fold records",
+                      exc_info=True)
+            fallback = ("", "", "")
     return (name or fallback[0], description or fallback[1],
             stage or fallback[2])
 
