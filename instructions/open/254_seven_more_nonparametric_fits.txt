@@ -1,0 +1,136 @@
+================================================================================
+SEVEN MORE NONPARAMETRIC FITS, AND WHAT THE SCREEN DOES WITH A FIT THAT HAS
+NO COEFFICIENT
+================================================================================
+
+Status:    OPEN. Requested 2026-08-26, as a table of seven methods with
+           their Python implementations and their limitations.
+Owner:     spacr/ml.py for the fits, spacr/settings.py for the menu, and
+           the Regression results panel for whatever they draw.
+Follows:   212, which asked for nonparametric regression and shipped
+           quantile, Theil-Sen, Huber, permutation and the rank tests.
+
+--------------------------------------------------------------------------------
+WHAT WAS ASKED
+--------------------------------------------------------------------------------
+
+  Smooth relationship, one predictor      LOWESS/LOESS
+                                          statsmodels.nonparametric.lowess
+                                          -- descriptive; no single slope
+
+  Nonlinear, one or a few predictors      Kernel regression
+                                          statsmodels.nonparametric.KernelReg
+                                          -- degrades as predictors increase
+
+  Local prediction from similar cases     k-nearest-neighbour regression
+                                          sklearn.neighbors.KNeighborsRegressor
+                                          -- needs scaling; neighbourhood-sensitive
+
+  Nonlinear effects and interactions      Random forest / gradient boosting
+  with many predictors                    RandomForestRegressor,
+                                          HistGradientBoostingRegressor
+                                          -- no conventional coefficients
+
+  Smooth model with uncertainty           Gaussian-process regression
+                                          GaussianProcessRegressor
+                                          -- expensive on large data
+
+  Known monotonic relationship            Isotonic regression
+                                          IsotonicRegression
+                                          -- one-dimensional, ordered
+
+  Interpretable nonlinear effects         Splines / GAM-like
+                                          SplineTransformer + a linear model
+                                          -- semiparametric, not fully nonparametric
+
+EVERY ONE OF THOSE LIBRARIES IS ALREADY INSTALLED. Checked: the two
+statsmodels entry points and all five scikit-learn ones import in the
+shipped environment, `SplineTransformer` included. This item adds no
+dependency.
+
+--------------------------------------------------------------------------------
+THE PROBLEM THAT DECIDES THE WHOLE SHAPE OF THIS ITEM
+--------------------------------------------------------------------------------
+
+The fits already offered -- ols, wls, ridge, lasso, elasticnet, logit,
+poisson, beta, mixed, quantile, hinge, group_lasso -- all answer in the same
+currency: A COEFFICIENT PER GUIDE, WITH A STANDARD ERROR AND A P-VALUE. That
+currency is what the rest of the screen is built on. The volcano plots
+effect against significance. The hit list ranks genes by effect with a
+Benjamini-Hochberg q over the genes actually tested. The attribution, the
+permutation null, the model card all consume it.
+
+FOUR OF THESE SEVEN PRODUCE NO SUCH NUMBER, and the maintainer's own table
+says so in its last column. LOWESS is descriptive. Kernel regression and
+KNN give a fitted surface, not a slope. A forest gives importances, which
+are not coefficients and are not comparable across features on the same
+scale. Choosing one of them as "the regression" would hand the volcano and
+the hit list nothing to draw.
+
+SO THIS IS NOT SIMPLY SEVEN MORE ENTRIES IN THE regression_type MENU.
+Decide, per method, which of these it is, and say so where it is offered:
+
+  A. A FIT THAT ANSWERS IN THE SAME CURRENCY. Splines/GAM does: the basis
+     has coefficients, and a per-guide effect can be read out of them.
+     Isotonic does, for an ordered single predictor. These can join
+     regression_type properly.
+  B. A DIAGNOSTIC LAID OVER THE DATA rather than a replacement for the fit.
+     LOWESS is the clearest case -- a smooth curve through a scatter that
+     shows whether the straight line the model assumed is defensible.
+     Kernel regression and GP belong here too, GP with its uncertainty band.
+     These belong on a PLOT, not in the menu that decides the hits.
+  C. AN AGREEMENT CHECK, which is what item 212 said the point was: "IS
+     THIS EFFECT THE DATA, OR IS IT THE MODEL? Two fits agreeing is worth
+     more than either alone, and where they disagree the disagreement is
+     itself the finding." A forest or a boosted tree can rank guides by
+     permutation importance and be compared with the linear ranking. The
+     output is a comparison, not a coefficient table.
+
+A METHOD OFFERED IN THE WRONG CATEGORY IS WORSE THAN ONE NOT OFFERED. A
+user who picks "random forest" from a menu headed regression_type has every
+reason to expect a volcano at the end of it.
+
+--------------------------------------------------------------------------------
+WHAT EACH ONE IS FITTING, WHICH IS NOT OBVIOUS HERE
+--------------------------------------------------------------------------------
+
+The screen's fit is guide -> phenotype at WELL level, with the design matrix
+one column per guide. That is a high-dimensional, sparse, categorical
+design -- which is the worst case for most of these methods, and the
+maintainer's table already warns about it twice ("performs poorly as
+predictor number increases", "requires feature scaling").
+
+So say, per method, WHAT THE PREDICTOR IS, because it is not always the
+guide design:
+
+  * against a CONTINUOUS covariate -- guide abundance in the well, cell
+    count, plate position, a measured intensity -- these methods are on
+    home ground, and that is where LOWESS, kernel, GP and isotonic earn
+    their place: showing whether the phenotype moves smoothly with a
+    nuisance variable the linear model is assuming away;
+  * against the GUIDE DESIGN itself, only the tree methods and splines are
+    reasonable, and only with the grouping rule below.
+
+GROUP BY WELL. Cells in one well are not independent, and the same rule
+that governs the classifier splits governs any cross-validation these
+methods need: spaCR has one splitter and every method goes through it.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * each of the seven is reachable, and its category (fit, diagnostic or
+    agreement check) is stated where it is chosen, not buried in help;
+  * a method in category A produces a per-guide effect and q-value that the
+    volcano and the hit list draw without special-casing;
+  * a method in category B draws on the plot and never silently becomes the
+    fit that decides hits;
+  * a method in category C reports a comparison against the linear ranking,
+    and names the guides the two disagree about;
+  * every method that needs scaling scales, and says it did;
+  * a Gaussian process asked for more rows than it can take refuses with
+    the number rather than hanging;
+  * no cross-validation splits one well across train and test;
+  * choosing a method on data it cannot fit -- isotonic on an unordered
+    design, kernel regression on the full guide matrix -- refuses with the
+    reason, rather than returning a fit nobody should read.
