@@ -79,61 +79,46 @@ def test_every_folded_module_is_an_icon_button_on_the_masthead(screen):
         assert name in button.toolTip()
 
 
-def test_the_fold_fallback_agrees_with_the_registry(screen):
-    """The kept description and stage must match the row while it exists.
+def test_the_fold_fallback_is_the_only_answer_for_every_fold(screen):
+    """Every fold here has lost its row, so this table is all there is.
 
-    Two tables that say the same thing drift the day one of them is edited.
-    This is what stops the fallback from quietly becoming wrong before the
-    registry row goes away and it becomes the only answer.
-
-    THE COMPARISON IS AGAINST THE LAUNCHED REGISTRY, not against the table
-    literal in ``app.py``. ``spacr.qt.maturity`` rewrites ``APP_STAGE`` at
-    launch, and it is the rewritten value the tile lights in -- so a fallback
-    checked against the un-promoted literal agreed with a colour no user ever
-    saw. Model Compare and Model Zoo were promoted to stable there while this
-    table still said alpha, which after the row is dropped is a button
-    lighting green-cyan where its tile lit blue.
+    It used to be checkable against the registry, because Napari Bridge
+    still registered one and the two could be compared. That fold has since
+    given its row up like the rest, and with nothing registered there is
+    nothing to compare -- so what is asserted is the thing that now matters:
+    each key has a COMPLETE entry, because a missing one is not an error
+    anybody sees. The registry answers a key it no longer holds exactly as
+    it answers a typo, so the button would simply show a bare title and
+    light stable-blue for a module assessed as something else.
     """
-    from spacr.qt import app as app_module, maturity
-    from spacr.qt.screens import napari_bridge as napari_screen
+    from spacr.qt import app as app_module
 
-    # Napari Bridge owns its row and registers it at launch, so a bare test
-    # process has not got one. Registering it here is what launch does, and
-    # the autouse registry fixture puts the table back afterwards -- without
-    # it the one fold still holding a row would be skipped and this would
-    # compare nothing at all.
-    napari_screen.register()
-    rows = {row[0]: row for row in app_module.APPS}
-    # The stage table as the running app has it: `maturity.apply` takes an
-    # injected dict, so the launch rewrite can be reproduced here without
-    # touching the live registry the rest of the suite shares.
-    launched = dict(app_module.APP_STAGE)
-    maturity.apply(launched, keys=list(rows))
-    checked = 0
-    for key, (name, description, stage) in FOLD_FALLBACK.items():
-        row = rows.get(key)
-        if row is None:
-            continue
-        checked += 1
-        assert row[1] == name, key
-        assert row[2] == description, key
-        assert launched.get(key, "stable") == stage, key
-    # One, not four. Train Cellpose, Model Compare, Model Zoo and Curate have
-    # had their rows dropped, so this table is the ONLY answer for them and
-    # there is nothing left to compare against; `cellpose_all` never had a row
-    # at all. What is still comparable is Napari Bridge, whose row is not part
-    # of this drop -- and the floor only has to be high enough to prove the
-    # comparison ran rather than skipping every key.
-    assert checked >= 1, "no folded module was still registered to check"
-    # And the other half of the same contract: a key with no row must have a
-    # complete entry here, because nothing else can answer for it.
+    registered = {row[0] for row in app_module.APPS}
+    still_a_tile = sorted(set(FOLD_ORDER) & registered)
+    assert still_a_tile == [], (
+        f"these are folded AND registered, so one of the two is wrong: "
+        f"{still_a_tile}")
+
     for key in FOLD_ORDER:
-        if key in rows:
-            continue
+        assert key in FOLD_FALLBACK, (
+            f"{key} is folded onto this screen and kept no record; nothing "
+            f"can answer for it")
         name, description, stage = FOLD_FALLBACK[key]
         assert name and description and stage, (
-            f"{key} has no row and no kept description; its button would show "
-            f"a bare title and light stable-blue")
+            f"{key} has no row and an incomplete kept description; its "
+            f"button would show a bare title and light stable-blue")
+        assert stage in {"alpha", "beta", "stable"}, f"{key}: {stage!r}"
+
+
+def test_a_folded_record_reaches_the_button(screen):
+    """The record is only worth keeping if the button actually reads it."""
+    from spacr.qt.widgets.fold_strip import folded_fallback
+
+    for key, (name, description, stage) in FOLD_FALLBACK.items():
+        got_name, got_description, got_stage = folded_fallback(key)
+        assert got_name == name, key
+        assert got_description == description, key
+        assert got_stage == stage, key
 
 
 def test_a_folded_button_keeps_its_stage_after_the_row_is_dropped(

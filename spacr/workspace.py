@@ -688,8 +688,8 @@ def _human_size(n: Any) -> str:
         size = float(n)
     except (TypeError, ValueError):
         return "?"
-    for unit in ("B", "KB", "MB", "GB", "TB"):
-        if size < 1024 or unit == "TB":
+    for unit in ("B", "KB", "MB", "GB"):
+        if size < 1024:
             return f"{size:.0f} {unit}" if unit == "B" else f"{size:.1f} {unit}"
         size /= 1024
     return f"{size:.1f} TB"

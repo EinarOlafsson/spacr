@@ -60,8 +60,9 @@ from ...object_roles import ORGANELLE_ROLES, setting_label
 # layout that lists all of them costs nothing -- build_sections drops any
 # key the module's settings dict does not hold -- and a layout that lists
 # four puts slot five in the "Additional Settings" bucket nobody chose.
-from ...organelle_types import (ALL_ORGANELLE_ROLES, organelle_number,
-                                organelle_slot_label)
+from ...organelle_types import (ALL_ORGANELLE_ROLES,
+                                MAX_ORGANELLES as _MAX_ORGANELLES,
+                                organelle_number, organelle_slot_label)
 # Pure data, and it imports nothing -- that is the whole point of the module
 # (see its docstring). The explainer box below reads it so that a backend
 # joining the no-p-value set changes what the box says about correction
@@ -570,6 +571,54 @@ def _names_a_plane(value: Any) -> bool:
     except ValueError:
         return False
     return True
+
+
+#: How many organelle slots a panel builds controls for.
+#:
+#: Every slot that can be named, because a count the panel cannot render is
+#: a count that does nothing -- which is the defect this number exists to
+#: close. What it costs is measurable and worth writing down: the Mask panel
+#: renders 54 settings per slot, so at twenty-six it builds about 1,500
+#: controls instead of 350 and takes a few seconds to open the first time in
+#: a session rather than well under one. Measure pays almost nothing, because
+#: a slot is three settings there.
+#:
+#: Lowering this is the one-line trade: the panel opens faster and a count
+#: above it becomes inert again for the slots it cannot draw. It is a
+#: PANEL number and nothing else reads it -- the run, the settings file and
+#: the registries are all bounded by
+#: :data:`spacr.organelle_types.MAX_ORGANELLES`, which is where the slot
+#: names actually run out.
+PANEL_ORGANELLE_SLOTS: int = _MAX_ORGANELLES
+
+
+#: The key endings that name ONE PLANE of the stack: the raw acquisition
+#: channel an object is imaged in, the channel paired with its mask when an
+#: overlay is drawn, and the plane its label mask sits on in the merged array.
+PLANE_SUFFIXES: Tuple[str, ...] = ("_channel", "_mask_dim", "_chann_dim")
+
+
+def _is_clearable_plane_setting(key: str) -> bool:
+    """True when ``key`` names a plane and is declared to accept None.
+
+    BOTH HALVES MATTER. The suffix says the value is a plane index, and the
+    declaration in ``spacr.settings.expected_types`` says whether the object
+    it belongs to may be absent. ``outside_channel`` ends in ``_channel`` and
+    is declared ``int`` alone -- the invasion assay thresholds on it and has
+    no reading without it -- so it keeps its spin box.
+    """
+    if not str(key).endswith(PLANE_SUFFIXES):
+        return False
+    try:
+        from ... import settings as _settings
+
+        declared = _settings.expected_types.get(str(key))
+    except Exception:                                        # noqa: BLE001
+        return False
+    if declared is None:
+        return False
+    allowed = declared if isinstance(declared, tuple) else (declared,)
+    return type(None) in allowed
 
 
 def object_switch_keys(role: str) -> Tuple[str, ...]:
@@ -3784,9 +3833,9 @@ _APP_API_MODULE = {
     # THE FOLDED MODULES. These three reached this table through
     # ``register_app(..., api_module=...)`` -- the push half of the seam
     # absorbed below -- so folding them into a host screen and dropping
-    # the row would take the ⓘ link on every one of their settings with
-    # it, and the folded page's help would point at the generated API
-    # index instead of at the module that does the work.
+    # the row would take the API link out of the hover help on every one
+    # of their settings, and the folded page's help would point at the
+    # generated API index instead of at the module that does the work.
     "barcode_qc": "sequencing_qc",
     "explain_cv": "surrogate",
     "anndata_export": "anndata_export",
@@ -3803,9 +3852,9 @@ _APP_API_MODULE = {
     "image_scatter": "qt/screens/image_scatter",
     "pca": "qt/screens/pca",
     # Curate the same way, from its own row into Make Masks. Its page is the
-    # brush rather than a settings form, so nothing draws an ⓘ for it today;
-    # the line is here because the alternative is that the answer silently
-    # became the generated API index the first time anything asked.
+    # brush rather than a settings form, so nothing asks for its link
+    # today; the line is here because the alternative is that the answer
+    # silently became the generated API index the first time anything did.
     "curate": "qt/screens/curate",
     "parameter_sweep": "parameter_sweep",
     "align": "align",
@@ -3856,7 +3905,7 @@ def _absorb_registered_api_modules() -> None:
     :func:`spacr.qt.app.register_app` PUSHES into this table when this
     module is already imported, and this picks up whatever registered
     before it was, so the order of the two imports stops mattering.
-    Without it a module that registers itself sends its ⓘ link to the
+    Without it a module that registers itself sends its API link to the
     generated API index rather than to its own page.
     """
     app = sys.modules.get("spacr.qt.app")
@@ -6056,26 +6105,21 @@ def install_api_tooltips(
     owner: QWidget,
     app_key: str,
     widget_keys: Optional[Dict[QWidget, str]] = None,
-    *,
-    api_dots: bool = True,
 ) -> None:
     """Give every mapped/generated popup setting label consistent API help.
 
     ``SettingsWidgets`` controls are discovered through their ``settingKey``
     property. Hand-built Live/Crop/Search controls are supplied in
     ``widget_keys``. Descriptive help belongs to the label, not the editable
-    field; a compact teal dot immediately beside that label opens the API page.
+    field, and the whole of it -- description and API link both -- is in the
+    label's hover text.
 
-    :param api_dots: draw the teal link dots. Hover help is installed either
-        way -- this only controls the visible dot. Forms with a setting on
-        nearly every row read as a column of dots rather than a column of
-        settings, which is why the Mask live preview turns them off: 68 of
-        them on one dialog. The Annotate settings dialog turns them off for
-        the same reason -- twenty-six settings, so twenty-six dots -- and
-        because the API link is in the hover tooltip either way, which is
-        where users were reading it from. Anywhere the settings are sparse
-        enough for a dot to look like an affordance rather than texture,
-        leave it on.
+    NOTHING IS DRAWN BESIDE THE LABEL. A teal link dot used to be, and three
+    forms had already switched it off one at a time: 68 of them down the Mask
+    live preview, twenty-six down the Annotate settings dialog, three in the
+    figure dialog. A column of dots reads as texture rather than as one
+    affordance per setting, and the API link was never in the dot alone --
+    it is in the hover text, which is where it was being read from.
     """
     event_filter = getattr(owner, "_api_tooltip_filter", None)
     if event_filter is None:
@@ -6133,8 +6177,7 @@ def install_api_tooltips(
             continue
         if label is None:
             # A one-widget form row (usually a Toggle/QCheckBox) carries its
-            # own visible label. Keep hover help on its text and put the same
-            # teal API dot immediately after the combined label/control.
+            # own visible label, so the hover help goes on its own text.
             # Remove before installing. Qt keeps a LIST of filters and calls
             # each installation separately, so decorating the same widget
             # twice makes one hover emit two tooltips.
@@ -6142,9 +6185,6 @@ def install_api_tooltips(
             # installed, which makes this idempotent for free.
             widget.removeEventFilter(event_filter)
             widget.installEventFilter(event_filter)
-            if api_dots:
-                _add_api_dot_to_combined_control(
-                    owner, widget, app_key, key, html)
             continue
 
         body_source = str(widget.property("apiTooltipDescriptionSource") or "")
@@ -6158,13 +6198,10 @@ def install_api_tooltips(
         label.setProperty("apiTooltipDisplayRole", "tooltip")
         label.setToolTip(html)
         label.setToolTipDuration(-1)
-        # Idempotent, for the reason above: this decoration pass runs again
-        # whenever the live-preview form is re-gated -- changing the primary
-        # object from cell to nucleus, for instance -- and a second
-        # installation on the same label duplicated every tooltip on the
-        # panel. The API dots did not duplicate because
-        # `_add_api_dot_to_label` guards on a property; the filter had no such
-        # guard.
+        # Idempotent: this decoration pass runs again whenever the
+        # live-preview form is re-gated -- changing the primary object from
+        # cell to nucleus, for instance -- and a second installation on the
+        # same label duplicated every tooltip on the panel.
         label.removeEventFilter(event_filter)
         label.installEventFilter(event_filter)
 
@@ -6173,20 +6210,17 @@ def install_api_tooltips(
         widget.setProperty("apiTooltipDisplayRole", "metadata")
         widget.setToolTip("")
         widget.removeEventFilter(event_filter)
-        if api_dots:
-            _add_api_dot_to_label(label, app_key, key, html)
 
 
 def _unwrap_setting_label(candidate: Optional[QWidget]) -> Optional[QWidget]:
     """Return the real label inside a `SettingLabelWithInfo` host.
 
-    The first decoration pass replaces the form's label with a host widget
-    holding ``[stretch][label][dot]``. On a SECOND pass
-    ``QFormLayout.labelForField`` therefore hands back the HOST, not the
-    label — a fresh widget with none of the label's guard properties — so the
-    pass decorated it again and the panel grew a second dot and a second
-    tooltip per setting. That is what switching Primary object from cell to
-    nucleus did in the Mask live preview.
+    A section builds that host to right-align a label against its field, so
+    ``QFormLayout.labelForField`` hands back the HOST rather than the label —
+    a widget with none of the label's guard properties, which the decoration
+    pass then decorated again, giving the panel a second tooltip per setting.
+    That is what switching Primary object from cell to nucleus did in the
+    Mask live preview.
 
     Unwrapping restores the invariant the guards rely on: the same label
     object is found every time.
@@ -6216,8 +6250,8 @@ def _setting_label_for_field(owner: QWidget, field: QWidget) -> Optional[QWidget
         # A form field is often a wrapper QWidget containing an editor and a
         # Browse button (or two numeric editors). QFormLayout only knows the
         # wrapper, so walk the editor's parent chain before concluding that it
-        # is a label-less combined control. Otherwise its tooltip and API dot
-        # end up beside the editor instead of on the form label.
+        # is a label-less combined control. Otherwise its hover help ends up
+        # on the editor instead of on the form label.
         candidate: Optional[QWidget] = field
         while isinstance(candidate, QWidget):
             label = _unwrap_setting_label(form.labelForField(candidate))
@@ -6242,113 +6276,6 @@ def _setting_label_for_field(owner: QWidget, field: QWidget) -> Optional[QWidget
                 field._spacr_setting_label = candidate
                 return candidate
     return None
-
-
-def build_setting_link_widget(
-    app_key: str,
-    key: str,
-    html: str,
-    body_source: str = "",
-    parent: Optional[QWidget] = None,
-) -> Tuple[QWidget, QWidget, None]:
-    """Build the API-link indicator displayed beside a setting label.
-
-    Returns
-    -------
-    tuple
-        ``(layout_widget, api_dot, None)``. The final compatibility slot is
-        retained for callers that unpack three values.
-    """
-    from ..widgets.info_link import InfoLink
-
-    api_dot = InfoLink(
-        api_docs_url(app_key, key),
-        tooltip=_api_reference_tooltip(key, app_key=app_key),
-    )
-    api_dot.setObjectName("SettingInfoLink")
-    api_dot.setProperty("settingsAppKey", app_key)
-    api_dot.setProperty("settingKey", key)
-    api_dot.setProperty("apiTooltipDescriptionSource", body_source)
-    api_dot.setProperty("apiTooltipDescription", body_source)
-    api_dot.setProperty("apiTooltipHtml", html)
-    api_dot.setProperty("apiTooltipDisplayRole", "api-link")
-    api_dot.setParent(parent)
-    return api_dot, api_dot, None
-
-
-def _add_api_dot_to_label(
-    label: QWidget,
-    app_key: str,
-    key: str,
-    html: str,
-) -> None:
-    """Place one clickable teal API dot immediately to a setting label's right."""
-    if bool(label.property("settingApiDotInstalled")):
-        return
-    parent = label.parentWidget()
-    layout = parent.layout() if parent is not None else None
-    if layout is None:
-        return
-
-    host = QWidget(parent)
-    host.setObjectName("SettingLabelWithInfo")
-    row = QHBoxLayout(host)
-    row.setContentsMargins(0, 0, 0, 0)
-    row.setSpacing(4)
-    row.addStretch(1)
-    replaced = layout.replaceWidget(label, host)
-    if replaced is None:
-        host.deleteLater()
-        return
-    label.setParent(host)
-    row.addWidget(label)
-    body_source = str(label.property("apiTooltipDescriptionSource") or "")
-    links, dot, _ = build_setting_link_widget(
-        app_key, key, html, body_source, parent=host,
-    )
-    row.addWidget(links, 0, Qt.AlignVCenter)
-    label.setProperty("settingApiDotInstalled", True)
-    label._spacr_api_dot = dot
-
-
-def _add_api_dot_to_combined_control(
-    owner: QWidget,
-    field: QWidget,
-    app_key: str,
-    key: str,
-    html: str,
-) -> None:
-    """Add an API dot after a Toggle/QCheckBox that is its own row label."""
-    existing = getattr(field, "_spacr_api_dot", None)
-    if isinstance(existing, QWidget):
-        try:
-            if existing.window() is owner.window():
-                return
-        except RuntimeError:
-            pass
-    parent = field.parentWidget()
-    layout = parent.layout() if parent is not None else None
-    if layout is None:
-        return
-
-    host = QWidget(parent)
-    host.setObjectName("SettingControlWithInfo")
-    row = QHBoxLayout(host)
-    row.setContentsMargins(0, 0, 0, 0)
-    row.setSpacing(4)
-    replaced = layout.replaceWidget(field, host)
-    if replaced is None:
-        host.deleteLater()
-        return
-    field.setParent(host)
-    row.addWidget(field)
-    body_source = str(field.property("apiTooltipDescriptionSource") or "")
-    links, dot, _ = build_setting_link_widget(
-        app_key, key, html, body_source, parent=host,
-    )
-    row.addWidget(links, 0, Qt.AlignVCenter)
-    row.addStretch(1)
-    field._spacr_api_dot = dot
 
 
 # ---------------------------------------------------------------------------
@@ -6408,6 +6335,36 @@ class _ValueCombo(QComboBox):
             self.setCurrentIndex(index)
             return
         super().setCurrentText(text)
+
+
+class _HiddenRowWatcher(QObject):
+    """Tells a :class:`SettingsWidgets` that one of its hidden rows is back.
+
+    An event filter rather than a signal, because the thing that put the row
+    back does not know the rule exists -- the settings-search strip shows
+    every row it indexed when nothing is narrowing, and a recipe or a fold
+    reaches the panel by a different door again. ``ShowToParent`` is the one
+    event every route has in common: Qt delivers it on ``setVisible(True)``
+    even when the widget's ancestors are hidden, which is the case that
+    matters here because a settings section is usually collapsed.
+
+    Holds the model directly. The filter is installed ON the row widgets, so
+    Qt drops it with them; the model owns this and outlives every row it
+    watches.
+    """
+
+    def __init__(self, model: "SettingsWidgets") -> None:
+        super().__init__()
+        self._model = model
+
+    def eventFilter(self, obj, event) -> bool:            # noqa: N802
+        if event.type() == QEvent.ShowToParent:
+            try:
+                self._model._shown_against_the_rule(obj)
+            except Exception:                                # noqa: BLE001
+                LOGGER.debug("could not re-assert object visibility",
+                             exc_info=True)
+        return False
 
 
 class _ScalarEdit(QLineEdit):
@@ -7035,7 +6992,7 @@ class _Chip(QFrame):
     def __init__(self, text: str, colours: dict, parent=None):
         super().__init__(parent)
         from ..i18n import tr
-        from ..theme import font_px
+        from ..theme import apply_close_mark, font_px
         self.setObjectName("SettingChip")
         self._text = text
         row = QHBoxLayout(self)
@@ -7046,13 +7003,13 @@ class _Chip(QFrame):
         row.addWidget(label)
         close = QToolButton(self)
         close.setObjectName("SettingChipClose")
-        close.setText("×")
-        close.setCursor(Qt.PointingHandCursor)
+        # THE APPLICATION'S CLOSE MARK -- see `theme.apply_close_mark`.
+        #
         # THE VALUE IS A VALUE. Splicing it in first asks the catalog for
         # "Remove Cell", "Remove cytoplasm" and one key per chip anyone ever
         # types; the caption is looked up as a template and the value put in
         # after, so the verb translates whatever the chip holds.
-        close.setToolTip(tr("Remove {value}", value=text))
+        apply_close_mark(close, tooltip=tr("Remove {value}", value=text))
         close.setFocusPolicy(Qt.NoFocus)
         close.clicked.connect(lambda: self.removed.emit(self))
         row.addWidget(close)
@@ -7069,14 +7026,6 @@ class _Chip(QFrame):
                 background: transparent;
                 font-size: {font_px(12)}px;
             }}
-            QToolButton#SettingChipClose {{
-                color: {colours['fg_muted']};
-                background: transparent;
-                border: none;
-                padding: 0px 2px;
-                font-size: {font_px(13)}px;
-            }}
-            QToolButton#SettingChipClose:hover {{ color: {colours['error']}; }}
             """
         )
 
@@ -7094,7 +7043,7 @@ class _ChipStrip(QWidget):
     def __init__(self, placeholder: str = "add value…",
                  removable: bool = False, parent=None):
         super().__init__(parent)
-        from ..theme import active_palette, font_px
+        from ..theme import active_palette, apply_close_mark, font_px
         self._colours = active_palette()
         self._chips: List[_Chip] = []
 
@@ -7118,9 +7067,8 @@ class _ChipStrip(QWidget):
         self._drop = None
         if removable:
             self._drop = QToolButton(self)
-            self._drop.setText("✕")
-            self._drop.setCursor(Qt.PointingHandCursor)
-            self._drop.setToolTip("Remove this group")
+            # THE APPLICATION'S CLOSE MARK -- see `theme.apply_close_mark`.
+            apply_close_mark(self._drop, tooltip="Remove this group")
             self._drop.setFocusPolicy(Qt.NoFocus)
             self._drop.clicked.connect(lambda: self.emptied.emit(self))
             outer.addWidget(self._drop, 0, Qt.AlignTop)
@@ -7737,8 +7685,40 @@ class SettingsWidgets:
         """
         self.app_key = app_key
         self._parent = parent
-        self._defaults = resolve_default_settings(app_key)
+        # EVERY SLOT THAT CAN BE NAMED, not the four the module ships. A
+        # control that was never built cannot be revealed, so a panel whose
+        # defaults stop at `number_of_organelles` slots can only ever render
+        # that many however the count is driven -- which is exactly why
+        # raising the count to seven went on drawing the same four. The extra
+        # keys arrive with the values they would have had and their rows are
+        # hidden by `refresh_object_visibility`, so what the count changes is
+        # which of them is ON SCREEN. `number_of_organelles` itself is left
+        # at the module's own number: this widens what can be shown, not what
+        # the panel opens showing.
+        from spacr.settings import organelle_slots_beyond_the_count
+
+        shipped = resolve_default_settings(app_key)
+        self._defaults = organelle_slots_beyond_the_count(
+            shipped, PANEL_ORGANELLE_SLOTS)
+        # WHICH KEYS THE PANEL INVENTED, and what it gave them. A settings
+        # file is not a panel: writing every slot that can be named into
+        # every CSV would bury the four a run uses. `collect` leaves these
+        # out again while they are above the count AND still hold exactly
+        # what was put here -- so a value that came from anywhere else, a
+        # user or a loaded file, is written out whatever the count is.
+        self._slots_the_panel_added = {
+            key: value for key, value in self._defaults.items()
+            if key not in shipped}
         self._widgets: Dict[str, QWidget] = {}
+        # What the object rule decided last, and the rows watching to see
+        # that it sticks. See `_guard_hidden_rows`.
+        self._hidden_by_the_run: set = set()
+        self._guarded_rows: Dict[int, str] = {}
+        #: ``id(section) -> section`` for the slot headings this hid, so it
+        #: can put back exactly what it took and nothing else.
+        self._headings_of_absent_slots: Dict[int, Any] = {}
+        self._object_row_guard = _HiddenRowWatcher(self)
+        self._object_rule_pass_queued = False
         self._tooltips = get_tooltips()
         self._data_context: Dict[str, Any] = {'plate_count': None}
         if app_key == "umap":
@@ -8313,6 +8293,20 @@ class SettingsWidgets:
             # express half of what the setting accepts.
             if key in AUTO_OR_NUMBER_SETTINGS:
                 return _auto_or_number_box(self._defaults.get(key, default))
+            # A PLANE THIS RUN MAY NOT HAVE, for the same reason and one step
+            # further: `cell_mask_dim` names a plane of the merged stack, and
+            # a screen with no nucleus has no nucleus plane. The control is
+            # otherwise chosen from the SHIPPED DEFAULT, so the three that
+            # ship a number -- cell 4, nucleus 5, pathogen 6 -- got a spin
+            # box, and a spin box has no empty state: the value could be
+            # changed but never CLEARED, and being made to name a plane for
+            # an object that is not in the run is being made to lie about it.
+            # The organelle slots ship None and have always had the box
+            # below; this is what makes the family agree.
+            if _is_clearable_plane_setting(key):
+                w = _ScalarEdit()
+                w.set_value(self._defaults.get(key, default))
+                return w
             # Choose widget by inferred type from the DEFAULT value
             if isinstance(default, bool):
                 w = Toggle()
@@ -8438,7 +8432,55 @@ class SettingsWidgets:
         # skipped).
         for k, v in self._defaults.items():
             out.setdefault(k, v)
-        return out
+        return self._organelle_slots_worth_keeping(out)
+
+    def _organelle_slots_worth_keeping(self,
+                                       settings: Dict[str, Any]
+                                       ) -> Dict[str, Any]:
+        """Drop the slots this run neither has nor has anything to say about.
+
+        THE PANEL AND THE FILE ARE NOT THE SAME QUESTION. The panel builds a
+        control for every slot that can be named, because the count has to
+        have something to reveal; a settings file written that way would bury
+        the four slots a run uses under twelve hundred keys nobody set.
+
+        WHAT SURVIVES: every slot ``number_of_organelles`` reaches, every slot
+        the MODULE itself declared, and every slot above the count holding
+        something other than the value the panel invented for it. That last
+        part is the whole of "a file written at seven opens at two and still
+        carries seven" -- the five hidden slots hold what the file said, not
+        what the panel put there, so they are written back out and raising
+        the number again brings their answers with them.
+
+        CONTIGUOUS, because a slot's number is its position: keeping the
+        seventh without the fifth and sixth would leave a settings dict that
+        ``number_of_organelles`` cannot describe.
+        """
+        from ..settings_diff import _values_equal
+        from ...organelle_types import (organelle_count, organelle_number,
+                                        organelle_role_of, organelle_roles)
+
+        invented = getattr(self, "_slots_the_panel_added", None)
+        if not invented:
+            return settings
+        roles = {key: organelle_role_of(key) for key in settings}
+        highest = organelle_count(settings)
+        for key, role in roles.items():
+            if role is None:
+                continue
+            number = organelle_number(role)
+            if number <= highest:
+                continue
+            if key in invented:
+                try:
+                    if _values_equal(settings[key], invented[key]):
+                        continue
+                except Exception:                            # noqa: BLE001
+                    pass
+            highest = number
+        kept = set(organelle_roles(highest))
+        return {key: value for key, value in settings.items()
+                if roles[key] is None or roles[key] in kept}
 
     def set_value_for_key(self, key: str, value: Any) -> bool:
         """Write ``value`` into the widget bound to ``key`` (if present).
@@ -9077,13 +9119,194 @@ class SettingsWidgets:
         if getattr(self, "_applying_settings", False):
             return
         try:
-            hidden = keys_hidden_by_their_object(
-                self._widgets, self._object_visibility_settings())
+            current = self._object_visibility_settings()
+            hidden = keys_hidden_by_their_object(self._widgets, current)
+            # BEFORE THE ROWS MOVE, so the guard installed below judges each
+            # row against the answer this pass is applying rather than the
+            # last one -- otherwise showing a row whose channel was just
+            # typed would look, to the guard, like something else putting a
+            # hidden row back.
+            self._hidden_by_the_run = set(hidden)
             for key in list(self._widgets):
                 self._set_row_visible(key, key not in hidden)
+            self._guard_hidden_rows(hidden)
+            self._hide_the_headings_of_slots_the_run_lacks(current)
         except Exception:                                    # noqa: BLE001
             LOGGER.debug("could not decide which objects are in the run",
                          exc_info=True)
+
+    def keys_hidden_by_the_run(self) -> List[str]:
+        """The settings this run has no object for, as of the last pass.
+
+        THE SEAM FOR ANYTHING THAT DECIDES ROW VISIBILITY FOR ITS OWN
+        REASON. The settings-search strip shows every row it indexed when
+        nothing is narrowing -- switching it to "All settings" is exactly
+        that -- and a filter that means "all the settings this module has"
+        should not resurrect the forty rows belonging to an object the run
+        does not segment. Subtracting this set says what is really being
+        shown; without it the count line promises rows the panel then takes
+        straight back.
+
+        :returns: keys in no particular order. Empty before the first pass
+            and on a model built with no parent, which has no rows to hide.
+        """
+        return list(getattr(self, "_hidden_by_the_run", ()) or ())
+
+    def _slot_headings(self) -> Dict[int, Tuple[Any, Tuple[str, ...]]]:
+        """Each leaf heading on the panel and the settings it owns.
+
+        Computed once: the sections and their rows are built together and
+        neither changes afterwards, and this runs on every keystroke in a
+        channel box.
+
+        LEAF HEADINGS ONLY -- one with sub-headings inside it is answered by
+        them. ``id(section) -> (section, keys)``, because a ``Section`` is
+        not hashable in a way that survives Qt taking it apart.
+        """
+        # AN EMPTY ANSWER IS NOT CACHED. The first pass is scheduled from
+        # `build_sections`, and on a model built for its values rather than
+        # for a screen there are no sections to find at all -- caching that
+        # would answer "no headings" for the life of the panel.
+        cached = getattr(self, "_slot_heading_cache", None)
+        if cached:
+            return cached
+        cache: Dict[int, Tuple[Any, Tuple[str, ...]]] = {}
+        if self._parent is None:
+            return cache
+        try:
+            from ..widgets.section import Section
+
+            by_widget = {id(widget): key
+                         for key, widget in self._widgets.items()}
+            for section in self._parent.findChildren(Section):
+                if [child for child in section.findChildren(Section)
+                        if child is not section]:
+                    continue
+                form = getattr(section, "_form", None)
+                if not isinstance(form, QFormLayout):
+                    continue
+                keys = []
+                for index in range(form.rowCount()):
+                    item = form.itemAt(index, QFormLayout.FieldRole)
+                    field = item.widget() if item is not None else None
+                    key = by_widget.get(id(field)) if field is not None \
+                        else None
+                    if key is not None:
+                        keys.append(key)
+                if keys:
+                    cache[id(section)] = (section, tuple(keys))
+        except Exception:                                    # noqa: BLE001
+            LOGGER.debug("could not map the panel's headings", exc_info=True)
+            return {}
+        if cache:
+            self._slot_heading_cache = cache
+        return cache
+
+    def _hide_the_headings_of_slots_the_run_lacks(
+            self, settings: Dict[str, Any]) -> None:
+        """A slot the count does not reach has no heading either.
+
+        A HEADING WITH EVERY ROW HIDDEN IS A SMALLER WALL, BUT IT IS STILL A
+        WALL, and the panel now builds a heading for every slot that can be
+        named: without this, opening Mask meant scrolling past ORGANELLE 5
+        through ORGANELLE 26 three times over to reach anything.
+
+        ONLY THE SLOT HEADINGS, and only the ones this method hid. A heading
+        is left alone unless every setting under it belongs to an organelle
+        slot the run does not have -- so nothing here has an opinion about a
+        heading hidden for its maturity, by a dimension switch, or by the
+        settings search, and a heading this did not hide is never shown by
+        it. That is what keeps one card from being decided in two places.
+
+        :param settings: the values the object rule just read, so the count
+            is not walked out of the panel a second time on every keystroke.
+        """
+        from ..preferences import maturity_is_visible
+        from ...organelle_types import active_organelle_roles
+
+        headings = self._slot_headings()
+        if not headings:
+            return
+        active = set(active_organelle_roles(settings))
+        emptied = self._headings_of_absent_slots
+        for ident, (section, keys) in headings.items():
+            roles = {object_of_setting(key) for key in keys}
+            gone = bool(roles) and all(
+                role is not None and role not in CHANNELLED_OBJECTS
+                and role not in active for role in roles)
+            try:
+                if gone:
+                    # EVERY PASS, not only the first: the settings search
+                    # puts a heading back whenever its filter is released,
+                    # and a method that only hid one it had not hidden
+                    # before would hide it once and never again.
+                    if not section.isHidden():
+                        emptied[ident] = section
+                        section.setVisible(False)
+                        section.installEventFilter(self._object_row_guard)
+                elif ident in emptied:
+                    del emptied[ident]
+                    # ONLY WHAT MATURITY WOULD ALSO SHOW. A heading this hid
+                    # may since have been hidden again as Alpha or Beta, and
+                    # putting a slot back must not overrule Preferences.
+                    if maturity_is_visible(section.maturity()):
+                        section.setVisible(True)
+            except RuntimeError:
+                # The section went away with the screen that owned it.
+                emptied.pop(ident, None)
+
+    def _guard_hidden_rows(self, hidden) -> None:
+        """Watch every row the rule hid, so it stays hidden.
+
+        THE RULE IS ENFORCED, NOT APPLIED ONCE. It used to be applied once
+        per change and left alone, on the assumption that whatever else moved
+        a row would be followed by another pass -- and nothing followed the
+        settings search. Switching a module to "All settings" shows every row
+        the strip indexed, which put the cell, nucleus, pathogen and
+        organelle settings back on the Mask panel with every channel still
+        None; the disclosure level is remembered per module, so from then on
+        the panel opened that way every time. That is what a maintainer sees
+        and a freshly built panel in a test does not.
+
+        Rather than teach each of them about this rule, the rows the rule hid
+        watch themselves: ``ShowToParent`` is delivered whenever a widget is
+        made visible -- including inside a collapsed section, where no
+        ``Show`` ever arrives -- so any route that puts one back, a filter, a
+        recipe or a fold, is answered by the next pass.
+        """
+        guard = getattr(self, "_object_row_guard", None)
+        if guard is None or self._parent is None:
+            return
+        guarded = self._guarded_rows
+        for key in hidden:
+            widget = self._widgets.get(key)
+            if widget is None or id(widget) in guarded:
+                continue
+            guarded[id(widget)] = key
+            widget.installEventFilter(guard)
+
+    def _shown_against_the_rule(self, widget: QWidget) -> None:
+        """Something outside put a hidden row or heading back; ask for a pass.
+
+        DEFERRED, not undone here: this runs while Qt is delivering the show
+        event, and hiding the widget again inside its own event would leave
+        whatever is walking a form mid-walk. One pass is queued however many
+        rows were shown, because the pass decides every gated row anyway.
+        """
+        key = self._guarded_rows.get(id(widget))
+        contested = (
+            (key is not None and key in getattr(self, "_hidden_by_the_run", ()))
+            or id(widget) in getattr(self, "_headings_of_absent_slots", {}))
+        if not contested:
+            return
+        if self._object_rule_pass_queued or self._parent is None:
+            return
+        self._object_rule_pass_queued = True
+        QTimer.singleShot(0, self._parent, self._reassert_object_visibility)
+
+    def _reassert_object_visibility(self) -> None:
+        self._object_rule_pass_queued = False
+        self.refresh_object_visibility()
 
     def _set_row_visible(self, key: str, visible: bool) -> None:
         """Show or hide the whole ROW a setting sits on.

@@ -25,7 +25,7 @@ from ...classify_classes import (
     values_in,
 )
 from ..i18n import set_translatable_text
-from ..theme import SPACING, register_widget_qss
+from ..theme import SPACING, apply_close_mark, register_widget_qss
 
 LOG = logging.getLogger("spacr.qt.class_editor")
 
@@ -102,15 +102,11 @@ class ClassChip(QWidget):
             source.setStyleSheet(f"color:{palette['fg_muted']};")
             row.addWidget(source)
 
-        self._close = QPushButton("\u00d7", self)
+        self._close = QPushButton(self)
         self._close.setObjectName("ClassChipRemove")
-        # A CAP THAT CANNOT CUT (193). The number keeps this
-        # control compact; `sizeHint` is the floor, so a larger
-        # font or a glyph a theme renders wider grows the button
-        # rather than clipping it.
-        self._close.setMinimumWidth(max(20, self._close.sizeHint().width()))
-        self._close.setMaximumWidth(max(20, self._close.sizeHint().width()))
-        self._close.setToolTip(f"Remove the class {rule.name!r}")
+        # THE APPLICATION'S CLOSE MARK -- see `theme.apply_close_mark`.
+        apply_close_mark(self._close,
+                         tooltip=f"Remove the class {rule.name!r}")
         self._close.clicked.connect(self._on_removed)
         row.addWidget(self._close)
         row.addStretch(1)
@@ -433,7 +429,7 @@ class ClassEditorWidget(QWidget):
         self._say(f"added {name}")
 
     def remove_at(self, index: int) -> None:
-        """Remove the class a chip's \u00d7 belongs to."""
+        """Remove the class a chip's close mark belongs to."""
         if 0 <= int(index) < len(self._rules):
             del self._rules[int(index)]
             self._rebuild()

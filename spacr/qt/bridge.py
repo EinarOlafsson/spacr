@@ -13,6 +13,7 @@ pause protocol, but pipeline entries that do not call ``checkpoint`` report
 """
 from __future__ import annotations
 
+import atexit
 import io
 import logging
 import os
@@ -680,6 +681,64 @@ def registry() -> RunRegistry:
 _PARKED_THREADS: List[tuple] = []
 _PARKED_LOCK = threading.Lock()
 
+#: How long the exit hook below waits for the parked threads, in milliseconds.
+PARKED_EXIT_WAIT_MS = 20_000
+
+_PARKED_EXIT_HOOK_INSTALLED = False
+
+
+def wait_for_parked_threads(timeout_ms: int = PARKED_EXIT_WAIT_MS) -> int:
+    """Wait for parked threads to finish. Returns how many are still running.
+
+    Parking keeps a stubborn thread's wrapper referenced so nothing destroys a
+    running QThread — but only for as long as this module's globals exist.
+    Interpreter shutdown clears them, and the wrapper of a thread that is
+    still inside native code is destroyed right there::
+
+        QThread: Destroyed while thread 'annotate-page-3' is still running
+        Fatal Python error: Aborted
+
+    Reproduced by choosing Cellpose in the annotator and closing the window
+    while a page was still being outlined. So the wait happens BEFORE the
+    globals go, at ``atexit``, where the thread can still be joined properly.
+
+    :param timeout_ms: total budget shared by every parked thread.
+    :returns: the number still running when the budget ran out.
+    """
+    deadline = time.monotonic() + max(0, int(timeout_ms)) / 1000.0
+    with _PARKED_LOCK:
+        pairs = list(_PARKED_THREADS)
+    for thread, _worker in pairs:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            break
+        try:
+            thread.wait(int(remaining * 1000))
+        except RuntimeError:
+            # Wrapper already gone, which only happens after it finished.
+            continue
+    return prune_parked_threads()
+
+
+def _drain_parked_threads_at_exit() -> None:
+    """``atexit`` hook: give parked threads their last chance to finish."""
+    still_running = wait_for_parked_threads()
+    if still_running:
+        LOG.error(
+            "%d worker thread(s) are still running as the process exits. "
+            "Their QThread wrappers are about to be destroyed, which Qt "
+            "treats as fatal. Whatever they are inside did not answer a "
+            "stop request.", still_running)
+
+
+def _install_parked_exit_hook() -> None:
+    """Register the exit hook once, and only if something has been parked."""
+    global _PARKED_EXIT_HOOK_INSTALLED
+    if _PARKED_EXIT_HOOK_INSTALLED:
+        return
+    _PARKED_EXIT_HOOK_INSTALLED = True
+    atexit.register(_drain_parked_threads_at_exit)
+
 
 def prune_parked_threads() -> int:
     """Release parked ``(thread, worker)`` pairs whose thread has exited.
@@ -826,6 +885,7 @@ def drain_thread(thread, worker=None, timeout_ms: int = 3000) -> bool:
         return True
     with _PARKED_LOCK:
         _PARKED_THREADS.append((thread, worker))
+    _install_parked_exit_hook()
     LOG.warning(
         "A worker thread did not stop within %d ms; it is parked rather "
         "than terminated so the process is not left with a corrupt heap.",

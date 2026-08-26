@@ -52,7 +52,7 @@ from ..layers import (Blending, COLORMAPS, Canvas, FieldKey, ImageLayer,
                       LabelsLayer, LayerError, LayerEvent, LayerStack,
                       PointsLayer, ShapesLayer, Spacing)
 from .linked_selection import DEFAULT_OPEN_KIND, LinkedView, has_object_opener
-from .theme import font_px, register_widget_qss
+from .theme import close_mark_button, font_px, register_widget_qss
 from .widgets.preview_controls import FlatButton, FlatComboBox
 
 LOG = logging.getLogger(__name__)
@@ -695,8 +695,11 @@ class LayerViewer(LinkedView, QWidget):
         self.lower_button = FlatButton("↓", side, tooltip="Move layer down")
         self.lower_button.clicked.connect(
             lambda: self._reorder(self._stack.lower_layer))
-        self.remove_button = FlatButton("✕", side,
-                                        tooltip="Remove the selected layer")
+        # THE APPLICATION'S CLOSE MARK, not a flat text button that happens
+        # to hold an X. Red under the pointer is the whole point on the one
+        # control in this row that destroys something.
+        self.remove_button = close_mark_button(
+            side, tooltip="Remove the selected layer")
         self.remove_button.clicked.connect(self._on_remove)
         self.reset_button = FlatButton("Fit", side,
                                        tooltip="Fit every layer in the view")

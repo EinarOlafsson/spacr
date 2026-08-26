@@ -2657,17 +2657,7 @@ class UmapSearchSettingsDialog(QDialog):
         }
         # No API link dots, matching the Live Preview panel and the main
         # settings form -- both of which dropped them for the same reason.
-        # A dot after the setting AND after the field doubles the visual
-        # noise of a form the user is reading as a list of choices, and it
-        # carries a tooltip of its own, so the help pops when the pointer is
-        # over the row's right-hand side. From the user's side of the screen
-        # that reads as "the field has a tooltip".
-        #
-        # The linked help itself is untouched: it stays on the LABEL, which
-        # is what `tests/qt/test_all_module_smoke.py` asserts (every setting
-        # label carries help containing `href=`). Only the dot goes.
-        install_api_tooltips(self, panel.app_key, search_tooltips,
-                             api_dots=False)
+        install_api_tooltips(self, panel.app_key, search_tooltips)
         self.resize(820, 760)
 
     def _build_umap_tabs(self) -> None:

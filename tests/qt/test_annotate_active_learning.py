@@ -370,26 +370,22 @@ def test_retrain_needs_a_source(qtbot, qt_theme_applied, monkeypatch):
     widget.close()
 
 
-def test_coverage_and_curve_dialogs_render_the_reports(screen, monkeypatch):
-    from spacr.qt.screens import annotate as annotate_module
-    shown = {}
+def test_coverage_and_curve_dialogs_render_the_reports(screen):
+    """Both reports render into a real window, keyed by their title.
 
-    class _Dialog:
-        def __init__(self, title, body, parent=None):
-            shown[title] = body
-
-        def exec(self):
-            return 0
-
-    monkeypatch.setattr(annotate_module, "_TextReportDialog", _Dialog)
+    Driven through the real dialog rather than a stand-in: the reports are
+    shown, not `exec`-ed, and `_reports` is where the open ones live.
+    """
     screen._toggle_annotation(0, 1)
     screen._flush_pending()
     screen._worker.stop(wait=True)
 
     screen._on_coverage()
-    assert "Annotation coverage" in shown
-    assert "Per class" in shown["Annotation coverage"]
+    assert "Annotation coverage" in screen._reports
+    assert "Per class" in screen._reports[
+        "Annotation coverage"]._view.toPlainText()
 
     screen._on_learning_curve()
-    assert "Active-learning rounds" in shown
-    assert "No round recorded yet" in shown["Active-learning rounds"]
+    assert "Active-learning rounds" in screen._reports
+    assert "No round recorded yet" in screen._reports[
+        "Active-learning rounds"]._view.toPlainText()

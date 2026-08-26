@@ -104,10 +104,11 @@ def test_settings_dialog_has_pipeline_tabs_and_valid_normalize_contract(qtbot):
         if label is not None:
             assert widget.toolTip() == ""
             assert "https://" in label.toolTip()
-            assert getattr(label, "_spacr_api_dot", None) is not None
         else:
             assert "https://" in widget.toolTip()
-            assert getattr(widget, "_spacr_api_dot", None) is not None
+        # NO DOT, EITHER WAY. The link is in the hover text, which is where
+        # it was always being read from.
+        assert getattr(label or widget, "_spacr_api_dot", None) is None
     propagated = panel.settings_for_propagation()
     assert propagated["normalize"] == [1.0, 99.0]
     panel._normalise.setChecked(False)

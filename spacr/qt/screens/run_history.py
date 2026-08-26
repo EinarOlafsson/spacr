@@ -91,11 +91,13 @@ def _bytes(value: Any) -> str:
     except (TypeError, ValueError):
         return "—"
     units = ("B", "KiB", "MiB", "GiB", "TiB")
-    for unit in units:
-        if abs(number) < 1024.0 or unit == units[-1]:
+    # The largest unit is left out of the loop and answered below: with it in,
+    # the loop always returns and the line after it can never run.
+    for unit in units[:-1]:
+        if abs(number) < 1024.0:
             return f"{number:.0f} {unit}" if unit == "B" else f"{number:.1f} {unit}"
         number /= 1024.0
-    return "—"
+    return f"{number:.1f} {units[-1]}"
 
 
 def _json_text(value: Any) -> str:

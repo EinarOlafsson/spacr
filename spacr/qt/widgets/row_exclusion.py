@@ -52,6 +52,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ..theme import apply_close_mark
 from ...row_exclusions import normalize_row_exclusions
 
 #: How long a keystroke in the editable column combo waits before its
@@ -259,8 +260,8 @@ class _ExclusionRuleRow(QWidget):
         row.addWidget(self.values, 3)
 
         remove = QToolButton(self)
-        remove.setText("×")
-        remove.setToolTip("Remove this exclusion rule")
+        # THE APPLICATION'S CLOSE MARK -- see `theme.apply_close_mark`.
+        apply_close_mark(remove, tooltip="Remove this exclusion rule")
         remove.clicked.connect(lambda: self.remove_requested.emit(self))
         row.addWidget(remove)
 

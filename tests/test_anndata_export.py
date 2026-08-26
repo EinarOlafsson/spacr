@@ -996,9 +996,18 @@ def without_anndata(monkeypatch):
 
 def test_the_module_imports_without_the_extra(without_anndata):
     """`import spacr.anndata_export` must not need the extra."""
-    module = importlib.reload(ax)
-    assert module.ANNDATA_EXTRA == "anndata"
-    assert callable(module.export_anndata)
+    # A reload rebinds every name the module defines, its exception classes
+    # included, and a test module that imported one of those classes by name
+    # goes on holding the object from before. Put the original namespace back
+    # so ``pytest.raises(DuplicateObjectKeys)`` in another file still matches
+    # what this module raises.
+    preserved = dict(ax.__dict__)
+    try:
+        module = importlib.reload(ax)
+        assert module.ANNDATA_EXTRA == "anndata"
+        assert callable(module.export_anndata)
+    finally:
+        ax.__dict__.update(preserved)
 
 
 def test_require_anndata_gives_the_install_line_not_a_traceback(

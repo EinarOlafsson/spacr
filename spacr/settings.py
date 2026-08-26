@@ -32,21 +32,56 @@ def _organelle_slot_key(key, role):
     return slot_setting(key, role)
 
 
-def _clone_primary_organelle_values(settings):
+def _clone_primary_organelle_values(settings, roles=None):
     """Default every secondary slot from the primary slot's current values.
 
-    Generated for the slots this settings dict DECLARES -- the ones
-    `number_of_organelles` asks for plus any further slot the dict already
-    carries a key for -- so lowering the number hides slots without dropping
-    the answers they hold.
+    :param settings: the settings dict, filled in place.
+    :param roles: the slot prefixes to fill, primary slot included. Defaults
+        to the slots this dict DECLARES -- the ones `number_of_organelles`
+        asks for plus any further slot the dict already carries a key for --
+        so lowering the number hides slots without dropping the answers they
+        hold.
     """
     primary = [(key, deepcopy(value)) for key, value in settings.items()
                if str(key).startswith('organelle_')]
-    for role in declared_organelle_roles(settings)[1:]:
+    if roles is None:
+        roles = declared_organelle_roles(settings)
+    for role in tuple(roles)[1:]:
         for key, value in primary:
             settings.setdefault(_organelle_slot_key(key, role),
                                 deepcopy(value))
     return settings
+
+
+def organelle_slots_beyond_the_count(settings, count=None):
+    """Fill in the keys of slots this dict does not currently declare.
+
+    WHAT IT IS FOR. A settings panel cannot show a control it never built,
+    so "raising `number_of_organelles` adds slots" is only true if the keys
+    of the slots above the count already exist when the panel is built. This
+    is how the panel gets them: it asks for every slot that CAN be named,
+    builds a control for each, and hides the ones the count does not reach.
+
+    THE COUNT IS NOT CHANGED. `number_of_organelles` is left exactly as the
+    module declared it, so the panel opens showing the number of slots the
+    module ships and the extra keys sit behind hidden rows carrying the
+    values they would have had.
+
+    :param settings: a run settings mapping. Copied, not modified.
+    :param count: how many slots to fill in, defaulting to every slot that
+        can be named. Clamped to :data:`MAX_ORGANELLES` by
+        :func:`spacr.organelle_types.organelle_roles`' own bound.
+    :returns: a new dict. Unchanged when the mapping has no organelle slots
+        at all -- most modules do not, and inventing fifty-three organelle
+        keys on a regression panel would be worse than useless.
+    """
+    from .organelle_types import MAX_ORGANELLES, organelle_roles
+
+    out = dict(settings or {})
+    if not any(str(key).startswith('organelle_') for key in out):
+        return out
+    wanted = MAX_ORGANELLES if count is None else max(int(count), 0)
+    return _clone_primary_organelle_values(out, organelle_roles(wanted))
 
 
 def _clone_organelle_registry(mapping, *, tooltip=False):
@@ -2929,12 +2964,18 @@ expected_types = {
     "plot": bool,
     "tensorboard": bool,
     "verbose": bool,
-    "cell_mask_dim": int,
+    # None, and see the `*_chann_dim` trio further down for the argument.
+    # These three now agree with `organelle_mask_dim`, which has always
+    # declared it, and with the code that reads them: measure_crop tests
+    # every one through `is not None` and skips that object's measurements,
+    # crops and links when it is unset, so the declaration was narrower than
+    # the pipeline it describes.
+    "cell_mask_dim": (int, type(None)),
     "cell_min_size": int,
     "cytoplasm_min_size": int,
-    "nucleus_mask_dim": int,
+    "nucleus_mask_dim": (int, type(None)),
     "nucleus_min_size": int,
-    "pathogen_mask_dim": int,
+    "pathogen_mask_dim": (int, type(None)),
     "pathogen_min_size": int,
     "save_png": bool,
     "crop_mode": list,
@@ -3138,9 +3179,20 @@ expected_types = {
     "pathogen_types": list,
     "pathogen_plate_metadata": (list, list),  # This can be a list of lists 
     "treatment_plate_metadata": (list, list),  # This can be a list of lists
-    "cell_chann_dim": int,
-    "nucleus_chann_dim": int,
-    "pathogen_chann_dim": int,
+    # AN OBJECT THAT IS NOT IN THE RUN NAMES NO PLANE. Every key that points
+    # at a plane of the stack -- the raw channel an object is imaged in, the
+    # channel paired with its mask, and the plane its mask sits on -- accepts
+    # None, because a screen with no nucleus has no nucleus channel and no
+    # nucleus mask plane, and a settings file made to carry a number for one
+    # is made to make a claim about an object that is not there.
+    #
+    # These three were the odd ones out: `organelle_chann_dim` and every
+    # `*_channel` already declared None, `analyze_recruitment` already
+    # DOCUMENTS None here ("leave it None and cells are not filtered at
+    # all"), and the declaration was the only thing still saying otherwise.
+    "cell_chann_dim": (int, type(None)),
+    "nucleus_chann_dim": (int, type(None)),
+    "pathogen_chann_dim": (int, type(None)),
     "plot_nr": int,
     "plot_control": bool,
     "remove_background": bool,

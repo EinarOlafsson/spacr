@@ -311,9 +311,15 @@ class FigureSettingsDialog(QDialog):
                 # holds, rather than swapping the object -- everything else
                 # refers to the original by identity.
                 self._figure.clear()
-                for axis in restored.axes:
+                for axis in list(restored.axes):
+                    # DETACHED FIRST. matplotlib refuses to put one artist
+                    # in two figures, and a restored axes still belongs to
+                    # the figure the snapshot was unpickled into -- so
+                    # re-homing it without the detach raised on the first
+                    # axes and Cancel left a CLEARED figure behind, with
+                    # neither the size nor the ground it opened with.
+                    axis.remove()
                     self._figure._axstack.add(axis)
-                    axis.figure = self._figure
                     axis.set_figure(self._figure)
                 self._figure.patch.set_facecolor(restored.patch.get_facecolor())
                 self._figure.set_size_inches(*restored.get_size_inches())

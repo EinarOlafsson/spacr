@@ -35,8 +35,8 @@ pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QEvent, QSize, Qt                     # noqa: E402
 from PySide6.QtWidgets import (QCheckBox, QComboBox, QDoubleSpinBox,  # noqa: E402
-                               QHBoxLayout, QLabel, QLineEdit, QSpinBox,
-                               QWidget)
+                               QFormLayout, QHBoxLayout, QLabel, QLineEdit,
+                               QSpinBox, QVBoxLayout, QWidget)
 
 from spacr.qt.screens import settings_model as SM               # noqa: E402
 
@@ -354,58 +354,34 @@ def test_refreshing_tooltips_skips_a_child_that_died_mid_walk(qtbot):
     assert SM.refresh_api_tooltips(_Root()) is None
 
 
-def test_a_label_with_no_layout_gets_no_api_dot(qtbot):
-    """A label the caller has not parented has nowhere to put the dot."""
-    label = QLabel("Source")
-    qtbot.addWidget(label)
+def test_a_decorated_setting_gets_help_and_no_dot(qtbot):
+    """The dot is gone from every branch; the hover help is not.
 
-    assert SM._add_api_dot_to_label(label, "measure", "src", "<b>x</b>") is None
-    assert label.property("settingApiDotInstalled") in (None, False)
+    Both branches are covered here -- a label beside its field, and a
+    checkbox that is its own row label -- because each used to end in a
+    call that drew a teal dot.
+    """
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    column = QVBoxLayout(owner)
+    form_host = QWidget(owner)
+    form = QFormLayout(form_host)
+    field = QSpinBox(form_host)
+    field.setProperty("settingKey", "cell_diameter")
+    label = QLabel("Cell diameter", form_host)
+    form.addRow(label, field)
+    column.addWidget(form_host)
+    box = QCheckBox("Verbose", owner)
+    box.setProperty("settingKey", "verbose")
+    column.addWidget(box)
 
+    SM.install_api_tooltips(owner, "mask")
 
-def test_a_control_with_no_layout_gets_no_api_dot(qtbot):
-    field = QCheckBox("Verbose")
-    qtbot.addWidget(field)
-
-    assert SM._add_api_dot_to_combined_control(
-        field, field, "measure", "verbose", "<b>x</b>") is None
-
-
-def test_a_control_that_already_has_its_dot_in_this_window_is_left_alone(qtbot):
-    host = QWidget()
-    qtbot.addWidget(host)
-    layout = QHBoxLayout(host)
-    field = QCheckBox("Verbose", host)
-    layout.addWidget(field)
-    SM._add_api_dot_to_combined_control(host, field, "measure", "verbose",
-                                        "<b>x</b>")
-    first = getattr(field, "_spacr_api_dot", None)
-    assert first is not None
-
-    SM._add_api_dot_to_combined_control(host, field, "measure", "verbose",
-                                        "<b>y</b>")
-
-    assert getattr(field, "_spacr_api_dot", None) is first
-
-
-def test_a_control_whose_previous_dot_was_destroyed_gets_a_new_one(qtbot):
-    """The stale handle raises ``RuntimeError``; that is not a reason to stop."""
-    import shiboken6
-
-    host = QWidget()
-    qtbot.addWidget(host)
-    layout = QHBoxLayout(host)
-    field = QCheckBox("Verbose", host)
-    layout.addWidget(field)
-    SM._add_api_dot_to_combined_control(host, field, "measure", "verbose",
-                                        "<b>x</b>")
-    dot = getattr(field, "_spacr_api_dot")
-    shiboken6.delete(dot)
-
-    SM._add_api_dot_to_combined_control(host, field, "measure", "verbose",
-                                        "<b>y</b>")
-
-    assert getattr(field, "_spacr_api_dot") is not dot
+    assert "href=" in str(label.property("apiTooltipHtml"))
+    assert "href=" in str(box.property("apiTooltipHtml"))
+    drawn = [w for w in owner.findChildren(QWidget)
+             if w.property("apiTooltipDisplayRole") == "api-link"]
+    assert drawn == []
 
 
 def test_a_label_wrapper_with_no_help_child_is_returned_as_it_is(qtbot):
@@ -1048,28 +1024,6 @@ def test_a_remembered_label_whose_c_plus_plus_half_is_gone_is_looked_up_again(
     shiboken6.delete(dead)
 
     assert SM._setting_label_for_field(owner, field) is None
-
-
-def test_a_label_its_layout_does_not_hold_gets_no_dot_and_leaks_no_host(qtbot):
-    """``replaceWidget`` answers None; the half-built host must go with it."""
-    parent = QWidget()
-    qtbot.addWidget(parent)
-    QHBoxLayout(parent)
-    orphan = QLabel("Source", parent)      # a child, but not IN the layout
-
-    assert SM._add_api_dot_to_label(orphan, "measure", "src", "<b>x</b>") is None
-    assert orphan.parentWidget() is parent
-
-
-def test_a_control_its_layout_does_not_hold_gets_no_dot_either(qtbot):
-    parent = QWidget()
-    qtbot.addWidget(parent)
-    QHBoxLayout(parent)
-    orphan = QCheckBox("Verbose", parent)
-
-    assert SM._add_api_dot_to_combined_control(
-        parent, orphan, "measure", "verbose", "<b>x</b>") is None
-    assert orphan.parentWidget() is parent
 
 
 def test_a_nested_list_with_no_groups_still_shows_one_empty_row(qtbot):

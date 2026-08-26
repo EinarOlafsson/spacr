@@ -10,6 +10,17 @@ about something that cannot be repaired after acquisition: controls sitting
 only on the plate edge, a control confined to one column, a condition with a
 single replicate. All of them are free to fix the day before and impossible to
 fix the day after.
+
+ONE PLATE WIDGET WHERE THERE CAN BE ONE. The square, the constant it is
+pitched at and the row/column headers come from
+:mod:`spacr.qt.widgets.plate_map_picker` rather than being declared a second
+time here; the two plates had already drifted apart once. What cannot be
+shared is the well itself, and the difference is real rather than
+historical: the picker's well is a checkable ``QPushButton`` whose checked
+state IS the selection and which paints itself from a fixed pair of colours,
+while this one is a ``QLabel`` carrying a role, an edge mark, a name and a
+condition, painted by the theme through the properties below -- a plate map
+that says what each well holds rather than only whether it is chosen.
 """
 
 from __future__ import annotations
@@ -33,6 +44,13 @@ from ..widgets.plate_layout import (
     assign_wells, check_design, plate_shape, to_settings_fragment,
     write_design,
 )
+# THE OTHER PLATE'S GEOMETRY, IMPORTED RATHER THAN REPEATED. `WELL_SIDE` is
+# the side both plates are pitched at, `_locked_square` states that side in
+# the one language that survives being polished under the application
+# stylesheet, and `_Header` is the row letter and the column number locked to
+# a cell of it. All three were written for the picker and are not specific to
+# it; a second copy here is what let the two plates drift.
+from ..widgets.plate_map_picker import WELL_SIDE, _Header, _locked_square
 
 __all__ = [
     "APP_KEY", "APP_NAME", "APP_DESCRIPTION", "APP_INTRO", "APP_CLI_NOTE",
@@ -69,8 +87,74 @@ APP_TRANSLATIONS: Tuple[str, ...] = (
     "Tilraunahönnun", "Conception d'expérience",
 )
 
-#: One well's side, in pixels. SQUARE, because the object it stands for is.
-WELL_SIDE = 22
+#: How thick a rim a well draws, in pixels per side, in each of the two
+#: states that draw one: an outline for a well that holds nothing, and a
+#: mark for one on the plate edge or under the selection. A well filled with
+#: its role draws no rim at all.
+#:
+#: ONE TABLE READ TWICE. :func:`_design_qss` draws the border from it and
+#: :func:`_well_sheet` subtracts it from :data:`WELL_SIDE` to reach the
+#: content box the square is stated in -- Qt adds the border back on. Read
+#: apart, the two disagree by the width of a rim and the well changes size
+#: the moment it is selected, shoving every well to the right of it along.
+OUTLINE_RIM = 1
+MARK_RIM = 2
+
+#: The roles drawn as an outline rather than as a fill.
+OUTLINED_ROLES = ("blank", "empty")
+
+
+def _well_rim(role, edge: bool, chosen: bool) -> int:
+    """The border width the sheet ends up drawing on one well.
+
+    The last matching rule in :func:`_design_qss` wins, and the order there is
+    role, then edge, then selection -- so a chosen edge well is marked once,
+    at :data:`MARK_RIM`.
+    """
+    if chosen or edge:
+        return MARK_RIM
+    return OUTLINE_RIM if role in OUTLINED_ROLES else 0
+
+
+def _well_sheet(rim: int) -> str:
+    """The sheet ONE well wears: its square, stated on the well itself.
+
+    A widget's own sheet outranks the application's, and that is the whole
+    point of this rather than :meth:`~PySide6.QtWidgets.QWidget.setFixedSize`.
+    ``QStyleSheetStyle`` does not merely draw a geometry rule -- it polishes
+    it into a real ``setMinimumHeight`` on the widget, which OVERWRITES the
+    minimum ``setFixedSize`` wrote while leaving the maximum in place, and Qt
+    resolves a minimum taller than its maximum in favour of the minimum. One
+    blanket ``QLabel { min-height: ... ; padding: ... }`` anywhere in the
+    application sheet is enough to turn every well of this plate into an
+    oblong, silently. The neighbouring plate lost its square to exactly that,
+    through ``QPushButton``; nothing but the absence of such a rule for
+    ``QLabel`` was keeping this one.
+
+    ``border-width`` is stated here for the same reason, and only the width:
+    the style and the colour still come from :func:`_design_qss`, so the
+    outline the map is read by is unchanged, while the space it takes is the
+    plate's own arithmetic rather than whatever a blanket rule asks for.
+    """
+    rim = int(rim)
+    return "QLabel { border-width: %dpx; %s }" % (rim, _locked_square(rim))
+
+
+def _plate_header(text: str, parent) -> _Header:
+    """One header cell: the picker's ``_Header``, with the rim pinned too.
+
+    The class comes from the other plate rather than being written again --
+    the row letters and the column numbers are cells of the grid, pitched to
+    the same square as a well, and both plates want exactly that. What it
+    does not pin is the border width, so a blanket ``QLabel { border: ... }``
+    still inflates a header by twice that border while the wells beside it
+    hold their square. This plate's headers draw no rim of their own, so
+    saying so costs nothing and closes the gap for them; the durable fix is
+    for ``_locked_square`` to state the width it is already subtracting.
+    """
+    cell = _Header(text, parent)
+    cell.setStyleSheet(_well_sheet(0))
+    return cell
 
 
 class _Well(QLabel):
@@ -86,7 +170,36 @@ class _Well(QLabel):
         super().__init__("", parent)
         self.row, self.column = int(row), int(column)
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        # The hint. The floor and the ceiling are in the sheet below, which
+        # is the half of this that survives being polished.
         self.setFixedSize(WELL_SIDE, WELL_SIDE)
+        self._rim = None
+        self.lock_square()
+
+    def lock_square(self) -> None:
+        """Re-state the square for the state the well is now in.
+
+        Called whenever a property the sheet reads changes, because both
+        halves of the drawing hang off it. THE STYLE IS RE-POLISHED, not
+        merely restated: the well's colour comes from the sheet's
+        ``spacrWellRole``, and Qt does not re-evaluate a selector when a
+        property changes unless it is asked to. And the square is re-stated
+        with it, because the rim a state draws is part of the widget's
+        height: a chosen well marked 2 px where it was outlined at 1 would
+        grow by two pixels if the content box were left where it was.
+        """
+        rim = _well_rim(self.property("spacrWellRole"),
+                        self.property("spacrWellEdge") == "true",
+                        self.property("spacrWellChosen") == "true")
+        if rim != self._rim:
+            self._rim = rim
+            # Setting a sheet repolishes the widget on its own.
+            self.setStyleSheet(_well_sheet(rim))
+            return
+        style = self.style()
+        if style is not None:
+            style.unpolish(self)
+            style.polish(self)
 
     def _screen(self):
         widget = self.parent()
@@ -139,6 +252,10 @@ def _design_qss(palette: dict, opacity: Optional[float] = None) -> str:
     """
     from ..theme import block_surface
     findings_bg = block_surface("surface_alt", palette.get("theme"), opacity)
+    # THE RIM WIDTHS BELOW COME FROM THE TABLE, not from a number typed
+    # here: a well states its own square in content-box pixels, and Qt adds
+    # the border back on, so a border this sheet draws wider than the well
+    # allowed for is a well two pixels bigger than its neighbours.
     return f"""
 #{FINDINGS_OBJECT} {{
     background: {findings_bg};
@@ -168,17 +285,17 @@ def _design_qss(palette: dict, opacity: Optional[float] = None) -> str:
 #{PLATE_OBJECT} QLabel[spacrWellRole="blank"] {{
     background: {palette['surface']};
     color: {palette['fg_muted']};
-    border: 1px dashed {palette['border']};
+    border: {OUTLINE_RIM}px dashed {palette['border']};
     border-radius: 3px;
 }}
 #{PLATE_OBJECT} QLabel[spacrWellRole="empty"] {{
     background: transparent;
     color: {palette['fg_muted']};
-    border: 1px solid {palette['border']};
+    border: {OUTLINE_RIM}px solid {palette['border']};
     border-radius: 3px;
 }}
 #{PLATE_OBJECT} QLabel[spacrWellEdge="true"] {{
-    border: 2px solid {palette['warning']};
+    border: {MARK_RIM}px solid {palette['warning']};
 }}
 /* THE SELECTION IS AN OUTLINE, NOT A FILL (194 A). The fill already says
    what the well IS -- control, treatment, blank -- and replacing it would
@@ -186,7 +303,7 @@ def _design_qss(palette: dict, opacity: Optional[float] = None) -> str:
    can see for themselves, which is where they just dragged. LAST in the
    sheet so it wins over the role and the edge rules above. */
 #{PLATE_OBJECT} QLabel[spacrWellChosen="true"] {{
-    border: 2px solid {palette['accent']};
+    border: {MARK_RIM}px solid {palette['accent']};
 }}
 #{FINDINGS_OBJECT} QLabel[spacrFindingSeverity="error"] {{
     color: {palette['error']};
@@ -554,12 +671,10 @@ class ExperimentDesignScreen(QWidget):
             chosen = "true" if (label.row, label.column) in wanted else "false"
             if label.property("spacrWellChosen") != chosen:
                 label.setProperty("spacrWellChosen", chosen)
-                # THE STYLE IS RE-POLISHED, not restated: the well's colour
-                # comes from the sheet's `spacrWellRole`, and Qt does not
-                # re-evaluate a selector when a property changes unless it
-                # is asked to.
-                label.style().unpolish(label)
-                label.style().polish(label)
+                # Repaints AND re-squares: the selection is drawn as a rim,
+                # and a rim is part of the widget's size. See
+                # `_Well.lock_square`.
+                label.lock_square()
 
     def _draw_plate(self, design: PlateDesign, table) -> None:
         while self._plate_grid.count():
@@ -574,14 +689,19 @@ class ExperimentDesignScreen(QWidget):
             for record in table.to_dict("records"):
                 assigned[(record["row_index"], record["column_index"])] = record
 
+        # THE HEADERS ARE CELLS OF THE PLATE, not captions beside it, and
+        # `_Header` is the same one the picker's plate uses: locked to the
+        # well's square, so the header row is exactly one cell tall and the
+        # header column exactly one cell wide however tall the theme's font
+        # makes a label. Left to size themselves they answer to a blanket
+        # QLabel rule like anything else.
         for column in range(1, columns + 1):
-            header = QLabel(str(column))
-            header.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self._plate_grid.addWidget(header, 0, column)
+            self._plate_grid.addWidget(
+                _plate_header(str(column), self._plate_panel), 0, column)
         for row in range(1, rows + 1):
-            header = QLabel(letters_from_row_index(row))
-            header.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self._plate_grid.addWidget(header, row, 0)
+            self._plate_grid.addWidget(
+                _plate_header(letters_from_row_index(row),
+                              self._plate_panel), row, 0)
             for column in range(1, columns + 1):
                 record = assigned.get((row, column))
                 # SQUARE, AND FIXED TO ITS NEIGHBOURS (194). This was a
@@ -618,6 +738,9 @@ class ExperimentDesignScreen(QWidget):
                     "spacrWellEdge",
                     "true" if (record is not None and record["is_edge"])
                     else "false")
+                # The role and the edge mark are what decide the rim, so the
+                # square is settled once they are on the widget.
+                label.lock_square()
                 self._plate_grid.addWidget(label, row, column)
                 self._well_labels.append(label)
 

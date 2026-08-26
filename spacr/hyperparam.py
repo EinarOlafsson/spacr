@@ -1786,15 +1786,20 @@ def local_direction_search(
         raise ValueError(
             "Local UMAP optimization steps must be positive and the minimum "
             "improvement must be zero or greater.")
+    # The conversion is inside the guard and the comparison is outside it.
+    # With the comparison inside, its own ValueError was caught by the very
+    # except that was meant for a non-numeric value, and a user who typed a
+    # negative threshold was told their numbers were not numbers.
     try:
-        if float(min_improvement) < 0:
-            raise ValueError(
-                "Local UMAP optimization steps must be positive and the "
-                "minimum improvement must be zero or greater.")
+        improvement = float(min_improvement)
     except (TypeError, ValueError) as exc:
         raise ValueError(
             "Local UMAP optimization requires numeric n_neighbors, min_dist, "
             "and step sizes.") from exc
+    if improvement < 0:
+        raise ValueError(
+            "Local UMAP optimization steps must be positive and the "
+            "minimum improvement must be zero or greater.")
     if maximum_n is not None and maximum_n < 2:
         raise ValueError("n_neighbors_max must be at least 2.")
     try:
