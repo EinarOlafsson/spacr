@@ -16,10 +16,13 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Any, Dict, List, Mapping, MutableMapping, Optional, Sequence, Tuple
+from typing import (TYPE_CHECKING, Any, Dict, List, Mapping, MutableMapping,
+                    Optional, Sequence, Tuple)
 
 import numpy as np
-import pandas as pd
+
+if TYPE_CHECKING:                    # pragma: no cover - typing only
+    import pandas as pd
 
 LOG = logging.getLogger("spacr.classify_classes")
 
@@ -435,6 +438,13 @@ def assign_classes(frame: pd.DataFrame, settings: Mapping[str, Any], *,
     if not rules:
         raise ClassDefinitionError(
             "no classes are defined; set the column and name its values")
+
+    # IMPORTED HERE, NOT AT MODULE SCOPE. Everything else in this file is an
+    # annotation, and `from __future__ import annotations` makes those
+    # strings -- so a module-level import cost 0.30 s to load pandas for two
+    # lines that only run when classes are actually assigned. The Home page
+    # reaches this module through the class editor, so every launch paid it.
+    import pandas as pd
 
     labels = pd.Series(pd.NA, index=frame.index, dtype="object")
     claimed = pd.Series(False, index=frame.index)
