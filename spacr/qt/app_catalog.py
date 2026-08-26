@@ -1,25 +1,13 @@
-"""What every self-registering app IS, without importing what it DOES.
+"""Application metadata and lazy factories for the Qt interface.
 
-A registry row is a key, a name, a sentence, a section and a factory. None of
-that needs the screen's code — but the only way to read a constant out of a
-module is to execute it, so asking every screen for its own name imported
-every screen, and pandas, scipy, sklearn and numpy behind them. The launch
-walked more than a thousand modules before the window drew a pixel, to learn
-strings that were already written down.
+:data:`DECLARED_APPS` is the canonical source for application names,
+descriptions, navigation sections, documentation links, and factory paths.
+Screen modules read their metadata from this catalog instead of duplicating
+the same strings.
 
-So they are written down HERE, once, and the screen module reads them back:
-:data:`DECLARED_APPS` is the definition site for the row, and
-``spacr.qt.screens.trellis.APP_NAME`` is a lookup into it rather than a second
-copy. There is no drift to police because there is nothing to drift from.
-
-The factory is the one field that really is code, and it stays code: the row
-names the callable rather than holding it, and :class:`LazyScreenFactory`
-imports the module the first time somebody actually builds the screen. A user
-who never opens Dose–Response never pays for scipy.
-
-Nothing here imports Qt, numpy or pandas, and nothing here may start to: this
-module is read while the splash screen is up, and its whole purpose is to be
-the cheap half of a registration.
+:class:`LazyScreenFactory` imports a screen module only when the application
+is opened. Keeping this module free of Qt and scientific-computing imports
+reduces startup work while preserving the ordinary screen-factory interface.
 
 See :func:`spacr.qt.app.register_app` for what each field does once it is
 handed over, and :data:`spacr.qt.SELF_REGISTERING_MODULES` for the ordering
@@ -48,12 +36,10 @@ _OPTIONAL_FIELDS = (
 
 
 class DeclaredApp:
-    """One registry row, declared as data.
+    """Store the registration metadata for one Qt application.
 
-    Deliberately a hand-written class rather than a dataclass or a
-    NamedTuple: both of those import modules this file exists to avoid
-    importing, and the saving is measured in the module count the splash
-    screen is judged by.
+    This dependency-light class avoids importing the additional modules used
+    by dataclasses or named tuples during application startup.
 
     :param module: dotted name of the module that owns the screen. The
         identity of the row — :func:`declared_for` is keyed on it, and it is
@@ -112,13 +98,11 @@ class DeclaredApp:
         return f"DeclaredApp({self.key!r} from {self.module!r})"
 
     def register_kwargs(self) -> dict:
-        """The keyword arguments :func:`spacr.qt.app.register_app` wants.
+        """Return populated keyword arguments for ``register_app``.
 
-        Empty fields are dropped rather than passed as ``""``: ``register_app``
-        treats a falsy optional as "not given" and falls back — ``title`` to
-        ``name``, ``intro`` to ``desc`` — and passing the empty string would
-        get the same answer by a longer route. The ``factory`` is a
-        :class:`LazyScreenFactory`, so building these costs no import at all.
+        Empty optional fields are omitted so ``register_app`` can apply its
+        documented fallbacks. Factory paths are represented by
+        :class:`LazyScreenFactory` instances and do not import screen modules.
         """
         kwargs = {}
         if self.factory:
@@ -131,26 +115,12 @@ class DeclaredApp:
 
 
 class LazyScreenFactory:
-    """A registered screen factory that has not imported its screen yet.
+    """Resolve a screen factory when it is first requested.
 
-    Registration hands one of these to :func:`spacr.qt.app.register_app` in
-    place of the real callable. It imports the owning module and looks the
-    callable up the first time anything asks for it, which is when a user
-    opens the app — so a launch pays for the screens it draws and not for the
-    ones it merely lists.
-
-    Two things make it safe to stand in for the real function.
-
-    :func:`spacr.qt.app.registered_factory` RESOLVES one before returning it,
-    so the object that reaches :func:`spacr.qt.app._call_screen_factory` — and
-    the object a test compares with ``is`` — is the module's own callable. The
-    signature inspection that decides whether to pass ``app_key`` and ``host``
-    therefore reads the real signature, not this class's ``**kwargs``.
-
-    And calling one directly still works, for the caller that reaches into
-    :data:`spacr.qt.app.APP_FACTORIES` itself: :meth:`__call__` applies the
-    same "take what you need" rule rather than forwarding arguments the real
-    factory never declared.
+    :func:`spacr.qt.app.registered_factory` resolves this proxy before normal
+    screen construction, allowing signature inspection to use the underlying
+    callable. Direct calls are also supported; only keyword arguments accepted
+    by the resolved factory are forwarded unless it accepts ``**kwargs``.
     """
 
     __slots__ = ("module", "attribute", "_resolved")
@@ -165,7 +135,7 @@ class LazyScreenFactory:
         return f"<lazy screen factory {self.module}:{self.attribute} ({state})>"
 
     def resolve(self):
-        """Import the module and return the real factory. Cached.
+        """Import and cache the underlying screen factory.
 
         :raises ImportError: if the module cannot be imported.
         :raises AttributeError: if it has no such attribute — a declared row
@@ -210,16 +180,11 @@ def declared_app(key: str) -> DeclaredApp:
 
 
 def register_declared(module: str, *, key=None, section=None, stage=None):
-    """Register the app declared for ``module`` without importing it.
+    """Register the catalog entry for ``module`` without loading its screen.
 
-    The whole point of the table: :func:`spacr.qt.app.register_app` is called
-    with strings that were already written down, and the screen's own module
-    stays unimported until somebody opens it.
-
-    Idempotent, because it has to be. The same registration is reached from
-    three directions — ``app.py``'s own table, the launch walk over
-    :data:`spacr.qt.SELF_REGISTERING_MODULES`, and a module's ``register()``
-    called directly by a test — and a duplicate key raises.
+    Registration is idempotent because startup and direct module registration
+    can reach the same catalog entry. If its key is already registered, this
+    function leaves the registry unchanged.
 
     :param module: the dotted module name the row is declared under.
     :param key: register under this key instead of the declared one. Two of
@@ -265,8 +230,8 @@ DECLARED_APPS = (
         key='data_manager',
         name='Data Manager',
         desc=(
-            'See what a project costs in disk, and reclaim it without '
-            'touching the originals'
+            'Inspect project disk usage and remove derived data while '
+            'preserving source images'
         ),
         section='Data',
         factory='make_data_manager_screen',
@@ -278,29 +243,25 @@ DECLARED_APPS = (
         key='pipeline_graph',
         name='Pipeline Graph',
         desc=(
-            'The DAG of what produced what, with everything stale or missing '
-            'marked'
+            'Visualize data-product dependencies and identify missing or '
+            'stale outputs'
         ),
         section='Explore',
         factory='make_pipeline_graph_screen',
         stage='alpha',
         title='Pipeline Graph',
         intro=(
-            'Every registered output of a project, drawn as the graph of '
-            'what was made from what. Each box carries the run that produced '
-            'it, the settings digest and the spaCR version; the colour is '
-            "the artifact registry's verdict on whether it still follows "
-            'from its inputs. Amber is stale — an input moved on or a '
-            'material setting changed after this was written — and red is '
-            'missing from disk. Click a box for the reasons and for what '
-            're-running it would invalidate.'
+            'Displays registered project outputs as a dependency graph. Each '
+            'node reports the producing run, settings digest, spaCR version, '
+            'and current status. A stale output no longer matches its inputs '
+            'or material settings; a missing output is absent from disk. '
+            'Select a node to review the status evidence and the downstream '
+            'outputs that would be invalidated by re-running it.'
         ),
         cli_note=(
-            "Pipeline Graph is an interactive view of one project's "
-            'provenance DAG; headless, call '
-            'spacr.pipeline_graph.build_graph(project) and '
-            'format_graph(graph) for the same content as text, or '
-            'to_dot(graph) for a Graphviz figure.'
+            'Pipeline Graph is interactive. For headless use, call '
+            'spacr.pipeline_graph.build_graph(project), then format_graph() '
+            'for text or to_dot() for Graphviz output.'
         ),
         api_module='qt/screens/pipeline_graph',
         translations=(
@@ -319,27 +280,26 @@ DECLARED_APPS = (
         module='spacr.qt.screens.profiler',
         key='profiler',
         name='Prediction Profiler',
-        desc='Move one input of a fitted model and watch the prediction move',
+        desc=(
+            "Evaluate how a fitted model's prediction changes across one "
+            'input variable'
+        ),
         section='Explore',
         factory='make_profiler_screen',
         stage='alpha',
         title='Prediction Profiler',
         intro=(
-            'Interrogate a fitted regression: sweep one input across its '
-            'range, hold every other input wherever you choose, and see what '
-            'the model predicts. The inputs are ranked by how far each one '
-            'actually moves the prediction, so a design with thousands of '
-            'gRNA terms still tells you which one to look at first. Nothing '
-            'is re-fitted — the coefficients a run already wrote are the '
-            'model — and the axis always says which scale it is on, because '
-            'a probability, a rate and a hinge margin are not the same '
-            'curve.'
+            'Varies one predictor across its range while holding the other '
+            'predictors at selected values, then evaluates the stored fitted '
+            'model. Predictors are ranked by the resulting change in the '
+            'prediction. The model is not re-fitted, and the response axis '
+            'identifies whether values are probabilities, rates, margins, '
+            'or another model-specific scale.'
         ),
         cli_note=(
-            'The Prediction Profiler is an interactive sweep of one model '
-            'input; headless, call spacr.profiler.profile(model, design, '
-            'variable) for the same curve and '
-            'spacr.profiler.sensitivity(model, design) for the same ranking.'
+            'For headless use, call spacr.profiler.profile(model, design, '
+            'variable) for a response curve and '
+            'spacr.profiler.sensitivity(model, design) to rank predictors.'
         ),
         api_module='qt/screens/profiler',
         translations=(
@@ -359,28 +319,24 @@ DECLARED_APPS = (
         key='qc_dashboard',
         name='QC Dashboard',
         desc=(
-            'Segmentation, units, leakage, plate effects and annotator '
-            'agreement in one place, with the verdict they add up to.'
+            'Review stored checks for segmentation, units, leakage, plate '
+            'effects, and annotation agreement'
         ),
         section='Explore',
         factory='make_qc_dashboard_screen',
         stage='alpha',
         title='QC Dashboard',
         intro=(
-            'Every verdict here was written by the run that produced it -- '
-            'this screen reads them, it does not score anything, so opening '
-            'it costs a directory listing rather than minutes of mask '
-            'loading. A card whose inputs are newer than it is says OUT OF '
-            'DATE rather than pretending to describe them. A card that says '
-            "'missing' means the check has not been run, which is not the "
-            'same as clean.'
+            'Summarizes quality-control results stored by completed runs; '
+            'opening this screen does not recompute masks or measurements. '
+            'An out-of-date result was produced from older inputs. A missing '
+            'result indicates that the corresponding check has not been run '
+            'and must not be interpreted as a passing result.'
         ),
         cli_note=(
-            'The QC Dashboard is a GUI screen: it aggregates verdicts other '
-            'runs wrote so they can be read together. Headless, call '
+            'For headless use, call '
             'spacr.qt.widgets.qc_summary.read_dashboard(src) and '
-            'format_dashboard() instead -- that is the same code this screen '
-            'runs.'
+            'format_dashboard() to read and format the same stored results.'
         ),
         api_module='qt/screens/qc_dashboard',
         translations=(
@@ -399,22 +355,24 @@ DECLARED_APPS = (
         module='spacr.qt.screens.lineage',
         key='lineage',
         name='Lineage',
-        desc='What is inside what: cell → nucleus → pathogen',
+        desc=(
+            'Inspect cell-containment relationships for nuclei, pathogens, '
+            'and organelles'
+        ),
         section='Explore',
         factory='make_lineage_screen',
         stage='alpha',
         intro=(
-            'Every cell with the nuclei and pathogens it contains, read off '
-            'the cell_id links Measure has always written. Selecting a node '
-            "highlights the same object in every other open view; 'Select "
-            "with contents' highlights the whole family. Children whose "
-            'cell_id names no cell get their own list — that is the two '
-            'masks disagreeing, and it is a finding rather than noise.'
+            'Builds a containment tree from the cell_id links written during '
+            'measurement. Selecting a node highlights the corresponding '
+            'object in other open views; selecting it with its contents also '
+            'highlights all descendants. Child objects whose cell_id does '
+            'not identify a measured cell are listed separately as potential '
+            'segmentation or linking discrepancies.'
         ),
         cli_note=(
-            'Lineage is an interactive tree; run it in the GUI (spacr-qt). '
-            'Headless, spacr.lineage.build_forest gives the same tree as '
-            'data.'
+            'For headless use, call spacr.lineage.build_forest() to return '
+            'the same containment structure as data.'
         ),
         api_module='qt/screens/lineage',
         translations=(
@@ -434,28 +392,24 @@ DECLARED_APPS = (
         key='experiment_design',
         name='Experiment Design',
         desc=(
-            'Lay out conditions, controls and replicates on a plate, check '
-            'the layout, and export it for the pipeline to read later.'
+            'Design plate layouts for conditions, controls, and replicates '
+            'and export a pipeline-ready map'
         ),
         section='Design',
         factory='make_experiment_design_screen',
         stage='alpha',
         title='Experiment Design',
         intro=(
-            'Everything on this screen is a decision that cannot be undone '
-            'after acquisition. Where the controls sit, whether a condition '
-            'is confounded with a row, whether the plate edge is used at all '
-            '-- no analysis repairs any of them, and all of them are free to '
-            'change today. Export writes a plate_map.csv keyed the way spaCR '
-            'keys measurements, so the layout is typed once instead of '
-            'twice.'
+            'Assign conditions, controls, and replicates before acquisition. '
+            'Layout checks identify row, column, and plate-edge confounding. '
+            'Export writes plate_map.csv using the same identifiers as spaCR '
+            'measurements, allowing the design to be reused by the analysis '
+            'pipeline without manual re-entry.'
         ),
         cli_note=(
-            'Experiment Design is a GUI screen: it exists to draw a plate '
-            'and warn about its layout before acquisition. For a headless '
-            'design, build a spacr.qt.widgets.plate_layout.PlateDesign and '
-            'call write_design() instead -- that is the same code this '
-            'screen runs.'
+            'For headless use, create a '
+            'spacr.qt.widgets.plate_layout.PlateDesign and call '
+            'write_design() to validate and export the layout.'
         ),
         api_module='qt/screens/experiment_design',
         translations=(
@@ -474,22 +428,23 @@ DECLARED_APPS = (
         module='spacr.qt.layer_viewer',
         key='layer_viewer',
         name='Layer Viewer',
-        desc='Images, masks, points and ROIs as separate layers in one world',
+        desc=(
+            'Visualize images, masks, points, and regions of interest as '
+            'synchronized layers'
+        ),
         section='Explore',
         factory='make_layer_viewer_screen',
         stage='alpha',
         intro=(
-            'One world, many layers: an image channel, the label mask over '
-            'it, the points and the shapes, each with its own colormap, '
-            'opacity, blending and visibility, reordered by dragging. '
-            'Picking an object here selects the same object in every other '
-            'open view, and vice versa.'
+            'Displays image channels, label masks, points, and regions of '
+            'interest in a shared coordinate system. Configure each layer\'s '
+            'colour map, opacity, blending, visibility, and order. Object '
+            'selection is synchronized with other open views.'
         ),
         cli_note=(
-            'Layer Viewer is an interactive image viewer — the layer stack, '
-            'the blending and the picking are the whole feature; run it in '
-            'the GUI (spacr-qt). Headless, build a spacr.layers stack from '
-            'Python instead.'
+            'Layer visualization and interactive object selection require '
+            'the GUI. For headless processing, construct a spacr.layers '
+            'stack from Python.'
         ),
         api_module='qt/layer_viewer',
         translations=(
@@ -509,22 +464,22 @@ DECLARED_APPS = (
         key='graph_builder',
         name='Graph Builder',
         desc=(
-            'Drag columns onto x / y / colour / size / facet and get a chart'
+            'Create plots by assigning variables to axes, colour, size, and '
+            'facets'
         ),
         section='Explore',
         factory='make_graph_builder_screen',
         stage='alpha',
         intro=(
-            'Drop a column on X or Y and the chart appears; the plot type '
-            'follows the column types. Facet down and across for small '
-            'multiples on shared axes, and brush a region to highlight the '
-            'same objects in every other open view.'
+            'Assign columns to the x and y axes; the available plot type is '
+            'selected from their data types. Assign row and column facets to '
+            'create small multiples with shared axes. Brushing a region '
+            'highlights the corresponding objects in other open views.'
         ),
         cli_note=(
-            'Graph Builder is interactive chart building — the drop zones '
-            'and the brush are the whole feature; run it in the GUI '
-            '(spacr-qt). Headless, call spacr.plot from Python and pick the '
-            'columns yourself.'
+            'Graph Builder requires the GUI for interactive variable '
+            'assignment and brushing. For headless plotting, call spacr.plot '
+            'with explicit column selections.'
         ),
         api_module='qt/screens/graph_builder',
         translations=(
@@ -544,28 +499,23 @@ DECLARED_APPS = (
         key='power',
         name='Power / Design',
         desc=(
-            'How many cells per well and how many wells to detect an effect '
-            'of a given size'
+            'Estimate the cells and wells required to detect a specified '
+            'effect size'
         ),
         section='Design',
         factory='make_power_screen',
         stage='alpha',
         title='Power / Design',
         intro=(
-            'Before a pooled screen runs, the only honest way to know '
-            'whether it can find its hits is to simulate screens you know '
-            'the truth for and fit the model you would really use. Describe '
-            'the library, the plates, the classifier and the effect you '
-            'expect; this sweeps cells-per-well and wells, and reports the '
-            'fraction of simulated screens in which the model recovered the '
-            'planted hits. The departures from the R package it is ported '
-            'from — including that the R version overstates power — are '
-            'shown next to the number, not in a footnote.'
+            'Simulates experiments under the specified library, plate, '
+            'classifier, and effect-size assumptions, then fits the selected '
+            'analysis model. The parameter scan varies cells per well and '
+            'the number of wells and reports the fraction of simulations in '
+            'which the planted effects are recovered.'
         ),
         cli_note=(
-            'Interactive design exploration; '
-            'spacr.power_model.scan_parameters() is the headless equivalent '
-            'and takes the same parameters.'
+            'For headless use, call spacr.power_model.scan_parameters() with '
+            'the same simulation and design parameters.'
         ),
         api_module='qt/screens/power',
         defaults_module='spacr.qt.screens.power',
@@ -585,24 +535,22 @@ DECLARED_APPS = (
         module='spacr.qt.screens.run_compare',
         key='run_compare',
         name='Run Compare',
-        desc='Put two runs side by side: settings, counts and hit-list diffs',
+        desc='Compare settings, object counts, and ranked hits between runs',
         section='Results & QC',
         factory='make_run_compare_screen',
         stage='alpha',
         title='Run Compare',
         intro=(
-            'Two runs of the same project, side by side. What you changed '
-            '(the settings diff, grouped the way the settings panel groups '
-            'them, showing only what moved), what came out (objects, wells '
-            'and fields per plate) and which hits moved — appeared, '
-            'vanished, or just changed rank. Runs that are not comparable '
-            'are not diffed: the banner says why, and you can override it.'
+            'Compares two runs from the same project. The report groups '
+            'changed settings by their settings-panel category, compares '
+            'object, well, and field counts per plate, and identifies hits '
+            'that were added, removed, or re-ranked. Incompatible runs are '
+            'not compared unless the compatibility warning is overridden.'
         ),
         cli_note=(
-            'Run Compare is an interactive side-by-side of two runs; '
-            'headless, call spacr.run_compare.runs_in(project) to list them '
-            'and spacr.run_compare.compare_runs(a, b) for the same three '
-            'tables.'
+            'For headless use, call spacr.run_compare.runs_in(project) to '
+            'list runs and spacr.run_compare.compare_runs(a, b) to produce '
+            'the comparison tables.'
         ),
         api_module='qt/screens/run_compare',
         translations=(
@@ -622,25 +570,22 @@ DECLARED_APPS = (
         key='tabulate',
         name='Tabulate',
         desc=(
-            'Pivot the measurement table — rows, columns, aggregations, and '
-            'the n behind each one'
+            'Aggregate measurement data into pivot tables with groupwise '
+            'sample sizes'
         ),
         section='Explore',
         factory='make_tabulate_screen',
         stage='alpha',
         intro=(
-            'Drag columns onto Rows and Columns to group by them, a '
-            'measurement onto Values to summarise it, and tick the '
-            'statistics you want. plateID / rowID / columnID down the rows '
-            'is a plate summary. Every cell prints its n, because a mean '
-            'over four objects and a mean over four thousand look the same '
-            'otherwise, and a combination with no objects is blank rather '
-            'than zero. Export the table, or hand it to the Graph Builder '
-            'below.'
+            'Assign grouping variables to rows and columns, select a '
+            'measurement as the value, and choose one or more summary '
+            'statistics. Each table cell reports its sample size; empty '
+            'groups remain blank rather than being represented as zero. '
+            'Results can be exported or passed to Graph Builder.'
         ),
         cli_note=(
-            'Interactive pivot table; spacr.qt.widgets.pivot_spec.pivot() is '
-            'the headless equivalent.'
+            'For headless use, call spacr.qt.widgets.pivot_spec.pivot() with '
+            'an equivalent pivot specification.'
         ),
         api_module='qt/screens/tabulate',
         translations=(
@@ -660,21 +605,21 @@ DECLARED_APPS = (
         key='investigate_hit',
         name='Investigate Hit',
         desc=(
-            'Return one exact regression hit to cross-fitted candidate cells '
-            'and well-level quantitative evidence'
+            'Link a regression hit to cross-fitted candidate cells and '
+            'well-level quantitative evidence'
         ),
         section='Results & QC',
         factory='_make_screen',
         stage='alpha',
         title='Investigate Hit',
         intro=(
-            'Carry the exact regression run, gene, phenotype direction, FDR '
-            'and guide support back to measured cells. The first output is '
-            'an honest score-based review ranking. An optional hierarchical '
-            'mixture then assigns cross-fitted hit-like probabilities '
-            'without forcing sequencing fraction to equal cell prevalence. '
-            'Comparisons use wells as the independent unit; stored calls are '
-            'versioned and never overwrite hand annotations.'
+            'Links a selected regression run, gene, phenotype direction, '
+            'false-discovery rate, and guide support to measured cells. The '
+            'initial output ranks candidates by their scores. An optional '
+            'hierarchical mixture model estimates cross-fitted hit-like '
+            'probabilities without equating sequencing fraction with cell '
+            'prevalence. Comparisons treat wells as independent units, and '
+            'stored calls are versioned without replacing manual annotations.'
         ),
         api_module='hit_investigation',
         entry='spacr.hit_investigation:investigate_hit',
@@ -695,24 +640,21 @@ DECLARED_APPS = (
         module='spacr.qt.screens.trellis',
         key='trellis',
         name='Small Multiples',
-        desc='One chart per group, in a grid, on axes that really are shared',
+        desc='Create one plot per group with shared or independent axes',
         section='Explore',
         factory='make_trellis_screen',
         stage='alpha',
         intro=(
-            'Drop a column on X or Y to say what each panel shows, then a '
-            'grouping column on Facet ↓ or Facet → to repeat it once per '
-            'level. Axes are shared by default, so a shift between panels is '
-            'a shift in the data; free, per-row and per-column scales are '
-            'available and the grid says so when they are on. Every panel '
-            'prints its n.'
+            'Assign x and y variables and one or more grouping variables to '
+            'create a grid of plots. Axes are shared by default so values can '
+            'be compared directly between panels; independent, row-specific, '
+            'and column-specific scales are also available and are labelled '
+            'when active. Each panel reports its sample size.'
         ),
         cli_note=(
-            'Small Multiples is interactive: the drop zones, the scale '
-            'options and the brush are the feature. Run it in the GUI '
-            '(spacr-qt). Headless, spacr.qt.widgets.trellis_spec.trellis() '
-            'computes the same grid — panels, scales and per-panel n — with '
-            'no Qt involved.'
+            'For headless use, call '
+            'spacr.qt.widgets.trellis_spec.trellis() to compute the panel '
+            'layout, scales, and per-panel sample sizes.'
         ),
         api_module='qt/screens/trellis',
         translations=(
@@ -731,25 +673,22 @@ DECLARED_APPS = (
         module='spacr.qt.screens.gate_editor',
         key='gate_editor',
         name='Gate Editor',
-        desc='Draw a threshold or a region on a plot; it becomes a filter',
+        desc='Define threshold and polygon gates as reusable data filters',
         section='Explore',
         factory='make_gate_editor_screen',
         stage='alpha',
         intro=(
-            'The flow-cytometry gesture on measurement tables. Drag a '
-            'threshold across a histogram or click a polygon round a cloud '
-            'on a two-parameter scatter, name it, and the shape becomes a '
-            'filter every open view honours. Gates nest — gate on gate on '
-            'gate — and each one shows its n, its percentage of its parent '
-            'and its percentage of the whole table. Save the strategy and '
-            're-apply it to the next plate.'
+            'Define a threshold on a histogram or a polygon on a '
+            'two-variable scatter plot, then save the region as a named '
+            'filter shared by open views. Gates can be nested. Each gate '
+            'reports its sample size and its percentage of both the parent '
+            'population and the complete table. Saved gating strategies can '
+            'be applied to subsequent plates.'
         ),
         cli_note=(
-            'The Gate Editor is drawing on a plot; run it in the GUI '
-            '(spacr-qt). Headless, spacr.qt.widgets.gate_spec.GateSet.load() '
-            'reads a saved strategy and .population(frame, name) applies it '
-            '— no Qt involved, so a gate drawn once can gate a whole '
-            'campaign from a script.'
+            'Creating gates requires the GUI. For headless use, load a saved '
+            'strategy with spacr.qt.widgets.gate_spec.GateSet.load() and '
+            'apply it with population(frame, name).'
         ),
         api_module='qt/screens/gate_editor',
         translations=(
@@ -768,27 +707,23 @@ DECLARED_APPS = (
         module='spacr.qt.screens.feature_explorer',
         key='feature_explorer',
         name='Feature Explorer',
-        desc='Every feature ranked by how well it separates the classes',
+        desc='Rank measured features by their ability to distinguish classes',
         section='Explore',
         factory='make_feature_explorer_screen',
         stage='alpha',
         intro=(
-            'spaCR measures hundreds of features per object, so the ranking '
-            'is the feature and the plotting is the easy half. Pick the '
-            'column that says which class each object is in and every '
-            'continuous column is scored and sorted by separation — AUC by '
-            'default, because it is rank-based, unit-free and assumes '
-            'nothing about the distributions. What the chosen statistic '
-            'cannot see is printed next to it, a feature whose classes '
-            'differ in spread rather than level is flagged, and the shuffle '
-            'test says what the best of your features reaches by chance.'
+            'Select the column that defines object classes, then score and '
+            'rank continuous features by class separation. The default AUC '
+            'metric is rank-based and independent of measurement units. The '
+            'results describe limitations of the selected statistic, flag '
+            'features whose classes differ primarily in spread, and use a '
+            'permutation test to estimate the best separation expected by '
+            'chance across the feature set.'
         ),
         cli_note=(
-            'The Feature Explorer is a ranked table you scroll; run it in '
-            'the GUI (spacr-qt). Headless, '
-            'spacr.qt.widgets.feature_rank.rank_features(frame, spec) '
-            'returns the same ranking with every statistic per feature and '
-            'no Qt involved.'
+            'For headless use, call '
+            'spacr.qt.widgets.feature_rank.rank_features(frame, spec) to '
+            'return the same feature-level statistics and ranking.'
         ),
         api_module='qt/screens/feature_explorer',
         translations=(
@@ -808,30 +743,25 @@ DECLARED_APPS = (
         key='outliers',
         name='Outliers',
         desc=(
-            'Robust per-object and per-well outlier detection — MAD, Tukey '
-            'and MCD Mahalanobis'
+            'Detect robust univariate and multivariate outliers at object '
+            'and well levels'
         ),
         section='Explore',
         factory='make_outliers_screen',
         stage='alpha',
         intro=(
-            'Finds the objects that are wrong and, separately, the wells '
-            'that are wrong — which is usually the one that matters, and '
-            'which per-object flags are nearly blind to: a well shifted as a '
-            'whole flags almost none of its individual cells. Nothing is '
-            'estimated from a mean or an SD, because the outliers would move '
-            'both. Pick features, pick a rule — a modified z against the '
-            "median, Tukey's fence, or a robust multivariate distance whose "
-            'threshold is a stated false-positive rate — and the flags '
-            'arrive as added columns. No row is ever dropped.'
+            'Evaluates object-level and well-level deviations separately, '
+            'allowing detection of wells whose distributions shift without '
+            'producing extreme individual objects. Available methods include '
+            'modified z scores based on the median absolute deviation, Tukey '
+            'fences, and robust minimum-covariance-determinant Mahalanobis '
+            'distance with a specified false-positive threshold. Results are '
+            'added as columns; input rows are retained.'
         ),
         cli_note=(
-            'Outliers is an interactive QC surface: the feature list, the '
-            'method and the threshold are the feature; run it in the GUI '
-            '(spacr-qt). Headless, '
-            'spacr.qt.widgets.outlier_model.detect_outliers() computes '
-            'exactly the same object flags, well scores and report with no '
-            'Qt involved.'
+            'For headless use, call '
+            'spacr.qt.widgets.outlier_model.detect_outliers() to compute the '
+            'same object flags, well scores, and report.'
         ),
         api_module='qt/screens/outliers',
         translations=(
@@ -850,30 +780,27 @@ DECLARED_APPS = (
         module='spacr.qt.screens.dose_response',
         key='dose_response',
         name='Dose–Response',
-        desc='4PL curves and EC50s, with an interval that can say no',
+        desc=(
+            'Fit four-parameter logistic curves and estimate EC50 with '
+            'profile-likelihood intervals'
+        ),
         section='Design',
         factory='make_dose_response_screen',
         stage='alpha',
         intro=(
-            'Point it at a concentration column and a response column and it '
-            'fits a four-parameter logistic per gene or compound, in '
-            'log10(EC50) so the interval is multiplicative and never reaches '
-            'below zero. The interval is a profile likelihood by default, '
-            'because the usual asymptotic one is finite even for a series '
-            'that never reached a plateau: when the midpoint is outside the '
-            "doses you tested, this reports 'EC50 > 30 µM' and no point "
-            'estimate rather than a confident wrong number. Bell-shaped '
-            'series — cytotoxicity at the top dose — are refused with the '
-            'concentrations where they turn. R² is shown with the warning '
-            'that it means almost nothing on a sigmoid, next to the '
-            'lack-of-fit test against pure error that does.'
+            'Fits a four-parameter logistic model for each gene or compound '
+            'using selected concentration and response columns. EC50 is '
+            'estimated on a log10 scale, and profile-likelihood intervals are '
+            'used by default. When the midpoint lies outside the tested dose '
+            'range, the result is reported as a bound instead of an '
+            'unsupported point estimate. Non-monotonic series are identified '
+            'with their turning concentrations. Results include R² with an '
+            'interpretive warning and a lack-of-fit test against pure error.'
         ),
         cli_note=(
-            'Dose–Response is interactive: choosing the columns and reading '
-            'the refusals is the feature. Run it in the GUI (spacr-qt). '
-            'Headless, spacr.qt.widgets.dose_response.fit_frame() computes '
-            'the same curves, intervals, bounds and lack-of-fit tests with '
-            'no Qt involved.'
+            'For headless use, call '
+            'spacr.qt.widgets.dose_response.fit_frame() to compute curves, '
+            'intervals, bounds, and lack-of-fit tests.'
         ),
         api_module='qt/screens/dose_response',
         translations=(
@@ -893,35 +820,26 @@ DECLARED_APPS = (
         key='control_chart',
         name='Control Charts',
         desc=(
-            'Track a control plate by plate and see drift before it ruins a '
-            'screen'
+            'Monitor control measurements across plates and detect process '
+            'drift'
         ),
         section='Results & QC',
         factory='make_control_chart_screen',
         stage='alpha',
         intro=(
-            "A campaign's controls are supposed to be the same thing every "
-            'time, and when they stop being the same, hit calling and '
-            'normalisation are already wrong. Pick the plate column, the run '
-            'order and the control, and the chart puts limits round it: an '
-            'individuals / moving-range chart when a plate has one control '
-            'well, X-bar/S when it has several, and a robust variant when '
-            'one bad plate would drag the classical limits out. Sigma comes '
-            'from short-term variation, never from the spread of the whole '
-            'series — that one is inflated by exactly the drift you are '
-            'looking for. Limits are estimated from a stated baseline and '
-            'applied forward, and every Nelson rule that fires is marked on '
-            'the plate and named in words, along with how many false alarms '
-            'the rule set you chose is worth over a campaign this long.'
+            'Select the plate identifier, acquisition order, and control '
+            'population. The application uses an individuals/moving-range '
+            'chart for one control well per plate, an X-bar/S chart for '
+            'multiple wells, or a robust alternative when requested. Limits '
+            'are estimated from a defined baseline using short-term '
+            'variation and then applied to subsequent plates. Nelson-rule '
+            'violations are labelled, together with the expected false-alarm '
+            'count for the selected rule set and campaign length.'
         ),
         cli_note=(
-            'Control Charts is a picture you read: the zones, the marked '
-            'plates and the rule list are the feature. Run it in the GUI '
-            '(spacr-qt). Headless, '
-            'spacr.qt.widgets.control_chart.control_chart(frame, spec) '
-            'returns the same limits, the same violations and the same '
-            'report text with no Qt involved, so a QC gate in a script can '
-            'refuse a campaign on it.'
+            'For headless use, call '
+            'spacr.qt.widgets.control_chart.control_chart(frame, spec) to '
+            'return the same limits, violations, and report text.'
         ),
         api_module='qt/screens/control_chart',
         translations=(
@@ -940,30 +858,23 @@ DECLARED_APPS = (
         module='spacr.qt.screens.project_browser',
         key='project_browser',
         name='Project Browser',
-        desc='Every project on disk: stage, size, last run and what is stale',
+        desc='Review project stage, disk usage, last run, and stale outputs',
         section='Data',
         factory='make_project_browser_screen',
         stage='alpha',
         intro=(
-            'Point it at the folder your experiments live in and it lists '
-            'every spaCR project under it: how far each one got, what it '
-            'costs on disk, when it last produced anything, and which of its '
-            'results no longer match the data underneath them. A project '
-            'spaCR has never recorded — a plate folder copied from a '
-            'colleague this morning — is listed too, with everything the '
-            'filesystem can answer; what it will not do is call it current, '
-            'because with no run record there is nothing to compare it '
-            'against. Nothing here is computed twice: the stage is which '
-            "declared outputs exist, the size is the Data Manager's own "
-            "walk, the staleness is the artifact registry's verdict, and the "
-            "next step is the offer that module's own screen makes."
+            'Scans a selected root folder for spaCR projects and reports '
+            'their completed stage, disk usage, most recent output, and stale '
+            'results. Unregistered project folders are included using the '
+            'metadata available from the file system, but are not labelled '
+            'current because they have no recorded run for comparison. Stage, '
+            'size, staleness, and suggested next steps use the same project '
+            'and artifact metadata as their corresponding applications.'
         ),
         cli_note=(
-            'Project Browser is a table you read and sort. Run it in the GUI '
-            '(spacr-qt). Headless, spacr.projects.browse([root]) returns the '
-            'same summaries and spacr.projects.format_projects prints the '
-            'same table, so a nightly job can mail you which projects went '
-            'stale.'
+            'For headless use, call spacr.projects.browse([root]) to return '
+            'project summaries and spacr.projects.format_projects() to '
+            'format the table.'
         ),
         api_module='qt/screens/project_browser',
         translations=(
