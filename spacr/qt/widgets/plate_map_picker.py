@@ -7,11 +7,15 @@ for mouse-drag handling and programmatic use.
 
 ONE GRID, NOT THREE THINGS NEAR EACH OTHER. The column numbers, the row
 letters and the wells all live in a single :class:`QGridLayout`, every item
-centred in its cell, so a column number sits over its column and a row letter
-beside its row at every window size. The grid takes the width and height its
-square wells need and leaves the rest to a trailing empty row and column,
-rather than dividing whatever the window happens to give it -- which is what
-pulls the labels away from the wells they name.
+locked to the same square cell, so a column number sits over its column and a
+row letter beside its row at every window size. The grid takes the width and
+height its square cells need and leaves the rest to a trailing empty row and
+column, rather than dividing whatever the window happens to give it -- which
+is what pulls the labels away from the wells they name.
+
+Each cell states that square in its OWN style sheet rather than through
+``setFixedSize``, which does not survive being polished under the application
+stylesheet. See :func:`_locked_square`.
 """
 from __future__ import annotations
 
@@ -29,11 +33,76 @@ from ...well_spec import (DEFAULT_LAYOUT, LAYOUTS, WellSpecError, parse,
 CHOSEN = "#4472C4"
 EMPTY = "rgba(255, 255, 255, 0.06)"
 
-#: The side of a well, in pixels. A well is a SQUARE at every window size --
-#: a plate map is a picture of a physical object, and a well stretched into a
-#: rectangle reads as a grid of something else. Pinning the side is what makes
-#: the grid ask for the space it needs instead of dividing what it is handed.
+#: The side of a well, in pixels, and of every other cell of the plate -- the
+#: row letters and the column numbers are pitched to the same square. A well
+#: is a SQUARE at every window size: a plate map is a picture of a physical
+#: object, and a well stretched into a rectangle reads as a grid of something
+#: else. Pinning the side is what makes the grid ask for the space it needs
+#: instead of dividing what it is handed.
 WELL_SIDE = 22
+
+#: The rim drawn around a well, in pixels per side.
+WELL_RIM = 1
+
+
+def _locked_square(rim: int = 0) -> str:
+    """QSS pinning one cell of the plate to the square the grid is pitched at.
+
+    STATED IN THE STYLE SHEET RATHER THAN THROUGH ``setFixedSize``, and that
+    is not a style choice. The application sheet carries
+    ``QPushButton { min-height: 22px; padding: 8px 12px }``, and
+    ``QStyleSheetStyle`` turns a geometry rule into a real
+    ``setMinimumHeight`` on the widget when it polishes it -- 40 px, once the
+    padding and the rim are added back on -- which OVERWRITES the minimum
+    ``setFixedSize`` had written. The maximum it wrote survives, so the well
+    is left with a minimum taller than its maximum, and Qt resolves that in
+    favour of the minimum: a 22 x 40 well in a grid pitched for squares, with
+    the column numbers riding 18 px above the columns they name. A widget's
+    own sheet beats the application's, so the only durable way to keep the
+    square is to ask for it in the language that took it away.
+
+    :param rim: the border width the same rule draws, in pixels per side. Qt
+        adds the border, the padding and the margin back on to whatever
+        ``min-`` and ``max-`` ask for, so the numbers below are the CONTENT
+        box: padding and margin are zeroed here, and the rim is the whole of
+        the rest of the difference from :data:`WELL_SIDE`.
+    """
+    box = WELL_SIDE - 2 * int(rim)
+    return (f"padding: 0px; margin: 0px; "
+            f"min-width: {box}px; max-width: {box}px; "
+            f"min-height: {box}px; max-height: {box}px;")
+
+
+#: The two sheets a well ever wears, chosen and not, built once. A 1536-well
+#: plate repaints every one of its wells on every selection change, and the
+#: string does not depend on which well it is going on.
+_WELL_SHEET = {
+    state: (f"QPushButton {{ background: {colour}; "
+            f"border: {WELL_RIM}px solid rgba(255,255,255,0.18); "
+            f"border-radius: 3px; {_locked_square(WELL_RIM)} }}")
+    for state, colour in ((True, CHOSEN), (False, EMPTY))
+}
+
+
+class _Header(QLabel):
+    """A row letter or a column number, locked to a cell of the plate.
+
+    PART OF THE GRID, NOT A CAPTION BESIDE IT. It takes the same square as a
+    well, so the header row is exactly one cell tall and the header column
+    exactly one cell wide however tall the theme's font makes a label -- which
+    is what keeps a number over its column and a letter beside its row at
+    every window size and every layout.
+
+    Its sheet says nothing about colour, so the theme still paints it.
+    """
+
+    def __init__(self, text: str, parent=None):
+        super().__init__(text, parent)
+        self.setAlignment(Qt.AlignCenter)
+        # The hint. The floor and the ceiling are in the sheet below, for the
+        # reason `_locked_square` gives.
+        self.setFixedSize(WELL_SIDE, WELL_SIDE)
+        self.setStyleSheet("QLabel { %s }" % _locked_square())
 
 
 class _Well(QPushButton):
@@ -43,6 +112,8 @@ class _Well(QPushButton):
         super().__init__(parent)
         self.row, self.column = int(row), int(column)
         self.setCheckable(True)
+        # The hint only: `_paint` states the floor and the ceiling in the
+        # sheet, which is the half of this that survives being polished.
         self.setFixedSize(WELL_SIDE, WELL_SIDE)
         self.setToolTip(well_label(row, column))
         self._paint()
@@ -95,10 +166,13 @@ class _Well(QPushButton):
         super().mouseReleaseEvent(event)
 
     def _paint(self) -> None:
-        colour = CHOSEN if self.isChecked() else EMPTY
-        self.setStyleSheet(
-            f"QPushButton {{ background: {colour}; border: 1px solid "
-            f"rgba(255,255,255,0.18); border-radius: 3px; }}")
+        """Draw the well in its current state, and re-state its square.
+
+        THE SQUARE IS REWRITTEN WITH THE COLOUR because they share one sheet:
+        a repaint that dropped the geometry would hand the well straight back
+        to the application sheet's 40 px minimum. See :func:`_locked_square`.
+        """
+        self.setStyleSheet(_WELL_SHEET[self.isChecked()])
 
 
 class PlateMapPicker(QDialog):
@@ -177,10 +251,10 @@ class PlateMapPicker(QDialog):
             self._grid.setColumnStretch(index, 0)
 
         for column in range(1, columns + 1):
-            self._grid.addWidget(QLabel(str(column), self._holder),
+            self._grid.addWidget(_Header(str(column), self._holder),
                                  0, column, Qt.AlignCenter)
         for row in range(1, rows + 1):
-            self._grid.addWidget(QLabel(row_label(row), self._holder),
+            self._grid.addWidget(_Header(row_label(row), self._holder),
                                  row, 0, Qt.AlignCenter)
             for column in range(1, columns + 1):
                 well = _Well(row, column, self._holder)
@@ -193,7 +267,8 @@ class PlateMapPicker(QDialog):
                 self._grid.addWidget(well, row, column, Qt.AlignCenter)
                 self._wells[(row, column)] = well
 
-        # The corner the labels live in is a cell of the plate too.
+        # The corner the labels meet in holds nothing, and is a cell of the
+        # plate all the same.
         self._grid.setColumnMinimumWidth(0, WELL_SIDE)
         self._grid.setRowMinimumHeight(0, WELL_SIDE)
         # WHERE THE SPARE SPACE GOES: past the last well, into an empty row
