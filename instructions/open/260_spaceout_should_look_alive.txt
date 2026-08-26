@@ -84,6 +84,82 @@ oscillating cursor accent, the preferences page, and every rule about the
 contrast check and the performance guard. Those were not the complaint.
 
 --------------------------------------------------------------------------------
+0b. THE FRACTAL RUNS ON THE GPU, AND YIELDS IT
+--------------------------------------------------------------------------------
+
+WHY THE GPU AT ALL. The backdrop currently renders into a 256-pixel buffer
+in Python and scales it up, which is exactly why it looks coarse and why
+"higher resolution" is expensive. A fragment shader renders at the display's
+own resolution for almost nothing, and a raymarched distance field is what
+makes a flythrough possible at all.
+
+MEASURED BEFORE COMMITTING TO IT, so the known traps are not rediscovered:
+
+  * PySide6 here is 6.11.2. In Qt 6 `ShaderEffect.fragmentShader` takes a
+    URL to a PRE-COMPILED `.qsb`, not inline GLSL. `pyside6-qsb` is
+    installed, so the pipeline exists. Inline GLSL source FAILS SILENTLY --
+    loading such a QML reports `Status.Ready` with no errors and simply
+    never draws, which is the worst failure mode available;
+  * `QQuickWidget` renders NOTHING under `QT_QPA_PLATFORM=offscreen`.
+    Measured: the framebuffer comes back null. spaCR's whole suite runs
+    offscreen, so anything that only exists on the GPU path cannot be
+    tested the way everything else here is tested;
+  * QQuickWidget is a near-native surface and does not always compose well
+    UNDER other widgets. The backdrop sits behind the entire application.
+    Check that early rather than discovering it late.
+
+SO: BOTH ENGINES, NOT ONE.
+
+    GPU shader   where a working context exists -- native resolution, a
+                 real raymarched flythrough, no Python in the frame loop
+    CPU engine   headless, remote X, a VM, no GPU -- and it is what the
+                 tests drive
+
+The quality page from section 1 chooses between them, so a machine that
+cannot afford the shader turns it off rather than enduring it.
+
+--------------------------------------------------------------------------------
+0c. A RUN TAKES THE GPU BACK, AND NOTHING SNAPS
+--------------------------------------------------------------------------------
+
+"when the user hits run ... the fractal background either gracefully auto
+switches to the CPU version or turns the fractals off (this should be a
+setting). and the fractal shouldnt just die abruptly it should wind down and
+wind up the cpu version or not wind up at all."
+
+THE RUN COMES FIRST, ALWAYS. Segmentation and classification are what the
+GPU is for; a backdrop holding VRAM and shader cycles while Cellpose loads
+is the animation competing with the work. The house rule already says the
+GPU drives the display and must not be taken wholesale -- this is the same
+rule pointed at spaCR's own animation.
+
+WHAT HAPPENS WHEN RUN IS PRESSED, as a setting:
+
+    hand over    the GPU shader winds DOWN, and the CPU engine winds UP in
+                 its place. The backdrop keeps going, quieter and cheaper.
+    stand down   the GPU shader winds down and nothing replaces it. The
+                 backdrop is simply absent until the run ends.
+
+NEITHER OF THEM CUTS. "Wind down" means the motion slows and the image
+fades over a visible interval rather than vanishing between two frames --
+a backdrop that disappears mid-stride reads as a crash, which is the exact
+impression to avoid at the moment a long run begins. Winding up is the same
+in reverse, so the CPU engine arrives rather than appearing.
+
+AND IT COMES BACK. When the run finishes -- or fails, or is cancelled -- the
+backdrop returns the way it left: the CPU engine winds down, the shader
+winds up. A run that ends badly must not leave the application permanently
+plain, and a run cancelled two seconds in must not leave two engines
+running at once.
+
+THINGS THAT WILL GO WRONG IF NOT DESIGNED FOR:
+  * two runs in a row, or a run started while the previous wind-up is still
+    in progress. The transition must be interruptible and must not stack;
+  * a run that crashes the worker -- the backdrop still has to come back;
+  * the wind-down must not itself block the GUI thread at the very moment
+    the run is starting, or the fix costs the thing it was protecting.
+
+--------------------------------------------------------------------------------
 1. HIGHER RESOLUTION
 --------------------------------------------------------------------------------
 
