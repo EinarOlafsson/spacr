@@ -1,0 +1,86 @@
+================================================================================
+EVERY SETTINGS WINDOW RESIZES, BOTH WAYS
+================================================================================
+
+Status:    OPEN. Requested 2026-08-26 -- "i should be able to resize all
+           settings windows horizontally and verticaly".
+Owner:     spacr/qt/dialogs.py for the shared behaviour, and every dialog.
+
+--------------------------------------------------------------------------------
+WHAT IS ACTUALLY WRONG, MEASURED
+--------------------------------------------------------------------------------
+
+It is not a fixed size and it is not the window manager. Both were checked:
+
+  * only ONE `setFixedWidth` exists in the whole application, and it is not
+    on a settings window;
+  * no dialog sets a layout size constraint;
+  * the window-manager glue that made dialogs undraggable is already fixed
+    application-wide -- `dialogs.py` installs a filter that detaches EVERY
+    QDialog on Polish.
+
+THE FLOOR IS THE CONTENT. `PictureSettingsDialog`, measured:
+
+    size           625 x 310
+    minimumSize    625 x 310      <-- equal to its own natural size
+    maximumSize    unbounded
+    shrink to 300 x 200  ->  still 625 x 310
+    size grip      absent
+
+So it GROWS and cannot SHRINK, at all. The contents' minimum sizes add up
+to the whole dialog, so Qt has no slack to give. Dragging an edge inward
+does nothing, which is exactly what "cannot resize" feels like -- and with
+no size grip there is not even a handle saying it should be possible.
+
+--------------------------------------------------------------------------------
+WHAT TO BUILD
+--------------------------------------------------------------------------------
+
+1. A WINDOW SMALLER THAN ITS CONTENTS SCROLLS. That is the only way a floor
+   made of content can come down: the content keeps its minimum, the window
+   stops being obliged to show all of it at once. Most of these dialogs are
+   a form in a column, which is the easy case.
+
+2. A SIZE GRIP, so the affordance is visible. `QDialog.setSizeGripEnabled`
+   exists for this and no dialog calls it.
+
+3. GROWING MUST GIVE THE SPACE TO SOMETHING. A dialog that gets wider and
+   leaves the form the same width with grey either side has technically
+   resized and has not helped. Decide, per dialog, what takes the room --
+   usually the field column, sometimes a table or a preview.
+
+4. ONE PLACE, NOT THIRTY. `dialogs.py` already proves the shape: one
+   application-wide filter detaching every dialog, written after finding
+   six files calling the helper by hand while twenty others did not, with
+   the reason recorded -- "a rule applied by hand is a rule that holds
+   until the next dialog is written." The same is true here. Whatever
+   makes a dialog resizable should be applied the same way, so a dialog
+   written next month gets it without its author knowing this item existed.
+
+--------------------------------------------------------------------------------
+TWO THINGS NOT TO BREAK
+--------------------------------------------------------------------------------
+
+  * THE DETACH FILTER RUNS ON Polish and each dialog is detached ONCE,
+    deliberately -- repeating it recreates the native window and loses its
+    position. Anything added alongside it must respect the same rule;
+  * a dialog that is genuinely a message -- a short confirmation with two
+    buttons -- gains nothing from a scroll area and a grip. Sweep for
+    dialogs that hold a FORM rather than treating every QDialog alike, and
+    say which you excluded and why.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * every settings window can be made SMALLER than its natural size in both
+    directions, and its content scrolls rather than being clipped --
+    measured by resizing the real dialog and reading back its size, not by
+    checking that a flag was set;
+  * every settings window can be made larger, and something inside it takes
+    the extra room;
+  * a size grip is present on each;
+  * a dialog shown, hidden and shown again keeps its position -- the detach
+    filter's existing guarantee still holds;
+  * the sweep names every dialog it touched and every one it deliberately
+    left alone.
