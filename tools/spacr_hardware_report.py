@@ -414,6 +414,131 @@ def cursor_rim(say: Report) -> None:
         card.close()
 
 
+def concurrency(say: Report) -> None:
+    """What is running AT ONCE, and how long a queued event then waits.
+
+    THE SECTIONS ABOVE MEASURE ONE THING AT A TIME, and that is not how the
+    application runs. Ten things costing three milliseconds each are all
+    comfortably inside a frame on their own and blow it together -- and on
+    the GUI thread they do not share out, they QUEUE. What a user calls lag
+    is the wait between an event arriving and being handled, so that wait is
+    what this measures, with everything running.
+    """
+    with _section(say, "EVERYTHING AT ONCE -- what a user actually feels"):
+        from PySide6.QtCore import QElapsedTimer, QObject, QTimer
+        from PySide6.QtWidgets import QApplication
+        app = _app()
+        from spacr.qt.app import MainWindow
+
+        window = MainWindow()
+        window.resize(1600, 1000)
+        window.show()
+        app.processEvents()
+
+        # WHAT IS TICKING. Every repeating timer on the GUI thread is a
+        # slice of every frame, and they are easy to add and invisible
+        # afterwards.
+        timers = []
+        for obj in window.findChildren(QObject):
+            for child in obj.children():
+                if isinstance(child, QTimer) and child.isActive():
+                    timers.append(child.interval())
+        for child in window.children():
+            if isinstance(child, QTimer) and child.isActive():
+                timers.append(child.interval())
+        say.item("active repeating timers", len(timers))
+        if timers:
+            fastest = min(t for t in timers if t >= 0)
+            say.item("fastest interval", f"{fastest} ms")
+            per_second = sum(1000.0 / t for t in timers if t > 0)
+            say.item("timer firings per second", f"{per_second:.0f}")
+
+        try:
+            import threading
+            say.item("python threads alive", threading.active_count())
+            say.item("thread names",
+                     ", ".join(sorted(t.name for t in threading.enumerate()))[:80])
+        except Exception:
+            pass
+        try:
+            import psutil
+            say.item("OS threads in process",
+                     psutil.Process().num_threads())
+        except Exception:
+            pass
+
+        # THE NUMBER THAT MATTERS. Post a zero-delay callback and see how
+        # long it waits. Idle first, then with work queued behind it.
+        def _latency(rounds: int = 40) -> float:
+            worst = 0.0
+            clock = QElapsedTimer()
+            for _ in range(rounds):
+                fired = []
+                clock.start()
+                QTimer.singleShot(0, lambda: fired.append(clock.nsecsElapsed()))
+                spun = 0
+                while not fired and spun < 200:
+                    app.processEvents()
+                    spun += 1
+                if fired:
+                    worst = max(worst, fired[0] / 1e6)
+            return worst
+
+        idle = _latency()
+        say.item("event wait, idle", f"{idle:8.2f} ms")
+
+        # Now with the backdrop painting every frame, which is the state the
+        # application is actually in while a user is looking at it.
+        try:
+            from spacr.qt import theme
+            from spacr.qt.widgets import ambient
+            from PySide6.QtGui import QImage, QPainter
+            name = ambient.default_palette_for("blobs")
+            engine = ambient.make_engine("blobs", name,
+                                         theme.page_colour("dark"), seed=1)
+            canvas = QImage(1600, 1000, QImage.Format_ARGB32_Premultiplied)
+
+            painting = QTimer()
+            painting.setInterval(int(1000 / max(1, getattr(
+                ambient, "DEFAULT_FPS", 24))))
+
+            def _tick():
+                engine.advance(painting.interval() / 1000.0)
+                try:
+                    engine._shade(canvas.width(), canvas.height())
+                except Exception:                            # noqa: BLE001
+                    pass
+
+            painting.timeout.connect(_tick)
+            painting.start()
+            busy = _latency()
+            painting.stop()
+            say.item("event wait, backdrop running", f"{busy:8.2f} ms")
+            over = "  <-- a frame is 16.7 ms" if busy > 16.7 else ""
+            say.item("added by the backdrop", f"{busy - idle:8.2f} ms{over}")
+        except Exception as exc:                             # noqa: BLE001
+            say.failed("event wait under backdrop", exc)
+
+        # And while a screen is being built, which is the worst moment: the
+        # user has just clicked a module and everything is competing.
+        try:
+            from spacr.qt.screens.app_screen import AppScreen
+            start = _clock()
+            screen = AppScreen("mask")
+            app.processEvents()
+            say.timed("build mask with a window up", _clock() - start)
+            say.item("widgets alive after", f"{len(app.allWidgets()):,}")
+            del screen
+        except Exception as exc:                             # noqa: BLE001
+            say.failed("build under load", exc)
+
+        say("")
+        say("  Read these together: each animation above may be well inside")
+        say("  a frame on its own. What decides whether the application feels")
+        say("  smooth is the wait a queued event sees with all of them going.")
+        window.close()
+
+
 def main(argv=None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     quick = "--quick" in argv
@@ -435,6 +560,7 @@ def main(argv=None) -> int:
     screens(say, quick)
     backdrop(say)
     cursor_rim(say)
+    concurrency(say)
 
     say("")
     say("=" * 70)
