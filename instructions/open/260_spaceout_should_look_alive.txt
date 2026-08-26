@@ -1,0 +1,151 @@
+================================================================================
+SPACEOUT SHOULD LOOK ALIVE
+================================================================================
+
+Status:    OPEN. Requested 2026-08-26, after seeing the first version --
+           "your space out theme is looking good, here are some things i
+           want to change".
+Owner:     spacr/qt/widgets/ambient.py (the FractalEngine),
+           spacr/qt/theme.py (the rainbow palette), and whatever draws the
+           accent that follows the cursor.
+Follows:   257, which built `spaceout` and is otherwise done.
+
+--------------------------------------------------------------------------------
+WHAT WAS ASKED
+--------------------------------------------------------------------------------
+
+"the pattern needs to be higher resolution and it should have bubble
+fractals budding of it, there should be sometimes more happening on screen
+than just the thing in the middle (the budding things) and inside of the
+elements on screen (the main and budded) there should be a 3D effect so it
+looks like you are looking into a vortex of turning fractalls.
+
+essentially i want the pattern to look living and sometimes deep 3D vortex
+and somtimes not it should be a beating living pattern generator that looks
+trippy, its color pellet should gradually shift and change randomly as well.
+
+the color of the text is pretty good but could be more rainbow like, and the
+little blue window thing that follows the mouse should also osilate in color
+under this special theme. again only accessable via spaceout."
+
+--------------------------------------------------------------------------------
+1. HIGHER RESOLUTION
+--------------------------------------------------------------------------------
+
+The backdrop renders into a buffer capped by `BUFFER_MAX_EDGE = 256` in
+`ambient.py`, then scales up -- which is where the coarseness comes from.
+`BUFFER_EDGE_CEILING` is 2048 and `BUFFER_MAX_PIXELS` is 1920x1080, so
+there is room above the cap without touching the ceilings.
+
+RAISE IT FOR THIS ENGINE ONLY. The blob engine's cap is tuned for what the
+blobs need; a fractal carries detail at every scale and is the one thing
+that shows the buffer's edge. Whatever number is chosen, the existing
+PERFORMANCE GUARD still decides -- see below.
+
+--------------------------------------------------------------------------------
+2. BUDDING, AND MORE THAN ONE THING ON SCREEN
+--------------------------------------------------------------------------------
+
+  * BUBBLE FRACTALS BUD OFF the main form -- they separate from it rather
+    than fading in somewhere else;
+  * SOMETIMES there is more happening than the thing in the middle. Not
+    always: the point is variation, so a screen with one form and a screen
+    with several are both states it passes through;
+  * a bud is the same kind of thing as its parent, at its own scale, with
+    its own life -- it drifts, it turns, and it goes.
+
+--------------------------------------------------------------------------------
+3. A VORTEX INSIDE EACH FORM
+--------------------------------------------------------------------------------
+
+"inside of the elements on screen (the main and budded) there should be a
+3D effect so it looks like you are looking into a vortex of turning
+fractalls."
+
+So each form is not a flat shape: looking at one is looking INTO it, down a
+turning tunnel. The buds have it too, not only the main form.
+
+--------------------------------------------------------------------------------
+4. IT BEATS, AND IT IS NOT ALWAYS THE SAME
+--------------------------------------------------------------------------------
+
+"a beating living pattern generator ... sometimes deep 3D vortex and
+somtimes not."
+
+THIS IS THE HEART OF THE REQUEST and the easiest part to get wrong. A loop
+that always does the same thing at the same rate does not read as alive; it
+reads as a screensaver. What is wanted is a thing with STATES it moves
+between -- deep and flat, busy and quiet, fast and slow -- on its own,
+without repeating on a period a watcher can learn.
+
+  * a beat: the whole form pulses rather than drifting evenly;
+  * transitions between states are gradual, not cuts;
+  * the sequence is not a fixed cycle. Randomness that never repeats the
+    same order is what separates living from looping.
+
+--------------------------------------------------------------------------------
+5. THE PALETTE DRIFTS
+--------------------------------------------------------------------------------
+
+"its color pellet should gradually shift and change randomly as well."
+
+The whole palette moves through hue space over time, gradually and without
+a fixed loop -- and the TEXT goes further towards rainbow than it does now
+("pretty good but could be more rainbow like").
+
+THE CONTRAST RULE IS NOT SUSPENDED FOR THIS. A palette that drifts must
+pass the same readability check at every point on its drift, not only where
+it started. That check already exists -- the colourblind work used it -- and
+a drifting palette makes it a per-frame property rather than a one-off. If
+holding the check costs some saturation, hold the check: a trippy theme
+that cannot be read is a broken theme.
+
+--------------------------------------------------------------------------------
+6. THE THING THAT FOLLOWS THE CURSOR OSCILLATES
+--------------------------------------------------------------------------------
+
+"the little blue window thing that follows the mouse should also osilate in
+color under this special theme."
+
+Identify it first -- the accent that tracks the cursor is aimed by
+`_aim_at_the_cursor` in `spacr/qt/widgets/setup_card.py`, which reads the
+GLOBAL cursor position rather than receiving events, so it follows the mouse
+even outside the window. Confirm that is the thing the maintainer means
+before changing it; if there is a second cursor-following mark elsewhere,
+say which one you changed.
+
+Under spaceout its colour oscillates. Under an ordinary start it does not
+change at all.
+
+--------------------------------------------------------------------------------
+STILL ONLY THROUGH spaceout
+--------------------------------------------------------------------------------
+
+Every one of these is dressing on the same application, reachable only by
+starting it with `spaceout`. Nothing in Preferences offers any of it, no
+stored value can put an ordinary `spacr` start into it, and the theme
+contract -- `resolve_effective_theme`, light and dark -- is untouched.
+
+THE PERFORMANCE GUARD STILL DECIDES. Higher resolution, buds, a vortex and
+a drifting palette are all more work per frame. The ambient animation
+already answers to a guard; this answers to the same one, and where the
+machine cannot afford the full thing it degrades -- fewer buds, a smaller
+buffer -- rather than stuttering. A launcher that makes the application
+stutter is worse than no launcher.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * the buffer edge for this engine is larger than the blob engine's, and
+    the guard still caps it on a machine that cannot afford it;
+  * over a run of frames, the number of forms on screen CHANGES -- a
+    measurement that finds exactly one every time has not got budding;
+  * a bud's pixels are traceable back to the parent it left;
+  * sampling the same form's centre over time shows it turning, not static;
+  * over a long run the state sequence does not repeat on a fixed period;
+  * the palette's hue at frame N differs from frame 1, and EVERY sampled
+    frame passes the contrast check;
+  * the cursor accent's colour differs between two frames under spaceout
+    and is constant under an ordinary start;
+  * nothing in Preferences offers any of it.
