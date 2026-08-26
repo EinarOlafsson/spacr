@@ -16,7 +16,7 @@ pytest.importorskip("PySide6")
 
 from spacr.qt import app as app_module                          # noqa: E402
 from spacr.qt.widgets.fold_strip import (                       # noqa: E402
-    FoldButton, folded_fallback, folded_modules,
+    FOLD_HOST_MODULES, FoldButton, folded_fallback, folded_modules,
 )
 
 #: The keys that are buttons on some host's masthead rather than tiles.
@@ -89,3 +89,25 @@ def test_every_host_that_folds_something_is_walked(qapp):
     reachable = folded_modules()
     for key in FOLDED:
         assert key in reachable, f"{key} is not reachable from any host"
+
+
+def test_the_inventory_reports_the_host_that_draws_each_button(qapp):
+    """Shared fallback copy must not be mistaken for fold ownership."""
+    from importlib import import_module
+
+    expected = {}
+    duplicates = {}
+    for module_name in FOLD_HOST_MODULES:
+        module = import_module(module_name)
+        members = getattr(module, "FOLDED_APPS", None)
+        if members is None:
+            members = getattr(module, "FOLD_ORDER", ())
+        for key in members or ():
+            if key in expected:
+                duplicates.setdefault(key, [expected[key]]).append(module_name)
+            else:
+                expected[key] = module_name
+
+    assert not duplicates, f"folded modules assigned to two hosts: {duplicates}"
+    actual = {key: entry[3] for key, entry in folded_modules().items()}
+    assert actual == expected
