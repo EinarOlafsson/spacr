@@ -288,7 +288,7 @@ def test_a_saved_style_round_trips(tmp_path):
 
 def test_a_setting_is_labelled_by_its_own_name():
     assert fs.style_setting_label("grid_colour") == "Grid colour"
-    assert fs.style_setting_label("aspect") == "Graph shape"
+    assert fs.style_setting_label("aspect") == "Lock axis scales"
 
 
 def test_a_colour_and_a_transparent_ground_are_told_apart():

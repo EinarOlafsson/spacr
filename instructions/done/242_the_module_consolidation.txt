@@ -7,15 +7,16 @@ Priority:  HIGHEST. Asked for 2026-08-25: "the instructions list item
            highest possible priority." Nothing else on the list comes
            before it.
 
-Status:    OPEN. Every fold named below has landed, and none of them opens
-           a window any more: a folded module is a PAGE beside its host's
-           own, except Timelapse and Motility, which are settings
-           categories on Mask Generation and open nothing at all. Item 1's
-           two defects are closed and so is item 3's panel bug. What is
-           left is the registry: no row has been dropped, so the count
-           below is still 63, and the sequencing sweep row of item 2 still
-           needs its drop handler folded in first. Each section carries its
-           own DONE / STILL OPEN note.
+Status:    DONE. Every fold has landed, none of them opens a window, and
+           the registry no longer holds a row for anything folded: the
+           sweep of every host's FOLDED_APPS against APPS comes back
+           empty. The three notes this file kept open are all closed --
+           Curate has its Save-mask control, the fold-strip hooks reach a
+           running window, and the folded settings pages still find their
+           forms now that APP_META goes with the row. A folded module's
+           name, sentence and maturity colour survive the drop through
+           its host's own record, resolved for every host rather than
+           one.
 Owner:     spacr/qt -- the app registry, and the host screen of each fold.
 
 Asked for: "i feel like these modules are kind of redundant now" -- a list

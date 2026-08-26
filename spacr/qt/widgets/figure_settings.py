@@ -2363,11 +2363,15 @@ def _is_transparent_ground(value) -> bool:
 #: `aspect` is the case this exists for. Capitalised it reads "Aspect",
 #: which a reader takes for the aspect RATIO -- a number tying one y unit
 #: to n x units, which is a statement about the data and is a different
-#: setting living under Axes. This one is the proportions of the panel,
-#: and it is a choice of shapes rather than a ratio to compute, so it is
-#: called what the graph's own right-click menu calls it.
+#: setting living under Axes. This one offers "equal" and "auto", which is
+#: matplotlib's axes aspect: whether one y unit is drawn the same length as
+#: one x unit. That is a statement about the DATA, not about the panel's
+#: proportions -- those are the separate Page shape row -- so it is called
+#: what the graph's own right-click menu calls the same control. Labelling
+#: it "Graph shape" left two shape-sounding rows, no axis-lock row, and a
+#: row whose caption and whose own explanation disagreed.
 _STYLE_LABELS = {
-    "aspect": "Graph shape",
+    "aspect": "Lock axis scales",
 }
 
 

@@ -2,7 +2,15 @@
 SETTINGS APPEAR WHEN THEY APPLY, AND THE OBJECTS ARE NOT A FIXED FOUR
 ================================================================================
 
-Status:    OPEN. Requested 2026-08-25.
+Status:    DONE. The organelle slots are generated from a count rather
+           than fixed at four, and a file written at seven loads at two
+           with the hidden five intact. A setting appears when its object
+           is in the run -- the channel is the switch, and the type
+           chosen for a slot narrows which of that slot's settings show
+           -- and hiding keeps the value. The 3D and Time switches sit
+           left of Live on both hosts. No key is both a fold button and a
+           tile. A folded module's icon sits beside the category it
+           reveals.
 Priority:  HIGH -- item 3 below is part of the consolidation (242), which
            the maintainer has put first.
 Owner:     spacr/settings.py and spacr/qt/screens/settings_model.py for

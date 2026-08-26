@@ -2,9 +2,16 @@
 THE VOLCANO'S RIGHT-CLICK MENU, AND FOUR FILTERS THAT CANNOT FIRE
 ================================================================================
 
-Status:    PART DONE. Sections 1 and 2 are closed; section 3 is closed in
-           the graph's own menu and still open in the save dialog and the
-           figure preferences -- see WHAT IS STILL OPEN at the foot.
+Status:    DONE. The four filters are gone, the volcano's menu carries
+           what was asked of it, and the three places that still said
+           "aspect ratio" to a user now say which of the two quantities
+           they mean. The fourth was worse than a stale name: the style
+           row labelled "Graph shape" offers equal and auto, which is the
+           axis lock, so the caption and the row's own explanation
+           disagreed and there was no axis-lock row at all. Label, help
+           and check moved together. The crop panel's control is a third
+           quantity again -- it copies width onto height rather than
+           holding a ratio -- and is named for what it does.
 Owner:     spacr/qt/widgets/volcano_explorer.py and the shared graph
            right-click menu; spacr/settings.py for the four removals.
 
