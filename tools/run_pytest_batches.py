@@ -64,7 +64,21 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    """Run every selected batch and return the first failing exit status."""
+    """Run EVERY selected batch and return the first failing exit status.
+
+    EVERY, and that word is the whole of this function's contract. It used
+    to return the moment a batch failed, which reads as a reasonable
+    economy and is not: the batches partition the suite, so stopping at
+    the first failure means the batches after it never run at all.
+
+    Measured on one commit: this stopped at batch 19 of 54, so thirty-five
+    batches -- about two thirds of the partition -- were never executed,
+    and the job reported "one failure". A file in batch 39 had three real
+    failures that had gone unreported for days, because no run ever
+    reached it. A CI job that describes a PREFIX of the suite while
+    looking like a verdict on all of it is worse than one that is simply
+    slow.
+    """
     args = build_parser().parse_args(argv)
     if args.workers < 1:
         raise ValueError("workers must be at least 1")
@@ -74,6 +88,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     if not batches:
         raise FileNotFoundError("no test_*.py files found")
 
+    failed: list = []
     for number, batch in enumerate(batches, start=1):
         print(
             f"pytest batch {number}/{len(batches)}: {len(batch)} files",
@@ -90,7 +105,18 @@ def main(argv: Sequence[str] | None = None) -> int:
         command.extend(["-v", "--tb=short"])
         result = subprocess.run(command, check=False)
         if result.returncode not in (0, NO_TESTS_COLLECTED):
-            return int(result.returncode)
+            # REMEMBERED, NOT RETURNED. The first failing status is what
+            # the job exits with, so the signal is unchanged; what changes
+            # is that the remaining batches still run and their failures
+            # are still reported.
+            failed.append((number, int(result.returncode)))
+    if failed:
+        print(
+            f"{len(failed)} of {len(batches)} batches failed: "
+            + ", ".join(f"batch {n} (exit {code})" for n, code in failed),
+            flush=True,
+        )
+        return failed[0][1]
     return 0
 
 

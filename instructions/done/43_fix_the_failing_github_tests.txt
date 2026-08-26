@@ -799,11 +799,14 @@ is the run that proves it rather than the argument that predicted it.
          is promoted in the maturity table and expected as a fold, but is
          neither registered nor folded into a host. `activation` is half
          way through the same move -- folded, and still drawing a tile.
-     the home app-count ratchet                  33 apps carry a staged
-         colour where test_home_layout.py pins 47. NOT MOVED: it is a
-         claim about what the user sees. It is not a stage-colour bug --
-         48 apps register and 15 are stable -- it is the registry
-         consolidation, and whoever consolidated has to re-narrate it.
+     the home app-count ratchet                  test_home_layout.py pins
+         47 apps carrying a staged colour; the tree answered 33, and one
+         hour later 32. NOT MOVED, and the second reading is the reason:
+         the number is still moving as the consolidation signs modules
+         off, so anything written here would be stale before it was
+         committed. It is not a stage-colour bug -- 48 apps register and
+         15 are stable -- and it is a claim about what the user sees, so
+         it is moved once, at the end, by whoever consolidated.
      docs/source/index.rst                       two tests in
          test_help_menu_tutorial_link.py read the app and category counts
          out of the landing page and the sentences are no longer there.

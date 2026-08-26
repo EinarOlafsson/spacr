@@ -558,7 +558,17 @@ def install(screen: QWidget) -> Optional[SettingsSearchBar]:
         index = parent.indexOf(scroll)
         sizes = list(parent.sizes())
         bar = SettingsSearchBar(screen)
-        container = QWidget(parent)
+        # NO PARENT HERE. `insertWidget` below parents this container to the
+        # splitter, and handing it the same parent at construction parents
+        # it twice -- Shiboken then releases the wrapper twice when the
+        # screen's children are deleted, and the process dies inside
+        # QObjectPrivate::deleteChildren.
+        #
+        # It is a SEGFAULT, so it does not arrive as a failing assertion:
+        # the test body passes and the process dies afterwards, which xdist
+        # reports as a failed test with no message and which takes the rest
+        # of that shard with it.
+        container = QWidget()
         container.setObjectName(PANE_NAME)
         column = QVBoxLayout(container)
         column.setContentsMargins(0, 0, 0, 0)

@@ -71,3 +71,66 @@ def test_main_rejects_non_positive_limits(tmp_path, option, value):
     (tmp_path / "test_one.py").write_text("", encoding="utf-8")
     with pytest.raises(ValueError):
         runner.main([str(tmp_path), "--marker", "not slow", option, value])
+
+
+def test_every_batch_runs_even_after_one_fails(monkeypatch, tmp_path):
+    """A job that stops at the first failing batch reports a PREFIX.
+
+    The batches partition the suite, so returning early means the batches
+    after the failure never execute. Measured on one commit: the run
+    stopped at batch 19 of 54, thirty-five batches never ran, and the job
+    reported "one failure" -- while a file in batch 39 had three real
+    failures that had gone unreported for days because no run reached it.
+    """
+    import subprocess
+
+    from tools import run_pytest_batches as runner
+
+    for name in ("a", "b", "c", "d"):
+        (tmp_path / f"test_{name}.py").write_text("def test_x():\n    pass\n")
+
+    ran = []
+
+    class _Result:
+        def __init__(self, code):
+            self.returncode = code
+
+    def fake_run(command, check=False):
+        batch = [c for c in command if c.endswith(".py")]
+        ran.append(tuple(sorted(batch)))
+        # The second batch fails; the rest must still be attempted.
+        return _Result(1 if len(ran) == 2 else 0)
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    status = runner.main([str(tmp_path), "--batch-size", "1", "--marker", "not slow"])
+
+    assert len(ran) == 4, f"only {len(ran)} of 4 batches ran"
+    assert status == 1, "the failing status must still be what the job exits with"
+
+
+def test_the_summary_names_every_failing_batch(monkeypatch, tmp_path, capsys):
+    """One line a reader can act on, rather than a count to go hunting for."""
+    import subprocess
+
+    from tools import run_pytest_batches as runner
+
+    for name in ("a", "b", "c"):
+        (tmp_path / f"test_{name}.py").write_text("def test_x():\n    pass\n")
+
+    seen = []
+
+    class _Result:
+        def __init__(self, code):
+            self.returncode = code
+
+    def fake_run(command, check=False):
+        seen.append(1)
+        return _Result(0 if len(seen) == 1 else 1)
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+    runner.main([str(tmp_path), "--batch-size", "1", "--marker", "not slow"])
+
+    out = capsys.readouterr().out
+    assert "2 of 3 batches failed" in out
+    assert "batch 2" in out and "batch 3" in out
