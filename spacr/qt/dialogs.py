@@ -1,4 +1,23 @@
-"""Window behaviour for spaCR's modal dialogs.
+"""Standardize movement and resizing of spaCR modal dialogs.
+
+Some desktop window managers attach a parented modal ``QDialog`` to its main
+window. :func:`detach_from_window_manager` preserves ownership and modality
+while presenting it as an independently movable top-level window.
+
+The resizing helpers remove explicit minimum sizes when appropriate, wrap
+content in a scroll area only when its layout prevents useful shrinking, add
+a visible size grip, and preserve the dialog's natural opening size. Qt's own
+specialized dialogs, simple message dialogs, and content that already scrolls
+are left unchanged. :func:`install_the_dialog_filters` applies these rules to
+new dialogs at application level.
+"""
+
+from __future__ import annotations
+
+import logging
+from typing import Any
+
+_DIALOG_IMPLEMENTATION_NOTES = r"""
 
 TWO THINGS EVERY DIALOG IN THE APPLICATION GETS, and neither is asked for
 by the dialogs themselves: a window the WM will let the user DRAG, and a
@@ -85,20 +104,15 @@ AND IT OPENS AT THE SIZE IT ALWAYS DID (:func:`open_at_its_natural_size`).
 The floor was load-bearing for that, and taking it away silently made wide
 dialogs open narrow. Checked against every dialog in the sweep.
 """
-from __future__ import annotations
-
-import logging
-from typing import Any
 
 LOG = logging.getLogger("spacr.qt.dialogs")
 
 
 def detach_from_window_manager(dialog: Any) -> Any:
-    """Stop a WM attaching ``dialog`` to its parent. Returns ``dialog``.
+    """Prevent a window manager from attaching ``dialog`` to its parent.
 
-    Call it before ``exec()`` on any modal dialog the user should be able to
-    drag where they like. Safe to call more than once, and safe on a dialog
-    with no parent.
+    Call this before ``exec()`` when a modal dialog must remain independently
+    movable. Repeated calls and dialogs without parents are supported.
 
     :param dialog: the ``QDialog`` (or any ``QWidget`` shown as a window).
     :returns: the same object, so it can be used inline.
@@ -166,10 +180,17 @@ def _field_types():
     :returns: ``(fields, nesting)`` -- what to count, and what to look
         inside for children that must NOT be counted again.
     """
-    from PySide6.QtWidgets import (QAbstractItemView, QAbstractSpinBox,
-                                   QCheckBox, QComboBox, QLineEdit,
-                                   QPlainTextEdit, QRadioButton, QSlider,
-                                   QTextEdit)
+    from PySide6.QtWidgets import (
+        QAbstractItemView,
+        QAbstractSpinBox,
+        QCheckBox,
+        QComboBox,
+        QLineEdit,
+        QPlainTextEdit,
+        QRadioButton,
+        QSlider,
+        QTextEdit,
+    )
 
     fields = (QAbstractItemView, QAbstractSpinBox, QCheckBox, QComboBox,
               QLineEdit, QPlainTextEdit, QRadioButton, QSlider, QTextEdit)
@@ -182,14 +203,10 @@ def _field_types():
 
 
 def fields_in(dialog) -> int:
-    """How many settings fields ``dialog`` holds. Zero for a message.
+    """Return the number of independent data-entry fields in ``dialog``.
 
-    Counted by LOOKING, not by asking, so a dialog written next month is
-    classified without its author knowing this rule exists -- the same
-    reason the detacher below is a filter rather than a call per dialog.
-
-    Push buttons are not fields. Every dialog has buttons, including the
-    ones this must leave alone.
+    Editors nested inside another field, such as a spin box's line editor,
+    are not counted separately. Push buttons are not considered fields.
     """
     from PySide6.QtWidgets import QWidget
 
@@ -211,16 +228,10 @@ def fields_in(dialog) -> int:
 
 
 def more_than_a_message(dialog) -> bool:
-    """Whether ``dialog`` is a window with contents rather than a sentence.
+    """Return whether ``dialog`` contains resizable interactive content.
 
-    A CONFIRMATION GAINS NOTHING HERE. "Delete these files?" with two
-    buttons has no field to scroll and no room to give; a grip on it says
-    a window can be resized usefully when it cannot.
-
-    Two ways to be more than that, and each is something a user reads or
-    edits rather than a caption: at least one FIELD, or a scrollable area
-    of the dialog's own -- which is what the plate-map picker is, a grid
-    of 384 wells in a scroll area with no field anywhere.
+    A dialog qualifies when it contains at least one data-entry field or an
+    existing scroll area. Simple confirmation and message dialogs do not.
     """
     from PySide6.QtWidgets import QAbstractScrollArea
 
@@ -230,47 +241,26 @@ def more_than_a_message(dialog) -> bool:
 
 
 def window_floor(dialog):
-    """The size ``dialog`` cannot be dragged in past.
+    """Return the explicit minimum size enforced for ``dialog``.
 
-    `minimumSize`, NOT `minimumSizeHint`, and the difference is the whole
-    of :func:`open_at_its_natural_size`. Qt clamps a resize -- and the
-    size a window opens at -- against `minimumSize`; the hint is what the
-    CONTENTS ask for, and a dialog whose author set a smaller minimum by
-    hand is allowed to go under it and clip. `_ProvidersDialog` measured
-    620x560 against a content minimum of 1062x873.
+    Unlike ``minimumSizeHint()``, this value directly constrains manual and
+    initial window resizing.
     """
     return dialog.minimumSize()
 
 
 def content_floor(dialog):
-    """The smallest ``dialog``'s contents can be drawn without clipping.
-
-    The layout's total minimum, which for a window is what
-    `minimumSizeHint` answers.
+    """Return the layout's minimum size for rendering without clipping.
     """
     return dialog.minimumSizeHint()
 
 
 def is_stuck_at_its_contents(dialog) -> bool:
-    """Whether ``dialog`` cannot be made much smaller than it opens.
+    """Return whether content prevents useful shrinking in either dimension.
 
-    THIS IS THE DEFECT, and it is a measurement rather than a guess about
-    how a dialog is built. `PictureSettingsDialog`: size 645x318,
-    minimumSize 645x318, a resize to 300x200 answered 645x318. Nothing was
-    preventing it -- the contents' minimum sizes added up to the whole
-    window, so there was no slack to give.
-
-    NOT "CAN IT MOVE AT ALL". Measured on `SettingsAdvisorDialog`: 900
-    wide, floor 847 -- fifty-three pixels of travel on a window the user
-    is trying to make fit beside something else, which reads as stuck and
-    is stuck for any purpose. :data:`SLACK` says how much of a side has to
-    be reachable before this leaves a dialog alone.
-
-    EITHER DIRECTION COUNTS. A window that can be shortened but not
-    narrowed is one the user cannot resize, which is what was reported.
-
-    ASKED BEFORE ANYTHING IS CHANGED, because the size it compares
-    against is the size the window opens at today.
+    :data:`SLACK` defines the minimum proportional reduction required for a
+    dialog to be considered usefully resizable. Call this before changing its
+    layout or minimum size.
     """
     opening = dialog.sizeHint().expandedTo(window_floor(dialog))
     content = content_floor(dialog)
@@ -419,20 +409,26 @@ def _qts_own_dialogs():
     prompt, a progress dialog, a wizard. Each of those arranges its own
     children and documents behaviour that moving them would break.
     """
-    from PySide6.QtWidgets import (QColorDialog, QErrorMessage, QFileDialog,
-                                   QFontDialog, QInputDialog, QMessageBox,
-                                   QProgressDialog, QWizard)
+    from PySide6.QtWidgets import (
+        QColorDialog,
+        QErrorMessage,
+        QFileDialog,
+        QFontDialog,
+        QInputDialog,
+        QMessageBox,
+        QProgressDialog,
+        QWizard,
+    )
 
     return (QColorDialog, QErrorMessage, QFileDialog, QFontDialog,
             QInputDialog, QMessageBox, QProgressDialog, QWizard)
 
 
 def wants_resizing(dialog) -> bool:
-    """Whether ``dialog`` is a settings window this should take in hand.
+    """Return whether spaCR should add standardized resizing to ``dialog``.
 
-    A dialog qualifies when it is not one of Qt's own specialised ones,
-    has a layout with something in it, is more than a message, and has not
-    said no or been done already.
+    The dialog must contain interactive content and must not be a specialized
+    Qt dialog, explicitly exempt, or already processed.
     """
     from PySide6.QtWidgets import QDialog
 
@@ -449,19 +445,10 @@ def wants_resizing(dialog) -> bool:
 
 
 def drop_the_explicit_floor(dialog) -> bool:
-    """Take back a minimum size the dialog set on itself. True if lowered.
+    """Clear an explicit minimum size and report whether one was present.
 
-    A LAYOUT'S FLOOR IS NOT THE ONLY ONE. Six of these dialogs call
-    `setMinimumWidth` or `setMinimumSize` in their constructor -- measured:
-    `BarcodeRegexDialog` would not go under 760x430, `_ProvidersDialog`
-    under 620x560 -- and a minimum set by hand outranks anything the
-    contents say. Scrolling the contents does nothing for a window whose
-    own floor is still where it was.
-
-    Those numbers were chosen so the form would FIT, which is a job the
-    scroll area now has. What they must not change is the size the window
-    OPENS at, so the floor is remembered rather than forgotten -- see
-    :func:`open_at_its_natural_size`.
+    The original value can be retained separately and passed to
+    :func:`open_at_its_natural_size` so the initial window size is preserved.
     """
     from PySide6.QtCore import QSize
 
@@ -476,33 +463,13 @@ def drop_the_explicit_floor(dialog) -> bool:
 
 
 def let_the_content_scroll(dialog) -> bool:
-    """Put ``dialog``'s contents in a scroll area. True if they moved.
+    """Move a dialog's layout into a resizable scroll area.
 
-    THE FLOOR IS THE CONTENT, WHICH IS WHY NOTHING ELSE WORKS. A settings
-    dialog's minimum size is its layout's total minimum -- Qt sets it from
-    `QLayout.SetDefaultConstraint` -- so the window cannot be dragged in
-    past the point where every field is fully visible. A window smaller
-    than its contents can only mean a window showing PART of them, so the
-    contents move into a scroll area: the form keeps its minimum, and the
-    window stops being obliged to show all of it at once.
+    The existing layout and widgets are transferred to a transparent holder,
+    while the original outer margins remain on the dialog. The holder expands
+    with the viewport, and content exceeding the current window size scrolls.
 
-    WHAT MOVES, EXACTLY. The dialog's own layout is stolen by a holder
-    widget -- which takes the fields with it, since a layout carries the
-    widgets it manages -- and the holder goes in the scroll area. Anything
-    the author did NOT put in a layout stays a child of the dialog, which
-    is what the glass card and the drifting backdrop are.
-
-    THE MARGINS MOVE OUT, NOT IN. Glass widens a dialog's own layout
-    margins so the travelling rim has a band to run along. Left inside the
-    scroll area those pixels would scroll away with the form and the rim
-    would be painted over the fields; moved to the new outer layout they
-    keep the scroll area clear of the edge, which is also what leaves the
-    six-pixel band `glass._ResizeByEdge` grabs from.
-
-    THE HOLDER FILLS THE VIEWPORT (`setWidgetResizable`), which is what
-    gives the extra room to the form when the window is made bigger. A
-    widened window without it is a form of the old width with grey either
-    side, which has technically resized and has not helped.
+    :returns: ``True`` after the content has been moved.
     """
     from PySide6.QtWidgets import QFrame, QVBoxLayout, QWidget
 
@@ -541,39 +508,13 @@ def let_the_content_scroll(dialog) -> bool:
 
 
 def open_at_its_natural_size(dialog) -> bool:
-    """Reopen a dialog at the size its old floor gave it. True if resized.
+    """Apply a stored natural opening size once and clear the stored value.
 
-    WHY THE SIZE HAS TO BE PUT BACK AT ALL. A window Qt shows for the
-    first time is sized by `QWidget.adjustSize`: the size hint **bounded
-    to two thirds of the screen**, then clamped back UP to the window's
-    minimum. Before this module lowered it, that minimum WAS the content,
-    so the two-thirds cap never showed -- a 645-pixel dialog opened 645
-    wide because it could not be smaller. Take the floor away and the cap
-    starts to bite: measured on an 800-pixel screen, `PictureSettingsDialog`
-    opened 533 wide with a scroll bar already showing on a window nobody
-    had touched.
+    This is called after Qt's initial size adjustment so removing a minimum
+    size does not cause a dialog to open smaller than its original layout.
+    Later shows retain the size selected by the user.
 
-    AND WHY IT CANNOT BE DONE WHEN THE FLOOR COMES OFF.
-    `QWidget.setVisible` reads `WA_Resized` BEFORE it polishes the widget,
-    adjusts the size after, and then sets `WA_Resized` back to false. A
-    resize made from a Polish handler is made inside that window and
-    thrown away -- measured: 645 wide at the end of the wrap, 533 by the
-    time `show()` returned. The Show event is delivered after the
-    adjustment, which is the first moment a size sticks.
-
-    THE OLD FLOOR IS THE WHOLE CALCULATION, and it is one line because
-    Qt has already done the rest. By the time this Show arrives the window
-    has been given the size it would have had -- the author's own
-    `resize()` if there was one, otherwise `adjustSize`'s hint bounded to
-    two thirds of the screen -- and the only step missing is the one the
-    lowered minimum used to supply: clamping that size back UP to the
-    floor. Applying it here reproduces the old opening size exactly,
-    without this module having to know which of the two routes the window
-    took. Checked across thirty dialogs: every one opens at the size
-    measured before this module touched it.
-
-    ONCE. The marker is cleared here, so a dialog shown, hidden and shown
-    again keeps whatever size the user left it at.
+    :returns: ``True`` if a stored size was applied.
     """
     floor = dialog.property(OPENS_AT)
     dialog.setProperty(OPENS_AT, None)
@@ -584,13 +525,9 @@ def open_at_its_natural_size(dialog) -> bool:
 
 
 def give_it_a_size_grip(dialog) -> bool:
-    """Show the corner grip on ``dialog``. True if one is there now.
+    """Enable a transparent corner size grip on ``dialog``.
 
-    THE AFFORDANCE, not the ability. A window that can be resized and
-    shows nothing saying so is a window nobody tries to resize -- and
-    these are frameless, so the corner the eye looks for is not even
-    drawn. `QDialog.setSizeGripEnabled` exists for exactly this and no
-    dialog in spaCR called it.
+    :returns: ``True`` if the dialog contains a size-grip widget.
     """
     from PySide6.QtWidgets import QSizeGrip
 
@@ -606,17 +543,14 @@ def give_it_a_size_grip(dialog) -> bool:
 
 
 def make_the_window_resizable(dialog) -> bool:
-    """Give one settings dialog a floor it can go under, and a grip.
+    """Apply standardized resizing behavior to one eligible dialog.
 
-    True when this dialog was one to take in hand. Idempotent: the marker
-    it leaves is read by :func:`wants_resizing`.
+    Explicit minimum sizes are cleared first. If the content still prevents
+    useful shrinking and does not already scroll, it is moved into a scroll
+    area. A size grip is then enabled. Repeated calls leave the dialog
+    unchanged.
 
-    THE CHEAPEST FIX THAT WORKS, IN ORDER. A minimum the dialog set on
-    itself comes off first, because for six of them that is the whole
-    floor; the contents are only moved into a scroll area if the dialog is
-    STILL stuck afterwards, because a dialog that already holds a list or
-    a text box has slack of its own and a second scroll area around the
-    first is two sets of scroll bars.
+    :returns: ``True`` if the dialog was eligible and processed.
     """
     if not wants_resizing(dialog):
         return False
