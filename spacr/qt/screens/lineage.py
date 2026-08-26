@@ -41,6 +41,8 @@ from ..job_runner import JobRunner
 from ...selection import match_keys
 from ..linked_selection import DEFAULT_OPEN_KIND, LinkedView, has_object_opener
 from ..theme import SPACING, active_palette, mark_surface
+from ..widgets.sortable_table import install_sorting, tree_item
+from ..app_catalog import declared_app, register_declared
 
 LOG = logging.getLogger(__name__)
 
@@ -137,6 +139,7 @@ class LineageScreen(LinkedView, QWidget):
         left_column.setContentsMargins(0, 0, 0, 0)
         left_column.setSpacing(4)
         self.tree = QTreeWidget(left)
+        install_sorting(self.tree)
         self.tree.setHeaderLabels(["Object", "Inside it", "Key"])
         self.tree.setColumnHidden(2, True)
         self.tree.setSelectionMode(QAbstractItemView.ExtendedSelection)
@@ -249,7 +252,7 @@ class LineageScreen(LinkedView, QWidget):
         have drifted apart in this codebase before.
         """
         inside = {t: n for t, n in node.counts().items() if t != node.table}
-        item = QTreeWidgetItem([
+        item = tree_item([
             f"{node.table} {node.label}",
             ", ".join(f"{n} {t}" for t, n in sorted(inside.items())),
             node.key,
@@ -453,18 +456,16 @@ class LineageScreen(LinkedView, QWidget):
 # Registration
 # ---------------------------------------------------------------------------
 
-APP_NAME = "Lineage"
-APP_DESCRIPTION = "What is inside what: cell → nucleus → pathogen"
-APP_INTRO = (
-    "Every cell with the nuclei and pathogens it contains, read off the "
-    "cell_id links Measure has always written. Selecting a node highlights "
-    "the same object in every other open view; 'Select with contents' "
-    "highlights the whole family. Children whose cell_id names no cell get "
-    "their own list — that is the two masks disagreeing, and it is a finding "
-    "rather than noise.")
-APP_CLI_NOTE = (
-    "Lineage is an interactive tree; run it in the GUI (spacr-qt). Headless, "
-    "spacr.lineage.build_forest gives the same tree as data.")
+# The row this screen puts in the registry is declared in
+# `spacr.qt.app_catalog`, which is what lets the app be registered without
+# importing this module -- the launch reads the table, not the screen. These
+# read the same row back rather than restating it, so the name, the blurb and
+# the nine translations have one spelling and no second copy to drift from.
+_ROW = declared_app(APP_KEY)
+APP_NAME = _ROW.name
+APP_DESCRIPTION = _ROW.desc
+APP_INTRO = _ROW.intro
+APP_CLI_NOTE = _ROW.cli_note
 
 
 def make_lineage_screen(**_kwargs) -> LineageScreen:
@@ -478,14 +479,5 @@ def register(*, section: Optional[str] = None, stage: Optional[str] = None,
 
     :returns: the registry row, or ``None`` when the key was already there.
     """
-    from ..app import APPS, SECTION_EXPLORE, STAGE_ALPHA, register_app
-    if any(row[0] == key for row in APPS):
-        return None
-    return register_app(
-        key, APP_NAME, APP_DESCRIPTION, section or SECTION_EXPLORE,
-        factory=make_lineage_screen,
-        stage=STAGE_ALPHA if stage is None else stage,
-        intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-        api_module="qt/screens/lineage",
-        translations=("Härstamning", "Abstammung", "Linaje", "谱系",
-                      "Linhagem", "वंशावली", "계보", "Ætterni", "Lignée"))
+    return register_declared(
+        __name__, key=key, section=section, stage=stage)

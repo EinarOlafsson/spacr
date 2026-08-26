@@ -47,6 +47,7 @@ from ..iconset import icon
 from ..theme import SPACING, active_palette
 from ..widgets import Card, Divider
 from .settings_model import attach_api_tooltip
+from ..widgets.sortable_table import install_sorting, table_item
 
 LOG = logging.getLogger(__name__)
 
@@ -65,7 +66,7 @@ _COLUMNS = (
 
 def _item(value) -> QTableWidgetItem:
     """Return a non-editable table item."""
-    item = QTableWidgetItem("" if value is None else str(value))
+    item = table_item("" if value is None else str(value))
     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
     return item
 
@@ -537,6 +538,7 @@ class DistributedJobsScreen(QWidget):
 
         splitter = QSplitter(Qt.Vertical, self)
         self._table = QTableWidget(0, len(_COLUMNS), splitter)
+        install_sorting(self._table)
         self._table.setHorizontalHeaderLabels(list(_COLUMNS))
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self._table.setSelectionMode(QAbstractItemView.SingleSelection)

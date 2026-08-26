@@ -6,6 +6,7 @@ continues to display its questions and save their answers.
 """
 from __future__ import annotations
 
+import math
 from typing import Optional
 
 from PySide6.QtCore import QPointF, QRectF, Qt, QTimer
@@ -125,6 +126,13 @@ class SetupCard(QWidget):
         #: off course by a mouse movement is not a lap, and the user cannot
         #: tell whether it went round -- which is the whole signal.
         self._laps = 0.0
+        #: The preferences this frame is being drawn with, or None between
+        #: frames. See :meth:`_held`.
+        self._frame = None
+        #: ``(key, path, length)`` for the rim last built. See :meth:`_rim`.
+        self._rim_cache = None
+        #: ``(key, span)`` for the lit fraction last worked out.
+        self._span_cache = None
         self._timer = QTimer(self)
         self._timer.setInterval(16)             # ~60fps
         self._timer.timeout.connect(self._tick)
@@ -308,6 +316,28 @@ class SetupCard(QWidget):
         self._towards = target
         return moved
 
+    def _held(self, name: str, read):
+        """``read()``, or the answer already read for the frame being drawn.
+
+        THE PREFERENCES ARE READ ONCE A FRAME, not once a segment. The lit
+        run is drawn as hundreds of short strokes and each one asked for
+        the mode, the period and the alignment -- several hundred openings
+        of the settings store per frame, for values that cannot change
+        while a single frame is being painted. They are read on the first
+        ask and answered from the frame until it ends.
+
+        NOTHING IS HELD BETWEEN FRAMES. Outside a paint this is a plain
+        call through to ``read``, so a card still takes a slider's new
+        value on the very next frame -- which is what
+        :meth:`reread_the_preferences` relies on.
+        """
+        frame = self._frame
+        if frame is None:
+            return read()
+        if name not in frame:
+            frame[name] = read()
+        return frame[name]
+
     @staticmethod
     def _preferred_arc() -> int:
         """The stored rim length, or the shipped default."""
@@ -333,6 +363,10 @@ class SetupCard(QWidget):
         """``'glow'``, ``'rainbow'`` or ``'beat'``."""
         if self._mode:
             return self._mode
+        return self._held("mode", self._stored_mode)
+
+    @staticmethod
+    def _stored_mode() -> str:
         try:
             from ..preferences import get_rim_mode
 
@@ -342,6 +376,10 @@ class SetupCard(QWidget):
 
     def period(self) -> float:
         """Seconds for one pulse, or one turn of the hue."""
+        return self._held("period", self._stored_period)
+
+    @staticmethod
+    def _stored_period() -> float:
         try:
             from ..preferences import get_rim_period
 
@@ -379,8 +417,11 @@ class SetupCard(QWidget):
         a preference -- a card that cached it at construction would be a
         second place the answer lived.
         """
-        dressing = self._dressing()
-        return bool(dressing[0]()) if dressing else False
+        def read():
+            dressing = self._dressing()
+            return bool(dressing[0]()) if dressing else False
+
+        return self._held("spaceout", read)
 
     def animates(self) -> bool:
         """Whether the rim changes when nothing else does.
@@ -396,6 +437,10 @@ class SetupCard(QWidget):
         """``'centre'`` or ``'head'`` -- where the run sits on the pointer."""
         if self._align:
             return self._align
+        return self._held("alignment", self._stored_alignment)
+
+    @staticmethod
+    def _stored_alignment() -> str:
         try:
             from ..preferences import get_rim_alignment
 
@@ -472,6 +517,9 @@ class SetupCard(QWidget):
 
         palette = active_palette()
         painter = QPainter(self)
+        # THE FRAME OPENS HERE and everything the run is drawn with is read
+        # inside it. See :meth:`_held`.
+        self._frame = {}
         try:
             painter.setRenderHint(QPainter.Antialiasing, True)
             rect = QRectF(self.rect()).adjusted(1.0, 1.0, -1.0, -1.0)
@@ -520,7 +568,29 @@ class SetupCard(QWidget):
             # frame budget at 60 fps.
             self._paint_accent(painter, QColor(palette["accent"]), rect)
         finally:
+            self._frame = None
             painter.end()
+
+    def _rim(self, rect: QRectF):
+        """The rounded rim ``rect`` traces, with its length.
+
+        BUILT ONCE PER SIZE, not once per frame. The path is a function of
+        the rectangle and the corner radius; neither moves while the
+        pointer does, and measuring the length of a rounded rectangle is
+        not free. A resize builds it again, which is the only thing that
+        can change it.
+
+        :returns: ``(path, length)``. The path is the card's own and is
+            read from, never drawn into.
+        """
+        key = (rect.x(), rect.y(), rect.width(), rect.height(), self._radius)
+        cached = self._rim_cache
+        if cached is None or cached[0] != key:
+            path = QPainterPath()
+            path.addRoundedRect(rect, self._radius, self._radius)
+            cached = (key, path, max(1.0, path.length()))
+            self._rim_cache = cached
+        return cached[1], cached[2]
 
     def accent_span(self, rect: QRectF) -> float:
         """How much of the rim is lit, as a fraction of its length.
@@ -534,11 +604,20 @@ class SetupCard(QWidget):
         a thick bright band -- "the rim is to thick and bright. make the
         rim and window look exactly like the setup spacr window."
         """
-        rim = QPainterPath()
-        rim.addRoundedRect(QRectF(0.0, 0.0, *REFERENCE_CARD),
-                           self._radius, self._radius)
-        total = max(1.0, rim.length())
-        return min(0.62, max(0.04, float(self._arc) * 2.0 / total))
+        key = (self._radius, self._arc)
+        cached = self._span_cache
+        if cached is None or cached[0] != key:
+            # The reference rim is a constant of the radius, so building
+            # and measuring it belongs once per length rather than once
+            # per frame.
+            rim = QPainterPath()
+            rim.addRoundedRect(QRectF(0.0, 0.0, *REFERENCE_CARD),
+                               self._radius, self._radius)
+            total = max(1.0, rim.length())
+            cached = (key, min(0.62, max(0.04,
+                                         float(self._arc) * 2.0 / total)))
+            self._span_cache = cached
+        return cached[1]
 
     def accent_peak(self) -> float:
         """Where along the run the accent is brightest, 0..1.
@@ -588,8 +667,7 @@ class SetupCard(QWidget):
         seam four separate corner paths have -- which is what makes it read
         as flowing rather than as switching.
         """
-        rim = QPainterPath()
-        rim.addRoundedRect(rect, self._radius, self._radius)
+        rim, _ = self._rim(rect)
         span = self.accent_span(rect)
         start = self.accent_start(span)
 
@@ -650,8 +728,16 @@ class SetupCard(QWidget):
         and the palette's drift carries the whole thing round with the rest
         of the application.
         """
-        dressing = self._dressing()
-        drift = float(dressing[1]()) / 360.0 if dressing else 0.0
+        def read():
+            dressing = self._dressing()
+            return float(dressing[1]()) / 360.0 if dressing else 0.0
+
+        # ONE DRIFT FOR THE WHOLE RUN. It is a function of the animation
+        # clock, which does not advance while a frame is being drawn, so
+        # asking per segment returned the same number at the cost of a
+        # call -- and a run whose ends had drifted differently from each
+        # other would be a fault, not a feature.
+        drift = self._held("drift", read)
         return ((float(along) * SPACEOUT_RIM_SPREAD
                  + self._phase / SPACEOUT_RIM_PERIOD + drift) % 1.0)
 
@@ -664,8 +750,6 @@ class SetupCard(QWidget):
         """
         if self.mode() != "beat":
             return 1.0
-        import math
-
         cycle = math.sin(2.0 * math.pi * self._phase / max(0.1, self.period()))
         return 0.45 + 0.55 * (0.5 + 0.5 * cycle)
 
@@ -676,17 +760,21 @@ class SetupCard(QWidget):
         is a setting: centred puts the middle of the light on the pointer,
         head puts its leading end there and trails the rest behind.
         """
-        rim = QPainterPath()
-        rim.addRoundedRect(rect, self._radius, self._radius)
+        rim, rim_px = self._rim(rect)
         span = self.accent_span(rect)
         start = self.accent_start(span)
+        # THE PULSE IS ONE VALUE FOR THE FRAME. It is read off the
+        # animation clock, which does not advance while the frame is being
+        # drawn, so asking per segment gave the same answer every time --
+        # and a run that pulsed along its own length would be a fault.
+        pulse = self.beat()
         # ONE STEP PER `STEP_PX` OF RIM, not a fixed count. At 24 segments a
         # run this long was 23 px a step: the alpha moved in visible jumps
         # and every corner was cut into four straight chords, which is the
         # "chunky" of the 2026-08-22 report. The count now follows the
         # length being drawn, so it stays smooth on a card of any size and
         # costs nothing on a small one.
-        run_px = max(1.0, span * rim.length())
+        run_px = max(1.0, span * rim_px)
         steps = int(min(self.MAX_STEPS,
                         max(24.0, run_px / self.STEP_PX)))
         previous = rim.pointAtPercent(start % 1.0)
@@ -703,7 +791,7 @@ class SetupCard(QWidget):
                 # next at the faint end.
                 middle = (alpha + previous_alpha) / 2.0
                 ink = self.ink_at((along + previous_along) / 2.0, colour)
-                ink.setAlpha(int(round(235 * middle * self.beat())))
+                ink.setAlpha(int(round(235 * middle * pulse)))
                 # THE WIDTH TAPERS WITH THE ALPHA. A constant-width stroke
                 # fading to nothing still shows its full thickness where it
                 # is faint, which reads as a smear; a taper reads as a wake.

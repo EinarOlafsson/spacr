@@ -46,6 +46,7 @@ from ...plate_measurements import (ambiguous_identifiers,
                                    classify_default_columns,
                                    describe_identifier_refusal)
 from ...schema import PLATE_KEY
+from .sortable_table import install_sorting, table_item
 
 LOG = logging.getLogger(__name__)
 
@@ -1150,6 +1151,7 @@ class DatabaseMergePanel(QWidget):
         layout.addWidget(self.heading)
 
         self.table = QTableWidget(0, len(self.COLUMNS))
+        install_sorting(self.table)
         self.table.setHorizontalHeaderLabels(list(self.COLUMNS))
         self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.table.setSelectionMode(QAbstractItemView.NoSelection)
@@ -1371,7 +1373,7 @@ class DatabaseMergePanel(QWidget):
                      entry.screen or "", detail.get("tables", ""),
                      detail.get("plates", ""), detail.get("rows", ""),
                      detail.get("status", entry.status)]):
-                item = QTableWidgetItem(str(value))
+                item = table_item(str(value))
                 if not entry.present:
                     # Disabled, not removed: the user has to be able to see
                     # which plate is missing from this tab and why.

@@ -21,6 +21,7 @@ from PySide6.QtWidgets import (QAbstractItemView, QComboBox, QDialog,
 
 from ...import_plan import (CHANNEL_MEANINGS, ROLES, for_get_regex,
                             group_names, plan)
+from .sortable_table import install_sorting, table_item
 
 LOG = logging.getLogger("spacr.qt.import_workbench")
 
@@ -113,6 +114,7 @@ class ImportWorkbench(QWidget):
         # ------------------------------------------- the table and the tree
         split = QSplitter(Qt.Horizontal, self)
         self.table = QTableWidget(0, 2, self)
+        install_sorting(self.table)
         self.table.setHorizontalHeaderLabels(["file", "would become"])
         self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.table.horizontalHeader().setSectionResizeMode(
@@ -276,15 +278,15 @@ class ImportWorkbench(QWidget):
         missed = list(plan_.unmatched) if plan_ else []
         self.table.setRowCount(len(rows) + len(missed))
         for index, row in enumerate(rows):
-            self.table.setItem(index, 0, QTableWidgetItem(row.before))
-            self.table.setItem(index, 1, QTableWidgetItem(row.after))
+            self.table.setItem(index, 0, table_item(row.before))
+            self.table.setItem(index, 1, table_item(row.after))
         # UNMATCHED LAST AND NAMED, never dropped in silence: "412 of 480
         # matched" with the other 68 listed is an answer, and 412 files
         # appearing without comment is how half a plate goes missing.
         for offset, name in enumerate(missed):
             index = len(rows) + offset
-            self.table.setItem(index, 0, QTableWidgetItem(name))
-            cell = QTableWidgetItem("no match")
+            self.table.setItem(index, 0, table_item(name))
+            cell = table_item("no match")
             cell.setForeground(Qt.red)
             cell.setToolTip(
                 "The regex above does not match this name, so this file "

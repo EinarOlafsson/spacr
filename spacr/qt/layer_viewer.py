@@ -54,6 +54,7 @@ from ..layers import (Blending, COLORMAPS, Canvas, FieldKey, ImageLayer,
 from .linked_selection import DEFAULT_OPEN_KIND, LinkedView, has_object_opener
 from .theme import close_mark_button, font_px, register_widget_qss
 from .widgets.preview_controls import FlatButton, FlatComboBox
+from .app_catalog import declared_app, register_declared
 
 LOG = logging.getLogger(__name__)
 
@@ -954,23 +955,16 @@ def make_layer_viewer_screen(**_kwargs) -> LayerViewer:
     return LayerViewer()
 
 
-#: Display name, one-line description and the header copy the shipped
-#: ``AppScreen`` tables want, written here beside the screen so that wiring
-#: the app in is one call rather than five strings invented in five files.
-#: :func:`spacr.qt.app.register_app` fans them out.
-APP_NAME = "Layer Viewer"
-APP_DESCRIPTION = "Images, masks, points and ROIs as separate layers in one world"
-APP_INTRO = (
-    "One world, many layers: an image channel, the label mask over it, the "
-    "points and the shapes, each with its own colormap, opacity, blending "
-    "and visibility, reordered by dragging. Picking an object here selects "
-    "the same object in every other open view, and vice versa.")
-#: What ``spacr.cli.INTERACTIVE_ONLY`` wants: why this app has no headless
-#: run, and what to do instead.
-APP_CLI_NOTE = (
-    "Layer Viewer is an interactive image viewer — the layer stack, the "
-    "blending and the picking are the whole feature; run it in the GUI "
-    "(spacr-qt). Headless, build a spacr.layers stack from Python instead.")
+# The row this screen puts in the registry is declared in
+# `spacr.qt.app_catalog`, which is what lets the app be registered without
+# importing this module -- the launch reads the table, not the screen. These
+# read the same row back rather than restating it, so the name, the blurb and
+# the nine translations have one spelling and no second copy to drift from.
+_ROW = declared_app(LAYER_VIEWER_APP_KEY)
+APP_NAME = _ROW.name
+APP_DESCRIPTION = _ROW.desc
+APP_INTRO = _ROW.intro
+APP_CLI_NOTE = _ROW.cli_note
 
 
 #: Screens that ride in on this module's registration, as
@@ -981,6 +975,13 @@ APP_CLI_NOTE = (
 #: no registry row to be registered into. `make_masks.FOLD_FALLBACK` keeps the
 #: name, the sentence and the maturity colour its tile carried, and
 #: `cli.INTERACTIVE_ONLY` keeps the sentence `spacr-run curate` prints.
+#:
+#: LINEAGE NO LONGER DEPENDS ON THIS RUNNING. Riding in on another module's
+#: registration means existing only when that module is imported, and this one
+#: is not imported at launch any more -- so Lineage now has its own row in
+#: ``app.py``'s ``_SELF_REGISTERING_APPS`` and is registered from its declared
+#: row like everything else. Both calls land on the same idempotent function.
+#: This table is kept for a companion that has no declared row of its own.
 COMPANION_APPS = (
     # Image Scatter used to ride in here. It is folded onto Image UMAP now --
     # a button on that masthead, opened already pointed at the same
@@ -1032,31 +1033,18 @@ def register_layer_viewer_app(*, section: Optional[str] = None,
     ``_SELF_REGISTERING_APPS`` there for why it cannot be called at the top
     of this module.
 
-    Everything after ``section`` is a table this key used to need a
-    hand-edit in: the screen header and blurb, the "no headless run"
-    sentence, the API doc link, and the display name in nine languages.
-    :func:`spacr.qt.app.register_app` distributes them; this function only
-    has to know them.
+    The row itself -- the key, the name, the blurb, the section, the "no
+    headless run" sentence, the API doc link and the nine translations of the
+    display name -- is declared in :mod:`spacr.qt.app_catalog`.
+    :func:`spacr.qt.app.register_app` distributes those into the four tables
+    each used to need a hand-edit in, and this function's whole job is to name
+    which row. That is what lets the app be registered without importing this
+    module at all: the launch reads the table, and the screen is imported when
+    somebody opens it.
 
     :returns: the registry row that was added, or ``None`` when the key was
         already registered. Safe to call twice: this module is reachable
         from three import paths and a duplicate key would otherwise raise.
     """
-    from .app import APPS, SECTION_EXPLORE, STAGE_ALPHA, register_app
-    register_companion_apps()
-    if any(row[0] == key for row in APPS):
-        return None
-    return register_app(
-        key, APP_NAME, APP_DESCRIPTION,
-        # Explore, not Results & QC: "page through image layers" is the
-        # example in that section's own definition. Results & QC is what a
-        # finished run produced; this is asking the images a question.
-        section or SECTION_EXPLORE,
-        factory=make_layer_viewer_screen,
-        stage=STAGE_ALPHA if stage is None else stage,
-        intro=APP_INTRO,
-        cli_note=APP_CLI_NOTE,
-        api_module="qt/layer_viewer",
-        translations=("Lagervisare", "Ebenenansicht", "Visor de capas",
-                      "图层查看器", "Visualizador de camadas", "लेयर व्यूअर",
-                      "레이어 뷰어", "Lagaskoðari", "Visionneuse de calques"))
+    return register_declared(
+        __name__, key=key, section=section, stage=stage)

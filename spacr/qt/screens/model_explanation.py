@@ -20,6 +20,7 @@ from ..job_runner import JobRunner
 from ..linked_selection import has_object_opener, open_objects
 from ..theme import SPACING, mark_surface
 from .app_screen import ModuleHeader
+from ..widgets.sortable_table import install_sorting, table_item
 
 APP_KEY = "explain_cv"
 APP_NAME = "Explain CV Model"
@@ -44,7 +45,7 @@ def _read_only_item(value: Any) -> QTableWidgetItem:
         text = f"{value:.5g}"
     else:
         text = str(value)
-    item = QTableWidgetItem(text)
+    item = table_item(text)
     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
     return item
 
@@ -171,6 +172,7 @@ class ExplainCvPanel(QWidget):
                       self.correlations, self.held_out, self.distributions):
             table.setEditTriggers(QAbstractItemView.NoEditTriggers)
             table.setAlternatingRowColors(True); mark_surface(table)
+            install_sorting(table)
         self.results.addTab(self.summary, "Fidelity")
         self.results.addTab(self.importance, "Importance")
         self.results.addTab(self.metrics, "Class metrics")
@@ -374,6 +376,7 @@ class InvestigateHitPanel(QWidget):
                       self.gallery_table):
             table.setEditTriggers(QAbstractItemView.NoEditTriggers)
             table.setAlternatingRowColors(True); mark_surface(table)
+            install_sorting(table)
         self.tabs.addTab(self.summary, "Evidence")
         self.tabs.addTab(self.well_table, "Wells")
         self.tabs.addTab(self.guide_table, "Guides")

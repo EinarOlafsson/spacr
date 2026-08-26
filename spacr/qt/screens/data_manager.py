@@ -48,6 +48,8 @@ from ..theme import (SPACING, block_surface, font_px,
                      register_widget_qss)
 from .app_screen import ModuleHeader
 from ..widgets.toggle import Toggle
+from ..widgets.sortable_table import install_sorting, table_item
+from ..app_catalog import register_declared
 
 LOG = logging.getLogger("spacr.qt.screens.data_manager")
 
@@ -312,6 +314,7 @@ class DataManagerScreen(QWidget):
     @staticmethod
     def _table(name: str, columns) -> QTableWidget:
         table = QTableWidget(0, len(columns))
+        install_sorting(table)
         table.setObjectName(name)
         table.setHorizontalHeaderLabels(list(columns))
         table.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -793,7 +796,7 @@ class DataManagerScreen(QWidget):
         row = table.rowCount()
         table.insertRow(row)
         for column, value in enumerate(values):
-            item = QTableWidgetItem(str(value))
+            item = table_item(str(value))
             item.setToolTip(str(value))
             if column == 0:
                 item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
@@ -825,34 +828,7 @@ def register() -> bool:
 
     :returns: True when this call is what registered it.
     """
-    import inspect
-
-    from ..app import APPS, SECTION_DATA, STAGE_ALPHA, register_app
-    if any(row[0] == APP_KEY for row in APPS):
-        return False
-    # The api_module link points the ⓘ at the module that does the work,
-    # through the metadata seam, rather than through a hand-edit of the table
-    # in ``settings_model.py``. The ``spacr.cli.INTERACTIVE_ONLY`` entry is
-    # written by hand instead of pushed from here on purpose: that push only
-    # lands when ``spacr.qt.app`` is imported, and ``spacr-run`` must answer
-    # "why can I not run this headless?" without PySide6.
-    #
-    # It is passed only when register_app accepts it. The metadata keywords
-    # are being added to that seam by a separate change, and this module
-    # shipped ahead of them -- so `spacr` died at launch with
-    # `TypeError: register_app() got an unexpected keyword argument
-    # 'api_module'`: a screen committed against a signature that had not
-    # landed. Asking the live signature costs one inspect call at import and
-    # makes this module correct against both, in either merge order.
-    extras = {"api_module": "data_manager"}
-    accepted = inspect.signature(register_app).parameters
-    register_app(
-        APP_KEY, "Data Manager",
-        "See what a project costs in disk, and reclaim it without touching "
-        "the originals",
-        SECTION_DATA, factory=make_data_manager_screen, stage=STAGE_ALPHA,
-        **{k: v for k, v in extras.items() if k in accepted})
-    return True
+    return register_declared(__name__) is not None
 
 
 register()

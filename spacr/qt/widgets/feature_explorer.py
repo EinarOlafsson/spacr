@@ -49,6 +49,7 @@ from .feature_rank import (
 from .toggle import Toggle
 from .graph_builder import (_canvas_class, _page_surface_axes,
                             categorical_colours)
+from .sortable_table import install_sorting, table_item
 
 LOG = logging.getLogger("spacr.qt.feature_explorer")
 
@@ -132,6 +133,7 @@ class FeatureExplorerPanel(QWidget):
         body = QSplitter(Qt.Horizontal, self)
         body.setChildrenCollapsible(False)
         self.table = QTableWidget(self)
+        install_sorting(self.table)
         self.table.setObjectName("ExplorerTable")
         self.table.setColumnCount(6)
         self.table.setHorizontalHeaderLabels(
@@ -280,7 +282,7 @@ class FeatureExplorerPanel(QWidget):
                 f"{score.smallest_class:,}",
             ]
             for column, text in enumerate(cells):
-                item = QTableWidgetItem(text)
+                item = table_item(text)
                 item.setData(Qt.UserRole, score.feature)
                 item.setToolTip(score.describe())
                 if score.is_shape_not_shift:

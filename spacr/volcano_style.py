@@ -42,6 +42,8 @@ __all__ = [
     "LINE_STYLES",
     "SCALES",
     "render_volcano",
+    "page_ground",
+    "validate_style",
     "point_details",
     "point_localizations",
     "localizations_present",
@@ -200,10 +202,39 @@ class VolcanoStyle(FigureStyle):
 
     # ---- lines -----------------------------------------------------------
     line_width: float = 1.0
-    line_color: str = "#404040"
+    #: BLACK, because the volcano is read as a publication figure: the
+    #: fold-change verticals and the significance horizontal are the two
+    #: lines a reader measures a point against, and a grey rule competes
+    #: with the grey non-significant cloud it is drawn over.
+    line_color: str = "#000000"
     line_style: str = "--"
-    zero_line_color: str = "#777777"
+    zero_line_color: str = "#000000"
     zero_line_width: float = 0.7
+
+    # ---- the ground and the ink ------------------------------------------
+    #: What the INTERACTIVE explorer paints behind the plot.
+    #:
+    #: SEPARATE FROM ``background_color`` ON PURPOSE, and the separation is
+    #: the whole point. ``background_color`` is inherited and ships as
+    #: ``"none"`` so a figure written to a file drops onto any page without
+    #: carrying a rectangle with it; that is a house rule about ASSETS. A
+    #: volcano on screen is not an asset, it is something being read, and
+    #: black text and black axes on a transparent ground over spaCR's dark
+    #: panel are unreadable. So the screen gets its own ground, and a file
+    #: keeps the transparent default until the user names
+    #: ``background_color`` -- which then wins on both.
+    screen_background: str = "#FFFFFF"
+    #: The colour of the axis lines, the tick marks, the tick labels and
+    #: every piece of text. One setting rather than two because the ask was
+    #: one sentence -- "black lines for the x axis and y axis ... black
+    #: font" -- and a volcano whose axes and labels disagreed about their
+    #: colour would be a figure nobody asked for.
+    #:
+    #: Empty leaves every one of them at whatever the ambient matplotlib
+    #: settings supply, which is what the volcano did before this shipped
+    #: and is why it is a setting rather than a constant: a figure whose ink
+    #: depends on what the process drew before it is not reproducible.
+    axis_color: str = "#000000"
 
     # ---- text: the SIZES are inherited (font_family, font_size,
     # title_font_size, label_font_size, tick_font_size, font_weight). What is
@@ -355,13 +386,20 @@ def _prepare(results: pd.DataFrame, style: VolcanoStyle):
 
 
 def render_volcano(results: pd.DataFrame, style: VolcanoStyle, *,
-                   figure=None, save_path=None):
+                   figure=None, save_path=None, screen: bool = False):
     """Draw the volcano described by ``style`` and return ``(figure, axes)``.
 
     :param figure: draw into this figure instead of creating one, so a live
         canvas can be redrawn in place.
     :param save_path: also write the figure here. The extension chooses the
         format; ``.pdf`` stays vector.
+    :param screen: this render is going onto a screen someone is reading,
+        not into a file. It is the one bit that tells
+        ``VolcanoStyle.screen_background`` from
+        ``VolcanoStyle.background_color`` -- see :func:`page_ground`. A
+        renderer that could not tell them apart would have to choose between
+        an unreadable canvas and an exported figure carrying a white
+        rectangle onto every page it is placed on.
     """
     import matplotlib as mpl
     import matplotlib.pyplot as plt
@@ -400,7 +438,8 @@ def render_volcano(results: pd.DataFrame, style: VolcanoStyle, *,
         mappable = _draw_points(panels, frame, x, y, significant, style)
         _draw_reference_lines(panels, style, effect_cut)
         _annotate(panels, frame, x, y, significant, style)
-        _finish_axes(figure, panels, style, mappable)
+        _finish_axes(figure, panels, style, mappable,
+                     ground=page_ground(style, screen=screen))
 
     if save_path is not None:
         path = os.fspath(save_path)
@@ -655,7 +694,68 @@ def _annotate(panels, frame, x, y, significant, style):
                         fontweight="bold", ha=align)
 
 
-def _finish_axes(figure, panels, style, mappable):
+def page_ground(style: VolcanoStyle, *, screen: bool = False):
+    """The colour to paint behind this render, or ``None`` for "leave it".
+
+    THE ONE PLACE THE TWO GROUNDS ARE TOLD APART.
+
+    * a ``background_color`` the user actually named wins everywhere, on
+      screen and in a file, because they said what they wanted;
+    * otherwise a screen render takes ``screen_background``, which ships
+      white so a publication-black volcano can be read;
+    * otherwise nothing is painted at all, which leaves an exported figure
+      exactly as transparent as the global figure default makes it.
+
+    ``None`` rather than ``"none"``: the caller must be able to tell "paint
+    this transparent" from "do not touch the ground", and only the second
+    leaves a live canvas showing the panel it sits on.
+    """
+    named = str(style.background_color or "none").strip()
+    if named and named.lower() != "none":
+        return named
+    if screen:
+        chosen = str(style.screen_background or "none").strip()
+        if chosen and chosen.lower() != "none":
+            return chosen
+    return None
+
+
+def _paint_ink(figure, panels, style, ground) -> None:
+    """Put the ground behind the plot and the ink on everything drawn on it.
+
+    The ink reaches the axis spines, the tick marks, the tick labels, both
+    axis titles, the plot title, every annotation and the legend, because
+    they are one thing to a reader: a figure whose axes are black and whose
+    tick labels followed the ambient rcParams is a figure that changes
+    colour depending on what the process drew before it.
+    """
+    if ground:
+        figure.patch.set_facecolor(ground)
+        figure.patch.set_alpha(1.0)
+    ink = str(style.axis_color or "").strip()
+    for axis in panels:
+        if ground:
+            axis.set_facecolor(ground)
+        if not ink:
+            continue
+        for spine in axis.spines.values():
+            spine.set_edgecolor(ink)
+        axis.tick_params(colors=ink, labelsize=style.tick_font_size)
+        axis.xaxis.label.set_color(ink)
+        axis.yaxis.label.set_color(ink)
+        axis.title.set_color(ink)
+        for text in axis.texts:
+            text.set_color(ink)
+        legend = axis.get_legend()
+        if legend is not None:
+            for text in legend.get_texts():
+                text.set_color(ink)
+    if ink:
+        for text in figure.texts:
+            text.set_color(ink)
+
+
+def _finish_axes(figure, panels, style, mappable, ground=None):
     y_label = style.y_label
     if not y_label:
         y_label = (f"-log10({style.y_column})" if style.y_neg_log10
@@ -682,16 +782,18 @@ def _finish_axes(figure, panels, style, mappable):
         if style.hide_top_right_spines:
             axis.spines[["top", "right"]].set_visible(False)
         axis.tick_params(labelsize=style.tick_font_size)
-        if style.background_color and style.background_color != "none":
-            axis.set_facecolor(style.background_color)
 
     if len(panels) == 2:
         # The break marks. Hide the shared edge, then draw the diagonal ticks.
         panels[0].spines["bottom"].set_visible(False)
         panels[1].spines["top"].set_visible(False)
         panels[0].tick_params(bottom=False, labelbottom=False)
+        # THE BREAK MARKS ARE AXIS FURNITURE, so they take the axis ink
+        # rather than a grey of their own: a black-axes volcano with two
+        # grey ticks at the break reads as a rendering fault.
+        break_ink = str(style.axis_color or "").strip() or "#404040"
         kwargs = dict(marker=[(-1, -0.6), (1, 0.6)], markersize=7,
-                      linestyle="none", color="#404040", mec="#404040",
+                      linestyle="none", color=break_ink, mec=break_ink,
                       mew=1, clip_on=False)
         panels[0].plot([0, 1], [0, 0], transform=panels[0].transAxes, **kwargs)
         panels[1].plot([0, 1], [1, 1], transform=panels[1].transAxes, **kwargs)
@@ -714,10 +816,129 @@ def _finish_axes(figure, panels, style, mappable):
         bar = figure.colorbar(mappable, ax=panels, fraction=0.046, pad=0.02)
         bar.set_label(style.color_by, fontsize=style.label_font_size)
         bar.ax.tick_params(labelsize=style.tick_font_size)
+        ink = str(style.axis_color or "").strip()
+        if ink:
+            bar.ax.tick_params(colors=ink, labelsize=style.tick_font_size)
+            bar.ax.yaxis.label.set_color(ink)
+    # LAST, so it reaches the legend and the colour bar the lines above
+    # have only just created.
+    _paint_ink(figure, panels, style, ground)
     # tight_layout cannot lay out a broken axis or a figure-level colorbar and
     # warns instead of doing nothing, so it is only run when it applies.
     if not style.split_axis and not (mappable is not None and style.show_colorbar):
         figure.tight_layout()
+
+
+#: Settings that name a column of the results, and whether the plot can be
+#: drawn without one. The two axes cannot; everything else is optional and
+#: ``None`` means "not mapped".
+_COLUMN_SETTINGS: tuple[tuple[str, bool], ...] = (
+    ("x_column", True), ("y_column", True), ("label_column", False),
+    ("color_by", False), ("shape_by", False), ("control_column", False),
+    ("localization_column", False),
+)
+
+#: Settings whose value is a colour matplotlib has to be able to parse.
+_COLOUR_SETTINGS: tuple[str, ...] = (
+    "marker_edge_color", "base_color", "significant_color", "line_color",
+    "zero_line_color", "grid_color", "background_color", "screen_background",
+    "axis_color",
+)
+
+
+def _is_a_colour(value) -> bool:
+    """Whether matplotlib can turn ``value`` into a colour.
+
+    ``"none"`` counts: it is how a ground is taken back off, and refusing it
+    would turn the transparent default into a permanent complaint. So does
+    an empty one, and for the same reason -- every reader of these fields
+    already treats a blank as "not set", so a cleared box is a choice rather
+    than a mistake and must not be reported as one.
+    """
+    import matplotlib.colors as mcolors
+
+    if value is None or str(value).strip() == "":
+        return True
+    try:
+        mcolors.to_rgba(value)
+    except (ValueError, TypeError):
+        return False
+    return True
+
+
+def validate_style(results: pd.DataFrame, style: VolcanoStyle) -> dict:
+    """Every setting this plot cannot use, mapped to why, in field order.
+
+    WHAT THIS IS FOR. A volcano is read while it is being restyled, and one
+    mistyped colour used to replace the whole figure with the words "cannot
+    draw this plot" -- taking away the picture the reader was looking at
+    over a single bad field, and saying nothing about WHICH field. Naming
+    the offending settings instead lets the caller keep drawing (with the
+    last value that worked) and point at the control that caused it.
+
+    MORE THAN ONE THING CAN BE WRONG AT ONCE, so this returns a mapping and
+    never stops at the first fault: a design that can hold one message
+    silently drops the second.
+
+    :returns: ``{field name: one sentence}``. Empty when the style is
+        drawable, which is the common case and costs one pass over a
+        handful of strings.
+    """
+    import matplotlib as mpl
+
+    problems: dict[str, str] = {}
+    columns = set(results.columns) if results is not None else set()
+    for name, required in _COLUMN_SETTINGS:
+        value = getattr(style, name, None)
+        if value is None or value == "":
+            if required:
+                problems[name] = "no column is chosen."
+            continue
+        if columns and value not in columns:
+            problems[name] = (
+                f"{value!r} is not a column of the results "
+                f"({', '.join(sorted(columns)[:6])}...).")
+    for name in _COLOUR_SETTINGS:
+        value = getattr(style, name, None)
+        if not _is_a_colour(value):
+            problems[name] = f"{value!r} is not a colour matplotlib knows."
+    if str(style.colormap) not in mpl.colormaps:
+        problems["colormap"] = f"{style.colormap!r} is not a colormap."
+    if str(style.marker) not in {code for code, _ in MARKER_SHAPES}:
+        problems["marker"] = f"{style.marker!r} is not a marker shape."
+    if str(style.line_style) not in {code for code, _ in LINE_STYLES}:
+        problems["line_style"] = f"{style.line_style!r} is not a line style."
+    for name in ("x_scale", "y_scale"):
+        if str(getattr(style, name)) not in SCALES:
+            problems[name] = (
+                f"{getattr(style, name)!r} is not one of "
+                f"{', '.join(SCALES)}.")
+    method = str(style.threshold_method or "value").lower()
+    if method not in ("value", "std", "mad", "quantile", "control"):
+        problems["threshold_method"] = (
+            f"{style.threshold_method!r} must be one of 'value', 'std', "
+            f"'mad', 'quantile' or 'control'.")
+    elif method == "control" and "control_column" not in problems:
+        # The control rule is the one that can fail on DATA rather than on a
+        # typo -- too few controls, or controls with no spread -- so it is
+        # asked rather than guessed, and the resolver is the thing that
+        # knows. Attributed to `threshold_method`, because that is the
+        # control the reader chose and can take back.
+        try:
+            mask = None
+            if style.control_column and style.control_column in columns:
+                mask = results[style.control_column].astype(bool).to_numpy()
+            values = pd.to_numeric(results[style.x_column],
+                                   errors="coerce").to_numpy(float)
+            _resolve_effect_threshold(values, style, mask)
+        except ValueError as error:
+            problems["threshold_method"] = str(error)
+        except Exception:                                     # noqa: BLE001
+            # A fault that is not about this setting -- a missing x column,
+            # say -- is already reported against the setting it belongs to.
+            pass
+    order = [f.name for f in fields(VolcanoStyle)]
+    return {name: problems[name] for name in order if name in problems}
 
 
 def point_details(results: pd.DataFrame, index: int, style: VolcanoStyle

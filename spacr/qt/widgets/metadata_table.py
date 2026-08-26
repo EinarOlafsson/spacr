@@ -37,6 +37,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..ingest_preview import ROW_COLUMNS, _yokogawa_name, rows_to_mappings
+from .sortable_table import install_sorting, table_item
 
 # Columns the user may edit; "original" and "canonical" are read-only.
 _EDITABLE = {"plate", "well", "field", "channel", "time"}
@@ -55,6 +56,7 @@ class MetadataTablePanel(QWidget):
                  parent: Optional[QWidget] = None):
         super().__init__(parent)
         self._table = QTableWidget(0, len(ROW_COLUMNS), self)
+        install_sorting(self._table)
         self._table.setHorizontalHeaderLabels(_HEADERS)
         self._table.verticalHeader().setVisible(False)
         self._table.setAlternatingRowColors(True)
@@ -99,7 +101,7 @@ class MetadataTablePanel(QWidget):
         self._table.insertRow(row)
         for col, key in enumerate(ROW_COLUMNS):
             val = r.get(key, "")
-            item = QTableWidgetItem("" if val is None else str(val))
+            item = table_item("" if val is None else str(val))
             if key in _EDITABLE:
                 item.setFlags(item.flags() | Qt.ItemIsEditable)
             else:
@@ -136,7 +138,7 @@ class MetadataTablePanel(QWidget):
     def _recompute_canonical(self, row: int) -> None:
         """Rebuild the read-only Filename cell from the editable columns."""
         get = lambda k: (self._table.item(row, ROW_COLUMNS.index(k))
-                         or QTableWidgetItem("")).text()
+                         or table_item("")).text()
         plate = get("plate") or "plate1"
         well = get("well") or f"{plate}_A01"
         # Keep the plate prefix on the well token, matching convert_to_yokogawa.

@@ -49,6 +49,8 @@ from PySide6.QtWidgets import (
 from ..job_runner import JobRunner
 from ..theme import SPACING, mark_surface
 from .app_screen import ModuleHeader
+from ..widgets.sortable_table import install_sorting, table_item
+from ..app_catalog import declared_app, register_declared
 
 LOG = logging.getLogger("spacr.qt.screens.project_browser")
 
@@ -156,6 +158,7 @@ class ProjectBrowserScreen(QWidget):
 
         split = QSplitter(Qt.Horizontal)
         self._table = QTableWidget(0, len(COLUMNS))
+        install_sorting(self._table)
         self._table.setHorizontalHeaderLabels(list(COLUMNS))
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self._table.setSelectionMode(QAbstractItemView.SingleSelection)
@@ -306,7 +309,7 @@ class ProjectBrowserScreen(QWidget):
                 summary.note(),
             )
             for column, text in enumerate(cells):
-                item = QTableWidgetItem(str(text))
+                item = table_item(str(text))
                 if column == 0:
                     item.setToolTip(summary.root)
                     # The root travels with the row so a re-sorted table still
@@ -432,31 +435,17 @@ def make_project_browser_screen(app_key: Optional[str] = None) -> QWidget:
     return ProjectBrowserScreen(roots=roots)
 
 
-APP_NAME = "Project Browser"
-APP_DESCRIPTION = "Every project on disk: stage, size, last run and what is stale"
-APP_INTRO = (
-    "Point it at the folder your experiments live in and it lists every "
-    "spaCR project under it: how far each one got, what it costs on disk, "
-    "when it last produced anything, and which of its results no longer "
-    "match the data underneath them. A project spaCR has never recorded — a "
-    "plate folder copied from a colleague this morning — is listed too, with "
-    "everything the filesystem can answer; what it will not do is call it "
-    "current, because with no run record there is nothing to compare it "
-    "against. Nothing here is computed twice: the stage is which declared "
-    "outputs exist, the size is the Data Manager's own walk, the staleness "
-    "is the artifact registry's verdict, and the next step is the offer that "
-    "module's own screen makes.")
-APP_CLI_NOTE = (
-    "Project Browser is a table you read and sort. Run it in the GUI "
-    "(spacr-qt). Headless, spacr.projects.browse([root]) returns the same "
-    "summaries and spacr.projects.format_projects prints the same table, so "
-    "a nightly job can mail you which projects went stale.")
-#: The display name in the nine non-English UI languages, in
-#: `spacr.qt.i18n.LANGUAGES` order (sv, de, es, zh_CN, pt, hi, ko, is, fr).
-APP_NAME_TRANSLATIONS = (
-    "Projektbläddrare", "Projektbrowser", "Explorador de proyectos",
-    "项目浏览器", "Navegador de projetos", "प्रोजेक्ट ब्राउज़र", "프로젝트 브라우저",
-    "Verkefnavafri", "Navigateur de projets")
+# The row this screen puts in the registry is declared in
+# `spacr.qt.app_catalog`, which is what lets the app be registered without
+# importing this module -- the launch reads the table, not the screen. These
+# read the same row back rather than restating it, so the name, the blurb and
+# the nine translations have one spelling and no second copy to drift from.
+_ROW = declared_app(APP_KEY)
+APP_NAME = _ROW.name
+APP_DESCRIPTION = _ROW.desc
+APP_INTRO = _ROW.intro
+APP_CLI_NOTE = _ROW.cli_note
+APP_NAME_TRANSLATIONS = _ROW.translations
 
 
 def register() -> bool:
@@ -466,21 +455,17 @@ def register() -> bool:
     :func:`spacr.qt.run` runs after ``spacr.qt.app`` is fully executed and
     before ``MainWindow.__init__`` reads the registry.
 
-    Everything after ``SECTION_DATA`` is a table this key would otherwise
-    need a hand-edit in: the screen header and blurb, the "no headless run"
-    sentence, the API doc link and the nine translations of the display name.
-    :func:`spacr.qt.app.register_app` distributes them from this one call.
+    The row itself -- the key, the name, the blurb, the section, the "no
+    headless run" sentence, the API doc link and the nine translations of the
+    display name -- is declared in :mod:`spacr.qt.app_catalog`.
+    :func:`spacr.qt.app.register_app` distributes those into the four tables
+    each used to need a hand-edit in, and this function's whole job is to name
+    which row. That is what lets the app be registered without importing this
+    module at all: the launch reads the table, and the screen is imported when
+    somebody opens it.
 
     :returns: ``True`` if this call is what registered it. Safe to call
         again: a module imported twice, or a test that re-imports it, must
         not raise on the duplicate key.
     """
-    from ..app import APPS, SECTION_DATA, STAGE_ALPHA, register_app
-    if any(row[0] == APP_KEY for row in APPS):
-        return False
-    register_app(APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_DATA,
-                 factory=make_project_browser_screen, stage=STAGE_ALPHA,
-                 intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-                 api_module="qt/screens/project_browser",
-                 translations=APP_NAME_TRANSLATIONS)
-    return True
+    return register_declared(__name__) is not None

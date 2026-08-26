@@ -833,6 +833,63 @@ class _LateCaptionTranslator(QObject):
             LOG.exception("could not translate a late settings panel")
 
 
+class _RowsBuiltWhenTheyAreAskedFor(list):
+    """A heading's rows, with the ones the run has no object for still to come.
+
+    `AppScreen._build_settings_section` leaves a row unbuilt when the object
+    rule has already decided it must not be on screen -- on Mask that is 1,461
+    rows of 1,538. The rows that ARE built go in here as usual, so the list is
+    a real list holding real rows; what it adds is that ASKING for its contents
+    builds the rest first.
+
+    That is the whole reason it exists. Several checks find a settings row by
+    walking ``Section._row_widgets`` -- the module smoke test reads every entry
+    as a labelled setting row and asserts what it carries -- and a list that
+    quietly held a twentieth of the panel's rows would let each of them pass
+    while checking almost nothing. Deferring the work is only worth doing if
+    nothing can tell the difference except by being faster.
+
+    ``append`` is deliberately NOT one of the methods that builds: it is what
+    ``Section.add_row`` calls while the rest of the rows are being built, and
+    the callback is dropped before that starts, so the pass cannot re-enter.
+    """
+
+    def __init__(self, build_the_rest):
+        """:param build_the_rest: called once, to lay out the waiting rows."""
+        super().__init__()
+        self._build_the_rest = build_the_rest
+
+    def _complete(self) -> None:
+        """Build the rows that have not been laid out yet. Idempotent."""
+        build, self._build_the_rest = self._build_the_rest, None
+        if build is not None:
+            build()
+
+    def __len__(self) -> int:
+        self._complete()
+        return super().__len__()
+
+    def __iter__(self):
+        self._complete()
+        return super().__iter__()
+
+    def __getitem__(self, index):
+        self._complete()
+        return super().__getitem__(index)
+
+    def __bool__(self) -> bool:
+        self._complete()
+        return super().__len__() > 0
+
+    def __contains__(self, item) -> bool:
+        self._complete()
+        return super().__contains__(item)
+
+    def __repr__(self) -> str:
+        self._complete()
+        return super().__repr__()
+
+
 class AppScreen(QWidget):
     """Generic settings + runtime screen used by every non-interactive app.
 
@@ -1067,8 +1124,22 @@ class AppScreen(QWidget):
         # the page is supposed to show between the floating category panels.
         # `clear_container_surfaces` is idempotent, so the calls inside the
         # two install paths stay where they are for their own ordering
-        # reasons and this one costs a second pass over the tree.
-        self._clear_page_surfaces()
+        # reasons.
+        #
+        # SKIPPED ONLY WHEN THE AMBIENT INSTALL ALREADY SWEPT THIS EXACT
+        # TREE. `_install_ambient` sweeps AFTER it parents the backdrop, and
+        # nothing is added to the screen between it returning and here, so a
+        # second sweep would visit the same widgets and reach the same
+        # answer -- and it is not free: `clear_container_surfaces` walks
+        # every descendant with `findChildren`, which on the Mask screen is
+        # about 50 ms of the build. Every other route still sweeps here, and
+        # each of them needs to: the preference off, the install failed, or
+        # the DNA rain, which sweeps BEFORE it parents its widget and so
+        # leaves one container this pass is the only one to see. `_ambient`
+        # is set only by an install that got as far as its own sweep, which
+        # is what makes it the right question to ask.
+        if self._ambient is None:
+            self._clear_page_surfaces()
         # The page colour follows whether a backdrop got installed, so
         # it is resolved wherever that is decided -- and it has to reach
         # QPalette.Window, not just paintEvent, or Qt's pre-paint erase
@@ -1145,12 +1216,23 @@ class AppScreen(QWidget):
                                      palette=wanted[1],
                                      backdrop=_theme_wallpaper())
             self._clear_page_surfaces()
+            # THE BACKDROP IS RECORDED BEFORE THE PAGE COLOUR IS RESOLVED,
+            # because `page_fill` reads `self._ambient` to decide whether
+            # this screen still has to paint a page of its own. Assigning
+            # afterwards meant the sync ran against a screen that still
+            # looked backdrop-less: it applied the flat page colour and its
+            # `AppScreen { background-color: ... }` stylesheet to a widget
+            # about to be covered by the animation, and the unconditional
+            # sync at the end of `__init__` -- by then seeing the backdrop --
+            # took both straight off again. The user saw nothing for it and
+            # the tree was restyled twice, which on the Mask screen is a
+            # full re-polish of 1,538 widgets for a colour that never showed.
+            self._ambient = widget
             # The page colour follows whether a backdrop got installed, so
             # it is resolved wherever that is decided -- and it has to reach
             # QPalette.Window, not just paintEvent, or Qt's pre-paint erase
             # still uses `bg` and flashes black. See _sync_page_palette.
             self._sync_page_palette()
-            self._ambient = widget
         except Exception:
             self._ambient = None
             _discard_widget(widget)
@@ -1559,6 +1641,25 @@ class AppScreen(QWidget):
     # Panels
     # ------------------------------------------------------------------
     def _build_settings_panel(self) -> QWidget:
+        """Build the settings column, with the UI language resolved once.
+
+        Everything the layout below asks for is rendered in the UI
+        language -- every tooltip body, type hint, label and
+        documentation URL, several times per row -- and each of those
+        asks reads the preference store. `language_resolved_once` makes
+        the panel ask once instead. It is re-entrant, so `build_sections`
+        opening its own scope inside this one shares this cache rather
+        than starting a second.
+
+        :returns: the scroll area holding the settings form.
+        """
+        from .settings_model import language_resolved_once
+
+        with language_resolved_once():
+            return self._lay_out_the_settings_panel()
+
+    def _lay_out_the_settings_panel(self) -> QWidget:
+        """Build the settings column itself. See `_build_settings_panel`."""
         scroll = QScrollArea()
         self._settings_scroll = scroll
         # The column paints nothing — see `_settings_panel_qss`. The name is
@@ -1593,6 +1694,18 @@ class AppScreen(QWidget):
         layout.setSpacing(SPACING["sm"])
 
         self._settings_model = SettingsWidgets(self.app_key, parent=content)
+        # ``key -> the heading it belongs to``, for every row the object rule
+        # has already decided must not be on the form. `_build_settings_section`
+        # fills it and `_lay_out_the_rows_that_are_back` empties it as the rule
+        # changes its mind. Reset per panel: a screen may build a second one.
+        self._rows_awaiting_layout = {}
+        self._run_has_no_object_for = None
+        # THE MODEL ASKS THE PANEL FOR A ROW IT IS ABOUT TO SHOW. The rule
+        # decides visibility; only the panel can build a row, and a rule that
+        # showed a field with no row would put a bare control in no layout at
+        # all. See `SettingsWidgets.refresh_object_visibility`.
+        self._settings_model.rows_are_laid_out_by = \
+            self._lay_out_the_rows_that_are_back
         try:
             sections = self._settings_model.build_sections()
         except Exception as e:
@@ -1673,6 +1786,59 @@ class AppScreen(QWidget):
         scroll.setWidget(content)
         return scroll
 
+    def _widget_key_index(self) -> dict:
+        """``id(widget) -> setting key`` for this panel's settings model.
+
+        ``SettingsWidgets._widgets`` is keyed the other way round, and the
+        panel needs the reverse: given the field it is about to lay out,
+        which setting is it? Answering that by scanning is quadratic in the
+        number of settings, and Mask has 1,538 of them.
+
+        Rebuilt whenever the model is replaced or has gained settings.
+        ``setdefault`` keeps the first key for a widget registered under two
+        names, which is the answer the scan this replaced gave.
+
+        The index is keyed by ``id`` and is therefore only ever as good as
+        its stamp; :meth:`_key_of_field` is what consumers should call,
+        because it checks the answer against the model before returning it.
+
+        :returns: the index, empty when there is no model yet.
+        """
+        model = getattr(self, "_settings_model", None)
+        widgets = getattr(model, "_widgets", None) or {}
+        stamp = (id(model), len(widgets))
+        if getattr(self, "_widget_key_stamp", None) != stamp:
+            index: dict = {}
+            for key, widget in widgets.items():
+                index.setdefault(id(widget), key)
+            self._widget_key_cache = index
+            self._widget_key_stamp = stamp
+        return self._widget_key_cache
+
+    def _key_of_field(self, field) -> Optional[str]:
+        """The setting ``field`` is, or ``None`` if the model does not own it.
+
+        What the panel used to answer by scanning every entry of
+        ``_widgets``. The index does it in one lookup, and the answer is
+        CHECKED against the model before it is returned: an ``id`` is only
+        unique among live objects, so an index built against a different
+        ``_widgets`` -- or one holding a widget that has since been freed --
+        could otherwise name the wrong setting. A disagreement rebuilds the
+        index once and asks again, which is the same answer the scan gave
+        and still not a scan.
+
+        :param field: the widget laid out in a settings row.
+        :returns: its setting key, or ``None``.
+        """
+        widgets = getattr(
+            getattr(self, "_settings_model", None), "_widgets", None) or {}
+        key = self._widget_key_index().get(id(field))
+        if key is not None and widgets.get(key) is field:
+            return key
+        self._widget_key_stamp = None
+        key = self._widget_key_index().get(id(field))
+        return key if key is not None and widgets.get(key) is field else None
+
     def _build_settings_section(self, spec, depth: int = 0):
         """Build one heading of the settings TREE, and everything under it.
 
@@ -1732,112 +1898,62 @@ class AppScreen(QWidget):
         # rather than looking the bare word up again; `setdefault` leaves a
         # top-level category owning its own name.
         self._category_blurbs.setdefault(title, blurb)
-        for label, widget in rows:
-            # THE KEY, NOT THE LABEL. `build_sections` hands out
-            # `('Control wells', widget)` -- a title-cased sentence for a
-            # human -- and both wrappers below match on the SETTING NAME.
-            # Passing the label meant `control_wells` was never equal to
-            # 'Control wells' and the plate map (185) appeared on nothing
-            # at all. Its tests passed because they called
-            # `pick_wells_for` directly rather than driving the row the
-            # user actually sees.
-            setting_key = self._key_of(widget)
-            # A PLATE MAP BESIDE THE FIELDS THAT TAKE WELLS (185).
-            # "to the right of the field should be a button they can
-            # press that spawns a window". Only the settings whose value
-            # is ONLY wells: the picker writes the whole field, and one
-            # that overwrote `classes` or `negative_control` -- which
-            # mix wells with another vocabulary -- would destroy a value
-            # it does not understand.
-            # THE INNER FIELD IS KEPT, because everything below binds to
-            # IT and not to the row it now sits in: the tooltip is read
-            # off it, the label is bound to it, and `_widgets` still
-            # holds it. Losing this reference is what made a wrapped row
-            # lose its `settingKey` and its help the moment the wrapper
-            # stopped being a no-op.
-            field = widget
-            widget = self._with_a_plate_map(widget, setting_key)
-            # AND THE ADVISOR BESIDE `inference` (192). "a button to the
-            # left of inference alligned with the text box to the left in
-            # model & inference".
-            widget = self._with_a_settings_advisor(widget, setting_key)
-            if widget is not field:
-                # THE ROW IS THE FIELD AS FAR AS THE PANEL IS CONCERNED.
-                # `Section._row_widgets` records what it is handed, and
-                # the module smoke test reads `settingKey` off that -- so
-                # the holder has to carry it too, or a row with a button
-                # beside it reads as a field belonging to no setting.
-                widget.setProperty("settingKey", setting_key)
-                widget.setProperty("settingsAppKey", self.app_key)
-            lbl_widget = QLabel(label)
-            # Give the label a subtle affordance so users know
-            # it's the hover target for tooltips (fields can be
-            # focused / clicked — tooltips on labels are calmer).
-            lbl_widget.setCursor(Qt.WhatsThisCursor)
-            field_key = None
-            # MATCHED ON THE INNER FIELD, not on `widget`: `widget` may
-            # now be the row that holds it, which `_widgets` has never
-            # heard of.
-            for key, w in getattr(self._settings_model, "_widgets", {}).items():
-                if w is field:
-                    field_key = key
-                    html = field.toolTip()
-                    hint = self._settings_model.plain_tooltip_for(key)
-                    body_source = field.property(
-                        "apiTooltipDescriptionSource") or ""
-                    lbl_widget.setProperty("settingsAppKey", self.app_key)
-                    lbl_widget.setProperty("settingKey", key)
-                    lbl_widget.setProperty(
-                        "apiTooltipDescriptionSource", body_source)
-                    lbl_widget.setProperty(
-                        "apiTooltipDescription", body_source)
-                    lbl_widget.setProperty("apiTooltipHtml", html)
-                    lbl_widget.setProperty(
-                        "apiTooltipDisplayRole", "tooltip")
-                    # Tooltips live on the LABEL only — hovering
-                    # the input field itself is left alone so
-                    # focus / edit interactions aren't disturbed.
-                    field.setToolTip("")
-                    # SettingsWidgets may already have disabled an
-                    # algorithm-specific field before this visual label
-                    # exists. Bind them now and mirror the state; later
-                    # reducer switches update both through the same link.
-                    #
-                    # ON THE FIELD, not on the row: the reducer that
-                    # later enables and disables this setting reaches it
-                    # through `_widgets`, which holds the field, so a
-                    # label bound to the holder would never be told.
-                    field._spacr_setting_label = lbl_widget
-                    lbl_widget.setEnabled(field.isEnabled())
-                    self._hint_map[lbl_widget] = hint
-                    self._html_tip_map[lbl_widget] = html
-                    lbl_widget.installEventFilter(self)
-                    break
-            # No API link dot on the settings form. It sat between the
-            # label and the field and carried a tooltip of its own, so
-            # the help popped when the pointer was over the row's
-            # right-hand side -- which reads as "the field has a
-            # tooltip", because from the user's side of the screen that
-            # is exactly what it looks like. 191 of them on the Mask
-            # form alone.
-            #
-            # Nothing is lost but the mark: the API link is still in the
-            # label's tooltip HTML (the `href=` several tests assert on),
-            # so the reference is one hover and one click away, and the
-            # help itself is unchanged and still on the label.
-            #
-            # The host stays, though, and is built here rather than by
-            # `Section.add_row` (which only makes one when there is an
-            # info widget to put in it). It is what right-aligns the
-            # label against the field: dropping it left the label
-            # left-aligned and half the row's width was suddenly the
-            # page showing through rather than the category surface.
-            section.add_row(lbl_widget, widget, info_widget=None,
-                            wrap_label=True)
-            # THE FIELD, for the same reason as the tooltip above: the
-            # column picker fills the setting's own widget, and handing
-            # it the row would give it something with no `setText`.
-            self._attach_column_picker(field_key, field)
+        # A ROW THE RUN HAS NO OBJECT FOR COSTS NO CAPTION UNTIL IT HAS ONE.
+        #
+        # The panel builds a control for every organelle slot that CAN be
+        # named, because a control that was never built cannot be revealed --
+        # on Mask that is 1,538 controls, of which the run has an object for
+        # 77. The other 1,461 are hidden before the panel is ever painted.
+        # Each of them was still given a caption and the host that
+        # right-aligns it, two widgets and two style repolishes apiece, for a
+        # caption nobody can read.
+        #
+        # THE ROW IS STILL ON THE FORM, spanning, holding its field. That is
+        # what everything that walks the form goes on finding: the row can be
+        # hidden and asked whether it is hidden, the settings search indexes
+        # it, and `SettingsWidgets` reaches it exactly as before. What waits
+        # is the CAPTION, and `_lay_out_one_waiting_row` gives the row one --
+        # in place, in the same form row -- the moment the object rule says
+        # the run has that object after all.
+        declared = tuple((self._key_of_field(widget), label, widget)
+                         for label, widget in rows)
+        no_object = self._keys_the_run_has_no_object_for()
+        waiting = {key for key, _label, _widget in declared
+                   if key is not None and key in no_object}
+        section._spacr_declared_rows = declared
+        # WHAT THIS HEADING HOLDS, told to the model rather than left to be
+        # worked out again. `SettingsWidgets` needs the same answer to decide
+        # which slot headings belong to objects the run does not have, and it
+        # used to get it by walking every heading's form and asking each
+        # heading whether anything nests inside it -- a `findChildren` per
+        # heading, on the panel with a hundred and five of them.
+        try:
+            self._settings_model.remember_section_rows(
+                section,
+                [key for key, _label, _widget in declared if key],
+                bool(children))
+        except AttributeError:
+            pass
+        if waiting:
+            # ANYTHING THAT READS THE ROWS BACK GETS ALL OF THEM. Several
+            # checks walk `Section._row_widgets` -- the module smoke test
+            # reads every entry as a labelled setting row -- and a list that
+            # quietly held 77 of 1,538 would let them pass while checking
+            # almost nothing.
+            section._row_widgets = _RowsBuiltWhenTheyAreAskedFor(
+                partial(self._lay_out_every_waiting_row, section))
+        for key, label, widget in declared:
+            if key in waiting:
+                self._rows_awaiting_layout[key] = section
+                # `add_prose`, for the one thing it does that `add_widget`
+                # does not: it leaves `_row_widgets` alone. A field with no
+                # caption is not yet the labelled setting row every reader of
+                # that list takes each entry to be, and
+                # `_RowsBuiltWhenTheyAreAskedFor` is what hands one over --
+                # captioned -- to anybody who asks.
+                section.add_prose(widget)
+                continue
+            self._lay_out_setting_row(section, label, widget)
         # THE HEADINGS BELOW THIS ONE, each a Section of its own inside this
         # one's body. `add_prose`, not `add_widget`: the second registers
         # what it is handed in `_row_widgets`, where every entry is taken to
@@ -1886,6 +2002,304 @@ class AppScreen(QWidget):
         # them and would otherwise always win.
         self._settings_sections.append(section)
         return section
+
+    def _keys_the_run_has_no_object_for(self) -> set:
+        """The settings whose object this run does not have, right now.
+
+        Asked once per panel build and remembered for it, because every
+        heading asks the same question and the answer cannot change while
+        the panel is being laid out.
+
+        :returns: setting keys, empty when the model cannot answer.
+        """
+        answer = getattr(self, "_run_has_no_object_for", None)
+        if answer is not None:
+            return answer
+        model = getattr(self, "_settings_model", None)
+        answer = set()
+        if model is not None:
+            try:
+                answer = set(model.keys_whose_object_the_run_lacks())
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not decide which objects the run has",
+                          exc_info=True)
+        self._run_has_no_object_for = answer
+        return answer
+
+    def _lay_out_the_rows_that_are_back(self, hidden) -> None:
+        """Caption every waiting row the object rule no longer hides.
+
+        THE MODEL CALLS THIS BEFORE IT DECIDES ROW VISIBILITY, which is what
+        makes the deferral invisible: a setting the rule is about to show is
+        given its caption in the same pass, so the row the rule shows is a
+        finished one rather than a field with its name missing.
+
+        :param hidden: the keys the rule has just decided must stay off the
+            form.
+        """
+        waiting = getattr(self, "_rows_awaiting_layout", None)
+        if not waiting:
+            return
+        hidden = set(hidden or ())
+        back = [key for key in waiting if key not in hidden]
+        if not back:
+            return
+        for key in back:
+            self._lay_out_one_waiting_row(key)
+        # NOT the object rule again: this IS the object rule, and it decides
+        # every row it has just been handed the moment this returns.
+        self._the_rows_moved(judge_them=False)
+
+    def _lay_out_every_waiting_row(self, section) -> None:
+        """Caption all of ``section``'s rows, whatever the run has an object for.
+
+        What :class:`_RowsBuiltWhenTheyAreAskedFor` calls when something reads
+        the heading's rows back, so that everything walking that list is
+        handed the whole heading. The object rule is re-run afterwards and
+        hides again everything it hid before, so ASKING what a heading holds
+        cannot put a setting for an absent object on screen.
+        """
+        waiting = getattr(self, "_rows_awaiting_layout", None)
+        if not waiting:
+            return
+        mine = [key for key, owner in waiting.items() if owner is section]
+        if not mine:
+            return
+        for key in mine:
+            self._lay_out_one_waiting_row(key)
+        self._the_rows_moved(judge_them=True)
+
+    def _lay_out_one_waiting_row(self, key: str) -> None:
+        """Give ``key``'s row its caption, in the form row it already holds.
+
+        The field is on the form already, spanning a row of its own. Taking
+        that row out, laying the pair out properly and moving the result back
+        to the same index is what keeps a revealed setting where the module
+        wrote it -- ``Section.add_row`` appends, and a row that appeared under
+        the sub-headings instead of among its own would be a worse answer than
+        the caption it was waiting for.
+        """
+        from PySide6.QtWidgets import QFormLayout
+
+        waiting = getattr(self, "_rows_awaiting_layout", None)
+        section = (waiting or {}).pop(key, None)
+        if section is None:
+            return
+        row = next(((k, label, widget)
+                    for k, label, widget in
+                    getattr(section, "_spacr_declared_rows", ()) or ()
+                    if k == key), None)
+        if row is None:
+            return
+        form = getattr(section, "_form", None)
+        if not isinstance(form, QFormLayout):
+            return
+        try:
+            at, _role = form.getWidgetPosition(row[2])
+            if at >= 0:
+                form.takeRow(at)
+            self._lay_out_setting_row(section, row[1], row[2])
+            last = form.rowCount() - 1
+            if 0 <= at < last:
+                taken = form.takeRow(last)
+                label_item = getattr(taken, "labelItem", None)
+                field_item = getattr(taken, "fieldItem", None)
+                if field_item is None:
+                    return
+                if label_item is None:
+                    form.insertRow(at, field_item.widget())
+                else:
+                    form.insertRow(at, label_item.widget(),
+                                   field_item.widget())
+        except RuntimeError:
+            # The heading went away with the screen that owned it.
+            LOG.debug("no heading left to caption %s on", key, exc_info=True)
+
+    def _the_rows_moved(self, judge_them: bool = True) -> None:
+        """Put the panel's row-shaped answers back in step after a build.
+
+        A row that arrives after the panel was laid out has to be judged by
+        everything that judges a row -- the object rule and the dimension
+        switches decide whether it is on screen, the settings search has to be
+        able to find it, and the section's own list of rows goes back into the
+        order it was declared in rather than the order the rule got round to.
+
+        :param judge_them: run the object rule over the new rows. False when
+            the rule is what asked for them, because it decides every gated
+            row itself the moment this returns -- and running it from inside
+            itself would be a second pass saying the same thing.
+        """
+        for section in getattr(self, "_settings_sections", []) or []:
+            rows = section.__dict__.get("_row_widgets")
+            declared = getattr(section, "_spacr_declared_rows", None)
+            if not isinstance(rows, list) or not declared:
+                continue
+            order = {id(widget): index
+                     for index, (_k, _l, widget) in enumerate(declared)}
+            # ONLY WHEN EVERY ROW IS ONE THIS CAN PLACE. A handful of settings
+            # sit in a little holder with a button beside them, and it is the
+            # holder the row records -- so a heading with one of those cannot
+            # be ordered from the declared fields, and guessing would be worse
+            # than the order it already has.
+            if all(id(pair[1]) in order for pair in rows):
+                rows.sort(key=lambda pair: order[id(pair[1])])
+        if judge_them:
+            # A ROW BUILT BECAUSE SOMETHING READ THE HEADING BACK IS NOT A ROW
+            # THE RUN HAS AN OBJECT FOR. Asking what a heading holds must not
+            # put settings for an absent object on screen, so the rule that
+            # kept them off decides them again now that they exist.
+            model = getattr(self, "_settings_model", None)
+            if model is not None:
+                try:
+                    model.refresh_object_visibility()
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("could not re-decide the object rows",
+                              exc_info=True)
+        try:
+            self._apply_dimension_visibility()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not re-apply the dimension switches",
+                      exc_info=True)
+        bar = getattr(self, "_settings_search", None)
+        if bar is None:
+            return
+        try:
+            # THE STRIP INDEXES THE RENDERED FORM -- specifically, whatever
+            # widget the form holds for each row. A row that has just been
+            # captioned may hold a different one: the few settings with a
+            # button beside them sit in a holder, and the holder is what the
+            # form ends up with. Re-indexing is keyed by setting, so it
+            # replaces those entries rather than adding to them.
+            bar._build_index()
+            bar.apply()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not re-index the settings search", exc_info=True)
+
+    def _lay_out_setting_row(self, section, label, widget) -> None:
+        """Put one setting on ``section``'s form: its label, then its field.
+
+        Split out of :meth:`_build_settings_section` because a row is not
+        always laid out while the panel is being built: a setting whose
+        object the run does not have waits here until the rule says the
+        run has it. See :meth:`_lay_out_the_rows_that_are_back`.
+
+        :param section: the heading the row belongs to.
+        :param label: the caption, already in the UI language.
+        :param widget: the field ``SettingsWidgets`` built for the key.
+        """
+        # THE KEY, NOT THE LABEL. `build_sections` hands out
+        # `('Control wells', widget)` -- a title-cased sentence for a
+        # human -- and both wrappers below match on the SETTING NAME.
+        # Passing the label meant `control_wells` was never equal to
+        # 'Control wells' and the plate map (185) appeared on nothing
+        # at all. Its tests passed because they called
+        # `pick_wells_for` directly rather than driving the row the
+        # user actually sees.
+        setting_key = self._key_of(widget)
+        # A PLATE MAP BESIDE THE FIELDS THAT TAKE WELLS (185).
+        # "to the right of the field should be a button they can
+        # press that spawns a window". Only the settings whose value
+        # is ONLY wells: the picker writes the whole field, and one
+        # that overwrote `classes` or `negative_control` -- which
+        # mix wells with another vocabulary -- would destroy a value
+        # it does not understand.
+        # THE INNER FIELD IS KEPT, because everything below binds to
+        # IT and not to the row it now sits in: the tooltip is read
+        # off it, the label is bound to it, and `_widgets` still
+        # holds it. Losing this reference is what made a wrapped row
+        # lose its `settingKey` and its help the moment the wrapper
+        # stopped being a no-op.
+        field = widget
+        widget = self._with_a_plate_map(widget, setting_key)
+        # AND THE ADVISOR BESIDE `inference` (192). "a button to the
+        # left of inference alligned with the text box to the left in
+        # model & inference".
+        widget = self._with_a_settings_advisor(widget, setting_key)
+        if widget is not field:
+            # THE ROW IS THE FIELD AS FAR AS THE PANEL IS CONCERNED.
+            # `Section._row_widgets` records what it is handed, and
+            # the module smoke test reads `settingKey` off that -- so
+            # the holder has to carry it too, or a row with a button
+            # beside it reads as a field belonging to no setting.
+            widget.setProperty("settingKey", setting_key)
+            widget.setProperty("settingsAppKey", self.app_key)
+        lbl_widget = QLabel(label)
+        # Give the label a subtle affordance so users know
+        # it's the hover target for tooltips (fields can be
+        # focused / clicked — tooltips on labels are calmer).
+        lbl_widget.setCursor(Qt.WhatsThisCursor)
+        field_key = None
+        # MATCHED ON THE INNER FIELD, not on `widget`: `widget` may
+        # now be the row that holds it, which `_widgets` has never
+        # heard of.
+        #
+        # THROUGH AN INDEX, not by scanning. This used to walk the whole
+        # of `_widgets` looking for the row's own field, once per row --
+        # 1,538 rows against 1,538 widgets on the Mask screen, which is
+        # over a million identity comparisons to answer 1,538 questions
+        # that a dictionary answers outright. `_widget_key_index` is
+        # built once per panel and preserves the scan's answer exactly:
+        # first key wins, for the vanishingly rare case of one widget
+        # registered under two names.
+        key = self._key_of_field(field)
+        if key is not None:
+            field_key = key
+            html = field.toolTip()
+            hint = self._settings_model.plain_tooltip_for(key)
+            body_source = field.property(
+                "apiTooltipDescriptionSource") or ""
+            lbl_widget.setProperty("settingsAppKey", self.app_key)
+            lbl_widget.setProperty("settingKey", key)
+            lbl_widget.setProperty(
+                "apiTooltipDescriptionSource", body_source)
+            lbl_widget.setProperty(
+                "apiTooltipDescription", body_source)
+            lbl_widget.setProperty("apiTooltipHtml", html)
+            lbl_widget.setProperty(
+                "apiTooltipDisplayRole", "tooltip")
+            # Tooltips live on the LABEL only — hovering
+            # the input field itself is left alone so
+            # focus / edit interactions aren't disturbed.
+            field.setToolTip("")
+            # SettingsWidgets may already have disabled an
+            # algorithm-specific field before this visual label
+            # exists. Bind them now and mirror the state; later
+            # reducer switches update both through the same link.
+            #
+            # ON THE FIELD, not on the row: the reducer that
+            # later enables and disables this setting reaches it
+            # through `_widgets`, which holds the field, so a
+            # label bound to the holder would never be told.
+            field._spacr_setting_label = lbl_widget
+            lbl_widget.setEnabled(field.isEnabled())
+            self._hint_map[lbl_widget] = hint
+            self._html_tip_map[lbl_widget] = html
+            lbl_widget.installEventFilter(self)
+        # No API link dot on the settings form. It sat between the
+        # label and the field and carried a tooltip of its own, so
+        # the help popped when the pointer was over the row's
+        # right-hand side -- which reads as "the field has a
+        # tooltip", because from the user's side of the screen that
+        # is exactly what it looks like. 191 of them on the Mask
+        # form alone.
+        #
+        # Nothing is lost but the mark: the API link is still in the
+        # label's tooltip HTML (the `href=` several tests assert on),
+        # so the reference is one hover and one click away, and the
+        # help itself is unchanged and still on the label.
+        #
+        # The host stays, though, and is built here rather than by
+        # `Section.add_row` (which only makes one when there is an
+        # info widget to put in it). It is what right-aligns the
+        # label against the field: dropping it left the label
+        # left-aligned and half the row's width was suddenly the
+        # page showing through rather than the category surface.
+        section.add_row(lbl_widget, widget, info_widget=None,
+                        wrap_label=True)
+        # THE FIELD, for the same reason as the tooltip above: the
+        # column picker fills the setting's own widget, and handing
+        # it the row would give it something with no `setText`.
+        self._attach_column_picker(field_key, field)
 
     @staticmethod
     def _open_the_headings_above(parent, expanded: bool) -> None:
@@ -2156,12 +2570,12 @@ class AppScreen(QWidget):
 
         The panel is built from `(label, widget)` pairs and every rule that
         acts on a particular SETTING needs the key. Read off `_widgets`,
-        which is the one place that maps the two.
+        which is the one place that maps the two -- through
+        :meth:`_key_of_field`, so this is a lookup rather than the second
+        full scan of that table per row.
         """
-        for key, held in getattr(self._settings_model, "_widgets", {}).items():
-            if held is widget:
-                return str(key)
-        return ""
+        key = self._key_of_field(widget)
+        return "" if key is None else str(key)
 
     def _with_a_settings_advisor(self, widget, key):
         """Add the regression settings-advisor button beside ``inference``.
@@ -3020,19 +3434,31 @@ class AppScreen(QWidget):
 
     def eventFilter(self, obj, event):
         """Show/hide the hover tooltip and update the hint strip on Enter/Leave."""
-        from PySide6.QtCore import QEvent
+        # THE EVENT TYPE IS THE FIRST QUESTION, and it used to be the third.
+        # This filter is installed on every settings LABEL -- 1,538 of them on
+        # the Mask screen -- so it is handed every event those labels receive
+        # while the panel is assembling itself: polish, style change, palette
+        # change, show. Measured on a Mask build, 14,472 calls before the
+        # pointer has moved at all, each paying for two module lookups and a
+        # `QObject.property` round trip to answer a question about hovering.
+        # Nothing below this line is reachable for any other event type, so
+        # asking first is free and costs those 14,472 calls a single integer
+        # comparison instead.
+        event_type = event.type()
+        if event_type not in (QEvent.Enter, QEvent.Leave):
+            return super().eventFilter(obj, event)
         from ..widgets.hover_tooltip import HoverTooltip
         # A settings CATEGORY header writes its own strip and nothing else:
         # it has no setting key, so falling through would blank the
         # per-setting strip every time the pointer crossed a header.
         category = obj.property("settingsCategory")
         if category:
-            if event.type() == QEvent.Enter:
+            if event_type == QEvent.Enter:
                 self.show_category_hint(str(category))
-            elif event.type() == QEvent.Leave:
+            else:
                 self.clear_category_hint()
             return super().eventFilter(obj, event)
-        if event.type() == QEvent.Enter:
+        if event_type == QEvent.Enter:
             key = obj.property("settingKey")
             if key:
                 from .settings_model import refresh_api_tooltips
@@ -3048,7 +3474,7 @@ class AppScreen(QWidget):
                 self._hint_strip.setText(hint)
             if html:
                 HoverTooltip.instance().show_for(obj, html)
-        elif event.type() == QEvent.Leave:
+        else:
             if hasattr(self, "_hint_strip"):
                 self._hint_strip.setText(self._default_hint())
             HoverTooltip.instance().start_hide()

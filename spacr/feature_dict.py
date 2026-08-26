@@ -45,7 +45,15 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Iterable
 
-import pandas as pd
+# PANDAS IS NOT IMPORTED HERE. Everything above the export section is
+# strings and parsing: what a measured column is called, what it means and
+# which object it belongs to. Only `describe_database` and the export path
+# below build or read a DataFrame, and they import pandas themselves.
+#
+# The Feature Dictionary panel imports this module for those strings, and
+# that panel registers its app and its stylesheet block at launch -- so a
+# module-level pandas here was 487 modules and a third of a second spent
+# before the window drew, on behalf of a user who may never open it.
 
 from .measurement_schema import MEASUREMENT_STAMP_COLUMNS
 from .object_roles import ORGANELLE_ROLES
@@ -3375,6 +3383,8 @@ def describe_database(db_path: str | Path, table: str | None = None,
             row["table"] = table_name
             rows.append(row)
 
+    import pandas as pd
+
     df = pd.DataFrame(rows, columns=_FRAME_COLUMNS)
     for col in _TUPLE_FRAME_COLUMNS:
         df[col] = [", ".join(v) if isinstance(v, (list, tuple)) else v
@@ -3398,6 +3408,8 @@ def _is_missing(value: Any) -> bool:
     if value is None:
         return True
     try:
+        import pandas as pd
+
         return bool(pd.isna(value))
     except (TypeError, ValueError):
         return False

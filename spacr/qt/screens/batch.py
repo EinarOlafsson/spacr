@@ -60,6 +60,7 @@ from ...cli import MODULES
 from ..bridge import make_thread
 from ..theme import SPACING, active_palette
 from ..widgets import Divider
+from ..widgets.sortable_table import install_sorting, table_item
 
 __all__ = ["BatchScreen", "COLUMNS", "ON_ERROR_LABELS", "STATUS_COLOURS"]
 
@@ -295,6 +296,7 @@ class BatchScreen(QWidget):
         split = QSplitter(Qt.Vertical, self)
 
         self._table = QTableWidget(self)
+        install_sorting(self._table)
         self._table.setColumnCount(len(COLUMNS))
         self._table.setHorizontalHeaderLabels(list(COLUMNS))
         self._table.verticalHeader().setVisible(False)
@@ -716,18 +718,39 @@ class BatchScreen(QWidget):
     # ------------------------------------------------------------------
 
     def selected_job(self) -> Optional[bt.Job]:
-        """The :class:`spacr.batch.Job` for the selected row, or None."""
-        row = self._table.currentRow()
-        if row < 0 or row >= len(self._queue.jobs):
+        """The :class:`spacr.batch.Job` for the selected row, or None.
+
+        By the job's id, never by the row number: the table sorts, so the
+        third row is not the third job once the user has clicked a header.
+        """
+        job_id = self._job_id_at(self._table.currentRow())
+        if not job_id:
             return None
-        return self._queue.jobs[row]
+        return next((job for job in self._queue.jobs if job.id == job_id),
+                    None)
+
+    def _job_id_at(self, row: int) -> str:
+        """The id of the job drawn on ``row``, or "" when there is none."""
+        if row < 0 or row >= self._table.rowCount():
+            return ""
+        item = self._table.item(row, 0)
+        if item is None:
+            return ""
+        return str(item.data(Qt.UserRole) or "")
+
+    def _row_of_job(self, job_id: str) -> int:
+        """The row ``job_id`` is drawn on, or -1."""
+        for row in range(self._table.rowCount()):
+            if self._job_id_at(row) == str(job_id):
+                return row
+        return -1
 
     def select_job(self, job_id: str) -> bool:
         """Select the row for ``job_id``."""
-        index = self._queue.index(job_id)
-        if index < 0:
+        row = self._row_of_job(job_id)
+        if row < 0:
             return False
-        self._table.selectRow(index)
+        self._table.selectRow(row)
         return True
 
     def row_values(self, row: int) -> List[str]:
@@ -764,7 +787,11 @@ class BatchScreen(QWidget):
                 os.path.basename(job.log_path),
             )
             for col, text in enumerate(cells):
-                item = QTableWidgetItem(text)
+                # A duration reads as "2m 05s" and sorts on the seconds
+                # behind it, or "2m" would land under "9s".
+                key = (job.elapsed_s if col == COLUMNS.index("Time")
+                       else None)
+                item = table_item(text, key=key)
                 if col == COLUMNS.index("Status"):
                     palette = active_palette()
                     colour = palette.get(
@@ -775,15 +802,23 @@ class BatchScreen(QWidget):
                         item.setForeground(_brush(colour))
                 if col in (COLUMNS.index("Label"), COLUMNS.index("Status")) and job.error:
                     item.setToolTip(job.error)
+                if col == 0:
+                    # The row's identity, so a sorted table still knows which
+                    # job the user picked.
+                    item.setData(Qt.UserRole, job.id)
                 self._table.setItem(row, col, item)
 
     def _refresh_running_row(self) -> None:
         """Tick the elapsed cell of the running job, and only that cell."""
-        for row, job in enumerate(self._queue.jobs):
-            if job.status != bt.STATUS_RUNNING or row >= self._table.rowCount():
+        for job in self._queue.jobs:
+            if job.status != bt.STATUS_RUNNING:
+                continue
+            row = self._row_of_job(job.id)
+            if row < 0:
                 continue
             self._table.setItem(row, COLUMNS.index("Time"),
-                                QTableWidgetItem(bt.fmt_duration(job.elapsed_s)))
+                                table_item(bt.fmt_duration(job.elapsed_s),
+                                           key=job.elapsed_s))
             if self._table.currentRow() == row:
                 self._load_log(job)
 

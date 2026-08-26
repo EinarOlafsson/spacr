@@ -51,6 +51,7 @@ from ..widgets.gate_console import GateConsole
 from ..widgets.table_chip import TableChip
 from .graph_builder import read_table, table_names
 from .app_screen import ModuleHeader
+from ..app_catalog import declared_app, register_declared
 
 LOG = logging.getLogger("spacr.qt.screens.gate_editor")
 
@@ -1784,43 +1785,31 @@ def make_gate_editor_screen(app_key: Optional[str] = None) -> QWidget:
     return GateEditorScreen()
 
 
-APP_NAME = "Gate Editor"
-APP_DESCRIPTION = "Draw a threshold or a region on a plot; it becomes a filter"
-APP_INTRO = (
-    "The flow-cytometry gesture on measurement tables. Drag a threshold across "
-    "a histogram or click a polygon round a cloud on a two-parameter scatter, "
-    "name it, and the shape becomes a filter every open view honours. Gates "
-    "nest — gate on gate on gate — and each one shows its n, its percentage of "
-    "its parent and its percentage of the whole table. Save the strategy and "
-    "re-apply it to the next plate.")
-APP_CLI_NOTE = (
-    "The Gate Editor is drawing on a plot; run it in the GUI (spacr-qt). "
-    "Headless, spacr.qt.widgets.gate_spec.GateSet.load() reads a saved "
-    "strategy and .population(frame, name) applies it — no Qt involved, so a "
-    "gate drawn once can gate a whole campaign from a script.")
-#: The display name in the nine non-English UI languages, in
-#: `spacr.qt.i18n.LANGUAGES` order (sv, de, es, zh_CN, pt, hi, ko, is, fr).
-APP_NAME_TRANSLATIONS = (
-    "Gate-redigerare", "Gate-Editor", "Editor de compuertas",
-    "门控编辑器", "Editor de gates", "गेट संपादक", "게이트 편집기",
-    "Gate-ritill", "Éditeur de gates")
+# The row this screen puts in the registry is declared in
+# `spacr.qt.app_catalog`, which is what lets the app be registered without
+# importing this module -- the launch reads the table, not the screen. These
+# read the same row back rather than restating it, so the name, the blurb and
+# the nine translations have one spelling and no second copy to drift from.
+_ROW = declared_app(APP_KEY)
+APP_NAME = _ROW.name
+APP_DESCRIPTION = _ROW.desc
+APP_INTRO = _ROW.intro
+APP_CLI_NOTE = _ROW.cli_note
+APP_NAME_TRANSLATIONS = _ROW.translations
 
 
 def register() -> bool:
     """Put the Gate Editor in the app registry. Idempotent.
 
-    Called from :data:`spacr.qt.SELF_REGISTERING_MODULES`. Everything after
-    ``SECTION_EXPLORE`` is a table this key would otherwise need a hand-edit
-    in; :func:`spacr.qt.app.register_app` distributes them from this one call.
+    The row itself -- the key, the name, the blurb, the section, the "no
+    headless run" sentence, the API doc link and the nine translations of the
+    display name -- is declared in :mod:`spacr.qt.app_catalog`.
+    :func:`spacr.qt.app.register_app` distributes those into the four tables
+    each used to need a hand-edit in, and this function's whole job is to name
+    which row. That is what lets the app be registered without importing this
+    module at all: the launch reads the table, and the screen is imported when
+    somebody opens it.
 
     :returns: ``True`` if this call is what registered it.
     """
-    from ..app import APPS, SECTION_EXPLORE, STAGE_ALPHA, register_app
-    if any(row[0] == APP_KEY for row in APPS):
-        return False
-    register_app(APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_EXPLORE,
-                 factory=make_gate_editor_screen, stage=STAGE_ALPHA,
-                 intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-                 api_module="qt/screens/gate_editor",
-                 translations=APP_NAME_TRANSLATIONS)
-    return True
+    return register_declared(__name__) is not None

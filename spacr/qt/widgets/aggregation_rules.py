@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (
 
 from ...merge_tables import AGGREGATIONS, aggregation_for, aggregation_plan
 from ..theme import SPACING
+from .sortable_table import install_sorting, tree_item
 
 
 class AggregationRulesDialog(QDialog):
@@ -56,6 +57,7 @@ class AggregationRulesDialog(QDialog):
         outer.addWidget(self.search)
 
         self.tree = QTreeWidget(self)
+        install_sorting(self.tree)
         self.tree.setObjectName("AggregationRules")
         self.tree.setColumnCount(2)
         self.tree.setHeaderLabels(["Measurement", "Combine by"])
@@ -72,7 +74,7 @@ class AggregationRulesDialog(QDialog):
     def _fill(self, frame: pd.DataFrame) -> None:
         plan = aggregation_plan(frame, overrides=self._overrides)
         for column, how in sorted(plan.items()):
-            item = QTreeWidgetItem([str(column), ""])
+            item = tree_item([str(column), ""])
             self.tree.addTopLevelItem(item)
             box = QComboBox(self.tree)
             box.addItems(AGGREGATIONS)

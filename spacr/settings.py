@@ -2327,7 +2327,6 @@ def get_perform_regression_default_settings(settings):
     # that names a type still gets that type; only a dict that never chose one
     # moves.
     settings.setdefault('regression_type', 'mixed')
-    settings.setdefault('glm_transform_conflict', 'untransformed')
     # WHAT THE INTERCEPT IS, offered rather than assumed.
     #
     # 'fitted' estimates it from the data, which is what every run before
@@ -3284,7 +3283,6 @@ expected_types = {
     "lasso_selection_threshold": float,
     "regression_qc": bool,
     "transform": (str, type(None)),
-    "glm_transform_conflict": str,
     "intercept": str,
     "intercept_value": float,
     "agg_type": str,
@@ -4363,7 +4361,6 @@ tooltips = {
     "train": "(bool) - Run the training stage. Turn OFF to apply an existing model_path to a dataset without retraining, which is the usual way to score a new plate with a model trained earlier. Default True.",
     "intercept": "(str) - What the intercept of the fit is. 'fitted' estimates it from the data, so it is the predicted response of a well with every predictor at its reference level - for a one-hot gene design that is whichever gene patsy dropped, which is rarely a quantity anyone wanted. 'control' subtracts the negative controls' mean response before fitting and suppresses the term, so the intercept IS the control level and every coefficient reads as a difference from the controls. 'zero' fits through the origin. 'value' pins it at intercept_value. Default 'fitted'.",
     "intercept_value": "(float) - The number the intercept is pinned to when intercept is 'value'. The response is shifted by it and the term suppressed, so the fit is exactly y = intercept_value + terms. Read for no other intercept setting, and the panel greys it out for them. Default 0.0.",
-    "glm_transform_conflict": "(str) - Response scale to fit when transform is itself a link ('log' or 'logit') and the automatically selected GLM family also has a non-identity link. 'untransformed' fits the measured response and lets the family link transform it; use this for a proportion that was unnecessarily transformed first. 'transformed' keeps the transformed response and fits a Gaussian identity-link model. 'warn' reproduces the legacy double-transform behavior and prints a warning. This setting has no effect for other transforms or regression types. Default 'untransformed'.",
     "transform": "(str) - Optional transform applied to the aggregated per-well response before fitting: 'log' (log1p), 'sqrt', 'square', 'beta' (logit, for a response that is a proportion - the endpoints are squeezed off 0 and 1 first and the summary says so), or None for none. Reach for it when the response is skewed and the normality check fails; the fit then reports coefficients for the transformed column, named '<transform>_<dependent_variable>'. Default None.",
     "val_split": "(float) - Fraction of src/train randomly held out as a validation set each run (0.1 = 10 percent). The validation score drives checkpoint selection, early stopping and the live training curves; at 0 there is no validation loader, so checkpointing falls back to training accuracy, which rewards memorisation. Raise it on small datasets for a less noisy estimate. With a grouping level set the holdout is whole groups, so the realised share is quantised to them and can land well off what you asked for; both numbers are reported rather than quietly rounded. Default 0.1.",
     "visualize": "(bool) - Draw the embedding as a figure when the run finishes. Costs plotting time on a large dataset and nothing else -- the embedding itself is computed and saved either way. Default False.",
@@ -5109,7 +5106,7 @@ categories = {
     "Regression: Response": [
         "dependent_variable", "invert_dependent_variable",
         "count_grna_column", "count_value_column",
-        "analysis_unit", "agg_type", "transform", "glm_transform_conflict",
+        "analysis_unit", "agg_type", "transform",
     ],
     # inference and regression_type lead: they decide whether anything in
     # "Model Tuning" or "Permutation Test" does anything at all.
@@ -5677,35 +5674,31 @@ def get_setting_dependencies():
     # regression_spec lists 'group_lasso' there the generated rule -- which
     # cannot drift from the family table or from the tooltip generator that
     # reads the same table -- takes over and this one stops being used.
-    # INSTRUCTION 182: the transform is DEAD under 'untransformed'.
+    # A LINK-LIKE TRANSFORM IS DEAD ON A GLM, so the control says so.
     #
-    # `glm_transform_conflict='untransformed'` fits the response as measured
-    # and lets the family's own link do the transforming, so a `transform`
-    # that is itself a link -- 'log' or 'logit' -- is read and then ignored.
-    # A control the run silently discards has to say so; that is 106's rule
-    # and this is the case 182 named for it.
+    # A glm fits the response as measured and lets its family's own link do
+    # the transforming, so a `transform` that is itself a link -- 'log' or
+    # 'logit' -- is read and then ignored. A control the run silently
+    # discards has to say so.
     #
     # ONLY the link-like transforms, and only on a glm. 'sqrt' and 'square'
-    # are not links and are applied normally under every resolution, and a
-    # regression type that does not choose its own family has no conflict to
-    # resolve. Greying `transform` for those would be a control disabled for
-    # a reason that is not true of it.
+    # are not links and are applied normally, and a regression type that
+    # does not choose its own family has no conflict to resolve. Greying
+    # `transform` for those would be a control disabled for a reason that is
+    # not true of it.
     setting_dependencies['transform'] = _combined(
         setting_dependencies.get('transform'),
-        ('glm_transform_conflict', 'regression_type'),
+        ('regression_type',),
         lambda settings, _context: not (
             str(settings.get('regression_type') or '').lower() == 'glm'
-            and str(settings.get('glm_transform_conflict')
-                    or '').strip().lower() == 'untransformed'
             and str(settings.get('transform') or '').strip().lower()
             in ('log', 'logit')),
         lambda settings, _context: (
-            f"transform={settings.get('transform')!r} is a link, and "
-            "glm_transform_conflict='untransformed' fits the response as "
-            "measured so the family's own link does that job -- applying "
-            "both would fit logit(log(y)). Choose 'transformed' to keep this "
-            "transform and fit an identity link instead. The value is kept "
-            "and saved."),
+            f"transform={settings.get('transform')!r} is a link, and a glm "
+            "fits the response as measured so the family's own link does "
+            "that job -- applying both would fit logit(log(y)). To fit the "
+            "transformed response instead, use regression_type='ols'. The "
+            "value is kept and saved."),
     )
 
     # THE PINNED NUMBER IS DEAD UNLESS THE INTERCEPT IS PINNED.

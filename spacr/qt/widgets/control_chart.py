@@ -185,7 +185,7 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
-from scipy.special import gamma as _gamma_fn, ndtri as _ndtri
+from statistics import NormalDist as _NormalDist
 
 from .graph_spec import CATEGORICAL, CONTINUOUS, column_kinds
 
@@ -233,7 +233,14 @@ D2_MOVING_RANGE = 1.128
 
 #: ``Φ⁻¹(0.75)`` = 0.67449. The quartile of the standard normal, and the root
 #: of both robust constants below. Computed rather than typed.
-_NORMAL_QUARTILE = float(_ndtri(0.75))
+#:
+#: From the standard library rather than from ``scipy.special.ndtri``, which
+#: is where it used to come from. The two agree to the last bit — the test
+#: beside this asserts it — and importing ``scipy.special`` for one number
+#: read at import time cost 112 modules on every launch, because the screen
+#: that draws these charts is one of ``theme.WIDGET_QSS_MODULES`` and is
+#: imported for its stylesheet block whether or not anybody opens it.
+_NORMAL_QUARTILE = _NormalDist().inv_cdf(0.75)
 
 #: ``sqrt(2)·Φ⁻¹(0.75)`` = 0.95387 — the median of the moving range of a
 #: normal series, in units of its sigma. Divide a median moving range by this
@@ -296,6 +303,14 @@ def c4(n: int) -> float:
     if size > 342:
         # Γ(171) overflows a float; c4 is within 1e-3 of 1 long before then.
         return 1.0 - 0.75 / size
+    # Imported here, not at the top: this is the module's only remaining use
+    # of scipy, and it is reached when a subgroup chart is actually computed.
+    # `math.lgamma` would remove the dependency altogether and is NOT used —
+    # it disagrees with this ratio in the last one or two bits, and a
+    # published constant that changes in its fifteenth digit because a launch
+    # got faster is not a trade worth making.
+    from scipy.special import gamma as _gamma_fn
+
     return math.sqrt(2.0 / (size - 1)) * float(
         _gamma_fn(size / 2.0) / _gamma_fn((size - 1) / 2.0))
 

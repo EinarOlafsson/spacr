@@ -98,6 +98,7 @@ from ..theme import (RADIUS, SPACING, active_palette,
                      block_surface, ensure_widget_qss_applied,
                      register_widget_qss)
 from ..widgets import Divider
+from ..widgets.sortable_table import install_sorting, table_item
 
 __all__ = ["ModelZooScreen", "DEFAULT_DOWNLOAD_DIR", "FIELD_RANGE",
            "PREVIEW_PX", "compose_labels"]
@@ -196,9 +197,13 @@ QLabel#{PREVIEW_NAME} {{
 register_widget_qss(ZOO_QSS_NAME, _model_zoo_qss, replace=True)
 
 
-def _cell(text: str) -> QTableWidgetItem:
-    """A read-only table cell."""
-    item = QTableWidgetItem(text)
+def _cell(text: str, key=None) -> QTableWidgetItem:
+    """A read-only table cell.
+
+    :param key: the number to sort on when the text is not one -- a size
+        printed as "900 KB" reads as 900 and belongs below "12 MB".
+    """
+    item = table_item(text, key=key)
     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
     return item
 
@@ -353,6 +358,7 @@ class ModelZooScreen(QWidget):
 
         # ── the listing ───────────────────────────────────────────────
         self._table = QTableWidget(0, len(_ZOO_HEADERS), self)
+        install_sorting(self._table)
         # The listing IS the container here — nothing is under it — so it
         # keeps a surface rather than showing the page through.
         self._table.setObjectName(TABLE_NAME)
@@ -453,6 +459,7 @@ class ModelZooScreen(QWidget):
 
         split = QSplitter(Qt.Horizontal, test)
         self._bench_table = QTableWidget(0, len(_BENCH_HEADERS), split)
+        install_sorting(self._bench_table)
         self._bench_table.setHorizontalHeaderLabels(list(_BENCH_HEADERS))
         self._bench_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self._bench_table.verticalHeader().setVisible(False)
@@ -534,7 +541,14 @@ class ModelZooScreen(QWidget):
                 entry.trained_by,
             )
             for c, text in enumerate(cells):
-                item = _cell(str(text))
+                # The size column is printed in whichever unit reads best,
+                # so it sorts on the byte count behind it.
+                item = _cell(str(text),
+                             key=entry.size_bytes if c == 4 else None)
+                if c == 0:
+                    # Which model the row stands for. The table sorts, so a
+                    # row number names nothing outside the moment it was read.
+                    item.setData(Qt.UserRole, r)
                 if c == 6 and not entry.provenance_known:
                     # Never blank, and never quiet: 'unknown' in the warning
                     # colour, because a model with no provenance is the one you
@@ -624,9 +638,21 @@ class ModelZooScreen(QWidget):
         return sorted({i.row() for i in self._table.selectedIndexes()})
 
     def selected_entries(self) -> List[zoo.ModelEntry]:
-        """The selected models, in table order."""
-        return [self._entries[r] for r in self.selected_rows()
-                if 0 <= r < len(self._entries)]
+        """The selected models, in table order.
+
+        Through the identity stamped on each row, not the row number: the
+        table sorts, and a row number stops naming a model the moment a
+        header is clicked.
+        """
+        out = []
+        for row in self.selected_rows():
+            item = self._table.item(row, 0)
+            index = None if item is None else item.data(Qt.UserRole)
+            if index is None:
+                index = row
+            if 0 <= int(index) < len(self._entries):
+                out.append(self._entries[int(index)])
+        return out
 
     def select(self, *rows: int) -> None:
         """Select these rows (test/programmatic helper).

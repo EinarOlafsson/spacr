@@ -32,12 +32,21 @@ def test_two_score_cells_order_by_their_numbers_not_their_text(qapp):
     assert not larger < smaller
 
 
-def test_a_score_cell_against_a_plain_row_falls_back_to_display_text(qapp):
-    """A "-" row still has to order against a scored one."""
-    scored = _NumericTableItem("0.812", 0.812)
-    unscored = QTableWidgetItem("-")
+def test_a_failed_trial_sorts_below_a_scored_one(qapp):
+    """A "-" row is a hole, and a hole belongs under the results.
 
-    assert (scored < unscored) == ("0.812" < "-")
+    It used to fall back to comparing display text, which put "-" ABOVE
+    every score whichever way the column was sorted, because "-" sorts
+    before "0" as a word.
+    """
+    scored = _NumericTableItem("0.812", 0.812)
+    assert scored < QTableWidgetItem("-")
+
+    # And the way the table actually builds both cells.
+    from spacr.qt.widgets.sortable_table import table_item
+
+    assert table_item("0.812", key=0.812) < table_item("-")
+    assert not table_item("-") < table_item("0.812", key=0.812)
 
 
 def test_a_comparison_with_something_that_has_no_text_is_declined(qapp):

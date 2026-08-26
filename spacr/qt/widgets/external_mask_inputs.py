@@ -23,6 +23,7 @@ from ...external_masks import (
     ROLES,
     detect_inputs,
 )
+from .sortable_table import install_sorting, table_item
 
 
 class ExternalMaskInputWidget(QWidget):
@@ -39,6 +40,7 @@ class ExternalMaskInputWidget(QWidget):
         outer.setSpacing(6)
 
         self._table = QTableWidget(0, 6, self)
+        install_sorting(self._table)
         self._table.setHorizontalHeaderLabels([
             "Source", "Detected as", "Use as", "Mask type", "Files",
             "Confidence",
@@ -131,14 +133,22 @@ class ExternalMaskInputWidget(QWidget):
         return True
 
     def remove_selected(self) -> None:
-        rows = sorted({index.row() for index in self._table.selectedIndexes()},
-                      reverse=True)
-        for row in rows:
-            if 0 <= row < len(self._groups):
-                del self._groups[row]
-        if rows:
+        rows = {index.row() for index in self._table.selectedIndexes()}
+        groups = sorted({self._group_of_row(row) for row in rows} - {-1},
+                        reverse=True)
+        for group in groups:
+            del self._groups[group]
+        if groups:
             self._rebuild()
             self.value_changed.emit()
+
+    def _group_of_row(self, row: int) -> int:
+        """The group a drawn row stands for, or -1."""
+        item = self._table.item(row, 0)
+        index = None if item is None else item.data(Qt.UserRole)
+        if index is None or not 0 <= int(index) < len(self._groups):
+            return -1
+        return int(index)
 
     def _rebuild(self) -> None:
         self._table.setRowCount(len(self._groups))
@@ -146,14 +156,17 @@ class ExternalMaskInputWidget(QWidget):
             source = group.root
             if len(group.paths) == 1:
                 source = group.paths[0]
-            source_item = QTableWidgetItem(source)
+            source_item = table_item(source)
+            # Which group the row was built from. The table sorts, so the
+            # third row is not the third group after a header click.
+            source_item.setData(Qt.UserRole, row)
             source_item.setToolTip("\n".join(group.paths[:20]))
             self._table.setItem(row, 0, source_item)
             detected = (
                 f"mask · {group.object_type or 'unassigned'}"
                 if group.role == "mask" else group.role
             )
-            detected_item = QTableWidgetItem(detected)
+            detected_item = table_item(detected)
             detected_item.setToolTip(group.reason)
             self._table.setItem(row, 1, detected_item)
 
@@ -178,10 +191,10 @@ class ExternalMaskInputWidget(QWidget):
                 self._object_changed(r, box.currentData()))
             self._table.setCellWidget(row, 3, object_box)
 
-            count = QTableWidgetItem(str(len(group.paths)))
+            count = table_item(str(len(group.paths)))
             count.setTextAlignment(Qt.AlignCenter)
             self._table.setItem(row, 4, count)
-            confidence = QTableWidgetItem(f"{group.confidence:.0%}")
+            confidence = table_item(f"{group.confidence:.0%}")
             confidence.setTextAlignment(Qt.AlignCenter)
             self._table.setItem(row, 5, confidence)
 

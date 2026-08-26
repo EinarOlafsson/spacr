@@ -83,6 +83,7 @@ from ...schema import SEGMENTED_ROLES
 from ..bridge import make_thread
 from ..theme import SPACING, active_palette
 from ..widgets import Divider
+from ..widgets.sortable_table import install_sorting
 
 __all__ = [
     "ForeignScreen",
@@ -379,6 +380,9 @@ class ForeignScreen(QWidget):
         self._model.mapping_edited.connect(self._on_mapping_edited)
         self._table = QTableView(self)
         self._table.setModel(self._model)
+        # After setModel: the helper puts a sorting proxy over the mapping
+        # model, which replaces the view's model and its selection model.
+        install_sorting(self._table)
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self._table.setAlternatingRowColors(True)
         self._table.horizontalHeader().setSectionResizeMode(

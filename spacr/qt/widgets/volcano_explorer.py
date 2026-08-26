@@ -26,6 +26,7 @@ brings becomes available in the colour-by and shape-by menus.
 
 from __future__ import annotations
 
+import dataclasses
 import os
 from typing import Any
 
@@ -65,11 +66,45 @@ from ...volcano_style import (
     localizations_present,
     point_details,
     render_volcano,
+    validate_style,
 )
+from .sortable_table import install_sorting, table_item
 
 #: What an optional column menu calls "leave this unset". Spelled once,
 #: because the menu has to tell it apart from a column actually named that.
 _NONE_ROW = "— none —"
+
+#: The red a broken setting's name turns, when the theme cannot be asked.
+#: spaCR's own error hue; a literal only for a bare widget with no palette
+#: behind it, which is a unit run rather than the application.
+_PROBLEM_INK = "#C4441C"
+
+
+def _setting_named_in(message: str) -> str:
+    """The style setting a renderer error blames, or ``""`` for none.
+
+    The renderer says ``x_column='foo' is not a column of the results``, so
+    the setting is usually spelled out in the sentence -- and where it is,
+    the reader can be pointed at the control that caused it rather than left
+    to hunt. Longest name first, or ``color_by`` would answer for
+    ``color_by`` and ``colormap`` alike; the ``name=`` form is preferred over
+    a bare mention, because a message may name a second setting only to
+    suggest it.
+
+    ``""`` when nothing in the sentence is a setting: the explanation is
+    still shown, it just has no control to turn red.
+    """
+    text = str(message)
+    names = sorted((f.name for f in dataclasses.fields(VolcanoStyle)),
+                   key=len, reverse=True)
+    for name in names:
+        if f"{name}=" in text:
+            return name
+    for name in names:
+        if name in text:
+            return name
+    return ""
+
 
 #: Columns never offered as a colour/shape source: they are the plot's own
 #: axes or bookkeeping, and mapping colour to the y axis says nothing.
@@ -241,6 +276,23 @@ class VolcanoExplorer(QWidget):
         self._results = pd.DataFrame() if results is None else results.reset_index(drop=True)
         self._style = style or VolcanoStyle()
         self._controls: dict[str, QWidget] = {}
+        #: The name beside each control, so a broken setting can be pointed
+        #: at. Held rather than looked up off the form every time: a red
+        #: label has to be cleared again when the value is corrected, and
+        #: that means knowing every label, not only the offending one.
+        self._labels: dict[str, QLabel] = {}
+        #: Which folding section holds each setting, so one that goes red
+        #: can open itself. A red label inside a closed section is a red
+        #: label nobody sees.
+        self._sections: dict[str, QWidget] = {}
+        #: The last value of each setting that actually drew, and the whole
+        #: style it drew from. The first is what a broken setting falls back
+        #: to; the second is the safety net for a failure no single setting
+        #: can be blamed for.
+        self._last_good: dict[str, Any] = {}
+        self._last_good_style: VolcanoStyle | None = None
+        self._problems: dict[str, str] = {}
+        self._problem_ink = self._error_ink()
         self._updating = False
         self._selected_index: int | None = None
 
@@ -269,10 +321,19 @@ class VolcanoExplorer(QWidget):
         self._canvas.setContextMenuPolicy(Qt.CustomContextMenu)
         self._canvas.customContextMenuRequested.connect(self._style_menu)
 
+        # THE EXPLANATION GOES UNDER THE PLOT. Not over it and not instead
+        # of it: a message that replaces the figure takes away the one thing
+        # the reader was looking at, over a single mistyped field.
+        self._problem_line = QLabel("", self)
+        self._problem_line.setObjectName("VolcanoProblems")
+        self._problem_line.setWordWrap(True)
+        self._problem_line.setVisible(False)
+
         left = QWidget(self)
         left_layout = QVBoxLayout(left)
         left_layout.setContentsMargins(0, 0, 0, 0)
         left_layout.addWidget(self._canvas, 1)
+        left_layout.addWidget(self._problem_line)
         left_layout.addWidget(self._build_detail_panel())
         splitter.addWidget(left)
 
@@ -463,36 +524,37 @@ class VolcanoExplorer(QWidget):
     # -------------------------------------------------------------- controls
 
     def _build_controls(self) -> QWidget:
+        """The side panel: four folded sections and the handful of controls
+        that are never folded away.
+
+        SIXTY-SEVEN SETTINGS ON ONE PAGE IS NOT A PANEL, IT IS A WALL. They
+        are grouped the way a reader works -- what is plotted, how it is
+        tested, how it looks, what is labelled -- into the same
+        :class:`~spacr.qt.widgets.section.Section` every settings screen in
+        spaCR folds, so this reads as the application rather than as a second
+        idea about panels. Every section starts CLOSED.
+
+        WHAT STAYS VISIBLE, and why those four. The significance level, the
+        rule the effect-size cut comes from and that rule's multiplier are
+        the three the maintainer actually changes -- they are what the long
+        note on :attr:`VolcanoStyle.threshold_method` is about, and moving
+        between ``mad`` and ``control`` on a screen means touching all three
+        in one sitting. The fourth is the colour-by column, because
+        recolouring by a covariate is the move this widget was written for.
+        Nothing else earned a permanent seat.
+        """
+        from .section import Section
+
         container = QWidget(self)
         layout = QVBoxLayout(container)
         layout.setContentsMargins(8, 8, 8, 8)
         layout.setSpacing(8)
 
-        layout.addWidget(self._group("Data", [
-            ("x_column", self._combo([], "Column plotted on the x axis")),
-            ("y_column", self._combo([], "Column plotted on the y axis")),
-            ("y_neg_log10", self._check("−log₁₀ the y column")),
-            ("label_column", self._combo([], "Column holding point names")),
-        ]))
-
-        layout.addWidget(self._group("Axes", [
-            ("title", self._line("Plot title")),
-            ("x_label", self._line("X axis title")),
-            ("y_label", self._line("Y axis title (blank = automatic)")),
-            ("x_scale", self._combo(SCALES, "X axis scale")),
-            ("y_scale", self._combo(SCALES, "Y axis scale")),
-            ("x_lim", self._optional(2, -1e9, 1e9, 4, "X axis limits")),
-            ("y_lim", self._optional(2, -1e9, 1e9, 4, "Y axis limits")),
-            ("invert_x", self._check("Invert x axis")),
-            ("invert_y", self._check("Invert y axis")),
-            ("split_axis", self._check("Split the y axis (broken axis)")),
-            ("split_height_ratio", self._spin(0.1, 0.9, 0.05, 2,
-                                              "Height of the upper panel")),
-            ("split_y_lims", self._readonly(
-                "Where the y axis is split (set by ticking the split above)")),
-        ]))
-
-        layout.addWidget(self._group("Thresholds", [
+        constant = QWidget(container)
+        constant_form = QFormLayout(constant)
+        constant_form.setContentsMargins(8, 8, 8, 8)
+        constant_form.setSpacing(4)
+        for key, widget in (
             ("alpha", self._spin(1e-6, 0.5, 0.01, 6, "Significance level")),
             ("threshold_method", self._combo(
                 ["value", "std", "mad", "quantile", "control"],
@@ -501,105 +563,142 @@ class VolcanoExplorer(QWidget):
                 0.0, 100.0, 0.5, 4,
                 "Multiplier applied to the rule above (the quantile itself "
                 "when the method is 'quantile')")),
-            ("effect_threshold", self._optional(
-                1, -1e6, 1e6, 4,
-                "Effect-size cut used when the method is 'value'; automatic "
-                "draws no effect-size line at all")),
-            ("control_column", self._combo(
-                [], "Boolean column marking the non-targeting controls, for "
-                    "the 'control' method")),
-            ("show_alpha_line", self._check("Draw the significance line")),
-            ("show_effect_lines", self._check("Draw the effect-size lines")),
-            ("show_zero_line", self._check("Draw the zero line")),
-        ]))
-
-        layout.addWidget(self._group("Points", [
-            ("marker", self._combo(
-                [code for code, _ in MARKER_SHAPES], "Marker shape",
-                labels=[label for _, label in MARKER_SHAPES])),
-            ("marker_size", self._spin(1, 400, 2, 1, "Marker size")),
-            ("significant_marker_size", self._spin(
-                1, 400, 2, 1, "Marker size for significant points")),
-            ("marker_alpha", self._spin(0.05, 1.0, 0.05, 2, "Opacity")),
-            ("marker_edge_width", self._spin(0, 5, 0.05, 2, "Edge width")),
-            ("marker_edge_color", self._line("Edge colour")),
-            ("base_color", self._line("Colour of non-significant points")),
-            ("significant_color", self._line("Colour of significant points")),
-        ]))
-
-        layout.addWidget(self._group("Colour & shape mapping", [
             ("color_by", self._combo([], "Column that chooses each colour")),
-            ("colormap", self._combo(
-                [name for group in COLORMAPS.values() for name in group],
-                "Colormap")),
-            ("color_vmin", self._optional(1, -1e9, 1e9, 4,
-                                          "Low end of the colour scale")),
-            ("color_vmax", self._optional(1, -1e9, 1e9, 4,
-                                          "High end of the colour scale")),
-            ("shape_by", self._combo([], "Column that chooses each shape")),
-            # SEVERAL AT ONCE. Ticking two compartments asks one question
-            # about both, which is why this is a list of tick boxes and not
-            # a drop-down.
-            ("localizations", self._multi(
-                "Colour by localization — tick any combination")),
-            ("localization_column", self._combo(
-                [], "Column naming each row's gene, for the compartment "
-                    "lookup")),
-            ("show_colorbar", self._check("Show the colour bar")),
-        ]))
+        ):
+            constant_form.addRow(self._register(key, widget), widget)
+        layout.addWidget(constant)
 
-        layout.addWidget(self._group("Lines", [
-            ("line_width", self._spin(0, 10, 0.1, 2, "Threshold line width")),
-            ("line_color", self._line("Threshold line colour")),
-            ("line_style", self._combo(
-                [code for code, _ in LINE_STYLES], "Threshold line style",
-                labels=[label for _, label in LINE_STYLES])),
-            ("zero_line_width", self._spin(0, 10, 0.1, 2, "Zero line width")),
-            ("zero_line_color", self._line("Zero line colour")),
-        ]))
-
-        layout.addWidget(self._group("Text", [
-            ("font_family", self._combo(FONT_FAMILIES, "Font family")),
-            ("font_size", self._spin(4, 48, 0.5, 1, "Base font size")),
-            ("title_font_size", self._spin(4, 48, 0.5, 1, "Title size")),
-            ("label_font_size", self._spin(4, 48, 0.5, 1, "Annotation size")),
-            ("tick_font_size", self._spin(4, 48, 0.5, 1, "Tick label size")),
-            ("font_weight", self._combo(
-                ["normal", "bold", "light", "medium", "semibold", "heavy"],
-                "Font weight")),
-            ("annotate_significant", self._check("Label every hit")),
-            ("annotations", self._readonly(
-                "Points labelled by name (set by clicking a point)")),
-        ]))
-
-        layout.addWidget(self._group("Frame", [
-            ("figure_width", self._spin(1, 40, 0.2, 2, "Figure width (in)")),
-            ("figure_height", self._spin(1, 40, 0.2, 2, "Figure height (in)")),
-            ("dpi", self._int_spin(50, 1200, "Raster export dpi")),
-            ("grid", self._check("Show grid")),
-            ("grid_axis", self._combo(["x", "y", "both", "none"], "Grid axis")),
-            ("grid_color", self._line("Grid colour")),
-            ("grid_width", self._spin(0, 5, 0.1, 2, "Grid line width")),
-            ("hide_top_right_spines", self._check("Hide top/right spines")),
-            ("background_color", self._line(
-                "Background colour ('none' leaves the page showing through)")),
-            ("legend", self._check("Show legend")),
-            ("legend_location", self._combo(
-                ["best", "upper right", "upper left", "lower left",
-                 "lower right", "right", "center left", "center right",
-                 "lower center", "upper center", "center"],
-                "Legend position")),
-            ("transparent", self._check("Transparent background on export")),
-        ]))
+        for title, rows in (
+            ("What is plotted", [
+                ("x_column", self._combo([], "Column plotted on the x axis")),
+                ("y_column", self._combo([], "Column plotted on the y axis")),
+                ("y_neg_log10", self._check("\u2212log\u2081\u2080 the y column")),
+                ("label_column", self._combo([], "Column holding point names")),
+                ("x_scale", self._combo(SCALES, "X axis scale")),
+                ("y_scale", self._combo(SCALES, "Y axis scale")),
+                ("x_lim", self._optional(2, -1e9, 1e9, 4, "X axis limits")),
+                ("y_lim", self._optional(2, -1e9, 1e9, 4, "Y axis limits")),
+                ("invert_x", self._check("Invert x axis")),
+                ("invert_y", self._check("Invert y axis")),
+                ("split_axis", self._check("Split the y axis (broken axis)")),
+                ("split_height_ratio", self._spin(
+                    0.1, 0.9, 0.05, 2, "Height of the upper panel")),
+                ("split_y_lims", self._readonly(
+                    "Where the y axis is split (set by ticking the split "
+                    "above)")),
+            ]),
+            ("How it is tested", [
+                ("effect_threshold", self._optional(
+                    1, -1e6, 1e6, 4,
+                    "Effect-size cut used when the method is 'value'; "
+                    "automatic draws no effect-size line at all")),
+                ("control_column", self._combo(
+                    [], "Boolean column marking the non-targeting controls, "
+                        "for the 'control' method")),
+                ("show_alpha_line", self._check("Draw the significance line")),
+                ("show_effect_lines", self._check(
+                    "Draw the effect-size lines")),
+                ("show_zero_line", self._check("Draw the zero line")),
+            ]),
+            ("How it looks", [
+                ("marker", self._combo(
+                    [code for code, _ in MARKER_SHAPES], "Marker shape",
+                    labels=[label for _, label in MARKER_SHAPES])),
+                ("marker_size", self._spin(1, 400, 2, 1, "Marker size")),
+                ("significant_marker_size", self._spin(
+                    1, 400, 2, 1, "Marker size for significant points")),
+                ("marker_alpha", self._spin(0.05, 1.0, 0.05, 2, "Opacity")),
+                ("marker_edge_width", self._spin(0, 5, 0.05, 2, "Edge width")),
+                ("marker_edge_color", self._line("Edge colour")),
+                ("base_color", self._line("Colour of non-significant points")),
+                ("significant_color", self._line(
+                    "Colour of significant points")),
+                ("colormap", self._combo(
+                    [name for group in COLORMAPS.values() for name in group],
+                    "Colormap")),
+                ("color_vmin", self._optional(1, -1e9, 1e9, 4,
+                                              "Low end of the colour scale")),
+                ("color_vmax", self._optional(1, -1e9, 1e9, 4,
+                                              "High end of the colour scale")),
+                ("shape_by", self._combo([], "Column that chooses each shape")),
+                # SEVERAL AT ONCE. Ticking two compartments asks one question
+                # about both, which is why this is a list of tick boxes and
+                # not a drop-down.
+                ("localizations", self._multi(
+                    "Colour by localization \u2014 tick any combination")),
+                ("localization_column", self._combo(
+                    [], "Column naming each row's gene, for the compartment "
+                        "lookup")),
+                ("show_colorbar", self._check("Show the colour bar")),
+                ("line_width", self._spin(0, 10, 0.1, 2,
+                                          "Threshold line width")),
+                ("line_color", self._line("Threshold line colour")),
+                ("line_style", self._combo(
+                    [code for code, _ in LINE_STYLES], "Threshold line style",
+                    labels=[label for _, label in LINE_STYLES])),
+                ("zero_line_width", self._spin(0, 10, 0.1, 2,
+                                               "Zero line width")),
+                ("zero_line_color", self._line("Zero line colour")),
+                ("grid", self._check("Show grid")),
+                ("grid_axis", self._combo(["x", "y", "both", "none"],
+                                          "Grid axis")),
+                ("grid_color", self._line("Grid colour")),
+                ("grid_width", self._spin(0, 5, 0.1, 2, "Grid line width")),
+                ("hide_top_right_spines", self._check(
+                    "Hide top/right spines")),
+                ("axis_color", self._line(
+                    "Colour of the axis lines, the ticks and the text")),
+                ("screen_background", self._line(
+                    "Background on screen ('none' shows the page through)")),
+                ("background_color", self._line(
+                    "Background of an exported figure ('none' leaves the "
+                    "page showing through)")),
+                ("figure_width", self._spin(1, 40, 0.2, 2,
+                                            "Figure width (in)")),
+                ("figure_height", self._spin(1, 40, 0.2, 2,
+                                             "Figure height (in)")),
+                ("dpi", self._int_spin(50, 1200, "Raster export dpi")),
+                ("legend", self._check("Show legend")),
+                ("legend_location", self._combo(
+                    ["best", "upper right", "upper left", "lower left",
+                     "lower right", "right", "center left", "center right",
+                     "lower center", "upper center", "center"],
+                    "Legend position")),
+                ("transparent", self._check(
+                    "Transparent background on export")),
+            ]),
+            ("What is labelled", [
+                ("title", self._line("Plot title")),
+                ("x_label", self._line("X axis title")),
+                ("y_label", self._line("Y axis title (blank = automatic)")),
+                ("font_family", self._combo(FONT_FAMILIES, "Font family")),
+                ("font_size", self._spin(4, 48, 0.5, 1, "Base font size")),
+                ("title_font_size", self._spin(4, 48, 0.5, 1, "Title size")),
+                ("label_font_size", self._spin(4, 48, 0.5, 1,
+                                               "Annotation size")),
+                ("tick_font_size", self._spin(4, 48, 0.5, 1,
+                                              "Tick label size")),
+                ("font_weight", self._combo(
+                    ["normal", "bold", "light", "medium", "semibold",
+                     "heavy"], "Font weight")),
+                ("annotate_significant", self._check("Label every hit")),
+                ("annotations", self._readonly(
+                    "Points labelled by name (set by clicking a point)")),
+            ]),
+        ):
+            section = Section(title, container)
+            for key, widget in rows:
+                section.add_row(self._register(key, widget, section), widget)
+            layout.addWidget(section)
 
         buttons = QWidget(self)
         row = QVBoxLayout(buttons)
         row.setContentsMargins(0, 0, 0, 0)
         top = QHBoxLayout()
         for text, slot, tip in (
-            ("Export PDF…", lambda: self.export("pdf"),
+            ("Export PDF\u2026", lambda: self.export("pdf"),
              "Write a vector PDF of exactly this plot"),
-            ("Export PNG…", lambda: self.export("png"),
+            ("Export PNG\u2026", lambda: self.export("png"),
              "Write a raster PNG at the dpi set under Frame"),
         ):
             button = QPushButton(text, self)
@@ -609,7 +708,7 @@ class VolcanoExplorer(QWidget):
         row.addLayout(top)
         bottom = QHBoxLayout()
         for text, slot, tip in (
-            ("Load annotations…", self._pick_annotation_file,
+            ("Load annotations\u2026", self._pick_annotation_file,
              "Merge a CSV/Excel of annotations, then colour or shape by any "
              "of its columns"),
             ("Save style", self._save_style, "Save this appearance as JSON"),
@@ -624,15 +723,27 @@ class VolcanoExplorer(QWidget):
         layout.addStretch(1)
         return container
 
-    def _group(self, title: str, rows) -> QGroupBox:
-        box = QGroupBox(title, self)
-        form = QFormLayout(box)
-        form.setContentsMargins(8, 8, 8, 8)
-        form.setSpacing(4)
-        for key, widget in rows:
-            self._controls[key] = widget
-            form.addRow(widget.property("caption") or key, widget)
-        return box
+    def _register(self, key: str, widget: QWidget, section=None) -> QLabel:
+        """Record a control, and build the name that sits beside it.
+
+        THE LABEL IS BUILT HERE RATHER THAN BY THE FORM. ``addRow`` with a
+        string makes a QLabel nobody holds a reference to, and every one of
+        them is needed back -- to turn red when its setting breaks, and,
+        just as much, to turn black again when it is corrected.
+        """
+        self._controls[key] = widget
+        label = QLabel(str(widget.property("caption") or key), self)
+        # A CAPTION IS A SENTENCE HERE, not a word: "Multiplier applied to
+        # the rule above (the quantile itself when the method is
+        # 'quantile')" is one of them. Unwrapped, a form layout gives the
+        # name every pixel it asks for and pushes the field it names off the
+        # side of the panel, which is a control the user cannot reach.
+        label.setWordWrap(True)
+        label.setMaximumWidth(190)
+        self._labels[key] = label
+        if section is not None:
+            self._sections[key] = section
+        return label
 
     # Each factory stores the caption on the widget so _group can label it
     # without a parallel table that can fall out of step.
@@ -706,6 +817,7 @@ class VolcanoExplorer(QWidget):
         self._detail_hint.setWordWrap(True)
         layout.addWidget(self._detail_hint)
         self._detail_table = QTableWidget(0, 2, self)
+        install_sorting(self._detail_table)
         self._detail_table.setHorizontalHeaderLabels(["Field", "Value"])
         self._detail_table.verticalHeader().setVisible(False)
         self._detail_table.horizontalHeader().setStretchLastSection(True)
@@ -826,28 +938,158 @@ class VolcanoExplorer(QWidget):
     # -------------------------------------------------------------- painting
 
     def refresh(self) -> None:
-        """Redraw the canvas from the current results and style."""
+        """Redraw the canvas, and name the settings that could not be used.
+
+        A BAD SETTING DOES NOT COST THE READER THE PICTURE. One mistyped
+        colour used to replace the whole volcano with the words "cannot draw
+        this plot", which takes away the only thing on screen over a single
+        field and does not say which field. Instead the offending settings
+        fall back to the last value that drew, the figure stays up, the name
+        of each offending setting goes red and the reasons are printed under
+        the plot.
+
+        ``screen=True``: this render is being read, so it takes
+        :attr:`VolcanoStyle.screen_background`. The export path does not
+        pass it and therefore keeps the transparent figure default.
+        """
         if self._results.empty:
             return
         if not self._controls.get("x_column", QComboBox()).count():
             self._repopulate_column_menus()
             self._push_style_to_controls()
-        try:
-            # A split axis needs limits; derive sensible ones the first time
-            # rather than refusing to draw.
-            if self._style.split_axis and not self._style.split_y_lims:
-                self._style.split_y_lims = self._suggest_split()
-            _figure, self._panels = render_volcano(
-                self._results, self._style, figure=self._figure)
-        except Exception as error:  # noqa: BLE001 - a bad style must not crash
+        self._derive_split_limits()
+        problems = validate_style(self._results, self._style)
+        for candidate in self._drawable_styles(problems):
+            try:
+                _figure, self._panels = render_volcano(
+                    self._results, candidate, figure=self._figure,
+                    screen=True)
+            except Exception as error:  # noqa: BLE001 - never crash on style
+                problems.setdefault(_setting_named_in(str(error)), str(error))
+                continue
+            self._remember(candidate)
+            break
+        else:
+            # Nothing drew, not even the defaults: there has never been a
+            # good style to fall back to. An empty frame rather than an
+            # error over the plot -- the reasons are on the line under it,
+            # and they are the same reasons either way.
             self._figure.clear()
             axis = self._figure.add_subplot(111)
-            axis.text(0.5, 0.5, f"Cannot draw this plot:\n{error}",
-                      ha="center", va="center", wrap=True, fontsize=9,
-                      color="#C44E52")
             axis.set_axis_off()
             self._panels = [axis]
+        self._show_problems(problems)
         self._canvas.draw_idle()
+
+    def _derive_split_limits(self) -> None:
+        """A split axis needs limits; derive them rather than refuse to draw.
+
+        Wrapped, because the suggestion is read off the y column and the y
+        column is one of the settings that can be broken. A split that
+        cannot be sized is left unset, and the y column's own complaint is
+        the one the reader is shown.
+        """
+        if not self._style.split_axis or self._style.split_y_lims:
+            return
+        try:
+            self._style.split_y_lims = self._suggest_split()
+        except Exception:  # noqa: BLE001 - the y column answers for this
+            self._style.split_y_lims = None
+
+    def _drawable_styles(self, problems: dict):
+        """Styles to try, best first, so something stays on the canvas.
+
+        1. the current style with each broken setting replaced by the last
+           value of it that drew -- which is what "keep the figure, minus
+           that setting's contribution" means in practice;
+        2. failing that, the whole of the last style that drew;
+        3. failing that, the plain defaults.
+
+        Yielded rather than returned so the common case -- nothing is wrong
+        -- builds exactly one style and copies nothing.
+        """
+        fallback = VolcanoStyle()
+        if problems:
+            remembered = {
+                name: self._last_good.get(name, getattr(fallback, name))
+                for name in problems if hasattr(fallback, name)}
+            yield dataclasses.replace(self._style, **remembered)
+        else:
+            yield self._style
+        if self._last_good_style is not None:
+            yield self._last_good_style
+        yield fallback
+
+    def _remember(self, style: VolcanoStyle) -> None:
+        """Record the style that just drew, field by field and whole."""
+        self._last_good = {field.name: getattr(style, field.name)
+                           for field in dataclasses.fields(style)}
+        self._last_good_style = dataclasses.replace(style)
+
+    # -------------------------------------------------------- broken settings
+
+    @staticmethod
+    def _error_ink() -> str:
+        """The application's own error red, or the house one without a theme."""
+        try:
+            from ..theme import active_palette
+
+            return str(active_palette().get("error") or _PROBLEM_INK)
+        except Exception:  # noqa: BLE001 - a bare widget has no palette
+            return _PROBLEM_INK
+
+    def problems(self) -> dict:
+        """``{setting: why it could not be used}`` as of the last redraw."""
+        return dict(self._problems)
+
+    def label_for(self, setting: str) -> QLabel | None:
+        """The name shown beside ``setting``, which is what turns red."""
+        return self._labels.get(setting)
+
+    def section_for(self, setting: str):
+        """The folding section holding ``setting``, or None for the few
+        controls that are never folded away."""
+        return self._sections.get(setting)
+
+    def sections(self) -> list:
+        """Every folding section of the settings panel, in panel order."""
+        seen: list = []
+        for section in self._sections.values():
+            if section not in seen:
+                seen.append(section)
+        return seen
+
+    def _caption_of(self, setting: str) -> str:
+        widget = self._controls.get(setting)
+        caption = widget.property("caption") if widget is not None else None
+        return str(caption or setting or "")
+
+    def _show_problems(self, problems: dict) -> None:
+        """Redden the offending names, open their sections, print the reasons.
+
+        EVERY LABEL IS VISITED, not only the broken ones: clearing the red
+        when a value is corrected is half the job, and a pass that touched
+        only the offenders could never do it.
+        """
+        self._problems = dict(problems)
+        ink = self._problem_ink
+        for name, label in self._labels.items():
+            broken = name in problems
+            label.setProperty("volcanoProblem", broken)
+            label.setStyleSheet(f"color: {ink};" if broken else "")
+            if not broken:
+                continue
+            section = self._sections.get(name)
+            # A RED LABEL INSIDE A CLOSED SECTION IS A RED LABEL NOBODY SEES.
+            if section is not None and not section.is_expanded():
+                section.set_expanded(True)
+        lines = []
+        for name, message in problems.items():
+            caption = self._caption_of(name) if name else ""
+            lines.append(f"{caption}: {message}" if caption else str(message))
+        self._problem_line.setStyleSheet(f"color: {ink};")
+        self._problem_line.setText("\n".join(lines))
+        self._problem_line.setVisible(bool(lines))
 
     def _suggest_split(self):
         """Split just above the null cloud, at the 99th percentile of y."""
@@ -918,8 +1160,8 @@ class VolcanoExplorer(QWidget):
                 text = f"{value:.6g}"
             else:
                 text = str(value)
-            self._detail_table.setItem(row, 0, QTableWidgetItem(str(key)))
-            item = QTableWidgetItem(text)
+            self._detail_table.setItem(row, 0, table_item(str(key)))
+            item = table_item(text)
             item.setToolTip(text)
             self._detail_table.setItem(row, 1, item)
         name = detail.get(self._style.label_column, index)

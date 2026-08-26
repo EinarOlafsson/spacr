@@ -93,6 +93,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 from .toggle import Toggle
+from .sortable_table import install_sorting, tree_item
 
 __all__ = [
     "ColumnPickerButton",
@@ -659,6 +660,7 @@ class ColumnPickerDialog(QDialog):
         self._filter.textChanged.connect(self._apply_filter)
         right.addWidget(self._filter)
         self._column_tree = QTreeWidget(self)
+        install_sorting(self._column_tree)
         self._column_tree.setColumnCount(3)
         self._column_tree.setHeaderLabels(["Column", "Type", "Non-null"])
         self._column_tree.setRootIsDecorated(False)
@@ -838,7 +840,7 @@ class ColumnPickerDialog(QDialog):
         self._set_banner("")
         self._columns = info
         for col_name, decl in info:
-            QTreeWidgetItem(self._column_tree, [col_name, decl or "—", ""])
+            tree_item(self._column_tree, [col_name, decl or "—", ""])
         rows = payload.get("rows")
         shown = f"≈ {rows:,} rows (estimate)" if rows is not None else "row count unknown"
         self._summary.setText(f"{len(info)} columns · {shown}")

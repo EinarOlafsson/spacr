@@ -35,6 +35,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple
+from .widgets.sortable_table import install_sorting, table_item
 
 
 #: Heading for keys that appear in no ``spacr.settings.categories`` bucket.
@@ -383,6 +384,7 @@ class SettingsDiffDialog:
         layout.addWidget(summary)
 
         table = QTableWidget(len(rows), 4, dlg)
+        install_sorting(table)
         table.setHorizontalHeaderLabels(
             ["Key", a_label, b_label, "Change"]
         )
@@ -404,7 +406,7 @@ class SettingsDiffDialog:
                 # Built and coloured in one pass. Setting the four cells
                 # and then reading them back left a `table.item(...) is
                 # None` branch that could not happen and was never tested.
-                item = QTableWidgetItem(text)
+                item = table_item(text)
                 item.setBackground(tint)
                 table.setItem(i, col, item)
         table.resizeColumnsToContents()

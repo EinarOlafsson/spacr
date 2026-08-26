@@ -63,6 +63,7 @@ from ..widgets.graph_builder import GraphBuilderPanel
 from ..widgets.pivot_builder import PivotPanel
 from .graph_builder import read_table, table_names
 from .app_screen import ModuleHeader
+from ..app_catalog import declared_app, register_declared
 
 LOG = logging.getLogger("spacr.qt.screens.tabulate")
 
@@ -334,20 +335,16 @@ def make_tabulate_screen(app_key: Optional[str] = None) -> QWidget:
     return TabulateScreen()
 
 
-APP_NAME = "Tabulate"
-APP_DESCRIPTION = ("Pivot the measurement table — rows, columns, "
-                   "aggregations, and the n behind each one")
-APP_INTRO = (
-    "Drag columns onto Rows and Columns to group by them, a measurement onto "
-    "Values to summarise it, and tick the statistics you want. plateID / "
-    "rowID / columnID down the rows is a plate summary. Every cell prints its "
-    "n, because a mean over four objects and a mean over four thousand look "
-    "the same otherwise, and a combination with no objects is blank rather "
-    "than zero. Export the table, or hand it to the Graph Builder below.")
-#: What `spacr.cli.INTERACTIVE_ONLY` wants: why this app has no headless run.
-APP_CLI_NOTE = ("Interactive pivot table; "
-                "spacr.qt.widgets.pivot_spec.pivot() is the headless "
-                "equivalent.")
+# The row this screen puts in the registry is declared in
+# `spacr.qt.app_catalog`, which is what lets the app be registered without
+# importing this module -- the launch reads the table, not the screen. These
+# read the same row back rather than restating it, so the name, the blurb and
+# the nine translations have one spelling and no second copy to drift from.
+_ROW = declared_app(APP_KEY)
+APP_NAME = _ROW.name
+APP_DESCRIPTION = _ROW.desc
+APP_INTRO = _ROW.intro
+APP_CLI_NOTE = _ROW.cli_note
 
 
 def register() -> bool:
@@ -371,15 +368,4 @@ def register() -> bool:
     flight, and because a new ``APPS`` row currently reddens the per-app
     inventory tests for reasons this screen cannot fix.
     """
-    from ..app import APPS, SECTION_EXPLORE, STAGE_ALPHA, register_app
-    if any(row[0] == APP_KEY for row in APPS):
-        return False
-    register_app(
-        APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_EXPLORE,
-        factory=make_tabulate_screen, stage=STAGE_ALPHA,
-        intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-        api_module="qt/screens/tabulate",
-        translations=("Tabellera", "Tabellieren", "Tabular", "汇总表",
-                      "Tabular", "सारणीबद्ध", "표 만들기", "Taflugerð",
-                      "Tabuler"))
-    return True
+    return register_declared(__name__) is not None

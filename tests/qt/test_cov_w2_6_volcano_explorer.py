@@ -184,12 +184,22 @@ def test_the_plotted_y_is_the_raw_column_when_the_log_is_off(explorer):
                        explorer.results()["adjusted_p_value"].to_numpy(float))
 
 
-def test_a_bad_style_draws_a_message_instead_of_crashing(explorer):
+def test_a_bad_style_keeps_the_figure_rather_than_replacing_it(explorer):
+    """A broken setting must not cost the reader the plot.
+
+    This used to assert that the figure was replaced by "Cannot draw this
+    plot" and an explanation. That is the behaviour that was removed: it
+    threw away the one thing being looked at, over a single bad field. The
+    figure stays, the offending setting's name turns red, and the reason
+    goes on a line beneath -- which is asserted in full in
+    tests/qt/test_the_volcano_explorer_defaults_and_its_settings.py.
+    """
     explorer._style.x_column = "no_such_column"
     explorer.refresh()
-    assert explorer._panels
+    assert explorer._panels, "the plot was thrown away"
     texts = [t.get_text() for t in explorer._panels[0].texts]
-    assert any("Cannot draw this plot" in t for t in texts)
+    assert not any("Cannot draw this plot" in t for t in texts), (
+        "the figure was replaced by a message again")
 
 
 # --------------------------------------------------------------------------

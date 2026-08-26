@@ -63,6 +63,7 @@ from .gate_spec import (
     CylinderGate, PrismGate,
 )
 from .toggle import Toggle
+from .sortable_table import install_sorting, tree_item
 
 LOG = logging.getLogger("spacr.qt.gate_editor")
 
@@ -2353,6 +2354,7 @@ class GateTree(QWidget):
         outer.setSpacing(SPACING["xs"])
 
         self.tree = QTreeWidget(self)
+        install_sorting(self.tree)
         self.tree.setObjectName("GateHierarchy")
         self.tree.setColumnCount(4)
         self.tree.setHeaderLabels(["Gate", "n", "% parent", "% all"])
@@ -2489,7 +2491,7 @@ class GateTree(QWidget):
                 # its colour, and the count column carries the fact that this
                 # working set cannot answer it.
                 labels = [gate.name, self.UNAVAILABLE, "", ""]
-            item = QTreeWidgetItem(labels)
+            item = tree_item(labels)
             item.setData(0, Qt.UserRole, gate.name)
             item.setCheckState(0, Qt.Unchecked if gate.name in self._disabled
                                else Qt.Checked)

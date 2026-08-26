@@ -115,6 +115,8 @@ RULE_SETS: Tuple[Tuple[str, Tuple[int, ...]], ...] = (
     ("Limits only (rule 1) — nothing but 3 sigma", RULES_LIMITS_ONLY),
 )
 from ..widgets.toggle import Toggle
+from ..widgets.sortable_table import install_sorting, table_item
+from ..app_catalog import declared_app, register_declared
 
 #: Column names worth guessing at, best first, when a table is first loaded.
 #: A guess the user can see and change beats an empty form.
@@ -370,6 +372,7 @@ class ControlChartScreen(QWidget):
         lower_layout.addWidget(self.report, 1)
 
         self.violations = QTableWidget(0, 4, lower)
+        install_sorting(self.violations)
         self.violations.setObjectName("ControlChartViolations")
         self.violations.setHorizontalHeaderLabels(
             ["Rule", "Plates", "What it detects", "In words"])
@@ -670,7 +673,7 @@ class ControlChartScreen(QWidget):
                     ", ".join(violation.plates),
                     RULE_DETECTS[violation.rule],
                     violation.describe())):
-                self.violations.setItem(row, column, QTableWidgetItem(text))
+                self.violations.setItem(row, column, table_item(text))
         self.violations.resizeColumnsToContents()
 
     def _show_refusal(self, message: str) -> None:
@@ -782,33 +785,17 @@ def make_control_chart_screen(app_key: Optional[str] = None) -> QWidget:
     return ControlChartScreen()
 
 
-APP_NAME = "Control Charts"
-APP_DESCRIPTION = "Track a control plate by plate and see drift before it ruins a screen"
-APP_INTRO = (
-    "A campaign's controls are supposed to be the same thing every time, and "
-    "when they stop being the same, hit calling and normalisation are already "
-    "wrong. Pick the plate column, the run order and the control, and the "
-    "chart puts limits round it: an individuals / moving-range chart when a "
-    "plate has one control well, X-bar/S when it has several, and a robust "
-    "variant when one bad plate would drag the classical limits out. Sigma "
-    "comes from short-term variation, never from the spread of the whole "
-    "series — that one is inflated by exactly the drift you are looking for. "
-    "Limits are estimated from a stated baseline and applied forward, and "
-    "every Nelson rule that fires is marked on the plate and named in words, "
-    "along with how many false alarms the rule set you chose is worth over a "
-    "campaign this long.")
-APP_CLI_NOTE = (
-    "Control Charts is a picture you read: the zones, the marked plates and "
-    "the rule list are the feature. Run it in the GUI (spacr-qt). Headless, "
-    "spacr.qt.widgets.control_chart.control_chart(frame, spec) returns the "
-    "same limits, the same violations and the same report text with no Qt "
-    "involved, so a QC gate in a script can refuse a campaign on it.")
-#: The display name in the nine non-English UI languages, in
-#: `spacr.qt.i18n.LANGUAGES` order (sv, de, es, zh_CN, pt, hi, ko, is, fr).
-APP_NAME_TRANSLATIONS = (
-    "Styrdiagram", "Regelkarten", "Gráficos de control",
-    "控制图", "Cartas de controlo", "कंट्रोल चार्ट", "관리도",
-    "Stýririt", "Cartes de contrôle")
+# The row this screen puts in the registry is declared in
+# `spacr.qt.app_catalog`, which is what lets the app be registered without
+# importing this module -- the launch reads the table, not the screen. These
+# read the same row back rather than restating it, so the name, the blurb and
+# the nine translations have one spelling and no second copy to drift from.
+_ROW = declared_app(APP_KEY)
+APP_NAME = _ROW.name
+APP_DESCRIPTION = _ROW.desc
+APP_INTRO = _ROW.intro
+APP_CLI_NOTE = _ROW.cli_note
+APP_NAME_TRANSLATIONS = _ROW.translations
 
 
 def register() -> bool:
@@ -818,21 +805,17 @@ def register() -> bool:
     :func:`spacr.qt.run` runs after ``spacr.qt.app`` is fully executed and
     before ``MainWindow.__init__`` reads the registry.
 
-    Everything after ``SECTION_RESULTS`` is a table this key would otherwise
-    need a hand-edit in: the screen header and blurb, the "no headless run"
-    sentence, the API doc link and the nine translations of the display name.
-    :func:`spacr.qt.app.register_app` distributes them from this one call.
+    The row itself -- the key, the name, the blurb, the section, the "no
+    headless run" sentence, the API doc link and the nine translations of the
+    display name -- is declared in :mod:`spacr.qt.app_catalog`.
+    :func:`spacr.qt.app.register_app` distributes those into the four tables
+    each used to need a hand-edit in, and this function's whole job is to name
+    which row. That is what lets the app be registered without importing this
+    module at all: the launch reads the table, and the screen is imported when
+    somebody opens it.
 
     :returns: ``True`` if this call is what registered it. Safe to call again:
         a module imported twice, or a test that re-imports it, must not raise
         on the duplicate key.
     """
-    from ..app import APPS, SECTION_RESULTS, STAGE_ALPHA, register_app
-    if any(row[0] == APP_KEY for row in APPS):
-        return False
-    register_app(APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_RESULTS,
-                 factory=make_control_chart_screen, stage=STAGE_ALPHA,
-                 intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-                 api_module="qt/screens/control_chart",
-                 translations=APP_NAME_TRANSLATIONS)
-    return True
+    return register_declared(__name__) is not None

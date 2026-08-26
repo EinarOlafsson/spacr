@@ -80,6 +80,7 @@ from ... import convert as cvt
 from ..bridge import make_thread
 from ..theme import SPACING, active_palette
 from ..widgets import Divider, Toggle
+from ..widgets.sortable_table import install_sorting
 
 __all__ = [
     "ConvertScreen",
@@ -322,6 +323,9 @@ class ConvertScreen(QWidget):
         self._model = PlanTableModel(self)
         self._table = QTableView(self)
         self._table.setModel(self._model)
+        # After setModel: the helper puts a sorting proxy over the plan
+        # model, which replaces the view's model and its selection model.
+        install_sorting(self._table)
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self._table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self._table.setAlternatingRowColors(True)

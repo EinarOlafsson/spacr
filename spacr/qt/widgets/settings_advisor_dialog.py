@@ -21,6 +21,7 @@ from PySide6.QtWidgets import (QAbstractItemView, QComboBox, QDialog,
 from ...settings_advisor import (QUESTIONS, ROW_CAP, Advice, Reading,
                                  advise_that_runs, questions_for)
 from ..i18n import set_translatable_text, tr
+from .sortable_table import install_sorting, table_item
 
 LOG = logging.getLogger("spacr.qt.settings_advisor")
 
@@ -138,6 +139,7 @@ class ProposalPage(QWidget):
         self.summary = _muted("", self)
         outer.addWidget(self.summary)
         self.table = QTableWidget(0, len(self.HEADINGS), self)
+        install_sorting(self.table)
         self.table.setHorizontalHeaderLabels(list(self.HEADINGS))
         self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.table.setSelectionMode(QAbstractItemView.NoSelection)
@@ -193,7 +195,7 @@ class ProposalPage(QWidget):
                      + (f"  ({tr('unchanged', language)})" if same else ""),
                      choice.why)
             for column, text in enumerate(cells):
-                item = QTableWidgetItem(text)
+                item = table_item(text)
                 item.setToolTip(choice.why)
                 if same:
                     item.setForeground(Qt.gray)

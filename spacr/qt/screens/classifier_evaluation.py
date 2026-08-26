@@ -58,10 +58,14 @@ from PySide6.QtWidgets import (
 )
 
 from ... import confusion as cx
-from ...classifier_evaluation import (
-    find_evaluation_bundles,
-    load_evaluation_bundle,
-)
+# `spacr.classifier_evaluation` is NOT imported here, and the two functions it
+# owns are imported inside the worker bodies that call them instead. It reads
+# `sklearn.metrics` at its top, which reads `scipy.sparse`, which is 625
+# modules and the better part of a second -- and this screen module is one of
+# `theme.WIDGET_QSS_MODULES`, so every launch imported it to collect a
+# stylesheet block, whether or not anybody ever opened Classifier Evaluation.
+# Both call sites are already inside a background worker, so the import is
+# paid off the GUI thread by the user who asked for the scan.
 from ..bridge import make_thread
 from ..iconset import icon
 from ..i18n import tr
@@ -70,6 +74,7 @@ from ..linked_selection import (DEFAULT_OPEN_KIND, has_object_opener,
 from ..theme import (SPACING, active_palette, page_tabs_qss,
                      register_widget_qss)
 from ..widgets import Divider
+from ..widgets.sortable_table import install_sorting, table_item
 
 LOG = logging.getLogger(__name__)
 
@@ -140,7 +145,7 @@ def _item(value: Any) -> QTableWidgetItem:
         text = f"{value:.5g}"
     else:
         text = str(value)
-    item = QTableWidgetItem(text)
+    item = table_item(text)
     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
     return item
 
@@ -307,6 +312,7 @@ class ClassifierEvaluationScreen(QWidget):
     def _table(self) -> QTableWidget:
         """Return a read-only, row-selecting data table."""
         table = QTableWidget(0, 0, self)
+        install_sorting(table)
         table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         table.setSelectionBehavior(QAbstractItemView.SelectRows)
         table.setAlternatingRowColors(True)
@@ -441,6 +447,8 @@ class ClassifierEvaluationScreen(QWidget):
 
         def _work(_settings):
             try:
+                from ...classifier_evaluation import find_evaluation_bundles
+
                 self._pending_bundles = find_evaluation_bundles(source)
             except Exception as exc:
                 self._pending_error = f"{type(exc).__name__}: {exc}"
@@ -506,6 +514,8 @@ class ClassifierEvaluationScreen(QWidget):
 
         def _work(_settings):
             try:
+                from ...classifier_evaluation import load_evaluation_bundle
+
                 self._pending_bundle = load_evaluation_bundle(manifest)
             except Exception as exc:
                 self._pending_error = f"{type(exc).__name__}: {exc}"

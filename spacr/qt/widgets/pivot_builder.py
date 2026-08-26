@@ -58,6 +58,7 @@ from .pivot_spec import (
     WELL_HIERARCHY, PivotError, PivotResult, PivotSpec, format_value, pivot,
 )
 from .toggle import Toggle
+from .sortable_table import install_sorting, table_item
 
 LOG = logging.getLogger("spacr.qt.pivot")
 
@@ -246,6 +247,7 @@ class PivotTable(QTableWidget):
         self.horizontalHeader().setSectionResizeMode(
             QHeaderView.ResizeToContents)
         self.setWordWrap(True)
+        install_sorting(self)
         self._result: Optional[PivotResult] = None
         self._truncated = 0
 
@@ -293,7 +295,7 @@ class PivotTable(QTableWidget):
             # million items takes minutes to construct, for a table nobody is
             # going to scroll to the end of.
             self._truncated = result.n_cells
-            note = QTableWidgetItem(
+            note = table_item(
                 f"{result.n_cells:,} cells is past the {MAX_RENDERED_CELLS:,} "
                 f"this grid draws — narrow the axes, or export the CSV.")
             self.setRowCount(1)
@@ -307,11 +309,11 @@ class PivotTable(QTableWidget):
         for r in range(n_rows):
             for i, key in enumerate(key_columns):
                 text = (result.row_levels[r][i] if result.row_keys else "all")
-                item = QTableWidgetItem(str(text))
+                item = table_item(str(text))
                 item.setToolTip(f"{key} = {text}")
                 self.setItem(r, i, item)
             for c in range(n_cols):
-                item = QTableWidgetItem(self._body_text(result, r, c))
+                item = table_item(self._body_text(result, r, c))
                 item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                 item.setToolTip(self._tooltip(result, r, c))
                 smallest = self._smallest_n(result, r, c)

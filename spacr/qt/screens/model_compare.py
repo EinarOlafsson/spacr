@@ -90,6 +90,7 @@ from ..theme import (RADIUS, SPACING, active_palette,
                      block_surface, ensure_widget_qss_applied,
                      register_widget_qss)
 from ..widgets import Divider
+from ..widgets.sortable_table import install_sorting, table_item
 
 __all__ = ["ModelCompareScreen", "FIELD_RANGE", "PREVIEW_PX"]
 
@@ -116,7 +117,7 @@ _PARAM_HEADERS = ("parameter", "A", "B", "reaches the model?")
 
 def _cell(text: str) -> QTableWidgetItem:
     """A read-only table cell."""
-    item = QTableWidgetItem(text)
+    item = table_item(text)
     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
     return item
 
@@ -462,6 +463,7 @@ class ModelCompareScreen(QWidget):
         # ── resolved parameters ───────────────────────────────────────
         outer.addWidget(QLabel("Parameters that reached each model", self))
         self._param_table = QTableWidget(0, len(_PARAM_HEADERS), self)
+        install_sorting(self._param_table)
         self._param_table.setHorizontalHeaderLabels(list(_PARAM_HEADERS))
         self._prepare_table(self._param_table)
         self._param_table.setMaximumHeight(200)
@@ -470,6 +472,7 @@ class ModelCompareScreen(QWidget):
         # ── per-field metrics ─────────────────────────────────────────
         outer.addWidget(QLabel("Per-field comparison", self))
         self._row_table = QTableWidget(0, len(_ROW_HEADERS), self)
+        install_sorting(self._row_table)
         self._row_table.setHorizontalHeaderLabels(list(_ROW_HEADERS))
         self._prepare_table(self._row_table)
         self._row_table.setSelectionBehavior(QAbstractItemView.SelectRows)

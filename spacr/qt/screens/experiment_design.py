@@ -51,6 +51,8 @@ from ..widgets.plate_layout import (
 # a cell of it. All three were written for the picker and are not specific to
 # it; a second copy here is what let the two plates drift.
 from ..widgets.plate_map_picker import WELL_SIDE, _Header, _locked_square
+from ..widgets.sortable_table import install_sorting, table_item
+from ..app_catalog import declared_app, register_declared
 
 __all__ = [
     "APP_KEY", "APP_NAME", "APP_DESCRIPTION", "APP_INTRO", "APP_CLI_NOTE",
@@ -61,25 +63,16 @@ __all__ = [
 #: Stable app id. Chosen once; saved user state and the registry key off it.
 APP_KEY = "experiment_design"
 
-APP_NAME = "Experiment Design"
-APP_DESCRIPTION = (
-    "Lay out conditions, controls and replicates on a plate, check the "
-    "layout, and export it for the pipeline to read later."
-)
-APP_INTRO = (
-    "Everything on this screen is a decision that cannot be undone after "
-    "acquisition. Where the controls sit, whether a condition is confounded "
-    "with a row, whether the plate edge is used at all -- no analysis "
-    "repairs any of them, and all of them are free to change today. Export "
-    "writes a plate_map.csv keyed the way spaCR keys measurements, so the "
-    "layout is typed once instead of twice."
-)
-APP_CLI_NOTE = (
-    "Experiment Design is a GUI screen: it exists to draw a plate and warn "
-    "about its layout before acquisition. For a headless design, build a "
-    "spacr.qt.widgets.plate_layout.PlateDesign and call write_design() "
-    "instead -- that is the same code this screen runs."
-)
+# The row this screen puts in the registry is declared in
+# `spacr.qt.app_catalog`, which is what lets the app be registered without
+# importing this module -- the launch reads the table, not the screen. These
+# read the same row back rather than restating it, so the name, the blurb and
+# the nine translations have one spelling and no second copy to drift from.
+_ROW = declared_app(APP_KEY)
+APP_NAME = _ROW.name
+APP_DESCRIPTION = _ROW.desc
+APP_INTRO = _ROW.intro
+APP_CLI_NOTE = _ROW.cli_note
 #: sv, de, es, zh_CN, pt, hi, ko, is, fr
 APP_TRANSLATIONS: Tuple[str, ...] = (
     "Experimentdesign", "Experimentdesign", "Diseño de experimento",
@@ -426,6 +419,7 @@ class ExperimentDesignScreen(QWidget):
 
         # -- conditions ---------------------------------------------------
         self._table = QTableWidget(0, 3)
+        install_sorting(self._table)
         self._table.setHorizontalHeaderLabels(["Condition", "Replicates",
                                                "Role"])
         self._table.horizontalHeader().setSectionResizeMode(
@@ -509,9 +503,9 @@ class ExperimentDesignScreen(QWidget):
     def _append_row(self, condition: Condition) -> None:
         row = self._table.rowCount()
         self._table.insertRow(row)
-        self._table.setItem(row, 0, QTableWidgetItem(condition.name))
+        self._table.setItem(row, 0, table_item(condition.name))
         self._table.setItem(
-            row, 1, QTableWidgetItem(str(int(condition.replicates))))
+            row, 1, table_item(str(int(condition.replicates))))
         box = QComboBox()
         box.addItems(ROLES)
         box.setCurrentText(condition.role)
@@ -832,17 +826,7 @@ def make_experiment_design_screen(app_key: Optional[str] = None) -> QWidget:
 
 def register() -> bool:
     """Add Experiment Design to the app registry. Idempotent."""
-    from ..app import APPS, SECTION_DESIGN, STAGE_ALPHA, register_app
-
-    if any(row[0] == APP_KEY for row in APPS):
-        return False
-    register_app(
-        APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_DESIGN,
-        factory=make_experiment_design_screen, stage=STAGE_ALPHA,
-        title=APP_NAME, intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-        api_module="qt/screens/experiment_design",
-        translations=APP_TRANSLATIONS)
-    return True
+    return register_declared(__name__) is not None
 
 
 register()

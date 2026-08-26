@@ -2376,18 +2376,19 @@ def double_transform_warning(name, transform, family) -> str:
     #     notice a pseudo-R-squared of -20.3 and have no way to connect the
     #     two. Naming McFadden here is what connects them, and it is the
     #     whole point of the warning existing at all;
-    #   * both ways out, in the CURRENT vocabulary (182's
-    #     `glm_transform_conflict`) and in the manual one that still works.
+    #   * what to do about it. spaCR now resolves this itself -- the
+    #     response is fitted as measured and the family's link does the
+    #     transforming once -- so the warning explains what was avoided
+    #     rather than offering a choice that no longer exists.
     return (
         f"  Warning: {name or 'the response'} would be transformed TWICE. "
         f"transform={kind!r} has already been applied to it, and the "
         f"selected family also carries a {link} link, so the model fits "
         f"{link.lower()}({kind}(y)) -- which is usually why McFadden's "
         f"R-squared comes back negative and meaningless. "
-        f"Set glm_transform_conflict='untransformed' to drop the transform "
-        f"and let the family's link do the work, or 'transformed' to keep "
-        f"the transformed response and fit it with an identity link "
-        f"(equivalently, regression_type='ols' on the transformed "
+        f"The transform is dropped and the family's link does the work, so "
+        f"it is applied once. To fit the TRANSFORMED response instead, use "
+        f"regression_type='ols' on the transformed "
         f"response)."
     )
 
@@ -2412,19 +2413,26 @@ def double_transform_warning(name, transform, family) -> str:
 #                    transformed response, choose the family from it, and print
 #                    the warning. Retained for reproducibility of earlier runs;
 #                    new analyses should choose one of the two explicit scales.
-GLM_TRANSFORM_CONFLICTS = ('untransformed', 'transformed', 'warn')
-DEFAULT_GLM_TRANSFORM_CONFLICT = 'untransformed'
+#: A link-like transform and a GLM's own link are the same operation asked
+#: for twice, and there is one right answer: fit the response AS MEASURED
+#: and let the family's link do the transforming, once.
+#:
+#: This used to be a setting with three values. The other two were not
+#: choices worth offering: 'transformed' fitted a Gaussian identity model of
+#: the transformed response, which is an ordinary linear model and exactly
+#: what regression_type='ols' already gives; and 'warn' kept the double
+#: transform so an older result could be reproduced. A user who wants the
+#: first still has it under its own name, and the second was a bug being
+#: preserved.
 
 
 def resolve_glm_transform_conflict(dependent_variable, transform='',
-                                   resolution=DEFAULT_GLM_TRANSFORM_CONFLICT,
                                    available=(), regression_type='glm'):
     """Resolve a transform/family-link conflict before fitting a GLM.
 
     :param dependent_variable: the response column as it stands -- already
         the transformed one, if a transform was asked for.
     :param transform: the transform already applied.
-    :param resolution: one of :data:`GLM_TRANSFORM_CONFLICTS`.
     :param available: the column names the frame actually holds. Used to
         confirm the untransformed column is there before switching to it.
     :param regression_type: only ``'glm'`` chooses its own family, so only
@@ -2432,52 +2440,30 @@ def resolve_glm_transform_conflict(dependent_variable, transform='',
         unchanged.
     :returns: ``(column, transform_in_effect, force_identity, note)``.
         ``note`` explains any scale change for the run log.
-    :raises ValueError: on an unknown ``resolution``.
 
     A transform that is not link-like, or a regression type other than
     ``'glm'``, returns the response unchanged. Resolving the column before the
     design matrices are built keeps the fit, coefficients, diagnostics, and
     goodness-of-fit summary on the same scale.
     """
-    choice = str(resolution or DEFAULT_GLM_TRANSFORM_CONFLICT).strip().lower()
-    if choice not in GLM_TRANSFORM_CONFLICTS:
-        raise ValueError(
-            f"glm_transform_conflict={resolution!r} is not one of "
-            f"{list(GLM_TRANSFORM_CONFLICTS)}")
     kind = str(transform or '').strip().lower()
     column = str(dependent_variable)
     if kind not in LINK_LIKE_TRANSFORMS or str(regression_type) != 'glm':
         return column, transform, False, ''
 
-    if choice == 'transformed':
-        return column, transform, True, (
-            f"  glm_transform_conflict='transformed': keeping transform="
-            f"{kind!r} and fitting {column} with a Gaussian family and an "
-            f"identity link, so the transform is the only one applied. This "
-            f"is an ordinary linear model of {kind}(y), which is what "
-            f"regression_type='ols' already fits.")
-    if choice == 'warn':
-        return column, transform, False, (
-            f"  glm_transform_conflict='warn': retaining the legacy fit of "
-            f"{column} and choosing the family from it. This is the "
-            f"double-transform behavior kept so earlier results can be "
-            f"reproduced. Prefer 'untransformed' or 'transformed' for a new "
-            f"analysis.")
-
-    # 'untransformed' -- fit the response as measured and let the link work.
+    # Fit the response as measured and let the family's link do the work.
     prefix = f"{kind}_"
     raw = column[len(prefix):] if column.startswith(prefix) else ''
     if not raw or raw not in set(available):
         return column, transform, False, (
-            f"  glm_transform_conflict='untransformed' was asked for, but "
-            f"the response before transform={kind!r} is not in the frame "
+            f"  the response before transform={kind!r} is not in the frame "
             f"(looked for {raw or 'a column without the prefix'}), so "
-            f"{column} is fitted as it stands and the double transform "
-            f"below still applies.")
+            f"{column} is fitted as it stands and the transform is applied "
+            f"twice -- once by hand and once by the family's link.")
     return raw, '', False, (
-        f"  glm_transform_conflict='untransformed': fitting measured response "
-        f"{raw} and ignoring transform={kind!r}, so the family's own link "
-        f"does the transforming and it is applied once instead of twice.")
+        f"  fitting the measured response {raw} and ignoring "
+        f"transform={kind!r}: the family's own link does the transforming, "
+        f"so it is applied once instead of twice.")
 
 
 def pick_glm_family_and_link(y, name="", transform=""):
@@ -4651,7 +4637,6 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
                model_plate_position=True,
                regression_backend=DEFAULT_REGRESSION_BACKEND,
                verbose=False, transform="",
-               glm_transform_conflict=DEFAULT_GLM_TRANSFORM_CONFLICT,
                intercept='fitted', intercept_value=0.0):
     """Run the full regression pipeline: clean, fit, extract coefficients, optional volcano plot.
 
@@ -4758,7 +4743,6 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     dependent_variable, transform, glm_force_identity, conflict_note = (
         resolve_glm_transform_conflict(
             dependent_variable, transform=transform,
-            resolution=glm_transform_conflict,
             available=getattr(df, 'columns', ()),
             regression_type=regression_type))
     if conflict_note:
@@ -8338,11 +8322,6 @@ def _perform_regression(settings):
         # sniffer can name the scale it examined and refuse to be quiet about
         # a link stacked on a transform.
         transform=str(settings.get('transform') or ''),
-        # 182: which of the two defensible fixes for the double transform
-        # this run wants. Both are offered; spaCR does not choose.
-        glm_transform_conflict=str(
-            settings.get('glm_transform_conflict')
-            or DEFAULT_GLM_TRANSFORM_CONFLICT),
         cov_type=settings['cov_type'],
         l1_ratio=settings['l1_ratio'],
         quantile=settings['quantile'],

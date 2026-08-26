@@ -117,6 +117,8 @@ _METHOD_LABELS = (
     (METHOD_MAHALANOBIS, "Mahalanobis — robust multivariate (MCD)"),
 )
 from ..widgets.toggle import Toggle
+from ..widgets.sortable_table import install_sorting, table_item
+from ..app_catalog import declared_app, register_declared
 
 #: What the one threshold spinbox means under each method: label, tooltip,
 #: range, step, decimals and default.
@@ -243,6 +245,7 @@ class OutliersScreen(QWidget):
     def _make_table(self, name: str) -> QTableWidget:
         """A read-only results grid. Two of them, built the same way."""
         table = QTableWidget(self)
+        install_sorting(table)
         table.setObjectName(name)
         table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         table.setSelectionBehavior(QAbstractItemView.SelectRows)
@@ -620,7 +623,7 @@ def _fill_table(table: QTableWidget, frame: pd.DataFrame) -> None:
     for column, name in enumerate(frame.columns):
         values = frame[name].tolist()
         for row, value in enumerate(values):
-            table.setItem(row, column, QTableWidgetItem(_cell(value)))
+            table.setItem(row, column, table_item(_cell(value)))
 
 
 def _cell(value) -> str:
@@ -639,38 +642,30 @@ def make_outliers_screen(app_key: Optional[str] = None) -> QWidget:
     return OutliersScreen()
 
 
-APP_NAME = "Outliers"
-APP_DESCRIPTION = ("Robust per-object and per-well outlier detection — MAD, "
-                   "Tukey and MCD Mahalanobis")
-APP_INTRO = (
-    "Finds the objects that are wrong and, separately, the wells that are "
-    "wrong — which is usually the one that matters, and which per-object "
-    "flags are nearly blind to: a well shifted as a whole flags almost none "
-    "of its individual cells. Nothing is estimated from a mean or an SD, "
-    "because the outliers would move both. Pick features, pick a rule — a "
-    "modified z against the median, Tukey's fence, or a robust multivariate "
-    "distance whose threshold is a stated false-positive rate — and the flags "
-    "arrive as added columns. No row is ever dropped.")
-APP_CLI_NOTE = (
-    "Outliers is an interactive QC surface: the feature list, the method and "
-    "the threshold are the feature; run it in the GUI (spacr-qt). Headless, "
-    "spacr.qt.widgets.outlier_model.detect_outliers() computes exactly the "
-    "same object flags, well scores and report with no Qt involved.")
-#: The display name in the nine non-English UI languages, in
-#: `spacr.qt.i18n.LANGUAGES` order (sv, de, es, zh_CN, pt, hi, ko, is, fr).
-APP_NAME_TRANSLATIONS = (
-    "Avvikare", "Ausreißer", "Valores atípicos", "离群值",
-    "Valores atípicos", "आउटलायर", "이상치", "Frávik",
-    "Valeurs aberrantes")
+# The row this screen puts in the registry is declared in
+# `spacr.qt.app_catalog`, which is what lets the app be registered without
+# importing this module -- the launch reads the table, not the screen. These
+# read the same row back rather than restating it, so the name, the blurb and
+# the nine translations have one spelling and no second copy to drift from.
+_ROW = declared_app(APP_KEY)
+APP_NAME = _ROW.name
+APP_DESCRIPTION = _ROW.desc
+APP_INTRO = _ROW.intro
+APP_CLI_NOTE = _ROW.cli_note
+APP_NAME_TRANSLATIONS = _ROW.translations
 
 
 def register() -> bool:
     """Put Outliers in the app registry, through the public seam. Idempotent.
 
-    Everything after the section is a table this key would otherwise need a
-    hand-edit in: the screen header and blurb, the "no headless run" sentence,
-    the API doc link and the nine translations of the display name.
-    :func:`spacr.qt.app.register_app` distributes them from this one call.
+    The row itself -- the key, the name, the blurb, the section, the "no
+    headless run" sentence, the API doc link and the nine translations of the
+    display name -- is declared in :mod:`spacr.qt.app_catalog`.
+    :func:`spacr.qt.app.register_app` distributes those into the four tables
+    each used to need a hand-edit in, and this function's whole job is to name
+    which row. That is what lets the app be registered without importing this
+    module at all: the launch reads the table, and the screen is imported when
+    somebody opens it.
 
     ``SECTION_EXPLORE`` rather than ``SECTION_RESULTS``, and the reasoning is
     worth writing down because the first instinct is the other one. This screen
@@ -707,12 +702,4 @@ def register() -> bool:
         again — a module imported from two paths, or a test that re-imports
         it, must not raise on the duplicate key.
     """
-    from ..app import APPS, SECTION_EXPLORE, STAGE_ALPHA, register_app
-    if any(row[0] == APP_KEY for row in APPS):
-        return False
-    register_app(APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_EXPLORE,
-                 factory=make_outliers_screen, stage=STAGE_ALPHA,
-                 intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-                 api_module="qt/screens/outliers",
-                 translations=APP_NAME_TRANSLATIONS)
-    return True
+    return register_declared(__name__) is not None

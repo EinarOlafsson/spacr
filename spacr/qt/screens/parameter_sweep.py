@@ -14,6 +14,7 @@ guarantee containment.
 from __future__ import annotations
 
 import os
+from ..widgets.sortable_table import install_sorting, table_item
 
 APP_KEY = "parameter_sweep"
 APP_NAME = "Parameter Sweep"
@@ -242,6 +243,7 @@ def _make_screen(app_key=None, host=None):
             self.progress.setVisible(False)
             right_layout.addWidget(self.progress)
             self.table = QTableWidget(0, 0, right)
+            install_sorting(self.table)
             # CLICK A ROW TO GET THAT REGRESSION BACK.
             #
             # A sweep row carries every setting its trial was given, so it is
@@ -627,7 +629,7 @@ def _make_screen(app_key=None, host=None):
                 for column, name in enumerate(columns):
                     value = frame.iloc[row][name]
                     self.table.setItem(row, column,
-                                       QTableWidgetItem(str(value)))
+                                       table_item(str(value)))
 
     return ParameterSweepScreen(host=host)
 

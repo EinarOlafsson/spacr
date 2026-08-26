@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import ast
 import csv
+from contextlib import contextmanager
 from functools import partial
 from html import escape
 import logging
@@ -3923,6 +3924,32 @@ def _absorb_registered_api_modules() -> None:
 _absorb_registered_api_modules()
 
 
+#: Settings whose documentation lives on the evaluation module's page rather
+#: than on the page of whichever app happens to display them. A constant, not
+#: a literal inside :func:`api_docs_url`: that function is called once per
+#: setting per tooltip, so building these two sets there rebuilt them
+#: thousands of times per panel.
+_EVALUATION_DOC_KEYS = frozenset({
+    "classifier_evaluation",
+    "nested_cv_inner_folds",
+    "evaluation_calibration",
+    "evaluation_bins",
+    "evaluation_fail_on_leakage",
+    "leakage_audit_train_test",
+    "leakage_hash_content",
+    "leakage_require_identity",
+})
+
+#: UMAP settings documented on the hyperparameter-search page.
+_UMAP_SEARCH_DOC_KEYS = frozenset({
+    "criterion", "search_mode", "adaptive", "n_trials", "n_folds",
+    "random_seed", "resume_search", "n_neighbors_step",
+    "min_dist_step", "min_improvement", "max_panels",
+    "umap_stability_repeats", "umap_neighborhood_weight",
+    "umap_stability_weight", "umap_cluster_structure_weight",
+})
+
+
 def api_docs_url(
     app_key: str,
     key: str = "",
@@ -3942,28 +3969,11 @@ def api_docs_url(
         plugin_app = None
     if plugin_app is not None and plugin_app.docs_url:
         return plugin_app.docs_url
-    evaluation_keys = {
-        "classifier_evaluation",
-        "nested_cv_inner_folds",
-        "evaluation_calibration",
-        "evaluation_bins",
-        "evaluation_fail_on_leakage",
-        "leakage_audit_train_test",
-        "leakage_hash_content",
-        "leakage_require_identity",
-    }
-    umap_search_keys = {
-        "criterion", "search_mode", "adaptive", "n_trials", "n_folds",
-        "random_seed", "resume_search", "n_neighbors_step",
-        "min_dist_step", "min_improvement", "max_panels",
-        "umap_stability_repeats", "umap_neighborhood_weight",
-        "umap_stability_weight", "umap_cluster_structure_weight",
-    }
     if key.startswith("batch_"):
         module = "batch_correction"
-    elif key in evaluation_keys:
+    elif key in _EVALUATION_DOC_KEYS:
         module = "classifier_evaluation"
-    elif app_key == "umap" and key in umap_search_keys:
+    elif app_key == "umap" and key in _UMAP_SEARCH_DOC_KEYS:
         module = "hyperparam"
     else:
         module = _APP_API_MODULE.get(app_key)
@@ -4111,11 +4121,86 @@ def _strip_type_prefix(text: str) -> str:
     return re.sub(r"^\s*\([^)]*\)\s*[-–:]?\s*", "", text or "").strip()
 
 
+#: ``argument -> resolved code`` while a :func:`language_resolved_once`
+#: scope is open, and ``None`` when none is. See that function for why the
+#: cache is scoped rather than permanent.
+_LANGUAGE_SCOPE: Optional[Dict[Any, str]] = None
+
+#: How many nested :func:`language_resolved_once` scopes are open. Nesting is
+#: the normal case, not an edge one: a screen wraps its whole panel build and
+#: ``build_sections`` wraps itself, so the inner scope must not drop the cache
+#: the outer one is still using.
+_LANGUAGE_SCOPE_DEPTH = 0
+
+#: Translated fragments already resolved inside the open scope, or ``None``.
+#: Every setting is rendered TWICE while a panel is built -- once as the
+#: HTML tooltip on the widget and once as the plain hint under the form --
+#: and the two share their name, their type hint and their prose. Scoped for
+#: the same reason the language is: a catalog upgrade or a renamed organelle
+#: slot must reach the next panel, and inside one synchronous build neither
+#: can happen.
+_TRANSLATION_MEMO: Optional[Dict[Any, Any]] = None
+
+
+@contextmanager
+def language_resolved_once():
+    """Ask what the UI language is once, for one synchronous build.
+
+    ``_language_code`` answers a question whose answer is a persisted
+    preference: it reaches ``QSettings``, reads a key and normalizes it.
+    That is cheap once and ruinous in bulk, and it is asked in bulk --
+    building the Mask panel called it 15,491 times for 1,538 settings,
+    roughly ten times per row, because every tooltip resolves its body, its
+    type hint, its name and its documentation URL and each of those asks
+    again. Measured on that build it cost 0.29 s, of which 0.18 s was
+    constructing a ``QSettings`` 3,516 times.
+
+    The cache is scoped rather than permanent BECAUSE THE ANSWER CHANGES.
+    A user picking a new language in Preferences must see the next tooltip
+    rendered in it, and a module-level cache with no invalidation would
+    freeze the UI in whatever language the first panel happened to be built
+    in -- the exact bug this codebase has hit with the field-fade
+    preference. Inside one synchronous build nothing can change the
+    preference, so the answer provably cannot go stale; outside a scope
+    every call reads the store exactly as it always did.
+
+    Re-entrant: nested scopes share the outermost one's cache and only the
+    outermost drops it.
+    """
+    global _LANGUAGE_SCOPE, _LANGUAGE_SCOPE_DEPTH, _TRANSLATION_MEMO
+    if _LANGUAGE_SCOPE is None:
+        _LANGUAGE_SCOPE = {}
+        _TRANSLATION_MEMO = {}
+    _LANGUAGE_SCOPE_DEPTH += 1
+    try:
+        yield
+    finally:
+        _LANGUAGE_SCOPE_DEPTH -= 1
+        if _LANGUAGE_SCOPE_DEPTH <= 0:
+            _LANGUAGE_SCOPE_DEPTH = 0
+            _LANGUAGE_SCOPE = None
+            _TRANSLATION_MEMO = None
+
+
 def _language_code(language: Optional[str] = None) -> str:
     """Resolve ``language`` without making settings metadata depend on Qt."""
+    scope = _LANGUAGE_SCOPE
+    if scope is not None:
+        try:
+            return scope[language]
+        except KeyError:
+            pass
+        except TypeError:
+            # An unhashable argument cannot be cached; resolve it directly
+            # rather than refuse to answer.
+            scope = None
+
     from ..i18n import current_language, normalize_language
 
-    return normalize_language(language or current_language())
+    code = normalize_language(language or current_language())
+    if scope is not None:
+        scope[language] = code
+    return code
 
 
 def _translated_ui_text(
@@ -4159,6 +4244,10 @@ def _translated_body(
     code = _language_code(language)
     if code == "en":
         return source
+    memo = _TRANSLATION_MEMO
+    memo_key = ("body", source, code, setting_key, category)
+    if memo is not None and memo_key in memo:
+        return memo[memo_key]
     from ..i18n import _exact_translation, tr
 
     try:
@@ -4169,15 +4258,20 @@ def _translated_body(
             else category_help(source, code) if category else None
         )
         if translated is not None:
+            if memo is not None:
+                memo[memo_key] = translated
             return translated
     except (ImportError, AttributeError):
         pass
 
-    return (
+    resolved = (
         tr(source, code)
         if _exact_translation(source, code) is not None
         else source
     )
+    if memo is not None:
+        memo[memo_key] = resolved
+    return resolved
 
 
 def _translated_type_hint(key: str, language: Optional[str] = None) -> str:
@@ -4186,6 +4280,11 @@ def _translated_type_hint(key: str, language: Optional[str] = None) -> str:
     code = _language_code(language)
     if not source or code == "en":
         return source
+
+    memo = _TRANSLATION_MEMO
+    memo_key = ("type_hint", source, code)
+    if memo is not None and memo_key in memo:
+        return memo[memo_key]
 
     from ..i18n import tr
 
@@ -4196,6 +4295,8 @@ def _translated_type_hint(key: str, language: Optional[str] = None) -> str:
     translated = " / ".join(tr(part, code) for part in core.split(" or "))
     if optional:
         translated = f"{translated} ({tr('optional', code)})"
+    if memo is not None:
+        memo[memo_key] = translated
     return translated
 
 
@@ -4205,22 +4306,31 @@ def _translated_setting_name(
     app_key: str = "",
 ) -> str:
     """Translate a short humanized setting label using the UI term catalog."""
+    code = _language_code(language)
+    memo = _TRANSLATION_MEMO
+    memo_key = ("setting_name", key, code, app_key)
+    if memo is not None and memo_key in memo:
+        return memo[memo_key]
+
     from ..i18n import _ROWS, _TERM_ROWS, tr
 
     source = _humanize(key)
-    code = _language_code(language)
     # The compact catalog is the hand-reviewed authority for exact terms.
     # External generated labels extend it, but never override a correction.
     if source in _ROWS or source in _TERM_ROWS:
-        return tr(source, code)
-    try:
-        from ..i18n_catalogs import setting_label
-        translated = setting_label(key, source, code, app_key)
-        if translated is not None:
-            return translated
-    except (ImportError, AttributeError):
-        pass
-    return tr(source, code)
+        resolved = tr(source, code)
+    else:
+        resolved = None
+        try:
+            from ..i18n_catalogs import setting_label
+            resolved = setting_label(key, source, code, app_key)
+        except (ImportError, AttributeError):
+            resolved = None
+        if resolved is None:
+            resolved = tr(source, code)
+    if memo is not None:
+        memo[memo_key] = resolved
+    return resolved
 
 
 def _api_reference_tooltip(
@@ -7728,6 +7838,12 @@ class SettingsWidgets:
         self._headings_of_absent_slots: Dict[int, Any] = {}
         self._object_row_guard = _HiddenRowWatcher(self, parent)
         self._object_rule_pass_queued = False
+        #: Called with the keys this pass is hiding, just before row
+        #: visibility is decided, so the screen can lay out any row it left
+        #: unbuilt that is about to be shown. The model decides WHETHER a row
+        #: is on the form; only the screen can BUILD one. Left ``None`` on a
+        #: model built for its values rather than for a screen.
+        self.rows_are_laid_out_by = None
         self._tooltips = get_tooltips()
         self._data_context: Dict[str, Any] = {'plate_count': None}
         if app_key == "umap":
@@ -7743,6 +7859,19 @@ class SettingsWidgets:
             pass
 
     def build_sections(self) -> List["SettingsSection"]:
+        """Build the section tree with the UI language resolved once.
+
+        The scope is the whole reason this wrapper exists; see
+        :func:`language_resolved_once`. Every tooltip, type hint, label and
+        documentation URL below asks what language the interface is in, and
+        without the scope each of those asks reads ``QSettings`` again.
+
+        :returns: what :meth:`_build_sections` returns, unchanged.
+        """
+        with language_resolved_once():
+            return self._build_sections()
+
+    def _build_sections(self) -> List["SettingsSection"]:
         """Group the settings and return the panel's section TREE.
 
         Each entry is a :class:`SettingsSection`, which still IS the
@@ -9105,6 +9234,44 @@ class SettingsWidgets:
                 current[key] = self._defaults.get(key)
         return current
 
+    def keys_whose_object_the_run_lacks(self) -> set:
+        """The gated keys as the rule sees them right now.
+
+        The same question :meth:`refresh_object_visibility` answers before it
+        moves anything, asked on its own so the screen can put it to the rule
+        BEFORE it draws a row rather than after. A row the rule was always
+        going to hide is a row worth not building: on Mask that is 1,461 of
+        the panel's 1,538.
+
+        :returns: setting keys, empty when the rule cannot be decided.
+        """
+        try:
+            return set(keys_hidden_by_their_object(
+                self._widgets, self._object_visibility_settings()))
+        except Exception:                                    # noqa: BLE001
+            LOGGER.debug("could not decide which objects are in the run",
+                         exc_info=True)
+            return set()
+
+    def remember_section_rows(self, section, keys, has_children: bool) -> None:
+        """Record which settings a heading shows, and whether it nests.
+
+        ASKED OF THE PANEL, WHICH DECIDED IT. :meth:`_slot_headings` needs the
+        same two facts and used to recover them from the rendered form: a walk
+        of every row plus a ``findChildren`` per heading to find out whether
+        anything nested inside it, on the panel that has a hundred and five of
+        them. The panel knew both before it drew anything.
+
+        :param section: the heading widget.
+        :param keys: its own settings, in the order they are declared.
+        :param has_children: whether sub-headings nest inside it.
+        """
+        declared = getattr(self, "_section_rows", None)
+        if declared is None:
+            declared = self._section_rows = {}
+        declared[id(section)] = (section, tuple(keys), bool(has_children))
+        self._slot_heading_cache = None
+
     def refresh_object_visibility(self) -> None:
         """Show only the rows whose object this run actually has.
 
@@ -9136,6 +9303,17 @@ class SettingsWidgets:
             # typed would look, to the guard, like something else putting a
             # hidden row back.
             self._hidden_by_the_run = set(hidden)
+            # BEFORE THE ROWS MOVE, for the other reason too: a row the screen
+            # left unbuilt because this rule hid it has to exist before the
+            # rule can show it, or `_set_row_visible` would put a bare field
+            # on screen in no layout at all.
+            lay_out = getattr(self, "rows_are_laid_out_by", None)
+            if lay_out is not None:
+                try:
+                    lay_out(hidden)
+                except Exception:                            # noqa: BLE001
+                    LOGGER.debug("could not lay out the rows that are back",
+                                 exc_info=True)
             for key in list(self._widgets):
                 self._set_row_visible(key, key not in hidden)
             self._guard_hidden_rows(hidden)
@@ -9164,9 +9342,9 @@ class SettingsWidgets:
     def _slot_headings(self) -> Dict[int, Tuple[Any, Tuple[str, ...]]]:
         """Each leaf heading on the panel and the settings it owns.
 
-        Computed once: the sections and their rows are built together and
-        neither changes afterwards, and this runs on every keystroke in a
-        channel box.
+        Computed once: which settings a heading holds is decided when the
+        panel is built and does not change afterwards, and this runs on every
+        keystroke in a channel box.
 
         LEAF HEADINGS ONLY -- one with sub-headings inside it is answered by
         them. ``id(section) -> (section, keys)``, because a ``Section`` is
@@ -9181,6 +9359,19 @@ class SettingsWidgets:
             return cached
         cache: Dict[int, Tuple[Any, Tuple[str, ...]]] = {}
         if self._parent is None:
+            return cache
+        # WHAT THE PANEL DECLARED, when it declared anything. The walk below
+        # recovers the same two facts from the rendered form, at the cost of a
+        # `findChildren` per heading; a panel that said what it was building
+        # has already answered. See :meth:`remember_section_rows`.
+        declared = getattr(self, "_section_rows", None)
+        if declared:
+            for ident, (section, keys, has_children) in declared.items():
+                if has_children or not keys:
+                    continue
+                cache[ident] = (section, tuple(keys))
+            if cache:
+                self._slot_heading_cache = cache
             return cache
         try:
             from ..widgets.section import Section
