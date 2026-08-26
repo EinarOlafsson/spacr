@@ -267,7 +267,7 @@ DECLARED_APPS = (
         translations=(
             'Pipelinediagram',
             'Pipeline-Graph',
-            'Grafo de la tubería',
+            'Grafo del flujo de trabajo',
             '流程图',
             'Grafo do pipeline',
             'पाइपलाइन ग्राफ़',
