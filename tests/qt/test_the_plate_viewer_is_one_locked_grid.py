@@ -12,6 +12,15 @@ away from the wells they name as the window grows. The numbers below are
 read back off the widgets rather than looked at: a label's centre against
 its well's centre, a well's width against its own height.
 
+MEASURED UNDER THE APPLICATION STYLESHEET, because that is what took the
+square away. Every geometry claim below passed against a bare
+``QApplication`` and failed in a run that had themed one: the app sheet's
+blanket ``QPushButton { min-height }`` is polished into a real minimum on
+every well, replacing the one ``setFixedSize`` wrote, and a well whose
+minimum outranks its maximum comes out 22 wide by 40 tall. A guard on the
+plate's geometry that does not have the theme applied is measuring an
+application nobody runs.
+
 The drag is driven with real Qt mouse events on real wells of the grid,
 never by calling the drag methods, because the route from the button to the
 dialog is the part that goes missing: a scroll area reparents the widget it
@@ -32,13 +41,14 @@ pytestmark = pytest.mark.qt
 
 from spacr.qt.widgets.plate_map_picker import (CHOSEN, EMPTY, WELL_SIDE,
                                                PlateMapPicker)
+from spacr.well_spec import shape
 
 #: The two window widths every geometry claim is checked at.
 NARROW, WIDE = 700, 1400
 
 
 @pytest.fixture
-def picker(qtbot):
+def picker(qtbot, qt_theme_applied):
     widget = PlateMapPicker(layout=96)
     qtbot.addWidget(widget)
     widget.resize(NARROW, 600)
@@ -191,6 +201,29 @@ class TestTheLabelsAreLockedToTheWells:
         assert _row_label(picker, 1).parentWidget() is holder
         assert picker.findChild(QScrollArea).widget() is holder
 
+    @pytest.mark.parametrize("layout", [96, 1536])
+    def test_a_header_is_not_clipped_by_the_cell_it_is_locked_to(
+            self, qtbot, qt_theme_applied, layout):
+        """Locking the letters and the numbers to a well's square is only
+        honest if they fit inside one. The widest of them are `AF` and `48`,
+        on the 1536 plate."""
+        widget = PlateMapPicker(layout=layout)
+        qtbot.addWidget(widget)
+        widget.show()
+        QApplication.processEvents()
+
+        rows, columns = shape(layout)
+        headers = [_row_label(widget, row) for row in range(1, rows + 1)]
+        headers += [_column_label(widget, column)
+                    for column in range(1, columns + 1)]
+        clipped = {header.text():
+                   header.fontMetrics().horizontalAdvance(header.text())
+                   for header in headers
+                   if header.fontMetrics().horizontalAdvance(header.text())
+                   > WELL_SIDE}
+
+        assert not clipped, f"headers wider than their cell: {clipped}"
+
     def test_the_lock_survives_a_layout_change(self, picker):
         """A rebuilt grid keeps no stretch from the one before it, or the
         spare space is left sitting in the middle of the new plate."""
@@ -231,7 +264,7 @@ class TestAWellIsASquare:
         assert (well.width(), well.height()) == (WELL_SIDE, WELL_SIDE)
 
     @pytest.mark.parametrize("layout", [6, 96, 1536])
-    def test_every_layout_is_squares(self, qtbot, layout):
+    def test_every_layout_is_squares(self, qtbot, qt_theme_applied, layout):
         widget = PlateMapPicker(layout=layout)
         qtbot.addWidget(widget)
         widget.resize(WIDE, 900)
@@ -241,8 +274,40 @@ class TestAWellIsASquare:
         assert all(well.width() == well.height() == WELL_SIDE
                    for well in widget._wells.values())
 
+    def test_a_blanket_button_rule_cannot_stretch_the_plate(self, qtbot,
+                                                            qapp):
+        """Where the 22 x 40 well came from, and why the square is stated in
+        each cell's OWN sheet rather than through ``setFixedSize``.
+
+        A ``min-height`` in the application stylesheet is polished into a
+        real minimum on every button in the window, and it overwrites the
+        minimum ``setFixedSize`` wrote. The maximum it wrote survives, so the
+        well is left with a minimum taller than its maximum -- and Qt
+        resolves that in favour of the minimum. A cell's own sheet is the one
+        thing that outranks the application's.
+        """
+        was = qapp.styleSheet()
+        try:
+            qapp.setStyleSheet("QPushButton { min-height: 60px; padding: 9px; }"
+                               " QLabel { min-height: 60px; padding: 9px; }")
+            widget = PlateMapPicker(layout=96)
+            qtbot.addWidget(widget)
+            widget.resize(WIDE, 600)
+            widget.show()
+            QApplication.processEvents()
+
+            oblong = {cell: (well.width(), well.height())
+                      for cell, well in widget._wells.items()
+                      if (well.width(), well.height()) != (WELL_SIDE,
+                                                           WELL_SIDE)}
+            assert not oblong, f"a blanket rule stretched the wells: {oblong}"
+            assert _column_label(widget, 1).height() == WELL_SIDE
+            assert _row_label(widget, 1).width() == WELL_SIDE
+        finally:
+            qapp.setStyleSheet(was)
+
     def test_the_plate_can_be_scrolled_to_when_it_outgrows_the_window(
-            self, qtbot):
+            self, qtbot, qt_theme_applied):
         """Keeping the square costs width, and the wells that no longer fit
         have to be reachable rather than squeezed."""
         widget = PlateMapPicker(layout=1536)
@@ -400,7 +465,8 @@ class TestAChosenWellIsPainted:
         assert EMPTY in picker._wells[(1, 1)].styleSheet()
         assert CHOSEN in picker._wells[(2, 2)].styleSheet()
 
-    def test_the_starting_value_opens_painted(self, qtbot):
+    def test_the_starting_value_opens_painted(self, qtbot,
+                                              qt_theme_applied):
         widget = PlateMapPicker(value="A01", layout=96)
         qtbot.addWidget(widget)
 
