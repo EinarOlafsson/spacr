@@ -47,6 +47,32 @@ here, and undoing it naively brings the four-rows-one-label bug straight
 back.
 
 --------------------------------------------------------------------------------
+THE MAINTAINER SAYS THE DUPLICATE IS GONE
+--------------------------------------------------------------------------------
+
+2026-08-26, told that the pin was fixing the four-rows-one-label report:
+"is not true anymore".
+
+So the defect the pin exists for HAS BEEN FIXED SOMEWHERE ELSE since, and
+the pin is now guarding against nothing. That changes the shape of this
+work:
+
+  * FIND OUT WHAT FIXED IT before designing around it. If gene and guide
+    rows are already distinguishable in the table -- a level column, a
+    different label, separate files -- then the label work below is
+    already done and 'both' can simply be allowed;
+  * DO NOT TAKE IT ON TRUST EITHER. Load a real results table holding both
+    levels, draw it with the pin removed, and LOOK at what the four rows
+    for one identifier say. That is a five-minute check and it decides
+    whether the rest of this item is needed at all;
+  * if they are distinguishable, the fix is small: stop pinning, offer the
+    choice, and pin the distinction with a test so it cannot rot back.
+
+The four things below still have to be answered whatever the answer is,
+because they are about what the panel does with an EMPTY or AMBIGUOUS
+level rather than about the duplicate.
+
+--------------------------------------------------------------------------------
 WHAT TO BUILD
 --------------------------------------------------------------------------------
 
