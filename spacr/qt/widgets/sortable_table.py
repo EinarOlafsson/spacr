@@ -1,42 +1,27 @@
-"""One sorting contract for every table and tree in the application.
+"""Consistent three-state sorting for Qt tables and trees.
 
-Thirty-odd screens build a table, and a sort behaviour written at each site
-drifts: half of them could not sort at all, the ones that could sorted
-ascending first because that is Qt's default, and the numeric columns among
-them sorted "10" before "9". This module holds the behaviour once so that
-every table answers a header click the same way.
+The sorting cycle is:
 
-THE CONTRACT
-------------
-
-* the first click on a column sorts it **descending** -- a coefficient table
-  and a hit list are read from the top, and the top is where the largest
-  effect and the smallest q-value belong;
+* the first click on a column sorts it **descending**;
 * the second click sorts it **ascending**;
-* the third click clears the sort and puts the rows back in the order the
-  table was built in;
+* the third click clears the sort and restores the original row order;
 * the fourth click starts the cycle again.
 
-Numbers sort as numbers, whatever they were formatted as: ``0.5`` sorts
-between ``0.1`` and ``2``, and ``1.2e-07`` is a number and not a word.
-Missing values -- blank, ``NaN``, ``pandas.NA``, ``NaT`` -- sort to the
-BOTTOM in every direction, so a column of results never opens on its holes.
+Formatted numeric values, including scientific notation, are sorted
+numerically. Missing values such as blank cells, ``NaN``, ``pandas.NA``, and
+``NaT`` sort after populated values in both directions.
 
-USING IT
---------
-
-Build the cells with :func:`table_item` or :func:`tree_item` and hand the
-view to :func:`install_sorting`::
+Build cells with :func:`table_item` or :func:`tree_item` and pass the view to
+:func:`install_sorting`::
 
     self.table = QTableWidget(0, 3)
     install_sorting(self.table)
     ...
     self.table.setItem(row, 0, table_item(coefficient))
 
-:func:`install_sorting` also keeps a repopulation from scrambling the rows.
-Qt re-sorts a sorted table on every ``setItem`` into the sorted column, which
-moves rows out from under the loop that is filling them; the helper drops the
-sort for the duration of a fill and puts it back when the fill settles.
+:func:`install_sorting` temporarily suspends sorting while a view is
+repopulated, preventing Qt from moving partially populated rows, and restores
+the selected ordering after the update completes.
 """
 from __future__ import annotations
 
@@ -45,8 +30,14 @@ from typing import Optional
 
 import shiboken6
 from PySide6.QtCore import QObject, QSortFilterProxyModel, Qt, QTimer
-from PySide6.QtWidgets import (QTableView, QTableWidget, QTableWidgetItem,
-                               QTreeView, QTreeWidget, QTreeWidgetItem)
+from PySide6.QtWidgets import (
+    QTableView,
+    QTableWidget,
+    QTableWidgetItem,
+    QTreeView,
+    QTreeWidget,
+    QTreeWidgetItem,
+)
 
 __all__ = [
     "SORT_KEY_ROLE",
@@ -84,11 +75,10 @@ _THOUSANDS = re.compile(r"(?<=\d),(?=\d\d\d(\D|$))")
 
 
 def is_missing(value) -> bool:
-    """True for ``None``, ``NaN``, pandas' ``NA`` and ``NaT``.
+    """Return whether ``value`` is empty or a recognized missing sentinel.
 
-    ``pandas.isna`` rather than ``value != value``: ``pd.NA != pd.NA`` is
-    ``pd.NA``, not ``True``, and ``bool(pd.NA)`` raises -- so the naive test
-    reports the one sentinel it was written for as present.
+    This includes ``None``, blank strings, ``NaN``, pandas ``NA``, and
+    ``NaT``. Array-like values are not treated as individual missing cells.
     """
     if value is None:
         return True
@@ -105,15 +95,13 @@ def is_missing(value) -> bool:
 
 
 def numeric_value(text) -> Optional[float]:
-    """The number a cell stands for, or ``None`` when it is a word.
+    """Return the numeric value represented by a cell, if one is present.
 
-    Deliberately strict. A column of gene names must not sort as numbers, so
-    a leading letter disqualifies the cell -- "TP53" is a gene and not 53.
-    What does count as a number is what the screens actually print: plain
-    digits, scientific notation, a thousands separator between digits, a
-    trailing percent, and a trailing unit separated by a space ("3.2 s",
-    "12 MB"). A cell whose text is none of those can still sort numerically
-    by carrying its own key -- see :data:`SORT_KEY_ROLE`.
+    Accepted formats include ordinary numbers, scientific notation, comma
+    thousands separators, percentages, and a unit separated from the value by
+    a space, such as ``"3.2 s"``. Alphanumeric identifiers such as ``"TP53"``
+    return ``None``. Use :data:`SORT_KEY_ROLE` to provide an explicit numeric
+    key for other display formats.
     """
     if text is None:
         return None
@@ -163,14 +151,14 @@ _PLACEHOLDERS = frozenset(
 
 
 def sorts_as_missing(value) -> bool:
-    """True when ``value`` is a hole, however the screen chose to write it."""
+    """Return whether ``value`` should sort as missing table data."""
     if is_missing(value):
         return True
     return isinstance(value, str) and value.strip().casefold() in _PLACEHOLDERS
 
 
 def sort_key_of(value):
-    """``(missing, number)`` for ``value``: the pair every comparison uses."""
+    """Return the ``(is_missing, numeric_value)`` comparison key."""
     if sorts_as_missing(value):
         return True, None
     return False, numeric_value(value)
@@ -233,13 +221,11 @@ class _SortableMixin:
 
 
 class SortableTableItem(_SortableMixin, QTableWidgetItem):
-    """A table cell that sorts by what it means, not by how it reads.
+    """Table item with semantic numeric and missing-value sorting.
 
-    :param value: what the cell holds. Missing values render as an empty
-        cell -- ``str(float('nan'))`` is the word "nan", which is how a hole
-        in a frame ends up printed as data.
-    :param key: an explicit sort key, for a cell whose text is not sortable
-        on its own.
+    :param value: Cell value. Missing values are rendered as empty cells.
+    :param key: Optional explicit numeric sort key for display text that
+        cannot be parsed directly.
     """
 
     def __init__(self, value="", key=None):
@@ -250,12 +236,10 @@ class SortableTableItem(_SortableMixin, QTableWidgetItem):
             self.setData(SORT_KEY_ROLE, float(key))
 
     def setData(self, role, value):  # noqa: N802 - Qt spelling
-        """Re-read the sort key when the cell's text changes.
+        """Update the sort key when displayed or edited text changes.
 
-        An editable column is edited: the user types 20 over 3, Qt writes it
-        through here, and a key settled at construction would keep sorting
-        the cell as a 3. Only the two roles that are the text count, so an
-        explicit key or a colour costs nothing.
+        Non-text roles do not modify the key, and editing does not change the
+        item's position in the table's unsorted order.
         """
         QTableWidgetItem.setData(self, role, value)
         if role in (Qt.DisplayRole, Qt.EditRole) and hasattr(
@@ -281,9 +265,11 @@ class SortableTableItem(_SortableMixin, QTableWidgetItem):
 
 
 class SortableTreeItem(_SortableMixin, QTreeWidgetItem):
-    """A tree row that sorts by what its cells mean. See
-    :class:`SortableTableItem`; the difference is that a tree row carries
-    every column, so the key is resolved for the column being sorted on."""
+    """Tree item with semantic sorting for the selected column.
+
+    See :class:`SortableTableItem`. A tree item contains multiple columns, so
+    its comparison key is resolved from the column currently being sorted.
+    """
 
     def __init__(self, *args, **kwargs):
         QTreeWidgetItem.__init__(self, *args, **kwargs)
@@ -353,12 +339,12 @@ class SortableTreeItem(_SortableMixin, QTreeWidgetItem):
 
 
 def table_item(value="", key=None) -> SortableTableItem:
-    """A :class:`SortableTableItem`. The one way to build a table cell."""
+    """Return a :class:`SortableTableItem` for ``value`` and optional key."""
     return SortableTableItem(value, key=key)
 
 
 def tree_item(*args, **kwargs) -> SortableTreeItem:
-    """A :class:`SortableTreeItem`, taking what ``QTreeWidgetItem`` takes."""
+    """Return a :class:`SortableTreeItem` using ``QTreeWidgetItem`` arguments."""
     return SortableTreeItem(*args, **kwargs)
 
 
@@ -483,11 +469,10 @@ def _stamp_initial_order(view) -> None:
 
 
 def restore_natural_order(view) -> None:
-    """Put the rows back in the order the table was built in.
+    """Restore rows to the order in which the view was populated.
 
-    The third click on a column. Qt clears its own indicator and stops there,
-    leaving the rows in whatever order the second click left them, which
-    reads as a click that did nothing.
+    This completes the third state of the sorting cycle after Qt clears the
+    header's sort indicator.
     """
     global _RESTORING
     if not _alive(view):
@@ -509,12 +494,12 @@ def restore_natural_order(view) -> None:
 
 
 def install_sorting(view):
-    """Give ``view`` the whole sorting contract. Returns ``view``.
+    """Install three-state semantic sorting on ``view`` and return it.
 
-    Accepts a ``QTableWidget``, a ``QTreeWidget`` or a ``QTableView``. A
-    ``QTableView`` whose model cannot sort is given a
-    :class:`SortableProxyModel`, so call this straight after ``setModel`` and
-    take the selection model from the view afterwards.
+    Accepts a ``QTableWidget``, ``QTreeWidget``, or ``QTableView``. A
+    ``QTableView`` is wrapped in :class:`SortableProxyModel`; call this
+    function immediately after ``setModel`` and obtain the view's selection
+    model afterwards.
     """
     header = _header(view)
     if header is None:
@@ -565,12 +550,11 @@ def _wrap_in_proxy(view) -> None:
 
 
 class SortableProxyModel(QSortFilterProxyModel):
-    """Sorts a model's rows by what its cells mean.
+    """Proxy model providing semantic sorting for model-backed views.
 
-    The same comparison as :class:`SortableTableItem`, for the views backed
-    by a model rather than by items: numbers as numbers, missing last in
-    both directions, and a header that asks for descending on the first
-    click.
+    Numeric values sort numerically, missing values follow populated values
+    in either direction, and the initial header order is descending. This is
+    the model-backed equivalent of :class:`SortableTableItem`.
     """
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
