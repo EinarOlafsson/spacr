@@ -2,7 +2,13 @@
 A STRAY SENTENCE ON THE SETUP CARD, AND THREE TOGGLES THAT START OFF
 ================================================================================
 
-Status:    OPEN. Requested 2026-08-25.
+Status:    DONE. The stray sentence was the GPU note, shown having never
+           been laid out because the pass that places it gave up on a note
+           that was not visible yet -- while running before the slide made
+           it visible. The greeting and the note are placed independently
+           now. All three toggles ship on, each behind a named constant,
+           and an explicit opt-out survives the change because every
+           setter writes rather than storing a delta from the default.
 Owner:     spacr/qt/widgets/setup_slides.py for the stray text;
            spacr/qt/preferences.py for the three defaults.
 

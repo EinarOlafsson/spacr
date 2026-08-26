@@ -2811,7 +2811,7 @@ PREFERENCE_TIPS = {
     # length as one x unit -- and not the shape of the figure. The shape is
     # 'Page shape' below, and the explanation says so rather than describing
     # shapes this control cannot take.
-    "Graph shape": "Whether one y unit is drawn the same length as one x "
+    "Lock axis scales": "Whether one y unit is drawn the same length as one x "
                    "unit ('equal', which is what keeps a plate's wells "
                    "square), or the panel is filled instead ('auto'). This "
                    "locks the axis scales, which is a statement about the "
