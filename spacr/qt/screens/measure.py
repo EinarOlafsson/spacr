@@ -30,6 +30,13 @@ settings rather than in a window over them -- a window is the last resort
 for a fold. The headless path is untouched, because the button runs the
 same entry point ``spacr-run anndata_export`` runs.
 
+AND THE ICONS ARE NOT SPENT ON THE MASTHEAD ALONE. A folded module's
+picture is the thing a user already recognises it by, so it goes wherever
+that module turns up: on the tab a page fold arrives as, and on the
+heading of the settings category the fold left behind -- Illumination is
+a button here AND one of Measure's own categories, and only one of the
+two used to say so. See :data:`FOLD_CATEGORIES`.
+
 The shared half of a fold -- opening the module, wiring the host signals
 and hanging the strip off the masthead -- lives in
 :mod:`spacr.qt.screens.map_barcodes` and is imported rather than
@@ -43,7 +50,7 @@ from typing import Callable, Dict, Optional, Tuple
 
 from PySide6.QtWidgets import QWidget
 
-from ..widgets.fold_strip import FoldStrip
+from ..widgets.fold_strip import FoldStrip, mark_folded_categories
 from .map_barcodes import build_settings_screen, install_fold_strip
 
 LOG = logging.getLogger(__name__)
@@ -105,6 +112,25 @@ FOLD_FALLBACK = {
 }
 
 
+#: ``key -> the categories on THIS screen's OWN form that are its settings``.
+#:
+#: THE ICON GOES WHERE THE SETTINGS ARE. Illumination's other half is not a
+#: page and not a mounted card: the nine ``illumination_*`` keys have been
+#: one of Measure's own categories for as long as ``measure_crop`` has
+#: corrected fields. So the module has a button on this masthead carrying
+#: its icon and a group of settings further down carrying nothing, and a
+#: user who pressed the button has no way to see that the heading below is
+#: the same module. The mark on the heading is what says so.
+#:
+#: AnnData Export and the Motility Assay are not here, and that is not an
+#: omission: neither has a settings category on this form. They arrive as
+#: PAGES, and a page is already marked with its module's icon on its tab --
+#: see :func:`spacr.qt.screens.map_barcodes.show_as_page`.
+FOLD_CATEGORIES: Dict[str, Tuple[str, ...]] = {
+    "illumination": ("Illumination Correction",),
+}
+
+
 def _build_illumination(host_window: Optional[QWidget]) -> QWidget:
     """Illumination Correction's own screen: estimate, QC and save a field.
 
@@ -136,6 +162,32 @@ BUILDERS: Dict[str, Callable[[Optional[QWidget]], QWidget]] = {
 }
 
 
+def mark_fold_sources(screen: QWidget) -> Dict[str, Tuple[str, ...]]:
+    """Put each folded module's icon beside the headings that are its own.
+
+    Never fatal: a heading with no mark is a heading, while an exception
+    raised while a screen is being built is no screen.
+
+    :param screen: the host module's screen.
+    :returns: ``key -> the category titles marked``, for the folds that
+        marked at least one.
+    """
+    if getattr(screen, "app_key", None) != HOST_KEY:
+        return {}
+    try:
+        return mark_folded_categories(
+            getattr(screen, "_settings_sections", ()) or (), FOLD_CATEGORIES)
+    except Exception:
+        LOG.debug("Could not mark %s's folded categories", HOST_KEY,
+                  exc_info=True)
+        return {}
+
+
 def install_folds(screen: QWidget) -> Optional[FoldStrip]:
     """Put Measure's fold strip on ``screen``'s masthead."""
-    return install_fold_strip(screen, HOST_KEY, FOLDED_APPS, BUILDERS)
+    strip = install_fold_strip(screen, HOST_KEY, FOLDED_APPS, BUILDERS)
+    # The icons the folded modules brought with them go on their settings
+    # as well as on their buttons. After the strip: a mark that cannot be
+    # drawn must not cost the buttons.
+    mark_fold_sources(screen)
+    return strip
