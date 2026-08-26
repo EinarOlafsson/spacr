@@ -74,12 +74,14 @@ HOST_KEY = "regression"
 FOLDED_APPS: Tuple[str, ...] = ("volcano_explorer", "hit_list",
                                 "methods_export")
 
-# What each of those three said as a TILE -- the name, the sentence and the
-# maturity colour a button has to go on carrying once the row is dropped --
-# lives in `spacr.qt.screens.map_barcodes.FOLD_FALLBACK`, because
+# NONE OF THE THREE HAS A REGISTRY ROW. What each said as a TILE -- the
+# name, the sentence and the maturity colour a button has to go on carrying
+# now that the registry answers "stable" and a title-cased key for all three
+# -- lives in `spacr.qt.screens.map_barcodes.FOLD_FALLBACK`, because
 # `map_barcodes.fold_description` is what `restate_fold_button` reads, and
-# that is the only table it looks in. A second copy stood here, beside these
-# three keys, and nothing consulted it.
+# that is the only table it looks in; `fold_strip.folded_fallback` reaches
+# the same entries by walking the hosts. A second copy stood here, beside
+# these three keys, and nothing consulted it.
 
 #: What the "Hits" tab is called, and the tab it is inserted after.
 HITS_TAB_TITLE = "Hits"
@@ -463,11 +465,13 @@ class HitsOpener:
         self.screen = screen
         self._window = FoldOpener(screen, self.key, self._build_window)
 
-    def _build_window(self, _host_window) -> QWidget:
+    def _build_window(self, host_window) -> QWidget:
         """The Hit List module itself, seeded with the run on screen."""
-        from .hit_list import HitListScreen
+        from .hit_list import HitListScreen, connect_investigation
 
-        return HitListScreen(folder=_run_folder(results_panel(self.screen)))
+        hits = HitListScreen(folder=_run_folder(results_panel(self.screen)))
+        connect_investigation(hits, host_window)
+        return hits
 
     def open(self, _checked: bool = False) -> Optional[QWidget]:
         """Show the hit list, wherever this screen keeps it."""
@@ -498,7 +502,13 @@ def install_extras(screen: QWidget) -> bool:
     if panel is None:
         return False
     install_correction_families(panel)
-    install_hits_tab(panel)
+    # "Investigate selected…" used to be connected by the registry factory,
+    # which ran only while the hit list was still a tile. It is a tab now, so
+    # the connection is made where the tab is built -- otherwise the button
+    # emits the selected result into nothing.
+    from .hit_list import connect_investigation
+
+    connect_investigation(install_hits_tab(panel), screen.window())
     install_publication_figure(panel, publication_opener(screen).open)
     return True
 
