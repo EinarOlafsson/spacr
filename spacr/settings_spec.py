@@ -202,7 +202,8 @@ def convert_settings_dict_for_gui(settings):
                                           'once in the chosen model'),
                            ('guide_permutation', 'guide permutation — test '
                                                  'each guide on its own, '
-                                                 'plate-blocked')],
+                                                 'wells reshuffled within '
+                                                 'each plate')],
                           'regression'),
         # Instruction 135, and the same argument as `analysis_mode` above:
         # two valid values, and the RUN now has to agree with the volcano's

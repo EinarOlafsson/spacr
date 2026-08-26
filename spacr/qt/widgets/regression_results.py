@@ -402,9 +402,10 @@ UNIDENTIFIABLE_WARNING = (
     "With no residual degrees of freedom, and possible rank deficiency, "
     "individual coefficients, standard errors and P values cannot be "
     "interpreted reliably.\n"
-    "Set inference='nonparametric' to test each guide as a plate-blocked "
-    "marginal association without fitting every guide coefficient at once, "
-    "or use inference='auto' to let spaCR choose.\n")
+    "Set inference='nonparametric' to test each guide as a marginal "
+    "association, reshuffling wells only between wells of the same plate, "
+    "without fitting every guide coefficient at once; or use "
+    "inference='auto' to let spaCR choose.\n")
 
 
 #: Prefixed to a summary that was READ rather than rendered. A reader pasting

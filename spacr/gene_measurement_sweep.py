@@ -823,7 +823,7 @@ def plot_sweep(result: "SweepResult", path: Optional[str] = None, *,
                        + (f" — {drawn}s" if drawn else ""),
                        fontsize=9)
         bar = figure.colorbar(image, ax=axes, fraction=0.025, pad=0.01)
-        bar.set_label("effect (partial correlation, plate-blocked)", fontsize=7)
+        bar.set_label("effect (partial correlation, within plate)", fontsize=7)
         bar.ax.tick_params(labelsize=6)
         _readable(figure, axes)
         figure.tight_layout()
@@ -1371,7 +1371,7 @@ def plot_gene_profile(result: "SweepResult", gene: Any,
              for m, fam in zip(shown["measurement"], families)],
             fontsize=HOUSE.TICK)
         axes.invert_yaxis()
-        axes.set_xlabel("effect (partial correlation, plate-blocked)", fontsize=8)
+        axes.set_xlabel("effect (partial correlation, within plate)", fontsize=8)
         axes.tick_params(labelsize=7)
         for i, (text, colour) in enumerate((
                 (f"raises it", HOUSE.GREEN), (f"lowers it", HOUSE.RUST),
