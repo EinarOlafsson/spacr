@@ -5644,7 +5644,7 @@ def resolve_auto_inference(data, settings, *, well_column='prc',
             f"{blocks} block terms), at least the {_IDENTIFIABILITY_MARGIN}x "
             f"margin required.")
     return 'guide_permutation', (
-        f"auto chose the plate-blocked permutation test: {n_wells} analysed "
+        f"auto chose the permutation test: {n_wells} analysed "
         f"wells cannot identify {parameters} simultaneous parameters "
         f"({n_guides} guides + intercept + {blocks} block terms). Each guide "
         f"is tested as a marginal association instead. Set "
@@ -6035,7 +6035,7 @@ def _identifiability_warning(data, settings, *, well_column='prc',
         "  cannot be interpreted reliably.\n"
         "\n"
         "  Set inference='nonparametric' to test each guide as a\n"
-        "  plate-blocked marginal association without fitting all guide\n"
+        "  marginal association, wells reshuffled within each plate,\n"
         "  coefficients simultaneously, or inference='auto' to let spaCR\n"
         "  choose. The design\n"
         "  diagnostics written beside the results show the rank, the\n"
@@ -6156,7 +6156,7 @@ def _report_exchangeability(data, outcome_column, settings, destination):
 
 
 def _run_guide_permutation_analysis(data, outcome, destination, settings):
-    """Run and persist the plate-blocked marginal guide analysis.
+    """Run and persist the marginal guide analysis.
 
     This is the ``perform_regression`` branch used when
     ``analysis_mode='guide_permutation'``. Keeping it as a top-level function
@@ -6479,8 +6479,21 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
     #
     # ITS OWN BH FAMILY, never pooled with the guides: same wells, and the gene
     # regressor is literally the sum of the guide regressors.
+    # WHICH LEVELS THIS RUN REPORTS -- the same `level` key the fitted path
+    # reads, so one control answers the question on both sides. It used to be
+    # `guide_permutation_gene_level` alone, which is in no category and so had
+    # no control at all: on the permutation side the level was unchoosable,
+    # and `level` itself was greyed out because a mixed regression_type does
+    # not read it. Between them a reader who asked for genes had no way to ask.
+    #
+    # `guide_permutation_gene_level` still WINS when it is set explicitly, so
+    # a saved settings file that names it keeps meaning what it said.
+    wanted_level = str(settings.get('level') or 'both').strip().lower()
+    wants_gene = wanted_level in ('gene', 'both')
+    if 'guide_permutation_gene_level' in settings:
+        wants_gene = bool(settings.get('guide_permutation_gene_level'))
     gene_primary = None
-    if bool(settings.get('guide_permutation_gene_level', True)):
+    if wants_gene:
         try:
             from .guide_permutation import analyse_long_gene_table
 
@@ -6544,13 +6557,23 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
     # `guides_in_gene`; a guide has `wells_with_guide`), so the union carries
     # blanks where a column belongs to the other level. That is correct: the
     # question "how many wells hold this guide" has no answer for a gene.
+    #
+    # `level` decides which of them results.csv CARRIES. The guide pass runs
+    # either way -- a gene's regressor is the sum of its guides' fractions, so
+    # there is no gene answer without it -- and results_grna.csv always holds
+    # those rows. What level='gene' means is that the reader asked for genes,
+    # so genes are what the primary table reports.
     levelled = primary_table.copy()
     if 'level' not in levelled.columns:
         levelled['level'] = 'grna'
+    gene_rows = None
     if gene_primary is not None and len(gene_primary):
         gene_rows = gene_primary.copy()
         if 'level' not in gene_rows.columns:
             gene_rows['level'] = 'gene'
+    if wanted_level == 'gene' and gene_rows is not None:
+        combined = gene_rows
+    elif gene_rows is not None and wanted_level != 'grna':
         combined = pd.concat([levelled, gene_rows], ignore_index=True,
                              sort=False)
     else:
@@ -6586,7 +6609,12 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
         # finally agree. Every family stays reachable: `families` carries the
         # full frame and each one is still written to its own
         # `guide_permutation_min_<n>_wells.csv`.
-        'results': primary_table,
+        #
+        # `combined`, NOT `primary_table`: the file gained the gene rows, and
+        # a caller reading the dict must not get a different table from a
+        # caller reading the file of the same name. `primary` below is the
+        # guide rows alone for anyone who wants exactly those.
+        'results': combined,
         'families': results,
         # The gene pass, corrected within itself. None when it was declined
         # with guide_permutation_gene_level=False or could not be made.

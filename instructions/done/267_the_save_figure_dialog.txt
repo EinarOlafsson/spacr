@@ -2,8 +2,33 @@
 THE SAVE FIGURE DIALOG: FOUR THINGS
 ================================================================================
 
-Status:    OPEN. Requested 2026-08-26, from the volcano's right-click
-           Save figure.
+Status:    DONE. Requested 2026-08-26, from the volcano's right-click
+           Save figure. Verified by driving the real dialog on a real
+           volcano, not by reading the code.
+
+           1. SQUARE. Renders 760 x 760 with no exception. A preview that
+           does fail now carries the reason (`failure = self._why(exc)`)
+           instead of blaming the plot for being empty.
+
+           2. DPI. Live for PNG, greyed for PDF and SVG -- the FORMAT
+           decides it, not the plot kind. A PNG written at 600 dpi is
+           4252 x 3189 against 1063 x 797 at 150: exactly four times the
+           pixels, measured off the written files.
+
+           3. VALUES. "180 mm wide, height follows the plot" and "2126
+           pixels across, height follows the plot" -- the numbers, with the
+           sentence about where they come from as the quieter note beside
+           them AND as a tooltip. Inline rather than hover-only on purpose:
+           a DISABLED widget receives no hover events, so a tooltip alone
+           would hide the explanation from the rows that need it most.
+
+           4. THE FOUR SETTINGS, all present and live: background colour,
+           line colour, line width, text colour, graph shape (square /
+           horizontal rectangle / vertical rectangle -- not "aspect
+           ratio"). Format stays because a save needs one; resolution and
+           size are inherited and shown under rule 3.
+
+           tests/qt/test_the_save_figure_dialog_four_things.py, 49 tests.
 Owner:     spacr/qt/widgets/save_figure_dialog.py, and whatever raises
            when the canvas shape changes.
 

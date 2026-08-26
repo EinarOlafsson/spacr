@@ -11,7 +11,7 @@ one for got nothing, and ``inference='nonparametric'`` got
     No summary: this run came back without a fitted model, so there is none
     to summarise.
 
-which is TRUE AND USELESS. The permutation path is a plate-blocked marginal
+which is TRUE AND USELESS. The permutation path is a within-plate marginal
 test per guide: no design matrix, no coefficient covariance, no statsmodels
 object to ask. The run still produced results, and those results have
 properties worth reporting — just not the ones statsmodels prints.
@@ -521,7 +521,7 @@ class _Run:
 
 
 def _is_nonparametric(settings, coef_df) -> bool:
-    """Whether this run was the plate-blocked permutation test.
+    """Whether this run was the permutation test.
 
     THREE SIGNALS, because no one of them is present on every path.
     ``inference='auto'`` is resolved into ``analysis_mode`` and leaves
@@ -615,8 +615,9 @@ UNIDENTIFIABLE_WARNING = (
     "Every standard error and P value below is one arbitrary solution out of "
     "infinitely many; refitting the same data can give different numbers and "
     "neither set is wrong.\n"
-    "Set inference='nonparametric' to test each guide as a plate-blocked "
-    "marginal association, which stays valid at any width."
+    "Set inference='nonparametric' to test each guide as a marginal "
+    "association, reshuffling wells only between wells of the same plate, "
+    "which stays valid at any width."
 )
 
 
@@ -695,8 +696,9 @@ def _fitted_section(run: "_Run") -> List[SummaryField]:
         chosen = ("inference='auto' resolved to it" if inference == "auto"
                   else f"inference={inference or 'nonparametric'!r}")
         add("inference",
-            value=f"nonparametric — each guide tested as a plate-blocked "
-                  f"marginal association by Freedman-Lane permutation "
+            value=f"nonparametric — each guide tested as a marginal "
+                  f"association by Freedman-Lane permutation, wells "
+                  f"reshuffled only between wells of the same plate "
                   f"({chosen})")
     else:
         chosen = ("inference='auto' resolved to it" if inference == "auto"

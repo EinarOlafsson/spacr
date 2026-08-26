@@ -799,8 +799,22 @@ class HyperparamPanel(QWidget):
                 edit.setSizeAdjustPolicy(
                     QComboBox.AdjustToMinimumContentsLengthWithIcon)
                 edit.setMinimumContentsLength(12)
-                edit.addItems(umap_metrics())
+                # THE SHORT LIST NOW, THE FULL ONE WHEN IT IS OPENED.
+                #
+                # `umap_metrics()` reads the metric names off the INSTALLED
+                # umap-learn, and touching that package makes numba compile
+                # pynndescent: 9.4 s of a 9.6 s screen construction, measured,
+                # spent so a dropdown nobody has clicked can be complete.
+                #
+                # Nothing is lost. The static names go in immediately so the
+                # control is usable at once, and the first time the list is
+                # opened it is completed from the installed library -- by
+                # which point a user choosing a metric is about to run UMAP
+                # and needs it loaded anyway. Anyone who never opens it never
+                # pays, which is most of the people opening this screen.
+                edit.addItems(UMAP_METRICS)
                 edit.setCurrentText("euclidean")
+                _complete_metrics_when_opened(edit)
                 lab.setToolTip(
                     "Distance metric used by UMAP and compatible clustering. "
                     "Choose one of the metrics supported by the installed "
@@ -2754,6 +2768,46 @@ class UmapSearchSettingsDialog(QDialog):
 # ---------------------------------------------------------------------------
 # Host integration
 # ---------------------------------------------------------------------------
+
+
+def _complete_metrics_when_opened(combo) -> None:
+    """Fill ``combo`` from the installed umap-learn the first time it opens.
+
+    Reading the installed metric list imports umap, and importing umap makes
+    numba compile pynndescent -- nine seconds, on a machine where everything
+    else about this screen takes a fifth of one. Deferred to the moment
+    somebody actually looks at the list.
+
+    The selection is preserved across the swap, and the completion happens
+    once: after it, the combo is an ordinary combo again.
+    """
+    original = type(combo).showPopup
+
+    def show_popup(self):
+        try:
+            names = umap_metrics()
+            chosen = self.currentText()
+            if tuple(names) != tuple(
+                    self.itemText(i) for i in range(self.count())):
+                self.blockSignals(True)
+                try:
+                    self.clear()
+                    self.addItems(names)
+                    if chosen in names:
+                        self.setCurrentText(chosen)
+                finally:
+                    self.blockSignals(False)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not complete the UMAP metric list",
+                      exc_info=True)
+        finally:
+            # Once, whatever happened: a list that cannot be completed must
+            # not try again on every click.
+            self.showPopup = lambda: original(self)
+        original(self)
+
+    combo.showPopup = show_popup.__get__(combo, type(combo))
+
 
 def build_hyperparam_card(host):
     """Build the ``Hyperparameter search`` card + panel pair.

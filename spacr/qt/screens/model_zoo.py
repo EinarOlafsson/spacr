@@ -94,6 +94,7 @@ from ..widgets.toggle import Toggle
 
 from ... import model_zoo as zoo
 from ..bridge import make_thread
+from ..hidpi import logical_size, scaled_for
 from ..theme import (RADIUS, SPACING, active_palette,
                      block_surface, ensure_widget_qss_applied,
                      register_widget_qss)
@@ -979,18 +980,21 @@ class ModelZooScreen(QWidget):
         qimage = QImage(composed.tobytes(), width, height, 3 * width,
                         QImage.Format_RGB888).copy()
         self._preview.setText("")
-        self._preview.setPixmap(QPixmap.fromImage(qimage).scaled(
+        self._preview.setPixmap(scaled_for(
+            QPixmap.fromImage(qimage), self._preview,
             max(PREVIEW_PX, self._preview.width()),
-            max(PREVIEW_PX, self._preview.height()),
-            Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            max(PREVIEW_PX, self._preview.height())))
         return True
 
     def preview_size(self):
-        """``(w, h)`` of the preview pixmap, ``(0, 0)`` when there is none."""
-        pixmap = self._preview.pixmap()
-        if pixmap is None or pixmap.isNull():
-            return (0, 0)
-        return (pixmap.width(), pixmap.height())
+        """``(w, h)`` the preview OCCUPIES, ``(0, 0)`` when there is none.
+
+        Widget coordinates, not the pixel count behind them: the picture is
+        rendered at the screen's density, so on a HiDPI panel those two
+        numbers differ by the device pixel ratio.
+        """
+        shown = logical_size(self._preview.pixmap())
+        return (shown.width(), shown.height())
 
     # -- hand-off to Model Compare -----------------------------------------
 

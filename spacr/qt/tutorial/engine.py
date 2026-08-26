@@ -252,7 +252,21 @@ class Recorder:
         from PySide6.QtGui import QPixmap
 
         self.window.repaint()
-        pm = self.window.grab().scaled(
+        # A VIDEO FRAME IS MEASURED IN FILE PIXELS, not screen ones, so this
+        # is the one picture in the application that does NOT go through
+        # `hidpi.scaled_for`: the recording must come out the same size on
+        # every machine.
+        #
+        # `grab()` does come back carrying the window's device pixel ratio,
+        # and a pixmap that says it is dense draws at a fraction of its size
+        # on the plain canvas below -- a quarter-size picture in the corner
+        # of every frame on a retina display. Declaring the grab plain
+        # before scaling keeps the extra pixels a HiDPI window really has
+        # (they make the downscale sharper) and drops the claim that would
+        # halve the frame.
+        pm = self.window.grab()
+        pm.setDevicePixelRatio(1.0)
+        pm = pm.scaled(
             self.size[0], self.size[1],
             Qt.KeepAspectRatio, Qt.SmoothTransformation,
         )

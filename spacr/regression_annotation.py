@@ -45,8 +45,10 @@ __all__ = [
     "TOP_SCORE_RANDOM",
     "TWO_VIEW_DISAGREEMENT",
     "UNCERTAINTY",
+    "candidate_feature_columns",
     "implemented_keys",
     "menu",
+    "missing_requirement",
     "prepare",
     "readable_group",
     "run",
@@ -317,6 +319,93 @@ def menu() -> Tuple[str, ...]:
     return tuple(entry.describe() for entry in STRATEGIES)
 
 
+def missing_requirement(key: Any, frame: Optional[pd.DataFrame],
+                        score_column: str = DEFAULT_SCORE_COLUMN, *,
+                        label_column: str = "",
+                        positive_control_wells: Sequence[str] = (),
+                        negative_control_wells: Sequence[str] = ()) -> str:
+    """Why ``key`` cannot run on this table, or ``""`` when it can.
+
+    ASKED BEFORE THE RUN, NOT AFTER IT. Every refusal in this module is
+    raised while a strategy is executing, which is the right place for it
+    and the wrong time for a user: choosing "Diversity sampling over
+    clusters" on a coefficient table with no measurement columns joined to
+    it should say so on the control, not a run later. This is the cheap
+    pre-flight that lets a chooser grey itself with the reason -- it reads
+    dtypes and one column, never the whole matrix, so it can be asked on
+    every change of the menu.
+
+    IT IS THE OPTIMISTIC HALF. An empty answer means nothing this can see
+    is missing; :func:`prepare` still reads the values and can still
+    refuse -- a score whose cells are all in one well, a feature column
+    that turns out not to vary. What it will never do is stay silent about
+    a table that has no score, no annotations, no measurements, or no
+    control wells named for the strategy that needs them.
+
+    :param key: a strategy key, or a :class:`Strategy`.
+    :param frame: the object rows on screen, or None.
+    :param score_column: the per-object classification score.
+    :param label_column: a column of human annotations, when one is named.
+    :param positive_control_wells: the positive control wells named.
+    :param negative_control_wells: the negative control wells named.
+    :returns: one sentence naming what is missing and what to do about it,
+        or "" when the strategy can be run.
+    :raises AnnotationStrategyError: ``key`` is not on the menu.
+    """
+    entry = strategy(key)
+    if frame is None or not len(frame):
+        return ("There are no cells to choose from: the object table is "
+                "empty, so nothing would be selected, fitted or measured.")
+    needs = tuple(entry.needs or ())
+
+    # THE REFERENCE LABEL, WHICH EVERY STRATEGY NEEDS. It is what the
+    # hold-out is scored against, so a strategy that fits nothing still
+    # cannot run without one -- `prepare` refuses the same table for the
+    # same reason.
+    annotated = usable_annotations(frame, label_column)
+    scored = scored_cells(frame, score_column)
+    if not annotated and scored < 4:
+        named = str(label_column or "").strip()
+        if named:
+            said = (f"the annotation column {named!r} carries fewer than "
+                    "four cells over two classes")
+        else:
+            said = "no annotation column is named"
+        if str(score_column) not in frame.columns:
+            has = (f"there is no column {str(score_column)!r} in these "
+                   f"{len(frame):,} row(s)")
+        else:
+            has = (f"only {scored} of {len(frame):,} cell(s) carry a finite "
+                   f"{str(score_column)!r}")
+        return (f"{entry.title} has nothing to label the cells with: {said} "
+                f"and {has}. Every strategy is measured against a reference "
+                "label on the hold-out, so name an annotation column that "
+                "has one, or load objects that carry a classification "
+                "score.")
+
+    if "features" in needs and not candidate_feature_columns(
+            frame, score_column):
+        return (f"{entry.title} fits a model on the cells' own "
+                "measurements, and none of these "
+                f"{len(frame.columns):,} column(s) is one: every numeric "
+                "column either identifies the row or is the classifier's "
+                "own output. Join the measurement tables to these objects, "
+                "or choose a strategy that fits nothing.")
+
+    if "controls" in needs:
+        empty = [name for name, wells in
+                 (("positive", positive_control_wells),
+                  ("negative", negative_control_wells))
+                 if not [w for w in (wells or ()) if str(w).strip()]]
+        if empty:
+            return (f"{entry.title} takes its labels from the plate's own "
+                    f"control wells and the {' and '.join(empty)} control "
+                    "well(s) are not named. Name them below — the labels "
+                    "come from the wells, so without them there is nothing "
+                    "to fit on.")
+    return ""
+
+
 # ---------------------------------------------------------------------------
 # What a run is asked for
 # ---------------------------------------------------------------------------
@@ -484,6 +573,67 @@ def feature_columns(frame: pd.DataFrame,
             "output, or does not vary. Join the measurement tables to these "
             "rows, or name the feature columns explicitly.")
     return tuple(out)
+
+
+def candidate_feature_columns(frame: pd.DataFrame,
+                              score_column: str = DEFAULT_SCORE_COLUMN
+                              ) -> Tuple[str, ...]:
+    """The columns that COULD be features, judged on names and dtypes alone.
+
+    :func:`feature_columns` is the authority and it reads every value: a
+    numeric column that does not vary is not a feature, and only the values
+    say so. This is the cheap half of that question -- one pass over
+    ``frame.dtypes`` rather than over the rows -- for a caller that has to
+    answer "can this strategy run at all" every time a chooser changes, on
+    a table that may hold half a million objects.
+
+    It is therefore the OPTIMISTIC answer: a table this accepts can still
+    be refused by :func:`feature_columns`, and the run is what refuses it.
+    A table this rejects has no measurement column under any reading.
+
+    :param frame: the object table.
+    :param score_column: the score, which is never a feature.
+    :returns: the candidate columns, in table order.
+    """
+    identity = {c.lower() for c in IDENTITY_COLUMNS}
+    return tuple(str(name) for name, dtype in frame.dtypes.items()
+                 if pd.api.types.is_numeric_dtype(dtype)
+                 and str(name).lower() not in identity
+                 and not _looks_like_the_score(str(name), score_column))
+
+
+def usable_annotations(frame: pd.DataFrame, label_column: str) -> int:
+    """How many cells carry an annotation in ``label_column``.
+
+    Zero when the column is absent, empty, or holds one class only --
+    which is the same answer :func:`_reference_labels` gives, so a chooser
+    and a run cannot disagree about whether there are labels to fit on.
+
+    :param frame: the object table.
+    :param label_column: the annotation column, or "".
+    :returns: the number of annotated cells, or 0 when they are unusable.
+    """
+    column = str(label_column or "").strip()
+    if not column or column not in frame.columns:
+        return 0
+    raw = frame[column]
+    known = raw.notna() & (raw.astype(str).str.strip() != "")
+    if int(known.sum()) < 4:
+        return 0
+    if len(pd.unique(raw[known])) < 2:
+        return 0
+    return int(known.sum())
+
+
+def scored_cells(frame: pd.DataFrame,
+                 score_column: str = DEFAULT_SCORE_COLUMN) -> int:
+    """How many cells carry a finite value in the score column."""
+    column = str(score_column or "")
+    if column not in frame.columns:
+        return 0
+    values = pd.to_numeric(frame[column],
+                           errors="coerce").to_numpy(dtype=float)
+    return int(np.isfinite(values).sum())
 
 
 def score_input_columns(frame: pd.DataFrame,
@@ -762,13 +912,22 @@ def _reference_labels(frame: pd.DataFrame, request: AnnotationRequest,
             threshold, notes)
 
 
-def prepare(request: AnnotationRequest) -> Prepared:
+def prepare(request: AnnotationRequest,
+            entry: Optional[Strategy] = None) -> Prepared:
     """Resolve columns, group identifiers, labels, and the holdout.
 
     Complete independence groups are reserved before strategy-specific
     selection. Strategies cannot select rows from those groups.
 
+    Strategies that fit a model require measurement columns. Score-stratified
+    and random sampling do not fit a model and therefore remain available for
+    result tables that do not contain joined measurements.
+
     :param request: what to run.
+    :param entry: the menu entry about to be run, when it is known. It is
+        read only for what the strategy needs; ``None`` requires
+        everything, which is the strict answer a caller with no entry to
+        hand should get.
     :returns: the shared setup.
     :raises AnnotationStrategyError: the table cannot support a
         leakage-safe split, or has no features, labels or score.
@@ -799,13 +958,25 @@ def prepare(request: AnnotationRequest) -> Prepared:
             "No guide wells were named, so every well is eligible and the "
             "positive set is the top-scoring cells of the whole screen.")
 
-    features = feature_columns(frame, request.score_column,
-                               request.feature_columns)
+    fits_on_features = entry is None or "features" in tuple(entry.needs or ())
+    try:
+        features = feature_columns(frame, request.score_column,
+                                   request.feature_columns)
+    except AnnotationStrategyError:
+        if fits_on_features:
+            raise
+        features = ()
+        notes.append(
+            f"{entry.title} fits no model, and there is no measurement "
+            "column in this table, so it runs on the score and the well "
+            "layout alone. Nothing is fitted and nothing is predicted; what "
+            "it reports is the selection and what it did to the class "
+            "balance.")
     inputs = score_input_columns(frame, request.score_column, features,
                                  request.score_inputs,
                                  request.correlation_cut)
     honest = tuple(c for c in features if c not in set(inputs))
-    if not honest:
+    if features and not honest:
         notes.append(
             "Every feature column is identified as a score input, so no "
             "leakage-controlled fit can be produced. Only the inclusive fit "
@@ -857,11 +1028,12 @@ def prepare(request: AnnotationRequest) -> Prepared:
         f"{', '.join(sorted(readable_group(g) for g in holdout_groups)[:6])}"
         f"{', …' if len(holdout_groups) > 6 else ''}. "
         f"{split.summary()}")
-    notes.append(
-        f"{len(honest):,} of {len(features):,} feature column(s) survive "
-        f"removing the score's own inputs "
-        f"({', '.join(inputs[:6]) or 'none found'}"
-        f"{', …' if len(inputs) > 6 else ''}).")
+    if features:
+        notes.append(
+            f"{len(honest):,} of {len(features):,} feature column(s) survive "
+            f"removing the score's own inputs "
+            f"({', '.join(inputs[:6]) or 'none found'}"
+            f"{', …' if len(inputs) > 6 else ''}).")
     return Prepared(
         frame=frame, groups=groups, level=level,
         features=tuple(features), score_inputs=tuple(inputs),
@@ -2120,8 +2292,10 @@ def _run_random_holdout(prepared: Prepared,
             notes, counts=counts)
     except NotEnoughLabels as refusal:
         notes.append(
-            f"No model was fitted: {refusal}. Under this class imbalance, the "
-            "random sample contains too few positive examples for fitting.")
+            f"Nothing was fitted: {str(refusal).rstrip('.')}. Under this "
+            "class imbalance, the "
+            "random sample contains too few positive examples or no usable "
+            "measurement columns for fitting.")
         return AnnotationResult(
             strategy=RANDOM_HOLDOUT.key, title=RANDOM_HOLDOUT.title,
             selection=_selection_frame(prepared, {"contrast": draw}),
@@ -2167,7 +2341,7 @@ def run(key: Any, request: AnnotationRequest,
             f"{entry.title!r} is on the menu but is not implemented yet, so "
             "no cells were selected. Available strategies are: "
             f"{', '.join(implemented_keys())}.")
-    setup = prepare(request) if prepared is None else prepared
+    setup = prepare(request, entry) if prepared is None else prepared
     result = runner(setup, request)
     return AnnotationResult(
         strategy=result.strategy, title=result.title,

@@ -34,6 +34,7 @@ from PySide6.QtWidgets import (
 )
 
 
+from .hidpi import scaled_for
 from .i18n import tr
 from . import iconset
 # The declared registry rows and the stand-in that defers a screen's import
@@ -2736,9 +2737,7 @@ class MainWindow(QMainWindow):
             pixmap = QPixmap(os.path.join(
                 iconset.RESOURCE_DIR, "logo_spacr.png"))
             if not pixmap.isNull():
-                mark.setPixmap(pixmap.scaled(
-                    QSize(96, 96), Qt.KeepAspectRatio,
-                    Qt.SmoothTransformation))
+                mark.setPixmap(scaled_for(pixmap, mark, QSize(96, 96)))
         except Exception:
             pass
         col.addWidget(mark)

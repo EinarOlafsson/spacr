@@ -102,7 +102,14 @@ class _Header(QLabel):
         # The hint. The floor and the ceiling are in the sheet below, for the
         # reason `_locked_square` gives.
         self.setFixedSize(WELL_SIDE, WELL_SIDE)
-        self.setStyleSheet("QLabel { %s }" % _locked_square())
+        # `border-width` IS STATED, and only the width. `_locked_square` pins
+        # padding, margin and the min/max box, but Qt adds the BORDER back on
+        # top of all four -- so an application sheet carrying
+        # `QLabel { border: 5px solid ... }` grew this header to 32 x 32 in a
+        # grid pitched at 22, and the letters drifted off their rows. The
+        # colour is left alone so the theme still paints the rim it wants.
+        self.setStyleSheet("QLabel { border-width: 0px; %s }"
+                           % _locked_square())
 
 
 class _Well(QPushButton):

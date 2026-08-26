@@ -33,6 +33,7 @@ from PySide6.QtWidgets import (QHBoxLayout, QLabel, QPushButton,
                                QScrollArea, QSizePolicy, QSlider, QSpinBox,
                                QVBoxLayout, QWidget)
 
+from ..hidpi import scaled_for
 from .toggle import Toggle
 
 LOG = logging.getLogger(__name__)
@@ -291,8 +292,7 @@ class FovMovie(QWidget):
         pixmap = _to_pixmap(rgb)
         target = self._canvas.size()
         if target.width() > 8 and target.height() > 8:
-            pixmap = pixmap.scaled(target, Qt.KeepAspectRatio,
-                                   Qt.SmoothTransformation)
+            pixmap = scaled_for(pixmap, self._canvas, target)
         self._canvas.setPixmap(pixmap)
 
     # -- playback ------------------------------------------------------

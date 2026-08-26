@@ -424,10 +424,37 @@ def test_a_heading_with_every_row_hidden_reports_itself_empty(qtbot):
 
 
 def test_a_heading_that_holds_a_switch_is_never_empty(qtbot):
-    """The channel is on the form, so its heading has to be too."""
+    """The channel is on the form, so its heading has to be too.
+
+    Mask files every object's channel under "Input & Metadata" -- the
+    switches sit together, above the settings they switch -- and a switch is
+    never hidden, because hiding it would leave nothing to turn its object
+    back on with. So that heading holds something whatever the run has.
+    """
     screen, model = _screen(qtbot, "mask")
 
     assert model.collect()["organelle_channel"] is None
+    assert _headings(screen)["INPUT & METADATA"] is True
+
+
+def test_an_objects_own_heading_empties_with_the_object(qtbot):
+    """And the heading that holds only its SETTINGS goes when it does.
+
+    The same answer for all four objects: with no channel naming a plane,
+    "Organelle Segmentation" opens onto nothing exactly as "Nucleus
+    Segmentation" and "Pathogen Segmentation" do, and naming a channel
+    fills it. The count is not what props it open -- `number_of_organelles`
+    belongs to no slot, so a card kept alive by it would be a card about an
+    object the run does not have.
+    """
+    screen, model = _screen(qtbot, "mask")
+
+    empty = _headings(screen)
+    assert empty["NUCLEUS SEGMENTATION"] is False
+    assert empty["PATHOGEN SEGMENTATION"] is False
+    assert empty["ORGANELLE SEGMENTATION"] is False
+
+    _set(model, "organelle_channel", 3)
     assert _headings(screen)["ORGANELLE SEGMENTATION"] is True
 
 
