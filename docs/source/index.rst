@@ -25,12 +25,11 @@ who need per-cell measurements out of plate images. The GUI route needs no
 programming; the same steps are available as a scripted pipeline when a
 screen outgrows one desktop.
 
-The GUI groups its applications into seven categories: *Core* for the
-segment-measure-classify pipeline, *Data* for import and inspection,
-*Segmentation models* for building, comparing and correcting them,
-*Results & QC* for regression and its diagnostics, *Explore* for the
-interactive figures, *Assays* for the parasite-specific readouts, and
-*Design* for planning a screen before it runs.
+The GUI groups its applications into six categories: *Core* for the
+segment-measure-classify pipeline, *Data* for import, inspection and hand
+correction of masks, *Results & QC* for regression and its diagnostics,
+*Explore* for the interactive figures, *Assays* for the parasite-specific
+readouts, and *Design* for planning a screen before it runs.
 
 Not every screen is a tile, which is why no count of them is printed here.
 Work that only makes sense inside another step opens from that step's
