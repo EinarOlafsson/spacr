@@ -1,51 +1,24 @@
-"""Ways of choosing which cells get annotated, and what each one costs.
+"""Select cells for annotation and evaluate the resulting classifier.
 
-A screen holds hundreds of thousands of cells and an annotator has an
-afternoon, so the choice of WHICH cells to label is the experiment. This
-module is the menu of those choices for the Cells tab, and the machinery
-that runs one end to end: it picks the cells, fits a classifier on what it
-picked, applies that classifier to every remaining cell in the screen and
-in the chosen guide wells, and reports how well it did against a hold-out
-it was not allowed to choose from.
+This module implements annotation strategies used by the Cells tab. A
+strategy selects cells, optionally fits a classifier, applies the fitted model
+to cells excluded from training, and evaluates it on a preselected holdout.
 
-THE ONE THAT IS ASKED FOR MOST OFTEN. In the chosen guide wells, take the
-top-scoring cells as the positive set, draw the same number of cells at
-random as the contrast set, fit a gradient-boosted tree on the two, and
-apply it to the rest. :data:`TOP_SCORE_RANDOM` is that method.
+Evaluation groups observations at :attr:`AnnotationRequest.group_by` so cells
+from the same well or other independence unit cannot be divided between
+training and test sets. Holdout groups are selected before a strategy chooses
+cells and are unavailable to that strategy.
 
-THE TRAP IN IT. The score already encodes the phenotype. A model trained on
-high-score against random can therefore succeed by relearning the score and
-nothing else, and its accuracy will look excellent while it has learned no
-morphology at all. :func:`score_input_columns` names the columns the score
-is a function of, and every fit is reported twice -- once with them and once
-without -- so the honest question ("how much of this survives when the
-score's own inputs are removed?") is answered on the page rather than left
-to the reader. :attr:`LeakageReport.survival` is that number.
-
-TWO RULES HOLD FOR EVERY STRATEGY HERE.
-
-* GROUP BY WELL. Cells from one well are not independent, so a split that
-  puts some cells of a well in train and others in test reports a score the
-  model will not reach on a new plate. Every split in this module goes
-  through :func:`spacr.classifier_evaluation.grouped_split`, which is the
-  package's one splitter, at the level :attr:`AnnotationRequest.group_by`
-  names.
-* THE STRATEGY THAT CHOSE THE LABELS CANNOT ALSO SCORE THEM. Every method
-  here selects cells non-randomly, so an accuracy measured on its own
-  selection is optimistic by construction. Whole wells are held out first,
-  no strategy may select from them, and every reported number is measured
-  there -- which is :data:`RANDOM_HOLDOUT`, the plain random draw, doing its
-  job for all the others whether or not it is the strategy on screen.
-
-A strategy that is declared but not yet built raises
-:class:`StrategyNotImplemented` rather than returning an empty selection,
-because a menu entry that silently does nothing is worse than one that is
-missing.
+Score-based selection can leak phenotype information when the score or its
+inputs are also model features. :func:`score_input_columns` identifies those
+columns, and :class:`LeakageReport` compares fits with and without them.
+Declared strategies without an implementation raise
+:class:`StrategyNotImplemented`.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 import os
+from dataclasses import dataclass, field
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
@@ -124,15 +97,15 @@ SHAPE_FAMILIES: Tuple[str, ...] = ("morphology", "spatial", "moment")
 
 
 class AnnotationStrategyError(ValueError):
-    """A strategy cannot run on the data it was given, and says why."""
+    """Raised when an annotation strategy cannot use the supplied data."""
 
 
 class StrategyNotImplemented(AnnotationStrategyError):
-    """The strategy is on the menu but has no implementation yet."""
+    """Raised when a declared annotation strategy is not implemented."""
 
 
 class NotEnoughLabels(AnnotationStrategyError):
-    """There is nothing labelled to fit on, so nothing is fitted."""
+    """Raised when the selected labels cannot support model fitting."""
 
 
 # ---------------------------------------------------------------------------
@@ -141,17 +114,14 @@ class NotEnoughLabels(AnnotationStrategyError):
 
 @dataclass(frozen=True)
 class Strategy:
-    """One entry on the annotation menu.
+    """Describe one cell-selection strategy.
 
     :param key: the stored value; stable across releases.
     :param title: what the entry is called on screen.
     :param purpose: what it is for, in one sentence.
-    :param cost: what it costs, in one sentence. Every strategy costs
-        something and the entry that does not say so is the one that gets
-        chosen for the wrong reason.
-    :param implemented: whether :func:`run` can execute it. A False entry
-        is still offered, and still refuses out loud.
-    :param needs: what the data must carry: ``'score'``, ``'features'``,
+    :param cost: Principal limitation or trade-off, in one sentence.
+    :param implemented: Whether :func:`run` can execute the strategy.
+    :param needs: Required data components: ``'score'``, ``'features'``,
         ``'labels'``, ``'controls'``.
     """
 
@@ -163,12 +133,10 @@ class Strategy:
     needs: Tuple[str, ...] = ()
 
     def describe(self) -> str:
-        """The entry as one paragraph: what it is for, then what it costs."""
-        text = f"{self.title} — {self.purpose} Costs: {self.cost}"
+        """Return the strategy purpose and limitations as one paragraph."""
+        text = f"{self.title} — {self.purpose} Limitations: {self.cost}"
         if not self.implemented:
-            text += (" NOT YET IMPLEMENTED: this entry is declared so the "
-                     "menu is honest about what is coming, and refuses "
-                     "rather than selecting nothing.")
+            text += " This strategy is declared but is not yet implemented."
         return text
 
 
@@ -176,15 +144,13 @@ TOP_SCORE_RANDOM = Strategy(
     key="top_score_random",
     title="Top-scoring cells against a matched random draw",
     purpose=(
-        "In the chosen guide wells it takes the top-scoring cells as the "
-        "positive set, draws the same number of cells at random as the "
-        "contrast set, fits a boosted tree on the two and applies it to "
-        "every remaining cell in the screen and in those wells."),
+        "Selects the highest-scoring cells in the chosen guide wells as "
+        "positive examples, draws a size-matched random contrast set, fits a "
+        "boosted tree, and predicts the remaining cells."),
     cost=(
-        "the score already encodes the phenotype, so the fit can succeed by "
-        "relearning the score and learning no morphology at all; the run "
-        "therefore reports the same fit with the score's own inputs removed, "
-        "and it is the second number that means anything."),
+        "the score already encodes phenotype information, so apparent "
+        "performance may reflect score reconstruction rather than morphology; "
+        "the report therefore includes a fit excluding the score inputs."),
     needs=("score", "features"),
 )
 
@@ -192,13 +158,11 @@ UNCERTAINTY = Strategy(
     key="uncertainty",
     title="Uncertainty sampling",
     purpose=(
-        "It queues the cells a current model is least sure of — the ones "
-        "nearest its decision boundary — because each label bought there "
-        "moves the boundary furthest for the money."),
+        "Queues cells for which the current model has the lowest confidence, "
+        "typically near its decision boundary."),
     cost=(
-        "it needs a model already, it chases one boundary, and the queue it "
-        "returns is not a random sample of anything, so its own cells can "
-        "never be used to measure it."),
+        "it requires an existing model and produces a non-random sample that "
+        "cannot be used as an unbiased evaluation set."),
     needs=("score", "features"),
 )
 
@@ -206,13 +170,11 @@ DIVERSITY = Strategy(
     key="diversity",
     title="Diversity sampling over clusters",
     purpose=(
-        "It clusters the measured features and queues a representative of "
-        "each cluster, which is what stops a whole rare morphology going "
-        "unlabelled while uncertainty sampling works one boundary."),
+        "Clusters measured features and queues representatives across the "
+        "resulting clusters to improve morphological coverage."),
     cost=(
-        "clusters are not phenotypes — a cluster can be a plate effect or a "
-        "focus artefact — and a budget spread evenly over clusters spends "
-        "most of it on the common ones."),
+        "clusters may reflect technical variation rather than phenotype, and "
+        "allocation across clusters does not guarantee class balance."),
     needs=("features",),
 )
 
@@ -220,14 +182,11 @@ CONTROL_ANCHORS = Strategy(
     key="control_anchors",
     title="Control wells as anchors",
     purpose=(
-        "Where the plate has known positive and negative control wells it "
-        "seeds the labels from them, so there is no manual annotation at "
-        "all and the labels carry the experiment's own definition of the "
-        "phenotype rather than an annotator's eye."),
+        "Uses known positive and negative control wells as labelled examples "
+        "without requiring initial manual cell annotation."),
     cost=(
-        "control wells differ from sample wells in more than the phenotype "
-        "— position, seeding density, edge effects — so a model fitted on "
-        "them can separate the wells rather than the cells."),
+        "control and sample wells may differ in position, density, or other "
+        "technical factors that the model can learn instead of phenotype."),
     needs=("controls", "features"),
 )
 
@@ -235,15 +194,13 @@ PU_LEARNING = Strategy(
     key="pu_learning",
     title="Positive-unlabelled learning",
     purpose=(
-        "The same positives as the named method, but the contrast set is "
-        "treated as UNLABELLED rather than negative, and the fitted "
-        "probability is rescaled by the labelling rate estimated on held-"
-        "out positives — the same idea without the bias of calling every "
-        "unlabelled cell a negative."),
+        "Treats selected positives as labelled and the contrast population as "
+        "unlabelled, then adjusts probabilities using a labelling-rate "
+        "estimate from held-out positives."),
     cost=(
-        "it assumes the positives were labelled independently of their "
-        "features, which top-of-the-score selection breaks; the estimated "
-        "labelling rate is reported so the assumption is visible."),
+        "the adjustment assumes positive labels are selected independently "
+        "of features, an assumption violated by top-score selection; the "
+        "estimated labelling rate is reported."),
     needs=("score", "features"),
 )
 
@@ -251,14 +208,12 @@ SELF_TRAINING = Strategy(
     key="self_training",
     title="Self-training with a fixed audit set",
     purpose=(
-        "It fits, adds its own confident predictions as labels, refits and "
-        "repeats — the cheapest way to turn a few hundred labels into a "
-        "model over the whole screen."),
+        "Iteratively adds high-confidence model predictions to the training "
+        "labels and refits the classifier."),
     cost=(
-        "it drifts, confidently: each round trains on the last round's "
-        "mistakes. The audit set is fixed before the first round, is held "
-        "out of every round, and the run stops when the audit stops "
-        "improving rather than when the rounds run out."),
+        "prediction errors can be reinforced across rounds; a fixed audit set "
+        "is excluded from training and stops iteration when performance no "
+        "longer improves."),
     needs=("score", "features"),
 )
 
@@ -266,14 +221,11 @@ TWO_VIEW_DISAGREEMENT = Strategy(
     key="two_view_disagreement",
     title="Disagreement between two feature families",
     purpose=(
-        "It fits one model on the intensity and texture columns and another "
-        "on the shape and position columns, then queues the cells the two "
-        "disagree about — which is where a single model is confidently "
-        "wrong."),
+        "Fits separate models to intensity/texture and shape/spatial features, "
+        "then queues cells on which their predictions disagree."),
     cost=(
-        "it needs both families to be present and informative, and it finds "
-        "nothing when the two views are really one; the column counts each "
-        "view got are reported so a one-sided split is visible."),
+        "both feature families must be present and informative; the report "
+        "includes the number of columns assigned to each view."),
     needs=("score", "features"),
 )
 
@@ -281,13 +233,11 @@ SCORE_STRATA = Strategy(
     key="score_strata",
     title="Stratified across the score range",
     purpose=(
-        "It queues a fixed number of cells per score decile rather than "
-        "only the top, because a model shown nothing but extremes has never "
-        "seen the middle of the screen, which is most of it."),
+        "Queues a fixed number of cells from each score interval to cover the "
+        "full score distribution rather than only its extremes."),
     cost=(
-        "most deciles hold few positives, so a fixed budget spread across "
-        "them buys fewer positive labels than taking the top — it buys "
-        "calibration instead of prevalence."),
+        "a fixed annotation budget yields fewer positive examples than "
+        "top-score selection but provides broader calibration coverage."),
     needs=("score",),
 )
 
@@ -295,14 +245,12 @@ NEIGHBOUR_PROPAGATION = Strategy(
     key="neighbour_propagation",
     title="Neighbour propagation with a shown distance cut",
     purpose=(
-        "It carries each seed label to that cell's nearest neighbours in "
-        "standardised feature space, within a distance cut, which "
-        "multiplies an annotator's effort several times over."),
+        "Propagates each seed label to nearby cells within a specified distance "
+        "in standardized feature space."),
     cost=(
-        "too generous a cut manufactures agreement, so the radius, the "
-        "neighbours reached per seed and the share that landed in a "
-        "different well are all reported; a large share from other wells "
-        "means the cut is measuring the plate, not the phenotype."),
+        "a permissive distance threshold can propagate incorrect labels; the "
+        "report includes the radius, neighbours per seed, and cross-well "
+        "propagation rate."),
     needs=("score", "features"),
 )
 
@@ -310,14 +258,11 @@ RANDOM_HOLDOUT = Strategy(
     key="random_holdout",
     title="An unbiased random sample",
     purpose=(
-        "A plain random draw of whole wells, held aside before any strategy "
-        "chooses anything. It is the only thing that can measure what a "
-        "clever strategy did to the class balance, and every other strategy "
-        "here reports against it."),
+        "Selects complete wells at random before strategy-specific sampling, "
+        "providing an independent evaluation set for all strategies."),
     cost=(
-        "it buys the fewest positives per label of anything on this menu — "
-        "which is the point: it is a measurement, not a way to spend an "
-        "annotation budget."),
+        "it is intended for unbiased evaluation rather than efficient positive "
+        "example discovery."),
     needs=("score",),
 )
 
@@ -340,12 +285,12 @@ STRATEGIES: Tuple[Strategy, ...] = (
 
 
 def strategy_keys() -> Tuple[str, ...]:
-    """Every strategy key, in menu order."""
+    """Return all strategy keys in menu order."""
     return tuple(entry.key for entry in STRATEGIES)
 
 
 def implemented_keys() -> Tuple[str, ...]:
-    """The keys :func:`run` can actually execute today."""
+    """Return the strategy keys currently supported by :func:`run`."""
     return tuple(entry.key for entry in STRATEGIES if entry.implemented)
 
 
@@ -368,7 +313,7 @@ def strategy(key: Any) -> Strategy:
 
 
 def menu() -> Tuple[str, ...]:
-    """Every entry as one line of prose, for a chooser that shows them."""
+    """Return one user-facing description for each strategy."""
     return tuple(entry.describe() for entry in STRATEGIES)
 
 
@@ -378,7 +323,7 @@ def menu() -> Tuple[str, ...]:
 
 @dataclass
 class AnnotationRequest:
-    """Everything a strategy needs, and every knob it can be run with.
+    """Configure cell selection, model fitting, and holdout evaluation.
 
     :param frame: one row per cell, with the score column, the acquisition
         metadata the split level needs, and whatever measurements are to be
@@ -386,49 +331,42 @@ class AnnotationRequest:
     :param score_column: the per-object classification score.
     :param feature_columns: the columns to fit on. ``None`` means infer
         them -- see :func:`feature_columns`.
-    :param score_inputs: the columns the score is a function of. ``None``
-        means infer them -- see :func:`score_input_columns`. Naming them
-        explicitly is the exact form of the leakage control; inferring them
-        is the approximation offered when the classifier's feature list is
-        not to hand.
-    :param group_by: the independence level a split may not cross;
+    :param score_inputs: Columns used to calculate the score. ``None`` infers
+        them with :func:`score_input_columns`; an explicit list provides the
+        more reliable leakage specification.
+    :param group_by: Independence level that a split may not cross;
         ``'well'``, ``'field'``, ``'plate'`` or ``'cell'``.
-    :param wells: the chosen guide wells. A well matches when every token
-        of the name given is one of the well's own identity tokens, so
+    :param wells: Selected guide wells. A well matches when every supplied
+        name token is part of that well's identity, so
         ``'r1_c1'`` matches the well ``plate1/r1/c1``. Empty means the
-        whole screen is eligible, which the run says in a note.
-    :param label_column: a column of existing human annotations. When it
-        holds two or more classes the run uses them and the score's trap
-        does not apply to the hold-out; without it the hold-out labels come
-        from the score itself and every report says so.
-    :param positive_control_wells: wells whose cells are known positives.
-    :param negative_control_wells: wells whose cells are known negatives.
-    :param n_positive: how many cells the positive set holds, and the size
-        of the matched contrast draw and of every queue.
-    :param holdout_fraction: the share of wells held aside at random before
-        any strategy chooses anything.
-    :param seed: the one seed. Same seed, same selection, same split.
-    :param leakage: one of :data:`LEAKAGE_MODES`.
+        complete screen is eligible.
+    :param label_column: Column containing existing manual annotations. If it
+        contains at least two classes, those annotations define the holdout
+        labels; otherwise labels are derived from the score.
+    :param positive_control_wells: Wells whose cells are known positives.
+    :param negative_control_wells: Wells whose cells are known negatives.
+    :param n_positive: Size of the positive set, matched contrast draw, and
+        annotation queues.
+    :param holdout_fraction: Fraction of independence groups reserved before
+        strategy-specific selection.
+    :param seed: Random seed controlling selection and splitting.
+    :param leakage: One of :data:`LEAKAGE_MODES`.
     :param model: ``'auto'``, ``'xgboost'`` or ``'hist_gradient_boosting'``.
     :param measure: the uncertainty measure, from
         :data:`spacr.active_learning.UNCERTAINTY_MEASURES`.
-    :param n_clusters: clusters for diversity sampling; 0 means one per
-        cell in the budget, which is what makes it a representative each.
-    :param n_bins: score strata.
-    :param confidence: the probability a self-training round needs before
-        it accepts its own prediction as a label.
-    :param rounds: the most self-training rounds to run.
-    :param neighbours: neighbours per seed for propagation.
-    :param distance_quantile: the propagation radius, as a quantile of the
-        observed nearest-neighbour distances. The radius it resolves to is
-        reported in the result.
-    :param distance_cut: the propagation radius outright, in standardised
-        feature space, when the caller would rather set the number than
-        have a quantile resolve one. Shown in the result either way,
-        because a cut nobody can see is a cut that can be widened until the
-        labels agree.
-    :param correlation_cut: a feature whose absolute rank correlation with
-        the score reaches this is treated as one of the score's own inputs.
+    :param n_clusters: Cluster count for diversity sampling. Zero uses the
+        annotation budget as the cluster count.
+    :param n_bins: Number of score strata.
+    :param confidence: Minimum self-training probability for accepting a
+        model prediction as a pseudo-label.
+    :param rounds: Maximum number of self-training rounds.
+    :param neighbours: Maximum propagated neighbours per seed.
+    :param distance_quantile: Propagation-radius quantile of observed
+        nearest-neighbour distances.
+    :param distance_cut: Explicit propagation radius in standardized feature
+        space. Overrides ``distance_quantile`` when provided.
+    :param correlation_cut: Absolute rank-correlation threshold for treating
+        a feature as a score input.
     """
 
     frame: pd.DataFrame
@@ -456,7 +394,7 @@ class AnnotationRequest:
     correlation_cut: float = 0.5
 
     def validated(self) -> "AnnotationRequest":
-        """Return self after refusing values no strategy could act on."""
+        """Validate common parameters and return this request."""
         if self.frame is None or not len(self.frame):
             raise AnnotationStrategyError(
                 "There are no cells to annotate: the object table handed to "
@@ -471,8 +409,8 @@ class AnnotationRequest:
         if not 0.0 < float(self.holdout_fraction) < 1.0:
             raise AnnotationStrategyError(
                 "holdout_fraction must be a fraction strictly between 0 and "
-                "1; it is the share of WELLS held aside before anything is "
-                "chosen.")
+                "1; it is the share of independence groups reserved before "
+                "cell selection.")
         return self
 
 
@@ -509,19 +447,15 @@ def feature_columns(frame: pd.DataFrame,
                     score_column: str = DEFAULT_SCORE_COLUMN,
                     explicit: Optional[Sequence[str]] = None
                     ) -> Tuple[str, ...]:
-    """The measurement columns a model may be fitted on.
+    """Return measurement columns suitable for model fitting.
 
-    Columns that identify a row, columns that are a classifier's output, and
-    columns that do not vary are all excluded: a model handed ``rowID`` as a
-    number learns the plate layout, and one handed the score learns the
-    score.
+    Identifier columns, classifier outputs, and invariant columns are
+    excluded to reduce plate-layout and score leakage.
 
     :param frame: the object table.
     :param score_column: the score, which is never a feature.
-    :param explicit: a caller's own list. Names absent from the frame are
-        refused rather than silently dropped, because a feature list that
-        quietly shrinks is a model fitted on something other than what was
-        asked for.
+    :param explicit: Optional explicit feature list. Missing columns raise an
+        error rather than being removed silently.
     :returns: the columns, in table order.
     :raises AnnotationStrategyError: an explicit column is absent, or
         nothing at all is left to fit on.
@@ -557,16 +491,17 @@ def score_input_columns(frame: pd.DataFrame,
                         features: Optional[Sequence[str]] = None,
                         explicit: Optional[Sequence[str]] = None,
                         correlation_cut: float = 0.5) -> Tuple[str, ...]:
-    """The columns the score is a function of, as far as this can be known.
+    """Identify known or likely inputs to the classification score.
 
-    Two rules, and the second is an approximation the caller can replace:
+    Without an explicit input list, two rules are applied:
 
-    * anything whose NAME marks it as a classifier output -- the score
+    * any column whose name marks it as a classifier output -- the score
       itself, probabilities, logits, other prediction columns;
     * any feature whose absolute Spearman correlation with the score
-      reaches ``correlation_cut``. When the classifier's own feature list
-      is available, pass it as ``explicit`` instead: that is the exact
-      answer and this is the stand-in for it.
+      reaches ``correlation_cut``.
+
+    Pass the classifier's feature list as ``explicit`` when available to
+    replace this correlation-based approximation.
 
     :param frame: the object table.
     :param score_column: the score.
@@ -608,15 +543,11 @@ def score_input_columns(frame: pd.DataFrame,
 
 
 def feature_views(columns: Sequence[str]) -> Dict[str, Tuple[str, ...]]:
-    """Split ``columns`` into the intensity view and the shape view.
+    """Partition feature columns into intensity and shape views.
 
-    The families come from :func:`spacr.column_groups.classify`, so the
-    taxonomy is the package's one taxonomy rather than a second guess at
-    what a column name means. Columns in neither family are dealt
-    alternately between the two, so a table whose names the taxonomy does
-    not recognise still yields two views rather than one empty one -- and
-    the two-view strategy reports how many columns each view got, which is
-    where a table like that shows up.
+    Feature families are assigned with :func:`spacr.column_groups.classify`.
+    Unclassified columns are distributed alternately so both views remain
+    usable; the resulting column counts are included in strategy reports.
 
     :param columns: the feature columns.
     :returns: ``{'intensity': (...), 'shape': (...)}``.
@@ -653,7 +584,7 @@ GROUP_SEPARATOR = "\x1f"
 
 
 def readable_group(value: Any) -> str:
-    """One group id as a person reads it: ``plate1/r1/c1``.
+    """Format a group identifier for display, such as ``plate1/r1/c1``.
 
     :param value: a group id from the splitter.
     :returns: the same identity with its parts separated visibly.
@@ -671,13 +602,13 @@ def _identity_tokens(value: Any) -> frozenset:
 
 def wells_selected(groups: Sequence[Any],
                    wanted: Sequence[str]) -> np.ndarray:
-    """A boolean mask over rows whose group is one of ``wanted``.
+    """Return a mask selecting rows whose group matches ``wanted``.
 
     A well matches when every token of the name given is one of the group's
     own tokens, so ``'r1_c1'`` matches ``plate1/r1/c1`` and
     ``'plate2_r1_c1'`` does not. Matching on tokens rather than on the
-    whole string is what lets a user name a well the way the plate map
-    names it without knowing how the split builds its group ids.
+    complete string allows plate-map well names to match internal group
+    identifiers without exposing their separator format.
 
     :param groups: one group id per row.
     :param wanted: the well names chosen.
@@ -700,7 +631,7 @@ def wells_selected(groups: Sequence[Any],
 
 @dataclass(frozen=True)
 class Prepared:
-    """The one setup every strategy shares, built once per run.
+    """Resolved data shared by all strategies in one run.
 
     :ivar frame: the object table, unchanged.
     :ivar groups: one independence-group id per row.
@@ -708,22 +639,17 @@ class Prepared:
     :ivar features: the columns a model may be fitted on.
     :ivar score_inputs: the columns the score is a function of.
     :ivar honest_features: ``features`` with ``score_inputs`` removed.
-    :ivar labels: the reference label per row, 0 or 1. Meaningless where
-        ``known`` is False.
-    :ivar known: which rows carry a usable reference label. Every row in
-        score mode; only the annotated rows when a label column is used,
-        because calling an unannotated cell negative is the bias half this
-        module exists to avoid.
-    :ivar label_source: where those labels came from, in words.
-    :ivar threshold: the score at which the reference label turns 1, or
-        NaN when the labels are human annotations.
-    :ivar holdout: positional indices of the hold-out rows -- every cell of
-        the wells drawn at random before anything was chosen.
-    :ivar selectable: positional indices no strategy is forbidden.
-    :ivar chosen: positional indices inside the chosen guide wells and
-        outside the hold-out; the pool the positive set comes from.
-    :ivar split: the splitter's own provenance for the hold-out.
-    :ivar notes: what the setup had to decide for itself.
+    :ivar labels: Binary reference label per row. Values are valid only where
+        ``known`` is true.
+    :ivar known: Rows carrying a usable reference label.
+    :ivar label_source: Human-readable source of the reference labels.
+    :ivar threshold: Score threshold defining the positive class, or ``NaN``
+        when manual annotations define the labels.
+    :ivar holdout: Positional indices of all rows in reserved holdout groups.
+    :ivar selectable: Positional indices available to strategies.
+    :ivar chosen: Available indices within selected guide wells.
+    :ivar split: Split provenance returned by the grouped splitter.
+    :ivar notes: Decisions and caveats generated while preparing the data.
     """
 
     frame: pd.DataFrame
@@ -744,20 +670,20 @@ class Prepared:
 
     @property
     def annotated(self) -> bool:
-        """True when the labels are human annotations, not the score."""
+        """Return whether reference labels came from manual annotations."""
         return not np.isfinite(self.threshold)
 
     def holdout_labels(self) -> np.ndarray:
-        """The reference labels of the hold-out rows."""
+        """Return reference labels for holdout rows."""
         return self.labels[self.holdout]
 
     def labelled(self) -> np.ndarray:
-        """Selectable rows that carry a usable reference label."""
+        """Return selectable row indices with usable reference labels."""
         return np.asarray([p for p in self.selectable if self.known[p]],
                           dtype=int)
 
     def positive_share(self, positions: Sequence[int]) -> float:
-        """The share of ``positions`` the reference label calls positive."""
+        """Return the positive-label fraction among ``positions``."""
         index = np.asarray(list(positions), dtype=int)
         if index.size == 0:
             return float("nan")
@@ -793,9 +719,8 @@ def _reference_labels(frame: pd.DataFrame, request: AnnotationRequest,
             notes.append(
                 f"Labels are the annotations in {column!r}: "
                 f"{int(known.sum()):,} of {len(frame):,} cells carry one, and "
-                f"{positive!r} is the positive class. The hold-out is scored "
-                "against those annotations, so the score's own trap does not "
-                "reach it.")
+                f"{positive!r} is the positive class. Holdout performance is "
+                "evaluated against these annotations rather than the score.")
             return (labels, known.to_numpy(dtype=bool),
                     f"annotations in {column!r}", float("nan"), notes)
         notes.append(
@@ -829,21 +754,19 @@ def _reference_labels(frame: pd.DataFrame, request: AnnotationRequest,
             f"wells run from {float(np.nanmin(pool)):.6g} to "
             f"{float(np.nanmax(pool)):.6g}.")
     notes.append(
-        f"Labels are a cut on {score!r} at {threshold:.6g} — the score of "
-        f"the {wanted:,}th highest cell in the chosen wells. THE SCORE IS "
-        "THEREFORE BOTH THE LABEL AND A FEATURE: read the fit without the "
-        "score's own inputs, not the one with them.")
+        f"Labels are defined by a {score!r} threshold of {threshold:.6g}, the "
+        f"score of the {wanted:,}th highest cell in the selected wells. The "
+        "score therefore defines the label; use the leakage-controlled fit "
+        "that excludes the score's inputs for interpretation.")
     return (labels, np.ones(len(frame), dtype=bool), f"a cut on {score!r}",
             threshold, notes)
 
 
 def prepare(request: AnnotationRequest) -> Prepared:
-    """Resolve columns, group ids, labels and the hold-out, once.
+    """Resolve columns, group identifiers, labels, and the holdout.
 
-    The hold-out is drawn FIRST, by whole groups, and no strategy may
-    select from it. That ordering is the whole of the second rule: a
-    strategy that could choose from the cells it is later measured on
-    would be marking its own work.
+    Complete independence groups are reserved before strategy-specific
+    selection. Strategies cannot select rows from those groups.
 
     :param request: what to run.
     :returns: the shared setup.
@@ -884,10 +807,10 @@ def prepare(request: AnnotationRequest) -> Prepared:
     honest = tuple(c for c in features if c not in set(inputs))
     if not honest:
         notes.append(
-            "EVERY feature column is one of the score's own inputs, so there "
-            "is no fit left once they are removed. What is reported is the "
-            "leaking fit and nothing else; join measurement columns to these "
-            "rows before believing it.")
+            "Every feature column is identified as a score input, so no "
+            "leakage-controlled fit can be produced. Only the inclusive fit "
+            "is reported; add independent measurement features before "
+            "interpreting its morphology-related performance.")
 
     # THE SPLIT RUNS OVER THE LABELLED ROWS ONLY. Stratifying over rows that
     # carry no annotation would balance the hold-out on a label nobody
@@ -954,7 +877,7 @@ def prepare(request: AnnotationRequest) -> Prepared:
 # ---------------------------------------------------------------------------
 
 def xgboost_available() -> bool:
-    """Whether the boosted-tree package the named method calls for is here."""
+    """Return whether XGBoost can be imported."""
     from importlib.util import find_spec
 
     try:
@@ -1031,16 +954,14 @@ def _standardised(frame: pd.DataFrame,
 
 @dataclass(frozen=True)
 class FitReport:
-    """One fit, and the hold-out number it is allowed to claim.
+    """Summarize model performance on the reserved holdout.
 
     :ivar model: which estimator produced it.
     :ivar features: the columns it was fitted on.
     :ivar n_train: cells fitted on.
     :ivar n_test: hold-out cells scored on.
     :ivar accuracy: hold-out accuracy.
-    :ivar balanced_accuracy: hold-out accuracy averaged over the classes,
-        which is the number to read when the classes are uneven -- and on
-        a screen they always are.
+    :ivar balanced_accuracy: Holdout accuracy averaged across classes.
     :ivar roc_auc: hold-out area under the ROC curve, or None when the
         hold-out holds one class.
     :ivar positive_share_train: share of the training rows labelled
@@ -1064,7 +985,7 @@ class FitReport:
 
     @property
     def lift(self) -> float:
-        """How far above chance the fit is, on the balanced scale.
+        """Return performance above the 0.5 chance level.
 
         Balanced accuracy has chance at 0.5 whatever the class balance, and
         so does the area under the ROC curve, so both give a lift that can
@@ -1075,7 +996,7 @@ class FitReport:
         return float(base) - 0.5
 
     def summary(self) -> str:
-        """The fit in one line, hold-out numbers only."""
+        """Return a one-line summary of holdout performance."""
         auc = ("n/a" if self.roc_auc is None else f"{self.roc_auc:.3f}")
         return (
             f"{self.model} on {len(self.features)} column(s): fitted on "
@@ -1087,15 +1008,15 @@ class FitReport:
 
 @dataclass(frozen=True)
 class LeakageReport:
-    """The same selection fitted with and without the score's own inputs.
+    """Compare fits that include and exclude score-derived inputs.
 
     :ivar mode: the leakage mode the run was asked for.
-    :ivar dropped: the columns removed to make the honest fit.
+    :ivar dropped: Columns removed from the leakage-controlled fit.
     :ivar with_score_inputs: the fit that keeps them, or None.
     :ivar without_score_inputs: the fit that removes them, or None.
-    :ivar survival: the share of the leaking fit's lift over chance that
-        the honest fit keeps. None when either fit is missing or the
-        leaking fit was itself at chance, where the ratio means nothing.
+    :ivar survival: Fraction of the inclusive fit's lift over chance retained
+        after score inputs are removed. ``None`` if either fit is absent or
+        the inclusive fit is at chance.
     """
 
     mode: str
@@ -1105,13 +1026,13 @@ class LeakageReport:
     survival: Optional[float] = None
 
     def summary(self) -> str:
-        """Both numbers and the one sentence that compares them."""
+        """Return both fit summaries and their leakage comparison."""
         lines: List[str] = []
         if self.with_score_inputs is not None:
-            lines.append("WITH the score's own inputs: "
+            lines.append("Including score inputs: "
                          + self.with_score_inputs.summary())
         if self.without_score_inputs is not None:
-            lines.append("WITHOUT them (" + (
+            lines.append("Excluding score inputs (" + (
                 ", ".join(self.dropped[:6]) or "nothing to drop")
                 + ("…" if len(self.dropped) > 6 else "") + "): "
                 + self.without_score_inputs.summary())
@@ -1124,13 +1045,14 @@ class LeakageReport:
         if self.survival is not None:
             lines.append(
                 f"{self.survival:.0%} of the fit's lift over chance survives "
-                "removing the score's own inputs. A number near zero means "
-                "the model learned the score and no morphology.")
+                "after removing score inputs. A value near zero suggests that "
+                "performance depended on score reconstruction rather than "
+                "independent morphological information.")
         elif self.with_score_inputs is not None \
                 and self.without_score_inputs is not None:
             lines.append(
-                "The fit WITH the score's inputs is already at chance, so "
-                "there is no lift for the honest fit to keep a share of.")
+                "The fit including score inputs is at chance, so retained "
+                "lift cannot be calculated.")
         return "\n".join(lines)
 
 
@@ -1153,8 +1075,7 @@ def _score_holdout(prepared: Prepared, probabilities: Any, n_train: int,
     :param model: the estimator's name.
     :returns: the hold-out report.
     """
-    from sklearn.metrics import (accuracy_score, balanced_accuracy_score,
-                                 roc_auc_score)
+    from sklearn.metrics import accuracy_score, balanced_accuracy_score, roc_auc_score
 
     values = np.asarray(probabilities, dtype=float).reshape(-1)
     y_test = prepared.labels[prepared.holdout]
@@ -1274,11 +1195,11 @@ def _leakage_report(prepared: Prepared, train: Sequence[int],
 ROLES: Dict[str, str] = {
     "positive": "chosen as a positive example and fitted on",
     "contrast": "drawn at random as the contrast set and fitted on",
-    "unlabelled": "the contrast set, treated as UNLABELLED rather than "
+    "unlabelled": "the contrast set, treated as unlabelled rather than "
                   "negative",
     "anchor_positive": "a cell of a positive control well",
     "anchor_negative": "a cell of a negative control well",
-    "queue": "queued for a person to annotate; nothing is fitted on it yet",
+    "queue": "queued for manual annotation; not used for model fitting",
     "propagated": "given a neighbour's label inside the distance cut",
     "pseudo": "labelled by the model itself in a self-training round",
     "holdout": "held aside at random before anything was chosen; never "
@@ -1288,7 +1209,7 @@ ROLES: Dict[str, str] = {
 
 @dataclass(frozen=True)
 class AnnotationResult:
-    """What one strategy chose, what it fitted, and what it may claim.
+    """Store one strategy's selection, predictions, and evaluation.
 
     :ivar strategy: the key that produced it.
     :ivar title: that strategy's name on screen.
@@ -1301,9 +1222,8 @@ class AnnotationResult:
     :ivar fit: the headline hold-out report, or None.
     :ivar leakage: the same selection with and without the score's own
         inputs, or None when nothing was fitted.
-    :ivar notes: everything the run had to decide, and everything a reader
-        has to know before believing the numbers.
-    :ivar counts: the arithmetic, as data.
+    :ivar notes: Decisions and limitations recorded during the run.
+    :ivar counts: Selection and evaluation counts.
     """
 
     strategy: str
@@ -1317,7 +1237,7 @@ class AnnotationResult:
     counts: Mapping[str, Any] = field(default_factory=dict)
 
     def role_counts(self) -> Dict[str, int]:
-        """How many cells each role holds, hold-out included."""
+        """Return cell counts by annotation role, including the holdout."""
         out: Dict[str, int] = {}
         for frame in (self.selection, self.holdout):
             if frame is None or not len(frame):
@@ -1327,7 +1247,7 @@ class AnnotationResult:
         return out
 
     def summary(self) -> str:
-        """The whole run in prose: what was chosen, fitted, and measured."""
+        """Return a report of selections, fitting, and holdout evaluation."""
         lines = [self.title, ""]
         roles = self.role_counts()
         if roles:
@@ -1350,7 +1270,7 @@ class AnnotationResult:
         return "\n".join(lines)
 
     def write(self, folder: str) -> Dict[str, str]:
-        """Write the selection, the hold-out, the predictions and the prose.
+        """Write selection, holdout, prediction, and report files.
 
         :param folder: the directory to write into; created when absent.
         :returns: ``{what: path}`` for every file written.
@@ -1560,9 +1480,8 @@ def _seed_training(prepared: Prepared, request: AnnotationRequest
     train = np.sort(np.concatenate([positives, contrast]))
     notes.append(
         "There are no annotations to seed a model with, so the seed is the "
-        "top-scoring-against-random pair — which carries that method's trap "
-        "into this one, and is why the fit is reported without the score's "
-        "own inputs as well.")
+        "top-scoring and random-contrast pair. Because these labels are "
+        "score-derived, the report also excludes the score's inputs.")
     return train, labels, notes
 
 
@@ -1591,8 +1510,8 @@ def _queue_result(prepared: Prepared, request: AnnotationRequest,
         f"Class balance: {prepared.positive_share(queue):.1%} of the "
         f"{queue.size:,} queued cell(s) are above the positive cut, against "
         f"{prepared.positive_share(baseline):.1%} of a plain random draw of "
-        "the same size. Nothing is fitted on a queue until somebody has "
-        "annotated it.")
+        "the same size. Queued cells are not used for fitting until manual "
+        "annotations are available.")
     return AnnotationResult(
         strategy=entry.key, title=entry.title,
         selection=_selection_frame(prepared, {"queue": queue}, extra),
@@ -1621,14 +1540,13 @@ def _fitted_result(prepared: Prepared, request: AnnotationRequest,
     if leakage.without_score_inputs is not None:
         lines.append(
             "The predictions applied to the rest of the screen come from the "
-            "fit WITHOUT the score's own inputs, because a prediction that "
-            "is a copy of the score tells a reader nothing they did not "
-            "already have.")
+            "fit excluding the score inputs, reducing direct reconstruction "
+            "of the original score.")
     elif leakage.with_score_inputs is not None:
         lines.append(
             "The predictions applied to the rest of the screen come from the "
-            "fit WITH the score's own inputs, so they may be little more "
-            "than a copy of the score.")
+            "fit including score inputs and may therefore reproduce the "
+            "original score.")
     else:
         lines.append(
             "Nothing was fitted and nothing was predicted: there was no fit "
@@ -1738,8 +1656,8 @@ def _run_diversity(prepared: Prepared,
         "is queued. Cluster sizes run from "
         f"{min(counted):,} to {max(counted):,} cells, so the budget is spread "
         "evenly over clusters that are not evenly sized.",
-        "A cluster is not a phenotype: a plate effect or a focus artefact "
-        "clusters just as tightly as a morphology does.",
+        "Clusters may represent plate effects or focus artifacts rather than "
+        "biological phenotypes.",
     ]
     if sampled:
         notes.append(sampled)
@@ -1755,7 +1673,7 @@ def _run_control_anchors(prepared: Prepared,
     if not list(request.positive_control_wells) or \
             not list(request.negative_control_wells):
         raise AnnotationStrategyError(
-            "Control wells as anchors needs BOTH a positive and a negative "
+            "Control-well anchoring requires a positive and a negative "
             "control well list; it was given "
             f"{list(request.positive_control_wells)} and "
             f"{list(request.negative_control_wells)}. Name them, or choose a "
@@ -1781,12 +1699,10 @@ def _run_control_anchors(prepared: Prepared,
     notes = [
         f"Labels come from the plate: {positives.size:,} cell(s) of the "
         f"positive control wells and {negatives.size:,} of the negative "
-        "ones, with no manual annotation at all.",
-        "Control wells differ from sample wells in more than the phenotype — "
-        "position on the plate, seeding density, edge effects — so a model "
-        "fitted on them can separate the WELLS rather than the cells. The "
-        "hold-out is drawn from every well, which is what makes that visible "
-        "rather than invisible.",
+        "ones, without manual cell annotations.",
+        "Control wells may differ from sample wells in plate position, "
+        "seeding density, or edge effects. Holdout groups include all well "
+        "types so performance can reveal reliance on these technical factors.",
     ]
     return _fitted_result(
         prepared, request, CONTROL_ANCHORS,
@@ -1849,21 +1765,21 @@ def _run_pu_learning(prepared: Prepared,
     called_rescaled = float(np.mean(posterior >= 0.5))
     lines = list(notes)
     lines.append(
-        f"The contrast set is UNLABELLED, not negative: the model fits "
+        f"The contrast set is unlabelled rather than negative: the model fits "
         f"P(labelled | cell) and its output is divided by the labelling rate "
         f"c = {rate:.3f}, estimated on {labelled.size:,} held-out positive(s) "
         f"through {inner_split.summary()}")
     lines.append(
-        f"Dividing by c moves the positive call and nothing else: it calls "
+        f"Dividing by c changes the positive threshold: it calls "
         f"{called_rescaled:.1%} of the hold-out positive where treating the "
-        f"contrast set as negative calls {called_raw:.1%}. The cells are not "
-        "reordered, so the ROC AUC is the same either way — the bias this "
-        "corrects is in WHERE the line is drawn, not in which cells lead.")
+        f"contrast set as negative calls {called_raw:.1%}. Cell ranking is "
+        "unchanged, so ROC AUC is identical; the correction affects the "
+        "classification threshold.")
     lines.append(
         "c is estimated under the assumption that a positive was labelled "
-        "independently of its features. Taking the TOP of the score breaks "
-        "that assumption, so c is a floor on the true labelling rate and the "
-        "correction is a partial one.")
+        "independently of its features. Top-score selection violates that "
+        "assumption, so c is a lower bound on the true labelling rate and the "
+        "correction is partial.")
     predictions = _apply_model(prepared, estimator, columns, train)
     if predictions is not None:
         predictions["probability"] = np.clip(
@@ -1933,16 +1849,16 @@ def _run_self_training(prepared: Prepared,
         raise NotEnoughLabels("No self-training round could be fitted.")
     lines = list(notes)
     lines.append(
-        "The audit set is the hold-out: fixed before the first round, held "
-        "out of every round, and the only thing any round is measured on.")
+        "The audit set is fixed before the first round and excluded from all "
+        "self-training rounds; reported performance is evaluated on this set.")
     lines.append("Audit curve (round, cells fitted on, balanced accuracy): "
                  + "; ".join(f"{r}, {n:,}, {a:.3f}" for r, n, a in curve))
     lines.append(stopped or
                  f"ran the full {len(curve)} round(s) without the audit "
                  "turning down")
     lines.append(f"The reported fit is round {best_round}, the best the audit "
-                 "saw; the later rounds are kept in the curve so the drift is "
-                 "visible rather than discarded.")
+                 "set observed. Later rounds remain in the curve to show "
+                 "potential performance drift.")
     final = np.flatnonzero(known)
     leakage, model, used = _leakage_report(prepared, final, request, labels)
     predictions = _apply_model(prepared, model, used, final)
@@ -2011,8 +1927,7 @@ def _run_two_view_disagreement(prepared: Prepared,
         lines.append(f"The {name} view on the hold-out: {report.summary()}")
     lines.append(
         f"The {best} view carries more of the signal, so a cell the other "
-        "view contradicts it on is where a single model would be "
-        "confidently wrong.")
+        "view contradicts receives a high disagreement priority.")
     return _queue_result(prepared, request, TWO_VIEW_DISAGREEMENT, ranked,
                          lines, extra={"view_gap": gap}, fit=fits[best],
                          counts={"intensity_columns": len(views["intensity"]),
@@ -2056,10 +1971,9 @@ def _run_score_strata(prepared: Prepared,
         f"{bins} equal-count strata of {request.score_column!r} over "
         f"{usable.size:,} selectable cell(s), {per_bin} cell(s) drawn at "
         f"random from each; {order.size:,} queued in all.",
-        "A model shown only the extremes has never seen the middle of the "
-        "screen, which is most of it. This buys calibration rather than "
-        "prevalence: the low strata hold few positives and the budget spent "
-        "there buys few positive labels.",
+        "Sampling across the score range improves calibration coverage but "
+        "usually yields fewer positive annotations than selecting only the "
+        "highest-scoring cells.",
     ]
     if empty:
         notes.append(f"{empty} stratum/strata are empty because ties in the "
@@ -2160,9 +2074,9 @@ def _run_neighbour_propagation(prepared: Prepared,
     lines.append(
         f"{share:.0%} of the labels that propagated crossed a "
         f"{prepared.level} boundary — the seed and the cell it labelled were "
-        "in different ones. A large share there means the cut is measuring "
-        "the plate rather than the phenotype, and the radius should come "
-        "down.")
+        "in different groups. A high cross-group fraction may indicate that "
+        "the radius captures plate structure rather than phenotype; consider "
+        "reducing the propagation radius.")
     return _fitted_result(
         prepared, request, NEIGHBOUR_PROPAGATION,
         {"positive": seeds[labels[seeds] == 1],
@@ -2194,8 +2108,8 @@ def _run_random_holdout(prepared: Prepared,
         f"{prepared.positive_share(draw):.1%} of the draw is above the "
         "positive cut, against "
         f"{prepared.positive_share(prepared.chosen):.1%} of the chosen "
-        "wells. That difference is what a clever strategy is buying, and it "
-        "is the only measurement that can say so.",
+        "wells. This difference quantifies enrichment produced by targeted "
+        "selection relative to random sampling.",
     ]
     counts = {"drawn": int(draw.size),
               "positive_share": float(prepared.positive_share(draw)),
@@ -2206,9 +2120,8 @@ def _run_random_holdout(prepared: Prepared,
             notes, counts=counts)
     except NotEnoughLabels as refusal:
         notes.append(
-            f"Nothing was fitted: {refusal}. That is the finding — a budget "
-            "spent at random on a screen this unbalanced buys too few "
-            "positives to fit on, which is why the other strategies exist.")
+            f"No model was fitted: {refusal}. Under this class imbalance, the "
+            "random sample contains too few positive examples for fitting.")
         return AnnotationResult(
             strategy=RANDOM_HOLDOUT.key, title=RANDOM_HOLDOUT.title,
             selection=_selection_frame(prepared, {"contrast": draw}),
@@ -2244,8 +2157,7 @@ def run(key: Any, request: AnnotationRequest,
         strategies are being compared on one hold-out. Built here when it
         is not given.
     :returns: what the strategy chose, fitted and measured.
-    :raises StrategyNotImplemented: the entry is on the menu and has no
-        implementation. It refuses out loud rather than selecting nothing.
+    :raises StrategyNotImplemented: The selected entry has no implementation.
     :raises AnnotationStrategyError: the data cannot support the strategy.
     """
     entry = strategy(key)
@@ -2253,8 +2165,8 @@ def run(key: Any, request: AnnotationRequest,
     if not entry.implemented or runner is None:
         raise StrategyNotImplemented(
             f"{entry.title!r} is on the menu but is not implemented yet, so "
-            "it selects nothing rather than pretending to. The strategies "
-            f"that run today are: {', '.join(implemented_keys())}.")
+            "no cells were selected. Available strategies are: "
+            f"{', '.join(implemented_keys())}.")
     setup = prepare(request) if prepared is None else prepared
     result = runner(setup, request)
     return AnnotationResult(
