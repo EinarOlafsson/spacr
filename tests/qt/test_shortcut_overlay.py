@@ -12,7 +12,7 @@ from __future__ import annotations
 import pytest
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QKeyEvent
+from PySide6.QtGui import QKeyEvent, QKeySequence
 from PySide6.QtWidgets import QLabel, QWidget
 
 from spacr.qt.shortcuts import (
@@ -190,6 +190,117 @@ def test_the_new_bindings_are_both_declared_and_wired(window):
         assert keys in bound, f"{keys} is on the cheat sheet but not bound"
 
 
+def _open_console(window, qtbot):
+    """The Mask screen's console, unfolded and on screen.
+
+    The console is foldable and a folded one is `isHidden()`, which is
+    exactly the state in which its own `Ctrl+End` could never fire: a
+    `Qt.WindowShortcut` whose parent widget is hidden is not active.
+    """
+    window._on_nav_selected("mask")
+    qtbot.wait(50)
+    screen = window._screens["mask"]
+    screen._console_folder.set_shut(False)
+    qtbot.wait(20)
+    console = screen._console
+    assert console.isVisible(), "the console never reached the screen"
+    return console
+
+
+def test_ctrl_end_really_sends_the_console_to_its_newest_line(window, qtbot):
+    """DRIVEN, not looked up in a table.
+
+    `Ctrl+End` was declared three times and bound nowhere `installed()` could
+    see it: the only holder was the console panel's own, which does not
+    exist until a module screen is built and is inert while that panel is
+    hidden. So a fresh window -- the one a user reads the cheat sheet on --
+    carried no `Ctrl+End` at all.
+
+    THE WINDOW'S BINDING IS THE ONE UNDER TEST. The panel's copy stands down
+    (two live holders of one key is ambiguous, and an ambiguous shortcut
+    fires neither), so it is asserted inert BEFORE the key is pressed:
+    whatever moves the scrollbar below can only be the window's.
+    """
+    console = _open_console(window, qtbot)
+    _activate(window, qtbot)
+    qtbot.wait(50)
+    assert not console._end_shortcut.isEnabled(), \
+        "the panel still holds Ctrl+End; this would not be the window's jump"
+    # The range is given to the bar rather than grown out of console output,
+    # for the reason the console's own tests give: headless, the entries lay
+    # out to nothing and the bar's maximum is 0, so EVERY position is the
+    # end and a jump could not be told from doing nothing. It is set after
+    # the window is activated, because that runs a layout pass which
+    # recomputes the range away -- and asserted below, so a range that goes
+    # missing fails the test rather than quietly emptying it.
+    bar = console._scroll.verticalScrollBar()
+    bar.setRange(0, 2000)
+    bar.setValue(0)
+    console._follow_output = False
+    assert bar.maximum() > 0 and bar.value() == 0
+
+    qtbot.keyClick(window, Qt.Key_End, Qt.ControlModifier)
+
+    assert bar.maximum() > 0, \
+        "the scrollbar lost its range; nothing here was proved"
+    assert bar.value() == bar.maximum()
+    # Both halves of the jump, because they are one decision: a console that
+    # jumped without resuming the follow would slide off the end on the very
+    # next line written.
+    assert console._follow_output
+
+
+def test_ctrl_end_is_harmless_on_a_screen_with_no_console(window, qtbot):
+    """Home has none, and "harmless" is more than "it did not raise": the
+    screen is left exactly as it was found, rather than the key navigating
+    somewhere or taking the caret off whatever had it."""
+    window._on_nav_selected("__home__")
+    qtbot.wait(20)
+    _activate(window, qtbot)
+    home = window._stack.currentWidget()
+    before = window.focusWidget()
+
+    qtbot.keyClick(window, Qt.Key_End, Qt.ControlModifier)
+
+    assert window._stack.currentWidget() is home
+    assert window.focusWidget() is before
+
+
+def test_only_one_ctrl_end_is_live_at_a_time(window, qtbot):
+    """Two holders of one key is Qt's definition of AMBIGUOUS, and an
+    ambiguous shortcut fires NEITHER handler -- measured: with the window's
+    binding and the console's own both live, `activated` stays silent on
+    both. The window's is the one that reaches every screen, so the panel's
+    copy stands down as the screen is shown.
+    """
+    from PySide6.QtGui import QShortcut
+
+    console = _open_console(window, qtbot)
+    live = [sc for sc in window.findChildren(QShortcut)
+            if sc.key() == QKeySequence("Ctrl+End") and sc.isEnabled()]
+    assert len(live) == 1, [sc.parentWidget() for sc in live]
+    assert console._end_shortcut in window.findChildren(QShortcut)
+    assert not console._end_shortcut.isEnabled()
+
+
+def test_the_cheat_sheet_describes_ctrl_end_once(window, qtbot):
+    """It was declared three times -- a prose block and two `ShortcutSpec`
+    entries whose descriptions disagreed ("Jump to the newest console line"
+    against "Jump to the newest line") -- so the map printed the same key
+    twice, under two categories, saying two things.
+    """
+    from spacr.qt.shortcuts import mapped, native
+
+    ends = [spec for spec in mapped() if spec.keys == "Ctrl+End"]
+    assert len(ends) == 1, [spec.label for spec in ends]
+
+    overlay = show_cheat_sheet(window)
+    qtbot.addWidget(overlay)
+    printed = [label.text() for label in overlay._card.findChildren(QLabel)]
+    assert printed.count(native("Ctrl+End")) == 1, printed
+    overlay.dismiss()
+
+
 def _activate(window, qtbot) -> None:
     """Make ``window`` the active window, and prove it took.
 
@@ -334,3 +445,20 @@ def test_menu_commands_survive_being_collected(window, qtbot):
 def test_installing_shortcuts_twice_is_harmless(window):
     install(window)  # already installed by MainWindow.__init__
     assert getattr(window, "_settings_search_watcher", None) is not None
+
+
+def test_installing_them_twice_does_not_bind_anything_twice(window):
+    """"Harmless" has to mean this, because for a shortcut it is not a
+    nicety: two holders of one key make it AMBIGUOUS, and an ambiguous
+    shortcut fires NEITHER handler. A reload path that called `install`
+    again would have silenced every key it re-bound.
+    """
+    from PySide6.QtGui import QShortcut
+
+    install(window)  # already installed by MainWindow.__init__
+
+    keys = [sc.key().toString() for sc in window.findChildren(
+        QShortcut, options=Qt.FindDirectChildrenOnly)]
+    assert keys
+    assert len(keys) == len(set(keys)), \
+        [k for k in set(keys) if keys.count(k) > 1]

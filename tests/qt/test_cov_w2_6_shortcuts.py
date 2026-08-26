@@ -57,14 +57,17 @@ def test_the_map_is_the_window_wide_keys_plus_the_per_screen_ones():
     assert all(spec.scope != sc.EVERYWHERE for spec in sc.SCREEN_SHORTCUTS)
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "Ctrl+End is declared in SHORTCUTS and so is claimed by installed(), but "
-    "install() never binds it -- the console panel does, on itself. It "
-    "belongs in BOUND_ELSEWHERE beside Ctrl+B, or install() has to bind it."))
 def test_install_binds_every_key_it_is_responsible_for(window):
     """`installed()` is the promise that `install()` wires these; a key it
     lists and nobody binds on the window is a cheat-sheet entry that does
-    nothing where the sheet says it works."""
+    nothing where the sheet says it works.
+
+    It held an expected failure for `Ctrl+End`, which `installed()` claimed
+    while the only holder was the console panel's own -- built with the
+    screen, inert while that panel is hidden, and absent from a fresh
+    window. `install()` binds it now, so the promise is kept for every key
+    and the expected failure is gone.
+    """
     sc.install(window)
     bound = {shortcut.key().toString(QKeySequence.NativeText)
              for shortcut in window.findChildren(QShortcut)}

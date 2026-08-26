@@ -546,6 +546,10 @@ class RegressionResultsPanel(QWidget):
         # `FlowLayout` puts the overflow on a new line instead (236 C10).
         controls_row = FlowHost()
         controls = FlowLayout(controls_row, spacing=6)
+        #: The wrapping row itself, named so its HEIGHT can be measured: a
+        #: row that wrapped and a row that overlapped both fit the panel, and
+        #: only the height tells them apart.
+        self._controls_row = controls_row
 
         self._run_label = QLabel(self.NO_RUN_NAMED)
         self._run_label.setObjectName("resultsRunName")
