@@ -308,7 +308,10 @@ def test_a_stand_in_passes_only_the_arguments_the_real_factory_declares():
     ``**kwargs`` blindly would hand both to ``lambda: Screen()`` and raise
     ``TypeError`` on every open.
     """
-    lazy = LazyScreenFactory("spacr.qt.app_catalog", "_probe_zero_arg")
+    # The module and attribute are never reached: `_resolved` is set by hand
+    # so each of the three factory shapes can be tried against one stand-in,
+    # which is what the argument rule is about and all it is about.
+    lazy = LazyScreenFactory("never.imported", "never_looked_up")
     seen = {}
 
     def zero_arg():

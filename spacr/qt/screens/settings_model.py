@@ -9240,8 +9240,8 @@ class SettingsWidgets:
         The same question :meth:`refresh_object_visibility` answers before it
         moves anything, asked on its own so the screen can put it to the rule
         BEFORE it draws a row rather than after. A row the rule was always
-        going to hide is a row worth not building: on Mask that is 1,461 of
-        the panel's 1,538.
+        going to hide is a row worth not captioning, and on Mask that is most
+        of the panel.
 
         :returns: setting keys, empty when the rule cannot be decided.
         """
