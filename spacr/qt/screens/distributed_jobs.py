@@ -45,8 +45,8 @@ from ..bridge import make_thread
 from ..i18n import tr
 from ..iconset import icon
 from ..theme import SPACING, active_palette
-from ..widgets import Card, Divider, InfoLink
-from .settings_model import api_docs_url, attach_api_tooltip
+from ..widgets import Card, Divider
+from .settings_model import attach_api_tooltip
 
 LOG = logging.getLogger(__name__)
 
@@ -293,30 +293,47 @@ class ExecutionProfileDialog(QDialog):
         field: QWidget,
         api_key: str,
     ) -> None:
-        """Add a hover-help label and teal API dot beside one profile field."""
+        """Put this field's hover help, API link and all, on its label.
+
+        NOTHING IS DRAWN BESIDE THE LABEL. A teal API dot used to be, and
+        the settings forms had already dropped theirs: a column of dots
+        reads as texture rather than as one affordance per setting. The
+        link is the last line of the help, where the reader was already
+        finding it.
+        """
         help_text = field.toolTip() or (
             f"Controls {source_label.casefold()} for distributed execution."
         )
         label = QLabel(tr(source_label), self)
         label.setObjectName("SettingsLabel")
+        # Module first, then the setting: the dot beside this label was
+        # built with the arguments this way round and reached the module's
+        # own page, while the label's help -- given them the other way --
+        # named the help text as the module and landed on the documentation
+        # index. With the dot gone, the help is the only route to the page.
         attach_api_tooltip(
-            label, help_text, "distributed_jobs", api_key
+            label, "distributed_jobs", api_key, help_text
         )
-        info = InfoLink(
-            api_docs_url("distributed_jobs", api_key),
-            tooltip=(
-                f"Open spaCR API documentation for {source_label.casefold()}."
-            ),
-            parent=self,
-        )
-        wrapper = QWidget(self)
-        row = QHBoxLayout(wrapper)
-        row.setContentsMargins(0, 0, 0, 0)
-        row.setSpacing(SPACING["xs"])
-        row.addWidget(label)
-        row.addWidget(info)
-        row.addStretch(1)
-        form.addRow(wrapper, field)
+        label.setCursor(Qt.WhatsThisCursor)
+        label.setProperty("settingHelpLabel", True)
+        self._install_help_filter(label)
+        form.addRow(label, field)
+
+    def _install_help_filter(self, label: QWidget) -> None:
+        """Give ``label`` the clickable sticky popup the settings forms use.
+
+        A native Qt tooltip cannot be walked into, so its API link cannot be
+        clicked -- the pointer leaving the label takes the link with it.
+        One filter per dialog: Qt keeps a LIST of event filters, so a second
+        object would show two popups for one hover.
+        """
+        filter_ = getattr(self, "_api_tooltip_filter", None)
+        if filter_ is None:
+            from .settings_model import _ApiTooltipFilter
+            filter_ = _ApiTooltipFilter(self)
+            self._api_tooltip_filter = filter_
+        label.removeEventFilter(filter_)
+        label.installEventFilter(filter_)
 
     def _sync_backend(self, *_args) -> None:
         """Show only controls meaningful to the selected backend."""

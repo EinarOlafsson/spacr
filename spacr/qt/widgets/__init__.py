@@ -18,6 +18,7 @@ and pandas is needed anyway.
 """
 from .ai_chat_panel import AIChatPanel
 from .ai_toggle_label import AiToggleLabel
+from .api_help_label import ApiHelpLabel
 from .availability_panel import (AvailabilityPanel, disable_combo_row,
                                  explain, run_install_offer)
 from .card import Card
@@ -81,7 +82,7 @@ def __dir__():
 
 
 __all__ = [
-    "AIChatPanel", "AiToggleLabel", "Card",
+    "AIChatPanel", "AiToggleLabel", "ApiHelpLabel", "Card",
     "attach_column_picker",
     "ColumnPickerDialog",
     "ColumnPickerButton", "ColumnWell", "ConsolePanel", "DataFilterPanel",

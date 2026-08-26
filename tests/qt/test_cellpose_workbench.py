@@ -385,14 +385,81 @@ def test_the_factory_wires_the_host_the_way_a_module_page_is_wired(qtbot):
 
 
 def test_the_api_link_follows_the_visible_half(workbench):
-    """One masthead serves two modules, so its ⓘ has to point at the one on
-    screen — the embedded pages' own mastheads are hidden."""
-    from spacr.qt.screens.settings_model import api_docs_url
+    """One masthead serves two modules, so its API link has to reach the one
+    on screen — the embedded pages' own mastheads are hidden.
 
-    link = workbench._header.info_link
-    assert link is not None
-    assert link.url() == api_docs_url(TRAIN_KEY)
+    There is no dot to read it off any more: the link is the last line of
+    the description's hover help, so that is where it is read from.
+    """
+    from spacr.qt.screens.settings_model import api_docs_url
+    from spacr.qt.widgets.info_link import InfoLink
+
+    assert not workbench.findChildren(InfoLink), (
+        "the masthead grew an information dot back")
+    help_label = workbench._header.api_help
+    assert help_label is not None
+    assert help_label.url() == api_docs_url(TRAIN_KEY)
+    assert TRAIN_KEY in str(help_label.property("moduleApiAppKey"))
     workbench._tabs.setCurrentIndex(1)
-    assert link.url() == api_docs_url(APPLY_KEY)
+    assert help_label.url() == api_docs_url(APPLY_KEY)
     assert workbench.train_screen._header.isHidden()
     assert workbench.apply_screen._header.isHidden()
+
+
+def test_the_help_the_hover_shows_carries_the_visible_half_s_link(
+        workbench, qtbot):
+    """Measured through the popup, which is what the reader actually gets.
+
+    The dot could be pointed at the right page and still be the wrong
+    answer if nothing showed it; this drives the hover and reads the link
+    out of the tooltip that appears.
+    """
+    from PySide6.QtCore import QEvent
+    from PySide6.QtWidgets import QApplication
+
+    from spacr.qt.screens.settings_model import api_docs_url
+    from spacr.qt.widgets.hover_tooltip import HoverTooltip
+
+    workbench.show()
+    qtbot.waitExposed(workbench)
+    help_label = workbench._header.api_help
+    tooltip = HoverTooltip.instance()
+
+    QApplication.sendEvent(help_label, QEvent(QEvent.Type.Enter))
+    assert tooltip.isVisible()
+    assert WORKBENCH_INTRO in tooltip._label.text()
+    assert tooltip.api_url() == api_docs_url(TRAIN_KEY)
+    QApplication.sendEvent(help_label, QEvent(QEvent.Type.Leave))
+
+    workbench._tabs.setCurrentIndex(1)
+    QApplication.sendEvent(help_label, QEvent(QEvent.Type.Enter))
+    assert tooltip.api_url() == api_docs_url(APPLY_KEY)
+    QApplication.sendEvent(help_label, QEvent(QEvent.Type.Leave))
+
+
+def test_a_language_change_repoints_the_masthead_help(workbench):
+    """The API pages are per language, and the help has to follow.
+
+    The language pass finds the label by its ``moduleApiAppKey`` property,
+    exactly as it found the dot, and rebuilds the prose with it.
+    """
+    from spacr.qt.i18n import retranslate_widget_tree
+    from spacr.qt.screens.settings_model import api_docs_url
+
+    help_label = workbench._header.api_help
+    try:
+        retranslate_widget_tree(workbench, "sv")
+        assert help_label.url() == api_docs_url(TRAIN_KEY, language="sv")
+        assert "?lang=sv" in help_label.help_html()
+
+        # The two repointings compose. The masthead was built for the
+        # training half, so a language pass that read only the key it was
+        # built with would send a reader on the Apply tab to the other
+        # module's page.
+        workbench._tabs.setCurrentIndex(1)
+        retranslate_widget_tree(workbench, "sv")
+        assert help_label.url() == api_docs_url(APPLY_KEY, language="sv")
+    finally:
+        workbench._tabs.setCurrentIndex(0)
+        retranslate_widget_tree(workbench, "en")
+    assert help_label.url() == api_docs_url(TRAIN_KEY)

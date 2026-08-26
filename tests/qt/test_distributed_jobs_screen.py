@@ -81,18 +81,84 @@ def test_profile_dialog_switches_backend_fields_and_validates_inline(
 def test_every_profile_setting_has_label_help_and_remote_api_link(
     qtbot, qt_theme_applied
 ):
+    """The link is in the label's help; nothing is drawn beside the label.
+
+    A teal dot used to carry it. The dot is what was pointed at the module
+    page while the label's own help -- built with its arguments the other
+    way round -- named the help text as the module and landed on the
+    documentation index. With the dot gone, the help is the only route, so
+    it is the help that is measured.
+    """
     from spacr.qt.widgets.info_link import InfoLink
 
     dialog = ExecutionProfileDialog()
     qtbot.addWidget(dialog)
     labels = dialog.findChildren(QLabel, "SettingsLabel")
-    links = dialog.findChildren(InfoLink)
-    assert len(labels) == len(links) == 14
-    assert all(label.property("apiTooltipHtml") for label in labels)
-    assert all(
-        "/spacr/remote_execution/index.html" in link.url()
-        for link in links
-    )
+    assert len(labels) == 14
+    assert not dialog.findChildren(InfoLink), (
+        "the profile rows grew information dots back")
+    for label in labels:
+        html = str(label.property("apiTooltipHtml") or "")
+        assert "/spacr/remote_execution/index.html" in html, (
+            f"{label.text()}: its help does not reach the remote-execution "
+            f"API page — {html!r}")
+        assert label.toolTip() == html
+
+
+def test_hovering_a_profile_label_shows_its_help_and_its_link(
+    qtbot, qt_theme_applied
+):
+    """Measured through the popup the reader gets, not the property alone.
+
+    A native Qt tooltip cannot be walked into, so a link inside one cannot
+    be clicked. The sticky popup can, which is why the labels claim it.
+    """
+    from PySide6.QtCore import QEvent
+    from PySide6.QtWidgets import QApplication
+
+    from spacr.qt.widgets.hover_tooltip import HoverTooltip
+
+    dialog = ExecutionProfileDialog()
+    qtbot.addWidget(dialog)
+    dialog.show()
+    qtbot.waitExposed(dialog)
+    label = dialog.findChildren(QLabel, "SettingsLabel")[0]
+    tooltip = HoverTooltip.instance()
+
+    QApplication.sendEvent(label, QEvent(QEvent.Type.Enter))
+    try:
+        assert tooltip.isVisible()
+        assert tooltip._label.text().strip()
+        assert "/spacr/remote_execution/index.html" in tooltip.api_url()
+    finally:
+        QApplication.sendEvent(label, QEvent(QEvent.Type.Leave))
+
+
+def test_a_language_change_repoints_every_profile_label(
+    qtbot, qt_theme_applied
+):
+    """The API pages are per language, and the labels' links have to follow.
+
+    The dot answered to ``set_url`` from the language pass. The label
+    answers to ``refresh_api_tooltips``, which is the same pass reaching
+    setting help — and which never reached these labels while their
+    module key and setting key were the wrong way round.
+    """
+    from spacr.qt.i18n import retranslate_widget_tree
+
+    dialog = ExecutionProfileDialog()
+    qtbot.addWidget(dialog)
+    labels = dialog.findChildren(QLabel, "SettingsLabel")
+    try:
+        retranslate_widget_tree(dialog, "sv")
+        for label in labels:
+            html = str(label.property("apiTooltipHtml") or "")
+            assert "/spacr/remote_execution/index.html?lang=sv" in html, (
+                f"{label.text()}: its help still points at the English page")
+    finally:
+        retranslate_widget_tree(dialog, "en")
+    for label in labels:
+        assert "?lang=" not in str(label.property("apiTooltipHtml") or "")
 
 
 def test_current_settings_submit_and_status_refresh(

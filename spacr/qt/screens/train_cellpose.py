@@ -366,10 +366,14 @@ class CellposeWorkbenchScreen(QWidget):
         label.setProperty("_spacr_i18n_text", instruction)
         label.setText(tr(instruction))
         label.setVisible(True)
-        link = getattr(self._header, "info_link", None)
-        if link is not None and hasattr(link, "set_url"):
-            from .settings_model import api_docs_url
-            link.set_url(api_docs_url(self.active_app_key()))
+        # One masthead serves two modules, so its help has to link to the
+        # one on screen. The app key moves rather than the URL alone: a
+        # later language change repoints the help from the key the label
+        # carries, and would otherwise send the reader to the other tab's
+        # documentation.
+        help_label = getattr(self._header, "api_help", None)
+        if help_label is not None and hasattr(help_label, "set_api_app_key"):
+            help_label.set_api_app_key(self.active_app_key())
 
     def carry(self, source: AppScreen, target: AppScreen) -> Dict:
         """Copy the shared knobs from ``source`` into ``target``.
