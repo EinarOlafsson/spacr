@@ -309,14 +309,26 @@ import json, sys, time
 import PySide6.QtWidgets as W
 
 marks = {}
-_real_exec = W.QApplication.exec
 
 def _stop(self, *a, **k):
-    marks["exec_reached"] = time.perf_counter()
+    marks.setdefault("exec_reached", time.perf_counter())
+    marks.setdefault("who", type(self).__name__)
     return 0
 
+# EVERY nested loop, not just the application's. launch() opens the
+# first-run setup screen with QDialog.exec BEFORE QApplication.exec, and a
+# modal dialog in a probe with nobody to click it waits for ever -- which
+# is exactly what a 900-second timeout looks like.
 W.QApplication.exec = _stop
 W.QApplication.exec_ = _stop
+W.QDialog.exec = _stop
+W.QDialog.exec_ = _stop
+try:
+    import PySide6.QtCore as C
+    C.QEventLoop.exec = _stop
+    C.QEventLoop.exec_ = _stop
+except Exception:
+    pass
 
 t0 = time.perf_counter()
 import spacr.qt
@@ -328,6 +340,7 @@ print("LAUNCH_JSON" + json.dumps({
     "total": done - t0,
     "exit": code,
     "modules": len(sys.modules),
+    "first_loop": marks.get("who", "(none reached)"),
 }))
 """
 
@@ -366,6 +379,11 @@ def the_real_launch(say: Report) -> None:
         say.timed("run() returned", data["total"])
         say.item("modules loaded by then", f"{data['modules']:,}")
         say.item("exit code", data["exit"])
+        say.item("first event loop reached", data.get("first_loop", "?"))
+        if str(data.get("first_loop", "")).endswith(("Slides", "Dialog")):
+            say("  ^^ A DIALOG opened before the application's own loop.")
+            say("     That is the first-run setup screen; it blocks the")
+            say("     launch until somebody answers it. Try: spacr --no-setup")
         say("")
         say("  If this is much larger than the COLD LAUNCH TOTAL below, the")
         say("  difference is work launch() does that rebuilding the window")
