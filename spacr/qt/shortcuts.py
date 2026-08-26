@@ -73,10 +73,25 @@ SHORTCUTS: List[ShortcutSpec] = [
     ShortcutSpec("Ctrl+/",       "Toggle AI Console",      "Actions"),
     # A long run writes thousands of lines and the one that matters is the
     # last; getting to it must not be a scroll through everything above it.
+    #
+    # WINDOW-WIDE, AND DECLARED ONCE. It was declared twice -- here and in
+    # `SCREEN_SHORTCUTS`, with two different descriptions -- while the only
+    # binding lived on the console panel, which does not exist until a
+    # module screen is built. A key on the cheat sheet that nothing has
+    # bound is worse than one that was never advertised, so `install()`
+    # binds it on the window and this is the one entry describing it.
+    #
+    # UNDER "CONSOLE", which is what it acts on. The category is not only a
+    # heading: the card tiles two categories to a band, so which one a row
+    # sits in decides how the bands pack -- this row inside "Actions" costs
+    # the card two rows, and the card has to fit the window it covers.
     ShortcutSpec("Ctrl+End",     "Jump to the newest console line",
-                 "Actions",      scope="the console"),
+                 "Console"),
     ShortcutSpec("Ctrl+F",       "Search this module's settings", "Actions"),
     ShortcutSpec("Ctrl+Shift+R", "Settings recipes",       "Actions"),
+    # BOUND ON THE MENU ACTION, like `Ctrl+B`: the window carries it, so it
+    # belongs on the map, and `install()` is not the one that creates it.
+    ShortcutSpec("F11",          "Full screen",            "Actions"),
     ShortcutSpec("F1",           "Show this cheat sheet",  "Help"),
     ShortcutSpec("?",            "Show this cheat sheet",  "Help")
 ]
@@ -94,8 +109,6 @@ SHORTCUTS: List[ShortcutSpec] = [
 #: always live and the other is not -- and it is the same distinction the
 #: `scope` field states to the reader.
 SCREEN_SHORTCUTS: List[ShortcutSpec] = [
-    ShortcutSpec("Ctrl+End",     "Jump to the newest line", "Console",
-                 "the Console panel"),
     ShortcutSpec("Left",         "Previous image",         "Annotate",
                  "the Annotate and Make Masks screens"),
     ShortcutSpec("Right",        "Next image",             "Annotate",
@@ -115,6 +128,10 @@ SCREEN_SHORTCUTS: List[ShortcutSpec] = [
                  "the Make Masks screen"),
     ShortcutSpec("W",            "Magic wand — add",       "Make Masks",
                  "the Make Masks screen"),
+    ShortcutSpec("D",            "Draw",                   "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("V",            "Divide",                 "Make Masks",
+                 "the Make Masks screen"),
     ShortcutSpec("Z",            "Zoom",                   "Make Masks",
                  "the Make Masks screen"),
     ShortcutSpec("Esc",          "Reset the zoom",         "Make Masks",
@@ -131,10 +148,10 @@ SCREEN_SHORTCUTS: List[ShortcutSpec] = [
 
 
 #: Window-wide keys that something OTHER than `install()` binds. `Ctrl+B`
-#: opens the full app list and is set on the menu action -- which is a real
-#: binding and reaches the same place -- so it belongs on the map and does
-#: not belong in `install()`'s count.
-BOUND_ELSEWHERE = frozenset({"Ctrl+B"})
+#: opens the full app list and `F11` goes full screen; both are set on menu
+#: actions -- which are real bindings and reach the same place -- so they
+#: belong on the map and do not belong in `install()`'s count.
+BOUND_ELSEWHERE = frozenset({"Ctrl+B", "F11"})
 
 
 def installed() -> List[ShortcutSpec]:
@@ -208,6 +225,20 @@ def install(window: QMainWindow) -> None:
     _bind(window, "Ctrl+K", lambda: _open_palette(window))
     _bind(window, "Ctrl+,", lambda: _open_preferences(window))
     _bind(window, "Ctrl+/", lambda: _toggle_ai(window))
+    # THE WINDOW OWNS Ctrl+End, and the consoles stand down. Binding it here
+    # as well as on every console panel would make it AMBIGUOUS, which in Qt
+    # means NEITHER fires -- measured: with both live, `activated` stays
+    # silent on both and `activatedAmbiguously` goes to one of them in turn.
+    # `_hand_ctrl_end_to_the_window` disables the panels' own copies, so
+    # exactly one binding is live and the key works from anywhere in the
+    # window rather than only while a console happens to exist.
+    end = _bind(window, "Ctrl+End", lambda: _jump_to_the_newest_line(window))
+    # If a console the sweep never reached is on screen, the press arrives
+    # ambiguously instead of cleanly. Answering it anyway means the jump
+    # still happens, and the handler stands that console down on its way
+    # past, so the next press is clean.
+    end.activatedAmbiguously.connect(lambda: _jump_to_the_newest_line(window))
+    _watch_the_stack_for_consoles(window)
     _bind(window, "Ctrl+F", lambda: _focus_settings_search(window))
     _bind(window, "Ctrl+Shift+R", lambda: _open_recipes(window))
     _bind(window, "F1",     lambda: show_cheat_sheet(window))
@@ -280,10 +311,30 @@ def _install_window_hooks(window: QMainWindow) -> None:
         LOG.debug("Could not pin the menu roles", exc_info=True)
 
 
-def _bind(window: QMainWindow, keys: str, cb: Callable[[], None]) -> None:
-    sc = QShortcut(QKeySequence(keys), window)
+def _bind(window: QMainWindow, keys: str, cb: Callable[[], None]) -> QShortcut:
+    """Wire ``keys`` on ``window`` and hand the binding back to the caller.
+
+    ONCE PER KEY, which is what makes :func:`install` idempotent in the only
+    sense that matters here: a second holder of one key makes it AMBIGUOUS,
+    and an ambiguous shortcut fires neither handler -- so a reload path
+    calling `install` again would silence every key it re-bound.
+
+    Only the window's OWN shortcuts are consulted. `findChildren` reaches
+    the whole tree, and a console panel holding `Ctrl+End` deeper down would
+    otherwise look like this key was already wired.
+
+    Returned rather than dropped because a key with a second holder
+    somewhere else needs its ambiguous activation connected too.
+    """
+    sequence = QKeySequence(keys)
+    for existing in window.findChildren(
+            QShortcut, options=Qt.FindDirectChildrenOnly):
+        if existing.key() == sequence:
+            return existing
+    sc = QShortcut(sequence, window)
     sc.setContext(Qt.ApplicationShortcut)
     sc.activated.connect(cb)
+    return sc
 
 
 def _help_key(window: QMainWindow) -> None:
@@ -356,6 +407,72 @@ def _toggle_ai(window: QMainWindow) -> None:
             )
     except Exception:
         pass
+
+
+def _consoles(window) -> list:
+    """Every console panel living under ``window``, newest screens included."""
+    try:
+        from .widgets.console_panel import ConsolePanel
+        return list(window.findChildren(ConsolePanel))
+    except Exception:                                    # noqa: BLE001
+        LOG.debug("could not look for console panels", exc_info=True)
+        return []
+
+
+def _hand_ctrl_end_to_the_window(window, panels=None) -> None:
+    """Stand the consoles' own ``Ctrl+End`` down in favour of the window's.
+
+    Two live bindings for one key are not two chances to be heard: Qt calls
+    that ambiguous and fires NEITHER handler. A console panel binds the key
+    on itself so the gesture still works when the panel is used on its own,
+    and inside a window that binds it too that copy is redundant -- the
+    window's reaches the same panel and reaches it from every screen.
+
+    :param panels: the consoles to sweep, when the caller has already found
+        them; otherwise they are looked up.
+    """
+    for panel in (_consoles(window) if panels is None else panels):
+        own = getattr(panel, "_end_shortcut", None)
+        if own is None:
+            continue
+        try:
+            if own.isEnabled():
+                own.setEnabled(False)
+        except RuntimeError:                             # noqa: PERF203
+            continue
+
+
+def _watch_the_stack_for_consoles(window) -> None:
+    """Sweep each screen as it is shown, since screens are built on demand.
+
+    The console of a module that has never been opened does not exist yet,
+    so the stand-down cannot be done once at start-up and be finished.
+    """
+    _hand_ctrl_end_to_the_window(window)
+    try:
+        window._stack.currentChanged.connect(
+            lambda _index: _hand_ctrl_end_to_the_window(window))
+    except Exception:                                    # noqa: BLE001
+        LOG.debug("no screen stack to watch for consoles", exc_info=True)
+
+
+def _jump_to_the_newest_line(window) -> None:
+    """Send the console on screen to its newest line.
+
+    A long run writes thousands of lines and the one that matters is the
+    last; getting to it must not be a scroll through everything above it.
+    Screens without a console are left alone rather than swallowing the key.
+    """
+    panels = _consoles(window)
+    _hand_ctrl_end_to_the_window(window, panels)
+    for panel in panels:
+        try:
+            if not panel.isVisible():
+                continue
+            panel.jump_to_the_end()
+            return
+        except Exception:                                # noqa: BLE001
+            LOG.debug("could not jump the console to its end", exc_info=True)
 
 
 #: objectNames, so the theme can reach the overlay and tests can find it.
