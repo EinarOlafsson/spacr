@@ -217,3 +217,51 @@ class TestTheMakeMasksToolRow:
                    if key not in iconset._NAME_TO_GLYPH
                    and iconset.bundled_icon_path(key) is None]
         assert missing == []
+
+
+class TestClassifyWearsTheOldCvMark:
+    """The merged Classify screen keeps the mark Classify (CV) was drawn.
+
+    Two Classify tiles became one screen, so the picture names
+    classification itself rather than one of the two routes into it -- and
+    neither of the old keys is registered any more, so nothing else is
+    claiming the file.
+    """
+
+    KEY = "classify_merged"
+    ASSET = "classify.png"
+
+    def test_it_resolves_to_the_old_cv_artwork(self):
+        from spacr.qt import iconset
+
+        path = iconset.bundled_icon_path(self.KEY)
+        assert path is not None, "the merged screen fell back to a glyph"
+        assert path.endswith(self.ASSET)
+
+    def test_the_borrowing_is_written_down(self):
+        from spacr.qt import iconset
+
+        assert iconset.SHARED_ICON_ASSETS[self.KEY] == self.ASSET
+
+    def test_neither_old_key_still_claims_it(self, qapp):
+        """If Classify (CV) came back as a tile this sharing needs revisiting."""
+        from spacr.qt import app as app_module
+
+        registered = {row[0] for row in app_module.APPS}
+        assert "classify" not in registered
+        assert "classify_ml" not in registered
+
+    @pytest.mark.parametrize("theme", ("dark", "light"))
+    def test_the_mark_paints_in_both_themes(self, qapp, theme):
+        from spacr.qt import iconset
+
+        icon = iconset.app_icon(self.KEY, theme=theme)
+        assert icon is not None and not icon.isNull()
+
+    def test_it_is_not_the_puzzle_piece(self, qapp, puzzle_piece):
+        """The fallback is what an unfiled key gets; this key is filed."""
+        from spacr.qt import iconset
+
+        drawn = render(iconset.app_icon(self.KEY, theme="dark"))
+        assert silhouette_difference(drawn, puzzle_piece) > 0.05
+        assert coverage(drawn) > 0.02, "the mark inked almost nothing"
