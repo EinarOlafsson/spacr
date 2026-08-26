@@ -270,12 +270,17 @@ class SaveFigureDialog(QDialog):
             "proportions the plot already has; 1 makes the units square, "
             "which is what a Q-Q or a diagonal needs to mean anything.")
         self.aspect.valueChanged.connect(self.refresh)
-        # "LOCK DATA UNITS", NOT "ASPECT RATIO". This ties one y unit to n x
+        # "LOCK AXIS SCALES", NOT "ASPECT RATIO". This ties one y unit to n x
         # units and is a statement about the DATA -- what a Q-Q or a
         # diagonal needs. It is not what "save it as a square" means, and
         # calling both of them the aspect ratio is why the two were confused
         # for each other. The shape of the page is the control below.
-        form.addRow("lock data units", self.aspect)
+        #
+        # THE WORDS THE GRAPH'S OWN MENU USES for the same quantity, so a
+        # user who met it under Axes there meets it by that name here. A
+        # third name for one quantity is the same failure as one name for
+        # two.
+        form.addRow("lock axis scales", self.aspect)
 
         # THE SHAPE OF THE FIGURE, as a choice rather than a number. Asked
         # for as "change aspect ratio to graph shape and have square,
@@ -295,8 +300,8 @@ class SaveFigureDialog(QDialog):
             self.graph_shape.addItem(CANVAS_SHAPE_LABELS[name], name)
         self.graph_shape.setToolTip(
             "The proportions of the saved figure. 'as drawn' keeps what is "
-            "on screen. This is the shape of the PAGE; locking data units "
-            "above is a statement about the axes.")
+            "on screen. This is the shape of the PAGE; locking the axis "
+            "scales above is a statement about the data.")
         self.graph_shape.currentIndexChanged.connect(self.refresh)
         form.addRow("graph shape", self.graph_shape)
 

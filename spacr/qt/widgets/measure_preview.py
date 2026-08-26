@@ -1305,7 +1305,14 @@ class CropSettingsDialog(QDialog):
         crops_form.addRow(mode_group)
         crops_form.addRow("Crop width", panel._crop_width)
         crops_form.addRow("Crop height", panel._crop_height)
-        crops_form.addRow("Lock aspect ratio", panel._lock_aspect)
+        # A CROP BOX, NOT A GRAPH. This is neither of the two shape controls
+        # a figure has: it is not the shape of a plotted page ("Graph shape")
+        # and it is not the axis-scale lock that ties one y unit to n x units
+        # ("lock axis scales"). It is the pixel box each object is cut out
+        # into, and what the toggle does is hold that box square by carrying
+        # the width over to the height -- so it says that rather than
+        # borrowing a figure's word for a different quantity.
+        crops_form.addRow("Match crop height to width", panel._lock_aspect)
         crops_form.addRow("RGB channel order", panel._png_dims)
         crops_form.addRow("Use bounding box", panel._use_bbox)
         crops_form.addRow("Bounding-box padding", panel._buffer)
