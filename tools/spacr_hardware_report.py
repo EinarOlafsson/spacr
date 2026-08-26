@@ -172,7 +172,7 @@ def _run(argv, say) -> int:
         from spacr.qt.widgets import ambient
         from spacr.qt import theme
         page = theme.page_colour("dark")
-        for name in (getattr(ambient, "SPACEOUT_THEME", None), "glow"):
+        for name in (getattr(ambient, "SPACEOUT_THEME", None), "blobs", "aurora"):
             if not name:
                 continue
             try:

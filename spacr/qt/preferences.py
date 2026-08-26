@@ -209,9 +209,21 @@ FONT_SCALE_MAX = 2.00
 #: interface — spacing, tiles, dots and icons move with the type, so calling it
 #: a font setting undersells what the control does.
 #:
-#: 150% is the default: spaCR's natural size was laid out on a 1080p display,
-#: and on the 4K panels it is now used on everything reads small.
-DEFAULT_FONT_SCALE = 1.5
+#: 100% IS THE DEFAULT, and the reason it was 150% is worth keeping: spaCR's
+#: natural size was laid out on a 1080p display, and on a 4K panel driven at
+#: 1x everything read small.
+#:
+#: But this scales the whole interface, and on a HiDPI display the operating
+#: system is ALREADY scaling -- macOS reports a 2x device pixel ratio and
+#: draws accordingly. Applying 1.5 on top of that is 3x linear and NINE
+#: TIMES the pixels of a 100% layout, which is a laptop rendering nine
+#: screens' worth of work to show one. Reported as spaCR being "extremely
+#: slow" on a machine measurably faster than the workstation it runs well
+#: on.
+#:
+#: The 4K case is a preference a user on that display sets once. The laptop
+#: case was everybody, silently, by default.
+DEFAULT_FONT_SCALE = 1.0
 
 VALID_CB_MODES = ("off", "deuteranopia", "protanopia", "tritanopia")
 DEFAULT_CB_MODE = "off"

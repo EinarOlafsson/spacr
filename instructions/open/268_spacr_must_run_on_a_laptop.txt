@@ -58,6 +58,53 @@ The profile of the mask build, already taken:
     eventFilter                0.30 s  (16,115 calls during construction)
 
 --------------------------------------------------------------------------------
+THE REPORT CAME BACK, AND THE MACHINE IS NOT THE PROBLEM
+--------------------------------------------------------------------------------
+
+From the MacBook (Apple Silicon, 10 cores, 16 GiB), beside the workstation:
+
+                          MacBook      workstation (32 cores)
+    translated            0 (native)   --
+    numpy BLAS            openblas     openblas
+    1200x1200 matmul      0.03 s       0.05 s
+    build regression      0.87 s       1.52 s
+    build mask            0.89 s       2.59 s
+    build measure         0.12 s       0.12 s
+    build classify_merged 3.25 s       3.10 s
+
+NOT ROSETTA. NOT THE BLAS. The laptop is FASTER than the workstation at
+almost everything, including the arithmetic.
+
+AND BUILDING THE REGRESSION SCREEN TAKES 0.87 SECONDS THERE, against the
+"several minutes at 100% CPU" that was reported. That is a gap of more than
+two hundred times, so whatever is slow IS NOT THE SCREEN BUILD -- and the
+first version of this item, aimed squarely at the per-row cost, was aimed
+at the wrong thing.
+
+TWO REAL FINDINGS SURVIVE:
+
+  1. THE ZOOM DEFAULT WAS 150%, AND IT SCALES EVERYTHING. Not just type --
+     spacing, tiles, dots and icons move with it. On a HiDPI display the
+     operating system is ALREADY scaling: macOS reports a 2x device pixel
+     ratio and draws accordingly. 1.5 on top of 2 is 3x linear and NINE
+     TIMES the pixels of a 100% layout -- a laptop rendering nine screens'
+     worth of work to show one. It was chosen for 4K desktop panels driven
+     at 1x, where it is right; it reached every HiDPI laptop by default.
+     Now 1.0. The 4K case is a preference set once; the laptop case was
+     everybody, silently.
+
+  2. `classify_merged` COSTS 28 ms A ROW ON BOTH MACHINES, against 1.6 for
+     measure -- eighteen times worse, and hardware-independent. That is a
+     defect in that screen, not a slow computer, and it is the one number
+     in the table that does not improve on the faster machine.
+
+WHAT IS STILL UNEXPLAINED, and needs a second measurement rather than a
+guess: the minutes. The report builds screens directly; it does not walk
+the real startup path, draw the backdrop at retina scale, or animate the
+cursor rim -- and the rim is precisely what was reported as laggy. Extend
+the report to time THOSE, on the machine, before optimising anything else.
+
+--------------------------------------------------------------------------------
 FIRST: MEASURE ON THE MACHINE THAT IS SLOW
 --------------------------------------------------------------------------------
 
