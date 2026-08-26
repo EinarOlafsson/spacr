@@ -137,9 +137,18 @@ A. THE FILTER IS ON THE PLOT, WITH THE COUNTS IN THE MENU, exactly as asked.
 
    and the same state drives the "Level:" combo above the axes (147 A), so
    there is one piece of state and two ways to reach it rather than two
-   answers. `settings['volcano']` did not disappear: a headless run still
-   needs to know which table to draw, and 125 A gates the legacy volcano on
-   it.
+   answers.
+
+   CORRECTED ON RE-AUDIT: this paragraph used to end "`settings['volcano']`
+   did not disappear: a headless run still needs to know which table to draw,
+   and 125 A gates the legacy volcano on it." Both halves are wrong about the
+   current tree. `settings.py` does `settings.pop('volcano', None)` -- the key
+   is ACCEPTED AND DROPPED so an old settings CSV still loads, and it is
+   absent from the category table with the reason written beside it. What
+   gates the legacy volcano is `legacy_volcano`, a different key (125 A).
+   Nothing headless reads `volcano` any more; which table a run writes is
+   decided by `level`, and which one the panel opens is decided by
+   `RESULT_FILENAMES` and `_default_level`.
 
 B. EVERY PANEL THE SHEET DRAWS HAS A TAB. The registry is
    {volcano, effect_rank, effect_distribution, controls, agreement,

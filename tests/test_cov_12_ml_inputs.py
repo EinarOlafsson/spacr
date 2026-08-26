@@ -80,3 +80,25 @@ def test_a_count_file_of_several_plates_is_assigned_by_the_pair_row(tmp_path):
     assert list(scores['plateID'].unique()) == ['plate1']
     assert audit[0]['rule'].startswith('assigned from pair row order')
     assert 'count file holds 2 plates' in audit[0]['rule']
+
+
+def test_two_files_naming_different_plates_are_refused(tmp_path):
+    """Neither side is a subset of the other, so nothing can narrow them.
+
+    The three resolution rules all end in ONE plate identity for the row.
+    When both files name plates and the sets are disjoint, choosing either
+    one silently relabels a whole file's wells -- the join still succeeds,
+    the row count still looks right, and every effect size is attached to the
+    wrong plate. That is the exact failure the paired table exists to end,
+    so it raises and names both sides rather than picking.
+    """
+    score = write(score_frame(('plate1',)), tmp_path / 'scores.csv')
+    count = write(count_frame(('plate3', 'plate4')), tmp_path / 'counts.csv')
+
+    with pytest.raises(ValueError) as caught:
+        ml.load_regression_input_pairs([{'score': score, 'count': count}])
+
+    message = str(caught.value)
+    assert 'conflicts' in message
+    assert "'plate1'" in message
+    assert "'plate3'" in message and "'plate4'" in message

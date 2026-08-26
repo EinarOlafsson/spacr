@@ -2,9 +2,15 @@
 EVERY REGRESSION GRAPH IN PYQTGRAPH, AND A BOXPLOT WHERE THERE WAS A BAR
 ================================================================================
 
-Status:    REOPENED 2026-08-21. SECTION C WAS DONE AND THE FILE WAS CLOSED ON
-           IT. SECTION A -- the conversion this instruction is named for --
-           WAS NEVER DONE, and the count has gone UP.
+Status:    DONE 2026-08-22. See "DONE 2026-08-22 -- SECTION A, THE THREE THAT
+           WERE NOT TRANSLATIONS" at the foot of this file.
+           HISTORY, kept because it is the reason the closing section exists:
+           this file was CLOSED once on section C alone and REOPENED
+           2026-08-21, because section A -- the conversion the instruction is
+           named for -- had never been done and the figure count had gone UP.
+           Section A landed the next day; `spacr/ml.py` creates no matplotlib
+           figure, and toxo, guide_permutation, regression_diagnostics and
+           regression_qc all route theirs through `figures.scene`.
 Requested: 2026-08-18 --
 
   "in the regression modual all of the generated graphs should be generated

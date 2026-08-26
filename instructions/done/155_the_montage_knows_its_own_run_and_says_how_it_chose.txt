@@ -437,3 +437,29 @@ The items under "NOT DONE" are recorded scope decisions with their reasons,
 not outstanding work; anything among them that is later wanted is a new
 instruction rather than this one reopened.
 --------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+2026-08-26 -- RE-AUDIT. Every criterion re-checked against the code; TWO NAMES
+             IN THE PROSE ABOVE HAVE SINCE MOVED. The behaviour is unchanged.
+--------------------------------------------------------------------------------
+
+Checked by driving `select_montage` and `reanchor_path`/`reanchor_frame`, and by
+running tests/test_the_montage_needs_no_run_folder.py,
+tests/test_paths_survive_a_move.py, tests/test_crop_paths_survive_a_move.py and
+tests/test_cell_montage.py (131 tests, green). The caption prints the target,
+the baseline and its source, the window in robust scales and
+`round(n x fraction)` per well; a narrower half-width changes both the caption
+and the selection; `montage_route_requirements(..., channels_declared=False)`
+names the missing channel list; the tab close button is placed on
+`QTabBar.LeftSide`; all four re-anchor cases behave and an unanchorable path is
+counted and named.
+
+WHAT THE PROSE ABOVE NOW MISNAMES, corrected here rather than rewritten there,
+so the record of what was done stays readable:
+
+  * SECTION C says `MAX_OBJECTS, 300`. It is 2000 (cell_montage.py). The
+    number was raised after this file was written; the caption prints whatever
+    it is ("cap 2,000 objects"), so nothing downstream depended on the 300.
+  * The 2026-08-18 SECTION A note names `cell_montage.load_fraction_frame`.
+    That function is now `cell_montage.read_well_guide_fractions`, with the
+    same folder-or-CSV resolution the note describes.

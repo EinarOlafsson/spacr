@@ -95,7 +95,8 @@ Shipped:
     ``ml_analysis``; ``permutation_importance`` through ``guarded_n_jobs``.
   * ``spacr/timelapse.py`` — ``@single_threaded_openmp`` on
     ``_infection_qc_xgboost``.
-  * ``tests/test_openmp_guard.py`` — 26 tests.
+  * ``tests/test_openmp_guard.py`` — 26 tests when shipped; 33 as of
+    2026-08-26.
 
 The clamp only engages on macOS (where the fault is documented), only when more
 than one runtime is actually mapped, and never on a probe failure.
@@ -135,11 +136,18 @@ HOW TO KNOW IT WORKED
   QT_QPA_PLATFORM=offscreen python -m pytest tests/test_openmp_guard.py -q \
       -p no:randomly
 
-expected: 26 passed. NOT RUN AS PYTEST — pytest is not installed on any
-interpreter on this machine and WORKFLOW.md forbids installing it unasked. The
-same 34 assertions were executed by a fixture-free stand-in
-(scratchpad/verify_guard.py): all pass. Anyone with pytest should run the real
-file before trusting this line.
+expected: 33 passed.
+
+WHEN THIS WAS WRITTEN it said "expected: 26 passed. NOT RUN AS PYTEST" —
+pytest was not installed on any interpreter on that machine and WORKFLOW.md
+forbids installing it unasked, so the same 34 assertions were executed by a
+fixture-free stand-in (scratchpad/verify_guard.py) instead, and the line asked
+whoever had pytest to run the real file.
+
+RUN, 2026-08-26, on the repository's `spacr` conda interpreter: 33 passed. The
+file has grown seven tests since the 26 above; the number moves whenever a
+test is added, and the standing claim is that the file passes whole, not that
+it holds any particular count.
 
 The end-to-end measurement, which is the one that matters
 (scratchpad/verify_fix.py, real ml_analysis on a worker thread, three runtimes

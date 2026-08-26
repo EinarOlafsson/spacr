@@ -532,3 +532,35 @@ passed; with test_the_greyed_row_explains_itself.py, 64 passed.
 
 No behaviour changed. This section records that the closure above still
 holds.
+
+================================================================================
+2026-08-26 -- COUNT CORRECTED: EIGHT `guide_*` CONTROLS, NOT NINE
+================================================================================
+
+Behaviour unchanged and re-measured; only this file's arithmetic was stale.
+
+`guide_permutation_plot` was retired on 2026-08-18 -- the permutation plot is
+always written now, so there is no control left to grey. The regression
+defaults carry EIGHT `guide_*` keys:
+
+    guide_min_wells            guide_permutation_batch_size
+    guide_nuisance_columns     guide_permutation_block
+    guide_permutation_seed     guide_permutations
+    guide_presence_threshold   guide_primary_min_wells
+
+Every occurrence of "nine `guide_*`" above (lines 91, 120, 177, 221, 241 and
+479 as written) therefore reads one too many. The rule those lines state is
+right and is what the suite pins: the permutation controls go dark TOGETHER
+under `inference='parametric'`, asserted as a FLOOR rather than an equality
+(`tests/test_regression_workbench.py::
+test_parametric_inference_greys_the_permutation_controls`), precisely so that
+a ninth arriving is covered rather than counted.
+
+THE SMOKE FIGURE HAS MOVED TWICE. "60/60" in HOW TO KNOW IT WORKED, and
+"70/70" in the MEASURED section, are both a snapshot of a growing file:
+`pytest tests/qt/test_all_module_smoke.py -q` is 75 passed as of 2026-08-26.
+The criterion is that construction of EVERY panel survives enablement, not
+that the number is any particular one.
+
+Re-measured for this correction: tests/test_regression_workbench.py 120
+passed, tests/qt/test_all_module_smoke.py 75 passed.

@@ -234,6 +234,17 @@ WHAT SHIPPED
     is the rainbow the style exists to forbid. It holds by construction
     (`rc_params` carries no palette key); the test makes the choice visible.
 
+    THAT EXCLUSION WAS REVERSED, and this paragraph is kept only as the record
+    of what it used to say. Instruction 118's acceptance -- "changing the
+    palette in Preferences changes the next run's figures without any
+    per-figure work" -- won, and `figure_style.rc_params` now emits
+    `axes.prop_cycle` whenever the user has actually chosen a palette. The
+    house colour vocabulary still holds for anyone who has not chosen one,
+    because `palette_colours(None)` is empty and the key is therefore absent
+    from the override diff. The test asserting the exclusion had gone red and
+    is now two tests -- the untouched case and the chosen case -- in
+    `tests/test_a_preference_reaches_a_house_style_panel.py`.
+
     MEASURED on this machine, where the store really holds
     `{'font_size': 16.0, 'palette': 'deep'}` and `{'volcano': {'marker_size':
     40.0}}`: the font size now reaches every house-style panel, and it did not

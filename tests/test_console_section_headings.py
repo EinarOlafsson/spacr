@@ -140,6 +140,56 @@ def test_collapsing_hides_the_body_and_turns_the_chevron(panel):
     assert all(w.isVisible() for w in body)
 
 
+def test_folding_a_named_heading_hides_the_output_under_it(panel):
+    """The heading a user reads is the module banner, not the "spaCR output"
+    banner ``append_stdout`` inserts beneath it.
+
+    ``section_text`` already runs a named section PAST that empty boundary --
+    otherwise copying a section copied a title and nothing else.
+    ``section_body`` stopped at the first boundary instead, so a named
+    heading's body was empty: folding it turned the chevron and hid nothing,
+    and the output stayed on screen under a heading claiming to be collapsed.
+    """
+    from spacr.qt.widgets.console_panel import _StdoutBlock
+
+    bar = next(b for b in _bars(panel) if b.text() == "Section 2")
+    body = panel.section_body(bar)
+    assert any(isinstance(w, _StdoutBlock) for w in body), (
+        "a named section's body is the output printed under it")
+
+    panel.collapse_section(bar)
+    _settle()
+    assert not bar.is_expanded()
+    assert all(not w.isVisible() for w in body), (
+        "a heading that says it is collapsed must hide its own output")
+
+    panel.raise_section(bar)
+    _settle()
+    assert all(w.isVisible() for w in body)
+
+
+def test_a_dragged_section_height_survives_an_expand_collapse_cycle(panel):
+    """A height the user set by dragging is a preference, not a layout
+    accident: folding a section away must not silently discard it."""
+    from spacr.qt.widgets.console_panel import _StdoutBlock
+
+    bar = next(b for b in _bars(panel) if b.text() == "Section 2")
+    block = next(w for w in panel.section_body(bar)
+                 if isinstance(w, _StdoutBlock))
+    block.set_user_height(180)
+    _settle()
+    assert block.height() == 180
+
+    panel.collapse_section(bar)
+    _settle()
+    assert block._user_height == 180
+
+    panel.raise_section(bar)
+    _settle()
+    assert block._user_height == 180
+    assert block.height() == 180
+
+
 def test_new_output_does_not_drag_the_view_off_a_raised_section(panel):
     """The whole point. Raising a section suspends following."""
     bar = _bars(panel)[6]

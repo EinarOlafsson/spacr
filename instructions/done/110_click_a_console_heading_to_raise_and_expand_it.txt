@@ -174,3 +174,55 @@ click scrolls section 6 to 468 == its own top; 40 lines of new output leave
 the scrollbar at 468; the copy button click moves nothing and collapses
 nothing; scrolling back to the bottom restores following; Space navigates,
 then folds.
+
+================================================================================
+2026-08-26 -- RE-AUDIT: FOLDING A NAMED HEADING HID NOTHING
+================================================================================
+
+The claim in the RESULT above -- "`section_body` was built on top of the span
+`section_text` already computed for the copy button, rather than as a second
+definition, so raising, collapsing and copying cannot disagree about where a
+section ends" -- was not true of the code. They were two definitions and they
+disagreed.
+
+`section_text` deliberately runs PAST a boundary with nothing under it: a
+module banner is followed immediately by the "spaCR output" banner
+`append_stdout` inserts, and stopping at the first boundary copied a title and
+no output. `section_body` stopped at the first `_TopicBar` regardless. So for
+every heading the user actually reads -- the named module banner -- the body
+was EMPTY.
+
+Measured by driving a real panel with real QMouseEvents, on a console holding
+ten named sections:
+
+    click "Section 2"       -> scroll 344, bar top 344      (navigation: right)
+    click "Section 2" again -> is_expanded() False          (chevron: turned)
+                               stdout blocks hidden: 0 of 10
+
+A heading that says it is collapsed with its whole section still on screen.
+The two verification passes above both missed it because both drove ODD bar
+indices -- the auto-inserted "spaCR output" bars, which do have a body. The
+even indices are the named ones, and `test_section_body_agrees_with_section_text`
+was vacuous on them: an empty body makes its `for` loop run zero times.
+
+THE FIX. One span, `ConsolePanel._section_span`, returning `(start, stop)`
+under the "skip a boundary with nothing under it" rule that `section_text`
+already applied. `section_text` and `section_body` both read it, so the
+sentence quoted at the top of this section is now true of the code rather than
+of the intention. A nested heading inside the span is part of the body --
+folding a module banner folds the "spaCR output" banner under it, because that
+banner is the section's own content -- and `raise_section` keeps a nested
+heading the user had folded folded, since expanding the section above it is
+not a request to unfold what is inside it.
+
+TWO TESTS ADDED, both confirmed red before the change:
+
+  * `test_folding_a_named_heading_hides_the_output_under_it`
+  * `test_a_dragged_section_height_survives_an_expand_collapse_cycle` --
+    the third acceptance criterion of this file, which had no test at all and
+    could not have had one: the section it names had no body to resize.
+
+tests/test_console_section_headings.py 14 passed (12 before);
+tests/qt/test_cov_w3_7_console_panel.py, test_a_figure_section_folds_away_like_the_console.py,
+test_the_summary_tab_folds.py, test_console_aware_setting.py, qt/test_ai_console.py,
+qt/test_ai_stress.py all still green.

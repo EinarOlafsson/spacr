@@ -533,3 +533,22 @@ tables carry no plate metadata at all -- a settings CSV, a per-fold metrics
 file, a gene annotation index -- and the instruction's own rule says so: "a
 reader that touches none is not a door this instruction is trying to close".
 Both ratchets hold the direction from here.
+
+--------------------------------------------------------------------------------
+2026-08-26 -- RE-AUDIT: THE RATCHET HAD BEEN BROKEN AND IS BACK.
+--------------------------------------------------------------------------------
+
+The ceiling has no slack, and a new raw reader landed against it:
+`ml._concat_named_csvs` (the screen's count/score CSVs for a control-well
+calibration) read with `pd.read_csv`, which made 86 direct readers against a
+ceiling of 85 and put `ml.py` back in the owned-module set that must have
+none. Both `test_the_number_of_direct_readers_only_falls` and
+`test_none_of_the_owned_modules_reads_a_table_directly` were failing.
+
+It now reads through `spacr.tabular.read_table`, so a count file headed
+`Plate`/`column_name` reaches the fit under the canonical keys like every
+other table. Count is 85 again; the ceiling is unchanged, because it is the
+count. A behavioural test holds the canonicalisation --
+`test_the_screen_csvs_arrive_with_canonical_key_names` in
+tests/test_the_threshold_can_be_measured_not_named.py -- confirmed to fail
+against the old `pd.read_csv` line.

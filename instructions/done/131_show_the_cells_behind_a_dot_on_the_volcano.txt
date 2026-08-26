@@ -126,8 +126,17 @@ volcano redraw was measured -- and cap the montage, saying what was capped.
 HOW TO KNOW IT WORKED
 --------------------------------------------------------------------------------
 
-* Right-clicking a point on the volcano offers the montage, and it is absent
-  with a reason when no database is imported.
+* Picking a point on the volcano offers the montage, and it is absent with a
+  reason when no database is imported.
+
+  THE GESTURE CHANGED AND THIS LINE FOLLOWED IT. As filed it read
+  "Right-clicking a point on the volcano offers the montage". What shipped is
+  a CELLS TAB fed by `table.key_selected` -- the same funnel the gene tile is
+  already on -- so one pick drives both and there is no second selection to
+  disagree with the first. A right-click entry would have been that second
+  selection. The rest of the line is unchanged and is what
+  `test_the_tab_is_present_even_when_it_cannot_be_filled` and
+  `test_every_missing_input_greys_the_button_with_its_own_sentence` hold.
 * The montage draws from exported PNGs when they exist and from `merged/`
   when they do not, and SAYS which it used.
 * The number of objects shown per well equals round(n_objects x fraction).
