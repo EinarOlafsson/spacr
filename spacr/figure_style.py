@@ -424,13 +424,15 @@ def apply(kind: Optional[str] = None,
 
 
 def palette_colours(name: Optional[str]) -> list:
-    """Return the colour cycle for a palette name, as hex strings.
+    """Return a palette as hexadecimal colour strings.
 
-    seaborn's palettes when it is installed, spaCR's own otherwise. An empty
-    list means the name resolved to nothing and the caller should leave the
-    colour cycle alone rather than blanking it.
+    Named seaborn palettes are used when they resolve successfully; otherwise,
+    spaCR's built-in palette is used. An empty name, or failure to load either
+    source, returns an empty list so callers can preserve the current colour
+    cycle.
 
-    :param name: a palette name from ``STYLE_CHOICES["palette"]``, or ``None``.
+    :param name: Palette name from ``STYLE_CHOICES["palette"]``, or ``None``.
+    :returns: The resolved sequence of hexadecimal colours.
     """
     if not name:
         return []

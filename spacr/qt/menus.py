@@ -93,25 +93,14 @@ def pin_menu_roles(actions: Iterable[Any],
 
 
 def name_the_macos_application_menu(name: str = APPLICATION_NAME) -> bool:
-    """Make macOS title the application menu ``name``. Returns whether it ran.
+    """Set the application-menu title for an unbundled macOS launch.
 
-    The menu beside the Apple logo -- the one macOS moves Preferences, Quit
-    and About into -- is titled from the running bundle's ``CFBundleName``,
-    NOT from :func:`QCoreApplication.applicationName`. A launch that is not a
-    packaged ``.app`` has no bundle of its own and inherits the interpreter's,
-    so the menu reads ``Python`` (or the console script's name) and a user
-    looking for Preferences under an application called spaCR does not find
-    it.
+    macOS derives this title from ``CFBundleName`` rather than Qt's
+    ``applicationName``. Packaged applications already provide the bundle
+    value and are left unchanged.
 
-    Qt reads that key through ``CFBundleGetValueForInfoDictionaryKey``, which
-    returns whatever the bundle's info dictionary currently holds -- so
-    writing the key before the ``QApplication`` is constructed is enough. A
-    real ``.app`` already ships the right ``CFBundleName`` and is left alone.
-
-    :param name: the name the application menu should carry.
-    :returns: ``True`` when the key was written, ``False`` on every platform
-        and every launch where it was not -- never an exception, because a
-        cosmetic menu title is not worth a failed start.
+    :param name: Application-menu title.
+    :returns: ``True`` if the bundle value was updated; otherwise ``False``.
     """
     if sys.platform != "darwin":
         return False
@@ -182,25 +171,15 @@ def name_the_macos_application_menu(name: str = APPLICATION_NAME) -> bool:
 def name_the_application(name: str = APPLICATION_NAME,
                          organization: str = ORGANIZATION_NAME
                          ) -> Tuple[str, str]:
-    """Name the application to Qt and to macOS, and return what took effect.
+    """Configure the Qt application and organization names.
 
-    CALL THIS BEFORE CONSTRUCTING THE ``QApplication``. Both names are static
-    on ``QCoreApplication``/``QGuiApplication`` and survive construction, and
-    macOS builds its application menu -- "About spaCR", "Preferences…",
-    "Hide spaCR", "Quit spaCR" -- while the Cocoa platform plugin comes up
-    inside that constructor. A name assigned afterwards is a name that menu
-    never saw. Left unset, the name is whatever ``argv[0]`` happened to be:
-    the console script, the script file, or ``PySideApp`` when the argument
-    list is empty.
+    Call this function before constructing ``QApplication`` so the macOS
+    application menu and Qt window-title fallbacks receive the configured
+    name.
 
-    ``applicationDisplayName`` is set as well as ``applicationName``. It is
-    the one Qt shows to people -- window titles fall back to it -- and unlike
-    the other it has no default beyond mirroring ``applicationName``.
-
-    :param name: the application's name.
-    :param organization: the organization name ``QSettings`` keys on.
-    :returns: ``(applicationName, applicationDisplayName)`` as read back, so
-        a caller can assert what actually took rather than assume.
+    :param name: Application and display name.
+    :param organization: Organization name used by ``QSettings``.
+    :returns: Effective ``(applicationName, applicationDisplayName)`` values.
     """
     name_the_macos_application_menu(name)
     try:

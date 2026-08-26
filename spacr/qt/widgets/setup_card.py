@@ -410,13 +410,7 @@ class SetupCard(QWidget):
         return SetupCard._DRESSING
 
     def spaceout(self) -> bool:
-        """Whether this process is wearing the ``spaceout`` dressing.
-
-        Asked of :mod:`spacr.qt.theme` rather than stored, because the mode
-        is process state set once before the application starts and is never
-        a preference -- a card that cached it at construction would be a
-        second place the answer lived.
-        """
+        """Return whether spaceout rendering is enabled for this process."""
         def read():
             dressing = self._dressing()
             return bool(dressing[0]()) if dressing else False
@@ -719,14 +713,10 @@ class SetupCard(QWidget):
         return spectral
 
     def spaceout_hue(self, along: float) -> float:
-        """Where on the wheel the run is at ``along``, 0..1.
+        """Return the animated spaceout hue at a normalised rim position.
 
-        Three terms, and each one is doing a different job: the position
-        along the run spreads a piece of spectrum over its length
-        (:data:`SPACEOUT_RIM_SPREAD`), the card's own frame clock turns that
-        piece (:data:`SPACEOUT_RIM_PERIOD`) -- which is the oscillation --
-        and the palette's drift carries the whole thing round with the rest
-        of the application.
+        :param along: Position along the rim in ``[0, 1]``.
+        :returns: Hue-wheel position in ``[0, 1]``.
         """
         def read():
             dressing = self._dressing()

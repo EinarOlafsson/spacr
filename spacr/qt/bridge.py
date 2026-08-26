@@ -688,22 +688,14 @@ _PARKED_EXIT_HOOK_INSTALLED = False
 
 
 def wait_for_parked_threads(timeout_ms: int = PARKED_EXIT_WAIT_MS) -> int:
-    """Wait for parked threads to finish. Returns how many are still running.
+    """Wait for parked Qt threads within a shared time limit.
 
-    Parking keeps a stubborn thread's wrapper referenced so nothing destroys a
-    running QThread — but only for as long as this module's globals exist.
-    Interpreter shutdown clears them, and the wrapper of a thread that is
-    still inside native code is destroyed right there::
+    Parked threads remain referenced until native work finishes, preventing Qt
+    from destroying a running ``QThread`` during application shutdown.
 
-        QThread: Destroyed while thread 'annotate-page-3' is still running
-        Fatal Python error: Aborted
-
-    Reproduced by choosing Cellpose in the annotator and closing the window
-    while a page was still being outlined. So the wait happens BEFORE the
-    globals go, at ``atexit``, where the thread can still be joined properly.
-
-    :param timeout_ms: total budget shared by every parked thread.
-    :returns: the number still running when the budget ran out.
+    :param timeout_ms: Total waiting time, in milliseconds, shared by all
+        parked threads.
+    :returns: Number of threads still running when the time limit expires.
     """
     deadline = time.monotonic() + max(0, int(timeout_ms)) / 1000.0
     with _PARKED_LOCK:

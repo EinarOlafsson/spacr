@@ -347,14 +347,12 @@ class FoldStrip(QWidget):
 
 def mark_folded_sections(key: str, sections: Iterable[QWidget]
                          ) -> Tuple[str, ...]:
-    """Put module ``key``'s icon on each of these category headings.
+    """Mark settings-section headings with a folded module's icon.
 
-    :param key: the folded module's registry key.
-    :param sections: the ``Section`` widgets holding its settings.
-    :returns: the titles that were actually marked. A section that is not
-        a ``Section``, or a key with no artwork of its own, is skipped --
-        the heading is left as it was rather than given a mark that
-        names nothing.
+    :param key: Folded module registry key.
+    :param sections: Section widgets containing that module's settings.
+    :returns: Titles of sections marked successfully. Invalid sections and
+        modules without artwork are skipped.
     """
     name = _describe(key)[0]
     marked = []
@@ -372,20 +370,12 @@ def mark_folded_sections(key: str, sections: Iterable[QWidget]
 
 def mark_folded_categories(sections: Iterable[QWidget],
                            categories: dict) -> dict:
-    """Mark the host's OWN categories that are a folded module's settings.
+    """Mark host categories associated with folded modules.
 
-    The other shape of the same thing: where a fold's settings were not
-    mounted as extra cards but were already part of the host's form --
-    Measure has written the illumination keys as one of its own
-    categories for as long as it has corrected fields -- the heading to
-    mark is one the host built, and it is found by name.
-
-    :param sections: the host's settings sections.
-    :param categories: ``key -> the category titles that are its own``.
-        Matched case-insensitively, because a heading is drawn uppercased
-        and written mixed-case.
-    :returns: ``key -> the titles marked``, holding only the keys that
-        marked at least one heading.
+    :param sections: Host settings sections.
+    :param categories: Mapping from module key to category titles. Titles are
+        matched case-insensitively.
+    :returns: Mapping from module keys to titles marked successfully.
     """
     by_title = {}
     for section in sections:

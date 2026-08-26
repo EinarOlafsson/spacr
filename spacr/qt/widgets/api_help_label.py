@@ -1,4 +1,4 @@
-"""A label whose hover help carries a module's spaCR API link."""
+"""Labels with hover-accessible links to spaCR API documentation."""
 from __future__ import annotations
 
 from html import escape
@@ -9,26 +9,11 @@ from PySide6.QtWidgets import QLabel, QWidget
 
 
 class ApiHelpLabel(QLabel):
-    """Prose that keeps a documentation link inside its hover help.
+    """Display descriptive text with an API link in its hover help.
 
-    NOTHING IS DRAWN BESIDE THE TEXT. The link is the last line of the
-    sticky popup, which is where every setting's API link already lives —
-    see :func:`spacr.qt.screens.settings_model.format_tooltip`, which
-    builds the same help this label shows. Hovering the prose is the
-    affordance; the help cursor says so.
-
-    The destination is not fixed when the label is built:
-
-    * a workbench whose two tabs speak for two modules repoints it as the
-      tabs change, through :meth:`set_api_app_key`;
-    * a language change repoints it at the translated documentation pages,
-      through :meth:`set_url` — the call the language pass makes on any
-      widget carrying a ``moduleApiAppKey`` property, which this label
-      does — and rebuilds the prose through
-      :meth:`retranslate_dynamic_content`.
-
-    Given no app key there is no module page to reach, so the help is the
-    description alone: an empty link is worse than none.
+    The link follows the active module and interface language. Labels without
+    an application key retain their description but omit the documentation
+    link. Hover content is also exposed through the Qt accessibility tree.
     """
 
     def __init__(self, text: str = "", app_key: str = "",
@@ -46,13 +31,7 @@ class ApiHelpLabel(QLabel):
     # -- what the label speaks for -----------------------------------------
 
     def set_api_app_key(self, app_key: str) -> None:
-        """Point the help at another module's documentation.
-
-        Used by a screen serving more than one module from a single
-        masthead. The property moves with it, so a later language change
-        repoints the help at the module now on screen rather than at the
-        one the masthead was built for.
-        """
+        """Set the module whose API documentation is linked."""
         self._app_key = str(app_key or "")
         self._url_override = ""
         self.setProperty("moduleApiAppKey", self._app_key or None)
@@ -61,30 +40,21 @@ class ApiHelpLabel(QLabel):
     # -- the link ----------------------------------------------------------
 
     def url(self) -> str:
-        """The documentation URL the help currently offers, or ``""``.
-
-        Read back out of the composed help rather than from a field beside
-        it: what the reader can reach is the only honest answer.
-        """
+        """Return the documentation URL in the current hover content."""
         from .hover_tooltip import split_api_link
         return split_api_link(self.help_html())[1]
 
     def set_url(self, url: str) -> None:
-        """Send the help's link to ``url`` without rebuilding the prose."""
+        """Override the documentation URL while preserving the description."""
         self._url_override = str(url or "")
         self._refresh_help()
 
     def help_html(self) -> str:
-        """The rich-text help shown on hover and read by screen readers."""
+        """Return the rich-text help used for hover and accessibility."""
         return str(self.property("apiTooltipHtml") or "")
 
     def retranslate_dynamic_content(self, language: object) -> None:
-        """Rebuild the help — prose, link caption and page — in ``language``.
-
-        Called by :func:`spacr.qt.i18n.retranslate_widget_tree` after it has
-        already repointed the URL, so the language pass and this agree on
-        the destination.
-        """
+        """Rebuild translated hover content and its documentation link."""
         self._language = str(language) if language else None
         self._url_override = ""
         self._refresh_help()

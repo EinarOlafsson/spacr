@@ -54,26 +54,16 @@ def _clone_primary_organelle_values(settings, roles=None):
 
 
 def organelle_slots_beyond_the_count(settings, count=None):
-    """Fill in the keys of slots this dict does not currently declare.
+    """Populate declarable organelle slots without changing the active count.
 
-    WHAT IT IS FOR. A settings panel cannot show a control it never built,
-    so "raising `number_of_organelles` adds slots" is only true if the keys
-    of the slots above the count already exist when the panel is built. This
-    is how the panel gets them: it asks for every slot that CAN be named,
-    builds a control for each, and hides the ones the count does not reach.
+    Extra slot keys allow the settings interface to reveal controls when
+    ``number_of_organelles`` increases. Existing values take precedence.
 
-    THE COUNT IS NOT CHANGED. `number_of_organelles` is left exactly as the
-    module declared it, so the panel opens showing the number of slots the
-    module ships and the extra keys sit behind hidden rows carrying the
-    values they would have had.
-
-    :param settings: a run settings mapping. Copied, not modified.
-    :param count: how many slots to fill in, defaulting to every slot that
-        can be named. Clamped to :data:`MAX_ORGANELLES` by
-        :func:`spacr.organelle_types.organelle_roles`' own bound.
-    :returns: a new dict. Unchanged when the mapping has no organelle slots
-        at all -- most modules do not, and inventing fifty-three organelle
-        keys on a regression panel would be worse than useless.
+    :param settings: Run-settings mapping; copied rather than modified.
+    :param count: Number of slots to populate. ``None`` populates all roles,
+        bounded by :data:`spacr.organelle_types.MAX_ORGANELLES`.
+    :returns: New settings dictionary. Mappings without organelle settings
+        are returned unchanged.
     """
     from .organelle_types import MAX_ORGANELLES, organelle_roles
 

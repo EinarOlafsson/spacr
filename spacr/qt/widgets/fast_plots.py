@@ -5745,17 +5745,12 @@ class FastPlot(QWidget):
     def raster_pixels(self, source_width: float, source_height: float,
                       width_mm: Optional[float] = None,
                       height_mm: Optional[float] = None) -> tuple:
-        """``(width, height)`` in PIXELS for a raster export of this plot.
+        """Return raster-export dimensions as ``(width, height)`` pixels.
 
-        THE RESOLUTION DECIDES THE COUNT AND THE SHAPE DECIDES THE
-        PROPORTION. A page is measured in millimetres, so the pixels across
-        are ``page width in inches x dpi`` -- 180 mm at 300 dpi is 2126, and
-        the same figure at 600 dpi is 4252. That is what a journal asking for
-        300 dpi is asking about, so the resolution wins: the canvas shape
-        then says how tall the result is, and never how wide.
-
-        With no resolution set the scene's own pixel size is kept, which is
-        what every export did before a resolution could be chosen.
+        When export DPI is configured, width is derived from the page width;
+        otherwise, source pixel width is retained. Height follows the selected
+        canvas ratio, explicit page ratio, or source aspect ratio, in that
+        order.
         """
         source_width = max(1.0, float(source_width))
         source_height = max(1.0, float(source_height))
@@ -8743,6 +8738,4 @@ class ResultsTable(QWidget):
         if clipboard is not None:
             clipboard.setText(text)
         return text
-
-
 

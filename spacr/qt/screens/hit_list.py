@@ -656,21 +656,14 @@ def _number(value: Any) -> str:
 # ---------------------------------------------------------------------------
 
 def connect_investigation(screen, host) -> bool:
-    """Point ``screen``'s "Investigate selected…" at its workbench.
+    """Connect a hit list's investigation request to its host workbench.
 
-    ``host`` is whatever holds ``_on_investigate_hit_requested`` -- the main
-    window. A hit list built without it emits the selected result into
-    nothing, so the button reads as broken rather than as unwired, and EVERY
-    construction site has to go through here: this screen is now a tab on the
-    regression results panel and a window off that masthead, neither of which
-    is built by a registry factory that could have done the wiring once.
+    Repeated calls do not create duplicate signal connections.
 
-    Idempotent. Connecting the same bound method twice would open two
-    workbenches on one press.
-
-    :param screen: a :class:`HitListScreen`, or None.
-    :param host: the window carrying the handler, or None.
-    :returns: True when this call made the connection.
+    :param screen: :class:`HitListScreen` instance, or ``None``.
+    :param host: Object providing ``_on_investigate_hit_requested``, or
+        ``None``.
+    :returns: ``True`` if a new connection was made.
     """
     handler = getattr(host, "_on_investigate_hit_requested", None)
     if screen is None or not callable(handler):

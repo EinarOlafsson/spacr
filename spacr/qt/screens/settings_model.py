@@ -3832,6 +3832,7 @@ _APP_API_MODULE = {
     # with. Instruction 131; the answer is pure pandas in `cell_montage` and
     # the tab only loads what it names.
     "cell_montage": "cell_montage",
+    "feature_dict": "feature_dict",
     # THE FOLDED MODULES. These three reached this table through
     # ``register_app(..., api_module=...)`` -- the push half of the seam
     # absorbed below -- so folding them into a host screen and dropping
@@ -4144,28 +4145,11 @@ _TRANSLATION_MEMO: Optional[Dict[Any, Any]] = None
 
 @contextmanager
 def language_resolved_once():
-    """Ask what the UI language is once, for one synchronous build.
+    """Cache language and translation lookups during one synchronous build.
 
-    ``_language_code`` answers a question whose answer is a persisted
-    preference: it reaches ``QSettings``, reads a key and normalizes it.
-    That is cheap once and ruinous in bulk, and it is asked in bulk --
-    building the Mask panel called it 15,491 times for 1,538 settings,
-    roughly ten times per row, because every tooltip resolves its body, its
-    type hint, its name and its documentation URL and each of those asks
-    again. Measured on that build it cost 0.29 s, of which 0.18 s was
-    constructing a ``QSettings`` 3,516 times.
-
-    The cache is scoped rather than permanent BECAUSE THE ANSWER CHANGES.
-    A user picking a new language in Preferences must see the next tooltip
-    rendered in it, and a module-level cache with no invalidation would
-    freeze the UI in whatever language the first panel happened to be built
-    in -- the exact bug this codebase has hit with the field-fade
-    preference. Inside one synchronous build nothing can change the
-    preference, so the answer provably cannot go stale; outside a scope
-    every call reads the store exactly as it always did.
-
-    Re-entrant: nested scopes share the outermost one's cache and only the
-    outermost drops it.
+    Nested scopes share the outermost cache. The cache is discarded when the
+    outermost scope exits so subsequent builds observe language or catalog
+    changes.
     """
     global _LANGUAGE_SCOPE, _LANGUAGE_SCOPE_DEPTH, _TRANSLATION_MEMO
     if _LANGUAGE_SCOPE is None:
@@ -9235,15 +9219,10 @@ class SettingsWidgets:
         return current
 
     def keys_whose_object_the_run_lacks(self) -> set:
-        """The gated keys as the rule sees them right now.
+        """Return setting keys excluded by the current object configuration.
 
-        The same question :meth:`refresh_object_visibility` answers before it
-        moves anything, asked on its own so the screen can put it to the rule
-        BEFORE it draws a row rather than after. A row the rule was always
-        going to hide is a row worth not building: on Mask that is 1,461 of
-        the panel's 1,538.
-
-        :returns: setting keys, empty when the rule cannot be decided.
+        :returns: Hidden setting keys, or an empty set if visibility cannot
+            be determined.
         """
         try:
             return set(keys_hidden_by_their_object(
@@ -9254,17 +9233,11 @@ class SettingsWidgets:
             return set()
 
     def remember_section_rows(self, section, keys, has_children: bool) -> None:
-        """Record which settings a heading shows, and whether it nests.
+        """Record the settings and nesting state associated with a section.
 
-        ASKED OF THE PANEL, WHICH DECIDED IT. :meth:`_slot_headings` needs the
-        same two facts and used to recover them from the rendered form: a walk
-        of every row plus a ``findChildren`` per heading to find out whether
-        anything nested inside it, on the panel that has a hundred and five of
-        them. The panel knew both before it drew anything.
-
-        :param section: the heading widget.
-        :param keys: its own settings, in the order they are declared.
-        :param has_children: whether sub-headings nest inside it.
+        :param section: Section-heading widget.
+        :param keys: Settings declared directly in the section, in order.
+        :param has_children: Whether the section contains nested headings.
         """
         declared = getattr(self, "_section_rows", None)
         if declared is None:
@@ -9323,19 +9296,10 @@ class SettingsWidgets:
                          exc_info=True)
 
     def keys_hidden_by_the_run(self) -> List[str]:
-        """The settings this run has no object for, as of the last pass.
+        """Return settings hidden by the latest object-visibility pass.
 
-        THE SEAM FOR ANYTHING THAT DECIDES ROW VISIBILITY FOR ITS OWN
-        REASON. The settings-search strip shows every row it indexed when
-        nothing is narrowing -- switching it to "All settings" is exactly
-        that -- and a filter that means "all the settings this module has"
-        should not resurrect the forty rows belonging to an object the run
-        does not segment. Subtracting this set says what is really being
-        shown; without it the count line promises rows the panel then takes
-        straight back.
-
-        :returns: keys in no particular order. Empty before the first pass
-            and on a model built with no parent, which has no rows to hide.
+        :returns: Hidden keys in no guaranteed order. The result is empty
+            before visibility is evaluated or when the model has no rows.
         """
         return list(getattr(self, "_hidden_by_the_run", ()) or ())
 

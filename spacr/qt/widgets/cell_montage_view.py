@@ -3067,14 +3067,9 @@ class CellMontageView(QWidget):
                                        settings=self.picture_settings())
 
     def annotate_the_cells(self, *_args):
-        """Bring the Annotate tab forward, pointed at what is on screen.
+        """Open annotation strategies for the cells in the current montage.
 
-        A tab rather than a window: the strategies choose from the rows on
-        screen, in the wells the coefficient named, and a window would put
-        the choice somewhere the montage that produced it is not.
-
-        :returns: the strategy panel, built on this call if it was not
-            already.
+        :returns: The annotation-strategy panel, constructed on first use.
         """
         # BUILT BEFORE THE TAB IS RAISED, so the hundred widgets go into a
         # page Qt is not in the middle of showing.

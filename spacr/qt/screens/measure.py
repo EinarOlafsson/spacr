@@ -163,14 +163,10 @@ BUILDERS: Dict[str, Callable[[Optional[QWidget]], QWidget]] = {
 
 
 def mark_fold_sources(screen: QWidget) -> Dict[str, Tuple[str, ...]]:
-    """Put each folded module's icon beside the headings that are its own.
+    """Mark Measure categories with their folded module icons.
 
-    Never fatal: a heading with no mark is a heading, while an exception
-    raised while a screen is being built is no screen.
-
-    :param screen: the host module's screen.
-    :returns: ``key -> the category titles marked``, for the folds that
-        marked at least one.
+    :param screen: Host module screen.
+    :returns: Mapping from folded application keys to marked category titles.
     """
     if getattr(screen, "app_key", None) != HOST_KEY:
         return {}

@@ -695,20 +695,16 @@ def _annotate(panels, frame, x, y, significant, style):
 
 
 def page_ground(style: VolcanoStyle, *, screen: bool = False):
-    """The colour to paint behind this render, or ``None`` for "leave it".
+    """Resolve the background colour for a volcano-plot render.
 
-    THE ONE PLACE THE TWO GROUNDS ARE TOLD APART.
+    An explicit ``background_color`` applies to screen and file output. If it
+    is unset, screen rendering uses ``screen_background`` and file rendering
+    preserves the figure's existing transparency.
 
-    * a ``background_color`` the user actually named wins everywhere, on
-      screen and in a file, because they said what they wanted;
-    * otherwise a screen render takes ``screen_background``, which ships
-      white so a publication-black volcano can be read;
-    * otherwise nothing is painted at all, which leaves an exported figure
-      exactly as transparent as the global figure default makes it.
-
-    ``None`` rather than ``"none"``: the caller must be able to tell "paint
-    this transparent" from "do not touch the ground", and only the second
-    leaves a live canvas showing the panel it sits on.
+    :param style: Volcano-plot style settings.
+    :param screen: Resolve for interactive screen display.
+    :returns: A matplotlib colour value, or ``None`` to preserve the current
+        figure background.
     """
     named = str(style.background_color or "none").strip()
     if named and named.lower() != "none":
@@ -867,22 +863,12 @@ def _is_a_colour(value) -> bool:
 
 
 def validate_style(results: pd.DataFrame, style: VolcanoStyle) -> dict:
-    """Every setting this plot cannot use, mapped to why, in field order.
+    """Validate volcano-plot style fields without stopping at the first error.
 
-    WHAT THIS IS FOR. A volcano is read while it is being restyled, and one
-    mistyped colour used to replace the whole figure with the words "cannot
-    draw this plot" -- taking away the picture the reader was looking at
-    over a single bad field, and saying nothing about WHICH field. Naming
-    the offending settings instead lets the caller keep drawing (with the
-    last value that worked) and point at the control that caused it.
-
-    MORE THAN ONE THING CAN BE WRONG AT ONCE, so this returns a mapping and
-    never stops at the first fault: a design that can hold one message
-    silently drops the second.
-
-    :returns: ``{field name: one sentence}``. Empty when the style is
-        drawable, which is the common case and costs one pass over a
-        handful of strings.
+    :param results: Results table used to validate referenced column names.
+    :param style: Style configuration to validate.
+    :returns: Mapping from invalid field names to explanatory messages. An
+        empty mapping indicates that the style can be rendered.
     """
     import matplotlib as mpl
 
@@ -892,16 +878,16 @@ def validate_style(results: pd.DataFrame, style: VolcanoStyle) -> dict:
         value = getattr(style, name, None)
         if value is None or value == "":
             if required:
-                problems[name] = "no column is chosen."
+                problems[name] = "Select a results column."
             continue
         if columns and value not in columns:
             problems[name] = (
-                f"{value!r} is not a column of the results "
+                f"{value!r} is not present in the results columns "
                 f"({', '.join(sorted(columns)[:6])}...).")
     for name in _COLOUR_SETTINGS:
         value = getattr(style, name, None)
         if not _is_a_colour(value):
-            problems[name] = f"{value!r} is not a colour matplotlib knows."
+            problems[name] = f"{value!r} is not a valid matplotlib colour."
     if str(style.colormap) not in mpl.colormaps:
         problems["colormap"] = f"{style.colormap!r} is not a colormap."
     if str(style.marker) not in {code for code, _ in MARKER_SHAPES}:

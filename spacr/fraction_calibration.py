@@ -362,28 +362,22 @@ def compare_normalisations(counts: pd.DataFrame,
                            wells: Sequence[str], *,
                            threshold: float = 0.02,
                            **kwargs: Any) -> Dict[str, Any]:
-    """Fit the same control wells against raw and normalised fractions.
+    """Compare calibration fits using raw and normalised guide fractions.
 
-    :param counts: the control wells' read counts, one row per gRNA per well.
-    :param features: ``(n_cells, n_features)`` over those same wells.
-    :param wells: one well label per cell.
-    :param threshold: the single cut-off both fits are computed under, so the
-        two differ only in the fraction definition.
-    :param kwargs: passed to :func:`sweep_fraction_threshold`; ``normalise``
-        and ``candidates`` are set here and are refused from the caller.
-    :returns: both fits, their slope ratio, and a reading of it.
+    Both fits use the same control wells and threshold. The comparison
+    therefore isolates the effect of guide-fraction normalisation. Individual
+    slopes combine penetrance and fraction bias and should not be interpreted
+    as absolute calibrations; their ratio cancels the shared penetrance term.
 
-    NEITHER SLOPE IS INTERPRETABLE ON ITS OWN. Each is penetrance times
-    fraction bias, and one positive control cannot separate the two.
-    Penetrance is a property of the guide and does not change when the
-    fraction definition does, so it cancels in the RATIO of the two slopes --
-    which is why the comparison is reported as a ratio and never as two
-    absolute calibrations.
-
-    A ratio of one means the two definitions calibrate identically over these
-    wells, which happens when the threshold removed nothing. Away from one,
-    ``more_consistent`` names the definition whose two measurements agree more
-    closely, by the same median absolute disagreement the sweep chooses on.
+    :param counts: Control-well read counts, with one row per gRNA and well.
+    :param features: Feature matrix of shape ``(n_cells, n_features)`` for the
+        same wells.
+    :param wells: One well identifier per cell.
+    :param threshold: Feature threshold used in both fits.
+    :param kwargs: Additional arguments for :func:`sweep_fraction_threshold`.
+        ``normalise`` and ``candidates`` are controlled by this function.
+    :returns: The raw and normalised fits, their slope ratio, and the
+        normalisation with the smaller median absolute disagreement.
     """
     if "normalise" in kwargs or "candidates" in kwargs:
         raise ValueError(
