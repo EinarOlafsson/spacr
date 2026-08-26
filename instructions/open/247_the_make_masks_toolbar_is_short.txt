@@ -2,14 +2,16 @@
 MAKE MASKS: THE TOOLS THAT ARE MISSING, AND THE ROW THEY BELONG IN
 ================================================================================
 
-Status:    BUILT, with two defects outside this module still open.
-           Requested 2026-08-25.
-           Draw, divide, Cellpose-SAM with its probability and flow panes,
-           the one tool row and the settings toggle are in and tested.
-           Every control on the settings panel now has a default, a type,
-           help and a place -- see section 6. What is left is section 7:
-           two defects in files this instruction does not own, and the
-           recrop decision below.
+Status:    OPEN on one DECISION, not on any code. Draw, divide,
+           Cellpose-SAM with its probability and flow panes, the one tool
+           row and the settings toggle are in and tested, and every
+           control on the settings panel has a default, a type, help and a
+           place. Section 7's two defects are both fixed: the bare 2-D
+           branch in `parse_cellpose4_output`, and the pre-import in
+           `bridge.make_thread` that stops a worker's first
+           `matplotlib.pyplot` import from segfaulting the process.
+           What is left is the recrop question at the foot, which is the
+           maintainer's to answer rather than work to do.
 Owner:     spacr/qt/screens/make_masks.py, and spacr/spacr_cellpose.py /
            spacr/object.py for the Cellpose settings it has to offer.
 

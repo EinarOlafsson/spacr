@@ -23,12 +23,13 @@ button itself. like it works for the modules on the main screen."
 THE SETTINGS PANEL, AND THE FIGURE EXPORT
 ================================================================================
 
-Status:    OPEN on one: the montage cap's number, which needs three
-           constants moved together or not at all. The terms of use --
-           the length, the reading gate and the three data-use clauses --
-           and the animation question under theme are done, along with
-           the tabbed settings window and the two percentile fields, and
-           all of them are recorded below.
+Status:    DONE. The montage cap is 2,000, and it is ONE constant rather
+           than three kept in step: `cell_montage.MAX_OBJECTS`, which the
+           panel imports for its own default rather than repeating. The
+           measurement behind the number is recorded in
+           `picture_settings.MEASURED_PAGE_SIZES`, `MEASURED_CROP_BYTES`
+           and `MEASURED_MS_PER_CROP`, and `montage_cap_cost()` turns them
+           into the sentence the control carries as a cap is typed.
 Owner:     spacr/qt -- setup slides, terms, preferences, the picture settings
            dialog, the figure save dialog; spacr/ml.py for the intercept.
 
